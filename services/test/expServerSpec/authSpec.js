@@ -5,6 +5,7 @@ describe('ExpServer Auth Test', function() {
     var expServer = require(__dirname + '/../../expServer/expServer.js');
     var auth = require(__dirname + '/../../expServer/route/auth.js');
     var support = require(__dirname + '/../../expServer/expServerSupport.js');
+    var cfgFile = __dirname + '/../config/test.cfg';
     var jwt = require('jsonwebtoken');
     var fs = require('fs');
     var rsaPemToJwk = require('rsa-pem-to-jwk');
@@ -55,6 +56,9 @@ describe('ExpServer Auth Test', function() {
         return jQuery.Deferred().reject(retMsg).promise();
     }
 
+    function dummyBootstrapXlrRoot() {
+        expServer.xlrRoot = '/tmp';
+    }
 
     /* key gen commands:
        openssl genrsa -out privateKey1.pem 2048
@@ -123,6 +127,17 @@ describe('ExpServer Auth Test', function() {
         certArray2 = certArray1.keys;
 
         certArray3 = null;
+
+        expServer.fakeBootstrapXlrRoot(dummyBootstrapXlrRoot);
+        support.setDefaultHostsFile(cfgFile);
+        support.checkAuthTrue(support.userTrue);
+        support.checkAuthAdminTrue(support.adminTrue);
+    });
+
+    after(function() {
+        expServer.fakeBootstrapXlrRoot(expServer.bootstrapXlrRoot);
+        support.checkAuthTrue(support.checkAuthImpl);
+        support.checkAuthAdminTrue(support.checkAuthAdminImpl);
     });
 
     it("getUrl should work", function(done) {

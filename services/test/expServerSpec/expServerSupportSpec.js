@@ -4,6 +4,7 @@ describe('ExpServer Support Test', function() {
     var expServer = require(__dirname + '/../../expServer/expServer.js');
 
     var support = require(__dirname + '/../../expServer/expServerSupport.js');
+    var cfgDir = __dirname + '/../config';
     var testHostsFile;
     var testHosts;
     var testAction;
@@ -15,6 +16,7 @@ describe('ExpServer Support Test', function() {
     var defaultXcalarDir;
     var testDir;
     this.timeout(10000);
+
     // Test begins
     before(function() {
         testDir = __dirname + "/..";
@@ -50,6 +52,14 @@ describe('ExpServer Support Test', function() {
         testStopCommand = defaultXcalarDir + "/bin/xcalarctl stop";
         testStartData = "xcmgmtd started";
         testStopData = "Stopped Xcalar";
+        support.setDefaultHostsFile(__dirname + "/../config/test.cfg");
+        support.checkAuthTrue(support.userTrue);
+        support.checkAuthAdminTrue(support.adminTrue);
+    });
+
+    after(function() {
+        support.checkAuthTrue(support.checkAuthImpl);
+        support.checkAuthAdminTrue(support.checkAuthAdminImpl);
     });
 
     it('executeCommand should work', function(done) {
@@ -235,6 +245,11 @@ describe('ExpServer Support Test', function() {
     });
 
     it('getLicense should work', function(done) {
+        var oldFunc = support.getXlrRoot;
+        var fakeFunc = function() {
+            return jQuery.Deferred().resolve(cfgDir).promise();
+        };
+        support.fakeGetXlrRoot(fakeFunc);
         support.getLicense()
         .then(function(ret) {
             expect(ret.status).to.equal(200);
@@ -242,6 +257,9 @@ describe('ExpServer Support Test', function() {
         })
         .fail(function() {
             done("fail");
+        })
+        .always(function() {
+            support.fakeGetXlrRoot(oldFunc);
         });
     });
 
@@ -255,6 +273,8 @@ describe('ExpServer Support Test', function() {
     });
 
     it('getMatchedHosts should work', function(done) {
+        console.log("XCE_CONFIG: " + process.env.XCE_CONFIG);
+        console.log("defaultHostsFile: " + support.defaultHostsFile);
         support.getMatchedHosts({hostnamePattern: ".*"})
         .then(function(ret) {
             expect(ret.status).to.equal(200);

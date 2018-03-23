@@ -6,6 +6,7 @@ describe('ExpServer Extension Test', function() {
     var expServer = require(__dirname + '/../../expServer/expServer.js');
 
     var extension = require(__dirname + '/../../expServer/route/extension.js');
+    var support = require(__dirname + '/../../expServer/expServerSupport.js');
     var testTargz;
     var testName;
     var testVersion;
@@ -35,6 +36,14 @@ describe('ExpServer Extension Test', function() {
         emptyPromise = function() {
             return jQuery.Deferred().resolve().promise();
         }
+
+        support.checkAuthTrue(support.userTrue);
+        support.checkAuthAdminTrue(support.adminTrue);
+    });
+
+    after(function() {
+        support.checkAuthTrue(support.checkAuthImpl);
+        support.checkAuthAdminTrue(support.checkAuthAdminImpl);
     });
 
     it("extension.writeTarGz should fail when error", function(done) {

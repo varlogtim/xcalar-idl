@@ -35,7 +35,7 @@ describe("sqlRestApi Test", function() {
     });
 
     describe("Functional Test", function() {
-        it("Should load dataset and run query", function(done) {
+        it.skip("Should load dataset and run query", function(done) {
             var publishName;
             sql.sqlLoad(path)
             .then(function(struct) {
@@ -69,7 +69,7 @@ describe("sqlRestApi Test", function() {
             });
         });
 
-        it("Should list all published tables", function(done) {
+        it.skip("Should list all published tables", function(done) {
             sql.listPublishTables("sqltest")
             .then(function(res) {
                 expect(res).to.deep.equal([]);

@@ -15,6 +15,8 @@ var jwkToPem = require('jwk-to-pem');
 var NodeCache = require( "node-cache" );
 var jwt = require('jsonwebtoken');
 var httpStatus = require('../../../assets/js/httpStatus.js').httpStatus;
+var xcConsole = require('../expServerXcConsole.js').xcConsole;
+var support = require('../expServerSupport.js');
 var msKeyCache = new NodeCache( { stdTTL:86400, checkperiod: 21600 } );
 var msAzureCE2Url = 'https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration';
 var msAzureB2CUrl = 'https://login.microsoftonline.com/fabrikamb2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=b2c_1_sign_in';
@@ -61,52 +63,52 @@ function getKeys(outKid) {
     var msAzureUrl = (b2cEnabled) ? msAzureB2CUrl : msAzureCE2Url;
 
     getUrl(msAzureUrl)
-        .then(function(urlData) {
-            if (urlData.data.jwks_uri) {
-                return(getUrl(urlData.data.jwks_uri));
+    .then(function(urlData) {
+        if (urlData.data.jwks_uri) {
+            return(getUrl(urlData.data.jwks_uri));
+        }
+        urlData.status = false;
+        return(getError(urlData));
+    }, function(data) {
+        return(getError(data));
+    })
+    .then(function(urlData) {
+        if (urlData.data !== null && urlData.data.hasOwnProperty('keys')) {
+            for (var i = 0; i < urlData.data.keys.length; i++) {
+                var b = new Buffer(jwkToPem(urlData.data.keys[i]));
+                msKeyCache.set(urlData.data.keys[i].kid, b);
+                if (urlData.data.keys[i].kid === outKid) {
+                    xcConsole.log("found key for key id: " + outKid);
+                    retMsg = { status: true, data: b, message: 'success' };
+                }
             }
-            urlData.status = false;
-            return(getError(urlData));
-        }, function(data) {
-            return(getError(data));
-        })
-        .then(function(urlData) {
-            if (urlData.data !== null && urlData.data.hasOwnProperty('keys')) {
-                for (var i = 0; i < urlData.data.keys.length; i++) {
-                    var b = new Buffer(jwkToPem(urlData.data.keys[i]));
-                    msKeyCache.set(urlData.data.keys[i].kid, b);
-                    if (urlData.data.keys[i].kid === outKid) {
-                        xcConsole.log("found key for key id: " + outKid);
-                        retMsg = { status: true, data: b, message: 'success' };
-                    }
-                }
-                if (retMsg.status) {
-                    deferred.resolve(retMsg);
-                    return;
-                }
+            if (retMsg.status) {
+                deferred.resolve(retMsg);
+                return;
+            }
 
-                retMsg = { status: false,
-                           data: urlData.data,
-                           message: 'Key not present in returned keys'};
-                deferred.reject(retMsg);
-            } else if (urlData.data !== null) {
-                retMsg = { status: false,
-                           data: urlData.data,
-                           message: 'Keys not found in retrieved for url: ' + urlData.url };
-                if (urlData.error) {
-                    retMsg.message += ' Error: ' + urlData.error.message;
-                }
-                deferred.reject(retMsg);
-            } else {
-                retMsg = { status: false,
-                           data: null,
-                           message: 'Key retrieval error for url: ' + urlData.url };
-                if (urlData.error) {
-                    retMsg.message += ' Error: ' + urlData.error.message;
-                }
-                deferred.reject(retMsg);
+            retMsg = { status: false,
+                       data: urlData.data,
+                       message: 'Key not present in returned keys'};
+        } else if (urlData.data !== null) {
+            retMsg = { status: false,
+                       data: urlData.data,
+                       message: 'Keys not found in retrieved for url: ' + urlData.url };
+            if (urlData.error) {
+                retMsg.message += ' Error: ' + urlData.error.message;
             }
-        });
+        } else {
+            retMsg = { status: false,
+                       data: null,
+                       message: 'Key retrieval error for url: ' + urlData.url };
+            if (urlData.error) {
+                retMsg.message += ' Error: ' + urlData.error.message;
+            }
+        }
+
+        deferred.reject(retMsg);
+        return;
+    });
 
     return deferred.promise();
 }
@@ -129,7 +131,7 @@ function retrieveKey(kid) {
         deferred.resolve(retMsg);
     });
 
-   return deferred.promise();
+    return deferred.promise();
 }
 
 function processToken(idToken) {
@@ -187,6 +189,10 @@ router.post('/auth/azureIdToken', function(req, res) {
 
     processToken(idToken)
     .always(function(msg) {
+        if (msg.status) {
+            req.session.loggedIn = user;
+            req.session.loggedInAdmin = admin;
+        }
         retMsg = { status: (msg.status) ? httpStatus.OK : httpStatus.Unauthorized,
                    data: msg.data,
                    success: msg.status,
@@ -215,6 +221,113 @@ if (process.env.NODE_ENV === "test") {
     exports.fakeGetUrl = fakeGetUrl;
     exports.fakeRetrieveKey = fakeRetrieveKey;
 }
+router.get('/auth/sessionStatus', function(req, res) {
+    var message = { user: false,
+                    admin: false,
+                    loggedIn: false,
+                    emailAddress: null,
+                    firstName: null };
+    var expirationDate = (new Date(req.session.cookie.expires)).getTime();
+    var now = (new Date).getTime();
+
+    if (req.session.hasOwnProperty('loggedIn') &&
+        req.session.hasOwnProperty('loggedInAdmin') &&
+        req.session.hasOwnProperty('loggedInUser') &&
+        req.session.hasOwnProperty('firstName') &&
+        req.session.hasOwnProperty('emailAddress')) {
+
+        message = {
+            user: req.session.loggedInUser,
+            admin: req.session.loggedInAdmin,
+            loggedIn: req.session.loggedIn &&
+                (now <= expirationDate),
+            emailAddress: req.session.emailAddress,
+            firstName: req.session.firstName
+        }
+    }
+
+    res.status(httpStatus.OK).send(message);
+});
+
+router.post('/auth/setCredential',
+            [support.checkAuth], function(req, res) {
+    var message = {valid: false, status: httpStatus.BadRequest};
+
+    if (req.body.hasOwnProperty('key') &&
+        req.body.hasOwnProperty('data')) {
+
+        if (! req.session.credentials) {
+            req.session.credentials = {};
+        }
+
+        req.session.credentials[req.body.key] = req.body.data;
+        message['valid'] = true;
+        message['status'] = httpStatus.OK;
+    }
+
+    res.status(message.status).send(message);
+});
+
+router.post('/auth/getCredential',
+           [support.checkAuth], function(req, res) {
+    var message = { valid: false, status: httpStatus.BadRequest, data: null };
+
+    if (req.body.hasOwnProperty('key')) {
+        message['valid'] = true;
+
+        if (req.session.credentials &&
+            req.session.credentials[req.body.key]) {
+            message['status'] = httpStatus.OK;
+
+            message['data'] = req.session.credentials[req.body.key];
+        }
+    }
+
+    res.status(message.status).send(message);
+});
+
+router.post('/auth/delCredential',
+           [support.checkAuth], function(req, res) {
+    var message = { valid: false, status: httpStatus.BadRequest };
+
+    if (req.body.hasOwnProperty('key')) {
+        message['valid'] = true;
+
+        if (req.session.credentials &&
+            req.session.credentials[req.body.key]) {
+            delete req.session.credentials[req.body.key];
+
+            message['status'] = httpStatus.OK;
+        }
+    }
+
+    res.status(message.status).send(message);
+});
+
+router.get('/auth/clearCredentials',
+           [support.checkAuth], function(req, res) {
+    var message = { valid: true, status: httpStatus.BadRequest };
+
+    if (req.session.credentials) {
+        req.session.credentials = {};
+
+        message['status'] = httpStatus.OK;
+    }
+
+    res.status(message.status).send(message);
+});
+
+router.get('/auth/listCredentialKeys',
+           [support.checkAuth], function(req, res) {
+    var message = { valid: true, status: httpStatus.BadRequest, data: []};
+
+    if (req.session.credentials) {
+        message['status'] = httpStatus.OK;
+        message['data'] = Object.keys(req.session.credentials);
+    }
+
+    res.status(message.status).send(message);
+});
 
 exports.router = router;
 exports.enableB2C = enableB2C;

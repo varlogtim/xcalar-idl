@@ -4,6 +4,7 @@ describe('ExpServer Login Test', function() {
     const path = require('path');
     const fs = require('fs');
     const ldap = require('ldapjs');
+    const request = require('request');
     var expServer = require(__dirname + '/../../expServer/expServer.js');
     this.timeout(5000);
 
@@ -11,20 +12,29 @@ describe('ExpServer Login Test', function() {
 
     var login = require(__dirname + '/../../expServer/route/login.js');
     var support = require(__dirname + '/../../expServer/expServerSupport.js');
+    var expServer = require(__dirname + '/../../expServer/expServer.js');
+    var httpStatus = require(__dirname + "/../../../assets/js/httpStatus.js").httpStatus;
 
-    function postRequest(action, url, str) {
+    function postRequest(action, url, str, jar) {
         var deferred = jQuery.Deferred();
-        jQuery.ajax({
-            "type": action,
-            "data": JSON.stringify(str),
-            "contentType": "application/json",
-            "url": "http://localhost:12125" + url,
-            "async": true,
-            success: function(data) {
-                deferred.resolve(data);
-            },
-            error: function(error) {
-                deferred.reject(error);
+        // this ensures that returned JSON is parsed
+        if (!str) {
+            str = {};
+        }
+        var options = {
+            "method": action,
+            "uri": "http://localhost:12125" + url,
+            "json": str
+        };
+        if (jar) {
+            options['jar'] = jar;
+        }
+
+        request(options, function(error, response, body) {
+            if (response.statusCode === httpStatus.OK) {
+                deferred.resolve(response);
+            } else {
+                deferred.reject(response);
             }
         });
         return deferred.promise();
@@ -46,6 +56,7 @@ describe('ExpServer Login Test', function() {
     var oldRoot;
     var fakeRoot;
     var emptyPromise;
+    var setCredentialTrue = { 'valid': true, 'status': httpStatus.OK };
 
     // Test begins
     before(function() {
@@ -109,7 +120,7 @@ describe('ExpServer Login Test', function() {
         };
         emptyPromise = function() {
             return jQuery.Deferred().resolve().promise();
-        }
+        };
         ldapEmptyPromise = function(credArray, ldapConn, ldapConfig, currLoginId) {
             ldapConn.client = ldap.createClient({
                 url: testLdapConn.client_url,
@@ -128,6 +139,14 @@ describe('ExpServer Login Test', function() {
             }
             else return jQuery.Deferred().resolve(msg).promise();
         };
+
+        support.checkAuthTrue(support.userTrue);
+        support.checkAuthAdminTrue(support.adminTrue);
+    });
+
+    after(function() {
+        support.checkAuthTrue(support.checkAuthImpl);
+        support.checkAuthAdminTrue(support.checkAuthAdminImpl);
     });
 
     it("login.setupLdapConfigs should work", function(done) {
@@ -145,9 +164,9 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    it("login.setupLdapConfigs should fail when error", function(done) {
+    it("login.setupLdapConfigs should fail when getXlrRoot fails", function(done) {
         var fakeFunc = function() {
-            return jQuery.Deferred().reject("testError").promise();
+            return jQuery.Deferred().reject("TestError").promise();
         };
         login.fakeGetXlrRoot(fakeFunc);
         login.setupLdapConfigs(true)
@@ -155,13 +174,32 @@ describe('ExpServer Login Test', function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error).to.have.string("setupLdapConfigs fails");
+            expect(error).to.have.string("setupLdapConfigs fails TestError");
             done();
         })
         .always(function() {
             support.fakeGetXlrRoot(oldRoot);
         });
     });
+
+    it("login.setupLdapConfigs should fail when XlrRoot is bad", function(done) {
+        var fakeFunc = function() {
+            return jQuery.Deferred().resolve("/never/nopath").promise();
+        };
+        login.fakeGetXlrRoot(fakeFunc);
+        login.setupLdapConfigs(true)
+        .then(function() {
+            done("fail");
+        })
+        .fail(function(error) {
+            expect(error).to.have.string("setupLdapConfigs fails config file path does not exist:");
+            done();
+        })
+        .always(function() {
+            support.fakeGetXlrRoot(oldRoot);
+        });
+    });
+
 
     it('login.setLdapConnection should work', function(done) {
         login.setLdapConnection(testCredArray, testLdapConn, testConfig, testLoginId)
@@ -266,7 +304,7 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    it('login.ldapAuthentication with AD should work', function(done) {
+    it('login.ldapAuthentication with AD subgroup search should work', function(done) {
         login.setLdapConnection(testCredArray2, testLdapConn3, testConfig3, testLoginId3)
         .then(function(ret) {
             expect(ret).to.equal("setLdapConnection succeeds");
@@ -354,7 +392,7 @@ describe('ExpServer Login Test', function() {
 
         var expectedRetMsg = {
             "status": 200,
-            "firstName ": "sp1_first",
+            "firstName": "sp1_first",
             "isAdmin": true,
             "isSupporter": false,
             "isValid": true,
@@ -363,7 +401,7 @@ describe('ExpServer Login Test', function() {
         };
         postRequest("POST", "/login", testCredArray)
         .then(function(ret) {
-            expect(ret).to.deep.equal(expectedRetMsg);
+            expect(ret.body).to.deep.equal(expectedRetMsg);
             done();
         })
         .fail(function() {
@@ -371,6 +409,289 @@ describe('ExpServer Login Test', function() {
         });
     });
 
+    it('Router should work with login and logout action', function(done) {
+        testCredArray = {
+            xiusername: "sPerson1@gmail.com",
+            xipassword: "Welcome1"
+        };
+        login.fakeGetXlrRoot(fakeRoot);
+
+        var expectedRetMsg = {
+            "status": 200,
+            "firstName": "sp1_first",
+            "isAdmin": true,
+            "isSupporter": false,
+            "isValid": true,
+            "mail": "sPerson1@gmail.com",
+            "xiusername": "sPerson1@gmail.com"
+        };
+        var expectedRetMsg2 = {
+            'status': 200,
+            'message': 'User ' + expectedRetMsg.mail + ' is logged out'
+        }
+        var cookieJar = request.jar();
+
+        support.checkAuthTrue(support.checkAuthImpl);
+        support.checkAuthAdminTrue(support.checkAuthAdminImpl);
+        postRequest("POST", "/login", testCredArray, cookieJar)
+        .then(function(ret) {
+            expect(ret.body).to.deep.equal(expectedRetMsg);
+            return(postRequest("POST", "/logout", {}, cookieJar));
+        })
+        .then(function(ret) {
+            expect(ret.body).to.deep.equal(expectedRetMsg2);
+            return(postRequest("POST", "/login/ldapConfig/get", {} , cookieJar));
+        })
+        .then(function(ret) {
+            // if this succeeds than logout did not work
+            done("fail");
+        }, function(ret) {
+            expect(ret.statusCode).to.equal(401);
+            done();
+            // this swallows the failure
+            return jQuery.Deferred().resolve().promise();
+        })
+        .fail(function() {
+            done("fail");
+        })
+        .always(function() {
+            support.checkAuthTrue(support.userTrue);
+            support.checkAuthAdminTrue(support.adminTrue);
+        });
+    });
+
+    it("User authentication should work", function(done) {
+        testCredArray = {
+            xiusername: "sPerson2@gmail.com",
+            xipassword: "5678"
+        };
+        var expectedRetMsg = {
+            "status": 200,
+            "firstName": "sp2_first",
+            "isAdmin": false,
+            "isSupporter": false,
+            "isValid": true,
+            "mail": "sPerson2@gmail.com",
+            "xiusername": "sPerson2@gmail.com"
+        };
+        var body = { one: "two",
+                     three: "four" };
+        var cookieJar = request.jar();
+
+        support.checkAuthTrue(support.checkAuthImpl);
+        support.checkAuthAdminTrue(support.checkAuthAdminImpl);
+        postRequest("POST", "/login/test/user", body)
+        .then(function(err) {
+            return jQuery.Deferred().reject(err).promise();
+        }, function(res) {
+            expect(res.statusCode).to.equal(httpStatus.Unauthorized);
+            return(postRequest("POST", "/login", testCredArray, cookieJar));
+        })
+        .then(function(res) {
+            expect(res.body).to.deep.equal(expectedRetMsg);
+            return(postRequest("POST", "/login/test/user", body, cookieJar));
+        })
+        .then(function(res) {
+            expect(res.statusCode).to.equal(httpStatus.OK);
+            return(postRequest("POST", "/login/test/admin", body, cookieJar));
+        })
+        .then(function(err) {
+            return jQuery.Deferred().reject(err).promise();
+        }, function(res) {
+            expect(res.statusCode).to.equal(httpStatus.Unauthorized);
+            done();
+            // this swallows the failure
+            return jQuery.Deferred().resolve().promise();
+        })
+        .fail(function(err) {
+            console.log('Test Error: ' + JSON.stringify(err));
+            done("fail");
+        })
+        .always(function() {
+            support.checkAuthTrue(support.userTrue);
+            support.checkAuthAdminTrue(support.adminTrue);
+        });
+    });
+
+    it("Admin authentiction should work", function(done) {
+        testCredArray = {
+            xiusername: "sPerson1@gmail.com",
+            xipassword: "Welcome1"
+        };
+        var expectedRetMsg = {
+            "status": 200,
+            "firstName": "sp1_first",
+            "isAdmin": true,
+            "isSupporter": false,
+            "isValid": true,
+            "mail": "sPerson1@gmail.com",
+            "xiusername": "sPerson1@gmail.com"
+        };
+        var body = { one: "two",
+                     three: "four" };
+        var cookieJar = request.jar();
+
+        support.checkAuthTrue(support.checkAuthImpl);
+        support.checkAuthAdminTrue(support.checkAuthAdminImpl);
+        postRequest("POST", "/login/test/admin", body)
+        .then(function(err) {
+            return jQuery.Deferred().reject(err).promise();
+        }, function(res) {
+            expect(res.statusCode).to.equal(httpStatus.Unauthorized);
+            return(postRequest("POST", "/login", testCredArray, cookieJar));
+        })
+        .then(function(res) {
+            expect(res.body).to.deep.equal(expectedRetMsg);
+            return(postRequest("POST", "/login/test/admin", body, cookieJar));
+        })
+        .then(function(res) {
+            expect(res.statusCode).to.equal(httpStatus.OK);
+            return(postRequest("POST", "/login/test/user", body, cookieJar));
+        })
+        .then(function(res) {
+            expect(res.statusCode).to.equal(httpStatus.OK);
+            done();
+        })
+        .fail(function(err) {
+            console.log('Test Error: ' + JSON.stringify(err));
+            done("fail");
+        })
+        .always(function() {
+            support.checkAuthTrue(support.userTrue);
+            support.checkAuthAdminTrue(support.adminTrue);
+        });
+    });
+
+    it("User authentication timeout should work", function(done) {
+        testCredArray = {
+            xiusername: "sPerson2@gmail.com",
+            xipassword: "5678"
+        };
+        var expectedRetMsg = {
+            "status": 200,
+            "firstName": "sp2_first",
+            "isAdmin": false,
+            "isSupporter": false,
+            "isValid": true,
+            "mail": "sPerson2@gmail.com",
+            "xiusername": "sPerson2@gmail.com"
+        };
+        var body = { one: "two",
+                     three: "four" };
+        var cookieJar = request.jar();
+
+        support.checkAuthTrue(support.checkAuthImpl);
+        support.checkAuthAdminTrue(support.checkAuthAdminImpl);
+        support.setTestMaxAge(3000);
+        support.fakeLoginAuth(support.loginAuthTest);
+        postRequest("POST", "/login", testCredArray, cookieJar)
+        .then(function(res) {
+            expect(res.body).to.deep.equal(expectedRetMsg);
+            // The callback in setTimeout runs asynchronously and
+            // independently after the .fail/.always blocks in this
+            // chain of promises.  It must do its own init/cleanup
+            // separate from the routine that sets it up.
+            setTimeout(function() {
+                support.checkAuthTrue(support.checkAuthImpl);
+                postRequest("POST", "/login/test/user", body, cookieJar)
+                .then(function() {
+                    done("fail");
+                }, function(res) {
+                    expect(res.statusCode).to.equal(httpStatus.Unauthorized);
+                    done();
+                })
+                .always(function() {
+                    support.checkAuthTrue(support.userTrue);
+                });
+            }, 3500);
+        })
+        .fail(function(err) {
+            done("fail");
+        })
+        .always(function() {
+            support.checkAuthTrue(support.userTrue);
+            support.checkAuthAdminTrue(support.adminTrue);
+            support.fakeLoginAuth(support.loginAuthImpl);
+            support.setTestMaxAge(support.testMaxAge);
+        });
+    });
+
+    it("Credential functions should work", function(done) {
+        var key1 = {
+            'key': 'setCredentialKey1',
+            'data': 'setCredentialKeyData1'
+        };
+        var key2 = {
+            'key': 'setCredentialKey2',
+            'data': 'setCredentialKeyData2'
+        };
+        var testStatus = false;
+
+        testCredArray = {
+            xiusername: "sPerson2@gmail.com",
+            xipassword: "5678"
+        };
+        var expectedRetMsg = {
+            "status": 200,
+            "firstName": "sp2_first",
+            "isAdmin": false,
+            "isSupporter": false,
+            "isValid": true,
+            "mail": "sPerson2@gmail.com",
+            "xiusername": "sPerson2@gmail.com"
+        };
+        var cookieJar = request.jar();
+
+        support.checkAuthTrue(support.checkAuthImpl);
+        support.checkAuthAdminTrue(support.checkAuthAdminImpl);
+        postRequest("POST", "/login", testCredArray, cookieJar)
+        .then(function(ret) {
+            expect(ret.body).to.deep.equal(expectedRetMsg);
+            return(postRequest("POST", "/auth/setCredential", key1, cookieJar));
+        })
+        .then(function(ret) {
+            expect(ret.body).to.deep.equal(setCredentialTrue);
+            return(postRequest("POST", "/auth/getCredential",
+                               { 'key': 'setCredentialKey1' }, cookieJar));
+        })
+        .then(function(ret)  {
+            expect(ret.body.status).to.equal(httpStatus.OK);
+            expect(ret.body.data).to.equal('setCredentialKeyData1');
+            return(postRequest("POST", "/auth/setCredential", key2, cookieJar));
+        })
+        .then(function(ret) {
+            expect(ret.body).to.deep.equal(setCredentialTrue);
+            return(postRequest("GET", "/auth/listCredentialKeys", {}, cookieJar));
+        })
+        .then(function(ret) {
+            expect(ret.body.data).to.deep.equal(['setCredentialKey1', 'setCredentialKey2']);
+            return(postRequest("POST", "/auth/delCredential", {'key':'setCredentialKey1'}, cookieJar));
+        })
+        .then(function(ret) {
+            expect(ret.body.status).to.equal(httpStatus.OK);
+            return(postRequest("GET", "/auth/listCredentialKeys", {}, cookieJar));
+        })
+        .then(function(ret) {
+            expect(ret.body.data).to.deep.equal(['setCredentialKey2']);
+            testStatus = true;
+        })
+        .fail(function(err) {
+            console.log("Test ERR: " + JSON.stringify(err));
+        })
+        .then(function() {
+            return(postRequest("GET", "/auth/clearCredentials", {}, cookieJar));
+        })
+        .then(function(ret) {
+            expect(ret.body.status).to.equal(httpStatus.OK);
+            support.checkAuthTrue(support.userTrue);
+            support.checkAuthAdminTrue(support.adminTrue);
+            if (testStatus) {
+                done();
+            } else {
+                done('fail');
+            }
+        });
+    });
 
     it('Router should fail with invalid endpoint', function(done) {
         postRequest("POST", "/invalidUrl")
@@ -378,7 +699,7 @@ describe('ExpServer Login Test', function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error["status"]).to.deep.equal(404);
+            expect(error.statusCode).to.deep.equal(404);
             done();
         });
     });
@@ -391,12 +712,12 @@ describe('ExpServer Login Test', function() {
         var expectedRetMsg = {
             "status": 200,
             "success": false,
-            "error": "Invalid msalConfig provided"
+            "error": '[{"keyword":"required","dataPath":"","schemaPath":"#/required","params":{"missingProperty":"msalEnabled"},"message":"should have required property \'msalEnabled\'"}]'
         };
 
         postRequest("POST", "/login/msalConfig/set", credArray)
         .then(function(ret) {
-            expect(ret).to.deep.equal(expectedRetMsg);
+            expect(ret.body).to.deep.equal(expectedRetMsg);
             done();
         })
         .fail(function() {
@@ -422,7 +743,7 @@ describe('ExpServer Login Test', function() {
 
         postRequest("POST", "/login/msalConfig/set", credArray)
         .then(function(ret) {
-            expect(ret.error).to.have.string("Failed to write");
+            expect(ret.body.error).to.have.string("Failed to write");
             done();
         })
         .fail(function() {
@@ -452,14 +773,13 @@ describe('ExpServer Login Test', function() {
                 "status": 200
             };
 
-            expect(ret).to.deep.equal(expectedRetMsg)
+            expect(ret.body).to.deep.equal(expectedRetMsg)
 
             return (postRequest("POST", "/login/msalConfig/get"));
         })
         .then(function(ret) {
             var expectedRetMsg = {
                 "msalEnabled": true,
-                "status": 200,
                 "msal": {
                     "clientId": setArray.msal.clientId,
                     "adminScope": setArray.msal.adminScope,
@@ -469,9 +789,10 @@ describe('ExpServer Login Test', function() {
                     "azureEndpoint": "",
                     "azureScopes": [],
                     "webApi": ""
-                }
+                },
             };
-            expect(ret).to.deep.equal(expectedRetMsg);
+
+            expect(ret.body).to.deep.equal(expectedRetMsg);
 
             // Now disable msal
             setArray["msalEnabled"] = false;
@@ -483,13 +804,12 @@ describe('ExpServer Login Test', function() {
                 "status": 200
             };
 
-            expect(ret).to.deep.equal(expectedRetMsg)
+            expect(ret.body).to.deep.equal(expectedRetMsg)
             return (postRequest("POST", "/login/msalConfig/get"));
         })
         .then(function(ret) {
             var expectedRetMsg = {
                 "msalEnabled": false,
-                "status": 200,
                 "msal": {
                     "clientId": setArray.msal.clientId,
                     "adminScope": setArray.msal.adminScope,
@@ -499,17 +819,17 @@ describe('ExpServer Login Test', function() {
                     "azureEndpoint": "",
                     "azureScopes": [],
                     "webApi": ""
-                }
+                },
             };
 
-            expect(ret).to.deep.equal(expectedRetMsg)
+            expect(ret.body).to.deep.equal(expectedRetMsg)
             done();
         })
         .fail(function(ret) {
             var foo = {
                 "bogus": "bogus"
             }
-            expect(ret).to.deep.equal(foo)
+            expect(ret.body).to.deep.equal(foo)
             done("fail");
         })
         .always(function() {
@@ -527,12 +847,12 @@ describe('ExpServer Login Test', function() {
         var expectedRetMsg = {
             "status": 200,
             "success": false,
-            "error": "Invalid adminConfig provided"
+            "error": '[{"keyword":"required","dataPath":"","schemaPath":"#/required","params":{"missingProperty":"username"},"message":"should have required property \'username\'"}]'
         };
 
         postRequest("POST", "/login/defaultAdmin/set", testInput)
         .then(function(ret) {
-            expect(ret).to.deep.equal(expectedRetMsg);
+            expect(ret.body).to.deep.equal(expectedRetMsg);
             done();
         })
         .fail(function() {
@@ -558,7 +878,7 @@ describe('ExpServer Login Test', function() {
 
         postRequest("POST", "/login/defaultAdmin/set", testInput)
         .then(function(ret) {
-            expect(ret.error).to.have.string("Failed to write");
+            expect(ret.body.error).to.have.string("Failed to write");
             done();
         })
         .fail(function() {
@@ -594,7 +914,7 @@ describe('ExpServer Login Test', function() {
 
         postRequest("POST", "/login/defaultAdmin/get", testInput)
         .then(function(ret) {
-            expect(ret.error).to.have.string("File permissions for");
+            expect(ret.body.error).to.have.string("File permissions for");
             done();
         })
         .fail(function() {
@@ -631,7 +951,7 @@ describe('ExpServer Login Test', function() {
 
         postRequest("POST", "/login/defaultAdmin/set", testInput)
         .then(function(ret) {
-            expect(ret.success).to.be.true;
+            expect(ret.body.success).to.be.true;
 
             // Make sure we can login
             var testCredArray = {
@@ -652,7 +972,7 @@ describe('ExpServer Login Test', function() {
                 "xiusername": testInput.username
             };
 
-            expect(ret).to.deep.equal(expectedRetMsg);
+            expect(ret.body).to.deep.equal(expectedRetMsg);
 
             // Make sure we can't log in with a fake password
             var testCredArray = {
@@ -669,14 +989,14 @@ describe('ExpServer Login Test', function() {
                 "error": "ldapAuthentication fails"
             };
 
-            expect(ret).to.deep.equal(expectedRetMsg);
+            expect(ret.body).to.deep.equal(expectedRetMsg);
 
             // Now make sure we can disable defaultAdmin
             testInput.defaultAdminEnabled = false;
             return (postRequest("POST", "/login/defaultAdmin/set", testInput));
         })
         .then(function(ret) {
-            expect(ret.success).to.be.true;
+            expect(ret.body.success).to.be.true;
 
             // And we should not be able to login
             var testCredArray = {
@@ -693,15 +1013,15 @@ describe('ExpServer Login Test', function() {
                 "error": "ldapAuthentication fails"
             };
 
-            expect(ret).to.deep.equal(expectedRetMsg);
+            expect(ret.body).to.deep.equal(expectedRetMsg);
 
             // And finally ensure our password is not revealed
             return (postRequest("POST", "/login/defaultAdmin/get"))
         })
         .then(function(ret) {
-            expect(ret).to.not.have.property("password");
-            expect(ret.username).to.equal(testInput.username);
-            expect(ret.password).to.not.equal(testInput.password);
+            expect(ret.body).to.not.have.property("password");
+            expect(ret.body.username).to.equal(testInput.username);
+            expect(ret.body.password).to.not.equal(testInput.password);
             done();
         })
         .fail(function(error) {
@@ -721,12 +1041,12 @@ describe('ExpServer Login Test', function() {
         var expectedRetMsg = {
             "status": 200,
             "success": false,
-            "error": "Invalid ldapConfig provided"
+            "error": '[{"keyword":"required","dataPath":"","schemaPath":"#/required","params":{"missingProperty":"ldap_uri"},"message":"should have required property \'ldap_uri\'"}]'
         };
 
         postRequest("POST", "/login/ldapConfig/set", credArray)
         .then(function(ret) {
-            expect(ret).to.deep.equal(expectedRetMsg);
+            expect(ret.body).to.deep.equal(expectedRetMsg);
             done();
         })
         .fail(function() {
@@ -746,16 +1066,16 @@ describe('ExpServer Login Test', function() {
         var credArray = {
             ldap_uri: "legitLookingLdapUri",
             userDN: "legitLookingUserDN",
-            useTLS: "true",
+            useTLS: true,
             searchFilter: "legitLookingSearchFilter",
-            activeDir: "false",
+            activeDir: false,
             serverKeyFile: "legitLookingKeyFile",
             ldapConfigEnabled: true
         };
 
         postRequest("POST", "/login/ldapConfig/set", credArray)
         .then(function(ret) {
-            expect(ret.error).to.have.string("Failed to write");
+            expect(ret.body.error).to.have.string("Failed to write to");
             done();
         })
         .fail(function() {
@@ -777,15 +1097,15 @@ describe('ExpServer Login Test', function() {
             ldapConfigEnabled: ((Math.floor(Math.random() * 10) % 2) == 0) ? true : false,
             ldap_uri: Math.floor(Math.random() * 1000).toString(),
             userDN: Math.floor(Math.random() * 1000).toString(),
-            useTLS: ((Math.floor(Math.random() * 10) % 2) == 0) ? "true" : "false",
+            useTLS: ((Math.floor(Math.random() * 10) % 2) == 0),
             searchFilter: Math.floor(Math.random() * 1000).toString(),
-            activeDir: ((Math.floor(Math.random() * 10) % 2) == 0) ? "true" : "false",
+            activeDir: ((Math.floor(Math.random() * 10) % 2) == 0),
             serverKeyFile: Math.floor(Math.random() * 1000).toString()
         };
 
         postRequest("POST", "/login/ldapConfig/get")
         .then(function(ret) {
-            origLdapConfig = ret;
+            origLdapConfig = ret.body;
             delete origLdapConfig.status;
             return postRequest("POST", "/login/ldapConfig/set", setArray);
         })
@@ -796,7 +1116,7 @@ describe('ExpServer Login Test', function() {
             };
 
             try {
-                expect(ret).to.deep.equal(expectedRetMsg);
+                expect(ret.body).to.deep.equal(expectedRetMsg);
                 return postRequest("POST", "/login/ldapConfig/get"); 
             } catch (error) {
                 return jQuery.Deferred().reject(error).promise();
@@ -811,11 +1131,10 @@ describe('ExpServer Login Test', function() {
                 searchFilter: setArray.searchFilter,
                 activeDir: setArray.activeDir,
                 serverKeyFile: setArray.serverKeyFile,
-                status: 200
             };
 
             try {
-                expect(ret).to.deep.equal(expectedRetMsg);
+                expect(ret.body).to.deep.equal(expectedRetMsg);
                 testPassed = true;
             } catch (error) {
                 return jQuery.Deferred().reject(error).promise();
@@ -830,7 +1149,7 @@ describe('ExpServer Login Test', function() {
             // This is because ldapConfig.json is in use by other test (setupLdapConfigs test)
             postRequest("POST", "/login/ldapConfig/set", origLdapConfig)
             .then(function(ret) {
-                if (!ret.success) {
+                if (!ret.body.success) {
                     done("Failed to restore origLdapConfig");
                 } else if (testPassed) {
                     done();

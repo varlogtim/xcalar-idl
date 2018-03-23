@@ -4,7 +4,7 @@ describe('ExpServer Service Test', function() {
     var fs = require('fs');
     var request = require('request');
     var expServer = require(__dirname + '/../../expServer/expServer.js');
-
+    var support = require(__dirname + '/../../expServer/expServerSupport.js');
     var service = require(__dirname + '/../../expServer/route/service.js');
     var testTargz;
     var testName;
@@ -46,6 +46,14 @@ describe('ExpServer Service Test', function() {
         service.fakeGetTickets(fakeFunc);
         service.fakeGetHotPatch(fakeFunc);
         service.fakeSetHotPatch(fakeFunc);
+
+        support.checkAuthTrue(support.userTrue);
+        support.checkAuthAdminTrue(support.adminTrue);
+    });
+
+    after(function() {
+        support.checkAuthTrue(support.checkAuthImpl);
+        support.checkAuthAdminTrue(support.checkAuthAdminImpl);
     });
 
     it("service.convertToBase64 should work", function() {

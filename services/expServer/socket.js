@@ -1,9 +1,46 @@
 var socketio = require("socket.io");
 var xcConsole = require('./expServerXcConsole.js').xcConsole;
+var sharedsession = require("express-socket.io-session");
 
-module.exports = function(server) {
+function checkIoSocketAuth(authSocket) {
+    if (! authSocket.handshake.hasOwnProperty('session') ||
+        ! authSocket.handshake.session.hasOwnProperty('loggedIn') ||
+        ! authSocket.handshake.session.loggedIn ) {
+        console.log("Socket Io User session not logged in");
+        return true;
+    }
+
+    authSocket.handshake.session.touch();
+
+    return false;
+}
+
+function checkIoSocketAuthAdmin(authSocket) {
+    if (! authSocket.handshake.hasOwnProperty('session') ||
+        ! authSocket.handshake.session.hasOwnProperty('loggedInAdmin') ||
+        ! authSocket.handshake.session.loggedInAdmin ) {
+        console.log("Socket Io Admin session not logged in");
+        return true;
+    }
+
+    authSocket.handshake.session.touch();
+
+    return false;
+}
+
+function fakeCheckIoSocketAuth(func) {
+    checkIoSocketAuth = func;
+}
+
+function fakeCheckIoSocketAuthAdmin(func) {
+    checkIoSocketAuthAdmin = func;
+}
+
+function socketIoServer(server, session, cookieParser) {
     var io = socketio(server);
     var userInfos = {};
+
+    io.use(sharedsession(session, cookieParser, { autoSave: true }));
 
     io.sockets.on("connection", function(socket) {
         /*  kinds of emit to use:
@@ -11,8 +48,17 @@ module.exports = function(server) {
          *  2. io.sockets.emit: emit to all
          *  3. socket.broadcast.emit: emit to all others
          */
+        if (checkIoSocketAuth(socket)) {
+            return;
+        }
+
+
         socket.on("registerUserSession", function(userOption, callback) {
             xcConsole.log('register user');
+            if (checkIoSocketAuth(socket)) {
+                return;
+            }
+
             try {
                 socket.userOption = userOption;
                 var user = userOption.user;
@@ -60,12 +106,20 @@ module.exports = function(server) {
 
         socket.on("checkUserSession", function(userOption, callback) {
             xcConsole.log("check user");
+            if (checkIoSocketAuth(socket)) {
+                return;
+            }
+
             var exist = hasWorkbook(userOption);
             callback(exist);
         });
 
         socket.on("disconnect", function() {
             xcConsole.log("logout user");
+            if (checkIoSocketAuth(socket)) {
+                return;
+            }
+
             try {
                 var userOption = socket.userOption;
                 if (userOption != null && userInfos.hasOwnProperty(userOption.user)) {
@@ -91,29 +145,57 @@ module.exports = function(server) {
             socket.broadcast.emit("logout", userOption);
         });
 
-        socket.on("refreshDataflow", function(dfInfo) {
-            socket.broadcast.emit("refreshDataflow", dfInfo);
+        socket.on("refreshDataflow", function(dfName) {
+            if (checkIoSocketAuth(socket)) {
+                return;
+            }
+
+            socket.broadcast.emit("refreshDataflow", dfName);
         });
 
         socket.on("refreshUDFWithoutClear", function(overwriteUDF) {
+            if (checkIoSocketAuth(socket)) {
+                return;
+            }
+
             socket.broadcast.emit("refreshUDFWithoutClear", overwriteUDF);
         });
         socket.on("refreshDSExport", function() {
+            if (checkIoSocketAuth(socket)) {
+                return;
+            }
+
             socket.broadcast.emit("refreshDSExport");
         });
         socket.on("adminAlert", function(alertOption) {
+            if (checkIoSocketAuth(socket)) {
+                return;
+            }
+
             socket.broadcast.emit("adminAlert", alertOption);
         });
 
         socket.on("refreshWorkbook", function(wkbkName) {
+            if (checkIoSocketAuth(socket)) {
+                return;
+            }
+
             socket.broadcast.emit("refreshWorkbook", wkbkName);
         });
 
         socket.on("refreshUserSettings", function() {
+            if (checkIoSocketAuth(socket)) {
+                return;
+            }
+
             socket.broadcast.emit("refreshUserSettings");
         });
 
         socket.on("refreshIMD", function(imdInfo) {
+            if (checkIoSocketAuth(socket)) {
+                return;
+            }
+
             socket.broadcast.emit("refreshIMD", imdInfo);
         });
 
@@ -149,6 +231,10 @@ module.exports = function(server) {
         socket.on("ds", function(arg, calllback) {
             var versionId = arg.id;
             var success = true;
+
+            if (checkIoSocketAuth(socket)) {
+                return;
+            }
 
             switch ( arg.event) {
                 case "updateVersionId":
@@ -199,4 +285,11 @@ module.exports = function(server) {
             }
         });
     }
+};
+
+
+module.exports = {
+    socketIoServer: socketIoServer,
+    fakeCheckIoSocketAuth: fakeCheckIoSocketAuth,
+    fakeCheckIoSocketAuthAdmin: fakeCheckIoSocketAuthAdmin
 };

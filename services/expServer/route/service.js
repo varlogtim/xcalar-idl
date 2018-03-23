@@ -8,9 +8,11 @@ function convertToBase64(logs) {
 }
 // Start of service calls
 // Master request
-router.post("/service/start", function(req, res) {
+router.post("/service/start",
+            [support.checkAuthAdmin], function(req, res) {
     xcConsole.log("Starting Xcalar as Master");
-    support.masterExecuteAction("POST", "/service/start/slave", req.body)
+    var rawCookie = support.rawSessionCookie(req);
+    support.masterExecuteAction("POST", "/service/start/slave", req.body, rawCookie)
     .always(function(message) {
         if (message.logs) {
             message.logs = convertToBase64(message.logs);
@@ -19,9 +21,11 @@ router.post("/service/start", function(req, res) {
     });
 });
 
-router.post("/service/stop", function(req, res) {
+router.post("/service/stop",
+            [support.checkAuthAdmin], function(req, res) {
     xcConsole.log("Stopping Xcalar as Master");
-    support.masterExecuteAction("POST", "/service/stop/slave", req.body)
+    var rawCookie = support.rawSessionCookie(req);
+    support.masterExecuteAction("POST", "/service/stop/slave", req.body, rawCookie)
     .always(function(message) {
         if (message.logs) {
             message.logs = convertToBase64(message.logs);
@@ -33,13 +37,15 @@ router.post("/service/stop", function(req, res) {
 // We call stop and then start instead of restart because xcalar service restart
 // restarts each node individually rather than the nodes as a cluster. This causes
 // the generation count on the nodes to be different.
-router.post("/service/restart", function(req, res) {
+router.post("/service/restart",
+            [support.checkAuthAdmin], function(req, res) {
     xcConsole.log("Restarting Xcalar as Master");
+    var rawCookie = support.rawSessionCookie(req);
     var message1;
     var message2;
     function stop() {
         var deferred = jQuery.Deferred();
-        support.masterExecuteAction("POST", "/service/stop/slave", req.body)
+        support.masterExecuteAction("POST", "/service/stop/slave", req.body, rawCookie)
         .always(deferred.resolve);
         return deferred;
     }
@@ -48,7 +54,7 @@ router.post("/service/restart", function(req, res) {
         xcConsole.log("stop succeeds, start Xcalar as Master");
         var deferred = jQuery.Deferred();
         message1 = ret;
-        support.masterExecuteAction("POST", "/service/start/slave", req.body)
+        support.masterExecuteAction("POST", "/service/start/slave", req.body, rawCookie)
         .always(deferred.resolve);
         return deferred;
     })
@@ -66,10 +72,12 @@ router.post("/service/restart", function(req, res) {
     });
 });
 
-router.get("/service/status", function(req, res) {
+router.get("/service/status",
+           [support.checkAuthAdmin], function(req, res) {
     xcConsole.log("Getting Xcalar status as Master");
+    var rawCookie = support.rawSessionCookie(req);
     // req.query for Ajax, req.body for sennRequest
-    support.masterExecuteAction("GET", "/service/status/slave", req.query)
+    support.masterExecuteAction("GET", "/service/status/slave", req.query, rawCookie)
     .always(function(message) {
         if (message.logs) {
             message.logs = convertToBase64(message.logs);
@@ -78,9 +86,11 @@ router.get("/service/status", function(req, res) {
     });
 });
 
-router.post("/service/bundle", function(req, res) {
+router.post("/service/bundle",
+            [support.checkAuth], function(req, res) {
     xcConsole.log("Generating Support Bundle as Master");
-    support.masterExecuteAction("POST", "/service/bundle/slave", req.body)
+    var rawCookie = support.rawSessionCookie(req);
+    support.masterExecuteAction("POST", "/service/bundle/slave", req.body, rawCookie)
     .always(function(message) {
         if (message.logs) {
             message.logs = convertToBase64(message.logs);
@@ -90,7 +100,8 @@ router.post("/service/bundle", function(req, res) {
 });
 
 // Slave request
-router.post("/service/start/slave", function(req, res) {
+router.post("/service/start/slave",
+            [support.checkAuthAdmin], function(req, res) {
     xcConsole.log("Starting Xcalar as Slave");
     support.slaveExecuteAction("POST", "/service/start/slave")
     .always(function(message) {
@@ -98,7 +109,8 @@ router.post("/service/start/slave", function(req, res) {
     });
 });
 
-router.post("/service/stop/slave", function(req, res) {
+router.post("/service/stop/slave",
+            [support.checkAuthAdmin], function(req, res) {
     xcConsole.log("Stopping Xcalar as Slave");
     support.slaveExecuteAction("POST", "/service/stop/slave")
     .always(function(message) {
@@ -106,7 +118,8 @@ router.post("/service/stop/slave", function(req, res) {
     });
 });
 
-router.get("/service/status/slave", function(req, res) {
+router.get("/service/status/slave",
+           [support.checkAuthAdmin], function(req, res) {
     xcConsole.log("Getting Xcalar status as Slave");
     support.slaveExecuteAction("GET", "/service/status/slave")
     .always(function(message) {
@@ -114,7 +127,8 @@ router.get("/service/status/slave", function(req, res) {
     });
 });
 
-router.post("/service/bundle/slave", function(req, res) {
+router.post("/service/bundle/slave",
+            [support.checkAuth], function(req, res) {
     xcConsole.log("Generating Support Bundle as Slave")
     support.slaveExecuteAction("POST", "/service/bundle/slave")
     .always(function(message) {
@@ -122,7 +136,8 @@ router.post("/service/bundle/slave", function(req, res) {
     });
 })
 // Single node commands
-router.delete("/service/sessionFiles", function(req, res) {
+router.delete("/service/sessionFiles",
+              [support.checkAuthAdmin], function(req, res) {
     xcConsole.log("Removing Session Files");
     var filename =  req.body.filename;
     support.removeSessionFiles(filename)
@@ -134,7 +149,8 @@ router.delete("/service/sessionFiles", function(req, res) {
     });
 });
 
-router.delete("/service/SHMFiles", function(req, res) {
+router.delete("/service/SHMFiles",
+              [support.checkAuthAdmin], function(req, res) {
     xcConsole.log("Removing Files under folder SHM");
     support.removeSHM()
     .always(function(message) {
@@ -145,7 +161,8 @@ router.delete("/service/SHMFiles", function(req, res) {
     });
 });
 
-router.get("/service/license", function(req, res) {
+router.get("/service/license",
+           [support.checkAuth], function(req, res) {
     xcConsole.log("Get License");
     support.getLicense()
     .always(function(message) {
@@ -156,7 +173,8 @@ router.get("/service/license", function(req, res) {
     });
 });
 
-router.post("/service/ticket", function(req, res) {
+router.post("/service/ticket",
+            [support.checkAuth], function(req, res) {
     xcConsole.log("File Ticket");
     var contents = req.body.contents;
     support.submitTicket(contents)
@@ -168,7 +186,8 @@ router.post("/service/ticket", function(req, res) {
     });
 });
 
-router.post("/service/gettickets", function(req, res) {
+router.post("/service/gettickets",
+            [support.checkAuth], function(req, res) {
     xcConsole.log("Get Tickets");
     var contents = req.body.contents;
     support.getTickets(contents)
@@ -180,7 +199,8 @@ router.post("/service/gettickets", function(req, res) {
     });
 });
 
-router.get("/service/hotPatch", function(req, res) {
+router.get("/service/hotPatch",
+           [support.checkAuth], function(req, res) {
     xcConsole.log("Find Hot Patch");
     support.getHotPatch()
     .always(function(message) {
@@ -191,7 +211,8 @@ router.get("/service/hotPatch", function(req, res) {
     });
 });
 
-router.post("/service/hotPatch", function(req, res) {
+router.post("/service/hotPatch",
+            [support.checkAuthAdmin], function(req, res) {
     xcConsole.log("Set Hot Patch");
     var enableHotPatches = req.body.enableHotPatches;
     support.setHotPatch(enableHotPatches)
@@ -203,7 +224,8 @@ router.post("/service/hotPatch", function(req, res) {
     });
 });
 
-router.get("/service/matchedHosts", function(req, res) {
+router.get("/service/matchedHosts",
+           [support.checkAuth], function(req, res) {
     xcConsole.log("Find matched Hosts");
     support.getMatchedHosts(req.query)
     .always(function(message) {
@@ -211,9 +233,10 @@ router.get("/service/matchedHosts", function(req, res) {
     });
 });
 
-router.get("/service/logs", function(req, res) {
+router.get("/service/logs",
+           [support.checkAuthAdmin], function(req, res) {
     xcConsole.log("Fetching Recent Logs as Master");
-    support.masterExecuteAction("GET", "/service/logs/slave", req.query, true)
+    support.masterExecuteAction("GET", "/service/logs/slave", req.query, null, true)
     .always(function(message) {
         if (message.logs) {
             message.logs = convertToBase64(message.logs);
@@ -222,7 +245,8 @@ router.get("/service/logs", function(req, res) {
     });
 });
 
-router.get("/service/logs/slave", function(req, res) {
+router.get("/service/logs/slave",
+           [support.checkAuthAdmin], function(req, res) {
     xcConsole.log("Fetching Recent Logs as Slave");
     support.slaveExecuteAction("GET", "/service/logs/slave", req.body)
     .always(function(message) {

@@ -6,6 +6,7 @@ describe("ExpServer Socket Test", function() {
     }
     var expect = require('chai').expect;
     var expServer = require(__dirname + '/../../expServer/expServer.js');
+    var expServerSocket = require(__dirname + '/../../expServer/socket.js');
     this.timeout(10000);
     var client;
     var peerClient;
@@ -32,6 +33,14 @@ describe("ExpServer Socket Test", function() {
                 done();
             });
         });
+        function dummyCheckIoSocketAuth(authSocket) {
+            return false;
+        }
+        function dummyCheckIoSocketAuthAdmin(authSocket) {
+            return false;
+        }
+        expServerSocket.fakeCheckIoSocketAuth(dummyCheckIoSocketAuth);
+        expServerSocket.fakeCheckIoSocketAuthAdmin(dummyCheckIoSocketAuthAdmin);
     });
 
 

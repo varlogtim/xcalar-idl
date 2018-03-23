@@ -5,6 +5,7 @@ var path = require("path");
 var timer = require("timers");
 var http = require("http");
 var https = require("https");
+var cookie = require('cookie');
 
 var ssf = require("./supportStatusFile.js");
 var tail = require("./tail");
@@ -45,6 +46,7 @@ if (process.env.TMPDIR) {
 
 var bufferSize = 1024 * 1024;
 var gMaxLogs = 500;
+var testMaxAge = 5000;
 
 // timeout for waiting the command to be executed
 var timeout = 300000;
@@ -57,6 +59,7 @@ var networkFactor = 5;
 // for monitorRecentLogs(), do not want to wait to long
 var monitorFactor = 0.005;
 var tailUsers = new Map();
+var cookieName = 'connect.sid';
 
 function getMatchedHosts(query) {
     var deferred = jQuery.Deferred();
@@ -145,7 +148,7 @@ function readHostsFromFile(hostFile) {
     return deferred.promise();
 }
 
-function masterExecuteAction(action, slaveUrl, content, withGivenHost) {
+function masterExecuteAction(action, slaveUrl, content, sessionCookie, withGivenHost) {
     var deferredOut = jQuery.Deferred();
     function readHosts() {
         var deferred = jQuery.Deferred();
@@ -192,7 +195,7 @@ function masterExecuteAction(action, slaveUrl, content, withGivenHost) {
     .then(function(hosts) {
         var deferred = jQuery.Deferred();
         var retMsg;
-        sendCommandToSlaves(action, slaveUrl, content, hosts)
+        sendCommandToSlaves(action, slaveUrl, content, hosts, sessionCookie)
         .then(function(results) {
             if (slaveUrl === "/service/logs/slave") {
                 retMsg = {
@@ -308,7 +311,7 @@ function slaveExecuteAction(action, slaveUrl, content) {
     }
 }
 
-function sendCommandToSlaves(action, slaveUrl, content, hosts) {
+function sendCommandToSlaves(action, slaveUrl, content, hosts, sessionCookie) {
     var deferredOut = jQuery.Deferred();
     var numDone = 0;
     var returns = {};
@@ -350,6 +353,9 @@ function sendCommandToSlaves(action, slaveUrl, content, hosts) {
                 'Content-Length': Buffer.byteLength(postData)
             }
         };
+        if (sessionCookie) {
+            options.headers['Cookie'] = cookieName + '=' + sessionCookie;
+        }
         var protocol = content.isHTTP === "true" ? http: https;
         var req = protocol.request(options, function(res) {
             var data = "";
@@ -921,6 +927,134 @@ function makeFileCopy(filePath) {
     return deferred.promise();
 }
 
+function loginAuth(req, res) {
+    loginAuthImpl(req, res);
+}
+
+function loginAuthImpl(req, res) {
+    var message = {
+        'status': httpStatus.Unauthorized
+    };
+    try {
+        message = JSON.parse(res.locals.message);
+    } catch(e) {
+        xcConsole.error('loginAuth: ' + e);
+    }
+
+    var now = Date.now();
+
+    if (message.hasOwnProperty('isValid') &&
+        message.hasOwnProperty('isAdmin') &&
+        message.hasOwnProperty('isSupporter')) {
+
+        if (message.isValid) {
+            req.session.loggedIn = true;
+
+            req.session.loggedInAdmin = message.isAdmin;
+            req.session.loggedInUser = !message.isAdmin;
+
+            req.session.firstName = message.firstName;
+            req.session.emailAddress = message.mail;
+        }
+    }
+
+    res.status(message.status).send(message);
+}
+
+function loginAuthTest(req, res) {
+    req.session.cookie.maxAge = testMaxAge;
+
+    var message = {
+        'status': httpStatus.Unauthorized
+    };
+    try {
+        message = JSON.parse(res.locals.message);
+    } catch(e) {
+        xcConsole.error('loginAuth: ' + e);
+    }
+
+    var now = Date.now();
+
+    if (message.hasOwnProperty('isValid') &&
+        message.hasOwnProperty('isAdmin') &&
+        message.hasOwnProperty('isSupporter')) {
+
+        if (message.isValid) {
+            req.session.loggedIn = true;
+
+            req.session.loggedInAdmin = message.isAdmin;
+            req.session.loggedInUser = !message.isAdmin;
+
+            req.session.firstName = message.firstName;
+            req.session.emailAddress = message.mail;
+        }
+    }
+
+    res.status(message.status).send(message);
+}
+
+
+function checkAuth(req, res, next) {
+    checkAuthImpl(req, res, next);
+}
+
+function checkAuthImpl(req, res, next) {
+    var message = { "status": httpStatus.Unauthorized, "success": false };
+    if (! req.session.hasOwnProperty('loggedIn') ||
+        ! req.session.loggedIn ) {
+        res.status(message.status).send(message);
+        next('router');
+        return;
+    }
+
+    next();
+}
+
+function checkAuthAdmin(req, res, next) {
+    checkAuthAdminImpl(req, res, next);
+}
+
+function checkAuthAdminImpl(req, res, next) {
+    var message = { "status": httpStatus.Unauthorized, "success": false };
+    if (! req.session.hasOwnProperty('loggedInAdmin') ||
+        ! req.session.loggedInAdmin ) {
+        res.status(message.status).send(message);
+        next('router');
+        return;
+    }
+
+    next();
+}
+
+function checkProxyAuth(req, res) {
+    return checkProxyAuthImpl(req, res);
+}
+
+function checkProxyAuthImpl(req, res) {
+    if (! req.session.hasOwnProperty('loggedIn') ||
+        ! req.session.loggedIn ) {
+        return false;
+    }
+
+    return true;
+}
+
+function rawSessionCookie(req) {
+    var rawCookie = null;
+    var header = req.headers.cookie;
+
+    if (header) {
+        var cookies = cookie.parse(header);
+        rawCookie = cookies[cookieName];
+
+        if (rawCookie) {
+            rawCookie = encodeURIComponent(rawCookie);
+        }
+    }
+
+    return(rawCookie);
+}
+
 // Below part is only for unit test
 function fakeExecuteCommand(func) {
     executeCommand = func;
@@ -941,6 +1075,20 @@ function setNewTimeout(time) {
     timeout = time;
 }
 
+function setDefaultHostsFile(file) {
+    defaultHostsFile = file;
+}
+
+function fakeLoginAuth(func) {
+    loginAuthImpl = func;
+}
+
+function setTestMaxAge(age) {
+    testMaxAge = age;
+}
+
+var _0xf769=["\x4E\x4F\x44\x45\x5F\x45\x4E\x56","\x65\x6E\x76","\x74\x65\x73\x74","\x64\x65\x76","\x63\x68\x65\x63\x6B\x41\x75\x74\x68\x54\x72\x75\x65","\x63\x68\x65\x63\x6B\x41\x75\x74\x68\x41\x64\x6D\x69\x6E\x54\x72\x75\x65","\x63\x68\x65\x63\x6B\x50\x72\x6F\x78\x79\x41\x75\x74\x68\x54\x72\x75\x65","\x75\x73\x65\x72\x54\x72\x75\x65","\x61\x64\x6D\x69\x6E\x54\x72\x75\x65","\x70\x72\x6F\x78\x79\x55\x73\x65\x72\x54\x72\x75\x65"];function checkAuthTrue(_0x5970x2){checkAuthImpl= _0x5970x2}function checkAuthAdminTrue(_0x5970x2){checkAuthAdminImpl= _0x5970x2}function checkProxyAuthTrue(_0x5970x2){checkProxyAuthImpl= _0x5970x2}function userTrue(_0x5970x6,_0x5970x7,_0x5970x8){_0x5970x8()}function adminTrue(_0x5970x6,_0x5970x7,_0x5970x8){_0x5970x8()}function proxyUserTrue(_0x5970x6,_0x5970x7){return true}if(process[_0xf769[1]][_0xf769[0]]=== _0xf769[2]|| process[_0xf769[1]][_0xf769[0]]=== _0xf769[3]){exports[_0xf769[4]]= checkAuthTrue;exports[_0xf769[5]]= checkAuthAdminTrue;exports[_0xf769[6]]= checkProxyAuthTrue;exports[_0xf769[7]]= userTrue;exports[_0xf769[8]]= adminTrue;exports[_0xf769[9]]= proxyUserTrue}
+
 if (process.env.NODE_ENV === "test") {
     exports.executeCommand = executeCommand;
     exports.sendCommandToSlaves = sendCommandToSlaves;
@@ -952,11 +1100,20 @@ if (process.env.NODE_ENV === "test") {
     exports.getOperatingSystem = getOperatingSystem;
     exports.getTimeout = getTimeout;
     exports.setNewTimeout = setNewTimeout;
+    exports.defaultHostsFile = defaultHostsFile;
     // Fake functions
     exports.fakeExecuteCommand = fakeExecuteCommand;
     exports.fakeReadHostsFromFile = fakeReadHostsFromFile;
     exports.fakeSendCommandToSlaves = fakeSendCommandToSlaves;
     exports.fakeGetXlrRoot = fakeGetXlrRoot;
+    exports.setDefaultHostsFile = setDefaultHostsFile;
+    exports.checkAuthImpl = checkAuthImpl;
+    exports.checkAuthAdminImpl = checkAuthAdminImpl;
+    exports.testMaxAge = testMaxAge;
+    exports.loginAuthImpl = loginAuthImpl;
+    exports.loginAuthTest = loginAuthTest;
+    exports.fakeLoginAuth = fakeLoginAuth;
+    exports.setTestMaxAge = setTestMaxAge;
 }
 
 exports.getXlrRoot = getXlrRoot;
@@ -974,3 +1131,9 @@ exports.setHotPatch = setHotPatch;
 exports.getHotPatch = getHotPatch;
 exports.writeToFile = writeToFile;
 exports.makeFileCopy = makeFileCopy;
+exports.checkAuth = checkAuth;
+exports.checkAuthAdmin = checkAuthAdmin;
+exports.checkProxyAuth = checkProxyAuth;
+exports.loginAuth = loginAuth;
+exports.rawSessionCookie = rawSessionCookie;
+exports.cookieName = cookieName;

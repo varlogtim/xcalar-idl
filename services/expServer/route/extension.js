@@ -8,6 +8,7 @@ var guiDir = (process.env.XCE_HTTP_ROOT ?
     process.env.XCE_HTTP_ROOT : "/var/www") + "/xcalar-gui";
 var basePath = guiDir + "/assets/extensions/";
 var upload = require('../upload.js');
+var support = require('../expServerSupport.js');
 
 try {
     var aws = require("aws-sdk");
@@ -323,7 +324,8 @@ addition stuff like
 postData: // For Posts
 */
 
-router.post("/extension/upload", function(req, res) {
+router.post("/extension/upload",
+            [support.checkAuthAdmin], function(req, res) {
     xcConsole.log("Writing Extension");
     var targz = req.body.targz;
     var name = req.body.name;
@@ -346,7 +348,8 @@ router.post("/extension/upload", function(req, res) {
     });
 });
 
-router.post("/extension/download", function(req, res) {
+router.post("/extension/download",
+            [support.checkAuthAdmin], function(req, res) {
     if (!s3) {
         return res.jsonp({
             status: Status.Error,
@@ -372,7 +375,9 @@ router.post("/extension/download", function(req, res) {
     });
 });
 
-router.delete("/extension/remove", function(req, res) {
+
+router.delete("/extension/remove",
+              [support.checkAuthAdmin], function(req, res) {
     xcConsole.log("Removing Extension");
     var extName = req.body.name;
     xcConsole.log("Removing extension: " + extName);
@@ -389,7 +394,8 @@ router.delete("/extension/remove", function(req, res) {
     });
 });
 
-router.post("/extension/enable", function(req, res) {
+router.post("/extension/enable",
+            [support.checkAuthAdmin], function(req, res) {
     var extName = req.body.name;
     xcConsole.log("Enabling extension: " + extName);
     enableExtension(extName)
@@ -405,7 +411,8 @@ router.post("/extension/enable", function(req, res) {
     });
 });
 
-router.post("/extension/disable", function(req, res) {
+router.post("/extension/disable",
+            [support.checkAuthAdmin], function(req, res) {
     var extName = req.body.name;
     xcConsole.log("Disabling extension: " + extName);
     disableExtension(extName)
@@ -421,7 +428,8 @@ router.post("/extension/disable", function(req, res) {
     });
 });
 
-router.get("/extension/getAvailable", function(req, res) {
+router.get("/extension/getAvailable",
+           [support.checkAuth], function(req, res) {
     xcConsole.log("Getting available extensions");
     getExtensionFiles("", "available")
     .then(function(files) {
@@ -446,7 +454,8 @@ router.get("/extension/getAvailable", function(req, res) {
     });
 });
 
-router.get("/extension/getEnabled", function(req, res) {
+router.get("/extension/getEnabled",
+           [support.checkAuth], function(req, res) {
     xcConsole.log("Getting installed extensions");
     fs.readdir(basePath + "ext-enabled/", function(err, allNames) {
         if (err) {
@@ -476,7 +485,9 @@ router.get("/extension/getEnabled", function(req, res) {
     });
 });
 
-router.get("/extension/listPackage", function(req, res) {
+
+router.get("/extension/listPackage",
+           [support.checkAuth], function(req, res) {
     xcConsole.log("Listing Extensions");
     if (!s3) {
         return res.jsonp({
@@ -539,6 +550,7 @@ function fakeFetchAllExtensions(func) {
 function fakeGetObject(func) {
     s3.getObject = func;
 }
+
 if (process.env.NODE_ENV === "test") {
     exports.writeTarGz = writeTarGz;
     exports.writeTarGzWithCleanup = writeTarGzWithCleanup;

@@ -19,24 +19,203 @@ var httpStatus = require('../../../assets/js/httpStatus.js').httpStatus;
 var support = require('../expServerSupport.js');
 var xcConsole = require('../expServerXcConsole.js').xcConsole;
 var enableB2C = require('./auth.js').enableB2C;
+var Ajv = require('ajv');
+var ajv = new Ajv(); // options can be passed, e.g. {allErrors: true}
 var Status = ssf.Status;
 var strictSecurity = false;
 
-var msalConfigRelPath = "/config/msalConfig.json";
-var msalEnabledField = "msalEnabled";
-var msalFieldsRequired = [ "clientId", "userScope", "adminScope", "b2cEnabled" ];
-var msalFieldsOptional = [ "webApi", "authority", "azureEndpoint", "azureScopes" ];
-var msalFieldsOptionalTypes = [ "string", "string", "string", "array" ];
+require("require.async")(require);
 
+var msalConfigRelPath = "/config/msalConfig.json";
 var ldapConfigRelPath = "/config/ldapConfig.json";
 var isLdapConfigSetup = false;
-var ldapConfigFieldsRequired = [ "ldap_uri", "userDN", "useTLS", "searchFilter", "activeDir", "serverKeyFile", "ldapConfigEnabled" ];
-var ldapConfigFieldsAdOptional = [ "adUserGroup", "adAdminGroup", "adDomain", "adSubGroupTree", "adSearchShortName" ];
 var ldapConfig;
 var trustedCerts;
-
 var defaultAdminConfigRelPath = "/config/defaultAdmin.json";
-var defaultAdminFieldsRequired = [ "username", "password", "email", "defaultAdminEnabled" ];
+
+var defaultAdminSchema = {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "defaultAdminConfig",
+    "description": "configuration for a default administrator",
+    "type": "object",
+    "properties": {
+        "username": {
+            "description": "name of the admin user",
+            "type": "string"
+        },
+        "password": {
+            "description": "encrypted admin user password",
+            "type": "string"
+        },
+        "email": {
+            "description": "email address of the admin user",
+            "type": "string"
+        },
+        "defaultAdminEnabled": {
+            "description": "is the default admin config enabled",
+            "type": "boolean"
+        }
+    },
+
+    "required": [ "username", "password", "email", "defaultAdminEnabled" ]
+};
+
+var emptyDefaultAdminConfig = {
+    username: "",
+    password: "",
+    email: "",
+    defaultAdminEnabled: false
+};
+
+var ldapConfigSchema = {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "ldapConfig",
+    "description": "configuration for LDAP",
+    "type": "object",
+    "properties": {
+        "ldap_uri": {
+            "description": "uri of the LDAP server",
+            "type": "string"
+        },
+        "userDN": {
+            "description": "ldap base DN for user account entry search",
+            "type": "string"
+        },
+        "useTLS": {
+            "description": "connect to server with TLS",
+            "type": "boolean"
+        },
+        "searchFilter": {
+            "description": "LDAP filter used to identify user entries",
+            "type": "string"
+        },
+        "activeDir": {
+            "description": "URI connects to Active Directory server",
+            "type": "boolean"
+        },
+        "serverKeyFile": {
+            "description": "path to key file required by ldapjs to use SSL/TLS",
+            "type": "string"
+        },
+        "ldapConfigEnabled": {
+            "description": "is LDAP authentication enabled",
+            "type": "boolean"
+        },
+        "adUserGroup": {
+            "description": "the name of the AD group of Xcalar Users",
+            "type": "string"
+        },
+        "adAdminGroup": {
+            "description": "the name of the AD group of Xcalar Admins",
+            "type": "string"
+        },
+        "adDomain": {
+            "description": "the name of the default AD domain",
+            "type": "string"
+        },
+        "adSubGroupTree": {
+            "description": "use 1.2.840.113556.1.4.1941 searches to find users in AD nested groups",
+            "type": "boolean"
+        },
+        "adSearchShortName": {
+            "description": "replace the %username% with the name without the username without the AD domain",
+            "type": "boolean"
+        }
+    },
+
+    "required": [ "ldap_uri", "userDN", "useTLS", "searchFilter", "activeDir", "serverKeyFile", "ldapConfigEnabled" ]
+};
+
+var emptyLdapConfig = {
+    ldap_uri: "",
+    userDN: "",
+    useTLS: false,
+    searchFilter: "",
+    activeDir: false,
+    serverKeyFile: null,
+    ldapConfigEnabled: false
+}
+
+var msalConfigSchema = {
+
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "defaultAdminConfig",
+    "description": "configuration for a default administrator",
+    "type": "object",
+    "properties": {
+        "msalEnabled": {
+            "description": "is the MSAL connector active",
+            "type": "boolean"
+        },
+        "msal": {
+            "description": "MSAL configuration data",
+            "type": "object",
+            "oneOf": [
+                { "$ref": "#/definitions/msalConfigData" }
+            ]
+        }
+    },
+
+    "required": [ "msalEnabled", "msal" ],
+
+    "definitions": {
+        "msalConfigData": {
+            "properties": {
+                "clientId": {
+                    "description": "id of the client application",
+                    "type": "string"
+                },
+                "userScope": {
+                    "description": "access uri for the scope for Xcalar users",
+                    "type": "string"
+                },
+                "adminScope": {
+                    "description": "access uri for the scope for Xcalar admins",
+                    "type": "string"
+                },
+                "b2cEnabled": {
+                    "description": "endpoint is Microsoft Azure B2C",
+                    "type": "boolean"
+                },
+                "webApi": {
+                    "description": "B2C web api URL",
+                    "type": "string"
+                },
+                "authority": {
+                    "description": "B2C authentication service",
+                    "type": "string"
+                },
+                "azureEndpoint": {
+                    "description": "Azure Graph API endpoint (reserved for future use)",
+                    "type": "string"
+                },
+                "azureScopes": {
+                    "description": "Azure Graph API scopes (reserved for future use)",
+                    "type": "array",
+                    "minItems": 0,
+                    "items": { "type": "string" },
+                    "uniqueItems": true
+                }
+            },
+            "required": [ "clientId", "userScope", "adminScope", "b2cEnabled" ]
+        }
+    }
+};
+
+var emptyMsalConfig = {
+    msalEnabled: false,
+    msal: {
+        clientId: "",
+        userScope: "",
+        adminScope: "",
+        b2cEnabled: false,
+        webApi: "",
+        authority: "",
+        azureEndpoint: "",
+        azureScopes: []
+    }
+};
+
 
 var users = new Map();
 var globalLoginId = 0;
@@ -95,19 +274,112 @@ UserInformation.prototype = {
     }
 };
 
-function checkFilePerms(defaultAdminConfigPath) {
+function checkFilePerms(xlrRoot, defaultRelPath) {
     var deferred = jQuery.Deferred();
+    var message = { "success": false, "data": null, "message": "" };
 
-    fs.stat(defaultAdminConfigPath, function(error, stat) {
-        if (error) {
-            return deferred.reject("Could not stat " + defaultAdminConfigPath).promise();
+    if (typeof xlrRoot !== "string" ||
+        typeof defaultRelPath !== "string") {
+        message.message = "One or more path components is not a string";
+        deferred.reject(message);
+    } else {
+        var defaultConfigPath = path.join(xlrRoot, defaultRelPath);
+
+        fs.stat(defaultConfigPath, function(error, stat) {
+            if (error) {
+                message.message = "Could not stat " + defaultConfigPath;
+                return deferred.reject(message);
+            }
+
+            if ((stat.mode & 0777) !== 0600) {
+                message.message = "File permissions for " + defaultConfigPath + " are wrong (" + (stat.mode & 0777).toString(8) + " instead of " + 0600.toString(8) + ")";
+                return deferred.reject(message);
+            }
+
+            message.success = true;
+            message.message = "permission change successful";
+            deferred.resolve();
+        });
+    }
+
+    return deferred.promise();
+}
+
+function loadConfigModule(xlrRoot, defaultRelPath) {
+    var deferred = jQuery.Deferred();
+    var message = { "success": false, "data": null, "message": "" };
+
+    if (typeof xlrRoot !== "string" ||
+        typeof defaultRelPath !== "string") {
+        message.message = "One or more path components is not a string";
+        deferred.reject(message);
+    } else {
+        // the type check above should prevent path.join from throwing
+        // error
+        var defaultConfigPath = path.join(xlrRoot, defaultRelPath);
+
+        if (!fs.existsSync(defaultConfigPath)) {
+            var errMsg = "config file path does not exist: " + defaultConfigPath;
+            xcConsole.log(errMsg);
+            message.message = errMsg;
+            deferred.reject(message);
+        } else {
+            if (require.resolve(defaultConfigPath)) {
+                delete require.cache[require.resolve(defaultConfigPath)];
+            }
+
+            xcConsole.log("Preparing to load: " + defaultConfigPath);
+
+            require.async(defaultConfigPath, function(exports) {
+                message.success = true;
+                message.data = exports;
+                message.message = "module load successful";
+                xcConsole.log("load succeeded!");
+                deferred.resolve(message);
+            }, function(err) {
+                message.message = "module load failed: " + err.message;
+                xcConsole.log("load failed!");
+                deferred.reject(message);
+            });
         }
+    }
 
-        if ((stat.mode & 0777) !== 0600) {
-            return deferred.reject("File permissions for " + defaultAdminConfigPath + " are wrong (" + (stat.mode & 0777).toString(8) + " instead of " + 0600.toString(8) + ")").promise();
+    return deferred.promise();
+}
+
+function getDefaultAdmin() {
+    var deferred = jQuery.Deferred();
+    var message = { "status": httpStatus.OK, "defaultAdminEnabled": false, "config": null };
+    var defaultAdminConfig = {};
+    var validate = ajv.compile(defaultAdminSchema);
+    var xlrRoot = "";
+
+    support.getXlrRoot()
+    .then(function(path) {
+        xlrRoot = path;
+        return loadConfigModule(xlrRoot, defaultAdminConfigRelPath);
+    })
+    .then(function(moduleMsg) {
+        defaultAdminConfig = jQuery.extend(true, {},
+                                           emptyDefaultAdminConfig,
+                                           moduleMsg.data);
+
+        return checkFilePerms(xlrRoot, defaultAdminConfigRelPath);
+    })
+    .then(function(permMsg) {
+        var valid = validate(defaultAdminConfig);
+        if (!valid) {
+            message.error = JSON.stringify(validate.errors);
+            deferred.reject(message);
+        } else {
+            message.data = defaultAdminConfig;
+            deferred.resolve(message);
         }
-
-        deferred.resolve();
+    })
+    .fail(function(errorMsg) {
+        message.error = (xlrRoot !== "") ?
+            errorMsg.message : errorMsg;
+        deferred.reject(message);
     });
 
     return deferred.promise();
@@ -118,119 +390,77 @@ function setDefaultAdmin(defaultAdminConfigIn) {
     var defaultAdminConfigPath;
     var defaultAdminConfig = {};
     var message = { "status": httpStatus.OK, "success": false };
+    var validate = ajv.compile(defaultAdminSchema);
 
-    try {
-        for (var ii = 0; ii < defaultAdminFieldsRequired.length; ii++) {
-            if (!(defaultAdminConfigIn.hasOwnProperty(defaultAdminFieldsRequired[ii]))) {
-                throw "Invalid adminConfig provided";
-            }
-            defaultAdminConfig[defaultAdminFieldsRequired[ii]] = defaultAdminConfigIn[defaultAdminFieldsRequired[ii]];
-        }
-    } catch (error) {
-        message.error = error
-        return deferred.reject(message).promise();
+    var inputValid = validate(defaultAdminConfigIn);
+    if (!inputValid) {
+        message.error = JSON.stringify(validate.errors);
+        deferred.reject(message);
+        return deferred.promise();
     }
 
-    support.getXlrRoot()
-    .then(function(xlrRoot) {
-        defaultAdminConfigPath = path.join(xlrRoot, defaultAdminConfigRelPath);
-        defaultAdminConfig.password = crypto.createHmac("sha256", "xcalar-salt").update(defaultAdminConfig.password).digest("hex");
+    defaultAdminConfig = jQuery.extend(true, {},
+                                       emptyDefaultAdminConfig,
+                                       defaultAdminConfigIn);
+    defaultAdminConfig.password = crypto.createHmac("sha256", "xcalar-salt").update(defaultAdminConfig.password).digest("hex");
 
-        return (support.writeToFile(defaultAdminConfigPath, defaultAdminConfig, {"mode": 0600}));
-    })
-    .then(function() {
-        message.success = true;
-        deferred.resolve(message);
-    })
-    .fail(function(errorMsg) {
-        message.error = errorMsg;
+    var valid = validate(defaultAdminConfig);
+    if (!valid) {
+        message.error = JSON.stringify(validate.errors);
         deferred.reject(message);
-    });
+    } else {
+        support.getXlrRoot()
+        .then(function(xlrRoot) {
+            defaultAdminConfigPath = path.join(xlrRoot, defaultAdminConfigRelPath);
 
-    return deferred.promise();
-}
+            return (support.writeToFile(defaultAdminConfigPath, defaultAdminConfig, {"mode": 0600}));
+        })
+        .then(function() {
+            message.success = true;
+            deferred.resolve(message);
+        })
+        .fail(function(errorMsg) {
+            message.error = errorMsg;
+            deferred.reject(message);
+        });
+    }
 
-function getDefaultAdmin() {
-    var deferred = jQuery.Deferred();
-    var defaultAdminConfigPath;
-    var message = { "status": httpStatus.OK, "defaultAdminEnabled": false };
-    var defaultAdminConfig;
-
-    support.getXlrRoot()
-    .then(function(xlrRoot) {
-        defaultAdminConfigPath = path.join(xlrRoot, defaultAdminConfigRelPath);
-        // First, make sure we're the only user that can read/write the file
-        return checkFilePerms(defaultAdminConfigPath);
-    })
-    .then(function() {
-        try {
-            delete require.cache[require.resolve(defaultAdminConfigPath)];
-            defaultAdminConfig = require(defaultAdminConfigPath);
-        } catch (error) {
-            return jQuery.Deferred().reject("Error reading " + defaultAdminConfigPath + ": " + error).promise();
-        }
-
-        for (var ii = 0; ii < defaultAdminFieldsRequired.length; ii++) {
-            if (!(defaultAdminConfig.hasOwnProperty(defaultAdminFieldsRequired[ii]))) {
-                return jQuery.Deferred().reject(defaultAdminConfigPath + " is corrupted").promise();
-            }
-        }
-
-        defaultAdminConfig.status = message.status;
-        deferred.resolve(defaultAdminConfig);
-    })
-    .fail(function(errorMsg) {
-        message.error = errorMsg;
-        deferred.reject(message);
-    });
-
-    return deferred.promise();
+    return deferred.promise()
 }
 
 function getMsalConfig() {
     var deferred = jQuery.Deferred();
     var message = { "status": httpStatus.OK, "msalEnabled": false };
-    var msalConfig;
+    var msalConfig = {};
+    var validate = ajv.compile(msalConfigSchema);
+    var xlrRoot = "";
 
     support.getXlrRoot()
-    .then(function(xlrRoot) {
-        try {
-            var msalConfigPath = path.join(xlrRoot, msalConfigRelPath);
-            delete require.cache[require.resolve(msalConfigPath)];
-            msalConfig = require(msalConfigPath);
-        } catch (error) {
-            return jQuery.Deferred().reject("Error reading " + msalConfigPath + ": " + error).promise();
-        }
+    .then(function(path) {
+        xlrRoot = path;
+        return loadConfigModule(xlrRoot, msalConfigRelPath);
+    })
+    .then(function(moduleMsg) {
+        msalConfig = jQuery.extend(true, {},
+                                   emptyMsalConfig,
+                                   moduleMsg.data);
 
-        if (!(msalConfig.hasOwnProperty(msalEnabledField))) {
-            return jQuery.Deferred().reject(msalConfigPath + " is corrupted").promise();
-        }
-
-        for (var idx in msalFieldsRequired) {
-            if (!(msalConfig.msal.hasOwnProperty(msalFieldsRequired[idx]))) {
-                return jQuery.Deferred().reject(msalConfigPath + " is corrupted").promise();
-            }
-        }
-
-        for (var idx in msalFieldsOptional) {
-            type = msalFieldsOptionalTypes[idx];
-
-            if (!(msalConfig.msal.hasOwnProperty(msalFieldsOptional[idx]))) {
-                if (type === "string") {
-                    msalConfig.msal[msalFieldsOptional[idx]] = "";
-                } else if (type === "array") {
-                    msalConfig.msal[msalFieldsOptional[idx]] = [];
-                }
-            }
+        var valid = validate(msalConfig);
+        if (!valid) {
+            message.error = JSON.stringify(validate.errors);
+            deferred.reject(message);
+        } else {
+            message.data = msalConfig;
+            deferred.resolve(message);
         }
 
         enableB2C(msalConfig.msal.b2cEnabled);
 
-        msalConfig.status = message.status;
-        deferred.resolve(msalConfig);
+        deferred.resolve(message);
     })
     .fail(function(errorMsg) {
-        message.error = errorMsg;
+        message.error = (xlrRoot !== "") ?
+            errorMsg.message : errorMsg;
         deferred.reject(message);
     });
 
@@ -239,62 +469,77 @@ function getMsalConfig() {
 
 function setMsalConfig(msalConfigIn) {
     var deferred = jQuery.Deferred();
-    var message = { "status": httpStatus.OK, "success": false }
     var msalConfigPath;
-    var msalConfig = {
-        msalEnabled: null,
-        msal: {
-        }
-    };
+    var msalConfig = {};
+    var message = { "status": httpStatus.OK, "success": false };
+    var validate = ajv.compile(msalConfigSchema);
+
+    var inputValid = validate(msalConfigIn);
+    if (!inputValid) {
+        message.error = JSON.stringify(validate.errors);
+        xcConsole.log("invalid msalConfig: " + message.error);
+        deferred.reject(message);
+        return deferred.promise();
+    }
+
+    msalConfig = jQuery.extend(true, {},
+                               emptyMsalConfig,
+                               msalConfigIn);
+
+    var valid = validate(msalConfig);
+    if (!valid) {
+        message.error = JSON.stringify(validate.errors);
+        deferred.reject(message);
+    } else {
+        support.getXlrRoot()
+        .then(function(xlrRoot) {
+            msalConfigPath = path.join(xlrRoot, msalConfigRelPath);
+
+            enableB2C(msalConfig.msal.b2cEnabled);
+
+            return (support.writeToFile(msalConfigPath, msalConfig, {"mode": 0600}));
+        })
+        .then(function() {
+            message.success = true;
+            deferred.resolve(message);
+        })
+        .fail(function(errorMsg) {
+            message.error = errorMsg;
+            deferred.reject(message);
+        });
+    }
+
+    return deferred.promise();
+}
+
+function getLdapConfig() {
+    var deferred = jQuery.Deferred();
+    var message = { "status": httpStatus.OK, "ldapConfigEnabled": false };
+    var defaultLdapConfig = jQuery.extend({}, emptyLdapConfig);
+    var validate = ajv.compile(ldapConfigSchema);
+    var ldapConfigOut;
+    var xlrRoot = "";
 
     support.getXlrRoot()
-    .then(function(xlrRoot) {
-        // Make a copy of existing msalConfig.json if it exists
-        msalConfigPath = path.join(xlrRoot, msalConfigRelPath);
-        return (support.makeFileCopy(msalConfigPath));
+    .then(function(path) {
+        xlrRoot = path;
+        return loadConfigModule(xlrRoot, ldapConfigRelPath);
     })
-    .then(function() {
-        if (!(msalConfigIn.hasOwnProperty(msalEnabledField))) {
-            message.error = "Invalid msalConfig provided";
+    .then(function(moduleMsg) {
+        jQuery.extend(defaultLdapConfig, moduleMsg.data);
+
+        var valid = validate(defaultLdapConfig);
+        if (!valid) {
+            message.error = JSON.stringify(validate.errors);
             deferred.reject(message);
-            return;
+        } else {
+            message.data = defaultLdapConfig;
+            deferred.resolve(message);
         }
-
-        for (var idx in msalFieldsRequired) {
-            if (!(msalConfigIn.msal.hasOwnProperty(msalFieldsRequired[idx]))) {
-                message.error = "Invalid msalConfig provided with missing fields";
-                deferred.reject(message);
-                return;
-            }
-        }
-
-        for (var key in msalConfigIn.msal) {
-            oIdx = msalFieldsOptional.indexOf(key);
-
-            if (oIdx !== -1) {
-                oType = msalFieldsOptionalTypes[oIdx];
-
-                if ((oType === "string" &&
-                     msalConfigIn.msal[msalFieldsOptional[oIdx]] === "") ||
-                    (oType === "array" &&
-                     msalConfigIn.msal[msalFieldsOptional[oIdx]].length === 0)) {
-                    delete msalConfigIn.msal[msalFieldsOptional[oIdx]];
-                }
-            }
-        }
-
-        jQuery.extend(msalConfig, msalConfigIn);
-
-        enableB2C(msalConfig.msal.b2cEnabled);
-
-        return (support.writeToFile(msalConfigPath, msalConfig, {"mode": 0600}));
     })
-    .then(function () {
-        message.success = true;
-        deferred.resolve(message);
-    })
-    .fail(function (errorMsg) {
-        message.error = errorMsg;
+    .fail(function(errorMsg) {
+        message.error = (xlrRoot !== "") ?
+            errorMsg.message : errorMsg;
         deferred.reject(message);
     });
 
@@ -303,109 +548,93 @@ function setMsalConfig(msalConfigIn) {
 
 function setLdapConfig(ldapConfigIn) {
     var deferred = jQuery.Deferred();
-    var message = { "status": httpStatus.OK, "success": false }
     var ldapConfigPath;
-    var ldapConfigOut = {};
+    var writeLdapConfig = jQuery.extend();
+    var message = { "status": httpStatus.OK, "success": false };
+    var validate = ajv.compile(ldapConfigSchema);
 
-    support.getXlrRoot()
-    .then(function(xlrRoot) {
-        // Make a copy of existing ldapConfig.json if it exists
-        ldapConfigPath = path.join(xlrRoot, ldapConfigRelPath);
-        return (support.makeFileCopy(ldapConfigPath));
-    })
-    .then(function() {
-        try {
-            for (var ii = 0; ii < ldapConfigFieldsRequired.length; ii++) {
-                if (!(ldapConfigIn.hasOwnProperty(ldapConfigFieldsRequired[ii]))) {
-                    throw "Invalid ldapConfig provided"
-                }
-                ldapConfigOut[ldapConfigFieldsRequired[ii]] = ldapConfigIn[ldapConfigFieldsRequired[ii]];
-            }
-
-            for (var ii = 0; ii < ldapConfigFieldsAdOptional.length; ii++) {
-                if (ldapConfigIn.hasOwnProperty(ldapConfigFieldsAdOptional[ii])) {
-                    ldapConfigOut[ldapConfigFieldsAdOptional[ii]] = ldapConfigIn[ldapConfigFieldsAdOptional[ii]];
-                }
-            }
-        } catch (error) {
-            return jQuery.Deferred().reject(error).promise();
-        }
-
-        return (support.writeToFile(ldapConfigPath, ldapConfigOut, {"mode": 0600}));
-    })
-    .then(function() {
-        message.success = true;
-        // Force a refresh of setupLdapConfigs the next time we get an ldap authentication request
-        isLdapConfigSetup = false;
-        deferred.resolve(message);
-    })
-    .fail(function(errorMsg) {
-        message.error = errorMsg.toString();
+    var inputValid = validate(ldapConfigIn);
+    if (!inputValid) {
+        message.error = JSON.stringify(validate.errors);
         deferred.reject(message);
-    });
+        return deferred.promise();
+    }
 
-    return deferred.promise();
-}
+    writeLdapConfig = jQuery.extend(true, {},
+                                    emptyLdapConfig,
+                                    ldapConfigIn);
 
-function getLdapConfig() {
-    var deferred = jQuery.Deferred();
-    var message = { "status": httpStatus.OK, "ldapConfigEnabled": false };
-    var ldapConfigOut;
-
-    support.getXlrRoot()
-    .then(function(xlrRoot) {
-        try {
-            var ldapConfigPath = path.join(xlrRoot, ldapConfigRelPath);
-            delete require.cache[require.resolve(ldapConfigPath)];
-            ldapConfigOut = require(ldapConfigPath);
-        } catch (error) {
-            return jQuery.Deferred().reject("Error reading " + ldapConfigPath + ": " + error).promise();
-        }
-
-        for (var ii = 0; ii < ldapConfigFieldsRequired.length; ii++) {
-            if (!(ldapConfigOut.hasOwnProperty(ldapConfigFieldsRequired[ii]))) {
-                return jQuery.Deferred().reject(ldapConfigPath + " is corrupted").promise();
-            }
-        }
-
-        ldapConfigOut.status = message.status;
-        deferred.resolve(ldapConfigOut);
-    })
-    .fail(function(errorMsg) {
-        message.error = errorMsg;
+    var valid = validate(writeLdapConfig);
+    if (!valid) {
+        message.error = JSON.stringify(validate.errors);
         deferred.reject(message);
-    });
+    } else {
+        ldapConfig = writeLdapConfig;
+
+        support.getXlrRoot()
+        .then(function(xlrRoot) {
+            ldapConfigPath = path.join(xlrRoot, ldapConfigRelPath);
+            return (support.makeFileCopy(ldapConfigPath));
+        })
+        .then(function() {
+            return (support.writeToFile(ldapConfigPath, ldapConfig, {"mode": 0600}));
+        })
+        .then(function() {
+            message.success = true;
+            deferred.resolve(message);
+        })
+        .fail(function(errorMsg) {
+            message.error = errorMsg;
+            deferred.reject(message);
+        });
+    }
 
     return deferred.promise();
 }
 
 function setupLdapConfigs(forceSetup) {
     var deferred = jQuery.Deferred();
+    var gotLdapConfig = false;
+
     if (isLdapConfigSetup && !forceSetup) {
         deferred.resolve();
     } else {
-        support.getXlrRoot()
-        .then(function(xlrRoot) {
-            try {
-                var ldapConfigPath = path.join(xlrRoot, ldapConfigRelPath);
-                delete require.cache[require.resolve(ldapConfigPath)];
-                ldapConfig = require(ldapConfigPath);
-                if (!ldapConfig.ldapConfigEnabled) {
-                    throw "LDAP authentication is disabled";
-                }
+        getLdapConfig()
+        .then(function(ldapConfigMsg) {
+            // ldapConfig is a global
+            ldapConfig = ldapConfigMsg.data;
+            isLdapConfigSetup = true;
+            gotLdapConfig = true;
 
-                trustedCerts = [fs.readFileSync(ldapConfig.serverKeyFile)];
-                isLdapConfigSetup = true;
-                deferred.resolve('setupLdapConfigs succeeds');
-            } catch (error) {
-                xcConsole.log(error);
-                deferred.reject('setupLdapConfigs failed: ' + error);
+            if (!ldapConfig.ldapConfigEnabled) {
+                var errMsg = "LDAP authentication is disabled";
+                xcConsole.log(errMsg);
+                deferred.reject(errMsg);
             }
+
+            if (!ldapConfig.serverKeyFile ||
+                ldapConfig.serverKeyFile === "") {
+                var errMsg = "server key file not set";
+                xcConsole.log(errMsg);
+                deferred.reject(errMsg);
+            }
+
+            if (!fs.existsSync(ldapConfig.serverKeyFile)) {
+                var errMsg = "server key file does not exist";
+                xcConsole.log(errMsg);
+                deferred.reject(errMsg);
+            }
+
+            trustedCerts = [fs.readFileSync(ldapConfig.serverKeyFile)];
+            deferred.resolve('setupLdapConfigs succeeds');
         })
-        .fail(function() {
-            deferred.reject('setupLdapConfigs fails');
+        .fail(function(message) {
+            var errMsg = (gotLdapConfig) ? message : message.error;
+            isLdapConfigSetup = false;
+            deferred.reject('setupLdapConfigs fails ' + errMsg);
         });
     }
+
     return deferred.promise();
 }
 
@@ -661,7 +890,7 @@ function prepareResponse(loginId, activeDir) {
             var isAdmin = user.isAdmin();
             var isSupporter = user.isSupporter();
             var userInfo = {
-                "firstName ": user.firstName,
+                "firstName": user.firstName,
                 "mail": user.mail,
                 "isValid": true,
                 "isAdmin": isAdmin,
@@ -675,6 +904,7 @@ function prepareResponse(loginId, activeDir) {
     }
     return deferred.promise();
 }
+
 function increaseLoginId() {
     globalLoginId++;
 }
@@ -729,7 +959,8 @@ function loginAuthentication(credArray) {
 
     // Check if defaultAdmin is turned on
     getDefaultAdmin()
-    .then(function(defaultAdminConfig) {
+    .then(function(defaultAdminMsg) {
+        var defaultAdminConfig = defaultAdminMsg.data;
         if (!defaultAdminConfig.defaultAdminEnabled) {
             // Default admin not enabled. Try LDAP
             return jQuery.Deferred().reject().promise();
@@ -804,41 +1035,83 @@ var searchFilter = "";
 var activeDir = false;
 var serverKeyFile = '/etc/ssl/certs/ca-certificates.crt';
 */
-router.post('/login', function(req, res) {
+router.post('/login', function(req, res, next) {
     xcConsole.log("Login process");
     var credArray = req.body;
     loginAuthentication(credArray)
     .always(function(message) {
+        res.locals.message = JSON.stringify(message);
+        next();
+    });
+}, [support.loginAuth]);
+
+router.post('/logout',
+            [support.checkAuth], function(req, res) {
+    var email = req.session.emailAddress;
+    var message = {
+        'status': httpStatus.OK,
+        'message': 'User ' + email + ' is logged out'
+    }
+    req.session.destroy(function(err) {
+        if (err) {
+            message = {
+                'status': httpStatus.BadRequest,
+                'message': 'Error logging out user ' + email + ' :' + JSON.stringify(err)
+            }
+        }
+
         res.status(message.status).send(message);
     });
 });
 
 router.post('/login/with/HttpAuth', function(req, res) {
     xcConsole.log("Login with http auth");
-    try {
-        var credString = atob(req.body.credentials);
+    const credBuffer = new Buffer(req.body.credentials, 'base64');
+    var credString = credBuffer.toString();
+    var delimitPos = credString.indexOf(":");
+    var errMsg = "";
+
+    if (delimitPos !== -1) {
         var credArray = {
-            "xiusername": credString.substring(0, credString.indexOf(":")),
-            "xipassword": credString.substring(credString.indexOf(":") + 1)
-        };
-        loginAuthentication(credArray)
-        .then(function(message) {
-            var userInfo = message;
-            delete userInfo.status
+            "xiusername": credString.substring(0, delimitPos),
+            "xipassword": credString.substring(delimitPos + 1)
+        }
 
-            // Add in token information for SSO access
-            userInfo.timestamp = Date.now();
-            userInfo.signature = crypto.createHmac("sha256", "xcalar-salt2").update(JSON.stringify(userInfo, Object.keys(userInfo).sort())).digest("hex");
+        if (credArray['xiusername'].length > 0) {
+            loginAuthentication(credArray)
+            .then(function(message) {
+                // Add in token information for SSO access
+                message.timestamp = Date.now();
+                message.signature = crypto.createHmac("sha256", "xcalar-salt2").update(JSON.stringify(userInfo, Object.keys(userInfo).sort())).digest("hex");
+                delete message.status;
 
-            var token = btoa(JSON.stringify(userInfo));
-            res.status(200).send({"data": token});
-        })
-        .fail(function(message) {
-            res.status(403).send({"errorMsg": "Invalid credentials"});
-        });
-    } catch (err) {
-        res.status(400).send({"errorMsg": "Malformed credentials: " + err})
+                if (message.isValid) {
+                    req.session.loggedIn = (message.isSupporter ||
+                                            message.isAdmin);
+
+                    req.session.loggedInAdmin = message.isAdmin;
+                    req.session.loggedInUser = message.isSupporter;
+
+                    req.session.firstName = message.firstName;
+                    req.session.emailAddress = message.mail;
+                }
+
+                const tokenBuffer = new Buffer(JSON.stringify(message));
+                res.status(httpStatus.OK).send(tokenBuffer.toString('base64'));
+                return;
+            })
+            .fail(function(message) {
+                res.status(httpStatus.Forbidden).send("Invalid credentials");
+                return
+            });
+        } else {
+            errMsg = 'no username provided';
+        }
+    } else {
+        errMsg = 'no username or password provided';
     }
+
+    res.status(httpStatus.BadRequest).send("Malformed credentials: " + errMsg)
 });
 
 router.post('/login/verifyToken', function(req, res) {
@@ -868,37 +1141,43 @@ router.post('/login/verifyToken', function(req, res) {
     }
 });
 
-router.post('/login/msalConfig/get', function(req, res) {
+router.post('/login/msalConfig/get',
+            [support.checkAuth], function(req, res) {
     xcConsole.log("Getting msal config");
     getMsalConfig()
-    .always(function(message) {
-        xcConsole.log("Get msal config: " + JSON.stringify(message));
+    .then(function(message) {
+        res.status(message.status).send(message.data);
+    }, function(message) {
         res.status(message.status).send(message);
     });
 });
 
-router.post('/login/msalConfig/set', function(req, res) {
+
+router.post('/login/msalConfig/set',
+            [support.checkAuthAdmin], function(req, res) {
     xcConsole.log("Setting msal config");
     var credArray = req.body;
     setMsalConfig(credArray)
     .always(function(message) {
-        xcConsole.log("Set msal config: " + JSON.stringify(message));
         res.status(message.status).send(message);
     });
 });
 
-router.post('/login/defaultAdmin/get', function(req, res) {
+
+router.post('/login/defaultAdmin/get',
+            [support.checkAuth], function(req, res) {
     xcConsole.log("Getting default admin");
     getDefaultAdmin()
-    .always(function(message) {
-        // Don't return password
-        delete message.password
+    .then(function(message) {
+        delete message.data.password;
+        res.status(message.status).send(message.data);
+    }, function(message) {
         res.status(message.status).send(message);
-    }
-    );
+    });
 });
 
-router.post('/login/defaultAdmin/set', function(req, res) {
+router.post('/login/defaultAdmin/set',
+            [support.checkAuthAdmin], function(req, res) {
     xcConsole.log("Setting default admin");
     var credArray = req.body;
     setDefaultAdmin(credArray)
@@ -907,7 +1186,20 @@ router.post('/login/defaultAdmin/set', function(req, res) {
     });
 });
 
-router.post('/login/ldapConfig/set', function(req, res) {
+router.post('/login/ldapConfig/get',
+            [support.checkAuth], function(req, res) {
+    xcConsole.log("Getting ldap config");
+    getLdapConfig()
+    .then(function(message) {
+        res.status(message.status).send(message.data);
+    }, function(message) {
+        res.status(message.status).send(message);
+    });
+});
+
+
+router.post('/login/ldapConfig/set',
+            [support.checkAuthAdmin], function(req, res) {
     xcConsole.log("Setting ldap config");
     var credArray = req.body;
     setLdapConfig(credArray)
@@ -916,13 +1208,19 @@ router.post('/login/ldapConfig/set', function(req, res) {
     });
 });
 
-router.post('/login/ldapConfig/get', function(req, res) {
-    xcConsole.log("Getting ldap config");
-    getLdapConfig()
-    .always(function(message) {
-        res.status(message.status).send(message);
-    })
-});
+if (process.env.NODE_ENV === "test") {
+    router.post('/login/test/user',
+            [support.checkAuth], function(req, res) {
+        xcConsole.log("testing user auth");
+        res.status(httpStatus.OK).send("user auth successful");
+    });
+
+    router.post('/login/test/admin',
+                [support.checkAuthAdmin], function(req, res) {
+        xcConsole.log("testing admin auth");
+        res.status(httpStatus.OK).send("admin auth successful");
+    });
+}
 
 // Below part is only for Unit Test
 function fakeSetupLdapConfigs(func) {
