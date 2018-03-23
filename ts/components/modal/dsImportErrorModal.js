@@ -101,6 +101,8 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
         modalHelper.setup();
         modalId = Date.now();
         hasRecordErrors = isRecordError;
+        $modal.find(".infoTotalErrors").find(".value").text("N/A");
+        $modal.find(".infoTotalFiles").find(".value").text("N/A");
         if (numErrors) {
             $modal.find(".infoTotalErrors").find(".value").text(xcHelper.numToStr(numErrors));
         }
@@ -110,7 +112,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
         XcalarMakeResultSetFromDataset(dsName, true)
         .then(function (result) {
             curResultSetId = result.resultSetId;
-            $modal.find(".infoTotalFiles").find(".value").text(result.numEntries);
+
             var numRowsToFetch = Math.min(result.numEntries, numRecordsToShow);
 
             refreshScrollBar(result.numEntries);
@@ -199,7 +201,6 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
                 return;
             }
             var html = "";
-            var fileInfos = [];
             for (var i = 0; i < msgs.length; i++) {
                 var fileInfo = msgs[i];
                 files[fileInfo.fullPath] = fileInfo;
@@ -213,8 +214,12 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
             if (scrollMeta.currentRowNumber >= scrollMeta.numRecords) {
                 $fileList.addClass("full");
             }
-
-            deferred.resolve(fileInfos);
+            var numFiles = xcHelper.numToStr(msgs.length);
+            if (scrollMeta.currentRowNumber < scrollMeta.numRecords) {
+                numFiles += "+";
+            }
+            $modal.find(".infoTotalFiles").find(".value").text(numFiles);
+            deferred.resolve(msgs);
         });
 
         return deferred.promise();

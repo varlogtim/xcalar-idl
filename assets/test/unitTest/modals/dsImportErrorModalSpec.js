@@ -202,7 +202,7 @@ describe("DSImportErrorModal Test", function() {
             xcHelper.downloadAsFile = function(name, data) {
                 var parsedData = JSON.parse(data);
                 expect(parsedData.length).to.equal(200);
-                expect(parsedData[0].FileName).to.equal("path0")
+                expect(parsedData[0].fileName).to.equal("path0")
                 expect(parsedData[0].recordNumber).to.equal(0)
                 expect(parsedData[0].error).to.equal("fakeError");
                 expect(parsedData[199].FileName).to.equal("path99")
