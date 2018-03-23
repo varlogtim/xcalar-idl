@@ -326,23 +326,44 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                    "web_returns", "web_sales", "web_site"]
     };
 
-    SqlTestSuite.runSqlTests = function(hasAnimation, toClean, noPopup, mode, withUndo,
-                                timeDilation) {
-        // var tableNames = {};
+    SqlTestSuite.runSqlTests = function(testName, hasAnimation, toClean,
+                                        noPopup, mode, withUndo, timeDilation) {
         test = TestSuite.createTest();
         test.setMode(mode);
-        initializeTests();
+        initializeTests(testName);
         return test.run(hasAnimation, toClean, noPopup, withUndo, timeDilation);
     };
-    function initializeTests() {
+    function initializeTests(testName) {
         // Add all test cases here
-        test.add(tpchTest, "TpchTest", defaultTimeout, TestCaseEnabled);
+        if (!testName) {
+            // XXX TO-DO
+            console.error("Please manually run your test cases");
+            return;
+        }
+        test.add(sqlTest, testName, defaultTimeout, TestCaseEnabled);
     }
-    function tpchTest(deferred, testName, currentTestNumber) {
+    function sqlTest(deferred, testName, currentTestNumber) {
         setUpTpchDatasets({});
         function setUpTpchDatasets(tableStruct) {
-            var dataSource = testDataLoc + tpcdsTables.dataSource;
-            var tableNames = tpcdsTables.tableNames;
+            var dataSource;
+            var tableNames;
+            var quries;
+            var isTPCH = false;
+            if (testName.toLowerCase() === "tpch") {
+                dataSource = testDataLoc + tpchTables.dataSource;
+                tableNames = tpchTables.tableNames;
+                quries = tpchCases;
+                isTPCH = true;
+            } else if (testName.toLowerCase() === "tpcds") {
+                dataSource = testDataLoc + tpcdsTables.dataSource;
+                tableNames = tpcdsTables.tableNames;
+                // XXX TO-DO create TPC-DS test cases
+                // quries = tpcdsCases;
+            } else {
+                var error = "Test case doesn't exist";
+                console.error(error);
+                test.fail(deferred, testName, currentTestNumber, error);
+            }
             var checkList = [];
             for (var i = 0; i < tableNames.length; i++) {
                 checkList.push("#previewTable td:eq(1):contains('')");
@@ -350,23 +371,31 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             var randId = Math.floor(Math.random() * 1000);
             var promiseArray = [];
             for (var i = 0; i < tableNames.length; i++) {
-                // var dataPath = dataSource + tableNames[i] + ".tbl";
-                var dataPath = dataSource + tableNames[i] + ".dat";
+                var extension = isTPCH ? ".tbl" : ".dat";
+                var dataPath = dataSource + tableNames[i] + extension;
                 tableStruct[tableNames[i]] = randId;
                 var tableName = tableNames[i];
                 var check = checkList[i];
                 promiseArray.push(prepareData.bind(window, test, tableName,
-                                                   randId, dataPath, check));
+                                                   randId, dataPath, check, i));
             }
+            // Remove all immediates
+            promiseArray.push(dropTempTables);
             PromiseHelper.chain(promiseArray)
-            // .then(function() {
-            //     return runAllQueries(tpchCases);
-            // })
+            .then(function() {
+                WSManager.addWS();
+                if (isTPCH) {
+                    return runAllQueries(quries);
+                } else {
+                    // XXX TO-DO run TPC-DS queries here
+                    return PromiseHelper.resolve();
+                }
+            })
             .then(function() {
                 test.pass(deferred, testName, currentTestNumber);
             })
             .fail(function(error) {
-                console.error(error, " tpchTest failed");
+                console.error(error, " failed");
                 test.fail(deferred, testName, currentTestNumber, error);
             });
         }
@@ -446,8 +475,12 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         return TableList.refreshOrphanList(false)
                 .then(deleteTables, deleteTables);
     }
-    function prepareData(test, tableName, randId, dataPath, check) {
+    function prepareData(test, tableName, randId, dataPath, check, index) {
         var deferred = PromiseHelper.deferred();
+        // Create a new worksheet after each 5 tables have been loaded
+        if (index > 0 && index % 5 === 0) {
+            WSManager.addWS();
+        }
         // Load datasets
         loadDatasets(test, tableName, randId, dataPath, check)
         .then(function() {
