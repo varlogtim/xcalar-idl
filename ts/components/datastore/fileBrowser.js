@@ -374,7 +374,7 @@ window.FileBrowser = (function($, FileBrowser) {
             var $li = $(this).closest("li");
             if (!$li.hasClass("regex")) {
                 // Unselect single file from pickedFileList
-                var fileName = $li.data("name");
+                var fileName = String($li.data("name"));
                 var escName = xcHelper.escapeDblQuote(fileName);
                 var $grid = $fileBrowser
                             .find('.fileName[data-name="' + escName + '"]')
@@ -1077,7 +1077,7 @@ window.FileBrowser = (function($, FileBrowser) {
         var invalidRegex = false;
         // load dataset
         if ($ds != null && $ds.length > 0) {
-            var fileName = $ds.find(".fileName").data("name");
+            var fileName = getGridUnitName($ds);
             var path = curDir + fileName;
             files.push({
                 path: path,
@@ -1517,7 +1517,7 @@ window.FileBrowser = (function($, FileBrowser) {
 
         if ($grid.length > 0) {
             grid = {
-                "name": $grid.find(".label").data("name"),
+                "name": getGridUnitName($grid),
                 "type": $grid.hasClass("folder") ? "folder" : "ds"
             };
         }
@@ -1686,9 +1686,10 @@ window.FileBrowser = (function($, FileBrowser) {
 
     function refreshIcon() {
         var isListView = $fileBrowserMain.hasClass("listView");
-        $container.find(".grid-unit.ds .icon").each(function() {
-            var $icon = $(this);
-            var name = $icon.next().data("name");
+        $container.find(".grid-unit.ds").each(function() {
+            var $grid = $(this);
+            var $icon = $grid.find(".icon").eq(1);
+            var name = getGridUnitName($grid);
             var fileType = xcHelper.getFormat(name);
             if (fileType && listFormatMap.hasOwnProperty(fileType) &&
                 gridFormatMap.hasOwnProperty(fileType)) {
@@ -1720,9 +1721,10 @@ window.FileBrowser = (function($, FileBrowser) {
         var ctx = canvas.getContext('2d');
         ctx.font = isListView ? '700 12px Open Sans' : '700 9px Open Sans';
 
-        $innerContainer.find(".label").each(function() {
-            var $label = $(this);
-            var name = $label.data("name");
+        $innerContainer.find(".grid-unit").each(function() {
+            var $grid = $(this);
+            var $label = $grid.find(".label").eq(0);
+            var name = getGridUnitName($grid);
             var ellipsis = xcHelper.middleEllipsis(name, $label, maxChar,
                                                    maxWidth, !isListView, ctx);
             toggleTooltip($label, name, ellipsis);
@@ -2245,8 +2247,8 @@ window.FileBrowser = (function($, FileBrowser) {
             $pickedFileList.empty();
         } else if (!$grid || $grid.length === 0) {
             // Multiple files
-            $innerContainer.find(".selected").each(function() {
-                var name = $(this).find(".fileName").data("name");
+            $innerContainer.find(".grid-unit.selected").each(function() {
+                var name = getGridUnitName($(this));
                 var escName = xcHelper.escapeDblQuote(name);
                 if (options && options.isRemove) {
                     $pickedFileList.find('li[data-fullpath="' + escPath + escName +
@@ -2261,7 +2263,7 @@ window.FileBrowser = (function($, FileBrowser) {
             });
         } else {
             // Single file
-            var name = $grid.find(".fileName").data("name");
+            var name = getGridUnitName($grid);
             var escName = xcHelper.escapeDblQuote(name);
             if (options && options.isRemove) {
                 $pickedFileList.find('li[data-fullpath="' + escPath + escName +
