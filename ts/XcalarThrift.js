@@ -4505,6 +4505,27 @@ XcalarSwitchToWorkbook = function(toWhichWorkbook, fromWhichWorkbook) {
     return (deferred.promise());
 };
 
+// XXX this function is temporarily using SessionSwitch to 
+// produce the multiple active workbook behavior
+// switch this to use the correct API when Bug 11523 is ready
+XcalarActivateWorkbook = function(workbookName) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+    var deferred = PromiseHelper.deferred();
+    // fromWhichWorkbook can be null
+    xcalarApiSessionSwitch(tHandle, workbookName, "notExists12345XYZ", true)
+    .then(function(output) {
+        deferred.resolve(output);
+    })
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarActivateWorkbook", error);
+        Log.errorLog("Activate Workbook", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+    return (deferred.promise());
+}
+
 XcalarRenameWorkbook = function(newName, oldName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
