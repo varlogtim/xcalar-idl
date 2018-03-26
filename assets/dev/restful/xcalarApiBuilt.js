@@ -1494,19 +1494,20 @@ require("jsdom").env("", function(err, window) {
     require("../../../assets/js/thrift/XcalarApiServiceAsync.js");
     xcalarApi = require("../../../assets/js/thrift/XcalarApi.js");
 
-    require("../../../assets/js/globals.js");
-    require("../../../assets/js/enums.js");
 
     global.PromiseHelper = PromiseHelper = require("../../../assets/js/promiseHelper.js");
-    global.xcHelper = xcHelper = require("../../../assets/js/util/xcHelper.js");
-    global.Transaction = Transaction = require("../../../assets/js/util/transaction.js");
+    global.xcHelper = xcHelper = require("../../../assets/js/shared/util/xcHelper.js");
+    global.Transaction = Transaction = require("../../../assets/js/shared/helperClasses/transaction.js");
+
+    require("../../../assets/js/shared/setup/xcGlobal.js");
+    require("../../../assets/js/shared/setup/enums.js");
 
     hackFunction();
 
     require("../../../assets/js/XcalarThrift.js");
-    global.XIApi = XIApi = require("../../../assets/js/util/xiApi.js");
-    global.SQLApi = SQLApi = require("../../../assets/js/sql/sqlApi.js");
-    SQLCompiler = require("../../../assets/js/sql/sqlCompiler.js");
+    global.XIApi = XIApi = require("../../../assets/js/shared/api/xiApi.js");
+    global.SQLApi = SQLApi = require("../../../assets/js/components/sql/sqlApi.js");
+    SQLCompiler = require("../../../assets/js/components/sql/sqlCompiler.js");
 });
 
 function hackFunction() {
