@@ -596,8 +596,6 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
 
         var animClasses = ".label, .info, .workbookName, .rightBar";
         $updateCard.removeClass("loading")
-            .find(".loadSection").remove()
-            .end()
             .addClass("finishedLoading")
             .find(animClasses).hide().fadeIn();
         setTimeout(function() {

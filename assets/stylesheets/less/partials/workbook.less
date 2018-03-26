@@ -399,7 +399,9 @@
             }
 
             .content, .rightBar {
-                display: none;
+                display: none !important; // new workbook tiles have a
+                // display:block from .show() on the rightBar so we need to
+                // overwrite this
             }
             .rightBar {
                 .tab {
@@ -427,7 +429,7 @@
             }
 
             .animatedEllipsisWrapper {
-                .size(@width: 140px, @height: 20px);
+                .size(@width: 150px, @height: 20px);
                 .center-align;
 
                 .animatedEllipsis {
@@ -490,11 +492,12 @@
             background-color: @color-bg-white-three;
             overflow: hidden;
             width: @tabHeight;
-            box-shadow: -2px 0 2px 0 rgba(0, 0, 0, 0.23);
         }
 
         .vertBarBtn {
             cursor: pointer;
+            height: 25%;
+
             &:nth-child(1) {
                 .tab {
                     .transition-delay(0.24s);
@@ -521,7 +524,7 @@
 
         .tab {
             background-color: @color-bg-select-blue;
-            .size(100%, 25%);
+            .size(100%, 100%);
             border-top: 1px solid @color-bg-dusk-blue;
             border-left: 1px solid @color-bg-dusk-blue;
             display: block;
