@@ -182,7 +182,7 @@ window.UExtHello = (function(UExtHello) {
         ],
     }];
 
-    // UExtHello.actionFn must reutrn a XcSDK.Extension obj or null
+    // UExtHello.actionFn must return a XcSDK.Extension obj or null
     UExtHello.actionFn = function(functionName) {
         // it's a good convention to use switch/case to handle
         // different function in the extension and handle errors.
