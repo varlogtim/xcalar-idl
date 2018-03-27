@@ -341,6 +341,12 @@
                 "right": 1
             });
         }
+        function notNode() {
+            return new TreeNode({
+                "class": "org.apache.spark.sql.catalyst.expressions.Not",
+                "num-children": 1,
+            });
+        }
         function eqNode() {
             return new TreeNode({
                 "class": "org.apache.spark.sql.catalyst.expressions.EqualTo",
@@ -733,8 +739,8 @@
                 break;
             // XXX if format %Y-%m, UDF assume day is 13
             // And 1995-10-29 + 1 day = 1995-10-29
-            case("expressions.DateAdd"):
-            case("expressions.DateSub"):
+            case ("expressions.DateAdd"):
+            case ("expressions.DateSub"):
                 var asNode;
                 if(opName === "expressions.DateAdd") {
                     asNode = addNode();
@@ -750,6 +756,13 @@
                 caNode.children = [dttsNode]
                 asNode.children = [caNode, mulNode];
                 node = tstdNode;
+                break;
+            case ("expressions.IsNull"):
+                var nNode = notNode();
+                var notNNode = existNode();
+                nNode.children = [notNNode];
+                notNNode.children = [node.children[0]];
+                node = nNode;
                 break;
             default:
                 break;
@@ -936,6 +949,9 @@
                     break;
                 case ("Union"):
                     retStruct = self._pushDownUnion(treeNode);
+                    break;
+                case ("Window"):
+                    retStruct = self._pushDownWindow(treeNode);
                     break;
                 default:
                     console.error("Unexpected operator: " + treeNodeClass);
@@ -1292,66 +1308,13 @@
         _pushDownSort: function(node) {
             var self = this;
             assert(node.children.length === 1);
-            function genSortStruct(orderArray, options) {
-                var sortColsAndOrder = [];
-                var colNameSet = new Set();
-                for (var i = 0; i < orderArray.length; i++) {
-                    var order = orderArray[i][0].direction.object;
-                    assert(orderArray[i][0].class ===
-                        "org.apache.spark.sql.catalyst.expressions.SortOrder");
-                    order = order.substring(order.lastIndexOf(".") + 1);
-                    if (order === "Ascending$") {
-                        order = XcalarOrderingT.XcalarOrderingAscending;
-                    } else if (order === "Descending$") {
-                        order = XcalarOrderingT.XcalarOrderingDescending;
-                    } else {
-                        console.error("Unexpected sort order");
-                        assert(0);
-                    }
-                    assert(orderArray[i][1].class ===
-                "org.apache.spark.sql.catalyst.expressions.AttributeReference");
-                    var colName = cleanseColName(orderArray[i][1].name);
-                    var id = orderArray[i][1].exprId.id;
-                    if (options && options.renamedCols &&
-                        options.renamedCols[id]) {
-                        colName = options.renamedCols[id];
-                    }
-
-                    var type = orderArray[i][1].dataType;
-                    switch (type) {
-                        case ("integer"):
-                        case ("boolean"):
-                        case ("string"):
-                            break;
-                        case ("long"):
-                            type = "integer";
-                            break;
-                        case ("double"):
-                            type = "float";
-                            break;
-                        case ("date"):
-                            type = "string";
-                            break;
-                        default:
-                            assert(0);
-                            type = "string";
-                            break;
-                    }
-                    if (!colNameSet.has(colName)) {
-                        colNameSet.add(colName);
-                        sortColsAndOrder.push({name: colName,
-                                               type: type,
-                                               ordering: order});
-                    }
-                }
-                return sortColsAndOrder;
-            }
             var options = {renamedCols: node.renamedCols};
-            var sortColsAndOrder = genSortStruct(node.value.order, options);
+            var sortColsAndOrder = __genSortStruct(node.value.order, options);
             var tableName = node.children[0].newTableName;
 
             return self.sqlObj.sort(sortColsAndOrder, tableName);
         },
+
         _pushDownXcAggregate: function(node) {
             // This is for Xcalar Aggregate which produces a single value
             var self = this;
@@ -1382,6 +1345,7 @@
                                                     tableName,
                                                     node.subqVarName);
         },
+
         _pushDownAggregate: function(node) {
             // There are 4 possible cases in aggregates (groupbys)
             // 1 - f(g) => Handled
@@ -1972,6 +1936,7 @@
 
             return deferred.promise();
         },
+
         _pushDownUnion: function(node) {
             var self = this;
             // Union has at least two children
@@ -2001,6 +1966,94 @@
             // XXX Since we support dedup flag, we may consider optimization.
             // It will save us one groupBy.
             return self.sqlObj.union(tableInfos, false, newTableName);
+        },
+
+        // XXX need to confirm detail about column info
+        _pushDownWindow: function(node) {
+            var self = this;
+            var deferred = PromiseHelper.deferred();
+            var loopStruct = {cli: "", node: node, self: self};
+            var cli = "";
+
+            // Window should has one child
+            assert(node.children.length === 1);
+
+            // Sort the table first because windowExps in same window node
+            // share same order
+            // If no sortOrder specified => aggregate window, no need to sort
+            var options = {renamedCols: node.renamedCols};
+            loopStruct.groupByCols = __genGBColArray(node.value.partitionSpec);
+            loopStruct.sortColsAndOrder =
+                                __genSortStruct(node.value.orderSpec, options);
+            var tableName = node.children[0].newTableName;
+            var curPromise;
+            if (loopStruct.sortColsAndOrder.length === 0
+                                    && loopStruct.groupByCols.length === 0) {
+                var innerDeferred = PromiseHelper.deferred();
+                innerDeferred.resolve({"cli": "",
+                                       "newTableName": tableName});
+                curPromise = innerDeferred.promise();
+            } else {
+                curPromise = self.sqlObj.sort(
+                            __concatColInfoForSort(loopStruct.groupByCols,
+                                loopStruct.sortColsAndOrder), tableName);
+            }
+
+            // Generate row number after sort, may check if needed
+            // to reduce operation number
+            var tableId = xcHelper.getTableId(tableName);
+            loopStruct.indexColStruct = {colName: "XC_ROW_COL_" + tableId};
+            node.xcCols.push(loopStruct.indexColStruct);
+            curPromise = curPromise.then(function(ret) {
+                cli += ret.cli;
+                return self.sqlObj.genRowNum(ret.newTableName,
+                                __getCurrentName(loopStruct.indexColStruct));
+            });
+
+            // If no partition specified, need to add a temp column to group by
+            if (loopStruct.groupByCols.length === 0) {
+                var gbTempColName = "XC_GB_COL_" + Authentication.getHashId()
+                                                                 .substring(3);
+                loopStruct.dummyGbColStruct = {colName: gbTempColName};
+                node.xcCols.push({colName: gbTempColName});
+                curPromise = curPromise.then(function(ret){
+                    cli += ret.cli;
+                    return self.sqlObj.map("int(1)", ret.newTableName,
+                                                gbTempColName);
+                });
+                loopStruct.groupByCols = [{colName: gbTempColName,
+                                type: "integer"}];
+            }
+
+            // Traverse windowExps, generate desired rows
+            for (var i = 0; i < node.value.windowExpressions.length; i++) {
+                var curWindowExp = node.value.windowExpressions[i];
+                // Window functions create new columns, so should be alias node
+                assert(curWindowExp[0].class ===
+                    "org.apache.spark.sql.catalyst.expressions.Alias",
+                    SQLTStr.NotAliasWindowExpr + curWindowExp[0].class);
+                var windowTree = SQLCompiler.genTree(null, curWindowExp.slice(1));
+                assert(windowTree.value.class ===
+                    "org.apache.spark.sql.catalyst.expressions.WindowExpression",
+                    SQLTStr.NoWENode + windowTree.value.class);
+
+                var opNode = windowTree.children[windowTree.value.windowFunction];
+                var opName = opNode.value.class.substring(opNode.value.class
+                    .indexOf("expressions.") + "expressions.".length);
+
+                curPromise = __windowExpressionHelper(loopStruct, curPromise,
+                                            curWindowExp[0], opNode, opName);
+            }
+            // XXX may need to project otherwise there would be too many cols
+            // Add cli for last operation and handle table info for pushing up
+            curPromise = curPromise.then(function(ret) {
+                cli += loopStruct.cli;
+                cli += ret.cli;
+                node.xccli = cli;
+                node.newTableName = ret.newTableName;
+                deferred.resolve();
+            });
+            return deferred.promise();
         }
     };
 
@@ -2589,6 +2642,795 @@
     }
     // End of helper functions for join
 
+    function __genSortStruct(orderArray, options) {
+        var sortColsAndOrder = [];
+        var colNameSet = new Set();
+        for (var i = 0; i < orderArray.length; i++) {
+            var order = orderArray[i][0].direction.object;
+            assert(orderArray[i][0].class ===
+                "org.apache.spark.sql.catalyst.expressions.SortOrder");
+            order = order.substring(order.lastIndexOf(".") + 1);
+            if (order === "Ascending$") {
+                order = XcalarOrderingT.XcalarOrderingAscending;
+            } else if (order === "Descending$") {
+                order = XcalarOrderingT.XcalarOrderingDescending;
+            } else {
+                console.error("Unexpected sort order");
+                assert(0);
+            }
+            assert(orderArray[i][1].class ===
+        "org.apache.spark.sql.catalyst.expressions.AttributeReference");
+            var colName = cleanseColName(orderArray[i][1].name);
+            var id = orderArray[i][1].exprId.id;
+            if (options && options.renamedCols &&
+                options.renamedCols[id]) {
+                colName = options.renamedCols[id];
+            }
+
+            var type = orderArray[i][1].dataType;
+            switch (type) {
+                case ("integer"):
+                case ("boolean"):
+                case ("string"):
+                    break;
+                case ("long"):
+                    type = "integer";
+                    break;
+                case ("double"):
+                    type = "float";
+                    break;
+                case ("date"):
+                    type = "string";
+                    break;
+                default:
+                    assert(0);
+                    type = "string";
+                    break;
+            }
+
+            if (!colNameSet.has(colName)) {
+                colNameSet.add(colName);
+                sortColsAndOrder.push({name: colName,
+                                       type: type,
+                                       ordering: order});
+            }
+        }
+        return sortColsAndOrder;
+    }
+
+    // XXX Need to remove duplicate?
+    function __genGBColArray(cols) {
+        var colInfoArray = [];
+        for (var i = 0; i < cols.length; i++) {
+            assert(cols[i][0].class ===
+                "org.apache.spark.sql.catalyst.expressions.AttributeReference",
+                SQLTStr.BadGenGBArray + cols[i][0].class);
+            colInfoArray.push({colName: cleanseColName(cols[i][0].name),
+                               type: cols[i][0].dataType,
+                               colId: cols[i][0].exprId.id
+                            });
+        }
+        return colInfoArray;
+    }
+
+    function __concatColInfoForSort(gbCols, sortCols) {
+        var retStruct = [];
+        var colNameSet = new Set();
+        for (var i = 0; i < gbCols.length; i++) {
+            if (!colNameSet.has(gbCols[i].colName)) {
+                colNameSet.add(gbCols[i].colName);
+                retStruct.push({name: gbCols[i].colName,
+                                type: gbCols[i].type,
+                                ordering: XcalarOrderingT.XcalarOrderingAscending});
+            }
+        }
+        for (var i = 0; i < sortCols.length; i++) {
+            if (!colNameSet.has(sortCols[i].name)) {
+                colNameSet.add(sortCols[i].name);
+                retStruct.push(sortCols[i]);
+            }
+        }
+        return retStruct;
+    }
+
+    function __genColStruct(value) {
+        var retStruct = {};
+        // Assert that this is only used on alias and ar nodes
+        assert(value.class && (value.class ===
+            "org.apache.spark.sql.catalyst.expressions.Alias" ||
+            value.class ===
+            "org.apache.spark.sql.catalyst.expressions.AttributeReference"),
+            SQLTStr.BadGenColStruct + value.class);
+        retStruct.colName = cleanseColName(value.name);
+        retStruct.colId = value.exprId.id;
+        retStruct.type = value.dataType;
+        return retStruct;
+    }
+
+    function __getCurrentName(col) {
+        return col.rename || col.colName;
+    }
+
+    function __deleteIdFromColInfo(cols) {
+        var retList = [];
+        for (var i = 0; i < cols.length; i++) {
+            retList.push({colName: __getCurrentName(cols[i])});
+        }
+        return retList;
+    }
+
+    function __genGroupByTable(sqlObj, ret, operator, groupByCols,
+                                                aggColName, windowStruct) {
+        var deferred = PromiseHelper.deferred();
+        // Save original table for later use
+        windowStruct.origTableName = ret.newTableName;
+        windowStruct.cli += ret.cli;
+        windowStruct.gbTableName  = "XC_GB_Table"
+                    + xcHelper.getTableId(windowStruct.origTableName) + "_"
+                    + Authentication.getHashId().substring(3);
+        if (!windowStruct.tempGBCol) {
+            windowStruct.tempGBCol = "XC_" + operator.toUpperCase() + "_"
+                    + xcHelper.getTableId(windowStruct.origTableName) + "_"
+                    + Authentication.getHashId().substring(3);
+        }
+        // If the new column will be added to usrCols later
+        // don't add it to gbColInfo (will later concat to xcCols) here
+        if (windowStruct.addToUsrCol) {
+            windowStruct.gbColInfo = __deleteIdFromColInfo(groupByCols);
+        } else {
+            windowStruct.gbColInfo = [{colName: windowStruct.tempGBCol}]
+                                    .concat(__deleteIdFromColInfo(groupByCols));
+        }
+        sqlObj.groupBy(groupByCols.map(function(col) {
+                            return __getCurrentName(col);}),
+                        [{operator: operator, aggColName: aggColName,
+                          newColName: windowStruct.tempGBCol,
+                          newTableName: windowStruct.gbTableName}],
+                        windowStruct.origTableName, {})
+        .then(function(ret) {
+            deferred.resolve(ret);
+        });
+        return deferred.promise();
+    }
+
+    function __joinTempTable(sqlObj, ret, joinType, leftJoinCols,
+                                                rightJoinCols, windowStruct) {
+        var deferred = PromiseHelper.deferred();
+        windowStruct.cli += ret.cli;
+        var lTableInfo = {
+            "tableName": windowStruct.leftTableName,
+            "columns": leftJoinCols.map(function(col) {
+                            return __getCurrentName(col);}),
+            "rename": []
+        };
+        var rTableInfo = {
+            "tableName": ret.newTableName,
+            "columns": rightJoinCols.map(function(col) {
+                            return __getCurrentName(col);}),
+            "rename": []
+        }
+        var newRenames;
+        if (windowStruct.renameFromCol) {
+            var targetCol;
+            var renamed = false;
+            // Find the target column struct and rename it before resolve collision
+            windowStruct.rightColInfo.forEach(function(item) {
+                if (__getCurrentName(item) ===
+                            __getCurrentName(windowStruct.renameFromCol)) {
+                    item.colName = windowStruct.renameToUsrCol.colName;
+                    item.colId = windowStruct.renameToUsrCol.colId;
+                    delete item.rename;
+                    targetCol = item;
+                    return false;
+                }
+            });
+            newRenames = __resolveCollision(windowStruct.leftColInfo,
+                windowStruct.rightColInfo, lTableInfo.rename, rTableInfo.rename);
+            // This struct is used by backend, so need to replace
+            // target column name with column name before rename
+            rTableInfo.rename.forEach(function(item) {
+                if (item.orig === windowStruct.renameToUsrCol.colName) {
+                    item.orig = __getCurrentName(windowStruct.renameFromCol);
+                    renamed = true;
+                    return false;
+                }
+            });
+            // If it is not renamed, add the rename info into rTableInfo.rename
+            if (!renamed) {
+                rTableInfo.rename.push(
+                    {"new": windowStruct.renameToUsrCol.colName,
+                    "orig": __getCurrentName(windowStruct.renameFromCol),
+                    "type": DfFieldTypeT.DfUnknown}); // XXX Not sure with type
+            }
+            windowStruct.rightColInfo.splice(windowStruct.rightColInfo
+                                                         .indexOf(targetCol),1);
+            windowStruct.node.usrCols.push(targetCol);
+        } else if (windowStruct.addToUsrCol) {
+            newRenames = __resolveCollision(windowStruct.leftColInfo,
+                windowStruct.rightColInfo.concat(windowStruct.addToUsrCol),
+                lTableInfo.rename, rTableInfo.rename);
+        } else {
+            newRenames = __resolveCollision(windowStruct.leftColInfo,
+                                            windowStruct.rightColInfo,
+                                            lTableInfo.rename, rTableInfo.rename);
+        }
+        // If left table is the trunk table, modify column info of node
+        // otherwise modify temp column info
+        if (windowStruct.node) {
+            windowStruct.node.xcCols = windowStruct.node.xcCols
+                                            .concat(windowStruct.rightColInfo);
+            if (windowStruct.addToUsrCol) {
+                windowStruct.node.usrCols.push(windowStruct.addToUsrCol);
+            }
+            windowStruct.node.renamedCols = __combineRenameMaps(
+                                [windowStruct.node.renamedCols, newRenames]);
+        } else {
+            windowStruct.leftColInfo = windowStruct.leftColInfo
+                                            .concat(windowStruct.rightColInfo);
+            windowStruct.leftRename = __combineRenameMaps(
+                                [windowStruct.leftRename,newRenames]);
+        }
+        sqlObj.join(joinType, lTableInfo, rTableInfo, {})
+        .then(function(ret) {
+            deferred.resolve(ret);
+        })
+        return deferred.promise();
+    }
+
+    function __groupByAndJoinBack(sqlObj, ret, operator, groupByCols,
+                                        aggColName, joinType, windowStruct) {
+        var deferred = PromiseHelper.deferred();
+        if (windowStruct.addToUsrCol) {
+            windowStruct.tempGBCol = windowStruct.addToUsrCol.colName;
+        }
+        __genGroupByTable(sqlObj, ret, operator, groupByCols,
+                                                aggColName, windowStruct)
+        .then(function(ret) {
+            if (ret.tempCols) {
+                windowStruct.gbColInfo = windowStruct.gbColInfo
+                    .concat(ret.tempCols.map(function(colName) {
+                        return {colName: colName};
+                    }));
+            }
+            windowStruct.leftTableName = windowStruct.origTableName;
+            windowStruct.rightColInfo = windowStruct.gbColInfo;
+            return ret;
+        })
+        .then(function(ret) {
+            if (windowStruct.joinBackByIndex) {
+                return __joinTempTable(sqlObj, ret, joinType,
+                            [windowStruct.indexColStruct],
+                            [{colName: windowStruct.tempGBCol}], windowStruct);
+            }
+            return __joinTempTable(sqlObj, ret, joinType, groupByCols,
+                                                    groupByCols, windowStruct);
+        })
+        .then(function(ret) {
+            if (ret.tempCols) {
+                if (windowStruct.node) {
+                    node.xcCols = node.xcCols.concat(ret.tempCols
+                                        .map(function(colName) {
+                                            return {colName: colName};
+                                        }));
+                } else {
+                    windowStruct.leftColInfo = windowStruct.leftColInfo
+                        .concat(ret.tempCols.map(function(colName) {
+                            return {colName: colName};
+                        }));
+                }
+            }
+            deferred.resolve(ret);
+        });
+        return deferred;
+    }
+
+    function __windowExpressionHelper(loopStruct, curPromise, aliasNode,
+                                                        opNode, opName) {
+        var deferred = PromiseHelper.deferred();
+        var node = loopStruct.node;
+        var self = loopStruct.self;
+        var cli = "";
+        var groupByCols = loopStruct.groupByCols;
+        var sortColsAndOrder = loopStruct.sortColsAndOrder;
+        var indexColStruct = loopStruct.indexColStruct;
+        var newColStruct = __genColStruct(aliasNode);
+
+        switch (opName) {
+            case ("aggregate.AggregateExpression"):
+                // First/last are also aggregate in spark plan
+                var aggOpNode = opNode.children[0];
+                var aggOpName = aggOpNode.value.class.substring(
+                    aggOpNode.value.class.indexOf("expressions."));
+                // Assert that spark will do all the map before window
+                // and put only AR here
+                var aggColNode = aggOpNode.children[0];
+                var aggColStruct = __genColStruct(aggColNode.value);
+                assert(aggColNode.value.class ===
+                "org.apache.spark.sql.catalyst.expressions.AttributeReference",
+                SQLTStr.NotARAgg + aggColNode.value.class);
+
+                switch (aggOpName) {
+                    case ("expressions.aggregate.First"):
+                    case ("expressions.aggregate.Last"):
+                        assert(sortColsAndOrder.length > 0, SQLTStr.NoSortFirst);
+                        var windowStruct;
+                        // Generate a temp table only contain the
+                        // first/last row of each partition by getting
+                        // minimum/maximum row number in each partition
+                        // and left semi join back
+                        curPromise = curPromise.then(function(ret) {
+                            windowStruct = {cli: ""};
+                            // Columns in temp table should not have id
+                            windowStruct.leftColInfo =
+                                __deleteIdFromColInfo(jQuery.extend(true,
+                                    [], node.usrCols.concat(node.xcCols)
+                                                .concat(node.sparkCols)));
+                            windowStruct.leftRename = [];
+                            var gbOpName;
+                            if (aggOpName === "expressions.aggregate.Last") {
+                                gbOpName = "expressions.aggregate.Max";
+                            } else {
+                                gbOpName = "expressions.aggregate.Min";
+                            }
+                            // The flag joinBackByIndex is used when we
+                            // want to join back by other column
+                            // = result column of group by
+                            // rather than groupByCols = groupByCols
+                            // In that case, indexColStruct should be set
+                            windowStruct.joinBackByIndex = true;
+                            windowStruct.indexColStruct = indexColStruct;
+                            return __groupByAndJoinBack(self.sqlObj, ret,
+                                        opLookup[gbOpName], groupByCols,
+                                        __getCurrentName(indexColStruct),
+                                        JoinCompoundOperatorTStr.LeftSemiJoin,
+                                        windowStruct);
+                        })
+                        // Inner join original table and temp table
+                        // rename the column needed
+                        .then(function(ret) {
+                            windowStruct.node = node;
+                            windowStruct.rightColInfo =
+                                                windowStruct.leftColInfo;
+                            windowStruct.leftColInfo = node.usrCols
+                                                .concat(node.xcCols)
+                                                .concat(node.sparkCols);
+                            // If renameFromCol and renameToUsrCol are
+                            // specified, helper function will rename
+                            // the column and move that column to usrCols
+                            windowStruct.renameFromCol = aggColStruct;
+                            windowStruct.renameToUsrCol = newColStruct;
+                            return __joinTempTable(self.sqlObj, ret,
+                                JoinOperatorT.InnerJoin, groupByCols,
+                                groupByCols, windowStruct);
+                        })
+                        // windowStruct.cli contains the clis for one
+                        // operation before window and all the
+                        // windowStruct involved operations except for
+                        // last one, which will be added in next then
+                        .then(function(ret) {
+                            if (ret.tempCols) { // This needed or not depends on behavior of innerjoin
+                                node.xcCols = node.xcCols.concat(ret.tempCols
+                                                .map(function(colName) {
+                                                    return {colName: colName};
+                                                }));
+                            }
+                            cli += windowStruct.cli;
+                            return ret;
+                        })
+                        break;
+                    default:
+                        // Other aggregate expressions, do a group by
+                        // and join back
+                        var windowStruct;
+                        curPromise = curPromise.then(function(ret) {
+                            var aggColName = __getCurrentName(aggColStruct);
+                            windowStruct = {leftColInfo: node.usrCols
+                                                .concat(node.xcCols)
+                                                .concat(node.sparkCols),
+                                                node: node, cli: "",
+                                            addToUsrCol: newColStruct};
+                            return __groupByAndJoinBack(self.sqlObj, ret,
+                                    opLookup[aggOpName], groupByCols,
+                                    aggColName, JoinOperatorT.InnerJoin,
+                                    windowStruct);
+                        })
+                        .then(function(ret) {
+                            cli += windowStruct.cli;
+                            return ret;
+                        });
+                        break;
+                }
+                break;
+            case ("Lead"):
+            case ("Lag"):
+                var keyColStruct = __genColStruct(opNode.
+                                    children[opNode.value.input].value);
+                var offset = opNode.children[opNode.value.offset]
+                                   .value.value;
+                var defaultValue = opNode.children[opNode.value.default]
+                                         .value.value;
+                var windowStruct = {cli: ""};
+                var rightKeyColStruct;
+                windowStruct.node = node;
+                var leftJoinCols = [];
+                var rightJoinCols = [];
+                var newIndexColName;
+                // Map on index column with offset
+                curPromise = curPromise.then(function(ret) {
+                    windowStruct.leftTableName = ret.newTableName;
+                    cli += ret.cli;
+                    windowStruct.leftColInfo = node.usrCols
+                            .concat(node.xcCols).concat(node.sparkCols);
+                    windowStruct.rightColInfo = jQuery.extend(true, [],
+                                        node.usrCols.concat(node.xcCols)
+                                        .concat(node.sparkCols));
+                    if (loopStruct.dummyGbColStruct) {
+                        leftJoinCols.push(loopStruct.dummyGbColStruct);
+                    } else {
+                        node.usrCols.forEach(function(item) {
+                            for (var i = 0; i < groupByCols.length; i++) {
+                                if (item.colId === groupByCols[i].colId) {
+                                    leftJoinCols[i] = item;
+                                    break;
+                                }
+                            }
+                        });
+                    }
+                    windowStruct.rightColInfo.forEach(function(item) {
+                        if (item.colId === keyColStruct.colId) {
+                            rightKeyColStruct = item;
+                        }
+                        for (var i = 0; i < groupByCols.length; i++) {
+                            if (item.colId === groupByCols[i].colId) {
+                                rightJoinCols[i] = item;
+                                break;
+                            }
+                        }
+                        delete item.colId;
+                    });
+                    newIndexColName = __getCurrentName(indexColStruct) + "_right";
+                    windowStruct.rightColInfo
+                                    .push({colName: newIndexColName});
+                    var mapStr;
+                    if (opName === "Lead") {
+                        mapStr = "int(sub(" + __getCurrentName(indexColStruct)
+                                 + ", " + offset + "))";
+                    } else {
+                        mapStr = "int(add(" + __getCurrentName(indexColStruct)
+                                 + ", " + offset + "))";
+                    }
+                    return self.sqlObj.map(mapStr,
+                        windowStruct.leftTableName, newIndexColName);
+                })
+                // Outer join back with index columnm
+                .then(function(ret) {
+                    return __joinTempTable(self.sqlObj, ret,
+                            JoinOperatorT.LeftOuterJoin,
+                            [{colName: __getCurrentName(indexColStruct)}],
+                            [{colName: newIndexColName}], windowStruct);
+                });
+                // Map again to set default value
+                curPromise = curPromise.then(function(ret) {
+                    if (ret.tempCols) { // This needed or not depends on behavior of leftouterjoin
+                        node.xcCols = node.xcCols.concat(ret.tempCols
+                                        .map(function(colName) {
+                                            return {colName: colName};
+                                        }));
+                    }
+                    cli += windowStruct.cli;
+                    cli += ret.cli;
+                    node.usrCols.push(newColStruct);
+                    var mapStr = "if(";
+                    // Need to check rename here
+                    for (var i = 0; i < leftJoinCols.length - 1; i++) {
+                        mapStr += "and(eq("
+                            + __getCurrentName(leftJoinCols[i]) + ", "
+                            + __getCurrentName(rightJoinCols[i]) + "),";
+                    }
+                    mapStr += "eq("
+                        + __getCurrentName(leftJoinCols[leftJoinCols
+                            .length - 1]) + ", "
+                        + __getCurrentName(rightJoinCols[leftJoinCols
+                            .length - 1]) + ")"
+                        + Array(leftJoinCols.length).join(")") + ", "
+                        + __getCurrentName(rightKeyColStruct)
+                        + ", " + defaultValue + ")";
+                    return self.sqlObj.map(mapStr, ret.newTableName,
+                                                newColStruct.colName);
+                });
+                break;
+            // Rank function
+            case ("NTile"):
+                // Ntile should have 1 argument
+                // XXX According to definition, it could be some
+                // expression but here I assume it as an literal
+                // Not sure how to build query with expression in ntile
+                assert(opNode.children.length === 1 &&
+                       opNode.children[opNode.value.buckets].value.class
+                === "org.apache.spark.sql.catalyst.expressions.Literal",
+                SQLTStr.ExprInNtile + opNode.children[opNode.value.buckets].value.class);
+                var groupNum = opNode.children[opNode.value.buckets]
+                                     .value.value;
+                assert(groupNum > 0, SQLTStr.InvalidNtile + groupNum);
+            case ("RowNumber"):
+                var windowStruct;
+                // Group by and join back to generate minimum row number
+                // in each partition
+                curPromise = curPromise.then(function(ret) {
+                    windowStruct = {leftColInfo: node.usrCols
+                            .concat(node.xcCols).concat(node.sparkCols),
+                            node: node, cli: ""};
+                    return __groupByAndJoinBack(self.sqlObj, ret, "min",
+                                groupByCols, __getCurrentName(indexColStruct),
+                                JoinOperatorT.InnerJoin, windowStruct);
+                });
+                if (opName === "RowNumber") {
+                    // Row number = index - minIndexOfPartition + 1
+                    curPromise = curPromise.then(function(ret) {
+                        cli += windowStruct.cli;
+                        cli += ret.cli;
+                        node.usrCols.push(newColStruct);
+                        var mapStr = "add(sub(" + __getCurrentName(indexColStruct)
+                                     + ", " + windowStruct.tempGBCol + "), 1)";
+                        return self.sqlObj.map(mapStr, ret.newTableName,
+                                                newColStruct.colName);
+                    });
+                } else {
+                    // ntile = int((index - minIndexOfPartition)
+                    // * groupNum / sizeOfPartition + 1)
+                    // Here use count group by partition columns
+                    // to generate partition size
+                    var tempMinIndexColName;
+                    curPromise = curPromise.then(function(ret){
+                        cli += windowStruct.cli;
+                        tempMinIndexColName = windowStruct.tempGBCol;
+                        windowStruct = {leftColInfo: node.usrCols
+                            .concat(node.xcCols).concat(node.sparkCols),
+                            node: node, cli: ""};
+                        return __groupByAndJoinBack(self.sqlObj, ret, "count",
+                                groupByCols, __getCurrentName(indexColStruct),
+                                JoinOperatorT.InnerJoin, windowStruct);
+                    })
+                    .then(function(ret) {
+                        cli += windowStruct.cli;
+                        cli += ret.cli;
+                        node.usrCols.push(newColStruct);
+                        var bracketSize = "int(div(" + windowStruct.tempGBCol
+                                + ", " + groupNum + "))";
+                        var extraRowNum = "mod(" + windowStruct.tempGBCol
+                                + ", " + groupNum + ")";
+                        var rowNumSubOne = "sub(" + __getCurrentName(indexColStruct)
+                                + ", " + tempMinIndexColName + ")";
+                        var threashold = "mult(" + extraRowNum + ", add(1, "
+                                + bracketSize + "))";
+                        var mapStr = "if(lt(" + rowNumSubOne + ", " + threashold
+                                + "), int(add(div(" + rowNumSubOne + ", add(1, "
+                                + bracketSize + ")), 1)), int(add(div(sub("
+                                + rowNumSubOne + ", " + threashold + "), "
+                                + "if(eq(" + bracketSize + ", 0), 1, "
+                                + bracketSize + ")), 1, " + extraRowNum + ")))";
+                        return self.sqlObj.map(mapStr, ret.newTableName,
+                                                newColStruct.colName);
+                    });
+                }
+                break;
+            case ("Rank"):
+            case ("PercentRank"):
+            case ("CumeDist"):
+                var windowStruct;
+                var partitionMinColName;
+                var psGbColName;
+                curPromise = curPromise.then(function(ret) {
+                    windowStruct = {leftColInfo: node.usrCols
+                            .concat(node.xcCols).concat(node.sparkCols),
+                            node: node, cli: ""};
+                    return __groupByAndJoinBack(self.sqlObj, ret, "min",
+                                groupByCols, __getCurrentName(indexColStruct),
+                                JoinOperatorT.InnerJoin, windowStruct);
+                })
+                .then(function(ret) {
+                    // Those three give duplicate row same number
+                    // so need to generate min/max index
+                    // for each (partition + sort columns) pair (eigen)
+                    cli += windowStruct.cli;
+                    partitionMinColName = windowStruct.tempGBCol;
+                    var operator = "min";
+                    windowStruct = {leftColInfo: node.usrCols
+                            .concat(node.xcCols).concat(node.sparkCols),
+                            node: node, cli: ""};
+                    if (opName === "CumeDist") {
+                        operator = "max";
+                    }
+                    return __groupByAndJoinBack(self.sqlObj, ret, operator,
+                            __concatColInfoForSort(groupByCols,
+                            sortColsAndOrder).map(function(col) {
+                                col.colName = col.name;
+                                return col;
+                            }), __getCurrentName(indexColStruct),
+                            JoinOperatorT.InnerJoin, windowStruct);
+                });
+                if (opName === "Rank") {
+                    // rank = minForEigen - minForPartition + 1
+                    curPromise = curPromise.then(function(ret) {
+                        cli += windowStruct.cli;
+                        cli += ret.cli;
+                        psGbColName = windowStruct.tempGBCol;
+                        node.usrCols.push(newColStruct);
+                        var mapStr = "add(sub(" + psGbColName + ", "
+                                     + partitionMinColName + "), 1)";
+                        return self.sqlObj.map(mapStr, ret.newTableName,
+                                               newColStruct.colName);
+                    });
+                } else {
+                    // percent_rank = (minForEigen - minForPartition)
+                    // / (sizeOfPartition - 1)
+                    // if sizeOfPartition == 1, set denominator to be 1
+                    // cume_dist = (maxForEigen - minFor Partition + 1)
+                    // / sizeOfPartition
+                    var tempCountColName;
+                    curPromise = curPromise.then(function(ret) {
+                        cli += windowStruct.cli;
+                        psGbColName = windowStruct.tempGBCol;
+                        windowStruct = {leftColInfo: node.usrCols
+                            .concat(node.xcCols).concat(node.sparkCols),
+                            node: node, cli: ""};
+                        return __groupByAndJoinBack(self.sqlObj, ret, "count",
+                                groupByCols, __getCurrentName(indexColStruct),
+                                JoinOperatorT.InnerJoin, windowStruct);
+                    })
+                    .then(function(ret) {
+                        cli += windowStruct.cli;
+                        cli += ret.cli;
+                        tempCountColName = windowStruct.tempGBCol;
+                        node.usrCols.push(newColStruct);
+                        var mapStr;
+                        if (opName === "PercentRank") {
+                            mapStr = "div(sub(" + psGbColName + ", "
+                                + partitionMinColName + "), if(eq(sub("
+                                + tempCountColName + ", 1), 0), 1, sub("
+                                + tempCountColName + ", 1)))";
+                        } else {
+                            mapStr = "div(add(sub(" + psGbColName + ", "
+                                     + partitionMinColName + "), 1),"
+                                     + tempCountColName + ")";
+                        }
+                        return self.sqlObj.map(mapStr, ret.newTableName,
+                                               newColStruct.colName);
+                    });
+                }
+                break;
+            case ("DenseRank"):
+                var windowStruct;
+                var drIndexColName;
+                var origTableName;
+                // Dense_rank treat rows with same eigen as one so do
+                // a group by to eliminate duplicate eigens => t1
+                curPromise = curPromise.then(function(ret) {
+                    windowStruct = {cli: ""};
+                    return __genGroupByTable(self.sqlObj, ret, "count",
+                            __concatColInfoForSort(groupByCols,
+                                sortColsAndOrder).map(function(col) {
+                                    col.colName = col.name;
+                                    return col;
+                                }), __getCurrentName(indexColStruct), windowStruct);
+                })
+                // Sort t1 because group by may change order
+                .then(function(ret) {
+                    cli += windowStruct.cli;
+                    // Need to reset windowStruct.cli here because
+                    // it has been added to cli
+                    windowStruct.cli = "";
+                    cli += ret.cli;
+                    origTableName = windowStruct.origTableName;
+                    windowStruct.leftColInfo =
+                        [{colName: windowStruct.tempGBCol}]
+                        .concat(__deleteIdFromColInfo(groupByCols))
+                        .concat(sortColsAndOrder.map(function(col) {
+                            return {colName: col.name};
+                        }));
+                    if (ret.tempCols) {
+                        windowStruct.leftColInfo = windowStruct.leftColInfo
+                            .concat(ret.tempCols.map(function(colName) {
+                                return {colName: colName};
+                            }));
+                    }
+                    delete windowStruct.tempGBCol;
+                    windowStruct.leftRename = [];
+                    return self.sqlObj.sort(
+                        __concatColInfoForSort(groupByCols,
+                            sortColsAndOrder), ret.newTableName);
+                })
+                // Genrow and same steps as in row_number
+                // to get rank for each eigen
+                .then(function(ret) {
+                    cli += ret.cli;
+                    drIndexColName = "XC_ROW_COL_"
+                                + xcHelper.getTableId(ret.newTableName);
+                    windowStruct.leftColInfo
+                                .push({colName: drIndexColName});
+                    return self.sqlObj.genRowNum(ret.newTableName,
+                                                 drIndexColName);
+                })
+                .then(function(ret){
+                    return __groupByAndJoinBack(self.sqlObj, ret, "min",
+                                groupByCols, drIndexColName,
+                                JoinOperatorT.InnerJoin, windowStruct);
+                })
+                .then(function(ret) {
+                    cli += windowStruct.cli;
+                    windowStruct.cli = "";
+                    cli += ret.cli;
+                    var mapStr = "add(sub(" + drIndexColName + ", "
+                                 + windowStruct.tempGBCol + "), 1)";
+                    windowStruct.leftColInfo.push(newColStruct);
+                    return self.sqlObj.map(mapStr, ret.newTableName,
+                                           newColStruct.colName);
+                })
+                // Join back temp table with rename
+                .then(function(ret) {
+                    windowStruct.leftTableName = origTableName;
+                    windowStruct.node = node;
+                    windowStruct.rightColInfo = windowStruct.leftColInfo;
+                    windowStruct.leftColInfo = node.usrCols
+                            .concat(node.xcCols).concat(node.sparkCols);
+                    return __joinTempTable(self.sqlObj, ret,
+                                           JoinOperatorT.InnerJoin,
+                            __concatColInfoForSort(groupByCols,
+                                sortColsAndOrder).map(function(col) {
+                                    col.colName = col.name;
+                                    return col;
+                                }),
+                            __concatColInfoForSort(groupByCols,
+                                sortColsAndOrder).map(function(col) {
+                                    col.colName = col.name;
+                                    return col;
+                                }), windowStruct);
+                })
+                .then(function(ret) {
+                    // add cli in window and move the new column
+                    // from xcCols to usrCols
+                    if (ret.tempCols) { // This needed or not depends on behavior of innerjoin
+                        node.xcCols = node.xcCols.concat(ret.tempCols
+                                        .map(function(colName) {
+                                            return {colName: colName};
+                                        }));
+                    }
+                    cli += windowStruct.cli;
+                    node.usrCols.push(newColStruct);
+                    node.xcCols.splice(node.xcCols
+                               .indexOf(newColStruct),1);
+                    return ret;
+                });
+                break;
+            default:
+                assert(0, SQLTStr.UnsupportedWindow + opName);
+                break;
+        }
+
+        curPromise = curPromise.then(function(ret) {
+            loopStruct.cli += cli;
+            if (node.usrCols.length + node.xcCols.length
+                                            + node.sparkCols.length > 60) {
+                loopStruct.cli += ret.cli;
+                colNameList = node.usrCols.map(function(col) {
+                        return __getCurrentName(col);
+                    });
+                node.xcCols = [indexColStruct];
+                colNameList.push(__getCurrentName(indexColStruct));
+                if (loopStruct.dummyGbColStruct) {
+                    node.xcCols.push(loopStruct.dummyGbColStruct);
+                    colNameList.push(__getCurrentName(loopStruct.dummyGbColStruct));
+                }
+                self.sqlObj.project(colNameList,ret.newTableName)
+                .then(function(ret) {
+                    deferred.resolve(ret);
+                })
+            } else {
+                deferred.resolve(ret);
+            }
+        });
+        return deferred.promise();
+    }
 
     function getAllCols(node) {
         var rddCols = [];

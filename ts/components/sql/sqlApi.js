@@ -345,11 +345,12 @@
             var txId = self._start();
 
             XIApi.join(txId, joinType, lTableInfo, rTableInfo, options)
-            .then(function(dstTable, dstCols) {
+            .then(function(dstTable, dstCols, tempCols) {
                 var cli = self._end(txId);
                 deferred.resolve({
                     "newTableName": dstTable,
                     "newColumns": dstCols,
+                    "tempCols": tempCols,
                     "cli": cli
                 });
             })

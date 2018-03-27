@@ -507,6 +507,7 @@
         var tempTables = [];
         var joinedCols;
         var existenceCol = options.existenceCol;
+        var tempCols;
 
         // var lIndexColNames;
         var rIndexColNames;
@@ -582,7 +583,10 @@
                                   joinType, lRename, rRename, undefined, txId);
             }
         })
-        .then(function() {
+        .then(function(ret) {
+            if (ret && ret.tempCols) {
+                tempCols = ret.tempCols;
+            }
             var lTableId = xcHelper.getTableId(lTableName);
             var rTableId = xcHelper.getTableId(rTableName);
             joinedCols = createJoinedColumns(lTableId, rTableId,
@@ -595,7 +599,7 @@
             }
         })
         .then(function() {
-            deferred.resolve(newTableName, joinedCols);
+            deferred.resolve(newTableName, joinedCols, tempCols);
         })
         .fail(deferred.reject);
 
@@ -1649,7 +1653,14 @@
                 return PromiseHelper.resolve();
             }
         })
-        .then(deferred.resolve)
+        .then(function(ret) {
+            if (ret) {
+                ret.tempCols = [newColName];
+            } else {
+                ret = {tempCols: [newColName]};
+            }
+            deferred.resolve(ret);
+        })
         .fail(deferred.reject);
         return deferred.promise();
     }

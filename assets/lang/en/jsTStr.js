@@ -433,6 +433,15 @@ SQLTStr = {
     GLLength: "GlobalLimit's limit expression should be of length 1. Instead it is: ",
     GLDataType: "GlobalLimit's limitExpressoin datatype should be integer. Instead it is: ",
     FilterLength: "Filter should only have one child. Instead it has: ",
+    NotAliasWindowExpr: "Window expression should have an alias node. Instead it is:",
+    NoWENode: "There should be a WindowExpression node after alias node. Instead it is:",
+    BadGenGBArray: "GenGBArray should only be called when list contains only attribute reference. Instead it is:",
+    BadGenColStruct: "GenColStruct should only be called when node class is alias or AR. Instead it is:",
+    NotARAgg: "In window aggregate function, the target column should be simple AR node. Instead it is:",
+    NoSortFirst: "First/Last requires window to be ordered",
+    ExprInNtile: "Variable in ntile() should not be expression. It is:",
+    InvalidNtile: "Argument of ntile() should be positive. Instead it is:",
+    UnsupportedWindow: "Window function currently not supported. It is:"
 };
 
 TimeTStr = {
