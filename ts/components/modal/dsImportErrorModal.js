@@ -71,7 +71,14 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
 
         $modal.on('click', '.downloadErrorModal', function() {
             var errorData = [];
-            XcalarFetchData(curResultSetId, 0, scrollMeta.numRecords, scrollMeta.numRecords, [], 0, 0)
+            var numRecords = scrollMeta.numRecords;
+            var resultSetId;
+            XcalarMakeResultSetFromDataset(curDSName, true)
+            .then(function(result) {
+                resultSetId = result.resultSetId;
+                return XcalarFetchData(resultSetId, 0, numRecords, numRecords,
+                                       [], 0, 0);
+            })
             .then(function(msgs) {
                 for (var row = 0; row < msgs.length; row++) {
                     var fileInfo = JSON.parse(msgs[row]);
@@ -84,7 +91,9 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
                     }
                 }
 
-                xcHelper.downloadAsFile(curDSName + "_err.json", JSON.stringify(errorData, null, 2));
+                xcHelper.downloadAsFile(curDSName + "_err.json",
+                                        JSON.stringify(errorData, null, 2));
+                XcalarSetFree(resultSetId);
             })
             .fail(function(err) {
                 Alert.error(ErrTStr.ErrorModalDownloadFailure, err);
@@ -214,7 +223,7 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
             if (scrollMeta.currentRowNumber >= scrollMeta.numRecords) {
                 $fileList.addClass("full");
             }
-            var numFiles = xcHelper.numToStr(msgs.length);
+            var numFiles = Object.keys(files).length;
             if (scrollMeta.currentRowNumber < scrollMeta.numRecords) {
                 numFiles += "+";
             }
@@ -225,22 +234,23 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
         return deferred.promise();
     }
 
-    function fetchHelper(curResultSetId, startIndex, numRowsNeeded) {
+    function fetchHelper(curResultSetId, startIndex, totalNumRowsNeeded) {
         var deferred = PromiseHelper.deferred();
         var numRowsFound = 0;
         var allFiles = [];
 
-        fetch(startIndex, numRowsNeeded)
+        fetch(startIndex, totalNumRowsNeeded)
         .always(function() {
             deferred.resolve(allFiles);
         });
 
         return deferred.promise();
 
-        function fetch(sIndex, numRowsToAdd) {
+        function fetch(sIndex, numRowsToFetch) {
             var innerDeferred = PromiseHelper.deferred();
             var curId = modalId;
-            XcalarFetchData(curResultSetId, sIndex, numRowsToAdd,
+
+            XcalarFetchData(curResultSetId, sIndex, numRowsToFetch,
                             scrollMeta.numRecords, [], 0, 0)
             .then(function(files) {
                 if (!modalId || curId !== modalId) {
@@ -255,15 +265,24 @@ window.DSImportErrorModal = (function(DSImportErrorModal, $) {
                     fileInfo.type = "record";
                     allFiles.push(fileInfo);
                     numRowsFound++;
+                    if (numRowsFound === totalNumRowsNeeded) {
+                        i++
+                        break;
+                    }
                 }
-                scrollMeta.currentRowNumber += numRowsToAdd;
-                var endIndex = sIndex + numRowsToAdd;
-                var numMoreNeeded = numRowsNeeded - numRowsFound;
+                scrollMeta.currentRowNumber += i;
+                var endIndex = sIndex + i;
+                var numMoreNeeded = totalNumRowsNeeded - numRowsFound;
                 numMoreNeeded = Math.min(numMoreNeeded,
                                          scrollMeta.numRecords - endIndex);
 
                 if (numMoreNeeded) {
-                    return fetch(endIndex, numMoreNeeded);
+                    // if fewer than 5 rows are needed, fetch at least 5 if
+                    // possible so we don't have to do repeated fetches of 1 or
+                    // 2 rows at a time that keep returning no errors
+                    var numMoreToFetch = Math.min(5, scrollMeta.numRecords - endIndex);
+                    numMoreToFetch = Math.max(numMoreNeeded, numMoreToFetch);
+                    return fetch(endIndex, numMoreToFetch);
                 } else {
                     return PromiseHelper.resolve();
                 }

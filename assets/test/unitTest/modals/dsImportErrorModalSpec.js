@@ -50,16 +50,13 @@ describe("DSImportErrorModal Test", function() {
             };
 
             XcalarFetchData = function(id, startIndex, numRowsToAdd, total) {
+                console.log(startIndex, numRowsToAdd, total);
                 expect(id).to.equal(99);
                 if (called) {
                     expect(startIndex).to.equal(20);
-                } else {
-                    expect(startIndex).to.equal(0);
-                }
-
-                if (called) {
                     expect(numRowsToAdd).to.equal(10);
                 } else {
+                    expect(startIndex).to.equal(0);
                     expect(numRowsToAdd).to.equal(20);
                 }
 
@@ -178,6 +175,12 @@ describe("DSImportErrorModal Test", function() {
 
         it("download should work", function() {
             var called = false;
+            var resultSetCalled = false;
+            XcalarMakeResultSetFromDataset = function(dsName, forErrors) {
+                resultSetCalled = true;
+                return PromiseHelper.resolve({resultSetId: 99, numEntries: 100});
+            };
+
             XcalarFetchData = function(id, startIndex, numRowsToAdd, total) {
                 expect(startIndex).to.equal(0);
                 expect(numRowsToAdd).to.equal(100);
@@ -205,7 +208,7 @@ describe("DSImportErrorModal Test", function() {
                 expect(parsedData[0].fileName).to.equal("path0")
                 expect(parsedData[0].recordNumber).to.equal(0)
                 expect(parsedData[0].error).to.equal("fakeError");
-                expect(parsedData[199].FileName).to.equal("path99")
+                expect(parsedData[199].fileName).to.equal("path99")
                 expect(parsedData[199].recordNumber).to.equal(99)
                 expect(parsedData[199].error).to.equal("fakeError");
                 downloaded = true;
@@ -213,6 +216,7 @@ describe("DSImportErrorModal Test", function() {
 
             $modal.find(".downloadErrorModal").click();
             expect(called).to.be.true;
+            expect(resultSetCalled).to.be.true;
             expect(downloaded).to.be.true;
 
             xcHelper.downloadAsFile = cachedHelper;
