@@ -1509,7 +1509,7 @@ module.exports = function(grunt) {
         },
 
         /**
-            grunt-contrib-uglify to minify (collapse and mangle) javascript files for the build output
+            grunt-contrib-uglify-es to minify (collapse and mangle) javascript files for the build output
         */
         uglify: {
             /**
@@ -1630,7 +1630,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-htmlmin');
     grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-uglify-es');
     grunt.loadNpmTasks('grunt-includes');
     grunt.loadNpmTasks('grunt-prettify');
     grunt.loadNpmTasks('grunt-rsync');
