@@ -2427,8 +2427,18 @@
             addAdvancedArgs: function() {
                 var self = this;
                 var deferred = PromiseHelper.deferred();
-
-                XcalarGetDag(gDSPrefix + self.fullName)
+                var wasUnlocked = true;
+                var lockPromise;
+                if (!self.isLocked()) {
+                    wasUnlocked = true;
+                    lockPromise = XcalarLockDataset(self.fullName);
+                } else {
+                    lockPromise = PromiseHelper.resolve();
+                }
+                lockPromise
+                .then(function() {
+                    return XcalarGetDag(gDSPrefix + self.fullName)
+                })
                 .then(function(result) {
                     var node = result.node[0];
                     var loadArgs = node.input.loadInput.loadArgs;
@@ -2436,8 +2446,13 @@
                         allowFileErrors: loadArgs.parseArgs.allowFileErrors,
                         allowRecordErrors: loadArgs.parseArgs.allowRecordErrors,
                     };
-                    deferred.resolve();
+                    if (wasUnlocked) {
+                        return XcalarUnlockDataset(self.fullName);
+                    } else {
+                        return PromiseHelper.resolve();
+                    }
                 })
+                .then(deferred.resolve)
                 .fail(deferred.reject);
 
                 return deferred.promise();

@@ -29,7 +29,7 @@ window.DSTable = (function($, DSTable) {
             return;
         }
         showTableView(dsId);
-        updateTableInfo(dsObj, true); // isLoading = true, no async call
+        updateTableInfoDisplay(dsObj);
         // hide carts
         DSCart.switchToCart(null);
         setupViewAfterError(error, isFetchError);
@@ -45,7 +45,8 @@ window.DSTable = (function($, DSTable) {
 
         showTableView(dsId);
         // update date part of the table info first to make UI smooth
-        updateTableInfo(dsObj, isLoading);
+        var beforeFetch = true;
+        updateTableInfoDisplay(dsObj, beforeFetch);
 
         if (isLoading) {
             setupViewBeforeLoading(dsObj);
@@ -84,7 +85,6 @@ window.DSTable = (function($, DSTable) {
             clearTimeout(timer);
             setupViewAfterLoading(dsObj);
             getSampleTable(dsObj, jsonKeys, jsons);
-            toggleErrorIcon(dsObj);
 
             deferred.resolve();
         })
@@ -99,7 +99,6 @@ window.DSTable = (function($, DSTable) {
             }
 
             error = dsObj.getError() || error;
-            toggleErrorIcon(dsObj);
             var errorMsg;
             if (typeof error === "object" && error.error != null) {
                 errorMsg = error.error;
@@ -155,7 +154,8 @@ window.DSTable = (function($, DSTable) {
 
     function setupViewAfterLoading(dsObj) {
         // update info here
-        updateTableInfo(dsObj);
+        var postFetch = true;
+        updateTableInfoDisplay(dsObj, null, postFetch);
 
         $dsTableContainer.removeClass("error");
         $dsTableContainer.removeClass("loading");
@@ -251,7 +251,7 @@ window.DSTable = (function($, DSTable) {
         });
     }
 
-    function updateTableInfo(dsObj) {
+    function updateTableInfoDisplay(dsObj, preFetch, postFetch) {
         var dsName = dsObj.getName();
         var numEntries = dsObj.getNumEntries();
         var path = dsObj.getPathWithPattern() || CommonTxtTstr.NA;
@@ -261,7 +261,6 @@ window.DSTable = (function($, DSTable) {
 
         xcTooltip.changeText($dsInfoPath, target + "\n" + path);
         xcTooltip.enable($dsInfoPath);
-        $("#dsInfo-error").addClass("xc-hidden");
         $("#dsInfo-title").text(dsName);
         $("#dsInfo-author").text(dsObj.getUser());
         // there is no fail case
@@ -293,6 +292,11 @@ window.DSTable = (function($, DSTable) {
         $("#dsInfo-records").text(numEntries);
 
         totalRows = parseInt(numEntries.replace(/\,/g, ""));
+        if (preFetch) {
+            toggleErrorIcon(dsObj);
+        } else if (!postFetch) {
+            $("#dsInfo-error").addClass("xc-hidden");
+        }
     }
 
     function dataStoreTableScroll($tableWrapper) {
@@ -851,19 +855,18 @@ window.DSTable = (function($, DSTable) {
             return;
         }
 
-        // if (!dsObj.advancedArgs) {
-        var datasetName = dsObj.getFullName();
-        lastDSToSample = datasetName;
-        dsObj.addAdvancedArgs()
-        .then(function() {
-            if (lastDSToSample !== datasetName) {
-                return;
-            }
+        if (!dsObj.advancedArgs) {
+            var datasetName = dsObj.getFullName();
+            dsObj.addAdvancedArgs()
+            .then(function() {
+                if (lastDSToSample !== datasetName) {
+                    return;
+                }
+                showIcon();
+            }); // if fail, keep hidden
+        } else {
             showIcon();
-        }); // if fail, keep hidden
-        // } else {
-        //     showIcon();
-        // }
+        }
 
         function showIcon() {
             $dsInfoError.removeClass("xc-hidden");
