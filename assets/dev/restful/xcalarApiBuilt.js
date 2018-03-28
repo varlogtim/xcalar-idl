@@ -1473,6 +1473,8 @@ require("jsdom").env("", function(err, window) {
     global.jQuery = jQuery;
     global.$ = $ = jQuery;
 
+    require("../../../assets/js/thrift/CsvLoadArgsEnums_types.js");
+    require("../../../assets/js/thrift/DagRefTypeEnums_types.js");
     require("../../../assets/js/thrift/DagStateEnums_types.js");
     require("../../../assets/js/thrift/DagTypes_types.js");
     require("../../../assets/js/thrift/DataFormatEnums_types.js");
@@ -1489,18 +1491,21 @@ require("jsdom").env("", function(err, window) {
     require("../../../assets/js/thrift/SourceTypeEnum_types.js");
     require("../../../assets/js/thrift/Status_types.js");
     require("../../../assets/js/thrift/UdfTypes_types.js");
+    require("../../../assets/js/shared/setup/enums.js");
+
+    global.xcHelper = xcHelper = require("../../../assets/js/shared/util/xcHelper.js");
+    global.xcGlobal = xcGlobal = require("../../../assets/js/shared/setup/xcGlobal.js");
+    xcGlobal.setup();
     require("../../../assets/js/thrift/XcalarApiService.js");
     require("../../../assets/js/thrift/XcalarApiVersionSignature_types.js");
     require("../../../assets/js/thrift/XcalarApiServiceAsync.js");
+    require("../../../assets/js/thrift/XcalarEvalEnums_types.js");
     xcalarApi = require("../../../assets/js/thrift/XcalarApi.js");
 
 
     global.PromiseHelper = PromiseHelper = require("../../../assets/js/promiseHelper.js");
-    global.xcHelper = xcHelper = require("../../../assets/js/shared/util/xcHelper.js");
     global.Transaction = Transaction = require("../../../assets/js/shared/helperClasses/transaction.js");
 
-    require("../../../assets/js/shared/setup/xcGlobal.js");
-    require("../../../assets/js/shared/setup/enums.js");
 
     hackFunction();
 
@@ -1508,6 +1513,7 @@ require("jsdom").env("", function(err, window) {
     global.XIApi = XIApi = require("../../../assets/js/shared/api/xiApi.js");
     global.SQLApi = SQLApi = require("../../../assets/js/components/sql/sqlApi.js");
     SQLCompiler = require("../../../assets/js/components/sql/sqlCompiler.js");
+    require("../../../assets/lang/en/jsTStr.js");
 });
 
 function hackFunction() {
@@ -1563,6 +1569,9 @@ function hackFunction() {
 
     global.Log = {
         errorLog: function() { console.log.apply(this, arguments); }
+    };
+    global.DagEdit = {
+        isEditMode: function() { return false; }
     };
 }
 
@@ -1626,7 +1635,7 @@ exports.getRows = function(tableName, startRowNum, rowsToFetch) {
     .then(function(result) {
         finalData = [];
         for (var i = 0, len = result.length; i < len; i++) {
-            finalData.push(result[i].value);
+            finalData.push(result[i]);
         }
         return XcalarSetFree(resultSetId);
     })
@@ -1686,7 +1695,7 @@ exports.sql = function(sql) {
     sql = sql.replace(/\n/g, " ").trim().replace(/;+$/, "");
     console.log("execute sql", sql);
     var sqlCom = new SQLCompiler();
-    return sqlCom.compile(sql);
+    return sqlCom.compile(sql, true);
 };
 
 
@@ -1705,6 +1714,7 @@ exports.sqlLoad = function(path) {
     var deferred = jQuery.Deferred();
     var dsArgs = {
         url: path,
+        targetName: "Default Shared Root",
         maxSampleSize: 0
     };
     var formatArgs = {

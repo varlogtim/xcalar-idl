@@ -349,3 +349,35 @@ enum JoinCompoundOperatorTStr {
     LeftAntiSemiJoin = "Left Anti Semi Join",
     RightAntiSemiJoin = "Right Anti Semi Join",
 }
+
+if (typeof global !== 'undefined') {
+    global.RowDirection = RowDirection;
+    global.WSTableType = WSTableType;
+    global.DelWSType = DelWSType;
+    global.TableType = TableType;
+    global.ColDir = ColDir;
+    global.ColFormat = ColFormat;
+    global.ColTextAlign = ColTextAlign;
+    global.ColumnType = ColumnType;
+    global.ColumnSortType = ColumnSortType;
+    global.ColumnSortOrder = ColumnSortOrder;
+    global.DSObjTerm = DSObjTerm;
+    global.DSFormat = DSFormat;
+    global.FileProtocol = FileProtocol;
+    global.keyCode = keyCode;
+    global.FltOp = FltOp;
+    global.AggrOp = AggrOp;
+    global.QueryStatus = QueryStatus;
+    global.PatternCategory = PatternCategory;
+    global.PatternAction = PatternAction;
+    global.SQLType = SQLType;
+    global.SQLOps = SQLOps;
+    global.XcalarMode = XcalarMode;
+    global.MLSetting = MLSetting;
+    global.systemParams = systemParams;
+    global.GlobalKVKeys = GlobalKVKeys;
+    global.InitFlagState = InitFlagState;
+    global.ConcurrencyEnum = ConcurrencyEnum;
+    global.JoinCompoundOperator = JoinCompoundOperator;
+    global.JoinCompoundOperatorTStr = JoinCompoundOperatorTStr;
+}

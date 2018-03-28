@@ -893,7 +893,9 @@
         function pushDown(treeNode) {
             var deferred = PromiseHelper.deferred();
             var retStruct;
-            SQLEditor.updateProgress();
+            if (typeof SQLEditor !== "undefined") {
+                SQLEditor.updateProgress();
+            }
             var treeNodeClass = treeNode.value.class.substring(
                 "org.apache.spark.sql.catalyst.plans.logical.".length);
             switch (treeNodeClass) {
@@ -969,13 +971,19 @@
     SQLCompiler.prototype = {
         compile: function(sqlQueryString, isJsonPlan) {
             // XXX PLEASE DO NOT DO THIS. THIS IS CRAP
-            var oldKVcommit = KVStore.commit;
-            KVStore.commit = function(atStartUp) {
-                return PromiseHelper.resolve();
-            };
+            var oldKVcommit;
+            if (typeof KVStore !== "undefined") {
+                oldKVcommit = KVStore.commit;
+                KVStore.commit = function(atStartUp) {
+                    return PromiseHelper.resolve();
+                };
+            }
             var outDeferred = PromiseHelper.deferred();
             var self = this;
-            var cached = SQLCache.getCached(sqlQueryString);
+            var cached;
+            if (typeof SQLCache !== "undefined") {
+                cached = SQLCache.getCached(sqlQueryString);
+            }
 
             var promise;
             if (isJsonPlan) {
@@ -996,11 +1004,13 @@
                     var finalTableName = SQLCache.setNewTableNames(plan,
                                                          jsonArray.startTables,
                                                          jsonArray.finalTable);
-                    SQLEditor.fakeCompile(jsonArray.steps)
-                    .then(function() {
-                        deferred.resolve(JSON.stringify(plan), finalTableName,
-                                         jsonArray.finalTableCols);
-                    });
+                    if (typeof SQLEditor !== "undefined") {
+                        SQLEditor.fakeCompile(jsonArray.steps)
+                        .then(function() {
+                            deferred.resolve(JSON.stringify(plan), finalTableName,
+                                             jsonArray.finalTableCols);
+                        });
+                    }
                 } else {
                     var allTableNames = getAllTableNames(jsonArray);
 
@@ -1016,7 +1026,9 @@
                     }
 
                     var numNodes = countNumNodes(tree);
-                    SQLEditor.startCompile(numNodes);
+                    if (typeof SQLEditor !== "undefined") {
+                        SQLEditor.startCompile(numNodes);
+                    }
 
                     var promiseArray = traverseAndPushDown(self, tree);
                     PromiseHelper.chain(promiseArray)
@@ -1048,20 +1060,24 @@
                 return deferred.promise();
             })
             .then(function(queryString, newTableName, newCols) {
-                SQLEditor.startExecution();
+                if (typeof SQLEditor !== "undefined") {
+                    SQLEditor.startExecution();
+                }
                 self.sqlObj.run(queryString, newTableName, newCols)
                 .then(function() {
-                    if (toCache) {
+                    if (typeof SQLCache !== "undefined" && toCache) {
                         SQLCache.cacheQuery(sqlQueryString, toCache);
                     }
-                    outDeferred.resolve();
+                    outDeferred.resolve(newTableName);
                 })
                 .fail(outDeferred.reject);
             })
             .fail(outDeferred.reject)
             .always(function() {
-                // Restore the old KVcommit code
-                KVStore.commit = oldKVcommit;
+                if (typeof KVStore !== "undefined" && oldKVcommit) {
+                    // Restore the old KVcommit code
+                    KVStore.commit = oldKVcommit;
+                }
             });
 
             return outDeferred.promise();

@@ -2,10 +2,10 @@
     This file is where all the global variables go
 */
 (function() {
-    var xcGolbal = {};
+    var xcGlobal = {};
     var has_require = typeof require !== 'undefined';
 
-    xcGolbal.setup = function() {
+    xcGlobal.setup = function() {
 
         // =================================== Globals =================================
         KB = 1024;
@@ -112,10 +112,10 @@
 
     if (typeof exports !== "undefined") {
         if (typeof module !== "undefined" && module.exports) {
-            exports = module.exports = xcHelper;
+            exports = module.exports = xcGlobal;
         }
-        exports.xcGolbal = xcGolbal;
+        exports.xcGlobal = xcGlobal;
     } else {
-        window.xcGolbal = xcGolbal;
+        window.xcGlobal = xcGlobal;
     }
 }());

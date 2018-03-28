@@ -42,7 +42,7 @@ window.UnitTest = (function(UnitTest, $) {
 
     UnitTest.setup = function() {
         $(document).ready(function() {
-            xcGolbal.setup();
+            xcGlobal.setup();
             setupTestDatasets();
             mocha.run(function(a, b) {
                 if (parent.location.href.indexOf("unitTestManager.html") < 0) {
