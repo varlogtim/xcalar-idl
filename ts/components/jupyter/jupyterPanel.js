@@ -151,6 +151,10 @@ window.JupyterPanel = (function($, JupyterPanel) {
         options = options || {};
         noRenamePrompt = options.noRenamePrompt || false;
         var activeWBId = WorkbookManager.getActiveWKBK();
+        var wbName = null;
+        if (activeWBId && WorkbookManager.getWorkbook(activeWBId)) {
+            wbName = WorkbookManager.getWorkbook(activeWBId).name;
+        }
         var workbookStruct = {action: "init",
                 newUntitled: newUntitled,
                 noRenamePrompt: noRenamePrompt,
@@ -160,8 +164,8 @@ window.JupyterPanel = (function($, JupyterPanel) {
                 numRows: numRows,
                 username: userIdName,
                 userid: userIdUnique,
-                sessionname: WorkbookManager.getWorkbook(activeWBId).name,
-                sessionid: WorkbookManager.getActiveWKBK(),
+                sessionname: wbName,
+                sessionid: activeWBId,
                 folderName: jupyterMeta.getFolderName()
         };
         sendMessageToJupyter(workbookStruct);
