@@ -3196,7 +3196,7 @@ module.exports = function(grunt) {
         shellStr = shell.exec(tscmd, {silent:true}); // runs the cmd; shellJs runs cmds syncronously by default
         cmdOutput = shellStr.stdout;
         if ( cmdOutput ) {
-            var alertmsg = "tsc ERROR! FOUND ISSUES WHEN RUNNING CMD:\n\t" + tscmd  + "\n\nERROR(s):\n\n\t" + cmdOutput;
+            var alertmsg = "Found warnings when running the following tsc command:\n\t" + tscmd  + "\n\n" + cmdOutput;
             // write here in case watch task, in which case won't get end of build warnings
             grunt.log.writeln(("\n\n------------------------------------------------\n"
                 + alertmsg
@@ -3990,7 +3990,7 @@ module.exports = function(grunt) {
             for ( i = 0; i < END_OF_BUILD_WARNINGS.length; i++ ) {
                 grunt.log.writeln(("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++").green);
                 grunt.log.write("Issue #" + i + ": ");
-                grunt.log.writeln((END_OF_BUILD_WARNINGS[i]).bold.red);
+                grunt.log.writeln((END_OF_BUILD_WARNINGS[i]).bold);
                 grunt.log.writeln(("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++").green);
             }
         }
