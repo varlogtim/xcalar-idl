@@ -16,8 +16,7 @@ window.JSONModal = (function($, JSONModal) {
     var $lastKeySelected;
     var modes = {
         single: 'single',
-        multiple: 'multiple',
-        project: 'project'
+        multiple: 'multiple'
     };
     var lastMode = modes.single;
     var selectedCols = []; // holds arrays of cols selected by user, 1 array per
@@ -197,36 +196,19 @@ window.JSONModal = (function($, JSONModal) {
         $jsonArea.on({
             "click": function(event) {
                 var $el = $(this);
-                if ($el.closest(".projectMode").length &&
-                    $el.closest(".prefixedType").length) {
-                    return;
-                }
                 selectJsonKey($el, event);
             }
         }, ".jKey, .arrayEl");
 
         $jsonArea.on('click', '.jsonCheckbox', function(event) {
             var $checkbox = $(this);
-            if ($checkbox.hasClass('prefixCheckbox')) {
-                togglePrefixProject($checkbox);
-            } else {
+            if (!$checkbox.hasClass('prefixCheckbox')) {
                 var $key = $checkbox.siblings('.jKey, .arrayEl');
                 if (!$key.length) {
                     $key = $checkbox.siblings();
                 }
                 if ($key.length) {
                     selectJsonKey($key, event);
-                }
-            }
-        });
-
-        $jsonArea.on("click", ".prefixGroupTitle", function(event) {
-            if (!$(event.target).closest(".checkbox").length &&
-                $(this).closest(".jsonWrap").hasClass("projectMode")) {
-
-                var $checkbox = $(this).find('.prefixCheckbox');
-                if ($checkbox.length) {
-                    togglePrefixProject($checkbox);
                 }
             }
         });
@@ -337,14 +319,10 @@ window.JSONModal = (function($, JSONModal) {
             }
         });
 
-        $jsonArea.on("click", ".submitProject", function() {
+        $jsonArea.on("click", ".submitMultiPull", function() {
             var $jsonWrap = $(this).closest('.jsonWrap');
             var index = $jsonWrap.index();
-            if ($jsonWrap.hasClass('projectMode')) {
-                submitProject(index);
-            } else {
-                submitPullSome($jsonWrap, index);
-            }
+            submitPullSome($jsonWrap, index);
         });
 
         $jsonArea.on("mousedown", ".tab", function() {
@@ -517,7 +495,7 @@ window.JSONModal = (function($, JSONModal) {
             }
         });
 
-        $jsonWrap.find('.submitProject').removeClass('disabled');
+        $jsonWrap.find('.submitMultiPull').removeClass('disabled');
         $jsonWrap.find('.clearAll').removeClass('disabled');
         updateNumPullColsSelected($jsonWrap);
         $lastKeySelected = null;
@@ -527,15 +505,10 @@ window.JSONModal = (function($, JSONModal) {
         var $jsonWrap = $btn.closest('.jsonWrap');
         $jsonWrap.find('.keySelected').removeClass('keySelected');
         $jsonWrap.find('.jsonCheckbox').removeClass('checked');
-        $jsonWrap.find('.submitProject').addClass('disabled');
+        $jsonWrap.find('.submitMultiPull').addClass('disabled');
         $jsonWrap.find('.clearAll').addClass('disabled');
         $jsonWrap.find('.selectAll').removeClass('disabled');
         $lastKeySelected = null;
-        var numMainFields = $jsonWrap.find('.projectModeBar .numColsSelected')
-                                 .data('numMainFields');
-        $jsonWrap.find('.projectModeBar .numColsSelected')
-                 .text('0/' + numMainFields + ' ' + JsonModalTStr.FieldsSelected);
-
         var numTotalFields = $jsonWrap.find('.multiSelectModeBar .numColsSelected')
                                  .data('numTotalFields');
         $jsonWrap.find('.multiSelectModeBar .numColsSelected')
@@ -545,44 +518,6 @@ window.JSONModal = (function($, JSONModal) {
                         .text(JsonModalTStr.AllFieldsPulled);
         }
         selectedCols[$jsonWrap.index()] = [];
-    }
-
-    function togglePrefixProject($checkbox) {
-        var $jsonWrap = $checkbox.closest('.jsonWrap');
-        var $prefixedGroup = $checkbox.closest('.prefixedType');
-        var $allCheckboxes = $prefixedGroup.find('.jsonCheckbox').filter(function() {
-            return $(this).parent().hasClass('mainKey');
-        });
-        if ($checkbox.hasClass('checked')) {
-            $checkbox.removeClass('checked');
-            $allCheckboxes.removeClass('checked');
-            $prefixedGroup.find('.keySelected')
-                          .removeClass('keySelected');
-            if ($jsonWrap.find('.keySelected').length === 0) {
-                $jsonWrap.find('.submitProject').addClass('disabled');
-                $jsonWrap.find('.clearAll').addClass('disabled');
-            }
-        } else {
-            $checkbox.addClass('checked');
-            $allCheckboxes.addClass('checked');
-            $allCheckboxes.siblings('.jKey').addClass('keySelected');
-            $jsonWrap.find('.submitProject').removeClass('disabled');
-            $jsonWrap.find('.clearAll').removeClass('disabled');
-        }
-        if ($jsonWrap.hasClass('multiSelectMode')) {
-            updateNumPullColsSelected($jsonWrap);
-        } else {
-            updateNumProjColsSelected($jsonWrap);
-        }
-    }
-
-    function updateNumProjColsSelected($jsonWrap) {
-        var numSelected = $jsonWrap.find('.keySelected').length;
-        var numMainFields = $jsonWrap.find('.projectModeBar .numColsSelected')
-                                 .data('numMainFields');
-        $jsonWrap.find('.projectModeBar .numColsSelected')
-                 .text(numSelected + '/' + numMainFields +
-                                            ' ' + JsonModalTStr.FieldsSelected);
     }
 
     function updateNumPullColsSelected($jsonWrap) {
@@ -597,7 +532,7 @@ window.JSONModal = (function($, JSONModal) {
                         .text(JsonModalTStr.AllFieldsPulled);
         }
         if (numSelected === 0) {
-            $jsonWrap.find('.submitProject').addClass('disabled');
+            $jsonWrap.find('.submitMultiPull').addClass('disabled');
             $jsonWrap.find('.clearAll').addClass('disabled');
             $jsonWrap.find('.selectAll').removeClass('disabled');
         } else if (numSelected === numTotalFields) {
@@ -610,8 +545,7 @@ window.JSONModal = (function($, JSONModal) {
     function selectJsonKey($el, event) {
         var $jsonWrap = $el.closest('.jsonWrap');
 
-        if ($jsonWrap.hasClass('projectMode') ||
-            $jsonWrap.hasClass('multiSelectMode')) {
+        if ($jsonWrap.hasClass('multiSelectMode')) {
             var index = $jsonWrap.index();
 
             var toSelect = false;
@@ -672,8 +606,6 @@ window.JSONModal = (function($, JSONModal) {
 
             if ($jsonWrap.hasClass('multiSelectMode')) {
                 updateNumPullColsSelected($jsonWrap);
-            } else {
-                updateNumProjColsSelected($jsonWrap);
             }
         } else {
             var tableId = $jsonWrap.data('tableid');
@@ -682,7 +614,7 @@ window.JSONModal = (function($, JSONModal) {
             var isArray = $jsonWrap.data('isarray');
 
             var nameInfo = createJsonSelectionExpression($el);
-            var animation = gMinModeOn ? false : true;
+            var animation = !gMinModeOn;
             var backColName;
 
             if (isDataCol) {
@@ -725,7 +657,7 @@ window.JSONModal = (function($, JSONModal) {
 
         $el.addClass('keySelected');
         $el.siblings('.jsonCheckbox').addClass('checked');
-        $jsonWrap.find('.submitProject').removeClass('disabled');
+        $jsonWrap.find('.submitMultiPull').removeClass('disabled');
         $jsonWrap.find('.clearAll').removeClass('disabled');
 
         var nameInfo = createJsonSelectionExpression($el);
@@ -740,7 +672,7 @@ window.JSONModal = (function($, JSONModal) {
         $el.removeClass('keySelected');
         $el.siblings('.jsonCheckbox').removeClass('checked');
         if ($jsonWrap.find('.keySelected').length === 0) {
-            $jsonWrap.find('.submitProject').addClass('disabled');
+            $jsonWrap.find('.submitMultiPull').addClass('disabled');
             $jsonWrap.find('.clearAll').addClass('disabled');
         }
         var nameInfo = createJsonSelectionExpression($el);
@@ -979,23 +911,17 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     // if mode isn't provided, will default to single "select mode" if a single
-    // jsonWrap without project or multiSelect mode is found
+    // jsonWrap without multiSelect mode is found
     function saveLastMode(mode) {
         if (mode) {
             lastMode = mode;
             return lastMode;
         }
 
-        var hasProjectMode = false;
         $jsonArea.find('.jsonWrap').each(function() {
             var $wrap = $(this);
-            if ($wrap.hasClass("projectMode")) {
-                lastMode = modes.project;
-                hasProjectMode = true;
-            } else if ($wrap.hasClass("multiSelectMode")) {
-                if (!hasProjectMode) {
-                    lastMode = modes.multiple;
-                }
+            if ($wrap.hasClass("multiSelectMode")) {
+                lastMode = modes.multiple;
             } else {
                 lastMode = modes.single;
                 return false;
@@ -1008,8 +934,6 @@ window.JSONModal = (function($, JSONModal) {
     function refreshJsonModal($jsonTd, isModalOpen, type) {
         var text = $jsonTd.find('.originalData').text();
         var jsonObj;
-        var allProjectMode = false; // used to see if new json column will
-        // come out in project mode
         var allMultiMode = false;
 
         if (type &&
@@ -1078,19 +1002,10 @@ window.JSONModal = (function($, JSONModal) {
             } else {
                 toggleModal($jsonTd, false, 200);
             }
-        } else {
-            if ($jsonArea.find('.jsonWrap.projectMode').length &&
-                ($jsonArea.find('.jsonWrap').length ===
-                $jsonArea.find('.jsonWrap.projectMode').length)) {
-                allProjectMode = true;
-            }
-            if (!allProjectMode) {
-                if ($jsonArea.find('.jsonWrap.multiSelectMode').length &&
+        } else if ($jsonArea.find('.jsonWrap.multiSelectMode').length &&
                     ($jsonArea.find('.jsonWrap').length ===
                     $jsonArea.find('.jsonWrap.multiSelectMode').length)) {
-                    allMultiMode = true;
-                }
-            }
+            allMultiMode = true;
         }
 
         fillJsonArea(jsonObj, $jsonTd, type);
@@ -1116,22 +1031,12 @@ window.JSONModal = (function($, JSONModal) {
             $compareIcons.each(function() {
                 xcTooltip.changeText($(this), JsonModalTStr.Compare);
             });
-            if (allProjectMode) {
-                $jsonWrap.addClass('projectMode');
-                autoSelectFieldsToProject($jsonArea.find('.jsonWrap').last());
-            } else if (allMultiMode) {
+            if (allMultiMode) {
                 $jsonWrap.addClass('multiSelectMode');
-                xcTooltip.changeText($jsonWrap.find('.submitProject'),
-                                    JsonModalTStr.SubmitPull);
             }
-        } else if (lastMode === modes.project && isDataCol) {
-            $jsonWrap.addClass('projectMode');
-            autoSelectFieldsToProject($jsonArea.find('.jsonWrap').last());
         } else if (lastMode === modes.multiple &&
             (isDataCol || type === ColumnType.object)) {
             $jsonWrap.addClass('multiSelectMode');
-            xcTooltip.changeText($jsonWrap.find('.submitProject'),
-                                 JsonModalTStr.SubmitPull);
         }
     }
 
@@ -1262,7 +1167,7 @@ window.JSONModal = (function($, JSONModal) {
     }
 
     function getJsonHtmlForNonDataCol(jsonObj, isArray) {
-        var prettyJson = xcHelper.prettifyJson(jsonObj, null , true, {
+        var prettyJson = xcHelper.prettifyJson(jsonObj, null, true, {
             inArray: isArray,
             checkboxes: true
         }, isArray);
@@ -1526,13 +1431,9 @@ window.JSONModal = (function($, JSONModal) {
             }
         }
 
-        var numMainFields = $jsonWrap.find('.primary').find('.mainKey').length;
         var numTotalFields = $jsonWrap.find('.primary').find('.jInfo').length;
         numTotalFields -= $jsonWrap.find(".pulled").length;
-        $jsonWrap.find('.projectModeBar .numColsSelected')
-                 .data('numMainFields', numMainFields)
-                 .text('0/' + numMainFields + ' ' +
-                       JsonModalTStr.FieldsSelected);
+
         $jsonWrap.find('.multiSelectModeBar .numColsSelected')
                  .data('numTotalFields', numTotalFields)
                  .text('0/' + numTotalFields + ' ' + JsonModalTStr.FieldsPull);
@@ -1635,9 +1536,9 @@ window.JSONModal = (function($, JSONModal) {
                     'data-original-title="' + JsonModalTStr.SelectAll + '">' +
                     '<i class="icon xi-select-all"></i>' +
                 '</div>' +
-                '<div class="btn btn-small submitProject disabled" ' +
+                '<div class="btn btn-small submitMultiPull disabled" ' +
                     'data-toggle="tooltip" data-container="body" ' +
-                    'data-original-title="' + JsonModalTStr.SubmitProjection + '">' +
+                    'data-original-title="' + JsonModalTStr.SubmitPull + '">' +
                     '<i class="icon xi-back-to-worksheet"></i>' +
                     '<i class="icon xi-pull-all-field"></i>' +
                 '</div>' +
@@ -1666,9 +1567,6 @@ window.JSONModal = (function($, JSONModal) {
             '</div>';
         if (isDataCol) {
             html +=
-            '<div class="projectModeBar bar">' +
-                '<div class="text numColsSelected"></div>' +
-            '</div>' +
             '<div class="tabBar bar">' +
                 '<div class="tabs">' +
                     '<div class="tab seeAll active" ' +
@@ -1699,12 +1597,7 @@ window.JSONModal = (function($, JSONModal) {
                     '<i class="check icon xi-tick fa-10"></i>' +
                     '<span class="text">' + JsonModalTStr.MultiSelectMode +
                     '</span>' +
-                '</li>' +
-                '<li class="projectionOpt" data-action="projectMode">' +
-                    '<i class="check icon xi-tick fa-10"></i>' +
-                    '<span class="text">' + JsonModalTStr.ProjectMode +
-                    '</span>' +
-                '</li>' +
+                '</li>'
             '</ul>' +
             '</div>';
 
@@ -1887,19 +1780,6 @@ window.JSONModal = (function($, JSONModal) {
         };
     }
 
-    function submitProject(index) {
-        var $jsonWrap = $('.jsonWrap').eq(index);
-        var colNames = getSelectedCols($jsonWrap);
-
-        if (colNames.length) {
-            var tableId = $jsonWrap.data('tableid');
-            xcFunction.project(colNames, tableId);
-            closeModal(modes.project);
-        } else {
-            // shouldn't have been able to submit anyways
-            console.warn('no columns selected');
-        }
-    }
 
     function submitPullSome($jsonWrap, index) {
         var rowNum = $jsonWrap.data('rownum');
@@ -1953,22 +1833,12 @@ window.JSONModal = (function($, JSONModal) {
             $menu = $li.closest('.menu');
             $jsonWrap = $menu.closest('.jsonWrap');
             $jsonWrap.removeClass('multiSelectMode');
-            $jsonWrap.removeClass('projectMode');
             clearAllSelectedCols($jsonWrap.find('.clearAll'));
 
-            if ($li.hasClass('projectionOpt')) {
-                $jsonWrap.addClass('projectMode');
-                autoSelectFieldsToProject($jsonWrap);
-                selectTab($jsonWrap.find('.seeAll'));
-                xcTooltip.changeText($jsonWrap.find('.submitProject'),
-                                     JsonModalTStr.SubmitProjection);
-                if ($jsonWrap.find('.compareIcon.selected').length) {
-                    compareIconSelect($jsonWrap.find('.compareIcon'));
-                }
-            } else if ($li.hasClass('multiSelectionOpt')) {
+            if ($li.hasClass('multiSelectionOpt')) {
                 $jsonWrap.addClass('multiSelectMode');
                 selectTab($jsonWrap.find('.seeAll'));
-                xcTooltip.changeText($jsonWrap.find('.submitProject'),
+                xcTooltip.changeText($jsonWrap.find('.submitMultiPull'),
                                      JsonModalTStr.SubmitPull);
                 if ($jsonWrap.find('.compareIcon.selected').length) {
                     compareIconSelect($jsonWrap.find('.compareIcon'));
@@ -1982,37 +1852,6 @@ window.JSONModal = (function($, JSONModal) {
         $jsonArea.on("mouseleave", ".menu li", function() {
             $(this).removeClass("hover");
         });
-    }
-
-    function autoSelectFieldsToProject($jsonWrap) {
-        var tableId = $jsonWrap.data('tableid');
-        var table = gTables[tableId];
-        var cols = table.getAllCols();
-        var colName;
-        var $immediatesGroup = $jsonWrap.find('.immediatesGroup');
-        var $group;
-        var prefixSelected = false;
-
-        for (var i = 0; i < cols.length; i++) {
-            if (cols[i].isDATACol() || cols[i].isEmptyCol()) {
-                continue;
-            }
-
-            if (cols[i].isImmediate()) {
-                colName = cols[i].getBackColName();
-                $group = $immediatesGroup;
-                var $checkbox = $group
-                                .find('.mainKey[data-key="' + colName + '"]')
-                                .children('.jsonCheckbox');
-                if ($checkbox.length && !$checkbox.hasClass('checked')) {
-                    selectJsonKey($checkbox.siblings('.jKey'), {});
-                }
-
-            } else if (!prefixSelected) {
-                togglePrefixProject($jsonWrap.find('.prefixCheckbox'));
-                prefixSelected = true;
-            }
-        }
     }
 
     /* Unit Test Only */

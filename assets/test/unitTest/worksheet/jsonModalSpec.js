@@ -446,81 +446,26 @@ describe('JsonModal Test', function() {
         });
     });
 
-    // xx need to add actual projection testing
-    describe('project mode', function() {
-        it('toggle project mode should work', function() {
-            expect($jsonModal.find('.jsonWrap').length).to.equal(1);
-            var $jsonWrap = $jsonModal.find('.jsonWrap');
-            expect($jsonWrap.hasClass('projectMode')).to.be.false;
-            expect($jsonWrap.find('.submitProject').is(":visible")).to.be.false;
-            expect($jsonWrap.find('.jsonModalMenu .projectOpt .check').is(":visible")).to.be.false;
-
-            // project mode
-            $jsonWrap.find('.jsonModalMenu .projectionOpt').trigger(fakeEvent.mouseup);
-
-            expect($jsonWrap.hasClass('projectMode')).to.be.true;
-            expect($jsonWrap.find('.submitProject').is(":visible")).to.be.true;
-            expect($jsonWrap.find('.projectModeBar .numColsSelected').text()).to.equal("13/13 fields selected to project");
-
-             // deselect prefixed fields
-            $jsonWrap.find('.prefixGroupTitle .checkbox').click();
-            expect($jsonWrap.find('.projectModeBar .numColsSelected').text()).to.equal("1/13 fields selected to project");
-
-            // select prefixed fields
-            $jsonWrap.find('.prefixGroupTitle .checkbox').click();
-            expect($jsonWrap.find('.projectModeBar .numColsSelected').text()).to.equal("13/13 fields selected to project");
-
-            // select mode
-            $jsonWrap.find('.jsonModalMenu .selectionOpt').trigger(fakeEvent.mouseup);
-
-            expect($jsonWrap.hasClass('projectMode')).to.be.false;
-            expect($jsonWrap.find('.submitProject').is(":visible")).to.be.false;
-            expect($jsonWrap.find('.projectModeBar .numColsSelected').text()).to.equal("0/13 fields selected to project");
-            expect($jsonWrap.find('.projectModeBar .numColsSelected').is(":visible")).to.be.false;
-        });
-
-        it(".submitProject click should work", function() {
-            var $jsonWrap = $jsonModal.find('.jsonWrap');
-            var cachedFn = xcFunction.project;
-            projectCalled = false;
-            xcFunction.project = function(colNames, tId) {
-                colNames.sort();
-                expect(colNames.length).to.equal(13);
-                expect(colNames[0]).to.equal(prefix + "::" + "average_stars");
-                expect(tId).to.equal(tableId);
-                projectCalled = true;
-            };
-
-            $jsonWrap.find('.jsonModalMenu .projectionOpt').trigger(fakeEvent.mouseup);
-            $jsonWrap.find(".submitProject").click();
-            expect(projectCalled).to.be.true;
-            xcFunction.project = cachedFn;
-        });
-
-        after(function(done) {
+    describe('multiSelectMode', function() {
+        var $jsonWrap;
+        before(function(done) {
+            $jsonWrap = $jsonModal.find('.jsonWrap');
             JSONModal.show($table.find('.jsonElement').eq(0));
             setTimeout(function() {
-                $jsonModal.find('.jsonWrap').removeClass('projectMode');
                 done();
             }, 100);
         });
-    });
 
-    describe('multiSelectMode', function() {
-        var $jsonWrap;
-        before(function() {
-            $jsonWrap = $jsonModal.find('.jsonWrap');
-        });
         it('toggle multiSelectMode should work', function() {
             expect($jsonWrap.hasClass('multiSelectMode')).to.be.false;
-            expect($jsonWrap.find('.submitProject').is(":visible")).to.be.false;
+            expect($jsonWrap.find('.submitMultiPull').is(":visible")).to.be.false;
             expect($jsonWrap.find('.jsonModalMenu .multiSelectionOpt .check').is(":visible")).to.be.false;
 
              // multiSelect mode
             $jsonWrap.find('.jsonModalMenu .multiSelectionOpt').trigger(fakeEvent.mouseup);
 
             expect($jsonWrap.hasClass('multiSelectMode')).to.be.true;
-            expect($jsonWrap.find('.submitProject').is(":visible")).to.be.true;
+            expect($jsonWrap.find('.submitMultiPull').is(":visible")).to.be.true;
             expect($jsonWrap.find(".pulled").length).to.equal(14);
             expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("0/8 fields selected to pull");
         });
@@ -558,7 +503,7 @@ describe('JsonModal Test', function() {
             $jsonWrap.find('.jsonModalMenu .selectionOpt').trigger(fakeEvent.mouseup);
 
             expect($jsonWrap.hasClass('multiSelectMode')).to.be.false;
-            expect($jsonWrap.find('.submitProject').is(":visible")).to.be.false;
+            expect($jsonWrap.find('.submitMultiPull').is(":visible")).to.be.false;
             expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').text()).to.equal("0/8 fields selected to pull");
             expect($jsonWrap.find('.multiSelectModeBar .numColsSelected').is(":visible")).to.be.false;
         });
@@ -587,7 +532,7 @@ describe('JsonModal Test', function() {
                 return $(this).text() === "yelping_since";
             }).click();
 
-            $jsonModal.find(".submitProject").click();
+            $jsonModal.find(".submitMultiPull").click();
 
             UnitTest.timeoutPromise(1)
             .then(function() {
@@ -614,16 +559,10 @@ describe('JsonModal Test', function() {
             var $secondWrap = $wrap.clone();
             $wrap.after($secondWrap);
 
-            $wrap.addClass("projectMode"); // 1 project, 1 single
+            $wrap.addClass("multiSelectMode"); // 1 multi
             expect(fn()).to.equal("single");
 
-            $secondWrap.addClass("projectMode"); // 2 projects
-            expect(fn()).to.equal("project");
-
-            $secondWrap.removeClass("projectMode").addClass("multiSelectMode"); // 1 project, 1 multi
-            expect(fn()).to.equal("project");
-
-            $wrap.removeClass("projectMode").addClass("multiSelectMode"); // 2 multi
+            $secondWrap.addClass("multiSelectMode"); // 2 multi
             expect(fn()).to.equal("multiple");
 
             $wrap.removeClass("multiSelectMode"); // 1 single, 1 multi

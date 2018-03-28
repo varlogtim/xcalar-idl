@@ -254,9 +254,6 @@
             .flexArea {
                 width: ~"calc(100% - 186px)";
             }
-            // .colsSelected {
-            //     max-width: ~"calc(100% - 170px)";
-            // }
         }
 
         &:only-child {
@@ -303,7 +300,7 @@
             }
         }
 
-        &.projectMode, &.multiSelectMode {
+        &.multiSelectMode {
             .prettyJson {
                 .noSelection;
             }
@@ -339,7 +336,7 @@
                 display: none;
             }
             .optionsBar {
-                .clearAll, .submitProject {
+                .clearAll, .submitMultiPull {
                     display: inline-block;
                 }
                 .flexArea {
@@ -361,7 +358,7 @@
 
         &.multiSelectMode {
             .menu {
-                li.selectionOpt, li.projectionOpt {
+                li.selectionOpt {
                     color: @color-font-darkGray;
                     .check {
                         display: none;
@@ -408,7 +405,7 @@
 
             &:last-child {
                 .flexArea {
-                    width: ~"calc(100% - 172px)";
+                    width: ~"calc(100% - 186px)";
                 }
             }
 
@@ -424,113 +421,6 @@
                 .xi-tick {
                     display: block;
                 }
-            }
-        }
-
-        &.projectMode {
-            .prettyJson {
-                background-color: @color-json-project-bg;
-            }
-
-            .immediatesType {
-                .jsonCheckbox {
-                    display: block;
-                }
-
-                .jArray  {
-                    > .jString, > .jNum, > .jBool, > .jNull , > .jUndf {
-                        cursor: default;
-                        &:hover {
-                            background-color: transparent;
-                            box-shadow: none;
-                        }
-                    }
-                }
-
-                .jObject > .jArray > .jsonBlock > .jKey {
-                    cursor: pointer;
-                    pointer-events: auto;
-                    &:hover {
-                        background-color: #BCF0FD;
-                        box-shadow: 0px 0px 1px @color-table-borderBlue;
-                    }
-                }
-            }
-
-            .prefixedType {
-                .prefixGroupTitle {
-                    cursor: pointer;
-                    .checkbox  {
-                        display: block;
-                    }
-                }
-                .jKey, span {
-                    pointer-events: none;
-                    cursor: default;
-                    &:hover {
-                        background-color: transparent;
-                        box-shadow: none;
-                    }
-                }
-            }
-
-            .menu {
-                li.selectionOpt, li.multiSelectionOpt {
-                    color: @color-font-darkGray;
-                    .check {
-                        display: none;
-                    }
-                }
-                li.projectionOpt {
-                    color: @color-font-softBlue;
-                    .check {
-                        display: inline-block;
-                    }
-                }
-            }
-            .pullAll, .compareIcon, .sort {
-                opacity: 0.5;
-                pointer-events: none;
-                display: none;
-            }
-            .optionsBar {
-                .clearAll, .submitProject {
-                    display: inline-block;
-                }
-                .xi-pull-all-fields {
-                    display: none;
-                }
-                .xi-back-to-worksheet {
-                    display: inline-block;
-                }
-                .flexArea {
-                    width: ~"calc(100% - 130px)";
-                    // > div {
-                    //     .flex(1 1 auto);
-                    // }
-
-                }
-                // .infoArea {
-                //     max-width: ~"calc(100% - 306px)";
-                // }
-            }
-            // .colsSelected {
-            //     display: inline-block;
-            //     .flex(1 0 auto) !important;
-            // }
-
-            &:last-child {
-                .flexArea {
-                    width: ~"calc(100% - 152px)";
-                }
-            }
-
-            .tabBar {
-                display: none;
-            }
-
-            .projectModeBar {
-                display: block;
             }
         }
 
@@ -636,7 +526,7 @@
                     font-size: 14px;
                 }
             }
-            &.submitProject {
+            &.submitMultiPull {
                 display: none;
                 .icon {
                     font-size: 14px;
@@ -662,7 +552,7 @@
         }
     }
 
-    .projectModeBar, .multiSelectModeBar {
+    .multiSelectModeBar {
         display: none;
         .numColsSelected {
             color: @color-font-select-blue;
@@ -810,15 +700,11 @@
             height: 100%;
             background-color: @color-white !important;
         }
-        .jsonModalMenu {
-            .projectionOpt {
-                display: none;
-            }
-        }
+
         .multiSelectMode {
             .optionsBar {
                 .flexArea {
-                    width: ~"calc(100% - 116px)";
+                    width: ~"calc(100% - 136px)";
                 }
             }
             .jsonCheckbox {
@@ -832,7 +718,7 @@
                     display: none;
                 }
                 .flexArea {
-                    width: ~"calc(100% - 90px)";
+                    width: ~"calc(100% - 86px)";
                 }
             }
             .multiSelectMode {
@@ -1067,9 +953,6 @@
                 display: inline-block;
             }
         }
-        .projectionOpt {
-            display: none;
-        }
         .check {
             .size(@width: 20px, @height: 10px);
             .position(absolute, @top: 10px, @left: 5px);
@@ -1083,13 +966,6 @@
     }
 }
 
-#container.dataflowState, #container.projectState {
-    #jsonModal {
-        .projectMode .submitProject {
-            .xc-disabled;
-        }
-    }
-}
 /* End Of Pretty Json Modal */
 
 /* Quick Aggregate Modal */
