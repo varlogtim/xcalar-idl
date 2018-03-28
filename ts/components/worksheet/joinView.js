@@ -124,7 +124,7 @@ window.JoinView = (function($, JoinView) {
                                             .closest('.joinTableList');
                 if ($joinTableList.length) {
                     var originalText = $lastInputFocused.val();
-                    xcHelper.fillInputFromCell($target, $lastInputFocused, null,
+                    xcHelper.fillInputFromCell($target, $lastInputFocused, "",
                         {type: "table"});
                     var index = $joinView.find('.joinTableList')
                                          .index($joinTableList);

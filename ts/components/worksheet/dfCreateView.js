@@ -37,7 +37,7 @@ window.DFCreateView = (function($, DFCreateView) {
                             $input.closest(".tableList").length) {
 
                             var originalText = $input.val();
-                            xcHelper.fillInputFromCell($target, $input, null,
+                            xcHelper.fillInputFromCell($target, $input, "",
                                 {type: "dag"});
                             var newTableName = $input.val();
                             if (originalText !== newTableName) {
