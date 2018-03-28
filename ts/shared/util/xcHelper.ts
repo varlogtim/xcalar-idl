@@ -33,22 +33,22 @@ declare class ProgCol {
 declare class TableMeta {
     public tableCols: ProgCol[];
     public backTableMeta: any;
-    public highlightedCells: Object;
+    public highlightedCells: object;
     public getAllCols(onlyValid?: boolean): ProgCol[]
     public getCol(colNum: number): ProgCol;
     public hasColWithBackName(colName: string): boolean;
 }
 
 declare var gDSPrefix: string;
-declare var gDroppedTables: Object;
+declare var gDroppedTables: object;
 declare var gPrefixSign: string;
 declare var gPrefixLimit: number;
-declare var gTables: Object;
+declare var gTables: object;
 declare var gMinModeOn: boolean;
 declare var gMouseEvents: MouseEvents;
 declare var gColPrefix: string;
-declare var XcalarApisTStr: Object;
-declare var StatusTStr: Object;
+declare var XcalarApisTStr: object;
+declare var StatusTStr: object;
 declare var gExportNoCheck: boolean;
 declare var gAggVarPrefix: string;
 declare var gActiveTableId: string;
@@ -152,7 +152,7 @@ declare namespace UserSettings {
 }
 
 declare namespace ColManager {
-    export function newCol(colInfo: Object): Object;
+    export function newCol(colInfo: object): object;
 }
 
 declare namespace Admin {
@@ -168,7 +168,7 @@ declare namespace PromiseHelper {
 }
 
 declare namespace Log {
-    export function getAllLogs(): Object[];
+    export function getAllLogs(): object[];
     export function getLocalStorage(): string;
     export function getBackup(): string;
 }
@@ -189,8 +189,8 @@ declare namespace MonitorGraph {
 declare namespace TblFunc {
     export function moveTableTitles(): void;
     export function focusTable(tableId: string): void;
-    export function hideOffScreenTables(options: Object): void;
-    export function moveTableTitles($tableWraps: JQuery | null, options: Object): void;
+    export function hideOffScreenTables(options: object): void;
+    export function moveTableTitles($tableWraps: JQuery | null, options: object): void;
     export function unhideOffScreenTables(): void;
 }
 
@@ -222,7 +222,7 @@ declare namespace WSManager {
     export function getWSList(): string[];
     export function getNumOfWS(): number;
     export function getTableRelativePosition(tableId: string): number;
-    export function getWorksheets(): Object;
+    export function getWorksheets(): object;
 }
 
 declare namespace Log {
@@ -241,7 +241,7 @@ declare namespace DagEdit {
 declare namespace xcMenu {
     export function removeKeyboardNavigation(): void;
     export function close($menu?: JQuery): void;
-    export function addKeyboardNavigation($menu: JQuery, $subMenu: JQuery, options: Object): void;
+    export function addKeyboardNavigation($menu: JQuery, $subMenu: JQuery, options: object): void;
 }
 
 namespace xcHelper {
@@ -427,7 +427,7 @@ namespace xcHelper {
      * xcHelper.parseError
      * @param error 
      */
-    export function parseError(error: Object | string): string {
+    export function parseError(error: object | string): string {
         let errorInStr: string;
         if (typeof error === 'object') {
             errorInStr = JSON.stringify(error);
@@ -732,7 +732,7 @@ namespace xcHelper {
         oldName: string,
         newName: string,
         type: DfFieldTypeT = DfFieldTypeT.DfUnknown
-    ): Object {
+    ): object {
         return {
             "orig": oldName,
             "new": newName,
@@ -772,7 +772,7 @@ namespace xcHelper {
     export function getFilterOptions(
         operator: FltOp | null,
         colName: string,
-        uniqueVals: Object,
+        uniqueVals: object,
         isExist: boolean,
         isNull: boolean
     ): FilterOption | null {
@@ -901,7 +901,7 @@ namespace xcHelper {
         // checks dataset names and tablenames and tries to create a table
         // called dataset1 if it doesnt already exist or dataset2 etc...
         const deferred: XDDeferred<string> = PromiseHelper.deferred<string>();
-        const tableNames: Object = {};
+        const tableNames: object = {};
         // datasets has it's unique format, no need to check
         XcalarGetTables()
         .then(function(result: any) {
@@ -1052,7 +1052,7 @@ namespace xcHelper {
      * @param str 
      * @param delim [,] - Optional and will default to ,
      */
-    export function extractOpAndArgs(str: string, delim: string = ','): Object {
+    export function extractOpAndArgs(str: string, delim: string = ','): object {
         const leftParenIndex: number = str.indexOf('(');
         const rightParenIndex: number = str.lastIndexOf(')');
         const op: string = str.slice(0, leftParenIndex).trim();
@@ -1137,7 +1137,7 @@ namespace xcHelper {
      * @param tableMeta
      */
     export function getTableKeyInfoFromMeta(tableMeta: any) {
-        const keys: Object[] = [];
+        const keys: object[] = [];
         tableMeta.keyAttr.forEach((keyAttr) => {
             if (keyAttr.valueArrayIndex >= 0) {
                 keys.push({
@@ -1499,7 +1499,7 @@ namespace xcHelper {
     // xcHelper.autoName
     export function autoName(
         origName: string,
-        checkMap: Object,
+        checkMap: object,
         maxTry: number = 20,
         delim: string = ''
     ): string {
@@ -1531,7 +1531,7 @@ namespace xcHelper {
         tableId: string,
         colName: string | null,
         onlyCheckPulledCol: boolean,
-        takenNames: Object = {},
+        takenNames: object = {},
         colNumToIgnore: number[]
     ): string {
         if (colName == null) {
@@ -1972,7 +1972,7 @@ namespace xcHelper {
      * @param txt 
      * @param replaces 
      */
-    export function replaceMsg(txt: string, replaces: Object = {}): string {
+    export function replaceMsg(txt: string, replaces: object = {}): string {
         for (let key in replaces) {
             const str: string = replaces[key];
             if (str == null) {
@@ -2163,7 +2163,7 @@ namespace xcHelper {
                 $btn.click(function() {
                     $(this).blur();
 
-                    const logCaches: Object[] = Log.getAllLogs();
+                    const logCaches: object[] = Log.getAllLogs();
                     let log: string;
                     if (logCaches['logs'].length === 0 &&
                         logCaches['errors'].length === 0)
@@ -2387,13 +2387,13 @@ namespace xcHelper {
      * xcHelper.getBackTableSet
      */
     export function getBackTableSet(): XDPromise<any> {
-        const deferred: XDDeferred<Object> = PromiseHelper.deferred();
+        const deferred: XDDeferred<object> = PromiseHelper.deferred();
 
         XcalarGetTables()
         .then((backEndTables) => {
-            const backTables: Object = backEndTables.nodeInfo;
+            const backTables: object = backEndTables.nodeInfo;
             const numBackTables: number = backEndTables.numNodes;
-            const backTableSet: Object = {};
+            const backTableSet: object = {};
 
             for (let i = 0; i < numBackTables; i++) {
                 // record the table
@@ -3502,7 +3502,7 @@ namespace xcHelper {
     export function delimiterTranslate(
         $input: JQuery,
         val: string
-    ): string | Object {
+    ): string | object {
         if ($input.hasClass("nullVal")) {
             return "";
         }
@@ -3530,7 +3530,7 @@ namespace xcHelper {
      * xcHelper.checkMatchingBrackets
      * @param val 
      */
-    export function checkMatchingBrackets(val: string): Object {
+    export function checkMatchingBrackets(val: string): object {
         let numOpens: number = 0;
         let inQuotes: boolean = false;
         let singleQuote: boolean = false; // ' is true, " is false
@@ -3751,7 +3751,7 @@ namespace xcHelper {
 
         const ext: string = name.substring(index + 1, name.length)
                                 .toUpperCase();
-        const formatMap: Object = {
+        const formatMap: object = {
             JSON: "JSON",
             CSV: "CSV",
             TSV: "CSV",
@@ -4156,7 +4156,7 @@ namespace xcHelper {
     function splitIntoValidAndInvalidProgCols(
         tableCols: ProgCol[],
         validTypes: string[]
-    ): Object {
+    ): object {
         const numTableCols: number = tableCols.length;
         const colsArray: ProgCol[] = [];
         const invalidProgCols: ProgCol[] = [];
@@ -4202,7 +4202,7 @@ namespace xcHelper {
         frontColNames: string[],
         tblId: string,
         validTypes: string[]
-    ): ProgCol[] | Object {
+    ): ProgCol[] | object {
         const table: TableMeta = gTables[tblId] || gDroppedTables[tblId];
         if (!table) {
             return {
@@ -4214,7 +4214,7 @@ namespace xcHelper {
         }
 
         const tableCols: ProgCol[] = table.tableCols;
-        const splitCols: Object = splitIntoValidAndInvalidProgCols(tableCols, validTypes);
+        const splitCols: object = splitIntoValidAndInvalidProgCols(tableCols, validTypes);
         const colsArray: ProgCol[] = splitCols['validProgCols'];
         const invalidProgCols: ProgCol[] = splitCols['invalidProgCols'];
         
@@ -4324,7 +4324,7 @@ namespace xcHelper {
         let mainFound: boolean = false;
         let prevModule: string = null;
         const moduleNames: UDFListModule[] = [];
-        const moduleMap: Object = {};
+        const moduleMap: object = {};
         const len: number = listXdfsObj.numXdfs;
 
         for (let i = 0; i < len; i++) {
@@ -4444,7 +4444,7 @@ namespace xcHelper {
     ): void {
         let menuOffset: number = 285;
        
-        let options: Object;
+        let options: object;
         if (close) {
             const openOffset: number = 350; // when the menu is open;
             options = {marginRight: openOffset};
@@ -4513,8 +4513,8 @@ namespace xcHelper {
      * xcHelper.getColNameMap
      * @param tableId 
      */
-    export function getColNameMap(tableId: string): Object {
-        const colNameMap: Object = {};
+    export function getColNameMap(tableId: string): object {
+        const colNameMap: object = {};
         const table: TableMeta = gTables[tableId] || gDroppedTables[tableId];
         const cols: ProgCol[] = table.getAllCols(true);
 
@@ -4603,7 +4603,7 @@ namespace xcHelper {
     }
 
     function prettify(
-        obj: Object,
+        obj: object,
         indent: number = 0,
         mainKey: boolean,
         options: PrettifyOptions = <PrettifyOptions>{},
@@ -4716,7 +4716,7 @@ namespace xcHelper {
      * @param isArrayEl 
      */
     export function prettifyJson(
-        obj: Object,
+        obj: object,
         indent: number,
         mainKey: boolean,
         options: PrettifyOptions,
@@ -4853,8 +4853,8 @@ namespace xcHelper {
     }
 
     /* =================== getKeyInfos ========================= */
-    function changeColMetaToMap(valueAttrs: any[]): Object {
-        const res: Object = {};
+    function changeColMetaToMap(valueAttrs: any[]): object {
+        const res: object = {};
         try {
             valueAttrs.forEach((valueAttr) => {
                 res[valueAttr.name] = valueAttr.type;
@@ -4865,20 +4865,20 @@ namespace xcHelper {
         return res;
     }
 
-    function getColMetaHelper(tableName: string): XDPromise<Object> {
-        const deferred: XDDeferred<Object> = PromiseHelper.deferred();
+    function getColMetaHelper(tableName: string): XDPromise<object> {
+        const deferred: XDDeferred<object> = PromiseHelper.deferred();
         const tableId: string = xcHelper.getTableId(tableName);
         const table: TableMeta = gTables[tableId];
 
         if (table && table.backTableMeta) {
-            let colMeta: Object = changeColMetaToMap(table.backTableMeta.valueAttrs);
+            let colMeta: object = changeColMetaToMap(table.backTableMeta.valueAttrs);
             deferred.resolve(colMeta, true);
         } else if (DagEdit.isEditMode()) {
             deferred.resolve({}, false);
         } else {
             XcalarGetTableMeta(tableName)
             .then(function(tableMeta) {
-                let colMeta: Object = changeColMetaToMap(tableMeta.valueAttrs);
+                let colMeta: object = changeColMetaToMap(tableMeta.valueAttrs);
                 deferred.resolve(colMeta, true);
             })
             .fail(function() {
@@ -4889,7 +4889,7 @@ namespace xcHelper {
         return deferred.promise();
     }
 
-    function getNewKeyFieldName(parsedName: PrefixColInfo, takenNames: Object): string {
+    function getNewKeyFieldName(parsedName: PrefixColInfo, takenNames: object): string {
         let name: string = xcHelper.stripColName(parsedName.name, false);
         if (!takenNames.hasOwnProperty(name)) {
             return name;
@@ -4913,13 +4913,13 @@ namespace xcHelper {
     export function getKeyInfos(
         keys: any[] | any,
         tableName: string
-    ): XDPromise<Object[]> {
+    ): XDPromise<object[]> {
         const keyArray: any[] = (keys instanceof Array) ? keys : [keys];
-        const deferred: XDDeferred<Object[]> = PromiseHelper.deferred();
+        const deferred: XDDeferred<object[]> = PromiseHelper.deferred();
 
         getColMetaHelper(tableName)
         .then(function (colMeta, hasTableMeta) {
-            const res: Object[] = keyArray.map((key) => {
+            const res: object[] = keyArray.map((key) => {
                 const name: string = key.name;
                 const ordering: string = key.ordering;
                 const parsedName: PrefixColInfo = xcHelper.parsePrefixColName(name);
@@ -4960,7 +4960,7 @@ namespace xcHelper {
      * xcHelper.formatAsUrl
      * @param struct 
      */
-    export function formatAsUrl(struct: Object): string {
+    export function formatAsUrl(struct: object): string {
         let retStr: string = "";
         for (let key in struct) {
             if (retStr === "") {
@@ -5192,8 +5192,8 @@ namespace xcHelper {
         return invalidFound;
     }
 
-    function parseRowJSON(jsonStr: string): Object {
-        let value: Object;
+    function parseRowJSON(jsonStr: string): object {
+        let value: object;
         try {
             value = JSON.parse(jsonStr);
         } catch (err) {
@@ -5246,7 +5246,7 @@ namespace xcHelper {
             openSymbol = ".";
         }
 
-        const jsonTd: Object = parseRowJSON($jsonTd.find('.originalData').text());
+        const jsonTd: object = parseRowJSON($jsonTd.find('.originalData').text());
         let notExists: boolean = false;
         for (let tdKey in jsonTd) {
             if (!checkColExists(tdKey)) {
@@ -5305,7 +5305,7 @@ namespace xcHelper {
                 const text: string = $div.text().trim();
                 if (text !== "" && !$div.find('.undefined').length) {
                     // when only one cell is selected
-                    let mixedVal: Object;
+                    let mixedVal: object;
                     try {
                         mixedVal = JSON.parse(text);
                     } catch (err) {
