@@ -995,9 +995,11 @@ var DONT_PRETTIFY = ["datastoreTut1.html", "datastoreTut2.html", "workbookTut.ht
         'assets/xu/themes/simple/css/xu.css',
         'assets/help/XD/Content/B_CommonTasks/A_ManageDatasetRef.htm',
         'assets/help/XI/Content/B_CommonTasks/A_ManageDatasetRef.htm',
+        'assets/video/demoVid*',  // removes some ancient video files, no longer used
         'assets/js/constructor/README',
         UNIT_TEST_FOLDER, // will just put symlink to this in dev blds
         'site/genHTML.js',
+        "'/external'", // this contains the web site, which we do not need
         "'/xcalar-design'", // common bld names, in case you've blt in to src under these names in past.. dont copy that in..
         "'/xcalar-insight'", // """ ""
         "'/xcalar-infra'", // Jenkins jobs XDTestSuite whill clone xcalar-infra in to workspace, and grunt called later in the process.
