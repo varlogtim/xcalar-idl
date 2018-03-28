@@ -7,27 +7,55 @@ mocha.setup({
     // e.g. /Mocha Setup Test|Workbook Test/
     // default:
     // "grep": /Mocha Setup Test|.*/
-    "grep": /Mocha Setup Test|.*/
+    "grep": getTestNameRegex()
 });
 // global
 expect = chai.expect;
 assert = chai.assert;
+
+function getTestNameRegex() {
+    var urlArgs = xcHelper.decodeFromUrl(window.location.href);
+    var test = urlArgs.test || "./";
+    var testNameRegex = new RegExp("Mocha Setup Test|" + test);
+    return testNameRegex;
+}
 
 var testDatasets;
 
 window.UnitTest = (function(UnitTest, $) {
     var minModeCache;
     var test;
+    var resultsSent = false;
+
+    function sendResultsToParent() {
+        resultsSent = true;
+        var urlArgs = xcHelper.decodeFromUrl(window.location.href);
+        var request = {
+            testId: urlArgs.testId,
+            testName: urlArgs.test,
+            pass: parseInt($("#mocha-stats").find(".passes em").text()),
+            fail: parseInt($("#mocha-stats").find(".failures em").text()),
+            time: parseInt($("#mocha-stats").find(".duration em").text())
+        };
+        parent.postMessage(JSON.stringify(request), "*");
+    }
 
     UnitTest.setup = function() {
         $(document).ready(function() {
             xcGolbal.setup();
             setupTestDatasets();
             mocha.run(function(a, b) {
-                alert("Test Exited");
+                if (parent.location.href.indexOf("unitTestManager.html") < 0) {
+                    alert("Test Exited");
+                }
+                if (!resultsSent) {
+                    sendResultsToParent();
+                }
             });
+            window.onbeforeunload = function() {
+                return;
+            };
             test = TestSuite.createTest();
-            console.log("Setup code coverage!!!");
         });
 
         $("#toggleXC").click(function() {
@@ -78,6 +106,9 @@ window.UnitTest = (function(UnitTest, $) {
                 }
                 prevPct = window.mochaPct;
                 if (window.mochaPct === 100) {
+                    if (!resultsSent) {
+                        sendResultsToParent();
+                    }
                     console.info("TEST FINISHED");
                     if (String(mocha.options.grep) === "/Mocha Setup Test|.*/") {
                         UnitTest.getCoverage();
@@ -169,6 +200,10 @@ window.UnitTest = (function(UnitTest, $) {
                 }
             }
         }, checkTime);
+
+        window.onbeforeunload = function() {
+            return;
+       };
 
         return deferred.promise();
     };

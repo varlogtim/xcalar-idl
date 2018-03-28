@@ -140,7 +140,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         if (whichTest === "demo") {
             var wkbks = WorkbookManager.getWorkbooks();
             var wkbkName = Object.keys(wkbks);
-            return activeWorkbook(wkbkName);
+            return activateWorkbook(wkbkName);
         }
 
         return createWorkbook();
@@ -157,7 +157,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
                 $('.newWorkbookBox button').click();
                 clearInterval(wbInterval);
 
-                activeWorkbook(wbName)
+                activateWorkbook(wbName)
                 .then(deferred.resolve)
                 .fail(deferred.reject);
             } else {
@@ -172,23 +172,44 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         return deferred.promise();
     }
 
-    function activeWorkbook(wbName) {
+    function activateWorkbook(wbName) {
         var deferred = PromiseHelper.deferred();
         var count = 0;
+        var innerDeferred = jQuery.Deferred();
+
         var wbInterval = setInterval(function() {
             var $wkbkBox = $('.workbookBox[data-workbook-id*="' + wbName + '"]');
             if ($wkbkBox.length > 0) {
                 clearInterval(wbInterval);
                 $wkbkBox.find('.activate').click();
-                deferred.resolve(wbName);
+                innerDeferred.resolve(wbName);
             } else {
                 count++;
                 if (count > 10) {
                     clearInterval(wbInterval);
+                    innerDeferred.reject();
                     deferred.reject("active workbook time out");
                 }
             }
         }, 300);
+
+        innerDeferred
+        .then(function(wbName) {
+            var deactivateInterval = setInterval(function() {
+                var $alertBox = $("#alertModal");
+                if ($alertBox.is(":visible")) {
+                    $alertBox.find(".confirm").click();
+                    clearInterval(deactivateInterval);
+                    deferred.resolve(wbName);
+                } else {
+                    count++;
+                    if (count > 10) {
+                        clearInterval(deactivateInterval);
+                        deferred.resolve(wbName);
+                    }
+                }
+            }, 300);
+        });
 
         return deferred.promise();
     }

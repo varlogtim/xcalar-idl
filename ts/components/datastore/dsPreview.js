@@ -2039,7 +2039,7 @@ window.DSPreview = (function($, DSPreview) {
                 allowRecordErrors = true;
                 allowFileErrors = true;
                 break;
-            case ("stopfile"):
+            case ("stopfile"): // Not used
                 allowRecordErrors = true;
                 allowFileErrors = false;
                 break;

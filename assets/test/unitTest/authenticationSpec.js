@@ -1,4 +1,4 @@
-describe("Authentication", function() {
+describe("Authentication Test", function() {
     describe("generateHashTag function", function() {
         var genTag;
         before(function() {

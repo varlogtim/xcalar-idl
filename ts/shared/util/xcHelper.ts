@@ -5712,6 +5712,27 @@ namespace xcHelper {
         return firstDigit * Math.pow(10, numDigits);
     }
 
+    /**
+     * xcHelper.decodeFromUrl
+     * @param url 
+     */
+    export function decodeFromUrl(url: string): object {
+        const ret: object = {};
+
+        try {
+            const urlArgs: string = url.split("?")[1];
+            const args: string[] = urlArgs.split("&");
+            args.forEach((arg: string) => {
+                let [key, value] = arg.split("=");
+                ret[key] = decodeURIComponent(value);
+            });
+        } catch (e) {
+
+        }
+
+        return ret;
+    }
+
     export var __testOnly__: any = {};
     if (typeof window !== 'undefined' && window['unitTestMode']) {
         __testOnly__.toggleUnnestandJsonOptions = toggleUnnestandJsonOptions;
