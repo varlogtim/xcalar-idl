@@ -15,7 +15,7 @@ assert = chai.assert;
 
 function getTestNameRegex() {
     var urlArgs = xcHelper.decodeFromUrl(window.location.href);
-    var test = urlArgs.test || "./";
+    var test = urlArgs.test || ".*";
     var testNameRegex = new RegExp("Mocha Setup Test|" + test);
     return testNameRegex;
 }
@@ -46,6 +46,8 @@ window.UnitTest = (function(UnitTest, $) {
             setupTestDatasets();
             mocha.run(function(a, b) {
                 if (parent.location.href.indexOf("unitTestManager.html") < 0) {
+                    // used for puppeteer
+                    $("body").append('<div id="testFinish">Test Fnish</div>');
                     alert("Test Exited");
                 }
                 if (!resultsSent) {

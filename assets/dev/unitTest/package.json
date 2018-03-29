@@ -1,0 +1,17 @@
+{
+  "name": "unitTest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "node": "^7.6.0",
+    "node-bin-setup": "^1.0.6",
+    "puppeteer": "^1.2.0"
+  }
+}

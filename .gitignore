@@ -7,6 +7,8 @@
 /assets/js/setup/constructorVersion.js
 /assets/js/constructor/E_persConstructor.js
 /assets/dev/!shortCutStyles.css
+/assets/dev/unitTest/**/node_modules/*
+/assets/dev/unitTest/coverage/coverage.js
 *.DS_Store
 /prod/*
 /xcalar-insight/*
