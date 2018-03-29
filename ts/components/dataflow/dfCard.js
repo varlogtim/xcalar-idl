@@ -1520,7 +1520,7 @@ window.DFCard = (function($, DFCard) {
             var parsedInfo = xcHelper.parsePrefixColName(colName);
             var prefix = parsedInfo.prefix;
             if (prefix) {
-                colName = prefix + "--" + parsedInfo.name;
+                colName = xcHelper.convertPrefixName(prefix, parsedInfo.name);
             }
             colName = xcHelper.escapeColName(colName);
             return colName;

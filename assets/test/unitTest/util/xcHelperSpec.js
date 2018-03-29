@@ -2360,10 +2360,16 @@ describe("xcHelper Test", function() {
     it("xcHelper.stripPrefixInColName should work", function() {
         // case 1
         var res = xcHelper.stripPrefixInColName("a::b");
-        expect(res).to.equal("a--b");
+        expect(res).to.equal("a-b");
         // case 2
         res = xcHelper.stripPrefixInColName("ab");
         expect(res).to.equal("ab");
+    });
+
+    it("xcHelper.convertPrefixName should work", function() {
+        // case 1
+        var res = xcHelper.convertPrefixName("a", "b");
+        expect(res).to.equal("a-b");
     });
 
     it("xcHelper.normalizePrefix should work", function() {
@@ -2534,7 +2540,7 @@ describe("xcHelper Test", function() {
                     name: "test",
                     type: DfFieldTypeT.DfFloat64
                 }, {
-                    name: "prefix--test",
+                    name: "prefix-test",
                     type: DfFieldTypeT.DfFloat64
                 }]
             };
@@ -2567,7 +2573,7 @@ describe("xcHelper Test", function() {
             }, {
                 name: "prefix::col",
                 type: DfFieldTypeT.DfUnknown,
-                keyFieldName: "prefix--col",
+                keyFieldName: "prefix-col",
                 ordering: 0
             }];
 
@@ -2584,8 +2590,8 @@ describe("xcHelper Test", function() {
                 });
 
                 var specialRes = keyArray[3];
-                expect(specialRes.keyFieldName).not.to.equal("prefix--test");
-                expect(specialRes.keyFieldName).to.contains("prefix--test");
+                expect(specialRes.keyFieldName).not.to.equal("prefix-test");
+                expect(specialRes.keyFieldName).to.contains("prefix-test");
                 done();
             })
             .fail(function() {

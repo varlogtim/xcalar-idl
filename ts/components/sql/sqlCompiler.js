@@ -2821,7 +2821,7 @@
 
     function cleanseColName(name, isNewCol) {
         if (isNewCol) {
-            name = name.replace(/(::)/g, "--");
+            name = xcHelper.stripPrefixInColName(name);
         }
         return xcHelper.stripColName(name,true).toUpperCase();
     }

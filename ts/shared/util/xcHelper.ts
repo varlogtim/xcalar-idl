@@ -245,6 +245,8 @@ declare namespace xcMenu {
 }
 
 namespace xcHelper {
+    const PREFIX_CONCAT_CHAR = "-";
+
     export interface FilterOption {
         operator: FltOp;
         filterString: string;
@@ -981,7 +983,14 @@ namespace xcHelper {
      * @param colName
      */
     export function stripPrefixInColName(colName: string): string {
-        return colName.split(gPrefixSign).join("--");
+        return colName.split(gPrefixSign).join(PREFIX_CONCAT_CHAR);
+    }
+
+    export function convertPrefixName(
+        prefix: string,
+        name: string
+    ): string {
+        return prefix + PREFIX_CONCAT_CHAR + name;
     }
 
     /**
@@ -4895,7 +4904,7 @@ namespace xcHelper {
             return name;
         }
 
-        name = parsedName.prefix + "--" + name;
+        name = xcHelper.convertPrefixName(parsedName.prefix, name);
         let newName: string = name;
         if (!takenNames.hasOwnProperty(newName)) {
             return newName;

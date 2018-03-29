@@ -1395,10 +1395,12 @@
                     // XXX this is a hack util backend support auto cast when indexing
                     newType = ColumnType.string;
                 }
-                newField = overWrite ? name : parsedCol.prefix + "--" + name;
+                newField = overWrite ?
+                            name :
+                            xcHelper.convertPrefixName(parsedCol.prefix, name);
                 // handle name conflict case
                 if (nameMap.hasOwnProperty(newField)) {
-                    newField = parsedCol.prefix + "--" + name;
+                    newField = xcHelper.convertPrefixName(parsedCol.prefix, name);
                     newField = xcHelper.getUniqColName(tableId, newField);
                 }
             } else if (typeToCast != null) {
