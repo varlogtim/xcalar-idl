@@ -350,7 +350,6 @@
             node.children = [origNode,
                              literalStringNode("%Y-%m-%d"),
                              literalStringNode("")];
-            origNode.parent = node;
             return node;
         }
         function timestampToDateNode(origNode) {
@@ -359,7 +358,6 @@
                 "num-children": 2
             });
             node.children = [origNode, literalStringNode("%Y-%m-%d")];
-            origNode.parent = node;
             return node;
         }
         function dateToTimestampNode(origNode) {
@@ -368,7 +366,7 @@
                 "num-children": 2
             });
             node.children = [origNode, literalStringNode("")];
-            origNode.parent = node;
+            return node;
         }
         function cutNode() {
             var node = new TreeNode({
