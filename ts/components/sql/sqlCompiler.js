@@ -569,9 +569,16 @@
                 break;
             case ("expressions.Cast"):
                 var type = node.value.dataType;
-                var convertedType = convertSparkTypeToXcalarType(type);
-                node.value.class = node.value.class.replace("expressions.Cast",
-                                   "expressions.XcType." + convertedType);
+                if (type === "timestamp") {
+                    // No "timestamp" type in Xcalar, so create a UDF node
+                    var dttsNode = dateToTimestampNode(node.children[0]);
+                    node = dttsNode;
+                } else {
+                    var convertedType = convertSparkTypeToXcalarType(type);
+                    node.value.class = node.value.class
+                                .replace("expressions.Cast",
+                                         "expressions.XcType." + convertedType);
+                }
                 break;
             case ("expressions.aggregate.AggregateExpression"):
                 // If extractAggregates is true, then we need to cut the tree
@@ -2577,8 +2584,12 @@
                 }
             } else if (condTree.value.class ===
                 "org.apache.spark.sql.catalyst.expressions.Literal") {
-                if (condTree.value.dataType === "string") {
+                if (condTree.value.dataType === "string" ||
+                    condTree.value.dataType === "date") {
                     outStr += '"' + condTree.value.value + '"';
+                } else if (condTree.value.dataType === "timestamp") {
+                    outStr += 'default:convertToUnixTS("' +
+                                                    condTree.value.value + '")';
                 } else {
                     // XXX Check how they rep booleans
                     outStr += condTree.value.value;
@@ -2813,6 +2824,8 @@
             case ("string"):
             case ("date"):
                 return "string";
+            case ("timestamp"):
+                return "default:convertToUnixTS";
             default:
                 assert(0);
                 return "string";
