@@ -225,7 +225,7 @@ namespace StatusBox {
                                      .removeClass(event.data.type);
                     this.clear();
                 }
-    
+
             } else if (id === "statusBoxClose" || this.notPersist()) {
                 this.clear();
             }
@@ -234,7 +234,7 @@ namespace StatusBox {
         private notPersist(): boolean {
             return !this.$statusBox.hasClass("persist");
         }
-        
+
         private clear(): void {
             const $statusBox = this.$statusBox;
             const $doc = $(document);

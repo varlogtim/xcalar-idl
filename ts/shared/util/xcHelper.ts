@@ -251,41 +251,41 @@ namespace xcHelper {
         operator: FltOp;
         filterString: string;
     }
-    
+
     export interface DSNameInfo {
         user: string;
         randId: string | void;
         dsName: string;
     }
-    
+
     export interface PrefixColInfo {
         prefix: string;
         name: string;
     }
-    
+
     export interface MapColOption {
         replaceColumn: boolean; // if true, will replace existing col with new one
         resize: boolean; // if true, will adjust column size to colname
         type?: string // if provided, will set column type
     }
-    
+
     export interface SizeTranslatorOption {
         base2: boolean;
         base3: boolean;
         space: boolean;
     }
-    
+
     export interface SuccessTimer {
         step1: any;
         step2: any;
         step3: any;
         step4: any;
     }
-    
+
     export interface RadiButtonOption {
         deselectFromContainer: boolean;
     }
-    
+
     export interface ValidateObj {
         $ele: JQuery;
         check?: Function;
@@ -387,7 +387,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.reload
-     * @param hardLoad 
+     * @param hardLoad
      */
     export function reload(hardLoad: boolean = false): void {
         // override heartbeat check function so that it cannot run during reload
@@ -400,7 +400,7 @@ namespace xcHelper {
      * xcHelper.parseTableId
      * looks for xcTable-AB12 or $('#xcTable-AB12'),
      * or $('#xcTable-AB12').get(0) and returns AB12
-     * @param idOrEl 
+     * @param idOrEl
      */
     export function parseTableId(
         idOrEl: string | JQuery | HTMLElement
@@ -427,7 +427,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.parseError
-     * @param error 
+     * @param error
      */
     export function parseError(error: object | string): string {
         let errorInStr: string;
@@ -489,7 +489,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.parseListDSOutput
-     * @param datasets 
+     * @param datasets
      */
     export function parseListDSOutput(datasets: any[]) {
         const prefixIndex: number = gDSPrefix.length;
@@ -506,8 +506,8 @@ namespace xcHelper {
 
     /**
      * xcHelper.parseJsonValue
-     * @param value 
-     * @param fnf 
+     * @param value
+     * @param fnf
      */
     export function parseJsonValue(value: any, fnf?: boolean): string {
         if (fnf) {
@@ -548,8 +548,8 @@ namespace xcHelper {
 
     /**
      * xcHelper.parseColType, define type of the column
-     * @param val 
-     * @param oldType 
+     * @param val
+     * @param oldType
      */
     export function parseColType(
         val: any,
@@ -603,7 +603,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.parseDSFormat
-     * @param ds 
+     * @param ds
      */
     export function parseDSFormat(ds: any): string {
         let format: string;
@@ -626,8 +626,8 @@ namespace xcHelper {
 
     /**
      * xcHelper.replaceInsideQuote
-     * @param str 
-     * @param quoteChar 
+     * @param str
+     * @param quoteChar
      */
     export function replaceInsideQuote(str: string, quoteChar: string): string {
         // baisc case '/(?=")(?:"[^"\\]*(?:\\[\s\S][^"\\]*)*")/g'
@@ -638,7 +638,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.fullTextRegExKey
-     * @param searchKey 
+     * @param searchKey
      */
     export function fullTextRegExKey(searchKey: string): string {
         // Make it a full-text regex search
@@ -647,7 +647,7 @@ namespace xcHelper {
 
     /**
      * containRegExKey
-     * @param searchKey 
+     * @param searchKey
      */
     export function containRegExKey(searchKey: string): string {
         // Make it a "contain" regex search, i.e. prepend .* and append .*
@@ -709,8 +709,8 @@ namespace xcHelper {
 
     /**
      * xcHelper.getFileNamePattern
-     * @param pattern 
-     * @param isRegex 
+     * @param pattern
+     * @param isRegex
      */
     export function getFileNamePattern(
         pattern?: string,
@@ -726,9 +726,9 @@ namespace xcHelper {
 
     /**
      * xcHelper.getJoinRenameMap
-     * @param oldName 
-     * @param newName 
-     * @param type 
+     * @param oldName
+     * @param newName
+     * @param type
      */
     export function getJoinRenameMap(
         oldName: string,
@@ -744,7 +744,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.convertColTypeToFieldType
-     * @param colType 
+     * @param colType
      */
     export function convertColTypeToFieldType(
         colType: ColumnType
@@ -765,11 +765,11 @@ namespace xcHelper {
 
     /**
      * xcHelper.getFilterOptions
-     * @param operator 
-     * @param colName 
-     * @param uniqueVals 
-     * @param isExist 
-     * @param isNull 
+     * @param operator
+     * @param colName
+     * @param uniqueVals
+     * @param isExist
+     * @param isNull
      */
     export function getFilterOptions(
         operator: FltOp | null,
@@ -865,7 +865,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.parseDSName
-     * @param fulldsName 
+     * @param fulldsName
      */
     export function parseDSName(fulldsName: string): DSNameInfo {
         const nameSplits: string[] = fulldsName.split(".");
@@ -895,7 +895,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.getUnusedTableName
-     * @param srcTableName 
+     * @param srcTableName
      */
     export function getUnusedTableName(
         srcTableName: string
@@ -945,8 +945,8 @@ namespace xcHelper {
 
     /**
      * xcHelper.getPrefixColName
-     * @param prefix 
-     * @param colName 
+     * @param prefix
+     * @param colName
      */
     export function getPrefixColName(
         prefix: string | null,
@@ -961,7 +961,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.parsePrefixColName
-     * @param colName 
+     * @param colName
      */
     export function parsePrefixColName(colName: string): PrefixColInfo {
         const index: number = colName.indexOf(gPrefixSign);
@@ -995,7 +995,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.normalizePrefix
-     * @param prefix 
+     * @param prefix
      */
     export function normalizePrefix(prefix: string) {
         if (prefix.length > gPrefixLimit) {
@@ -1013,7 +1013,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.stripCSVExt
-     * @param str 
+     * @param str
      */
     export function stripCSVExt(str: string): string {
         if (str.endsWith(".csv")) {
@@ -1026,7 +1026,7 @@ namespace xcHelper {
      * xcHelper.parseUserStr
      * must be in a "name" = function(args) format
      * will return the function(args) portion
-     * @param userStr 
+     * @param userStr
      */
     export function parseUserStr(userStr: string): string {
         // search for the index of first = that's not in quotes
@@ -1058,7 +1058,7 @@ namespace xcHelper {
      *  You will call this function with delim=','
      *  And the function will return {"op": "eq", "args": ["agwe", 3]}
      *  This handles edge conditions like eq("eqt,et", ",")
-     * @param str 
+     * @param str
      * @param delim [,] - Optional and will default to ,
      */
     export function extractOpAndArgs(str: string, delim: string = ','): object {
@@ -1130,7 +1130,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.getTableKeyFromMeta
-     * @param tableMeta 
+     * @param tableMeta
      */
     export function getTableKeyFromMeta(tableMeta: any) {
         return tableMeta.keyAttr.map((keyAttr) => {
@@ -1160,7 +1160,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.deepCopy, get a deep copy
-     * @param obj 
+     * @param obj
      */
     export function deepCopy(obj: any): any {
         const str: string = JSON.stringify(obj);
@@ -1218,12 +1218,12 @@ namespace xcHelper {
      * we pass in ctx (a reference to canvas) so that we don't create a new
      * canvas within the function many times in the loop
      * canvas is used to measure text width
-     * @param text 
+     * @param text
      * @param $ele
-     * @param checkLen 
-     * @param maxWidth 
-     * @param isMultiLine 
-     * @param ctx 
+     * @param checkLen
+     * @param maxWidth
+     * @param isMultiLine
+     * @param ctx
      */
     export function middleEllipsis(
         text: string | null,
@@ -1272,10 +1272,10 @@ namespace xcHelper {
 
     /**
      * xcHelper.leftEllipsis
-     * @param text 
+     * @param text
      * @param $ele
-     * @param maxWidth 
-     * @param ctx 
+     * @param maxWidth
+     * @param ctx
      */
     export function leftEllipsis(
         text: string | null,
@@ -1310,11 +1310,11 @@ namespace xcHelper {
 
     /**
      * xcHelper.getMaxTextLen
-     * @param ctx 
-     * @param text 
-     * @param desiredWidth 
-     * @param minLen 
-     * @param maxLen 
+     * @param ctx
+     * @param text
+     * @param desiredWidth
+     * @param minLen
+     * @param maxLen
      */
     export function getMaxTextLen(
         ctx: CanvasRenderingContext2D,
@@ -1342,10 +1342,10 @@ namespace xcHelper {
 
     /**
      * xcHelper.mapColGenerate
-     * @param colNum 
-     * @param colName 
-     * @param mapStr 
-     * @param tableCols 
+     * @param colNum
+     * @param colName
+     * @param mapStr
+     * @param tableCols
      * @param options
      */
     export function mapColGenerate(
@@ -1398,8 +1398,8 @@ namespace xcHelper {
 
     /**
      * xcHelper.getDefaultColWidth
-     * @param colName 
-     * @param prefix 
+     * @param colName
+     * @param prefix
      */
     export function getDefaultColWidth(
         colName: string,
@@ -1450,8 +1450,8 @@ namespace xcHelper {
     // xcHelper.randName, default digits is 5
     /**
      * xcHelper.randName
-     * @param name 
-     * @param digits 
+     * @param name
+     * @param digits
      */
     export function randName(name: string, digits: number = 5): string {
         const max: number = Math.pow(10, digits);
@@ -1467,10 +1467,10 @@ namespace xcHelper {
 
     /**
      * xcHelper.uniqueName
-     * @param name 
-     * @param validFunc 
-     * @param nameGenFunc 
-     * @param maxTry 
+     * @param name
+     * @param validFunc
+     * @param nameGenFunc
+     * @param maxTry
      */
     export function uniqueName(
         name: string,
@@ -1529,12 +1529,12 @@ namespace xcHelper {
      /**
      * xcHelper.getUniqColName
      * get unique column name
-     * @param tableId 
-     * @param colName 
-     * @param onlyCheckPulledCol 
+     * @param tableId
+     * @param colName
+     * @param onlyCheckPulledCol
      * @param takenNames - an object of unavailable column names that aren't in
      * the current table but will be part of a descendant table
-     * @param colNumToIgnore 
+     * @param colNumToIgnore
      */
     export function getUniqColName(
         tableId: string,
@@ -1592,7 +1592,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.capitalize
-     * @param str 
+     * @param str
      */
     export function capitalize(str: string): string {
         if (!str) {
@@ -1603,8 +1603,8 @@ namespace xcHelper {
 
     /**
      * xcHelper.arraySubset
-     * @param subset 
-     * @param fullset 
+     * @param subset
+     * @param fullset
      */
     export function arraySubset(subset: any[], fullset: any[]): boolean {
         for (let i = 0; i < subset.length; i++) {
@@ -1618,8 +1618,8 @@ namespace xcHelper {
     /**
      * xcHelper.arrayUnion,
      * returns a new array that is the deduped union of the 2 arrays
-     * @param array1 
-     * @param array2 
+     * @param array1
+     * @param array2
      */
     export function arrayUnion(array1: any[], array2: any[]): any[] {
         const unioned: any[] = [];
@@ -1645,9 +1645,9 @@ namespace xcHelper {
 
     /**
      * xcHelper.getDate, format is mm-dd-yyyy
-     * @param delimiter 
+     * @param delimiter
      * @param date
-     * @param timeStamp 
+     * @param timeStamp
      */
     export function getDate(
         delimiter: string = '-',
@@ -1661,8 +1661,8 @@ namespace xcHelper {
     /**
      * xcHelper.getTime
      * @param date
-     * @param timeStamp 
-     * @param noSeconds 
+     * @param timeStamp
+     * @param noSeconds
      */
     export function getTime(
         date: Date | null,
@@ -1690,7 +1690,7 @@ namespace xcHelper {
     /**
      * xcHelper.timeStampConvertSeconds
      * Converts the timestamp from seconds to Days Hours Minutes Seconds
-     * @param timeInSeconds 
+     * @param timeInSeconds
      * @param noZeros {boolean} if true will not show values if is 0
      */
     export function timeStampConvertSeconds(
@@ -1750,9 +1750,9 @@ namespace xcHelper {
 
     /**
      * xcHelper.downloadAsFile
-     * @param fileName 
-     * @param fileContents 
-     * @param isRaw 
+     * @param fileName
+     * @param fileContents
+     * @param isRaw
      */
     export function downloadAsFile(
         fileName: string,
@@ -1836,8 +1836,8 @@ namespace xcHelper {
      * xcHelper.textToBytesTranslator
      * accepts parameters in the form of "23GB" or "56.2 mb"
      * and converts them to bytes
-     * @param numText 
-     * @param options 
+     * @param numText
+     * @param options
      */
     export function textToBytesTranslator(
         numText: string,
@@ -1867,7 +1867,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.getColTypeIcon
-     * @param type 
+     * @param type
      */
     export function getColTypeIcon(type: DfFieldTypeT): string {
         switch (type) {
@@ -1892,7 +1892,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.showSuccess
-     * @param msg 
+     * @param msg
      */
     export function showSuccess(msg: string): void {
         showSuccessBoxMessage(true, msg);
@@ -1900,7 +1900,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.showFail
-     * @param msg 
+     * @param msg
      */
     export function showFail(msg: string): void {
         showSuccessBoxMessage(false, msg);
@@ -1978,8 +1978,8 @@ namespace xcHelper {
      * xcHelper.replaceMsg
      * replaces is an object, its keys are the mark strings to replace
      * each key's value is the string to replace with
-     * @param txt 
-     * @param replaces 
+     * @param txt
+     * @param replaces
      */
     export function replaceMsg(txt: string, replaces: object = {}): string {
         for (let key in replaces) {
@@ -1998,8 +1998,8 @@ namespace xcHelper {
     /**
      *  xcHelper.toggleListGridBtn
      * @param $btn
-     * @param toListView 
-     * @param noRefresh 
+     * @param toListView
+     * @param noRefresh
      */
     export function toggleListGridBtn(
         $btn: JQuery,
@@ -2028,8 +2028,8 @@ namespace xcHelper {
     /**
      * xcHelper.showRefreshIcon
      * @param $location
-     * @param manualClose 
-     * @param promise 
+     * @param manualClose
+     * @param promise
      */
     export function showRefreshIcon(
         $location: JQuery,
@@ -2075,7 +2075,7 @@ namespace xcHelper {
     /**
      * xcHelper.toggleBtnInProgress
      * @param $btn
-     * @param success 
+     * @param success
      */
     export function toggleBtnInProgress($btn: JQuery, success: boolean): void {
         if ($btn.hasClass('btnInProgress')) {
@@ -2119,8 +2119,8 @@ namespace xcHelper {
     /**
      * xcHelper.optionButtonEvent
      * @param $container
-     * @param callback 
-     * @param options - deselectFromContainer, boolean, if true will deselect 
+     * @param callback
+     * @param options - deselectFromContainer, boolean, if true will deselect
      * all radios from $container instead of from nearest .radioButtonGroup
      */
     export function optionButtonEvent(
@@ -2154,7 +2154,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.supportButton
-     * @param type 
+     * @param type
      */
     export function supportButton(type: string): JQuery {
         let $btn: JQuery;
@@ -2340,7 +2340,7 @@ namespace xcHelper {
 
         let error: string;
         const newTableName: string = $input.val().trim();
-    
+
         if (newTableName === "") {
             error = ErrTStr.NoEmpty;
         } else if (!xcHelper.isValidTableName(newTableName)) {
@@ -2377,7 +2377,7 @@ namespace xcHelper {
     /**
      * xcHelper.getTableId
      * expects 'schedule#AB12' and retuns 'AB12'
-     * @param wholeName 
+     * @param wholeName
      */
     export function getTableId(wholeName: string): string | null {
         if (wholeName == null) {
@@ -2423,7 +2423,7 @@ namespace xcHelper {
      * xcHelper.lockTable
      * will lock the table's worksheet as well
      * so that worksheet cannot be deleted
-     * @param tableId 
+     * @param tableId
      * @param txId - if no txId, will not be made cancelable
      */
     export function lockTable(tableId: string, txId?: string): void {
@@ -2453,7 +2453,7 @@ namespace xcHelper {
             const mainFrameHeight: number = $('#mainFrame').height();
             let topPos: number = 50 * ((tableHeight - (iconHeight/2))/ mainFrameHeight);
             topPos = Math.min(topPos, 40);
-        
+
             $lockedIcon.css('top', topPos + '%');
             $tableWrap.find('.xcTbodyWrap')
                     .append('<div class="tableCover"></div>');
@@ -2487,10 +2487,10 @@ namespace xcHelper {
         WSManager.lockTable(tableId);
         Log.lockUndoRedo();
     }
-    
+
     /**
      * xcHelper.unlockTable
-     * @param tableId 
+     * @param tableId
      */
     export function unlockTable(tableId: string): void {
         xcAssert((tableId != null), 'Invalid Parameters!');
@@ -2530,9 +2530,9 @@ namespace xcHelper {
 
     /**
      * xcHelper.getLockIconHtml
-     * @param txId 
-     * @param iconNum 
-     * @param withText 
+     * @param txId
+     * @param iconNum
+     * @param withText
      */
     export function getLockIconHtml(
         txId: string,
@@ -2589,12 +2589,12 @@ namespace xcHelper {
 
     // inserts text into an input field and adds commas
     // detects where the current cursor is and if some text is already selected
-    
+
     /**
      * xcHelper.insertText
      * @param $input
-     * @param textToInsert 
-     * @param append 
+     * @param textToInsert
+     * @param append
      */
     export function insertText(
         $input: JQuery,
@@ -2705,7 +2705,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.centerFocusedTable
-     * @param tableWrapOrId 
+     * @param tableWrapOrId
      * @param animate {boolean}, indicating whether to animate the scrolling
      * @param options -
      * onlyIfOffScreen: boolean, if true, will only animate table if visible
@@ -2823,10 +2823,10 @@ namespace xcHelper {
 
     /**
      * xcHelper.centerFocusedColumn
-     * @param tableId 
-     * @param colNum 
+     * @param tableId
+     * @param colNum
      * @param animate {boolean} - indicating whether to animate the scrolling
-     * @param noSelect 
+     * @param noSelect
      */
     export function centerFocusedColumn(
         tableId: string,
@@ -2868,10 +2868,10 @@ namespace xcHelper {
 
     /**
      * xcHelper.isTableInScreen
-     * @param tableId 
-     * @param winWidth 
+     * @param tableId
+     * @param winWidth
      */
-    export function isTableInScreen(tableId: string, winWidth: number): boolean {
+    export function isTableInScreen(tableId: string, winWidth?: number): boolean {
         const $tableWrap: JQuery = $("#xcTableWrap-" + tableId);
         if ($tableWrap.length === 0) {
             return false;
@@ -2907,8 +2907,8 @@ namespace xcHelper {
     /**
      * xcHelper.getTableIndex
      * @param targetWS
-     * @param position 
-     * @param selector 
+     * @param position
+     * @param selector
      */
     export function getTableIndex(
         targetWS: string,
@@ -2940,8 +2940,8 @@ namespace xcHelper {
 
     /**
      * xcHelper.createNextName
-     * @param str 
-     * @param delimiter 
+     * @param str
+     * @param delimiter
      */
     export function createNextName(str: string, delimiter: string): string {
         const parts: string[] = str.split(delimiter);
@@ -2960,9 +2960,9 @@ namespace xcHelper {
     /**
      * xcHelper.createNextColumnName
      * Create a column name that is not in allNames and is not str
-     * @param allNames 
-     * @param str 
-     * @param tableId 
+     * @param allNames
+     * @param str
+     * @param tableId
      */
     export function createNextColumnName(
         allNames: string[],
@@ -3087,10 +3087,10 @@ namespace xcHelper {
                 throw "Unspport action!";
         }
     }
-    
+
     /**
      * xcHelper.isValidTableName
-     * @param str 
+     * @param str
      */
     export function isValidTableName(str: string): boolean {
         if (str == null || str === "") {
@@ -3109,7 +3109,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.escapeDblQuoteForHTML
-     * @param str 
+     * @param str
      */
     export function escapeDblQuoteForHTML(str: string): string {
         return str.replace(/\"/g, "&quot;");
@@ -3118,7 +3118,7 @@ namespace xcHelper {
     /**
      * xcHelper.escapeDblQuote
      * used for $el.find(str) when str is '[data-val="val"ue"]'
-     * @param str 
+     * @param str
      */
     export function escapeDblQuote(str: string): string {
         return str.replace(/\"/g, "\\\"");
@@ -3126,8 +3126,8 @@ namespace xcHelper {
 
     /**
      * xcHelper.hasInvalidCharInCol
-     * @param str 
-     * @param noSpace 
+     * @param str
+     * @param noSpace
      */
     export function hasInvalidCharInCol(
         str: string,
@@ -3142,7 +3142,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.isStartWithLetter
-     * @param str 
+     * @param str
      */
     export function isStartWithLetter(str: string): boolean {
         if (str == null) {
@@ -3153,7 +3153,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.isColNameStartValid
-     * @param colName 
+     * @param colName
      */
     export function isColNameStartValid(colName: string): boolean {
         if (!colName || colName.trim().length === 0) {
@@ -3165,8 +3165,8 @@ namespace xcHelper {
 
     /**
      * xcHelper.validateColName
-     * @param colName 
-     * @param noSpace 
+     * @param colName
+     * @param noSpace
      */
     export function validateColName(
         colName: string,
@@ -3191,17 +3191,17 @@ namespace xcHelper {
             }
         } else {
             const preservedNames: string[] = ['none', 'false', 'true'];
-            if (colName === 'DATA' || 
+            if (colName === 'DATA' ||
                 preservedNames.indexOf(colName.toLowerCase()) > -1) {
                 error = ErrTStr.PreservedName;
-            } 
+            }
         }
         return error;
     }
 
     /**
      * xcHelper.validatePrefixName
-     * @param prefix 
+     * @param prefix
      */
     export function validatePrefixName(prefix: string | null): string | null {
         let error: string | null = null;
@@ -3240,7 +3240,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.escapeRegExp
-     * @param str 
+     * @param str
      */
     export function escapeRegExp(str: string): string {
         return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
@@ -3248,7 +3248,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.escapeColName
-     * @param str 
+     * @param str
      */
     export function escapeColName(str: string): string {
         // adds a backslash before each of these: [ ] . \
@@ -3257,7 +3257,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.unescapeColName
-     * @param str 
+     * @param str
      */
     export function unescapeColName(str: string): string {
         str = str.replace(/\\\\/g, '\\');
@@ -3269,16 +3269,16 @@ namespace xcHelper {
 
     /**
      * xcHelper.stripColName
-     * @param colName 
-     * @param stripSpace 
+     * @param colName
+     * @param stripSpace
      */
     export function stripColName(colName: string, stripSpace: boolean): string {
         const pattern = stripSpace ?
                         /[\^,{}'"()\[\]\.\\ ]/g :
                         /[\^,{}'"()\[\]\.\\]/g;
-        // if column name starts with a valid character but not one that it 
+        // if column name starts with a valid character but not one that it
         // should start with, then prepend underscore
-        if (!pattern.test(colName[0]) && 
+        if (!pattern.test(colName[0]) &&
             !xcHelper.isColNameStartValid(colName)) {
             colName = "_" + colName;
         }
@@ -3350,9 +3350,9 @@ namespace xcHelper {
 
     /**
      * xcHelper.castStrHelper
-     * @param colName 
-     * @param colType 
-     * @param handleNull 
+     * @param colName
+     * @param colType
+     * @param handleNull
      */
     export function castStrHelper(
         colName: string,
@@ -3403,8 +3403,8 @@ namespace xcHelper {
      * xcHelper.isCharEscaped
      * if string is somet\"thing then str is somet\"thing
      * and startIndex is the index of the quote you're testing -> 7
-     * @param str 
-     * @param startIndex 
+     * @param str
+     * @param startIndex
      */
     export function isCharEscaped(str: string, startIndex: number): boolean {
         let backSlashCount: number = 0;
@@ -3506,7 +3506,7 @@ namespace xcHelper {
     /**
      * xcHelper.delimiterTranslate
      * @param $input
-     * @param val 
+     * @param val
      */
     export function delimiterTranslate(
         $input: JQuery,
@@ -3537,7 +3537,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.checkMatchingBrackets
-     * @param val 
+     * @param val
      */
     export function checkMatchingBrackets(val: string): object {
         let numOpens: number = 0;
@@ -3584,12 +3584,12 @@ namespace xcHelper {
             return ret;
         }
     }
-    
+
         /**
      * XXX not fully tested
      * xcHelper.removeNonQuotedSpaces
      * turns 'map(concat  ("a   ", "b"))' into 'map(concat("a   ","b"))'
-     * @param str 
+     * @param str
      */
     export function removeNonQuotedSpaces(str: string): string {
         let resStr: string = '';
@@ -3687,9 +3687,9 @@ namespace xcHelper {
 
     /**
      * xcHelper.hasValidColPrefix
-     * not only looks for gColPrefix but checks to make sure it's not 
+     * not only looks for gColPrefix but checks to make sure it's not
      * preceded by anything other than a comma
-     * @param str 
+     * @param str
      */
     export function hasValidColPrefix(str: string): boolean {
         if (typeof str !== 'string') {
@@ -3737,7 +3737,7 @@ namespace xcHelper {
     /**
      * xcHelper.camelCaseToRegular
      * turns camelCase to Camel Case
-     * @param str 
+     * @param str
      */
     export function camelCaseToRegular(str: string): string {
         const res: string = str.replace(/([A-Z])/g, ' $1')
@@ -3749,7 +3749,7 @@ namespace xcHelper {
     /**
      * xcHelper.getFormat
      * a.json returns JSON
-     * @param name 
+     * @param name
      */
     export function getFormat(name: string): string | null {
         name = '' + name; // In case name is an integer
@@ -3788,7 +3788,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.convertToHtmlEntity
-     * @param s 
+     * @param s
      */
     export function convertToHtmlEntity(s: string): string {
         return s.replace(/[\u00A0-\u9999<>\&]/g, (i) => '&#' + i.charCodeAt(0) + ';');
@@ -3830,8 +3830,8 @@ namespace xcHelper {
 
     /**
      * xcHelper.sortHTML
-     * @param a 
-     * @param b 
+     * @param a
+     * @param b
      */
     export function sortHTML(a: string, b: string): number {
         return ($(b).text()) < ($(a).text()) ? 1 : -1;
@@ -3839,9 +3839,9 @@ namespace xcHelper {
 
     /* ====================== parseQuery ====================== */
     /**
-     * 
-     * @param query 
-     * @param keyWord 
+     *
+     * @param query
+     * @param keyWord
      */
     function getKeyWordIndexFromQuery(query: string, keyWord: string): number {
         let inQuotes: boolean = false;
@@ -3884,7 +3884,7 @@ namespace xcHelper {
 
     /**
      * if passing in "tableNa\"me", will return tableNa\me and not tableNa
-     * @param str 
+     * @param str
      */
     function parseSearchTerm(str: string): string {
         const quote: string = str[0];
@@ -3924,9 +3924,9 @@ namespace xcHelper {
     }
 
     /**
-     * 
-     * @param query 
-     * @param keyWord 
+     *
+     * @param query
+     * @param keyWord
      */
     function getTableNameFromQuery(query: string, keyWord: string): string | null {
         let index: number = getKeyWordIndexFromQuery(query, keyWord);
@@ -3939,9 +3939,9 @@ namespace xcHelper {
     }
 
     /**
-     * 
-     * @param query 
-     * @param type 
+     *
+     * @param query
+     * @param type
      */
     function getSrcTableFromQuery(query: string, type: string): string[] | null {
         let keyWord: string = '--srctable';
@@ -3967,9 +3967,9 @@ namespace xcHelper {
     }
 
     /**
-     * 
-     * @param query 
-     * @param type 
+     *
+     * @param query
+     * @param type
      */
     function getDstTableFromQuery(query: string, type: string): string {
         let keyWord: string = '--dsttable';
@@ -3993,8 +3993,8 @@ namespace xcHelper {
     }
 
     /**
-     * 
-     * @param query 
+     *
+     * @param query
      */
     function getExportFileNameFromQuery(query: string): string {
         const keyWord: string = "--fileName";
@@ -4010,8 +4010,8 @@ namespace xcHelper {
     }
 
     /**
-     * 
-     * @param str 
+     *
+     * @param str
      */
     function parseSubQuery(str: string, isExport: boolean = false): QueryParser {
         str = str.trim();
@@ -4033,7 +4033,7 @@ namespace xcHelper {
      * XXX not checking for /n or /r delimiter, just semicolon
      * returns array of objects
      * objects contain query, name, exportFileName, srcTables and dstTable
-     * @param query 
+     * @param query
      */
     function parseQueryHelper(query: string): QueryParser[] {
         let tempString: string = '';
@@ -4093,9 +4093,9 @@ namespace xcHelper {
     }
 
     /**
-     * 
-     * @param query 
-     * @param parsedQuery 
+     *
+     * @param query
+     * @param parsedQuery
      */
     function getSubQueryObj(query: string, parsedQuery: any): QueryParser {
         const operation: string = parsedQuery.operation;
@@ -4128,7 +4128,7 @@ namespace xcHelper {
     /**
      * used to split query into array of subqueries by semicolons
      * returns array of objects, objects contain query, name, and dstTable
-     * @param query 
+     * @param query
      */
     export function parseQuery(query: string): QueryParser[] {
         let isJson: boolean = false;
@@ -4159,8 +4159,8 @@ namespace xcHelper {
     /**
      * take all of gTables columns and filter out arrays, data, newcols, objs etc
      * put these columns into one Array and the invalid columns in another array
-     * @param tableCols 
-     * @param validTypes 
+     * @param tableCols
+     * @param validTypes
      */
     function splitIntoValidAndInvalidProgCols(
         tableCols: ProgCol[],
@@ -4193,12 +4193,12 @@ namespace xcHelper {
         };
     }
 
-   
+
     /**
      * xcHelper.convertFrontColNamesToBack
-     * @param frontColNames 
-     * @param tblId 
-     * @param validTypes 
+     * @param frontColNames
+     * @param tblId
+     * @param validTypes
      * @returns {ProgCol[] | object} returns array if all columns valid or returns an error
      * object with first invalid column name and reason why it's invalid
      * object includes the following properties
@@ -4226,7 +4226,7 @@ namespace xcHelper {
         const splitCols: object = splitIntoValidAndInvalidProgCols(tableCols, validTypes);
         const colsArray: ProgCol[] = splitCols['validProgCols'];
         const invalidProgCols: ProgCol[] = splitCols['invalidProgCols'];
-        
+
         const backCols: string[] = [];
         const foundColsArray: ProgCol[] = [];
         const numFrontColNames = frontColNames.length;
@@ -4306,8 +4306,8 @@ namespace xcHelper {
 
     /**
      * xcHelper.getUDFList
-     * @param listXdfsObj 
-     * @param mainOnly 
+     * @param listXdfsObj
+     * @param mainOnly
      * @returns {moduleLis: htmlStr, fnLis: htmlStr}
      */
     export function getUDFList(listXdfsObj: any, mainOnly: boolean) {
@@ -4444,15 +4444,15 @@ namespace xcHelper {
     /**
      * XXX no test yet
      * xcHelper.menuAnimAligner
-     * @param close 
-     * @param checkMenuAnimFinish 
+     * @param close
+     * @param checkMenuAnimFinish
      */
     export function menuAnimAligner(
         close: boolean,
         checkMenuAnimFinish: Function
     ): void {
         let menuOffset: number = 285;
-       
+
         let options: object;
         if (close) {
             const openOffset: number = 350; // when the menu is open;
@@ -4483,8 +4483,8 @@ namespace xcHelper {
     /**
      * xcHelper.numToStr
      * adds commas to large numbers (52000 becomes "52,000")
-     * @param value 
-     * @param maxDecimals 
+     * @param value
+     * @param maxDecimals
      */
     export function numToStr(
         value: number | null | undefined,
@@ -4520,7 +4520,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.getColNameMap
-     * @param tableId 
+     * @param tableId
      */
     export function getColNameMap(tableId: string): object {
         const colNameMap: object = {};
@@ -4536,7 +4536,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.getColNameList
-     * @param tableId 
+     * @param tableId
      */
     export function getColNameList(tableId: string): string[] {
         const colNameList: string[] = [];
@@ -4552,7 +4552,7 @@ namespace xcHelper {
     /**
      * xcHelper.disableMenuItem
      * @param $menuLi
-     * @param tooltipOptions 
+     * @param tooltipOptions
      */
     export function disableMenuItem(
         $menuLi: JQuery,
@@ -4573,7 +4573,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.getPromiseWhenError
-     * @param args 
+     * @param args
      */
     export function getPromiseWhenError(args: any[]): string | null {
         for (let i = 0; i < args.length; i++) {
@@ -4718,11 +4718,11 @@ namespace xcHelper {
 
     /**
      * xcHelper.prettifyJson
-     * @param obj 
-     * @param indent 
-     * @param mainKey 
-     * @param options 
-     * @param isArrayEl 
+     * @param obj
+     * @param indent
+     * @param mainKey
+     * @param options
+     * @param isArrayEl
      */
     export function prettifyJson(
         obj: object,
@@ -4787,8 +4787,8 @@ namespace xcHelper {
     /**
      * xcHelper.listHighlight
      * @param $input
-     * @param event 
-     * @param isArgInput 
+     * @param event
+     * @param isArgInput
      */
     export function listHighlight(
         $input: JQuery,
@@ -4916,8 +4916,8 @@ namespace xcHelper {
     /**
      * xcHelper.getKeyInfos
      * resolves an array of keyInfos
-     * @param keys 
-     * @param tableName 
+     * @param keys
+     * @param tableName
      */
     export function getKeyInfos(
         keys: any[] | any,
@@ -4967,7 +4967,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.formatAsUrl
-     * @param struct 
+     * @param struct
      */
     export function formatAsUrl(struct: object): string {
         let retStr: string = "";
@@ -4998,13 +4998,13 @@ namespace xcHelper {
         if (!milliSeconds && rejectZero || typeof milliSeconds === "string") {
             return CommonTxtTstr.NA;
         }
-    
+
         const s: number = Math.floor(milliSeconds / 1000);
         const seconds: number = Math.floor(s) % 60;
         const minutes: number = Math.floor((s % 3600) / 60);
         const hours: number = Math.floor(s / 3600);
         let timeString: string = '';
-    
+
         if (hours > 0) {
             timeString += hours + "h ";
         }
@@ -5063,7 +5063,7 @@ namespace xcHelper {
     /**
      * xcHelper.stringifyFunc
      * assumes valid func structure of {args:[], name:""};
-     * @param func 
+     * @param func
      */
     export function stringifyFunc(func: ColFunc): string {
         return parseFunc(func);
@@ -5071,7 +5071,7 @@ namespace xcHelper {
 
     /**
      * xcHelper.styleNewLineChar
-     * @param text 
+     * @param text
      */
     export function styleNewLineChar(text): string {
         return text.replace(/\n/g, '<span class="newLine lineChar">\\n</span>')
@@ -5135,7 +5135,7 @@ namespace xcHelper {
 
     function updateColDropdown(
         $subMenu: JQuery,
-        tableId: string, 
+        tableId: string,
         options: DropdownOptions
     ): void {
         const progCol: ProgCol = gTables[tableId].getCol(options.colNum);
@@ -5155,8 +5155,8 @@ namespace xcHelper {
      * used for deciding if cell can be filtered
      * returns true if cell is mixed and not an object or array
      * assumes cells from only 1 column are highlighted
-     * @param columnType 
-     * @param cells 
+     * @param columnType
+     * @param cells
      */
     function isInvalidMixed(columnType: string, cells: TableCell[]) {
         const filterTypes: string[] = ["string", "float", "integer", "boolean",
@@ -5214,9 +5214,9 @@ namespace xcHelper {
 
     /**
      * for tds
-     * @param  
-     * @param tableId 
-     * @param options 
+     * @param
+     * @param tableId
+     * @param options
      */
     function checkIfAlreadyUnnested(
         $unnestLi: JQuery,
@@ -5228,11 +5228,11 @@ namespace xcHelper {
         }
         const rowNum: number = options.rowNum;
         const colNum: number = options.colNum;
-       
-       
+
+
         const $table : JQuery= $('#xcTable-' + tableId);
         const $jsonTd: JQuery = $table.find('.row' + rowNum).find('td.col' + colNum);
-    
+
         const table: TableMeta = gTables[tableId];
         const progCol: ProgCol = table.getCol(colNum);
         const isArray: boolean = (progCol.getType() === ColumnType.array);
@@ -5288,7 +5288,7 @@ namespace xcHelper {
         const $jsonModalLi: JQuery = $menu.find('.tdJsonModal');
         $unnestLi.addClass('hidden'); // pull all
         $jsonModalLi.addClass('hidden'); // examine
-        
+
         let isMixedObj: boolean = false;
         let isTruncated: boolean = false;
         if (isMultiCell) {
@@ -5411,9 +5411,9 @@ namespace xcHelper {
      * @param $dropdownIcon
      * @param $menu
      * @param $subMenu
-     * @param menuId 
-     * @param tableId 
-     * @param options 
+     * @param menuId
+     * @param tableId
+     * @param options
      */
     function menuHelper(
         $dropdownIcon: JQuery,
@@ -5487,8 +5487,8 @@ namespace xcHelper {
     }
 
    /**
-    * 
-    * @param menuId 
+    *
+    * @param menuId
     * @param $menu
     * @param $dropdownIcon
     * @param options
@@ -5584,7 +5584,7 @@ namespace xcHelper {
      * xcHelper.dropdownOpen
      * @param $dropdownIcon
      * @param $menu
-     * @param options 
+     * @param options
      *  mouseCoors: {x: float, y: float},
      *  offsetX: float,
      *  offsetY: float,
@@ -5612,7 +5612,7 @@ namespace xcHelper {
             console.error("Need to provide $menu");
             return;
         }
-        
+
         const menuId: string = $menu.attr('id');
         let $allMenus: JQuery;
         let $subMenu: JQuery;
@@ -5701,10 +5701,10 @@ namespace xcHelper {
     // Will round bucket size up or down depending on how many rows can fit on the screen
     /**
      * xcHelper.roundToSignificantFigure
-     * @param value 
-     * @param numRows 
-     * @param max 
-     * @param min 
+     * @param value
+     * @param numRows
+     * @param max
+     * @param min
      */
     export function roundToSignificantFigure(
         value: number,
