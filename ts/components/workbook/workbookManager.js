@@ -188,7 +188,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
             wkbk = new WKBK(options);
             wkbkSet.put(wkbk.id, wkbk);
-            JupyterPanel.newWorkbook(wkbkName, wkbk.id);
 
             return saveWorkbook();
         })
@@ -196,6 +195,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
             // in case KVStore has some remants about wkbkId, clear it
             var def = delWKBKHelper(wkbk.id);
             return PromiseHelper.alwaysResolve(def);
+        })
+        .then(function() {
+            return JupyterPanel.newWorkbook(wkbkName, wkbk.id);
         })
         .then(function() {
             // If workbook is active, make it inactive so that our UX is linear

@@ -486,39 +486,50 @@ define(['base/js/utils'], function(utils) {
                 return text;
             }
 
+            // create folder, rename it,  send new name to XD
             function createNewFolder(struct) {
                 Jupyter.contents.new_untitled("", {type: 'directory'})
                 .then(function(data) {
-                    renameFolder(struct, struct.folderName, data.path);
+                    renameFolder(struct, struct.folderName, data.path)
+                    .then(function(result) {
+                        resolveRequest(result, struct.msgId);
+                    })
+                    .fail(function(result) {
+                        rejectRequest(result, struct.msgId);
+                    })
+                })// jupyter doesn't have fail property
+                .catch(function(e) {
+                    rejectRequest(e, struct.msgId);
                 });
             }
 
-            function renameFolder(struct, folderName, prevName, attemptNumber) {
-                    attemptNumber = attemptNumber || 0;
-                    attemptNumber++;
-                    Jupyter.contents.rename(prevName, utils.url_path_join("", folderName))
-                    .then(function(data) {
-                        var request = {
-                            action: "returnFolderName",
-                            originalName: struct.folderName,
-                            wkbkId: struct.wkbkId,
-                            newName: data.name
-                        };
-                        parent.postMessage(JSON.stringify(request), "*");
-                    })
-                    .catch(function(e) {
-                        if (e && typeof e.message === "string") {
-                            if (attemptNumber > 10) {
-                                return; // give up
-                            }
-                            if (e.message.indexOf("File already exists") === 0 &&
-                                attemptNumber < 10) {
-                                renameFolder(struct, struct.folderName + "_" + attemptNumber, prevName, attemptNumber);
-                            } else { // last try
-                                renameFolder(struct, struct.folderName + "_" + Math.ceil(Math.random() * 10000), prevName, attemptNumber);
-                            }
+            function renameFolder(struct, folderName, prevName, attemptNumber, prevDeferred) {
+                var deferred = prevDeferred || jQuery.Deferred();
+
+                attemptNumber = attemptNumber || 0;
+                attemptNumber++;
+                Jupyter.contents.rename(prevName, utils.url_path_join("", folderName))
+                .then(function(data) {
+                    deferred.resolve({newName: data.name});
+                })
+                .catch(function(e) {
+                    if (e && typeof e.message === "string") {
+                        if (attemptNumber > 10) {
+                            deferred.reject({error: "failed to create folder"});
+                            return; // give up
                         }
-                    });
+                        if (e.message.indexOf("File already exists") === 0 &&
+                            attemptNumber < 10) {
+                            renameFolder(struct, struct.folderName + "_" + attemptNumber, prevName, attemptNumber, deferred);
+                        } else { // last try
+                            renameFolder(struct, struct.folderName + "_" + Math.ceil(Math.random() * 10000), prevName, attemptNumber, deferred);
+                        }
+                    } else {
+                        deferred.reject({error: "failed to create folder"});
+                    }
+                });
+
+                return deferred.promise();
             }
 
             function deleteFolder(struct) {
@@ -843,10 +854,27 @@ define(['base/js/utils'], function(utils) {
                                 };
                                 parent.postMessage(JSON.stringify(request), "*");
                             }
-
                         }
                     }
                 }
+            }
+
+            function resolveRequest(result, msgId) {
+                var request = {
+                    action: "resolve",
+                    msgId: msgId
+                };
+                request = $.extend(request, result);
+                parent.postMessage(JSON.stringify(request), "*");
+            }
+
+            function rejectRequest(result, msgId) {
+                 var request = {
+                    action: "reject",
+                    msgId: msgId
+                };
+                request = $.extend(request, result);
+                parent.postMessage(JSON.stringify(request), "*");
             }
 
             window.alert = function() {};

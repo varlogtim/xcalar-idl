@@ -47,7 +47,7 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
                                   struct.moduleName, struct.fnName);
                 break;
             case ("newWorkbook"):
-                createNewFolder(struct, struct.folderName);
+                createNewFolder(struct);
                 break;
             case ("deleteWorkbook"):
                 deleteFolder(struct);
@@ -67,40 +67,50 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
     function createNewFolder(struct) {
         Jupyter.notebook_list.contents.new_untitled("", {type: 'directory'})
         .then(function(data) {
-            renameFolder(struct, struct.folderName, data.path);
+            renameFolder(struct, struct.folderName, data.path)
+            .then(function(result) {
+                resolveRequest(result, struct.msgId);
+            })
+            .fail(function(result) {
+                rejectRequest(result, struct.msgId);
+            });
+        }) // jupyter doesn't have fail property
+        .catch(function(e) {
+            rejectRequest(e, struct.msgId);
         });
     }
 
-    function renameFolder(struct, folderName, prevName, attemptNumber) {
+    function renameFolder(struct, folderName, prevName, attemptNumber, prevDeferred) {
+        var deferred = prevDeferred || jQuery.Deferred();
+
         attemptNumber = attemptNumber || 0;
         attemptNumber++;
         Jupyter.notebook_list.contents.rename(prevName, utils.url_path_join("", folderName))
         .then(function(data) {
             Jupyter.notebook_list.load_list();
-            var request = {
-                action: "returnFolderName",
-                originalName: struct.folderName,
-                wkbkId: struct.wkbkId,
-                newName: data.name
-            };
-            parent.postMessage(JSON.stringify(request), "*");
+            deferred.resolve({newName: data.name});
         })
         .catch(function(e) {
             if (e && typeof e.message === "string") {
                 if (attemptNumber > 10) {
+                    deferred.reject({error: "failed to create folder"});
                     return; // give up
                 }
                 if (e.message.indexOf("File already exists") === 0 &&
                     attemptNumber < 10) {
                     renameFolder(struct, struct.folderName + "_" +
-                        attemptNumber, prevName, attemptNumber);
+                        attemptNumber, prevName, attemptNumber, deferred);
                 } else { // last try
                     renameFolder(struct, struct.folderName + "_" +
                         Math.ceil(Math.random() * 10000), prevName,
-                        attemptNumber);
+                        attemptNumber, deferred);
                 }
+            } else {
+                deferred.reject({error: "failed to create folder"});
             }
         });
+
+        return deferred.promise();
     }
 
     function deleteFolder(struct) {
@@ -215,11 +225,28 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
                 });
             });
         });
-
     }
 
     function updateLinks() {
         var folderUrl = Jupyter.session_list.base_url + "tree/" + wkbkFolderName;
         $("#ipython_notebook").find("a").attr("href", folderUrl);
+    }
+
+    function resolveRequest(result, msgId) {
+        var request = {
+            action: "resolve",
+            msgId: msgId
+        };
+        request = $.extend(request, result);
+        parent.postMessage(JSON.stringify(request), "*");
+    }
+
+    function rejectRequest(result, msgId) {
+         var request = {
+            action: "reject",
+            msgId: msgId
+        };
+        request = $.extend(request, result);
+        parent.postMessage(JSON.stringify(request), "*");
     }
 });

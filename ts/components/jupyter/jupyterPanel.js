@@ -1,6 +1,8 @@
 window.JupyterPanel = (function($, JupyterPanel) {
     var $jupyterPanel;
     var jupyterMeta;
+    var msgId = 0;
+    var msgPromises = {};
 
     function JupyterMeta(currentNotebook, folderName) {
         this.currentNotebook = currentNotebook || null;
@@ -95,9 +97,6 @@ window.JupyterPanel = (function($, JupyterPanel) {
                                               s.numRows,
                                               {noRenamePrompt: s.noRename});
                         break;
-                    case ("returnFolderName"):
-                        storeFolderName(s);
-                        break;
                     case ("toggleMenu"):
                         JupyterStubMenu.toggleAllow(s.allow);
                         break;
@@ -119,8 +118,28 @@ window.JupyterPanel = (function($, JupyterPanel) {
                     case ("updateLocation"):
                         storeCurrentNotebook(s);
                         break;
+                    case ("resolve"):
+                        if (msgPromises[s.msgId]) {
+                            msgPromises[s.msgId].resolve(s);
+                            delete msgPromises[s.msgId];
+                        }
+                        break;
+                    case ("reject"):
+                        if (msgPromises[s.msgId]) {
+                            msgPromises[s.msgId].reject(s);
+                            delete msgPromises[s.msgId];
+                        }
+                        break;
                     default:
+                        // XXX temp fix until 11588 is fixed
+                        if (s.action === "returnFolderName") {
+                            for (var i in msgPromises) {
+                                msgPromises[i].resolve(s);
+                                delete msgPromises[i];
+                            }
+                        }
                         console.error("Unsupported action:" + s.action);
+                        break;
                 }
             } catch (e) {
                 console.error("Illegal message sent:" + event.data, e);
@@ -237,6 +256,9 @@ window.JupyterPanel = (function($, JupyterPanel) {
     // called when we create a new xcalar workbook
     // will create a new jupyter folder dedicated to this workbook
     JupyterPanel.newWorkbook = function(wkbkName, wkbkId) {
+        var deferred = PromiseHelper.deferred();
+        var newName;
+
         var folderName = XcSupport.getUser() + "-" + wkbkName;
         var msgStruct = {
             action: "newWorkbook",
@@ -244,7 +266,21 @@ window.JupyterPanel = (function($, JupyterPanel) {
             wkbkId: wkbkId
         };
 
-        sendMessageToJupyter(msgStruct);
+        sendMessageToJupyter(msgStruct, true)
+        .then(function(result) {
+            newName = result.newName;
+            jupyterMeta.setFolderName(result.newName);
+            return storeMeta(wkbkId);
+        })
+        .then(function() {
+            deferred.resolve(newName);
+        })
+        .fail(function(err) {
+            console.error(err.error);
+            deferred.resolve(err); // resolve anyways without folder
+        });
+
+        return deferred.promise();
     };
 
     // called when we create a new xcalar workbook
@@ -508,15 +544,23 @@ window.JupyterPanel = (function($, JupyterPanel) {
         });
     }
 
-    // function sendMessageToJupyter(msgStruct, newFolder) {
-    function sendMessageToJupyter(msgStruct) {
+    function sendMessageToJupyter(msgStruct, isAsync) {
+        var deferred = PromiseHelper.deferred();
         var messageInfo = {
             fromXcalar: true,
         };
+        if (isAsync) {
+            messageInfo.msgId = msgId;
+            msgPromises[msgId] = deferred;
+            msgId++;
+        } else {
+            deferred.resolve();
+        }
         msgStruct = $.extend(messageInfo, msgStruct);
         var msg = JSON.stringify(msgStruct);
 
         $("#jupyterNotebook")[0].contentWindow.postMessage(msg, "*");
+        return deferred.promise();
     }
 
         /* Unit Test Only */

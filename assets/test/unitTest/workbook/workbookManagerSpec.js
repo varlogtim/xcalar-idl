@@ -1,6 +1,7 @@
 describe("WorkbookManager Test", function() {
     var oldKVGet, oldKVPut, oldKVDelete;
     var oldXcalarPut, oldXcalarDelete;
+    var oldJupyterNewWkbk;
     var fakeMap = {};
 
     before(function() {
@@ -11,6 +12,7 @@ describe("WorkbookManager Test", function() {
         oldKVDelete = KVStore.delete;
         oldXcalarPut = XcalarKeyPut;
         oldXcalarDelete = XcalarKeyDelete;
+        oldJupyterNewWkbk = JupyterPanel.newWorkbook;
 
         XcalarKeyPut = function(key, value) {
             fakeMap[key] = value;
@@ -29,6 +31,8 @@ describe("WorkbookManager Test", function() {
         KVStore.put = XcalarKeyPut;
 
         KVStore.delete = XcalarKeyDelete;
+
+        JupyterPanel.newWorkbook = PromiseHelper.resolve();
 
         generateKey = WorkbookManager.__testOnly__.generateKey;
     });
@@ -800,5 +804,6 @@ describe("WorkbookManager Test", function() {
         XcalarKeyPut = oldXcalarPut;
         XcalarKeyDelete = oldXcalarDelete;
         UnitTest.offMinMode();
+        JupyterPanel.newWorkbook = oldJupyterNewWkbk;
     });
 });
