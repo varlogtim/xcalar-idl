@@ -135,6 +135,7 @@
 
             document.getElementById("report").innerHTML = html;
             document.getElementById("summary").classList.remove("hidden");
+            document.getElementById("entry").classList.add("hidden");
             document.getElementById("path").innerHTML = "/";
             showTotalPercantage(usedBytes, totalBytes);
         }
@@ -142,6 +143,7 @@
         function showEntrySummary(entry) {
             document.getElementById("report").innerHTML = "";
             document.getElementById("summary").classList.add("hidden")
+            document.getElementById("entry").classList.remove("hidden");
 
             const path = '<a href="/" onClick="showAllFilesEvent(event)">' +
                             'all files' +
