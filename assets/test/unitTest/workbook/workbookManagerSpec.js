@@ -4,6 +4,8 @@ describe("WorkbookManager Test", function() {
     var fakeMap = {};
 
     before(function() {
+        console.clear();
+        UnitTest.onMinMode();
         oldKVGet = KVStore.get;
         oldKVPut = KVStore.put;
         oldKVDelete = KVStore.delete;
@@ -143,10 +145,12 @@ describe("WorkbookManager Test", function() {
         it("resetActiveWKBK should work", function(done) {
             var oldSetup = KVStore.setup;
             var oldHold = XcSupport.holdSession;
+            var test = false;
 
             KVStore.setup = function() {};
 
             XcSupport.holdSession = function() {
+                test = true;
                 return PromiseHelper.resolve();
             };
             // use the current workbook id
@@ -154,11 +158,7 @@ describe("WorkbookManager Test", function() {
             var wkbkId = WorkbookManager.getActiveWKBK();
             WorkbookManager.__testOnly__.resetActiveWKBK(wkbkId)
             .then(function() {
-                var keys = Object.keys(fakeMap);
-                expect(keys.length).to.equal(1);
-                var key = keys[0];
-                expect(fakeMap[key]).to.equal(wkbkId);
-                fakeMap = {};
+                expect(test).to.equal(true);
                 done();
             })
             .fail(function() {
@@ -210,11 +210,10 @@ describe("WorkbookManager Test", function() {
         });
 
         it("switchWorkBookHelper should handle fail case", function(done) {
-            var oldSwitch = XcalarSwitchToWorkbook;
+            var oldActivate = XcalarActivateWorkbook;
             var oldList = XcalarListWorkbooks;
 
-            UnitTest.onMinMode();
-            XcalarSwitchToWorkbook = function() {
+            XcalarActivateWorkbook = function() {
                 return PromiseHelper.reject("test");
             };
 
@@ -227,32 +226,16 @@ describe("WorkbookManager Test", function() {
                 });
             };
 
-            var checkFunc = function() {
-                return $("#alertModal").is(":visible");
-            };
-
-            var def = WorkbookManager.__testOnly__.switchWorkBookHelper("to",
-                                                                        "from");
-
-            UnitTest.testFinish(checkFunc)
+            WorkbookManager.__testOnly__.switchWorkBookHelper("to")
             .then(function() {
-                UnitTest.hasAlertWithTitle(WKBKTStr.SwitchErr);
-            })
-            .fail(function() {
-                done("fail");
-            });
-
-            def
-            .then(function() {
-                done("fail");
-            })
-            .fail(function() {
                 done();
             })
+            .fail(function() {
+                done("fail");
+            })
             .always(function() {
-                XcalarSwitchToWorkbook = oldSwitch;
+                XcalarActivateWorkbook = oldActivate;
                 XcalarListWorkbooks = oldList;
-                UnitTest.offMinMode();
             });
         });
 
@@ -476,7 +459,7 @@ describe("WorkbookManager Test", function() {
 
         var oldRemoveUnload;
         var oldReload;
-        var oldSwitch;
+        var oldActivate;
         var oldDeactive;
 
         before(function() {
@@ -486,11 +469,11 @@ describe("WorkbookManager Test", function() {
             oldRemoveUnload = xcManager.removeUnloadPrompt;
             oldReload = xcHelper.reload;
             // switch is slow, so use a fake one
-            oldSwitch = XcalarSwitchToWorkbook;
+            oldActivate = XcalarActivateWorkbook;
             oldDeactive = XcalarDeactivateWorkbook;
             xcManager.removeUnloadPrompt = function() {};
             xcHelper.reload = function() {};
-            XcalarSwitchToWorkbook = function() {
+            XcalarActivateWorkbook = function() {
                 return PromiseHelper.resolve();
             };
 
@@ -639,7 +622,7 @@ describe("WorkbookManager Test", function() {
             })
             .fail(function(error) {
                 expect(error).to.be.an("object");
-                expect(error.error).to.equal("Invalid workbook Id!");
+                expect(error.error).to.equal("Invalid workbook Id");
                 done();
             });
         });
@@ -677,8 +660,8 @@ describe("WorkbookManager Test", function() {
         });
 
         it("should hand switch fail case", function(done) {
-            var oldFunc = KVStore.put;
-            KVStore.put = function() {
+            var oldFunc = XcalarActivateWorkbook;
+            XcalarActivateWorkbook = function() {
                 return PromiseHelper.reject("test");
             };
             WorkbookManager.__testOnly__.setAcitiveWKBKId(null);
@@ -692,30 +675,7 @@ describe("WorkbookManager Test", function() {
                 done();
             })
             .always(function() {
-                KVStore.put = oldFunc;
-                WorkbookManager.__testOnly__.restoreWKBKId();
-            });
-        });
-
-        it("should hand switch fail case 2", function(done) {
-            var oldFunc = KVStore.put;
-            KVStore.put = function() {
-                return PromiseHelper.reject({
-                    status: StatusT.StatusSessionNotInact
-                });
-            };
-            WorkbookManager.__testOnly__.setAcitiveWKBKId(null);
-            WorkbookManager.switchWKBK(testWkbkId)
-            .then(function() {
-                activeWkbkId = WorkbookManager.getActiveWKBK();
-                expect(activeWkbkId).not.to.equal(testWkbkId);
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                KVStore.put = oldFunc;
+                XcalarActivateWorkbook = oldFunc;
                 WorkbookManager.__testOnly__.restoreWKBKId();
             });
         });
@@ -788,19 +748,6 @@ describe("WorkbookManager Test", function() {
             });
         });
 
-        it("Should pause workbook", function(done) {
-            WorkbookManager.pause(oldActiveWkbkId)
-            .then(function() {
-                expect(WorkbookManager.getActiveWKBK()).to.be.null;
-                var wkbk = WorkbookManager.getWorkbook(oldActiveWkbkId);
-                expect(wkbk.hasResource()).to.be.true;
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-
         it("should reject deactivate workbbok inn error", function(done) {
             WorkbookManager.deactivate("test")
             .then(function() {
@@ -841,7 +788,7 @@ describe("WorkbookManager Test", function() {
         after(function() {
             xcManager.removeUnloadPrompt = oldRemoveUnload;
             xcHelper.reload = oldReload;
-            XcalarSwitchToWorkbook = oldSwitch;
+            XcalarActivateWorkbook = oldActivate;
             XcalarDeactivateWorkbook = oldDeactive;
         });
     });
@@ -852,5 +799,6 @@ describe("WorkbookManager Test", function() {
         KVStore.delete = oldKVDelete;
         XcalarKeyPut = oldXcalarPut;
         XcalarKeyDelete = oldXcalarDelete;
+        UnitTest.offMinMode();
     });
 });

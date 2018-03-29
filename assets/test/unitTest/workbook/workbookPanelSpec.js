@@ -17,7 +17,7 @@ describe("Workbook- Workbook Pane Test", function() {
             UnitTest.testFinish(checkFunc)
             .then(function() {
                 expect($workbookPanel.find(".workbookBox.active").length)
-                .to.equal(1);
+                .to.be.at.least(1);
                 done();
             })
             .fail(function() {
@@ -59,7 +59,7 @@ describe("Workbook- Workbook Pane Test", function() {
             UnitTest.testFinish(checkFunc)
             .then(function() {
                 expect($workbookPanel.find(".workbookBox.active").length)
-                .to.equal(1);
+                .to.be.at.least(1);
                 done();
             })
             .fail(function() {
@@ -326,6 +326,8 @@ describe("Workbook- Workbook Pane Test", function() {
             XcalarDeleteWorkbook = function() {
                 return PromiseHelper.resolve();
             };
+
+            activeWkbkId = WorkbookManager.getActiveWKBK();
         });
 
         beforeEach(function() {
@@ -474,87 +476,17 @@ describe("Workbook- Workbook Pane Test", function() {
             });
         });
 
-        it("Should not activate active workbook", function() {
+        it("Should not activate current workbook", function() {
             var oldHide = WorkbookPanel.hide;
             var test = false;
             WorkbookPanel.hide = function() { test = true; };
 
-            var $box = $workbookPanel.find(".workbookBox.active");
+            var $box = $workbookPanel.find('[data-workbook-id="' +
+                                            activeWkbkId + '"]');
             $box.find(".activate").click();
             expect(test).to.be.true;
 
             WorkbookPanel.hide = oldHide;
-        });
-
-        it("should handle pause workbook error", function(done) {
-            var oldPause = WorkbookManager.pause;
-            WorkbookManager.pause = function() {
-                return PromiseHelper.reject("test");
-            };
-
-            var $box = $workbookPanel.find(".workbookBox.active");
-            $box.find(".pause").click();
-            UnitTest.hasAlertWithTitle(WKBKTStr.Pause, {
-                "confirm": true
-            });
-
-            var checkFunc = function() {
-                return $("#statusBox").is(":visible");
-            };
-
-            UnitTest.testFinish(checkFunc)
-            .then(function() {
-                UnitTest.hasStatusBoxWithError("test");
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                WorkbookManager.pause = oldPause;
-            });
-        });
-
-        it("should pause workbook", function(done) {
-            var oldPause = WorkbookManager.pause;
-            var oldGet = WorkbookManager.getActiveWKBK;
-            WorkbookManager.pause = function(workbookId) {
-                var wkbk = WorkbookManager.getWorkbook(workbookId);
-                wkbk.setResource(true);
-                return PromiseHelper.resolve();
-            };
-
-            WorkbookManager.getActiveWKBK = function() {
-                return null;
-            };
-
-            var $box = $workbookPanel.find(".workbookBox.active");
-            activeWkbkId = $box.attr("data-workbook-id");
-
-            $box.find(".pause").click();
-            UnitTest.hasAlertWithTitle(WKBKTStr.Pause, {
-                "confirm": true
-            });
-
-            var checkFunc = function() {
-                return $("#container").hasClass("noWorkbook");
-            };
-
-            UnitTest.testFinish(checkFunc)
-            .then(function() {
-                var $newBox = $workbookPanel.find('[data-workbook-id="' +
-                                                  activeWkbkId + '"]');
-                expect($newBox.hasClass("active")).to.be.false;
-                expect($newBox.hasClass("noResource")).to.be.false;
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                WorkbookManager.pause = oldPause;
-                WorkbookManager.getActiveWKBK = oldGet;
-            });
         });
 
         it("should deactive workbook", function(done) {
@@ -598,40 +530,36 @@ describe("Workbook- Workbook Pane Test", function() {
         });
 
         it("Should activate inactive workbook", function(done) {
-            var oldSwitch = WorkbookManager.switchWKBK;
-            var test = false;
             var oldGet = WorkbookManager.getActiveWKBK;
-
+            var oldSwitch = WorkbookManager.switchWKBK;
             WorkbookManager.getActiveWKBK = function() {
                 return null;
             };
 
+            var test = false;
             WorkbookManager.switchWKBK = function() {
-                var wkbk = WorkbookManager.getWorkbook(activeWkbkId);
-                wkbk.setResource(true);
                 test = true;
-                $("#container").removeClass("noWorkbook");
-                return PromiseHelper.resolve();
+                return PromiseHelper.reject("test");
             };
 
             var $box = $workbookPanel.find('[data-workbook-id="' +
                                             activeWkbkId + '"]');
             $box.find(".activate").click();
+            UnitTest.hasAlertWithTitle(WKBKTStr.Switch, {confirm: true});
 
-            var checkFunc = function() {
+            UnitTest.testFinish(function() {
                 return test === true;
-            };
-
-            UnitTest.testFinish(checkFunc)
+            })
             .then(function() {
+                UnitTest.hasStatusBoxWithError("test");
                 done();
             })
             .fail(function() {
                 done("fail");
             })
             .always(function() {
-                WorkbookManager.switchWKBK = oldSwitch;
                 WorkbookManager.getActiveWKBK = oldGet;
+                WorkbookManager.switchWKBK = oldSwitch;
             });
         });
 

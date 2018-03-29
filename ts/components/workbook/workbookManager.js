@@ -1,6 +1,5 @@
 window.WorkbookManager = (function($, WorkbookManager) {
     var wkbkKey;
-    var activeWKBKKey;
     var activeWKBKId;
     var wkbkSet;
     var checkInterval = 2000; // progress bar check time
@@ -17,12 +16,17 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var deferred = PromiseHelper.deferred();
         WorkbookManager.getWKBKsAsync()
         .then(syncSessionInfo)
-        .then(activateWorkbook)
         .then(function(wkbkId) {
-            activeWKBKId = wkbkId;
-            // retrieve key from username and wkbkId
-            setupKVStore(wkbkId);
-            deferred.resolve();
+            if (wkbkId == null) {
+                setURL(null, true);
+                deferred.reject(WKBKTStr.NoWkbk);
+            } else {
+                // retrieve key from username and wkbkId
+                setupKVStore(wkbkId);
+                setActiveWKBK(wkbkId);
+                setURL(wkbkId, true);
+                deferred.resolve(wkbkId);
+            }
         })
         .fail(function(error) {
             if (error !== WKBKTStr.NoWkbk) {
@@ -52,7 +56,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
     };
 
     WorkbookManager.commit = function() {
-        var deferred = PromiseHelper.deferred();
         // if activeWKBK is null, then it's creating a new WKBK
         if (activeWKBKId != null) {
             var wkbk = wkbkSet.get(activeWKBKId);
@@ -61,11 +64,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             }
         }
 
-        saveWorkbook()
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return deferred.promise();
+        return saveWorkbook();
     };
 
     WorkbookManager.getWorkbooks = function() {
@@ -73,42 +72,76 @@ window.WorkbookManager = (function($, WorkbookManager) {
     };
 
     WorkbookManager.getWorkbook = function(workbookId) {
-        var allWorkbooks = wkbkSet.getAll();
-        if (!allWorkbooks) {
-            return null;
-        }
-        if (!(workbookId in allWorkbooks)) {
-            return null;
-        }
-
-        return allWorkbooks[workbookId];
+        return wkbkSet.get(workbookId) || null;
     };
 
     WorkbookManager.getWKBKsAsync = function() {
         var deferred = PromiseHelper.deferred();
         var sessionInfo;
-        var wkbk;
 
         XcalarListWorkbooks("*")
         .then(function(sessionRes) {
             sessionInfo = sessionRes;
             return KVStore.getAndParse(wkbkKey, gKVScope.WKBK);
         })
-        .then(function(wkbkRes) {
-            wkbk = wkbkRes;
-            return checkSessionWritable(sessionInfo);
-        })
-        .then(function(isWrongNode) {
-            deferred.resolve(wkbk, sessionInfo, isWrongNode);
+        .then(function(wkbk) {
+            deferred.resolve(wkbk, sessionInfo);
         })
         .fail(deferred.reject);
 
-        return (deferred.promise());
+        return deferred.promise();
     };
     // get current active workbook
     WorkbookManager.getActiveWKBK = function() {
-        return (activeWKBKId);
+        return activeWKBKId;
     };
+
+    function setActiveWKBK(workbookId) {
+        if (workbookId == null) {
+            activeWKBKId = null;
+            setSessionName(null);
+            return true;
+        }
+
+        var wkbk = wkbkSet.get(workbookId);
+        if (wkbk == null) {
+            // error case
+            return false;
+        }
+
+        activeWKBKId = workbookId;
+        setSessionName(wkbk.getName());
+        return true;
+    }
+
+    function setURL(workbookId, replace) {
+        try {
+            var curHref = window.location.href;
+            var url = new URL(window.location.href);
+            var workbookName = null;
+            if (workbookId != null && wkbkSet.has(workbookId)) {
+                workbookName = wkbkSet.get(workbookId).getName();
+                url.searchParams.set("workbook", workbookName);
+            } else {
+                url.searchParams.delete("workbook");
+            }
+
+            if (!curHref.endsWith(url.href)) {
+                if (replace) {
+                    window.history.replaceState("view workbook", workbookName, url.href);
+                } else {
+                    window.history.pushState("view workbook", workbookName, url.href);
+                }
+            }
+        } catch (e) {
+            console.error("set url error", e);
+        }
+    }
+
+    function gotoWorkbook(workbookId, replaceURL) {
+        setURL(workbookId, replaceURL);
+        xcHelper.reload();
+    }
 
     WorkbookManager.updateWorksheet = function(numWorksheets) {
         var workbook = wkbkSet.get(activeWKBKId);
@@ -200,94 +233,43 @@ window.WorkbookManager = (function($, WorkbookManager) {
     // switch to another workbook
     WorkbookManager.switchWKBK = function(wkbkId) {
         // validation
-        if (wkbkId == null) {
-            return PromiseHelper.reject({"error": "Invalid workbook Id!"});
+        if (wkbkId === activeWKBKId) {
+            return PromiseHelper.reject({
+                "error": "Cannot switch to same workbook"
+            });
         }
 
-        if (wkbkId === activeWKBKId) {
-            return PromiseHelper.reject({"error": "Cannot switch to same " +
-                                                  "workbook"});
+        var toWkbk = wkbkSet.get(wkbkId);
+        if (toWkbk == null) {
+            return PromiseHelper.reject({
+                "error": "Invalid workbook Id"
+            });
         }
 
         var deferred = PromiseHelper.deferred();
-        var fromWkbkName;
-        var toWkbkName;
 
-        if (activeWKBKId == null) {
-            // case 1: create a totally new workbook
-            // case 2: continue a worbook that has no meta
-            // (in this case, when reload, will check the workbook is inactive
-            // and will active it)
-            KVStore.put(activeWKBKKey, wkbkId, true, gKVScope.WKBK)
-            .then(function() {
-                // The action below is a no-op to backend if already active.
-                $("#initialLoadScreen").show();
-                return switchWorkBookHelper(wkbkSet.get(wkbkId).name, null);
-            })
-            .then(function() {
-                activeWKBKId = wkbkId;
-                return switchWorkbookAnimation();
-            })
-            .then(function() {
-                xcHelper.reload();
-                deferred.resolve();
-            })
-            .fail(function(ret) {
-                if (ret && ret.status === StatusT.StatusSessionNotInact) {
-                    switchWorkbookAnimation(true)
-                    .always(function() {
-                        xcHelper.reload();
-                        deferred.resolve();
-                    });
-                } else {
-                    ret = ret || {
-                        error: "Error occurred while switching workbooks"
-                    };
-                    $("#initialLoadScreen").hide();
-                    $("#container").removeClass("switchingWkbk");
-                    endProgressCycle();
-                    deferred.reject(ret);
-                }
-            });
-            return deferred.promise();
-        }
-
-        // check if the wkbkId is right
-        var toWkbk = wkbkSet.get(wkbkId);
-        if (toWkbk != null) {
-            toWkbkName = toWkbk.name;
-
-            fromWkbkName = (activeWKBKId == null) ?
-                                    null :
-                                    wkbkSet.get(activeWKBKId).name;
-        } else {
-            deferred.reject({"error": "No such workbook id!"});
-            return deferred.promise();
-        }
-
-        // should stop check since session is released
+        $("#initialLoadScreen").show();
         XcSupport.stopHeartbeatCheck();
 
-        // to switch workbook, should release all ref count first
-        $("#initialLoadScreen").show();
+        var promise = (activeWKBKId != null) ?
+                        commitActiveWkbk() : PromiseHelper.resolve();
 
-        commitActiveWkbk()
+        promise
         .then(function() {
-            return switchWorkBookHelper(toWkbkName, fromWkbkName);
+            var toWkbkName = toWkbk.getName();
+            return switchWorkBookHelper(toWkbkName);
         })
         .then(function() {
-            return XcalarKeyPut(activeWKBKKey, wkbkId, true, gKVScope.WKBK);
-        })
-        .then(function() {
-            activeWKBKId = wkbkId;
+            setActiveWKBK(wkbkId);
             return switchWorkbookAnimation();
         })
         .then(function() {
-            xcHelper.reload();
+            gotoWorkbook(wkbkId);
             deferred.resolve();
         })
         .fail(function(error) {
             console.error("Switch Workbook Fails", error);
+            error = error || {error: "Error occurred while switching workbooks"};
             $("#initialLoadScreen").hide();
             $("#container").removeClass("switchingWkbk");
             endProgressCycle();
@@ -298,6 +280,10 @@ window.WorkbookManager = (function($, WorkbookManager) {
         });
 
         return deferred.promise();
+    };
+
+    WorkbookManager.gotoWorkbook = function(workbookId, replaceURL) {
+        gotoWorkbook(workbookId, replaceURL);
     };
 
     function countdown() {
@@ -334,58 +320,30 @@ window.WorkbookManager = (function($, WorkbookManager) {
         .then(function(ret) {
             var session = ret.sessions[0];
             var isActive = (session.state === "Active");
-            var hasResouce = checkResource(session.info);
-            deferred.resolve(isActive, hasResouce);
+            deferred.resolve(isActive);
         })
         .fail(deferred.reject);
 
         return deferred.promise();
     }
 
-    function checkIfStillActiveWorkbook(workbookName) {
+    function switchWorkBookHelper(wkbkName) {
         var deferred = PromiseHelper.deferred();
-        var activeWorkbook = wkbkSet.get(activeWKBKId);
-        if (activeWKBKId != null && activeWorkbook.name === workbookName) {
-            isActiveWorkbook(workbookName)
-            .then(function(isActive, hasResouce) {
-                if (!isActive) {
-                    activeWKBKId = null;
-                }
-                if (!hasResouce) {
-                    activeWorkbook.setResource(false);
-                }
-                deferred.resolve();
-            })
-            .fail(function() {
-                deferred.resolve(); // still resolve it
-            });
-        } else {
-            deferred.resolve();
-        }
-
-        return deferred.promise();
-    }
-
-    function switchWorkBookHelper(toName, fromName) {
-        var deferred = PromiseHelper.deferred();
-        var queryName = XcSupport.getUser() + ":" + toName;
+        var queryName = XcSupport.getUser() + ":" + wkbkName;
         progressCycle(queryName, checkInterval);
         $("#initialLoadScreen").data("curquery", queryName);
         $("#container").addClass("switchingWkbk");
 
-        XcalarSwitchToWorkbook(toName, fromName)
+        XcalarActivateWorkbook(wkbkName)
         .then(deferred.resolve)
         .fail(function(error) {
             console.error(error);
 
-            checkIfStillActiveWorkbook(fromName)
-            .then(function() {
-                return isActiveWorkbook(toName);
-            })
+            isActiveWorkbook(wkbkName)
             .then(function(isActive) {
                 if (isActive) {
-                    // when error but backend still active the session
-                    showAlert();
+                    // when it's active
+                    deferred.resolve();
                 } else {
                     deferred.reject(error);
                 }
@@ -399,26 +357,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
                                     .text(StatusMessageTStr.PleaseWait);
             $("#container").removeClass("switchingWkbk");
         });
-
-        function showAlert() {
-            $("#initialLoadScreen").hide();
-            $("#container").removeClass("switchingWkbk");
-            endProgressCycle();
-
-            Alert.show({
-                "title": WKBKTStr.SwitchErr,
-                "msg": WKBKTStr.SwitchErrMsg,
-                "onCancel": function() { deferred.reject(); },
-                "buttons": [{
-                    "name": CommonTxtTstr.Continue,
-                    "className": "continue",
-                    "func": function() {
-                        $("#initialLoadScreen").show();
-                        deferred.resolve();
-                    }
-                }]
-            });
-        }
 
         return deferred.promise();
     }
@@ -477,40 +415,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
-    WorkbookManager.pause = function(workbookId) {
-        xcAssert(workbookId === activeWKBKId, WKBKTStr.PauseErr);
-        var wkbk = wkbkSet.get(workbookId);
-        if (wkbk == null) {
-            return PromiseHelper.reject(WKBKTStr.PauseErr);
-        }
-
-        // should stop check since seesion is released
-        XcSupport.stopHeartbeatCheck();
-
-        $("#initialLoadScreen").show();
-        var deferred = PromiseHelper.deferred();
-
-        commitActiveWkbk()
-        .then(function() {
-            var keepResource = true;
-            return XcalarDeactivateWorkbook(wkbk.getName(), keepResource);
-        })
-        .then(function() {
-            // pass in true to always resolve the promise
-            var promise = removeActiveWKBKKey();
-            return PromiseHelper.alwaysResolve(promise);
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject)
-        .always(function() {
-            $("#initialLoadScreen").hide();
-            endProgressCycle();
-            XcSupport.restartHeartbeatCheck();
-        });
-
-        return deferred.promise();
-    };
-
     WorkbookManager.deactivate = function(workbookId) {
         var wkbk = wkbkSet.get(workbookId);
         if (wkbk == null) {
@@ -522,14 +426,25 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         $("#initialLoadScreen").show();
         var deferred = PromiseHelper.deferred();
+        var isCurrentWKBK = (workbookId === activeWKBKId);
+        var promise = isCurrentWKBK ?
+                        commitActiveWkbk() : PromiseHelper.resolve();
 
-        XcalarDeactivateWorkbook(wkbk.getName())
+        promise
         .then(function() {
-            wkbk.setResource(false);
-            var promise = saveWorkbook();
-            return PromiseHelper.alwaysResolve(promise);
+            return XcalarDeactivateWorkbook(wkbk.getName());
         })
-        .then(deferred.resolve)
+        .then(function() {
+            // no need to save as resource will be synced in setup
+            wkbk.setResource(false);
+
+            if (isCurrentWKBK) {
+                setActiveWKBK(null);
+                setURL(null, true);
+            }
+            
+            deferred.resolve();
+        })
         .fail(deferred.reject)
         .always(function() {
             $("#initialLoadScreen").hide();
@@ -559,10 +474,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return PromiseHelper.chain(promises);
         })
         .then(function() {
-            return removeActiveWKBKKey();
-        })
-        .then(function() {
-            xcHelper.reload();
+            setActiveWKBK(null);
+            gotoWorkbook(null, true);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -631,7 +544,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 "created": srcWKBK.created,
                 "srcUser": srcWKBK.srcUser,
                 "curUser": srcWKBK.curUser,
-                "numWorksheets": srcWKBK.numWorksheets
+                "numWorksheets": srcWKBK.numWorksheets,
+                "resource": srcWKBK.resource
             };
 
             var newWkbk = new WKBK(options);
@@ -665,14 +579,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
         }
 
         var deferred = PromiseHelper.deferred();
-        var isCurrentWKBK = (workbookId === activeWKBKId);
 
         // 1. Stop heart beat check (Heartbeat key may change due to active
         //                           worksheet changing)
         // 2. Delete workbook form backend
-        // 2. Delete the meta data for the current workbook
-        // 3. Remove KV store key for active workbook if deleted workbook is
-        //    previously the active one
+        // 3. Delete the meta data for the current workbook
         // 4. Restart heart beat check
         XcSupport.stopHeartbeatCheck();
 
@@ -685,33 +596,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return PromiseHelper.alwaysResolve(def);
         })
         .then(function() {
-            if (isCurrentWKBK) {
-                return XcalarKeyDelete(activeWKBKKey, gKVScope.WKBK);
-            } else {
-                PromiseHelper.resolve(null);
-            }
-        })
-        .then(function() {
             wkbkSet.delete(workbook.id);
-
-            // XXX may not need KVStore.commit(),
-            // bring KVStore.commit() back if it's buggy
             return WorkbookManager.commit();
-
-            // var innerDeferred = PromiseHelper.deferred();
-            // KVStore.commit()
-            // .then(innerDeferred.resolve)
-            // .fail(function(error) {
-            //     if (error.status === StatusT.StatusSessionNotFound) {
-            //         // normal error when no any active seesion
-            //         // and trigger deleting
-            //         innerDeferred.resolve();
-            //     } else {
-            //         innerDeferred.reject(error);
-            //     }
-            // });
-
-            // return innerDeferred.promise();
         })
         .then(deferred.resolve)
         .fail(deferred.reject)
@@ -727,11 +613,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
     };
 
     function initializeVariable() {
-        var username = XcSupport.getUser();
         // key that stores all workbook infos for the user
         wkbkKey = getWKbkKey(currentVersion);
-        // key that stores the current active workbook Id
-        activeWKBKKey = generateKey(username, "activeWorkbook");
         wkbkSet = new WKBKSet();
     }
 
@@ -843,28 +726,15 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     // sync sessionInfo with wkbkInfo
-    function syncSessionInfo(oldWorkbooks, sessionInfo, isWrongNode) {
+    function syncSessionInfo(oldWorkbooks, sessionInfo) {
         var deferred = PromiseHelper.deferred();
 
         try {
-            var loseOldMeta = false;
-            if (oldWorkbooks == null) {
-                oldWorkbooks = {};
-                loseOldMeta = true;
-            }
-
-            var promise = isWrongNode
-                        ? PromiseHelper.resolve()
-                        : syncWorkbookMeta(oldWorkbooks, sessionInfo);
-
-            promise
+            syncWorkbookMeta(oldWorkbooks, sessionInfo)
             .then(function() {
                 var activeWorkbooks = getActiveWorkbooks(sessionInfo);
-                return checkActiveWorkbook(activeWorkbooks, loseOldMeta,
-                                            isWrongNode);
-            })
-            .then(function(storedActiveId) {
-                deferred.resolve(storedActiveId, sessionInfo);
+                var activeId = getActiveWorkbookId(activeWorkbooks);
+                deferred.resolve(activeId);
             })
             .fail(deferred.reject);
         } catch (error) {
@@ -887,96 +757,13 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return activeWorkbooks;
     }
 
-    // resolve if it's wrong node or not
-    function checkSessionWritable(sessionInfo) {
-        var deferred = PromiseHelper.deferred();
-        var activeWorkbooks = getActiveWorkbooks(sessionInfo);
-        var shouldCheck = (activeWorkbooks.length === 1);
-
-        if (shouldCheck) {
-            // Test session kvstore write
-            var scope = XcalarApiKeyScopeT.XcalarApiKeyScopeSession;
-            KVStore.put("testKey", "unused", false, scope)
-            .then(function() {
-                deferred.resolve(false);
-            })
-            .fail(function() {
-                deferred.resolve(true);
-            });
+    function getActiveWorkbookId(activeWorkbooks) {
+        var params = xcHelper.decodeFromUrl(window.location.href);
+        var activeWKBKName = params["workbook"];
+        if (activeWKBKName && activeWorkbooks.includes(activeWKBKName)) {
+            return getWKBKId(activeWKBKName);
         } else {
-            deferred.resolve(false);
-        }
-
-        return deferred.promise();
-    }
-
-    function checkActiveWorkbook(activeWorkbooks, loseOldMeta, isWrongNode) {
-        var deferred = PromiseHelper.deferred();
-        var storedActiveId;
-
-        getActiveWorkbookId(loseOldMeta)
-        .then(function(activeId) {
-            storedActiveId = activeId;
-            // Handle case where there are 2 or more active workbooks or
-            // where there is no active workbook but we think that there is
-            if (activeWorkbooks.length === 0 && activeId) {
-                // We think there's an active workbook but there actually
-                // isn't. Remove active and set it to null. next step
-                // resolves this
-                storedActiveId = undefined;
-                return KVStore.delete(activeWKBKKey, gKVScope.WKBK);
-            } else if (activeWorkbooks.length > 1 || isWrongNode) {
-                // This clause needs to be in front of the other 2
-                // This is something that we do not support
-                // We will inactivate all the sessions and force user to
-                // reselect
-
-                // XXX For wrong node case
-                // This does not work yet because of a backend bug
-                // where you are not able to deactivate a workbook from another
-                // node.
-                storedActiveId = undefined;
-                var defArray = [];
-                for (var i = 0; i < activeWorkbooks.length; i++) {
-                    defArray.push(XcalarDeactivateWorkbook(activeWorkbooks[i]));
-                }
-                if (activeId) {
-                    defArray.push(KVStore.delete(activeWKBKKey,
-                                                 gKVScope.WKBK));
-                }
-                return PromiseHelper.when.apply(this, defArray);
-            } else if (activeWorkbooks.length === 1 && !activeId) {
-                // Backend has active, we don't. Set it and go
-                storedActiveId = getWKBKId(activeWorkbooks[0]);
-                return KVStore.put(activeWKBKKey, storedActiveId, true,
-                                   gKVScope.WKBK);
-            } else if (activeWorkbooks.length === 1 && activeId &&
-                getWKBKId(activeWorkbooks[0]) !== activeId) {
-                // Backend's version of active is different from us.
-                // We listen to backend
-                storedActiveId = getWKBKId(activeWorkbooks[0]);
-                return KVStore.put(activeWKBKKey, storedActiveId, true,
-                                   gKVScope.WKBK);
-            } else {
-                return;
-            }
-        })
-        .then(function() {
-            deferred.resolve(storedActiveId);
-        })
-        .fail(deferred.reject);
-
-
-        return deferred.promise();
-    }
-
-    function getActiveWorkbookId(loseOldMeta) {
-        if (loseOldMeta) {
-            // If we fail to get our old meta data, set activeWorkbook
-            // to null
-            return PromiseHelper.resolve(null);
-        } else {
-            return KVStore.get(activeWKBKKey, gKVScope.WKBK);
+            return null;
         }
     }
 
@@ -1060,73 +847,16 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return wkbks;
     }
 
-    function activateWorkbook(wkbkId, sessionInfo) {
-        var deferred = PromiseHelper.deferred();
-        try {
-            var numSessions = sessionInfo.numSessions;
-            // if no workbook, force displaying the workbook modal
-            if (wkbkId == null || numSessions === 0 || !wkbkSet.has(wkbkId)) {
-                if (wkbkId == null) {
-                    deferred.reject(WKBKTStr.NoWkbk);
-                } else {
-                    KVStore.delete(activeWKBKKey, gKVScope.WKBK)
-                    .always(function() {
-                        deferred.reject(WKBKTStr.NoWkbk);
-                    });
-                }
-            } else {
-                var wkbkName = wkbkSet.get(wkbkId).name;
-                var sessions = sessionInfo.sessions;
-                var isInactive = false;
-
-                for (var i = 0; i < numSessions; i++) {
-                    var session = sessions[i];
-
-                    if (session.name === wkbkName &&
-                        session.state === "Inactive")
-                    {
-                        isInactive = true;
-                        break;
-                    }
-                }
-
-                if (isInactive) {
-                    console.log("activating");
-                    XcalarSwitchToWorkbook(wkbkName, null)
-                    .then(function() {
-                        deferred.resolve(wkbkId);
-                    })
-                    .fail(deferred.reject);
-                } else {
-                    deferred.resolve(wkbkId);
-                }
-            }
-        } catch (error) {
-            console.error(error);
-            deferred.reject(error);
-        }
-
-        return deferred.promise();
-    }
-
     function saveWorkbook() {
         return KVStore.put(wkbkKey, wkbkSet.getWithStringify(), true, gKVScope.WKBK);
     }
 
     function resetActiveWKBK(newWKBKId) {
-        var deferred = PromiseHelper.deferred();
-
         setupKVStore(newWKBKId);
+        setActiveWKBK(newWKBKId);
+        setURL(newWKBKId, true);
         // rehold the session as KVStore's key changed
-        XcSupport.holdSession(true)
-        .then(function() {
-            activeWKBKId = newWKBKId;
-            return KVStore.put(activeWKBKKey, activeWKBKId, true, gKVScope.WKBK);
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        return deferred.promise();
+        return XcSupport.holdSession(newWKBKId, true);
     }
 
     // helper for WorkbookManager.copyWKBK
@@ -1191,19 +921,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     }
 
-    function removeActiveWKBKKey() {
-        var deferred = PromiseHelper.deferred();
-        XcalarKeyDelete(activeWKBKKey, gKVScope.WKBK)
-        .then(function() {
-            activeWKBKId = null;
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
     function commitActiveWkbk() {
+        // to switch workbook, should release all ref count first
         var deferred = PromiseHelper.deferred();
         var promise = TblManager.freeAllResultSetsSync();
 

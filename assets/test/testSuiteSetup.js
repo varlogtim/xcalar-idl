@@ -150,10 +150,14 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         gMinModeOn = true;
         var deferred = PromiseHelper.deferred();
         var count = 0;
+        var params = getUrlParameters();
         var wbInterval = setInterval(function() {
             if ($('#workbookPanel').is(':visible')) {
-                var num = Math.ceil(Math.random() * 1000);
-                var wbName = "WB" + num;
+                var wbName = params.createWorkbook;
+                if (!wbName || wbName == "y") {
+                    var num = Math.ceil(Math.random() * 1000);
+                    wbName = "WB" + num;
+                }
                 $("#createWKBKbtn").click();
                 $("#workbookInfoModal .name input").val(wbName);
                 $("#workbookInfoModal .confirm").click();

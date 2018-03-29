@@ -551,7 +551,12 @@ window.TestSuite = (function($, TestSuite) {
         .then(XcSupport.releaseSession)
         .then(function() {
             xcManager.removeUnloadPrompt();
-            window.location.href = paths.testAbsolute;
+            var curURL = new URL(window.location.href);
+            var url = new URL(paths.testAbsolute, window.location.href);
+            for (var p of curURL.searchParams) {
+                url.searchParams.set(p[0], p[1]);
+            }
+            window.location.href = url.href;
         })
         .fail(function(error) {
             console.error(error);

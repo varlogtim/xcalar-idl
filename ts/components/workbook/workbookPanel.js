@@ -400,19 +400,6 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
             });
         });
 
-        // pause button
-        $workbookSection.on("click", ".pause", function() {
-            clearActives();
-            var $workbookBox = $(this).closest(".workbookBox");
-            Alert.show({
-                "title": WKBKTStr.Pause,
-                "msg": WKBKTStr.PauseMsg,
-                "onConfirm": function() {
-                    pauseWorkbook($workbookBox);
-                }
-            });
-        });
-
         // deactivate button
         $workbookSection.on("click", ".deactivate", function() {
             clearActives();
@@ -579,7 +566,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         if (activeWKBKId === workbookId) {
             WorkbookPanel.hide();
         } else {
-            alertActivate(activeWKBKId)
+            alertActivate()
             .then(function() {
                 WorkbookManager.switchWKBK(workbookId)
                 .fail(function(error) {
@@ -596,18 +583,14 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         }
     }
 
-    function alertActivate(activeWKBKId) {
+    function alertActivate() {
         var deferred = PromiseHelper.deferred();
-        if (activeWKBKId == null) {
-            deferred.resolve();
-        } else {
-            Alert.show({
-                title: WKBKTStr.Activate,
-                msg: WKBKTStr.ActivateInstr,
-                onConfirm: deferred.resolve,
-                onCancel: deferred.reject
-            });
-        }
+        Alert.show({
+            title: WKBKTStr.Switch,
+            msg: WKBKTStr.SwitchInstr,
+            onConfirm: deferred.resolve,
+            onCancel: deferred.reject
+        });
         return deferred.promise();
     }
 
@@ -649,18 +632,6 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         StatusBox.show(errorText, $ele, false, {
             "detail": log,
             "persist": true
-        });
-    }
-
-    function pauseWorkbook($workbookBox) {
-        var workbookId = $workbookBox.attr("data-workbook-id");
-        WorkbookManager.pause(workbookId)
-        .then(function() {
-            updateWorkbookInfoWithReplace($workbookBox, workbookId);
-            $("#container").addClass("noWorkbook noMenuBar");
-        })
-        .fail(function(error) {
-            handleError(error, $workbookBox);
         });
     }
 
@@ -710,43 +681,29 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         var isActive;
         var stopTab = "";
 
-        if (workbookId === WorkbookManager.getActiveWKBK()) {
+        if (workbook.hasResource()) {
             extraClasses.push("active");
             isActive = WKBKTStr.Active;
             activateTooltip = WKBKTStr.ReturnWKBK;
-            // pause button
+            // stop button
             stopTab =
-                '<div class="vertBarBtn pause"><div class="tab btn btn-small"' +
-                ' data-toggle="tooltip" data-container="body"' +
-                ' data-placement="auto right"' +
-                ' title="' + WKBKTStr.Pause + '">' +
-                    '<i class="icon xi-stop-circle"></i>' +
-                '</div></div>';
-        } else {
-            activateTooltip = WKBKTStr.Activate;
-
-            if (workbook.hasResource()) {
-                isActive = WKBKTStr.Paused;
-                // stop button
-                stopTab =
                     '<div class="vertBarBtn deactivate"><div class="tab btn btn-small"' +
                     ' data-toggle="tooltip" data-container="body"' +
                     ' data-placement="auto right"' +
                     ' title="' + WKBKTStr.Deactivate + '">' +
                         '<i class="icon xi-stop-circle"></i>' +
                     '</div></div>';
-            } else {
-                isActive = WKBKTStr.Inactive;
-                extraClasses.push("noResource");
-                // delete button
-                stopTab =
-                '<div class="vertBarBtn delete"><div class="tab btn btn-small"' +
-                ' data-toggle="tooltip" data-container="body"' +
-                ' data-placement="auto right"' +
-                ' title="' + WKBKTStr.Delete + '">' +
-                    '<i class="icon xi-trash"></i>' +
-                '</div></div>';
-            }
+        } else {
+            isActive = WKBKTStr.Inactive;
+            extraClasses.push("noResource");
+            // delete button
+            stopTab =
+            '<div class="vertBarBtn delete"><div class="tab btn btn-small"' +
+            ' data-toggle="tooltip" data-container="body"' +
+            ' data-placement="auto right"' +
+            ' title="' + WKBKTStr.Delete + '">' +
+                '<i class="icon xi-trash"></i>' +
+            '</div></div>';
         }
 
         var loadSection = "loadSection";

@@ -147,7 +147,7 @@ window.xcManager = (function(xcManager, $) {
             .fail(function(err) {
                 if (err === WKBKTStr.Hold) {
                     userExists = true;
-                    xcManager.forceLogout();
+                    WorkbookManager.gotoWorkbook(null, true);
                 }
             })
             .always(function() {
@@ -175,8 +175,8 @@ window.xcManager = (function(xcManager, $) {
                 JupyterPanel.initialize(true);
             });
         } else if (error === WKBKTStr.Hold) {
-            // when seesion is hold by others and user choose to log out
-            xcManager.forceLogout();
+            // when seesion is hold by others and user choose to not login
+            WorkbookManager.gotoWorkbook(null, true);
         } else if (isNotNullObj &&
                    error.status != null &&
                    error.status === StatusT.StatusSessionNotFound)

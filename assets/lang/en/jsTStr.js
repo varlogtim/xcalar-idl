@@ -750,7 +750,7 @@ WKBKTStr = {
                  'start working with your data by clicking on its workbook ' +
                  'card. To learn more about using Xcalar Design, check out ' +
                  'the Xcalar Design tutorials. ',
-  'CurWKBKInstr': 'To continue working with your existing workbooks, ' +
+    'CurWKBKInstr': 'To continue working with your existing workbooks, ' +
                   'click on the workbook\'s card. ' +
                   'To edit the name, add a description, or create a duplicate ' +
                   'workbook, hover over the workbook\'s card and select the ' +
@@ -767,8 +767,8 @@ WKBKTStr = {
     'Release': 'Continue login',
     'WKBKnotExists': 'No workbooks exist',
     "WkbkNameRequired": "Workbook name is required.",
-    "Activate": "Activate Workbook",
-    "ActivateInstr": "Activating a workbook will deactivate the currently active workbook. Do you still want to continue?",
+    "Switch": "Switch Workbook",
+    "SwitchInstr": "Are you sure you want to switch the workbook?",
     "ReturnWKBK": "Return To Workbook",
     "EditName": "Edit Workbook Name and Description",
     "EditTitle": "Edit Workbook",
@@ -783,13 +783,12 @@ WKBKTStr = {
     "CancelTitle": "Cancel Workbook Activation",
     "CancelMsg": "Are you sure you want to cancel activating this workbook?",
     "WaitActivateFinish": "Please wait for workbook to activate.",
-    "NoActive": "No active workbooks. Please create or activate one first.",
+    "NoActive": "Please create or choose one workbook first.",
     // With replace
     'Conflict': 'Workbook "<name>" already exists. ' +
                 'Please choose another name.',
     'Active': 'Active',
     'Inactive': 'Inactive',
-    'Paused': 'Paused',
     'Createby': 'Created by',
     'CreateOn': 'Created on',
     'Modified': 'Last modified',
@@ -803,9 +802,6 @@ WKBKTStr = {
     'Deactivate': 'Deactivate Workbook',
     'DeactivateMsg': 'Are you sure you want to deactivate the workbook?',
     'DeactivateErr': 'Error occurred when deactivating workbook',
-    'Pause': 'Pause Workbook',
-    'PauseMsg': 'Are you sure you want to pause the workbook?',
-    'PauseErr': 'Error occurred when pausing workbook',
     'Refreshing': 'Refreshing in <time> seconds'
 };
 

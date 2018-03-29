@@ -30,7 +30,7 @@ describe("xcSocket Test", function() {
     it("should already registered", function() {
         var isRegistered = XcSocket.isResigered();
         if (isRegistered) {
-            expect(XcSocket.registerUser()).to.be.false;
+            expect(XcSocket.registerUserSession()).to.be.false;
         }
     });
 });

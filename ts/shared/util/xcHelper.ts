@@ -5477,18 +5477,16 @@ namespace xcHelper {
 
     /**
      * xcHelper.decodeFromUrl
-     * @param url 
+     * @param href
      */
-    export function decodeFromUrl(url: string): object {
+    export function decodeFromUrl(href: string): object {
         const ret: object = {};
 
         try {
-            const urlArgs: string = url.split("?")[1];
-            const args: string[] = urlArgs.split("&");
-            args.forEach((arg: string) => {
-                let [key, value] = arg.split("=");
-                ret[key] = decodeURIComponent(value);
-            });
+            const url: URL = new URL(href);
+            for (let p of url.searchParams) {
+                ret[p[0]] = p[1];
+            }
         } catch (e) {
 
         }

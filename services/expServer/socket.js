@@ -2,7 +2,7 @@ var socketio = require("socket.io");
 
 module.exports = function(server) {
     var io = socketio(server);
-    var users = {};
+    var userInfos = {};
 
     io.sockets.on("connection", function(socket) {
         /*  kinds of emit to use:
@@ -10,31 +10,57 @@ module.exports = function(server) {
          *  2. io.sockets.emit: emit to all
          *  3. socket.broadcast.emit: emit to all others
          */
-        socket.on("registerUser", function(userName, callback) {
-            socket.userName = userName;
-            if (users.hasOwnProperty(userName)) {
-                socket.broadcast.emit("userExisted", userName);
-                users[userName]++;
-            } else {
-                users[userName] = 1;
+        socket.on("registerUserSession", function(userOption, callback) {
+            try {
+                socket.userOption = userOption;
+                var user = userOption.user;
+                if (!userInfos.hasOwnProperty(user)) {
+                    userInfos[user] = {
+                        workbooks: {},
+                        count: 0
+                    };
+                }
+                userInfos[user].count++;
+
+                var id = userOption.id;
+                if (userInfos[user].hasOwnProperty(id)) {
+                    socket.broadcast.emit("useSessionExisted", userOption);
+                    userInfos[user][id]++;
+                } else {
+                    userInfos[user][id] = 1;
+                }
+                console.log("userInfos", userInfos);
+            } catch(e) {
+                console.error(e);
             }
             callback();
-            io.sockets.emit("system-allUsers", users);
+            io.sockets.emit("system-allUsers", userInfos);
         });
 
-        socket.on("checkUser", function(userName, callback) {
-            var exist = users.hasOwnProperty(userName);
+        socket.on("checkUserSession", function(userOption, callback) {
+            console.log("check", userOption, "in", userInfos)
+            var exist = hasWorkbook(userOption);
             callback(exist);
         });
 
         socket.on("disconnect", function() {
-            var userName = socket.userName;
-            if (userName != null && users.hasOwnProperty(userName)) {
-                users[userName]--;
-                if (users[userName] <= 0) {
-                    delete users[userName];
+            try {
+                var userOption = socket.userOption;
+                if (userOption != null && userInfos.hasOwnProperty(userOption.user)) {
+                    userInfos[userOption.user].count--;
+                    if (userInfos[userOption.user].count <= 0) {
+                        delete userInfos[userOption.user];
+                    } else {
+                        userInfos[userOption.user][userOption.id]--;
+                        if (userInfos[userOption.user][userOption.id] <= 0) {
+                            delete userInfos[userOption.user][userOption.id];
+                        }
+                    }
+                    console.log("logout", userOption, userInfos)
+                    io.sockets.emit("system-allUsers", userInfos);
                 }
-                io.sockets.emit("system-allUsers", users);
+            } catch (e) {
+                console.error(e);
             }
         });
 
@@ -54,6 +80,16 @@ module.exports = function(server) {
 
         addDSSocketEvent(socket);
     });
+
+    function hasWorkbook(userOption) {
+        if (userOption == null || typeof userOption !== 'object') {
+            return false;
+        }
+
+        var user = userOption.user;
+        var id = userOption.id;
+        return userInfos.hasOwnProperty(user) && userInfos[user].hasOwnProperty(id);
+    }
 
     function addDSSocketEvent(socket) {
         var lockTimer = null;

@@ -610,7 +610,7 @@ WKBKTStr = {
                  'start working with your data by clicking on its workbook ' +
                  'card. To learn more about using Xcalar Design, check out ' +
                  'the Xcalar Design tutorials. ',
-  'CurWKBKInstr': 'To continue working with your existing workbooks, ' +
+'CurWKBKInstr': 'To continue working with your existing workbooks, ' +
                   'click on the workbook\'s card. ' +
                   'To edit the name, add a description, or create a duplicate ' +
                   'workbook, hover over the workbook\'s card and select the ' +
@@ -626,9 +626,9 @@ WKBKTStr = {
 'WKBKnotExists': '没有工作簿存在',
 "WkbkNameRequired": "必须填写工作簿名称。",
 "WaitActivateFinish": "工作簿机激活中",
-"NoActive": "没有被激活的工作簿，请创建或激活工作簿",
-"Activate": '激活工作簿',
-"ActivateInstr": "激活工作簿会关闭当前激活的工作簿, 你确定要继续吗?",
+"NoActive": "请创建或选择一个工作簿",
+"Switch": '切换工作簿',
+"SwitchInstr": "您确定要切换工作簿吗?",
 "ReturnWKBK": '返回工作簿',
 "EditName": '编辑工作簿名称和注释',
 "EditTitle": "Edit Workbook",
@@ -658,10 +658,6 @@ WKBKTStr = {
 'Deactivate': '停用工作簿',
 'DeactivateMsg': '您确定要停用工作簿吗？',
 'DeactivateErr': '停用工作簿时出错',
-'Pause': '暂停工作簿',
-'Paused': '暂停',
-'PauseMsg': '您确定要暂停工作簿吗？',
-'PauseErr': '暂停工作簿时出错',
 'Refreshing': '在 <time> 秒后刷新'
 };
 

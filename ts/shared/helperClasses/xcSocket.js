@@ -18,35 +18,52 @@ window.XcSocket = (function(XcSocket) {
         addSocketEvent();
     };
 
-    XcSocket.checkUserExists = function() {
+    XcSocket.checkUserSessionExists = function(workbookId) {
         var deferred = PromiseHelper.deferred();
         // time out after 15s
         checkConnection(initDeferred, 15000);
         initDeferred.promise()
         .then(function() {
-            socket.emit("checkUser", XcSupport.getUser(), function(exist) {
+            var userOption = getUserOption(workbookId);
+            socket.emit("checkUserSession", userOption, function(exist) {
                 deferred.resolve(exist);
             });
+
             // time out after 20s
-            checkConnection(deferred, 20000);
+            var innerDeferred = PromiseHelper.deferred();
+            checkConnection(innerDeferred, 20000);
+
+            innerDeferred.promise()
+            .fail(function(error) {
+                console.error(error);
+                deferred.resolve(false); // still reolve it
+            });
         })
         .fail(deferred.reject);
         return deferred.promise();
     };
 
-    XcSocket.registerUser = function() {
+    XcSocket.registerUserSession = function(workbookId) {
         if (registered) {
             console.log("already registered");
             return false;
         }
 
-        socket.emit("registerUser", XcSupport.getUser(), function() {
+        var userOption = getUserOption(workbookId);
+        socket.emit("registerUserSession", userOption, function() {
             console.log("registerSuccess!");
             registered = true;
         });
 
         return true;
     };
+
+    function getUserOption(workbookId) {
+        return {
+            user: XcSupport.getUser(),
+            id: workbookId
+        };
+    }
 
     XcSocket.isConnected = function() {
         return connected;
@@ -72,6 +89,10 @@ window.XcSocket = (function(XcSocket) {
     }
 
     function addAuthenticationEvents() {
+        socket.on('error', function(error){
+            console.log("error", error)
+        });
+
         socket.on("connect", function() {
             connected = true;
             initDeferred.resolve();
@@ -87,13 +108,14 @@ window.XcSocket = (function(XcSocket) {
             initDeferred.reject(AlertTStr.NoConnectToServer);
         });
 
-        socket.on("userExisted", function(user) {
+        socket.on("useSessionExisted", function(userOption) {
             if (!registered) {
                 return;
             }
-            console.log(user, "exists");
-            if (user === XcSupport.getUser()) {
-                xcManager.forceLogout();
+            console.log(userOption, "exists");
+            if (userOption.user === XcSupport.getUser() &&
+                userOption.id === WorkbookManager.getActiveWKBK()) {
+                WorkbookManager.gotoWorkbook(null, true);
             }
         });
 
