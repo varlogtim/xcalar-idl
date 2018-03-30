@@ -158,9 +158,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
                     var num = Math.ceil(Math.random() * 1000);
                     wbName = "WB" + num;
                 }
-                $("#createWKBKbtn").click();
-                $("#workbookInfoModal .name input").val(wbName);
-                $("#workbookInfoModal .confirm").click();
+                WorkbookPanel.createNewWorkbook(wbName);
                 clearInterval(wbInterval);
 
                 activateWorkbook(wbName)

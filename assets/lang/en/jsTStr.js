@@ -353,6 +353,9 @@ ErrTStr = {
     'ColumnLimitExceeded': "Column Limit Exceeded",
     'ParquetMustSelectNonPartitionCol': 'Must select at least one column that is not part of the partition keys',
     'CancelSearch': "Search is canclled",
+    'MultipleWKBKErr': 'More than one workbook with same name found',
+    'NoWKBKErr': 'No workbook found',
+
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +
@@ -773,15 +776,13 @@ WKBKTStr = {
     "SwitchInstr": "Are you sure you want to switch the workbook?",
     "ReturnWKBK": "Return To Workbook",
     "EditName": "Edit Workbook Name and Description",
-    "EditTitle": "Edit Workbook",
-    "CreateTitle": "Create New Workbook",
-    "UploadTitle": "Upload Workbook",
     "Download": "Download the Workbook to your local drive",
     "Duplicate": "Duplicate Workbook",
     "Delete": "Delete Workbook",
     "DelErr": "Error occurred in deleting workbook",
     "CreateErr": "Error occurred when creating workbook",
     "FileError": "File to upload must be selected",
+    "FileFormatError": "File must be of .tar.gz format",
     "CancelTitle": "Cancel Workbook Activation",
     "CancelMsg": "Are you sure you want to cancel activating this workbook?",
     "WaitActivateFinish": "Please wait for workbook to activate.",

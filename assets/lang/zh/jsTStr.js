@@ -332,7 +332,9 @@ ErrTStr = {
 'MaxFiles': '文件数量超出限制。请尝试在子目录中进行搜索。',
 'CancelSearch': '搜索已取消',
 'InvalidUDFModule': 'Invalid module name',
-'InvalidUDFFunction': 'Invalid function name'
+'InvalidUDFFunction': 'Invalid function name',
+'MultipleWKBKErr': 'More than one workbook with same name found',
+'NoWKBKErr': 'No workbook found'
 };
 ErrWRepTStr = {
 'FolderConflict': '具有相同名称的文件夹<name>已经存在，请选取其他名称。',
@@ -633,15 +635,13 @@ WKBKTStr = {
 "SwitchInstr": "您确定要切换工作簿吗?",
 "ReturnWKBK": '返回工作簿',
 "EditName": '编辑工作簿名称和注释',
-"EditTitle": "Edit Workbook",
-"createTitle": "Create New Workbook",
-"UploadTitle": "Upload Workbook",
 "Download": "Download",
 "Duplicate": '复制工作簿',
 "Delete": '删除工作簿',
 "DelErr": '删除工作簿出错',
 "CreateErr": '创建工作簿出错',
 "FileError": "File to upload must be selected",
+"FileFormatError": "File must be of .tar.gz format",
 "CancelTitle": "取消激活工作簿",
 "CancelMsg": "您确定要取消激活工作簿吗?",
 'Conflict': '相同名称的工作簿"<name>"已经存在，请选取其他名称。',
@@ -899,7 +899,7 @@ DSTStr = {
 'ShareDSMsg': '您确定要共享\"<name>\"吗？',
 'UnshareDSMsg': '您确定要取消共享\"<name>\"吗？',
 'ForceShareMsg': '数据集\"<name>\"正在被其他用户使用，已被移至共享文件夹。',
-'RenameMsg': '数据集会被命名为\"<newName>\"。'
+'RenameMsg': '数据集会被命名为\"<newName>\"。',
 'LockDS': '上锁',
 'UnlockDS': '解锁',
 "ContainsRecordErrors": "Your dataset contains 1record error. Click to view.",

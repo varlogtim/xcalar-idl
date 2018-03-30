@@ -335,28 +335,9 @@ describe("Workbook- Workbook Pane Test", function() {
         });
 
         it("Should force show the workbook", function() {
-            var $input = $workbookPanel.find(".newWorkbookBox input");
-            $input.val();
             WorkbookPanel.forceShow();
             expect($("#container").hasClass("noWorkbook")).to.be.true;
-            expect($input.val()).not.to.equal("");
             $("#container").removeClass("noWorkbook");
-        });
-
-        it("should handle invalid name in create workbook", function() {
-            var workbooks = WorkbookManager.getWorkbooks();
-            var wkbkId = Object.keys(workbooks)[0];
-            var name = workbooks[wkbkId].getName();
-            var $newWorkbookButton = $("#createWKBKbtn");
-            var $workbookModal = $("#workbookInfoModal");
-
-            $newWorkbookButton.click();
-            $workbookModal.find(".name").find("input").val(name);
-            $workbookModal.find(".confirm").click();
-            var error = xcHelper.replaceMsg(WKBKTStr.Conflict, {
-                "name": name
-            });
-            UnitTest.hasStatusBoxWithError(error);
         });
 
         it("should handle create workbook error case", function(done) {
@@ -368,10 +349,7 @@ describe("Workbook- Workbook Pane Test", function() {
             };
 
             var $newWorkbookButton = $("#createWKBKbtn");
-            var $workbookModal = $("#workbookInfoModal");
             $newWorkbookButton.click();
-            $workbookModal.find(".name").find("input").val(name);
-            $workbookModal.find(".confirm").click();
 
             UnitTest.hasStatusBoxWithError(WKBKTStr.CreateErr);
             done();
@@ -386,9 +364,7 @@ describe("Workbook- Workbook Pane Test", function() {
             var $newWorkbookButton = $("#createWKBKbtn");
             var $workbookModal = $("#workbookInfoModal");
 
-            $newWorkbookButton.click();
-            $workbookModal.find(".name").find("input").val(name);
-            $workbookModal.find(".confirm").click();
+            WorkbookPanel.createNewWorkbook(name);
             var checkFunc = function() {
                 var diff = $workbookPanel.find(selector).length - wkbkNum;
                 if (diff < 0) {
@@ -401,7 +377,7 @@ describe("Workbook- Workbook Pane Test", function() {
             UnitTest.testFinish(checkFunc)
             .then(function() {
                 var $box = $workbookPanel.find(".workbookBox").eq(0);
-                expect($box.find(".workbookName").text()).to.equal(name);
+                expect($box.find(".workbookName").val()).to.equal(name);
                 expect($box.find(".numWorksheets").text()).to.equal("1");
                 expect($box.find(".isActive").text()).to.equal("Inactive");
                 done();
@@ -453,7 +429,7 @@ describe("Workbook- Workbook Pane Test", function() {
                 if (diff === 1) {
                     // has a fadeIn animation, so need to wait for it
                     var $dupBox = $workbookPanel.find(".workbookBox").eq(1);
-                    if ($dupBox.find(".workbookName").text()) {
+                    if ($dupBox.find(".workbookName").val()) {
                         return true;
                     }
                 }
@@ -462,9 +438,9 @@ describe("Workbook- Workbook Pane Test", function() {
 
             UnitTest.testFinish(checkFunc)
             .then(function() {
-                var name = $box.find(".workbookName").text();
+                var name = $box.find(".workbookName").val();
                 var $dupBox = $workbookPanel.find(".workbookBox").eq(1);
-                var dupName = $dupBox.find(".workbookName").text();
+                var dupName = $dupBox.find(".workbookName").val();
 
                 expect(dupName.startsWith(name)).to.be.true;
                 expect($dupBox.find(".numWorksheets").text()).to.equal("1");
@@ -487,46 +463,6 @@ describe("Workbook- Workbook Pane Test", function() {
             expect(test).to.be.true;
 
             WorkbookPanel.hide = oldHide;
-        });
-
-        it("should deactive workbook", function(done) {
-            var oldDeactivate = WorkbookManager.deactivate;
-            var oldGet = WorkbookManager.getActiveWKBK;
-            WorkbookManager.deactivate = function(workbookId) {
-                var wkbk = WorkbookManager.getWorkbook(workbookId);
-                wkbk.setResource(false);
-                return PromiseHelper.resolve();
-            };
-
-            WorkbookManager.getActiveWKBK = function() {
-                return null;
-            };
-
-            var $box = $workbookPanel.find('[data-workbook-id="' +
-                                            activeWkbkId + '"]');
-            $box.find(".deactivate").click();
-
-            UnitTest.hasAlertWithTitle(WKBKTStr.Deactivate, {
-                "confirm": true
-            });
-
-            var checkFunc = function() {
-                var $newBox = $workbookPanel.find('[data-workbook-id="' +
-                                                  activeWkbkId + '"]');
-                return $newBox.hasClass("noResource");
-            };
-
-            UnitTest.testFinish(checkFunc)
-            .then(function() {
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                WorkbookManager.deactivate = oldDeactivate;
-                WorkbookManager.getActiveWKBK = oldGet;
-            });
         });
 
         it("Should activate inactive workbook", function(done) {
@@ -616,6 +552,46 @@ describe("Workbook- Workbook Pane Test", function() {
 
                 return UnitTest.testFinish(checkFunc);
             }
+        });
+
+        it("should deactive workbook", function(done) {
+            var oldDeactivate = WorkbookManager.deactivate;
+            var oldGet = WorkbookManager.getActiveWKBK;
+            WorkbookManager.deactivate = function(workbookId) {
+                var wkbk = WorkbookManager.getWorkbook(workbookId);
+                wkbk.setResource(false);
+                return PromiseHelper.resolve();
+            };
+
+            WorkbookManager.getActiveWKBK = function() {
+                return null;
+            };
+
+            var $box = $workbookPanel.find('[data-workbook-id="' +
+                                            activeWkbkId + '"]');
+            $box.find(".deactivate").click();
+
+            UnitTest.hasAlertWithTitle(WKBKTStr.Deactivate, {
+                "confirm": true
+            });
+
+            var checkFunc = function() {
+                var $newBox = $workbookPanel.find('[data-workbook-id="' +
+                                                  activeWkbkId + '"]');
+                return $newBox.hasClass("noResource");
+            };
+
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                WorkbookManager.deactivate = oldDeactivate;
+                WorkbookManager.getActiveWKBK = oldGet;
+            });
         });
 
         it("Should close workbook", function(done) {

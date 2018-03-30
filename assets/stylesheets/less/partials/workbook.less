@@ -377,26 +377,36 @@
         .noSelection;
         cursor: default;
 
-
         &.active {
             .innerBox {
                 background-color: @color-bg-select-blue;
                 color: @color-white;
-                .subHeading div, .info {
+                .subHeading input, .info {
                     color: @color-white;
                 }
+                input {
+                    background-color: transparent;
+                    border-color: transparent;
 
-                .subHeading {
-                    .preview {
-                        display: none;
+                    &:focus {
+                        background-color: transparent;
+                        border: 1px solid @color-white;
                     }
+
+                    &.error {
+                        border: 1px solid @color-error-border;
+                    }
+                }
+
+                .preview {
+                    color: @color-white;
                 }
             }
         }
 
         &.noMeta {
             .subHeading {
-                div {
+                input {
                     color: @color-font-greyish-brown;
                     opacity: 0.5;
                 }
@@ -457,19 +467,35 @@
 
         .subHeading {
             position: relative;
+            cursor: default;
+            border: none;
+            left: -5px;
 
             .workbookName {
                 .size(@height: 30px);
                 .font(@size: 22px, @weight: 500, @color: @color-font-select-blue);
+                background-color: transparent;
+                padding: 0 5px 0 5px;
+                left: -5px;
+                border: 1px solid transparent;
+
+                &:focus {
+                    border: 1px solid @color-border-softBlue;
+                }
+
+                &.error {
+                    border: 1px solid @color-error-border;
+                }
             }
 
             .description {
                 .size(@height: 18px);
                 .font(@size: 13px, @line-height: 18px, @color: @color-font-select-blue);
+                padding: 0 5px;
             }
 
             .workbookName, .description {
-                .size(@width: ~"calc(100% - 20px)");
+                .size(@width: ~"calc(100% - 25px)");
             }
 
             .preview {

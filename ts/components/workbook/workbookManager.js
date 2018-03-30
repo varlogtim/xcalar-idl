@@ -172,58 +172,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         XcalarNewWorkbook(wkbkName, isCopy, copySrcName)
         .then(function() {
-            // when create new wkbk, we always deactiveate it
-            var options = {
-                "id": getWKBKId(wkbkName),
-                "name": wkbkName,
-                "srcUser": username,
-                "curUser": username,
-                "resource": false
-            };
-
-            if (isCopy) {
-                options.numWorksheets = copySrc.numWorksheets;
-                options.modified = copySrc.modified;
-            }
-
-            wkbk = new WKBK(options);
-            wkbkSet.put(wkbk.id, wkbk);
-
-            return saveWorkbook();
+            return finishCreatingWKBK(wkbkName, username, isCopy, copySrc)
         })
-        .then(function() {
-            // in case KVStore has some remants about wkbkId, clear it
-            var def = delWKBKHelper(wkbk.id);
-            return PromiseHelper.alwaysResolve(def);
-        })
-        .then(function() {
-            return JupyterPanel.newWorkbook(wkbkName, wkbk.id);
-        })
-        .then(function() {
-            // If workbook is active, make it inactive so that our UX is linear
-            return XcalarListWorkbooks(wkbkName);
-        })
-        .then(function(retStruct) {
-            if (retStruct.numSessions !== 1) {
-                var error = "More than one workbook with same name/No workbook";
-                console.error(error);
-                deferred.reject(error);
-            } else {
-                if (retStruct.sessions[0].state === "Active") {
-                    // This happens when there are no active sessions. The
-                    // first one we create gets auto activated
-                    xcAssert(!WorkbookManager.getActiveWKBK());
-                    XcalarDeactivateWorkbook(retStruct.sessions[0].name)
-                    .always(function() {
-                        deferred.resolve(wkbk.id);
-                        // XXX Handle failure here separately! It should never
-                        // happen...
-                    });
-                } else {
-                    deferred.resolve(wkbk.id);
-                }
-            }
-        })
+        .then(deferred.resolve)
         .fail(function(error) {
             console.error("Create workbook failed!", error);
             deferred.reject(error);
@@ -884,6 +835,66 @@ window.WorkbookManager = (function($, WorkbookManager) {
         setURL(newWKBKId, true);
         // rehold the session as KVStore's key changed
         return XcSupport.holdSession(newWKBKId, true);
+    }
+
+    function finishCreatingWKBK(wkbkName, username, isCopy, copySrc) {
+        var wkbk;
+        var deferred = PromiseHelper.deferred(); 
+        var options = {
+            "id": getWKBKId(wkbkName),
+            "name": wkbkName,
+            "srcUser": username,
+            "curUser": username,
+            "resource": false
+        };
+
+        if (isCopy) {
+            options.numWorksheets = copySrc.numWorksheets;
+            options.modified = copySrc.modified;
+        }
+
+        wkbk = new WKBK(options);
+        wkbkSet.put(wkbk.id, wkbk);
+        JupyterPanel.newWorkbook(wkbkName, wkbk.id);
+
+        saveWorkbook()
+        .then(function() {
+            // in case KVStore has some remants about wkbkId, clear it
+            var def = delWKBKHelper(wkbk.id);
+            return PromiseHelper.alwaysResolve(def);
+        })
+        .then(function() {
+            // If workbook is active, make it inactive so that our UX is linear
+            return XcalarListWorkbooks(wkbkName);
+        })
+        .then(function(retStruct) {
+            if (retStruct.numSessions !== 1) {
+                var error;
+                if (retStruct.numSessions === 0) {
+                    error = ErrTStr.NoWKBKErr;
+                } else {
+                    error = ErrTStr.MultipleWKBKErr;
+                }
+                console.error(error);
+                deferred.reject(error);
+            } else {
+                if (retStruct.sessions[0].state === "Active") {
+                    // This happens when there are no active sessions. The
+                    // first one we create gets auto activated
+                    xcAssert(!WorkbookManager.getActiveWKBK());
+                    XcalarDeactivateWorkbook(retStruct.sessions[0].name)
+                    .always(function() {
+                        deferred.resolve(wkbk.id);
+                        // XXX Handle failure here separately! It should never
+                        // happen...
+                    });
+                } else {
+                    deferred.resolve(wkbk.id);
+                }
+            }
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     // helper for WorkbookManager.copyWKBK

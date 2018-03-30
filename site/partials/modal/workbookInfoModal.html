@@ -2,26 +2,17 @@
 <div id="workbookInfoModal" class="modalContainer">
   <!-- Header -->
   <header class="modalHeader">
-    <span class="text"></span>
+    <span class="text"><%= dicts.workbook.Edit %></span>
     <div class="close" data-container="body" data-toggle="tooltip" title="" data-original-title="<%= dicts.common.Close %>">
       <i class="icon xi-close"></i>
     </div>
   </header>
   <!-- Info Section -->
   <section class="modalMain">
-    <div class="section file">
-      <div><%= dicts.workbook.uploadFile %></div>
-      <input type="text" id="filePathWKBK" class="xc-input textOverflow" spellcheck="false" readonly>
-    </div>
-    <div class="section name">
-      <div><%= dicts.workbook.Wkbkname %></div>
-      <input type="text" class="xc-input textOverflow" spellcheck="false">
-    </div>
     <div class="section description">
       <div><%= dicts.workbook.Description %></div>
-      <input type="text" class="xc-input textOverflow" spellcheck="false" placeholder=<%= dicts.workbook.optional %>>
+      <input type="text" class="xc-input textOverflow" spellcheck="false">
     </div>
-    <div class="section upload"><input style="display: none;" type="file" id="WKBK_uploads" name="WKBK_uploads" accept=".gz"></div>
   </section>
   <!-- Button Section -->
   <section class="modalBottom">

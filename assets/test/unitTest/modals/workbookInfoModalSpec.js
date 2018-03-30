@@ -12,22 +12,8 @@ describe("Workbook Info Modal Test", function() {
         WorkbookInfoModal.show(workbookId);
 
         assert.isTrue($modal.is(":visible"));
-        expect($modal.find(".name input").val())
-        .to.equal(workbook.getName());
         expect($modal.find(".description input").val())
         .to.equal(workbook.getDescription() || "");
-    });
-
-    it("should show name error", function() {
-        $modal.find(".name input").val("").trigger("input");
-        expect($modal.find(".error").text()).to.equal(WKBKTStr.WkbkNameRequired);
-        expect($modal.find(".confirm").hasClass("xc-disabled")).to.be.true;
-    });
-
-    it("should hide name error", function() {
-        $modal.find(".name input").val("test").trigger("input");
-        expect($modal.find(".error").text()).to.equal("");
-        expect($modal.find(".confirm").hasClass("xc-disabled")).to.be.false;
     });
 
     it("should click cancel to close modal", function() {
