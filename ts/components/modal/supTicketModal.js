@@ -44,7 +44,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         var deferred = PromiseHelper.deferred();
 
         var reqStr = JSON.stringify({userId: userIdUnique});
-        XFTSupportTools.getTickets(reqStr)
+        adminTools.getTickets(reqStr)
         .then(function(ret) {
             var oldTickets = [];
 
@@ -701,7 +701,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         var deferred = PromiseHelper.deferred();
 
         var reqStr = JSON.stringify({ticketId: ticketId});
-        XFTSupportTools.getTickets(reqStr)
+        adminTools.getTickets(reqStr)
         .then(function(ret) {
             var ticket;
             if (ret.logs) {
@@ -932,7 +932,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
                 ticketStr += ',"xiLog":' + logStr + "}";
             }
 
-            return XFTSupportTools.fileTicket(ticketStr);
+            return adminTools.fileTicket(ticketStr);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -942,7 +942,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
 
     SupTicketModal.fetchLicenseInfo = function() {
         var deferred = PromiseHelper.deferred();
-        XFTSupportTools.getLicense()
+        adminTools.getLicense()
         .then(function(data) {
             var key = data.logs;
             jQuery.ajax({

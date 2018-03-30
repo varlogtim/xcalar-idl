@@ -367,8 +367,8 @@ describe("Admin Test", function() {
         });
 
         it("startNode should work", function(done) {
-            var cachedClusterStart = XFTSupportTools.clusterStart;
-            XFTSupportTools.clusterStart = function() {
+            var cachedClusterStart = adminTools.clusterStart;
+            adminTools.clusterStart = function() {
                 return PromiseHelper.resolve({status: Status.Ok, logs: "already running"});
             };
             var cachedCheckVersion = XVM.checkVersion;
@@ -397,14 +397,14 @@ describe("Admin Test", function() {
                 done("fail");
             })
             .always(function() {
-                XFTSupportTools.clusterStart = cachedClusterStart;
+                adminTools.clusterStart = cachedClusterStart;
                 XVM.checkVersion = cachedCheckVersion;
             });
         });
 
         it("startNode fail should work", function(done) {
-            var cachedClusterStart = XFTSupportTools.clusterStart;
-            XFTSupportTools.clusterStart = function() {
+            var cachedClusterStart = adminTools.clusterStart;
+            adminTools.clusterStart = function() {
                 return PromiseHelper.reject({});
             };
             var cachedCheckVersion = XVM.checkVersion;
@@ -433,14 +433,14 @@ describe("Admin Test", function() {
                 done("fail");
             })
             .always(function() {
-                XFTSupportTools.clusterStart = cachedClusterStart;
+                adminTools.clusterStart = cachedClusterStart;
                 XVM.checkVersion = cachedCheckVersion;
             });
         });
 
         it("stopNode should work", function(done) {
-            var cached = XFTSupportTools.clusterStop;
-            XFTSupportTools.clusterStop = function() {
+            var cached = adminTools.clusterStop;
+            adminTools.clusterStop = function() {
                 return PromiseHelper.reject({});
             };
 
@@ -459,17 +459,17 @@ describe("Admin Test", function() {
                 done("fail");
             })
             .always(function() {
-                XFTSupportTools.clusterStop = cached;
+                adminTools.clusterStop = cached;
             });
         });
 
         it("restartNode should work", function(done) {
-            var cachedClusterStart = XFTSupportTools.clusterStart;
-            XFTSupportTools.clusterStart = function() {
+            var cachedClusterStart = adminTools.clusterStart;
+            adminTools.clusterStart = function() {
                 return PromiseHelper.reject({});
             };
-            var cachedClusterStop = XFTSupportTools.clusterStop;
-            XFTSupportTools.clusterStop = function() {
+            var cachedClusterStop = adminTools.clusterStop;
+            adminTools.clusterStop = function() {
                 return PromiseHelper.resolve({});
             };
 
@@ -488,30 +488,30 @@ describe("Admin Test", function() {
                 done("fail");
             })
             .always(function() {
-                XFTSupportTools.clusterStart = cachedClusterStart;
-                XFTSupportTools.clusterStop = cachedClusterStop;
+                adminTools.clusterStart = cachedClusterStart;
+                adminTools.clusterStop = cachedClusterStop;
             });
         });
 
         it("get status should work", function() {
-            var cached = XFTSupportTools.clusterStatus;
-            XFTSupportTools.clusterStatus = function() {
+            var cached = adminTools.clusterStatus;
+            adminTools.clusterStatus = function() {
                 return PromiseHelper.resolve({});
             };
             $("#configSupportStatus").click();
             UnitTest.hasAlertWithTitle(MonitorTStr.ClusterStatus);
-            XFTSupportTools.clusterStatus = cached;
+            adminTools.clusterStatus = cached;
         });
 
         it("get status fail should work", function() {
-            var cached = XFTSupportTools.clusterStatus;
-            XFTSupportTools.clusterStatus = function() {
+            var cached = adminTools.clusterStatus;
+            adminTools.clusterStatus = function() {
                 return PromiseHelper.reject({logs: "logs"});
             };
 
             $("#configSupportStatus").click();
             UnitTest.hasAlertWithTitle(MonitorTStr.ClusterStatus);
-            XFTSupportTools.clusterStatus = cached;
+            adminTools.clusterStatus = cached;
         });
     });
 

@@ -108,9 +108,9 @@ describe("SupTicketModal Test", function() {
                 ]})
             };
 
-            var cache1 = XFTSupportTools.getTickets;
+            var cache1 = adminTools.getTickets;
             var count = 0;
-            XFTSupportTools.getTickets = function() {
+            adminTools.getTickets = function() {
                 count++;
                 if (count === 1) {
                     return PromiseHelper.resolve(ret1);
@@ -131,7 +131,7 @@ describe("SupTicketModal Test", function() {
                 expect($ticketIdSection.find(".tableBody .details .text").eq(1).text()).to.equal('Subject: testSubjectDescription: abc');
 
 
-                XFTSupportTools.getTickets = cache1;
+                adminTools.getTickets = cache1;
                 done();
             })
             .fail(function() {
@@ -147,8 +147,8 @@ describe("SupTicketModal Test", function() {
         });
 
         it("getTickets() errors should work", function(done) {
-            var cache1 = XFTSupportTools.getTickets;
-            XFTSupportTools.getTickets = function() {
+            var cache1 = adminTools.getTickets;
+            adminTools.getTickets = function() {
                 getCalled = true;
                 return PromiseHelper.reject();
             };
@@ -157,7 +157,7 @@ describe("SupTicketModal Test", function() {
             .then(function(ret) {
                 expect(getCalled).to.be.true;
                 expect(ret).to.deep.equal([]);
-                XFTSupportTools.getTickets = cache1;
+                adminTools.getTickets = cache1;
                 $("#debugAlert .xi-close").click();
                 done();
             })
@@ -223,13 +223,13 @@ describe("SupTicketModal Test", function() {
         before(function() {
             SupTicketModal.show();
             oldSupport = XcalarSupportGenerate;
-            oldGetLicense = XFTSupportTools.getLicense;
+            oldGetLicense = adminTools.getLicense;
             oldApiTop = XcalarApiTop;
-            oldFileTicket = XFTSupportTools.fileTicket;
+            oldFileTicket = adminTools.fileTicket;
             oldDownload = xcHelper.downloadAsFile;
             oldSuccess = xcHelper.showSuccess;
 
-            XFTSupportTools.getLicense = function() {
+            adminTools.getLicense = function() {
                 return PromiseHelper.resolve("test license");
             };
 
@@ -237,7 +237,7 @@ describe("SupTicketModal Test", function() {
                 return PromiseHelper.resolve("test api top");
             };
 
-            XFTSupportTools.fileTicket = function(input) {
+            adminTools.fileTicket = function(input) {
                 return PromiseHelper.resolve(JSON.parse(input));
             };
 
@@ -376,8 +376,8 @@ describe("SupTicketModal Test", function() {
         });
 
         it("should handle submit form fail case", function(done) {
-            var cache = XFTSupportTools.fileTicket;
-            XFTSupportTools.fileTicket = function() {
+            var cache = adminTools.fileTicket;
+            adminTools.fileTicket = function() {
                 return PromiseHelper.reject("test");
             };
 
@@ -388,15 +388,15 @@ describe("SupTicketModal Test", function() {
             .fail(function() {
                 assert.isTrue($("#statusBox").is(":visible"));
                 StatusBox.forceHide();
-                XFTSupportTools.fileTicket = cache;
+                adminTools.fileTicket = cache;
                 done();
             });
         });
 
         it("should submit bundle if selected", function() {
             var cache1 = XcalarSupportGenerate;
-            var cache2 = XFTSupportTools.fileTicket;
-            var cache3 = XFTSupportTools.getLicense;
+            var cache2 = adminTools.fileTicket;
+            var cache3 = adminTools.getLicense;
             var cache4 = KVStore.append;
             var cache5 = SupTicketModal.fetchLicenseInfo;
             var supGenCalled = false;
@@ -404,10 +404,10 @@ describe("SupTicketModal Test", function() {
                 supGenCalled = true;
                 return PromiseHelper.resolve({});
             };
-            XFTSupportTools.fileTicket = function() {
+            adminTools.fileTicket = function() {
                 return PromiseHelper.resolve({logs: JSON.stringify({ticketId: 5})});
             };
-            XFTSupportTools.getLicense = function() {
+            adminTools.getLicense = function() {
                 return PromiseHelper.resolve();
             };
 
@@ -425,8 +425,8 @@ describe("SupTicketModal Test", function() {
 
             expect(supGenCalled).to.be.true;
             XcalarSupportGenerate = cache1;
-            XFTSupportTools.fileTicket = cache2;
-            XFTSupportTools.getLicense = cache3;
+            adminTools.fileTicket = cache2;
+            adminTools.getLicense = cache3;
             KVStore.append = cache4;
             SupTicketModal.fetchLicenseInfo = cache5;
         });
@@ -447,7 +447,7 @@ describe("SupTicketModal Test", function() {
                 return PromiseHelper.resolve();
             };
 
-            XFTSupportTools.fileTicket = function() {
+            adminTools.fileTicket = function() {
                 return PromiseHelper.resolve({logs: '{"ticketId":123}'});
             };
 
@@ -485,9 +485,9 @@ describe("SupTicketModal Test", function() {
 
         after(function() {
             XcalarSupportGenerate = oldSupport;
-            XFTSupportTools.getLicense = oldGetLicense;
+            adminTools.getLicense = oldGetLicense;
             XcalarApiTop = oldApiTop;
-            XFTSupportTools.fileTicket = oldFileTicket;
+            adminTools.fileTicket = oldFileTicket;
             xcHelper.downloadAsFile = oldDownload;
             xcHelper.showSuccess = oldSuccess;
             // $modal.find(".cancel").click();

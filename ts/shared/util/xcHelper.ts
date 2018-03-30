@@ -5741,8 +5741,8 @@ namespace xcHelper {
 
         return ret;
     }
+    export let __testOnly__: any = {};
 
-    export var __testOnly__: any = {};
     if (typeof window !== 'undefined' && window['unitTestMode']) {
         __testOnly__.toggleUnnestandJsonOptions = toggleUnnestandJsonOptions;
         __testOnly__.isInvalidMixed = isInvalidMixed;

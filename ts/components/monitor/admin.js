@@ -713,7 +713,7 @@ window.Admin = (function($, Admin) {
                 Alert.show({msg: AlertTStr.AlreadyStart, isAlert: true});
             } else {
                 supportPrep('startNode')
-                .then(XFTSupportTools.clusterStart)
+                .then(adminTools.clusterStart)
                 .then(function(ret) {
                     // refresh page
                     exitSetupMode();
@@ -746,7 +746,7 @@ window.Admin = (function($, Admin) {
 
     function stopNode() {
         supportPrep('stopNode')
-        .then(XFTSupportTools.clusterStop)
+        .then(adminTools.clusterStop)
         .then(function() {
             exitSetupMode();
             if ($('#container').hasClass('supportOnly')) {
@@ -768,8 +768,8 @@ window.Admin = (function($, Admin) {
     function restartNode() {
         // restart is unreliable so we stop and start instead
         supportPrep('restartNode')
-        .then(XFTSupportTools.clusterStop)
-        .then(XFTSupportTools.clusterStart)
+        .then(adminTools.clusterStop)
+        .then(adminTools.clusterStart)
         .then(function() {
             xcHelper.reload();
         })
@@ -781,7 +781,7 @@ window.Admin = (function($, Admin) {
 
     function getStatus() {
         $('#configSupportStatus').addClass('unavailable');
-        XFTSupportTools.clusterStatus()
+        adminTools.clusterStatus()
         .then(function(ret) {
             var logs = ret.logs;
             if (!logs) {

@@ -38,7 +38,6 @@ describe("MonitorLog Test", function() {
     });
     describe("Basic API Test", function() {
         it("monitorLogCard should show", function() {
-            // MonitorLog.show();
             $("#setupButton").click();
             expect($logCard.is(":visible")).to.equal(true);
         });
@@ -55,8 +54,8 @@ describe("MonitorLog Test", function() {
         });
 
         it("getHost should work", function(done) {
-            var oldFunc = XFTSupportTools.getMatchHosts;
-            XFTSupportTools.getMatchHosts = function() {
+            var oldFunc = adminTools.getMatchHosts;
+            adminTools.getMatchHosts = function() {
                 var ret = {
                     matchHosts: ["testHost"],
                     matchNodeIds: [0]
@@ -71,40 +70,40 @@ describe("MonitorLog Test", function() {
                 done("fail");
             })
             .always(function() {
-                XFTSupportTools.getMatchHosts = oldFunc;
+                adminTools.getMatchHosts = oldFunc;
                 done();
             });
         });
 
         it("getRecentLogs should fail when getMatchHosts rejects", function() {
             $logCard.find(".inputSection .lastRow .xc-input").val(1);
-            var oldFunc = XFTSupportTools.getMatchHosts;
+            var oldFunc = adminTools.getMatchHosts;
             var oldFlush = XcalarLogLevelSet;
             XcalarLogLevelSet = function() {
                 return PromiseHelper.resolve();
             };
-            XFTSupportTools.getMatchHosts = function() {
+            adminTools.getMatchHosts = function() {
                 return PromiseHelper.deferred().reject(unknowError).promise();
             };
             $logCard.find(".getRecentLogs").click();
             expect($("#alertContent").is(":visible")).to.equal(true);
-            XFTSupportTools.getMatchHosts = oldFunc;
+            adminTools.getMatchHosts = oldFunc;
             XcalarLogLevelSet = oldFlush;
         });
 
         it("getRecentLogs should work", function() {
             $logCard.find(".inputSection .lastRow .xc-input").val(1);
             var oldFlush = XcalarLogLevelSet;
-            var oldFunc1 = XFTSupportTools.getMatchHosts;
-            var oldFunc2 = XFTSupportTools.getRecentLogs;
+            var oldFunc1 = adminTools.getMatchHosts;
+            var oldFunc2 = adminTools.getRecentLogs;
             XcalarLogLevelSet = function() {
                 return PromiseHelper.resolve();
             };
 
-            XFTSupportTools.getMatchHosts = function() {
+            adminTools.getMatchHosts = function() {
                 return PromiseHelper.deferred().resolve(retHosts).promise();
             };
-            XFTSupportTools.getRecentLogs = function() {
+            adminTools.getRecentLogs = function() {
                 return PromiseHelper.deferred().resolve(recentLog).promise();
             };
 
@@ -112,8 +111,8 @@ describe("MonitorLog Test", function() {
             $logCard.find(".lastRow .xc-input").trigger(keyEvent);
             expect($logCard.find(".msgRow").text()).to.include("success");
 
-            XFTSupportTools.getMatchHosts = oldFunc1;
-            XFTSupportTools.getRecentLogs = oldFunc2;
+            adminTools.getMatchHosts = oldFunc1;
+            adminTools.getRecentLogs = oldFunc2;
             XcalarLogLevelSet = oldFlush;
         });
     });
@@ -121,16 +120,16 @@ describe("MonitorLog Test", function() {
     describe("Monitor logs Test", function() {
         it("startMonitorLog should fail when returns unknown error", function() {
             var oldFlush = XcalarLogLevelSet;
-            var oldFunc1 = XFTSupportTools.getMatchHosts;
-            var oldFunc2 = XFTSupportTools.getRecentLogs;
+            var oldFunc1 = adminTools.getMatchHosts;
+            var oldFunc2 = adminTools.getRecentLogs;
             XcalarLogLevelSet = function() {
                 return PromiseHelper.resolve();
             };
 
-            XFTSupportTools.getMatchHosts = function() {
+            adminTools.getMatchHosts = function() {
                 return PromiseHelper.deferred().resolve(retHosts).promise();
             };
-            XFTSupportTools.monitorLogs = function(filePath, fileName, hosts,
+            adminTools.monitorLogs = function(filePath, fileName, hosts,
                                                 errCallback) {
                 errCallback(unknowError);
             };
@@ -138,25 +137,25 @@ describe("MonitorLog Test", function() {
             $logCard.find(".startStream").click();
             expect($logCard.find(".streamBtns").hasClass("streaming")).to.equal(false);
 
-            XFTSupportTools.getMatchHosts = oldFunc1;
-            XFTSupportTools.monitorLogs = oldFunc2;
+            adminTools.getMatchHosts = oldFunc1;
+            adminTools.monitorLogs = oldFunc2;
             XcalarLogLevelSet = oldFlush;
         });
 
         it("startMonitorLog should fail when getMatchHosts has error", function() {
-            var oldFunc = XFTSupportTools.getMatchHosts;
+            var oldFunc = adminTools.getMatchHosts;
             var oldFlush = XcalarLogLevelSet;
             XcalarLogLevelSet = function() {
                 return PromiseHelper.resolve();
             };
-            XFTSupportTools.getMatchHosts = function() {
+            adminTools.getMatchHosts = function() {
                 return PromiseHelper.deferred().reject(unknowError).promise();
             };
 
             $logCard.find(".startStream").click();
             expect($logCard.find(".streamBtns").hasClass("streaming")).to.equal(false);
 
-            XFTSupportTools.getMatchHosts = oldFunc;
+            adminTools.getMatchHosts = oldFunc;
             XcalarLogLevelSet = oldFlush;
         });
 
@@ -167,16 +166,16 @@ describe("MonitorLog Test", function() {
                 retHosts.matchHosts.push(hostname);
                 retHosts.matchNodeIds.push(i - 1);
             }
-            var oldFunc1 = XFTSupportTools.getMatchHosts;
-            var oldFunc2 = XFTSupportTools.monitorLogs;
+            var oldFunc1 = adminTools.getMatchHosts;
+            var oldFunc2 = adminTools.monitorLogs;
             var oldFlush = XcalarLogLevelSet;
             XcalarLogLevelSet = function() {
                 return PromiseHelper.resolve();
             };
-            XFTSupportTools.getMatchHosts = function() {
+            adminTools.getMatchHosts = function() {
                 return PromiseHelper.deferred().resolve(retHosts).promise();
             };
-            XFTSupportTools.monitorLogs = function(filePath, fileName, hosts,
+            adminTools.monitorLogs = function(filePath, fileName, hosts,
                                                 errCallback, successCallback) {
                 successCallback(monitorLog);
             };
@@ -186,8 +185,8 @@ describe("MonitorLog Test", function() {
             var logs = MonitorLog.__testOnly__.getThisLogs();
             expect(logs["testHost2"]).to.include("error");
 
-            XFTSupportTools.getMatchHosts = oldFunc1;
-            XFTSupportTools.monitorLogs = oldFunc2;
+            adminTools.getMatchHosts = oldFunc1;
+            adminTools.monitorLogs = oldFunc2;
             XcalarLogLevelSet = oldFlush;
         });
 

@@ -1,7 +1,7 @@
-describe("XFTSupportTools Test", function() {
-    describe("XFTSupportTools Send Request Test", function() {
+describe("adminTools Test", function() {
+    describe("adminTools Send Request Test", function() {
         it("prePraseSendData should work", function() {
-            var prePraseSendData = XFTSupportTools.__testOnly__.prePraseSendData;
+            var prePraseSendData = adminTools.__testOnly__.prePraseSendData;
             var res = prePraseSendData("GET");
             expect(res).to.be.an("object");
 
@@ -12,7 +12,7 @@ describe("XFTSupportTools Test", function() {
         });
 
         it("parseSuccessData should work", function() {
-            var parseSuccessData = XFTSupportTools.__testOnly__.parseSuccessData;
+            var parseSuccessData = adminTools.__testOnly__.parseSuccessData;
             var res = parseSuccessData("test");
             expect(res).to.equal("test");
             // case 2
@@ -24,7 +24,7 @@ describe("XFTSupportTools Test", function() {
         });
 
         it("parseErrorData should work", function() {
-            var parseErrorData = XFTSupportTools.__testOnly__.parseErrorData;
+            var parseErrorData = adminTools.__testOnly__.parseErrorData;
             var res = parseErrorData({
                 "status": 1,
                 "statusText": "test"
@@ -47,11 +47,11 @@ describe("XFTSupportTools Test", function() {
         });
     });
 
-    describe("XFTSupportTools API Test", function() {
-        it("XFTSupportTools.getRecentLogs should work", function(done) {
-            XFTSupportTools.__testOnly__.setSendRequest();
+    describe("adminTools API Test", function() {
+        it("adminTools.getRecentLogs should work", function(done) {
+            adminTools.__testOnly__.setSendRequest();
 
-            XFTSupportTools.getRecentLogs(10, "path", "file", {"hostA": true})
+            adminTools.getRecentLogs(10, "path", "file", {"hostA": true})
             .then(function(res) {
                 expect(res).to.be.an("object");
                 expect(res.requireLineNum).to.equal(10);
@@ -64,15 +64,15 @@ describe("XFTSupportTools Test", function() {
 
         it("should get monitor log", function(done) {
             var ret = {"updatedLastMonitorMap": "test"};
-            XFTSupportTools.__testOnly__.setSendRequest(ret);
-            var lasMonitorMap = XFTSupportTools.__testOnly__.getMonitorMap();
+            adminTools.__testOnly__.setSendRequest(ret);
+            var lasMonitorMap = adminTools.__testOnly__.getMonitorMap();
             // clean first
-            XFTSupportTools.stopMonitorLogs();
-            expect($.isEmptyObject(lasMonitorMap)).to.be.true;
+            adminTools.stopMonitorLogs();
+            expect(lasMonitorMap.size === 0).to.be.true;
 
             var checkFunc = function() {
-                var map = XFTSupportTools.__testOnly__.getMonitorMap();
-                return !($.isEmptyObject(map));
+                var map = adminTools.__testOnly__.getMonitorMap();
+                return map.size > 0;
             };
 
             var test = false;
@@ -80,15 +80,15 @@ describe("XFTSupportTools Test", function() {
                 test = true;
             };
 
-            XFTSupportTools.monitorLogs("testPath", "testFile", {"hostA": true},
+            adminTools.monitorLogs("testPath", "testFile", {"hostA": true},
                                         null, successCallback);
 
             UnitTest.testFinish(checkFunc)
             .then(function() {
                 expect(test).to.be.true;
-                XFTSupportTools.stopMonitorLogs();
-                lasMonitorMap = XFTSupportTools.__testOnly__.getMonitorMap();
-                expect($.isEmptyObject(lasMonitorMap)).to.be.true;
+                adminTools.stopMonitorLogs();
+                lasMonitorMap = adminTools.__testOnly__.getMonitorMap();
+                expect(lasMonitorMap.size === 0).to.be.true;
                 done();
             })
             .fail(function() {
@@ -97,13 +97,13 @@ describe("XFTSupportTools Test", function() {
         });
 
         it("should handle fail monitor case", function(done) {
-            XFTSupportTools.__testOnly__.setSendRequest({}, true);
-            var lasMonitorMap = XFTSupportTools.__testOnly__.getMonitorMap();
+            adminTools.__testOnly__.setSendRequest({}, true);
+            var lasMonitorMap = adminTools.__testOnly__.getMonitorMap();
             lasMonitorMap["test"] = "testVal";
 
             var checkFunc = function() {
-                var map = XFTSupportTools.__testOnly__.getMonitorMap();
-                return $.isEmptyObject(map);
+                var map = adminTools.__testOnly__.getMonitorMap();
+                return map.size === 0;
             };
 
             var test = false;
@@ -111,15 +111,15 @@ describe("XFTSupportTools Test", function() {
                 test = true;
             };
 
-            XFTSupportTools.monitorLogs("testPath", "testFile", {"hostA": true},
+            adminTools.monitorLogs("testPath", "testFile", {"hostA": true},
                                         errCallback);
 
             UnitTest.testFinish(checkFunc)
             .then(function() {
                 expect(test).to.be.true;
-                lasMonitorMap = XFTSupportTools.__testOnly__.getMonitorMap();
-                expect($.isEmptyObject(lasMonitorMap)).to.be.true;
-                XFTSupportTools.stopMonitorLogs();
+                lasMonitorMap = adminTools.__testOnly__.getMonitorMap();
+                expect(lasMonitorMap.size === 0).to.be.true;
+                adminTools.stopMonitorLogs();
                 done();
             })
             .fail(function() {
@@ -127,9 +127,9 @@ describe("XFTSupportTools Test", function() {
             });
         });
 
-        it("XFTSupportTools.clusterStart should work", function(done) {
-            XFTSupportTools.__testOnly__.setSendRequest();
-            XFTSupportTools.clusterStart()
+        it("adminTools.clusterStart should work", function(done) {
+            adminTools.__testOnly__.setSendRequest();
+            adminTools.clusterStart()
             .then(function(res) {
                 expect(res).to.be.a("string");
                 done();
@@ -139,9 +139,9 @@ describe("XFTSupportTools Test", function() {
             });
         });
 
-        it("XFTSupportTools.clusterStop should work", function(done) {
-            XFTSupportTools.__testOnly__.setSendRequest();
-            XFTSupportTools.clusterStop()
+        it("adminTools.clusterStop should work", function(done) {
+            adminTools.__testOnly__.setSendRequest();
+            adminTools.clusterStop()
             .then(function(res) {
                 expect(res).to.be.a("string");
                 done();
@@ -151,9 +151,9 @@ describe("XFTSupportTools Test", function() {
             });
         });
 
-        it("XFTSupportTools.clusterRestart should work", function(done) {
-            XFTSupportTools.__testOnly__.setSendRequest();
-            XFTSupportTools.clusterRestart()
+        it("adminTools.clusterRestart should work", function(done) {
+            adminTools.__testOnly__.setSendRequest();
+            adminTools.clusterRestart()
             .then(function(res) {
                 expect(res).to.be.a("string");
                 done();
@@ -163,9 +163,9 @@ describe("XFTSupportTools Test", function() {
             });
         });
 
-        it("XFTSupportTools.clusterStatus should work", function(done) {
-            XFTSupportTools.__testOnly__.setSendRequest();
-            XFTSupportTools.clusterStatus()
+        it("adminTools.clusterStatus should work", function(done) {
+            adminTools.__testOnly__.setSendRequest();
+            adminTools.clusterStatus()
             .then(function(res) {
                 expect(res).to.be.an("object");
                 done();
@@ -175,9 +175,9 @@ describe("XFTSupportTools Test", function() {
             });
         });
 
-        it("XFTSupportTools.removeSessionFiles should work", function(done) {
-            XFTSupportTools.__testOnly__.setSendRequest();
-            XFTSupportTools.removeSessionFiles("testFile")
+        it("adminTools.removeSessionFiles should work", function(done) {
+            adminTools.__testOnly__.setSendRequest();
+            adminTools.removeSessionFiles("testFile")
             .then(function(res) {
                 expect(res).to.be.a("string");
                 expect(res).to.contains("testFile");
@@ -188,9 +188,9 @@ describe("XFTSupportTools Test", function() {
             });
         });
 
-        it("XFTSupportTools.removeSHM should work", function(done) {
-            XFTSupportTools.__testOnly__.setSendRequest();
-            XFTSupportTools.removeSHM()
+        it("adminTools.removeSHM should work", function(done) {
+            adminTools.__testOnly__.setSendRequest();
+            adminTools.removeSHM()
             .then(function(res) {
                 expect(res).to.be.a("string");
                 done();
@@ -200,9 +200,9 @@ describe("XFTSupportTools Test", function() {
             });
         });
 
-        it("XFTSupportTools.getLicense should work", function(done) {
-            XFTSupportTools.__testOnly__.setSendRequest();
-            XFTSupportTools.getLicense()
+        it("adminTools.getLicense should work", function(done) {
+            adminTools.__testOnly__.setSendRequest();
+            adminTools.getLicense()
             .then(function(res) {
                 expect(res).to.be.an("object");
                 done();
@@ -212,9 +212,9 @@ describe("XFTSupportTools Test", function() {
             });
         });
 
-        it("XFTSupportTools.fileTicket should work", function(done) {
-            XFTSupportTools.__testOnly__.setSendRequest();
-            XFTSupportTools.fileTicket("testStr")
+        it("adminTools.fileTicket should work", function(done) {
+            adminTools.__testOnly__.setSendRequest();
+            adminTools.fileTicket("testStr")
             .then(function(res) {
                 expect(res).to.be.a("string");
                 expect(res).to.contains("testStr");
@@ -226,7 +226,7 @@ describe("XFTSupportTools Test", function() {
         });
 
         after(function() {
-            XFTSupportTools.__testOnly__.resetSendRequest();
+            adminTools.__testOnly__.resetSendRequest();
         });
     });
 });

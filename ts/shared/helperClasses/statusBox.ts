@@ -49,7 +49,7 @@ namespace StatusBox {
             this.side = "right";
         }
 
-        public show(text: string, $target: JQuery, formMode: boolean, options: StatusDisplayerOpions = <any>{}): void {
+        public show(text: string, $target: JQuery, formMode: boolean, options: StatusDisplayerOpions = <StatusDisplayerOpions>{}): void {
             if (!$target.length) {
                 // XXX this shouldn't happen but it has before
                 return;

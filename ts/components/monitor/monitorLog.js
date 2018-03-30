@@ -237,7 +237,7 @@ window.MonitorLog = (function(MonitorLog, $) {
         var hostnamePattern = $inputSection.find(".hostnamePattern .xc-input")
                               .val().trim();
 
-        XFTSupportTools.getMatchHosts(hostnamePattern)
+        adminTools.getMatchHosts(hostnamePattern)
         .then(function(ret) {
             updateHosts(ret);
             if ($.isEmptyObject(hosts)) {
@@ -296,7 +296,7 @@ window.MonitorLog = (function(MonitorLog, $) {
             return getHost();
         })
         .then(function() {
-            return XFTSupportTools.getRecentLogs(lastNRow, filePath,
+            return adminTools.getRecentLogs(lastNRow, filePath,
                     fileName, hosts);
         })
         .then(function(ret) {
@@ -358,7 +358,7 @@ window.MonitorLog = (function(MonitorLog, $) {
         })
         .then(function() {
             startFlushPeriod();
-            XFTSupportTools.monitorLogs(filePath, fileName, hosts,
+            adminTools.monitorLogs(filePath, fileName, hosts,
             function(err) {
                 if (err && err.results) {
                     appendLog(err.results, true);
@@ -392,7 +392,7 @@ window.MonitorLog = (function(MonitorLog, $) {
         $streamBtns.removeClass("streaming");
         $("#monitorLogCard .inputSection .xc-input").prop('disabled', false);
         stopFlushPeriod();
-        XFTSupportTools.stopMonitorLogs();
+        adminTools.stopMonitorLogs();
     }
 
     function appendLog(results, isMonitoring) {
