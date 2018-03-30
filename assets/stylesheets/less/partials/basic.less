@@ -1878,6 +1878,58 @@ input[type=number]::-webkit-outer-spin-button {
     position: absolute;
 }
 
+.xc-fileDroppable {
+    position: relative;
+}
+
+.xc-dragDropArea {
+    background-color: @color-white;
+    padding: 20px;
+    display: none;
+    .size(100%, 100%);
+    .position(absolute, 0px, 0px);
+    .justify-content(center);
+    .flex-direction(column);
+    text-align: center;
+    font-size: 40px;
+    opacity: 0.75;
+    color: @color-font-gray36;
+    color: @color-text-midlightGray;
+    font-weight: bold;
+    pointer-events: none;
+
+    &:after {
+        content: "";
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        display: block;
+        width: ~"calc(100% - 40px)";
+        height: ~"calc(100% - 40px)";
+        border: 4px dashed #124861;
+        pointer-events: none;
+    }
+}
+
+.xc-dragDropArea.entering {
+    background-color: white;
+    .flex-display;
+    * {
+        pointer-events: none;
+    }
+}
+
+.xc-fileDragging {
+    .xc-dragDropArea {
+        background-color: white;
+        .flex-display;
+    }
+    * {
+        pointer-events: none;
+    }
+}
+
+
 /* Tool Tips */
 /*!
  * Bootstrap v3.3.2 (http://getbootstrap.com)

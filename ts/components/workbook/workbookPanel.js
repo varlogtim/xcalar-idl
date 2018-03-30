@@ -21,6 +21,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
 
         addTopbarEvents();
         addWorkbookEvents();
+        setupDragDrop();
 
         var closeTimer = null;
         var doneTimer = null;
@@ -904,6 +905,21 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         }
 
         return objs;
+    }
+
+    function setupDragDrop() {
+        return;
+        var ddUploader = new DragDropUploader({
+            $container: $workbookPanel.find(".mainContent"),
+            text: "Drop a workbook file to upload",
+            onDrop: function(files) {
+                // fill in
+                console.log(files);
+            },
+            onError: function(error) {
+                console.log("error", error);
+            }
+        });
     }
 
     return (WorkbookPanel);

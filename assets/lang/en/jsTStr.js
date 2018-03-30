@@ -1400,6 +1400,12 @@ JupyterTStr = {
     "SampleNumError": "Please select 1 to <number> rows to sample."
 };
 introTStr = {
-        "watermark": "Tutorial",
-        "subWatermark": "You will be returned to your work when the tutorial completes."
+    "watermark": "Tutorial",
+    "subWatermark": "You will be returned to your work when the tutorial completes."
+};
+
+UploadTStr = {
+    'InvalidUpload': 'Invalid Upload',
+    'InvalidFolderDesc': 'Cannot upload folders.',
+    'OneFileUpload': 'Only one file can be uploaded at a time.'
 };

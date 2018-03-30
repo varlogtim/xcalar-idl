@@ -11,6 +11,7 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         $dfName = $card.find("#dfName");
         $browserBtn = $("#dataflow-browse");
         addCardEvents();
+        setupDragDrop();
     };
 
     UploadDataflowCard.show = function() {
@@ -181,9 +182,9 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         });
     }
 
-    function changeFilePath(path) {
+    function changeFilePath(path, fileInfo) {
         path = path.replace(/C:\\fakepath\\/i, '');
-        file = $browserBtn[0].files[0];
+        file = fileInfo || $browserBtn[0].files[0];
 
         var retName = path.substring(0, path.indexOf(".")).toLowerCase()
                           .replace(/ /g, "");
@@ -224,6 +225,33 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         // Not user friendly but safer
         $card.find(".checkbox").removeClass("checked");
         xcTooltip.enable($card.find(".buttonTooltipWrap"));
+    }
+
+    function setupDragDrop() {
+        var ddUploader = new DragDropUploader({
+            $container: $card,
+            text: "Drop a dataflow file to upload",
+            onDrop: function(file) {
+                changeFilePath(file.name, file);
+            },
+            onError: function(error) {
+                switch (error) {
+                    case ('invalidFolder'):
+                        Alert.error(UploadTStr.InvalidUpload,
+                                    UploadTStr.InvalidFolderDesc);
+                        break;
+                    case ('multipleFiles'):
+                        Alert.show({
+                            title: UploadTStr.InvalidUpload,
+                            msg: UploadTStr.OneFileUpload
+                        });
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+        });
     }
 
     /* Unit Test Only */

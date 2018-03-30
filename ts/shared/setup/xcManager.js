@@ -1111,7 +1111,7 @@ window.xcManager = (function(xcManager, $) {
                 dt.effectAllowed = 'none';
                 dt.dropEffect = 'none';
 
-                $('.fileDroppable').addClass('fileDragging');
+                $('.xc-fileDroppable').addClass('xc-fileDragging');
                 dragCount++;
             }
         });
@@ -1136,14 +1136,14 @@ window.xcManager = (function(xcManager, $) {
                 dt.types.contains('Files'))) {
                 dragCount--;
                 if (dragCount === 0) {
-                    $('.fileDroppable').removeClass('fileDragging');
+                    $('.xc-fileDroppable').removeClass('xc-fileDragging');
                 }
             }
         });
 
         $(document).on('drop', function(event) {
             event.preventDefault();
-            $('.fileDroppable').removeClass('fileDragging');
+            $('.xc-fileDroppable').removeClass('xc-fileDragging');
         });
 
         $(window).blur(function() {
