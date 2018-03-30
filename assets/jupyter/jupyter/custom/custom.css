@@ -13,3 +13,13 @@
 .list_item.xc-wkbkFolder .item_icon {
 	color: #337AB7;
 }
+
+#xc-showFolderOption {
+	display: inline-block;
+	font-weight: normal;
+}
+
+#xc-showFolderOption input {
+	margin-left: 8px;
+	cursor: pointer;
+}

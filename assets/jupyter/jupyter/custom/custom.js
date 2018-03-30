@@ -20,6 +20,7 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
     overwriteElementsAndListeners();
     setupJupyterEventListeners();
     window.addEventListener("message", receiveMessage, false);
+    var isOthersHidden = true;
 
     function receiveMessage(event) {
         window.alert = function(){};
@@ -151,6 +152,24 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
             // only apply styling if in root directory and user folder exists
             return;
         }
+
+        if (!$("#xc-showFolderOption").length) {
+            var checkOption = isOthersHidden ? "" : "checked";
+
+            var html = '<div id="xc-showFolderOption">' +
+                        'Show other folders' +
+                        '<input type="checkbox" title="Select to show folders' +
+                            ' belonging to other workbooks" ' + checkOption +
+                         '>' +
+                       '</div>';
+            var $showOption = $(html);
+            Jupyter.notebook_list.element.find("#project_name").after($showOption);
+            $showOption.find("input").change(function() {
+                isOthersHidden = !$(this).is(":checked");
+                Jupyter.notebook_list.load_list();
+            });
+        }
+
         Jupyter.notebook_list.element.find(".list_item").each(function() {
             var $row = $(this);
             var data = $row.data();
@@ -161,9 +180,16 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
                     $row.find(".running-indicator").text("Your workbook folder");
                 } else {
                     $row.addClass("xc-othersFolder");
+                    if (isOthersHidden) {
+                        $row.hide();
+                        $row.find("input").attr("type", "hidden");
+                    } else {
+                        $row.show();
+                        $row.find("input").attr("type", "checkbox");
+                    }
                 }
             }
-        })
+        });
     }
 
     function overwriteElementsAndListeners() {
