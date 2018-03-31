@@ -5,6 +5,12 @@ window.DSTargetManager = (function($, DSTargetManager) {
     var $targetCreateCard;
     var $targetInfoCard;
     var $targetTypeList;
+    var $udfModuleList;
+    var $udfFuncList;
+    var udfModuleListItems;
+    var udfFuncListItems;
+    var udfModuleHint;
+    var udfFuncHint;
 
     DSTargetManager.setup = function() {
         $gridView = $("#dsTarget-list .gridItems");
@@ -136,6 +142,13 @@ window.DSTargetManager = (function($, DSTargetManager) {
         } else {
             return false;
         }
+    };
+
+    DSTargetManager.updateUDF = function(listXdfsObj) {
+        listUDFSection(listXdfsObj)
+        .always(function() {
+            return;
+        });
     };
 
     function addEventListeners() {
@@ -381,11 +394,97 @@ window.DSTargetManager = (function($, DSTargetManager) {
         }
     }
 
+    function selectUDFModule(module) {
+        if (module == null) {
+            module = "";
+        }
+
+        udfModuleHint.setInput(module);
+
+        if (module === "") {
+            $udfFuncList.addClass("disabled");
+            selectUDFFunc("");
+        } else {
+            $udfFuncList.removeClass("disabled");
+            var $funcLis = $udfFuncList.find(".list li").addClass("hidden")
+                            .filter(function() {
+                                return $(this).data("module") === module;
+                            }).removeClass("hidden");
+            if ($funcLis.length === 1) {
+                selectUDFFunc($funcLis.eq(0).text());
+            } else {
+                selectUDFFunc("");
+            }
+        }
+    }
+
+    function selectUDFFunc(func) {
+        func = func || "";
+        if (func) {
+            udfFuncHint.setInput(func);
+        } else {
+            udfFuncHint.clearInput();
+        }
+    }
+
+    function validateUDF() {
+        var $moduleInput = $udfModuleList.find("input");
+        var $funcInput = $udfFuncList.find("input");
+        var module = $moduleInput.val();
+        var func = $funcInput.val();
+
+        var isValid = xcHelper.validate([
+            {
+                "$ele": $moduleInput,
+                "error": ErrTStr.NoEmptyList
+            },
+            {
+                "$ele": $moduleInput,
+                "error": ErrTStr.InvalidUDFModule,
+                "check": function() {
+                    var inValid = true;
+                    $udfModuleList.find(".list li").each(function($li) {
+                    if (module === $(this).text()){
+                        inValid = false;
+                        return false;
+                    }
+                    });
+                    return inValid;
+                }
+            },
+            {
+                "$ele": $funcInput,
+                "error": ErrTStr.NoEmptyList
+            },
+            {
+                "$ele": $funcInput,
+                "error": ErrTStr.InvalidUDFFunction,
+                "check": function() {
+                    var inValid = true;
+                    $udfFuncList.find(".list li").each(function($li) {
+                    if ($(this).data("module") === module && $(this).text() === func){
+                        inValid = false;
+                        return false;
+                    }
+                    });
+                    return inValid;
+                }
+            }
+        ]);
+
+        if (!isValid) {
+            return false;
+        }
+
+        return true;
+    }
+
     function selectTargetType(typeId) {
         var $form = $("#dsTarget-form");
         var targetType = typeSet[typeId];
         $form.find(".description").removeClass("xc-hidden")
              .find("#dsTarget-description").text(targetType.description);
+
         if (targetType.parameters.length > 0) {
             var html = getTargetTypeParamOptions(targetType.parameters);
             $form.find(".params").removeClass("xc-hidden")
@@ -394,6 +493,168 @@ window.DSTargetManager = (function($, DSTargetManager) {
             $form.find(".params").addClass("xc-hidden")
                  .find(".formContent").empty();
         }
+
+        var $menuparms = $('#dsTarget-params-targets');
+        $udfModuleList = $("#dsTarget-params-udfModule");
+        $udfFuncList = $("#dsTarget-params-udfFunc");
+
+        new MenuHelper($menuparms, {
+            "onSelect": function($li) {
+                var typeId = $li.data("id");
+                var $input = $menuparms.find(".text");
+                if ($input.data("id") === typeId) {
+                    return;
+                }
+                $input.data("id", typeId).val($li.text());
+                StatusBox.forceHide();
+            },
+            "container": "#dsTarget-create-card",
+            "bounds": "#dsTarget-create-card"
+        }).setupListeners();
+
+        var moduleMenuHelper = new MenuHelper($udfModuleList, {
+                "onSelect": function($li) {
+                    var module = $li.text();
+                    selectUDFModule(module);
+                },
+                "container": "#dsTarget-create-card",
+                "bounds": "#dsTarget-create-card"
+            });
+
+        var funcMenuHelper = new MenuHelper($udfFuncList, {
+                "onSelect": function($li) {
+                    var func = $li.text();
+                    selectUDFFunc(func);
+                },
+                "container": "#dsTarget-create-card",
+                "bounds": "#dsTarget-create-card"
+            });
+
+        udfModuleHint = new InputDropdownHint($udfModuleList, {
+            "menuHelper": moduleMenuHelper,
+            "onEnter": selectUDFModule
+        });
+
+        udfFuncHint = new InputDropdownHint($udfFuncList, {
+            "menuHelper": funcMenuHelper,
+            "onEnter": selectUDFFunc
+        });
+
+        selectUDFModule("");
+    }
+
+    function getTargetsForParamOptions(param, index) {
+        var labelName = "dsTarget-param-" + index;
+        var targets = Object.values(DSTargetManager.getAllTargets());
+        var lstHtml = targets.map(function(target) {
+                        return '<li data-id="' + target.type_id + '">' +
+                                    target.name +
+                                '</li>';
+                    }).join("");
+        return '<div class="formRow">' +
+                  '<label for="' + labelName + '" ' +
+                        'data-name="' + param.name + '">' +
+                            param.name + ":" +
+                  '</label>' +
+                  '<div id="dsTarget-params-targets" class="dropDownList yesclickable">' +
+                    '<input class="text" type="text" value="" spellcheck="false" disabled="disabled">' +
+                    '<div class="iconWrapper">' +
+                      '<i class="icon xi-arrow-down"></i>' +
+                    '</div>' +
+                    '<div id="dsTarget-params-targets-menu" class="list">' +
+                      '<ul>' +
+                        lstHtml +
+                      '</ul>' +
+                      '<div class="scrollArea top stopped">' +
+                        '<i class="arrow icon xi-arrow-up"></i>' +
+                      '</div>' +
+                      '<div class="scrollArea bottom">' +
+                        '<i class="arrow icon xi-arrow-down"></i>' +
+                      '</div>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>'
+    }
+
+    function getUDFsForParamOptions(param, index) {
+        var labelName = "dsTarget-param-" + index;
+        var type = param.secret ? "password" : "text";
+        var inputClass = "xc-input";
+        var descrp = param.description;
+        if(!udfModuleListItems) {
+            udfModuleListItems = "";
+        }
+        if (!udfFuncListItems) {
+            udfFuncListItems = "";
+        }
+        return '<div class="formRow">' +
+                    '<label for="' + labelName + '" ' +
+                    'data-name="' + param.name + '">' +
+                        param.name + ":" +
+                    '</label>' +
+                    '<div class="listSection" data-original-title="" title=""">' +
+                      '<div id="dsTarget-params-udfModule" class="rowContent dropDownList yesclickable"">' +
+                        '<input class="text inputable" type="text" spellcheck="false" placeholder="UDF Module">' +
+                        '<div class="iconWrapper">' +
+                          '<i class="icon xi-arrow-down"></i>' +
+                        '</div>' +
+                        '<div class="list">' +
+                          '<ul>' +
+                            udfModuleListItems +
+                          '</ul>' +
+                          '<div class="scrollArea top">' +
+                            '<i class="arrow icon xi-arrow-up"></i>' +
+                          '</div>' +
+                          '<div class="scrollArea bottom">' +
+                            '<i class="arrow icon xi-arrow-down"></i>' +
+                          '</div>' +
+                        '</div>' +
+                      '</div>' +
+                      '<div id="dsTarget-params-udfFunc" class="dropDownList disabled yesclickable">' +
+                        '<input class="text inputable" type="text" spellcheck="false" placeholder="UDF Function">' +
+                        '<div class="iconWrapper">' +
+                          '<i class="icon xi-arrow-down"></i>' +
+                        '</div>' +
+                        '<div class="list">' +
+                          '<ul>' +
+                            udfFuncListItems +
+                          '</ul>' +
+                          '<div class="scrollArea top">' +
+                            '<i class="arrow icon xi-arrow-up"></i>' +
+                          '</div>' +
+                          '<div class="scrollArea bottom">' +
+                            '<i class="arrow icon xi-arrow-down"></i>' +
+                          '</div>' +
+                        '</div>' +
+                      '</div>' +
+                    '</div>' +
+                '</div>';
+    }
+
+    function listUDFSection(listXdfsObj) {
+        var deferred = PromiseHelper.deferred();
+
+        if (!listXdfsObj) {
+            // update python module list
+            UDF.list()
+            .then(updateUDFList)
+            .then(deferred.resolve)
+            .fail(function(error) {
+                console.error("List UDF Fails!", error);
+                deferred.reject(error);
+            });
+        } else {
+            updateUDFList(listXdfsObj);
+            deferred.resolve();
+        }
+
+        return deferred.promise();
+    }
+
+    function updateUDFList(listXdfsObj) {
+        var udfObj = xcHelper.getUDFList(listXdfsObj);
+        udfModuleListItems = udfObj.moduleLis;
+        udfFuncListItems = udfObj.fnLis;
     }
 
     function getTargetTypeParamOptions(params) {
@@ -406,6 +667,12 @@ window.DSTargetManager = (function($, DSTargetManager) {
             if (param.optional) {
                 inputClass += " optional";
                 descrp += " (" + CommonTxtTstr.Optional + ")";
+            }
+            if (param.name == 'backingTargetName') {
+                return getTargetsForParamOptions(param, index);
+            }
+            else if (param.name == 'listUdf') {
+                return getUDFsForParamOptions(param, index);
             }
 
             return '<div class="formRow">' +
@@ -510,7 +777,17 @@ window.DSTargetManager = (function($, DSTargetManager) {
 
         var args = validateForm($form);
         if (!args) {
-            return;
+            deferred.reject();
+            return deferred.promise();
+        }
+        var params = args[2]
+        if (params.listUdf) {
+            var funVal = $udfFuncList.find("input").val();
+            params.listUdf += ":" + funVal;
+            if(!validateUDF()) {
+                deferred.reject();
+                return deferred.promise();
+            }
         }
         xcHelper.toggleBtnInProgress($submitBtn, true);
         var errorParser = function(log) {

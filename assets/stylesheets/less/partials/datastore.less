@@ -4351,3 +4351,51 @@ table.datasetTable {
         }
     }
 }
+
+#dsTarget-form, #dsTarget-params-udfFunc {
+    li.hidden {
+        display: none;
+    }
+
+    .disabled {
+        pointer-events: none;
+        opacity: 0.3;
+    }
+
+    .inputable {
+        cursor: text;
+
+        &:focus {
+            outline: none;
+            border-color: @color-border-softBlue;
+            background-color: @color-white;
+        }
+    }
+}
+
+#dsTarget-info-card {
+    .formRow {
+        height: auto;
+    }
+
+    span.text {
+        word-wrap: break-word;
+        white-space: normal;
+    }
+}
+
+#dsTarget-form {
+    .listSection {
+        width: 100%;
+    }
+
+    #dsTarget-params-udfModule {
+        float: left;
+        width: 50%;
+        padding-right: 10px;
+    }
+
+    #dsTarget-params-udfFunc {
+        width: 50%;
+    }
+}

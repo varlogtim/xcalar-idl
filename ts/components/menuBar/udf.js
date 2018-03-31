@@ -28,6 +28,7 @@ window.UDF = (function($, UDF) {
         initializeUDFList(true)
         .then(function(listXdfsObj) {
             DSExport.refreshUDF(listXdfsObj);
+            DSTargetManager.updateUDF(listXdfsObj);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -388,6 +389,7 @@ window.UDF = (function($, UDF) {
         initializeUDFList(false, doNotClear)
         .then(function(listXdfsObj) {
             DSPreview.update(listXdfsObj);
+            DSTargetManager.updateUDF(listXdfsObj);
             FnBar.updateOperationsMap(listXdfsObj.fnDescs, true);
             DSExport.refreshUDF(listXdfsObj);
             deferred.resolve();

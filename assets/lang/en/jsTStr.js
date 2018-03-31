@@ -364,6 +364,8 @@ ErrTStr = {
                   'recursively load the directory or use regex.',
     'MaxFiles': 'The number of files under the current directory exceeds the ' +
                 'limit. Please try to search in a child directory.',
+    'InvalidUDFModule': 'Invalid module name',
+    'InvalidUDFFunction': 'Invalid function name'
 };
 
 ErrWRepTStr = {
