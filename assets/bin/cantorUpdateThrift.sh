@@ -1,4 +1,4 @@
-cd ~/gui/assets/js/thrift/
+cd ~/gui/ts/thrift/
 rm *
 scp jyang@cantor:~/xcalar/buildOut/src/bin/jsClient/jsPackage/*.js .
 scp jyang@cantor:~/xcalar/src/bin/tests/MgmtTest.js .

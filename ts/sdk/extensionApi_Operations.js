@@ -454,7 +454,7 @@ window.XcSDK.Extension.prototype = (function() {
             // XXX options is later used to customize tableCols
             options = options || {};
             var srcTableId = xcHelper.getTableId(srcTable);
-            if (dstCols == null && srcTableId != null) {
+            if (dstCols == null && srcTableId != null && gTables[srcTableId]) {
                 dstCols = gTables[srcTableId].tableCols;
             }
 

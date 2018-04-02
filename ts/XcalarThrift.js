@@ -2640,7 +2640,10 @@ XcalarProject = function(columns, tableName, dstTableName, txId) {
 };
 
 // rename map is an arry of array
-XcalarUnion = function(tableNames, newTableName, colInfos, dedup, txId) {
+// if unionType is unionExcept or unionIntersect, it's actually the named
+// operation and not union
+XcalarUnion = function(tableNames, newTableName, colInfos, dedup, unionType,
+                       txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -4846,6 +4849,87 @@ XcalarTargetTypeList = function() {
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarTargetTypeList", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+// IMD APIs
+XcalarListPublishedTables = function(pubPatternMatch) {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    xcalarListPublishedTables(tHandle, pubPatternMatch)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarListPublishedTables", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+XcalarUnpublishTable = function(pubTableName) {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    xcalarUnpublish(tHandle, pubTableName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarUnpublishTable", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+XcalarPublishTable = function(srcTableName, pubTableName) {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    xcalarApiPublish(tHandle, srcTableName, pubTableName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarPublishTable", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+XcalarUpdateTable = function(deltaTableNames, pubTableNames) {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    xcalarApiUpdate(tHandle, deltaTableNames, pubTableNames)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarTargetTypeList", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+XcalarRefreshTable = function(pubTableName, dstTableName, batchId, checkpoint) {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    xcalarApiSelect(tHandle, pubTableName, dstTableName, batchId, checkpoint)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarRefreshTable", error);
         deferred.reject(thriftError);
     });
 

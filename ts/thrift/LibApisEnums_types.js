@@ -133,7 +133,12 @@ XcalarApisT = {
   'XcalarApiArchiveTables' : 124,
   'XcalarApiSessionDownload' : 125,
   'XcalarApiSessionUpload' : 126,
-  'XcalarApiFunctionInvalid' : 127
+  'XcalarApiPublish' : 127,
+  'XcalarApiUpdate' : 128,
+  'XcalarApiSelect' : 129,
+  'XcalarApiUnpublish' : 130,
+  'XcalarApiListTables' : 131,
+  'XcalarApiFunctionInvalid' : 132
 };
 XcalarApisTStr = {
   0 : 'XcalarApiUnknown',
@@ -263,7 +268,12 @@ XcalarApisTStr = {
   124 : 'XcalarApiArchiveTables',
   125 : 'XcalarApiSessionDownload',
   126 : 'XcalarApiSessionUpload',
-  127 : 'XcalarApiFunctionInvalid'
+  127 : 'XcalarApiPublish',
+  128 : 'XcalarApiUpdate',
+  129 : 'XcalarApiSelect',
+  130 : 'XcalarApiUnpublish',
+  131 : 'XcalarApiListTables',
+  132 : 'XcalarApiFunctionInvalid'
 };
 XcalarApisTFromStr = {
   'XcalarApiUnknown' : 0,
@@ -393,5 +403,10 @@ XcalarApisTFromStr = {
   'XcalarApiArchiveTables' : 124,
   'XcalarApiSessionDownload' : 125,
   'XcalarApiSessionUpload' : 126,
-  'XcalarApiFunctionInvalid' : 127
+  'XcalarApiPublish' : 127,
+  'XcalarApiUpdate' : 128,
+  'XcalarApiSelect' : 129,
+  'XcalarApiUnpublish' : 130,
+  'XcalarApiListTables' : 131,
+  'XcalarApiFunctionInvalid' : 132
 };

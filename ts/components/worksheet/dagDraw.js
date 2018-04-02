@@ -2166,6 +2166,8 @@ window.DagDraw = (function($, DagDraw) {
                         rSrcCols.push(parents[i].value.struct.key[j].name);
                     }
                 }
+            } else if (parents[i].value.api === XcalarApisT.XcalarApiSynthesize) {
+
             } else {// join, groupby
                 if (i === 0) {
                     lSrcCols.push(getSrcIndex(parents[i].parents[0]));

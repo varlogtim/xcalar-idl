@@ -616,7 +616,10 @@ StatusT = {
   'StatusRecordError' : 607,
   'StatusCannotReplaceKey' : 608,
   'StatusSerializationIsDisabled' : 609,
-  'StatusFieldLimitExceeded' : 610
+  'StatusFieldLimitExceeded' : 610,
+  'StatusWrongNumberOfArgs' : 611,
+  'StatusMissingXcalarOpCode' : 612,
+  'StatusMissingXcalarRankOver' : 613
 };
 StatusTStr = {
   0 : 'Success',
@@ -1229,7 +1232,10 @@ StatusTStr = {
   607 : 'Record errors are disallowed',
   608 : 'Cannot replace key field',
   609 : 'Serialization is disabled',
-  610 : 'Number of fields exceeded limit'
+  610 : 'Number of fields exceeded limit',
+  611 : 'Wrong number of operands provided to operator',
+  612 : 'Missing XcalarOpCode column',
+  613 : 'Missing XcalarRankOver column'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -1842,5 +1848,8 @@ StatusTFromStr = {
   'Record errors are disallowed' : 607,
   'Cannot replace key field' : 608,
   'Serialization is disabled' : 609,
-  'Number of fields exceeded limit' : 610
+  'Number of fields exceeded limit' : 610,
+  'Wrong number of operands provided to operator' : 611,
+  'Missing XcalarOpCode column' : 612,
+  'Missing XcalarRankOver column' : 613
 };

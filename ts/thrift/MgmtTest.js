@@ -194,6 +194,7 @@ window.Function.prototype.bind = function() {
 
     var session1; // Inactive session after apiKeySession test
     var session2; // Active session after apiKeySession test
+    var session3; // Session to use to upload workbook
 
     // For retina test
     var retinaName;
@@ -1638,7 +1639,65 @@ window.Function.prototype.bind = function() {
 
         xcalarUnion(thriftHandle, tables,
                     "unionTest",
-                    columns, false)
+                    columns, false, "unionStandard")
+        .then(function(result) {
+            printResult(result);
+            newTableOutput = result;
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(JSON.stringify(reason));
+        });
+    }
+
+    function testIntersect(test) {
+        var columns = [];
+        var tables = [];
+        for (var i = 0; i < 3; i++) {
+            var column = [];
+
+            var map = new XcalarApiColumnT();
+            map.sourceColumn = "yelp_user";
+            map.destColumn = "rightDataset";
+            map.columnType = "DfFatptr";
+            column.push(map);
+
+            tables.push("yelp/user-dummyjoin");
+            columns.push(column);
+        }
+
+        xcalarUnion(thriftHandle, tables,
+                    "intersectTest",
+                    columns, false, "unionIntersect")
+        .then(function(result) {
+            printResult(result);
+            newTableOutput = result;
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(JSON.stringify(reason));
+        });
+    }
+
+    function testExcept(test) {
+        var columns = [];
+        var tables = [];
+        for (var i = 0; i < 3; i++) {
+            var column = [];
+
+            var map = new XcalarApiColumnT();
+            map.sourceColumn = "yelp_user";
+            map.destColumn = "rightDataset";
+            map.columnType = "DfFatptr";
+            column.push(map);
+
+            tables.push("yelp/user-dummyjoin");
+            columns.push(column);
+        }
+
+        xcalarUnion(thriftHandle, tables,
+                    "exceptTest",
+                    columns, false, "unionExcept")
         .then(function(result) {
             printResult(result);
             newTableOutput = result;
@@ -3243,29 +3302,31 @@ window.Function.prototype.bind = function() {
     }
 
     function testSessionDownload(test) {
-        // XXX
-        xcalarApiSessionDownload(thriftHandle, "helloWorld")
+        xcalarApiSessionDownload(thriftHandle, session2)
         .done(function(res) {
-            printResult(res);
-            test.pass();
-        })
-        .fail(function(reason) {
-            // XXX
-            test.pass();
-            // test.fail(reason);
-        });
-    }
-
-    function testSessionUpload(test) {
-        // XXX
-        xcalarApiSessionUpload(thriftHandle, "GoodByeWorld", "content")
-        .done(function(res) {
-            printResult(res);
             test.pass();
         })
         .fail(function(reason) {
             test.fail(reason);
         });
+    }
+
+    function testSessionUpload(test) {
+        xcalarApiSessionDownload(thriftHandle, session2)
+        .done(function(sessionDownloadOutput) {
+            session3 = session2 + "-upload";
+            xcalarApiSessionUpload(thriftHandle, session3, sessionDownloadOutput.sessionContent)
+            .done(function(res) {
+                printResult(res);
+                test.pass();
+            })
+            .fail(function(reason) {
+                test.fail(reason);
+            })
+        })
+        .fail(function(reason) {
+            test.fail(reason);
+        })
     }
 
     function testPerNodeOpStats() {
@@ -4009,9 +4070,9 @@ window.Function.prototype.bind = function() {
     addTestCase(testListTables, "list tables", defaultTimeout, TestCaseEnabled, "");
     // !!! If you add a test above that creates a new table, be sure to bump up the
     // numNodes assert in the last .then clause
-    addTestCase(testSessionInact, "inact session", defaultTimeout, TestCaseEnabled);
-    addTestCase(testSessionDownload, "download session", defaultTimeout, TestCaseEnabled);
-    addTestCase(testSessionUpload, "upload session", defaultTimeout, TestCaseEnabled);
+    addTestCase(testSessionInact, "inact session", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testSessionDownload, "download session", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testSessionUpload, "upload session", defaultTimeout, TestCaseDisabled, "");
 
     // XXX Re-enable as soon as bug is fixed
     addTestCase(testGetStats, "get stats", defaultTimeout, TestCaseEnabled, "");
@@ -4033,6 +4094,8 @@ window.Function.prototype.bind = function() {
     addTestCase(testProject, "project", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testJoin, "join", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testUnion, "union", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testIntersect, "intersect", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testExcept, "except", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testGetOpStats, "getOpStats", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testQuery, "Submit Query", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testQueryState, "Request query state of indexing dataset (int)", defaultTimeout, TestCaseDisabled, "");

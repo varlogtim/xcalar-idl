@@ -1488,7 +1488,6 @@ window.ColManager = (function($, ColManager) {
         var tdValLen = formatVal.length;
         var truncated = (tdValLen > limit);
 
-
         if (truncated) {
             var truncLen = tdValLen - limit;
             formatVal = formatVal.substr(0, limit) +
