@@ -53,16 +53,17 @@ window.Admin = (function($, Admin) {
     Admin.addNewUser = function() {
         var deferred = PromiseHelper.deferred();
         var username = XcSupport.getUser();
+        var kvStore = new KVStore(userListKey, gKVScope.GLOB);
 
-        KVStore.get(userListKey, gKVScope.GLOB)
+        kvStore.get()
         .then(function(value) {
             if (value == null) {
-                return storeUsername(username);
+                return storeUsername(kvStore, username);
             } else {
                 parseStrIntoUserList(value);
                 // usernames are case sensitive
                 if (userList.indexOf(username) === -1) {
-                    return storeUsername(username, true);
+                    return storeUsername(kvStore, username, true);
                 } else {
                     return PromiseHelper.resolve();
                 }
@@ -507,14 +508,14 @@ window.Admin = (function($, Admin) {
     }
 
     // xcalar put by default, or append if append param is true
-    function storeUsername(username, append) {
+    function storeUsername(kvStore, username, append) {
         var deferred = PromiseHelper.deferred();
         var entry = JSON.stringify(username) + ",";
         var promise;
         if (append) {
-            promise = XcalarKeyAppend(userListKey, entry, true, gKVScope.GLOB);
+            promise = kvStore.append(entry, true, true);
         } else {
-            promise = XcalarKeyPut(userListKey, entry, true, gKVScope.GLOB);
+            promise = kvStore.put(entry, true, true);
         }
 
         promise.then(function() {
@@ -592,7 +593,8 @@ window.Admin = (function($, Admin) {
         var deferred = PromiseHelper.deferred();
         $userList.addClass("refreshing");
 
-        KVStore.get(userListKey, gKVScope.GLOB)
+        var kvStore = new KVStore(userListKey, gKVScope.GLOB);
+        kvStore.get()
         .then(function(value) {
             if (value == null) {
                 userList = [];
@@ -963,9 +965,12 @@ window.Admin = (function($, Admin) {
       /* Unit Test Only */
     if (window.unitTestMode) {
         Admin.__testOnly__ = {};
-        Admin.__testOnly__.setPosingAs = function() {
+        Admin.__testOnly__.setPosingAs = function(wasAdmin) {
             posingAsUser = true;
             $('#container').addClass('posingAsUser');
+            if (wasAdmin) {
+                setupAdminStatusBar();
+            }
         };
         Admin.__testOnly__.refreshUserList = refreshUserList;
     }

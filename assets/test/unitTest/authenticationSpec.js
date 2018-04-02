@@ -42,9 +42,9 @@ describe("Authentication Test", function() {
         });
 
         it("should get hash id", function() {
-            var oldFunc = KVStore.put;
+            var oldFunc = KVStore.prototype.put;
             var test = false;
-            KVStore.put = function() {
+            KVStore.prototype.put = function() {
                 test = true;
                 // test .fail code
                 return PromiseHelper.reject("test");
@@ -54,17 +54,17 @@ describe("Authentication Test", function() {
             expect(res).to.equal("#" + oldAuthInfo.getHashTag() + oldIdCount);
             var curAuthInfo = Authentication.getInfo();
             expect(curAuthInfo.getIdCount()).to.equal(oldIdCount + 1);
-            // will trigger KVStore.put
+            // will trigger  KVStore.prototype.put
             expect(test).to.be.true;
 
             // reverse back
             curAuthInfo.idCount = oldIdCount;
-            KVStore.put = oldFunc;
+            KVStore.prototype.put = oldFunc;
         });
 
         it("Authentication.setup should handle fail case", function(done) {
-            var oldFunc = KVStore.getAndParse;
-            KVStore.getAndParse = function() {
+            var oldFunc = KVStore.prototype.getAndParse;
+            KVStore.prototype.getAndParse = function() {
                 return PromiseHelper.reject("test");
             };
 
@@ -77,7 +77,7 @@ describe("Authentication Test", function() {
                 done();
             })
             .always(function() {
-                KVStore.getAndParse = oldFunc;
+                KVStore.prototype.getAndParse = oldFunc;
             });
         });
     });

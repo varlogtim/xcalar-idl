@@ -1781,6 +1781,10 @@ window.TblManager = (function($, TblManager) {
     }
 
     function animateTableId(tableId, oldId) {
+        if (gMinModeOn) {
+            return PromiseHelper.resolve();
+        }
+
         var deferred = PromiseHelper.deferred();
         var $hashName = $("#xcTheadWrap-" + tableId).find(".hashName");
         var oldText = $hashName.text();

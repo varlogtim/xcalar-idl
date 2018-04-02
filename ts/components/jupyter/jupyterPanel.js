@@ -287,7 +287,8 @@ window.JupyterPanel = (function($, JupyterPanel) {
         var deferred = PromiseHelper.deferred();
 
         var kvsKey = wkbkId + "-gNotebook-" + currentVersion;
-        KVStore.get(kvsKey, gKVScope.WKBK)
+        var kvStore = new KVStore(kvsKey, gKVScope.WKBK);
+        kvStore.get()
         .then(function(jupMeta) {
             var folderName;
             if (jupMeta) {
@@ -342,7 +343,8 @@ window.JupyterPanel = (function($, JupyterPanel) {
         var deferred = PromiseHelper.deferred();
 
         var kvsKey = wkbkId + "-gNotebook-" + currentVersion;
-        KVStore.get(kvsKey, gKVScope.WKBK)
+        var kvStore = new KVStore(kvsKey, gKVScope.WKBK);
+        kvStore.get()
         .then(function(jupMeta) {
             var folderName = "";
 
@@ -464,8 +466,9 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
     function restoreMeta() {
         var deferred = PromiseHelper.deferred();
-
-        KVStore.get(KVStore.gNotebookKey, gKVScope.WKBK)
+        var key = KVStore.getKey("gNotebookKey");
+        var kvStore = new KVStore(key, gKVScope.WKBK);
+        kvStore.get()
         .then(function(jupMeta) {
             var lastNotebook = null;
             var folderName = null;
@@ -511,18 +514,19 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
     function storeNewFolder(wkbkId, folderName) {
         var kvsKey = wkbkId + "-gNotebook-" + currentVersion;
+        var kvStore = new KVStore(kvsKey, gKVScope.WKBK);
         var info = {
             currentNotebook: null,
             folderName: folderName
         };
-        return KVStore.put(kvsKey, JSON.stringify(info), true, gKVScope.WKBK);
+        return kvStore.put(JSON.stringify(info), true);
     }
 
     function storeMeta() {
         if (jupyterMeta.hasFolder()) {
-            var kvsKey = KVStore.gNotebookKey;
-            return KVStore.put(kvsKey, JSON.stringify(jupyterMeta.getMeta()),
-                               true, gKVScope.WKBK);
+            var kvsKey = KVStore.getKey("gNotebookKey");
+            var kvStore = new KVStore(kvsKey, gKVScope.WKBK);
+            return kvStore.put(JSON.stringify(jupyterMeta.getMeta()), true);
         } else {
             // don't save if no folder
             return PromiseHelper.reject();

@@ -7,9 +7,9 @@ describe("WorkbookManager Test", function() {
     before(function() {
         console.clear();
         UnitTest.onMinMode();
-        oldKVGet = KVStore.get;
-        oldKVPut = KVStore.put;
-        oldKVDelete = KVStore.delete;
+        oldKVGet = KVStore.prototype.get;
+        oldKVPut = KVStore.prototype.put;
+        oldKVDelete = KVStore.prototype.delete;
         oldXcalarPut = XcalarKeyPut;
         oldXcalarDelete = XcalarKeyDelete;
         oldJupyterNewWkbk = JupyterPanel.newWorkbook;
@@ -24,15 +24,13 @@ describe("WorkbookManager Test", function() {
             return PromiseHelper.resolve();
         };
 
-        KVStore.get = function(key) {
+        KVStore.prototype.get = function(key) {
             return PromiseHelper.resolve(fakeMap[key]);
         };
 
-        KVStore.put = XcalarKeyPut;
-
-        KVStore.delete = XcalarKeyDelete;
-
-        JupyterPanel.newWorkbook = PromiseHelper.resolve();
+        JupyterPanel.newWorkbook = function() {
+            return PromiseHelper.resolve();
+        }
 
         generateKey = WorkbookManager.__testOnly__.generateKey;
     });
@@ -330,6 +328,9 @@ describe("WorkbookManager Test", function() {
         });
 
         it("WorkbookManager.getWKBKsAsync should work", function(done) {
+            var oldFunc = KVStore.prototype.get;
+            KVStore.prototype.get = oldKVGet;
+            
             WorkbookManager.getWKBKsAsync()
             .then(function(wkbk, sessionInfo) {
                 expect(wkbk).not.to.be.null;
@@ -338,6 +339,9 @@ describe("WorkbookManager Test", function() {
             })
             .fail(function() {
                 done("fail");
+            })
+            .always(function() {
+                KVStore.prototype.get = oldFunc;
             });
         });
 
@@ -798,12 +802,10 @@ describe("WorkbookManager Test", function() {
     });
 
     after(function() {
-        KVStore.get = oldKVGet;
-        KVStore.put = oldKVPut;
-        KVStore.delete = oldKVDelete;
+        KVStore.prototype.get = oldKVGet;
         XcalarKeyPut = oldXcalarPut;
         XcalarKeyDelete = oldXcalarDelete;
-        UnitTest.offMinMode();
         JupyterPanel.newWorkbook = oldJupyterNewWkbk;
+        UnitTest.offMinMode();
     });
 });

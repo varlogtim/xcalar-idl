@@ -1,17 +1,20 @@
 window.Authentication = (function(jQuery, Authentication) {
     var authInfo;
+    var kvStore;
 
     Authentication.setup = function() {
         var deferred = PromiseHelper.deferred();
-        KVStore.getAndParse(KVStore.gAuthKey, gKVScope.AUTH)
+        var key = KVStore.getKey("gAuthKey");
+        kvStore = new KVStore(key, gKVScope.AUTH);
+
+        kvStore.getAndParse()
         .then(function(oldAuthInfo) {
             if (oldAuthInfo == null) {
                 authInfo = new XcAuth({
                     "idCount": 0,
                     "hashTag": generateHashTag()
                 });
-                KVStore.put(KVStore.gAuthKey, JSON.stringify(authInfo),
-                            true, gKVScope.AUTH);
+                kvStore.put(JSON.stringify(authInfo), true);
             } else {
                 authInfo = new XcAuth(oldAuthInfo);
             }
@@ -34,20 +37,13 @@ window.Authentication = (function(jQuery, Authentication) {
         var idCount = authInfo.getIdCount();
         authInfo.incIdCount();
 
-        KVStore.put(KVStore.gAuthKey, JSON.stringify(authInfo),
-                    true, gKVScope.AUTH)
+        kvStore.put(JSON.stringify(authInfo), true)
         .fail(function(error) {
             console.error("Save Authentication fails", error);
         });
 
         return ("#" + authInfo.getHashTag() + idCount);
     };
-
-    // Authentication.clear = function() {
-    //     // this clear all users' info
-    //     authInfo = null;
-    //     return KVStore.delete(KVStore.gAuthKey, gKVScope.AUTH);
-    // };
 
     function generateHashTag() {
         // 2891 = 49 * 59, possibility

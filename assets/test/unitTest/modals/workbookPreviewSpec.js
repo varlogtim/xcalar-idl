@@ -11,7 +11,7 @@ describe("Workbook Preview Test", function() {
         $workbookPreview = $("#workbookPreview");
 
         oldGetTables = XcalarGetTables;
-        oldGetMeta = KVStore.getAndParse;
+        oldGetMeta = KVStore.prototype.getAndParse;
         oldGetDag = XcalarGetDag;
 
         XcalarGetTables = function() {
@@ -26,7 +26,7 @@ describe("Workbook Preview Test", function() {
             })
         };
 
-        KVStore.getAndParse = function() {
+        KVStore.prototype.getAndParse = function() {
             return PromiseHelper.resolve({
                 TILookup: {
                     ab1: {
@@ -215,8 +215,8 @@ describe("Workbook Preview Test", function() {
         });
 
         it("should handle kvStore error sliently", function(done) {
-            var oldFunc = KVStore.getAndParse;
-            KVStore.getAndParse = function() {
+            var oldFunc = KVStore.prototype.getAndParse;
+            KVStore.prototype.getAndParse = function() {
                 return PromiseHelper.resolve(null);
             };
 
@@ -229,13 +229,13 @@ describe("Workbook Preview Test", function() {
                 done("fail");
             })
             .always(function() {
-                KVStore.getAndParse = oldFunc;
+                KVStore.prototype.getAndParse = oldFunc;
             });
         });
 
         it("should handle kvStore error sliently case2", function(done) {
-            var oldFunc = KVStore.getAndParse;
-            KVStore.getAndParse = function() {
+            var oldFunc = KVStore.prototype.getAndParse;
+            KVStore.prototype.getAndParse = function() {
                 return PromiseHelper.reject("test");
             };
 
@@ -248,13 +248,13 @@ describe("Workbook Preview Test", function() {
                 done("fail");
             })
             .always(function() {
-                KVStore.getAndParse = oldFunc;
+                KVStore.prototype.getAndParse = oldFunc;
             });
         });
 
         it("should handle no ws meta case", function(done) {
-            var oldFunc = KVStore.getAndParse;
-            KVStore.getAndParse = function() {
+            var oldFunc = KVStore.prototype.getAndParse;
+            KVStore.prototype.getAndParse = function() {
                 return PromiseHelper.resolve({
                     TILookup: {
                         ab1: {
@@ -283,14 +283,14 @@ describe("Workbook Preview Test", function() {
                 done("fail");
             })
             .always(function() {
-                KVStore.getAndParse = oldFunc;
+                KVStore.prototype.getAndParse = oldFunc;
             });
         })
     });
 
     after(function() {
         XcalarGetTables = oldGetTables;
-        KVStore.getAndParse = oldGetMeta;
+        KVStore.prototype.getAndParse = oldGetMeta;
         XcalarGetDag = oldGetDag;
         UnitTest.offMinMode();
     });

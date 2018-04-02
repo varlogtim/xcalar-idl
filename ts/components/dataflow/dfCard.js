@@ -121,7 +121,7 @@ window.DFCard = (function($, DFCard) {
         var $refreshIcon = xcHelper.showRefreshIcon($dfMenu, true);
         var startTime = Date.now();
 
-        KVStore.getEmataInfo()
+        DF.getEmataInfo()
         .then(function(eMeta) {
             var ephMetaInfos;
             try {

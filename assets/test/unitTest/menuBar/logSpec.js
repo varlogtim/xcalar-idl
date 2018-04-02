@@ -220,8 +220,8 @@ describe("Log Test", function() {
         });
 
         it("Should not restore in error case", function(done) {
-            var oldFunc = KVStore.get;
-            KVStore.get = function() {
+            var oldFunc = KVStore.prototype.get;
+            KVStore.prototype.get = function() {
                 return PromiseHelper.reject({"error": "test"});
             };
 
@@ -235,7 +235,7 @@ describe("Log Test", function() {
                 done();
             })
             .always(function() {
-                KVStore.get = oldFunc;
+                KVStore.prototype.get = oldFunc;
             });
         });
 

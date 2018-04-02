@@ -285,9 +285,9 @@ describe("Workbook- Workbook Pane Test", function() {
         var activeWkbkId;
 
         before(function() {
-            oldKVGet = KVStore.get;
-            oldKVPut = KVStore.put;
-            oldKVDelete = KVStore.delete;
+            oldKVGet = KVStore.prototype.get;
+            oldKVPut = KVStore.prototype.put;
+            oldKVDelete = KVStore.prototype.delete;
             oldXcalarPut = XcalarKeyPut;
             oldXcalarDelete = XcalarKeyDelete;
 
@@ -301,12 +301,12 @@ describe("Workbook- Workbook Pane Test", function() {
                 return PromiseHelper.resolve();
             };
 
-            KVStore.get = function(key) {
+            KVStore.prototype.get = function(key) {
                 return PromiseHelper.resolve(fakeMap[key]);
             };
 
-            KVStore.put = XcalarKeyPut;
-            KVStore.delete = XcalarKeyDelete;
+            KVStore.prototype.put = XcalarKeyPut;
+            KVStore.prototype.delete = XcalarKeyDelete;
 
             oldWkbkNew = XcalarNewWorkbook;
             oldWkbkList = XcalarListWorkbooks;
@@ -636,9 +636,9 @@ describe("Workbook- Workbook Pane Test", function() {
         });
 
         after(function() {
-            KVStore.get = oldKVGet;
-            KVStore.put = oldKVPut;
-            KVStore.delete = oldKVDelete;
+            KVStore.prototype.get = oldKVGet;
+            KVStore.prototype.put = oldKVPut;
+            KVStore.prototype.delete = oldKVDelete;
             XcalarKeyPut = oldXcalarPut;
             XcalarKeyDelete = oldXcalarDelete;
 

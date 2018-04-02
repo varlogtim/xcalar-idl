@@ -159,8 +159,8 @@ window.Upgrader = (function(Upgrader, $) {
 
     function upgradeWKBkSet(wkbkKey) {
         var deferred = PromiseHelper.deferred();
-
-        KVStore.getAndParse(wkbkKey, gKVScope.WKBK)
+        var storageStore = new KVStore(wkbkKey, gKVScope.WKBK);
+        storageStore.getAndParse()
         .then(function(oldWkbks) {
             var passed = false;
             var err;
@@ -222,8 +222,8 @@ window.Upgrader = (function(Upgrader, $) {
     // Special case: after upgrade, Log.upgrade already return a string
     function upgradeLogMeta(gLogKey, wkbkContainer) {
         var deferred = PromiseHelper.deferred();
-
-        KVStore.get(gLogKey, gKVScope.LOG)
+        var logStore = new KVStore(gLogKey, gKVScope.LOG);
+        logStore.get()
         .then(function(oldLog) {
             wkbkContainer.log = Log.upgrade(oldLog);
             deferred.resolve();
@@ -236,8 +236,8 @@ window.Upgrader = (function(Upgrader, $) {
     // Special case: after upgrade, Log.upgrade already return a string
     function upgradeErrorLogMeta(gErrKey, wkbkContainer) {
         var deferred = PromiseHelper.deferred();
-
-        KVStore.get(gErrKey, gKVScope.ERR)
+        var errorLogStore = new KVStore(gErrKey, gKVScope.ERR);
+        errorLogStore.get()
         .then(function(oldErrorLog) {
             wkbkContainer.errorLog = Log.upgrade(oldErrorLog);
             deferred.resolve();
@@ -249,8 +249,8 @@ window.Upgrader = (function(Upgrader, $) {
 
     function upgradeHelper(key, scope, consctorName) {
         var deferred = PromiseHelper.deferred();
-
-        KVStore.getAndParse(key, scope)
+        var kvStore = new KVStore(key, scope);
+        kvStore.getAndParse(key, scope)
         .then(function(meta) {
             var passed = false;
             var newMeta;
@@ -339,8 +339,8 @@ window.Upgrader = (function(Upgrader, $) {
 
     function checkAndWrite(key, value, scope, needMutex) {
         var deferred = PromiseHelper.deferred();
-
-        KVStore.get(key, scope)
+        var kvStore = new KVStore(key, scope);
+        kvStore.get(key, scope)
         .then(function(oldValue) {
             if (oldValue != null) {
                 console.log("info of new version already exist");
@@ -370,9 +370,10 @@ window.Upgrader = (function(Upgrader, $) {
         }
 
         if (needMutex) {
-            return KVStore.putWithMutex(key, stringified, true, scope, true);
+            var kvStore = new KVStore(key, scope);
+            return kvStore.putWithMutex(stringified, true, true);
         } else {
-            return XcalarKeyPut(key, stringified, true, scope);
+            return kvStore.put(stringified, true, true);
         }
     }
     /* end of write part */

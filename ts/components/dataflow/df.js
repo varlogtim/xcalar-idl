@@ -8,7 +8,7 @@ window.DF = (function($, DF) {
         var retMeta;
         var numRetinas;
 
-        KVStore.getEmataInfo()
+        DF.getEmataInfo()
         .then(function(eMeta) {
             var ephMetaInfos;
             try {
@@ -81,6 +81,12 @@ window.DF = (function($, DF) {
 
     DF.wasRestored = function() {
         return restored;
+    };
+
+    DF.getEmataInfo = function() {
+        var key = KVStore.getKey("gEphStorageKey");
+        var kvStore = new KVStore(key, gKVScope.EPHM);
+        return kvStore.getInfo(true);
     };
 
     // if df.restore hasn't been called, we will track the most recently

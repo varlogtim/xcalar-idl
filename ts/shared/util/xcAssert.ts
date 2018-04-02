@@ -1,11 +1,8 @@
 function xcAssert(
     statement: boolean,
-    error: any,
+    error: string = 'Assert failed',
     logOnly: boolean = false
 ): void {
-    if (error == null) {
-        error = 'Assert failed';
-    }
     if (!statement) {
         xcConsole.log(error);
 

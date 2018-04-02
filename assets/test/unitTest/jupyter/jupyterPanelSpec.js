@@ -237,8 +237,8 @@ describe("JupyterPanel Test", function() {
 
         it("updateLocation should be triggered", function(done) {
             var called = false;
-            var cacheFn = KVStore.put;
-            KVStore.put = function(isNew) {
+            var cacheFn =  KVStore.prototype.put;
+            KVStore.prototype.put = function(isNew) {
                 called = true;
                 return PromiseHelper.resolve();
             };
@@ -246,7 +246,7 @@ describe("JupyterPanel Test", function() {
             sendMessage({action: "updateLocation"})
             .then(function() {
                 expect(called).to.be.true;
-                KVStore.put = cacheFn;
+                KVStore.prototype.put = cacheFn;
                 done();
             })
             .fail(function() {

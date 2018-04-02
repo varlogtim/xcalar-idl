@@ -11,7 +11,7 @@ window.XVM = (function(XVM) {
                         // build number is generated during the build process by
                         // Makefile and jenkins
     var kvVersion;
-    var kvVersionKey;
+    var kvVersionStore;
     var backendVersion = "";
     var licenseKey = "";
     var licenseMode = "";
@@ -20,7 +20,8 @@ window.XVM = (function(XVM) {
     var numNodes = -1; // Set, but not used
 
     XVM.setup = function() {
-        kvVersionKey = "xcalar-version-" + XcSupport.getUser();
+        var kvVersionKey = "xcalar-version-" + XcSupport.getUser();
+        kvVersionStore = new KVStore(kvVersionKey, gKVScope.VER);
     };
 
     XVM.getVersion = function() {
@@ -216,7 +217,8 @@ window.XVM = (function(XVM) {
         var deferred = PromiseHelper.deferred();
         var needUpgrade = false;
         var firstUser = false;
-        KVStore.get(kvVersionKey, gKVScope.VER)
+    
+        kvVersionStore.get()
         .then(function(res) {
             var versionInfo = parseKVStoreVersionInfo(res);
             checkVersionInfo(versionInfo);
@@ -296,13 +298,13 @@ window.XVM = (function(XVM) {
 
     // XXX it's not used anywhere, just for testing upgrade
     XVM.rmKVVersion = function() {
-        return KVStore.delete(kvVersionKey, gKVScope.VER);
+        return kvVersionStore.delete();
     };
 
     // commit kvVersion
     XVM.commitKVVersion = function() {
         var version = JSON.stringify(kvVersion);
-        return KVStore.put(kvVersionKey, version, true, gKVScope.VER);
+        return kvVersionStore.put(version, true);
     };
 
     // XVM.alertLicenseExpire = function() {

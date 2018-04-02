@@ -178,10 +178,13 @@ window.Log = (function($, Log) {
         }
 
         var deferred = PromiseHelper.deferred();
+
+        var key = KVStore.getKey("gErrKey");
+        var kvStore = new KVStore(key, gKVScope.ERR);
         var tmpLog = errToCommit;
         errToCommit = "";
 
-        KVStore.append(KVStore.gErrKey, tmpLog, true, gKVScope.ERR)
+        kvStore.append(tmpLog, true)
         .then(deferred.resolve)
         .fail(function(error) {
             errToCommit = tmpLog;
@@ -562,11 +565,13 @@ window.Log = (function($, Log) {
         }
 
         var deferred = PromiseHelper.deferred();
+        var key = KVStore.getKey("gLogKey");
+        var kvStore = new KVStore(key, gKVScope.LOG);
         var tmpLog = logToCommit;
         logToCommit = "";
         // should change logToCommit before async call
 
-        KVStore.append(KVStore.gLogKey, tmpLog, true, gKVScope.LOG)
+        kvStore.append(tmpLog, true)
         .then(deferred.resolve)
         .fail(function(error) {
             logToCommit = tmpLog;
@@ -607,13 +612,15 @@ window.Log = (function($, Log) {
     // restore logs
     function restoreLogs(oldLogCursor) {
         var deferred = PromiseHelper.deferred();
-        KVStore.get(KVStore.gLogKey, gKVScope.LOG)
+        var key = KVStore.getKey("gLogKey");
+        var kvStore = new KVStore(key, gKVScope.LOG);
+        kvStore.get()
         .then(function(rawLog) {
             var oldLogs = parseRawLog(rawLog);
             if (oldLogs != null) {
                 if (oldLogCursor == null || oldLogCursor >= oldLogs.length) {
                     // error case
-                    xcConsole.error("Loose old cursor track");
+                    xcConsole.error("Lost old cursor track");
                     oldLogCursor = oldLogs.length - 1;
                 }
                 var logs = [];
@@ -645,7 +652,9 @@ window.Log = (function($, Log) {
     // restore error logs
     function restoreErrors() {
         var deferred = PromiseHelper.deferred();
-        KVStore.get(KVStore.gErrKey, gKVScope.ERR)
+        var key = KVStore.getKey("gErrKey");
+        var kvStore = new KVStore(key, gKVScope.ERR);
+        kvStore.get()
         .then(function(rawLog) {
             var oldErrors = parseRawLog(rawLog);
 
@@ -672,7 +681,9 @@ window.Log = (function($, Log) {
 
     function restoreOverwrittenLogs() {
         var deferred = PromiseHelper.deferred();
-        KVStore.get(KVStore.gOverwrittenLogKey, gKVScope.LOG)
+        var key = KVStore.getKey("gOverwrittenLogKey");
+        var kvStore = new KVStore(key, gKVScope.LOG);
+        kvStore.get()
         .then(function(rawLog) {
             var oldOverwrites = parseRawLog(rawLog);
 
@@ -715,8 +726,10 @@ window.Log = (function($, Log) {
             // must set to "" before async call, other wise KVStore.commit
             // may mess it up
             logToCommit = "";
+            var key = KVStore.getKey("gLogKey");
             var logStr = stringifyLog(logs);
-            KVStore.put(KVStore.gLogKey, logStr, true, gKVScope.LOG)
+            var kvStore = new KVStore(key, gKVScope.LOG);
+            kvStore.put(logStr, true)
             .then(function() {
                 localCommit();
 
@@ -1317,7 +1330,9 @@ window.Log = (function($, Log) {
         var tmpLog = overwrittenToCommit;
         overwrittenToCommit = "";
 
-        KVStore.append(KVStore.gOverwrittenLogKey, tmpLog, true, gKVScope.LOG)
+        var key = KVStore.getKey("gOverwrittenLogKey");
+        var kvStore = new KVStore(key, gKVScope.LOG)
+        kvStore.append(tmpLog, true)
         .then(deferred.resolve)
         .fail(function(error) {
             overwrittenToCommit = tmpLog;

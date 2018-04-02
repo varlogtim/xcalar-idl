@@ -48,21 +48,21 @@ describe("User Setting Test", function() {
 
         before(function() {
             oldLogChange = KVStore.logChange;
-            oldPut = KVStore.put;
-            oldPutMutex = KVStore.putWithMutex;
+            oldPut =  KVStore.prototype.put;
+            oldPutMutex =  KVStore.prototype.putWithMutex;
             oldShowSuccess = xcHelper.showSuccess;
 
             KVStore.logChange = function() {
                 return;
             };
 
-            KVStore.put = function(key) {
-                testKey = key;
+            KVStore.prototype.put = function() {
+                testKey = this.key;
                 return PromiseHelper.resolve();
             };
 
-            KVStore.putWithMutex = function(key) {
-                testKey = key;
+            KVStore.prototype.putWithMutex = function() {
+                testKey = this.key;
                 return PromiseHelper.resolve();
             };
 
@@ -79,14 +79,21 @@ describe("User Setting Test", function() {
         it("should commit change", function(done) {
             UserSettings.logChange();
 
+            var oldFunc = Admin.isAdmin;
+            Admin.isAdmin = function() {
+                return false;
+            };
             UserSettings.commit(true)
             .then(function() {
-                expect(testKey).to.equal(KVStore.gUserKey);
+                expect(testKey).to.equal(KVStore.getKey("gUserKey"));
                 expect(successMsg).to.equal(SuccessTStr.SaveSettings);
                 done();
             })
             .fail(function() {
                 done("fail");
+            })
+            .always(function() {
+                Admin.isAdmin = oldFunc;
             });
         });
 
@@ -106,11 +113,11 @@ describe("User Setting Test", function() {
         it("should handle fail case", function(done) {
             UserSettings.logChange();
 
-            var oldFunc = KVStore.put;
+            var oldFunc =  KVStore.prototype.put;
             var oldFail = xcHelper.showFail;
             var test = null;
 
-            KVStore.put = function() {
+            KVStore.prototype.put = function() {
                 return PromiseHelper.reject("test");
             };
 
@@ -128,7 +135,7 @@ describe("User Setting Test", function() {
                 done();
             })
             .always(function() {
-                KVStore.put = oldFunc;
+                KVStore.prototype.put = oldFunc;
                 xcHelper.showFail = oldFail;
             });
         });
@@ -140,7 +147,7 @@ describe("User Setting Test", function() {
             gXcSupport = true;
             UserSettings.commit()
             .then(function() {
-                expect(testKey).to.equal(KVStore.gUserKey);
+                expect(testKey).to.equal(KVStore.getKey("gUserKey"));
                 done();
             })
             .fail(function() {
@@ -160,7 +167,7 @@ describe("User Setting Test", function() {
 
             UserSettings.commit()
             .then(function() {
-                expect(testKey).to.equal(KVStore.gSettingsKey);
+                expect(testKey).to.equal(KVStore.getKey("gSettingsKey"));
                 done();
             })
             .fail(function() {
@@ -182,7 +189,7 @@ describe("User Setting Test", function() {
 
             UserSettings.commit()
             .then(function() {
-                expect(testKey).to.equal(KVStore.gUserKey);
+                expect(testKey).to.equal(KVStore.getKey("gUserKey"));
                 done();
             })
             .fail(function() {
@@ -205,7 +212,7 @@ describe("User Setting Test", function() {
 
             UserSettings.commit()
             .then(function() {
-                expect(testKey).to.equal(KVStore.gSettingsKey);
+                expect(testKey).to.equal(KVStore.getKey("gSettingsKey"));
                 done();
             })
             .fail(function() {
@@ -218,8 +225,8 @@ describe("User Setting Test", function() {
 
         after(function() {
             KVStore.logChange = oldLogChange;
-            KVStore.put = oldPut;
-            KVStore.putWithMutex = oldPutMutex;
+            KVStore.prototype.put = oldPut;
+            KVStore.prototype.putWithMutex = oldPutMutex;
             xcHelper.showSuccess = oldShowSuccess;
         });
     });

@@ -1,5 +1,5 @@
 window.WorkbookManager = (function($, WorkbookManager) {
-    var wkbkKey;
+    var wkbkStore;
     var activeWKBKId;
     var wkbkSet;
     var checkInterval = 2000; // progress bar check time
@@ -82,7 +82,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         XcalarListWorkbooks("*")
         .then(function(sessionRes) {
             sessionInfo = sessionRes;
-            return KVStore.getAndParse(wkbkKey, gKVScope.WKBK);
+            return wkbkStore.getAndParse();
         })
         .then(function(wkbk) {
             deferred.resolve(wkbk, sessionInfo);
@@ -640,7 +640,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     function initializeVariable() {
         // key that stores all workbook infos for the user
-        wkbkKey = getWKbkKey(currentVersion);
+        var wkbkKey = getWKbkKey(currentVersion);
+        wkbkStore = new KVStore(wkbkKey, gKVScope.WKBK);
         wkbkSet = new WKBKSet();
     }
 
@@ -755,18 +756,13 @@ window.WorkbookManager = (function($, WorkbookManager) {
     function syncSessionInfo(oldWorkbooks, sessionInfo) {
         var deferred = PromiseHelper.deferred();
 
-        try {
-            syncWorkbookMeta(oldWorkbooks, sessionInfo)
-            .then(function() {
-                var activeWorkbooks = getActiveWorkbooks(sessionInfo);
-                var activeId = getActiveWorkbookId(activeWorkbooks);
-                deferred.resolve(activeId);
-            })
-            .fail(deferred.reject);
-        } catch (error) {
-            console.error(error);
-            deferred.reject(error);
-        }
+        syncWorkbookMeta(oldWorkbooks, sessionInfo)
+        .then(function() {
+            var activeWorkbooks = getActiveWorkbooks(sessionInfo);
+            var activeId = getActiveWorkbookId(activeWorkbooks);
+            deferred.resolve(activeId);
+        })
+        .fail(deferred.reject);
 
         return deferred.promise();
     }
@@ -798,37 +794,42 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     function syncWorkbookMeta(oldWorkbooks, sessionInfo) {
-        var numSessions = sessionInfo.numSessions;
-        var sessions = sessionInfo.sessions;
+        try {
+            var numSessions = sessionInfo.numSessions;
+            var sessions = sessionInfo.sessions;
 
-        for (var i = 0; i < numSessions; i++) {
-            var wkbkName = sessions[i].name;
-            var hasResouce = checkResource(sessions[i].info);
-            var wkbkId = getWKBKId(wkbkName);
-            var wkbk;
+            for (var i = 0; i < numSessions; i++) {
+                var wkbkName = sessions[i].name;
+                var hasResouce = checkResource(sessions[i].info);
+                var wkbkId = getWKBKId(wkbkName);
+                var wkbk;
 
-            if (oldWorkbooks.hasOwnProperty(wkbkId)) {
-                wkbk = new WKBK(oldWorkbooks[wkbkId]);
-                delete oldWorkbooks[wkbkId];
-            } else {
-                console.warn("Error!", wkbkName, "has no meta.");
-                wkbk = new WKBK({
-                    "id": wkbkId,
-                    "name": wkbkName,
-                    "noMeta": true
-                });
+                if (oldWorkbooks.hasOwnProperty(wkbkId)) {
+                    wkbk = new WKBK(oldWorkbooks[wkbkId]);
+                    delete oldWorkbooks[wkbkId];
+                } else {
+                    console.warn("Error!", wkbkName, "has no meta.");
+                    wkbk = new WKBK({
+                        "id": wkbkId,
+                        "name": wkbkName,
+                        "noMeta": true
+                    });
+                }
+
+                wkbk.setResource(hasResouce);
+                wkbkSet.put(wkbkId, wkbk);
             }
 
-            wkbk.setResource(hasResouce);
-            wkbkSet.put(wkbkId, wkbk);
-        }
+            for (var oldWkbkId in oldWorkbooks) {
+                console.warn("Error!", oldWkbkId, "is missing.");
+            }
 
-        for (var oldWkbkId in oldWorkbooks) {
-            console.warn("Error!", oldWkbkId, "is missing.");
+            // refresh workbook info
+            return saveWorkbook();
+        } catch (error) {
+            console.error(error);
+            return PromiseHelper.reject("error");
         }
-
-        // refresh workbook info
-        return saveWorkbook();
     }
 
     WorkbookManager.getKeysForUpgrade = function(sessionInfo, version) {
@@ -874,7 +875,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     function saveWorkbook() {
-        return KVStore.put(wkbkKey, wkbkSet.getWithStringify(), true, gKVScope.WKBK);
+        return wkbkStore.put(wkbkSet.getWithStringify(), true);
     }
 
     function resetActiveWKBK(newWKBKId) {
@@ -906,10 +907,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
             var innerDeferred = PromiseHelper.deferred();
             var oldKey = oldWkbkScopeKeys[key];
             var newKey = newWkbkScopeKeys[key];
-
-            KVStore.get(oldKey, scope)
+            var oldStore = new KVStore(oldKey, scope);
+            oldStore.get(oldKey, scope)
             .then(function(value) {
-                return KVStore.put(newKey, value, true, scope);
+                var newStore = new KVStore(newKey, scope);
+                return newStore.put(value, true);
             })
             .then(innerDeferred.resolve)
             .fail(innerDeferred.reject);

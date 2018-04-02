@@ -61,31 +61,28 @@ window.UserSettings = (function($, UserSettings) {
 
             var dsPromise;
             var userPrefPromise;
+            var userKey = KVStore.getKey("gUserKey");
+            var userStore = new KVStore(userKey, gKVScope.USER);
+            var settingsKey = KVStore.getKey("gSettingsKey");
+            var settingsStore = new KVStore(settingsKey, gKVScope.GLOB);
+
             if (hasDSChange) {
-                dsPromise = KVStore.put(KVStore.gUserKey,
-                                        JSON.stringify(userInfos), true,
-                                        gKVScope.USER);
+                dsPromise = userStore.put(JSON.stringify(userInfos), true);
             } else {
                 dsPromise = PromiseHelper.resolve();
             }
 
             if (userPrefHasChange || revertedToDefault) {
                 if (gXcSupport) {
-                    genSettings.updateXcSettings(UserSettings
-                                                 .getPref('general'));
-                    userPrefPromise = KVStore.putWithMutex(KVStore.gSettingsKey,
-                            JSON.stringify(genSettings.getAdminAndXcSettings()),
-                                true, gKVScope.GLOB);
+                    genSettings.updateXcSettings(UserSettings.getPref('general'));
+                    userPrefPromise = settingsStore.putWithMutex(
+                        JSON.stringify(genSettings.getAdminAndXcSettings()), true);
                 } else if (Admin.isAdmin()) {
-                    genSettings.updateAdminSettings(
-                                            UserSettings.getPref('general'));
-                    userPrefPromise = KVStore.putWithMutex(KVStore.gSettingsKey,
-                            JSON.stringify(genSettings.getAdminAndXcSettings()),
-                                true, gKVScope.GLOB);
+                    genSettings.updateAdminSettings(UserSettings.getPref('general'));
+                    userPrefPromise = settingsStore.putWithMutex(
+                        JSON.stringify(genSettings.getAdminAndXcSettings()), true);
                 } else if (!hasDSChange) {
-                    userPrefPromise = KVStore.put(KVStore.gUserKey,
-                                    JSON.stringify(userInfos),true,
-                                    gKVScope.USER);
+                    userPrefPromise = userStore.put(JSON.stringify(userInfos), true);
                 } else {
                     // if has dsChange, dsPromise will take care of it
                     userPrefPromise = PromiseHelper.resolve();

@@ -397,7 +397,6 @@ describe("SupTicketModal Test", function() {
             var cache1 = XcalarSupportGenerate;
             var cache2 = adminTools.fileTicket;
             var cache3 = adminTools.getLicense;
-            var cache4 = KVStore.append;
             var cache5 = SupTicketModal.fetchLicenseInfo;
             var supGenCalled = false;
             XcalarSupportGenerate = function() {
@@ -408,10 +407,6 @@ describe("SupTicketModal Test", function() {
                 return PromiseHelper.resolve({logs: JSON.stringify({ticketId: 5})});
             };
             adminTools.getLicense = function() {
-                return PromiseHelper.resolve();
-            };
-
-            KVStore.append = function() {
                 return PromiseHelper.resolve();
             };
             SupTicketModal.fetchLicenseInfo = function() {
@@ -427,7 +422,6 @@ describe("SupTicketModal Test", function() {
             XcalarSupportGenerate = cache1;
             adminTools.fileTicket = cache2;
             adminTools.getLicense = cache3;
-            KVStore.append = cache4;
             SupTicketModal.fetchLicenseInfo = cache5;
         });
 
@@ -449,11 +443,6 @@ describe("SupTicketModal Test", function() {
 
             adminTools.fileTicket = function() {
                 return PromiseHelper.resolve({logs: '{"ticketId":123}'});
-            };
-
-            var cachedKV = KVStore.append;
-            KVStore.append = function() {
-                return PromiseHelper.resolve();
             };
 
             var cache2 = SupTicketModal.fetchLicenseInfo;
@@ -478,7 +467,6 @@ describe("SupTicketModal Test", function() {
                 done("fail");
             })
             .always(function() {
-                KVStore.append = cachedKV;
                 SupTicketModal.fetchLicenseInfo = cache2;
             });
         });

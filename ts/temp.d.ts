@@ -23,12 +23,23 @@ declare var StatusTStr: object;
 declare var gExportNoCheck: boolean;
 declare var gAggVarPrefix: string;
 declare var gActiveTableId: string;
+declare var currentVersion: number;
 declare var xcLocalStorage: XcStorage;
+declare var gKVScope: {
+    META: number,
+    EPHM: number,
+    USER: number,
+    GLOB: number
+};
 
 /* ============== GLOBAL FUNCTIONS ============= */
 declare function XcalarGetTables(): XDPromise<any>;
 declare function XcalarGetTableMeta(tableName: string): XDPromise<any>;
-
+declare function XcalarKeyLookup(key: string, scope: number): XDPromise<any>;
+declare function XcalarKeyPut(key: string, value: string, persist: boolean, scope: number): XDPromise<any>;
+declare function XcalarKeyAppend(key: string, value: string, persist: boolean, scope: number): XDPromise<any>;
+declare function XcalarKeyDelete(key: string, scope: number): XDPromise<any>;
+declare function XcalarSaveWorkbooks(wkbkName: string): XDPromise<void>;
 /* ============= THRIFT ENUMS ================= */
 declare enum DfFieldTypeT {
     DfString = 1,
@@ -90,6 +101,7 @@ declare namespace TooltipTStr {
     export var CancelQuery: string;
     export var CannotDropLocked: string;
     export var ViewAllWS: string;
+    export var Saved: string;
 }
 
 declare namespace SuccessTStr{
@@ -181,6 +193,36 @@ declare class XcStorage {
     public getItem(key: string): string;
 }
 
+declare class WKBK {
+    public name: string;
+    public modified: string;
+}
+
+declare class METAConstructor {
+    public constructor(meta: object);
+    public update(): void;
+    public getQueryMeta(): object[];
+    public getWSMeta(): object;
+    public getTpfxMeta(): object;
+    public getAggMeta(): object;
+    public getTableMeta(): object;
+    public getCartMeta(): object;
+    public getStatsMeta(): object;
+    public getLogCMeta(): number;
+}
+
+declare class EMetaConstructor {
+    public constructor(meta: object);
+    public update(): void;
+}
+
+declare class UserInfoConstructor{
+    public constructor(meta: object);
+}
+
+declare class Mutex {
+    public constructor(key: string, scope: number);
+}
 /* ============== NAMESPACE ====================== */
 declare namespace xcManager {
     export function removeUnloadPrompt(markUser: boolean): void;
@@ -189,10 +231,15 @@ declare namespace xcManager {
 declare namespace XcSupport {
     export function heartbeatCheck(): void;
     export function getUser(): string;
+    export function stopHeartbeatCheck(): void;
+    export function restartHeartbeatCheck(): void;
+    export function commitCheck(): XDPromise<any>;
 }
 
 declare namespace UserSettings {
     export function getPref(prop: string): any;
+    export function commit(): XDPromise<void>;
+    export function restore(oldMeta: UserInfoConstructor, gInfosSetting: object): XDPromise<void>;
 }
 
 declare namespace ColManager {
@@ -217,6 +264,8 @@ declare namespace Log {
     export function getAllLogs(): object[];
     export function getLocalStorage(): string;
     export function getBackup(): string;
+    export function commit(): XDPromise<void>;
+    export function restore(oldLogCursor: number): void;
 }
 
 declare namespace SupTicketModal {
@@ -248,10 +297,19 @@ declare namespace TableList {
 declare namespace TblManager {
     export function alignTableEls(): void;
     export function unHighlightCells(): void;
+    export function restoreTableMeta(oldMeat: object): void;
 }
 
 declare namespace TblMenu{
     export function showDagAndTableOptions($menu: JQuery, tableId: string): void;
+}
+
+declare namespace TPrefix {
+    export function restore(oldMeat: object): void;
+}
+
+declare namespace Aggregates {
+    export function restore(oldMeat: object): void;
 }
 
 declare namespace MainMenu {
@@ -271,6 +329,18 @@ declare namespace WSManager {
     export function getWorksheets(): object;
     export function getWSLists(isAll: boolean): string;
     export function getWSName(ws: string): string;
+    export function restore(oldMeat: object): void;
+}
+
+declare namespace WorkbookManager {
+    export function getActiveWKBK(): string;
+    export function getWorkbooks(): WKBK[];
+    export function commit(): XDPromise<void>;
+    export function getWorkbook(wkbkId: string): WKBK;
+}
+
+declare namespace QueryManager{
+    export function restore(oldMeta: object[]);
 }
 
 declare namespace Log {
@@ -295,6 +365,28 @@ declare namespace xcMenu {
 
 declare namespace DS {
     export function getGrid(dsId: string): JQuery;
+}
+
+declare namespace DSCart {
+    export function restore(oldMeat: object): void;
+}
+
+declare namespace Profile {
+    export function restore(oldMeat: object): void;
+}
+
+declare namespace DF {
+    export function wasRestored(): boolean;
+}
+
+declare namespace DFCard {
+    export function adjustScrollBarPositionAndSize(): void;
+}
+
+declare namespace Concurrency {
+    export function tryLock(lock: Mutex): XDPromise<string>;
+    export function unlock(lock: Mutex, lockString: string): XDPromise<void>;
+    export function initLock(lock: Mutex): XDPromise<void>;
 }
 
 declare namespace JupyterUDFModal {

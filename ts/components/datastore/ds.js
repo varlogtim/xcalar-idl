@@ -752,10 +752,9 @@ window.DS = (function ($, DS) {
 
         startChangeSharedDSInfo(versionId, arg)
         .then(function() {
-            return KVStore.put(KVStore.gSharedDSKey,
-                                        JSON.stringify(dsInfoMeta),
-                                        true,
-                                        gKVScope.GLOB);
+            var key = KVStore.getKey("gSharedDSKey");
+            var kvStore = new KVStore(key, gKVScope.GLOB);
+            return kvStore.put(JSON.stringify(dsInfoMeta), true);
         })
         .then(function() {
             hasCommit = true;
@@ -1463,7 +1462,9 @@ window.DS = (function ($, DS) {
         })
         .then(function(res) {
             lockMeta = res;
-            return KVStore.getSharedDSInfo();
+            var key = KVStore.getKey("gSharedDSKey");
+            var sharedDSKV = new KVStore(key, gKVScope.GLOB);
+            return sharedDSKV.getInfo(true);
         })
         .then(function(res) {
             var oldSharedDSInfo = res;
@@ -1744,10 +1745,10 @@ window.DS = (function ($, DS) {
 
         tempDSInfoMeta.updateDSInfo(sharedFolder);
         DS.clear();
-        KVStore.putWithMutex(KVStore.gSharedDSKey,
-                            JSON.stringify(tempDSInfoMeta),
-                            true,
-                            gKVScope.GLOB);
+
+        var key = KVStore.getKey("gSharedDSKey");
+        var kvStore = new KVStore(key, gKVScope.GLOB);
+        kvStore.putWithMutex(JSON.stringify(tempDSInfoMeta), true);
         return tempDSInfoMeta;
     }
 

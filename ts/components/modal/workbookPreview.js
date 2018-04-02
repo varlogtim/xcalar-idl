@@ -141,7 +141,8 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
     function getTableKVStoreMeta(workbookId) {
         var deferred = PromiseHelper.deferred();
         var key = WorkbookManager.getStorageKey(workbookId);
-        KVStore.getAndParse(key, gKVScope.META)
+        var kvStore = new KVStore(key, gKVScope.META);
+        kvStore.getAndParse(key, gKVScope.META)
         .then(function(res) {
             try {
                 var metaInfos = new METAConstructor(res);

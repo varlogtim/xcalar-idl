@@ -52,7 +52,7 @@ describe("Admin Test", function() {
             }
         };
 
-        Admin.__testOnly__.setPosingAs();
+        Admin.__testOnly__.setPosingAs(wasAdmin);
         if (!wasAdmin) {
             Admin.initialize();
         }
@@ -92,13 +92,13 @@ describe("Admin Test", function() {
         });
 
         it("adding user should work", function(done) {
-            var cachedGet = KVStore.get;
+            var cachedGet = KVStore.prototype.get;
             var cachedAppend = XcalarKeyAppend;
             var cachedGetUser = XcSupport.getUser;
             var userName = "randTest" + Date.now();
             var cachedList = xcHelper.deepCopy(Admin.getUserList());
 
-            KVStore.get = function() {
+            KVStore.prototype.get = function() {
                 return PromiseHelper.resolve('"fakeUser,"') ;
             };
             XcSupport.getUser = function() {
@@ -127,7 +127,7 @@ describe("Admin Test", function() {
                 done("fail");
             })
             .always(function() {
-                KVStore.get = cachedGet;
+                KVStore.prototype.get = cachedGet;
                 XcSupport.getUser = cachedGetUser;
                 XcalarKeyAppend = cachedAppend;
             });
@@ -300,9 +300,9 @@ describe("Admin Test", function() {
         });
 
         it("sorting user list by memory should work", function() {
-            var cachedGet = KVStore.get;
+            var cachedGet = KVStore.prototype.get;
             var getCalled = false;
-            KVStore.get = function() {
+            KVStore.prototype.get = function() {
                 getCalled = true;
                 return PromiseHelper.reject();
             };
@@ -312,11 +312,11 @@ describe("Admin Test", function() {
             $userList.find(".sortUsage").click();
             expect($userList.hasClass("sortedByUsage")).to.be.true;
             expect($userList.hasClass("sortedByName")).to.be.false;
-            KVStore.get = cachedGet;
+            KVStore.prototype.get = cachedGet;
         });
         it("refreshUserList button should work", function() {
-            var cachedFn = KVStore.get;
-            KVStore.get = function() {
+            var cachedFn = KVStore.prototype.get;
+            KVStore.prototype.get = function() {
                 return PromiseHelper.resolve(null);
             };
             $("#adminUserSearch").find("input").val("test");
@@ -325,7 +325,7 @@ describe("Admin Test", function() {
             expect($("#adminUserSearch").find("input").val()).to.equal("");
             expect(Admin.getUserList.length).to.equal(0);
 
-            KVStore.get = cachedFn;
+            KVStore.prototype.get = cachedFn;
         });
     });
 
