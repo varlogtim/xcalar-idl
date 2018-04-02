@@ -214,7 +214,6 @@ window.FileBrowser = (function($, FileBrowser) {
             },
             "dblclick": function() {
                 var $grid = $(this);
-
                 if (isDS($grid)) {
                     if (!$grid.hasClass("picked")) {
                         // dblclick on a non-picked file will import it
@@ -223,17 +222,7 @@ window.FileBrowser = (function($, FileBrowser) {
                     return;
                 }
                 var path = getCurrentPath() + getGridUnitName($grid) + '/';
-
-                listFiles(path)
-                .then(function() {
-                    appendPath(path);
-                    checkIfCanGoUp();
-                })
-                .fail(function(error) {
-                    if (error.error !== oldBrowserError) {
-                        Alert.error(ThriftTStr.ListFileErr, error);
-                    }
-                });
+                displayFiles(path);
             },
             "mouseenter": function() {
                 var $grid = $(this);
@@ -422,6 +411,28 @@ window.FileBrowser = (function($, FileBrowser) {
         // confirm to open a ds
         $infoContainer.on("click", ".confirm", function() {
             submitForm();
+        });
+
+        // goes to folder location of file on click
+        $infoContainer.on("click", ".pickedFileList li span", function() {
+            var filePath = $(this).parent().attr("data-fullpath");
+            if (filePath) {
+                filePath = filePath.substring(0, filePath.lastIndexOf("/") + 1);
+                displayFiles(filePath);
+            }
+        });
+    }
+
+    function displayFiles(filePath) {
+        listFiles(filePath)
+        .then(function() {
+            appendPath(filePath);
+            checkIfCanGoUp();
+        })
+        .fail(function(error) {
+            if (error.error !== oldBrowserError) {
+                Alert.error(ThriftTStr.ListFileErr, error);
+            }
         });
     }
 
