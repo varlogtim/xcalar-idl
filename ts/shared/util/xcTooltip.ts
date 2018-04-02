@@ -8,18 +8,20 @@ namespace xcTooltip {
     }
 
     // xcTooltip.Template
-    export const Template: Object = {
+    export const Template: object = {
         'Error': '<div class="tooltip error" role="tooltip">' +
                     '<div class="tooltip-arrow"></div>' +
                     '<div class="tooltip-inner"></div>' +
                  '</div>'
-    };
+    }
 
     // xcTooltip.Attrs
-    export const Attrs: String = ' data-toggle="tooltip" data-container="body" ' +
+    export const Attrs: string = ' data-toggle="tooltip" data-container="body" ' +
                                  'data-placement="auto top" ';
-    
-    // xcTooltip.setup
+
+    /**
+     * xcTooltip.setup
+     */
     export function setup(): void {
         $("body").tooltip(<any>{
             "selector": '[data-toggle="tooltip"]',
@@ -34,10 +36,13 @@ namespace xcTooltip {
         $("body").on("mouseenter", '[data-toggle="tooltip"]', function() {
             xcTooltip.hideAll();
         });
-    };
-
-    // xcTooltip.add, can accept multiple elements as $element
+    }
     
+    /**
+     * xcTooltip.add, can accept multiple elements as $element
+     * @param $element
+     * @param options
+     */
     export function add($element: JQuery, options: TooltipOptions): void {
         const defaultOptions: TooltipOptions = {
             "title": "",
@@ -51,9 +56,12 @@ namespace xcTooltip {
                 .attr("data-container", toolTipOptions.container)
                 .attr("data-placement", toolTipOptions.placement)
                 .attr("data-original-title", toolTipOptions.title);
-    };
+    }
 
-    // xcTooltip.remove, can accept multiple elements as $element
+    /**
+     * xcTooltip.remove, can accept multiple elements as $element
+     * @param $element
+     */
     export function remove($element: JQuery): void {
         $element.removeAttr("title")
                 .removeAttr("data-toggle")
@@ -61,9 +69,14 @@ namespace xcTooltip {
                 .removeAttr("data-placement")
                 .removeAttr("data-original-title");
         xcTooltip.hideAll();
-    };
+    }
 
-    // xcTooltip.transient, tooltip on element that only show for a short time
+    /**
+     * xcTooltip.transient, tooltip on element that only show for a short time
+     * @param $element
+     * @param options
+     * @param delay
+     */
     export function transient($element: JQuery, options: TooltipOptions, delay: number): number {
         const defaultOptions: TooltipOptions = {
             "title": "",
@@ -89,9 +102,13 @@ namespace xcTooltip {
         }
 
         return timer;
-    };
+    }
 
-    // xcTooltip.auto
+    /**
+     * xcTooltip.auto
+     * @param element
+     * @param target
+     */
     export function auto(element: HTMLElement, target: HTMLElement): void {
         const $element = $(element);
         target = target || element;
@@ -101,33 +118,54 @@ namespace xcTooltip {
         } else {
             xcTooltip.disable($element);
         }
-    };
+    }
 
-    // xcTooltip.hideAll
+    /**
+     * xcTooltip.hideAll
+     */
     export function hideAll(): void {
         $(".tooltip").hide();
-    };
+    }
 
-    // xcTooltip.enable
+    /**
+     * xcTooltip.enable
+     * @param $element
+     */
     export function enable($element: JQuery): void {
         $element.attr("data-toggle", "tooltip");
-    };
+    }
 
-    // xcTooltip.disable
+    /**
+     * xcTooltip.disable
+     * @param $element
+     */
     export function disable($element: JQuery): void {
         $element.removeAttr("data-toggle")
                 .removeAttr("title");
-    };
+    }
 
-    // xcTooltip.changeText
-    export function changeText($element: JQuery, text: string, allowEmpty: boolean): void {
+    /**
+     * xcTooltip.changeText
+     * @param $element
+     * @param text
+     * @param allowEmpty
+     */
+    export function changeText(
+        $element: JQuery,
+        text: string,
+        allowEmpty: boolean = false
+    ): void {
         if (text != null || allowEmpty) {
             $element.attr("title", "")
                     .attr("data-original-title", text);
         }
-    };
+    }
 
-    // xcTooltip.refresh
+    /**
+     * xcTooltip.refresh
+     * @param $element
+     * @param delay
+     */
     export function refresh($element: JQuery, delay: number) {
         const key: string = "xc-tooltipTimer";
         const oldTimer: number = $element.data(key);
@@ -152,9 +190,13 @@ namespace xcTooltip {
 
             $element.data(key, timer);
         }
-    };
+    }
 
-    // xcTooltip.escapeHTML
+    /**
+     * xcTooltip.escapeHTML
+     * @param str
+     * @param ignoreTab
+     */
     export function escapeHTML(str: string, ignoreTab: boolean = false): string {
         str = str.replace(/\&/g, "&amp;")
                  .replace(/\</g, "&lt;")
@@ -167,5 +209,5 @@ namespace xcTooltip {
             str = str.replace(/\\t/g, "&emsp;");
         }
         return str;
-    };
+    }
 }

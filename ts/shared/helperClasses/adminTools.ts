@@ -1,9 +1,4 @@
 namespace adminTools {
-    declare namespace PromiseHelper {
-        export function deferred<T>(): JQueryDeferred<T>;
-        export function reject<T>(...args): JQueryPromise<T>;
-        export function resolve<T>(...args): JQueryPromise<T>;
-    }
     let monitorIntervalId: number;
     let lastReturnSucc: boolean = true;
     const timeDilutionFactor: number = 1.2;

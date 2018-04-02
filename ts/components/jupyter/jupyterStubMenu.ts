@@ -20,7 +20,7 @@ namespace JupyterStubMenu {
                 if (self.$dropdownBox.hasClass("xc-unavailable")) {
                     return;
                 }
-    
+
                 xcHelper.dropdownOpen(self.$dropdownBox, $jupMenu, {
                     "offsetX": -7,
                     "toClose": function() {
@@ -28,7 +28,7 @@ namespace JupyterStubMenu {
                     }
                 });
             });
-    
+
             this.$jupyterPanel.on("click", ".jupyterMenu li", function() {
                 var stubName = $(this).attr("data-action");
                 if (stubName === "basicUDF") {

@@ -41,8 +41,8 @@ class DragDropUploader {
             this.$container.removeClass("xc-fileDroppable");
         } else {
             this.$container.addClass("xc-fileDroppable");
-            this.$container.on('dragenter.xcUpload', function(event) {
-                const dt = event.originalEvent.dataTransfer;
+            this.$container.on('dragenter.xcUpload', function(event: JQueryEventObject) {
+                const dt = (<DragEvent>event.originalEvent).dataTransfer;
                 if (dt.types && (dt.types.indexOf ?
                     dt.types.indexOf('Files') !== -1 :
                     dt.types.contains('Files'))) {
@@ -54,12 +54,12 @@ class DragDropUploader {
             });
 
             this.$container.on('dragover.xcUpload', function(event) {
-                event.originalEvent.dataTransfer.effectAllowed = "copy";
-                event.originalEvent.dataTransfer.dropEffect = "copy";
+                (<DragEvent>event.originalEvent).dataTransfer.effectAllowed = "copy";
+                (<DragEvent>event.originalEvent).dataTransfer.dropEffect = "copy";
             });
 
             this.$container.on('dragleave.xcUpload', function(event) {
-                const dt = event.originalEvent.dataTransfer;
+                const dt = (<DragEvent>event.originalEvent).dataTransfer;
                 if (dt.types && (dt.types.indexOf ?
                     dt.types.indexOf('Files') !== -1 :
                     dt.types.contains('Files'))) {
@@ -73,21 +73,21 @@ class DragDropUploader {
             this.$container.on('drop.xcUpload', function(event) {
                 self.dragCount = 0;
                 self.$dropArea.removeClass('entering');
-                const e: object = event.originalEvent;
-                const files: object[] = e.dataTransfer.files;
+                const dataTransfer: DataTransfer = (<DragEvent>event.originalEvent).dataTransfer;
+                const files: FileList = dataTransfer.files;
                 if (!files || !files.length) {
                     return;
                 }
                 let error: string;
                 if (files.length > 1) {
                     error = "multipleFiles";
-                } else if (e.dataTransfer && e.dataTransfer.items &&
-                    e.dataTransfer.items.length) {
+                } else if (dataTransfer && dataTransfer.items &&
+                    dataTransfer.items.length) {
                     let folderFound: boolean = false;
                     // special chrome check for folder
-                    [].forEach.call(e.dataTransfer.items, function(item) {
+                    [].forEach.call(dataTransfer.items, function(item) {
                         const entry: object = item.webkitGetAsEntry();
-                        if (entry && entry.isDirectory) {
+                        if (entry && entry["isDirectory"]) {
                             folderFound = true;
                             return false;
                         }

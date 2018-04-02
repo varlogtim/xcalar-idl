@@ -30,7 +30,7 @@ namespace StatusMessage {
         private $waitingIcon: JQuery;
         private isLoading: boolean;
         private isFailed: boolean;
-        private rotateInterval: Timer;
+        private rotateInterval: number;
         private messages: number[];
         private msgObjs: object;
         private scrollSpeed: number;
@@ -184,7 +184,7 @@ namespace StatusMessage {
                     $secondSpan.addClass('success');
                 }
 
-                const messageToRemove: object = {
+                const messageToRemove: Msg = {
                     $span: $successSpan,
                     msgId: msgId,
                     msg: $successSpan.text(),
@@ -323,7 +323,7 @@ namespace StatusMessage {
             const self = this;
             this.inRotation = true;
             this.rotatePosition = 0;
-            this.rotateInterval = setInterval(function() {
+            this.rotateInterval = <any>setInterval(function() {
                 self.scrollToMessage()
                 .then(function() {
                     if (self.rotatePosition >= self.messages.length) {
@@ -416,7 +416,7 @@ namespace StatusMessage {
             this.messageRemoveHelper();
         }
 
-        private scrollToMessage(): XDPromise<void> {
+        private scrollToMessage(): XDPromise<any> {
             const deferred = PromiseHelper.deferred();
             this.rotatePosition++;
             this.$statusText.animate({scrollTop: 20 * this.rotatePosition},
@@ -577,7 +577,7 @@ namespace StatusMessage {
                     classes.indexOf('left') > -1)) {
                     // detects if user scrolls to table. If so, remove mainFrame
                     // scroll Listener
-                    let scrollTimer: Timer;
+                    let scrollTimer: number;
                     $('#mainFrame').on('scroll.' + msgId, function() {
                         clearTimeout(scrollTimer);
                         scrollTimer = window.setTimeout(removePopUpIfScrolledToTable, 100);
