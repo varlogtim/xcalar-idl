@@ -647,12 +647,12 @@ window.Dag = (function($, Dag) {
                 foundTables: {},
                 droppedTables: {},
                 lastFoundTable: node.value.dagNodeId,
-                derivedTable: null
+                derivedTable: null,
+                renames: []
             };
 
             findColumnSource(sourceColNames, $dagWrap, node, backName,
-                            progCol.isEmptyCol(), true, node,
-                            storedInfo);
+                            progCol.isEmptyCol(), true, node, storedInfo);
 
             var derivedNodeId = storedInfo.derivedTable ||
                                 storedInfo.lastFoundTable;
@@ -661,6 +661,14 @@ window.Dag = (function($, Dag) {
                         '<div>' + CommonTxtTstr.Created + '</div>' +
                       '</div>';
             Dag.getTableIcon($dagWrap, derivedNodeId).append(tip);
+            for (var i = 0; i < storedInfo.renames.length; i++) {
+                var tip = '<div class="dagTableTip">' +
+                    '<div>Renamed from ' + storedInfo.renames[i].prevName +
+                    ' to ' + storedInfo.renames[i].newName + '</div>' +
+                '</div>';
+                break; // XXX need design fix and more tips explaining rename
+                Dag.getTableIcon($dagWrap, storedInfo.renames[i].nodeId).append(tip);
+            }
             $(document).mousedown(closeDagHighlight);
         });
 
@@ -1881,22 +1889,54 @@ window.Dag = (function($, Dag) {
     }
 
     function getRenamedColName(colName, node) {
-        if (node.value.struct.renameMap && node.value.struct.renameMap.length) {
-            var renameMap = node.value.struct.renameMap;
-            var parsedName = xcHelper.parsePrefixColName(colName);
-
-            for (var i = 0; i < renameMap.length; i++) {
-                if (renameMap[i].type === DfFieldTypeT.DfFatptr) {
-                    if (parsedName.prefix &&
-                        renameMap[i].newName === parsedName.prefix) {
-                        return xcHelper.getPrefixColName(renameMap[i].oldName,
-                                                         parsedName.name);
+        switch (node.value.api) {
+            case (XcalarApisT.XcalarApiJoin):
+                var columnSet = node.value.struct.columns;
+                var parsedName = xcHelper.parsePrefixColName(colName);
+                for (var i = 0; i < columnSet.length; i++) {
+                    var columns = columnSet[i];
+                    for (var j = 0; j < columns.length; j++) {
+                        if (columns[j].columnType ===
+                            DfFieldTypeTStr[DfFieldTypeT.DfFatptr]) {
+                            if (parsedName.prefix &&
+                                columns[j].destColumn === parsedName.prefix) {
+                                return xcHelper.getPrefixColName(
+                                    columns[j].sourceColumn, parsedName.name);
+                            }
+                        } else if (columns[j].destColumn === colName) {
+                            return columns[j].sourceColumn;
+                        }
                     }
-                } else if (renameMap[i].newName === colName) {
-                    return renameMap[i].oldName;
                 }
-            }
+                break;
+            case (XcalarApisT.XcalarApiUnion):
+                var parsedName = xcHelper.parsePrefixColName(colName);
+                if (parsedName.prefix) {
+                    return colName; // prefixed fields aren't renamed in unions
+                }
+                var columnSet =  node.value.struct.columns;
+                for (var i = 0; i < columnSet.length; i++) {
+                    var columns = columnSet[i];
+                    for (var j = 0; j < columns.length; j++) {
+                        if (columns[j].new === colName) {
+                            return columns[j].orig;
+                        }
+                    }
+                }
+                break;
+            case (XcalarApisT.XcalarApiIndex):
+                var columns = node.value.struct.key;
+                for (var i = 0; i < columns.length; i++) {
+                    if (columns[i].keyFieldName && columns[i].keyFieldName ===
+                        colName) {
+                        return columns[i].name;
+                    }
+                }
+                break;
+            default:
+                break;
         }
+
         return colName;
     }
 
@@ -1922,14 +1962,20 @@ window.Dag = (function($, Dag) {
 
     // sourceColNames is an array of the names we're searching for lineage
     // origNode is the last descendant node known to contain the col
-    function findColumnSource(sourceColNames, $dagWrap, node,
-                              curColName, isEmptyCol, prevFound, origNode,
-                              storedInfo) {
+    function findColumnSource(sourceColNames, $dagWrap, node, curColName,
+                              isEmptyCol, prevFound, origNode, storedInfo) {
         var parentNodes = getSourceTables(curColName, node);
+        var prevColName = curColName;
         curColName = getRenamedColName(curColName, node);
+        if (prevColName !== curColName) {
+            storedInfo.renames.push({
+                nodeId: node.value.dagNodeId,
+                prevName: curColName,
+                newName: prevColName
+            });
+        }
         var parentNode;
         var parentName;
-        // var tableName;
         var isEmpty;
         var found = false;
         // look through the parent tables
@@ -2423,7 +2469,7 @@ window.Dag = (function($, Dag) {
             complement: true,
             worksheet: worksheet
         };
-      
+
         var parentNode = node.parents[0];
         var srcTableId = xcHelper.getTableId(parentNode.value.name);
         $tableIcon.addClass("generatingComplement");
