@@ -110,6 +110,7 @@ var BUILD_JS = "buildJs";
 var TYPESCRIPT = "typescriptJsGeneration";
 var BUILD_EXTRA_TS = "buildExtraTs";
 var EXTRA_TS_FOLDER_NAME = "extraTsStaging";
+var WEBPACK = "webpack";
 var MINIFY_JS = "minifyJs";
 var REMOVE_DEBUG_COMMENTS = 'removeDebugComments';
 var CLEAN_JS = "cleanJs";
@@ -3039,6 +3040,8 @@ module.exports = function(grunt) {
         // do before remove debug because the files might not exist until we run this
         grunt.task.run(TYPESCRIPT + ":" + buildFrom);
 
+        grunt.task.run(WEBPACK);
+
         // if bld flag given for rc option, remove debug comments first, before js minification
         if ( grunt.option(BLD_FLAG_RC_SHORT) || grunt.option(BLD_FLAG_RC_LONG) ) {
             grunt.task.run(REMOVE_DEBUG_COMMENTS + ':js');
@@ -3075,6 +3078,15 @@ module.exports = function(grunt) {
             grunt.fail.fatal("error thrown running sh cmd: " + cmd + ", " + e);
         }
     }
+
+    grunt.task.registerTask(WEBPACK, function() {
+        var oldFatal = shelljs.config.fatal;
+        shelljs.config.fatal = true;
+        var webpackBin = SRCROOT + "node_modules/.bin/webpack";
+        var webpackCmd = webpackBin + " --env.production" + " --env.buildroot=" + BLDROOT;
+        shelljs.exec(webpackCmd, {cwd:SRCROOT});
+        shelljs.config.fatal = oldFatal;
+    });
 
     // @filepathRelBld - bld only single ts file (should be rel bldroot)
     grunt.task.registerTask(TYPESCRIPT, 'Build TS portion of build', function(executeFrom, buildTo) {

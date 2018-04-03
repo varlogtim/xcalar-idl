@@ -27,7 +27,8 @@
     "request": "^2.85.0",
     "shelljs": "^0.6.0",
     "socket.io": "^1.7.3",
-    "ssl-root-cas": "^1.2.3"
+    "ssl-root-cas": "^1.2.3",
+    "google-protobuf": "^3.0.0"
   },
   "license": "UNLICENSED",
   "devDependencies": {}
