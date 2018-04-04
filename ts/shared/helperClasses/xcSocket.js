@@ -30,14 +30,7 @@ window.XcSocket = (function(XcSocket) {
             });
 
             // time out after 20s
-            var innerDeferred = PromiseHelper.deferred();
-            checkConnection(innerDeferred, 20000);
-
-            innerDeferred.promise()
-            .fail(function(error) {
-                console.error(error);
-                deferred.resolve(false); // still reolve it
-            });
+            checkConnection(deferred, 20000, true);
         })
         .fail(deferred.reject);
         return deferred.promise();
@@ -168,10 +161,15 @@ window.XcSocket = (function(XcSocket) {
         });
     }
 
-    function checkConnection(deferred, timeout) {
+    function checkConnection(deferred, timeout, resolve) {
         setTimeout(function() {
             if (deferred.state() !== "resolved") {
-                deferred.reject(AlertTStr.NoConnectToServer);
+                if (resolve) {
+                    console.error(AlertTStr.NoConnectToServer);
+                    deferred.resolve();
+                } else {
+                    deferred.reject(AlertTStr.NoConnectToServer);
+                }
             }
         }, timeout);
     }
