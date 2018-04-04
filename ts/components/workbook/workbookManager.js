@@ -393,7 +393,15 @@ window.WorkbookManager = (function($, WorkbookManager) {
     WorkbookManager.downloadWKBK = function(workbookName) {
         var deferred = PromiseHelper.deferred();
 
-        XcalarDownloadWorkbook(workbookName)
+        JupyterPanel.getFolderFromWkbk(getWKBKId(workbookName))
+        .then(function(folderName) {
+            var jupyterFolderPath = "";
+            if (folderName) {
+                jupyterFolderPath = window.jupyterNotebooksPath + folderName +
+                                    "/";
+            }
+            return XcalarDownloadWorkbook(workbookName, jupyterFolderPath);
+        })
         .then(function(file) {
             xcHelper.downloadAsFile(workbookName + ".tar.gz", file.sessionContent, true);
             deferred.resolve();
@@ -408,9 +416,25 @@ window.WorkbookManager = (function($, WorkbookManager) {
     WorkbookManager.uploadWKBK = function(workbookName, workbookContent) {
         var deferred = PromiseHelper.deferred();
 
-        XcalarUploadWorkbook(workbookName, workbookContent)
+        JupyterPanel.newWorkbook(workbookName, getWKBKId(workbookName))
+        .then(function(folderName) {
+            var jupyterFolderPath;
+            if (typeof folderName !== "string") {
+                // it's an error so default to "";
+                folderName = "";
+            }
+            if (!folderName) { // can be empty due to error or if not found
+                jupyterFolderPath = "";
+            } else {
+                jupyterFolderPath = window.jupyterNotebooksPath + folderName +
+                                    "/";
+            }
+            return XcalarUploadWorkbook(workbookName, workbookContent,
+                                        jupyterFolderPath);
+        })
         .then(deferred.resolve)
         .fail(function(err) {
+            // XXX need to remove jupyter folder
             deferred.reject(err);
         });
 

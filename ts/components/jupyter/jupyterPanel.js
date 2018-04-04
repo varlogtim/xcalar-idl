@@ -269,8 +269,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
         sendMessageToJupyter(msgStruct, true)
         .then(function(result) {
             newName = result.newName;
-            jupyterMeta.setFolderName(result.newName);
-            return storeMeta(wkbkId);
+            return storeNewFolder(wkbkId, folderName);
         })
         .then(function() {
             deferred.resolve(newName);
@@ -283,8 +282,6 @@ window.JupyterPanel = (function($, JupyterPanel) {
         return deferred.promise();
     };
 
-    // called when we create a new xcalar workbook
-    // will create a new jupyter folder dedicated to this workbook
     JupyterPanel.deleteWorkbook = function(wkbkId) {
         var deferred = PromiseHelper.deferred();
 
@@ -317,6 +314,57 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
         return deferred.promise();
     };
+
+    JupyterPanel.deleteWorkbook = function(wkbkId) {
+        var deferred = PromiseHelper.deferred();
+
+        JupyterPanel.getFolderFromWkbk(wkbkId)
+        .then(function(folderName) {
+            if (folderName) {
+                var msgStruct = {
+                    action: "deleteWorkbook",
+                    folderName: folderName
+                };
+                sendMessageToJupyter(msgStruct);
+            }
+            deferred.resolve();
+        }); // always resolves
+
+        return deferred.promise();
+    };
+
+    JupyterPanel.getFolderName = function() {
+        return jupyterMeta.getFolderName() || "";
+    };
+
+    JupyterPanel.getFolderFromWkbk = function(wkbkId) {
+        var deferred = PromiseHelper.deferred();
+
+        var kvsKey = wkbkId + "-gNotebook-" + currentVersion;
+        KVStore.get(kvsKey, gKVScope.WKBK)
+        .then(function(jupMeta) {
+            var folderName = "";
+
+            if (jupMeta) {
+                try {
+                    var parsedMeta = $.parseJSON(jupMeta);
+                    if (typeof parsedMeta === "object") {
+                        folderName = parsedMeta.folderName;
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+
+            deferred.resolve(folderName);
+        })
+        .fail(function(err) {
+            console.log(err);
+            deferred.resolve("");
+        });
+
+        return deferred.promise();
+    }
 
     function showImportUdfModal(target, filePath) {
         var params = {
@@ -460,21 +508,22 @@ window.JupyterPanel = (function($, JupyterPanel) {
         return storeMeta();
     }
 
-    function storeFolderName(folderInfo) {
-        jupyterMeta.setFolderName(folderInfo.newName);
-        return storeMeta(folderInfo.wkbkId);
+    function storeNewFolder(wkbkId, folderName) {
+        var kvsKey = wkbkId + "-gNotebook-" + currentVersion;
+        var info = {
+            currentNotebook: null,
+            folderName: folderName
+        };
+        return KVStore.put(kvsKey, JSON.stringify(info), true, gKVScope.WKBK);
     }
 
-    function storeMeta(wkbkId) {
+    function storeMeta() {
         if (jupyterMeta.hasFolder()) {
             var kvsKey = KVStore.gNotebookKey;
-            if (wkbkId) {
-                kvsKey = wkbkId + "-gNotebook-" + currentVersion;
-            }
             return KVStore.put(kvsKey, JSON.stringify(jupyterMeta.getMeta()),
                                true, gKVScope.WKBK);
         } else {
-            // don't save if
+            // don't save if no folder
             return PromiseHelper.reject();
         }
     }

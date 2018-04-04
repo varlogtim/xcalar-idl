@@ -42,6 +42,10 @@ setupHostName = function() {
     if (window.planServer == null || window.planServer === "") {
         planServer = hostname + "/sql";
     }
+
+    if (window.jupyterNotebooksPath == null || window.jupyterNotebooksPath === "") {
+        window.jupyterNotebooksPath = "var/opt/xcalar/jupyterNotebooks/";
+    }
 };
 // for convenience, add the function list here and make them
 // comment in default
@@ -4508,7 +4512,7 @@ XcalarSwitchToWorkbook = function(toWhichWorkbook, fromWhichWorkbook) {
     return (deferred.promise());
 };
 
-// XXX this function is temporarily using SessionSwitch to 
+// XXX this function is temporarily using SessionSwitch to
 // produce the multiple active workbook behavior
 // switch this to use the correct API when Bug 11523 is ready
 XcalarActivateWorkbook = function(workbookName) {
@@ -4547,13 +4551,15 @@ XcalarRenameWorkbook = function(newName, oldName) {
     return (deferred.promise());
 };
 
-XcalarUploadWorkbook = function(workbookName, workbookContent) {
+XcalarUploadWorkbook = function(workbookName, workbookContent,
+                                pathToAdditionalFiles) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
     var deferred = PromiseHelper.deferred();
 
-    xcalarApiSessionUpload(tHandle, workbookName, workbookContent)
+    xcalarApiSessionUpload(tHandle, workbookName, workbookContent,
+                           pathToAdditionalFiles)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarUploadWorkbook", error);
@@ -4563,13 +4569,13 @@ XcalarUploadWorkbook = function(workbookName, workbookContent) {
     return (deferred.promise());
 };
 
-XcalarDownloadWorkbook = function(workbookName) {
+XcalarDownloadWorkbook = function(workbookName, pathToAdditionalFiles) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
     var deferred = PromiseHelper.deferred();
 
-    xcalarApiSessionDownload(tHandle, workbookName)
+    xcalarApiSessionDownload(tHandle, workbookName, pathToAdditionalFiles)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarUploadWorkbook", error);

@@ -4322,13 +4322,14 @@ xcalarApiSessionRename = runEntity.xcalarApiSessionRename = function(thriftHandl
     return (deferred.promise());
 };
 
-xcalarApiSessionDownloadWorkItem = runEntity.xcalarApiSessionDownloadWorkItem = function(sessionName) {
+xcalarApiSessionDownloadWorkItem = runEntity.xcalarApiSessionDownloadWorkItem = function(sessionName, pathToAdditionalFiles) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
 
     workItem.api = XcalarApisT.XcalarApiSessionDownload;
     workItem.input.sessionDownloadInput = new XcalarApiSessionDownloadInputT();
     workItem.input.sessionDownloadInput.sessionName = sessionName;
+    workItem.input.sessionDownloadInput.pathToAdditionalFiles = pathToAdditionalFiles;
     return (workItem);
 };
 
@@ -4371,7 +4372,7 @@ xcalarApiSessionDownload = runEntity.xcalarApiSessionDownload = function(thriftH
     return (deferred.promise());
 };
 
-xcalarApiSessionUploadWorkItem = runEntity.xcalarApiSessionUploadWorkItem = function(sessionName, sessionContent) {
+xcalarApiSessionUploadWorkItem = runEntity.xcalarApiSessionUploadWorkItem = function(sessionName, sessionContent, pathToAdditionalFiles) {
     var workItem = new WorkItem();
     var encodedSession = btoa(sessionContent);
     workItem.input = new XcalarApiInputT();
@@ -4379,17 +4380,20 @@ xcalarApiSessionUploadWorkItem = runEntity.xcalarApiSessionUploadWorkItem = func
     workItem.api = XcalarApisT.XcalarApiSessionUpload;
     workItem.input.sessionUploadInput = new XcalarApiSessionUploadInputT();
     workItem.input.sessionUploadInput.sessionName = sessionName;
+    workItem.input.sessionUploadInput.pathToAdditionalFiles = pathToAdditionalFiles;
     workItem.input.sessionUploadInput.sessionContentCount = encodedSession.length;
     workItem.input.sessionUploadInput.sessionContent = encodedSession;
 
     return (workItem);
 };
 
-xcalarApiSessionUpload = runEntity.xcalarApiSessionUpload = function(thriftHandle, sessionName, sessionContent) {
+xcalarApiSessionUpload = runEntity.xcalarApiSessionUpload = function(thriftHandle, sessionName, sessionContent,
+    pathToAdditionalFiles) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
-        console.log("xcalarApiSessionUpload(sessionName = " + sessionName + ")");
+        console.log("xcalarApiSessionUpload(sessionName = ", sessionName, ", ",
+                "pathToAdditionalFiles = ", pathToAdditionalFiles, ")");
     }
 
     var workItem = xcalarApiSessionUploadWorkItem(sessionName, sessionContent);
