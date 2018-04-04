@@ -1821,7 +1821,8 @@ window.Dag = (function($, Dag) {
 
         $dagImageWrap.scroll(function() {
             if (gMouseEvents.getLastMouseDownTarget().attr('id') ===
-                "dagScrollBarWrap") {
+                "dagScrollBarWrap" ||
+                gMouseEvents.getLastMouseDownTarget().hasClass("dfScrollBar")) {
                 return;
             }
             if (!horzScrolling) {
@@ -1836,8 +1837,11 @@ window.Dag = (function($, Dag) {
             horzScrollingTimeout = setTimeout(function() {
                 horzScrolling = false;
             }, 300);
-
-            DagPanel.adjustScrollBarPositionAndSize();
+            if ($dagImageWrap.closest("#dagPanel").length) {
+                DagPanel.adjustScrollBarPositionAndSize();
+            } else {
+                DFCard.adjustScrollBarPositionAndSize();
+            }
         });
 
         var wheeling = false;

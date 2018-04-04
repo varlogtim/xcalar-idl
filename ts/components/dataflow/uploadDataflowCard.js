@@ -16,7 +16,8 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
 
     UploadDataflowCard.show = function() {
         $card.show();
-        $("#dataflowPanel").find(".mainContent").scrollTop(0);
+        $("#dataflowView").scrollTop(0);
+        DFCard.adjustScrollBarPositionAndSize();
     };
 
     function readRetinaFromFile(file, retName) {
@@ -225,6 +226,7 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         // Not user friendly but safer
         $card.find(".checkbox").removeClass("checked");
         xcTooltip.enable($card.find(".buttonTooltipWrap"));
+        DFCard.adjustScrollBarPositionAndSize();
     }
 
     function setupDragDrop() {

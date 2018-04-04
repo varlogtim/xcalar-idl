@@ -1,5 +1,6 @@
 #dataflowPanel {
     position: relative;
+    overflow: visible;
 
     .topBar {
         .buttonArea {
@@ -14,14 +15,35 @@
     }
 
     .mainContent {
-        overflow: auto;
+        overflow: visible;
+        padding-right: 0px;
+        position: relative;
     }
 
     #schedulesView, #dataflowView {
-        height: 100%;
+        .size(100%, 100%);
+        padding-right: 5px;
+        overflow: auto;
     }
 
     .input-box(@w:100%, @h: 30px);
+}
+
+.dfScrollBar {
+    overflow: auto;
+    position: absolute;
+    height: 12px; // has trouble showing if not an even number
+    width: ~"calc(100% - 16px)";
+    bottom: 0px;
+    left: 5px;
+    z-index: @z-index-topMenu - 1;
+    pointer-events: initial;
+    display: none;
+
+    .sizer {
+        width: 200%;
+        height: inherit;
+    }
 }
 
 #dfViz {

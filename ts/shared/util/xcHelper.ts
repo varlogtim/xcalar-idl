@@ -4216,6 +4216,7 @@ namespace xcHelper {
         TblFunc.hideOffScreenTables(options);
         $('#mainFrame').addClass('scrollLocked');
         $('#dagScrollBarWrap').addClass('xc-hidden');
+        $('.dfScrollBar').addClass('xc-hidden');
 
         const menuAnimTime: number = 200; // length of time menu takes to animate
         TblFunc.moveTableTitles(null, {
@@ -4231,6 +4232,8 @@ namespace xcHelper {
             $('#mainFrame').removeClass('scrollLocked');
             $('#dagScrollBarWrap').removeClass('xc-hidden');
             DagPanel.adjustScrollBarPositionAndSize();
+            $('.dfScrollBar').addClass('xc-hidden');
+            DFCard.adjustScrollBarPositionAndSize();
         });
     }
 

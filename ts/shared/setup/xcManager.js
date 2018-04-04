@@ -918,6 +918,7 @@ window.xcManager = (function(xcManager, $) {
             if (!resizing) {
                 xcMenu.close();
                 $('#dagScrollBarWrap').hide();
+                $(".dfScrollBar").hide();
                 resizing = true;
                 var $modal = $('.modalContainer:visible');
                 if ($modal.length && !$modal.hasClass("noWinResize")) {
@@ -957,6 +958,7 @@ window.xcManager = (function(xcManager, $) {
                 TblManager.adjustRowFetchQuantity();
                 DagPanel.setScrollBarId($(window).height());
                 DagPanel.adjustScrollBarPositionAndSize();
+                DFCard.adjustScrollBarPositionAndSize();
                 if (modalSpecs) {
                     xcHelper.repositionModalOnWinResize(modalSpecs,
                                                         windowSpecs);

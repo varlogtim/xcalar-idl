@@ -56,6 +56,7 @@ window.DFCard = (function($, DFCard) {
         addListeners();
         setupDagDropdown();
         setupRetinaTab();
+        setupScrollBar();
     };
 
     DFCard.addDFToList = function(dataflowName) {
@@ -1705,6 +1706,7 @@ window.DFCard = (function($, DFCard) {
             Scheduler.hide();
             $dfCard.removeClass("withSchedule");
         }
+        DFCard.adjustScrollBarPositionAndSize();
 
         promise
         .then(function() {
@@ -1756,8 +1758,90 @@ window.DFCard = (function($, DFCard) {
                 !$dagWrap.hasClass("error")) {
                 restoreParameterizedNodes(dataflowName);
             }
+            DFCard.adjustScrollBarPositionAndSize();
         });
     }
+
+    var $scrollBarWrap;
+    function setupScrollBar() {
+        var winHeight;
+        var isScrolling = false;
+        var scrollingTimeout;
+        $scrollBarWrap = $("#dataflowPanel").find(".dfScrollBar");
+
+        $dfView.scroll(function() {
+            if (!isScrolling) {
+                isScrolling = true;
+                winHeight = $(window).height();
+            }
+            clearInterval(scrollingTimeout);
+            scrollingTimeout = setTimeout(function() {
+                isScrolling = false;
+            }, 300);
+
+           adjustScrollBarPositionAndSize();
+        });
+
+        var $dagImageWrap;
+        var isBarScrolling = false;
+        var barScrollTimeout;
+        $scrollBarWrap.scroll(function() {
+            if (!isBarScrolling) {
+                isBarScrolling = true;
+                $dagImageWrap = $dfCard.find(".dagImageWrap:visible");
+            }
+
+            if (gMouseEvents.getLastMouseDownTarget().hasClass("dfScrollBar")) {
+                var scrollLeft = $(this).scrollLeft();
+                $dagImageWrap.scrollLeft(scrollLeft);
+            }
+            clearInterval(barScrollTimeout);
+            barScrollTimeout = setTimeout(function() {
+                isBarScrolling = false;
+            }, 300);
+        });
+
+        var wheeling = false;
+        var wheelTimeout;
+        $scrollBarWrap.on('mousewheel', function() {
+            if (!wheeling) {
+                wheeling = true;
+                gMouseEvents.setMouseDownTarget($(this));
+            }
+            clearTimeout(wheelTimeout);
+            wheelTimeout = setTimeout(function() {
+                wheeling = false;
+            }, 100);
+        });
+    }
+
+    function adjustScrollBarPositionAndSize() {
+        var panelRect = $dfView[0].getBoundingClientRect();
+        var cardRect = $dfCard[0].getBoundingClientRect();
+        if (cardRect.top + 100 < panelRect.bottom &&
+            cardRect.bottom > panelRect.bottom) {
+            var $dagWrap = $dfCard.find(".dagWrap:visible");
+            var $dagImageWrap = $dagWrap.find(".dagImageWrap");
+            if (!$dagWrap.length || !$dagImageWrap.length) {
+                $scrollBarWrap.hide();
+                return;
+            }
+
+            var dagImageWidth = $dagImageWrap.outerWidth();
+            var scrollWidth = $dagImageWrap[0].scrollWidth;
+            if (scrollWidth > dagImageWidth) {
+                var scrollLeft = $dagImageWrap.scrollLeft();
+                $scrollBarWrap.show().find('.sizer').width(scrollWidth);
+                $scrollBarWrap.scrollLeft(scrollLeft);
+            } else {
+                $scrollBarWrap.hide();
+            }
+        } else {
+            $scrollBarWrap.hide();
+        }
+    }
+
+    DFCard.adjustScrollBarPositionAndSize = adjustScrollBarPositionAndSize;
 
     /* Unit Test Only */
     if (window.unitTestMode) {
