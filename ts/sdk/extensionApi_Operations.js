@@ -228,12 +228,12 @@ window.XcSDK.Extension.prototype = (function() {
                         }]
                     }]
         */
-        union: function(tableInfos, dedup, newTableName) {
+        union: function(tableInfos, dedup, newTableName, unionType) {
             var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self.txId;
 
-            XIApi.union(txId, tableInfos, dedup, newTableName)
+            XIApi.union(txId, tableInfos, dedup, newTableName, unionType)
             .then(function(dstTable, dstCols) {
                 self._addMeta(null, dstTable, dstCols);
                 deferred.resolve(dstTable);

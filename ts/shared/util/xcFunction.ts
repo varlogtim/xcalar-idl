@@ -42,7 +42,9 @@ namespace xcFunction {
     }
 
     interface XcFuncUnionOptions {
-        keepTables: boolean;
+        keepTables: boolean,
+        unionType?: UnionOperatorT,
+        formOpenTime?: number
     }
 
     interface XcFuncAggColInfo extends AggColInfo {
@@ -664,7 +666,8 @@ namespace xcFunction {
         let finalTableName: string;
         let finalTableCols: ProgCol[];
 
-        XIApi.union(txId, <UnionTableInfo[]>tableInfos, dedup, newTableName)
+        XIApi.union(txId, <UnionTableInfo[]>tableInfos, dedup, newTableName,
+                    options.unionType)
             .then((nTableName, nTableCols) => {
                 finalTableCols = nTableCols;
                 finalTableName = nTableName;

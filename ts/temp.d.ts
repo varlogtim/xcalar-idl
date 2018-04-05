@@ -207,7 +207,7 @@ declare function XcalarMap(colNames: string[], mapStrs: string[], tableName: str
 declare function XcalarJoin(lTable: string, rTable: string, newTableName: string, joinType: number, lRename: ColRenameInfo[], rRename: ColRenameInfo[], joinOptions: object, txId: number): XDPromise<any>;
 declare function XcalarGroupByWithEvalStrings(newColNames: string[], evalStrs: string[], tableName: string, newTableName: string, incSample: boolean, icvMode: boolean, newKeyFieldName: string, groupAll: boolean, txId: number): XDPromise<any>;
 declare function XcalarGroupBy(operators: string[], newColNames: string[], aggColNames: string[], tableName: string, newTableName: string, incSample: boolean, icvMode: boolean, newKeyFieldName: string, groupAll: boolean, txId: number): XDPromise<any>;
-declare function XcalarUnion(tableNames: string[], newTableNmae: string, colInfos: object[], dedup: boolean, unionType: string, txId: number): XDPromise<any>;
+declare function XcalarUnion(tableNames: string[], newTableNmae: string, colInfos: object[], dedup: boolean, unionType: UnionOperatorT, txId: number): XDPromise<any>;
 declare function XcalarProject(columns: string[], tableName: string, newTableName: string, txId: number): XDPromise<any>;
 declare function XcalarQueryWithCheck(queryName: string, queryStr: string, txId: number): XDPromise<any>;
 declare function XcalarExport(tableName: string, exportName: string, targetName: string, numCols: number, backColumns: string[], frontColumns: string[], keepOrder: boolean, options: ExportTableOptions, txId: number): XDPromise<void>;
@@ -283,12 +283,19 @@ declare enum JoinOperatorTStr {
     LeftAntiSemiJoin = 'Left Anti Semi Join'
 }
 
+// Order doesn't matter since this is just a header file.
 declare enum JoinOperatorT {
-    CrossJoin,
-    LeftOuterJoin,
     InnerJoin,
+    LeftOuterJoin,
     RightOuterJoin,
-    FullOuterJoin
+    FullOuterJoin,
+    CrossJoin
+}
+
+declare enum UnionOperatorT {
+    UnionStandard,
+    UnionIntersect,
+    UnionExcept
 }
 
 declare enum XcalarApiVersionTStr{}

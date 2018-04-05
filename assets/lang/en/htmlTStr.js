@@ -931,17 +931,21 @@ module.exports = {
     },
 
     "unionView": {
-        "header": "UNION",
+        "header": "UNION / INTERSECT / EXCEPT", // Sync with JSTStr
         "AddTables": "ADD TABLES",
         "TableTitle": "Tables",
-        "ColumnTitle": "Columns In Union Table",
-        "Instr": "Select tables you would like to union and select columns from each table.",
+        "ColumnTitle": "Columns In Resultant Table",
+        "Instr": "Select tables you would like to union / except / intersect and select columns from each table.",
         "CandidateTitle": "To be Dropped",
-        "AddTable": "Add Table To Union",
+        "AddTable": "Add Table To Operation",
         "confirm": "Union",
         "Mode": "Mode",
         "Union": "Union (Combine and deduplicate)",
-        "UnionAll": "Union All (Combine all rows)"
+        "UnionAll": "Union All (Combine all rows)",
+        "Except": "Except (Minus)",
+        "ExceptAll": "Except All (Minus All)",
+        "Intersect": "Intersect",
+        "IntersectAll": "Intersect All",
     },
 
     "jsonModal": {

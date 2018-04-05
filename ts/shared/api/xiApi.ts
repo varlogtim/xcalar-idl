@@ -1402,7 +1402,8 @@ namespace XIApi {
             colNames.push(colName);
             // this will change all null to FNF
             mapStrs.push(`string(${colName})`);
-            const newColName: string = xcHelper.parsePrefixColName(colName).name + suffix;
+            const newColName: string = xcHelper.parsePrefixColName(colName)
+                .name + suffix;
             newColNames.push(newColName);
         });
 
@@ -1430,8 +1431,10 @@ namespace XIApi {
         .then(function(finalTableName) {
             tempTables.push(curTableName);
             unionRenameInfo.tableName = finalTableName;
-            const type: DfFieldTypeT = xcHelper.convertColTypeToFieldType(ColumnType.string);
-            const rename: ColRenameInfo = xcHelper.getJoinRenameMap(concatColName, indexColName, type);
+            const type: DfFieldTypeT = xcHelper.convertColTypeToFieldType(
+                ColumnType.string);
+            const rename: ColRenameInfo = xcHelper.getJoinRenameMap(
+                concatColName, indexColName, type);
             unionRenameInfo.renames.push(rename);
             deferred.resolve();
         })
@@ -2276,14 +2279,19 @@ namespace XIApi {
      * @param tableInfos
      * @param dedup
      * @param newTableName
+     * @param unionType Enum
      * @returns Promise<newTableName, newTableCols>
      */
     export function union(
         txId: number,
         tableInfos: UnionTableInfo[],
         dedup: boolean = false,
-        newTableName?: string
+        newTableName?: string,
+        unionType?: UnionOperatorT
     ): XDPromise<string> {
+        if (unionType === undefined) {
+            unionType = UnionOperatorT.UnionStandard;
+        }
         tableInfos = checkUnionTableInfos(tableInfos);
         if (txId == null || tableInfos == null) {
             return PromiseHelper.reject("Invalid args in union");
@@ -2299,7 +2307,7 @@ namespace XIApi {
         .then((unionRenameInfos: UnionRenameInfo[], resTempTables: string[]) => {
             tempTables = tempTables.concat(resTempTables);
 
-            if (dedup) {
+            if (dedup || unionType !== UnionOperatorT.UnionStandard) {
                 return unionAllIndex(txId, unionRenameInfos);
             } else {
                 return PromiseHelper.resolve(unionRenameInfos, []);
@@ -2314,8 +2322,8 @@ namespace XIApi {
                 tableNames.push(tableInfo.tableName);
                 colInfos.push(tableInfo.renames);
             });
-            // XXX here only pass empty string in
-            return XcalarUnion(tableNames, newTableName, colInfos, dedup, "unionStandard", txId);
+            return XcalarUnion(tableNames, newTableName, colInfos, dedup,
+                               unionType, txId);
         })
         .then(() => {
             const newTableCols: ProgCol[] = tableInfos[0].columns.map((col) => {

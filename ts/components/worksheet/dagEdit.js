@@ -318,14 +318,14 @@ window.DagEdit = (function($, DagEdit) {
         curEdit.descendantMap[curEdit.editingNode.value.name] = descendants;
     };
 
-    DagEdit.storeUnion = function(tableInfos, dedup, newTableName) {
+    DagEdit.storeUnion = function(tableInfos, dedup, newTableName, unionType) {
         var txId = Transaction.start({
             "operation": "Edit Union",
             "simulate": true,
             "isEdit": true
         });
 
-        XIApi.union(txId, tableInfos, dedup, newTableName)
+        XIApi.union(txId, tableInfos, dedup, newTableName, unionType)
         .then(function(nTableName, nTableCols) {
             var query = Transaction.done(txId, {
                 "noNotification": true,

@@ -91,6 +91,14 @@ window.UnionView = (function(UnionView, $) {
         }
     };
 
+    function updateButtonText(optionStr) {
+        var termIdx = optionStr.indexOf(" (");
+        if (termIdx === -1) {
+            termIdx = optionStr.length;
+        }
+        $unionView.find(".confirm").text(optionStr.substring(0, termIdx));
+    }
+
     function addEvents() {
         $unionView.on("mouseenter", ".tooltipOverflow", function() {
             xcTooltip.auto(this);
@@ -137,7 +145,7 @@ window.UnionView = (function(UnionView, $) {
                 var mode = $li.text();
                 $modeList.find(".text").text(mode);
                 $modeList.data("option", $li.attr("name"));
-                $unionView.find(".confirm").text(mode.substring(0, mode.indexOf(" (")));
+                updateButtonText(mode);
             },
             container: "#unionView",
             bounds: "#unionView"
@@ -893,15 +901,39 @@ window.UnionView = (function(UnionView, $) {
                 columns: columns
             });
         });
+        var unionType = UnionOperatorT.UnionStandard;
+        var dedup = false;
+        var unionOption = $unionView.find(".modeList").data("option");
+        switch (unionOption) {
+            case ("except"):
+                dedup = true;
+                // fallthrough
+            case ("exceptAll"):
+                unionType = UnionOperatorT.UnionExcept;
+                break;
+            case ("intersect"):
+                dedup = true;
+                // fallthrough
+            case ("intersectAll"):
+                unionType = UnionOperatorT.UnionIntersect;
+                break;
+            case ("union"):
+                dedup = true;
+                // fallthrough
+            case ("unionAll"):
+                unionType = UnionOperatorT.UnionStandard;
+                break;
+        }
 
         var newTableName = $unionView.find(".newTableName").val();
-        var dedup = ($unionView.find(".modeList").data("option") === "union");
         var options = {
-            "formOpenTime": formHelper.getOpenTime()
+            "formOpenTime": formHelper.getOpenTime(),
+            "unionType": unionType
         };
 
         if (DagEdit.isEditMode()) {
-            DagEdit.storeUnion(tableInfos, dedup, newTableName + "#aa00");
+            DagEdit.storeUnion(tableInfos, dedup, newTableName + "#aa00",
+                               unionType);
         } else {
             xcFunction.union(tableInfos, dedup, newTableName, options);
         }
@@ -1000,16 +1032,16 @@ window.UnionView = (function(UnionView, $) {
     }
 
     function updateFormTitles(options) {
-        var titleName = "Union";
+        var titleName = UnionTStr.header;
         var submitText;
         if (options.prefill) {
             titleName = "EDIT " + titleName;
-            submitText = "SAVE";
+            $unionView.find('.confirm').text("SAVE");
         } else {
-            submitText = titleName.toUpperCase() + " ALL";
+            var $modeList = $unionView.find(".modeList");
+            updateButtonText($modeList.find(".text").text().trim());
         }
         $unionView.find('.title').text(titleName);
-        $unionView.find('.confirm').text(submitText);
     }
 
     return UnionView;

@@ -2674,6 +2674,7 @@ XcalarUnion = function(tableNames, newTableName, colInfos, dedup, unionType,
     tableNames = (tableNames instanceof Array) ? tableNames : [tableNames];
     colInfos = (colInfos instanceof Array) ? colInfos : [colInfos];
     dedup = dedup || false;
+    unionType = unionType || UnionOperatorT.UnionStandard;
 
     var query;
     var getUnsortedTablesInUnion = function() {
@@ -2705,12 +2706,14 @@ XcalarUnion = function(tableNames, newTableName, colInfos, dedup, unionType,
         var columns = colInfos.map(function(renameListForOneTable) {
             return renameListForOneTable.map(colInfoMap);
         });
-        var workItem = xcalarUnionWorkItem(sources, newTableName, columns, dedup, unionType);
+        var workItem = xcalarUnionWorkItem(sources, newTableName, columns,
+                                           dedup, unionType);
         var def;
         if (Transaction.isSimulate(txId)) {
             def = fakeApiCall();
         } else {
-            def = xcalarUnion(tHandle, sources, newTableName, columns, dedup, unionType);
+            def = xcalarUnion(tHandle, sources, newTableName, columns, dedup,
+                              unionType);
         }
         query = XcalarGetQuery(workItem); // XXX test
         Transaction.startSubQuery(txId, 'union', newTableName, query);
