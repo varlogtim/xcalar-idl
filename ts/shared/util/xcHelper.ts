@@ -4689,7 +4689,7 @@ namespace xcHelper {
                 const name: string = key.name;
                 const ordering: string = key.ordering;
                 const parsedName: PrefixColInfo = xcHelper.parsePrefixColName(name);
-                let type: string = null;
+                let type: number = DfFieldTypeT.DfUnknown;
                 let keyFieldName: string = null;
 
                 if (hasTableMeta) {
@@ -4704,10 +4704,15 @@ namespace xcHelper {
                     // if no tableMeta, just overwrite keyFieldName with key.name
                     keyFieldName = name;
                 }
+                if (!colMeta.hasOwnProperty(keyFieldName)) {
+                    // add to map so we can check against it when creating
+                    // other new key field names
+                    colMeta[keyFieldName] = DfFieldTypeT.DfUnknown;
+                }
 
                 return {
                     name: name,
-                    type: type || DfFieldTypeT.DfUnknown,
+                    type: type,
                     keyFieldName: keyFieldName || "",
                     ordering: ordering
                 };
