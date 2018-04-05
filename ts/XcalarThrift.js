@@ -17,12 +17,8 @@ setupThrift = function(hostname) {
 
 setupHostName = function() {
     if (window.hostname == null || window.hostname === "") {
-        hostname = window.location.href;
-        // remove path
-        if (hostname.lastIndexOf(".html") > -1) {
-            var index = hostname.lastIndexOf("/");
-            hostname = hostname.substring(0, index);
-        }
+        var url = new URL(window.location.href);
+        hostname = url.origin;
     }
     // protocol needs to be part of hostname
     // If not it's assumed to be http://
