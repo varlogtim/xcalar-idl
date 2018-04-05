@@ -11,6 +11,7 @@ window.DFCard = (function($, DFCard) {
     var retinaCheckInterval = 2000;
     var retinasInProgress = {};
     var hasChange = false;
+    var $scrollBarWrap;
     var retinaTrLen = 5;
     var retinaTr = '<div class="row unfilled">' +
                         '<div class="cell paramNameWrap textOverflowOneLine">' +
@@ -42,6 +43,7 @@ window.DFCard = (function($, DFCard) {
         $header = $dfCard.find('.cardHeader h2');
         $retTabSection = $dfCard.find('.retTabSection');
         $retLists = $("#retLists");
+        $scrollBarWrap = $("#dataflowPanel").find(".dfScrollBar");
 
         // used to remove all status classes from dag table icons
         for (var i in DgDagStateTStr) {
@@ -1762,12 +1764,11 @@ window.DFCard = (function($, DFCard) {
         });
     }
 
-    var $scrollBarWrap;
+
     function setupScrollBar() {
         var winHeight;
         var isScrolling = false;
         var scrollingTimeout;
-        $scrollBarWrap = $("#dataflowPanel").find(".dfScrollBar");
 
         $dfView.scroll(function() {
             if (!isScrolling) {
