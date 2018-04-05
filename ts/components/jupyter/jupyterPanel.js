@@ -3,6 +3,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
     var jupyterMeta;
     var msgId = 0;
     var msgPromises = {};
+    var promiseTimeLimit = 10000; // 10 seconds
 
     function JupyterMeta(currentNotebook, folderName) {
         this.currentNotebook = currentNotebook || null;
@@ -601,6 +602,13 @@ window.JupyterPanel = (function($, JupyterPanel) {
         if (isAsync) {
             messageInfo.msgId = msgId;
             msgPromises[msgId] = deferred;
+            var cachedId = msgId;
+            setTimeout(function() {
+                if (msgPromises[cachedId]) {
+                    msgPromises[cachedId].reject({error: "timeout"});
+                    delete msgPromises[cachedId];
+                }
+            }, promiseTimeLimit);
             msgId++;
         } else {
             deferred.resolve();
