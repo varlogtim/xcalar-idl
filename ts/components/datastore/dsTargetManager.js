@@ -145,10 +145,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
     };
 
     DSTargetManager.updateUDF = function(listXdfsObj) {
-        listUDFSection(listXdfsObj)
-        .always(function() {
-            return;
-        });
+        listUDFSection(listXdfsObj);
     };
 
     function addEventListeners() {
@@ -668,10 +665,10 @@ window.DSTargetManager = (function($, DSTargetManager) {
                 inputClass += " optional";
                 descrp += " (" + CommonTxtTstr.Optional + ")";
             }
-            if (param.name == 'backingTargetName') {
+            if (param.name === 'backingTargetName') {
                 return getTargetsForParamOptions(param, index);
             }
-            else if (param.name == 'listUdf') {
+            else if (param.name === 'listUdf') {
                 return getUDFsForParamOptions(param, index);
             }
 
