@@ -158,7 +158,7 @@ namespace xcHelper {
      */
     export function parseTableId(
         idOrEl: string | JQuery | HTMLElement
-    ): string | null {
+    ): number | string | null {
         // can pass in a string or jQuery element or HTMLElement
         let id;
         if (idOrEl instanceof jQuery) {
@@ -175,7 +175,12 @@ namespace xcHelper {
             console.error('Unexpected id/ele to parse', idOrEl);
             return null;
         } else {
-            return idSplit[1];
+            id = idSplit[1];
+            if (isNaN(id)) {
+                return id;
+            } else {
+                return parseInt(id);
+            }
         }
     }
 
@@ -2133,14 +2138,19 @@ namespace xcHelper {
      * expects 'schedule#AB12' and retuns 'AB12'
      * @param wholeName
      */
-    export function getTableId(wholeName: string): string | null {
+    export function getTableId(wholeName: string): number | string | null {
         if (wholeName == null) {
             return null;
         }
         // get out hashId from tableName + hashId
         const hashIndex: number = wholeName.lastIndexOf('#');
         if (hashIndex > -1) {
-            return wholeName.substring(hashIndex + 1);
+            let id = wholeName.substring(hashIndex + 1);
+            if (isNaN(id)) {
+                return id;
+            } else {
+                return parseInt(id);
+            }
         } else {
             return null;
         }
@@ -2467,7 +2477,7 @@ namespace xcHelper {
      * noClear: boolean, if true, will not deselect text
      */
     export function centerFocusedTable(
-        tableWrapOrId: JQuery | string,
+        tableWrapOrId: JQuery | string | number,
         animate: boolean,
         options: CentFocusedTableOptions = <CentFocusedTableOptions>{}
     ): XDPromise<void> {
@@ -2475,12 +2485,12 @@ namespace xcHelper {
         let $tableWrap: JQuery;
         let tableId: string;
 
-        if (typeof tableWrapOrId === 'string') {
-            $tableWrap = $('#xcTableWrap-' + tableWrapOrId);
-            tableId = tableWrapOrId;
-        } else {
+        if (tableWrapOrId instanceof jQuery) {
             $tableWrap = tableWrapOrId;
             tableId = $tableWrap.data('id');
+        } else {
+            $tableWrap = $('#xcTableWrap-' + tableWrapOrId);
+            tableId = tableWrapOrId;
         }
 
         if (!$tableWrap.length) {

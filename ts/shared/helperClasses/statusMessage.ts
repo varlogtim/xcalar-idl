@@ -516,7 +516,7 @@ namespace StatusMessage {
                 const wsId: string = this.msgObjs[msgId].worksheetNum;
                 const activeWS: string = WSManager.getActiveWS() || "";
 
-                if (wsId !== activeWS || !tableId) {
+                if (wsId !== activeWS || tableId == null) {
                     // we're on a different worksheet than the table is on
                     // so position the popup next to the worksheet tab
                     popupNeeded = true;
@@ -606,7 +606,7 @@ namespace StatusMessage {
                 }
 
                 window.setTimeout(function() {
-                    if (newTableId && !$('#xcTableWrap-' + newTableId).length) {
+                    if (newTableId != null && !$('#xcTableWrap-' + newTableId).length) {
                         if ($tableDonePopup.siblings().length === 0) {
                             $tableDonePopup.parent().remove();
                         } else {
@@ -663,7 +663,7 @@ namespace StatusMessage {
                     return;
                 }
 
-                if ($popup.data('tableid')) {
+                if ($popup.data('tableid') != null) {
                     const tableId: string = $popup.data('tableid');
                     const wsId: string = WSManager.getWSFromTable(tableId);
                     const $tableWrap: JQuery = $('#xcTableWrap-' + tableId);

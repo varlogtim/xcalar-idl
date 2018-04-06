@@ -223,7 +223,7 @@ window.DFCard = (function($, DFCard) {
         var paramMap = df.paramMap;
 
         df.parameters.forEach(function(paramName) {
-            if (!systemParams.hasOwnProperty(paramName)) {
+            if (!(systemParams.hasOwnProperty(paramName) && isNaN(Number(paramName)))) {
                 addParamToRetina(paramName, paramMap[paramName],
                                 df.paramMapInUsed[paramName]);
             }
@@ -1160,7 +1160,7 @@ window.DFCard = (function($, DFCard) {
             var hasSysParam = false;
             for (var i = 0; i < length; i++) {
                 var paramName = parameters[i].paramName;
-                if (systemParams.hasOwnProperty(paramName)) {
+                if (systemParams.hasOwnProperty(paramName) && isNaN(Number(paramName))) {
                     hasSysParam = true;
                     break;
                 }

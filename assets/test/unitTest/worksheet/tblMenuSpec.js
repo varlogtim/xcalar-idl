@@ -29,7 +29,9 @@ describe('TableMenu Test', function() {
                 tableId = xcHelper.getTableId(tableName);
                 $table = $('#xcTable-' + tableId);
                 $tableWrap = $('#xcTableWrap-' + tableId);
-                done();
+                setTimeout(function() {
+                    done(); // wait for hash id animation to finish for copy name test
+                }, 500);
             });
 
             $tableMenu = $('#tableMenu');
@@ -215,7 +217,6 @@ describe('TableMenu Test', function() {
 
                 $tableMenu.find('.copyTableName').trigger(rightMouseup);
                 expect(called).to.be.false;
-
                 $tableMenu.find('.copyTableName').trigger(fakeEvent.mouseup);
                 expect(called).to.be.true;
 

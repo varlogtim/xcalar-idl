@@ -11,11 +11,11 @@ window.Authentication = (function(jQuery, Authentication) {
         .then(function(oldAuthInfo) {
             if (oldAuthInfo == null) {
                 authInfo = new XcAuth({
-                    "idCount": 0,
-                    "hashTag": generateHashTag()
+                    "idCount": 1
                 });
                 kvStore.put(JSON.stringify(authInfo), true);
             } else {
+                delete oldAuthInfo.hashTag;
                 authInfo = new XcAuth(oldAuthInfo);
             }
 
@@ -42,38 +42,12 @@ window.Authentication = (function(jQuery, Authentication) {
             console.error("Save Authentication fails", error);
         });
 
-        return ("#" + authInfo.getHashTag() + idCount);
+        return ("#" + idCount);
     };
-
-    function generateHashTag() {
-        // 2891 = 49 * 59, possibility
-        // Caps and small O, caps I removed due to GUI-4256
-        var str = "0123456789abcedfghijklmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ";
-        // index1 should not include number
-        // (if hashId="12", bind to data-id, it may return number 12)
-        var numDigits = 2; // This number needs to increase as we have more
-        // sessions to reduce the chance of collision
-        var probability = [25, 190]; // Birthday Paradox
-        var numUsers = 0; // XXX Ask Cheng
-        probability.forEach(function(prob) {
-            if (numUsers > prob) {
-                numDigits++;
-            }
-        });
-
-        var hashTag = str.charAt(Math.floor(Math.random() * (str.length - 10)) +
-                      10);
-        for (var i = 0; i < numDigits - 1; i++) {
-            hashTag += str.charAt(Math.floor(Math.random() * str.length));
-        }
-
-        return (hashTag);
-    }
 
     /* Unit Test Only */
     if (window.unitTestMode) {
         Authentication.__testOnly__ = {};
-        Authentication.__testOnly__.generateHashTag = generateHashTag;
     }
     /* End Of Unit Test Only */
 

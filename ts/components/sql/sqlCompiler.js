@@ -1497,7 +1497,7 @@
                 if (gArray[i].numOps > 0) {
                     firstMapArray.push(gArray[i].aggColName);
                     var newColName = "XC_GB_COL_" +
-                                     Authentication.getHashId().substring(3);
+                                     Authentication.getHashId().substring(1);
                     firstMapColNames.push(newColName);
                     gArray[i].aggColName = newColName;
                 }
@@ -1514,7 +1514,7 @@
                 gbMapCol.operator = rs.firstOp;
                 if (aggEvalStrArray[i].numOps > 1) {
                     var newColName = "XC_GB_COL_" +
-                                     Authentication.getHashId().substring(3);
+                                     Authentication.getHashId().substring(1);
                     firstMapColNames.push(newColName);
                     firstMapArray.push(rs.inside);
                     gbMapCol.aggColName = newColName;
@@ -1540,7 +1540,7 @@
             if (gbColNames.length === 0) {
                 firstMapArray.push("int(1)");
                 gbTempColName = "XC_GB_COL_" + Authentication.getHashId()
-                                                             .substring(3);
+                                                             .substring(1);
                 firstMapColNames.push(gbTempColName);
                 gbColNames = [gbTempColName];
                 // gbAll = true;
@@ -1549,7 +1549,7 @@
             var tempCol;
             if (gArray.length === 0) {
                 var newColName = "XC_GB_COL_" +
-                                 Authentication.getHashId().substring(3);
+                                 Authentication.getHashId().substring(1);
                 gArray = [{operator: "count",
                            aggColName: "1",
                            newColName: newColName}];
@@ -2449,7 +2449,7 @@
                         // Neither has ID, append a random hash value
                         // This is for case#2
                         var newName = oldName + "_E" +
-                                      Authentication.getHashId().substring(3);
+                                      Authentication.getHashId().substring(1);
                         rightRename.push(xcHelper.getJoinRenameMap(oldName,
                                          newName));
                         rightCols[j].rename = newName;
@@ -2523,7 +2523,7 @@
                                        genEvalStringRecur(condTree.aggTree,
                                         aggAcc, options);
                         var aggVarName = "XC_AGG_" +
-                                    Authentication.getHashId().substring(3);
+                                    Authentication.getHashId().substring(1);
 
                         acc.aggEvalStrArray.push({aggEvalStr: aggEvalStr,
                                                   aggVarName: aggVarName,
@@ -2553,7 +2553,7 @@
                 assert(condTree.subqueryTree);
                 assert(acc.subqueryArray);
                 var subqVarName = "XC_SUBQ_" +
-                                    Authentication.getHashId().substring(3);
+                                    Authentication.getHashId().substring(1);
                 condTree.subqueryTree.subqVarName = subqVarName;
                 acc.subqueryArray.push({subqueryTree: condTree.subqueryTree});
                 outStr += "^" + subqVarName;

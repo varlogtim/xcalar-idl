@@ -194,10 +194,6 @@ describe("Persistent Constructor Test", function() {
             .and.to.equal("test");
         });
 
-        it("Should getHashTag", function() {
-            expect(autoInfo.getHashTag()).to.equal("test");
-        });
-
         it("Should getIdCount", function() {
             expect(autoInfo.getIdCount()).to.equal(1);
         });

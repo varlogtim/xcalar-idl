@@ -22,7 +22,7 @@ window.Repeat = (function($, Repeat) {
                 var $ths = $(".xcTable th.selectedCell");
                 if (tableOperations.indexOf(operation) > -1) {
                     tableId = xcHelper.getFocusedTable();
-                    if (!tableId) {
+                    if (tableId == null) {
                         return PromiseHelper.reject();
                     }
                     $ths.each(function() {

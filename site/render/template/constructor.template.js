@@ -2683,7 +2683,8 @@
                         var name = param.name;
                         var val  = param.val;
                         xcAssert(parameters.includes(name)
-                            || systemParams.hasOwnProperty(name),"Invalid name");
+                            || (systemParams.hasOwnProperty(name) &&
+                            isNaN(Number(name))),"Invalid name");
                         if (!parameters.includes(name)) {
                             parameters.push(name);
                         }
@@ -2709,7 +2710,8 @@
                         var name = params[i].paramName;
                         paramMapInUsed[name] = true;
                         if (!paramMap.hasOwnProperty(name)) {
-                            paramMap[name] = systemParams.hasOwnProperty(name)?
+                            paramMap[name] = (systemParams.hasOwnProperty(name) &&
+                                            isNaN(Number(name)))?
                                              systemParams[name] : null;
                         }
                         if (!parameters.includes(name)) {

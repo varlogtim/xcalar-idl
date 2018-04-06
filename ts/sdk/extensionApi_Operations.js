@@ -318,11 +318,10 @@ window.XcSDK.Extension.prototype = (function() {
         },
 
         __checkDstTableNameInQuery: function(queryStr) {
-            var hashTag = Authentication.getInfo().hashTag;
             // check --dsttable pattern
             var re1 = new RegExp("--dsttable", "g");
             // check --dsttable name#hastTagIdCount pattern
-            var re2 = new RegExp("--dsttable \\w+#" + hashTag + "\\d+", "g");
+            var re2 = new RegExp("--dsttable \\w+#\\d+", "g");
 
             var res1 = queryStr.match(re1);
             var res2 = queryStr.match(re2);

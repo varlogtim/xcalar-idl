@@ -1200,12 +1200,12 @@ ModalHelper.prototype = {
                 });
             }
 
-            if (tableId) {
+            if (tableId != null) {
                 $tableWrap.removeClass('modalOpen');
             }
         } else {
             // when open the modal
-            if (tableId) {
+            if (tableId != null) {
                 $tableWrap.addClass('modalOpen');
             }
 

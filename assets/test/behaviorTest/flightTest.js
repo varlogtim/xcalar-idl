@@ -419,10 +419,11 @@ window.FlightTest = (function(FlightTest, $) {
         .then(function() {
             // move the flight table (the one that has id startTableId + 5)
             console.log("send a orphaned flight table to worksheet");
-            var idCount = parseInt(startTableId.substring(2));
+            var idCount = startTableId;
+
             var $li = $("#orphanedTablesList .tableInfo").filter(function () {
                 try {
-                    return $(this).data("id").endsWith(idCount + 5);
+                    return $(this).data("id") == (idCount + 5);
                 } catch (err) {
                     throw "testSuite bug";
                 }
@@ -547,7 +548,7 @@ window.FlightTest = (function(FlightTest, $) {
         test.checkExists(".type-integer .flexWrap.flex-mid" +
                         " input[value='" + col + "']:eq(0)")
         .then(function() {
-            if (tableId) {
+            if (tableId != null) {
                 return test.checkExists("#xcTable-" + tableId, null,
                                         {notExist: true});
             } else {

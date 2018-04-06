@@ -1630,7 +1630,7 @@ window.QueryManager = (function(QueryManager, $) {
 
             var tableId = xcHelper.getTableId(tableName);
 
-            if (!tableId) {
+            if (tableId == null) {
                 focusOutputErrorHandler('output', mainQuery);
                 return;
             }

@@ -368,7 +368,7 @@ window.TableList = (function($, TableList) {
     };
 
     TableList.updateColName = function(tableId, colNum, newColName) {
-        $('#activeTablesList').find(".tableInfo[data-id=" + tableId + "]")
+        $('#activeTablesList').find('.tableInfo[data-id="' + tableId + '"]')
                               .find(".column").eq(colNum - 1)
                               .find(".text")
                               .text(colNum + ". " + newColName);
@@ -537,7 +537,7 @@ window.TableList = (function($, TableList) {
                     // anything faile to alert
                     if (failures.length > 0) {
                         deferred.reject(failures.join("\n"));
-                    } else {  
+                    } else {
                         var finalTables = tables.map(function(name) {
                             if (tableRenameMap[name]) {
                                 return tableRenameMap[name];
@@ -825,12 +825,20 @@ window.TableList = (function($, TableList) {
         $listWrap = getListWrap(tableType);
 
         if (tableType === TableType.Orphan) {
-            var id = xcHelper.getTableId(tableIdOrName);
-            if (id) {
+            var id;
+            if (typeof tableIdOrName === "string" &&
+                tableIdOrName.indexOf("#") > -1) {
+                id = xcHelper.getTableId(tableIdOrName);
+            }
+
+            if (id != null) {
                 $li = $listWrap.find('.tableInfo[data-id="' + id + '"]');
             } else {
-                $li = $listWrap.find('.tableInfo[data-tablename="' +
+                $li = $listWrap.find('.tableInfo[data-id="' + tableIdOrName + '"]');
+                if (!$li.length) {
+                    $li = $listWrap.find('.tableInfo[data-tablename="' +
                                                     tableIdOrName + '"]');
+                }
             }
         } else {
             $li = $listWrap.find('.tableInfo[data-id="' + tableIdOrName + '"]');
@@ -1552,7 +1560,7 @@ window.TableList = (function($, TableList) {
                 } else {
                     op = CommonTxtTstr.NA;
                 }
-                if (aggConst.tableId && gTables[aggConst.tableId]) {
+                if (aggConst.tableId != null && gTables[aggConst.tableId]) {
                     tableName = gTables[aggConst.tableId].tableName;
                 } else if (aggConst.tableName) {
                     tableName = aggConst.tableName;

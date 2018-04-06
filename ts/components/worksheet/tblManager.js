@@ -789,8 +789,7 @@ window.TblManager = (function($, TblManager) {
             var pctToReduce = limit / droppedTablesStr.length;
             var dTableArray = [];
             var numTotalCols = 0;
-            var hashTag = Authentication.getInfo().hashTag;
-            var hashTagLen = hashTag.length;
+            var hashTagLen = 2;
 
             for (var id in gDroppedTables) {
                 dTableArray.push(gDroppedTables[id]);
@@ -801,8 +800,19 @@ window.TblManager = (function($, TblManager) {
             var colLimit = Math.floor(numTotalCols * pctToReduce);
 
             dTableArray.sort(function(a, b) {
-                var idNumA = a.tableId.slice(hashTagLen);
-                var idNumB = b.tableId.slice(hashTagLen);
+                var idNumA;
+                var idNumB;
+                if (isNaN(a.tableId)) {
+                    idNumA = a.tableId.slice(hashTagLen);
+                } else {
+                    idNumA = a.tableId;
+                }
+                if (isNaN(b.tableId)) {
+                    idNumB = b.tableId.slice(hashTagLen);
+                } else {
+                    idNumB = b.tableId;
+                }
+
                 return parseInt(idNumB) - parseInt(idNumA);
             });
 
@@ -1788,9 +1798,21 @@ window.TblManager = (function($, TblManager) {
         var deferred = PromiseHelper.deferred();
         var $hashName = $("#xcTheadWrap-" + tableId).find(".hashName");
         var oldText = $hashName.text();
-        var hashPart = "#" + tableId.substring(0, 2); // first 2 chars
-        var sCntStr = oldId.substring(2);
-        var eCntStr = tableId.substring(2);
+        tableId = String(tableId);
+        oldId = String(oldId);
+        var hashPart;
+        var sCntStr;
+        var eCntStr;
+        if (isNaN(tableId)) { // is a number
+            hashPart = "#" + tableId.substring(0, 2); // first 2 chars
+            sCntStr = oldId.substring(2);
+            eCntStr = tableId.substring(2);
+        } else {
+            hashPart = "#";
+            sCntStr = oldId;
+            eCntStr = tableId;
+        }
+
         var charCnts = splitCntChars(Array.from(sCntStr), Array.from(eCntStr));
 
         $hashName.html(getHashAnimHtml(hashPart, charCnts));
@@ -3062,7 +3084,7 @@ window.TblManager = (function($, TblManager) {
         var targetWS;
         if (options.wsId) {
             targetWS = options.wsId;
-        } else if (oldTableId) {
+        } else if (oldTableId != null) {
             targetWS = WSManager.getWSFromTable(oldTableId);
         } else {
             targetWS = WSManager.getActiveWS();
@@ -3087,7 +3109,7 @@ window.TblManager = (function($, TblManager) {
         // creates a new table, completed thead, and empty tbody
         if (options.atStartUp) {
             $("#mainFrame").append(xcTableWrap);
-        } else if (oldTableId) {
+        } else if (oldTableId != null) {
             var $oldTable =  $("#xcTableWrap-" + oldTableId);
             $oldTable.after(xcTableWrap);
         } else {

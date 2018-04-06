@@ -770,7 +770,7 @@ window.OperationsView = (function($, OperationsView) {
         var hasPrefill = options.prefill ? true : false;
         if (options.prefill && options.prefill.isDroppedTable) {
             table = gDroppedTables[currTableId];
-        } else if (currTableId) {
+        } else if (currTableId != null) {
             table = gTables[currTableId];
         }
 

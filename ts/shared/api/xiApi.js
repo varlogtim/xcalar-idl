@@ -1049,7 +1049,7 @@
         }
 
         var tableId = xcHelper.getTableId(tableName);
-        if (tableId && gTables[tableId] &&
+        if (tableId != null && gTables[tableId] &&
             gTables[tableId].resultSetCount > -1) {
             return PromiseHelper.resolve(gTables[tableId].resultSetCount);
         }
@@ -2270,7 +2270,7 @@
         if (typeof sqlMode !== "undefined" && sqlMode) {
             return true;
         }
-        var regex = "^.*#[a-zA-Z0-9]{2}[0-9]+$";
+        var regex = "^.*#[0-9]+$";
         var regexp = new RegExp(regex);
         return regexp.test(tableName);
     }

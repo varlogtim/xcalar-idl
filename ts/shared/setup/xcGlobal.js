@@ -49,7 +49,7 @@
         "GLOB": general global
         */
         gKVScope = {
-            "AUTH": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+            "AUTH": XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
             "USER": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
             "WKBK": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
             "META": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,

@@ -2363,7 +2363,7 @@ window.JoinView = (function($, JoinView) {
     function addClause(noAnimation, tableId, colNum, colNames) {
 
         var progCol;
-        if (tableId && colNum != null) {
+        if (tableId != null && colNum != null) {
             progCol = gTables[tableId].getCol(colNum);
             if (validTypes.indexOf(progCol.getType()) === -1) {
                 return;
@@ -2383,7 +2383,7 @@ window.JoinView = (function($, JoinView) {
         }
 
         var $div = $newClause.insertBefore($joinView.find('.addClause'));
-        if (tableId && colNum != null) {
+        if (tableId != null && colNum != null) {
             var colName = progCol.getFrontColName(true);
             $div.find('.arg').eq(0).val(colName);
         } else if (colNames) {

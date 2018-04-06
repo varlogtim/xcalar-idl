@@ -419,7 +419,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 setActiveWKBK(null);
                 setURL(null, true);
             }
-            
+
             deferred.resolve();
         })
         .fail(deferred.reject)
@@ -679,11 +679,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
     function getUserScopeKeys(version) {
         var username = XcSupport.getUser();
         var gUserKey = generateKey(username, "gUser", version);
-        var gAuthKey = generateKey(username, "authentication", version);
 
         return {
-            "gUserKey": gUserKey,
-            "gAuthKey": gAuthKey,
+            "gUserKey": gUserKey
         };
     }
 
@@ -693,12 +691,14 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var gErrKey = generateKey(wkbkId, "gErr", version);
         var gOverwrittenLogKey = generateKey(wkbkId, "gOverwritten", version);
         var gNotebookKey = generateKey(wkbkId, "gNotebook", version);
+        var gAuthKey = generateKey(wkbkId, "authentication", version);
 
         return {
             "gStorageKey": gStorageKey,
             "gLogKey": gLogKey,
             "gErrKey": gErrKey,
             "gOverwrittenLogKey": gOverwrittenLogKey,
+            "gAuthKey": gAuthKey,
             "gNotebookKey": gNotebookKey,
         };
     }

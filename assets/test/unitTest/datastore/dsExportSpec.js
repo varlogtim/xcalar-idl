@@ -12,7 +12,7 @@ describe("Dataset-DSExport Test", function() {
 
     before(function(done) {
         wasAdmin = Admin.isAdmin();
-        oldIsAdmin = Admin.isAdmin();
+        oldIsAdmin = Admin.isAdmin;
         Admin.isAdmin = function() {
             return true;
         };

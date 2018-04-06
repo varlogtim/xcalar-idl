@@ -330,7 +330,7 @@ describe("WorkbookManager Test", function() {
         it("WorkbookManager.getWKBKsAsync should work", function(done) {
             var oldFunc = KVStore.prototype.get;
             KVStore.prototype.get = oldKVGet;
-            
+
             WorkbookManager.getWKBKsAsync()
             .then(function(wkbk, sessionInfo) {
                 expect(wkbk).not.to.be.null;

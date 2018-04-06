@@ -88,7 +88,7 @@ window.RowScroller = (function($, RowScroller) {
         });
 
         $('#rowInputArea').mousedown(function() {
-            if (!gActiveTableId) {
+            if (gActiveTableId == null) {
                 return;
             }
             var tableId = gActiveTableId;
@@ -421,7 +421,7 @@ window.RowScroller = (function($, RowScroller) {
 
     RowScroller.resize = function() {
         // resize the lenght of #rowInput
-        if (!gActiveTableId) {
+        if (gActiveTableId == null) {
             return;
         }
         var table = gTables[gActiveTableId];
@@ -450,7 +450,7 @@ window.RowScroller = (function($, RowScroller) {
             return null;
         }
         var activeTableId;
-        if (!tableId) {
+        if (tableId == null) {
             activeTableId = gActiveTableId;
         } else {
             activeTableId = tableId;

@@ -302,7 +302,7 @@ window.DFParamModal = (function($, DFParamModal){
         $("#dfParamModal .editableRow .defaultParam").click();
         var draggableInputs = "";
         DF.getDataflow(dfName).parameters.forEach(function(paramName) {
-            if (!systemParams.hasOwnProperty(paramName)) {
+            if (!systemParams.hasOwnProperty(paramName) && isNaN(Number(paramName))) {
                 draggableInputs += generateDraggableParams(paramName);
             }
         });
@@ -322,7 +322,9 @@ window.DFParamModal = (function($, DFParamModal){
                      .html(draggableInputs + createNewParam);
         draggableInputs = "";
         for (var key in systemParams) {
-            draggableInputs += generateDraggableParams(key);
+            if (isNaN(Number(key))) {
+                draggableInputs += generateDraggableParams(key);
+            }
         }
         $dfParamModal.find('.draggableParams.systemParams')
                        .removeClass("hint")
@@ -1362,7 +1364,7 @@ window.DFParamModal = (function($, DFParamModal){
                 return ($(this).text() === param);
             });
             if (!$paramFound.length) {
-                if (systemParams.hasOwnProperty(param)) {
+                if (systemParams.hasOwnProperty(param) && isNaN(Number(param))) {
                     addParamToLists(param, CommonTxtTstr.DefaultVal, true);
                 } else {
                     var df = DF.getDataflow(DFCard.getCurrentDF());
@@ -1433,7 +1435,7 @@ window.DFParamModal = (function($, DFParamModal){
                 "name": paramName
             }),
             "check": function() {
-                return systemParams.hasOwnProperty(paramName);
+                return (systemParams.hasOwnProperty(paramName) && isNaN(Number(paramName)));
             }
         },
         {
@@ -1558,7 +1560,7 @@ window.DFParamModal = (function($, DFParamModal){
                         "val": val
                     });
                 } else if ($row.hasClass("systemParams")) {
-                    if (systemParams.hasOwnProperty(name)) {
+                    if (systemParams.hasOwnProperty(name) && isNaN(Number(name))) {
                         params.push({
                             "name": name,
                             "val": systemParams[name]
@@ -1953,13 +1955,13 @@ window.DFParamModal = (function($, DFParamModal){
             // keep the order of paramName the in df.parameters
             df.parameters.forEach(function(paramName) {
                 if (nameMap.hasOwnProperty(paramName) &&
-                    !systemParams.hasOwnProperty(paramName)) {
+                    !(systemParams.hasOwnProperty(paramName) && isNaN(Number(paramName)))) {
                     addParamToLists(paramName, paramMap[paramName], false);
                 }
             });
 
             for (var systemParam in systemParams) {
-                if (nameMap.hasOwnProperty(systemParam)) {
+                if (isNaN(Number(systemParam)) && nameMap.hasOwnProperty(systemParam)) {
                     addParamToLists(systemParam, CommonTxtTstr.DefaultVal,
                     true);
                 }
@@ -1980,7 +1982,7 @@ window.DFParamModal = (function($, DFParamModal){
                     '<span class="delim"><</span>' +
                     '<span class="value">' + paramName + '</span>' +
                     '<span class="delim">></span>' +
-                    (systemParams.hasOwnProperty(paramName)
+                    ((systemParams.hasOwnProperty(paramName) && isNaN(Number(paramName)))
                     ? ""
                     : '<i class="icon xi-close deleteParam"></i>') +
                 '</div>';

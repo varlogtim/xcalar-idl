@@ -371,7 +371,7 @@
             }
         } else if (sql.tableName) {
             tables.push(sql.tableName);
-        } else if (sql.tableId && gTables[sql.tableId]) {
+        } else if (sql.tableId != null && gTables[sql.tableId]) {
             tables.push(gTables[sql.tableId].getName());
         } else if (sql.lTableName) {
             tables.push(sql.lTableName);

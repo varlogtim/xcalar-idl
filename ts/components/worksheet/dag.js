@@ -42,7 +42,7 @@ window.Dag = (function($, Dag) {
             var targetWS;
             if (options.wsId) {
                 targetWS = options.wsId;
-            } else if (oldTableId) {
+            } else if (oldTableId != null) {
                 targetWS = WSManager.getWSFromTable(oldTableId);
             } else {
                 targetWS = WSManager.getActiveWS();
@@ -277,7 +277,7 @@ window.Dag = (function($, Dag) {
         var $dagWrap;
         var $dag;
         $dagPanel = $('#dagPanel');
-        if (tableId) {
+        if (tableId != null) {
             activeTableId = tableId;
             $dagWrap = $('#dagWrap-' + activeTableId);
             $dag = $dagWrap.find('.dagImageWrap');
@@ -286,7 +286,7 @@ window.Dag = (function($, Dag) {
             DagPanel.adjustScrollBarPositionAndSize();
         } else {
             activeTableId = gActiveTableId;
-            if (!activeTableId) {
+            if (activeTableId == null) {
                 return;
             }
             $dagWrap = $('#dagWrap-' + activeTableId);

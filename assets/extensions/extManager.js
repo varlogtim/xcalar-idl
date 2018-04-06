@@ -504,7 +504,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 return DagFunction.tagNodes(txId, finalTableId);
             })
             .then(function(ret) {
-                if (finalTableId && ret && ret.tagName) {
+                if (finalTableId != null && ret && ret.tagName) {
                     DagDraw.refreshDagImage(finalTableId, ret.tagName,
                                             ret.tables);
                 }

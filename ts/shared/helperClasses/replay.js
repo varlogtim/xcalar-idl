@@ -120,7 +120,7 @@ window.Replay = (function($, Replay) {
         }
 
         if (hashTag == null) {
-            hashTag = Authentication.getInfo().hashTag;
+            hashTag = Authentication.getInfo().hashTag || "";
         }
 
         // filter out auto-triggered sql
@@ -306,12 +306,17 @@ window.Replay = (function($, Replay) {
     // }
 
     function updateIdCount(tableId, isAfterNewTable) {
-        var idCount = Number(tableId.substring(2));
+        var idCount;
+        if (isNaN(tableId)) {
+            idCount = Number(tableId.substring(2));
+        } else {
+            idCount = tableId;
+        }
         var authInfo = Authentication.getInfo();
         var diff = isAfterNewTable ? 1 : 0;
 
         if (authInfo.idCount < idCount + diff) {
-            var curId = authInfo.hashTag + (authInfo.idCount - diff);
+            var curId = (authInfo.hashTag || "") + (authInfo.idCount - diff);
             console.info("update id count to", idCount + diff);
 
             authInfo.idCount = idCount + diff;
@@ -347,7 +352,12 @@ window.Replay = (function($, Replay) {
 
     // need to use the idCount, but the hasId is different
     function getTableId(oldId) {
-        var idCount = oldId.substring(2);
+        var idCount;
+        if (isNaN(oldId)) {
+            idCount = oldId.substring(2);
+        } else {
+            idCount = oldId;
+        }
         return (hashTag + idCount);
     }
 

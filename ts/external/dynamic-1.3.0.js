@@ -1196,7 +1196,7 @@
                 }
 
                 var tableId = xcHelper.getTableId(tableName);
-                if (tableId && gTables[tableId] &&
+                if (tableId != null && gTables[tableId] &&
                     gTables[tableId].resultSetCount > -1) {
                     return PromiseHelper.resolve(gTables[tableId].resultSetCount);
                 }

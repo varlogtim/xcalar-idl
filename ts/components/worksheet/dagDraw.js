@@ -180,7 +180,7 @@ window.DagDraw = (function($, DagDraw) {
             var nodeId = datasets[i].dagNodeId;
             var $icon = Dag.getTableIcon($dagWrap, nodeId);
         }
-        if (tableId) {
+        if (tableId != null) {
             styleDroppedTables($dagWrap);
         }
     }
@@ -711,7 +711,7 @@ window.DagDraw = (function($, DagDraw) {
         var tableId = xcHelper.getTableId(tableName);
         for (var i = 0; i < tags.length; i++) {
             var tagId = xcHelper.getTableId(tags[i]);
-            if (tagId && tagId === tableId) {
+            if (tagId != null && tagId === tableId) {
                 return tags[i];
             }
         }

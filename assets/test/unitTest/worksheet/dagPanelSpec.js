@@ -119,7 +119,7 @@ describe("Dag Panel Test", function() {
             var mapStr;
             for (var i = 0; i < total; i++) {
                 curId = largeTableIds[curIter + base];
-                var nextId = Authentication.getHashId().slice(1);
+                var nextId = parseInt(Authentication.getHashId().slice(1));
                 mapStr = "add(" + largePrefix + "::average_stars, 1)";
 
                 fieldName = "mapped_col_" + String(curIter);
@@ -2079,9 +2079,9 @@ describe("Dag Panel Test", function() {
         it("getRenamedColname should work", function() {
             var fn =  Dag.__testOnly__.getRenamedColName;
             var node = {
-                value: {struct: {renameMap: [
-                    {oldName: "before", newName: "after", type: 0}
-                ]}}
+                value: {struct: {columns:
+                    [[{sourceColumn: "before", destColumn: "after", columnType: null}]]
+                }, api: XcalarApisT.XcalarApiJoin}
             };
             var res = fn("after", node);
             expect(res).to.equal("before");
@@ -2092,7 +2092,7 @@ describe("Dag Panel Test", function() {
             res = fn("something", node);
             expect(res).to.equal("something");
 
-            node.value.struct.renameMap = [{oldName: "before", newName: "after", type: 13}];
+            node.value.struct.columns = [[{sourceColumn: "before", destColumn: "after", columnType: "DfFatptr"}]];
 
             res = fn("test::colName", node);
             expect(res).to.equal("test::colName");

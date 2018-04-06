@@ -267,7 +267,7 @@ window.DagFunction = (function($, DagFunction) {
         lineageStruct.orderedPrintArray = getOrderedDedupedNodes(allEndPoints,
                                           "TreeNode");
         lineageStruct.nodeIdMap = nodeIdMap;
-        if (tableId) {
+        if (tableId != null) {
             dagLineage[tableId] = lineageStruct;
         }
         return lineageStruct;
@@ -587,7 +587,7 @@ window.DagFunction = (function($, DagFunction) {
 
         var tagName = QueryManager.getQuery(txId).getName();
         var tId;
-        if (finalTableId) {
+        if (finalTableId != null) {
             tId = finalTableId;
         } else {
             tId = xcHelper.getTableId(tables[0]);
@@ -715,7 +715,7 @@ window.DagFunction = (function($, DagFunction) {
                     newNodeFound = nameList.find(function(node) {
                         return node.args.dest === name;
                     });
-                    if (newNodefound) {
+                    if (newNodeFound) {
                         break;
                     }
                 }
@@ -1121,7 +1121,6 @@ window.DagFunction = (function($, DagFunction) {
                     translation[value.struct.dest] = newTableName;
                     value.struct.dest = newTableName;
                 }
-
             }
         }
 

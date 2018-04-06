@@ -762,10 +762,12 @@ window.Scheduler = (function(Scheduler, $) {
             var fileName = exportNodes[i].args.fileName;
             var sysParamFound = false;
             for (var paramName in systemParams) {
-                var sysParam = "<" + paramName + ">";
-                if (fileName.indexOf(sysParam) > -1) {
-                    sysParamFound = true;
-                    break;
+                if (isNaN(Number(paramName))) {
+                    var sysParam = "<" + paramName + ">";
+                    if (fileName.indexOf(sysParam) > -1) {
+                        sysParamFound = true;
+                        break;
+                    }
                 }
             }
 
@@ -946,7 +948,8 @@ window.Scheduler = (function(Scheduler, $) {
         if (paramArray != null) {
             for (var i = 0; i < paramArray.length; i++) {
                 var currParam = paramArray[i];
-                if (systemParams.hasOwnProperty(currParam.paramName)) {
+                if (systemParams.hasOwnProperty(currParam.paramName) &&
+                    isNaN(Number(currParam.paramName))) {
                     systemParameterStr = systemParameterStr +
                                          (hasSys ? "</div>":"") +
                                          '<div class="paramRow">' +

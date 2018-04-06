@@ -89,11 +89,11 @@ describe("Datastore-DSTargetManger Test", function() {
             expect($li.length).to.equal(1);
             $li.trigger(fakeEvent.mouseup);
             expect($targetTypeList.find(".text").val())
-            .to.equal("Shared Storage Mount");
+            .to.equal("Shared File System");
             // click again has no side-affect
             $li.trigger(fakeEvent.mouseup);
             expect($targetTypeList.find(".text").val())
-            .to.equal("Shared Storage Mount");
+            .to.equal("Shared File System");
         });
 
         it("should validte form", function() {

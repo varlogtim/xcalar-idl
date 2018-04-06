@@ -1490,7 +1490,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("should validte PARQUET case", function() {
-            var $parquetSection = $form.find(".parquetSection"); 
+            var $parquetSection = $form.find(".parquetSection");
             var $selectedColList = $parquetSection.find(".selectedColSection .colList");
             var $partiontoinList = $parquetSection.find(".partitionList");
             loadArgs.set({format: "PARQUET"});
@@ -1517,7 +1517,7 @@ describe("Dataset-DSPreview Test", function() {
             expect(res.udfQuery.columns).to.be.an("array");
             expect(res.udfQuery.columns.length).to.equal(1);
             expect(res.udfQuery.columns[0]).to.equal("test1");
-        
+
             // restore
             $selectedColList.empty();
             $partiontoinList.empty();
@@ -1536,7 +1536,7 @@ describe("Dataset-DSPreview Test", function() {
             var $advanceSection = $form.find(".advanceSection");
             var $fileName = $advanceSection.find(".fileName");
             var oldFunc = xcHelper.validateColName;
-            
+
             $fileName.find(".checkbox").addClass("checked");
             xcHelper.validateColName = function() {
                 return "test error";
@@ -1566,7 +1566,7 @@ describe("Dataset-DSPreview Test", function() {
             var $advanceSection = $form.find(".advanceSection");
             var $rowNum = $advanceSection.find(".rowNumber");
             var oldFunc = xcHelper.validateColName;
-            
+
             $rowNum.find(".checkbox").addClass("checked");
             $rowNum.find("input").val("test");
             $("#previewTable").html('<input class="editableHead" value="test">');
@@ -2221,7 +2221,7 @@ describe("Dataset-DSPreview Test", function() {
             var cachedFn = xcTooltip.transient;
             var called = false;
             xcTooltip.transient = function($el, options) {
-                expect(options.title).to.equal("Invalid name: a name cannot begin with a number.");
+                expect(options.title).to.equal("Invalid name: a name can only begin with a letter or underscore(_).");
                 called = true;
             };
 

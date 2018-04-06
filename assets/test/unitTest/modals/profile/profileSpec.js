@@ -114,127 +114,127 @@ describe("Profile-Profile Test", function() {
         });
     });
 
-    describe("Profile SVG Test", function() {
-        it("addNullValue should work", function() {
-            var addNullValue = Profile.__testOnly__.addNullValue;
-            var data = [];
-            addNullValue({"groupByInfo": {}}, data);
-            expect(data.length).to.equal(0);
+    // describe("Profile SVG Test", function() {
+    //     it("addNullValue should work", function() {
+    //         var addNullValue = Profile.__testOnly__.addNullValue;
+    //         var data = [];
+    //         addNullValue({"groupByInfo": {}}, data);
+    //         expect(data.length).to.equal(0);
 
-            // csae 2
-            addNullValue({
-                "groupByInfo": {
-                    "nullCount": 10,
-                    "buckets": {
-                        0: "test"
-                    }
-                }
-            }, data);
-            expect(data.length).to.equal(1);
-        });
+    //         // csae 2
+    //         addNullValue({
+    //             "groupByInfo": {
+    //                 "nullCount": 10,
+    //                 "buckets": {
+    //                     0: "test"
+    //                 }
+    //             }
+    //         }, data);
+    //         expect(data.length).to.equal(1);
+    //     });
 
-        it("Should hover on bar area", function() {
-            var $barArea = $modal.find(".barChart .area").eq(0);
-            $barArea.trigger("mouseenter");
-            // .hasClass not work on svg
-            var classList = $barArea.get(0).classList;
-            expect(classList.contains("hover")).to.be.true;
-            var tooltipLen = $(".chartTip:visible").length;
-            expect(tooltipLen).to.be.at.least(1);
-            // not hover
-            $modal.trigger("mouseenter");
-            classList = $barArea.get(0).classList;
-            expect(classList.contains("hover")).to.be.false;
-            newTooltipLen = $(".chartTip:visible").length;
-            expect(newTooltipLen).to.equal(tooltipLen - 1);
-        });
+    //     it("Should hover on bar area", function() {
+    //         var $barArea = $modal.find(".barChart .area").eq(0);
+    //         $barArea.trigger("mouseenter");
+    //         // .hasClass not work on svg
+    //         var classList = $barArea.get(0).classList;
+    //         expect(classList.contains("hover")).to.be.true;
+    //         var tooltipLen = $(".chartTip:visible").length;
+    //         expect(tooltipLen).to.be.at.least(1);
+    //         // not hover
+    //         $modal.trigger("mouseenter");
+    //         classList = $barArea.get(0).classList;
+    //         expect(classList.contains("hover")).to.be.false;
+    //         newTooltipLen = $(".chartTip:visible").length;
+    //         expect(newTooltipLen).to.equal(tooltipLen - 1);
+    //     });
 
-        it("Should toggle between percentage display", function() {
-            var $label = $modal.find(".xlabel").eq(0);
-            expect($label.text().includes("%")).to.be.false;
-            // click without event.which = 1 not do anyting
-            $label.click();
-            expect($label.text().includes("%")).to.be.false;
-            // to percentage display
-            $label.trigger(fakeEvent.click);
-            expect($label.text().includes("%")).to.be.true;
-            // turn back
-            $label.trigger(fakeEvent.click);
-            expect($label.text().includes("%")).to.be.false;
-        });
+    //     it("Should toggle between percentage display", function() {
+    //         var $label = $modal.find(".xlabel").eq(0);
+    //         expect($label.text().includes("%")).to.be.false;
+    //         // click without event.which = 1 not do anyting
+    //         $label.click();
+    //         expect($label.text().includes("%")).to.be.false;
+    //         // to percentage display
+    //         $label.trigger(fakeEvent.click);
+    //         expect($label.text().includes("%")).to.be.true;
+    //         // turn back
+    //         $label.trigger(fakeEvent.click);
+    //         expect($label.text().includes("%")).to.be.false;
+    //     });
 
-        it("should change to pie chart", function() {
-            $modal.find(".graphSwitch").click();
-            expect($modal.find(".pieChart").length).to.equal(1);
-            expect($modal.find(".barChart").length).to.equal(0);
-        });
+    //     it("should change to pie chart", function() {
+    //         $modal.find(".graphSwitch").click();
+    //         expect($modal.find(".pieChart").length).to.equal(1);
+    //         expect($modal.find(".barChart").length).to.equal(0);
+    //     });
 
-        it("should change to bar chart", function() {
-            $modal.find(".graphSwitch").click();
-            expect($modal.find(".pieChart").length).to.equal(0);
-            expect($modal.find(".barChart").length).to.equal(1);
-        });
+    //     it("should change to bar chart", function() {
+    //         $modal.find(".graphSwitch").click();
+    //         expect($modal.find(".pieChart").length).to.equal(0);
+    //         expect($modal.find(".barChart").length).to.equal(1);
+    //     });
 
-        it("should download as png", function(done) {
-            var oldFunc = domtoimage.toPng;
-            var oldSuccess = xcHelper.showSuccess;
-            var test = false;
-            var called = false;
-            domtoimage.toPng = function() {
-                test = true;
-                return new Promise(function(resolve) {
-                    resolve(null);
-                });
-            };
-            xcHelper.showSuccess = function() { called = true; };
+    //     it("should download as png", function(done) {
+    //         var oldFunc = domtoimage.toPng;
+    //         var oldSuccess = xcHelper.showSuccess;
+    //         var test = false;
+    //         var called = false;
+    //         domtoimage.toPng = function() {
+    //             test = true;
+    //             return new Promise(function(resolve) {
+    //                 resolve(null);
+    //             });
+    //         };
+    //         xcHelper.showSuccess = function() { called = true; };
 
-            $("#profile-download").click();
-            UnitTest.testFinish(function() {
-                return called;
-            })
-            .then(function() {
-                expect(test).to.be.true;
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                domtoimage.toPng = oldFunc;
-                xcHelper.showSuccess = oldSuccess;
-            });
-        });
+    //         $("#profile-download").click();
+    //         UnitTest.testFinish(function() {
+    //             return called;
+    //         })
+    //         .then(function() {
+    //             expect(test).to.be.true;
+    //             done();
+    //         })
+    //         .fail(function() {
+    //             done("fail");
+    //         })
+    //         .always(function() {
+    //             domtoimage.toPng = oldFunc;
+    //             xcHelper.showSuccess = oldSuccess;
+    //         });
+    //     });
 
-        it("down handle fail case", function(done) {
-            var oldFunc = domtoimage.toPng;
-            var oldSuccess = xcHelper.showFail;
-            var test = false;
-            var called = false;
-            domtoimage.toPng = function() {
-                test = true;
-                return new Promise(function(resolve, reject) {
-                    reject("test error");
-                });
-            };
-            xcHelper.showFail = function() { called = true; };
+    //     it("down handle fail case", function(done) {
+    //         var oldFunc = domtoimage.toPng;
+    //         var oldSuccess = xcHelper.showFail;
+    //         var test = false;
+    //         var called = false;
+    //         domtoimage.toPng = function() {
+    //             test = true;
+    //             return new Promise(function(resolve, reject) {
+    //                 reject("test error");
+    //             });
+    //         };
+    //         xcHelper.showFail = function() { called = true; };
 
-            $("#profile-download").click();
-            UnitTest.testFinish(function() {
-                return called;
-            })
-            .then(function() {
-                expect(test).to.be.true;
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                domtoimage.toPng = oldFunc;
-                xcHelper.showFail = oldSuccess;
-            });
-        });
-    });
+    //         $("#profile-download").click();
+    //         UnitTest.testFinish(function() {
+    //             return called;
+    //         })
+    //         .then(function() {
+    //             expect(test).to.be.true;
+    //             done();
+    //         })
+    //         .fail(function() {
+    //             done("fail");
+    //         })
+    //         .always(function() {
+    //             domtoimage.toPng = oldFunc;
+    //             xcHelper.showFail = oldSuccess;
+    //         });
+    //     });
+    // });
 
     describe("Decimal Places Test", function() {
         var $decimalInput;
