@@ -603,7 +603,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     function initializeVariable() {
         // key that stores all workbook infos for the user
         var wkbkKey = getWKbkKey(currentVersion);
-        wkbkStore = new KVStore(wkbkKey, gKVScope.WKBK);
+        wkbkStore = new KVStore(wkbkKey, gKVScope.GLOB);
         wkbkSet = new WKBKSet();
     }
 

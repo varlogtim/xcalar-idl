@@ -16,13 +16,26 @@ setupThrift = function(hostname) {
 };
 
 setupHostName = function() {
+    /*
+        href example:
+            protocol:/host:port/index.html?workbook=a
+            protocol:/host:port/subFolder/index.html?workbook=a
+            protocol:/host:port/?workbook=a
+            protocol:/host:port/subFolder/?workbook=a
+    */
     if (window.hostname == null || window.hostname === "") {
-        var url = new URL(window.location.href);
-        hostname = url.origin;
+        hostname = window.location.href;
+        if (hostname.lastIndexOf(".html") > -1) {
+            let index = hostname.lastIndexOf("/");
+            hostname = hostname.substring(0, index);
+        } else if (hostname.lastIndexOf("/?") > -1) {
+            let index = hostname.lastIndexOf("/?");
+            hostname = hostname.substring(0, index);
+        }
     }
     // protocol needs to be part of hostname
     // If not it's assumed to be http://
-    var protocol = window.location.protocol;
+    let protocol = window.location.protocol;
 
     // If you have special ports, it needs to be part of the hostname
     if (protocol.startsWith("http") && !hostname.startsWith(protocol)) {
