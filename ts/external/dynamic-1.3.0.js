@@ -1,5 +1,5 @@
 (function($) {
-    console.log("dynamic loaded");
+    console.log("dynamic path loaded");
     // Insert patch code here. Remembmer that all js files will be minified and
     // uglified
     function lowerVersion(v1str, v2str) {

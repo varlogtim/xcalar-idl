@@ -24,10 +24,41 @@
 
 // ========================== Document Ready ==================================
 function documentReadyIndexFunction() {
-    var dynamicSrc="https://www.xcalar.com/xdscripts/dynamic.js";
+    $(document).ready(function() {
+        hotPatch()
+        .then(xcManager.setup);
+    });
+}
+
+function hotPatch() {
+    var deferred = PromiseHelper.deferred();
+
+    loadDynamicPath()
+    .then(function() {
+        try {
+            if (typeof XCPatch.patch !== 'undefined') {
+                promise = XCPatch.patch();
+
+                if (promise != null) {
+                    return promise;
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    })
+    .then(deferred.resolve)
+    .fail(function(error) {
+        console.error("failed to get script", error);
+        deferred.resolve(); // still resolve it
+    });
+
+    return deferred.promise();
+}
+
+function loadDynamicPath() {
+    var dynamicSrc = "https://www.xcalar.com/xdscripts/dynamic.js";
     var randId = "" + Math.ceil(Math.random() * 100000);
-    var $body = $("body");
-    var s = "<script src='" + dynamicSrc + "?r=" + randId + "' type='text/javascript'>" + "</script>";
-    $body.append(s);
-    $(document).ready(xcManager.setup);
+    var src = dynamicSrc + "?r=" + randId;
+    return $.getScript(src);
 }
