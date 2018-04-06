@@ -1633,19 +1633,20 @@ window.OperationsView = (function($, OperationsView) {
     function statusBoxShowHelper(text, $input, delayHide) {
         // scroll into view if not in view
         var $row = $input.closest(".row");
-        if ($row.length) {
-            var inputTop = $row.offset().top;
-            var $mainContent = $activeOpSection.closest(".mainContent");
-            var sectionTop = $mainContent.offset().top;
-            var scrollTop = $mainContent.scrollTop();
-            if (inputTop < sectionTop) { // above view
-                $mainContent.scrollTop(scrollTop - (sectionTop - inputTop));
-            } else if (inputTop + $input.closest(".row").height() >
-                (sectionTop + $mainContent.height())) { // below view
-                var diff = (inputTop + $input.closest(".row").height()) -
-                            (sectionTop + $mainContent.height());
-                $mainContent.scrollTop(scrollTop + diff + 40);
-            }
+        if (!$row.length) {
+            $row = $input.parent();
+        }
+        var inputTop = $row.offset().top;
+        var $mainContent = $activeOpSection.closest(".mainContent");
+        var sectionTop = $mainContent.offset().top;
+        var scrollTop = $mainContent.scrollTop();
+        if (inputTop < sectionTop) { // above view
+            $mainContent.scrollTop(scrollTop - (sectionTop - inputTop));
+        } else if (inputTop + $input.closest(".row").height() >
+            (sectionTop + $mainContent.height())) { // below view
+            var diff = (inputTop + $input.closest(".row").height()) -
+                        (sectionTop + $mainContent.height());
+            $mainContent.scrollTop(scrollTop + diff + 40);
         }
 
         xcTooltip.hideAll();
