@@ -182,6 +182,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
         var deferred = PromiseHelper.deferred();
         var count = 0;
         var innerDeferred = jQuery.Deferred();
+        var timeOutCnt = 50;
 
         var wbInterval = setInterval(function() {
             var $wkbkBox = $('.workbookBox[data-workbook-id*="' + wbName + '"]');
@@ -191,7 +192,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
                 innerDeferred.resolve(wbName);
             } else {
                 count++;
-                if (count > 10) {
+                if (count > timeOutCnt) {
                     clearInterval(wbInterval);
                     innerDeferred.reject();
                     deferred.reject("active workbook time out");
@@ -209,7 +210,7 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
                     deferred.resolve(wbName);
                 } else {
                     count++;
-                    if (count > 10) {
+                    if (count > timeOutCnt) {
                         clearInterval(deactivateInterval);
                         deferred.resolve(wbName);
                     }

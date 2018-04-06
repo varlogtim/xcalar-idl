@@ -31,6 +31,7 @@ declare var gKVScope: {
     USER: number,
     GLOB: number
 };
+declare var global: any;
 
 /* ============== GLOBAL FUNCTIONS ============= */
 declare function XcalarGetTables(): XDPromise<any>;
