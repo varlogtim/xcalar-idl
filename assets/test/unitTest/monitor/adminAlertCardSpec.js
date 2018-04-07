@@ -9,8 +9,8 @@ describe("Admin Alert Card Test", function() {
         $menu = $("#adminAlert");
         $card = $("#adminAlertCard");
         testMsg = "testing";
-        oldFunc = XcSocket.sendMessage;
-        XcSocket.sendMessage = function() {};
+        oldFunc =  XcSocket.prototype.sendMessage;
+        XcSocket.prototype.sendMessage = function() {};
     });
     describe("UI behavior Test", function() {
         it("Should show admin alert card", function() {
@@ -53,6 +53,6 @@ describe("Admin Alert Card Test", function() {
 
     after(function() {
         UnitTest.offMinMode();
-        XcSocket.sendMessage = oldFunc;
+        XcSocket.prototype.sendMessage = oldFunc;
     });
 });

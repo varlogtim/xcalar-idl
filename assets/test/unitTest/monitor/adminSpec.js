@@ -59,8 +59,8 @@ describe("Admin Test", function() {
         $("#monitorTab").click();
         $("#setupButton").click();
 
-        oldSend = XcSocket.sendMessage;
-        XcSocket.sendMessage = function(){};
+        oldSend = XcSocket.prototype.sendMessage;
+        XcSocket.prototype.sendMessage = function(){};
     });
 
     describe("check initial state", function() {
@@ -556,6 +556,6 @@ describe("Admin Test", function() {
         xcLocalStorage.getItem = cachedGetItem;
         $("#container").removeClass("admin posingAsUser");
         UnitTest.offMinMode();
-        XcSocket.sendMessage = oldSend;
+        XcSocket.prototype.sendMessage = oldSend;
     });
 });

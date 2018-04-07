@@ -13,7 +13,8 @@ window.AdminAlertCard = (function($, AdminAlertCard) {
                        $card.find(".alert-msg").val()
         };
         if (alertOption.message) {
-            XcSocket.sendMessage("adminAlert", alertOption);
+            var xcSocket = XcSocket.Instance;
+            xcSocket.sendMessage("adminAlert", alertOption);
         }
         clear();
     }

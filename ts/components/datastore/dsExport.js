@@ -528,7 +528,8 @@ window.DSExport = (function($, DSExport) {
                     if ($activeIcon.hasClass("active")) {
                         showExportTargetForm();
                     }
-                    XcSocket.sendMessage("refreshDSExport");
+                    var xcSocket = XcSocket.Instance;
+                    xcSocket.sendMessage("refreshDSExport");
                     DSExport.refresh();
                 }
             }
@@ -621,7 +622,8 @@ window.DSExport = (function($, DSExport) {
                 formatSpecificArg = path;
             }
             addGridIcon(targetType, name, formatSpecificArg, options);
-            XcSocket.sendMessage("refreshDSExport");
+            var xcSocket = XcSocket.Instance;
+            xcSocket.sendMessage("refreshDSExport");
             deferred.resolve();
         })
         .fail(function(err) {

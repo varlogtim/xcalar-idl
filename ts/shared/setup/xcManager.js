@@ -42,7 +42,8 @@ window.xcManager = (function(xcManager, $) {
         Admin.initialize();
         xcSuggest.setup();
         documentReadyGeneralFunction();
-        XcSocket.init();
+
+        var xcSocket = setupSocket();
 
         try {
             // In case mixpanel is not loaded
@@ -103,7 +104,7 @@ window.xcManager = (function(xcManager, $) {
             'background-color: #5CB2E8; ' +
             'color: #ffffff; font-size:18px; font-family:Open Sans, Arial;');
 
-            XcSocket.addEventsAfterSetup();
+            xcSocket.addEventsAfterSetup();
             // get initial memory usage
             XcSupport.memoryCheck();
             // start heartbeat check
@@ -291,7 +292,8 @@ window.xcManager = (function(xcManager, $) {
     };
 
     function markUserUnload() {
-        if (XcSocket.isResigered()) {
+        var xcSocket = XcSocket.Instance;
+        if (xcSocket.isResigered()) {
             xcSessionStorage.setItem(XcSupport.getUser(), new Date().getTime());
         }
     }
@@ -672,6 +674,12 @@ window.xcManager = (function(xcManager, $) {
     function setupWorkspaceBar() {
         RowScroller.setup();
         FnBar.setup();
+    }
+
+    function setupSocket() {
+        const xcSocket = XcSocket.Instance;
+        xcSocket.setup();
+        return xcSocket;
     }
 
     function restoreActiveTable(tableId, worksheetId, failures) {

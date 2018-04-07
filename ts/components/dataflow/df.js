@@ -179,7 +179,8 @@ window.DF = (function($, DF) {
     DF.commitAndBroadCast = function(modifiedDataflow) {
         KVStore.commit()
         .always(function() {
-            XcSocket.sendMessage("refreshDataflow", modifiedDataflow);
+            var xcSocket = XcSocket.Instance;
+            xcSocket.sendMessage("refreshDataflow", modifiedDataflow);
         });
     };
 
@@ -231,7 +232,8 @@ window.DF = (function($, DF) {
             DFCard.addDFToList(dataflowName);
             // no need to commit to kvstore since there's no info stored
             // in this new dataflow
-            XcSocket.sendMessage("refreshDataflow", dataflowName);
+            var xcSocket = XcSocket.Instance;
+            xcSocket.sendMessage("refreshDataflow", dataflowName);
             deferred.resolve();
         })
         .fail(deferred.reject);

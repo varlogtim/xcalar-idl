@@ -222,10 +222,10 @@ describe("Upload Dataflow Test", function() {
             };
 
             var oldUDFRefresh = UDF.refreshWithoutClearing;
-            var oldSocket = XcSocket.sendMessage;
+            var oldSocket =  XcSocket.prototype.sendMessage;
             var oldGetDF = DF.getDataflow;
             UDF.refreshWithoutClearing = function() {};
-            XcSocket.sendMessage = function() {};
+            XcSocket.prototype.sendMessage = function() {};
             DF.getDataflow = function() {
                 return {
                     "updateParamMapInUsed": function() {
@@ -246,7 +246,7 @@ describe("Upload Dataflow Test", function() {
             })
             .always(function() {
                 UDF.refreshWithoutClearing = oldUDFRefresh;
-                XcSocket.sendMessage = oldSocket;
+                XcSocket.prototype.sendMessage = oldSocket;
                 DF.getDataflow = oldGetDF;
             });
         });

@@ -171,8 +171,8 @@ describe("Dataset-DSObj Test", function() {
         });
 
         it("should add other user's ds", function(done) {
-            var oldFunc = XcSocket.sendMessage;
-            XcSocket.sendMessage = function(ds, action, callback) {
+            var oldFunc =  XcSocket.prototype.sendMessage;
+            XcSocket.prototype.sendMessage = function(ds, action, callback) {
                 if (typeof callback === "function") {
                     callback(false); // make it fail
                 }
@@ -199,7 +199,7 @@ describe("Dataset-DSObj Test", function() {
                 done("fail");
             })
             .always(function() {
-                XcSocket.sendMessage = oldFunc;
+                XcSocket.prototype.sendMessage = oldFunc;
             });
         });
 

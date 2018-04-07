@@ -691,7 +691,8 @@ window.DS = (function ($, DS) {
 
     function syncVersionId() {
         var versionId = dsInfoMeta.getVersionId();
-        XcSocket.sendMessage("ds", {
+        var xcSocket = XcSocket.Instance;
+        xcSocket.sendMessage("ds", {
             event: "updateVersionId",
             id: versionId
         });
@@ -711,8 +712,8 @@ window.DS = (function ($, DS) {
             event: "changeStart",
             id: versionId
         }, arg);
-
-        XcSocket.sendMessage("ds", arg, callback);
+        var xcSocket = XcSocket.Instance;
+        xcSocket.sendMessage("ds", arg, callback);
         return deferred.promise();
     }
 
@@ -730,13 +731,15 @@ window.DS = (function ($, DS) {
             event: "changeEnd",
             id: versionId
         };
-        XcSocket.sendMessage("ds", arg, callback);
+        var xcSocket = XcSocket.Instance;
+        xcSocket.sendMessage("ds", arg, callback);
         return deferred.promise();
     }
 
     function errorChangeSharedDSInfo(versionId) {
         var deferred = PromiseHelper.deferred();
-        XcSocket.sendMessage("ds", {
+        var xcSocket = XcSocket.Instance;
+        xcSocket.sendMessage("ds", {
             event: "changeError",
             id: versionId
         });

@@ -63,15 +63,16 @@ window.XcSupport = (function(XcSupport, $) {
         }
 
         var deferred = PromiseHelper.deferred();
+        var xcSocket = XcSocket.Instance;
         var promise = (alreadyStarted === true)
                       ? PromiseHelper.resolve(false)
-                      : XcSocket.checkUserSessionExists(workbookId);
+                      : xcSocket.checkUserSessionExists(workbookId);
 
         promise
         .then(sessionHoldAlert)
         .then(function() {
             xcSessionStorage.removeItem(XcSupport.getUser());
-            XcSocket.registerUserSession(workbookId);
+            xcSocket.registerUserSession(workbookId);
             commitFlag = randCommitFlag();
             // hold the session
             return XcalarKeyPut(KVStore.commitKey, commitFlag,

@@ -32,6 +32,7 @@ declare var gKVScope: {
     GLOB: number
 };
 declare var global: any;
+declare var expHost: string;
 
 /* ============== GLOBAL FUNCTIONS ============= */
 declare function XcalarGetTables(): XDPromise<any>;
@@ -135,6 +136,7 @@ declare namespace ColTStr {
 
 declare namespace AlertTStr {
     export var CANCEL: string;
+    export var NoConnectToServer: string;
 }
 
 declare namespace WSTStr {
@@ -249,6 +251,7 @@ declare namespace ColManager {
 
 declare namespace Admin {
     export function showSupport();
+    export function updateLoggedInUsers(userInfos: object): void;
 }
 
 declare namespace xcManager {
@@ -276,6 +279,7 @@ declare namespace SupTicketModal {
 declare namespace Alert {
     export function tempHide(): void;
     export function error(title: string, error: string): void;
+    export function show(options: {title: string, msg: string, isAlert: boolean}): string;
 }
 
 declare namespace MonitorGraph {
@@ -338,6 +342,7 @@ declare namespace WorkbookManager {
     export function getWorkbooks(): WKBK[];
     export function commit(): XDPromise<void>;
     export function getWorkbook(wkbkId: string): WKBK;
+    export function gotoWorkbook(workbookId: string | null, replaceURL: boolean): void;
 }
 
 declare namespace QueryManager{
@@ -349,12 +354,20 @@ declare namespace Log {
     export function unlockUndoRedo(): void
 }
 
+declare namespace XVM {
+    export function checkMaxUsers(users: object): void;
+}
+
 declare namespace DagPanel {
     export function adjustScrollBarPositionAndSize(): void;
 }
 
 declare namespace DagEdit {
     export function isEditMode(): boolean;
+}
+
+declare namespace DataflowPanel {
+    export function refresh(dfName: string): void;
 }
 
 declare namespace xcMenu {
@@ -366,6 +379,7 @@ declare namespace xcMenu {
 
 declare namespace DS {
     export function getGrid(dsId: string): JQuery;
+    export function updateDSInfo(arg: object): void;
 }
 
 declare namespace DSCart {
@@ -396,4 +410,12 @@ declare namespace JupyterUDFModal {
 
 declare namespace JupyterPanel {
     export function appendStub(stubName: string, args?: object): void;
+}
+
+declare namespace UDF {
+    export function refreshWithoutClearing(overWriteUDF: boolean): void;
+}
+
+declare namespace DSExport {
+    export function refresh(): void;
 }

@@ -864,7 +864,8 @@ window.Admin = (function($, Admin) {
                         "title": title,
                         "message": alertMsg
                     };
-                    XcSocket.sendMessage("adminAlert", alertOption);
+                    var xcSocket = XcSocket.Instance;
+                    xcSocket.sendMessage("adminAlert", alertOption);
                 }
                 enterSetupMode();
                 if (WorkbookManager.getActiveWKBK() != null) {

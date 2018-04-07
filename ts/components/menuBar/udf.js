@@ -590,7 +590,8 @@ window.UDF = (function($, UDF) {
             delete storedUDF[moduleName];
             updateUDF();
             refreshUDF(true);
-            XcSocket.sendMessage("refreshUDFWithoutClear");
+            var xcSocket = XcSocket.Instance;
+            xcSocket.sendMessage("refreshUDFWithoutClear");
             xcHelper.showSuccess(SuccessTStr.DelUDF);
         }
     }
@@ -691,7 +692,8 @@ window.UDF = (function($, UDF) {
                 } else {
                     $("#udf-fnList input").val("");
                 }
-                XcSocket.sendMessage("refreshUDFWithoutClear");
+                var xcSocket = XcSocket.Instance;
+                xcSocket.sendMessage("refreshUDFWithoutClear");
                 deferred.resolve();
             })
             .fail(function(error) {

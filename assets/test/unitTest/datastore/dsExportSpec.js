@@ -397,8 +397,8 @@ describe("Dataset-DSExport Test", function() {
         var oldSend;
         before(function() {
             submitForm = DSExport.__testOnly__.submitForm;
-            oldSend = XcSocket.sendMessage;
-            XcSocket.sendMessage = function() {};
+            oldSend =  XcSocket.prototype.sendMessage;
+            XcSocket.prototype.sendMessage = function() {};
         });
 
         it("XcalarAddLocalFSExportTarget should be called", function(done) {
@@ -516,7 +516,7 @@ describe("Dataset-DSExport Test", function() {
         });
 
         after(function() {
-            XcSocket.sendMessage = oldSend;
+            XcSocket.prototype.sendMessage = oldSend;
         });
     });
 
