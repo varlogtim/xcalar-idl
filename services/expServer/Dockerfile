@@ -10,5 +10,4 @@ RUN npm install
 COPY . /app
 EXPOSE 12124
 
-CMD [ "npm", "cache clean" ]
-CMD [ "npm", "start" ]
+CMD [ "/bin/sh","-c","npm cache clean && npm start" ]

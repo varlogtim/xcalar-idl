@@ -1,4 +1,4 @@
-.PHONY: all deploy archive build run clean
+.PHONY: all deploy archive build run clean image fix
 
 
 SERVER ?= authentication
@@ -7,8 +7,7 @@ NAME ?= appserver
 GIT_SHA1=$(shell git rev-parse --short=8 HEAD)
 ARCHIVE := $(NAME)-$(NOW)-$(GIT_SHA1).tar.gz
 DESTDIR ?= /srv/apps/$(NAME)-$(NOW)
-
-FILES := Dockerfile expServer.js Makefile ldapConfig.json package.json marketplace.json awsReadConfig.json
+FILES = expServer.js expServerSupport.js expServerXcConsole.js route/extension.js route/installer.js route/login.js route/service.js socket.js sqlRestfulServer.js supportStatusFile.js tail.js upload.js
 
 all:
 	@echo "deploy    - deploy to $(SERVER)"
@@ -20,7 +19,16 @@ all:
 archive: $(ARCHIVE)
 
 $(ARCHIVE): $(FILES)
-	tar czvf $@ $^
+	fakeroot tar czvf $@ $^
+
+httpStatus.js: ../../ts/httpStatus.js
+	cp $< $@
+
+# In docker we don't have access to outside of this directory. Here we copy the one
+# externally accessed file, fix the require then reset it when done
+fix: httpStatus.js
+	sed -r -i 's@\.\./\.\./\.\./assets/js/httpStatus.js@../httpStatus.js@g' route/installer.js route/login.js
+	sed -r -i 's@\.\./\.\./assets/js/httpStatus.js@./httpStatus.js@g' expServerSupport.js tail.js
 
 deploy: $(ARCHIVE)
 	gcloud compute ssh $(SERVER) --command="sudo mkdir -p $(DESTDIR)"
@@ -28,8 +36,10 @@ deploy: $(ARCHIVE)
 	gcloud compute ssh $(SERVER) --command="cd $(DESTDIR) && sudo make run GIT_SHA1=$(GIT_SHA1) NOW=$(NOW) && echo $(GIT_SHA1) | sudo tee GIT_SHA1 && sudo ln -sfn $(NAME)-$(NOW) ../appserver"
 	gcloud compute ssh $(SERVER) --command="sudo service caddy restart"
 
-build:
-	docker build -q -t $(NAME) .
+build: fix
+	docker build -t $(NAME) .
+	git checkout -- expServerSupport.js route/installer.js route/login.js tail.js
+	rm httpStatus.js
 
 run: build
 	@-docker stop $(NAME) 2>/dev/null
