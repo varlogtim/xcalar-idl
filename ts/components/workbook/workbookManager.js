@@ -25,7 +25,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 setupKVStore(wkbkId);
                 setActiveWKBK(wkbkId);
                 setURL(wkbkId, true);
-                deferred.resolve(wkbkId);
+
+                JupyterPanel.initialize()
+                .always(function() {
+                    deferred.resolve(wkbkId);
+                });
             }
         })
         .fail(function(error) {
@@ -172,7 +176,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         XcalarNewWorkbook(wkbkName, isCopy, copySrcName)
         .then(function() {
-            return finishCreatingWKBK(wkbkName, username, isCopy, copySrc)
+            return finishCreatingWKBK(wkbkName, username, isCopy, copySrc);
         })
         .then(deferred.resolve)
         .fail(function(error) {
@@ -343,16 +347,18 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     WorkbookManager.downloadWKBK = function(workbookName) {
         var deferred = PromiseHelper.deferred();
+        var jupyterFolderPath = "";
+        var wkbk = wkbkSet.get(getWKBKId(workbookName));
 
-        JupyterPanel.getFolderFromWkbk(getWKBKId(workbookName))
-        .then(function(folderName) {
-            var jupyterFolderPath = "";
+        if (wkbk) {
+            var folderName = wkbk.jupyterFolder;
             if (folderName) {
                 jupyterFolderPath = window.jupyterNotebooksPath + folderName +
                                     "/";
             }
-            return XcalarDownloadWorkbook(workbookName, jupyterFolderPath);
-        })
+        }
+
+        XcalarDownloadWorkbook(workbookName, jupyterFolderPath)
         .then(function(file) {
             xcHelper.downloadAsFile(workbookName + ".tar.gz", file.sessionContent, true);
             deferred.resolve();
@@ -367,6 +373,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
     WorkbookManager.uploadWKBK = function(workbookName, workbookContent) {
         var deferred = PromiseHelper.deferred();
 
+        var jupFolderName;
+
         JupyterPanel.newWorkbook(workbookName, getWKBKId(workbookName))
         .then(function(folderName) {
             var jupyterFolderPath;
@@ -374,6 +382,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 // it's an error so default to "";
                 folderName = "";
             }
+            jupFolderName = folderName;
             if (!folderName) { // can be empty due to error or if not found
                 jupyterFolderPath = "";
             } else {
@@ -382,6 +391,10 @@ window.WorkbookManager = (function($, WorkbookManager) {
             }
             return XcalarUploadWorkbook(workbookName, workbookContent,
                                         jupyterFolderPath);
+        })
+        .then(function() {
+            return finishCreatingWKBK(workbookName, username, null, null,
+                                      jupFolderName);
         })
         .then(deferred.resolve)
         .fail(function(err) {
@@ -566,9 +579,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         XcalarDeleteWorkbook(workbook.name)
         .then(function() {
-            return JupyterPanel.deleteWorkbook(workbookId);
-        })
-        .then(function() {
+            JupyterPanel.deleteWorkbook(workbookId);
             var def = delWKBKHelper(workbookId);
             return PromiseHelper.alwaysResolve(def);
         })
@@ -837,27 +848,45 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return XcSupport.holdSession(newWKBKId, true);
     }
 
-    function finishCreatingWKBK(wkbkName, username, isCopy, copySrc) {
+    // if upload, jupFolderName should be provided
+    function finishCreatingWKBK(wkbkName, username, isCopy, copySrc, jupFolderName) {
+        var deferred = PromiseHelper.deferred();
         var wkbk;
-        var deferred = PromiseHelper.deferred(); 
-        var options = {
-            "id": getWKBKId(wkbkName),
-            "name": wkbkName,
-            "srcUser": username,
-            "curUser": username,
-            "resource": false
-        };
 
-        if (isCopy) {
-            options.numWorksheets = copySrc.numWorksheets;
-            options.modified = copySrc.modified;
+        var jupyterPromise;
+        if (!jupFolderName) {
+            jupyterPromise = JupyterPanel.newWorkbook(wkbkName, getWKBKId(wkbkName));
+        } else {
+            jupyterPromise = PromiseHelper.resolve(jupFolderName);
         }
 
-        wkbk = new WKBK(options);
-        wkbkSet.put(wkbk.id, wkbk);
-        JupyterPanel.newWorkbook(wkbkName, wkbk.id);
+        jupyterPromise
+        .then(function(folderName) {
+            // when create new wkbk, we always deactiveate it
+            if (typeof folderName !== "string") {
+                folderName = "";
+            }
 
-        saveWorkbook()
+            // XXX for uploads, we should include description and numWorksheets
+            var options = {
+                "id": getWKBKId(wkbkName),
+                "name": wkbkName,
+                "srcUser": username,
+                "curUser": username,
+                "resource": false,
+                "jupyterFolder": folderName
+            };
+
+            if (isCopy) {
+                options.numWorksheets = copySrc.numWorksheets;
+                options.modified = copySrc.modified;
+            }
+
+            wkbk = new WKBK(options);
+            wkbkSet.put(wkbk.id, wkbk);
+
+            return saveWorkbook();
+        })
         .then(function() {
             // in case KVStore has some remants about wkbkId, clear it
             var def = delWKBKHelper(wkbk.id);

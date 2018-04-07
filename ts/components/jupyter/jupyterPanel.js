@@ -269,11 +269,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
         sendMessageToJupyter(msgStruct, true)
         .then(function(result) {
-            newName = result.newName;
-            return storeNewFolder(wkbkId, folderName);
-        })
-        .then(function() {
-            deferred.resolve(newName);
+            deferred.resolve(result.newName);
         })
         .fail(function(err) {
             console.error(err.error);
@@ -284,90 +280,16 @@ window.JupyterPanel = (function($, JupyterPanel) {
     };
 
     JupyterPanel.deleteWorkbook = function(wkbkId) {
-        var deferred = PromiseHelper.deferred();
+        var folderName = WorkbookManager.getWorkbook(wkbkId).jupyterFolder;
 
-        var kvsKey = wkbkId + "-gNotebook-" + currentVersion;
-        var kvStore = new KVStore(kvsKey, gKVScope.WKBK);
-        kvStore.get()
-        .then(function(jupMeta) {
-            var folderName;
-            if (jupMeta) {
-                try {
-                    var parsedMeta = $.parseJSON(jupMeta);
-                    if (typeof parsedMeta === "object") {
-                        folderName = parsedMeta.folderName;
-                    }
-                } catch (err) {
-                    console.log(err);
-                }
-            }
-            if (folderName) {
-                var msgStruct = {
-                    action: "deleteWorkbook",
-                    folderName: folderName
-                };
-                sendMessageToJupyter(msgStruct);
-            }
-            deferred.resolve();
-        })
-        .fail(function() {
-            deferred.reject();
-        });
-
-        return deferred.promise();
+        if (folderName) {
+            var msgStruct = {
+                action: "deleteWorkbook",
+                folderName: folderName
+            };
+            sendMessageToJupyter(msgStruct);
+        }
     };
-
-    JupyterPanel.deleteWorkbook = function(wkbkId) {
-        var deferred = PromiseHelper.deferred();
-
-        JupyterPanel.getFolderFromWkbk(wkbkId)
-        .then(function(folderName) {
-            if (folderName) {
-                var msgStruct = {
-                    action: "deleteWorkbook",
-                    folderName: folderName
-                };
-                sendMessageToJupyter(msgStruct);
-            }
-            deferred.resolve();
-        }); // always resolves
-
-        return deferred.promise();
-    };
-
-    JupyterPanel.getFolderName = function() {
-        return jupyterMeta.getFolderName() || "";
-    };
-
-    JupyterPanel.getFolderFromWkbk = function(wkbkId) {
-        var deferred = PromiseHelper.deferred();
-
-        var kvsKey = wkbkId + "-gNotebook-" + currentVersion;
-        var kvStore = new KVStore(kvsKey, gKVScope.WKBK);
-        kvStore.get()
-        .then(function(jupMeta) {
-            var folderName = "";
-
-            if (jupMeta) {
-                try {
-                    var parsedMeta = $.parseJSON(jupMeta);
-                    if (typeof parsedMeta === "object") {
-                        folderName = parsedMeta.folderName;
-                    }
-                } catch (err) {
-                    console.error(err);
-                }
-            }
-
-            deferred.resolve(folderName);
-        })
-        .fail(function(err) {
-            console.log(err);
-            deferred.resolve("");
-        });
-
-        return deferred.promise();
-    }
 
     function showImportUdfModal(target, filePath) {
         var params = {
@@ -466,23 +388,19 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
     function restoreMeta() {
         var deferred = PromiseHelper.deferred();
+
+        var wkbk = WorkbookManager.getWorkbook(WorkbookManager.getActiveWKBK());
+        var folderName = wkbk.jupyterFolder;
+
         var key = KVStore.getKey("gNotebookKey");
         var kvStore = new KVStore(key, gKVScope.WKBK);
         kvStore.get()
         .then(function(jupMeta) {
             var lastNotebook = null;
-            var folderName = null;
-
 
             if (jupMeta) {
                 try {
-                    var parsedMeta = $.parseJSON(jupMeta);
-                    if (typeof parsedMeta === "string") {
-                        lastNotebook = parsedMeta;
-                    } else if (typeof parsedMeta === "object") {
-                        lastNotebook = parsedMeta.currentNotebook;
-                        folderName = parsedMeta.folderName;
-                    }
+                    lastNotebook = $.parseJSON(jupMeta);
                 } catch (err) {
                     console.error(err);
                 }
@@ -492,7 +410,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
             deferred.resolve();
         })
         .fail(function() {
-            jupyterMeta = new JupyterMeta();
+            jupyterMeta = new JupyterMeta(null, folderName);
             deferred.reject.apply(null, arguments);
         });
 
@@ -509,28 +427,10 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
         jupyterMeta.setCurrentNotebook(currNotebook);
         JupyterStubMenu.toggleVisibility(jupyterMeta.getCurrentNotebook());
-        return storeMeta();
-    }
 
-    function storeNewFolder(wkbkId, folderName) {
-        var kvsKey = wkbkId + "-gNotebook-" + currentVersion;
+        var kvsKey = KVStore.getKey("gNotebookKey");
         var kvStore = new KVStore(kvsKey, gKVScope.WKBK);
-        var info = {
-            currentNotebook: null,
-            folderName: folderName
-        };
-        return kvStore.put(JSON.stringify(info), true);
-    }
-
-    function storeMeta() {
-        if (jupyterMeta.hasFolder()) {
-            var kvsKey = KVStore.getKey("gNotebookKey");
-            var kvStore = new KVStore(kvsKey, gKVScope.WKBK);
-            return kvStore.put(JSON.stringify(jupyterMeta.getMeta()), true);
-        } else {
-            // don't save if no folder
-            return PromiseHelper.reject();
-        }
+        return kvStore.put(JSON.stringify(currNotebook), true);
     }
 
     JupyterPanel.appendStub = function(stubName, args) {
@@ -604,16 +504,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
             fromXcalar: true,
         };
         if (isAsync) {
-            messageInfo.msgId = msgId;
-            msgPromises[msgId] = deferred;
-            var cachedId = msgId;
-            setTimeout(function() {
-                if (msgPromises[cachedId]) {
-                    msgPromises[cachedId].reject({error: "timeout"});
-                    delete msgPromises[cachedId];
-                }
-            }, promiseTimeLimit);
-            msgId++;
+            prepareAsyncMsg(messageInfo, deferred);
         } else {
             deferred.resolve();
         }
@@ -622,6 +513,19 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
         $("#jupyterNotebook")[0].contentWindow.postMessage(msg, "*");
         return deferred.promise();
+    }
+
+    function prepareAsyncMsg(messageInfo, deferred) {
+        messageInfo.msgId = msgId;
+        msgPromises[msgId] = deferred;
+        var cachedId = msgId;
+        setTimeout(function() {
+            if (msgPromises[cachedId]) {
+                msgPromises[cachedId].reject({error: "timeout"});
+                delete msgPromises[cachedId];
+            }
+        }, promiseTimeLimit);
+        msgId++;
     }
 
         /* Unit Test Only */

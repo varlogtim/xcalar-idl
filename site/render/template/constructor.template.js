@@ -1662,6 +1662,7 @@
          * new attrs:
             resource: (boolean) true if it has resource,
             description: (string) workbook description
+            jupyterFolder: (string) name of corresponding jupyter folder
         */
         function WKBK<%= v %>(options) {
             var self = _super.call(this, options);
@@ -1669,6 +1670,7 @@
             if (<%= checkFunc %>(options)) {
                 self.resource = options.resource || false;
                 self.description = options.description;
+                self.jupyterFolder = options.jupyterFolder;
             }
             return self;
         }
