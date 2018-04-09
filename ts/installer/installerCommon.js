@@ -180,7 +180,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             }
         }
 
-        if (!/[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{173}[a-z=]{8}/.test(finalKey)) {
+        if (!/^[A-Za-z0-9+\/=]+$/.test(finalKey)) {
             deferred.reject("Invalid license key", "The license key that " +
                             "you have entered is not valid. Please check " +
                             "the key and try again");

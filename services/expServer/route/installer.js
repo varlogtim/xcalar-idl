@@ -1,7 +1,9 @@
 var fs = require('fs');
+var stream = require('stream');
 var ldap = require('ldapjs');
 var express = require('express');
 var router = express.Router();
+var zlib = require('zlib');
 var support = require('../expServerSupport.js');
 var xcConsole = require('../expServerXcConsole.js').xcConsole;
 var Status = require('../supportStatusFile').Status;
@@ -243,12 +245,24 @@ function stdErrCallback(dataBlock) {
 function checkLicense(credArray, script) {
     var deferredOut = jQuery.Deferred();
     var fileLocation = licenseLocation;
-    fs.writeFile(fileLocation, credArray.licenseKey, function(err) {
+    var compressedLicense = new Buffer(credArray.licenseKey, 'base64');
+    var licenseStream =  new stream.PassThrough();
+
+    licenseStream.write(compressedLicense);
+    licenseStream.end();
+
+    licenseFileStream = fs.createWriteStream(fileLocation);
+    licenseStream.pipe(zlib.createGunzip()).pipe(licenseFileStream);
+
+    licenseFileStream.on('error', function(err) {
         var retMsg = {"status": httpStatus.InternalServerError};
         if (err) {
             deferredOut.reject(retMsg);
             return;
         }
+    });
+
+    licenseFileStream.on('close', function(data) {
         var out;
         if (script) {
             out = exec(script);
@@ -277,6 +291,7 @@ function checkLicense(credArray, script) {
             }
         });
     });
+
     return deferredOut.promise();
 }
 
