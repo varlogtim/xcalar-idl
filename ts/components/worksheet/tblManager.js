@@ -1791,7 +1791,9 @@ window.TblManager = (function($, TblManager) {
     }
 
     function animateTableId(tableId, oldId) {
-        if (gMinModeOn) {
+        if (gMinModeOn || (typeof tableId !== typeof oldId) ||
+            (isNaN(tableId) !== isNaN(oldId))) {
+            // do not animate if going from "ab12" to 13
             return PromiseHelper.resolve();
         }
 
