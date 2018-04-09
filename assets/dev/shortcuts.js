@@ -244,9 +244,8 @@ window.Shortcuts = (function($, Shortcuts) {
         var wbInterval = setInterval(function() {
             if ($('#workbookPanel').is(':visible')) {
                 var num = Math.ceil(Math.random() * 1000);
-                var wbName = "WB" + num;
-                $('.newWorkbookBox input').val(wbName);
-                $('.newWorkbookBox button').click();
+                var wbName = "New Workbook_" + num;
+                WorkbookPanel.createNewWorkbook(wbName);
                 clearInterval(wbInterval);
 
                 activeWorkbook(wbName)
