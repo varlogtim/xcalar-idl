@@ -4072,7 +4072,7 @@ window.Function.prototype.bind = function() {
     // numNodes assert in the last .then clause
     addTestCase(testSessionInact, "inact session", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testSessionDownload, "download session", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testSessionUpload, "upload session", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testSessionUpload, "upload session", defaultTimeout, TestCaseEnabled, "");
 
     // XXX Re-enable as soon as bug is fixed
     addTestCase(testGetStats, "get stats", defaultTimeout, TestCaseEnabled, "");

@@ -619,7 +619,9 @@ StatusT = {
   'StatusFieldLimitExceeded' : 610,
   'StatusWrongNumberOfArgs' : 611,
   'StatusMissingXcalarOpCode' : 612,
-  'StatusMissingXcalarRankOver' : 613
+  'StatusMissingXcalarRankOver' : 613,
+  'StatusInvalidXcalarOpCode' : 614,
+  'StatusInvalidXcalarRankOver' : 615
 };
 StatusTStr = {
   0 : 'Success',
@@ -1235,7 +1237,9 @@ StatusTStr = {
   610 : 'Number of fields exceeded limit',
   611 : 'Wrong number of operands provided to operator',
   612 : 'Missing XcalarOpCode column',
-  613 : 'Missing XcalarRankOver column'
+  613 : 'Missing XcalarRankOver column',
+  614 : 'XcalarOpCode column contains an invalid value',
+  615 : 'XcalarRankOver column contains an invalid value'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -1851,5 +1855,7 @@ StatusTFromStr = {
   'Number of fields exceeded limit' : 610,
   'Wrong number of operands provided to operator' : 611,
   'Missing XcalarOpCode column' : 612,
-  'Missing XcalarRankOver column' : 613
+  'Missing XcalarRankOver column' : 613,
+  'XcalarOpCode column contains an invalid value' : 614,
+  'XcalarRankOver column contains an invalid value' : 615
 };

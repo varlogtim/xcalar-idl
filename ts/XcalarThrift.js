@@ -2803,7 +2803,8 @@ XcalarQuery = function(queryName, queryString, txId) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
 
-    xcalarQuery(tHandle, queryName, queryString, true)
+    var bailOnError = true; // Stop running query on error
+    xcalarQuery(tHandle, queryName, queryString, true, bailOnError)
     .then(function() {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
@@ -4547,15 +4548,13 @@ XcalarRenameWorkbook = function(newName, oldName) {
     return (deferred.promise());
 };
 
-XcalarUploadWorkbook = function(workbookName, workbookContent,
-                                pathToAdditionalFiles) {
+XcalarUploadWorkbook = function(workbookName, workbookContent) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
     var deferred = PromiseHelper.deferred();
 
-    xcalarApiSessionUpload(tHandle, workbookName, workbookContent,
-                           pathToAdditionalFiles)
+    xcalarApiSessionUpload(tHandle, workbookName, workbookContent)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarUploadWorkbook", error);
@@ -4565,13 +4564,13 @@ XcalarUploadWorkbook = function(workbookName, workbookContent,
     return (deferred.promise());
 };
 
-XcalarDownloadWorkbook = function(workbookName, pathToAdditionalFiles) {
+XcalarDownloadWorkbook = function(workbookName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
     var deferred = PromiseHelper.deferred();
 
-    xcalarApiSessionDownload(tHandle, workbookName, pathToAdditionalFiles)
+    xcalarApiSessionDownload(tHandle, workbookName)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarUploadWorkbook", error);
@@ -4934,6 +4933,22 @@ XcalarRefreshTable = function(pubTableName, dstTableName, batchId, checkpoint) {
         var thriftError = thriftLog("XcalarRefreshTable", error);
         deferred.reject(thriftError);
     });
+
+    return deferred.promise();
+};
+
+XcalarRestoreTable = function(pubTableName) {
+    if (tHandle == null) {
+        return PromiseHelper.resolve(null);
+    }
+
+    var deferred = jQuery.Deferred();
+    xcalarRestoreTable(tHandle, pubTableName)
+        .then(deferred.resolve)
+        .fail(function (error) {
+            var thriftError = thriftLog("XcalarRestoreTable", error);
+            deferred.reject(thriftError);
+        });
 
     return deferred.promise();
 };

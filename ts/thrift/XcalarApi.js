@@ -1158,7 +1158,7 @@ xcalarGetStatGroupIdMap = runEntity.xcalarGetStatGroupIdMap = function(thriftHan
     return (deferred.promise());
 };
 
-xcalarQueryWorkItem = runEntity.xcalarQueryWorkItem = function(queryName, queryStr, sameSession) {
+xcalarQueryWorkItem = runEntity.xcalarQueryWorkItem = function(queryName, queryStr, sameSession, bailOnError) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.queryInput = new XcalarApiQueryInputT();
@@ -1167,16 +1167,23 @@ xcalarQueryWorkItem = runEntity.xcalarQueryWorkItem = function(queryName, queryS
     workItem.input.queryInput.queryName = queryName;
     workItem.input.queryInput.queryStr = queryStr;
     workItem.input.queryInput.sameSession = sameSession;
+
+    if (typeof bailOnError === 'undefined') {
+        workItem.input.queryInput.bailOnError = true;
+    } else {
+        workItem.input.queryInput.bailOnError = bailOnError;
+    }
+
     return (workItem);
 };
 
-xcalarQuery = runEntity.xcalarQuery = function(thriftHandle, queryName, queryStr, sameSession) {
+xcalarQuery = runEntity.xcalarQuery = function(thriftHandle, queryName, queryStr, sameSession, bailOnError) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarQuery(query name= " + queryName +
                     " queryStr" + queryStr + ")");
     }
-    var workItem = xcalarQueryWorkItem(queryName, queryStr, sameSession);
+    var workItem = xcalarQueryWorkItem(queryName, queryStr, sameSession, bailOnError);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -2433,6 +2440,45 @@ xcalarUnpublish = runEntity.xcalarUnpublish = function(thriftHandle, tableName) 
     })
     .fail(function(error) {
         console.log("xcalarUnpublish() caught exception:", error);
+        deferred.reject(handleRejection(error));
+    });
+
+    return (deferred.promise());
+};
+
+xcalarRestoreTableWorkItem = runEntity.xcalarRestoreTableWorkItem = function(tableName) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.apiVersion = 0;
+    workItem.api = XcalarApisT.XcalarApiRestoreTable;
+    workItem.input.restoreTableInput = new XcalarApiRestoreTableInputT();
+    workItem.input.restoreTableInput.publishedTableName = tableName;
+
+    return (workItem);
+};
+
+xcalarRestoreTable = runEntity.xcalarRestoreTable = function(thriftHandle, tableName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarRestoreTable(name = " + tableName + ")");
+    }
+    var workItem = xcalarRestoreTableWorkItem(tableName);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
+        }
+    })
+    .fail(function(error) {
+        console.log("xcalarRestoreTable() caught exception:", error);
         deferred.reject(handleRejection(error));
     });
 
@@ -4322,14 +4368,13 @@ xcalarApiSessionRename = runEntity.xcalarApiSessionRename = function(thriftHandl
     return (deferred.promise());
 };
 
-xcalarApiSessionDownloadWorkItem = runEntity.xcalarApiSessionDownloadWorkItem = function(sessionName, pathToAdditionalFiles) {
+xcalarApiSessionDownloadWorkItem = runEntity.xcalarApiSessionDownloadWorkItem = function(sessionName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
 
     workItem.api = XcalarApisT.XcalarApiSessionDownload;
     workItem.input.sessionDownloadInput = new XcalarApiSessionDownloadInputT();
     workItem.input.sessionDownloadInput.sessionName = sessionName;
-    workItem.input.sessionDownloadInput.pathToAdditionalFiles = pathToAdditionalFiles;
     return (workItem);
 };
 
@@ -4372,7 +4417,7 @@ xcalarApiSessionDownload = runEntity.xcalarApiSessionDownload = function(thriftH
     return (deferred.promise());
 };
 
-xcalarApiSessionUploadWorkItem = runEntity.xcalarApiSessionUploadWorkItem = function(sessionName, sessionContent, pathToAdditionalFiles) {
+xcalarApiSessionUploadWorkItem = runEntity.xcalarApiSessionUploadWorkItem = function(sessionName, sessionContent) {
     var workItem = new WorkItem();
     var encodedSession = btoa(sessionContent);
     workItem.input = new XcalarApiInputT();
@@ -4380,20 +4425,17 @@ xcalarApiSessionUploadWorkItem = runEntity.xcalarApiSessionUploadWorkItem = func
     workItem.api = XcalarApisT.XcalarApiSessionUpload;
     workItem.input.sessionUploadInput = new XcalarApiSessionUploadInputT();
     workItem.input.sessionUploadInput.sessionName = sessionName;
-    workItem.input.sessionUploadInput.pathToAdditionalFiles = pathToAdditionalFiles;
     workItem.input.sessionUploadInput.sessionContentCount = encodedSession.length;
     workItem.input.sessionUploadInput.sessionContent = encodedSession;
 
     return (workItem);
 };
 
-xcalarApiSessionUpload = runEntity.xcalarApiSessionUpload = function(thriftHandle, sessionName, sessionContent,
-    pathToAdditionalFiles) {
+xcalarApiSessionUpload = runEntity.xcalarApiSessionUpload = function(thriftHandle, sessionName, sessionContent) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
-        console.log("xcalarApiSessionUpload(sessionName = ", sessionName, ", ",
-                "pathToAdditionalFiles = ", pathToAdditionalFiles, ")");
+        console.log("xcalarApiSessionUpload(sessionName = " + sessionName + ")");
     }
 
     var workItem = xcalarApiSessionUploadWorkItem(sessionName, sessionContent);
