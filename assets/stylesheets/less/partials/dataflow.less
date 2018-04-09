@@ -524,6 +524,7 @@
 
             .tableTitle {
                 max-width: 180px;
+                color: @color-font-gray36;
             }
 
             .progressBarWrap {
@@ -573,25 +574,26 @@
                         background-color: @color-bg-btn-hover-blue;
                     }
                 }
-                &.export {
-                    .icon {
-                        color: @color-bg-btn-hover-blue;
-                    }
-                    .dagTableIcon {
-                        background-color: @color-bg-btn-hover-blue;
-                    }
-                }
+                // &.export {
+                //     .icon {
+                //         color: @color-bg-btn-hover-blue;
+                //     }
+                //     .dagTableIcon {
+                //         background-color: @color-bg-btn-hover-blue;
+                //     }
+                // }
                 &.Dropped {
                     &.dataStore .dataStoreIcon {
                         background-color: @color-bg-white-five;
                     }
                 }
             }
-            &.dataStore, &.export {
+            &.dataStore {
                 cursor: pointer;
             }
 
             &.rootNode {
+                cursor: pointer;
                 .tableTitle {
                     width: 130px;
                 }
@@ -634,12 +636,7 @@
 
         .operationTypeWrap {
             .operationType {
-                cursor: default;
-            }
-            &.filter {
-                .operationType {
-                    cursor: pointer;
-                }
+                cursor: pointer;
             }
             &.hasParam {
 
@@ -1796,4 +1793,11 @@
             }
         }
     }
+}
+
+#dfParamModal2 {
+    .size(@width: 920px, @height: 550px, @min-width: 800px, @min-height: 425px);
+    font-size: 12px;
+
+
 }

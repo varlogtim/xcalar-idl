@@ -2649,7 +2649,8 @@
                 // node instead of the operation during draw dag.
                 // I think it will clean
                 // up a lot of the exception cases here
-                if ($nodeOrAction.prev().hasClass("filter")) {
+                if ($nodeOrAction.prev().hasClass("filter") ||
+                    $nodeOrAction.prev().hasClass("export")) {
                     $nodeOrAction = $nodeOrAction.prev();
                 }
                 if (noParams) {

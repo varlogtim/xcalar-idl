@@ -885,7 +885,7 @@ window.FlightTest = (function(FlightTest, $) {
         // Add parameter to export
         var $df = $('#dfViz .dagWrap[data-dataflowname="' + dfName +
                      '"]');
-        $df.find(".dagTable.export").click();
+        $df.find(".operationTypeWrap.export").click();
         $dfViz.find(".createParamQuery").trigger(fakeEvent.mouseup);
         var $dfParamModal = $("#dfParamModal");
         test.checkExists("#dfParamModal:visible")
@@ -915,7 +915,7 @@ window.FlightTest = (function(FlightTest, $) {
             $('#dagModleParamList').find('.row:first .paramVal').val(fileName);
             $dfParamModal.find(".modalBottom .confirm").click();
 
-            return test.checkExists(".dagTable.export.hasParam");
+            return test.checkExists(".operationTypeWrap.export.hasParam");
         })
         .then(function() {
             var $runNowBtn = $('.dagWrap[data-dataflowname="' + dfName + '"] .runNowBtn');
@@ -962,7 +962,7 @@ window.FlightTest = (function(FlightTest, $) {
         var $dfViz = $("#dfViz");
         var $df = $('#dfViz .dagWrap[data-dataflowname="' + dfName +
                      '"]');
-        $df.find(".dagTable.export").click();
+        $df.find(".operationTypeWrap.export").click();
         $dfViz.find(".createParamQuery").trigger(fakeEvent.mouseup);
 
         var $dfParamModal = $("#dfParamModal");

@@ -304,9 +304,7 @@ window.DFCard = (function($, DFCard) {
             if (xdpMode === XcalarMode.Mod) {
                 return showLicenseTooltip(this);
             }
-            if ($dfCard.hasClass("hasUnexpectedNode")) {
-                return showUnexpectedNodeTip(this);
-            }
+
             $('.menu').hide();
             StatusBox.forceHide();
             var $dagWrap = $dfCard.find('.cardMain').find(".dagWrap:visible");
@@ -331,6 +329,7 @@ window.DFCard = (function($, DFCard) {
                     var $target = $(event.target);
                     if ($retTabSection.find(".retTab").hasClass("active") &&
                         !$target.closest('.retTab').length) {
+
                         closeRetTab();
                         $("#container").off("mousedown.retTab");
                         return;
@@ -403,9 +402,6 @@ window.DFCard = (function($, DFCard) {
         });
 
         $dfCard.on('click', '.addScheduleToDataflow', function() {
-            if ($dfCard.hasClass("hasUnexpectedNode")) {
-                return showUnexpectedNodeTip(this);
-            }
             $(this).blur();
             // doesn't have schedule, show schedule
             var dfName = $listSection.find(".selected .groupName").text();
@@ -433,9 +429,7 @@ window.DFCard = (function($, DFCard) {
             if (xdpMode === XcalarMode.Mod) {
                 return showLicenseTooltip(this);
             }
-            if ($dfCard.hasClass("hasUnexpectedNode")) {
-                return showUnexpectedNodeTip(this);
-            }
+
             var $btn = $(this).blur();
             var retName = $listSection.find(".selected .groupName").text();
             var df = DF.getDataflow(retName);
@@ -577,12 +571,6 @@ window.DFCard = (function($, DFCard) {
         delete dataflow.nodes; // reference to nodes only needed for creating
         // dataflow graph
 
-        if ($dagWrap.hasClass("hasUnexpectedNode")) {
-            $dfCard.addClass("hasUnexpectedNode");
-        } else {
-            $dfCard.removeClass("hasUnexpectedNode");
-        }
-
         var promise = applyDeltaTagsToDag(dataflowName, $dagWrap);
 
         xcHelper.showRefreshIcon($dagWrap, false, promise);
@@ -593,11 +581,6 @@ window.DFCard = (function($, DFCard) {
         Dag.addEventListeners($dagWrap);
         if (XVM.getLicenseMode() === XcalarMode.Mod) {
             $dagWrap.find('.parameterizable:not(.export)')
-                    .addClass('noDropdown');
-        }
-
-        if ($dagWrap.hasClass("hasUnexpectedNode")) {
-            $dagWrap.find('.parameterizable')
                     .addClass('noDropdown');
         }
 
@@ -627,14 +610,12 @@ window.DFCard = (function($, DFCard) {
                 var fileName = struct.fileName || "";
                 paramStructs[tName] = struct;
                     // uploaded retinas do not have params in export node
-                var $exportTable = $dagWrap.find(".dagTable[data-tablename='" +
+                var $exportTable = $dagWrap.find(".operationTypeWrap[data-table='" +
                                                  tName + "']");
 
-                $exportTable.addClass("export").data("type", "export")
-                    .attr("data-table", $exportTable.attr("data-tablename"))
-                    .attr("data-advancedOpts", "default");
+                $exportTable.next().attr("data-advancedOpts", "default");
 
-                var $elem = $exportTable.find(".tableTitle");
+                var $elem = $exportTable.next().find(".tableTitle");
                 var expName = xcHelper.stripCSVExt(fileName);
                 $elem.text(expName);
                 xcTooltip.changeText($elem, xcHelper.convertToHtmlEntity(expName));
@@ -645,11 +626,7 @@ window.DFCard = (function($, DFCard) {
             }
         }
 
-        // Data table moved so that the hasParam class is added correctly
-        $dagWrap.find(".operationTypeWrap.export").attr("data-table", "");
-
-        var selector = '.dagTable.export, .dagTable.dataStore, ' +
-                       '.operationTypeWrap.filter';
+        var selector = '.dagTable.rootNode, .operationTypeWrap';
         // Attach styling to all nodes that have a dropdown
         $dagWrap.find(selector).addClass("parameterizable");
 
@@ -692,11 +669,10 @@ window.DFCard = (function($, DFCard) {
         xcTooltip.disable($tooltipTables);
         var selector;
         if (XVM.getLicenseMode() === XcalarMode.Mod) {
-            selector = '.export .dagTableIcon';
+            selector = '.export.operationTypeWrap .operationType';
         } else {
             selector = '.dataStore .dataStoreIcon, ' +
-                        '.export .dagTableIcon, ' +
-                        '.operationTypeWrap.filter .operationType';
+                        '.operationTypeWrap .operationType';
         }
 
         var $icons = $dfCard.find(selector).filter(function() {
@@ -718,9 +694,6 @@ window.DFCard = (function($, DFCard) {
             var prevent = false;
             if ($(e.target).closest('.dagTable.dataStore').length) {
                 $target = $(e.target).closest('.dagTable.dataStore');
-            } else if ($(e.target).closest('.dagTable.export').length) {
-                $target = $(e.target).closest('.dagTable.export');
-                prevent = true;
             }
             if ($target.length) {
                 $target.trigger('click');
@@ -735,8 +708,7 @@ window.DFCard = (function($, DFCard) {
             }
         };
 
-        var selector = '.dagTable.export, .dagTable.dataStore,' +
-                       ' .operationTypeWrap.filter';
+        var selector = '.dagTable.rootNode, .operationTypeWrap';
 
         // Attach styling to all nodes that have a dropdown
         $dfCard.find(selector).addClass("parameterizable");
@@ -750,10 +722,6 @@ window.DFCard = (function($, DFCard) {
             xcMenu.removeKeyboardNavigation();
             $('.leftColMenu').removeClass('leftColMenu');
             $currentIcon = $(this);
-
-            if ($dfCard.hasClass("hasUnexpectedNode")) {
-                return;
-            }
 
             $menu.find("li").hide();
             var $queryLi = $menu.find(".createParamQuery");
@@ -783,13 +751,6 @@ window.DFCard = (function($, DFCard) {
             } else {
                 $queryLi.removeClass("unavailable");
                 xcTooltip.remove($queryLi);
-            }
-            if ($currentIcon.hasClass("unexpectedNode") ||
-                $currentIcon.next().hasClass("unexpectedNode")) {
-                $menu.find("li").hide();
-                $menu.addClass("unexpectedNode");
-            } else {
-                $menu.removeClass("unexpectedNode");
             }
 
             positionAndInitMenu($currentIcon);
@@ -883,8 +844,8 @@ window.DFCard = (function($, DFCard) {
     function showExportCols($dagTable) {
         // var df = DF.getDataflow(DFCard.getCurrentDF());
         var $popup = $('#exportColPopup');
-        var tableName = $dagTable.data('table') || $dagTable.data('tablename');
-        var nodeId = $dagTable.data("index") + "";
+        var tableName = $dagTable.data('table');
+        var nodeId = $dagTable.data("id") + "";
         var nodeIdMap = $dagTable.closest(".dagWrap").data("allDagInfo")
                                                      .nodeIdMap;
         var exportNode = nodeIdMap[nodeId];
@@ -914,8 +875,9 @@ window.DFCard = (function($, DFCard) {
         $popup.show();
 
         var width = $popup.outerWidth();
-        var top = $dagTable[0].getBoundingClientRect().bottom - 100;
-        var left = $dagTable[0].getBoundingClientRect().left - width - 20;
+        var top = Math.max($dagTable[0].getBoundingClientRect().bottom -
+                            $popup.height(), 5);
+        var left = $dagTable[0].getBoundingClientRect().left;
 
         $popup.css({'top': top, 'left': left});
 
@@ -1597,11 +1559,6 @@ window.DFCard = (function($, DFCard) {
         console.log("Wrong license type");
     }
 
-    function showUnexpectedNodeTip(elem) {
-        xcTooltip.add($(elem), {"title": TooltipTStr.UnexpectedNode});
-        xcTooltip.refresh($(elem));
-    }
-
     function closeRetTab() {
         if (hasChange) {
             hasChange = false;
@@ -1728,12 +1685,6 @@ window.DFCard = (function($, DFCard) {
                 $dagWrap.removeClass("xc-hidden");
                 var width = $dagWrap.find('canvas').attr('width');
                 $dagWrap.find('.dagImageWrap').scrollLeft(width);
-            } else {
-                if ($dagWrap.hasClass("hasUnexpectedNode")) {
-                    $dfCard.addClass("hasUnexpectedNode");
-                } else {
-                    $dfCard.removeClass("hasUnexpectedNode");
-                }
             }
 
             if (dataflowName === currentDataflow) {

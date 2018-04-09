@@ -823,8 +823,19 @@ DFTStr = {
 "EDITINGDATAFLOW": "EDITING DATAFLOW",
 "TableListNoEdit": "The tables list cannot be modified when editing a dataflow.",
 "NoReleaseMemoryEdit": "You must exit dataflow editing in the dataflow panel to release memory",
+"ParamModalBasicInstr": "To convert this operation into a parameterized" +
+                            " operation, please click the New Parameter button," +
+                            " provide a name, and drag and drop the parameter into its appropriate place.",
+"ParamBasicNotAllowed": "Basic view is not available for this operation",
+"ParamAdvancedNotAllowed": "Advanced view is not available",
+"ParamToggle": "Toggle between basic and advanced mode",
+"ParamCorrect": "Please correct before proceeding.",
+"ParamBasicInstructions": "To convert this operation into a parameterized operation, please click the New Parameter button, provide a name, and drag and drop the parameter into its appropriate place.",
 // with replace
-"EditOpDirectly": "Please edit the <op> operation directly"
+"EditOpDirectly": "Please edit the <op> operation directly",
+"CancelAlertMsg": "Batch dataflow \'<name>\' was canceled.",
+"ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized."
+
 
 };
 DSTStr = {

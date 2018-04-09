@@ -76,7 +76,7 @@ describe("DFParamModal Test", function() {
 
     describe("Add/delete param test", function() {
         before(function(done) {
-            DFParamModal.show($dfWrap.find(".dagTable.export"))
+            DFParamModal.show($dfWrap.find(".operationTypeWrap.export"))
             .then(function() {
                 done();
             })
@@ -154,7 +154,7 @@ describe("DFParamModal Test", function() {
 
     describe("initial state test from export and submit fail test", function() {
         before(function(done) {
-            DFParamModal.show($dfWrap.find(".dagTable.export"))
+            DFParamModal.show($dfWrap.find(".operationTypeWrap.export"))
             .then(function() {
                 done();
             })

@@ -3336,7 +3336,7 @@ XcalarGetRetinaJson = function(retName) {
 // replaced with "filter(<opera>(<colName>, <val>))"
 // val = \"hello\"
 // <argument> is used to denote a parameter
-XcalarUpdateRetina = function(retName, tableName, paramType, paramValues, txId) {
+XcalarUpdateRetina = function(retName, tableName, paramValues, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -3354,41 +3354,6 @@ XcalarUpdateRetina = function(retName, tableName, paramType, paramValues, txId) 
             var args = queries[i].args;
             if (args.dest === tableName) {
                 queries[i].args = paramValues;
-                // switch (paramType) {
-                //     case (XcalarApisT.XcalarApiBulkLoad):
-                //         for (var i = 0; i < paramValues.length; i++) {
-                //             if (!args.loadArgs.sourceArgsList[i]) {
-                //                 args.loadArgs.sourceArgsList[i] = new DataSourceArgsT();
-                //                 args.loadArgs.sourceArgsList[i].recursive = false;
-                //             }
-                //             args.loadArgs.sourceArgsList[i].fileNamePattern =
-                //                                     paramValues[i].fileNamePattern;
-                //             args.loadArgs.sourceArgsList[i].path = paramValues[i].path;
-                //             args.loadArgs.sourceArgsList[i].targetName =
-                //                                     paramValues[i].targetName;
-                //         }
-                //         args.loadArgs.sourceArgsList.length = paramValues.length;
-
-                //         break;
-                //     case (XcalarApisT.XcalarApiFilter):
-                //         args.eval[0].evalString = paramValues.filterStr;
-                //         break;
-                //     case (XcalarApisT.XcalarApiExport):
-                //         args.createRule = paramValues.createRule;
-                //         args.fieldDelim = paramValues.fieldDelim;
-                //         args.fileName = paramValues.fileName;
-                //         args.headerType = paramValues.headerType;
-                //         args.quoteDelim = paramValues.quoteDelim;
-                //         args.recordDelim = paramValues.recordDelim;
-                //         args.sorted = paramValues.sorted;
-                //         args.splitRule = paramValues.splitRule;
-                //         args.targetName = paramValues.targetName;
-                //         args.targetType = paramValues.targetType;
-                //         break;
-                //     default:
-                //         deferred.reject({error: "Invalid param type"});
-                //         return deferred.promise();
-                // }
                 break;
             }
         }

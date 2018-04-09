@@ -1253,7 +1253,6 @@ window.DagDraw = (function($, DagDraw) {
         var key = DagFunction.getInputType(XcalarApisTStr[node.value.api]);
         var dagInfo = getDagNodeInfo(node, key);
         var tableName = node.value.name;
-        var altName = dagInfo.altName || tableName;
 
         if (node.value.display.isHidden) {
             outerClasses += "hidden ";
@@ -1317,8 +1316,9 @@ window.DagDraw = (function($, DagDraw) {
             }
             tableClasses += "rootNode ";
             iconClasses += "dataStoreIcon ";
+            var type = (dagInfo.type === "load") ? "dataStore" : dagInfo.type;
             dataAttrs += 'data-table="' + originalTableName + '" ' +
-                        'data-type="dataStore" ' +
+                        'data-type="' + type + '" ' +
                         'data-id="' + tId + '"';
             tableTitle = dsText + tableName;
             tableTitleTip = tableName;
@@ -1353,7 +1353,6 @@ window.DagDraw = (function($, DagDraw) {
 
         html += '<div class="dagTable ' + tableClasses + '" ' +
                     'data-tablename="' + tableName + '" ' +
-                    'data-altname="' + altName + '" ' +
                     'data-index="' + node.value.dagNodeId + '" ' +
                     'data-nodeid="' + node.value.dagNodeId + '" ' +
                     dataAttrs + '>' +
@@ -1391,6 +1390,7 @@ window.DagDraw = (function($, DagDraw) {
         var commentIcon = "";
         var typeTitle = info.text;
         var resultTableName = node.value.name;
+        var altName = info.altName || resultTableName;
 
         if (node.value.display.hasTagGroup) {
             classes += " tagHeader ";
@@ -1449,6 +1449,8 @@ window.DagDraw = (function($, DagDraw) {
                     dataAttr +
                     'data-type="' + info.type + '" ' +
                     'data-table="' + resultTableName + '"' +
+
+                    'data-altname="' + altName + '" ' +
                     'data-id="' + node.value.dagNodeId + '">' +
                         '<div class="operationType" ' +
                         xcTooltip.Attrs + 'data-original-title="' +
