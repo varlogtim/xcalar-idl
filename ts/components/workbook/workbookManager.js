@@ -939,6 +939,12 @@ window.WorkbookManager = (function($, WorkbookManager) {
         .then(function() {
             return copyAction("gErrKey", gKVScope.ERR);
         })
+        .then(function() {
+            return copyAction("gOverwrittenLogKey", gKVScope.WKBK);
+        })
+        .then(function() {
+            return copyAction("gAuthKey", gKVScope.AUTH);
+        })
         .then(deferred.resolve)
         .fail(deferred.reject);
 
@@ -972,14 +978,16 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var errorKey = wkbkScopeKeys.gErrKey;
         var overwrittenLogKey = wkbkScopeKeys.gOverwrittenLogKey;
         var notebookKey = wkbkScopeKeys.gNotebookKey;
+        var authKey = wkbkScopeKeys.gAuthKey;
 
         var def1 = XcalarKeyDelete(storageKey, gKVScope.META);
         var def3 = XcalarKeyDelete(logKey, gKVScope.LOG);
         var def2 = XcalarKeyDelete(errorKey, gKVScope.ERR);
         var def4 = XcalarKeyDelete(overwrittenLogKey, gKVScope.WKBK);
         var def5 = XcalarKeyDelete(notebookKey, gKVScope.WKBK);
+        var def6 = XcalarKeyDelete(authKey, gKVScope.AUTH);
 
-        PromiseHelper.when(def1, def2, def3, def4, def5)
+        PromiseHelper.when(def1, def2, def3, def4, def5, def6)
         .then(deferred.resolve)
         .fail(function(error) {
             console.error("Delete workbook fails!", error);
