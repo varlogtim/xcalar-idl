@@ -2539,6 +2539,12 @@ XcalarGroupByWithEvalStrings = function(newColNames, evalStrs, tableName,
         return PromiseHelper.reject("invalid args");
     }
 
+    for (var i = 0; i < evalStrs.length; i++) {
+        if (evalStrs[i].length > XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
+            return PromiseHelper.reject("Eval string too long");
+        }
+    }
+
     getUnsortedTableName(tableName, null, txId)
     .then(function(unsortedTableName) {
         if (Transaction.checkCanceled(txId)) {
@@ -2599,9 +2605,6 @@ XcalarGroupBy = function(operators, newColNames, aggColNames, tableName,
         }
         op = op.slice(0, 1).toLowerCase() + op.slice(1);
         var evalStr = op + "(" + aggColNames[i] + ")";
-        if (evalStr.length > XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
-            return PromiseHelper.reject("Eval string too long");
-        }
         evalStrs.push(evalStr);
     }
     return XcalarGroupByWithEvalStrings(newColNames, evalStrs, tableName,

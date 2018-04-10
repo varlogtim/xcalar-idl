@@ -12,11 +12,6 @@ namespace xcHelper {
         dsName: string;
     }
 
-    export interface PrefixColInfo {
-        prefix: string;
-        name: string;
-    }
-
     export interface MapColOption {
         replaceColumn: boolean; // if true, will replace existing col with new one
         resize: boolean; // if true, will adjust column size to colname
@@ -493,7 +488,7 @@ namespace xcHelper {
         oldName: string,
         newName: string,
         type: DfFieldTypeT = DfFieldTypeT.DfUnknown
-    ): object {
+    ): ColRenameInfo {
         return {
             "orig": oldName,
             "new": newName,
@@ -1296,11 +1291,11 @@ namespace xcHelper {
      * @param colNumToIgnore
      */
     export function getUniqColName(
-        tableId: string,
+        tableId: TableId,
         colName: string | null,
-        onlyCheckPulledCol: boolean,
+        onlyCheckPulledCol: boolean = false,
         takenNames: object = {},
-        colNumToIgnore: number[]
+        colNumToIgnore?: number[]
     ): string {
         if (colName == null) {
             return xcHelper.randName('NewCol');
@@ -2146,7 +2141,7 @@ namespace xcHelper {
         const hashIndex: number = wholeName.lastIndexOf('#');
         if (hashIndex > -1) {
             let id = wholeName.substring(hashIndex + 1);
-            if (isNaN(id)) {
+            if (isNaN(Number(id))) {
                 return id;
             } else {
                 return parseInt(id);
@@ -2477,20 +2472,20 @@ namespace xcHelper {
      * noClear: boolean, if true, will not deselect text
      */
     export function centerFocusedTable(
-        tableWrapOrId: JQuery | string | number,
+        tableWrapOrId: JQuery | TableId,
         animate: boolean,
         options: CentFocusedTableOptions = <CentFocusedTableOptions>{}
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred<void>();
         let $tableWrap: JQuery;
-        let tableId: string;
+        let tableId: TableId;
 
         if (tableWrapOrId instanceof jQuery) {
-            $tableWrap = tableWrapOrId;
+            $tableWrap = <JQuery>tableWrapOrId;
             tableId = $tableWrap.data('id');
         } else {
             $tableWrap = $('#xcTableWrap-' + tableWrapOrId);
-            tableId = tableWrapOrId;
+            tableId = <TableId>tableWrapOrId;
         }
 
         if (!$tableWrap.length) {
@@ -3036,7 +3031,10 @@ namespace xcHelper {
      * @param colName
      * @param stripSpace
      */
-    export function stripColName(colName: string, stripSpace: boolean): string {
+    export function stripColName(
+        colName: string,
+        stripSpace: boolean = false
+    ): string {
         const pattern = stripSpace ?
                         /[\^,{}'"()\[\]\.\\ ]/g :
                         /[\^,{}'"()\[\]\.\\]/g;
@@ -4643,7 +4641,7 @@ namespace xcHelper {
 
     function getColMetaHelper(tableName: string): XDPromise<object> {
         const deferred: XDDeferred<object> = PromiseHelper.deferred();
-        const tableId: string = xcHelper.getTableId(tableName);
+        const tableId: TableId = xcHelper.getTableId(tableName);
         const table: TableMeta = gTables[tableId];
 
         if (table && table.backTableMeta) {
@@ -4887,7 +4885,7 @@ namespace xcHelper {
             $subMenu.find(".moveToWorksheet").removeClass("unavailable");
         }
 
-        const tableId: string = gActiveTableId;
+        const tableId: TableId = gActiveTableId;
         const index: number = WSManager.getTableRelativePosition(tableId);
         if (index === 0) {
             $subMenu.find('.moveLeft').addClass('unavailable');
@@ -4907,7 +4905,7 @@ namespace xcHelper {
 
     function updateColDropdown(
         $subMenu: JQuery,
-        tableId: string,
+        tableId: TableId,
         options: DropdownOptions
     ): void {
         const progCol: ProgCol = gTables[tableId].getCol(options.colNum);
@@ -4992,7 +4990,7 @@ namespace xcHelper {
      */
     function checkIfAlreadyUnnested(
         $unnestLi: JQuery,
-        tableId: string,
+        tableId: TableId,
         options: DropdownOptions
     ): void {
         if ($unnestLi.hasClass("hidden")) {
@@ -5051,7 +5049,7 @@ namespace xcHelper {
         isMultiCell: boolean,
         notAllowed: boolean,
         options: DropdownOptions,
-        tableId: string
+        tableId: TableId
     ): void {
         if (!$div.hasClass('originalData')) {
             $div = $div.siblings('.originalData');
@@ -5111,7 +5109,7 @@ namespace xcHelper {
     function updateTdDropdown(
         $div: JQuery,
         $menu: JQuery,
-        tableId: string,
+        tableId: TableId,
         options: DropdownOptions
     ): void {
         // If the tdDropdown is on a non-filterable value, we need to make the
@@ -5192,7 +5190,7 @@ namespace xcHelper {
         $menu: JQuery,
         $subMenu: JQuery,
         menuId: string,
-        tableId: string,
+        tableId: TableId,
         options: DropdownOptions
     ): string {
         const toClose: Function = options.toClose;
@@ -5396,7 +5394,7 @@ namespace xcHelper {
             $allMenus = $menu;
         }
 
-        let tableId: string;
+        let tableId: TableId;
         if (menuId === "tableMenu" || menuId === "colMenu" ||
             menuId === "cellMenu" || menuId === "prefixColorMenu"
         ) {

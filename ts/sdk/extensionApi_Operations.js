@@ -343,7 +343,7 @@ window.XcSDK.Extension.prototype = (function() {
         export: function(tableName, exportName, targetName, numCols,
                         backColumns, frontColumns, keepOrder, options) {
             var txId = this.txId;
-            return XIApi.export(txId, tableName, exportName, targetName, numCols,
+            return XIApi.exportTable(txId, tableName, exportName, targetName, numCols,
                                 backColumns, frontColumns, keepOrder, options);
         },
 
@@ -403,34 +403,6 @@ window.XcSDK.Extension.prototype = (function() {
 
         fetchColumnData: function(colName, tableName, startRowNum, rowsToFetch) {
             return XIApi.fetchColumnData(colName, tableName, startRowNum, rowsToFetch);
-        },
-
-        appSet: function(name, hostType, duty, execStr) {
-            var self = this;
-            var txId = self.txId;
-
-            return XIApi.appSet(txId, name, hostType, duty, execStr);
-        },
-
-        appRun: function(name, isGlobal, inStr) {
-            var self = this;
-            var txId = self.txId;
-
-            return XIApi.appRun(txId, name, isGlobal, inStr);
-        },
-
-        appReap: function(name, appGroupId) {
-            var self = this;
-            var txId = self.txId;
-
-            return XIApi.appReap(txId, name, appGroupId);
-        },
-
-        appExecute: function(name, isGlobal, inStr) {
-            var self = this;
-            var txId = self.txId;
-
-            return XIApi.appExecute(txId, name, isGlobal, inStr);
         },
 
         createDataTarget: function(targetType, targetName, targetParams) {

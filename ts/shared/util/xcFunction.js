@@ -1138,7 +1138,7 @@ window.xcFunction = (function($, xcFunction) {
             // "exportName": options.handleName
         });
 
-        XIApi.export(txId, tableName, exportName, targetName, numCols,
+        XIApi.exportTable(txId, tableName, exportName, targetName, numCols,
                     backColumns, frontColumns, keepOrder, options)
         .then(function(retStruct) {
             // XXX retStruct is unused. retStruct.timeTaken contains how long

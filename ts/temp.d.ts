@@ -8,7 +8,101 @@
 /* ============== TYPES ======================== */
 type XDPromise<T> = JQueryPromise<T>;
 type XDDeferred<T> = JQueryDeferred<T>;
+type TableId = string | number;
+type XcCast = ColumnType | null;
+type JoinType = JoinCompoundOperatorTStr | JoinOperatorT;
 
+/* ============== INTERFACE ======================== */
+interface PrefixColInfo {
+    prefix: string;
+    name: string;
+}
+
+interface TableIndexCache {
+    tableName: string;
+    keys: string[];
+}
+
+
+interface TableIndexResult {
+    indexTable: string;
+    indexKeys: string[];
+    tempTables: string[];
+    hasIndexed: boolean;
+    isCache?: boolean;
+}
+
+interface SortColInfo {
+    type?: ColumnType;
+    colNum?: number;
+    name: string;
+    ordering: number;
+}
+
+interface ColRenameInfo {
+    orig: string;
+    new: string;
+    type: DfFieldTypeT;
+}
+
+interface JoinColInfo {
+    columns: string[]; // array of back colum names to join
+    casts: XcCast[]; // array of cast types ["string", "boolean", null] etc
+    pulledColumns: string[]; // columns to pulled out (front col name)
+    tableName: string; // table's name
+    rename: ColRenameInfo[]; // array of rename object
+    allImmediates: string[]; // array of all immediate names for collision resolution
+    removeNulls: boolean; // sql use
+}
+
+interface JoinOptions {
+    newTableName?: string; // final table's name, optional
+    clean?: boolean; // remove intermediate table if set true
+    evalString?: string; // cross join filter's eval string
+    existenceCol?: string;
+}
+
+interface AggColInfo {
+    operator: string;
+    aggColName: string;
+    newColName: string;
+    isDistinct?: boolean;
+}
+
+interface GroupByOptions {
+    isIncSample?: boolean; // include sample or not
+    sampleCols?: number[]; // sampleColumns to keep, only used when isIncSample is true
+    icvMode?: boolean; // icv mode or not
+    newTableName?: string; // dst table name, optional
+    clean?: boolean; // remove intermediate table if set true
+}
+
+interface UnionColInfo {
+    name: string;
+    rename: string;
+    type: ColumnType;
+    cast: boolean;
+}
+
+interface UnionTableInfo {
+    tableName: string;
+    columns: UnionColInfo[];
+}
+
+interface ExportTableOptions {
+    splitType: string;
+    headerType: string;
+    format: string;
+    createRule: string;
+    handleName: string;
+}
+
+interface GetNumRowsOptions {
+    useConstant: boolean;
+    txId: number;
+    colName: string;
+    constantName: string;
+}
 /* ============== GLOBAL VARIABLES ============= */
 declare var gDSPrefix: string;
 declare var gDroppedTables: object;
@@ -22,7 +116,7 @@ declare var XcalarApisTStr: object;
 declare var StatusTStr: object;
 declare var gExportNoCheck: boolean;
 declare var gAggVarPrefix: string;
-declare var gActiveTableId: string;
+declare var gActiveTableId: TableId;
 declare var currentVersion: number;
 declare var xcLocalStorage: XcStorage;
 declare var gKVScope: {
@@ -32,26 +126,51 @@ declare var gKVScope: {
 };
 declare var global: any;
 declare var expHost: string;
-
+declare var sqlMode: boolean;
+declare var gXcalarRecordNum: string;
 /* ============== GLOBAL FUNCTIONS ============= */
+declare function getUnsortedTableName(tableName: string, otherTableName: string, txId: number, colsToIndex: string[]): XDPromise<string>;
 declare function XcalarGetTables(): XDPromise<any>;
 declare function XcalarGetTableMeta(tableName: string): XDPromise<any>;
+declare function XcalarDeleteTable(tableName: string, txId: number): XDPromise<void>;
+declare function XcalarFilter(fltStr: string, tableName: string, newTableName: string, txId: number): XDPromise<any>;
 declare function XcalarKeyLookup(key: string, scope: number): XDPromise<any>;
 declare function XcalarKeyPut(key: string, value: string, persist: boolean, scope: number): XDPromise<any>;
 declare function XcalarKeyAppend(key: string, value: string, persist: boolean, scope: number): XDPromise<any>;
 declare function XcalarKeyDelete(key: string, scope: number): XDPromise<any>;
 declare function XcalarSaveWorkbooks(wkbkName: string): XDPromise<void>;
+declare function XcalarListXdfs(fnNamePattern: string, categoryPattern: string): XDPromise<any>;
+declare function XcalarAggregate(evalStr: string, dstAggName: string, tableName: string, txId: number): XDPromise<string>;
+declare function XcalarLoad(dsName: string, options: object, txId: number): XDPromise<void>;
+declare function XcalarIndexFromDataset(dsName: string, indexCol: string, newTableName: string, prefix: string, txId: number): XDPromise<void>;
+declare function XcalarIndexFromTable(tableName: string, keyInfos: object[], newTableName: string, txId: number): XDPromise<any>
+declare function XcalarMap(colNames: string[], mapStrs: string[], tableName: string, newTableName: string, txId: number, doNotUnsort?: boolean, icvMode?: boolean): XDPromise<string>;
+declare function XcalarJoin(lTable: string, rTable: string, newTableName: string, joinType: number, lRename: ColRenameInfo[], rRename: ColRenameInfo[], joinOptions: object, txId: number): XDPromise<any>;
+declare function XcalarGroupByWithEvalStrings(newColNames: string[], evalStrs: string[], tableName: string, newTableName: string, incSample: boolean, icvMode: boolean, newKeyFieldName: string, groupAll: boolean, txId: number): XDPromise<any>;
+declare function XcalarGroupBy(operators: string[], newColNames: string[], aggColNames: string[], tableName: string, newTableName: string, incSample: boolean, icvMode: boolean, newKeyFieldName: string, groupAll: boolean, txId: number): XDPromise<any>;
+declare function XcalarUnion(tableNames: string[], newTableNmae: string, colInfos: object[], dedup: boolean, unionType: string, txId: number): XDPromise<any>;
+declare function XcalarProject(columns: string[], tableName: string, newTableName: string, txId: number): XDPromise<any>;
+declare function XcalarQueryWithCheck(queryName: string, queryStr: string, txId: number): XDPromise<any>;
+declare function XcalarExport(tableName: string, exportName: string, targetName: string, numCols: number, backColumns: string[], frontColumns: string[], keepOrder: boolean, options: ExportTableOptions, txId: number): XDPromise<void>;
+declare function XcalarGenRowNum(tableName: string, newTableName: string, newColName: string, txId: number): XDPromise<void>;
+declare function XcalarGetTableCount(tableName: string): XDPromise<number>;
+declare function XcalarMakeResultSetFromTable(tableName): XDPromise<any>;
+declare function XcalarFetchData(resultSetId: string, rowPosition: number, rowsToEach: number, totalRows: number, data: string[], tryCnt: number, maxNumRowsPerCall: number): XDPromise<string[]>;
+declare function XcalarSetFree(resultSetId: string): XDPromise<void>;
+declare function XcalarTargetCreate(targetType: string, targetName: string, targetParams: object[]): XDPromise<void>;
+declare function XcalarTargetDelete(targetName: string): XDPromise<void>;
 /* ============= THRIFT ENUMS ================= */
 declare enum DfFieldTypeT {
-    DfString = 1,
-    DfInt32 = 2,
-    DfInt64 = 4,
-    DfUInt32 = 3,
-    DfUInt64 = 5,
-    DfFloat32 = 6,
-    DfFloat64 = 7,
-    DfBoolean = 8,
-    DfUnknown = 0,
+    DfString,
+    DfInt32,
+    DfInt64,
+    DfUInt32,
+    DfUInt64,
+    DfFloat32,
+    DfFloat64,
+    DfBoolean,
+    DfUnknown,
+    DfFatptr,
 }
 
 declare enum XcalarApisT {
@@ -61,7 +180,27 @@ declare enum XcalarApisT {
 }
 
 declare enum StatusT {
-    StatusCanceled = 124
+    StatusCanceled,
+    StatusAlreadyIndexed,
+    StatusCannotReplaceKey
+}
+
+declare enum FunctionCategoryT {
+    FunctionCategoryAggregate
+}
+
+declare enum FunctionCategoryTStr {}
+
+declare enum CsvSchemaModeT {
+    CsvSchemaModeNoneProvided
+}
+
+declare var XcalarOrderingTStr: object;
+declare enum XcalarOrderingT {
+    XcalarOrderingUnordered,
+    XcalarOrderingInvalid,
+    XcalarOrderingAscending,
+    XcalarOrderingDescending
 }
 
 declare namespace XcalarApisConstantsT {
@@ -69,6 +208,15 @@ declare namespace XcalarApisConstantsT {
     export var XcalarApiMaxFieldNameLen: number;
 }
 
+declare enum JoinOperatorTStr {
+    LeftAntiSemiJoin = 'Left Anti Semi Join'
+}
+
+declare enum JoinOperatorT {
+    CrossJoin,
+    LeftOuterJoin,
+    InnerJoin,
+}
 /* ============= JSTSTR ==================== */
 declare namespace DSTStr {
     export var UnknownUser: string;
@@ -170,8 +318,16 @@ declare class ColFunc {
 }
 
 declare class ProgCol {
+    constructor(options: object);
     public type: string;
+    public name: string;
     public backName: string;
+    public width: number;
+    public sizedTo: string;
+    public immediate: boolean;
+    public prefix: string;
+    public userStr: string;
+    public func: ColFunc;
     public isDATACol(): boolean;
     public isEmptyCol(): boolean;
     public getFrontColName(includePrefix: boolean): string;
@@ -189,6 +345,12 @@ declare class TableMeta {
     public getAllCols(onlyValid?: boolean): ProgCol[]
     public getCol(colNum: number): ProgCol;
     public hasColWithBackName(colName: string): boolean;
+    public getKeys(): object[];
+    public getOrdering(): number;
+    public getIndexTable(colNames: string[]): TableIndexCache;
+    public removeIndexTable(colNames: string[]): void;
+    public setIndexTable(colNames: string[], newTableName: string, newKeys: string[]): void;
+    public getColNumByBackName(name: string): number;
 }
 
 declare class XcStorage {
@@ -251,7 +413,9 @@ declare namespace UserSettings {
 }
 
 declare namespace ColManager {
-    export function newCol(colInfo: object): object;
+    export function newCol(colInfo: object): ProgCol;
+    export function newDATACol(): ProgCol;
+    export function newPullCol(frontName: string, backName?: string, type?: ColumnType): ProgCol;
 }
 
 declare namespace Admin {
@@ -267,6 +431,9 @@ declare namespace PromiseHelper {
     export function deferred<T>(): XDDeferred<T>;
     export function reject<T>(...args): XDPromise<T>;
     export function resolve<T>(...args): XDPromise<T>;
+    export function alwaysResolve<T>(...args): XDPromise<T>;
+    export function when<T>(...args): XDPromise<T>;
+    export function chain<T>(...args): XDPromise<T>;
 }
 
 declare namespace Log {
@@ -293,25 +460,26 @@ declare namespace MonitorGraph {
 
 declare namespace TblFunc {
     export function moveTableTitles(): void;
-    export function focusTable(tableId: string): void;
+    export function focusTable(tableId: TableId): void;
     export function hideOffScreenTables(options: object): void;
     export function moveTableTitles($tableWraps: JQuery | null, options: object): void;
     export function unhideOffScreenTables(): void;
 }
 
 declare namespace TableList {
-    export function lockTable(tableId: string): void;
-    export function unlockTable(tableId: string): void;
+    export function lockTable(tableId: TableId): void;
+    export function unlockTable(tableId: TableId): void;
 }
 
 declare namespace TblManager {
     export function alignTableEls(): void;
     export function unHighlightCells(): void;
     export function restoreTableMeta(oldMeat: object): void;
+    export function setOrphanTableMeta(tableName: string, tableCols: ProgCol[]): void;
 }
 
 declare namespace TblMenu{
-    export function showDagAndTableOptions($menu: JQuery, tableId: string): void;
+    export function showDagAndTableOptions($menu: JQuery, tableId: string | number): void;
 }
 
 declare namespace TPrefix {
@@ -327,15 +495,15 @@ declare namespace MainMenu {
 }
 
 declare namespace WSManager {
-    export function lockTable(tableId: string): void;
-    export function unlockTable(tableId: string): void;
-    export function getWSFromTable(tableId: string): string;
+    export function lockTable(tableId: TableId): void;
+    export function unlockTable(tableId: TableId): void;
+    export function getWSFromTable(tableId: TableId): string;
     export function getActiveWS(): string;
     export function switchWS(wsId: string): void;
     export function indexOfWS(ws: string): number;
     export function getWSList(): string[];
     export function getNumOfWS(): number;
-    export function getTableRelativePosition(tableId: string): number;
+    export function getTableRelativePosition(tableId: TableId): number;
     export function getWorksheets(): object;
     export function getWSLists(isAll: boolean): string;
     export function getWSName(ws: string): string;
@@ -352,6 +520,7 @@ declare namespace WorkbookManager {
 
 declare namespace QueryManager{
     export function restore(oldMeta: object[]);
+    export function addIndexTable(txId: number, tableName: string): void;
 }
 
 declare namespace Log {
@@ -423,4 +592,14 @@ declare namespace UDF {
 
 declare namespace DSExport {
     export function refresh(): void;
+}
+
+declare namespace Transaction {
+    export function isSimulate(txId: number): boolean;
+    export function isEdit(txId: number): boolean;
+}
+
+declare namespace SQLApi {
+    export function getIndexTable(tableName: string, colNames: string[]): TableIndexCache;
+    export function cacheIndexTable(tableName: string, colNames: string[], newTableName: string, newKeys: string[]): void;
 }
