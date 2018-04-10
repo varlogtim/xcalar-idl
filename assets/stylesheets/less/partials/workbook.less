@@ -152,7 +152,7 @@
             margin-top: 2px;
             margin-left: 2px;
             box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
-            .flex-display;
+            //.flex-display;
             background-color: @color-white;
             .transition(0.7s transform);
             cursor: pointer;
@@ -166,23 +166,6 @@
         &.new, &.removing {
             .innerBox {
                 .transform(translateX(-110%));
-            }
-        }
-
-        &.finishedLoading {
-            .rightBar {
-                .tab {
-                    .transform(translateX(0%));
-                }
-            }
-        }
-
-        // keep tabs showing when box is sliding away to be removed
-        &.removing {
-            .rightBar {
-                .tab {
-                    .transform(translateX(0%));
-                }
             }
         }
 
@@ -338,6 +321,8 @@
         }
 
         .innerBox {
+            .flex-display;
+
             &:hover {
                 box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
                 cursor: default;
@@ -377,13 +362,22 @@
         .noSelection;
         cursor: default;
 
+        .innerBox {
+            .flex-direction(column);
+        }
         &.active {
             .innerBox {
                 background-color: @color-bg-select-blue;
                 color: @color-white;
-                .subHeading input, .info {
+
+                .subHeading {
+                    background-color: @color-bg-select-title-blue;
+                }
+
+                .info, .icon, input, .subHeading{
                     color: @color-white;
                 }
+
                 input {
                     background-color: transparent;
                     border-color: transparent;
@@ -396,10 +390,6 @@
                     &.error {
                         border: 1px solid @color-error-border;
                     }
-                }
-
-                .preview {
-                    color: @color-white;
                 }
             }
         }
@@ -422,7 +412,7 @@
                 display: block;
             }
 
-            .content, .rightBar {
+            .content, .rightBar, .subHeading {
                 display: none !important; // new workbook tiles have a
                 // display:block from .show() on the rightBar so we need to
                 // overwrite this
@@ -435,9 +425,9 @@
         }
 
         .content {
-            .flex(1 0 225px);
+            .flex(1 0 250px);
             .innerContent {
-                width: 225px;
+                width: 250px;
             }
         }
 
@@ -469,14 +459,17 @@
             position: relative;
             cursor: default;
             border: none;
-            left: -5px;
+            padding: 5px 70px 0 34px;
+            height: 45px;
+            background-color: @color-bg-white-three;
+            box-shadow: 0 1px 0 @color-border-white-two;
 
             .workbookName {
                 .size(@height: 30px);
                 .font(@size: 22px, @weight: 500, @color: @color-font-select-blue);
                 background-color: transparent;
                 padding: 0 5px 0 5px;
-                left: -5px;
+
                 border: 1px solid transparent;
 
                 &:focus {
@@ -495,12 +488,17 @@
             }
 
             .workbookName, .description {
-                .size(@width: ~"calc(100% - 25px)");
+                .size(@width: 100%);
             }
 
             .preview {
                 .size(20px, 20px);
-                .position(absolute, @top: 6px, @right: 0);
+                .position(absolute, @top: 12.5px, @right: 40px);
+                color: @color-bg-select-blue;
+            }
+            .dropDown {
+                .size(20px, 20px);
+                .position(absolute, @top: 12.5px, @right: 10px);
                 color: @color-bg-select-blue;
             }
         }
@@ -526,40 +524,6 @@
             float: left;
             color: @color-font-wkbkInfo-blue;
             .textOverflowOneLine;
-        }
-
-        .rightBar {
-            background-color: @color-bg-white-three;
-            overflow: hidden;
-            width: @tabHeight;
-        }
-
-        .vertBarBtn {
-            cursor: pointer;
-            height: 25%;
-
-            &:nth-child(1) {
-                .tab {
-                    .transition-delay(0.24s);
-                }
-                border-top-width: 0px;
-            }
-            &:nth-child(2) {
-                .tab {
-                    .transition-delay(0.18s);
-                }
-            }
-
-            &:nth-child(3) {
-                .tab {
-                    .transition-delay(0.12s);
-                }
-            }
-            &:nth-child(4) {
-                .tab {
-                    .transition-delay(0.06s);
-                }
-            }
         }
 
         .tab {
@@ -589,34 +553,6 @@
                 }
                 &.xi-duplicate {
                     font-size: 18px;
-                }
-            }
-        }
-
-        &:hover {
-            .vertBarBtn {
-                .tab {
-                    .transform(translateY(0%));
-                }
-                &:nth-child(1) {
-                    .tab {
-                        .transition-delay(0.06s);
-                    }
-                }
-                &:nth-child(2) {
-                    .tab {
-                        .transition-delay(0.12s);
-                    }
-                }
-                &:nth-child(3) {
-                    .tab {
-                        .transition-delay(0.18s);
-                    }
-                }
-                &:nth-child(4) {
-                    .tab {
-                        .transition-delay(0.24s);
-                    }
                 }
             }
         }

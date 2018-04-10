@@ -4,11 +4,16 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
     var $workbookSection; // $workbookPanel.find(".bottomSection")
     var $newWorkbookCard; // $workbookPanel.find(".newWorkbookBox")
     var $welcomeCard; // $workbookTopbar.find(".welcomeBox")
+    var $WKBKMenu; //$workbookPanel.find("#WKBKMenu")
     var sortkey = "modified"; // No longer user configurable
     var wasMonitorActive = false; // Track previous monitor panel state for when
                                   // workbook closes
     var newBoxSlideTime = 700;
     var $fileUpload;
+    var $dropDownCard;   //stores the most recently clicked parent of the dropDown Menu
+
+    var downloadingWKBKs;
+    var duplicatingWKBKs;
 
     WorkbookPanel.setup = function() {
         $workbookPanel = $("#workbookPanel");
@@ -17,6 +22,10 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         $newWorkbookCard = $workbookPanel.find(".newWorkbookBox");
         $welcomeCard = $workbookTopbar.find(".welcomeBox");
         $fileUpload = $("#WKBK_uploads");
+        $WKBKMenu = $workbookPanel.find("#WKBKMenu");
+        xcMenu.add($WKBKMenu);
+        downloadingWKBKs = [];
+        duplicatingWKBKs = [];
 
         addTopbarEvents();
         addWorkbookEvents();
@@ -298,55 +307,51 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         });
 
         // Events for the actual workbooks
-        // Play button
+        // anywhere on workbook card
         $workbookSection.on("click", ".activate", function(event) {
-            if ($(event.target).hasClass("preview") || $(event.target).hasClass("workbookName")) {
-                return;
-            }
-
             activateWorkbook($(this).closest(".workbookBox"));
         });
 
         // Edit button
-        $workbookSection.on("click", ".modify", function() {
-            var $workbookBox = $(this).closest(".workbookBox");
-            var workbookId = $workbookBox.attr("data-workbook-id");
+        $WKBKMenu.on("click", ".modify", function() {
+            var workbookId = $dropDownCard.attr("data-workbook-id");
             WorkbookInfoModal.show(workbookId);
         });
 
         //Download Button
-        $workbookSection.on("click", ".download", function() {
-            var $workbookBox = $(this).closest(".workbookBox");
-            var workbookId = $workbookBox.attr("data-workbook-id");
+        $WKBKMenu.on("click", ".download", function() {
+            var workbookId = $dropDownCard.attr("data-workbook-id");
             var workbook = WorkbookManager.getWorkbook(workbookId);
             var workbookName = workbook.getName();
-            var $dlButton = $(this);
 
-            $dlButton.addClass("inActive");
+            //$dlButton.addClass("inActive");
+            downloadingWKBKs.push(workbookName);
 
             WorkbookManager.downloadWKBK(workbookName)
             .fail(function(err) {
-                StatusBox.show(err.error, $dlButton);
+                StatusBox.show(err.error, $dropDownCard);
             })
             .always(function() {
-                $dlButton.removeClass("inActive");
+                var index = downloadingWKBKs.indexOf(workbookName);
+                if (index !== -1) {
+                    downloadingWKBKs.splice(index, 1);
+                }
             });
         });
 
         // Duplicate button
-        $workbookSection.on("click", ".duplicate", function() {
-            var $workbookBox = $(this).closest(".workbookBox");
-            var workbookId = $workbookBox.attr("data-workbook-id");
+        $WKBKMenu.on("click", ".duplicate", function() {
+            var workbookId = $dropDownCard.attr("data-workbook-id");
             // Create workbook names in a loop until we find a workbook name
             // that we can use
-            var currentWorkbookName = $workbookBox.find(".workbookName").val();
+            var $dropDownMenu = $dropDownCard.find(".dropDown");
+            var currentWorkbookName = $dropDownCard.find(".workbookName").val();
             var currentWorkbooks = WorkbookManager.getWorkbooks();
             currentWorkbookName = wbDuplicateName(currentWorkbookName, currentWorkbooks, 0);
 
-            var $dupButton = $workbookBox.find(".duplicate");
-            $dupButton.addClass("inActive");
+            duplicatingWKBKs.push(currentWorkbookName);
 
-            var deferred1 = createLoadingCard($workbookBox);
+            var deferred1 = createLoadingCard($dropDownCard);
             var deferred2 = WorkbookManager.copyWKBK(workbookId,
                                                     currentWorkbookName);
 
@@ -355,42 +360,63 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                 replaceLoadingCard($fauxCard, newId);
             })
             .fail(function($fauxCard, error) {
-                handleError(error, $dupButton);
+                handleError(error, $dropDownMenu);
                 removeWorkbookBox($fauxCard);
             })
             .always(function() {
-                $dupButton.removeClass("inActive");
+                var index = duplicatingWKBKs.indexOf(currentWorkbookName);
+                if (index !== -1) {
+                    duplicatingWKBKs.splice(index, 1);
+                }
             });
         });
 
         // Delete button
-        $workbookSection.on("click", ".delete", function() {
-            var $workbookBox = $(this).closest(".workbookBox");
+        $WKBKMenu.on("click", ".delete", function() {
             Alert.show({
                 "title": WKBKTStr.Delete,
                 "msg": WKBKTStr.DeleteMsg,
                 "onConfirm": function() {
-                    deleteWorkbookHelper($workbookBox);
+                    deleteWorkbookHelper($dropDownCard);
                 }
             });
         });
 
         // deactivate button
-        $workbookSection.on("click", ".deactivate", function() {
-            var $workbookBox = $(this).closest(".workbookBox");
+        $WKBKMenu.on("click", ".deactivate", function() {
             Alert.show({
                 "title": WKBKTStr.Deactivate,
                 "msg": WKBKTStr.DeactivateMsg,
                 "onConfirm": function() {
-                    deactiveWorkbook($workbookBox);
+                    deactiveWorkbook($dropDownCard);
                 }
             });
+        });
+
+        $WKBKMenu.on("click", ".newTab", function() {
+            activateWorkbook($dropDownCard, true)
         });
 
         $workbookSection.on("click", ".preview", function() {
             var $workbookBox = $(this).closest(".workbookBox");
             var workbookId = $workbookBox.attr("data-workbook-id");
             WorkbookPreview.show(workbookId);
+        });
+
+        $workbookSection.on("contextmenu", ".workbookBox", function(event) {
+            if ($(event.target).hasClass("workbookName")) {
+                return;
+            }
+            event.preventDefault();
+            $dropDownCard = $(this);
+
+            openDrodDown();
+        });
+
+        $workbookSection.on("click", ".dropDown", function() {
+            $dropDownCard = $(this).closest(".workbookBox");
+
+            openDrodDown();
         });
 
         $workbookSection.on("mouseenter", ".tooltipOverflow", function() {
@@ -519,25 +545,39 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         return $workbookBox;
     }
 
-    function activateWorkbook($workbookBox) {
+    function activateWorkbook($workbookBox, newTab) {
         var workbookId = $workbookBox.attr("data-workbook-id");
         var activeWKBKId = WorkbookManager.getActiveWKBK();
-        if (activeWKBKId === workbookId) {
-            WorkbookPanel.hide();
-        } else {
-            alertActivate()
-            .then(function() {
-                WorkbookManager.switchWKBK(workbookId)
-                .fail(function(error) {
-                    handleError(error, $workbookBox);
-                    // has chance that inactivate the fromWorkbook
-                    // but fail to activate the toWorkbook
-                    if (WorkbookManager.getActiveWKBK() == null
-                        && activeWKBKId != null) {
-                        var $activeWKBK = getWorkbookBoxById(activeWKBKId);
-                        updateWorkbookInfoWithReplace($activeWKBK, activeWKBKId);
-                    }
+        if (!newTab) {
+            if (activeWKBKId === workbookId) {
+                WorkbookPanel.hide();
+            } else {
+                alertActivate()
+                .then(function() {
+                    WorkbookManager.switchWKBK(workbookId)
+                    .fail(function(error) {
+                        handleError(error, $workbookBox);
+                        // has chance that inactivate the fromWorkbook
+                        // but fail to activate the toWorkbook
+                        if (WorkbookManager.getActiveWKBK() == null
+                            && activeWKBKId != null) {
+                            var $activeWKBK = getWorkbookBoxById(activeWKBKId);
+                            updateWorkbookInfoWithReplace($activeWKBK, activeWKBKId);
+                        }
+                    });
                 });
+            }
+        } else {
+            WorkbookManager.switchTabWKBK(workbookId, $workbookBox)
+            .fail(function(error) {
+                handleError(error, $workbookBox);
+                // has chance that inactivate the fromWorkbook
+                // but fail to activate the toWorkbook
+                if (WorkbookManager.getActiveWKBK() == null
+                    && activeWKBKId != null) {
+                    var $activeWKBK = getWorkbookBoxById(activeWKBKId);
+                    updateWorkbookInfoWithReplace($activeWKBK, activeWKBKId);
+                }
             });
         }
     }
@@ -723,25 +763,30 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                             '</div>' +
                         '</div>' +
                     '</div>' +
+                    '<div class="subHeading tooltipOverflow" ' +
+                    ' data-toggle="tooltip" data-container="body"' +
+                    ' data-original-title="' + workbookName + '">' +
+                        '<input type="text" class="workbookName ' +
+                        'tooltipOverflow"' +
+                        ' value="' + workbookName + '"' +
+                        ' spellcheck="false"/>' +
+                        '<i class="preview icon xi-show xc-action" ' +
+                        ' data-toggle="tooltip" data-container="body"' +
+                        ' data-placement="top"' +
+                        ' data-title="' + CommonTxtTstr.Preview + '"' +
+                        '></i>' +
+                        '<i class="dropDown icon xi-ellipsis-h xc-action" ' +
+                        ' data-toggle="tooltip" data-container="body"' +
+                        ' data-placement="top"' +
+                        ' data-title="' + WKBKTStr.MoreActions + '"' +
+                        '></i>' +
+                    '</div>' +
                     '<div class="content activate">' +
                         '<div class="innerContent">' +
-                            '<div class="subHeading tooltipOverflow" ' +
-                            ' data-toggle="tooltip" data-container="body"' +
-                            ' data-original-title="' + workbookName + '">' +
-                                '<input type="text" class="workbookName ' +
-                                'tooltipOverflow"' +
-                                ' value="' + workbookName + '"' +
-                                ' spellcheck="false"/>' +
+                            '<div class="infoSection topInfo">' +
                                 '<div class="description textOverflowOneLine">' +
                                     xcHelper.escapeHTMLSpecialChar(description) +
                                 '</div>' +
-                                '<i class="preview icon xi-show xc-action" ' +
-                                ' data-toggle="tooltip" data-container="body"' +
-                                ' data-placement="top"' +
-                                ' data-title="' + CommonTxtTstr.Preview + '"' +
-                                '></i>' +
-                            '</div>' +
-                            '<div class="infoSection topInfo">' +
                                 '<div class="row clearfix">' +
                                     '<div class="label">' +
                                         TimeTStr.Created + ':' +
@@ -780,27 +825,6 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                                 '</div>' +
                             '</div>' +
                         '</div>' +
-                    '</div>' +
-                    '<div class="rightBar vertBar">' +
-                        '<div class="vertBarBtn modify"><div class="tab btn btn-small"' +
-                        ' data-toggle="tooltip" data-container="body"' +
-                        ' data-placement="auto right"' +
-                        ' title="' + WKBKTStr.EditName + '">' +
-                            '<i class="icon xi-edit"></i>' +
-                        '</div></div>' +
-                        '<div class="vertBarBtn download"><div class="tab btn btn-small"' +
-                        ' data-toggle="tooltip" data-container="body"' +
-                        ' data-placement="auto right"' +
-                        ' title="' + WKBKTStr.Download + '">' +
-                            '<i class="icon xi-download"></i>' +
-                        '</div></div>' +
-                        '<div class="vertBarBtn duplicate"><div class="tab btn btn-small"' +
-                        ' data-toggle="tooltip" data-container="body" ' +
-                        ' data-placement="auto right"' +
-                        ' title="' + WKBKTStr.Duplicate + '">' +
-                            '<i class="icon xi-duplicate"></i>' +
-                        '</div></div>' +
-                        stopTab +
                     '</div>' +
                 '</div>' +
             '</div>';
@@ -897,6 +921,48 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         }
 
         return objs;
+    }
+
+    function openDrodDown() {
+        if ($dropDownCard.hasClass("loading")) {
+            return;
+        }
+
+        var workbookId = $dropDownCard.attr("data-workbook-id");
+        var workbook = WorkbookManager.getWorkbook(workbookId);
+        var workbookName = workbook.getName();
+
+        var $dropDownLocation = $dropDownCard.find(".dropDown");
+
+        var index = downloadingWKBKs.indexOf(workbookName);
+        if (index !== -1) {
+            $WKBKMenu.find(".download").addClass("inActive");
+        } else {
+            $WKBKMenu.find(".download").removeClass("inActive");
+        }
+
+        index = duplicatingWKBKs.indexOf(workbookName);
+        if (index !== -1) {
+            $WKBKMenu.find(".duplicate").addClass("inActive");
+        } else {
+            $WKBKMenu.find(".duplicate").removeClass("inActive");
+        }
+
+        if ($dropDownCard.hasClass("active")) {
+            $WKBKMenu.find(".delete").addClass("xc-hidden");
+            $WKBKMenu.find(".deactivate").removeClass("xc-hidden");
+
+            if (workbookId === WorkbookManager.getActiveWKBK()) {
+                $WKBKMenu.find(".newTab").addClass("inActive");
+            } else {
+                $WKBKMenu.find(".newTab").removeClass("inActive");
+            }
+        } else {
+            $WKBKMenu.find(".deactivate").addClass("xc-hidden");
+            $WKBKMenu.find(".delete").removeClass("xc-hidden");
+            $WKBKMenu.find(".newTab").removeClass("inActive");
+        }
+        xcHelper.dropdownOpen($dropDownLocation, $WKBKMenu);
     }
 
     function setupDragDrop() {

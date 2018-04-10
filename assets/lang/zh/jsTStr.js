@@ -660,7 +660,8 @@ WKBKTStr = {
 'Deactivate': '停用工作簿',
 'DeactivateMsg': '您确定要停用工作簿吗？',
 'DeactivateErr': '停用工作簿时出错',
-'Refreshing': '在 <time> 秒后刷新'
+'Refreshing': '在 <time> 秒后刷新',
+'MoreActions': 'More Actions'
 };
 
 MonitorTStr = {

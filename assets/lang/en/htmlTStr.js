@@ -305,6 +305,12 @@ module.exports = {
         "RegexContains": "regex(contains): ",
         "GlobMatch": "glob(match): ",
         "GlobContains": "glob(contains): ",
+        "NewTab": "Open workbook in new tab",
+        "EditName": "Edit Description",
+        "Download": "Download Workbook",
+        "Duplicate": "Duplicate Workbook",
+        "Delete": "Delete Workbook",
+        "Deactivate": "Deactivate Workbook"
     },
 
     "TooltipTStr": {

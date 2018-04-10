@@ -144,6 +144,12 @@ module.exports = {
         "RegexContains": "正则(包含): ",
         "GlobMatch": "glob(匹配): ",
         "GlobContains": "glob(包含): ",
+        "NewTab": "Open workbook in new tab",
+        "EditName": "Edit Description",
+        "Download": "Download Workbook",
+        "Duplicate": "Duplicate Workbook",
+        "Delete": "Delete Workbook",
+        "Deactivate": "Deactivate Workbook"
     },
     "TooltipTStr": {
         "AllQueries": "显示所有操作",

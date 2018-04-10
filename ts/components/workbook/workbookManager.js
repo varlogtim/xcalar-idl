@@ -118,7 +118,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return true;
     }
 
-    function setURL(workbookId, replace) {
+    function setURL(workbookId, replace, newTab) {
         try {
             var curHref = window.location.href;
             var url = new URL(window.location.href);
@@ -128,6 +128,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 url.searchParams.set("workbook", workbookName);
             } else {
                 url.searchParams.delete("workbook");
+            }
+
+            if (newTab) {
+                var win = window.open(url, '_blank');
+                win.focus();
             }
 
             if (!curHref.endsWith(url.href)) {
@@ -185,6 +190,49 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         return deferred.promise();
     };
+
+    //open workbook in new tab
+    WorkbookManager.switchTabWKBK = function(wkbkId, $workbookBox) {
+        // validation
+
+        var toWkbk = wkbkSet.get(wkbkId);
+        if (toWkbk == null) {
+            return PromiseHelper.reject({
+                "error": "Invalid workbook Id"
+            });
+        }
+
+        var deferred = PromiseHelper.deferred();
+
+        if ($workbookBox.hasClass("active")) {
+            setURL(wkbkId, false, true);
+            deferred.resolve();
+            return deferred.promise();
+        }
+
+        XcSupport.stopHeartbeatCheck();
+        $workbookBox.addClass("loading");
+        
+        var toWkbkName = toWkbk.getName();
+        switchWorkBookHelper(toWkbkName)
+        .then(function() {
+            setURL(wkbkId, false, true);
+            $workbookBox.addClass("active");
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            console.error("Switch Workbook Fails", error);
+            error = error || {error: "Error occurred while switching workbooks"};
+            endProgressCycle();
+            deferred.reject(error);
+        })
+        .always(function() {
+            XcSupport.restartHeartbeatCheck();
+            $workbookBox.removeClass("loading");
+        });
+
+        return deferred.promise();
+    }
 
     // switch to another workbook
     WorkbookManager.switchWKBK = function(wkbkId) {

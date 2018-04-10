@@ -814,7 +814,8 @@ WKBKTStr = {
     'Deactivate': 'Deactivate Workbook',
     'DeactivateMsg': 'Are you sure you want to deactivate the workbook?',
     'DeactivateErr': 'Error occurred when deactivating workbook',
-    'Refreshing': 'Refreshing in <time> seconds'
+    'Refreshing': 'Refreshing in <time> seconds',
+    'MoreActions': 'More Actions'
 };
 
 MonitorTStr = {
