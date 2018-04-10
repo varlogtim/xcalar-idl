@@ -696,16 +696,55 @@
             var operators = [];
             var newColNames = [];
             var aggColNames = [];
+            var evalStrs = [];
+            var hasMultiOperation = false;
 
             gbArgs.forEach(function(gbArg) {
+                if (gbArg.operator === "var" || gbArg.operator === "stdev"
+                || gbArg.operator === "varp" || gbArg.operator === "stdevp") {
+                    hasMultiOperation = true;
+                }
                 operators.push(gbArg.operator);
                 newColNames.push(gbArg.newColName);
                 aggColNames.push(gbArg.aggColName);
+                var op = gbArg.operator.slice(0, 1).toLowerCase()
+                         + gbArg.operator.slice(1);
+                // XXX currently don't support Multi-operation in multi-evalgroupBy
+                if (op === "stdevp") {
+                    evalStrs.push("sqrt(div(sum(pow(sub(" + gbArg.aggColName
+                            + ", avg(" + gbArg.aggColName + ")), 2)), count("
+                            + gbArg.aggColName + ")))");
+                } else if (op === "stdev") {
+                    evalStrs.push("sqrt(div(sum(pow(sub(" + gbArg.aggColName
+                            + ", avg(" + gbArg.aggColName + ")), 2)), sub(count("
+                            + gbArg.aggColName + "), 1)))");
+                } else if (op === "varp") {
+                    evalStrs.push("div(sum(pow(sub(" + gbArg.aggColName
+                    + ", avg(" + gbArg.aggColName + ")), 2)), count("
+                    + gbArg.aggColName + "))");
+                } else if (op === "var") {
+                    evalStrs.push("div(sum(pow(sub(" + gbArg.aggColName
+                            + ", avg(" + gbArg.aggColName + ")), 2)), sub(count("
+                            + gbArg.aggColName + "), 1))");
+                } else {
+                    evalStrs.push(op + "(" + gbArg.aggColName + ")");
+                }
+                if (evalStrs[evalStrs.length - 1].length >
+                        XcalarApisConstantsT.XcalarApiMaxEvalStringLen) {
+                    return PromiseHelper.reject("Eval string too long");
+                }
             });
 
-            return XcalarGroupBy(operators, newColNames, aggColNames,
-                                indexedTable, gbTableName, isIncSample,
-                                icvMode, newKeyFieldName, false, txId);
+            // I keep the if else here but actually we can use XGWithEStr anyway
+            if (hasMultiOperation) {
+                return XcalarGroupByWithEvalStrings(newColNames, evalStrs,
+                    indexedTable, gbTableName, isIncSample,
+                    icvMode, newKeyFieldName, false, txId)
+            } else {
+                return XcalarGroupBy(operators, newColNames, aggColNames,
+                    indexedTable, gbTableName, isIncSample,
+                    icvMode, newKeyFieldName, false, txId);
+            }
         })
         .then(function() {
             return getFinalGroupByCols(tableName, finalTableName, groupByCols,

@@ -159,6 +159,10 @@
         "expressions.aggregate.Max": "max",
         "expressions.aggregate.Min": "min",
         "expressions.aggregate.Average": "avg",
+        "expressions.aggregate.StddevPop": "stdevp",
+        "expressions.aggregate.StddevSamp": "stdev",
+        "expressions.aggregate.VariancePop": "varp",
+        "expressions.aggregate.VarianceSamp": "var",
         "expressions.aggregate.CentralMomentAgg": null,
         "expressions.aggregate.Corr": null,
         "expressions.aggregate.CountMinSketchAgg": null,
@@ -1307,12 +1311,30 @@
 
         _pushDownSort: function(node) {
             var self = this;
+            var deferred = PromiseHelper.deferred();
+            var sortCli = "";
             assert(node.children.length === 1);
             var options = {renamedCols: node.renamedCols};
             var sortColsAndOrder = __genSortStruct(node.value.order, options);
             var tableName = node.children[0].newTableName;
-
-            return self.sqlObj.sort(sortColsAndOrder, tableName);
+            options.maps.forEach(function(tempColInfo) {
+                node.xcCols.push({colName: tempColInfo.colName});
+            })
+            var newRenames = __resolveCollision([],node.usrCols
+                             .concat(node.xcCols).concat(node.sparkCols), [],
+                             [], "", tableName);
+            node.renamedCols = __combineRenameMaps([node.renamedCols,
+                                                      newRenames]);
+            __handleSortMap(self, options.maps, tableName)
+            .then(function(ret) {
+                sortCli += ret.cli;
+                return self.sqlObj.sort(sortColsAndOrder, ret.newTableName);
+            })
+            .then(function(ret) {
+                ret.cli = sortCli + ret.cli;
+                deferred.resolve(ret);
+            })
+            return deferred.promise();
         },
 
         _pushDownXcAggregate: function(node) {
@@ -2013,7 +2035,7 @@
             // If no partition specified, need to add a temp column to group by
             if (loopStruct.groupByCols.length === 0) {
                 var gbTempColName = "XC_GB_COL_" + Authentication.getHashId()
-                                                                 .substring(3);
+                                                                 .substring(1);
                 loopStruct.dummyGbColStruct = {colName: gbTempColName};
                 node.xcCols.push({colName: gbTempColName});
                 curPromise = curPromise.then(function(ret){
@@ -2642,9 +2664,35 @@
     }
     // End of helper functions for join
 
+    function __getColType(node) {
+        // There are some exceptions in expressions like b in substr(a,b,c)
+        if (node.value.class ===
+            "org.apache.spark.sql.catalyst.expressions.AttributeReference" ||
+            node.value.class ===
+            "org.apache.spark.sql.catalyst.expressions.Cast" ||
+            node.value.class ===
+            "org.apache.spark.sql.catalyst.expressions.Literal") {
+                return node.value.dataType;
+        }
+        var left = 0;
+        if (node.value.class ===
+            "org.apache.spark.sql.catalyst.expressions.CaseWhen" ||
+            node.value.class ===
+            "org.apache.spark.sql.catalyst.expressions.If") {
+                left = 1;
+        }
+        for (var i = left; i < node.children.length; i++) {
+            if (__getColType(node.children[i])) {
+                return __getColType(node.children[i]);
+            }
+        }
+        assert(0, "undefined leaf type in expression");
+    }
+
     function __genSortStruct(orderArray, options) {
         var sortColsAndOrder = [];
         var colNameSet = new Set();
+        options.maps = [];
         for (var i = 0; i < orderArray.length; i++) {
             var order = orderArray[i][0].direction.object;
             assert(orderArray[i][0].class ===
@@ -2658,16 +2706,28 @@
                 console.error("Unexpected sort order");
                 assert(0);
             }
-            assert(orderArray[i][1].class ===
-        "org.apache.spark.sql.catalyst.expressions.AttributeReference");
-            var colName = cleanseColName(orderArray[i][1].name);
-            var id = orderArray[i][1].exprId.id;
-            if (options && options.renamedCols &&
-                options.renamedCols[id]) {
-                colName = options.renamedCols[id];
+            var colName, type;
+            if (orderArray[i][1].class ===
+                "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
+                colName = cleanseColName(orderArray[i][1].name);
+                var id = orderArray[i][1].exprId.id;
+                if (options && options.renamedCols &&
+                    options.renamedCols[id]) {
+                    colName = options.renamedCols[id];
+                }
+                type = orderArray[i][1].dataType;
+            } else {
+                // Here don't check duplicate expressions, need optimization
+                colName = "XC_SORT_COL_" + i + "_"
+                        + Authentication.getHashId().substring(1) + "_"
+                        + xcHelper.getTableId(options.tableName);
+                var orderNode = SQLCompiler.genExpressionTree(undefined,
+                                                        orderArray[i].slice(1));
+                type = __getColType(orderNode);
+                var mapStr = genEvalStringRecur(orderNode, undefined, options);
+                options.maps.push({colName: colName, mapStr: mapStr});
             }
 
-            var type = orderArray[i][1].dataType;
             switch (type) {
                 case ("integer"):
                 case ("boolean"):
@@ -2696,6 +2756,23 @@
             }
         }
         return sortColsAndOrder;
+    }
+
+    function __handleSortMap(self, maps, tableName) {
+        var deferred = PromiseHelper.deferred();
+        if(maps.length === 0) {
+            deferred.resolve({newTableName: tableName, cli: ""});
+        } else {
+            self.sqlObj.map(maps.map(function(item) {
+                                    return item.mapStr;
+                                }), tableName, maps.map(function(item) {
+                                    return item.colName;
+                                }))
+            .then(function(ret) {
+                deferred.resolve({newTableName: ret.newTableName, cli: ret.cli});
+            });
+        }
+        return deferred.promise();
     }
 
     // XXX Need to remove duplicate?
@@ -2767,11 +2844,11 @@
         windowStruct.cli += ret.cli;
         windowStruct.gbTableName  = "XC_GB_Table"
                     + xcHelper.getTableId(windowStruct.origTableName) + "_"
-                    + Authentication.getHashId().substring(3);
+                    + Authentication.getHashId().substring(1);
         if (!windowStruct.tempGBCol) {
             windowStruct.tempGBCol = "XC_" + operator.toUpperCase() + "_"
                     + xcHelper.getTableId(windowStruct.origTableName) + "_"
-                    + Authentication.getHashId().substring(3);
+                    + Authentication.getHashId().substring(1);
         }
         // If the new column will be added to usrCols later
         // don't add it to gbColInfo (will later concat to xcCols) here
