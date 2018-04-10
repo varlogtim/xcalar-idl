@@ -618,38 +618,35 @@ window.TblManager = (function($, TblManager) {
             });
         }
 
-        var defArray = [];
         var tableNames = [];
+        var def;
 
+        //Calls deletes in these heper functions
         if (tableType === TableType.Orphan) {
             // delete orphaned
-            tables.forEach(function(tableName) {
-                tableNames.push(tableName);
-                var def = delOrphanedHelper(tableName, txId);
-                defArray.push(def);
-            });
+            def = delOrphanedHelper(tables, txId);
+            tableNames = tables;
         } else if (tableType === TableType.Undone) {
             tables.forEach(function(tableId) {
                 tableNames.push(gTables[tableId].getName());
-                var def = delUndoneTableHelper(tableId);
-                defArray.push(def);
             });
+            def = delUndoneTableHelper(tables, txId);
         } else {
             tables.forEach(function(tableId) {
                 tableNames.push(gTables[tableId].getName());
-                var def = delTableHelper(tableId, tableType, txId);
-                defArray.push(def);
             });
+            def = delActiveTableHelper(tables, tableType, txId);
             if (options.lockedToTemp) {
                 noDeleteTables.forEach(function(tableId) {
-                    defArray.push(TblManager.sendTableToOrphaned(tableId,
-                        {remove: true, noFocusWS: true, force: true}));
+                    TblManager.sendTableToOrphaned(tableId,
+                        {remove: true, noFocusWS: true, force: true});
                 });
             }
         }
 
-        PromiseHelper.when.apply(window, defArray)
+        def
         .then(function() {
+            // resolves if all tables passed
             if (noDeleteTables.length && !options.lockedToTemp) {
                 rejectHandler(tableNames);
             } else {
@@ -666,6 +663,7 @@ window.TblManager = (function($, TblManager) {
             }
         })
         .fail(function() {
+            // fails if at least 1 table failed
             rejectHandler(arguments);
         });
 
@@ -3279,19 +3277,68 @@ window.TblManager = (function($, TblManager) {
     }
 
     // for deleting active tables
-    function delTableHelper(tableId, tableType, txId) {
+    function delActiveTableHelper(tables, tableType, txId) {
         var deferred = PromiseHelper.deferred();
 
-        var table = gTables[tableId];
-        var tableName = table.getName();
-        xcHelper.lockTable(tableId);
+        var defArray = [];
+        var tableJSON = [];
+        var names = [];
 
+        tables.forEach(function(tableId) {
+            var table = gTables[tableId];
+            var tableName = table.getName();
+            names.push(tableName);
+            xcHelper.lockTable(tableId);
+
+            var query = {
+                "operation": "XcalarApiDeleteObjects",
+                "args": {
+                    "namePattern": tableName,
+                    "srcType": "Table"
+                }
+            };
+            tableJSON.push(query);
+
+            var def = table.freeResultset();
+            defArray.push(def);
+        });
         // Free the result set pointer that is still pointing to it
-        table.freeResultset()
+
+        PromiseHelper.when.apply(window, defArray)
         .then(function() {
-            return XIApi.deleteTable(txId, tableName);
+            return XIApi.deleteTables(tableJSON, txId);
         })
         .then(function() {
+            tables.forEach(function(tableId) {
+                resolveTable(tableId);
+            });
+
+            TblManager.alignTableEls();
+            // disallow dragging if only 1 table in worksheet
+            TblFunc.checkTableDraggable();
+
+            deferred.resolve.apply(this, arguments);
+        })
+        .fail(function() {
+            var res = arguments;
+            for (var i = 0; i < res.length; i++) {
+                var tableId = tables[i];
+                if (res[i] == null) {
+                    resolveTable(tableId);
+                } else {
+                    xcHelper.unlockTable(tableId);
+                }
+            }
+            TblManager.alignTableEls();
+            // disallow dragging if only 1 table in worksheet
+            TblFunc.checkTableDraggable();
+
+            deferred.reject.apply(this, arguments);
+        });
+
+        function resolveTable(tableId) {
+            var table = gTables[tableId];
+            var tableName = table.getName();
             Dag.makeInactive(tableId);
             removeTableDisplay(tableId);
             TableList.removeTable(tableId, TableType.Active);
@@ -3302,57 +3349,92 @@ window.TblManager = (function($, TblManager) {
             if ($('.xcTableWrap:not(.inActive)').length === 0) {
                 RowScroller.empty();
             }
-
-            TblManager.alignTableEls();
-            // disallow dragging if only 1 table in worksheet
-            TblFunc.checkTableDraggable();
-
             removeTableMeta(tableName);
             xcHelper.unlockTable(tableId);
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            xcHelper.unlockTable(tableId);
-            deferred.reject(error);
-        });
+        }
 
         return deferred.promise();
     }
 
-    function delOrphanedHelper(tableName, txId) {
+    function delOrphanedHelper(tables, txId) {
         var deferred = PromiseHelper.deferred();
+        var names = [];
 
-        XIApi.deleteTable(txId, tableName)
+        var tableJSON = [];
+        tables.forEach(function(tableName) {
+            //XXX Placeholder replace strings with constants
+            var query = {
+                "operation": "XcalarApiDeleteObjects",
+                "args": {
+                    "namePattern": tableName,
+                    "srcType": "Table"
+                }
+            };
+            tableJSON.push(query);
+            names.push(tableName);
+        });
+        XIApi.deleteTables(tableJSON, txId)
         .then(function() {
-            var tableIndex = gOrphanTables.indexOf(tableName);
-            gOrphanTables.splice(tableIndex, 1);
-            Dag.makeInactive(tableName, true);
-            TableList.removeTable(tableName, TableType.Orphan);
-
-            removeTableMeta(tableName);
-            deferred.resolve();
+            resolve(arguments);
+            deferred.resolve.apply(this, arguments);
         })
-        .fail(deferred.reject);
+        .fail(function() {
+            resolve(arguments);
+            deferred.reject.apply(this, arguments);
+        });
 
+        function resolve(res) {
+            for (var i = 0; i < res.length; i++) {
+                var tableName = names[i];
+                if (res[i] == null) {
+                    var tableIndex = gOrphanTables.indexOf(tableName);
+                    gOrphanTables.splice(tableIndex, 1);
+                    Dag.makeInactive(tableName, true);
+                    TableList.removeTable(tableName, TableType.Orphan);
+                    removeTableMeta(tableName);
+                }
+            }
+        }
         return (deferred.promise());
     }
 
-    function delUndoneTableHelper(tableId) {
+    function delUndoneTableHelper(tables, txId) {
         var deferred = PromiseHelper.deferred();
-        var table = gTables[tableId];
-        var tableName = table.getName();
+        var names = [];
 
-        XcalarDeleteTable(tableName)
+        var tableJSON = [];
+        tables.forEach(function(tableId) {
+            var table = gTables[tableId];
+            var tableName = table.getName();
+            var query = {
+                "operation": "XcalarApiDeleteObjects",
+                "args": {
+                    "namePattern": tableName,
+                    "srcType": "Table"
+                }
+            };
+            tableJSON.push(query);
+            names.push(tableName);
+        });
+
+        XIApi.deleteTables(tableJSON, txId)
         .then(function() {
-            TableList.removeTable(tableName, TableType.Orphan);
-            removeTableMeta(tableName);
-            deferred.resolve();
+            names.forEach(function(tableName) {
+                TableList.removeTable(tableName, TableType.Orphan);
+                removeTableMeta(tableName);
+            });
+            deferred.resolve.apply(this, arguments);
         })
         .fail(function() {
-            // remove the table from our records regardless
-            // it will just go in the temp table list anyways
-            removeTableMeta(tableName);
-            deferred.reject();
+            var res = arguments;
+            for (var i = 0; i < res.length; i++) {
+                var tableName = names[i];
+                if (res[i] == null) {
+                    TableList.removeTable(tableName, TableType.Orphan);
+                }
+                removeTableMeta(tableName);
+            }
+            deferred.reject.apply(this, arguments);
         });
 
         return (deferred.promise());

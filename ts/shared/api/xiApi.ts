@@ -2604,6 +2604,61 @@ namespace XIApi {
         return deferred.promise();
     }
 
+    // if at least 1 table fails, will reject
+    /**
+     * XIApi.deleteTables
+     * @param arrayOfQueries
+     * @param txId
+     */
+    export function deleteTables(
+        arrayOfQueries: object[],
+        txId: number
+    ): XDPromise<any> {
+        if (txId == null || arrayOfQueries == null) {
+            return PromiseHelper.reject("Invalid args in delete table");
+        }
+        var queryName = xcHelper.randName("sql");
+        var deferred = PromiseHelper.deferred();
+        XcalarQueryWithCheck(queryName, JSON.stringify(arrayOfQueries), txId, false)
+        .then(function(res) {
+            var nodes = res.queryGraph.node;
+            var results = [];
+            var hasError = false;
+            // results come back in random order so we create a map of names
+            var resMap = {};
+            for (var i = 0; i < nodes.length; i++) {
+                var node = nodes[i];
+                node.input.deleteDagNodeInput.namePattern;
+                resMap[node.input.deleteDagNodeInput.namePattern] = node.state;
+            }
+
+            for (var i = 0; i < arrayOfQueries.length; i++) {
+                var tableName = arrayOfQueries[i].args.namePattern;
+                if (resMap[tableName] === DgDagStateT.DgDagStateReady ||
+                    resMap[tableName] === DgDagStateT.DgDagStateDropped) {
+                        results.push(null);
+                } else {
+                    hasError = true;
+                    results.push({error: DgDagStateTStr[resMap[tableName]]});
+                }
+            }
+
+            if (hasError) {
+                deferred.reject.apply(this, results);
+            } else {
+                deferred.resolve.apply(this, results);
+            }
+        })
+        .fail(function(error) {
+            var results = [];
+            for (var i = 0; i < arrayOfQueries.length; i++) {
+                results.push({error: DgDagStateTStr[DgDagStateT.DgDagStateError]});
+            }
+            deferred.reject.apply(this, results);
+        });
+        return deferred.promise();
+    };
+
     /**
      * XIApi.deleteTableAndMeta
      * @param txId

@@ -2798,7 +2798,7 @@ XcalarArchiveTable = function(srcTableNames) {
 // must make sure that the first table that is being passed into XcalarQuery
 // is an unsorted table! Otherwise backend may crash
 // txId does not need to be passed in if xcalarquery not called inside a transaction
-XcalarQuery = function(queryName, queryString, txId) {
+XcalarQuery = function(queryName, queryString, txId, bailOnError) {
     /* some test case :
         Old format(deprecated)
         "load --url file:///var/tmp/gdelt --format csv --name test"
@@ -2821,7 +2821,10 @@ XcalarQuery = function(queryName, queryString, txId) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
 
-    var bailOnError = true; // Stop running query on error
+    //Default behavior is true so need to use null rather than just if (bailOnError)
+    if (bailOnError === null) {
+        bailOnError = true; // Stop running query on error
+    }
     var latencyOptimized = false; // New backend flag
     xcalarQuery(tHandle, queryName, queryString, true, bailOnError,
                 latencyOptimized)
@@ -2944,13 +2947,13 @@ XcalarQueryCheck = function(queryName, canceling) {
     return (deferred.promise());
 };
 
-XcalarQueryWithCheck = function(queryName, queryString, txId) {
+XcalarQueryWithCheck = function(queryName, queryString, txId, bailOnError) {
     var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
 
-    XcalarQuery(queryName, queryString, txId)
+    XcalarQuery(queryName, queryString, txId, bailOnError)
     .then(function() {
         return XcalarQueryCheck(queryName);
     })
@@ -2959,7 +2962,7 @@ XcalarQueryWithCheck = function(queryName, queryString, txId) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
             Transaction.log(txId, queryString);
-            deferred.resolve();
+            deferred.resolve.apply(this, arguments);
         }
     })
     .fail(function(error) {
