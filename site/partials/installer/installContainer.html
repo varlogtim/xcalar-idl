@@ -112,11 +112,11 @@
         <div class="title">
           <div class="step">
             <span>STEP 2 </span>
-            <span>PRE-CONFIG STATUS</span>
+            <span>INSTALLATION TYPE</span>
           </div>
           <div class="hint">
             <span></span>
-            <span>Were pre-config.sh and verify.sh run on all the cluster nodes?</span>
+            <span>What type of Xcalar installation is this?</span>
           </div>
         </div>
         <div class="section preConfigSection">
@@ -128,7 +128,10 @@
               </div>
               <div class="label">
                 <div class="name">
-                  Yes
+                  A system administrator completed all pre-installation tasks
+                  <div class="hint csHelp" data-topic="pointToDataSource" title="" data-toggle="tooltip" data-container="body" data-original-title="Steps completed by the system admin include: running the pre-config.sh script to install dependencies, running the verify.sh script to check configuration, allocating storage shared across the cluster for Xcalar to use, creating the account used to install Xcalar, and performing any necessary configuration of external LDAP directories.">
+                    <i class="white icon xi-help fa-12"></i>
+                  </div>
                 </div>
               </div>
             </div>
@@ -139,7 +142,7 @@
               </div>
               <div class="label">
                 <div class="name">
-                  No
+                  The installing Linux user has admin privileges and I want the installer to complete all pre-install tasks for me
                 </div>
               </div>
             </div>
