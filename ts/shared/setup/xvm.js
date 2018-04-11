@@ -21,7 +21,7 @@ window.XVM = (function(XVM) {
 
     XVM.setup = function() {
         var kvVersionKey = "xcalar-version-" + XcSupport.getUser();
-        kvVersionStore = new KVStore(kvVersionKey, gKVScope.VER);
+        kvVersionStore = new KVStore(kvVersionKey, gKVScope.USER);
     };
 
     XVM.getVersion = function() {

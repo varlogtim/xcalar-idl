@@ -88,7 +88,7 @@ window.Upgrader = (function(Upgrader, $) {
     function upgradeEphMeta(gEphStorageKey) {
         var deferred = PromiseHelper.deferred();
 
-        upgradeHelper(gEphStorageKey, gKVScope.EPHM, "EMetaConstructor")
+        upgradeHelper(gEphStorageKey, gKVScope.GLOB, "EMetaConstructor")
         .then(function(eMeta) {
             globalCache.eMeta = eMeta;
             deferred.resolve();
@@ -112,30 +112,14 @@ window.Upgrader = (function(Upgrader, $) {
     }
 
     /*
-     * global keys:
-     *  gAuthKey, for XcAuth
+     * User keys:
      *  gUserKey, for UserInfoConstructor
      *  wkbkKey, for WKBK
      */
     function upgradeUserInfos(userKeys) {
-        var def1 = upgradeAuth(userKeys.gAuthKey);
-        var def2 = upgradeUserSettings(userKeys.gUserKey);
-        var def3 = upgradeWKBkSet(userKeys.wkbkKey);
-
-        return PromiseHelper.when(def1, def2, def3);
-    }
-
-    function upgradeAuth(gAuthKey) {
-        var deferred = PromiseHelper.deferred();
-
-        upgradeHelper(gAuthKey, gKVScope.AUTH, "XcAuth")
-        .then(function(auth) {
-            userCache.auth = auth;
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
+        var def1 = upgradeUserSettings(userKeys.gUserKey);
+        var def2 = upgradeWKBkSet(userKeys.wkbkKey);
+        return PromiseHelper.when(def1, def2);
     }
 
     function upgradeUserSettings(gUserKey) {
@@ -159,8 +143,8 @@ window.Upgrader = (function(Upgrader, $) {
 
     function upgradeWKBkSet(wkbkKey) {
         var deferred = PromiseHelper.deferred();
-        var storageStore = new KVStore(wkbkKey, gKVScope.WKBK);
-        storageStore.getAndParse()
+        var wkbkStore = new KVStore(wkbkKey, gKVScope.USER);
+        wkbkStore.getAndParse()
         .then(function(oldWkbks) {
             var passed = false;
             var err;
@@ -184,10 +168,10 @@ window.Upgrader = (function(Upgrader, $) {
 
     function upgradeWkbkInfos(wkbks) {
         var defArray = [];
-        for (var wkbkId in wkbks) {
-            var wkbkInfoKeys = wkbks[wkbkId];
-            wkbksCache[wkbkId] = {};
-            defArray.push(upgradeOneWkbk(wkbkInfoKeys, wkbksCache[wkbkId]));
+        for (var wkbkName in wkbks) {
+            var wkbkInfoKeys = wkbks[wkbkName];
+            wkbksCache[wkbkName] = {};
+            defArray.push(upgradeOneWkbk(wkbkInfoKeys, wkbkName));
         }
 
         return PromiseHelper.when.apply(this, defArray);
@@ -198,18 +182,24 @@ window.Upgrader = (function(Upgrader, $) {
      *  gStorageKey, for METAConstructor
      *  gLogKey, for XcLog
      *  gErrKey, for XcLog (error log)
+     *  gOverwrittenLogKey, for XcLog
+     *  gAuthKey, for XcAuth
+     *  gNotebookKey XXX not sure how to handle upgrade yet
      */
-    function upgradeOneWkbk(wkbkInfoKeys, wkbkContainer) {
-        var def1 = upgradeStorageMeta(wkbkInfoKeys.gStorageKey, wkbkContainer);
-        var def2 = upgradeLogMeta(wkbkInfoKeys.gLogKey, wkbkContainer);
-        var def3 = upgradeErrorLogMeta(wkbkInfoKeys.gErrKey, wkbkContainer);
-        return PromiseHelper.when(def1, def2, def3);
+    function upgradeOneWkbk(wkbkInfoKeys, wkbkName) {
+        var def1 = upgradeStorageMeta(wkbkInfoKeys.gStorageKey, wkbkName);
+        var def2 = upgradeAuth(wkbkInfoKeys.gAuthKey, wkbkName);
+        var def3 = upgradeLogMeta(wkbkInfoKeys.gLogKey, wkbkName);
+        var def4 = upgradeErrorLogMeta(wkbkInfoKeys.gErrKey, wkbkName);
+        var def5 = upgradeOverwrittenLogMeta(wkbkInfoKeys.gOverwrittenLogKey, wkbkName);
+        var def6 = upgradeNotbookMeta(wkbkInfoKeys.gNotebookKey, wkbkName);
+        return PromiseHelper.when(def1, def2, def3, def4, def5, def6);
     }
 
-    function upgradeStorageMeta(gStorageKey, wkbkContainer) {
+    function upgradeStorageMeta(gStorageKey, wkbkName) {
         var deferred = PromiseHelper.deferred();
-
-        upgradeHelper(gStorageKey, gKVScope.META, "METAConstructor")
+        var wkbkContainer = wkbksCache[wkbkName];
+        upgradeHelper(gStorageKey, gKVScope.WKBK, "METAConstructor", wkbkName)
         .then(function(meta) {
             wkbkContainer.meta = meta;
             deferred.resolve();
@@ -219,13 +209,41 @@ window.Upgrader = (function(Upgrader, $) {
         return deferred.promise();
     }
 
-    // Special case: after upgrade, Log.upgrade already return a string
-    function upgradeLogMeta(gLogKey, wkbkContainer) {
+    function upgradeLogMeta(gLogKey, wkbkName) {
         var deferred = PromiseHelper.deferred();
-        var logStore = new KVStore(gLogKey, gKVScope.LOG);
-        logStore.get()
-        .then(function(oldLog) {
-            wkbkContainer.log = Log.upgrade(oldLog);
+        var wkbkContainer = wkbksCache[wkbkName];
+
+        upgradeLogMetaHelper(gLogKey, wkbkName)
+        .then(function(newLog) {
+            wkbkContainer.log = newLog;
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function upgradeErrorLogMeta(gErrKey, wkbkName) {
+        var deferred = PromiseHelper.deferred();
+        var wkbkContainer = wkbksCache[wkbkName];
+
+        upgradeLogMetaHelper(gErrKey, wkbkName)
+        .then(function(newErrorLog) {
+            wkbkContainer.errorLog = newErrorLog;
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function upgradeOverwrittenLogMeta(gOverwrittenLogKey, wkbkName) {
+        var deferred = PromiseHelper.deferred();
+        var wkbkContainer = wkbksCache[wkbkName];
+
+        upgradeLogMetaHelper(gOverwrittenLogKey, wkbkName)
+        .then(function(newOverwrittenLog) {
+            wkbkContainer.overwrittenLog = newOverwrittenLog;
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -234,12 +252,28 @@ window.Upgrader = (function(Upgrader, $) {
     }
 
     // Special case: after upgrade, Log.upgrade already return a string
-    function upgradeErrorLogMeta(gErrKey, wkbkContainer) {
+    function upgradeLogMetaHelper(key, wkbkName) {
         var deferred = PromiseHelper.deferred();
-        var errorLogStore = new KVStore(gErrKey, gKVScope.ERR);
-        errorLogStore.get()
-        .then(function(oldErrorLog) {
-            wkbkContainer.errorLog = Log.upgrade(oldErrorLog);
+        var kvStore = new KVStore(key, gKVScope.WKBK);
+        var currentSession = sessionName;
+        setSessionName(wkbkName);
+        
+        kvStore.get()
+        .then(function(log) {
+            deferred.resolve(Log.upgrade(log));
+        })
+        .fail(deferred.reject);
+
+        setSessionName(currentSession);
+        return deferred.promise();
+    }
+
+    function upgradeAuth(gAuthKey, wkbkName) {
+        var deferred = PromiseHelper.deferred();
+        var wkbkContainer = wkbksCache[wkbkName];
+        upgradeHelper(gAuthKey, gKVScope.WKBK, "XcAuth", wkbkName)
+        .then(function(auth) {
+            wkbkContainer.auth = auth;
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -247,10 +281,34 @@ window.Upgrader = (function(Upgrader, $) {
         return deferred.promise();
     }
 
-    function upgradeHelper(key, scope, consctorName) {
+    function upgradeNotbookMeta(gNotebookKey, wkbkName) {
+        var deferred = PromiseHelper.deferred();
+        var wkbkContainer = wkbksCache[wkbkName];
+        var kvStore = new KVStore(gNotebookKey, gKVScope.WKBK);
+        var currentSession = sessionName;
+        setSessionName(wkbkName);
+        
+        kvStore.get()
+        .then(function(value) {
+            wkbkContainer.notebook = value;
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        setSessionName(currentSession);
+        return deferred.promise();
+    }
+
+    function upgradeHelper(key, scope, consctorName, wkbkName) {
         var deferred = PromiseHelper.deferred();
         var kvStore = new KVStore(key, scope);
-        kvStore.getAndParse(key, scope)
+        var currentSession = sessionName;
+
+        if (wkbkName != null) {
+            setSessionName(wkbkName);
+        }
+
+        kvStore.getAndParse()
         .then(function(meta) {
             var passed = false;
             var newMeta;
@@ -269,6 +327,8 @@ window.Upgrader = (function(Upgrader, $) {
             }
         })
         .fail(deferred.reject);
+
+        setSessionName(currentSession);
 
         return deferred.promise();
     }
@@ -290,51 +350,60 @@ window.Upgrader = (function(Upgrader, $) {
         var genSettingsKey = globalKeys.gSettingsKey;
         var genSettings = globalCache.genSettings;
 
-        var def1 = checkAndWrite(eMetaKey, eMeta, gKVScope.EPHM, true);
+        var def1 = checkAndWrite(eMetaKey, eMeta, gKVScope.GLOB, true);
         var def2 = checkAndWrite(genSettingsKey, genSettings, gKVScope.GLOB, true);
         return PromiseHelper.when(def1, def2);
     }
 
     function writeUserInfos(userKeys) {
-        var authKey = userKeys.gAuthKey;
-        var auth = userCache.auth;
-
         var userSettingsKey = userKeys.gUserKey;
         var userSettings = userCache.userSettings;
 
         var wkbksKey = userKeys.wkbkKey;
         var wkbks = userCache.wkbks;
 
-        var def1 = writeHelper(authKey, auth, gKVScope.AUTH);
-        var def2 = writeHelper(userSettingsKey, userSettings, gKVScope.USER);
-        var def3 = writeHelper(wkbksKey, wkbks, gKVScope.WKBK);
-        return PromiseHelper.when(def1, def2, def3);
+        var def1 = writeHelper(userSettingsKey, userSettings, gKVScope.USER);
+        var def2 = writeHelper(wkbksKey, wkbks, gKVScope.USER);
+        return PromiseHelper.when(def1, def2);
     }
 
     function writeWkbkInfo(wkbks) {
         var defArray = [];
-        for (var wkbkId in wkbks) {
-            var wkbkInfoKeys = wkbks[wkbkId];
-            defArray.push(writeOneWkbk(wkbkInfoKeys, wkbksCache[wkbkId]));
+        for (var wkbkName in wkbks) {
+            var wkbkInfoKeys = wkbks[wkbkName];
+            defArray.push(writeOneWkbk(wkbkInfoKeys, wkbkName));
         }
 
         return PromiseHelper.when.apply(this, defArray);
     }
 
-    function writeOneWkbk(wkbkInfoKeys, wbkContainer) {
+    function writeOneWkbk(wkbkInfoKeys, wkbkName) {
+        var wkbkContainer = wkbksCache[wkbkName];
         var metaKey = wkbkInfoKeys.gStorageKey;
-        var meta = wbkContainer.meta;
+        var meta = wkbkContainer.meta;
+
+        var authKey = wkbkInfoKeys.gAuthKey;
+        var auth = wkbkContainer.auth;
 
         var logKey = wkbkInfoKeys.gLogKey;
-        var log = wbkContainer.log;
+        var log = wkbkContainer.log;
 
         var errorKey = wkbkInfoKeys.gErrKey;
-        var errorLog = wbkContainer.errorLog;
+        var errorLog = wkbkContainer.errorLog;
 
-        var def1 = writeHelper(metaKey, meta, gKVScope.META);
-        var def2 = writeHelper(logKey, log, gKVScope.LOG, true);
-        var def3 = writeHelper(errorKey, errorLog, gKVScope.ERR, true);
-        return PromiseHelper.when(def1, def2, def3);
+        var overwrittenKey = wkbkInfoKeys.gOverwrittenLogKey;
+        var overwrittenLog = wkbkContainer.overwrittenLog;
+
+        var notebookKey = wkbkInfoKeys.gNotebookKey;
+        var notebook = wkbkContainer.notebook;
+
+        var def1 = writeHelper(metaKey, meta, gKVScope.WKBK, false, wkbkName);
+        var def2 = writeHelper(authKey, auth, gKVScope.WKBK, false, wkbkName);
+        var def3 = writeHelper(logKey, log, gKVScope.WKBK, true, wkbkName);
+        var def4 = writeHelper(errorKey, errorLog, gKVScope.WKBK, true, wkbkName);
+        var def5 = writeHelper(overwrittenKey, overwrittenLog, gKVScope.WKBK, true, wkbkName);
+        var def6 = writeHelper(notebookKey, notebook, gKVScope.WKBK, false, wkbkName);
+        return PromiseHelper.when(def1, def2, def3, def4, def5, def6);
     }
 
     function checkAndWrite(key, value, scope, needMutex) {
@@ -356,7 +425,7 @@ window.Upgrader = (function(Upgrader, $) {
         return deferred.promise();
     }
 
-    function writeHelper(key, value, scope, alreadyStringify, needMutex) {
+    function writeHelper(key, value, scope, alreadyStringify, needMutex, wkbkName) {
         if (value == null) {
             // skip null value
             return PromiseHelper.resolve();
@@ -369,12 +438,18 @@ window.Upgrader = (function(Upgrader, $) {
             stringified = value;
         }
 
+        var currentSession = sessionName;
+        if (wkbkName != null) {
+            setSessionName(wkbkName);
+        }
+        var kvStore = new KVStore(key, scope);
         if (needMutex) {
-            var kvStore = new KVStore(key, scope);
+            
             return kvStore.putWithMutex(stringified, true, true);
         } else {
             return kvStore.put(stringified, true, true);
         }
+        setSessionName(currentSession);
     }
     /* end of write part */
 

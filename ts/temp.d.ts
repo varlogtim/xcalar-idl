@@ -26,10 +26,9 @@ declare var gActiveTableId: string;
 declare var currentVersion: number;
 declare var xcLocalStorage: XcStorage;
 declare var gKVScope: {
-    META: number,
-    EPHM: number,
+    GLOB: number,
     USER: number,
-    GLOB: number
+    WKBK: number
 };
 declare var global: any;
 declare var expHost: string;
@@ -225,6 +224,12 @@ declare class UserInfoConstructor{
 
 declare class Mutex {
     public constructor(key: string, scope: number);
+}
+
+declare class XcAuth {
+    constructor(options: object);
+    getIdCount(): number;
+    incIdCount(): void;
 }
 /* ============== NAMESPACE ====================== */
 declare namespace xcManager {

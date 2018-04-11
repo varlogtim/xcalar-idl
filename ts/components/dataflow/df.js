@@ -85,7 +85,7 @@ window.DF = (function($, DF) {
 
     DF.getEmataInfo = function() {
         var key = KVStore.getKey("gEphStorageKey");
-        var kvStore = new KVStore(key, gKVScope.EPHM);
+        var kvStore = new KVStore(key, gKVScope.GLOB);
         return kvStore.getInfo(true);
     };
 

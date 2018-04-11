@@ -111,12 +111,12 @@ class KVStore {
 
         XcSupport.stopHeartbeatCheck();
 
-        const storageStore = new KVStore(KVStore.getKey("gStorageKey"), gKVScope.META);
+        const storageStore = new KVStore(KVStore.getKey("gStorageKey"), gKVScope.WKBK);
         storageStore.put(JSON.stringify(KVStore.metaInfos), true)
         .then(function() {
             if (DF.wasRestored()) {
                 KVStore.ephMetaInfos.update();
-                const ephStore = new KVStore(KVStore.getKey("gEphStorageKey"), gKVScope.EPHM);
+                const ephStore = new KVStore(KVStore.getKey("gEphStorageKey"), gKVScope.GLOB);
                 return ephStore.put(JSON.stringify(KVStore.ephMetaInfos), false);
             } else {
                 // if df wasn't restored yet, we don't want to commit empty
@@ -247,7 +247,7 @@ class KVStore {
 
     private static getMetaInfo(): XDPromise<any> {
         const key: string = KVStore.getKey("gStorageKey");
-        const kvStore = new KVStore(key, gKVScope.META);
+        const kvStore = new KVStore(key, gKVScope.WKBK);
         return kvStore.getInfo();
     }
 

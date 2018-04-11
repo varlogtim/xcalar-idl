@@ -8,7 +8,7 @@ class Authentication {
     public static setup(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const key: string = KVStore.getKey("gAuthKey");
-        Authentication.kvStore = new KVStore(key, gKVScope.AUTH);
+        Authentication.kvStore = new KVStore(key, gKVScope.WKBK);
 
         Authentication.kvStore.getAndParse()
         .then(function(oldAuthInfo) {
@@ -43,8 +43,14 @@ class Authentication {
      * Authentication.getHashId
      */
     public static getHashId(): String {
-        const idCount: number = Authentication.authInfo.getIdCount();
+        let idCount: number = Authentication.authInfo.getIdCount();
         Authentication.authInfo.incIdCount();
+        while (gTables.hasOwnProperty(idCount)) {
+            console.warn('id', idCount, 'alreay exits');
+            idCount = Authentication.authInfo.getIdCount();
+            Authentication.authInfo.incIdCount();
+        }
+
         Authentication.kvStore.put(JSON.stringify(Authentication.authInfo), true)
         .fail(function(error) {
             console.error("Save Authentication fails", error);

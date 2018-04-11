@@ -75,8 +75,8 @@ window.XcSupport = (function(XcSupport, $) {
             xcSocket.registerUserSession(workbookId);
             commitFlag = randCommitFlag();
             // hold the session
-            return XcalarKeyPut(KVStore.commitKey, commitFlag,
-                                false, gKVScope.FLAG);
+            return XcalarKeyPut(KVStore.getKey("commitKey"), commitFlag,
+                                false, gKVScope.WKBK);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -145,7 +145,7 @@ window.XcSupport = (function(XcSupport, $) {
 
         promise
         .then(function() {
-            return XcalarKeyPut(KVStore.commitKey, defaultCommitFlag, false, gKVScope.FLAG);
+            return XcalarKeyPut(KVStore.getKey("commitKey"), defaultCommitFlag, false, gKVScope.WKBK);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -154,36 +154,44 @@ window.XcSupport = (function(XcSupport, $) {
     };
 
     XcSupport.commitCheck = function(isFromHeatbeatCheck) {
-        var deferred = PromiseHelper.deferred();
-        if (KVStore.commitKey == null ||
+        if (KVStore.getKey("commitKey") == null ||
             WorkbookManager.getActiveWKBK() == null) {
             // when workbook is not set up yet or no workbook yet
-            deferred.resolve();
-        } else {
-            XcalarKeyLookup(KVStore.commitKey, gKVScope.FLAG)
-            .then(function(val) {
-                if (isFromHeatbeatCheck && (commitCheckTimer == null)) {
-                    deferred.reject(cancelCheck);
-                } else if (val == null || val.value !== commitFlag) {
-                    commitMismatchHandler();
-                    deferred.reject(commitCheckError);
-                } else {
-                    deferred.resolve();
-                }
-            })
-            .fail(function(error) {
-                if (isFromHeatbeatCheck && (commitCheckTimer == null)) {
-                    deferred.reject(cancelCheck);
-                } else if (error.status === StatusT.StatusSessionNotFound) {
-                    commitMismatchHandler();
-                    deferred.reject(commitCheckError);
-                } else {
-                    deferred.reject(error);
-                }
-            });
+           return PromiseHelper.resolve();
         }
 
-        return (deferred.promise());
+        var wkbkId = WorkbookManager.getActiveWKBK();
+        var workbook =  WorkbookManager.getWorkbook(wkbkId);
+        if (workbook == null || workbook.getName() !== sessionName) {
+            // it's doing some operation on other workbook
+            // skip checking in this case
+            return PromiseHelper.resolve();
+        }
+
+        var deferred = PromiseHelper.deferred();
+        XcalarKeyLookup(KVStore.getKey("commitKey"), gKVScope.WKBK)
+        .then(function(val) {
+            if (isFromHeatbeatCheck && (commitCheckTimer == null)) {
+                deferred.reject(cancelCheck);
+            } else if (val == null || val.value !== commitFlag) {
+                commitMismatchHandler();
+                deferred.reject(commitCheckError);
+            } else {
+                deferred.resolve();
+            }
+        })
+        .fail(function(error) {
+            if (isFromHeatbeatCheck && (commitCheckTimer == null)) {
+                deferred.reject(cancelCheck);
+            } else if (error.status === StatusT.StatusSessionNotFound) {
+                commitMismatchHandler();
+                deferred.reject(commitCheckError);
+            } else {
+                deferred.reject(error);
+            }
+        });
+
+        return deferred.promise();
     };
 
     XcSupport.memoryCheck = function(onlyCheckOnWarn) {
@@ -332,7 +340,7 @@ window.XcSupport = (function(XcSupport, $) {
                              commitCheckInterval;
         clearInterval(commitCheckTimer);
         commitCheckTimer = setInterval(function() {
-            if (KVStore.commitKey == null) {
+            if (KVStore.getKey("commitKey") == null) {
                 // when workbook is not set up yet or no workbook yet
                 return;
             }

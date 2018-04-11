@@ -22,7 +22,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 deferred.reject(WKBKTStr.NoWkbk);
             } else {
                 // retrieve key from username and wkbkId
-                setupKVStore(wkbkId);
+                setupKVStore();
                 setActiveWKBK(wkbkId);
                 setURL(wkbkId, true);
 
@@ -158,7 +158,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return PromiseHelper.reject("Invalid name");
         }
 
-        var wkbk;
         var isCopy = (srcWKBKId != null);
         var copySrc = null;
 
@@ -517,14 +516,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         promise
         .then(function() {
-            return copyHelper(srcWKBKId, newWKBKId);
-        })
-        .then(function() {
             return XcalarRenameWorkbook(newName, srcWKBK.name);
-        })
-        .then(function() {
-            var def = delWKBKHelper(srcWKBK.id);
-            return PromiseHelper.alwaysResolve(def);
         })
         .then(function() {
             var options = {
@@ -580,10 +572,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
         XcalarDeleteWorkbook(workbook.name)
         .then(function() {
             JupyterPanel.deleteWorkbook(workbookId);
-            var def = delWKBKHelper(workbookId);
-            return PromiseHelper.alwaysResolve(def);
-        })
-        .then(function() {
             wkbkSet.delete(workbook.id);
             return WorkbookManager.commit();
         })
@@ -603,7 +591,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     function initializeVariable() {
         // key that stores all workbook infos for the user
         var wkbkKey = getWKbkKey(currentVersion);
-        wkbkStore = new KVStore(wkbkKey, gKVScope.GLOB);
+        wkbkStore = new KVStore(wkbkKey, gKVScope.USER);
         wkbkSet = new WKBKSet();
     }
 
@@ -665,10 +653,10 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return generateKey(username, "workbookInfos", version);
     }
 
-    function setupKVStore(wkbkId) {
+    function setupKVStore() {
         var globlKeys = getGlobalScopeKeys(currentVersion);
         var userScopeKeys = getUserScopeKeys(currentVersion);
-        var wkbkScopeKeys = getWkbkScopeKeys(wkbkId, currentVersion);
+        var wkbkScopeKeys = getWkbkScopeKeys(currentVersion);
 
         var keys = $.extend({}, globlKeys, userScopeKeys, wkbkScopeKeys);
 
@@ -696,13 +684,13 @@ window.WorkbookManager = (function($, WorkbookManager) {
         };
     }
 
-    function getWkbkScopeKeys(wkbkId, version) {
-        var gStorageKey = generateKey(wkbkId, "gInfo", version);
-        var gLogKey = generateKey(wkbkId, "gLog", version);
-        var gErrKey = generateKey(wkbkId, "gErr", version);
-        var gOverwrittenLogKey = generateKey(wkbkId, "gOverwritten", version);
-        var gNotebookKey = generateKey(wkbkId, "gNotebook", version);
-        var gAuthKey = generateKey(wkbkId, "authentication", version);
+    function getWkbkScopeKeys(version) {
+        var gStorageKey = generateKey("gInfo", version);
+        var gLogKey = generateKey("gLog", version);
+        var gErrKey = generateKey("gErr", version);
+        var gOverwrittenLogKey = generateKey("gOverwritten", version);
+        var gNotebookKey = generateKey("gNotebook", version);
+        var gAuthKey = generateKey("authentication", version);
 
         return {
             "gStorageKey": gStorageKey,
@@ -806,8 +794,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
         };
     };
 
-    WorkbookManager.getStorageKey = function(workbookId) {
-        return getWkbkScopeKeys(workbookId, currentVersion).gStorageKey;
+    WorkbookManager.getStorageKey = function() {
+        return getWkbkScopeKeys(currentVersion).gStorageKey;
     };
 
     function getUserScopeKeysForUpgrade(version) {
@@ -828,9 +816,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         for (var i = 0; i < numSessions; i++) {
             var wkbkName = sessions[i].name;
-            var wkbkId = getWKBKId(wkbkName);
-            var keys = getWkbkScopeKeys(wkbkId, version);
-            wkbks[wkbkId] = keys;
+            var keys = getWkbkScopeKeys(version);
+            wkbks[wkbkName] = keys;
         }
 
         return wkbks;
@@ -888,11 +875,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return saveWorkbook();
         })
         .then(function() {
-            // in case KVStore has some remants about wkbkId, clear it
-            var def = delWKBKHelper(wkbk.id);
-            return PromiseHelper.alwaysResolve(def);
-        })
-        .then(function() {
             // If workbook is active, make it inactive so that our UX is linear
             return XcalarListWorkbooks(wkbkName);
         })
@@ -928,73 +910,59 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     // helper for WorkbookManager.copyWKBK
     function copyHelper(srcId, newId) {
-        var deferred = PromiseHelper.deferred();
-        var oldWkbkScopeKeys = getWkbkScopeKeys(srcId, currentVersion);
-        var newWkbkScopeKeys = getWkbkScopeKeys(newId, currentVersion);
-
-        copyAction("gStorageKey", gKVScope.META)
-        .then(function() {
-            return copyAction("gLogKey", gKVScope.LOG);
-        })
-        .then(function() {
-            return copyAction("gErrKey", gKVScope.ERR);
-        })
-        .then(function() {
-            return copyAction("gOverwrittenLogKey", gKVScope.WKBK);
-        })
-        .then(function() {
-            return copyAction("gAuthKey", gKVScope.AUTH);
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        function copyAction(key, scope) {
-            // copy all info to new key
-            var innerDeferred = PromiseHelper.deferred();
-            var oldKey = oldWkbkScopeKeys[key];
-            var newKey = newWkbkScopeKeys[key];
-            var oldStore = new KVStore(oldKey, scope);
-            oldStore.get(oldKey, scope)
-            .then(function(value) {
-                var newStore = new KVStore(newKey, scope);
-                return newStore.put(value, true);
-            })
-            .then(innerDeferred.resolve)
-            .fail(innerDeferred.reject);
-
-            return innerDeferred.promise();
+        var oldWKBK = wkbkSet.get(srcId);
+        var newWKBK = wkbkSet.get(newId);
+        if (oldWKBK == null || newWKBK == null) {
+            return PromiseHelper.reject('error case');
         }
 
-        return deferred.promise();
-    }
+        var oldName = oldWKBK.getName();
+        var newName = newWKBK.getName();
 
-    function delWKBKHelper(wkbkId) {
-        var deferred = PromiseHelper.deferred();
+        var getKVHelper = function(key) {
+            var currentSession = sessionName;
+            var kvStore = new KVStore(key, gKVScope.WKBK);
 
-        var wkbkScopeKeys = getWkbkScopeKeys(wkbkId, currentVersion);
+            setSessionName(oldName);
+            var promise = kvStore.get();
+            setSessionName(currentSession);
+            return promise;
+        };
 
-        var storageKey = wkbkScopeKeys.gStorageKey;
-        var logKey = wkbkScopeKeys.gLogKey;
-        var errorKey = wkbkScopeKeys.gErrKey;
-        var overwrittenLogKey = wkbkScopeKeys.gOverwrittenLogKey;
-        var notebookKey = wkbkScopeKeys.gNotebookKey;
-        var authKey = wkbkScopeKeys.gAuthKey;
+        var putKVHelper = function(key, value) {
+            var currentSession = sessionName;
+            var kvStore = new KVStore(key, gKVScope.WKBK);
 
-        var def1 = XcalarKeyDelete(storageKey, gKVScope.META);
-        var def3 = XcalarKeyDelete(logKey, gKVScope.LOG);
-        var def2 = XcalarKeyDelete(errorKey, gKVScope.ERR);
-        var def4 = XcalarKeyDelete(overwrittenLogKey, gKVScope.WKBK);
-        var def5 = XcalarKeyDelete(notebookKey, gKVScope.WKBK);
-        var def6 = XcalarKeyDelete(authKey, gKVScope.AUTH);
+            setSessionName(newName);
+            var promise = kvStore.put(value, true);
+            setSessionName(currentSession);
+            return promise;
+        };
 
-        PromiseHelper.when(def1, def2, def3, def4, def5, def6)
-        .then(deferred.resolve)
-        .fail(function(error) {
-            console.error("Delete workbook fails!", error);
-            deferred.reject(error);
-        });
+        var copyAction = function(key) {
+            // copy all info to new key
+            var deferred = PromiseHelper.deferred();
 
-        return deferred.promise();
+            getKVHelper(key)
+            .then(function(value) {
+                return putKVHelper(key, value);
+            })
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        };
+
+        var wkbkScopeKeys = getWkbkScopeKeys(currentVersion);
+        var promises = [];
+        for (var key in wkbkScopeKeys) {
+            if (key === 'gNotebookKey') {
+                continue; // XXX temporarily skip it
+            }
+            promises.push(copyAction(wkbkScopeKeys[key]));
+        }
+
+        return PromiseHelper.when.apply(this, promises);
     }
 
     function commitActiveWkbk() {
@@ -1187,7 +1155,6 @@ window.WorkbookManager = (function($, WorkbookManager) {
         };
         WorkbookManager.__testOnly__.generateKey = generateKey;
         WorkbookManager.__testOnly__.getWKBKId = getWKBKId;
-        WorkbookManager.__testOnly__.delWKBKHelper = delWKBKHelper;
         WorkbookManager.__testOnly__.copyHelper = copyHelper;
         WorkbookManager.__testOnly__.resetActiveWKBK = resetActiveWKBK;
         WorkbookManager.__testOnly__.saveWorkbook = saveWorkbook;

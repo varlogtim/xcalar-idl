@@ -98,14 +98,14 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         var nodeInfo;
         var curId = id;
         var workbookName = WorkbookManager.getWorkbook(workbookId).getName();
-
+        var currentSession = sessionName;
         $workbookPreview.addClass("loading");
         setSessionName(workbookName);
 
         XcalarGetTables("*")
         .then(function(res) {
             nodeInfo = res.nodeInfo;
-            return getTableKVStoreMeta(workbookId);
+            return getTableKVStoreMeta(workbookName);
         })
         .then(function(tableMeta, wsInfo) {
             if (curId === id) {
@@ -128,7 +128,7 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
             }
         });
 
-        setSessionName("");
+        setSessionName(currentSession);
         return deferred.promise();
     }
 
@@ -138,11 +138,14 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         $workbookPreview.addClass("error");
     }
 
-    function getTableKVStoreMeta(workbookId) {
+    function getTableKVStoreMeta(workbookName) {
         var deferred = PromiseHelper.deferred();
-        var key = WorkbookManager.getStorageKey(workbookId);
-        var kvStore = new KVStore(key, gKVScope.META);
-        kvStore.getAndParse(key, gKVScope.META)
+        var currentSession = sessionName;
+        var key = WorkbookManager.getStorageKey();
+        var kvStore = new KVStore(key, gKVScope.WKBK);
+        setSessionName(workbookName);
+       
+        kvStore.getAndParse()
         .then(function(res) {
             try {
                 var metaInfos = new METAConstructor(res);
@@ -158,6 +161,7 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
             deferred.resolve({}); // still resolve
         });
 
+        setSessionName(currentSession);
         return deferred.promise();
     }
 

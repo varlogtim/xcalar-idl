@@ -180,7 +180,7 @@ window.Log = (function($, Log) {
         var deferred = PromiseHelper.deferred();
 
         var key = KVStore.getKey("gErrKey");
-        var kvStore = new KVStore(key, gKVScope.ERR);
+        var kvStore = new KVStore(key, gKVScope.WKBK);
         var tmpLog = errToCommit;
         errToCommit = "";
 
@@ -566,7 +566,7 @@ window.Log = (function($, Log) {
 
         var deferred = PromiseHelper.deferred();
         var key = KVStore.getKey("gLogKey");
-        var kvStore = new KVStore(key, gKVScope.LOG);
+        var kvStore = new KVStore(key, gKVScope.WKBK);
         var tmpLog = logToCommit;
         logToCommit = "";
         // should change logToCommit before async call
@@ -613,7 +613,7 @@ window.Log = (function($, Log) {
     function restoreLogs(oldLogCursor) {
         var deferred = PromiseHelper.deferred();
         var key = KVStore.getKey("gLogKey");
-        var kvStore = new KVStore(key, gKVScope.LOG);
+        var kvStore = new KVStore(key, gKVScope.WKBK);
         kvStore.get()
         .then(function(rawLog) {
             var oldLogs = parseRawLog(rawLog);
@@ -653,7 +653,7 @@ window.Log = (function($, Log) {
     function restoreErrors() {
         var deferred = PromiseHelper.deferred();
         var key = KVStore.getKey("gErrKey");
-        var kvStore = new KVStore(key, gKVScope.ERR);
+        var kvStore = new KVStore(key, gKVScope.WKBK);
         kvStore.get()
         .then(function(rawLog) {
             var oldErrors = parseRawLog(rawLog);
@@ -682,7 +682,7 @@ window.Log = (function($, Log) {
     function restoreOverwrittenLogs() {
         var deferred = PromiseHelper.deferred();
         var key = KVStore.getKey("gOverwrittenLogKey");
-        var kvStore = new KVStore(key, gKVScope.LOG);
+        var kvStore = new KVStore(key, gKVScope.WKBK);
         kvStore.get()
         .then(function(rawLog) {
             var oldOverwrites = parseRawLog(rawLog);
@@ -728,7 +728,7 @@ window.Log = (function($, Log) {
             logToCommit = "";
             var key = KVStore.getKey("gLogKey");
             var logStr = stringifyLog(logs);
-            var kvStore = new KVStore(key, gKVScope.LOG);
+            var kvStore = new KVStore(key, gKVScope.WKBK);
             kvStore.put(logStr, true)
             .then(function() {
                 localCommit();
@@ -1331,7 +1331,7 @@ window.Log = (function($, Log) {
         overwrittenToCommit = "";
 
         var key = KVStore.getKey("gOverwrittenLogKey");
-        var kvStore = new KVStore(key, gKVScope.LOG)
+        var kvStore = new KVStore(key, gKVScope.WKBK)
         kvStore.append(tmpLog, true)
         .then(deferred.resolve)
         .fail(function(error) {

@@ -78,62 +78,23 @@ describe("WorkbookManager Test", function() {
             expect(res).to.equal(XcSupport.getUser() + "-wkbk-test");
         });
 
-        it("delWKBKHelper should work", function(done) {
-            var wkbkId = "testId";
-            var storageKey = generateKey(wkbkId, "gInfo", currentVersion);
-
-            fakeMap[storageKey] = "testVal";
-
-            WorkbookManager.__testOnly__.delWKBKHelper(wkbkId)
-            .then(function() {
-                expect(fakeMap).not.to.ownProperty(storageKey);
-                fakeMap = {};
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-
-        it("delWKBKHelper should fail when error", function(done) {
-            var oldFunc = XcalarKeyDelete;
-            XcalarKeyDelete = function() {
-                return PromiseHelper.reject("testError");
-            };
-
-            WorkbookManager.__testOnly__.delWKBKHelper()
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(error) {
-                expect(error).to.equal("testError");
-                done();
-            })
-            .always(function() {
-                XcalarKeyDelete = oldFunc;
-            });
-        });
-
         it("copyHelper should work", function(done) {
             var oldId = "oldId";
             var newId = "newId";
             var keys = ["gInfo", "gLog", "gErr"];
-
+            var workbooks = WorkbookManager.getWorkbooks();
+            workbooks[oldId] = new WKBK({id: oldId, name: "old"});
+            workbooks[newId] = new WKBK({id: newId, name: "new"});
 
             fakeMap = {};
-            keys.forEach(function(key) {
-                var oldKey = generateKey(oldId, key, currentVersion);
-                fakeMap[oldKey] = "testVal";
-            });
 
             WorkbookManager.__testOnly__.copyHelper(oldId, newId)
             .then(function() {
-                expect(Object.keys(fakeMap).length)
-                .to.equal(keys.length * 2);
+                expect(Object.keys(fakeMap).length).to.equal(5);
 
                 keys.forEach(function(key) {
-                    var newKey = generateKey(newId, key, currentVersion);
-                    expect(fakeMap).to.ownProperty(newKey);
+                    var kvKey = generateKey(key, currentVersion);
+                    expect(fakeMap).to.ownProperty(kvKey);
                 });
 
                 fakeMap = {};
@@ -141,6 +102,21 @@ describe("WorkbookManager Test", function() {
             })
             .fail(function() {
                 done("fail");
+            })
+            .always(function() {
+                delete workbooks[oldId];
+                delete workbooks[newId];
+            });
+        });
+
+        it("copyHelper should work handle error case", function(done) {
+            WorkbookManager.__testOnly__.copyHelper()
+            .then(function() {
+                done('fail');
+            })
+            .fail(function(error) {
+                expect(error).not.to.be.null;
+                done();
             });
         });
 
@@ -380,8 +356,8 @@ describe("WorkbookManager Test", function() {
         });
 
         it("WorkbookManager.getStorageKey should work", function() {
-            var res = WorkbookManager.getStorageKey("test");
-            expect(res).to.equal("test-gInfo-" + currentVersion);
+            var res = WorkbookManager.getStorageKey();
+            expect(res).to.equal("gInfo-" + currentVersion);
         });
     });
 
@@ -571,14 +547,19 @@ describe("WorkbookManager Test", function() {
 
         it("Should copy workbook", function(done) {
             var oldNewWorkbook = WorkbookManager.newWKBK;
+            var oldId = "oldId";
+            var newId = "newId";
+            var workbooks = WorkbookManager.getWorkbooks();
+            workbooks[oldId] = new WKBK({id: oldId, name: "old"});
+            workbooks[newId] = new WKBK({id: newId, name: "new"});
 
             WorkbookManager.newWKBK = function() {
-                return PromiseHelper.resolve("testId");
+                return PromiseHelper.resolve(newId);
             };
 
-            WorkbookManager.copyWKBK()
+            WorkbookManager.copyWKBK(oldId, 'new')
             .then(function(id) {
-                expect(id).to.equal("testId");
+                expect(id).to.equal(newId);
                 done();
             })
             .fail(function() {
@@ -586,6 +567,8 @@ describe("WorkbookManager Test", function() {
             })
             .always(function() {
                 WorkbookManager.newWKBK = oldNewWorkbook;
+                delete workbooks[oldId];
+                delete workbooks[newId];
             });
         });
 

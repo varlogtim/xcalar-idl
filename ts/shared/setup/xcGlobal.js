@@ -37,31 +37,25 @@
 
         gMinTableWidth = 30;
         // XXX TODOS(bug 2319): this part should change to right scope after backend fix
-        /*
-        "AUTH": Authentication info (should be XcalarApiKeyScopeSession)
-        "USER": user infos like ds info and preference (XXX this should be XcalarApiKeyScopeUser, no support yet!)
-        "WKBK": Workbook info (XXX this should be XcalarApiKeyScopeUser, no support yet!)
-        "META": all meta data need for UI (XXX this should be XcalarApiKeyScopeSession, no support yet!)
-        "LOG" : Log (this use append) (XXX this should be XcalarApiKeyScopeSession, no support yet!)
-        "Err" : Error log (this use append) (XXX this should be XcalarApiKeyScopeUser, no support yet!)
-        "FLAG": special commitFlag to make sure UI have right to write (should be XcalarApiKeyScopeSession),
-        "VER" : For KVVersion (XXX this should be XcalarApiKeyScopeUser, no support yet!)
-        "GLOB": general global
-        */
+        /**
+         * "GLOB": global scope
+         * keys inculding: gEphStorageKey, gSharedDSKey, gUserListKey,
+         * gSettingsKey, GlobalKVKeys Enum
+         * 
+         * "USER": (XXX this should be XcalarApiKeyScopeUser, no support yet!),
+         * keys including: gUserKey, wokrbook set infos key,
+         * and kvVersion info
+         * 
+         * "WKBK": workbook scope
+         * keys including: gStorageKey, gLogKey, gErrKey,
+         * gAuthKey, gOverwrittenLogKey, gNotebookKey, commitKey(non-persistent)
+         */
         gKVScope = {
-            "AUTH": XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
-            "USER": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
-            "WKBK": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
-            "META": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
-            "EPHM": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
-            "LOG": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
-            "ERR": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
-            "FLAG": XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
-            "VER": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
             "GLOB": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
-            "XD": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
-            "INIT": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal
+            "USER": XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal,
+            "WKBK": XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
         };
+
         gTables = {}; // This is the main global array containing structures
                         // Stores TableMeta structs
         gOrphanTables = [];

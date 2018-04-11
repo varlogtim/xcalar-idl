@@ -303,7 +303,7 @@ window.xcManager = (function(xcManager, $) {
             var keys = WorkbookManager.getGlobalScopeKeys(currentVersion);
             var keyAttrs = [{
                 "key": keys.gEphStorageKey,
-                "scope": gKVScope.EPHM
+                "scope": gKVScope.GLOB
             }, {
                 "key": keys.gSettingsKey,
                 "scope": gKVScope.GLOB
@@ -326,7 +326,7 @@ window.xcManager = (function(xcManager, $) {
             var markAsAlreadyInit = function() {
                 return XcalarKeyPut(GlobalKVKeys.InitFlag,
                                         InitFlagState.AlreadyInit, false,
-                                        gKVScope.INIT);
+                                        gKVScope.GLOB);
             };
             var initPhase = function() {
                 var innerDeferred = PromiseHelper.deferred();
@@ -349,7 +349,7 @@ window.xcManager = (function(xcManager, $) {
                 return innerDeferred.promise();
             };
 
-            XcalarKeyLookup(GlobalKVKeys.InitFlag, gKVScope.INIT)
+            XcalarKeyLookup(GlobalKVKeys.InitFlag, gKVScope.GLOB)
             .then(function(ret) {
                 if (!ret || ret.value !== InitFlagState.AlreadyInit) {
                     return initPhase();
@@ -374,7 +374,7 @@ window.xcManager = (function(xcManager, $) {
                         $("#initialLoadScreen").show();
                         setTimeout(function() {
                             XcalarKeyLookup(GlobalKVKeys.InitFlag,
-                                            gKVScope.INIT)
+                                            gKVScope.GLOB)
                             .then(function(ret) {
                                 if (ret && ret.value ===
                                         InitFlagState.AlreadyInit) {
@@ -401,7 +401,7 @@ window.xcManager = (function(xcManager, $) {
                             // Force unlock
                             return XcalarKeyPut(
                                           GlobalKVKeys.XdFlag,
-                                          "0", false, gKVScope.XD);
+                                          "0", false, gKVScope.GLOB);
                         })
                         .then(deferred.resolve)
                         .fail(function(err) {
@@ -415,7 +415,7 @@ window.xcManager = (function(xcManager, $) {
         }
 
         var deferred = PromiseHelper.deferred();
-        XcalarKeyLookup(GlobalKVKeys.InitFlag, gKVScope.INIT)
+        XcalarKeyLookup(GlobalKVKeys.InitFlag, gKVScope.GLOB)
         .then(function(ret) {
             if (ret && ret.value === InitFlagState.AlreadyInit) {
                 deferred.resolve();
@@ -438,7 +438,7 @@ window.xcManager = (function(xcManager, $) {
                     if (err === ConcurrencyEnum.OverLimit) {
                         setTimeout(function() {
                             XcalarKeyLookup(GlobalKVKeys.InitFlag,
-                                            gKVScope.INIT)
+                                            gKVScope.GLOB)
                             .then(function(ret) {
                                 if (ret &&
                                     ret.value === InitFlagState.AlreadyInit) {
