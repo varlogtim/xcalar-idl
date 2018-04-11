@@ -1180,6 +1180,7 @@ module.exports = function(grunt) {
             },
             htmlStagingI: [HTML_STAGING_I_ABS], // for clean, you need to put the 'src' in [] else it will only delete what is within the dir
             htmlStagingII: [HTML_STAGING_II_ABS], // for clean, you need to put the 'src' in [] else it will only delete what is within the dir
+            tsWatchStaging: [TS_WATCH_STAGING],
 
             // generatel target for removing dirs/files; set src dynamically, supply abs. paths
             custom: {
@@ -3188,21 +3189,24 @@ module.exports = function(grunt) {
 
                                                                 // ======== JS SECTION ======= //
 
-    grunt.task.registerTask(BUILD_JS, 'Build JS portion of build', function() {
+    grunt.task.registerTask(BUILD_JS, 'Build JS portion of build', function(buildFrom) {
 
         // autocompile js from typescript ts files
         // do before remove debug because the files might not exist until we run this
-        grunt.task.run(TYPESCRIPT);
+        grunt.task.run(TYPESCRIPT + ":" + buildFrom);
 
         // if bld flag given for rc option, remove debug comments first, before js minification
         if ( grunt.option(BLD_FLAG_RC_SHORT) || grunt.option(BLD_FLAG_RC_LONG) ) {
             grunt.task.run(REMOVE_DEBUG_COMMENTS + ':js');
         }
-        grunt.task.run(CLEAN_JS);
+        if ( ! buildFrom ) {
+            grunt.task.run(CLEAN_JS);
+        }
 
     });
 
-    grunt.task.registerTask(TYPESCRIPT, function() {
+    // @filepathRelBld - bld only single ts file (should be rel bldroot)
+    grunt.task.registerTask(TYPESCRIPT, function(executeFrom) {
 
         // check for existence of ts dir until https://gerrit.int.xcalar.com/#/c/8894/ checked in
         if (!grunt.file.exists(typescriptMapping.src)) {
@@ -3210,8 +3214,11 @@ module.exports = function(grunt) {
             return;
         }
 
+        if ( !executeFrom || executeFrom == 'undefined' ) {
+            executeFrom = BLDROOT + typescriptMapping.src;
+        }
+
         var currCwd = process.cwd(),
-            executeFrom = BLDROOT + typescriptMapping.src,
             tscpath = SRCROOT + "node_modules/typescript/bin/tsc",
             tscmd = tscpath + ' --outDir ' + BLDROOT + typescriptMapping.dest;
 
@@ -4916,35 +4923,32 @@ module.exports = function(grunt) {
                     grunt.log.writeln(("\nFile @ : "
                         + filepath
                         + " is one of the main ts files to autogen js from\n").bold.green);
-                    grunt.file.copy(filepath, BLDROOT + filepathRelBld);
-                    taskList.push(BUILD_JS);
+                    if ( grunt.file.exists(TS_WATCH_STAGING ) ) {
+                        shell.exec('rm -r ' + TS_WATCH_STAGING );
+                    }
+                    shell.exec('mkdir -p ' + TS_WATCH_STAGING);
+                    filepathRelTsSrc = path.relative(typescriptMapping.src, filepathRelBld);
+                    if ( filepath == SRCROOT + typescriptMapping.src + 'tsconfig.json' ) {
+                        shell.exec('cp -r ' + SRCROOT + typescriptMapping.src + '/. ' + TS_WATCH_STAGING);
+                    }
+                    else {
+                        grunt.file.copy(filepath, TS_WATCH_STAGING + filepathRelTsSrc);
+                        grunt.file.copy(SRCROOT + typescriptMapping.src + 'tsconfig.json', TS_WATCH_STAGING + "tsconfig.json"); // need tsconfig to pick up settings
+                    }
+                    taskList.push(BUILD_JS  + ':' + TS_WATCH_STAGING);
+                    taskList.push('clean:tsWatchStaging');
                     determinedRebuildProcess = true;
                 }
                 break;
             case WATCH_TARGET_JS:
-                /**
-                    if js contained anywhere nested in site/js/,
-                    only need copy single file over; no processing.
-                    @TODO when time permits:
-                    - if not one of the main js files, rebld entire bld
-                    (it could be a support js for other bld processes)
-                    - if installer bld, do jsminification again!
-                */
                 if ( grunt.file.doesPathContain(jsMapping.src, filepathRelBld) ) {
                     determinedRebuildProcess = true;
-                    grunt.log.writeln(("\nFile @ : "
-                        + filepath
-                        + " is one of the main js files to build - can skip length bld process\n").bold.green);
                     grunt.file.copy(filepath, BLDROOT + filepathRelBld);
                 }
                 else if ( grunt.file.doesPathContain(typescriptMapping.src, filepathRelBld) ) {
                     determinedRebuildProcess = true;
-                    grunt.log.writeln(("\nFile @ : "
-                        + filepath
-                        + " is one of the src javascript files, but is in ts/ folder.\n"
-                        + "Will run 'tsc' on entire folder.\n").bold.green);
-                    grunt.file.copy(filepath, BLDROOT + filepathRelBld);
-                    taskList.push(TYPESCRIPT);
+                    filepathRelTsSrc = path.relative(typescriptMapping.src, filepathRelBld);
+                    grunt.file.copy(filepath, BLDROOT + jsMapping.dest + filepathRelTsSrc);
                 }
                 break;
             case WATCH_TARGET_HTML:
@@ -5949,6 +5953,7 @@ module.exports = function(grunt) {
         // variables depending on destdir and srcdir
         HTML_STAGING_I_ABS = BLDROOT + htmlStagingDirI;
         HTML_STAGING_II_ABS = BLDROOT + htmlStagingDirII;
+        TS_WATCH_STAGING = BLDROOT + 'tswatchtmp/';
 
         // certain dirs and files should be excluded on for certain build types
         if ( BLDTYPE != DEV ) {
