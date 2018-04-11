@@ -4907,13 +4907,14 @@ module.exports = function(grunt) {
                     filepathRelFiletypeSrc = path.relative(cssMapping.src, filepathRelBld); // cwd of all the targets (except initial rsync) include BLDROOT in their cwd
                     grunt.config(LESS_TEMPLATE_KEY, filepathRelFiletypeSrc);
                     resolveDependencies(cssMapping.required);
-                }
-                else {
-                    // not top level less files; re-gen entire css portion of bld; will use default template src of entire less dir
-                    grunt.log.writeln(("\nFile @ : "
-                        + filepath
-                        + " is NOT a main less file; will regen entire css portion of bld\n").bold.green);
-                    resolveDependencies([cssMapping.src]); // this will also copy in the changed watch file
+                } else {
+                    grunt.log.writeln(("\nFile @ : " +
+                        filepath +
+                        " is NOT a main less file; regen entire css " +
+                        " portion of bld\n").bold.green);
+                    resolveDependencies([cssMapping.src]);
+                    // watched file wont be copied in if was present in bld
+                    grunt.file.copy(filepath, BLDROOT + filepathRelBld);
                 }
                 taskList.push('less:dist');
                 determinedRebuildProcess = true;
