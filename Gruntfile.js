@@ -4953,67 +4953,33 @@ module.exports = function(grunt) {
                 }
                 break;
             case WATCH_TARGET_HTML:
-                /**
-                    if @ top level of src for html files,
-                    only need copy over the single
-                    file and do processing that file,
-                    so set template key to indicate
-                    Otherwise, need to re-generate entire html portion of bld
-                    (it could be a partial file included in other HTMLs)
-                */
                 var bldEntireHtml = true;
-                if ( grunt.file.arePathsEquivalent(containingDirRelBld, htmlMapping.src) ) {
-                    // the templating will route it within dest, and so you need to set template key for processing to what that would end up as
-                    filepathRelFiletypeSrc = path.relative(htmlMapping.src, filepathRelBld);
-                    outputFilepaths = getTemplatingOutputFilepaths(filepathRelFiletypeSrc);
-                    // create templating key out of this.
-                    /**
-                        some of the files get output to multiple different files.
-                        Currently the templating string can only take one file.
-                        Can create n number templating strings on the fly,
-                        but then you will need to template the destinations as well.
-                        Just not worth it right now since this is a corner case for a signle file...
-                        so in the case that it's one of the files that will get output ato
-                        multiple files,
-                        justs rebuild entire html...
-                    */
-                    if ( outputFilepaths.length == 1 ) {
-                        grunt.log.writeln(("\nFile @ : "
-                            + filepath
-                            + " is one of the main html files to build, and templates to only one output.\n"
-                            + "Will re-process this one file only").bold.green);
+                if (grunt.file.arePathsEquivalent(containingDirRelBld,
+                                                  htmlMapping.src)) {
+                    filepathRelFiletypeSrc = path.relative(htmlMapping.src,
+                                                           filepathRelBld);
+                    outputFilepaths = getTemplatingOutputFilepaths(
+                                                        filepathRelFiletypeSrc);
+                    if (outputFilepaths.length === 1) {
+                        grunt.log.writeln(("\nFile @ : " + filepath + " is " +
+                            "a top level html file and not included as part " +
+                            "of another file. Only regenerating its HTML.").bold
+                            .green);
                         bldEntireHtml = false;
-
-                        // copy in the watched file
-                        // set the template key used by the html processing tasks for picking up their src, to only pick up this file
-                        // note - their cwd is the root of html files being processed, so make template key value rel to that
+                        // Set global parameters for later jobs to use
+                        grunt.config(STAGE_HTML_TEMPLATE_KEY,
+                                     filepathRelFiletypeSrc);
+                        resolveDependencies(htmlMapping.required, SRCROOT,
+                                           HTML_STAGING_I_ABS, htmlMapping.src);
                         grunt.file.copy(filepath, BLDROOT + filepathRelBld);
-                        // set template key for staging only this file
-                        //grunt.config(STAGE_HTML_TEMPLATE_KEY, filepathRelFiletypeSrc); // stage only the HTML file you want
-                        grunt.config(STAGE_HTML_TEMPLATE_KEY, filepathRelFiletypeSrc); // stage only the HTML file you want
-                        // but make sure all dependencies are within the html staging area too
-                        resolveDependencies(htmlMapping.required, SRCROOT, HTML_STAGING_I_ABS, htmlMapping.src); // only maintain dir structure from htmlMapping.src
-                        grunt.config(HTML_TEMPLATE_KEY, outputFilepaths[0]); // will process only your HTML file!
-                        //grunt.config(HTML_TEMPLATE_KEY, filepathRelFiletypeSrc); // will process only your HTML file!
+                        grunt.config(HTML_TEMPLATE_KEY, outputFilepaths[0]);
                     }
                 }
-                if ( bldEntireHtml ) {
-                    /**
-                        html file not at top level of html src, or templating
-                        will write to multiple destinations.
-                        for case 1, could be file that
-                        must be included in others, etc.
-                        Rebuild entire html portion of the bld.
-                        (to do this, just don't change the template keys for HTML processes;
-                        default is to process entire html src)
-                        Make sure entire html bld portion present
-                    */
-                    grunt.log.writeln(("\nWatched file @ : "
-                        + filepath
-                        + " NOT a main html file, or, will template to multiple output files"
-                        + " (watch doesn't support this atm). "
-                        + "\nRegen entire html portion of bld").bold.green);
+                if (bldEntireHtml) {
+                    grunt.log.writeln(("\nFile @ : " + filepath + " is a " +
+                        "partial. Have to rebuild all HTML files").bold.green);
                     resolveDependencies([htmlMapping.src]);
+                    grunt.file.copy(filepath, BLDROOT + filepathRelBld);
                 }
                 taskList.push(BUILD_HTML);
                 determinedRebuildProcess = true;
