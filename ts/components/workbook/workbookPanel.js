@@ -543,7 +543,13 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
             } else {
                 deferred1 = WorkbookManager.uploadWKBK(workbookName, file);
             }
-            var deferred2 = createLoadingCard($newWorkbookCard);
+            var $sibling;
+            if (WorkbookManager.getActiveWKBK()) {
+                $sibling = getWorkbookBoxById(WorkbookManager.getActiveWKBK());
+            } else {
+                $sibling = $newWorkbookCard;
+            }
+            var deferred2 = createLoadingCard($sibling);
             return PromiseHelper.when(deferred1, deferred2);
         })
         .then(function(id, $fauxCard) {
