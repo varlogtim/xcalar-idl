@@ -1,184 +1,86 @@
 /**
-
     @GRUNTFILE
-        Uses:
-            1. BUILD TOOL to generate build for xcalar-gui project,
-            2. WATCH TOOL:
-                To watch for changes in certain files within the project source or build,
-                and if edits made to any such file, regenerate only portion of build
-                relevant to the edited file and reload browser with that updated build.
-                (ex. if you specify to watch all 'less' files in your project src,
-                grunt will run in background, and if you change any less file,
-                will re-generate CSS for less file changed)
-
     Basic usage:
-
             %> grunt <build-type> [options]   // build tool
-
             %> grunt watch [options] // watch tool
-
             %> grunt <build-type> watch [options] // build and then watch
 
     valid <build-type>:
-
-        dev
-            for front end developers - will generate a working build
-            but no javascript minification and config details remain
-            Build root, unless otherwise specified via cmd params:
-            <srcroot>/xcalar-gui (XD blds)
-            <srcroot>/xcalar-insight (XI blds)
-
-        debug
-            run by Jenkins - this is a regular default build that can
-            be debugged, only developer config details are removed so
-            the build doesn't get connected to developer server
-            Build root, unless otherwise specified via cmd params:
-            <srcroot>/xcalar-gui (XD blds)
-            <srcroot>/xcalar-insight (XI blds)
-
-        installer
-            full shippable build.
-            js is minified and developer config details removed
-            Build root, unless otherwise specified via cmd params:
-            <srcroot>/xcalar-gui (XD blds)
-            <srcroot>/xcalar-insight (XI blds)
-
-        trunk
-            for backend developers - will generate a working build,
-            but port in developer's own backend thrift changes, and
-            sync back and front end for communication
-            Build root, unless otherwise specified via cmd params:
-            <srcroot>/xcalar-gui (XD blds)
-            <srcroot>/xcalar-insight (XI blds)
+        dev: Debug build, but keeps config file
+        debug: Debug build, gets rid of config file
+        installer: Prod build
+        trunk: Prod build, but copies overXLRDIR's thrift files
 
     [options]:
-
         --srcroot=<path>
-
-            Root dir of xcalar-gui project to build from
-            if not supplied, defaults to cwd of Gruntfile
+            Root dir of xcalar-gui project. Defaults to cwd of Gruntfile
 
         --product=[XD|XI]
-
-            Which product type to build? Optional; default to XD.
+            Defaults to XD
 
         --buildroot=<path>
-
-            Dir you want build output directory holding index.html
-            If relative, will be relative to <buildroot>
-            If not supplied, defaults to:
-                <srcroot> (for all dev blds)
-                <srcroot>/xcalar-gui (for non-dev XD blds)
-                <srcroot>/xcalar-insight (for non-dev XI blds)
+            Output dirname. Defaults to xcalar-gui.
 
         --srcbldsame
-
-            sets <buildroot> to <srcroot>
+            [Deprecated] DO NOT USE. sets <buildroot> to <srcroot>
 
         --nooverwrite
-
-            If this flag given, if there is already a directory at build output location,
-            will exit.  Otherwise it will overwrite that.  Default is to overwrite.
+            Do not overwrite existing dir. Defaults to overwrite.
 
         --rc / --removedebugcomments    // installer blds only
-
-            If this flag passed, will remove code blocks between debug tags in javascript
-            files prior to js minification.
-            (see method removeDebug for more info)
+            Remove debug code blocks
 
     OPTIONS ONLY FOR WATCH:
-
         --type=<comma sep. list of FILETYPE(s)>
-
-            Watch for changes in files of the specified FILETYPE(s).
-            (If list begins with '-' will watch for chnages in all filetypes EXCEPT what is listed.)
+            If file changes in srcdir, recompile relevant files into destdir
+            (If list begins with '-' will watch for changes in all filetypes
+            EXCEPT what is listed.)
 
             FILETYPES:
-                less                   any less file in project src
-                css                    any css file final build
-                html                   any html file in project src (+ htmlTStr.js files)
-                bldhtml                any html file in the final build
-                js                     any js src file
-                ctor                      changes in site/render/template/constructor.template.js
-                all                    any of the valid file types in src or bld
+                less     any less file in project src
+                html     any html file in project src (+ htmlTStr.js files)
+                js       any js src file
+                ts       any ts src file
+                ctor     changes in site/render/template/constructor.template.js
+                all      any of the valid file types in src or bld
 
             ex.:
-                grunt watch --type=less,css        (watches for changes in any files of FILETYPE less or css)
+                grunt watch --type=less,css     (watches for changes in any files of FILETYPE less or css)
                 grunt watch --type=-less,css    (watches for changes in any files of FILETYPE other than less or css)
-
-            Each FILETYPE can be its own standalone boolean flag, too, indicating to WATCH files of that type
-
-            ex.:
                 grunt watch --less --css        (watches for changes in any files of FILETYPE less or css)
 
         --files=<comma sep. list of specific filepaths to watch>
 
         --common
-
-            Flag to watch for some common files (grep for COMMON_WATCH_FILES at top of script to see which currently)
+            [DEPRECATED]Flag to watch for some common files (grep for COMMON_WATCH_FILES at top of script to see which currently)
 
         --livereload
-
-            If given as a boolean flag, will do livereload of the browser, after completing
-            watch tasks for ANY watched file that gets edited.
+            ** TO GET LIVERELOAD PROPERTY TO WORK, please install the 'livereload' chrome plugin.
+            Reloads browser on watched file change.
 
         --livereload=<comma sep. list of FILETYPE(s)>
-
+            ** TO GET LIVERELOAD PROPERTY TO WORK, please install the 'livereload' chrome plugin.
             Do livereload only on files of the given types.
             (if list begins with '-', will livereload on a file of any valid FILETYPE except what is specified)
-            ** TO GET LIVERELOAD PROPERTY TO WORK, please install the 'livereload' chrome plugin.
 
         --relTo=[SRC|BLD]
-
             if --file, --files, --dir, or --dirs specified as rel. paths,
             will indicates weather to resolve from the project src, or the build src.
 
     Built in Grunt options:
-
         --v/--verbose
-
             If flag given, will display more log messages
 
         --f/--force
-
             If flag given, then if a task fails, subsequent tasks will be run still.
             (Default is to hault all queued tasks if one task in the queue fails)
 
     Examples:
-
         grunt dev                 (build a dev build of XD product, in to <xclrdir>)
         grunt dev --product XI    (build a dev build of XI product, in to <xclrdir>)
         grunt installer           (build installer flavor of XD product, in to <xclrdir>/xcalar-gui/)
         grunt debug watch --less  (build a debug build in to <xlrdir>/xcalar-gui, then watch for changes in all less files in <xlrdir> that aren't bld files)
-
-        grunt debug watch --less --livereload
-
-            build a debug build, then watch project src for any chnages to less files.
-            If any less file is edited, rebuild it in to the build and reload the browser.
-
-        grunt debug watch --types=-css --livereload=less
-
-            build a debug build, then for changes in any file of any valid FILETYPE,
-            except for css files.
-            and livereload the browser after completing watch tasks, only if edited file was a less file.
-
-        grunt watch --srcroot=/home/jolsen/xcalar-gui --less --html --livereload=-less
-
-            In an existing gui build, with src root at --srcroot, and bld output at
-            default location (since no --buildroot given; see --buildroot desc above
-            for default),
-            Watch for chnages of any less or project src html files in an existing project.
-            If changed, rebuild the file in to the build and livereload if it was a FILETYPE
-            other than less
-
-        grunt watch --buildroot=/home/jolsen/xcalar-gui/out --less --html --livereload=-less
-
-            Just as example above, only the existing project has its build at --buildroot,
-            and the project src will be the location script running from (since no --srcroot given)
-
-        grunt --srcroot=/home/jolsen/cleanRepo/guiproj/ --buildroot=/home/jolsen/xcalar-gui/bldGruntFile/dom5/ debug --v
-
-            bld debug build from project at --srcroot, bld destination is at --buildroot and with verbose console output
+        grunt debug watch --less --livereload (debug build, and watch for less files. On less file change, reload browser.)
 */
 
 /**
@@ -5531,44 +5433,39 @@ module.exports = function(grunt) {
         a custom help menu
     */
     function displayHelpMenu() {
-        grunt.log.writeln("\n");
-        fancyLine();
-        grunt.log.writeln(("\nThis grunt file will either generate a build from a xcalar gui project, watch for changes in files, or both.\n").green.bold);
-        grunt.log.writeln((("Useage:").red + ("\n\tgrunt [options] [task [task ...]]").yellow).bold);
-        var dummysrc = "/home/myhome/myxlrguisrc";
-        grunt.log.writeln((("\nExample:").red
-            + ("\n\tgrunt " + DEV
-            + " --" + BLD_OP_SRC_REPO + "=" + dummysrc
-            + " --" + BLD_OP_PRODUCT + "=XI"
-            + " watch --"
-            + WATCH_TARGET_LESS).yellow).bold);
-        grunt.log.writeln("\n\t(Generate a dev build of the XI flavor, from the xalar-gui src code at"
-            + "\n\t" + dummysrc + ", then watch the src for changes in any less"
-            + "\n\tfiles, and regen relevant css in to the created build, if any detected)");
-        grunt.log.writeln((("\nAvailable tasks::").red).bold);
-        grunt.log.writeln((("\n\n[Build tasks:]\n").yellow).bold);
-        for ( task of Object.keys(VALID_BLD_TASKS) ) {
+        grunt.log.writeln((("Usage:").red +
+                        ("\n\tgrunt [options] [task [task ...]]").yellow).bold);
+        grunt.log.writeln(("Frequently used commands:").red);
+        grunt.log.writeln(("\tFrontend devs:").green);
+        grunt.log.writeln("\t\tgrunt dev // Wait for completion");
+        grunt.log.writeln("\t\tgrunt watch --html --less --js --ts --ctor");
+        grunt.log.writeln(("\tBackend devs:").green);
+        grunt.log.writeln("\t\tInstaller build: grunt installer");
+        grunt.log.writeln("\t\tTest out thrift change: grunt trunk");
+        grunt.log.writeln((("\nAvailable tasks:").red).bold);
+        grunt.log.writeln((("\tBuild tasks:").yellow).bold);
+        for (var task of Object.keys(VALID_BLD_TASKS)) {
             grunt.log.writeln(("\t" + task).green + ": " + VALID_BLD_TASKS[task]);
         }
-        grunt.log.writeln((("\n\n[Other tasks:]\n").yellow).bold);
-        for ( task of Object.keys(VALID_OTHER_TASKS) ) {
+        grunt.log.writeln((("\tOther tasks:").yellow).bold);
+        for (var task of Object.keys(VALID_OTHER_TASKS)) {
             grunt.log.writeln(("\t" + task).green + ": " + VALID_OTHER_TASKS[task]);
         }
-        grunt.log.writeln((("\nAvailable options::\n").red).bold);
-        for ( type of Object.keys(OPTIONS_DESC_HASH) ) {
-            for ( subtype of Object.keys(OPTIONS_DESC_HASH[type]) ) {
-                grunt.log.writeln((OPTIONS_DESC_HASH[type][subtype]['header'] + "\n").bold.yellow);
+        grunt.log.writeln((("Available options:").red).bold);
+        for (var type of Object.keys(OPTIONS_DESC_HASH)) {
+            for (var subtype of Object.keys(OPTIONS_DESC_HASH[type])) {
+                grunt.log.writeln((OPTIONS_DESC_HASH[type][subtype]['header'] +
+                                   "\n").bold.yellow);
                 // list all the options
-                for ( op of Object.keys(OPTIONS_DESC_HASH[type][subtype]['matchingoptions']) ) {
-                    grunt.log.writeln((OPTIONS_DESC_HASH[type][subtype]['matchingoptions'][op]['useage']).green);
-                    grunt.log.writeln(OPTIONS_DESC_HASH[type][subtype]['matchingoptions'][op]['desc']);
+                for (var op of Object.keys(OPTIONS_DESC_HASH[type][subtype]
+                                                        ['matchingoptions'])) {
+                    grunt.log.writeln((OPTIONS_DESC_HASH[type][subtype]
+                                      ['matchingoptions'][op]['useage']).green);
+                    grunt.log.writeln(OPTIONS_DESC_HASH[type][subtype]
+                                               ['matchingoptions'][op]['desc']);
                 }
             }
         }
-        // (FLAGS_DESC_STR
-        //OPS_DESC_STR)));
-        grunt.log.writeln("\n\n");
-        fancyLine();
     }
 
     /**
