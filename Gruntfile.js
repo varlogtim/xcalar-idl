@@ -5948,7 +5948,7 @@ module.exports = function(grunt) {
                         grunt.fail.fatal("The task '"
                             + task
                             + "' requires at least one of the following options/flags :\n"
-                            + optionListString(VALID_TASKS[task][REQUIRES_ONE_KEY]));
+                            + optionsListToString(VALID_TASKS[task][REQUIRES_ONE_KEY]));
                     }
                 }
                 if ( VALID_TASKS[task].hasOwnProperty(REQUIRES_ALL_KEY) ) {
@@ -5958,7 +5958,7 @@ module.exports = function(grunt) {
                             grunt.fail.fatal("The task '"
                                 + task
                                 + "' requires all of the following options/flags:\n"
-                                + optionListString(VALID_TASKS[task][REQUIRES_ALL_KEY]));
+                                + optionsListToString(VALID_TASKS[task][REQUIRES_ALL_KEY]));
                         }
                     }
                 }
@@ -6147,7 +6147,7 @@ module.exports = function(grunt) {
                         grunt.fail.fatal("--"
                             + WATCH_OP_REL_TO
                             + " requires at least one of the following options/flags : "
-                            + optionListString(VALID_OPTIONS[paramPlain][REQUIRES_ONE_KEY]));
+                            + optionsListToString(VALID_OPTIONS[paramPlain][REQUIRES_ONE_KEY]));
                     }
                 }
                 // if supplying this option requires you supply an entire set of other options
@@ -6157,7 +6157,7 @@ module.exports = function(grunt) {
                             grunt.fail.fatal("--"
                                 + WATCH_OP_REL_TO
                                 + " requires all of the following options/flags : "
-                                + optionListString(VALID_OPTIONS[paramPlain][REQUIRES_ALL_KEY]));
+                                + optionsListToString(VALID_OPTIONS[paramPlain][REQUIRES_ALL_KEY]));
                         }
                     }
                 }
@@ -6203,58 +6203,24 @@ module.exports = function(grunt) {
         return true;
     }
 
-    /**
-        Given a list of cli string options,
-        return a String which is a comma sep list
-        of those options with the -- in front
-        (for logging during param validation)
-
-        i.e. optionListString(["v","t","r"]);
-             returns the string "--v, --t, --r"
-    */
-    function optionListString(optionsList) {
-
-        var i;
-        listStr = ""
-        for ( i = 0; i < optionsList.length; i++ ) {
-            if ( i > 0 ) {
-                listStr = listStr + ", ";
-            }
-            listStr = listStr + "--" + optionsList[i];
-        }
-        return listStr;
+    function optionsListToString(optionsList) {
+        return optionsList.map(function(element) {return "--" + element})
+                          .join(", ");
     }
 
-    /**
-        Returns the list of tasks requested when the parent
-        Grunt file was invoked.
-
-         Reason:
-        This gruntfile uses grunt-concurarent plugin,
-        and spwaning child processes.
-        - Child processes have access to grunt.options
-         (cmd flags), but not the task list.
-        - Therefore, the parent task is will get the task list,
-         and then pass as a flag, so that the future child
-         processes have access to it.
-        This function is looking for that special flag,
-        will parse and return it
+    /** Returns list of tasks requested by parent grunt process.
+     * Child processes have access to grunt.options but not the task list.
     */
     function getTaskList() {
-        grunt.log.debug("GET TASKS: Tasks showing in standard way: "
-            + grunt.cli.tasks);
-
-        if ( grunt.option(INITIAL_GRUNT_PROCESS_TASKLIST) ) {
+        grunt.log.debug("GET TASKS: Tasks showing in standard way: " +
+                        grunt.cli.tasks);
+        if (grunt.option(INITIAL_GRUNT_PROCESS_TASKLIST)) {
             return grunt.option(INITIAL_GRUNT_PROCESS_TASKLIST).split(',');
-        }
-        else {
-            grunt.fail.fatal("Special flag "
-                + INITIAL_GRUNT_PROCESS_TASKLIST
-                + " is not present in grunt options!"
-                + "\nThis flag should be being set in the parent"
-                + " Grunt process, and should hold the value of"
-                + " requested tasks passed to Grunt parent process,"
-                + " so child processes can have access to this info.");
+        } else {
+            // This flag needs to be set in order to message pass between
+            // parent and child processes.
+            grunt.fail.fatal("Taskflag " + INITIAL_GRUNT_PROCESS_TASKLIST +
+                             " is not present in grunt options! FIXME.");
         }
     }
 
