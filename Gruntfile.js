@@ -54,9 +54,6 @@
 
         --files=<comma sep. list of specific filepaths to watch>
 
-        --common
-            [DEPRECATED]Flag to watch for some common files (grep for COMMON_WATCH_FILES at top of script to see which currently)
-
         --livereload
             ** TO GET LIVERELOAD PROPERTY TO WORK, please install the 'livereload' chrome plugin.
             Reloads browser on watched file change.
@@ -156,7 +153,6 @@ var WATCH_TARGET_CTOR = 'ctor';
 var WATCH_TARGET_LESS = "less";
 var WATCH_TARGET_TYPESCRIPT = "ts";
 var WATCH_TARGET_JS = "js";
-var WATCH_FLAG_COMMON_FILES = "common";
 var WATCH_FLAG_INITIAL_BUILD_CSS = 'buildcss';
 var WATCH_OP_WATCH_TYPES = "types";
 var WATCH_OP_FILES = "files";
@@ -271,14 +267,6 @@ var CONSTRUCTOR_TEMPLATE_FILE_PATH_REL_BLD = 'site/render/template/' + CONSTRUCT
     somewhere in init!!
 */
 var LIVE_RELOAD_BY_TYPE = {};
-
-/**
-    comon files to watch
-    (these should be ABS Paths, but need to get SRCROOT and BLDROOT first,
-    that will get appended on during watch, so put here just rel part
-*/
-var COMMON_WATCH_FILES = [htmlMapping.src + "index.html", htmlMapping.src + "login.html"];
-//var COMMON_WATCH_BLD_FILES = [htmlMapping.dest + 'index.html'];
 
 /**
     ==================================================
@@ -407,14 +395,6 @@ var VALID_OPTIONS = {
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in files of all filetypes"},
     [WATCH_TARGET_HTML]:
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in html files in the project source @ " + htmlMapping.src + ", (and the htmlTStr.js files), and regen HTML in to bld appropriately"},
-/**
-    [WATCH_TARGET_HTML_BLD]:
-        {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in html in the build"},
-*/
-/**
-    [WATCH_TARGET_CSS]:
-        {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in css files in the build (ignore this for now because livereload bug won't reload css)"},
-*/
     [WATCH_TARGET_LESS]:
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in less files in the project source @ " + cssMapping.src + ", and re-gen css file(s) in to build @ " + cssMapping.dest + " as a result of any changes"},
     [WATCH_TARGET_TYPESCRIPT]:
@@ -424,8 +404,6 @@ var VALID_OPTIONS = {
     //[WATCH_TARGET_JS_BLD]: {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in },
     [WATCH_TARGET_CTOR]:
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in " + CONSTRUCTOR_TEMPLATE_FILE_PATH_REL_BLD + " and re-gen constructor file(s) as result"},
-    [WATCH_FLAG_COMMON_FILES]:
-        {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in some common files in the project source: " + COMMON_WATCH_FILES},// + ',' + COMMON_WATCH_BLD_FILES},
     [WATCH_FLAG_INITIAL_BUILD_CSS]:
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Build CSS portion of build before you start watch task"},
 };
@@ -1289,7 +1267,7 @@ module.exports = function(grunt) {
                     (each filepath matched by src glob will be passed to this function)
                 */
                 filter: function(filepath) {
-                    return prettifyFilter(filepath);
+                    return canPrettify(filepath);
                 },
             },
             /** prettify:cheerio target -
@@ -1329,7 +1307,7 @@ module.exports = function(grunt) {
                 filter: function(filepath) {
                     var ccwd = grunt.config('prettify.cheerio.cwd');
                     // remember there's alo prettification blacklist
-                    if ( prettifyFilter(filepath) &&
+                    if ( canPrettify(filepath) &&
                         HTML_BUILD_FILES.indexOf(path.relative(ccwd, filepath)) !== -1 ) {
                         return true;
                     }
@@ -2063,7 +2041,6 @@ module.exports = function(grunt) {
         commonRoot = BLDROOT + "assets/";
         helpPath = helpContentMapping.src;
         fullHelpPath = BLDROOT + helpPath;
-        //fullHelpPath = commonRoot + "help/" + PRODUCT + "/";
         htmFilepaths = grunt.file.expand(fullHelpPath + "**/*.htm");
 
         myStructs = {};
@@ -5121,13 +5098,6 @@ module.exports = function(grunt) {
         var file;
 
         /** normalize values from the possible options */
-
-        // if common op specified - append those files in
-        if ( grunt.option(WATCH_FLAG_COMMON_FILES) ) {
-            grunt.log.debug("(Common files requested; add those files.  THEY SHOULD BE FILES ONLY!");
-            fileList = fileList.concat(COMMON_WATCH_FILES);
-//            fileList = fileList.concat(COMMON_WATCH_BLD_FILES);
-        }
         // list of files specified
         if ( grunt.option(WATCH_OP_FILES) ) {
             val = grunt.option(WATCH_OP_FILES).toString();
@@ -5808,30 +5778,11 @@ module.exports = function(grunt) {
             DONT_RSYNC.push('assets/dev');
         }
 
-        // common files and dirs for watch, they need abs path
-        for ( var i = 0; i < COMMON_WATCH_FILES.length; i++ ) {
-            COMMON_WATCH_FILES[i] = SRCROOT + COMMON_WATCH_FILES[i];
-        }
-/**
-        for ( var i = 0; i < COMMON_WATCH_BLD_FILES.length; i++ ) {
-            COMMON_WATCH_BLD_FILES[i] = BLDROOT + COMMON_WATCH_BLD_FILES[i];
-        }
-*/
         WATCH_FILETYPES[WATCH_TARGET_HTML] = [
             SRCROOT + 'site/**/*.html',
             SRCROOT + '**/htmlTStr.js'
         ];
-        //WATCH_FILETYPES[WATCH_TARGET_HTML_BLD][SUPERSET] = ['!' + BLDROOT + 'prod', BLDROOT + 'index.html'];
-//        WATCH_FILETYPES[WATCH_TARGET_HTML_BLD] = [
-//            BLDROOT + '**/*.html',
-            //'!' + BLDROOT + 'site/**',
-//            '!' + BLDROOT + '3rd/**',
-//            '!' + BLDROOT + 'demo/**',
-//            '!' + BLDROOT + 'node_modules/**',
-//            '!' + HTML_STAGING_I_ABS + '**',
-//            '!' + BLDROOT + 'external/**',
-//            '!' + BLDROOT + 'services/**'
-//        ];
+
         WATCH_FILETYPES[WATCH_TARGET_LESS] = [SRCROOT + cssMapping.src + '**/*.less'];
         WATCH_FILETYPES[WATCH_TARGET_TYPESCRIPT] = [SRCROOT + typescriptMapping.src + '**/*.ts', SRCROOT + typescriptMapping.src + 'tsconfig.json'];
         WATCH_FILETYPES[WATCH_TARGET_CSS] = [BLDROOT + cssMapping.dest + '**/*.css'];
@@ -6183,24 +6134,8 @@ module.exports = function(grunt) {
         }
     }
 
-    /**
-        a filter for prettify targets
-        (it's being used in more than one target)
-        return false if you shouldn't prettify this file because its name is in the blacklist
-        return true if you should
-    */
-    function prettifyFilter(filepath) {
-        var filename = path.basename(filepath);
-        if( DONT_PRETTIFY.indexOf(filename) !== -1 ) {
-            grunt.log.writeln((">> ").red
-                + "File: "
-                + filepath
-                + (" skip prettifying ").red
-                + ("(" + filename
-                + " in prettify blacklist)").grey.bold);
-               return false;
-        }
-        return true;
+    function canPrettify(filepath) {
+        return (DONT_PRETTIFY.indexOf(path.basename(filepath)) === -1);
     }
 
     function optionsListToString(optionsList) {
