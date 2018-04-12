@@ -45,9 +45,12 @@
                 all      any of the valid file types in src or bld
 
             ex.:
-                grunt watch --type=less,css     (watches for changes in any files of FILETYPE less or css)
-                grunt watch --type=-less,css    (watches for changes in any files of FILETYPE other than less or css)
-                grunt watch --less --css        (watches for changes in any files of FILETYPE less or css)
+                grunt watch --type=less,css
+                (watches for changes in any files of FILETYPE less or css)
+                grunt watch --type=-less,css
+                (watches for changes in any files of FILETYPE other than less or css)
+                grunt watch --less --css
+                (watches for changes in any files of FILETYPE less or css)
 
         --files=<comma sep. list of specific filepaths to watch>
 
@@ -83,9 +86,7 @@
         grunt debug watch --less --livereload (debug build, and watch for less files. On less file change, reload browser.)
 */
 
-/**
-    Global Path variables should end in '/' (or OS path sep.)
-*/
+
 var fs = require('fs'); // for file system operations
 var os = require('os'); // for getting hostname for thrift sync
 var shell = require('shelljs');
@@ -93,13 +94,8 @@ _ = require('underscore');
 var path = require('path');
 var cheerio = require('cheerio');
 
-/**
-    the names of the env variables the rest of our build tools rely on.
-    We will default to these for project source and trunk source if no
-    cmd params given
-*/
-var XLRGUIDIR = 'XLRGUIDIR',
-    XLRDIR = 'XLRDIR';
+var XLRGUIDIR = 'XLRGUIDIR';
+var XLRDIR = 'XLRDIR';
 
 var XD = "XD";
 var XI = "XI";
@@ -111,84 +107,72 @@ var LR_ON = 'LIVERELOADON';
 var LR_OFF = 'LIVERELOADOFF';
 var WATCH_TMP_FILE = '/tmp/grunt/gruntWatchMarkerDoNotDeleteWhileGruntRunning';
 
-//its not working because complete_watch is happening in a child task.
-// you hit more events and nicely they are not being considered.
-// because they're triggered by something else.
-// but what you need is to know when those child processes complete.
-// that's the only way to know.
-
 // main bld tasks user can call from cmd line i.e., 'grunt debug'
-var TRUNK = "trunk",
-    INSTALLER = "installer",
-    DEV = "dev", // if they don't supply any task, default will get run automatically; but they can specify default to
-    DEBUG = "debug";
+var TRUNK = "trunk";
+var INSTALLER = "installer";
+var DEV = "dev";
+var DEBUG = "debug";
 
 // Other Tasks
-var INIT = 'init',
-    PREP_BUILD_DIRS = 'prepBuildDirs',
-    BUILD = 'build',
-    BUILD_CSS = 'buildCSS',
-    CLEAN_CSS_SRC = 'cleanCssSrc',
-    BUILD_HTML = 'buildHTML',
-    TEMPLATE_HTML = 'templateHTML',
-    PROCESS_HTML = 'processHTML',
-    CLEAN_HTML_SRC = 'cleanHTMLSrc',
-    BUILD_JS = "buildJs",
-    TYPESCRIPT = "typescriptJsGeneration",
-    MINIFY_JS = "minifyJs",
-    REMOVE_DEBUG_COMMENTS = 'removeDebugComments',
-    CLEAN_JS = "cleanJs",
-    CLEAN_JS_SRC_POST_MINIFICATION = 'cleanJsPostMini',
-    UPDATE_ESSENTIAL_JS_FILES_WITH_CORRECT_PRODUCT_NAME = 'updateEssentialJsFilesWithCorrectProductName',
-    UPDATE_SCRIPT_TAGS = 'updateScriptTags',
-    CHECK_FOR_XD_STRINGS = 'checkForXDStrings',
-    HELP_CONTENTS = 'helpContents',
-    GENERATE_HELP_STRUCTS_FILE = 'generateHelpStructsFile',
-    GENERATE_HELP_SEARCH_INSIGHT_FILE = 'generateHelpSIFile',
-    CLEANUP_HELP_CONTENT_DIR = 'cleanupHelpContentDir',
-    CONSTRUCTOR_FILES = 'constructorFiles',
-    GENERATE_GIT_VAR_DEC_FILE = 'generateGitVarDecFile',
-    GENERATE_CURR_PERS_CONSTRUCTOR_FILE = 'generateCurrPersConstructorFile',
-    CLEAN_CONSTRUCTOR_SRC = 'cleanConstructorSrc',
-    SYNC_WITH_THRIFT = 'syncWithThrift',
-    NEW_CONFIG_FILE = 'newConfigFile',
-    CLEAN_BUILD_SECTIONS = 'cleanBldSections',
-    FINALIZE = 'finalize',
-    DISPLAY_SUMMARY = 'summary',
-    COMPLETE_WATCH = 'completeWatch',
-    WATCH_PLUGIN = 'customWatch', // what we'll rename the watch plugin to; can be anything
-    WATCH = 'watch'; // this will be our custom task. DO NOT CHANGE VALUE>,
-        // point is that this custom task will get hit when user gives 'watch' on cmd line
-
+var INIT = 'init';
+var PREP_BUILD_DIRS = 'prepBuildDirs';
+var BUILD = 'build';
+var BUILD_CSS = 'buildCSS';
+var CLEAN_CSS_SRC = 'cleanCssSrc';
+var BUILD_HTML = 'buildHTML';
+var TEMPLATE_HTML = 'templateHTML';
+var PROCESS_HTML = 'processHTML';
+var CLEAN_HTML_SRC = 'cleanHTMLSrc';
+var BUILD_JS = "buildJs";
+var TYPESCRIPT = "typescriptJsGeneration";
+var MINIFY_JS = "minifyJs";
+var REMOVE_DEBUG_COMMENTS = 'removeDebugComments';
+var CLEAN_JS = "cleanJs";
+var CLEAN_JS_SRC_POST_MINIFICATION = 'cleanJsPostMini';
+var UPDATE_ESSENTIAL_JS_FILES_WITH_CORRECT_PRODUCT_NAME = 'updateEssentialJsFilesWithCorrectProductName';
+var UPDATE_SCRIPT_TAGS = 'updateScriptTags';
+var CHECK_FOR_XD_STRINGS = 'checkForXDStrings';
+var HELP_CONTENTS = 'helpContents';
+var GENERATE_HELP_STRUCTS_FILE = 'generateHelpStructsFile';
+var GENERATE_HELP_SEARCH_INSIGHT_FILE = 'generateHelpSIFile';
+var CLEANUP_HELP_CONTENT_DIR = 'cleanupHelpContentDir';
+var CONSTRUCTOR_FILES = 'constructorFiles';
+var GENERATE_GIT_VAR_DEC_FILE = 'generateGitVarDecFile';
+var GENERATE_CURR_PERS_CONSTRUCTOR_FILE = 'generateCurrPersConstructorFile';
+var CLEAN_CONSTRUCTOR_SRC = 'cleanConstructorSrc';
+var SYNC_WITH_THRIFT = 'syncWithThrift';
+var NEW_CONFIG_FILE = 'newConfigFile';
+var CLEAN_BUILD_SECTIONS = 'cleanBldSections';
+var FINALIZE = 'finalize';
+var DISPLAY_SUMMARY = 'summary';
+var COMPLETE_WATCH = 'completeWatch';
+var WATCH_PLUGIN = 'customWatch';
+var WATCH = 'watch';
 // cli options for watch functionality
-var WATCH_FLAG_ALL = "all"; // watch all files
-    WATCH_TARGET_HTML = "html", // watch html src code (will need to rebld)
-    //WATCH_TARGET_HTML_BLD = "bldhtml", // watch the bld html (wont need to rbld)
-    WATCH_TARGET_CSS = "css",
-    WATCH_TARGET_CTOR = 'ctor',
-    WATCH_TARGET_LESS = "less",
-    WATCH_TARGET_TYPESCRIPT = "ts",
-    WATCH_TARGET_JS = "js",
-    //WATCH_TARGET_JS_BLD = "bldJs",
-    WATCH_FLAG_COMMON_FILES = "common", // watch a list of common files
-    WATCH_FLAG_INITIAL_BUILD_CSS = 'buildcss', // build only css - initially before you start the watch.
-    WATCH_OP_WATCH_TYPES = "types",
-    WATCH_OP_FILES = "files", // spec. a comma sep list of files
-    WATCH_OP_REL_TO = "relTo", // can be either 'SRC' or 'BLD' (if they  want to specify rel paths)
-    WATCH_OP_LIVE_RELOAD = "livereload";
+var WATCH_FLAG_ALL = "all";
+var WATCH_TARGET_HTML = "html";
+var WATCH_TARGET_CSS = "css";
+var WATCH_TARGET_CTOR = 'ctor';
+var WATCH_TARGET_LESS = "less";
+var WATCH_TARGET_TYPESCRIPT = "ts";
+var WATCH_TARGET_JS = "js";
+var WATCH_FLAG_COMMON_FILES = "common";
+var WATCH_FLAG_INITIAL_BUILD_CSS = 'buildcss';
+var WATCH_OP_WATCH_TYPES = "types";
+var WATCH_OP_FILES = "files";
+var WATCH_OP_REL_TO = "relTo";
+var WATCH_OP_LIVE_RELOAD = "livereload";
 
-// Global booleans to indicate if current process is for bld task or 'watch' functionality (could be both)
+// Global booleans to track which task. Can be both
 var IS_BLD_TASK = false;
 var IS_WATCH_TASK = false;
 
 var WATCH_FILETYPES = {
     [WATCH_TARGET_HTML]: '',
-    //[WATCH_TARGET_HTML_BLD]: '',
     [WATCH_TARGET_CSS]: '',
     [WATCH_TARGET_LESS]: '',
     [WATCH_TARGET_TYPESCRIPT]: "",
     [WATCH_TARGET_JS]: '',
-    //[WATCH_TARGET_JS_BLD]: '',
     [WATCH_TARGET_CTOR]: '',
 };
 
@@ -6257,7 +6241,6 @@ module.exports = function(grunt) {
         will parse and return it
     */
     function getTaskList() {
-
         grunt.log.debug("GET TASKS: Tasks showing in standard way: "
             + grunt.cli.tasks);
 
@@ -6275,129 +6258,64 @@ module.exports = function(grunt) {
         }
     }
 
-    /**
-        1. set tasks as option so it will be inherited by any
-            child processes.
-            (Grunt passes cmd flags to child processes, but not
-               task list.)
-        2. check for any watch tracker left over from a previous failed
-            Grunt run and if so clear it
-        3. set global boolean alerting that this is top level Grunt process
-            so can know this during param validation once
-            the special flag set
-
-    */
+    // Initialize parent task
     function parentInit() {
-
-        grunt.log.debug(" Tasks showing in this process: " + grunt.cli.tasks);
-
-        if ( !grunt.option(INITIAL_GRUNT_PROCESS_TASKLIST) ) {
-            /**
-                This is a parent process.
-                Set task list in special flag
-                so it will get inherited by children
-            */
+        grunt.log.debug("Tasks in this process: " + grunt.cli.tasks);
+        if (!grunt.option(INITIAL_GRUNT_PROCESS_TASKLIST)) {
             TOPLEVEL_GRUNT_PROCESS = true;
-
             var tasklist = grunt.cli.tasks;
             grunt.option(INITIAL_GRUNT_PROCESS_TASKLIST, tasklist.join(','));
-
-            // check if there's the watch tracking file left over
-            // from a previous failed run
-            // if it's there, delete it.
-            if ( isWatchEventProcessing() ) {
-                grunt.log.writeln(("This is a new run of Grunt;"
-                    + " found an old watch tracker:"
-                    + WATCH_TMP_FILE
-                    + "; deleting file"
-                    + "\nMost likely, a previous run of 'grunt watch'"
-                    + "failed.  If that is not the case, this might indicate a logic error").bold.red);
+            if (isWatchEventProcessing()) {
+                grunt.log.writeln(("Rerunning Grunt. Stopping previous runs")
+                                  .bold.red);
                 watchEventStopTracking();
             }
-        }
-        else {
-            grunt.fail.fatal("Trying to do initialization for parent process,"
-                + " but already detecting flag to indicate this is child"
-                + "\nLogic error in Grunt please address");
+        } else {
+            grunt.fail.fatal("Supposed to be parent process, but flag says " +
+                             "this is a child. Logic error in Grunt.");
         }
     }
 
-    /**
-        If a watch event is current processing,
-        send back the name of the file that triggered it.
-        If not, return false
-    */
+    // Checks whether a watch event is running. If it is, return details.
     function isWatchEventProcessing() {
-
-        // check if the tmp file is there
-        var content;
-        if ( grunt.file.exists(WATCH_TMP_FILE) ) {
-            // if there is a line, get name of file from it
-            content = grunt.file.read(WATCH_TMP_FILE);
-            // split on the newline and get the name of the file
+        if (grunt.file.exists(WATCH_TMP_FILE)) {
+            var content = grunt.file.read(WATCH_TMP_FILE);
             content = content.split('\n');
-            //grunt.fail.fatal("Content: " + content);
             return content;
-        }
-        else {
-            grunt.log.debug("There is no watch event currently processing."
-                + "\n(Checked for presence of file: "
-                 + WATCH_TMP_FILE
-                + " but did not observe it.)");
-            return false;
+        } else {
+            grunt.log.debug(WATCH_TMP_FILE + " absent, no watch event running");
+            return;
         }
     }
 
-    /**
-        Generate a tmp file with the name of the file
-        that triggered the watch event
-    */
+    // Start event tracking by creating a file with details of run
     function watchEventStartTracking(watchEventFile, watchTarget, processPid) {
-
-        grunt.log.debug("Start tracking watch event of file "
-            + watchEventFile
-            + " | watch plugin target of origin: "
-            + watchTarget
-            + " | pid of origin: "
-            + processPid);
-
-        if ( grunt.file.exists(WATCH_TMP_FILE) ) {
-            grunt.fail.fatal("Trying to start tracking a watch "
-                + " event, but tmp file "
-                + WATCH_TMP_FILE
-                + " already exists!!!");
+        grunt.log.debug("Start tracking with file " + watchEventFile +
+            " | watch target: " + watchTarget + " | pid: " + processPid);
+        if (grunt.file.exists(WATCH_TMP_FILE)) {
+            grunt.fail.fatal("Tmp file " + WATCH_TMP_FILE + " cannot exist.");
+        } else {
+            var content = watchEventFile + "\n" + watchTarget + "\n" +
+                          processPid;
+            writeAutoGeneratedFile(WATCH_TMP_FILE, content, null, true);
         }
-        else {
-            var content = watchEventFile + "\n" + watchTarget + "\n" + processPid;
-            writeAutoGeneratedFile(WATCH_TMP_FILE, content, null, true)
-        }
-
     }
 
-    /**
-        Delete the tmp file that we keep around
-        when watch even tprocessing
-        Return the name of the target that initiated
-        (so will have a way to know which target
-        to set tasklist back to empty)
-    */
+    // Stop event tracking. 1. Delete the tmp file
+    // 2. Return name of target that started the event tracking
     function watchEventStopTracking() {
-
         grunt.log.debug("Stop tracking currently processing watch event");
-
         var trackingData = isWatchEventProcessing();
-        if ( trackingData ) {
-            grunt.log.debug("Curr Tracking data: " + trackingData + " length: " + trackingData.length);
+        if (trackingData) {
+            grunt.log.debug("Curr Tracking data: " + trackingData +
+                            " length: " + trackingData.length);
             var target = trackingData[1];
-            grunt.file.delete(WATCH_TMP_FILE, {force:true}); // you need to force delete it because its in tmp, and Grunt will not delete outside cwd
+            grunt.file.delete(WATCH_TMP_FILE, {force:true});
             return target;
-        }
-        else {
-            grunt.log.writeln(("\n\nYou have called to stop watch event, "
-                + " but no watch event is detected as running!!!"
-                + " (Did someone manually delete the file "
-                + WATCH_TMP_FILE
-                + "\n").red.bold);
+        } else {
+            grunt.log.writeln(("Stop watch event called, " +
+                "but no watch event is running. " + WATCH_TMP_FILE +
+                " may have been manually removed.").red.bold);
         }
     }
 };
