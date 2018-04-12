@@ -405,6 +405,12 @@
                 "num-children": 1
             });
         }
+        function xcAggregateNode() {
+            return new TreeNode({
+                "class": "org.apache.spark.sql.catalyst.plans.logical.XcAggregate",
+                "num-children": 1
+            });
+        }
 
         // This function traverses the tree for a second time.
         // To process expressions such as Substring, Case When, etc.
@@ -471,42 +477,7 @@
                 // Check whether to use if or ifstr
                 // XXX backend to fix if and ifStr such that `if` is generic
                 // For now we are hacking this
-                var type = "";
-                var backupType = "";
-                for (var i = 0; i < node.children.length; i++) {
-                    if (i % 2 === 1) {
-                        var exprClass = node.children[i].value.class;
-                        if (exprClass ===
-                          "org.apache.spark.sql.catalyst.expressions.Literal" ||
-                            exprClass ===
-               "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
-                            type = node.children[i].value.dataType;
-                            break;
-                        } else if (isMathOperator(exprClass) || exprClass ===
-                   "org.apache.spark.sql.catalyst.expressions.ScalarSubquery") {
-                            backupType = "float"; // anything except for string
-                        }
-                    }
-                }
-                if (type === "" &&
-                    node.value.elseValue &&
-                    ((node.value.elseValue[0].class ===
-                    "org.apache.spark.sql.catalyst.expressions.Literal") ||
-                    (node.value.elseValue[0].class ===
-             "org.apache.spark.sql.catalyst.expressions.AttributeReference"))) {
-                    // XXX Handle case where else value is a complex expr
-                    assert(node.value.elseValue.length === 1,
-                           SQLTStr.CaseWhenElse + node.value.elseValue.length);
-                    type = node.value.elseValue[0].dataType;
-                }
-                if (type === "") {
-                    if (backupType === "") {
-                        console.error("Defaulting to ifstr as workaround");
-                        type = "string";
-                    } else {
-                        type = backupType;
-                    }
-                }
+                var type = __getColType(node);
                 var getNewNode;
                 if (type === "string") {
                     getNewNode = ifStrNode; // nifty little trick :)
@@ -626,14 +597,20 @@
                 // XXX Currently, Aggregate node should be the first in the plan
                 // This assertion is NO longer valid when we move to TPCDS
                 // Will be fixed soon.
-                assert(node.value.plan[0].class ===
-                       "org.apache.spark.sql.catalyst.plans.logical.Aggregate",
-                       SQLTStr.SubqueryAggregate + node.value.plan[0].class);
+                if (node.value.plan[0].class ===
+                       "org.apache.spark.sql.catalyst.plans.logical.Aggregate") {
                 node.value.plan[0].class =
                       "org.apache.spark.sql.catalyst.plans.logical.XcAggregate";
                 var subqueryTree = SQLCompiler.genTree(undefined,
                                                        node.value.plan);
                 node.subqueryTree = subqueryTree;
+                } else {
+                    var xcAggNode = xcAggregateNode();
+                    var subqueryTree = SQLCompiler.genTree(xcAggNode,
+                                                           node.value.plan);
+                    xcAggNode.children = [subqueryTree];
+                    node.subqueryTree = xcAggNode;
+                }
                 break;
             case ("expressions.Year"):
             case ("expressions.Month"):
@@ -716,8 +693,9 @@
                 assert(node.children.length === 2);
 
                 var newNode;
+                var type = __getColType(node);
                 // All children are already casted to the same type, just take 1
-                if (node.children[0].value.dataType === "string") {
+                if (type === "string") {
                     newNode = ifStrNode();
                 } else {
                     newNode = ifNode();
@@ -768,6 +746,10 @@
                 notNNode.children = [node.children[0]];
                 node = nNode;
                 break;
+            case ("expressions.CheckOverflow"):
+            case ("expressions.PromotePrecision"):
+                assert(node.children.length === 1);
+                node = secondTraverse(node.children[0], options);
             default:
                 break;
         }
@@ -866,7 +848,9 @@
 
         // Push cols names to its direct parent, except from Join
         if (node.parent && node.parent.value.class !==
-            "org.apache.spark.sql.catalyst.plans.logical.Join") {
+            "org.apache.spark.sql.catalyst.plans.logical.Join" && 
+            node.parent && node.parent.value.class !==
+            "org.apache.spark.sql.catalyst.plans.logical.Union") {
             // Must create a deep copy of the array.
             // Otherwise we are just assigning the pointer. So when the
             // parent changes, the children change as well.
@@ -956,6 +940,9 @@
                     break;
                 case ("Window"):
                     retStruct = self._pushDownWindow(treeNode);
+                    break;
+                case ("LocalRelation"):
+                    retStruct = self._pushDownLocalRelation(treeNode);
                     break;
                 default:
                     console.error("Unexpected operator: " + treeNodeClass);
@@ -1342,8 +1329,10 @@
             var self = this;
 
             assert(node.children.length === 1);
-            assert(node.value.aggregateExpressions.length === 1);
             assert(node.subqVarName);
+            var tableName = node.children[0].newTableName;
+            if (node.value.aggregateExpressions) {
+                assert(node.value.aggregateExpressions.length === 1);
             var edgeCase = false;
             // Edge case:
             // SELECT col FROM tbl GROUP BY col1
@@ -1354,7 +1343,6 @@
             // Thus we can give it an aggOperator, such as max.
             var index = node.value.aggregateExpressions[0][0].class ===
                       "org.apache.spark.sql.catalyst.expressions.Alias" ? 1 : 0;
-            var tableName = node.children[0].newTableName;
             var treeNode = SQLCompiler.genExpressionTree(undefined,
                            node.value.aggregateExpressions[0].slice(index));
             var options = {renamedCols: node.renamedCols, xcAggregate: true};
@@ -1362,6 +1350,11 @@
             var evalStr = genEvalStringRecur(treeNode, acc, options);
             if (!acc.operator) {
                 evalStr = "max(" + evalStr + ")";
+            }
+            } else {
+                assert(node.usrCols.length === 1);
+                var colName = __getCurrentName(node.usrCols[0]);
+                var evalStr = "max(" + colName + ")";
             }
             return self.sqlObj.aggregateWithEvalStr(evalStr,
                                                     tableName,
@@ -1963,17 +1956,55 @@
             var self = this;
             // Union has at least two children
             assert(node.children.length > 1);
+            // If only 1 of children is not localrelation,
+            // skip the union and handle column info
+            var validChildrenIds = __findValidChildren(node);
+            if (validChildrenIds.length === 1 && validChildrenIds[0] != 0) {
+                var lrChild = node.children[0];
+                var validChild = node.children[validChildrenIds[0]];
+                node.newTableName = validChild.newTableName;
+                node.usrCols = jQuery.extend(true, [], validChild.usrCols);
+                node.xcCols = jQuery.extend(true, [], validChild.xcCols);
+                node.sparkCols = jQuery.extend(true, [], validChild.sparkCols);
+                node.renamedCols = {};
+                for (var i = 0; i < lrChild.usrCols.length; i++) {
+                    var newColName = lrChild.usrCols[i].colName;
+                    var newColId = lrChild.usrCols[i].colId;
+                    node.usrCols[i].colId = newColId;
+                    if (__getCurrentName(node.usrCols[i]) != newColName) {
+                        node.usrCols[i].rename = newColName;
+                        node.renamedCols[newColId] = newColName;
+                    } else if (node.usrCols[i].rename) {
+                        node.renamedCols[newColId] = node.usrCols[i].rename;
+                    }
+                }
+                return PromiseHelper.resolve();
+            } else {
+                var validChild = node.children[0];
+                node.usrCols = jQuery.extend(true, [], validChild.usrCols);
+                node.xcCols = jQuery.extend(true, [], validChild.xcCols);
+                node.sparkCols = jQuery.extend(true, [], validChild.sparkCols);
+                node.renamedCols = jQuery.extend(true, {}, validChild.renamedCols);
+                if (validChildrenIds.length === 1) {
+                    node.newTableName = validChild.newTableName;
+                    return PromiseHelper.resolve();
+                }
+            }
             var newTableName = node.newTableName;
             var tableInfos = [];
             var colRenames = node.children[0].usrCols;
             for (var i = 0; i < node.children.length; i++) {
                 var unionTable = node.children[i];
+                if (unionTable.value.class ===
+                    "org.apache.spark.sql.catalyst.plans.logical.LocalRelation") {
+                    continue;
+                }
                 var unionCols = unionTable.usrCols;
                 var columns = [];
                 for (var j = 0; j < unionCols.length; j++) {
                     columns.push({
-                        name: unionCols[j].colName,
-                        rename: colRenames[j].colName,
+                        name: __getCurrentName(unionCols[j]),
+                        rename: __getCurrentName(colRenames[j]),
                         type: "DfUnknown", // backend will figure this out. :)
                         cast: false // Should already be casted by spark
                     });
@@ -1987,10 +2018,9 @@
             // groupBy without aggregation on all columns we need.
             // XXX Since we support dedup flag, we may consider optimization.
             // It will save us one groupBy.
-            return self.sqlObj.union(tableInfos, false, newTableName);
+            return self.sqlObj.union(tableInfos, false);
         },
 
-        // XXX need to confirm detail about column info
         _pushDownWindow: function(node) {
             var self = this;
             var deferred = PromiseHelper.deferred();
@@ -2076,6 +2106,27 @@
                 deferred.resolve();
             });
             return deferred.promise();
+        },
+
+        _pushDownLocalRelation: function(node) {
+            // Now only support empty localrelation, which represent tables
+            // can be evaluated to empty from sql query without data on server
+            assert(node.value.data.length === 0);
+            // Spark will replace operators after localrelation except union
+            // Project/.../Filter => localrelation
+            // inner/semi join => localrelation
+            // outer join => project (add empty columns)
+            // anti join => the other table (all rows are kept)
+            // table intersect localrelation => localrelation
+            // table except localrelation => table
+            assert(node.parent.value.class ===
+                "org.apache.spark.sql.catalyst.plans.logical.Union");
+            node.xccli = "";
+            node.usrCols = [];
+            node.value.output.forEach(function(array) {
+                node.usrCols.push(__genColStruct(array[0]));
+            })
+            return PromiseHelper.resolve();
         }
     };
 
@@ -2112,7 +2163,7 @@
     function __handleAndEqJoin(globalStruct, joinNode, overwriteJoinType) {
         var self = this;
 
-        function handleMaps(mapStrArray, origTableName) {
+        function handleMaps(mapStrArray, origTableName, colNameArray) {
             var deferred = PromiseHelper.deferred();
             if (mapStrArray.length === 0) {
                 return deferred.resolve({newTableName: origTableName,
@@ -2120,8 +2171,15 @@
             }
             var newColNames = [];
             var tableId = xcHelper.getTableId(origTableName);
+            var j = 0;
             for (var i = 0; i < mapStrArray.length; i++) {
                 var tempCol = "XC_JOIN_COL_" + tableId + "_" + i;
+                for (; j < colNameArray.length; j++) {
+                    if (colNameArray[j] === mapStrArray[i]) {
+                        colNameArray[j] = tempCol;
+                        break;
+                    }
+                }
                 newColNames.push(tempCol);
                 // Record temp cols
                 joinNode.xcCols.push({colName: tempCol});
@@ -2144,13 +2202,12 @@
         var deferred = PromiseHelper.deferred();
         var leftTableName = globalStruct.leftTableName;
         var rightTableName = globalStruct.rightTableName;
-        PromiseHelper.when(handleMaps(leftMapArray, leftTableName),
-                           handleMaps(rightMapArray, rightTableName))
+        PromiseHelper.when(handleMaps(leftMapArray, leftTableName, leftCols),
+                           handleMaps(rightMapArray, rightTableName, rightCols))
         .then(function(retLeft, retRight) {
             var lTableInfo = {};
             lTableInfo.tableName = retLeft.newTableName;
-            lTableInfo.columns = xcHelper.arrayUnion(retLeft.colNames,
-                                                     leftCols);
+            lTableInfo.columns = leftCols;
             lTableInfo.pulledColumns = [];
             lTableInfo.rename = [];
             if (joinNode.xcRemoveNull) {
@@ -2161,8 +2218,7 @@
 
             var rTableInfo = {};
             rTableInfo.tableName = retRight.newTableName;
-            rTableInfo.columns = xcHelper.arrayUnion(retRight.colNames,
-                                                     rightCols);
+            rTableInfo.columns = rightCols;
             rTableInfo.pulledColumns = [];
             rTableInfo.rename = [];
 
@@ -2559,14 +2615,12 @@
             if (!dontPush) {
                 if (leftAcc.numOps > 0) {
                     leftMapArray.push(leftEvalStr);
-                } else {
-                    leftCols.push(leftEvalStr);
                 }
+                leftCols.push(leftEvalStr);
                 if (rightAcc.numOps > 0) {
                     rightMapArray.push(rightEvalStr);
-                } else {
-                    rightCols.push(rightEvalStr);
                 }
+                rightCols.push(rightEvalStr);
             }
         }
 
@@ -2664,6 +2718,17 @@
     }
     // End of helper functions for join
 
+    function __findValidChildren(node) {
+        var validIds = [];
+        for (var i = 0; i < node.children.length; i++) {
+            if (node.children[i].value.class !=
+                "org.apache.spark.sql.catalyst.plans.logical.LocalRelation") {
+                validIds.push(i);
+            }
+        }
+        return validIds;
+    }
+
     function __getColType(node) {
         // There are some exceptions in expressions like b in substr(a,b,c)
         if (node.value.class ===
@@ -2672,7 +2737,19 @@
             "org.apache.spark.sql.catalyst.expressions.Cast" ||
             node.value.class ===
             "org.apache.spark.sql.catalyst.expressions.Literal") {
-                return node.value.dataType;
+                return convertSparkTypeToXcalarType(node.value.dataType);
+        } else if (node.value.class ===
+            "org.apache.spark.sql.catalyst.expressions.ScalarSubquery") {
+            return __getColType(SQLCompiler.genTree(undefined,
+                                            node.value.plan.slice(0)));
+        } else if (node.value.class ===
+            "org.apache.spark.sql.catalyst.plans.logical.Project") {
+            return __getColType(SQLCompiler.genTree(undefined,
+                                        node.value.projectList[0].slice(0)));
+        } else if (node.value.class ===
+            "org.apache.spark.sql.catalyst.plans.logical.Aggregate") {
+            return __getColType(SQLCompiler.genTree(undefined,
+                                node.value.aggregateExpressions[0].slice(0)));
         }
         var left = 0;
         if (node.value.class ===
@@ -2726,26 +2803,6 @@
                 type = __getColType(orderNode);
                 var mapStr = genEvalStringRecur(orderNode, undefined, options);
                 options.maps.push({colName: colName, mapStr: mapStr});
-            }
-
-            switch (type) {
-                case ("integer"):
-                case ("boolean"):
-                case ("string"):
-                    break;
-                case ("long"):
-                    type = "integer";
-                    break;
-                case ("double"):
-                    type = "float";
-                    break;
-                case ("date"):
-                    type = "string";
-                    break;
-                default:
-                    assert(0);
-                    type = "string";
-                    break;
             }
 
             if (!colNameSet.has(colName)) {
@@ -2902,7 +2959,8 @@
                 }
             });
             newRenames = __resolveCollision(windowStruct.leftColInfo,
-                windowStruct.rightColInfo, lTableInfo.rename, rTableInfo.rename);
+                windowStruct.rightColInfo, lTableInfo.rename, rTableInfo.rename,
+                windowStruct.leftTableName, ret.newTableName);
             // This struct is used by backend, so need to replace
             // target column name with column name before rename
             rTableInfo.rename.forEach(function(item) {
@@ -2925,11 +2983,13 @@
         } else if (windowStruct.addToUsrCol) {
             newRenames = __resolveCollision(windowStruct.leftColInfo,
                 windowStruct.rightColInfo.concat(windowStruct.addToUsrCol),
-                lTableInfo.rename, rTableInfo.rename);
+                lTableInfo.rename, rTableInfo.rename,
+                windowStruct.leftTableName, ret.newTableName);
         } else {
             newRenames = __resolveCollision(windowStruct.leftColInfo,
                                             windowStruct.rightColInfo,
-                                            lTableInfo.rename, rTableInfo.rename);
+                                            lTableInfo.rename, rTableInfo.rename,
+                                    windowStruct.leftTableName, ret.newTableName);
         }
         // If left table is the trunk table, modify column info of node
         // otherwise modify temp column info
@@ -3865,11 +3925,17 @@
     }
 
     function convertSparkTypeToXcalarType(dataType) {
+        if (dataType.indexOf("decimal(") != -1) {
+            return "float";
+        }
         switch (dataType) {
             case ("double"):
+            case ("float"):
                 return "float";
             case ("integer"):
             case ("long"):
+            case ("short"):
+            case ("byte"):
                 return "int";
             case ("boolean"):
                 return "bool";
