@@ -4240,7 +4240,7 @@ XcalarUploadPythonRejectDuplicate = function(moduleName, pythonStr) {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-
+    moduleName = moduleName.split("/").pop(); // remove absolute path
     xcalarApiUdfAdd(tHandle, UdfTypeT.UdfTypePython, moduleName, pythonStr)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -4265,7 +4265,7 @@ XcalarUploadPython = function(moduleName, pythonStr) {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-
+    moduleName = moduleName.split("/").pop(); // remove absolute path
     xcalarApiUdfAdd(tHandle, UdfTypeT.UdfTypePython, moduleName, pythonStr)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -4318,7 +4318,7 @@ XcalarUpdatePython = function(moduleName, pythonStr) {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-
+    moduleName = moduleName.split("/").pop(); // remove absolute path
     xcalarApiUdfUpdate(tHandle, UdfTypeT.UdfTypePython, moduleName,
                        pythonStr)
     .then(deferred.resolve)
@@ -4344,7 +4344,7 @@ XcalarDeletePython = function(moduleName) {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-
+    moduleName = moduleName.split("/").pop(); // remove absolute path
     xcalarApiUdfDelete(tHandle, moduleName)
     .then(deferred.resolve)
     .fail(function(error) {
@@ -4361,6 +4361,7 @@ XcalarDownloadPython = function(moduleName) {
     }
     var deferred = PromiseHelper.deferred();
     // fromWhichWorkbook can be null
+    moduleName = moduleName.split("/").pop(); // remove absolute path
     xcalarApiUdfGet(tHandle, moduleName)
     .then(function(output) {
         deferred.resolve(output.source);
