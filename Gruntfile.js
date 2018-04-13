@@ -5787,7 +5787,6 @@ module.exports = function(grunt) {
         WATCH_FILETYPES[WATCH_TARGET_TYPESCRIPT] = [SRCROOT + typescriptMapping.src + '**/*.ts', SRCROOT + typescriptMapping.src + 'tsconfig.json'];
         WATCH_FILETYPES[WATCH_TARGET_CSS] = [BLDROOT + cssMapping.dest + '**/*.css'];
         WATCH_FILETYPES[WATCH_TARGET_JS] = [SRCROOT + jsMapping.src + '**/*.js', SRCROOT + typescriptMapping.src + "/**/*.js"];
-//        WATCH_FILETYPES[WATCH_TARGET_JS_BLD] = [BLDROOT + 'assets/js/**/*.js'];
         WATCH_FILETYPES[WATCH_TARGET_CTOR] = [SRCROOT + 'site/render/template/constructor.template.js'];
 
         /**
@@ -5809,10 +5808,6 @@ module.exports = function(grunt) {
         So this needs to be called AFTER grunt.initConfig statement
     */
     function setDynamicGruntConfigAttrs() {
-
-        /**
-            Set the defaults for template keys
-        */
         setTemplateKeyDefaults();
     }
 
@@ -5829,255 +5824,169 @@ module.exports = function(grunt) {
         }
     }
 
-    /**
-        Validate cmd params specified by user (valid options w/ valid values)
-        also verify only tasks intended to be run from cmd are requested.
-        [Grunt doesn't have functionality to specify private/public tasks,
-        so every task in the gruntfile will show up in grunt --help, and
-        can be requested via cmd though not intended to be.)
-        @TODO maybe best to use a nodejs arg parser, i just had to do this quick
-        Also, the arg parser seems to be good for generating help menu,
-        which grunt already has and not super useful as it displays every registered
-        tasks even one meant not to call
+    /**Validate cmd params.
+        @TODO Consider using grunt's arg parser instead. It may also help with
+        generating a help menu
     */
     function validateCmdParams() {
+        // TASKS
+        var tasksRequested = grunt.option(INITIAL_GRUNT_PROCESS_TASKLIST)
+                                  .split(',')
+                                  .filter(function(task) {return task !== ""});
+        grunt.log.debug("Tasks requested: "+ tasksRequested);
 
-        // section :tasks
-        // make sure only valid task requested.  but that they don't specify more than one bld task
-        //var tasksRequested = grunt.cli.tasks;
-        var tasksRequested = grunt.option(INITIAL_GRUNT_PROCESS_TASKLIST).split(',');
-        grunt.log.debug("tasks requested: "+ tasksRequested);
-        var bldTaskRequested = false; // to make sure only one bld task requested
-            watchTaskRequested = false;
-        var task, requires, metRequirement;
-
-        if ( tasksRequested.length == 0 && !grunt.option('help') ) { // only exception right now is if they are running help
-            grunt.fail.fatal("You have not supplied any task to run."
-                + "\n(This version of the grunt file does NOT include a default task and you need to specify one.)"
-                + "\nAvailable tasks and their descriptions:"
-                + "\n[Build tasks:]\n"
-                + BLD_TASKS_DESC_STR
-                + "\n[Other tasks:]\n"
-                + OTHER_TASKS_DESC_STR
-                + "\n\n(NOTE: If you are seeing this error for a cli option value"
-                + " and not a task,\n"
-                + " make sure you are supplying your cli options with '=' syntax, i.e."
-                + "\n\t\t--<option>=<value> "
-                + "\nThis is required for the new version of Grunt)");
+        if (tasksRequested.length === 0 && !grunt.option('help')) {
+            grunt.fail.fatal("You need to specify grunt <TASK>. Examples: \n" +
+            "grunt dev\n" +
+            "grunt watch --html --less --js --ts --ctor\n" +
+            "grunt installer\n" +
+            "grunt trunk\n");
         }
 
-        for ( task of tasksRequested ) {
-            // make note if watch task so can verify later that watch flags specified only if watch task requested
-            if ( task == 'watch' || process.env[IS_WATCH_TASK] ) {
-                watchTaskRequested = true; // save for later in validation
+        var bldTaskRequested = false;
+        var watchTaskRequested = false;
+        for (var i = 0; i < tasksRequested.length; i++) {
+            var task = tasksRequested[i];
+            if (task == 'watch' || process.env[IS_WATCH_TASK]) {
+                watchTaskRequested = true;
             }
 
-            if ( Object.keys(VALID_TASKS).indexOf(task) !== -1 ) {
-                if ( VALID_TASKS[task][BLD_TASK_KEY] ) {
-                    if ( bldTaskRequested ) {
-                        grunt.fail.fatal("You have supplied more than one bld task: "
-                            + task + " and " + bldTaskRequested
-                            + ".  Please supply only one main bld task."
-                            + "\nThese are the main bld tasks, and their descriptions:\n"
-                            + BLD_TASKS_DESC_STR);
-                    }
-                    else {
+            if (Object.keys(VALID_TASKS).indexOf(task) !== -1) {
+                if (VALID_TASKS[task][BLD_TASK_KEY]) {
+                    if (bldTaskRequested) {
+                        grunt.fail.fatal("Supply only 1 build task. You " +
+                        "supplied " + task + " and " + bldTaskRequested +
+                        "\nBuild task options:\n" + BLD_TASKS_DESC_STR);
+                    } else {
                         bldTaskRequested = task;
                     }
                 }
 
                 // make sure any dependencies are present
-                if ( VALID_TASKS[task].hasOwnProperty(REQUIRES_ONE_KEY) ) {
-                    metRequirement = false;
-                    for ( requires of VALID_TASKS[task][REQUIRES_ONE_KEY] ) {
-                        if ( grunt.option(requires) ) {
+                if (VALID_TASKS[task].hasOwnProperty(REQUIRES_ONE_KEY)) {
+                    var metRequirement = false;
+                    for (var requires of VALID_TASKS[task][REQUIRES_ONE_KEY]) {
+                        if (grunt.option(requires)) {
                             metRequirement = true;
                             break;
                         }
                     }
-                    if ( !metRequirement ) {
-                        grunt.fail.fatal("The task '"
-                            + task
-                            + "' requires at least one of the following options/flags :\n"
-                            + optionsListToString(VALID_TASKS[task][REQUIRES_ONE_KEY]));
+                    if (!metRequirement) {
+                        grunt.fail.fatal(task + "' requires at least one of " +
+                                         "the following options/flags :\n" +
+                      optionsListToString(VALID_TASKS[task][REQUIRES_ONE_KEY]));
                     }
                 }
-                if ( VALID_TASKS[task].hasOwnProperty(REQUIRES_ALL_KEY) ) {
-                    metRequirement = false;
-                    for ( requires of VALID_TASKS[task][REQUIRES_ALL_KEY] ) {
-                        if ( !grunt.option(requires) ) {
-                            grunt.fail.fatal("The task '"
-                                + task
-                                + "' requires all of the following options/flags:\n"
-                                + optionsListToString(VALID_TASKS[task][REQUIRES_ALL_KEY]));
+                if (VALID_TASKS[task].hasOwnProperty(REQUIRES_ALL_KEY)) {
+                    for (var requires of VALID_TASKS[task][REQUIRES_ALL_KEY]) {
+                        if (!grunt.option(requires)) {
+                            grunt.fail.fatal(task + "' requires all of the " +
+                                             "following options/flags:\n" +
+                      optionsListToString(VALID_TASKS[task][REQUIRES_ALL_KEY]));
                         }
                     }
                 }
-            }
-            else {
-                // take out the check for valid tasks right now because of watch child processes
-                grunt.log.debug("I hope this is a child process!!");
-                if ( TOPLEVEL_GRUNT_PROCESS ) {
-                    grunt.fail.fatal("You have supplied an invalid task:  "
-                        + task
-                        + "\nValid tasks:\n"
-                        + "[Build tasks:] "
-                        + BLD_TASKS_DESC_STR
-                        + "[Other tasks:] "
-                        + OTHER_TASKS_DESC_STR
-                        + "\n\n(NOTE: If you are seeing this error for a cli option value"
-                        + " and not a task,\n"
-                        + " make sure you are supplying your cli options with '=' syntax, i.e."
-                        + "\n\t\t--<option>=<value> "
-                        + "\nThis is required for the new version of Grunt)");
+            } else {
+                grunt.log.debug("This case is only valid for a child process");
+                if (TOPLEVEL_GRUNT_PROCESS) {
+                    grunt.fail.fatal("Task doesn't exist. Did you forget --?");
                 }
             }
-
         }
 
-        // SECTION : PARAMS
-
-        // get list of cmd params
+        // PARAMS
         params = grunt.option.flags();
-        /**
-            grunt.option.flags will return all the entries in grunt.option
-            grunt.option also how global variables that change during
-            grunt process are shared across tasks
-            and we add variables to it throughout grunt process
-            Therefore, make sure you are calling this function
-            before adding any manual entries to grunt.option else your validation will fail
-        */
+        // We will be modifying grunt.option.flags during the process. So make
+        // sure the validation is called prior to modifications.
         var paramIndicator = '--';
-        var param, paramPlain, flagCheck, flag, values, value, requires, errMsg;
-        for ( param of params ) {
-            // split off the initial flag indicator
-            paramPlain = param.split(paramIndicator)[1];
+        for (var param of params) {
+            // Valid examples of param
+            // param: "--hello=world1,world2"
+            // param: "--helloWord"
+            var paramPlain = param.split(paramIndicator)[1]; 
 
-            // check if a flag or param option. if values supplied, get the value String
-            flagCheck = paramPlain.split('=');
-            paramPlain = flagCheck[0]; // flagCheck has ['param', '=val1,val2,valN']
-            if ( DONT_VALIDATE.indexOf(paramPlain) != -1 ) {
+            // Check if a flag or param option. if values supplied, get the value String
+            var flagCheck = paramPlain.split('='); // ['hello', '=val1,val2']
+            paramPlain = flagCheck[0];
+            if (DONT_VALIDATE.indexOf(paramPlain) !== -1) {
                 continue;
             }
-            flag = false;
-            if ( flagCheck.length == 1 ) {
-                values = null;
+            var flag = false;
+            var values;
+            if (flagCheck.length === 1) {
                 flag = true;
-            }
-            else {
-                // this is a string of all the comma sep values, not a list
+            } else {
                 values = flagCheck[1];
             }
 
-            // do validation
-            if ( VALID_OPTIONS.hasOwnProperty(paramPlain) ) {
-
-                // if you can't supply in conjunction with other params, make sure they are not there
-                if ( VALID_OPTIONS[paramPlain][NAND_KEY] ) {
-                    var noop;
-                    for ( noop of VALID_OPTIONS[paramPlain][NAND_KEY] ) {
-                        if ( grunt.option(noop) ) {
-                            grunt.fail.fatal("Can not supply --"
-                                + paramPlain
-                                + " and --"
-                                + noop
-                                + " simultaneously.");
+            if (VALID_OPTIONS.hasOwnProperty(paramPlain)) {
+                // Some params cannot be supplied with other params
+                if (VALID_OPTIONS[paramPlain][NAND_KEY]) {
+                    for (var noop of VALID_OPTIONS[paramPlain][NAND_KEY]) {
+                        if (grunt.option(noop)) {
+                            grunt.fail.fatal("Can not supply --" + paramPlain +
+                                         " and --" + noop + " simultaneously.");
                         }
                     }
                 }
-                // if it's a bld key, make sure bld task requested.
-                if ( VALID_OPTIONS[paramPlain][BLD_KEY] && !bldTaskRequested ) {
-                    grunt.fail.fatal("You have supplied a bld optaion, --"
-                        + param
-                        + ", but have not scheduled a bld task");
-                }
-                // its watch option make sure watch
-                if ( VALID_OPTIONS[paramPlain][WATCH_KEY] && !watchTaskRequested ) {
-                      grunt.fail.fatal("You have supplied an option for 'watch' functionality, "
-                        + param
-                        + ", but have not scheduled a watch task. "
-                        + "\nTo watch files/dirs in the src or bld, run as "
-                        + " 'grunt [options] watch [watch options]");
-                }
-                // if this is a flag but they specified as an option
-                if ( VALID_OPTIONS[paramPlain][FLAG_KEY] && !flag ) {
-                    grunt.fail.fatal("--"
-                        + paramPlain
-                        + " is a boolean flag, but you supplied value to it as "
-                        + param
-                        + "\nPlease rerun as a boolean flag."
-                        + "\n(If you meant to supply an option, here are options which take values:)"
-                        + OPS_DESC_STR);
-                }
-                // if this is an option requiring a value but they supplied as a boolean flag (could be they are used to old grunt)
-                if ( VALID_OPTIONS[paramPlain][REQUIRES_VALUE_KEY] && flag ) {
-                    grunt.fail.fatal("You have supplied option --"
-                        + paramPlain
-                        + " as a boolean flag, but it requires some value"
-                        + "\n(In Grunt 1.0.1+, you should specify this option using syntax:\n\n\t--"
-                        + paramPlain
-                        + "=<values>"
-                        + "\n\nIf you meant to supply a boolean flag, here are the valid boolean flags:"
-                        + FLAGS_DESC_STR);
+
+                if (VALID_OPTIONS[paramPlain][BLD_KEY] && !bldTaskRequested) {
+                    grunt.fail.fatal("Option: " + param +
+                                     " only valid for build task");
                 }
 
+                if (VALID_OPTIONS[paramPlain][WATCH_KEY] &&
+                    !watchTaskRequested) {
+                     grunt.fail.fatal("Option "  + param +
+                                      " only valid for watch task");
+                }
+ 
+                if (VALID_OPTIONS[paramPlain][FLAG_KEY] && !flag) {
+                    grunt.fail.fatal("Flag --" + paramPlain +
+                                     " cannot have values");
+                }
 
-                // validate values supplied, if any
+                if (VALID_OPTIONS[paramPlain][REQUIRES_VALUE_KEY] && flag) {
+                    grunt.fail.fatal("Param --" + paramPlain +
+                                     " requires some value");
+                }
 
-                // get values first (if starts with '-' and its a negation param (do all but this list), remove that)
-                if ( values ) {
-                    if ( values.startsWith('-') && VALID_OPTIONS[paramPlain][EXCLUSION_KEY]) {
-                        values = values.substring(1, values.length); // gets all but first char
+                if (values) {
+                    if (values.startsWith('-') &&
+                        VALID_OPTIONS[paramPlain][EXCLUSION_KEY]) {
+                        values = values.substring(1, values.length);
                     }
                     values = values.split(OPTIONS_DELIM);
-                }
-                else {
+                } else {
                     values = [];
                 }
 
-                // if any values supplied...
-                if ( values.length > 0 ) {
-
-                    // if they supplied multiple values but no multi key for this option
-                    if ( values.length > 1 && !VALID_OPTIONS[paramPlain][MULTI_KEY] ) {
-                        grunt.fail.fatal("You supplied more than one value for --"
-                            + paramPlain
-                            + ":\n"
-                            + values
-                            + "\nBut this option does not allow multiple values.");
+                // Check that the values here are valid
+                if (values.length > 0) {
+                    if (values.length > 1 &&
+                        !VALID_OPTIONS[paramPlain][MULTI_KEY]) {
+                        grunt.fail.fatal("--" + paramPlain +
+                                         " only takes one value.");
                     }
-
-                    /**
-                        if values supplied and this option limited to certain values,
-                        or values of certain types,
-                        make sure values supplied are valid
-                    */
-                    if ( VALID_OPTIONS[paramPlain].hasOwnProperty(VALUES_KEY) ) {
-                        // if there are pre-defined valid values, check
-                        for ( value of values ) {
-
-                            if ( VALID_OPTIONS[paramPlain][VALUES_KEY].indexOf(value) == -1 ) {
-                                errMsg = "You have supplied an invalid value, "
-                                    + value
-                                    + ", to option --"
-                                    + paramPlain
-                                    + ". Param supplied as: "
-                                    + param;
-                                if ( VALID_OPTIONS[paramPlain][MULTI_KEY] ) {
-                                    errMsg = errMsg
-                                        + "\nValid values are a '"
-                                        + OPTIONS_DELIM + "' seperated list of any of the following: "
-                                        + VALID_OPTIONS[paramPlain][VALUES_KEY];
+                    if (VALID_OPTIONS[paramPlain].hasOwnProperty(VALUES_KEY)) {
+                        for (var value of values) {
+                            if (VALID_OPTIONS[paramPlain][VALUES_KEY]
+                                .indexOf(value) === -1) {
+                                var errMsg = "";
+                                errMsg = "You have supplied an invalid value " +
+                                          value + ", to option --" + paramPlain;
+                                if (VALID_OPTIONS[paramPlain][MULTI_KEY]) {
+                                    errMsg += "\nValid values are '" +
+                                        VALID_OPTIONS[paramPlain][VALUES_KEY] +
+                                        "(" + OPTIONS_DELIM + " delimited).";
+                                } else {
+                                    errMsg += "\nValid values: " +
+                                        VALID_OPTIONS[paramPlain][VALUES_KEY];
                                 }
-                                else {
-                                    errMsg = errMsg
-                                        + "\nValid values are one of the following: "
-                                        + VALID_OPTIONS[paramPlain][VALUES_KEY];
-                                }
-                                if ( VALID_OPTIONS[paramPlain][EXCLUSION_KEY] ) {
-                                    errMsg = errMsg
-                                        + "\n(To specify all but given values, supply option as: --"
-                                        + paramPlain + "=-<value(s)>";
+                                if (VALID_OPTIONS[paramPlain][EXCLUSION_KEY]) {
+                                    errMsg += "\n(To specify all but given " +
+                                        "values, supply option as: --" +
+                                        paramPlain + "=-<value(s)>";
                                 }
                                 grunt.fail.fatal(errMsg);
                             }
@@ -6085,51 +5994,40 @@ module.exports = function(grunt) {
                     }
                 }
 
-                // if supplying this option requires you supply at least one other option from a list
-                if ( VALID_OPTIONS[paramPlain].hasOwnProperty(REQUIRES_ONE_KEY) ) {
-                    metRequirement = false;
-                    for ( requires of VALID_OPTIONS[paramPlain][REQUIRES_ONE_KEY] ) {
-                        if ( grunt.option(requires) ) {
+                if (VALID_OPTIONS[paramPlain].hasOwnProperty(REQUIRES_ONE_KEY)) {
+                    var metRequirement = false;
+                    for (var requires of VALID_OPTIONS[paramPlain][REQUIRES_ONE_KEY]) {
+                        if (grunt.option(requires)) {
                             metRequirement = true;
                             break;
                         }
                     }
-                    if ( !metRequirement ) {
-                        grunt.fail.fatal("--"
-                            + WATCH_OP_REL_TO
-                            + " requires at least one of the following options/flags : "
-                            + optionsListToString(VALID_OPTIONS[paramPlain][REQUIRES_ONE_KEY]));
+                    if (!metRequirement) {
+                        grunt.fail.fatal("--" + WATCH_OP_REL_TO +
+                                         " requires at least one of: " +
+                                         optionsListToString(VALID_OPTIONS
+                                         [paramPlain][REQUIRES_ONE_KEY]));
                     }
                 }
-                // if supplying this option requires you supply an entire set of other options
-                if ( VALID_OPTIONS[paramPlain].hasOwnProperty(REQUIRES_ALL_KEY) ) {
-                    for ( requires of VALID_OPTIONS[paramPlain][REQUIRES_ALL_KEY] ) {
-                        if ( !grunt.option(requires) ) {
-                            grunt.fail.fatal("--"
-                                + WATCH_OP_REL_TO
-                                + " requires all of the following options/flags : "
-                                + optionsListToString(VALID_OPTIONS[paramPlain][REQUIRES_ALL_KEY]));
+   
+                if (VALID_OPTIONS[paramPlain].hasOwnProperty(REQUIRES_ALL_KEY)) {
+                    for (var requires of VALID_OPTIONS[paramPlain][REQUIRES_ALL_KEY]) {
+                        if (!grunt.option(requires)) {
+                            grunt.fail.fatal("--" + WATCH_OP_REL_TO +
+                                " requires all of: " + optionsListToString(
+                                VALID_OPTIONS[paramPlain][REQUIRES_ALL_KEY]));
                         }
                     }
                 }
-            }
-            else { // not in the hash of valid options for this Gruntfile
-                if ( flag ) {
-                       errMsg = "You have supplied an invalid boolean flag, "
-                        + param
-                        + ", when invoking this Gruntfile."
-                        + "  Valid flags:"
-                        + FLAGS_DESC_STR;
+            } else {
+                // Invalid option / flag
+                if (flag) {
+                    grunt.fail.fatal("Invalid flag: " + param +
+                        ". Valid flags are: " + FLAGS_DESC_STR);
+                } else {
+                    grunt.fail.fatal("Invalid option: " + param +
+                        ". Valid options are: " + OPS_DESC_STR);
                 }
-                else {
-                    errMsg = "You have supplied an invalid option, "
-                        + param
-                        //+ paramPlain
-                        + ", when invoking this Gruntfile."
-                        + "\nOptions you can supply values to:"
-                        + OPS_DESC_STR;
-                }
-                grunt.fail.fatal(errMsg);
             }
         }
     }
