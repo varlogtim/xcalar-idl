@@ -4476,7 +4476,7 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function invalidHeaderDetection(headers) {
-        if (headers == null) {
+        if (headers == null || headers.length > gMaxDSColsSpec) {
             return PromiseHelper.resolve();
         }
         var $ths = $previewTable.find("th");
