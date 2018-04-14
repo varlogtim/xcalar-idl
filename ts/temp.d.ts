@@ -155,6 +155,8 @@ declare var gXcSupport: boolean;
 declare var gCollab: boolean;
 declare var gXcalarRecordNum: string;
 
+declare var gBuildNumber: string;
+declare var gGitVersion: number;
 declare var XcalarApisTStr: object;
 declare var StatusTStr: object;
 declare var currentVersion: number;
@@ -194,6 +196,8 @@ declare function XcalarFetchData(resultSetId: string, rowPosition: number, rowsT
 declare function XcalarSetFree(resultSetId: string): XDPromise<void>;
 declare function XcalarTargetCreate(targetType: string, targetName: string, targetParams: object[]): XDPromise<void>;
 declare function XcalarTargetDelete(targetName: string): XDPromise<void>;
+declare function XcalarGetVersion(connectionCheck: boolean): XDPromise<any>;
+declare function XcalarGetLicense(): XDPromise<any>;
 /* ============= THRIFT ENUMS ================= */
 declare enum DfFieldTypeT {
     DfString,
@@ -222,7 +226,8 @@ declare enum XcalarApisT {
 declare enum StatusT {
     StatusCanceled,
     StatusAlreadyIndexed,
-    StatusCannotReplaceKey
+    StatusCannotReplaceKey,
+    StatusSessionUsrAlreadyExists
 }
 
 declare enum FunctionCategoryT {
@@ -256,6 +261,11 @@ declare enum JoinOperatorT {
     CrossJoin,
     LeftOuterJoin,
     InnerJoin,
+}
+
+declare enum XcalarApiVersionTStr{}
+declare enum XcalarApiVersionT{
+    XcalarApiVersionSignature
 }
 /* ============= JSTSTR ==================== */
 declare namespace DSTStr {
@@ -311,6 +321,8 @@ declare namespace ErrTStr {
     export var PreservedName: string;
     export var PrefixStartsWithLetter: string;
     export var PrefixTooLong: string;
+    export var LicenseExpire: string;
+    export var Unknown: string;
 }
 
 declare namespace ColTStr {
@@ -324,6 +336,15 @@ declare namespace ColTStr {
 declare namespace AlertTStr {
     export var CANCEL: string;
     export var NoConnectToServer: string;
+    export var UserOverLimit: string;
+    export var UserOverLimitMsg: string;
+    export var LicenseErr: string;
+    export var LicenseErrMsg: string;
+}
+
+declare namespace ThriftTStr {
+    export var Update: string;
+    export var CCNBE: string;
 }
 
 declare namespace WSTStr {
@@ -433,6 +454,13 @@ declare class XcAuth {
     getIdCount(): number;
     incIdCount(): void;
 }
+
+declare class KVVersion {
+    public version: number;
+    public stripEmail: boolean;
+    public needCommit: boolean;
+    public constructor(options: object);
+}
 /* ============== NAMESPACE ====================== */
 declare namespace xcManager {
     export function removeUnloadPrompt(markUser: boolean): void;
@@ -440,6 +468,7 @@ declare namespace xcManager {
 }
 
 declare namespace XcSupport {
+    export function setup(stripEmail: boolean): void;
     export function heartbeatCheck(): void;
     export function getUser(): string;
     export function stopHeartbeatCheck(): void;
@@ -462,6 +491,7 @@ declare namespace ColManager {
 declare namespace Admin {
     export function showSupport();
     export function updateLoggedInUsers(userInfos: object): void;
+    export function isAdmin(): boolean;
 }
 
 declare namespace xcManager {
@@ -489,9 +519,13 @@ declare namespace SupTicketModal {
     export function show(): void;
 }
 
+declare namespace EULAModal {
+    export function show(): XDPromise<void>;
+}
+
 declare namespace Alert {
     export function tempHide(): void;
-    export function error(title: string, error: string): void;
+    export function error(title: string, error: string, options?: object): void;
     export function show(options: {title: string, msg: string, isAlert: boolean}): string;
 }
 
@@ -567,10 +601,6 @@ declare namespace QueryManager{
 declare namespace Log {
     export function lockUndoRedo(): void;
     export function unlockUndoRedo(): void
-}
-
-declare namespace XVM {
-    export function checkMaxUsers(users: object): void;
 }
 
 declare namespace DagPanel {

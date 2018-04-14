@@ -571,6 +571,8 @@ AlertTStr = {
     "WaitChat": "Searching for an available Xcalar agent...",
     "StartChat": "You are now connected to a Xcalar agent.",
     "CaseId": "Your case ID is:",
+    "LicenseErr": "License Error",
+    "LicenseErrMsg": 'Please contact your administrator to acquire a new license key.',
     "LicenseKey": "Your license key is:",
     "LicenseExpire": "Your license expires on:",
     "XcalarAdmin": "Your Xcalar Admin is:",

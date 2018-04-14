@@ -16,9 +16,7 @@ window.LicenseModal = (function($, LicenseModal) {
     LicenseModal.show = function() {
         modalHelper.setup();
 
-        // var licenseKey = XVM.getLicenseKey();
         var licenseKey = "123456789";
-
         $modal.find(".newLicenseKey").attr("placeholder", licenseKey);
     };
 

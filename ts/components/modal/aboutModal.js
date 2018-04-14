@@ -34,7 +34,7 @@ window.AboutModal = (function($, AboutModal) {
         // have the same thrift version or they won't talk
         buildNumber += (window.gPatchVersion == null)
                         ? "" : "P" + window.gPatchVersion;
-        var licenseKey = XVM.getLicenseKey();
+        var licenseExipreInfo = XVM.getLicenseExipreInfo();
         var capitalize = xcHelper.capitalize(XVM.getLicenseMode());
         $modal.find(".mode .text").text(" - " + capitalize + " Cluster");
         $modal.find(".buildNumber .text").text(buildNumber);
@@ -42,7 +42,7 @@ window.AboutModal = (function($, AboutModal) {
         $modal.find(".backVersion .text").text(backVersion);
         $modal.find(".thriftVersion .text").text(thriftVersion);
         $modal.find(".idlVersion .text").text(idlVersion);
-        $modal.find(".license .text").text(licenseKey);
+        $modal.find(".license .text").text(licenseExipreInfo);
     };
 
     function closeModal() {

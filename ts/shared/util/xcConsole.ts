@@ -46,7 +46,7 @@ namespace xcConsole {
     /**
      * xcConsole.error
      */
-    export function error(): string[] {
+    export function error(..._args: any[]): string[] {
         return xcConsole.log.apply({isError: true}, arguments);
     };
 

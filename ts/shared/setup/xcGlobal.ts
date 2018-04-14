@@ -40,11 +40,11 @@ namespace xcGlobal {
          * "GLOB": global scope
          * keys inculding: gEphStorageKey, gSharedDSKey, gUserListKey,
          * gSettingsKey, GlobalKVKeys Enum
-         * 
+         *
          * "USER": (XXX this should be XcalarApiKeyScopeUser, no support yet!),
          * keys including: gUserKey, wokrbook set infos key,
          * and kvVersion info
-         * 
+         *
          * "WKBK": workbook scope
          * keys including: gStorageKey, gLogKey, gErrKey,
          * gAuthKey, gOverwrittenLogKey, gNotebookKey, commitKey(non-persistent)

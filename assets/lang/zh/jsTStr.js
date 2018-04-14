@@ -467,6 +467,8 @@ AlertTStr = {
 "WaitChat": "请稍后，正在为您寻找技术支持人员...",
 "StartChat": "已为您找到一名技术支持人员。",
 "CaseId": "您本次技术支持请求的ID为:",
+"LicenseErr": "许可证错误",
+"LicenseErrMsg": '请联系管理员获取新的许可证',
 "LicenseKey": "您的许可证是:",
 "LicenseExpire": "您的许可证有效期是:",
 "XcalarAdmin": "您所在组织的管理员是:",
