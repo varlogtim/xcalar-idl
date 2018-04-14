@@ -1,0 +1,44 @@
+/*
+    This file is where all the document.ready functions go.
+    Any misc functions that kind of applies to the
+    entire page and doesn't really have any specific purpose should come here as
+    well.
+*/
+// ========================== Document Ready ==================================
+function loadDynamicPath(): XDPromise<void> {
+    const dynamicSrc: string = 'https://www.xcalar.com/xdscripts/dynamic.js';
+    const randId: string = '' + Math.ceil(Math.random() * 100000);
+    const src: string = dynamicSrc + '?r=' + randId;
+    return $.getScript(src);
+}
+
+function hotPatch(): XDPromise<void> {
+    const deferred: XDDeferred<void> = PromiseHelper.deferred();
+    loadDynamicPath()
+        .then(() => {
+            try {
+                if (typeof XCPatch.patch !== 'undefined') {
+                    const promise: XDPromise<void> | null = XCPatch.patch();
+                    if (promise != null) {
+                        return promise;
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        })
+        .then(deferred.resolve)
+        .fail((error) => {
+            console.error("failed to get script", error);
+            deferred.resolve(); // still resolve it
+        });
+
+    return deferred.promise();
+}
+
+function documentReadyIndexFunction(): void {
+    $(document).ready(() => {
+        hotPatch()
+            .then(xcManager.setup);
+    });
+}

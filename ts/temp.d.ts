@@ -104,30 +104,65 @@ interface GetNumRowsOptions {
     constantName: string;
 }
 /* ============== GLOBAL VARIABLES ============= */
-declare var gDSPrefix: string;
-declare var gDroppedTables: object;
-declare var gPrefixSign: string;
+declare var KB: number
+declare var MB: number;
+declare var GB: number;
+declare var TB: number;
+declare var PB: number;
+declare var gNumEntriesPerPage: number;
+declare var gMaxEntriesPerPage: number;
+declare var gMinRowsPerScreen: number;
+declare var gFirstRowPositionTop: number;
+declare var gNewCellWidth: number;
 declare var gPrefixLimit: number;
-declare var gTables: object;
-declare var gMinModeOn: boolean;
 declare var gMouseEvents: MouseEvents;
-declare var gColPrefix: string;
-declare var XcalarApisTStr: object;
-declare var StatusTStr: object;
-declare var gExportNoCheck: boolean;
-declare var gAggVarPrefix: string;
-declare var gActiveTableId: TableId;
-declare var currentVersion: number;
-declare var xcLocalStorage: XcStorage;
+declare var gMouseStatus: string;
+declare var gRescol: object;
 declare var gKVScope: {
     GLOB: number,
     USER: number,
     WKBK: number
 };
+declare var gTables: object;
+declare var gOrphanTables: string[];
+declare var gDroppedTables: object;
+declare var gActiveTableId: TableId;
+declare var gIsTableScrolling: boolean;
+declare var gMinModeOn: boolean;
+declare var gMutePromises: boolean;
+declare var gAggVarPrefix: string;
+declare var gColPrefix: string;
+declare var gPrefixSign: string;
+declare var gRetSign: string;
+declare var gDSPrefix: string;
+declare var gHiddenColumnWidth: number;
+declare var gTurnOnPrefix: boolean;
+declare var gUploadChunkSize: number;
+declare var gDefaultSharedRoot: string;
+declare var gExportNoCheck: boolean;
+declare var gAlwaysDelete: boolean;
+declare var gShowDroppedTablesImage: boolean;
+declare var gDefaultQDelim: string;
+declare var gLongTestSuite: number;
+declare var gMaxDSColsSpec: number;
+declare var gMaxColToPull: number;
+declare var gMaxSampleSize: number;
+declare var gUdfDefaultNoCheck: boolean;
+declare var gSessionNoCleanup: boolean;
+declare var gIcvMode: boolean;
+declare var gEnableIndexStyle: boolean;
+declare var gXcSupport: boolean;
+declare var gCollab: boolean;
+declare var gXcalarRecordNum: string;
+
+declare var XcalarApisTStr: object;
+declare var StatusTStr: object;
+declare var currentVersion: number;
+declare var xcLocalStorage: XcStorage;
 declare var global: any;
 declare var expHost: string;
 declare var sqlMode: boolean;
-declare var gXcalarRecordNum: string;
+
 /* ============== GLOBAL FUNCTIONS ============= */
 declare function getUnsortedTableName(tableName: string, otherTableName: string, txId: number, colsToIndex: string[]): XDPromise<string>;
 declare function XcalarGetTables(): XDPromise<any>;
@@ -171,6 +206,11 @@ declare enum DfFieldTypeT {
     DfBoolean,
     DfUnknown,
     DfFatptr,
+}
+
+declare enum XcalarApiKeyScopeT {
+    XcalarApiKeyScopeGlobal,
+    XcalarApiKeyScopeSession
 }
 
 declare enum XcalarApisT {
@@ -396,6 +436,7 @@ declare class XcAuth {
 /* ============== NAMESPACE ====================== */
 declare namespace xcManager {
     export function removeUnloadPrompt(markUser: boolean): void;
+    export function setup(): XDPromise<void>;
 }
 
 declare namespace XcSupport {

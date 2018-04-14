@@ -1105,10 +1105,6 @@ window.xcManager = (function(xcManager, $) {
             return isCodeMirror;
         }
 
-        $(document).click(function(event) {
-            gLastClickTarget = $(event.target);
-        });
-
         var dragCount = 0; // tracks document drag enters and drag leaves
         // as multiple enters/leaves get triggered by children
         $(document).on('dragenter', function(event) {

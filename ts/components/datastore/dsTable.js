@@ -443,8 +443,6 @@ window.DSTable = (function($, DSTable) {
             if (event.shiftKey && previousColSelected) {
 
                 var startIndex = previousColSelected.closest("th").index();
-                // var highlight = gLastClickTarget.closest("th")
-                //                 .hasClass('selectedCol');
                 var isHighlighted = $input.closest('th')
                                           .hasClass('selectedCol');
 
