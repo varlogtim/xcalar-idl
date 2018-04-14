@@ -472,6 +472,9 @@ window.xcManager = (function(xcManager, $) {
 
         WorkbookManager.setup()
         .then(XcSupport.holdSession)
+        .then(function() {
+            return JupyterPanel.initialize();
+        })
         .then(Authentication.setup)
         .then(KVStore.restore) // restores table info, dataset info, settings etc
         .then(initializeTable)

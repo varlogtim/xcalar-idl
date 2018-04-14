@@ -25,11 +25,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 setupKVStore();
                 setActiveWKBK(wkbkId);
                 setURL(wkbkId, true);
-
-                JupyterPanel.initialize()
-                .always(function() {
-                    deferred.resolve(wkbkId);
-                });
+                deferred.resolve(wkbkId);
             }
         })
         .fail(function(error) {
@@ -212,7 +208,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         XcSupport.stopHeartbeatCheck();
         $workbookBox.addClass("loading");
-        
+
         var toWkbkName = toWkbk.getName();
         switchWorkBookHelper(toWkbkName)
         .then(function() {
