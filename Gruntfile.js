@@ -782,8 +782,7 @@ var generatedDuringBuild = {}; // keep track of generated files/dirs you want to
 
         /** WATCH FUNCTIONALITY */
 
-var RELOAD_DEFAULT = false,
-    WATCH_LIVERELOAD_HASH_CONFIG_KEY = 'livereloadmap'; // a key for grunt.config to hold mapping of watch filetypes and if they should be reloaded
+var WATCH_LIVERELOAD_HASH_CONFIG_KEY = 'livereloadmap'; // a key for grunt.config to hold mapping of watch filetypes and if they should be reloaded
         // configed dynamically based on user params
 
 /** template keys for grunt plugins, and their defaults:
@@ -5139,92 +5138,51 @@ module.exports = function(grunt) {
         return filesToWatchByFiletype;
     }
 
-    /**
-        Returns hash which has a key for each key filetype
-        in WATCH_FILETYPES, and value of the key is true or false
-        indicating weather watched files of that type
-        should have liveReload done.
-        (Determined by on 'livereload' cmd option passed by user)
-
-        context: when 'watch' plugin invoked, if liveReload option is true,
-        then a browser refresh is done after all tasks for the watch have been completed.
-
-        ways to specify the param
-        (1) as boolean flag (liveReload on all filetypes)
-            --livereload
-        (2) as option that takes value (list of types to include or exclude)
-            --livereload=less        //liveReload on all less files
-            --livereload=html,less    // liveReload on all html src files and less files
-            --livereload=-less,js    // liveReload on all types EXCEPT less files and js src files
+    /** Returns an obj whose key is type, value is whether it's reloaded
+     * Input: If reloadValStr, then reload all.
+     *        Else: If -, remove types
+     *              Else, only include types
     */
     function getReloadTypes() {
-
-        grunt.log.writeln("Determine which types of files should be live reloaded, "
-                + "if they are being watched and change...");
-
-        var reloadByType = {},
-            reloadDefault = RELOAD_DEFAULT,
-            reloadTypes = [],
-            exclusionType = false;
-        var reloadValStr, type;
-
+        var reloadByType = {};
+        var reloadDefault = false;
+        var reloadTypes = [];
         var watchFiletypes = Object.keys(WATCH_FILETYPES);
-        //var watchFiletypes = grunt.config('watch');
 
-        if ( grunt.option(WATCH_OP_LIVE_RELOAD) ) {
+        if (grunt.option(WATCH_OP_LIVE_RELOAD)) {
+            grunt.log.writeln(("To enable livereload, you need to install the" +
+                               " google chrome livereload plugin. Refresh " +
+                               "your browser after you've installed it.").red
+                               .bold);
+            var reloadValStr = grunt.option(WATCH_OP_LIVE_RELOAD);
 
-            grunt.log.writeln(("You have specified the --"
-                + WATCH_OP_LIVE_RELOAD
-                + " option, to reload the browser after building"
-                + " edited watched files\n"
-                + "If livereload is not working, please install the google chrome"
-                + "livereload plugin, or, if you have the plugin, refresh it.").red.bold);
-
-            reloadValStr = grunt.option(WATCH_OP_LIVE_RELOAD);
-            /**
-                if option specdified as a boolean flag - reload all types.
-                Else, it's given as a list of types to reload/not to reload
-            */
-            if ( reloadValStr == true ) {
-                reloadDefault = true;
-                all = true;
-            }
-            else {
-                // if the first char is a '-', it means everything BUT these
-                if ( reloadValStr.charAt(0) == '-' ) {
-                    exclusionType = true;
-                    reloadDefault= true;
-                    // remove that first char
-                    reloadValStr = reloadValStr.substring(1, reloadValStr.length); // gets all but first char
+            if (reloadValStr === true) {
+                reloadDefault = true; // Think of this as -null
+            } else {
+                if (reloadValStr.charAt(0) === '-') {
+                    reloadDefault = true;
+                    reloadValStr = reloadValStr.substring(1,
+                                                          reloadValStr.length);
                 }
-                // split on comma to get all the targets they want reloading on/dont want reloading on
                 reloadTypes = reloadValStr.split(OPTIONS_DELIM);
             }
         }
 
-        // load in defaults
-        var foundLess = false;
-        for ( type of watchFiletypes ) {
-            reloadByType[type] = reloadDefault;
-        }
-
-        // now all specific types
-        for ( type of reloadTypes ) {
-            /**
-            if ( type == WATCH_TARGET_CSS && !exclusionType ) {
-                grunt.fail.fatal("Can not livereload css files due to a bug in livereload."
-                    + " \nIf this is a valid use case, contact jolsen@xcalar.com and can try some"
-                    + " workaround.");
+        for (var type of watchFiletypes) {
+            if (reloadTypes.indexOf(type) > -1) {
+                reloadByType[type] = !reloadDefault;
+            } else {
+                reloadByType[type] = reloadDefault;
             }
-            */
-            reloadByType[type] = !reloadDefault;
         }
 
-        for ( type of Object.keys(reloadByType) ) {
-            grunt.log.writeln("\t>>: Reload " + type + " ? " + reloadByType[type]);
+        for (var type of Object.keys(reloadByType)) {
+            grunt.log.writeln("\tReload " + type + ": " + reloadByType[type]);
         }
         return reloadByType;
     }
+
+///// JERENE REWROTE FROM HERE
 
     /** Returns WATCH_FILETYPES value of an absolute filepath to a file.
      * Needed because we can't just rely in ext due to htmlTStr.js etc which
