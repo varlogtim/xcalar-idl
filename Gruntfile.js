@@ -4646,7 +4646,6 @@ module.exports = function(grunt) {
     */
 
     grunt.event.on('watch', function(action, filepath, callingTarget) {
-
         // list of tasks will deploy depending on the file changed
         var taskList = [];
 
@@ -4769,7 +4768,9 @@ module.exports = function(grunt) {
                 }
                 break;
             case WATCH_TARGET_JS:
-                if ( grunt.file.doesPathContain(jsMapping.src, filepathRelBld) ) {
+                if (grunt.file.doesPathContain(jsMapping.src, filepathRelBld) ||
+                    grunt.file.doesPathContain(SRCROOT + "assets/lang",
+                                               filepathRelBld)) {
                     determinedRebuildProcess = true;
                     grunt.file.copy(filepath, BLDROOT + filepathRelBld);
                 }
@@ -5233,7 +5234,6 @@ module.exports = function(grunt) {
         var filetype;
         var fileExt = path.extname(filepath);
         var filename = path.basename(filepath);
-
         // consider as part of htmlsrc
         if (filename === 'htmlTStr.js') {
             filetype = WATCH_TARGET_HTML;
@@ -5250,10 +5250,12 @@ module.exports = function(grunt) {
                     break;
                 case '.js':
                     assert((grunt.file.doesPathContain(SRCROOT + jsMapping.src,
-                            filepath) ||
+                                filepath) ||
                             grunt.file.doesPathContain(SRCROOT +
-                                typescriptMapping.src, filepath)),
-                            "Path must be under a ts folder or js folder.");
+                                typescriptMapping.src, filepath) ||
+                            grunt.file.doesPathContain(SRCROOT + "assets/lang",
+                                filepath)),
+                            "Path must be under a ts, js or lang folder.");
                     filetype = WATCH_TARGET_JS;
                     break;
                 case '.ts':
@@ -5307,7 +5309,7 @@ module.exports = function(grunt) {
         WATCH_FILETYPES[WATCH_TARGET_LESS] = [SRCROOT + cssMapping.src + '**/*.less'];
         WATCH_FILETYPES[WATCH_TARGET_TYPESCRIPT] = [SRCROOT + typescriptMapping.src + '**/*.ts', SRCROOT + typescriptMapping.src + 'tsconfig.json'];
         WATCH_FILETYPES[WATCH_TARGET_CSS] = [BLDROOT + cssMapping.dest + '**/*.css'];
-        WATCH_FILETYPES[WATCH_TARGET_JS] = [SRCROOT + jsMapping.src + '**/*.js', SRCROOT + typescriptMapping.src + "/**/*.js"];
+        WATCH_FILETYPES[WATCH_TARGET_JS] = [SRCROOT + jsMapping.src + '**/*.js', SRCROOT + typescriptMapping.src + "/**/*.js", SRCROOT + "assets/lang/" + "**/*.js"];
         WATCH_FILETYPES[WATCH_TARGET_CTOR] = [SRCROOT + 'site/render/template/constructor.template.js'];
     }
 
