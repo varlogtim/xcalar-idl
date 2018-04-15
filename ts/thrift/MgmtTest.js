@@ -192,6 +192,7 @@ window.Function.prototype.bind = function() {
     var makeResultSetOutput3;
     var newTableOutput;
 
+    var sessionName = ""
     var session1; // Inactive session after apiKeySession test
     var session2; // Active session after apiKeySession test
     var session3; // Session to use to upload workbook
@@ -1628,9 +1629,9 @@ window.Function.prototype.bind = function() {
             var column = [];
 
             var map = new XcalarApiColumnT();
-            map.sourceColumn = "yelp_user";
+            map.sourceColumn = "leftKey";
             map.destColumn = "rightDataset";
-            map.columnType = "DfFatptr";
+            map.columnType = "DfInt64";
             column.push(map);
 
             tables.push("yelp/user-dummyjoin");
@@ -1657,9 +1658,9 @@ window.Function.prototype.bind = function() {
             var column = [];
 
             var map = new XcalarApiColumnT();
-            map.sourceColumn = "yelp_user";
+            map.sourceColumn = "leftKey";
             map.destColumn = "rightDataset";
-            map.columnType = "DfFatptr";
+            map.columnType = "DfInt64";
             column.push(map);
 
             tables.push("yelp/user-dummyjoin");
@@ -1686,9 +1687,9 @@ window.Function.prototype.bind = function() {
             var column = [];
 
             var map = new XcalarApiColumnT();
-            map.sourceColumn = "yelp_user";
+            map.sourceColumn = "leftKey";
             map.destColumn = "rightDataset";
-            map.columnType = "DfFatptr";
+            map.columnType = "DfInt64";
             column.push(map);
 
             tables.push("yelp/user-dummyjoin");
@@ -2896,6 +2897,7 @@ window.Function.prototype.bind = function() {
                 })
                 .then(function() {
                     // ... and add a key.
+                    setSessionName(session1)
                     return xcalarKeyAddOrReplace(thriftHandle,
                                                  XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
                                                  keyName, "x", false);
@@ -2920,6 +2922,7 @@ window.Function.prototype.bind = function() {
                 .then (function() {
                     // Make sure the key we created in the other session doesn't turn up
                     // in this one.
+                    setSessionName(session2)
                     xcalarKeyLookup(thriftHandle,
                                     XcalarApiKeyScopeT.XcalarApiKeyScopeSession,
                                     keyName)
@@ -2927,6 +2930,7 @@ window.Function.prototype.bind = function() {
                         test.fail("Lookup in session2 should have failed.");
                     })
                     .fail(function(reason) {
+                        setSessionName(sessionName)
                         test.pass();
                     });
                 })
@@ -3302,7 +3306,8 @@ window.Function.prototype.bind = function() {
     }
 
     function testSessionDownload(test) {
-        xcalarApiSessionDownload(thriftHandle, session2)
+        var pathToFiles = qaTestDir + "/jupyterNotebooks/";
+        xcalarApiSessionDownload(thriftHandle, session2, pathToFiles)
         .done(function(res) {
             test.pass();
         })
@@ -3312,10 +3317,12 @@ window.Function.prototype.bind = function() {
     }
 
     function testSessionUpload(test) {
-        xcalarApiSessionDownload(thriftHandle, session2)
+        var pathToFilesDown = qaTestDir + "/jupyterNotebooks/";
+        var pathToFilesUp = "/tmp/"
+        xcalarApiSessionDownload(thriftHandle, session2, pathToFilesDown)
         .done(function(sessionDownloadOutput) {
             session3 = session2 + "-upload";
-            xcalarApiSessionUpload(thriftHandle, session3, sessionDownloadOutput.sessionContent)
+            xcalarApiSessionUpload(thriftHandle, session3, sessionDownloadOutput.sessionContent, pathToFilesUp)
             .done(function(res) {
                 printResult(res);
                 test.pass();
@@ -4093,9 +4100,9 @@ window.Function.prototype.bind = function() {
     addTestCase(testFilter, "filter", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testProject, "project", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testJoin, "join", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testUnion, "union", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testIntersect, "intersect", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testExcept, "except", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testUnion, "union", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testIntersect, "intersect", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testExcept, "except", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetOpStats, "getOpStats", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testQuery, "Submit Query", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testQueryState, "Request query state of indexing dataset (int)", defaultTimeout, TestCaseDisabled, "");
