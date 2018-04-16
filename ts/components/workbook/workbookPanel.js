@@ -105,7 +105,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
             }, 100);
         }
 
-        addWorkbooks();
+        WorkbookPanel.listWorkbookCards();
     };
 
     WorkbookPanel.hide = function(immediate) {
@@ -209,6 +209,56 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
             return deferred.promise();
         }
     };
+
+    WorkbookPanel.listWorkbookCards = function() {
+        var html = "";
+        var sorted = [];
+        var workbooks = WorkbookManager.getWorkbooks();
+        for (var id in workbooks) {
+            sorted.push(workbooks[id]);
+        }
+        $workbookPanel.find(".workbookBox").not($newWorkbookCard).remove();
+
+        var activeWKBKId = WorkbookManager.getActiveWKBK();
+        // sort by workbook.name
+        var isNum = (sortkey === "created" || sortkey === "modified");
+        var activeWorkbook;
+
+        sorted = sortObj(sorted, sortkey, isNum);
+        sorted.forEach(function(workbook) {
+            if (workbook.getId() === activeWKBKId) {
+                activeWorkbook = workbook;
+            } else {
+                html = createWorkbookCard(workbook) + html;
+            }
+        });
+        // active workbook always comes first
+        if (activeWorkbook != null) {
+            html = createWorkbookCard(activeWorkbook) + html;
+        }
+
+        $newWorkbookCard.after(html);
+        // Add tooltips to all descriptions
+        var $descriptions = $workbookSection.find(".workbookBox .description");
+        for (var i = 0; i < $descriptions.length; i++) {
+            xcTooltip.add($descriptions.eq(i),
+                            {title: xcHelper.escapeHTMLSpecialChar($descriptions.eq(i).text())});
+        }
+    }
+
+    WorkbookPanel.updateWorkbooks = function(info) {
+        if ($dropDownCard &&
+            $dropDownCard.attr("data-workbook-id") === info.triggerWkbk) {
+            if (info.action === "rename") {
+                $dropDownCard.attr("data-workbook-id",
+                                WorkbookManager.getIDfromName(info.newName));
+            } else if (info.action === "delete") {
+                if ($WKBKMenu.is(":visible")) {
+                    xcMenu.close($WKBKMenu);
+                }
+            }
+        }
+    }
 
     function getNewWorkbookName() {
         var regex = new RegExp(/[a-zA-Z0-9-_]*/);
@@ -864,41 +914,6 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
             '</div>';
 
         return html;
-    }
-
-    function addWorkbooks() {
-        var html = "";
-        var sorted = [];
-        var workbooks = WorkbookManager.getWorkbooks();
-        for (var id in workbooks) {
-            sorted.push(workbooks[id]);
-        }
-
-        var activeWKBKId = WorkbookManager.getActiveWKBK();
-        // sort by workbook.name
-        var isNum = (sortkey === "created" || sortkey === "modified");
-        var activeWorkbook;
-
-        sorted = sortObj(sorted, sortkey, isNum);
-        sorted.forEach(function(workbook) {
-            if (workbook.getId() === activeWKBKId) {
-                activeWorkbook = workbook;
-            } else {
-                html = createWorkbookCard(workbook) + html;
-            }
-        });
-        // active workbook always comes first
-        if (activeWorkbook != null) {
-            html = createWorkbookCard(activeWorkbook) + html;
-        }
-
-        $newWorkbookCard.after(html);
-        // Add tooltips to all descriptions
-        var $descriptions = $workbookSection.find(".workbookBox .description");
-        for (var i = 0; i < $descriptions.length; i++) {
-            xcTooltip.add($descriptions.eq(i),
-                          {title: xcHelper.escapeHTMLSpecialChar($descriptions.eq(i).text())});
-        }
     }
 
     function changeFilePath(dragFile) {

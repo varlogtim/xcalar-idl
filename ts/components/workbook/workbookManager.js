@@ -12,9 +12,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return setupWorkbooks();
     };
 
-    function setupWorkbooks() {
+    function setupWorkbooks(refreshing) {
         var deferred = PromiseHelper.deferred();
-        WorkbookManager.getWKBKsAsync()
+        WorkbookManager.getWKBKsAsync(refreshing)
         .then(syncSessionInfo)
         .then(function(wkbkId) {
             if (wkbkId == null) {
@@ -75,7 +75,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return wkbkSet.get(workbookId) || null;
     };
 
-    WorkbookManager.getWKBKsAsync = function() {
+    WorkbookManager.getWKBKsAsync = function(refreshing) {
         var deferred = PromiseHelper.deferred();
         var sessionInfo;
 
@@ -85,7 +85,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return wkbkStore.getAndParse();
         })
         .then(function(wkbk) {
-            deferred.resolve(wkbk, sessionInfo);
+            deferred.resolve(wkbk, sessionInfo, refreshing);
         })
         .fail(deferred.reject);
 
@@ -356,6 +356,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
             $("#initialLoadScreen").find(".animatedEllipsisWrapper .text")
                                     .text(StatusMessageTStr.PleaseWait);
             $("#container").removeClass("switchingWkbk");
+            XcSocket.Instance.sendMessage("refreshWorkbook", {
+                "action": "activate",
+                "user": XcSupport.getUser(),
+                "triggerWkbk": getWKBKId(wkbkName)
+            });
         });
 
         return deferred.promise();
@@ -475,7 +480,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 setActiveWKBK(null);
                 setURL(null, true);
             }
-
+            XcSocket.Instance.sendMessage("refreshWorkbook", {
+                "action": "deactivate",
+                "user": XcSupport.getUser(),
+                "triggerWkbk": workbookId
+            });
             deferred.resolve();
         })
         .fail(deferred.reject)
@@ -524,6 +533,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         saveWorkbook()
         .then(function() {
+            XcSocket.Instance.sendMessage("refreshWorkbook", {
+                "action": "description",
+                "user": XcSupport.getUser(),
+                "triggerWkbk": wkbkId
+            });
             deferred.resolve(wkbkId);
         })
         .fail(deferred.reject);
@@ -580,6 +594,13 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return saveWorkbook();
         })
         .then(function() {
+            XcSocket.Instance.sendMessage("refreshWorkbook", {
+                "action": "rename",
+                "user": XcSupport.getUser(),
+                "triggerWkbk": srcWKBKId,
+                "oldName": srcWKBK.name,
+                "newName": newName
+            });
             if (isCurrentWKBK) {
                 /// Change workbookname in status bar
                 $("#worksheetInfo .wkbkName").text(newName);
@@ -619,7 +640,14 @@ window.WorkbookManager = (function($, WorkbookManager) {
             wkbkSet.delete(workbook.id);
             return WorkbookManager.commit();
         })
-        .then(deferred.resolve)
+        .then(function() {
+            XcSocket.Instance.sendMessage("refreshWorkbook", {
+                "action": "delete",
+                "user": XcSupport.getUser(),
+                "triggerWkbk":workbookId
+            });
+            deferred.resolve.apply(this, arguments);
+        })
         .fail(deferred.reject)
         .always(function() {
             XcSupport.restartHeartbeatCheck();
@@ -630,6 +658,10 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     WorkbookManager.getGlobalScopeKeys = function(version) {
         return getGlobalScopeKeys(version);
+    };
+
+    WorkbookManager.getIDfromName = function(name) {
+        return getWKBKId(name);
     };
 
     function initializeVariable() {
@@ -747,10 +779,10 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     // sync sessionInfo with wkbkInfo
-    function syncSessionInfo(oldWorkbooks, sessionInfo) {
+    function syncSessionInfo(oldWorkbooks, sessionInfo, refreshing) {
         var deferred = PromiseHelper.deferred();
 
-        syncWorkbookMeta(oldWorkbooks, sessionInfo)
+        syncWorkbookMeta(oldWorkbooks, sessionInfo, refreshing)
         .then(function() {
             var activeWorkbooks = getActiveWorkbooks(sessionInfo);
             var activeId = getActiveWorkbookId(activeWorkbooks);
@@ -787,10 +819,13 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return (sessionInfo.toLowerCase() === "has resources");
     }
 
-    function syncWorkbookMeta(oldWorkbooks, sessionInfo) {
+    function syncWorkbookMeta(oldWorkbooks, sessionInfo, refreshing) {
         try {
             var numSessions = sessionInfo.numSessions;
             var sessions = sessionInfo.sessions;
+            if  (refreshing) {
+                initializeVariable();
+            }
 
             for (var i = 0; i < numSessions; i++) {
                 var wkbkName = sessions[i].name;
@@ -818,8 +853,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 console.warn("Error!", oldWkbkId, "is missing.");
             }
 
-            // refresh workbook info
-            return saveWorkbook();
+            if (refreshing) {
+                return PromiseHelper.resolve();
+            } else {
+                return saveWorkbook();
+            }
         } catch (error) {
             console.error(error);
             return PromiseHelper.reject("error");
@@ -840,6 +878,36 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     WorkbookManager.getStorageKey = function() {
         return getWkbkScopeKeys(currentVersion).gStorageKey;
+    };
+
+    // used in socket updates
+    WorkbookManager.updateWorkbooks = function(info) {
+        if (XcSupport.getUser() !== info.user) {
+            // XXX socket should only send messages to relevant users
+            return;
+        }
+        var activeWkbk = WorkbookManager.getActiveWKBK();
+        if (info.action === "deactivate" &&
+            activeWkbk && activeWkbk === info.triggerWkbk) {
+            WorkbookManager.deactivate(activeWkbk);
+            return;
+        }
+        setupWorkbooks(true)
+        .always(function() {
+            if (info.action === "rename") {
+                if (activeWkbk && activeWkbk === info.triggerWkbk) {
+                    $("#worksheetInfo .wkbkName").text(info.newName);
+                    var newWKBKId = getWKBKId(info.newName);
+                    resetActiveWKBK(newWKBKId);
+                }
+                WorkbookPanel.updateWorkbooks(info);
+                WorkbookInfoModal.update(info);
+            } else if (info.action === "delete") {
+                WorkbookPanel.updateWorkbooks(info);
+                WorkbookInfoModal.update(info);
+            }
+            WorkbookPanel.listWorkbookCards();
+        });
     };
 
     function getUserScopeKeysForUpgrade(version) {
@@ -939,16 +1007,27 @@ window.WorkbookManager = (function($, WorkbookManager) {
                     xcAssert(!WorkbookManager.getActiveWKBK());
                     XcalarDeactivateWorkbook(retStruct.sessions[0].name)
                     .always(function() {
+                        broadCast();
                         deferred.resolve(wkbk.id);
                         // XXX Handle failure here separately! It should never
                         // happen...
                     });
                 } else {
+                    broadCast();
                     deferred.resolve(wkbk.id);
                 }
             }
         })
         .fail(deferred.reject);
+
+        function broadCast() {
+            XcSocket.Instance.sendMessage("refreshWorkbook", {
+                "action": "newWorkbook",
+                "user": XcSupport.getUser(),
+                "triggerWkbk": getWKBKId(wkbkName)
+            });
+        }
+
         return deferred.promise();
     }
 

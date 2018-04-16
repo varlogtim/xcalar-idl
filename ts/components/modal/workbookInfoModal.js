@@ -22,6 +22,19 @@ window.WorkbookInfoModal = (function(WorkbookInfoModal, $) {
         showWorkbookInfo(workbookId);
     };
 
+    // for socket renames
+    WorkbookInfoModal.update = function(info) {
+        if (activeWorkbookId === info.triggerWkbk) {
+            if (info.delete) {
+                closeModal();
+            } else {
+                var newId = WorkbookManager.getIDfromName(info.newName);
+                activeWorkbookId = newId;
+                workbook = WorkbookManager.getWorkbook(newId);
+            }
+        }
+    }
+
     function addEvents() {
         $modal.on("click", ".close, .cancel", function() {
             closeModal();
@@ -36,6 +49,7 @@ window.WorkbookInfoModal = (function(WorkbookInfoModal, $) {
         modalHelper.clear();
         activeWorkbookId = null;
         $workbookDescription.val("");
+        workbook = null;
     }
 
     function showWorkbookInfo(workbookId) {

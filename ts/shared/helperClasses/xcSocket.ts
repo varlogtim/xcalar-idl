@@ -33,6 +33,7 @@ class XcSocket {
             "reconnectionAttempts": 10
         });
         this._addAuthenticationEvents();
+        this._addWorkbookEvents();
     }
 
     public addEventsAfterSetup(): void {
@@ -96,6 +97,14 @@ class XcSocket {
             return expHost;
         }
         return host;
+    }
+
+    // receives events even if user is not in a workbook
+    private _addWorkbookEvents(): void {
+        const socket = this._socket;
+        socket.on("refreshWorkbook", (info) => {
+            WorkbookManager.updateWorkbooks(info);
+        });
     }
 
     private _addAuthenticationEvents(): void {

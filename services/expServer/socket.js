@@ -78,6 +78,10 @@ module.exports = function(server) {
             socket.broadcast.emit("adminAlert", alertOption);
         });
 
+        socket.on("refreshWorkbook", function(wkbkName) {
+            socket.broadcast.emit("refreshWorkbook", wkbkName);
+        });
+
         addDSSocketEvent(socket);
     });
 
