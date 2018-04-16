@@ -1373,7 +1373,7 @@ namespace XIApi {
         let mapStr: string = "";
         const len: number = colNames.length;
         for (let i = 0; i < len - 1; i++) {
-            let val = `ifStr(exists(${colNames[i]}), ${colNames[i]}, "XC_FNF"`;
+            let val = `ifStr(exists(${colNames[i]}), ${colNames[i]}, "XC_FNF")`;
             mapStr += `concat(string(${val}), concat(".Xc.", `;
         }
 
@@ -2315,7 +2315,7 @@ namespace XIApi {
                 colInfos.push(tableInfo.renames);
             });
             // XXX here only pass empty string in
-            return XcalarUnion(tableNames, newTableName, colInfos, dedup, "", txId);
+            return XcalarUnion(tableNames, newTableName, colInfos, dedup, "unionStandard", txId);
         })
         .then(() => {
             const newTableCols: ProgCol[] = tableInfos[0].columns.map((col) => {

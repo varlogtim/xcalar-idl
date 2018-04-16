@@ -2659,6 +2659,7 @@ XcalarProject = function(columns, tableName, dstTableName, txId) {
 // rename map is an arry of array
 // if unionType is unionExcept or unionIntersect, it's actually the named
 // operation and not union
+// unionType is unionStandard, unionIntersect, unionExcept
 XcalarUnion = function(tableNames, newTableName, colInfos, dedup, unionType,
                        txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -2704,12 +2705,12 @@ XcalarUnion = function(tableNames, newTableName, colInfos, dedup, unionType,
         var columns = colInfos.map(function(renameListForOneTable) {
             return renameListForOneTable.map(colInfoMap);
         });
-        var workItem = xcalarUnionWorkItem(sources, newTableName, columns, dedup);
+        var workItem = xcalarUnionWorkItem(sources, newTableName, columns, dedup, unionType);
         var def;
         if (Transaction.isSimulate(txId)) {
             def = fakeApiCall();
         } else {
-            def = xcalarUnion(tHandle, sources, newTableName, columns, dedup);
+            def = xcalarUnion(tHandle, sources, newTableName, columns, dedup, unionType);
         }
         query = XcalarGetQuery(workItem); // XXX test
         Transaction.startSubQuery(txId, 'union', newTableName, query);
