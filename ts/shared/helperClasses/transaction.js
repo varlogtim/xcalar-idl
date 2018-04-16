@@ -218,7 +218,7 @@
     };
 
     Transaction.isEdit = function(txId) {
-        return (txId && txCache[txId] && txCache[txId].dagEdit);
+        return (txId && txCache[txId] && txCache[txId].isEdit);
     };
 
     Transaction.cancel = function(txId, options) {
