@@ -209,7 +209,7 @@ class KVStore {
      * @param oldMeta
      * @param constorName
      */
-    public static upgrade(oldMeta: any, constorName: string): string {
+    public static upgrade(oldMeta: any, constorName: string): object {
         if (oldMeta == null) {
             return null;
         }

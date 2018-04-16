@@ -328,7 +328,8 @@ namespace XVM {
                 }
 
                 if (needUpgrade) {
-                    return Upgrader.exec(version);
+                    const upgrader = new Upgrader(version);
+                    return upgrader.exec();
                 } else if (versionInfo.needCommit) {
                     return XVM.commitKVVersion();
                 }

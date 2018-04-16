@@ -103,6 +103,26 @@ interface GetNumRowsOptions {
     colName: string;
     constantName: string;
 }
+
+interface GlobalKVKeySet {
+    gEphStorageKey: string;
+    gSettingsKey: string;
+    gSharedDSKey: string;
+}
+
+interface UserKVKeySet {
+    gUserKey: string;
+    wkbkKey: string;
+}
+
+interface WkbkKVKeySet {
+    gStorageKey: string;
+    gLogKey: string;
+    gErrKey: string;
+    gOverwrittenLogKey: string;
+    gAuthKey: string;
+    gNotebookKey: string;
+}
 /* ============== GLOBAL VARIABLES ============= */
 declare var KB: number
 declare var MB: number;
@@ -166,6 +186,7 @@ declare var expHost: string;
 declare var sqlMode: boolean;
 
 /* ============== GLOBAL FUNCTIONS ============= */
+declare function setSessionName(sessionName: string): void;
 declare function getUnsortedTableName(tableName: string, otherTableName: string, txId: number, colsToIndex: string[]): XDPromise<string>;
 declare function XcalarGetTables(): XDPromise<any>;
 declare function XcalarGetTableMeta(tableName: string): XDPromise<any>;
@@ -280,6 +301,7 @@ declare namespace CommonTxtTstr {
     export var GenTicket: string;
     export var LogOut: string;
     export var NA: string;
+    export var Upgrading: string;
 }
 
 declare namespace StatusMessageTStr {
@@ -441,8 +463,10 @@ declare class EMetaConstructor {
     public update(): void;
 }
 
-declare class UserInfoConstructor{
-    public constructor(meta: object);
+declare class UserInfoConstructor {
+    public gDSObj: string;
+    public constructor(meta?: object);
+    public getMetaKeys(): {DS: 'gDSObj'};
 }
 
 declare class Mutex {
@@ -513,6 +537,7 @@ declare namespace Log {
     export function getBackup(): string;
     export function commit(): XDPromise<void>;
     export function restore(oldLogCursor: number): void;
+    export function upgrade(oldLog: string): string;
 }
 
 declare namespace SupTicketModal {
@@ -591,6 +616,9 @@ declare namespace WorkbookManager {
     export function commit(): XDPromise<void>;
     export function getWorkbook(wkbkId: string): WKBK;
     export function gotoWorkbook(workbookId: string | null, replaceURL: boolean): void;
+    export function getWKBKsAsync(): XDPromise<any>;
+    export function getKeysForUpgrade(sessionInfo: object[], version: number): object;
+    export function upgrade(oldWkbks: object): object;
 }
 
 declare namespace QueryManager{
@@ -625,6 +653,7 @@ declare namespace xcMenu {
 declare namespace DS {
     export function getGrid(dsId: string): JQuery;
     export function updateDSInfo(arg: object): void;
+    export function upgrade(oldDS: object): object;
 }
 
 declare namespace DSCart {
