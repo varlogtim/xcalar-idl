@@ -783,8 +783,9 @@ WKBKTStr = {
     'Release': 'Continue login',
     'WKBKnotExists': 'No workbooks exist',
     "WkbkNameRequired": "Workbook name is required.",
+    "Activate": "Activate Workbook",
+    "ActivateInstr": "Are you sure you want to activate the workbook?",
     "Switch": "Switch Workbook",
-    "SwitchInstr": "Are you sure you want to switch the workbook?",
     "ReturnWKBK": "Return To Workbook",
     "EditName": "Edit Workbook Name and Description",
     "Download": "Download the Workbook to your local drive",
@@ -817,7 +818,8 @@ WKBKTStr = {
     'DeactivateMsg': 'Are you sure you want to deactivate the workbook?',
     'DeactivateErr': 'Error occurred when deactivating workbook',
     'Refreshing': 'Refreshing in <time> seconds',
-    'MoreActions': 'More Actions'
+    'MoreActions': 'More Actions',
+    'SwitchWarn': 'There is outstanding operation \"<op>\" in the current workbook, do you still want to continue switch to another workbook?'
 };
 
 MonitorTStr = {

@@ -552,7 +552,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
             if (activeWKBKId === workbookId) {
                 WorkbookPanel.hide();
             } else {
-                alertActivate()
+                alertActivate(workbookId, activeWKBKId)
                 .then(function() {
                     WorkbookManager.switchWKBK(workbookId)
                     .fail(function(error) {
@@ -582,11 +582,41 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         }
     }
 
-    function alertActivate() {
+    function alertActivate(workbookId, activeWKBKId) {
+        if (activeWKBKId == null) {
+            // no activate workbook case
+            return PromiseHelper.resolve();
+        }
+
         var deferred = PromiseHelper.deferred();
+        var workbook = WorkbookManager.getWorkbook(workbookId);
+        var txCache = Transaction.getCache();
+        var keys = Object.keys(txCache);
+        if (keys.length === 0) {
+            // when no opeartion running
+            if (workbook.hasResource()) {
+                return PromiseHelper.resolve();
+            } else {
+                // when activate inactive workbook
+                Alert.show({
+                    title: WKBKTStr.Activate,
+                    msg: WKBKTStr.ActivateInstr,
+                    onConfirm: deferred.resolve,
+                    onCancel: deferred.reject
+                });
+                return deferred.promise();
+            }
+        }
+        
+        var key = keys[0];
+        var operation = txCache[key].getOperation();
+        var msg = xcHelper.replaceMsg(WKBKTStr.SwitchWarn, {
+            op: operation
+        });
+        
         Alert.show({
-            title: WKBKTStr.Switch,
-            msg: WKBKTStr.SwitchInstr,
+            title: AlertTStr.Title,
+            msg: msg,
             onConfirm: deferred.resolve,
             onCancel: deferred.reject
         });
@@ -669,9 +699,13 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
 
     function deactiveWorkbook($workbookBox) {
         var workbookId = $workbookBox.attr("data-workbook-id");
+        var isActiveWkbk = WorkbookManager.getActiveWKBK() === workbookId;
         WorkbookManager.deactivate(workbookId)
         .then(function() {
             updateWorkbookInfoWithReplace($workbookBox, workbookId);
+            if (isActiveWkbk) {
+                $("#container").addClass("noWorkbook noMenuBar");
+            }
         })
         .fail(function(error) {
             handleError(error, $workbookBox);
