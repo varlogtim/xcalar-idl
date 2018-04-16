@@ -4,7 +4,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
     var $workbookSection; // $workbookPanel.find(".bottomSection")
     var $newWorkbookCard; // $workbookPanel.find(".newWorkbookBox")
     var $welcomeCard; // $workbookTopbar.find(".welcomeBox")
-    var $WKBKMenu; //$workbookPanel.find("#WKBKMenu")
+    var $wkbkMenu; //$workbookPanel.find("#wkbkMenu")
     var sortkey = "modified"; // No longer user configurable
     var wasMonitorActive = false; // Track previous monitor panel state for when
                                   // workbook closes
@@ -22,8 +22,8 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         $newWorkbookCard = $workbookPanel.find(".newWorkbookBox");
         $welcomeCard = $workbookTopbar.find(".welcomeBox");
         $fileUpload = $("#WKBK_uploads");
-        $WKBKMenu = $workbookPanel.find("#WKBKMenu");
-        xcMenu.add($WKBKMenu);
+        $wkbkMenu = $workbookPanel.find("#wkbkMenu");
+        xcMenu.add($wkbkMenu);
         downloadingWKBKs = [];
         duplicatingWKBKs = [];
 
@@ -363,13 +363,13 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         });
 
         // Edit button
-        $WKBKMenu.on("click", ".modify", function() {
+        $wkbkMenu.on("click", ".modify", function() {
             var workbookId = $dropDownCard.attr("data-workbook-id");
             WorkbookInfoModal.show(workbookId);
         });
 
         //Download Button
-        $WKBKMenu.on("click", ".download", function() {
+        $wkbkMenu.on("click", ".download", function() {
             var workbookId = $dropDownCard.attr("data-workbook-id");
             var workbook = WorkbookManager.getWorkbook(workbookId);
             var workbookName = workbook.getName();
@@ -390,7 +390,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         });
 
         // Duplicate button
-        $WKBKMenu.on("click", ".duplicate", function() {
+        $wkbkMenu.on("click", ".duplicate", function() {
             var workbookId = $dropDownCard.attr("data-workbook-id");
             // Create workbook names in a loop until we find a workbook name
             // that we can use
@@ -422,7 +422,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         });
 
         // Delete button
-        $WKBKMenu.on("click", ".delete", function() {
+        $wkbkMenu.on("click", ".delete", function() {
             Alert.show({
                 "title": WKBKTStr.Delete,
                 "msg": WKBKTStr.DeleteMsg,
@@ -433,7 +433,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         });
 
         // deactivate button
-        $WKBKMenu.on("click", ".deactivate", function() {
+        $wkbkMenu.on("click", ".deactivate", function() {
             Alert.show({
                 "title": WKBKTStr.Deactivate,
                 "msg": WKBKTStr.DeactivateMsg,
@@ -443,7 +443,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
             });
         });
 
-        $WKBKMenu.on("click", ".newTab", function() {
+        $wkbkMenu.on("click", ".newTab", function() {
             activateWorkbook($dropDownCard, true)
         });
 
@@ -618,16 +618,16 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                 });
             }
         } else {
-            WorkbookManager.switchTabWKBK(workbookId, $workbookBox)
+            WorkbookManager.switchWKBK(workbookId, true, $workbookBox)
             .fail(function(error) {
                 handleError(error, $workbookBox);
                 // has chance that inactivate the fromWorkbook
                 // but fail to activate the toWorkbook
-                if (WorkbookManager.getActiveWKBK() == null
+                /*if (WorkbookManager.getActiveWKBK() == null
                     && activeWKBKId != null) {
                     var $activeWKBK = getWorkbookBoxById(activeWKBKId);
                     updateWorkbookInfoWithReplace($activeWKBK, activeWKBKId);
-                }
+                }*/
             });
         }
     }
@@ -985,33 +985,33 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
 
         var index = downloadingWKBKs.indexOf(workbookName);
         if (index !== -1) {
-            $WKBKMenu.find(".download").addClass("inActive");
+            $wkbkMenu.find(".download").addClass("inActive");
         } else {
-            $WKBKMenu.find(".download").removeClass("inActive");
+            $wkbkMenu.find(".download").removeClass("inActive");
         }
 
         index = duplicatingWKBKs.indexOf(workbookName);
         if (index !== -1) {
-            $WKBKMenu.find(".duplicate").addClass("inActive");
+            $wkbkMenu.find(".duplicate").addClass("inActive");
         } else {
-            $WKBKMenu.find(".duplicate").removeClass("inActive");
+            $wkbkMenu.find(".duplicate").removeClass("inActive");
         }
 
         if ($dropDownCard.hasClass("active")) {
-            $WKBKMenu.find(".delete").addClass("xc-hidden");
-            $WKBKMenu.find(".deactivate").removeClass("xc-hidden");
+            $wkbkMenu.find(".delete").addClass("xc-hidden");
+            $wkbkMenu.find(".deactivate").removeClass("xc-hidden");
 
             if (workbookId === WorkbookManager.getActiveWKBK()) {
-                $WKBKMenu.find(".newTab").addClass("inActive");
+                $wkbkMenu.find(".newTab").addClass("inActive");
             } else {
-                $WKBKMenu.find(".newTab").removeClass("inActive");
+                $wkbkMenu.find(".newTab").removeClass("inActive");
             }
         } else {
-            $WKBKMenu.find(".deactivate").addClass("xc-hidden");
-            $WKBKMenu.find(".delete").removeClass("xc-hidden");
-            $WKBKMenu.find(".newTab").removeClass("inActive");
+            $wkbkMenu.find(".deactivate").addClass("xc-hidden");
+            $wkbkMenu.find(".delete").removeClass("xc-hidden");
+            $wkbkMenu.find(".newTab").removeClass("inActive");
         }
-        xcHelper.dropdownOpen($dropDownLocation, $WKBKMenu);
+        xcHelper.dropdownOpen($dropDownLocation, $wkbkMenu);
     }
 
     function setupDragDrop() {
