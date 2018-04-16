@@ -166,9 +166,10 @@ class XcSocket {
                 return;
             }
             DataflowPanel.refresh(dfName);
+            UDF.refreshWithoutClearing(false);
         });
 
-        socket.on('refreshUDFWithoutClear', (overwriteUDF) => {
+        socket.on('refreshUDFWithoutClear', (overwriteUDF: boolean) => {
             if (!this._registered) {
                 return;
             }
