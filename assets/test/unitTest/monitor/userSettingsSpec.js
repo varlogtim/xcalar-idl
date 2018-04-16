@@ -256,17 +256,6 @@ describe("User Setting Test", function() {
             .to.equal(enableTable);
         });
 
-        it("should toggle Xc UDF", function() {
-            var hideXcUDF = UserSettings.getPref("hideXcUDF") || false;
-            var $btn = $("#hideXcUDF");
-            // case 1
-            $btn.click();
-            expect(UserSettings.getPref("hideXcUDF")).to.equal(!hideXcUDF);
-            // case 2
-            $btn.click();
-            expect(UserSettings.getPref("hideXcUDF")).to.equal(hideXcUDF);
-        });
-
         it("should toggle hideSysOps", function() {
             var hideSysOps = UserSettings.getPref("hideSysOps") || false;
             var $btn = $("#hideSysOps");

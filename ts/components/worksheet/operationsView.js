@@ -1332,11 +1332,7 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         operatorsMap[udfCategoryNum] = [];
-        var hideXcUDF = UserSettings.getPref("hideXcUDF");
         for (var i = 0; i < opArray.length; i++) {
-            if (hideXcUDF && opArray[i].displayName.startsWith("_xcalar")) {
-                continue;
-            }
             operatorsMap[udfCategoryNum].push(opArray[i]);
         }
     }

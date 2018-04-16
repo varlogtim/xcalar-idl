@@ -4138,7 +4138,6 @@ namespace xcHelper {
 
         let moduleLi: string = "";
         let fnLi: string = "";
-        const hideXcUDF: boolean = UserSettings.getPref("hideXcUDF");
         let mainFound: boolean = false;
         let prevModule: string = null;
         let prevDisplayModule: string = null;
@@ -4154,13 +4153,7 @@ namespace xcHelper {
             const fnName: string = udf[1];
             if (!moduleMap.hasOwnProperty(moduleName)) {
                 moduleMap[moduleName] = true;
-                let liClass: string;
-                if (hideXcUDF && moduleName.indexOf("_xcalar") === 0) {
-                    liClass = "xcUDF";
-                } else {
-                    liClass = "";
-                }
-                moduleLi += '<li class="' + liClass + '" data-module="' +
+                moduleLi += '<li data-module="' +
                                 moduleName + '">' +
                                 moduleDisplayedName +
                             "</li>";
@@ -4197,9 +4190,6 @@ namespace xcHelper {
                     liClass += "hasMain";
                 } else {
                     liClass += "noMain unavailable";
-                }
-                if (hideXcUDF && name.indexOf("_xcalar") === 0) {
-                    liClass += " xcUDF";
                 }
                 moduleLi += '<li class="' + liClass + '" data-module="' +
                             name + '">' + displayName + '</li>';

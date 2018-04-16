@@ -111,14 +111,9 @@ describe("Persistent Constructor Test", function() {
             });
 
             expect(ephMeta).to.be.an.instanceof(EMetaConstructor);
-            expect(Object.keys(ephMeta).length).to.equal(2);
+            expect(Object.keys(ephMeta).length).to.equal(3);
             expect(ephMeta.version).to.equal(currentVersion);
             expect(ephMeta.DF).to.exist;
-        });
-
-        it("Should get DF meta", function() {
-            var df = ephMeta.getDFMeta();
-            expect(df).to.have.property("testDF");
         });
 
         it("Should update", function() {
@@ -1748,7 +1743,7 @@ describe("Persistent Constructor Test", function() {
             var genSettings = new GenSettings();
             var baseSettings = genSettings.getBaseSettings();
 
-            expect(Object.keys(baseSettings).length).to.equal(6);
+            expect(Object.keys(baseSettings).length).to.equal(5);
             expect(baseSettings).to.have.property("hideDataCol")
             .and.to.be.false;
             expect(baseSettings).to.have.property("monitorGraphInterval")
@@ -1757,7 +1752,6 @@ describe("Persistent Constructor Test", function() {
             .and.to.equal(120);
             expect(baseSettings).to.have.property("enableCreateTable").and.to.be.false;
             expect(baseSettings).to.have.property("hideSysOps").and.to.be.false;
-            expect(baseSettings).to.have.property("hideXcUDF").and.to.be.false;
         });
 
         it("GenSettings heirarchy should work", function() {
@@ -1780,13 +1774,12 @@ describe("Persistent Constructor Test", function() {
             expect(Object.keys(adminAndXc.xcSettings)).to.have.length(1);
 
             var baseSettings = genSettings.getBaseSettings();
-            expect(Object.keys(baseSettings)).to.have.length(6);
+            expect(Object.keys(baseSettings)).to.have.length(5);
             expect(baseSettings["hideDataCol"]).to.be.false;
             expect(baseSettings["monitorGraphInterval"]).to.equal(9);
             expect(baseSettings["commitInterval"]).to.equal(600);
             expect(baseSettings["enableCreateTable"]).to.be.false;
             expect(baseSettings["hideSysOps"]).to.be.false;
-            expect(baseSettings["hideXcUDF"]).to.be.false;
         });
 
         it("Should update adminSettings", function() {

@@ -744,7 +744,6 @@ module.exports = {
         "GenSub": "生成支持票",
         "GeneralSettings": "常规设置",
         "hideSysOps": "隐藏系统操作",
-        "hideXcUDFS": "隐藏系统UDF",
         "DISABLESHARE": "取消共享数据集",
         "Install": "安装",
         "LastCheckTime": "检测时间",

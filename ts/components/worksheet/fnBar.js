@@ -370,7 +370,6 @@ window.FnBar = (function(FnBar, $) {
             if (fullVal.indexOf("(") === -1) {
                 onlyMainOperators = true;
             }
-            var hideXcUDF = UserSettings.getPref("hideXcUDF");
             var word = /[\w$:^\s]+/; // allow : and ^
             var wordNoSpace = /[\w$:^]+/; // allow : and ^ and space
             var cur = editor.getCursor();
@@ -487,20 +486,16 @@ window.FnBar = (function(FnBar, $) {
                     var mapFunc;
                     for (var i = 0; i < mapFuncs.length; i++) {
                         mapFunc = mapFuncs[i];
-                        if (!hideXcUDF ||
-                            mapFunc.fnName.indexOf("_xcalar") !== 0) {
-
-                            list.push({
-                                text: mapFunc.fnName + "()",
-                                displayText: mapFunc.fnName,
-                                template: mapFunc.template,
-                                templateTwo: mapFunc.templateTwo,
-                                argDescs: mapFunc.modArgDescs,
-                                hint: autocompleteSelect,
-                                render: renderOpLi,
-                                className: "operator"
-                            });
-                        }
+                        list.push({
+                            text: mapFunc.fnName + "()",
+                            displayText: mapFunc.fnName,
+                            template: mapFunc.template,
+                            templateTwo: mapFunc.templateTwo,
+                            argDescs: mapFunc.modArgDescs,
+                            hint: autocompleteSelect,
+                            render: renderOpLi,
+                            className: "operator"
+                        });
                     }
                 }
             }

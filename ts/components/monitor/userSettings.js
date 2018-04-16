@@ -274,23 +274,6 @@ window.UserSettings = (function($, UserSettings) {
             UserSettings.logChange();
         });
 
-        $("#hideXcUDF").click(function() {
-            var $checkbox = $(this);
-            $checkbox.toggleClass("checked");
-            if ($checkbox.hasClass("checked")) {
-                UserSettings.setPref("hideXcUDF", true, true);
-                UDF.toggleXcUDFs(true);
-                DSPreview.toggleXcUDFs(true);
-                DSExport.toggleXcUDFs(true);
-            } else {
-                UserSettings.setPref("hideXcUDF", false, true);
-                UDF.toggleXcUDFs(false);
-                DSPreview.toggleXcUDFs(false);
-                DSExport.toggleXcUDFs(false);
-            }
-            UserSettings.logChange();
-        });
-
         $("#hideSysOps").click(function() {
             var $checkbox = $(this);
             $checkbox.toggleClass("checked");
@@ -366,7 +349,6 @@ window.UserSettings = (function($, UserSettings) {
         var graphInterval = UserSettings.getPref("monitorGraphInterval");
         var commitInterval = UserSettings.getPref("commitInterval");
         var enableCreateTable = UserSettings.getPref("enableCreateTable");
-        var hideXcUDF = UserSettings.getPref("hideXcUDF");
         var hideSysOps = UserSettings.getPref("hideSysOps");
         var disableDSShare = UserSettings.getPref("disableDSShare");
 
@@ -374,12 +356,6 @@ window.UserSettings = (function($, UserSettings) {
             $("#showDataColBox").addClass("checked");
         } else {
             $("#showDataColBox").removeClass("checked");
-        }
-
-        if (hideXcUDF) {
-            $("#hideXcUDF").addClass("checked");
-        } else {
-            $("#hideXcUDF").removeClass("checked");
         }
 
         if (hideSysOps) {

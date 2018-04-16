@@ -1373,8 +1373,7 @@
                     "monitorGraphInterval": 3, // in seconds
                     "commitInterval": 120, // in seconds
                     "enableCreateTable": false,
-                    "hideSysOps": false,
-                    "hideXcUDF": false
+                    "hideSysOps": false
                 };
                 defaultSettings = $.extend({}, defaultSettings,
                                             userConfigParms);

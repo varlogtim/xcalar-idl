@@ -527,18 +527,6 @@ describe("Dataset-DSPreview Test", function() {
     });
 
     describe("Preview Public API Test", function() {
-        it("DSPreview.toggleXcUDFs should work", function() {
-            var isHide = UserSettings.getPref("hideXcUDF") || false;
-            var $li = $("<li>_xcalar_test</li>");
-            $udfModuleList.append($li);
-            DSPreview.toggleXcUDFs(!isHide);
-            expect($li.hasClass("xcUDF")).to.be.equal(!isHide);
-
-            DSPreview.toggleXcUDFs(isHide);
-            expect($li.hasClass("xcUDF")).to.be.equal(isHide);
-            $li.remove();
-        });
-
         it("DSPreview.clear shoule resolve if view is hidden", function(done) {
             var isHidden = $previewCard.hasClass("xc-hidden");
             $previewCard.addClass("xc-hidden");

@@ -100,20 +100,6 @@ window.UDF = (function($, UDF) {
         return deferred.promise();
     };
 
-    UDF.toggleXcUDFs = function(hide) {
-        if (hide) {
-            $("#udf-fnMenu").find("li").filter(function() {
-                return $(this).text().indexOf("_xcalar") === 0;
-            }).addClass("xcUDF");
-            $("#udf-manager").find(".udf").filter(function() {
-                return $(this).find(".text").text().indexOf("_xcalar") === 0;
-            }).closest(".udf").addClass("xcUDF");
-        } else {
-            $("#udf-fnMenu").find("li").removeClass("xcUDF");
-            $("#udf-manager").find(".udf").removeClass("xcUDF");
-        }
-    };
-
     UDF.selectUDFFuncList = function(module) {
         inputUDFFuncList(module);
     };
@@ -513,17 +499,10 @@ window.UDF = (function($, UDF) {
         var selectedModule = $input.val();
         var hasSelectedModule = false;
         var html = "";
-        var hideXcUDF = UserSettings.getPref("hideXcUDF");
-        var liClass = "";
+        var liClass = "workbookUDF";
         for (var i = 0, len = moduleNames.length; i < len; i++) {
             var module = moduleNames[i];
-            if (hideXcUDF && module.indexOf("_xcalar") === 0) {
-                liClass = " xcUDF";
-            } else {
-                liClass = "";
-            }
             var moduleSplit = module.split("/");
-            liClass += " workbookUDF"
             var moduleName = moduleSplit[moduleSplit.length - 1];
             var tempHTML = '<li class="tooltipOverflow' + liClass + '"' +
                     ' data-toggle="tooltip"' +
@@ -578,15 +557,10 @@ window.UDF = (function($, UDF) {
         var wbName = WorkbookManager.getWorkbook(
                         WorkbookManager.getActiveWKBK()).name;
 
-        var hideXcUDF = UserSettings.getPref("hideXcUDF");
         var isEditable = true;
         for (var i = 0; i < len; i++) {
             var moduleName = moduleNames[i];
             var udfClass = "udf";
-
-            if (hideXcUDF && moduleName.indexOf("_xcalar") === 0) {
-                udfClass += " xcUDF";
-            }
 
             var moduleSplit = moduleName.split("/");
 

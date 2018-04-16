@@ -287,18 +287,6 @@ describe("UDF Test", function() {
             });
         });
 
-        it("UDF.toggleXcUDFs should work", function() {
-            var isHide = UserSettings.getPref("hideXcUDF") || false;
-            var $li = $("<li>_xcalar_test</li>");
-            $("#udf-fnMenu").append($li);
-            UDF.toggleXcUDFs(!isHide);
-            expect($li.hasClass("xcUDF")).to.be.equal(!isHide);
-
-            UDF.toggleXcUDFs(isHide);
-            expect($li.hasClass("xcUDF")).to.be.equal(isHide);
-            $li.remove();
-        });
-
         it("UDF.refreshWithoutClearing should work", function(done) {
             var oldFunc = XcalarListXdfs;
             var editor = UDF.getEditor();

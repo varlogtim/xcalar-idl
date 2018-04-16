@@ -44,20 +44,6 @@ describe("Dataset-DSExport Test", function() {
     });
 
     describe("DSExport Basic Api Test", function() {
-        it("DSExport.toggleXcUDFs should work", function() {
-            var $udfModule = $("#exportDataForm").find(".udfModuleListWrap");
-            var isHide = UserSettings.getPref("hideXcUDF");
-            isHide = isHide || false;
-            var $li = $("<li>_xcalar_test</li>");
-            $udfModule.append($li);
-            DSExport.toggleXcUDFs(!isHide);
-            expect($li.hasClass("xcUDF")).to.be.equal(!isHide);
-
-            DSExport.toggleXcUDFs(isHide);
-            expect($li.hasClass("xcUDF")).to.be.equal(isHide);
-            $li.remove();
-        });
-
         it("DSExport.getTargets should work", function() {
             var res = DSExport.getTargets();
             expect(res).to.be.an("array");

@@ -490,16 +490,6 @@ window.DSPreview = (function($, DSPreview) {
         });
     };
 
-    DSPreview.toggleXcUDFs = function(hide) {
-        if (hide) {
-            $udfModuleList.find("li").filter(function() {
-                return $(this).text().indexOf("_xcalar") === 0;
-            }).addClass("xcUDF");
-        } else {
-            $udfModuleList.find("li").removeClass("xcUDF");
-        }
-    };
-
     DSPreview.clear = function() {
         if ($("#dsForm-preview").hasClass("xc-hidden")) {
             // when preview table not shows up
