@@ -53,7 +53,8 @@ setupHostName = function() {
     }
 
     if (window.jupyterNotebooksPath == null || window.jupyterNotebooksPath === "") {
-        window.jupyterNotebooksPath = "var/opt/xcalar/jupyterNotebooks/";
+        // window.jupyterNotebooksPath = "var/opt/xcalar/jupyterNotebooks/";
+        window.jupyterNotebooksPath = "jupyterNotebooks/";
     }
 };
 // for convenience, add the function list here and make them
@@ -4558,7 +4559,7 @@ XcalarUploadWorkbook = function(workbookName, workbookContent,
     }
     var deferred = PromiseHelper.deferred();
 
-    xcalarApiSessionUpload(tHandle, workbookName, workbookContent)
+    xcalarApiSessionUpload(tHandle, workbookName, workbookContent, pathToAdditionalFiles)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarUploadWorkbook", error);
@@ -4577,7 +4578,7 @@ XcalarDownloadWorkbook = function(workbookName, pathToAdditionalFiles) {
     xcalarApiSessionDownload(tHandle, workbookName, pathToAdditionalFiles)
     .then(deferred.resolve)
     .fail(function(error) {
-        var thriftError = thriftLog("XcalarUploadWorkbook", error);
+        var thriftError = thriftLog("XcalarDownloadWorkbook", error);
         Log.errorLog("Upload Workbook", null, null, thriftError);
         deferred.reject(thriftError);
     });

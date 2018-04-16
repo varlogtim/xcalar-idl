@@ -422,8 +422,14 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var deferred = PromiseHelper.deferred();
 
         var jupFolderName;
+        var username = XcSupport.getUser();
+        var parsedWorkbookContent;
 
-        JupyterPanel.newWorkbook(workbookName, getWKBKId(workbookName))
+        readFile(workbookContent)
+        .then(function(res) {
+            parsedWorkbookContent = res;
+            return JupyterPanel.newWorkbook(workbookName, getWKBKId(workbookName));
+        })
         .then(function(folderName) {
             var jupyterFolderPath;
             if (typeof folderName !== "string") {
@@ -437,7 +443,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 jupyterFolderPath = window.jupyterNotebooksPath + folderName +
                                     "/";
             }
-            return XcalarUploadWorkbook(workbookName, workbookContent,
+            return XcalarUploadWorkbook(workbookName, parsedWorkbookContent,
                                         jupyterFolderPath);
         })
         .then(function() {
@@ -1260,6 +1266,26 @@ window.WorkbookManager = (function($, WorkbookManager) {
         clearTimeout(progressTimeout);
         progressTimeout += "canceled";
         $("#initialLoadScreen").removeClass("sessionProgress");
+    }
+
+    function readFile(file) {
+        var deferred = PromiseHelper.deferred();
+        var reader = new FileReader();
+
+        reader.onload = function(event) {
+            deferred.resolve(event.target.result);
+        };
+
+        reader.onloadend = function(event) {
+            var error = event.target.error;
+            if (error != null) {
+                deferred.reject(error);
+            }
+        };
+
+        reader.readAsBinaryString(file);
+
+        return deferred.promise();
     }
 
     /* Unit Test Only */
