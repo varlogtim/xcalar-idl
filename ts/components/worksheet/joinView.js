@@ -1748,7 +1748,7 @@ window.JoinView = (function($, JoinView) {
 
         if (DagEdit.isEditMode()) {
             DagEdit.storeJoin(joinType, lJoinInfo, rJoinInfo,
-                            newTableName + "#aa00", options);
+                            newTableName + "#0", options);
         } else {
             xcFunction.join(joinType, lJoinInfo, rJoinInfo, newTableName, options)
             .then(function(finalTableName) {

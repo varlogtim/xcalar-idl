@@ -747,7 +747,7 @@ describe("DagEdit Test", function() {
                         "students5.index#K2855",
                         "students5.index#K2855"
                     ],
-                    "dest": "gea#aa00",
+                    "dest": "gea#0",
                     "joinType": "innerJoin",
                     "columns": [],
                     "evalString": ""

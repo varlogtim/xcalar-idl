@@ -2114,7 +2114,7 @@ window.DagDraw = (function($, DagDraw) {
                 invalidColFound = false;
             }
         } else {
-            var additionalTooltip = " where";
+            var additionalTooltip = " where ";
             for (var i = 0; i < lSrcCols.length; i++) {
                 if (i > 0) {
                     additionalTooltip += ", " ;
@@ -2232,7 +2232,7 @@ window.DagDraw = (function($, DagDraw) {
         function getLeaves(node) {
             for (var i = 0; i < node.parents.length; i++) {
                 var parentNode = node.parents[i];
-                if (tag && parentNode.value.tags[0] === tag) {
+                if (tag && parentNode.value.tags.indexOf(tag) !== -1) {
                     getLeaves(parentNode);
                 } else {
                     leaves.push(node);
