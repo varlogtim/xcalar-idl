@@ -2472,6 +2472,9 @@ window.Dag = (function($, Dag) {
 
         var parentNode = node.parents[0];
         var srcTableId = xcHelper.getTableId(parentNode.value.name);
+         if (!gTables[srcTableId]) {
+            TblManager.addUntrackedTable(parentNode.value.name);
+        }
         $tableIcon.addClass("generatingComplement");
 
         xcFunction.filter(1, srcTableId, fltOption)

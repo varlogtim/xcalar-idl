@@ -705,23 +705,30 @@ window.TblManager = (function($, TblManager) {
         return deferred.promise();
     };
 
+
+    TblManager.addUntrackedTable = function(tableName) {
+        var tableId = xcHelper.getTableId(tableName);
+        if (tableId != null && !gTables.hasOwnProperty(tableId)) {
+            table = new TableMeta({
+                "tableId": tableId,
+                "tableName": tableName,
+                "tableCols": [ColManager.newDATACol()],
+                "status": TableType.Orphan
+            });
+            gTables[tableId] = table;
+            return table;
+        } else {
+            // XXX no id, handle this by renaming?
+            return null;
+        }
+    };
+
     TblManager.makeTableNoDelete = function(tableName) {
         var tableId = xcHelper.getTableId(tableName);
-        var table = gTables[tableId];
+        var table = gTables[tableId] || TblManager.addUntrackedTable(tableName);
 
         if (!table) {
-            if (tableId != null && !gTables.hasOwnProperty(tableId)) {
-                table = new TableMeta({
-                    "tableId": tableId,
-                    "tableName": tableName,
-                    "tableCols": [ColManager.newDATACol()],
-                    "status": TableType.Orphan
-                });
-                gTables[tableId] = table;
-            } else {
-                // XXX no id, handle this by renaming?
-                return null;
-            }
+            return;
         }
         table.addNoDelete();
         var $tableHeader = $("#xcTheadWrap-" + tableId);
