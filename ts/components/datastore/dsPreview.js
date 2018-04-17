@@ -481,7 +481,7 @@ window.DSPreview = (function($, DSPreview) {
     };
 
     DSPreview.update = function(listXdfsObj) {
-        var moduleName = $udfModuleList.find("input").val();
+        var moduleName = $udfModuleList.find("input").data("module");
         var funcName = $udfFuncList.find("input").val();
 
         listUDFSection(listXdfsObj)
@@ -666,7 +666,7 @@ window.DSPreview = (function($, DSPreview) {
         // dropdown list for udf modules and function names
         var moduleMenuHelper = new MenuHelper($udfModuleList, {
             "onSelect": function($li) {
-                var module = $li.text();
+                var module = $li.data("module");
                 selectUDFModule(module);
             },
             "container": "#importDataForm-content",
@@ -974,7 +974,7 @@ window.DSPreview = (function($, DSPreview) {
 
         if (!listXdfsObj) {
             // update python module list
-            UDF.list()
+            UDF.list(true)
             .then(updateUDFList)
             .then(deferred.resolve)
             .fail(function(error) {
@@ -1052,8 +1052,11 @@ window.DSPreview = (function($, DSPreview) {
         if (module == null) {
             module = "";
         }
-
-        udfModuleHint.setInput(module);
+        var displayedModuleName = $udfModuleList.find("li").filter(function() {
+                                    return $(this).data("module") === module;
+                                }).text() || "";
+        $udfModuleList.find("input").data("module", module);
+        udfModuleHint.setInput(displayedModuleName);
 
         if (module === "") {
             $udfFuncList.addClass("disabled")
@@ -1770,7 +1773,7 @@ window.DSPreview = (function($, DSPreview) {
             return null;
         }
 
-        udfModule = $moduleInput.val();
+        udfModule = $moduleInput.data("module");
         udfFunc = $funcInput.val();
 
         return [udfModule, udfFunc];
@@ -2665,7 +2668,7 @@ window.DSPreview = (function($, DSPreview) {
                     // special case
                     hasUDF = true;
                     noDetect = true;
-                    udfModule = "default";
+                    udfModule = "workbook/udf/default";
                     udfFunc = "convertNewLineJsonToArrayJson";
                     toggleFormat("UDF");
                     selectUDFModule(udfModule);

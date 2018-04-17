@@ -725,8 +725,9 @@ window.OperationsView = (function($, OperationsView) {
 
         XcalarListXdfs("*", "*")
         .then(function(listXdfsObj) {
-            FnBar.updateOperationsMap(listXdfsObj.fnDescs);
-            setupOperatorsMap(listXdfsObj.fnDescs);
+            var fns = xcHelper.filterUDFs(listXdfsObj.fnDescs);
+            FnBar.updateOperationsMap(fns);
+            setupOperatorsMap(fns);
         })
         .fail(function(error) {
             Alert.error("List XDFs failed", error.error);
@@ -853,7 +854,8 @@ window.OperationsView = (function($, OperationsView) {
             disableInputs();
             UDF.list()
             .then(function(listXdfsObj) {
-                udfUpdateOperatorsMap(listXdfsObj.fnDescs);
+                var fns = xcHelper.filterUDFs(listXdfsObj.fnDescs);
+                udfUpdateOperatorsMap(fns);
                 operationsViewShowHelper(options.restore, null, options);
                 deferred.resolve();
             })
@@ -1290,7 +1292,7 @@ window.OperationsView = (function($, OperationsView) {
         var ops = operatorsMap[categoryIndex];
         var html = "";
         for (var i = 0, numOps = ops.length; i < numOps; i++) {
-            html += '<li class="textNoCap">' + ops[i].fnName + '</li>';
+            html += '<li class="textNoCap">' + ops[i].displayName + '</li>';
         }
         $activeOpSection.find('.genFunctionsMenu ul[data-fnmenunum="' +
                                 groupIndex + '"]')
@@ -1311,7 +1313,7 @@ window.OperationsView = (function($, OperationsView) {
             operatorsMap[i].sort(sortFn);
         }
         function sortFn(a, b){
-            return (a.fnName) > (b.fnName) ? 1 : -1;
+            return (a.displayName) > (b.displayName) ? 1 : -1;
         }
     }
 
@@ -1326,13 +1328,13 @@ window.OperationsView = (function($, OperationsView) {
         opArray.sort(sortFn);
 
         function sortFn(a, b){
-            return (a.fnName) > (b.fnName) ? 1 : -1;
+            return (a.displayName) > (b.displayName) ? 1 : -1;
         }
 
         operatorsMap[udfCategoryNum] = [];
         var hideXcUDF = UserSettings.getPref("hideXcUDF");
-        for (var i = 0; i < arrayLen; i++) {
-            if (hideXcUDF && opArray[i].fnName.startsWith("_xcalar")) {
+        for (var i = 0; i < opArray.length; i++) {
+            if (hideXcUDF && opArray[i].displayName.startsWith("_xcalar")) {
                 continue;
             }
             operatorsMap[udfCategoryNum].push(opArray[i]);
@@ -1684,9 +1686,9 @@ window.OperationsView = (function($, OperationsView) {
                     li = '<li class="textNoCap" data-category="' + cat +
                     '" data-container="body" ' +
                     'data-placement="right" data-toggle="tooltip" title="' +
-                    ops[i].fnName + '">' + ops[i].fnName + '</li>';
+                    ops[i].displayName + '">' + ops[i].displayName + '</li>';
                     if (filterVal &&
-                        ops[i].fnName.toLowerCase().startsWith(filterVal))
+                        ops[i].displayName.toLowerCase().startsWith(filterVal))
                     {
                         startsWith += li;
                     } else {
@@ -1696,9 +1698,9 @@ window.OperationsView = (function($, OperationsView) {
             } else {
                 for (i = 0; i < ops.length; i++) {
                     li = '<li class="textNoCap" data-category="' + cat +
-                    '">' + ops[i].fnName + '</li>';
+                    '">' + ops[i].displayName + '</li>';
                     if (filterVal &&
-                        ops[i].fnName.toLowerCase().startsWith(filterVal))
+                        ops[i].displayName.toLowerCase().startsWith(filterVal))
                     {
                         startsWith += li;
                     } else {
@@ -1766,7 +1768,7 @@ window.OperationsView = (function($, OperationsView) {
         var operObj = null;
 
         for (var i = 0, numOps = ops.length; i < numOps; i++) {
-            if (func === ops[i].fnName) {
+            if (func === ops[i].displayName) {
                 operObj = ops[i];
                 break;
             }
@@ -1776,7 +1778,7 @@ window.OperationsView = (function($, OperationsView) {
         var firstTime = $argsSection.html() === "";
         $argsSection.removeClass('inactive');
         $argsSection.empty();
-        $argsSection.data("fnname", operObj.fnName);
+        $argsSection.data("fnname", operObj.displayName);
 
         $activeOpSection.find(".advancedSection").removeClass("inactive");
         $activeOpSection.find('.icvMode').removeClass('inactive');
@@ -1924,7 +1926,7 @@ window.OperationsView = (function($, OperationsView) {
 
             // special case to ignore removing autoquotes from
             // function-like arguments if it is 2nd regex input
-            if (operObj.fnName === "regex" && i === 1) {
+            if (operObj.displayName === "regex" && i === 1) {
                 $input.data("nofunc", true);
             }
 
@@ -2015,7 +2017,7 @@ window.OperationsView = (function($, OperationsView) {
             .end()
             .find(".inputWrap");
         var strPreview =  operatorName + '(<span class="descArgs">' +
-                          operObj.fnName +
+                          operObj.displayName +
                             '(' + $rows.eq(0).find(".arg").val() +
                             ')</span>)';
         return (strPreview);
@@ -2024,7 +2026,7 @@ window.OperationsView = (function($, OperationsView) {
     function filterArgumentsSetup(operObj) {
         var $rows = $activeOpSection.find('.row');
         var strPreview = operatorName + '(<span class="descArgs">' +
-                         operObj.fnName + '(' +
+                         operObj.displayName + '(' +
                          $rows.eq(0).find(".arg").val() +
                         ')</span>)';
         return (strPreview);
@@ -2070,7 +2072,7 @@ window.OperationsView = (function($, OperationsView) {
             $(this).addClass("touched");
         });
 
-        var strPreview = '<span class="aggColStrWrap">' + operObj.fnName + '(' +
+        var strPreview = '<span class="aggColStrWrap">' + operObj.displayName + '(' +
                         '<span class="aggCols">' +
                             $rows.eq(1).find(".arg").val() +
                         '</span>' +
@@ -4825,7 +4827,7 @@ window.OperationsView = (function($, OperationsView) {
             categorySet = operatorsMap[i];
             for (var j = 0; j < categorySet.length; j++) {
                 fn = categorySet[j];
-                if (fn.fnName.toLowerCase().indexOf(val) > -1) {
+                if (fn.displayName.toLowerCase().indexOf(val) > -1) {
                     if (!filteredOperatorsMap[fn.category]) {
                         filteredOperatorsMap[fn.category] = [];
                     }

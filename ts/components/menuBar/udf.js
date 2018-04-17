@@ -27,6 +27,9 @@ window.UDF = (function($, UDF) {
 
         initializeUDFList(true)
         .then(function(listXdfsObj) {
+            listXdfsObj.fnDescs = xcHelper.filterUDFs(listXdfsObj.fnDescs);
+            listXdfsObj.numXdfs = listXdfsObj.fnDescs.length;
+
             DSExport.refreshUDF(listXdfsObj);
             DSTargetManager.updateUDF(listXdfsObj);
             deferred.resolve();
@@ -83,8 +86,18 @@ window.UDF = (function($, UDF) {
         return refreshUDF(true, true);
     };
 
-    UDF.list = function() {
-        return XcalarListXdfs("*", "User*");
+    UDF.list = function(workbookOnly) {
+        var deferred = PromiseHelper.deferred();
+        XcalarListXdfs("*", "User*")
+        .then(function(res) {
+            if (workbookOnly) {
+                res.fnDescs = xcHelper.filterUDFs(res.fnDescs);
+                res.numXdfs = res.fnDescs.length;
+            }
+            deferred.resolve(res);
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     };
 
     UDF.toggleXcUDFs = function(hide) {
@@ -132,7 +145,7 @@ window.UDF = (function($, UDF) {
                 delete storedUDF[key];
             }
             updateUDF(doNotClear);
-            deferred.resolve(listXdfsObj);
+            deferred.resolve(xcHelper.deepCopy(listXdfsObj));
         })
         .fail(function(error) {
             updateUDF(doNotClear); // stil update
@@ -427,6 +440,8 @@ window.UDF = (function($, UDF) {
 
         initializeUDFList(false, doNotClear)
         .then(function(listXdfsObj) {
+            listXdfsObj.fnDescs = xcHelper.filterUDFs(listXdfsObj.fnDescs);
+            listXdfsObj.numXdfs = listXdfsObj.fnDescs.length;
             DSPreview.update(listXdfsObj);
             DSTargetManager.updateUDF(listXdfsObj);
             FnBar.updateOperationsMap(listXdfsObj.fnDescs, true);

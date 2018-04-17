@@ -986,9 +986,9 @@ describe("DagEdit Test", function() {
                 expect(query.length).to.equal(11);
                 expect(query[0].args.eval[0].evalString).to.equal("add(4,5)");
                 var id = xcHelper.getTableId(query[0].args.dest);
-                expect(parseInt(id.slice(2))).to.equal(count);
+                expect(parseInt(id)).to.equal(count);
                 id = xcHelper.getTableId(query[10].args.dest);
-                expect(parseInt(id.slice(2))).to.equal(count + 10);
+                expect(parseInt(id)).to.equal(count + 10);
 
                 return PromiseHelper.reject();
             };

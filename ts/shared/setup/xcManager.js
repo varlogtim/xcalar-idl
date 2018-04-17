@@ -76,6 +76,25 @@ window.xcManager = (function(xcManager, $) {
             // pass
             // Extmanager promise so unit test can wait on resolution.
             var extPromise = setupExtensions();
+
+
+
+            JSONModal.setup();
+            ExportView.setup();
+            JoinView.setup();
+            UnionView.setup();
+            AggModal.setup();
+            OperationsView.setup();
+            DFCreateView.setup();
+            ProjectView.setup();
+            DFParamModal.setup();
+            SmartCastView.setup();
+            SortView.setup();
+
+
+
+
+
             WSManager.initialize(); // async
             BottomMenu.initialize(); // async
             WorkbookPanel.initialize();
@@ -526,19 +545,8 @@ window.xcManager = (function(xcManager, $) {
     // excludes alert modal wish is set up earlier
     function setupModals() {
         Alert.setup();
-        JSONModal.setup();
         Profile.setup();
-        ExportView.setup();
-        JoinView.setup();
-        UnionView.setup();
-        AggModal.setup();
-        OperationsView.setup();
         WorkbookPanel.setup();
-        DFCreateView.setup();
-        ProjectView.setup();
-        DFParamModal.setup();
-        SmartCastView.setup();
-        SortView.setup();
         DeleteTableModal.setup();
         ExtModal.setup();
         LicenseModal.setup();

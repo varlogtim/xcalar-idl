@@ -402,6 +402,9 @@ window.DFCard = (function($, DFCard) {
         });
 
         $dfCard.on('click', '.addScheduleToDataflow', function() {
+            if ($dfCard.hasClass("unexpectedNode")) {
+                return;
+            }
             $(this).blur();
             // doesn't have schedule, show schedule
             var dfName = $listSection.find(".selected .groupName").text();

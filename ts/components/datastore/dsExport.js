@@ -57,7 +57,7 @@ window.DSExport = (function($, DSExport) {
                                          .val();
             var options = {};
             if (targetType === "UDF") {
-                options.module = $form.find(".udfModuleName").val().trim();
+                options.module = $form.find(".udfModuleName").data("module").trim();
                 options.fn = "main";
             }
 
@@ -87,6 +87,7 @@ window.DSExport = (function($, DSExport) {
 
             $exportTargetCard.find(".tempDisabled").removeClass("tempDisabled")
                              .prop("disabled", false);
+            $form.find(".udfModuleName").data("module", "");
             $("#targetName").focus();
         });
 
@@ -140,6 +141,7 @@ window.DSExport = (function($, DSExport) {
                     udfName = udfName.split(":");
                     if (udfName.length === 2) {
                         options.module = udfName[0];
+                        options.moduleDisplayedName = udfName[0].split("/").pop();
                         options.fn = udfName[1];
                     }
                 }
@@ -298,7 +300,8 @@ window.DSExport = (function($, DSExport) {
                     return true; // return true to keep dropdown open
                 }
                 var module = $li.text();
-                $udfModuleList.find(".udfModuleName").val(module);
+                var fullName = $li.data("module");
+                $udfModuleList.find(".udfModuleName").val(module).data("module", fullName);
                 StatusBox.forceHide();
             },
             "bounds": "#datastorePanel > .mainContent",
@@ -351,7 +354,8 @@ window.DSExport = (function($, DSExport) {
         }
         if (type === "UDF") {
             $editForm.find(".udfSelectorRow").addClass("active");
-            $editForm.find(".udfModuleName").val($grid.data("module"));
+            $editForm.find(".udfModuleName").val($grid.data("moduledisplayedname"))
+                                            .data("module", $grid.data("module"));
             $editForm.find(".udfFuncName").val($grid.data("fnname"));
         }
         var $deleteBtn = $("#exportTargetDelete");
@@ -712,7 +716,8 @@ window.DSExport = (function($, DSExport) {
         var extraDataAttr = "";
         if (target.options.module && target.options.fn) {
             extraDataAttr = 'data-module="' + target.options.module + '" ' +
-                            'data-fnname="' + target.options.fn + '"';
+                            'data-fnname="' + target.options.fn + '" ' +
+                            'data-moduledisplayedname="' + target.options.moduleDisplayedName + '"';
         }
 
         var html = '<div class="target grid-unit" data-name="' + name + '" ' +

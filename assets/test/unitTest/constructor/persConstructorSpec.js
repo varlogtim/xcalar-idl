@@ -2514,7 +2514,7 @@ describe("Persistent Constructor Test", function() {
                 "description": "testDescription"
             });
 
-            expect(Object.keys(wkbk).length).to.equal(11);
+            expect(Object.keys(wkbk).length).to.equal(12);
             expect(wkbk).to.have.property("version")
             .and.to.equal(currentVersion);
             expect(wkbk).to.have.property("name")

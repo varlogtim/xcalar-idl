@@ -123,6 +123,7 @@ namespace xcHelper {
 
     interface UDFListModule {
         name: string,
+        displayName: string,
         hasMain: boolean
     }
 
@@ -2923,6 +2924,32 @@ namespace xcHelper {
     }
 
     /**
+     * xcHelper.filterUDFs
+     * @param fns
+     */
+    // only show default and user workbook's udfs
+    export function filterUDFs(fns: object[]): object[] {
+        var filteredArray = [];
+        var wkbkPrefix = "/workbook/" + XcSupport.getUser() + "/" +
+        WorkbookManager.getWorkbook(
+        WorkbookManager.getActiveWKBK()).name + "/udf/";
+
+        for (var i = 0; i < fns.length; i++) {
+            var op = fns[i];
+            if (op.fnName.indexOf("/") === -1) {
+                filteredArray.push(op);
+            } else if (!op.fnName.startsWith("/workbook/udf/default:") &&
+                !op.fnName.startsWith(wkbkPrefix)) {
+                    continue;
+            } else {
+                filteredArray.push(op);
+            }
+        }
+
+        return filteredArray;
+    }
+
+    /**
      * xcHelper.validateColName
      * @param colName
      * @param noSpace
@@ -4074,33 +4101,57 @@ namespace xcHelper {
      */
     export function getUDFList(listXdfsObj: any, mainOnly: boolean) {
         let modules: string[] = [];
+        let moduleDisplayedNames: string[] = [];
+        let moduleObjs: object[] = [];
+        let privateObjs: object[] = [];
+
         const privateModules: string[] = [];
+        const privateModulesDisplayed: string[] = [];
         const udfs: any[] = listXdfsObj.fnDescs;
         udfs.forEach((udf) => {
-            const fnName: string = udf.fnName;
+            const fnName: string = udf.displayName;
             if (fnName.startsWith("_")) {
-                privateModules.push(fnName);
+                privateObjs.push(udf);
             } else {
-                modules.push(fnName);
+                moduleObjs.push(udf);
             }
         });
+        moduleObjs.sort(function(a, b) {
+            return a.displayName > b.displayName;
+        });
 
-        modules.sort();
-        privateModules.sort();
+        privateObjs.sort(function(a, b) {
+            return a.displayName > b.displayName;
+        });
+
+        for (var i = 0; i < moduleObjs.length; i++) {
+            modules.push(moduleObjs[i].fnName);
+            moduleDisplayedNames.push(moduleObjs[i].displayName);
+        }
+
+        for (var i = 0; i < privateObjs.length; i++) {
+            privateModules.push(privateObjs[i].fnName);
+            privateModulesDisplayed.push(privateObjs[i].displayName);
+        }
+
         modules = modules.concat(privateModules);
+        moduleDisplayedNames = moduleDisplayedNames.concat(privateModulesDisplayed);
 
         let moduleLi: string = "";
         let fnLi: string = "";
         const hideXcUDF: boolean = UserSettings.getPref("hideXcUDF");
         let mainFound: boolean = false;
         let prevModule: string = null;
+        let prevDisplayModule: string = null;
         const moduleNames: UDFListModule[] = [];
         const moduleMap: object = {};
         const len: number = listXdfsObj.numXdfs;
 
         for (let i = 0; i < len; i++) {
             const udf: string[] = modules[i].split(":");
+            const udfDisplayedName: string[] = moduleDisplayedNames[i].split(":");
             const moduleName: string = udf[0];
+            const moduleDisplayedName: string = udfDisplayedName[0];
             const fnName: string = udf[1];
             if (!moduleMap.hasOwnProperty(moduleName)) {
                 moduleMap[moduleName] = true;
@@ -4110,14 +4161,17 @@ namespace xcHelper {
                 } else {
                     liClass = "";
                 }
-                moduleLi += '<li class="' + liClass + '">' +
-                                moduleName +
+                moduleLi += '<li class="' + liClass + '" data-module="' +
+                                moduleName + '">' +
+                                moduleDisplayedName +
                             "</li>";
                 if (prevModule != null) {
-                    moduleNames.push({name: prevModule, hasMain: mainFound});
+                    moduleNames.push({name: prevModule,
+                        displayName: prevDisplayModule, hasMain: mainFound});
                 }
 
                 prevModule = moduleName;
+                prevDisplayModule = moduleDisplayedName;
                 mainFound = false;
             }
 
@@ -4132,11 +4186,13 @@ namespace xcHelper {
 
         if (mainOnly) {
             if (prevModule != null) {
-                moduleNames.push({name: prevModule, hasMain: mainFound});
+                moduleNames.push({name: prevModule, displayName: prevDisplayModule,
+                     hasMain: mainFound});
             }
             moduleLi = "";
             for (let i = 0; i < moduleNames.length; i++) {
                 const name: string = moduleNames[i].name;
+                const displayName: string = moduleNames[i].displayName;
                 let liClass: string = "";
                 if (moduleNames[i].hasMain) {
                     liClass += "hasMain";
@@ -4146,7 +4202,8 @@ namespace xcHelper {
                 if (hideXcUDF && name.indexOf("_xcalar") === 0) {
                     liClass += " xcUDF";
                 }
-                moduleLi += '<li class="' + liClass + '">' + name + '</li>';
+                moduleLi += '<li class="' + liClass + '" data-module="' +
+                            name + '">' + displayName + '</li>';
             }
         }
 

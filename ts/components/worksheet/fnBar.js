@@ -180,6 +180,11 @@ window.FnBar = (function(FnBar, $) {
 
         for (var i = 0; i < opMap.length; i++) {
             var op = opMap[i];
+
+            if (op.displayName) {
+                op.fnName = op.displayName;
+            }
+
             var fnName = op.fnName.toLowerCase();
             if (op.category === FunctionCategoryT.FunctionCategoryUdf) {
                 if (!udfMap[fnName]) {

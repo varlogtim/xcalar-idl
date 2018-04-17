@@ -175,7 +175,7 @@ describe("DFCard Test", function() {
             };
 
             var $dfWrap = getDfWrap(testDfName);
-            $dfWrap.find(".export .dagTableIcon").click();
+            $dfWrap.find(".export .operationType").click();
             expect($menu.find("li:visible").length).to.equal(2);
             expect($menu.find("li.createParamQuery:visible").length).to.equal(1);
 
@@ -183,7 +183,7 @@ describe("DFCard Test", function() {
                 return XcalarMode.Mod;
             };
 
-            $dfWrap.find(".export .dagTableIcon").click();
+            $dfWrap.find(".export .operationType").click();
             expect($menu.find("li:visible").length).to.equal(1);
             expect($menu.find("li.createParamQuery:visible").length).to.equal(0);
 

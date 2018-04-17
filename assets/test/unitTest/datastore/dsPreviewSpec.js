@@ -1357,13 +1357,14 @@ describe("Dataset-DSPreview Test", function() {
         it("should validate UDF", function() {
             DSPreview.__testOnly__.toggleFormat("UDF");
             $udfModuleList.find("input").val("");
+            $udfModuleList.find("input").data("module", "");
 
             // empty module test
             expect(validateForm()).to.be.null;
             UnitTest.hasStatusBoxWithError(ErrTStr.NoEmptyList);
 
             // empty func test
-            $udfModuleList.find("input").val("default");
+            $udfModuleList.find("input").val("default").data("module", "workbook/udf/default");
             $udfFuncList.find("input").val("");
             expect(validateForm()).to.be.null;
             UnitTest.hasStatusBoxWithError(ErrTStr.NoEmptyList);
@@ -1373,11 +1374,11 @@ describe("Dataset-DSPreview Test", function() {
             var res = validateForm();
             expect(res).to.be.an("object");
             expect(res.format).to.equal("UDF");
-            expect(res.udfModule).to.equal("default");
+            expect(res.udfModule).to.equal("workbook/udf/default");
             expect(res.udfFunc).to.equal("openExcel");
 
             // remove UDF checkbox
-            $udfModuleList.find("input").val("");
+            $udfModuleList.find("input").val("").data("module", "");
             $udfFuncList.find("input").val("");
             DSPreview.__testOnly__.toggleFormat("CSV");
         });
@@ -1620,19 +1621,19 @@ describe("Dataset-DSPreview Test", function() {
 
         it("should validate UDF", function() {
             DSPreview.__testOnly__.toggleFormat("UDF");
-            $udfModuleList.find("input").val("");
+            $udfModuleList.find("input").val("").data("module", "");
 
             // empty module test
             expect(validatePreview()).to.be.null;
             UnitTest.hasStatusBoxWithError(ErrTStr.NoEmptyList);
 
             // empty func test
-            $udfModuleList.find("input").val("default");
+            $udfModuleList.find("input").val("default").data("module","workbook/udf/default");
             $udfFuncList.find("input").val("openExcel");
             var res = validatePreview();
             expect(res).to.be.an("object");
             expect(res.format).to.equal("UDF");
-            expect(res.udfModule).to.equal("default");
+            expect(res.udfModule).to.equal("workbook/udf/default");
             expect(res.udfFunc).to.equal("openExcel");
 
             // remove UDF checkbox

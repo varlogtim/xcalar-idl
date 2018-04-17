@@ -229,6 +229,7 @@ describe("Dataset-DSExport Test", function() {
             $form.find(".udfModuleListWrap li")
             .eq(0).removeClass("unavailable").trigger(fakeEvent.mouseup);
             expect($form.find(".udfModuleName").val()).to.not.equal("");
+            expect($form.find(".udfModuleName").data("module")).to.not.equal("");
 
             $form.find(".udfFuncName").val("test");
             expect($form.find(".udfFuncName").val()).to.equal("test");
@@ -243,6 +244,7 @@ describe("Dataset-DSExport Test", function() {
             expect($form.find(".placeholderRow:visible").length).to.equal(1);
             expect($("#exportURL").val()).to.equal("");
             expect($form.find(".udfModuleName").val()).to.equal("");
+            expect($form.find(".udfModuleName").data("module")).to.equal("");
             expect($form.find(".udfFuncName").val()).to.equal("main");
             expect($(document.activeElement).attr("id")).to.equal("targetName");
         });
@@ -580,7 +582,7 @@ describe("Dataset-DSExport Test", function() {
 
         it("grid icon should show details", function(done) {
             var submitForm = DSExport.__testOnly__.submitForm;
-            submitForm("UDF", testTargetName, url, {module: "a", fn: "b"})
+            submitForm("UDF", testTargetName, url, {module: "a", moduleDisplayedName: "a", fn: "b"})
             .then(function() {
                 var $grid = $('.grid-unit[data-name="' + testTargetName + '"]');
                 expect($grid.length).to.equal(1);
@@ -599,6 +601,8 @@ describe("Dataset-DSExport Test", function() {
                 expect($("#targetTypeList-edit input").val()).to.equal("UDF");
                 expect($("#exportURL-edit").val()).to.equal("file:///" + url);
                 expect($("#exportTargetEditCard .udfModuleName").val())
+                .to.equal("a");
+                expect($("#exportTargetEditCard .udfModuleName").data("module"))
                 .to.equal("a");
                 expect($("#exportTargetEditCard .udfFuncName").val())
                 .to.equal("b");
