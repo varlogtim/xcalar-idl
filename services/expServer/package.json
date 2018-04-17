@@ -19,7 +19,11 @@
     "express": "^4.13.4",
     "jquery": "^1.5.1",
     "jsdom": "^1.2.1",
+    "jsonwebtoken": "^8.2.1",
+    "jwk-to-pem": "^2.0.0",
     "ldapjs": "^1.0.0",
+    "node-cache": "^4.2.0",
+    "request": "^2.85.0",
     "shelljs": "^0.6.0",
     "socket.io": "^1.7.3",
     "ssl-root-cas": "^1.2.3"

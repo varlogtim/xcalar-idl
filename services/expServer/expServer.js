@@ -47,6 +47,9 @@ require("jsdom").env("", function(err, window) {
     // Invoke the Login router
     app.use(require('./route/login.js').router);
 
+    // Invoke the Authentication router
+    app.use(require('./route/auth.js').router);
+
     function getOperatingSystem() {
         var deferred = jQuery.Deferred();
         var out = exec("cat /etc/*release");

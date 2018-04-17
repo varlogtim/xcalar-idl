@@ -257,15 +257,22 @@ $(document).ready(function() {
             var config = JSON.parse(xcLocalStorage.getItem("msalConfig"));
             var user = JSON.parse(xcSessionStorage.getItem("xcalar-user"));
             var username = config.msal.b2cEnabled ? user.idToken.emails[0] : user.displayableId;
+            var idToken = xcSessionStorage.getItem("idToken");
+            var authData = { token: idToken, user: user, admin: isAdmin };
 
-            if (isAdmin) {
-                setAdmin(username);
-            } else {
-                clearAdmin(username);
-            }
+            authMsalIdToken(authData)
+            .then(function(data) {
+                if (isAdmin) {
+                    setAdmin(username);
+                } else {
+                    clearAdmin(username);
+                }
 
-            xcSessionStorage.setItem("xcalar-username", username);
-            window.location = paths.indexAbsolute;
+                xcSessionStorage.setItem("xcalar-username", username);
+                window.location = paths.indexAbsolute;
+            }, function(message) {
+                alert("Error verifying OAuth token: " + message);
+            });
         }
     }
 

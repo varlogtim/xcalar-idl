@@ -86,6 +86,38 @@ function getMsalConfigFromLocalStorage() {
     }
 }
 
+function authMsalIdToken(authData) {
+    var deferred = PromiseHelper.deferred();
+
+    if (!msalEnabled) {
+        return deferred.reject("msal is not configured").promise();
+    }
+
+    $.ajax({
+        "type": "POST",
+        "contentType": "application/json",
+        "url": hostname + "/app/auth/azureIdToken",
+        "data": JSON.stringify(authData),
+        "success": function (data) {
+            if (data.status) {
+                if (msalEnabled) {
+                    xcSessionStorage.setItem("idTokenData", data.data);
+                }
+                deferred.resolve(data.data);
+            } else {
+                console.log('OAuth token verification failed. Status: ' + data.status + ' Message: ' + data.message);
+                deferred.reject(data.message);
+            }
+        },
+        "error": function (errorMsg) {
+            console.log('OAuth token verification failed with message: ' + errorMsg.error);
+            deferred.reject(errorMsg.error);
+        }
+    });
+
+    return deferred.promise();
+}
+
 function setDefaultAdminConfig(hostname, defaultAdminEnabledIn, adminUsername, adminPassword, adminEmail) {
     var deferred = PromiseHelper.deferred();
     var defaultAdminConfigOut = {
