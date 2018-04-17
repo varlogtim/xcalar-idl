@@ -2,16 +2,14 @@ window.WorkbookInfoModal = (function(WorkbookInfoModal, $) {
     var $modal; // $("#workbookInfoModal")
     var modalHelper;
     var activeWorkbookId;
-    var $workbookDescription;
-    var workbook;
 
     WorkbookInfoModal.setup = function() {
         $modal = $("#workbookInfoModal");
+
         modalHelper = new ModalHelper($modal, {
             sizeToDefault: true,
             center: {verticalQuartile: true}
         });
-        $workbookDescription = $modal.find(".description input");
 
         addEvents();
     };
@@ -22,19 +20,6 @@ window.WorkbookInfoModal = (function(WorkbookInfoModal, $) {
         showWorkbookInfo(workbookId);
     };
 
-    // for socket renames
-    WorkbookInfoModal.update = function(info) {
-        if (activeWorkbookId === info.triggerWkbk) {
-            if (info.delete) {
-                closeModal();
-            } else {
-                var newId = WorkbookManager.getIDfromName(info.newName);
-                activeWorkbookId = newId;
-                workbook = WorkbookManager.getWorkbook(newId);
-            }
-        }
-    }
-
     function addEvents() {
         $modal.on("click", ".close, .cancel", function() {
             closeModal();
@@ -43,27 +28,78 @@ window.WorkbookInfoModal = (function(WorkbookInfoModal, $) {
         $modal.on("click", ".confirm", function() {
             submitForm();
         });
+
+        $modal.on("input", ".name input", function() {
+            if ($(this).val() === "") {
+                showNameError();
+            } else {
+                hideNameError();
+            }
+        });
     }
 
     function closeModal() {
         modalHelper.clear();
         activeWorkbookId = null;
-        $workbookDescription.val("");
-        workbook = null;
+        hideNameError();
+    }
+
+    function showNameError() {
+        $modal.find(".error").text(WKBKTStr.WkbkNameRequired);
+        $modal.find(".confirm").addClass("xc-disabled");
+    }
+
+    function hideNameError() {
+        $modal.find(".error").text("");
+        $modal.find(".confirm").removeClass("xc-disabled");
     }
 
     function showWorkbookInfo(workbookId) {
-        workbook = WorkbookManager.getWorkbook(workbookId);
-        $workbookDescription.val(workbook.getDescription() || "");
+        var workbook = WorkbookManager.getWorkbook(workbookId);
+        $modal.find(".name input").val(workbook.getName()).select();
+        $modal.find(".description input").val(workbook.getDescription() || "");
     }
 
     function submitForm() {
         var workbookId = activeWorkbookId;
-        var name = workbook.getName();
-        var description = $workbookDescription.val();
-
-        closeModal();
+        if (!validate(workbookId)) {
+            return;
+        }
+        var name = $modal.find(".name input").val();
+        var description = $modal.find(".description input").val();
         WorkbookPanel.edit(workbookId, name, description);
+        closeModal();
+    }
+
+    function validate(workbookId) {
+        var $input = $modal.find(".name input");
+        var workbookName = $input.val();
+        var isValid = xcHelper.validate([
+            {
+                "$ele": $input,
+                "error": ErrTStr.InvalidWBName,
+                "check": function() {
+                    return !xcHelper.checkNamePattern("workbook", "check", workbookName);
+                }
+            },
+            {
+                "$ele": $input,
+                "error": xcHelper.replaceMsg(WKBKTStr.Conflict, {
+                    "name": workbookName
+                }),
+                "check": function() {
+                    var workbooks = WorkbookManager.getWorkbooks();
+                    for (var wkbkId in workbooks) {
+                        if (workbooks[wkbkId].getName() === workbookName &&
+                            wkbkId !== workbookId) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            }
+        ]);
+        return isValid;
     }
 
     return WorkbookInfoModal;

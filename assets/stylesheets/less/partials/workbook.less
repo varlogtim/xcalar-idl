@@ -370,10 +370,6 @@
                 background-color: @color-bg-select-blue;
                 color: @color-white;
 
-                .subHeading {
-                    background-color: @color-bg-select-title-blue;
-                }
-
                 .info, .icon, input, .subHeading{
                     color: @color-white;
                 }
@@ -382,9 +378,10 @@
                     background-color: transparent;
                     border-color: transparent;
 
-                    &:focus {
+                    &.focussed {
                         background-color: transparent;
                         border: 1px solid @color-white;
+                        cursor: auto;
                     }
 
                     &.error {
@@ -457,23 +454,21 @@
 
         .subHeading {
             position: relative;
-            cursor: default;
             border: none;
-            padding: 5px 70px 0 34px;
-            height: 45px;
-            background-color: @color-bg-white-three;
-            box-shadow: 0 1px 0 @color-border-white-two;
+            left: -5px;
 
             .workbookName {
                 .size(@height: 30px);
                 .font(@size: 22px, @weight: 500, @color: @color-font-select-blue);
                 background-color: transparent;
                 padding: 0 5px 0 5px;
-
+                left: -5px;
                 border: 1px solid transparent;
+                cursor: pointer;
 
-                &:focus {
+                &.focussed {
                     border: 1px solid @color-border-softBlue;
+                    cursor: auto;
                 }
 
                 &.error {
@@ -488,17 +483,17 @@
             }
 
             .workbookName, .description {
-                .size(@width: 100%);
+                .size(@width: ~"calc(100% - 25px)");
             }
 
             .preview {
                 .size(20px, 20px);
-                .position(absolute, @top: 12.5px, @right: 40px);
+                .position(absolute, @top: 6px, @right: 0px);
                 color: @color-bg-select-blue;
             }
             .dropDown {
                 .size(20px, 20px);
-                .position(absolute, @top: 12.5px, @right: 10px);
+                .position(absolute, @top: 6px, @right: -30px);
                 color: @color-bg-select-blue;
             }
         }

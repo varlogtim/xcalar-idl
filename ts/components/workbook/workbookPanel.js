@@ -203,6 +203,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                             .find(".loadSection .text").text(WKBKTStr.Creating);
                 if (isNew) {
                     $workbookBox.find(".workbookName").focus().select();
+                    $workbookBox.find(".workbookName").addClass("focussed");
                 }
             })
 
@@ -332,14 +333,21 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
             var $workbookBox = $(this).closest(".workbookBox");
             var $this = $(this);
             if ($this.val() === $this.parent().attr("data-original-title")) {
+                $this.removeClass("focussed");
+                $this.removeClass("error");
                 return;
             }
             if (!validateName($this.val(), $workbookBox.attr("data-workbook-id"), $this)) {
                 $this.addClass("error");
+                $this.val($this.parent().attr("data-original-title"));
             } else {
                 WorkbookPanel.edit($workbookBox.attr("data-workbook-id"), $(this).val())
+                .then(function() {
+                    $this.removeClass("focussed");
+                })
                 .fail(function() {
                     $this.addClass("error");
+                    $this.val($this.parent().attr("data-original-title"));
                 });
             }
         });
@@ -359,6 +367,9 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         // Events for the actual workbooks
         // anywhere on workbook card
         $workbookSection.on("click", ".activate", function(event) {
+            if ($(event.target).hasClass("preview") || $(event.target).hasClass("dropDown") || $(event.target).hasClass("focussed")) {
+                return;
+            }
             activateWorkbook($(this).closest(".workbookBox"));
         });
 
@@ -454,9 +465,6 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         });
 
         $workbookSection.on("contextmenu", ".workbookBox", function(event) {
-            if ($(event.target).hasClass("workbookName")) {
-                return;
-            }
             event.preventDefault();
             $dropDownCard = $(this);
 
@@ -847,27 +855,27 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                             '</div>' +
                         '</div>' +
                     '</div>' +
-                    '<div class="subHeading tooltipOverflow" ' +
-                    ' data-toggle="tooltip" data-container="body"' +
-                    ' data-original-title="' + workbookName + '">' +
-                        '<input type="text" class="workbookName ' +
-                        'tooltipOverflow"' +
-                        ' value="' + workbookName + '"' +
-                        ' spellcheck="false"/>' +
-                        '<i class="preview icon xi-show xc-action" ' +
-                        ' data-toggle="tooltip" data-container="body"' +
-                        ' data-placement="top"' +
-                        ' data-title="' + CommonTxtTstr.Preview + '"' +
-                        '></i>' +
-                        '<i class="dropDown icon xi-ellipsis-h xc-action" ' +
-                        ' data-toggle="tooltip" data-container="body"' +
-                        ' data-placement="top"' +
-                        ' data-title="' + WKBKTStr.MoreActions + '"' +
-                        '></i>' +
-                    '</div>' +
                     '<div class="content activate">' +
                         '<div class="innerContent">' +
                             '<div class="infoSection topInfo">' +
+                                '<div class="subHeading tooltipOverflow" ' +
+                                ' data-toggle="tooltip" data-container="body"' +
+                                ' data-original-title="' + workbookName + '">' +
+                                    '<input type="text" class="workbookName ' +
+                                    'tooltipOverflow"' +
+                                    ' value="' + workbookName + '"' +
+                                    ' spellcheck="false"/>' +
+                                    '<i class="preview icon xi-show xc-action" ' +
+                                    ' data-toggle="tooltip" data-container="body"' +
+                                    ' data-placement="top"' +
+                                    ' data-title="' + CommonTxtTstr.Preview + '"' +
+                                    '></i>' +
+                                    '<i class="dropDown icon xi-ellipsis-h xc-action" ' +
+                                    ' data-toggle="tooltip" data-container="body"' +
+                                    ' data-placement="top"' +
+                                    ' data-title="' + WKBKTStr.MoreActions + '"' +
+                                    '></i>' +
+                                '</div>' +
                                 '<div class="description textOverflowOneLine">' +
                                     xcHelper.escapeHTMLSpecialChar(description) +
                                 '</div>' +

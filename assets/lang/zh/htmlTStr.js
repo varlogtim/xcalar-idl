@@ -145,7 +145,7 @@ module.exports = {
         "GlobMatch": "glob(匹配): ",
         "GlobContains": "glob(包含): ",
         "NewTab": "Open workbook in new tab",
-        "EditName": "Edit Description",
+        "EditName": "Edit Name and Description",
         "Download": "Download Workbook",
         "Duplicate": "Duplicate Workbook",
         "Delete": "Delete Workbook",
