@@ -360,19 +360,7 @@ window.DagEdit = (function($, DagEdit) {
             "isEdit": true
         });
 
-        var joinLookUp = {
-            "Inner Join": JoinOperatorT.InnerJoin,
-            "Left Outer Join": JoinOperatorT.LeftOuterJoin,
-            "Right Outer Join": JoinOperatorT.RightOuterJoin,
-            "Full Outer Join": JoinOperatorT.FullOuterJoin,
-            "Cross Join": JoinOperatorT.CrossJoin,
-            "Left Semi Join": JoinCompoundOperatorTStr.LeftSemiJoin,
-            "Right Semi Join": JoinCompoundOperatorTStr.RightSemiJoin,
-            "Left Anti Semi Join": JoinCompoundOperatorTStr.LeftAntiSemiJoin,
-            "Right Anti Semi Join": JoinCompoundOperatorTStr.RightAntiSemiJoin
-        };
-
-        joinType = joinLookUp[joinType];
+        joinType = gJoinLookup[joinType];
 
         var lTableId = lJoinInfo.tableId;
         var lColNums = lJoinInfo.colNums;

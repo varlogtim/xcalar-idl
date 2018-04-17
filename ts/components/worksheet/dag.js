@@ -2250,7 +2250,7 @@ window.Dag = (function($, Dag) {
         var idx;
         var colIndices = [];
         var origColNames = [];
-        var scrollChecker = new ScollTableChecker();
+        var scrollChecker = new ScrollTableChecker();
         $tableIcon = $dagPanel.find(".dagTable[data-tablename='" +
                                             mapTableName + "']");
         if (op !== XcalarApisT.XcalarApiMap &&

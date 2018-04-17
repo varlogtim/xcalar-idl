@@ -3365,19 +3365,19 @@ var XcSubQuery = (function() {
 }());
 /* end of sub query */
 
-/* ScollTableChecker */
-var ScollTableChecker = (function() {
+/* ScrollTableChecker */
+var ScrollTableChecker = (function() {
     /* Attr:
         startTime: (date) log the the current time
         scrollPos: (numbner) log the current mainFrame position
     */
-    function ScollTableChecker() {
+    function ScrollTableChecker() {
         this.startTime = (new Date()).getTime();
         this.scrollPos = $("#mainFrame").scrollLeft();
         return this;
     }
 
-    ScollTableChecker.prototype = {
+    ScrollTableChecker.prototype = {
         checkScroll: function() {
             var self = this;
             var startTime = self.startTime;
@@ -3400,9 +3400,9 @@ var ScollTableChecker = (function() {
         }
     };
 
-    return ScollTableChecker;
+    return ScrollTableChecker;
 }());
-/* End of ScollTableChecker */
+/* End of ScrollTableChecker */
 
 /* Progress circle for locked tables */
 var ProgressCircle = function(txId, iconNum, hasText) {

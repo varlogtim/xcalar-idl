@@ -1987,8 +1987,8 @@ namespace XIApi {
     export function join(
         txId: number,
         joinType: JoinType,
-        lTableInfo: JoinColInfo,
-        rTableInfo: JoinColInfo,
+        lTableInfo: JoinTableInfo,
+        rTableInfo: JoinTableInfo,
         options: JoinOptions = <JoinOptions>{}
     ): XDPromise<string> {
         if (txId == null ||

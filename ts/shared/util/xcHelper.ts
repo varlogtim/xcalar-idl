@@ -1108,7 +1108,7 @@ namespace xcHelper {
         mapStr: string,
         tableCols: any[],
         options: MapColOption = <MapColOption>{}
-    ) {
+    ): ProgCol[] {
         const copiedCols: any[] = xcHelper.deepCopy(tableCols);
         let sizedTo: string;
 
@@ -2185,7 +2185,7 @@ namespace xcHelper {
      * @param tableId
      * @param txId - if no txId, will not be made cancelable
      */
-    export function lockTable(tableId: string, txId?: string): void {
+    export function lockTable(tableId: TableId, txId?: number): void {
         // lock worksheet as well
         xcAssert((tableId != null), 'Invalid Parameters!');
         if (!gTables[tableId]) {
@@ -2251,7 +2251,7 @@ namespace xcHelper {
      * xcHelper.unlockTable
      * @param tableId
      */
-    export function unlockTable(tableId: string): void {
+    export function unlockTable(tableId: TableId): void {
         xcAssert((tableId != null), 'Invalid Parameters!');
 
         const table = gTables[tableId];
@@ -2294,7 +2294,7 @@ namespace xcHelper {
      * @param withText
      */
     export function getLockIconHtml(
-        txId: string,
+        txId: number,
         iconNum: number,
         withText: boolean = false
     ): string {

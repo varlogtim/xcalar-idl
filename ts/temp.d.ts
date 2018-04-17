@@ -45,14 +45,14 @@ interface ColRenameInfo {
     type: DfFieldTypeT;
 }
 
-interface JoinColInfo {
+interface JoinTableInfo {
     columns: string[]; // array of back colum names to join
-    casts: XcCast[]; // array of cast types ["string", "boolean", null] etc
-    pulledColumns: string[]; // columns to pulled out (front col name)
+    casts?: XcCast[]; // array of cast types ["string", "boolean", null] etc
+    pulledColumns?: string[]; // columns to pulled out (front col name)
     tableName: string; // table's name
-    rename: ColRenameInfo[]; // array of rename object
-    allImmediates: string[]; // array of all immediate names for collision resolution
-    removeNulls: boolean; // sql use
+    rename?: ColRenameInfo[]; // array of rename object
+    allImmediates?: string[]; // array of all immediate names for collision resolution
+    removeNulls?: boolean; // sql use
 }
 
 interface JoinOptions {
@@ -159,6 +159,7 @@ declare var gHiddenColumnWidth: number;
 declare var gTurnOnPrefix: boolean;
 declare var gUploadChunkSize: number;
 declare var gDefaultSharedRoot: string;
+declare var gJoinLookup: object;
 declare var gExportNoCheck: boolean;
 declare var gAlwaysDelete: boolean;
 declare var gShowDroppedTablesImage: boolean;
@@ -219,6 +220,7 @@ declare function XcalarTargetCreate(targetType: string, targetName: string, targ
 declare function XcalarTargetDelete(targetName: string): XDPromise<void>;
 declare function XcalarGetVersion(connectionCheck: boolean): XDPromise<any>;
 declare function XcalarGetLicense(): XDPromise<any>;
+declare function XcalarRenameTable(oldTableName: string, newTableName: string, txId: number): XDPromise<void>;
 /* ============= THRIFT ENUMS ================= */
 declare enum DfFieldTypeT {
     DfString,
@@ -248,7 +250,10 @@ declare enum StatusT {
     StatusCanceled,
     StatusAlreadyIndexed,
     StatusCannotReplaceKey,
-    StatusSessionUsrAlreadyExists
+    StatusSessionUsrAlreadyExists,
+    StatusDsODBCTableExists,
+    StatusExist,
+    StatusExportSFFileExists
 }
 
 declare enum FunctionCategoryT {
@@ -282,6 +287,8 @@ declare enum JoinOperatorT {
     CrossJoin,
     LeftOuterJoin,
     InnerJoin,
+    RightOuterJoin,
+    FullOuterJoin
 }
 
 declare enum XcalarApiVersionTStr{}
@@ -304,6 +311,11 @@ declare namespace CommonTxtTstr {
     export var Upgrading: string;
 }
 
+declare namespace IndexTStr {
+    export var Sorted: string;
+    export var SortedErr: string;
+}
+
 declare namespace StatusMessageTStr {
     export var ActionSuccess: string;
     export var ActionFailed: string;
@@ -312,6 +324,32 @@ declare namespace StatusMessageTStr {
     export var Error: string;
     export var EditingDF: string;
     export var Viewing: string;
+    export var FilterFailed: string;
+    export var Aggregate: string;
+    export var OnColumn: string;
+    export var Filter: string;
+    export var AggregateFailed: string;
+    export var Sort: string;
+    export var SortFailed: string;
+    export var Join: string;
+    export var JoinFailed: string;
+    export var Union: string;
+    export var UnionFailed: string;
+    export var GroupBy: string;
+    export var GroupByFailed: string;
+    export var Map: string;
+    export var MapFailed: string;
+    export var ExportTable: string;
+    export var ExportFailed: string;
+    export var Project: string;
+    export var ProjectFailed: string;
+}
+
+declare namespace ExportTStr {
+    export var SuccessInstr: string;
+    export var FolderName: string;
+    export var TargetName: string;
+    export var Success: string;
 }
 
 declare namespace TooltipTStr {
@@ -334,6 +372,13 @@ declare namespace MonitorTStr {
     export var Monitor: string;
 }
 
+declare namespace AggTStr {
+    export var AggTitle: string;
+    export var AggInstr: string;
+    export var AggName: string;
+    export var AggMsg: string;
+}
+
 declare namespace ErrTStr {
     export var InvalidField: string;
     export var NoEmpty: string;
@@ -345,6 +390,7 @@ declare namespace ErrTStr {
     export var PrefixTooLong: string;
     export var LicenseExpire: string;
     export var Unknown: string;
+    export var NameInUse: string;
 }
 
 declare namespace ColTStr {
@@ -388,11 +434,12 @@ declare namespace JupyterTStr {
 
 /* ============== CLASSES ====================== */
 declare class ProgressCircle {
-    constructor(txId: string, iconNum: number);
+    constructor(txId: number, iconNum: number);
 }
 
 declare class MouseEvents {
     public setMouseDownTarget($input: JQuery): void;
+    public getLastMouseDownTime(): number;
 }
 
 declare class ColFunc {
@@ -422,11 +469,13 @@ declare class ProgCol {
 }
 
 declare class TableMeta {
+    public tableName: string;
     public tableCols: ProgCol[];
     public backTableMeta: any;
     public highlightedCells: object;
     public getAllCols(onlyValid?: boolean): ProgCol[]
     public getCol(colNum: number): ProgCol;
+    public hasCol(colName: string, prefix: string): boolean;
     public hasColWithBackName(colName: string): boolean;
     public getKeys(): object[];
     public getOrdering(): number;
@@ -434,6 +483,8 @@ declare class TableMeta {
     public removeIndexTable(colNames: string[]): void;
     public setIndexTable(colNames: string[], newTableName: string, newKeys: string[]): void;
     public getColNumByBackName(name: string): number;
+    public getName(): string;
+    public hasLock(): boolean;
 }
 
 declare class XcStorage {
@@ -484,6 +535,10 @@ declare class KVVersion {
     public stripEmail: boolean;
     public needCommit: boolean;
     public constructor(options: object);
+}
+
+declare class ScrollTableChecker {
+    public checkScroll(): boolean;
 }
 /* ============== NAMESPACE ====================== */
 declare namespace xcManager {
@@ -551,7 +606,7 @@ declare namespace EULAModal {
 declare namespace Alert {
     export function tempHide(): void;
     export function error(title: string, error: string, options?: object): void;
-    export function show(options: {title: string, msg: string, isAlert: boolean}): string;
+    export function show(options: {title: string, instr?: string, msg?: string, isAlert: boolean, msgTemplate?: string}): string;
 }
 
 declare namespace MonitorGraph {
@@ -569,6 +624,7 @@ declare namespace TblFunc {
 declare namespace TableList {
     export function lockTable(tableId: TableId): void;
     export function unlockTable(tableId: TableId): void;
+    export function refreshConstantList(): void;
 }
 
 declare namespace TblManager {
@@ -576,6 +632,8 @@ declare namespace TblManager {
     export function unHighlightCells(): void;
     export function restoreTableMeta(oldMeat: object): void;
     export function setOrphanTableMeta(tableName: string, tableCols: ProgCol[]): void;
+    export function refreshTable(newTableNames: string[], tableCols: ProgCol[], oldTableNames: string[], worksheet: string, txId: number, options: object): XDPromise<void>;
+    export function updateHeaderAndListInfo(tableId: TableId): void;
 }
 
 declare namespace TblMenu{
@@ -588,6 +646,8 @@ declare namespace TPrefix {
 
 declare namespace Aggregates {
     export function restore(oldMeat: object): void;
+    export function getAgg(tableId: TableId, backColName: string, aggrOp: string): any
+    export function addAgg(aggRes: object, isTemp: boolean): void;
 }
 
 declare namespace MainMenu {
@@ -619,6 +679,7 @@ declare namespace WorkbookManager {
     export function getWKBKsAsync(): XDPromise<any>;
     export function getKeysForUpgrade(sessionInfo: object[], version: number): object;
     export function upgrade(oldWkbks: object): object;
+    export function updateWorkbooks(info: object): void;
 }
 
 declare namespace QueryManager{
@@ -629,6 +690,10 @@ declare namespace QueryManager{
 declare namespace Log {
     export function lockUndoRedo(): void;
     export function unlockUndoRedo(): void
+}
+
+declare namespace Dag {
+    export function renameAllOccurrences(oldTableName: string, newTableName: string): void;
 }
 
 declare namespace DagPanel {
@@ -662,6 +727,7 @@ declare namespace DSCart {
 
 declare namespace Profile {
     export function restore(oldMeat: object): void;
+    export function copy(tableId: TableId, newTableId: TableId): void;
 }
 
 declare namespace DF {
@@ -697,6 +763,10 @@ declare namespace DSExport {
 declare namespace Transaction {
     export function isSimulate(txId: number): boolean;
     export function isEdit(txId: number): boolean;
+    export function start(options: object): number;
+    export function done(txId: number, options: object): void;
+    export function fail(txId: number, options: object): void;
+    export function cancel(txId: number): void;
 }
 
 declare namespace SQLApi {

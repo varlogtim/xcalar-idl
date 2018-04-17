@@ -254,7 +254,12 @@ namespace StatusBox {
         statusDisplayer = new StatusDisplayer();
     }
 
-    export function show(text: string, $target: JQuery, isFormMode: boolean, options: StatusDisplayerOpions): void {
+    export function show(
+        text: string,
+        $target: JQuery,
+        isFormMode: boolean,
+        options: StatusDisplayerOpions = <StatusDisplayerOpions>{}
+    ): void {
        statusDisplayer.show(text, $target, isFormMode, options);
     };
 

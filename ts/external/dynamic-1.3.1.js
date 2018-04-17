@@ -75,7 +75,7 @@
                 } else {
                     // // if no tableMeta, let backend handle it
                     // if no tableMeta, just overwrite keyFieldName with key.name
-                    keyFieldNameName = name;
+                    keyFieldName = name;
                 }
                 if (!colMeta.hasOwnProperty(keyFieldName)) {
                     // add to map so we can check against it when creating

@@ -71,6 +71,18 @@ namespace xcGlobal {
         gTurnOnPrefix = true;
         gUploadChunkSize = 45 * MB;
         gDefaultSharedRoot = 'Default Shared Root';
+        gJoinLookup = {
+            "Inner Join": JoinOperatorT.InnerJoin,
+            "Left Outer Join": JoinOperatorT.LeftOuterJoin,
+            "Right Outer Join": JoinOperatorT.RightOuterJoin,
+            "Full Outer Join": JoinOperatorT.FullOuterJoin,
+            "Cross Join": JoinOperatorT.CrossJoin,
+            "Left Semi Join": JoinCompoundOperatorTStr.LeftSemiJoin,
+            "Right Semi Join": JoinCompoundOperatorTStr.RightSemiJoin,
+            "Left Anti Semi Join": JoinCompoundOperatorTStr.LeftAntiSemiJoin,
+            "Right Anti Semi Join": JoinCompoundOperatorTStr.RightAntiSemiJoin,
+        };
+    
 
         // ======================== Support Parameters ====================== //
         gExportNoCheck = false;

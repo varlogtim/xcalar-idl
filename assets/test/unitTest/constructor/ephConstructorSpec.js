@@ -2071,17 +2071,17 @@ describe("Ephemeral Constructor Test", function() {
 
     });
 
-    describe("ScollTableChecker Constructor Test", function() {
+    describe("ScrollTableChecker Constructor Test", function() {
         it("should have 2 attrs", function() {
-            var scrollChecker = new ScollTableChecker();
-            expect(scrollChecker).to.be.an.instanceof(ScollTableChecker);
+            var scrollChecker = new ScrollTableChecker();
+            expect(scrollChecker).to.be.an.instanceof(ScrollTableChecker);
             expect(scrollChecker.startTime).to.be.a("number");
             expect(scrollChecker.scrollPos)
             .to.equal($("#mainFrame").scrollLeft());
         });
 
         it("should check to scroll", function() {
-            var scrollChecker = new ScollTableChecker();
+            var scrollChecker = new ScrollTableChecker();
             // immediate check should return true
             expect(scrollChecker.checkScroll()).to.be.true;
         });
