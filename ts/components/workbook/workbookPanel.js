@@ -497,7 +497,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
 
         $workbookBox.find(".modifiedTime").text(modified);
         $workbookBox.find(".description").text(description);
-        $workbookBox.find(".workbookName").text(name);
+        $workbookBox.find(".workbookName").val(name);
         if (description.trim().length > 0) {
             xcTooltip.add($workbookBox.find(".description"), {title: xcHelper.escapeHTMLSpecialChar(description)});
         } else {
