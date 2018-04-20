@@ -392,7 +392,7 @@ window.MainMenu = (function($, MainMenu) {
                     DSExport.refresh(true);
                     DSTargetManager.refreshTargets(true);
 
-                    var promise = DF.restore();
+                    var promise = DF.initialize();
                     xcHelper.showRefreshIcon($dfList, false, promise);
 
                     promise

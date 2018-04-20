@@ -880,6 +880,8 @@ window.FlightTest = (function(FlightTest, $) {
         var $dfViz = $('#dfViz');
         // add param to retina
         paramName = "param" + randInt();  // globals in the module
+        var params = DF.getParamMap();
+        params[paramName] = fileName;
 
         $("#dfParamModal .draggableParams.systemParams").addClass("hint");
         // Add parameter to export
@@ -890,9 +892,6 @@ window.FlightTest = (function(FlightTest, $) {
         var $dfParamModal = $("#dfParamModal");
         test.checkExists("#dfParamModal:visible")
         .then(function() {
-            $dfParamModal.find(".addParam").click();
-            $dfParamModal.find(".newParam").val(paramName);
-            $dfParamModal.find(".newParam").focus().focusout();
             return test.checkExists("#dfParamModal " +
                                     ".draggableParams.systemParams:not(.hint)");
         })
@@ -900,7 +899,7 @@ window.FlightTest = (function(FlightTest, $) {
             $dfParamModal.find(".editableRow .defaultParam").click();
             var $draggablePill = $dfParamModal.find('.draggableDiv').eq(0);
             $dfParamModal.find("input.editableParamDiv").eq(0).val('export-' +
-                $draggablePill.text() +'.csv'
+                "<" + paramName +'>.csv'
             );
             $dfParamModal.find("input.editableParamDiv").eq(0).trigger('input');
             $dfParamModal.find("input.editableParamDiv").eq(1).val("Default");
@@ -908,11 +907,6 @@ window.FlightTest = (function(FlightTest, $) {
 
             console.log(dfName);
 
-            return test.checkExists("#dagModleParamList .row:first .paramName:contains('" +
-                                    paramName + "')");
-        })
-        .then(function() {
-            $('#dagModleParamList').find('.row:first .paramVal').val(fileName);
             $dfParamModal.find(".modalBottom .confirm").click();
 
             return test.checkExists(".operationTypeWrap.export.hasParam");
@@ -970,8 +964,9 @@ window.FlightTest = (function(FlightTest, $) {
         var cancelFileName = fileName + fileName;
         test.checkExists("#dfParamModal:visible")
         .then(function() {
-            $('#dagModleParamList').find('.row:first .paramVal')
-                               .val(cancelFileName);
+            var params = DF.getParamMap();
+            params[paramName] = cancelFileName;
+
             $dfParamModal.find(".modalBottom .confirm").click();
             $df.find(".runNowBtn").click();
             setTimeout(function() {

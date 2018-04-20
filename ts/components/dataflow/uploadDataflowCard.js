@@ -116,10 +116,8 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         .then(function() {
             xcHelper.showSuccess(SuccessTStr.Upload);
             closeCard();
-            var df = DF.getDataflow(retName);
-            return df.updateParamMapInUsed();
+            deferred.resolve();
         })
-        .then(deferred.resolve)
         .fail(deferred.reject)
         .always(function() {
             clearTimeout(timer);

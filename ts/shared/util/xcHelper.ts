@@ -2004,6 +2004,7 @@ namespace xcHelper {
      */
     export function validate(eles: ValidateObj[] | ValidateObj): boolean {
         /*
+            returns false if fails validation
          * eles is an object or an array of object, each object includes:
 
            $ele: jquery element to check

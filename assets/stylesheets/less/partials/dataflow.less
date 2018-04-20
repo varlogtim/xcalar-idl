@@ -108,6 +108,8 @@
                     .size(@width: 100%, @height: 30px);
                     line-height: 30px;
                     cursor: pointer;
+                    display: block;
+                    padding: 0px;
 
                     .retTitle {
                         .size(@width: ~"calc(100% - 20px)");
@@ -121,20 +123,18 @@
                         cursor: pointer;
                     }
 
-                    .caret {
+                    .icon {
                         display: inline-block;
                         .size(@width: 20px, @height: 30px);
                         cursor: pointer;
-                        .icon {
-                            color: @color-white;
-                            opacity: @opacity-unhover;
-                        }
+                        color: @color-white;
+                        opacity: @opacity-unhover;
                     }
                 }
 
                 &.active {
                     .tabWrap {
-                        .caret .icon {
+                        .icon {
                             opacity: @opacity-hover;
                         }
                     }
@@ -150,6 +150,20 @@
                     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
                     padding: 10px 8px;
                     text-transform: none;
+
+                    .inputSection {
+                        .flex-display;
+                        margin-bottom: 5px;
+
+                        .newParam {
+                            .flex(1 1 0);
+                        }
+                        .submitNewParam {
+                            .size(220px, 30px);
+                            line-height: 30px;
+                            margin-left: 5px;
+                        }
+                    }
                     .cell {
                         &.paramNameWrap {
                             .size(@width: 179px);
@@ -179,6 +193,9 @@
                                 .position(relative, @top: 2px);
                             }
                         }
+                        &.paramActionWrap {
+                            padding-right: 0px;
+                        }
                     }
 
                     .tableContainer {
@@ -187,10 +204,6 @@
 
                             .unfilled .paramDelete, .unfilled .checkbox{
                                 display: none !important;
-                            }
-
-                            .paramVal, .checkbox {
-                                pointer-events: none;
                             }
 
                             .paramActionWrap {

@@ -46,6 +46,7 @@ window.QueryManager = (function(QueryManager, $) {
             type = "xcQuery";
             subQueries = xcHelper.parseQuery(options.query);
             numSteps = subQueries.length;
+            fullName = options.queryName;
         } else {
             type = "xcFunction";
         }
@@ -705,14 +706,8 @@ window.QueryManager = (function(QueryManager, $) {
             mainQuery.addSubQuery(subQuery);
             updateQueryTextDisplay(mainQuery.getQuery());
         }
-        mainQuery.run()
-        .then(function() {
-            mainQueryCheck(id);
-        })
-        .fail(function(error) {
-            Alert.error(ErrTStr.InvalidQuery, error);
-            QueryManager.fail(id);
-        });
+
+        mainQueryCheck(id);
     }
 
     function checkCycle(callback, id, adjustTime) {

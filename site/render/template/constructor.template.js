@@ -142,6 +142,7 @@
 
             if (<%= checkFunc %>(options)) {
                 EMetaConstructor<%= v %>.restore(self, options, version);
+                self.DFParams = options.DFParams || {};
             }
             return self;
         }
@@ -150,12 +151,20 @@
             <% if (isCurCtor) {%>
             update: function() {
                 // update
+
                 this[EMetaKeys.DF] = DF.getAllCommitKeys();
+                this[EMetaKeys.DFParams] = DF.getParamMap();
                 return this;
             },
 
             getDFMeta: function() {
-                return this[EMetaKeys.DF];
+                var dfs = this[EMetaKeys.DF];
+                var params = this[EMetaKeys.DFParams];
+
+                return {
+                    dataflows: dfs,
+                    params: params
+                };
             }
             <%}%>
         });

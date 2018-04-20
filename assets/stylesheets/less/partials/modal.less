@@ -3064,11 +3064,6 @@ html.microsoft {
                 cursor: default;
             }
         }
-        &:not(.type-synthesize) {
-            .defaultListSection {
-                display: none;
-            }
-        }
     }
 
     input {
@@ -3816,6 +3811,11 @@ html.microsoft {
                 min-height: 66px; // need to specify because of flexbox
             }
         }
+        &.type-noParams {
+            .toggleParamMenu {
+                display: none;
+            }
+        }
     }
 
     .advancedView {
@@ -3825,13 +3825,78 @@ html.microsoft {
         .modalMain {
             .flex-display;
             .flex(1 1 auto);
+            .flex-direction(column);
             position: relative;
             height: 100%;
         }
 
+        .advancedViewOptions {
+            padding: 5px 25px;
+        }
+
         .restoreAdvanced {
-            .position(absolute, 4px, 28px);
+            float: left;
             color: @color-bg-select-blue;
+            line-height: 30px;
+            height: 30px;
+            margin-left: 2px;
+            cursor: pointer;
+
+            .text {
+                float: left;
+            }
+            .icon {
+                margin-top: 3px;
+                margin-left: 5px;
+            }
+        }
+
+        .tabWrap {
+            float: right;
+            .size(@width: 130px, @height: 30px);
+            line-height: 30px;
+            cursor: pointer;
+            display: block;
+            padding: 0px;
+
+            .retTitle {
+                .size(@width: ~"calc(100% - 20px)");
+                display: inline-block;
+                .font(@weight: bold, @size: 14px);
+                float: left;
+                background: transparent;
+                text-align: left;
+                padding-left: 10px;
+                color: @color-white;
+                cursor: pointer;
+            }
+
+            .icon {
+                display: inline-block;
+                .size(@width: 20px, @height: 30px);
+                cursor: pointer;
+                color: @color-white;
+                opacity: @opacity-unhover;
+            }
+        }
+
+        .paramMenu {
+            li {
+                position: relative;
+                .icon {
+                    display: none;
+                    position: absolute;
+                    right: 4px;
+                    top: 0px;
+                    line-height: 30px;
+                }
+                &:hover {
+                    padding-right: 26px;
+                    .icon {
+                        display: block;
+                    }
+                }
+            }
         }
 
         .CodeMirror-scrollbar-filler {
@@ -3843,9 +3908,7 @@ html.microsoft {
             .flex-display;
             .size(@width: 100%);
             .position(relative);
-            margin: 25px;
-            margin-top: 30px;
-            margin-bottom: 10px;
+            padding: 0px 25px 10px 25px;
             overflow: hidden;
 
             .editArea {

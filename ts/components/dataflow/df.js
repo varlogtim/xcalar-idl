@@ -1,9 +1,12 @@
 window.DF = (function($, DF) {
     var dataflows = {};
-    var restored = false;
+    var parameters = {};
+    var initialized = false;
     var lastCreatedDF;
+    var parameterizableTypes = ["XcalarApiBulkLoad", "XcalarApiSyntesize",
+                                "XcalarApiFilter", "XcalarApiExport"];
 
-    DF.restore = function() {
+    DF.initialize = function() {
         var deferred = PromiseHelper.deferred();
         var retMeta;
         var numRetinas;
@@ -32,8 +35,8 @@ window.DF = (function($, DF) {
                     numRetinas--;
                     continue;
                 }
-                if (retName in retMeta) {
-                    dataflows[retName] = retMeta[retName];
+                if (retName in retMeta.dataflows) {
+                    dataflows[retName] = retMeta.dataflows[retName];
                 } else {
                     console.warn("No meta for dataflow", retName);
                     dataflows[retName] = new Dataflow(retName);
@@ -69,18 +72,19 @@ window.DF = (function($, DF) {
             } else {
                 DFCard.refreshDFList(true);
             }
+            initParamMap(retMeta.params);
             deferred.resolve();
         })
         .fail(deferred.reject)
         .always(function() {
-            restored = true;
+            initialized = true;
         });
 
         return deferred.promise();
     };
 
     DF.wasRestored = function() {
-        return restored;
+        return initialized;
     };
 
     DF.getEmataInfo = function() {
@@ -142,16 +146,14 @@ window.DF = (function($, DF) {
 
                 // Populate node information
                 var retName = retStructs[i].name;
-                if (retName in retMeta) {
-                    dataflows[retName] = retMeta[retName];
+                if (retName in retMeta.dataflows) {
+                    dataflows[retName] = retMeta.dataflows[retName];
                 } else {
                     console.warn("No meta for dataflow", retName);
                     dataflows[retName] = new Dataflow(retName);
                 }
 
                 updateDFInfo(retStructs[i]);
-
-                dataflows[retName].updateParamMapInUsed();
             }
             return XcalarListSchedules();
         })
@@ -169,6 +171,7 @@ window.DF = (function($, DF) {
                 dataflows[retName].schedule = new SchedObj(allOptions);
             }
             DFCard.refreshDFList(true);
+            initParamMap(retMeta.params, true);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -230,10 +233,17 @@ window.DF = (function($, DF) {
             updateDFInfo(retInfo);
             // XXX TODO add sql
             DFCard.addDFToList(dataflowName);
-            // no need to commit to kvstore since there's no info stored
-            // in this new dataflow
-            var xcSocket = XcSocket.Instance;
-            xcSocket.sendMessage("refreshDataflow", dataflowName);
+
+            if (DF.checkForAddedParams(dataflow)) {
+                DF.commitAndBroadCast(dataflowName);
+            } else {
+                // no need to commit to kvstore since there's no info stored
+                // in this new dataflow
+                var xcSocket = XcSocket.Instance;
+                xcSocket.sendMessage("refreshDataflow", dataflowName);
+            }
+
+
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -392,6 +402,7 @@ window.DF = (function($, DF) {
         return dataflows.hasOwnProperty(dataflowName);
     };
 
+    // when focusing on a df and nodes haven't been fetched yet
     DF.updateDF = function(dfName) {
         var deferred = PromiseHelper.deferred();
         var df = dataflows[dfName];
@@ -401,20 +412,158 @@ window.DF = (function($, DF) {
         .then(function(retStruct) {
             updateDFInfo(retStruct);
             nodesCache = df.nodes;
-            return df.updateParamMapInUsed();
-        })
-        .then(function(ret) {
+
             if (!dataflows[dfName].nodes || !dataflows[dfName].nodes.length) {
                 // node info can get deleted during the asyn call
                 dataflows[dfName].nodes = nodesCache;
             }
-            deferred.resolve(ret);
+
+            if (DF.checkForAddedParams(dataflows[dfName])) {
+                DF.commitAndBroadCast();
+            }
+            deferred.resolve();
         })
         // .then(deferred.resolve)
         .fail(deferred.reject);
 
         return deferred.promise();
     };
+
+    function initParamMap(params, checkDataflows) {
+        if ($.isEmptyObject(params)) {
+            for (var i in dataflows) {
+                var df = dataflows[i];
+                for (var j in df.paramMap) {
+                    if (!parameters.hasOwnProperty(j)) {
+                        parameters[j] = {
+                            value: df.paramMap[j],
+                            isEmpty: !df.paramMap[j] || (df.paramMap[j].length === 0)
+                        };
+                    } else {
+                        console.error("duplicate param", j, df.paramMap[j]);
+                    }
+                }
+            }
+        } else {
+            parameters = params;
+        }
+
+        // check each dataflow for params that are not in the kvstore
+        if (checkDataflows) {
+            for (var i in dataflows) {
+                var df = dataflows[i];
+                DF.checkForAddedParams(df);
+            }
+        }
+        $("#dfViz").find(".retTabSection").removeClass("hidden");
+    }
+
+    DF.getParamMap = function() {
+        return parameters;
+    };
+
+    DF.updateParamMap = function(params) {
+        parameters = params;
+        DF.commitAndBroadCast();
+    };
+
+    DF.getParameters = function(df) {
+        var retNodes = df.retinaNodes;
+        var params = [];
+        for (var tName in retNodes) {
+            var node = retNodes[tName];
+            if (parameterizableTypes.indexOf(node.operation) !== -1) {
+                params = params.concat(getParametersHelper(node.args));
+            }
+        }
+        return params;
+    };
+
+    DF.checkForAddedParams = function(df) {
+        var hasNewParam = false;
+        var paramsInDataflow = DF.getParameters(df);
+        for (var j = 0; j < paramsInDataflow.length; j++) {
+            if (!parameters[paramsInDataflow[j]]) {
+                hasNewParam = true;
+                parameters[paramsInDataflow[j]] = {
+                    value: "",
+                    isEmpty: true
+                };
+            }
+        }
+        return hasNewParam;
+    }
+
+    function getParametersHelper(value) {
+        var paramMap = {};
+        getParamHelper(value);
+
+        var params = [];
+        for (var i in paramMap) {
+            params.push(i);
+        }
+        return params;
+
+        function getParamHelper(value) {
+            if (!value) {
+                return false;
+            }
+            if (typeof value !== "object") {
+                if (typeof value === "string") {
+                    var openIndex = value.indexOf("<");
+                    if (openIndex > -1 && value.lastIndexOf(">") > openIndex) {
+                        var params = getParamsInVal(value);
+                        for (var i = 0; i < params.length; i++) {
+                            paramMap[params[i]] = true;
+                        }
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            } else {
+                if ($.isEmptyObject(value)) {
+                    return false;
+                }
+                if (value.constructor === Array) {
+                    for (var i = 0; i < value.length; i++) {
+                        getParamHelper(value[i]);
+                    }
+                } else {
+                    for (var i in value) {
+                        if (!value.hasOwnProperty(i)) {
+                            continue;
+                        }
+                        getParamHelper(value[i]);
+                    }
+                }
+                return false;
+            }
+        }
+
+        function getParamsInVal(val) {
+            var len = val.length;
+            var param = "";
+            var params = [];
+            var braceOpen = false;
+            for (var i = 0; i < len; i++) {
+                if (braceOpen) {
+                    if (val[i] === ">") {
+                        params.push(param);
+                        param = "";
+                        braceOpen = false;
+                    } else {
+                        param += val[i];
+                    }
+                }
+                if (val[i] === "<") {
+                    braceOpen = true;
+                }
+            }
+            return (params);
+        }
+    }
 
     function createRetina(retName, exportTables, srcTables) {
         var tableArray = []; // array of XcalarApiRetinaDstT

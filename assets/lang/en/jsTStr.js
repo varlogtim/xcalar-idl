@@ -352,9 +352,10 @@ ErrTStr = {
     'DuplicateColNames': 'Duplicate column names were detected',
     'ColumnLimitExceeded': "Column Limit Exceeded",
     'ParquetMustSelectNonPartitionCol': 'Must select at least one column that is not part of the partition keys',
-    'CancelSearch': "Search is canclled",
+    'CancelSearch': "Search is cancelled",
     'MultipleWKBKErr': 'More than one workbook with same name found',
     'NoWKBKErr': 'No workbook found',
+    "DuplicateFound": "Duplicate found.",
 
 
     // With replace
@@ -996,7 +997,11 @@ DFTStr = {
     "ParamAdvancedNotAllowed": "Advanced view is not available",
     "ParamToggle": "Toggle between basic and advanced mode",
     "ParamCorrect": "Please correct before proceeding.",
-    "ParamBasicInstructions": "To convert this operation into a parameterized operation, please click the New Parameter button, provide a name, and drag and drop the parameter into its appropriate place.",
+    "ParamBasicInstructions": "To convert this operation into a parameterized operation, drag and drop the parameter into its appropriate place.",
+    "AdvFilterInstructions": "To convert this operation into a parameterized operation, please wrap parameter names between left and right angle brackets as follows: gt(<paramName>, 0). To return to basic mode, all values must be valid.",
+    "AdvDatastoreInstructions": "To convert this operation into a parameterized operation, please wrap parameter names between left and right angle brackets as follows: /root/<paramName>.csv. Only the targetName, path, and fileNamePattern values can be parameterized. To return to basic mode, all values must be valid.",
+    "AdvExportInstructions": "To convert this operation into a parameterized operation, please wrap parameter names between left and right angle brackets as follows: <paramName>.csv. Only the fileName and targetName values can be parameterized. To return to basic mode, all values must be valid.",
+    "SynthInstructions": "To convert this operation into a parameterized operation, please wrap parameter names between left and right angle brackets as follows: <paramName>.csv. Only the dest value can be parameterized. To return to basic mode, all values must be valid.",
     // with replace
     "EditOpDirectly": "Please edit the <op> operation directly",
     'CancelAlertMsg': 'Batch dataflow \'<name>\' was canceled.',

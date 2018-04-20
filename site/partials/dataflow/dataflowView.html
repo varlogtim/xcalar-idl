@@ -54,14 +54,16 @@
       <!-- Retina Tab Section -->
       <div class="retTabSection no-selection hidden">
         <div class="retTab">
-          <div class="tabWrap btn">
-            <span class="retTitle"><%= dicts.dataflow.params %></span>
-            <div class="caret">
-              <i class="icon fa-10 xi-arrow-down"></i>
-            </div>
-          </div>
+          <button class="tabWrap btn">
+            <span class="retTitle">Parameters</span>
+            <i class="icon fa-10 xi-arrow-down"></i>
+          </button>
           <!-- retPopUp -->
           <div class="retPopUp retinaParameter">
+            <div class="inputSection">
+              <input class="xc-input newParam" placeholder="Input New Parameter">
+              <btn class="btn submitNewParam">CREATE NEW PARAMETER</btn>
+            </div>
             <div class="tableHeader">
               <div class="cell paramNameWrap"><%= dicts.dataflow.param %></div>
               <div class="cell paramValWrap"><%= dicts.dataflow.val %></div>

@@ -76,7 +76,21 @@
     </div>
     <div class="advancedView">
       <div class="modalMain">
-        <i class="restoreAdvanced icon xi-restore xc-action" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="<%= dicts.TooltipTStr.Restore %>"></i>
+        <div class="advancedViewOptions">
+          <div class="restoreAdvanced">
+            <span class="text">Restore</span>
+            <i class="icon xi-restore xc-action" data-toggle="tooltip" data-container="body"
+            data-placement="top auto" data-original-title="<%= dicts.TooltipTStr.Restore %>"></i>
+          </div>
+          <button class="tabWrap btn toggleParamMenu">
+            <span class="retTitle">Parameters</span>
+            <i class="icon fa-10 xi-arrow-down"></i>
+          </button>
+          <div class="menu paramMenu">
+            <ul></ul>
+            include "../../util/menuScrollArea.html"
+          </div>
+        </div>
         <div class="editSection">
           <div class="editArea">
             <textarea id="dfParamsCodeArea"></textarea>
@@ -84,18 +98,6 @@
         </div>
       </div>
     </div>
-    <!-- defaultListSection -->
-    <div class="defaultListSection retinaParameter">
-      <div class="tableHeader">
-        <div class="cell paramNameWrap"><%= dicts.dfParam.param %></div>
-        <div class="cell paramValWrap"><%= dicts.dfParam.val %></div>
-        <div class="cell paramActionWrap"><%= dicts.dfParam.empty %></div>
-      </div>
-      <div class="tableContainer">
-        <div id="dagModleParamList" class="tableWrapper"></div>
-      </div>
-    </div>
-    <!-- end of defaultListSection -->
     <div class="modalBottom clearfix">
       <div class="toggleView" data-toggle="tooltip" data-container="body" data-placement="top auto" data-original-title="Toggle advanced mode">
           <div class="switchText">Advanced Mode</div>
@@ -107,5 +109,6 @@
       <button class="btn cancel"><%= dicts.common.CANCEL %></button>
     </div>
   </div>
+
 </div>
 <!-- End Of Parameter Modal -->

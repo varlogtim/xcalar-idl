@@ -74,83 +74,6 @@ describe("DFParamModal Test", function() {
         DFParamModal.show = cachedFn;
     });
 
-    describe("Add/delete param test", function() {
-        before(function(done) {
-            DFParamModal.show($dfWrap.find(".operationTypeWrap.export"))
-            .then(function() {
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
-
-        it("should click to show new param input", function() {
-            assert.isFalse($modal.find(".newParam").is(":visible"));
-            $modal.find(".addParam").click();
-            assert.isTrue($modal.find(".newParam").is(":visible"));
-        });
-
-        it("empty param submission should hide input", function() {
-            $modal.find(".newParam").val("").trigger(fakeEvent.enterKeydown);
-            assert.isFalse($modal.find(".newParam").is(":visible"));
-        });
-
-        it("invalid param character submission should validate", function() {
-            $modal.find(".addParam").click();
-            $modal.find(".newParam").val("te?st")
-                  .trigger(fakeEvent.enterKeydown);
-            UnitTest.hasStatusBoxWithError(ErrTStr.NoSpecialCharOrSpace);
-        });
-
-
-        it("system param name should validate", function() {
-            $modal.find(".newParam").val("N")
-                  .trigger(fakeEvent.enterKeydown);
-            var error = xcHelper.replaceMsg(ErrWRepTStr.SystemParamConflict, {
-                name: "N"
-            });
-            UnitTest.hasStatusBoxWithError(error);
-        });
-
-        it("valid param should work", function() {
-            var df = DF.getDataflow(testDfName);
-            expect(df.parameters.length).to.equal(0);
-
-            $modal.find(".newParam").val("test")
-                  .trigger(fakeEvent.enterKeydown);
-
-            expect($modal.find(".deleteParam").length).to.equal(1);
-            expect(df.parameters.length).to.equal(1);
-            expect(df.parameters[0]).to.equal("test");
-        });
-
-        it("duplicate param name should validate", function() {
-            $modal.find(".addParam").click();
-            $modal.find(".newParam").val("test")
-                  .trigger(fakeEvent.enterKeydown);
-            var error = xcHelper.replaceMsg(ErrWRepTStr.ParamConflict, {
-                name: "test"
-            });
-            UnitTest.hasStatusBoxWithError(error);
-            // hide the input
-            $modal.find(".newParam").val("")
-                  .trigger(fakeEvent.enterKeydown);
-            assert.isFalse($modal.find(".newParam").is(":visible"));
-        });
-
-        it("param delete should work", function() {
-            var df = DF.getDataflow(testDfName);
-            $modal.find(".deleteParam").eq(0).click();
-
-            expect(df.paramMap.hasOwnProperty("test")).to.be.false;
-            expect(df.parameters.length).to.equal(0);
-        });
-
-        after(function() {
-            DFParamModal.__testOnly__.closeDFParamModal();
-        });
-    });
 
     describe("initial state test from export and submit fail test", function() {
         before(function(done) {
@@ -225,9 +148,14 @@ describe("DFParamModal Test", function() {
 
     describe("initial state test from filter with param", function() {
         var paramName = "testParam";
+        var cache1;
+        var cache2;
         before(function(done) {
-            DF.getDataflow(testDfName).addParameter(paramName);
-            DFCard.__testOnly__.addParamToRetina(paramName);
+            var df = DF.getDataflow(testDfName);
+            cache1 = DF.commitAndBroadcast;
+            DF.commitAndBroadcast = function(){return;};
+            cache2 = DF.getParameters(df);
+            DF.updateParamMap({"testParam": {value: "test"}});
 
             DFParamModal.show($dfWrap.find(".operationTypeWrap.filter"))
             .then(function() {
@@ -246,13 +174,19 @@ describe("DFParamModal Test", function() {
             expect($modal.find(".template .boxed").length).to.equal(1);
             expect($modal.find(".template").text()).to.equal("Filter:gt(" + colName + ", 3)");
             var $inputs = $modal.find("input");
-            expect($inputs.length).to.equal(5);
+            expect($inputs.length).to.equal(1);
         });
 
         it("param should be present", function() {
-            expect($modal.find(".draggableDiv").length).to.equal(3);
+            expect($modal.find(".draggableDiv").length).to.equal(2);
             expect($("#draggableParam-" + paramName).length).to.equal(1);
             expect($("#draggableParam-N").length).to.equal(1);
+        });
+
+        after(function() {
+            DF.commitAndBroadcast = cache1;
+            cache2 = DF.getParameters;
+            DF.updateParamMap(cache2);
         });
     });
 
@@ -284,8 +218,6 @@ describe("DFParamModal Test", function() {
             dragDropLine();
             var $dummyWrap = $modal.find("input.editableParamDiv").eq(0).siblings(".dummyWrap");
             expect($dummyWrap.text()).to.equal("a<" + paramName + ">bc");
-            expect($("#dagModleParamList").find(".currParams").length).to.equal(1);
-            expect($("#dagModleParamList").text()).to.equal(paramName);
         });
 
         it("paramDropSpace should work", function() {
@@ -294,8 +226,6 @@ describe("DFParamModal Test", function() {
             dragDropSpace();
             var $dummyWrap = $modal.find("input.editableParamDiv").eq(0).siblings(".dummyWrap");
             expect($dummyWrap.text()).to.equal("abc<" + paramName + ">");
-            expect($("#dagModleParamList").find(".currParams").length).to.equal(1);
-            expect($("#dagModleParamList").text()).to.equal(paramName);
         });
 
         // curr params
@@ -383,20 +313,6 @@ describe("DFParamModal Test", function() {
             expect(fn('"("(')).to.be.true;
             expect(fn('\\"(\\"')).to.be.true;
         });
-
-        it("editableParamDiv on input should work", function(done) {
-            var paramName = "testParam";
-            var $input = $modal.find(".editableParamQuery input").eq(0);
-            $input.val("<" + paramName + ">").trigger("input");
-            setTimeout(function() {
-                expect($("#dagModleParamList").text()).to.equal(paramName);
-                $input.val(colName).trigger("input");
-                setTimeout(function() {
-                    expect($("#dagModleParamList").text()).to.equal("");
-                    done();
-                }, 400);
-            }, 400);
-        });
     });
 
     describe("DFParam Modal Submit Test", function() {
@@ -436,27 +352,11 @@ describe("DFParamModal Test", function() {
             });
         });
 
-        it("empty param value should be detected", function(done) {
-            $modal.find(".editableParamQuery input").eq(0).val("lt(" + colName + ", <testParam>)");
-
-            DFParamModal.__testOnly__.checkInputForParam($modal.find(".editableParamQuery input").eq(0));
-
-            DFParamModal.__testOnly__.storeRetina()
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(){
-                UnitTest.hasStatusBoxWithError("Please fill out this field or keep it empty by checking the checkbox.");
-                $modal.find(".paramVal").eq(0).val("4");
-                done();
-            });
-        });
-
         it("submit should work", function(done) {
+            $modal.find(".editableParamQuery input").eq(0).val("lt(" + colName + ", <testParam>)");
             DFParamModal.__testOnly__.storeRetina()
             .then(function() {
                 var df = DF.getDataflow(testDfName);
-                expect(df.paramMap.testParam).to.equal("4");
                 expect($dfWrap.find(".operationTypeWrap.filter").text()).to.equal("filter<Parameterized>");
                 expect($dfWrap.find(".operationTypeWrap.filter").hasClass("hasParam")).to.be.true;
                 done();
@@ -470,12 +370,11 @@ describe("DFParamModal Test", function() {
             DFParamModal.show($dfWrap.find(".operationTypeWrap.filter"))
             .then(function() {
                 $modal.find(".editableParamQuery input").eq(0).val("lt(" + colName + ", <N>)");
-                DFParamModal.__testOnly__.checkInputForParam($modal.find(".editableParamQuery input").eq(0));
                 return DFParamModal.__testOnly__.storeRetina();
             })
             .then(function() {
                 var df = DF.getDataflow(testDfName);
-                expect(df.paramMap.N).to.equal(0);
+                expect(df.retinaNodes[tableName].args.eval[0].evalString).to.equal("lt(" + colName + ", <N>)");
                 done();
             })
             .fail(function(){

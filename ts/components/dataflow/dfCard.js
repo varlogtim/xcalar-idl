@@ -4,34 +4,12 @@ window.DFCard = (function($, DFCard) {
     var $dfMenu;       // $('#dfMenu').find('.dfList');
     var $listSection;   // $dfMenu.find('.listSection');
     var $header;        // $dfCard.find('.cardHeader h2');
-    var $retTabSection; // $dfCard.find('.retTabSection');
-    var $retLists;      // $("#retLists");
     var canceledRuns = {};
     var xdpMode = XcalarMode.Mod;
     var retinaCheckInterval = 2000;
     var retinasInProgress = {};
     var hasChange = false;
     var $scrollBarWrap;
-    var retinaTrLen = 5;
-    var retinaTr = '<div class="row unfilled">' +
-                        '<div class="cell paramNameWrap textOverflowOneLine">' +
-                            '<div class="paramName textOverflowOneLine"></div>' +
-                        '</div>' +
-                        '<div class="cell paramValWrap textOverflowOneLine">' +
-                            '<input class="paramVal" spellcheck="false"/>' +
-                        '</div>' +
-                        '<div class="cell paramNoValueWrap">' +
-                            '<div class="checkbox">' +
-                                '<i class="icon xi-ckbox-empty fa-15"></i>' +
-                                '<i class="icon xi-ckbox-selected fa-15"></i>' +
-                            '</div>' +
-                        '</div>' +
-                         '<div class="cell paramActionWrap">' +
-                            '<i class="paramDelete icon xi-close fa-15 xc-action">' +
-                            '</i>' +
-                        '</div>' +
-                   '</div>';
-
     var currentDataflow = null;
     var dagStateClasses = "";
 
@@ -41,8 +19,6 @@ window.DFCard = (function($, DFCard) {
         $dfMenu = $('#dfMenu').find('.dfList');
         $listSection = $dfMenu.find('.listSection');
         $header = $dfCard.find('.cardHeader h2');
-        $retTabSection = $dfCard.find('.retTabSection');
-        $retLists = $("#retLists");
         $scrollBarWrap = $("#dataflowPanel").find(".dfScrollBar");
 
         // used to remove all status classes from dag table icons
@@ -57,7 +33,7 @@ window.DFCard = (function($, DFCard) {
 
         addListeners();
         setupDagDropdown();
-        setupRetinaTab();
+        DFParamTab.setup();
         setupScrollBar();
     };
 
@@ -211,26 +187,6 @@ window.DFCard = (function($, DFCard) {
         return (currentDataflow);
     };
 
-    DFCard.updateRetinaTab = function(retName) {
-        var html = "";
-        for (var i = 0; i < retinaTrLen; i++) {
-            html += retinaTr;
-        }
-
-        $retLists.html(html);
-
-        var df = DF.getDataflow(retName);
-        var paramMap = df.paramMap;
-
-        df.parameters.forEach(function(paramName) {
-            if (!(systemParams.hasOwnProperty(paramName) && isNaN(Number(paramName)))) {
-                addParamToRetina(paramName, paramMap[paramName],
-                                df.paramMapInUsed[paramName]);
-            }
-        });
-        $retTabSection.removeClass("hidden");
-    };
-
     DFCard.focusFirstDF = function() {
         $dfMenu.find('.listBox').eq(0).trigger('click');
     };
@@ -247,118 +203,6 @@ window.DFCard = (function($, DFCard) {
 
         return retData;
     };
-
-    function addParamToRetina(name, val, isInUse) {
-        var $row = $retLists.find(".unfilled:first");
-
-        if ($row.length === 0) {
-            $row = $(retinaTr);
-            $retLists.append($row);
-            xcHelper.scrollToBottom($retLists.closest(".tableContainer"));
-        }
-
-        $row.find(".paramName").text(name);
-        if (val != null) {
-            $row.find(".paramVal").val(val);
-            if (val === "") {
-                $row.find(".checkbox").addClass("checked");
-            }
-        }
-        if (isInUse) {
-            var $paramAction = $row.find(".paramActionWrap");
-            $paramAction.addClass("unavailable");
-            xcTooltip.add($paramAction, {title: ErrTStr.InUsedNoDelete});
-        }
-
-        $row.removeClass("unfilled");
-    }
-
-    function deleteParamFromRetina($row) {
-        var $paramName = $row.find(".paramName");
-        var paramName = $paramName.text();
-        var df = DF.getDataflow(currentDataflow);
-
-        if (df.checkParamInUse(paramName)) {
-            StatusBox.show(ErrTStr.ParamInUse, $paramName);
-            return;
-        }
-
-        $row.remove();
-        if ($retLists.find(".row").length < retinaTrLen) {
-            $retLists.append(retinaTr);
-        }
-        df.removeParameter(paramName);
-        hasChange = true;
-    }
-
-    function setupRetinaTab() {
-        $(".tabWrap").addClass(xdpMode);
-        // Remove focus when click other places other than retinaArea
-        // add new retina
-        $retTabSection.on('click', '.retPopUp', function(event) {
-            event.stopPropagation();
-        });
-
-        // toggle open retina pop up
-        $retTabSection.on('click', '.retTab', function() {
-            if (xdpMode === XcalarMode.Mod) {
-                return showLicenseTooltip(this);
-            }
-
-            $('.menu').hide();
-            StatusBox.forceHide();
-            var $dagWrap = $dfCard.find('.cardMain').find(".dagWrap:visible");
-            if (!$dagWrap.length) {
-                return;
-            }
-            if ($dagWrap.hasClass("deleting")) {
-                return;
-            }
-            var $tab = $(this);
-            if ($tab.hasClass('active')) {
-                // close it tab
-                closeRetTab();
-                $tab.removeClass('active');
-                return false;
-            } else {
-                // open tab
-                DFCard.updateRetinaTab(DFCard.getCurrentDF());
-                $tab.addClass('active');
-
-                $("#container").on("mousedown.retTab", function(event) {
-                    var $target = $(event.target);
-                    if ($retTabSection.find(".retTab").hasClass("active") &&
-                        !$target.closest('.retTab').length) {
-
-                        closeRetTab();
-                        $("#container").off("mousedown.retTab");
-                        return;
-                    }
-                });
-
-                return false;
-            }
-        });
-
-
-        $retTabSection[0].oncontextmenu = function(e) {
-            e.preventDefault();
-        };
-
-        // delete retina para
-        $retTabSection.on("click", ".paramDelete", function(event) {
-            event.stopPropagation();
-            var $row = $(this).closest(".row");
-            var name = $row.find(".paramName").text();
-            var df = DF.getDataflow(DFCard.getCurrentDF());
-            if (df.paramMapInUsed[name]) {
-                StatusBox.show(ErrTStr.InUsedNoDelete,
-                    $row.find(".paramActionWrap"), false, {'side': 'left'});
-                return false;
-            }
-            deleteParamFromRetina($row);
-        });
-    }
 
     function addListeners() {
         $dfMenu.on('click', '.refreshBtn', DFCard.refresh);
@@ -436,7 +280,16 @@ window.DFCard = (function($, DFCard) {
             var $btn = $(this).blur();
             var retName = $listSection.find(".selected .groupName").text();
             var df = DF.getDataflow(retName);
-            if (df.allUsedParamsWithValues()) {
+
+            var paramsArray = getParameters(df);
+            var emptyParam;
+            for (var i = 0; i < paramsArray; i++) {
+                if (paramsArray[i].paramValue == null) {
+                    emptyParam = paramsArray[i].paramName;
+                }
+            }
+
+            if (!emptyParam) {
                 if ($btn.hasClass('canceling') || canceledRuns[retName]) {
                     return;
                 }
@@ -448,7 +301,7 @@ window.DFCard = (function($, DFCard) {
                     xcTooltip.changeText($btn, DFTStr.Cancel);
                     xcTooltip.refresh($btn);
 
-                    runDF(retName)
+                    runDF(retName, paramsArray)
                     .always(function() {
                         delete canceledRuns[retName];
                         $btn.removeClass("running canceling");
@@ -458,7 +311,8 @@ window.DFCard = (function($, DFCard) {
             } else {
                 Alert.show({
                     "title": DFTStr.AddValues,
-                    "msg": DFTStr.ParamNoValue,
+                    "msg": "Parameter + \"" + emptyParam + "\" has no value. " +
+                           DFTStr.ParamNoValue,
                     "isAlert": true,
                     "onCancel": function() {
                         $dfCard.find('.retTabSection .retTab').trigger('mousedown');
@@ -605,27 +459,32 @@ window.DFCard = (function($, DFCard) {
         var parameterizedNodes = dataflow.parameterizedNodes;
         var paramStructs = {};
 
-        for (var tName in allNodes) {
-            var node = allNodes[tName];
+        for (var tableName in allNodes) {
+            var node = allNodes[tableName];
             var struct = node.args;
             var type = XcalarApisT[node.operation];
-            if (type === XcalarApisT.XcalarApiExport) {
-                var fileName = struct.fileName || "";
-                paramStructs[tName] = struct;
-                    // uploaded retinas do not have params in export node
-                var $exportTable = $dagWrap.find(".operationTypeWrap[data-table='" +
-                                                 tName + "']");
+            switch (type) {
+                case (XcalarApisT.XcalarApiExport):
+                    var fileName = struct.fileName || "";
+                    paramStructs[tableName] = struct;
+                        // uploaded retinas do not have params in export node
+                    var $exportTable = $dagWrap.find(".operationTypeWrap[data-table='" +
+                                                    tableName + "']").next();
 
-                $exportTable.next().attr("data-advancedOpts", "default");
+                    $exportTable.attr("data-advancedOpts", "default");
 
-                var $elem = $exportTable.next().find(".tableTitle");
-                var expName = xcHelper.stripCSVExt(fileName);
-                $elem.text(expName);
-                xcTooltip.changeText($elem, xcHelper.convertToHtmlEntity(expName));
-            } else if (type === XcalarApisT.XcalarApiFilter) {
-                paramStructs[tName] = struct;
-            } else if (type === XcalarApisT.XcalarApiBulkLoad) {
-                paramStructs[tName] = struct;
+                    var $elem = $exportTable.find(".tableTitle");
+                    var expName = xcHelper.stripCSVExt(fileName);
+                    $elem.text(expName);
+                    xcTooltip.changeText($elem, xcHelper.convertToHtmlEntity(expName));
+                    break;
+                case (XcalarApisT.XcalarApiFilter):
+                case (XcalarApisT.XcalarApiBulkLoad):
+                case (XcalarApisT.XcalarApiSynthesize):
+                    paramStructs[tableName] = struct;
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -633,16 +492,18 @@ window.DFCard = (function($, DFCard) {
         // Attach styling to all nodes that have a dropdown
         $dagWrap.find(selector).addClass("parameterizable");
 
-        for (var tName in parameterizedNodes) {
-            var struct = paramStructs[tName];
+        // go through modified nodes and color if parameterized
+        for (var tableName in parameterizedNodes) {
+            var struct = paramStructs[tableName];
             if (isParameterized(struct)) {
-                var name = tName;
+                var name = tableName;
                 if (name.indexOf(gDSPrefix) === 0) {
                     name = name.substring(gDSPrefix.length);
                 }
                 var $tableNode = dataflow.colorNodes(name);
-                var type = parameterizedNodes[tName].paramType;
-                if (type === XcalarApisT.XcalarApiFilter) {
+                var type = parameterizedNodes[tableName].paramType;
+                if (type === XcalarApisT.XcalarApiFilter ||
+                    type === XcalarApisT.XcalarApiExport) {
                     $tableNode.find(".opInfoText")
                               .text("<Parameterized>");
                 }
@@ -650,7 +511,6 @@ window.DFCard = (function($, DFCard) {
         }
 
         var ignoreNoExist = true;
-
         getAndUpdateRetinaStatuses(dataflowName, ignoreNoExist)
         .then(function(ret) {
             $dagWrap.addClass("hasRun");
@@ -942,23 +802,14 @@ window.DFCard = (function($, DFCard) {
         return (html);
     }
 
-    function runDF(retName) {
+    function runDF(retName, paramsArray) {
         var deferred = PromiseHelper.deferred();
         var cancelErr = "canceled";
 
-        var paramsArray = [];
-        var dfObj = DF.getDataflow(retName);
-        var parameters = dfObj.paramMap;
-
-        for (var param in parameters) {
-            var p = new XcalarApiParameterT();
-            p.paramName = param;
-            p.paramValue = parameters[param];
-            paramsArray.push(p);
-        }
+        var df = DF.getDataflow(retName);
 
         var exportNode;
-        var retNodes = dfObj.retinaNodes;
+        var retNodes = df.retinaNodes;
         for (var tName in retNodes) {
             if (XcalarApisT[retNodes[tName].operation] ===
                 XcalarApisT.XcalarApiExport) {
@@ -1114,6 +965,26 @@ window.DFCard = (function($, DFCard) {
             });
             return deferred.promise();
         }
+
+
+    }
+
+    // finds all the parameters in the dataflow graph and filters
+    // the global parameters map to just those parameters
+    function getParameters(df) {
+        var allParams = DF.getParamMap();
+        var params = DF.getParameters(df);
+        var paramsArray = [];
+        for (var i = 0; i < params.length; i++) {
+            if (allParams[params[i]]) {
+                var p = new XcalarApiParameterT();
+                p.paramName = params[i];
+                p.paramValue = allParams[params[i]].value;
+                paramsArray.push(p);
+            }
+        }
+
+        return paramsArray;
     }
 
     function checkIfHasSystemParam(retName) {
@@ -1562,15 +1433,6 @@ window.DFCard = (function($, DFCard) {
         console.log("Wrong license type");
     }
 
-    function closeRetTab() {
-        if (hasChange) {
-            hasChange = false;
-            DF.commitAndBroadCast(currentDataflow);
-        }
-        $retTabSection.find(".retTab").removeClass("active");
-        StatusBox.forceHide();
-    }
-
     // only called if UI does not have any cache of parameters, this happens
     // when a batch dataflow is uploaded or if it's a brand new dataflow
     function restoreParameterizedNodes(dataflowName) {
@@ -1644,7 +1506,6 @@ window.DFCard = (function($, DFCard) {
         if (!$dagWrap.length && (!df.nodes || $.isEmptyObject(df.nodes)) ||
             $.isEmptyObject(df.retinaNodes)) {
             promise = DF.updateDF(dataflowName);
-            closeRetTab();
             html = '<div class="dagWrap clearfix" ' +
                        'data-dataflowName="' + dataflowName + '"></div>';
             $dfCard.find(".cardMain").append(html);
@@ -1692,7 +1553,7 @@ window.DFCard = (function($, DFCard) {
 
             if (dataflowName === currentDataflow) {
                 $dagWrap.removeClass("xc-hidden");
-                DFCard.updateRetinaTab(dataflowName);
+                // DFParamTab.updateRetinaTab(dataflowName);
                 enableDagTooltips();
             } else {
                 $dagWrap.addClass("xc-hidden");
@@ -1717,7 +1578,6 @@ window.DFCard = (function($, DFCard) {
             DFCard.adjustScrollBarPositionAndSize();
         });
     }
-
 
     function setupScrollBar() {
         var winHeight;
@@ -1806,7 +1666,6 @@ window.DFCard = (function($, DFCard) {
         DFCard.__testOnly__.retinasInProgress = retinasInProgress;
         DFCard.__testOnly__.startStatusCheck = startStatusCheck;
         DFCard.__testOnly__.endStatusCheck = endStatusCheck;
-        DFCard.__testOnly__.addParamToRetina = addParamToRetina;
         DFCard.__testOnly__.showExportCols = showExportCols;
         DFCard.__testOnly__.parseFileName = parseFileName;
         DFCard.__testOnly__.applyDeltaTagsToDag = applyDeltaTagsToDag;
