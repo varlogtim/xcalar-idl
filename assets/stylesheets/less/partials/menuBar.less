@@ -1155,7 +1155,7 @@ ul.CodeMirror-hints {
 #sqlSection {
     .menuContent {
         .editSection {
-            .size(@width: 100%, @height: ~"calc(100% - 60px)");
+            .size(@width: 100%, @height: ~"calc(55% - 60px)");
             .position(relative);
             overflow: hidden;
 
@@ -1174,6 +1174,178 @@ ul.CodeMirror-hints {
 
             .btn {
                 .center-align;
+            }
+        }
+
+        .schemaSection {
+            .size(@width: 100%, @height: 45%);
+            padding: 10px 12px;
+            display: flex;
+            flex-wrap: wrap;
+            color: @color-bg-body-gray;
+            position: relative;
+            border-top: 1px solid @color-bg-99-grey;
+            .header {
+                .size(@width: 100%);
+                padding: 10px 0 10px;
+                span {
+                    display: block;
+                    color: @color-font-bright-light-blue;
+                    &.content {
+                        font-size: 10px;
+                        color: @color-font-select-blue;
+                    }
+                }
+            }
+            .tableTitle {
+                .size(@width: 100%);
+                font-size: 12px;
+                margin-bottom: 5px;
+                margin-top: -10px;
+                color: @color-bg-body-gray;
+                display: inherit;
+                .xdTable {
+                    width: ~"calc(100% - 120px)";
+                    user-select: text;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    margin-left: 5px;
+                }
+            }
+            .tables, .columns {
+                .size(@width: ~"calc(50% - 5px)", @height: 100%);
+                .content {
+                    font-size: 10px;
+                    color: @color-bg-body-gray;
+                    margin-top: 13px;
+                }
+                div {
+                    .size(@height: 30px);
+                    display: flex;
+                    align-items: center;
+                }
+                input {
+                    .size(@width: 100%);
+                    background-color: transparent;
+                    color: @color-bg-body-gray;
+                    border: solid 0.5px @color-bg-body-gray;
+                    padding: 0 0 0 8px;
+                    outline: none;
+                }
+                .icon {
+                    color: @color-bg-body-gray;
+                    right: 18px;
+                    margin-right: -18px;
+                    position: relative;
+                }
+                ul {
+                    margin-top: 10px;
+                    overflow-y: auto;
+                    padding-top: 1px;
+                    height: 100%;
+                    &::-webkit-scrollbar {
+                        width: 0px;
+                    }
+                    &::-webkit-scrollbar-track-piece {
+                        background-color: transparent;
+                        -webkit-border-radius: 6px;
+                    }
+                }
+                .scrollWrapper {
+                    height: ~"calc(100% - 110px)";
+                    display: block;
+                    .scrollArea {
+                        .size(@height: 11px);
+                        align-items: start;
+                        justify-content: center;
+                        position: relative;
+                        background-color: @color-bg-marine;
+                        opacity: 0.5;
+                        &.scrollUp {
+                            top: -100%;
+                        }
+                        &.scrollDown {
+                            top: -20px;
+                        }
+                        .icon {
+                            font-size: 10px;
+                            margin: 0;
+                            left: 0;
+                        }
+                    }
+                }
+                li > div {
+                    border: 1px solid @color-bg-body-gray;
+                    margin-top: -1px;
+                    padding-left: 8px;
+                    font-size: 11px;
+                    .icon {
+                        margin-left: auto;
+                        right: 22px;
+                        cursor: pointer;
+                    }
+                }
+                .type {
+                    .size(@height: 100%);
+                    border-right: 1px solid @color-bg-body-gray;
+                }
+                .unit {
+                    .typeIcon;
+                    .type.icon {
+                        color: @color-bg-body-gray;
+                        margin-left: 4px;
+                        left: 0;
+                        display: flex;
+                        align-items: center;
+                        padding-right: 3px;
+                        font-size: 11px;
+                    }
+                    .column {
+                        margin-left: 15px;
+                    }
+                    .label {
+                        width: ~"calc(100% - 20px)";
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                }
+                .selected {
+                    position: relative;
+                    z-index: 1;
+                    border-color: @color-font-bright-light-blue;
+                    &, .icon {
+                        color: @color-font-bright-light-blue;
+                    }
+                }
+            }
+            .columns {
+                margin-left: auto;
+                #sqlColumnList .icon {
+                    cursor: help;
+                }
+            }
+            .pulloutTab {
+                .size(@width: 100%, @height: 15px);
+                .horizontal-align;
+                .position(absolute, @top: 0px);
+                cursor: pointer;
+                display: flex;
+                justify-content: center;
+                padding-top: 3px;
+
+                .border {
+                    .size(@width: 100%, @height: 1px);
+                    background-color: @color-bg-99-grey;
+                    margin-top: 1px;
+                }
+                .icon {
+                    font-size: 11px;
+                }
+            }
+            .ui-resizable-n {
+                left: 0;
+                height: 20px;
+                z-index: 90;
             }
         }
     }

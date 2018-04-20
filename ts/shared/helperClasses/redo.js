@@ -40,6 +40,8 @@ window.Redo = (function($, Redo) {
                                         options.worksheet));
     };
 
+    redoFuncs[SQLOps.ExecSQL] = redoFuncs[SQLOps.IndexDS];
+
     redoFuncs[SQLOps.Sort] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         return (TblManager.refreshTable([options.newTableName], null,

@@ -110,7 +110,7 @@
             }
         },
 
-        _getQueryTableCols: function(tableName, allCols) {
+        _getQueryTableCols: function(tableName, allCols, isImmediate) {
             var deferred = PromiseHelper.deferred();
             var self = this;
             XcalarGetTableMeta(tableName)
@@ -122,24 +122,33 @@
 
                 var valueAttrs = tableMeta.valueAttrs || [];
                 var progCols = [];
-                for (var i = 0; i < allCols.length; i++) {
-                    var found = false;
-                    var colName = allCols[i].rename || allCols[i].colName;
-                    var prefix = colName;
-                    if (colName.indexOf("::") > 0) {
-                        prefix = colName.split("::")[0];
-                        colName = colName.split("::")[1];
-                    }
-                    for (var j = 0; j < valueAttrs.length; j++) {
-                        var name = valueAttrs[j].name;
-                        if (name === colName || name === prefix) {
-                            found = true;
-                            var type = self._getColType(valueAttrs[j].type);
-                            progCols.push(ColManager.newPullCol(allCols[i].colName, name, type));
-                            break;
+                if (!isImmediate) {
+                    for (var i = 0; i < allCols.length; i++) {
+                        var found = false;
+                        var colName = allCols[i].rename || allCols[i].colName;
+                        var prefix = colName;
+                        if (colName.indexOf("::") > 0) {
+                            prefix = colName.split("::")[0];
+                            colName = colName.split("::")[1];
                         }
+                        for (var j = 0; j < valueAttrs.length; j++) {
+                            var name = valueAttrs[j].name;
+                            if (name === colName || name === prefix) {
+                                found = true;
+                                var type = self._getColType(valueAttrs[j].type);
+                                progCols.push(ColManager.newPullCol(
+                                               allCols[i].colName, name, type));
+                                break;
+                            }
+                        }
+                        assert(found);
                     }
-                    assert(found);
+                } else {
+                    valueAttrs.forEach(function(valueAttr) {
+                        var name = valueAttr.name;
+                        var type = self._getColType(valueAttr.type);
+                        progCols.push(ColManager.newPullCol(name, name, type));
+                    });
                 }
                 assert(progCols.length > 0);
                 // If progCols doesn't have elements, it could be due to:
@@ -154,9 +163,10 @@
             return deferred.promise();
         },
 
-        _refreshTable: function(txId, tableName, allCols) {
+        _refreshTable: function(txId, tableName, allCols, allTables) {
             var deferred = PromiseHelper.deferred();
-            this._getQueryTableCols(tableName, allCols)
+            var self = this;
+            self._getQueryTableCols(tableName, allCols)
             .then(function(tableCols) {
                 var worksheet = WSManager.getActiveWS();
                 return TblManager.refreshTable([tableName], tableCols,
@@ -164,19 +174,92 @@
                                                 "focusWorkspace": true
                                             });
             })
+            .then(function() {
+                return XcalarGetDag(tableName);
+            })
+            .then(function(dagNodes) {
+                var allTables = [];
+                var tableIds = [];
+                for (var i = 0; i < dagNodes.node.length; i++) {
+                    var tableName = dagNodes.node[i].name.name;
+                    var tableId = xcHelper.getTableId(tableName);
+                    if (tableId && !gTables[tableId]) {
+                        allTables.push(tableName);
+                    }
+                }
+                return self._addMetaForImmediates(allTables);
+            })
             .then(deferred.resolve)
             .fail(deferred.reject);
 
             return deferred.promise();
         },
 
+        _addMetaForImmediates: function(allTables) {
+            var self = this;
+            var promiseArray = [];
+            allTables.forEach(function(tableName) {
+                var deferred = PromiseHelper.deferred();
+                var promise = self._getQueryTableCols(tableName, null, true)
+                    .then(function(progCols) {
+                        TblManager.setOrphanTableMeta(tableName, progCols);
+                        deferred.resolve();
+                    })
+                    .fail(deferred.resolve); // always resolve
+                promiseArray.push(deferred.promise());
+            });
+            return PromiseHelper.when.apply(window, promiseArray);
+        },
+
         run: function(query, tableName, allCols) {
             var deferred = PromiseHelper.deferred();
             var isSqlMode = (typeof sqlMode !== "undefined" && sqlMode);
-            var txId = !isSqlMode && Transaction.start({
-                "operation": "Execute SQL"
-            });
             var queryName = xcHelper.randName("sql");
+
+            /* START OF TEST CODE */
+            // var num1 = Math.floor(Math.random() * 100000);
+            // var num2 = Math.floor(Math.random() * 100000);
+            // var temp = query.substring(0, query.length - 1);
+            // temp += "," + JSON.stringify({
+            //   "operation": "XcalarApiMap",
+            //   "args": {
+            //     "source": "NATIO-REGIO#29",
+            //     "dest": "NATIO-REGIO#" + num1,
+            //     "eval": [
+            //       {
+            //         "evalString": "slowmap:slow()",
+            //         "newField": "N_NATIONKEY_udf"
+            //       }
+            //     ],
+            //     "icv": false
+            //   }
+            // }) + "]";
+
+            // temp = "[" + JSON.stringify({
+            //   "operation": "XcalarApiMap",
+            //   "args": {
+            //     "source": "NATIO-REGIO#29",
+            //     "dest": "NATIO-REGIO#" + num2,
+            //     "eval": [
+            //       {
+            //         "evalString": "slowmap:slow()",
+            //         "newField": "N_NATIONKEY_udf"
+            //       }
+            //     ],
+            //     "icv": false
+            //   }
+            // }) + "," + temp.slice(1);
+
+            // query = temp;
+
+            /* END OF TEST CODE */
+
+            var txId = !isSqlMode && Transaction.start({
+                "operation": "Execute SQL",
+                "steps": -1,
+                "queryName": queryName,
+                "query": query
+            });
             var self = this;
             XIApi.query(txId, queryName, query)
             .then(function() {
@@ -186,9 +269,14 @@
             })
             .then(function() {
                 if (!isSqlMode) {
+                    var sql = {
+                        "operation": "Execute SQL",
+                        "query": query,
+                        "tableName": tableName
+                    };
                     Transaction.done(txId, {
-                        "msgTable": xcHelper.getTableId(tableName)
-                        // XXX TODO: add sql
+                        "msgTable": xcHelper.getTableId(tableName),
+                        "sql": sql
                     });
                 }
                 deferred.resolve(tableName);

@@ -50,7 +50,9 @@
                 numSteps: numSubQueries,
                 cancelable: options.cancelable,
                 exportName: options.exportName,
-                srcTables: getSrcTables(options.sql)
+                srcTables: getSrcTables(options.sql),
+                query: options.query,
+                queryName: options.queryName
             };
 
             QueryManager.addQuery(curId, operation, queryOptions);

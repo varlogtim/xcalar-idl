@@ -392,7 +392,11 @@ module.exports = {
     },
 
     "SQL": {
-        "EXECUTE": "EXECUTE SQL"
+        "EXECUTE": "EXECUTE SQL",
+        "Schema": "All SQL Tables and Schemas",
+        "SchemaInst": "We need some instructions here.",
+        "ColumnInst": "Select and click a table in order to view and select columns.",
+        "TableTitle": "Table in workbook: "
     },
 
     "bottomMenu": {

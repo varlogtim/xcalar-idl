@@ -454,7 +454,7 @@
             // case ("expressions.Left"):
             // case ("expressions.Right"):
             case ("expressions.Like"):
-                assert(node.children.length === 2, SQLTStr.LikeTwoChildren + node.children.length);
+                assert(node.children.length === 2, SQLErrTStr.LikeTwoChildren + node.children.length);
                 var strNode = node.children[1];
                 var stringRepNode = stringReplaceNode();
 
@@ -472,7 +472,7 @@
             case ("expressions.CaseWhen"):
                 if (node.value.elseValue && node.children.length % 2 !== 1) {
                     // If there's an elseValue, then num children must be odd
-                    assert(0, SQLTStr.CaseWhenOdd + node.children.length);
+                    assert(0, SQLErrTStr.CaseWhenOdd + node.children.length);
                 }
                 // Check whether to use if or ifstr
                 // XXX backend to fix if and ifStr such that `if` is generic
@@ -498,7 +498,7 @@
                 }
 
                 assert(lastNode.children.length === 3,
-                       SQLTStr.CaseWhenLastNode + lastNode.children.length);
+                       SQLErrTStr.CaseWhenLastNode + lastNode.children.length);
 
                 // has else clause
                 if (node.children.length % 2 === 1) {
@@ -526,7 +526,7 @@
                 // Note: The first OR node or the ONLY eq node will be the root
                 // of the tree
                 assert(node.children.length >= 2,
-                       SQLTStr.InChildrenLength + node.children.length);
+                       SQLErrTStr.InChildrenLength + node.children.length);
                 var prevOrNode;
                 var newEqNode;
                 var newNode;
@@ -582,13 +582,13 @@
                 // here and construct a different tree
                 if (!isRoot && options && options.extractAggregates) {
                     assert(node.children.length === 1,
-                         SQLTStr.AggregateExpressionOne + node.children.length);
+                         SQLErrTStr.AggregateExpressionOne + node.children.length);
                     assert(node.children[0].value.class
                                         .indexOf("expressions.aggregate.") > 0,
-                           SQLTStr.AggregateFirstChildClass +
+                           SQLErrTStr.AggregateFirstChildClass +
                            node.children[0].value.class);
                     assert(node.children[0].children.length === 1,
-                            SQLTStr.AggregateChildrenLength +
+                            SQLErrTStr.AggregateChildrenLength +
                             node.children[0].children.length);
                     // We need to cut the tree at this node, and instead of
                     // having a child, remove the child and assign it as an
@@ -634,15 +634,15 @@
                 // "yyyy-[m]m-[d]dT*"
                 // timestamp
                 assert(node.children.length === 1,
-                       SQLTStr.YMDLength + node.children.length);
+                       SQLErrTStr.YMDLength + node.children.length);
                 assert(node.children[0].value.class ===
                        "org.apache.spark.sql.catalyst.expressions.Cast",
-                       SQLTStr.YMDCast + node.children[0].value.class);
+                       SQLErrTStr.YMDCast + node.children[0].value.class);
                 var dateCastNode = node.children[0];
                 assert(dateCastNode.value.dataType === "date",
-                       SQLTStr.YMDDataType + dateCastNode.value.dataType);
+                       SQLErrTStr.YMDDataType + dateCastNode.value.dataType);
                 assert(dateCastNode.children.length === 1,
-                       SQLTStr.YMDChildLength);
+                       SQLErrTStr.YMDChildLength);
 
                 // Prepare three children for the node
                 var cutIndex = ["Year", "Month", "DayOfMonth"]
@@ -657,15 +657,15 @@
                                              "expressions.AttributeReference") {
                     // If the child is a column, it must be of string type
                     assert(childNode.value.dataType === "string",
-                           SQLTStr.YMDString + childNode.value.dataType);
+                           SQLErrTStr.YMDString + childNode.value.dataType);
                     dateNode = stringToDateNode(childNode);
                 } else {
                     // Otherwise, it has to be another cast node of str/ts type
                     assert(childNode.value.class ===
                            "org.apache.spark.sql.catalyst.expressions.Cast",
-                           SQLTStr.YMDGrandCast + childNode.value.class);
+                           SQLErrTStr.YMDGrandCast + childNode.value.class);
                     assert(childNode.children.length === 1,
-                           SQLTStr.YMDGrandLength + childNode.children.length);
+                           SQLErrTStr.YMDGrandLength + childNode.children.length);
                     if (childNode.value.dataType === "string") {
                         dateNode = stringToDateNode(childNode.children[0]);
                     } else if (childNode.value.dataType === "timestamp") {
@@ -683,7 +683,7 @@
                     } else {
                         // Other cases should have been rejected by spark
                         assert(0,
-                               SQLTStr.YMDIllegal + childNode.value.dataType);
+                               SQLErrTStr.YMDIllegal + childNode.value.dataType);
                     }
                 }
                 var cuNode = cutNode();
@@ -789,20 +789,7 @@
                  encodeURIComponent(encodeURIComponent(WorkbookManager.getActiveWKBK())) +
                  "/true/true",
             success: function(data) {
-                try {
-                    if (data.stdout) {
-                        // Only for dev when using sqlRestfulServer. We need to
-                        // either modify here or sqlRestfulServer.js
-                        deferred.resolve(JSON.parse(JSON.parse(data.stdout).sqlQuery));
-                    } else {
-                        deferred.resolve(JSON.parse(data.sqlQuery));
-                    }
-                } catch (e) {
-                    deferred.reject(data.stdout);
-                    console.error(e);
-                    // console.error(data.stdout);
-                    // throw data.stdout;
-                }
+                deferred.resolve(JSON.parse(data.sqlQuery));
             },
             error: function(error) {
                 deferred.reject(error);
@@ -887,7 +874,8 @@
     };
 
     function countNumNodes(tree) {
-        var count = 1;
+        var count = tree.value.class ===
+                    "org.apache.spark.sql.execution.LogicalRDD" ? 0 : 1;
         for (var i = 0; i < tree.children.length; i++) {
             count += countNumNodes(tree.children[i]);
         }
@@ -1113,7 +1101,7 @@
         },
         _pushDownIgnore: function(node) {
             assert(node.children.length === 1,
-                   SQLTStr.IgnoreOneChild + node.children.length);
+                   SQLErrTStr.IgnoreOneChild + node.children.length);
             return PromiseHelper.resolve({
                 "newTableName": node.children[0].newTableName,
             });
@@ -1125,7 +1113,7 @@
             var self = this;
             var deferred = PromiseHelper.deferred();
             assert(node.children.length === 1,
-                   SQLTStr.ProjectOneChild + node.children.length);
+                   SQLErrTStr.ProjectOneChild + node.children.length);
             if (node.value.projectList.length === 0) {
                 for (var i = 0; i < node.parent.children.length; i++) {
                     if (node.parent.children[i] === node) {
@@ -1145,7 +1133,7 @@
                         aggEvalStrArray, options, subqueryArray);
             // I don't think the below is possible with SQL...
             assert(aggEvalStrArray.length === 0,
-                   SQLTStr.ProjectAggAgg + JSON.stringify(aggEvalStrArray));
+                   SQLErrTStr.ProjectAggAgg + JSON.stringify(aggEvalStrArray));
 
             // Change node.usrCols & node.renamedCols
             node.usrCols = columns;
@@ -1205,11 +1193,11 @@
             var self = this;
             var deferred = PromiseHelper.deferred();
             assert(node.children.length === 1,
-                   SQLTStr.GLChild + node.children.length);
+                   SQLErrTStr.GLChild + node.children.length);
             assert(node.value.limitExpr.length === 1,
-                   SQLTStr.GLLength + node.value.limitExpr.length);
+                   SQLErrTStr.GLLength + node.value.limitExpr.length);
             assert(node.value.limitExpr[0].dataType === "integer",
-                   SQLTStr.GLDataType + node.value.limitExpr[0].dataType);
+                   SQLErrTStr.GLDataType + node.value.limitExpr[0].dataType);
 
             function getPreviousSortOrder(curNode) {
                 if (!curNode) {
@@ -1272,7 +1260,7 @@
             var self = this;
             var deferred = PromiseHelper.deferred();
             assert(node.children.length === 1,
-                   SQLTStr.FilterLength + node.children.length);
+                   SQLErrTStr.FilterLength + node.children.length);
             var treeNode = SQLCompiler.genExpressionTree(undefined,
                 node.value.condition.slice(0), {extractAggregates: true});
 
@@ -2147,11 +2135,11 @@
                 // Window functions create new columns, so should be alias node
                 assert(curWindowExp[0].class ===
                     "org.apache.spark.sql.catalyst.expressions.Alias",
-                    SQLTStr.NotAliasWindowExpr + curWindowExp[0].class);
+                    SQLErrTStr.NotAliasWindowExpr + curWindowExp[0].class);
                 var windowTree = SQLCompiler.genTree(null, curWindowExp.slice(1));
                 assert(windowTree.value.class ===
                     "org.apache.spark.sql.catalyst.expressions.WindowExpression",
-                    SQLTStr.NoWENode + windowTree.value.class);
+                    SQLErrTStr.NoWENode + windowTree.value.class);
 
                 var opNode = windowTree.children[windowTree.value.windowFunction];
                 var opName = opNode.value.class.substring(opNode.value.class
@@ -2904,7 +2892,7 @@
         for (var i = 0; i < cols.length; i++) {
             assert(cols[i][0].class ===
                 "org.apache.spark.sql.catalyst.expressions.AttributeReference",
-                SQLTStr.BadGenGBArray + cols[i][0].class);
+                SQLErrTStr.BadGenGBArray + cols[i][0].class);
             colInfoArray.push({colName: cleanseColName(cols[i][0].name),
                                type: cols[i][0].dataType,
                                colId: cols[i][0].exprId.id
@@ -2940,7 +2928,7 @@
             "org.apache.spark.sql.catalyst.expressions.Alias" ||
             value.class ===
             "org.apache.spark.sql.catalyst.expressions.AttributeReference"),
-            SQLTStr.BadGenColStruct + value.class);
+            SQLErrTStr.BadGenColStruct + value.class);
         retStruct.colName = cleanseColName(value.name);
         retStruct.colId = value.exprId.id;
         if (value.dataType) {
@@ -3152,12 +3140,12 @@
                 var aggColStruct = __genColStruct(aggColNode.value);
                 assert(aggColNode.value.class ===
                 "org.apache.spark.sql.catalyst.expressions.AttributeReference",
-                SQLTStr.NotARAgg + aggColNode.value.class);
+                SQLErrTStr.NotARAgg + aggColNode.value.class);
 
                 switch (aggOpName) {
                     case ("expressions.aggregate.First"):
                     case ("expressions.aggregate.Last"):
-                        assert(sortColsAndOrder.length > 0, SQLTStr.NoSortFirst);
+                        assert(sortColsAndOrder.length > 0, SQLErrTStr.NoSortFirst);
                         var windowStruct;
                         // Generate a temp table only contain the
                         // first/last row of each partition by getting
@@ -3353,10 +3341,10 @@
                 assert(opNode.children.length === 1 &&
                        opNode.children[opNode.value.buckets].value.class
                 === "org.apache.spark.sql.catalyst.expressions.Literal",
-                SQLTStr.ExprInNtile + opNode.children[opNode.value.buckets].value.class);
+                SQLErrTStr.ExprInNtile + opNode.children[opNode.value.buckets].value.class);
                 var groupNum = opNode.children[opNode.value.buckets]
                                      .value.value;
-                assert(groupNum > 0, SQLTStr.InvalidNtile + groupNum);
+                assert(groupNum > 0, SQLErrTStr.InvalidNtile + groupNum);
             case ("RowNumber"):
                 var windowStruct;
                 // Group by and join back to generate minimum row number
@@ -3608,7 +3596,7 @@
                 });
                 break;
             default:
-                assert(0, SQLTStr.UnsupportedWindow + opName);
+                assert(0, SQLErrTStr.UnsupportedWindow + opName);
                 break;
         }
 

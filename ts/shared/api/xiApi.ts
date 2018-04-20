@@ -397,7 +397,8 @@ namespace XIApi {
                 XcalarIndexFromTable(unsortedTable, keyInfos, newTableName, txId)
                 .then((res) => {
                     var newKeys = res.newKeys;
-                    if (!isApiCall && !Transaction.isEdit(txId)) {
+                    if (!isApiCall && !Transaction.isEdit(txId) &&
+                        !Transaction.isSimulate(txId)) {
                         tempTables.push(newTableName);
                         TblManager.setOrphanTableMeta(newTableName, tableCols);
                     }

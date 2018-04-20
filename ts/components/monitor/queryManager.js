@@ -706,7 +706,6 @@ window.QueryManager = (function(QueryManager, $) {
             mainQuery.addSubQuery(subQuery);
             updateQueryTextDisplay(mainQuery.getQuery());
         }
-
         mainQueryCheck(id);
     }
 
@@ -747,7 +746,6 @@ window.QueryManager = (function(QueryManager, $) {
 
             mainQuery.check()
             .then(function(res) {
-
                 if (!queryLists[id]) {
                     clearIntervalHelper(id);
                     deferred.reject();
@@ -781,6 +779,12 @@ window.QueryManager = (function(QueryManager, $) {
                 if (!error || error.status !== StatusT.StatusQrQueryNotExist) {
                     console.error("Check failed", error);
                     updateQueryBar(id, null, error, false, doNotAnimate);
+
+                } else if (error.status === StatusT.StatusQrQueryNotExist) {
+                    // could be that operation hasn't started yet, just keep
+                    // trying
+                    deferred.resolve();
+                    return;
                 }
                 clearIntervalHelper(id);
                 deferred.reject();

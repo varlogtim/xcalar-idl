@@ -643,6 +643,21 @@ window.TblManager = (function($, TblManager) {
                 });
             }
         }
+        if (typeof SQLEditor !== "unidefined") {
+            if (tableType === TableType.Orphan) {
+                tables.forEach(function(tableName) {
+                    var hashIndex  = tableName.indexOf("#");
+                    if (hashIndex > -1) {
+                        var tableId = tableName.substring(hashIndex + 1);
+                        SQLEditor.deleteSchema(null, tableId);
+                    }
+                });
+            } else {
+                tables.forEach(function(tableId) {
+                    SQLEditor.deleteSchema(null, String(tableId));
+                });
+            }
+        }
 
         def
         .then(function() {

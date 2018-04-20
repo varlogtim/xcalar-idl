@@ -99,6 +99,9 @@ window.xcManager = (function(xcManager, $) {
             BottomMenu.initialize(); // async
             WorkbookPanel.initialize();
             DataflowPanel.initialize(); // async if has df
+            if (typeof SQLEditor !== "undefined") {
+                SQLEditor.initialize();
+            }
             // restore user settings
             OperationsView.restore();
             JoinView.restore();

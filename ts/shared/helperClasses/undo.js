@@ -32,11 +32,12 @@ window.Undo = (function($, Undo) {
     };
 
     /* START BACKEND OPERATIONS */
-
     undoFuncs[SQLOps.IndexDS] = function(options) {
         var tableId = xcHelper.getTableId(options.tableName);
         return (TblManager.sendTableToUndone(tableId, {'remove': true}));
     };
+
+    undoFuncs[SQLOps.ExecSQL] = undoFuncs[SQLOps.IndexDS];
 
     undoFuncs[SQLOps.Sort] = function(options, isMostRecent) {
         var deferred = PromiseHelper.deferred();

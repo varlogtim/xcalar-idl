@@ -1,6 +1,13 @@
 window.SQLEditor = (function(SQLEditor, $) {
     var editor;
     var $sqlButton = $("#sqlExecute");
+    var $sqlSection = $("#sqlSection");
+    var $searchTable = $("#sqlTableSearch");
+    var $searchColumn = $("#sqlColumnSearch");
+    var $sqlTableList = $("#sqlTableList");
+    var $sqlColumnList = $("#sqlColumnList");
+    var sqlTables;
+    var sqlKvStore;
 
     SQLEditor.setup = function() {
         setupEditor();
@@ -10,6 +17,23 @@ window.SQLEditor = (function(SQLEditor, $) {
     SQLEditor.getEditor = function() {
         return editor;
     };
+
+    SQLEditor.refresh = function() {
+        refreshEllipsis();
+    }
+
+    SQLEditor.initialize = function() {
+        sqlKvStore = new KVStore("SQLTables", gKVScope.WKBK);
+        setupSchemas();
+    }
+
+    function setupSchemas() {
+        sqlKvStore.get()
+        .then(function(ret) {
+            sqlTables = ret ? JSON.parse(ret) : {};
+            genTablesHTML();
+        });
+    }
 
     SQLEditor.fakeCompile = function(numSteps) {
         var deferred = PromiseHelper.deferred();
@@ -63,6 +87,110 @@ window.SQLEditor = (function(SQLEditor, $) {
         $sqlButton.find(".text").html("EXECUTE SQL"); // XXX Change to variable
     };
 
+    SQLEditor.updateSchema = function(struct, tableId) {
+        // Update KVStore & UI table list
+        var deferred = PromiseHelper.deferred();
+        var tableName = struct.tableName;
+        sqlTables[tableName] = tableId;
+        sqlKvStore.put(JSON.stringify(sqlTables), true)
+        .then(function(ret) {
+            updateGTables(tableId, struct.tableColumns);
+            // Update table
+            var $unit = $sqlTableList.find('li .unit[data-name="' + tableName +
+                                           '"]').eq(0);
+            if ($unit.length > 0) {
+                $unit.data("hashid", tableId);
+                if ($unit.hasClass("selected")) {
+                    // Reload columns if already selected
+                    genColumnsFromTable(tableId);
+                }
+            } else {
+                var html = '<li><div class="unit" data-name="' + tableName +
+                                '" data-hashid = "' + tableId + '">' +
+                                '<span class="label">' + tableName + '</span>' +
+                                '<i class="icon xi-trash fa-14"></i>' +
+                            '</div></li>';
+                $sqlTableList.append(html);
+            }
+            refreshEllipsis();
+            console.log("Table published!");
+            deferred.resolve(ret);
+        })
+        .fail(function(error) {
+            var errMsg = "Publish failed: " + error;
+            console.error(errMsg);
+            deferred.reject(errMsg);
+        });
+        return deferred.promise();
+    }
+
+    function updateGTables(tableId, columns) {
+        // Update "sqlType" in gTables' columns
+        var gColumns = gTables[tableId].tableCols;
+        var colStructs = {};
+        for (var i = 0; i < columns.length; i++) {
+            var name = Object.keys(columns[i])[0];
+            colStructs[name] = columns[i][name]; 
+        }
+        for (var i = 0; i < gColumns.length; i++) {
+            var key = gColumns[i].backName;
+            if (key === "DATA") {
+                continue;
+            }
+            gColumns[i].sqlType = colStructs[key];
+        }
+    }
+
+    SQLEditor.deleteSchema = function(tableName, tableId) {
+        // XXX Think about updating plan server
+        // Remove from KVStore & UI table list
+        if (!tableId && !sqlTables[tableName]) {
+            return PromiseHelper.resolve("Table doesn't exist");
+        }
+        // Create a copy for aysnc call
+        var sqlTablesCopy = $.extend(true, {}, sqlTables);
+        if (tableId) {
+            // If tableId is provided, it's dropping a table. Then we delete all
+            // associated sqlTables
+            var found = false;
+            for (var key in sqlTablesCopy) {
+                if (sqlTablesCopy[key] === tableId) {
+                    found = true;
+                    delete sqlTablesCopy[key];
+                }
+            }
+            if (!found) {
+                return PromiseHelper.resolve("No tables to delete");
+            }
+        } else {
+            delete sqlTablesCopy[tableName];
+        }
+        var deferred = PromiseHelper.deferred();
+        sqlKvStore.put(JSON.stringify(sqlTablesCopy), true)
+        .then(function(ret) {
+            if (tableId) {
+                $sqlTableList.find('li .unit[data-hashid="' + tableId + '"]').remove();
+            } else {
+                $sqlTableList.find('li .unit[data-name="' + tableName + '"]').remove();
+            }
+            var $selectedTable = $sqlTableList.find(".unit.selected").eq(0);
+            if ($selectedTable.length === 0) {
+                genColumnsFromTable(null);
+            } else {
+                genColumnsFromTable(getDataAttr($selectedTable, "hashid"));
+            }
+            sqlTables = sqlTablesCopy;
+            console.log("SQL table(s) deleted");
+            deferred.resolve(ret);
+        })
+        .fail(function(error) {
+            var errMsg = "Delete failed: " + error;
+            console.error(errMsg);
+            deferred.reject(errMsg);
+        })
+        return deferred.promise();
+    }
+
     function setupEditor() {
         var textArea = document.getElementById("sqlEditor");
         if (!textArea) {
@@ -89,15 +217,307 @@ window.SQLEditor = (function(SQLEditor, $) {
     }
 
     function addEventListeners() {
+        var timer;
         $("#sqlExecute").click(function() {
             SQLEditor.executeSQL();
         });
+        $searchTable.on("input", "input", function(event) {
+            event.stopPropagation();
+            search($(this).val());
+        });
+        $searchColumn.on("input", "input", function(event) {
+            event.stopPropagation();
+            search($(this).val(), true);
+        });
+        $sqlTableList.on("click", ".unit", function(event) {
+            event.stopPropagation();
+            selectTable($(this));
+        });
+        $sqlTableList.on("click", ".xi-trash", function(event) {
+            event.stopPropagation();
+            var tableName = getDataAttr($(this).closest(".unit"), "name");
+            SQLEditor.deleteSchema(tableName);
+        });
+        $sqlColumnList.on("click", ".unit", function(event) {
+            event.stopPropagation();
+            var $unit = $sqlTableList.find(".unit.selected");
+            var tableId = selectTable($unit);
+            if (tableId != null) {
+                TblManager.findAndFocusTable("#" + tableId);
+            }
+        });
+        $sqlSection.on("click", function() {
+            $sqlTableList.find(".unit.selected").removeClass("selected");
+            genColumnsFromTable(null);
+        });
+        $sqlSection.on("click", ".pulloutTab", function(event) {
+            event.stopPropagation();
+            minMaxSection($(this).find(".icon:not(.xc-hidden)").eq(0));
+        });
+        $sqlSection.on("click", "input, .xdTable", function(event) {
+            event.stopPropagation();
+        });
+
+        // All scroll events
+        $sqlSection.find(".scrollWrapper").on({
+            "mouseenter": function() {
+                var $scrollUp = $(this).find(".scrollUp");
+                var $scrollDown = $(this).find(".scrollDown");
+                var $target = $(this).find("ul");
+                if ($target[0].scrollHeight > $target[0].clientHeight) {
+                    // Scrollable
+                    $target.trigger("scroll");
+                }
+            },
+            "mouseleave": function() {
+                var $scrollUp = $(this).find(".scrollUp");
+                var $scrollDown = $(this).find(".scrollDown");
+                $scrollUp.addClass("xc-hidden");
+                $scrollDown.addClass("xc-hidden");
+            }
+        });
+        $("#sqlTableList, #sqlColumnList").on("scroll", function() {
+            var $scrollUp = $(this).siblings(".scrollUp");
+            var $scrollDown = $(this).siblings(".scrollDown");
+            if ($(this).scrollTop() === 0) {
+                $scrollUp.addClass("xc-hidden");
+                $scrollDown.css("top", "-9px");
+            } else {
+                $scrollUp.removeClass("xc-hidden");
+                $scrollDown.css("top", "-20px");
+            }
+            if ($(this).scrollTop() + $(this).innerHeight() >=
+                       $(this)[0].scrollHeight) {
+                $scrollDown.addClass("xc-hidden");
+            } else {
+                $scrollDown.removeClass("xc-hidden");
+            }
+        });
+        $sqlSection.find(".scrollArea").on({
+            "mouseenter": function() {
+                var $scroll = $(this);
+                var $target = $scroll.siblings("ul");
+                if ($scroll.hasClass("scrollUp")) {
+                    timer = setInterval(function() {
+                        var scrollTop = $target.scrollTop();
+                        $target.scrollTop(scrollTop - 2);
+                    }, 10);
+                } else {
+                    timer = setInterval(function() {
+                        var scrollTop = $target.scrollTop();
+                        $target.scrollTop(scrollTop + 2);
+                    }, 10);
+                }
+            },
+            "mouseleave": function() {
+                clearInterval(timer);
+            }
+        });
     }
 
-    SQLEditor.executeSQL = function() {
+    function minMaxSection($icon) {
+        var $editorSection = $sqlSection.find(".editSection");
+        var contentHeight  = $sqlSection.find(".menuContent").height();
+        var editorHeight = $editorSection.height();
+        var newHeight;
+        if ($icon.hasClass("xi-arrow-down")) {
+            // Minimize
+            newHeight = contentHeight - 80;
+            $sqlSection.find(".CodeMirror-gutters")
+                       .height(newHeight);
+            $editorSection.animate({height: newHeight},
+                                   200,
+                                   function() {
+                                        editor.refresh();
+                                   });
+        } else {
+            // Maximize
+            newHeight = contentHeight * 0.55 - 60;
+            $editorSection.animate({height: newHeight},
+                                   200,
+                                   function() {
+                                        editor.refresh();
+                                   });
+        }
+        $icon.siblings().removeClass("xc-hidden");
+        $icon.addClass("xc-hidden");
+    }
+
+    function republishSchemas(tableName, query) {
         var deferred = PromiseHelper.deferred();
-        var sql = editor.getValue();
-        sql = sql.replace(/\n/g, " ").trim().replace(/;+$/, "");
+        var allSchemas = [];
+        for (var tableName in sqlTables) {
+            var tableId = sqlTables[tableName];
+            var srcTableName = tableName
+            var schema = getSchema(tableId);
+            var structToSend = {};
+            structToSend.tableName = tableName.toUpperCase();
+            structToSend.tableColumns = schema;
+            allSchemas.push(structToSend);
+        }
+        updatePlanServer(allSchemas)
+        .then(function() {
+            return SQLEditor.executeSQL(query);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+        return deferred.promise();
+    }
+
+    function getSchema(tableId) {
+        var srcTableName = gTables[tableId].tableName;
+        var tableMetaCol = {};
+        tableMetaCol["XC_TABLENAME_" + srcTableName] = "string";
+        var cols = gTables[tableId].tableCols;
+        var schema = [tableMetaCol];
+        for (var i = 0; i < cols.length; i++) {
+            var key = cols[i].backName;
+            if (key === "DATA") {
+                continue;
+            }
+            var type = cols[i].sqlType;
+            var obj = {};
+            obj[key] = type;
+            schema.push(obj);
+        }
+        return schema;
+    }
+
+    function updatePlanServer(struct) {
+        var deferred = PromiseHelper.deferred();
+        jQuery.ajax({
+            type: 'PUT',
+            data: JSON.stringify(struct),
+            contentType: 'application/json; charset=utf-8',
+            url: planServer + "/schemaupdate/" +
+                 encodeURIComponent(encodeURIComponent(WorkbookManager.getActiveWKBK())),
+            success: function(data) {
+                try {
+                    deferred.resolve(data);
+                } catch (e) {
+                    deferred.reject(e);
+                    console.error(e);
+                }
+            },
+            error: function(error) {
+                deferred.reject(error);
+                console.error(error);
+            }
+        });
+        return deferred.promise();
+    }
+
+    function selectTable($unit) {
+        var tableId = getDataAttr($unit, "hashid");
+        if (gTables[tableId] == null) {
+            // Table doesn't exist
+            Alert.show({title: "SQL Error",
+                       msg: SQLErrTStr.NoSchema});
+            SQLEditor.deleteSchema(null, tableId);
+            return;
+        }
+        genColumnsFromTable(tableId);
+        $searchColumn.removeClass("xc-disabled");
+        $sqlColumnList.parent().siblings(".content").addClass("xc-hidden");
+        $sqlTableList.find(".unit").removeClass("selected");
+        $unit.addClass("selected");
+        $sqlSection.find(".tableTitle").removeClass("xc-hidden")
+                   .find(".xdTable").text(gTables[tableId].tableName);
+        return tableId;
+    }
+
+    function search(key, isColSearch) {
+        var searchKey = key.trim().toUpperCase();
+        var $targetList;
+        if (!isColSearch) {
+            // Table search
+            $targetList = $sqlTableList;
+        } else {
+            $targetList = $sqlColumnList;
+        }
+        $targetList.find(".unit").each(function() {
+            var name = getDataAttr($(this), "name").toUpperCase();
+            if (name.indexOf(searchKey) > -1) {
+                $(this).removeClass("xc-hidden");
+            } else {
+                $(this).addClass("xc-hidden");
+            }
+        });
+    }
+
+    function getDataAttr($ele, attr) {
+        return String($ele.data(attr));
+    }
+
+    function genTablesHTML() {
+        var html = "";
+        for (var table in sqlTables) {
+            var id = sqlTables[table];
+            html += '<li>' +
+                        '<div class="unit" data-name="' + table + '" ' +
+                            'data-hashid = "' + id + '">' +
+                            '<span class="label">' + table + '</span>' +
+                            '<i class="icon xi-trash fa-14"></i>' +
+                        '</div>' +
+                    '</li>';
+        }
+        document.getElementById('sqlTableList').innerHTML = html;
+        refreshEllipsis();
+    }
+
+    function genColumnsFromTable(tableId) {
+        var html = "";
+        if (tableId != null) {
+            var allCols = gTables[tableId].tableCols;
+            for (var i = 0; i < allCols.length - 1; i++) {
+                // last column is DATA
+                var name = allCols[i].name;
+                // XXX Persist gTable changes of sqlType first
+                var type = allCols[i].type;
+                var title = type.charAt(0).toUpperCase() + type.substring(1);
+                html += '<li><div class="unit type-' + type + '" data-name="' +
+                                name + '">' +
+                            '<span class="type icon iconHelper" ' +
+                                'data-toggle="tooltip" data-placement="top" ' +
+                                'data-container="body" title="' + title +'" ' +
+                                'data-original-title="' + title + '">' +
+                            '</span>' +
+                            '<span class="label column">' + name + '</span>' +
+                        '</div></li>';
+            }
+        } else {
+            // No table is selected
+            $sqlColumnList.parent().siblings(".content").removeClass("xc-hidden");
+            $searchColumn.addClass("xc-disabled");
+            $sqlSection.find(".tableTitle").addClass("xc-hidden");
+        }
+        document.getElementById('sqlColumnList').innerHTML = html;
+        refreshEllipsis();
+    }
+
+    function refreshEllipsis() {
+        var labels = document.getElementById("sqlSection")
+                             .getElementsByClassName("label");
+        for (var i = 0; i < labels.length; i++) {
+            var el = labels[i];
+            var $label = $(el);
+            var name = getDataAttr($label.closest(".unit"), "name");
+            var isEllipsis = el.scrollWidth > el.clientWidth;
+            toggleTooltip($label, name, isEllipsis);
+        }
+    }
+
+    function toggleTooltip($text, name, isEllipsis) {
+        if (isEllipsis) {
+            xcTooltip.add($text, {title: name});
+        } else {
+            xcTooltip.remove($text);
+        }
+    }
+    SQLEditor.executeSQL = function(query) {
+        var deferred = PromiseHelper.deferred();
+        var sql = query || editor.getValue().replace(/\n/g, " ").trim()
+                                            .replace(/;+$/, "");
         var sqlCom = new SQLCompiler();
         try {
             $("#sqlExecute").addClass("btn-disabled");
@@ -110,25 +530,54 @@ window.SQLEditor = (function(SQLEditor, $) {
             })
             .fail(function() {
                 var errorMsg = "";
+                var republish = false;
+                var table;
                 if (arguments.length === 1) {
                     if (typeof(arguments[0]) === "string") {
                         errorMsg = arguments[0];
                         if (errorMsg.indexOf("exceptionMsg") > -1 &&
                             errorMsg.indexOf("exceptionName") > -1) {
-                            var errorObject = JSON.parse(errorMsg);
-                            errorMsg = errorObject.exceptionName.substring(
-                                       errorObject.exceptionName
+                            var errorObj = JSON.parse(errorMsg);
+                            errorMsg = errorObj.exceptionName.substring(
+                                       errorObj.exceptionName
                                                  .lastIndexOf(".") + 1) + "\n" +
-                                       errorObject.exceptionMsg;
+                                       errorObj.exceptionMsg;
                         }
                     } else {
+                        var errorObj = arguments[0];
                         errorMsg = JSON.stringify(arguments[0]);
+                        // XXX Error parsing is bad. Needs to be fixed
+                        if (errorObj && errorObj.responseJSON) {
+                            var exceptionMsg = errorObj.responseJSON
+                                                       .exceptionMsg;
+                            if (exceptionMsg.indexOf(SQLErrTStr.NoKey) > -1) {
+                                republish = true;
+                            } else {
+                                var errorIdx = exceptionMsg.indexOf(
+                                                            SQLErrTStr.NoTable);
+                                if (errorIdx > -1) {
+                                    table = exceptionMsg.substring(
+                                              exceptionMsg.lastIndexOf(":") + 1,
+                                              exceptionMsg.lastIndexOf(";"))
+                                              .trim();
+                                    if (sqlTables.hasOwnProperty(table)) {
+                                        republish = true;
+                                    }
+                                }
+                            }
+                        }
                     }
                 } else {
                     errorMsg = JSON.stringify(arguments);
                 }
-                Alert.show({title: "SQL Error",
-                           msg: errorMsg});
+                if (!query && republish) {
+                    // Try to republish
+                    republishSchemas(table, sql);
+                } else if (errorMsg.indexOf(SQLErrTStr.Cancel) === -1) {
+                        Alert.show({title: "SQL Error",
+                                   msg: errorMsg});
+                }
+                deferred.reject();
             });
         } catch (e) {
             SQLEditor.resetProgress();

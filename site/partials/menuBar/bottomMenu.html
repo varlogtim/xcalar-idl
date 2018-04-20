@@ -159,9 +159,59 @@
         </div>
         <div class="bottomSection">
           <button id="sqlExecute" class="btn-large btn iconBtn action" type="button">
-              <i class="icon xi-arrow-right fa-15"></i>
-              <span class="text"><%= dicts.SQL.EXECUTE %></span>
+            <i class="icon xi-arrow-right fa-15"></i>
+            <span class="text"><%= dicts.SQL.EXECUTE %></span>
           </button>
+        </div>
+        <div class="schemaSection">
+          <div id="sql-minimize" class="pulloutTab">
+            <i class="icon xi-arrow-up xc-hidden"></i>
+            <i class="icon xi-arrow-down"></i>
+            <!-- <div class="border"></div> -->
+            <!-- <div class="border"></div> -->
+          </div>
+          <div class="header">
+            <span class="title"><%= dicts.SQL.Schema %></span>
+            <span class="content"><%= dicts.SQL.SchemaInst %></span>
+          </div>
+          <div class="tableTitle xc-hidden">
+            <span><%= dicts.SQL.TableTitle %></span>
+            <span class="xdTable"></span>
+          </div>
+          <div class="tables">
+            <div id="sqlTableSearch">
+              <input type="text" placeholder="Tables" spellcheck="false" tabindex="-1">
+              <i class="icon xi-search fa-14"></i>
+            </div>
+            <div class="scrollWrapper">
+              <ul id="sqlTableList">
+              </ul>
+              <div class="scrollArea scrollUp xc-hidden">
+                <i class="arrow icon xi-arrow-up"></i>
+              </div>
+              <div class="scrollArea scrollDown xc-hidden">
+                <i class="arrow icon xi-arrow-down"></i>
+              </div>
+            </div>
+          </div>
+          <div class="columns">
+            <div id="sqlColumnSearch" class="xc-disabled">
+              <input type="text" placeholder="Columns" spellcheck="false" tabindex="-1">
+              <i class="icon xi-search fa-14"></i>
+            </div>
+            <div class="content"><%= dicts.SQL.ColumnInst %></div>
+            <div class="scrollWrapper">
+              <ul id="sqlColumnList">
+              </ul>
+              <div class="scrollArea scrollUp xc-hidden">
+                <i class="arrow icon xi-arrow-up"></i>
+              </div>
+              <div class="scrollArea scrollDown xc-hidden">
+                <i class="arrow icon xi-arrow-down"></i>
+              </div>
+            </div>
+          </div>
+          <!-- <div class="ui-resizable-handle ui-resizable-n"></div> -->
         </div>
       </div>
     </section>

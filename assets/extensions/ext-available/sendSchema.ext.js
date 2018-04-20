@@ -9,10 +9,10 @@ window.UExtSendSchema = (function(UExtSendSchema) {
             "name": "Table Name",
             "fieldClass": "sqlTableName"
         }]
-    },{
-        "buttonText": "Finalize Table",
-        "fnName": "finalizeTable",
-        "arrayOfFields": [],
+    // },{
+    //     "buttonText": "Finalize Table",
+    //     "fnName": "finalizeTable",
+    //     "arrayOfFields": [],
     }];
 
     UExtSendSchema.actionFn = function(functionName) {
@@ -34,6 +34,7 @@ window.UExtSendSchema = (function(UExtSendSchema) {
             colName.endsWith("_boolean") || colName.endsWith("_string")) {
             colName = colName.substring(0, colName.lastIndexOf("_"));
         }
+        colName = colName.replace(/[\^,\(\)\[\]{}'"\.\\ ]/g, "_");
         return colName;
     }
 
@@ -64,69 +65,60 @@ window.UExtSendSchema = (function(UExtSendSchema) {
 
     }
 
-    function finalizeTable() {
-        var ext = new XcSDK.Extension();
+    function finalizeTable(srcTable, ext) {
+        var deferred = XcSDK.Promise.deferred();
 
-        ext.start = function() {
+        var srcTableName = srcTable.getName();
 
-            var deferred = XcSDK.Promise.deferred();
+        var cols = srcTable.tableCols;
+        var promises = [];
+        var tableInfo = {"name": srcTableName, "colsToProject": []};
+        var table;
 
-            var self = this;
-            var srcTable = self.getTriggerTable();
-            var srcTableName = srcTable.getName();
-
-            var cols = srcTable.tableCols;
-            var promises = [];
-            var tableInfo = {"name": srcTableName, "colsToProject": []};
-            var table;
-
-            var mapArray = [];
-            for (var i = 0; i < cols.length; i++) {
-                var col = cols[i];
-                if (col.name === "DATA") {
-                    continue;
-                }
-                var colStruct = getDerivedCol(col);
-                if (!colStruct) {
-                    deferred.reject("Cannot have arrays / structs");
-                }
-                tableInfo.colsToProject.push(colStruct.colName);
-                mapArray.push(colStruct.mapStr);
+        var mapArray = [];
+        for (var i = 0; i < cols.length; i++) {
+            var col = cols[i];
+            if (col.name === "DATA") {
+                continue;
             }
+            var colStruct = getDerivedCol(col);
+            if (!colStruct) {
+                deferred.reject("Cannot have arrays / structs");
+            }
+            tableInfo.colsToProject.push(colStruct.colName);
+            mapArray.push(colStruct.mapStr);
+        }
 
-            ext.map(mapArray, srcTableName, tableInfo.colsToProject)
-            .then(function(derivedTable) {
-                // project the processed prefix columns and the original
-                // original derived columns
-                var newTableName = ext.createTableName(null, null, srcTableName);
-                var hashIdx = newTableName.lastIndexOf("#");
-                var tableNamePart = newTableName.substring(0, hashIdx);
-                var hashPart = newTableName.substring(hashIdx);
-                newTableName = tableNamePart.toUpperCase() + hashPart;
-                return ext.project(tableInfo.colsToProject, derivedTable,
-                    newTableName);
-            })
-            .then(function(projectedTable) {
-                // hide all columns and display only the one's projected
-                table = ext.getTable(projectedTable);
-                table.deleteAllCols();
-                tableInfo.colsToProject.forEach(function(colName) {
-                    table.addCol(new XcSDK.Column(colName));
-                });
-                return table.addToWorksheet(srcTableName);
-            })
-            .then(function() {
-                // XXX Make this a Table call
-                Dag.makeTableNoDelete(table.getName());
-                TblManager.makeTableNoDelete(table.getName());
-                deferred.resolve();
-            })
-            .fail(deferred.reject);
+        ext.map(mapArray, srcTableName, tableInfo.colsToProject)
+        .then(function(derivedTable) {
+            // project the processed prefix columns and the original
+            // original derived columns
+            var newTableName = ext.createTableName(null, null, srcTableName);
+            var hashIdx = newTableName.lastIndexOf("#");
+            var tableNamePart = newTableName.substring(0, hashIdx);
+            var hashPart = newTableName.substring(hashIdx);
+            newTableName = tableNamePart.toUpperCase() + hashPart;
+            return ext.project(tableInfo.colsToProject, derivedTable,
+                newTableName);
+        })
+        .then(function(projectedTable) {
+            // hide all columns and display only the one's projected
+            table = ext.getTable(projectedTable);
+            table.deleteAllCols();
+            tableInfo.colsToProject.forEach(function(colName) {
+                table.addCol(new XcSDK.Column(colName));
+            });
+            return table.addToWorksheet(srcTableName);
+        })
+        .then(function() {
+            // XXX Make this a Table call
+            Dag.makeTableNoDelete(table.getName());
+            TblManager.makeTableNoDelete(table.getName());
+            deferred.resolve(table.getName());
+        })
+        .fail(deferred.reject);
 
-            return deferred.promise();
-        };
-
-        return ext;
+        return deferred.promise();
     }
     // ==== End copied from derived conversion
 
@@ -150,7 +142,7 @@ window.UExtSendSchema = (function(UExtSendSchema) {
     operationalize: Converts prefix fields to derived fields and removes object
         and array fields from the given input table.
     */
-    function updateSchema(struct) {
+    function updatePlanServer(struct) {
         var deferred = PromiseHelper.deferred();
         jQuery.ajax({
             type: 'PUT',
@@ -182,22 +174,28 @@ window.UExtSendSchema = (function(UExtSendSchema) {
 
             var self = this;
             var srcTable = self.getTriggerTable();
-            var srcTableName = srcTable.getName();
-
-            var tableId = srcTableName.split("#")[1];
-            var tableName = ext.getArgs().sqlTableName;
-            var schema = getSchema(tableId);
-
-            var tableMetaCol = {};
-            tableMetaCol["XC_TABLENAME_" + srcTableName] = "string";
-            schema.push(tableMetaCol);
-
+            var tableId;
             var structToSend = {};
-            structToSend.tableName = tableName.toUpperCase();
-            structToSend.tableColumns = schema;
 
-            console.log(structToSend);
-            updateSchema(structToSend)
+            finalizeTable(srcTable, ext)
+            .then(function(newTableName) {
+                tableId = newTableName.split("#")[1];
+                var tableName = ext.getArgs().sqlTableName;
+                var schema = getSchema(tableId);
+
+                var tableMetaCol = {};
+                tableMetaCol["XC_TABLENAME_" + newTableName] = "string";
+                schema.push(tableMetaCol);
+
+                structToSend.tableName = tableName.toUpperCase();
+                structToSend.tableColumns = schema;
+
+                console.log(structToSend);
+                return updatePlanServer(structToSend);
+            })
+            .then(function() {
+                return SQLEditor.updateSchema(structToSend, tableId);
+            })
             .then(deferred.resolve)
             .fail(deferred.reject);
 

@@ -403,6 +403,7 @@ window.BottomMenu = (function($, BottomMenu) {
 
         if ($("#sqlSection").hasClass("active")) {
             SQLEditor.getEditor().refresh();
+            SQLEditor.refresh();
         }
     }
 
