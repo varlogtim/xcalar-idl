@@ -877,7 +877,13 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var activeWkbk = WorkbookManager.getActiveWKBK();
         if (info.action === "deactivate" &&
             activeWkbk && activeWkbk === info.triggerWkbk) {
-            WorkbookManager.deactivate(activeWkbk);
+            XcSupport.stopHeartbeatCheck();
+            var wkbk = wkbkSet.get(activeWkbk);
+            wkbk.setResource(false);
+            setActiveWKBK(null);
+            setURL(null, true);
+            WorkbookPanel.show();
+
             return;
         }
         setupWorkbooks(true)
