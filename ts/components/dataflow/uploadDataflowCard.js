@@ -31,10 +31,9 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
             } else {
                 entireString = this.content;
             }
-            var overwriteUDF = $card.find(".checkbox").hasClass("checked");
-            XcalarImportRetina(retName, overwriteUDF, entireString)
+            XcalarImportRetina(retName, true, entireString)
             .then(function() {
-                deferred.resolve(overwriteUDF);
+                deferred.resolve();
             })
             .fail(function(error) {
                 var options = {
@@ -104,10 +103,10 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
 
             return readRetinaFromFile(file, retName);
         })
-        .then(function(overwriteUDF) {
-            UDF.refreshWithoutClearing(overwriteUDF);
+        .then(function() {
+            UDF.refreshWithoutClearing();
             var xcSocket = XcSocket.Instance;
-            xcSocket.sendMessage("refreshUDFWithoutClear", overwriteUDF);
+            xcSocket.sendMessage("refreshUDFWithoutClear");
             return (DF.addDataflow(retName, new Dataflow(retName), null, [], {
                 "isUpload": true,
                 "noClick": true
@@ -177,9 +176,6 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
             $(this).toggleClass("checked");
         });
 
-        $card.on("click", ".overwriteUdf span", function() {
-            $card.find(".checkbox").click();
-        });
     }
 
     function changeFilePath(path, fileInfo) {
