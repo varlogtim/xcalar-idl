@@ -194,7 +194,7 @@
             }
 
             #operationsView {
-                .tableListSection .tableList, 
+                .tableListSection .tableList,
                 .inputWrap .dropDownList .list.hint, .extra {
                     z-index: 0;
                 }
@@ -913,14 +913,46 @@ ul.CodeMirror-hints {
             .size(@width: 100%);
             box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
 
+
             li {
-                background-color: @color-bg-dusk-blue;
                 box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.1);
                 color: @color-white;
                 text-transform: lowercase;
+                background-color: @color-bg-marine;
 
-                &.hover, &.highlighted {
+                &.workbookUDF {
+                    background-color: @color-bg-select-blue;
+                    padding-left: 15px;
+
+                    &.hover, &.highlighted {
+                        background-color: @color-bg-light-navy;
+                    }
+                }
+
+                &.dataflowUDF {
+                    background-color: @color-bg-select-blue;
+                    padding-left: 20px;
+
+                    &.hover, &.highlighted {
+                        background-color: @color-bg-light-navy;
+                    }
+                }
+
+                &.udfHeader {
+                    .size(@height: 24px);
+                    line-height: 24px;
                     background-color: @color-bg-light-navy;
+                    text-transform: uppercase;
+                    font-weight: bold;
+                }
+
+                &.dataflowHeader {
+                    .size(@height: 24px);
+                    line-height: 24px;
+                    background-color: @color-bg-dusk-blue;
+                    text-transform: uppercase;
+                    padding-left: 15px;
+                    font-weight: bold;
                 }
 
                 &[name="blank"] {
@@ -1032,6 +1064,33 @@ ul.CodeMirror-hints {
         overflow-y: auto;
         padding: 10px;
 
+        .udfManagerHeader {
+            color: @color-white;
+            font-weight: bold;
+            text-transform: uppercase;
+            width: 100%;
+            padding: 0 0 5px 5px;
+        }
+
+        .managerDataflowHeader {
+            color: @color-font-softBlue;
+            font-weight: bold;
+            text-transform: uppercase;
+            width: 100%;
+            padding: 0 0 5px 5px;
+
+            .xi-arrow-down {
+                transform: rotate(0);
+                &.hidden {
+                    transform: rotate(270deg);
+                }
+            }
+
+            .xi-arrow-down {
+                transform: rotate(0);
+            }
+        }
+
         .udf {
             .size(@max-width: 500px, @height: 30px);
             border: 1px solid @color-border-pinkish-grey;
@@ -1044,7 +1103,7 @@ ul.CodeMirror-hints {
             }
 
             &.uneditable {
-                .edit, .delete {
+                .delete {
                     pointer-events: none;
                     opacity: @opacity-disabled;
                 }

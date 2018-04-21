@@ -999,6 +999,7 @@ WSTStr = {
 UDFTStr = {
 "UDF": '执行',
 "Edit": '编辑',
+"View": "View UDF",
 "Del": '删除',
 "Download": '下载',
 "DelTitle": '删除UDF',
@@ -1007,7 +1008,11 @@ UDFTStr = {
 "NameHint": '模块名称（小写）',
 "NoTemplate": "无法找到模快",
 "InValidName": "模块名应以字母或下划线开头, 仅包含字母，数字，连字符（ - ）或下划线（_）",
-"InValidFnName": "函数名应以以字母或下划线开头, 仅包含字母，数字，连字符（ - ）或下划线（_）"
+"InValidFnName": "函数名应以以字母或下划线开头, 仅包含字母，数字，连字符（ - ）或下划线（_）",
+"MyUDFS": "MY UDFS",
+"PublicUDFS": "PUBLIC UDFS",
+"OtherUDFS": "OTHER UDFS",
+"Show": "Show"
 };
 TblTStr = {
 'Create': '创建表',

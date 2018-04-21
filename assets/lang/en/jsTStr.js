@@ -1178,6 +1178,7 @@ WSTStr = {
 UDFTStr = {
     "UDF": "UDF",
     "Edit": "Edit UDF",
+    "View": "View UDF",
     "Del": "Delete UDF",
     "Download": "Download UDF",
     "DelTitle": "Delete UDF",
@@ -1187,7 +1188,11 @@ UDFTStr = {
     "NameHint": "Module name (lowercase)",
     "NoTemplate": "Cannot find the module",
     "InValidName": "Module name should start with a lowercase letter or underscore and contain only letters, digits, hyphens(-) or underscores(_)",
-    "InValidFnName": "Function name should start with a lowercase letter or underscore and contain only letters, digits or underscores(_)"
+    "InValidFnName": "Function name should start with a lowercase letter or underscore and contain only letters, digits or underscores(_)",
+    "MyUDFS": "MY UDFS",
+    "PublicUDFS": "PUBLIC UDFS",
+    "OtherUDFS": "OTHER UDFS",
+    "Show": "Show"
 };
 
 TblTStr = {
