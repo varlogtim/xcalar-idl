@@ -39,6 +39,26 @@ window.UserSettings = (function($, UserSettings) {
         return deferred.promise();
     };
 
+    // when other workbook changes settings
+    UserSettings.sync = function() {
+        var oldUserInfos;
+
+        KVStore.getUserInfo()
+        .then(function(userMeta) {
+            oldUserInfos = new UserInfoConstructor(userMeta);
+            return KVStore.getSettingInfo();
+        })
+        .then(function(prevSettings) {
+            userPrefs = new UserPref();
+            userInfos = oldUserInfos;
+            userPrefs = userInfos.getPrefInfo();
+            saveLastPrefs();
+            var dsInfo = userInfos.getDSInfo();
+            genSettings = new GenSettings({}, prevSettings);
+            restoreSettingsPanel();
+        });
+    }
+
     UserSettings.commit = function(showSuccess) {
         var deferred = PromiseHelper.deferred();
         if (!userPrefs) {
@@ -99,6 +119,7 @@ window.UserSettings = (function($, UserSettings) {
                 hasDSChange = false;
                 revertedToDefault = false;
                 saveLastPrefs();
+                XcSocket.Instance.sendMessage("refreshUserSettings", {});
                 if (showSuccess) {
                     xcHelper.showSuccess(SuccessTStr.SaveSettings);
                 }

@@ -82,6 +82,10 @@ module.exports = function(server) {
             socket.broadcast.emit("refreshWorkbook", wkbkName);
         });
 
+        socket.on("refreshUserSettings", function() {
+            socket.broadcast.emit("refreshUserSettings");
+        });
+
         addDSSocketEvent(socket);
     });
 

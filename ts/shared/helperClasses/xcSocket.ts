@@ -187,6 +187,10 @@ class XcSocket {
         socket.on('ds.update', (arg) => {
             DS.updateDSInfo(arg);
         });
+
+        socket.on("refreshUserSettings", () => {
+            UserSettings.sync();
+        });
     }
 
     private _checkConnection(
