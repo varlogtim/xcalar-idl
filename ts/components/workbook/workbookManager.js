@@ -573,7 +573,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 "srcUser": srcWKBK.srcUser,
                 "curUser": srcWKBK.curUser,
                 "numWorksheets": srcWKBK.numWorksheets,
-                "resource": srcWKBK.resource
+                "resource": srcWKBK.resource,
+                "jupyterFolder": srcWKBK.jupyterFolder
             };
 
             var newWkbk = new WKBK(options);
