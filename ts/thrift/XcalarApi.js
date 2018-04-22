@@ -2032,7 +2032,7 @@ xcalarUnionWorkItem = runEntity.xcalarUnionWorkItem = function(sources,
 
     workItem.input.unionInput.dest = dest;
     workItem.input.unionInput.dedup = dedup;
-    workItem.input.unionInput.unionType = unionType;
+    workItem.input.unionInput.unionType = UnionOperatorTStr[unionType];
     workItem.input.unionInput.columns = columns;
 
     return (workItem);
@@ -2050,7 +2050,7 @@ xcalarUnion = runEntity.xcalarUnion = function(thriftHandle, sources,
                     " dest = " + dest +
                     " columns = " + columns +
                     " dedup = " + dedup +
-                    " unionType = " + unionType + ")");
+                    " unionType = " + UnionOperatorTStr[unionType] + ")");
     }
 
     var workItem = xcalarUnionWorkItem(sources, dest, columns, dedup, unionType);

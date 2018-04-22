@@ -622,7 +622,22 @@ StatusT = {
   'StatusMissingXcalarRankOver' : 613,
   'StatusInvalidXcalarOpCode' : 614,
   'StatusInvalidXcalarRankOver' : 615,
-  'StatusInvalidRuntimeParams' : 616
+  'StatusInvalidRuntimeParams' : 616,
+  'StatusInvPubTableName' : 617,
+  'StatusExistsPubTableName' : 618,
+  'StatusUnlicensedFeatureInUse' : 619,
+  'StatusLicPrivKeyMissing' : 620,
+  'StatusLicPrivKeyErr' : 621,
+  'StatusLicPasswdMissing' : 622,
+  'StatusLicLicenseMissing' : 623,
+  'StatusLicSignatureMissing' : 624,
+  'StatusLicBufTooSmall' : 625,
+  'StatusLicPasswordError' : 626,
+  'StatusLicValueOutOfRange' : 627,
+  'StatusLicDecompressInit' : 628,
+  'StatusLicDecompressErr' : 629,
+  'StatusLicLicenseTooLarge' : 630,
+  'StatusLicCompressInit' : 631
 };
 StatusTStr = {
   0 : 'Success',
@@ -1241,7 +1256,22 @@ StatusTStr = {
   613 : 'Missing XcalarRankOver column',
   614 : 'XcalarOpCode column contains an invalid value',
   615 : 'XcalarRankOver column contains an invalid value',
-  616 : 'Runtime parameters are invalid'
+  616 : 'Runtime parameters are invalid',
+  617 : 'Invalid publish table name',
+  618 : 'Invalid publish table name',
+  619 : 'An unlicensed feature is in use',
+  620 : 'The private key needed to sign the Xcalar license has not been properly provided',
+  621 : 'The private key needed to sign the Xcalar license has an error',
+  622 : 'The password needed to sign the Xcalar license is missing',
+  623 : 'The Xcalar license is empty',
+  624 : 'The Xcalar license signature is empty',
+  625 : 'License file is bigger than internal buffer',
+  626 : 'The password used to verify the license is not correct',
+  627 : 'A license value is out of range',
+  628 : 'Zlib initialization for the license failed during decompress',
+  629 : 'An error occurred while decompressing the license',
+  630 : 'The uncompressed license is too large',
+  631 : 'Zlib initialization for the license failed during compress'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -1860,5 +1890,20 @@ StatusTFromStr = {
   'Missing XcalarRankOver column' : 613,
   'XcalarOpCode column contains an invalid value' : 614,
   'XcalarRankOver column contains an invalid value' : 615,
-  'Runtime parameters are invalid' : 616
+  'Runtime parameters are invalid' : 616,
+  'Invalid publish table name' : 617,
+  'Invalid publish table name' : 618,
+  'An unlicensed feature is in use' : 619,
+  'The private key needed to sign the Xcalar license has not been properly provided' : 620,
+  'The private key needed to sign the Xcalar license has an error' : 621,
+  'The password needed to sign the Xcalar license is missing' : 622,
+  'The Xcalar license is empty' : 623,
+  'The Xcalar license signature is empty' : 624,
+  'License file is bigger than internal buffer' : 625,
+  'The password used to verify the license is not correct' : 626,
+  'A license value is out of range' : 627,
+  'Zlib initialization for the license failed during decompress' : 628,
+  'An error occurred while decompressing the license' : 629,
+  'The uncompressed license is too large' : 630,
+  'Zlib initialization for the license failed during compress' : 631
 };

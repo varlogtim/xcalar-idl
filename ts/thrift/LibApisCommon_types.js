@@ -9793,6 +9793,10 @@ XcalarApiGetLicenseOutputT = function(args) {
   this.expiration = null;
   this.nodeCount = null;
   this.userCount = null;
+  this.attributes = null;
+  this.licensee = null;
+  this.compressedLicenseSize = null;
+  this.compressedLicense = null;
   if (args) {
     if (args.loaded !== undefined && args.loaded !== null) {
       this.loaded = args.loaded;
@@ -9820,6 +9824,18 @@ XcalarApiGetLicenseOutputT = function(args) {
     }
     if (args.userCount !== undefined && args.userCount !== null) {
       this.userCount = args.userCount;
+    }
+    if (args.attributes !== undefined && args.attributes !== null) {
+      this.attributes = args.attributes;
+    }
+    if (args.licensee !== undefined && args.licensee !== null) {
+      this.licensee = args.licensee;
+    }
+    if (args.compressedLicenseSize !== undefined && args.compressedLicenseSize !== null) {
+      this.compressedLicenseSize = args.compressedLicenseSize;
+    }
+    if (args.compressedLicense !== undefined && args.compressedLicense !== null) {
+      this.compressedLicense = args.compressedLicense;
     }
   }
 };
@@ -9900,6 +9916,34 @@ XcalarApiGetLicenseOutputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 10:
+      if (ftype == Thrift.Type.STRING) {
+        this.attributes = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 11:
+      if (ftype == Thrift.Type.STRING) {
+        this.licensee = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 12:
+      if (ftype == Thrift.Type.I64) {
+        this.compressedLicenseSize = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 13:
+      if (ftype == Thrift.Type.STRING) {
+        this.compressedLicense = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -9954,6 +9998,26 @@ XcalarApiGetLicenseOutputT.prototype.write = function(output) {
   if (this.userCount !== null && this.userCount !== undefined) {
     output.writeFieldBegin('userCount', Thrift.Type.I32, 9);
     output.writeI32(this.userCount);
+    output.writeFieldEnd();
+  }
+  if (this.attributes !== null && this.attributes !== undefined) {
+    output.writeFieldBegin('attributes', Thrift.Type.STRING, 10);
+    output.writeString(this.attributes);
+    output.writeFieldEnd();
+  }
+  if (this.licensee !== null && this.licensee !== undefined) {
+    output.writeFieldBegin('licensee', Thrift.Type.STRING, 11);
+    output.writeString(this.licensee);
+    output.writeFieldEnd();
+  }
+  if (this.compressedLicenseSize !== null && this.compressedLicenseSize !== undefined) {
+    output.writeFieldBegin('compressedLicenseSize', Thrift.Type.I64, 12);
+    output.writeI64(this.compressedLicenseSize);
+    output.writeFieldEnd();
+  }
+  if (this.compressedLicense !== null && this.compressedLicense !== undefined) {
+    output.writeFieldBegin('compressedLicense', Thrift.Type.STRING, 13);
+    output.writeString(this.compressedLicense);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -19768,7 +19832,7 @@ XcalarApiColumnInfoT.prototype.write = function(output) {
 
 XcalarApiTableInfoT = function(args) {
   this.name = null;
-  this.busy = null;
+  this.numPersistedUpdates = null;
   this.source = null;
   this.updates = null;
   this.selects = null;
@@ -19781,8 +19845,8 @@ XcalarApiTableInfoT = function(args) {
     if (args.name !== undefined && args.name !== null) {
       this.name = args.name;
     }
-    if (args.busy !== undefined && args.busy !== null) {
-      this.busy = args.busy;
+    if (args.numPersistedUpdates !== undefined && args.numPersistedUpdates !== null) {
+      this.numPersistedUpdates = args.numPersistedUpdates;
     }
     if (args.source !== undefined && args.source !== null) {
       this.source = new XcalarApiPublishInputT(args.source);
@@ -19832,8 +19896,8 @@ XcalarApiTableInfoT.prototype.read = function(input) {
       }
       break;
       case 2:
-      if (ftype == Thrift.Type.BOOL) {
-        this.busy = input.readBool().value;
+      if (ftype == Thrift.Type.I32) {
+        this.numPersistedUpdates = input.readI32().value;
       } else {
         input.skip(ftype);
       }
@@ -19967,9 +20031,9 @@ XcalarApiTableInfoT.prototype.write = function(output) {
     output.writeString(this.name);
     output.writeFieldEnd();
   }
-  if (this.busy !== null && this.busy !== undefined) {
-    output.writeFieldBegin('busy', Thrift.Type.BOOL, 2);
-    output.writeBool(this.busy);
+  if (this.numPersistedUpdates !== null && this.numPersistedUpdates !== undefined) {
+    output.writeFieldBegin('numPersistedUpdates', Thrift.Type.I32, 2);
+    output.writeI32(this.numPersistedUpdates);
     output.writeFieldEnd();
   }
   if (this.source !== null && this.source !== undefined) {

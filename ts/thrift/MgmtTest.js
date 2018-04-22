@@ -210,8 +210,7 @@ window.Function.prototype.bind = function() {
     var system = require('system');
     var fs = require('fs');
     var qaTestDir = system.env.QATEST_DIR;
-    var envLicenseDir = system.env.XCE_LICENSEDIR;
-    var envLicenseFile = system.env.XCE_LIC_FILE;
+    var envLicensePath = system.env.XCE_LICENSEPATH;
     var numUsrnodes = 3;
     var targetName = "Default Shared Root";
 
@@ -399,26 +398,6 @@ window.Function.prototype.bind = function() {
 
     function testGetVersion(test) {
         test.trivial(xcalarGetVersion(thriftHandle));
-    }
-
-    function testGetLicense(test) {
-        xcalarGetLicense(thriftHandle)
-        .then(function(result) {
-            var getLicenseOutput = result;
-            console.log(JSON.stringify(result));
-            test.assert(result.loaded === true);
-            test.assert(result.expired === false);
-            test.assert(result.platform === "Linux x86-64");
-            test.assert(result.product === "Xce");
-            test.assert(result.productFamily === "XcalarX");
-            test.assert(result.productVersion === "1.2.3.4");
-            test.assert(result.nodeCount === 2971215073);
-            test.assert(result.userCount === 33333);
-            test.pass();
-        })
-        .fail(function(status) {
-            test.fail(StatusTStr[status]);
-        });
     }
 
     function testGetConfigParams(test) {
@@ -1622,90 +1601,217 @@ window.Function.prototype.bind = function() {
         });
     }
 
-    function testUnion(test) {
+    function testUnionAll(test) {
         var columns = [];
         var tables = [];
-        for (var i = 0; i < 3; i++) {
-            var column = [];
 
-            var map = new XcalarApiColumnT();
-            map.sourceColumn = "leftKey";
-            map.destColumn = "rightDataset";
-            map.columnType = "DfInt64";
-            column.push(map);
-
-            tables.push("yelp/user-dummyjoin");
-            columns.push(column);
-        }
-
-        xcalarUnion(thriftHandle, tables,
-                    "unionTest",
-                    columns, false, "unionStandard")
+        xcalarApiMap(thriftHandle, ["map1"], ["int(yelp_user-votes.funny)"],
+                     "yelp/user-dummyjoin", "unionTable1map", false)
+        .then(function() {
+            return xcalarApiMap(thriftHandle, ["map2"], ["int(yelp_user-votes.funny)"],
+                     "yelp/user-dummyjoin", "unionTable2map", false);
+        })
+        .then(function(ret) {
+            var t1c = new XcalarApiColumnT();
+            t1c.sourceColumn = "map1";
+            t1c.destColumn = "mapdest";
+            t1c.columnType = "DfInt64";
+            var t2c = new XcalarApiColumnT();
+            t2c.sourceColumn = "map2";
+            t2c.destColumn = "mapdest";
+            t2c.columnType = "DfInt64";
+            tables.push("unionTable1map");
+            tables.push("unionTable2map");
+            columns.push([t1c]);
+            columns.push([t2c]);
+            return xcalarUnion(thriftHandle, tables, "unionAllTest", columns,
+                               false, UnionOperatorT.UnionStandard);
+        })
         .then(function(result) {
             printResult(result);
             newTableOutput = result;
             test.pass();
         })
-        .fail(function(reason) {
-            test.fail(JSON.stringify(reason));
+        .fail(function(err) {
+            test.fail(JSON.stringify(err));
+        });
+    }
+
+    function testUnion(test) {
+        var columns = [];
+        var tables = [];
+
+        // Dedup requires indexed columns
+        xcalarIndex(thriftHandle,
+                             "unionTable1map",
+                             "unionTable1",
+                             [new XcalarApiKeyT({name:"map1", type:"DfInt64", keyFieldName:"", ordering:"Unordered"})])
+        .then(function() {
+            return xcalarIndex(thriftHandle,
+                                 "unionTable2map",
+                                 "unionTable2",
+                                 [new XcalarApiKeyT({name:"map2", type:"DfInt64", keyFieldName:"", ordering:"Unordered"})])
+        })
+        .then(function(ret) {
+            var t1c = new XcalarApiColumnT();
+            t1c.sourceColumn = "map1";
+            t1c.destColumn = "mapdest";
+            t1c.columnType = "DfInt64";
+            var t1c2 = new XcalarApiColumnT();
+            t1c2.sourceColumn = "yelp_user-votes.funny";
+            t1c2.destColumn = "funnydest";
+            t1c2.columnType = "DfInt64";
+            var t2c = new XcalarApiColumnT();
+            t2c.sourceColumn = "map2";
+            t2c.destColumn = "mapdest";
+            t2c.columnType = "DfInt64";
+            var t2c2 = new XcalarApiColumnT();
+            t2c2.sourceColumn = "yelp_user-votes.funny";
+            t2c2.destColumn = "funnydest";
+            t2c2.columnType = "DfInt64";
+            tables.push("unionTable1");
+            tables.push("unionTable2");
+            columns.push([t1c, t1c2]);
+            columns.push([t2c, t2c2]);
+
+            return xcalarUnion(thriftHandle, tables, "unionStandardTest", columns,
+                                   true, UnionOperatorT.UnionStandard)
+        })
+        .then(function(result) {
+            printResult(result);
+            newTableOutput = result;
+            test.pass();
+        })
+        .fail(function(err) {
+            test.fail(JSON.stringify(err));
+        });
+    }
+
+
+    function testIntersectAll(test) {
+        var columns = [];
+        var tables = [];
+
+        var t1c = new XcalarApiColumnT();
+        t1c.sourceColumn = "map1";
+        t1c.destColumn = "mapdest";
+        t1c.columnType = "DfInt64";
+        var t1c2 = new XcalarApiColumnT();
+        t1c2.sourceColumn = "yelp_user-votes.funny";
+        t1c2.destColumn = "funnydest";
+        t1c2.columnType = "DfInt64";
+        var t2c = new XcalarApiColumnT();
+        t2c.sourceColumn = "map2";
+        t2c.destColumn = "mapdest";
+        t2c.columnType = "DfInt64";
+        var t2c2 = new XcalarApiColumnT();
+        t2c2.sourceColumn = "yelp_user-votes.funny";
+        t2c2.destColumn = "funnydest";
+        t2c2.columnType = "DfInt64";
+        tables.push("unionTable1");
+        tables.push("unionTable2");
+        columns.push([t1c, t1c2]);
+        columns.push([t2c, t2c2]);
+
+        xcalarUnion(thriftHandle, tables, "unionIntersectAllTest", columns,
+                               false, UnionOperatorT.UnionIntersect)
+        .then(function(result) {
+            printResult(result);
+            newTableOutput = result;
+            test.pass();
+        })
+        .fail(function(err) {
+            test.fail(JSON.stringify(err));
         });
     }
 
     function testIntersect(test) {
         var columns = [];
         var tables = [];
-        for (var i = 0; i < 3; i++) {
-            var column = [];
 
-            var map = new XcalarApiColumnT();
-            map.sourceColumn = "leftKey";
-            map.destColumn = "rightDataset";
-            map.columnType = "DfInt64";
-            column.push(map);
+        var t1c = new XcalarApiColumnT();
+        t1c.sourceColumn = "map1";
+        t1c.destColumn = "mapdest";
+        t1c.columnType = "DfInt64";
+        var t2c = new XcalarApiColumnT();
+        t2c.sourceColumn = "map2";
+        t2c.destColumn = "mapdest";
+        t2c.columnType = "DfInt64";
+        // All set operations require indexed columns
+        tables.push("unionTable1");
+        tables.push("unionTable2");
+        columns.push([t1c]);
+        columns.push([t2c]);
 
-            tables.push("yelp/user-dummyjoin");
-            columns.push(column);
-        }
-
-        xcalarUnion(thriftHandle, tables,
-                    "intersectTest",
-                    columns, false, "unionIntersect")
+        xcalarUnion(thriftHandle, tables, "unionIntersectTest", columns,
+                               true, UnionOperatorT.UnionIntersect)
         .then(function(result) {
             printResult(result);
             newTableOutput = result;
             test.pass();
         })
-        .fail(function(reason) {
-            test.fail(JSON.stringify(reason));
+        .fail(function(err) {
+            test.fail(JSON.stringify(err));
+        });
+    }
+
+    function testExceptAll(test) {
+        var columns = [];
+        var tables = [];
+
+        var t1c = new XcalarApiColumnT();
+        t1c.sourceColumn = "map1";
+        t1c.destColumn = "mapdest";
+        t1c.columnType = "DfInt64";
+        var t2c = new XcalarApiColumnT();
+        t2c.sourceColumn = "map2";
+        t2c.destColumn = "mapdest";
+        t2c.columnType = "DfInt64";
+        // All set operations require indexed columns
+        tables.push("unionTable1");
+        tables.push("unionTable2");
+        columns.push([t1c]);
+        columns.push([t2c]);
+
+        xcalarUnion(thriftHandle, tables, "unionExceptAllTest", columns,
+                               false, UnionOperatorT.UnionExcept)
+        .then(function(result) {
+            printResult(result);
+            newTableOutput = result;
+            test.pass();
+        })
+        .fail(function(err) {
+            test.fail(JSON.stringify(err));
         });
     }
 
     function testExcept(test) {
         var columns = [];
         var tables = [];
-        for (var i = 0; i < 3; i++) {
-            var column = [];
 
-            var map = new XcalarApiColumnT();
-            map.sourceColumn = "leftKey";
-            map.destColumn = "rightDataset";
-            map.columnType = "DfInt64";
-            column.push(map);
+        var t1c = new XcalarApiColumnT();
+        t1c.sourceColumn = "map1";
+        t1c.destColumn = "mapdest";
+        t1c.columnType = "DfInt64";
+        var t2c = new XcalarApiColumnT();
+        t2c.sourceColumn = "map2";
+        t2c.destColumn = "mapdest";
+        t2c.columnType = "DfInt64";
+        // All set operations require indexed columns
+        tables.push("unionTable1");
+        tables.push("unionTable2");
+        columns.push([t1c]);
+        columns.push([t2c]);
 
-            tables.push("yelp/user-dummyjoin");
-            columns.push(column);
-        }
-
-        xcalarUnion(thriftHandle, tables,
-                    "exceptTest",
-                    columns, false, "unionExcept")
+        xcalarUnion(thriftHandle, tables, "unionExceptTest", columns,
+                               false, UnionOperatorT.UnionExcept)
         .then(function(result) {
             printResult(result);
             newTableOutput = result;
             test.pass();
         })
-        .fail(function(reason) {
-            test.fail(JSON.stringify(reason));
+        .fail(function(err) {
+            test.fail(JSON.stringify(err));
         });
     }
 
@@ -2632,20 +2738,52 @@ window.Function.prototype.bind = function() {
     }
 
     function testApiUpdateLicense(test, licenseKey) {
-        xcalarUpdateLicense(thriftHandle,
-                            licenseKey)
-        .done(function(status) {
+        var origResult;
+        xcalarGetLicense(thriftHandle)
+        .then(function(result) {
+            console.log(JSON.stringify(result));
+            origResult = result;
+            return xcalarUpdateLicense(thriftHandle, licenseKey);
+        })
+        .then(function(status) {
             printResult(status);
+            return (xcalarGetLicense(thriftHandle))
+        })
+        .then(function(result) {
+            var getLicenseOutput = result;
+            console.log(JSON.stringify(result));
+            test.assert(result.loaded === true);
+            test.assert(result.expired === false);
+            test.assert(result.platform === "Linux x86-64");
+            test.assert(result.product === "Xce");
+            test.assert(result.productFamily === "XcalarX");
+            test.assert(result.productVersion === "1.3.2.0");
+            test.assert(result.nodeCount === 1);
+            test.assert(result.userCount === 1);
+            // Restore old license
+            return (xcalarUpdateLicense(thriftHandle, origResult.compressedLicense));
+        }).then(function(status) {
+            printResult(status);
+            return (xcalarGetLicense(thriftHandle))
+        }).then(function(result) {
+            console.log(JSON.stringify(result));
+            test.assert(result.loaded === origResult.loaded);
+            test.assert(result.expired === origResult.expired);
+            test.assert(result.platform === origResult.platform);
+            test.assert(result.product === origResult.product);
+            test.assert(result.productFamily === origResult.productFamily);
+            test.assert(result.productVersion === origResult.productVersion);
+            test.assert(result.nodeCount === origResult.nodeCount);
+            test.assert(result.userCount === origResult.userCount);
             test.pass();
         })
         .fail(function(reason) {
-            test.fail(reason);
+            test.fail(StatusTStr[reason.xcalarStatus] + ": " + reason.log);
         });
     }
 
     function testUpdateLicense(test) {
-        var licenseFilePath = envLicenseDir + "/" + envLicenseFile + ".source";
-        var licenseKey = fs.read(licenseFilePath);
+        var licenseKey = fs.read(envLicensePath);
 
         testApiUpdateLicense(test, licenseKey);
     }
@@ -4024,7 +4162,7 @@ window.Function.prototype.bind = function() {
 
     addTestCase(testGetNumNodes, "getNumNodes", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testGetVersion, "getVersion", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testGetLicense, "getLicense", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testUpdateLicense, "license update", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetCurrentXemConfig, "get current xem config test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetConfigParams, "getConfigParams", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testSetConfigParam, "setConfigParam", defaultTimeout, TestCaseEnabled, "");
@@ -4100,8 +4238,11 @@ window.Function.prototype.bind = function() {
     addTestCase(testFilter, "filter", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testProject, "project", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testJoin, "join", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testUnionAll, "union all", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testUnion, "union", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testIntersectAll, "intersect all", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testIntersect, "intersect", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testExceptAll, "except all", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testExcept, "except", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetOpStats, "getOpStats", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testQuery, "Submit Query", defaultTimeout, TestCaseDisabled, "");
@@ -4153,8 +4294,6 @@ window.Function.prototype.bind = function() {
 
     // Witness to bug 8711
     addTestCase(testApiMapInPlaceReplace, "in place map replace", defaultTimeout, TestCaseEnabled, "8711");
-
-    addTestCase(testUpdateLicense, "license update", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testApiKeyList, "key list", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testApiKeyAdd, "key add", defaultTimeout, TestCaseEnabled, "");
