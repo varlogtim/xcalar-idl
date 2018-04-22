@@ -1079,6 +1079,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
             promises.push(copyAction(wkbkScopeKeys[key]));
         }
 
+        JupyterPanel.copyWorkbook(oldWKBK.jupyterFolder, newWKBK.jupyterFolder);
+
         return PromiseHelper.when.apply(this, promises);
     }
 

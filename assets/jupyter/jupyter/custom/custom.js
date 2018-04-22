@@ -49,6 +49,9 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
             case ("newWorkbook"):
                 createNewFolder(struct);
                 break;
+            case ("copyWorkbook"):
+                copyFolder(struct.oldFolder, struct.newFolder);
+                break;
             case ("deleteWorkbook"):
                 deleteFolder(struct);
                 break;
@@ -232,6 +235,22 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
         $("#ipython_notebook").find("a").attr("href", folderUrl);
     }
 
+    // XXX need to recursively call folders
+    function copyFolder(oldFolder, newFolder) {
+        Jupyter.notebook_list.contents.list_contents(oldFolder)
+        .then(function(contents) {
+            contents.content.forEach(function(item) {
+                if (item.type === "notebook") {
+                    Jupyter.notebook_list.contents.copy(item.path, newFolder)
+                    .then(function() {
+
+                    })
+                }
+            });
+
+        });
+    }
+
     function resolveRequest(result, msgId) {
         var request = {
             action: "resolve",
@@ -249,4 +268,9 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
         request = $.extend(request, result);
         parent.postMessage(JSON.stringify(request), "*");
     }
+
+
 });
+
+
+

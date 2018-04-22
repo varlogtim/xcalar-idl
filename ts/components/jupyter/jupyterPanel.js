@@ -279,6 +279,16 @@ window.JupyterPanel = (function($, JupyterPanel) {
         return deferred.promise();
     };
 
+    JupyterPanel.copyWorkbook =function(oldFolder, newFolder) {
+        var msgStruct = {
+            action: "copyWorkbook",
+            oldFolder: oldFolder,
+            newFolder: newFolder
+        };
+
+        sendMessageToJupyter(msgStruct);
+    }
+
     JupyterPanel.deleteWorkbook = function(wkbkId) {
         var folderName = WorkbookManager.getWorkbook(wkbkId).jupyterFolder;
 

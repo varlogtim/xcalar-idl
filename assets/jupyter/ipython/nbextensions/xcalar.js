@@ -114,6 +114,9 @@ define(['base/js/utils'], function(utils) {
                     case ("newWorkbook"):
                         createNewFolder(struct);
                         break;
+                    case ("copyWorkbook"):
+                        copyFolder(struct.oldFolder, struct.newFolder);
+                        break;
                     case ("deleteWorkbook"):
                         deleteFolder(struct);
                     default:
@@ -500,6 +503,23 @@ define(['base/js/utils'], function(utils) {
                 })// jupyter doesn't have fail property
                 .catch(function(e) {
                     rejectRequest(e, struct.msgId);
+                });
+            }
+
+            // XXX need to recursively call folders
+            function copyFolder(oldFolder, newFolder) {
+                Jupyter.contents.list_contents(oldFolder)
+                .then(function(contents) {
+                    contents.content.forEach(function(item) {
+                        if (item.type === "notebook") {
+                            Jupyter.contents.copy(item.path, newFolder);
+                        } else if (item.type === "directory") {
+                            // XXX Need to create new folder, give it a name
+                            // and recursively call copyFolder with the
+                            // appropriate paths
+                        }
+                    });
+
                 });
             }
 
