@@ -20,6 +20,18 @@ window.WorkbookInfoModal = (function(WorkbookInfoModal, $) {
         showWorkbookInfo(workbookId);
     };
 
+    // when another browser tab triggers a change
+    WorkbookInfoModal.update = function(info) {
+        if (activeWorkbookId === info.triggerWkbk) {
+            if (info.delete) {
+                closeModal();
+            } else {
+                var newId = WorkbookManager.getIDfromName(info.newName);
+                activeWorkbookId = newId;
+            }
+        }
+    }
+
     function addEvents() {
         $modal.on("click", ".close, .cancel", function() {
             closeModal();
