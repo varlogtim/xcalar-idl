@@ -135,7 +135,7 @@ namespace xcSuggest { // = (function($, xcSuggest) {
     /**
      * Calls processJoinKeyInputsHeuristic which Returns an array
      *  of features about each column in the destination table.
-     * @param inputs 
+     * @param inputs
      */
     function processJoinKeyInputs(inputs: ColInput): Feature[] {
         // For now this is a shallow cover, this will change once heuristic
@@ -1117,7 +1117,45 @@ namespace xcSuggest { // = (function($, xcSuggest) {
         } else {
             return ColumnType.string;
         }
-    }
+    };
+
+    /**
+     * Suggests whether type of data is date in a column
+     *  @param datas
+     *  @param currentType
+     *  @param confidentRate
+     */
+    export function suggestDateType(datas: string[], currentType: string, confidentRate: number = 1): boolean {
+        if (currentType === ColumnType.boolean ||
+            currentType === ColumnType.float) {
+            return false;
+        }
+
+        if (!(datas instanceof Array)) {
+            datas = [datas];
+        }
+
+        let formats: string[] = ['YYYY-M-D', 'YYYY-M', 'YYYY', moment.ISO_8601];
+        let dateHit: number = 0;
+        let validData: number = 0;
+        for (let i = 0, len = datas.length; i < len; i++) {
+            let data: string = datas[i];
+            if (data == null) {
+                continue;
+            }
+            validData++;
+            if (moment(data, formats, true).isValid()) {
+                dateHit++;
+            }
+        }
+        if (validData === 0) {
+            return false;
+        } else if (dateHit / validData >= confidentRate) {
+            return true;
+        } else {
+            return false;
+        }
+    };
 
     if (window["unitTestMode"]) {
         xcSuggest["__testOnly__"] = {

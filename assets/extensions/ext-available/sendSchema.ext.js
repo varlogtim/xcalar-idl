@@ -124,18 +124,67 @@ window.UExtSendSchema = (function(UExtSendSchema) {
 
     function getSchema(tableId) {
         var cols = gTables[tableId].tableCols;
+        var deferred = PromiseHelper.deferred();
         var schema = [];
+        var dateIndex = [];
+        var dateKeys = [];
         for (var i = 0; i<cols.length; i++) {
             var key = cols[i].backName;
             if (key === "DATA") {
                 continue;
             }
             var type = cols[i].type;
+            var $tds = $("#xcTable-" + tableId).find("tbody td.col" + (i + 1));
+            var datas = [];
+            var val;
+            $tds.each(function() {
+                if ($(this).find('.originalData .undefined').text() != "") {
+                    datas.push(undefined);
+                } else {
+                    val = $(this).find('.originalData').text();
+                    datas.push(val);
+                }
+            });
+            if (xcSuggest.suggestDateType(datas, type, 0.9)) {
+                dateIndex.push(i);
+                dateKeys.push(key);
+            }
             var obj = {};
             obj[key] = type;
             schema.push(obj);
         }
-        return schema;
+        if (dateIndex.length != 0) {
+            var msg = AlertTStr.SendSchemaDateDetectedMsg + "\n";
+            dateKeys.forEach(function(col) {
+                msg += col + ", ";
+            })
+            msg = msg.slice(0,-2);
+            Alert.show({
+                "title": AlertTStr.SendSchemaDateDetectedTitle,
+                "msg": msg,
+                "hideButtons": ["cancel"],
+                "buttons": [{
+                    "name": "No",
+                    "func": function() {
+                        deferred.resolve(schema);
+                    }
+                },
+                {
+                    "name": "Yes",
+                    "func": function() {
+                        for (var i = 0; i < dateIndex.length; i++) {
+                            schema[dateIndex[i]][dateKeys[i]] = "date";
+                        }
+                        deferred.resolve(schema);
+                    }
+                }
+                ]
+            });
+            $("#alertHeader").find(".close").hide();
+        } else {
+            deferred.resolve(schema);
+        }
+        return deferred.promise();
     }
 
     /*
@@ -176,15 +225,18 @@ window.UExtSendSchema = (function(UExtSendSchema) {
             var srcTable = self.getTriggerTable();
             var tableId;
             var structToSend = {};
+            var tableName = ext.getArgs().sqlTableName;
+            var finalizedTableName;
 
             finalizeTable(srcTable, ext)
             .then(function(newTableName) {
+                finalizedTableName = newTableName;
                 tableId = newTableName.split("#")[1];
-                var tableName = ext.getArgs().sqlTableName;
-                var schema = getSchema(tableId);
-
+                return getSchema(tableId);
+            })
+            .then(function(schema) {
                 var tableMetaCol = {};
-                tableMetaCol["XC_TABLENAME_" + newTableName] = "string";
+                tableMetaCol["XC_TABLENAME_" + finalizedTableName] = "string";
                 schema.push(tableMetaCol);
 
                 structToSend.tableName = tableName.toUpperCase();

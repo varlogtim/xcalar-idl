@@ -597,7 +597,9 @@ AlertTStr = {
     "EditInProgress": "Edit in progress",
     "EditExitWarning": "Are you sure you want to exit edit mode and abandon all changes?",
     "AlreadyStart": "Cluster Already Started",
-    "FilePathError": "The file path could not be generated"
+    "FilePathError": "The file path could not be generated",
+    "SendSchemaDateDetectedTitle": "Date column detected",
+    "SendSchemaDateDetectedMsg": "Do you want to send schema of column(s) below as date type?"
 };
 
 ErrorMessageTStr = {
