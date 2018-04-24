@@ -2732,7 +2732,7 @@ namespace XIApi {
     }
 
     /* Unit Test Only */
-    if (window["unitTestMode"]) {
+    if (typeof window !== "undefined" && window["unitTestMode"]) {
         XIApi["__testOnly__"] = {
             isCorrectTableNameFormat: isCorrectTableNameFormat,
             isValidTableName: isValidTableName,
