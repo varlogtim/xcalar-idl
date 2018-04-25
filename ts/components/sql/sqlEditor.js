@@ -223,6 +223,8 @@ window.SQLEditor = (function(SQLEditor, $) {
         });
         $searchTable.on("input", "input", function(event) {
             event.stopPropagation();
+            $sqlTableList.find(".unit.selected").removeClass("selected");
+            genColumnsFromTable(null);
             search($(this).val());
         });
         $searchColumn.on("input", "input", function(event) {
@@ -231,6 +233,7 @@ window.SQLEditor = (function(SQLEditor, $) {
         });
         $sqlTableList.on("click", ".unit", function(event) {
             event.stopPropagation();
+            $searchColumn.find("input").val("");
             selectTable($(this));
         });
         $sqlTableList.on("click", ".xi-trash", function(event) {
@@ -246,7 +249,7 @@ window.SQLEditor = (function(SQLEditor, $) {
                 TblManager.findAndFocusTable("#" + tableId);
             }
         });
-        $sqlSection.on("click", function() {
+        $sqlSection.on("click", ".schemaSection", function() {
             $sqlTableList.find(".unit.selected").removeClass("selected");
             genColumnsFromTable(null);
         });
