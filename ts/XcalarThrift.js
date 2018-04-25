@@ -2824,8 +2824,8 @@ XcalarQuery = function(queryName, queryString, txId, bailOnError) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
 
-    //Default behavior is true so need to use null rather than just if (bailOnError)
-    if (bailOnError === null) {
+    //Default behavior is true so if null or undefined, then should be set to true
+    if (bailOnError == null) {
         bailOnError = true; // Stop running query on error
     }
     var latencyOptimized = false; // New backend flag
