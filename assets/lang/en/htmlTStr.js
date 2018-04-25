@@ -1114,6 +1114,7 @@ module.exports = {
     },
 
     "about": {
+        "LicensedTo": "Licensed To",
         "BuildNumber": "Build Number",
         "IDLVersion": "IDL Version",
         "FrontVersion": "XD Version",

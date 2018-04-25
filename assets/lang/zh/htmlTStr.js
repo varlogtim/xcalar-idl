@@ -204,6 +204,7 @@ module.exports = {
         "EXECUTE": "运行SQL"
     },
     "about": {
+        "LicensedTo": "证书拥有组织",
         "BuildNumber": "版本号码",
         "IDLVersion": "IDL 版本",
         "BackVersion": "XCE 版本",

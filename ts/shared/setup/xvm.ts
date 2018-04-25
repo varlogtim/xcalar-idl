@@ -13,6 +13,7 @@ namespace XVM {
     let kvVersion: KVVersion;
     let kvVersionStore: KVStore;
     let backendVersion: string = '';
+    let licensee: string = '';
     let licenseExpireInfo: string = '';
     let licenseMode: XcalarMode = null;
     // let expirationDate: Date = null;
@@ -54,6 +55,7 @@ namespace XVM {
             }
             numNodes = license.nodeCount;
             numUsers = license.userCount;
+            licensee = license.licensee;
             if (license.expired) {
                 console.log(license);
                 const error: string = xcHelper.replaceMsg(ErrTStr.LicenseExpire, {
@@ -150,6 +152,13 @@ namespace XVM {
      */
     export function getLicenseExipreInfo(): string {
         return licenseExpireInfo;
+    }
+
+    /**
+     * XVM.getLicensee
+     */
+    export function getLicensee(): string {
+        return licensee;
     }
 
     /**

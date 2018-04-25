@@ -36,7 +36,9 @@ window.AboutModal = (function($, AboutModal) {
                         ? "" : "P" + window.gPatchVersion;
         var licenseExipreInfo = XVM.getLicenseExipreInfo();
         var capitalize = xcHelper.capitalize(XVM.getLicenseMode());
+        var licensee = XVM.getLicensee();
         $modal.find(".mode .text").text(" - " + capitalize + " Cluster");
+        $modal.find(".licensee .text").text(licensee);
         $modal.find(".buildNumber .text").text(buildNumber);
         $modal.find(".frontVersion .text").text(frontVers);
         $modal.find(".backVersion .text").text(backVersion);
