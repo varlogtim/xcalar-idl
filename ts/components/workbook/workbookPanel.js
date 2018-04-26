@@ -890,7 +890,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                                 '</div>' +
                                 '<div class="row clearfix">' +
                                     '<div class="label">' +
-                                        TimeTStr.LastModified + ':' +
+                                        TimeTStr.LastSaved + ':' +
                                     '</div>' +
                                     '<div class="info modifiedTime" ' +
                                         modifiedTimeTip + '">' +

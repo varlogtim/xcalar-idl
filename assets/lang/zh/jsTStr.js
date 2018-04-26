@@ -620,10 +620,10 @@ WKBKTStr = {
                  'card. To learn more about using Xcalar Design, check out ' +
                  'the Xcalar Design tutorials. ',
 'CurWKBKInstr': 'To continue working with your existing workbooks, ' +
-                  'click on the workbook\'s card. ' +
-                  'To edit the name, add a description, or create a duplicate ' +
-                  'workbook, hover over the workbook\'s card and select the ' +
-                  'icon that is relevant for one of the aforementioned actions. ',
+                 'click on the workbook\'s card. ' +
+                 'To edit the name, add a description, or create a duplicate ' +
+                 'workbook, click the ellipsis icon and then select the option ' +
+                 'in the drop-down list for one of the aforementioned actions.',
 'NoOldWKBK': '无法恢复旧工作簿',
 'NoOldWKBKInstr': '如果您在重新登录后仍然看到错误，请复制您的日志并重新启动服务器。',
 'NoOldWKBKMsg': '请使用新的工作簿或注销，然后重试！',

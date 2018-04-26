@@ -458,7 +458,8 @@ TimeTStr = {
     "Created": "Created",
     "Modified": "Modified",
     "CreatedOn": "Created on",
-    "LastModified": "Last modified"
+    "LastModified": "Last modified",
+    "LastSaved": "Last saved"
 };
 
 DemoTStr = {
@@ -779,8 +780,8 @@ WKBKTStr = {
     'CurWKBKInstr': 'To continue working with your existing workbooks, ' +
                   'click on the workbook\'s card. ' +
                   'To edit the name, add a description, or create a duplicate ' +
-                  'workbook, hover over the workbook\'s card and select the ' +
-                  'icon that is relevant for one of the aforementioned actions. ',
+                  'workbook, click the ellipsis icon and then select the option ' +
+                  'in the drop-down list for one of the aforementioned actions.',
     'NoOldWKBK': 'Cannot Retrieve Old Workbook',
     'NoOldWKBKInstr': 'If you still see the error after logging in again, ' +
                       'please copy your log and restart the server.',
