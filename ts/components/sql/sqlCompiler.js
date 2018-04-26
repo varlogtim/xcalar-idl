@@ -150,6 +150,8 @@
         "expressions.DayOfMonth": null,
         "expressions.DateAdd": null,
         "expressions.DateSub": null,
+        "expressions.TimeAdd": "sql:timeAdd",
+        "expressions.TimeSub": "sql:timeSub",
         "expressions.convertFormats": "default:convertFormats", // XXX default value for udf when input format is not specified is wrong
         "expressions.convertFromUnixTS": "default:convertFromUnixTS", // Use default module here because implementation different from convertFromUnixTS
         "expressions.convertToUnixTS": "default:convertToUnixTS", // And cannot peak what's in the other function
@@ -563,6 +565,7 @@
                                             __getColType(node.children[0]));
                     if (origType === "string") {
                         // No "timestamp" type in Xcalar, so create a UDF node
+                        // Datetime related conversion depends on timezone
                         var dttsNode = dateToTimestampNode(node.children[0]);
                         node = dttsNode;
                     } else {
@@ -656,7 +659,8 @@
                 if (childNode.value.class === "org.apache.spark.sql.catalyst." +
                                              "expressions.AttributeReference") {
                     // If the child is a column, it must be of string type
-                    assert(childNode.value.dataType === "string",
+                    assert(childNode.value.dataType === "string" ||
+                           childNode.value.dataType === "date",
                            SQLErrTStr.YMDString + childNode.value.dataType);
                     dateNode = stringToDateNode(childNode);
                 } else {
@@ -1115,12 +1119,10 @@
             assert(node.children.length === 1,
                    SQLErrTStr.ProjectOneChild + node.children.length);
             if (node.value.projectList.length === 0) {
-                for (var i = 0; i < node.parent.children.length; i++) {
-                    if (node.parent.children[i] === node) {
-                        node.parent.children[i] = node.children[0];
-                        return deferred.resolve().promise();
-                    }
-                }
+                node.emptyProject = true;
+                node.newTableName = node.children[0].newTableName;
+                node.xccli = "";
+                return deferred.resolve().promise();
             }
             var tableName = node.children[0].newTableName;
             // Find columns to project
@@ -1700,6 +1702,15 @@
             var self = this;
             assert(node.children.length === 2); // It's a join. So 2 kids only
             var deferred = PromiseHelper.deferred();
+            var hasEmptyProject = false;
+
+            // Check if one of children is empty table
+            if (node.children[0].emptyProject) {
+                hasEmptyProject = true;
+                node.children = [node.children[1], node.children[0]];
+            } else if (node.children[1].emptyProject) {
+                hasEmptyProject = true;
+            }
 
             // Some helper functions to make the code easier to read
             function isSemiOrAntiJoin(n) {
@@ -1946,6 +1957,10 @@
                                                                   retStruct,
                                                                   node));
                 }
+                if (hasEmptyProject) {
+                    promise = promise.then(__projectAfterCrossJoin.bind(sqlObj,
+                                                            retStruct, node));
+                }
             }
 
             promise.fail(deferred.reject);
@@ -1953,33 +1968,38 @@
             promise.then(function() {
                 node.usrCols = jQuery.extend(true, [],
                                              node.children[0].usrCols);
-                node.xcCols = jQuery.extend(true, [], node.xcCols
-                                            .concat(node.children[0].xcCols));
-                node.sparkCols = jQuery.extend(true, [],
-                                               node.children[0].sparkCols);
-                if (!isSemiOrAntiJoin(node) && !isExistenceJoin(node)) {
-                    // Existence = LeftSemi join with right table then LeftOuter
-                    // join back with left table
-                    node.usrCols = node.usrCols
-                        .concat(jQuery.extend(true, [],
-                                              node.children[1].usrCols));
-                    node.xcCols = node.xcCols
-                        .concat(jQuery.extend(true, [],
-                                              node.children[1].xcCols));
-                    node.sparkCols = node.sparkCols
-                        .concat(jQuery.extend(true, [],
-                                              node.children[1].sparkCols));
+                if (hasEmptyProject) {
+                    node.xcCols = [];
+                    node.sparkCols = [];
                 } else {
-                    node.xcCols = node.xcCols
-                        .concat(jQuery.extend(true, [],
-                                              node.children[1].usrCols
-                                              .concat(node.children[1].xcCols)));
-                    // XXX Think about sparkcols
-                    if (isExistenceJoin(node)) {
-                        // If it's ExistenceJoin, don't forget existenceCol
-                        node.sparkCols.push(retStruct.existenceCol);
-                        node.renamedCols[retStruct.existenceCol.colId] =
-                                                  retStruct.existenceCol.rename;
+                    node.xcCols = jQuery.extend(true, [], node.xcCols
+                                                .concat(node.children[0].xcCols));
+                    node.sparkCols = jQuery.extend(true, [],
+                                                node.children[0].sparkCols);
+                    if (!isSemiOrAntiJoin(node) && !isExistenceJoin(node)) {
+                        // Existence = LeftSemi join with right table then LeftOuter
+                        // join back with left table
+                        node.usrCols = node.usrCols
+                            .concat(jQuery.extend(true, [],
+                                                node.children[1].usrCols));
+                        node.xcCols = node.xcCols
+                            .concat(jQuery.extend(true, [],
+                                                node.children[1].xcCols));
+                        node.sparkCols = node.sparkCols
+                            .concat(jQuery.extend(true, [],
+                                                node.children[1].sparkCols));
+                    } else {
+                        node.xcCols = node.xcCols
+                            .concat(jQuery.extend(true, [],
+                                                node.children[1].usrCols
+                                                .concat(node.children[1].xcCols)));
+                        // XXX Think about sparkcols
+                        if (isExistenceJoin(node)) {
+                            // If it's ExistenceJoin, don't forget existenceCol
+                            node.sparkCols.push(retStruct.existenceCol);
+                            node.renamedCols[retStruct.existenceCol.colId] =
+                                                    retStruct.existenceCol.rename;
+                        }
                     }
                 }
 
@@ -2552,6 +2572,24 @@
         return deferred.promise();
     }
 
+    function __projectAfterCrossJoin(globalStruct, joinNode) {
+        var self = this;
+        var deferred = PromiseHelper.deferred();
+        var columns = [];
+        for (var i = 0; i < joinNode.children[0].usrCols.length; i++) {
+            columns.push(__getCurrentName(joinNode.children[0].usrCols[i]));
+        }
+
+        self.project(columns, globalStruct.newTableName)
+        .then(function(ret) {
+            globalStruct.cli += ret.cli;
+            globalStruct.newTableName = ret.newTableName;
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
+    }
+
     function __filterJoinedTable(globalStruct, joinNode, filterSubtrees) {
         var self = this;
         var deferred = PromiseHelper.deferred();
@@ -2824,7 +2862,7 @@
                     options.renamedCols[id]) {
                     colName = options.renamedCols[id];
                 }
-                type = orderArray[i][1].dataType;
+                type = convertSparkTypeToXcalarType(orderArray[i][1].dataType);
             } else {
                 // Here don't check duplicate expressions, need optimization
                 colName = "XC_SORT_COL_" + i + "_"
@@ -3841,7 +3879,8 @@
             } else if (condTree.value.class ===
                 "org.apache.spark.sql.catalyst.expressions.Literal") {
                 if (condTree.value.dataType === "string" ||
-                    condTree.value.dataType === "date") {
+                    condTree.value.dataType === "date" ||
+                    condTree.value.dataType === "calendarinterval") {
                     outStr += '"' + condTree.value.value + '"';
                 } else if (condTree.value.dataType === "timestamp") {
                     outStr += 'default:convertToUnixTS("' +
