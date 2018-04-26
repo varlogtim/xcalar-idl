@@ -1782,6 +1782,7 @@ function goToSqlWkbk() {
         if (sqlSession != null && wkbkName !== activeSessionName) {
             return XcalarSwitchToWorkbook(wkbkName, activeSessionName);
         }
+        setSessionName(wkbkName);
     })
     .then(deferred.resolve)
     .fail(deferred.reject);
