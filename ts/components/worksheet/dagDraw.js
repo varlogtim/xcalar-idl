@@ -494,6 +494,7 @@ window.DagDraw = (function($, DagDraw) {
         return (deferred.promise());
     }
 
+    // used when recreating image to save as png or view in new tab
     function drawDagTableToCanvas($dagTable, ctx, top, left, tImage, tGrayImage,
                                   tICVImage, dImage, eImage, tdImage) {
         left += 35;

@@ -275,7 +275,7 @@ html.firefox, html.microsoft {
 
 .dagTableIcon {
     .size(@width: 25px, @height: 25px);
-    position: relative !important;
+    position: relative;
     left: 5px;
     top: 7px;
     background-color: @color-white;
@@ -888,7 +888,7 @@ html.firefox, html.microsoft {
                 font-size: 16px;
                 color: @color-white !important;
                 left: 12px;
-                top: 10px;
+                top: 11px;
             }
             .exportTableName, .xi-table-2 {
                 display: none;
@@ -902,11 +902,19 @@ html.firefox, html.microsoft {
         }
 
         &[data-advancedOpts="import"] {
-            .exportFileName, .xi-data-out {
+            .exportFileName, .xi-data-out, .dagTableIcon {
                 display: none;
             }
             .exportTableName, .xi-table-2 {
                 display: inline-block;
+            }
+            .xi-table-2::after { // create a white background for the icon
+                .size(@width: 25px, @height: 25px);
+                .position(absolute, @left: 2px, @top: 0px);
+                background-color: @color-white;
+                .rounded(3px);
+                content: "";
+                z-index: -1; // hide it behind the actual icon
             }
         }
     }

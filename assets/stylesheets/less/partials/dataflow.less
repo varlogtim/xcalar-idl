@@ -492,7 +492,7 @@
                         &[data-advancedOpts="default"] .dagTableIcon {
                             background: @color-bg-fern-green;
                         }
-                        &.export .dagTableIcon {
+                        &.export[data-advancedOpts="default"] .dagTableIcon {
                             background: @color-bg-fern-green !important;
                         }
                     }
@@ -517,15 +517,6 @@
                         }
                         &[data-advancedOpts="default"] .dagTableIcon {
                             background: @color-error-border !important;
-                        }
-                    }
-
-                    &[data-advancedOpts="import"] {
-                        &.export.dagTable {
-
-                            &> .xi-table-2, &:hover > .xi-table-2 {
-                                color: @color-bg-select-blue !important;
-                            }
                         }
                     }
                 }

@@ -1,9 +1,8 @@
 window.DFCommentModal = (function(DFCommentModal, $) {
     var $modal;    // $("#dfCommentModal")
+    var $textArea; // $modal.find(".xc-textArea")
     var modalHelper;
-    var $textArea;
     var tableName;
-    var node;
 
     DFCommentModal.setup = function() {
         $modal = $("#dfCommentModal");
@@ -12,6 +11,8 @@ window.DFCommentModal = (function(DFCommentModal, $) {
         modalHelper = new ModalHelper($modal, {
             noEnter: true
         });
+
+
         $modal.on("click", ".close, .cancel", closeModal);
 
         $modal.on("click", ".confirm", function() {
@@ -32,9 +33,8 @@ window.DFCommentModal = (function(DFCommentModal, $) {
         $modal.find(".modalHeader .text").text(title);
         var $dagWrap = $opIcon.closest(".dagWrap");
 
-        node = $dagWrap.data("allDagInfo").nodeIdMap[nodeId];
+        var node = $dagWrap.data("allDagInfo").nodeIdMap[nodeId];
         tableName = node.value.name;
-        $operationIcon = $opIcon;
         var curComment = node.value.comment;
 
         if (curComment) {
@@ -55,8 +55,6 @@ window.DFCommentModal = (function(DFCommentModal, $) {
 
     function reset() {
         tableName = null;
-        $operationIcon = null;
-        node = null;
         $textArea.val("");
     }
 
@@ -72,7 +70,6 @@ window.DFCommentModal = (function(DFCommentModal, $) {
         }
 
         var tName = tableName;
-        // var storedNode = node;
         closeModal();
 
         XcalarCommentDagNodes(newComment, [tName])
@@ -121,5 +118,3 @@ window.DFCommentModal = (function(DFCommentModal, $) {
 
     return DFCommentModal;
 }({}, jQuery));
-
-

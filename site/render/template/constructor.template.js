@@ -2609,35 +2609,40 @@
                 if (name.indexOf(gDSPrefix) === 0) {
                     name = name.substring(gDSPrefix.length);
                 }
-                var $tableNode = this.colorNodes(name, noParams);
-                if ($tableNode == null) {
+                var $operationIcon = this.colorNodes(name, noParams);
+                if ($operationIcon == null) {
                     // error case
                     return;
                 }
                 if (paramInfo.paramType === XcalarApisT.XcalarApiExport) {
-                    if (this.activeSession) {
-                        updateExportName($tableNode, this.newTableName);
-                        return;
-                    } else {
-                        updateExportName($tableNode, paramInfo.paramValue.fileName);
-                    }
+                    var newName = this.activeSession ? this.newTableName :
+                                                paramInfo.paramValue.fileName;
+
+                    updateExportIcon($operationIcon, newName,
+                                     this.activeSession);
+
                 } else if (paramInfo.paramType === XcalarApisT.XcalarApiFilter)
                 {
                     if (noParams) {
-                        $tableNode.find(".opInfoText")
-                                  .text($tableNode.data("column"));
+                        $operationIcon.find(".opInfoText")
+                                  .text($operationIcon.data("column"));
                     } else {
-                        $tableNode.find(".opInfoText")
+                        $operationIcon.find(".opInfoText")
                                   .text("<Parameterized>");
                     }
                 }
 
-                function updateExportName($tableNode, exportName) {
-                    var $elem = $tableNode.find(".tableTitle");
+                // update name and icon
+                function updateExportIcon($operationIcon, exportName,
+                    isActiveSession) {
+
                     var expName = xcHelper.stripCSVExt(exportName);
-                    $elem.text(expName);
+                    var $nameElem = $operationIcon.next().find(".tableTitle");
+                    $nameElem.text(expName);
                     var text = xcHelper.convertToHtmlEntity(expName);
-                    xcTooltip.changeText($elem, text);
+                    xcTooltip.changeText($nameElem, text);
+                    var dataAttr = isActiveSession ? "import" : "default";
+                    $operationIcon.next().attr("data-advancedOpts", dataAttr);
                 }
             },
 

@@ -285,6 +285,9 @@ window.DFParamModal = (function($, DFParamModal){
                     if (df.activeSession) {
                         $modal.find(".innerEditableRow.filename input")
                               .val(df.newTableName);
+                        if (isAdvancedMode) {
+                            switchToBasicModeHelper();
+                        }
                     }
                 } else if (type === "dataStore") {
                     datasetSetup();
@@ -431,6 +434,9 @@ window.DFParamModal = (function($, DFParamModal){
     }
 
     function initBasicForm(providedStruct) {
+        $editableRow.empty();
+        $modal.find('.draggableParams').empty();
+
         setupInputText(providedStruct);
         $("#dfParamModal .editableRow .defaultParam").each(function() {
             setParamDivToDefault($(this).siblings("input"));
@@ -503,19 +509,17 @@ window.DFParamModal = (function($, DFParamModal){
     function switchAdvancedToBasicMode() {
         var struct = getUpdatedAdvancedStruct();
         if (!struct.error) {
-            isAdvancedMode = false;
-            $modal.removeClass("advancedMode");
-            $modal.find(".toggleView").find(".switch").removeClass("on");
-            var text = DFTStr.ParamBasicInstructions;
-            updateInstructions();
-
-            $editableRow.empty();
-            $modal.find('.draggableParams').empty();
-
+            switchToBasicModeHelper()
             initBasicForm(struct.struct);
-
-            var $editableDivs = $modal.find('input.editableParamDiv');
         }
+    }
+
+    function switchToBasicModeHelper() {
+        isAdvancedMode = false;
+        $modal.removeClass("advancedMode");
+        $modal.find(".toggleView").find(".switch").removeClass("on");
+        var text = DFTStr.ParamBasicInstructions;
+        updateInstructions();
     }
 
     // when param dragging begins, we replace the real inputs with fake ones
