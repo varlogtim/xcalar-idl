@@ -98,9 +98,13 @@
         }
 
         .content {
-            margin: 5px 10px 10px;
+            padding: 5px 10px 10px;
             .flex-display;
             .justify-content(center);
+
+            .activate {
+                height: 100%;
+            }
         }
 
         .heading, .subHeading {
@@ -483,18 +487,21 @@
             }
 
             .workbookName, .description {
-                .size(@width: ~"calc(100% - 25px)");
+                .size(@width: ~"calc(100% - 30px)");
             }
 
-            .preview {
-                .size(20px, 20px);
-                .position(absolute, @top: 6px, @right: 0px);
+            .icon {
                 color: @color-bg-select-blue;
-            }
-            .dropDown {
-                .size(20px, 20px);
-                .position(absolute, @top: 6px, @right: -30px);
-                color: @color-bg-select-blue;
+                .size(20px, 100%);
+                line-height: 30px;
+
+                &.preview {
+                    .position(absolute, @right: 10px);
+                }
+                &.dropDown {
+                    .position(absolute, @right: -20px);
+
+                }
             }
         }
 

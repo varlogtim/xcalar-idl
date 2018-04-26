@@ -316,7 +316,12 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
             var wbName;
             var workbooks = WorkbookManager.getWorkbooks();
             wbName = wbDuplicateName('New Workbook', workbooks, 0);
-            WorkbookPanel.createNewWorkbook(wbName);
+            var $btn =$(this);
+            $btn.addClass("inActive").blur();
+            WorkbookPanel.createNewWorkbook(wbName)
+            .always(function() {
+                $btn.removeClass("inActive");
+            });
         });
 
         $("#browseWKBKbtn").click(function() {
@@ -455,7 +460,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         });
 
         $wkbkMenu.on("click", ".newTab", function() {
-            activateWorkbook($dropDownCard, true)
+            activateWorkbook($dropDownCard, true);
         });
 
         $workbookSection.on("click", ".preview", function() {
@@ -629,13 +634,6 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
             WorkbookManager.switchWKBK(workbookId, true, $workbookBox)
             .fail(function(error) {
                 handleError(error, $workbookBox);
-                // has chance that inactivate the fromWorkbook
-                // but fail to activate the toWorkbook
-                /*if (WorkbookManager.getActiveWKBK() == null
-                    && activeWKBKId != null) {
-                    var $activeWKBK = getWorkbookBoxById(activeWKBKId);
-                    updateWorkbookInfoWithReplace($activeWKBK, activeWKBKId);
-                }*/
             });
         }
     }
