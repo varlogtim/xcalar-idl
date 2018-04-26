@@ -1,8 +1,8 @@
 // XVM = Xcalar Version Manager
 namespace XVM {
     const majorVersion: string = '1';
-    const minorVersion: string = '3';
-    const revisionVersion: string = '1';
+    const minorVersion: string = '4';
+    const revisionVersion: string = '0';
 
     // build number is generated during the build process by Makefile and jenkins
     if (typeof gBuildNumber === 'undefined') {
@@ -13,9 +13,11 @@ namespace XVM {
     let kvVersion: KVVersion;
     let kvVersionStore: KVStore;
     let backendVersion: string = '';
-    let licensee: string = '';
     let licenseExpireInfo: string = '';
     let licenseMode: XcalarMode = null;
+    let licensee: string = 'Unknown';
+    let compressedLicense: string = "Unknown";
+
     // let expirationDate: Date = null;
     let numUsers: number = -1; // Set, but not used
     let numNodes: number = -1; // Set, but not used
@@ -56,6 +58,7 @@ namespace XVM {
             numNodes = license.nodeCount;
             numUsers = license.userCount;
             licensee = license.licensee;
+            compressedLicense = license.compressedLicense;
             if (license.expired) {
                 console.log(license);
                 const error: string = xcHelper.replaceMsg(ErrTStr.LicenseExpire, {
@@ -145,6 +148,18 @@ namespace XVM {
      */
     export function getBackendVersion(): string {
         return backendVersion;
+    }
+
+    export function getNumServers(): number {
+        return numNodes;
+    }
+    
+    export function getNumUsers(): number {
+        return numUsers;
+    }
+
+    export function getLicense(): string {
+        return compressedLicense;
     }
 
     /**

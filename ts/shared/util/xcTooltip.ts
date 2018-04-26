@@ -162,9 +162,9 @@ namespace xcTooltip {
     }
 
     /**
-     * xcTooltip.refresh
-     * @param $element
-     * @param delay
+     * xcTooltip.refresh Shows the tooltip (And hides after delay ms)
+     * @param $element Element to attach tooltip to
+     * @param delay How long to show the tooltip for
      */
     export function refresh($element: JQuery, delay: number) {
         const key: string = "xc-tooltipTimer";

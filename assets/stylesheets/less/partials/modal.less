@@ -4427,16 +4427,13 @@ html.microsoft {
 }
 
 #aboutModal {
-    .size(@width: 400px, @height: auto);
+    .size(@width: 400px, @height: 425px);
     bottom: auto;
-
     .modalHeader {
         .size(@height: 25px);
-        background-color: @color-bg-select-blue;
-
+        background-color: @color-about-gradient-top;
         .close {
             top: 2px;
-
             .icon {
                 font-size: 14px;
             }
@@ -4444,36 +4441,85 @@ html.microsoft {
     }
 
     .modalMain {
+        height: 425px;
+        position: relative;
+        .linear-gradient(top, @color-about-gradient-top,
+                         @color-about-gradient-bottom);
         padding: 30px 51px 23px 51px;
-        .font(@size: 12px, @color: @color-font-greyish-brown, @align: center);
+        .font(@size: 12px, @color: @color-white);
 
-        .logoSection {
-            .size(@width: 73px, @height: 73px);
-            margin: 0 auto;
-            background-color: @color-bg-select-blue;
-
-            .logo {
-                .size(@width: 42px, @height: 42px);
-                .center-align;
-            }
+        .background {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            left: 0px;
+            bottom: 0px;
+            opacity: 0.5;
+            background-image: url("../../images/wave.png");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: bottom;
         }
 
-        .infoSection {
-            > div {
-                margin-top: 7px;
+        .contents {
+            .logoSection {
+                .icon {
+                    display: inline-block;
+                    &.xi-xcalar-full-logo {
+                        font-size: 38px;
+                    }
+                    &.xi-design-logo {
+                        font-size: 36px;
+                        position: relative;
+                        top: -2px;
+                        left: 6px;
+                    }
+                }
             }
-
-            .title {
-                margin-top: 12px;
-                .font(@weight: bold, @line-height: 19px);
-                &.license {
-                    margin-top: 7px;
+            .header {
+                margin-top: 20px;
+                font-weight: bold;
+                font-size: 16px;
+            }
+            .textRow {
+                padding-top: 5px;
+                .clearfix;
+            }
+            .label {
+                font-weight: 100;
+                float: left;
+            }
+            .value {
+                font-weight: 600;
+                float: left;
+                padding-left: 5px;
+                &.keyValue {
+                    width: ~"calc(100% - 55px)";
+                }
+            }
+            .iconWrapper {
+                padding-left: 5px;
+                position: relative;
+                float: left;
+                top: 3px;
+                opacity: 0.8;
+                &:hover {
+                    opacity: 1.0;
+                    cursor: pointer;
+                }
+                .icon {
+                    font-size: 15px;
                 }
             }
         }
 
         .copyRightSection {
             margin-top: 13px;
+            position: absolute;
+            bottom: 15px;
+            left: 0px;
+            width: 100%;
+            .font(@align: center);
         }
     }
 }

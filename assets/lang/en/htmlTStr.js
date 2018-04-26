@@ -1113,15 +1113,19 @@ module.exports = {
         "SearchHint": "Search for Extensions"
     },
 
-    "about": {
-        "LicensedTo": "Licensed To",
-        "BuildNumber": "Build Number",
-        "IDLVersion": "IDL Version",
-        "FrontVersion": "XD Version",
-        "BackVersion": "XCE Version",
-        "ThriftSHA": "Thrift Version",
-        "License": "License Key Expiration",
-        "copyRight": "Copyright © 2018 Xcalar, Inc. All rights reserved."
+    "aboutModal": {
+        "build": "BUILD",
+        "product": "Product",
+        "productVersion": "Product Version",
+        "buildNumer": "Build Number",
+        "license": "LICENSE",
+        "version": "Version",
+        "licensee": "Licensed To",
+        "expiration": "Expiration",
+        "numServers": "# of Servers",
+        "numUsers": "# of Users",
+        "key": "Key",
+        "copyright": "Copyright © 2018 Xcalar, Inc. All rights reserved."
     },
 
     "tutor": {

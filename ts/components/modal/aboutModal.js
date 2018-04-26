@@ -10,7 +10,20 @@ window.AboutModal = (function($, AboutModal) {
             "center": {"verticalQuartile": true}
         });
 
+        xcTooltip.add($modal.find(".iconWrapper"), {"title": TooltipTStr.AboutCopy});
+
         $modal.on("click", ".close", closeModal);
+        $modal.on("click", ".iconWrapper", function() {
+            // debugger;
+            xcHelper.copyToClipboard($(this).closest(".textRow")
+                                            .find(".value").text());
+            xcTooltip.changeText($(this), TooltipTStr.AboutCopied);
+            xcTooltip.refresh($(this), 1000);
+            var self = this;
+            setTimeout(function() {
+                xcTooltip.changeText($(self), TooltipTStr.AboutCopy);
+            }, 1000);
+        })
     };
 
     AboutModal.show = function() {
@@ -28,23 +41,28 @@ window.AboutModal = (function($, AboutModal) {
         if (buildNumber === "git") {
             buildNumber = backVersionParts[2];
         }
-        var idlVersion = backVersionParts[backVersionParts.length - 1];
-        var thriftVersion = XVM.getSHA().substring(0, 8);
-        // Both backend and front end must
-        // have the same thrift version or they won't talk
+
         buildNumber += (window.gPatchVersion == null)
                         ? "" : "P" + window.gPatchVersion;
-        var licenseExipreInfo = XVM.getLicenseExipreInfo();
-        var capitalize = xcHelper.capitalize(XVM.getLicenseMode());
+        var expiration = XVM.getLicenseExipreInfo();
         var licensee = XVM.getLicensee();
-        $modal.find(".mode .text").text(" - " + capitalize + " Cluster");
-        $modal.find(".licensee .text").text(licensee);
-        $modal.find(".buildNumber .text").text(buildNumber);
-        $modal.find(".frontVersion .text").text(frontVers);
-        $modal.find(".backVersion .text").text(backVersion);
-        $modal.find(".thriftVersion .text").text(thriftVersion);
-        $modal.find(".idlVersion .text").text(idlVersion);
-        $modal.find(".license .text").text(licenseExipreInfo);
+        var capitalize = xcHelper.capitalize(XVM.getLicenseMode());
+        var numServers = XVM.getNumServers();
+        var numUsers = XVM.getNumUsers();
+        var license = XVM.getLicense();
+
+        // Build
+        $modal.find(".product")
+            .text("Xcalar Data Platform - Enterprise Edition");
+        $modal.find(".frontVersion").text(frontVers);
+        $modal.find(".buildNumber").text(buildNumber);
+        // License
+        $modal.find(".licensee").text(licensee);
+        $modal.find(".expiration").text(expiration);
+        $modal.find(".numServers").text(numServers);
+        $modal.find(".numUsers").text(numUsers);
+        $modal.find(".keyValue").text(license);
+        
     };
 
     function closeModal() {

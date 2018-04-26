@@ -128,6 +128,8 @@ TooltipTStr = {
     "ShowDatasetHint": "Begin by creating a new dataset here!",
     "ShowDatasetTableHint": "Create a table from an existing dataset or import a new one here!",
     "ParquetCannotRemovePartition": "Partition key must be added as part of the dataset",
+    "AboutCopy": "Click to copy",
+    "AboutCopied": "Copied to clipboard!",
 
     // Sync with htmlTStr
     "IcvGenerating": "Generating Erroneous Rows(ER) Table",
