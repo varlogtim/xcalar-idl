@@ -12,13 +12,13 @@ class XcSocket {
 
     private _socket: SocketIOClient.Socket;
     private _connected: boolean;
-    private _registered: boolean;
+    private _isRegistered: boolean;
     private _initDeferred: XDDeferred<void>;
 
     private constructor() {
         this._socket = null;
         this._connected = false;
-        this._registered = false;
+        this._isRegistered = false; // becomes true when has an active wkbk
         this._initDeferred = null;
     }
 
@@ -62,7 +62,7 @@ class XcSocket {
     }
 
     public registerUserSession(workbookId: string): boolean {
-        if (this._registered) {
+        if (this._isRegistered) {
             console.warn("already registered");
             return false;
         }
@@ -70,10 +70,14 @@ class XcSocket {
         const userOption: UserOption = this._getUserOption(workbookId);
         this._socket.emit("registerUserSession", userOption, () => {
             console.log("registerSuccess!");
-            this._registered = true;
+            this._isRegistered = true;
         });
 
         return true;
+    }
+
+    public unregisterUserSession(workbookId: string): void {
+        this._isRegistered = false;
     }
 
     public isConnected(): boolean {
@@ -81,7 +85,7 @@ class XcSocket {
     };
 
     public isResigered(): boolean {
-        return this._registered;
+        return this._isRegistered;
     };
 
     public sendMessage(msg: string, arg: any, callback: Function): boolean {
@@ -129,7 +133,7 @@ class XcSocket {
         });
 
         socket.on('useSessionExisted', (userOption) => {
-            if (!this._registered) {
+            if (!this._isRegistered) {
                 return;
             }
             console.log(userOption, 'exists');
@@ -140,7 +144,7 @@ class XcSocket {
         });
 
         socket.on('system-allUsers', (userInfos) => {
-            if (!this._registered) {
+            if (!this._isRegistered) {
                 return;
             }
             XVM.checkMaxUsers(userInfos);
@@ -148,7 +152,7 @@ class XcSocket {
         });
 
         socket.on('adminAlert', (alertOption) => {
-            if (!this._registered) {
+            if (!this._isRegistered) {
                 return;
             }
             Alert.show({
@@ -162,7 +166,7 @@ class XcSocket {
     private _addSocketEvents(): void {
         const socket = this._socket;
         socket.on('refreshDataflow', (dfName) => {
-            if (!this._registered) {
+            if (!this._isRegistered) {
                 return;
             }
             DataflowPanel.refresh(dfName);
@@ -170,7 +174,7 @@ class XcSocket {
         });
 
         socket.on('refreshUDFWithoutClear', (overwriteUDF: boolean) => {
-            if (!this._registered) {
+            if (!this._isRegistered) {
                 return;
             }
             // In the event that there's new UDF added or overwrite old UDF
@@ -178,7 +182,7 @@ class XcSocket {
         });
 
         socket.on('refreshDSExport', () => {
-            if (!this._registered) {
+            if (!this._isRegistered) {
                 return;
             }
             DSExport.refresh();
@@ -189,6 +193,9 @@ class XcSocket {
         });
 
         socket.on("refreshUserSettings", () => {
+            if (!this._isRegistered) {
+                return;
+            }
             UserSettings.sync();
         });
     }

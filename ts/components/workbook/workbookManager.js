@@ -468,7 +468,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 setActiveWKBK(null);
                 setURL(null, true);
             }
-            XcSocket.Instance.sendMessage("refreshWorkbook", {
+            var xcSocket = XcSocket.Instance;
+            xcSocket.unregisterUserSession();
+            xcSocket.sendMessage("refreshWorkbook", {
                 "action": "deactivate",
                 "user": XcSupport.getUser(),
                 "triggerWkbk": workbookId

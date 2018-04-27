@@ -72,7 +72,9 @@ window.XcSupport = (function(XcSupport, $) {
         .then(sessionHoldAlert)
         .then(function() {
             xcSessionStorage.removeItem(XcSupport.getUser());
-            xcSocket.registerUserSession(workbookId);
+            if (!alreadyStarted) {
+                xcSocket.registerUserSession(workbookId, alreadyStarted);
+            }
             commitFlag = randCommitFlag();
             // hold the session
             return XcalarKeyPut(KVStore.getKey("commitKey"), commitFlag,
