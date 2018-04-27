@@ -1098,6 +1098,7 @@ namespace XIApi {
     ): XDPromise<void> {
         let reuseIndex: boolean = false;
         let newGroupOnCols: string[];
+        let groupAll: boolean = groupOnCols.length === 0;
         if (groupOnCols.indexOf(distinctCol) === -1) {
             newGroupOnCols = groupOnCols.concat([distinctCol]);
         } else {
@@ -1133,7 +1134,7 @@ namespace XIApi {
                                                 txId);
         })
         .then(() => {
-            if (reuseIndex) {
+            if (reuseIndex || groupAll) {
                 newIndexTable = gbDistinctTableName;
                 return PromiseHelper.resolve({});
             } else {
@@ -1168,7 +1169,7 @@ namespace XIApi {
                                                 newIndexTable,
                                                 gbTableName, false, false,
                                                 newGroupOnCols[0],
-                                                false, txId);
+                                                groupAll, txId);
         })
         .then(function() {
             tempTables.push(gbTableName);
@@ -1203,15 +1204,20 @@ namespace XIApi {
             const rTableName: string = distinctGbTables[i];
             const rRename: ColRenameInfo[] = [];
             const rTableId: TableId = xcHelper.getTableId(rTableName);
-            joinCols.forEach((colName) => {
-                const newColName = colName + "_" + rTableId;
-                rRename.push({
-                    orig: colName,
-                    new: newColName,
-                    type: DfFieldTypeT.DfUnknown
+            let joinType: JoinType = JoinOperatorT.InnerJoin;
+            if (joinCols.length === 0) {
+                joinType = JoinOperatorT.CrossJoin;
+            } else {
+                joinCols.forEach((colName) => {
+                    const newColName = colName + "_" + rTableId;
+                    rRename.push({
+                        orig: colName,
+                        new: newColName,
+                        type: DfFieldTypeT.DfUnknown
+                    });
+                    tempCols.push(newColName);
                 });
-                tempCols.push(newColName);
-            });
+            }
 
             const newTableName: string = getNewTableName(origGbTable, "join");
             if (i < distinctGbTables.length - 1) {
@@ -1220,7 +1226,7 @@ namespace XIApi {
             }
 
             promises.push(XcalarJoin.bind(this, curTableName, rTableName,
-                                newTableName, JoinOperatorT.InnerJoin,
+                                newTableName, joinType,
                                 [], rRename, undefined, txId));
             curTableName = newTableName;
         }

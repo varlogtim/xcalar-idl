@@ -75,6 +75,7 @@ interface GroupByOptions {
     icvMode?: boolean; // icv mode or not
     newTableName?: string; // dst table name, optional
     clean?: boolean; // remove intermediate table if set true
+    groupAll?: boolean; // group by all rows to create single row if set true
 }
 
 interface UnionColInfo {
