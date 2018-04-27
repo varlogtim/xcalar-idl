@@ -162,6 +162,7 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
 
     function highlightUserFolder() {
         if (!wkbkFolderName || Jupyter.notebook_list.notebook_path !== "") {
+            $("#xc-showFolderOption").remove();
             // only apply styling if in root directory and user folder exists
             return;
         }
@@ -220,7 +221,7 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
             $("#kernel-python3 a").off("click");
             $("#kernel-python3 a").click(function() {
                 // code based off of newnotebook.js in jupyter/static/tree/js/tree/js
-                var dir_path = $('body').attr('data-notebook-path');
+                var dir_path = Jupyter.notebook_list.notebook_path;
                 Jupyter.new_notebook_widget.contents.new_untitled(dir_path, {type: "notebook"})
                 .then(function(data) {
                     var url = Jupyter.session_list.base_url + "notebooks/" + data.path + "?kernel_name=python3&needsTemplate=true";
