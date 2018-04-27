@@ -446,7 +446,7 @@ SQLErrTStr = {
     "InvalidNtile": "Argument of ntile() should be positive. Instead it is:",
     "UnsupportedWindow": "Window function currently not supported. It is:",
     "NoTable": "Table or view not found: ",
-    "NoKey": "Key not found: ",
+    "NoKey": "key not found: ",
     "Cancel": "Operation Canceled",
     "NoSchema": "Table doesn't exist."
 };

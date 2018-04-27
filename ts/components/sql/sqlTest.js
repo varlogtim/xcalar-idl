@@ -499,10 +499,6 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             return castColumns(gActiveTableId);
         })
         .then(function() {
-            // Finalize table
-            return finalizeTables(gActiveTableId);
-        })
-        .then(function() {
             // Send schema
             return sendSchema(gActiveTableId, tableName);
         })
@@ -536,9 +532,6 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         } else {
             return PromiseHelper.deferred().resolve().promise();
         }
-    }
-    function finalizeTables(tableId) {
-        return ExtensionManager.trigger(tableId, "UExtSendSchema", "finalizeTable", {});
     }
     function sendSchema(tableId, tableName) {
         return ExtensionManager.trigger(tableId, "UExtSendSchema", "sendSchema", {sqlTableName: tableName});
