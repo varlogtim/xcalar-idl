@@ -1,12 +1,60 @@
 window.UExtLicenseMgr = (function(UExtLicenseMgr) {
+    // Development endpoint
+    // var licenseServerApiEndpoint = "https://vktozna5ke.execute-api.us-west-2.amazonaws.com/dev/license/api/v1.0/secure";
+
+    // Production endpoint
+    var licenseServerApiEndpoint = "https://x3xjvoyc6f.execute-api.us-west-2.amazonaws.com/production/license/api/v1.0/secure";
+
+
     UExtLicenseMgr.buttons = [
         {
-            "buttonText": "View License Tables",
-            "fnName": "viewLicense"
+            "buttonText": "Create new license",
+            "fnName": "newLicense",
+            "instruction": "This will create, but not issue, a new Xcalar-signed license. Only logged in users will be able to create licenses",
+            "arrayOfFields": [
+                {
+                    "type": "string",
+                    "name": "Organization",
+                    "fieldClass": "licensee"
+                },
+                {
+                    "type": "string",
+                    "name": "Product",
+                    "fieldClass": "product",
+                    "enums": ["Xcalar Data Platform", "Xcalar Design CE", "Xcalar Design EE"],
+                    "autofill": "Xcalar Data Platform"
+                },
+                {
+                    "type": "number",
+                    "name": "Valid for number of days",
+                    "fieldClass": "expiration",
+                    "autofill": 14
+                },
+                {
+                    "type": "number",
+                    "name": "Number of nodes",
+                    "fieldClass": "nodeCount",
+                    "autofill": 3
+                },
+                {
+                    "type": "number",
+                    "name": "Number of users",
+                    "fieldClass": "userCount",
+                    "autofill": 10
+                },
+                {
+                    "type": "string",
+                    "name": "License Type",
+                    "fieldClass": "licenseType",
+                    "enums": [ "Production", "Developer" ],
+                    "autofill": "Production"
+                }
+            ]
         },
         {
             "buttonText": "Issue license",
             "fnName": "issueLicense",
+            "instruction": "Take a license already generated and issue it to an existing customer. This will make the license available on their ZenDesk account",
             "arrayOfFields": [
                 {
                     "type": "string",
@@ -24,6 +72,21 @@ window.UExtLicenseMgr = (function(UExtLicenseMgr) {
                     "fieldClass": "customerLicense"
                 },
                 {
+                    "type": "string",
+                    "name": "Deployment Type",
+                    "fieldClass": "deploymentType",
+                    "enums": ["On-Prem", "Azure"],
+                    "autofill": "On-Prem"
+                },
+                {
+                    "type": "string",
+                    "name": "Salesforce Account ID (Optional)",
+                    "fieldClass": "salesforceId",
+                    "typeCheck": {
+                        "allowEmpty": true
+                    }
+                },
+                {
                     "type": "boolean",
                     "name": "Create ZenDesk account",
                     "fieldClass": "createZenDeskAcct"
@@ -31,8 +94,9 @@ window.UExtLicenseMgr = (function(UExtLicenseMgr) {
             ]
         },
         {
-            "buttonText": "Create new license",
-            "fnName": "newLicense"
+            "buttonText": "View License Tables",
+            "fnName": "viewLicense",
+            "instruction": "Click this and see what happens. Nothing bad I promise"
         }
     ];
 
@@ -57,8 +121,37 @@ window.UExtLicenseMgr = (function(UExtLicenseMgr) {
         var ext = new XcSDK.Extension();
         ext.start = function() {
             var deferred = XcSDK.Promise.deferred();
-            // XXX Please implement me
-            return deferred.reject("Not implemented").promise();
+            var self = this;
+            var args = self.getArgs();
+            var data = {
+                "secret": "xcalarS3cret",
+                "userId": XcSupport.getUser(),
+                "licenseType": args.licenseType,
+                "compress": true,
+                "usercount": args.userCount,
+                "nodecount": args.nodeCount,
+                "expiration": args.expiration,
+                "licensee": args.licensee,
+                "product": "Xdp"
+            };
+
+            $.ajax({
+                "type": "POST",
+                "contentType": "application/json",
+                "url": licenseServerApiEndpoint + "/genlicense",
+                "crossdomain": true,
+                "data": JSON.stringify(data),
+                "success": function(data) {
+                    deferred.resolve();
+                    Alert.show({"title": "License Key", "msg": data.Compressed_Sig, isAlert: true});
+                },
+                "error": function() {
+                    deferred.reject("Failed to generate license");
+                }
+            });
+
+            return deferred.promise();
+
         }
         return ext;
     }
@@ -71,24 +164,29 @@ window.UExtLicenseMgr = (function(UExtLicenseMgr) {
             var args = self.getArgs();
             var data = {
                 "secret": "xcalarS3cret",
+                "userId": ext.getUsername(),
                 "name": args.customerName,
                 "organization": args.customerOrg,
-                "key": args.customerLicense
+                "key": args.customerLicense,
+                "deploymentType": args.deploymentType,
             };
+
+            if (args.salesforceId.length > 0) {
+                data["salesforceId"] = args.salesforceId;
+            }
 
             $.ajax({
                 "type": "POST",
                 "contentType": "application/json",
-                "url": "https://x3xjvoyc6f.execute-api.us-west-2.amazonaws" +
-                       ".com/production/license/api/v1.0/secure/addlicense",
+                "url": licenseServerApiEndpoint + "/addlicense",
                 "crossdomain": true,
                 "data": JSON.stringify(data),
                 "success": function () {
-                    deferred.resolve("Successfully created license");
-                    xcHelper.showSuccess("License successfully created");
+                    deferred.resolve("Successfully issued license");
+                    xcHelper.showSuccess("License successfully issued to " + args.customerOrg);
                 },
                 "error": function() {
-                    deferred.reject("Failed to create license");
+                    deferred.reject("Failed to issue license");
                 }
             });
 
