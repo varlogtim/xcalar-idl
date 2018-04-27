@@ -118,6 +118,13 @@ window.UDF = (function($, UDF) {
         inputUDFFuncList(module);
     };
 
+
+    UDF.getCurrWorkbookPath = function() {
+        return ("/workbook/" + XcSupport.getUser() + "/" +
+                WorkbookManager.getWorkbook(
+                WorkbookManager.getActiveWKBK()).name + "/udf/");
+    };
+
     function initializeUDFList(isSetup, doNotClear) {
         var deferred = PromiseHelper.deferred();
 

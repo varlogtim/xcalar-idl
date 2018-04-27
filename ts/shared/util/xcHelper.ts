@@ -2931,9 +2931,7 @@ namespace xcHelper {
     // only show default and user workbook's udfs
     export function filterUDFs(fns: object[]): object[] {
         var filteredArray = [];
-        var wkbkPrefix = "/workbook/" + XcSupport.getUser() + "/" +
-        WorkbookManager.getWorkbook(
-        WorkbookManager.getActiveWKBK()).name + "/udf/";
+        var wkbkPrefix = UDF.getCurrWorkbookPath();
 
         for (var i = 0; i < fns.length; i++) {
             var op = fns[i];

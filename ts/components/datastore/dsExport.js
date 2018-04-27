@@ -59,6 +59,7 @@ window.DSExport = (function($, DSExport) {
             if (targetType === "UDF") {
                 options.module = $form.find(".udfModuleName").data("module").trim();
                 options.fn = "main";
+                options.moduleDisplayedName = $form.find(".udfModuleName").val();
             }
 
             submitForm(targetType, name, formatSpecificArg, options)

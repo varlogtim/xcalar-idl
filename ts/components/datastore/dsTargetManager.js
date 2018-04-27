@@ -395,6 +395,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
         if (module == null) {
             module = "";
         }
+        module = module.split("/").pop(); // use relative module name
 
         udfModuleHint.setInput(module);
 
@@ -405,7 +406,8 @@ window.DSTargetManager = (function($, DSTargetManager) {
             $udfFuncList.removeClass("disabled");
             var $funcLis = $udfFuncList.find(".list li").addClass("hidden")
                             .filter(function() {
-                                return $(this).data("module") === module;
+                                var relativeModule = $(this).data("module").split("/").pop();
+                                return relativeModule === module;
                             }).removeClass("hidden");
             if ($funcLis.length === 1) {
                 selectUDFFunc($funcLis.eq(0).text());
@@ -459,7 +461,8 @@ window.DSTargetManager = (function($, DSTargetManager) {
                 "check": function() {
                     var inValid = true;
                     $udfFuncList.find(".list li").each(function($li) {
-                    if ($(this).data("module") === module && $(this).text() === func){
+                        var relativeModule = $(this).data("module").split("/").pop();
+                    if (relativeModule === module && $(this).text() === func){
                         inValid = false;
                         return false;
                     }
@@ -779,7 +782,15 @@ window.DSTargetManager = (function($, DSTargetManager) {
         }
         var params = args[2]
         if (params.listUdf) {
+            // need to create abspolute path for the udfModule
+            if (params.listUdf === "default") {
+                params.listUdf = "/workbook/udf/default";
+            } else {
+                params.listUdf = UDF.getCurrWorkbookPath() + params.listUdf;
+            }
+
             var funVal = $udfFuncList.find("input").val();
+
             params.listUdf += ":" + funVal;
             if(!validateUDF()) {
                 deferred.reject();
