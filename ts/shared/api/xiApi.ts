@@ -240,6 +240,10 @@ namespace XIApi {
         let shouldIndex: boolean = false;
         const tempTables: string[] = [];
 
+        if (colsToIndex.length === 0) {
+            return PromiseHelper.resolve(false, tableName, tempTables);
+        }
+
         getUnsortedTableName(tableName, null, txId, colsToIndex)
         .then((unsorted) => {
             if (unsorted !== tableName) {
@@ -2197,6 +2201,7 @@ namespace XIApi {
         const sampleCols: number[] = options.sampleCols || [];
         const icvMode: boolean = options.icvMode || false;
         const clean: boolean = options.clean || false;
+        const groupAll: boolean = options.groupAll || false;
         const isMultiGroupby: boolean = (groupByCols.length > 1);
         let gbTableName: string = options.newTableName;
         let tempTables: string[] = [];
@@ -2210,7 +2215,8 @@ namespace XIApi {
             tempTables = tempTables.concat(res.tempTables);
             // table name may have changed after sort!
             let indexedTable: string = res.indexTable;
-            let indexedColName: string = xcHelper.stripColName(res.indexKeys[0]);
+            let indexedColName: string = res.indexKeys.length === 0 ?
+                            null : xcHelper.stripColName(res.indexKeys[0]);
 
             // get name from src table
             if (!isValidTableName(gbTableName)) {
@@ -2219,8 +2225,9 @@ namespace XIApi {
 
             // incSample does not take renames, multiGroupby already handle
             // the name in index stage
-            const newKeyFieldName: string = (isIncSample || isMultiGroupby) ?
-                        null : xcHelper.stripPrefixInColName(indexedColName);
+            const newKeyFieldName: string = (isIncSample || isMultiGroupby
+                                || groupAll) ? null :
+                                xcHelper.stripPrefixInColName(indexedColName);
             const newColNames: string[] = [];
             const evalStrs: string[] = [];
             normalAggArgs.forEach((aggArg) => {
@@ -2230,7 +2237,7 @@ namespace XIApi {
 
             return XcalarGroupByWithEvalStrings(newColNames, evalStrs,
                 indexedTable, gbTableName, isIncSample,
-                icvMode, newKeyFieldName, false, txId)
+                icvMode, newKeyFieldName, groupAll, txId)
         })
         .then(function() {
             return getFinalGroupByCols(txId, tableName, gbTableName, groupByCols,

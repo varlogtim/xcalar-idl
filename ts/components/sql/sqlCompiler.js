@@ -1566,15 +1566,7 @@
             // Select col1 [as col2]
             // from table
             // grouby col1
-            var gbTempColName;
-            if (gbColNames.length === 0) {
-                firstMapArray.push("int(1)");
-                gbTempColName = "XC_GB_COL_" + Authentication.getHashId()
-                                                             .substring(1);
-                firstMapColNames.push(gbTempColName);
-                gbColNames = [gbTempColName];
-                // gbAll = true;
-            }
+            // Now we use groupAll flag to handle this
 
             var tempCol;
             if (gArray.length === 0) {
@@ -2115,19 +2107,7 @@
             });
 
             // If no partition specified, need to add a temp column to group by
-            if (loopStruct.groupByCols.length === 0) {
-                var gbTempColName = "XC_GB_COL_" + Authentication.getHashId()
-                                                                 .substring(1);
-                loopStruct.dummyGbColStruct = {colName: gbTempColName};
-                node.xcCols.push({colName: gbTempColName});
-                curPromise = curPromise.then(function(ret){
-                    cli += ret.cli;
-                    return self.sqlObj.map(["int(1)"], ret.newTableName,
-                                                [gbTempColName]);
-                });
-                loopStruct.groupByCols = [{colName: gbTempColName,
-                                type: "integer"}];
-            }
+            // Use groupAll instead
 
             // Traverse windowExps, generate desired rows
             for (var i = 0; i < node.value.windowExpressions.length; i++) {
@@ -2314,6 +2294,7 @@
                 options.existenceCol = globalStruct.existenceCol.rename;
             } else {
                 switch (joinNode.value.joinType.object) {
+                    case ("org.apache.spark.sql.catalyst.plans.Cross$"):
                     case ("org.apache.spark.sql.catalyst.plans.Inner$"):
                         joinType = JoinOperatorT.InnerJoin;
                         break;
@@ -2331,9 +2312,6 @@
                         break;
                     case ("org.apache.spark.sql.catalyst.plans.LeftAnti$"):
                         joinType = JoinCompoundOperatorTStr.LeftAntiSemiJoin;
-                        break;
-                    case ("org.apache.spark.sql.catalyst.plans.CrossJoin$"):
-                        joinType = JoinCompoundOperatorTStr.CrossJoin;
                         break;
                     default:
                         assert(0);
@@ -2987,6 +2965,9 @@
                                                 rightJoinCols, windowStruct) {
         var deferred = PromiseHelper.deferred();
         windowStruct.cli += ret.cli;
+        if (leftJoinCols.length === 0) {
+            joinType = JoinOperatorT.CrossJoin;
+        }
         var lTableInfo = {
             "tableName": windowStruct.leftTableName,
             "columns": leftJoinCols.map(function(col) {

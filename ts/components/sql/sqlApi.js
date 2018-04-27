@@ -503,6 +503,9 @@
 
             options = options || {};
             options.icvMode = false;
+            if (groupByCols.length === 0) {
+                options.groupAll = true;
+            }
 
             XIApi.groupBy(txId, gbArgs, groupByCols, tableName, options)
             .then(function(finalTable, finalCols, renamedGroupByCols,
