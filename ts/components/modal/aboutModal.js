@@ -14,7 +14,6 @@ window.AboutModal = (function($, AboutModal) {
 
         $modal.on("click", ".close", closeModal);
         $modal.on("click", ".iconWrapper", function() {
-            // debugger;
             xcHelper.copyToClipboard($(this).closest(".textRow")
                                             .find(".value").text());
             xcTooltip.changeText($(this), TooltipTStr.AboutCopied);

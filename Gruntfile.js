@@ -172,39 +172,32 @@ var WATCH_FILETYPES = {
     [WATCH_TARGET_CTOR]: '',
 };
 
-/**
-    MAPPINGS FOR INIDVIDUAL FILE TYPES
-    Used as follows in this Gruntfile:
-        src: directory path within project src where files to be generated are rooted at
-        dest: directory path within bld you want the genrated files of that type to be rooted at
-        remove: files/dirs to exclude from bld entirely (old legacy files you dont need for any reason)
-            should be rel. to 'src' attribute above (since you're saying, within the src, don't use these at all)
-            can use globbing patterns
-            >> Globbing patterns here only are UNIX globbing patterns, not Grunt!  (because these will be
-            tacked on to the initial rsync command, and grunt-rsync uses the Unix globs!!,
-        exclude: files/dirs you want to exclude from generating, but keep as standalone files in bld
-            (ex. 3rd party js files, that you don't want to minify, but still want them in bld)
-        required: dirs/files required only for the purpose of generating bld files, so want synced in to bld
-            for purpose of bld generation, but removed on cleanup
+// Key meanings:
+// src: src dir
+// files: file globs (grunt style) within src dir
+// dest: dest dir
+// remove: files / dirs to skip copy. UNIX, not Grunt, style globbing patterns
+//         can be used. 
+// exclude: files / dirs to copy, but skip build
+// required: files / dires to copy, build, and delete on completion
 
-*/
 var constructorMapping = {
     src: 'assets/js/constructor/xcalar-idl/xd/',
     files: '*',
     dest: 'assets/js/constructor/',
     exclude: [],
-    remove: ['**README'], // remove README files in the constructor src; dont need them and if you don't you'll end up with empty dirs with only READMEs
+    remove: ['**README'], // Otherwise we'll have empty dirs with only READMEs
     required: ['site/render/']};
 var cssMapping = {
     src: 'assets/stylesheets/less/',
     files: '*.less',
     dest: 'assets/stylesheets/css/',
     exclude: [],
-    remove: ['userManagement.less', 'xu.less', 'dashboard.less'], // old files; don't need these
+    remove: ['userManagement.less', 'xu.less', 'dashboard.less'],
     required:['assets/stylesheets/less/partials/']};
 var htmlMapping = {
     src: 'site/',
-    files: '**/*.html', // globbing pattern for files to get for a full bld
+    files: '**/*.html',
     dest: '',
     exclude: [],
     remove: ['dashboard.html', 'userManagement.html'],
@@ -218,32 +211,33 @@ var jsMapping = {
     required: []};
 var helpContentRoot = "assets/help/";
 var helpContentMapping = {
-    src: helpContentRoot + 'user/', // starts out with XD/ and XI/ dirs in helpContentRoot, the rel. one based on build flavor only gets moved to this user/ after initial rsync
-    dest: "assets/js/shared/util/helpHashTags.js", // help contenet generated will be a single file defining some structs
+    src: helpContentRoot + 'user/', 
+    dest: "assets/js/shared/util/helpHashTags.js",
     exclude: {},
     remove: [],
     required: []};
 var typescriptMapping = {
-    src:  'ts/', // starts out with XD/ and XI/ dirs in helpContentRoot, the rel. one based on build flavor only gets moved to this user/ after initial rsync
-    dest: "assets/js/", // help contenet generated will be a single file defining some structs
+    src:  'ts/', 
+    dest: "assets/js/",
     exclude: {},
     remove: [],
     required: ['ts/']};
 
 // path rel src to the unitTest folder
-UNIT_TEST_FOLDER = 'assets/test/unitTest';
+var UNIT_TEST_FOLDER = 'assets/test/unitTest';
 
 // cli options for regular bld functionality
-var BLD_OP_SRC_REPO = 'srcroot',
-    BLD_OP_BLDROOT = 'buildroot',
-    BLD_OP_PRODUCT = 'product',
-    BLD_OP_BACKEND_SRC_REPO = "xcalarroot",
-    BLD_OP_JS_MINIFICATION_CONCAT_DEPTH = 'jsminificationdepth',
-    BLD_FLAG_TIMESTAMP_BLDDIR = 'timestampbld',
-    BLD_FLAG_NO_OVERWRITE_BLDDIR_IF_EXISTS = 'nooverwrite',
-    BLD_FLAG_RETAIN_FULL_SRC = 'keepsrc',
-    BLD_FLAG_RC_SHORT = 'rc',
-    BLD_FLAG_RC_LONG = 'removedebugcomments';
+var BLD_OP_SRC_REPO = 'srcroot';
+var BLD_OP_BLDROOT = 'buildroot';
+var BLD_OP_PRODUCT = 'product';
+var BLD_OP_BACKEND_SRC_REPO = "xcalarroot";
+var BLD_OP_JS_MINIFICATION_CONCAT_DEPTH = 'jsminificationdepth';
+var BLD_FLAG_TIMESTAMP_BLDDIR = 'timestampbld';
+var BLD_FLAG_NO_OVERWRITE_BLDDIR_IF_EXISTS = 'nooverwrite';
+var BLD_FLAG_RETAIN_FULL_SRC = 'keepsrc';
+var BLD_FLAG_RC_SHORT = 'rc';
+var BLD_FLAG_RC_LONG = 'removedebugcomments';
+var FASTCOPY = 'fastcopy';
 // delimeter user should use for cli options that can take lists
 var OPTIONS_DELIM = ",";
 
@@ -301,7 +295,7 @@ var LIVE_RELOAD_BY_TYPE = {};
     (val): path(s) you want in final bld of the processed, templated file
     [some are two, because those files are files that when you template, you save in to 2 sep files]
 */
-htmlTemplateMapping = {
+var htmlTemplateMapping = {
     "dashboard.html": ["dashboard.html"],
     "datastoreTut1.html": ["assets/htmlFiles/walk/datastoreTut1.html"],
     "datastoreTut2.html": ["assets/htmlFiles/walk/datastoreTut2.html"],
@@ -324,32 +318,35 @@ htmlTemplateMapping = {
 };
 
 /**
-
-        global vars FOR PARAM VALIDATION of cmd options..
-        VALID_OPTIONS: keys are the valid CLI options, value is a hash specifying validation criteria for value
-        Will validation options against this hash.  Create also some useful formatted strings for help and
-        corrective err msgs
+    global vars FOR PARAM VALIDATION of cmd options..
+    VALID_OPTIONS: 
 */
 
-var VALUES_KEY = "values", // the values it's limited to
-    REQUIRES_ONE_KEY = 'requiresOne', // option requires at least one in a list of other options/flags
-    REQUIRES_ALL_KEY = 'requiresAll', // option requires all of a particular list of other options/flags
-    MULTI_KEY = 'multi', // can specify a delimeter list of values
-    EXCLUSION_KEY = 'exclusion', // can specify --<option>=-<values> and it will get everything BUT what is in the list
-    NAND_KEY = 'notand', // if specifying an option, can't specify a set of other options
-    FLAG_KEY = 'boolflag', // if is strictly a boolean flag, and does not take any value (false would mean it can take a value)
-    TYPE_KEY = 'typekey', // if it can only be a certain data type.  sorry don't have this figured out yet.
-    REQUIRES_VALUE_KEY = 'takesval', // if this option requires some value assigned to it.
-    // so note if it allows both - flag and option, don't supply either.
-    WATCH_KEY = 'watch', // if this is an option for watch functionality
-    BLD_KEY = 'bldstuff', // if this is a key for bld functionality (need in addition to watch key because could be bopth)
-    DESC_KEY = 'description', // description of the option/to print to user in help menu and corrective err msgs during param validation
-    IS_GRUNT_OP = 'gruntop', // if this is a build-in grunt option  (will print a general description in that case)
-    // Grunt by default, 1. processes an option that's supplied as option=false as a boolean flag, --no-<option>
-    // Allows user to supply --no-<flag> for any8 boolean flag.  These two keys control that.
-    TAKES_BOOLS = 'nobooleans', // if this can take boolean values true/false. (because then you'll know that --no-<param> is actually valid
-    NO_EXTRA_GRUNT_FLAG = 'noextra'; // if you don't want Grunt to allow a no-<param> flag for this param (it complicatrse things for the watch flags)
-var falseBooleanFlagPrefix = "no-"; // the prefix Grunt adds on to the extra booleans (i.e., if you have --root=false, will store as --no-root)(
+// Used to store params and flags during input. 
+var VALUES_KEY = "values"; // the values it's limited to
+var REQUIRES_ONE_KEY = 'requiresOne'; // option requires at least one in a list of other options/flags
+var REQUIRES_ALL_KEY = 'requiresAll'; // option requires all of a particular list of other options/flags
+var MULTI_KEY = 'multi'; // can specify a delimeter list of values
+var EXCLUSION_KEY = 'exclusion'; // can specify --<option>=-<values> and it will get everything BUT what is in the list
+var NAND_KEY = 'notand'; // if specifying an option, can't specify a set of other options
+var FLAG_KEY = 'boolflag'; // if is strictly a boolean flag, and does not take any value (false would mean it can take a value)
+var TYPE_KEY = 'typekey'; // if it can only be a certain data type.  sorry don't have this figured out yet.
+var REQUIRES_VALUE_KEY = 'takesval'; // if this option requires some value assigned to it.
+// so note if it allows both - flag and option, don't supply either.
+var WATCH_KEY = 'watch'; // if this is an option for watch functionality
+var BLD_KEY = 'bldstuff'; // if this is a key for bld functionality (need in addition to watch key because could be bopth)
+var DESC_KEY = 'description'; // description of the option/to print to user in help menu and corrective err msgs during param validation
+var IS_GRUNT_OP = 'gruntop'; // if this is a build-in grunt option  (will print a general description in that case)
+// Grunt by default, 1. processes an option that's supplied as option=false as a boolean flag, --no-<option>
+// Allows user to supply --no-<flag> for any8 boolean flag.  These two keys control that.
+var TAKES_BOOLS = 'nobooleans'; // if this can take boolean values true/false. (because then you'll know that --no-<param> is actually valid
+var NO_EXTRA_GRUNT_FLAG = 'noextra'; // if you don't want Grunt to allow a no-<param> flag for this param (it complicatrse things for the watch flags)
+var falseBooleanFlagPrefix = "no-"; // the prefix Grunt adds on to the extra booleans (i.e., if you have --root=false, will store as --no-root)
+
+// Keys: Valid CLI options
+// REQUIRES_VALUE_KEY: Whether the param needs a value
+// VALUES_KEY: Only values in VALUES_KEY array are valid
+// DESC_KEY: String to describe what the param is used for
 var VALID_OPTIONS = {
     [BLD_OP_SRC_REPO]:
         {[REQUIRES_VALUE_KEY]: true, [DESC_KEY]: "Path to the xcalar gui git repo you want to generate bld from"},
@@ -384,6 +381,8 @@ var VALID_OPTIONS = {
         {[FLAG_KEY]: true, [DESC_KEY]: "Remove debug comments from javascript files when generating build"},
     [BLD_FLAG_RC_LONG]:
         {[FLAG_KEY]: true, [DESC_KEY]: "Remove debug comments from javascript files when generating build"},
+    [FASTCOPY]:
+        {[FLAG_KEY]: true, [DESC_KEY]: "Skip copying of node_modules and help"},
     // watch flags
     [WATCH_FLAG_ALL]:
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in files of all filetypes"},
@@ -661,6 +660,7 @@ var BACKENDBLDROOT; // root of dev src; set in init
 var OVERWRITE;
 var KEEPSRC;
 var WATCH_FILES_REL_TO;
+var fastcopy;
 
 var STEPCOLOR = 'cyan';
 var STEPCOLOR2 = 'magenta';
@@ -864,14 +864,18 @@ var DONT_PRETTIFY = ["datastoreTut1.html", "datastoreTut2.html", "workbookTut.ht
         'frommake',
         "'/xcalar-gui'", // "" ""
     ];
-/**
-    exclude the files specified for removal in the individual file type builders
-*/
+    /**
+        exclude the files specified for removal in the individual file type builders
+    */
 DONT_RSYNC = DONT_RSYNC.concat(constructorMapping.remove.map(x => constructorMapping.src + x));
 // code line above prepends .src attr to each el in .remove list, to obtain path rel to SRCROOT (.src rel to SRCROOT, .remove els rel to .src)
 DONT_RSYNC = DONT_RSYNC.concat(cssMapping.remove.map(x => cssMapping.src + x));
 DONT_RSYNC = DONT_RSYNC.concat(htmlMapping.remove.map(x => htmlMapping.src + x));
 DONT_RSYNC = DONT_RSYNC.concat(jsMapping.remove.map(x => jsMapping.src + x));
+
+DONT_RSYNC_FASTCOPY = DONT_RSYNC.concat("3rd/**/*").concat("services/**/*")
+    .concat("assets/help/**/*");
+
 
 module.exports = function(grunt) {
     if (grunt.option('help')) {
@@ -1308,6 +1312,16 @@ module.exports = function(grunt) {
                     recursive: true,
                 },
             },
+            fastcopy: {
+                options: {
+                    args: ['-a', '--update'/** --verbose */], // put rsync options you want here (-a will preserve symlinks, ownership, etc; see rsync man page
+                    exclude: DONT_RSYNC_FASTCOPY,
+                    include: ['3rd/microsoft-authentication-library-for-js/dist'],
+                    src: SRCROOT + '.', // will copy starting from SRCROOT
+                    dest: BLDROOT,
+                    recursive: true,
+                },
+            },
         },
 
         /** auto generates script tags in to HTML docs
@@ -1697,40 +1711,41 @@ module.exports = function(grunt) {
                 */
 
     /**
-        blow away existing bld dirs if they exist
+        Remove BLDDIR if it exists (assuming overwrite === true)
     */
     grunt.task.registerTask(PREP_BUILD_DIRS, function() {
-
         var olColor = 'rainbow';
         grunt.log.writeln('\n\t::::::::::::: SETUP ::::::::::::::::\n');
         grunt.log.writeln(process.cwd());
         if (grunt.file.exists(BLDROOT)) {
-            grunt.log.writeln("Destination dir for bld " + BLDROOT + " already exists!");
-            if ( OVERWRITE ) {
-                // if build dir alreadfy exists, delete contents
-                // MAKE SURE IT'S NOT CWD OR SRCROOT!!!
-                if ( BLDROOT == SRCROOT ) {
-                    grunt.fail.fatal("Grunt is set to overwrite bld dir if it exists,"
-                        + " but the build dir you've specified is same as your project source!! \n"
-                        + SRCROOT
-                        + "\nI'm not going to delete this!"
-                        + "\n\n(Note: I caught this special case, but there is a boolean option --"
-                        + BLD_FLAG_NO_OVERWRITE_BLDDIR_IF_EXISTS
-                        + " to protect against this behavior, for ALL cases where bld dir might exist)");
+            grunt.log.writeln("INFO: BLDDIR: " + BLDROOT + " already exists!");
+            if (OVERWRITE) {
+                if (BLDROOT === SRCROOT) {
+                    grunt.fail.fatal("You can't overwrite your SRCROOT.");
                 }
-                if ( BLDROOT == process.cwd() ) {
-                    grunt.fail.fatal("Destination dir for build output is specified as the cwd,"
-                        + "\nGrunt is set to overwrite the build output dir if it exists.\n"
-                        + " I'm not going to delete this, even with the force option!!"
-                        + "\n\n(Note: I caught this special case, but there is a boolean option --"
-                        + BLD_FLAG_NO_OVERWRITE_BLDDIR_IF_EXISTS
-                        + " to protect against this behavior, for ALL cases where bld dir might exist)");
+                if (BLDROOT === process.cwd()) {
+                    grunt.fail.fatal("You can't overwrite your cwd.");
+                }
+                grunt.log.writeln("Remove previous BLDDIR");
 
+                if (fastcopy) {
+                    files = grunt.file.expand([
+                        BLDROOT + "**/*",
+                        "!" + BLDROOT + "3rd",
+                        "!" + BLDROOT + "3rd/**/*",
+                        "!" + BLDROOT + "services",
+                        "!" + BLDROOT + "services/**/*",
+                        "!" + BLDROOT + "assets/help",
+                        "!" + BLDROOT + "assets/help/**/*"]);
+                    for (var f of files) {
+                        if (f !== BLDROOT + "assets") {
+                            grunt.file.delete(f, {force: true});
+                        }
+                    }
+                } else {
+                    grunt.file.delete(BLDROOT);
                 }
-                grunt.log.writeln("overwrite specified... deleting...");
-                grunt.file.delete(BLDROOT); // до свидания!
-            }
-            else {
+            } else {
                 // valid use case: in DEV blds, def behavior is srcroot same as destdir.
                 // so in this case you don't mind this happening.
                 if ( SRCROOT != BLDROOT ) {
@@ -1805,7 +1820,12 @@ module.exports = function(grunt) {
                 so only do the rsync if the bld and src root are different
             */
             if ( SRCROOT != BLDROOT ) {
-                grunt.task.run('rsync:initial');
+                if (fastcopy) {
+                    grunt.task.run("rsync:fastcopy");
+                } else {
+                    grunt.task.run('rsync:initial');
+                }
+                
             }
             grunt.task.run(HELP_CONTENTS);
             grunt.task.run(BUILD_CSS);
@@ -3697,7 +3717,7 @@ module.exports = function(grunt) {
         if (  grepCmdOutput ) {
             grunt.log.warn(("WARNING: There are still files within your build, "
                 + "which have some form of 'xcalar design', though this is an XI build."
-                + "\n Files: (from within "
+                + "\n Files: (from with in "
                 + BLDROOT
                 + ")\n").red.bold
                 + grepCmdOutput
@@ -3752,7 +3772,7 @@ module.exports = function(grunt) {
 
             // clean out any empty dirs in the bld, recursively.
             // this is time consuming - do not do it for individual watch tassks
-            if ( !IS_WATCH_TASK ) {
+            if ( !IS_WATCH_TASK && !fastcopy) {
                 grunt.task.run('cleanempty:finalBuild');
             }
 
@@ -5182,8 +5202,6 @@ module.exports = function(grunt) {
         return reloadByType;
     }
 
-///// JERENE REWROTE FROM HERE
-
     /** Returns WATCH_FILETYPES value of an absolute filepath to a file.
      * Needed because we can't just rely in ext due to htmlTStr.js etc which
      * needs to rebuild HTML not JS
@@ -5408,6 +5426,10 @@ module.exports = function(grunt) {
                 "first before running grunt watch");
         }
         process.env[BLD_OP_BLDROOT] = BLDROOT;
+
+        // FASTCOPY do not delete help and node_modules folder
+        fastcopy = grunt.option(FASTCOPY) || process.env[FASTCOPY] || false;
+        process.env[FASTCOPY] = fastcopy;
 
         // OVERWRITE bldroot if it already exists
         OVERWRITE = !(grunt.option(BLD_FLAG_NO_OVERWRITE_BLDDIR_IF_EXISTS)) || process.env[BLD_FLAG_NO_OVERWRITE_BLDDIR_IF_EXISTS] || false;
