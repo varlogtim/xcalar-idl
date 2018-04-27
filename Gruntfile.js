@@ -245,20 +245,8 @@ var OPTIONS_DELIM = ",";
 var CONSTRUCTOR_TEMPLATE_FILE = 'constructor.template.js';
 var CONSTRUCTOR_TEMPLATE_FILE_PATH_REL_BLD = 'site/render/template/' + CONSTRUCTOR_TEMPLATE_FILE;
 
-/**
-    A hash with keys for each watch filetype,
-    and value a boolean for if files of that type
-    should be reloaded. Dynamically configured based
-    on user params.
-    This will be used in the watch events!! (event.on('watch')
-    so livereload property can be turned on/off on the
-    fly, depending on the type of file that was edited.
-    Therfore, this hash needs to be configured prior to tasks running!
-    There is a function, getReloadTypes(), which will
-    return what this hash should be..
-    Please make sure it is being called, or hash configed,
-    somewhere in init!!
-*/
+// Used to track which file types cause a reload. Also used in watch events
+// This struct is populated by getReloadTypes() during init
 var LIVE_RELOAD_BY_TYPE = {};
 
 /**
@@ -876,6 +864,7 @@ DONT_RSYNC = DONT_RSYNC.concat(jsMapping.remove.map(x => jsMapping.src + x));
 DONT_RSYNC_FASTCOPY = DONT_RSYNC.concat("3rd/**/*").concat("services/**/*")
     .concat("assets/help/**/*");
 
+DONT_RSYNC_RC = DONT_RSYNC.concat("assets/extensions/ext-unused");
 
 module.exports = function(grunt) {
     if (grunt.option('help')) {
@@ -1306,6 +1295,16 @@ module.exports = function(grunt) {
                 options: {
                     args: ['-a', '--update'/** --verbose */], // put rsync options you want here (-a will preserve symlinks, ownership, etc; see rsync man page
                     exclude: DONT_RSYNC,
+                    include: ['3rd/microsoft-authentication-library-for-js/dist'],
+                    src: SRCROOT + '.', // will copy starting from SRCROOT
+                    dest: BLDROOT,
+                    recursive: true,
+                },
+            },
+            rc: {
+                options: {
+                    args: ['-a', '--update'/** --verbose */], // put rsync options you want here (-a will preserve symlinks, ownership, etc; see rsync man page
+                    exclude: DONT_RSYNC_RC,
                     include: ['3rd/microsoft-authentication-library-for-js/dist'],
                     src: SRCROOT + '.', // will copy starting from SRCROOT
                     dest: BLDROOT,
@@ -1822,8 +1821,11 @@ module.exports = function(grunt) {
             if ( SRCROOT != BLDROOT ) {
                 if (fastcopy) {
                     grunt.task.run("rsync:fastcopy");
+                } else if (grunt.option(BLD_FLAG_RC_SHORT) ||
+                           grunt.option(BLD_FLAG_RC_LONG)) {
+                    grunt.task.run("rsync:rc");
                 } else {
-                    grunt.task.run('rsync:initial');
+                    grunt.task.run("rsync:initial");
                 }
                 
             }
@@ -5203,7 +5205,7 @@ module.exports = function(grunt) {
     }
 
     /** Returns WATCH_FILETYPES value of an absolute filepath to a file.
-     * Needed because we can't just rely in ext due to htmlTStr.js etc which
+     * Needed because we can't just rely on ext due to htmlTStr.js etc which
      * needs to rebuild HTML not JS
     */
     function getWatchFileType(filepath) {
