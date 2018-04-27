@@ -141,10 +141,16 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
     function getTableKVStoreMeta(workbookName) {
         var deferred = PromiseHelper.deferred();
         var currentSession = sessionName;
+
+        if (workbookName === currentSession) {
+            deferred.resolve(gTables, getWSInfo(WSManager.getAllMeta()));
+            return deferred.promise();
+        }
+
         var key = WorkbookManager.getStorageKey();
         var kvStore = new KVStore(key, gKVScope.WKBK);
         setSessionName(workbookName);
-       
+
         kvStore.getAndParse()
         .then(function(res) {
             try {
