@@ -637,7 +637,11 @@ StatusT = {
   'StatusLicDecompressInit' : 628,
   'StatusLicDecompressErr' : 629,
   'StatusLicLicenseTooLarge' : 630,
-  'StatusLicCompressInit' : 631
+  'StatusLicCompressInit' : 631,
+  'StatusLicUnsupportedOperation' : 632,
+  'StatusLicOpDisabledUnlicensed' : 633,
+  'StatusWorkbookInvalidVersion' : 634,
+  'StatusPubTableNameNotFound' : 635
 };
 StatusTStr = {
   0 : 'Success',
@@ -1016,7 +1020,7 @@ StatusTStr = {
   373 : 'Xcalar license file is too big, or too small',
   374 : 'Xcalar license has expired',
   375 : 'Xcalar license version is too old. Please obtain an updated version.',
-  376 : 'Attempting to create Xcalar cluster larger than license allows.',
+  376 : 'The Xcalar Cluster has more nodes than the license allows',
   377 : 'The log file was already closed',
   378 : 'The log handle is not valid',
   379 : 'The cluster is in the process of shutting down',
@@ -1271,7 +1275,11 @@ StatusTStr = {
   628 : 'Zlib initialization for the license failed during decompress',
   629 : 'An error occurred while decompressing the license',
   630 : 'The uncompressed license is too large',
-  631 : 'Zlib initialization for the license failed during compress'
+  631 : 'Zlib initialization for the license failed during compress',
+  632 : 'The specified operation on the license is not supported',
+  633 : 'The specified operation has been disabled, because a proper license has not been provided or has expired',
+  634 : 'Invalid workbook version',
+  635 : 'Publish table name not found'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -1650,7 +1658,7 @@ StatusTFromStr = {
   'Xcalar license file is too big, or too small' : 373,
   'Xcalar license has expired' : 374,
   'Xcalar license version is too old. Please obtain an updated version.' : 375,
-  'Attempting to create Xcalar cluster larger than license allows.' : 376,
+  'The Xcalar Cluster has more nodes than the license allows' : 376,
   'The log file was already closed' : 377,
   'The log handle is not valid' : 378,
   'The cluster is in the process of shutting down' : 379,
@@ -1905,5 +1913,9 @@ StatusTFromStr = {
   'Zlib initialization for the license failed during decompress' : 628,
   'An error occurred while decompressing the license' : 629,
   'The uncompressed license is too large' : 630,
-  'Zlib initialization for the license failed during compress' : 631
+  'Zlib initialization for the license failed during compress' : 631,
+  'The specified operation on the license is not supported' : 632,
+  'The specified operation has been disabled, because a proper license has not been provided or has expired' : 633,
+  'Invalid workbook version' : 634,
+  'Publish table name not found' : 635
 };

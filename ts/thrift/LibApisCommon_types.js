@@ -6936,6 +6936,7 @@ XcalarApiExecuteRetinaInputT = function(args) {
   this.queryName = null;
   this.dest = null;
   this.parameters = null;
+  this.latencyOptimized = null;
   if (args) {
     if (args.retinaName !== undefined && args.retinaName !== null) {
       this.retinaName = args.retinaName;
@@ -6948,6 +6949,9 @@ XcalarApiExecuteRetinaInputT = function(args) {
     }
     if (args.parameters !== undefined && args.parameters !== null) {
       this.parameters = Thrift.copyList(args.parameters, [XcalarApiParameterT]);
+    }
+    if (args.latencyOptimized !== undefined && args.latencyOptimized !== null) {
+      this.latencyOptimized = args.latencyOptimized;
     }
   }
 };
@@ -7007,6 +7011,13 @@ XcalarApiExecuteRetinaInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 5:
+      if (ftype == Thrift.Type.BOOL) {
+        this.latencyOptimized = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -7045,6 +7056,11 @@ XcalarApiExecuteRetinaInputT.prototype.write = function(output) {
       }
     }
     output.writeListEnd();
+    output.writeFieldEnd();
+  }
+  if (this.latencyOptimized !== null && this.latencyOptimized !== undefined) {
+    output.writeFieldBegin('latencyOptimized', Thrift.Type.BOOL, 5);
+    output.writeBool(this.latencyOptimized);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -10704,24 +10720,20 @@ XcalarApiMemoryInputT.prototype.write = function(output) {
 };
 
 XcalarApiQueryInputT = function(args) {
-  this.querySession = null;
+  this.sameSession = null;
   this.queryName = null;
   this.queryStr = null;
-  this.sameSession = null;
   this.bailOnError = null;
   this.latencyOptimized = null;
   if (args) {
-    if (args.querySession !== undefined && args.querySession !== null) {
-      this.querySession = args.querySession;
+    if (args.sameSession !== undefined && args.sameSession !== null) {
+      this.sameSession = args.sameSession;
     }
     if (args.queryName !== undefined && args.queryName !== null) {
       this.queryName = args.queryName;
     }
     if (args.queryStr !== undefined && args.queryStr !== null) {
       this.queryStr = args.queryStr;
-    }
-    if (args.sameSession !== undefined && args.sameSession !== null) {
-      this.sameSession = args.sameSession;
     }
     if (args.bailOnError !== undefined && args.bailOnError !== null) {
       this.bailOnError = args.bailOnError;
@@ -10746,8 +10758,8 @@ XcalarApiQueryInputT.prototype.read = function(input) {
     switch (fid)
     {
       case 1:
-      if (ftype == Thrift.Type.I64) {
-        this.querySession = input.readI64().value;
+      if (ftype == Thrift.Type.BOOL) {
+        this.sameSession = input.readBool().value;
       } else {
         input.skip(ftype);
       }
@@ -10768,19 +10780,12 @@ XcalarApiQueryInputT.prototype.read = function(input) {
       break;
       case 4:
       if (ftype == Thrift.Type.BOOL) {
-        this.sameSession = input.readBool().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 5:
-      if (ftype == Thrift.Type.BOOL) {
         this.bailOnError = input.readBool().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 6:
+      case 5:
       if (ftype == Thrift.Type.BOOL) {
         this.latencyOptimized = input.readBool().value;
       } else {
@@ -10798,9 +10803,9 @@ XcalarApiQueryInputT.prototype.read = function(input) {
 
 XcalarApiQueryInputT.prototype.write = function(output) {
   output.writeStructBegin('XcalarApiQueryInputT');
-  if (this.querySession !== null && this.querySession !== undefined) {
-    output.writeFieldBegin('querySession', Thrift.Type.I64, 1);
-    output.writeI64(this.querySession);
+  if (this.sameSession !== null && this.sameSession !== undefined) {
+    output.writeFieldBegin('sameSession', Thrift.Type.BOOL, 1);
+    output.writeBool(this.sameSession);
     output.writeFieldEnd();
   }
   if (this.queryName !== null && this.queryName !== undefined) {
@@ -10813,18 +10818,13 @@ XcalarApiQueryInputT.prototype.write = function(output) {
     output.writeString(this.queryStr);
     output.writeFieldEnd();
   }
-  if (this.sameSession !== null && this.sameSession !== undefined) {
-    output.writeFieldBegin('sameSession', Thrift.Type.BOOL, 4);
-    output.writeBool(this.sameSession);
-    output.writeFieldEnd();
-  }
   if (this.bailOnError !== null && this.bailOnError !== undefined) {
-    output.writeFieldBegin('bailOnError', Thrift.Type.BOOL, 5);
+    output.writeFieldBegin('bailOnError', Thrift.Type.BOOL, 4);
     output.writeBool(this.bailOnError);
     output.writeFieldEnd();
   }
   if (this.latencyOptimized !== null && this.latencyOptimized !== undefined) {
-    output.writeFieldBegin('latencyOptimized', Thrift.Type.BOOL, 6);
+    output.writeFieldBegin('latencyOptimized', Thrift.Type.BOOL, 5);
     output.writeBool(this.latencyOptimized);
     output.writeFieldEnd();
   }
@@ -15093,9 +15093,13 @@ XcalarApiSelectInputT.prototype.write = function(output) {
 
 XcalarApiUnpublishInputT = function(args) {
   this.source = null;
+  this.inactivateOnly = null;
   if (args) {
     if (args.source !== undefined && args.source !== null) {
       this.source = args.source;
+    }
+    if (args.inactivateOnly !== undefined && args.inactivateOnly !== null) {
+      this.inactivateOnly = args.inactivateOnly;
     }
   }
 };
@@ -15120,9 +15124,13 @@ XcalarApiUnpublishInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 0:
+      case 2:
+      if (ftype == Thrift.Type.BOOL) {
+        this.inactivateOnly = input.readBool().value;
+      } else {
         input.skip(ftype);
-        break;
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -15137,6 +15145,11 @@ XcalarApiUnpublishInputT.prototype.write = function(output) {
   if (this.source !== null && this.source !== undefined) {
     output.writeFieldBegin('source', Thrift.Type.STRING, 1);
     output.writeString(this.source);
+    output.writeFieldEnd();
+  }
+  if (this.inactivateOnly !== null && this.inactivateOnly !== undefined) {
+    output.writeFieldBegin('inactivateOnly', Thrift.Type.BOOL, 2);
+    output.writeBool(this.inactivateOnly);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -19830,6 +19843,120 @@ XcalarApiColumnInfoT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiUpdateInfoT = function(args) {
+  this.source = null;
+  this.startTS = null;
+  this.batchId = null;
+  this.size = null;
+  this.numRows = null;
+  if (args) {
+    if (args.source !== undefined && args.source !== null) {
+      this.source = args.source;
+    }
+    if (args.startTS !== undefined && args.startTS !== null) {
+      this.startTS = args.startTS;
+    }
+    if (args.batchId !== undefined && args.batchId !== null) {
+      this.batchId = args.batchId;
+    }
+    if (args.size !== undefined && args.size !== null) {
+      this.size = args.size;
+    }
+    if (args.numRows !== undefined && args.numRows !== null) {
+      this.numRows = args.numRows;
+    }
+  }
+};
+XcalarApiUpdateInfoT.prototype = {};
+XcalarApiUpdateInfoT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.source = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.I64) {
+        this.startTS = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.I64) {
+        this.batchId = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 4:
+      if (ftype == Thrift.Type.I64) {
+        this.size = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 5:
+      if (ftype == Thrift.Type.I64) {
+        this.numRows = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiUpdateInfoT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiUpdateInfoT');
+  if (this.source !== null && this.source !== undefined) {
+    output.writeFieldBegin('source', Thrift.Type.STRING, 1);
+    output.writeString(this.source);
+    output.writeFieldEnd();
+  }
+  if (this.startTS !== null && this.startTS !== undefined) {
+    output.writeFieldBegin('startTS', Thrift.Type.I64, 2);
+    output.writeI64(this.startTS);
+    output.writeFieldEnd();
+  }
+  if (this.batchId !== null && this.batchId !== undefined) {
+    output.writeFieldBegin('batchId', Thrift.Type.I64, 3);
+    output.writeI64(this.batchId);
+    output.writeFieldEnd();
+  }
+  if (this.size !== null && this.size !== undefined) {
+    output.writeFieldBegin('size', Thrift.Type.I64, 4);
+    output.writeI64(this.size);
+    output.writeFieldEnd();
+  }
+  if (this.numRows !== null && this.numRows !== undefined) {
+    output.writeFieldBegin('numRows', Thrift.Type.I64, 5);
+    output.writeI64(this.numRows);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiTableInfoT = function(args) {
   this.name = null;
   this.numPersistedUpdates = null;
@@ -19852,7 +19979,7 @@ XcalarApiTableInfoT = function(args) {
       this.source = new XcalarApiPublishInputT(args.source);
     }
     if (args.updates !== undefined && args.updates !== null) {
-      this.updates = Thrift.copyList(args.updates, [XcalarApiUpdateTableInputT]);
+      this.updates = Thrift.copyList(args.updates, [XcalarApiUpdateInfoT]);
     }
     if (args.selects !== undefined && args.selects !== null) {
       this.selects = Thrift.copyList(args.selects, [XcalarApiSelectInputT]);
@@ -19922,7 +20049,7 @@ XcalarApiTableInfoT.prototype.read = function(input) {
         for (var _i557 = 0; _i557 < _size552; ++_i557)
         {
           var elem558 = null;
-          elem558 = new XcalarApiUpdateTableInputT();
+          elem558 = new XcalarApiUpdateInfoT();
           elem558.read(input);
           this.updates.push(elem558);
         }

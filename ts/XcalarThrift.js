@@ -3428,14 +3428,15 @@ XcalarExecuteRetina = function(retName, params, options, txId) {
     var newTableName = options.newTableName || "";
     var queryName = options.queryName || undefined;
 
+    var latencyOptimized = false; // This is for IMD, invoked via APIs.
     var workItem = xcalarExecuteRetinaWorkItem(retName, params, activeSession,
-                                               newTableName, queryName);
+        newTableName, queryName, latencyOptimized);
     var def;
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
         def = xcalarExecuteRetina(tHandle, retName, params, activeSession,
-                                   newTableName, queryName);
+            newTableName, queryName, latencyOptimized);
     }
 
     var query = XcalarGetQuery(workItem);
@@ -4863,13 +4864,13 @@ XcalarListPublishedTables = function(pubPatternMatch) {
     return deferred.promise();
 };
 
-XcalarUnpublishTable = function(pubTableName) {
+XcalarUnpublishTable = function(pubTableName, inactivateOnly) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
-    xcalarUnpublish(tHandle, pubTableName)
+    xcalarUnpublish(tHandle, pubTableName, inactivateOnly)
     .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarUnpublishTable", error);

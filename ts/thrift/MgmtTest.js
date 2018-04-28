@@ -210,7 +210,7 @@ window.Function.prototype.bind = function() {
     var system = require('system');
     var fs = require('fs');
     var qaTestDir = system.env.QATEST_DIR;
-    var envLicensePath = system.env.XCE_LICENSEPATH;
+    var envLicensePath = system.env.XCE_QALICENSEDIR;
     var numUsrnodes = 3;
     var targetName = "Default Shared Root";
 
@@ -1657,22 +1657,14 @@ window.Function.prototype.bind = function() {
             t1c.sourceColumn = "map1";
             t1c.destColumn = "mapdest";
             t1c.columnType = "DfInt64";
-            var t1c2 = new XcalarApiColumnT();
-            t1c2.sourceColumn = "yelp_user-votes.funny";
-            t1c2.destColumn = "funnydest";
-            t1c2.columnType = "DfInt64";
             var t2c = new XcalarApiColumnT();
             t2c.sourceColumn = "map2";
             t2c.destColumn = "mapdest";
             t2c.columnType = "DfInt64";
-            var t2c2 = new XcalarApiColumnT();
-            t2c2.sourceColumn = "yelp_user-votes.funny";
-            t2c2.destColumn = "funnydest";
-            t2c2.columnType = "DfInt64";
             tables.push("unionTable1");
             tables.push("unionTable2");
-            columns.push([t1c, t1c2]);
-            columns.push([t2c, t2c2]);
+            columns.push([t1c]);
+            columns.push([t2c]);
 
             return xcalarUnion(thriftHandle, tables, "unionStandardTest", columns,
                                    true, UnionOperatorT.UnionStandard)
@@ -1696,22 +1688,15 @@ window.Function.prototype.bind = function() {
         t1c.sourceColumn = "map1";
         t1c.destColumn = "mapdest";
         t1c.columnType = "DfInt64";
-        var t1c2 = new XcalarApiColumnT();
-        t1c2.sourceColumn = "yelp_user-votes.funny";
-        t1c2.destColumn = "funnydest";
-        t1c2.columnType = "DfInt64";
         var t2c = new XcalarApiColumnT();
         t2c.sourceColumn = "map2";
         t2c.destColumn = "mapdest";
         t2c.columnType = "DfInt64";
-        var t2c2 = new XcalarApiColumnT();
-        t2c2.sourceColumn = "yelp_user-votes.funny";
-        t2c2.destColumn = "funnydest";
-        t2c2.columnType = "DfInt64";
+        // All set operations require indexed columns
         tables.push("unionTable1");
         tables.push("unionTable2");
-        columns.push([t1c, t1c2]);
-        columns.push([t2c, t2c2]);
+        columns.push([t1c]);
+        columns.push([t2c]);
 
         xcalarUnion(thriftHandle, tables, "unionIntersectAllTest", columns,
                                false, UnionOperatorT.UnionIntersect)
@@ -2758,8 +2743,8 @@ window.Function.prototype.bind = function() {
             test.assert(result.product === "Xce");
             test.assert(result.productFamily === "XcalarX");
             test.assert(result.productVersion === "1.3.2.0");
-            test.assert(result.nodeCount === 1);
-            test.assert(result.userCount === 1);
+            test.assert(result.nodeCount === 10);
+            test.assert(result.userCount === 10);
             // Restore old license
             return (xcalarUpdateLicense(thriftHandle, origResult.compressedLicense));
         }).then(function(status) {
@@ -2783,9 +2768,31 @@ window.Function.prototype.bind = function() {
     }
 
     function testUpdateLicense(test) {
-        var licenseKey = fs.read(envLicensePath);
+        var licenseKey = fs.read(envLicensePath + "/XcalarLic.key.update.good");
 
         testApiUpdateLicense(test, licenseKey);
+    }
+
+    function testUpdateBadLicense(test, path, expectedStatus) {
+        var licenseKey = fs.read(path);
+        xcalarUpdateLicense(thriftHandle, licenseKey)
+        .then(function(status) {
+            test.fail("Test is not supposed to succeed. Expected: " + StatusTStr[expectedStatus]);
+        })
+        .fail(function(reason) {
+            test.assert(reason.xcalarStatus == expectedStatus);
+            test.pass();
+        });
+    }
+
+    function testUpdateLicenseTooFewNodes(test) {
+        testUpdateBadLicense(test, envLicensePath + "/XcalarLic.key.update.toosmall",
+                             StatusT.StatusLicInsufficientNodes);
+    }
+
+    function testUpdateLicenseExpired(test) {
+        testUpdateBadLicense(test, envLicensePath + "/XcalarLic.key.update.expired",
+                             StatusT.StatusLicExpired); 
     }
 
     function testApiKeyAddOrReplace(test, keyName, keyValue) {
@@ -4162,6 +4169,8 @@ window.Function.prototype.bind = function() {
 
     addTestCase(testGetNumNodes, "getNumNodes", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testGetVersion, "getVersion", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testUpdateLicenseTooFewNodes, "license update -- too few nodes", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testUpdateLicenseExpired, "license update -- expired license", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testUpdateLicense, "license update", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetCurrentXemConfig, "get current xem config test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetConfigParams, "getConfigParams", defaultTimeout, TestCaseEnabled, "");

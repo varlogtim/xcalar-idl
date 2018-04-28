@@ -1166,6 +1166,8 @@ xcalarQueryWorkItem = runEntity.xcalarQueryWorkItem = function(queryName, queryS
     workItem.api = XcalarApisT.XcalarApiQuery;
     workItem.input.queryInput.queryName = queryName;
     workItem.input.queryInput.queryStr = queryStr;
+    // sameSession must always be true; if false, a synthetic session is
+    // generated - this should be used only by/for tests
     workItem.input.queryInput.sameSession = sameSession;
 
     if (typeof bailOnError === 'undefined') {
@@ -2413,23 +2415,26 @@ xcalarDeleteDagNodes = runEntity.xcalarDeleteDagNodes = function(thriftHandle, n
     return (deferred.promise());
 };
 
-xcalarUnpublishWorkItem = runEntity.xcalarUnpublishWorkItem = function(tableName) {
+xcalarUnpublishWorkItem = runEntity.xcalarUnpublishWorkItem = function(tableName,
+                                                                       inactivateOnly) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.apiVersion = 0;
     workItem.api = XcalarApisT.XcalarApiUnpublish;
     workItem.input.unpublishInput = new XcalarApiUnpublishInputT();
     workItem.input.unpublishInput.source = tableName;
+    workItem.input.unpublishInput.inactivateOnly = inactivateOnly;
 
     return (workItem);
 };
 
-xcalarUnpublish = runEntity.xcalarUnpublish = function(thriftHandle, tableName) {
+xcalarUnpublish = runEntity.xcalarUnpublish = function(thriftHandle, tableName,
+                                                       inactivateOnly) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarUnpublish(name = " + tableName + ")");
     }
-    var workItem = xcalarUnpublishWorkItem(tableName);
+    var workItem = xcalarUnpublishWorkItem(tableName, inactivateOnly);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -3589,7 +3594,7 @@ xcalarUpdateRetina = runEntity.xcalarUpdateRetina = function(thriftHandle, retin
 };
 
 xcalarExecuteRetinaWorkItem = runEntity.xcalarExecuteRetinaWorkItem = function(retinaName, parameters,
-                                     exportToActiveSession, newTableName, queryName) {
+                                     exportToActiveSession, newTableName, queryName, latencyOptimized) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.executeRetinaInput = new XcalarApiExecuteRetinaInputT();
@@ -3608,6 +3613,12 @@ xcalarExecuteRetinaWorkItem = runEntity.xcalarExecuteRetinaWorkItem = function(r
         workItem.input.executeRetinaInput.dest = newTableName;
     } else {
         workItem.input.executeRetinaInput.dest = "";
+    }
+
+    if (typeof latencyOptimized === 'undefined') {
+        workItem.input.executeRetinaInput.latencyOptimized = false;
+    } else {
+        workItem.input.executeRetinaInput.latencyOptimized = latencyOptimized;
     }
 
     return (workItem);
