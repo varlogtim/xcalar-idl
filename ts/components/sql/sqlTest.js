@@ -4,55 +4,152 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
     var TestCaseDisabled = false;
     var defaultTimeout = 1800000; // 30min
     var sqlTestCases = {
-        "filterWithAggregates": "select p_name, p_partkey from part1 where  " +
-            "p_partkey > avg(p_partkey) - avg(p_partkey) / 10",
-        "complexGroupBy": "select avg(p_partkey * 3 + p_size * 1000000) from PART" +
-            "group by p_mfgr",
-        "groupByAlias": "select avg(p_partkey) as p from PART group by p_mfgr",
-        "in": "select P_BRAND from PART1 where substr(P_brand, 7, 2) in " +
-            "(\"23\", \"24\")",
-        "inSingle": "select P_BRAND from PART1 where substr(P_brand, 7, 2) in " +
-            "(\"23\")",
-        "in3": "select P_BRAND from PART1 where substr(P_brand, 7, 2) in " +
-            "(\"23\", \"24\", \"25\")",
-        "inNested": "select P_BRAND from PART1 where substr(P_brand, 7, 2) in " +
-            "(\"23\") or substr(P_brand, 7, 2) = \"25\"",
-        "inNested2": "select P_BRAND from PART1 where substr(P_brand, 7, 2) in " +
-            "(\"23\", \"24\") or substr(P_brand, 7, 2) = \"25\"",
-        "inNestedNested": "select P_BRAND from PART1 where substr(P_brand, 7, 2) in " +
-            "(\"23\", \"24\") or substr(P_brand, 7, 2) in (\"25\", \"26\")",
-        "mapAlias": "select l_commitdate, l_tax as tax, l_extendedprice * " +
-                    "(1 - l_discount) as amount from lineitem3",
-        "gbWithoutGroup": "select avg(l_tax) from lineitem3", // We are producing the WRONG answer. this should be an integer average
-        "gbTrivial": "select l_returnflag from lineitem3 group by l_returnflag",
-        "distinct": "select distinct(l_returnflag) from lineitem3",
-        "gbCount": "select count(*) from lineitem3 group by l_returnflag",
-        "gbTrivialAlias": "select l_returnflag as A, l_returnflag from lineitem3 group by l_returnflag",
-        "gbFG": "select avg(l_tax) * avg(l_extendedprice) from lineitem3 group by l_returnflag",
-        "gbGF": "select avg(l_tax * l_extendedprice) from lineitem3 group by l_returnflag",
-        "gbFGF": "select avg(l_tax + l_extendedprice) * avg(l_extendedprice) from lineitem3 group by l_returnflag",
-        "gbAllNoGBClause": "select avg(l_tax + l_extendedprice) * avg(l_extendedprice) as A, avg(l_tax * l_extendedprice) from lineitem3",
-        "gbAll": "select avg(l_tax + l_extendedprice) * avg(l_extendedprice) as A, l_returnflag as B, avg(l_tax * l_extendedprice) from lineitem3 group by l_returnflag",
-        "gbDistinct": "select sum(distinct l_quantity) as a, max(distinct l_quantity), avg(distinct l_quantity) as b from lineitem3 group by l_shipmode",
-        "gtJoin": "select * from customer4, nation4 where c_nationkey > n_nationkey",
+        "filterWithAggregates": "select n_nationkey, n_name from nation where  " +
+            "n_nationkey > avg(n_nationkey) - avg(n_regionkey) /10",
+        "complexGroupBy": "select avg(n_regionkey * 3 + n_nationkey * 1000000) from " +
+            "nation group by n_regionkey",
+        "groupByAlias": "select n_regionkey r, avg(n_nationkey) as p from nation group by r",
+        "in": "select n_name from nation where substr(n_name, 3, 2) in (\'IT\', \'GE\')",
+        "inSingle": "select n_name from nation where substr(n_name, 3, 2) in (\'IT\')",
+        "in3": "select n_name from nation where substr(n_name, 3, 2) in " +
+            "(\'IT\', \'GE\', \'HI\')",
+        "inNested": "select n_name from nation where substr(n_name, 3, 2) in " +
+            "(\'IT\') or substr(n_name, 3, 2) = \'YP\'",
+        "inNested2": "select r_regionkey from region where substr(r_name,1,1) " +
+            "in (\'1\', \'A\') or substr(r_name,1,2) = \'EU\'",
+        "inNestedNested": "select n_name from nation where substr(n_name, 3, 2) in " +
+            "(\'IT\', \'RM\') or substr(n_name, 3, 2) in (\'YP\', \'RO\')",
+        "mapAlias": "select n_name, n_regionkey comment, n_nationkey * " +
+                    "(1 - n_regionkey) as nonsense from nation",
+        "gbWithoutGroup": "select avg(n_nationkey) from nation",
+        "gbTrivial": "select 1 from nation group by n_regionkey",
+        "distinct": "select distinct(n_regionkey) from nation",
+        "gbCount": "select count(*) from nation group by n_regionkey",
+        "gbTrivialAlias": "select n_regionkey as a, n_regionkey from nation group by n_regionkey",
+        "gbFG": "select avg(n_nationkey) * avg(n_regionkey) from nation group by n_regionkey",
+        "gbGF": "select avg(n_nationkey * n_nationkey) from nation group by n_regionkey",
+        "gbFGF": "select avg(n_nationkey + n_regionkey) * avg(n_nationkey) from nation group by n_regionkey",
+        "gbAllNoGBClause": "select avg(n_nationkey + n_regionkey) * avg(n_nationkey) a, avg(n_nationkey * n_regionkey) from nation",
+        "gbAll": "select avg(n_nationkey + n_regionkey) * avg(n_nationkey) a, n_regionkey b, avg(n_nationkey * n_regionkey) from nation group by n_regionkey",
+        "gbDistinct": "select sum(distinct n_regionkey) as a, avg(distinct n_regionkey) as b, max(distinct n_regionkey) from nation",
+        "gtJoin": "select n_nationkey, n_name, n_regionkey from nation where n_nationkey > n_regionkey",
         // Doesn't work yet
-        "gtJoinWithSubQuery": "select * from nation4, customer4 where c_nationkey - (select avg(c_nationkey) from customer4) > n_nationkey - (select avg(n_nationkey) from nation4)",
-        "gbWithMapStr": "select avg(l_tax), l_tax/2 from lineitem3 group by l_tax/2",
+        // "gtJoinWithSubQuery": "select n_nationkey, r_regionkey from nation, region where n_regionkey - (select avg(n_regionkey) from nation) > r_regionkey - (select avg(r_regionkey) from region)",
+        "gbWithMapStr": "select avg(n_nationkey), n_regionkey/2 from nation group by n_regionkey/2",
         "joinWithCollision": "select * from region r1, region r2 where r1.r_regionkey = r2.r_regionkey",
         "aliasCollision": "select * from (select r_regionkey as key from region) as t1, (select r_regionkey as key from region) as t2 where t1.key = t2.key",
-        // Doesn't work yet. Returns empty result. Backend bug. Code review in progress
         "crossJoin": "select * from nation n1, nation n2 where (n1.n_name = \"FRANCE\" and n2.n_name = \"GERMANY\") or (n1.n_name = \"GERMANY\" and n2.n_name = \"FRANCE\")",
-        "dateExpr": "select year(o_orderdate) from orders",
+        "dateExpr": "select year(o_orderdate) from (select * from orders limit 20)",
         "joinSemiCatchall": "select * from region r1 where exists(   select *   from region r2   where r2.r_regionkey > r1.r_regionkey)",
         "joinAntiCatchall": "select * from region r1 where not exists(   select *   from region r2   where r2.r_regionkey > r1.r_regionkey)",
-        "joinSemiOptimize": "select * from supplier r1 where exists(   select *   from supplier r2   where r2.s_nationkey >= r1.s_nationkey and r2.s_name = r1.s_name)",
-        "joinAntiOptimize": "select * from supplier r1 where not exists(   select *   from supplier r2   where r2.s_nationkey >= r1.s_nationkey and r2.s_name = r1.s_name)", // empty table as result
-        "joinCatchall": "select * from supplier, nation where s_nationkey > n_nationkey",
-        "joinOptimizeFilter": "select * from supplier, nation where s_nationkey = n_nationkey and s_suppkey > n_nationkey",
+        "joinSemiOptimize": "select * from nation n1 where exists(   select *   from nation n2   where n2.n_regionkey = n1.n_regionkey and n2.n_nationkey >= n1.n_nationkey)",
+        "joinAntiOptimize": "select * from nation n1 where not exists(   select *   from nation n2   where n2.n_regionkey = n1.n_regionkey and n2.n_nationkey > n1.n_nationkey)",
+        "joinCatchall": "select * from region, nation where r_regionkey > n_regionkey",
+        "joinOptimizeFilter": "select * from region, nation where r_regionkey = n_regionkey and r_regionkey <> n_nationkey",
         "crossJoinNoFilter": "select * from nation cross join region",
         // "dateExpWithTS": "select year(timestamp(someTimestampCol)) from table",
-        "existenceJoin": "select * from tb t1 where exists(select * from tb t2 where t2.a_avg >= t1.r_regionkey_int) or exists(select * from region where region.r_regionkey >= t1.r_regionkey_int)",
-        "existenceJoinCatchAll": "select * from tb t1 where exists(select * from tb t2 where t2.a_avg = t1.r_regionkey_int) or exists(select * from region where region.r_regionkey = t1.r_regionkey_int)",
+        "existenceJoin": "select * from region r1 where exists(select * from region r2 where r2.r_regionkey >= r1.r_regionkey) or exists(select * from region r3 where r3.r_regionkey < r1.r_regionkey)",
+        "existenceJoinCatchAll": "select * from nation n1 where exists(select * from nation n2 where n2.n_regionkey = n1.n_nationkey) or exists(select * from nation n3 where n3.n_nationkey = n1.n_regionkey)",
+    };
+    var sqlTestAnswers = {
+        "filterWithAggregates": {"row0": ["12", "JAPAN"],
+                                 "row3": ["15", "MOROCCO"],
+                                 "numOfRows": "13"},
+        "complexGroupBy": {"row0": [11600012],
+                           "row3": [13600006],
+                           "numOfRows": "5"},
+        "groupByAlias": {"row0": [4, 11.6],
+                         "row4": [3, 15.4],
+                         "numOfRows": "5"},
+        "in": {"row0": ["ALGERIA"],
+               "row3": ["UNITED STATES"],
+               "numOfRows": "4"},
+        "inSingle": {"row0": ["UNITED KINGDOM"],
+                     "numOfRows": "2"},
+        "in3": {"row0": ["ALGERIA"],
+                "row2": ["ETHIOPIA"],
+                "numOfRows": "5"},
+        "inNested": {"row0": ["EGYPT"],
+                     "numOfRows": "3"},
+        "inNested2": {"row1": [1],
+                      "numOfRows": "4"},
+        "inNestedNested": {"row2": ["MOROCCO"],
+                           "numOfRows": "5"},
+        "mapAlias": {"row0": ["ALGERIA", "0", "0"],
+                     "row10": ["IRAN", "4", "-30"],
+                     "numOfRows": "25",
+                     "columns": ["N_NAME", "COMMENT", "NONSENSE"]},
+        "gbWithoutGroup": {"row0": ["12"],
+                           "numOfRows": "1"},
+        "gbTrivial": {"row4": ["1"],
+                      "numOfRows": "5"},
+        "distinct": {"row0": ["4"],
+                     "row2": ["1"],
+                     "numOfRows": "5"},
+        "gbCount": {"row1": ["5"],
+                    "numOfRows": "5"},
+        "gbTrivialAlias": {"columns": ["A", "N_REGIONKEY"],
+                           "row0": ["4", "4"],
+                           "numOfRows": "5"},
+        "gbFG": {"row0": ["46.4"],
+                 "row1": ["0"],
+                 "numOfRows": "5"},
+        "gbGF": {"row0": ["161.2"],
+                 "row4": ["291.8"],
+                 "numOfRows": "5"},
+        "gbFGF": {"row1": ["100"],
+                  "row3": ["212.16"],
+                  "numOfRows": "5"},
+        "gbAllNoGBClause": {"row0": ["168", "25.84"],
+                            "numOfRows": "1",
+                            "columns": ["A", "AVG_N_NATIONKEY_*_N_REGIONKEY"]},
+        "gbAll": {"row1": ["100", "0", "0"],
+                  "row3": ["212.16", "2", "27.2"],
+                  "numOfRows": "5"},
+        "gbDistinct": {"row0": ["10", "2", "4"],
+                       "numOfRows": "1",
+                       "columns": ["A", "B", "MAX_DISTINCT_N_REGIONKEY"]},
+        "gtJoin": {"row0": ["2", "BRAZIL", "1"],
+                   "row2": ["5", "ETHIOPIA", "0"],
+                   "numOfRows": "22"},
+        "gtJoinWithSubQuery": {"row0": "not supported yet"},
+        "gbWithMapStr": {"row0": ["10", "0"],
+                         "row3": ["9.4", "0.5"],
+                         "numOfRows": "5"},
+        "joinWithCollision": {"numOfRows": "5",
+                              "columns": ["R_REGIONKEY", "R_NAME", "R_COMMENT", "R_REGIONKEY", "R_NAME", "R_COMMENT"]},
+        "aliasCollision": {"row0": ["4", "4"],
+                           "numOfRows": "5",
+                           "columns": ["KEY", "KEY"]},
+        "crossJoin": {"row0": ["6", "FRANCE", "3"],
+                      "row1": ["7", "GERMANY", "3"],
+                      "numOfRows": "2"},
+        "dateExpr": {"row0": ["1993"],
+                     "row15": ["1994"],
+                     "numOfRows": "20"},
+        "joinSemiCatchall": {"row0": ["3", "EUROPE"],
+                             "numOfRows": "4"},
+        "joinAntiCatchall": {"row0": ["4", "MIDDLE EAST"],
+                             "numOfRows": "1"},
+        "joinSemiOptimize": {"row3": ["15", "MOROCCO", "0"],
+                             "row20": ["23", "UNITED KINGDOM", "3"],
+                             "numOfRows": "25"},
+        "joinAntiOptimize": {"row0": ["16", "MOZAMBIQUE", "0"],
+                             "row4": ["20", "SAUDI ARABIA", "4"],
+                             "numOfRows": "5"},
+        "joinCatchall": {"row1": ["2", "ASIA"],
+                         "row 5": ["3", "EUROPE"],
+                         "numOfRows": "50"},
+        "joinOptimizeFilter": {"row0": ["4", "MIDDLE EAST"],
+                               "row15": ["2", "ASIA"],
+                               "numOfRows": "22"},
+        "crossJoinNoFilter": {"row0": ["0", "ALGERIA", "0"],
+                              "numOfRows": "125"},
+        "existenceJoin": {"row0": ["2", "ASIA"],
+                          "numOfRows": "5"},
+        "existenceJoinCatchAll": {"row0": ["4", "EGYPT", "4"],
+                                  "row9": ["5", "ETHIOPIA", "0"],
+                                  "numOfRows": "25"}
     };
     var tpchCases = {
         "q1": "select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty," +
@@ -338,9 +435,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
     function initializeTests(testName) {
         // Add all test cases here
         if (!testName) {
-            // XXX TO-DO
-            console.error("Please manually run your test cases");
-            return;
+            console.log("Running default test cases");
         }
         test.add(sqlTest, testName, defaultTimeout, TestCaseEnabled);
     }
@@ -351,7 +446,12 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             var tableNames;
             var quries;
             var isTPCH = false;
-            if (testName.toLowerCase() === "tpch") {
+            if (!testName) {
+                dataSource = testDataLoc + tpchTables.dataSource;
+                tableNames = tpchTables.tableNames;
+                quries = sqlTestCases;
+                isTPCH = true;
+            } else if (testName.toLowerCase() === "tpch") {
                 dataSource = testDataLoc + tpchTables.dataSource;
                 tableNames = tpchTables.tableNames;
                 quries = tpchCases;
@@ -387,7 +487,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             .then(function() {
                 WSManager.addWS();
                 if (isTPCH) {
-                    return runAllQueries(quries);
+                    return runAllQueries(quries, testName);
                 } else {
                     // XXX TO-DO run TPC-DS queries here
                     return PromiseHelper.resolve();
@@ -403,10 +503,16 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         }
     }
     // All helper functions
-    function runAllQueries(queries) {
+    function runAllQueries(queries, testName) {
         var deferred = PromiseHelper.deferred();
         var promiseArray = [];
+        var answerSet;
         var failedQueries = "";
+        if (!testName) {
+            answerSet = sqlTestAnswers;
+        } else if (testName === "tpch") {
+            answerSet = tpchAnswers;
+        }
 
         function runQuery(queryName, sqlString) {
             console.log("Query name: " + queryName);
@@ -415,39 +521,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             SQLEditor.getEditor().setValue(sqlString);
             SQLEditor.executeSQL()
             .then(function() {
-                var table = "#xcTable-" + gActiveTableId;
-                for (var row in tpchAnswers[queryName]) {
-                    if (row === "numOfRows") {
-                        if (tpchAnswers[queryName][row] !==
-                            $("#numPages").text().split(" ")[1]) {
-                            test.assert(0);
-                            return;
-                        }
-                    } else {
-                        var answers = tpchAnswers[queryName][row];
-                        for (var i = 0; i < answers.length; i++) {
-                            var col = "col" + (i + 1);
-                            var res = $(table + " ." + row + " ." + col)
-                                        .find(".originalData").text();
-                            if (typeof answers[i] === "number") {
-                                // TPCH takes two decimal places in all float
-                                // number cases. Xcalar does not gurantee this.
-                                // So we allow a minor difference.
-                                if (Math .abs(answers[i].toFixed(2) -
-                                              parseFloat(res).toFixed(2))
-                                         .toFixed(2) > 0.01) {
-                                    test.assert(0);
-                                    return;
-                                }
-                            } else {
-                                if (answers[i] !== res) {
-                                    test.assert(0);
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                }
+                checkResult(answerSet, queryName);
                 innerDeferred.resolve();
             })
             .fail(function(error) {
@@ -469,6 +543,52 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         .fail(function() {
             deferred.reject("Failed Queries: " + failedQueries.slice(0, -1));
         });
+    }
+    function checkResult(answerSet, queryName) {
+        var table = "#xcTable-" + gActiveTableId;
+        for (var row in answerSet[queryName]) {
+            if (row === "numOfRows") {
+                if (answerSet[queryName][row] !==
+                    $("#numPages").text().split(" ")[1]) {
+                    test.assert(0);
+                    return;
+                }
+            } else if (row === "columns") {
+                var answers = answerSet[queryName][row];
+                for (var i = 0; i < answers.length; i++) {
+                    var col = "col" + (i + 1);
+                    var res = $(table + " thead" + " ." + col
+                                + " .flex-mid input").attr('value');
+                    if (answers[i] !== res) {
+                        test.assert(0);
+                        return;
+                    }
+                }
+            } else {
+                var answers = answerSet[queryName][row];
+                for (var i = 0; i < answers.length; i++) {
+                    var col = "col" + (i + 1);
+                    var res = $(table + " ." + row + " ." + col)
+                                .find(".originalData").text();
+                    if (typeof answers[i] === "number") {
+                        // TPCH takes two decimal places in all float
+                        // number cases. Xcalar does not gurantee this.
+                        // So we allow a minor difference.
+                        if (Math .abs(answers[i].toFixed(2) -
+                                      parseFloat(res).toFixed(2))
+                                 .toFixed(2) > 0.01) {
+                            test.assert(0);
+                            return;
+                        }
+                    } else {
+                        if (answers[i] !== res) {
+                            test.assert(0);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
     }
     function dropTempTables() {
         function deleteTables() {
