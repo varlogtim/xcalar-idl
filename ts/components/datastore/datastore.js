@@ -81,6 +81,7 @@ window.DataStore = (function($, DataStore) {
 
                 DSTable.refresh();
                 DSCart.refresh();
+                DS.resize();
             }
 
             function switchToViewTarget() {
