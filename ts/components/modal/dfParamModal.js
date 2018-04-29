@@ -22,6 +22,16 @@ window.DFParamModal = (function($, DFParamModal){
     var cover = document.createElement('div');
     cover.innerHTML = '<div class="cover"></div>';
 
+    // XXX will be incorrect if property exists inside of a different nested key
+    // ex: test.fileName vs test.anotherproperty.fileName
+    var parameterizableFields = {
+        "export": ["fileName", "targetName"],
+        "dataStore": ["targetName", "path", "fileNamePattern"],
+        "filter": ["evalString"],
+        "synthesize": ["source"]
+    };
+
+
     DFParamModal.setup = function() {
         // constant
         $modal = $("#dfParamModal");
@@ -568,7 +578,7 @@ window.DFParamModal = (function($, DFParamModal){
                     $lis.prependTo($list.find('ul'));
                 },
                 "container": "#dfParamModal",
-                "bounds": "#dfParamModal .modalTopMain",
+                "bounds": "#dfParamModal .modalMain",
                 "bottomPadding": 2,
                 "exclude": '.draggableDiv, .defaultParam'
             });
@@ -617,7 +627,7 @@ window.DFParamModal = (function($, DFParamModal){
                 });
             },
             "container": "#dfParamModal",
-            "bounds": "#dfParamModal .modalTopMain",
+            "bounds": "#dfParamModal .modalMain",
             "bottomPadding": 2,
             "exclude": '.draggableDiv, .defaultParam'
         });
@@ -686,7 +696,7 @@ window.DFParamModal = (function($, DFParamModal){
                     });
                 },
                 "container": "#dfParamModal",
-                "bounds": "#dfParamModal .modalTopMain",
+                "bounds": "#dfParamModal .modalMain",
                 "bottomPadding": 2,
                 "exclude": '.draggableDiv, .defaultParam'
             });
@@ -1340,7 +1350,7 @@ window.DFParamModal = (function($, DFParamModal){
         handleExportValueChange($paramDiv);
     }
 
-    function getParamsInInput(val) {
+    function getParamsInVal(val) {
         var len = val.length;
         var param = "";
         var params = [];
@@ -1391,11 +1401,8 @@ window.DFParamModal = (function($, DFParamModal){
         if (type === "export" &&
             radioButton.length === 1 &&
             $(radioButton).data("option") === "import") {
-            if (storeExportToTableNode()) {
-                return PromiseHelper.resolve();
-            } else {
-                return PromiseHelper.reject();
-            }
+
+            return storeExportToTableNode();
         } else {
             return updateNode();
         }
@@ -1409,7 +1416,7 @@ window.DFParamModal = (function($, DFParamModal){
         var newTableName = $paramInputs.val().trim();
         var isValid = checkExistingTableName($paramInputs);
         if (!isValid) {
-            return false;
+            return PromiseHelper.reject();
         } else {
             var activeSessionOptions = {
                 "activeSession": activeSession,
@@ -1419,7 +1426,7 @@ window.DFParamModal = (function($, DFParamModal){
             df.updateParameterizedNode(tableName, {"paramType": XcalarApisT.XcalarApiExport}, true);
             closeModal();
             xcHelper.showSuccess(SuccessTStr.ChangesSaved);
-            return true;
+            return PromiseHelper.resolve();
         }
     }
 
@@ -1430,19 +1437,17 @@ window.DFParamModal = (function($, DFParamModal){
         var tName;
         var params;
         var df = DF.getDataflow(dfName);
+        var node = df.retinaNodes[tableName];
+        var updatedStruct;
 
-        if (!isAdvancedMode) {
-            params = getBasicModeParams();
-        } else {
+        if (isAdvancedMode) {
             params = getAdvancedModeParams();
+        } else {
+            params = getBasicModeParams();
         }
         if (params.error) {
-            return PromiseHelper.reject(params.error);
+            return PromiseHelper.reject();
         }
-
-        var node = df.retinaNodes[tableName];
-        var prevNode = node;
-        var updatedStruct;
 
         if (isAdvancedMode) {
             updatedStruct = getUpdatedAdvancedStruct();
@@ -1455,6 +1460,10 @@ window.DFParamModal = (function($, DFParamModal){
         }
 
         nodeStruct = updatedStruct.struct;
+
+        if (isAdvancedMode && !validateParamFields()) {
+            return PromiseHelper.reject();
+        }
 
         if (XcalarApisT[node.operation] === XcalarApisT.XcalarApiExport) {
             tName = altTableName;
@@ -1505,8 +1514,8 @@ window.DFParamModal = (function($, DFParamModal){
 
             if (!newDf.getParameterizedNode(tableName)) {
                 var paramObj =  {
-                    "paramType": XcalarApisT[prevNode.operation],
-                    "paramValue": prevNode.args
+                    "paramType": XcalarApisT[node.operation],
+                    "paramValue": node.args
                 };
                 newDf.addParameterizedNode(tableName, paramObj, paramInfo, noParams);
             } else {
@@ -1562,7 +1571,7 @@ window.DFParamModal = (function($, DFParamModal){
                 StatusBox.show(ErrTStr.UnclosedParamBracket, $(this));
                 return false;
             }
-            tempParams = getParamsInInput($(this).val());
+            tempParams = getParamsInVal($(this).val());
             for (var i = 0; i < tempParams.length; i++) {
                 isValid = xcHelper.checkNamePattern("param", "check",
                                                     tempParams[i]);
@@ -1578,7 +1587,7 @@ window.DFParamModal = (function($, DFParamModal){
         });
 
         if (!isValid && !ignoreError) {
-            return {error: true};
+            return false;
         }
 
         // check for empty param values
@@ -1593,17 +1602,17 @@ window.DFParamModal = (function($, DFParamModal){
         });
 
         if (!isValid && !ignoreError) {
-            return {error: true};
+            return false;
         }
 
         if (!ignoreError && hasInvalidExportPath()) {
-            return {error: true};
+            return false;
         }
         return params;
     }
 
     function getAdvancedModeParams() {
-        if (!simpleViewTypes.includes("type") && type !== "synthesize") {
+        if (parameterizableFields.hasOwnProperty(type)) {
             return [];
         }
         var df = DF.getDataflow(dfName);
@@ -1611,16 +1620,14 @@ window.DFParamModal = (function($, DFParamModal){
         isValid = checkValidBrackets(val);
         if (!isValid) {
             StatusBox.show(ErrTStr.UnclosedParamBracket, $modal.find(".editArea"));
-            return false;
+            return {error: true};
         }
-        var params = getParamsInInput(val);
+        var params = getParamsInVal(val);
         for (var i = 0; i < params.length; i++) {
-            isValid = xcHelper.checkNamePattern("param", "check",
-                                                params[i]);
-            if (!isValid) {
+            if (!xcHelper.checkNamePattern("param", "check", params[i])) {
                 StatusBox.show(ErrTStr.NoSpecialCharInParam,
                                 $modal.find(".editArea"));
-                return false;
+                return {error: true};
             }
         }
 
@@ -1696,6 +1703,7 @@ window.DFParamModal = (function($, DFParamModal){
         try {
             newStruct = JSON.parse(newStructStr);
         } catch(e) {
+            // handling json parse/syntax error
             var searchText= "at position ";
             var errorPosition = e.message.indexOf(searchText);
             var position = "";
@@ -1721,6 +1729,7 @@ window.DFParamModal = (function($, DFParamModal){
         if (!newStruct) {
             return {error: true};
         } else {
+            // check if struct has the required structs
             var df = DF.getDataflow(dfName);
             var node = xcHelper.deepCopy(df.retinaNodes[tableName]);
             // valid json, but now we need to check if params exist
@@ -1753,10 +1762,12 @@ window.DFParamModal = (function($, DFParamModal){
                 delete expectedStruct.source;
 
                 var trace = [];
-                var checkFieldsResult = checkFields(expectedStruct, newStruct, trace);
+                var checkFieldsResult = checkStructHasRequiredFields(
+                                            expectedStruct, newStruct, trace);
 
                 if (checkFieldsResult.error) {
-                    StatusBox.show(checkFieldsResult.error + ". " + DFTStr.ParamCorrect,
+                    StatusBox.show(checkFieldsResult.error + ". " +
+                                    DFTStr.ParamCorrect,
                                     $modal.find(".editArea"),
                                     null, {side: "top"});
                     return {error: true}
@@ -1769,29 +1780,29 @@ window.DFParamModal = (function($, DFParamModal){
         }
     }
 
-    function checkFields(expectedValue, value, trace) {
+    function checkStructHasRequiredFields(expectedValue, value, trace) {
         if (value == null) {
             var errMsg = "Invalid value for " + trace.join("");
             return {error: errMsg};
         } else if (expectedValue.constructor === Array) {
             for (var i = 0; i < expectedValue.length; i++) {
-                if (expectedValue[i] !== null) {
-                    if (typeof expectedValue[i] === "object") {
-                        if (!value[i]) {
-                            var errMsg = "Missing value at " + trace.join("") + "[" + i + "]";
-                            return {error: errMsg};
-                        } else if (typeof value[i] !== "object") {
-                            var errMsg = "Invalid property at " + trace.join("") + "[" + i + "]";
-                            return {error: errMsg};
-                        } else {
-                            trace.length ? trace.push("[" + i + "]") : trace.push(key);
-                            var res = checkFields(expectedValue[i], value[i], trace);
-                            if (res.error) {
-                                return res;
-                            }
+                if (typeof expectedValue[i] === "object" && expectedValue[i] !== null) {
+                    if (!value[i]) {
+                        var errMsg = "Missing value at " + trace.join("") + "[" + i + "]";
+                        return {error: errMsg};
+                    } else if (typeof value[i] !== "object") {
+                        var errMsg = "Invalid property at " + trace.join("") + "[" + i + "]";
+                        return {error: errMsg};
+                    } else {
+                        trace.push("[" + i + "]");
+                        var res = checkStructHasRequiredFields(
+                                    expectedValue[i], value[i], trace);
+                        trace.pop();
+                        if (res.error) {
+                            return res;
                         }
-                    } // else ignore
-                }
+                    }
+                }// else ignore
             }
         } else if (typeof expectedValue === "object" && expectedValue !== null) {
             for (var key in expectedValue) {
@@ -1805,7 +1816,9 @@ window.DFParamModal = (function($, DFParamModal){
                         break;
                     } else if (typeof expectedValue[key] === "object" && expectedValue[key] != null) {
                         trace.length ? trace.push("[\"" + key + "\"]") : trace.push(key);
-                        var res = checkFields(expectedValue[key], value[key], trace);
+                        var res = checkStructHasRequiredFields(
+                                        expectedValue[key], value[key], trace);
+                        trace.pop();
                         if (res.error) {
                             return res;
                         }
@@ -1813,8 +1826,64 @@ window.DFParamModal = (function($, DFParamModal){
                 }
             }
         }
-        trace.pop();
         return {error: false};
+    }
+
+    // assumes we've checked for valid json and struct has required fields
+    // we now check parameters are only included in valid places
+    function validateParamFields() {
+        var structStr = $.trim(editor.getValue());
+        var struct = JSON.parse(structStr);
+        var trace = [];
+        var res = check(struct, trace);
+        if (res.error) {
+            StatusBox.show(res.error, $modal.find(".editArea"), null,
+                          {side: "top"});
+            return false;
+        } else {
+            return true;
+        }
+
+        function check(value, trace) {
+            if (value == null) {
+                return {error: false};
+            } else if (value.constructor === Array) {
+                for (var i = 0; i < value.length; i++) {
+                    trace.push(i);
+                    var res = check(value[i], trace);
+                    if (res.error) {
+                        return res;
+                    }
+                    trace.pop();
+                }
+            } else if (typeof value === "object") {
+                for (var i in value) {
+                    if (i.indexOf("<") > -1 && (i.indexOf("<") < i.indexOf(">"))) {
+                        return {error: "Keys cannot be parameterized: " + i};
+                    }
+                    trace.push(i);
+                    var res = check(value[i], trace);
+                    if (res.error) {
+                        return res;
+                    }
+                    trace.pop();
+                }
+            } else if (typeof value === "string") {
+                if (value.indexOf("<") > -1 && (value.indexOf("<") < value.indexOf(">"))) {
+                    var parent = trace[trace.length - 1];
+                    if (parameterizableFields.hasOwnProperty(type)) {
+                        if (typeof parent !== "string") {
+                            return {error: "This field cannot be parameterized."};
+                        } else if (parameterizableFields[type].indexOf(parent) === -1) {
+                            return {error: "Field \"" + parent + "\" cannot be parameterized."};
+                        }
+                    } else {
+                        return {error: "The " + type + " operation cannot be parameterized."};
+                    }
+                }
+            }
+            return {error: false};
+        }
     }
 
     function checkExistingTableName($input) {
@@ -2062,6 +2131,13 @@ window.DFParamModal = (function($, DFParamModal){
             crt = a;
             cover = b;
         };
+        DFParamModal.__testOnly__.setType = function(newType) {
+            type = newType;
+        };
+        DFParamModal.__testOnly__.getEditor = function() {
+            return editor;
+        };
+        DFParamModal.__testOnly__.validateParamFields = validateParamFields;
     }
     /* End Of Unit Test Only */
 

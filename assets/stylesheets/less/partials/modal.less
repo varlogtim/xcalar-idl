@@ -3056,6 +3056,11 @@ html.microsoft {
         overflow: auto;
     }
 
+    .simpleView {
+        .flex-display;
+        .flex-direction(column);
+    }
+
     &.type-advancedOnly {
         .toggleView {
             cursor: default;
@@ -3086,7 +3091,8 @@ html.microsoft {
     }
 
     .modalMain {
-        .size(@width: 100%, @height: ~"calc(100% - 56px)");
+        .size(@width: 100%, @height: 100%);
+        .flex(1 1 auto);
         background-color: @color-white;
         overflow: auto;
     }

@@ -313,6 +313,68 @@ describe("DFParamModal Test", function() {
             expect(fn('"("(')).to.be.true;
             expect(fn('\\"(\\"')).to.be.true;
         });
+
+        // assuming type is filter
+        describe("validateParamFields function", function() {
+            var validate;
+            var editor;
+            before(function() {
+                validate = DFParamModal.__testOnly__.validateParamFields;
+                editor = DFParamModal.__testOnly__.getEditor();
+            });
+
+            it("should error if key is parameterized", function() {
+                editor.setValue(JSON.stringify(
+                    {
+                      "te<p>st": "val"
+                    }
+                ));
+                expect(validate()).to.be.false;
+                UnitTest.hasStatusBoxWithError("Keys cannot be parameterized: te<p>st");
+            });
+
+            it("should error if array value is parameterized", function() {
+                editor.setValue(JSON.stringify(
+                    {
+                      "array": ["test", "v<p>al"]
+                    }
+                ));
+                expect(validate()).to.be.false;
+                UnitTest.hasStatusBoxWithError("This field cannot be parameterized.");
+            });
+
+            it("should error if wrong export key is parameterized", function() {
+                editor.setValue(JSON.stringify(
+                    {
+                      "fakeProperty": "val<p>"
+                    }
+                ));
+                expect(validate()).to.be.false;
+                UnitTest.hasStatusBoxWithError("Field \"fakeProperty\" cannot be parameterized.");
+            });
+
+
+            it("should error if other operation is parameterized", function() {
+                DFParamModal.__testOnly__.setType("map");
+                editor.setValue(JSON.stringify(
+                    {
+                      "fakeProperty": "val<p>"
+                    }
+                ));
+                expect(validate()).to.be.false;
+                UnitTest.hasStatusBoxWithError( "The map operation cannot be parameterized.");
+                DFParamModal.__testOnly__.setType("filter");
+            });
+
+            it("valid operation should work", function() {
+                editor.setValue(JSON.stringify(
+                    {
+                      "evalString": "val<p>"
+                    }
+                ));
+                expect(validate()).to.be.true;
+            });
+        });
     });
 
     describe("DFParam Modal Submit Test", function() {
