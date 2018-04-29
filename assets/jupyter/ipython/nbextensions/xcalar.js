@@ -99,7 +99,6 @@ define(['base/js/utils'], function(utils) {
                                 Jupyter.save_widget.rename_notebook({notebook: Jupyter.notebook});
                             }
                         } else {
-                            validateSessionCells();
                             validateNotebookInUserFolder();
                         }
                         updateLinks();
@@ -173,7 +172,9 @@ define(['base/js/utils'], function(utils) {
                                 '# If you wish to use this Jupyter Notebook with a different Xcalar Workbook \n' +
                                 '# delete this cell and click CODE SNIPPETS --> Connect to Xcalar Workbook.\n';
                         text += '\n%matplotlib inline\n\n# Importing third-party modules to faciliate data work. \nimport pandas as pd\nimport matplotlib.pyplot as plt\n\n# Importing Xcalar packages and modules. \n# For more information, search and post questions on discourse.xcalar.com\nfrom xcalar.compute.api.XcalarApi import XcalarApi\nfrom xcalar.compute.api.Session import Session\nfrom xcalar.compute.api.WorkItem import WorkItem\nfrom xcalar.compute.api.ResultSet import ResultSet\n\n# Create a XcalarApi object\nxcalarApi = XcalarApi()\n';
-                        text += '# Connect to current workbook that you are in\nworkbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")\nxcalarApi.setSession(workbook)';
+                        text += '# Connect to current workbook that you are in\n' +
+                                'workbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")\n' +
+                                'xcalarApi.setSession(workbook)';
                         texts.push(text);
                         break;
                     case ("basicUDF"):
@@ -287,7 +288,7 @@ define(['base/js/utils'], function(utils) {
                                 '# To test your UDF, run this cell. (Hit <control> + <enter>.)\n' +
                                 '#\n' +
                                 '# To apply it to your dataset, click the "Apply UDF on Dataset Panel" button.\n' +
-                                '#\n\n' :
+                                '#\n#\n' :
                                 '# Xcalar Debug Import UDF\n' +
                                 '#\n' +
                                 '# This snippet is used to debug the following Python UDF function from a module in the\n' +
@@ -420,7 +421,9 @@ define(['base/js/utils'], function(utils) {
                                 '# If you wish to use this Jupyter Notebook with a different Xcalar Workbook \n' +
                                 '# delete this cell and click CODE SNIPPETS --> Connect to Xcalar Workbook.\n';
                 text += '\n%matplotlib inline\n\n# Importing third-party modules to faciliate data work. \nimport pandas as pd\nimport matplotlib.pyplot as plt\n\n# Importing Xcalar packages and modules. \n# For more information, search and post questions on discourse.xcalar.com\nfrom xcalar.compute.api.XcalarApi import XcalarApi\nfrom xcalar.compute.api.Session import Session\nfrom xcalar.compute.api.WorkItem import WorkItem\nfrom xcalar.compute.api.ResultSet import ResultSet\n\n# Create a XcalarApi object\nxcalarApi = XcalarApi()\n';
-                text += '# Connect to current workbook that you are in\nworkbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")\nxcalarApi.setSession(workbook)';
+                text += '# Connect to current workbook that you are in\n' +
+                        'workbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")\n' +
+                        'xcalarApi.setSession(workbook)';
                 cell.set_text(text);
                 cell.execute();
                 Jupyter.notebook.save_notebook();
@@ -631,15 +634,18 @@ define(['base/js/utils'], function(utils) {
             function validateSessionCells() {
                 var cells = Jupyter.notebook.get_cells();
                 var errors = [];
-                for (var i = 0; i < cells.length; i++) {
+                for (var i = cells.length - 1; i >= 0; i--) {
                     var text = cells[i].get_text();
                     var lines = text.split("\n");
+                    var cellNeedsReplace = false;
                     for (var j = 0; j < lines.length; j++) {
                         if (lines[j].indexOf("workbook = Session(xcalarApi") === 0) {
                             var cellWBInfo = parseSessInfoFromLine(lines[j]);
                             if (cellWBInfo.username !== '"' + username + '"' ||
                                 cellWBInfo.userid !== "" + userid ||
                                 cellWBInfo.sessionName !== '"' + sessionName + '"') {
+                                lines[j] = 'workbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")';
+                                cellNeedsReplace = true;
                                 errors.push(
                                     {line: lines[j],
                                     lineIndex: j + 1,
@@ -648,6 +654,9 @@ define(['base/js/utils'], function(utils) {
                                 );
                             }
                         }
+                    }
+                    if (cellNeedsReplace) {
+                        cells[i].set_text(lines.join("\n"));
                     }
                 }
                 if (errors.length) {
@@ -658,7 +667,10 @@ define(['base/js/utils'], function(utils) {
             }
 
             function validateNotebookInUserFolder() {
-                if (Jupyter.notebook.notebook_path !== Jupyter.notebook.notebook_name &&
+                if (Jupyter.notebook.notebook_path === Jupyter.notebook.notebook_name &&
+                    Jupyter.notebook.notebook_path.indexOf(wkbkFolderName + "/") === 0) {
+                    validateSessionCells();
+                } else if (Jupyter.notebook.notebook_path !== Jupyter.notebook.notebook_name &&
                     Jupyter.notebook.notebook_path.indexOf(wkbkFolderName + "/") !== 0) {
                     Jupyter.notebook.writable = false;
                     Jupyter.save_widget.set_save_status("(read only)");

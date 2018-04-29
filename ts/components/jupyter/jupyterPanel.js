@@ -3,7 +3,8 @@ window.JupyterPanel = (function($, JupyterPanel) {
     var jupyterMeta;
     var msgId = 0;
     var msgPromises = {};
-    var promiseTimeLimit = 10000; // 10 seconds
+    var promiseTimeLimit = 8000; // 8 seconds
+    var jupyterLoaded = false;
 
     function JupyterMeta(currentNotebook, folderName) {
         this.currentNotebook = currentNotebook || null;
@@ -336,6 +337,10 @@ window.JupyterPanel = (function($, JupyterPanel) {
     function loadJupyterNotebook() {
         var deferred = PromiseHelper.deferred();
 
+        $("#jupyterNotebook").on("load", function() {
+            jupyterLoaded = true;
+        });
+
         var url;
         var treeUrl = jupyterNode + "/tree";
         var currNotebook = jupyterMeta.getCurrentNotebook();
@@ -360,11 +365,11 @@ window.JupyterPanel = (function($, JupyterPanel) {
                 goToLocation(folderPath)
                 .then(deferred.resolve)
                 .fail(function() {
-                    $("#jupyterNotebook").attr("src", treeUrl);
-                    deferred.resolve();
+                    goToLocation(treeUrl).always(deferred.resolve);
                 });
+            } else if (url !== treeUrl) {
+                goToLocation(treeUrl).always(deferred.resolve);
             } else {
-                $("#jupyterNotebook").attr("src", treeUrl);
                 deferred.resolve();
             }
         });
@@ -374,7 +379,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
             $.ajax({
                 url: location,
                 dataType: "json",
-                timeout: 8000,
+                timeout: promiseTimeLimit,
                 success: function() {
                     $("#jupyterNotebook").attr("src", location);
                     innerDeferred.resolve();
@@ -510,6 +515,9 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
     function sendMessageToJupyter(msgStruct, isAsync) {
         var deferred = PromiseHelper.deferred();
+        if (!jupyterLoaded) {
+            return PromiseHelper.reject({error: "Jupyter not loaded"});
+        }
         var messageInfo = {
             fromXcalar: true,
         };
