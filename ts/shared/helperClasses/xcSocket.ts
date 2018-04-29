@@ -76,8 +76,18 @@ class XcSocket {
         return true;
     }
 
-    public unregisterUserSession(workbookId: string): void {
+    // when deactivating workbook
+    public unregisterUserSession(workbookId: string): boolean {
+        if (!this._isRegistered) {
+            return false;
+        }
         this._isRegistered = false;
+        const userOption: UserOption = this._getUserOption(workbookId);
+        this._socket.emit("unregisterUserSession", userOption, () => {
+            console.log("unregisterSuccess!");
+        });
+
+        return true;
     }
 
     public isConnected(): boolean {

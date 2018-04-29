@@ -23,13 +23,13 @@ module.exports = function(server) {
                 userInfos[user].count++;
 
                 var id = userOption.id;
-                if (userInfos[user].hasOwnProperty(id)) {
+                if (userInfos[user].workbooks.hasOwnProperty(id)) {
                     socket.broadcast.emit("useSessionExisted", userOption);
-                    userInfos[user][id]++;
+                    userInfos[user].workbooks[id]++;
                 } else {
-                    userInfos[user][id] = 1;
+                    userInfos[user].workbooks[id] = 1;
                 }
-                console.log("userInfos", userInfos);
+                console.log("userInfos", JSON.stringify(userInfos, null, 2));
             } catch(e) {
                 console.error(e);
             }
@@ -37,8 +37,26 @@ module.exports = function(server) {
             io.sockets.emit("system-allUsers", userInfos);
         });
 
+        socket.on("unregisterUserSession", function(userOption, callback) {
+            try {
+                var user = userOption.user;
+                var id = userOption.id;
+                console.log(userInfos, userOption);
+                if (userInfos[user].workbooks.hasOwnProperty(id)) {
+                    userInfos[user].workbooks[id]--;
+                }
+                if (!userInfos[user].workbooks[id]) {
+                    delete userInfos[user].workbooks[id];
+                }
+                console.log("userInfos", JSON.stringify(userInfos, null, 2));
+            } catch(e) {
+                console.error(e);
+            }
+            callback();
+        });
+
         socket.on("checkUserSession", function(userOption, callback) {
-            console.log("check", userOption, "in", userInfos)
+            console.log("check", userOption, "in", JSON.stringify(userInfos, null, 2));
             var exist = hasWorkbook(userOption);
             callback(exist);
         });
@@ -51,12 +69,12 @@ module.exports = function(server) {
                     if (userInfos[userOption.user].count <= 0) {
                         delete userInfos[userOption.user];
                     } else {
-                        userInfos[userOption.user][userOption.id]--;
-                        if (userInfos[userOption.user][userOption.id] <= 0) {
-                            delete userInfos[userOption.user][userOption.id];
+                        userInfos[userOption.user].workbooks[userOption.id]--;
+                        if (userInfos[userOption.user].workbooks[userOption.id] <= 0) {
+                            delete userInfos[userOption.user].workbooks[userOption.id];
                         }
                     }
-                    console.log("logout", userOption, userInfos)
+                    console.log("logout", userOption, JSON.stringify(userInfos, null, 2))
                     io.sockets.emit("system-allUsers", userInfos);
                 }
             } catch (e) {
@@ -96,7 +114,7 @@ module.exports = function(server) {
 
         var user = userOption.user;
         var id = userOption.id;
-        return userInfos.hasOwnProperty(user) && userInfos[user].hasOwnProperty(id);
+        return userInfos.hasOwnProperty(user) && userInfos[user].workbooks.hasOwnProperty(id);
     }
 
     function addDSSocketEvent(socket) {

@@ -469,7 +469,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 setURL(null, true);
             }
             var xcSocket = XcSocket.Instance;
-            xcSocket.unregisterUserSession();
+            xcSocket.unregisterUserSession(workbookId);
             xcSocket.sendMessage("refreshWorkbook", {
                 "action": "deactivate",
                 "user": XcSupport.getUser(),
