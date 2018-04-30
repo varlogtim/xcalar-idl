@@ -807,7 +807,7 @@ window.FlightTest = (function(FlightTest, $) {
         //     .end()
         //     .find(".datePickerPart input").focus().focus().click()
         //     .end()
-        //     .find(".timePickerPart input").focus().focus().click()
+        //     .find(".timePickerArea input").focus().focus().click()
         //     .end()
         //     .find(".freq1 .radioButton:eq(0)").click()
         //     .end()

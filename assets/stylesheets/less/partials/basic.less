@@ -105,9 +105,6 @@ body {
         }
     }
     &.noWorkbook {
-        #dfPanelSwitch {
-            display: none;
-        }
         #statusBar {
             margin-left: 0px;
             padding-left: 60px;
@@ -687,6 +684,15 @@ body {
     z-index: @z-index-statusBar;
     .transition(@time-menuAnim all); // for main menu animation
 
+    &.worksheetMode {
+        #dfPanelSwitch {
+            display: block;
+        }
+        #pageStatusText .menuIcon {
+            display: block;
+        }
+    }
+
     .workspaceArea {
         .size(@height: 15px);
         .font(@size: 13px, @line-height: 13px);
@@ -773,7 +779,7 @@ body {
             .size(@width: 20px, @height: 20px);
             padding-left: 6px;
             margin-top: 1px;
-            display: inline-block;
+            display: none;
             float: right;
 
             .icon {
@@ -814,6 +820,7 @@ body {
     .position(absolute, @right: 5px, @bottom: 2px);
     .size(29px, 29px);
     z-index: @z-index-statusBar + 1;
+    display: none; // display block if in worksheet subpanel
 }
 
 
@@ -2321,7 +2328,7 @@ body.tooltipOff {
 }
 
 /* JQUERY DATEPICKER */
-#ui-datepicker-div.schedulerDatePicker {
+#ui-datepicker-div {
     .size(@width: 208px);
     background-color: @color-bg-white-three;
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
@@ -2441,3 +2448,16 @@ body.tooltipOff {
         }
     }
 }
+
+// #ui-datepicker-div {
+//     margin-top: 2px;
+//     top: 28px !important;
+//     left: 0 !important;
+//     z-index: 3 !important;
+//     width: 100%
+// }
+
+.ui-datepicker-calendar {
+    width: 100%;
+}
+

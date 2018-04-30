@@ -501,7 +501,8 @@ namespace StatusMessage {
                     }
                     popupNeeded = true;
                 }
-            } else if (!$('#workspaceTab').hasClass('active')) {
+            } else if (!$('#workspaceTab').hasClass('active') ||
+                    !$("#worksheetButton").hasClass("active")) {
                 $popups = $('.tableDonePopup.workspaceNotify');
                 if ($popups.length !== 0) {
                     $popupWrap = $popups.parent();
@@ -668,7 +669,7 @@ namespace StatusMessage {
                     const wsId: string = WSManager.getWSFromTable(tableId);
                     const $tableWrap: JQuery = $('#xcTableWrap-' + tableId);
 
-                    $('#workspaceTab').click();
+                    MainMenu.openPanel("workspacePanel", "worksheetButton");
 
                     if (!$('#dagPanel').hasClass('xc-hidden') &&
                         $('#dagPanel').css('top') === "0px") {

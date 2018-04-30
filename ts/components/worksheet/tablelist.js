@@ -1908,9 +1908,9 @@ window.TableList = (function($, TableList) {
     }
 
     function focusOnLastTable(tableNames, noAnim) {
-
-        if (!$("#workspaceTab").hasClass("active")) {
-            $("#workspaceTab").click();
+        if (!$("#workspaceTab").hasClass("active") ||
+            !$("#worksheetButton").hasClass("active")) {
+            MainMenu.openPanel("workspacePanel", "worksheetButton");
         }
 
         var tableIsInActiveWS = true;

@@ -1040,7 +1040,8 @@ window.WSManager = (function($, WSManager) {
                     '<div class="close">+</div></div></div>');
         setTimeout(function() {
             if ($tab.hasClass("firstTouch") &&
-                $("#workspaceTab").hasClass("active")) {
+                $("#workspaceTab").hasClass("active") &&
+                $("#worksheetButton").addClass("active")) {
                 showPopup();
             }
         }, 1000);

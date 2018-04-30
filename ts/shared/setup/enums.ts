@@ -300,7 +300,8 @@ enum SQLOps {
     MarkPrefix = "markPrefix",
     Replay = "Replay",
     DFRerun = "Dataflow Rerun",
-    ExecSQL = "Execute SQL"
+    ExecSQL = "Execute SQL",
+    RefreshTables = "refreshTables"
 }
 
 enum XcalarMode {

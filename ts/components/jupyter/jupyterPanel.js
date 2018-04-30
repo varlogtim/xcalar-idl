@@ -465,7 +465,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
                 }
             }
 
-            MainMenu.openPanel("workspacePanel");
+            MainMenu.openPanel("workspacePanel", "worksheetButton");
             OperationsView.show(tableId, colNums, "map", {
                 prefill: {
                     ops: [moduleName + ":" + fnName],

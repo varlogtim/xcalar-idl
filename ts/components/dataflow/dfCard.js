@@ -876,7 +876,7 @@ window.DFCard = (function($, DFCard) {
                 btns.push({
                     name: DFTStr.ViewTable,
                     func: function() {
-                        MainMenu.openPanel("workspacePanel", null, {
+                        MainMenu.openPanel("workspacePanel", "worksheetButton", {
                             hideDF: true
                         });
                         var tableId = xcHelper.getTableId(finalTable);

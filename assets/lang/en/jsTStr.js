@@ -537,7 +537,8 @@ FailTStr = {
     "RmDF": "Batch Dataflow Removal Failed.",
     "RmSched": "Delete Schedule Failed.",
     "FlushLog": "Flush Log Failed.",
-    "Target": "Add Target Failed"
+    "Target": "Add Target Failed",
+    "RmPublishedTable": "Published Table Removal Failed."
 };
 
 ThriftTStr = {
@@ -1449,4 +1450,9 @@ UploadTStr = {
     'InvalidUpload': 'Invalid Upload',
     'InvalidFolderDesc': 'Cannot upload folders.',
     'OneFileUpload': 'Only one file can be uploaded at a time.'
+};
+
+IMDTStr = {
+    "DelTable": "Delete Published Table",
+    "DelTableMsg": "Are you sure you want to permanently delete the table : \"<tableName>\"? This action cannot be undone.",
 };

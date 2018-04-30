@@ -35,7 +35,7 @@ function timeRelatedFunctionTest() {
     before(function() {
         $scheduleDetail = $("#scheduleDetail");
         $timeInput = $scheduleDetail.find(".timeSection .time");
-        $timePicker = $("#modScheduler-timePicker");
+        $timePicker = $scheduleDetail.find(".timePicker");
     });
 
     it("getNextRunTime should work", function() {

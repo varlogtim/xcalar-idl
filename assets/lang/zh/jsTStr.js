@@ -432,7 +432,8 @@ FailTStr = {
 "RmDF": "删除批量数据流失败。",
 "RmSched": "删除调度器失败",
 "FlushLog": "强制刷新日志失败!",
-"Target": "添加目标失败"
+"Target": "添加目标失败",
+"RmPublishedTable": "Published Table Removal Failed."
 };
 
 ThriftTStr = {
@@ -1240,4 +1241,9 @@ UploadTStr = {
     'InvalidUpload': 'Invalid Upload',
     'InvalidFolderDesc': 'Cannot upload folders.',
     'OneFileUpload': 'Only one file can be uploaded at a time.'
+};
+
+IMDTStr = {
+    "DelTable": "Delete Published Table",
+    "DelTableMsg": "Are you sure you want to permanently delete the table : \"<tableName>\"? This action cannot be undone.",
 };

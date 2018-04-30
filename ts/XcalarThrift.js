@@ -4914,15 +4914,23 @@ XcalarUpdateTable = function(deltaTableNames, pubTableNames) {
     return deferred.promise();
 };
 
-XcalarRefreshTable = function(pubTableName, dstTableName, minBatch, maxBatch) {
+XcalarRefreshTable = function(pubTableName, dstTableName, minBatch, maxBatch, txId) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
 
     var deferred = jQuery.Deferred();
+    var workItem = xcalarApiSelectWorkItem(pubTableName, dstTableName,
+                                           minBatch, maxBatch);
+    var query = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, SQLOps.RefreshTables, dstTableName, query);
+
     // Note max and min places are switched because the API is a little strange
     xcalarApiSelect(tHandle, pubTableName, dstTableName, maxBatch, minBatch)
-    .then(deferred.resolve)
+    .then(function(ret) {
+        Transaction.log(txId, query, dstTableName, ret.timeElapsed);
+        deferred.resolve.apply(this, arguments);
+    })
     .fail(function(error) {
         var thriftError = thriftLog("XcalarRefreshTable", error);
         deferred.reject(thriftError);

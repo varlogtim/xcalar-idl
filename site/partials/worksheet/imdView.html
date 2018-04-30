@@ -1,0 +1,74 @@
+<div class="tableSection upperTableSection">
+    <div class="upperTableHeader">
+        <div class="tableListHeader">
+            <div class="text">Published Tables</div>
+            <div class="iconSection">
+                <i class="icon xi-trash tableIcon"></i>
+                <i class="icon xi-hide tableIcon"></i>
+                <i class="icon xi-refresh xc-action refreshList tableIcon"></i>
+            </div>
+        </div>
+        <div class="tickContainer">
+            <canvas id="imdTimeCanvas"></canvas>
+        </div>
+    </div>
+    <div class="mainTableSection">
+        <div class="seperatorDiv"></div>
+        <div class="indicatorDiv"></div>
+        <div class="scrollDiv">
+            <div class="fakeArea"></div>
+        </div>
+        <div class="activeTablesList tableList">
+            <!-- autogenerate list of tables will go here -->
+        </div>
+    </div>
+</div>
+<div class="tableSection lowerTableSection">
+    <div class="hiddenTablesList tableList">
+        <div class="tableListHeader">
+            <div class="text">Hidden Tables</div>
+            <div class="iconSection">
+                <i class="icon xi-trash tableIcon"></i>
+                <i class="icon xi-show tableIcon"></i>
+            </div>
+        </div>
+        <div class="hiddenTablesListItems">
+             <!-- autogenerate list of tables will go here -->
+        </div>
+    </div>
+    <div class="tableDetailSection">
+        <div class="subHeading">More details about <span class="tableName"></span>
+        </div>
+        <div class="tableDetailList">
+            <div class="tableDetailRow headerRow">
+                <div class="tableColumn name">Name</div>
+                <div class="tableColumn batchID">Batch ID</div>
+                <div class="tableColumn timeStamp">Time Stamp</div>
+                <div class="tableColumn metaData">Meta Data</div>
+            </div>
+            <div class="tableDetailContent">
+
+            </div>
+        </div>
+        <div class="emptyText">
+            <%= dicts.IMDPanel.emptyDetails %>
+        </div>
+    </div>
+</div>
+<div class="update-prompt xc-hidden">
+    <div class="heading">
+        <div>Table Name</div>
+        <i class="icon xi-close close"></i>
+    </div>
+    <div class = "text-input-wrapper">
+        <input class = "text-input updatePromptText" type="text" name="fname\">
+    </div>
+    <div>
+        <button type="button" class="btn pointInTime">Point in time</button>
+        <button type="button" class="btn latest">Latest</button>
+    </div>
+</div>
+<div class="dateTipLine"></div>
+<div class="date-tipbox">
+    <div id="#imdDateTipBox">May 12th Monday 2018 12:00:00</div>
+</div>

@@ -102,7 +102,7 @@ window.TblManager = (function($, TblManager) {
             }
 
             if (options.focusWorkspace) {
-                MainMenu.openPanel("workspacePanel", null, {
+                MainMenu.openPanel("workspacePanel", "worksheetButton", {
                     hideDF: true
                 });
             }
@@ -464,7 +464,7 @@ window.TblManager = (function($, TblManager) {
         var tableId = xcHelper.getTableId(tableName);
         if (gTables[tableId]) {
             if (gTables[tableId].isActive()) {
-                $('#workspaceTab').click();
+                MainMenu.openPanel("workspacePanel", "worksheetButton");
                 wsId = WSManager.getWSFromTable(tableId);
                 var $wsListItem = $('#worksheetTab-' + wsId);
                 if ($wsListItem.hasClass("hiddenTab")) {
@@ -497,7 +497,7 @@ window.TblManager = (function($, TblManager) {
             if (tableType === TableType.Undone) {
                 deferred.reject({tableType: tableType, notFound: true});
             } else {
-                $('#workspaceTab').click();
+                MainMenu.openPanel("workspacePanel", "worksheetButton");
                 wsId = WSManager.getActiveWS();
                 WSManager.moveTemporaryTable(tableId, wsId, tableType, true,
                     noAnimate)
@@ -512,7 +512,7 @@ window.TblManager = (function($, TblManager) {
             XcalarGetTables(tableName)
             .then(function(ret) {
                 if (ret.numNodes > 0) {
-                    $('#workspaceTab').click();
+                    MainMenu.openPanel("workspacePanel", "worksheetButton");
                     wsId = WSManager.getActiveWS();
                     WSManager.moveTemporaryTable(tableId, wsId, TableType.Orphan,
                                                 true, noAnimate)

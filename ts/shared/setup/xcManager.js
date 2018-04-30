@@ -34,6 +34,7 @@ window.xcManager = (function(xcManager, $) {
         TblMenu.setup();
         WSManager.setup();
         MonitorPanel.setup();
+        WorkspacePanel.setup();
         DagPanel.setup();
         DataflowPanel.setup();
         JupyterPanel.setup();
@@ -90,11 +91,7 @@ window.xcManager = (function(xcManager, $) {
             DFParamModal.setup();
             SmartCastView.setup();
             SortView.setup();
-
-
-
-
-
+            IMDPanel.setup();
             WSManager.initialize(); // async
             BottomMenu.initialize(); // async
             WorkbookPanel.initialize();
@@ -1306,6 +1303,7 @@ window.xcManager = (function(xcManager, $) {
 
     function tableScroll(scrollType, isUp) {
         if (!$("#workspaceTab").hasClass("active") ||
+            !$("#worksheetButton").hasClass("active") ||
             gActiveTableId == null)
         {
             return false;

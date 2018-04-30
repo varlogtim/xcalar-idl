@@ -1327,6 +1327,7 @@ window.Log = (function($, Log) {
             case (SQLOps.Query):
             case (SQLOps.DFRerun):
             case (SQLOps.ExecSQL):
+            case (SQLOps.RefreshTables):
                 return true;
             default:
                 console.warn("XXX! Operation unexpected", operation);

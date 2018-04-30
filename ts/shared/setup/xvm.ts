@@ -153,7 +153,7 @@ namespace XVM {
     export function getNumServers(): number {
         return numNodes;
     }
-    
+
     export function getNumUsers(): number {
         return numUsers;
     }

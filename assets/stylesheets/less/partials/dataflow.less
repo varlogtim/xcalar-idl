@@ -845,7 +845,7 @@
             width: ~"calc(100% - @{label-width})";
         }
 
-        input {
+        .input-wrap input {
             width: 208px;
         }
 
@@ -910,7 +910,7 @@
                     }
                 }
 
-                &.timePickerPart {
+                &.timePickerArea {
                     position: relative;
 
                     .input-wrap {
@@ -928,64 +928,6 @@
                             border: solid 1px  @color-border-softBlue;
                             border-left: none;
                             border-right: none;
-                        }
-                    }
-                }
-            }
-
-            .timePicker {
-                display: none;
-                .size(@width: 208px, @height: 120px);
-                .position(absolute, @top: 30px, @left: 1px);
-                background-color: @color-white;
-                box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
-                z-index: 41;
-                .rounded(0 0 3px 3px);
-                padding: 5px 11px;
-
-                > div {
-                    margin: 4px 0;
-                    .size(@width: 100%, @height: 20px);
-
-                    span, button, input {
-                        .size(@width: 60px, @height: 20px);
-                        margin: 0 1px;
-                        display: inline-block;
-                        float: left;
-                        text-align: center;
-                        line-height: 20px;
-                    }
-                }
-
-                .textSection {
-                    .font(@size: 10px);
-                }
-
-                .inputSection {
-                    .font(@size: 12px);
-
-                    input {
-                        background-color: @color-bg-white-three;
-                        padding-top: 2px;
-                    }
-                }
-
-                .buttonSection {
-                    .btn {
-                        position: relative;
-                    }
-
-                    .bar {
-                        .size(@width: 14px, @height: 3px);
-                        .position(absolute, @left: 50%);
-                        .transform(translate(-50%, -30%));
-                        background-color: @color-white;
-                        opacity: 0.9;
-                        box-shadow: 0 1px 1px 1px rgba(0, 0, 0, .1);
-                        .rounded(1px);
-
-                        &.vertical {
-                            .transform(translate(-50%, -30%) rotate(90deg));
                         }
                     }
                 }
@@ -1060,7 +1002,7 @@
             */
         }
 
-        #ui-datepicker-div.schedulerDatePicker {
+        #ui-datepicker-div {
             margin-top: 2px;
             top: 28px !important;
             left: 0 !important;
@@ -1072,9 +1014,18 @@
             width: 100%;
         }
 
-        #modScheduler-timePicker, #newScheduler-timePicker {
+        .timePicker, #newScheduler-timePicker {
             width: 100%;
             padding-left: 12px;
+        }
+        .timePicker {
+            input {
+                background-color: @color-bg-white-three;
+                padding-top: 2px;
+                .size(@width: 60px, @height: 20px);
+                line-height: 20px;
+                text-align: center;
+            }
         }
     }
 

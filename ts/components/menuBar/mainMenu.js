@@ -236,7 +236,8 @@ window.MainMenu = (function($, MainMenu) {
             MainMenu.close();
         });
         $mainMenu.find(".minimizedContent").click(function() {
-            if ($(".topMenuBarTab.active").hasClass("noLeftPanel")) {
+            var $curTab = $(".topMenuBarTab.active");
+            if ($curTab.hasClass("noLeftPanel") || $curTab.find(".subTab.active").hasClass("noLeftPanel")) {
                 return;
             }
             MainMenu.open();
@@ -263,10 +264,15 @@ window.MainMenu = (function($, MainMenu) {
                 var hasAnim = false;
                 if ($target.closest(".mainTab").length) {
                     // clicking on active main tab
-                    hasAnim = toggleMenu($curTab);
+                    var $subTab = $curTab.find(".subTab.active");
+                    if (!$subTab.hasClass("noLeftPanel")) {
+                        hasAnim = toggleMenu($curTab);
+                    }
                 } else if ($target.closest(".subTab").length) {
                     var $subTab = $target.closest(".subTab");
-                    if ($subTab.hasClass("active")) {
+                    if ($subTab.hasClass("noLeftPanel")) {
+                        closeMenu($curTab, true);
+                    } else if ($subTab.hasClass("active")) {
                         // clicking on active sub tab
                         hasAnim = toggleMenu($curTab);
                     } else if ($("#bottomMenu").hasClass("open")) {
@@ -301,8 +307,10 @@ window.MainMenu = (function($, MainMenu) {
                 }
 
                 var noAnim = true;
+                var $subTab = $curTab.find(".subTab.active");
                 if ($curTab.hasClass("mainMenuOpen") &&
-                    !$curTab.hasClass("noLeftPanel")) {
+                    !$curTab.hasClass("noLeftPanel") &&
+                    !$subTab.hasClass("noLeftPanel")) {
                     openMenu($curTab, noAnim);
                 } else {
                     closeMenu($curTab, noAnim);
@@ -355,12 +363,7 @@ window.MainMenu = (function($, MainMenu) {
 
         switch (curTab) {
             case ("workspaceTab"):
-                $("#workspacePanel").addClass("active");
-                WSManager.focusOnWorksheet();
-                if (!$("#dagPanel").hasClass("hidden")) {
-                    xcTooltip.changeText($("#dfPanelSwitch"),
-                                         TooltipTStr.CloseQG);
-                }
+                WorkspacePanel.active();
                 break;
             case ("dataStoresTab"):
                 $("#datastorePanel").addClass("active");
@@ -402,6 +405,7 @@ window.MainMenu = (function($, MainMenu) {
                 }
                 break;
             case ("jupyterTab"):
+                BottomMenu.unsetMenuCache();
                 $("#jupyterPanel").addClass("active");
                 JupyterPanel.sendInit(); // used to validate session if first
                 // time viewing a notebook
@@ -414,7 +418,7 @@ window.MainMenu = (function($, MainMenu) {
         } else if (lastTabId === "dataStoresTab") {
             DSCart.checkQueries();
         } else if (lastTabId === "workspaceTab") {
-            xcTooltip.changeText($("#dfPanelSwitch"), TooltipTStr.OpenQG);
+            WorkspacePanel.inActive();
         }
 
         StatusMessage.updateLocation();

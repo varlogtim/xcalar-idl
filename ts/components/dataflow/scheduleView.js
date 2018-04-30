@@ -28,7 +28,7 @@ window.Scheduler = (function(Scheduler, $) {
         $scheduleSettings = $("#scheduleSettings");
         $scheduleResults = $("#scheduleResults");
         $modScheduleForm = $('#modifyScheduleForm');
-        $timePicker = $("#modScheduler-timePicker");
+        $timePicker = $modScheduleForm.find(".timePicker");
         $dateInput = $modScheduleForm.find(".timeSection .date");
         $timeInput = $modScheduleForm.find(".timeSection .time");
         $historySection = $("#scheduleTable .historySection");
@@ -90,7 +90,7 @@ window.Scheduler = (function(Scheduler, $) {
                         showScheduleSettings();
                         $scheduleSettings.find(".datePickerPart")
                         .removeClass("active");
-                        $scheduleSettings.find(".timePickerPart")
+                        $scheduleSettings.find(".timePickerArea")
                         .removeClass("active");
                         StatusBox.forceHide();
                     }
@@ -98,46 +98,10 @@ window.Scheduler = (function(Scheduler, $) {
             }
         });
 
-        $timeInput.on({
-            "focus": function() {
-                toggleTimePicker($modScheduleForm, true);
-                $(this).closest(".timePickerPart").addClass("active");
-            },
-            "focusout": function() {
-                $(this).closest(".timePickerPart").removeClass("active");
-            },
-            "keydown": function() {
-                // no input event
-                return false;
-            }
-        });
-
-        $timePicker.on("click", ".btn", function() {
-            var $btn = $(this).blur();
-            var isIncrease = $btn.hasClass("increase");
-            var type;
-            if ($btn.hasClass("hour")) {
-                type = "hour";
-            } else if ($btn.hasClass("minute")) {
-                type = "minute";
-            } else {
-                type = "ampm";
-            }
-            changeTime(type, isIncrease);
-        });
-
-        $timePicker.on("input", "input", function() {
-            var $input = $(this);
-            var type;
-            if ($input.hasClass("hour")) {
-                type = "hour";
-            } else if ($input.hasClass("minute")) {
-                type = "minute";
-            } else {
-                // invalid case
-                return;
-            }
-            inputTime(type, $input.val());
+        new XcTimePicker($modScheduleForm.find(".timePickerArea"), {
+            pickerBlurCallback: showScheduleSettings,
+            resetTime: true,
+            isUTC: true
         });
 
         // frequent section event
@@ -272,7 +236,7 @@ window.Scheduler = (function(Scheduler, $) {
 
     Scheduler.hide = function() {
         currentDataFlowName = null;
-        $('#modifyScheduleForm .timePickerPart').removeClass("active");
+        $('#modifyScheduleForm .timePickerArea').removeClass("active");
         $('#modifyScheduleForm .datePickerPart').removeClass("active");
         StatusBox.forceHide();
         $scheduleDetail.addClass("xc-hidden");
@@ -649,7 +613,7 @@ window.Scheduler = (function(Scheduler, $) {
             .find('input.hour');
             var $minInput = $('#modifyScheduleForm .timePicker:visible')
             .find('input.minute');
-            if ($("#modScheduler-timePicker").is(":visible")) {
+            if ($timePicker.is(":visible")) {
                 if ($hourInput.val() > 12 || $hourInput.val() < 1) {
                     StatusBox.show(ErrTStr.SchedHourWrong, $hourInput, false, {
                         "side": "left"
@@ -980,134 +944,6 @@ window.Scheduler = (function(Scheduler, $) {
         return res;
     }
 
-    function toggleTimePicker(display) {
-        if (!display) {
-            $(document).off(".timePicker");
-            $timePicker.fadeOut(200);
-            return;
-        }
-
-        date = new Date();
-        date.setMinutes(date.getMinutes() + 1);
-
-        $timePicker.fadeIn(200);
-        showTimeHelper(date, false, false);
-
-        // mouse down outside the timePicker, and the input is legal,
-        // hide time picker
-        $(document).on("mousedown", function(event) {
-            var $el = $(event.target);
-            if ($el.hasClass("timePickerBox") ||
-                $el.closest(".timePicker").length > 0)
-            {
-                return;
-            }
-            var $hourInput = $('.timePicker:visible').find('input.hour');
-            var $minInput = $('.timePicker:visible').find('input.minute');
-            if ($hourInput.val() <= 12 && $hourInput.val() >= 1
-                && $minInput.val() <= 59 && $minInput.val() >= 0) {
-                toggleTimePicker(false);
-            }
-        });
-
-        // focus out from inside he timePicker
-        $("#modScheduler-timePicker .inputSection input")
-        .on("focusout", function() {
-            var $hourInput = $('.timePicker:visible').find('input.hour');
-            var $minInput = $('.timePicker:visible').find('input.minute');
-            if (isSimpleMode()) {
-                if ($hourInput.val() > 12 || $hourInput.val() < 1) {
-                    StatusBox.show(ErrTStr.SchedHourWrong, $hourInput, false,
-                                   {"side": "left"});
-                } else if ($minInput.val() > 59 || $minInput.val() < 0) {
-                    StatusBox.show(ErrTStr.SchedMinWrong, $minInput, false,
-                                    {"side": "right"});
-                }
-            } else {
-                showScheduleSettings();
-                StatusBox.forceHide();
-                toggleTimePicker(false);
-            }
-        });
-    }
-
-    function changeTime(type, isIncrease) {
-        var ampm = $modScheduleForm.find(".inputSection .ampm").text();
-        var date = $modScheduleForm.find('.timePicker').data("date");
-        // var hour = date.getHours();
-        var hour = date.getUTCHours();
-        var diff;
-
-        switch (type) {
-            case "ampm":
-                if (ampm === "AM") {
-                    // toggle to PM, add 12 hours
-                    date.setUTCHours(hour + 12);
-                } else {
-                    date.setUTCHours(hour - 12);
-                }
-                break;
-            case "minute":
-                diff = isIncrease ? 1 : -1;
-                date.setUTCMinutes(date.getUTCMinutes() + diff);
-                // keep the same hour
-                date.setUTCHours(hour);
-                break;
-            case "hour":
-                diff = isIncrease ? 1 : -1;
-                if (isIncrease && (hour + diff) % 12 === 0 ||
-                    !isIncrease && hour % 12 === 0) {
-                    // when there is am/pm change, keep the old am/pm
-                    date.setUTCHours((hour + diff + 12) % 24);
-                } else {
-                    date.setUTCHours(hour + diff);
-                }
-                break;
-            default:
-                // error case
-                break;
-        }
-        showTimeHelper(date, false, false);
-    }
-
-    function inputTime(type, val) {
-        if (val === "") {
-            return;
-        }
-        val = Number(val);
-        if (isNaN(val) || !Number.isInteger(val)) {
-            return;
-        }
-
-        var date = $timePicker.data("date");
-        switch (type) {
-            case "minute":
-                if (val < 0 || val > 59) {
-                    return;
-                }
-                date.setUTCMinutes(val);
-                showTimeHelper(date, false, true);
-                break;
-            case "hour":
-                if (val < 1 || val > 12) {
-                    return;
-                }
-
-                var ampm = $modScheduleForm.find(".inputSection .ampm").text();
-
-                if (val === 12 && ampm === "AM") {
-                    val = 0;
-                } else if (ampm === "PM" && val !== 12) {
-                    val += 12;
-                }
-                date.setUTCHours(val);
-                showTimeHelper(date, true, false);
-                break;
-            default:
-                // error case
-                break;
-        }
-    }
 
     function testDate(str){
         var template = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
@@ -1118,7 +954,7 @@ window.Scheduler = (function(Scheduler, $) {
         var inputMonth = template[1];
         var inputYear = template[3];
         var date = new Date(str + " utc");
-        if (date === "Invalid Date") {
+        if (date.toString() === "Invalid Date") {
             return false;
         }
         var day = date.getUTCDate();
@@ -1128,24 +964,6 @@ window.Scheduler = (function(Scheduler, $) {
         return Number(inputDay) === day &&
                (Number(inputMonth) - 1) === month &&
                Number(inputYear) === year;
-    }
-
-    function showTimeHelper(date, noHourRest, noMinReset) {
-        var hours = addPrefixZero(getHourIndex(date.getUTCHours()));
-        var minutes = addPrefixZero(date.getUTCMinutes());
-        var ampm = getAMPM(date.getUTCHours());
-
-        if (!noHourRest) {
-            $timePicker.find(".inputSection .hour").val(hours);
-        }
-        if (!noMinReset) {
-            $timePicker.find(".inputSection .minute").val(minutes);
-        }
-        $timePicker.find(".inputSection .ampm").text(ampm);
-        $timePicker.data("date", date);
-
-        var timeStr = hours + " : " + minutes + " " + ampm;
-        $timeInput.val(timeStr);
     }
 
     function getNextRunTime(schedule) {
@@ -1287,8 +1105,6 @@ window.Scheduler = (function(Scheduler, $) {
     if (window.unitTestMode) {
         Scheduler.__testOnly__ = {};
         Scheduler.__testOnly__.getNextRunTime = getNextRunTime;
-        Scheduler.__testOnly__.showTimeHelper = showTimeHelper;
-        Scheduler.__testOnly__.inputTime = inputTime;
         Scheduler.__testOnly__.changeTime = changeTime;
         Scheduler.__testOnly__.showScheduleSettings = showScheduleSettings;
         Scheduler.__testOnly__.saveScheduleForm = saveScheduleForm;

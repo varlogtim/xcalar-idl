@@ -637,8 +637,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
             $extLists.find(".func.selected").removeClass("selected");
             $func.addClass("selected");
-            if (!$("#workspaceTab").hasClass("active")) {
-                MainMenu.openPanel("workspacePanel");
+            if (!$("#workspaceTab").hasClass("active") ||
+                !$("#worksheetButton").hasClass("active")) {
+                MainMenu.openPanel("workspacePanel", "worksheetButton");
             }
 
             centerFuncList($func);

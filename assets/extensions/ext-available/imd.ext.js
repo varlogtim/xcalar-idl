@@ -207,6 +207,7 @@ window.UExtIMD = (function(UExtIMD) {
                 newTable.addCol(new XcSDK.Column(colName));
             });
         }
+        newTable.refreshIMDList();
         return newTable.addToWorksheet(replaceTableName);
     }
 

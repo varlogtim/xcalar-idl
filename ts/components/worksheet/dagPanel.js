@@ -296,7 +296,7 @@ window.DagPanel = (function($, DagPanel) {
             }
 
             if (!wasOnWorksheetPanel) {
-                $('#workspaceTab').trigger('click');
+                MainMenu.openPanel("workspacePanel", "worksheetButton");
                 xcTooltip.changeText($panelSwitch, TooltipTStr.CloseQG);
                 xcTooltip.hideAll();
             }
@@ -534,7 +534,8 @@ window.DagPanel = (function($, DagPanel) {
             $menu.find(".deleteTableDescendants").addClass("unavailable");
 
             if ($dagTable.hasClass("dataStore") &&
-                !$dagTable.hasClass("retina")) {
+                !$dagTable.hasClass("retina") &&
+                !$dagTable.hasClass("refresh")) {
                 $menu.addClass("dataStoreMode");
             } else {
                 $menu.removeClass("dataStoreMode");

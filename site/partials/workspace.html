@@ -1,17 +1,21 @@
 <div id="workspacePanel" class="mainPanel no-selection active">
   include "workspaceBar.html"
-  <div id="watermark"></div>
-  <div id="insight">
-    <% if (dicts.product == "XI") { %>
-    insight
-    <% } else { %>
-    <i class="icon xi-design-logo"></i>
-    <% } %>
-  </div>
   <div class="mainContent">
-    <div id="mainFrame" class="subPanel"></div>
-    include "dag.html"
+    <div id="worksheetView" class="workspaceSection subPanel active">
+      <div id="mainFrame"></div>
+      include "dag.html"
+      <div id="watermark"></div>
+      <div id="insight">
+        <% if (dicts.product == "XI") { %>
+        insight
+        <% } else { %>
+        <i class="icon xi-design-logo"></i>
+        <% } %>
+      </div>
+      include "tableMenus.html"
+    </div>
+    <div id="imdView" class="workspaceSection subPanel">
+      include "worksheet/imdView.html"
+    </div>
   </div>
-
-  include "tableMenus.html"
 </div>

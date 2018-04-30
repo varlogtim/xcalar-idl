@@ -2288,8 +2288,9 @@ window.JoinView = (function($, JoinView) {
         }
 
         function focusOnTable(tableId) {
-            if (!$("#workspaceTab").hasClass("active")) {
-                $('#workspaceTab').click();
+            if (!$("#workspaceTab").hasClass("active") ||
+                !$("#worksheetButton").hasClass("active")) {
+                MainMenu.openPanel("workspacePanel", "worksheetButton");
             }
             var ws = WSManager.getWSFromTable(tableId);
             WSManager.focusOnWorksheet(ws, false, tableId);

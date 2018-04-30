@@ -507,7 +507,8 @@ window.DagDraw = (function($, DagDraw) {
 
         if ($dagTable.hasClass('rootNode')) {
             if ($dagTable.hasClass("retina") ||
-                $dagTable.hasClass("synthesize")) {
+                $dagTable.hasClass("synthesize") ||
+                $dagTable.hasClass("refresh")) {
                 tableImage = tdImage;
             } else {
                 tableImage = dImage;
@@ -1288,6 +1289,10 @@ window.DagDraw = (function($, DagDraw) {
             }
             if (node.value.api === XcalarApisT.XcalarApiExecuteRetina) {
                 tableClasses += "retina ";
+                tId = xcHelper.getTableId(tableName);
+                tableClasses += "dataStore ";
+            } else if (node.value.api === XcalarApisT.XcalarApiSelect) {
+                tableClasses += "refresh ";
                 tId = xcHelper.getTableId(tableName);
                 tableClasses += "dataStore ";
             } else if (node.value.api === XcalarApisT.XcalarApiBulkLoad) {

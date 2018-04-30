@@ -42,7 +42,7 @@ class Authentication {
     /**
      * Authentication.getHashId
      */
-    public static getHashId(): String {
+    public static getHashId(excludeHash?: boolean): String {
         let idCount: number = Authentication.authInfo.getIdCount();
         Authentication.authInfo.incIdCount();
         while (gTables.hasOwnProperty(idCount)) {
@@ -55,6 +55,10 @@ class Authentication {
         .fail(function(error) {
             console.error("Save Authentication fails", error);
         });
-        return ("#" + idCount);
+        if (excludeHash) {
+            return idCount;
+        } else {
+            return ("#" + idCount);
+        }
     }
 }

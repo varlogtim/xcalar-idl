@@ -244,5 +244,9 @@ window.XcSDK.Table.prototype = {
         }
 
         return null;
+    },
+
+    refreshIMDList: function() {
+        IMDPanel.needsUpdate();
     }
 };

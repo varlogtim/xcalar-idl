@@ -1,3 +1,22 @@
+#workspacePanel {
+    .subPanel {
+        display: none;
+        .size(@height: 100%);
+
+        &.active {
+            display: block;
+        }
+    }
+
+    > .mainContent {
+        padding: 0px;
+    }
+}
+
+#worksheetView {
+    padding: 5px 5px 0 5px;
+}
+
 #watermark {
     .position(absolute, @bottom: 60px, @left: 75px);
     .size(@width: 579px, @height: 253px);
@@ -193,7 +212,7 @@
 /* END RESIZE CURSOR */
 
 /* ========== Work Sheet Bar ========== */
-#workspaceBar {
+#workspaceBar{
     .position(relative);
     .flex-display;
     width: @width-topBar;

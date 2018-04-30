@@ -1063,6 +1063,15 @@ module.exports = {
         "Skew": "数据偏差",
         "ClickToDetail": "点击查看详细信息"
     },
+    "imdBar": {
+        "From": "From",
+        "To": "To",
+        "Scale": "Scale",
+        "ScaleUnit": "Per Tick"
+    },
+    "IMDPanel": {
+        "emptyDetails": "Select a table from the published tables list to view details."
+    },
     "ws": {
         "ActiveList": "激活表",
         "ActiveTableInstr": "要将表添加到工作表中，请在<b>数据集</b>面板中导入数据集，然后从此数据集中生成表并添加到当前工作表中。",
@@ -1089,7 +1098,9 @@ module.exports = {
         "filterOrphan": "搜索临时表",
         "hide": "隐藏工作表",
         "sheet": "工作部",
-        "unHideAll": "激活所有工作表"
+        "unHideAll": "激活所有工作表",
+        "WorksheetPanel": "Worksheet Panel",
+        "IMDPanel": "IMD Panel"
     },
 
     "loginConfig": {

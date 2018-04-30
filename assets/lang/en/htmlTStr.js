@@ -373,6 +373,17 @@ module.exports = {
         "ClickToDetail": "Click to see details"
     },
 
+    "imdBar": {
+        "From": "From",
+        "To": "To",
+        "Scale": "Scale",
+        "ScaleUnit": "Per Tick"
+    },
+
+    "IMDPanel": {
+        "emptyDetails": "Select a table from the published tables list to view details."
+    },
+
     "UDF": {
         "ADD": "ADD UDF",
         "Browse": "Browse File",
@@ -458,7 +469,9 @@ module.exports = {
         "ActiveTableInstr": "To add a table to the current worksheet, from the <b>Datasets</b> panel import a dataset and select this dataset.",
         "HideTableInstr": "To hide a table, right click the title bar for an active table. Then select <b>Hide Table</b> from the dropdown menu.",
         "TempTableInstr": "This section contains tables that are no longer active after an operation is performed.",
-        "ConstTableInstr": "This section contains named aggregate values."
+        "ConstTableInstr": "This section contains named aggregate values.",
+        "WorksheetPanel": "Worksheet Panel",
+        "IMDPanel": "IMD Panel"
     },
 
     "queryGraph": {
