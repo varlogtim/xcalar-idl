@@ -1302,7 +1302,8 @@
             var deferred = PromiseHelper.deferred();
             var sortCli = "";
             assert(node.children.length === 1);
-            var options = {renamedCols: node.renamedCols};
+            var options = {renamedCols: node.renamedCols,
+                           tableName: node.children[0].newTableName};
             var sortColsAndOrder = __genSortStruct(node.value.order, options);
             var tableName = node.children[0].newTableName;
             options.maps.forEach(function(tempColInfo) {
@@ -2097,11 +2098,11 @@
             // Sort the table first because windowExps in same window node
             // share same order
             // If no sortOrder specified => aggregate window, no need to sort
-            var options = {renamedCols: node.renamedCols};
+            var tableName = node.children[0].newTableName;
+            var options = {renamedCols: node.renamedCols, tableName: tableName};
             loopStruct.groupByCols = __genGBColArray(node.value.partitionSpec);
             loopStruct.sortColsAndOrder =
                                 __genSortStruct(node.value.orderSpec, options);
-            var tableName = node.children[0].newTableName;
             var curPromise;
             if (loopStruct.sortColsAndOrder.length === 0
                                     && loopStruct.groupByCols.length === 0) {

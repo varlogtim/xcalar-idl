@@ -145,10 +145,11 @@ window.UExtSendSchema = (function(UExtSendSchema) {
                     datas.push(val);
                 }
             });
-            if (xcSuggest.suggestDateType(datas, type, 0.9)) {
-                dateIndex.push(i);
-                dateKeys.push(key);
-            }
+            // Disable date type check for now
+            // if (xcSuggest.suggestDateType(datas, type, 0.9)) {
+            //     dateIndex.push(i);
+            //     dateKeys.push(key);
+            // }
             var obj = {};
             obj[key] = type;
             schema.push(obj);
