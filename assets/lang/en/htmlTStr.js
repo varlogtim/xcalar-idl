@@ -393,8 +393,8 @@ module.exports = {
 
     "SQL": {
         "EXECUTE": "EXECUTE SQL",
-        "Schema": "All SQL Tables and Schemas",
-        "SchemaInst": "We need some instructions here.",
+        "Schema": "Tables and Schemas available to SQL",
+        "SchemaInst": "Select and click a table to view columns.",
         "ColumnInst": "Select and click a table in order to view and select columns.",
         "TableTitle": "Table in workbook: "
     },

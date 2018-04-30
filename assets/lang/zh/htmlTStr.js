@@ -201,7 +201,11 @@ module.exports = {
         "Udfs": "UDFs"
     },
      "SQL": {
-        "EXECUTE": "运行SQL"
+        "EXECUTE": "运行SQL",
+        "Schema": "所有可用于SQL的表格和Schema",
+        "SchemaInst": "选中一个表格以查看它所包含的列",
+        "ColumnInst": "选中一个表格以查看它所包含的列",
+        "TableTitle": "对应工作薄中的表: "
     },
     "about": {
         "LicensedTo": "证书拥有组织",
