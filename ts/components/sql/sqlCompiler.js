@@ -219,6 +219,7 @@
             this.xcCols = [];
             this.sparkCols = [];
             this.renamedCols = {};
+            this.orderCols = [];
             var rdds = value.output;
             for (var i = 0; i < rdds.length; i++) {
                 var acc = {numOps: 0};
@@ -859,6 +860,7 @@
             // This is an array of renamed column IDs
             node.parent.renamedCols = jQuery.extend(true, {},
                                                       node.renamedCols);
+            node.parent.orderCols = jQuery.extend(true, [], node.orderCols);
         }
     }
     SQLCompiler.genTree = function(parent, array) {
@@ -1137,21 +1139,97 @@
             assert(aggEvalStrArray.length === 0,
                    SQLErrTStr.ProjectAggAgg + JSON.stringify(aggEvalStrArray));
 
+            var newXcCols = [];
+            var colNames = [];
+            for (var i = 0; i < node.orderCols.length; i++) {
+                var find = false;
+                if (node.orderCols[i].colId) {
+                    var id = node.orderCols[i].colId;
+                    for (var j = 0; j < columns.length; j++) {
+                        if (columns[j].colId === id) {
+                            node.orderCols[i] = columns[j];
+                            find = true;
+                            break;
+                        }
+                    }
+                    if (!find) {
+                        for (var j = 0; j < node.usrCols.length; j++) {
+                            if (node.usrCols[j].colId === id) {
+                                var colStructWithoutId =
+                                    __deleteIdFromColInfo([node.usrCols[j]])[0];
+                                node.orderCols[i] = colStructWithoutId;
+                                newXcCols.push(colStructWithoutId);
+                                find = true;
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    var name = __getCurrentName(node.orderCols[i]);
+                    for (var j = 0; j < node.xcCols.length; j++) {
+                        if (__getCurrentName(node.xcCols[j]) === name) {
+                            node.orderCols[i] = node.xcCols[j];
+                            newXcCols.push(node.xcCols[j]);
+                            find = true;
+                            break;
+                        }
+                    }
+                }
+                assert(find);
+            }
+            node.xcCols = newXcCols;
+            node.sparkCols = [];
+
             // Change node.usrCols & node.renamedCols
             node.usrCols = columns;
             node.renamedCols = {};
             // Extract colNames from column structs
             // and check if it has renamed columns
-            var colNames = [];
             for (var i = 0; i < columns.length; i++) {
                 if (columns[i].rename) {
-                    colNames.push(columns[i].rename);
                     node.renamedCols[columns[i].colId] = columns[i].rename;
-                } else {
-                    colNames.push(columns[i].colName);
                 }
             }
 
+            var newRenames = __resolveCollision(node.xcCols, node.usrCols, [],
+                                                [], "", tableName);
+            node.renamedCols = __combineRenameMaps([node.renamedCols,
+                                         newRenames]);
+            node.usrCols.concat(node.xcCols).forEach(function(col) {
+                colNames.push(__getCurrentName(col));
+            });
+            for (var id in newRenames) {
+                var find = false;
+                for (var i = 0; i < evalStrArray.length; i++) {
+                    if (evalStrArray[i].colId === Number(id)) {
+                        evalStrArray[i].newColName = newRenames[id];
+                        find = true;
+                        break;
+                    }
+                }
+                if (!find) {
+                    for (var i = 0; i < columns.length; i++) {
+                        if (columns[i].colId === Number(id)) {
+                            evalStrArray.push({newColName: newRenames[id],
+                                evalStr: columns[i].colType + "("
+                                + columns[i].colName + ")"});
+                            find = true;
+                            break;
+                        }
+                    }
+                }
+                assert(find);
+            }
+            columns.forEach(function(col) {
+                delete col.colType;
+            });
+            // XXX Currently we rename new columns, but if we have
+            // column type in the future, can switch to renaming old columns
+            // for (var i = 0; i < node.xcCols.length; i++) {
+            //     if (node.xcCols[i].rename) {
+            //         // Need to get column type and map
+            //     }
+            // }
             var cliStatements = "";
             if (evalStrArray.length > 0) {
                 var mapStrs = evalStrArray.map(function(o) {
@@ -1306,14 +1384,20 @@
                            tableName: node.children[0].newTableName};
             var sortColsAndOrder = __genSortStruct(node.value.order, options);
             var tableName = node.children[0].newTableName;
+            node.orderCols = [];
             options.maps.forEach(function(tempColInfo) {
-                node.xcCols.push({colName: tempColInfo.colName});
-            })
-            var newRenames = __resolveCollision([],node.usrCols
-                             .concat(node.xcCols).concat(node.sparkCols), [],
-                             [], "", tableName);
-            node.renamedCols = __combineRenameMaps([node.renamedCols,
-                                                      newRenames]);
+                var tempColStruct = {colName: tempColInfo.colName};
+                node.xcCols.push(tempColStruct);
+                node.orderCols.push(tempColStruct);
+            });
+            sortColsAndOrder.forEach(function(col) {
+                for (var i = 0; i < node.usrCols.length; i++) {
+                    if (node.usrCols[i].colId === col.colId) {
+                        node.orderCols.push(node.usrCols[i]);
+                        break;
+                    }
+                }
+            });
             __handleSortMap(self, options.maps, tableName)
             .then(function(ret) {
                 sortCli += ret.cli;
@@ -1336,6 +1420,7 @@
             if (node.value.aggregateExpressions) {
                 assert(node.value.aggregateExpressions.length === 1);
             var edgeCase = false;
+            node.orderCols = [];
             // Edge case:
             // SELECT col FROM tbl GROUP BY col1
 
@@ -1367,6 +1452,7 @@
             // Only support expand followed by aggregate node
             assert(node.parent.value.class ===
                 "org.apache.spark.sql.catalyst.plans.logical.Aggregate");
+            node.orderCols = [];
             node.newTableName = node.children[0].newTableName;
             var groupingCols = [];
             node.value.output.forEach(function(item) {
@@ -1402,6 +1488,7 @@
             var self = this;
             var cli = "";
             var deferred = PromiseHelper.deferred();
+            node.orderCols = [];
             assert(node.children.length === 1);
             var tableName = node.children[0].newTableName;
 
@@ -2854,11 +2941,11 @@
                 console.error("Unexpected sort order");
                 assert(0);
             }
-            var colName, type;
+            var colName, type, id;
             if (orderArray[i][1].class ===
                 "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
                 colName = cleanseColName(orderArray[i][1].name);
-                var id = orderArray[i][1].exprId.id;
+                id = orderArray[i][1].exprId.id;
                 if (options && options.renamedCols &&
                     options.renamedCols[id]) {
                     colName = options.renamedCols[id];
@@ -2880,7 +2967,8 @@
                 colNameSet.add(colName);
                 sortColsAndOrder.push({name: colName,
                                        type: type,
-                                       ordering: order});
+                                       ordering: order,
+                                       colId: id});
             }
         }
         return sortColsAndOrder;
@@ -3645,6 +3733,7 @@
         return deferred.promise();
     }
 
+    // XXX plan server fixed, need design to support cube/grouping_sets
     function __handleMultiDimAgg(self, gbColNames, gbStrColNames, gArray, tableName, expand) {
         var cli = "";
         var deferred = PromiseHelper.deferred();
@@ -3932,7 +4021,8 @@
                 colStruct.colName = newColName;
                 var retStruct = {newColName: newColName,
                                  evalStr: evalStr,
-                                 numOps: acc.numOps};
+                                 numOps: acc.numOps,
+                                 colId: colStruct.colId};
 
                 if (acc.isDistinct) {
                     retStruct.isDistinct = true;
@@ -3960,6 +4050,7 @@
                 }
                 colStruct.colName = cleanseColName(curColStruct.name);
                 colStruct.colId = curColStruct.exprId.id;
+                colStruct.colType = curColStruct.dataType;
                 if (options && options.renamedCols &&
                     options.renamedCols[colStruct.colId]) {
                     colStruct.rename = options.renamedCols[colStruct.colId];

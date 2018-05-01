@@ -399,6 +399,9 @@
             var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self._start();
+            sortColsAndOrder.forEach(function(col) {
+                delete col.colId;
+            })
 
             XIApi.sort(txId, sortColsAndOrder, tableName, newTableName)
             .then(function(ret) {
