@@ -1,9 +1,11 @@
-# global ignores in all directories
+# Global ignores in all directories
 *.DS_Store
 *.tar.gz
 *~
 *.swp
+*.swo
 .vscode
+node_modules
 index.html
 unitTest.html
 install.html
@@ -15,7 +17,21 @@ dashboard.html
 install-tarball.html
 tags
 
+# Top level directories
+/js
+/prod
+/xcalar-insight
+/xcalar-gui
+
+# ts/
 /ts/config.js
+
+# services/
+/services/expServer/*.tar.gz
+/services/appMarketplace/extensionUploader.html
+/services/test/report
+
+# assets/
 /assets/stylesheets/**/*.css
 /assets/widget/*.css
 /assets/customerPortal/*.css
@@ -24,21 +40,10 @@ tags
 /assets/js/setup/constructorVersion.js
 /assets/js/constructor/E_persConstructor.js
 /assets/dev/!shortCutStyles.css
-/assets/dev/unitTest/**/node_modules/*
 /assets/dev/unitTest/coverage/coverage.js
-/prod/*
-/xcalar-insight/*
-/xcalar-gui/*
-/node_modules/*
-/services/**/node_modules/*
-assets/js/api/**/node_modules/*
 /assets/htmlFiles/*
-/js/
-/services/expServer/*.tar.gz
 /assets/help/xd/Content/SearchInsight.htm
 /assets/help/xi/Content/SearchInsight.htm
-/services/test/report/*
-/services/appMarketplace/extensionUploader.html
 /assets/js/constructor/B_constructorDefine.js
 /assets/js/constructor/DA_persConstructorV1.js
 /assets/js/constructor/DB_persConstructorV2.js
