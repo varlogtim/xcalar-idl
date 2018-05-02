@@ -117,6 +117,7 @@ class XcSocket {
     private _addWorkbookEvents(): void {
         const socket = this._socket;
         socket.on("refreshWorkbook", (info) => {
+            // XXX socket should only send messages to relevant users
             WorkbookManager.updateWorkbooks(info);
         });
     }

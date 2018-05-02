@@ -886,6 +886,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
             setActiveWKBK(null);
             setURL(null, true);
             WorkbookPanel.show();
+            var xcSocket = XcSocket.Instance;
+            xcSocket.unregisterUserSession(activeWkbk);
+            $("#container").addClass("noWorkbook noMenuBar");
 
             return;
         }
