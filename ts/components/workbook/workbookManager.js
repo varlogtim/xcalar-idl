@@ -812,6 +812,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     function syncWorkbookMeta(oldWorkbooks, sessionInfo, refreshing) {
         try {
+            if (oldWorkbooks == null) {
+                oldWorkbooks = {};
+            }
             var numSessions = sessionInfo.numSessions;
             var sessions = sessionInfo.sessions;
             if  (refreshing) {
