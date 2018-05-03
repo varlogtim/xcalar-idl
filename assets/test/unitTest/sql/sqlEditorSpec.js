@@ -173,7 +173,7 @@ describe("SQLEditor Test", function() {
         });
 
         it("Should deleteSchema by tableName", function(done) {
-            SQLEditor.deleteSchema("testSqlTable1")
+            SQLEditor.deleteSchemas("testSqlTable1")
             .then(function() {
                 expect($sqlTableList.find('.unit[data-name="testSqlTable1"]').length)
                     .to.equal(0);
@@ -184,8 +184,8 @@ describe("SQLEditor Test", function() {
             })
         });
 
-        it("Should deleteSchema by tableId", function(done) {
-            SQLEditor.deleteSchema(null, "test2")
+        it("Should deleteSchemas by tableId", function(done) {
+            SQLEditor.deleteSchemas(null, ["test2"])
             .then(function() {
                 expect($sqlTableList.find('.unit[data-name="testSqlTable2"]').length)
                     .to.equal(0);

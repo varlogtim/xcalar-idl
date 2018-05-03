@@ -49,13 +49,15 @@ window.SQLEditor = (function(SQLEditor, $) {
         for (var i = 0; i < numMilSeconds/frequency; i++) {
             setTimeout(function() {
                 var buttonText = $sqlButton.find(".text").html();
-                var numCurSteps = parseInt(buttonText.substring(13, buttonText.indexOf("/")));
+                var numCurSteps = parseInt(buttonText.substring(13,
+                                                      buttonText.indexOf("/")));
                 var backPart = buttonText.substring(buttonText.indexOf("/"));
                 numCurSteps += Math.ceil(Math.random() * amtPerTick);
                 if (numCurSteps > parseInt(backPart.substring(1))) {
                     numCurSteps = parseInt(backPart.substring(1));
                 }
-                $sqlButton.find(".text").html("Compiling... " + numCurSteps + backPart);
+                $sqlButton.find(".text").html("Compiling... " + numCurSteps +
+                                                                backPart);
             }, i*frequency);
         }
 
@@ -76,7 +78,8 @@ window.SQLEditor = (function(SQLEditor, $) {
 
     SQLEditor.updateProgress = function() {
         var buttonText = $sqlButton.find(".text").html();
-        var numCurSteps = parseInt(buttonText.substring(13, buttonText.indexOf("/")));
+        var numCurSteps = parseInt(buttonText.substring(13,
+                                                      buttonText.indexOf("/")));
         var backPart = buttonText.substring(buttonText.indexOf("/"));
         numCurSteps++;
         $sqlButton.find(".text").html("Compiling... " + numCurSteps + backPart);
@@ -101,7 +104,7 @@ window.SQLEditor = (function(SQLEditor, $) {
             var $unit = $sqlTableList.find('li .unit[data-name="' + tableName +
                                            '"]').eq(0);
             if ($unit.length > 0) {
-                $unit.data("hashid", tableId);
+                $unit.attr("data-hashid", tableId);
                 if ($unit.hasClass("selected")) {
                     // Reload columns if already selected
                     genColumnsFromTable(tableId);
@@ -144,25 +147,29 @@ window.SQLEditor = (function(SQLEditor, $) {
         return KVStore.commit();
     }
 
-    SQLEditor.deleteSchema = function(tableName, tableId) {
+    SQLEditor.deleteSchemas = function(tableName, tableIds) {
         // XXX Think about updating plan server
         // Remove from KVStore & UI table list
-        if (!tableId && !sqlTables[tableName]) {
+        if ((!tableIds || tableIds.legnth === 0) && !sqlTables[tableName]) {
             return PromiseHelper.resolve("Table doesn't exist");
         }
         // Create a copy for aysnc call
         var sqlTablesCopy = $.extend(true, {}, sqlTables);
-        if (tableId) {
-            // If tableId is provided, it's dropping a table. Then we delete all
-            // associated sqlTables
+        if (tableIds && tableIds.length > 0) {
+            // If tableId is provided, it's dropping XD tables. Then we delete
+            // all associated sqlTables
             var found = false;
             for (var key in sqlTablesCopy) {
-                if (sqlTablesCopy[key] === tableId) {
+                if (tableIds.indexOf(sqlTablesCopy[key]) > -1) {
                     found = true;
                     delete sqlTablesCopy[key];
                 }
             }
             if (!found) {
+                for (var i = 0; i < tableIds.length; i++) {
+                    $sqlTableList.find('li .unit[data-hashid="'+
+                                        tableIds[i] + '"]').remove();
+                }
                 return PromiseHelper.resolve("No tables to delete");
             }
         } else {
@@ -171,16 +178,20 @@ window.SQLEditor = (function(SQLEditor, $) {
         var deferred = PromiseHelper.deferred();
         updateKVStore(JSON.stringify(sqlTablesCopy), true)
         .then(function(ret) {
-            if (tableId) {
-                $sqlTableList.find('li .unit[data-hashid="' + tableId + '"]').remove();
+            if (tableIds) {
+                for (var i = 0; i < tableIds.length; i++) {
+                    $sqlTableList.find('li .unit[data-hashid="'+
+                                        tableIds[i] + '"]').remove();
+                }
             } else {
-                $sqlTableList.find('li .unit[data-name="' + tableName + '"]').remove();
+                $sqlTableList.find('li .unit[data-name="' +
+                                    tableName + '"]').remove();
             }
             var $selectedTable = $sqlTableList.find(".unit.selected").eq(0);
             if ($selectedTable.length === 0) {
                 genColumnsFromTable(null);
             } else {
-                genColumnsFromTable(getDataAttr($selectedTable, "hashid"));
+                genColumnsFromTable($selectedTable.attr("data-hashid"));
             }
             sqlTables = sqlTablesCopy;
             console.log("SQL table(s) deleted");
@@ -240,8 +251,8 @@ window.SQLEditor = (function(SQLEditor, $) {
         });
         $sqlTableList.on("click", ".xi-trash", function(event) {
             event.stopPropagation();
-            var tableName = getDataAttr($(this).closest(".unit"), "name");
-            SQLEditor.deleteSchema(tableName);
+            var tableName = $(this).closest(".unit").attr("data-name");
+            SQLEditor.deleteSchemas(tableName);
         });
         $sqlColumnList.on("click", ".unit", function(event) {
             event.stopPropagation();
@@ -423,12 +434,12 @@ window.SQLEditor = (function(SQLEditor, $) {
             genColumnsFromTable(null);
             return;
         }
-        var tableId = getDataAttr($unit, "hashid");
+        var tableId = $unit.attr("data-hashid");
         if (gTables[tableId] == null) {
             // Table doesn't exist
             Alert.show({title: "SQL Error",
                        msg: SQLErrTStr.NoSchema});
-            SQLEditor.deleteSchema(null, tableId);
+            SQLEditor.deleteSchemas(null, tableId);
             return;
         }
         genColumnsFromTable(tableId);
@@ -451,17 +462,13 @@ window.SQLEditor = (function(SQLEditor, $) {
             $targetList = $sqlColumnList;
         }
         $targetList.find(".unit").each(function() {
-            var name = getDataAttr($(this), "name").toUpperCase();
+            var name = $(this).attr("data-name").toUpperCase();
             if (name.indexOf(searchKey) > -1) {
                 $(this).removeClass("xc-hidden");
             } else {
                 $(this).addClass("xc-hidden");
             }
         });
-    }
-
-    function getDataAttr($ele, attr) {
-        return String($ele.data(attr));
     }
 
     function genTablesHTML() {
@@ -516,7 +523,7 @@ window.SQLEditor = (function(SQLEditor, $) {
         for (var i = 0; i < labels.length; i++) {
             var el = labels[i];
             var $label = $(el);
-            var name = getDataAttr($label.closest(".unit"), "name");
+            var name = $label.closest(".unit").attr("data-name");
             var isEllipsis = el.scrollWidth > el.clientWidth;
             toggleTooltip($label, name, isEllipsis);
         }

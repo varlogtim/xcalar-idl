@@ -643,21 +643,6 @@ window.TblManager = (function($, TblManager) {
                 });
             }
         }
-        if (typeof SQLEditor !== "unidefined") {
-            if (tableType === TableType.Orphan) {
-                tables.forEach(function(tableName) {
-                    var hashIndex  = tableName.indexOf("#");
-                    if (hashIndex > -1) {
-                        var tableId = tableName.substring(hashIndex + 1);
-                        SQLEditor.deleteSchema(null, tableId);
-                    }
-                });
-            } else {
-                tables.forEach(function(tableId) {
-                    SQLEditor.deleteSchema(null, String(tableId));
-                });
-            }
-        }
 
         def
         .then(function() {
@@ -675,6 +660,24 @@ window.TblManager = (function($, TblManager) {
                     KVStore.commit();
                 }
                 deferred.resolve(tableNames);
+            }
+            // Delete schemas in SQL
+            if (typeof SQLEditor !== "unidefined") {
+                var tableIds = [];
+                if (tableType === TableType.Orphan) {
+                    tables.forEach(function(tableName) {
+                        var hashIndex  = tableName.indexOf("#");
+                        if (hashIndex > -1) {
+                            var tableId = tableName.substring(hashIndex + 1);
+                            tableIds.push(null, tableId);
+                        }
+                    });
+                } else {
+                    tables.forEach(function(tableId) {
+                        tableIds.push(String(tableId));
+                    });
+                }
+                SQLEditor.deleteSchemas(null, tableIds);
             }
         })
         .fail(function() {
