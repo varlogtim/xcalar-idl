@@ -3115,7 +3115,9 @@ ExtCategorySet.prototype = {
                 this.storage.setItem(key, encodedVal);
             } catch (error) {
                 console.error(error);
+                return false;
             }
+            return true;
         },
 
         getItem: function(key) {

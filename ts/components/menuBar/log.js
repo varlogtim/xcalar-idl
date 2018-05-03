@@ -36,6 +36,7 @@ window.Log = (function($, Log) {
     var hasTriggerScrollToBottom = false;
     var infList;
     var infListMachine;
+    var isOverflow = false;
 
     Log.setup = function() {
         $textarea = $("#log-TextArea");
@@ -237,14 +238,20 @@ window.Log = (function($, Log) {
     };
 
     Log.backup = function() {
-        if (xcManager.isInSetup()) {
+        if (xcManager.isInSetup() || isOverflow) {
             // start up time error don't trigger backup
             // or it may overwrite old log backup
             return;
         }
 
         var key = logLocalStoreKey + "-backup";
-        xcLocalStorage.setItem(key, JSON.stringify(logCache));
+        if (!xcLocalStorage.setItem(key, JSON.stringify(logCache))) {
+            isOverflow = true;
+            // Remove logCache from local storage because
+            // it's no longer up to date and may be misleading
+            // but takes up memory which may affect other storage
+            xcLocalStorage.removeItem(key);
+        }
     };
 
     Log.clear = function() {
@@ -972,7 +979,12 @@ window.Log = (function($, Log) {
     }
 
     function localCommit() {
-        xcLocalStorage.setItem(logLocalStoreKey, JSON.stringify(logCache));
+        if (!isOverflow) {
+            if (!xcLocalStorage.setItem(logLocalStoreKey, JSON.stringify(logCache))) {
+                isOverflow = true;
+                resetLoclStore();
+            }
+        }
     }
 
     // if isRestore, log is an array of logs
