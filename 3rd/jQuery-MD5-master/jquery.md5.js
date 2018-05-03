@@ -266,4 +266,10 @@
         }
     };
     
+    if (typeof exports !== "undefined") {
+        exports.md5 = $.md5;
+        if (typeof module !== "undefined" && module.exports) {
+            exports = module.exports = $.md5;
+        }
+    }
 }(typeof jQuery === 'function' ? jQuery : this));

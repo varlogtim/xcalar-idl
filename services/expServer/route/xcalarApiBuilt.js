@@ -1460,6 +1460,8 @@ var XIApi;
 var Transaction;
 var SQLApi;
 var SQLCompiler;
+var express = require('express');
+var router = express.Router();
 
 require("jsdom").env("", function(err, window) {
     console.log("initting jQuery");
@@ -1468,10 +1470,9 @@ require("jsdom").env("", function(err, window) {
         return;
     }
 
-    jQuery = require("jquery")(window);
-    jQuery.md5 = require('../../../3rd/jQuery-MD5-master/jquery.md5.js').md5;
-    global.jQuery = jQuery;
+    global.jQuery = jQuery = require("jquery")(window);
     global.$ = $ = jQuery;
+    jQuery.md5 = require('../../../3rd/jQuery-MD5-master/jquery.md5.js');
 
     require("../../../assets/js/thrift/CsvLoadArgsEnums_types.js");
     require("../../../assets/js/thrift/DagRefTypeEnums_types.js");
@@ -1491,10 +1492,10 @@ require("jsdom").env("", function(err, window) {
     require("../../../assets/js/thrift/SourceTypeEnum_types.js");
     require("../../../assets/js/thrift/Status_types.js");
     require("../../../assets/js/thrift/UdfTypes_types.js");
-    require("../../../assets/js/shared/setup/enums.js");
+    require("../sqlHelpers/enums.js");
 
-    global.xcHelper = xcHelper = require("../../../assets/js/shared/util/xcHelper.js");
-    global.xcGlobal = xcGlobal = require("../../../assets/js/shared/setup/xcGlobal.js");
+    global.xcHelper = xcHelper = require("../sqlHelpers/xcHelper.js");
+    global.xcGlobal = xcGlobal = require("../sqlHelpers/xcGlobal.js");
     xcGlobal.setup();
     require("../../../assets/js/thrift/XcalarApiService.js");
     require("../../../assets/js/thrift/XcalarApiVersionSignature_types.js");
@@ -1502,17 +1503,15 @@ require("jsdom").env("", function(err, window) {
     require("../../../assets/js/thrift/XcalarEvalEnums_types.js");
     xcalarApi = require("../../../assets/js/thrift/XcalarApi.js");
 
-
     global.PromiseHelper = PromiseHelper = require("../../../assets/js/promiseHelper.js");
-    global.Transaction = Transaction = require("../../../assets/js/shared/helperClasses/transaction.js");
-
+    global.Transaction = Transaction = require("../sqlHelpers/transaction.js");
 
     hackFunction();
 
     require("../../../assets/js/XcalarThrift.js");
-    global.XIApi = XIApi = require("../../../assets/js/shared/api/xiApi.js");
-    global.SQLApi = SQLApi = require("../../../assets/js/components/sql/sqlApi.js");
-    SQLCompiler = require("../../../assets/js/components/sql/sqlCompiler.js");
+    global.XIApi = XIApi = require("../sqlHelpers/xiApi.js");
+    global.SQLApi = SQLApi = require("../sqlHelpers/sqlApi.js");
+    SQLCompiler = require("../sqlHelpers/sqlCompiler.js");
     require("../../../assets/lang/en/jsTStr.js");
 });
 
@@ -1559,7 +1558,7 @@ function hackFunction() {
 
     global.Authentication = {
         getHashId: function() {
-            return xcHelper.randName("#api");
+            return xcHelper.randName("#");
         }
     };
 
@@ -1576,32 +1575,10 @@ function hackFunction() {
 }
 
 
-var logInUser;
-// Setting up Xcalar
-exports.connect = function(hostname, username, id) {
-    if (getTHandle() != null) {
-        if (username !== logInUser) {
-            return jQuery.Deferred().reject("Authentication fails").promise();
-        } else {
-            return XcalarGetVersion();
-        }
-    }
-    var valid = xcalarApi.setUserIdAndName(username, id, jQuery.md5);
-    if (valid) {
-        setupThrift(hostname);
-        logInUser = username;
-        return XcalarGetVersion();
-    } else {
-        return jQuery.Deferred().reject("Authentication fails").promise();
-    }
-};
 
-exports.getTables = function(tableName) {
-    return XcalarGetTables(tableName);
-};
 
-exports.getRows = function(tableName, startRowNum, rowsToFetch) {
-    var deferred = jQuery.Deferred();
+function getRows(tableName, startRowNum, rowsToFetch) {
+    var deferred = PromiseHelper.deferred();
 
     if (tableName === null || startRowNum === null ||
         rowsToFetch <= 0)
@@ -1652,91 +1629,40 @@ exports.getRows = function(tableName, startRowNum, rowsToFetch) {
     return deferred.promise();
 };
 
-exports.query = function(queryString) {
-    var deferred = jQuery.Deferred();
-    var queryName = "query_restful" + (Math.floor(Math.random() * 10000) + 1);
-
-    XcalarQuery(queryName, queryString, true)
-    .then(function() {
-        return XcalarQueryCheck(queryName);
-    })
-    .then(deferred.resolve)
-    .fail(deferred.reject);
-
-    return deferred.promise();
-};
-
-exports.groupBy = function(gbArgs, groupByCols, tableName, newTableName) {
-    var deferred = jQuery.Deferred();
-    var txId = Transaction.start();
-    var options = {
-        "newTableName": newTableName,
-        "clean": true
-    };
-    
-    XIApi.groupBy(txId, gbArgs, groupByCols, tableName, options)
-    .then(function(finalTableName) {
-        Transaction.done(txId);
-        deferred.resolve(finalTableName);
-    })
-    .fail(function(error) {
-        Transaction.fail(txId);
-        deferred.reject(error);
-    });
-
-    return deferred.promise();
-};
-
-exports.sqlApi = function() {
-    return new SQLApi().filter("eq('1, 2')", "srcTable", "dstTable");
-};
-
-exports.sql = function(sql) {
-    sql = sql.replace(/\n/g, " ").trim().replace(/;+$/, "");
-    console.log("execute sql", sql);
-    var sqlCom = new SQLCompiler();
-    return sqlCom.compile(sql, true);
-};
-
-
-var sqlDS;
 var sqlTable;
 var sqlUser = "xcalar-internal-sql";
 var sqlId = 4193719;
-
-exports.sqlLoad = function(path) {
+var logInUser;
+function sqlLoad(path) {
     global.sqlMode = true;
-    sqlDS = xcHelper.randName("sql.12345.ds");
-    sqlTable = xcHelper.randName("SQL");
-    var importTable = xcHelper.randName("importTable");
+    sqlTable = xcHelper.randName("SQL") + Authentication.getHashId();
     var sqlTableAlias = "sql";
 
-    var deferred = jQuery.Deferred();
-    var dsArgs = {
+    var deferred = PromiseHelper.deferred();
+    var args = {};
+    args.importTable = xcHelper.randName("importTable") + Authentication.getHashId();
+    args.dsArgs = {
         url: path,
         targetName: "Default Shared Root",
         maxSampleSize: 0
     };
-    var formatArgs = {
+    args.formatArgs = {
         format: "JSON"
     };
-    var txId = 1;
+    args.txId = 1;
+    args.sqlDS = xcHelper.randName("sql.12345.ds");
 
-    exports.connect("localhost:9090", sqlUser, sqlId)
+    connect("localhost:9090", sqlUser, sqlId)
     .then(function() {
         console.log("connected");
         return goToSqlWkbk();
     })
     .then(function() {
-        return XIApi.load(dsArgs, formatArgs, sqlDS, txId);
-    })
-    .then(function() {
-        console.log("load dataset");
-        return XIApi.indexFromDataset(txId, sqlDS, importTable, "p");
+        return loadDatasets(args);
     })
     .then(function() {
         console.log("create table");
-        return convertToDerivedColAndGetSchema(txId, importTable, sqlTable);
+        return convertToDerivedColAndGetSchema(args.txId, args.importTable, sqlTable);
     })
     .then(function(schema) {
         // add tablename to schema
@@ -1758,9 +1684,27 @@ exports.sqlLoad = function(path) {
     return deferred.promise();
 };
 
+function connect(hostname, username, id) {
+    if (getTHandle() != null) {
+        if (username !== logInUser) {
+            return PromiseHelper.reject("Authentication fails");
+        } else {
+            return XcalarGetVersion();
+        }
+    }
+    var valid = xcalarApi.setUserIdAndName(username, id, jQuery.md5);
+    if (valid) {
+        setupThrift(hostname);
+        logInUser = username;
+        return XcalarGetVersion();
+    } else {
+        return PromiseHelper.reject("Authentication fails");
+    }
+};
+
 function goToSqlWkbk() {
     var wkbkName = "sql-workbook";
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     var activeSessionName = null;
     var sqlSession = null;
 
@@ -1790,32 +1734,117 @@ function goToSqlWkbk() {
     return deferred.promise();
 }
 
-function getSchema(tableName) {
-    var deferred = jQuery.Deferred();
+function loadDatasets(args) {
+    var dsArgs = args.dsArgs;
+    var formatArgs = args.formatArgs;
+    var txId = args.txId;
+    var importTable = args.importTable;
+    var sqlDS = args.sqlDS;
 
-    exports.getRows(tableName, 1, 1)
-    .then(function(data) {
+    var deferred = PromiseHelper.deferred();
+    XIApi.load(dsArgs, formatArgs, sqlDS, txId)
+    .then(function() {
+        console.log("load dataset");
+        return XIApi.indexFromDataset(txId, sqlDS, importTable, "p");
+    })
+    .then(deferred.resolve)
+    .fail(deferred.reject);
+    return deferred.promise();
+}
+
+function convertToDerivedColAndGetSchema(txId, tableName, dstTable) {
+    var deferred = PromiseHelper.deferred();
+    getSchema(tableName)
+    .then(function(schema) {
+        return getDerivedCol(txId, tableName, schema, dstTable);
+    })
+    .then(deferred.resolve)
+    .fail(deferred.reject);
+
+    return deferred.promise();
+}
+
+function getSchema(tableName, orderedColumns) {
+    // If orderedColumns gets passed in, it's for running a SQL query
+    var deferred = PromiseHelper.deferred();
+    var data;
+    getRows(tableName, 1, 1)
+    .then(function(res) {
+        data = res;
+        if (orderedColumns) {
+            return XcalarGetTableMeta(tableName);
+        } else {
+            return PromiseHelper.resolve();
+        }
+    })
+    .then(function(tableMeta) {
         try {
             var row = JSON.parse(data);
             var colMap = [];
             var headers = [];
-            for (var colName in row) {
-                if (colName.startsWith("XC_ROW_COL_")) {
-                    // this is auto-generated by xcalar
-                    continue;
+            var orderedHeaders = [];
+            if (!orderedColumns) {
+                for (var colName in row) {
+                    if (colName.startsWith("XC_ROW_COL_")) {
+                        // this is auto-generated by xcalar
+                        continue;
+                    }
+                    var type = typeof row[colName];
+                    if (type === "array" || type === "object") {
+                        // array and object will be projected away
+                        continue;
+                    } else if (type === "number") {
+                        type = "float";
+                    }
+                    colMap[colName] = type;
+                    headers.push(colName);
                 }
-                var type = typeof row[colName];
-                if (type === "array" || type === "object") {
-                    // array and object will be projected away
-                    continue;
-                } else if (type === "number") {
-                    type = "float";
+                // Only for loading datasets & sending schema
+                orderedHeaders = headers.sort();
+            } else {
+                if (tableMeta == null || tableMeta.valueAttrs == null) {
+                    deferred.reject("Failed to get table meta for final result");
+                    return;
                 }
-                colMap[colName] = type;
-                headers.push(colName);
+                var valueAttrs = tableMeta.valueAttrs;
+                console.log("valueattrs: " + JSON.stringify(valueAttrs));
+                var row = JSON.parse(data);
+                var colMap = [];
+                var headers = [];
+                for (var i = 0; i < valueAttrs.length; i++) {
+                    var colName = valueAttrs[i].name;
+                    var type = getColType(valueAttrs[i].type);
+
+                    if (colName.startsWith("XC_ROW_COL_")) {
+                        // this is auto-generated by xcalar
+                        continue;
+                    }
+                    colMap[colName] = type;
+                    headers.push(colName);
+                }
+                for (var i = 0; i < orderedColumns.length; i++) {
+                    var found = false;
+                    var colName = orderedColumns[i].rename ||
+                                  orderedColumns[i].colName;
+                    var prefix = colName;
+                    if (colName.indexOf("::") > 0) {
+                        prefix = colName.split("::")[0];
+                        colName = colName.split("::")[1];
+                    }
+                    for (var j = 0; j < headers.length; j++) {
+                        var name = headers[j];
+                        if (name === colName || name === prefix) {
+                            found = true;
+                            orderedHeaders.push(orderedColumns[i].colName);
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        deferred.reject("Columns don't match after compilation");
+                    }
+                }
             }
-            headers.sort();
-            var schema = headers.map(function(header) {
+            var schema = orderedHeaders.map(function(header) {
                 var cell = {};
                 cell[header] = colMap[header];
                 return cell;
@@ -1832,11 +1861,11 @@ function getSchema(tableName) {
 }
 
 function getDerivedCol(txId, tableName, schema, dstTable) {
-    var deferred = jQuery.Deferred();
+    var deferred = PromiseHelper.deferred();
     var newSchema = [];
     var mapStrs = [];
     var newColNames = [];
-    var newTableName = xcHelper.randName("tempTable");
+    var newTableName = xcHelper.randName("tempTable") + Authentication.getHashId();
     schema.forEach(function(cell) {
         var colName = Object.keys(cell)[0];
         var type = cell[colName];
@@ -1873,30 +1902,20 @@ function getDerivedCol(txId, tableName, schema, dstTable) {
     return deferred.promise();
 }
 
-function convertToDerivedColAndGetSchema(txId, tableName, dstTable) {
-    var deferred = jQuery.Deferred();
-    getSchema(tableName)
-    .then(function(schema) {
-        return getDerivedCol(txId, tableName, schema, dstTable);
-    })
-    .then(deferred.resolve)
-    .fail(deferred.reject);
 
-    return deferred.promise();
-}
-
-exports.sqlPlan = function(execid, planStr, rowsToFetch) {
-    var deferred = jQuery.Deferred();
+function sqlPlan(execid, planStr, rowsToFetch) {
+    var deferred = PromiseHelper.deferred();
     if (rowsToFetch == null) {
         rowsToFetch = 10; // default to be 10
     }
     var finalTable;
     var schema;
+    var orderedColumns;
 
     try {
         global.sqlMode = true;
         var plan = JSON.parse(planStr);
-        exports.connect("localhost:9090", sqlUser, sqlId)
+        connect("localhost:9090", sqlUser, sqlId)
         .then(function() {
             console.log("connected");
             return goToSqlWkbk();
@@ -1904,17 +1923,20 @@ exports.sqlPlan = function(execid, planStr, rowsToFetch) {
         .then(function() {
             return new SQLCompiler().compile(plan, true);
         })
-        .then(function(tableName) {
+        .then(function(res) {
+            tableName = res[0];
+            orderedColumns = res[1];
             console.log("get table from plan", tableName);
             finalTable = tableName;
-            return getSchema(finalTable);
+            return getSchema(finalTable, orderedColumns);
         })
         .then(function(res) {
             schema = res;
-            return exports.getRows(finalTable, 1, rowsToFetch);
+            return getRows(finalTable, 1, rowsToFetch);
         })
         .then(function(data) {
             var result = parseRows(data, schema);
+            console.log("schema:" + JSON.stringify(schema));
             XIApi.deleteTable(1, finalTable);
             var res = {
                 execid: execid,
@@ -1954,3 +1976,89 @@ function parseRows(data, schema) {
         return null;
     }
 }
+
+router.post("/xcedf/load", function(req, res) {
+    var path = req.body.path;
+    console.log("load sql path", path);
+    sqlLoad(path)
+    .then(function(output) {
+        console.log("sql load finishes");
+        res.send(output);
+    })
+    .fail(function(error) {
+        console.log("sql load error", error);
+        res.status(500).send(error);
+    });
+});
+
+function getColType(typeId) {
+    // XXX TODO generalize it with setImmediateType()
+    if (!DfFieldTypeTStr.hasOwnProperty(typeId)) {
+        // error case
+        console.error("Invalid typeId");
+        return null;
+    }
+
+    switch (typeId) {
+        case DfFieldTypeT.DfUnknown:
+            return ColumnType.unknown;
+        case DfFieldTypeT.DfString:
+            return ColumnType.string;
+        case DfFieldTypeT.DfInt32:
+        case DfFieldTypeT.DfInt64:
+        case DfFieldTypeT.DfUInt32:
+        case DfFieldTypeT.DfUInt64:
+            return ColumnType.integer;
+        case DfFieldTypeT.DfFloat32:
+        case DfFieldTypeT.DfFloat64:
+            return ColumnType.float;
+        case DfFieldTypeT.DfBoolean:
+            return ColumnType.boolean;
+        case DfFieldTypeT.DfMixed:
+            return ColumnType.mixed;
+        case DfFieldTypeT.DfFatptr:
+            return null;
+        default:
+            return null;
+    }
+}
+
+router.post("/xcedf/query", function(req, res) {
+    var execid = req.body.execid;
+    var plan = req.body.plan;
+    var limit = req.body.limit;
+    sqlPlan(execid, plan, limit)
+    .then(function(output) {
+        console.log("sql plan finishes", output);
+        res.send(output);
+    })
+    .fail(function(error) {
+        console.log("sql plan error", error);
+        res.status(500).send(error);
+    });
+});
+
+if (process.env.NODE_ENV === "test") {
+    exports.connect = connect;
+    exports.goToSqlWkbk = goToSqlWkbk;
+    exports.loadDatasets = loadDatasets;
+    exports.convertToDerivedColAndGetSchema = convertToDerivedColAndGetSchema;
+    exports.sqlLoad = sqlLoad;
+    exports.sqlPlan = sqlPlan;
+    exports.setConnect = function(func) {
+        connect = func;
+    };
+    exports.setLoadDatasets = function(func) {
+        loadDatasets = func;
+    };
+    exports.setConvertToDerivedColAndGetSchema = function(func) {
+        convertToDerivedColAndGetSchema = func;
+    };
+    exports.setSqlLoad = function(func) {
+        sqlLoad = func;
+    };
+    exports.setSqlPlan = function(func) {
+        sqlPlan = func;
+    };
+}
+exports.router = router;

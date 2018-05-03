@@ -1091,7 +1091,7 @@
                     if (typeof SQLCache !== "undefined" && toCache) {
                         SQLCache.cacheQuery(sqlQueryString, toCache);
                     }
-                    outDeferred.resolve(newTableName);
+                    outDeferred.resolve([newTableName, newCols]);
                 })
                 .fail(outDeferred.reject);
             })

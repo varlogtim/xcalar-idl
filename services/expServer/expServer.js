@@ -50,6 +50,9 @@ require("jsdom").env("", function(err, window) {
     // Invoke the Authentication router
     app.use(require('./route/auth.js').router);
 
+    // Invoke the sqlApi router
+    app.use(require('./route/xcalarApiBuilt.js').router);
+
     function getOperatingSystem() {
         var deferred = jQuery.Deferred();
         var out = exec("cat /etc/*release");
