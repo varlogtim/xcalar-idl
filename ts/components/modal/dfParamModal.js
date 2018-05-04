@@ -1133,12 +1133,6 @@ window.DFParamModal = (function($, DFParamModal){
     }
 
     function handleExportValueChange($input) {
-        // var val = $(".exportSettingTable .innerEditableRow.splitRule input").val();
-        // if (val === "Multiple Files") {
-        //     $(".exportSettingTable .innerEditableRow.maxSize").removeClass("xc-hidden");
-        // } else if (val === "One File") {
-        //     $(".exportSettingTable .innerEditableRow.maxSize").addClass("xc-hidden");
-        // }
         var val = $($input).val();
         if (val === "Append to Existing") {
             // $(".exportSettingTable .innerEditableRow.headerType").addClass("xc-hidden");
@@ -1338,13 +1332,20 @@ window.DFParamModal = (function($, DFParamModal){
     }
 
     function setParamDivToDefault($paramDiv) {
-        var $group = $paramDiv.closest(".paramGroup");
-        var groupNum = $editableRow.find(".paramGroup").index($group);
         var target = $paramDiv.data("target");
-        var defaultVal = $modal.find(".templateTable .paramGroup")
-                                      .eq(groupNum)
-                                      .find(".boxed")
-                                      .eq(target).text();
+        var defaultval;
+        if (type === "export") {
+            defaultVal = $modal.find(".modalMain").find(".boxed")
+                               .eq(target).text();
+        } else {
+            var $group = $paramDiv.closest(".paramGroup");
+            var groupNum = $editableRow.find(".paramGroup").index($group);
+
+            defaultVal = $modal.find(".templateTable .paramGroup")
+                                        .eq(groupNum)
+                                        .find(".boxed")
+                                        .eq(target).text();
+        }
 
         $paramDiv.val(defaultVal);
         handleExportValueChange($paramDiv);
