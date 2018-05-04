@@ -422,8 +422,7 @@ for ( validOp of Object.keys(VALID_OPTIONS) ) {
         VALID_OPTIONS[oppOp] = {[FLAG_KEY]: true};
         if ( VALID_OPTIONS[validOp][IS_GRUNT_OP] ) {
             VALID_OPTIONS[oppOp][IS_GRUNT_OP] = true;
-        }
-        else {
+        } else {
             VALID_OPTIONS[oppOp][DESC_KEY] = "Negation of: " + VALID_OPTIONS[validOp][DESC_KEY];
         }
     }
@@ -488,8 +487,7 @@ function optionInfoString() {
     for ( op of Object.keys(VALID_OPTIONS) ) {
         if ( VALID_OPTIONS[op][IS_GRUNT_OP] ) {
             desc = "\t\t(Grunt option; see Grunt documentation for current description)";
-        }
-        else {
+        } else {
             desc = "\t\t" + VALID_OPTIONS[op][DESC_KEY];
         }
         // add in valid values to description if it's limited to certain values
@@ -510,11 +508,9 @@ function optionInfoString() {
             if ( VALID_OPTIONS[op][WATCH_KEY] ) {
                 // its specified to watch - add this in
                 infos[optiontype]['watch']['matchingoptions'][op] = foundtypes[optiontype];
-            }
-            else if ( VALID_OPTIONS[op][BLD_KEY] ) {
+            } else if ( VALID_OPTIONS[op][BLD_KEY] ) {
                 infos[optiontype]['build']['matchingoptions'][op] = foundtypes[optiontype];
-            }
-            else {
+            } else {
                 infos[optiontype]['general']['matchingoptions'][op] = foundtypes[optiontype];
             }
         }
@@ -890,17 +886,26 @@ module.exports = function(grunt) {
 
         In this order:
         (1) Process command line options
-        (2) set grunt.initConfig (depends on (1))
-        (3) set dynamic attributes in to grunt.config (depends on (2)
-        (4) register plugin tasks with grunt (depends on (2))
+        (2) Validate necessary qualities of project source (depends on (1))
+        (3) set grunt.initConfig (depends on (1))
+        (4) set dynamic attributes in to grunt.config (depends on (2)
+        (5) register plugin tasks with grunt (depends on (2))
             (3 or 4 doesn't matter which comes first)
-        (5) Configure watch plugin based on user params (depends on (3), (4))
+        (6) Configure watch plugin based on user params (depends on (3), (4))
     */
 
     processCmdOptions(); // Process command line options
+
+    /**
+        init Part (2) : now have SRCROOT;
+            validate some qualities about it before building
+            (ex; xcalar-idl submodule should be present and populated)
+    */
+    validateProjectSource();
+
     /**
 
-        init Part (2) : setup grunt initConfig
+        init Part (3) : setup grunt initConfig
 
             Some work in this build script (minification, HTML prettifying, etc.)
             will be accomplished using Grunt plugins.
@@ -1266,8 +1271,7 @@ module.exports = function(grunt) {
                     if ( canPrettify(filepath) &&
                         HTML_BUILD_FILES.indexOf(path.relative(ccwd, filepath)) !== -1 ) {
                         return true;
-                    }
-                    else {
+                    } else {
                         grunt.log.debug("Skip cheerio prettification of "
                             + filepath
                             + "\n; not one of the bld html files collected."
@@ -1447,7 +1451,7 @@ module.exports = function(grunt) {
     });
 
     /**
-        init Part (3)
+        init Part (4)
 
             (call after grunt.initConfig)
 
@@ -1465,7 +1469,7 @@ module.exports = function(grunt) {
     resetTemplateKeys();
 
     /**
-        init part (4).
+        init part (5).
 
         load the plugin tasks configured above
         (Grunt Requirement for any plugins you want to use)
@@ -1499,7 +1503,7 @@ module.exports = function(grunt) {
     grunt.task.renameTask(WATCH, WATCH_PLUGIN);
 
     /**
-        init Part (5)/WATCH WORKFLOW STEP 1
+        init Part (6)/WATCH WORKFLOW STEP 1
 
         Configure the 'watch' plugin dynamically based on user params,
         if 'watch' task requested.
@@ -1928,8 +1932,7 @@ module.exports = function(grunt) {
                 + "\nSearchin for style tag: '"
                 + styleDelim
                 + "', but I can not find this tag in the file!");
-        }
-        else {
+        } else {
 
             // section prior to initial <style> tag
             newContent = newContent + stylesplit[0];
@@ -2277,13 +2280,11 @@ module.exports = function(grunt) {
                         + "\nThis start is an absolute path, but not descendent of the src."
                         + "\nLogic error in gruntfile; please contact jolsen@xcalar.com");
                 }
-            }
-            else {
+            } else {
                 // make it rel to src
                 fromDepth = src + fromDepth;
             }
-        }
-        else {
+        } else {
             fromDepth = src;
         }
 
@@ -2310,15 +2311,13 @@ module.exports = function(grunt) {
                     // make sure rel. to src
                     if ( grunt.file.doesPathContain(src, dependency) ) {
                         dependencyAbsPath = dependency;
-                    }
-                    else {
+                    } else {
                         grunt.fail.fatal("Supplied dependency to resolveDependencies that is an abs. path, "
                             + " but not descendenct from src requested to get dependency from."
                             + "\nDependency: " + dependency
                             + "\nSrc to get dependency from: " + src);
                     }
-                }
-                else {
+                } else {
                     dependencyAbsPath = src + dependency;
                 }
 
@@ -2335,22 +2334,19 @@ module.exports = function(grunt) {
                     dependencyAbsPath = dependencyAbsPath + "**/*";
 //                    srclist.push(dependencyRelSrc + "**/*");
 //                    srclist.push(dependencyRelPath + "**/*");
-                }
-                else if ( !grunt.file.isFile(dependencyAbsPath) ) {
+                } else if ( !grunt.file.isFile(dependencyAbsPath) ) {
                     grunt.fail.fatal("A dependency pass to resolveDependencies is not a file or dir!\n"
                         + dependency
                         + "\n (Looking for existence @ abs path determined as:)\n"
                         + dependencyAbsPath);
                 }
 
-            }
-            else {
+            } else {
                 grunt.log.debug("Dependency " + dependency + " is a glob");
                 // check if begins with '/' to determine if abs path...
                 if ( dependency.startsWith(path.sep) ) {
                     dependencyAbsPath = dependency;
-                }
-                else {
+                } else {
                     dependencyAbsPath = src + dependency;
                 }
 
@@ -2602,8 +2598,7 @@ module.exports = function(grunt) {
         if ( IS_WATCH_TASK || BLDTYPE == DEV ) {
             grunt.task.run('scriptlinker:indexDev');
             grunt.task.run('scriptlinker:loginDev');
-        }
-        else {
+        } else {
             grunt.task.run('scriptlinker:indexNonDev');
         }
         // if bld flag given for rc option, remove debug comments first
@@ -2691,8 +2686,7 @@ module.exports = function(grunt) {
             // do not do a grunt file expand - just use this single htmlfilepath
             grunt.log.debug("in if");
             htmlFilepaths = [HTML_STAGING_I_ABS + templatingSrc];
-        }
-        else {
+        } else {
             grunt.log.debug("get a glob");
             var mainGlob = HTML_STAGING_I_ABS + templatingSrc; // if just one file, or a current glob, this will be sufficient
             if ( grunt.file.isDir(templatingSrc) ) { // if its a dir, get all html files nested within
@@ -2705,8 +2699,7 @@ module.exports = function(grunt) {
                     if ( grunt.file.isDir(exclude) ) {
                         grunt.log.debug("Add match pattern for Exclusiun dir: " + exclude);
                         matchPatterns.push("!" + HTML_STAGING_I_ABS + exclude + "**");    // excludes this dir and everything within it
-                    }
-                    else {
+                    } else {
                         grunt.log.debug("Add match pattern for excludeion file: " + exclude);
                         matchPatterns.push("!" + HTML_STAGING_I_ABS + exclude); // excludes this particular file
                     }
@@ -2752,8 +2745,7 @@ module.exports = function(grunt) {
                     pathRelToHtmlSrcWithinBld = path.relative(HTML_STAGING_I_ABS, filepath);
                     genHTML(filepath, getTemplatingOutputFilepaths(pathRelToHtmlSrcWithinBld));
                 }
-            }
-            else {
+            } else {
                 grunt.fail.fatal("One of the filepaths to template: "
                     + filepath
                     + " is not desc. from the staging area:\n"
@@ -2844,8 +2836,7 @@ module.exports = function(grunt) {
         }
         if ( grunt.file.doesPathContain(HTML_STAGING_I_ABS, htmlFilepath) ) {
             relPart = path.relative(HTML_STAGING_I_ABS, htmlFilepath);
-        }
-        else {
+        } else {
             grunt.fail.fatal("The filepath specified is not relative to the staging dir"
                 + htmlFilepath
                 + "\nLogic error, please contact jolsen@xcalar.com");
@@ -2875,12 +2866,10 @@ module.exports = function(grunt) {
         if ( outputFiles ) {
             if ( typeof(outputFiles) == 'String' ) {
                 outputFiles = [outputFiles];
-            }
-            else if ( !Array.isArray(outputFiles) ) {
+            } else if ( !Array.isArray(outputFiles) ) {
                 grunt.fail.fatal("'output' arg to genHTML not a Stirng or an Array.");
             }
-        }
-        else {
+        } else {
             // wasn't defined
             grunt.log.debug("output wasn't defined");
             outputFiles = [relPart];
@@ -3027,8 +3016,7 @@ module.exports = function(grunt) {
 
         if ( htmlTemplateMapping.hasOwnProperty(filepath) ) {
             templatedFilepathList = htmlTemplateMapping[filepath];
-        }
-        else {
+        } else {
             templatedFilepathList = [filepath];
         }
         return templatedFilepathList;
@@ -3076,7 +3064,7 @@ module.exports = function(grunt) {
         grunt.log.writeln(("[" + executeFrom + "] $ ").red + (tscmd).green.bold);
         shellStr = shell.exec(tscmd, {silent:true}); // runs the cmd; shellJs runs cmds syncronously by default
         cmdOutput = shellStr.stdout;
-        if ( cmdOutput ) {
+        if (cmdOutput) {
             var alertmsg = "Found warnings when running the following tsc command:\n\t" + tscmd  + "\n\n" + cmdOutput;
             // write here in case watch task, in which case won't get end of build warnings
             grunt.log.writeln(("\n\n------------------------------------------------\n"
@@ -3225,8 +3213,7 @@ module.exports = function(grunt) {
                     grunt.log.write(("\t>>").green + " Unminified file : " + srcFile + " ... delete ...");
                     grunt.file.delete(srcFile);
                     grunt.log.ok();
-                }
-                else {
+                } else {
                     grunt.log.writeln(("\t>>").red + " Unminified file : "+ srcFile
                         + " should have been overwritten by one of the new minified files already..."
                         + (" Don't delete this file").red);
@@ -3381,8 +3368,7 @@ module.exports = function(grunt) {
                         //console.log("\t\t[Remove " + src + " ].... ");
                         // delete this <script tag entirely
                         $(this).remove();
-                    }
-                    else {
+                    } else {
                         // need to undo so rel to same loc.
                         equivSrcResolved = path.relative(filedir, BLDROOT + equivSrcRelBld);
                         grunt.log.debug("\tFound resolved in the hash... update to: " + equivSrcResolved);
@@ -3401,8 +3387,7 @@ module.exports = function(grunt) {
             fs.writeFileSync(htmlFilepathAbs, $.html(), {'encoding': 'utf-8'}); // renders the modified dom as html and overwrites file at filepath
             grunt.log.ok();
 
-        }
-        else {
+        } else {
             grunt.log.writeln(("(No script tags found to update)").bold);
             grunt.log.debug("DOM was never modified by cheerio ... "
                 + " (if any script tags, none of them had a src attr for a js file that was minified)");
@@ -3540,8 +3525,7 @@ module.exports = function(grunt) {
                 }
                 if ( ignore ) { return; }
 
-            }
-            else {
+            } else {
                 /**
                     if src attr "", then its tag for an actual function in the HTML
                     rather than something being included externally; continue
@@ -3726,8 +3710,7 @@ module.exports = function(grunt) {
                 + "\n** (If these files are expected to have xcalar design strings, "
                 + " and you want to suppress this warning on future builds: "
                 + "\nedit Gruntfile, and add files and/or dirs to ignore in function CHECK_FOR_XD_STRINGS)\n**");
-        }
-        else {
+        } else {
             grunt.log.ok();
             grunt.log.writeln("Did not detect any relevant files in the build with product strings that need to be updated!");
         }
@@ -3762,8 +3745,7 @@ module.exports = function(grunt) {
                 + "\nsuch as cleaning empty dirs, changing file permissions, "
                 + "\nand checking for XD strings then replacing them with "
                 + " XI strings (in XI blds)");
-        }
-        else {
+        } else {
 
             // didn't want to clean html until very end,
             // in case you do js minification, because it needs
@@ -3873,12 +3855,11 @@ module.exports = function(grunt) {
         grunt.log.debug(fancyLine());
 
         // display any of the potential bugs migyht have found
-        if ( END_OF_BUILD_WARNINGS.length > 0 ) {
+        if (END_OF_BUILD_WARNINGS.length > 0) {
             grunt.log.writeln((" ALERT: There were Issues detected during the build process!\n").bold.cyan);
-            var i = 0;
-            for ( i = 0; i < END_OF_BUILD_WARNINGS.length; i++ ) {
+            for (var i = 0; i < END_OF_BUILD_WARNINGS.length; i++) {
                 grunt.log.writeln(("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++").green);
-                grunt.log.write("Issue #" + i + ": ");
+                grunt.log.write("Issue #" + (i + 1) + ": ");
                 grunt.log.writeln((END_OF_BUILD_WARNINGS[i]).bold);
                 grunt.log.writeln(("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++").green);
             }
@@ -4022,8 +4003,7 @@ module.exports = function(grunt) {
             grunt.log.writeln("The destination dir for the build is already named '"
                 + THRIFT_APACHE_GUI_PATH
                 + "\nThere is no need to create the symlink; apache can already find the GUI project");
-        }
-        else {
+        } else {
             /**
                  check if already a valid path.
                 if symlink, assume from a previous bld; overwrite it,
@@ -4044,8 +4024,7 @@ module.exports = function(grunt) {
                     shellCmd = 'rm ' + thriftApacheFullPathToLookForGuiBld; // its an abs path
                     shell.exec(shellCmd); // runs the cmd; shellJs runs cmds syncronously by default
                     grunt.log.ok();
-                }
-                else {
+                } else {
                     grunt.fail.fatal("This is a TRUNK build, intended for backend development.\n"
                         + "Apache on the backend, is configured to look for gui build within GUI src root,"
                         + " @ folder called : '"
@@ -4189,18 +4168,15 @@ module.exports = function(grunt) {
         if ( grunt.file.isPathAbsolute(filepath) ) {
             if ( grunt.file.doesPathContain(SRCROOT, filepath) ) {
                 return path.relative(SRCROOT, filepath);
-            }
-            else if ( grunt.file.doesPathContain(BLDROOT, filepath) ) {
+            } else if ( grunt.file.doesPathContain(BLDROOT, filepath) ) {
                 return path.relative(BLDROOT, filepath);
-            }
-            else {
+            } else {
                 grunt.fail.fatal("I can not determine if file at : "
                     + filepath
                     + " is one of the main html files,"
                     + " because it is not a descendent of the src or the bld directory");
             }
-        }
-        else {
+        } else {
             grunt.fail.fatal("Not an absolute filepath!  Can not determine poration of "
                 + filepath
                 + " is rel. to src or bld");
@@ -4387,8 +4363,7 @@ module.exports = function(grunt) {
         filestep = bldPath[bldPath.length-1];
         if ( grunt.file.isDir(filestep) ) {
             filestep = filestep + MINIFY_FILE_EXT;
-        }
-        else {
+        } else {
             filestep = path.basename(filestep, path.extname(filestep)) + MINIFY_FILE_EXT;
         }
         bldPath[bldPath.length-1] = filestep;
@@ -4424,8 +4399,7 @@ module.exports = function(grunt) {
         if ( src && bld ) {
             if ( grunt.file.doesPathContain(SRCROOT, BLDROOT) ) {
                 src = false;
-            }
-            else if ( !grunt.file.doesPathContain(BLDROOT, SRCROOT) ) {
+            } else if ( !grunt.file.doesPathContain(BLDROOT, SRCROOT) ) {
                 grunt.fail.fatal("File "
                     + filepath
                     + " is descendent of both bld and src directory, "
@@ -4475,8 +4449,7 @@ module.exports = function(grunt) {
                 grunt.file.delete(filepath);
                 grunt.log.ok();
             }
-        }
-        else {
+        } else {
             grunt.fail.fatal("Trying to update the XD strings in some js files to XI strings,"
                 + " but one of the files to update does not exist!"
                 + "\nFile: "
@@ -4539,11 +4512,9 @@ module.exports = function(grunt) {
             var filetype = path.extname(filepath)
             if ( filetype == '.js' ) {
                 content = AUTOGENWARNINGJS + "\n" + content;
-            }
-            else if ( filetype == '.html' || filetype == '.htm' ) {
+            } else if ( filetype == '.html' || filetype == '.htm' ) {
                 content = AUTOGENWARNINGHTML + "\n" + content;
-            }
-            else {
+            } else {
                 grunt.fail.fatal("Trying to autogen a file of type "
                     + filetype
                     + " .  Adds in an autogen warning comment, "
@@ -4622,8 +4593,7 @@ module.exports = function(grunt) {
                     + grunt.config(WATCH_PLUGIN + '.' + target + '.files')
                     + "\n--> schedule this target in concurrent plugin!");
                 deployTargets.push(WATCH_PLUGIN + ':' + target);
-            }
-            else {
+            } else {
                 grunt.log.debug("Watch plugin target did not find any files to watch :'("
                     + "\n--> this target will NOT be deployed in the concurrent plugin!");
             }
@@ -4711,15 +4681,13 @@ module.exports = function(grunt) {
                 + " to continue, if you encounter a failure.\n").yellow.bold);
             return;
 
-        }
-        else {
+        } else {
             watchEventStartTracking(filepath, callingTarget, process.pid);
         }
 
         if ( grunt.file.isPathAbsolute(filepath) && grunt.file.exists(filepath) ) {
             grunt.log.debug("Filepath exists and is abs." + filepath);
-        }
-        else {
+        } else {
             grunt.fail.fatal("Filepath not abs. or doesn't exit");
         }
 
@@ -4778,8 +4746,7 @@ module.exports = function(grunt) {
                     filepathRelTsSrc = path.relative(typescriptMapping.src, filepathRelBld);
                     if ( filepath == SRCROOT + typescriptMapping.src + 'tsconfig.json' ) {
                         shell.exec('cp -r ' + SRCROOT + typescriptMapping.src + '/. ' + TS_WATCH_STAGING);
-                    }
-                    else {
+                    } else {
                         grunt.file.copy(filepath, TS_WATCH_STAGING + filepathRelTsSrc);
                         grunt.file.copy(SRCROOT + typescriptMapping.src + 'tsconfig.json', TS_WATCH_STAGING + "tsconfig.json"); // need tsconfig to pick up settings
                     }
@@ -4794,8 +4761,7 @@ module.exports = function(grunt) {
                                                filepathRelBld)) {
                     determinedRebuildProcess = true;
                     grunt.file.copy(filepath, BLDROOT + filepathRelBld);
-                }
-                else if ( grunt.file.doesPathContain(typescriptMapping.src, filepathRelBld) ) {
+                } else if ( grunt.file.doesPathContain(typescriptMapping.src, filepathRelBld) ) {
                     determinedRebuildProcess = true;
                     filepathRelTsSrc = path.relative(typescriptMapping.src, filepathRelBld);
                     grunt.file.copy(filepath, BLDROOT + jsMapping.dest + filepathRelTsSrc);
@@ -4982,8 +4948,7 @@ module.exports = function(grunt) {
             // find out which target of the watch plugin files of this type should be watched by
             if ( LIVE_RELOAD_BY_TYPE[filetype] ) {
                 pluginTarget = LR_ON;
-            }
-            else {
+            } else {
                 pluginTarget = LR_OFF;
             }
             targetWatchFiles = grunt.config(WATCH_PLUGIN + '.' + pluginTarget + '.files');
@@ -5057,8 +5022,7 @@ module.exports = function(grunt) {
             for ( type of types ) {
                 if ( remove ) {
                     delete watchTypesDict[type];
-                }
-                else {
+                } else {
                     watchTypesDict[type] = true;
                 }
             }
@@ -5137,12 +5101,10 @@ module.exports = function(grunt) {
             if ( typecollection.hasOwnProperty(target) ) {
                 grunt.log.debug("\t --> found files by type matching");
                 filesToWatchByFiletype[target] = typecollection[target];
-            }
-            else if ( filecollection.hasOwnProperty(target) ) {
+            } else if ( filecollection.hasOwnProperty(target) ) {
                 grunt.log.debug("\t --> found individual files for this filetypee");
                 filesToWatchByFiletype[target] = filecollection[target];
-            }
-            else {
+            } else {
                 // nothing there
                 grunt.log.debug("\t --> nothing for this filetype");
                 filesToWatchByFiletype[target] = [];
@@ -5474,6 +5436,55 @@ module.exports = function(grunt) {
             grunt.log.debug("\tReset template key " + templateKey +
                             " to default : " + TEMPLATE_KEYS[templateKey]);
             grunt.config(templateKey, TEMPLATE_KEYS[templateKey]);
+        }
+    }
+
+    /**
+        Checks to alert user that project source has issues,
+        before building
+    */
+    function validateProjectSource() {
+
+        // make sure xcalar-infra submodule present
+        xcalaridlpath = SRCROOT + 'assets/js/constructor/xcalar-idl/';
+        submoduleerr = "Try running 'git submodule update --init' within " +
+            SRCROOT +
+            ", and then re-running the build.\n\n" +
+            "(Note: you must have gerrit set up for this to work.\n" +
+            " Refer to the following wiki to set up gerrit:\n" +
+            " http://wiki.int.xcalar.com/mediawiki/index.php/Gerrit#Set_up_git_review";
+
+        if (!grunt.file.exists(xcalaridlpath)) {
+            err = "xcalar-gui project source missing xcalar-idl submodule!\n" +
+                "Project source: " +
+                SRCROOT +
+                "\nThe submodule should be located here:\n" +
+                xcalaridlpath +
+                "\n\n" +
+                submoduleerr;
+            grunt.fail.fatal(err);
+        } else {
+            /**
+                check for README file in xd/ because, even if they don't have
+                xd folder at beginning of build, it's going to get generated
+                as a result of autogening constructor files, as the intermediary
+                dirs will get created.  So, they would get the warning the first
+                build, but not on subsequent builds.
+            */
+            checkfile = xcalaridlpath + 'xd/README';
+            if (!grunt.file.exists(checkfile)) {
+                err = "Your project source: " +
+                    SRCROOT +
+                    " has the xcalar-idl submodule present,\n but " +
+                    checkfile +
+                    " is missing from it.\n" +
+                    "Most likely, you were missing all or part of xcalar-idl " +
+                    "submodule, but the dir was generated by a previous " +
+                    " build; xcalar-gui might not work." +
+                    "\n\n" +
+                    submoduleerr;
+                END_OF_BUILD_WARNINGS.push(err);
+            }
         }
     }
 
