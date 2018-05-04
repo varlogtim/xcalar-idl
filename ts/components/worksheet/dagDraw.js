@@ -568,10 +568,10 @@ window.DagDraw = (function($, DagDraw) {
         }
 
         if (!iconFound) {
-            iconSource = "xi-unknown.png";
+            iconSource = "none";
+        } else {
+            iconSource = paths.dfIcons + iconSource;
         }
-
-        iconSource = paths.dfIcons + iconSource;
 
         var rectImage = new Image();
         rectImage.src = paths.roundedRect;
@@ -590,17 +590,7 @@ window.DagDraw = (function($, DagDraw) {
                     deferred.resolve();
                 };
                 dagIcon.onerror = function() {
-                    var otherIcon = new Image();
-                    otherIcon.src = paths.dfIcons + "xi-unknown.png";
-
-                    otherIcon.onload = function() {
-                        console.log('backup image used');
-                        ctx.drawImage(otherIcon, iconLeft, iconTop);
-                        deferred.resolve();
-                    };
-                    otherIcon.onerror = function() {
-                        deferred.resolve();
-                    };
+                    deferred.resolve();
                 };
             }
 
@@ -1586,6 +1576,7 @@ window.DagDraw = (function($, DagDraw) {
         var type = info.subType;
         var iconClass = "";
         var prefix = "xi-";
+        var noIcon = false;
         switch (operation) {
             case (SQLOps.Map):
                 iconClass = "data-update";
@@ -1635,14 +1626,18 @@ window.DagDraw = (function($, DagDraw) {
                 iconClass = "tables-columnsicon";
                 break;
             case (SQLOps.Ext):
+            case ("getRowNum"):
                 iconClass = "menu-extension";
                 break;
             default:
-                iconClass = "unknown";
+                noIcon = true;
                 break;
         }
-
-        return '<i class="icon ' + prefix + iconClass + '"></i>';
+        if (noIcon) {
+            return '<i class="icon"></i>';
+        } else {
+            return '<i class="icon ' + prefix + iconClass + '"></i>';
+        }
     }
 
     function getFilterIconClass(type) {
