@@ -3690,8 +3690,12 @@ window.OperationsView = (function($, OperationsView) {
             default:
                 return;
         }
+        var newError = {error: newMsg};
+        if (typeof error === "object" && error.log) {
+            newError.log = error.log;
+        }
 
-        Alert.error(title, newMsg, {
+        Alert.error(title, newError, {
             buttons: [{
                 name: btnText,
                 className: btnClass,

@@ -2267,7 +2267,12 @@ window.JoinView = (function($, JoinView) {
             }
         }
 
-        Alert.error(StatusMessageTStr.JoinFailedAlt, newMsg, {
+        var newError = {error: newMsg};
+        if (typeof error === "object" && error.log) {
+            newError.log = error.log;
+        }
+
+        Alert.error(StatusMessageTStr.JoinFailedAlt, newError, {
             buttons: btns
         });
 
