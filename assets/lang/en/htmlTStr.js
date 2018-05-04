@@ -1188,7 +1188,7 @@ module.exports = {
         "upgradeWizardContent": "To upgrade a target cluster to a newer " +
                                 "version of Xcalar. The option to upgrade " +
                                 "is only available when an existing version " +
-                                "is installed and the Xcalar cluster is powered off.",
+                                "is installed and the Xcalar cluster is shut down.",
         "uninstallWizardContent": "To remove Xcalar from a target cluster.",
         "title": "Error",
         "instrUp": "An error has occurred.",
