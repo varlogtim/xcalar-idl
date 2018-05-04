@@ -460,12 +460,9 @@ window.ProfileEngine = (function(ProfileEngine) {
         if (aggOp === "sd") {
             var deferred = PromiseHelper.deferred();
             // standard deviation
-            XIApi.getNumRows(tableName)
-            .then(function(totalNum) {
-                var evalStr = "sqrt(div(sum(pow(sub(" + colName + ", avg(" +
-                              colName + ")), 2)), " + totalNum + "))";
-                return XIApi.aggregateWithEvalStr(txId, evalStr, tableName);
-            })
+            var evalStr = "sqrt(div(sum(pow(sub(" + colName + ", avg(" +
+                          colName + ")), 2)), count(" + colName + ")))";
+            XIApi.aggregateWithEvalStr(txId, evalStr, tableName)
             .then(deferred.resolve)
             .fail(deferred.reject);
 
