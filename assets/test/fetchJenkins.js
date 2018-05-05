@@ -2,7 +2,7 @@ window.JenkinsTestData = (function(JenkinsTestData) {
     // Fetch parameters for the last build
     JenkinsTestData.getParamsForLastBuild = function() {
         var deferred = jQuery.Deferred();
-        $.getJSON('http://jenkins.int.xcalar.com/job/EndTest-PoC/api/json/',
+        $.getJSON('https://jenkins.int.xcalar.com/job/XDTestSuite/api/json/',
         function(json) {
             $.getJSON(json.lastBuild.url+'api/json/', function(json) {
                 for (var i = 0; i < json.actions.length; i++) {
@@ -18,7 +18,7 @@ window.JenkinsTestData = (function(JenkinsTestData) {
     // Refresh each user status
     JenkinsTestData.getEachUserStatus = function() {
         var deferred = jQuery.Deferred();
-        $.getJSON('http://jenkins.int.xcalar.com/job/EndTest-PoC/api/json/',
+        $.getJSON('https://jenkins.int.xcalar.com/job/XDTestSuite/api/json/',
         function(json) {
             $.get(json.lastBuild.url+'consoleText', function(text) {
                 var lines = text.split("\n");
@@ -82,7 +82,7 @@ window.JenkinsTestData = (function(JenkinsTestData) {
     JenkinsTestData.getHistoricalRuns = function() {
         var deferred = jQuery.Deferred();
         var numOutstanding = -1;
-        $.getJSON('http://jenkins.int.xcalar.com/job/EndTest-PoC/api/json/',
+        $.getJSON('https://jenkins.int.xcalar.com/job/XDTestSuite/api/json/',
         function(json) {
             function parseResults(buildNum) {
                 $.get(json.builds[buildNum].url+'consoleText', function(text) {
