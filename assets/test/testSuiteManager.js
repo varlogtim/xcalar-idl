@@ -119,7 +119,7 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         if (!name.startsWith(protocol)) {
             name = protocol + "://" + name;
         }
-        if (protocol === "https" && !name.endsWith(":" + protocolPort)) {
+        if (!name.endsWith(":" + protocolPort)) {
             name =  name + ":" + protocolPort;
         }
 
@@ -310,13 +310,14 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         var url = protocol + "://" + server +
                     "/action?name=print&res=" + output;
 
+        console.log(url);
         if (gInternal) {
             $.ajax({
                 "type"    : "GET",
                 "dataType": "jsonp",  // this is to fix cross domain issue
                 "url"     : url,
                 "success" : function(data) {
-                    console.log("send to sever success");
+                    console.log("send to server success");
                 },
                 "error": function(error) {
                     console.log("send to sever error", error);
