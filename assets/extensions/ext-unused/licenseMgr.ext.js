@@ -14,6 +14,13 @@ window.UExtLicenseMgr = (function(UExtLicenseMgr) {
             "arrayOfFields": [
                 {
                     "type": "string",
+                    "name": "License Type",
+                    "fieldClass": "licenseType",
+                    "enums": ["Production", "Developer"],
+                    "autofill": "Production"
+                },
+                {
+                    "type": "string",
                     "name": "Organization",
                     "fieldClass": "licensee"
                 },
@@ -44,10 +51,23 @@ window.UExtLicenseMgr = (function(UExtLicenseMgr) {
                 },
                 {
                     "type": "string",
-                    "name": "License Type",
-                    "fieldClass": "licenseType",
-                    "enums": [ "Production", "Developer" ],
-                    "autofill": "Production"
+                    "name": "On expiry",
+                    "fieldClass": "onexpiry",
+                    "enums": ["Warn", "Disable"],
+                    "autofill": "Warn"
+                },
+                {
+                    "type": "boolean",
+                    "name": "Enable JDBC Server",
+                    "fieldClass": "jdbc"
+                },
+                {
+                    "type": "string",
+                    "name": "Max Interactive Dataset Size",
+                    "fieldClass": "maxInteractiveDataSize",
+                    "typeCheck": {
+                        "allowEmpty": true
+                    }
                 }
             ]
         },
@@ -132,8 +152,14 @@ window.UExtLicenseMgr = (function(UExtLicenseMgr) {
                 "nodecount": args.nodeCount,
                 "expiration": args.expiration,
                 "licensee": args.licensee,
-                "product": "Xdp"
+                "product": args.product,
+                "onexpiry": args.onexpiry,
+                "jdbc": args.jdbc
             };
+
+            if (args.maxInteractiveDataSize.length > 0) {
+                data["maxInteractiveDataSize"] = args.maxInteractiveDataSize;
+            }
 
             $.ajax({
                 "type": "POST",
