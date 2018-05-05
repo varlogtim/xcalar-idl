@@ -280,16 +280,17 @@ window.TestSuiteManager = (function(TestSuiteManager) {
 
         var url = protocol + "://" + server +
                     "/action?name=setstatus&res=" + output;
+        console.log("reportToServer url: " + url);
         if (gInternal) {
             $.ajax({
                 "type"    : "GET",
                 "dataType": "jsonp",  // this is to fix cross domain issue
                 "url"     : url,
                 "success" : function(data) {
-                    console.log("send to sever success");
+                    console.log("send to server success");
                 },
                 "error": function(error) {
-                    console.log("send to sever error", error);
+                    console.log("send to server error", error);
                 }
             });
         }
@@ -310,7 +311,6 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         var url = protocol + "://" + server +
                     "/action?name=print&res=" + output;
 
-        console.log(url);
         if (gInternal) {
             $.ajax({
                 "type"    : "GET",
@@ -320,7 +320,7 @@ window.TestSuiteManager = (function(TestSuiteManager) {
                     console.log("send to server success");
                 },
                 "error": function(error) {
-                    console.log("send to sever error", error);
+                    console.log("send to server error", error);
                 }
             });
         }
