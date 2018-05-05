@@ -180,14 +180,24 @@
             .then(function(dagNodes) {
                 var allTables = [];
                 var tableIds = [];
+                var constantNameSet = new Set();
+                var constants = [];
                 for (var i = 0; i < dagNodes.node.length; i++) {
                     var tableName = dagNodes.node[i].name.name;
                     var tableId = xcHelper.getTableId(tableName);
                     if (tableId && !gTables[tableId]) {
                         allTables.push(tableName);
                     }
+                    if (dagNodes.node[i].numRowsTotal === 0 &&
+                        dagNodes.node[i].numParents != 0 &&
+                        tableName.indexOf("#") === -1 &&
+                        !constantNameSet.has(tableName)) {
+                        constantNameSet.add(tableName);
+                        constants.push({name: tableName,
+                                input: dagNodes.node[i].input.aggregateInput});
+                    }
                 }
-                return self._addMetaForImmediates(allTables);
+                return self._addMetaForImmediates(allTables, constants);
             })
             .then(deferred.resolve)
             .fail(deferred.reject);
@@ -195,7 +205,7 @@
             return deferred.promise();
         },
 
-        _addMetaForImmediates: function(allTables) {
+        _addMetaForImmediates: function(allTables, constants) {
             var self = this;
             var promiseArray = [];
             allTables.forEach(function(tableName) {
@@ -206,6 +216,40 @@
                         deferred.resolve();
                     })
                     .fail(deferred.resolve); // always resolve
+                promiseArray.push(deferred.promise());
+            });
+            constants.forEach(function(constant) {
+                var deferred = PromiseHelper.deferred();
+                var constantName = constant.name;
+                var resultSetId;
+                var promise = XcalarMakeResultSetFromTable(constantName)
+                    .then(function(ret) {
+                        resultSetId = ret.resultSetId;
+                        return XcalarGetNextPage(resultSetId, ret.numEntries);
+                    })
+                    .then(function(ret) {
+                        var value = JSON.parse(ret.values[0]).constant;
+                        var aggRes = {
+                            value: value,
+                            dagName: constantName,
+                            aggName: constantName,
+                            tableId: constant.input.source.split("#")[1],
+                            backColName: constant.input.eval[0].evalString
+                                         .slice(constant.input.eval[0]
+                                         .evalString.indexOf("("),-1),
+                            op: constant.input.eval[0].evalString.split("(")[0]
+                        };
+                        Aggregates.addAgg(aggRes, false);
+                        TableList.refreshConstantList();
+                    })
+                    .always(function() {
+                        if (resultSetId) {
+                            return XcalarSetFree(resultSetId);
+                        }
+                        return PromiseHelper.resolve();
+                    })
+                    .then(deferred.resolve)
+                    .fail(deferred.resolve);
                 promiseArray.push(deferred.promise());
             });
             return PromiseHelper.when.apply(window, promiseArray);
