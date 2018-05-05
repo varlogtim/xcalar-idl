@@ -1087,10 +1087,71 @@ window.WorkbookManager = (function($, WorkbookManager) {
             }
             promises.push(copyAction(wkbkScopeKeys[key]));
         }
+        promises.push(copyUDFs());
+
+        function copyUDFs() {
+            // list udfs belonging to the src workbook
+            // get the code for each udf in the list
+            // submit the code as a new udf for the dest workbook
+            var innerDeferred = PromiseHelper.deferred();
+
+            XcalarListXdfs("*/workbook/" + userIdName + "/" + oldName + "/udf/*", "*")
+            .then(function(result) {
+                var promises = [];
+                var udfs = {};
+                result.fnDescs.forEach(function(fn) {
+                    var udfName = fn.fnName.split(":")[0];
+                    udfs[udfName] = true;
+                });
+                for (var name in udfs) {
+                    promises.push(uploadUDF(name, newName));
+                }
+                PromiseHelper.when.apply(this, promises)
+                .always(function() {
+                    if (Object.keys(udfs).length) {
+                        var xcSocket = XcSocket.Instance;
+                        xcSocket.sendMessage("refreshUDFWithoutClear");
+                    }
+                    innerDeferred.resolve();
+                });
+            });
+
+            return innerDeferred.promise();
+        }
 
         JupyterPanel.copyWorkbook(oldWKBK.jupyterFolder, newWKBK.jupyterFolder);
 
         return PromiseHelper.when.apply(this, promises);
+    }
+
+    // when copying a workbook, we must make a copy of the udfs and upload
+    // to the new workbook
+    function uploadUDF(fnName, newName) {
+        var deferred = PromiseHelper.deferred();
+        var storedUdfs = UDF.getUDFs();
+        var promise;
+        if (storedUdfs[fnName]) {
+            promise = PromiseHelper.resolve(storedUdfs[fnName]);
+        } else {
+            promise = XcalarDownloadPython(fnName);
+        }
+        promise
+        .always(function(res) {
+            if (res) {
+                fnName = fnName.split("/").pop();
+                var currentSession = sessionName;
+                setSessionName(newName);
+
+                XcalarUploadPython(fnName, res, true)
+                .always(function() {
+                    deferred.resolve();
+                });
+                setSessionName(currentSession);
+            } else {
+                deferred.resolve();
+            }
+        });
+        return deferred.promise();
     }
 
     function commitActiveWkbk() {

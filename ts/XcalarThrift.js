@@ -4242,7 +4242,7 @@ XcalarUploadPythonRejectDuplicate = function(moduleName, pythonStr) {
     return deferred.promise();
 };
 
-XcalarUploadPython = function(moduleName, pythonStr) {
+XcalarUploadPython = function(moduleName, pythonStr, absolutePath) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -4250,7 +4250,7 @@ XcalarUploadPython = function(moduleName, pythonStr) {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-    if (moduleName) {
+    if (moduleName && !absolutePath) {
         moduleName = moduleName.split("/").pop(); // remove absolute path
     }
 
