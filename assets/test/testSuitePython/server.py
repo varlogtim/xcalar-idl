@@ -2,9 +2,11 @@ import BaseHTTPServer
 import threading
 import urllib2
 import socket
+import ssl
 from argparse import ArgumentParser
 from datetime import datetime
 import sys
+import os
 
 from pyvirtualdisplay import Display
 from selenium import webdriver
@@ -74,7 +76,7 @@ class Handler( BaseHTTPServer.BaseHTTPRequestHandler ):
         host = params.get("host", socket.gethostname())
         test = params.get("test", "testSuite")
         timeDilation = params.get("timeDilation", "1")
-        testSuiteUrl = "http://"+host+"/test.html?test=" + test + "&auto=y&mode=" + mode + "&timeDilation=" + timeDilation + "&host=" + host + "&server=" + socket.gethostname() + "%3A" + port + "&users=" + users
+        testSuiteUrl = "https://"+host+":8443/test.html?test=" + test + "&auto=y&mode=" + mode + "&timeDilation=" + timeDilation + "&host=" +"https" + "%3A%2F%2F" + host + "%3A" + "8443" + "&server=" + "https" + "%3A%2F%2F" +  socket.gethostname() + "%3A" + port + "&users=" + users
         print testSuiteUrl
         sys.stdout.flush()
         CHROME_DRIVER_PATH = "/usr/bin/chromedriver"
@@ -144,7 +146,9 @@ It runs the actual handler in a separate thread which controlled by QUIT_SIGNAL.
 class Webserver:
     serverThread = None
     def __init__ (self, host='', port=DEFAULT_SERVER_PORT):
+        script_dir = os.path.dirname(os.path.realpath(__file__))
         self.server = BaseHTTPServer.HTTPServer( (host, port), Handler )
+        self.server.socket = ssl.wrap_socket(self.server.socket, keyfile=os.path.join(script_dir, 'test-server-key.pem'), certfile=os.path.join(script_dir, 'test-server.pem'), server_side=True)
 
     def start(self):
         self.serverThread = threading.Thread(target=self.server.serve_forever)

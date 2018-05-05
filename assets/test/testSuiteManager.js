@@ -6,9 +6,12 @@
  *      host: the hostname
  *      server: server address
  * example:
- *  http://localhost:8888/test.html?auto=y&server=localhost%3A5909&users=1&mode=ten&host=localhost%3A8888&close=force
+ *  https://localhost:8888/test.html?auto=y&server=localhost%3A5909&users=1&mode=ten&host=localhost%3A8888&close=force
  */
 var gInternal = true;
+var protocol = "https";
+var protocolPort = 8443;
+
 window.TestSuiteManager = (function(TestSuiteManager) {
     var windowRefs = [];
     var reports = [];
@@ -113,8 +116,11 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         }
 
         name = decodeURIComponent(name);
-        if (!name.startsWith("http")) {
-            name = "http://" + name;
+        if (!name.startsWith(protocol)) {
+            name = protocol + "://" + name;
+        }
+        if (protocol === "https" && !name.endsWith(":" + protocolPort)) {
+            name =  name + ":" + protocolPort;
         }
 
         return name;
@@ -151,7 +157,7 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         }
         var hostname = $inputs.eq(5).val();
         if ($.trim(hostname).length === 0) {
-            hostname = "http://localhost";
+            hostname = protocol + "://localhost:" + protocolPort;
             $inputs.eq(5).val(hostname);
         }
 
@@ -272,7 +278,7 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         });
         output = encodeURIComponent(output);
 
-        var url = "http://" + server +
+        var url = protocol + "://" + server +
                     "/action?name=setstatus&res=" + output;
         if (gInternal) {
             $.ajax({
@@ -301,7 +307,7 @@ window.TestSuiteManager = (function(TestSuiteManager) {
         // http://host:port/action?name=print&res=res
         output = encodeURIComponent(res);
 
-        var url = "http://" + server +
+        var url = protocol + "://" + server +
                     "/action?name=print&res=" + output;
 
         if (gInternal) {
