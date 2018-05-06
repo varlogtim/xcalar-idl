@@ -516,7 +516,7 @@ SuccessTStr = {
     "PauseSched": "Schedule Successfully Paused!",
     "ResumeSched": "Schedule Successfully Resumed!",
     "RmSession": "Session Files Removed!",
-    "UpdateLicense": "License Successfully Updated. New license will take effect after next cluster restart.",
+    "UpdateLicense": "License Successfully Updated!",
     "Upload": "Upload Successful!",
     "UploadApp": "App Successfully Uploaded!",
     "UploadUDF": "UDF Successfully Uploaded!",
