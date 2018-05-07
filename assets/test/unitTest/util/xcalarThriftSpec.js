@@ -1,6 +1,6 @@
 describe("XcalarThrift Test", function() {
     it("remove findMinIdx when invalid", function(done) {
-        xcalarApiListXdfs(tHandle, "findMinIdx", "*")
+        xcalarApiListXdfs(tHandle, "*findMinIdx", "*")
         .then(function(ret) {
             expect(ret.fnDescs.length).to.equal(1);
             expect(ret.fnDescs[0].fnName).to.equal("findMinIdx");

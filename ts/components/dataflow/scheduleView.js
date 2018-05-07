@@ -1105,7 +1105,6 @@ window.Scheduler = (function(Scheduler, $) {
     if (window.unitTestMode) {
         Scheduler.__testOnly__ = {};
         Scheduler.__testOnly__.getNextRunTime = getNextRunTime;
-        Scheduler.__testOnly__.changeTime = changeTime;
         Scheduler.__testOnly__.showScheduleSettings = showScheduleSettings;
         Scheduler.__testOnly__.saveScheduleForm = saveScheduleForm;
         Scheduler.__testOnly__.getParameterStr = getParameterStr;

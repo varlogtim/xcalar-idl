@@ -154,12 +154,12 @@ describe("xcSocket Test", function() {
             };
 
             // case 1;
-            xcSocket._registered = false;
+            xcSocket._isRegistered = false;
             xcSocket._socket.trigger('useSessionExisted', userOption);
             expect(test).to.be.false;
 
             // case 2
-            xcSocket._registered = true;
+            xcSocket._isRegistered = true;
             xcSocket._socket.trigger('useSessionExisted', userOption);
             expect(test).to.be.true;
 
@@ -174,13 +174,13 @@ describe("xcSocket Test", function() {
             Admin.updateLoggedInUsers = () => { test2 = true; };
 
              // case 1;
-            xcSocket._registered = false;
+            xcSocket._isRegistered = false;
             xcSocket._socket.trigger('system-allUsers');
             expect(test1).to.be.false;
             expect(test2).to.be.false;
 
              // case 2
-            xcSocket._registered = true;
+            xcSocket._isRegistered = true;
             xcSocket._socket.trigger('system-allUsers');
             expect(test1).to.be.true;
             expect(test2).to.be.true;
@@ -200,7 +200,7 @@ describe("xcSocket Test", function() {
             };
 
             // case 1;
-            xcSocket._registered = false;
+            xcSocket._isRegistered = false;
             xcSocket._socket.trigger('adminAlert', {
                 title: "title",
                 message: "message"
@@ -209,7 +209,7 @@ describe("xcSocket Test", function() {
             expect(alertArg).to.be.null;
 
             // case 2
-            xcSocket._registered = true;
+            xcSocket._isRegistered = true;
             xcSocket._socket.trigger('adminAlert', {
                 title: "title",
                 message: "message"
@@ -231,12 +231,12 @@ describe("xcSocket Test", function() {
             };
 
             // case 1;
-            xcSocket._registered = false;
+            xcSocket._isRegistered = false;
             xcSocket._socket.trigger('refreshDataflow', 'df');
             expect(testName).to.be.null;
 
             // case 2
-            xcSocket._registered = true;
+            xcSocket._isRegistered = true;
             xcSocket._socket.trigger('refreshDataflow', 'df');
             expect(testName).to.equal('df');
 
@@ -251,12 +251,12 @@ describe("xcSocket Test", function() {
             };
 
             // case 1;
-            xcSocket._registered = false;
+            xcSocket._isRegistered = false;
             xcSocket._socket.trigger('refreshUDFWithoutClear', true);
             expect(test).to.be.null;
 
             // case 2
-            xcSocket._registered = true;
+            xcSocket._isRegistered = true;
             xcSocket._socket.trigger('refreshUDFWithoutClear', true);
             expect(test).to.be.true;
 
@@ -269,12 +269,12 @@ describe("xcSocket Test", function() {
             DSExport.refresh = () => { test = true; };
 
             // case 1;
-            xcSocket._registered = false;
+            xcSocket._isRegistered = false;
             xcSocket._socket.trigger('refreshDSExport');
             expect(test).to.be.false;
 
             // case 2
-            xcSocket._registered = true;
+            xcSocket._isRegistered = true;
             xcSocket._socket.trigger('refreshDSExport');
             expect(test).to.be.true;
 

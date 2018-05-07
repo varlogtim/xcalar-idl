@@ -309,55 +309,6 @@ function timeRelatedFunctionTest() {
         expect($timeInput.val()).to.equal("12 : 59 AM");
     });
 
-    it("changeTime should work", function() {
-        var date = $timePicker.data("date");
-        date.setUTCHours(23);
-        date.setUTCMinutes(11);
-        $timeInput.val("11 : 11 PM");
-
-        var tests = [{
-            "type": "ampm",
-            "isIncrease": true,
-            "expect": "11 : 11 AM"
-        }, {
-            "type": "ampm",
-            "isIncrease": true,
-            "expect": "11 : 11 PM"
-        }, {
-            "type": "ampm",
-            "isIncrease": true,
-            "expect": "11 : 11 AM"
-        }, {
-            "type": "ampm",
-            "isIncrease": true,
-            "expect": "11 : 11 PM"
-        }, {
-            "type": "minute",
-            "isIncrease": true,
-            "expect": "11 : 12 PM"
-        }, {
-            "type": "minute",
-            "isIncrease": false,
-            "expect": "11 : 11 PM"
-        }, {
-            "type": "hour",
-            "isIncrease": true,
-            "expect": "12 : 11 PM"
-        }, {
-            "type": "hour",
-            "isIncrease": false,
-            "expect": "11 : 11 PM"
-        }, {
-            "type": "***",
-            "isIncrease": false,
-            "expect": "11 : 11 PM"
-        }];
-
-        tests.forEach(function(test) {
-            Scheduler.__testOnly__.changeTime(test.type, test.isIncrease);
-            expect($timeInput.val()).to.equal(test.expect);
-        });
-    });
 
     it("Should click time picker to change time", function() {
         var date = $timePicker.data("date");

@@ -754,7 +754,7 @@ describe("xcHelper Test", function() {
 
         expect(xcHelper.timeStampConvertSeconds(100000, true))
         .to.equal("1 day, 3 hours, 46 minutes, 40 seconds");
-    
+
         expect(xcHelper.timeStampConvertSeconds(10000))
         .to.equal("0 days, 2 hours, 46 minutes, 40 seconds");
 
@@ -2193,7 +2193,7 @@ describe("xcHelper Test", function() {
                 var $li = $(this);
                 var module = $li.data("module");
                 var $moduleLi = $moduleLis.filter(function() {
-                    return $(this).text() === module;
+                    return $(this).data("module") === module;
                 });
                 expect($moduleLi.length).to.equal(1);
             });
