@@ -1255,6 +1255,14 @@ window.xcManager = (function(xcManager, $) {
 
                 var promise = Log.commitErrors();
 
+                if (typeof mixpanel !== "undefined") {
+                    var timestamp = (new Date()).getTime();
+                    mixpanel.track("XdCrash", {
+                        "Timestamp": timestamp,
+                        "errorMsg": JSON.stringify(info)
+                    });
+                }
+
                 Alert.error(ErrTStr.RefreshBrowser, ErrTStr.RefreshBrowserDesc, {
                     "lockScreen": true,
                     "buttons": [{
