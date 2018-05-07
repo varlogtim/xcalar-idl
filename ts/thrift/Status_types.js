@@ -641,7 +641,9 @@ StatusT = {
   'StatusLicUnsupportedOperation' : 632,
   'StatusLicOpDisabledUnlicensed' : 633,
   'StatusWorkbookInvalidVersion' : 634,
-  'StatusPubTableNameNotFound' : 635
+  'StatusPubTableNameNotFound' : 635,
+  'StatusPubTableUpdateNotFound' : 636,
+  'StatusUpgradeRequired' : 637
 };
 StatusTStr = {
   0 : 'Success',
@@ -1279,7 +1281,9 @@ StatusTStr = {
   632 : 'The specified operation on the license is not supported',
   633 : 'The specified operation has been disabled, because a proper license has not been provided or has expired',
   634 : 'Invalid workbook version',
-  635 : 'Publish table name not found'
+  635 : 'Publish table name not found',
+  636 : 'Publish table update not found',
+  637 : 'An upgrade using the Xcalar upgrade tool is required'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -1917,5 +1921,7 @@ StatusTFromStr = {
   'The specified operation on the license is not supported' : 632,
   'The specified operation has been disabled, because a proper license has not been provided or has expired' : 633,
   'Invalid workbook version' : 634,
-  'Publish table name not found' : 635
+  'Publish table name not found' : 635,
+  'Publish table update not found' : 636,
+  'An upgrade using the Xcalar upgrade tool is required' : 637
 };

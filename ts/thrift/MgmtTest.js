@@ -387,8 +387,8 @@ window.Function.prototype.bind = function() {
 
     function testGetNumNodes(test) {
         xcalarGetNumNodes(thriftHandle)
-        .done(function(numNodes) {
-            test.assert(numNodes === numUsrnodes);
+        .done(function(result) {
+            test.assert(result.numNodes === numUsrnodes);
             test.pass();
         })
         .fail(function(status) {
@@ -817,6 +817,7 @@ window.Function.prototype.bind = function() {
     }
 
     function testBulkDestroyDs(test) {
+        setSessionName(session2)
         var sourceArgs = new DataSourceArgsT();
         sourceArgs.targetName = targetName;
         sourceArgs.path = qaTestDir + "/yelp/reviews";
@@ -973,6 +974,7 @@ window.Function.prototype.bind = function() {
             return xcalarApiSessionSwitch(thriftHandle, testLockSession, undefined, false);
         })
         .then(function() {
+            setSessionName(testLockSession);
             return xcalarLockDataset(thriftHandle, datasetName);
         })
         .then(function() {
@@ -982,6 +984,7 @@ window.Function.prototype.bind = function() {
             printResult(listDatasetUsersOutput);
 
             // Put back original session
+            setSessionName(session2);
             return xcalarApiSessionSwitch(thriftHandle, session2, undefined, false);
         })
         .then(function() {
@@ -2362,12 +2365,13 @@ window.Function.prototype.bind = function() {
 
                     break;
                 case XcalarApisT.XcalarApiFilter:
+                    console.log("\tnode[" + ii + "].input = " + JSON.stringify(getRetinaOutput.retina.retinaDag.node[ii].input.filterInput))
                     console.log("\tnode[" + ii + "].filterStr = " +
                                 getRetinaOutput.retina.retinaDag.node[ii].
-                                input.filterInput.eval.evalString);
+                                input.filterInput.eval[0].evalString);
                     if (iter == 2) {
                         test.assert(getRetinaOutput.retina.retinaDag.node[ii].
-                                    input.filterInput.eval.evalString ===
+                                    input.filterInput.eval[0].evalString ===
                                     retinaFilterStr, undefined,
                                "FilterStr does not match parameterized string");
                     }
@@ -2739,10 +2743,10 @@ window.Function.prototype.bind = function() {
             console.log(JSON.stringify(result));
             test.assert(result.loaded === true);
             test.assert(result.expired === false);
-            test.assert(result.platform === "Linux x86-64");
-            test.assert(result.product === "Xce");
-            test.assert(result.productFamily === "XcalarX");
-            test.assert(result.productVersion === "1.3.2.0");
+            test.assert(result.platform === "LINUX_X64");
+            test.assert(result.product === "Xcalar Data Platform");
+            test.assert(result.productFamily === "Xcalar Data Platform");
+            test.assert(result.productVersion === "1.4.0.0");
             test.assert(result.nodeCount === 10);
             test.assert(result.userCount === 10);
             // Restore old license
@@ -3201,6 +3205,12 @@ window.Function.prototype.bind = function() {
         var source = "def " + fnName + "(" + argName + "):\n return \"\"\n";
         var moduleName = "mgmttestVarArgUdf";
         var fullyQualifiedFnName = moduleName + ":" + fnName;
+        var userIdName = "test";
+        /**
+         * Make sure the strings used in the absolute path name for the UDF
+         * match those in XLRDIR/src/include/udf/UserDefinedFunction.h
+        */
+        var expectedFnName = "/workbook/" + userIdName + "/" + session2 + "/udf/" + fullyQualifiedFnName;
         var ii;
 
         xcalarApiUdfDelete(thriftHandle, moduleName)
@@ -3218,8 +3228,8 @@ window.Function.prototype.bind = function() {
                     test.fail("Number of XDFs returned = " + listXdfsOutput.numXdfs + " != 1");
                 }
 
-                if (listXdfsOutput.fnDescs[0].fnName != fullyQualifiedFnName) {
-                    test.fail("Name of test returned: " + listXdfSOutput.fnDescs[0].fnName + " Expected: " + fullyQualifiedFnName);
+                if (listXdfsOutput.fnDescs[0].fnName != expectedFnName) {
+                    test.fail("Name of test returned: " + listXdfSOutput.fnDescs[0].fnName + " Expected: " + expectedFnName);
                 }
 
                 if (listXdfsOutput.fnDescs[0].numArgs != -1) {
@@ -3413,6 +3423,7 @@ window.Function.prototype.bind = function() {
     }
 
     function testSessionPersist(test) {
+        setSessionName(session2)
         xcalarApiSessionPersist(thriftHandle, session2)
         .done(function(sessionListOutput) {
             printResult(sessionListOutput);
@@ -3634,6 +3645,7 @@ window.Function.prototype.bind = function() {
     }
 
     function testUdf(test) {
+        setSessionName(session2)
         var source1 = "def foo():\n return 'foo'\n";
         var source2 = "def bar(c):\n return 'bar'\n";
 
@@ -3683,7 +3695,12 @@ window.Function.prototype.bind = function() {
         .then(function(output) {
             test.assert(output.numXdfs === 1);
             test.assert(output.fnDescs[0].numArgs === 1);
-            test.assert(output.fnDescs[0].fnName === "mgmttestfoo:bar");
+            var userIdName = "test";
+            /**
+             * Make sure the strings used in the absolute path name for the UDF
+             * match those in XLRDIR/src/include/udf/UserDefinedFunction.h
+            */
+            test.assert(output.fnDescs[0].fnName === "/workbook/" + userIdName + "/" + session2 + "/udf/mgmttestfoo:bar");
             test.assert(output.fnDescs[0].argDescs[0].argDesc === "c");
             return xcalarApiUdfDelete(thriftHandle, "mgmttestfoo");
         })
@@ -3702,7 +3719,7 @@ window.Function.prototype.bind = function() {
         xcalarApiImportRetina(thriftHandle, importRetinaName, true, content)
         .done(function(importRetinaOutput) {
             console.log("numUdfs: " , importRetinaOutput.numUdfModules);
-            if (importRetinaOutput.numUdfModules != 2) {
+            if (importRetinaOutput.numUdfModules != 3) {
                 test.fail("Number of Udf modules is wrong!");
             } else {
                 var udfUploadFailed = false;
@@ -3712,8 +3729,10 @@ window.Function.prototype.bind = function() {
                     console.log("udf[" + ii + "].status = ",
                                 StatusTStr[importRetinaOutput.udfModuleStatuses[ii].status],
                                 " (", importRetinaOutput.udfModuleStatuses[ii].status, ")");
-                    if (importRetinaOutput.udfModuleStatuses[ii].status != StatusT.StatusOk &&
-                        importRetinaOutput.udfModuleStatuses[ii].status != StatusT.StatusUdfModuleOverwrittenSuccessfully) {
+                    if (!(importRetinaOutput.udfModuleStatuses[ii].status == StatusT.StatusOk ||
+                        importRetinaOutput.udfModuleStatuses[ii].status == StatusT.StatusUdfModuleOverwrittenSuccessfully ||
+                        (importRetinaOutput.udfModuleStatuses[ii].moduleName == "default" &&
+                         importRetinaOutput.udfModuleStatuses[ii].status == StatusT.StatusUdfModuleAlreadyExists))) {
                         udfUploadFailed = true;
                     }
                     console.log("udf[" + ii + "].error.message = ",
@@ -4167,7 +4186,7 @@ window.Function.prototype.bind = function() {
     // Format
     // addTestCase(testFn, testName, timeout, TestCaseEnabled, Witness)
 
-    addTestCase(testGetNumNodes, "getNumNodes", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testGetNumNodes, "getNumNodes", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetVersion, "getVersion", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testUpdateLicenseTooFewNodes, "license update -- too few nodes", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testUpdateLicenseExpired, "license update -- expired license", defaultTimeout, TestCaseEnabled, "");
@@ -4278,13 +4297,13 @@ window.Function.prototype.bind = function() {
     addTestCase(testListRetinas, "listRetinas", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetRetina1, "getRetina - iter 1 / 2", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testUpdateRetina, "updateRetina", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testGetRetina2, "getRetina - iter 2 / 2", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testExecuteRetina, "executeRetina", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testCancelRetina, "cancelRetina", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testListParametersInRetina, "listParametersInRetina", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testImportRetina, "importRetina", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testExportRetina, "exportRetina", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testDeleteRetina, "deleteRetina", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testGetRetina2, "getRetina - iter 2 / 2", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testExecuteRetina, "executeRetina", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testCancelRetina, "cancelRetina", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testListParametersInRetina, "listParametersInRetina", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testImportRetina, "importRetina", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testExportRetina, "exportRetina", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testDeleteRetina, "deleteRetina", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testListFiles, "list files", defaultTimeout, TestCaseEnabled, "");
 
