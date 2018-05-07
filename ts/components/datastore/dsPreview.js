@@ -2974,7 +2974,7 @@ window.DSPreview = (function($, DSPreview) {
             var icons = '<i class="icon xi-arrow-down"></i>' +
                         '<i class="icon xi-arrow-right"></i>';
             var data = 'data-index="' + index + '"';
-
+            var path = xcHelper.escapeDblQuoteForHTML(file.path);
             if (index !== 0) {
                 classes += " collapse";
             }
@@ -2982,7 +2982,7 @@ window.DSPreview = (function($, DSPreview) {
                 classes += " singlePath";
                 icons = '<i class="icon xi-radio-empty"></i>' +
                         '<i class="icon xi-radio-selected"></i>';
-                data += ' data-path="' + file.path + '"';
+                data += ' data-path="' + path + '"';
             }
             var pattern = file.fileNamePattern || "";
             html += '<li class="' + classes + '" ' + data + '>' +
@@ -2990,9 +2990,9 @@ window.DSPreview = (function($, DSPreview) {
                         ' data-toggle="tooltip"' +
                         ' data-container="body"' +
                         ' data-placement="top"' +
-                        ' data-title="' + file.path + '">' +
+                        ' data-title="' + path + '">' +
                             icons +
-                            file.path + pattern +
+                            path + pattern +
                         '</div>' +
                     '</li>' +
                     '<div class="subPathList" data-index="' + index + '"' + '>' +
@@ -3004,6 +3004,7 @@ window.DSPreview = (function($, DSPreview) {
     function setActivePreviewFile() {
         var previewFile = loadArgs.getPreviewFile();
         if (previewFile != null) {
+            previewFile = xcHelper.escapeDblQuote(previewFile);
             var $previewFile = $("#preview-file");
             $previewFile.find("li.active").removeClass("active");
             $previewFile.find('li[data-path="' + previewFile + '"]')
@@ -3048,8 +3049,8 @@ window.DSPreview = (function($, DSPreview) {
             paths.sort();
 
             for (var i = 0, len = paths.length; i < len; i++) {
-                var path = paths[i];
-                var fileName = nameMap[path];
+                var path = xcHelper.escapeDblQuoteForHTML(paths[i]);
+                var fileName = xcHelper.escapeDblQuoteForHTML(nameMap[path]);
                 html +=
                     '<li class="subPath"' +
                     'data-path="' + path + '">' +
