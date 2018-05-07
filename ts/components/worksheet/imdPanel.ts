@@ -29,7 +29,6 @@ namespace IMDPanel {
     let prevFromTime: string;
     let prevToTime: string;
     let isPendingRefresh = false;
-    let opened = false;
     let isActive = false;
 
     export function setup() {
@@ -50,7 +49,6 @@ namespace IMDPanel {
 
     export function active(firstTouch: boolean) {
         isActive = true;
-        opened = true;
         let timer;
         $(window).on("resize.canvasResize", function () {
             clearTimeout(timer);
@@ -61,11 +59,11 @@ namespace IMDPanel {
         });
         redrawTimeCanvas();
         if (firstTouch) {
-            isPendingRefresh = false;
             listTables(firstTouch);
         } else if (isPendingRefresh) {
             refreshTableList();
         }
+        isPendingRefresh = false;
     }
 
     export function inActive() {
