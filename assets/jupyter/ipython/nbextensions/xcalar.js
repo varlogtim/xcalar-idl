@@ -667,8 +667,9 @@ define(['base/js/utils'], function(utils) {
             }
 
             function validateNotebookInUserFolder() {
-                if (Jupyter.notebook.notebook_path === Jupyter.notebook.notebook_name &&
-                    Jupyter.notebook.notebook_path.indexOf(wkbkFolderName + "/") === 0) {
+                if (Jupyter.notebook.notebook_path.indexOf(wkbkFolderName + "/") === 0) {
+                    // user is in his proper folder, check that the session stubs in this
+                    // notebook matches the current session
                     validateSessionCells();
                 } else if (Jupyter.notebook.notebook_path !== Jupyter.notebook.notebook_name &&
                     Jupyter.notebook.notebook_path.indexOf(wkbkFolderName + "/") !== 0) {
