@@ -300,9 +300,7 @@
 
             var txId = !isSqlMode && Transaction.start({
                 "operation": "Execute SQL",
-                "steps": -1,
-                "queryName": queryName,
-                "query": query
+                "steps": -1
             });
             var self = this;
             XIApi.query(txId, queryName, query)

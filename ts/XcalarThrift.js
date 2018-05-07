@@ -2960,11 +2960,12 @@ XcalarQueryWithCheck = function(queryName, queryString, txId, bailOnError) {
     .then(function() {
         return XcalarQueryCheck(queryName);
     })
-    .then(function() {
+    .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            Transaction.log(txId, queryString);
+            var timeElapsed = ret.elapsed.milliseconds;
+            Transaction.log(txId, queryString, undefined, timeElapsed);
             deferred.resolve.apply(this, arguments);
         }
     })
