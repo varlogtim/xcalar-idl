@@ -87,16 +87,24 @@ namespace IMDPanel {
     // for the first time that we list tables, we create a range that shows
     // everything
     function initScale() {
-        let min = Math.floor(new Date(2018, 4, 1) / 1000);
+        let canvasWidth = $canvas.parent().width();
+        // default is 1 tick per second
+        let seconds = Math.ceil(canvasWidth / tickSpacing);
         let max = Math.ceil(Date.now() / 1000);
+        let min = max - seconds;
+
         pTables.forEach(function(table) {
-            if (table["updates"].length && table["updates"][0].unixTS) {
-                min = Math.min(min, table["updates"][0].unixTS)
+            if (table["updates"].length && table["updates"][table["updates"].length - 1]) {
+                min = Math.min(min, table["updates"][table["updates"].length - 1].startTS);
             }
         });
 
-        let range = max - min;
-        min -= Math.floor(range * 0.05);
+        // if new min is detected, increase range a little bit so the min is not
+        // all the way on the left side
+        if (max - min !== seconds) {
+            min -= Math.floor((max - min) * 0.05);
+        }
+
         $("#imdFromInput").datepicker("setDate", new Date(min * 1000));
         $("#imdToInput").datepicker("setDate", new Date(max * 1000));
         fromTimePicker.showTimeHelper(new Date(min * 1000));
@@ -130,7 +138,7 @@ namespace IMDPanel {
 
         let formatHash = [
             {limit: 0, format: "h:mm:ss a"},
-            {limit: 3600, format: "h:mm a"}, //up to 1/2 hour
+            {limit: 1800, format: "h:mm a"}, //up to 1/2 hour
             {limit: 86400, format: "MMMM Do"}, //up to 24 hours
             {limit: 18144000, format: "MMMM YYYY"}, //up to a month
             {limit: 18144000 * 12, format: "MMMM Do YYYY"}, //up to a year
@@ -188,7 +196,7 @@ namespace IMDPanel {
 
     // either pass in a table to update or track which table is focused
     // XXX does not need the full list of tables
-    function updateTableDetailSection(tableName: string) {
+    function updateTableDetailSection(tableName?: string) {
         if (!tableName) {
             $tableDetail.removeClass("active");
             return;
@@ -202,10 +210,10 @@ namespace IMDPanel {
             if (table.name == tableName) {
             //updated may not sorted by timestamp , need to check all of them
                 for (let i = 0; i < table.updates.length; i++) {
-                    var time = moment.unix(table.updates[i].unixTS).format("MMMM Do YYYY, h:mm:ss a");
+                    var time = moment.unix(table.updates[i].startTS).format("MMMM Do YYYY, h:mm:ss a");
                     html += '<div class="tableDetailRow">' +
                             '<div class="tableColumn">' + table.updates[i].source + '</div>' +
-                            '<div class="tableColumn">' + i + '</div>' +
+                            '<div class="tableColumn">' + table.updates[i].batchId + '</div>' +
                             '<div class="tableColumn">' + time + '</div>' +
                             '<div class="tableColumn">' + 'N/A' + '</div>' +
                             '</div>';
@@ -394,6 +402,10 @@ namespace IMDPanel {
             refreshTableList();
         });
 
+        $imdPanel.find(".activeTablesList").contextmenu(function() {
+            return false;
+        });
+
         $imdPanel.find(".activeTablesList").on("mousedown", ".tableTimePanel", function (event) {
             var $clickedElement = $(this);
             var tableName = $clickedElement.attr("data-action").split("-")[1];
@@ -553,21 +565,21 @@ namespace IMDPanel {
             var batchID = 0;
             if ($histPanel.offset().top < 1000) {
                 var positions = [];
-                table["updates"].forEach(function(update) {
-                    var tStampPx = parseFloat(update.unixTS - ruler.minTS) / parseFloat(ruler.pixelToTime);
+                table["updates"].forEach(function(update, i) {
+                    var tStampPx = parseFloat(update.startTS - ruler.minTS) / parseFloat(ruler.pixelToTime);
                     if (tStampPx > ruler.visibleLeft && tStampPx < ruler.visibleRight) {
                         var pos = tStampPx - ruler.visibleLeft;
                         positions.push({
                             left: pos,
-                            right: pos + 8 + (("" + batchID).length * 7),
-                            id: batchID
+                            right: pos + 8 + (("" + update.batchId).length * 7),
+                            id: i
                         });
-                        var $htmlElem = $('<div class="updateIndicator indicator' + batchID + '" ' +
+                        var $htmlElem = $('<div class="updateIndicator indicator' + i + '" ' +
                                             xcTooltip.Attrs +
                                             ' data-original-title="' +
-                                            moment.unix(update.unixTS).format("MMMM Do YYYY, h:mm:ss a") + '">' +
+                                            moment.unix(update.startTS).format("MMMM Do YYYY, h:mm:ss a") + '">' +
                                             '<span class="text">'  +
-                                            parseInt(batchID) + '</span></div>');
+                                            parseInt(update.batchId) + '</span></div>');
                         $histPanel.append($htmlElem);
                         $htmlElem.css("left", pos);
                     }
@@ -599,14 +611,14 @@ namespace IMDPanel {
         pTables.forEach(function (table) {
             if (table.name == tName) {
                 //updated may not sorted by timestamp , need to check all of them
-                for (var id = 0; id < table.updates.length; id++) {
-                    var update = table.updates[id];
-                    if (!update.unixTS || update.unixTS > targetTS) {
+                for (var i = 0; i < table.updates.length; i++) {
+                    var update = table.updates[i];
+                    if (!update.startTS || update.startTS > targetTS) {
                         continue;
                     }
-                    if ((closestUpdate === null) || (targetTS - update.unixTS) < (targetTS - closestUpdate.unixTS)) {
+                    if ((closestUpdate === null) || (targetTS - update.startTS) < (targetTS - closestUpdate.startTS)) {
                         closestUpdate = update;
-                        closestId = id;
+                        closestId = i;
                     }
                 }
             }
@@ -636,11 +648,11 @@ namespace IMDPanel {
         }
         tables.forEach(function (table) {
             table["updates"].forEach(function (update) {
-                if (update.unixTS < ruler.minTS) {
-                    ruler.minTS = update.unixTS;
+                if (update.startTS < ruler.minTS) {
+                    ruler.minTS = update.startTS;
                 }
-                if (update.unixTS > ruler.maxTS) {
-                    ruler.maxTS = update.unixTS;
+                if (update.startTS > ruler.maxTS) {
+                    ruler.maxTS = update.startTS;
                 }
             });
         });
@@ -665,10 +677,12 @@ namespace IMDPanel {
      * call renderTimePanels function that renders the time panel
      */
     function listTables(firstTime: boolean) {
+        let startTime = Date.now();
         showWaitScreen();
-        XcalarListPublishedTables("*")
-        .then(function (result) {
-            pTables = result.tables;
+
+        listAndCheckActive()
+        .then(function(tables) {
+            pTables = tables;
             var html = getListHtml(pTables);
             $imdPanel.find(".activeTablesList").html(html);
             initScale();
@@ -680,8 +694,105 @@ namespace IMDPanel {
             Alert.error("Error!", error);
         })
         .always(function() {
-            removeWaitScreen();
+            let timeDiff = Date.now() - startTime;
+            if (timeDiff < 1500) {
+                setTimeout(function() {
+                    removeWaitScreen();
+                }, 1500 - timeDiff);
+            } else {
+                removeWaitScreen();
+            }
         });
+    }
+
+    // list tables and if inactive ones are found, restore them. Restoration
+    // can be canceled and if so, unpublish the inactive tables that
+    // haven't been restored yet
+    function listAndCheckActive() {
+        var deferred = PromiseHelper.deferred();
+        let activeTables = [];
+        let inactiveTables = [];
+        let listPassed = false;
+
+        XcalarListPublishedTables("*")
+        .then(function (result) {
+            listPassed = true;
+            let promises = [];
+            let inactiveCount = 0;
+            let state = {canceled: false}; //XXX to be made externally available
+            result.tables.forEach(function(table) {
+                if (!table.active) {
+                    inactiveCount++;
+                    inactiveTables.push(table);
+                    promises.push(function() {
+                        if (state.canceled) {
+                            return PromiseHelper.reject({
+                                error: "canceled",
+                                count: inactiveCount
+                            });
+                        } else {
+                            return XcalarRestoreTable(table.name);
+                        }
+                    });
+                } else {
+                    activeTables.push(table);
+                }
+            });
+
+            return PromiseHelper.chain(promises);
+        })
+        .then(function() {
+            listOnlyActiveTables()
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+        })
+        .fail(function(error) {
+            if (listPassed) {
+                if (error && error.error === "canceled") {
+                    // user canceled part way through restoration
+                    // unpublish the rest of the inactive tables
+                    // and add the restored ones to the activeTables list
+                    var promises = [];
+                    for (var i = error.count; i < inactiveTables.length; i++) {
+                        promises.push(XcalarUnpublishTable(inactiveTables[i].name));
+                    }
+                    PromiseHelper.when.apply(this, promises)
+                    .always(function() {
+                        listOnlyActiveTables()
+                        .then(deferred.resolve)
+                        .fail(deferred.reject);
+                    });
+                } else { // restoration failed without being canceled
+                    // list tables and find out which ones succeeded
+                    listOnlyActiveTables()
+                    .then(deferred.resolve)
+                    .fail(function() {
+                        deferred.resolve(activeTables);
+                    });
+                }
+            } else {
+                deferred.reject(error);
+            }
+        });
+
+        return deferred.promise();
+    }
+
+    function listOnlyActiveTables() {
+        var deferred = PromiseHelper.deferred();
+        XcalarListPublishedTables("*")
+        .then(function (result) {
+            let activeTables = [];
+            result.tables.forEach(function(table) {
+                if (table.active) {
+                    activeTables.push(table);
+                }
+            });
+            deferred.resolve(activeTables);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
     /**
      * Create HTML List for publlished tables
@@ -916,21 +1027,24 @@ namespace IMDPanel {
     function refreshTableList() {
         hideUpdatePrompt();
         showWaitScreen();
+        var startTime = Date.now();
 
-        XcalarListPublishedTables("*")
-        .then(function (result) {
+        listOnlyActiveTables()
+        .then(function(tables) {
             pTables = [];
             newHTables = [];
-            result.tables.forEach(function(table) {
-                var inHTables = false;
-                for (var i = 0; i < hTables.length; i++) {
-                    if (hTables[i].name === table.name) {
-                        inHTables = true;
-                        newHTables.push(table);
+            tables.forEach(function(table) {
+                if (table.active) {
+                    var inHTables = false;
+                    for (var i = 0; i < hTables.length; i++) {
+                        if (hTables[i].name === table.name) {
+                            inHTables = true;
+                            newHTables.push(table);
+                        }
                     }
-                }
-                if (!inHTables) {
-                    pTables.push(table);
+                    if (!inHTables) {
+                        pTables.push(table);
+                    }
                 }
             });
             hTables = newHTables;
@@ -947,7 +1061,14 @@ namespace IMDPanel {
             Alert.error("Error!", error);
         })
         .always(function() {
-            removeWaitScreen();
+            let timeDiff = Date.now() - startTime;
+            if (timeDiff < 1500) {
+                setTimeout(function() {
+                    removeWaitScreen();
+                }, 1500 - timeDiff);
+            } else {
+                removeWaitScreen();
+            }
         })
     }
 
