@@ -1,3 +1,7 @@
+// XXX This extension needs to be rewritten. The behavior has changed since this
+// extension's creation, and it's been patched too many times. The code doesn't
+// really make sense anymore.
+
 window.UExtIMD = (function(UExtIMD) {
     UExtIMD.buttons = [{
         "buttonText": "Publish Table",
@@ -116,6 +120,9 @@ window.UExtIMD = (function(UExtIMD) {
                 // array and object columns will be projected away at the end
                 // this case also handles 'DATA' column, and leaves table unchanged
                 return;
+            } else if (col.backName === roColName ||
+                       col.backName === opCode) {
+                return {colName: col.backName};
             } else {
                 // convert prefix field of primitive type to derived
                 var mapFn;
@@ -143,6 +150,7 @@ window.UExtIMD = (function(UExtIMD) {
         var table;
 
         var mapArray = [];
+        var mapNewNamesArray = [];
         for (var i = 0; i < cols.length; i++) {
             var col = cols[i];
             if (col.name === "DATA") {
@@ -153,14 +161,17 @@ window.UExtIMD = (function(UExtIMD) {
                 deferred.reject("Cannot have arrays / structs");
             }
             tableInfo.colsToProject.push(colStruct.colName);
-            mapArray.push(colStruct.mapStr);
+            if (colStruct.mapStr) {
+                mapNewNamesArray.push(colStruct.colName);
+                mapArray.push(colStruct.mapStr);
+            }
         }
 
         var finalTableName;
         var prom;
 
         if (mapArray.length > 0) {
-            prom = ext.map(mapArray, srcTableName, tableInfo.colsToProject);
+            prom = ext.map(mapArray, srcTableName, mapNewNamesArray);
         } else {
             prom = PromiseHelper.resolve(srcTableName);
         }
@@ -174,7 +185,8 @@ window.UExtIMD = (function(UExtIMD) {
             var hashPart = newTableName.substring(hashIdx);
             newTableName = tableNamePart + hashPart;
             if (extraCols) {
-                tableInfo.colsToProject = tableInfo.colsToProject.concat(extraCols);
+                tableInfo.colsToProject = tableInfo.colsToProject.concat(
+                    extraCols); // May contain duplicates
             }
             return ext.project(tableInfo.colsToProject, derivedTable,
                 newTableName);
@@ -408,7 +420,8 @@ window.UExtIMD = (function(UExtIMD) {
             var deferred = XcSDK.Promise.deferred();
             var newColName = ext.getAttribute("rank_over_col_name");
             var newTableName =  ext.createTableName();
-            var mapStr = "int(add(sub(" + orderColName + ", " + minColName + "), 1))";
+            var mapStr = "int(add(sub(" + orderColName + ", " + minColName +
+                         "), 1))";
             ext.map(mapStr, srcTable, newColName, newTableName)
             .then(function(dstTable) {
                 var table = ext.getTable(dstTable);
@@ -470,22 +483,32 @@ window.UExtIMD = (function(UExtIMD) {
             // 3. Call UpdateTable on this table dest
 
             var deferred = XcSDK.Promise.deferred();
-            var srcTable = ext.getTriggerTable().getName();
+            var srcTable = ext.getTriggerTable();
+            var srcTableName = srcTable.getName();
+            var primaryKey = ext.getArgs().primaryKey.getName();
+            primaryKey = xcHelper.parsePrefixColName(primaryKey).name;
             var finalTableName;
-
-            finalizeTable(ext.getTriggerTable(), self)
-            .then(function(tn) {
-                return rankOver(tn, ext, true);
+            var indexTableName = ext.createTableName("", "", srcTableName);
+            rankOver(srcTable.getName(), ext, true)
+            .then(function(table) {
+                var newTableStruct = ext.createNewTable(table);
+                newTableStruct.tableCols = srcTable.tableCols;
+                return finalizeTable(newTableStruct, self, [opCode, roColName]);
             })
-            .then(function(mapTable) {
-                pubTable = ext.getArgs().updateTable;
-                finalTableName = mapTable;
-                return XcalarUpdateTable(mapTable, pubTable);
+            .then(function(tableName) {
+                return XcalarIndexFromTable(tableName, [{name: primaryKey,
+                            ordering: XcalarOrderingT.XcalarOrderingUnordered}],
+                                            indexTableName, undefined, true);
             })
             .then(function() {
-                var srcTableId = xcHelper.getTableId(srcTable);
+                pubTable = ext.getArgs().updateTable;
+                finalTableName = indexTableName;
+                return XcalarUpdateTable(indexTableName, pubTable);
+            })
+            .then(function() {
+                var srcTableId = xcHelper.getTableId(srcTableName);
                 var newTable = ext.createNewTable(finalTableName);
-                return addTableToWorksheet(srcTableId, newTable, srcTable);
+                return addTableToWorksheet(srcTableId, newTable, srcTableName);
             })
             .then(deferred.resolve)
             .fail(deferred.reject);
