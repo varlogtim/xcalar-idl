@@ -364,7 +364,7 @@ module.exports = {
         "RawDSAdvTermStopAll": "Stop importing data as soon as the first error is encountered.",
         "RawDSAdvTermAllow": "Stop processing records in a file when the first unrecoverable error is found, and continue to the next file. Report all errors.",
         "RawDSAdvTermStopFile": "Stop importing data as soon as the first file level error is encountered. Record level errors are logged.",
-        "RawDSAdvTermStopRecord": "Skip records with errors and continue processing error-free records. Report all errors.",
+        "RawDSAdvTermStopRecord": "Stop importing data as soon as the first record level error is encountered, and continue to the next file. Report all errors.",
     },
 
     "workspaceBar": {
