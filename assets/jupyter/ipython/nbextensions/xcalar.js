@@ -113,6 +113,9 @@ define(['base/js/utils'], function(utils) {
                     case ("newWorkbook"):
                         createNewFolder(struct);
                         break;
+                    case ("renameWorkbook"):
+                        renameFolder(struct, struct.newFolderName, struct.oldFolderName);
+                        break;
                     case ("copyWorkbook"):
                         copyFolder(struct.oldFolder, struct.newFolder);
                         break;
@@ -496,16 +499,36 @@ define(['base/js/utils'], function(utils) {
             function createNewFolder(struct) {
                 Jupyter.contents.new_untitled("", {type: 'directory'})
                 .then(function(data) {
-                    renameFolder(struct, struct.folderName, data.path)
+                    renameFolderHelper(struct, struct.folderName, data.path)
                     .then(function(result) {
                         resolveRequest(result, struct.msgId);
                     })
                     .fail(function(result) {
                         rejectRequest(result, struct.msgId);
-                    })
+                    });
                 })// jupyter doesn't have fail property
                 .catch(function(e) {
                     rejectRequest(e, struct.msgId);
+                });
+            }
+
+            function renameFolder(struct, newFolderName, oldFolderName) {
+                struct.folderName = newFolderName;
+                renameFolderHelper(struct, newFolderName, oldFolderName)
+                .then(function(result) {
+                    if (wkbkFolderName === oldFolderName) {
+                        wkbkFolderName = result.newName;
+                        sessionName = struct.sessionname;
+                        sessionId = struct.sessionid;
+                        updateLinks();
+                        if (Jupyter.notebook.notebook_path.indexOf(oldFolderName + "/") === 0) {
+                            validateSessionCells();
+                        }
+                    }
+                    resolveRequest(result, struct.msgId);
+                })
+                .fail(function(result) {
+                    rejectRequest(result, struct.msgId);
                 });
             }
 
@@ -526,7 +549,7 @@ define(['base/js/utils'], function(utils) {
                 });
             }
 
-            function renameFolder(struct, folderName, prevName, attemptNumber, prevDeferred) {
+            function renameFolderHelper(struct, folderName, prevName, attemptNumber, prevDeferred) {
                 var deferred = prevDeferred || jQuery.Deferred();
 
                 attemptNumber = attemptNumber || 0;
@@ -539,13 +562,13 @@ define(['base/js/utils'], function(utils) {
                     if (e && typeof e.message === "string") {
                         if (attemptNumber > 10) {
                             deferred.reject({error: "failed to create folder"});
-                            return; // give up
-                        }
-                        if (e.message.indexOf("File already exists") === 0 &&
+                        } else if (e.message.indexOf("No such file") > -1) {
+                            deferred.reject({error: "folder not found"});
+                        } if (e.message.indexOf("File already exists") === 0 &&
                             attemptNumber < 10) {
-                            renameFolder(struct, struct.folderName + "_" + attemptNumber, prevName, attemptNumber, deferred);
+                            renameFolderHelper(struct, struct.folderName + "_" + attemptNumber, prevName, attemptNumber, deferred);
                         } else { // last try
-                            renameFolder(struct, struct.folderName + "_" + Math.ceil(Math.random() * 10000), prevName, attemptNumber, deferred);
+                            renameFolderHelper(struct, struct.folderName + "_" + Math.ceil(Math.random() * 10000), prevName, attemptNumber, deferred);
                         }
                     } else {
                         deferred.reject({error: "failed to create folder"});
@@ -581,7 +604,7 @@ define(['base/js/utils'], function(utils) {
                         window.location.href = url;
                     });
                 });
-
+                $("#kill_and_exit").off("click");
                 $("#kill_and_exit").click(function() {
                     window.location.href = folderUrl;
                 });

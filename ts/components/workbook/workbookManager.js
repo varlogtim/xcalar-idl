@@ -412,7 +412,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         readFile(workbookContent)
         .then(function(res) {
             parsedWorkbookContent = res;
-            return JupyterPanel.newWorkbook(workbookName, getWKBKId(workbookName));
+            return JupyterPanel.newWorkbook(workbookName);
         })
         .then(function(folderName) {
             var jupyterFolderPath;
@@ -569,6 +569,12 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return XcalarRenameWorkbook(newName, srcWKBK.name);
         })
         .then(function() {
+            return JupyterPanel.renameWorkbook(srcWKBK.jupyterFolder, newName);
+        })
+        .then(function(folderName) {
+            if (typeof folderName !== "string") {
+                folderName = srcWKBK.jupyterFolder;
+            }
             var options = {
                 "id": newWKBKId,
                 "name": newName,
@@ -578,7 +584,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 "curUser": srcWKBK.curUser,
                 "numWorksheets": srcWKBK.numWorksheets,
                 "resource": srcWKBK.resource,
-                "jupyterFolder": srcWKBK.jupyterFolder
+                "jupyterFolder": folderName
             };
 
             var newWkbk = new WKBK(options);
@@ -959,7 +965,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         var jupyterPromise;
         if (!jupFolderName) {
-            jupyterPromise = JupyterPanel.newWorkbook(wkbkName, getWKBKId(wkbkName));
+            jupyterPromise = JupyterPanel.newWorkbook(wkbkName);
         } else {
             jupyterPromise = PromiseHelper.resolve(jupFolderName);
         }

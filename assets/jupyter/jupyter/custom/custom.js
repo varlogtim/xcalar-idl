@@ -52,6 +52,9 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
             case ("copyWorkbook"):
                 copyFolder(struct.oldFolder, struct.newFolder);
                 break;
+            case ("renameWorkbook"):
+                renameFolder(struct, struct.newFolderName, struct.oldFolderName);
+                break;
             case ("deleteWorkbook"):
                 deleteFolder(struct);
                 break;
@@ -70,7 +73,7 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
     function createNewFolder(struct) {
         Jupyter.notebook_list.contents.new_untitled("", {type: 'directory'})
         .then(function(data) {
-            renameFolder(struct, struct.folderName, data.path)
+            renameFolderHelper(struct, struct.folderName, data.path)
             .then(function(result) {
                 resolveRequest(result, struct.msgId);
             })
@@ -83,7 +86,26 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
         });
     }
 
-    function renameFolder(struct, folderName, prevName, attemptNumber, prevDeferred) {
+    function renameFolder(struct, newFolderName, oldFolderName) {
+        struct.folderName = newFolderName;
+        renameFolderHelper(struct, newFolderName, oldFolderName)
+        .then(function(result) {
+            if (wkbkFolderName === oldFolderName) {
+                wkbkFolderName = result.newName;
+                updateLinks();
+            }
+            if (Jupyter.notebook_list.notebook_path === oldFolderName ||
+                Jupyter.notebook_list.notebook_path.indexOf(oldFolderName + "/") === 0) {
+                Jupyter.notebook_list.update_location(newFolderName);
+            }
+            resolveRequest(result, struct.msgId);
+        })
+        .fail(function(result) {
+            rejectRequest(result, struct.msgId);
+        });
+    }
+
+    function renameFolderHelper(struct, folderName, prevName, attemptNumber, prevDeferred) {
         var deferred = prevDeferred || jQuery.Deferred();
 
         attemptNumber = attemptNumber || 0;
@@ -98,13 +120,14 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
                 if (attemptNumber > 10) {
                     deferred.reject({error: "failed to create folder"});
                     return; // give up
-                }
-                if (e.message.indexOf("File already exists") === 0 &&
+                } else if (e.message.indexOf("No such file") > -1) {
+                    deferred.reject({error: "folder not found"});
+                } else if (e.message.indexOf("File already exists") === 0 &&
                     attemptNumber < 10) {
-                    renameFolder(struct, struct.folderName + "_" +
+                    renameFolderHelper(struct, struct.folderName + "_" +
                         attemptNumber, prevName, attemptNumber, deferred);
                 } else { // last try
-                    renameFolder(struct, struct.folderName + "_" +
+                    renameFolderHelper(struct, struct.folderName + "_" +
                         Math.ceil(Math.random() * 10000), prevName,
                         attemptNumber, deferred);
                 }

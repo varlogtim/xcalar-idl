@@ -257,15 +257,13 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
     // called when we create a new xcalar workbook
     // will create a new jupyter folder dedicated to this workbook
-    JupyterPanel.newWorkbook = function(wkbkName, wkbkId) {
+    JupyterPanel.newWorkbook = function(wkbkName) {
         var deferred = PromiseHelper.deferred();
-        var newName;
 
         var folderName = XcSupport.getUser() + "-" + wkbkName;
         var msgStruct = {
             action: "newWorkbook",
-            folderName: folderName,
-            wkbkId: wkbkId
+            folderName: folderName
         };
 
         sendMessageToJupyter(msgStruct, true)
@@ -279,6 +277,31 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
         return deferred.promise();
     };
+
+    JupyterPanel.renameWorkbook = function(oldFolderName, newWkbkName) {
+        var deferred = PromiseHelper.deferred();
+        var newFolderName = XcSupport.getUser() + "-" + newWkbkName;
+        var msgStruct = {
+            action: "renameWorkbook",
+            newFolderName: newFolderName,
+            oldFolderName: oldFolderName,
+            sessionId: WorkbookManager.getActiveWKBK(),
+            sessionname: newWkbkName
+        };
+
+        sendMessageToJupyter(msgStruct, true)
+        .then(function(result) {
+            if (jupyterMeta.getFolderName() === oldFolderName) {
+                jupyterMeta.setFolderName(result.newName);
+            }
+            deferred.resolve(result.newName);
+        })
+        .fail(function(err) {
+            console.error(err.error);
+            deferred.resolve(err); // resolve anyways without folder
+        });
+        return deferred.promise();
+    }
 
     JupyterPanel.copyWorkbook =function(oldFolder, newFolder) {
         var msgStruct = {
