@@ -1,6 +1,6 @@
-import BaseHTTPServer
+import http.server
 import threading
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import socket
 import ssl
 from argparse import ArgumentParser
@@ -22,16 +22,16 @@ DEFAULT_SERVER_PORT = 5909
 Handler is http request routing implementation.
 It supports opening/closing the web browser and notifying Jenkins.
 """
-class Handler( BaseHTTPServer.BaseHTTPRequestHandler ):
+class Handler( http.server.BaseHTTPRequestHandler ):
 
     """
     Handles GET request
     """
     def do_GET(self):
         global TEST_RESULT
-        print self.path
+        print(self.path)
         params = self.parse(self.path)
-        print params
+        print(params)
         action = None
         if "name" not in params:
             return
@@ -77,13 +77,13 @@ class Handler( BaseHTTPServer.BaseHTTPRequestHandler ):
         test = params.get("test", "testSuite")
         timeDilation = params.get("timeDilation", "1")
         testSuiteUrl = "https://"+host+":8443/test.html?test=" + test + "&auto=y&mode=" + mode + "&timeDilation=" + timeDilation + "&host=" +"https" + "%3A%2F%2F" + host + "%3A" + "8443" + "&server=" + "https" + "%3A%2F%2F" +  socket.gethostname() + "%3A" + port + "&users=" + users
-        print testSuiteUrl
+        print(testSuiteUrl)
         sys.stdout.flush()
         CHROME_DRIVER_PATH = "/usr/bin/chromedriver"
         self.driver = webdriver.Chrome(CHROME_DRIVER_PATH)
         self.driver.get(testSuiteUrl)
         self.markSuccess("Started")
-        print "Test started: %s" % (str(datetime.now()))
+        print("Test started: %s" % (str(datetime.now())))
         sys.stdout.flush()
 
     def processClose(self, params):
@@ -96,7 +96,7 @@ class Handler( BaseHTTPServer.BaseHTTPRequestHandler ):
     def processPrint(self, params):
         status = params["res"]
         self.markSuccess()
-        print "User finishes: " + urllib2.unquote(status)
+        print("User finishes: " + urllib.parse.unquote(status))
         sys.stdout.flush()
 
     def processGetStatus(self, params):
@@ -110,8 +110,8 @@ class Handler( BaseHTTPServer.BaseHTTPRequestHandler ):
         global TEST_RESULT
         status = params["res"]
         self.markSuccess()
-        TEST_RESULT = urllib2.unquote(status)
-        print "Test ended: %s" % (str(datetime.now()))
+        TEST_RESULT = urllib.parse.unquote(status)
+        print("Test ended: %s" % (str(datetime.now())))
         sys.stdout.flush()
 
 
@@ -122,7 +122,7 @@ class Handler( BaseHTTPServer.BaseHTTPRequestHandler ):
         self.send_response(200)
         self.send_header( 'Content-type', 'text/html' )
         self.end_headers()
-        self.wfile.write(msg)
+        self.wfile.write(bytearray(msg, "utf-8"))
 
     """
     Parse the http request into a Map
@@ -147,7 +147,7 @@ class Webserver:
     serverThread = None
     def __init__ (self, host='', port=DEFAULT_SERVER_PORT):
         script_dir = os.path.dirname(os.path.realpath(__file__))
-        self.server = BaseHTTPServer.HTTPServer( (host, port), Handler )
+        self.server = http.server.HTTPServer( (host, port), Handler )
         self.server.socket = ssl.wrap_socket(self.server.socket, keyfile=os.path.join(script_dir, 'test-server-key.pem'), certfile=os.path.join(script_dir, 'test-server.pem'), server_side=True)
 
     def start(self):
@@ -170,7 +170,7 @@ def main():
     args = parser.parse_args()
     target = args.target
     if not target:
-        print "Please give the target server that runs test suites: -t"
+        print("Please give the target server that runs test suites: -t")
         sys.stdout.flush()
         return
     visible = args.visible
