@@ -42,18 +42,7 @@ namespace XVM {
                 d.setUTCSeconds(utcSeconds);
                 // expirationDate = d;
                 licenseExpireInfo = d.toDateString();
-                licenseMode = XcalarMode.Mod;
-
-                if (license.product === "XceMod") {
-                    licenseMode = XcalarMode.Mod;
-                } else if (license.product === "XceOper") {
-                    licenseMode = XcalarMode.Oper;
-                } else if (license.product === "Xce") {
-                    licenseMode = XcalarMode.Oper;
-                } else {
-                    console.error("Illegal op mode");
-                    licenseMode = XcalarMode.Mod;
-                }
+                licenseMode = XcalarMode.Oper;
             }
             numNodes = license.nodeCount;
             numUsers = license.userCount;
