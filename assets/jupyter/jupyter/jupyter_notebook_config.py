@@ -233,7 +233,23 @@ c.NotebookApp.disable_check_xsrf = True
 
 # The directory to use for notebooks and kernels.
 import os
-c.NotebookApp.notebook_dir = os.path.join(os.environ["HOME"],
+def makeConfigDict(configpath):
+    configdict = {}
+    with open(configpath, "r") as f:
+        for line in f:
+            line  = line.strip()
+            if "=" in line and not line.startswith("//") and not line.startswith("#"):
+                name, var = line.partition("=")[::2]
+                configdict[name] = var.strip()
+    return configdict
+
+XcalarRoot = os.path.join(os.sep, "mnt", "xcalar");
+if "XCE_CONFIG" in os.environ:
+    XlrConfig = makeConfigDict(os.environ["XCE_CONFIG"])
+    if "Constants.XcalarRootCompletePath" in XlrConfig:
+        XcalarRoot = XlrConfig["Constants.XcalarRootCompletePath"]
+
+c.NotebookApp.notebook_dir = os.path.join(XcalarRoot,
                                           "jupyterNotebooks")
 
 # Whether to open in a browser after starting. The specific browser used is
