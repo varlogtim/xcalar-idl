@@ -21,7 +21,7 @@ namespace xcGlobal {
         gMouseStatus = null;
         gPrefixLimit = 31;
 
-        if (!has_require) {
+        if (!has_require || nw) { // nw obj exists when nwjs running browser
             if (typeof MouseEvents !== 'undefined') {
                 gMouseEvents = new MouseEvents();
             }
