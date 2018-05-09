@@ -1,6 +1,8 @@
 // This file is where all the global variables
 namespace xcGlobal {
     const has_require: boolean = typeof require !== 'undefined';
+    // nw obj exists when nwjs running browser
+    const has_nw: boolean = typeof nw !== 'undefined';
 
     /**
      * xcGlobal.setup
@@ -21,7 +23,7 @@ namespace xcGlobal {
         gMouseStatus = null;
         gPrefixLimit = 31;
 
-        if (!has_require || nw) { // nw obj exists when nwjs running browser
+        if (!has_require || has_nw) {
             if (typeof MouseEvents !== 'undefined') {
                 gMouseEvents = new MouseEvents();
             }
