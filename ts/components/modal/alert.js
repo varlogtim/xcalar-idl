@@ -144,7 +144,8 @@ window.Alert = (function($, Alert){
 
         if (type === "object") {
             // if it's an try/catch error, code will also goes here
-            msg = error.error || AlertTStr.ErrorMsg;
+            msg = error.error && typeof error.error === "string" ?
+            error.error : AlertTStr.ErrorMsg;
             log = error.log;
         } else {
             msg = error;

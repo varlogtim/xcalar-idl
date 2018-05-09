@@ -554,7 +554,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         Alert.error(StatusMessageTStr.ExtFailed, error, {
             "buttons": [{
                 "name": ExtTStr.MODIFY,
-                "className": "larger",
+                "className": "larger2",
                 "func": function() {
                     ExtensionManager.openView(null, null, {
                         "restoreTime": lastFormOpenTime

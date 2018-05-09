@@ -1514,7 +1514,7 @@ window.WSManager = (function($, WSManager) {
                     },
                     {
                         "name": TblTStr.ToTemp,
-                        "className": "tempTable",
+                        "className": "larger2",
                         "tooltip": TblTStr.ToTempTip,
                         "func": function() {
                             WSManager.delWS(wsId, DelWSType.Temp);
