@@ -531,6 +531,12 @@ window.ExportView = (function($, ExportView) {
         var filePath = "";
         for (var i = 0; i < numTargs; i++) {
             if (exportTargInfo.targets[i].hdr.name === targName) {
+                if (exportTargInfo.targets[i].hdr.type ===
+                    ExTargetTypeT.ExTargetUDFType) {
+                    deferred.resolve(false);
+                    return deferred.promise();
+                }
+                
                 if (exportTargInfo.targets[i].specificInput.sfInput) {
                     filePath = exportTargInfo.targets[i].specificInput.sfInput.url;
                 }
