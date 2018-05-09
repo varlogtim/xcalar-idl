@@ -741,7 +741,7 @@ ExportTStr = {
     'InvalidType': 'Invalid type selected',
     'DisableHeader': 'Not available when appending to existing',
     'LocationNotFound': 'Export location not found',
-    'FolderName': 'Folder Name',
+    'FolderName': 'Export As',
     'TargetName': 'Target Name',
     'ColumnsToExport': 'Columns to Export',
     'NoColumns': 'No columns available for export',
