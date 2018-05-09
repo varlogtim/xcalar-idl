@@ -209,6 +209,13 @@ class XcSocket {
             }
             UserSettings.sync();
         });
+
+        socket.on("refreshIMD", (arg) => {
+            if (!this._isRegistered) {
+                return;
+            }
+            IMDPanel.updateInfo(arg);
+        });
     }
 
     private _checkConnection(

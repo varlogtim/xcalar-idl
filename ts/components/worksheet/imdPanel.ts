@@ -59,7 +59,7 @@ namespace IMDPanel {
         });
         redrawTimeCanvas();
         if (firstTouch) {
-            listTables(firstTouch);
+            listTablesFirstTime(firstTouch);
         } else if (isPendingRefresh) {
             refreshTableList();
         }
@@ -235,7 +235,18 @@ namespace IMDPanel {
      */
     function showUpdatePrompt(x, y, tableName) {
         $updatePrompt.removeClass("xc-hidden");
-        var left = x - $updatePrompt.outerWidth() / 2;
+        var promptWidth = $updatePrompt.outerWidth();
+        var left = x - promptWidth / 2;
+        if (left + promptWidth > $imdPanel.width()) {
+            // if offscreen, position to far right and adjust arrow
+            let prevLeft = left;
+            let offset = (left + promptWidth - $imdPanel.width());
+            left = $imdPanel.width() - promptWidth;
+            $updatePrompt.find(".arrow").css("left", x - left);
+        } else {
+            $updatePrompt.find(".arrow").css("left", "50%");
+        }
+
         $updatePrompt.css({
             left: left,
             top: y + 8
@@ -471,7 +482,6 @@ namespace IMDPanel {
             });
         });
 
-
         $updatePrompt.find(".close").click(function() {
             hideUpdatePrompt();
         });
@@ -676,18 +686,25 @@ namespace IMDPanel {
      * Create html elems for tables
      * call renderTimePanels function that renders the time panel
      */
-    function listTables(firstTime: boolean) {
+    function listTablesFirstTime(firstTime: boolean) {
         let startTime = Date.now();
         showWaitScreen();
 
         listAndCheckActive()
         .then(function(tables) {
             pTables = tables;
-            var html = getListHtml(pTables);
+            return restoreHiddenTables();
+        })
+        .then(function() {
+            let html = getListHtml(pTables);
             $imdPanel.find(".activeTablesList").html(html);
             initScale();
             if (pTables.length) {
                 updateTableDetailSection(pTables[0].name);
+            }
+            if (hTables.length) {
+                html = getListHtml(hTables);
+                $imdPanel.find(".hiddenTablesListItems").append(html);
             }
         })
         .fail(function (error) {
@@ -703,6 +720,33 @@ namespace IMDPanel {
                 removeWaitScreen();
             }
         });
+    }
+
+    function restoreHiddenTables() {
+        var deferred = PromiseHelper.deferred();
+        var key = KVStore.getKey("gIMDKey");
+        var kvStore = new KVStore(key, gKVScope.WKBK);
+        kvStore.get()
+        .then(function(imdMeta) {
+            if (imdMeta) {
+                try {
+                    imdMeta = $.parseJSON(imdMeta);
+                    let hiddenTables = imdMeta.hiddenTables;
+                    pTables.forEach(function(table, i) {
+                        if (hiddenTables.indexOf(table.name) !== -1) {
+                            pTables.splice(i, 1);
+                            hTables.push(table);
+                        }
+                    });
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     // list tables and if inactive ones are found, restore them. Restoration
@@ -932,6 +976,19 @@ namespace IMDPanel {
                 return;
             }
         });
+        storeHiddenTables();
+    }
+
+    function storeHiddenTables() {
+        let kvsKey = KVStore.getKey("gIMDKey");
+        let kvStore = new KVStore(kvsKey, gKVScope.WKBK);
+        let hiddenTables = hTables.map(function(table) {
+            return table.name;
+        });
+        let imdInfo = {
+            hiddenTables: hiddenTables
+        };
+        return kvStore.put(JSON.stringify(imdInfo), true);
     }
 
     function showTable(tableName) {
@@ -947,6 +1004,7 @@ namespace IMDPanel {
                 return;
             }
         });
+        storeHiddenTables();
     }
 
     export function getAll() {
@@ -965,24 +1023,11 @@ namespace IMDPanel {
 
         XcalarUnpublishTable(tableName)
         .then(function() {
-            delete selectedCells[tableName];
-            let found = false;
-            pTables.forEach(function(table, i) {
-                if (table.name === tableName) {
-                    pTables.splice(i, 1);
-                    found = true;
-                    return;
-                }
+            cleanUpAfterDeleteTable(info.tableName);
+            XcSocket.Instance.sendMessage("refreshIMD", {
+                "action": "delete",
+                "tableName": tableName
             });
-            if (!found) {
-                hTables.forEach(function(table, i) {
-                    if (table.name === tableName) {
-                        hTables.splice(i, 1);
-                        return;
-                    }
-                });
-            }
-            $listItem.remove();
             deferred.resolve();
         })
         .fail(function() {
@@ -992,6 +1037,35 @@ namespace IMDPanel {
         });
 
         return deferred.promise();
+    }
+
+    export function updateInfo(info) {
+        if (info.action === "delete") {
+            cleanUpAfterDeleteTable(info.tableName);
+        }
+    }
+
+    function cleanUpAfterDeleteTable(tableName) {
+        const $listItem = $imdPanel.find('.tableListItem[data-name="' +
+                                         tableName + '"]');
+        delete selectedCells[tableName];
+        let found = false;
+        pTables.forEach(function(table, i) {
+            if (table.name === tableName) {
+                pTables.splice(i, 1);
+                found = true;
+                return;
+            }
+        });
+        if (!found) {
+            hTables.forEach(function(table, i) {
+                if (table.name === tableName) {
+                    hTables.splice(i, 1);
+                    return;
+                }
+            });
+        }
+        $listItem.remove();
     }
 
     function testDate(str){

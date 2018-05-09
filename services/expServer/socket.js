@@ -104,6 +104,10 @@ module.exports = function(server) {
             socket.broadcast.emit("refreshUserSettings");
         });
 
+        socket.on("refreshIMD", function(imdInfo) {
+            socket.broadcast.emit(imdInfo);
+        });
+
         addDSSocketEvent(socket);
     });
 
