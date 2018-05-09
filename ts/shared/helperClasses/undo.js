@@ -529,6 +529,7 @@ window.Undo = (function($, Undo) {
                 col.setBackColName(options.backName);
                 col.type = options.type;
                 col.func = options.func;
+                col.isNewCol = options.wasNewCol;
                 var $table = $('#xcTable-' + options.tableId);
                 $table.find('td.col' + options.colNum).empty();
                 var $th = $table.find('th.col' + options.colNum);

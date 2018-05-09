@@ -1150,7 +1150,7 @@ window.ColManager = (function($, ColManager) {
                 if (!isValidColToPull(backColName)) {
                     nested = {nested: [""]};
                 } else {
-                    nested = parseColFuncArgs(backColName).nested;
+                    nested = parseColFuncArgs(backColName);
                 }
 
                 nestedVals.push(nested);
@@ -1178,7 +1178,7 @@ window.ColManager = (function($, ColManager) {
             // loop through table tr's tds
             var nestedTypes;
             for (var col = 0; col < numCols; col++) {
-                nested = nestedVals[col];
+                nested = nestedVals[col].nested;
                 nestedTypes = nestedVals[col].types;
 
                 var indexed = (indexedColNums.indexOf(col) > -1);
@@ -1450,7 +1450,7 @@ window.ColManager = (function($, ColManager) {
         }
     }
 
-    function parseTdHelper(tdValue, nested, nestedTypes, progCol, options) {
+    function parseTdHelper(rowData, nested, nestedTypes, progCol, options) {
         options = options || {};
 
         var knf = false;
@@ -1458,20 +1458,23 @@ window.ColManager = (function($, ColManager) {
         var colTruncLimit = 500; // the character limit for other tds
         var tdClass = "clickable";
         var isDATACol = false;
+        var tdValue;
 
         if (progCol.isDATACol()) {
             isDATACol = true;
             tdClass += " jsonElement";
+            tdValue = rowData;
         } else if (progCol.isEmptyCol()) {
             tdValue = "";
-        } else if (tdValue === null) {
+        } else if (rowData === null) {
             knf = true;
+            tdValue = null;
         } else {
             if (!nested) {
                 console.error('Error this value should not be empty');
                 tdValue = "";
             } else {
-                var tdInfo = getTdInfo(tdValue, nested, nestedTypes);
+                var tdInfo = getTdInfo(rowData, nested, nestedTypes);
                 tdValue = tdInfo.tdValue;
                 knf = tdInfo.knf;
             }
