@@ -611,8 +611,9 @@ window.TblFunc = (function(TblFunc, $) {
         });
     };
 
-    // set display none on tables that are not currently in the viewport but are
-    // active. Tables will maintain their widths;
+    // For performance, during animations, we set display none on tables
+    // that are not currently in the viewport but are active.
+    // Tables will maintain their widths;
     TblFunc.hideOffScreenTables = function(options) {
         options = options || {};
         var leftLimit = -options.marginLeft || 0;

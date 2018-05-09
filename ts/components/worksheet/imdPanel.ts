@@ -408,7 +408,7 @@ namespace IMDPanel {
 
         $imdPanel.find(".activeTablesList").on("mousedown", ".tableTimePanel", function (event) {
             var $clickedElement = $(this);
-            var tableName = $clickedElement.attr("data-action").split("-")[1];
+            var tableName = $clickedElement.data("name");
 
             var clickedTime = ((((event.pageX - $clickedElement.closest(".tableListHist").offset().left) + ruler.visibleLeft) * ruler.pixelToTime) + ruler.minTS);
             var closestUpdate = getClosestUpdate(tableName, clickedTime);
@@ -438,7 +438,7 @@ namespace IMDPanel {
 
         $imdPanel.find(".activeTablesList").on("mousedown", ".tableListItem", function (event) {
             var $clickedElement = $(this);
-            var tableName = $clickedElement.attr("data-action").split("-")[1];
+            var tableName = $clickedElement.data("name");
 
             $imdPanel.find(".tableListItem.active").removeClass("active");
             $clickedElement.addClass("active");
@@ -560,7 +560,7 @@ namespace IMDPanel {
         hideUpdatePrompt();
         redrawTimeCanvas();
         pTables.forEach(function(table) {
-            var $histPanel = $("[data-action=\"HIST-" + table.name + "\"]");
+            var $histPanel = $(".tableTimePanel[data-name=\"" + table.name + "\"]");
             $histPanel.empty();
             var batchID = 0;
             if ($histPanel.offset().top < 1000) {
@@ -800,7 +800,7 @@ namespace IMDPanel {
     function getListHtml(tables) {
         var html = "";
         tables.forEach(function(table) {
-            html += "<div data-name=\"" + table.name + "\" data-action=\"SELECT-" + table.name + "\" class=\"listBox listInfo tableListItem\">\
+            html += "<div data-name=\"" + table.name + "\" class=\"listBox listInfo tableListItem\">\
                 <div class =\"tableListLeft\">\
                     <div class=\"iconWrap\"></div>\
                     <span class=\"tableName\">" + table.name + "</span>\
@@ -811,7 +811,7 @@ namespace IMDPanel {
                     <i class=\"icon xi-show showTable tableIcon\" title=\"Show published table\" data-toggle=\"tooltip\" \
                     data-placement=\"top\" data-container=\"body\"></i>\
                 </div>\
-                <div class = \"tableListHist tableTimePanel\" data-action=\"HIST-" + table.name + "\"></div> \
+                <div class = \"tableListHist tableTimePanel\" data-name=\"" + table.name + "\"></div> \
             </div>";
         });
 

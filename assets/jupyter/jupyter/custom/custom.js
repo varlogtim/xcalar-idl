@@ -63,6 +63,9 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
                 highlightUserFolder();
                 updateLinks();
                 break;
+            case ("updateFolderName"):
+                updateFolderName();
+                break;
             default:
                 console.log("invalid operation: ", struct);
                 break;
@@ -103,6 +106,17 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
         .fail(function(result) {
             rejectRequest(result, struct.msgId);
         });
+    }
+
+    function updateFolderName(struct) {
+        if (wkbkFolderName === struct.oldFolderName) {
+            wkbkFolderName = struct.newFolderName;
+            updateLinks();
+        }
+        if (Jupyter.notebook_list.notebook_path === struct.oldFolderName ||
+            Jupyter.notebook_list.notebook_path.indexOf(struct.oldFolderName + "/") === 0) {
+            Jupyter.notebook_list.update_location(struct.newFolderName);
+        }
     }
 
     function renameFolderHelper(struct, folderName, prevName, attemptNumber, prevDeferred) {

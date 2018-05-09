@@ -109,7 +109,9 @@ window.xcManager = (function(xcManager, $) {
             return extPromise;
         })
         .then(function() {
-            if (Authentication.getInfo().idCount === 0) {
+            if (Authentication.getInfo().idCount === 1) {
+                // show hint to create datasets if no tables have been created
+                // in this workbook
                 WSManager.showDatasetHint();
             }
             StatusMessage.updateLocation();

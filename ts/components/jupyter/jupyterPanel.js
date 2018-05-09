@@ -325,6 +325,24 @@ window.JupyterPanel = (function($, JupyterPanel) {
         }
     };
 
+    // when name change was triggered from another workbook
+    JupyterPanel.updateFolderName = function(newFolderName) {
+        var oldFolderName = jupyterMeta.getFolderName();
+        var sessionId = WorkbookManager.getActiveWKBK();
+        var sessionName = WorkbookManager.getWorkbook(sessionId).getName();
+        jupyterMeta.setFolderName(newFolderName);
+
+        var msgStruct = {
+            action: "updateFolderName",
+            oldFolderName: oldFolderName,
+            newFolderName: newFolderName,
+            sessionId: sessionId,
+            sessionname: sessionName
+        };
+
+        sendMessageToJupyter(msgStruct);
+    };
+
     function showImportUdfModal(target, filePath) {
         var params = {
             target: target,

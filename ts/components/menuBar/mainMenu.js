@@ -349,11 +349,12 @@ window.MainMenu = (function($, MainMenu) {
     }
 
     function panelSwitchingHandler($curTab, lastTabId) {
-        if (lastTabId === "workspaceTab") {
-            // hide off screen tables so that the next time we return to the
-            // workspace panel, the switch is quicker because we have less html
-            // to render. WSManager.focusOnWorksheet() will reveal hidden tables
-            TblFunc.hideOffScreenTables();
+        if (lastTabId === "monitorTab") {
+            MonitorPanel.inActive();
+        } else if (lastTabId === "dataStoresTab") {
+            DSCart.checkQueries();
+        } else if (lastTabId === "workspaceTab") {
+            WorkspacePanel.inActive();
         }
         $(".mainPanel").removeClass("active");
         $("#container").removeClass("monitorViewOpen");
@@ -412,13 +413,6 @@ window.MainMenu = (function($, MainMenu) {
                 break;
             default:
                 $(".underConstruction").addClass("active");
-        }
-        if (lastTabId === "monitorTab") {
-            MonitorPanel.inActive();
-        } else if (lastTabId === "dataStoresTab") {
-            DSCart.checkQueries();
-        } else if (lastTabId === "workspaceTab") {
-            WorkspacePanel.inActive();
         }
 
         StatusMessage.updateLocation();

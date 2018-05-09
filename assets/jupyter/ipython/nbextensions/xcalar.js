@@ -121,6 +121,10 @@ define(['base/js/utils'], function(utils) {
                         break;
                     case ("deleteWorkbook"):
                         deleteFolder(struct);
+                        break;
+                    case ("updateFolderName"):
+                        updateFolderName(struct);
+                        break;
                     default:
                         break;
                 }
@@ -530,6 +534,18 @@ define(['base/js/utils'], function(utils) {
                 .fail(function(result) {
                     rejectRequest(result, struct.msgId);
                 });
+            }
+
+            function updateFolderName(struct) {
+                if (wkbkFolderName === struct.oldFolderName) {
+                    wkbkFolderName = struct.nwFolderName;
+                    sessionName = struct.sessionname;
+                    sessionId = struct.sessionid;
+                    updateLinks();
+                    if (Jupyter.notebook.notebook_path.indexOf(struct.oldFolderName + "/") === 0) {
+                        validateSessionCells();
+                    }
+                }
             }
 
             // XXX need to recursively call folders
