@@ -52,7 +52,7 @@ window.SQLEditor = (function(SQLEditor, $) {
                 var numCurSteps = parseInt(buttonText.substring(13,
                                                       buttonText.indexOf("/")));
                 var backPart = buttonText.substring(buttonText.indexOf("/"));
-                numCurSteps += Math.ceil(Math.random() * amtPerTick);
+                numCurSteps += Math.ceil(Math.random() * amtPerTick * 2);
                 if (numCurSteps > parseInt(backPart.substring(1))) {
                     numCurSteps = parseInt(backPart.substring(1));
                 }
@@ -265,6 +265,9 @@ window.SQLEditor = (function(SQLEditor, $) {
         $sqlSection.on("click", function() {
             selectTable(null);
         });
+        $sqlSection.on("click", ".icon", function(event) {
+            event.stopPropagation();
+        });
         $sqlSection.on("click", ".pulloutTab", function(event) {
             event.stopPropagation();
             minMaxSection($(this).find(".icon:not(.xc-hidden)").eq(0));
@@ -439,7 +442,7 @@ window.SQLEditor = (function(SQLEditor, $) {
             // Table doesn't exist
             Alert.show({title: "SQL Error",
                        msg: SQLErrTStr.NoSchema});
-            SQLEditor.deleteSchemas(null, tableId);
+            SQLEditor.deleteSchemas(null, [tableId]);
             return;
         }
         genColumnsFromTable(tableId);
@@ -631,12 +634,20 @@ window.SQLEditor = (function(SQLEditor, $) {
             updatePlanServer = func;
         }
         SQLEditor.__testOnly__.republishSchemas = republishSchemas;
+        SQLEditor.__testOnly__.setRepublishSchemas = function(func) {
+            republishSchemas = func;
+        }
         SQLEditor.__testOnly__.getSQLTables = function() {
             return sqlTables;
         }
         SQLEditor.__testOnly__.setSQLTables = function(tables) {
             sqlTables = tables;
         }
+        SQLEditor.__testOnly__.updateGTables = updateGTables;
+        SQLEditor.__testOnly__.setUpdateGTables = function(func) {
+            updateGTables = func;
+        }
+        SQLEditor.__testOnly__.genTablesHTML = genTablesHTML;
     }
     /* End Of Unit Test Only */
     return SQLEditor;

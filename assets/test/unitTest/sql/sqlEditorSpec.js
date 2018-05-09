@@ -45,6 +45,7 @@ describe("SQLEditor Test", function() {
                 "tableName": "testTable3",
                 "tableCols": [
                 {
+                    "name": "columnName1",
                     "backName": "testColumn1",
                     "sqlType": "string"
                 },
@@ -77,13 +78,25 @@ describe("SQLEditor Test", function() {
                     "sqlType": "string"
                 },
                 {
-                    "backName": "testColumn9",
+                    "backName": "DATA",
+                    "sqlType": "string"
+                }]
+            },
+            "test4": {
+                "tableName": "testTable4LongName",
+                "tableCols": [{
+                    "name": "testColumn4LongName",
+                    "backName": "testColumn",
+                    "sqlType": "string"
+                },
+                {
+                    "backName": "DATA",
                     "sqlType": "string"
                 }]
             }
         };
         testStruct1 = {
-            "tableName": "testSqlTable1",
+            "tableName": "TESTSQLTABLE1",
             "tableColumns": null
         };
         testStruct2 = {
@@ -92,6 +105,10 @@ describe("SQLEditor Test", function() {
         };
         testStruct3 = {
             "tableName": "testSqlTable3",
+            "tableColumns": null
+        };
+        testStruct4 = {
+            "tableName": "testSqlTable4LongName",
             "tableColumns": null
         };
     });
@@ -115,6 +132,49 @@ describe("SQLEditor Test", function() {
             expect(test).to.be.true;
             SQLCompiler = oldCompiler;
         });
+
+        it("should show error message", function() {
+            var oldCompiler = SQLCompiler;
+            SQLCompiler = function() {
+                this.compile = function() {
+                    return PromiseHelper.reject(JSON.parse('{"readyState":4,' +
+                    '"responseText":"","responseJSON":{"exceptionName":"org' +
+                    '.apache.spark.sql.AnalysisException","exceptionMsg":"Ta' +
+                    'ble or view not found: k; line 1 pos 14"},"status":500,' +
+                    '"statusText":"Internal Server Error"}'));
+                }
+            };
+            $("#sqlExecute").click();
+            expect($("#alertHeader").find(".text").text()).to.equal("SQL Error");
+            SQLCompiler = oldCompiler;
+            $("#alertModal").find(".cancel").click();
+        });
+
+        it("should show exception message", function() {
+            var oldCompiler = SQLCompiler;
+            SQLCompiler = function() {
+                this.compile = function() {
+                    throw "Error";
+                }
+            };
+            $("#sqlExecute").click();
+            expect($("#alertHeader").find(".text").text()).to.equal("Compilation Error");
+            SQLCompiler = oldCompiler;
+            $("#alertModal").find(".cancel").click();
+        });
+
+        it("should show stringify message", function() {
+            var oldCompiler = SQLCompiler;
+            SQLCompiler = function() {
+                this.compile = function() {
+                    return PromiseHelper.reject("test1", "test2");
+                }
+            };
+            $("#sqlExecute").click();
+            expect($("#alertContent").find(".text").text()).to.equal('{"0":"test1","1":"test2"}');
+            SQLCompiler = oldCompiler;
+            $("#alertModal").find(".cancel").click();
+        });
     });
 
     describe("Basic API Test", function() {
@@ -122,6 +182,7 @@ describe("SQLEditor Test", function() {
             var schema1 = SQLEditor.__testOnly__.getSchema("test1");
             var schema2 = SQLEditor.__testOnly__.getSchema("test2");
             var schema3 = SQLEditor.__testOnly__.getSchema("test3");
+            var schema4 = SQLEditor.__testOnly__.getSchema("test4");
             expect(schema1.length).to.equal(2);
             expect(schema2.length).to.equal(2);
             expect(schema1[1].testColumn).to.equal("float");
@@ -129,6 +190,7 @@ describe("SQLEditor Test", function() {
             testStruct1.tableColumns = schema1;
             testStruct2.tableColumns = schema2;
             testStruct3.tableColumns = schema3;
+            testStruct4.tableColumns = schema4;
         });
 
         it("Should updateSchema", function(done) {
@@ -140,8 +202,11 @@ describe("SQLEditor Test", function() {
                 return SQLEditor.updateSchema(testStruct3, "test3");
             })
             .then(function() {
+                return SQLEditor.updateSchema(testStruct4, "test4");
+            })
+            .then(function() {
                 var unit = $sqlTableList.find(".unit");
-                expect(unit.length).to.be.at.least(3);
+                expect(unit.length).to.be.at.least(4);
                 done();
             })
             .fail(function() {
@@ -149,15 +214,60 @@ describe("SQLEditor Test", function() {
             });
         });
 
+        it("Should gen tables HTML", function() {
+            SQLEditor.__testOnly__.genTablesHTML();
+            expect($sqlTableList.find(".unit").length).to.be.at.least(4);
+        })
+
+        it("Should fail updateSchema if updateGTables fail", function(done) {
+            var oldUpdateGTables = SQLEditor.__testOnly__.updateGTables;
+            SQLEditor.__testOnly__.setUpdateGTables(function() {
+                return PromiseHelper.reject();
+            });
+            SQLEditor.updateSchema(testStruct1, "test1")
+            .then(function(ret) {
+                done("fail");
+            })
+            .fail(function(ret) {
+                done();
+            })
+            .always(function() {
+                SQLEditor.__testOnly__.setUpdateGTables(oldUpdateGTables);
+            });
+        })
+
+        it("Should show compile step", function(done) {
+            var $sqlButton = $("#sqlExecute");
+            expect($sqlButton.find(".text").text()).to.equal("EXECUTE SQL");
+            expect($sqlButton.hasClass("btn-disabled")).to.be.false;
+            SQLEditor.startCompile(1);
+            expect($sqlButton.hasClass("btn-disabled")).to.be.true;
+            expect($sqlButton.find(".text").text()).to.equal("Compiling... 0/1");
+            SQLEditor.updateProgress();
+            expect($sqlButton.find(".text").text()).to.equal("Compiling... 1/1");
+            SQLEditor.fakeCompile(1000)
+            .then(function() {
+                //expect($sqlButton.find(".text").text()).to.equal("Compiling... 1000/1000");
+                SQLEditor.startExecution();
+                expect($sqlButton.find(".text").text()).to.equal("Executing... ");
+                SQLEditor.resetProgress();
+                expect($sqlButton.find(".text").text()).to.equal("EXECUTE SQL");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+        })
+
         it("Should republishSchema", function(done) {
-            var error = "Table or view not found: testSqlTable1;";
+            var error = "Table or view not found: TESTSQLTABLE1;";
             var oldCompiler = SQLCompiler;
             SQLCompiler = function() {
                 this.compile = function() {
                     return PromiseHelper.resolve();
                 };
             };
-            SQLEditor.__testOnly__.setSQLTables({"testSqlTable1": "test1",
+            SQLEditor.__testOnly__.setSQLTables({"TESTSQLTABLE1": "test1",
                                                  "testSqlTable2": "test2",
                                                  "testSqlTable3": "test3"});
             SQLEditor.__testOnly__.republishSchemas()
@@ -172,10 +282,64 @@ describe("SQLEditor Test", function() {
             });
         });
 
-        it("Should deleteSchema by tableName", function(done) {
-            SQLEditor.deleteSchemas("testSqlTable1")
+        it("Should republishSchema if session not found", function(done) {
+            var oldCompiler = SQLCompiler;
+            SQLCompiler = function() {
+                this.compile = function() {
+                    return PromiseHelper.reject({"readyState":4,"responseText":"{\"exceptionName\":\"java.util.NoSuchElementException\",\"exceptionMsg\":\"key not found: jiyuan1-wkbk-New%20Workbook\"}","responseJSON":{"exceptionName":"java.util.NoSuchElementException","exceptionMsg":"key not found: jiyuan1-wkbk-New%20Workbook"},"status":500,"statusText":"error"});
+                };
+            };
+            var oldRepublishSchemas = SQLEditor.__testOnly__.republishSchemas;
+            SQLEditor.__testOnly__.setRepublishSchemas(function(query) {
+                return PromiseHelper.resolve();
+            });
+            SQLEditor.executeSQL()
             .then(function() {
-                expect($sqlTableList.find('.unit[data-name="testSqlTable1"]').length)
+                done("fail");
+            })
+            .fail(function() {
+                expect($("#alertModal").attr("style").indexOf("display: none;"))
+                        .to.not.equal(-1);
+                done();
+            })
+            .always(function() {
+                SQLCompiler = oldCompiler;
+                SQLEditor.__testOnly__.setRepublishSchemas(oldRepublishSchemas);
+                SQLEditor.resetProgress();
+            });
+        });
+
+        it("Should republishSchema if table not found", function(done) {
+            var oldCompiler = SQLCompiler;
+            SQLCompiler = function() {
+                this.compile = function() {
+                    return PromiseHelper.reject({"readyState":4,"responseText":"{\"exceptionName\":\"org.apache.spark.sql.AnalysisException\",\"exceptionMsg\":\"Table or view not found: testsqltable1; line 1 pos 14\"}","responseJSON":{"exceptionName":"org.apache.spark.sql.AnalysisException","exceptionMsg":"Table or view not found: testsqltable1; line 1 pos 14"},"status":500,"statusText":"Internal Server Error"});
+                };
+            };
+            var oldRepublishSchemas = SQLEditor.__testOnly__.republishSchemas;
+            SQLEditor.__testOnly__.setRepublishSchemas(function(query) {
+                return PromiseHelper.resolve();
+            });
+            SQLEditor.executeSQL()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                expect($("#alertModal").attr("style").indexOf("display: none;"))
+                        .to.not.equal(-1);
+                done();
+            })
+            .always(function() {
+                SQLCompiler = oldCompiler;
+                SQLEditor.__testOnly__.setRepublishSchemas(oldRepublishSchemas);
+                SQLEditor.resetProgress();
+            });
+        });
+
+        it("Should deleteSchema by tableName", function(done) {
+            SQLEditor.deleteSchemas("TESTSQLTABLE1")
+            .then(function() {
+                expect($sqlTableList.find('.unit[data-name="TESTSQLTABLE1"]').length)
                     .to.equal(0);
                 done();
             })
@@ -189,6 +353,21 @@ describe("SQLEditor Test", function() {
             .then(function() {
                 expect($sqlTableList.find('.unit[data-name="testSqlTable2"]').length)
                     .to.equal(0);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+        });
+
+        it("Should not deleteSchemas if not find", function(done) {
+            SQLEditor.deleteSchemas("notExist")
+            .then(function(ret) {
+                expect(ret).to.equal("Table doesn't exist");
+                return SQLEditor.deleteSchemas(undefined, [-1]);
+            })
+            .then(function(ret) {
+                expect(ret).to.equal("No tables to delete");
                 done();
             })
             .fail(function() {
@@ -226,7 +405,7 @@ describe("SQLEditor Test", function() {
         });
 
         it("Should search", function() {
-            $searchTable.find("input").val("testSqlTable1").trigger("input");
+            $searchTable.find("input").val("TESTSQLTABLE1").trigger("input");
             expect($sqlTableList.find(".unit:not(.xc-hidden)").length).to.equal(0);
             $searchTable.find("input").val("testSqlTable3").trigger("input");
             expect($sqlTableList.find(".unit:not(.xc-hidden)").length).to.equal(1);
@@ -254,10 +433,78 @@ describe("SQLEditor Test", function() {
             }, 20);
         });
 
+        it("Should search column", function() {
+            $searchColumn.find("input").val("columnName10").trigger("input");
+            expect($sqlColumnList.find(".unit:not(.xc-hidden)").length).to.equal(0);
+            $searchColumn.find("input").val("columnName1").trigger("input");
+            expect($sqlColumnList.find(".unit:not(.xc-hidden)").length).to.equal(1);
+        });
+
+        it("Should select column", function() {
+            var oldTAFT = TblManager.findAndFocusTable;
+            TblManager.findAndFocusTable = function(input) {
+                return PromiseHelper.resolve();
+            }
+            $sqlColumnList.find('.unit[data-name="columnName1"]').click();
+            TblManager.findAndFocusTable = oldTAFT;
+        });
+
         it("Should unselect table", function() {
             $sqlSection.find(".schemaSection").trigger("click");
             expect($sqlColumnList.find(".unit").length).to.equal(0);
             expect($sqlTableList.find(".unit.selected").length).to.equal(0);
+        });
+
+        it("Should updateSchema of selected table", function(done) {
+            $searchTable.find("input").val("").trigger("input");
+            $sqlTableList.find('.unit[data-name="testSqlTable4LongName"]').click();
+            expect($sqlColumnList.find(".type.icon").attr("data-original-title"))
+                        .to.equal("String");
+            gTables.test4.tableCols[0].sqlType = "Float";
+            var schema4 = SQLEditor.__testOnly__.getSchema("test4");
+            testStruct4.tableColumns = schema4;
+            SQLEditor.updateSchema(testStruct4, "test4")
+            .then(function() {
+                expect($sqlColumnList.find(".type.icon")
+                        .attr("data-original-title")).to.equal("Float");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("Should deleteSchemas when selected table", function(done) {
+            $sqlTableList.find('.unit[data-name="testSqlTable3"]').click();
+            SQLEditor.deleteSchemas(null, ["test4"])
+            .then(function() {
+                expect($sqlTableList.find('.unit[data-name="testSqlTable4LongName"]')
+                        .length).to.equal(0);
+                expect($sqlColumnList.find('.unit').length).to.equal(8);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+        });
+
+        it("Should deleteSchemas by click", function() {
+            $sqlTableList.find('.unit[data-name="testSqlTable3"] .icon').click();
+            expect($sqlTableList.find('.unit[data-name="testSqlTable3"]').length)
+                    .to.equal(0);
+        });
+
+        it("Should deleteSchemas by click table not exist", function() {
+            var html = '<li><div class="unit" data-name="' + 'errorTable' +
+                                '" data-hashid = "' + '-1' + '">' +
+                                '<span class="label">' + 'errorTable' + '</span>' +
+                                '<i class="icon xi-trash fa-14"></i>' +
+                            '</div></li>';
+            $sqlTableList.append(html);
+            $sqlTableList.find('.unit[data-name="errorTable"]').click();
+            expect($sqlTableList.find('.unit[data-name="errorTable"]').length)
+                    .to.equal(0);
+            $("#alertModal").find(".confirm").click();
         });
     });
 

@@ -891,7 +891,7 @@
     SQLCompiler.genExpressionTree = function(parent, array, options) {
         return secondTraverse(SQLCompiler.genTree(parent, array), options, true);
     };
-    function traverseAndPushDown(self, node) {
+    function traverseAndPushDown(self, node, updateUI) {
         var promiseArray = [];
         traverse(node, promiseArray);
         return promiseArray;
@@ -907,7 +907,7 @@
         function pushDown(treeNode) {
             var deferred = PromiseHelper.deferred();
             var retStruct;
-            if (typeof SQLEditor !== "undefined") {
+            if (typeof SQLEditor !== "undefined" && updateUI) {
                 SQLEditor.updateProgress();
             }
             var treeNodeClass = treeNode.value.class.substring(
@@ -1053,7 +1053,7 @@
                         SQLEditor.startCompile(numNodes);
                     }
 
-                    var promiseArray = traverseAndPushDown(self, tree);
+                    var promiseArray = traverseAndPushDown(self, tree, true);
                     PromiseHelper.chain(promiseArray)
                     .then(function() {
                         // Tree has been augmented with xccli
