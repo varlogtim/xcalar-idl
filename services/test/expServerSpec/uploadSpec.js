@@ -2,25 +2,9 @@ describe('ExpServer Upload Test', function() {
     // Test setup
     var expect = require('chai').expect;
 
-    require('jquery');
+    var request = require('request');
+    var expServer = require(__dirname + '/../../expServer/expServer.js');
     var upload = require(__dirname + '/../../expServer/upload.js');
-    function postRequest(action, url, str) {
-        var deferred = jQuery.Deferred();
-        jQuery.ajax({
-            "type": action,
-            "data": JSON.stringify(str),
-            "contentType": "application/json",
-            "url": "http://localhost:12124" + url,
-            "async": true,
-            success: function(data) {
-                deferred.resolve(data);
-            },
-            error: function(error) {
-                deferred.reject(error);
-            }
-        });
-        return deferred.promise();
-    }
     var testMin;
     var testMax;
     var testCommand;
@@ -123,14 +107,13 @@ describe('ExpServer Upload Test', function() {
             "targz": "testTargz",
             "name": "test"
         }
-        postRequest("POST", "/extension/publish", testData)
-        .then(function(ret) {
-            expect(ret.status).to.equal(1);
+        var data = {
+            url: 'http://localhost:12125/extension/publish',
+            json: testData
+        }
+        request.post(data, function (err, res, body){
+            expect(res.body.status).to.equal(1);
             done();
-        })
-        .fail(function(err) {
-            console.log(err)
-            done("fail");
         });
     });
 });

@@ -2,7 +2,6 @@ describe('ExpServer General Test', function() {
     // Test setup
     var expect = require('chai').expect;
 
-    require('jquery');
     var supportStatusFile = require(__dirname + '/../../expServer/supportStatusFile.js');
     var expServer = require(__dirname + '/../../expServer/expServer.js');
     var XcConsole = require(__dirname + '/../../expServer/expServerXcConsole.js');

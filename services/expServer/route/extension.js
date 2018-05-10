@@ -480,50 +480,35 @@ router.post("/extension/publish", function(req, res) {
 // End of marketplace calls
 
 // Below part is only for Unit Test
-function fakeWriteTarGz() {
-    writeTarGz = function() {
-        return jQuery.Deferred().resolve().promise();
-    };
+function fakeWriteTarGz(func) {
+    writeTarGz = func;
 }
-function fakeWriteTarGzWithCleanup() {
-    writeTarGzWithCleanup = function() {
-        return jQuery.Deferred().resolve().promise();
-    };
+function fakeWriteTarGzWithCleanup(func) {
+    writeTarGzWithCleanup = func;
 }
-function fakeProcessItem() {
-    processItem = function() {
-        return jQuery.Deferred().reject("processItem fails").promise();
-    };
+function fakeProcessItem(func) {
+    processItem = func;
 }
-function fakeDownloadExtension() {
-    downloadExtension = function() {
-        return jQuery.Deferred().resolve([]).promise();
-    };
+function fakeDownloadExtension(func) {
+    downloadExtension = func;
 }
-function fakeRemoveExtension() {
-    removeExtension = function() {
-        return jQuery.Deferred().resolve().promise();
-    };
+function fakeRemoveExtension(func) {
+    removeExtension = func;
 }
-function fakeEnableExtension() {
-    enableExtension = function() {
-        return jQuery.Deferred().resolve().promise();
-    };
+function fakeEnableExtension(func) {
+    enableExtension = func;
 }
-function fakeDisableExtension() {
-    disableExtension = function() {
-        return jQuery.Deferred().resolve().promise();
-    };
+function fakeDisableExtension(func) {
+    disableExtension = func;
 }
-function fakeGetExtensionFiles() {
-    getExtensionFiles = function() {
-        return jQuery.Deferred().resolve([]).promise();
-    };
+function fakeGetExtensionFiles(func) {
+    getExtensionFiles = func;
 }
-function fakeFetchAllExtensions() {
-    fetchAllExtensions = function() {
-        return jQuery.Deferred().resolve({"status": Status.Ok}).promise();
-    };
+function fakeFetchAllExtensions(func) {
+    fetchAllExtensions = func;
+}
+function fakeGetObject(func) {
+    s3.getObject = func;
 }
 if (process.env.NODE_ENV === "test") {
     exports.writeTarGz = writeTarGz;
@@ -535,6 +520,7 @@ if (process.env.NODE_ENV === "test") {
     exports.removeExtension = removeExtension;
     exports.processItem = processItem;
     exports.fetchAllExtensions = fetchAllExtensions;
+    exports.getObject = s3.getObject;
     // Replace functions
     exports.fakeWriteTarGz = fakeWriteTarGz;
     exports.fakeWriteTarGzWithCleanup = fakeWriteTarGzWithCleanup;
@@ -545,6 +531,7 @@ if (process.env.NODE_ENV === "test") {
     exports.fakeProcessItem = fakeProcessItem;
     exports.fakeGetExtensionFiles = fakeGetExtensionFiles;
     exports.fakeFetchAllExtensions = fakeFetchAllExtensions;
+    exports.fakeGetObject = fakeGetObject;
 }
 // Export router
 exports.router = router;

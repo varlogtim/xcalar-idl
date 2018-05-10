@@ -19,6 +19,10 @@ require("jsdom").env("", function(err, window) {
     var xcConsole = require('./expServerXcConsole.js').xcConsole;
     var serverPort = process.env.XCE_EXP_PORT ?
         process.env.XCE_EXP_PORT : 12124;
+    if (process.env.NODE_ENV === "test") {
+        // For expServer test
+        serverPort = 12125;
+    }
 
     var app = express();
 
@@ -51,7 +55,7 @@ require("jsdom").env("", function(err, window) {
     app.use(require('./route/auth.js').router);
 
     // Invoke the sqlApi router
-    app.use(require('./route/xcalarApiBuilt.js').router);
+    app.use(require('./route/sqlRestApi.js').router);
 
     function getOperatingSystem() {
         var deferred = jQuery.Deferred();
@@ -120,6 +124,10 @@ require("jsdom").env("", function(err, window) {
                 hostname = "localhost";
             }
             xcConsole.log("All ready");
+            xcConsole.log("Listen on port " + port);
+            if (process.env.NODE_ENV === "test") {
+                exports.server = httpServer;
+            }
         });
     });
 

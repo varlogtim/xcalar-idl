@@ -1674,11 +1674,12 @@ function sqlLoad(path) {
             schema: schema
         };
         console.log("get schema", schema);
+        global.sqlMode = false;
         deferred.resolve(res);
     })
-    .fail(deferred.reject)
-    .always(function() {
+    .fail(function(err) {
         global.sqlMode = false;
+        deferred.reject(err);
     });
 
     return deferred.promise();
@@ -1943,11 +1944,12 @@ function sqlPlan(execid, planStr, rowsToFetch) {
                 schema: schema,
                 result: result
             };
+            global.sqlMode = false;
             deferred.resolve(res);
         })
-        .fail(deferred.reject)
-        .always(function() {
+        .fail(function(err) {
             global.sqlMode = false;
+            deferred.reject(err);
         });
     } catch (e) {
         global.sqlMode = false;
@@ -2037,28 +2039,18 @@ router.post("/xcedf/query", function(req, res) {
         res.status(500).send(error);
     });
 });
-
+// For unit tests
+function fakeSqlLoad(func) {
+    sqlLoad = func;
+}
+function fakeSqlPlan(func) {
+    sqlPlan = func;
+}
 if (process.env.NODE_ENV === "test") {
-    exports.connect = connect;
-    exports.goToSqlWkbk = goToSqlWkbk;
-    exports.loadDatasets = loadDatasets;
-    exports.convertToDerivedColAndGetSchema = convertToDerivedColAndGetSchema;
     exports.sqlLoad = sqlLoad;
     exports.sqlPlan = sqlPlan;
-    exports.setConnect = function(func) {
-        connect = func;
-    };
-    exports.setLoadDatasets = function(func) {
-        loadDatasets = func;
-    };
-    exports.setConvertToDerivedColAndGetSchema = function(func) {
-        convertToDerivedColAndGetSchema = func;
-    };
-    exports.setSqlLoad = function(func) {
-        sqlLoad = func;
-    };
-    exports.setSqlPlan = function(func) {
-        sqlPlan = func;
-    };
+    // Stub functions
+    exports.fakeSqlLoad = fakeSqlLoad;
+    exports.fakeSqlPlan = fakeSqlPlan;
 }
 exports.router = router;

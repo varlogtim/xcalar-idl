@@ -1,8 +1,8 @@
 describe('ExpServer Support Test', function() {
     // Test setup
     var expect = require('chai').expect;
+    var expServer = require(__dirname + '/../../expServer/expServer.js');
 
-    require('jquery');
     var support = require(__dirname + '/../../expServer/expServerSupport.js');
     var testHostsFile;
     var testHosts;
@@ -12,9 +12,12 @@ describe('ExpServer Support Test', function() {
     var testEmail;
     var testResults;
     var testLogOpts;
+    var defaultXcalarDir;
+    var testDir;
     this.timeout(10000);
     // Test begins
     before(function() {
+        testDir = __dirname + "/..";
         testHostsFile = __dirname + "/../config/hosts.cfg";
         testHosts = ["testHost"];
         testAction = "GET";
@@ -41,8 +44,10 @@ describe('ExpServer Support Test', function() {
         testPath = __dirname + "/../config/logs";
         testCfg = __dirname + "/../config/hosts.cfg";
         testLicense = __dirname + "/../config/license.txt";
-        testStartCommand = "/opt/xcalar/bin/xcalarctl start";
-        testStopCommand = "/opt/xcalar/bin/xcalarctl stop";
+
+        defaultXcalarDir = process.env.XLRDIR || "/opt/xcalar";
+        testStartCommand = defaultXcalarDir + "/bin/xcalarctl start";
+        testStopCommand = defaultXcalarDir + "/bin/xcalarctl stop";
         testStartData = "xcmgmtd started";
         testStopData = "Stopped Xcalar";
     });
@@ -59,7 +64,6 @@ describe('ExpServer Support Test', function() {
     });
 
     it("readHostsFromFile should work", function(done) {
-        support.fakeExecuteCommand();
         support.readHostsFromFile(testHostsFile)
         .then(function(ret) {
             expect(ret).to.be.an("Array");
@@ -71,8 +75,8 @@ describe('ExpServer Support Test', function() {
     });
 
     it("readHostsFromFile should fail when error, e.g. no such file", function(done) {
-        testHostsFile = "noSuchFile.cfg";
-        support.readHostsFromFile(testHostsFile)
+        var fakeHostsFile = "noSuchFile.cfg";
+        support.readHostsFromFile(fakeHostsFile)
         .then(function() {
             done("fail");
         })
@@ -97,19 +101,24 @@ describe('ExpServer Support Test', function() {
     // success and failure.
     it('sendCommandToSlaves should work', function(done) {
         testSlaveUrl = "/service/status/slave";
-        testHosts = ["skywalker.int.xcalar.com"];
+        testHosts = ["localhost"];
         support.sendCommandToSlaves(testAction, testSlaveUrl, testContent, testHosts)
         .then(function(ret) {
             expect(ret[testHosts[0]].status).to.equal(200);
             done();
         })
         .fail(function(err) {
-            expect(error[testHosts[0]].status).to.equal(500);
+            expect(err[testHosts[0]].status).to.equal(500);
             done();
         });
     });
 
     it('slaveExecuteAction should work', function(done) {
+        var oldFunc = support.executeCommand;
+        var fakeFunc =  function(command) {
+            return jQuery.Deferred().resolve(command + " succeeds").promise();
+        }
+        support.fakeExecuteCommand(fakeFunc);
         support.slaveExecuteAction("", "/service/start/slave", testContent)
         .then(function() {
             return support.slaveExecuteAction("", "/service/stop/slave", testContent);
@@ -124,9 +133,13 @@ describe('ExpServer Support Test', function() {
             expect(ret.status).to.equal(200);
             done();
         })
-        .fail(function() {
+        .fail(function(err) {
+            console.log(JSON.stringify(err));
             done("fail");
         })
+        .always(function() {
+            support.fakeExecuteCommand(oldFunc);
+        });
     });
 
     it('generateLogs should work', function(done) {
@@ -134,23 +147,22 @@ describe('ExpServer Support Test', function() {
         done();
     });
 
-    it('masterExecuteAction should work with given host', function(done) {
-        support.fakeReadHostsFromFile();
-        support.fakeSendCommandToSlaves();
+    it('masterExecuteAction should work with/without given host', function(done) {
+        var oldRead = support.readHostsFromFile;
+        var oldSend = support.sendCommandToSlaves;
+        var fakeRead = function() {
+            return jQuery.Deferred().resolve(["bellman.int.xcalar.com"], [0]).promise();
+        };
+        var fakeSend = function() {
+            return jQuery.Deferred().resolve().promise();
+        };
+        support.fakeReadHostsFromFile(fakeRead);
+        support.fakeSendCommandToSlaves(fakeSend);
         support.masterExecuteAction(testAction, testSlaveUrl, testContent, true)
         .then(function(ret) {
             expect(ret.status).to.equal(200);
-            done();
+            return support.masterExecuteAction(testAction, testSlaveUrl, testContent);
         })
-        .fail(function() {
-            done("fail");
-        })
-    });
-
-    it('masterExecuteAction should work without given host', function(done) {
-        support.fakeReadHostsFromFile();
-        support.fakeSendCommandToSlaves();
-        support.masterExecuteAction(testAction, testSlaveUrl, testContent)
         .then(function(ret) {
             expect(ret.status).to.equal(200);
             done();
@@ -158,6 +170,10 @@ describe('ExpServer Support Test', function() {
         .fail(function() {
             done("fail");
         })
+        .always(function() {
+            support.fakeReadHostsFromFile(oldRead);
+            support.fakeSendCommandToSlaves(oldSend);
+        });
     });
 
     it('getXlrRoot should work', function(done) {
@@ -183,7 +199,11 @@ describe('ExpServer Support Test', function() {
     });
 
     it('removeSessionFiles should work', function(done) {
-        support.fakeGetXlrRoot();
+        var oldFunc = support.getXlrRoot;
+        var fakeFunc = function() {
+            return jQuery.Deferred().resolve(testDir).promise();
+        };
+        support.fakeGetXlrRoot(fakeFunc);
         // It should catch 'undefined' and handle it correctly
         support.removeSessionFiles(undefined)
         .then(function(ret) {
@@ -192,28 +212,20 @@ describe('ExpServer Support Test', function() {
         })
         .fail(function() {
             done("fail");
+        })
+        .always(function() {
+            support.fakeGetXlrRoot(oldFunc);
         });
     });
 
     it('getLicense should work', function(done) {
-        support.getLicense(testLicense)
+        support.getLicense()
         .then(function(ret) {
             expect(ret.status).to.equal(200);
             done();
         })
         .fail(function() {
             done("fail");
-        });
-    });
-
-    it('getLicense should fail when error, e.g. invalid path', function(done) {
-        support.getLicense("invalidPath")
-        .then(function() {
-            done("fail");
-        })
-        .fail(function(error) {
-            expect(error.status).to.equal(400);
-            done();
         });
     });
 
@@ -309,6 +321,11 @@ describe('ExpServer Support Test', function() {
     });
 
     it('removeSHM should work', function(done) {
+        var oldFunc = support.executeCommand;
+        var fakeFunc =  function(command) {
+            return jQuery.Deferred().resolve(command + " succeeds").promise();
+        }
+        support.fakeExecuteCommand(fakeFunc);
         support.removeSHM()
         .then(function(ret) {
             expect(ret).to.include("succeeds");
@@ -316,13 +333,73 @@ describe('ExpServer Support Test', function() {
         })
         .fail(function() {
             done("fail");
+        })
+        .always(function() {
+            support.fakeExecuteCommand(oldFunc);
         });
     });
 
     it('getOperatingSystem should work', function(done) {
+        var oldFunc = support.executeCommand;
+        var fakeFunc =  function(command) {
+            return jQuery.Deferred().resolve(command + " succeeds").promise();
+        }
+        support.fakeExecuteCommand(fakeFunc);
         support.getOperatingSystem()
         .then(function(ret) {
             expect(ret).to.include("succeeds");
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        })
+        .always(function() {
+            support.fakeExecuteCommand(oldFunc);
+        });
+    });
+
+    it('setHotPatch should work', function(done) {
+        var oldFunc = support.getXlrRoot;
+        var fakeFunc = function() {
+            return jQuery.Deferred().resolve(testDir).promise();
+        };
+        support.fakeGetXlrRoot(fakeFunc);
+        var enableHotPatches = true;
+        support.setHotPatch(enableHotPatches)
+        .then(function(ret) {
+            expect(ret.status).to.equal(200);
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        })
+        .always(function() {
+            support.fakeGetXlrRoot(oldFunc);
+        });
+    });
+
+    it('getHotPatch should work', function(done) {
+        var oldFunc = support.getXlrRoot;
+        var fakeFunc = function() {
+            return jQuery.Deferred().resolve(testDir).promise();
+        };
+        support.fakeGetXlrRoot(fakeFunc);
+        support.getHotPatch()
+        .then(function(ret) {
+            expect(ret.hotPatchEnabled).to.equal(true);
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        })
+        .always(function() {
+            support.fakeGetXlrRoot(oldFunc);
+        });
+    });
+
+    it('makeFileCopy should work', function(done) {
+        support.makeFileCopy(testHostsFile)
+        .then(function() {
             done();
         })
         .fail(function() {

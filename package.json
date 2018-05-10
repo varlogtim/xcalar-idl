@@ -4,7 +4,7 @@
   "description": "Installs the packages that are required to build Xcalar Design",
   "main": "Gruntfile.js",
   "scripts": {
-    "test": "node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha services/test/expServerSpec/**/*.spec.js services/expServer/*.js --dir services/test/report"
+  "test": "NODE_ENV=test node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha xcalar-gui/services/test/expServerSpec/*.js --dir services/test/report"
   },
   "repository": {
     "type": "git",

@@ -2,31 +2,17 @@ describe('ExpServer Extension Test', function() {
     // Test setup
     var expect = require('chai').expect;
     var fs = require('fs');
-    require('jquery');
+    var request = require('request');
+    var expServer = require(__dirname + '/../../expServer/expServer.js');
 
     var extension = require(__dirname + '/../../expServer/route/extension.js');
-    function postRequest(action, url, str) {
-        var deferred = jQuery.Deferred();
-        jQuery.ajax({
-            "type": action,
-            "data": JSON.stringify(str),
-            "contentType": "application/json",
-            "url": "http://localhost:12124" + url,
-            "async": true,
-            success: function(data) {
-                deferred.resolve(data);
-            },
-            error: function(error) {
-                deferred.reject(error);
-            }
-        });
-        return deferred.promise();
-    }
     var testTargz;
     var testName;
     var testVersion;
     var testData;
     var testType;
+    var oldGetObject;
+    var emptyPromise;
     this.timeout(10000);
 
     // Test begins
@@ -41,6 +27,14 @@ describe('ExpServer Extension Test', function() {
         testType = "test";
         testDownloadName = "test";
         testFileName = "extensions/distinct/1.0.0/distinct-1.0.0.tar.gz";
+        oldGetObject = extension.getObject;
+        var fakeFunc = function(data, callback) {
+            callback(null, {Body: {msg: "success"}});
+        }
+        extension.fakeGetObject(fakeFunc);
+        emptyPromise = function() {
+            return jQuery.Deferred().resolve().promise();
+        }
     });
 
     it("extension.writeTarGz should fail when error", function(done) {
@@ -80,7 +74,8 @@ describe('ExpServer Extension Test', function() {
     });
 
     it("extension.writeTarGzWithCleanup should work", function(done) {
-        extension.fakeWriteTarGz();
+        var oldFunc = extension.writeTarGz;
+        extension.fakeWriteTarGz(emptyPromise);
         extension.writeTarGzWithCleanup(testTargz, testName, testVersion)
         .then(function(ret) {
             expect(ret).to.equal("writeTarGzWithCleanup succeeds");
@@ -88,10 +83,18 @@ describe('ExpServer Extension Test', function() {
         })
         .fail(function() {
             done("fail");
+        })
+        .always(function() {
+            extension.fakeWriteTarGz(oldFunc);
         });
     });
 
     it("extension.downloadExtension should fail when error", function(done) {
+        var oldFunc = extension.getObject;
+        var fakeFunc = function(data, callback) {
+            callback("fail");
+        }
+        extension.fakeGetObject(fakeFunc);
         extension.downloadExtension(testDownloadName, testVersion)
         .then(function() {
             done("fail");
@@ -99,6 +102,9 @@ describe('ExpServer Extension Test', function() {
         .fail(function(error) {
             expect(error).to.not.equal(null);
             done();
+        })
+        .always(function() {
+            extension.fakeGetObject(oldFunc);
         });
     });
 
@@ -240,7 +246,11 @@ describe('ExpServer Extension Test', function() {
     });
 
     it("extension.fetchAllExtensions should fail when error", function(done) {
-        extension.fakeProcessItem();
+        var oldFunc = extension.processItem;
+        var fakeFunc = function() {
+            return jQuery.Deferred().reject("processItem fails").promise();
+        }
+        extension.fakeProcessItem(fakeFunc);
         extension.fetchAllExtensions()
         .then(function() {
             done("fail");
@@ -248,105 +258,140 @@ describe('ExpServer Extension Test', function() {
         .fail(function(error) {
             expect(error).to.not.equal(null);
             done();
-        });
-    });
-
-    it('Upload router shoud work', function(done) {
-        extension.fakeWriteTarGzWithCleanup();
-        extension.fakeEnableExtension();
-        postRequest("POST", "/extension/upload", testData)
-        .then(function(ret) {
-            expect(ret.status).to.equal(1);
-            done();
         })
-        .fail(function() {
-            done("fail");
+        .always(function() {
+            extension.fakeProcessItem(oldFunc);
         });
     });
 
-    it('Download router shoud work', function(done) {
-        extension.fakeDownloadExtension();
-        extension.fakeWriteTarGzWithCleanup();
-        postRequest("POST", "/extension/download", testData)
-        .then(function(ret) {
-            expect(ret.status).to.equal(1);
+    it('Upload router should work', function(done) {
+        var oldWrite = extension.writeTarGzWithCleanup;
+        var oldEnable = extension.enableExtensionn;
+        extension.fakeWriteTarGzWithCleanup(emptyPromise);
+        extension.fakeEnableExtension(emptyPromise);
+        var data = {
+            url: 'http://localhost:12125/extension/upload',
+            json: testData
+        }
+        request.post(data, function (err, res, body){
+            console.log("res is:" + JSON.stringify(err));
+            extension.fakeWriteTarGzWithCleanup(oldWrite);
+            extension.fakeEnableExtension(oldEnable);
+            expect(res.body.status).to.equal(1);
             done();
-        })
-        .fail(function() {
-            done("fail");
         });
     });
 
-    it('Remove router shoud work', function(done) {
-        extension.fakeRemoveExtension();
-        postRequest("DELETE", "/extension/remove", testData)
-        .then(function(ret) {
-            expect(ret.status).to.equal(1);
+    it('Download router should work', function(done) {
+        var oldWrite = extension.writeTarGzWithCleanup;
+        var oldDownload = extension.downloadExtension;
+        var fakeDownload = function() {
+            return jQuery.Deferred().resolve({data: "test",
+                                              name: "test",
+                                              version: "test"}).promise();
+        }
+        extension.fakeWriteTarGzWithCleanup(emptyPromise);
+        extension.fakeDownloadExtension(fakeDownload);
+        var data = {
+            url: 'http://localhost:12125/extension/download',
+            json: testData
+        }
+        request.post(data, function (err, res, body){
+            extension.fakeWriteTarGzWithCleanup(oldWrite);
+            extension.fakeDownloadExtension(oldDownload);
+            expect(res.body.status).to.equal(1);
             done();
-        })
-        .fail(function() {
-            done("fail");
         });
     });
 
-    it('Enable router shoud work', function(done) {
-        extension.fakeEnableExtension();
-        postRequest("POST", "/extension/enable", testData)
-        .then(function(ret) {
-            expect(ret.status).to.equal(1);
+    it('Remove router should work', function(done) {
+        var oldRemove = extension.removeExtension;
+        extension.fakeRemoveExtension(emptyPromise);
+        var data = {
+            url: 'http://localhost:12125/extension/remove',
+            json: testData
+        }
+        request.delete(data, function (err, res, body){
+            extension.fakeRemoveExtension(oldRemove);
+            expect(res.body.status).to.equal(1);
             done();
-        })
-        .fail(function() {
-            done("fail");
         });
     });
 
-    it('Disable router shoud work', function(done) {
-        extension.fakeWriteTarGzWithCleanup();
-        extension.fakeEnableExtension();
-        postRequest("POST", "/extension/upload", testData)
-        .then(function(ret) {
-            expect(ret.status).to.equal(1);
+    it('Enable router should work', function(done) {
+        var oldEnable = extension.enableExtensionn;
+        extension.fakeEnableExtension(emptyPromise);
+        var data = {
+            url: 'http://localhost:12125/extension/enable',
+            json: testData
+        }
+        request.post(data, function (err, res, body){
+            extension.fakeEnableExtension(oldEnable);
+            expect(res.body.status).to.equal(1);
             done();
-        })
-        .fail(function() {
-            done("fail");
         });
     });
 
-    it('GetAvailable router shoud work', function(done) {
-        extension.fakeGetExtensionFiles();
-        postRequest("GET", "/extension/getAvailable", testData)
-        .then(function(ret) {
-            expect(ret.status).to.equal(1);
+    it('Disable router should work', function(done) {
+        var oldDisable = extension.disableExtension;
+        extension.fakeDisableExtension(emptyPromise);
+        var data = {
+            url: 'http://localhost:12125/extension/disable',
+            json: testData
+        }
+        request.post(data, function (err, res, body){
+            extension.fakeDisableExtension(oldDisable);
+            expect(res.body.status).to.equal(1);
             done();
-        })
-        .fail(function() {
-            done("fail");
         });
     });
 
-    it('GetEnabled router shoud work', function(done) {
-        postRequest("GET", "/extension/getEnabled", testData)
-        .then(function(ret) {
-            expect(ret.status).to.equal(1);
+    it('GetAvailable router should work', function(done) {
+        var oldGetExt = extension.getExtensionFiles;
+        var fakeFunc = function() {
+            return jQuery.Deferred().resolve([]).promise();
+        };
+        extension.fakeGetExtensionFiles(fakeFunc);
+        var data = {
+            url: 'http://localhost:12125/extension/getAvailable',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+        }
+        request.get(data, function (err, res, body){
+            extension.fakeGetExtensionFiles(oldGetExt);
+            expect(JSON.parse(res.body).status).to.equal(1);
             done();
-        })
-        .fail(function() {
-            done("fail");
         });
     });
 
-    it('ListPackage router shoud work', function(done) {
-        extension.fakeFetchAllExtensions();
-        postRequest("GET", "/extension/listPackage", testData)
-        .then(function(ret) {
-            expect(ret.status).to.equal(1);
+    it('GetEnabled router should work', function(done) {
+        var data = {
+            url: 'http://localhost:12125/extension/getEnabled'
+        }
+        request.get(data, function (err, res, body){
+            expect(JSON.parse(res.body).status).to.equal(1);
             done();
-        })
-        .fail(function() {
-            done("fail");
         });
     });
 
+    it('ListPackage router should work', function(done) {
+        var oldFetch = extension.fakeFetchAllExtensions;
+        var fakeFunc = function() {
+            return jQuery.Deferred().resolve({"status": 1}).promise();
+        };
+        extension.fakeFetchAllExtensions(fakeFunc);
+        var data = {
+            url: 'http://localhost:12125/extension/listPackage'
+        }
+        request.get(data, function (err, res, body){
+            extension.fakeFetchAllExtensions(oldFetch);
+            expect(JSON.parse(res.body).status).to.equal(1);
+            done();
+        });
+    });
+
+    after(function() {
+        extension.fakeGetObject(oldGetObject);
+    });
 });

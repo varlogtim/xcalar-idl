@@ -682,9 +682,6 @@ router.post("/xdp/installation/cancel", function(req, res) {
 // });
 
 // Below part is only for Unit Test
-function fakeGenExecString() {
-    return "echo SUCCESS";
-}
 function getCurStepStatus() {
     return curStep.curStepStatus;
 }
@@ -704,26 +701,21 @@ function setTestVariables(opts) {
     if (opts.licenseLocation) {
         licenseLocation = opts.licenseLocation;
     }
+    if (opts.credentialLocation) {
+        credentialLocation = opts.credentialLocation;
+    }
 }
-function fakeCheckLicense() {
-    checkLicense = function() {
-        return jQuery.Deferred().resolve({status: 200}).promise();
-    };
+function fakeCheckLicense(func) {
+    checkLicense = func;
 }
-function fakeInstallUpgradeUtil() {
-    installUpgradeUtil = function() {
-        return jQuery.Deferred().resolve().promise();
-    };
+function fakeInstallUpgradeUtil(func) {
+    installUpgradeUtil = func;
 }
-function fakeDiscoverUtil() {
-    discoverUtil = function() {
-        return jQuery.Deferred().resolve().promise();
-    };
+function fakeDiscoverUtil(func) {
+    discoverUtil = func;
 }
-function fakeCreateStatusArray() {
-    createStatusArray = function() {
-        return jQuery.Deferred().resolve({status: 200}).promise();
-    };
+function fakeCreateStatusArray(func) {
+    createStatusArray = func;
 }
 if (process.env.NODE_ENV === "test") {
     exports.genExecString = genExecString;
@@ -737,7 +729,6 @@ if (process.env.NODE_ENV === "test") {
     exports.getCurStepStatus = getCurStepStatus;
     exports.setTestVariables = setTestVariables;
     // Fake functions
-    exports.fakeGenExecString = fakeGenExecString;
     exports.fakeCheckLicense = fakeCheckLicense;
     exports.fakeInstallUpgradeUtil = fakeInstallUpgradeUtil;
     exports.fakeDiscoverUtil = fakeDiscoverUtil;

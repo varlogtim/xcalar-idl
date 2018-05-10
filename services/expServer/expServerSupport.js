@@ -832,6 +832,8 @@ function writeToFile(filePath, fileContents, fileOptions) {
 
     function callback(err) {
         if (err) {
+            console.log("fail write: " + JSON.stringify(err));
+            console.log("Failed to write to " + filePath);
             deferred.reject("Failed to write to " + filePath);
             return deferred.promise();
         }
@@ -893,26 +895,25 @@ function makeFileCopy(filePath) {
 }
 
 // Below part is only for unit test
-function fakeExecuteCommand() {
-    executeCommand = function(command) {
-        return jQuery.Deferred().resolve(command + " succeeds").promise();
-    }
+function fakeExecuteCommand(func) {
+    executeCommand = func;
 }
-function fakeReadHostsFromFile() {
-    readHostsFromFile = function() {
-        return jQuery.Deferred().resolve(["bellman.int.xcalar.com"], [0]).promise();
-    }
+function fakeReadHostsFromFile(func) {
+    readHostsFromFile = func;
 }
-function fakeSendCommandToSlaves() {
-    sendCommandToSlaves = function() {
-        return jQuery.Deferred().resolve().promise();
-    }
+function fakeSendCommandToSlaves(func) {
+    sendCommandToSlaves = func;
 }
-function fakeGetXlrRoot() {
-    getXlrRoot = function() {
-        return jQuery.Deferred().resolve("../test").promise();
-    };
+function fakeGetXlrRoot(func) {
+    getXlrRoot = func;
 }
+function fakeMasterExecuteAction(func) {
+    masterExecuteAction = func;
+}
+function fakeSlaveExecuteAction(func) {
+    slaveExecuteAction = func;
+}
+
 if (process.env.NODE_ENV === "test") {
     exports.executeCommand = executeCommand;
     exports.sendCommandToSlaves = sendCommandToSlaves;
@@ -927,6 +928,8 @@ if (process.env.NODE_ENV === "test") {
     exports.fakeReadHostsFromFile = fakeReadHostsFromFile;
     exports.fakeSendCommandToSlaves = fakeSendCommandToSlaves;
     exports.fakeGetXlrRoot = fakeGetXlrRoot;
+    exports.fakeMasterExecuteAction = fakeMasterExecuteAction;
+    exports.fakeSlaveExecuteAction = fakeSlaveExecuteAction;
 }
 
 exports.getXlrRoot = getXlrRoot;

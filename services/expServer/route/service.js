@@ -231,42 +231,37 @@ router.get("/service/logs/slave", function(req, res) {
 // End of service calls
 
 // Below part is only for Unit Test
-function fakeMasterExecuteAction() {
-    support.masterExecuteAction = function() {
-        return jQuery.Deferred().resolve({status: 200}).promise();
-    };
+function fakeMasterExecuteAction(func) {
+    support.masterExecuteAction = func;
 }
-function fakeSlaveExecuteAction() {
-    support.slaveExecuteAction = function() {
-        return jQuery.Deferred().resolve({status: 200}).promise();
-    };
+function fakeSlaveExecuteAction(func) {
+    support.slaveExecuteAction = func;
+}
+function fakeRemoveSessionFiles(func) {
+    support.removeSessionFiles = func;
+}
+function fakeRemoveSHM(func) {
+    support.removeSHM = func;
+}
+function fakeGetLicense(func) {
+    support.getLicense = func;
+}
+function fakeSubmitTicket(func) {
+    support.submitTicket = func;
+}
+function fakeGetMatchedHosts(func) {
+    support.getMatchedHosts = func;
+}
+function fakeGetTickets(func) {
+    support.getTickets = func;
+}
+function fakeGetHotPatch(func) {
+    support.getHotPatch = func;
+}
+function fakeSetHotPatch(func) {
+    support.setHotPatch = func;
 }
 
-function fakeRemoveSessionFiles() {
-    support.removeSessionFiles = function() {
-        return jQuery.Deferred().resolve({status: 200}).promise();
-    };
-}
-function fakeRemoveSHM() {
-    support.removeSHM = function() {
-        return jQuery.Deferred().resolve({status: 200}).promise();
-    };
-}
-function fakeGetLicense() {
-    support.getLicense = function() {
-        return jQuery.Deferred().resolve({status: 200}).promise();
-    };
-}
-function fakeSubmitTicket() {
-    support.submitTicket = function() {
-        return jQuery.Deferred().resolve({status: 200}).promise();
-    };
-}
-function fakeGetMatchedHosts() {
-    support.getMatchedHosts = function() {
-        return jQuery.Deferred().resolve({status: 200}).promise();
-    };
-}
 if (process.env.NODE_ENV === "test") {
     exports.convertToBase64 = convertToBase64;
     exports.fakeMasterExecuteAction = fakeMasterExecuteAction;
@@ -276,6 +271,9 @@ if (process.env.NODE_ENV === "test") {
     exports.fakeGetLicense = fakeGetLicense;
     exports.fakeSubmitTicket = fakeSubmitTicket;
     exports.fakeGetMatchedHosts = fakeGetMatchedHosts;
+    exports.fakeGetTickets = fakeGetTickets;
+    exports.fakeGetHotPatch = fakeGetHotPatch;
+    exports.fakeSetHotPatch = fakeSetHotPatch;
 }
 
 // Export router
