@@ -80,10 +80,12 @@
         position: absolute; // positioned absolute for resizing ability
         left: 0px;
         width: 100%;
-        height: 50%;
     }
     .upperTableSection {
-        top: 0px;
+        height: 52%;
+    }
+    .lowerTableSection {
+        height: 48%;
     }
     .upperTableHeader {
         height: @listHeaderHeight;
@@ -128,65 +130,55 @@
             background-color: rgba(55, 140, 179, 0.9) !important;
         }
         &::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(09, 58, 80, 0.9);
         }
     }
     .tableList {
         width: 100%;
         height: 100%;
-        border-right: 1px solid darkgray;
-        border-bottom: 1px solid darkgray;
-        // overflow: scroll;
     }
     .tableListItem {
         height: @listHeaderHeight;
         border-bottom: 1px solid @color-bg-dusk-blue;
+        box-shadow: inset 0 1px 2px rgba(26, 26, 26, 0.5);
         overflow: hidden;
 
-        &.active {
+        .tableName {
+            width: 100%;
+        }
+
+        &:hover {
+            background-color: rgba(0, 0, 0, 0.15);
+            .icon {
+                display: block;
+            }
+
+            .tableName {
+                max-width: 204px;
+            }
+        }
+
+        &.selected {
             color: @color-bg-bright-light-blue;
             background-color: rgba(92, 178, 232, 0.2);
+            border-top: 1px solid @color-bg-bright-light-blue;
+            border-bottom: 1px solid @color-bg-bright-light-blue;
+
+            .tableListLeft, .icon {
+                line-height: @listHeaderHeight - 2px;
+            }
 
             .icon {
                 color: @color-white;
                 border: none;
             }
-        }
-        &:hover {
-            // background-color: @color-font-select-blue;
-            background-color: rgba(92, 178, 232, 0.2);
-            border-top: 1px solid @color-bg-bright-light-blue;
-            border-bottom: 1px solid @color-bg-bright-light-blue;
-
-            .tableListLeft {
-                line-height: @listHeaderHeight - 2px;
-            }
 
             .updateIndicator {
                 margin-top: -1px;
             }
 
-            .icon {
-                display: block;
-            }
-        }
-        &.selected {
-            border-top: 1px solid @color-bg-bright-light-blue;
-            border-bottom: 1px solid @color-bg-bright-light-blue;
-
-            .tableListLeft {
-                line-height: @listHeaderHeight - 2px;
-            }
-
-            .updateIndicator {
-                margin-top: -1px;
-            }
-
-            .tableListHist {
-                // background-color: #428bb7;
-            }
             .selectedBar {
-                background-color: #428bb7;
+                background-color: @color-bg-apple-green;
                 pointer-events: none;
                 position: absolute;
                 left: 0px;
@@ -205,7 +197,6 @@
     .lowerTableSection {
         bottom: 0px;
         .flex-display;
-        border-top: 1px solid darkgray;
     }
 
     .tableListLeft {
@@ -230,7 +221,6 @@
         }
 
         .tableName {
-            max-width: 204px;
             .textOverflowOneLine;
             display: inline-block;
         }
@@ -239,6 +229,7 @@
         width: @listWidth;
         height: 100%;
         background: @color-bg-marine;
+        border-top: @color-bg-pinkish-grey2;
 
         .tableListHeader {
             height: @listHeaderHeight;
@@ -252,7 +243,7 @@
                 background-color: rgba(55, 140, 179, 0.9) !important;
             }
             &::-webkit-scrollbar-track {
-                background: rgba(0, 0, 0, 0.3);
+                background: rgba(09, 58, 80, 0.9);
             }
         }
 
@@ -267,11 +258,12 @@
         .flex(1 1 auto);
         .flex-direction(column);
         background: @color-white;
+        color: @color-font-greyish-brown;
 
         .subHeading {
             display: none;
-            color: @color-black;
-            padding: 10px;
+            height: 48px;
+            padding: 14px 10px;
             font-size: 15px;
 
             .tableName {
@@ -282,9 +274,9 @@
         .tableDetailList {
             display: none;
             width: 100%;
+            height: ~"calc(100% - 48px)";
             .flex(1 1 auto);
             .flex-direction(row);
-            color: @color-font-darkGray;
             border-top: 1px solid @color-bg-pinkish-grey2;
             overflow: hidden;
 
@@ -309,6 +301,7 @@
                 &.headerRow {
                     height: @listHeaderHeight;
                     background-color: @color-bg-white-seven;
+                    padding-right: 11px;
 
                     .tableColumn {
                         line-height: @listHeaderHeight;
@@ -322,6 +315,24 @@
                     line-height: 30px;
                     padding: 0 10px;
                     .textOverflowOneLine;
+                    direction: rtl;
+                    text-align: left;
+
+                    .dummy {
+                        width: 0px;
+                        font-size: 0px;
+                        overflow: hidden;
+                        color: white;
+                        visibility: hidden;
+                    }
+
+                    &:last-child {
+                        border-right: none;
+                    }
+
+                    &.batchId {
+                        cursor: pointer;
+                    }
                 }
             }
             .empty {
@@ -377,13 +388,14 @@
     }
     .activeTablesList{
         overflow-y: auto;
+        overflow-y: scroll;
         padding-bottom: 10px;
 
         &::-webkit-scrollbar-thumb {
             background-color: rgba(55, 140, 179, 0.9) !important;
         }
         &::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(09, 58, 80, 0.9);
         }
 
         .showTable {
@@ -394,8 +406,8 @@
         position: absolute;
         z-index: 1;
         right: 0px;
-        margin-right: 15px;
-        width: ~"calc(100% - @{listWidth} - 15px)";
+        margin-right: 11px;
+        width: ~"calc(100% - @{listWidth} - 11px)";
         bottom: 0px;
         height: 11px;
         overflow-x: scroll;
@@ -404,7 +416,7 @@
             background-color: rgba(55, 140, 179, 0.9) !important;
         }
         &::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(09, 58, 80, 0.9);
         }
     }
     .fakeArea{
@@ -440,10 +452,11 @@
         left: 0px;
         top: 0px;
         z-index: 2;
-        width: 270px;
+        width: 180px;
         background-color: rgb(120, 173, 198);
-        // background-color: @color-font-select-blue;
-        font-size: 13px;
+        background-color: @color-font-select-blue;
+        border: 1px solid @color-bg-softBlue;
+        font-size: 14px;
         padding: 10px;
         align-items: center;
         text-align: center;
@@ -460,23 +473,31 @@
             position: absolute;
             pointer-events: none;
             border-color: transparent;
-            border-bottom-color: rgb(120, 173, 198);
-            // border-bottom-color: @color-font-select-blue;
+            border-bottom-color: @color-font-select-blue;
             border-width: 8px;
             margin-left: -8px;
+
+            &.arrowSecondary {
+                border-bottom-color: @color-bg-softBlue;
+                bottom: ~"calc(100% + 1px)";
+            }
+        }
+
+        .close {
+            position: absolute;
+            z-index: 1;
+            .size(22px, 22px);
+            right: 8px;
+            top: 8px;
+            cursor: pointer;
+            font-size: 15px;
         }
 
         .heading {
             position: relative;
             width: 100%;
-            .close {
-                position: absolute;
-                .size(22px, 22px);
-                right: 0px;
-                top: -5px;
-                cursor: pointer;
-                font-size: 16px;
-            }
+            text-align: left;
+            font-size: 12px;
         }
 
         .text-input-wrapper {
@@ -488,42 +509,42 @@
         }
 
         .btn {
-            width: 120px;
-            float: left;
-            &:first-child {
-                margin-right: 10px;
-            }
+            width: 100%;
+            margin-top: 10px;
         }
     }
     .date-tipbox {
         min-width: 150px;
         position: absolute;
         display: none;
-        margin-left: auto;
-        margin-right: auto;
         left:0px;
         top:0px;
-        z-index: 999999;
+        z-index: 10;
         background-color: rgba(0, 0, 0, 0.9);
         font-size: 11px;
         color : @color-white;
         white-space: nowrap;
-        padding: 10px;
+        padding: 6px;
         .rounded(3px);
         align-items: center;
         text-align: center;
         vertical-align: middle;
     }
 
-    .dateTipLine {
+    .dateTipLine, .dateTipLineSelect {
         height: @listHeaderHeight;
         width: 2px;
-        background: @color-bg-softBlue;
+        background: @color-bg-select-blue;
         margin-left: -1px;
         position: absolute;
         left: -10000px; // hide until used
         pointer-events: none;
         opacity: 0.8;
+    }
+
+    .dateTipLineSelect {
+        height: 52%;
+        background: @color-bg-apple-green;
     }
 
     .text-input-wrapper {

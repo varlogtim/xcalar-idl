@@ -3,7 +3,7 @@ namespace IMDPanel {
     let $imdPanel: JQuery;
     let $canvas: JQuery;
     let $tableDetail: JQuery; //$(".tableDetailSection")
-    const tickColor = "#888888";
+    const tickColor = "#777777";
     const tickWidth = 1;
     const tickSpacing = 6;
     const tickHeight = 12;
@@ -215,7 +215,7 @@ namespace IMDPanel {
                             '<div class="tableColumn sourceName" data-original-title="' + table.updates[i].source + '"><span class="dummy">a</span>' + table.updates[i].source + '</div>' +
                             '<div class="tableColumn batchId">' + table.updates[i].batchId + '</div>' +
                             '<div class="tableColumn">' + time + '</div>' +
-                            '<div class="tableColumn">' + 'N/A' + '</div>' +
+                            '<div class="tableColumn">' + xcHelper.numToStr(table.updates[i].numRows) + '</div>' +
                             '</div>';
                 }
                 return;
@@ -232,16 +232,13 @@ namespace IMDPanel {
      * Show the update prompt at given  position
      * x : center of prompt aligns to it
      * y : top of prompt
-     * tableName : default value of the table name input
      */
-    function showUpdatePrompt(x, y, tableName) {
+    function showUpdatePrompt(x, y, hasPointInTime, multiple) {
         $updatePrompt.removeClass("xc-hidden");
         var promptWidth = $updatePrompt.outerWidth();
         var left = x - promptWidth / 2;
         if (left + promptWidth > $imdPanel.width()) {
             // if offscreen, position to far right and adjust arrow
-            let prevLeft = left;
-            let offset = (left + promptWidth - $imdPanel.width());
             left = $imdPanel.width() - promptWidth;
             $updatePrompt.find(".arrow").css("left", x - left);
         } else {
@@ -250,9 +247,21 @@ namespace IMDPanel {
 
         $updatePrompt.css({
             left: left,
-            top: y + 8
+            top: y + 10 // for arrow piece
         });
-        $imdPanel.find(".updatePromptText").val(tableName);
+        if (multiple && pTables.length > 1) {
+            $updatePrompt.find(".heading").text("Refresh Tables:");
+        } else {
+            $updatePrompt.find(".heading").text("Refresh Table:");
+        }
+
+        if (hasPointInTime) {
+            $imdPanel.find(".pointInTime").removeClass("unavailable");
+            xcTooltip.remove( $imdPanel.find(".pointInTime"));
+        } else {
+            $imdPanel.find(".pointInTime").addClass("unavailable");
+            xcTooltip.add($imdPanel.find(".pointInTime"), {title: "Table did not yet exist at this point in time."});
+        }
     }
 
     /**
@@ -262,6 +271,7 @@ namespace IMDPanel {
         $updatePrompt.addClass("xc-hidden");
         selectedCells = {};
         $imdPanel.find(".tableListItem").removeClass("selected");
+        $imdPanel.find(".dateTipLineSelect").remove();
         $imdPanel.find(".selectedBar").remove();
     }
 
@@ -421,35 +431,32 @@ namespace IMDPanel {
 
             var clickedTime = ((((event.pageX - $clickedElement.closest(".tableListHist").offset().left) + ruler.visibleLeft) * ruler.pixelToTime) + ruler.minTS);
             var closestUpdate = getClosestUpdate(tableName, clickedTime);
+            selectedCells = {};
+            $imdPanel.find(".activeTablesList").find(".selectedBar").remove();
+            $imdPanel.find(".dateTipLineSelect").remove();
+            $imdPanel.find(".selected").removeClass("selected");
+            var pos = event.pageX - $clickedElement.closest(".tableListHist").offset().left - 1;
+            var selectedBar;
             if (closestUpdate === null) {
-                delete selectedCells[tableName];
-                $clickedElement.parent().removeClass("selected");
-                $clickedElement.find(".selectedBar").remove();
+                // selectedBar = '<div class="selectedBar selectedInvalid" data-time="" style="left:' + pos + 'px"></div>';
+                selectedCells[tableName] = 0
             } else {
                 selectedCells[tableName] = closestUpdate;
-                $clickedElement.parent().addClass("selected");
-                $clickedElement.find(".selectedBar").remove();
-                var $indicator = $clickedElement.find(".indicator" + closestUpdate);
-                var pos;
-                if ($indicator.length) {
-                    pos = $indicator.position().left + "px";
-                } else {
-                    pos = "0%";
-                }
-                var selectedBar = '<div class="selectedBar" style="width:' +
-                                  pos + '"></div>';
-                $clickedElement.prepend(selectedBar);
             }
+            $clickedElement.parent().addClass("selected");
+            selectedBar = '<div class="selectedBar" data-time="" style="left:' + pos + 'px"></div>';
+            $clickedElement.prepend(selectedBar);
+
             showUpdatePrompt(event.pageX - $imdPanel.offset().left,
-                $clickedElement.offset().top  + $clickedElement.height() - $updatePrompt.parent().offset().top, tableName)
+                $clickedElement.offset().top  + $clickedElement.height() - $updatePrompt.parent().offset().top, closestUpdate !== null);
         });
 
         $imdPanel.find(".activeTablesList").on("mousedown", ".tableListItem", function (event) {
             var $clickedElement = $(this);
             var tableName = $clickedElement.data("name");
 
-            $imdPanel.find(".tableListItem.active").removeClass("active");
-            $clickedElement.addClass("active");
+            $imdPanel.find(".tableListItem.selected").removeClass("selected");
+            $clickedElement.addClass("selected");
 
             updateTableDetailSection(tableName);
         });
@@ -510,11 +517,14 @@ namespace IMDPanel {
         });
 
         $updatePrompt.find(".btn.pointInTime").click(function() {
-            submitRefreshTables($updatePrompt.find(".updatePromptText").val());
+            if ($(this).hasClass("unavailable")) {
+                return;
+            }
+            submitRefreshTables();
         });
 
         $updatePrompt.find(".btn.latest").click(function() {
-            submitRefreshTables(true, $updatePrompt.find(".updatePromptText").val());
+            submitRefreshTables(true);
         });
 
         var timer;
@@ -640,11 +650,7 @@ namespace IMDPanel {
         });
     }
 
-    function submitRefreshTables(tName: string, latest?: boolean) {
-        let isValid = xcHelper.tableNameInputChecker($updatePrompt.find(".updatePromptText"));
-        if (!isValid) {
-            return;
-        }
+    function submitRefreshTables(latest?: boolean) {
         var tables = [];
 
         for (let i in selectedCells) {
@@ -671,7 +677,7 @@ namespace IMDPanel {
         hideUpdatePrompt();
 
         if (tables.length) {
-            return IMDPanel.refreshTablesToWorksheet(tName, tables);
+            return IMDPanel.refreshTablesToWorksheet(tables);
         } else {
             return PromiseHelper.reject();
         }
@@ -895,7 +901,6 @@ namespace IMDPanel {
                     inactiveTables.push(table);
                     promises.push(function() {
                         inactiveCount++;
-                        console.log(inactiveCount, progressState.canceled);
                         if (progressState.canceled) {
                             return PromiseHelper.reject({
                                 error: "canceled",
@@ -990,7 +995,7 @@ namespace IMDPanel {
             html += "<div data-name=\"" + table.name + "\" class=\"listBox listInfo tableListItem\">\
                 <div class =\"tableListLeft\">\
                     <div class=\"iconWrap\"></div>\
-                    <span class=\"tableName\">" + table.name + "</span>\
+                    <span class=\"tableName\" data-original-title=\"" + table.name + "\">" + table.name + "</span>\
                     <i class=\"icon xi-trash deleteTable tableIcon\" title=\"Delete published table\" data-toggle=\"tooltip\" \
                     data-placement=\"top\" data-container=\"body\"></i> \
                     <i class=\"icon xi-hide hideTable tableIcon\" title=\"Hide published table\" data-toggle=\"tooltip\" \
@@ -1014,7 +1019,7 @@ namespace IMDPanel {
         columns: object[]
     }
 
-    export function refreshTablesToWorksheet(prefix: string, tableInfos: RefreshTableInfos[]) {
+    export function refreshTablesToWorksheet(tableInfos: RefreshTableInfos[]) {
         let deferred = PromiseHelper.deferred();
         let wsId;
         let numTables = tableInfos.length;
@@ -1035,11 +1040,8 @@ namespace IMDPanel {
             "track": true
         });
         let wsName = "imd";
-        if (prefix) {
-            wsName += "_" + prefix;
-        }
 
-        refreshTables(prefix, tableInfos, txId)
+        refreshTables(tableInfos, txId)
         .then(function () {
             wsId = WSManager.addWS(null, wsName);
             let promises = [];
@@ -1090,7 +1092,6 @@ namespace IMDPanel {
     }
 
     function refreshTables(
-        prefix: string,
         tableInfos: RefreshTableInfos[],
         txId: number
     ): XDPromise<any> {

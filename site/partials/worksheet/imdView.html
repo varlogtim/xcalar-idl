@@ -41,10 +41,10 @@
         </div>
         <div class="tableDetailList">
             <div class="tableDetailRow headerRow">
-                <div class="tableColumn name">Name</div>
+                <div class="tableColumn name">Source</div>
                 <div class="tableColumn batchID">Batch ID</div>
-                <div class="tableColumn timeStamp">Time Stamp</div>
-                <div class="tableColumn metaData">Meta Data</div>
+                <div class="tableColumn timeStamp">Timestamp</div>
+                <div class="tableColumn metaData">Number of Rows</div>
             </div>
             <div class="tableDetailContent">
 
@@ -56,14 +56,10 @@
     </div>
 </div>
 <div class="update-prompt xc-hidden">
+    <div class="arrow arrowSecondary"></div>
     <div class="arrow"></div>
-    <div class="heading">
-        <div>Table Name</div>
-        <i class="icon xi-close close"></i>
-    </div>
-    <div class = "text-input-wrapper">
-        <input class = "text-input updatePromptText" type="text" name="fname\">
-    </div>
+    <i class="icon xi-close close"></i>
+    <div class="heading">Refresh Table(s):</div>
     <div>
         <button type="button" class="btn pointInTime">Point in time</button>
         <button type="button" class="btn latest">Latest</button>
