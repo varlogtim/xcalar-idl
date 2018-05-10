@@ -2396,7 +2396,7 @@ namespace XIApi {
         if (txId == null || queryName == null || queryStr == null) {
             return PromiseHelper.reject("Invalid args in query");
         }
-        return XcalarQueryWithCheck(queryName, queryStr, txId);
+        return XcalarQueryWithCheck(queryName, queryStr, txId, false);
     }
 
     /**
@@ -2637,33 +2637,35 @@ namespace XIApi {
         txId: number
     ): XDPromise<any> {
         if (txId == null || arrayOfQueries == null) {
-            return PromiseHelper.reject("Invalid args in delete table");
+            return PromiseHelper.reject('Invalid args in delete table');
         }
-        var queryName = xcHelper.randName("sql");
-        var deferred = PromiseHelper.deferred();
-        XcalarQueryWithCheck(queryName, JSON.stringify(arrayOfQueries), txId, false)
-        .then(function(res) {
-            var nodes = res.queryGraph.node;
-            var results = [];
-            var hasError = false;
-            // results come back in random order so we create a map of names
-            var resMap = {};
-            for (var i = 0; i < nodes.length; i++) {
-                var node = nodes[i];
-                node.input.deleteDagNodeInput.namePattern;
-                resMap[node.input.deleteDagNodeInput.namePattern] = node.state;
-            }
 
-            for (var i = 0; i < arrayOfQueries.length; i++) {
-                var tableName = arrayOfQueries[i].args.namePattern;
-                if (resMap[tableName] === DgDagStateT.DgDagStateReady ||
-                    resMap[tableName] === DgDagStateT.DgDagStateDropped) {
-                        results.push(null);
+        let queryName: string = xcHelper.randName('sql');
+        let queryStr: string = JSON.stringify(arrayOfQueries);
+        let deferred: XDDeferred<any> = PromiseHelper.deferred();
+        XcalarQueryWithCheck(queryName, queryStr, txId, false)
+        .then((res) => {
+            // results come back in random order so we create a map of names
+            let resMap: Map<string, number> = new Map();
+            const nodes: any[] = res.queryGraph.node;
+            nodes.forEach((node) => {
+                resMap.set(node.input.deleteDagNodeInput.namePattern, node.state);
+            });
+
+            let hasError: boolean = false;
+            let results: object[] = arrayOfQueries.map((query: any) => {
+                const tableName: string = query.args.namePattern;
+                const state: number = resMap.get(tableName);
+
+                if (state === DgDagStateT.DgDagStateReady ||
+                    state === DgDagStateT.DgDagStateDropped
+                ) {
+                    return null;
                 } else {
                     hasError = true;
-                    results.push({error: DgDagStateTStr[resMap[tableName]]});
+                    return {error: DgDagStateTStr[state]};
                 }
-            }
+            });
 
             if (hasError) {
                 deferred.reject.apply(this, results);
@@ -2671,13 +2673,14 @@ namespace XIApi {
                 deferred.resolve.apply(this, results);
             }
         })
-        .fail(function(error) {
+        .fail(() => {
             var results = [];
             for (var i = 0; i < arrayOfQueries.length; i++) {
                 results.push({error: DgDagStateTStr[DgDagStateT.DgDagStateError]});
             }
             deferred.reject.apply(this, results);
         });
+
         return deferred.promise();
     };
 

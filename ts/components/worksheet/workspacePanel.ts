@@ -19,7 +19,7 @@ namespace WorkspacePanel {
             }
         } else {
             BottomMenu.unsetMenuCache();
-            IMDPanel.active();
+            IMDPanel.active(false);
         }
     }
 

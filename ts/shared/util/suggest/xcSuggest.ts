@@ -122,7 +122,7 @@ namespace xcSuggest { // = (function($, xcSuggest) {
      *  @param curDestBackName
      */
     export function processJoinKeyData(joinKeyInputs: ColInput, curDestBackName: string): InputData {
-        let mlInputData: InputData = {};
+        let mlInputData: InputData = <InputData>{};
         const inputFeatures: Feature[] = processJoinKeyInputs(joinKeyInputs);
 
         addSuggestFeatures(mlInputData, inputFeatures);

@@ -124,6 +124,11 @@ interface WkbkKVKeySet {
     gAuthKey: string;
     gNotebookKey: string;
 }
+
+interface UDFInfo {
+    displayName: string;
+    fnName: string;
+}
 /* ============== GLOBAL VARIABLES ============= */
 declare var KB: number
 declare var MB: number;
@@ -210,7 +215,7 @@ declare function XcalarGroupByWithEvalStrings(newColNames: string[], evalStrs: s
 declare function XcalarGroupBy(operators: string[], newColNames: string[], aggColNames: string[], tableName: string, newTableName: string, incSample: boolean, icvMode: boolean, newKeyFieldName: string, groupAll: boolean, txId: number): XDPromise<any>;
 declare function XcalarUnion(tableNames: string[], newTableNmae: string, colInfos: object[], dedup: boolean, unionType: UnionOperatorT, txId: number): XDPromise<any>;
 declare function XcalarProject(columns: string[], tableName: string, newTableName: string, txId: number): XDPromise<any>;
-declare function XcalarQueryWithCheck(queryName: string, queryStr: string, txId: number): XDPromise<any>;
+declare function XcalarQueryWithCheck(queryName: string, queryStr: string, txId: number, bailOnError: boolean): XDPromise<any>;
 declare function XcalarExport(tableName: string, exportName: string, targetName: string, numCols: number, backColumns: string[], frontColumns: string[], keepOrder: boolean, options: ExportTableOptions, txId: number): XDPromise<void>;
 declare function XcalarGenRowNum(tableName: string, newTableName: string, newColName: string, txId: number): XDPromise<void>;
 declare function XcalarGetTableCount(tableName: string): XDPromise<number>;
@@ -262,6 +267,13 @@ declare enum FunctionCategoryT {
 }
 
 declare enum FunctionCategoryTStr {}
+
+declare enum DgDagStateT {
+    DgDagStateReady,
+    DgDagStateDropped,
+    DgDagStateError
+}
+declare enum DgDagStateTStr {}
 
 declare enum CsvSchemaModeT {
     CsvSchemaModeNoneProvided
@@ -369,6 +381,8 @@ declare namespace TooltipTStr {
     export var CannotDropLocked: string;
     export var ViewAllWS: string;
     export var Saved: string;
+    export var CloseQG: string;
+    export var OpenQG: string;
 }
 
 declare namespace SuccessTStr{
@@ -434,6 +448,11 @@ declare namespace DFTStr {
 declare namespace JupyterTStr {
     export var JupNotebook: string;
     export var NoSnippetOtherWkbk: string;
+}
+
+declare namespace IMDTStr {
+    export var DelTable: string;
+    export var DelTableMsg: string;
 }
 
 // declare namespace WSTStr {
@@ -567,6 +586,7 @@ declare namespace UserSettings {
     export function getPref(prop: string): any;
     export function commit(): XDPromise<void>;
     export function restore(oldMeta: UserInfoConstructor, gInfosSetting: object): XDPromise<void>;
+    export function sync(): void;
 }
 
 declare namespace ColManager {
@@ -614,7 +634,7 @@ declare namespace EULAModal {
 declare namespace Alert {
     export function tempHide(): void;
     export function error(title: string, error: string, options?: object): void;
-    export function show(options: {title: string, instr?: string, msg?: string, isAlert: boolean, msgTemplate?: string}): string;
+    export function show(options: {title: string, instr?: string, msg?: string, isAlert?: boolean, msgTemplate?: string, onConfirm?: Function}): string;
 }
 
 declare namespace MonitorGraph {
@@ -627,6 +647,7 @@ declare namespace TblFunc {
     export function hideOffScreenTables(options: object): void;
     export function moveTableTitles($tableWraps: JQuery | null, options: object): void;
     export function unhideOffScreenTables(): void;
+    export function hideOffScreenTables(): void;
 }
 
 declare namespace TableList {
@@ -660,6 +681,11 @@ declare namespace Aggregates {
 
 declare namespace MainMenu {
     export function getOffset(): number;
+    export function openPanel(panelId: string, subTabId: string, options?: object): void;
+}
+
+declare namespace BottomMenu {
+    export function unsetMenuCache(): void;
 }
 
 declare namespace WSManager {
@@ -676,6 +702,7 @@ declare namespace WSManager {
     export function getWSLists(isAll: boolean): string;
     export function getWSName(ws: string): string;
     export function restore(oldMeat: object): void;
+    export function focusOnWorksheet(): void;
 }
 
 declare namespace WorkbookManager {
@@ -762,6 +789,7 @@ declare namespace JupyterPanel {
 
 declare namespace UDF {
     export function refreshWithoutClearing(overWriteUDF: boolean): void;
+    export function getCurrWorkbookPath(): string;
 }
 
 declare namespace DSExport {

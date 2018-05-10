@@ -46,6 +46,7 @@ namespace xcHelper {
         formMode?: boolean;
         side?: string;
         delay?: number;
+        text?: string;
     }
 
     export interface TableNameInputCheckOptions {
@@ -2087,7 +2088,7 @@ namespace xcHelper {
      */
     export function tableNameInputChecker(
         $input: JQuery,
-        options: TableNameInputCheckOptions
+        options: TableNameInputCheckOptions = <TableNameInputCheckOptions>{}
     ): boolean {
         options = $.extend({
             preventImmediateHide: true,
@@ -2937,17 +2938,18 @@ namespace xcHelper {
      * @param fns
      */
     // only show default and user workbook's udfs
-    export function filterUDFs(fns: object[]): object[] {
-        var filteredArray = [];
-        var wkbkPrefix = UDF.getCurrWorkbookPath();
+    export function filterUDFs(fns: UDFInfo[]): UDFInfo[] {
+        const filteredArray: UDFInfo[] = [];
+        const wkbkPrefix: string = UDF.getCurrWorkbookPath();
 
-        for (var i = 0; i < fns.length; i++) {
-            var op = fns[i];
+        for (let i = 0; i < fns.length; i++) {
+            const op: UDFInfo = fns[i];
             if (op.fnName.indexOf("/") === -1) {
                 filteredArray.push(op);
             } else if (!op.fnName.startsWith("/workbook/udf/default:") &&
-                !op.fnName.startsWith(wkbkPrefix)) {
-                    continue;
+                !op.fnName.startsWith(wkbkPrefix)
+            ) {
+                continue;
             } else {
                 filteredArray.push(op);
             }
@@ -4110,15 +4112,24 @@ namespace xcHelper {
      * @param mainOnly
      * @returns {moduleLis: htmlStr, fnLis: htmlStr}
      */
-    export function getUDFList(listXdfsObj: any, mainOnly: boolean) {
+    export function getUDFList(
+        listXdfsObj: any,
+        mainOnly: boolean
+    ): object {
         let modules: string[] = [];
         let moduleDisplayedNames: string[] = [];
-        let moduleObjs: object[] = [];
-        let privateObjs: object[] = [];
+        let moduleObjs: UDFInfo[] = [];
+        let privateObjs: UDFInfo[] = [];
 
         const privateModules: string[] = [];
         const privateModulesDisplayed: string[] = [];
-        const udfs: any[] = listXdfsObj.fnDescs;
+        const udfs: UDFInfo[] = listXdfsObj.fnDescs;
+        const sortUDFName = (a: UDFInfo, b: UDFInfo): number => {
+            const aName: string = a.displayName;
+            const bName: string = b.displayName;
+            return (aName < bName ? -1 : (aName > bName ? 1 : 0));
+        }
+
         udfs.forEach((udf) => {
             const fnName: string = udf.displayName;
             if (fnName.startsWith("_")) {
@@ -4127,20 +4138,15 @@ namespace xcHelper {
                 moduleObjs.push(udf);
             }
         });
-        moduleObjs.sort(function(a, b) {
-            return a.displayName > b.displayName;
-        });
+        moduleObjs.sort(sortUDFName);
+        privateObjs.sort(sortUDFName);
 
-        privateObjs.sort(function(a, b) {
-            return a.displayName > b.displayName;
-        });
-
-        for (var i = 0; i < moduleObjs.length; i++) {
+        for (let i = 0; i < moduleObjs.length; i++) {
             modules.push(moduleObjs[i].fnName);
             moduleDisplayedNames.push(moduleObjs[i].displayName);
         }
 
-        for (var i = 0; i < privateObjs.length; i++) {
+        for (let i = 0; i < privateObjs.length; i++) {
             privateModules.push(privateObjs[i].fnName);
             privateModulesDisplayed.push(privateObjs[i].displayName);
         }

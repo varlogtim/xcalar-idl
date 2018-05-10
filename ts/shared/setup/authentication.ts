@@ -52,11 +52,12 @@ class Authentication {
         }
 
         Authentication.kvStore.put(JSON.stringify(Authentication.authInfo), true)
-        .fail(function(error) {
+        .fail((error) => {
             console.error("Save Authentication fails", error);
         });
+
         if (excludeHash) {
-            return idCount;
+            return (idCount + '');
         } else {
             return ("#" + idCount);
         }

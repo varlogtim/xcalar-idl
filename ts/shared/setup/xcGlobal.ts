@@ -1,5 +1,6 @@
 // This file is where all the global variables
 namespace xcGlobal {
+    declare var nw: any;
     const has_require: boolean = typeof require !== 'undefined';
     // nw obj exists when nwjs running browser
     const has_nw: boolean = typeof nw !== 'undefined';
