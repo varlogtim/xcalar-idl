@@ -1095,6 +1095,14 @@ ul.CodeMirror-hints {
             }
         }
 
+        .xc-expand-list {
+            &:not(.active) {
+                .udf, .xc-expand-list {
+                    display: none;
+                }
+            }
+        }
+
         .udf {
             .size(@max-width: 500px, @height: 30px);
             border: 1px solid @color-border-pinkish-grey;

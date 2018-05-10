@@ -1017,9 +1017,11 @@ UDFTStr = {
 "NoTemplate": "无法找到模快",
 "InValidName": "模块名应以字母或下划线开头, 仅包含字母，数字，连字符（ - ）或下划线（_）",
 "InValidFnName": "函数名应以以字母或下划线开头, 仅包含字母，数字，连字符（ - ）或下划线（_）",
-"MyUDFS": "MY UDFS",
+"MyUDFS": "MY CURRENT WORKBOOK UDFS",
+"MYOTHERUDFS": "MY OTHER WORKBOOKS UDFS",
 "PublicUDFS": "PUBLIC UDFS",
-"OtherUDFS": "OTHER UDFS",
+"OtherUDFS": "OTHER USERS UDFS",
+"DFUDFS": "DATAFLOW UDFS",
 "Show": "Show"
 };
 TblTStr = {

@@ -1205,9 +1205,11 @@ UDFTStr = {
     "NoTemplate": "Cannot find the module",
     "InValidName": "Module name should start with a lowercase letter or underscore and contain only letters, digits, hyphens(-) or underscores(_)",
     "InValidFnName": "Function name should start with a lowercase letter or underscore and contain only letters, digits or underscores(_)",
-    "MyUDFS": "MY UDFS",
+    "MyUDFS": "MY CURRENT WORKBOOK UDFS",
+    "MYOTHERUDFS": "MY OTHER WORKBOOKS UDFS",
     "PublicUDFS": "PUBLIC UDFS",
-    "OtherUDFS": "OTHER UDFS",
+    "OtherUDFS": "OTHER USERS UDFS",
+    "DFUDFS": "DATAFLOW UDFS",
     "Show": "Show"
 };
 

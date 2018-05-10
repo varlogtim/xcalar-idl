@@ -123,7 +123,7 @@ window.UDF = (function($, UDF) {
                 var moduleName = udf.fnName.split(":")[0];
 
                 if (!storedUDF.hasOwnProperty(moduleName)) {
-                    // this means modueName exists
+                    // this means moduleName exists
                     // when user fetch this module,
                     // the entire string will cached here
                     storedUDF[moduleName] = null;
@@ -264,8 +264,8 @@ window.UDF = (function($, UDF) {
             // switch to first tab
             $("#udfSection .tab:first-child").click();
             var $li = $("#udf-fnMenu").find("li").filter(function() {
-                            return $(this).text() === moduleName;
-                        });
+                return $(this).text() === moduleName;
+            });
             if ($li.length) {
                 $li.click();
             } else {
@@ -274,20 +274,14 @@ window.UDF = (function($, UDF) {
         });
 
         $udfManager.on("click", ".udfManagerHeader", function() {
-            $expandList = $(this).closest(".xc-expand-list")
-
-            $expandList.children(".udf").toggleClass("xc-hidden");
-            $expandList.children(".xc-expand-list").toggleClass("xc-hidden");
-
+            $expandList = $(this).closest(".xc-expand-list");
             $expandList.toggleClass("active");
         });
 
         $udfManager.on("click", ".managerDataflowHeader", function() {
-            $expandList = $(this).closest(".xc-expand-list")
+            $expandList = $(this).closest(".xc-expand-list");
             $expandList.toggleClass("active");
             $(this).find(".xi-arrow-down").toggleClass("hidden");
-
-            $expandList.find(".udf").toggleClass("xc-hidden")
         });
 
         // download udf
@@ -374,7 +368,6 @@ window.UDF = (function($, UDF) {
         var $fnListInput = $("#udf-fnList input");
         var $fnName = $("#udf-fnName");
         var moduleName = modulePath.split("/").pop();
-        var $fnListInput = $("#udf-fnList input");
 
         $fnListInput.val(moduleName);
         xcTooltip.changeText($fnListInput, moduleName);
@@ -469,28 +462,26 @@ window.UDF = (function($, UDF) {
             if (moduleSplit[1] === "dataflow") {
                 dataflowModules.push(udf);
             } else {
-
-                if (moduleSplit[2] === userName && moduleSplit[3] == wbName) {
+                if (moduleSplit[2] === userName && moduleSplit[3] === wbName) {
                     currWorkbookModules.push(udf);
-                } else if (moduleSplit[2] === "udf" && moduleSplit[3] == "default") {
+                } else if (moduleSplit[2] === "udf" && moduleSplit[3] === "default") {
                     defaultModules.push(udf);
                 } else if (moduleSplit[2] === userName) {
-                    otherWorkbookModules.push(udf)
+                    otherWorkbookModules.push(udf);
                 } else if (moduleSplit.length === 6 && moduleSplit[1] === "workbook") {
                     otherUsersModules.push(udf);
-                } else if (storedUDF[udf]){
+                } else if (storedUDF[udf]) {
                     otherModules.push(udf);
                 }
             }
         }
+
         // concat in this order
-        var moduleNames = currWorkbookModules.concat(defaultModules,
-                                                otherWorkbookModules,
-                                                otherUsersModules,
-                                                dataflowModules,
-                                                otherModules);
+        var otherUDFModules = otherUsersModules.concat(otherModules);
+
         updateTemplateList(currWorkbookModules, doNotClear);
-        updateManager(moduleNames);
+        updateManager(currWorkbookModules, defaultModules, otherWorkbookModules,
+            otherUDFModules, dataflowModules);
     }
 
     function updateTemplateList(moduleNames, doNotClear) {
@@ -531,86 +522,38 @@ window.UDF = (function($, UDF) {
         }
     }
 
-    function updateManager(moduleNames) {
-        var $section = $("#udf-manager");
-        var len = moduleNames.length;
-        var html = '<div class="listWrap xc-expand-list active">' +
+    function getUDFSectionHTML(title, content, expand) {
+        var html = '<div class="listWrap xc-expand-list' + (expand? ' active' : '') + '">' +
                         '<div class="udfManagerHeader listInfo no-selection">' +
                             '<span class="expand">' +
                                 '<i class="icon xi-arrow-down fa-9"></i>' +
                             '</span>' +
                             '<span class="text">' +
-                                UDFTStr.MyUDFS +
+                                title +
                             '</span>' +
-                        '</div>';
-        var prevDataflow;
-        var prevWorkbook;
-        var editIcon = '<i class="edit icon xi-edit xc-action fa-14" ' +
-                        'title="' + UDFTStr.Edit + '" data-toggle="tooltip" ' +
-                        'data-container="body"></i>';
-        var viewIcon = '<i class="edit icon xi-show xc-action fa-14" ' +
-                        'title="' + UDFTStr.View + '" data-toggle="tooltip" ' +
-                        'data-container="body"></i>';
-        var hasOthersUdf = false;
-        var prevSubHeading;
-        var userName = XcSupport.getUser();
-        var wbName = WorkbookManager.getWorkbook(
-                        WorkbookManager.getActiveWKBK()).name;
+                        '</div>' +
+                        content +
+                    '</div>';
+        return html;
+    }
 
-        var isEditable = true;
-        for (var i = 0; i < len; i++) {
-            var moduleName = moduleNames[i];
-            var udfClass = "udf";
+    function getUDFListHTML(moduleName, isEditable) {
+        var udfClass = "udf";
+        var moduleSplit = moduleName.split("/");
+        var icon = "";
 
-            var moduleSplit = moduleName.split("/");
+        if (isEditable) {
+            icon = '<i class="edit icon xi-edit xc-action fa-14" ' +
+            'title="' + UDFTStr.Edit + '" data-toggle="tooltip" ' +
+            'data-container="body"></i>';
+        } else {
+            udfClass += " uneditable";
+            icon = '<i class="edit icon xi-show xc-action fa-14" ' +
+            'title="' + UDFTStr.View + '" data-toggle="tooltip" ' +
+            'data-container="body"></i>';
+        }
 
-            if (!(moduleSplit[2] === userName && moduleSplit[3] == wbName) &&
-                !(moduleSplit[2] === "udf" && moduleSplit[3] == "default")) {
-                isEditable = false;
-                udfClass += " uneditable";
-                if (!hasOthersUdf) {
-                    hasOthersUdf = true;
-                    html += '</div><div class="listWrap xc-expand-list active">' +
-                                '<div class="udfManagerHeader listInfo no-selection">' +
-                                    '<span class="expand">' +
-                                        '<i class="icon xi-arrow-down fa-9"></i>' +
-                                    '</span>' +
-                                    '<span class="text">' +
-                                    UDFTStr.OtherUDFS +
-                                    '</span>'; // omit closing div because
-                                    // upcoming subheading will close it
-                }
-                if (moduleSplit[1] === "dataflow") {
-                    if (prevSubHeading !== moduleSplit[2]) {
-                        prevSubHeading = moduleSplit[2];
-                        html += '</div><div class="listWrap xc-expand-list active">' +
-                                    '<div class="managerDataflowHeader listInfo no-selection">' +
-                                        '<span class="expand">' +
-                                            '<i class="icon xi-arrow-down fa-9"></i>' +
-                                        '</span>' +
-                                        '<span class="text">' +
-                                        prevSubHeading +
-                                        '</span>' +
-                                    '</div>';
-                    }
-                } else if (prevSubHeading !== (moduleSplit[2] + " / " + moduleSplit[3])) {
-                    prevSubHeading = moduleSplit[2] + " / " + moduleSplit[3];
-                    html += '</div><div class="listWrap xc-expand-list active">' +
-                                    '<div class="managerDataflowHeader listInfo no-selection">' +
-                                        '<span class="expand">' +
-                                            '<i class="icon xi-arrow-down fa-9"></i>' +
-                                        '</span>' +
-                                        '<span class="text">' +
-                                        prevSubHeading +
-                                        '</span>' +
-                                    '</div>';
-                }
-            } else if (moduleSplit[2] === "udf" && moduleSplit[3] == "default") {
-                isEditable = false;
-                udfClass += " uneditable";
-            }
-
-            html +=
+        var html =
                 '<div class="' + udfClass + '">' +
                     '<div class="iconWrap udfIcon">' +
                         '<i class="icon xi-module center fa-15"></i>' +
@@ -624,20 +567,101 @@ window.UDF = (function($, UDF) {
                         moduleSplit[moduleSplit.length - 1] +
                     '</div>' +
                     '<div class="actions">' +
-                      (isEditable ? editIcon : viewIcon) +
-                      '<i class="download icon xi-download xc-action fa-14" ' +
-                      'title="' + UDFTStr.Download + '" data-toggle="tooltip" ' +
-                      'data-container="body"></i>' +
-                      '<i class="delete icon xi-trash xc-action fa-14" ' +
-                      'title="' + UDFTStr.Del + '" data-toggle="tooltip" ' +
-                      'data-container="body"></i>' +
+                        icon +
+                        '<i class="download icon xi-download xc-action fa-14" ' +
+                        'title="' + UDFTStr.Download + '" data-toggle="tooltip" ' +
+                        'data-container="body"></i>' +
+                        '<i class="delete icon xi-trash xc-action fa-14" ' +
+                        'title="' + UDFTStr.Del + '" data-toggle="tooltip" ' +
+                        'data-container="body"></i>' +
                     '</div>' +
-                  '</div>';
-        }
-        if (prevSubHeading) {
-            html += "</div>";
-        }
-        html += "</div>";
+                '</div>';
+        return html;
+    }
+
+    function getGeneralUDFHTML(title, moduleName, getSubHeading) {
+        // split modules by subHeading
+        var subHeadingMaps = {};
+        var subHeadingList = [];
+        moduleName.forEach(function(moduelName) {
+            var subHeading = getSubHeading(moduelName);
+            if (!subHeadingMaps.hasOwnProperty(subHeading)) {
+                subHeadingMaps[subHeading] = [];
+                subHeadingList.push(subHeading);
+            }
+            subHeadingMaps[subHeading].push(moduelName);
+        });
+
+        var content = '';
+        subHeadingList.forEach(function(subHeading) {
+            var moduleNames = subHeadingMaps[subHeading];
+            var list = '';
+            moduleNames.forEach(function(moduleName) {
+                list += getUDFListHTML(moduleName, false);
+            });
+
+            content +=
+                '<div class="listWrap xc-expand-list active">' +
+                    '<div class="managerDataflowHeader listInfo no-selection">' +
+                        '<span class="expand">' +
+                            '<i class="icon xi-arrow-down fa-9"></i>' +
+                        '</span>' +
+                        '<span class="text">' +
+                            subHeading +
+                        '</span>' +
+                    '</div>' +
+                    list +
+                '</div>';
+        });
+        return getUDFSectionHTML(title, content);
+    }
+
+    function getMyCurrentWorkbookUDFs(currWorkbookModules, defaultModules) {
+        var content = '';
+        currWorkbookModules.forEach(function(moduleName) {
+            content += getUDFListHTML(moduleName, true);
+        });
+
+        defaultModules.forEach(function(moduleName) {
+            content += getUDFListHTML(moduleName, false);
+        });
+
+        return getUDFSectionHTML(UDFTStr.MyUDFS, content, true);
+    }
+
+    function getMyOtherWorkbooksUDFs(moduleNames) {
+        var getSubHeading = function(moduleName) {
+            var moduleSplit = moduleName.split("/");
+            return moduleSplit[3];
+        };
+        return getGeneralUDFHTML(UDFTStr.MYOTHERUDFS, moduleNames, getSubHeading);
+    }
+
+    function getOtherUsersUDFs(moduleNames) {
+        var getSubHeading = function(moduleName) {
+            var moduleSplit = moduleName.split("/");
+            return moduleSplit[2] + " / " + moduleSplit[3];
+        };
+        return getGeneralUDFHTML(UDFTStr.OtherUDFS, moduleNames, getSubHeading);
+    }
+
+    function getDFUDFs(moduleNames) {
+        var getSubHeading = function(moduleName) {
+            var moduleSplit = moduleName.split("/");
+            return moduleSplit[2];
+        };
+        return getGeneralUDFHTML(UDFTStr.DFUDFS, moduleNames, getSubHeading);
+    }
+
+    function updateManager(currWorkbookModules, defaultModules, otherWorkbookModules, otherModules, dfModuels) {
+        var $section = $("#udf-manager");
+        var len = currWorkbookModules.length + defaultModules.length +
+        otherWorkbookModules.length + otherModules.length + dfModuels.length;
+        var html = getMyCurrentWorkbookUDFs(currWorkbookModules, defaultModules) +
+            getMyOtherWorkbooksUDFs(otherWorkbookModules) +
+            getOtherUsersUDFs(otherModules) +
+            getDFUDFs(dfModuels);
+
         $section.find(".numUDF").text(len)
             .end()
             .find(".udfListSection").html(html);
