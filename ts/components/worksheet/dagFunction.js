@@ -730,25 +730,40 @@ window.DagFunction = (function($, DagFunction) {
 
     // if a startNode has a dropped parent, we need to search all of its parents
     // until we find one that is not dropped and add it to the startNodes list
+    // also, if there's a table upstream that has a dropped parent, we must
+    // search all of it's parents as well
     function includeDroppedNodesInStartNodes(startNodes) {
+        var startNodeMap = {};
+        startNodes.forEach(function(node) {
+            startNodeMap[node.value.name] = true;
+        });
         var seen = {};
-        var added = {};
-        for (var i = 0; i < startNodes.length; i++) {
-            var node = startNodes[i];
-            var parents = node.parents;
-            for (var j = 0; j < parents.length; j++) {
-                if (parents[j].value.state !== DgDagStateT.DgDagStateReady) {
-                    findNonDroppedParent(parents[j], node);
-                }
+        startNodes.forEach(function(node) {
+            traverse(node);
+        });
+
+        function traverse(node) {
+            if (seen[node.value.name]) {
+                return;
             }
+            seen[node.value.name] = true;
+            node.parents.forEach(function(parent) {
+                if (parent.value.state !== DgDagStateT.DgDagStateReady) {
+                    findNonDroppedParent(parent, node);
+                }
+            });
+
+            node.children.forEach(function(child) {
+                traverse(child);
+            });
         }
 
         function findNonDroppedParent(node, child) {
             if (node.value.state === DgDagStateT.DgDagStateReady) {
-                if (added[child.value.name]) {
+                if (startNodeMap[child.value.name]) {
                     return;
                 }
-                added[child.value.name] = true;
+                startNodeMap[child.value.name] = true;
                 startNodes.push(child);
                 return;
             }
@@ -756,9 +771,9 @@ window.DagFunction = (function($, DagFunction) {
                 return;
             }
             seen[node.value.name] = true;
-            for (var i = 0; i < node.parents.length; i++) {
-                findNonDroppedParent(node.parents[i], node);
-            }
+            node.parents.forEach(function(parent) {
+                findNonDroppedParent(parent, node);
+            });
         }
     }
 
@@ -781,17 +796,8 @@ window.DagFunction = (function($, DagFunction) {
     }
 
     // DagFunction.runProcedureWithParams("students#p7304", {"students#p7303":{"eval": [{"evalString":"eq(students::student_id, 2)","newField":""}]}})
-    DagFunction.runProcedureWithParams = function(tableName, params, newIndexNodes, newNodes, doNotRun) {
+    DagFunction.runProcedureWithParams = function(tableName, params, newIndexNodes, newNodes) {
         params = xcHelper.deepCopy(params);
-        // XXX need to handle old struct format
-        if (doNotRun) {
-            console.log("Sample Usage: ");
-            console.log('DagFunction.runProcedureWithParams("yay#ar133",  ' +
-                        '{"reviews1#ar132":{"evalStr":"add(stars, 2)"}, ' +
-                        '"user#ar122":{"filterStr":"eq(fans, 8)"}})');
-            console.log("schedule1#kU683", {"schedule1#kU682": {"eval": [{"evalString": "eq(schedule1::class_id, 2)","newField": ""}]}});
-        }
-
         var paramNodes = Object.keys(params);
 
         var tableId = xcHelper.getTableId(tableName);
@@ -866,11 +872,6 @@ window.DagFunction = (function($, DagFunction) {
             startNodes.push(newTreeNode);
         }
 
-        if (doNotRun) {
-            console.log(startNodes);
-            return;
-        }
-
         includeDroppedNodesInStartNodes(startNodes);
 
         var involvedNames = getAllNamesFromStart(deepCopyTree, startNodes);
@@ -916,18 +917,7 @@ window.DagFunction = (function($, DagFunction) {
             }
         }
 
-        for (var i = 0; i < treeNodesToRerun.length; i++) {
-            var value = treeNodesToRerun[i].value;
-            if (value.api === XcalarApisT.XcalarApiMap ||
-                value.api === XcalarApisT.XcalarApiFilter) {
-                for (var j = 0; j < value.struct.eval.length; j++) {
-                    var func = ColManager.parseFuncString(value.struct.eval[j].evalString);
-                    replaceFuncStr(func, aggRenames);
-                    var newEval = xcHelper.stringifyFunc(func);
-                    value.struct.eval[j].evalString = newEval;
-                }
-            }
-        }
+        replaceAggRenames(treeNodesToRerun, aggRenames);
 
         var finalTreeValue = treeNodesToRerun[treeNodesToRerun.length - 1].value;
         var finalTableName = finalTreeValue.struct.dest;
@@ -970,7 +960,7 @@ window.DagFunction = (function($, DagFunction) {
             "msg": 'Rerun: ' + tableName,
             "operation": SQLOps.DFRerun,
             "sql": sql,
-            "steps": 1
+            "steps": treeNodesToRerun
         });
 
         var entireString =  getXcalarQueryCli(treeNodesToRerun);
@@ -982,7 +972,7 @@ window.DagFunction = (function($, DagFunction) {
         $("#dagWrap-" + tableId).addClass("rerunning");
         var queryPassed = false;
 
-        XcalarQueryWithCheck(queryName, entireString, txId)
+        XIApi.query(txId, queryName, entireString)
         .then(function() {
             var storedAggs = Aggregates.getNamedAggs();
             for (var name in aggRenames) {
@@ -1572,6 +1562,21 @@ window.DagFunction = (function($, DagFunction) {
             deferred.resolve(progCols);
         });
         return deferred.promise();
+    }
+
+    function replaceAggRenames(treeNodesToRerun, aggRenames) {
+        for (var i = 0; i < treeNodesToRerun.length; i++) {
+            var value = treeNodesToRerun[i].value;
+            if (value.api === XcalarApisT.XcalarApiMap ||
+                value.api === XcalarApisT.XcalarApiFilter) {
+                for (var j = 0; j < value.struct.eval.length; j++) {
+                    var func = ColManager.parseFuncString(value.struct.eval[j].evalString);
+                    replaceFuncStr(func, aggRenames);
+                    var newEval = xcHelper.stringifyFunc(func);
+                    value.struct.eval[j].evalString = newEval;
+                }
+            }
+        }
     }
 
     function replaceFuncStr(func, aggRenames) {
