@@ -817,8 +817,8 @@ window.UDF = (function($, UDF) {
         }
 
         var deferred = PromiseHelper.deferred();
-
-        if (storedUDF.hasOwnProperty(moduleName)) {
+        var udfPath = UDF.getCurrWorkbookPath() + moduleName;
+        if (storedUDF.hasOwnProperty(udfPath)) {
             var msg = xcHelper.replaceMsg(SideBarTStr.DupUDFMsg, {
                 "module": moduleName
             });
