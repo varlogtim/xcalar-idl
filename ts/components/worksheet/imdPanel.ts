@@ -94,17 +94,24 @@ namespace IMDPanel {
         let seconds = Math.ceil(canvasWidth / tickSpacing);
         let max = Math.ceil(Date.now() / 1000);
         let min = max - seconds;
+        let tempMax = 0;
 
         pTables.forEach(function(table) {
-            if (table["updates"].length && table["updates"][table["updates"].length - 1]) {
-                min = Math.min(min, table["updates"][table["updates"].length - 1].startTS);
+            var len = table.updates.length;
+            if (len && table.updates[len - 1]) {
+                min = Math.min(min, table.updates[len - 1].startTS);
+                tempMax = Math.max(tempMax, table.updates[0].startTS);
             }
         });
 
         // if new min is detected, increase range a little bit so the min is not
         // all the way on the left side
         if (max - min !== seconds) {
-            min -= Math.floor((max - min) * 0.05);
+            min -= Math.floor((max - min) * 0.02);
+        }
+        let range = max - min;
+        if (tempMax + (range * 0.02) > max) {
+            max += Math.ceil(range * 0.02);
         }
 
         $("#imdFromInput").datepicker("setDate", new Date(min * 1000));
@@ -262,9 +269,9 @@ namespace IMDPanel {
      */
 
     function showDateTipBox(x, y, unixTime) {
-
-        let winWidth = $(window).width() - 60;
+        let winWidth = $imdPanel.width();
         var $tipBox = $imdPanel.find(".date-tipbox");
+        $tipBox.show();
         let tipWidth =  Math.max(150, $tipBox.outerWidth());
         $tipBox.show();
         $tipBox.css({
@@ -359,7 +366,6 @@ namespace IMDPanel {
         });
 
         $("#imdFromInput").datepicker({
-            maxDate: 0,
             "dateFormat": "m/d/yy",
             "beforeShow": function() {
                 var $el = $("#ui-datepicker-div");
@@ -367,7 +373,6 @@ namespace IMDPanel {
             }
         });
         $("#imdToInput").datepicker({
-            maxDate: 0,
             "dateFormat": "m/d/yy",
             "beforeShow": function() {
                 var $el = $("#ui-datepicker-div");
@@ -728,12 +733,14 @@ namespace IMDPanel {
                     imdMeta = $.parseJSON(imdMeta);
                     if (imdMeta) {
                        let hiddenTables = imdMeta.hiddenTables;
-                        pTables.forEach(function(table, i) {
+                       for (let i = 0; i < pTables.length; i++) {
+                            let table = pTables[i];
                             if (hiddenTables.indexOf(table.name) !== -1) {
                                 pTables.splice(i, 1);
                                 hTables.push(table);
+                                i--;
                             }
-                        });
+                       }
                     }
                 } catch (err) {
                     console.error(err);

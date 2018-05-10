@@ -766,6 +766,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var gOverwrittenLogKey = generateKey("gOverwritten", version);
         var gNotebookKey = generateKey("gNotebook", version);
         var gAuthKey = generateKey("authentication", version);
+        var gIMDKey = generateKey("gIMDKey", version);
 
         return {
             "gStorageKey": gStorageKey,
@@ -774,6 +775,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             "gOverwrittenLogKey": gOverwrittenLogKey,
             "gAuthKey": gAuthKey,
             "gNotebookKey": gNotebookKey,
+            "gIMDKey": gIMDKey
         };
     }
 

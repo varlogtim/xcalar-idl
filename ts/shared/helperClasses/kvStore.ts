@@ -13,7 +13,7 @@ class KVStore {
     /**
      * KVStore.setup
      * keys: gStorageKey, gEphStorageKey, gLogKey, gErrKey, gUserKey,
-     * gSettingsKey, gNotebookKey, commitKey
+     * gSettingsKey, gNotebookKey, gIMDKey, commitKey
      * @param keys
      */
     public static setup(keys: string[]) {
@@ -93,7 +93,7 @@ class KVStore {
 
     /**
      * KVStore.commit
-     * @param atStartUp 
+     * @param atStartUp
      */
     public static commit(atStartUp: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();

@@ -123,6 +123,7 @@ interface WkbkKVKeySet {
     gOverwrittenLogKey: string;
     gAuthKey: string;
     gNotebookKey: string;
+    gIMDKey: string;
 }
 
 interface UDFInfo {
