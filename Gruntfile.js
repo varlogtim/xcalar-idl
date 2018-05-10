@@ -123,6 +123,8 @@ var PROCESS_HTML = 'processHTML';
 var CLEAN_HTML_SRC = 'cleanHTMLSrc';
 var BUILD_JS = "buildJs";
 var TYPESCRIPT = "typescriptJsGeneration";
+var BUILD_EXTRA_TS = "buildExtraTs";
+var EXTRA_TS_FOLDER_NAME = "extraTsStaging";
 var MINIFY_JS = "minifyJs";
 var REMOVE_DEBUG_COMMENTS = 'removeDebugComments';
 var CLEAN_JS = "cleanJs";
@@ -1007,6 +1009,7 @@ module.exports = function(grunt) {
             htmlStagingI: [HTML_STAGING_I_ABS], // for clean, you need to put the 'src' in [] else it will only delete what is within the dir
             htmlStagingII: [HTML_STAGING_II_ABS], // for clean, you need to put the 'src' in [] else it will only delete what is within the dir
             tsWatchStaging: [TS_WATCH_STAGING],
+            extraTsStaging: [EXTRA_TS_FOLDER_NAME],
 
             // generatel target for removing dirs/files; set src dynamically, supply abs. paths
             custom: {
@@ -1838,6 +1841,7 @@ module.exports = function(grunt) {
             grunt.task.run(BUILD_JS); // build js before html (built html will search for some js files to autogen script tags for, that only get generated here)
             grunt.task.run(BUILD_HTML);
             grunt.task.run(CONSTRUCTOR_FILES);
+            grunt.task.run(BUILD_EXTRA_TS);
             /**
                 In XI builds, update essential js files where UI msgs reside,
                 to display Xcalar Insight rather than xcalar design
@@ -2520,6 +2524,38 @@ module.exports = function(grunt) {
         */
     });
 
+    grunt.task.registerTask(BUILD_EXTRA_TS, 'Build extra TS from dev src for ' +
+        'expServer', function () {
+        var allFiles = ["shared/setup/enums.ts",
+            "shared/util/xcHelper.ts",
+            "shared/setup/xcGlobal.ts",
+            "shared/helperClasses/transaction.js",
+            "shared/api/xiApi.ts",
+            "components/sql/sqlApi.js",
+            "components/sql/sqlCompiler.js"];
+        var expServerJSDestDir = "services/expServer/sqlHelpers";
+        var EXTRA_TS_WATCH_STAGING = BLDROOT + EXTRA_TS_FOLDER_NAME;
+        if (grunt.file.exists(EXTRA_TS_WATCH_STAGING)) {
+            shell.exec('rm -r ' + EXTRA_TS_WATCH_STAGING);
+        }
+        shell.exec('mkdir -p ' + EXTRA_TS_WATCH_STAGING);
+        for (var i = 0; i < allFiles.length; i++) {
+            var filepathRelTsSrc = path.relative(typescriptMapping.src,
+                allFiles[i]);
+            var fileName = allFiles[i].split("/");
+            fileName = fileName[fileName.length-1];
+            grunt.file.copy(typescriptMapping.src + allFiles[i],
+                EXTRA_TS_WATCH_STAGING + "/" + fileName);
+            grunt.file.copy(SRCROOT + typescriptMapping.src + 'tsconfig.json',
+                EXTRA_TS_WATCH_STAGING + "/tsconfig.json"); 
+        }
+        grunt.task.run(TYPESCRIPT + ':' + EXTRA_TS_WATCH_STAGING +
+            ":" + expServerJSDestDir);
+        // Clean up!
+        grunt.task.run('clean:' + EXTRA_TS_FOLDER_NAME);
+    });
+
+
     grunt.task.registerTask(CLEAN_BUILD_SECTIONS, function() {
 
         // clean HTML src of uneeded files/dirs
@@ -3042,8 +3078,7 @@ module.exports = function(grunt) {
     });
 
     // @filepathRelBld - bld only single ts file (should be rel bldroot)
-    grunt.task.registerTask(TYPESCRIPT, function(executeFrom) {
-
+    grunt.task.registerTask(TYPESCRIPT, 'Build TS portion of build', function(executeFrom, buildTo) {
         // check for existence of ts dir until https://gerrit.int.xcalar.com/#/c/8894/ checked in
         if (!grunt.file.exists(typescriptMapping.src)) {
             grunt.log.writeln("Typescript src " + typescriptMapping.src + " does not exit");
@@ -3054,9 +3089,16 @@ module.exports = function(grunt) {
             executeFrom = BLDROOT + typescriptMapping.src;
         }
 
-        var currCwd = process.cwd(),
-            tscpath = SRCROOT + "node_modules/typescript/bin/tsc",
-            tscmd = tscpath + ' --outDir ' + BLDROOT + typescriptMapping.dest;
+        var currCwd = process.cwd();
+        var tscpath = SRCROOT + "node_modules/typescript/bin/tsc";
+        var tscmd = tscpath + ' --outDir ' + BLDROOT;
+        
+        if (buildTo) {
+            shell.exec('mkdir -p ' + BLDROOT + buildTo);
+            tscmd += buildTo;
+        } else {
+            tscmd += typescriptMapping.dest;
+        }
 
         // go in to the typescript dir
         grunt.file.setBase(executeFrom);
