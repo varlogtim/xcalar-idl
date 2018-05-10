@@ -758,8 +758,7 @@ window.DagDraw = (function($, DagDraw) {
             node.children[0].parents.length === 1);
     }
 
-    function saveTagGroup(currTag, tagGroup, storedInfo) {
-        var groupId = xcHelper.getTableId(currTag);
+    function saveTagGroup(groupId, tagGroup, storedInfo) {
         var groupCopy = [];
         for (var i = 0; i < tagGroup.length; i++) {
             groupCopy.push(tagGroup[i]);
@@ -779,6 +778,7 @@ window.DagDraw = (function($, DagDraw) {
         var groupCopy = [];
         var numHiddenTags = 0;
         for (var i = 0; i < group.length; i++) {
+            group[i].value.display.groupId = groupId;
             groupCopy.push(group[i]);
             if (group[i].value.display.isHiddenTag) {
                 numHiddenTags++;
@@ -792,10 +792,11 @@ window.DagDraw = (function($, DagDraw) {
         group.length = 0; // empty out group array
     }
 
-    function setTagGroup(tagName, node, storedInfo) {
+    function setTagGroup(tagName, tagHeaderNode, storedInfo) {
         var group = [];
         var seen = {};
-        addToGroup(node);
+        var groupId = xcHelper.getTableId(tagName);
+        addToGroup(tagHeaderNode);
 
         function addToGroup(node) {
             for (var i = 0; i < node.parents.length; i++) {
@@ -809,16 +810,17 @@ window.DagDraw = (function($, DagDraw) {
                         group.push(parentNode.value.dagNodeId);
                         seen[parentNode.value.dagNodeId] = true;
                         parentNode.value.display.isInTagGroup = true;
+                        parentNode.value.display.tagGroupId = groupId;
                         addToGroup(parentNode);
                     }
                 }
             }
         }
-        node.value.display.tagHeader = true;
-        node.value.display.tagCollapsed = true;
+        tagHeaderNode.value.display.tagHeader = true;
+        tagHeaderNode.value.display.tagCollapsed = true;
         if (group.length) {
-            node.value.display.hasTagGroup = true;
-            saveTagGroup(tagName, group, storedInfo);
+            tagHeaderNode.value.display.hasTagGroup = true;
+            saveTagGroup(groupId, group, storedInfo);
         }
     }
 
@@ -875,7 +877,6 @@ window.DagDraw = (function($, DagDraw) {
         }
 
         storedInfo.drawn[node.value.dagNodeId] = true;
-
 
         node.value.display.x = Math.round(condensedDepth * Dag.tableWidth);
         node.value.display.y = Math.round(yCoor * dagTableOuterHeight);

@@ -353,8 +353,26 @@ window.Dag = (function($, Dag) {
         if ($table) {
             var $dagWrap = $table.closest(".dagWrap");
             dagWrapId = $dagWrap.data("id");
+
+            if ($table.closest(".tagHidden").length) {
+                // if in a collapsed group,
+                // find the tagGroup, find the header and expand group
+                var nodeId = $table.data("nodeid");
+                var node = Dag.getNodeById($dagWrap, nodeId);
+                var groupId = node.value.display.tagGroupId;
+                var $tagHeaderTable = $dagWrap.find('.dagTable[data-id="' +
+                                                    groupId + '"]');
+                Dag.toggleTaggedGroup($dagWrap, $tagHeaderTable.prev());
+            } else if ($table.closest(".hidden").length) {
+                var nodeId = $table.data("nodeid");
+                var node = Dag.getNodeById($dagWrap, nodeId);
+                var groupId = node.value.display.groupId;
+                $dagWrap.find('.expandWrap[data-index="' + groupId + '"]').click();
+            }
+
             TblFunc.focusTable(dagWrapId);
             verticallyFocusDagWrap($dagWrap);
+
 
             $table.addClass("tempFocused");
             setTimeout(function() {

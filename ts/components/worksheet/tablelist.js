@@ -48,8 +48,8 @@ window.TableList = (function($, TableList) {
         });
 
         // focus on table
-        var $activeLists = $("#activeTableListSection");
-        $activeLists.on("click", ".tableListBox .tableName", function() {
+        $("#activeTableListSection").on("click", ".tableListBox .tableName",
+        function() {
             if ($(this).closest('.hiddenWS').length) {
                 return;
             }
