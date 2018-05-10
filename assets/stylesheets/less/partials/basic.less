@@ -1746,7 +1746,7 @@ input {
     }
 }
 
-.lockedTableIcon {
+.progressCircle {
     .position(absolute, @top: 40%, @left: 50%);
     display: inline-block;
     z-index: @z-index-dfPanel; // want dfPanel to cover it
@@ -1822,7 +1822,7 @@ input {
         }
 
         .textPart {
-            &.pctText {
+            &.pctText, &.stepText {
                 display: none;
             }
             &.cancelText {
@@ -1860,6 +1860,16 @@ input {
             display: none;
             background-color: @color-bg-lockedIcon-cancel-lighter;
             cursor: pointer;
+        }
+
+        &.extra {
+            .size(@width: auto, @height: auto);
+
+        }
+        .extraText {
+            display: block;
+            line-height: 20px;
+            padding: 0px 4px 10px 4px;
         }
     }
 }

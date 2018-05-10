@@ -2294,14 +2294,16 @@ namespace xcHelper {
      * @param txId
      * @param iconNum
      * @param withText
+     * @param withSteps
      */
     export function getLockIconHtml(
-        txId: number,
+        txId: number | string,
         iconNum: number,
-        withText: boolean = false
+        withText: boolean = false,
+        withSteps: boolean = false
     ): string {
         let html: string =
-            '<div class="cancelLoad lockedTableIcon"' +
+            '<div class="progressCircle cancelLoad lockedTableIcon"' +
             ' data-txid="' + txId +
             '" data-iconnum="' + iconNum + '">' +
                 '<div class="iconPart" data-toggle="tooltip" ' +
@@ -2313,7 +2315,13 @@ namespace xcHelper {
                     '<i class="icon xi-close"></i>' +
                     '<div class="progress"></div>' +
                 '</div>';
-        if (withText) {
+        if (withSteps) {
+            html += '<div class="textPart stepText">' +
+            '<span class="currentStep">0</span>' + ' / ' +
+            '<span class="totalSteps">1</span>' +
+            '</div>' +
+                '<div class="textPart cancelText">' + AlertTStr.CANCEL + '</div>';
+        } else if (withText) {
             html += '<div class="textPart pctText">' +
             '<span class="num">0</span>' + '<span class="unit">%</span>' +
             '</div>' +

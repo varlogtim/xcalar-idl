@@ -29,7 +29,9 @@ namespace IMDPanel {
     let prevFromTime: string;
     let prevToTime: string;
     let isPendingRefresh = false;
-    let isActive = false;
+    let isPanelActive = false;
+    let progressCircle: object; // for progress of activating tables
+    let progressState = {canceled: false};
 
     export function setup() {
         $imdPanel = $("#imdView");
@@ -48,7 +50,7 @@ namespace IMDPanel {
     // and add a window resize listener that trigers canvas redraw
 
     export function active(firstTouch: boolean) {
-        isActive = true;
+        isPanelActive = true;
         let timer;
         $(window).on("resize.canvasResize", function () {
             clearTimeout(timer);
@@ -67,7 +69,7 @@ namespace IMDPanel {
     }
 
     export function inActive() {
-        isActive = false;
+        isPanelActive = false;
         $(window).off("resize.canvasResize");
         hideUpdatePrompt();
     }
@@ -127,15 +129,6 @@ namespace IMDPanel {
         updateHistory();
     }
     function timeString(timeStamp) {
-        // let formatHash = [
-        //     {limit: 3600, format: "h:mm:ss a"}, //up to one hour
-        //     {limit: 43200, format: "h:mm:ss a"}, //up to 12 hours
-        //     {limit: 86400, format: "h:mm:ss a"}, //up to a day
-        //     {limit: 604800, format: "MMMM Do"}, //up to a week
-        //     {limit: 18144000, format: "'MMMM / YYYY"}, //up to a month
-        //     {limit: 18144000 * 12, format: "MMMM Do YYYY"}, //up to a year
-        // ];
-
         let formatHash = [
             {limit: 0, format: "h:mm:ss a"},
             {limit: 1800, format: "h:mm a"}, //up to 1/2 hour
@@ -302,7 +295,6 @@ namespace IMDPanel {
     }
 
     function getDate(dateStr, timeStr) {
-        // var completeTimeStr = dateStr + " " + timeStr.replace(" ", "") + " utc";
         var completeTimeStr = dateStr + " " + timeStr.replace(" ", "");
         return new Date(completeTimeStr);
     }
@@ -444,7 +436,6 @@ namespace IMDPanel {
             }
             showUpdatePrompt(event.pageX - $imdPanel.offset().left,
                 $clickedElement.offset().top  + $clickedElement.height() - $updatePrompt.parent().offset().top, tableName)
-            // return false;
         });
 
         $imdPanel.find(".activeTablesList").on("mousedown", ".tableListItem", function (event) {
@@ -514,6 +505,10 @@ namespace IMDPanel {
         });
         $("#imdTimeCanvas").mouseleave(function(){
             hideDateTipBox();
+        });
+
+        $imdPanel.on("click", ".progressCircle", function() {
+            progressState.canceled = true;
         });
 
     }
@@ -731,13 +726,15 @@ namespace IMDPanel {
             if (imdMeta) {
                 try {
                     imdMeta = $.parseJSON(imdMeta);
-                    let hiddenTables = imdMeta.hiddenTables;
-                    pTables.forEach(function(table, i) {
-                        if (hiddenTables.indexOf(table.name) !== -1) {
-                            pTables.splice(i, 1);
-                            hTables.push(table);
-                        }
-                    });
+                    if (imdMeta) {
+                       let hiddenTables = imdMeta.hiddenTables;
+                        pTables.forEach(function(table, i) {
+                            if (hiddenTables.indexOf(table.name) !== -1) {
+                                pTables.splice(i, 1);
+                                hTables.push(table);
+                            }
+                        });
+                    }
                 } catch (err) {
                     console.error(err);
                 }
@@ -763,25 +760,30 @@ namespace IMDPanel {
             listPassed = true;
             let promises = [];
             let inactiveCount = 0;
-            let state = {canceled: false}; //XXX to be made externally available
+            progressState.canceled = false;
             result.tables.forEach(function(table) {
                 if (!table.active) {
-                    inactiveCount++;
                     inactiveTables.push(table);
                     promises.push(function() {
-                        if (state.canceled) {
+                        inactiveCount++;
+                        console.log(inactiveCount, progressState.canceled);
+                        if (progressState.canceled) {
                             return PromiseHelper.reject({
                                 error: "canceled",
-                                count: inactiveCount
+                                count: inactiveCount - 1
                             });
                         } else {
-                            return XcalarRestoreTable(table.name);
+                            return restoreTable(table.name);
                         }
                     });
                 } else {
                     activeTables.push(table);
                 }
             });
+
+            if (promises.length) {
+                showProgressCircle(result.tables.length, activeTables.length);
+            }
 
             return PromiseHelper.chain(promises);
         })
@@ -818,6 +820,18 @@ namespace IMDPanel {
                 deferred.reject(error);
             }
         });
+
+        return deferred.promise();
+    }
+
+    function restoreTable(tableName) {
+        var deferred = PromiseHelper.deferred();
+        XcalarRestoreTable(tableName)
+        .then(function() {
+            progressCircle.increment();
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
 
         return deferred.promise();
     }
@@ -1101,6 +1115,7 @@ namespace IMDPanel {
     function refreshTableList() {
         hideUpdatePrompt();
         showWaitScreen();
+
         var startTime = Date.now();
 
         listOnlyActiveTables()
@@ -1159,14 +1174,28 @@ namespace IMDPanel {
     function removeWaitScreen() {
         $('#modalWaitingBG').fadeOut(200, function() {
             $(this).remove();
+            progressState.canceled = false;
         });
     }
 
     export function needsUpdate() {
-        if (isActive) {
+        if (isPanelActive) {
             refreshTableList();
         } else {
             isPendingRefresh = true;
         }
+    }
+
+    function showProgressCircle(numSteps, numCompleted) {
+        let $waitSection = $("#modalWaitingBG");
+        $waitSection.addClass("hasProgress");
+        let progressAreaHtml = xcHelper.getLockIconHtml("listIMD", 0, true, true);
+        $waitSection.html(progressAreaHtml);
+        $waitSection.find(".stepText").addClass("extra").append(
+            '<span class="extraText">' + IMDTStr.Activating + '</span>')
+        progressCircle = new ProgressCircle("listIMD", 0, true, {steps: numSteps});
+        $waitSection.find(".cancelLoad").data("progresscircle",
+                                                progressCircle);
+        progressCircle.update(numCompleted, 1000);
     }
 }

@@ -3407,26 +3407,39 @@ var ScrollTableChecker = (function() {
 /* End of ScrollTableChecker */
 
 /* Progress circle for locked tables */
-var ProgressCircle = function(txId, iconNum, hasText) {
+// options:
+//  steps: number,
+var ProgressCircle = function(txId, iconNum, hasText, options) {
     this.txId = txId;
     this.iconNum = iconNum;
+    this.options = options || {};
     this.__reset();
     this.status = "inProgress";
     this.progress = 0;
     this.hasText = hasText;
+
 };
 
 ProgressCircle.prototype = {
-    update: function(pct, duration) {
+    update: function(pctOrStep, duration) {
         if (this.status === "done") {
             return;
         }
-        if (isNaN(pct)) {
-            pct = 0;
+        var pct;
+        var step;
+        if (this.options.steps) {
+            step = pctOrStep;
+            pct =  pct = Math.floor(100 * step / this.options.steps);
+        } else {
+            pct = pctOrStep;
+            if (isNaN(pct)) {
+                pct = 0;
+            }
         }
         pct = Math.max(Math.min(pct, 100), 0);
         var prevPct = this.prevPct;
         this.prevPct = pct;
+        this.step = step;
 
         if (prevPct > pct) {
             this.__reset();
@@ -3461,30 +3474,45 @@ ProgressCircle.prototype = {
             return;
         }
 
-        d3.select('.lockedTableIcon[data-txid="' + this.txId +
-                   '"] .pctText .num')
-        .transition()
-        .duration(duration)
-        .ease("linear")
-        .tween("text", function() {
-            var num = this.textContent || 0;
-            var i = d3.interpolateNumber(num, pct);
-            return (function(t) {
-                this.textContent = Math.ceil(i(t));
+        if (this.options.steps) {
+            d3.select('.lockedTableIcon[data-txid="' + this.txId +
+                   '"] .stepText .currentStep')
+            .transition()
+            .duration(duration)
+            .ease("linear")
+            .tween("text", function() {
+                var num = this.textContent || 0;
+                var i = d3.interpolateNumber(num, step);
+                return (function(t) {
+                    this.textContent = Math.ceil(i(t));
+                });
             });
-        });
+        } else {
+             d3.select('.lockedTableIcon[data-txid="' + this.txId +
+                   '"] .pctText .num')
+            .transition()
+            .duration(duration)
+            .ease("linear")
+            .tween("text", function() {
+                var num = this.textContent || 0;
+                var i = d3.interpolateNumber(num, pct);
+                return (function(t) {
+                    this.textContent = Math.ceil(i(t));
+                });
+            });
+        }
     },
     __reset: function() {
         var radius = 32;
         var diam = radius * 2;
         var thick = 7;
-        $('.lockedTableIcon[data-txid="' + this.txId + '"][data-iconnum="' +
+        $('.progressCircle[data-txid="' + this.txId + '"][data-iconnum="' +
             this.iconNum + '"] .progress').empty();
         var arc = d3.svg.arc()
                     .innerRadius(radius - thick)
                     .outerRadius(radius);
         var pie = d3.layout.pie().sort(null);
-        var svg = d3.select('.lockedTableIcon[data-txid="' + this.txId +
+        var svg = d3.select('.progressCircle[data-txid="' + this.txId +
                             '"][data-iconnum="' + this.iconNum + '"] .progress')
                     .append("svg")
                     .attr({"width": diam, "height": diam})
@@ -3500,10 +3528,19 @@ ProgressCircle.prototype = {
                 this._current = d;
             });
 
+        if (this.options.steps) {
+            this.step = 0;
+            $('.progressCircle[data-txid="' + this.txId + '"][data-iconnum="' +
+            this.iconNum + '"]').find(".totalSteps").text(this.options.steps);
+        }
+
         this.svg = svg;
         this.pie = pie;
         this.arc = arc;
         this.prevPct = 0;
+    },
+    increment: function() {
+        this.update(++this.step);
     },
     done: function() {
         this.status = "completing";
