@@ -657,10 +657,14 @@ window.TblMenu = (function(TblMenu, $) {
                         return;
                     }
                 }
+                var $colNamesInput = $li.find(".colNames");
+                var colNames = $colNamesInput.val();
 
-                ColManager.splitCol(colNum, tableId, delim, numColToGet, true);
+                ColManager.splitCol(colNum, tableId, delim, numColToGet,
+                    colNames, true);
                 $delimInput.val("").blur();
                 $numInput.val("").blur();
+                $colNamesInput.val("").blur();
                 xcMenu.close($allMenus);
             }
         });

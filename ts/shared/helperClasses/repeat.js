@@ -122,7 +122,9 @@ window.Repeat = (function($, Repeat) {
 
         var delimiter = options.delimiter;
         var numColToGet = options.numColToGet;
-        return ColManager.splitCol(colNums[0], tableId, delimiter, numColToGet);
+        var colNames = options.colNames;
+        return ColManager.splitCol(colNums[0], tableId, delimiter, numColToGet,
+            colNames);
     };
 
     repeatFuncs[SQLOps.ChangeType] = function(options, colNums, tableId) {

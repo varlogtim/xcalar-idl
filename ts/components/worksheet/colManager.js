@@ -317,7 +317,8 @@ window.ColManager = (function($, ColManager) {
     };
 
     // currently only works on 1 column at a time
-    ColManager.splitCol = function(colNum, tableId, delimiter, numColToGet, isAlertOn) {
+    ColManager.splitCol = function(colNum, tableId, delimiter, numColToGet,
+        colNames, isAlertOn) {
         // isAlertOn is a flag to alert too many column will generate
         // when do replay, this flag is null, so no alert
         // since we assume user want to replay it.
@@ -342,6 +343,7 @@ window.ColManager = (function($, ColManager) {
             "colNum": colNum,
             "delimiter": delimiter,
             "numColToGet": numColToGet,
+            "colNames": colNames,
             "htmlExclude": ['numColToGet']
         };
 
@@ -359,7 +361,15 @@ window.ColManager = (function($, ColManager) {
             numNewCols = colNumToSplit;
             sql.numNewCols = colNumToSplit;
 
-            newFieldNames = getSplitColNames(progCol.getFrontColName());
+            var curColNames = [];
+            if (table && table.backTableMeta) {
+                curColNames = table.backTableMeta.valueAttrs.map(function (e) {
+                    return e.name;
+                });
+            }
+            
+            newFieldNames = getSplitColNames(progCol.getFrontColName(),
+                colNames, curColNames);
             mapStrs = getSplitStrs();
             return XIApi.map(txId, mapStrs, tableName, newFieldNames);
         })
@@ -465,7 +475,7 @@ window.ColManager = (function($, ColManager) {
             return innerDeferred.promise();
         }
 
-        function getSplitColNames(colName) {
+        function getSplitColNames(colName, colNames, curColNames) {
             // Check duplication
             var tryCount = 0;
             var colPrefix = colName + "-split";
@@ -491,6 +501,25 @@ window.ColManager = (function($, ColManager) {
                     newFieldNames[i] = colName + "-split" + i;
                 }
             }
+
+            if (colNames) {
+                console.log(colNames);
+                colNames = colNames.split(",").map(function (v) {
+                    return v.trim();
+                });
+
+                for (var i = 0; i < colNames.length; i++) {
+                    var colName = colNames[i];
+                    if (!xcHelper.validateColName(colName, false) &&
+                        curColNames.indexOf(colName) === -1 &&
+                        newFieldNames.indexOf(colName) === -1) {
+                        if (i < newFieldNames.length) {
+                            newFieldNames[i] = colName;
+                        }
+                    }
+                }
+            }
+
             return newFieldNames;
         }
 

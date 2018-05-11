@@ -121,6 +121,7 @@ module.exports = {
         "SplitCol": "拆分列",
         "SplitColDelim": "分隔符",
         "SplitColNum": "拆分数",
+        "SplitColNames": "Column Names",
         "TxtAlign": "对齐",
         "TxtAlignCenter": "中心对齐",
         "TxtAlignLeft": "向左对齐",

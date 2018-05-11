@@ -1122,16 +1122,19 @@ describe('TableMenu Test', function() {
             it('splitCol input', function() {
                 var cachedFunc = ColManager.splitCol;
                 var called = false;
-                ColManager.splitCol = function(colNum, tId, delim, numColToGet) {
+                ColManager.splitCol = function(colNum, tId, delim, numColToGet,
+                    colNames) {
                     expect(colNum).to.equal(12);
                     expect(tId).to.equal(tableId);
                     expect(delim).to.equal("\\");
                     expect(numColToGet).to.equal(3);
+                    expect(colNames).to.equal("a, b");
                     called = true;
                 };
                 $colMenu.data("colNums", [12]);
                 $colSubMenu.find('.splitCol .delimiter').val("\\");
                 $colSubMenu.find('.splitCol .num').val(3);
+                $colSubMenu.find('.splitCol .colNames').val("a, b");
                 $colSubMenu.find('.splitCol input').eq(0).trigger(fakeEvent.enter);
                 expect(called).to.be.true;
 

@@ -862,17 +862,16 @@ describe('ColManager Test', function() {
             var numCols = table.getNumCols();
             expect(colNum).not.to.equal(-1);
             // when too much splits, will have alert
-            ColManager.splitCol(colNum, tableId, ".", 16, true);
+            ColManager.splitCol(colNum, tableId, ".", 16, undefined, true);
             assert.isTrue($("#alertModal").is(":visible"));
             $("#alertModal .cancel").click();
             assert.isFalse($("#alertModal").is(":visible"));
-
-            ColManager.splitCol(colNum, tableId, ".")
+            ColManager.splitCol(colNum, tableId, ".", undefined, "s1, s2")
             .then(function(newTableId) {
                 // split will generate two columns
                 var newTable = gTables[newTableId];
                 expect(newTable.getNumCols() - numCols).to.equal(2);
-                var splitColNum = newTable.getColNumByBackName("one-split-1");
+                var splitColNum = newTable.getColNumByBackName("s1");
                 expect(splitColNum).not.to.equal(-1);
 
                 done();

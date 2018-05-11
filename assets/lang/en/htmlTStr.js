@@ -281,6 +281,7 @@ module.exports = {
         "SplitCol": "Split column",
         "SplitColDelim": "Split column by delimiter",
         "SplitColNum": "Number of splits",
+        "SplitColNames": "Column names",
         "TxtAlign": "Text align",
         "TxtAlignCenter": "Center align",
         "TxtAlignLeft": "Left align",

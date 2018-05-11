@@ -2957,7 +2957,8 @@ namespace xcHelper {
     }
 
     /**
-     * xcHelper.validateColName
+     * xcHelper.validateColName returns the error message. If null, column
+     * is good
      * @param colName
      * @param noSpace
      */
@@ -3025,6 +3026,9 @@ namespace xcHelper {
                 str = str.replace(/\\t/g, '&emsp;');
             }
         } catch (e) {
+            var stack = new Error().stack;
+            console.error("PRINTING CALL STACK");
+            console.error(stack);
             console.error(e);
         }
 
