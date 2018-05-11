@@ -42,6 +42,20 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.ExecSQL] = redoFuncs[SQLOps.IndexDS];
 
+    redoFuncs[SQLOps.RefreshTables] = function(options) {
+        var deferred = PromiseHelper.deferred();
+        var promises = [];
+        for (var i = 0; i < options.tableNames.length; i++) {
+            promises.push(TblManager.refreshTable.bind(this, [options.tableNames[i]], null, [],
+                options.worksheet));
+        }
+        PromiseHelper.chain(promises)
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     redoFuncs[SQLOps.Sort] = function(options) {
         var worksheet = WSManager.getWSFromTable(options.tableId);
         return (TblManager.refreshTable([options.newTableName], null,

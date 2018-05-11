@@ -192,6 +192,8 @@
                 left: 0px;
                 top: 0px;
                 height: 100%;
+                width: 2px;
+                z-index: 1;
             }
         }
 
@@ -284,6 +286,18 @@
             .flex-direction(row);
             color: @color-font-darkGray;
             border-top: 1px solid @color-bg-pinkish-grey2;
+            overflow: hidden;
+
+            .tableDetailContent {
+                max-height: ~"calc(100% - @{listHeaderHeight})";
+                overflow-y: scroll;
+
+                .tableDetailRow {
+                    &:hover {
+                        background: rgba(55, 140, 179, 0.09);
+                    }
+                }
+            }
 
             .tableDetailRow {
                 height: 30px;

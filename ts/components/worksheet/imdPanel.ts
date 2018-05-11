@@ -20,7 +20,7 @@ namespace IMDPanel {
         visibleLeft: 0,
         visibleRight: 0,
         uiScale: null,
-        minTs: null
+        minTS: null
     };
     let selectedCells = {};
     let $scrollDiv: JQuery;
@@ -32,6 +32,7 @@ namespace IMDPanel {
     let isPanelActive = false;
     let progressCircle: object; // for progress of activating tables
     let progressState = {canceled: false};
+    let isScrolling = false;
 
     export function setup() {
         $imdPanel = $("#imdView");
@@ -137,7 +138,7 @@ namespace IMDPanel {
     }
     function timeString(timeStamp) {
         let formatHash = [
-            {limit: 0, format: "h:mm:ss a"},
+            {limit: 10, format: "h:mm:ss a"},
             {limit: 1800, format: "h:mm a"}, //up to 1/2 hour
             {limit: 86400, format: "MMMM Do"}, //up to 24 hours
             {limit: 18144000, format: "MMMM YYYY"}, //up to a month
@@ -150,7 +151,6 @@ namespace IMDPanel {
                 break;
             }
         }
-       // formatStr = "MMMM Do YYYY\nh:mm:ss a";
         return moment.unix(timeStamp).format(formatStr);
     }
 
@@ -211,13 +211,14 @@ namespace IMDPanel {
             //updated may not sorted by timestamp , need to check all of them
                 for (let i = 0; i < table.updates.length; i++) {
                     var time = moment.unix(table.updates[i].startTS).format("MMMM Do YYYY, h:mm:ss a");
-                    html += '<div class="tableDetailRow">' +
-                            '<div class="tableColumn">' + table.updates[i].source + '</div>' +
-                            '<div class="tableColumn">' + table.updates[i].batchId + '</div>' +
+                    html += '<div class="tableDetailRow" data-tablename="' + table.name + '">' +
+                            '<div class="tableColumn sourceName" data-original-title="' + table.updates[i].source + '"><span class="dummy">a</span>' + table.updates[i].source + '</div>' +
+                            '<div class="tableColumn batchId">' + table.updates[i].batchId + '</div>' +
                             '<div class="tableColumn">' + time + '</div>' +
                             '<div class="tableColumn">' + 'N/A' + '</div>' +
                             '</div>';
                 }
+                return;
             }
         });
         if (!html) {
@@ -453,6 +454,32 @@ namespace IMDPanel {
             updateTableDetailSection(tableName);
         });
 
+        $imdPanel.find(".activeTablesList").on("mousedown", ".tableListLeft", function() {
+            hideUpdatePrompt();
+        });
+
+        $("#imdTimeCanvas").mousedown(function(event) {
+            hideUpdatePrompt();
+            $imdPanel.find(".selectedBar").remove();
+            $imdPanel.find(".activeTablesList").find(".tableListItem").addClass("selected");
+            var left = event.offsetX + leftPanelWidth;
+            $imdPanel.append('<div class="dateTipLineSelect" style="left:' + left + 'px;"></div>');
+            var clickedTime = (((event.offsetX + ruler.visibleLeft) * ruler.pixelToTime) + ruler.minTS);
+
+            selectedCells = {};
+            pTables.forEach(function(table) {
+                let tableName = table.name;
+                var closestUpdate = getClosestUpdate(tableName, clickedTime);
+                if (closestUpdate === null) {
+                    selectedCells[tableName] = 0; // should we include these
+                } else {
+                    selectedCells[tableName] = closestUpdate;
+                }
+            });
+
+            showUpdatePrompt(left, $canvas.height() + 10, true, true);
+        });
+
         $imdPanel.find(".activeTablesList").on("click", ".hideTable", function() {
             var tableName = $(this).closest(".tableListItem").data("name");
             hideTable(tableName);
@@ -496,7 +523,9 @@ namespace IMDPanel {
             timer = setTimeout(function() {
                 updateTimeInputs();
             }, 300);
-            updateHistory();
+            if (!isScrolling) {
+                updateHistory();
+            }
         });
 
         $('.mainTableSection').on('mousewheel DOMMouseScroll', function (e) {
@@ -504,18 +533,111 @@ namespace IMDPanel {
                 $scrollDiv.scrollLeft($scrollDiv.scrollLeft() + e.deltaX);
             }
         });
-        $("#imdTimeCanvas").mousemove(function(event) {
-            var clickedTime = (((event.offsetX + ruler.visibleLeft) * ruler.pixelToTime) + ruler.minTS);
-            showDateTipBox(event.offsetX + leftPanelWidth, $("#imdTimeCanvas").height(),clickedTime);
+        $canvas.mousemove(function(event) {
+            let clickedTime = (((event.offsetX + ruler.visibleLeft) * ruler.pixelToTime) + ruler.minTS);
+            showDateTipBox(event.offsetX + leftPanelWidth, $canvas.height(), clickedTime);
         });
-        $("#imdTimeCanvas").mouseleave(function(){
+        $canvas.mouseleave(function(){
             hideDateTipBox();
+        });
+
+        $canvas.on('mousewheel DOMMouseScroll', function (e) {
+            let time = Math.round((((event.offsetX + ruler.visibleLeft) * ruler.pixelToTime) + ruler.minTS));
+            var canvasWidth = $canvas.width();
+            let range = Math.round(canvasWidth * ruler.pixelToTime);
+            var pctLeft = event.offsetX / canvasWidth;
+            var delta = Math.max(e.deltaY, -3);
+            delta = Math.min(delta, 3);
+
+            // zoom in our out by
+            if (delta > 0) { // zooming in
+                range /= (1 + (delta / 5));
+                if (range / canvasWidth < .15) { // when 6 pixels is less than 1 second
+                    return;
+                }
+            } else if (delta < 0) { // zooming out
+                range *=  (1 + (-delta / 5));
+                if (range > (60 * 60 * 24 * 365 * 10)) { // 10 years in screen
+                    return;
+                }
+            } else {
+                return;
+            }
+
+            let min = time - Math.round(range * pctLeft);
+            let max = time + Math.round(range * (1 - pctLeft));
+
+            $("#imdFromInput").datepicker("setDate", new Date(min * 1000));
+            $("#imdToInput").datepicker("setDate", new Date(max * 1000));
+            fromTimePicker.showTimeHelper(new Date(min * 1000));
+            toTimePicker.showTimeHelper(new Date(max * 1000));
+            updateViewportForDateRange(min, max);
         });
 
         $imdPanel.on("click", ".progressCircle", function() {
             progressState.canceled = true;
         });
 
+        $imdPanel.find(".tableList").on("mouseenter", ".tableName", function() {
+            xcTooltip.auto(this);
+        });
+
+        $tableDetail.on("mouseenter", ".sourceName", function() {
+            xcTooltip.auto(this);
+        });
+
+        $tableDetail.on("click", ".batchId", function() {
+            let batchId = parseInt($(this).text());
+            let name = $(this).closest(".tableDetailRow").data("tablename");
+            pTables.forEach(function(table) {
+                if (table.name === name) {
+                    table.updates.forEach(function(update, i) {
+                        if (update.batchId === batchId) {
+                            let time = update.startTS;
+                            let range = Math.round($("#imdTimeCanvas").width() * ruler.pixelToTime);
+
+                            let mid = Math.round(range / 2);
+                            let min = time - mid;
+                            var max = time + mid;
+
+                            $("#imdFromInput").datepicker("setDate", new Date(min * 1000));
+                            $("#imdToInput").datepicker("setDate", new Date(max * 1000));
+                            fromTimePicker.showTimeHelper(new Date(min * 1000));
+                            toTimePicker.showTimeHelper(new Date(max * 1000));
+                            updateViewportForDateRange(min, max);
+                            selectedCells = {};
+                            var closestUpdate = batchId;
+
+                            $imdPanel.find(".activeTablesList").find(".selectedBar").remove();
+                            $imdPanel.find(".dateTipLineSelect").remove();
+                            $imdPanel.find(".selected").removeClass("selected");
+                            isScrolling = true; // prevents scroll event from firing and closing update prompt
+
+                            selectedCells[table.name] = closestUpdate;
+                            var $clickedElement = $imdPanel.find('.tableListItem[data-name="' +
+                                        table.name +'"]').find(".tableTimePanel");
+                            var $updateLine = $clickedElement.find('.indicator' + i);
+                            var pageX = $updateLine.offset().left;
+                            var pos = pageX - $clickedElement.closest(".tableListHist").offset().left - 1;
+
+                            $clickedElement.parent().addClass("selected");
+                            var selectedBar = '<div class="selectedBar" data-time="" style="left:' + pos + 'px"></div>';
+                            $clickedElement.prepend(selectedBar);
+
+                            showUpdatePrompt(pageX - $imdPanel.offset().left,
+                            $clickedElement.offset().top  + $clickedElement.height() -
+                            $updatePrompt.parent().offset().top, true);
+
+                            setTimeout(function() { // need to delay
+                                isScrolling = false;
+                            }, 1);
+                            return;
+                        }
+                    });
+                    return;
+                }
+            })
+        });
     }
 
     function submitRefreshTables(tName: string, latest?: boolean) {
@@ -572,10 +694,9 @@ namespace IMDPanel {
         pTables.forEach(function(table) {
             var $histPanel = $(".tableTimePanel[data-name=\"" + table.name + "\"]");
             $histPanel.empty();
-            var batchID = 0;
             if ($histPanel.offset().top < 1000) {
                 var positions = [];
-                table["updates"].forEach(function(update, i) {
+                table.updates.forEach(function(update, i) {
                     var tStampPx = parseFloat(update.startTS - ruler.minTS) / parseFloat(ruler.pixelToTime);
                     if (tStampPx > ruler.visibleLeft && tStampPx < ruler.visibleRight) {
                         var pos = tStampPx - ruler.visibleLeft;
@@ -593,7 +714,6 @@ namespace IMDPanel {
                         $histPanel.append($htmlElem);
                         $htmlElem.css("left", pos);
                     }
-                    batchID++;
                 });
                 positions.sort(function(a, b) {
                     return a.left > b.left;
@@ -617,8 +737,7 @@ namespace IMDPanel {
      */
     function getClosestUpdate(tName, targetTS) {
         var closestUpdate = null;
-        var closestId = null;
-        pTables.forEach(function (table) {
+        pTables.forEach(function(table) {
             if (table.name == tName) {
                 //updated may not sorted by timestamp , need to check all of them
                 for (var i = 0; i < table.updates.length; i++) {
@@ -628,12 +747,15 @@ namespace IMDPanel {
                     }
                     if ((closestUpdate === null) || (targetTS - update.startTS) < (targetTS - closestUpdate.startTS)) {
                         closestUpdate = update;
-                        closestId = i;
                     }
                 }
             }
         });
-        return closestId;
+        if (closestUpdate) {
+            return closestUpdate.batchId;
+        } else {
+            return closestUpdate;
+        }
     }
 
     /**
@@ -712,10 +834,10 @@ namespace IMDPanel {
         })
         .always(function() {
             let timeDiff = Date.now() - startTime;
-            if (timeDiff < 1500) {
+            if (timeDiff < 1200) {
                 setTimeout(function() {
                     removeWaitScreen();
-                }, 1500 - timeDiff);
+                }, 1200 - timeDiff);
             } else {
                 removeWaitScreen();
             }
@@ -948,7 +1070,7 @@ namespace IMDPanel {
             sql.worksheet = wsId;
             Transaction.done(txId, {
                 "msgTable": xcHelper.getTableId(tableInfos[numTables - 1].dstTableName),
-                "title": "Refresh finished",
+                "title": "Refresh Tables",
                 "sql": sql
             });
             deferred.resolve();
@@ -1127,23 +1249,50 @@ namespace IMDPanel {
 
         listOnlyActiveTables()
         .then(function(tables) {
-            pTables = [];
-            newHTables = [];
+            let foundPTables = {};
+            let foundHTables = {};
+            let numPTables = pTables.length;
             tables.forEach(function(table) {
                 if (table.active) {
                     var inHTables = false;
-                    for (var i = 0; i < hTables.length; i++) {
-                        if (hTables[i].name === table.name) {
+                    hTables.forEach(function(hTable, i) {
+                        if (hTable.name === table.name) {
+                            hTables[i] = table;
                             inHTables = true;
-                            newHTables.push(table);
+                            foundHTables[table.name] = true;
+                            return;
                         }
-                    }
+                    });
+
                     if (!inHTables) {
-                        pTables.push(table);
+                        var found = false;
+                        pTables.forEach(function(pTable, i) {
+                            if (pTable.name === table.name) {
+                                pTables[i] = table;
+                                found = true;
+                                foundPTables[table.name] = true;
+                                return;
+                            }
+                        });
+                        if (!found) {
+                            pTables.push(table);
+                        }
                     }
                 }
             });
-            hTables = newHTables;
+            for (let i = 0; i < numPTables; i++) {
+                if (!foundPTables[pTables[i].name]) {
+                    pTables.splice(i, 1);
+                    i--;
+                    numPTables--;
+                }
+            }
+            for (let i = 0; i < hTables.length; i++) {
+                if (!foundHTables[hTables[i].name]) {
+                    hTables.splice(i, 1);
+                    i--;
+                }
+            }
             var html = getListHtml(pTables);
             $imdPanel.find(".activeTablesList").html(html);
             checkDateChange();
@@ -1158,10 +1307,10 @@ namespace IMDPanel {
         })
         .always(function() {
             let timeDiff = Date.now() - startTime;
-            if (timeDiff < 1500) {
+            if (timeDiff < 1200) {
                 setTimeout(function() {
                     removeWaitScreen();
-                }, 1500 - timeDiff);
+                }, 1200 - timeDiff);
             } else {
                 removeWaitScreen();
             }

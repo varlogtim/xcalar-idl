@@ -37,6 +37,20 @@ window.Undo = (function($, Undo) {
         return (TblManager.sendTableToUndone(tableId, {'remove': true}));
     };
 
+    undoFuncs[SQLOps.RefreshTables] = function(options) {
+        var deferred = PromiseHelper.deferred();
+        var promises = [];
+        for (var i = 0; i < options.tableNames.length; i++) {
+            var tableId = xcHelper.getTableId(options.tableNames[i]);
+            promises.push(TblManager.sendTableToUndone.bind(this, tableId, {'remove': true}))
+        }
+        PromiseHelper.chain(promises)
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     undoFuncs[SQLOps.ExecSQL] = undoFuncs[SQLOps.IndexDS];
 
     undoFuncs[SQLOps.Sort] = function(options, isMostRecent) {
