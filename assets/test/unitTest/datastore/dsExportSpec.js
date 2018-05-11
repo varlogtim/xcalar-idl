@@ -5,7 +5,7 @@ describe("Dataset-DSExport Test", function() {
     var $targetInput;
     var $form;
     var $fileFormatMenu;
-    var testTargetName = "unitTestTarget";
+    var testTargetName = "unitTestTarget" + Math.floor(Math.random * 1000 + 1);
     var url = "mnt/nfsshare/xcalar/export";
     var wasAdmin;
     var oldIsAdmin;

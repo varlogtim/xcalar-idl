@@ -1,5 +1,9 @@
 describe("Workbook- Workbook Pane Test", function() {
     var $workbookPanel;
+    var menuAction = function($box, action) {
+        $box.find(".dropDown").click();
+        $("#wkbkMenu").find("." + action).click();
+    };
 
     before(function(){
         $workbookPanel = $("#workbookPanel");
@@ -376,8 +380,12 @@ describe("Workbook- Workbook Pane Test", function() {
 
             UnitTest.testFinish(checkFunc)
             .then(function() {
-                var $box = $workbookPanel.find(".workbookBox").eq(0);
-                expect($box.find(".workbookName").val()).to.equal(name);
+                var $input = $workbookPanel.find(".workbookBox .workbookName")
+                    .filter(function() {
+                        return $(this).val() === name;
+                    });
+                var $box = $input.closest(".workbookBox");
+                expect($box.length).to.equal(1);
                 expect($box.find(".numWorksheets").text()).to.equal("1");
                 expect($box.find(".isActive").text()).to.equal("Inactive");
                 done();
@@ -396,7 +404,7 @@ describe("Workbook- Workbook Pane Test", function() {
             WorkbookManager.copyWKBK = function() {
                 return PromiseHelper.reject("test");
             };
-            $box.find(".duplicate").click();
+            menuAction($box, "duplicate");
 
             UnitTest.testFinish(function() {
                 return $("#statusBox").is(":visible");
@@ -417,7 +425,7 @@ describe("Workbook- Workbook Pane Test", function() {
             var selector = ".workbookBox:not(.loading)";
             var wkbkNum = $workbookPanel.find(selector).length;
             var $box = $workbookPanel.find(".workbookBox").eq(0);
-            $box.find(".duplicate").click();
+            menuAction($box, "duplicate");
 
             var checkFunc = function() {
                 var diff = $workbookPanel.find(selector).length - wkbkNum;
@@ -481,7 +489,6 @@ describe("Workbook- Workbook Pane Test", function() {
             var $box = $workbookPanel.find('[data-workbook-id="' +
                                             activeWkbkId + '"]');
             $box.find(".activate").click();
-            UnitTest.hasAlertWithTitle(WKBKTStr.Switch, {confirm: true});
 
             UnitTest.testFinish(function() {
                 return test === true;
@@ -508,7 +515,7 @@ describe("Workbook- Workbook Pane Test", function() {
             WorkbookInfoModal.show = function() {
                 test = true;
             };
-            $box.find(".modify").click();
+            menuAction($box, "modify");
             expect(test).to.be.true;
             WorkbookInfoModal.show = oldFunc;
         });
@@ -536,7 +543,8 @@ describe("Workbook- Workbook Pane Test", function() {
             function deleteHelper() {
                 var $boxs = $workbookPanel.find(".workbookBox");
                 var wkbkNum = $boxs.length;
-                $boxs.eq(0).find(".delete").click();
+
+                menuAction($boxs.eq(1), "delete");
 
                 assert.isTrue($("#alertModal").is(":visible"));
                 $("#alertModal").find(".confirm").click();
@@ -569,7 +577,7 @@ describe("Workbook- Workbook Pane Test", function() {
 
             var $box = $workbookPanel.find('[data-workbook-id="' +
                                             activeWkbkId + '"]');
-            $box.find(".deactivate").click();
+            menuAction($box, "deactivate");
 
             UnitTest.hasAlertWithTitle(WKBKTStr.Deactivate, {
                 "confirm": true

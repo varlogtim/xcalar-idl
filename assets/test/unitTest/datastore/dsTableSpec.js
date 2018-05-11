@@ -368,7 +368,7 @@ describe("Dataset-DSTable Test", function() {
 
         it("Should animate the ds path container", function() {
             $("#dsInfo-path").trigger(fakeEvent.click);
-            assert.isTrue($('#dsInfo-pathContainer').hasClass("animate"));
+            assert.isTrue($('#dsInfo-pathContainer').hasClass("copiableText"));
         });
 
         it("Should show file path modal", function() {

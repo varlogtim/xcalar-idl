@@ -10,6 +10,7 @@ describe("DFParamModal Test", function() {
     var testDs;
 
     before(function(done) {
+        UnitTest.onMinMode();
         $("#dataflowTab").click();
         UnitTest.testFinish(function() {
             return $("#dfViz .cardMain").children().length !== 0;

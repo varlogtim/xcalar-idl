@@ -158,10 +158,6 @@
 
             const lines = entry.text.split("\n");
             lines.forEach((line, i) => {
-                if (i >= 120 && i <= 154) {
-                    console.log(`line ${i + 1}`, line)
-                }
-
                 line = line + '\n';
                 bytesTracker += line.length;
 

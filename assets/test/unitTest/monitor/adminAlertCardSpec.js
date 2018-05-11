@@ -11,6 +11,10 @@ describe("Admin Alert Card Test", function() {
         testMsg = "testing";
         oldFunc =  XcSocket.prototype.sendMessage;
         XcSocket.prototype.sendMessage = function() {};
+
+        if (!Admin.isAdmin()) {
+            AdminAlertCard.setup();
+        }
     });
     describe("UI behavior Test", function() {
         it("Should show admin alert card", function() {

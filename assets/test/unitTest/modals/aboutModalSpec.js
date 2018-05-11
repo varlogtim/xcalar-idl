@@ -9,10 +9,11 @@ describe("About Modal Test", function() {
         assert.isTrue($modal.is(":visible"));
         assert.isFalse($("#modalBackground").is(":visible"));
 
-        expect($modal.find(".frontVersion .text").text()).not.to.equal("");
-        expect($modal.find(".backVersion .text").text()).not.to.equal("");
-        expect($modal.find(".thriftVersion .text").text()).not.to.equal("");
-        expect($modal.find(".license span").text()).not.to.equal("");
+        expect($modal.find(".product").text()).not.to.equal("");
+        expect($modal.find(".frontVersion").text()).not.to.equal("");
+        expect($modal.find(".buildNumber").text()).not.to.equal("");
+        expect($modal.find(".expiration").text()).not.to.equal("");
+        expect($modal.find(".keyValue").text()).not.to.equal("");
     });
 
     it("Should clean the modal", function() {

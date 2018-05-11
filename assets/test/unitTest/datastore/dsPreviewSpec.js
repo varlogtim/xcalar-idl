@@ -1230,7 +1230,7 @@ describe("Dataset-DSPreview Test", function() {
             expect($udfFuncList.find("input").val()).to.be.empty;
             expect(isUseUDFWithFunc()).to.be.false;
 
-            DSPreview.__testOnly__.selectUDFModule("default");
+            DSPreview.__testOnly__.selectUDFModule(defaultUDFPath);
             expect($udfModuleList.find("input").val()).to.equal("default");
             expect($udfFuncList.find("input").val()).to.be.empty;
             expect(isUseUDFWithFunc()).to.be.false;
@@ -1250,14 +1250,14 @@ describe("Dataset-DSPreview Test", function() {
 
         it("Should validate UDF module", function() {
             var validateUDFModule = DSPreview.__testOnly__.validateUDFModule;
-            expect(validateUDFModule("invalidModule")).to.be.false;
-            expect(validateUDFModule("default")).to.be.true;
+            expect(validateUDFModule("/workbook/udf/invalidModule")).to.be.false;
+            expect(validateUDFModule(defaultUDFPath)).to.be.true;
         });
 
         it("Should validate UDF module", function() {
             var validateUDFFunc = DSPreview.__testOnly__.validateUDFFunc;
-            expect(validateUDFFunc("default", "invalidFunc")).to.be.false;
-            expect(validateUDFFunc("default", "openExcel")).to.be.true;
+            expect(validateUDFFunc(defaultUDFPath, "invalidFunc")).to.be.false;
+            expect(validateUDFFunc(defaultUDFPath, "openExcel")).to.be.true;
         });
 
         it("Should reset UDF", function() {
@@ -1672,7 +1672,7 @@ describe("Dataset-DSPreview Test", function() {
         it("should restore form with UDF format", function() {
             resetForm({
                 dsName: "test",
-                moduleName: "default",
+                moduleName: defaultUDFPath,
                 funcName: "openExcel",
                 format: "UDF",
                 hasHeader: true,

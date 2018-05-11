@@ -47,23 +47,30 @@ window.UnionView = (function(UnionView, $) {
             }
             addTable(tableId, colNums, hiddenCols);
             // wait for open menu panel animation
-            setTimeout(function() {
-                if (options.prefill) {
-                    restorePrefill(options.prefill);
-                } else {
-                    $unionView.find(".addTable").click();
-                }
-            }, 1);
+            if (gMinModeOn) {
+                setView(options);
+            } else {
+                setTimeout(function() {
+                    setView(options);
+                }, 1);
+            }
         } else {
             autoResizeView();
         }
-
 
         isOpen = true;
         formHelper.showView();
         formHelper.setup();
         updateFormTitles(options);
     };
+
+    function setView(options) {
+        if (options.prefill) {
+            restorePrefill(options.prefill);
+        } else {
+            $unionView.find(".addTable").click();
+        }
+    }
 
     UnionView.close = function() {
         if (!isOpen) {
@@ -96,7 +103,7 @@ window.UnionView = (function(UnionView, $) {
         if (termIdx === -1) {
             termIdx = optionStr.length;
         }
-        $unionView.find(".confirm").text(optionStr.substring(0, termIdx));
+        $unionView.find(".confirm").text(optionStr.substring(0, termIdx).trim());
     }
 
     function addEvents() {

@@ -21,6 +21,7 @@ function getTestNameRegex() {
 }
 
 var testDatasets;
+var defaultUDFPath = "/workbook/udf/default";
 
 window.UnitTest = (function(UnitTest, $) {
     var minModeCache;

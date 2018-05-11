@@ -744,7 +744,7 @@ window.TblManager = (function($, TblManager) {
         var table = gTables[tableId] || TblManager.addUntrackedTable(tableName);
 
         if (!table) {
-            return;
+            return null;
         }
         table.addNoDelete();
         var $tableHeader = $("#xcTheadWrap-" + tableId);

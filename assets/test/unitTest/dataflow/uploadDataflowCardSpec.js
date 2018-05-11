@@ -53,17 +53,6 @@ describe("Upload Dataflow Test", function() {
             .to.be.false;
         });
 
-        it("should toggle checkbox", function() {
-            var $checkbox = $card.find(".overwriteUdf .checkbox");
-            expect($checkbox.hasClass("checked")).to.be.false;
-            // check
-            $checkbox.click();
-            expect($checkbox.hasClass("checked")).to.be.true;
-            // uncheck
-            $card.find(".overwriteUdf span").click();
-            expect($checkbox.hasClass("checked")).to.be.false;
-        });
-
         it("fakeBrowse btn should trigger real btn", function() {
             var clicked = false;
             $("#dataflow-browse").attr("type", "");

@@ -8,6 +8,7 @@ window.Scheduler = (function(Scheduler, $) {
     var $timeInput;
     var $historySection;
     var $detailsSection;
+    var timePicker;
 
     var currentDataFlowName;
     var displayServerTimeCycle;
@@ -98,7 +99,7 @@ window.Scheduler = (function(Scheduler, $) {
             }
         });
 
-        new XcTimePicker($modScheduleForm.find(".timePickerArea"), {
+        timePicker = new XcTimePicker($modScheduleForm.find(".timePickerArea"), {
             pickerBlurCallback: showScheduleSettings,
             resetTime: true,
             isUTC: true
@@ -197,6 +198,11 @@ window.Scheduler = (function(Scheduler, $) {
             var $record = $detailsSection.find(".record").eq(index);
             $record.addClass("chosen");
         });
+    };
+
+    // unit test use
+    Scheduler.getTimePicker = function() {
+        return timePicker;
     };
 
     Scheduler.show = function(dataflowName) {

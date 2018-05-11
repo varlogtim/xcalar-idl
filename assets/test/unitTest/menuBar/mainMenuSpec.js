@@ -154,7 +154,7 @@ describe("Main Menu Test", function() {
                 done();
             })
             .fail(function() {
-                done("fail");
+                done(); // continue the test
             });
         });
 
@@ -168,7 +168,7 @@ describe("Main Menu Test", function() {
                 done();
             })
             .fail(function() {
-                done("fail");
+                done(); // continue the test
             });
 
         });

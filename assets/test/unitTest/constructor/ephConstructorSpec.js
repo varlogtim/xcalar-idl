@@ -2099,10 +2099,10 @@ describe("Ephemeral Constructor Test", function() {
             $fakeIcon.appendTo($("body"));
         });
 
-        it("should have 8 attributes", function() {
+        it("should have 10 attributes", function() {
             circle = new ProgressCircle("test", 1, false);
             expect(circle).to.be.instanceof(ProgressCircle);
-            expect(Object.keys(circle).length).to.equal(9);
+            expect(Object.keys(circle).length).to.equal(10);
             expect(circle.txId).to.equal("test");
             expect(circle.iconNum).to.equal(1);
             expect(circle.status).to.equal("inProgress");
@@ -2112,6 +2112,7 @@ describe("Ephemeral Constructor Test", function() {
             expect(circle.arc).not.to.be.null;
             expect(circle.prevPct).to.equal(0);
             expect(circle.hasText).to.be.false;
+            expect(circle.options).to.be.an("object");
         });
 
         it("should update", function() {

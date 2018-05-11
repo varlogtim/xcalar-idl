@@ -2,6 +2,7 @@ describe("Workbook Preview Test", function() {
     var oldGetTables;
     var oldGetMeta;
     var oldGetDag;
+    var oldGetWorksheetMeta;
     var workbookId;
     var $workbookPreview;
 
@@ -13,6 +14,7 @@ describe("Workbook Preview Test", function() {
         oldGetTables = XcalarGetTables;
         oldGetMeta = KVStore.prototype.getAndParse;
         oldGetDag = XcalarGetDag;
+        oldGetWorksheetMeta = WSManager.getAllMeta;
 
         XcalarGetTables = function() {
             return PromiseHelper.resolve({
@@ -26,6 +28,18 @@ describe("Workbook Preview Test", function() {
             })
         };
 
+        var worksheets = {
+            wsInfos: {
+                testWSId1: {
+                    name: "testWorksheet1",
+                    tables: ["ab2"]
+                },
+                testWSId2: {
+                    name: "testWorksheet2",
+                    tables: ["ab1"]
+                }
+            }
+        };
         KVStore.prototype.getAndParse = function() {
             return PromiseHelper.resolve({
                 TILookup: {
@@ -40,23 +54,16 @@ describe("Workbook Preview Test", function() {
                         status: "orphaned"
                     }
                 },
-                worksheets: {
-                    wsInfos: {
-                        testWSId1: {
-                            name: "testWorksheet1",
-                            tables: ["ab2"]
-                        },
-                        testWSId2: {
-                            name: "testWorksheet2",
-                            tables: ["ab1"]
-                        }
-                    }
-                }
+                worksheets: worksheets
             });
         };
 
         XcalarGetDag = function() {
             return PromiseHelper.reject("test error");
+        };
+
+        WSManager.getAllMeta = function() {
+            return worksheets;
         };
     });
 
@@ -254,6 +261,7 @@ describe("Workbook Preview Test", function() {
 
         it("should handle no ws meta case", function(done) {
             var oldFunc = KVStore.prototype.getAndParse;
+            var oldGetWorksheetMetaFunc = WSManager.getAllMeta;
             KVStore.prototype.getAndParse = function() {
                 return PromiseHelper.resolve({
                     TILookup: {
@@ -271,6 +279,8 @@ describe("Workbook Preview Test", function() {
                 });
             };
 
+            WSManager.getAllMeta = () => {};
+
             WorkbookPreview.show(workbookId)
             .then(function() {
                 expect($workbookPreview.hasClass("error")).to.be.false;
@@ -284,6 +294,7 @@ describe("Workbook Preview Test", function() {
             })
             .always(function() {
                 KVStore.prototype.getAndParse = oldFunc;
+                WSManager.getAllMeta = oldGetWorksheetMetaFunc;
             });
         })
     });
@@ -292,6 +303,7 @@ describe("Workbook Preview Test", function() {
         XcalarGetTables = oldGetTables;
         KVStore.prototype.getAndParse = oldGetMeta;
         XcalarGetDag = oldGetDag;
+        WSManager.getAllMeta = oldGetWorksheetMeta;
         UnitTest.offMinMode();
     });
 });

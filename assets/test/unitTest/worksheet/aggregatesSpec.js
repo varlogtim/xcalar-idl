@@ -1,4 +1,8 @@
 describe("Aggregates Test", function() {
+    before(function() {
+        UnitTest.onMinMode();
+    });
+
     describe("general functionality", function() {
         var isTheAgg;
 
@@ -280,13 +284,16 @@ describe("Aggregates Test", function() {
                 expect(ret[0]).to.equal("fakeAgg");
                 expect(ret[1]).to.equal("otherFakeAgg");
                 expect(dagMakeInactiveCalled).to.be.true;
-                UnitTest.hasAlertWithText("Error: Could not find dag node. " +
-                                    "Aggregate nonexistant was not dropped.");
+                // UnitTest.hasAlertWithText("Error: Could not find dag node. " +
+                //                     "Aggregate nonexistant was not dropped.");
+                done();
+                // setTimeout(function() {
+                //     done(); // some delay when closing alert
+                // }, 1);
+            })
+            .always(function() {
                 XIApi.deleteTable = cachedDelete;
                 Dag.makeInactive = cachedDagFn;
-                setTimeout(function() {
-                    done(); // some delay when closing alert
-                }, 1);
             });
         });
 
@@ -332,5 +339,9 @@ describe("Aggregates Test", function() {
                 done();
             });
         });
+    });
+
+    after(function() {
+        UnitTest.offMinMode();
     });
 });

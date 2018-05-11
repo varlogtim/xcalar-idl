@@ -1,4 +1,4 @@
-describe("Log Test", function() {
+describe("Xcalar Log Test", function() {
     describe("Basic Function Test", function() {
         it("isBackendOperation should work", function() {
             var isBackendOperation = Log.__testOnly__.isBackendOperation;
