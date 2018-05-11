@@ -1167,7 +1167,7 @@ namespace IMDPanel {
 
         XcalarUnpublishTable(tableName)
         .then(function() {
-            cleanUpAfterDeleteTable(info.tableName);
+            cleanUpAfterDeleteTable(tableName);
             XcSocket.Instance.sendMessage("refreshIMD", {
                 "action": "delete",
                 "tableName": tableName
