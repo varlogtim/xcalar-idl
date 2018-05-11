@@ -228,13 +228,8 @@ window.DagEdit = (function($, DagEdit) {
         if (!force && !DagEdit.isEditMode()) {
             return;
         }
-        for (var tableName in curEdit.editingTables) {
-            var status = curEdit.editingTables[tableName];
-            if (status === "inactive") {
-                var tableId = xcHelper.getTableId(tableName);
-                TblManager.sendTableToTempList([tableId]);
-            }
-        }
+        undoMovingTempTablesToWorksheet();
+
         curEdit.editingTables = {};
         $(".dagWrap .dagTable").removeClass("editing");
         $(".dagTableWrap").removeClass("isDescendant editingChild");
@@ -1058,6 +1053,51 @@ window.DagEdit = (function($, DagEdit) {
             var mapNode = Dag.getNodeById($dagWrap, nodeId);
             checkOpForAgg(mapNode);
         });
+    }
+
+    // check the log and if the recent operations only involved the tables that
+    // were brought out into the worksheet, undo up to the point where the
+    //SQLOps.MoveTemporaryTableToWS operations took place
+    function undoMovingTempTablesToWorksheet() {
+        var tablesFromTemp = [];
+        for (var tableName in curEdit.editingTables) {
+            var status = curEdit.editingTables[tableName];
+            if (status === "inactive") {
+                var tableId = xcHelper.getTableId(tableName);
+                if (tableId) {
+                    tablesFromTemp.push(tableId);
+                }
+            }
+        }
+        var undoCount = 0;
+        if (tablesFromTemp.length) {
+            var logs = Log.getLogs();
+            var cursor = Log.getCursor();
+            if (logs.length - 1 === cursor) {
+                for (var i = cursor; i >= 0; i--) {
+                    var log = logs[i];
+                    var tIndex = tablesFromTemp.indexOf(log.options.tableId);
+                    if (log.options && lob.options.tableId && tIndex !== -1) {
+                        undoCount++;
+                        if (log.options.operation === SQLOps.MoveTemporaryTableToWS) {
+                            tablesFromTemp.splice(tIndex, 1);
+                        }
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+        if (undoCount) {
+            Log.undo(undoCount, true);
+        }
+        // if an operation unrelated to one of the temp tables took place, instead
+        // of undoing, send the remaining tables to temp list
+        if (tablesFromTemp.length) {
+            tablesFromTemp.forEach(function(tableId) {
+                TblManager.sendTableToTempList([tableId]);
+            });
+        }
     }
 
     if (window.unitTestMode) {

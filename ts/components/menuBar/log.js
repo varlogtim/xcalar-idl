@@ -269,7 +269,8 @@ window.Log = (function($, Log) {
         hasTriggerScrollToBottom = true;
     };
 
-    Log.undo = function(step) {
+    // inBackground: boolean, to do it behind the scenes without user knowing
+    Log.undo = function(step, inBackground) {
         var deferred = PromiseHelper.deferred();
         xcAssert((isUndo === false), "Doing other undo/redo operation?");
 
@@ -331,7 +332,10 @@ window.Log = (function($, Log) {
             isUndo = false;
             Log.unlockUndoRedo();
             updateUndoRedoState();
-            xcTooltip.refresh($undo, 2000);
+            if (!inBackground) {
+                xcTooltip.refresh($undo, 2000);
+            }
+
             if (passed) {
                 deferred.resolve();
             }
