@@ -2084,6 +2084,7 @@ window.DFParamModal = (function($, DFParamModal){
             }
         }
         modalHelper.clear();
+        editor.clearHistory();
         $editableRow.empty();
         $modal.find('.draggableParams').empty();
         isOpen = false;
