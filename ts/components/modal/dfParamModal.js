@@ -954,6 +954,7 @@ window.DFParamModal = (function($, DFParamModal){
         delete node.args.dest;
         var structText = JSON.stringify(node.args, null, 4);
         editor.setValue(structText);
+        editor.clearHistory();
         editor.refresh(); // to fix codemirror alignment issues
 
         // param menu
