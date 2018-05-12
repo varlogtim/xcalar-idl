@@ -881,7 +881,8 @@ window.FlightTest = (function(FlightTest, $) {
         // add param to retina
         paramName = "param" + randInt();  // globals in the module
         var params = DF.getParamMap();
-        params[paramName] = fileName;
+        fileName = "file" + randInt();
+        params[paramName] = {value: fileName, isEmpty: false};
 
         $("#dfParamModal .draggableParams.systemParams").addClass("hint");
         // Add parameter to export
@@ -903,7 +904,6 @@ window.FlightTest = (function(FlightTest, $) {
             );
             $dfParamModal.find("input.editableParamDiv").eq(0).trigger('input');
             $dfParamModal.find("input.editableParamDiv").eq(1).val("Default");
-            fileName = "file" + randInt();
 
             console.log(dfName);
 
@@ -965,7 +965,7 @@ window.FlightTest = (function(FlightTest, $) {
         test.checkExists("#dfParamModal:visible")
         .then(function() {
             var params = DF.getParamMap();
-            params[paramName] = cancelFileName;
+            params[paramName] = {value: cancelFileName, isEmpty: false};
 
             $dfParamModal.find(".modalBottom .confirm").click();
             $df.find(".runNowBtn").click();

@@ -88,6 +88,10 @@ window.DFParamModal = (function($, DFParamModal){
             initAdvancedForm();
         });
 
+        $modal.find(".restoreAdvancedOriginal").click(function() {
+            initAdvancedForm(true);
+        });
+
         $modal.on("click", ".xi-plus-circle-outline", function() {
             $(this).closest(".retinaSection").removeClass("collapsed")
             .addClass("expanded");
@@ -293,8 +297,10 @@ window.DFParamModal = (function($, DFParamModal){
                 if (type === "export") {
                     exportSetup();
                     if (df.activeSession) {
-                        $modal.find(".innerEditableRow.filename input")
-                              .val(df.newTableName);
+                        var $input = $modal.find(".innerEditableRow.filename input");
+                        var currentVal = $input.val();
+                        $input.data("cache", currentVal);
+                        $input.val(df.newTableName);
                         if (isAdvancedMode) {
                             switchToBasicModeHelper();
                         }
@@ -473,11 +479,11 @@ window.DFParamModal = (function($, DFParamModal){
               .removeClass("hint")
               .html(draggableInputs);
 
-        if (!providedStruct) {
-            populateSavedFields(); // top template section
-        }
+
+        populateSavedFields(); // top template section
 
         setupDummyInputs();
+
 
         if (providedStruct) {
             if (type === "filter") {
@@ -487,7 +493,10 @@ window.DFParamModal = (function($, DFParamModal){
                     exportSetup();
                     var df = DF.getDataflow(dfName);
                     if (df.activeSession) {
-                        $modal.find(".innerEditableRow.filename input").val(df.newTableName);
+                        var $input = $modal.find(".innerEditableRow.filename input");
+                        var currentVal = $input.val();
+                        $input.data("cache", currentVal);
+                        $input.val(df.newTableName);
                     }
                 } else if (type === "dataStore") {
                     datasetSetup();
@@ -945,14 +954,26 @@ window.DFParamModal = (function($, DFParamModal){
         }
     }
 
-    function initAdvancedForm() {
+    function initAdvancedForm(toOriginal) {
         var df = DF.getDataflow(dfName);
         var node = xcHelper.deepCopy(df.retinaNodes[tableName]);
-        if (node.operation !== XcalarApisTStr[XcalarApisT.XcalarApiSynthesize]) {
-            delete node.args.source;
+        var struct;
+        if (toOriginal) {
+            var retinaNode = df.getParameterizedNode(tableName);
+            if (retinaNode && retinaNode.paramValue) {
+                struct = retinaNode.paramValue;
+            } else {
+                struct = node.args;
+            }
+        } else {
+            struct = node.args;
         }
-        delete node.args.dest;
-        var structText = JSON.stringify(node.args, null, 4);
+
+        if (node.operation !== XcalarApisTStr[XcalarApisT.XcalarApiSynthesize]) {
+            delete struct.source;
+        }
+        delete struct.dest;
+        var structText = JSON.stringify(struct, null, 4);
         editor.setValue(structText);
         editor.clearHistory();
         editor.refresh(); // to fix codemirror alignment issues
@@ -1614,7 +1635,7 @@ window.DFParamModal = (function($, DFParamModal){
     }
 
     function getAdvancedModeParams() {
-        if (parameterizableFields.hasOwnProperty(type)) {
+        if (!parameterizableFields.hasOwnProperty(type)) {
             return [];
         }
         var df = DF.getDataflow(dfName);
@@ -1674,18 +1695,19 @@ window.DFParamModal = (function($, DFParamModal){
 
                 partialStruct.fileName = fileName;
                 partialStruct.targetName = targetName;
-                // var paramTargetName = getTargetName(targetName, params);
+                var paramTargetName = getTargetName(targetName);
                 // // XXX Fix this when exportTargets become real targets
-                // var target = DSExport.getTarget(paramTargetName);
-                // if (target) {
-                //     partialStruct.targetType = ExTargetTypeTStr[target.type];
+                var target = DSExport.getTarget(paramTargetName);
+                if (target) {
+                    partialStruct.targetType = ExTargetTypeTStr[target.type];
                     struct = $.extend(struct, partialStruct);
-                // } else if (ignoreError) {
-                //     partialStruct.targetType = null;
-                //     struct = $.extend(struct, partialStruct);
-                // } else {
+                } else if (ignoreError) {
+                    partialStruct.targetType = ExTargetTypeTStr[0]; // "unknown"
+                    struct = $.extend(struct, partialStruct);
+                } else {
+                    struct = $.extend(struct, partialStruct);
                 //     error = "target not found";
-                // }
+                }
                 break;
             default:
                 error = "currently not supported";
@@ -1907,17 +1929,15 @@ window.DFParamModal = (function($, DFParamModal){
         }
     }
 
-    function getTargetName(targetName, params) {
-        var numParams = params.length;
+    function getTargetName(targetName) {
+        var params = DF.getParamMap();
         var find;
         var rgx;
-        var param;
         var val;
         var paramTargetName = targetName;
-        for (var i = 0; i < numParams; i++) {
-            param = params[i].name;
-            val = params[i].val;
-            find = "<" + xcHelper.escapeRegExp(param) + ">";
+        for (var paramName in params) {
+            val = params[paramName].value || "";
+            find = "<" + xcHelper.escapeRegExp(paramName) + ">";
             rgx = new RegExp(find, 'g');
             paramTargetName = paramTargetName.replace(rgx, val);
         }
@@ -2042,7 +2062,7 @@ window.DFParamModal = (function($, DFParamModal){
             $templateVals.eq(0).text(struct.eval[0].evalString);
         } else if (retinaNode.paramType === XcalarApisT.XcalarApiExport) {
             $templateVals.eq(0).text(xcHelper.stripCSVExt(struct.fileName));
-            $templateVals.eq(1).text(struct.targetType);
+            $templateVals.eq(1).text(struct.targetName);
         } else if (retinaNode.paramType === XcalarApisT.XcalarApiBulkLoad) {
             for (var i = 0; i < struct.loadArgs.sourceArgsList.length; i++) {
                 var sourceArgs = struct.loadArgs.sourceArgsList[i];
