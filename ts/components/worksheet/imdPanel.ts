@@ -203,6 +203,7 @@ namespace IMDPanel {
         }
         $tableDetail.addClass("active");
         $tableDetail.find(".tableName").text(tableName + ":");
+        $tableDetail.data("tablename", tableName);
 
         let $tableContent: JQuery = $tableDetail.find(".tableDetailContent");
         let html: string = '';
@@ -1121,6 +1122,9 @@ namespace IMDPanel {
             }
         });
         storeHiddenTables();
+        if ($tableDetail.data("tablename") === tableName) {
+            updateTableDetailSection();
+        }
     }
 
     function storeHiddenTables() {
@@ -1210,6 +1214,9 @@ namespace IMDPanel {
             });
         }
         $listItem.remove();
+        if ($tableDetail.data("tablename") === tableName) {
+            updateTableDetailSection();
+        }
     }
 
     function testDate(str){
