@@ -81,7 +81,7 @@ describe("WorkbookManager Test", function() {
         it("copyHelper should work", function(done) {
             var oldId = "oldId";
             var newId = "newId";
-            var keys = ["gInfo", "gLog", "gErr"];
+            var keys = ["gInfo", "gLog", "gErr", "gIMDKey"];
             var workbooks = WorkbookManager.getWorkbooks();
             workbooks[oldId] = new WKBK({id: oldId, name: "old"});
             workbooks[newId] = new WKBK({id: newId, name: "new"});
@@ -90,7 +90,7 @@ describe("WorkbookManager Test", function() {
 
             WorkbookManager.__testOnly__.copyHelper(oldId, newId)
             .then(function() {
-                expect(Object.keys(fakeMap).length).to.equal(5);
+                expect(Object.keys(fakeMap).length).to.equal(6);
 
                 keys.forEach(function(key) {
                     var kvKey = generateKey(key, currentVersion);
@@ -769,6 +769,8 @@ describe("WorkbookManager Test", function() {
                 expect(activeWkbkId).to.equal(oldActiveWkbkId);
                 assert.isTrue($("#initialLoadScreen").is(":visible"));
                 $("#initialLoadScreen").hide();
+                var wkbk = WorkbookManager.getWorkbook(activeWkbkId);
+                wkbk.setResource(true);
                 done();
             })
             .fail(function() {

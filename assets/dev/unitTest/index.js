@@ -17,8 +17,8 @@ const fs = require('fs');
         });
 
         const userName = "unitTestUser" + Math.ceil(Math.random() * 100000 + 1);
-        // const url = 'http://localhost:8888/unitTest.html?createWorkbook=y&user=' + userName;
-        const url = 'http://localhost:8888/unitTestManager.html';
+        const url = 'http://localhost:8888/unitTest.html?createWorkbook=y&user=' + userName;
+        // const url = 'http://localhost:8888/unitTestManager.html';
         await page.coverage.startJSCoverage({resetOnNavigation: true});
         console.log("go to url", url)
         await page.goto(url);
@@ -38,7 +38,11 @@ function getCoverage(coverage) {
     let totalBytes = 0;
     let usedBytes = 0;
     const coverageToReport = [];
-
+    const excludeFolders = ['/thrift/', '/sdk/', 'tutorial'];
+    const excludeFiles = ['config.js', 'loginConfig.js', 'compatible.js',
+    'replay.js', 'XcalarThrift.js', 'sqlCompiler.js', 'sqlApi.js',
+    'sqlCache.js', 'sqlTest.js',
+    'undo.js', 'redo.js', 'upgrader.js'];
 
     let entryMap = {};
     let entrySizeMap = {};
@@ -47,19 +51,34 @@ function getCoverage(coverage) {
             continue;
         }
 
-        if (entry.url.includes('/thrift/')) {
-            // exclude thrift folder
+        let shouldExclude = false;
+        excludeFolders.forEach((name) => {
+            if (entry.url.includes(name)) {
+                shouldExclude = true;
+                return false;
+            }
+        });
+
+        if (shouldExclude) {
             continue;
         }
 
-        if (entry.url.endsWith('config.js')) {
+        shouldExclude = false;
+        excludeFiles.forEach((name) => {
+            if (entry.url.endsWith(name)) {
+                shouldExclude = true;
+                return false;
+            }
+        });
+
+        if (shouldExclude) {
             continue;
         }
 
         // becuase of the iframe refresh, same url can occurl several times,
         // need to find the one that has the most coverage
-        var url = entry.url;
-        var bytes = 0;
+        let url = entry.url;
+        let bytes = 0;
         for (const range of entry.ranges) {
             bytes += range.end - range.start - 1;
         }

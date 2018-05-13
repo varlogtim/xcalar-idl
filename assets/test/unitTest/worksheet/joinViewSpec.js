@@ -16,7 +16,7 @@ describe("JoinView Test", function() {
         cachedCenterFn = xcHelper.centerFocusedTable;
         cachedGetTableList = WSManager.getTableList;
         xcHelper.centerFocusedTable = function() {return PromiseHelper.resolve();};
-
+        BottomMenu.close(true);
 
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")

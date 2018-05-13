@@ -451,7 +451,7 @@ describe("Workbook- Workbook Pane Test", function() {
                 var dupName = $dupBox.find(".workbookName").val();
 
                 expect(dupName.startsWith(name)).to.be.true;
-                expect($dupBox.find(".numWorksheets").text()).to.equal("1");
+                expect($dupBox.find(".numWorksheets").text()).to.equal($box.find(".numWorksheets").text());
                 expect($dupBox.find(".isActive").text()).to.equal("Inactive");
                 done();
             })

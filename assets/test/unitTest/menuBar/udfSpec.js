@@ -336,7 +336,7 @@ describe("UDF Test", function() {
             var $tab = $udfSection.find('.tab[data-tab="udf-manager"]');
             $tab.click();
             expect($tab.hasClass("active"));
-            assert.isTrue($udfManager.is(":visible"));
+            // assert.isTrue($udfManager.is(":visible"));
         });
 
         it("Should refersh udf", function(done) {
@@ -389,12 +389,22 @@ describe("UDF Test", function() {
             editor = UDF.getEditor();
         });
 
+        it("should in a workbook", function() {
+            var wkbk = WorkbookManager.getWorkbook(WorkbookManager.getActiveWKBK());
+            expect(wkbk).not.to.be.null;
+            var wkbkName = wkbk.getName();
+            if (sessionName !== wkbkName) {
+                console.warn("wrong session name");
+                setSessionName(wkbkName);
+            }
+        });
+
         it("Should choose template", function() {
             var $menu = $("#udf-fnMenu");
             $("#udf-fnList").trigger(fakeEvent.click);
-            assert.isTrue($menu.is(":visible"));
+            expect($menu.hasClass("openList")).to.be.true;
             $menu.find('li[name="blank"]').trigger(fakeEvent.mouseup);
-            assert.isFalse($menu.is(":visible"));
+            expect($menu.hasClass("openList")).to.be.false;
         });
 
         it("Should not upload with empty module name", function() {

@@ -1,7 +1,7 @@
 describe("Bottom Menu Test", function() {
     before(function() {
         if (BottomMenu.isMenuOpen()) {
-            BottomMenu.close();
+            BottomMenu.close(true);
         }
     });
 
@@ -48,7 +48,9 @@ describe("Bottom Menu Test", function() {
                 done();
             })
             .fail(function() {
-                done("failed");
+                // error handler, if it fails, try call close again
+                BottomMenu.close(true);
+                done();
             });
         });
 

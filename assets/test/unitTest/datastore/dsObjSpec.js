@@ -1122,7 +1122,7 @@ describe("Dataset-DSObj Test", function() {
         it("should create selection to select ds", function() {
             var offsest = $ds.offset();
             var e = jQuery.Event("mousemove", {
-                "pageX": offsest.left + 20,
+                "pageX": offsest.left + 25,
                 "pageY": offsest.top + 100
             });
             // need to trigger twice mousemove

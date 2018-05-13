@@ -113,9 +113,9 @@ window.UnitTest = (function(UnitTest, $) {
                         sendResultsToParent();
                     }
                     console.info("TEST FINISHED");
-                    if (String(mocha.options.grep) === "/Mocha Setup Test|.*/") {
-                        UnitTest.getCoverage();
-                    }
+                    // if (String(mocha.options.grep) === "/Mocha Setup Test|.*/") {
+                    //     UnitTest.getCoverage();
+                    // }
                 } else {
                     consolePct();
                 }

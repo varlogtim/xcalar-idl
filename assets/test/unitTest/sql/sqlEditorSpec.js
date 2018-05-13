@@ -12,6 +12,7 @@ describe("SQLEditor Test", function() {
     var oldKVStoreCommit;
     before(function(){
         UnitTest.onMinMode();
+        BottomMenu.close(true);
         oldGTables = gTables;
         oldSQLTables = SQLEditor.__testOnly__.getSQLTables();
         oldUpdateKVStore = SQLEditor.__testOnly__.updateKVStore;

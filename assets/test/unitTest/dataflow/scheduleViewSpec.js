@@ -788,7 +788,6 @@ function viewRelatedFunctionTest() {
             done();
         })
         .fail(function() {
-            debugger;
             done("fail");
         });
     });
@@ -807,7 +806,6 @@ function viewRelatedFunctionTest() {
         Scheduler.show(dfName);
         var $scheduleInfos = $("#scheduleInfos");
         assert.isTrue($scheduleInfos.is(":visible"));
-
         expect($("#scheduleDetail .tab.detail").hasClass("active"))
         .to.be.true;
         $("#scheduleDetail .tab.default").click();
@@ -874,6 +872,11 @@ function viewRelatedFunctionTest() {
     });
 
     it("should show schedule result correctly", function(done) {
+        var oldList = XcalarListSchedules;
+        XcalarListSchedules = function() {
+            return PromiseHelper.resolve([null]);
+        };
+
         Scheduler.__testOnly__.showScheduleResult()
         .then(function() {
             var html = $("#scheduleTable .historySection").html();
@@ -882,6 +885,9 @@ function viewRelatedFunctionTest() {
         })
         .fail(function() {
             done("fail");
+        })
+        .always(function() {
+            XcalarListSchedules = oldList;
         });
     });
 
