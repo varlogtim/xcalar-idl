@@ -1227,7 +1227,7 @@ ul.CodeMirror-hints {
                 }
             }
             .tableTitle {
-                .size(@width: 100%);
+                .size(@width: 100%, @height: 17px);
                 font-size: 12px;
                 margin-bottom: 5px;
                 margin-top: -10px;
@@ -1278,6 +1278,9 @@ ul.CodeMirror-hints {
                     &::-webkit-scrollbar-track-piece {
                         background-color: transparent;
                         -webkit-border-radius: 6px;
+                    }
+                    li {
+                        cursor: pointer;
                     }
                 }
                 .scrollWrapper {
@@ -1336,6 +1339,7 @@ ul.CodeMirror-hints {
                         width: ~"calc(100% - 20px)";
                         overflow: hidden;
                         text-overflow: ellipsis;
+                        user-select: text;
                     }
                 }
                 .selected {

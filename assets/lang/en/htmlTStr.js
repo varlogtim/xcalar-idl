@@ -407,8 +407,7 @@ module.exports = {
         "EXECUTE": "EXECUTE SQL",
         "Schema": "Tables and Schemas available to SQL",
         "SchemaInst": "Select and click a table to view columns.",
-        "ColumnInst": "Select and click a table in order to view and select columns.",
-        "TableTitle": "Table in workbook: "
+        "ColumnInst": "Select and click a table in order to view and select columns."
     },
 
     "bottomMenu": {

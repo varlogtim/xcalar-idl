@@ -451,6 +451,10 @@ SQLErrTStr = {
     "NoSchema": "Table doesn't exist."
 };
 
+SQLInfoTStr = {
+    "TableTitle": "Table in workbook: "
+};
+
 TimeTStr = {
     "Date": "Date",
     "DateCreated": "Date Created",

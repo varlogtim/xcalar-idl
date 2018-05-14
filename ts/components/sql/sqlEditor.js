@@ -240,39 +240,54 @@ window.SQLEditor = (function(SQLEditor, $) {
             selectTable(null);
             search($(this).val());
         });
-        $searchColumn.on("input", "input", function(event) {
+        $searchColumn.on("mousedown", "input", function(event) {
             event.stopPropagation();
             search($(this).val(), true);
         });
-        $sqlTableList.on("click", ".unit", function(event) {
+        $sqlTableList.on("mousedown", ".unit", function(event) {
             event.stopPropagation();
             $searchColumn.find("input").val("");
             selectTable($(this));
         });
-        $sqlTableList.on("click", ".xi-trash", function(event) {
+        $sqlTableList.on("mousedown", ".xi-trash", function(event) {
             event.stopPropagation();
             var tableName = $(this).closest(".unit").attr("data-name");
             SQLEditor.deleteSchemas(tableName);
         });
-        $sqlColumnList.on("click", ".unit", function(event) {
+        $sqlColumnList.on("mousedown", ".unit", function(event) {
             event.stopPropagation();
             var $unit = $sqlTableList.find(".unit.selected");
-            var tableId = selectTable($unit);
+            var tableId = $unit.attr("data-hashid");
             if (tableId != null) {
                 TblManager.findAndFocusTable("#" + tableId);
             }
+            // XXX In case we need it
+            // node = $(this).find(".label")[0];
+            // if (document.body.createTextRange) {
+            //     const range = document.body.createTextRange()
+            //     range.moveToElementText(node)
+            //     range.select()
+            // } else if (window.getSelection) {
+            //     const selection = window.getSelection();
+            //     const range = document.createRange();
+            //     range.selectNodeContents(node)
+            //     selection.removeAllRanges();
+            //     selection.addRange(range);
+            // } else {
+            //     console.warn("Could not select text in node: Unsupported browser.")
+            // }
         });
-        $sqlSection.on("click", function() {
+        $sqlSection.on("mousedown", ".schemaSection", function() {
             selectTable(null);
         });
-        $sqlSection.on("click", ".icon", function(event) {
+        $sqlSection.on("mousedown", ".icon", function(event) {
             event.stopPropagation();
         });
-        $sqlSection.on("click", ".pulloutTab", function(event) {
+        $sqlSection.on("mousedown", ".pulloutTab", function(event) {
             event.stopPropagation();
             minMaxSection($(this).find(".icon:not(.xc-hidden)").eq(0));
         });
-        $sqlSection.on("click", "input, .xdTable", function(event) {
+        $sqlSection.on("mousedown", "input, .xdTable", function(event) {
             event.stopPropagation();
         });
 
@@ -450,9 +465,9 @@ window.SQLEditor = (function(SQLEditor, $) {
         $sqlColumnList.parent().siblings(".content").addClass("xc-hidden");
         $sqlTableList.find(".unit").removeClass("selected");
         $unit.addClass("selected");
-        $sqlSection.find(".tableTitle").removeClass("xc-hidden")
-                   .find(".xdTable").text(gTables[tableId].tableName);
-        return tableId;
+        var html = '<span>' + SQLInfoTStr.TableTitle + '</span>' +
+                   '<span class="xdTable">' + gTables[tableId].tableName + '</span>';
+        $sqlSection.find(".tableTitle").html(html);
     }
 
     function search(key, isColSearch) {
@@ -513,7 +528,7 @@ window.SQLEditor = (function(SQLEditor, $) {
             // No table is selected
             $sqlColumnList.parent().siblings(".content").removeClass("xc-hidden");
             $searchColumn.addClass("xc-disabled");
-            $sqlSection.find(".tableTitle").addClass("xc-hidden");
+            $sqlSection.find(".tableTitle").html("");
         }
         $searchColumn.find("input").val("");
         document.getElementById('sqlColumnList').innerHTML = html;

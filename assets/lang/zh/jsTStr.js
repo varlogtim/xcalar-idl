@@ -1226,6 +1226,52 @@ LoginConfigTStr = {
     "veryStrong": "非常强"
 };
 
+SQLErrTStr = {
+    "LikeTwoChildren": "Like eval node should only have 2 children. Instead it has: ",
+    "CaseWhenOdd": "Else value exists, but num children for caseWhen is even: ",
+    "CaseWhenElse": "Else value should have length 1, instead it has: ",
+    "CaseWhenLastNode": "Last node for case when should have 3 children. Instead it has: ",
+    "CaseWhenParent": "If node has a parent, the recursive call should have idx defined. Instead it's undefined.",
+    "CaseWhenIdx": "If parent is undefined, this is the first call. So idx should be undefined. Instead it's defined as: ",
+    "InChildrenLength": "In must have at least 2 children [element and array that contains at least one element]. Length: ",
+    "AggregateExpressionOne": "AggregateExpression should have exactly one child. Instead it has: ",
+    "AggregateFirstChildClass": "AggregateExpression's first child should be an aggregateOperator. Instead it is: ",
+    "AggregateChildrenLength": "AggregateOperator should only have 1 child. Instead it has: ",
+    "SubqueryAggregate": "SubqueryAggregate's top node must be an aggregateOperator. Instead it is: ",
+    "YMDLength": "YMDExpression should have 1 child. Instead it has: ",
+    "YMDCast": "YMDExpression's child should be a Cast operation. Instead it is: ",
+    "YMDDataType": "YMDExpression's child should be a date type. Instead it is: ",
+    "YMDChildLength": "YMDExpression's child should have 1 child. Instead it has: ",
+    "YMDString": "YMDExpression's child's child should be of type string. Instead it is: ",
+    "YMDGrandCast": "YMDExpression's child's child should be of type cast. Instead it is: ",
+    "YMDGrandLength": "YMDExpression's grandchildren length should be 1. Instead it is: ",
+    "YMDIllegal": "YMDExpressions's grand child is either ts or cast. Instead it is: ",
+    "IgnoreOneChild": "Ignored operators should only have 1 child. Instead it has: ",
+    "ProjectOneChild": "Project operator should only have 1 child. Instead it has: ",
+    "ProjectAggAgg": "Project should not have agg inside an agg. Agg arry: ",
+    "GLChild": "GlobalLimit should have only 1 child. Instead it has: ",
+    "GLLength": "GlobalLimit's limit expression should be of length 1. Instead it is: ",
+    "GLDataType": "GlobalLimit's limitExpressoin datatype should be integer. Instead it is: ",
+    "FilterLength": "Filter should only have one child. Instead it has: ",
+    "NotAliasWindowExpr": "Window expression should have an alias node. Instead it is:",
+    "NoWENode": "There should be a WindowExpression node after alias node. Instead it is:",
+    "BadGenGBArray": "GenGBArray should only be called when list contains only attribute reference. Instead it is:",
+    "BadGenColStruct": "GenColStruct should only be called when node class is alias or AR. Instead it is:",
+    "NotARAgg": "In window aggregate function, the target column should be simple AR node. Instead it is:",
+    "NoSortFirst": "First/Last requires window to be ordered",
+    "ExprInNtile": "Variable in ntile() should not be expression. It is:",
+    "InvalidNtile": "Argument of ntile() should be positive. Instead it is:",
+    "UnsupportedWindow": "Window function currently not supported. It is:",
+    "NoTable": "Table or view not found: ",
+    "NoKey": "key not found: ",
+    "Cancel": "Operation Canceled",
+    "NoSchema": "Table doesn't exist."
+};
+
+SQLInfoTStr = {
+    "TableTitle": "对应工作薄中的表: "
+};
+
 JupyterTStr = {
     "JupNotebook": "Jupyter Notebook",
     "PrefixNoRename": "对象和数组类型的列无法重命名",
