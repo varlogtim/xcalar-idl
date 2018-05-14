@@ -1093,12 +1093,33 @@ ul.CodeMirror-hints {
             .xi-arrow-down {
                 transform: rotate(0);
             }
+
+            &.level-0 {
+                margin-left: 15px;
+            }
+
+            &.level-1 {
+                margin-left: 30px;
+            }
         }
 
         .xc-expand-list {
             &:not(.active) {
                 .udf, .xc-expand-list {
                     display: none;
+                }
+            }
+
+            &.loading {
+                pointer-events: none;
+                .listWrap {
+                    display: none;
+                }
+
+                .loading {
+                    text-align: center;
+                    color: @color-font-softBlue;
+                    margin-bottom: 5px;
                 }
             }
         }

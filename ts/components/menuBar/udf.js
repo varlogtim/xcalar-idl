@@ -109,7 +109,7 @@ window.UDF = (function($, UDF) {
     UDF.getCurrWorkbookPath = function() {
         return ("/workbook/" + XcSupport.getUser() + "/" +
                 WorkbookManager.getWorkbook(
-                WorkbookManager.getActiveWKBK()).name + "/udf/");
+                WorkbookManager.getActiveWKBK()).sessionId + "/udf/");
     };
 
     UDF.edit = function(modulePath) {
@@ -411,8 +411,8 @@ window.UDF = (function($, UDF) {
 
         var sortedUDF = Object.keys(storedUDF).sort();
         var userName = XcSupport.getUser();
-        var wbName = WorkbookManager.getWorkbook(
-                        WorkbookManager.getActiveWKBK()).name;
+        var sessionId = WorkbookManager.getWorkbook(
+                        WorkbookManager.getActiveWKBK()).sessionId;
 
         for (var i = 0; i < sortedUDF.length; i++) {
             var udf = sortedUDF[i];
@@ -420,7 +420,7 @@ window.UDF = (function($, UDF) {
             if (moduleSplit[1] === "dataflow") {
                 dataflowModules.push(udf);
             } else {
-                if (moduleSplit[2] === userName && moduleSplit[3] === wbName) {
+                if (moduleSplit[2] === userName && moduleSplit[3] === sessionId) {
                     currWorkbookModules.push(udf);
                 } else if (moduleSplit[2] === "udf" && moduleSplit[3] === "default") {
                     defaultModules.push(udf);

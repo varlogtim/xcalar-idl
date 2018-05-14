@@ -584,7 +584,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 "curUser": srcWKBK.curUser,
                 "numWorksheets": srcWKBK.numWorksheets,
                 "resource": srcWKBK.resource,
-                "jupyterFolder": folderName
+                "jupyterFolder": folderName,
+                "sessionId": srcWKBK.sessionId
             };
 
             var newWkbk = new WKBK(options);
@@ -849,6 +850,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                     });
                 }
 
+                wkbk.setSessionId(sessions[i].sessionId);
                 wkbk.setResource(hasResouce);
                 wkbkSet.put(wkbkId, wkbk);
             }

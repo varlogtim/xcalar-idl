@@ -228,6 +228,7 @@ declare function XcalarTargetDelete(targetName: string): XDPromise<void>;
 declare function XcalarGetVersion(connectionCheck: boolean): XDPromise<any>;
 declare function XcalarGetLicense(): XDPromise<any>;
 declare function XcalarRenameTable(oldTableName: string, newTableName: string, txId: number): XDPromise<void>;
+declare function XcalarListWorkbooks(pattern: string): XDPromise<any>;
 /* ============= THRIFT ENUMS ================= */
 declare enum DfFieldTypeT {
     DfString,
@@ -534,6 +535,7 @@ declare class XcStorage {
 declare class WKBK {
     public name: string;
     public modified: string;
+    public sessionId: string;
 }
 
 declare class METAConstructor {
@@ -590,6 +592,7 @@ declare namespace XcSupport {
     export function setup(stripEmail: boolean): void;
     export function heartbeatCheck(): void;
     export function getUser(): string;
+    export function setUser(userName: string): void;
     export function stopHeartbeatCheck(): void;
     export function restartHeartbeatCheck(): void;
     export function commitCheck(): XDPromise<any>;

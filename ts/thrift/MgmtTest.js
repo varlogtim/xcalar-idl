@@ -196,6 +196,7 @@ window.Function.prototype.bind = function() {
     var session1; // Inactive session after apiKeySession test
     var session2; // Active session after apiKeySession test
     var session3; // Session to use to upload workbook
+    var session2Id; // sessionId for session2 (needed for UDF naming)
 
     // For retina test
     var retinaName;
@@ -3065,7 +3066,9 @@ window.Function.prototype.bind = function() {
                         test.fail("Failed lookup. Expected x got " + lookupOutput.value);
                     }
                 })
-                .then(function() {
+                .then(function(sessionNewRet) {
+                    session2Id = sessionNewRet.output.outputResult.
+                        sessionNewOutput.sessionId
                     return xcalarApiSessionSwitch(thriftHandle, session2, session1, false);
                 })
                 .then (function() {
@@ -3210,7 +3213,7 @@ window.Function.prototype.bind = function() {
          * Make sure the strings used in the absolute path name for the UDF
          * match those in XLRDIR/src/include/udf/UserDefinedFunction.h
         */
-        var expectedFnName = "/workbook/" + userIdName + "/" + session2 + "/udf/" + fullyQualifiedFnName;
+        var expectedFnName = "/workbook/" + userIdName + "/" + session2Id + "/udf/" + fullyQualifiedFnName;
         var ii;
 
         xcalarApiUdfDelete(thriftHandle, moduleName)
@@ -3700,7 +3703,7 @@ window.Function.prototype.bind = function() {
              * Make sure the strings used in the absolute path name for the UDF
              * match those in XLRDIR/src/include/udf/UserDefinedFunction.h
             */
-            test.assert(output.fnDescs[0].fnName === "/workbook/" + userIdName + "/" + session2 + "/udf/mgmttestfoo:bar");
+            test.assert(output.fnDescs[0].fnName === "/workbook/" + userIdName + "/" + session2Id + "/udf/mgmttestfoo:bar");
             test.assert(output.fnDescs[0].argDescs[0].argDesc === "c");
             return xcalarApiUdfDelete(thriftHandle, "mgmttestfoo");
         })

@@ -29,16 +29,19 @@ window.XcSupport = (function(XcSupport, $) {
             if (gCollab) {
                 username = stripCharFromUserName(username, "/");
             }
-            // set up session variables
-            userIdName = username;
-            userIdUnique = getUserIdUnique(username);
-            //userToken = "0000";
+            XcSupport.setUser(username);
         } catch (error) {
             console.error(error);
         }
     };
 
     XcSupport.getUserIdUnique = getUserIdUnique;
+
+    XcSupport.setUser = function(username) {
+        // set up session variables
+        userIdName = username;
+        userIdUnique = getUserIdUnique(username);
+    };
 
     function stripCharFromUserName(name, ch) {
         var atIndex = name.indexOf(ch);

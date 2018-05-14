@@ -1671,6 +1671,7 @@
             resource: (boolean) true if it has resource,
             description: (string) workbook description
             jupyterFolder: (string) name of corresponding jupyter folder
+            sessionId: (string) backend id, not persisted
         */
         function WKBK<%= v %>(options) {
             var self = _super.call(this, options);
@@ -1679,6 +1680,7 @@
                 self.resource = options.resource || false;
                 self.description = options.description;
                 self.jupyterFolder = options.jupyterFolder;
+                self.sessionId = options.sessionId;
             }
             return self;
         }
@@ -1689,6 +1691,10 @@
                 this.noMeta = false;
                 // store modified data
                 this.modified = xcHelper.getCurrentTimeStamp();
+            },
+
+            setSessionId: function(sessinId) {
+                this.sessionId = sessinId;
             },
 
             getId: function() {
