@@ -66,7 +66,6 @@ namespace WorkspacePanel {
                     $("#workspaceBar").addClass("xc-hidden");
                     $("#imdBar").removeClass("xc-hidden");
                     $("#statusBar").removeClass("worksheetMode");
-                    TblFunc.hideOffScreenTables();
                     var firstTouch = $button.hasClass("firstTouch");
                     if (firstTouch) {
                         $button.removeClass("firstTouch");

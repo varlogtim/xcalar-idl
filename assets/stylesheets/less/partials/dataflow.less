@@ -515,8 +515,18 @@
                         &.typeTable .icon {
                             color: @color-error-border !important;
                         }
-                        &[data-advancedOpts="default"] .dagTableIcon {
-                            background: @color-error-border !important;
+                        &[data-advancedOpts="default"] {
+                            .dagTableIcon {
+                                background: @color-error-border !important;
+                            }
+                            .xi-data-out {
+                                color: @color-white !important;
+                            }
+                        }
+                        &[data-advancedOpts="import"] {
+                            .xi-data-out {
+                                color: @color-white !important;
+                            }
                         }
                     }
                 }
