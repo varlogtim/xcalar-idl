@@ -4794,9 +4794,6 @@ xcalarApiGetQuery = runEntity.xcalarApiGetQuery = function(thriftHandle, workIte
     case XcalarApisT.XcalarApiSynthesize:
         json["args"] = workItem.input.synthesizeInput;
         break;
-    case XcalarApisT.XcalarApiSelect:
-        json["args"] = workItem.input.selectInput;
-        break;
     default:
         break;
     }
