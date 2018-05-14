@@ -456,6 +456,18 @@ declare namespace IMDTStr {
     export var DelTableMsg: string;
 }
 
+declare namespace UDFTStr {
+    export var DelTitle: string;
+    export var DelMsg: string;
+    export var Edit: string;
+    export var View: string;
+    export var Download: string;
+    export var Del: string;
+    export var MyUDFS: string;
+    export var MYOTHERUDFS: string;
+    export var OtherUDFS: string;
+    export var DFUDFS: string;
+}
 // declare namespace WSTStr {
 //     export var Ws:
 // }
@@ -791,6 +803,10 @@ declare namespace JupyterPanel {
 declare namespace UDF {
     export function refreshWithoutClearing(overWriteUDF: boolean): void;
     export function getCurrWorkbookPath(): string;
+    export function edit(modulePath: string): void;
+    export function download(moduleName: string): XDPromise<void>;
+    export function del(moduleName: string): XDPromise<void>;
+    export function refresh(): XDPromise<void>;
 }
 
 declare namespace DSExport {

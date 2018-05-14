@@ -20,6 +20,7 @@ window.UDF = (function($, UDF) {
     UDF.setup = function() {
         setupUDF();
         setupTemplateList();
+        setupUDFManager();
     };
 
     UDF.initialize = function() {
@@ -109,6 +110,12 @@ window.UDF = (function($, UDF) {
         return ("/workbook/" + XcSupport.getUser() + "/" +
                 WorkbookManager.getWorkbook(
                 WorkbookManager.getActiveWKBK()).name + "/udf/");
+    };
+
+    UDF.edit = function(modulePath) {
+        // switch to first tab
+        $("#udfSection .tab:first-child").click();
+        getAndFillUDF(modulePath);
     };
 
     function initializeUDFList(isSetup, doNotClear) {
@@ -253,59 +260,6 @@ window.UDF = (function($, UDF) {
             upload(moduleName, entireString);
         });
         /* end of upload udf section */
-
-        /* udf manager section */
-        var $udfManager = $("#udf-manager");
-        // edit udf
-        $udfManager.on("click", ".udf .edit", function() {
-            var modulePath = $(this).closest(".udf").find(".text")
-                                                    .attr("data-udf-path");
-            var moduleName = $(this).closest(".udf").find(".text");
-            // switch to first tab
-            $("#udfSection .tab:first-child").click();
-            var $li = $("#udf-fnMenu").find("li").filter(function() {
-                return $(this).text() === moduleName;
-            });
-            if ($li.length) {
-                $li.click();
-            } else {
-                getAndFillUDF(modulePath);
-            }
-        });
-
-        $udfManager.on("click", ".udfManagerHeader", function() {
-            $expandList = $(this).closest(".xc-expand-list");
-            $expandList.toggleClass("active");
-        });
-
-        $udfManager.on("click", ".managerDataflowHeader", function() {
-            $expandList = $(this).closest(".xc-expand-list");
-            $expandList.toggleClass("active");
-            $(this).find(".xi-arrow-down").toggleClass("hidden");
-        });
-
-        // download udf
-        $udfManager.on("click", ".udf .download", function() {
-            var moduleName = $(this).closest(".udf").find(".text").attr("data-udf-path");
-            downloadUDF(moduleName);
-        });
-
-        // delete udf
-        $udfManager.on("click", ".udf .delete", function() {
-            var moduleName = $(this).closest(".udf").find(".text").attr("data-udf-path");
-            Alert.show({
-                "title": UDFTStr.DelTitle,
-                "msg": UDFTStr.DelMsg,
-                "onConfirm": function() {
-                    deleteUDF(moduleName);
-                }
-            });
-        });
-
-        $udfManager.on("click", ".refresh", function() {
-            refreshUDF();
-        });
-        /* end of udf manager section */
     }
 
     function setupTemplateList() {
@@ -322,6 +276,10 @@ window.UDF = (function($, UDF) {
             "menuHelper": menuHelper,
             "onEnter": inputUDFFuncList
         });
+    }
+
+    function setupUDFManager() {
+        UDFManager.Instance.addEvents();
     }
 
     function inputUDFFuncList(module) {
@@ -522,149 +480,14 @@ window.UDF = (function($, UDF) {
         }
     }
 
-    function getUDFSectionHTML(title, content, expand) {
-        var html = '<div class="listWrap xc-expand-list' + (expand? ' active' : '') + '">' +
-                        '<div class="udfManagerHeader listInfo no-selection">' +
-                            '<span class="expand">' +
-                                '<i class="icon xi-arrow-down fa-9"></i>' +
-                            '</span>' +
-                            '<span class="text">' +
-                                title +
-                            '</span>' +
-                        '</div>' +
-                        content +
-                    '</div>';
-        return html;
-    }
-
-    function getUDFListHTML(moduleName, isEditable) {
-        var udfClass = "udf";
-        var moduleSplit = moduleName.split("/");
-        var icon = "";
-
-        if (isEditable) {
-            icon = '<i class="edit icon xi-edit xc-action fa-14" ' +
-            'title="' + UDFTStr.Edit + '" data-toggle="tooltip" ' +
-            'data-container="body"></i>';
-        } else {
-            udfClass += " uneditable";
-            icon = '<i class="edit icon xi-show xc-action fa-14" ' +
-            'title="' + UDFTStr.View + '" data-toggle="tooltip" ' +
-            'data-container="body"></i>';
-        }
-
-        var html =
-                '<div class="' + udfClass + '">' +
-                    '<div class="iconWrap udfIcon">' +
-                        '<i class="icon xi-module center fa-15"></i>' +
-                    '</div>' +
-                    '<div class="text tooltipOverflow"' +
-                    ' data-toggle="tooltip"' +
-                    ' data-container="body"' +
-                    ' data-placement="top"' +
-                    ' data-title="' + moduleName +
-                    '" data-udf-path="' + moduleName + '">' +
-                        moduleSplit[moduleSplit.length - 1] +
-                    '</div>' +
-                    '<div class="actions">' +
-                        icon +
-                        '<i class="download icon xi-download xc-action fa-14" ' +
-                        'title="' + UDFTStr.Download + '" data-toggle="tooltip" ' +
-                        'data-container="body"></i>' +
-                        '<i class="delete icon xi-trash xc-action fa-14" ' +
-                        'title="' + UDFTStr.Del + '" data-toggle="tooltip" ' +
-                        'data-container="body"></i>' +
-                    '</div>' +
-                '</div>';
-        return html;
-    }
-
-    function getGeneralUDFHTML(title, moduleName, getSubHeading) {
-        // split modules by subHeading
-        var subHeadingMaps = {};
-        var subHeadingList = [];
-        moduleName.forEach(function(moduelName) {
-            var subHeading = getSubHeading(moduelName);
-            if (!subHeadingMaps.hasOwnProperty(subHeading)) {
-                subHeadingMaps[subHeading] = [];
-                subHeadingList.push(subHeading);
-            }
-            subHeadingMaps[subHeading].push(moduelName);
-        });
-
-        var content = '';
-        subHeadingList.forEach(function(subHeading) {
-            var moduleNames = subHeadingMaps[subHeading];
-            var list = '';
-            moduleNames.forEach(function(moduleName) {
-                list += getUDFListHTML(moduleName, false);
-            });
-
-            content +=
-                '<div class="listWrap xc-expand-list active">' +
-                    '<div class="managerDataflowHeader listInfo no-selection">' +
-                        '<span class="expand">' +
-                            '<i class="icon xi-arrow-down fa-9"></i>' +
-                        '</span>' +
-                        '<span class="text">' +
-                            subHeading +
-                        '</span>' +
-                    '</div>' +
-                    list +
-                '</div>';
-        });
-        return getUDFSectionHTML(title, content);
-    }
-
-    function getMyCurrentWorkbookUDFs(currWorkbookModules, defaultModules) {
-        var content = '';
-        currWorkbookModules.forEach(function(moduleName) {
-            content += getUDFListHTML(moduleName, true);
-        });
-
-        defaultModules.forEach(function(moduleName) {
-            content += getUDFListHTML(moduleName, false);
-        });
-
-        return getUDFSectionHTML(UDFTStr.MyUDFS, content, true);
-    }
-
-    function getMyOtherWorkbooksUDFs(moduleNames) {
-        var getSubHeading = function(moduleName) {
-            var moduleSplit = moduleName.split("/");
-            return moduleSplit[3];
-        };
-        return getGeneralUDFHTML(UDFTStr.MYOTHERUDFS, moduleNames, getSubHeading);
-    }
-
-    function getOtherUsersUDFs(moduleNames) {
-        var getSubHeading = function(moduleName) {
-            var moduleSplit = moduleName.split("/");
-            return moduleSplit[2] + " / " + moduleSplit[3];
-        };
-        return getGeneralUDFHTML(UDFTStr.OtherUDFS, moduleNames, getSubHeading);
-    }
-
-    function getDFUDFs(moduleNames) {
-        var getSubHeading = function(moduleName) {
-            var moduleSplit = moduleName.split("/");
-            return moduleSplit[2];
-        };
-        return getGeneralUDFHTML(UDFTStr.DFUDFS, moduleNames, getSubHeading);
-    }
-
     function updateManager(currWorkbookModules, defaultModules, otherWorkbookModules, otherModules, dfModuels) {
-        var $section = $("#udf-manager");
-        var len = currWorkbookModules.length + defaultModules.length +
-        otherWorkbookModules.length + otherModules.length + dfModuels.length;
-        var html = getMyCurrentWorkbookUDFs(currWorkbookModules, defaultModules) +
-            getMyOtherWorkbooksUDFs(otherWorkbookModules) +
-            getOtherUsersUDFs(otherModules) +
-            getDFUDFs(dfModuels);
-
-        $section.find(".numUDF").text(len)
-            .end()
-            .find(".udfListSection").html(html);
+        var udfManager = UDFManager.Instance;
+        udfManager.setCurrentWKBKUDFs(currWorkbookModules);
+        udfManager.setDefaultUDFs(defaultModules);
+        udfManager.setOtherWKBKUDFs(otherWorkbookModules);
+        udfManager.setOtherUDFs(otherModules);
+        udfManager.setDFUDFs(dfModuels);
+        udfManager.update();
     }
 
     function getEntireUDF(moduleName) {
@@ -713,7 +536,7 @@ window.UDF = (function($, UDF) {
         dropdownHint.clearInput();
     }
 
-    function downloadUDF(moduleName) {
+    UDF.download = function(moduleName) {
         var deferred = PromiseHelper.deferred();
         getEntireUDF(moduleName)
         .then(function(entireString) {
@@ -731,9 +554,9 @@ window.UDF = (function($, UDF) {
         });
 
         return deferred.promise();
-    }
+    };
 
-    function deleteUDF(moduleName) {
+    UDF.del = function(moduleName) {
         xcAssert(storedUDF.hasOwnProperty(moduleName), "Delete UDF error");
 
         XcalarDeletePython(moduleName)
@@ -766,7 +589,7 @@ window.UDF = (function($, UDF) {
             xcSocket.sendMessage("refreshUDFWithoutClear");
             xcHelper.showSuccess(SuccessTStr.DelUDF);
         }
-    }
+    };
 
     function validateUDFName() {
         var $fnName = $("#udf-fnName");
@@ -958,7 +781,6 @@ window.UDF = (function($, UDF) {
         UDF.__testOnly__ = {};
         UDF.__testOnly__.isEditableUDF = isEditableUDF;
         UDF.__testOnly__.getEntireUDF = getEntireUDF;
-        UDF.__testOnly__.downloadUDF = downloadUDF;
         UDF.__testOnly__.parseSyntaxError = parseSyntaxError;
         UDF.__testOnly__.uploadUDF = upload;
         UDF.__testOnly__.inputUDFFuncList = inputUDFFuncList;

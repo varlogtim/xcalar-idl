@@ -64,14 +64,14 @@ describe("UDF Test", function() {
             });
         });
 
-        it("downloadUDF should work", function(done) {
+        it("UDF.download should work", function(done) {
             var oldFunc = xcHelper.downloadAsFile;
             var test = null;
             xcHelper.downloadAsFile = function(moduleName, entireString) {
                 test = entireString;
             };
 
-            UDF.__testOnly__.downloadUDF(defaultModulePath)
+            UDF.download(defaultModulePath)
             .then(function() {
                 expect(test).not.to.be.null;
                 expect(test).to.be.a("string");
@@ -85,8 +85,8 @@ describe("UDF Test", function() {
             });
         });
 
-        it("downloadUDF should handle error case", function(done) {
-            UDF.__testOnly__.downloadUDF("unitTestErrorModule")
+        it("UDF.download should handle error case", function(done) {
+            UDF.download("unitTestErrorModule")
             .then(function() {
                 done("fail");
             })
@@ -362,7 +362,7 @@ describe("UDF Test", function() {
             expect($tab.hasClass("active")).to.be.false;
         });
 
-        it("should click to trigger downloadUDF", function() {
+        it("should click to trigger download UDF", function() {
             var udfName = xcHelper.randName("testUDF");
             var $udf = $('<div class="udf">' +
                             '<div class="text">' + udfName + '</div>' +
