@@ -99,6 +99,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
     var cancel = false;
     var done = false;
     var strengthClasses = "veryWeak weak strong veryStrong invalid";
+    var licenseData = {};
 
     InstallerCommon.setupForms = function($forms, validateStep, formClass) {
         $forms.find(".buttonSection").on("click", "input.next", function() {
@@ -107,7 +108,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
             if (curStep === 0 && (!$("#formArea").hasClass(formClass))) {
                 return;
             }
-            hideFailure($form);
+            InstallerCommon.hideFailure($form);
             validateStep(curStep, $form)
             .then(function(returnStructure) {
                 if (returnStructure) {
@@ -116,7 +117,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                 showStep(curStep + 1, $forms);
             })
             .fail(function() {
-                showFailure($form[0], arguments);
+                InstallerCommon.showFailure($form[0], arguments);
             });
             return false;
         });
@@ -190,6 +191,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         checkLicense(finalKey)
         .then(function(hints, ret) {
             if (ret.verified) {
+                licenseData = ret.data;
                 deferred.resolve();
             } else {
                 deferred.reject("Invalid server license key", "The license key that " +
@@ -208,6 +210,10 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                                 JSON.stringify({"licenseKey": license}));
         }
     };
+
+    InstallerCommon.getLicense = function() {
+        return licenseData;
+    }
 
     InstallerCommon.validatePreConfig = function($form) {
         var deferred = PromiseHelper.deferred();
@@ -813,7 +819,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         return deferred.promise();
     };
 
-    function showFailure($form, args) {
+    InstallerCommon.showFailure = function($form, args) {
         for (var i = 0; i < args.length; i++) {
             if (!args[i]) {
                 args[i] = "Unknown Error";
@@ -828,7 +834,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         $error.show();
     }
 
-    function hideFailure($form) {
+    InstallerCommon.hideFailure = function($form) {
         $form.find(".error").find("span").html("");
         $form.find(".error").hide();
     }
@@ -844,7 +850,7 @@ window.InstallerCommon = (function(InstallerCommon, $) {
                 $("#passwordStrength .strength").html("");
             }
         }
-        hideFailure($form);
+        InstallerCommon.hideFailure($form);
         function clearNumberServer($form) {
             $form.prop("disabled", false);
             $form.find(".hostnameSection").addClass("hidden");

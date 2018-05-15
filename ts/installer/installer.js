@@ -101,7 +101,19 @@ window.Installer = (function(Installer, $) {
         var numServers = $form.find("#numServers").val();
         var html = "";
         var i;
+        var license = InstallerCommon.getLicense();
+
+        InstallerCommon.hideFailure($form);
+
         if (numServers === 0 || numServers === "") {
+            return;
+        }
+
+        if (!license.NodeCount || (numServers > license.NodeCount)) {
+            var nodeCount = (license.NodeCount) ? license.NodeCount : -1;
+            var args = [ "The requested number of " + numServers + " servers",
+                         "exceeds the " + nodeCount + " allowed by license" ];
+            InstallerCommon.showFailure($form, args);
             return;
         }
 

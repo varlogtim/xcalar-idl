@@ -284,6 +284,15 @@ function checkLicense(credArray, script) {
         out.stdout.on('close', function(data) {
             if (retMsg && retMsg.hasOwnProperty("verified") && retMsg.verified) {
                 // Only resolve when verified is true
+                retMsg['data'] = {};
+                var licenseDataStr = fs.readFileSync(fileLocation).toString();
+                licenseDataStr.split('\n').forEach(function(line) {
+                    var arr = line.split('=');
+                    if (arr[0] !== '') {
+                        retMsg.data[arr[0]] = arr[1];
+                    }
+                });
+
                 deferredOut.resolve(retMsg);
             } else {
                 // This can be: 1. verified is false.
