@@ -49,7 +49,8 @@ setupHostName = function() {
     }
 
     if (window.planServer == null || window.planServer === "") {
-        planServer = hostname + "/sql";
+        // planServer = hostname + "/sql";
+        planServer = "http://localhost:27000/xcesql";
     }
 
     if (window.jupyterNotebooksPath == null || window.jupyterNotebooksPath === "") {
