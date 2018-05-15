@@ -149,10 +149,9 @@
                             'all files' +
                         '</a>   ' +
                         stripUrl(entry.url);
-
             const ranges = entry.ranges;
             let rangeTracker = 0;
-            let bytesTracker = 0;
+            let bytesTracker = -1;
             let lineNum = "";
             let content = "";
 

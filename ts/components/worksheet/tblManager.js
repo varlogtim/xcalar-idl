@@ -3324,7 +3324,7 @@ window.TblManager = (function($, TblManager) {
 
         PromiseHelper.when.apply(window, defArray)
         .then(function() {
-            return XIApi.deleteTables(tableJSON, txId);
+            return XIApi.deleteTables(txId, tableJSON);
         })
         .then(function() {
             tables.forEach(function(tableId) {
@@ -3391,7 +3391,7 @@ window.TblManager = (function($, TblManager) {
             tableJSON.push(query);
             names.push(tableName);
         });
-        XIApi.deleteTables(tableJSON, txId)
+        XIApi.deleteTables(txId, tableJSON)
         .then(function() {
             resolve(arguments);
             deferred.resolve.apply(this, arguments);
@@ -3435,7 +3435,7 @@ window.TblManager = (function($, TblManager) {
             names.push(tableName);
         });
 
-        XIApi.deleteTables(tableJSON, txId)
+        XIApi.deleteTables(txId, tableJSON)
         .then(function() {
             names.forEach(function(tableName) {
                 TableList.removeTable(tableName, TableType.Orphan);

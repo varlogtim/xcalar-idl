@@ -249,7 +249,7 @@ namespace XIApi {
             if (unsorted !== tableName) {
                 // this is sorted table, should index a unsorted one
                 XIApi.checkOrder(unsorted, txId)
-                .then(function(_parentOrder, parentKeys) {
+                .then((_parentOrder, parentKeys) => {
                     const parentKeyNames: string[] = parentKeys.map((key) => key.name);
                     if (!isSameKey(parentKeyNames, colsToIndex)) {
                         if (!isSameKey(parentKeyNames, tableKeyNames)) {
@@ -274,7 +274,7 @@ namespace XIApi {
                             const indexTable: string = getNewTableName(tableName,
                                                           ".indexParent", true);
                             XcalarIndexFromTable(unsorted, keyInfos, indexTable, txId)
-                            .then(function() {
+                            .then(() => {
                                 if (isSameKey(tableKeyNames, colsToIndex)) {
                                     // when the parent has right index
                                     shouldIndex = false;
@@ -334,7 +334,7 @@ namespace XIApi {
         tableName: string,
         isApiCall: boolean
     ): XDPromise<TableIndexResult> {
-        const tableId: string | number = xcHelper.getTableId(tableName);
+        const tableId: TableId = xcHelper.getTableId(tableName);
         let tableCols: ProgCol[] = null;
         let table: TableMeta = null;
 
@@ -418,7 +418,8 @@ namespace XIApi {
                         indexTable: newTableName,
                         indexKeys: newKeys,
                         tempTables: tempTables,
-                        hasIndexed: shouldIndex
+                        hasIndexed: shouldIndex,
+                        isCache: false
                     });
                 })
                 .fail((error) => {
@@ -427,7 +428,8 @@ namespace XIApi {
                             indexTable: unsortedTable,
                             indexKeys: colNames,
                             tempTables: tempTables,
-                            hasIndexed: false
+                            hasIndexed: false,
+                            isCache: false
                         });
                     } else {
                         deferred.reject(error);
@@ -439,7 +441,8 @@ namespace XIApi {
                     indexTable: unsortedTable,
                     indexKeys: colNames,
                     tempTables: tempTables,
-                    hasIndexed: shouldIndex
+                    hasIndexed: shouldIndex,
+                    isCache: false
                 });
             }
         })
@@ -527,7 +530,8 @@ namespace XIApi {
             return PromiseHelper.resolve({
                 tableName: tableName,
                 colNames: castInfo.newColNames,
-                types: castInfo.newTypes
+                types: castInfo.newTypes,
+                newTable: false
             });
         }
 
@@ -604,8 +608,8 @@ namespace XIApi {
                 "tempTables": tempTables
             });
         })
-        .fail(() => {
-            deferred.reject(xcHelper.getPromiseWhenError(<any>arguments));
+        .fail((...error) => {
+            deferred.reject(xcHelper.getPromiseWhenError(<any>error));
         });
 
         return deferred.promise();
@@ -620,13 +624,13 @@ namespace XIApi {
         const def2: XDDeferred<TableIndexResult> = PromiseHelper.deferred();
 
         checkTableIndex(txId, colNames, tableName, false)
-        .then(function(res) {
+        .then((res) => {
             def1.resolve(res);
             def2.resolve(res);
         })
-        .fail(function() {
-            def1.reject.apply(this, arguments);
-            def2.reject.apply(this, arguments);
+        .fail((...arg) => {
+            def1.reject.apply(this, arg);
+            def2.reject.apply(this, arg);
         });
 
         return [def1.promise(), def2.promise()];
@@ -649,12 +653,12 @@ namespace XIApi {
         const lTableName: string = joinInfo.lTableName;
         const rTableName: string = joinInfo.rTableName;
 
+        if (lColNames.length !== rColNames.length) {
+            return PromiseHelper.reject('invalid case');
+        }
+
         // for cross joins where no col names should be provided
-        if (lColNames.length === 0) {
-            if (rColNames.length !== 0) {
-                let err = 'Both lColNames and rColNames must be empty for outer joins';
-                return PromiseHelper.reject(err);
-            }
+        if (lColNames.length === 0 ) {
             const lInfo: JoinIndexResult = {
                 tableName: lTableName,
                 oldKeys: [],
@@ -716,9 +720,8 @@ namespace XIApi {
             };
             deferred.resolve(lInfo, rInfo, tempTables);
         })
-        .fail(function() {
-            const error: string = xcHelper.getPromiseWhenError(<any>arguments);
-            deferred.reject(error);
+        .fail((...error) => {
+            deferred.reject(xcHelper.getPromiseWhenError(<any>error));
         });
 
         return deferred.promise();
@@ -949,21 +952,6 @@ namespace XIApi {
     /* ============= End of Join Helper ================ */
 
     /* ============= GroupBy Helper ==================== */
-    function getTableKeys(txId: number, tableName: string): XDPromise<object[]> {
-        const deferred: XDDeferred<object[]> = PromiseHelper.deferred();
-        XIApi.checkOrder(tableName, txId)
-        .then(function(_ordering, keys) {
-            if (keys.length === 0) {
-                deferred.resolve(null);
-            } else {
-                deferred.resolve(keys);
-            }
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
     function getGroupByAggEvalStr(aggArg: AggColInfo): string {
         let evalStr = null;
         const op: string = convertOp(aggArg.operator);
@@ -997,7 +985,7 @@ namespace XIApi {
 
         // find the first col that is in groupByCols
         // and insert aggCols
-        sampleCols.forEach(function(colIndex) {
+        sampleCols.forEach((colIndex) => {
             const curCol = tableCols[colIndex];
             const colName: string = curCol.getBackColName();
             if (!newProgColPosFound) {
@@ -1026,6 +1014,17 @@ namespace XIApi {
         return finalCols;
     }
 
+    function getTableKeys(txId: number, tableName: string): XDPromise<object[]> {
+        const deferred: XDDeferred<object[]> = PromiseHelper.deferred();
+        XIApi.checkOrder(tableName, txId)
+        .then((_ordering, keys) => {
+            deferred.resolve(keys);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     function getFinalGroupByCols(
         txId: number,
         tableName: string,
@@ -1050,7 +1049,7 @@ namespace XIApi {
         if (tableId == null || !gTables.hasOwnProperty(tableId)) {
             // We really should clean up this function to remove the requirement
             // of gTables
-            groupByCols.forEach(function(name) {
+            groupByCols.forEach((name) => {
                 if (!usedNameSet.has[name]) {
                     usedNameSet.add(name);
                     newProgCols.push(ColManager.newPullCol(name, name));
@@ -1150,7 +1149,7 @@ namespace XIApi {
                                             newIndexTable, txId);
             }
         })
-        .then(function(res) {
+        .then((res) => {
             const evalStrs: string[] = [];
             const newColNames: string[] = [];
             aggArgs.forEach((aggArg) => {
@@ -1171,7 +1170,7 @@ namespace XIApi {
                                                 newGroupOnCols[0],
                                                 groupAll, txId);
         })
-        .then(function() {
+        .then(() => {
             tempTables.push(gbTableName);
             distinctGbTables.push(gbTableName);
             deferred.resolve();
@@ -1234,7 +1233,7 @@ namespace XIApi {
         const finalJoinedTable: string = curTableName;
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         PromiseHelper.chain(promises)
-        .then(function() {
+        .then(() => {
             deferred.resolve(finalJoinedTable);
         })
         .fail(deferred.reject);
@@ -1273,12 +1272,12 @@ namespace XIApi {
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         PromiseHelper.when.apply(this, promises)
-        .then(function() {
+        .then(() => {
             // Now we want to do cascading joins on the newTableNames
             return cascadingJoins(txId, distinctGbTables, gbTableName, groupOnCols,
                                 tempTables, tempCols);
         })
-        .then(function(finalJoinedTable) {
+        .then((finalJoinedTable) => {
             deferred.resolve(finalJoinedTable, tempTables, tempCols);
         })
         .fail(deferred.reject);
@@ -1347,7 +1346,7 @@ namespace XIApi {
 
             const innerDeferred: XDDeferred<void> = PromiseHelper.deferred();
             castColumns(txId, tableName, colNames, casts, options)
-            .then(function(res) {
+            .then((res) => {
                 if (res.newTable) {
                     tempTables.push(res.tableName);
                 }
@@ -1372,7 +1371,7 @@ namespace XIApi {
         const promises: XDPromise<void>[] = tableInfos.map(caseHelper);
         const deferred: XDDeferred<UnionRenameInfo[]> = PromiseHelper.deferred();
         PromiseHelper.when.apply(this, promises)
-        .then(function() {
+        .then(() => {
             deferred.resolve(unionRenameInfos, tempTables);
         })
         .fail(deferred.reject);
@@ -1424,7 +1423,7 @@ namespace XIApi {
         let concatColName: string;
 
         XIApi.map(txId, mapStrs, curTableName, newColNames)
-        .then(function(tableAfterMap) {
+        .then((tableAfterMap) => {
             tempTables.push(curTableName);
 
             curTableName = tableAfterMap;
@@ -1433,13 +1432,13 @@ namespace XIApi {
             // step 2, concat all cols into one col
             return XIApi.map(txId, [mapStr], curTableName, [concatColName]);
         })
-        .then(function(tableAfterMap) {
+        .then((tableAfterMap) => {
             tempTables.push(curTableName);
             curTableName = tableAfterMap;
             // step 3: index on the concat column
             return XIApi.index(txId, concatColName, curTableName);
         })
-        .then(function(finalTableName) {
+        .then((finalTableName) => {
             tempTables.push(curTableName);
             unionRenameInfo.tableName = finalTableName;
             const type: DfFieldTypeT = xcHelper.convertColTypeToFieldType(
@@ -1466,7 +1465,7 @@ namespace XIApi {
 
         const deferred: XDDeferred<UnionRenameInfo[]> = PromiseHelper.deferred();
         PromiseHelper.when.apply(this, promises)
-        .then(function() {
+        .then(() => {
             deferred.resolve(unionRenameInfos, tempTables);
         })
         .fail(deferred.reject);
@@ -1615,7 +1614,7 @@ namespace XIApi {
 
         const deferred: XDDeferred<string | number> = PromiseHelper.deferred();
         XIApi.genAggStr(colName, aggOp)
-        .then(function(evalStr) {
+        .then((evalStr) => {
             return XIApi.aggregateWithEvalStr(txId, evalStr,
                                              tableName, dstAggName);
         })
@@ -1654,7 +1653,7 @@ namespace XIApi {
 
         const deferred: XDDeferred<number> = PromiseHelper.deferred();
         XcalarGetTableMeta(tableName)
-        .then(function(tableMeta) {
+        .then((tableMeta) => {
             const keys: object[] = xcHelper.getTableKeyInfoFromMeta(tableMeta);
             deferred.resolve(tableMeta.ordering, keys);
         })
@@ -1764,7 +1763,7 @@ namespace XIApi {
         }
 
         XcalarIndexFromDataset(dsName, "xcalarRecordNum", newTableName, prefix, txId)
-        .then(function() {
+        .then(() => {
             deferred.resolve(newTableName, prefix);
         })
         .fail(deferred.reject);
@@ -1793,7 +1792,7 @@ namespace XIApi {
                                         <string[]>colToIndex : [colToIndex];
 
         checkTableIndex(txId, colsToIndex, tableName,  true)
-        .then(function(res) {
+        .then((res) => {
             deferred.resolve(res.indexTable, res);
         })
         .fail(deferred.reject);
@@ -1824,7 +1823,7 @@ namespace XIApi {
         }
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        const tableId: string | number = xcHelper.getTableId(tableName);
+        const tableId: TableId = xcHelper.getTableId(tableName);
 
         colInfos.forEach((colInfo) => {
             if (colInfo.type == null) {
@@ -1844,7 +1843,7 @@ namespace XIApi {
 
         // Check for case where table is already sorted
         XIApi.checkOrder(tableName, txId)
-        .then(function(_sortOrder, sortKeys) {
+        .then((_sortOrder, sortKeys) => {
             if (sortKeys.length === colInfos.length) {
                 let diffFound: boolean = false;
                 for (let i = 0; i < sortKeys.length; i++) {
@@ -1865,7 +1864,7 @@ namespace XIApi {
 
             return XcalarIndexFromTable(tableName, colInfos, newTableName, txId);
         })
-        .then(function(res) {
+        .then((res) => {
             deferred.resolve(newTableName, res.newKeys);
         })
         .fail(deferred.reject);
@@ -1949,20 +1948,20 @@ namespace XIApi {
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         XcalarMap(newColNames, mapStrs, tableName, newTableName, txId, false, icvMode)
-        .then(function() {
+        .then(() => {
             deferred.resolve(newTableName);
         })
-        .fail(function(error) {
+        .fail((error) => {
             if (typeof error === "object" && error.status === StatusT.StatusCannotReplaceKey) {
                 // We assume if can only occur when the column is indexed but not sorted
                 // if later we break this assumption, need to fix sort issue
                 XIApi.index(txId, gXcalarRecordNum, tableName)
-                .then(function(indexTable) {
+                .then((indexTable) => {
                     const doNotUnSort: boolean = true;
                     return XcalarMap(newColNames, mapStrs, indexTable,
                                     newTableName, txId, doNotUnSort, icvMode);
                 })
-                .then(function() {
+                .then(() => {
                     deferred.resolve(newTableName);
                 })
                 .fail(deferred.reject);
@@ -2217,7 +2216,7 @@ namespace XIApi {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         // tableName is the original table name that started xiApi.groupby
         checkTableIndex(txId, groupByCols, tableName, false)
-        .then(function(res) {
+        .then((res) => {
             tempTables = tempTables.concat(res.tempTables);
             // table name may have changed after sort!
             let indexedTable: string = res.indexTable;
@@ -2245,18 +2244,18 @@ namespace XIApi {
                 indexedTable, gbTableName, isIncSample,
                 icvMode, newKeyFieldName, groupAll, txId)
         })
-        .then(function() {
+        .then(() => {
             return getFinalGroupByCols(txId, tableName, gbTableName, groupByCols,
                                         normalAggArgs, isIncSample, sampleCols);
         })
-        .then(function(resCols, resRenamedCols) {
+        .then((resCols, resRenamedCols) => {
             finalCols = resCols;
             renamedGroupByCols = resRenamedCols;
             // XXX Check whether tempTables is well tracked
             return distinctGroupby(txId, tableName, groupByCols,
                                     distinctAggArgs, gbTableName);
         })
-        .then(function(resTable, resTempTables, resTempCols) {
+        .then((resTable, resTempTables, resTempCols) => {
             const finalTable: string = resTable;
             tempTables = tempTables.concat(resTempTables);
             tempCols = tempCols.concat(resTempCols);
@@ -2545,7 +2544,7 @@ namespace XIApi {
         // similar with XIApi.fetchData, but will parse the value
         const deferred: XDDeferred<object[]> = PromiseHelper.deferred();
         XIApi.fetchData(tableName, startRowNum, rowsRequested)
-        .then(function(data: string[]) {
+        .then((data: string[]) => {
             try {
                 const parsedData: any[] = data.map((d) => JSON.parse(d));
                 deferred.resolve(parsedData);
@@ -2583,10 +2582,10 @@ namespace XIApi {
             try {
                 const result: any[] = data.map((d) => {
                     const row: object = JSON.parse(d);
-                    result.push(row[colName]);
+                    return row[colName];
                 });
                 deferred.resolve(result);
-            } catch(error) {
+            } catch (error) {
                 deferred.reject(error);
             }
         })
@@ -2612,10 +2611,9 @@ namespace XIApi {
         }
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-
         XcalarDeleteTable(tableName, txId)
         .then(deferred.resolve)
-        .fail(function(error) {
+        .fail((error) => {
             if (toIgnoreError) {
                 deferred.resolve();
             } else {
@@ -2629,12 +2627,12 @@ namespace XIApi {
     // if at least 1 table fails, will reject
     /**
      * XIApi.deleteTables
-     * @param arrayOfQueries
      * @param txId
+     * @param arrayOfQueries
      */
     export function deleteTables(
-        arrayOfQueries: object[],
-        txId: number
+        txId: number,
+        arrayOfQueries: object[]
     ): XDPromise<any> {
         if (txId == null || arrayOfQueries == null) {
             return PromiseHelper.reject('Invalid args in delete table');
@@ -2761,7 +2759,24 @@ namespace XIApi {
             parseAggOps: parseAggOps,
             isSameKey: isSameKey,
             checkIfNeedIndex: checkIfNeedIndex,
-            getUnusedImmNames: getUnusedImmNames
+            checkTableIndex: checkTableIndex,
+            getUnusedImmNames: getUnusedImmNames,
+            getCastInfo: getCastInfo,
+            castColumns: castColumns,
+            joinCast: joinCast,
+            joinIndex: joinIndex,
+            resolveJoinColRename: resolveJoinColRename,
+            semiJoinHelper: semiJoinHelper,
+            createJoinedColumns: createJoinedColumns,
+            getGroupByAggEvalStr: getGroupByAggEvalStr,
+            getFinalGroupByCols: getFinalGroupByCols,
+            computeDistinctGroupby: computeDistinctGroupby,
+            cascadingJoins: cascadingJoins,
+            distinctGroupby: distinctGroupby,
+            checkUnionTableInfos: checkUnionTableInfos,
+            unionCast: unionCast,
+            getUnionConcatMapStr: getUnionConcatMapStr,
+            unionAllIndex: unionAllIndex
         }
     }
     /* End Of Unit Test Only */
