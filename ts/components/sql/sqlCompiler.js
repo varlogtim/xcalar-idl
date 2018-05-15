@@ -440,17 +440,23 @@
                                              length.value * 1);
                     } else {
                         var addN = addNode();
+                        var intN = castNode("int");
                         addN.children.push(node.children[1], node.children[2]);
-                        node.children[2] = addN;
+                        intN.children = [addN];
+                        node.children[2] = intN;
                     }
                 } else {
                     var subNode = subtractNode();
                     subNode.children.push(node.children[1],
                                           literalNumberNode(1));
                     var addN = addNode();
+                    var intNLeft = castNode("int");
+                    var intNRight = castNode("int");
                     addN.children.push(subNode, node.children[2]);
-                    node.children[1] = subNode;
-                    node.children[2] = addN;
+                    intNLeft.children = [subNode];
+                    intNRight.children = [addN];
+                    node.children[1] = intNLeft;
+                    node.children[2] = intNRight;
                 }
                 break;
             // Left & Right are now handled by UDFs
@@ -737,7 +743,7 @@
             case ("expressions.DateAdd"):
             case ("expressions.DateSub"):
                 var asNode;
-                if(opName === "expressions.DateAdd") {
+                if (opName === "expressions.DateAdd") {
                     asNode = addNode();
                 } else {
                     asNode = subtractNode();
@@ -804,13 +810,14 @@
         return deferred.promise();
     }
 
-    SQLCompiler.publishTable = function(xcalarTableName, sqlTableName) {
-        tableLookup[sqlTableName] = xcalarTableName;
-    };
+    // Not used currently
+    // SQLCompiler.publishTable = function(xcalarTableName, sqlTableName) {
+    //     tableLookup[sqlTableName] = xcalarTableName;
+    // };
 
-    SQLCompiler.getAllPublishedTables = function() {
-        return tableLookup;
-    };
+    // SQLCompiler.getAllPublishedTables = function() {
+    //     return tableLookup;
+    // };
     function ProjectNode(columns) {
         return new TreeNode({
             "class": "org.apache.spark.sql.catalyst.plans.logical.Project",
@@ -2896,6 +2903,8 @@
             node.value.class ===
             "org.apache.spark.sql.catalyst.expressions.Literal") {
                 return convertSparkTypeToXcalarType(node.value.dataType);
+        } else if (isMathOperator(node.value.class)) {
+            return "float";
         } else if (node.value.class ===
             "org.apache.spark.sql.catalyst.expressions.ScalarSubquery") {
             return __getColType(SQLCompiler.genTree(undefined,
@@ -2976,7 +2985,7 @@
 
     function __handleSortMap(self, maps, tableName) {
         var deferred = PromiseHelper.deferred();
-        if(maps.length === 0) {
+        if (maps.length === 0) {
             deferred.resolve({newTableName: tableName, cli: ""});
         } else {
             self.sqlObj.map(maps.map(function(item) {
@@ -3350,6 +3359,10 @@
                                    .value.value;
                 var defaultValue = opNode.children[opNode.value.default]
                                          .value.value;
+                // XXX Not supported currently
+                assert(opNode.children[opNode.value.default].value.dataType != "null");
+                var defaultType = convertSparkTypeToXcalarType(opNode
+                                .children[opNode.value.default].value.dataType);
                 var windowStruct = {cli: ""};
                 var rightKeyColStruct;
                 windowStruct.node = node;
@@ -3421,21 +3434,33 @@
                     cli += windowStruct.cli;
                     cli += ret.cli;
                     node.usrCols.push(newColStruct);
-                    var mapStr = "if(";
+                    var mapStr;
+                    if (defaultType === "string") {
+                        mapStr = "ifStr(";
+                        defaultValue = "string(" + defaultValue + ")";
+                    } else {
+                        mapStr = "if(";
+                    }
                     // Need to check rename here
                     for (var i = 0; i < leftJoinCols.length - 1; i++) {
                         mapStr += "and(eq("
                             + __getCurrentName(leftJoinCols[i]) + ", "
                             + __getCurrentName(rightJoinCols[i]) + "),";
                     }
-                    mapStr += "eq("
-                        + __getCurrentName(leftJoinCols[leftJoinCols
-                            .length - 1]) + ", "
-                        + __getCurrentName(rightJoinCols[leftJoinCols
-                            .length - 1]) + ")"
-                        + Array(leftJoinCols.length).join(")") + ", "
-                        + __getCurrentName(rightKeyColStruct)
-                        + ", " + defaultValue + ")";
+                    if (groupByCols.length === 0) {
+                        mapStr += "exists(" + newIndexColName + "), "
+                                  + __getCurrentName(rightKeyColStruct)
+                                  + ", " + defaultValue + ")";
+                    } else {
+                        mapStr += "eq("
+                            + __getCurrentName(leftJoinCols[leftJoinCols
+                                .length - 1]) + ", "
+                            + __getCurrentName(rightJoinCols[leftJoinCols
+                                .length - 1]) + ")"
+                            + Array(leftJoinCols.length).join(")") + ", "
+                            + __getCurrentName(rightKeyColStruct)
+                            + ", " + defaultValue + ")";
+                    }
                     return self.sqlObj.map([mapStr], ret.newTableName,
                                                 [newColStruct.colName]);
                 });
@@ -4147,39 +4172,40 @@
         return retStruct;
     }
 
-    function getTablesInSubtree(tree) {
-        function getTablesRecur(subtree, tablesSeen) {
-            if (subtree.value.class ===
-                "org.apache.spark.sql.execution.LogicalRDD") {
-                if (!(subtree.newTableName in tablesSeen)) {
-                    tablesSeen.push(subtree.newTableName);
-                }
-            }
-            for (var i = 0; i < subtree.children.length; i++) {
-                getTablesRecur(subtree.children[i], tablesSeen);
-            }
-        }
-        var allTables = [];
-        getTablesRecur(tree, allTables);
-        return allTables;
-    }
+    // Not used currently
+    // function getTablesInSubtree(tree) {
+    //     function getTablesRecur(subtree, tablesSeen) {
+    //         if (subtree.value.class ===
+    //             "org.apache.spark.sql.execution.LogicalRDD") {
+    //             if (!(subtree.newTableName in tablesSeen)) {
+    //                 tablesSeen.push(subtree.newTableName);
+    //             }
+    //         }
+    //         for (var i = 0; i < subtree.children.length; i++) {
+    //             getTablesRecur(subtree.children[i], tablesSeen);
+    //         }
+    //     }
+    //     var allTables = [];
+    //     getTablesRecur(tree, allTables);
+    //     return allTables;
+    // }
 
-    function getQualifiersInSubtree(tree) {
-        var tablesSeen = [];
-        function getQualifiersRecur(subtree) {
-            if (subtree.value.class ===
-               "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
-                if (!(subtree.value.qualifier in tablesSeen)) {
-                    tablesSeen.push(subtree.value.qualifier);
-                }
-            }
-            for (var i = 0; i < subtree.children.length; i++) {
-                getQualifiersRecur(subtree.children[i]);
-            }
-        }
-        getQualifiersRecur(tree);
-        return tablesSeen;
-    }
+    // function getQualifiersInSubtree(tree) {
+    //     var tablesSeen = [];
+    //     function getQualifiersRecur(subtree) {
+    //         if (subtree.value.class ===
+    //            "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
+    //             if (!(subtree.value.qualifier in tablesSeen)) {
+    //                 tablesSeen.push(subtree.value.qualifier);
+    //             }
+    //         }
+    //         for (var i = 0; i < subtree.children.length; i++) {
+    //             getQualifiersRecur(subtree.children[i]);
+    //         }
+    //     }
+    //     getQualifiersRecur(tree);
+    //     return tablesSeen;
+    // }
 
     function getAttributeReferences(treeNode, arr, options) {
         if (treeNode.value.class ===
