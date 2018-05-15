@@ -234,13 +234,16 @@ class UDFManager {
         // split modules by subHeading
         const subHeadingMaps: object = {};
         const subHeadingList: string[] = [];
+        const subCategoryiesMap: object = {};
         moduleNames.forEach((moduelName, index) => {
             const subHeading: string = categories[index][level];
             if (!subHeadingMaps.hasOwnProperty(subHeading)) {
                 subHeadingMaps[subHeading] = [];
+                subCategoryiesMap[subHeading] = [];
                 subHeadingList.push(subHeading);
             }
             subHeadingMaps[subHeading].push(moduelName);
+            subCategoryiesMap[subHeading].push(categories[index]);
         });
 
         let content: string = '';
@@ -256,7 +259,8 @@ class UDFManager {
                             subHeading +
                         '</span>' +
                     '</div>' +
-                    this._getUDFContentHTML(moduleNames, categories, level + 1) +
+                    this._getUDFContentHTML(subHeadingMaps[subHeading],
+                        subCategoryiesMap[subHeading], level + 1) +
                 '</div>';
         });
         return content;

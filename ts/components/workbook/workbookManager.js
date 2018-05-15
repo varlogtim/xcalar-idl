@@ -1018,6 +1018,12 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 console.error(error);
                 deferred.reject(error);
             } else {
+                try {
+                    wkbk.setSessionId(retStruct.sessions[0].sessionId);
+                } catch (e) {
+                    console.error(e);
+                }
+
                 if (retStruct.sessions[0].state === "Active") {
                     // This happens when there are no active sessions. The
                     // first one we create gets auto activated
