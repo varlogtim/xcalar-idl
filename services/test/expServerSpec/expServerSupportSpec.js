@@ -63,6 +63,22 @@ describe('ExpServer Support Test', function() {
         });
     });
 
+    it('executeCommand should work even if timeout', function(done) {
+        var timeout = support.getTimeout();
+        support.setNewTimeout(1);
+        support.executeCommand("sleep 1")
+        .then(function(ret) {
+            expect(ret.status).to.equal(200);
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        })
+        .always(function() {
+            support.setNewTimeout(timeout);
+        });
+    });
+
     it("readHostsFromFile should work", function(done) {
         support.readHostsFromFile(testHostsFile)
         .then(function(ret) {

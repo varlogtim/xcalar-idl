@@ -254,8 +254,9 @@ function checkLicense(credArray, script) {
     licenseFileStream = fs.createWriteStream(fileLocation);
     licenseStream.pipe(zlib.createGunzip()).pipe(licenseFileStream);
 
+    var retMsg;
     licenseFileStream.on('error', function(err) {
-        var retMsg = {"status": httpStatus.InternalServerError};
+        retMsg = {"status": httpStatus.InternalServerError};
         if (err) {
             deferredOut.reject(retMsg);
             return;
@@ -673,13 +674,13 @@ router.post("/xdp/installation/cancel", function(req, res) {
     res.send({"status": httpStatus.OK});
 });
 
-// router.get("/installationLogs/slave", function(req, res) {
-//     xcConsole.log("Fetching Installation Logs as Slave");
-//     support.slaveExecuteAction("GET", "/installationLogs/slave")
-//     .always(function(message) {
-//         res.status(message.status).send(message);
-//     });
-// });
+router.get("/installationLogs/slave", function(req, res) {
+    xcConsole.log("Fetching Installation Logs as Slave");
+    support.slaveExecuteAction("GET", "/installationLogs/slave")
+    .always(function(message) {
+        res.status(message.status).send(message);
+    });
+});
 
 // Below part is only for Unit Test
 function getCurStepStatus() {
@@ -717,6 +718,9 @@ function fakeDiscoverUtil(func) {
 function fakeCreateStatusArray(func) {
     createStatusArray = func;
 }
+function fakeSlaveExecuteAction(func) {
+    support.slaveExecuteAction = func;
+}
 if (process.env.NODE_ENV === "test") {
     exports.genExecString = genExecString;
     exports.encryptPassword = encryptPassword;
@@ -733,5 +737,6 @@ if (process.env.NODE_ENV === "test") {
     exports.fakeInstallUpgradeUtil = fakeInstallUpgradeUtil;
     exports.fakeDiscoverUtil = fakeDiscoverUtil;
     exports.fakeCreateStatusArray = fakeCreateStatusArray;
+    exports.fakeSlaveExecuteAction = fakeSlaveExecuteAction;
 }
 exports.router = router;

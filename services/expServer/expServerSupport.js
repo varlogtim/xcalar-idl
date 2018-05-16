@@ -907,11 +907,11 @@ function fakeSendCommandToSlaves(func) {
 function fakeGetXlrRoot(func) {
     getXlrRoot = func;
 }
-function fakeMasterExecuteAction(func) {
-    masterExecuteAction = func;
+function getTimeout() {
+    return timeout;
 }
-function fakeSlaveExecuteAction(func) {
-    slaveExecuteAction = func;
+function setNewTimeout(time) {
+    timeout = time;
 }
 
 if (process.env.NODE_ENV === "test") {
@@ -923,13 +923,13 @@ if (process.env.NODE_ENV === "test") {
     exports.readInstallerLog = readInstallerLog;
     exports.isComplete = isComplete;
     exports.getOperatingSystem = getOperatingSystem;
+    exports.getTimeout = getTimeout;
+    exports.setNewTimeout = setNewTimeout;
     // Fake functions
     exports.fakeExecuteCommand = fakeExecuteCommand;
     exports.fakeReadHostsFromFile = fakeReadHostsFromFile;
     exports.fakeSendCommandToSlaves = fakeSendCommandToSlaves;
     exports.fakeGetXlrRoot = fakeGetXlrRoot;
-    exports.fakeMasterExecuteAction = fakeMasterExecuteAction;
-    exports.fakeSlaveExecuteAction = fakeSlaveExecuteAction;
 }
 
 exports.getXlrRoot = getXlrRoot;

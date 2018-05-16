@@ -14,7 +14,7 @@ describe("ExpServer Socket Test", function() {
     var testAlertOpts;
     var testOverwriteUDF;
 
-    before(function() {
+    before(function(done) {
         testUserOption = {
             user: "testUser",
             id: "testId"
@@ -24,18 +24,16 @@ describe("ExpServer Socket Test", function() {
         testAlertOpts = {};
         testWkbk = "testWkbk";
         testIMD = "testIMD";
-    });
-
-    it("socket should connect", function(done) {
         var flag1, flag2;
         client = io('http://localhost:12125', options);
-        peerClient = io('http://localhost:12125', options);
         client.on("connect", function() {
+            peerClient = io('http://localhost:12125', options);
             peerClient.on("connect", function() {
                 done();
-            })
+            });
         });
     });
+
 
     it("socket should handle registerUser", function(done) {
         var expectedRes = {
@@ -46,10 +44,19 @@ describe("ExpServer Socket Test", function() {
                 }
             }
         }
+        var first = true;
         client.emit("registerUserSession", testUserOption, function() {});
         client.on("system-allUsers", function(users) {
-            expect(users).to.deep.equal(expectedRes);
-            done();
+            if (first) {
+                expect(users).to.deep.equal(expectedRes);
+                first = false;
+                client.emit("registerUserSession", testUserOption, function() {});
+            } else {
+                expectedRes.testUser.count += 1;
+                expectedRes.testUser.workbooks.testId += 1;
+                expect(users).to.deep.equal(expectedRes);
+                done();
+            }
         });
     });
 
@@ -118,9 +125,36 @@ describe("ExpServer Socket Test", function() {
         });
     });
 
-    it("socket should disconnect", function() {
+    it("socket should handle ds event", function(done) {
+        var arg = {id: 0,
+                   event: "changeStart"};
+        client.emit("ds", arg, function(success1) {
+            expect(success1).to.be.true;
+            client.emit("ds", arg, function(success2) {
+                // It's locked
+                expect(success2).to.be.false;
+                arg.event = "changeEnd";
+                client.emit("ds", arg, function(success3) {
+                    expect(success3).to.be.true;
+                    done();
+                });
+            });
+        });
+    });
+
+    it("socket should disconnect", function(done) {
+        var expectedRes = {
+            testUser: {
+                count: 1,
+                workbooks: {}
+            }
+        }
         client.disconnect();
         expect(client.connected).to.equal(false);
+        peerClient.on("system-allUsers", function(users) {
+            expect(users).to.deep.equal(expectedRes);
+            done();
+        });
     });
 
 });

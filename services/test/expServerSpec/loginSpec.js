@@ -43,6 +43,9 @@ describe('ExpServer Login Test', function() {
     var testCredArray;
     var testLdapConn;
     var testConfig;
+    var oldRoot;
+    var fakeRoot;
+    var emptyPromise;
 
     // Test begins
     before(function() {
@@ -100,12 +103,27 @@ describe('ExpServer Login Test', function() {
         testLdapConn = {};
         testLdapConn2 = {};
         testLdapConn3 = {};
+        oldRoot = support.getXlrRoot;
+        fakeRoot = function() {
+            return jQuery.Deferred().resolve(__dirname + "/../../test").promise();
+        };
+        emptyPromise = function() {
+            return jQuery.Deferred().resolve().promise();
+        }
+        resolveResponse = function() {
+            var msg = {
+                "status": httpStatus.OK,
+                "isValid": true
+            };
+            if (reject){
+                return jQuery.Deferred().reject().promise();
+            }
+            else return jQuery.Deferred().resolve(msg).promise();
+        };
     });
 
     it("login.setupLdapConfigs should work", function(done) {
-        support.getXlrRoot = function() {
-            return jQuery.Deferred().resolve(__dirname + "/../../test").promise();
-        };
+        login.fakeGetXlrRoot(fakeRoot);
         login.setupLdapConfigs(true)
         .then(function(ret) {
             expect(ret).to.equal("setupLdapConfigs succeeds");
@@ -113,13 +131,17 @@ describe('ExpServer Login Test', function() {
         })
         .fail(function() {
             done("fail");
+        })
+        .always(function() {
+            login.fakeGetXlrRoot(oldRoot);
         });
     });
 
     it("login.setupLdapConfigs should fail when error", function(done) {
-        support.getXlrRoot = function() {
+        var fakeFunc = function() {
             return jQuery.Deferred().resolve("testError").promise();
         };
+        support.fakeGetXlrRoot(fakeFunc);
         login.setupLdapConfigs(true)
         .then(function() {
             done("fail");
@@ -127,6 +149,9 @@ describe('ExpServer Login Test', function() {
         .fail(function(error) {
             expect(error).to.have.string("setupLdapConfigs failed: Error: Cannot find module");
             done();
+        })
+        .always(function() {
+            support.fakeGetXlrRoot(oldRoot);
         });
     });
 
@@ -250,14 +275,22 @@ describe('ExpServer Login Test', function() {
 
     it('login.loginAuthentication should work', function(done) {
         testCredArray = { "xiusername": "foo", "xipassword": "bar" };
-        support.getXlrRoot = function() {
-            return jQuery.Deferred().resolve(__dirname + "/../../test").promise();
+        login.fakeGetXlrRoot(fakeRoot);
+        var oldConfig = login.setupLdapConfigs;
+        var oldConn = login.setLdapConnection;
+        var oldAuth = login.ldapAuthentication;
+        var oldResponse = login.prepareResponse;
+        login.fakeSetupLdapConfigs(emptyPromise);
+        login.fakeSetLdapConnection(emptyPromise);
+        login.fakeLdapAuthentication(emptyPromise);
+        var fakeResponse = function() {
+            var msg = {
+                "status": 200,
+                "isValid": true
+            };
+            return jQuery.Deferred().resolve(msg).promise();
         };
-
-        login.fakeSetupLdapConfigs();
-        login.fakeSetLdapConnection();
-        login.fakeLdapAuthentication();
-        login.fakePrepareResponse();
+        login.fakePrepareResponse(fakeResponse);
         login.loginAuthentication(testCredArray)
         .then(function(ret) {
             expect(ret.isValid).to.be.true;
@@ -265,16 +298,29 @@ describe('ExpServer Login Test', function() {
         })
         .fail(function(message) {
             done("fail: " + JSON.stringify(message));
+        })
+        .always(function() {
+            login.fakeGetXlrRoot(oldRoot);
+            login.fakeSetupLdapConfigs(oldConfig);
+            login.fakeSetLdapConnection(oldConn);
+            login.fakeLdapAuthentication(oldAuth);
+            login.fakePrepareResponse(oldResponse);
         });
     });
 
     it('login.loginAuthentication should fail when error', function(done) {
         testCredArray = { "xiusername": "nobody", "xipassword": "wrong" };
-        var shouldReject = true;
-        login.fakeSetupLdapConfigs();
-        login.fakeSetLdapConnection();
-        login.fakeLdapAuthentication();
-        login.fakePrepareResponse(shouldReject);
+        var oldConfig = login.setupLdapConfigs;
+        var oldConn = login.setLdapConnection;
+        var oldAuth = login.ldapAuthentication;
+        var oldResponse = login.prepareResponse;
+        login.fakeSetupLdapConfigs(emptyPromise);
+        login.fakeSetLdapConnection(emptyPromise);
+        login.fakeLdapAuthentication(emptyPromise);
+        var fakeResponse = function() {
+            return jQuery.Deferred().reject().promise();
+        };
+        login.fakePrepareResponse(fakeResponse);
         login.loginAuthentication(testCredArray)
         .then(function() {
             done("fail");
@@ -282,6 +328,12 @@ describe('ExpServer Login Test', function() {
         .fail(function(error) {
             expect(error.isValid).to.be.false;
             done();
+        })
+        .always(function() {
+            login.fakeSetupLdapConfigs(oldConfig);
+            login.fakeSetLdapConnection(oldConn);
+            login.fakeLdapAuthentication(oldAuth);
+            login.fakePrepareResponse(oldResponse);
         });
     });
 
@@ -293,7 +345,11 @@ describe('ExpServer Login Test', function() {
 
         var expectedRetMsg = {
             "status": 200,
-            "isValid": false,
+            "firstName ": "sp1_first",
+            "isAdmin": true,
+            "isSupporter": false,
+            "isValid": true,
+            "mail": "sPerson1@gmail.com"
         };
         postRequest("POST", "/login", testCredArray)
         .then(function(ret) {
@@ -339,9 +395,10 @@ describe('ExpServer Login Test', function() {
     });
 
     it('Router should fail with setMsalConfig action and invalid directory', function(done) {
-        support.getXlrRoot = function() {
+        var fakeFunc = function() {
             return jQuery.Deferred().resolve("../../doesnotexist").promise();
         };
+        login.fakeGetXlrRoot(fakeFunc);
 
         var credArray = {
             msalEnabled: true,
@@ -360,14 +417,14 @@ describe('ExpServer Login Test', function() {
         })
         .fail(function() {
             done("fail");
+        })
+        .always(function() {
+            login.fakeGetXlrRoot(oldRoot);
         });
     });
 
     it('Router should work with proper setMsalConfig action and getMsalConfig action', function(done) {
-        support.getXlrRoot = function() {
-            return jQuery.Deferred().resolve(__dirname + "/../../test").promise();
-        };
-
+        login.fakeGetXlrRoot(fakeRoot);
         var setArray = {
             msalEnabled: true,
             msal: {
@@ -444,13 +501,14 @@ describe('ExpServer Login Test', function() {
             }
             expect(ret).to.deep.equal(foo)
             done("fail");
+        })
+        .always(function() {
+            login.fakeGetXlrRoot(oldRoot);
         });
     });
 
     it('Router should fail with setDefaultAdmin action and invalid input', function(done) {
-        support.getXlrRoot = function() {
-            return jQuery.Deferred().resolve(path.join(__dirname, "../../test")).promise();
-        };
+        login.fakeGetXlrRoot(fakeRoot);
 
         var testInput = {
             "bogus": "bogus"
@@ -469,13 +527,17 @@ describe('ExpServer Login Test', function() {
         })
         .fail(function() {
             done("fail");
+        })
+        .always(function() {
+            login.fakeGetXlrRoot(oldRoot);
         });
     });
 
     it('Router should fail with setDefaultAdmin action and invalid directory', function(done) {
-        support.getXlrRoot = function() {
+        var fakeFunc = function() {
             return jQuery.Deferred().resolve("../../doesnotexist").promise();
         };
+        login.fakeGetXlrRoot(fakeFunc);
 
         var testInput = {
             "username": "foo",
@@ -491,6 +553,9 @@ describe('ExpServer Login Test', function() {
         })
         .fail(function() {
             done("fail");
+        })
+        .always(function() {
+            login.fakeGetXlrRoot(oldRoot);
         });
     });
 
@@ -512,9 +577,10 @@ describe('ExpServer Login Test', function() {
 
         fs.writeFileSync(configPath, JSON.stringify(testInput));
 
-        support.getXlrRoot = function() {
+        var fakeFunc = function() {
             return jQuery.Deferred().resolve(path.join(configDir)).promise();
         };
+        login.fakeGetXlrRoot(fakeFunc);
 
         postRequest("POST", "/login/defaultAdmin/get", testInput)
         .then(function(ret) {
@@ -523,6 +589,9 @@ describe('ExpServer Login Test', function() {
         })
         .fail(function() {
             done("fail");
+        })
+        .always(function() {
+            login.fakeGetXlrRoot(oldRoot);
         });
     });
 
@@ -545,9 +614,10 @@ describe('ExpServer Login Test', function() {
 
         fs.writeFileSync(configPath, JSON.stringify(testInput), {"mode": 0600});
 
-        support.getXlrRoot = function() {
+        var fakeFunc = function() {
             return jQuery.Deferred().resolve(path.join(configDir)).promise();
         };
+        login.fakeGetXlrRoot(fakeFunc);
 
         postRequest("POST", "/login/defaultAdmin/set", testInput)
         .then(function(ret) {
@@ -585,6 +655,7 @@ describe('ExpServer Login Test', function() {
             var expectedRetMsg = {
                 "status": 200,
                 "isValid": false,
+                "error": "ldapAuthentication fails"
             };
 
             expect(ret).to.deep.equal(expectedRetMsg);
@@ -607,7 +678,8 @@ describe('ExpServer Login Test', function() {
         .then(function(ret) {
             var expectedRetMsg = {
                 "status": 200,
-                "isValid": false
+                "isValid": false,
+                "error": "ldapAuthentication fails"
             };
 
             expect(ret).to.deep.equal(expectedRetMsg);
@@ -623,14 +695,14 @@ describe('ExpServer Login Test', function() {
         })
         .fail(function(error) {
             done("fail: " + JSON.stringify(error));
+        })
+        .always(function() {
+            login.fakeGetXlrRoot(oldRoot);
         });
     });
 
     it('Router should fail with setLdapConfig action and bogus ldapConfig', function(done) {
-        support.getXlrRoot = function() {
-            return jQuery.Deferred().resolve("../../test").promise();
-        };
-
+        login.fakeGetXlrRoot(fakeRoot);
         var credArray = {
             bogus: "bogus"
         };
@@ -648,13 +720,17 @@ describe('ExpServer Login Test', function() {
         })
         .fail(function() {
             done("fail");
+        })
+        .always(function() {
+            login.fakeGetXlrRoot(oldRoot);
         });
     });
 
     it('Router should fail with setLdapConfig action and invalid directory', function(done) {
-        support.getXlrRoot = function() {
+        var fakeFunc = function() {
             return jQuery.Deferred().resolve("../../doesnotexist").promise();
         };
+        login.fakeGetXlrRoot(fakeFunc);
 
         var credArray = {
             ldap_uri: "legitLookingLdapUri",
@@ -673,13 +749,14 @@ describe('ExpServer Login Test', function() {
         })
         .fail(function() {
             done("fail");
+        })
+        .always(function() {
+            login.fakeGetXlrRoot(oldRoot);
         });
     });
 
     it('Router should work with proper setLdapConfig action and getLdapConfig action', function(done) {
-        support.getXlrRoot = function() {
-            return jQuery.Deferred().resolve(__dirname + "/../../test").promise();
-        };
+        login.fakeGetXlrRoot(fakeRoot);
 
         var origLdapConfig;
         var testPassed = false;
@@ -752,6 +829,9 @@ describe('ExpServer Login Test', function() {
             })
             .fail(function(errorMsg) {
                 done("Failed to restore origLdapConfig: " + errorMsg);
+            })
+            .always(function() {
+                login.fakeGetXlrRoot(oldRoot);
             });
         });
     });

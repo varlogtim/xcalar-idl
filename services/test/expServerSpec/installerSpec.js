@@ -28,6 +28,7 @@ describe('ExpServer Installer Test', function() {
     var testInput;
     var emptyPromise;
     var succPromise;
+    var oldSlaveExec;
     this.timeout(10000);
     // Test begins
     before(function() {
@@ -100,7 +101,7 @@ describe('ExpServer Installer Test', function() {
             enableHotPatches: true,
             hostnames: ["testhost1", "testhost2"],
             privHostNames: ["testhost3", "testhost4"],
-            licenseKey: "ONLY FOR TEST"
+            licenseKey: "H4sIANdv+1oAA6tWUEpJLElUslJQCvHwDFYAIkeFENfgECWFWi4Aa4s/Vh0AAAA="
         };
 
         testInput = {
@@ -128,6 +129,8 @@ describe('ExpServer Installer Test', function() {
         succPromise = function() {
             return jQuery.Deferred().resolve({status: 200}).promise();
         };
+        oldSlaveExec = installer.slaveExecuteAction;
+        installer.fakeSlaveExecuteAction(succPromise);
     });
 
     it("encryptPassword should work", function() {
@@ -157,20 +160,18 @@ describe('ExpServer Installer Test', function() {
                                                installationDirectory)).to.be.a("String");
     });
 
-    // FIXME it's not working
-    it.skip("checkLicense should fail when error, e.g. data has no SUCCESS or FAILURE", function(done) {
+    it("checkLicense should fail when error, e.g. data has no SUCCESS or FAILURE", function(done) {
         installer.checkLicense(testCredArray, testScript1)
         .then(function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error.status).to.equal(500);
+            expect(error).to.be.undefined;
             done();
         });
     });
 
-    // FIXME it's not working
-    it.skip("checkLicense should fail when error, e.g. data has FAILURE", function(done) {
+    it("checkLicense should fail when error, e.g. data has FAILURE", function(done) {
         installer.checkLicense(testCredArray, testScript3)
         .then(function() {
             done("fail");
@@ -181,8 +182,7 @@ describe('ExpServer Installer Test', function() {
         });
     });
 
-    // FIXME it's not working
-    it.skip("checkLicense should work", function(done) {
+    it("checkLicense should work", function(done) {
         installer.checkLicense(testCredArray, testScript2)
         .then(function(ret) {
             expect(ret.verified).to.equal(true);
@@ -276,7 +276,6 @@ describe('ExpServer Installer Test', function() {
 
     it("createStatusArray should work", function(done) {
         var oldFunc = support.masterExecuteAction;
-        support.fakeMasterExecuteAction(emptyPromise);
         installer.createStatusArray(testCredArray)
         .then(function(ret) {
             expect(ret.status).to.equal(200);
@@ -284,9 +283,6 @@ describe('ExpServer Installer Test', function() {
         })
         .fail(function() {
             done("fail");
-        })
-        .always(function() {
-            support.fakeMasterExecuteAction(oldFunc);
         });
     });
 
@@ -414,18 +410,19 @@ describe('ExpServer Installer Test', function() {
         });
     });
 
-    // FIXME it's not working
-    it.skip("Fetching log router shoud work", function(done) {
-        var oldFunc = support.slaveExecuteAction;
-        support.fakeSlaveExecuteAction(succPromise);
+    it("Fetching log router shoud work", function(done) {
         var data = {
-            url: 'http://localhost:12125/xdp/installationLogs/slave',
+            url: 'http://localhost:12125/installationLogs/slave',
         }
         request.get(data, function (err, res, body){
-            support.fakeSlaveExecuteAction(oldFunc);
+            console.log("res is: " + JSON.stringify(res));
             expect(JSON.parse(res.body).status).to.equal(200);
             done();
         });
+    });
+
+    after(function() {
+        installer.fakeSlaveExecuteAction(oldSlaveExec);
     });
 
 });

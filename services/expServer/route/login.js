@@ -851,45 +851,21 @@ router.post('/login/ldapConfig/get', function(req, res) {
 });
 
 // Below part is only for Unit Test
-function fakeSetupLdapConfigs() {
-    setupLdapConfigs = function() {
-        return jQuery.Deferred().resolve().promise();
-    };
+function fakeSetupLdapConfigs(func) {
+    setupLdapConfigs = func;
 }
-function fakeSetLdapConnection() {
-    setLdapConnection = function() {
-        return jQuery.Deferred().resolve().promise();
-    };
+function fakeSetLdapConnection(func) {
+    setLdapConnection = func;
 }
-function fakeLdapAuthentication() {
-    ldapAuthentication = function() {
-        return jQuery.Deferred().resolve().promise();
-    };
+function fakeLdapAuthentication(func) {
+    ldapAuthentication = func;
 }
-function fakePrepareResponse(reject){
-    prepareResponse = function() {
-        var msg = {
-            "status": httpStatus.OK,
-            "isValid": true
-        };
-        if (reject){
-            return jQuery.Deferred().reject().promise();
-        }
-        else return jQuery.Deferred().resolve(msg).promise();
-    };
+function fakePrepareResponse(func){
+    prepareResponse = func;
 }
-
-function fakeLoginAuthentication(){
-    loginAuthentication = function() {
-        var deferred = jQuery.Deferred();
-        var retMsg = {
-            "status": 200,
-            "logs": "Fake response login!"
-        };
-        return deferred.resolve(retMsg).promise();
-    };
+function fakeGetXlrRoot(func) {
+    support.getXlrRoot = func;
 }
-
 if (process.env.NODE_ENV === "test") {
     exports.setupLdapConfigs = setupLdapConfigs;
     exports.setLdapConnection = setLdapConnection;
@@ -902,7 +878,7 @@ if (process.env.NODE_ENV === "test") {
     exports.fakeSetLdapConnection = fakeSetLdapConnection;
     exports.fakeLdapAuthentication = fakeLdapAuthentication;
     exports.fakePrepareResponse = fakePrepareResponse;
-    exports.fakeLoginAuthentication = fakeLoginAuthentication;
+    exports.fakeGetXlrRoot = fakeGetXlrRoot;
 }
 
 exports.router = router;
