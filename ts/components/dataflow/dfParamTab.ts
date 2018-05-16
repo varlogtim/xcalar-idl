@@ -77,10 +77,6 @@ namespace DFParamTab {
                 return false;
             });
 
-            // self.$retTabSection.contextmenu(function(event) {
-            //     event.preventDefault();
-            // });
-
             // delete retina para
             self.$retTabSection.on("click", ".paramDelete", function(event) {
                 event.stopPropagation();
@@ -105,7 +101,7 @@ namespace DFParamTab {
                 self.submitNewParam();
             });
 
-            self.$retTabSection.on("keypress", ".paramVal", function() {
+            self.$retTabSection.on("keypress", ".paramVal", function(event) {
                 if (event.which === keyCode.Enter) {
                     $(this).blur();
                 }
@@ -141,7 +137,6 @@ namespace DFParamTab {
             for (var i in params) {
                 self.addParamToList(i, params[i].value, params[i].isEmpty, false);
             }
-            self.$retTabSection.removeClass("hidden");
         }
 
         private submitNewParam(): void {
@@ -158,7 +153,11 @@ namespace DFParamTab {
 
         private validateParamName($ele: JQuery, paramName: string): boolean {
             var self = this;
-            return xcHelper.validate([{
+            return xcHelper.validate([
+                {
+                    "$ele": $ele
+                },
+            {
                 "$ele": $ele,
                 "error": ErrTStr.NoSpecialCharOrSpace,
                 "check": function() {
