@@ -240,54 +240,48 @@ window.SQLEditor = (function(SQLEditor, $) {
             selectTable(null);
             search($(this).val());
         });
-        $searchColumn.on("mousedown", "input", function(event) {
+        $searchColumn.on("click", "input", function(event) {
             event.stopPropagation();
             search($(this).val(), true);
         });
-        $sqlTableList.on("mousedown", ".unit", function(event) {
+        $sqlTableList.on("click", ".unit", function(event) {
             event.stopPropagation();
             $searchColumn.find("input").val("");
             selectTable($(this));
+            var tableId = $(this).attr("data-hashid");
+            if (tableId != null) {
+                TblManager.findAndFocusTable("#" + tableId);
+            }
         });
-        $sqlTableList.on("mousedown", ".xi-trash", function(event) {
+        $sqlTableList.on("click", ".xi-trash", function(event) {
             event.stopPropagation();
             var tableName = $(this).closest(".unit").attr("data-name");
             SQLEditor.deleteSchemas(tableName);
         });
-        $sqlColumnList.on("mousedown", ".unit", function(event) {
+        $sqlColumnList.on("click", ".unit", function(event) {
             event.stopPropagation();
             var $unit = $sqlTableList.find(".unit.selected");
             var tableId = $unit.attr("data-hashid");
             if (tableId != null) {
-                TblManager.findAndFocusTable("#" + tableId);
+                focusOnTableColumn($(this).closest("li"), tableId);
             }
-            // XXX In case we need it
-            // node = $(this).find(".label")[0];
-            // if (document.body.createTextRange) {
-            //     const range = document.body.createTextRange()
-            //     range.moveToElementText(node)
-            //     range.select()
-            // } else if (window.getSelection) {
-            //     const selection = window.getSelection();
-            //     const range = document.createRange();
-            //     range.selectNodeContents(node)
-            //     selection.removeAllRanges();
-            //     selection.addRange(range);
-            // } else {
-            //     console.warn("Could not select text in node: Unsupported browser.")
-            // }
+            $sqlColumnList.find(".unit").removeClass("selected");
+            $(this).addClass("selected");
         });
-        $sqlSection.on("mousedown", ".schemaSection", function() {
+        $sqlSection.on("click", ".schemaSection", function() {
             selectTable(null);
         });
-        $sqlSection.on("mousedown", ".icon", function(event) {
-            event.stopPropagation();
+        $sqlSection.on("click", ".icon", function(event) {
+            var $icon = $(this);
+            if (!$icon.parent().hasClass("pulloutTab")) {
+                event.stopPropagation();
+            }
         });
-        $sqlSection.on("mousedown", ".pulloutTab", function(event) {
+        $sqlSection.on("click", ".pulloutTab", function(event) {
             event.stopPropagation();
             minMaxSection($(this).find(".icon:not(.xc-hidden)").eq(0));
         });
-        $sqlSection.on("mousedown", "input, .xdTable", function(event) {
+        $sqlSection.on("click", "input, .xdTable", function(event) {
             event.stopPropagation();
         });
 
@@ -347,6 +341,24 @@ window.SQLEditor = (function(SQLEditor, $) {
                 clearInterval(timer);
             }
         });
+    }
+
+    function focusOnTableColumn($listCol, tableId) {
+        var colNum = $listCol.index();
+        var tableCols = gTables[tableId].getAllCols();
+
+        // if dataCol is found before colNum, increment colNum by 1 and exit
+        for (var i = 0; i <= colNum; i++) {
+            if (tableCols[i].isDATACol()) {
+                colNum++;
+                break;
+            }
+        }
+        colNum = colNum + 1;
+
+        var wsId = WSManager.getWSFromTable(tableId);
+        $('#worksheetTab-' + wsId).trigger(fakeEvent.mousedown);
+        xcHelper.centerFocusedColumn(tableId, colNum);
     }
 
     function minMaxSection($icon) {

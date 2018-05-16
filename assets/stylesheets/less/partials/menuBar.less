@@ -1339,7 +1339,6 @@ ul.CodeMirror-hints {
                         width: ~"calc(100% - 20px)";
                         overflow: hidden;
                         text-overflow: ellipsis;
-                        user-select: text;
                     }
                 }
                 .selected {
@@ -1347,7 +1346,8 @@ ul.CodeMirror-hints {
                     z-index: 1;
                     border-color: @color-font-bright-light-blue;
                     &, .icon {
-                        color: @color-font-bright-light-blue;
+                        color: @color-font-bright-light-blue !important;
+                        border-color: @color-font-bright-light-blue !important;
                     }
                 }
             }

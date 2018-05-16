@@ -255,7 +255,7 @@
             return PromiseHelper.when.apply(window, promiseArray);
         },
 
-        run: function(query, tableName, allCols) {
+        run: function(query, tableName, allCols, sqlQueryString) {
             var deferred = PromiseHelper.deferred();
             var isSqlMode = (typeof sqlMode !== "undefined" && sqlMode);
             var queryName = xcHelper.randName("sql");
@@ -306,6 +306,7 @@
             XIApi.query(txId, queryName, query)
             .then(function() {
                 if (!isSqlMode) {
+                    XcalarCommentDagNodes(sqlQueryString, [tableName]);
                     return self._refreshTable(txId, tableName, allCols);
                 }
             })

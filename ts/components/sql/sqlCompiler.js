@@ -1093,7 +1093,7 @@
                 if (typeof SQLEditor !== "undefined") {
                     SQLEditor.startExecution();
                 }
-                self.sqlObj.run(queryString, newTableName, newCols)
+                self.sqlObj.run(queryString, newTableName, newCols, sqlQueryString)
                 .then(function() {
                     if (typeof SQLCache !== "undefined" && toCache) {
                         SQLCache.cacheQuery(sqlQueryString, toCache);
