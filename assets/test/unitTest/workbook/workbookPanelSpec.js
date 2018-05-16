@@ -287,6 +287,9 @@ describe("Workbook- Workbook Pane Test", function() {
         var oldWkbkNew, oldWkbkList, oldWkbkDelete;
         var fakeMap = {};
         var activeWkbkId;
+        var oldRename;
+        var oldXcalarDownloadWorkbook;
+        var oldDownloadAsFile;
 
         before(function() {
             oldKVGet = KVStore.prototype.get;
@@ -294,6 +297,9 @@ describe("Workbook- Workbook Pane Test", function() {
             oldKVDelete = KVStore.prototype.delete;
             oldXcalarPut = XcalarKeyPut;
             oldXcalarDelete = XcalarKeyDelete;
+            oldRename = WorkbookManager.renameWKBK;
+            oldXcalarDownloadWorkbook = XcalarDownloadWorkbook;
+            oldDownloadAsFile = xcHelper.downloadAsFile;
 
             XcalarKeyPut = function(key, value) {
                 fakeMap[key] = value;
@@ -368,7 +374,8 @@ describe("Workbook- Workbook Pane Test", function() {
             var $newWorkbookButton = $("#createWKBKbtn");
             var $workbookModal = $("#workbookInfoModal");
 
-            WorkbookPanel.createNewWorkbook(name);
+            //WorkbookPanel.createNewWorkbook(name);
+            $newWorkbookButton.click();
             var checkFunc = function() {
                 var diff = $workbookPanel.find(selector).length - wkbkNum;
                 if (diff < 0) {
@@ -380,10 +387,11 @@ describe("Workbook- Workbook Pane Test", function() {
 
             UnitTest.testFinish(checkFunc)
             .then(function() {
-                var $input = $workbookPanel.find(".workbookBox .workbookName")
+                /*var $input = $workbookPanel.find(".workbookBox .workbookName")
                     .filter(function() {
                         return $(this).val() === name;
-                    });
+                    });*/
+                var $input = $workbookPanel.find(".focussed");
                 var $box = $input.closest(".workbookBox");
                 expect($box.length).to.equal(1);
                 expect($box.find(".numWorksheets").text()).to.equal("1");
@@ -393,6 +401,55 @@ describe("Workbook- Workbook Pane Test", function() {
             .fail(function() {
                 done("fail");
             });
+        });
+
+        it("Should update initial name", function(done) {
+            var name = xcHelper.randName("testWorkbook");
+            var $input = $workbookPanel.find(".focussed");
+            var $box = $input.closest(".workbookBox");
+            var workbookId = $box.attr("data-workbook-id");
+            WorkbookManager.renameWKBK = function() {
+                return PromiseHelper.resolve(workbookId);
+            };
+            $input.val(name);
+            $input.trigger(fakeEvent.enter);
+            $input.blur();
+
+            var checkFunc = function() {
+                return !$box.hasClass(".loading");
+            };
+
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                expect($input.val()).to.equal(name);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+
+        });
+
+        it("Should Download Workbook", function() {
+            var $box = $workbookPanel.find(".workbookBox").eq(0);
+            var testWKBKName = $box.find(".workbookName").val();
+            var called = false;
+
+            XcalarDownloadWorkbook = function(name) {
+                expect(name).to.equal(testWKBKName);
+                called = true;
+                return PromiseHelper.resolve("");
+            };
+
+            xcHelper.downloadAsFile = function() {
+                return;
+            }
+
+            $box.find(".dropDown").click();
+            $("#wkbkMenu").find(".download").click();
+            $("#wkbkMenu").hide();
+
+            expect(called).to.equal(true);
         });
 
         it("should handle duplicate error", function(done) {
@@ -520,6 +577,16 @@ describe("Workbook- Workbook Pane Test", function() {
             WorkbookInfoModal.show = oldFunc;
         });
 
+        it("should show switch workbook modal", function() {
+            var $workbookBox = $workbookPanel.find(".workbookBox:not(.active)").eq(0);
+
+            $workbookBox.find(".activate").click();
+
+            expect($("#alertModal").is(":visible")).to.be.true;
+            $("#alertModal").find(".cancel").click();
+            expect($("#alertModal").is(":visible")).to.be.false;
+        });
+
         it("Should delete workbook", function(done) {
             // delete two test created workbooks one by one
             var promises = [];
@@ -629,6 +696,10 @@ describe("Workbook- Workbook Pane Test", function() {
             XcalarNewWorkbook = oldWkbkNew;
             XcalarListWorkbooks = oldWkbkList;
             XcalarDeleteWorkbook = oldWkbkDelete;
+            WorkbookManager.renameWKBK = oldRename;
+
+            XcalarDownloadWorkbook = oldXcalarDownloadWorkbook;
+            xcHelper.downloadAsFile = oldDownloadAsFile;
         });
     });
 

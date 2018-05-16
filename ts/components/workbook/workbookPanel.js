@@ -261,33 +261,6 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         }
     }
 
-    function getNewWorkbookName() {
-        var regex = new RegExp(/[a-zA-Z0-9-_]*/);
-        var un = regex.exec(XcSupport.getUser())[0];
-        var defaultName = "untitled-" + un;
-        var names = {};
-        var workbooks = WorkbookManager.getWorkbooks();
-        for (var workbookId in workbooks) {
-            var name = workbooks[workbookId].getName();
-            names[name] = true;
-        }
-
-        var maxTry = 100;
-        var tryCnt = 0;
-        var resName = defaultName;
-
-        while (tryCnt < maxTry && names.hasOwnProperty(resName)) {
-            tryCnt++;
-            resName = defaultName + "-" + tryCnt;
-        }
-
-        if (tryCnt >= maxTry) {
-            console.warn("Too many tries");
-            resName = xcHelper.randName(defaultName);
-        }
-        return resName;
-    }
-
     function addTopbarEvents() {
         // Events for the top bar, welcome message, news, etc
         // Welcome message listener

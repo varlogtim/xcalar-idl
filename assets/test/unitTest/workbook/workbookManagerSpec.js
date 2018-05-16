@@ -3,6 +3,7 @@ describe("WorkbookManager Test", function() {
     var oldXcalarPut, oldXcalarDelete;
     var oldJupyterNewWkbk;
     var fakeMap = {};
+    var oldXcalarUploadWorkbook;
 
     before(function() {
         console.clear();
@@ -13,6 +14,7 @@ describe("WorkbookManager Test", function() {
         oldXcalarPut = XcalarKeyPut;
         oldXcalarDelete = XcalarKeyDelete;
         oldJupyterNewWkbk = JupyterPanel.newWorkbook;
+        oldXcalarUploadWorkbook = XcalarUploadWorkbook;
 
         XcalarKeyPut = function(key, value) {
             fakeMap[key] = value;
@@ -23,6 +25,10 @@ describe("WorkbookManager Test", function() {
             delete fakeMap[key];
             return PromiseHelper.resolve();
         };
+
+        XcalarUploadWorkbook = function() {
+            return PromiseHelper.resolve();
+        }
 
         KVStore.prototype.get = function(key) {
             return PromiseHelper.resolve(fakeMap[key]);
@@ -527,6 +533,40 @@ describe("WorkbookManager Test", function() {
             });
         });
 
+        it("uploadWKBK should work", function(done) {
+
+            var oldList = XcalarListWorkbooks;
+
+            XcalarListWorkbooks = function() {
+                return PromiseHelper.resolve({
+                    "sessions": [{
+                        "state": "inActive",
+                        "info": "has resources"
+                    }],
+                    "numSessions": 1
+                });
+            };
+
+            var wkbkSet = WorkbookManager.getWorkbooks();
+            var len = Object.keys(wkbkSet).length;
+
+            var file = new Blob(["Test"], {type : "text/plain"});
+            WorkbookManager.uploadWKBK("Uploaded WKBK", file)
+            .then(function(id) {
+                expect(id).not.to.be.null;
+
+                var newLen = Object.keys(wkbkSet).length;
+                expect(newLen).to.equal(len + 1);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarListWorkbooks = oldList;
+            });
+        });
+
         it("copy workbook should handle fail case", function(done) {
             var oldFunc = KVStore.commit;
             KVStore.commit = function() {
@@ -547,6 +587,9 @@ describe("WorkbookManager Test", function() {
 
         it("Should copy workbook", function(done) {
             var oldNewWorkbook = WorkbookManager.newWKBK;
+            var oldDLPython = XcalarDownloadPython;
+            var oldUploadPython = XcalarUploadPython;
+            var oldListXdfs = XcalarListXdfs;
             var oldId = "oldId";
             var newId = "newId";
             var workbooks = WorkbookManager.getWorkbooks();
@@ -555,6 +598,23 @@ describe("WorkbookManager Test", function() {
 
             WorkbookManager.newWKBK = function() {
                 return PromiseHelper.resolve(newId);
+            };
+
+            XcalarDownloadPython = function() {
+                return PromiseHelper.resolve(true);
+            };
+
+            XcalarUploadPython = function() {
+                return PromiseHelper.resolve();
+            };
+
+            XcalarListXdfs = function() {
+                var ret = {
+                    "fnDescs": [
+                        {"fnName": "test"}
+                    ]
+                };
+                return PromiseHelper.resolve(ret);
             };
 
             WorkbookManager.copyWKBK(oldId, 'new')
@@ -567,6 +627,9 @@ describe("WorkbookManager Test", function() {
             })
             .always(function() {
                 WorkbookManager.newWKBK = oldNewWorkbook;
+                XcalarDownloadPython = oldDLPython;
+                XcalarUploadPython = oldUploadPython;
+                XcalarListXdfs = oldListXdfs;
                 delete workbooks[oldId];
                 delete workbooks[newId];
             });
@@ -791,6 +854,7 @@ describe("WorkbookManager Test", function() {
         XcalarKeyPut = oldXcalarPut;
         XcalarKeyDelete = oldXcalarDelete;
         JupyterPanel.newWorkbook = oldJupyterNewWkbk;
+        XcalarUploadWorkbook = oldXcalarUploadWorkbook;
         UnitTest.offMinMode();
     });
 });
