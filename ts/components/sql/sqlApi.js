@@ -53,10 +53,10 @@
     function getIndexColKey(colNames) {
         return colNames.toString();
     }
-    function assert(st) {
+    function assert(st, message) {
         if (!st) {
-            debugger;
             console.error("ASSERTION FAILURE!");
+            throw "Assertion Failure: " + message;
         }
     }
 
@@ -750,11 +750,25 @@
         // },
     };
 
+    /* Unit Test Only */
+    if (typeof window !== "undefined" && window.unitTestMode) {
+        SQLApi.__testOnly__ = {};
+        SQLApi.__testOnly__.indexTableCache = indexTableCache;
+        SQLApi.__testOnly__.setIndexTableCache = function(input) {
+            indexTableCache = input;
+        };
+        SQLApi.__testOnly__.reverseIndexMap = reverseIndexMap;
+        SQLApi.__testOnly__.setReverseIndexMap = function(input) {
+            reverseIndexMap = input;
+        };
+    }
+    /* End Of Unit Test Only */
+
     if (typeof exports !== "undefined") {
+        exports.SQLApi = SQLApi;
         if (typeof module !== "undefined" && module.exports) {
             exports = module.exports = SQLApi;
         }
-        exports.SQLApi = SQLApi;
     } else {
         root.SQLApi = SQLApi;
     }

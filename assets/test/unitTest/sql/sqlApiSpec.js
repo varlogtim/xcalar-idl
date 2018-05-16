@@ -1,5 +1,20 @@
-describe("SQL-SQlApi Test", function() {
+describe("SQLApi Test", function() {
     describe("Static Function Test", function() {
+        var oldIndexTableCache;
+        var oldReverseIndexMap;
+
+        before(function() {
+            oldIndexTableCache = SQLApi.__testOnly__.indexTableCache;
+            oldReverseIndexMap = SQLApi.__testOnly__.reverseIndexMap;
+            SQLApi.clear();
+        });
+
+        it("SQLApi.getCacheTable should work", function() {
+            var res = SQLApi.getCacheTable();
+            expect(res).to.be.an("object");
+            expect(Object.keys(res).length).to.equal(0);
+        });
+
         it("SQLApi.getIndexTable should work", function() {
             var res = SQLApi.getIndexTable("testTable", "testCol");
             expect(res).to.be.null;
@@ -25,6 +40,11 @@ describe("SQL-SQlApi Test", function() {
 
             var res = SQLApi.getIndexTable("testTable", "testCol");
             expect(res).to.be.null;
+        });
+
+        after(function() {
+            SQLApi.__testOnly__.setIndexTableCache(oldIndexTableCache);
+            SQLApi.__testOnly__.setReverseIndexMap(oldReverseIndexMap);
         });
     });
 
@@ -113,11 +133,45 @@ describe("SQL-SQlApi Test", function() {
                     valueAttrs: [{
                         name: "test",
                         type: DfFieldTypeT.DfMixed
+                    },
+                    {
+                        name: "test2",
+                        type: DfFieldTypeT.DfMixed
                     }]
                 });
             };
 
-            sqlApi._getQueryTableCols("testTable", [{colName: "test"}])
+            sqlApi._getQueryTableCols("testTable", [{colName: "test"},
+                                                {colName: "testTable::test2"}])
+            .then(function(res) {
+                expect(res).to.be.an("array");
+                expect(res.length).to.equal(3);
+                expect(res[0].getBackColName()).to.equal("test");
+                expect(res[0].getType()).to.equal(ColumnType.mixed);
+                expect(res[1].getBackColName()).to.equal("test2");
+                expect(res[1].getType()).to.equal(ColumnType.mixed);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XcalarGetTableMeta = oldFunc;
+            });
+        });
+
+        it("_getQueryTableCols immediate should work", function(done) {
+            var oldFunc = XcalarGetTableMeta;
+            XcalarGetTableMeta = function() {
+                return PromiseHelper.resolve({
+                    valueAttrs: [{
+                        name: "test",
+                        type: DfFieldTypeT.DfMixed
+                    }]
+                });
+            };
+
+            sqlApi._getQueryTableCols("testTable", [], true)
             .then(function(res) {
                 expect(res).to.be.an("array");
                 expect(res.length).to.equal(2);
@@ -153,10 +207,142 @@ describe("SQL-SQlApi Test", function() {
             });
         });
 
+        it("_refreshTable should work", function(done) {
+            var oldGQTC = sqlApi._getQueryTableCols;
+            var oldAMFI = sqlApi._addMetaForImmediates;
+            var oldGAWS = WSManager.getActiveWS;
+            var oldRT = TblManager.refreshTable;
+            var oldXGD = XcalarGetDag;
+            var testTable;
+            var test;
+            var testAllTables;
+            var testConstants;
+
+            sqlApi._getQueryTableCols = function() {
+                testTable = "testTable";
+                return PromiseHelper.resolve();
+            };
+            sqlApi._addMetaForImmediates = function(allTables, constants) {
+                testAllTables = allTables;
+                testConstants = constants;
+                return PromiseHelper.resolve();
+            };
+            WSManager.getActiveWS = function() {
+                return PromiseHelper.resolve();
+            };
+            TblManager.refreshTable = function() {
+                test = true;
+                return PromiseHelper.resolve();
+            };
+            XcalarGetDag = function() {
+                return PromiseHelper.resolve({node:
+                                [{name: {name: "testTable#1"}},
+                                 {name: {name: "testConstant"},
+                                  numRowsTotal: 0, numParents: [1],
+                                  input: {aggregateInput: "sum(1)"}}]});
+            };
+
+            sqlApi._refreshTable()
+            .then(function(res) {
+                expect(testTable).to.equal("testTable");
+                expect(test).to.be.true;
+                expect(testAllTables.length).to.equal(1);
+                expect(testAllTables[0]).to.equal("testTable#1");
+                expect(testConstants.length).to.equal(1);
+                expect(testConstants[0].name).to.equal("testConstant");
+                expect(testConstants[0].input).to.equal("sum(1)");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                sqlApi._getQueryTableCols = oldGQTC;
+                sqlApi._addMetaForImmediates = oldAMFI;
+                WSManager.getActiveWS = oldGAWS;
+                TblManager.refreshTable = oldRT;
+                XcalarGetDag = oldXGD;
+            });
+        });
+
+        it("_addMetaForImmediates should work ", function(done) {
+            var oldGQTC = sqlApi._getQueryTableCols;
+            var oldSOTM = TblManager.setOrphanTableMeta;
+            var oldXMRSFT = XcalarMakeResultSetFromTable;
+            var oldXGNP = XcalarGetNextPage;
+            var oldAddAgg = Aggregates.addAgg;
+            var oldRCL = TableList.refreshConstantList;
+            var oldXSF = XcalarSetFree;
+            var testTable = null;
+            var test = false;
+            var testFree = false;
+
+            sqlApi._getQueryTableCols = function() {
+                testTable = "testTable";
+                return PromiseHelper.resolve();
+            };
+            TblManager.setOrphanTableMeta = function() {
+                test = true;
+                return PromiseHelper.resolve();
+            };
+            XcalarMakeResultSetFromTable = function() {
+                return PromiseHelper.resolve({resultSetId: 1,
+                                              numEntries: 1});
+            };
+            XcalarGetNextPage = function() {
+                return PromiseHelper.resolve({values: ["{\"constant\": 1}"]});
+            };
+            Aggregates.addAgg = function() {
+                return PromiseHelper.resolve();
+            };
+            TableList.refreshConstantList = function() {
+                return PromiseHelper.resolve();
+            };
+            XcalarSetFree = function() {
+                testFree = true;
+                return PromiseHelper.resolve();
+            };
+
+            sqlApi._addMetaForImmediates(["testTable"], [{name: "testConstant",
+                                    input: {eval: [{evalString: "int(1)"}],
+                                    source: "tableName#1"}}])
+            .then(function() {
+                expect(test).to.be.true;
+                expect(testTable).to.equal("testTable");
+                expect(testFree).to.be.true;
+
+                testFree = false;
+                XcalarMakeResultSetFromTable = function() {
+                    return PromiseHelper.reject();
+                };
+                return sqlApi._addMetaForImmediates(["testTable"],
+                                    [{name: "testConstant",
+                                    input: {eval: [{evalString: "int(1)"}],
+                                    source: "tableName#1"}}]);
+            })
+            .then(function() {
+                expect(testFree).to.be.false;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                sqlApi._getQueryTableCols = oldGQTC;
+                TblManager.setOrphanTableMeta = oldSOTM;
+                XcalarMakeResultSetFromTable = oldXMRSFT;
+                XcalarGetNextPage = oldXGNP;
+                Aggregates.addAgg = oldAddAgg;
+                TableList.refreshConstantList = oldRCL;
+                XcalarSetFree = oldXSF;
+            });
+        });
+
         it("run should work", function(done) {
             var oldQuery = XIApi.query;
             var oldGetMeta = XcalarGetTableMeta;
             var oldRefresh = TblManager.refreshTable;
+            var oldGetDag = XcalarGetDag;
             var testQuery = null;
             var testTable = null;
             var test = false;
@@ -173,6 +359,9 @@ describe("SQL-SQlApi Test", function() {
                 test = true;
                 return PromiseHelper.resolve();
             };
+            XcalarGetDag = function() {
+                return PromiseHelper.resolve({node: []});
+            }
 
             sqlApi.run("testQuery", "testTable")
             .then(function() {
@@ -188,6 +377,7 @@ describe("SQL-SQlApi Test", function() {
                 XIApi.query = oldQuery;
                 XcalarGetTableMeta = oldGetMeta;
                 TblManager.refreshTable = oldRefresh;
+                XcalarGetDag = oldGetDag;
             });
         });
 
@@ -256,6 +446,28 @@ describe("SQL-SQlApi Test", function() {
             })
             .always(function() {
                 XIApi.aggregate = oldAgg;
+            });
+        });
+
+        it("aggregateWithEvalStr should work", function(done) {
+            var oldAggWES = XIApi.aggregateWithEvalStr;
+            XIApi.aggregateWithEvalStr = function() {
+                return PromiseHelper.resolve("testVal", "testTable");
+            };
+
+            sqlApi.aggregateWithEvalStr()
+            .then(function(res) {
+                expect(res).to.an("object");
+                expect(res.val).to.equal("testVal");
+                expect(res.newTableName).to.equal("testTable");
+                expect(res.cli).to.equal("test query:1.5");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XIApi.aggregateWithEvalStr = oldAggWES;
             });
         });
 
@@ -351,13 +563,35 @@ describe("SQL-SQlApi Test", function() {
             });
         });
 
+        it("union should work", function(done) {
+            var oldUnion = XIApi.union;
+            XIApi.union = function() {
+                return PromiseHelper.resolve("testTable", "testCols");
+            };
+
+            sqlApi.union()
+            .then(function(res) {
+                expect(res).to.an("object");
+                expect(res.newTableName).to.equal("testTable");
+                expect(res.newColumns).to.equal("testCols");
+                expect(res.cli).to.equal("test query:1.5");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                XIApi.union = oldUnion;
+            });
+        });
+
         it("groupBy should work", function(done) {
             var oldGroupBy = XIApi.groupBy;
             XIApi.groupBy = function() {
                 return PromiseHelper.resolve("testTable", "testCols", "renamedCols");
             };
 
-            sqlApi.groupBy()
+            sqlApi.groupBy([])
             .then(function(res) {
                 expect(res).to.an("object");
                 expect(res.newTableName).to.equal("testTable");

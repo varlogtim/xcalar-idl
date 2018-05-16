@@ -240,7 +240,7 @@ window.SQLEditor = (function(SQLEditor, $) {
             selectTable(null);
             search($(this).val());
         });
-        $searchColumn.on("click", "input", function(event) {
+        $searchColumn.on("input", "input", function(event) {
             event.stopPropagation();
             search($(this).val(), true);
         });
@@ -675,6 +675,10 @@ window.SQLEditor = (function(SQLEditor, $) {
             updateGTables = func;
         }
         SQLEditor.__testOnly__.genTablesHTML = genTablesHTML;
+        SQLEditor.__testOnly__.focusOnTableColumn = focusOnTableColumn;
+        SQLEditor.__testOnly__.setFocusOnTableColumn = function(func) {
+            focusOnTableColumn = func;
+        }
     }
     /* End Of Unit Test Only */
     return SQLEditor;

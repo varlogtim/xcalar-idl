@@ -330,14 +330,14 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                " where l_partkey = p_partkey and l_shipdate >= date \"1995-09" +
                "-01\" and l_shipdate < date \"1995-09-01\" + interval \"1\" m" +
                "onth",
-        "q15": "with revenue0 as (select l_suppkey as supplier_no, sum(l_exte" +
-               "ndedprice * (1 - l_discount)) as total_revenue from lineitem " +
-               "where l_shipdate >= date \"1996-01-01\" and l_shipdate < date" +
-               " \"1996-01-01\" + interval \"3\" month group by l_suppkey) se" +
-               "lect s_suppkey, s_name, s_address, s_phone, total_revenue fro" +
-               "m supplier, revenue0 where s_suppkey = supplier_no and total_" +
-               "revenue = ( select max(total_revenue) from revenue0 ) order b" +
-               "y s_suppkey",
+        // "q15": "with revenue0 as (select l_suppkey as supplier_no, sum(l_exte" +
+        //        "ndedprice * (1 - l_discount)) as total_revenue from lineitem " +
+        //        "where l_shipdate >= date \"1996-01-01\" and l_shipdate < date" +
+        //        " \"1996-01-01\" + interval \"3\" month group by l_suppkey) se" +
+        //        "lect s_suppkey, s_name, s_address, s_phone, total_revenue fro" +
+        //        "m supplier, revenue0 where s_suppkey = supplier_no and total_" +
+        //        "revenue = ( select max(total_revenue) from revenue0 ) order b" +
+        //        "y s_suppkey",
         "q16": "select p_brand, p_type, p_size, count(distinct ps_suppkey) as" +
                " supplier_cnt from partsupp, part where p_partkey = ps_partke" +
                "y and p_brand <> \"Brand#45\" and p_type not like \"MEDIUM PO" +

@@ -86,12 +86,12 @@ describe("SQLEditor Test", function() {
             "test4": {
                 "tableName": "testTable4LongName",
                 "tableCols": [{
-                    "name": "testColumn4LongName",
-                    "backName": "testColumn",
+                    "backName": "DATA",
                     "sqlType": "string"
                 },
                 {
-                    "backName": "DATA",
+                    "name": "testColumn4LongName",
+                    "backName": "testColumn",
                     "sqlType": "string"
                 }]
             }
@@ -375,6 +375,37 @@ describe("SQLEditor Test", function() {
                 done("fail");
             })
         });
+
+        it("Should focus on table column", function() {
+            var oldGWFT = WSManager.getWSFromTable;
+            var oldCFC = xcHelper.centerFocusedColumn;
+            var oldTAFT = TblManager.findAndFocusTable;
+            TblManager.findAndFocusTable = function(input) {
+                return PromiseHelper.resolve();
+            }
+            gTables["test4"].getAllCols = function() {
+                return gTables["test4"].tableCols;
+            }
+            gTables["test4"].tableCols[0].isDATACol = function() {
+                return true;
+            }
+            var tId, cNum;
+            WSManager.getWSFromTable = function() {
+                return 0;
+            }
+            xcHelper.centerFocusedColumn = function(tableId, colNum) {
+                tId = tableId;
+                cNum = colNum;
+            }
+            $sqlTableList.find('.unit[data-name="testSqlTable4LongName"]').click();
+            SQLEditor.__testOnly__.focusOnTableColumn($sqlColumnList
+                                        .find(".unit").closest("li"), "test4");
+            expect(tId).to.equal("test4");
+            expect(cNum).to.equal(2);
+            WSManager.getWSFromTable = oldGWFT;
+            xcHelper.centerFocusedColumn = oldCFC;
+            TblManager.findAndFocusTable = oldTAFT;
+        });
     });
 
     describe("SQL UX Test", function() {
@@ -410,14 +441,20 @@ describe("SQLEditor Test", function() {
             expect($sqlTableList.find(".unit:not(.xc-hidden)").length).to.equal(0);
             $searchTable.find("input").val("testSqlTable3").trigger("input");
             expect($sqlTableList.find(".unit:not(.xc-hidden)").length).to.equal(1);
+            $("#sqlTableSearch").find(".icon").click();
         });
 
         it("Should select table", function() {
+            var oldTAFT = TblManager.findAndFocusTable;
+            TblManager.findAndFocusTable = function(input) {
+                return PromiseHelper.resolve();
+            }
             expect($sqlColumnList.find(".unit").length).to.equal(0);
             expect($sqlTableList.find(".unit.selected").length).to.equal(0);
             $sqlTableList.find('.unit[data-name="testSqlTable3"]').click();
             expect($sqlTableList.find(".unit.selected").length).to.equal(1);
             expect($sqlColumnList.find(".unit").length).to.be.above(0);
+            TblManager.findAndFocusTable = oldTAFT;
         });
 
         it("Should scroll", function(done) {
@@ -442,12 +479,12 @@ describe("SQLEditor Test", function() {
         });
 
         it("Should select column", function() {
-            var oldTAFT = TblManager.findAndFocusTable;
-            TblManager.findAndFocusTable = function(input) {
+            var oldFOTC = SQLEditor.__testOnly__.focusOnTableColumn;
+            SQLEditor.__testOnly__.setFocusOnTableColumn(function(input) {
                 return PromiseHelper.resolve();
-            }
+            });
             $sqlColumnList.find('.unit[data-name="columnName1"]').click();
-            TblManager.findAndFocusTable = oldTAFT;
+            SQLEditor.__testOnly__.setFocusOnTableColumn(oldFOTC);
         });
 
         it("Should unselect table", function() {
@@ -457,6 +494,10 @@ describe("SQLEditor Test", function() {
         });
 
         it("Should updateSchema of selected table", function(done) {
+            var oldTAFT = TblManager.findAndFocusTable;
+            TblManager.findAndFocusTable = function(input) {
+                return PromiseHelper.resolve();
+            }
             $searchTable.find("input").val("").trigger("input");
             $sqlTableList.find('.unit[data-name="testSqlTable4LongName"]').click();
             expect($sqlColumnList.find(".type.icon").attr("data-original-title"))
@@ -472,10 +513,17 @@ describe("SQLEditor Test", function() {
             })
             .fail(function() {
                 done("fail");
+            })
+            .always(function() {
+                TblManager.findAndFocusTable = oldTAFT;
             });
         });
 
         it("Should deleteSchemas when selected table", function(done) {
+            var oldTAFT = TblManager.findAndFocusTable;
+            TblManager.findAndFocusTable = function(input) {
+                return PromiseHelper.resolve();
+            }
             $sqlTableList.find('.unit[data-name="testSqlTable3"]').click();
             SQLEditor.deleteSchemas(null, ["test4"])
             .then(function() {
@@ -487,6 +535,9 @@ describe("SQLEditor Test", function() {
             .fail(function() {
                 done("fail");
             })
+            .always(function() {
+                TblManager.findAndFocusTable = oldTAFT;
+            });
         });
 
         it("Should deleteSchemas by click", function() {
