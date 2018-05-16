@@ -40,6 +40,7 @@ namespace IMDPanel {
         $updatePrompt = $imdPanel.find(".update-prompt");
         $scrollDiv = $imdPanel.find(".scrollDiv");
         $tableDetail = $(".tableDetailSection");
+        pTables = [];
         hTables = [];
 
         setupTimeInputs();
@@ -62,7 +63,7 @@ namespace IMDPanel {
         });
         redrawTimeCanvas();
         if (firstTouch) {
-            listTablesFirstTime(firstTouch);
+            listTablesFirstTime();
         } else if (isPendingRefresh) {
             refreshTableList();
         }
@@ -81,7 +82,7 @@ namespace IMDPanel {
      * ts2 : unix time stamp of to
      */
     function updateViewportForDateRange(ts1, ts2) {
-        let numberOfUnits = ($("#imdTimeCanvas").width()) / tickSpacing;
+        let numberOfUnits = $canvas.width() / tickSpacing;
         var scale = (ts2 - ts1) / numberOfUnits;
 
         updateScale(scale, ts1, ts2);
@@ -168,7 +169,7 @@ namespace IMDPanel {
         ctx.textAlign = "center";
         ctx.beginPath();
         var visibleLeftTime = ruler.visibleLeft * ruler.pixelToTime;
-        var firstTickPos = parseInt(visibleLeftTime / ruler.uiScale / 5) * ruler.uiScale * 5;
+        var firstTickPos = Math.floor(visibleLeftTime / ruler.uiScale / 5) * ruler.uiScale * 5;
         var startX = firstTickPos / ruler.pixelToTime - ruler.visibleLeft; //has to be a negative value
         let i = startX;
         let numTicks = 1;
@@ -466,7 +467,7 @@ namespace IMDPanel {
             hideUpdatePrompt();
         });
 
-        $("#imdTimeCanvas").mousedown(function(event) {
+        $canvas.mousedown(function(event) {
             hideUpdatePrompt();
             $imdPanel.find(".selectedBar").remove();
             $imdPanel.find(".activeTablesList").find(".tableListItem").addClass("selected");
@@ -552,12 +553,12 @@ namespace IMDPanel {
             hideDateTipBox();
         });
 
-        $canvas.on('mousewheel DOMMouseScroll', function (e) {
+        $canvas.on('mousewheel DOMMouseScroll', function (event) {
             let time = Math.round((((event.offsetX + ruler.visibleLeft) * ruler.pixelToTime) + ruler.minTS));
             var canvasWidth = $canvas.width();
             let range = Math.round(canvasWidth * ruler.pixelToTime);
             var pctLeft = event.offsetX / canvasWidth;
-            var delta = Math.max(e.deltaY, -3);
+            var delta = Math.max(event.deltaY, -3);
             delta = Math.min(delta, 3);
 
             // zoom in our out by
@@ -605,7 +606,7 @@ namespace IMDPanel {
                     table.updates.forEach(function(update, i) {
                         if (update.batchId === batchId) {
                             let time = update.startTS;
-                            let range = Math.round($("#imdTimeCanvas").width() * ruler.pixelToTime);
+                            let range = Math.round($canvas.width() * ruler.pixelToTime);
 
                             let mid = Math.round(range / 2);
                             let min = time - mid;
@@ -629,7 +630,7 @@ namespace IMDPanel {
                                         table.name +'"]').find(".tableTimePanel");
                             var $updateLine = $clickedElement.find('.indicator' + i);
                             var pageX = $updateLine.offset().left;
-                            var pos = pageX - $clickedElement.closest(".tableListHist").offset().left - 1;
+                            var pos = pageX - $clickedElement.closest(".tableListHist").offset().left;
 
                             $clickedElement.parent().addClass("selected");
                             var selectedBar = '<div class="selectedBar" data-time="" style="left:' + pos + 'px"></div>';
@@ -678,7 +679,7 @@ namespace IMDPanel {
         hideUpdatePrompt();
 
         if (tables.length) {
-            return IMDPanel.refreshTablesToWorksheet(tables);
+            return refreshTablesToWorksheet(tables);
         } else {
             return PromiseHelper.reject();
         }
@@ -691,7 +692,7 @@ namespace IMDPanel {
         if it is within the visible history range , add div with left border and a text (update id)
     */
     function updateHistory() {
-        if (!pTables) {
+        if (!pTables.length) {
             return;
         }
         ruler.visibleLeft = $scrollDiv.scrollLeft();
@@ -815,13 +816,14 @@ namespace IMDPanel {
      * Create html elems for tables
      * call renderTimePanels function that renders the time panel
      */
-    function listTablesFirstTime(firstTime: boolean) {
+    function listTablesFirstTime(): XDPromise<any> {
+        var deferred = PromiseHelper.deferred();
         let startTime = Date.now();
         showWaitScreen();
 
         listAndCheckActive()
         .then(function(tables) {
-            pTables = tables;
+            pTables = tables || [];
             return restoreHiddenTables();
         })
         .then(function() {
@@ -835,9 +837,11 @@ namespace IMDPanel {
                 html = getListHtml(hTables);
                 $imdPanel.find(".hiddenTablesListItems").append(html);
             }
+            deferred.resolve();
         })
         .fail(function (error) {
             Alert.error("Error!", error);
+            deferred.reject();
         })
         .always(function() {
             let timeDiff = Date.now() - startTime;
@@ -849,6 +853,7 @@ namespace IMDPanel {
                 removeWaitScreen();
             }
         });
+        return deferred.promise();
     }
 
     function restoreHiddenTables() {
@@ -1020,7 +1025,7 @@ namespace IMDPanel {
         columns: object[]
     }
 
-    export function refreshTablesToWorksheet(tableInfos: RefreshTableInfos[]) {
+    function refreshTablesToWorksheet(tableInfos: RefreshTableInfos[]) {
         let deferred = PromiseHelper.deferred();
         let wsId;
         let numTables = tableInfos.length;
@@ -1153,13 +1158,6 @@ namespace IMDPanel {
             }
         });
         storeHiddenTables();
-    }
-
-    export function getAll() {
-        return {
-            hidden: hTables,
-            published: pTables
-        }
     }
 
     function deleteTable(tableName) {
@@ -1326,6 +1324,7 @@ namespace IMDPanel {
     }
 
     function showWaitScreen() {
+        $("#modalWaitingBG").remove();
         var $waitingBg = $('<div id="modalWaitingBG">' +
                             '<div class="waitingIcon"></div>' +
                         '</div>');
@@ -1362,4 +1361,25 @@ namespace IMDPanel {
                                                 progressCircle);
         progressCircle.update(numCompleted, 1000);
     }
+
+    /* Unit Test Only */
+    if (window.unitTestMode) {
+        IMDPanel.__testOnly__ = {};
+        IMDPanel.__testOnly__.setSelectedCells = function(cells) {
+            selectedCells = cells;
+        };
+        IMDPanel.__testOnly__.getSelectedCells = function() {
+            return selectedCells;
+        };
+        IMDPanel.__testOnly__.listTablesFirstTime = listTablesFirstTime;
+        IMDPanel.__testOnly__.getTables = function() {
+            return {pTables: pTables, hTables: hTables};
+        }
+        IMDPanel.__testOnly__.getRuler = function() {
+            return ruler;
+        }
+        IMDPanel.__testOnly__.testDate = testDate;
+        IMDPanel.__testOnly__.updateTimeInputs = updateTimeInputs;
+    }
+    /* End Of Unit Test Only */
 }
