@@ -608,7 +608,7 @@ function writeEntry(entry, loginId, activeDir, adUserGroup, adAdminGroup, useGro
             user.setIsADUser(false);
             // if useGroupSubtree is set, we need to query the ldap,
             // so we set membership in ldapGroupRetrieve
-            if (!useGroupSubtree) {
+            if (!useGroupSubtree && entryObject.memberOf) {
                 // For normal user, memberOf is a String
                 if (typeof(entryObject.memberOf) === "string") {
                     entryObject.memberOf = [entryObject.memberOf];
