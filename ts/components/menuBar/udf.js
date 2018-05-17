@@ -23,6 +23,10 @@ window.UDF = (function($, UDF) {
         setupUDFManager();
     };
 
+    UDF.getDefaultUDFPath = function() {
+        return "/globaludf/default";
+    };
+
     UDF.initialize = function() {
         var deferred = PromiseHelper.deferred();
 
@@ -413,7 +417,7 @@ window.UDF = (function($, UDF) {
         var userName = XcSupport.getUser();
         var sessionId = WorkbookManager.getWorkbook(
                         WorkbookManager.getActiveWKBK()).sessionId;
-
+        var defaultUDFPath = UDF.getDefaultUDFPath();
         for (var i = 0; i < sortedUDF.length; i++) {
             var udf = sortedUDF[i];
             var moduleSplit = sortedUDF[i].split("/");
@@ -422,7 +426,7 @@ window.UDF = (function($, UDF) {
             } else {
                 if (moduleSplit[2] === userName && moduleSplit[3] === sessionId) {
                     currWorkbookModules.push(udf);
-                } else if (moduleSplit[2] === "udf" && moduleSplit[3] === "default") {
+                } else if (udf === defaultUDFPath) {
                     defaultModules.push(udf);
                 } else if (moduleSplit[2] === userName) {
                     otherWorkbookModules.push(udf);

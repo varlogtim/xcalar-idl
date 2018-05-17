@@ -823,6 +823,7 @@ declare namespace UDF {
     export function download(moduleName: string): XDPromise<void>;
     export function del(moduleName: string): XDPromise<void>;
     export function refresh(): XDPromise<void>;
+    export function getDefaultUDFPath(): string;
 }
 
 declare namespace DSExport {

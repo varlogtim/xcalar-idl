@@ -2662,7 +2662,7 @@ window.DSPreview = (function($, DSPreview) {
                     // special case
                     hasUDF = true;
                     noDetect = true;
-                    udfModule = "workbook/udf/default";
+                    udfModule = "default";
                     udfFunc = "convertNewLineJsonToArrayJson";
                     toggleFormat("UDF");
                     selectUDFModule(udfModule);

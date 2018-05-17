@@ -2941,12 +2941,12 @@ namespace xcHelper {
     export function filterUDFs(fns: UDFInfo[]): UDFInfo[] {
         const filteredArray: UDFInfo[] = [];
         const wkbkPrefix: string = UDF.getCurrWorkbookPath();
-
+        const globalPathPrefix: string = UDF.getDefaultUDFPath() + ":";
         for (let i = 0; i < fns.length; i++) {
             const op: UDFInfo = fns[i];
             if (op.fnName.indexOf("/") === -1) {
                 filteredArray.push(op);
-            } else if (!op.fnName.startsWith("/workbook/udf/default:") &&
+            } else if (!op.fnName.startsWith(globalPathPrefix) &&
                 !op.fnName.startsWith(wkbkPrefix)
             ) {
                 continue;

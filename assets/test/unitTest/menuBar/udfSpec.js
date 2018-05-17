@@ -1,7 +1,7 @@
 describe("UDF Test", function() {
     var waitTime = 200;
     var defaultModule = 'default';
-    var defaultModulePath = '/workbook/udf/default';
+    var defaultModulePath = defaultUDFPath;
     var syntaxErrror = "error: 'invalid syntax' at line 12 column 5";
     var $udfSection;
     var $udfManager;
@@ -221,6 +221,10 @@ describe("UDF Test", function() {
     });
 
     describe("UDF Public API Test", function() {
+        it('UDF.getDefaultUDFPath should work', function() {
+            expect(UDF.getDefaultUDFPath()).to.equal("/globaludf/default");
+        });
+
         it("UDF.getEditor should work", function() {
             var editor = UDF.getEditor();
             expect(editor instanceof CodeMirror).to.be.true;

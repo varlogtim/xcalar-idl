@@ -1490,7 +1490,7 @@ describe("Dataset-DSPreview Test", function() {
 
         it("Should validate UDF module", function() {
             var validateUDFModule = DSPreview.__testOnly__.validateUDFModule;
-            expect(validateUDFModule("/workbook/udf/invalidModule")).to.be.false;
+            expect(validateUDFModule(globalUDFPath + "invalidModule")).to.be.false;
             expect(validateUDFModule(defaultUDFPath)).to.be.true;
         });
 
@@ -1783,7 +1783,7 @@ describe("Dataset-DSPreview Test", function() {
             UnitTest.hasStatusBoxWithError(ErrTStr.NoEmptyList);
 
             // empty func test
-            $udfModuleList.find("input").val("default").data("module", "workbook/udf/default");
+            $udfModuleList.find("input").val("default").data("module", defaultUDFPath);
             $udfFuncList.find("input").val("");
             expect(validateForm()).to.be.null;
             UnitTest.hasStatusBoxWithError(ErrTStr.NoEmptyList);
@@ -1793,7 +1793,7 @@ describe("Dataset-DSPreview Test", function() {
             var res = validateForm();
             expect(res).to.be.an("object");
             expect(res.format).to.equal("UDF");
-            expect(res.udfModule).to.equal("workbook/udf/default");
+            expect(res.udfModule).to.equal(defaultUDFPath);
             expect(res.udfFunc).to.equal("openExcel");
 
             // remove UDF checkbox
@@ -2047,12 +2047,12 @@ describe("Dataset-DSPreview Test", function() {
             UnitTest.hasStatusBoxWithError(ErrTStr.NoEmptyList);
 
             // empty func test
-            $udfModuleList.find("input").val("default").data("module","workbook/udf/default");
+            $udfModuleList.find("input").val("default").data("module", defaultUDFPath);
             $udfFuncList.find("input").val("openExcel");
             var res = validatePreview();
             expect(res).to.be.an("object");
             expect(res.format).to.equal("UDF");
-            expect(res.udfModule).to.equal("workbook/udf/default");
+            expect(res.udfModule).to.equal(defaultUDFPath);
             expect(res.udfFunc).to.equal("openExcel");
 
             // remove UDF checkbox

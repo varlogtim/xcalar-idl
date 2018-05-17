@@ -784,7 +784,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
         if (params.listUdf) {
             // need to create abspolute path for the udfModule
             if (params.listUdf === "default") {
-                params.listUdf = "/workbook/udf/default";
+                params.listUdf = UDF.getDefaultUDFPath();
             } else {
                 params.listUdf = UDF.getCurrWorkbookPath() + params.listUdf;
             }
