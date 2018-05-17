@@ -331,9 +331,11 @@ namespace xcFunction {
                     // if it's a prefix, need to cast to immediate first
                     // as sort will create an immeidate and go back to sort table's
                     // parent table need to have the same column
-                    typeToCast = typeToCast || progCol.getType();
+                    const type: ColumnType = (progCol == null) ?
+                    null : progCol.getType();
+                    typeToCast = typeToCast || type;
                 }
-                if (typeToCast !== null) {
+                if (typeToCast != null) {
                     const mapString: string = xcHelper.castStrHelper(backColName, typeToCast, false);
                     let mapColName: string = xcHelper.stripColName(parsedName.name);
                     mapColName = xcHelper.getUniqColName(tableId, mapColName);
@@ -362,7 +364,6 @@ namespace xcFunction {
                         type: null
                     });
                 }
-
             });
 
             if (!mapStrs.length) {
@@ -380,7 +381,6 @@ namespace xcFunction {
                 .fail(innerDeferred.reject);
 
             return innerDeferred.promise();
-
         }
 
         // XXX fix this
@@ -922,8 +922,8 @@ namespace xcFunction {
                         TblManager.setOrphanTableMeta(castTableName, castTableCols);
                         innerDeferred.resolve(castTableName);
                     })
-                    .fail(() => {
-                        innerDeferred.reject(tableName);
+                    .fail((error) => {
+                        innerDeferred.reject(error);
                     });
                 return innerDeferred.promise();
             } else {
