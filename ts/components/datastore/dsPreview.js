@@ -779,14 +779,14 @@ window.DSPreview = (function($, DSPreview) {
                 '    <input class="large" type="text" value="*">' +
                 '  </div>' +
                 '</div>');
-                var li = $availableColList.find("li").filter(function() {
+                var $li = $availableColList.find("li").filter(function() {
                     return $(this).find(".colName").text() === elem;
-                })[0];
-                //var $li = $availableColList.find("li[value=\"" + elem + "\"]");
-                $(li).addClass("mustSelect").find(".xi-plus").click();
-                $(li).find(".xi-minus").remove();
-                xcTooltip.add($(li),
-                             {title: TooltipTStr.ParquetCannotRemovePartition});
+                });
+                $li.addClass("mustSelect").find(".xi-plus").click();
+                $li.find(".xi-minus").remove();
+                xcTooltip.add($li, {
+                    title: TooltipTStr.ParquetCannotRemovePartition
+                });
             });
             deferred.resolve();
 
@@ -820,9 +820,11 @@ window.DSPreview = (function($, DSPreview) {
         var deferred = PromiseHelper.deferred();
         var appName = "XcalarParquet";
         var pathToParquetDataset = path;
-        var args = {func: "getInfo",
-                    targetName: targetName,
-                    path: pathToParquetDataset};
+        var args = {
+            func: "getInfo",
+            targetName: targetName,
+            path: pathToParquetDataset
+        };
         XcalarAppExecute(appName, false, JSON.stringify(args))
         .then(function(result) {
             var outStr = result.outStr;
@@ -831,8 +833,10 @@ window.DSPreview = (function($, DSPreview) {
                 // TODO handle error
                 deferred.reject();
             } else {
-                deferred.resolve({partitionKeys: appResult.partitionKeys,
-                        schema: appResult.schema});
+                deferred.resolve({
+                    partitionKeys: appResult.partitionKeys,
+                    schema: appResult.schema
+                });
             }
         })
         .fail(deferred.reject);
@@ -915,7 +919,7 @@ window.DSPreview = (function($, DSPreview) {
 
         $parquetSection.on("click", ".removeAllCols", function() {
             var $allPills = $selectedColList.find("li:not(.filteredOut)");
-            for (var i = 0; i<$allPills.length; i++) {
+            for (var i = 0; i< $allPills.length; i++) {
                 $allPills.eq(i).find(".xi-minus").click();
             }
             // TODO handle clearing search
@@ -924,7 +928,7 @@ window.DSPreview = (function($, DSPreview) {
 
         $parquetSection.on("click", ".addAllCols", function() {
             var $allPills = $availableColList.find("li:not(.filteredOut)");
-            for (var i = 0; i<$allPills.length; i++) {
+            for (var i = 0; i< $allPills.length; i++) {
                 $allPills.eq(i).find(".xi-plus").click();
             }
         });
@@ -4668,30 +4672,8 @@ window.DSPreview = (function($, DSPreview) {
 
         if ($previewTable.find(".editableHead").length > gMaxDSColsSpec) {
             $previewTable.find("th").addClass("nonEditable");
-            // var headers = getColumnHeaders();
-            // var hasInvalidName = false;
-            // headers.forEach(function(header) {
-            //     var error = xcHelper.validateColName(header.colName);
-            //     if (error) {
-            //         hasInvalidName = true;
-            //         return false;
-            //     }
-            // });
             var msg = "There are over " + gMaxDSColsSpec + " columns in " +
                     "this dataset. Modifications of column names and types are not allowed.";
-            // if (hasInvalidName) {
-            //     msg = "There are over " + gMaxDSColsSpec + " columns in " +
-            //         "this dataset. There are column names in this dataset " +
-            //         "that are not allowed. " +
-            //         "To fix this, please select Custom Format and " +
-            //         "apply default:standardizeColumnNamesAndTypes. This function will " +
-            //         "also auto-detect column types.";
-            // } else {
-            //     msg = "There are over " + gMaxDSColsSpec + " columns in this " +
-            //         "dataset. All columns will be read as strings. " +
-            //         "If you want to auto-detect column types, please select " +
-            //         "Custom Format and apply default:standardizeColumnNamesAndTypes.";
-            // }
 
             Alert.show({
                 title: ErrTStr.ColumnLimitExceeded,
@@ -4928,6 +4910,11 @@ window.DSPreview = (function($, DSPreview) {
         DSPreview.__testOnly__.validatePreview = validatePreview;
         DSPreview.__testOnly__.validateForm = validateForm;
         DSPreview.__testOnly__.submitForm = submitForm;
+        DSPreview.__testOnly__.getParquetInfo = getParquetInfo;
+        DSPreview.__testOnly__.initParquetForm = initParquetForm;
+        DSPreview.__testOnly__.errorHandler = errorHandler;
+        DSPreview.__testOnly__.previewData = previewData;
+        DSPreview.__testOnly__.importDataHelper = importDataHelper;
 
         DSPreview.__testOnly__.get = function() {
             return {

@@ -4,6 +4,7 @@ describe("Dataset-DSPreview Test", function() {
     // instead, initialize in the it() function
     var $previewCard;
     var $previewTable;
+    var $previewWrap;
     var $form;
     var $formatText;
 
@@ -27,6 +28,7 @@ describe("Dataset-DSPreview Test", function() {
     before(function() {
         $previewCard = $("#dsForm-preview");
         $previewTable = $("#previewTable");
+        $previewWrap = $("#dsPreviewWrap");
         $form = $("#importDataForm");
         $formatText = $("#fileFormat .text");
 
@@ -127,6 +129,12 @@ describe("Dataset-DSPreview Test", function() {
                                         testCase.isTh);
                 expect(td).to.equal(testCase.expectRes);
             });
+        });
+
+        it("parseTdHelper should work for editable case", () => {
+            const parseTdHelper = DSPreview.__testOnly__.parseTdHelper;
+            const res = parseTdHelper('h, i', ',', true, true);
+            expect(res).to.contains('editable');
         });
 
         it("getTbodyHTML() shoud work", function() {
@@ -445,42 +453,68 @@ describe("Dataset-DSPreview Test", function() {
             });
         });
 
-        it("invalidHeaderDetection should handle no header case", function(done) {
-            DSPreview.__testOnly__.invalidHeaderDetection(null)
-            .then(function() {
-                assert.isFalse($("#alertModal").is(":visible"));
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
+        describe('invalidHeaderDetection Test', () => {
+            let invalidHeaderDetection;
+            let loadArgs;
 
-        it("invalidHeaderDetection should handle valid case 2", function(done) {
-            var def = DSPreview.__testOnly__.invalidHeaderDetection(["abc"]);
-            UnitTest.hasAlertWithTitle(DSTStr.DetectInvalidCol, {
-                confirm: true
+            before(() => {
+                invalidHeaderDetection = DSPreview.__testOnly__.invalidHeaderDetection;
+                loadArgs = DSPreview.__testOnly__.get().loadArgs;
+                loadArgs.setFormat("JSON");
             });
-            def
-            .then(function() {
-                assert.isFalse($("#alertModal").is(":visible"));
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            });
-        });
 
-        it("invalidHeaderDetection should handle invalid case 3", function(done) {
-            var def = DSPreview.__testOnly__.invalidHeaderDetection(["a.b"]);
-            UnitTest.hasAlertWithTitle(DSTStr.DetectInvalidCol);
-            def
-            .then(function() {
-                done("fail");
-            })
-            .fail(function() {
-                assert.isFalse($("#alertModal").is(":visible"));
-                done();
+
+            it("invalidHeaderDetection should handle no header case", (done) => {
+                invalidHeaderDetection(null)
+                .then(() => {
+                    assert.isFalse($("#alertModal").is(":visible"));
+                    done();
+                })
+                .fail(() => {
+                    done("fail");
+                });
+            });
+
+            it("invalidHeaderDetection should handle invalid case", (done) => {
+                const def = invalidHeaderDetection(["abc"]);
+                UnitTest.hasAlertWithTitle(DSTStr.DetectInvalidCol, {
+                    confirm: true
+                });
+                def
+                .then(() => {
+                    assert.isFalse($("#alertModal").is(":visible"));
+                    done();
+                })
+                .fail(() => {
+                    done("fail");
+                });
+            });
+
+            it("invalidHeaderDetection should handle invalid case 2", (done) => {
+                const def = invalidHeaderDetection(["a.b"]);
+                UnitTest.hasAlertWithTitle(DSTStr.DetectInvalidCol);
+                def
+                .then(() => {
+                    done("fail");
+                })
+                .fail(() => {
+                    assert.isFalse($("#alertModal").is(":visible"));
+                    done();
+                });
+            });
+
+            it("invalidHeaderDetection should handle invalid case 3", (done) => {
+                loadArgs.setFormat("CSV");
+                const def = invalidHeaderDetection(["a.b"]);
+                UnitTest.hasAlertWithTitle(DSTStr.DetectInvalidCol);
+                def
+                .then(() => {
+                    done("fail");
+                })
+                .fail(() => {
+                    assert.isFalse($("#alertModal").is(":visible"));
+                    done();
+                });
             });
         });
 
@@ -522,6 +556,212 @@ describe("Dataset-DSPreview Test", function() {
                 expect(res).to.be.an("object");
                 expect(res.allowRecordErrors).to.equal(test.allowRecordErrors);
                 expect(res.allowFileErrors).to.equal(test.allowFileErrors);
+            });
+        });
+
+        it('errorHandler should work', () => {
+            const errorHandler = DSPreview.__testOnly__.errorHandler;
+            const $errorSection = $previewWrap.find('.errorSection');
+            const $content = $errorSection.find('.content');
+            const $bottomSection = $errorSection.find('.bottomSection');
+            // case 1
+            let error = {
+                status: StatusT.StatusNoEnt,
+                error: 'Error: test'
+            };
+            errorHandler(error, false, false);
+            expect($content.text().startsWith('test')).to.be.true;
+            expect($errorSection.hasClass('cancelState')).to.be.false;
+            expect($bottomSection.hasClass('xc-hidden')).to.be.true;
+            expect($errorSection.hasClass('hidden')).to.be.false;
+            // case 2
+            error = {
+                status: StatusT.StatusUdfExecuteFailed,
+                error: 'udf test'
+            };
+            errorHandler(error, true, false);
+            expect($content.text().startsWith(DSFormTStr.UDFError)).to.be.true;
+            expect($errorSection.hasClass('cancelState')).to.be.false;
+            expect($bottomSection.hasClass('xc-hidden')).to.be.false;
+            // case 3
+            error = {
+                status: StatusT.StatusAlready,
+                error: 'test'
+            };
+            errorHandler(error, false, true);
+            expect($content.text().startsWith('test')).to.be.false;
+            expect($errorSection.hasClass('cancelState')).to.be.true;
+            expect($bottomSection.hasClass('xc-hidden')).to.be.true;
+
+            // reset
+            $errorSection.addClass('hidden').removeClass('cancelState');
+            $errorSection.find(".content").empty();
+        });
+
+        describe('previewData Test', () => {
+            let previewData;
+            let loadArgs;
+            let oldTranStart;
+            let oldTransDone;
+            let oldTransFail;
+            let $errorSection;
+            let oldList;
+
+            before(() => {
+                previewData = DSPreview.__testOnly__.previewData;
+                loadArgs = DSPreview.__testOnly__.get().loadArgs;
+                $errorSection = $previewWrap.find('.errorSection');
+
+                oldList = XcalarListFiles;
+
+                oldTranStart = Transaction.start;
+                oldTransDone = Transaction.done;
+                oldTransFail = Transaction.fail;
+
+                Transaction.start = () => 1;
+                Transaction.done = () => null;
+                Transaction.fail = () => null;
+            });
+
+            beforeEach(() => {
+                $errorSection.find('.content').empty();
+            });
+
+            it('should handle invalid case', (done) => {
+                previewData({udfModule: 'module', udfFunc: null})
+                .then(() => {
+                    done('fail');
+                })
+                .fail((error) => {
+                    expect(error).to.equal('Error Case!');
+                    done();
+                });
+            });
+
+            it('should handle oldPreviewError', (done) => {
+                XcalarListFiles = () => PromiseHelper.reject({
+                    error: 'old preview error'
+                });
+
+                previewData()
+                .then(() => {
+                    done('fail');
+                })
+                .fail((error) => {
+                    expect($errorSection.find('.contenet').text()).to.equal('');
+                    done();
+                });
+            });
+
+            it('should handle excel case', (done) => {
+                const oldLoad = XcalarLoad;
+                XcalarLoad = () => PromiseHelper.reject('test');
+
+                loadArgs.setPreviewingSource(1, 'test.xlsx');
+                loadArgs.setFormat('Excel')
+                const options = {
+                    isRestore: true,
+                    typedColumns: ['a'],
+                    isFirstTime: true
+                };
+                previewData(options)
+                .then(() => {
+                    done('fail');
+                })
+                .fail(() => {
+                    expect(loadArgs.getPreviewHeaders()).to.be.an('array');
+                    done();
+                })
+                .always(() => {
+                    XcalarLoad = oldLoad;
+                });
+            });
+
+            describe('importDataHelper Test', () => {
+                let importDataHelper;
+                let oldImport;
+                let loadArgs;
+
+                before(() => {
+                    importDataHelper = DSPreview.__testOnly__.importDataHelper;
+                    oldImport = DS.import;
+                    DS.import = (args) => PromiseHelper.resolve(args);
+
+                    loadArgs = DSPreview.__testOnly__.get().loadArgs;
+                });
+
+                it('should work for parquet case', (done) => {
+                    let oldIsParquet = DSTargetManager.isSparkParquet;
+                    DSTargetManager.isSparkParquet = () => true;
+                    const $partionList = $previewCard.find(".parquetSection .partitionAdvanced .partitionList");
+                    $partionList.append('<div class="row">' +
+                                            '<label>col1</label>' +
+                                            '<input value="test">' +
+                                        '</div>');
+
+                    loadArgs.files = [{path: 'path'}];
+                    loadArgs.multiDS = false;
+                    const dsArgs = {format: "PARQUET"}
+
+                    importDataHelper(['ds'], dsArgs, [])
+                    .then((multiLoadArgs) => {
+                        expect(multiLoadArgs.sources[0].path).to.equal('path?col=test');
+                        done();
+                    })
+                    .fail(() => {
+                        done('fail');
+                    })
+                    .always(() => {
+                        DSTargetManager.isSparkParquet = oldIsParquet;
+                        $partionList.empty();
+                    });
+                });
+
+                it('should work for auto detect', (done) => {
+                    const file = {path: 'path', autoCSV: true};
+                    loadArgs.files = [file];
+                    loadArgs.multiDS = false;
+                    loadArgs.setPreviewingSource(0, file);
+                    const dsArgs = {format: "CSV"};
+
+                    importDataHelper(['ds'], dsArgs, [])
+                    .then((multiLoadArgs) => {
+                        expect(multiLoadArgs.sources[0].udfQuery).not.to.be.null;
+                        done();
+                    })
+                    .fail(() => {
+                        done('fail');
+                    });
+                });
+
+                it('should work for multi DS case', (done) => {
+                    loadArgs.files = [{path: 'path'}];
+                    loadArgs.multiDS = true;
+                    const dsArgs = {format: "JSON"};
+
+                    importDataHelper(['ds'], dsArgs, [])
+                    .then((arg) => {
+                        expect(arg).to.be.null;
+                        done();
+                    })
+                    .fail(() => {
+                        done('fail');
+                    });
+                });
+
+                after(() => {
+                    DS.import = oldImport;
+                    loadArgs.reset();
+                });
+            });
+
+            after(() => {
+                Transaction.start = oldTranStart;
+                Transaction.done = oldTransDone;
+                Transaction.fail = oldTransFail;
+                XcalarListFiles = oldList;
+                loadArgs.reset();
+                DSPreview.__testOnly__.resetForm();
             });
         });
     });
@@ -650,7 +890,7 @@ describe("Dataset-DSPreview Test", function() {
             // error json
             loadArgs.setFormat("JSON");
             DSPreview.__testOnly__.getPreviewTable();
-            var res = $("#dsPreviewWrap").find(".errorSection .topSection .content").text();
+            var res = $previewWrap.find(".errorSection .topSection .content").text();
             expect(res).to.equal("Your file cannot be parsed as JSON. We recommend you use the CSV format instead.");
 
             // valid json
@@ -1271,6 +1511,197 @@ describe("Dataset-DSPreview Test", function() {
         });
     });
 
+    describe('Parquet Func Test', () => {
+        let $parquetSection;
+        let $partitionList;
+        let $availableColList;
+        let $selectedColList;
+
+        before(() => {
+            $parquetSection = $form.find(".parquetSection");
+            $partitionList = $parquetSection.find(".partitionList");
+            $availableColList = $parquetSection.find(".availableColSection " +
+                                      ".colList");
+            $selectedColList = $parquetSection.find(".selectedColSection " +
+                                     ".colList");
+        });
+
+        it('getParquetInfo should work', (done) => {
+            const oldAppExecute = XcalarAppExecute;
+            const outRes = {
+                validParquet: true,
+                partitionKeys: ['key'],
+                schema: {}
+            };
+            const outStr = JSON.stringify([[JSON.stringify(outRes)]]);
+            XcalarAppExecute = () => PromiseHelper.resolve({outStr});
+
+            const getParquetInfo = DSPreview.__testOnly__.getParquetInfo;
+            getParquetInfo('path', 'target')
+            .then((res) => {
+                expect(res).to.be.an('object');
+                expect(res.partitionKeys[0]).to.equal('key');
+                expect(res.schema).to.be.an('object');
+                done();
+            })
+            .fail(() => {
+                done('fail');
+            })
+            .always(() => {
+                XcalarAppExecute = oldAppExecute;
+            });
+        });
+
+        it('getParquetInfo should handle fail case', (done) => {
+            const oldAppExecute = XcalarAppExecute;
+            const outRes = {
+                validParquet: false
+            };
+            const outStr = JSON.stringify([[JSON.stringify(outRes)]]);
+            XcalarAppExecute = () => PromiseHelper.resolve({outStr});
+
+            const getParquetInfo = DSPreview.__testOnly__.getParquetInfo;
+            getParquetInfo('path', 'target')
+            .then(() => {
+                done('fail');
+            })
+            .fail(() => {
+                done();
+            })
+            .always(() => {
+                XcalarAppExecute = oldAppExecute;
+            });
+        });
+
+        it('initParquetForm should handle fail case', (done) => {
+            const oldAppExecute = XcalarAppExecute;
+            const oldError = Alert.error;
+            XcalarAppExecute = () => PromiseHelper.reject({
+                output: {
+                    errStr: 'test'
+                }
+            });
+
+            let test = false;
+            Alert.error = () => { test = true; }
+
+            const initParquetForm = DSPreview.__testOnly__.initParquetForm;
+            initParquetForm('path', 'target')
+            .then(() => {
+                done('fail');
+            })
+            .fail(() => {
+                expect(test).to.be.true;
+                done();
+            })
+            .always(() => {
+                XcalarAppExecute = oldAppExecute;
+                Alert.error = oldError;
+            });
+        });
+
+        it('initParquetForm should work', (done) => {
+            const oldAppExecute = XcalarAppExecute;
+            const outRes = {
+                validParquet: true,
+                partitionKeys: ['a'],
+                schema: {
+                    'a': {xcalarType: 'DfString'},
+                    'b': {xcalarType: 'DfObject'},
+                    'c': {xcalarType: 'DfArray'}
+                }
+            };
+            const outStr = JSON.stringify([[JSON.stringify(outRes)]]);
+            XcalarAppExecute = () => PromiseHelper.resolve({outStr});
+
+            const initParquetForm = DSPreview.__testOnly__.initParquetForm;
+            initParquetForm('path', 'target')
+            .then(() => {
+                expect($availableColList.find('li').length).to.equal(2);
+                expect($selectedColList.find('li').length).to.equal(1);
+                expect($partitionList.find('.row').length).to.equal(1);
+                done();
+            })
+            .fail(() => {
+                done('fail');
+            })
+            .always(() => {
+                XcalarAppExecute = oldAppExecute;
+            });
+        });
+
+        it('should toggle parquet Section', () => {
+            const $listWrap = $parquetSection.find('.listWrap');
+            const isActive = $parquetSection.hasClass('active');
+            $listWrap.click();
+            expect($parquetSection.hasClass('active')).to.equal(!isActive);
+            // toggle back
+            $listWrap.click();
+            expect($parquetSection.hasClass('active')).to.equal(isActive);
+        });
+
+        it('should search column', () => {
+            const $search = $parquetSection.eq(0).find('.columnSearch');
+            const $input = $search.find('input');
+            $input.val('a').trigger('input');
+            expect($search.hasClass('hasVal')).to.be.true;
+            $input.val('').trigger('input');
+            expect($search.hasClass('input')).to.be.false;
+        });
+
+        it('should blur search column', () => {
+            const $search = $parquetSection.eq(0).find('.columnSearch');
+            const $input = $search.find('input');
+            $input.val('a').blur();
+            expect($search.hasClass('hasVal')).to.be.true;
+            $input.val('').blur();
+            expect($search.hasClass('input')).to.be.false;
+        });
+
+        it('should clear search', () => {
+            const $search = $parquetSection.eq(0).find('.columnSearch');
+            const $input = $search.find('input');
+            $input.val('a').addClass('hasVal');
+            $search.find('.clear').trigger('mousedown');
+            expect($search.hasClass('hasVal')).to.be.false;
+        });
+
+        it('should add column', () => {
+            const oldAva = $availableColList.find('li').length;
+            const oldSelected = $selectedColList.find('li').length;
+            $availableColList.find('li .colName').eq(0).click();
+            expect($availableColList.find('li').length).to.equal(oldAva - 1);
+            expect($selectedColList.find('li').length).to.equal(oldSelected + 1);
+        });
+
+        it('should remove column', () => {
+            const oldAva = $availableColList.find('li').length;
+            const oldSelected = $selectedColList.find('li').length;
+            $selectedColList.find('li .xi-minus').eq(0).before('.colName').click();
+            expect($availableColList.find('li').length).to.equal(oldAva + 1);
+            expect($selectedColList.find('li').length).to.equal(oldSelected - 1);
+        });
+
+        it('should trigger add all', () => {
+            $parquetSection.find('.addAllCols').click();
+            expect($availableColList.find('li').length).to.equal(0);
+            expect($selectedColList.find('li').length).to.equal(3);
+        });
+
+        it('should trigger remove all', () => {
+            // key cannot be remvoed
+            $parquetSection.find('.removeAllCols').click();
+            expect($availableColList.find('li').length).to.equal(2);
+            expect($selectedColList.find('li').length).to.equal(1);
+        });
+
+        after(() => {
+            $partitionList.empty();
+            $availableColList.empty();
+            $selectedColList.empty();
+        });
+    });
+
     describe("Validate Form Test", function() {
         var validateForm;
         var loadArgs;
@@ -1801,6 +2232,110 @@ describe("Dataset-DSPreview Test", function() {
         });
     });
 
+    describe('Advanced Section Test', () => {
+        let $advanceSection;
+        let loadArgs;
+
+        before(() => {
+            loadArgs = DSPreview.__testOnly__.get().loadArgs;
+            loadArgs.setFormat('CSV');
+            $advanceSection = $form.find(".advanceSection");
+            const table = '<thead><tr><td>H1</td></tr></thead>' +
+                            '<tbody><tr><td>cell</td></tr></tbody>';
+            $previewTable.html(table);
+        });
+
+        it("should click to toggle advanced section", function() {
+            const $button = $advanceSection.find(".listWrap");
+            expect($advanceSection.hasClass("active")).to.be.false;
+            // open advance option
+            $button.click();
+            expect($advanceSection.hasClass("active")).to.be.true;
+            // close advance option
+            $button.click();
+            expect($advanceSection.hasClass("active")).to.be.false;
+        });
+
+        it("should add file name", () => {
+            const $fileName = $advanceSection.find(".fileName");
+            $fileName.find('.checkboxSection').click();
+            expect($fileName.hasClass('active')).to.be.true;
+            expect($previewTable.find('tbody .extra').length).to.equal(1);
+        });
+
+        it('should input file name header', () => {
+            const $fileName = $advanceSection.find(".fileName");
+            $fileName.find('input').val('fileName').trigger('input');
+            const text = $previewTable.find(".extra.fileName .text").text();
+            expect(text).to.equal('fileName');
+        });
+
+        it('should remvoe file name', () => {
+            const $fileName = $advanceSection.find(".fileName");
+            $fileName.find('.checkboxSection').click();
+            expect($fileName.hasClass('active')).to.be.false;
+            expect($previewTable.find('tbody .extra').length).to.equal(0);
+        });
+
+        it("should add row number", () => {
+            const $rowNumber = $advanceSection.find(".rowNumber");
+            $rowNumber.find('.checkboxSection').click();
+            expect($rowNumber.hasClass('active')).to.be.true;
+            expect($previewTable.find('tbody .extra').length).to.equal(1);
+        });
+
+        it('should input row number header', () => {
+            const $rowNumber = $advanceSection.find(".rowNumber");
+            $rowNumber.find('input').val('rowNumber').trigger('input');
+            const text = $previewTable.find(".extra.rowNumber .text").text();
+            expect(text).to.equal('rowNumber');
+        });
+
+        it("should remove row number", () => {
+            const $rowNumber = $advanceSection.find(".rowNumber");
+            $rowNumber.find('.checkboxSection').click();
+            expect($rowNumber.hasClass('active')).to.be.false;
+            expect($previewTable.find('tbody .extra').length).to.equal(0);
+        });
+
+        it("should not add row number in error case", () => {
+            const $errorSection = $previewWrap.find(".errorSection");
+            $errorSection.removeClass('hidden');
+
+            const $rowNumber = $advanceSection.find(".rowNumber");
+            $rowNumber.find('.checkboxSection').click();
+            expect($rowNumber.hasClass('active')).to.be.true;
+            expect($previewTable.find('tbody .extra').length).to.equal(0);
+            // toggle back
+            $rowNumber.find('.checkboxSection').click();
+            expect($rowNumber.hasClass('active')).to.be.false;
+            expect($previewTable.find('tbody .extra').length).to.equal(0);
+
+            // reset
+            $errorSection.addClass('hidden');
+        });
+
+        it("should not add row number in xml case", () => {
+            loadArgs.setFormat('XML');
+
+            const $rowNumber = $advanceSection.find(".rowNumber");
+            $rowNumber.find('.checkboxSection').click();
+            expect($rowNumber.hasClass('active')).to.be.true;
+            expect($previewTable.find('tbody .extra').length).to.equal(0);
+            // toggle back
+            $rowNumber.find('.checkboxSection').click();
+            expect($rowNumber.hasClass('active')).to.be.false;
+            expect($previewTable.find('tbody .extra').length).to.equal(0);
+
+            // reset
+            loadArgs.setFormat('CSV');
+        });
+
+        after(function() {
+            DSPreview.__testOnly__.resetForm();
+        });
+    });
+
     describe("Preview UI Behavior Test", function() {
         before(function() {
             DSPreview.__testOnly__.restoreForm({
@@ -1912,19 +2447,6 @@ describe("Dataset-DSPreview Test", function() {
             expect($previewCard.hasClass("minimize")).to.be.false;
         });
 
-        it("should click to toggle advanced option", function() {
-            var $advanceSection = $form.find(".advanceSection");
-            var $button = $advanceSection.find(".listWrap");
-
-            expect($advanceSection.hasClass("active")).to.be.false;
-            // open advance option
-            $button.click();
-            expect($advanceSection.hasClass("active")).to.be.true;
-            // close advance option
-            $button.click();
-            expect($advanceSection.hasClass("active")).to.be.false;
-        });
-
         it("should click to fetch more rows", function(done) {
             DSPreview.__testOnly__.set("abc");
             $("#dsForm-skipRows").val("0");
@@ -1969,7 +2491,7 @@ describe("Dataset-DSPreview Test", function() {
             xcTooltip.auto = function() {
                 test2 = true;
             };
-            $("#dsPreviewWrap").append($fakeDiv);
+            $previewWrap.append($fakeDiv);
             $fakeDiv.trigger(fakeEvent.mouseenter);
             expect(test1).to.be.true;
             expect(test2).to.be.true;
@@ -1986,7 +2508,7 @@ describe("Dataset-DSPreview Test", function() {
             QueryManager.cancelQuery = function() {
                 test = true;
             };
-            $("#dsPreviewWrap").append($fakeBtn);
+            $previewWrap.append($fakeBtn);
             $fakeBtn.click();
             expect(test).to.be.true;
 
@@ -2064,6 +2586,15 @@ describe("Dataset-DSPreview Test", function() {
             $("#dsForm-writeUDF").click();
             expect(test).to.be.true;
             JupyterPanel.autofillImportUdfModal = oldFunc;
+        });
+
+        it('should click label to copy dataset name', () => {
+            const oldFunc = xcHelper.copyToClipboard;
+            let test = false;
+            xcHelper.copyToClipboard = () => { test = true };
+            $("#importDataForm-content").find('.inputPart .row label').click();
+            expect(test).to.be.true;
+            xcHelper.copyToClipboard = oldFunc;
         });
 
         after(function() {
