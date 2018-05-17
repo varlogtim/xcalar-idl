@@ -250,12 +250,16 @@ function setMsalConfig(msalConfigIn) {
     })
     .then(function() {
         if (!(msalConfigIn.hasOwnProperty(msalEnabledField))) {
-            deferred.reject("Invalid msalConfig provided");
+            message.error = "Invalid msalConfig provided";
+            deferred.reject(message);
+            return;
         }
 
         for (var idx in msalFieldsRequired) {
             if (!(msalConfigIn.msal.hasOwnProperty(msalFieldsRequired[idx]))) {
-                deferred.reject("Invalid msalConfig provided");
+                message.error = "Invalid msalConfig provided with missing fields";
+                deferred.reject(message);
+                return;
             }
         }
 
@@ -892,6 +896,7 @@ if (process.env.NODE_ENV === "test") {
     exports.ldapAuthentication = ldapAuthentication;
     exports.prepareResponse = prepareResponse;
     exports.loginAuthentication = loginAuthentication;
+    exports.ldapGroupRetrieve = ldapGroupRetrieve;
     // Replace functions
     exports.fakeSetupLdapConfigs = fakeSetupLdapConfigs;
     exports.fakeSetLdapConnection = fakeSetLdapConnection;

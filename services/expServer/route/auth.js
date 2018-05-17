@@ -20,7 +20,7 @@ var xcConsole = require('../expServerXcConsole.js').xcConsole;
 
 function getUrl(url) {
     var deferred = jQuery.Deferred();
-    var retMsg = { status: false, url: url, data: null, error: null};
+    var retMsg = { status: false, url: url, data: null, error: null };
 
     request.get(url, function(error, response, body) {
         if (!error && response.statusCode == 200) {
@@ -64,7 +64,7 @@ function getKeys(outKid) {
             return(getError(data));
         })
         .then(function(urlData) {
-            if (urlData.data !== null && urlData.data.keys) {
+            if (urlData.data !== null && urlData.data.hasOwnProperty('keys')) {
                 for (var i = 0; i < urlData.data.keys.length; i++) {
                     var b = new Buffer(jwkToPem(urlData.data.keys[i]));
                     msKeyCache.set(urlData.data.keys[i].kid, b);
@@ -75,6 +75,7 @@ function getKeys(outKid) {
                 }
                 if (retMsg.status) {
                     deferred.resolve(retMsg);
+                    return;
                 }
 
                 retMsg = { status: false,
@@ -136,9 +137,11 @@ function processToken(idToken) {
     }, function(msg) {
         return(getKeys(header.kid));
     })
-    .then(function(msg) {
-        if (!msg.status) {
+    .always(function(msg) {
+         if (!msg.status) {
+            msg.data = false;
             deferred.reject(msg);
+            return;
         }
 
         jwt.verify(idToken, msg.data, function(err, decoded) {
@@ -147,6 +150,7 @@ function processToken(idToken) {
                            data: decoded,
                            message: "Error during web token verification: " + err.message };
                 deferred.reject(retMsg);
+                return;
             }
             retMsg.data = decoded;
             deferred.resolve(retMsg);
@@ -173,7 +177,7 @@ router.post('/auth/azureIdToken', function(req, res) {
     }
 
     processToken(idToken)
-    .then(function(msg) {
+    .always(function(msg) {
         retMsg = { status: (msg.status) ? httpStatus.OK : httpStatus.Unauthorized,
                    data: msg.data,
                    success: msg.status,
@@ -181,5 +185,26 @@ router.post('/auth/azureIdToken', function(req, res) {
         res.status(retMsg.status).send(retMsg);
     });
 });
+
+function fakeProcessToken(func) {
+    processToken = func;
+}
+
+function fakeGetUrl(func) {
+    getUrl = func;
+}
+
+function fakeRetrieveKey(func) {
+    retrieveKey = func;
+}
+
+if (process.env.NODE_ENV === "test") {
+    exports.getUrl = getUrl;
+    exports.msKeyCache = msKeyCache;
+    // fake functions
+    exports.fakeProcessToken = fakeProcessToken;
+    exports.fakeGetUrl = fakeGetUrl;
+    exports.fakeRetrieveKey = fakeRetrieveKey;
+}
 
 exports.router = router;

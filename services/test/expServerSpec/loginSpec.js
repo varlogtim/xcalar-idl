@@ -3,7 +3,9 @@ describe('ExpServer Login Test', function() {
     var expect = require('chai').expect;
     const path = require('path');
     const fs = require('fs');
+    const ldap = require('ldapjs');
     var expServer = require(__dirname + '/../../expServer/expServer.js');
+    this.timeout(5000);
 
     require('jquery');
 
@@ -16,7 +18,7 @@ describe('ExpServer Login Test', function() {
             "type": action,
             "data": JSON.stringify(str),
             "contentType": "application/json",
-            "url": "http://localhost:12124" + url,
+            "url": "http://localhost:12125" + url,
             "async": true,
             success: function(data) {
                 deferred.resolve(data);
@@ -28,6 +30,15 @@ describe('ExpServer Login Test', function() {
         return deferred.promise();
     }
 
+    function copySync(src, dest) {
+        if (!fs.existsSync(src)) {
+            return false;
+        }
+
+        var data = fs.readFileSync(src, 'utf-8');
+        fs.writeFileSync(dest, data);
+    }
+
     var testLoginId;
     var testCredArray;
     var testLdapConn;
@@ -35,26 +46,65 @@ describe('ExpServer Login Test', function() {
 
     // Test begins
     before(function() {
+        // restore ldapConfig.json to a known good copy
+        copySync(__dirname + '/../../test/config/ldapConfig.json.good',
+                 __dirname + '/../../test/config/ldapConfig.json');
+
         testLoginId = 0;
+        testLoginId2 = 0;
+        testLoginId3 = 0;
         testCredArray = {
             xiusername: "sPerson1@gmail.com",
             xipassword: "Welcome1"
         };
+        testCredArray2 = {
+            xiusername: "xdtestuser",
+            xipassword: "welcome1"
+        }
         testConfig = {
             ldap_uri: "ldap://openldap1-1.xcalar.net:389",
             userDN: "mail=%username%,ou=People,dc=int,dc=xcalar,dc=com",
-            useTLS: "false",
+            useTLS: false,
             searchFilter: "(memberof=cn=xceUsers,ou=Groups,dc=int,dc=xcalar,dc=com)",
-            activeDir: "false",
+            activeDir: false,
             serverKeyFile: "/etc/ssl/certs/ca-certificates.crt"
         };
+        testConfig2 = {
+            "ldap_uri":"ldap://pdc1.int.xcalar.com:389",
+            "userDN":"dc=int,dc=xcalar,dc=net",
+            "useTLS":true,
+            "searchFilter":"(&(objectclass=user)(userPrincipalName=%username%))",
+            "activeDir":true,
+            "serverKeyFile":"/etc/ssl/certs/ca-certificates.crt",
+            "ldapConfigEnabled":true,
+            "adUserGroup":"CN=GlobalXcalarUsers,CN=Users,DC=int,DC=xcalar,DC=net",
+            "adAdminGroup":"CN=GlobalXcalarAdmins,CN=Users,DC=int,DC=xcalar,DC=net",
+            "adDomain":"int.xcalar.net",
+            "adSubGroupTree": true,
+            "adSearchShortName": false
+        };
+        testConfig3 = {
+            "ldap_uri":"ldap://pdc1.int.xcalar.com:389",
+            "userDN":"dc=int,dc=xcalar,dc=net",
+            "useTLS":true,
+            "searchFilter":"(&(objectclass=user)(userPrincipalName=%username%))",
+            "activeDir":true,
+            "serverKeyFile":"/etc/ssl/certs/ca-certificates.crt",
+            "ldapConfigEnabled":true,
+            "adUserGroup":"XcalarUserEngineeringSubGroup",
+            "adAdminGroup":"Xce Admins",
+            "adDomain":"int.xcalar.net",
+            "adSubGroupTree": false,
+            "adSearchShortName": false
+        };
         testLdapConn = {};
+        testLdapConn2 = {};
+        testLdapConn3 = {};
     });
 
-    // FIXME it's not working
-    it.skip("login.setupLdapConfigs should work", function(done) {
+    it("login.setupLdapConfigs should work", function(done) {
         support.getXlrRoot = function() {
-            return jQuery.Deferred().resolve("../../test").promise();
+            return jQuery.Deferred().resolve(__dirname + "/../../test").promise();
         };
         login.setupLdapConfigs(true)
         .then(function(ret) {
@@ -80,8 +130,7 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    // FIXME it's not working
-    it.skip('login.setLdapConnection should work', function(done) {
+    it('login.setLdapConnection should work', function(done) {
         login.setLdapConnection(testCredArray, testLdapConn, testConfig, testLoginId)
         .then(function(ret) {
             expect(ret).to.equal("setLdapConnection succeeds");
@@ -104,9 +153,13 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    // FIXME it's not working
-    it.skip('login.ldapAuthentication should fail when error', function(done) {
+    it('login.ldapAuthentication should fail when error', function(done) {
         var invalidConn = jQuery.extend(true, {}, testLdapConn);
+        invalidConn.client = ldap.createClient({
+            url: testLdapConn.client_url,
+            timeout: 10000,
+            connectTimeout: 20000
+        });
         invalidConn.username = "invalid";
         invalidConn.password = null;
         login.ldapAuthentication(invalidConn, testLoginId)
@@ -119,8 +172,12 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    // FIXME it's not working
-    it.skip('login.ldapAuthentication should work', function(done) {
+    it('login.ldapAuthentication should work', function(done) {
+        testLdapConn.client = ldap.createClient({
+            url: testLdapConn.client_url,
+            timeout: 10000,
+            connectTimeout: 20000
+        });
         login.ldapAuthentication(testLdapConn, testLoginId)
         .then(function(ret) {
             expect(ret).to.equal("ldapAuthentication succeeds");
@@ -131,8 +188,7 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    // FIXME it's not working
-    it.skip('login.prepareResponse should work', function(done) {
+    it('login.prepareResponse should work', function(done) {
         login.prepareResponse(testLoginId, testLdapConn.activeDir)
         .then(function(ret) {
             expect(ret.isValid).to.be.true;
@@ -151,6 +207,44 @@ describe('ExpServer Login Test', function() {
         .fail(function(error) {
             expect(error).to.equal("prepareResponse fails");
             done();
+        });
+    });
+
+    it('login.ldapAuthentication with AD should work', function(done) {
+        login.setLdapConnection(testCredArray2, testLdapConn2, testConfig2, testLoginId2)
+        .then(function(ret) {
+            expect(ret).to.equal("setLdapConnection succeeds");
+            return login.ldapAuthentication(testLdapConn2, testLoginId2);
+        })
+        .then(function(ret) {
+            expect(ret).to.equal("ldapAuthentication succeeds");
+            return login.ldapGroupRetrieve(testLdapConn2, 'user', testLoginId2);
+        })
+        .then(function(ret) {
+            expect(ret).to.equal('Group search process succeeds for user');
+            return login.ldapGroupRetrieve(testLdapConn2, 'admin', testLoginId2);
+        })
+        .then(function(ret) {
+            expect(ret).to.equal('Group search process succeeds for admin');
+            done();
+        })
+        .fail(function() {
+            done("fail");
+        });
+    });
+
+    it('login.ldapAuthentication with AD should work', function(done) {
+        login.setLdapConnection(testCredArray2, testLdapConn3, testConfig3, testLoginId3)
+        .then(function(ret) {
+            expect(ret).to.equal("setLdapConnection succeeds");
+            return login.ldapAuthentication(testLdapConn3, testLoginId3);
+        })
+        .then(function(ret) {
+            expect(ret).to.equal("ldapAuthentication succeeds");
+            done();
+        })
+        .fail(function() {
+            done("fail");
         });
     });
 
@@ -191,8 +285,7 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    // FIXME it's not working
-    it.skip('Router should work with login action', function(done) {
+    it('Router should work with login action', function(done) {
         testCredArray = {
             xiusername: "sPerson1@gmail.com",
             xipassword: "Welcome1"
@@ -212,8 +305,8 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    // FIXME it's not working
-    it.skip('Router should fail with invalid endpoint', function(done) {
+
+    it('Router should fail with invalid endpoint', function(done) {
         postRequest("POST", "/invalidUrl")
         .then(function() {
             done("fail");
@@ -224,12 +317,7 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    // FIXME it's not working
-    it.skip('Router should fail with setMsalConfig action and bogus msalConfig', function(done) {
-        support.getXlrRoot = function() {
-            return jQuery.Deferred().resolve("/../../test").promise();
-        };
-
+    it('Router should fail with setMsalConfig action and bogus msalConfig', function(done) {
         var credArray = {
             bogus: "bogus"
         };
@@ -237,7 +325,7 @@ describe('ExpServer Login Test', function() {
         var expectedRetMsg = {
             "status": 200,
             "success": false,
-            "error": "Invalid MsalConfig provided"
+            "error": "Invalid msalConfig provided"
         };
 
         postRequest("POST", "/login/msalConfig/set", credArray)
@@ -250,8 +338,7 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    // FIXME it's not working
-    it.skip('Router should fail with setMsalConfig action and invalid directory', function(done) {
+    it('Router should fail with setMsalConfig action and invalid directory', function(done) {
         support.getXlrRoot = function() {
             return jQuery.Deferred().resolve("../../doesnotexist").promise();
         };
@@ -261,7 +348,8 @@ describe('ExpServer Login Test', function() {
             msal: {
                 clientId: "legitLookingClient",
                 adminScope: "api%3A%2F%2FsomethingAdminReasonable",
-                userScope: "api%3A%2F%2FsomethingUserReasonable"
+                userScope: "api%3A%2F%2FsomethingUserReasonable",
+                b2cEnabled: false
             }
         };
 
@@ -275,8 +363,7 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    // FIXME it's not working
-    it.skip('Router should work with proper setMsalConfig action and getMsalConfig action', function(done) {
+    it('Router should work with proper setMsalConfig action and getMsalConfig action', function(done) {
         support.getXlrRoot = function() {
             return jQuery.Deferred().resolve(__dirname + "/../../test").promise();
         };
@@ -286,7 +373,8 @@ describe('ExpServer Login Test', function() {
             msal: {
                 clientId: Math.floor(Math.random() * 1000).toString(),
                 adminScope: "api%3A%2F%2FsomethingAdminReasonable",
-                userScope: "api%3A%2F%2FsomethingUserReasonable"
+                userScope: "api%3A%2F%2FsomethingUserReasonable",
+                b2cEnabled: false
             }
         };
 
@@ -306,9 +394,14 @@ describe('ExpServer Login Test', function() {
                 "msalEnabled": true,
                 "status": 200,
                 "msal": {
-                    "clientId": setArray.clientId,
-                    "adminScope": setArray.adminScope,
-                    "userScope": setArray.userScope
+                    "clientId": setArray.msal.clientId,
+                    "adminScope": setArray.msal.adminScope,
+                    "userScope": setArray.msal.userScope,
+                    "b2cEnabled": setArray.msal.b2cEnabled,
+                    "authority": "",
+                    "azureEndpoint": "",
+                    "azureScopes": [],
+                    "webApi": ""
                 }
             };
             expect(ret).to.deep.equal(expectedRetMsg);
@@ -331,9 +424,14 @@ describe('ExpServer Login Test', function() {
                 "msalEnabled": false,
                 "status": 200,
                 "msal": {
-                    "clientId": setArray.clientId,
-                    "adminScope": setArray.adminScope,
-                    "userScope": setArray.userScope
+                    "clientId": setArray.msal.clientId,
+                    "adminScope": setArray.msal.adminScope,
+                    "userScope": setArray.msal.userScope,
+                    "b2cEnabled": setArray.msal.b2cEnabled,
+                    "authority": "",
+                    "azureEndpoint": "",
+                    "azureScopes": [],
+                    "webApi": ""
                 }
             };
 
@@ -349,8 +447,7 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    // FIXME it's not working
-    it.skip('Router should fail with setDefaultAdmin action and invalid input', function(done) {
+    it('Router should fail with setDefaultAdmin action and invalid input', function(done) {
         support.getXlrRoot = function() {
             return jQuery.Deferred().resolve(path.join(__dirname, "../../test")).promise();
         };
@@ -375,8 +472,7 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    // FIXME it's not working
-    it.skip('Router should fail with setDefaultAdmin action and invalid directory', function(done) {
+    it('Router should fail with setDefaultAdmin action and invalid directory', function(done) {
         support.getXlrRoot = function() {
             return jQuery.Deferred().resolve("../../doesnotexist").promise();
         };
@@ -398,8 +494,7 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    // FIXME it's not working
-    it.skip('Router should fail with getDefaultAdmin action with wrong permissions', function(done) {
+    it('Router should fail with getDefaultAdmin action with wrong permissions', function(done) {
         configDir = path.join(__dirname, "../../test");
         configPath = path.join(configDir, "./config/defaultAdmin.json");
         try {
@@ -431,8 +526,7 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    // FIXME it's not working
-    it.skip('Router should work with setDefaultAdmin action', function(done) {
+    it('Router should work with setDefaultAdmin action', function(done) {
         configDir = path.join(__dirname, "../../test");
         configPath = path.join(configDir, "./config/defaultAdmin.json");
 
@@ -532,8 +626,7 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    // FIXME it's not working
-    it.skip('Router should fail with setLdapConfig action and bogus ldapConfig', function(done) {
+    it('Router should fail with setLdapConfig action and bogus ldapConfig', function(done) {
         support.getXlrRoot = function() {
             return jQuery.Deferred().resolve("../../test").promise();
         };
@@ -558,8 +651,7 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    // FIXME it's not working
-    it.skip('Router should fail with setLdapConfig action and invalid directory', function(done) {
+    it('Router should fail with setLdapConfig action and invalid directory', function(done) {
         support.getXlrRoot = function() {
             return jQuery.Deferred().resolve("../../doesnotexist").promise();
         };
@@ -584,8 +676,7 @@ describe('ExpServer Login Test', function() {
         });
     });
 
-    // FIXME it's not working
-    it.skip('Router should work with proper setLdapConfig action and getLdapConfig action', function(done) {
+    it('Router should work with proper setLdapConfig action and getLdapConfig action', function(done) {
         support.getXlrRoot = function() {
             return jQuery.Deferred().resolve(__dirname + "/../../test").promise();
         };
