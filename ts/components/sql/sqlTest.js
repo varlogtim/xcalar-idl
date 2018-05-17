@@ -747,7 +747,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         }
     }
     function sendSchema(tableId, tableName) {
-        return ExtensionManager.trigger(tableId, "UExtSendSchema", "sendSchema", {sqlTableName: tableName});
+        return ExtensionManager.trigger(tableId, "UExtSQL", "sendSchema", {sqlTableName: tableName});
     }
 
     return (SqlTestSuite);

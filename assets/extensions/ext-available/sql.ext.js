@@ -1,8 +1,9 @@
 // module name must start with "UExt"
-window.UExtSendSchema = (function(UExtSendSchema) {
+window.UExtSQL = (function(UExtSQL) {
 
-    UExtSendSchema.buttons = [{
-        "buttonText": "Send Schema",
+    UExtSQL.buttons = [{
+        "buttonText": "Create SQL Table Alias",
+        "instruction": "Publish table into SQL namespace",
         "fnName": "sendSchema",
         "arrayOfFields": [{
             "type": "string",
@@ -15,7 +16,7 @@ window.UExtSendSchema = (function(UExtSendSchema) {
     //     "arrayOfFields": [],
     }];
 
-    UExtSendSchema.actionFn = function(functionName) {
+    UExtSQL.actionFn = function(functionName) {
         switch (functionName) {
             case "sendSchema":
                 return sendSchema();
@@ -258,5 +259,5 @@ window.UExtSendSchema = (function(UExtSendSchema) {
         return ext;
     }
 
-    return UExtSendSchema;
+    return UExtSQL;
 }({}));

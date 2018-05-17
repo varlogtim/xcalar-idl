@@ -1209,11 +1209,10 @@ UDFTStr = {
     "NoTemplate": "Cannot find the module",
     "InValidName": "Module name should start with a lowercase letter or underscore and contain only letters, digits, hyphens(-) or underscores(_)",
     "InValidFnName": "Function name should start with a lowercase letter or underscore and contain only letters, digits or underscores(_)",
-    "MyUDFS": "MY CURRENT WORKBOOK UDFS",
-    "MYOTHERUDFS": "MY OTHER WORKBOOKS UDFS",
-    "PublicUDFS": "PUBLIC UDFS",
-    "OtherUDFS": "OTHER USERS UDFS",
-    "DFUDFS": "DATAFLOW UDFS",
+    "MyUDFS": "CURRENT WORKBOOK",
+    "MYOTHERUDFS": "MY WORKBOOKS",
+    "OtherUDFS": "OTHER WORKBOOKS",
+    "DFUDFS": "BATCH DATAFLOWS",
     "Show": "Show"
 };
 
@@ -1271,7 +1270,9 @@ SideBarTStr = {
     'DupUDF': 'Duplicate Module',
     'DupUDFMsg': 'Python module <module> already exists ' +
                  '(module name is case insensitive), ' +
-                 'do you want to replace it with this module?',
+                 'Editing an in-use UDF can introduce mistakes into your ' +
+                 'model. To create a distinct copy, click CANCEL, rename the ' +
+                 'module, and click ADD UDF',
     'UpoladUDF': 'Upload Success',
     'UploadUDFMsg': 'Your python script has been successfully uploaded!',
     'SyntaxError': 'Syntax Error',

@@ -230,7 +230,7 @@ module.exports = {
         "MaximizeColPlura": "Unminimize columns",
         "HideTbl": "Minimize table",
         "Join": "Join",
-        "Jupyter": "Publish to Jupyter",
+        "Jupyter": "Convert to Jupyter DF",
         "LockTbl": "Lock table",
         "LockDS": "Lock dataset",
         "UnlockDS": "Unlock dataset",
