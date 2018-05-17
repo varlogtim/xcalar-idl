@@ -67,7 +67,7 @@ describe('QueryManager Test', function() {
             QueryManager.addQuery(1, 'testQuery', {});
             queryObj = queryLists[1];
 
-            expect(queryObj).to.be.an.object;
+            expect(queryObj).to.be.an('object');
             expect(queryObj.fullName.indexOf('testQuery-')).to.be.gt(-1);
             expect(queryObj.type).to.equal("xcFunction");
             expect(queryObj.numSteps).to.equal(-1);

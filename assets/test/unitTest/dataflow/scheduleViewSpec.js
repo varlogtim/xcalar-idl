@@ -1047,13 +1047,10 @@ function viewRelatedFunctionTest() {
         });
     });
 
-    it("should save schedule", function() {
+    it("should check invalid name in saving schedule", function() {
         expect(DF.getSchedule(dfName)).to.equal(null);
         $("#modScheduleForm-save").click();
-        setTimeout(function(){
-            expect(DF.getSchedule(dfName)).to.not.equal(null);
-        }, 4000);
-        Scheduler.show(dfName);
+        UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
     });
 
     after(function(done) {

@@ -728,9 +728,9 @@ describe('XIApi Test', () => {
             before(() => {
                 joinIndex = XIApi.__testOnly__.joinIndex;
 
-                Transaction.isSimulate = oldIsSimulate;
-                Transaction.isEdit = oldIsEdit;
-                SQLApi.getIndexTable = oldGetIndexCache;
+                oldIsSimulate = Transaction.isSimulate;
+                oldIsEdit = Transaction.isEdit;
+                oldGetIndexCache = SQLApi.getIndexTable;
 
                 Transaction.isSimulate = () => true;
                 Transaction.isEdit = () => false;
@@ -891,9 +891,9 @@ describe('XIApi Test', () => {
             });
 
             after(() => {
-                oldIsSimulate = Transaction.isSimulate;
-                oldIsEdit = Transaction.isEdit;
-                oldGetIndexCache = SQLApi.getIndexTable;
+                Transaction.isSimulate = oldIsSimulate;
+                Transaction.isEdit = oldIsEdit;
+                SQLApi.getIndexTable = oldGetIndexCache;
             });
         });
 
@@ -2641,7 +2641,7 @@ describe('XIApi Test', () => {
                         done('fail');
                     })
                     .always(() => {
-                        XcalarGenRowNum = oldFunc;
+                        XcalarGetTableCount = oldFunc;
                     });
             });
 

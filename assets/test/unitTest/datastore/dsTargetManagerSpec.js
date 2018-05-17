@@ -16,8 +16,8 @@ describe("Datastore-DSTargetManger Test", function() {
             DSTargetManager.refreshTargets()
             .then(function() {
                 var numTargets = getNumTargets();
-                // at least has 4 default targets
-                expect(numTargets).to.be.at.least(4);
+                // at least has 1 default targets
+                expect(numTargets).to.be.at.least(1);
                 done();
             })
             .fail(function() {

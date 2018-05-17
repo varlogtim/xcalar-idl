@@ -1,4 +1,11 @@
 describe("WorkspacePanel Test", function() {
+    before(function() {
+        if ($("#imdButton").hasClass('active')) {
+            // switch panel
+            $("#worksheetButton").addClass('active');
+        } 
+    });
+
     describe("active test", function() {
         it("active should work", function() {
             var cachedFn =  xcTooltip.changeText;
@@ -7,10 +14,8 @@ describe("WorkspacePanel Test", function() {
                 called = true;
             };
             $("#workspacePanel").removeClass("active");
-            expect($("#workspacePanel").hasClass("active")).to.be.false;
             $("#statusBar").removeClass("worksheetMode");
-            expect($("#statusBar").hasClass("worksheetMode")).to.be.false;
-            $("#dagPanel").removeClass("hidden")
+            $("#dagPanel").removeClass("hidden");
 
             WorkspacePanel.active();
 

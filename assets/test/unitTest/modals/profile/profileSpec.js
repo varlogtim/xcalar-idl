@@ -484,7 +484,6 @@ describe("Profile-Profile Test", function() {
             $range.trigger(fakeEvent.mouseup);
             expect($dropdown.find("input").val()).to.equal("Range");
 
-
             $("#profile-range").val(10).trigger(fakeEvent.enter);
             expect($modal.attr("data-state")).to.equal("pending");
 

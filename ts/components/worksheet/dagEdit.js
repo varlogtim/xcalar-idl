@@ -1077,7 +1077,7 @@ window.DagEdit = (function($, DagEdit) {
                 for (var i = cursor; i >= 0; i--) {
                     var log = logs[i];
                     var tIndex = tablesFromTemp.indexOf(log.options.tableId);
-                    if (log.options && lob.options.tableId && tIndex !== -1) {
+                    if (log.options && log.options.tableId && tIndex !== -1) {
                         undoCount++;
                         if (log.options.operation === SQLOps.MoveTemporaryTableToWS) {
                             tablesFromTemp.splice(tIndex, 1);

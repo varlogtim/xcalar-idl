@@ -60,7 +60,7 @@ describe('ExportView Test', function() {
             expect($exportForm.find('#exportName:visible')).to.have.lengthOf(1);
             expect($exportForm.find('#exportName').val()).to.equal(tableName.split('#')[0]);
             expect($exportForm.find("#exportPath").val()).to.equal("Default");
-            expect($exportForm.find("#exportLists li").length).to.be.gt(1);
+            expect($exportForm.find("#exportLists li").length).to.be.at.least(1);
             expect($exportForm.find('.columnsToExport li')).to.have.lengthOf(7);
             expect($exportForm.find('.advancedSection .formRow').length).to.be.gt(4);
             expect($exportForm.find('.advancedSection .formRow:visible')).to.have.lengthOf(0);
@@ -245,7 +245,7 @@ describe('ExportView Test', function() {
 
             $exportList.trigger(fakeEvent.click);
             expect($ul.is(":visible")).to.be.true;
-            expect($ul.find('li').length).to.be.gt(1);
+            expect($ul.find('li').length).to.be.at.least(1);
             var $selectedLi = $ul.find('li').filter(function() {
                 return $(this).text() === "Default";
             });
