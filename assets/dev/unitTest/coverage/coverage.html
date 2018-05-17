@@ -45,7 +45,6 @@
         const greenPercentage = 85;
 
         showCoverageSummary();
-        // showEntry(0);
 
         function showEntryEvent(event) {
             event.preventDefault();
@@ -107,6 +106,17 @@
             let html = "";
             let usedBytes = 0;
             let totalBytes = 0;
+            coverage.sort((a, b) => {
+                const aUrl = a.url;
+                const bUrl = b.url;
+                if (aUrl < bUrl) {
+                    return -1;
+                }
+                if (aUrl > bUrl) {
+                    return 1;
+                }
+                return 0;
+            });
 
             coverage.forEach((entry, i) => {
                 const covInfo = getCoverageInfo(entry);

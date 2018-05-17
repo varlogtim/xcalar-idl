@@ -11,7 +11,6 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
         $modal = $("#loginConfigModal");
         modalHelper = new ModalHelper($modal, {});
 
-        $modal.on("click", ".close, .cancel", closeModal);
         setupListeners();
 
         var signOnUrl = hostname + "/assets/htmlFiles/login.html";
@@ -19,10 +18,7 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
     };
 
     LoginConfigModal.show = function(msalConfigIn, defaultAdminConfigIn, ldapConfigIn) {
-        msalConfig = msalConfigIn;
-        defaultAdminConfig = defaultAdminConfigIn;
-        ldapConfig = ldapConfigIn;
-
+        setupConfig(msalConfigIn, defaultAdminConfigIn, ldapConfigIn);
         modalHelper.setup();
 
         if (msalConfig !== null) {
@@ -35,11 +31,10 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
             $("#loginConfigMSALUserScope").val(msalConfig.msal.userScope);
             $("#loginConfigMSALAdminScope").val(msalConfig.msal.adminScope);
 
-            $("#loginConfigMSALWebApi").val( msalConfig.msal.webApi );
-            $("#loginConfigMSALAuthority").val( msalConfig.msal.authority );
-            $("#loginConfigMSALAzureEndpoint").val( msalConfig.msal.azureEndpoint );
-            $("#loginConfigMSALAzureScopes").val( msalConfig.msal.azureScopes !== [] ?
-                                                msalConfig.msal.azureScopes.join(',') : "");
+            $("#loginConfigMSALWebApi").val(msalConfig.msal.webApi);
+            $("#loginConfigMSALAuthority").val(msalConfig.msal.authority);
+            $("#loginConfigMSALAzureEndpoint").val(msalConfig.msal.azureEndpoint);
+            $("#loginConfigMSALAzureScopes").val(msalConfig.msal.azureScopes.join(','));
             if (msalConfig.msal.b2cEnabled) {
                  $("#loginConfigMSALEnableB2C").addClass("checked");
             }
@@ -91,7 +86,14 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
         }
     };
 
+    function setupConfig(msalConfigIn, defaultAdminConfigIn, ldapConfigIn) {
+        msalConfig = msalConfigIn;
+        defaultAdminConfig = defaultAdminConfigIn;
+        ldapConfig = ldapConfigIn;
+    }
+
     function setupListeners() {
+        $modal.on("click", ".close, .cancel", closeModal);
         $modal.find(".confirm").click(submitForm);
 
         $modal.find(".loginSectionToggle").click(function() {
@@ -133,7 +135,7 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
         });
 
         $("#loginConfigAdminPassword").on("keyup", function(e) {
-            if (e.keyCode === 13) {
+            if (e.keyCode === keyCode.Enter) {
                 validatePassword($(this));
             }
             calculatePasswordStrength($(this));
@@ -165,15 +167,15 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
                    adminPassword !== "") {
             if (defaultAdminEnabled) {
                 if (adminPassword === "") {
-                    return (deferred.reject(LoginConfigTStr.EmptyPasswordError, false).promise());
+                    return deferred.reject(LoginConfigTStr.EmptyPasswordError, false).promise();
                 } else if (adminUsername.trim() === "") {
-                    return (deferred.reject(LoginConfigTStr.EmptyUsernameError, false).promise());
+                    return deferred.reject(LoginConfigTStr.EmptyUsernameError, false).promise();
                 } else if (adminEmail.trim() === "") {
-                    return (deferred.reject(LoginConfigTStr.EmptyEmailError, false).promise());
+                    return deferred.reject(LoginConfigTStr.EmptyEmailError, false).promise();
                 }
                 var passwordStrength = getPasswordStrength(adminPassword, adminUsername.trim());
                 if (passwordStrength.strength === "invalid") {
-                    return (deferred.reject(passwordStrength.hint, false).promise());
+                    return deferred.reject(passwordStrength.hint, false).promise();
                 }
             }
             setDefaultAdminConfig(hostname, defaultAdminEnabled, adminUsername, adminPassword, adminEmail)
@@ -207,10 +209,23 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
 
         if (msalConfig == null) {
             if (msalEnabled) {
-                msalConfig = {};
+                msalConfig = {
+                    msal: {
+                        azureScopes: []
+                    }
+                };
             } else {
                 return deferred.resolve().promise();
             }
+        }
+
+        let hasDiffScopes = false;
+        if (msalConfig.msal.azureScopes.length !== msal.azureScopes.length) {
+            hasDiffScopes = true;
+        } else {
+            hasDiffScopes = msalConfig.msal.azureScopes.filter((scope, i) => {
+                return scope !== msal.azureScopes[i];
+            }).length > 0;
         }
 
         if (msalConfig.msalEnabled !== msalEnabled ||
@@ -218,7 +233,7 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
             msalConfig.msal.webApi !== msal.webApi ||
             msalConfig.msal.authority !== msal.authority ||
             msalConfig.msal.azureEndpoint !== msal.azureEndpoint ||
-            msalConfig.msal.azureScopes !== msal.azureScopes ||
+            hasDiffScopes ||
             msalConfig.msal.userScope !== msal.userScope ||
             msalConfig.msal.adminScope !== msal.adminScope ||
             msalConfig.msal.b2cEnabled !== msal.b2cEnabled) {
@@ -258,12 +273,12 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
             }
         }
 
-        if (ldapConfig.ldapConfigEnabled !== ldap.ldapConfigEnabled ||
+        if (ldapConfig.ldapConfigEnabled !== ldapConfigEnabled ||
             ldapConfig.ldap_uri !== ldap.ldap_uri ||
             ldapConfig.activeDir !== ldap.activeDir ||
             ldapConfig.userDN !== ldap.userDN ||
             ldapConfig.searchFilter !== ldap.searchFilter ||
-            ldapConfig.enableTLS !== ldap.enableTLS ||
+            ldapConfig.enableTLS !== ldap.enableTLS || // XXX this is undefined
             ldapConfig.serverKeyFile !== ldap.serverKeyFile ||
             ldapConfig.adUserGroup !== ldap.adUserGroup ||
             ldapConfig.adAdminGroup !== ldap.adAdminGroup ||
@@ -391,8 +406,8 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
             (lowerCasePass.indexOf(lowerCaseUserName) !== - 1 && lowerCaseUserName.length >= 3) ||
             (lowerCaseUserName.indexOf(lowerCasePass) !== - 1) && lowerCasePass.length >= 3)) {
             return {
-                "strength": "invalid",
-                "hint": LoginConfigTStr.duplicateUserName
+                strength: "invalid",
+                hint: LoginConfigTStr.duplicateUserName
             };
         }
         for (var i = 0; i < password.length; i++) {
@@ -526,5 +541,16 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
             return count;
         }
     }
+
+    if (typeof window !== "undefined" && window["unitTestMode"]) {
+        LoginConfigModal["__testOnly__"] = {
+            setupConfig: setupConfig,
+            submitDefaultAdminConfig: submitDefaultAdminConfig,
+            submitMSALConfig: submitMSALConfig,
+            submitLdapConfig: submitLdapConfig,
+            getPasswordStrength: getPasswordStrength
+        }
+    }
+
     return (LoginConfigModal);
 }(jQuery, {}));
