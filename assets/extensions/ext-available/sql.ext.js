@@ -73,6 +73,7 @@ window.UExtSQL = (function(UExtSQL) {
 
         var cols = srcTable.tableCols;
         var promises = [];
+        var tempTableNames = [];
         var tableInfo = {"name": srcTableName, "colsToProject": []};
         var table;
 
@@ -98,6 +99,7 @@ window.UExtSQL = (function(UExtSQL) {
             var hashIdx = newTableName.lastIndexOf("#");
             var tableNamePart = newTableName.substring(0, hashIdx);
             var hashPart = newTableName.substring(hashIdx);
+            tempTableNames.push(derivedTable);
             newTableName = tableNamePart.toUpperCase() + hashPart;
             return ext.project(tableInfo.colsToProject, derivedTable,
                 newTableName);
@@ -109,15 +111,16 @@ window.UExtSQL = (function(UExtSQL) {
             tableInfo.colsToProject.forEach(function(colName) {
                 table.addCol(new XcSDK.Column(colName));
             });
+            tempTableNames.push(projectedTable);
             return table.addToWorksheet(srcTableName);
         })
         .then(function() {
-            // XXX Make this a Table call
-            Dag.makeTableNoDelete(table.getName());
-            TblManager.makeTableNoDelete(table.getName());
-            deferred.resolve(table.getName());
+            deferred.resolve([table.getName(), tempTableNames]);
         })
-        .fail(deferred.reject);
+        .fail(function() {
+            TblManager.deleteTables(tempTableNames, "orphaned", true);
+            deferred.reject();
+        });
 
         return deferred.promise();
     }
@@ -229,10 +232,12 @@ window.UExtSQL = (function(UExtSQL) {
             var structToSend = {};
             var tableName = ext.getArgs().sqlTableName;
             var finalizedTableName;
+            var tempTableNames;
 
             finalizeTable(srcTable, ext)
-            .then(function(newTableName) {
+            .then(function([newTableName, tempTableNameList]) {
                 finalizedTableName = newTableName;
+                tempTableNames = tempTableNameList;
                 tableId = newTableName.split("#")[1];
                 return getSchema(tableId);
             })
@@ -250,8 +255,19 @@ window.UExtSQL = (function(UExtSQL) {
             .then(function() {
                 return SQLEditor.updateSchema(structToSend, tableId);
             })
-            .then(deferred.resolve)
-            .fail(deferred.reject);
+            .then(function() {
+                // XXX Make this a Table call
+                Dag.makeTableNoDelete(finalizedTableName);
+                TblManager.makeTableNoDelete(finalizedTableName);
+                deferred.resolve();
+            })
+            .fail(function() {
+                srcTable.addToWorksheet(finalizedTableName)
+                .then(function() {
+                    TblManager.deleteTables(tempTableNames, "orphaned", true);
+                    deferred.reject();
+                })
+            });
 
             return deferred.promise();
         };

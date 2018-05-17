@@ -55,10 +55,8 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         "dateAdd": "select date_add(cast(o_orderdate as date), 10) from (select * from orders order by o_orderkey limit 10) order by o_orderkey",
         "subquery": "select * from region where r_regionkey > (select avg(r_regionkey) from region) order by r_regionkey",
         "union": "select * from nation where n_regionkey = 0 union select * from nation where n_regionkey = 4 order by n_nationkey",
-        // XXX Might have a bug here in exists
         "coalesce": "select coalesce(n_nationkey/n_regionkey, -1) from nation order by n_nationkey",
         "caseWhenIsNull": "select case when n_nationkey/n_regionkey is null then 'NULL' else n_name end from nation order by n_nationkey",
-        // End of bug queries
         "windowRank": "select rank() over(partition by n_regionkey order by n_nationkey) a from nation order by n_nationkey",
         "windowEmptyOver": "select sum(n_regionkey) over() a from nation order by n_nationkey",
         "windowEmptyOrder": "select sum(n_nationkey) over(partition by n_regionkey) a from nation order by n_nationkey",
@@ -184,9 +182,9 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                      "numOfRows": "2"},
         "union": {"row2": ["5", "ETHIOPIA", "0"],
                   "numOfRows": "10"},
-        "coalesce": {"row0": ["FNF"],
+        "coalesce": {"row0": ["-1"],
                      "row4": ["1"]},
-        "caseWhenIsNull": {"row0": ["ALGERIA"],
+        "caseWhenIsNull": {"row0": ["NULL"],
                            "row8": ["INDIA"]},
         "windowRank": {"row2": ["2"],
                        "row14": ["3"],
@@ -634,6 +632,8 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         .fail(function() {
             deferred.reject("Failed Queries: " + failedQueries.slice(0, -1));
         });
+
+        return deferred.promise();
     }
     function checkResult(answerSet, queryName) {
         var table = "#xcTable-" + gActiveTableId;

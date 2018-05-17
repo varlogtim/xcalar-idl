@@ -441,7 +441,6 @@ describe("SQLEditor Test", function() {
             expect($sqlTableList.find(".unit:not(.xc-hidden)").length).to.equal(0);
             $searchTable.find("input").val("testSqlTable3").trigger("input");
             expect($sqlTableList.find(".unit:not(.xc-hidden)").length).to.equal(1);
-            $("#sqlTableSearch").find(".icon").click();
         });
 
         it("Should select table", function() {
