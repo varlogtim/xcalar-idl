@@ -3324,7 +3324,13 @@ window.TblManager = (function($, TblManager) {
 
         PromiseHelper.when.apply(window, defArray)
         .then(function() {
-            return XIApi.deleteTables(txId, tableJSON);
+            if (names.length === 1) {
+                // XIAPi.deleteTable has the fail handler for dag in use case
+                // which XIAPI.deleteTables doesn't have
+                return XIApi.deleteTable(txId, names[0]);
+            } else {
+                return XIApi.deleteTables(txId, tableJSON);
+            }
         })
         .then(function() {
             tables.forEach(function(tableId) {
