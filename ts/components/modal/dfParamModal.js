@@ -7,7 +7,6 @@ window.DFParamModal = (function($, DFParamModal){
 
     var modalHelper;
     var dropdownHelper;
-    var filterFnMap = {}; // stores fnName: numArgs
     var xdpMode;
     var hasChange = false;
     var isOpen = false;
@@ -41,6 +40,7 @@ window.DFParamModal = (function($, DFParamModal){
         modalHelper = new ModalHelper($modal, {noEnter: true});
 
         $modal.find('.cancel, .close').click(function() {
+            debugger;
             closeModal();
         });
 
@@ -48,30 +48,9 @@ window.DFParamModal = (function($, DFParamModal){
             submitForm();
         });
 
-        $modal.on('focus', '.paramVal', function() {
-            $(this).select().siblings(".paramEdit").addClass('selected');
-        });
-
-        $modal.on('blur', '.paramVal', function() {
-            $(this).siblings(".paramEdit").removeClass('selected');
-        });
-
-        $modal.on('click', '.paramEdit', function() {
-            $(this).siblings(".paramVal").focus();
-        });
-
         $modal.on('click', '.checkbox', function() {
             var $checkbox = $(this);
             $checkbox.toggleClass("checked");
-            if ($checkbox.hasClass("checked")) {
-                // remove value from input if click on "no value" box
-                $checkbox.closest(".row").find(".paramVal").val("");
-            }
-        });
-
-        $modal.on("input", ".paramVal", function() {
-            // remove "no value" check if the input has text
-            $(this).closest(".row").find(".checkbox").removeClass("checked");
         });
 
         $modal.on('keydown', '.editableParamDiv', function(event) {
@@ -108,11 +87,6 @@ window.DFParamModal = (function($, DFParamModal){
             $(this).closest(".exportSettingButton").find(".icon:visible").click();
             return false;
         });
-
-        function hideAddParamSection() {
-            $modal.find(".newParam").hide();
-            $modal.find(".addParam").show();
-        }
 
         var checkInputTimeout;
         $modal.on("input", ".editableParamDiv", function() {
@@ -290,9 +264,7 @@ window.DFParamModal = (function($, DFParamModal){
         if (simpleViewTypes.includes(type)) {
             initBasicForm();
             if (type === "filter") {
-                filterSetup()
-                .then(deferred.resolve)
-                .fail(deferred.reject);
+                deferred.resolve();
             } else {
                 if (type === "export") {
                     exportSetup();
@@ -484,25 +456,13 @@ window.DFParamModal = (function($, DFParamModal){
 
         setupDummyInputs();
 
-
         if (providedStruct) {
-            if (type === "filter") {
-                filterSetup();
-            } else {
-                if (type === "export") {
-                    exportSetup();
-                    var df = DF.getDataflow(dfName);
-                    if (df.activeSession) {
-                        var $input = $modal.find(".innerEditableRow.filename input");
-                        var currentVal = $input.val();
-                        $input.data("cache", currentVal);
-                        $input.val(df.newTableName);
-                    }
-                } else if (type === "dataStore") {
-                    datasetSetup();
-                }
-                dropdownHelper = null;
+            if (type === "export") {
+                exportSetup();
+            } else if (type === "dataStore") {
+                datasetSetup();
             }
+            dropdownHelper = null;
         }
     }
 
@@ -537,7 +497,6 @@ window.DFParamModal = (function($, DFParamModal){
         isAdvancedMode = false;
         $modal.removeClass("advancedMode");
         $modal.find(".toggleView").find(".switch").removeClass("on");
-        var text = DFTStr.ParamBasicInstructions;
         updateInstructions();
     }
 
@@ -604,77 +563,6 @@ window.DFParamModal = (function($, DFParamModal){
                 }
             });
         });
-    }
-
-    function filterSetup() {
-        var deferred = PromiseHelper.deferred();
-        var $list = $modal.find('.tdWrapper.dropDownList');
-
-        dropdownHelper = new MenuHelper($list, {
-            "onSelect": function($li) {
-                var func = $li.text();
-                var $input = $list.find("input.editableParamDiv");
-
-                if (func === $.trim($input.val())) {
-                    return;
-                }
-
-                $input.val(func);
-                updateNumArgs(func);
-            },
-            "onOpen": function() {
-                var $lis = $list.find('li')
-                                .sort(xcHelper.sortHTML)
-                                .show();
-                $lis.prependTo($list.find('ul'));
-                $list.find('ul').width($list.width() - 1);
-
-                // XXX 10-19-2016 need to shake it or it doesn't show up
-                $list.find('.scrollArea.bottom').css('bottom', 1);
-                setTimeout(function() {
-                    $list.find('.scrollArea.bottom').css('bottom', 0);
-                });
-            },
-            "container": "#dfParamModal",
-            "bounds": "#dfParamModal .modalMain",
-            "bottomPadding": 2,
-            "exclude": '.draggableDiv, .defaultParam'
-        });
-        dropdownHelper.setupListeners();
-
-        $list.find("input").change(function() {
-            var func = $.trim($(this).val());
-            updateNumArgs(func);
-        });
-
-        XcalarListXdfs('*', 'Conditional*')
-        .then(function(ret) {
-            var numXdfs = ret.numXdfs;
-            var html = "";
-            var fnNames = [];
-            // var fns = ret.fnDescs;
-            for (var i = 0; i < numXdfs; i++) {
-                fnNames.push(ret.fnDescs[i].fnName);
-                filterFnMap[ret.fnDescs[i].fnName] = ret.fnDescs[i].numArgs;
-            }
-
-            fnNames = fnNames.sort();
-            for (i = 0; i < numXdfs; i++) {
-                html += '<li>' + fnNames[i] + '</li>';
-            }
-            $list.find('ul').html(html);
-
-            var $input = $list.find("input.editableParamDiv");
-            var func = $.trim($input.val());
-            updateNumArgs(func);
-
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            Alert.error(DFTStr.ParamModalFail, error);
-            deferred.reject();
-        });
-        return deferred.promise();
     }
 
     function exportSetup() {
@@ -1328,31 +1216,6 @@ window.DFParamModal = (function($, DFParamModal){
         }
     }
 
-    function updateNumArgs(func) {
-        var numArgs = filterFnMap[func];
-        if (numArgs == null) { // entry could be misspelled or empty
-            return;
-        }
-        var $paramPart = $modal.find(".editableTable");
-        var $editableDivs = $paramPart.find('input.editableParamDiv');
-        var numDivs = $editableDivs.length - 1; // don't count the op div
-        if (numDivs === numArgs) {
-            return;
-        }
-        $paramPart.find(".tdWrapper:gt(" + numArgs + ")").remove();
-
-        if (numArgs > numDivs) {
-            var editableText = "";
-            for (var i = numDivs; i < numArgs; i++) {
-                editableText +=
-                getParameterInputHTML(1 + i, "medium allowEmpty");
-            }
-            $modal.find(".editableRow").append(editableText);
-        }
-
-        modalHelper.refreshTabbing();
-    }
-
     function setParamDivToDefault($paramDiv) {
         var target = $paramDiv.data("target");
         var defaultval;
@@ -1469,7 +1332,7 @@ window.DFParamModal = (function($, DFParamModal){
             params = getBasicModeParams();
         }
         if (params.error) {
-            return PromiseHelper.reject();
+            return PromiseHelper.reject(params.error);
         }
 
         if (isAdvancedMode) {
@@ -2098,6 +1961,7 @@ window.DFParamModal = (function($, DFParamModal){
     }
 
     function closeModal(noCommit) {
+        console.log("closed");
         if (!noCommit) {
             if (hasChange) {
                 hasChange = false;
