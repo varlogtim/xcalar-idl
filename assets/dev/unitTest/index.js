@@ -1,38 +1,78 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 
+const commandLineArgs = process.argv;
 
-(async () => {
+// Usage: npm test <testName> <hostname>
+// E.g.: npm test unitTest https://cantor:8443
+let testName = "unitTest";
+let hostname = "http://localhost:8888";
+// Host name must be with protocol and whatever port
+if (commandLineArgs.length > 2) {
+    testName = commandLineArgs[2].trim();
+    if (commandLineArgs.length > 3) {
+        hostname = commandLineArgs[3].trim();;
+    }
+}
+
+runTest(testName, hostname);
+
+async function runTest(testType, hostname) {
     try {
-        const browser = await puppeteer.launch({
-            headless: false,
-            ignoreHTTPSErrors: true
-        });
+        let browser;
+        if (testType === "testSuite") {
+            browser = await puppeteer.launch({
+                headless: true,
+                ignoreHTTPSErrors: true,
+                args: ['--no-sandbox', '--disable-setuid-sandbox']
+            });
+        } else {
+            browser = await puppeteer.launch({
+                headless: false,
+                ignoreHTTPSErrors: true
+            });
+        }
         const page = await browser.newPage();
         await page.setViewport({width: 1920, height: 1076});
 
         page.on('console', msg => {
           for (let i = 0; i < msg.args().length; ++i)
-            console.log(`${i}: ${msg.args()[i]}`);
+            console.log(`${msg.args()[i]}`);
         });
 
         const userName = "unitTestUser" + Math.ceil(Math.random() * 100000 + 1);
-        const url = 'http://localhost:8888/unitTest.html?createWorkbook=y&user=' + userName;
-        // const url = 'http://localhost:8888/unitTestManager.html';
-        await page.coverage.startJSCoverage({resetOnNavigation: true});
-        console.log("go to url", url)
+        if (testType === "testSuite") {
+            url = hostname + "/testSuite.html?type=testSuite&test=y&noPopup=y&animation=y&cleanup=y&close=y&user=ts-" + userName + "&id=0&workbook=testSuite";
+        } else {
+            url = hostname + "/unitTest.html?createWorkbook=y&user=" + userName;
+        }
+        if (testType === "unitTest") {
+            await page.coverage.startJSCoverage({ resetOnNavigation: true });
+        }
+        console.log("Opening page:", url)
         await page.goto(url);
         // time out after 1 day
         await page.waitForSelector('#testFinish', {timeout: 864000000});
-        console.log("test finished, getting code coverage");
-        const jsCoverage = await page.coverage.stopJSCoverage();
-        getCoverage(jsCoverage);
+        const results = await page.evaluate(() => document.querySelector('#testFinish').textContent);
+        let exitCode = 1;
+        if (results === "PASSED") {
+            console.log("All passed!");
+            exitCode = 0;
+        } else {
+            console.log("Failed: " + JSON.stringify(results));
+        }
+
+        if (testType === "unitTest") {
+            console.log("test finished, getting code coverage");
+            const jsCoverage = await page.coverage.stopJSCoverage();
+            getCoverage(jsCoverage);
+        }
         browser.close();
+        process.exit(exitCode);
     } catch (e) {
         console.error(e);
     }
-})();
-
+}
 
 function getCoverage(coverage) {
     let totalBytes = 0;

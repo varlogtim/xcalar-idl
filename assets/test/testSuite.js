@@ -101,6 +101,14 @@ window.TestSuite = (function($, TestSuite) {
                 window.onerror = oldWindowErrFunc;
                 gMinModeOn = minModeCache;
                 var res = self._finish();
+                if (res.fail === 0 && res.pass > 0) {
+                    $("body").append('<div id="testFinish" style="display:none">PASSED</div>');
+                } else {
+                    $("body").append('<div id="testFinish" style="display:none">' +
+                        "Passes: " + res.pass + ", Fails: " + res.fail + 
+                        ", Skips: " + res.skip + '</div>');
+                }
+                
                 finalDeferred.resolve(res);
             };
 
