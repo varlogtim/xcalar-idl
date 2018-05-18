@@ -1,11 +1,14 @@
 describe("DagFunction Test", function() {
 	describe("Edit submit related tests", function() {
 		it("includeDroppedNodesInStartNodes should work", function() {
-			var greatGrandParentNode = {value: {name: "one", state: DgDagStateT.DgDagStateReady}}
+			var greatGrandParentNode = {parents: [], value: {name: "one", state: DgDagStateT.DgDagStateReady}}
 			var grandParentNode = {parents: [greatGrandParentNode], value: {name: "two", state: DgDagStateT.DgDagStateDropped}};
 			var parentNode = {parents: [grandParentNode], value: {name: "three", state: DgDagStateT.DgDagStateDropped}};
-			var childNode = {parents: [parentNode]};
+			var childNode = {children:[], parents: [parentNode], value: {name: "four", state: DgDagStateT.DgDagStateReady}};
 			var startNodes = [childNode];
+			greatGrandParentNode.children = [grandParentNode];
+			grandParentNode.children = [parentNode];
+			parentNode.children = [childNode];
 			DagFunction.__testOnly__includeDroppedNodesInStartNodes(startNodes);
 			expect(startNodes.length).to.equal(2);
 			expect(startNodes[1].value.name).to.equal("two");
@@ -154,7 +157,57 @@ describe("DagFunction Test", function() {
 				done("fail");
 			});
 		});
+	});
 
+	describe("functions test", function() {
+		it("print dag cli should work", function(done) {
+			var cache = XcalarGetDag;
+			XcalarGetDag = function() {
+				return PromiseHelper.resolve({"numNodes":2,"node":[{"name":{"name":"unitTestFakeYelp60391#449"},"tag":"indexFromDataset#449","comment":"","dagNodeId":"690844","api":3,"state":5,"xdbBytesRequired":0,"xdbBytesConsumed":0,"numTransPageSent":0,"numTransPageRecv":0,"numWorkCompleted":1000,"numWorkTotal":1000,"elapsed":{"milliseconds":1},"inputSize":533024,"input":{"indexInput":{"source":".XcalarDS.rudyunit.71102.unitTestFakeYelp6039","dest":"unitTestFakeYelp60391#449","key":[{"name":"xcalarRecordNum","type":"DfInt64","keyFieldName":"unitTestFakeYelp60391-xcalarRecordNum","ordering":"Unordered"}],"prefix":"unitTestFakeYelp60391","dhtName":"","delaySort":false,"broadcast":false}},"numRowsTotal":1000,"numNodes":1,"numRowsPerNode":[1000],"sizeTotal":0,"sizePerNode":[],"numTransPagesReceivedPerNode":[0],"numParents":1,"parents":["666056"],"numChildren":0,"children":[]},{"name":{"name":".XcalarDS.rudyunit.71102.unitTestFakeYelp6039"},"tag":"","comment":"","dagNodeId":"666056","api":2,"state":5,"xdbBytesRequired":0,"xdbBytesConsumed":0,"numTransPageSent":0,"numTransPageRecv":0,"numWorkCompleted":0,"numWorkTotal":0,"elapsed":{"milliseconds":0},"inputSize":1317752,"input":{"loadInput":{"dest":".XcalarDS.rudyunit.71102.unitTestFakeYelp6039","loadArgs":{"sourceArgsList":[{"targetName":"Default Shared Root","path":"/netstore/datasets/unittest/test_yelp.json","fileNamePattern":"","recursive":false}],"parseArgs":{"parserFnName":"default:parseJson","parserArgJson":"{}","fileNameFieldName":"","recordNumFieldName":"","allowRecordErrors":false,"allowFileErrors":false,"schema":[]},"maxSize":10737418240},"dagNodeId":"666056"}},"numRowsTotal":0,"numNodes":1,"numRowsPerNode":[0],"sizeTotal":0,"sizePerNode":[],"numTransPagesReceivedPerNode":[0],"numParents":0,"parents":[],"numChildren":3,"children":["690844","670820","666050"]}]});
+			}
+			DagFunction.printDagCli("test1#0")
+			.then(function(ret) {
+				ret = JSON.parse(ret);
+				expect(ret.length).to.equal(2);
+				expect(ret[0].operation).to.equal("XcalarApiBulkLoad");
+				expect(ret[1].operation).to.equal("XcalarApiIndex");
+				var called = false;
+				XcalarGetDag = function() {
+					called = true;
+					return PromiseHelper.resolve();
+				};
+				DagFunction.printDagCli("test1#0")
+				.then(function() {
+					expect(called).to.be.false;
+					expect(ret.length).to.equal(2);
+					expect(ret[0].operation).to.equal("XcalarApiBulkLoad");
+					expect(ret[1].operation).to.equal("XcalarApiIndex");
+					XcalarGetDag = cache;
+					done();
+				})
+				.fail(function() {
+					done("failed");
+				});
+			})
+			.fail(function() {
+				done("fail");
+			});
+		});
+
+		it("DagFunction.addTable should work", function() {
+			var cache = WSManager.moveTemporaryTable;
+			var called = false;
+			WSManager.moveTemporaryTable = function(tId, wsId, tableType) {
+				called = true;
+				expect(tableType).to.equal(TableType.Orphan);
+				return PromiseHelper.resolve();
+			};
+			DagFunction.addTable("tid");
+
+			expect(called).to.be.true;
+
+			WSManager.moveTemporaryTable = cache;
+		});
 	});
 
 	function setupFakeTable() {

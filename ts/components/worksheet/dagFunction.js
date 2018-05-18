@@ -418,13 +418,6 @@ window.DagFunction = (function($, DagFunction) {
         return (inputVal);
     };
 
-    DagFunction.getInputStruct = function(node) {
-        var apiString = XcalarApisTStr[node.api];
-        var inputName = DagFunction.getInputType(apiString);
-        var inputStruct = node.input[inputName];
-        return inputStruct;
-    };
-
     DagFunction.getAll = function() {
         return (dagLineage);
     };
@@ -447,7 +440,8 @@ window.DagFunction = (function($, DagFunction) {
             var deferred = PromiseHelper.deferred();
             XcalarGetDag(tableName)
             .then(function(dagOutput) {
-                var outStruct = DagFunction.construct(dagOutput.node);
+                var tableId = xcHelper.getTableId(tableName);
+                var outStruct = DagFunction.construct(dagOutput.node, tableId);
                 var queryStr = getXcalarQueryCli(outStruct.orderedPrintArray);
                 deferred.resolve(queryStr);
             })
@@ -797,20 +791,21 @@ window.DagFunction = (function($, DagFunction) {
 
     // DagFunction.runProcedureWithParams("students#p7304", {"students#p7303":{"eval": [{"evalString":"eq(students::student_id, 2)","newField":""}]}})
     DagFunction.runProcedureWithParams = function(tableName, params, newIndexNodes, newNodes) {
+        var deferred = PromiseHelper.deferred();
         params = xcHelper.deepCopy(params);
         var paramNodes = Object.keys(params);
 
         var tableId = xcHelper.getTableId(tableName);
         if (!dagLineage[tableId]) {
             console.error("Your table is not active. Please make it active!");
-            return;
+            return PromiseHelper.reject();
         }
         var valueArray = getOrderedDedupedNodes(dagLineage[tableId].endPoints,
                                                 "TreeValue");
 
         if (valueArray.length === 0) {
             console.info("There is nothing to rerun.");
-            return;
+            return PromiseHelper.reject();
         }
         for (var i = 0; i < valueArray.length; i++) {
             var struct = DagFunction.cloneDagNode(valueArray[i].inputName,
@@ -823,7 +818,7 @@ window.DagFunction = (function($, DagFunction) {
         }
 
         if (!modifyValueArrayWithParameters(valueArray, params)) {
-            return;
+            return PromiseHelper.reject();
         }
 
         // create new index nodes into valueArray and modify it's child node
@@ -841,14 +836,14 @@ window.DagFunction = (function($, DagFunction) {
                                                     null, allEndPoints);
         if (!deepCopyTree) {
             console.info("Tree Empty!");
-            return;
+            return PromiseHelper.reject();
         }
 
         var treeNodeArray = getOrderedDedupedNodes(allEndPoints, "TreeNode");
 
         if (treeNodeArray.length === 0) {
             console.info("Nothing to run!");
-            return;
+            return PromiseHelper.reject();
         }
         // Step 1. From deepCopied tree, get list of all xid for children of
         // start node (s)
@@ -877,7 +872,7 @@ window.DagFunction = (function($, DagFunction) {
         var involvedNames = getAllNamesFromStart(deepCopyTree, startNodes);
         if (involvedNames.length === 0) {
             console.info("No involved xids.");
-            return;
+            return PromiseHelper.reject();
         }
         // returns map of name : value
         var nonInvolvedNames = getNonInvolvedRerunNames(deepCopyTree, startNodes, newNodes);
@@ -892,7 +887,7 @@ window.DagFunction = (function($, DagFunction) {
 
         if (treeNodesToRerun.length === 0) {
             console.info("Nothing to rerun");
-            return;
+            return PromiseHelper.reject();
         }
 
         // Step 3. From start of treeNodeArray (left side of the graph), start renaming all nodes
@@ -1022,6 +1017,7 @@ window.DagFunction = (function($, DagFunction) {
                 "msgTable": xcHelper.getTableId(finalTableName),
                 "sql": sql
             });
+            deferred.resolve();
         })
         .fail(function(error) {
             xcHelper.unlockTable(tableId, txId);
@@ -1064,7 +1060,10 @@ window.DagFunction = (function($, DagFunction) {
                 "noAlert": noAlert
             });
             $("#dagWrap-" + tableId).removeClass("rerunning");
+            deferred.reject();
         });
+
+        return deferred.promise();
 
         function updateSourceName(value, translation) {
             var struct = value.struct;

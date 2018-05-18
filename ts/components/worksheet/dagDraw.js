@@ -2170,8 +2170,8 @@ window.DagDraw = (function($, DagDraw) {
                         rSrcCols.push(parents[i].value.struct.key[j].name);
                     }
                 }
-            } else if (parents[i].value.api === XcalarApisT.XcalarApiJoin ||
-                       parents[i].value.api === XcalarApisT.XcalarApiGroupBy) {
+            } else if (parents[i].value.api === XcalarApisT.XcalarApiGroupBy ||
+                       parents[i].value.api === XcalarApisT.XcalarApiJoin) {
                 if (i === 0) {
                     lSrcCols.push(getSrcIndex(parents[i].parents[0]));
                 } else {

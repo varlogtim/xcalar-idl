@@ -25,7 +25,7 @@ describe("DagEdit Test", function() {
 
             // XXX TODO: create table meta without backend calls
 
-            xcFunction.filter(1, tableId, {filterString: 'eq(' + tPrefix + gPrefixSign + 'average_stars, 3)'})
+            xcFunction.filter(1, tableId, {filterString: 'eq(' + tPrefix + gPrefixSign + 'average_stars, 4.3)'})
             .then(function(tName) {
                 tableName = tName;
                 tableId = xcHelper.getTableId(tableName);
@@ -465,7 +465,7 @@ describe("DagEdit Test", function() {
                 expect(options.prefill.args.length).to.equal(1);
                 expect(options.prefill.args[0].length).to.equal(2);
                 expect(options.prefill.args[0][0]).to.equal(prefix + gPrefixSign + "average_stars");
-                expect(options.prefill.args[0][1]).to.equal("3");
+                expect(options.prefill.args[0][1]).to.equal("4.3");
 
                 expect(options.prefill.ops.length).to.equal(1);
                 expect(options.prefill.ops[0]).to.equal("eq");
@@ -506,7 +506,7 @@ describe("DagEdit Test", function() {
             expect(editInfo.structs).to.be.empty;
             DagEdit.store({
                 args: {
-                    "eval": [{"evalString": "eq(" + prefix + gPrefixSign + "average_stars, 3)"}]
+                    "eval": [{"evalString": "eq(" + prefix + gPrefixSign + "average_stars, 4.3)"}]
                 },
             });
 
@@ -522,7 +522,7 @@ describe("DagEdit Test", function() {
             var keys = Object.keys(editInfo.structs);
             expect(keys.length).to.equal(1);
             expect(editInfo.structs[keys[0]].eval.length).to.equal(1);
-            expect(editInfo.structs[keys[0]].eval[0].evalString).to.equal("eq(" + prefix + gPrefixSign + "average_stars, 3)");
+            expect(editInfo.structs[keys[0]].eval[0].evalString).to.equal("eq(" + prefix + gPrefixSign + "average_stars, 4.3)");
 
             DagEdit.undoEdit(node);
             DagEdit.exitForm();
@@ -979,7 +979,9 @@ describe("DagEdit Test", function() {
 
     // testing fail
     describe("run procedure function test", function() {
-        it("run procedure should work", function() {
+
+        // query with check rejects
+        it("run procedure should work", function(done) {
             var cachedFn = XcalarQueryWithCheck;
             XcalarQueryWithCheck = function(queryName, queryString) {
                 var query = JSON.parse(queryString);
@@ -990,6 +992,13 @@ describe("DagEdit Test", function() {
                 id = xcHelper.getTableId(query[10].args.dest);
                 expect(parseInt(id)).to.equal(count + 10);
 
+                return PromiseHelper.reject();
+            };
+
+            var cachedFn2 = TblManager.refreshTable;
+            var called = false;
+            TblManager.refreshTable = function() {
+                called = true;
                 return PromiseHelper.reject();
             };
 
@@ -1007,10 +1016,62 @@ describe("DagEdit Test", function() {
             };
 
             var count = Authentication.getInfo().idCount;
-            DagFunction.runProcedureWithParams(tableName, edits.structs, {});
-            UnitTest.hasAlertWithTitle("Failed to rerun dataflow");
+            DagEdit.off(null, true, true);
+            DagFunction.runProcedureWithParams(tableName, edits.structs, {})
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                UnitTest.hasAlertWithTitle("Failed to rerun dataflow", {confirm: true});
+                expect(called).to.be.false;
+                XcalarQueryWithCheck = cachedFn;
+                TblManager.refreshTable = cachedFn2;
+                done();
+            });
+        });
 
-            XcalarQueryWithCheck = cachedFn;
+        // query with check rejects
+        it("run procedure should work", function(done) {
+            var cachedFn = XcalarQueryWithCheck;
+            XcalarQueryWithCheck = function(queryName, queryString) {
+                var query = JSON.parse(queryString);
+                expect(query.length).to.equal(11);
+                expect(query[0].args.eval[0].evalString).to.equal("add(4,5)");
+                var id = xcHelper.getTableId(query[0].args.dest);
+                expect(parseInt(id)).to.equal(count);
+                id = xcHelper.getTableId(query[10].args.dest);
+                expect(parseInt(id)).to.equal(count + 10);
+
+                return PromiseHelper.resolve();
+            };
+
+            var cachedFn2 = TblManager.refreshTable;
+            var called = false;
+            TblManager.refreshTable = function() {
+                called = true;
+                return PromiseHelper.reject();
+            };
+
+
+            var edits = DagEdit.getInfo();
+
+            expect(edits.structs).to.not.be.empty;
+            // make edit to first map operation
+            var $dagTable = Dag.getTableIconByName($dagWrap, firstMapName);
+            var nodeId = $dagTable.data("index");
+
+            var count = Authentication.getInfo().idCount;
+            DagFunction.runProcedureWithParams(tableName, edits.structs, {})
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                UnitTest.hasAlertWithTitle("Failed to rerun dataflow");
+                expect(called).to.be.true;
+                XcalarQueryWithCheck = cachedFn;
+                TblManager.refreshTable = cachedFn2;
+                done();
+            });
         });
     });
 
