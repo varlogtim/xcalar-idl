@@ -721,10 +721,23 @@ describe("DFCard Test", function() {
             var cachedFn = XcalarQueryState;
             var passed = false;
             var count = 0;
+
             XcalarQueryState = function() {
                 count++;
                 passed = true;
-                return PromiseHelper.reject();
+                var ret = {
+                    "queryState": QueryStateT.qrProcessing,
+                    "queryGraph": {
+                        "node": [
+                            {
+                                "elapsed": "test",
+                                "name": "test",
+                                "state": DgDagStateT.DgDagStateProcessing
+                            }
+                        ]
+                    }
+                };
+                return PromiseHelper.resolve(ret);
             };
 
             expect(passed).to.be.false;
@@ -747,7 +760,7 @@ describe("DFCard Test", function() {
                     expect(count).to.equal(2);
 
                     expect(DFCard.__testOnly__.retinasInProgress[testDfName]).to.be.true;
-                    DFCard.__testOnly__.endStatusCheck(testDfName, true);
+                    DFCard.__testOnly__.endStatusCheck(testDfName, true, true, true);
                     // ending makes 1 last call to xcalarquerystate
                     expect(count).to.equal(3);
                     expect(DFCard.__testOnly__.retinasInProgress[testDfName]).to.be.undefined;

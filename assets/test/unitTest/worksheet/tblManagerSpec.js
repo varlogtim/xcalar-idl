@@ -353,7 +353,8 @@ describe("TableManager Test", function() {
                             '<div class="hashName">test</div>' +
                          '</div>');
             $("body").append($wrap);
-
+            var oldGMin = gMinModeOn;
+            gMinModeOn = false;
             TblManager.__testOnly__.animateTableId(id, oldId)
             .then(function() {
                 expect($wrap.find(".hashName").text()).to.equal("test");
@@ -364,6 +365,7 @@ describe("TableManager Test", function() {
             })
             .always(function() {
                 $wrap.remove();
+                gMinModeOn = oldGMin;
             });
         });
 
@@ -620,13 +622,13 @@ describe("TableManager Test", function() {
                 done("fail");
             });
         });
-
-        it("TblManager.sendTableToOrphaned should work", function(done) {
+        it("TblManager.sendTableToTemp should work", function(done) {
             var worksheet = WSManager.getActiveWS();
             var table = gTables[tableId];
-            TblManager.sendTableToOrphaned(tableId, {"remove": true})
+            TblManager.sendTableToTempList([tableId])
             .then(function() {
                 expect(table.getType()).to.equal(TableType.Orphan);
+                TblManager.findAndFocusTable(tableName, true);
                 return TblManager.refreshTable([tableName], null, null, worksheet);
             })
             .then(function() {
@@ -636,6 +638,27 @@ describe("TableManager Test", function() {
             .fail(function() {
                 done("fail");
             });
+        });
+        
+        it("TblManager.focusOnTable for active table should work.", function() {
+            TblManager.findAndFocusTable(tableName, true);
+            expect($xcTableWrap = $("#xcTableWrap-" + tableId).find(".tableTitle").hasClass("tblTitleSelected")).to.be.true;
+        });
+
+        it("TblManager.focusOnTable for table should work.", function() {
+            var oldGTables = gTables;
+
+            oldXcalarGetTables = XcalarGetTables;
+
+            XcalarGetTables = function() {
+                return PromiseHelper.resolve("temp");
+            }
+
+            TblManager.findAndFocusTable(tableName, true);
+            expect($xcTableWrap = $("#xcTableWrap-" + tableId).find(".tableTitle").hasClass("tblTitleSelected")).to.be.true;
+
+            gTables = oldGTables;
+            XcalarGetTables = oldXcalarGetTables;
         });
 
         it("TblManager.sendTableToUndone should work", function(done) {
@@ -909,6 +932,35 @@ describe("TableManager Test", function() {
                 TblAnim.startRowResize = oldFunc;
             });
 
+            it("Should Sort", function() {
+                var hashVersion = $xcTableWrap.attr("data-id");
+                var $sortIcon = $xcTableWrap.find(".sortIcon");
+
+                $sortIcon.mousedown();
+                $sortIcon.click();
+
+                var checkFunc = function() {
+                    return !$("#xcTableWrap-" + tableId).length;
+                };
+                UnitTest.testFinish(checkFunc)
+                .then(function() {
+                    $xcTableWrap = $(".xcTableWrap");
+                    expect(hashVersion).not.to.equal($xcTableWrap.attr("data-id"));
+                });
+            });
+
+            it("Should open dropdown on indexed column", function() {
+
+                var $menu = $("#colMenu");
+                var $th = $xcTableWrap.find("th.col1");
+                var $dropdown = $th.find(".dropdownBox");
+                $dropdown.click();
+
+                assert.isTrue($menu.is(":visible"));
+                $("#mainFrame").mousedown();
+                assert.isFalse($menu.is(":visible"));
+            });
+
             after(function() {
                 xcTooltip.hideAll();
             });
@@ -998,6 +1050,7 @@ describe("TableManager Test", function() {
             it("Should trigger prefixColorMenu", function() {
                 var $menu = $("#prefixColorMenu");
                 var $dotWrap = $thead.find(".dotWrap").eq(0);
+                $dotWrap.mousedown();
                 $dotWrap.click();
                 assert.isTrue($menu.is(":visible"));
                 $("#mainFrame").mousedown();
@@ -1097,8 +1150,9 @@ describe("TableManager Test", function() {
                 assert.isFalse($menu.is(":visible"));
             });
 
-            it("Should right click to open menu", function() {
+            it("Should open dropdown", function() {
                 var $td = $tbody.find(".row0 td.col1");
+
                 var $menu = $("#cellMenu");
                 var e = jQuery.Event("contextmenu", {"target": $td.get(0)});
 
@@ -1106,6 +1160,43 @@ describe("TableManager Test", function() {
                 assert.isTrue($menu.is(":visible"));
                 $("#mainFrame").mousedown();
                 assert.isFalse($menu.is(":visible"));
+            });
+
+            it("Should right click to open menu on multiple rows", function() {
+                var $td = $tbody.find(".row0 td.col1");
+                var $td2 = $tbody.find(".row0 td.col2");
+                $td.click();
+                var e = jQuery.Event("mousedown", {
+                    "which": 1,
+                    "shiftKey": true
+                });
+                $td2.trigger(e);
+                var $menu = $("#cellMenu");
+                e = jQuery.Event("contextmenu", {"target": $td.get(0)});
+
+                $tbody.trigger(e);
+                assert.isTrue($menu.is(":visible"));
+                $("#mainFrame").mousedown();
+                assert.isFalse($menu.is(":visible"));
+            });
+
+            it("TblManager.rehighlightCells should work.", function() {
+                var $td = $tbody.find(".row0 td.col1");
+                var $td2 = $tbody.find(".row3 td.col1");
+
+                $td.click();
+                
+                var e = jQuery.Event("mousedown", {
+                    "which": 1,
+                    "shiftKey": true
+                });
+                $td2.trigger(e);
+
+                assert.isTrue($td.hasClass("highlightedCell") && $td2.hasClass("highlightedCell"));
+
+                TblManager.rehighlightCells(tableId);
+                assert.isTrue($td.hasClass("highlightedCell") && $td2.hasClass("highlightedCell"));
+    
             });
 
             it("mousedown on td should highlight and store info", function() {
