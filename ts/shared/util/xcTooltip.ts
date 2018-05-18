@@ -109,7 +109,7 @@ namespace xcTooltip {
      * @param element
      * @param target
      */
-    export function auto(element: HTMLElement, target: HTMLElement): void {
+    export function auto(element: HTMLElement, target?: HTMLElement): void {
         const $element = $(element);
         target = target || element;
 

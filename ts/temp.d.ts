@@ -4,7 +4,7 @@
  * Please remove these delcaration after rewrite
  * is done
  */
-
+/// <reference path="../3rd/bower_components/moment/moment.d.ts" />
 /* ============== TYPES ======================== */
 type XDPromise<T> = JQueryPromise<T>;
 type XDDeferred<T> = JQueryDeferred<T>;
@@ -230,6 +230,10 @@ declare function XcalarGetVersion(connectionCheck: boolean): XDPromise<any>;
 declare function XcalarGetLicense(): XDPromise<any>;
 declare function XcalarRenameTable(oldTableName: string, newTableName: string, txId: number): XDPromise<void>;
 declare function XcalarListWorkbooks(pattern: string): XDPromise<any>;
+declare function XcalarListPublishedTables(pattern: string): XDPromise<any>;
+declare function XcalarRestoreTable(tableName: string): XDPromise<any>;
+declare function XcalarUnpublishTable(tableName: string): XDPromise<any>;
+declare function XcalarRefreshTable(pubTableName: string, dstTableName: string, minBatch: number, maxBatch: number, txId: number): XDPromise<any>;
 /* ============= THRIFT ENUMS ================= */
 declare enum DfFieldTypeT {
     DfString,
@@ -440,6 +444,10 @@ declare namespace ThriftTStr {
     export var CCNBE: string;
 }
 
+declare namespace FailTStr {
+    export var RmPublishedTable: string;
+}
+
 declare namespace WSTStr {
     export var Ws: string;
 }
@@ -456,6 +464,7 @@ declare namespace JupyterTStr {
 declare namespace IMDTStr {
     export var DelTable: string;
     export var DelTableMsg: string;
+    export var Activating: string;
 }
 
 declare namespace UDFTStr {
@@ -476,7 +485,9 @@ declare namespace UDFTStr {
 
 /* ============== CLASSES ====================== */
 declare class ProgressCircle {
-    constructor(txId: number, iconNum: number);
+    constructor(txId: number | string, iconNum: number, hasText?: boolean, options?: object);
+    public increment(): void;
+    public update(pctOrStep: number, duration: number): void;
 }
 
 declare class MouseEvents {
@@ -720,6 +731,7 @@ declare namespace WSManager {
     export function getWSName(ws: string): string;
     export function restore(oldMeat: object): void;
     export function focusOnWorksheet(): void;
+    export function addWS(wsId: string, wsName: string, wsIndex?: number): string;
 }
 
 declare namespace WorkbookManager {

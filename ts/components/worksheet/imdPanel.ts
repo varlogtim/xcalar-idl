@@ -1,40 +1,83 @@
 // sets up monitor panel and system menubar
 namespace IMDPanel {
+    interface UpdateInfo {
+        startTS: number;
+        batchId: number;
+        numRows: number;
+        source: string;
+    }
+
+    interface PublishTable {
+        updates: UpdateInfo[];
+        name: string;
+        values: TableCol[]
+    }
+
+    interface Ruler {
+        pixelToTime: number;
+        visibleLeft: number;
+        visibleRight: number;
+        uiScale: number;
+        minTS: number;
+        maxTS: number;
+    }
+
+    interface ProgressState {
+        canceled: boolean;
+    }
+
+    interface TableCol {
+        name: string;
+        type: string;
+    }
+
+    interface RefreshTableInfos {
+        pubTableName: string,
+        dstTableName: string,
+        minBatch: number,
+        maxBatch: number,
+        columns: TableCol[]
+    }
+
     let $imdPanel: JQuery;
     let $canvas: JQuery;
     let $tableDetail: JQuery; //$(".tableDetailSection")
-    const tickColor = "#777777";
-    const tickWidth = 1;
-    const tickSpacing = 6;
-    const tickHeight = 12;
-    const tickHeightLarge = 20;
-    const largeTickInterval = 5;
-    const tickTextInterval = 20;
-    let pTables: object[]; //published tables return from thrift call
-    let hTables: object[]; // hidden tables
-    let $updatePrompt;
-    const leftPanelWidth = 280;
+    const tickColor: string = "#777777";
+    const tickWidth: number = 1;
+    const tickSpacing: number = 6;
+    const tickHeight: number = 12;
+    const tickHeightLarge: number = 20;
+    const largeTickInterval: number = 5;
+    const tickTextInterval: number = 20;
+    let pTables: PublishTable[]; //published tables return from thrift call
+    let hTables: PublishTable[]; // hidden tables
+    let $updatePrompt: JQuery;
+    const leftPanelWidth: number = 280;
     //ruler object
-    let ruler = {
+    let ruler: Ruler = {
         pixelToTime: 1000 /*1 pxel = 1 seconds*/,
         visibleLeft: 0,
         visibleRight: 0,
         uiScale: null,
-        minTS: null
+        minTS: null,
+        maxTS: null
     };
-    let selectedCells = {};
+    let selectedCells: object = {};
     let $scrollDiv: JQuery;
-    let toTimePicker: object;
-    let fromTimePicker: object;
+    let toTimePicker: XcTimePicker;
+    let fromTimePicker: XcTimePicker;
     let prevFromTime: string;
     let prevToTime: string;
     let isPendingRefresh = false;
     let isPanelActive = false;
-    let progressCircle: object; // for progress of activating tables
-    let progressState = {canceled: false};
-    let isScrolling = false;
+    let progressCircle: ProgressCircle; // for progress of activating tables
+    let progressState: ProgressState = {canceled: false};
+    let isScrolling: boolean = false;
 
-    export function setup() {
+    /**
+     * IMDPanel.setup
+     */
+    export function setup(): void {
         $imdPanel = $("#imdView");
         $canvas = $("#imdTimeCanvas");
         $updatePrompt = $imdPanel.find(".update-prompt");
@@ -45,13 +88,16 @@ namespace IMDPanel {
 
         setupTimeInputs();
         addEventListeners();
-    };
+    }
 
-    // can modify to take in a pattern if needed but for now, fetching all
-    // when the imd sub panel becomes active, refresh the time canvas
-    // and add a window resize listener that trigers canvas redraw
-
-    export function active(firstTouch: boolean) {
+    /**
+     * IMDPanel.active
+     * @param firstTouch
+     * can modify to take in a pattern if needed but for now, fetching all
+     * when the imd sub panel becomes active, refresh the time canvas
+     * and add a window resize listener that trigers canvas redraw
+     */
+    export function active(firstTouch: boolean): void {
         isPanelActive = true;
         let timer;
         $(window).on("resize.canvasResize", function () {
@@ -70,7 +116,10 @@ namespace IMDPanel {
         isPendingRefresh = false;
     }
 
-    export function inActive() {
+    /**
+     * IMDPanel.inActive
+     */
+    export function inActive(): void {
         isPanelActive = false;
         $(window).off("resize.canvasResize");
         hideUpdatePrompt();
@@ -81,25 +130,24 @@ namespace IMDPanel {
      * ts1 : unix time stamp of from
      * ts2 : unix time stamp of to
      */
-    function updateViewportForDateRange(ts1, ts2) {
-        let numberOfUnits = $canvas.width() / tickSpacing;
-        var scale = (ts2 - ts1) / numberOfUnits;
-
+    function updateViewportForDateRange(ts1: number, ts2: number): void {
+        const numberOfUnits: number = $canvas.width() / tickSpacing;
+        const scale: number = (ts2 - ts1) / numberOfUnits;
         updateScale(scale, ts1, ts2);
     }
 
     // for the first time that we list tables, we create a range that shows
     // everything
-    function initScale() {
-        let canvasWidth = $canvas.parent().width();
+    function initScale(): void {
+        const canvasWidth: number = $canvas.parent().width();
         // default is 1 tick per second
-        let seconds = Math.ceil(canvasWidth / tickSpacing);
-        let max = Math.ceil(Date.now() / 1000);
-        let min = max - seconds;
-        let tempMax = 0;
+        const seconds: number = Math.ceil(canvasWidth / tickSpacing);
+        let max: number = Math.ceil(Date.now() / 1000);
+        let min: number = max - seconds;
+        let tempMax: number = 0;
 
-        pTables.forEach(function(table) {
-            var len = table.updates.length;
+        pTables.forEach((table) => {
+            const len: number = table.updates.length;
             if (len && table.updates[len - 1]) {
                 min = Math.min(min, table.updates[len - 1].startTS);
                 tempMax = Math.max(tempMax, table.updates[0].startTS);
@@ -111,7 +159,7 @@ namespace IMDPanel {
         if (max - min !== seconds) {
             min -= Math.floor((max - min) * 0.02);
         }
-        let range = max - min;
+        let range: number = max - min;
         if (tempMax + (range * 0.02) > max) {
             max += Math.ceil(range * 0.02);
         }
@@ -127,17 +175,22 @@ namespace IMDPanel {
      * updates the ruler's pixelToTime var from UI value
      * redraw all time panel
      */
-    function updateScale(scale, rangeMin, rangeMax) {
+    function updateScale(
+        scale: number,
+        rangeMin: number,
+        rangeMax: number
+    ): void {
         ruler.uiScale = scale; //cache scale value
         if (scale <= 0) { //make sure to avoid div by zero or neg values
             scale = 1;
         }
 
-        ruler.pixelToTime = parseFloat(scale) / parseFloat(tickSpacing);
+        ruler.pixelToTime = parseFloat(<any>scale) / parseFloat(<any>tickSpacing);
         initTimePanels(pTables, rangeMin, rangeMax);
         updateHistory();
     }
-    function timeString(timeStamp) {
+
+    function timeString(timeStamp: number): string {
         let formatHash = [
             {limit: 10, format: "h:mm:ss a"},
             {limit: 1800, format: "h:mm a"}, //up to 1/2 hour
@@ -145,8 +198,8 @@ namespace IMDPanel {
             {limit: 18144000, format: "MMMM YYYY"}, //up to a month
             {limit: 18144000 * 12, format: "MMMM Do YYYY"}, //up to a year
         ];
-        var formatStr;
-        for (var id = 0; id < formatHash.length; id++) {
+        let formatStr: string;
+        for (let id = 0; id < formatHash.length; id++) {
             if (ruler.uiScale < formatHash[id].limit) {
                 formatStr = formatHash[id].format;
                 break;
@@ -156,8 +209,8 @@ namespace IMDPanel {
     }
 
     function redrawTimeCanvas(): void {
-        const canvas: HTMLElement = $canvas[0];
-        const ctx = canvas.getContext("2d");
+        const canvas: HTMLCanvasElement = <HTMLCanvasElement>$canvas[0];
+        const ctx: CanvasRenderingContext2D = canvas.getContext("2d");
         let canvasWidth: number = $canvas.parent().width();
         let canvasHeight: number = $canvas.parent().height();
         canvas.setAttribute("width", "" + canvasWidth);
@@ -168,20 +221,21 @@ namespace IMDPanel {
         ctx.fillStyle = tickColor;
         ctx.textAlign = "center";
         ctx.beginPath();
-        var visibleLeftTime = ruler.visibleLeft * ruler.pixelToTime;
-        var firstTickPos = Math.floor(visibleLeftTime / ruler.uiScale / 5) * ruler.uiScale * 5;
-        var startX = firstTickPos / ruler.pixelToTime - ruler.visibleLeft; //has to be a negative value
-        let i = startX;
-        let numTicks = 1;
-        let curTime = visibleLeftTime;
-        let delta = tickTextInterval * tickSpacing * ruler.pixelToTime; // print the time string for every delta
-        let lastDateStringPosition = -1; //some book keeping to print datestring
+
+        const visibleLeftTime: number = ruler.visibleLeft * ruler.pixelToTime;
+        const firstTickPos: number = Math.floor(visibleLeftTime / ruler.uiScale / 5) * ruler.uiScale * 5;
+        const startX: number = firstTickPos / ruler.pixelToTime - ruler.visibleLeft; //has to be a negative value
+        let i: number = startX;
+        let numTicks: number = 1;
+        let curTime: number = visibleLeftTime;
+        let delta: number = tickTextInterval * tickSpacing * ruler.pixelToTime; // print the time string for every delta
+        let lastDateStringPosition: number = -1; //some book keeping to print datestring
         while (i < canvasWidth) {
-            let curTickHeight = (numTicks % largeTickInterval) ? tickHeight : tickHeightLarge;
+            let curTickHeight: number = (numTicks % largeTickInterval) ? tickHeight : tickHeightLarge;
             ctx.moveTo(i, canvasHeight);
             ctx.lineTo(i, canvasHeight - curTickHeight);
             curTime = (i  + ruler.visibleLeft ) * ruler.pixelToTime + ruler.minTS;
-            let textPos = Math.floor(curTime / delta) * delta;
+            let textPos: number = Math.floor(curTime / delta) * delta;
             if (lastDateStringPosition !== textPos && (numTicks % largeTickInterval === 0) ) {
                 if (lastDateStringPosition !== -1) {
                     ctx.fillText(timeString(curTime), i, 12);
@@ -197,7 +251,7 @@ namespace IMDPanel {
 
     // either pass in a table to update or track which table is focused
     // XXX does not need the full list of tables
-    function updateTableDetailSection(tableName?: string) {
+    function updateTableDetailSection(tableName?: string): void {
         if (!tableName) {
             $tableDetail.removeClass("active");
             return;
@@ -208,7 +262,7 @@ namespace IMDPanel {
 
         let $tableContent: JQuery = $tableDetail.find(".tableDetailContent");
         let html: string = '';
-        pTables.forEach(function(table) {
+        pTables.forEach((table) => {
             if (table.name == tableName) {
             //updated may not sorted by timestamp , need to check all of them
                 for (let i = 0; i < table.updates.length; i++) {
@@ -235,10 +289,15 @@ namespace IMDPanel {
      * x : center of prompt aligns to it
      * y : top of prompt
      */
-    function showUpdatePrompt(x, y, hasPointInTime, multiple) {
+    function showUpdatePrompt(
+        x: number,
+        y: number,
+        hasPointInTime: boolean,
+        multiple: boolean
+    ): void {
         $updatePrompt.removeClass("xc-hidden");
-        var promptWidth = $updatePrompt.outerWidth();
-        var left = x - promptWidth / 2;
+        const promptWidth: number = $updatePrompt.outerWidth();
+        let left: number = x - promptWidth / 2;
         if (left + promptWidth > $imdPanel.width()) {
             // if offscreen, position to far right and adjust arrow
             left = $imdPanel.width() - promptWidth;
@@ -269,7 +328,7 @@ namespace IMDPanel {
     /**
      * Hide the update prompt
      */
-    function hideUpdatePrompt() {
+    function hideUpdatePrompt(): void {
         $updatePrompt.addClass("xc-hidden");
         selectedCells = {};
         $imdPanel.find(".tableListItem").removeClass("selected");
@@ -281,11 +340,11 @@ namespace IMDPanel {
      * makes date tooltip box visible for given position with given date
      */
 
-    function showDateTipBox(x, y, unixTime) {
-        let winWidth = $imdPanel.width();
-        var $tipBox = $imdPanel.find(".date-tipbox");
+    function showDateTipBox(x: number, y: number, unixTime: number): void {
+        const winWidth: number = $imdPanel.width();
+        const $tipBox: JQuery = $imdPanel.find(".date-tipbox");
         $tipBox.show();
-        let tipWidth =  Math.max(150, $tipBox.outerWidth());
+        const tipWidth: number = Math.max(150, $tipBox.outerWidth());
         $tipBox.show();
         $tipBox.css({
             "top": y,
@@ -296,7 +355,7 @@ namespace IMDPanel {
             "left": x
         });
 
-        var format;
+        let format: string;
         if (ruler.uiScale > 600) {
             format = "MMMM Do YYYY, h:mm a"
         } else {
@@ -309,32 +368,32 @@ namespace IMDPanel {
      * makes date tooltip box invisible
      */
 
-    function hideDateTipBox() {
+    function hideDateTipBox(): void {
         $imdPanel.find(".date-tipbox").hide();
         $imdPanel.find(".dateTipLine").hide();
     }
 
-    function getDate(dateStr, timeStr) {
-        var completeTimeStr = dateStr + " " + timeStr.replace(" ", "");
+    function getDate(dateStr: string, timeStr: string): Date {
+        const completeTimeStr: string = dateStr + " " + timeStr.replace(" ", "");
         return new Date(completeTimeStr);
     }
 
-    function checkDateChange() {
-        let date1 = $("#imdFromInput").datepicker("getDate");
-        let date2 = $("#imdToInput").datepicker("getDate");
+    function checkDateChange(): boolean {
+        let date1: Date = $("#imdFromInput").datepicker("getDate");
+        let date2: Date = $("#imdToInput").datepicker("getDate");
         if (!date1 || !date2) {
-            return;
+            return false;
         }
 
         let time1 = $("#imdBar").find(".fromTimeArea .timePickerBox").val();
         let time2 = $("#imdBar").find(".toTimeArea .timePickerBox").val();
         if (!time1 || !time2) {
-            return;
+            return false;
         }
-        date1 = $("#imdFromInput").val();
-        date2 = $("#imdToInput").val();
-        let ts1 = getDate(date1, time1);
-        let ts2 = getDate(date2, time2);
+        const date1Str: string = $("#imdFromInput").val();
+        const date2Str: string = $("#imdToInput").val();
+        let ts1: any = getDate(date1Str, time1);
+        let ts2: any = getDate(date2Str, time2);
 
         if (ts1.toString() === "Invalid Date" || ts2.toString() ===
             "Invalid Date") {
@@ -347,19 +406,20 @@ namespace IMDPanel {
         if (ts2 > ts1) {
             updateViewportForDateRange(ts1, ts2);
         }
+        return true;
     }
 
     /**
      * run once during setup
      */
-    function setupTimeInputs() {
-        $("#imdFromInput, #imdToInput").change(function () {
+    function setupTimeInputs(): void {
+        $("#imdFromInput, #imdToInput").change(function() {
             checkDateChange();
         });
 
         $("#imdFromInput, #imdToInput").blur(function() {
-            var date = $(this).val();
-            var isValid = xcHelper.validate([
+            const date: string = $(this).val();
+            const isValid: boolean = xcHelper.validate([
                 {
                     "$ele": $(this),
                     "text": ErrTStr.NoEmpty,
@@ -395,7 +455,7 @@ namespace IMDPanel {
 
         fromTimePicker = new XcTimePicker($("#imdBar").find(".fromTimeArea .timePickerArea"), {
             onClose: function() {
-                let curVal = $("#imdBar").find(".fromTimeArea .timePickerBox").val();
+                const curVal: string = $("#imdBar").find(".fromTimeArea .timePickerBox").val();
                 if (curVal !== prevFromTime) {
                     prevFromTime = curVal;
                     checkDateChange();
@@ -417,8 +477,7 @@ namespace IMDPanel {
     /**
      * Add all event listeners here, It is run once during setup
      */
-    function addEventListeners() {
-
+    function addEventListeners(): void {
         $imdPanel.find(".refreshList").on("click", function() {
             refreshTableList();
         });
@@ -427,18 +486,19 @@ namespace IMDPanel {
             return false;
         });
 
-        $imdPanel.find(".activeTablesList").on("mousedown", ".tableTimePanel", function (event) {
-            var $clickedElement = $(this);
-            var tableName = $clickedElement.data("name");
+        $imdPanel.find(".activeTablesList").on("mousedown", ".tableTimePanel", function(event) {
+            const $clickedElement: JQuery = $(this);
+            const tableName: string = $clickedElement.data("name");
 
-            var clickedTime = ((((event.pageX - $clickedElement.closest(".tableListHist").offset().left) + ruler.visibleLeft) * ruler.pixelToTime) + ruler.minTS);
-            var closestUpdate = getClosestUpdate(tableName, clickedTime);
+            const clickedTime: number = ((((event.pageX - $clickedElement.closest(".tableListHist").offset().left) + ruler.visibleLeft) * ruler.pixelToTime) + ruler.minTS);
+            const closestUpdate: number = getClosestUpdate(tableName, clickedTime);
+
             selectedCells = {};
             $imdPanel.find(".activeTablesList").find(".selectedBar").remove();
             $imdPanel.find(".dateTipLineSelect").remove();
             $imdPanel.find(".selected").removeClass("selected");
-            var pos = event.pageX - $clickedElement.closest(".tableListHist").offset().left - 1;
-            var selectedBar;
+            const pos: number = event.pageX - $clickedElement.closest(".tableListHist").offset().left - 1;
+            // var selectedBar;
             if (closestUpdate === null) {
                 // selectedBar = '<div class="selectedBar selectedInvalid" data-time="" style="left:' + pos + 'px"></div>';
                 selectedCells[tableName] = 0
@@ -446,16 +506,17 @@ namespace IMDPanel {
                 selectedCells[tableName] = closestUpdate;
             }
             $clickedElement.parent().addClass("selected");
-            selectedBar = '<div class="selectedBar" data-time="" style="left:' + pos + 'px"></div>';
+            const selectedBar: string = '<div class="selectedBar" data-time="" style="left:' + pos + 'px"></div>';
             $clickedElement.prepend(selectedBar);
 
             showUpdatePrompt(event.pageX - $imdPanel.offset().left,
-                $clickedElement.offset().top  + $clickedElement.height() - $updatePrompt.parent().offset().top, closestUpdate !== null);
+                $clickedElement.offset().top  + $clickedElement.height() - $updatePrompt.parent().offset().top,
+                closestUpdate !== null, false);
         });
 
-        $imdPanel.find(".activeTablesList").on("mousedown", ".tableListItem", function (event) {
-            var $clickedElement = $(this);
-            var tableName = $clickedElement.data("name");
+        $imdPanel.find(".activeTablesList").on("mousedown", ".tableListItem", function() {
+            const $clickedElement: JQuery = $(this);
+            const tableName: string = $clickedElement.data("name");
 
             $imdPanel.find(".tableListItem.selected").removeClass("selected");
             $clickedElement.addClass("selected");
@@ -471,14 +532,14 @@ namespace IMDPanel {
             hideUpdatePrompt();
             $imdPanel.find(".selectedBar").remove();
             $imdPanel.find(".activeTablesList").find(".tableListItem").addClass("selected");
-            var left = event.offsetX + leftPanelWidth;
+            const left: number = event.offsetX + leftPanelWidth;
             $imdPanel.append('<div class="dateTipLineSelect" style="left:' + left + 'px;"></div>');
-            var clickedTime = (((event.offsetX + ruler.visibleLeft) * ruler.pixelToTime) + ruler.minTS);
+            const clickedTime: number = (((event.offsetX + ruler.visibleLeft) * ruler.pixelToTime) + ruler.minTS);
 
             selectedCells = {};
-            pTables.forEach(function(table) {
-                let tableName = table.name;
-                var closestUpdate = getClosestUpdate(tableName, clickedTime);
+            pTables.forEach((table) => {
+                const tableName: string = table.name;
+                const closestUpdate: number = getClosestUpdate(tableName, clickedTime);
                 if (closestUpdate === null) {
                     selectedCells[tableName] = 0; // should we include these
                 } else {
@@ -490,25 +551,25 @@ namespace IMDPanel {
         });
 
         $imdPanel.find(".activeTablesList").on("click", ".hideTable", function() {
-            var tableName = $(this).closest(".tableListItem").data("name");
+            const tableName: string = $(this).closest(".tableListItem").data("name");
             hideTable(tableName);
             xcTooltip.hideAll();
         });
 
         $imdPanel.find(".hiddenTablesList").on("click", ".showTable", function() {
-            var tableName = $(this).closest(".tableListItem").data("name");
+            const tableName: string = $(this).closest(".tableListItem").data("name");
             showTable(tableName);
             xcTooltip.hideAll();
         });
 
         $imdPanel.on("click", ".deleteTable", function() {
-            var tableName = $(this).closest(".tableListItem").data("name");
+            const tableName: string = $(this).closest(".tableListItem").data("name");
             Alert.show({
                 'title': IMDTStr.DelTable,
                 'msg': xcHelper.replaceMsg(IMDTStr.DelTableMsg, {
                     "tableName": tableName
                 }),
-                'onConfirm': function() {
+                'onConfirm': () => {
                     deleteTable(tableName);
                 }
             });
@@ -540,25 +601,27 @@ namespace IMDPanel {
             }
         });
 
-        $('.mainTableSection').on('mousewheel DOMMouseScroll', function (e) {
+        $('.mainTableSection').on('mousewheel DOMMouseScroll', function(e) {
             if (e.offsetX > leftPanelWidth) {
-                $scrollDiv.scrollLeft($scrollDiv.scrollLeft() + e.deltaX);
+                $scrollDiv.scrollLeft($scrollDiv.scrollLeft() + (<any>e).deltaX);
             }
         });
+
         $canvas.mousemove(function(event) {
-            let clickedTime = (((event.offsetX + ruler.visibleLeft) * ruler.pixelToTime) + ruler.minTS);
+            const clickedTime: number = (((event.offsetX + ruler.visibleLeft) * ruler.pixelToTime) + ruler.minTS);
             showDateTipBox(event.offsetX + leftPanelWidth, $canvas.height(), clickedTime);
         });
+
         $canvas.mouseleave(function(){
             hideDateTipBox();
         });
 
-        $canvas.on('mousewheel DOMMouseScroll', function (event) {
-            let time = Math.round((((event.offsetX + ruler.visibleLeft) * ruler.pixelToTime) + ruler.minTS));
-            var canvasWidth = $canvas.width();
-            let range = Math.round(canvasWidth * ruler.pixelToTime);
-            var pctLeft = event.offsetX / canvasWidth;
-            var delta = Math.max(event.deltaY, -3);
+        $canvas.on('mousewheel DOMMouseScroll', function(event) {
+            const time: number = Math.round((((event.offsetX + ruler.visibleLeft) * ruler.pixelToTime) + ruler.minTS));
+            const canvasWidth: number = $canvas.width();
+            let range: number = Math.round(canvasWidth * ruler.pixelToTime);
+            const pctLeft: number = event.offsetX / canvasWidth;
+            let delta: number = Math.max((<any>event).deltaY, -3);
             delta = Math.min(delta, 3);
 
             // zoom in our out by
@@ -576,8 +639,8 @@ namespace IMDPanel {
                 return;
             }
 
-            let min = time - Math.round(range * pctLeft);
-            let max = time + Math.round(range * (1 - pctLeft));
+            const min: number = time - Math.round(range * pctLeft);
+            const max: number = time + Math.round(range * (1 - pctLeft));
 
             $("#imdFromInput").datepicker("setDate", new Date(min * 1000));
             $("#imdToInput").datepicker("setDate", new Date(max * 1000));
@@ -599,18 +662,18 @@ namespace IMDPanel {
         });
 
         $tableDetail.on("click", ".batchId", function() {
-            let batchId = parseInt($(this).text());
-            let name = $(this).closest(".tableDetailRow").data("tablename");
+            const batchId: number = parseInt($(this).text());
+            const name: string = $(this).closest(".tableDetailRow").data("tablename");
             pTables.forEach(function(table) {
                 if (table.name === name) {
                     table.updates.forEach(function(update, i) {
                         if (update.batchId === batchId) {
-                            let time = update.startTS;
-                            let range = Math.round($canvas.width() * ruler.pixelToTime);
+                            const time: number = update.startTS;
+                            const range: number = Math.round($canvas.width() * ruler.pixelToTime);
 
-                            let mid = Math.round(range / 2);
-                            let min = time - mid;
-                            var max = time + mid;
+                            const mid: number = Math.round(range / 2);
+                            const min: number = time - mid;
+                            const max: number = time + mid;
 
                             $("#imdFromInput").datepicker("setDate", new Date(min * 1000));
                             $("#imdToInput").datepicker("setDate", new Date(max * 1000));
@@ -618,7 +681,7 @@ namespace IMDPanel {
                             toTimePicker.showTimeHelper(new Date(max * 1000));
                             updateViewportForDateRange(min, max);
                             selectedCells = {};
-                            var closestUpdate = batchId;
+                            const closestUpdate: number = batchId;
 
                             $imdPanel.find(".activeTablesList").find(".selectedBar").remove();
                             $imdPanel.find(".dateTipLineSelect").remove();
@@ -626,19 +689,19 @@ namespace IMDPanel {
                             isScrolling = true; // prevents scroll event from firing and closing update prompt
 
                             selectedCells[table.name] = closestUpdate;
-                            var $clickedElement = $imdPanel.find('.tableListItem[data-name="' +
+                            const $clickedElement: JQuery = $imdPanel.find('.tableListItem[data-name="' +
                                         table.name +'"]').find(".tableTimePanel");
-                            var $updateLine = $clickedElement.find('.indicator' + i);
-                            var pageX = $updateLine.offset().left;
-                            var pos = pageX - $clickedElement.closest(".tableListHist").offset().left;
+                            const $updateLine: JQuery = $clickedElement.find('.indicator' + i);
+                            const pageX: number = $updateLine.offset().left;
+                            const pos: number = pageX - $clickedElement.closest(".tableListHist").offset().left;
 
                             $clickedElement.parent().addClass("selected");
-                            var selectedBar = '<div class="selectedBar" data-time="" style="left:' + pos + 'px"></div>';
+                            const selectedBar: string = '<div class="selectedBar" data-time="" style="left:' + pos + 'px"></div>';
                             $clickedElement.prepend(selectedBar);
 
                             showUpdatePrompt(pageX - $imdPanel.offset().left,
                             $clickedElement.offset().top  + $clickedElement.height() -
-                            $updatePrompt.parent().offset().top, true);
+                            $updatePrompt.parent().offset().top, true, false);
 
                             setTimeout(function() { // need to delay
                                 isScrolling = false;
@@ -652,13 +715,13 @@ namespace IMDPanel {
         });
     }
 
-    function submitRefreshTables(latest?: boolean) {
-        var tables = [];
+    function submitRefreshTables(latest?: boolean): XDPromise<void> {
+        const tables: RefreshTableInfos[] = [];
 
         for (let i in selectedCells) {
-            let maxBatch = selectedCells[i];
-            let columns = [];
-            pTables.forEach(function(table) {
+            let maxBatch: number = selectedCells[i];
+            let columns: TableCol[] = [];
+            pTables.forEach((table) => {
                 if (table.name === i) {
                     columns = table.values;
                     if (latest) {
@@ -691,7 +754,7 @@ namespace IMDPanel {
         calculate their time to pixel value
         if it is within the visible history range , add div with left border and a text (update id)
     */
-    function updateHistory() {
+    function updateHistory(): void {
         if (!pTables.length) {
             return;
         }
@@ -699,35 +762,40 @@ namespace IMDPanel {
         ruler.visibleRight = $scrollDiv.scrollLeft() + $scrollDiv.width();
         hideUpdatePrompt();
         redrawTimeCanvas();
-        pTables.forEach(function(table) {
-            var $histPanel = $(".tableTimePanel[data-name=\"" + table.name + "\"]");
+
+        pTables.forEach((table) => {
+            const $histPanel: JQuery = $(".tableTimePanel[data-name=\"" + table.name + "\"]");
             $histPanel.empty();
+
             if ($histPanel.offset().top < 1000) {
-                var positions = [];
-                table.updates.forEach(function(update, i) {
-                    var tStampPx = parseFloat(update.startTS - ruler.minTS) / parseFloat(ruler.pixelToTime);
+                const positions: any[] = [];
+                table.updates.forEach((update, i) => {
+                    const timeDiff: number = update.startTS - ruler.minTS;
+                    const tStampPx: number = parseFloat(<any>timeDiff) / parseFloat(<any>ruler.pixelToTime);
                     if (tStampPx > ruler.visibleLeft && tStampPx < ruler.visibleRight) {
-                        var pos = tStampPx - ruler.visibleLeft;
+                        const pos: number = tStampPx - ruler.visibleLeft;
                         positions.push({
                             left: pos,
                             right: pos + 8 + (("" + update.batchId).length * 7),
                             id: i
                         });
-                        var $htmlElem = $('<div class="updateIndicator indicator' + i + '" ' +
+                        const $htmlElem: JQuery = $('<div class="updateIndicator indicator' + i + '" ' +
                                             xcTooltip.Attrs +
                                             ' data-original-title="' +
                                             moment.unix(update.startTS).format("MMMM Do YYYY, h:mm:ss a") + '">' +
                                             '<span class="text">'  +
-                                            parseInt(update.batchId) + '</span></div>');
+                                            parseInt(<any>update.batchId) + '</span></div>');
                         $histPanel.append($htmlElem);
                         $htmlElem.css("left", pos);
                     }
                 });
-                positions.sort(function(a, b) {
-                    return a.left > b.left;
+                positions.sort((a, b) => {
+                    const aLeft: number = a.left;
+                    const bLeft: number = b.left
+                    return (aLeft < bLeft ? -1 : (aLeft > bLeft ? 1 : 0));
                 });
                 // hide text in lines that overlap
-                for (var i = 1; i < positions.length; i++) {
+                for (let i = 1; i < positions.length; i++) {
                     if (positions[i].left < positions[i - 1].right) {
                         $histPanel.find(".indicator" + positions[i - 1].id).addClass("overlap");
                     }
@@ -743,13 +811,13 @@ namespace IMDPanel {
      * look for the update closest t0 given timestamp
      * This function will have to be used to actually call the resfresh API
      */
-    function getClosestUpdate(tName, targetTS) {
-        var closestUpdate = null;
-        pTables.forEach(function(table) {
+    function getClosestUpdate(tName: string, targetTS: number): number {
+        let closestUpdate: UpdateInfo = null;
+        pTables.forEach((table) => {
             if (table.name == tName) {
                 //updated may not sorted by timestamp , need to check all of them
-                for (var i = 0; i < table.updates.length; i++) {
-                    var update = table.updates[i];
+                for (let i = 0; i < table.updates.length; i++) {
+                    const update: UpdateInfo = table.updates[i];
                     if (!update.startTS || update.startTS > targetTS) {
                         continue;
                     }
@@ -759,10 +827,11 @@ namespace IMDPanel {
                 }
             }
         });
+
         if (closestUpdate) {
             return closestUpdate.batchId;
         } else {
-            return closestUpdate;
+            return null;
         }
     }
 
@@ -772,9 +841,13 @@ namespace IMDPanel {
      * iterate all updates
      * Calculate min max etc that will be used in update history
      */
-    function initTimePanels(tables: object[], rangeMin?: number, rangeMax?: number) {
+    function initTimePanels(
+        tables: PublishTable[],
+        rangeMin?: number,
+        rangeMax?: number
+    ): void {
         //global time start and end for history panel
-        if(!tables){
+        if (!tables){
             return;
         }
 
@@ -786,8 +859,8 @@ namespace IMDPanel {
         if (rangeMax) {
             ruler.maxTS = Math.max(ruler.maxTS, rangeMax);
         }
-        tables.forEach(function (table) {
-            table["updates"].forEach(function (update) {
+        tables.forEach((table) => {
+            table.updates.forEach((update) => {
                 if (update.startTS < ruler.minTS) {
                     ruler.minTS = update.startTS;
                 }
@@ -797,11 +870,12 @@ namespace IMDPanel {
             });
         });
 
-        var $fakeArea = $imdPanel.find(".fakeArea");
-        var $scrollDiv = $imdPanel.find(".scrollDiv");
-        $fakeArea.width(parseFloat(ruler.maxTS - ruler.minTS) / parseFloat(ruler.pixelToTime));
+        const $fakeArea: JQuery = $imdPanel.find(".fakeArea");
+        const $scrollDiv: JQuery = $imdPanel.find(".scrollDiv");
+        const timeDiff: number = ruler.maxTS - ruler.minTS;
+        $fakeArea.width(parseFloat(<any>timeDiff) / parseFloat(<any>ruler.pixelToTime));
         // position the scrollbar
-        var scrollPosition;
+        let scrollPosition: number;
         if (rangeMax) {
             scrollPosition = (rangeMin - ruler.minTS) / ruler.pixelToTime;
         } else {
@@ -816,18 +890,18 @@ namespace IMDPanel {
      * Create html elems for tables
      * call renderTimePanels function that renders the time panel
      */
-    function listTablesFirstTime(): XDPromise<any> {
-        var deferred = PromiseHelper.deferred();
-        let startTime = Date.now();
+    function listTablesFirstTime(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const startTime: number = Date.now();
         showWaitScreen();
 
         listAndCheckActive()
-        .then(function(tables) {
+        .then((tables) => {
             pTables = tables || [];
             return restoreHiddenTables();
         })
-        .then(function() {
-            let html = getListHtml(pTables);
+        .then(() => {
+            let html: string = getListHtml(pTables);
             $imdPanel.find(".activeTablesList").html(html);
             initScale();
             if (pTables.length) {
@@ -839,14 +913,14 @@ namespace IMDPanel {
             }
             deferred.resolve();
         })
-        .fail(function (error) {
+        .fail((error) => {
             Alert.error("Error!", error);
             deferred.reject();
         })
-        .always(function() {
-            let timeDiff = Date.now() - startTime;
+        .always(() => {
+            const timeDiff: number = Date.now() - startTime;
             if (timeDiff < 1200) {
-                setTimeout(function() {
+                setTimeout(() => {
                     removeWaitScreen();
                 }, 1200 - timeDiff);
             } else {
@@ -856,19 +930,19 @@ namespace IMDPanel {
         return deferred.promise();
     }
 
-    function restoreHiddenTables() {
-        var deferred = PromiseHelper.deferred();
-        var key = KVStore.getKey("gIMDKey");
-        var kvStore = new KVStore(key, gKVScope.WKBK);
+    function restoreHiddenTables(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const key: string = KVStore.getKey("gIMDKey");
+        const kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
         kvStore.get()
-        .then(function(imdMeta) {
+        .then((imdMeta) => {
             if (imdMeta) {
                 try {
                     imdMeta = $.parseJSON(imdMeta);
                     if (imdMeta) {
-                       let hiddenTables = imdMeta.hiddenTables;
+                       const hiddenTables: string[] = imdMeta['hiddenTables'];
                        for (let i = 0; i < pTables.length; i++) {
-                            let table = pTables[i];
+                            const table: PublishTable = pTables[i];
                             if (hiddenTables.indexOf(table.name) !== -1) {
                                 pTables.splice(i, 1);
                                 hTables.push(table);
@@ -890,17 +964,17 @@ namespace IMDPanel {
     // list tables and if inactive ones are found, restore them. Restoration
     // can be canceled and if so, unpublish the inactive tables that
     // haven't been restored yet
-    function listAndCheckActive() {
-        var deferred = PromiseHelper.deferred();
-        let activeTables = [];
-        let inactiveTables = [];
-        let listPassed = false;
+    function listAndCheckActive(): XDPromise<PublishTable[]> {
+        const deferred: XDDeferred<PublishTable[]> = PromiseHelper.deferred();
+        const activeTables: PublishTable[] = [];
+        const inactiveTables: PublishTable[] = [];
+        let listPassed: boolean = false;
 
         XcalarListPublishedTables("*")
-        .then(function (result) {
+        .then((result) => {
             listPassed = true;
-            let promises = [];
-            let inactiveCount = 0;
+            const promises = [];
+            let inactiveCount: number = 0;
             progressState.canceled = false;
             result.tables.forEach(function(table) {
                 if (!table.active) {
@@ -938,8 +1012,8 @@ namespace IMDPanel {
                     // user canceled part way through restoration
                     // unpublish the rest of the inactive tables
                     // and add the restored ones to the activeTables list
-                    var promises = [];
-                    for (var i = error.count; i < inactiveTables.length; i++) {
+                    const promises: XDPromise<void>[] = [];
+                    for (let i = error.count; i < inactiveTables.length; i++) {
                         promises.push(XcalarUnpublishTable(inactiveTables[i].name));
                     }
                     PromiseHelper.when.apply(this, promises)
@@ -964,10 +1038,10 @@ namespace IMDPanel {
         return deferred.promise();
     }
 
-    function restoreTable(tableName) {
-        var deferred = PromiseHelper.deferred();
+    function restoreTable(tableName: string): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         XcalarRestoreTable(tableName)
-        .then(function() {
+        .then(() => {
             progressCircle.increment();
             deferred.resolve();
         })
@@ -976,11 +1050,11 @@ namespace IMDPanel {
         return deferred.promise();
     }
 
-    function listOnlyActiveTables() {
-        var deferred = PromiseHelper.deferred();
+    function listOnlyActiveTables(): XDPromise<any> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
         XcalarListPublishedTables("*")
         .then(function (result) {
-            let activeTables = [];
+            const activeTables = [];
             result.tables.forEach(function(table) {
                 if (table.active) {
                     activeTables.push(table);
@@ -995,9 +1069,9 @@ namespace IMDPanel {
     /**
      * Create HTML List for publlished tables
      */
-    function getListHtml(tables) {
-        var html = "";
-        tables.forEach(function(table) {
+    function getListHtml(tables: PublishTable[]): string {
+        let html: string = "";
+        tables.forEach((table) => {
             html += "<div data-name=\"" + table.name + "\" class=\"listBox listInfo tableListItem\">\
                 <div class =\"tableListLeft\">\
                     <div class=\"iconWrap\"></div>\
@@ -1017,42 +1091,34 @@ namespace IMDPanel {
     }
 
     // creates a new worksheet and puts tables there
-    interface RefreshTableInfos {
-        pubTableName: string,
-        dstTableName: string,
-        minBatch: number,
-        maxBatch: number,
-        columns: object[]
-    }
-
-    function refreshTablesToWorksheet(tableInfos: RefreshTableInfos[]) {
-        let deferred = PromiseHelper.deferred();
-        let wsId;
-        let numTables = tableInfos.length;
-        tableInfos.forEach(function (tableInfo) {
+    function refreshTablesToWorksheet(tableInfos: RefreshTableInfos[]): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let wsId: string;
+        const numTables: number = tableInfos.length;
+        tableInfos.forEach((tableInfo) => {
             tableInfo.dstTableName += Authentication.getHashId();
         });
 
-        let sql = {
+        const sql: object = {
             "operation": SQLOps.RefreshTables,
-            "tableNames": tableInfos.map(function (tableInfo) {
+            "tableNames": tableInfos.map((tableInfo) => {
                 return tableInfo.dstTableName;
             })
         };
-        let txId = Transaction.start({
+        const txId: number = Transaction.start({
             "msg": "Refreshing tables",
             "operation": SQLOps.RefreshTables,
             "sql": sql,
             "track": true
         });
-        let wsName = "imd";
+        const wsName: string = "imd";
 
         refreshTables(tableInfos, txId)
-        .then(function () {
+        .then(function() {
             wsId = WSManager.addWS(null, wsName);
-            let promises = [];
+            const promises: XDPromise<void>[] = [];
 
-            tableInfos.forEach(function (tableInfo) {
+            tableInfos.forEach(function(tableInfo) {
                 let newTableCols = [];
                 tableInfo.columns.forEach(function(col) {
                     let progCol = ColManager.newCol({
@@ -1074,8 +1140,8 @@ namespace IMDPanel {
             });
             return PromiseHelper.chain(promises);
         })
-        .then(function () {
-            sql.worksheet = wsId;
+        .then(function() {
+            sql['worksheet'] = wsId;
             Transaction.done(txId, {
                 "msgTable": xcHelper.getTableId(tableInfos[numTables - 1].dstTableName),
                 "title": "Refresh Tables",
@@ -1083,7 +1149,7 @@ namespace IMDPanel {
             });
             deferred.resolve();
         })
-        .fail(function (error) {
+        .fail(function(error) {
             Transaction.fail(txId, {
                 "failMsg": "Table refresh failed",
                 "error": error,
@@ -1100,9 +1166,9 @@ namespace IMDPanel {
     function refreshTables(
         tableInfos: RefreshTableInfos[],
         txId: number
-    ): XDPromise<any> {
+    ): XDPromise<void> {
         let promises = [];
-        tableInfos.forEach(function (tableInfo) {
+        tableInfos.forEach((tableInfo) => {
             promises.push(XcalarRefreshTable(tableInfo.pubTableName,
                 tableInfo.dstTableName,
                 tableInfo.minBatch,
@@ -1113,13 +1179,13 @@ namespace IMDPanel {
         return PromiseHelper.when.apply(this, promises);
     }
 
-    function hideTable(tableName) {
-        const $listItem = $imdPanel.find('.tableListItem[data-name="' + tableName + '"]');
+    function hideTable(tableName: string): void {
+        const $listItem: JQuery = $imdPanel.find('.tableListItem[data-name="' + tableName + '"]');
         $listItem.remove();
         $listItem.removeClass("active selected");
         $listItem.find(".selectedBar").remove();
         $listItem.appendTo($imdPanel.find(".hiddenTablesListItems"));
-        pTables.forEach(function(table, i) {
+        pTables.forEach((table, i) => {
             if (table.name === tableName) {
                 pTables.splice(i, 1);
                 hTables.push(table);
@@ -1132,25 +1198,25 @@ namespace IMDPanel {
         }
     }
 
-    function storeHiddenTables() {
-        let kvsKey = KVStore.getKey("gIMDKey");
-        let kvStore = new KVStore(kvsKey, gKVScope.WKBK);
-        let hiddenTables = hTables.map(function(table) {
+    function storeHiddenTables(): XDPromise<void> {
+        const kvsKey: string = KVStore.getKey("gIMDKey");
+        const kvStore: KVStore = new KVStore(kvsKey, gKVScope.WKBK);
+        const hiddenTables: string[] = hTables.map((table) => {
             return table.name;
         });
-        let imdInfo = {
+        const imdInfo = {
             hiddenTables: hiddenTables
         };
         return kvStore.put(JSON.stringify(imdInfo), true);
     }
 
-    function showTable(tableName) {
-        const $listItem = $imdPanel.find('.tableListItem[data-name="' + tableName + '"]');
+    function showTable(tableName: string): void {
+        const $listItem: JQuery = $imdPanel.find('.tableListItem[data-name="' + tableName + '"]');
         $listItem.remove();
         $listItem.removeClass("active selected");
         $listItem.find(".selectedBar").remove();
         $listItem.appendTo($imdPanel.find(".activeTablesList"));
-        hTables.forEach(function(table, i) {
+        hTables.forEach((table, i) => {
             if (table.name === tableName) {
                 hTables.splice(i, 1);
                 pTables.push(table);
@@ -1160,43 +1226,47 @@ namespace IMDPanel {
         storeHiddenTables();
     }
 
-    function deleteTable(tableName) {
-        const deferred = PromiseHelper.deferred();
+    function deleteTable(tableName: string): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
-        const $listItem = $imdPanel.find('.tableListItem[data-name="' +
+        const $listItem: JQuery = $imdPanel.find('.tableListItem[data-name="' +
                                          tableName + '"]');
         $listItem.addClass("locked");
 
         XcalarUnpublishTable(tableName)
-        .then(function() {
+        .then(() => {
             cleanUpAfterDeleteTable(tableName);
             XcSocket.Instance.sendMessage("refreshIMD", {
                 "action": "delete",
                 "tableName": tableName
-            });
+            }, null);
             deferred.resolve();
         })
-        .fail(function() {
+        .fail((...args) => {
             $listItem.removeClass("locked");
             xcHelper.showFail(FailTStr.RmPublishedTable);
-            deferred.reject.apply(this, arguments);
+            deferred.reject.apply(this, args);
         });
 
         return deferred.promise();
     }
 
-    export function updateInfo(info) {
+    /**
+     * IMDPanel.updateInfo
+     * @param info
+     */
+    export function updateInfo(info: any): void {
         if (info.action === "delete") {
             cleanUpAfterDeleteTable(info.tableName);
         }
     }
 
-    function cleanUpAfterDeleteTable(tableName) {
-        const $listItem = $imdPanel.find('.tableListItem[data-name="' +
+    function cleanUpAfterDeleteTable(tableName: string): void {
+        const $listItem: JQuery = $imdPanel.find('.tableListItem[data-name="' +
                                          tableName + '"]');
         delete selectedCells[tableName];
         let found = false;
-        pTables.forEach(function(table, i) {
+        pTables.forEach((table, i) => {
             if (table.name === tableName) {
                 pTables.splice(i, 1);
                 found = true;
@@ -1204,7 +1274,7 @@ namespace IMDPanel {
             }
         });
         if (!found) {
-            hTables.forEach(function(table, i) {
+            hTables.forEach((table, i) => {
                 if (table.name === tableName) {
                     hTables.splice(i, 1);
                     return;
@@ -1217,50 +1287,50 @@ namespace IMDPanel {
         }
     }
 
-    function testDate(str){
-        var template = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    function testDate(str: string): boolean {
+        const template: string[] = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
         if (template === null) {
             return false;
         }
-        var inputDay = template[2];
-        var inputMonth = template[1];
-        var inputYear = template[3];
-        var date = new Date(str + " utc");
+        const inputDay: string = template[2];
+        const inputMonth: string = template[1];
+        const inputYear: string = template[3];
+        const date: Date = new Date(str + " utc");
         if (date.toString() === "Invalid Date") {
             return false;
         }
-        var day = date.getUTCDate();
-        var month = date.getUTCMonth();
-        var year = date.getUTCFullYear();
+        const day: number = date.getUTCDate();
+        const month: number = date.getUTCMonth();
+        const year: number = date.getUTCFullYear();
 
         return Number(inputDay) === day &&
                (Number(inputMonth) - 1) === month &&
                Number(inputYear) === year;
     }
 
-    function updateTimeInputs() {
-        let min = ruler.visibleLeft * ruler.pixelToTime + ruler.minTS;
-        let max = ($canvas.parent().width() + ruler.visibleLeft) * ruler.pixelToTime + ruler.minTS;
+    function updateTimeInputs(): void {
+        const min: number = ruler.visibleLeft * ruler.pixelToTime + ruler.minTS;
+        const max: number = ($canvas.parent().width() + ruler.visibleLeft) * ruler.pixelToTime + ruler.minTS;
         $("#imdFromInput").datepicker("setDate", new Date(min * 1000));
         $("#imdToInput").datepicker("setDate", new Date(max * 1000));
         fromTimePicker.showTimeHelper(new Date(min * 1000));
         toTimePicker.showTimeHelper(new Date(max * 1000));
     }
 
-    function refreshTableList() {
+    function refreshTableList(): void {
         hideUpdatePrompt();
         showWaitScreen();
 
-        var startTime = Date.now();
+        const startTime: number = Date.now();
 
         listOnlyActiveTables()
         .then(function(tables) {
-            let foundPTables = {};
-            let foundHTables = {};
+            const foundPTables: object = {};
+            const foundHTables: object = {};
             let numPTables = pTables.length;
             tables.forEach(function(table) {
                 if (table.active) {
-                    var inHTables = false;
+                    let inHTables: boolean = false;
                     hTables.forEach(function(hTable, i) {
                         if (hTable.name === table.name) {
                             hTables[i] = table;
@@ -1271,7 +1341,7 @@ namespace IMDPanel {
                     });
 
                     if (!inHTables) {
-                        var found = false;
+                        let found: boolean = false;
                         pTables.forEach(function(pTable, i) {
                             if (pTable.name === table.name) {
                                 pTables[i] = table;
@@ -1299,7 +1369,7 @@ namespace IMDPanel {
                     i--;
                 }
             }
-            var html = getListHtml(pTables);
+            const html: string = getListHtml(pTables);
             $imdPanel.find(".activeTablesList").html(html);
             checkDateChange();
             if (pTables.length) {
@@ -1308,13 +1378,13 @@ namespace IMDPanel {
                 updateTableDetailSection();
             }
         })
-        .fail(function (error) {
+        .fail(function(error) {
             Alert.error("Error!", error);
         })
         .always(function() {
-            let timeDiff = Date.now() - startTime;
+            const timeDiff: number = Date.now() - startTime;
             if (timeDiff < 1200) {
-                setTimeout(function() {
+                setTimeout(() => {
                     removeWaitScreen();
                 }, 1200 - timeDiff);
             } else {
@@ -1323,25 +1393,28 @@ namespace IMDPanel {
         })
     }
 
-    function showWaitScreen() {
+    function showWaitScreen(): void {
         $("#modalWaitingBG").remove();
-        var $waitingBg = $('<div id="modalWaitingBG">' +
+        const $waitingBg: JQuery = $('<div id="modalWaitingBG">' +
                             '<div class="waitingIcon"></div>' +
                         '</div>');
         $imdPanel.append($waitingBg);
-        setTimeout(function() {
+        setTimeout(() => {
             $waitingBg.find('.waitingIcon').fadeIn();
         }, 200);
     }
 
-    function removeWaitScreen() {
+    function removeWaitScreen(): void {
         $('#modalWaitingBG').fadeOut(200, function() {
             $(this).remove();
             progressState.canceled = false;
         });
     }
 
-    export function needsUpdate() {
+    /**
+     * IMDPanel.needsUpdate
+     */
+    export function needsUpdate(): void {
         if (isPanelActive) {
             refreshTableList();
         } else {
@@ -1349,10 +1422,10 @@ namespace IMDPanel {
         }
     }
 
-    function showProgressCircle(numSteps, numCompleted) {
-        let $waitSection = $("#modalWaitingBG");
+    function showProgressCircle(numSteps: number, numCompleted: number): void {
+        const $waitSection: JQuery = $("#modalWaitingBG");
         $waitSection.addClass("hasProgress");
-        let progressAreaHtml = xcHelper.getLockIconHtml("listIMD", 0, true, true);
+        const progressAreaHtml: string = xcHelper.getLockIconHtml("listIMD", 0, true, true);
         $waitSection.html(progressAreaHtml);
         $waitSection.find(".stepText").addClass("extra").append(
             '<span class="extraText">' + IMDTStr.Activating + '</span>')
