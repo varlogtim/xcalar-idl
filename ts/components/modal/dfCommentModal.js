@@ -12,7 +12,6 @@ window.DFCommentModal = (function(DFCommentModal, $) {
             noEnter: true
         });
 
-
         $modal.on("click", ".close, .cancel", closeModal);
 
         $modal.on("click", ".confirm", function() {
@@ -33,8 +32,9 @@ window.DFCommentModal = (function(DFCommentModal, $) {
         $modal.find(".modalHeader .text").text(title);
         var $dagWrap = $opIcon.closest(".dagWrap");
 
-        var node = $dagWrap.data("allDagInfo").nodeIdMap[nodeId];
+        var node = Dag.getNodeById($dagWrap, nodeId);
         tableName = node.value.name;
+
         var curComment = node.value.comment;
 
         if (curComment) {
