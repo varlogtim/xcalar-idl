@@ -40,7 +40,6 @@ window.DFParamModal = (function($, DFParamModal){
         modalHelper = new ModalHelper($modal, {noEnter: true});
 
         $modal.find('.cancel, .close').click(function() {
-            debugger;
             closeModal();
         });
 

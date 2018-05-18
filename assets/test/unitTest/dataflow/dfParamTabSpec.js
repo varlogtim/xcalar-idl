@@ -1,8 +1,10 @@
 describe("DFParamTab Test", function() {
     var getParamMapCache;
+    var getParamMap;
     var updateParamMapCache;
     before(function(done) {
         getParamMapCache = DF.getParamMapCache;
+        getParamMap = DF.getParamMap;
         updateParamMapCache = DF.updateParamMap;
         DF.getParamMapCache = function() {};
         DF.getParamMap = function() {return {}};
@@ -163,6 +165,7 @@ describe("DFParamTab Test", function() {
 
     after(function() {
         DF.getParamMapCache = getParamMapCache;
+        DF.getParamMap = getParamMap;
         DF.updateParamMap = updateParamMapCache;
     });
 });
