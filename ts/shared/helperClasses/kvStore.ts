@@ -137,8 +137,12 @@ class KVStore {
         })
         .then(function() {
             var wkbkId = WorkbookManager.getActiveWKBK();
-            var wkbkName = WorkbookManager.getWorkbook(wkbkId).name;
-            return XcalarSaveWorkbooks(wkbkName);
+            var workbook = WorkbookManager.getWorkbook(wkbkId);
+            if (workbook != null) {
+                // just an error handler
+                var wkbkName = workbook.name;
+                return XcalarSaveWorkbooks(wkbkName);
+            }
         })
         .then(function() {
             KVStore.logSave(true);
