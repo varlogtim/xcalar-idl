@@ -551,9 +551,9 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                 var check = checkList[i];
                 promiseArray.push(prepareData.bind(window, test, tableName,
                                                    randId, dataPath, check, i));
+                promiseArray.push(dropTempTables.bind(window));
             }
             // Remove all immediates
-            promiseArray.push(dropTempTables);
             PromiseHelper.chain(promiseArray)
             .then(function() {
                 WSManager.addWS();
@@ -618,7 +618,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         for (var queryName in queries) {
             var sqlString = queries[queryName];
             promiseArray.push(runQuery.bind(window, queryName, sqlString, queryCount));
-            promiseArray.push(dropTempTables);
+            promiseArray.push(dropTempTables.bind(window));
             queryCount++;
         }
         PromiseHelper.chain(promiseArray)
