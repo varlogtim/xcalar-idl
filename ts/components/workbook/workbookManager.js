@@ -1063,6 +1063,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         }
 
         var oldName = oldWKBK.getName();
+        var sessionId = oldWKBK.sessionId;
         var newName = newWKBK.getName();
 
         var getKVHelper = function(key) {
@@ -1115,7 +1116,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
             // submit the code as a new udf for the dest workbook
             var innerDeferred = PromiseHelper.deferred();
 
-            XcalarListXdfs("*/workbook/" + userIdName + "/" + oldName + "/udf/*", "*")
+            var workbookUDFPath = "/workbook/" + userIdName + "/" + sessionId + "/udf/";
+
+            XcalarListXdfs("*" + workbookUDFPath + "*", "*")
             .then(function(result) {
                 var promises = [];
                 var udfs = {};
