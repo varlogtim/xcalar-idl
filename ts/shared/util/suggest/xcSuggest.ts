@@ -72,7 +72,7 @@ namespace xcSuggest { // = (function($, xcSuggest) {
      * xcSuggest.setup
      */
     export function setup(): boolean {
-        MLEngine = window.skRFPredictor;
+        MLEngine = skRFPredictor;
         MLEngine.setup();
         return true;
     }
@@ -1135,7 +1135,7 @@ namespace xcSuggest { // = (function($, xcSuggest) {
             datas = [datas];
         }
 
-        let formats: string[] = ['YYYY-M-D', 'YYYY-M', 'YYYY', moment.ISO_8601];
+        let formats: any[] = ['YYYY-M-D', 'YYYY-M', 'YYYY', moment.ISO_8601];
         let dateHit: number = 0;
         let validData: number = 0;
         for (let i = 0, len = datas.length; i < len; i++) {

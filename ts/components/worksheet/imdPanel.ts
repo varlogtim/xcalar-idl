@@ -1363,23 +1363,24 @@ namespace IMDPanel {
     }
 
     /* Unit Test Only */
-    if (window.unitTestMode) {
-        IMDPanel.__testOnly__ = {};
-        IMDPanel.__testOnly__.setSelectedCells = function(cells) {
-            selectedCells = cells;
+    if (typeof window !== "undefined" && window["unitTestMode"]) {
+        IMDPanel["__testOnly__"] = {
+            setSelectedCells: function(cells) {
+                selectedCells = cells;
+            },
+            getSelectedCells: function() {
+                return selectedCells;
+            },
+            listTablesFirstTime: listTablesFirstTime,
+            getTables: function() {
+                return {pTables: pTables, hTables: hTables};
+            },
+            getRuler: function() {
+                return ruler;
+            },
+            testDate: testDate,
+            updateTimeInputs: updateTimeInputs
         };
-        IMDPanel.__testOnly__.getSelectedCells = function() {
-            return selectedCells;
-        };
-        IMDPanel.__testOnly__.listTablesFirstTime = listTablesFirstTime;
-        IMDPanel.__testOnly__.getTables = function() {
-            return {pTables: pTables, hTables: hTables};
-        }
-        IMDPanel.__testOnly__.getRuler = function() {
-            return ruler;
-        }
-        IMDPanel.__testOnly__.testDate = testDate;
-        IMDPanel.__testOnly__.updateTimeInputs = updateTimeInputs;
     }
     /* End Of Unit Test Only */
 }

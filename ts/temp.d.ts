@@ -193,6 +193,7 @@ declare var global: any;
 declare var expHost: string;
 declare var sqlMode: boolean;
 
+declare var skRFPredictor: any;
 /* ============== GLOBAL FUNCTIONS ============= */
 declare function setSessionName(sessionName: string): void;
 declare function getUnsortedTableName(tableName: string, otherTableName: string, txId: number, colsToIndex: string[]): XDPromise<string>;

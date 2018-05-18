@@ -1,3 +1,4 @@
+/// <reference path="../../../3rd/bower_components/moment/moment.d.ts" />
 namespace xcTimeHelper {
     // xcTimeHelper.setup
     export function setup(): void {
