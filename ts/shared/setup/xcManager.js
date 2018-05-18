@@ -126,8 +126,6 @@ window.xcManager = (function(xcManager, $) {
             'color: #ffffff; font-size:18px; font-family:Open Sans, Arial;');
 
             xcSocket.addEventsAfterSetup();
-            // get initial memory usage
-            XcSupport.memoryCheck();
             // start heartbeat check
             XcSupport.heartbeatCheck();
             deferred.resolve();
@@ -140,6 +138,8 @@ window.xcManager = (function(xcManager, $) {
         })
         .always(function() {
             $("body").removeClass("xc-setup");
+            // get initial memory usage
+            XcSupport.memoryCheck();
 
             if (!gMinModeOn) {
                 $("#initialLoadScreen").fadeOut(200, function() {

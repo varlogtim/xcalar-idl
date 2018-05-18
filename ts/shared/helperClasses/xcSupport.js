@@ -224,7 +224,9 @@ window.XcSupport = (function(XcSupport, $) {
         return deferred.promise();
 
         function refreshTables() {
-            if (jQuery.isEmptyObject(gTables) && gOrphanTables.length === 0) {
+            if (WorkbookManager.getActiveWKBK() == null) {
+                return PromiseHelper.resolve();
+            } else if (jQuery.isEmptyObject(gTables) && gOrphanTables.length === 0) {
                 // no tables, need a refresh
                 var promise = TableList.refreshOrphanList(false);
                 return PromiseHelper.alwaysResolve(promise);
