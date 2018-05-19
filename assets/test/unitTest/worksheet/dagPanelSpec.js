@@ -9,6 +9,7 @@ describe("Dag Panel Test", function() {
 
     var aggName;
     var rightMouseup;
+    var wasMicrosoft;
 
     function timeOutPromise(amtTime) {
         var waitTime = amtTime || 1000;
@@ -23,6 +24,8 @@ describe("Dag Panel Test", function() {
         console.clear();
         this.timeout(200000);
         UnitTest.onMinMode();
+        wasMicrosoft = window.isBrowserMicrosoft;
+        window.isBrowserMicrosoft = true;
 
         // Todo: clean this up.
         var aggTableName;
@@ -594,6 +597,26 @@ describe("Dag Panel Test", function() {
             expect($menu.find("li.commentOp").is(":visible")).to.be.true;
         });
 
+        it("menu on groupby should be correct", function() {
+            groupTable.$dagWrap.find(".groupBy .operationType").click();
+            expect($menu.is(":visible")).to.be.true;
+            expect($menu.find("li:visible").length).to.equal(3);
+            expect($menu.find("li.unavailable:visible").length).to.equal(1);
+            expect($menu.find("li.editOp").hasClass("unavailable")).to.be.true;
+            expect($menu.find("li.expandTag:visible").length).to.equal(1);
+        });
+
+        it("menu on join should be correct", function() {
+            groupTable.$dagWrap.find(".groupBy").removeClass("groupBy").addClass("join");
+            groupTable.$dagWrap.find(".join .operationType").click();
+            expect($menu.is(":visible")).to.be.true;
+            expect($menu.find("li:visible").length).to.equal(3);
+            expect($menu.find("li.unavailable:visible").length).to.equal(0);
+            expect($menu.find("li.editOp").hasClass("unavailable")).to.be.false;
+            expect($menu.find("li.expandTag:visible").length).to.equal(1);
+            groupTable.$dagWrap.find(".join").removeClass("join").addClass("groupBy");
+        });
+
         it("menu on index table should be correct", function() {
             smallTable.$dagWrap.find(".operationType").eq(1).click();
             expect($menu.find("li:visible").length).to.equal(2);
@@ -837,8 +860,32 @@ describe("Dag Panel Test", function() {
                     // sort by percent
                     $("#dagSchema").find(".nodeInfoHeader .sort").eq(1).click();
                     $("#dagSchema").find(".nodeInfoHeader .sort").eq(1).click();
+
                     // XXX no good way to test out % if 1 node or equal %s
                     // unless we replace data
+                });
+
+                it("showSchema with skew should work", function() {
+                    $(document).mousedown();
+                    var meta = xcHelper.deepCopy(gTables[smallTable.tableId].backTableMeta);
+                    var oldMeta = xcHelper.deepCopy(meta);
+                    console.log(meta);
+                    meta.numMetas = 2;
+                    meta.metas.push({
+                        numRows: 0
+                    });
+                    gTables[smallTable.tableId].backTableMeta = meta;
+                    $menu.find(".showSchema").trigger(fakeEvent.mouseup);
+                    expect($("#dagSchema").hasClass("heavySkew")).to.be.true;
+
+                    $(document).mousedown();
+                    meta.metas[0].numRows = 6;
+                    meta.metas[1].numRows = 2;
+                    gTables[smallTable.tableId].backTableMeta = meta;
+                    $menu.find(".showSchema").trigger(fakeEvent.mouseup);
+
+                    expect($("#dagSchema").hasClass("slightSkew")).to.be.true;
+                    gTables[smallTable.tableId].backTableMeta = oldMeta;
                 });
 
                 it("showSchema li on dropped table should work", function() {
@@ -857,6 +904,33 @@ describe("Dag Panel Test", function() {
                     $(document).mousedown();
                     gTables[tId] = cachedTable;
                 });
+
+                it("makeTempTable should work", function() {
+                    var called = false;
+                    var cache = TblManager.sendTableToTempList;
+                    TblManager.sendTableToTempList = function() {
+                        called = true;
+                    }
+                    $menu.find(".makeTempTable").trigger(rightMouseup);
+                    expect(called).to.be.false;
+                    $menu.find(".makeTempTable").removeClass('unavailable').trigger(fakeEvent.mouseup);
+                    expect(called).to.be.true;
+                    TblManager.sendTableToTempList = cache;
+                });
+
+                it("exit edit should work", function() {
+                    var called = false;
+                    var cache = DagEdit.off;
+                    DagEdit.off = function() {
+                        called = true;
+                    }
+                    $menu.find(".exitEdit").trigger(rightMouseup);
+                    expect(called).to.be.false;
+                    $menu.find(".exitEdit").removeClass('unavailable').trigger(fakeEvent.mouseup);
+                    expect(called).to.be.true;
+                    DagEdit.off = cache;
+                });
+
 
                 it("lockTable li should work", function() {
                     $menu.find(".addNoDelete").trigger(rightMouseup);
@@ -2181,6 +2255,10 @@ describe("Dag Panel Test", function() {
             expect(info.tooltip).to.equal("Filtered table \"abc\": not(x)");
             expect(info.subType).to.equal("filternot");
         });
+
+        it("Dag.hasDroppedParentAndNoMeta", function() {
+            expect(Dag.hasDroppedParentAndNoMeta(groupTable.$dagWrap.find(".groupBy").next())).to.be.false;
+        });
     });
 
     // order of tables is:
@@ -2729,6 +2807,9 @@ describe("Dag Panel Test", function() {
     after(function(done) {
         if ($("#dfPanelSwitch").hasClass("active")) {
             $("#dfPanelSwitch").click();
+        }
+        if (!wasMicrosoft) {
+            window.isBrowserMicrosoft = false;
         }
 
         timeOutPromise(500)

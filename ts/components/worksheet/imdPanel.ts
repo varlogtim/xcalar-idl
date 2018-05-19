@@ -909,7 +909,7 @@ namespace IMDPanel {
             }
             if (hTables.length) {
                 html = getListHtml(hTables);
-                $imdPanel.find(".hiddenTablesListItems").append(html);
+                $imdPanel.find(".hiddenTablesListItems").html(html);
             }
             deferred.resolve();
         })
@@ -1371,6 +1371,8 @@ namespace IMDPanel {
             }
             const html: string = getListHtml(pTables);
             $imdPanel.find(".activeTablesList").html(html);
+            html = getListHtml(hTables);
+            $imdPanel.find(".hiddenTablesListItems").html(html);
             checkDateChange();
             if (pTables.length) {
                 updateTableDetailSection(pTables[0].name);
