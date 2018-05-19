@@ -16,6 +16,17 @@ describe("SupTicketModal Test", function() {
             assert.isTrue($modal.is(":visible"));
         });
 
+        it("should refresh", function() {
+            var cache = SupTicketModal.restore;
+            var called = false;
+            SupTicketModal.restore = function() {
+                called = true;
+            }
+            $modal.find(".refresh").click();
+            expect(called).to.be.true;
+            SupTicketModal.restore = cache;
+        });
+
         it("should toggle dropdown list", function(){
             var $dropdown = $modal.find(".issueList");
             var $input = $dropdown.find(".text");
@@ -35,6 +46,19 @@ describe("SupTicketModal Test", function() {
             expect($ticketIdSection.hasClass("closed")).to.be.true;
             $ticketIdSection.removeClass("closed");
             SupTicketModal.restore = cacheFn;
+        });
+
+        it("should select severity", function() {
+            var $dropdown = $modal.find(".severityList");
+            var $input = $dropdown.find(".text");
+
+            $dropdown.find("li").eq(1).trigger(fakeEvent.mouseup);
+            expect($input.val()).to.equal("3 - General information request");
+            expect($input.data("val")).to.equal(3);
+
+            $dropdown.find("li").eq(0).trigger(fakeEvent.mouseup);
+            expect($input.val()).to.equal("4 - Feature request");
+            expect($input.data("val")).to.equal(4);
         });
 
         it("should toggle check box", function() {
@@ -74,8 +98,24 @@ describe("SupTicketModal Test", function() {
             expect($modal.find(".remainingChar").text()).to.equal("100");
             $modal.find(".subjectInput").val("hey").trigger("input");
             expect($modal.find(".remainingChar").text()).to.equal("97");
+
+            $modal.find(".subjectInput").val("a".repeat(1000)).trigger("input");
+            expect($modal.find(".remainingChar").text()).to.equal("0");
+
             $modal.find(".subjectInput").val("").trigger("input");
             expect($modal.find(".remainingChar").text()).to.equal("100");
+        });
+
+        it("subject input should not allow extra characters", function() {
+            var text = "a".repeat(100);
+            var called = false;
+            var e = $.Event("keypress", {which: keyCode.Y, preventDefault: function() {
+                called = true;
+            }});
+            var $input = $modal.find(".subjectInput");
+            $input.val(text);
+            $input.trigger(e);
+            expect(called).to.be.true;
         });
     });
 
@@ -211,6 +251,19 @@ describe("SupTicketModal Test", function() {
         });
     });
 
+    describe("functions tests", function() {
+        it("includeUpdatedTickets should work", function() {
+            var tickets = {
+                0: [{id: 0}]
+            };
+            SupTicketModal.__testOnly__.addUpdatedTickets(tickets);
+            SupTicketModal.__testOnly__.includeUpdatedTickets();
+            var tix = SupTicketModal.__testOnly__.get();
+            expect(tix.length).to.equal(3);
+            tix.splice(0, 1);
+        });
+    });
+
     describe("SupTicketModal Submit Test", function() {
         var oldSupport;
         var oldGetLicense;
@@ -273,25 +326,30 @@ describe("SupTicketModal Test", function() {
             Log.getAllLogs = cacheFn;
         });
 
-        // it("should handle submit bundle error", function(done) {
-        //     var test = false;
-        //     XcalarSupportGenerate = function() {
-        //         test = true;
-        //         return PromiseHelper.reject("test");
-        //     };
+        it("should handle submit bundle error", function(done) {
+            var test = false;
+            XcalarSupportGenerate = function() {
+                test = true;
+                return PromiseHelper.reject("test");
+            };
+            var cache = xcHelper.getAppUrl;
+            xcHelper.getAppUrl = function() {
+                return "invalid";
+            }
 
-        //     SupTicketModal.__testOnly__.submitBundle()
-        //     .then(function() {
-        //         done("fail");
-        //     })
-        //     .fail(function() {
-        //         expect(test).to.be.true;
-        //         expect($modal.hasClass("bundleError")).to.be.true;
-        //         expect($modal.find(".errorText").text())
-        //         .to.contains(ErrTStr.BundleFailed);
-        //         done();
-        //     });
-        // });
+            SupTicketModal.__testOnly__.submitBundle()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function(res) {
+                expect(res).to.equal("Not Found");
+                expect(test).to.be.true;
+                expect($modal.hasClass("bundleError")).to.be.true;
+                expect($modal.find(".errorText").text())
+                .to.contains(ErrTStr.BundleFailed);
+                done();
+            });
+        });
 
         it("should submit bundle", function(done) {
             var test = false;
@@ -390,6 +448,137 @@ describe("SupTicketModal Test", function() {
                 StatusBox.forceHide();
                 adminTools.fileTicket = cache;
                 done();
+            });
+        });
+
+        it("should show error if comment is too long", function(done) {
+            var oldVal = $modal.find(".xc-textArea").val();
+            $modal.find(".xc-textArea").val("a".repeat(10001));
+
+            var cache = adminTools.fileTicket;
+            adminTools.fileTicket = function() {
+                return PromiseHelper.reject("test");
+            };
+
+            SupTicketModal.__testOnly__.submitForm()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                UnitTest.hasStatusBoxWithError(xcHelper.replaceMsg(MonitorTStr.CharLimitErr, {
+                    "limit": xcHelper.numToStr(10000)
+                }));
+                $modal.find(".xc-textArea").val(oldVal);
+
+                adminTools.fileTicket = cache;
+                done();
+            });
+        });
+
+        it("should shandle submit error", function(done) {
+            SupTicketModal.show();
+            $modal.removeClass("bundleError");
+            XcalarSupportGenerate = function() {
+                return PromiseHelper.resolve();
+            };
+
+            adminTools.fileTicket = function() {
+                return PromiseHelper.resolve({logs: '{"ticketId":123}'});
+            };
+
+            var cache2 = SupTicketModal.fetchLicenseInfo;
+            SupTicketModal.fetchLicenseInfo = function() {
+                return PromiseHelper.resolve({key: "key", "expiration": ""});
+            };
+
+            var cache3 = SupTicketModal.submitTicket;
+            SupTicketModal.submitTicket = function() {
+                return  PromiseHelper.resolve({
+                    logs: JSON.stringify({error: "User does not belong"})
+                });
+            };
+
+            SupTicketModal.__testOnly__.submitForm()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                UnitTest.hasStatusBoxWithError(MonitorTStr.TicketErr2);
+                done();
+            })
+            .always(function() {
+                SupTicketModal.fetchLicenseInfo = cache2;
+                SupTicketModal.submitTicket = cache3;
+            });
+        });
+        it("should shandle submit error", function(done) {
+            SupTicketModal.show();
+            $modal.removeClass("bundleError");
+            XcalarSupportGenerate = function() {
+                return PromiseHelper.resolve();
+            };
+
+            adminTools.fileTicket = function() {
+                return PromiseHelper.resolve({logs: '{"ticketId":123}'});
+            };
+
+            var cache2 = SupTicketModal.fetchLicenseInfo;
+            SupTicketModal.fetchLicenseInfo = function() {
+                return PromiseHelper.resolve({key: "key", "expiration": ""});
+            };
+
+            var cache3 = SupTicketModal.submitTicket;
+            SupTicketModal.submitTicket = function() {
+                return  PromiseHelper.resolve({
+                    logs: JSON.stringify({error: "Ticket could not be found"})
+                });
+            };
+
+            SupTicketModal.__testOnly__.submitForm()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                UnitTest.hasStatusBoxWithError(MonitorTStr.TicketErr2);
+                done();
+            })
+            .always(function() {
+                SupTicketModal.fetchLicenseInfo = cache2;
+                SupTicketModal.submitTicket = cache3;
+            });
+        });
+
+
+        it("should shandle submit error", function(done) {
+            SupTicketModal.show();
+            $modal.removeClass("bundleError");
+            XcalarSupportGenerate = function() {
+                return PromiseHelper.resolve();
+            };
+
+            adminTools.fileTicket = function() {
+                return PromiseHelper.resolve({logs: '{"ticketId":123}'});
+            };
+
+            var cache2 = SupTicketModal.fetchLicenseInfo;
+            SupTicketModal.fetchLicenseInfo = function() {
+                return PromiseHelper.resolve({key: "key", "expiration": ""});
+            };
+
+            $modal.find(".customTicketRow input").val(1);
+            $modal.find(".radioButton").removeClass('active');
+            $modal.find('.issueList .text').val(CommonTxtTstr.Existing);
+
+            SupTicketModal.__testOnly__.submitForm()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                UnitTest.hasStatusBoxWithError(MonitorTStr.TicketErr1);
+                done();
+            })
+            .always(function() {
+                SupTicketModal.fetchLicenseInfo = cache2;
             });
         });
 
