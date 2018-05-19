@@ -1053,6 +1053,42 @@ function viewRelatedFunctionTest() {
         UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
     });
 
+    it("should get one record html", function() {
+        var res = Scheduler.__testOnly__.getOneRecordHtml({
+            startTime: Date.now() ,
+            endTime: Date.now() + 10000,
+            exportTarget: "target",
+            exportLocation: "location"
+        });
+        expect(res.info.indexOf(">target")).to.be.gt(-1);
+    });
+
+    it("should get icon", function() {
+        var cache = DFCard.getDFListItem;
+        var called = false;
+        DFCard.getDFListItem = function() {
+            called = true;
+            return $();
+        }
+        Scheduler.__testOnly__.existScheduleIcon("test");
+        expect(called).to.be.true;
+        DFCard.getDFListItem = cache;
+    });
+
+    it ("dataPickerUTCDisplay", function() {
+        var date = new Date("1/1/2000");
+        Scheduler.__testOnly__.dataPickerUTCDisplay(date);
+        expect($(".ui-datepicker-today").prev().hasClass("ui-state-disabled")).to.be.true;
+    });
+
+    it("getparamstring", function() {
+        var res = Scheduler.__testOnly__.getParameterStr([{
+            paramName: "N",
+            paramValue: "testVal"
+        }]);
+        expect(res.systemParameterStr.indexOf(">N")).to.be.gt(-1);
+    });
+
     after(function(done) {
         XcalarGetRetina = oldGetRetinaFunc;
         XcalarGetRetinaJson = oldGetRetinaFunc2;

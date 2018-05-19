@@ -1121,6 +1121,9 @@ window.Scheduler = (function(Scheduler, $) {
         Scheduler.__testOnly__.validateCron = validateCron;
         Scheduler.__testOnly__.updateSchedule = updateSchedule;
         Scheduler.__testOnly__.showScheduleResult = showScheduleResult;
+        Scheduler.__testOnly__.getOneRecordHtml = getOneRecordHtml;
+        Scheduler.__testOnly__.existScheduleIcon = existScheduleIcon;
+        Scheduler.__testOnly__.dataPickerUTCDisplay = dataPickerUTCDisplay;
     }
     /* End Of Unit Test Only */
 
