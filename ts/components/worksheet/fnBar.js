@@ -171,6 +171,7 @@ window.FnBar = (function(FnBar, $) {
     };
 
     FnBar.updateOperationsMap = function(opMap, isOnlyUDF) {
+        opMap = xcHelper.deepCopy(opMap);
         if (isOnlyUDF) {
             udfMap = {};
         } else {
