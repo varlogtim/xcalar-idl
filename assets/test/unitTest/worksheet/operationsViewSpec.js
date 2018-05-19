@@ -783,6 +783,22 @@ describe('OperationsView Test', function() {
             });
         });
 
+        describe("autogengroupbyname", function() {
+            it("autoGenNewGroubyName should work", function() {
+                var $el = $('<div class="groupbyGroup">' +
+                                '<div class="argsSection">' +
+                                '<div class="functionsList">' +
+                                    '<input value="test">'+
+                                '</div>' +
+                                '<input class="aggArg" value="hello">' +
+                                '<div class="colNameSection"><input class="arg"></div>' +
+                                '</div>' +
+                            '</div>');
+                OperationsView.__testOnly__.autoGenNewGroubyName($el.find(".aggArg"));
+                expect($el.find(".colNameSection .arg").val()).to.equal("hello_test");
+            });
+        });
+
         describe("column highlighting", function() {
             it("something", function(done) {
                 var $argInputs = $operationsView.find(".arg");

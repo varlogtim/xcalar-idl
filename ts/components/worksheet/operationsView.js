@@ -5019,6 +5019,8 @@ window.OperationsView = (function($, OperationsView) {
         OperationsView.__testOnly__.newColNameCheck = newColNameCheck;
         OperationsView.__testOnly__.checkArgTypes = checkArgTypes;
         OperationsView.__testOnly__.submitFinalForm = submitFinalForm;
+        OperationsView.__testOnly__.autoGenNewGroubyName = autoGenNewGroubyName;
+
         OperationsView.__testOnly__.changeParseTypeFn = function(newFn) {
             var cache = parseType;
             parseType = newFn;
