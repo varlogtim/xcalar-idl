@@ -390,6 +390,7 @@ declare namespace TooltipTStr {
     export var Saved: string;
     export var CloseQG: string;
     export var OpenQG: string;
+    export var OnlyInOpMode: string;
 }
 
 declare namespace SuccessTStr{
@@ -420,6 +421,14 @@ declare namespace ErrTStr {
     export var LicenseExpire: string;
     export var Unknown: string;
     export var NameInUse: string;
+    export var InUsedNoDelete: string;
+    export var NoSpecialCharOrSpace: string;
+    export var ParamInUse: string;
+}
+
+declare namespace ErrWRepTStr {
+    export var SystemParamConflict: string;
+    export var ParamConflict: string;
 }
 
 declare namespace ColTStr {
@@ -796,10 +805,14 @@ declare namespace Profile {
 
 declare namespace DF {
     export function wasRestored(): boolean;
+    export function getDataflow(dfName: string): any;
+    export function getParamMap(): object;
+    export function updateParamMap(paramMap: object): void;
 }
 
 declare namespace DFCard {
     export function adjustScrollBarPositionAndSize(): void;
+    export function getCurrentDF(): string;
 }
 
 declare namespace Concurrency {

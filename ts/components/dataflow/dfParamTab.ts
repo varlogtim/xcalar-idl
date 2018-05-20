@@ -161,8 +161,8 @@ namespace DFParamTab {
                 "$ele": $ele,
                 "error": ErrTStr.NoSpecialCharOrSpace,
                 "check": function() {
-                    return !xcHelper.checkNamePattern("param", "check",
-                                                      paramName);
+                    return !xcHelper.checkNamePattern(PatternCategory.Param,
+                        PatternAction.Check, paramName);
                 }
             },
             {
@@ -282,7 +282,7 @@ namespace DFParamTab {
             const df = DF.getDataflow(DFCard.getCurrentDF());
 
             if (df.checkParamInUse(paramName)) {
-                StatusBox.show(ErrTStr.ParamInUse, $paramName);
+                StatusBox.show(ErrTStr.ParamInUse, $paramName, false);
                 return;
             }
 

@@ -166,7 +166,7 @@ namespace xcTooltip {
      * @param $element Element to attach tooltip to
      * @param delay How long to show the tooltip for
      */
-    export function refresh($element: JQuery, delay: number) {
+    export function refresh($element: JQuery, delay?: number) {
         const key: string = "xc-tooltipTimer";
         const oldTimer: number = $element.data(key);
         if (oldTimer != null) {
