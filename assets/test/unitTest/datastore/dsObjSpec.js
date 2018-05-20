@@ -62,6 +62,12 @@ describe("Dataset-DSObj Test", function() {
                                 .to.be.at.least(0);
         });
 
+        it('shoud get persist home dir', () => {
+            const copy = DS.getHomeDir();
+            const homeDir = DS.getHomeDir(true);
+            expect(copy).not.to.equal(homeDir);
+        });
+
         it("should get shared dir", function() {
             var persistSharedDir = DS.getSharedDir(true);
             expect(persistSharedDir).to.be.an("object");
@@ -257,37 +263,212 @@ describe("Dataset-DSObj Test", function() {
                 DSCart.createTable = oldCreateTable;
             });
         });
+
+        it('DS.toggleSharing should toggle sharing', () => {
+            const disable = $gridView.hasClass('disableShare');
+            DS.toggleSharing(false);
+            expect($gridView.hasClass('disableShare')).to.be.false;
+            // case 2
+            DS.toggleSharing(true);
+            expect($gridView.hasClass('disableShare')).to.be.true;
+            if (!disable) {
+                DS.toggleSharing(false);
+            }
+        });
     });
 
-    // describe("DS.updateDSInfo Test", function() {
-    //     var dsId;
-    //     var dsName;
+    describe('share ds Test', () => {
+        let disableShare;
+        let dsId;
+        let dsName;
 
-    //     before(function() {
-    //         dsId = xcHelper.randName("testId");
-    //     });
+        before(() => {
+            disableShare = $gridView.hasClass('disableShare');
+            addDS();
+        });
 
-    //     it("should add DS", function() {
-    //         var oldFunc = DS.getDSObj;
-    //         DS.getDSObj = function() {
-    //             return {};
-    //         };
+        function addDS() {
+            dsName = xcHelper.randName('testDS');
+            const ds = DS.addCurrentUserDS(dsName);
+            dsId = ds.getId();
+        }
 
-    //         var arg = {
-    //             ds: {
-    //                 id: dsId,
-    //                 name: dsId,
-    //                 parentId: DSObjTerm.homeDirId
-    //             },
-    //             dir: DSObjTerm.homeDirId,
-    //             id: 0
-    //         };
-    //         DS.updateDSInfo(arg);
-    //         UnitTest.hasAlertWithTitle(DSTStr.ShareDS);
-    //         expect(DS.getDSObj(dsId)).not.to.be.null;
-    //         oldFunc = DS.getDSObj;
-    //     });
-    // });
+        it('should not share ds when disabled', () => {
+            const oldAlert = Alert.show;
+            let test = false;
+            Alert.show = () => { test = true; }; 
+            DS.toggleSharing(true);
+
+            DS.__testOnly__.shareDS(dsId);
+
+            expect(test).to.be.false;
+            Alert.show = oldAlert;
+        });
+
+        it('should share ds', () => {
+            const oldAlert = Alert.show;
+            let test = false;
+            Alert.show = () => { test = true; }; 
+
+            const $grid = $('<div class="grid-unit shared" ' +
+                            'data-dsname="' + dsName + '"></div>');
+            $gridView.append($grid);
+
+            DS.toggleSharing(false);
+
+            DS.__testOnly__.shareDS(dsId);
+
+            expect(test).to.be.true;
+            Alert.show = oldAlert;
+            $grid.remove();
+        });
+
+        it('unshareDS should work', () => {
+            const oldAlert = Alert.show;
+            let test = false;
+            Alert.show = () => { test = true; };
+
+            const $grid = $('<div class="grid-unit" ' +
+                            'data-dsname="' + dsName + '"></div>');
+            $gridView.append($grid);
+
+            DS.__testOnly__.unshareDS(dsId);
+
+            expect(test).to.be.true;
+            Alert.show = oldAlert;
+            $grid.remove();
+        });
+
+        it('shareAndUnshareHelper should handle work for unshare case', (done) => {
+            const xcSocket = XcSocket.Instance;
+            const oldSendMessage = xcSocket.sendMessage;
+            const oldRestore = DS.restore;
+
+            xcSocket.sendMessage = (name, arg, callback) => { 
+                if (typeof callback === 'function') {
+                    callback(false);
+                } 
+            };
+
+            DS.restore = () => PromiseHelper.reject('test');
+
+            const shareAndUnshareHelper = DS.__testOnly__.shareAndUnshareHelper;
+            const dsObj = DS.getDSObj(dsId);
+            shareAndUnshareHelper(dsId, dsObj.getName(), true)
+            .then(() => {
+                done('fail');
+            })
+            .fail(() => {
+                const ds = DS.getDSObj(dsId);
+                expect(ds).not.to.be.null;
+                done();
+            })
+            .always(() => {
+                xcSocket.sendMessage = oldSendMessage;
+                DS.restore = oldRestore;
+            });
+        });
+
+        it('shareAndUnshareHelper should handle work for share case', (done) => {
+            const xcSocket = XcSocket.Instance;
+            const oldSendMessage = xcSocket.sendMessage;
+            const oldLogChange = UserSettings.logChang;
+            const oldCommit = KVStore.commit;
+            const oldFocusOn = DS.focusOn;
+
+            xcSocket.sendMessage = (name, arg, callback) => { 
+                if (typeof callback === 'function') {
+                    callback(true);
+                } 
+            };
+
+            UserSettings.logChang = () => {};
+            KVStore.commit =  () => {};
+            DS.focusOn = () => {};
+
+            const shareAndUnshareHelper = DS.__testOnly__.shareAndUnshareHelper;
+            const dsObj = DS.getDSObj(dsId);
+            shareAndUnshareHelper(dsId, dsObj.getName(), false)
+            .then(() => {
+                const ds = DS.getDSObj(dsId);
+                expect(ds).not.to.be.null;
+                done();
+            })
+            .fail(() => {
+                done('fail');
+            })
+            .always(() => {
+                xcSocket.sendMessage = oldSendMessage;
+                UserSettings.logChang = oldLogChange;
+                KVStore.commit = oldCommit;
+                DS.focusOn = oldFocusOn;
+            });
+        });
+
+        it('DS.updateDSInfo should work for add case', () => {
+            const oldAlert = Alert.show;
+            let test = false;
+            Alert.show = () => { test = true; };
+
+            const ds = new DSObj(DS.getDSObj(dsId));
+            ds.parentId = DSObjTerm.homeDirId;
+            const arg = {
+                action: 'add',
+                ds: ds
+            };
+            DS.updateDSInfo(arg);
+            expect(DS.getDSObj(dsId)).not.to.be.null;
+            expect(test).to.be.true;
+            
+            Alert.show = oldAlert;
+        });
+
+        it('DS.updateDSInfo should work for rename case', () => {
+            const oldRename = DS.rename;
+            let test = false;
+            DS.rename = () => { test = true; };
+
+            const ds = DS.getDSObj(dsId);
+            const arg = {
+                action: 'rename',
+                ds: ds
+            };
+            DS.updateDSInfo(arg);
+            expect(test).to.be.true;
+            
+            DS.rename = oldRename;
+        });
+
+        it('DS.updateDSInfo should work for drop case', () => {
+            const oldGet = DS.getDSObj;
+            let test = false;
+            DS.getDSObj = () => { test = true; };
+
+            const arg = {
+                action: 'drop',
+                dsId: null,
+                targetId: null
+            };
+            DS.updateDSInfo(arg);
+            expect(test).to.be.true;
+            
+            DS.getDSObj = oldGet;
+        });
+
+        it('DS.updateDSInfo should work for delete case', () => {
+            const arg = {
+                action: 'delete',
+                dsIds: [dsId]
+            };
+            DS.updateDSInfo(arg);
+            expect(DS.getDSObj(dsId)).to.be.null;
+        });
+
+        after(() => {
+            DS.toggleSharing(disableShare);
+            DS.__testOnly__.removeDS(dsId);
+        });
+    });
 
     describe("Hide unlistable DS Test", function() {
         var $grid;

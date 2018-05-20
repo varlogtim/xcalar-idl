@@ -1369,7 +1369,7 @@ namespace IMDPanel {
                     i--;
                 }
             }
-            const html: string = getListHtml(pTables);
+            let html: string = getListHtml(pTables);
             $imdPanel.find(".activeTablesList").html(html);
             html = getListHtml(hTables);
             $imdPanel.find(".hiddenTablesListItems").html(html);

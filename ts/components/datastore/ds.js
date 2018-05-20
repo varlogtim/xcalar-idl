@@ -3061,6 +3061,9 @@ window.DS = (function ($, DS) {
         DS.__testOnly__.getSortKey = function() {
             return sortKey;
         };
+        DS.__testOnly__.shareDS = shareDS;
+        DS.__testOnly__.unshareDS = unshareDS;
+        DS.__testOnly__.shareAndUnshareHelper = shareAndUnshareHelper;
     }
     /* End Of Unit Test Only */
 
