@@ -439,6 +439,54 @@ describe('TableList Test', function() {
         });
     });
 
+    describe("Table Make No Delete and remove No Delete", function() {
+        it("make table no delete", function() {
+            var $table = $("#tableListSections").find('.tableInfo').eq(0);
+            var tableId = $table.attr("data-id");
+            TableList.makeTableNoDelete(tableId);
+
+            expect($table.find(".lockIcon").length).to.equal(1);
+        });
+        it("remove table no delete", function() {
+            var $table = $("#tableListSections").find('.tableInfo').eq(0);
+            var tableId = $table.attr("data-id");
+            TableList.removeTableNoDelete(tableId);
+
+            expect($table.find(".lockIcon").length).to.equal(0);
+        });
+    });
+
+
+    describe("table state tests", function() {
+
+        it("orphan table", function() {
+            var $table = $("#tableListSections").find('.tableInfo').eq(0);
+            var tableId = $table.attr('data-id');
+            var tableName = gTables[tableId].tableName;
+            TableList.addToOrphanList(tableName);
+
+            expect($('#orphanedTableListSection')
+                    .find('.tableInfo[data-id="' +
+                    tableId + '"]').length).to.equal(1);
+        });
+        it("Lock table", function() {
+            
+            var $table = $("#tableListSections").find('.tableInfo').eq(0);
+            var tableId = $table.attr("data-id");
+            TableList.lockTable(tableId);
+
+            expect($table.hasClass("locked")).to.be.true;
+        });
+        it("unLock table", function() {
+            var $table = $("#tableListSections").find('.tableInfo').eq(0);
+            var tableId = $table.attr("data-id");
+            TableList.unlockTable(tableId);
+
+            expect($table.hasClass("locked")).to.be.false;
+        });
+        
+    });
+
     describe("TableList.clear", function() {
         it("tablelist.clear should work", function() {
             var cachedHtml = [];
@@ -647,6 +695,66 @@ describe('TableList Test', function() {
             WSManager.getWSList = cachedGetWSList;
             WSManager.getWSById = cachedGetWSById;
             WSManager.getHiddenWSList = cachedgetHiddenWSList;
+        });
+    });
+
+    describe("table bulk operations tests", function() {
+        it("add tables test", function(done) {
+            var $table = $("#tableListSections").find('.tableInfo[data-id="ZZ3"]').eq(0);
+            var $button = $table.find(".addTableBtn");
+
+            var tableId = $table.attr("data-id");
+
+            var oldrefreshTable = TblManager.refreshTable;
+
+            TblManager.refreshTable = function() {
+                return PromiseHelper.resolve();
+            };
+
+            $button.click();
+            TableList.tableBulkAction("add", TableType.Active)
+            .then(function() {
+                $table = $('#orphanedTableListSection')
+                .find('.tableInfo[data-id="' +
+                tableId + '"]');
+                expect($table.length).to.equal(1);
+                TblManager.refreshTable = oldrefreshTable;
+                done();
+            })
+            .fail(function() {
+                TblManager.refreshTable = oldrefreshTable;
+                done("fail");
+            });
+
+
+            
+        });
+        it("delete tables test", function(done) {
+            var $table = $("#tableListSections").find('.tableInfo[data-id="ZZ3"]').eq(0);
+            var $button = $table.find(".addTableBtn");
+
+            var tableId = $table.attr("data-id");
+
+            var oldDelete = TblManager.deleteTables;
+
+            TblManager.deleteTables = function() {
+                return PromiseHelper.resolve();
+            };
+
+            $button.click();
+            TableList.tableBulkAction("delete", TableType.Active)
+            .then(function() {
+                $table = $('#activeTableListSection')
+                .find('.tableInfo[data-id="' +
+                tableId + '"]');
+                expect($table.length).to.equal(0);
+                TblManager.deleteTables = oldDelete;
+                done();
+            })
+            .fail(function() {
+                TblManager.deleteTables = oldDelete;
+                done("fail");
+            });
         });
     });
 
