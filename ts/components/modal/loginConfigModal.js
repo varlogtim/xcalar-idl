@@ -223,7 +223,7 @@ window.LoginConfigModal = (function($, LoginConfigModal) {
         if (msalConfig.msal.azureScopes.length !== msal.azureScopes.length) {
             hasDiffScopes = true;
         } else {
-            hasDiffScopes = msalConfig.msal.azureScopes.filter((scope, i) => {
+            hasDiffScopes = msalConfig.msal.azureScopes.filter(function(scope, i) {
                 return scope !== msal.azureScopes[i];
             }).length > 0;
         }

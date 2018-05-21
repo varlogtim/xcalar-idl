@@ -4145,7 +4145,7 @@ window.DSPreview = (function($, DSPreview) {
 
         var dataLen = data.length;
         var rawStrLimit = 1000; // max number of characters in undelimited column
-        var maxColumns = 1000; // max number of columns
+        var maxColumns = 1100; // max number of columns
         var colStrLimit = 250; // max number of characters in delimited column
         var i = 0;
         var d;
