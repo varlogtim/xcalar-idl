@@ -93,7 +93,7 @@ namespace xcGlobal {
         gShowDroppedTablesImage = false;
         gDefaultQDelim = '"';
         gLongTestSuite = 1;
-        gMaxDSColsSpec = 127; // Max num of columns that can be ordered, renamed, or
+        gMaxDSColsSpec = 1023; // Max num of columns that can be ordered, renamed, or
         // casted from a dataset
         gMaxColToPull = 200; // Max num of column can create directly from preview.
         gMaxSampleSize = 0; // Max Sample Size for datasets. If this is set, all
