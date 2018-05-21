@@ -2964,6 +2964,7 @@ xcalarApiUpdate = runEntity.xcalarApiUpdate = function(thriftHandle, srcTableNam
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
+        var updateOutput = result.output.outputResult.updateOutput;
         var status = result.output.hdr.status;
         var log = result.output.hdr.log;
 
@@ -2973,7 +2974,8 @@ xcalarApiUpdate = runEntity.xcalarApiUpdate = function(thriftHandle, srcTableNam
         if (status != StatusT.StatusOk) {
             deferred.reject({xcalarStatus: status, log: log});
         } else {
-            deferred.resolve(status);
+            updateOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+            deferred.resolve(updateOutput);
         }
     })
     .fail(function(error) {

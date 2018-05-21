@@ -20362,6 +20362,81 @@ XcalarApiListTablesOutputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiUpdateOutputT = function(args) {
+  this.batchIds = null;
+  if (args) {
+    if (args.batchIds !== undefined && args.batchIds !== null) {
+      this.batchIds = Thrift.copyList(args.batchIds, [null]);
+    }
+  }
+};
+XcalarApiUpdateOutputT.prototype = {};
+XcalarApiUpdateOutputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.LIST) {
+        var _size592 = 0;
+        var _rtmp3596;
+        this.batchIds = [];
+        var _etype595 = 0;
+        _rtmp3596 = input.readListBegin();
+        _etype595 = _rtmp3596.etype;
+        _size592 = _rtmp3596.size;
+        for (var _i597 = 0; _i597 < _size592; ++_i597)
+        {
+          var elem598 = null;
+          elem598 = input.readI32().value;
+          this.batchIds.push(elem598);
+        }
+        input.readListEnd();
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiUpdateOutputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiUpdateOutputT');
+  if (this.batchIds !== null && this.batchIds !== undefined) {
+    output.writeFieldBegin('batchIds', Thrift.Type.LIST, 1);
+    output.writeListBegin(Thrift.Type.I32, this.batchIds.length);
+    for (var iter599 in this.batchIds)
+    {
+      if (this.batchIds.hasOwnProperty(iter599))
+      {
+        iter599 = this.batchIds[iter599];
+        output.writeI32(iter599);
+      }
+    }
+    output.writeListEnd();
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiOutputResultT = function(args) {
   this.getVersionOutput = null;
   this.statusOutput = null;
@@ -20432,6 +20507,7 @@ XcalarApiOutputResultT = function(args) {
   this.sessionDownloadOutput = null;
   this.listTablesOutput = null;
   this.selectOutput = null;
+  this.updateOutput = null;
   if (args) {
     if (args.getVersionOutput !== undefined && args.getVersionOutput !== null) {
       this.getVersionOutput = new XcalarApiGetVersionOutputT(args.getVersionOutput);
@@ -20639,6 +20715,9 @@ XcalarApiOutputResultT = function(args) {
     }
     if (args.selectOutput !== undefined && args.selectOutput !== null) {
       this.selectOutput = new XcalarApiNewTableOutputT(args.selectOutput);
+    }
+    if (args.updateOutput !== undefined && args.updateOutput !== null) {
+      this.updateOutput = new XcalarApiUpdateOutputT(args.updateOutput);
     }
   }
 };
@@ -21207,6 +21286,14 @@ XcalarApiOutputResultT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 72:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.updateOutput = new XcalarApiUpdateOutputT();
+        this.updateOutput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -21561,6 +21648,11 @@ XcalarApiOutputResultT.prototype.write = function(output) {
   if (this.selectOutput !== null && this.selectOutput !== undefined) {
     output.writeFieldBegin('selectOutput', Thrift.Type.STRUCT, 71);
     this.selectOutput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.updateOutput !== null && this.updateOutput !== undefined) {
+    output.writeFieldBegin('updateOutput', Thrift.Type.STRUCT, 72);
+    this.updateOutput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
