@@ -931,7 +931,8 @@ DSTStr = {
 "RecordError": "Record error",
 "FileError": "File error",
 "ContainsRecordErrors": "Your dataset contains <num> record errors.<br/>Click to view.",
-"ContainsFileErrors": "Your dataset contains <num> file errors.<br/>Click to view."
+"ContainsFileErrors": "Your dataset contains <num> file errors.<br/>Click to view.",
+"OverSampleSize": "Dataset import hit sampling limit of <size>, only a portion of the specified files have been imported into the dataset."
 };
 DSFormTStr = {
 'Pattern': '模式',

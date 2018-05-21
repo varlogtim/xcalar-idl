@@ -871,7 +871,8 @@ window.DS = (function ($, DS) {
             return getDSBasicInfo(datasetName);
         })
         .then(function(dsInfos) {
-            updateDSMeta(dsInfos[datasetName], dsObj, $grid);
+            var dsInfo = dsInfos[datasetName];
+            updateDSMeta(dsInfo, dsObj, $grid);
             finishImport($grid);
 
             if (createTable) {
@@ -886,6 +887,10 @@ window.DS = (function ($, DS) {
                         $(this).fadeIn();
                     });
                 }
+            }
+
+            if (dsInfo.downSampled === true) {
+                alertSampleSizeLimit(datasetName);
             }
 
             UserSettings.logChange();
@@ -926,6 +931,17 @@ window.DS = (function ($, DS) {
         });
 
         return deferred.promise();
+    }
+
+    function alertSampleSizeLimit(dsName) {
+        var msg = xcHelper.replaceMsg(DSTStr.OverSampleSize , {
+            name: dsName,
+            size: xcHelper.sizeTranslator(gMaxSampleSize)
+        })
+        Alert.show({
+            msg: msg,
+            isAlert: true
+        });
     }
 
     function finishImport($grid) {
@@ -1502,7 +1518,8 @@ window.DS = (function ($, DS) {
                         dsInfos[name] = {
                             size: dataset.datasetSize,
                             headers: dataset.columnNames,
-                            totalNumErrors: dataset.totalNumErrors
+                            totalNumErrors: dataset.totalNumErrors,
+                            downSampled: dataset.downSampled
                         };
                     }
                 });
@@ -3064,6 +3081,7 @@ window.DS = (function ($, DS) {
         DS.__testOnly__.shareDS = shareDS;
         DS.__testOnly__.unshareDS = unshareDS;
         DS.__testOnly__.shareAndUnshareHelper = shareAndUnshareHelper;
+        DS.__testOnly__.alertSampleSizeLimit = alertSampleSizeLimit;
     }
     /* End Of Unit Test Only */
 

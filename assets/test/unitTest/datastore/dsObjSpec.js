@@ -275,6 +275,15 @@ describe("Dataset-DSObj Test", function() {
                 DS.toggleSharing(false);
             }
         });
+
+        it('should alert sample size limit', () => {
+            const oldAlert = Alert.show;
+            let test = false;
+            Alert.show = () => { test = true };
+            DS.__testOnly__.alertSampleSizeLimit('test');
+            expect(test).to.be.true;
+            Alert.show = oldAlert;
+        });
     });
 
     describe('share ds Test', () => {
