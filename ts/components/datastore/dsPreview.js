@@ -3053,8 +3053,9 @@ window.DSPreview = (function($, DSPreview) {
             paths.sort();
 
             for (var i = 0, len = paths.length; i < len; i++) {
-                var path = xcHelper.escapeDblQuoteForHTML(paths[i]);
-                var fileName = xcHelper.escapeDblQuoteForHTML(nameMap[path]);
+                var originalPath = paths[i];
+                var path = xcHelper.escapeDblQuoteForHTML(originalPath);
+                var fileName = xcHelper.escapeDblQuoteForHTML(nameMap[originalPath]);
                 html +=
                     '<li class="subPath"' +
                     'data-path="' + path + '">' +
