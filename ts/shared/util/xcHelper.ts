@@ -5564,15 +5564,82 @@ namespace xcHelper {
 
         try {
             const url: URL = new URL(href);
-            for (let p of url.searchParams) {
-                ret[p[0]] = p[1];
+            const queryStr = url.search;
+            if (!queryStr.length) {
+                return ret;
             }
+            const pairs = queryStr.substr(1).split("&");
+            pairs.forEach(function(pairStr) {
+                let pair = pairStr.split("=");
+                ret[decodeURIComponent(pair[0].replace(/\+/g,' '))] = decodeURIComponent(pair[1].replace(/\+/g,' ') || '');
+            });
         } catch (e) {
 
         }
 
         return ret;
     }
+
+    export function setURLParam(key: string, value: string) {
+        const curHref = window.location.href;
+        const url: URL = new URL(curHref);
+        const queryStr = url.search;
+        try {
+            let pairs;
+            if (queryStr.length) {
+                pairs = queryStr.substr(1).split("&");
+            } else {
+                pairs = [];
+            }
+            let found = false;
+            for (let i = 0; i < pairs.length; i++) {
+                let pair = pairs[i].split("=");
+                if (decodeURIComponent(pair[0].replace(/\+/g,' ')) === key) {
+                    pairs[i] = pair[0] + "=" + encodeURIComponent(value);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                pairs.push(encodeURIComponent(key) + "=" + encodeURIComponent(value));
+            }
+
+            return curHref.split('?')[0] + "?" + pairs.join("&");
+        } catch (e) {
+            return curHref;
+        }
+    }
+
+    /**
+     *
+     * @param key
+     */
+    export function deleteURLParam(key: string) {
+        const curHref = window.location.href;
+        const url: URL = new URL(curHref);
+        const queryStr = url.search;
+        if (!queryStr.length) {
+            return window.location.href;
+        }
+        try {
+            const pairs = queryStr.substr(1).split("&");
+            for (let i = 0; i < pairs.length; i++) {
+                let pair = pairs[i].split("=");
+                if (decodeURIComponent(pair[0].replace(/\+/g,' ')) === key) {
+                    pairs.splice(i, 1);
+                    break;
+                }
+            }
+            let newLocation = curHref.split('?')[0];
+            if (pairs.length) {
+                newLocation = newLocation + "?" + pairs.join("&");
+            }
+            return newLocation;
+        } catch (e) {
+            return curHref;
+        }
+    }
+
     export let __testOnly__: any = {};
 
     if (typeof window !== 'undefined' && window['unitTestMode']) {

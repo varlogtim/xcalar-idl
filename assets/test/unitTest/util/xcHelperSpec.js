@@ -2978,6 +2978,21 @@ describe("xcHelper Test", function() {
         .to.equal(1000);
     });
 
+    it("setURLParam should work", function() {
+        var curHref = window.location.href;
+        var res = xcHelper.setURLParam("xyz", "abc");
+        expect(res.indexOf("xyz=abc")).to.equal(curHref.length + 1);
+    });
+
+
+    it("deleteURLParam should work", function() {
+        var curHref = window.location.href;
+        expect(curHref.indexOf("workbook")).to.be.gt(-1);
+        var res = xcHelper.deleteURLParam("workbook");
+        expect(res.indexOf("workbook=")).to.equal(-1);
+    });
+
+
     after(function() {
         StatusBox.forceHide();
     });

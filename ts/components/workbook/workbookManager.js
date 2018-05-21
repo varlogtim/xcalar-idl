@@ -119,26 +119,27 @@ window.WorkbookManager = (function($, WorkbookManager) {
             var curHref = window.location.href;
             var url = new URL(window.location.href);
             var workbookName = null;
+            var newHref;
             if (workbookId != null && wkbkSet.has(workbookId)) {
                 workbookName = wkbkSet.get(workbookId).getName();
-                url.searchParams.set("workbook", workbookName);
+                newHref = xcHelper.setURLParam("workbook", workbookName);
             } else {
-                url.searchParams.delete("workbook");
+                newHref = xcHelper.deleteURLParam("workbook");
             }
 
             if (newTab) {
-                var win = window.open(url, '_blank');
+                var win = window.open(newHref, '_blank');
                 if (win) {
                     win.focus();
                 }
                 return;
             }
 
-            if (!curHref.endsWith(url.href)) {
+            if (!curHref.endsWith(newHref)) {
                 if (replace) {
-                    window.history.replaceState("view workbook", workbookName, url.href);
+                    window.history.replaceState("view workbook", workbookName, newHref);
                 } else {
-                    window.history.pushState("view workbook", workbookName, url.href);
+                    window.history.pushState("view workbook", workbookName, newHref);
                 }
             }
         } catch (e) {
