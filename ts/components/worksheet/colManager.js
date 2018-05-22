@@ -503,7 +503,6 @@ window.ColManager = (function($, ColManager) {
             }
 
             if (colNames) {
-                console.log(colNames);
                 colNames = colNames.split(",").map(function (v) {
                     return v.trim();
                 });

@@ -1489,11 +1489,12 @@ window.DS = (function ($, DS) {
             var oldSharedDSInfo = res;
             var datasetsSet = getDSBackendMeta(datasets, lockMeta,
                                                 dsBasicInfo, atStartUp);
-
-            if (atStartUp && oldSharedDSInfo == null) {
-                // it's first time that upgrade from 1.30 to 1.3.1
-                oldSharedDSInfo = rebuildOldDSInfo(datasetsSet);
-            }
+            // XXX 1.4 must upgrade from 1.3.1, so this code is deprecated
+            // and it will bring issues if a new clean user upload
+            // if (atStartUp && oldSharedDSInfo == null) {
+            //     // it's first time that upgrade from 1.30 to 1.3.1
+            //     oldSharedDSInfo = rebuildOldDSInfo(datasetsSet);
+            // }
             restoreHelper(oldHomeFolder, oldSharedDSInfo, datasetsSet);
             deferred.resolve();
         })
