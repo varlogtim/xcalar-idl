@@ -1262,7 +1262,7 @@ module.exports = {
         "RenameCols": "Prefixed columns or column names with spaces were found in your table. You can rename these columns before publishing your table to Jupyter.",
         "OriginalName": "Original Name",
         "NewName": "New Name",
-        "PUBLISH": "PUBLISH",
+        "PUBLISH": "CONVERT",
         "TemplateInstr": "Fill in the fields below prior to creating a UDF template.",
         "TemplateInstrMapUDF": "Fill in the fields below prior to creating a Map UDF" +
                     ". An additional cell will be provided to test your UDF.",
