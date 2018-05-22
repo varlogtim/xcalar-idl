@@ -923,7 +923,7 @@ DSTStr = {
 'ShareDSMsg': '您确定要共享\"<name>\"吗？',
 'UnshareDSMsg': '您确定要取消共享\"<name>\"吗？',
 'ForceShareMsg': '数据集\"<name>\"正在被其他用户使用，已被移至共享文件夹。',
-'RenameMsg': '数据集会被命名为\"<newName>\"。',
+'RenameMsg': '数据集会被命名为\"<name>\"。',
 'LockDS': '上锁',
 'UnlockDS': '解锁',
 "ContainsRecordErrors": "Your dataset contains 1record error. Click to view.",

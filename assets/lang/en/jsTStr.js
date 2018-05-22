@@ -1109,7 +1109,7 @@ DSTStr = {
     'ShareDSMsg': 'Are you sure you want to share \"<name>\"?',
     'UnshareDSMsg': 'Are you sure you want to unshare \"<name>\"?',
     'ForceShareMsg': 'Dataset \"<name>\" is being used by other users and is moved to the shared folder.',
-    'RenameMsg': 'It will be renamed to \"<newName>\".',
+    'RenameMsg': 'It will be renamed to \"<name>\".',
     "ContainsRecordErrors": "Your dataset contains <num> record errors.<br/>Click to view.",
     "ContainsFileErrors": "Your dataset contains <num> file errors.<br/>Click to view.",
     "OverSampleSize": "Dataset \"<name>\" hit sampling limit of <size>, only a portion of the specified files have been imported into the dataset."
