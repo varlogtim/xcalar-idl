@@ -849,6 +849,134 @@ describe("WorkbookManager Test", function() {
         });
     });
 
+    describe("Socket deactivate tests", function() {
+        var oldXcSocket;
+        var oldUpdateFolderName;
+        var oldActiveWkbkId;
+
+        var oldRemoveUnload;
+        var oldReload;
+        var oldActivate;
+        var oldDeactive;
+
+        before(function() {
+            oldUpdateFolderName = JupyterPanel.updateFolderName;
+            oldActiveWkbkId = WorkbookManager.getActiveWKBK();
+
+            oldXcSocket = XcSocket.unregisterUserSession;
+            XcSocket.unregisterUserSession = function() {};
+            JupyterPanel.updateFolderName = function() {};
+
+            oldRemoveUnload = xcManager.removeUnloadPrompt;
+            oldReload = xcHelper.reload;
+            // switch is slow, so use a fake one
+            oldActivate = XcalarActivateWorkbook;
+            oldDeactive = XcalarDeactivateWorkbook;
+
+            xcManager.removeUnloadPrompt = function() {};
+            xcHelper.reload = function() {};
+            XcalarActivateWorkbook = function() {
+                return PromiseHelper.resolve();
+            };
+
+            XcalarDeactivateWorkbook = function() {
+                return PromiseHelper.resolve();
+            };
+        });
+
+        it("Should deactivate workbook from socket", function() {
+            var info = {};
+            info.user = XcSupport.getUser();
+            info.action = "deactivate";
+            info.triggerWkbk = WorkbookManager.getActiveWKBK();
+
+            WorkbookManager.updateWorkbooks(info);
+            var wkbk = WorkbookManager.getWorkbook(info.triggerWkbk);
+            expect(wkbk.hasResource()).to.be.false;
+        });
+
+        it("Should switch back of workbook", function(done) {
+            WorkbookManager.switchWKBK(oldActiveWkbkId)
+            .then(function() {
+                activeWkbkId = WorkbookManager.getActiveWKBK();
+                expect(activeWkbkId).to.equal(oldActiveWkbkId);
+                assert.isTrue($("#initialLoadScreen").is(":visible"));
+                $("#initialLoadScreen").hide();
+                var wkbk = WorkbookManager.getWorkbook(activeWkbkId);
+                wkbk.setResource(true);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        after(function() {
+            XcSocket.unregisterUserSession = oldXcSocket;
+            xcManager.removeUnloadPrompt = oldRemoveUnload;
+            xcHelper.reload = oldReload;
+            XcalarActivateWorkbook = oldActivate;
+            XcalarDeactivateWorkbook = oldDeactive;
+            JupyterPanel.updateFolderName = oldUpdateFolderName;
+        });
+    });
+    describe("socket update test", function() {
+        var oldUpdateFolderName;
+        var oldGetWKBK;
+        var oldWKBKAsync;
+        var oldHoldSession;
+
+        var passed;
+
+        before(function(){
+            passed = false;
+            oldGetWKBK = WorkbookManager.getWorkbook;
+            oldWKBKAsync = WorkbookManager.getWKBKsAsync;
+            oldHoldSession = XcSupport.holdSession;
+            oldUpdateFolderName = JupyterPanel.updateFolderName;
+            WorkbookManager.getWorkbook = function() {
+                return {"jupyterFolder": "temp"};
+            };
+            WorkbookManager.getWKBKsAsync = function() {
+                return PromiseHelper.reject();
+            };
+            JupyterPanel.updateFolderName = function() {
+                passed = true;
+            };
+            WorkbookPanel.updateWorkbooks = function() {};
+            XcSupport.holdSession = function(){};
+            WorkbookInfoModal.update = function() {};
+        });
+
+        it("Should rename workbook through socket", function(done) {
+            var info = {};
+            info.user = XcSupport.getUser();
+            info.action = "rename";
+            info.newName = xcHelper.randName("newName");
+            info.triggerWkbk = WorkbookManager.getActiveWKBK();
+
+            var checkFunc = function() {
+                return passed;
+            };
+
+            WorkbookManager.updateWorkbooks(info);
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                expect($("#worksheetInfo .wkbkName").text()).to.equal(info.newName);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+        after(function() {
+            WorkbookManager.getWorkbook = oldGetWKBK;
+            WorkbookManager.getWKBKsAsync = oldWKBKAsync;
+            JupyterPanel.updateFolderName = oldUpdateFolderName;
+            XcSupport.holdSession = oldHoldSession;
+        });
+    });
+
     after(function() {
         KVStore.prototype.get = oldKVGet;
         XcalarKeyPut = oldXcalarPut;

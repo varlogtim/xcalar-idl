@@ -915,7 +915,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                     $("#worksheetInfo .wkbkName").text(info.newName);
                     var newWKBKId = getWKBKId(info.newName);
                     resetActiveWKBK(newWKBKId);
-                    var newFoldername = wkbkSet.get(newWKBKId).jupyterFolder;
+                    var newFoldername = WorkbookManager.getWorkbook(newWKBKId).jupyterFolder;
                     JupyterPanel.updateFolderName(newFoldername);
                 }
                 WorkbookPanel.updateWorkbooks(info);
