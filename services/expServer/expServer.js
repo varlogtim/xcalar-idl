@@ -2,7 +2,7 @@
 // calls that aren't used
 
 // Start of generic setup stuff
-require("jsdom").env("", function(err, window) {
+require("jsdom/lib/old-api").env("", function(err, window) {
     if (err) {
         console.error(err);
         return;

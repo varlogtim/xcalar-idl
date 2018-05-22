@@ -1463,7 +1463,7 @@ var SQLCompiler;
 var express = require('express');
 var router = express.Router();
 
-require("jsdom").env("", function(err, window) {
+require("jsdom/lib/old-api").env("", function(err, window) {
     console.log("initting jQuery");
     if (err) {
         console.error(err);

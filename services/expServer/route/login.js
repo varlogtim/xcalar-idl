@@ -1,5 +1,5 @@
 var jQuery;
-require("jsdom").env("", function(err, window) {
+require("jsdom/lib/old-api").env("", function(err, window) {
     if (err) {
         console.error(err);
         return;

@@ -12,6 +12,12 @@
   "dependencies": {
     "node": "^7.6.0",
     "node-bin-setup": "^1.0.6",
-    "puppeteer": "^1.2.0"
+    "puppeteer": "^1.2.0",
+    "istanbul": "^0.4.5",
+    "jsonwebtoken": "^8.2.1",
+    "less": "^2.6.1",
+    "ldapjs": "^1.0.0",
+    "mocha": "^3.2.0",
+    "rsa-pem-to-jwk": "^1.1.3"
   }
 }

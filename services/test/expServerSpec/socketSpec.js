@@ -120,7 +120,8 @@ describe("ExpServer Socket Test", function() {
 
     it("socket should handle refreshIMD", function(done) {
         client.emit("refreshIMD", testIMD);
-        peerClient.on(testIMD, function() {
+        peerClient.on("refreshIMD", function(res) {
+            expect(res).to.equal(testIMD);
             done();
         });
     });

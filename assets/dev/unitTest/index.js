@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+const exec = require("child_process").execSync;
 
 const commandLineArgs = process.argv;
 
@@ -26,6 +27,17 @@ async function runTest(testType, hostname) {
                 ignoreHTTPSErrors: true,
                 args: ['--no-sandbox', '--disable-setuid-sandbox']
             });
+        } else if (testType === "expServer") {
+            let exitCode = 0;
+            try {
+                let mochaTest = "NODE_ENV=test node_modules/istanbul/lib/cli.js cover mocha ../../../xcalar-gui/services/test/expServerSpec/*.js --dir ../../../services/test/report";
+                exec(mochaTest);
+                console.log("Expserver test passed.");
+            } catch (error) {
+                console.log("Expserver test failed.");
+                exitCode = error.status;
+            }
+            process.exit(exitCode);
         } else {
             browser = await puppeteer.launch({
                 headless: false,
