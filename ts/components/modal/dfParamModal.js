@@ -156,7 +156,7 @@ window.DFParamModal = (function($, DFParamModal){
                 $toggle.next().remove();
                 $toggle.remove();
                 $modal.find(".editableParamQuery .toggleGroupRow").each(function(index) {
-                    $(this).find(".toggleText").text("Source Arguments " + (index + 1));
+                    $(this).find(".toggleText").text("Data Source " + (index + 1));
                 });
                 return;
             }
@@ -810,14 +810,14 @@ window.DFParamModal = (function($, DFParamModal){
             var param = struct.eval[0].evalString;
 
             defaultText += '<div class="paramGroup">' +
-                            '<div>Filter:</div>' +
+                            '<div>Filter Operation:</div>' +
                             '<div class="boxed large">' +
                                 xcHelper.escapeHTMLSpecialChar(param) +
                             '</div>' +
                             '</div>';
 
             editableText += '<div class="paramGroup">' +
-                                '<div class="static">Filter:</div>' +
+                                '<div class="static">Filter Operation:</div>' +
                                 getParameterInputHTML(0, "large") +
                             '</div>';
             clearExportSettingTable();
