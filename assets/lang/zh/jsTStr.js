@@ -1265,7 +1265,8 @@ SQLErrTStr = {
     "NoTable": "Table or view not found: ",
     "NoKey": "key not found: ",
     "Cancel": "Operation Canceled",
-    "NoSchema": "Table doesn't exist."
+    "NoSchema": "Table doesn't exist.",
+    "Err": "SQL Error"
 };
 
 SQLInfoTStr = {

@@ -467,8 +467,11 @@ window.SQLEditor = (function(SQLEditor, $) {
         var tableId = $unit.attr("data-hashid");
         if (gTables[tableId] == null) {
             // Table doesn't exist
-            Alert.show({title: "SQL Error",
-                       msg: SQLErrTStr.NoSchema});
+            Alert.show({
+                title: SQLErrTStr.Err,
+                msg: SQLErrTStr.NoSchema,
+                isAlert: true
+            });
             SQLEditor.deleteSchemas(null, [tableId]);
             return;
         }
@@ -629,8 +632,11 @@ window.SQLEditor = (function(SQLEditor, $) {
                     // Try to republish
                     republishSchemas(sql);
                 } else if (errorMsg.indexOf(SQLErrTStr.Cancel) === -1) {
-                        Alert.show({title: "SQL Error",
-                                   msg: errorMsg});
+                        Alert.show({
+                            title: SQLErrTStr.Err,
+                            msg: errorMsg,
+                            isAlert: true
+                        });
                 }
                 deferred.reject();
             })
@@ -641,8 +647,11 @@ window.SQLEditor = (function(SQLEditor, $) {
             });
         } catch (e) {
             SQLEditor.resetProgress();
-            Alert.show({title: "Compilation Error",
-                        msg: "Error details: " + JSON.stringify(e)});
+            Alert.show({
+                title: "Compilation Error",
+                msg: "Error details: " + JSON.stringify(e),
+                isAlert: true
+            });
             deferred.reject();
         }
         return deferred.promise();

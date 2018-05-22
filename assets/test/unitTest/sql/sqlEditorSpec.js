@@ -146,7 +146,7 @@ describe("SQLEditor Test", function() {
                 }
             };
             $("#sqlExecute").click();
-            expect($("#alertHeader").find(".text").text()).to.equal("SQL Error");
+            expect($("#alertHeader").find(".text").text()).to.equal(SQLErrTStr.Err);
             SQLCompiler = oldCompiler;
             $("#alertModal").find(".cancel").click();
         });
