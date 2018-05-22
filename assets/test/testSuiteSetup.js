@@ -65,6 +65,8 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
                 xcSessionStorage.removeItem(testSuiteKey);
                 if (testType === "undoredo") {
                     return autoRunUndoTest();
+                } else if (testType === "sql") {
+                    return autoRunSQLTest();
                 } else {
                     return autoRunTestSuite();
                 }
@@ -271,6 +273,36 @@ window.TestSuiteSetup = (function(TestSuiteSetup) {
                // undotest should be handling end cases
             });
         }, delay);
+    }
+
+    function autoRunSQLTest() {
+        var deferred = PromiseHelper.deferred();
+        var params = getUrlParameters();
+        var delay = Number(params.delay);
+
+        if (isNaN(delay)) {
+            delay = 0;
+        }
+        var clean = parseBooleanParam(params.cleanup);
+        var animation = parseBooleanParam(params.animation);
+        var noPopup = parseBooleanParam(params.noPopup);
+        var mode = params.mode;
+        var timeDilation = params.timeDilation;
+
+        // console.log("delay", delay, "clean", clean, "animation", animation)
+        setTimeout(function() {
+            var def = SqlTestSuite.runSqlTests(undefined, animation, clean,
+                                        noPopup, mode, false, timeDilation);
+            def
+            .then(function(res) {
+                console.info(res);
+                reportResults(res);
+                deferred.resolve();
+            })
+            .fail(deferred.reject);
+        }, delay);
+
+        return deferred.promise();
     }
 
     function reportResults(res) {

@@ -21,7 +21,7 @@ runTest(testName, hostname);
 async function runTest(testType, hostname) {
     try {
         let browser;
-        if (testType === "testSuite") {
+        if (testType === "testSuite" || testType === "sqlTest") {
             browser = await puppeteer.launch({
                 headless: true,
                 ignoreHTTPSErrors: true,
@@ -55,6 +55,8 @@ async function runTest(testType, hostname) {
         const userName = "unitTestUser" + Math.ceil(Math.random() * 100000 + 1);
         if (testType === "testSuite") {
             url = hostname + "/testSuite.html?type=testSuite&test=y&noPopup=y&animation=y&cleanup=y&close=y&user=ts-" + userName + "&id=0&workbook=testSuite";
+        } else if (testType === "sqlTest") {
+            url = hostname + "/testSuite.html?type=sql&test=y&noPopup=y&animation=y&cleanup=y&close=y&user=ts-" + userName + "&id=0&createWorkbook=sqlTest";
         } else {
             url = hostname + "/unitTest.html?createWorkbook=y&user=" + userName;
         }

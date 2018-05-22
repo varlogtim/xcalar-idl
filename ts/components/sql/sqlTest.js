@@ -498,40 +498,57 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
 
     SqlTestSuite.runSqlTests = function(testName, hasAnimation, toClean,
                                         noPopup, mode, withUndo, timeDilation) {
+        console.log("runSqlTest: " + userIdName + "::" + sessionName);
+        console.log("arguments: " + testName + ", " + hasAnimation + ", " + toClean + ", " + noPopup + ", " + mode + ", " + withUndo + ", " + timeDilation);
         test = TestSuite.createTest();
         test.setMode(mode);
-        initializeTests(testName);
-        return test.run(hasAnimation, toClean, noPopup, withUndo, timeDilation);
+        initializeTests(testName)
+        .then(function() {
+            return test.run(hasAnimation, toClean, noPopup, withUndo, timeDilation);
+        })
     };
     function initializeTests(testName) {
         // Add all test cases here
         if (!testName) {
             console.log("Running default test cases");
         }
-        test.add(sqlTest, testName, defaultTimeout, TestCaseEnabled);
+        return sqlTest(testName);
     }
-    function sqlTest(deferred, testName, currentTestNumber) {
-        setUpTpchDatasets({});
+    function sqlTest(testName) {
+        var deferred = PromiseHelper.deferred();
+        var dataSource;
+        var tableNames;
+        var queries;
+        var isTPCH = false;
+        setUpTpchDatasets({})
+        .then(function() {
+            if (isTPCH) {
+                runAllQueries(queries, testName);
+                deferred.resolve();
+            } else {
+                // XXX TO-DO run TPC-DS queries here
+                deferred.resolve();
+            }
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
         function setUpTpchDatasets(tableStruct) {
-            var dataSource;
-            var tableNames;
-            var quries;
-            var isTPCH = false;
+            var deferred = PromiseHelper.deferred();
             if (!testName) {
                 dataSource = testDataLoc + customTables.dataSource;
                 tableNames = customTables.tableNames;
-                quries = sqlTestCases;
+                queries = sqlTestCases;
                 isTPCH = true;
             } else if (testName.toLowerCase() === "tpch") {
                 dataSource = testDataLoc + tpchTables.dataSource;
                 tableNames = tpchTables.tableNames;
-                quries = tpchCases;
+                queries = tpchCases;
                 isTPCH = true;
             } else if (testName.toLowerCase() === "tpcds") {
                 dataSource = testDataLoc + tpcdsTables.dataSource;
                 tableNames = tpcdsTables.tableNames;
                 // XXX TO-DO create TPC-DS test cases
-                // quries = tpcdsCases;
+                // queries = tpcdsCases;
             } else {
                 var error = "Test case doesn't exist";
                 console.error(error);
@@ -556,84 +573,55 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             // Remove all immediates
             PromiseHelper.chain(promiseArray)
             .then(function() {
-                WSManager.addWS();
-                if (isTPCH) {
-                    return runAllQueries(quries, testName);
-                } else {
-                    // XXX TO-DO run TPC-DS queries here
-                    return PromiseHelper.resolve();
-                }
-            })
-            .then(function() {
-                test.pass(deferred, testName, currentTestNumber);
+                deferred.resolve();
             })
             .fail(function(error) {
                 console.error(error, " failed");
-                test.fail(deferred, testName, currentTestNumber, error);
+                deferred.reject(error);
             });
+            return deferred.promise();
         }
     }
     // All helper functions
     function runAllQueries(queries, testName) {
-        var deferred = PromiseHelper.deferred();
-        var promiseArray = [];
         var answerSet;
-        var failedQueries = "";
-        var queryCount = 0;
-        var passCount = 0;
-        var wrongQueries = "";
         if (!testName) {
             answerSet = sqlTestAnswers;
         } else if (testName === "tpch") {
             answerSet = tpchAnswers;
         }
 
-        function runQuery(queryName, sqlString, index) {
-            console.log("Query name: " + queryName);
+        function runQuery(deferred, testName, currentTestNumber) {
+            console.log("Query name: " + testName);
+            var sqlString = queries[testName];
             console.log(sqlString);
-            var innerDeferred = PromiseHelper.deferred();
             // Create a new worksheet after each 5 tables have been loaded
-            if (index > 0 && index % 5 === 0) {
+            if (currentTestNumber % 5 === 1) {
                 WSManager.addWS();
             }
             SQLEditor.getEditor().setValue(sqlString);
             SQLEditor.executeSQL()
             .then(function() {
-                if (checkResult(answerSet, queryName)) {
-                    passCount++;
+                return dropTempTables();
+            })
+            .then(function() {
+                if (checkResult(answerSet, testName)) {
+                    test.pass(deferred, testName, currentTestNumber);
                 } else {
-                    wrongQueries += queryName + ",";
+                    test.fail(deferred, testName, currentTestNumber, "WrongAnswer");
                 }
-                innerDeferred.resolve();
             })
             .fail(function(error) {
                 console.error(error, "runQuery");
-                failedQueries += queryName + ",";
-                innerDeferred.reject(error);
+                test.fail(deferred, testName, currentTestNumber, error);
             });
-            return innerDeferred.promise();
         }
 
         $("#sqlTab").click();
         for (var queryName in queries) {
             var sqlString = queries[queryName];
-            promiseArray.push(runQuery.bind(window, queryName, sqlString, queryCount));
-            promiseArray.push(dropTempTables.bind(window));
-            queryCount++;
+            test.add(runQuery, queryName, defaultTimeout, TestCaseEnabled);
         }
-        PromiseHelper.chain(promiseArray)
-        .then(function(ret) {
-            console.log("Test result: " + passCount + "/" + queryCount + " passed");
-            if (wrongQueries != "") {
-                console.log("Wrong answers: " + wrongQueries.slice(0, -1));
-            }
-            deferred.resolve(ret);
-        })
-        .fail(function() {
-            deferred.reject("Failed Queries: " + failedQueries.slice(0, -1));
-        });
-
-        return deferred.promise();
     }
     function checkResult(answerSet, queryName) {
         var table = "#xcTable-" + gActiveTableId;
@@ -641,6 +629,8 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             if (row === "numOfRows") {
                 if (answerSet[queryName][row] !==
                     $("#numPages").text().split(" ")[1]) {
+                    console.log(row + ": expect " + answerSet[queryName][row]
+                        + ", get " + $("#numPages").text().split(" ")[1]);
                     test.assert(0);
                     return false;
                 }
@@ -651,6 +641,8 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                     var res = $(table + " thead" + " ." + col
                                 + " .flex-mid input").attr('value');
                     if (answers[i] !== res) {
+                        console.log(row + ": expect " + answers[i][i]
+                                    + ", get " + res);
                         test.assert(0);
                         return false;
                     }
@@ -668,11 +660,15 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                         if (Math .abs(answers[i].toFixed(2) -
                                       parseFloat(res).toFixed(2))
                                  .toFixed(2) > 0.01) {
+                            console.log(row + ": expect " + answers[i][i]
+                                        + ", get " + res);
                             test.assert(0);
                             return false;
                         }
                     } else {
                         if (answers[i] !== res) {
+                            console.log(row + ": expect " + answers[i]
+                                        + ", get " + res);
                             test.assert(0);
                             return false;
                         }
