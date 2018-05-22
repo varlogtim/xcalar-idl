@@ -35,10 +35,9 @@ body
 {
 	color: #4a4a4a;
 	font-family: "Open Sans", Arial, sans-serif, Avenir, Myriad;
-	font-weight: 400;
 	line-height: 1.5em;
-	font-size: 16px;
 	mc-hyphenate: never;
+	font-size: 16px;
 }
 
 a.MCBreadcrumbsLink
@@ -62,7 +61,7 @@ h1
 {
 	margin-bottom: 8px;
 	padding-bottom: 20px;
-	margin-top: 30px;
+	margin-top: 20px;
 	font-size: 36px;
 	color: #378cb3;
 	font-weight: 400;
@@ -274,10 +273,41 @@ p.Title
 	font-weight: bold;
 }
 
+p.TitleOnMasterPage
+{
+	font-style: italic;
+	margin-bottom: 0;
+	margin-top: 0.25em;
+}
+
+/* Publication title; used only for HTML5 output */
+
 p.subTitle
 {
 	font-size: 30pt;
 	font-weight: bold;
+}
+
+caption
+{
+	color: #1e6789;
+	mc-auto-number-format: 'CT:Table {n+} ';
+	font-weight: 600;
+	font-size: 9pt;
+	text-align: left;
+}
+
+/* Table caption */
+
+p.FigureCaption
+{
+	color: #1e6789;
+	mc-auto-number-format: 'CF:Figure {n+} ';
+	font-weight: 600;
+	text-align: center;
+	font-size: 9pt;
+	page-break-after: avoid;
+	margin-bottom: 6px;
 }
 
 img
@@ -491,3 +521,4 @@ h2.noPageBreak	/*For print medium only. */
 {
 	
 }
+

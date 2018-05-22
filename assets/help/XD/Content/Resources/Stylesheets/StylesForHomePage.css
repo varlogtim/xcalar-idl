@@ -101,7 +101,8 @@ p.Copyright
 {
 	text-align: left;
 	background-color: #d7d7d7;
-	padding-left: 50px;
+	padding-left: 0;
+	margin: 0px 10px;
 	padding-bottom: 1px;
 }
 
@@ -902,8 +903,8 @@ div.FloatingBoxesContainer	/*Container for all the floating boxes.*/
 	width: 100%;
 	padding: 0.5%;
 	margin: 0 auto;
+	height: 300px;
 	/*Set the fixed height so that the boxes have uniform height instead of varying with contents.*/
-	height: 450px;
 }
 
 .headingColor1
@@ -947,5 +948,10 @@ p.CopyrightAndPubDate
 	padding-bottom: 15px;
 	padding-left: 20px;
 	text-align: left;
+}
+
+MadCap|variable.pubTitle
+{
+	font-style: italic;
 }
 

@@ -6,7 +6,18 @@
 {
 	mcTableStyle
 	{
-		
+		border-left-style: none;
+		border-left-width: 1px;
+		border-left-color: #000000;
+		border-right-style: none;
+		border-right-width: 1px;
+		border-right-color: #000000;
+		border-top-style: solid;
+		border-top-width: 1px;
+		border-top-color: #000000;
+		border-bottom-style: solid;
+		border-bottom-width: 1px;
+		border-bottom-color: #000000;
 	}
 
 	mcTableColumnStyle
@@ -21,16 +32,16 @@
 
 	mcTableHeadStyle
 	{
-		background-color: #5cb2e8;
+		background-color: #d3d3d3;
 		separator-style: none;
 		separator-width: 3px;
 		separator-color: #ffffff;
-		color: #ffffff;
+		color: #4a4a4a;
 	}
 
 	mcTableBodyStyle
 	{
-		background-color: #d1dee6;
+		background-color: #f5f5f5;
 		separator-style: none;
 		separator-width: 3px;
 		separator-color: #ffffff;
@@ -38,7 +49,7 @@
 
 	mcTableBodyStyle
 	{
-		background-color: #ddeef2;
+		background-color: #ffffff;
 		separator-style: none;
 		separator-width: 3px;
 		separator-color: #ffffff;
@@ -163,24 +174,36 @@ mcTableFootStyle
 {
 	.TableStyle-SimpleTable
 	{
+		border-left-style: none;
+		border-left-color: #000000;
+		border-left-width: 1px;
+		border-right-style: none;
+		border-right-color: #000000;
+		border-right-width: 1px;
+		border-top-style: solid;
+		border-top-color: #000000;
+		border-top-width: 1px;
+		border-bottom-style: solid;
+		border-bottom-color: #000000;
+		border-bottom-width: 1px;
 		border-spacing: 0px 0px;
 	}
 
 	.TableStyle-SimpleTable-HeadI-Column1-Header1
 	{
-		color: #ffffff;
-		background-color: #5cb2e8;
+		color: #4a4a4a;
+		background-color: #d3d3d3;
 	}
 
 	.TableStyle-SimpleTable-HeadI-Column1-Header1 p
 	{
-		color: #ffffff;
+		color: #4a4a4a;
 	}
 
 	.TableStyle-SimpleTable-HeadE-Column1-Header1
 	{
-		color: #ffffff;
-		background-color: #5cb2e8;
+		color: #4a4a4a;
+		background-color: #d3d3d3;
 		border-bottom-width: 3px;
 		border-bottom-color: #ffffff;
 		border-bottom-style: none;
@@ -188,13 +211,13 @@ mcTableFootStyle
 
 	.TableStyle-SimpleTable-HeadE-Column1-Header1 p
 	{
-		color: #ffffff;
+		color: #4a4a4a;
 	}
 
 	.TableStyle-SimpleTable-HeadF-Column1-Header1
 	{
-		color: #ffffff;
-		background-color: #5cb2e8;
+		color: #4a4a4a;
+		background-color: #d3d3d3;
 		border-bottom-width: 3px;
 		border-bottom-color: #ffffff;
 		border-bottom-style: none;
@@ -202,24 +225,24 @@ mcTableFootStyle
 
 	.TableStyle-SimpleTable-HeadF-Column1-Header1 p
 	{
-		color: #ffffff;
+		color: #4a4a4a;
 	}
 
 	.TableStyle-SimpleTable-HeadH-Column1-Header1
 	{
-		color: #ffffff;
-		background-color: #5cb2e8;
+		color: #4a4a4a;
+		background-color: #d3d3d3;
 	}
 
 	.TableStyle-SimpleTable-HeadH-Column1-Header1 p
 	{
-		color: #ffffff;
+		color: #4a4a4a;
 	}
 
 	.TableStyle-SimpleTable-HeadD-Column1-Header1
 	{
-		color: #ffffff;
-		background-color: #5cb2e8;
+		color: #4a4a4a;
+		background-color: #d3d3d3;
 		border-bottom-width: 3px;
 		border-bottom-color: #ffffff;
 		border-bottom-style: none;
@@ -227,68 +250,68 @@ mcTableFootStyle
 
 	.TableStyle-SimpleTable-HeadD-Column1-Header1 p
 	{
-		color: #ffffff;
+		color: #4a4a4a;
 	}
 
 	.TableStyle-SimpleTable-HeadC-Column1-Header1
 	{
-		color: #ffffff;
-		background-color: #5cb2e8;
+		color: #4a4a4a;
+		background-color: #d3d3d3;
 	}
 
 	.TableStyle-SimpleTable-HeadC-Column1-Header1 p
 	{
-		color: #ffffff;
+		color: #4a4a4a;
 	}
 
 	.TableStyle-SimpleTable-HeadB-Column1-Header1
 	{
-		color: #ffffff;
-		background-color: #5cb2e8;
+		color: #4a4a4a;
+		background-color: #d3d3d3;
 	}
 
 	.TableStyle-SimpleTable-HeadB-Column1-Header1 p
 	{
-		color: #ffffff;
+		color: #4a4a4a;
 	}
 
 	.TableStyle-SimpleTable-HeadA-Column1-Header1
 	{
-		color: #ffffff;
-		background-color: #5cb2e8;
+		color: #4a4a4a;
+		background-color: #d3d3d3;
 	}
 
 	.TableStyle-SimpleTable-HeadA-Column1-Header1 p
 	{
-		color: #ffffff;
+		color: #4a4a4a;
 	}
 
 	.TableStyle-SimpleTable-HeadG-Column1-Header1
 	{
-		color: #ffffff;
-		background-color: #5cb2e8;
+		color: #4a4a4a;
+		background-color: #d3d3d3;
 	}
 
 	.TableStyle-SimpleTable-HeadG-Column1-Header1 p
 	{
-		color: #ffffff;
+		color: #4a4a4a;
 	}
 
 	.TableStyle-SimpleTable-HeadI-Column2-Header1
 	{
-		color: #ffffff;
-		background-color: #5cb2e8;
+		color: #4a4a4a;
+		background-color: #d3d3d3;
 	}
 
 	.TableStyle-SimpleTable-HeadI-Column2-Header1 p
 	{
-		color: #ffffff;
+		color: #4a4a4a;
 	}
 
 	.TableStyle-SimpleTable-HeadE-Column2-Header1
 	{
-		color: #ffffff;
-		background-color: #5cb2e8;
+		color: #4a4a4a;
+		background-color: #d3d3d3;
 		border-bottom-width: 3px;
 		border-bottom-color: #ffffff;
 		border-bottom-style: none;
@@ -296,13 +319,13 @@ mcTableFootStyle
 
 	.TableStyle-SimpleTable-HeadE-Column2-Header1 p
 	{
-		color: #ffffff;
+		color: #4a4a4a;
 	}
 
 	.TableStyle-SimpleTable-HeadF-Column2-Header1
 	{
-		color: #ffffff;
-		background-color: #5cb2e8;
+		color: #4a4a4a;
+		background-color: #d3d3d3;
 		border-bottom-width: 3px;
 		border-bottom-color: #ffffff;
 		border-bottom-style: none;
@@ -310,24 +333,24 @@ mcTableFootStyle
 
 	.TableStyle-SimpleTable-HeadF-Column2-Header1 p
 	{
-		color: #ffffff;
+		color: #4a4a4a;
 	}
 
 	.TableStyle-SimpleTable-HeadH-Column2-Header1
 	{
-		color: #ffffff;
-		background-color: #5cb2e8;
+		color: #4a4a4a;
+		background-color: #d3d3d3;
 	}
 
 	.TableStyle-SimpleTable-HeadH-Column2-Header1 p
 	{
-		color: #ffffff;
+		color: #4a4a4a;
 	}
 
 	.TableStyle-SimpleTable-HeadD-Column2-Header1
 	{
-		color: #ffffff;
-		background-color: #5cb2e8;
+		color: #4a4a4a;
+		background-color: #d3d3d3;
 		border-bottom-width: 3px;
 		border-bottom-color: #ffffff;
 		border-bottom-style: none;
@@ -335,61 +358,61 @@ mcTableFootStyle
 
 	.TableStyle-SimpleTable-HeadD-Column2-Header1 p
 	{
-		color: #ffffff;
+		color: #4a4a4a;
 	}
 
 	.TableStyle-SimpleTable-HeadC-Column2-Header1
 	{
-		color: #ffffff;
-		background-color: #5cb2e8;
+		color: #4a4a4a;
+		background-color: #d3d3d3;
 	}
 
 	.TableStyle-SimpleTable-HeadC-Column2-Header1 p
 	{
-		color: #ffffff;
+		color: #4a4a4a;
 	}
 
 	.TableStyle-SimpleTable-HeadB-Column2-Header1
 	{
-		color: #ffffff;
-		background-color: #5cb2e8;
+		color: #4a4a4a;
+		background-color: #d3d3d3;
 	}
 
 	.TableStyle-SimpleTable-HeadB-Column2-Header1 p
 	{
-		color: #ffffff;
+		color: #4a4a4a;
 	}
 
 	.TableStyle-SimpleTable-HeadA-Column2-Header1
 	{
-		color: #ffffff;
-		background-color: #5cb2e8;
+		color: #4a4a4a;
+		background-color: #d3d3d3;
 	}
 
 	.TableStyle-SimpleTable-HeadA-Column2-Header1 p
 	{
-		color: #ffffff;
+		color: #4a4a4a;
 	}
 
 	.TableStyle-SimpleTable-HeadG-Column2-Header1
 	{
-		color: #ffffff;
-		background-color: #5cb2e8;
+		color: #4a4a4a;
+		background-color: #d3d3d3;
 	}
 
 	.TableStyle-SimpleTable-HeadG-Column2-Header1 p
 	{
-		color: #ffffff;
+		color: #4a4a4a;
 	}
 
 	.TableStyle-SimpleTable-BodyI-Column1-Body1
 	{
-		background-color: #d1dee6;
+		background-color: #f5f5f5;
 	}
 
 	.TableStyle-SimpleTable-BodyE-Column1-Body1
 	{
-		background-color: #d1dee6;
+		background-color: #f5f5f5;
 		border-bottom-width: 3px;
 		border-bottom-color: #ffffff;
 		border-bottom-style: none;
@@ -397,7 +420,7 @@ mcTableFootStyle
 
 	.TableStyle-SimpleTable-BodyF-Column1-Body1
 	{
-		background-color: #d1dee6;
+		background-color: #f5f5f5;
 		border-bottom-width: 3px;
 		border-bottom-color: #ffffff;
 		border-bottom-style: none;
@@ -405,12 +428,12 @@ mcTableFootStyle
 
 	.TableStyle-SimpleTable-BodyH-Column1-Body1
 	{
-		background-color: #d1dee6;
+		background-color: #f5f5f5;
 	}
 
 	.TableStyle-SimpleTable-BodyD-Column1-Body1
 	{
-		background-color: #d1dee6;
+		background-color: #f5f5f5;
 		border-bottom-width: 3px;
 		border-bottom-color: #ffffff;
 		border-bottom-style: none;
@@ -418,32 +441,32 @@ mcTableFootStyle
 
 	.TableStyle-SimpleTable-BodyC-Column1-Body1
 	{
-		background-color: #d1dee6;
+		background-color: #f5f5f5;
 	}
 
 	.TableStyle-SimpleTable-BodyB-Column1-Body1
 	{
-		background-color: #d1dee6;
+		background-color: #f5f5f5;
 	}
 
 	.TableStyle-SimpleTable-BodyA-Column1-Body1
 	{
-		background-color: #d1dee6;
+		background-color: #f5f5f5;
 	}
 
 	.TableStyle-SimpleTable-BodyG-Column1-Body1
 	{
-		background-color: #d1dee6;
+		background-color: #f5f5f5;
 	}
 
 	.TableStyle-SimpleTable-BodyI-Column2-Body1
 	{
-		background-color: #d1dee6;
+		background-color: #f5f5f5;
 	}
 
 	.TableStyle-SimpleTable-BodyE-Column2-Body1
 	{
-		background-color: #d1dee6;
+		background-color: #f5f5f5;
 		border-bottom-width: 3px;
 		border-bottom-color: #ffffff;
 		border-bottom-style: none;
@@ -451,7 +474,7 @@ mcTableFootStyle
 
 	.TableStyle-SimpleTable-BodyF-Column2-Body1
 	{
-		background-color: #d1dee6;
+		background-color: #f5f5f5;
 		border-bottom-width: 3px;
 		border-bottom-color: #ffffff;
 		border-bottom-style: none;
@@ -459,12 +482,12 @@ mcTableFootStyle
 
 	.TableStyle-SimpleTable-BodyH-Column2-Body1
 	{
-		background-color: #d1dee6;
+		background-color: #f5f5f5;
 	}
 
 	.TableStyle-SimpleTable-BodyD-Column2-Body1
 	{
-		background-color: #d1dee6;
+		background-color: #f5f5f5;
 		border-bottom-width: 3px;
 		border-bottom-color: #ffffff;
 		border-bottom-style: none;
@@ -472,32 +495,32 @@ mcTableFootStyle
 
 	.TableStyle-SimpleTable-BodyC-Column2-Body1
 	{
-		background-color: #d1dee6;
+		background-color: #f5f5f5;
 	}
 
 	.TableStyle-SimpleTable-BodyB-Column2-Body1
 	{
-		background-color: #d1dee6;
+		background-color: #f5f5f5;
 	}
 
 	.TableStyle-SimpleTable-BodyA-Column2-Body1
 	{
-		background-color: #d1dee6;
+		background-color: #f5f5f5;
 	}
 
 	.TableStyle-SimpleTable-BodyG-Column2-Body1
 	{
-		background-color: #d1dee6;
+		background-color: #f5f5f5;
 	}
 
 	.TableStyle-SimpleTable-BodyI-Column1-Body2
 	{
-		background-color: #ddeef2;
+		background-color: #ffffff;
 	}
 
 	.TableStyle-SimpleTable-BodyE-Column1-Body2
 	{
-		background-color: #ddeef2;
+		background-color: #ffffff;
 		border-bottom-width: 3px;
 		border-bottom-color: #ffffff;
 		border-bottom-style: none;
@@ -505,7 +528,7 @@ mcTableFootStyle
 
 	.TableStyle-SimpleTable-BodyF-Column1-Body2
 	{
-		background-color: #ddeef2;
+		background-color: #ffffff;
 		border-bottom-width: 3px;
 		border-bottom-color: #ffffff;
 		border-bottom-style: none;
@@ -513,12 +536,12 @@ mcTableFootStyle
 
 	.TableStyle-SimpleTable-BodyH-Column1-Body2
 	{
-		background-color: #ddeef2;
+		background-color: #ffffff;
 	}
 
 	.TableStyle-SimpleTable-BodyD-Column1-Body2
 	{
-		background-color: #ddeef2;
+		background-color: #ffffff;
 		border-bottom-width: 3px;
 		border-bottom-color: #ffffff;
 		border-bottom-style: none;
@@ -526,32 +549,32 @@ mcTableFootStyle
 
 	.TableStyle-SimpleTable-BodyC-Column1-Body2
 	{
-		background-color: #ddeef2;
+		background-color: #ffffff;
 	}
 
 	.TableStyle-SimpleTable-BodyB-Column1-Body2
 	{
-		background-color: #ddeef2;
+		background-color: #ffffff;
 	}
 
 	.TableStyle-SimpleTable-BodyA-Column1-Body2
 	{
-		background-color: #ddeef2;
+		background-color: #ffffff;
 	}
 
 	.TableStyle-SimpleTable-BodyG-Column1-Body2
 	{
-		background-color: #ddeef2;
+		background-color: #ffffff;
 	}
 
 	.TableStyle-SimpleTable-BodyI-Column2-Body2
 	{
-		background-color: #ddeef2;
+		background-color: #ffffff;
 	}
 
 	.TableStyle-SimpleTable-BodyE-Column2-Body2
 	{
-		background-color: #ddeef2;
+		background-color: #ffffff;
 		border-bottom-width: 3px;
 		border-bottom-color: #ffffff;
 		border-bottom-style: none;
@@ -559,7 +582,7 @@ mcTableFootStyle
 
 	.TableStyle-SimpleTable-BodyF-Column2-Body2
 	{
-		background-color: #ddeef2;
+		background-color: #ffffff;
 		border-bottom-width: 3px;
 		border-bottom-color: #ffffff;
 		border-bottom-style: none;
@@ -567,12 +590,12 @@ mcTableFootStyle
 
 	.TableStyle-SimpleTable-BodyH-Column2-Body2
 	{
-		background-color: #ddeef2;
+		background-color: #ffffff;
 	}
 
 	.TableStyle-SimpleTable-BodyD-Column2-Body2
 	{
-		background-color: #ddeef2;
+		background-color: #ffffff;
 		border-bottom-width: 3px;
 		border-bottom-color: #ffffff;
 		border-bottom-style: none;
@@ -580,22 +603,22 @@ mcTableFootStyle
 
 	.TableStyle-SimpleTable-BodyC-Column2-Body2
 	{
-		background-color: #ddeef2;
+		background-color: #ffffff;
 	}
 
 	.TableStyle-SimpleTable-BodyB-Column2-Body2
 	{
-		background-color: #ddeef2;
+		background-color: #ffffff;
 	}
 
 	.TableStyle-SimpleTable-BodyA-Column2-Body2
 	{
-		background-color: #ddeef2;
+		background-color: #ffffff;
 	}
 
 	.TableStyle-SimpleTable-BodyG-Column2-Body2
 	{
-		background-color: #ddeef2;
+		background-color: #ffffff;
 	}
 }
 
