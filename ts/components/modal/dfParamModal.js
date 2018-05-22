@@ -431,7 +431,7 @@ window.DFParamModal = (function($, DFParamModal){
         var draggableInputs = "";
         var params = DF.getParamMap();
         for (paramName in params) {
-            if (!systemParams.hasOwnProperty(paramName) && isNaN(Number(paramName))) {
+            if (!(systemParams.hasOwnProperty(paramName) && isNaN(Number(paramName)))) {
                 draggableInputs += generateDraggableParams(paramName);
             }
         }

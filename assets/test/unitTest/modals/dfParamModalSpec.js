@@ -153,7 +153,7 @@ describe("DFParamModal Test", function() {
                 expect($modal.find(".list:visible").length).to.equal(1);
                 expect($modal.find(".list:visible").text().indexOf("Default")).to.be.gt(-1);
 
-                $modal.find("input.editableParamDiv").eq(1).val("x").trigger("input");
+                $modal.find("input.editableParamDiv").eq(1).val("xXX").trigger("input");
                 expect($modal.find(".list:visible").text().indexOf("Default")).to.equal(-1);
 
                 $modal.find("input.editableParamDiv").eq(1).val("de").trigger("input");
@@ -269,7 +269,7 @@ describe("DFParamModal Test", function() {
 
         it("inputs should be correct", function() {
             expect($modal.find(".template .boxed").length).to.equal(1);
-            expect($modal.find(".template").text()).to.equal("Filter:gt(" + colName + ", 3)");
+            expect($modal.find(".template").text()).to.equal("Filter Operation:gt(" + colName + ", 3)");
             var $inputs = $modal.find("input");
             expect($inputs.length).to.equal(1);
         });
@@ -741,6 +741,27 @@ describe("DFParamModal Test", function() {
         });
     });
 
+    describe("current param list", function() {
+        it("param name as a number should show", function(done) {
+            var cacheFn =  DF.getParamMap;
+            DF.getParamMap = function() {
+                return {"1": {
+                    value: "test"
+                }}
+            };
+            DFParamModal.show($dfWrap.find(".dataStore"))
+            .then(function() {
+                expect($("#draggableParam-1").length).to.equal(1);
+                DF.getParamMap = cacheFn;
+                DFParamModal.__testOnly__.closeDFParamModal();
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+    });
+
     describe("opening in advanced mode", function() {
         before(function(done) {
             DFParamModal.show($dfWrap.find(".dataStore"))
@@ -785,18 +806,6 @@ describe("DFParamModal Test", function() {
                 done("fail");
             });
         });
-        // it("should error if saving with param", function(done) {
-        //     DFParamModal.__testOnly__.storeRetina()
-        //     .then(function() {
-        //         done("fail");
-        //     })
-        //     .then(function(err) {
-        //         console.log(err);
-        //         debugger;
-        //         DFParamModal.__testOnly__.closeDFParamModal();
-        //         done();
-        //     });
-        // });
     });
 
     describe("advanced mode in other operations", function() {
