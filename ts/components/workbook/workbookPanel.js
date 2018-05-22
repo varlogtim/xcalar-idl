@@ -313,6 +313,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
             if ($this.val() === $this.parent().attr("data-original-title")) {
                 $this.removeClass("focussed");
                 $this.removeClass("error");
+                $this.attr("disabled", "disabled");
                 return;
             }
             if (!validateName($this.val(), $workbookBox.attr("data-workbook-id"), $this)) {
@@ -322,6 +323,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                 WorkbookPanel.edit($workbookBox.attr("data-workbook-id"), $(this).val())
                 .then(function() {
                     $this.removeClass("focussed");
+                    $this.attr("disabled", "disabled");
                 })
                 .fail(function() {
                     $this.addClass("error");
@@ -526,7 +528,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
             return PromiseHelper.when(deferred1, deferred2);
         })
         .then(function(id, $fauxCard) {
-            var $newCard = replaceLoadingCard($fauxCard, id);
+            var $newCard = replaceLoadingCard($fauxCard, id, true);
             return WorkbookPanel.edit(id, workbookName, description, true);
         })
         .then(deferred.resolve)
@@ -564,10 +566,10 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         return deferred.promise();
     }
 
-    function replaceLoadingCard($card, workbookId) {
+    function replaceLoadingCard($card, workbookId, isNewWKBK) {
         var classes = ["loading"];
         var workbook = WorkbookManager.getWorkbook(workbookId);
-        var $updateCard = $(createWorkbookCard(workbook, classes));
+        var $updateCard = $(createWorkbookCard(workbook, classes, isNewWKBK));
         $card.replaceWith($updateCard);
 
         var animClasses = ".label, .info, .workbookName, .rightBar";
@@ -747,7 +749,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
         });
     }
 
-    function createWorkbookCard(workbook, extraClasses) {
+    function createWorkbookCard(workbook, extraClasses, isNewWKBK) {
         var workbookId = workbook.getId() || "";
         var workbookName = workbook.getName() || "";
         var createdTime = workbook.getCreateTime() || "";
@@ -841,6 +843,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                                     '<input type="text" class="workbookName ' +
                                     'tooltipOverflow"' +
                                     ' value="' + workbookName + '"' +
+                                    (isNewWKBK ? '' : ' disabled') +
                                     ' spellcheck="false"/>' +
                                     '<i class="preview icon xi-show xc-action" ' +
                                     ' data-toggle="tooltip" data-container="body"' +
