@@ -1087,7 +1087,12 @@ window.QueryManager = (function(QueryManager, $) {
     function updateQueryTextDisplay(query, blank, errorText) {
         var queryString = "";
         if (query) {
-            var querySplit = JSON.parse('[' + query + ']');
+            var querySplit = [];
+            try {
+                querySplit = JSON.parse('[' + query + ']');
+            } catch (error) {
+                console.error(error);
+            }
             for (var i = 0; i < querySplit.length; i++) {
                 var subQuery = querySplit[i];
                 queryString += '<div class="queryRow"><pre>' + JSON.stringify(subQuery, null, 2);
