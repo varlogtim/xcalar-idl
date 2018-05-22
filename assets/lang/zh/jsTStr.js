@@ -491,7 +491,10 @@ AlertTStr = {
 "EditExitWarning": "Are you sure you want to exit edit mode and abandon all changes?",
 "FilePathError": "文件路径生成失败",
 "SendSchemaDateDetectedTitle": "Date column detected",
-"SendSchemaDateDetectedMsg": "Do you want to send schema of column(s) below as date type?"
+"SendSchemaDateDetectedMsg": "Do you want to send schema of column(s) below as date type?",
+"UnsupportedBrowser": "Unsupported Browser",
+"BrowserVersions": "You are running an unsupported browser. Please use one of the following browsers:<br>Chrome (version 65+)<br>Firefox (version 59+)<br>Safari (version 11.1+)"
+
 };
 ErrorMessageTStr = {
 'title': '错误',

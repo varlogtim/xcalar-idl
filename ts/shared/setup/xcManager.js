@@ -128,6 +128,13 @@ window.xcManager = (function(xcManager, $) {
             xcSocket.addEventsAfterSetup();
             // start heartbeat check
             XcSupport.heartbeatCheck();
+
+            if(window.isBrowserMicrosoft) {
+                Alert.error(AlertTStr.UnsupportedBrowser, "", {
+                    msgTemplate: AlertTStr.BrowserVersions,
+                    sizeToText: true
+                });
+            }
             deferred.resolve();
         })
         .fail(function(error) {

@@ -17,7 +17,6 @@ $(document).ready(function() {
     setupHostName();
     xcSessionStorage.removeItem("xcalar-username");
 
-
     getMSALConfig(hostname)
     .always(function(config) {
         if (config.hasOwnProperty('msalEnabled') &&
@@ -36,7 +35,7 @@ $(document).ready(function() {
     })
     .then(function() {
         msalSetup()
-    })
+    });
 
     if (xcLocalStorage.getItem("noSplashLogin") === "true" ||
         ($("body").hasClass("bodyXI") && !$("body").hasClass("bodyXIVideo"))) {

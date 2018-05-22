@@ -943,7 +943,7 @@ ModalHelper.prototype = {
         // hide tooltip when open the modal
         xcTooltip.hideAll();
 
-        if (!options.keepFnBar) {
+        if (!options.keepFnBar && window.FnBar) {
             FnBar.clear();
             $(".selectedCell").removeClass("selectedCell");
         }
@@ -1014,7 +1014,7 @@ ModalHelper.prototype = {
         } else if (!options.noBackground) {
             var $modalBg = $("#modalBackground");
 
-            if (gMinModeOn) {
+            if (window.gMinModeOn) {
                 $modalBg.show();
                 $modal.show();
                 deferred.resolve();
