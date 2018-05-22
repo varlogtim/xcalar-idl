@@ -363,6 +363,7 @@ ErrWRepTStr = {
 'InvalidAggLength': '聚合名称必须以<aggPrefix>为前缀，后跟用户自定义的名称',
 'InvalidSampleSize': '最大可支持大小为<size>的数据源。',
 'IntInRange': '请输入在<lowerBound>-<upperBound>之间的整数',
+'LargeFileUpload': 'Files larger than <size> may slow down the browser. Do you still want to continue?',
 };
 DemoTStr = {
 "title": '欢迎使用 Xcalar Design',

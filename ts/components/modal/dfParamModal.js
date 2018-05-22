@@ -1960,7 +1960,6 @@ window.DFParamModal = (function($, DFParamModal){
     }
 
     function closeModal(noCommit) {
-        console.log("closed");
         if (!noCommit) {
             if (hasChange) {
                 hasChange = false;

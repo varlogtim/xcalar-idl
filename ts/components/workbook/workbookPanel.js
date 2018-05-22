@@ -510,7 +510,11 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
 
     WorkbookPanel.createNewWorkbook = function(workbookName, description, file) {
         var deferred = PromiseHelper.deferred();
-        XcSupport.commitCheck()
+
+        checkFileSize(file)
+        .then(function() {
+            return XcSupport.commitCheck();
+        })
         .then(function() {
             var deferred1;
             if (!file) {
@@ -532,12 +536,42 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
             return WorkbookPanel.edit(id, workbookName, description, true);
         })
         .then(deferred.resolve)
-        .fail(function(error, $fauxCard) {
+        .fail(function(error, $fauxCard, isCancel) {
+            if (isCancel) {
+                deferred.resolve();
+                return;
+            }
+
             handleError(error || WKBKTStr.CreateErr, $("#createWKBKbtn"));
             removeWorkbookBox($fauxCard);
             deferred.reject(error);
         });
         return deferred.promise();
+    }
+
+    function checkFileSize(file) {
+        if (file == null) {
+            return PromiseHelper.resolve();
+        }
+
+        var deferred = PromiseHelper.deferred();
+        var size = file.size;
+        var sizeLimit = 5 * MB; // 5MB
+        if (size <= sizeLimit) {
+            deferred.resolve();
+        } else {
+            var msg = xcHelper.replaceMsg(ErrWRepTStr.LargeFileUpload, {
+                size: xcHelper.sizeTranslator(sizeLimit)
+            });
+            Alert.show({
+                msg: msg,
+                onConfirm: deferred.resolve,
+                onCancel: function() {
+                    deferred.reject(null, null, true);
+                }
+            });
+        }
+        return  deferred.promise();
     }
 
     function createLoadingCard($sibling) {

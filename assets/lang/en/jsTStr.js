@@ -406,7 +406,8 @@ ErrWRepTStr = {
     'InvalidAggName': 'Aggregate name must be prefixed with <aggPrefix>',
     'InvalidAggLength': 'Aggregate name must be prefixed with <aggPrefix>' +
                         ' and followed by the name',
-    'InvalidSampleSize': 'Maximum data source size is <size>.'
+    'InvalidSampleSize': 'Maximum data source size is <size>.',
+    'LargeFileUpload': 'Files larger than <size> may slow down the browser. Do you still want to continue?',
 };
 
 SQLErrTStr = {
