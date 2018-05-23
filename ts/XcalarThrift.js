@@ -1,4 +1,4 @@
-var has_require = (typeof require !== "undefined");
+var has_require = (typeof require !== "undefined" && typeof nw === "undefined");
 var tHandle;
 
 getTHandle = function() {

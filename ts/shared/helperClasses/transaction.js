@@ -7,7 +7,7 @@
     var txIdCount = 1;
     var isDeleting = false;
 
-    var has_require = (typeof require !== "undefined");
+    var has_require = (typeof require !== "undefined" && typeof nw === "undefined");
 
     // if you want to track the transaction in the monitor panel, either pass
     // a value for "steps" in options, corresponding to the number of operations
