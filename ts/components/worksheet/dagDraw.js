@@ -1635,6 +1635,9 @@ window.DagDraw = (function($, DagDraw) {
             case ("getRowNum"):
                 iconClass = "menu-extension";
                 break;
+            case ("ExecuteSQL"):
+                iconClass = "menu-sql2";
+                break;
             default:
                 noIcon = true;
                 break;
@@ -1888,7 +1891,7 @@ window.DagDraw = (function($, DagDraw) {
                     info.altName = value.dest;
                     break;
                 case ('unionInput'):
-                    node.value.indexedFields = getUnionSrcCols(node);
+                    node.value.indexedFields = getUnionSrcCols(node, isCollapsedTag);
                     info.tooltip = generateUnionTooltip(parentNames, node.value.indexedFields);
                     break;
                 default:
@@ -2031,8 +2034,14 @@ window.DagDraw = (function($, DagDraw) {
                                     joinSubType);
                 break;
             case (SQLOps.Union):
-                node.value.indexedFields = getUnionSrcCols(node);
+                node.value.indexedFields = getUnionSrcCols(node, true);
                 info.tooltip = generateUnionTooltip(parentNames, node.value.indexedFields);
+                break;
+            case ("ExecuteSQL"):
+                info.tooltip = xcHelper.escapeHTMLSpecialChar(node.value.comment);
+                info.text = "SQL";
+                info.opText = info.tooltip;
+                info.subType = "ExecuteSQL";
                 break;
             default:
                 if (taggedOp.indexOf(SQLOps.Ext) === 0) {
@@ -2195,9 +2204,20 @@ window.DagDraw = (function($, DagDraw) {
         }
     }
 
-    function getUnionSrcCols(node) {
+    function getUnionSrcCols(node, isCollapsedTag) {
         var srcColSets = [];
-        var parents = getGroupLeaves(node); // gets leaves within a tagged group
+        var parents;
+        if (isCollapsedTag) {
+            parents = getGroupLeaves(node); // gets leaves within a tagged group
+        } else {
+            for (var i = 0; i < node.value.struct.columns.length; i++) {
+                srcColSets[i] = node.value.struct.columns[i].map(function(colInfo) {
+                    return colInfo.sourceColumn;
+                });
+            }
+
+            return srcColSets;
+        }
 
         for (var i = 0; i < parents.length; i++) {
             var parentIndex = i;

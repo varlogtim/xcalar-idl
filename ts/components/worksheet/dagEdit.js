@@ -39,8 +39,19 @@ window.DagEdit = (function($, DagEdit) {
         $dagWrap.after('<div id="dagPanelEditText">Other dataflows have been hidden in edit mode.</div>');
         $("#tableListSection").append('<div id="tableListEditText">' + DFTStr.TableListNoEdit + '</div>');
         xcTooltip.add($("#monitor-delete"), {title: DFTStr.NoReleaseMemoryEdit});
-        $dagWrap.find(".tagHeader.union.expanded").find(".groupTagIcon").click();
-        $dagWrap.find(".tagHeader.join.expanded").find(".groupTagIcon").click();
+
+        // if union or join tag, collapse and only allow editing of whole group
+        $dagWrap.find(".tagHeader.union.expanded").filter(function() {
+            return $(this).data("tag").indexOf("ExecuteSQL") === -1;
+        }).find(".groupTagIcon").click();
+
+        $dagWrap.find(".tagHeader.join.expanded").filter(function() {
+            return $(this).data("tag").indexOf("ExecuteSQL") === -1;
+        }).find(".groupTagIcon").click();
+        // if tag is sql, expand and allow editing of individual parts
+        $dagWrap.find(".tagHeader.collapsed").filter(function() {
+            return $(this).data("tag").indexOf("ExecuteSQL") === 0;
+        }).find(".groupTagIcon").click();
 
         var tableId = $dagWrap.data("id");
         if (!$dagWrap.hasClass("selected")) {
@@ -151,11 +162,18 @@ window.DagEdit = (function($, DagEdit) {
         curEdit.editingNode = node;
         var api = node.value.api;
         var sourceTableNames;
-        if (api === XcalarApisT.XcalarApiUnion ||
+        if (node.value.tag && node.value.tag.indexOf("ExecuteSQL") === 0) {
+            if (api === XcalarApisT.XcalarApiUnion ||
+                api === XcalarApisT.XcalarApiJoin) {
+                    sourceTableNames = node.getSourceNames();
+            } else {
+                sourceTableNames = node.getNonIndexSourceNames();
+            }
+        } else if (api === XcalarApisT.XcalarApiUnion ||
             api === XcalarApisT.XcalarApiJoin) {
             sourceTableNames = node.getTagSourceNames();
         } else {
-            sourceTableNames = node.getNonIndexSourceNames(true);
+            sourceTableNames = node.getNonIndexSourceNames();
         }
 
         sourceTableNames = sourceTableNames.filter(function(name) {
