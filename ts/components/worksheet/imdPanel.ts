@@ -120,11 +120,12 @@ namespace IMDPanel {
      * IMDPanel.inActive
      */
     export function inActive(): void {
+        if (!isPanelActive) {
+            return;
+        }
         isPanelActive = false;
         $(window).off("resize.canvasResize");
-        if ($imdPanel && $updatePrompt) {
-            hideUpdatePrompt();
-        }
+        hideUpdatePrompt();
     }
 
     /**

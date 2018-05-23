@@ -38,6 +38,7 @@ window.xcManager = (function(xcManager, $) {
         DagPanel.setup();
         DataflowPanel.setup();
         JupyterPanel.setup();
+        IMDPanel.setup();
         setupModals();
         TutorialsSetup.setup();
         Admin.initialize();
@@ -91,7 +92,6 @@ window.xcManager = (function(xcManager, $) {
             DFParamModal.setup();
             SmartCastView.setup();
             SortView.setup();
-            IMDPanel.setup();
             WSManager.initialize(); // async
             BottomMenu.initialize(); // async
             WorkbookPanel.initialize();
