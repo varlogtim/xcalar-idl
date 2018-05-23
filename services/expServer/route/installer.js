@@ -246,16 +246,28 @@ function checkLicense(credArray, script) {
     var deferredOut = jQuery.Deferred();
     var fileLocation = licenseLocation;
     var compressedLicense = new Buffer(credArray.licenseKey, 'base64');
-    var licenseStream =  new stream.PassThrough();
+    var licenseStream = new stream.PassThrough();
 
     licenseStream.write(compressedLicense);
     licenseStream.end();
 
-    licenseFileStream = fs.createWriteStream(fileLocation);
-    licenseStream.pipe(zlib.createGunzip()).pipe(licenseFileStream);
+    var zlibStream = zlib.createGunzip();
+    var licenseFileStream = fs.createWriteStream(fileLocation);
+    licenseStream.pipe(zlibStream).pipe(licenseFileStream);
 
     var retMsg;
+    zlibStream.on('error', function(err) {
+        // will hit this when has error format license
+        console.error(err);
+        retMsg = {"status": httpStatus.InternalServerError};
+        if (err) {
+            deferredOut.reject(retMsg);
+            return;
+        }
+    });
+
     licenseFileStream.on('error', function(err) {
+        console.error(err);
         retMsg = {"status": httpStatus.InternalServerError};
         if (err) {
             deferredOut.reject(retMsg);
@@ -297,6 +309,7 @@ function checkLicense(credArray, script) {
             } else {
                 // This can be: 1. verified is false.
                 // 2. For test case when data does not contain SUCCESS or FAILURE
+                retMsg = retMsg || {"status": httpStatus.InternalServerError};
                 deferredOut.reject(retMsg);
             }
         });
