@@ -1015,6 +1015,7 @@ namespace IMDPanel {
                     // user canceled part way through restoration
                     // unpublish the rest of the inactive tables
                     // and add the restored ones to the activeTables list
+
                     const promises: XDPromise<void>[] = [];
                     for (let i = error.count; i < inactiveTables.length; i++) {
                         promises.push(XcalarUnpublishTable(inactiveTables[i].name));
@@ -1457,7 +1458,15 @@ namespace IMDPanel {
                 return ruler;
             },
             testDate: testDate,
-            updateTimeInputs: updateTimeInputs
+            updateTimeInputs: updateTimeInputs,
+            checkDateChange: checkDateChange,
+            updateTableDetailSection: updateTableDetailSection,
+            getPrevTimes: function() {
+                return {prevToTime: prevToTime, prevFromTime: prevFromTime};
+            },
+            submitRefreshTables: submitRefreshTables,
+            getClosestUpdate: getClosestUpdate,
+            listAndCheckActive: listAndCheckActive
         };
     }
     /* End Of Unit Test Only */

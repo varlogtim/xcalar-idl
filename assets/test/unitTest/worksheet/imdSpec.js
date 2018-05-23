@@ -51,6 +51,10 @@ describe('IMD Test', function() {
             expect($imdPanel.find(".update-prompt").hasClass("xc-hidden")).to.be.true;
             expect(Object.keys(IMDPanel.__testOnly__.getSelectedCells()).length).to.equal(0);
         });
+
+        after(function() {
+            IMDPanel.active();
+        });
     });
 
     describe("list functions", function() {
@@ -112,6 +116,68 @@ describe('IMD Test', function() {
             })
             .fail(function() {
                 done('failed');
+            });
+        });
+
+        it("listAndCheckActive cancel should work", function(done) {
+            var cache1 = XcalarListPublishedTables;
+            XcalarListPublishedTables = function() {
+                return PromiseHelper.resolve({tables: [{active: false, name: "one"}]});
+            };
+            var cache2 = XcalarRestoreTable;
+            XcalarRestoreTable = function() {
+                return PromiseHelper.reject({error: "canceled", count: 0});
+            };
+
+            var called = false;
+            var cache3 = XcalarUnpublishTable;
+            XcalarUnpublishTable = function() {
+                called = true;
+                XcalarListPublishedTables = function() {
+                    return PromiseHelper.reject();
+                };
+                return PromiseHelper.reject();
+            };
+            IMDPanel.__testOnly__.listAndCheckActive()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                expect(called).to.be.true;
+                XcalarListPublishedTables = cache1;
+                XcalarRestoreTable = cache2;
+                XcalarUnpublishTable = cache3;
+                done();
+            });
+        });
+
+        it("listAndCheckActive fail should work", function(done) {
+            var cache1 = XcalarListPublishedTables;
+            XcalarListPublishedTables = function() {
+                return PromiseHelper.resolve({tables: [{active: false, name: "one"}]});
+            };
+            var cache2 = XcalarRestoreTable;
+            XcalarRestoreTable = function() {
+                return PromiseHelper.reject({error: "other error"});
+            };
+
+            var called = false;
+            var cache3 = XcalarUnpublishTable;
+            XcalarUnpublishTable = function() {
+                called = true;
+                return PromiseHelper.reject();
+            };
+            IMDPanel.__testOnly__.listAndCheckActive()
+            .then(function() {
+                expect(called).to.be.false;
+                XcalarListPublishedTables = cache1;
+                XcalarRestoreTable = cache2;
+                XcalarUnpublishTable = cache3;
+                done();
+            })
+            .fail(function() {
+
+                done("fail");
             });
         });
 
@@ -188,9 +254,56 @@ describe('IMD Test', function() {
             IMDPanel.__testOnly__.updateTimeInputs();
             // XXX need to implement
         });
+        it("checkDate should work", function() {
+            var cache1 = $("#imdFromInput").attr("id", "imdFromInputTemp");
+            $("body").append('<input id="imdFromInput">');
+            // var cache2 = $("#imdToInput").datepicker;
+            $("#imdFromInput").datepicker = function() {
+                return null;
+            }
+
+            expect(IMDPanel.__testOnly__.checkDateChange()).to.be.false;
+            $("#imdFromInput").remove();
+            $("#imdFromInputTemp").attr("id", "imdFromInput");
+
+            var cacheTime = $("#imdBar").find(".fromTimeArea .timePickerBox").val();
+            $("#imdBar").find(".fromTimeArea .timePickerBox").val("0");
+            expect(IMDPanel.__testOnly__.checkDateChange()).to.be.false;
+            $("#imdBar").find(".fromTimeArea .timePickerBox").val(cacheTime);
+
+            $("#imdBar").find(".fromTimeArea .timePickerBox").val("1");
+            expect(IMDPanel.__testOnly__.checkDateChange()).to.be.false;
+            $("#imdBar").find(".fromTimeArea .timePickerBox").val(cacheTime);
+        });
+
+        it("onClose should work", function() {
+            var prevFromTime = IMDPanel.__testOnly__.getPrevTimes().prevFromTime;
+            var prevVal = $("#imdBar").find(".fromTimeArea .time").val();
+
+            $("#imdBar").find(".fromTimeArea .time").focus().trigger("focus").val("01 : 61 AM");
+            $(document).trigger("mousedown");
+            var curFromTime = IMDPanel.__testOnly__.getPrevTimes().prevFromTime;
+            expect(prevFromTime).to.not.equal(curFromTime);
+
+            $("#imdBar").find(".fromTimeArea .time").val(prevVal);
+        });
+        it("onClose should work", function() {
+            var prevToTime = IMDPanel.__testOnly__.getPrevTimes().prevToTime;
+            var prevVal = $("#imdBar").find(".toTimeArea .time").val();
+
+            $("#imdBar").find(".toTimeArea .time").focus().trigger("focus").val("01 : 61 AM");
+            $(document).trigger("mousedown");
+            var curToTime = IMDPanel.__testOnly__.getPrevTimes().prevToTime;
+            expect(prevToTime).to.not.equal(curToTime);
+
+            $("#imdBar").find(".fromTimeArea .time").val(prevVal);
+        });
     });
 
     describe("update prompt", function() {
+        it("getClosestUpdate should be null if not found", function() {
+            expect(IMDPanel.__testOnly__.getClosestUpdate("x", 0)).to.be.null;
+        })
         it("mousedown on left side should trigger update prompt", function() {
             expect($imdPanel.find(".update-prompt").is(":visible")).to.be.false;
             var e = {type: "mousedown", pageX: 340};
@@ -261,8 +374,22 @@ describe('IMD Test', function() {
     });
 
     describe("submit", function() {
-        before(function() {
-              $imdPanel.find(".tableDetailSection .batchId").last().click();
+
+        it("submitRefreshTables should fail if no selectedCells", function(done) {
+            var cells = IMDPanel.__testOnly__.getSelectedCells();
+            expect(Object.keys(cells).length).to.equal(0);
+            IMDPanel.__testOnly__.submitRefreshTables()
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                // this is what we want
+                done();
+            })
+        });
+
+        it("select cell", function() {
+            $imdPanel.find(".tableDetailSection .batchId").last().click();
 
             var cells = IMDPanel.__testOnly__.getSelectedCells();
             expect(Object.keys(cells).length).to.equal(1);
@@ -306,6 +433,91 @@ describe('IMD Test', function() {
                 WSManager.addWS = cachedFn2;
                 TblManager.refreshTable = cachedFn3;
                 done();
+            })
+            .fail(function() {
+                done("failed");
+            });
+        });
+
+        it("select cell", function() {
+            $imdPanel.find(".tableDetailSection .batchId").last().click();
+
+            var cells = IMDPanel.__testOnly__.getSelectedCells();
+            expect(Object.keys(cells).length).to.equal(1);
+            expect(cells.hasOwnProperty("test2")).to.be.true;
+            expect(cells["test2"]).to.equal(0);
+            expect($imdPanel.find(".update-prompt").is(":visible")).to.be.true;
+        });
+
+        it("submit with refreshTable fail should be handled", function(done) {
+            var cachedFn = XcalarRefreshTable;
+            var called = false;
+            XcalarRefreshTable = function(name, dstName, min, max) {
+                expect(name).to.equal("test2");
+                expect(dstName.indexOf("test2")).to.equal(0);
+                expect(min).to.equal(0);
+                expect(max).to.equal(1);
+                called = true;
+                return PromiseHelper.resolve();
+            };
+
+            var cachedFn2 = WSManager.addWS;
+            WSManager.addWS = function() {};
+
+            var cachedFn3 = TblManager.refreshTable;
+            var called2 = false;
+            TblManager.refreshTable = function(tNames) {
+                expect(tNames[0].indexOf("test2")).to.equal(0);
+                called2 = true;
+                return PromiseHelper.reject();
+            };
+
+            $imdPanel.find(".update-prompt .latest").click();
+
+            UnitTest.testFinish(function() {
+                return called2;
+            })
+            .then(function() {
+                expect(called).to.be.true;
+                expect(called2).to.be.true;
+                XcalarRefreshTable = cachedFn;
+                WSManager.addWS = cachedFn2;
+                TblManager.refreshTable = cachedFn3;
+                UnitTest.hasAlertWithTitle("Table refresh failed");
+                done();
+            })
+            .fail(function() {
+                done('failed');
+            });
+        });
+    });
+
+    describe("resizing window", function() {
+        it("resizing window should redraw canvas", function(done) {
+            var fromTime = $("#imdBar").find(".fromTimeArea input").val();
+            var toTime = $("#imdBar").find(".toTimeArea input").val();
+            var widthCache = $imdPanel.find("canvas").parent().width();
+            var newWidth = 20;
+            $imdPanel.find("canvas").parent().width(newWidth);
+
+            $(window).trigger('resize');
+            expect($("#imdBar").find(".toTimeArea input").val()).to.equal(toTime);
+            var start = Date.now();
+
+            // shouldn't change until timeout expires
+            UnitTest.testFinish(function() {
+                return $("#imdBar").find(".toTimeArea input").val() !== toTime;
+            }, 100)
+            .then(function() {
+                expect(Date.now() - start).to.be.gt(300);
+                expect($("#imdBar").find(".fromTimeArea input").val()).to.equal(fromTime);
+                expect($("#imdBar").find(".toTimeArea input").val()).to.not.equal(toTime);
+
+                $imdPanel.find("canvas").parent().width(widthCache);
+                $(window).trigger('resize');
+                setTimeout(function() {
+                    done();
+                }, 400);
             })
             .fail(function() {
                 done("failed");
@@ -399,6 +611,83 @@ describe('IMD Test', function() {
                 XcalarListPublishedTables = cachedFn;
                 done();
             });
+        });
+
+        it('refresh list should work', function(done) {
+            var cachedFn = XcalarListPublishedTables;
+            XcalarListPublishedTables = function() {
+                return PromiseHelper.resolve({tables: [
+                    {
+                        active: true,
+                        name: "test4",
+                        keys: [],
+                        updates: [
+                            {batchId: 2, numRows:12, source:"source2a", startTS: startTime},
+                            {batchId: 1, numRows:12, source:"source1a", startTS: startTime - 3600},
+                            {batchId: 0, numRows:12, source:"source0a", startTS: startTime - 7200}
+                        ],
+                        values: [{name: "testCol", type: 0}]
+                    },
+                    {
+                        active: true,
+                        name: "test5",
+                        keys: [],
+                        updates: [
+                            {batchId: 2, numRows:12, source:"source2a", startTS: startTime},
+                            {batchId: 1, numRows:12, source:"source1a", startTS: startTime - 3600},
+                            {batchId: 0, numRows:12, source:"source0a", startTS: startTime - 7200}
+                        ],
+                        values: [{name: "testCol", type: 0}]
+                    }
+                ]});
+            }
+            var tables = IMDPanel.__testOnly__.getTables();
+            tables.hTables.push(
+                {
+                    active: true,
+                    name: "test5",
+                    keys: [],
+                    updates: [
+                        {batchId: 2, numRows:12, source:"source2a", startTS: startTime},
+                        {batchId: 1, numRows:12, source:"source1a", startTS: startTime - 3600},
+                        {batchId: 0, numRows:12, source:"source0a", startTS: startTime - 7200}
+                    ],
+                    values: [{name: "testCol", type: 0}]
+                });
+            tables.hTables.push(
+                {
+                    active: true,
+                    name: "test6",
+                    keys: [],
+                    updates: [
+                        {batchId: 2, numRows:12, source:"source2a", startTS: startTime},
+                        {batchId: 1, numRows:12, source:"source1a", startTS: startTime - 3600},
+                        {batchId: 0, numRows:12, source:"source0a", startTS: startTime - 7200}
+                    ],
+                    values: [{name: "testCol", type: 0}]
+                }
+            );
+            tables = IMDPanel.__testOnly__.getTables();
+            expect(tables.hTables.length).to.equal(2);
+            $imdPanel.find(".refreshList").click();
+            setTimeout(function() {
+                var tables = IMDPanel.__testOnly__.getTables();
+                expect(tables.pTables.length).to.equal(1);
+                expect(tables.pTables[0].name).to.equal("test4");
+                expect(tables.hTables.length).to.equal(1);
+                expect(tables.hTables[0].name).to.equal("test5");
+                XcalarListPublishedTables = cachedFn;
+                done();
+            });
+        });
+    });
+
+    describe("Table detail content", function() {
+        it("no updates should show message", function() {
+            var pTables = IMDPanel.__testOnly__.getTables().pTables;
+            pTables
+            IMDPanel.__testOnly__.updateTableDetailSection("nothing");
+            expect($imdPanel.find(".tableDetailContent").text()).to.equal("No updates");
         });
     });
 
