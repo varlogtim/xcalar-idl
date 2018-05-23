@@ -18,45 +18,50 @@ window.xcManager = (function(xcManager, $) {
         xcGlobal.setup();
         xcTimeHelper.setup();
         setupThrift();
-        // XcSupport.setup() get username, so need to be at very early time
-        XcSupport.setup();
-        XVM.setup();
 
-        setupUserArea();
-        xcTooltip.setup();
-        CSHelp.setup();
-        MainMenu.setup();
-        setupWorkspaceBar();
-        StatusBox.setup();
-        StatusMessage.setup();
-        BottomMenu.setup();
-        DataStore.setup();
-        TblMenu.setup();
-        WSManager.setup();
-        MonitorPanel.setup();
-        WorkspacePanel.setup();
-        DagPanel.setup();
-        DataflowPanel.setup();
-        JupyterPanel.setup();
-        IMDPanel.setup();
-        setupModals();
-        TutorialsSetup.setup();
-        Admin.initialize();
-        xcSuggest.setup();
-        documentReadyGeneralFunction();
-
-        var xcSocket = setupSocket();
-
-        try {
-            // In case mixpanel is not loaded
-            xcMixpanel.setup();
-        } catch (error){
-            console.log("mixpanel is not loaded");
-        }
-
+        var xcSocket;
         var firstTimeUser;
 
-        XVM.checkVersionAndLicense()
+        hotPatch()
+        .then(function() {
+            // XcSupport.setup() get username, so need to be at very early time
+            XcSupport.setup();
+            XVM.setup();
+    
+            setupUserArea();
+            xcTooltip.setup();
+            CSHelp.setup();
+            MainMenu.setup();
+            setupWorkspaceBar();
+            StatusBox.setup();
+            StatusMessage.setup();
+            BottomMenu.setup();
+            DataStore.setup();
+            TblMenu.setup();
+            WSManager.setup();
+            MonitorPanel.setup();
+            WorkspacePanel.setup();
+            DagPanel.setup();
+            DataflowPanel.setup();
+            JupyterPanel.setup();
+            IMDPanel.setup();
+            setupModals();
+            TutorialsSetup.setup();
+            Admin.initialize();
+            xcSuggest.setup();
+            documentReadyGeneralFunction();
+
+            xcSocket = setupSocket();
+            try {
+                // In case mixpanel is not loaded
+                xcMixpanel.setup();
+            } catch (error){
+                console.log("mixpanel is not loaded");
+            }
+
+
+            return XVM.checkVersionAndLicense();
+        })
         .then(XVM.checkKVVersion)
         .then(function(isFirstTimeUser) {
             firstTimeUser = isFirstTimeUser;
@@ -530,6 +535,63 @@ window.xcManager = (function(xcManager, $) {
             deferred.resolve(); // still resolve it
         });
 
+        return deferred.promise();
+    }
+
+    function loadDynamicPath() {
+        var dynamicSrc = 'https://www.xcalar.com/xdscripts/dynamic.js';
+        var randId = '' + Math.ceil(Math.random() * 100000);
+        var src = dynamicSrc + '?r=' + randId;
+        return $.getScript(src);
+    }
+    
+    function checkHotPathEnable() {
+        var deferred = PromiseHelper.deferred();
+    
+        adminTools.getHotPatch()
+        .then(function(res) {
+            if (res.hotPatchEnabled) {
+                deferred.resolve();
+            } else {
+                console.info("Hot Patch is disabled");
+                deferred.reject(null, true);
+            }
+
+        })
+        .fail(function() {
+            deferred.resolve(); // still  resolve it
+        });
+    
+        return deferred.promise();
+    }
+    
+    function hotPatch() {
+        var deferred = PromiseHelper.deferred();
+    
+        checkHotPathEnable()
+        .then(function() {
+            return loadDynamicPath();
+        })
+        .then(function() {
+            try {
+                if (typeof XCPatch.patch !== 'undefined') {
+                    var promise = XCPatch.patch();
+                    if (promise != null) {
+                        return promise;
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        })
+        .then(deferred.resolve)
+        .fail(function(error, isHotPatchDisabled) {
+            if (!isHotPatchDisabled) {
+                console.error("failed to get script", error);
+            }
+            deferred.resolve(); // still resolve it
+        });
+    
         return deferred.promise();
     }
 
