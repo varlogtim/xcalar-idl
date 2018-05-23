@@ -12,9 +12,33 @@ function loadDynamicPath(): XDPromise<void> {
     return $.getScript(src);
 }
 
+function checkHotPathEnable(): XDPromise<boolean> {
+    const deferred: XDDeferred<boolean> = PromiseHelper.deferred();
+
+    adminTools.getHotPatch()
+        .then((res) => {
+            if (res.hotPatchEnabled) {
+                deferred.resolve();
+            } else {
+                console.info("Hot Patch is disabled");
+                deferred.reject(null, true);
+            }
+
+        })
+        .fail(() => {
+            deferred.resolve(); // still  resolve it
+        });
+
+    return deferred.promise();
+}
+
 function hotPatch(): XDPromise<void> {
     const deferred: XDDeferred<void> = PromiseHelper.deferred();
-    loadDynamicPath()
+
+    checkHotPathEnable()
+        .then(() => {
+            return loadDynamicPath();
+        })
         .then(() => {
             try {
                 if (typeof XCPatch.patch !== 'undefined') {
@@ -28,8 +52,10 @@ function hotPatch(): XDPromise<void> {
             }
         })
         .then(deferred.resolve)
-        .fail((error) => {
-            console.error("failed to get script", error);
+        .fail((error, isHotPatchDisabled) => {
+            if (!isHotPatchDisabled) {
+                console.error("failed to get script", error);
+            }
             deferred.resolve(); // still resolve it
         });
 
