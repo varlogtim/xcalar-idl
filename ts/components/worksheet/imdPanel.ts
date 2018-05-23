@@ -122,7 +122,9 @@ namespace IMDPanel {
     export function inActive(): void {
         isPanelActive = false;
         $(window).off("resize.canvasResize");
-        hideUpdatePrompt();
+        if ($imdPanel && $updatePrompt) {
+            hideUpdatePrompt();
+        }
     }
 
     /**
