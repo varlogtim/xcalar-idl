@@ -1009,7 +1009,7 @@ module.exports = function(grunt) {
             htmlStagingI: [HTML_STAGING_I_ABS], // for clean, you need to put the 'src' in [] else it will only delete what is within the dir
             htmlStagingII: [HTML_STAGING_II_ABS], // for clean, you need to put the 'src' in [] else it will only delete what is within the dir
             tsWatchStaging: [TS_WATCH_STAGING],
-            extraTsStaging: [EXTRA_TS_FOLDER_NAME],
+            extraTsStaging: [BLDROOT + EXTRA_TS_FOLDER_NAME],
 
             // generatel target for removing dirs/files; set src dynamically, supply abs. paths
             custom: {
