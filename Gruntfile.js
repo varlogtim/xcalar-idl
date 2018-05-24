@@ -31,10 +31,8 @@
             Remove debug code blocks
 
     OPTIONS ONLY FOR WATCH:
-        --type=<comma sep. list of FILETYPE(s)>
+        --<FILETYPE> --<FILETYPE>
             If file changes in srcdir, recompile relevant files into destdir
-            (If list begins with '-' will watch for changes in all filetypes
-            EXCEPT what is listed.)
 
             FILETYPES:
                 less     any less file in project src
@@ -44,24 +42,11 @@
                 ctor     changes in site/render/template/constructor.template.js
                 all      any of the valid file types in src or bld
 
-            ex.:
-                grunt watch --type=less,css
-                (watches for changes in any files of FILETYPE less or css)
-                grunt watch --type=-less,css
-                (watches for changes in any files of FILETYPE other than less or css)
-                grunt watch --less --css
-                (watches for changes in any files of FILETYPE less or css)
-
-        --files=<comma sep. list of specific filepaths to watch>
+            ex.: grunt watch --less --css
 
         --livereload
             ** TO GET LIVERELOAD PROPERTY TO WORK, please install the 'livereload' chrome plugin.
             Reloads browser on watched file change.
-
-        --livereload=<comma sep. list of FILETYPE(s)>
-            ** TO GET LIVERELOAD PROPERTY TO WORK, please install the 'livereload' chrome plugin.
-            Do livereload only on files of the given types.
-            (if list begins with '-', will livereload on a file of any valid FILETYPE except what is specified)
 
         --relTo=[SRC|BLD]
             if --file, --files, --dir, or --dirs specified as rel. paths,
@@ -157,8 +142,6 @@ var WATCH_TARGET_LESS = "less";
 var WATCH_TARGET_TYPESCRIPT = "ts";
 var WATCH_TARGET_JS = "js";
 var WATCH_FLAG_INITIAL_BUILD_CSS = 'buildcss';
-var WATCH_OP_WATCH_TYPES = "types";
-var WATCH_OP_FILES = "files";
 var WATCH_OP_LIVE_RELOAD = "livereload";
 
 // Global booleans to track which task. Can be both
@@ -348,12 +331,6 @@ var VALID_OPTIONS = {
         {[REQUIRES_VALUE_KEY]: true, [BLD_KEY]: true, [DESC_KEY]: "For trunk builds only: Path to xlr repo to copy in backend files from"},
     [BLD_OP_JS_MINIFICATION_CONCAT_DEPTH]:
         {[REQUIRES_VALUE_KEY]: true, [DESC_KEY]: "Depth to start minifying js files from within " + jsMapping.src},
-    [WATCH_OP_FILES]:
-        {[REQUIRES_VALUE_KEY]: true, [WATCH_KEY]: true, [DESC_KEY]: "Comma sep list of filepaths of files you'd like to watch"},
-    [WATCH_OP_WATCH_TYPES]:
-        {[REQUIRES_VALUE_KEY]: true, [VALUES_KEY]: Object.keys(WATCH_FILETYPES), [MULTI_KEY]:true, [EXCLUSION_KEY]:true, [WATCH_KEY]: true,
-        [DESC_KEY]: "A single filetype, or comma sep list of filetypes you'd like to watch.  "
-            + "\n\t\tIf list starts with -, will watch all types EXCEPT that/those specified.  "},
     [WATCH_OP_LIVE_RELOAD]: // can be used as a flag or an option
         {//[REQUIRES_VALUE_KEY]: true,
         [VALUES_KEY]: Object.keys(WATCH_FILETYPES), [MULTI_KEY]:true, [EXCLUSION_KEY]:true, [WATCH_KEY]: true,
@@ -532,8 +509,7 @@ function optionInfoString() {
 }
 
 // if you run a watch task, must specify at least one some cmd option to specify what to watch. list options here, will validate
-var WATCH_TASK_REQUIRES_ONE = [ WATCH_OP_FILES ];
-WATCH_TASK_REQUIRES_ONE = WATCH_TASK_REQUIRES_ONE.concat(Object.keys(WATCH_FILETYPES)); // all the boolean flags
+var WATCH_TASK_REQUIRES_ONE = Object.keys(WATCH_FILETYPES).concat([WATCH_FLAG_ALL]); // all the boolean flags
 
 /** tasks you want user to be able to schedule from cmd line when invoking grunt
     (any task registered in Gruntfile is callable from cmd; no way to privatize tasks)
@@ -3424,7 +3400,6 @@ module.exports = function(grunt) {
                         You want to essentially condense all those in to a single script tag for the mini file
                     */
                     if( mappingFilepaths.hasOwnProperty(equivSrcRelBld) ) {
-                        //console.log("\t\t[Remove " + src + " ].... ");
                         // delete this <script tag entirely
                         $(this).remove();
                     } else {
@@ -4912,7 +4887,6 @@ module.exports = function(grunt) {
         entire duration of those watch tasks.
     */
     grunt.task.registerTask(COMPLETE_WATCH, function() {
-
         grunt.log.debug("Stop tracking watch event");
         var target = watchEventStopTracking();
 
@@ -4923,255 +4897,61 @@ module.exports = function(grunt) {
         // set watch target's task list back to default
         grunt.log.debug("Reset tasklist for watch plugin : " + target);
         grunt.config(WATCH_PLUGIN + '.' + target + '.tasks', []);
-
-        // if all option specified, warn it could take awhile (this will display before watch reloads..)
-        if ( grunt.option(WATCH_FLAG_ALL) ) {
-            grunt.log.warn(("\nYou have chosen to watch all files in the source and build.\n"
-                + "This could take a minute or two to load...\n"
-                + "(Run with --v option to know when watch is ready\n").bold.red);
-        }
     });
 
-    /**
-        Configure the watch plugin based on user supplied cmd params
-        about watch.
-        (Example, if they pass --less and --html, get globs for these
-        approrpaite filetypes, and add to the correct plugin target
-        based on if user wants to livereload those types or not.)
+    /** Configure the watch command based on user's CLI args
     */
     function configureWatchTasksBasedOnUserParams() {
-
-        /**
-            returns list of which files to watch per watch filetype
-            , based on user params supplied.
-        */
         var watchFiles = getWatchFilesByType();
 
-        /**
-            if user wants to watch less and livereload requested,
-            then you must watch for css changes too
-        */
-        if ( watchFiles[WATCH_TARGET_LESS].length > 0 && LIVE_RELOAD_BY_TYPE[WATCH_TARGET_LESS] ) {
-            // if they are watching css but not the general flag for it
-            // but rather specific files, give warning that we are going to watch more
-            if ( watchFiles[WATCH_TARGET_CSS].length > 0 && !grunt.option(WATCH_TARGET_CSS) ) {
-                    grunt.log.writeln(("\n\tWARNING:: you specified to watch specific css files only."
-                        + "\n\tbut, you also want to watch less files and livereload them."
-                        + "\n\tDue to the way livereload works, am going to have to watch for"
-                        + "\n\tchanges in more than the css files you requested, and will be"
-                        + "\n\tlivereloading them!  Please be aware\n").bold.red);
-            }
+        if (watchFiles[WATCH_TARGET_LESS] &&
+            LIVE_RELOAD_BY_TYPE[WATCH_TARGET_LESS]) {
+            grunt.log.debug("Livereload LESS must also Livereload CSS");
             watchFiles[WATCH_TARGET_CSS] = WATCH_FILETYPES[WATCH_TARGET_CSS];
-            /**
-                You need to be watching the less and css within the same
-                target, because we are running with the spawn option false.
-                - If they are in sep targets, then you will be needing to
-                capture events (css changes)
-                triggered by sibling target (less target)
-                - since spawn false, watch target reloads each time
-                its current tasklist completes.
-                (So, as 'less' task is running
-                in one target, the first 'css' file that changes would
-                emit an event in the sibling, and reload immediately
-                since there are no tasks for it.)
-                - If you are watching
-                multiple files (even as much as just less and html),
-                then the reload takes a second or so,
-                and during this reload time, the target misses out on additional
-                css file event triggers that are being generated by the sibling.
-                Watch plugin does not catch these changes,
-                and so never sends to livereload server and browser doies not reload.
-
-                The plugin watch plugin has been modified inhouse
-                to not send any less files to the livereload server,
-                so doing it like this, you will still be able to
-                reload the browser without a refresh
-            */
             LIVE_RELOAD_BY_TYPE[WATCH_TARGET_CSS] = true;
-            LIVE_RELOAD_BY_TYPE[WATCH_TARGET_LESS] = true;
         }
 
-        /**
-            For each watch filetype with files determined to watch,
-            add those files to the watch plugin target that those files
-            are meant to be watched in
-            (see doc above the plugin for explanation)
-        */
-        var filetype, pluginTarget, targetWatchFiles;
-        for ( filetype of Object.keys(watchFiles) ) {
-            // find out which target of the watch plugin files of this type should be watched by
-            if ( LIVE_RELOAD_BY_TYPE[filetype] ) {
+        for (var filetype of Object.keys(watchFiles)) {
+            var pluginTarget = LR_OFF;
+            if (LIVE_RELOAD_BY_TYPE[filetype]) {
                 pluginTarget = LR_ON;
-            } else {
-                pluginTarget = LR_OFF;
             }
-            targetWatchFiles = grunt.config(WATCH_PLUGIN + '.' + pluginTarget + '.files');
-            targetWatchFiles = targetWatchFiles.concat(watchFiles[filetype]); // append the files found for this filetype
-            grunt.config(WATCH_PLUGIN + '.' + pluginTarget + '.files', targetWatchFiles);
+            var targetWatchFiles = grunt.config(WATCH_PLUGIN + '.' +
+                pluginTarget + '.files');
+            targetWatchFiles = targetWatchFiles.concat(watchFiles[filetype]);
+            grunt.config(WATCH_PLUGIN + '.' + pluginTarget + '.files',
+                targetWatchFiles);
         }
-
     }
 
-    /**
-
-        Returns a hash, where there is a key for each possibel watch target,
-        and value is a list of what the .files attribute should be for that
-        target, based on user params.
-        So for example, if user gave --less --html,
-        put the globs for less and html in those targets,
-        and all the other targets should be empty lists (since you don't want to watch any of those files)
-
+    /** Returns a map[watch type] => file list.
+     *  Only types that are being watched will exist in the map
     */
     function getWatchFilesByType() {
+        grunt.log.writeln("Getting list of files to watch");
 
-        grunt.log.writeln("Gather watch files...");
-
-        /**
-            keys: targets that should be run
-            value: file list for that target
-
-            Ex: if they just give --less, will want to run the less target,
-            and file list being the default for that (a glob that matches all less)
-            If they give files=<lessFile1>,<lessFile2> and no --less option, would still
-            want to run the less target, but the filelist should just be those two files
-        */
         var filesToWatchByFiletype = {};
+        var allPossibleTypes = Object.keys(WATCH_FILETYPES);
 
-        var watchFiletypes = Object.keys(WATCH_FILETYPES);
-
-        // Level HIGH: watch everything, on its default file setting
-        grunt.log.debug("HIGH LEVEL: Check if all files requested to watch");
-        if ( grunt.option(WATCH_FLAG_ALL) ) {
-            grunt.log.debug("\tUser requested all files!");
-            for ( target of watchFiletypes ) {
-                grunt.log.debug("\t\tAdding in : " + target  + " --> " + WATCH_FILETYPES[target]);
+        // Watch all files. Triggered with --all
+        if (grunt.option(WATCH_FLAG_ALL)) {
+            grunt.log.writeln("\tWatch all files");
+            for (var target of allPossibleTypes) {
                 filesToWatchByFiletype[target] = WATCH_FILETYPES[target];
-                //filesToWatchByFiletype[target] = grunt.config(WATCH_PLUGIN + '.' + target + '.' + SUPERSET);
             }
+            grunt.log.writeln("\t\t" + JSON.stringify(filesToWatchByFiletype));
             return filesToWatchByFiletype;
         }
 
-        // Level MEDIUM: watch specific types of files
-        grunt.log.debug("MEDIUM: Get files by filetype flags");
-        var typecollection = {};
-        // check first if general 'types' option specified
-        // if so, gather which groups based on if excl. or incl. variety
-        var typesVal, type, remove;
-        var watchTypesDict = {};
-        if ( grunt.option(WATCH_OP_WATCH_TYPES) ) {
-            grunt.log.debug("\tGeneral " + WATCH_OP_WATCH_TYPES + " given; determine if exclusion mode");
-            typesVal = grunt.option(WATCH_OP_WATCH_TYPES);
-            remove = false; // this boolean will tell you, what the user specifies, to remove it from the target list or add it
-            if ( typesVal.charAt(0) == '-' ) {
-                grunt.log.debug("\tExclusion mode for param");
-                // will put every possible group in, and remove only ones found from the cmd option
-                for ( validType of Object.keys(watchFiletypes) ) {
-                    watchTypesDict[validType] = true;
-                }
-                remove = true;
-                // remove the first char for specifying exclusion
-                typesVal = typesVal.substring(1, typesVal.length); // gets all but first char
-            }
-            types = typesVal.split(OPTIONS_DELIM);
-            for ( type of types ) {
-                if ( remove ) {
-                    delete watchTypesDict[type];
-                } else {
-                    watchTypesDict[type] = true;
-                }
-            }
-        }
-        // for each possible type, see if user specified via boolean flag,
-        // or as desired group via general 'type' option
-        // if so, add that glob pattern to the watchFileDict
-        for ( target of watchFiletypes ) {
-            grunt.log.debug("\tFiletype: " + target);
-            if ( grunt.option(target) || watchTypesDict.hasOwnProperty(target) ) {
-                typecollection[target] = WATCH_FILETYPES[target];
-                grunt.log.debug("\t\tADDED IN : " + typecollection[target]);
+        // Watch some file types, Triggered with --a --b --c
+        for (var target of allPossibleTypes) {
+            if (grunt.option(target)) {
+                filesToWatchByFiletype[target] = WATCH_FILETYPES[target];
             }
         }
 
-        // LOW level: watch specific files and/or dirs, config based on each
-        // if a glob for that tyupe already given, skip over it as an entry; already accountaed for
-
-        // get specific files and/or dirs user has specified
-        // put initially in hash to avoid dupes, then go through and add to config
-        var fileDict = {},
-            fileList = [];
-        var file;
-
-        /** normalize values from the possible options */
-        // list of files specified
-        if ( grunt.option(WATCH_OP_FILES) ) {
-            val = grunt.option(WATCH_OP_FILES).toString();
-            // if user specifies <param>= on cmd once - grunt.option(<param> returns a String of that value
-            // if they do more than once it returns a list.  doing toString() will put it as a comma sep list.
-            // so long as using OPTIONS_DELIM as comma sep...
-            fileList = fileList.concat(grunt.option(WATCH_OP_FILES).toString().split(OPTIONS_DELIM));
-        }
-        // put in hash to eliminate any dupes and retrieve for final unique list
-        for ( file of fileList ) {
-            fileDict[file] = true;
-        }
-
-        /**
-             go through the individual files.
-            if its in one that superscenes (i.e., an html src file standalone, when html full src already registered),
-            skip, else, make sure exists, etc., and add in for that filetype
-        */
-        var filecollection = {};
-        grunt.log.debug("LOW: get files specified by name");
-        for ( file of Object.keys(fileDict) ) {
-            // get filetype
-            grunt.log.debug("\tFile requested: " + file + " get filetype");
-            filetype = getWatchFileType(file);
-            grunt.log.debug("\t\tfiletype: " + filetype);
-            // if already an entry for thie filestype, skip; glob will include it
-            if ( !typecollection.hasOwnProperty(filetype) ) {
-
-                // if its an absolute path, determine if its a bld or src file
-                if ( !grunt.file.isPathAbsolute(file) ) {
-                    file = WATCH_FILES_REL_TO + file;
-                }
-
-                // now that path been normalized to abs; check it exists
-                if ( !grunt.file.isFile(file) || !grunt.file.exists(file) ) {
-                    grunt.log.warn("Either file " + file + " is not a file or is not accessible.  I will not watch this file.");
-                    grunt.fail.fatal("Doesn't exist!");
-                }
-
-                if ( !filecollection.hasOwnProperty(filetype) ) {
-                    filecollection[filetype] = [];
-                }
-                filecollection[filetype].push(file);
-            }
-        }
-
-        // go through all the available watch targets and fill in now
-        grunt.log.debug("populate final watch filetype categories");
-        for ( target of watchFiletypes ) {
-            grunt.log.debug("\tFiletype: " + target);
-            if ( typecollection.hasOwnProperty(target) ) {
-                grunt.log.debug("\t --> found files by type matching");
-                filesToWatchByFiletype[target] = typecollection[target];
-            } else if ( filecollection.hasOwnProperty(target) ) {
-                grunt.log.debug("\t --> found individual files for this filetypee");
-                filesToWatchByFiletype[target] = filecollection[target];
-            } else {
-                // nothing there
-                grunt.log.debug("\t --> nothing for this filetype");
-                filesToWatchByFiletype[target] = [];
-            }
-        }
-
-        var watchFilesList = Object.keys(filesToWatchByFiletype);
-        grunt.log.writeln("\nFiles to watch, by filetype::");
-        for ( target of Object.keys(filesToWatchByFiletype) ) {
-            if ( filesToWatchByFiletype[target].length > 0 ) {
-                grunt.log.writeln("\t>>: " + filesToWatchByFiletype[target]);
-            }
-        }
+        grunt.log.writeln("\tWatching some types: " +
+            JSON.stringify(filesToWatchByFiletype));
 
         return filesToWatchByFiletype;
     }
@@ -5185,7 +4965,7 @@ module.exports = function(grunt) {
         var reloadByType = {};
         var reloadDefault = false;
         var reloadTypes = [];
-        var watchFiletypes = Object.keys(WATCH_FILETYPES);
+        var allPossibleTypes = Object.keys(WATCH_FILETYPES);
 
         if (grunt.option(WATCH_OP_LIVE_RELOAD)) {
             grunt.log.writeln(("To enable livereload, you need to install the" +
@@ -5206,7 +4986,7 @@ module.exports = function(grunt) {
             }
         }
 
-        for (var type of watchFiletypes) {
+        for (var type of allPossibleTypes) {
             if (reloadTypes.indexOf(type) > -1) {
                 reloadByType[type] = !reloadDefault;
             } else {
@@ -5313,7 +5093,7 @@ module.exports = function(grunt) {
         grunt.log.writeln(("Frequently used commands:").red);
         grunt.log.writeln(("\tFrontend devs:").green);
         grunt.log.writeln("\t\tgrunt dev // Wait for completion");
-        grunt.log.writeln("\t\tgrunt watch --html --less --js --ts --ctor");
+        grunt.log.writeln("\t\tgrunt watch --all");
         grunt.log.writeln(("\tBackend devs:").green);
         grunt.log.writeln("\t\tInstaller build: grunt installer");
         grunt.log.writeln("\t\tTest out thrift change: grunt trunk");
