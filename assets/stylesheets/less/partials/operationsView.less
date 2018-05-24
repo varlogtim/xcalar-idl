@@ -2255,12 +2255,27 @@ html.firefox {
             margin-left: 15px;
 
             .header {
-                .size(@width: 50px);
+                .size(@width: 70px);
                 float: left;
             }
 
             .dropDownList, button {
-                .size(@width: ~"calc(100% - 65px)", @max-width: 425px);
+                .size(@width: ~"calc(100% - 85px)", @max-width: 425px);
+            }
+        }
+
+        .radioButtonGroup {
+            margin-left: 15px;
+            margin-top: 5px;
+            .size(@max-width: 425px);
+
+            .header {
+                float: left;
+            }
+
+            .radioButton {
+                margin-left: 5px;
+                width: 50px;
             }
         }
 

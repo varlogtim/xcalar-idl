@@ -44,7 +44,7 @@ module.exports = {
         "ExitSmartCast": "退出数据类型探测",
         "ExitSort": "退出排序",
         "ExitProject": "Exit Project",
-        "ExitUnion": "退出合并",
+        "ExitUnion": "Exit Set Operation",
         "ExpandAllDags": "展开表",
         "ExpandAllDagsAll": "展开所以表",
         "ExportTbl": "导出表",
@@ -679,7 +679,7 @@ module.exports = {
         "prefixTip": "Prefixed columns act as a unit and can only be selected in their entirety"
     },
     "unionView": {
-        "header": "合并",
+        "header": "SET OPERATION",
         "AddTables": "添加表",
         "TableTitle": "表",
         "ColumnTitle": "列",
@@ -687,9 +687,11 @@ module.exports = {
         "CandidateTitle": "待选列",
         "AddTable": "添加表",
         "confirm": "合并",
-        "Mode": "模式",
-        "Union": "Union",
-        "UnionAll": "Union All"
+        "Mode": "Operation",
+        "IncludeAll": "Include Duplicate Rows",
+        "Union": "Union (Combine)",
+        "Yes": "Yes",
+        "No": "No"
     },
     "jsonModal": {
         "header": "数据浏览器"

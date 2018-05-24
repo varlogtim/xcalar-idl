@@ -786,16 +786,16 @@ UnionTStr = {
     "Cast": "Columns to union have different types. Please select a type for the resultant column.",
     "AddCol": "Click to add to the union table",
     "Table": "Table",
-    "UnionTable": "Union Table",
+    "UnionTable": "Results Table",
     "NewTableName": "New Table Name",
     "NewColName": "New Column Name",
-    "CandidateHint": "Columns in this section will be dropped and will not be part of the unioned table. Click column name to add the column as part of the union.",
+    "CandidateHint": "Columns in this section will not be added to the results table. Click column name to add the column to the results table.",
     "EmptyList": "Empty List",
     "SearchCol": "Find column name",
     "SelectCol": "Please select columns to union",
     "NoMatch": "No Match",
     "TypeMismatch": "Columns to union have different types. Select columns of the same type.",
-    "header": "UNION / INTERSECT / EXCEPT", // sync with htmlTStr
+    "header": "SET OPERATION", // sync with htmlTStr
     "UsedFor": "Used for <col>",
 };
 

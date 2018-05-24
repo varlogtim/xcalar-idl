@@ -179,6 +179,8 @@ window.UnionView = (function(UnionView, $) {
             var colName = $icon.prev(".colName").text();
             focusOnColumn(colName, tableIndex);
         });
+
+        xcHelper.optionButtonEvent($("#dedupSection"));
     }
 
     function restorePrefill(options) {
@@ -912,25 +914,16 @@ window.UnionView = (function(UnionView, $) {
             });
         });
         var unionType = UnionOperatorT.UnionStandard;
-        var dedup = false;
+        var dedup = $("#dedupSection").find(".radioButton.active").hasClass("no");
         var unionOption = $unionView.find(".modeList").data("option");
         switch (unionOption) {
             case ("except"):
-                dedup = true;
-                // fallthrough
-            case ("exceptAll"):
                 unionType = UnionOperatorT.UnionExcept;
                 break;
             case ("intersect"):
-                dedup = true;
-                // fallthrough
-            case ("intersectAll"):
                 unionType = UnionOperatorT.UnionIntersect;
                 break;
             case ("union"):
-                dedup = true;
-                // fallthrough
-            case ("unionAll"):
                 unionType = UnionOperatorT.UnionStandard;
                 break;
         }

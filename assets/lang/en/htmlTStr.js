@@ -204,7 +204,7 @@ module.exports = {
         "ExitSort": "Exit Sort",
         "ExitProject": "Exit Project",
         "ExitDFEdit": "Exit Dataflow Editing",
-        "ExitUnion": "Exit Union",
+        "ExitUnion": "Exit Set Operation",
         "ExpandAllDags": "Expand collapsed tables",
         "ExpandAllDagsAll": "Expand all collapsed tables",
         "ExportTbl": "Export table",
@@ -289,7 +289,7 @@ module.exports = {
         "TxtAlignWrap": "Wrap text",
         "UnexpectedTable": "Unexpected table",
         "UnHideTbl": "Unminimize table",
-        "Union": "Union",
+        "Union": "Set Operation",
         "UnlockTbl": "Unlock table",
         "Unsavable": "Cannot save image",
         "ViewDetails": "View details",
@@ -947,21 +947,21 @@ module.exports = {
     },
 
     "unionView": {
-        "header": "UNION / INTERSECT / EXCEPT", // Sync with JSTStr
+        "header": "SET OPERATION", // Sync with JSTStr
         "AddTables": "ADD TABLES",
         "TableTitle": "Tables",
-        "ColumnTitle": "Columns In Resultant Table",
-        "Instr": "Select tables you would like to union / intersect / except and select columns from each table.",
-        "CandidateTitle": "To be Dropped",
+        "ColumnTitle": "Columns In Result Table",
+        "Instr": "Select tables you would like to except / intersect / union and select columns from each table.",
+        "CandidateTitle": "To Be Dropped",
         "AddTable": "Add Table To Operation",
         "confirm": "Union",
-        "Mode": "Mode",
-        "Union": "Union (Combine and deduplicate)",
-        "UnionAll": "Union All (Combine all rows)",
+        "Mode": "Operation",
+        "IncludeAll": "Include Duplicate Rows",
+        "Union": "Union (Combine)",
         "Except": "Except (Minus)",
-        "ExceptAll": "Except All (Minus All)",
         "Intersect": "Intersect",
-        "IntersectAll": "Intersect All",
+        "Yes": "Yes",
+        "No": "No"
     },
 
     "jsonModal": {
