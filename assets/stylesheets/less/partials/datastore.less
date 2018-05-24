@@ -4336,13 +4336,10 @@ table.datasetTable {
 }
 
 #datastoreMenu {
-    #dsTarget-create-tooltipWrap, #exportTarget-create-tooltipWrap {
-        width: 35px;
-        height: 35px;
-    }
     &.noAdmin {
         #dsTarget-create, #createExportButton {
-            .xc-disabled;
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5) !important;
+            cursor: default;
             opacity: 0.5 !important;
         }
         #dsTarget-menu, #expTargetGridMenu {
