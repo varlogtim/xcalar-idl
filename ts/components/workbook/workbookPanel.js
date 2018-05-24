@@ -254,8 +254,8 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                 $dropDownCard.attr("data-workbook-id",
                                 WorkbookManager.getIDfromName(info.newName));
             } else if (info.action === "delete") {
-                if ($WKBKMenu.is(":visible")) {
-                    xcMenu.close($WKBKMenu);
+                if ($wkbkMenu.is(":visible")) {
+                    xcMenu.close($wkbkMenu);
                 }
             }
         }
@@ -1061,6 +1061,12 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                 }
             }
         });
+    }
+
+    if (window.unitTestMode) {
+        WorkbookPanel.__testOnly__ = {};
+        WorkbookPanel.__testOnly__.changeFilePath = changeFilePath;
+
     }
 
     return (WorkbookPanel);

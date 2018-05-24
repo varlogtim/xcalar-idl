@@ -3,6 +3,7 @@ describe("Workbook- Workbook Pane Test", function() {
     var menuAction = function($box, action) {
         $box.find(".dropDown").click();
         $("#wkbkMenu").find("." + action).click();
+        $("#wkbkMenu").hide();
     };
 
     before(function(){
@@ -475,6 +476,72 @@ describe("Workbook- Workbook Pane Test", function() {
             })
             .always(function() {
                 WorkbookManager.copyWKBK = oldFunc;
+            });
+        });
+
+        it("should handle change file size error", function() {
+            var file = {};
+            file.name = "Temp";
+            file.size = 40 * MB;
+
+            WorkbookPanel.__testOnly__.changeFilePath(file);
+            UnitTest.hasAlertWithTitle(AlertTStr.Title);
+        });
+
+        it("should use socket update for delete", function(done){
+            var activeWkbkId = WorkbookManager.getActiveWKBK();
+            var $wkbkMenu = $("#wkbkMenu");
+            var $box = $workbookPanel.find('[data-workbook-id="' +
+                                            activeWkbkId + '"]');
+
+            $box.find(".dropDown").click();
+
+            var info = {};
+            info.triggerWkbk = activeWkbkId;
+            info.action = "delete";
+
+            var checkFunc = function() {
+                return $wkbkMenu.is(":visible");
+            };
+
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                WorkbookPanel.updateWorkbooks(info);
+                expect($wkbkMenu.is(":visible")).to.be.false;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("should use socket update", function(done){
+            var activeWkbkId = WorkbookManager.getActiveWKBK();
+            var $wkbkMenu = $("#wkbkMenu");
+            var $box = $workbookPanel.find('[data-workbook-id="' +
+                                            activeWkbkId + '"]');
+
+            $box.find(".dropDown").click();
+
+            var info = {};
+            info.triggerWkbk = activeWkbkId;
+            info.action = "rename";
+            info.newName = "test";
+
+            var checkFunc = function() {
+                return $wkbkMenu.is(":visible");
+            };
+
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                WorkbookPanel.updateWorkbooks(info);
+                expect($box.attr("data-workbook-id")).to.equal(WorkbookManager.getIDfromName(info.newName));
+                $box.attr("data-workbook-id", activeWkbkId);
+                $wkbkMenu.hide();
+                done();
+            })
+            .fail(function() {
+                done("fail");
             });
         });
 
