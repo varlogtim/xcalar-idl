@@ -154,7 +154,7 @@ var WATCH_TARGET_CTOR = 'ctor';
 var WATCH_TARGET_LESS = "less";
 var WATCH_TARGET_TYPESCRIPT = "ts";
 var WATCH_TARGET_JS = "js";
-var WATCH_FLAG_INITIAL_BUILD_CSS = 'buildcss';
+var WATCH_FLAG_INITIAL_BUILD_CSS = "buildcss";
 var WATCH_OP_LIVE_RELOAD = "livereload";
 
 // Global booleans to track which task. Can be both
@@ -385,7 +385,8 @@ var VALID_OPTIONS = {
     [WATCH_TARGET_CTOR]:
         {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Watch for changes in " + CONSTRUCTOR_TEMPLATE_FILE_PATH_REL_BLD + " and re-gen constructor file(s) as result"},
     [WATCH_FLAG_INITIAL_BUILD_CSS]:
-        {[FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Build CSS portion of build before you start watch task"},
+        { [FLAG_KEY]: true, [WATCH_KEY]: true, [NO_EXTRA_GRUNT_FLAG]: true, [DESC_KEY]: "Build CSS portion of build before you start watch task" },
+
 };
 
 // add in grunt options/flags you want available to user (grunt --version works even if you don't add here)
@@ -964,7 +965,7 @@ module.exports = function(grunt) {
                 expand: true,
                 filter: function(filepath) {
                     filename = path.basename(filepath);
-                    containingDirRelBld = path.relative(BLDROOT, path.dirname(filepath));
+                    var containingDirRelBld = path.relative(BLDROOT, path.dirname(filepath));
                     if (DONT_CHMOD.indexOf(filename) !== -1 ||
                         DONT_CHMOD.indexOf(containingDirRelBld) !== -1) {
                         grunt.log.debug("Do NOT CHMOD the file @: " + filepath + "... (Blacklisted)");
@@ -1155,7 +1156,7 @@ module.exports = function(grunt) {
         includes: {
             staging: { // html processing done within staging area. omit dest to keep processsed file at same place
                 options: {
-                    silent: false,
+                    silent: true,
 //                    includePath: BLDROOT + htmlMapping.src,
                 },
                 cwd: HTML_STAGING_I_ABS,
@@ -2757,7 +2758,7 @@ module.exports = function(grunt) {
         var bldFile;
         grunt.log.writeln("Build files found:");
         for ( bldFile of HTML_BUILD_FILES ) {
-            grunt.log.writeln("\t" + bldFile);
+            grunt.log.debug("\t" + bldFile);
         }
     });
 
@@ -2825,7 +2826,7 @@ module.exports = function(grunt) {
         var filepath;
         var skipfile = false;
         for ( filepath of htmlFilepaths ) {
-            grunt.log.writeln(("`== Template HTML from templated file @ "['yellow'] + filepath + " ==`"['yellow']).bold);
+            grunt.log.debug(("`== Template HTML from templated file @ "['yellow'] + filepath + " ==`"['yellow']).bold);
             // genHTML will generate and write a new HTML file, from the templated file at filepath.
             if (grunt.file.doesPathContain(HTML_STAGING_I_ABS, filepath)) {
                 skipfile = false;
@@ -2846,7 +2847,7 @@ module.exports = function(grunt) {
                     if ((grunt.file.isDir(dontTemplate) && grunt.file.doesPathContain(HTML_STAGING_I_ABS + path.relative(htmlMapping.src, dontTemplate), filepath)) ||
                          (grunt.file.isFile(dontTemplate) && HTML_STAGING_I_ABS + path.relative(htmlMapping.src, dontTemplate) == filepath) ) {
                             // the requireds are rel. to the type src
-                            grunt.log.writeln("\tWon't template " + filepath + " - it's designated as a file to skip, or in a dir to skip");
+                            grunt.log.debug("\tWon't template " + filepath + " - it's designated as a file to skip, or in a dir to skip");
                             skipfile = true;
                             break;
                     }
@@ -3100,9 +3101,8 @@ module.exports = function(grunt) {
             if (!grunt.file.isPathAbsolute(destpath)) {
                 destpath = destRoot + path.sep + destpath;
             }
-            grunt.log.write("\tWrite templated file @ " + (destpath).green + " ... ");
+            grunt.log.debug("\tWrite templated file @ " + (destpath).green + " ... ");
             grunt.file.write(destpath, parsedHTML);
-            grunt.log.ok();
         }
     }
 
@@ -4748,195 +4748,91 @@ module.exports = function(grunt) {
         generatedDuringBuild[key] = filepath;
     }
 
+    // WATCH FUNCTIONALITY TASKS AND FUNCTIONS
+    // Step 1: Parse cli options and configure the watch plugin
+    // Step 2: Add to and trigger grunt-concurrent task process for each type
+    // Step 3: [On change] determine tasks to run
+    // Step 4: [On change] Run the watch tasklist
 
-
-                                                        /** WATCH FUNCTIONALITY TASKS AND FUNCTIONS */
-
-
-    /**
-        Workflow:
-
-            1. (each time new Grunt process starts):
-                Parse cmd options and configure the watch plugin dynamically
-        [[ ONLY ON INITIAL GRUNT PROCESS::]]
-            2.  Go through watch plugin, and for each plugin target
-                configured in 1. to have files to watch, add to
-                grunt-concurrent task list.
-                Fire off grunt-concurrent, spawning new process for
-                each target added.
-            3.  (each event.on('watch') event
-                (when a file being watched by the curr target process is edited):
-                Determine tasks to run and livereload,
-                based on which file was changed, and
-            4.  The Watch target tasklist runs
-                (i.e., the tasks in tasklist set in 3. begins)
-                [[[-> if 'spawn: false' in the target, the tasklist
-                will run in same process, else new child process will
-                spawn after this event completes. we are running with
-                spawn: false']]]
-    */
-
-    /**
-        WATCH WORKFLOW STEP 2:
-
-        -- Called only ONCE - in parent Grunt process only!
-
-        Configure the grunt-concurrent plugin with the watch plugin
-        targets you want to run, then add the configured grunt-concurrent
-        to task queue.
-        It will add in any targets which have
-        files in their 'files' attribute.
-        (These attrs are configured in configureWatchTasksBasedOnUserParams())
-        - Hit only once, in initial parent Grunt process,
-            as task list is not passed to spawned child procceses!
-    */
+    // Step 1: getCmdParams
+    // Step 2: Configure grunt-concurrent plugin and add to task queue.
+    //         Run only in parent process.
     grunt.task.registerTask(WATCH, function() {
-        // go through each watch target.
-        // if it has files in its configuration, schedule it in the concurrent plugin
-
         var watchTargets = Object.keys(grunt.config(WATCH_PLUGIN));
 
         var deployTargets = [];
-        for ( target of watchTargets ) {
+        for (var target of watchTargets) {
             if (grunt.config(WATCH_PLUGIN + '.' + target + '.files').length > 0) {
-                grunt.log.debug("Watch plugin-in target: " +target + " has files requested to watch!: "
-                    + grunt.config(WATCH_PLUGIN + '.' + target + '.files')
-                    + "\n--> schedule this target in concurrent plugin!");
+                grunt.log.debug("Watching: " + grunt.config(WATCH_PLUGIN + '.' +
+                    target + '.files'));
                 deployTargets.push(WATCH_PLUGIN + ':' + target);
-            } else {
-                grunt.log.debug("Watch plugin target did not find any files to watch :'("
-                    + "\n--> this target will NOT be deployed in the concurrent plugin!");
             }
         }
-        grunt.log.debug("\nConfigure concurrent plugin to run these watch plugin targets: " + deployTargets);
+        grunt.log.debug("Concurrent running on these watch targets: " +
+            deployTargets);
         grunt.config('concurrent.watch.tasks', deployTargets);
 
-        /**
-            If they requested to build CSS,
-            then go ahead and build css.
-        */
         if (grunt.option(WATCH_FLAG_INITIAL_BUILD_CSS)) {
             grunt.task.run('less:dist');
         }
+        grunt.log.debug("Deploy concurrent");
 
-        grunt.log.debug("\nDeploy concurrent");
         grunt.task.run('concurrent:watch');
-
     });
 
-    /**
-        WATCH WORKFLOW STEP 3
-
-        -- Called in each watch process, each time a watched
-        file is changed!
-
-        Determine which tasks to run based on the file changed,
-        and set grunt.config template variables if required,
-        to control which files those tasks should do work on
-
-        Context:
-        Running only two watch plugin targets concurrently -
-        one with livereload potentially enabled and one with
-        livereload disabled.
-        (Can't run more than 1 watch plugin target with livereload eniabled
-        due to port conflict).
-        So the targets could hold mu ltiple filetypes,
-        and can't set task attr for the target before hand.
-        therefore, based on which file changed in this event,
-        figure out which tasks to run..
-    */
-
+    // Step 3: Run livereloadon and livereloadoff targets concurrently
     grunt.event.on('watch', function(action, filepath, callingTarget) {
-        // list of tasks will deploy depending on the file changed
         var taskList = [];
 
-        // resolve filepath; (comes in as rel. to grunt cwd)
         filepath = path.resolve(filepath);
-        grunt.log.writeln(("\n\nNEW WATCH EVENT (pid " + process.pid + ") :").bold.green
-            + " A file being watched, was modified: " + filepath);
+        grunt.log.writeln(("(" + process.pid + "):").bold.green + filepath +
+            " was modified.");
 
-        // if it sa dir skip it (its adding dirs to the waatch list!)
         if (grunt.file.isDir(filepath)) {
-//        if ( filepath.endsWith('/') ) {
-            grunt.log.writeln("This is a dierectory; skip it");
+            grunt.log.writeln("Ignoring directories.");
             return;
         }
 
         var trackingData = isWatchEventProcessing();
         if (trackingData) {
-
-            grunt.log.writeln(("This watch event was trigered by another "
-                + " watch event that is currently running: "
-                + "\n(Watched file currently processing:\n"
-                + trackingData[0]
-                + " (From Target: " + trackingData[1] + ")"
-                + " Initiated from pid: " + trackingData[2]
-                + ("IGNORE").red).bold);
-            grunt.log.debug(("\n\nIf you keep seeing this message, and ").yellow.bold
-                + trackingData[0]
-                + (filepath).bold
-                + (" is an actual watched file you have edited,"
-                + " it is most likely:"
-                + "\n\t 1. One of the tasks triggered by a previous watch event failed").yellow.bold
-                + "\n\t    (Probably file: "
-                + trackingData[0]
-                + "\n\t\tAND"
-                + ("\n\t 2. you are NOT running with the force option."
-                + "\n(Because of that, no 'cleanup' task could be run to"
-                + " reset for a new watch event,"
-                + " as all tasks - cleanup included - terminate after a "
-                + " single task failure, when --f not supplied.)"
-                + "\nTo Correct this issue, run Grunt again with the --f option. "
-                + "  However, this will force all tasks (not just cleanup),"
-                + " to continue, if you encounter a failure.\n").yellow.bold);
+            grunt.log.writeln(("If you see this continually, it's a bug. " +
+                "Here are the relevant details: filepath: " + filepath +
+                "trackingData[0]: " + trackingData[0] + ", trackingData[1]: " +
+                trackingData[1] + ", trackingData[2]: " +
+                trackingData[2]).red.bold);
             return;
-
         } else {
             watchEventStartTracking(filepath, callingTarget, process.pid);
         }
 
-        if (grunt.file.isPathAbsolute(filepath) && grunt.file.exists(filepath)) {
-            grunt.log.debug("Filepath exists and is abs." + filepath);
-        } else {
-            grunt.fail.fatal("Filepath not abs. or doesn't exit");
+        if (!grunt.file.isPathAbsolute(filepath) ||
+            !grunt.file.exists(filepath)) {
+            grunt.fail.fatal("Filepath not abs or doesn't exist");
         }
 
-        filepathRelBld = getFilepathRelSrcOrBld(filepath);
-        containingDirRelBld = path.dirname(filepathRelBld);
-        filetype = getWatchFileType(filepath);
-        grunt.log.debug("=============\n\tResolved filepath: "
-            + filepath
-            + " type: " + filetype
-            + " con. dir : " + containingDirRelBld
-            + " rl bld: " + filepathRelBld);
+        var filepathRelBld = getFilepathRelSrcOrBld(filepath);
+        var containingDirRelBld = path.dirname(filepathRelBld);
+        var filetype = getWatchFileType(filepath);
+        grunt.log.debug("Resolved filepath: " + filepath + ", type: " +
+            filetype + ", con. dir: " + containingDirRelBld + ", rl bld: " +
+            filepathRelBld);
 
         var determinedRebuildProcess = false;
         switch (filetype) {
             case WATCH_TARGET_LESS:
-                /**
-                    set template for the less task.
-                    if one of the main less files at the less src root,
-                    only need to do less on that file.
-                    If further down, like in /partials,
-                    need to regenerate all the css via less because it
-                    could be af ile included in multi. less files
-                */
-
-                if (grunt.file.arePathsEquivalent(containingDirRelBld, cssMapping.src)) { // please use instead of ==, considers diff like trailing /
-                    // copy in only the changed file and set template string
-                    // (cwd for the target is less root in bld, so need filepath rel to that)
-                    grunt.log.writeln(("\nFile @ : "
-                        + filepath
-                        + " is one of the main less files; only need to re-generate single css file in to bld\n").bold.green);
+                // arePathsEquivalent handles cases like trailing /
+                if (grunt.file.arePathsEquivalent(containingDirRelBld,
+                    cssMapping.src)) {
+                    grunt.log.writeln((filepath + " is a top level less file")
+                        .bold.green);
                     grunt.file.copy(filepath, BLDROOT + filepathRelBld);
-                    filepathRelFiletypeSrc = path.relative(cssMapping.src, filepathRelBld); // cwd of all the targets (except initial rsync) include BLDROOT in their cwd
+                    var filepathRelFiletypeSrc = path.relative(cssMapping.src,
+                        filepathRelBld);
                     grunt.config(LESS_TEMPLATE_KEY, filepathRelFiletypeSrc);
                     resolveDependencies(cssMapping.required);
                 } else {
-                    grunt.log.writeln(("\nFile @ : " +
-                        filepath +
-                        " is NOT a main less file; regen entire css " +
-                        " portion of bld\n").bold.green);
+                    grunt.log.writeln((filepath +" is not a top level less " +
+                        "file").bold.green);
                     resolveDependencies([cssMapping.src]);
                     // watched file wont be copied in if was present in bld
                     grunt.file.copy(filepath, BLDROOT + filepathRelBld);
@@ -4945,22 +4841,27 @@ module.exports = function(grunt) {
                 determinedRebuildProcess = true;
                 break;
             case WATCH_TARGET_TYPESCRIPT:
-                if (grunt.file.doesPathContain(typescriptMapping.src, filepathRelBld)) {
-                    grunt.log.writeln(("\nFile @ : "
-                        + filepath
-                        + " is one of the main ts files to autogen js from\n").bold.green);
+                if (grunt.file.doesPathContain(typescriptMapping.src,
+                    filepathRelBld)) {
+                    grunt.log.writeln((filepath + " triggers new js file gen.")
+                        .bold.green);
                     if (grunt.file.exists(TS_WATCH_STAGING)) {
                         runShellCmd('rm -r ' + TS_WATCH_STAGING);
                     }
                     runShellCmd('mkdir -p ' + TS_WATCH_STAGING);
-                    filepathRelTsSrc = path.relative(typescriptMapping.src, filepathRelBld);
-                    if (filepath == SRCROOT + typescriptMapping.src + 'tsconfig.json') {
-                        runShellCmd('cp -r ' + SRCROOT + typescriptMapping.src + '/. ' + TS_WATCH_STAGING);
+                    filepathRelTsSrc = path.relative(typescriptMapping.src,
+                        filepathRelBld);
+                    if (filepath == SRCROOT + typescriptMapping.src +
+                        'tsconfig.json') {
+                        runShellCmd('cp -r ' + SRCROOT +
+                            typescriptMapping.src + '/. ' + TS_WATCH_STAGING);
                     } else {
-                        grunt.file.copy(filepath, TS_WATCH_STAGING + filepathRelTsSrc);
-                        grunt.file.copy(SRCROOT + typescriptMapping.src + 'tsconfig.json', TS_WATCH_STAGING + "tsconfig.json"); // need tsconfig to pick up settings
+                        grunt.file.copy(filepath,
+                            TS_WATCH_STAGING + filepathRelTsSrc);
+                        grunt.file.copy(SRCROOT + typescriptMapping.src +
+                            'tsconfig.json', TS_WATCH_STAGING +"tsconfig.json");
                     }
-                    taskList.push(BUILD_JS  + ':' + TS_WATCH_STAGING);
+                    taskList.push(BUILD_JS + ':' + TS_WATCH_STAGING);
                     taskList.push('clean:tsWatchStaging');
                     determinedRebuildProcess = true;
                 }
@@ -4971,10 +4872,13 @@ module.exports = function(grunt) {
                                                filepathRelBld)) {
                     determinedRebuildProcess = true;
                     grunt.file.copy(filepath, BLDROOT + filepathRelBld);
-                } else if (grunt.file.doesPathContain(typescriptMapping.src, filepathRelBld)) {
+                } else if (grunt.file.doesPathContain(typescriptMapping.src,
+                    filepathRelBld)) {
                     determinedRebuildProcess = true;
-                    filepathRelTsSrc = path.relative(typescriptMapping.src, filepathRelBld);
-                    grunt.file.copy(filepath, BLDROOT + jsMapping.dest + filepathRelTsSrc);
+                    filepathRelTsSrc = path.relative(typescriptMapping.src,
+                        filepathRelBld);
+                    grunt.file.copy(filepath,
+                        BLDROOT + jsMapping.dest + filepathRelTsSrc);
                 }
                 break;
             case WATCH_TARGET_HTML:
@@ -4986,10 +4890,8 @@ module.exports = function(grunt) {
                     outputFilepaths = getTemplatingOutputFilepaths(
                                                         filepathRelFiletypeSrc);
                     if (outputFilepaths.length === 1) {
-                        grunt.log.writeln(("\nFile @ : " + filepath + " is " +
-                            "a top level html file and not included as part " +
-                            "of another file. Only regenerating its HTML.").bold
-                            .green);
+                        grunt.log.writeln((filepath + " is a top level html " +
+                            "file.").bold.green);
                         bldEntireHtml = false;
                         // Set global parameters for later jobs to use
                         grunt.config(STAGE_HTML_TEMPLATE_KEY,
@@ -5001,8 +4903,8 @@ module.exports = function(grunt) {
                     }
                 }
                 if (bldEntireHtml) {
-                    grunt.log.writeln(("\nFile @ : " + filepath + " is a " +
-                        "partial. Have to rebuild all HTML files").bold.green);
+                    grunt.log.writeln((filepath + " is not a top level file. " +
+                        "Regenerating all HTML files.").bold.green);
                     resolveDependencies([htmlMapping.src]);
                     grunt.file.copy(filepath, BLDROOT + filepathRelBld);
                 }
@@ -5013,70 +4915,41 @@ module.exports = function(grunt) {
                 taskList.push(CONSTRUCTOR_FILES);
                 determinedRebuildProcess = true;
                 break;
-            case WATCH_TARGET_CSS: // fall through on all the bld cases - you don't do anything but reload
-            //case WATCH_TARGET_HTML_BLD:
-            //case WATCH_TARGET_JS_BLD:
-                // nothing to do but reload (if they even want)
-                grunt.log.writeln(("\nWatch file @ : "
-                    + filepath
-                    + " is a common build file;"
-                    + " no follow up tasks within the build need to be done.").bold.green);
+            case WATCH_TARGET_CSS:
+                // XXX figure out why we are not doing anything here
                 determinedRebuildProcess = true;
                 break;
             default:
-                // cant determine
-                grunt.fail.fatal("Could not determine filetype, "
-                    + " of watched file "
-                    + filepath);
+                grunt.fail.fatal("Could not determine type of watched file: " +
+                    filepath);
                 break;
         }
 
         if (!determinedRebuildProcess) {
-            grunt.fail.fatal(("I could not determine which build tasks to execute"
-                + " in response to edit of watched file:"
-                + filepath).bold.red);
+            grunt.fail.fatal(("Could not determine which build tasks to " +
+                "execute for:" + filepath).bold.red);
         }
 
-        // finalize
         grunt.log.debug("Schedule build finalize");
         taskList.push(FINALIZE);
 
-        /**
-            cleanup, even if no tasks scheduled..
-        */
-        grunt.log.debug("Schedule cleanup for next watch process...");
+        grunt.log.debug("Schedule cleanup");
         taskList.push(COMPLETE_WATCH);
 
-        /**
-            Set task list found
-        */
-        grunt.log.debug("Set dynamic task list found (these tasks should no run): " + taskList);
+        grunt.log.debug("Set dynamic task list found (these tasks should not " +
+            "run yet): " + taskList);
         var taskAccessStr = WATCH_PLUGIN + '.' + callingTarget + '.tasks';
         grunt.config(taskAccessStr, taskList);
-
     });
 
-    /**
-        Cleans up global data for next watch task.
-
-        Note: This needs to be a TASK, rather than a function,
-        so that it can be queued at the end of the list
-        of whatever tasks were determined to run for a watch process,
-        so that it will execute only after all of them have run.
-        This is so, the boolean indicating there
-        is a current watch process going on, stays true for the
-        entire duration of those watch tasks.
-    */
+    /** Cleans up global data for next watch task. This needs to be a task and
+     * not a function because it can only be run after all async stuff are done
+     */
     grunt.task.registerTask(COMPLETE_WATCH, function() {
-        grunt.log.debug("Stop tracking watch event");
         var target = watchEventStopTracking();
-
-        // set template keys back to defaults
         resetTemplateKeys();
-        grunt.log.debug("here2");
 
-        // set watch target's task list back to default
-        grunt.log.debug("Reset tasklist for watch plugin : " + target);
+        grunt.log.debug("Reset tasklist for watch plugin: " + target);
         grunt.config(WATCH_PLUGIN + '.' + target + '.tasks', []);
     });
 
@@ -5116,11 +4989,11 @@ module.exports = function(grunt) {
 
         // Watch all files. Triggered with --all
         if (grunt.option(WATCH_FLAG_ALL)) {
-            grunt.log.writeln("\tWatch all files");
+            grunt.log.writeln("Watch all files");
             for (var target of allPossibleTypes) {
                 filesToWatchByFiletype[target] = WATCH_FILETYPES[target];
             }
-            grunt.log.writeln("\t\t" + JSON.stringify(filesToWatchByFiletype));
+            grunt.log.writeln(JSON.stringify(filesToWatchByFiletype));
             return filesToWatchByFiletype;
         }
 
@@ -5131,7 +5004,7 @@ module.exports = function(grunt) {
             }
         }
 
-        grunt.log.writeln("\tWatching some types: " +
+        grunt.log.writeln("Watching some types: " +
             JSON.stringify(filesToWatchByFiletype));
 
         return filesToWatchByFiletype;
