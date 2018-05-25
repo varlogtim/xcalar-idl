@@ -643,7 +643,8 @@ StatusT = {
   'StatusWorkbookInvalidVersion' : 634,
   'StatusPubTableNameNotFound' : 635,
   'StatusPubTableUpdateNotFound' : 636,
-  'StatusUpgradeRequired' : 637
+  'StatusUpgradeRequired' : 637,
+  'StatusUdfNotSupportedInCrossJoins' : 638
 };
 StatusTStr = {
   0 : 'Success',
@@ -1283,7 +1284,8 @@ StatusTStr = {
   634 : 'Invalid workbook version',
   635 : 'Publish table name not found',
   636 : 'Publish table update not found',
-  637 : 'An upgrade using the Xcalar upgrade tool is required'
+  637 : 'An upgrade using the Xcalar upgrade tool is required',
+  638 : 'UDFs are not supported as part of filter condition in cross joins'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -1923,5 +1925,6 @@ StatusTFromStr = {
   'Invalid workbook version' : 634,
   'Publish table name not found' : 635,
   'Publish table update not found' : 636,
-  'An upgrade using the Xcalar upgrade tool is required' : 637
+  'An upgrade using the Xcalar upgrade tool is required' : 637,
+  'UDFs are not supported as part of filter condition in cross joins' : 638
 };
