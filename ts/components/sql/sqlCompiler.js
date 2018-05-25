@@ -1469,7 +1469,8 @@
         _pushDownExpand: function(node) {
             // Only support expand followed by aggregate node
             assert(node.parent.value.class ===
-                "org.apache.spark.sql.catalyst.plans.logical.Aggregate");
+                "org.apache.spark.sql.catalyst.plans.logical.Aggregate",
+                SQLErrTStr.ExpandWithoutAgg + node.parent.value.class);
             node.orderCols = [];
             node.newTableName = node.children[0].newTableName;
             var groupingCols = [];
@@ -1478,7 +1479,8 @@
             });
             // Last element of expand-output should be spark_grouping_id
             assert(groupingCols[groupingCols.length - 1].colName ===
-                                                    "SPARK_GROUPING_ID");
+                    "SPARK_GROUPING_ID", SQLErrTStr.IllegalGroupingCols +
+                    groupingCols[groupingCols.length - 1].colName);
             var groupingIds = [];
             // XXX Here assume all expands are full rollup, still not clear
             // how spark represent other type of grouping sets
@@ -2130,7 +2132,8 @@
         _pushDownUnion: function(node) {
             var self = this;
             // Union has at least two children
-            assert(node.children.length > 1);
+            assert(node.children.length > 1,
+                    SQLErrTStr.UnionChildren + node.children.length);
             // If only 1 of children is not localrelation,
             // skip the union and handle column info
             var validChildrenIds = __findValidChildren(node);
@@ -2203,7 +2206,8 @@
             var cli = "";
 
             // Window should has one child
-            assert(node.children.length === 1);
+            assert(node.children.length === 1,
+                    SQLErrTStr.WindowChildren + node.children.length);
 
             // Sort the table first because windowExps in same window node
             // share same order
@@ -2274,7 +2278,7 @@
         _pushDownLocalRelation: function(node) {
             // Now only support empty localrelation, which represent tables
             // can be evaluated to empty from sql query without data on server
-            assert(node.value.data.length === 0);
+            assert(node.value.data.length === 0, SQLErrTStr.NonEmptyLR);
             // Spark will replace operators after localrelation except union
             // Project/.../Filter => localrelation
             // inner/semi join => localrelation
@@ -2283,7 +2287,8 @@
             // table intersect localrelation => localrelation
             // table except localrelation => table
             assert(node.parent.value.class ===
-                "org.apache.spark.sql.catalyst.plans.logical.Union");
+                    "org.apache.spark.sql.catalyst.plans.logical.Union",
+                    SQLErrTStr.LRParent +node.parent.value.class);
             node.xccli = "";
             node.usrCols = [];
             node.value.output.forEach(function(array) {
@@ -2964,7 +2969,8 @@
         for (var i = 0; i < orderArray.length; i++) {
             var order = orderArray[i][0].direction.object;
             assert(orderArray[i][0].class ===
-                "org.apache.spark.sql.catalyst.expressions.SortOrder");
+                    "org.apache.spark.sql.catalyst.expressions.SortOrder",
+                    SQLErrTStr.SortStructOrder + orderArray[i][0].class);
             order = order.substring(order.lastIndexOf(".") + 1);
             if (order === "Ascending$") {
                 order = XcalarOrderingT.XcalarOrderingAscending;
@@ -2972,7 +2978,7 @@
                 order = XcalarOrderingT.XcalarOrderingDescending;
             } else {
                 console.error("Unexpected sort order");
-                assert(0);
+                assert(0, SQLErrTStr.IllegalSortOrder + order);
             }
             var colName, type, id;
             if (orderArray[i][1].class ===
@@ -3024,13 +3030,18 @@
         return deferred.promise();
     }
 
-    // XXX Need to remove duplicate?
+    // Need to remove duplicate
     function __genGBColArray(cols) {
         var colInfoArray = [];
+        var idSet = new Set();
         for (var i = 0; i < cols.length; i++) {
             assert(cols[i][0].class ===
                 "org.apache.spark.sql.catalyst.expressions.AttributeReference",
                 SQLErrTStr.BadGenGBArray + cols[i][0].class);
+            if (idSet.has(cols[i][0].exprId.id)) {
+                continue;
+            }
+            idSet.add(cols[i][0].exprId.id);
             colInfoArray.push({colName: cleanseColName(cols[i][0].name),
                                type: cols[i][0].dataType,
                                colId: cols[i][0].exprId.id
@@ -3384,7 +3395,8 @@
                 var defaultValue = opNode.children[opNode.value.default]
                                          .value.value;
                 // XXX Not supported currently
-                assert(opNode.children[opNode.value.default].value.dataType != "null");
+                assert(opNode.children[opNode.value.default].value.dataType
+                            != "null", SQLErrTStr.NullDefaultLead);
                 var defaultType = convertSparkTypeToXcalarType(opNode
                                 .children[opNode.value.default].value.dataType);
                 var windowStruct = {cli: ""};
@@ -3786,7 +3798,8 @@
     function __handleMultiDimAgg(self, gbColNames, gbStrColNames, gArray, tableName, expand) {
         var cli = "";
         var deferred = PromiseHelper.deferred();
-        assert(gbColNames[gbColNames.length - 1] === "SPARK_GROUPING_ID");
+        assert(gbColNames[gbColNames.length - 1] === "SPARK_GROUPING_ID",
+                SQLErrTStr.BadGBCol + gbColNames[gbColNames.length - 1]);
         // Currently expand is not used here
         //var groupingIds = expand.groupingIds;
         var gIdColName = __getCurrentName(expand.groupingColStruct);
