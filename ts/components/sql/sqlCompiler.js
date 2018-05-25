@@ -185,6 +185,10 @@
     function assert(st, message) {
         if (!st) {
             console.error("ASSERTION FAILURE!");
+            if (!message) {
+                message = "Compilation Error";
+            }
+            SQLEditor.throwError(message);
             throw "Assertion Failure: " + message;
         }
     }
@@ -1182,7 +1186,7 @@
                         }
                     }
                 }
-                assert(find);
+                assert(find, SQLErrTStr.ProjectMismatch);
             }
             node.xcCols = newXcCols;
             node.sparkCols = [];
@@ -1225,7 +1229,7 @@
                         }
                     }
                 }
-                assert(find);
+                assert(find, SQLErrTStr.ProjectRenameMistmatch);
             }
             columns.forEach(function(col) {
                 delete col.colType;
@@ -1386,7 +1390,7 @@
             var self = this;
             var deferred = PromiseHelper.deferred();
             var sortCli = "";
-            assert(node.children.length === 1);
+            assert(node.children.length === 1, SQLErrTStr.SortChildren + node.children.length);
             var options = {renamedCols: node.renamedCols,
                            tableName: node.children[0].newTableName};
             var sortColsAndOrder = __genSortStruct(node.value.order, options);
@@ -3955,8 +3959,9 @@
                     assert(condTree.value.name !== undefined);
                     outStr += "sql:" + condTree.value.name + "(";
                     hasLeftPar = true;
-                    assert(acc.hasOwnProperty("udfs"));
-                    acc.udfs.push(condTree.value.name.toUpperCase());
+                    if (acc.hasOwnProperty("udfs")) {
+                        acc.udfs.push(condTree.value.name.toUpperCase());
+                    }
                 } else {
                     outStr += opLookup[opName] + "(";
                     hasLeftPar = true;

@@ -450,7 +450,10 @@ SQLErrTStr = {
     "NoKey": "key not found: ",
     "Cancel": "Operation Canceled",
     "NoSchema": "Table doesn't exist.",
-    "Err": "SQL Error"
+    "Err": "SQL Error",
+    "ProjectMismatch": "Project columns mismatch",
+    "ProjectRenameMistmatch": "Project renamed columns mismatch",
+    "SortChildren": "Sort should have only one child, but we found: "
 };
 
 SQLInfoTStr = {

@@ -656,6 +656,14 @@ window.SQLEditor = (function(SQLEditor, $) {
         }
         return deferred.promise();
     };
+    SQLEditor.throwError = function(errStr) {
+        SQLEditor.resetProgress();
+        Alert.show({
+            title: "Compilation Error",
+            msg: "Error details: " + errStr,
+            isAlert: true
+        });
+    }
 
     /* Unit Test Only */
     if (window.unitTestMode) {
