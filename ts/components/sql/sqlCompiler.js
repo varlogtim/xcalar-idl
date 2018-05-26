@@ -656,7 +656,7 @@
                 assert(dateCastNode.value.dataType === "date",
                        SQLErrTStr.YMDDataType + dateCastNode.value.dataType);
                 assert(dateCastNode.children.length === 1,
-                       SQLErrTStr.YMDChildLength);
+                       SQLErrTStr.YMDChildLength + dateCastNode.children.length);
 
                 // Prepare three children for the node
                 var cutIndex = ["Year", "Month", "DayOfMonth"]
@@ -713,7 +713,8 @@
             case ("expressions.Coalesce"):
                 // XXX It's a hack. It should be compiled into CASE WHEN as it
                 // may have more than 2 children
-                assert(node.children.length === 2);
+                assert(node.children.length === 2,
+                       SQLErrTStr.CoalesceTwoChildren + node.children.length);
 
                 var newNode;
                 var type = __getColType(node);
@@ -771,7 +772,8 @@
                 break;
             case ("expressions.CheckOverflow"):
             case ("expressions.PromotePrecision"):
-                assert(node.children.length === 1);
+                assert(node.children.length === 1,
+                       SQLErrTStr.DecimalNodeChildren + node.children.length);
                 node = secondTraverse(node.children[0], options);
             default:
                 break;
@@ -1186,7 +1188,8 @@
                         }
                     }
                 }
-                assert(find, SQLErrTStr.ProjectMismatch);
+                assert(find, SQLErrTStr.ProjectMismatch +
+                             JSON.stringify(node.orderCols[i]));
             }
             node.xcCols = newXcCols;
             node.sparkCols = [];
@@ -1229,7 +1232,8 @@
                         }
                     }
                 }
-                assert(find, SQLErrTStr.ProjectRenameMistmatch);
+                assert(find, SQLErrTStr.ProjectRenameMistmatch +
+                             JSON.stringify(newRenames));
             }
             columns.forEach(function(col) {
                 delete col.colType;
@@ -1390,7 +1394,7 @@
             var self = this;
             var deferred = PromiseHelper.deferred();
             var sortCli = "";
-            assert(node.children.length === 1, SQLErrTStr.SortChildren + node.children.length);
+            assert(node.children.length === 1, SQLErrTStr.SortOneChild + node.children.length);
             var options = {renamedCols: node.renamedCols,
                            tableName: node.children[0].newTableName};
             var sortColsAndOrder = __genSortStruct(node.value.order, options);
@@ -1425,32 +1429,35 @@
             // This is for Xcalar Aggregate which produces a single value
             var self = this;
 
-            assert(node.children.length === 1);
-            assert(node.subqVarName);
+            assert(node.children.length === 1,
+                   SQLErrTStr.XcAggOneChild + node.children.length);
+            assert(node.subqVarName, SQLErrTStr.SubqueryName);
             var tableName = node.children[0].newTableName;
             if (node.value.aggregateExpressions) {
-                assert(node.value.aggregateExpressions.length === 1);
-            var edgeCase = false;
-            node.orderCols = [];
-            // Edge case:
-            // SELECT col FROM tbl GROUP BY col1
+                assert(node.value.aggregateExpressions.length === 1,
+                       SQLErrTStr.SubqueryOneColumn + node.value.aggregateExpressions.length);
+                var edgeCase = false;
+                node.orderCols = [];
+                // Edge case:
+                // SELECT col FROM tbl GROUP BY col1
 
-            // This is dangerous but Spark still compiles it to ScalarSubquery
-            // It seems that Spark expects user to enforce the "single val" rule
-            // In this case, col1 has a 1 to 1 mappping relation with col2.
-            // Thus we can give it an aggOperator, such as max.
-            var index = node.value.aggregateExpressions[0][0].class ===
-                      "org.apache.spark.sql.catalyst.expressions.Alias" ? 1 : 0;
-            var treeNode = SQLCompiler.genExpressionTree(undefined,
-                           node.value.aggregateExpressions[0].slice(index));
-            var options = {renamedCols: node.renamedCols, xcAggregate: true};
-            var acc = {};
-            var evalStr = genEvalStringRecur(treeNode, acc, options);
-            if (!acc.operator) {
-                evalStr = "max(" + evalStr + ")";
-            }
+                // This is dangerous but Spark still compiles it to ScalarSubquery
+                // It seems that Spark expects user to enforce the "single val" rule
+                // In this case, col1 has a 1 to 1 mappping relation with col2.
+                // Thus we can give it an aggOperator, such as max.
+                var index = node.value.aggregateExpressions[0][0].class ===
+                          "org.apache.spark.sql.catalyst.expressions.Alias" ? 1 : 0;
+                var treeNode = SQLCompiler.genExpressionTree(undefined,
+                               node.value.aggregateExpressions[0].slice(index));
+                var options = {renamedCols: node.renamedCols, xcAggregate: true};
+                var acc = {};
+                var evalStr = genEvalStringRecur(treeNode, acc, options);
+                if (!acc.operator) {
+                    evalStr = "max(" + evalStr + ")";
+                }
             } else {
-                assert(node.usrCols.length === 1);
+                assert(node.usrCols.length === 1,
+                       SQLErrTStr.SubqueryOneColumn + node.usrCols.length);
                 var colName = __getCurrentName(node.usrCols[0]);
                 var evalStr = "max(" + colName + ")";
             }
@@ -1500,7 +1507,8 @@
             var cli = "";
             var deferred = PromiseHelper.deferred();
             node.orderCols = [];
-            assert(node.children.length === 1);
+            assert(node.children.length === 1,
+                   SQLErrTStr.AggregateOneChild + node.children.length);
             var tableName = node.children[0].newTableName;
 
             var options = {renamedCols: node.renamedCols};
@@ -1512,12 +1520,14 @@
                 for (var i = 0; i < node.value.groupingExpressions.length; i++) {
                     // subquery is not allowed in GROUP BY
                     assert(node.value.groupingExpressions[i][0].class !==
-                    "org.apache.spark.sql.catalyst.expressions.ScalarSubquery");
+                    "org.apache.spark.sql.catalyst.expressions.ScalarSubquery",
+                    SQLErrTStr.SubqueryNotAllowedInGroupBy);
                 }
                 options.groupby = true;
                 genMapArray(node.value.groupingExpressions, gbCols,
                             gbEvalStrArray, gbAggEvalStrArray, options);
-                assert(gbAggEvalStrArray.length === 0);
+                assert(gbAggEvalStrArray.length === 0,
+                       SQLErrTStr.AggNotAllowedInGroupBy);
                 // aggregate functions are not allowed in GROUP BY
             }
             // Extract colNames from column structs
@@ -1641,7 +1651,7 @@
             for (var i = 0; i < aggEvalStrArray.length; i++) {
                 var gbMapCol = {};
                 var rs = extractAndReplace(aggEvalStrArray[i]);
-                assert(rs);
+                assert(rs, SQLErrTStr.GroupByNoReplacement);
                 gbMapCol.operator = rs.firstOp;
                 if (aggEvalStrArray[i].numOps > 1) {
                     var newColName = "XC_GB_COL_" +
@@ -1733,7 +1743,7 @@
                 }
             })
             .then(function(ret) {
-                assert(ret);
+                assert(ret, SQLErrTStr.GroupByFailure);
                 newTableName = ret.newTableName;
                 cli += ret.cli;
                 if (ret.tempCols) {
@@ -1799,7 +1809,8 @@
 
         _pushDownJoin: function(node) {
             var self = this;
-            assert(node.children.length === 2); // It's a join. So 2 kids only
+            assert(node.children.length === 2,
+                   SQLErrTStr.JoinTwoChildren + node.children.length);
             var deferred = PromiseHelper.deferred();
             var hasEmptyProject = false;
 
@@ -1945,7 +1956,8 @@
 
             while (andSubtrees.length > 0) {
                 var andTree = andSubtrees.shift();
-                assert(andTree.children.length === 2);
+                assert(andTree.children.length === 2,
+                       SQLErrTStr.JoinAndTreeTwoChildren + andTree.children.length);
                 for (var i = 0; i < andTree.children.length; i++) {
                     if (andTree.children[i].value.class ===
                         "org.apache.spark.sql.catalyst.expressions.And") {
@@ -2289,8 +2301,8 @@
         var self = this; // This is the SqlObject
 
         // Since the grn call is done prior to the join, both tables must exist
-        assert(globalStruct.leftTableName);
-        assert(globalStruct.rightTableName);
+        assert(globalStruct.leftTableName, SQLErrTStr.NoLeftTblForJoin);
+        assert(globalStruct.rightTableName, SQLErrTStr.NoRightTblForJoin);
 
         var leftTableId = xcHelper.getTableId(joinNode.children[0]
                                                       .newTableName);
@@ -2433,8 +2445,8 @@
                         joinType = JoinCompoundOperatorTStr.LeftAntiSemiJoin;
                         break;
                     default:
-                        assert(0);
-                        console.error("Join Type not supported");
+                        assert(0, SQLErrTStr.UnsupportedJoin +
+                                  JSON.stringify(joinNode.value.joinType.object));
                         break;
                 }
             }
@@ -2463,8 +2475,8 @@
         var self = this;
         var deferred = PromiseHelper.deferred();
         // Since this is before the join, both tables must exist
-        assert(globalStruct.leftTableName);
-        assert(globalStruct.rightTableName);
+        assert(globalStruct.leftTableName, SQLErrTStr.NoLeftTblForJoin);
+        assert(globalStruct.rightTableName, SQLErrTStr.NoRightTblForJoin);
 
         var leftTableName = globalStruct.leftTableName;
         var rightTableName = globalStruct.rightTableName;
@@ -2534,10 +2546,12 @@
         var deferred = PromiseHelper.deferred();
         // This is called after the join, so newTableName must exist, and join
         // would've removed leftTableName and rightTableName
-        assert(!globalStruct.leftTableName);
-        assert(!globalStruct.rightTableName);
-        assert(globalStruct.newTableName);
-        assert(globalStruct.leftRowNumCol);
+        assert(!globalStruct.leftTableName,
+                SQLErrTStr.UnexpectedTableName + globalStruct.leftTableName);
+        assert(!globalStruct.rightTableName,
+                SQLErrTStr.UnexpectedTableName + globalStruct.rightTableName);
+        assert(globalStruct.newTableName, SQLErrTStr.NoNewTableName);
+        assert(globalStruct.leftRowNumCol, SQLErrTStr.NoLeftRowNumCol);
 
         var tempCountCol = "XC_COUNT_" +
                            xcHelper.getTableId(globalStruct.newTableName);
@@ -2569,12 +2583,14 @@
         var deferred = PromiseHelper.deferred();
         // This is post join, so assert that left and right tables no longer
         // exist
-        assert(!globalStruct.leftTableName);
-        assert(!globalStruct.rightTableName);
-        assert(globalStruct.leftRowNumTableName);
-        assert(globalStruct.newTableName);
-        assert(globalStruct.leftRowNumCol);
-        assert(globalStruct.existenceCol);
+        assert(!globalStruct.leftTableName,
+                SQLErrTStr.UnexpectedTableName + globalStruct.leftTableName);
+        assert(!globalStruct.rightTableName,
+                SQLErrTStr.UnexpectedTableName + globalStruct.rightTableName);
+        assert(globalStruct.leftRowNumTableName, SQLErrTStr.NoLeftRowNumTableName);
+        assert(globalStruct.newTableName, SQLErrTStr.NoNewTableName);
+        assert(globalStruct.leftRowNumCol, SQLErrTStr.NoLeftRowNumCol);
+        assert(globalStruct.existenceCol, SQLErrTStr.NoExistCol);
         // For this func to be called, the current table must only have 2 cols
         // The rowNumCol and the countCol. Both are autogenerated
         var lTableInfo = {
@@ -2624,11 +2640,13 @@
         var deferred = PromiseHelper.deferred();
         // This is post join, so assert that left and right tables no longer
         // exist
-        assert(!globalStruct.leftTableName);
-        assert(!globalStruct.rightTableName);
-        assert(globalStruct.leftRowNumTableName);
-        assert(globalStruct.newTableName);
-        assert(globalStruct.leftRowNumCol);
+        assert(!globalStruct.leftTableName,
+                SQLErrTStr.UnexpectedTableName + globalStruct.leftTableName);
+        assert(!globalStruct.rightTableName,
+                SQLErrTStr.UnexpectedTableName + globalStruct.rightTableName);
+        assert(globalStruct.leftRowNumTableName, SQLErrTStr.NoLeftRowNumTableName);
+        assert(globalStruct.newTableName, SQLErrTStr.NoNewTableName);
+        assert(globalStruct.leftRowNumCol, SQLErrTStr.NoLeftRowNumCol);
 
         // For this func to be called, the current table must only have 2 cols
         // The rowNumCol and the countCol. Both are autogenerated
@@ -2743,7 +2761,8 @@
 
         while (eqSubtrees.length > 0) {
             var eqTree = eqSubtrees.shift();
-            assert(eqTree.children.length === 2);
+            assert(eqTree.children.length === 2,
+                   SQLErrTStr.JoinEqTreeTwoChildren + eqTree.children.length);
 
             var attributeReferencesOne = [];
             var attributeReferencesTwo = [];
@@ -2796,7 +2815,8 @@
         var retStruct = {};
 
         if (leftMapArray.length + leftCols.length === 0) {
-            assert(rightCols.length + rightCols.length ===0);
+            assert(rightCols.length + rightCols.length === 0,
+                   SQLErrTStr.JoinConditionMismatch);
             retStruct.catchAll = true;
             retStruct.filterSubtrees = filterSubtrees;
         } else {
@@ -2871,13 +2891,13 @@
             for (var i = 0; i < cols.length; i++) {
                 if (cols[i].rename) {
                     if (set.has(cols[i].rename)) {
-                        assert(0);
+                        assert(0, SQLErrTStr.NameCollision + cols[i].rename);
                         // We should never hit this
                     }
                     set.add(cols[i].rename);
                 } else {
                     if (set.has(cols[i].colName)) {
-                        assert(0);
+                        assert(0, SQLErrTStr.NameCollision + cols[i].colName);
                         // We should never hit this
                     }
                     set.add(cols[i].colName);
@@ -2934,7 +2954,7 @@
                 return __getColType(node.children[i]);
             }
         }
-        assert(0, "undefined leaf type in expression");
+        assert(0, SQLErrTStr.UnknownType + node.value.class);
     }
 
     function __genSortStruct(orderArray, options) {
@@ -3898,9 +3918,10 @@
                     if (condTree.aggTree) {
                         // We need to resolve the aggTree and then push
                         // the resolved aggTree's xccli into acc
-                        assert(condTree.children.length === 0);
-                        assert(acc);
-                        assert(acc.aggEvalStrArray);
+                        assert(condTree.children.length === 0,
+                               SQLErrTStr.AggTreeShouldCut);
+                        assert(acc, SQLErrTStr.AggTreeShouldHaveAcc);
+                        assert(acc.aggEvalStrArray, SQLErrTStr.AccShouldHaveEval);
 
                         // It's very important to include a flag in acc.
                         // This is what we are relying on to generate the
@@ -3921,7 +3942,7 @@
                         }
                         outStr += aggVarName;
                     } else {
-                        assert(condTree.children.length > 0);
+                        assert(condTree.children.length > 0, SQLErrTStr.CondTreeChildren);
                     }
                 } else {
                     if (acc) {
@@ -3943,9 +3964,9 @@
                 }
             } else if (opName.indexOf(".ScalarSubquery") > -1) {
                 // Subquery should have subqueryTree and no child
-                assert(condTree.children.length === 0);
-                assert(condTree.subqueryTree);
-                assert(acc.subqueryArray);
+                assert(condTree.children.length === 0, SQLErrTStr.SubqueryNoChild);
+                assert(condTree.subqueryTree, SQLErrTStr.SubqueryTree);
+                assert(acc.subqueryArray, SQLErrTStr.AccSubqueryArray);
                 var subqVarName = "XC_SUBQ_" +
                                     Authentication.getHashId().substring(1);
                 condTree.subqueryTree.subqVarName = subqVarName;
@@ -3956,7 +3977,7 @@
                     acc.numOps += 1;
                 }
                 if (opName === "expressions.XCEPassThrough") {
-                    assert(condTree.value.name !== undefined);
+                    assert(condTree.value.name !== undefined, SQLErrTStr.UDFNoName);
                     outStr += "sql:" + condTree.value.name + "(";
                     hasLeftPar = true;
                     if (acc.hasOwnProperty("udfs")) {
@@ -4010,7 +4031,8 @@
                     outStr += condTree.value.value;
                 }
             }
-            assert(condTree.value["num-children"] === 0);
+            assert(condTree.value["num-children"] === 0,
+                   SQLErrTStr.NonOpShouldHaveNoChildren);
         }
         return outStr;
     }
@@ -4030,7 +4052,8 @@
                         evalList[i].slice(0), genTreeOpts);
                 } else {
                     assert(evalList[i][0].class ===
-                    "org.apache.spark.sql.catalyst.expressions.Alias");
+                    "org.apache.spark.sql.catalyst.expressions.Alias",
+                    SQLErrTStr.FirtChildAlias);
                     var treeNode = SQLCompiler.genExpressionTree(undefined,
                         evalList[i].slice(1), genTreeOpts);
                 }
@@ -4063,7 +4086,7 @@
                 }
                 if (evalList[i].length === 2 && (!options || !options.groupby)) {
                     // This is a special alias case
-                    assert(evalList[i][1].dataType);
+                    assert(evalList[i][1].dataType, SQLErrTStr.NoDataType);
                     var dataType = convertSparkTypeToXcalarType(
                         evalList[i][1].dataType);
                     retStruct.evalStr = dataType + "(" +retStruct.evalStr + ")";
@@ -4073,7 +4096,8 @@
             } else {
                 var curColStruct = evalList[i][0];
                 assert(curColStruct.class ===
-                "org.apache.spark.sql.catalyst.expressions.AttributeReference");
+                "org.apache.spark.sql.catalyst.expressions.AttributeReference",
+                SQLErrTStr.EvalOnlyChildAttr);
                 if (curColStruct.name.indexOf(tablePrefix) >= 0) {
                     // Skip XC_TABLENAME_XXX
                     continue;
@@ -4251,7 +4275,7 @@
             case ("date"):
                 return "string";
             default:
-                assert(0);
+                assert(0, SQLErrTStr.UnsupportedColType + dataType);
                 return "string";
         }
     }
@@ -4269,7 +4293,7 @@
         return name.toUpperCase().replace(re, function(match) {
             if (i === udfs.length) {
                 // Should always match, otherwise throw an error
-                assert(0);
+                assert(0, SQLErrTStr.UDFColumnMismatch);
                 return match;
             }
             return udfs[i++];
