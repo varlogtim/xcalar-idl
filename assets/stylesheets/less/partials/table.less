@@ -7,7 +7,7 @@ html.microsoft {
 
 html.firefox {
     .xcTableWrap {
-        &.tableLocked, &.jsonModalOpen {
+        &.tableLockedDisplayed, &.jsonModalOpen {
             .tableCover.visible {
                 box-shadow: 0px 1px rgba(0,0,0,0.3);
             }
@@ -38,7 +38,7 @@ html.firefox, html.microsoft {
     }
 
     .xcTableWrap {
-        &.tableLocked, &.jsonModalOpen {
+        &.tableLockedDisplayed, &.jsonModalOpen {
             .xcTbodyWrap {
                 // overflow hidden prevents scrolling but breaks styling
                 // in firefox and microsoft
@@ -204,7 +204,7 @@ html.edge {
         }
     }
 
-    &:not(.tableLocked) tbody tr:not(.notDragging):hover, tbody tr.dragging {
+    &:not(.tableLockedDisplayed) tbody tr:not(.notDragging):hover, tbody tr.dragging {
         td {
             border-right: 5px solid @color-table-hoverBorder-gray;
             background-color: @color-table-hoverBg-gray;
@@ -505,7 +505,7 @@ html.edge {
             display: none !important;
         }
 
-        &.tableLocked {
+        &.tableLockedDisplayed {
             .xcTbodyWrap {
                 &::after {
                     background-color: @color-table-after-gray;
@@ -678,6 +678,18 @@ html.edge {
     }
 
     &.tableLocked, &.jsonModalOpen {
+        .tableTitle, .header, td {
+            pointer-events: none;
+        }
+        .tableTitle .dropdownBox {
+            pointer-events: auto;
+        }
+        .tableScrollBar {
+            display: none !important;
+        }
+    }
+
+    &.tableLockedDisplayed, &.jsonModalOpen {
         &:before {
             display: none;
         }
@@ -739,12 +751,7 @@ html.edge {
             display: none !important;
         }
 
-        .tableTitle, .header, td {
-            pointer-events: none;
-        }
-        .tableTitle .dropdownBox {
-            pointer-events: auto;
-        }
+
         // lockedtableicon styling in basic.less
         .tableCover {
             .position(absolute, @top: @height-xcColHeaderOuter + 35px);
@@ -766,16 +773,23 @@ html.edge {
     }
 
     &.tableLocked {
-        .tableTitle {
-            background: @color-bg-unselect-gray !important;
-        }
-
         .editableHead {
             pointer-events: none;
         }
         .xcTbodyWrap {
             pointer-events: none;
             overflow: hidden; // prevents scrolling
+        }
+        .lockedTableIcon {
+            display: none;
+        }
+    }
+    &.tableLockedDisplayed {
+        .tableTitle {
+            background: @color-bg-unselect-gray !important;
+        }
+        .lockedTableIcon {
+            display: inline-block;
         }
     }
 
@@ -949,7 +963,7 @@ html.edge {
         }
     }
 
-    .tableLocked {
+    .tableLockedDisplayed {
         .formColNum {
             opacity: 0.5;
         }
@@ -1399,7 +1413,7 @@ html.edge {
         }
     }
 
-    &:not(.tableLocked) tbody tr:not(.notDragging):hover, tbody tr.dragging {
+    &:not(.tableLockedDisplayed) tbody tr:not(.notDragging):hover, tbody tr.dragging {
         td {
             &:first-child {
                 border-right: 0px;

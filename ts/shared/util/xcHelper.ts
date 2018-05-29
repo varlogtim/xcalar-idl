@@ -136,6 +136,10 @@ namespace xcHelper {
         isNull: boolean;
     }
 
+    interface LockOptions {
+        delayTime?: number;
+    }
+
     /**
      * xcHelper.reload
      * @param hardLoad
@@ -2187,13 +2191,16 @@ namespace xcHelper {
      * so that worksheet cannot be deleted
      * @param tableId
      * @param txId - if no txId, will not be made cancelable
+     * @param options
+     *
      */
-    export function lockTable(tableId: TableId, txId?: number): void {
+    export function lockTable(tableId: TableId, txId?: number, options?: LockOptions): void {
         // lock worksheet as well
         xcAssert((tableId != null), 'Invalid Parameters!');
         if (!gTables[tableId]) {
             return;
         }
+        options = options || {};
 
         const $tableWrap: JQuery = $('#xcTableWrap-' + tableId);
         if ($tableWrap.length !== 0 && !$tableWrap.hasClass('tableLocked')) {
@@ -2233,6 +2240,15 @@ namespace xcHelper {
                 $tbody.scrollTop(scrollTop);
             });
             TableList.lockTable(tableId);
+            if (options.delayTime) {
+                setTimeout(function() {
+                    if ($tableWrap.hasClass("tableLocked")) {
+                        $tableWrap.addClass("tableLockedDisplayed");
+                    }
+                }, options.delayTime);
+            } else {
+                $tableWrap.addClass("tableLockedDisplayed");
+            }
         }
         const lockHTML: string = '<i class="lockIcon icon xi-lockwithkeyhole"></i>';
         const $dagTables: JQuery = $('#dagPanel').find('.dagTable[data-id="' +
@@ -2274,7 +2290,7 @@ namespace xcHelper {
         const $tableWrap: JQuery = $("#xcTableWrap-" + tableId);
         $tableWrap.find('.lockedTableIcon').remove();
         $tableWrap.find('.tableCover').remove();
-        $tableWrap.removeClass('tableLocked');
+        $tableWrap.removeClass('tableLocked tableLockedDisplayed');
         $('#dagWrap-' + tableId).removeClass('locked');
 
         const $tbody: JQuery = $tableWrap.find('.xcTbodyWrap');

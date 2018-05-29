@@ -416,9 +416,7 @@ namespace xcFunction {
 
         // user timeout because it may fail soon if table is already sorted
         // lock table will cause blinking
-        const timer: number = <any>setTimeout(() => {
-            xcHelper.lockTable(tableId, txId);
-        }, 200);
+        xcHelper.lockTable(tableId, txId, {delayTime: 200});
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         let finalTableName: string;
@@ -437,7 +435,6 @@ namespace xcFunction {
                     [tableName], worksheet, txId, { selectCol: colsToSelect });
             })
             .then(() => {
-                clearTimeout(timer);
                 if (table.hasLock()) {
                     xcHelper.unlockTable(tableId);
                 }
@@ -450,7 +447,6 @@ namespace xcFunction {
                 deferred.resolve(finalTableName);
             })
             .fail((error, sorted) => {
-                clearTimeout(timer);
                 if (table.hasLock()) {
                     xcHelper.unlockTable(tableId);
                 }
@@ -1242,9 +1238,7 @@ namespace xcFunction {
         });
 
         // not lock table is the operation is short
-        const lockTimer = <any>setTimeout(() => {
-            xcHelper.lockTable(tableId, txId);
-        }, 500);
+        xcHelper.lockTable(tableId, txId, {delayTime: 500});
 
         const newTableNameId: TableId = xcHelper.getTableId(newTableName);
         if (newTableNameId !== tableId) {
@@ -1270,7 +1264,6 @@ namespace xcFunction {
                 deferred.reject(error);
             })
             .always(() => {
-                clearTimeout(lockTimer);
                 xcHelper.unlockTable(tableId);
             });
 
