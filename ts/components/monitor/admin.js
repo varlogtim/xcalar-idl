@@ -42,7 +42,12 @@ window.Admin = (function($, Admin) {
     };
 
     Admin.isAdmin = function() {
-        return isAdmin();
+        try {
+            return isAdmin();
+        } catch (error) {
+            console.error(error);
+            return false;
+        }
     };
 
     Admin.isXcSupport = function() {
