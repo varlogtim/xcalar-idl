@@ -305,7 +305,7 @@ describe("xcHelper Test", function() {
 
     it("xcHelper.getUserPrefix should work", function() {
         var res = xcHelper.getUserPrefix();
-        expect(res).to.equal(XcSupport.getUser());
+        expect(res).to.equal(XcUser.getCurrentUserName());
     });
 
     it("xcHelper.wrapDSName should work", function() {
@@ -315,7 +315,7 @@ describe("xcHelper Test", function() {
         var randId = nameParts[1];
         nameParts.splice(0, 2);
         var actualName = nameParts.join(".");
-        var expected = XcSupport.getUser() + "." + "test";
+        var expected = XcUser.getCurrentUserName() + "." + "test";
         expect(userName + "." + actualName).to.equal(expected);
         expect(("" + randId).length).to.equal(5);
     });

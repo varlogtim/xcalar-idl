@@ -189,6 +189,7 @@ declare var XcalarApisTStr: object;
 declare var StatusTStr: object;
 declare var currentVersion: number;
 declare var xcLocalStorage: XcStorage;
+declare var xcSessionStorage: XcStorage;
 declare var global: any;
 declare var expHost: string;
 declare var sqlMode: boolean;
@@ -234,6 +235,11 @@ declare function XcalarListPublishedTables(pattern: string): XDPromise<any>;
 declare function XcalarRestoreTable(tableName: string): XDPromise<any>;
 declare function XcalarUnpublishTable(tableName: string): XDPromise<any>;
 declare function XcalarRefreshTable(pubTableName: string, dstTableName: string, minBatch: number, maxBatch: number, txId: number): XDPromise<any>;
+declare function XcalarApiTop(measureIntervalInMs?: any): XDPromise<any>;
+declare function XcalarGetStatGroupIdMap(nodeId: number, numGroupId: number): XDPromise<any>;
+declare function XcalarExportRetina(retinaName: string): XDPromise<any>;
+declare function XcalarQueryState(queryName: string): XDPromise<any>;
+declare function XcalarGetMemoryUsage(username: string, userId: number): XDPromise<any>;
 /* ============= THRIFT ENUMS ================= */
 declare enum DfFieldTypeT {
     DfString,
@@ -266,7 +272,8 @@ declare enum StatusT {
     StatusSessionUsrAlreadyExists,
     StatusDsODBCTableExists,
     StatusExist,
-    StatusExportSFFileExists
+    StatusExportSFFileExists,
+    StatusSessionNotFound
 }
 
 declare enum FunctionCategoryT {
@@ -336,6 +343,9 @@ declare namespace CommonTxtTstr {
     export var LogOut: string;
     export var NA: string;
     export var Upgrading: string;
+    export var Back: string;
+    export var HighXcalarMemUsage: string;
+    export var XcalarMemUsage: string;
 }
 
 declare namespace IndexTStr {
@@ -391,6 +401,9 @@ declare namespace TooltipTStr {
     export var CloseQG: string;
     export var OpenQG: string;
     export var OnlyInOpMode: string;
+    export var LowMemInDS: string;
+    export var LowMemInTable: string;
+    export var SystemGood: string;
 }
 
 declare namespace SuccessTStr{
@@ -400,6 +413,9 @@ declare namespace SuccessTStr{
 declare namespace MonitorTStr {
     export var SupportTools: string;
     export var Monitor: string;
+    export var LowMemInstr: string;
+    export var LowMem: string;
+    export var LowMemMsg: string;
 }
 
 declare namespace AggTStr {
@@ -446,11 +462,15 @@ declare namespace AlertTStr {
     export var UserOverLimitMsg: string;
     export var LicenseErr: string;
     export var LicenseErrMsg: string;
+    export var NoConnect: string;
+    export var Connecting: string;
+    export var TryConnect: string;
 }
 
 declare namespace ThriftTStr {
     export var Update: string;
     export var CCNBE: string;
+    export var CCNBEErr: string;
 }
 
 declare namespace FailTStr {
@@ -463,6 +483,7 @@ declare namespace WSTStr {
 
 declare namespace DFTStr {
     export var BatchDF: string;
+    export var DownloadErr: string;
 }
 
 declare namespace JupyterTStr {
@@ -474,6 +495,14 @@ declare namespace IMDTStr {
     export var DelTable: string;
     export var DelTableMsg: string;
     export var Activating: string;
+}
+
+declare namespace WKBKTStr {
+    export var Hold: string;
+    export var HoldMsg: string;
+    export var Release: string;
+    export var Expire: string;
+    export var ExpireMsg: string;
 }
 
 declare namespace UDFTStr {
@@ -551,12 +580,15 @@ declare class TableMeta {
 
 declare class XcStorage {
     public getItem(key: string): string;
+    public setItem(key: string, value: string): boolean;
+    public removeItem(key: string): boolean;
 }
 
 declare class WKBK {
     public name: string;
     public modified: string;
     public sessionId: string;
+    public getName(): string;
 }
 
 declare class METAConstructor {
@@ -607,16 +639,8 @@ declare class ScrollTableChecker {
 declare namespace xcManager {
     export function removeUnloadPrompt(markUser: boolean): void;
     export function setup(): XDPromise<void>;
-}
-
-declare namespace XcSupport {
-    export function setup(stripEmail: boolean): void;
-    export function heartbeatCheck(): void;
-    export function getUser(): string;
-    export function setUser(userName: string): void;
-    export function stopHeartbeatCheck(): void;
-    export function restartHeartbeatCheck(): void;
-    export function commitCheck(): XDPromise<any>;
+    export function unload();
+    export function isStatusFail(): boolean;
 }
 
 declare namespace UserSettings {
@@ -638,10 +662,6 @@ declare namespace Admin {
     export function isAdmin(): boolean;
 }
 
-declare namespace xcManager {
-    export function unload();
-}
-
 declare namespace PromiseHelper {
     export function deferred<T>(): XDDeferred<T>;
     export function reject<T>(...args): XDPromise<T>;
@@ -658,6 +678,10 @@ declare namespace Log {
     export function commit(): XDPromise<void>;
     export function restore(oldLogCursor: number): void;
     export function upgrade(oldLog: string): string;
+    export function hasUncommitChange(): boolean;
+    export function lockUndoRedo(): void;
+    export function unlockUndoRedo(): void;
+    export function backup(): void;
 }
 
 declare namespace SupTicketModal {
@@ -670,8 +694,11 @@ declare namespace EULAModal {
 
 declare namespace Alert {
     export function tempHide(): void;
-    export function error(title: string, error: string, options?: object): void;
-    export function show(options: {title: string, instr?: string, msg?: string, isAlert?: boolean, msgTemplate?: string, onConfirm?: Function}): string;
+    export function error(title: string, error: any, options?: object): string;
+    export function show(options: {title: string, instr?: string, msg?: string, isAlert?: boolean, msgTemplate?: string, onConfirm?: Function, onCancel?: Function, buttons?: any, noCancel?: boolean, lockScreen?: boolean, logout?: boolean, instrTemplate?: string, isCheckBox?: boolean}): string;
+    export function isVisible(): boolean;
+    export function isChecked(): boolean;
+    export function updateMsg(alertId: string, msg: string): void;
 }
 
 declare namespace MonitorGraph {
@@ -691,6 +718,7 @@ declare namespace TableList {
     export function lockTable(tableId: TableId): void;
     export function unlockTable(tableId: TableId): void;
     export function refreshConstantList(): void;
+    export function refreshOrphanList(prettyPrint: boolean): XDPromise<void>;
 }
 
 declare namespace TblManager {
@@ -758,11 +786,6 @@ declare namespace WorkbookManager {
 declare namespace QueryManager{
     export function restore(oldMeta: object[]);
     export function addIndexTable(txId: number, tableName: string): void;
-}
-
-declare namespace Log {
-    export function lockUndoRedo(): void;
-    export function unlockUndoRedo(): void
 }
 
 declare namespace Dag {

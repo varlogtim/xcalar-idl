@@ -91,7 +91,7 @@ namespace XVM {
         kvVersion = new KVVersion(versionInfo);
         if (kvVersion.stripEmail) {
             // need to redo the username setup
-            XcSupport.setup(true);
+            XcUser.setCurrentUser(true);
         }
     }
 
@@ -114,7 +114,7 @@ namespace XVM {
      * XVM.setup
      */
     export function setup(): void {
-        const key: string = "xcalar-version-" + XcSupport.getUser();
+        const key: string = "xcalar-version-" + XcUser.getCurrentUserName();
         kvVersionStore = new KVStore(key, gKVScope.USER);
     }
 

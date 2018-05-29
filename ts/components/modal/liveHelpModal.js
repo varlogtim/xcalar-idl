@@ -29,7 +29,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
 
     // Everytime click on 'liveHelp' on menu
     LiveHelpModal.show = function() {
-        userName = XcSupport.getUser().split("@")[0];
+        userName = XcUser.getCurrentUserName().split("@")[0];
         if (!$modal.is(":visible")) {
             modalHelper.setup();
             $modal.find(".xi-fullscreen").hide();
@@ -47,7 +47,7 @@ window.LiveHelpModal = (function($, LiveHelpModal) {
                 $modal.find(".sendEmail").hide();
                 // Auto-filling username and email
                 $modal.find(".name").val(userName);
-                var autoFillEmail = XcSupport.getUser();
+                var autoFillEmail = XcUser.getCurrentUserName();
                 if (isValidEmail(autoFillEmail)) {
                     $modal.find(".email").val(autoFillEmail);
                 }

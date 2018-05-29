@@ -95,7 +95,7 @@ class KVStore {
      * KVStore.commit
      * @param atStartUp
      */
-    public static commit(atStartUp: boolean): XDPromise<void> {
+    public static commit(atStartUp: boolean = false): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const $autoSaveBtn: JQuery = $("#autoSaveBtn");
         const $userSettingsSave: JQuery = $("#userSettingsSave");
@@ -524,7 +524,7 @@ class KVStore {
         if (noCommitCheck) {
             return PromiseHelper.resolve();
         } else {
-            return XcSupport.commitCheck();
+            return XcUser.CurrentUser.commitCheck();
         }
     }
     /* ============ End of Instance Properties and Methods ========== */

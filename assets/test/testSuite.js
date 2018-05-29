@@ -556,7 +556,9 @@ window.TestSuite = (function($, TestSuite) {
         // free this session and then run unit test
         var promise = TblManager.freeAllResultSetsSync();
         PromiseHelper.alwaysResolve(promise)
-        .then(XcSupport.releaseSession)
+        .then(function() {
+            return XcUser.CurrentUser.releaseSession();
+        })
         .then(function() {
             xcManager.removeUnloadPrompt();
             var curURL = new URL(window.location.href);

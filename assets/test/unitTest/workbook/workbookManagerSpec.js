@@ -81,7 +81,7 @@ describe("WorkbookManager Test", function() {
 
         it("getWKBKId should work", function() {
             var res = WorkbookManager.__testOnly__.getWKBKId("test");
-            expect(res).to.equal(XcSupport.getUser() + "-wkbk-test");
+            expect(res).to.equal(XcUser.getCurrentUserName() + "-wkbk-test");
         });
 
         it("copyHelper should work", function(done) {
@@ -128,12 +128,12 @@ describe("WorkbookManager Test", function() {
 
         it("resetActiveWKBK should work", function(done) {
             var oldSetup = KVStore.setup;
-            var oldHold = XcSupport.holdSession;
+            var oldHold = XcUser.CurrentUser.holdSession;
             var test = false;
 
             KVStore.setup = function() {};
 
-            XcSupport.holdSession = function() {
+            XcUser.CurrentUser.holdSession = function() {
                 test = true;
                 return PromiseHelper.resolve();
             };
@@ -150,7 +150,7 @@ describe("WorkbookManager Test", function() {
             })
             .always(function() {
                 KVStore.setup = oldSetup;
-                XcSupport.holdSession = oldHold;
+                XcUser.CurrentUser.holdSession = oldHold;
             });
         });
 
@@ -886,7 +886,7 @@ describe("WorkbookManager Test", function() {
 
         it("Should deactivate workbook from socket", function() {
             var info = {};
-            info.user = XcSupport.getUser();
+            info.user = XcUser.getCurrentUserName();
             info.action = "deactivate";
             info.triggerWkbk = WorkbookManager.getActiveWKBK();
 
@@ -932,7 +932,7 @@ describe("WorkbookManager Test", function() {
             passed = false;
             oldGetWKBK = WorkbookManager.getWorkbook;
             oldWKBKAsync = WorkbookManager.getWKBKsAsync;
-            oldHoldSession = XcSupport.holdSession;
+            oldHoldSession = XcUser.CurrentUser.holdSession;
             oldUpdateFolderName = JupyterPanel.updateFolderName;
             WorkbookManager.getWorkbook = function() {
                 return {"jupyterFolder": "temp"};
@@ -944,13 +944,13 @@ describe("WorkbookManager Test", function() {
                 passed = true;
             };
             WorkbookPanel.updateWorkbooks = function() {};
-            XcSupport.holdSession = function(){};
+            XcUser.CurrentUser.holdSession = function(){};
             WorkbookInfoModal.update = function() {};
         });
 
         it("Should rename workbook through socket", function(done) {
             var info = {};
-            info.user = XcSupport.getUser();
+            info.user = XcUser.getCurrentUserName();
             info.action = "rename";
             info.newName = xcHelper.randName("newName");
             info.triggerWkbk = WorkbookManager.getActiveWKBK();
@@ -973,7 +973,7 @@ describe("WorkbookManager Test", function() {
             WorkbookManager.getWorkbook = oldGetWKBK;
             WorkbookManager.getWKBKsAsync = oldWKBKAsync;
             JupyterPanel.updateFolderName = oldUpdateFolderName;
-            XcSupport.holdSession = oldHoldSession;
+            XcUser.CurrentUser.holdSession = oldHoldSession;
         });
     });
 

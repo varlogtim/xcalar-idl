@@ -111,7 +111,7 @@ window.UDF = (function($, UDF) {
 
 
     UDF.getCurrWorkbookPath = function() {
-        return ("/workbook/" + XcSupport.getUser() + "/" +
+        return ("/workbook/" + XcUser.getCurrentUserName() + "/" +
                 WorkbookManager.getWorkbook(
                 WorkbookManager.getActiveWKBK()).sessionId + "/udf/");
     };
@@ -414,7 +414,7 @@ window.UDF = (function($, UDF) {
         var otherModules = [];
 
         var sortedUDF = Object.keys(storedUDF).sort();
-        var userName = XcSupport.getUser();
+        var userName = XcUser.getCurrentUserName();
         var sessionId = WorkbookManager.getWorkbook(
                         WorkbookManager.getActiveWKBK()).sessionId;
         var defaultUDFPath = UDF.getDefaultUDFPath();

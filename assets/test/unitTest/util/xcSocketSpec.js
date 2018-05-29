@@ -149,7 +149,7 @@ describe("xcSocket Test", function() {
             let test = false;
             WorkbookManager.gotoWorkbook = () => { test = true;};
             const userOption = {
-                user: XcSupport.getUser(),
+                user: XcUser.getCurrentUserName(),
                 id: WorkbookManager.getActiveWKBK()
             };
 

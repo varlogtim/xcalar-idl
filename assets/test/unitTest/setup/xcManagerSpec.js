@@ -30,8 +30,8 @@ describe("xcManager Test", function() {
             var oldFunc = WorkbookPanel.forceShow;
             var test = false;
             WorkbookPanel.forceShow = function() { test = true; };
-            var oldHold = XcSupport.holdSession;
-            XcSupport.holdSession = function() {
+            var oldHold = XcUser.CurrentUser.holdSession;
+            XcUser.CurrentUser.holdSession = function() {
                 return PromiseHelper.resolve();
             };
 
@@ -47,7 +47,7 @@ describe("xcManager Test", function() {
                 expect($("#viewLocation").text().includes(WKBKTStr.Location))
                 .to.be.true;
                 WorkbookPanel.forceShow = oldFunc;
-                XcSupport.holdSession = oldHold;
+                XcUser.CurrentUser.holdSession = oldHold;
                 done();
             })
             .fail(function() {
@@ -256,14 +256,14 @@ describe("xcManager Test", function() {
             xcManager.__testOnly__.fakeLogoutRedirect();
 
             var oldFree = TblManager.freeAllResultSetsSync;
-            var oldRelease =  XcSupport.releaseSession;
+            var oldRelease =  XcUser.CurrentUser.releaseSession;
             var oldRemove = xcManager.removeUnloadPrompt;
             var test2, test3, test4;
             TblManager.freeAllResultSetsSync = function() {
                 test2 = true;
                 return PromiseHelper.resolve();
             };
-            XcSupport.releaseSession = function() {
+            XcUser.CurrentUser.releaseSession = function() {
                 test3 = true;
                 return PromiseHelper.resolve();
             };
@@ -284,7 +284,7 @@ describe("xcManager Test", function() {
             })
             .always(function() {
                 TblManager.freeAllResultSetsSync = oldFree;
-                XcSupport.releaseSession = oldRelease;
+                XcUser.CurrentUser.releaseSession = oldRelease;
                 xcManager.removeUnloadPrompt = oldRemove;
                 xcManager.__testOnly__.resetLogoutRedirect();
             });

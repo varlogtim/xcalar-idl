@@ -85,7 +85,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
             }
         }
         $(window).load(function() {
-            var name = XcSupport.getUser();
+            var name = XcUser.getCurrentUserName();
             if (name){
                 mixpanel.identify(name);
                 mixpanel.people.set({

@@ -260,7 +260,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
     JupyterPanel.newWorkbook = function(wkbkName) {
         var deferred = PromiseHelper.deferred();
 
-        var folderName = XcSupport.getUser() + "-" + wkbkName;
+        var folderName = XcUser.getCurrentUserName() + "-" + wkbkName;
         var msgStruct = {
             action: "newWorkbook",
             folderName: folderName
@@ -280,7 +280,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
 
     JupyterPanel.renameWorkbook = function(oldFolderName, newWkbkName) {
         var deferred = PromiseHelper.deferred();
-        var newFolderName = XcSupport.getUser() + "-" + newWkbkName;
+        var newFolderName = XcUser.getCurrentUserName() + "-" + newWkbkName;
         var msgStruct = {
             action: "renameWorkbook",
             newFolderName: newFolderName,

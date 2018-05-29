@@ -353,9 +353,9 @@ describe("Workbook- Workbook Pane Test", function() {
 
         it("should handle create workbook error case", function(done) {
             var name = xcHelper.randName("testWorkbook");
-            var oldFunc = XcSupport.commitCheck;
+            var oldFunc = XcUser.CurrentUser.commitCheck;
 
-            XcSupport.commitCheck = function() {
+            XcUser.CurrentUser.commitCheck = function() {
                 return PromiseHelper.reject();
             };
 
@@ -365,7 +365,7 @@ describe("Workbook- Workbook Pane Test", function() {
             UnitTest.hasStatusBoxWithError(WKBKTStr.CreateErr);
             done();
 
-            XcSupport.commitCheck = oldFunc;
+            XcUser.CurrentUser.commitCheck = oldFunc;
         });
 
         it("Should create new workbook", function(done) {
@@ -667,7 +667,7 @@ describe("Workbook- Workbook Pane Test", function() {
                 WorkbookPanel.show(true);
 
                 expect($workbookPanel.find(".workbookBox.active").length)
-                .to.equal(1);
+                .to.be.at.least(1);
                 done();
             })
             .fail(function() {

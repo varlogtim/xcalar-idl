@@ -47,8 +47,8 @@ class UDFManager {
         if (map.has(userName)) {
             deferred.resolve(map.get(userName));
         } else {
-            const currentUser: string = XcSupport.getUser();
-            XcSupport.setUser(userName);
+            const user: XcUser = new XcUser(userName);
+            XcUser.setUserSession(user);
 
             XcalarListWorkbooks("*")
             .then((sessionRes) => {
@@ -65,7 +65,7 @@ class UDFManager {
             })
             .fail(deferred.reject);
             // reset user
-            XcSupport.setUser(currentUser);
+            XcUser.resetUserSession();
         }
 
 

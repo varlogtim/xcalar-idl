@@ -497,7 +497,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
     function getWorkbookInfo(isForceMode) {
         var $welcomeMsg = $welcomeCard.find(".description");
         var $welcomeUser = $welcomeCard.find(".heading .username");
-        var user = XcSupport.getUser();
+        var user = XcUser.getCurrentUserName();
         $welcomeUser.text(user);
 
         if (isForceMode) {
@@ -513,7 +513,7 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
 
         checkFileSize(file)
         .then(function() {
-            return XcSupport.commitCheck();
+            return XcUser.CurrentUser.commitCheck();
         })
         .then(function() {
             var deferred1;

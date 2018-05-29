@@ -13,7 +13,7 @@ window.Admin = (function($, Admin) {
         //xx temp hack  to determine admin
         if (Admin.isAdmin()) {
             if (xcSessionStorage.getItem("usingAs") === "true" &&
-                xcSessionStorage.getItem("adminName") !== XcSupport.getUser()) {
+                xcSessionStorage.getItem("adminName") !== XcUser.getCurrentUserName()) {
                 posingAsUser = true;
                 $('#container').addClass('posingAsUser');
             } else {
@@ -57,7 +57,7 @@ window.Admin = (function($, Admin) {
     // will not add user if already exists in kvstore
     Admin.addNewUser = function() {
         var deferred = PromiseHelper.deferred();
-        var username = XcSupport.getUser();
+        var username = XcUser.getCurrentUserName();
         var kvStore = new KVStore(userListKey, gKVScope.GLOB);
 
         kvStore.get()
@@ -99,7 +99,7 @@ window.Admin = (function($, Admin) {
         xcSessionStorage.setItem("xcalar-username", username);
         if (xcSessionStorage.getItem("usingAs") !== "true") {
             xcSessionStorage.setItem("usingAs", true);
-            xcSessionStorage.setItem("adminName", XcSupport.getUser());
+            xcSessionStorage.setItem("adminName", XcUser.getCurrentUserName());
         }
 
         xcManager.unload(false, true);
@@ -371,8 +371,8 @@ window.Admin = (function($, Admin) {
 
     function getMemUsage(username) {
         var deferred  = PromiseHelper.deferred();
-        var userId = XcSupport.getUserIdUnique(username);
-        XcalarGetMemoryUsage(username, userId)
+        var user = new XcUser(username);
+        user.getMemoryUsage()
         .then(function(origData) {
             var data;
             if (origData && origData.userMemory &&
@@ -415,8 +415,8 @@ window.Admin = (function($, Admin) {
         var promises = [];
         for (var i = 0; i < userList.length; i++) {
             username = userList[i];
-            userId = XcSupport.getUserIdUnique(username);
-            promises.push(XcalarGetMemoryUsage(username, userId));
+            var user = new XcUser(username);
+            promises.push(user.getMemoryUsage());
         }
 
         PromiseHelper.when.apply(window, promises)
@@ -688,7 +688,7 @@ window.Admin = (function($, Admin) {
         var $adminBar = $('#adminStatusBar');
 
         if (posingAsUser) {
-            $adminBar.find('.username').text(XcSupport.getUser());
+            $adminBar.find('.username').text(XcUser.getCurrentUserName());
             var width = $adminBar.outerWidth() + 1;
             $adminBar.outerWidth(width);
             // giving adminBar a width so we can use position right with the

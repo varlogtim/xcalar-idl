@@ -609,7 +609,7 @@ namespace xcHelper {
      * xcHelper.getUserPrefix
      */
     export function getUserPrefix(): string {
-        return XcSupport.getUser();
+        return XcUser.getCurrentUserName();
     }
 
     /**

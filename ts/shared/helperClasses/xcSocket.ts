@@ -148,7 +148,7 @@ class XcSocket {
                 return;
             }
             console.log(userOption, 'exists');
-            if (userOption.user === XcSupport.getUser() &&
+            if (userOption.user === XcUser.getCurrentUserName() &&
                 userOption.id === WorkbookManager.getActiveWKBK()) {
                 WorkbookManager.gotoWorkbook(null, true);
             }
@@ -237,7 +237,7 @@ class XcSocket {
 
     private _getUserOption(workbookId: string): UserOption {
         return {
-            user: XcSupport.getUser(),
+            user: XcUser.getCurrentUserName(),
             id: workbookId
         };
     }

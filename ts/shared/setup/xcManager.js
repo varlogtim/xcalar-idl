@@ -24,8 +24,8 @@ window.xcManager = (function(xcManager, $) {
 
         hotPatch()
         .then(function() {
-            // XcSupport.setup() get username, so need to be at very early time
-            XcSupport.setup();
+            // XcUser.setCurrentUser() get username, so need to be at very early time
+            XcUser.setCurrentUser();
             XVM.setup();
     
             setupUserArea();
@@ -177,7 +177,7 @@ window.xcManager = (function(xcManager, $) {
             locationText = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
             // start socket (no workbook is also a valid login case)
             var userExists = false;
-            XcSupport.holdSession()
+            XcUser.CurrentUser.holdSession()
             .fail(function(err) {
                 if (err === WKBKTStr.Hold) {
                     userExists = true;
@@ -290,7 +290,7 @@ window.xcManager = (function(xcManager, $) {
         } else {
             TblManager.freeAllResultSetsSync()
             .then(function() {
-                return XcSupport.releaseSession();
+                return XcUser.CurrentUser.releaseSession();
             })
             .fail(function(error) {
                 console.error(error);
@@ -327,7 +327,7 @@ window.xcManager = (function(xcManager, $) {
     function markUserUnload() {
         var xcSocket = XcSocket.Instance;
         if (xcSocket.isResigered()) {
-            xcSessionStorage.setItem(XcSupport.getUser(), new Date().getTime());
+            xcSessionStorage.setItem(XcUser.getCurrentUserName(), new Date().getTime());
         }
     }
 
@@ -504,7 +504,9 @@ window.xcManager = (function(xcManager, $) {
         var deferred = PromiseHelper.deferred();
 
         WorkbookManager.setup()
-        .then(XcSupport.holdSession)
+        .then(function(wkbkId) {
+            return XcUser.CurrentUser.holdSession(wkbkId);
+        })
         .then(function() {
             return JupyterPanel.initialize();
         })
@@ -645,7 +647,7 @@ window.xcManager = (function(xcManager, $) {
     function setupUserBox() {
         var $menu = $("#userMenu");
         xcMenu.add($menu);
-        $("#userName").text(XcSupport.getFullUsername());
+        $("#userName").text(XcUser.CurrentUser.getFullName());
 
         $("#userNameArea").click(function() {
             var $target = $(this);

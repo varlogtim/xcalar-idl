@@ -145,7 +145,7 @@ window.UExtLicenseMgr = (function(UExtLicenseMgr) {
             var args = self.getArgs();
             var data = {
                 "secret": "xcalarS3cret",
-                "userId": XcSupport.getUser(),
+                "userId": XcUser.getCurrentUserName(),
                 "licenseType": args.licenseType,
                 "compress": true,
                 "usercount": args.userCount,

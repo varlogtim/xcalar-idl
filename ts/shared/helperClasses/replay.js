@@ -487,7 +487,7 @@ window.Replay = (function($, Replay) {
         var dsId = options.dsId;
         // XXX TODO: fix this temporary fix
         var index = dsId.indexOf(".");
-        dsId = XcSupport.getUser() + dsId.substring(index);
+        dsId = XcUser.getCurrentUserName() + dsId.substring(index);
 
         var columns = options.columns;
         var tableName = options.tableName;

@@ -9,7 +9,7 @@ window.AdminAlertCard = (function($, AdminAlertCard) {
     function submitForm() {
         var alertOption = {
             "title": MonitorTStr.AdminAlert,
-            "message": "From " + XcSupport.getUser() + " : " +
+            "message": "From " + XcUser.getCurrentUserName() + " : " +
                        $card.find(".alert-msg").val()
         };
         if (alertOption.message) {

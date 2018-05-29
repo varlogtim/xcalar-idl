@@ -176,7 +176,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         var deferred = PromiseHelper.deferred();
         var copySrcName = isCopy ? copySrc.name : null;
-        var username = XcSupport.getUser();
+        var username = XcUser.getCurrentUserName();
 
         XcalarNewWorkbook(wkbkName, isCopy, copySrcName)
         .then(function() {
@@ -314,7 +314,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     function switchWorkBookHelper(wkbkName) {
         var deferred = PromiseHelper.deferred();
-        var queryName = XcSupport.getUser() + ":" + wkbkName;
+        var queryName = XcUser.getCurrentUserName() + ":" + wkbkName;
         progressCycle(queryName, checkInterval);
         $("#initialLoadScreen").data("curquery", queryName);
         $("#container").addClass("switchingWkbk");
@@ -343,7 +343,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             $("#container").removeClass("switchingWkbk");
             XcSocket.Instance.sendMessage("refreshWorkbook", {
                 "action": "activate",
-                "user": XcSupport.getUser(),
+                "user": XcUser.getCurrentUserName(),
                 "triggerWkbk": getWKBKId(wkbkName)
             });
         });
@@ -407,7 +407,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         var deferred = PromiseHelper.deferred();
 
         var jupFolderName;
-        var username = XcSupport.getUser();
+        var username = XcUser.getCurrentUserName();
         var parsedWorkbookContent;
 
         readFile(workbookContent)
@@ -475,7 +475,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             xcSocket.unregisterUserSession(workbookId);
             xcSocket.sendMessage("refreshWorkbook", {
                 "action": "deactivate",
-                "user": XcSupport.getUser(),
+                "user": XcUser.getCurrentUserName(),
                 "triggerWkbk": workbookId
             });
             deferred.resolve();
@@ -528,7 +528,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         .then(function() {
             XcSocket.Instance.sendMessage("refreshWorkbook", {
                 "action": "description",
-                "user": XcSupport.getUser(),
+                "user": XcUser.getCurrentUserName(),
                 "triggerWkbk": wkbkId
             });
             deferred.resolve(wkbkId);
@@ -597,7 +597,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         .then(function() {
             XcSocket.Instance.sendMessage("refreshWorkbook", {
                 "action": "rename",
-                "user": XcSupport.getUser(),
+                "user": XcUser.getCurrentUserName(),
                 "triggerWkbk": srcWKBKId,
                 "oldName": srcWKBK.name,
                 "newName": newName
@@ -644,7 +644,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         .then(function() {
             XcSocket.Instance.sendMessage("refreshWorkbook", {
                 "action": "delete",
-                "user": XcSupport.getUser(),
+                "user": XcUser.getCurrentUserName(),
                 "triggerWkbk":workbookId
             });
             deferred.resolve.apply(this, arguments);
@@ -726,7 +726,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     function getWKbkKey(version) {
-        var username = XcSupport.getUser();
+        var username = XcUser.getCurrentUserName();
         return generateKey(username, "workbookInfos", version);
     }
 
@@ -753,7 +753,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     function getUserScopeKeys(version) {
-        var username = XcSupport.getUser();
+        var username = XcUser.getCurrentUserName();
         var gUserKey = generateKey(username, "gUser", version);
 
         return {
@@ -889,7 +889,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     // used in socket updates
     WorkbookManager.updateWorkbooks = function(info) {
-        if (XcSupport.getUser() !== info.user) {
+        if (XcUser.getCurrentUserName() !== info.user) {
             // XXX socket should only send messages to relevant users
             return;
         }
@@ -962,7 +962,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         setActiveWKBK(newWKBKId);
         setURL(newWKBKId, true);
         // rehold the session as KVStore's key changed
-        return XcSupport.holdSession(newWKBKId, true);
+        return XcUser.CurrentUser.holdSession(newWKBKId, true);
     }
 
     // if upload, jupFolderName should be provided
@@ -1047,7 +1047,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         function broadCast() {
             XcSocket.Instance.sendMessage("refreshWorkbook", {
                 "action": "newWorkbook",
-                "user": XcSupport.getUser(),
+                "user": XcUser.getCurrentUserName(),
                 "triggerWkbk": getWKBKId(wkbkName)
             });
         }
@@ -1210,7 +1210,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     function getWKBKId(wkbkName) {
-        var username = XcSupport.getUser();
+        var username = XcUser.getCurrentUserName();
         return generateKey(username, "wkbk", wkbkName);
     }
 

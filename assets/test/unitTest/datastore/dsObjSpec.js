@@ -14,7 +14,7 @@ describe("Dataset-DSObj Test", function() {
         $gridView = $("#dsListSection").find(".gridItems");
         $dsListFocusTrakcer = $("#dsListFocusTrakcer");
         $statusBox = $("#statusBox");
-        user = XcSupport.getUser();
+        user = XcUser.getCurrentUserName();
 
         $mainTabCache = $(".topMenuBarTab.active");
         UnitTest.testFinish(function() {
@@ -160,7 +160,7 @@ describe("Dataset-DSObj Test", function() {
         });
 
         it("Should add current user's ds", function() {
-            var user = XcSupport.getUser();
+            var user = XcUser.getCurrentUserName();
             var dsName = DS.getUniqueName("testDS");
             var testName = user + "." + dsName;
             var ds = DS.addCurrentUserDS(testName, {

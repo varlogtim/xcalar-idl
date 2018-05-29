@@ -60,7 +60,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
     xcMixpanel.addListeners = function() {
         var lastFocus;
         $(window).load(function() {
-            var name = XcSupport.getUser();
+            var name = XcUser.getCurrentUserName();
             var version = XVM.getVersion() || "No version info";
             if (name){
                 mixpanel.identify(name);
@@ -106,7 +106,7 @@ window.xcMixpanel = (function($, xcMixpanel) {
             mixpanel.track("focusEvent", {
                 "Time": time,
                 "Timestamp": timestamp,
-                "Username": XcSupport.getUser(),
+                "Username": XcUser.getCurrentUserName(),
                 "Host": window.location.hostname
             });
         });
