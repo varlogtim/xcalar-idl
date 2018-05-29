@@ -662,7 +662,7 @@ window.TblManager = (function($, TblManager) {
                 deferred.resolve(tableNames);
             }
             // Delete schemas in SQL
-            if (typeof SQLEditor !== "unidefined") {
+            if (typeof SQLEditor !== "undefined") {
                 var tableIds = [];
                 if (tableType === TableType.Orphan) {
                     tables.forEach(function(tableName) {
