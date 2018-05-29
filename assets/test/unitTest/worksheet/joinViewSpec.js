@@ -804,6 +804,7 @@ describe("JoinView Test", function() {
                 done("fail");
             })
             .fail(function(error) {
+                UnitTest.hasAlertWithTitle(StatusMessageTStr.JoinEstFailed);
                 expect(error).to.equal("testError");
                 var expectedText = "Min:N/AMed:N/AMax:N/A";
                 expect($stats.text().replace(/ /g, "").replace(/\n/g, ""))

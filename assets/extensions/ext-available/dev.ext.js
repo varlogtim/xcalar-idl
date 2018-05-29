@@ -180,7 +180,11 @@ window.UExtDev = (function(UExtDev) {
                 if (leftLimit > leftCount) {
                     leftLimit = leftCount;
                 }
-                return ext.fetchDataAndParse(leftSortedTable, 1, leftLimit);
+                if (leftCount === 0) {
+                    return PromiseHelper.resolve([]);
+                } else {
+                    return ext.fetchDataAndParse(leftSortedTable, 1, leftLimit);
+                }
             })
             .fail(function() {
                 return PromiseHelper.reject();
@@ -207,7 +211,11 @@ window.UExtDev = (function(UExtDev) {
                 if (rightLimit > rightCount) {
                     rightLimit = rightCount;
                 }
-                return ext.fetchDataAndParse(rightSortedTable, 1, rightLimit);
+                if (rightCount === 0) {
+                    return PromiseHelper.resolve([]);
+                } else {
+                    return ext.fetchDataAndParse(rightSortedTable, 1, rightLimit);
+                }
             })
             .fail(function() {
                 return PromiseHelper.reject();
@@ -215,79 +223,86 @@ window.UExtDev = (function(UExtDev) {
 
             XcSDK.Promise.when(leftPromise, rightPromise, leftRowsPromise,
                                rightRowsPromise)
-            .then(function(leftArray, rightArray, leftRows, rightRows) {
-                // var leftOrigRows = leftRows;
-                // var rightOrigRows = rightRows;
-                var minLeftValue =
-                        leftArray[leftArray.length - 1][leftGBColName];
-                var minRightValue =
-                        rightArray[rightArray.length - 1][rightGBColName];
-                // Convert left and right array into huge objects
-                var i = 0;
-                var leftObj = {};
-                var rightObj = {};
-                var lKeyCol = ext.convertPrefixColumn(lColName);
-                for (i = 0; i < leftArray.length; i++) {
-                    leftObj[leftArray[i][lKeyCol]] =
-                                                    leftArray[i][leftGBColName];
-                }
-                var rKeyCol = ext.convertPrefixColumn(rColName);
-                for (i = 0; i < rightArray.length; i++) {
-                    rightObj[rightArray[i][rKeyCol]] =
-                                                  rightArray[i][rightGBColName];
-                }
-
+            .then(function(leftArray, rightArray, numLeftRows, numRightRows) {
                 var maxSum = 0;
                 var expSum = 0;
                 var minSum = 0;
 
-                var key;
-                var leftRowsCovered = 0;
-                var rightRowsCovered = 0;
-                for (key in leftObj) {
-                    leftRowsCovered += leftObj[key];
-                }
-                for (key in rightObj) {
-                    rightRowsCovered += rightObj[key];
-                }
+                if (!leftArray.length || !rightArray.length) {
+                    // if table is empty
+                    if (leftArray.length && (joinType === "leftouter" || joinType === "fullouter")) {
+                        maxSum = expSum = minSum = numLeftRows;
+                    } else if (rightArray.length && (joinType === "rightouter" || joinType === "fullouter")) {
+                        maxSum = expSum = minSum = numRightRows;
+                    } // else all values are 0
+                } else {
+                    var minLeftValue =
+                        leftArray[leftArray.length - 1][leftGBColName];
+                    var minRightValue =
+                        rightArray[rightArray.length - 1][rightGBColName];
+                    // Convert left and right array into huge objects
+                    var i = 0;
+                    var leftObj = {};
+                    var rightObj = {};
+                    var lKeyCol = ext.convertPrefixColumn(lColName);
+                    for (i = 0; i < leftArray.length; i++) {
+                        leftObj[leftArray[i][lKeyCol]] =
+                                                        leftArray[i][leftGBColName];
+                    }
+                    var rKeyCol = ext.convertPrefixColumn(rColName);
+                    for (i = 0; i < rightArray.length; i++) {
+                        rightObj[rightArray[i][rKeyCol]] =
+                                                    rightArray[i][rightGBColName];
+                    }
 
-                for (key in leftObj) {
-                    if (key in rightObj) {
-                        maxSum += leftObj[key] * rightObj[key];
-                        expSum += leftObj[key] * rightObj[key];
-                        minSum += leftObj[key] * rightObj[key];
-                        delete rightObj[key];
-                    } else {
-                        if (joinType === "leftouter" ||
-                            joinType === "fullouter") {
-                            minSum += leftObj[key];
+                    var key;
+                    var leftRowsCovered = 0;
+                    var rightRowsCovered = 0;
+                    for (key in leftObj) {
+                        leftRowsCovered += leftObj[key];
+                    }
+                    for (key in rightObj) {
+                        rightRowsCovered += rightObj[key];
+                    }
+
+                    for (key in leftObj) {
+                        if (key in rightObj) {
+                            maxSum += leftObj[key] * rightObj[key];
+                            expSum += leftObj[key] * rightObj[key];
+                            minSum += leftObj[key] * rightObj[key];
+                            delete rightObj[key];
+                        } else {
+                            if (joinType === "leftouter" ||
+                                joinType === "fullouter") {
+                                minSum += leftObj[key];
+                            }
+                            maxSum += leftObj[key] * minRightValue;
+                            expSum += leftObj[key] * minRightValue / 2;
                         }
-                        maxSum += leftObj[key] * minRightValue;
-                        expSum += leftObj[key] * minRightValue / 2;
                     }
-                }
 
-                for (key in rightObj) {
-                    if (joinType === "rightouter" ||
-                        joinType === "fullouter") {
-                        minSum += rightObj[key];
+                    for (key in rightObj) {
+                        if (joinType === "rightouter" ||
+                            joinType === "fullouter") {
+                            minSum += rightObj[key];
+                        }
+                        maxSum += rightObj[key] * minLeftValue;
+                        expSum += rightObj[key] * minLeftValue/2;
                     }
-                    maxSum += rightObj[key] * minLeftValue;
-                    expSum += rightObj[key] * minLeftValue/2;
-                }
 
-                var numKeysLeftInLeftTable = leftCount - leftLimit;
-                var numKeysLeftInRightTable = rightCount - rightLimit;
+                    var numKeysLeftInLeftTable = leftCount - leftLimit;
+                    var numKeysLeftInRightTable = rightCount - rightLimit;
 
-                maxSum += (numKeysLeftInLeftTable + numKeysLeftInRightTable) *
-                          minRightValue * minLeftValue;
-                expSum += (numKeysLeftInLeftTable + numKeysLeftInRightTable) *
-                          (minRightValue / 2) * (minLeftValue / 2);
-                if (joinType === "leftouter" || joinType === "fullouter") {
-                    minSum += leftRows - leftRowsCovered;
-                }
-                if (joinType === "rightouter" || joinType === "fuillouter") {
-                    minSum += rightRows - rightRowsCovered;
+                    maxSum += (numKeysLeftInLeftTable + numKeysLeftInRightTable) *
+                            minRightValue * minLeftValue;
+                    expSum += (numKeysLeftInLeftTable + numKeysLeftInRightTable) *
+                            (minRightValue / 2) * (minLeftValue / 2);
+                    if (joinType === "leftouter" || joinType === "fullouter") {
+                        minSum += numLeftRows - leftRowsCovered;
+                    }
+                    if (joinType === "rightouter" || joinType === "fuillouter") {
+                        minSum += numRightRows - rightRowsCovered;
+                    }
                 }
 
                 deferred.resolve({

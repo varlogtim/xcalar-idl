@@ -2498,7 +2498,7 @@ namespace XIApi {
         if (tableName == null || startRowNum == null ||
             rowsRequested == null || rowsRequested <= 0)
         {
-            return PromiseHelper.reject("Invalid args in fetch data");
+            return PromiseHelper.reject({error:"Invalid args in fetch data"});
         }
 
         const deferred: XDDeferred<string[]> = PromiseHelper.deferred();

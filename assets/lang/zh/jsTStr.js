@@ -16,6 +16,7 @@ StatusMessageTStr = {
 'Join': '连接表',
 'JoinFailed': '无法连接表',
 'JoinFailedAlt': '连接',
+'JoinEstFailed': "Join Size Estimation Failed",
 'Union': '合并表',
 'UnionFailed': '无法合并表',
 'DeleteTable': '删除表',

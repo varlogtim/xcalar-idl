@@ -16,6 +16,7 @@ StatusMessageTStr = {
     'Join': 'Joining tables',
     'JoinFailed': 'Table join failed',
     'JoinFailedAlt': 'Join failed',
+    'JoinEstFailed': "Join Size Estimation Failed",
     'Union': 'Creating table Union',
     'UnionFailed': 'Union failed',
     'DeleteTable': 'Dropping table',

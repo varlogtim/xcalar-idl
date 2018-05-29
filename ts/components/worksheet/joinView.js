@@ -1394,7 +1394,8 @@ window.JoinView = (function($, JoinView) {
 
             var extOptions = {
                 noNotification: true,
-                noSql: true
+                noSql: true,
+                noFailAlert: true
             };
             promise = ExtensionManager.trigger(tableIds[0], "UExtDev",
                                                 "estimateJoin", argList,
@@ -1410,6 +1411,7 @@ window.JoinView = (function($, JoinView) {
             deferred.resolve();
         })
         .fail(function(error) {
+            Alert.error(StatusMessageTStr.JoinEstFailed, error);
             $joinView.find('.estimatorWrap .title')
                      .text(JoinTStr.EstimatedJoin + ':');
             $estimatorWrap.find('.value').text('N/A');
