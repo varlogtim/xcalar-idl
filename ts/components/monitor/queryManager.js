@@ -113,6 +113,7 @@ window.QueryManager = (function(QueryManager, $) {
             "retName": options.retName
         });
         mainQuery.addSubQuery(subQuery);
+
         if (mainQuery.currStep === mainQuery.subQueries.length - 1) {
             if (options.queryName) {
                 outerQueryCheck(id);
@@ -851,8 +852,12 @@ window.QueryManager = (function(QueryManager, $) {
         });
 
         function check() {
+            if (mainQuery.state === QueryStatus.Error ||
+                mainQuery.state === QueryStatus.Cancel ||
+                mainQuery.state === QueryStatus.Done) {
+                return PromiseHelper.reject();
+            }
             var deferred = PromiseHelper.deferred();
-
             var queryName = mainQuery.subQueries[mainQuery.currStep].queryName;
             outerQueryCheckHelper(id, queryName)
             .then(function(res) {
@@ -864,8 +869,6 @@ window.QueryManager = (function(QueryManager, $) {
                 }
 
                 var numCompleted = res.numCompletedWorkItem;
-                // XXX need to accurately determine currStep based on
-                // numCompleted
                 var lastQueryPos = getLastQueryPos(mainQuery, firstQueryPos);
                 var currStep = Math.min(numCompleted + firstQueryPos,
                                         lastQueryPos);
@@ -876,6 +879,7 @@ window.QueryManager = (function(QueryManager, $) {
                 if (state === QueryStateT.qrFinished) {
                     var curSubQuery = mainQuery.subQueries[mainQuery.currStep];
                     currStep = mainQuery.currStep + 1;
+                    setQueriesDone(mainQuery, firstQueryPos, currStep);
                     if (!curSubQuery.retName) {
                         // do not increment step if retina because
                         // subQueryDone() will do this when retina resolves
@@ -918,8 +922,7 @@ window.QueryManager = (function(QueryManager, $) {
                     }
 
                     doNotAnimate = false;
-
-                    deferred.resolve();
+                    deferred.resolve();// continues cycle
                 }
             })
             .fail(function(error) {
@@ -1988,6 +1991,7 @@ window.QueryManager = (function(QueryManager, $) {
         QueryManager.__testOnly__.queryCheckLists = queryCheckList;
         QueryManager.__testOnly__.canceledQueries = canceledQueries;
         QueryManager.__testOnly__.unlockSrcTables = unlockSrcTables;
+        QueryManager.__testOnly__.outerQueryCheck = outerQueryCheck;
     }
     /* End Of Unit Test Only */
 

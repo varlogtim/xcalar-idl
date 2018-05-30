@@ -260,44 +260,6 @@
             var isSqlMode = (typeof sqlMode !== "undefined" && sqlMode);
             var queryName = xcHelper.randName("sql");
 
-            /* START OF TEST CODE */
-            // var num1 = Math.floor(Math.random() * 100000);
-            // var num2 = Math.floor(Math.random() * 100000);
-            // var temp = query.substring(0, query.length - 1);
-            // temp += "," + JSON.stringify({
-            //   "operation": "XcalarApiMap",
-            //   "args": {
-            //     "source": "NATIO-REGIO#29",
-            //     "dest": "NATIO-REGIO#" + num1,
-            //     "eval": [
-            //       {
-            //         "evalString": "slowmap:slow()",
-            //         "newField": "N_NATIONKEY_udf"
-            //       }
-            //     ],
-            //     "icv": false
-            //   }
-            // }) + "]";
-
-            // temp = "[" + JSON.stringify({
-            //   "operation": "XcalarApiMap",
-            //   "args": {
-            //     "source": "NATIO-REGIO#29",
-            //     "dest": "NATIO-REGIO#" + num2,
-            //     "eval": [
-            //       {
-            //         "evalString": "slowmap:slow()",
-            //         "newField": "N_NATIONKEY_udf"
-            //       }
-            //     ],
-            //     "icv": false
-            //   }
-            // }) + "," + temp.slice(1);
-
-            // query = temp;
-
-            /* END OF TEST CODE */
-
             var txId = !isSqlMode && Transaction.start({
                 "operation": "Execute SQL",
                 "steps": -1

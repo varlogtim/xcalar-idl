@@ -269,19 +269,15 @@ describe('QueryManager Test', function() {
             var queryCalled = false;
             XcalarQuery = function(name, query) {
                 queryCalled = true;
-                expect(query).to.equal('{"operation":"XcalarApiIndex","args":{"source":".XcalarDS.test.73762.schedule4824","dest":"schedule4824#ky109","key":'
-                 + '[{"name":"xcalarRecordNum","type":"DfUnknown","keyFieldName":"","ordering":"Unordered"}],"prefix":"schedule4824","dhtName":"","delaySort":false,"broadcast":false}}');
-                return PromiseHelper.resolve();
             };
             QueryManager.addQuery(999, "unitTest", {
                 query: '{"operation":"XcalarApiIndex","args":{"source":".XcalarDS.test.73762.schedule4824","dest":"schedule4824#ky109","key":'
                  + '[{"name":"xcalarRecordNum","type":"DfUnknown","keyFieldName":"","ordering":"Unordered"}],"prefix":"schedule4824","dhtName":"","delaySort":false,"broadcast":false}}'
             });
-            console.log(queryLists);
             var query = queryLists[999];
             expect(query.subQueries.length).to.equal(1);
             expect(query.subQueries[0].name).to.equal("XcalarApiIndex");
-            expect(queryCalled).to.be.false; // XXX is that true?
+            expect(queryCalled).to.be.false; // querymanager should not call XcalarQuery
             expect(stateCalled).to.be.true;
 
             XcalarQueryState = cachedQueryState;
@@ -292,6 +288,109 @@ describe('QueryManager Test', function() {
             expect(queryLists[999]).to.not.be.undefined;
             var numList = $queryList.find(".xc-query").length;
             QueryManager.removeQuery(999);
+            expect($queryList.find(".xc-query").length).to.equal(numList - 1);
+            expect(queryLists[999]).to.be.undefined;
+        });
+
+        it("outerQueryCheck should work", function(done) {
+            var cachedQueryState = XcalarQueryState;
+            var stateCalled = false;
+            XcalarQueryState = function() {
+                stateCalled = true;
+                return PromiseHelper.resolve({queryState: QueryStateT.qrFinished,
+                    numCompletedWorkItem: 2});
+            };
+
+            QueryManager.addQuery(999, "unitTest");
+            QueryManager.addSubQuery(999, "map", "", '{"operation":"map","args":{"source":"t#0","dest":"t#1"}}', {queryName: "q1"});
+            QueryManager.addSubQuery(999, "filter", "", '{"operation":"filter","args":{"source":"t#0","dest":"t#1"}}', {queryName: "q1"});
+            UnitTest.testFinish(function() {
+                return stateCalled;
+            })
+            .then(function() {
+                expect(stateCalled).to.be.true;
+                var query = queryLists[999];
+                expect(query.subQueries.length).to.equal(2);
+                expect(query.subQueries[0].name).to.equal("map");
+                expect(query.subQueries[1].name).to.equal("filter");
+                expect(query.subQueries[0].state).to.equal("done");
+                expect(query.subQueries[1].state).to.equal("done");
+                expect(query.currStep).to.equal(2);
+                expect(query.state).to.equal(0);
+                QueryManager.subQueryDone(999);
+                expect(query.state).to.equal(0);
+                QueryManager.queryDone(999);
+                expect(query.state).to.equal("done");
+                XcalarQueryState = cachedQueryState;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("remove query should work", function() {
+            expect(queryLists[999]).to.not.be.undefined;
+            var numList = $queryList.find(".xc-query").length;
+            QueryManager.removeQuery(999);
+            expect($queryList.find(".xc-query").length).to.equal(numList - 1);
+            expect(queryLists[999]).to.be.undefined;
+        });
+
+        it("finishing transation with 1/2 queries done", function(done) {
+            var cachedQueryState = XcalarQueryState;
+            var stateCalled = false;
+            var stateCalledTwice = false;
+            XcalarQueryState = function() {
+                if (stateCalled) {
+                    stateCalledTwice = true;
+                }
+                stateCalled = true;
+                return PromiseHelper.resolve({queryState: QueryStateT.qrProcessing,
+                    numCompletedWorkItem: 1});
+            };
+
+            var cacheOp = XcalarGetOpStats;
+            var opCalled = false;
+            XcalarGetOpStats = function() {
+                opCalled = true;
+                return PromiseHelper.resolve({opDetails: {numWorkCompleted: 4, numWorkTotal: 8}});
+            };
+
+            QueryManager.addQuery(9999, "unitTest");
+            QueryManager.addSubQuery(9999, "map", "a", '{"operation":"map","args":{"source":"t#0","dest":"t#1"}}', {queryName: "q1"});
+            QueryManager.addSubQuery(9999, "filter", "b", '{"operation":"filter","args":{"source":"t#0","dest":"t#1"}}', {queryName: "q1"});
+            UnitTest.testFinish(function() {
+                return stateCalledTwice;
+            })
+            .then(function() {
+                expect(stateCalled).to.be.true;
+                var query = queryLists[9999];
+                expect(query.subQueries.length).to.equal(2);
+                expect(query.subQueries[0].name).to.equal("map");
+                expect(query.subQueries[1].name).to.equal("filter");
+                expect(query.subQueries[0].state).to.equal("done");
+                expect(query.subQueries[1].state).to.equal(0);
+                expect(query.currStep).to.equal(1);
+                expect(query.state).to.equal(0);
+                expect(opCalled).to.be.true;
+
+                QueryManager.queryDone(9999);
+                expect(query.state).to.equal("done");
+
+                XcalarQueryState = cachedQueryState;
+                XcalarGetOpStats = cacheOp;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
+        it("remove query should work", function() {
+            expect(queryLists[9999]).to.not.be.undefined;
+            var numList = $queryList.find(".xc-query").length;
+            QueryManager.removeQuery(9999);
             expect($queryList.find(".xc-query").length).to.equal(numList - 1);
             expect(queryLists[999]).to.be.undefined;
         });
