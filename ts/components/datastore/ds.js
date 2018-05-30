@@ -327,7 +327,7 @@ window.DS = (function ($, DS) {
             return null;
         }
         // now only check dataset name conflict
-        user = user || XcUser.getCurrentUserName();
+        user = user || getCurrentUserName();
         var $grid = $gridView.find('.grid-unit[data-dsname="' + dsName + '"]');
         var $ds = $grid.filter(function() {
             // only check the dataset in user's namespace
@@ -482,7 +482,7 @@ window.DS = (function ($, DS) {
 
         // pre-process
         options.name = options.name.trim();
-        options.user = options.user || XcUser.getCurrentUserName();
+        options.user = options.user || getCurrentUserName();
         options.parentId = options.parentId || curDirId;
         options.isFolder = options.isFolder || false;
         options.uneditable = options.uneditable || false;
@@ -557,7 +557,7 @@ window.DS = (function ($, DS) {
             "id": homeDirId,
             "name": DSObjTerm.homeDir,
             "fullName": DSObjTerm.homeDir,
-            "user": XcUser.getCurrentUserName(),
+            "user": getCurrentUserName(),
             "parentId": DSObjTerm.homeParentId,
             "uneditable": false,
             "isFolder": true
@@ -1045,7 +1045,7 @@ window.DS = (function ($, DS) {
 
     function checkDSUse(dsName) {
         var deferred = PromiseHelper.deferred();
-        var currentUser = XcUser.getCurrentUserName();
+        var currentUser = getCurrentUserName();
 
         XcalarGetDatasetUsers(dsName)
         .then(function(users) {
@@ -1127,7 +1127,7 @@ window.DS = (function ($, DS) {
     }
 
     function hideUnlistableDS(dsSet) {
-        var currentUser = XcUser.getCurrentUserName();
+        var currentUser = getCurrentUserName();
         for (var dsId in dsSet) {
             var dsObj = DS.getDSObj(dsId);
             var $grid = DS.getGrid(dsId);
@@ -1300,7 +1300,7 @@ window.DS = (function ($, DS) {
                     dsIds: removedDSIds
                 });
                 KVStore.commit();
-                XcSupport.memoryCheck(true);
+                MemoryAlert.Instance.check(true);
             } else if (folders.length) {
                 changeDSInfo(dirId, {
                     action: "delete",
@@ -1540,7 +1540,7 @@ window.DS = (function ($, DS) {
 
     function getDSLockMeta() {
         var deferred = PromiseHelper.deferred();
-        var userName = XcUser.getCurrentUserName();
+        var userName = getCurrentUserName();
         XcalarGetUserDatasets(userName)
         .then(function(res) {
             try {
@@ -2336,7 +2336,7 @@ window.DS = (function ($, DS) {
                         if (curDirId === DSObjTerm.SharedFolderId) {
                             classes += " sharedHomeDir";
                         }
-                        if (dsObj.getUser() !== XcUser.getCurrentUserName()) {
+                        if (dsObj.getUser() !== getCurrentUserName()) {
                             classes += " noUnshare";
                         }
                     }
@@ -2498,7 +2498,7 @@ window.DS = (function ($, DS) {
     }
 
     function getNewFolderId() {
-        return XcUser.getCurrentUserName() + "-folder-" + (new Date().getTime());
+        return getCurrentUserName() + "-folder-" + (new Date().getTime());
     }
 
     // Helper function for createDS()
@@ -2559,7 +2559,7 @@ window.DS = (function ($, DS) {
             var shared = isInSharedFolder(parentId);
             var title = name;
             if (shared) {
-                if (dsObj.getUser() === XcUser.getCurrentUserName()) {
+                if (dsObj.getUser() === getCurrentUserName()) {
                     shareIcon = '<i class="action icon xi-disabled-share-icon unshare fa-15" ' +
                                 tooltip + 'data-title="' + DSTStr.UnshareDS + '"></i>';
                 } else {
@@ -2837,6 +2837,10 @@ window.DS = (function ($, DS) {
         });
 
         return deferred.promise();
+    }
+
+    function getCurrentUserName() {
+        return XcUser.getCurrentUserName();
     }
 
     /*** Drag and Drop API ***/

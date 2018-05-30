@@ -177,7 +177,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
             MonitorDonuts.update(allStats);
             failCount = 0;
             toggleErrorScreen();
-            XcSupport.detectMemoryUsage(apiTopResult);
+            MemoryAlert.Instance.detectUsage(apiTopResult);
             deferred.resolve();
         })
         .fail(function(error) {

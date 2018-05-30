@@ -151,7 +151,7 @@ window.xcManager = (function(xcManager, $) {
         .always(function() {
             $("body").removeClass("xc-setup");
             // get initial memory usage
-            XcSupport.memoryCheck();
+            MemoryAlert.Instance.check();
 
             if (!gMinModeOn) {
                 $("#initialLoadScreen").fadeOut(200, function() {
@@ -641,7 +641,7 @@ window.xcManager = (function(xcManager, $) {
 
     function setupUserArea() {
         setupUserBox();
-        setupMemoryAlert();
+        MemoryAlert.Instance.setup();
     }
 
     function setupUserBox() {
@@ -719,39 +719,6 @@ window.xcManager = (function(xcManager, $) {
                 return;
             }
             xcManager.unload();
-        });
-    }
-
-    function setupMemoryAlert() {
-        $("#memoryAlert").click(function() {
-            if ($("#container").hasClass("noWorkbook") ||
-                $("#container").hasClass("switchingWkbk")) {
-                WorkbookPanel.goToMonitor();
-                return;
-            }
-            if (!$(this).hasClass("yellow") && !$(this).hasClass("red")) {
-                MainMenu.openPanel("monitorPanel", "systemButton");
-                return false;
-            }
-            if ($(this).hasClass("tableAlert")) {
-                MainMenu.openPanel("monitorPanel", "systemButton");
-                DeleteTableModal.show();
-            } else {
-                // go to datastore panel
-                var $datastoreTab = $("#dataStoresTab");
-                if (!$datastoreTab.hasClass("active")) {
-                    $datastoreTab.click();
-                }
-
-                if (!$datastoreTab.hasClass("mainMenuOpen")) {
-                    $datastoreTab.find(".mainTab").click();
-                }
-
-                var $inButton = $("#inButton");
-                if (!$inButton.hasClass("active")) {
-                    $inButton.click();
-                }
-            }
         });
     }
 

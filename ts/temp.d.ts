@@ -879,3 +879,7 @@ declare namespace SQLApi {
     export function getIndexTable(tableName: string, colNames: string[]): TableIndexCache;
     export function cacheIndexTable(tableName: string, colNames: string[], newTableName: string, newKeys: string[]): void;
 }
+
+declare namespace DeleteTableModal {
+    export function show();
+}

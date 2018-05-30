@@ -1299,7 +1299,7 @@ window.DagPanel = (function($, DagPanel) {
                 "onConfirm": function() {
                     TblManager.deleteTables(tableId, TableType.Active)
                     .then(function() {
-                        XcSupport.memoryCheck(true);
+                        MemoryAlert.Instance.check(true);
                     });
                 }
             });

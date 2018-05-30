@@ -205,7 +205,7 @@ window.DeleteTableModal = (function(DeleteTableModal, $) {
 
             modalHelper.enableSubmit();
             // should re-dected memory usage
-            XcSupport.memoryCheck();
+            MemoryAlert.Instance.check();
             deferred.resolve();
         });
 

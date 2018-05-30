@@ -244,7 +244,7 @@ window.Repeat = (function($, Repeat) {
             "onConfirm": function() {
                 TblManager.deleteTables(tableId, TableType.Active)
                 .then(function() {
-                    XcSupport.memoryCheck(true);
+                    MemoryAlert.Instance.check(true);
                 })
                 .always(function() {
                     deferred.resolve(null);
