@@ -6,7 +6,6 @@ window.DFParamModal = (function($, DFParamModal){
     var simpleViewTypes = ["dataStore", "filter", "export"];
 
     var modalHelper;
-    var dropdownHelper;
     var xdpMode;
     var hasChange = false;
     var isOpen = false;
@@ -262,35 +261,29 @@ window.DFParamModal = (function($, DFParamModal){
 
         if (simpleViewTypes.includes(type)) {
             initBasicForm();
-            if (type === "filter") {
-                deferred.resolve();
-            } else {
-                if (type === "export") {
-                    exportSetup();
-                    if (df.activeSession) {
-                        var $input = $modal.find(".innerEditableRow.filename input");
-                        var currentVal = $input.val();
-                        $input.data("cache", currentVal);
-                        $input.val(df.newTableName);
-                        if (isAdvancedMode) {
-                            switchToBasicModeHelper();
-                        }
+            if (type === "export") {
+                exportSetup();
+                if (df.activeSession) {
+                    var $input = $modal.find(".innerEditableRow.filename input");
+                    var currentVal = xcHelper.stripCSVExt($input.val());
+                    $input.data("cache", currentVal);
+                    $input.val(df.newTableName);
+                    if (isAdvancedMode) {
+                        switchToBasicModeHelper();
                     }
-                } else if (type === "dataStore") {
-                    datasetSetup();
                 }
-                dropdownHelper = null;
-                deferred.resolve();
+            } else if (type === "dataStore") {
+                datasetSetup();
             }
         } else {
             isAdvancedMode = true;
             $modal.addClass("advancedMode");
             $modal.find(".toggleView").find(".switch").addClass("on");
-            deferred.resolve();
         }
 
         updateInstructions();
         initAdvancedForm();
+        deferred.resolve();
 
         return deferred.promise();
     };
@@ -425,6 +418,7 @@ window.DFParamModal = (function($, DFParamModal){
         $modal.find('.draggableParams').empty();
 
         setupInputText(providedStruct);
+        // make bottom section inputs match the top section
         $("#dfParamModal .editableRow .defaultParam").each(function() {
             setParamDivToDefault($(this).siblings("input"));
         });
@@ -450,9 +444,7 @@ window.DFParamModal = (function($, DFParamModal){
               .removeClass("hint")
               .html(draggableInputs);
 
-
         populateSavedFields(); // top template section
-
         setupDummyInputs();
 
         if (providedStruct) {
@@ -461,7 +453,6 @@ window.DFParamModal = (function($, DFParamModal){
             } else if (type === "dataStore") {
                 datasetSetup();
             }
-            dropdownHelper = null;
         }
     }
 
@@ -758,7 +749,14 @@ window.DFParamModal = (function($, DFParamModal){
                                     xcHelper.escapeHTMLSpecialChar(struct.targetName) +
                                 '</div>' +
                             '</div>';
-            exportSettingText = getDefaultExportSetting(struct);
+            var exportSettingDefaults;
+            var retinaNode = df.getParameterizedNode(tableName);
+            if (retinaNode == null || retinaNode.paramValue == null) {
+                exportSettingDefaults = struct;
+            } else {
+                exportSettingDefaults = retinaNode.paramValue;
+            }
+            exportSettingText = getDefaultExportSetting(exportSettingDefaults);
             editableText +=
                             '<div class="innerEditableRow filename">' +
                                 '<div class="static">' +
@@ -829,7 +827,7 @@ window.DFParamModal = (function($, DFParamModal){
             $advancedOpts.html(advancedOpts);
             $modal.find('.exportSettingParamSection').html(exportSettingText);
             $modal.addClass("export");
-            if (df.activeSession) {
+            if (df.activeSession && !providedStruct) {
                 $modal.find(".advancedOpts [data-option='import']").click();
             } else {
                 $modal.find(".advancedOpts [data-option='default']").click();
@@ -1013,9 +1011,8 @@ window.DFParamModal = (function($, DFParamModal){
                           ' data-toggle="tooltip" title="" ' +
                           'data-original-title="Toggle advanced options"></i>' +
                           '<span class="text">Advanced Export Settings</span>' +
-                          '</div>';
-
-        defaultText += '<div class="templateTable">' +
+                        '</div>' +
+                        '<div class="templateTable">' +
                         '<div class="template flexContainer">' +
                         getExportSettingDefault('Overwrite', createRule) +
                         getExportSettingDefault('Record Delimiter', recordDelim) +
@@ -1192,10 +1189,6 @@ window.DFParamModal = (function($, DFParamModal){
         }).show();
 
         $visibleLis.sort(xcHelper.sortHTML).prependTo($list.find('ul'));
-
-        if (dropdownHelper) {
-            dropdownHelper.showOrHideScrollers();
-        }
 
         if (value === "") {
             return;
@@ -1568,8 +1561,10 @@ window.DFParamModal = (function($, DFParamModal){
                     struct = $.extend(struct, partialStruct);
                 } else {
                     struct = $.extend(struct, partialStruct);
-                //     error = "target not found";
+                    //  error: target not found;
                 }
+                var expOptions = getExportOptions();
+                struct = $.extend(struct, expOptions);
                 break;
             default:
                 error = "currently not supported";
@@ -1911,13 +1906,6 @@ window.DFParamModal = (function($, DFParamModal){
         }
 
         var $templateVals = $modal.find(".template .boxed");
-
-        var parameterizedVals = [];
-
-        $templateVals.each(function() {
-            parameterizedVals.push($(this).text());
-        });
-
         var struct = retinaNode.paramValue;
 
         if (retinaNode.paramType === XcalarApisT.XcalarApiFilter) {
@@ -1925,6 +1913,7 @@ window.DFParamModal = (function($, DFParamModal){
         } else if (retinaNode.paramType === XcalarApisT.XcalarApiExport) {
             $templateVals.eq(0).text(xcHelper.stripCSVExt(struct.fileName));
             $templateVals.eq(1).text(struct.targetName);
+            // export setting defaults already set in setupInputText();
         } else if (retinaNode.paramType === XcalarApisT.XcalarApiBulkLoad) {
             for (var i = 0; i < struct.loadArgs.sourceArgsList.length; i++) {
                 var sourceArgs = struct.loadArgs.sourceArgsList[i];
@@ -1933,12 +1922,6 @@ window.DFParamModal = (function($, DFParamModal){
                 $templateVals.eq((i * 3) + 2).text(sourceArgs.fileNamePattern);
             }
         }
-
-        var $editableDivs = $editableRow.find("input.editableParamDiv");
-
-        parameterizedVals.forEach(function(query, index) {
-            $editableDivs.eq(index).val(query);
-        });
     }
 
     function generateDraggableParams(paramName) {
@@ -2002,6 +1985,35 @@ window.DFParamModal = (function($, DFParamModal){
                                       {type: type});
         }
         $modal.find(".modalInstruction .text").text(text);
+    }
+
+    function getExportOptions() {
+        var exportOptions = {};
+        var prefix = ".exportSettingTable .innerEditableRow";
+        var inputSuffix = ' input';
+        var createRule = $modal
+                          .find(prefix + ".createRule" + inputSuffix).val();
+        var recordDelim = $modal
+                          .find(prefix + ".recordDelim" + inputSuffix).val();
+        var fieldDelim = $modal
+                         .find(prefix + ".fieldDelim" + inputSuffix).val();
+        var quoteDelim = $modal
+                         .find(prefix + ".quoteDelim" + inputSuffix).val();
+        var headerType = $modal
+                         .find(prefix + ".headerType" + inputSuffix).val();
+        var sorted = $modal
+                         .find(prefix + ".sorted" + inputSuffix).val();
+        var splitRule = $modal
+                         .find(prefix + ".splitRule" + inputSuffix).val();
+
+        exportOptions.createRule = strToSpecialChar(createRule);
+        exportOptions.recordDelim = strToSpecialChar(recordDelim);
+        exportOptions.fieldDelim = strToSpecialChar(fieldDelim);
+        exportOptions.quoteDelim = strToSpecialChar(quoteDelim);
+        exportOptions.headerType = strToSpecialChar(headerType);
+        exportOptions.sorted = strToSpecialChar(sorted);
+        exportOptions.splitRule = strToSpecialChar(splitRule);
+        return exportOptions;
     }
 
     /* Unit Test Only */
