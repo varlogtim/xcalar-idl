@@ -166,7 +166,7 @@ describe('ExpServer Installer Test', function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error).to.be.undefined;
+            expect(error.status).to.equal(500);
             done();
         });
     });

@@ -63,8 +63,8 @@ describe("sqlRestApi Test", function() {
         });
     });
 
-    describe("Restful API Test", function(done) {
-        it("Should support /xcedf/load", function() {
+    describe("Restful API Test", function() {
+        it("Should support /xcedf/load", function(done) {
             var oldLoad = sql.sqlLoad;
             sql.fakeSqlLoad(fakeFunc);
             var req = {"path": "test"};

@@ -1652,7 +1652,7 @@ function sqlLoad(path) {
     args.txId = 1;
     args.sqlDS = xcHelper.randName("sql.12345.ds");
 
-    connect("localhost:9090", sqlUser, sqlId)
+    connect("localhost", sqlUser, sqlId)
     .then(function() {
         console.log("connected");
         return goToSqlWkbk();
@@ -1916,7 +1916,7 @@ function sqlPlan(execid, planStr, rowsToFetch) {
     try {
         global.sqlMode = true;
         var plan = JSON.parse(planStr);
-        connect("localhost:9090", sqlUser, sqlId)
+        connect("localhost", sqlUser, sqlId)
         .then(function() {
             console.log("connected");
             return goToSqlWkbk();
