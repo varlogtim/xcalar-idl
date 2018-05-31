@@ -1,19 +1,22 @@
-window.WorkbookManager = (function($, WorkbookManager) {
-    var wkbkStore;
-    var activeWKBKId;
-    var wkbkSet;
-    var checkInterval = 2000; // progress bar check time
-    var progressTimeout;
+namespace WorkbookManager {
+    let wkbkStore: KVStore;
+    let activeWKBKId: string;
+    let wkbkSet: WKBKSet;
+    let checkInterval: number = 2000; // progress bar check time
+    let progressTimeout: any;
 
-    // initial setup
-    WorkbookManager.setup = function() {
+    /**
+    * WorkbookManager.setup
+    * initial setup
+    */
+    export function setup(): XDPromise<string> {
         initializeVariable();
         setupSessionCancel();
         return setupWorkbooks();
     };
 
-    function setupWorkbooks(refreshing) {
-        var deferred = PromiseHelper.deferred();
+    function setupWorkbooks(refreshing?: boolean): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
         WorkbookManager.getWKBKsAsync(refreshing)
         .then(syncSessionInfo)
         .then(function(wkbkId) {
@@ -41,24 +44,33 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     }
 
-    WorkbookManager.upgrade = function(oldWkbks) {
+    /**
+    * WorkbookManager.upgrade
+    * upgrades the list of workbooks to newer versions
+    * @param oldWkbks - the current set of workbooks
+    */
+    export function upgrade(oldWkbks: object): object {
         if (oldWkbks == null) {
             return null;
         }
 
-        var newWkbks = {};
-        for (var wkbkId in oldWkbks) {
-            var wkbk = oldWkbks[wkbkId];
+        const newWkbks: object = {};
+        for (let wkbkId in oldWkbks) {
+            const wkbk: WKBK = oldWkbks[wkbkId];
             newWkbks[wkbkId] = KVStore.upgrade(wkbk, "WKBK");
         }
 
         return newWkbks;
     };
 
-    WorkbookManager.commit = function() {
+    /**
+    * WorkbookManager.commit
+    * Commits the active workbook and saves it
+    */
+    export function commit(): XDPromise<void> {
         // if activeWKBK is null, then it's creating a new WKBK
         if (activeWKBKId != null) {
-            var wkbk = wkbkSet.get(activeWKBKId);
+            const wkbk: WKBK = wkbkSet.get(activeWKBKId);
             if (wkbk != null) {
                 wkbk.update();
             }
@@ -67,17 +79,31 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return saveWorkbook();
     };
 
-    WorkbookManager.getWorkbooks = function() {
+    /**
+    * WorkbookManager.getWorkbooks
+    * Returns the set of workbooks
+    */
+    export function getWorkbooks(): object {
         return wkbkSet.getAll();
     };
 
-    WorkbookManager.getWorkbook = function(workbookId) {
+    /**
+    * WorkbookManager.getWorkbooks
+    * Returns a workbook based on id
+    * @param workbookId - id of the target workbook
+    */
+    export function getWorkbook(workbookId: string): WKBK {
         return wkbkSet.get(workbookId) || null;
     };
 
-    WorkbookManager.getWKBKsAsync = function(refreshing) {
-        var deferred = PromiseHelper.deferred();
-        var sessionInfo;
+    /**
+    * WorkbookManager.getWKBKsAsync
+    * gets workbook based on id asyncronously
+    * @param refreshing - boolean, if only refreshing perform no modifications
+    */
+    export function getWKBKsAsync(refreshing?: boolean): XDPromise<object> {
+        const deferred: XDDeferred<object> = PromiseHelper.deferred();
+        let sessionInfo: object[];
 
         XcalarListWorkbooks("*")
         .then(function(sessionRes) {
@@ -91,19 +117,23 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         return deferred.promise();
     };
-    // get current active workbook
-    WorkbookManager.getActiveWKBK = function() {
+
+    /**
+    * WorkbookManager.getActiveWKBK
+    * gets active workbook
+    */
+    export function getActiveWKBK(): string {
         return activeWKBKId;
     };
 
-    function setActiveWKBK(workbookId) {
+    function setActiveWKBK(workbookId: string): boolean {
         if (workbookId == null) {
             activeWKBKId = null;
             setSessionName(null);
             return true;
         }
 
-        var wkbk = wkbkSet.get(workbookId);
+        const wkbk: WKBK = wkbkSet.get(workbookId);
         if (wkbk == null) {
             // error case
             return false;
@@ -114,12 +144,12 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return true;
     }
 
-    function setURL(workbookId, replace, newTab) {
+    function setURL(workbookId: string, replace: boolean, newTab: boolean = false): void {
         try {
-            var curHref = window.location.href;
-            var url = new URL(window.location.href);
-            var workbookName = null;
-            var newHref;
+            const curHref: string = window.location.href;
+            const url: URL = new URL(window.location.href);
+            let workbookName: string = null;
+            let newHref: string;
             if (workbookId != null && wkbkSet.has(workbookId)) {
                 workbookName = wkbkSet.get(workbookId).getName();
                 newHref = xcHelper.setURLParam("workbook", workbookName);
@@ -128,7 +158,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             }
 
             if (newTab) {
-                var win = window.open(newHref, '_blank');
+                const win: Window = window.open(newHref, '_blank');
                 if (win) {
                     win.focus();
                 }
@@ -147,24 +177,29 @@ window.WorkbookManager = (function($, WorkbookManager) {
         }
     }
 
-    function gotoWorkbook(workbookId, replaceURL) {
-        setURL(workbookId, replaceURL);
-        xcHelper.reload();
-    }
-
-    WorkbookManager.updateWorksheet = function(numWorksheets) {
-        var workbook = wkbkSet.get(activeWKBKId);
+    /**
+    * WorkbookManager.updateWorksheet
+    * updates the number of worksheets in the active workbook
+    * @param numWorksheets - the new number of worksheets
+    */
+    export function updateWorksheet(numWorksheets: number): void {
+        const workbook: WKBK = wkbkSet.get(activeWKBKId);
         workbook.numWorksheets = numWorksheets;
     };
 
-    // make new workbook
-    WorkbookManager.newWKBK = function(wkbkName, srcWKBKId) {
+    /**
+    * WorkbookManager.newWKBK
+    * creates a new workbook
+    * @param wkbkName - name of the new workbook
+    * @param scrWKBKId - if duplicating a workbook, the source workbook, optional
+    */
+    export function newWKBK(wkbkName: string, srcWKBKId?: string): XDPromise<string> {
         if (!wkbkName) {
             return PromiseHelper.reject("Invalid name");
         }
 
-        var isCopy = (srcWKBKId != null);
-        var copySrc = null;
+        const isCopy: boolean = (srcWKBKId != null);
+        let copySrc: WKBK = null;
 
         if (isCopy) {
             copySrc = wkbkSet.get(srcWKBKId);
@@ -174,9 +209,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
             }
         }
 
-        var deferred = PromiseHelper.deferred();
-        var copySrcName = isCopy ? copySrc.name : null;
-        var username = XcUser.getCurrentUserName();
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        const copySrcName: string = isCopy ? copySrc.name : null;
+        const username: string = XcUser.getCurrentUserName();
 
         XcalarNewWorkbook(wkbkName, isCopy, copySrcName)
         .then(function() {
@@ -191,8 +226,14 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
-    // switch to another workbook
-    WorkbookManager.switchWKBK = function(wkbkId, newTab, $workbookBox) {
+    /**
+    * WorkbookManager.switchWKBK
+    * switches between workbooks
+    * @param wkbkId - id of the workbook to switch to
+    * @param newTab - should the workbook be opened in a new tab, by default false
+    * @param workbookBox - if opening in a new tab, the workbook card that should be updated to active, optional
+    */
+    export function switchWKBK(wkbkId: string, newTab: boolean = false, $workbookBox?: JQuery): XDPromise<void> {
         // validation
         if (wkbkId === activeWKBKId) {
             return PromiseHelper.reject({
@@ -200,14 +241,14 @@ window.WorkbookManager = (function($, WorkbookManager) {
             });
         }
 
-        var toWkbk = wkbkSet.get(wkbkId);
+        const toWkbk: WKBK = wkbkSet.get(wkbkId);
         if (toWkbk == null) {
             return PromiseHelper.reject({
                 "error": "Invalid workbook Id"
             });
         }
 
-        var deferred = PromiseHelper.deferred();
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         if (!newTab) {
             $("#initialLoadScreen").show();
@@ -221,14 +262,14 @@ window.WorkbookManager = (function($, WorkbookManager) {
             $workbookBox.addClass("loading");
         }
 
-        var promise = (!newTab && activeWKBKId != null) ?
+        const promise: XDPromise<void> = (!newTab && activeWKBKId != null) ?
                         commitActiveWkbk() : PromiseHelper.resolve();
 
         XcSupport.stopHeartbeatCheck();
 
         promise
         .then(function() {
-            var toWkbkName = toWkbk.getName();
+            const toWkbkName: string = toWkbk.getName();
             return switchWorkBookHelper(toWkbkName);
         })
         .then(function() {
@@ -244,7 +285,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         })
         .then(function() {
             if (!newTab) {
-                gotoWorkbook(wkbkId);
+                WorkbookManager.gotoWorkbook(wkbkId);
             }
             deferred.resolve();
         })
@@ -268,25 +309,32 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
-    WorkbookManager.gotoWorkbook = function(workbookId, replaceURL) {
-        gotoWorkbook(workbookId, replaceURL);
+    /**
+    * WorkbookManager.gotoWorkbook
+    * navigates the browser to a workbook
+    * @param workbookId - id of the workbook
+    * @param replaceURL - bool, should the current url be replaced
+    */
+    export function gotoWorkbook(workbookId: string, replaceURL: boolean = false): void {
+        setURL(workbookId, replaceURL);
+        xcHelper.reload();
     };
 
-    function countdown() {
+    function countdown(): XDPromise<void> {
         if (!$("#monitorTopBar").find(".wkbkTitle").is(":visible")) {
             return PromiseHelper.resolve();
         }
-        var deferred = PromiseHelper.deferred();
-        var time = 3;
-        var msg = xcHelper.replaceMsg(WKBKTStr.Refreshing, {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let time: number = 3;
+        const msg: string = xcHelper.replaceMsg(WKBKTStr.Refreshing, {
             time: time
         });
         $("#monitorTopBar").find(".wkbkTitle").text(msg);
 
-        var interval = setInterval(function() {
+        const interval: NodeJS.Timer = setInterval(function() {
             time--;
             if (time > 0) {
-                var msg = xcHelper.replaceMsg(WKBKTStr.Refreshing, {
+                const msg: string = xcHelper.replaceMsg(WKBKTStr.Refreshing, {
                     time: time
                 });
                 $("#monitorTopBar").find(".wkbkTitle").text(msg);
@@ -299,13 +347,13 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     }
 
-    function isActiveWorkbook(workbookName) {
-        var deferred = PromiseHelper.deferred();
+    function isActiveWorkbook(workbookName: string): XDPromise<boolean> {
+        const deferred: XDDeferred<boolean> = PromiseHelper.deferred();
 
         XcalarListWorkbooks(workbookName)
         .then(function(ret) {
-            var session = ret.sessions[0];
-            var isActive = (session.state === "Active");
+            const session: any = ret.sessions[0];
+            const isActive: boolean = (session.state === "Active");
             deferred.resolve(isActive);
         })
         .fail(deferred.reject);
@@ -313,12 +361,16 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     }
 
-    function switchWorkBookHelper(wkbkName) {
-        var deferred = PromiseHelper.deferred();
+    function switchWorkBookHelper(wkbkName: string): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const queryName: string = XcUser.getCurrentUserName() + ":" + wkbkName;
+        progressCycle(queryName, checkInterval);
+        $("#initialLoadScreen").data("curquery", queryName);
+        $("#container").addClass("switchingWkbk");
 
         restoreInactivePublishedTable()
         .then(function() {
-            var queryName = XcUser.getCurrentUserName() + ":" + wkbkName;
+            const queryName: string = XcUser.getCurrentUserName() + ":" + wkbkName;
             progressCycle(queryName, checkInterval);
             $("#initialLoadScreen").data("curquery", queryName);
             $("#container").addClass("switchingWkbk");
@@ -359,11 +411,16 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     }
 
-    // copy workbook
-    WorkbookManager.copyWKBK = function(srcWKBKId, wkbkName) {
-        var deferred = PromiseHelper.deferred();
-        var newId;
-        var promise = (activeWKBKId == null)
+    /**
+    * WorkbookManager.copyWKBK
+    * copies a workbook
+    * @param srcWKBKId - id of the workbook to be copied
+    * @param wkbkName - name of the new workbook
+    */
+    export function copyWKBK(srcWKBKId: string, wkbkName: string): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        let newId: string;
+        const promise: XDPromise<void> = (activeWKBKId == null)
                       ? PromiseHelper.resolve() // no active workbook
                       : KVStore.commit();
 
@@ -386,15 +443,20 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
-    WorkbookManager.downloadWKBK = function(workbookName) {
-        var deferred = PromiseHelper.deferred();
-        var jupyterFolderPath = "";
-        var wkbk = wkbkSet.get(getWKBKId(workbookName));
+    /**
+    * WorkbookManager.downloadWKBK
+    * downloads a workbook
+    * @param workbookName - name of the workbook to be downloaded
+    */
+    export function downloadWKBK(workbookName: string): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let jupyterFolderPath: string = "";
+        const wkbk: WKBK = wkbkSet.get(getWKBKId(workbookName));
 
         if (wkbk) {
-            var folderName = wkbk.jupyterFolder;
+            const folderName: string = wkbk.jupyterFolder;
             if (folderName) {
-                jupyterFolderPath = window.jupyterNotebooksPath + folderName +
+                jupyterFolderPath = window['jupyterNotebooksPath'] + folderName +
                                     "/";
             }
         }
@@ -411,12 +473,18 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
-    WorkbookManager.uploadWKBK = function(workbookName, workbookContent) {
-        var deferred = PromiseHelper.deferred();
+    /**
+    * WorkbookManager.uploadWKBK
+    * uploads a workbook from a file
+    * @param workbookName - name of the workbook to upload
+    * @param workbookContent - the file being uploaded
+    */
+    export function uploadWKBK(workbookName: string, workbookContent: File): XDPromise<string> {
+        let deferred: XDDeferred<string> = PromiseHelper.deferred();
 
-        var jupFolderName;
-        var username = XcUser.getCurrentUserName();
-        var parsedWorkbookContent;
+        let jupFolderName: string;
+        const username: string = XcUser.getCurrentUserName();
+        let parsedWorkbookContent: any;
 
         readFile(workbookContent)
         .then(function(res) {
@@ -424,7 +492,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return JupyterPanel.newWorkbook(workbookName);
         })
         .then(function(folderName) {
-            var jupyterFolderPath;
+            let jupyterFolderPath: string;
             if (typeof folderName !== "string") {
                 // it's an error so default to "";
                 folderName = "";
@@ -433,7 +501,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             if (!folderName) { // can be empty due to error or if not found
                 jupyterFolderPath = "";
             } else {
-                jupyterFolderPath = window.jupyterNotebooksPath + folderName +
+                jupyterFolderPath = window['jupyterNotebooksPath'] + folderName +
                                     "/";
             }
             return XcalarUploadWorkbook(workbookName, parsedWorkbookContent,
@@ -452,8 +520,13 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
-    WorkbookManager.deactivate = function(workbookId) {
-        var wkbk = wkbkSet.get(workbookId);
+    /**
+    * WorkbookManager.uploadWKBK
+    * deactivate a workbook by id
+    * @param workbookId - id of the workbook to be deactivated
+    */
+    export function deactivate(workbookId: string): XDPromise<void> {
+        const wkbk: WKBK = wkbkSet.get(workbookId);
         if (wkbk == null) {
             return PromiseHelper.reject(WKBKTStr.DeactivateErr);
         }
@@ -462,9 +535,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
         XcSupport.stopHeartbeatCheck();
 
         $("#initialLoadScreen").show();
-        var deferred = PromiseHelper.deferred();
-        var isCurrentWKBK = (workbookId === activeWKBKId);
-        var promise = isCurrentWKBK ?
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const isCurrentWKBK: boolean = (workbookId === activeWKBKId);
+        const promise: XDPromise<void> = isCurrentWKBK ?
                         commitActiveWkbk() : PromiseHelper.resolve();
 
         promise
@@ -479,7 +552,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 setActiveWKBK(null);
                 setURL(null, true);
             }
-            var xcSocket = XcSocket.Instance;
+            const xcSocket: XcSocket = XcSocket.Instance;
             xcSocket.unregisterUserSession(workbookId);
             xcSocket.sendMessage("refreshWorkbook", {
                 "action": "deactivate",
@@ -498,16 +571,20 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
-    WorkbookManager.inActiveAllWKBK = function() {
-        var deferred = PromiseHelper.deferred();
-        var promises = [];
+    /**
+    * WorkbookManager.inActiveAllWKBK
+    * deactivate all workbooks
+    */
+    export function inActiveAllWKBK(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const promises: XDPromise<void>[] = [];
 
         XcalarListWorkbooks("*")
         .then(function(output) {
-            var numSessions = output.numSessions;
-            var sessions = output.sessions;
-            for (var i = 0; i < numSessions; i++) {
-                var session = sessions[i];
+            const numSessions: number = output.numSessions;
+            const sessions: any = output.sessions;
+            for (let i: number = 0; i < numSessions; i++) {
+                const session: any = sessions[i];
                 if (session.state === "Active") {
                     promises.push(XcalarDeactivateWorkbook.bind(this,
                                                                 session.name));
@@ -518,7 +595,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         })
         .then(function() {
             setActiveWKBK(null);
-            gotoWorkbook(null, true);
+            WorkbookManager.gotoWorkbook(null, true);
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -526,9 +603,15 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
-    WorkbookManager.updateDescription = function(wkbkId, description) {
-        var deferred = PromiseHelper.deferred();
-        var wkbk = wkbkSet.get(wkbkId);
+    /**
+    * WorkbookManager.updateDescription
+    * update the description of a workbook
+    * @param wkbkId - id of the workbook to be updated
+    * @param description - new description
+    */
+    export function updateDescription(wkbkId: string, description: string): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        const wkbk: WKBK = wkbkSet.get(wkbkId);
         wkbk.description = description;
         wkbk.update();
 
@@ -546,18 +629,25 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
-    WorkbookManager.renameWKBK = function(srcWKBKId, newName, description) {
-        var newWKBKId = getWKBKId(newName);
+    /**
+    * WorkbookManager.renameWKBK
+    * update the name of a workbook
+    * @param srcWKBKId - id of the workbook to be updated
+    * @param newName - new name for the workbook
+    * @param description - description of the workbook
+    */
+    export function renameWKBK(srcWKBKId: string, newName: string, description: string): XDPromise<string> {
+        const newWKBKId: string = getWKBKId(newName);
         if (wkbkSet.has(newWKBKId)) {
-            var errStr = xcHelper.replaceMsg(ErrTStr.WorkbookExists, {
+            let errStr: string = xcHelper.replaceMsg(ErrTStr.WorkbookExists, {
                 workbookName: newName
             });
             return PromiseHelper.reject(errStr);
         }
 
-        var deferred = PromiseHelper.deferred();
-        var isCurrentWKBK = (srcWKBKId === activeWKBKId);
-        var srcWKBK = wkbkSet.get(srcWKBKId);
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        const isCurrentWKBK: boolean = (srcWKBKId === activeWKBKId);
+        const srcWKBK: WKBK = wkbkSet.get(srcWKBKId);
 
         // should follow theses order:
         // 1. stop heart beat check (in case key is changed)
@@ -569,7 +659,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         // 7. restart heart beat check
         XcSupport.stopHeartbeatCheck();
 
-        var promise = (activeWKBKId == null)
+        const promise: XDPromise<void> = (activeWKBKId == null)
                       ? PromiseHelper.resolve() // when no active workbook
                       : KVStore.commit();
 
@@ -584,7 +674,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             if (typeof folderName !== "string") {
                 folderName = srcWKBK.jupyterFolder;
             }
-            var options = {
+            const options: object = {
                 "id": newWKBKId,
                 "name": newName,
                 "description": description || srcWKBK.description,
@@ -597,7 +687,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 "sessionId": srcWKBK.sessionId
             };
 
-            var newWkbk = new WKBK(options);
+            const newWkbk: WKBK = new WKBK(options);
             wkbkSet.put(newWKBKId, newWkbk);
             wkbkSet.delete(srcWKBK.id);
             return saveWorkbook();
@@ -627,14 +717,19 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
-    WorkbookManager.deleteWKBK = function(workbookId) {
-        var workbook = wkbkSet.get(workbookId);
+    /**
+    * WorkbookManager.deleteWKBK
+    * deletes a given workbook
+    * @param workbookId - id of the workbook to be deleted
+    */
+    export function deleteWKBK(workbookId: string): XDPromise<any> {
+        const workbook: WKBK = wkbkSet.get(workbookId);
 
         if (workbook == null) {
             return PromiseHelper.reject(WKBKTStr.DelErr);
         }
 
-        var deferred = PromiseHelper.deferred();
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
 
         // 1. Stop heart beat check (Heartbeat key may change due to active
         //                           worksheet changing)
@@ -665,29 +760,30 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     };
 
-    WorkbookManager.getGlobalScopeKeys = function(version) {
-        return getGlobalScopeKeys(version);
-    };
-
-    WorkbookManager.getIDfromName = function(name) {
+    /**
+    * WorkbookManager.getIDfromName
+    * constructs a workbook id based on name
+    * @param name - name of the workbook
+    */
+    export function getIDfromName(name: string): string {
         return getWKBKId(name);
     };
 
-    function initializeVariable() {
+    function initializeVariable(): void {
         // key that stores all workbook infos for the user
-        var wkbkKey = getWKbkKey(currentVersion);
+        const wkbkKey: string = getWKbkKey(currentVersion);
         wkbkStore = new KVStore(wkbkKey, gKVScope.USER);
         wkbkSet = new WKBKSet();
     }
 
-    function setupSessionCancel() {
-        var $loadScreen = $("#initialLoadScreen");
+    function setupSessionCancel(): void {
+        const $loadScreen: JQuery = $("#initialLoadScreen");
         $loadScreen.find(".cancel").click(function() {
             if ($loadScreen.hasClass("canceling")) {
                 return;
             }
             $loadScreen.addClass("canceling");
-            var time = Date.now();
+            const time: number = Date.now();
             $loadScreen.data('canceltime', time);
             $loadScreen.addClass("alertOpen");
 
@@ -711,7 +807,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 "ultraHighZindex": true
             });
 
-            function cancel() {
+            function cancel(): void {
                 $loadScreen.removeClass("alertOpen");
                 if ($loadScreen.data("canceltime") !== time ||
                     !$loadScreen.hasClass("canceling")) {
@@ -721,7 +817,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
                 $loadScreen.find(".animatedEllipsisWrapper .text")
                            .text(StatusMessageTStr.Canceling);
-                var queryName = $loadScreen.data("curquery");
+                const queryName: string = $loadScreen.data("curquery");
                 XcalarQueryCancel(queryName)
                 .always(function() {
                     $loadScreen.removeClass("canceling")
@@ -733,25 +829,31 @@ window.WorkbookManager = (function($, WorkbookManager) {
         });
     }
 
-    function getWKbkKey(version) {
-        var username = XcUser.getCurrentUserName();
+    function getWKbkKey(version: number): string {
+        const username: string = XcUser.getCurrentUserName();
         return generateKey(username, "workbookInfos", version);
     }
 
-    function setupKVStore() {
-        var globlKeys = getGlobalScopeKeys(currentVersion);
-        var userScopeKeys = getUserScopeKeys(currentVersion);
-        var wkbkScopeKeys = getWkbkScopeKeys(currentVersion);
 
-        var keys = $.extend({}, globlKeys, userScopeKeys, wkbkScopeKeys);
+    function setupKVStore(): void {
+        const globlKeys: any = WorkbookManager.getGlobalScopeKeys(currentVersion);
+        const userScopeKeys: any = getUserScopeKeys(currentVersion);
+        const wkbkScopeKeys: any = getWkbkScopeKeys(currentVersion);
+
+        const keys: string[] = $.extend({}, globlKeys, userScopeKeys, wkbkScopeKeys);
 
         KVStore.setup(keys);
     }
 
-    function getGlobalScopeKeys(version) {
-        var gEphInfoKey = generateKey("", "gEphInfo", version);
-        var gSharedDSKey = generateKey("", "gSharedDS", version);
-        var gSettingsKey = generateKey("", "gSettings", version);
+    /**
+    * WorkbookManager.getGlobalScopeKeys
+    * gets global scope keys
+    * @param version - version number
+    */
+    export function getGlobalScopeKeys(version: number): any {
+        const gEphInfoKey: string = generateKey("", "gEphInfo", version);
+        const gSharedDSKey: string = generateKey("", "gSharedDS", version);
+        const gSettingsKey: string = generateKey("", "gSettings", version);
 
         return {
             "gEphStorageKey": gEphInfoKey,
@@ -760,23 +862,23 @@ window.WorkbookManager = (function($, WorkbookManager) {
         };
     }
 
-    function getUserScopeKeys(version) {
-        var username = XcUser.getCurrentUserName();
-        var gUserKey = generateKey(username, "gUser", version);
+    function getUserScopeKeys(version: number): any {
+        const username: string = XcUser.getCurrentUserName();
+        const gUserKey: string = generateKey(username, "gUser", version);
 
         return {
             "gUserKey": gUserKey
         };
     }
 
-    function getWkbkScopeKeys(version) {
-        var gStorageKey = generateKey("gInfo", version);
-        var gLogKey = generateKey("gLog", version);
-        var gErrKey = generateKey("gErr", version);
-        var gOverwrittenLogKey = generateKey("gOverwritten", version);
-        var gNotebookKey = generateKey("gNotebook", version);
-        var gAuthKey = generateKey("authentication", version);
-        var gIMDKey = generateKey("gIMDKey", version);
+    function getWkbkScopeKeys(version: number): any {
+        const gStorageKey: string = generateKey("gInfo", version);
+        const gLogKey: string = generateKey("gLog", version);
+        const gErrKey: string = generateKey("gErr", version);
+        const gOverwrittenLogKey: string = generateKey("gOverwritten", version);
+        const gNotebookKey: string = generateKey("gNotebook", version);
+        const gAuthKey: string = generateKey("authentication", version);
+        const gIMDKey: string = generateKey("gIMDKey", version);
 
         return {
             "gStorageKey": gStorageKey,
@@ -790,13 +892,13 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     // sync sessionInfo with wkbkInfo
-    function syncSessionInfo(oldWorkbooks, sessionInfo, refreshing) {
-        var deferred = PromiseHelper.deferred();
+    function syncSessionInfo(oldWorkbooks: object, sessionInfo: any, refreshing: boolean): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
 
         syncWorkbookMeta(oldWorkbooks, sessionInfo, refreshing)
         .then(function() {
-            var activeWorkbooks = getActiveWorkbooks(sessionInfo);
-            var activeId = getActiveWorkbookId(activeWorkbooks);
+            const activeWorkbooks: string[] = getActiveWorkbooks(sessionInfo);
+            const activeId: string = getActiveWorkbookId(activeWorkbooks);
             deferred.resolve(activeId);
         })
         .fail(deferred.reject);
@@ -804,11 +906,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     }
 
-    function getActiveWorkbooks(sessionInfo) {
-        var numSessions = sessionInfo.numSessions;
-        var sessions = sessionInfo.sessions;
-        var activeWorkbooks = [];
-        for (var i = 0; i < numSessions; i++) {
+    function getActiveWorkbooks(sessionInfo: any): string[] {
+        const numSessions: number = sessionInfo.numSessions;
+        const sessions: any = sessionInfo.sessions;
+        const activeWorkbooks: string[] = [];
+        for (let i: number = 0; i < numSessions; i++) {
             if (sessions[i].state === "Active") {
                 activeWorkbooks.push(sessions[i].name);
             }
@@ -816,36 +918,36 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return activeWorkbooks;
     }
 
-    function getActiveWorkbookId(activeWorkbooks) {
-        var params = xcHelper.decodeFromUrl(window.location.href);
-        var activeWKBKName = params["workbook"];
-        if (activeWKBKName && activeWorkbooks.includes(activeWKBKName)) {
+    function getActiveWorkbookId(activeWorkbooks: string[]): string {
+        const params: object = xcHelper.decodeFromUrl(window.location.href);
+        const activeWKBKName: string = params["workbook"];
+        if (activeWKBKName && activeWorkbooks.includes(activeWKBKName)) {//XXX includes does exist on array
             return getWKBKId(activeWKBKName);
         } else {
             return null;
         }
     }
 
-    function checkResource(sessionInfo) {
+    function checkResource(sessionInfo: string): boolean {
         return (sessionInfo.toLowerCase() === "has resources");
     }
 
-    function syncWorkbookMeta(oldWorkbooks, sessionInfo, refreshing) {
+    function syncWorkbookMeta(oldWorkbooks: object, sessionInfo: any, refreshing: boolean): XDPromise<void> {
         try {
             if (oldWorkbooks == null) {
                 oldWorkbooks = {};
             }
-            var numSessions = sessionInfo.numSessions;
-            var sessions = sessionInfo.sessions;
+            const numSessions: number = sessionInfo.numSessions;
+            const sessions: any = sessionInfo.sessions;
             if  (refreshing) {
                 initializeVariable();
             }
 
-            for (var i = 0; i < numSessions; i++) {
-                var wkbkName = sessions[i].name;
-                var hasResouce = checkResource(sessions[i].info);
-                var wkbkId = getWKBKId(wkbkName);
-                var wkbk;
+            for (let i: number = 0; i < numSessions; i++) {
+                const wkbkName: string = sessions[i].name;
+                const hasResouce: boolean = checkResource(sessions[i].info);
+                const wkbkId: string = getWKBKId(wkbkName);
+                let wkbk: WKBK;
 
                 if (oldWorkbooks.hasOwnProperty(wkbkId)) {
                     wkbk = new WKBK(oldWorkbooks[wkbkId]);
@@ -864,7 +966,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 wkbkSet.put(wkbkId, wkbk);
             }
 
-            for (var oldWkbkId in oldWorkbooks) {
+            for (let oldWkbkId in oldWorkbooks) {
                 console.warn("Error!", oldWkbkId, "is missing.");
             }
 
@@ -879,10 +981,16 @@ window.WorkbookManager = (function($, WorkbookManager) {
         }
     }
 
-    WorkbookManager.getKeysForUpgrade = function(sessionInfo, version) {
-        var globalKeys = getGlobalScopeKeys(version);
-        var userKeys = getUserScopeKeysForUpgrade(version);
-        var wkbkKeys = getWkbkScopeKeysForUpgrade(sessionInfo, version);
+    /**
+    * WorkbookManager.getKeysForUpgrade
+    * gets all relevant keys when performing an upgrade
+    * @param sessionInfo - information about the current session
+    * @param version - version number
+    */
+    export function getKeysForUpgrade(sessionInfo: any, version: number): any {
+        const globalKeys: any = WorkbookManager.getGlobalScopeKeys(version);
+        const userKeys: any = getUserScopeKeysForUpgrade(version);
+        const wkbkKeys: any = getWkbkScopeKeysForUpgrade(sessionInfo, version);
 
         return {
             "global": globalKeys,
@@ -891,26 +999,34 @@ window.WorkbookManager = (function($, WorkbookManager) {
         };
     };
 
-    WorkbookManager.getStorageKey = function() {
+    /**
+    * WorkbookManager.getKeysForUpgrade
+    * gets storage key
+    */
+    export function getStorageKey(): string {
         return getWkbkScopeKeys(currentVersion).gStorageKey;
     };
 
-    // used in socket updates
-    WorkbookManager.updateWorkbooks = function(info) {
+    /**
+    * WorkbookManager.updateWorkbooks
+    * updates workbook info from socket
+    * @param info - info from socket containing operation, workbook id and new value
+    */
+    export function updateWorkbooks(info: any): void {
         if (XcUser.getCurrentUserName() !== info.user) {
             // XXX socket should only send messages to relevant users
             return;
         }
-        var activeWkbk = WorkbookManager.getActiveWKBK();
+        const activeWkbk: string = WorkbookManager.getActiveWKBK();
         if (info.action === "deactivate" &&
             activeWkbk && activeWkbk === info.triggerWkbk) {
             XcSupport.stopHeartbeatCheck();
-            var wkbk = wkbkSet.get(activeWkbk);
+            const wkbk: WKBK = wkbkSet.get(activeWkbk);
             wkbk.setResource(false);
             setActiveWKBK(null);
             setURL(null, true);
             WorkbookPanel.show();
-            var xcSocket = XcSocket.Instance;
+            const xcSocket: XcSocket = XcSocket.Instance;
             xcSocket.unregisterUserSession(activeWkbk);
             $("#container").addClass("noWorkbook noMenuBar");
 
@@ -921,9 +1037,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
             if (info.action === "rename") {
                 if (activeWkbk && activeWkbk === info.triggerWkbk) {
                     $("#worksheetInfo .wkbkName").text(info.newName);
-                    var newWKBKId = getWKBKId(info.newName);
+                    const newWKBKId: string = getWKBKId(info.newName);
                     resetActiveWKBK(newWKBKId);
-                    var newFoldername = WorkbookManager.getWorkbook(newWKBKId).jupyterFolder;
+                    const newFoldername: string = WorkbookManager.getWorkbook(newWKBKId).jupyterFolder;
                     JupyterPanel.updateFolderName(newFoldername);
                 }
                 WorkbookPanel.updateWorkbooks(info);
@@ -936,9 +1052,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
         });
     };
 
-    function getUserScopeKeysForUpgrade(version) {
-        var keys = getUserScopeKeys(version);
-        var wkbkKeyOfVersion = getWKbkKey(version);
+    function getUserScopeKeysForUpgrade(version: number): any {
+        let keys: any = getUserScopeKeys(version);
+        const wkbkKeyOfVersion: string = getWKbkKey(version);
 
         keys = $.extend(keys, {
             "wkbkKey": wkbkKeyOfVersion
@@ -947,26 +1063,26 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return keys;
     }
 
-    function getWkbkScopeKeysForUpgrade(sessionInfo, version) {
-        var wkbks = {};
-        var numSessions = sessionInfo.numSessions;
-        var sessions = sessionInfo.sessions;
+    function getWkbkScopeKeysForUpgrade(sessionInfo:any, version: number): any {
+        const wkbks: any = {};
+        const numSessions: number = sessionInfo.numSessions;
+        const sessions: any = sessionInfo.sessions;
 
-        for (var i = 0; i < numSessions; i++) {
-            var wkbkName = sessions[i].name;
-            var keys = getWkbkScopeKeys(version);
-            wkbks[wkbkName] = keys;
+        for (let i: number = 0; i < numSessions; i++) {
+            let wkbkName: string = sessions[i].name;
+            const key: any = getWkbkScopeKeys(version);
+            wkbks[wkbkName] = key;
         }
 
         return wkbks;
     }
 
-    function saveWorkbook() {
+    function saveWorkbook(): XDPromise<void> {
         return wkbkStore.put(wkbkSet.getWithStringify(), true);
     }
 
-    function resetActiveWKBK(newWKBKId) {
-        setupKVStore(newWKBKId);
+    function resetActiveWKBK(newWKBKId: string): XDPromise<void> {
+        setupKVStore();
         setActiveWKBK(newWKBKId);
         setURL(newWKBKId, true);
         // rehold the session as KVStore's key changed
@@ -974,11 +1090,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     // if upload, jupFolderName should be provided
-    function finishCreatingWKBK(wkbkName, username, isCopy, copySrc, jupFolderName) {
-        var deferred = PromiseHelper.deferred();
-        var wkbk;
+    function finishCreatingWKBK(wkbkName: string, username: string, isCopy: boolean, copySrc: WKBK, jupFolderName?: string): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        let wkbk: WKBK;
 
-        var jupyterPromise;
+        let jupyterPromise: XDPromise<string>;
         if (!jupFolderName) {
             jupyterPromise = JupyterPanel.newWorkbook(wkbkName);
         } else {
@@ -993,7 +1109,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
             }
 
             // XXX for uploads, we should include description and numWorksheets
-            var options = {
+            const options: any = {
                 "id": getWKBKId(wkbkName),
                 "name": wkbkName,
                 "srcUser": username,
@@ -1018,7 +1134,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         })
         .then(function(retStruct) {
             if (retStruct.numSessions !== 1) {
-                var error;
+                let error: string;
                 if (retStruct.numSessions === 0) {
                     error = ErrTStr.NoWKBKErr;
                 } else {
@@ -1052,7 +1168,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         })
         .fail(deferred.reject);
 
-        function broadCast() {
+        function broadCast(): void {
             XcSocket.Instance.sendMessage("refreshWorkbook", {
                 "action": "newWorkbook",
                 "user": XcUser.getCurrentUserName(),
@@ -1064,40 +1180,40 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     // helper for WorkbookManager.copyWKBK
-    function copyHelper(srcId, newId) {
-        var oldWKBK = wkbkSet.get(srcId);
-        var newWKBK = wkbkSet.get(newId);
+    function copyHelper(srcId: string, newId: string): any {
+        const oldWKBK: WKBK = wkbkSet.get(srcId);
+        const newWKBK: WKBK = wkbkSet.get(newId);
         if (oldWKBK == null || newWKBK == null) {
             return PromiseHelper.reject('error case');
         }
 
-        var oldName = oldWKBK.getName();
-        var sessionId = oldWKBK.sessionId;
-        var newName = newWKBK.getName();
+        const oldName: string = oldWKBK.getName();
+        const sessionId: string = oldWKBK.sessionId;
+        const newName: string = newWKBK.getName();
 
-        var getKVHelper = function(key) {
-            var currentSession = sessionName;
-            var kvStore = new KVStore(key, gKVScope.WKBK);
+        const getKVHelper = function(key: string): XDPromise<string> {
+            const currentSession: string = sessionName;
+            const kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
 
             setSessionName(oldName);
-            var promise = kvStore.get();
+            const promise: XDPromise<string> = kvStore.get();
             setSessionName(currentSession);
             return promise;
         };
 
-        var putKVHelper = function(key, value) {
-            var currentSession = sessionName;
-            var kvStore = new KVStore(key, gKVScope.WKBK);
+        const putKVHelper = function(key: string, value: string): XDPromise<void> {
+            const currentSession: string = sessionName;
+            const kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
 
             setSessionName(newName);
-            var promise = kvStore.put(value, true);
+            const promise: XDPromise<void> = kvStore.put(value, true);
             setSessionName(currentSession);
             return promise;
         };
 
-        var copyAction = function(key) {
+        const copyAction = function(key: string): XDPromise<void> {
             // copy all info to new key
-            var deferred = PromiseHelper.deferred();
+            const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
             getKVHelper(key)
             .then(function(value) {
@@ -1109,9 +1225,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return deferred.promise();
         };
 
-        var wkbkScopeKeys = getWkbkScopeKeys(currentVersion);
-        var promises = [];
-        for (var key in wkbkScopeKeys) {
+        const wkbkScopeKeys = getWkbkScopeKeys(currentVersion);
+        const promises: XDPromise<void>[] = [];
+        for (let key in wkbkScopeKeys) {
             if (key === 'gNotebookKey') {
                 continue; // XXX temporarily skip it
             }
@@ -1119,29 +1235,29 @@ window.WorkbookManager = (function($, WorkbookManager) {
         }
         promises.push(copyUDFs());
 
-        function copyUDFs() {
+        function copyUDFs(): XDPromise<void> {
             // list udfs belonging to the src workbook
             // get the code for each udf in the list
             // submit the code as a new udf for the dest workbook
-            var innerDeferred = PromiseHelper.deferred();
+            const innerDeferred: XDDeferred<void> = PromiseHelper.deferred();
 
-            var workbookUDFPath = "/workbook/" + userIdName + "/" + sessionId + "/udf/";
+            const workbookUDFPath: string = "/workbook/" + userIdName + "/" + sessionId + "/udf/";
 
             XcalarListXdfs("*" + workbookUDFPath + "*", "*")
             .then(function(result) {
-                var promises = [];
-                var udfs = {};
+                let promises: XDPromise<void>[] = [];
+                let udfs: Set<boolean> = new Set<boolean>();
                 result.fnDescs.forEach(function(fn) {
-                    var udfName = fn.fnName.split(":")[0];
+                    let udfName: string = fn.fnName.split(":")[0];
                     udfs[udfName] = true;
                 });
-                for (var name in udfs) {
+                for (let name in udfs) {
                     promises.push(uploadUDF(name, newName));
                 }
                 PromiseHelper.when.apply(this, promises)
                 .always(function() {
                     if (Object.keys(udfs).length) {
-                        var xcSocket = XcSocket.Instance;
+                        let xcSocket: XcSocket = XcSocket.Instance;
                         xcSocket.sendMessage("refreshUDFWithoutClear");
                     }
                     innerDeferred.resolve();
@@ -1158,10 +1274,10 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     // when copying a workbook, we must make a copy of the udfs and upload
     // to the new workbook
-    function uploadUDF(fnName, newName) {
-        var deferred = PromiseHelper.deferred();
-        var storedUdfs = UDF.getUDFs();
-        var promise;
+    function uploadUDF(fnName: string, newName: string): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const storedUdfs: any = UDF.getUDFs();
+        let promise: XDPromise<string>;
         if (storedUdfs[fnName]) {
             promise = PromiseHelper.resolve(storedUdfs[fnName]);
         } else {
@@ -1171,7 +1287,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         .always(function(res) {
             if (res) {
                 fnName = fnName.split("/").pop();
-                var currentSession = sessionName;
+                const currentSession: string = sessionName;
                 setSessionName(newName);
 
                 XcalarUploadPython(fnName, res, true)
@@ -1186,10 +1302,10 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     }
 
-    function commitActiveWkbk() {
+    function commitActiveWkbk(): XDPromise<void> {
         // to switch workbook, should release all ref count first
-        var deferred = PromiseHelper.deferred();
-        var promise = TblManager.freeAllResultSetsSync();
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const promise: XDPromise<void> = TblManager.freeAllResultSetsSync();
 
         PromiseHelper.alwaysResolve(promise)
         .then(function() {
@@ -1202,32 +1318,32 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     // generate key for KVStore use
-    function generateKey() {
+    function generateKey(...args: any[]): string {
         // currently just cat all arguments as a key
-        var key;
-        for (var i = 0; i < arguments.length; i++) {
-            if (arguments[i]) {
+        let key: string;
+        for (let i: number = 0; i < args.length; i++) {
+            if (args[i]) {
                 if (!key) {
-                    key = arguments[i];
+                    key = args[i];
                 } else {
-                    key += "-" + arguments[i];
+                    key += "-" + args[i];
                 }
             }
         }
         return (key);
     }
 
-    function getWKBKId(wkbkName) {
-        var username = XcUser.getCurrentUserName();
+    function getWKBKId(wkbkName: string): string {
+        const username: string = XcUser.getCurrentUserName();
         return generateKey(username, "wkbk", wkbkName);
     }
 
-    function switchWorkbookAnimation(failed) {
-        var deferred = PromiseHelper.deferred();
+    function switchWorkbookAnimation(failed: boolean = false): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (!failed) {
             progressComplete();
         }
-        var $loadScreen = $("#initialLoadScreen");
+        const $loadScreen: JQuery = $("#initialLoadScreen");
         $loadScreen.removeClass("canceling").removeData("canceltime");
         $loadScreen.find(".animatedEllipsisWrapper .text")
                    .text(StatusMessageTStr.PleaseWait);
@@ -1241,14 +1357,14 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     }
 
-    function progressCycle(queryName, adjustTime, retry) {
-        var intTime = checkInterval;
+    function progressCycle(queryName: string, adjustTime?: number, retry: boolean = false): void {
+        let intTime: number = checkInterval;
         if (adjustTime) {
             intTime = Math.max(200, checkInterval - adjustTime);
         }
-        progressTimeout = setTimeout(function() {
-            var timeoutNum = progressTimeout;
-            var startTime = Date.now();
+        progressTimeout = <any>setTimeout(function() {
+            const timeoutNum: number = progressTimeout;
+            const startTime: number = Date.now();
 
             getProgress(queryName)
             .then(function(progress) {
@@ -1256,10 +1372,10 @@ window.WorkbookManager = (function($, WorkbookManager) {
                     return;
                 }
 
-                var $loadScreen = $("#initialLoadScreen");
-                var $bar = $loadScreen.find(".progressBar");
-                var $numSteps = $loadScreen.find(".numSteps");
-                var $progressNode = $loadScreen.find(".progressNode");
+                const $loadScreen: JQuery = $("#initialLoadScreen");
+                const $bar: JQuery = $loadScreen.find(".progressBar");
+                const $numSteps: JQuery = $loadScreen.find(".numSteps");
+                const $progressNode: JQuery = $loadScreen.find(".progressNode");
                 if (!$loadScreen.hasClass("sessionProgress")) {
                     $loadScreen.addClass("sessionProgress");
                     $bar.stop().width(0).data("pct", 0);
@@ -1268,9 +1384,9 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 $bar.data("totalsteps", progress.numTotal);
                 $numSteps.text(progress.numCompleted + "/" + progress.numTotal);
 
-                var prevNode = $progressNode.data("node");
-                var curNode = progress.processingNode;
-                var pct;
+                const prevNode: any = $progressNode.data("node");
+                const curNode: any = progress.processingNode;
+                let pct: number;
                 if (curNode) {
                     $progressNode.text(StatusMessageTStr.CurrReplay + ": " +
                                         XcalarApisTStr[curNode.api])
@@ -1294,7 +1410,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 }
 
                 if (pct && pct >= $bar.data("pct")) {
-                    var animTime = checkInterval;
+                    let animTime: number = checkInterval;
                     if (pct === 100) {
                         animTime /= 2;
                     }
@@ -1303,7 +1419,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                 }
 
                 if (progress.numCompleted !== progress.numTotal) {
-                    var elapsedTime = Date.now() - startTime;
+                    const elapsedTime: number = Date.now() - startTime;
                     progressCycle(queryName, elapsedTime);
                 }
             })
@@ -1312,20 +1428,20 @@ window.WorkbookManager = (function($, WorkbookManager) {
                     return;
                 }
                 if (!retry) {
-                    progressCycle(queryName, true);
+                    progressCycle(queryName, null, true);
                 }
             });
         }, intTime);
     }
 
-    function getProgress(queryName) {
-        var deferred = PromiseHelper.deferred();
+    function getProgress(queryName: string): XDPromise<any> {
+        const deferred: XDDeferred<object> = PromiseHelper.deferred();
         XcalarQueryState(queryName)
         .then(function(ret) {
-            var state;
-            var numCompleted = 0;
-            var processingNode;
-            for (var i = 0; i < ret.queryGraph.numNodes; i++) {
+            let state: any;
+            let numCompleted: number = 0;
+            let processingNode: string;
+            for (let i: number = 0; i < ret.queryGraph.numNodes; i++) {
                 state = ret.queryGraph.node[i].state;
                 if (state === DgDagStateT.DgDagStateReady) {
                     numCompleted++;
@@ -1333,7 +1449,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
                     processingNode = ret.queryGraph.node[i];
                 }
             }
-            var progress = {
+            const progress: any = {
                 numCompleted: numCompleted,
                 numTotal: ret.queryGraph.numNodes,
                 processingNode: processingNode
@@ -1344,32 +1460,32 @@ window.WorkbookManager = (function($, WorkbookManager) {
         return deferred.promise();
     }
 
-    function progressComplete() {
-        var $loadScreen = $("#initialLoadScreen");
-        var $bar = $loadScreen.find(".progressBar");
-        var $numSteps = $loadScreen.find(".numSteps");
+    function progressComplete(): void {
+        const $loadScreen: JQuery = $("#initialLoadScreen");
+        const $bar: JQuery = $loadScreen.find(".progressBar");
+        const $numSteps: JQuery = $loadScreen.find(".numSteps");
         $bar.stop().width("100%").data('pct', 100);
-        var numSteps = $bar.data("totalsteps");
+        const numSteps: string = $bar.data("totalsteps");
         $numSteps.text(numSteps + "/" + numSteps);
         clearTimeout(progressTimeout);
     }
 
-    function endProgressCycle() {
+    function endProgressCycle(): void {
         clearTimeout(progressTimeout);
         progressTimeout += "canceled";
         $("#initialLoadScreen").removeClass("sessionProgress");
     }
 
-    function readFile(file) {
-        var deferred = PromiseHelper.deferred();
-        var reader = new FileReader();
+    function readFile(file: File): XDPromise<any> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred(); //string or array buffer
+        const reader: FileReader = new FileReader();
 
         reader.onload = function(event) {
             deferred.resolve(event.target.result);
         };
 
         reader.onloadend = function(event) {
-            var error = event.target.error;
+            const error: DOMException = event.target.error;
             if (error != null) {
                 deferred.reject(error);
             }
@@ -1381,16 +1497,16 @@ window.WorkbookManager = (function($, WorkbookManager) {
     }
 
     // always resolves
-    function restoreInactivePublishedTable() {
-        var deferred = PromiseHelper.deferred();
-        var progressCircle;
-        var canceled = false;
+    function restoreInactivePublishedTable(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let progressCircle: ProgressCircle;
+        let canceled: boolean = false;
         XcalarListPublishedTables("*")
         .then(function(result) {
-            var inactiveTables = result.tables.filter(function(table) {
+            const inactiveTables: any[] = result.tables.filter(function(table) {
                 return !table.active;
             });
-            var promises = [];
+            let promises: XDPromise<void>[] = [];
             inactiveTables.forEach(function(table) {
                 promises.push(function() {
                     if (canceled) {
@@ -1408,7 +1524,7 @@ window.WorkbookManager = (function($, WorkbookManager) {
         .then(deferred.resolve)
         .fail(deferred.reject)
         .always(function() {
-            var $waitSection = $("#initialLoadScreen").find(".publishSection");
+            const $waitSection: JQuery = $("#initialLoadScreen").find(".publishSection");
             $waitSection.empty();
             $waitSection.removeClass("hasProgress");
             $waitSection.parent().removeClass("pubTable");
@@ -1416,8 +1532,8 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         return deferred.promise();
 
-        function restorePublishedTable(tableName) {
-            var deferred = PromiseHelper.deferred();
+        function restorePublishedTable(tableName: string): XDPromise<void> {
+            const deferred: XDDeferred<void> = PromiseHelper.deferred();
             XcalarRestoreTable(tableName)
             .then(function () {
                 progressCircle.increment();
@@ -1428,11 +1544,11 @@ window.WorkbookManager = (function($, WorkbookManager) {
             return deferred.promise();
         }
 
-        function showRestoreProgress(numSteps) {
-            var $waitSection = $("#initialLoadScreen").find(".publishSection");
+        function showRestoreProgress(numSteps: number): void {
+            const $waitSection: JQuery = $("#initialLoadScreen").find(".publishSection");
             $waitSection.addClass("hasProgress");
             $waitSection.parent().addClass("pubTable");
-            var progressAreaHtml = xcHelper.getLockIconHtml("pubTablesWorksheet", 0, true, true);
+            const progressAreaHtml: string = xcHelper.getLockIconHtml("pubTablesWorksheet", 0, true, true);
             $waitSection.html(progressAreaHtml);
             $waitSection.find(".stepText").addClass("extra").append(
                 '<span class="extraText">' + IMDTStr.Activating + '</span>')
@@ -1447,38 +1563,35 @@ window.WorkbookManager = (function($, WorkbookManager) {
         }
     }
 
-
-
     /* Unit Test Only */
-    if (window.unitTestMode) {
-        var cacheActiveWKBKId = undefined;
-        WorkbookManager.__testOnly__ = {};
-        WorkbookManager.__testOnly__.setAcitiveWKBKId = function(id) {
-            cacheActiveWKBKId = activeWKBKId;
-            activeWKBKId = id;
-        };
-        WorkbookManager.__testOnly__.restoreWKBKId = function() {
-            if (cacheActiveWKBKId !== undefined) {
-                activeWKBKId = cacheActiveWKBKId;
-                cacheActiveWKBKId = undefined;
-            }
-        };
-        WorkbookManager.__testOnly__.generateKey = generateKey;
-        WorkbookManager.__testOnly__.getWKBKId = getWKBKId;
-        WorkbookManager.__testOnly__.copyHelper = copyHelper;
-        WorkbookManager.__testOnly__.resetActiveWKBK = resetActiveWKBK;
-        WorkbookManager.__testOnly__.saveWorkbook = saveWorkbook;
-        WorkbookManager.__testOnly__.syncSessionInfo = syncSessionInfo;
-        WorkbookManager.__testOnly__.switchWorkBookHelper = switchWorkBookHelper;
-        WorkbookManager.__testOnly__.changeIntTime = function(time) {
-            checkInterval = time;
-        };
-        WorkbookManager.__testOnly__.progressCycle = progressCycle;
-        WorkbookManager.__testOnly__.endProgressCycle = endProgressCycle;
-        WorkbookManager.__testOnly__.countdown = countdown;
-        WorkbookManager.__testOnly__.setupWorkbooks = setupWorkbooks;
+    if (window["unitTestMode"]) {
+        let cacheActiveWKBKId: string = undefined;
+        WorkbookManager["__testOnly__"] = {
+            setAcitiveWKBKId: function(id) {
+                cacheActiveWKBKId = activeWKBKId;
+                activeWKBKId = id;
+            },
+            restoreWKBKId: function() {
+                if (cacheActiveWKBKId !== undefined) {
+                    activeWKBKId = cacheActiveWKBKId;
+                    cacheActiveWKBKId = undefined;
+                }
+            },
+            generateKey: generateKey,
+            getWKBKId: getWKBKId,
+            copyHelper: copyHelper,
+            resetActiveWKBK: resetActiveWKBK,
+            saveWorkbook: saveWorkbook,
+            syncSessionInfo: syncSessionInfo,
+            switchWorkBookHelper: switchWorkBookHelper,
+            changeIntTime: function(time) {
+                checkInterval = time;
+            },
+            progressCycle: progressCycle,
+            endProgressCycle: endProgressCycle,
+            countdown: countdown,
+            setupWorkbooks: setupWorkbooks
+        }
     }
     /* End Of Unit Test Only */
-
-    return (WorkbookManager);
-}(jQuery, {}));
+}

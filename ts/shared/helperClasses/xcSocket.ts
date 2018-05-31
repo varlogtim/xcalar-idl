@@ -98,7 +98,7 @@ class XcSocket {
         return this._isRegistered;
     };
 
-    public sendMessage(msg: string, arg: any, callback: Function): boolean {
+    public sendMessage(msg: string, arg?: any, callback?: Function): boolean {
         if (this._socket == null) {
             return false;
         }

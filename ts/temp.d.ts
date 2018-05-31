@@ -244,10 +244,22 @@ declare var expHost: string;
 declare var sqlMode: boolean;
 
 declare var skRFPredictor: any;
+
+declare var isBrowserSafari: boolean;
 /* ============== GLOBAL FUNCTIONS ============= */
 declare function setSessionName(sessionName: string): void;
 declare function getUnsortedTableName(tableName: string, otherTableName: string, txId: number, colsToIndex: string[]): XDPromise<string>;
 declare function XcalarGetTables(): XDPromise<any>;
+declare function XcalarNewWorkbook(wkbkName: string, isCopy: boolean, copySrcName: string): XDPromise<void>;
+declare function XcalarActivateWorkbook(wkbkName: string): XDPromise<void>;
+declare function XcalarDownloadWorkbook(workbookName: string, jupyterFolderPath: string): XDPromise<any>;
+declare function XcalarUploadWorkbook(workbookName: string, parsedWorkbookContent: any, jupyterFolderPath: string): XDPromise<void>;
+declare function XcalarDeactivateWorkbook(workbookName: string): XDPromise<void>;
+declare function XcalarRenameWorkbook(newName: string, srcName: string): XDPromise<void>
+declare function XcalarDeleteWorkbook(workbookName: string): XDPromise<void>;
+declare function XcalarQueryCancel(queryName: string): XDPromise<{}>;
+declare function XcalarDownloadPython(fnName: string): XDPromise<any>;
+declare function XcalarUploadPython(moduleName: string, pythonStr: string, absolutePath: boolean): XDPromise<void>;
 declare function XcalarGetTableMeta(tableName: string): XDPromise<any>;
 declare function XcalarDeleteTable(tableName: string, txId?: number, isRetry?: boolean): XDPromise<void>;
 declare function XcalarFilter(fltStr: string, tableName: string, newTableName: string, txId: number): XDPromise<any>;
@@ -343,7 +355,8 @@ declare enum FunctionCategoryTStr {}
 declare enum DgDagStateT {
     DgDagStateReady,
     DgDagStateDropped,
-    DgDagStateError
+    DgDagStateError,
+    DgDagStateProcessing
 }
 declare enum DgDagStateTStr {}
 
@@ -415,6 +428,7 @@ declare namespace CommonTxtTstr {
     export var OpFail: string;
     export var StartTime: string;
     export var HoldToDrag: string;
+    export var Preview: string;
 }
 
 declare namespace IndexTStr {
@@ -449,6 +463,10 @@ declare namespace StatusMessageTStr {
     export var ExportFailed: string;
     export var Project: string;
     export var ProjectFailed: string;
+    export var PleaseWait: string;
+    export var Canceling: string;
+    export var CurrReplay: string;
+    export var CompReplay: string;
 }
 
 declare namespace ExportTStr {
@@ -512,7 +530,10 @@ declare namespace ErrTStr {
     export var NoSpecialCharOrSpace: string;
     export var ParamInUse: string;
     export var OutputNotFoundMsg: string;
-
+    export var InvalidWBName: string;
+    export var WorkbookExists: string;
+    export var NoWKBKErr: string;
+    export var MultipleWKBKErr: string;
 }
 
 declare namespace ErrWRepTStr {
@@ -520,6 +541,7 @@ declare namespace ErrWRepTStr {
     export var ParamConflict: string;
     export var OutputNotFound: string;
     export var OutputNotExists: string;
+    export var LargeFileUpload: string;
 }
 
 declare namespace ColTStr {
@@ -543,12 +565,14 @@ declare namespace AlertTStr {
     export var Title: string;
     export var CLOSE: string;
     export var ErrorMsg: string;
+    export var CONFIRM: string;
 }
 
 declare namespace ThriftTStr {
     export var Update: string;
     export var CCNBE: string;
     export var CCNBEErr: string;
+    export var SetupErr: string;
 }
 
 declare namespace FailTStr {
@@ -581,6 +605,35 @@ declare namespace WKBKTStr {
     export var Release: string;
     export var Expire: string;
     export var ExpireMsg: string;
+    export var WaitActivateFinish: string;
+    export var NoActive: string;
+    export var Updating: string;
+    export var Creating: string;
+    export var Delete: string;
+    export var DeleteMsg: string;
+    export var Deactivate: string;
+    export var DeactivateMsg: string;
+    export var NewWKBKInstr: string;
+    export var CurWKBKInstr: string;
+    export var CreateErr: string;
+    export var Activate: string;
+    export var ActivateInstr: string;
+    export var SwitchWarn: string;
+    export var Conflict: string;
+    export var ReturnWKBK: string;
+    export var Inactive: string;
+    export var Delete: string;
+    export var MoreActions: string;
+    export var WS: string;
+    export var State: string;
+    export var Active: string;
+    export var NoMeta: string;
+    export var NoWkbk: string;
+    export var Refreshing: string;
+    export var DeactivateErr: string;
+    export var DelErr: string;
+    export var CancelTitle: string;
+    export var CancelMsg: string;
 }
 
 declare namespace UDFTStr {
@@ -594,6 +647,17 @@ declare namespace UDFTStr {
     export var MYOTHERUDFS: string;
     export var OtherUDFS: string;
     export var DFUDFS: string;
+}
+
+declare namespace UploadTStr {
+    export var InvalidUpload: string;
+    export var InvalidFolderDesc: string;
+    export var OneFileUpload: string;
+}
+
+declare namespace TimeTStr {
+    export var Created: string;
+    export var LastSaved: string;
 }
 // declare namespace WSTStr {
 //     export var Ws:
@@ -664,9 +728,37 @@ declare class XcStorage {
 
 declare class WKBK {
     public name: string;
+    public id: string;
     public modified: string;
     public sessionId: string;
+    public numWorksheets: number;
+    public jupyterFolder: string;
+    public description: string;
+    public created: string;
+    public srcUser: string;
+    public curUser: string;
+    public resource: boolean;
     public getName(): string;
+    public getDescription(): string;
+    public getCreateTime(): string;
+    public getModifyTime(): string;
+    public getNumWorksheets(): number;
+    public isNoMeta(): boolean;
+    public hasResource(): boolean;
+    public getId(): string;
+    public update(): void;
+    public setSessionId(sessionId: string): void;
+    public setResource(resource: boolean): void;
+    public constructor(params: object);
+}
+
+declare class WKBKSet {
+    public get(workbookId: string): WKBK;
+    public getAll(): object;
+    public has(wkbkId: string): boolean;
+    public put(newWKBKId: string, newWkbk: WKBK): void;
+    public delete(workbookId: string): void;
+    public getWithStringify(): string;
 }
 
 declare class METAConstructor {
@@ -886,6 +978,7 @@ declare namespace TblManager {
     export function updateHeaderAndListInfo(tableId: TableId): void;
     export function deleteTables(tables: TableId[], tableType: string, noAlert?: boolean, noLog?: boolean, options?: object);
     export function findAndFocusTable(tableName: string, noAnimate?: boolean): XDPromise<any>;
+    export function freeAllResultSetsSync(): XDPromise<void>;
 }
 
 declare namespace TblMenu{
@@ -905,6 +998,8 @@ declare namespace Aggregates {
 declare namespace MainMenu {
     export function getOffset(): number;
     export function openPanel(panelId: string, subTabId: string, options?: object): void;
+    export function tempNoAnim(): void;
+    export function close(noAnim: boolean): void;
 }
 
 declare namespace BottomMenu {
@@ -929,7 +1024,7 @@ declare namespace WSManager {
     export function addWS(wsId: string, wsName: string, wsIndex?: number): string;
 }
 
-declare namespace WorkbookManager {
+/*declare namespace WorkbookManager {
     export function getActiveWKBK(): string;
     export function getWorkbooks(): WKBK[];
     export function commit(): XDPromise<void>;
@@ -939,7 +1034,7 @@ declare namespace WorkbookManager {
     export function getKeysForUpgrade(sessionInfo: object[], version: number): object;
     export function upgrade(oldWkbks: object): object;
     export function updateWorkbooks(info: object): void;
-}
+}*/
 
 declare namespace Dag {
     export function renameAllOccurrences(oldTableName: string, newTableName: string): void;
@@ -1012,6 +1107,11 @@ declare namespace JupyterUDFModal {
 
 declare namespace JupyterPanel {
     export function appendStub(stubName: string, args?: object): void;
+    export function newWorkbook(workbookName: string): XDPromise<string>;
+    export function renameWorkbook(jupyterFolder: string, newName: string): XDPromise<string>;
+    export function deleteWorkbook(workbookId: string): void;
+    export function updateFolderName(newFoldername: string): void;
+    export function copyWorkbook(oldJupyterFolder: string, newJupyterFolder: string): void;
 }
 
 declare namespace UDF {
@@ -1022,10 +1122,21 @@ declare namespace UDF {
     export function del(moduleName: string): XDPromise<void>;
     export function refresh(): XDPromise<void>;
     export function getDefaultUDFPath(): string;
+    export function getUDFs(): any;
 }
 
 declare namespace DSExport {
     export function refresh(): void;
+}
+
+declare namespace Transaction {
+    export function isSimulate(txId: number): boolean;
+    export function isEdit(txId: number): boolean;
+    export function start(options: object): number;
+    export function done(txId: number, options: object): void;
+    export function fail(txId: number, options: object): void;
+    export function cancel(txId: number): void;
+    export function getCache();
 }
 
 declare namespace SQLApi {
@@ -1035,4 +1146,23 @@ declare namespace SQLApi {
 
 declare namespace DeleteTableModal {
     export function show();
+}
+
+declare namespace MonitorPanel {
+    export function inActive(): void;
+    export function active(): void;
+    export function isGraphActive(): boolean;
+}
+
+declare namespace MonitorConfig {
+    export function refreshParams(firstTouch: boolean): XDPromise<{}>;
+}
+
+declare namespace WorkbookInfoModal {
+    export function show(workbookId: string): void;
+    export function update(info: any): void;
+}
+
+declare namespace WorkbookPreview {
+    export function show(workbookId: string): void;
 }

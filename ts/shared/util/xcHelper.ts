@@ -1547,8 +1547,8 @@ namespace xcHelper {
      */
     export function sizeTranslator(
         size: number | null,
-        unitSeparated: boolean,
-        convertTo: string,
+        unitSeparated: boolean = false,
+        convertTo?: string,
         options: SizeTranslatorOption = <SizeTranslatorOption>{}
     ): string | any[] {
         if (size == null) {

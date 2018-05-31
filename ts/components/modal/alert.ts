@@ -3,9 +3,9 @@ namespace Alert {
 
     interface AlertButton {
         name: string; // name of the button
-        className: string; // class of the button
+        className?: string; // class of the button
         func: Function; // callback to trigger when click,
-        tooltip: string; // tooltip to add
+        tooltip?: string; // tooltip to add
     }
 
     interface BasicAlertOptions {
