@@ -1,0 +1,208 @@
+describe('XcSupport Test', () => {
+    it('check connection should work', (done) => {
+        const oldCheckVersion = XVM.checkVersion;
+        const oldReload = xcHelper.reload;
+        const oldAlert = Alert.error;
+        let test = false;
+        let cnt = 0;
+        XVM.checkVersion = () => {
+            cnt++;
+            if (cnt === 3) {
+                return PromiseHelper.resolve();
+            } else {
+                return PromiseHelper.reject();
+            }
+        };
+        xcHelper.reload = () => { test = true };
+        Alert.error = () => {};
+        UnitTest.onMinMode();
+
+        XcSupport.checkConnection();
+        UnitTest.testFinish(() => test === true)
+        .then(() => {
+            done();
+        })
+        .fail(() => {
+            done('fail');
+        })
+        .always(() => {
+            XVM.checkVersion = oldCheckVersion;
+            xcHelper.reload = oldReload;
+            Alert.error = oldAlert;
+        });
+    });
+
+    describe('Heartbeat check Test', () => {
+        it ('checkXcalarState should work', (done) => {
+            const checkXcalarState = XcSupport.__testOnly__.checkXcalarState;
+            const oldCommitCheck = XcUser.CurrentUser.commitCheck;
+            const oldMemCheck = MemoryAlert.Instance.check;
+            const oldLogCommit = Log.hasUncommitChange;
+            const oldCommit = KVStore.commit;
+            let test = false;
+
+            XcUser.CurrentUser.commitCheck = () => PromiseHelper.resolve();
+            MemoryAlert.Instance.check = () => PromiseHelper.resolve();
+            Log.hasUncommitChange = () => true;
+            KVStore.commit = () => {
+                test = true;
+                return PromiseHelper.resolve();
+            };
+
+            checkXcalarState()
+            .then(() => {
+                expect(test).to.be.true;
+                done();
+            })
+            .fail(() => {
+                done('fail');
+            })
+            .always(() => {
+                XcUser.CurrentUser.commitCheck = oldCommitCheck;
+                MemoryAlert.Instance.check = oldMemCheck;
+                Log.hasUncommitChange = oldLogCommit;
+                KVStore.commit = oldCommit;
+            });
+        });
+
+        it ('checkXcalarState should work but not auto save if not necessary', (done) => {
+            const checkXcalarState = XcSupport.__testOnly__.checkXcalarState;
+            const oldCommitCheck = XcUser.CurrentUser.commitCheck;
+            const oldMemCheck = MemoryAlert.Instance.check;
+            const oldLogCommit = Log.hasUncommitChange;
+            const oldKVCommit = KVStore.hasUnCommitChange;
+            const oldCommit = KVStore.commit;
+            let test = false;
+
+            XcUser.CurrentUser.commitCheck = () => PromiseHelper.resolve();
+            MemoryAlert.Instance.check = () => PromiseHelper.resolve();
+            Log.hasUncommitChange = () => false;
+            KVStore.hasUnCommitChange = () => false;
+            KVStore.commit = () => {
+                test = true;
+                return PromiseHelper.resolve();
+            };
+
+            checkXcalarState()
+            .then(() => {
+                expect(test).to.be.false;
+                done();
+            })
+            .fail(() => {
+                done('fail');
+            })
+            .always(() => {
+                XcUser.CurrentUser.commitCheck = oldCommitCheck;
+                MemoryAlert.Instance.check = oldMemCheck;
+                Log.hasUncommitChange = oldLogCommit;
+                KVStore.hasUnCommitChange = oldKVCommit;
+                KVStore.commit = oldCommit;
+            });
+        });
+
+        it('has heart beat by default', () => {
+            const res = XcSupport.hasHeartbeatCheck();
+            expect(res).to.be.true;
+        });
+
+        it('should not restart if already restart', () => {
+            const res = XcSupport.restartHeartbeatCheck();
+            expect(res).to.be.false;
+        });
+        
+        it('should stop heart beat', () => {
+            XcSupport.stopHeartbeatCheck();
+            const res = XcSupport.hasHeartbeatCheck();
+            expect(res).to.be.false;
+        });
+
+        it('shold not restart heart beat if locket', () => {
+            // lock again
+            XcSupport.stopHeartbeatCheck();
+            const res = XcSupport.restartHeartbeatCheck();
+            expect(res).to.be.false;
+        });
+
+        it('should restart heart beat', () => {
+            const res = XcSupport.restartHeartbeatCheck();
+            expect(res).to.be.true;
+        });
+
+        it('heartbeatCheck should not work if no active', () => {
+            const oldFunc = WorkbookManager.getActiveWKBK;
+            WorkbookManager.getActiveWKBK = () => null;
+            const res = XcSupport.heartbeatCheck(); 
+            expect(res).to.be.false;
+            WorkbookManager.getActiveWKBK = oldFunc;
+        });
+    });
+
+    it('XcSupport.downloadLRQ should work', (done) => {
+        const oldExportRetina = XcalarExportRetina;
+        const oldDownload = xcHelper.downloadAsFile;
+        let test = false;
+        XcalarExportRetina = () => PromiseHelper.resolve({});
+        xcHelper.downloadAsFile = () => { test = true };
+
+        XcSupport.downloadLRQ('test')
+        .then(() => {
+            expect(test).to.be.true;
+            done();
+        })
+        .fail(() => {
+            done('fail');
+        })
+        .always(() => {
+            XcalarExportRetina = oldExportRetina;
+            xcHelper.downloadAsFile = oldDownload;
+        });
+    });
+
+    it('XcSupport.downloadLRQ should handle fail case', (done) => {
+        const oldExportRetina = XcalarExportRetina;
+        UnitTest.onMinMode();
+        XcalarExportRetina = () => PromiseHelper.reject('test');
+
+        XcSupport.downloadLRQ('test')
+        .then(() => {
+            done('fail');
+        })
+        .fail((error) => {
+            expect(error).to.equal('test');
+            UnitTest.hasAlertWithTitle(DFTStr.DownloadErr);
+            done();
+        })
+        .always(() => {
+            XcalarExportRetina = oldExportRetina;
+            UnitTest.offMinMode();
+        });
+    });
+
+    it('XcSupport.getRunTimeBreakdown should work', (done) => {
+        const oldFunc = XcalarQueryState;
+        let test = false;
+        XcalarQueryState = () => {
+            test = true;
+            return PromiseHelper.resolve({
+                queryGraph: {
+                    node: [{
+                        api: 1,
+                        name: {name: 'test'},
+                        elapsed: {milliseconds: '1'}
+                    }]
+                }
+            });
+        }
+        XcSupport.getRunTimeBreakdown('test')
+        .then(() => {
+            expect(test).to.be.true;
+            done();
+        })
+        .fail(() => {
+            done('fail');
+        })
+        .always(() => {
+            XcalarQueryState = oldFunc;
+        });
+    });
+});

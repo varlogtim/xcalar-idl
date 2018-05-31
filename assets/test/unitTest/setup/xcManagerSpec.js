@@ -412,61 +412,6 @@ describe("xcManager Test", function() {
             xcManager.unload = oldFunc;
         });
 
-        it("should trigger meomryAlert with table", function() {
-            var oldFunc = DeleteTableModal.show;
-            var test = false;
-            DeleteTableModal.show = function() {
-                test = true;
-            };
-            $("#memoryAlert").addClass("yellow")
-                             .addClass("tableAlert")
-                             .click();
-            expect(test).to.be.true;
-            DeleteTableModal.show = oldFunc;
-        });
-
-        it("should trigger meomryAlert with ds", function() {
-            $("#memoryAlert").addClass("yellow")
-                             .removeClass("tableAlert")
-                             .click();
-            expect($("#mainMenu").hasClass("open")).to.be.true;
-            expect($("#datastoreMenu").hasClass("active")).to.be.true;
-            // close menu
-            $("#datastoreMenu .minimizeBtn").click();
-            $("#memoryAlert").removeClass("yellow");
-        });
-
-        it("should go to workbook monitor in meomryAlert", function() {
-            var oldFunc = WorkbookPanel.goToMonitor;
-            var test = false;
-            $("#container").addClass("switchingWkbk");
-            WorkbookPanel.goToMonitor = function() { test = true; };
-
-            $("#memoryAlert").click();
-            expect(test).to.be.true;
-
-            // clear up
-            WorkbookPanel.goToMonitor = oldFunc;
-            $("#container").removeClass("switchingWkbk");
-        });
-
-        it("should open meau in nromal meomryAlert", function() {
-            var oldFunc = MainMenu.openPanel;
-            var mainMenu, subMenu;
-
-            MainMenu.openPanel = function(arg1, arg2) {
-                mainMenu = arg1;
-                subMenu = arg2;
-            };
-
-            $("#memoryAlert").removeClass("yellow red").click();
-            expect(mainMenu).to.equal("monitorPanel");
-            expect(subMenu).to.equal("systemButton");
-
-            // clear up
-            MainMenu.openPanel = oldFunc;
-        });
-
         it("should click auto save to save", function(done) {
             var oldCommit = KVStore.commit;
             var oldShowSuccess = xcHelper.showSuccess;
