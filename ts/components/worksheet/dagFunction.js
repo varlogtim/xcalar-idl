@@ -955,7 +955,8 @@ window.DagFunction = (function($, DagFunction) {
             "msg": 'Rerun: ' + tableName,
             "operation": SQLOps.DFRerun,
             "sql": sql,
-            "steps": treeNodesToRerun
+            "steps": treeNodesToRerun,
+            "track": true
         });
 
         var entireString =  getXcalarQueryCli(treeNodesToRerun);

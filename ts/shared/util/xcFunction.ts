@@ -106,7 +106,8 @@ namespace xcFunction {
             msg: msg,
             operation: SQLOps.Filter,
             sql: sql,
-            steps: 1
+            steps: 1,
+            track: true
         });
 
         xcHelper.lockTable(tableId, txId);
@@ -224,7 +225,8 @@ namespace xcFunction {
             msg: msg,
             operation: SQLOps.Aggr,
             sql: sql,
-            steps: 1
+            steps: 1,
+            track: true
         });
 
         xcHelper.lockTable(tableId, txId);
@@ -411,7 +413,7 @@ namespace xcFunction {
             msg: msg,
             operation: SQLOps.Sort,
             sql: sql,
-            steps: -1
+            track: true
         });
 
         // user timeout because it may fail soon if table is already sorted
@@ -538,7 +540,8 @@ namespace xcFunction {
             msg: StatusMessageTStr.Join,
             operation: SQLOps.Join,
             sql: sql,
-            steps: steps
+            steps: steps,
+            track: true
         });
 
         xcHelper.lockTable(lTableId, txId);
@@ -647,7 +650,8 @@ namespace xcFunction {
             msg: StatusMessageTStr.Union,
             operation: SQLOps.Union,
             steps: 1,
-            sql: sql
+            sql: sql,
+            track: true
         });
 
         tableIds.forEach((tableId) => {
@@ -763,7 +767,8 @@ namespace xcFunction {
             msg: StatusMessageTStr.GroupBy,
             operation: SQLOps.GroupBy,
             steps: steps,
-            sql: sql
+            sql: sql,
+            track: true
         });
 
         const scrollChecker: ScrollTableChecker = new ScrollTableChecker();
@@ -1044,7 +1049,8 @@ namespace xcFunction {
             msg: msg,
             operation: SQLOps.Map,
             sql: sql,
-            steps: 1
+            steps: 1,
+            track: true
         });
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
@@ -1140,8 +1146,8 @@ namespace xcFunction {
             msg: StatusMessageTStr.ExportTable + ": " + tableName,
             operation: SQLOps.ExportTable,
             sql: sql,
-            steps: 1, // xx is it possible to be multiple steps?
-            // "exportName": options.handleName
+            steps: 1,
+            track: true
         });
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
@@ -1234,7 +1240,8 @@ namespace xcFunction {
         const txId: number = Transaction.start({
             operation: SQLOps.RenameTable,
             sql: sql,
-            steps: 1
+            steps: 1,
+            track: true
         });
 
         // not lock table is the operation is short
@@ -1285,7 +1292,8 @@ namespace xcFunction {
         const txId: number = Transaction.start({
             msg: StatusMessageTStr.Project,
             operation: SQLOps.Project,
-            steps: 1
+            steps: 1,
+            track: true
         });
 
         xcHelper.lockTable(tableId, txId);

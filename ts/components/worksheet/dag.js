@@ -2297,7 +2297,8 @@ window.Dag = (function($, Dag) {
                     "msg": StatusMessageTStr.Map + " erroneous rows",
                     "operation": SQLOps.Map,
                     "sql": sql,
-                    "steps": 1
+                    "steps": 1,
+                    "track": true
                 });
 
                 idx = -1;
@@ -2361,7 +2362,8 @@ window.Dag = (function($, Dag) {
                     "msg": StatusMessageTStr.GroupBy + " ICV mode",
                     "operation": SQLOps.GroupBy,
                     "sql": sql,
-                    "steps": 1
+                    "steps": 1,
+                    "track": true
                 });
 
                 idx = -1;

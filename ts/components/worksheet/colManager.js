@@ -229,7 +229,7 @@ window.ColManager = (function($, ColManager) {
             "msg": StatusMessageTStr.ChangeType,
             "operation": SQLOps.ChangeType,
             "sql": sql,
-            "steps": -1
+            "track": true
         });
 
         xcHelper.lockTable(tableId, txId);
@@ -351,7 +351,7 @@ window.ColManager = (function($, ColManager) {
             "msg": StatusMessageTStr.SplitColumn,
             "operation": SQLOps.SplitCol,
             "sql": sql,
-            "steps": -1
+            "track": true
         });
 
         xcHelper.lockTable(tableId, txId);
@@ -367,7 +367,7 @@ window.ColManager = (function($, ColManager) {
                     return e.name;
                 });
             }
-            
+
             newFieldNames = getSplitColNames(progCol.getFrontColName(),
                 colNames, curColNames);
             mapStrs = getSplitStrs();

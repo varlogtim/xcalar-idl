@@ -231,7 +231,8 @@ window.JupyterFinalizeModal = (function(JupyterFinalizeModal, $) {
                 "msg": StatusMessageTStr.Finalize,
                 "operation": SQLOps.Finalize,
                 "sql": sql,
-                "steps": renames.length
+                "steps": renames.length,
+                "track": true
             });
 
 

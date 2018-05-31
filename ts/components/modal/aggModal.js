@@ -116,7 +116,7 @@ window.AggModal = (function($, AggModal) {
         var txId = Transaction.start({
             "operation": SQLOps.QuickAgg,
             "sql": sql,
-            "steps": -1
+            "track": true
         });
 
         $quickAgg.attr("data-state", "pending");
@@ -161,7 +161,7 @@ window.AggModal = (function($, AggModal) {
         var txId = Transaction.start({
             "operation": SQLOps.Corr,
             "sql": sql,
-            "steps": -1
+            "track": true
         });
 
         // will always resolve

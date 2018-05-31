@@ -1113,6 +1113,7 @@ namespace IMDPanel {
             "msg": "Refreshing tables",
             "operation": SQLOps.RefreshTables,
             "sql": sql,
+            "steps": numTables,
             "track": true
         });
         const wsName: string = "imd";

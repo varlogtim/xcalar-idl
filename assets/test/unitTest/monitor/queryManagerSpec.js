@@ -256,43 +256,7 @@ describe('QueryManager Test', function() {
     });
 
     describe("xcalarQuery", function() {
-        it("mainQueryCheck should work", function() {
-            var cachedQueryState = XcalarQueryState;
-            var stateCalled = false;
-            XcalarQueryState = function() {
-                stateCalled = true;
-                return PromiseHelper.resolve({queryState: QueryStateT.qrError,
-                    numCompletedWorkItem: 0});
-            };
-
-            var cachedXcalarQuery = XcalarQuery;
-            var queryCalled = false;
-            XcalarQuery = function(name, query) {
-                queryCalled = true;
-            };
-            QueryManager.addQuery(999, "unitTest", {
-                query: '{"operation":"XcalarApiIndex","args":{"source":".XcalarDS.test.73762.schedule4824","dest":"schedule4824#ky109","key":'
-                 + '[{"name":"xcalarRecordNum","type":"DfUnknown","keyFieldName":"","ordering":"Unordered"}],"prefix":"schedule4824","dhtName":"","delaySort":false,"broadcast":false}}'
-            });
-            var query = queryLists[999];
-            expect(query.subQueries.length).to.equal(1);
-            expect(query.subQueries[0].name).to.equal("XcalarApiIndex");
-            expect(queryCalled).to.be.false; // querymanager should not call XcalarQuery
-            expect(stateCalled).to.be.true;
-
-            XcalarQueryState = cachedQueryState;
-            XcalarQuery = cachedXcalarQuery;
-        });
-
-        it("remove query should work", function() {
-            expect(queryLists[999]).to.not.be.undefined;
-            var numList = $queryList.find(".xc-query").length;
-            QueryManager.removeQuery(999);
-            expect($queryList.find(".xc-query").length).to.equal(numList - 1);
-            expect(queryLists[999]).to.be.undefined;
-        });
-
-        it("outerQueryCheck should work", function(done) {
+        it("xcalarQueryCheck should work", function(done) {
             var cachedQueryState = XcalarQueryState;
             var stateCalled = false;
             XcalarQueryState = function() {

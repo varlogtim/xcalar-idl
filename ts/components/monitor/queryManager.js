@@ -29,7 +29,6 @@ window.QueryManager = (function(QueryManager, $) {
     };
 
     // if numSteps is unknown, should take in -1
-    // query is only passed in if this is an actual xcalarQuery (not xcFunction)
     QueryManager.addQuery = function(id, name, options) {
         if (Transaction.isSimulate(id)) {
             return;
@@ -38,18 +37,8 @@ window.QueryManager = (function(QueryManager, $) {
         options = options || {};
         var time = new Date().getTime();
         var fullName = name + "-" + time;
-        var type;
-        var subQueries;
         var numSteps = options.numSteps || -1;
 
-        if (options.query) {
-            type = "xcQuery";
-            subQueries = xcHelper.parseQuery(options.query);
-            numSteps = subQueries.length;
-            fullName = options.queryName;
-        } else {
-            type = "xcFunction";
-        }
         if (nonCancelableTypes.indexOf(name) > -1) {
             options.cancelable = false;
         }
@@ -58,7 +47,7 @@ window.QueryManager = (function(QueryManager, $) {
             "name": name,
             "fullName": fullName,
             "time": time,
-            "type": type,
+            "type": "xcFunction",
             "id": id,
             "numSteps": numSteps,
             "cancelable": options.cancelable,
@@ -79,13 +68,9 @@ window.QueryManager = (function(QueryManager, $) {
             "elapsed": CommonTxtTstr.NA,
         }, id, QueryStatus.Run, true);
 
-        if (type === "xcQuery") {
-            runXcQuery(id, mainQuery, subQueries);
-        } else {
-            if (UserSettings.getPref("hideSysOps") &&
-                sysQueryTypes.indexOf(name) > -1) {
-                updateQueryTextDisplay("");
-            }
+        if (UserSettings.getPref("hideSysOps") &&
+            sysQueryTypes.indexOf(name) > -1) {
+            updateQueryTextDisplay("");
         }
     };
 
@@ -116,12 +101,12 @@ window.QueryManager = (function(QueryManager, $) {
 
         if (mainQuery.currStep === mainQuery.subQueries.length - 1) {
             if (options.queryName) {
-                outerQueryCheck(id);
+                xcalarQueryCheck(id);
             } else {
                 // delay first check so we don't check too early before
                 // the operation has been started
                 var delay = 10;
-                subQueryCheck(subQuery, delay);
+                operationCheck(subQuery, delay);
             }
         }
         var $query = $queryList.find('.query[data-id="' + id + '"]');
@@ -196,7 +181,7 @@ window.QueryManager = (function(QueryManager, $) {
         // execute retina returned, should be on last step of the group of
         // queries
         if (options.retName) {
-            var lastQueryPos = getLastQueryPos(mainQuery, mainQuery.currStep);
+            var lastQueryPos = getLastOperationPos(mainQuery, mainQuery.currStep);
             setQueriesDone(mainQuery, mainQuery.currStep, lastQueryPos);
             mainQuery.currStep = lastQueryPos;
         }
@@ -207,39 +192,34 @@ window.QueryManager = (function(QueryManager, $) {
             return;
         }
 
-        if (mainQuery.type === "xcFunction") {
-            for (var i = 0; i < mainQuery.subQueries.length; i++) {
-                var subQuery = mainQuery.subQueries[i];
-                if (subQuery.dstTable === dstTable || (options.retName &&
-                    mainQuery.currStep === i)) {
-                    subQuery.state = QueryStatus.Done;
-                    if (mainQuery.currStep === i) {
-                        incrementStep(mainQuery);
-                        subQuery = mainQuery.subQueries[mainQuery.currStep];
-                        clearIntervalHelper(id);
+        for (var i = 0; i < mainQuery.subQueries.length; i++) {
+            var subQuery = mainQuery.subQueries[i];
+            if (subQuery.dstTable === dstTable || (options.retName &&
+                mainQuery.currStep === i)) {
+                subQuery.state = QueryStatus.Done;
+                if (mainQuery.currStep === i) {
+                    incrementStep(mainQuery);
+                    subQuery = mainQuery.subQueries[mainQuery.currStep];
+                    clearIntervalHelper(id);
+                    if (mainQuery.currStep !== mainQuery.numSteps) {
+                        // query is not done yet
+                        while (subQuery && subQuery.state === QueryStatus.Done) {
+                            incrementStep(mainQuery);
+                            subQuery = mainQuery.subQueries[mainQuery.currStep];
+                        }
                         if (mainQuery.currStep === mainQuery.numSteps) {
                             // query is done
-                        } else {
-                            while (subQuery && subQuery.state === QueryStatus.Done) {
-                                incrementStep(mainQuery);
-                                subQuery = mainQuery.subQueries[mainQuery.currStep];
-                            }
-                            if (mainQuery.currStep === mainQuery.numSteps) {
-                                // query is done
-                            } else if (subQuery) {
-                                if (subQuery.queryName) {
-                                    outerQueryCheck(id);
-                                } else {
-                                    subQueryCheck(subQuery);
-                                }
+                        } else if (subQuery) {
+                            if (subQuery.queryName) {
+                                xcalarQueryCheck(id);
+                            } else {
+                                operationCheck(subQuery);
                             }
                         }
                     }
-                    break;
                 }
+                break;
             }
-        } else {
-            // subQueryDone isn't called when an actual query part is finished
         }
     };
 
@@ -469,11 +449,6 @@ window.QueryManager = (function(QueryManager, $) {
         mainQuery.setElapsedTime();
         clearIntervalHelper(id);
         updateQueryBar(id, null, true, false, true);
-
-        elapsedTime = xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
-                                                    null, true);
-        opTime = xcHelper.getElapsedTimeStr(mainQuery.getOpTime());
-
         updateStatusDetail({
             "start": getQueryTime(mainQuery.getTime()),
             "elapsed": xcHelper.getElapsedTimeStr(mainQuery.getElapsedTime(),
@@ -500,20 +475,16 @@ window.QueryManager = (function(QueryManager, $) {
             if (query.state !== QueryStatus.Done &&
                 query.state !== QueryStatus.Cancel &&
                 query.state !== QueryStatus.Error) {
-                if (query.type === "xcFunction") {
-                    for (var i = 0; i < query.subQueries.length; i++) {
-                        var subQuery = query.subQueries[i];
-                        if (subQuery.state !== QueryStatus.Done) {
-                            if (subQuery.queryName) {
-                                outerQueryCheck(query.getId(), doNotAnimate);
-                            } else {
-                                subQueryCheck(subQuery);
-                            }
-                            break;
+                for (var i = 0; i < query.subQueries.length; i++) {
+                    var subQuery = query.subQueries[i];
+                    if (subQuery.state !== QueryStatus.Done) {
+                        if (subQuery.queryName) {
+                            xcalarQueryCheck(query.getId(), doNotAnimate);
+                        } else {
+                            operationCheck(subQuery);
                         }
+                        break;
                     }
-                } else {
-                    mainQueryCheck(query.getId(), doNotAnimate);
                 }
             }
         }
@@ -693,28 +664,12 @@ window.QueryManager = (function(QueryManager, $) {
         return query.getIndexTables();
     };
 
-    function runXcQuery(id, mainQuery, subQueries) {
-        for (var i = 0; i < subQueries.length; i++) {
-            var time = new Date().getTime();
-            var subQuery = new XcSubQuery({
-                "name": subQueries[i].name,
-                "time": time,
-                "query": subQueries[i].query,
-                "dstTable": subQueries[i].dstTable,
-                "id": id,
-                "index": mainQuery.subQueries.length
-            });
-            mainQuery.addSubQuery(subQuery);
-            updateQueryTextDisplay(mainQuery.getQuery());
-        }
-        mainQueryCheck(id);
-    }
-
     function checkCycle(callback, id, adjustTime) {
         clearIntervalHelper(id);
 
         var intTime = checkInterval;
-        if (adjustTime) {
+        if (adjustTime) { // prevents check from occuring too soon after the
+            // previous check
             intTime = Math.max(200, checkInterval - adjustTime);
         }
 
@@ -732,96 +687,33 @@ window.QueryManager = (function(QueryManager, $) {
         return queryCheckList[id];
     }
 
-    // used for xcalarQuery
-    function mainQueryCheck(id, doNotAnimate) {
-        var mainQuery = queryLists[id];
-        var startTime = Date.now();
-        check()
-        .then(function() {
-            var elapsedTime = Date.now() - startTime;
-            checkCycle(check, id, elapsedTime);
-        });
-
-        function check() {
-            var deferred = PromiseHelper.deferred();
-
-            mainQuery.check()
-            .then(function(res) {
-                if (!queryLists[id]) {
-                    clearIntervalHelper(id);
-                    deferred.reject();
-                    return;
-                }
-                var state = res.queryState;
-                if (state === QueryStateT.qrFinished) {
-                    clearIntervalHelper(id);
-                    //xx unable to match up with sql id number
-                    QueryManager.queryDone(id);
-                    deferred.reject();
-                    return;
-                }
-
-                var step = res.numCompletedWorkItem;
-                mainQuery.currStep = step;
-                if (state === QueryStateT.qrError) {
-                    clearIntervalHelper(id);
-                    updateQueryBar(id, res, true, false, doNotAnimate);
-                    deferred.reject();
-                } else if (state === QueryStateT.qrCancelled) {
-                    clearIntervalHelper(id);
-                    updateQueryBar(id, res, false, true, doNotAnimate);
-                    deferred.reject();
-                } else {
-                    subQueryCheckHelper(mainQuery.subQueries[step], id, step);
-                    deferred.resolve();
-                }
-            })
-            .fail(function(error) {
-                if (!error || error.status !== StatusT.StatusQrQueryNotExist) {
-                    console.error("Check failed", error);
-                    updateQueryBar(id, null, error, false, doNotAnimate);
-
-                } else if (error.status === StatusT.StatusQrQueryNotExist) {
-                    // could be that operation hasn't started yet, just keep
-                    // trying
-                    deferred.resolve();
-                    return;
-                }
-                clearIntervalHelper(id);
-                deferred.reject();
-            });
-
-            return deferred.promise();
-        }
-    }
-
     // get the first subquery index of a group of subqueries inside of a mainquery
-    function getFirstQueryPos(mainQuery) {
+    function getFirstOperationPos(mainQuery) {
         var currStep = mainQuery.currStep;
         var subQueries = mainQuery.subQueries;
         var queryName = subQueries[currStep].queryName;
-        var firstQueryPos = currStep;
+        var firstOperationPos = currStep;
         for (var i = mainQuery.currStep; i >= 0; i--) {
             if (subQueries[i].queryName !== queryName) {
-                firstQueryPos = i + 1;
+                firstOperationPos = i + 1;
                 break;
             }
         }
-        return (firstQueryPos);
+        return (firstOperationPos);
     }
 
-    function getLastQueryPos(mainQuery, start) {
+    function getLastOperationPos(mainQuery, start) {
         var currStep = mainQuery.currStep;
         var subQueries = mainQuery.subQueries;
         var queryName = subQueries[currStep].queryName;
-        var lastQueryPos = start;
+        var lastOperationPos = start;
         for (var i = subQueries.length - 1; i >= 0; i--) {
             if (subQueries[i].queryName === queryName) {
-                lastQueryPos = i;
+                lastOperationPos = i;
                 break;
             }
         }
-        return (lastQueryPos);
+        return (lastOperationPos);
     }
 
     // used for xcalarQuery subqueries since QueryManager.subQueryDone does not
@@ -835,14 +727,14 @@ window.QueryManager = (function(QueryManager, $) {
 
     // checks a group of subqueries by checking the single query name they're
     // associated with
-    function outerQueryCheck(id, doNotAnimate) {
+    function xcalarQueryCheck(id, doNotAnimate) {
         if (!queryLists[id]) {
             console.error("error case");
             return;
         }
 
         var mainQuery = queryLists[id];
-        var firstQueryPos = getFirstQueryPos(mainQuery);
+        var firstQueryPos = getFirstOperationPos(mainQuery);
 
         var startTime = Date.now();
         check()
@@ -859,7 +751,7 @@ window.QueryManager = (function(QueryManager, $) {
             }
             var deferred = PromiseHelper.deferred();
             var queryName = mainQuery.subQueries[mainQuery.currStep].queryName;
-            outerQueryCheckHelper(id, queryName)
+            xcalarQueryCheckHelper(id, queryName)
             .then(function(res) {
                 if (mainQuery.state === QueryStatus.Error ||
                     mainQuery.state === QueryStatus.Cancel ||
@@ -869,7 +761,7 @@ window.QueryManager = (function(QueryManager, $) {
                 }
 
                 var numCompleted = res.numCompletedWorkItem;
-                var lastQueryPos = getLastQueryPos(mainQuery, firstQueryPos);
+                var lastQueryPos = getLastOperationPos(mainQuery, firstQueryPos);
                 var currStep = Math.min(numCompleted + firstQueryPos,
                                         lastQueryPos);
                 mainQuery.currStep = Math.max(mainQuery.currStep, currStep);
@@ -889,9 +781,9 @@ window.QueryManager = (function(QueryManager, $) {
                     var subQuery = mainQuery.subQueries[currStep];
                     if (subQuery) {
                         if (subQuery.queryName) {
-                            outerQueryCheck(id, doNotAnimate);
+                            xcalarQueryCheck(id, doNotAnimate);
                         } else {
-                            subQueryCheck(subQuery);
+                            operationCheck(subQuery);
                         }
                     }
                     deferred.reject(); // ends cycle
@@ -916,11 +808,10 @@ window.QueryManager = (function(QueryManager, $) {
                                         mainQuery.getElapsedTime(), null, true),
                         }, id);
                     } else {
-                        subQueryCheckHelper(mainQuery.subQueries[currStep], id,
+                        operationCheckHelper(mainQuery.subQueries[currStep], id,
                                         currStep, doNotAnimate);
-                        // only stop animation the first time, do not persist it
                     }
-
+                    // only stop animation the first time, do not persist it
                     doNotAnimate = false;
                     deferred.resolve();// continues cycle
                 }
@@ -938,7 +829,7 @@ window.QueryManager = (function(QueryManager, $) {
         }
     }
 
-    function outerQueryCheckHelper(id, queryName) {
+    function xcalarQueryCheckHelper(id, queryName) {
         var mainQuery = queryLists[id];
         var curSubQuery = mainQuery.subQueries[mainQuery.currStep];
         if (curSubQuery.retName) {
@@ -1234,7 +1125,7 @@ window.QueryManager = (function(QueryManager, $) {
         }
     }
 
-    function subQueryCheck(subQuery, delay) {
+    function operationCheck(subQuery, delay) {
         var id = subQuery.getId();
         if (!queryLists[id]) {
             console.error("error case");
@@ -1251,28 +1142,28 @@ window.QueryManager = (function(QueryManager, $) {
         var startTime = Date.now();
         if (delay) {
             setTimeout(function() {
-                subQueryCheckHelper(subQuery, id, subQuery.index, doNotAnimate)
+                operationCheckHelper(subQuery, id, subQuery.index, doNotAnimate)
                 .then(function() {
                     var elapsedTime = Date.now() - startTime;
                     checkCycle(function() {
-                        return subQueryCheckHelper(subQuery, id, subQuery.index,
+                        return operationCheckHelper(subQuery, id, subQuery.index,
                                                    doNotAnimate);
                     }, id, elapsedTime);
                 });
             }, delay);
         } else {
-            subQueryCheckHelper(subQuery, id, subQuery.index, doNotAnimate)
+            operationCheckHelper(subQuery, id, subQuery.index, doNotAnimate)
             .then(function() {
                 var elapsedTime = Date.now() - startTime;
                 checkCycle(function() {
-                    return subQueryCheckHelper(subQuery, id, subQuery.index,
+                    return operationCheckHelper(subQuery, id, subQuery.index,
                                                doNotAnimate);
                 }, id, elapsedTime);
             });
         }
     }
 
-    function subQueryCheckHelper(subQuery, id, step, doNotAnimate) {
+    function operationCheckHelper(subQuery, id, step, doNotAnimate) {
         var deferred = PromiseHelper.deferred();
         if (subQuery.state === QueryStatus.Done) {
             clearIntervalHelper(id);
@@ -1991,7 +1882,6 @@ window.QueryManager = (function(QueryManager, $) {
         QueryManager.__testOnly__.queryCheckLists = queryCheckList;
         QueryManager.__testOnly__.canceledQueries = canceledQueries;
         QueryManager.__testOnly__.unlockSrcTables = unlockSrcTables;
-        QueryManager.__testOnly__.outerQueryCheck = outerQueryCheck;
     }
     /* End Of Unit Test Only */
 

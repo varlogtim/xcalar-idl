@@ -251,7 +251,8 @@ window.DSCart = (function($, DSCart) {
             "msg": StatusMessageTStr.CreatingTable + ": " + endTableName,
             "operation": SQLOps.IndexDS,
             "sql": sql,
-            "steps": numSteps
+            "steps": numSteps,
+            "track": true
         });
 
         XcalarIndexFromDataset(dsName, gXcalarRecordNum, startTableName, prefix, txId)

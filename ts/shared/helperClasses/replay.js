@@ -57,7 +57,8 @@ window.Replay = (function($, Replay) {
         var txId = Transaction.start({
             "operation": SQLOps.Replay,
             "sql": sql,
-            "steps": steps
+            "steps": steps,
+            "track": true
         });
 
         var queryName = xcHelper.randName("replay");

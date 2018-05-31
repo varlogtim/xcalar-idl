@@ -851,6 +851,7 @@ window.DS = (function ($, DS) {
             "msg": StatusMessageTStr.ImportDataset + ": " + dsName,
             "operation": SQLOps.DSPoint,
             "sql": sql,
+            "track": true,
             "steps": 1
         });
 
@@ -992,6 +993,7 @@ window.DS = (function ($, DS) {
         var txId = Transaction.start({
             "operation": SQLOps.DestroyDS,
             "sql": sql,
+            "track": true,
             "steps": 1
         });
 
@@ -1592,6 +1594,7 @@ window.DS = (function ($, DS) {
                 var txId = Transaction.start({
                     "operation": SQLOps.DestroyPreviewDS,
                     "sql": sql,
+                    "track": true,
                     "steps": 1
                 });
 

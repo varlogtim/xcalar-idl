@@ -463,7 +463,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                 txId = Transaction.start({
                     "msg": msg,
                     "operation": SQLOps.Ext,
-                    "steps": -1,
+                    "track": true,
                     "functionName": func,
                     "sql": sql
                 });

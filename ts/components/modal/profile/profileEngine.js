@@ -54,7 +54,7 @@ window.ProfileEngine = (function(ProfileEngine) {
                    xcHelper.escapeHTMLSpecialChar(colName),
             "operation": SQLOps.Profile,
             "sql": sql,
-            "steps": -1
+            "track": true
         });
 
         // filter out fnf
@@ -231,7 +231,7 @@ window.ProfileEngine = (function(ProfileEngine) {
         var txId = Transaction.start({
             "operation": SQLOps.ProfileSort,
             "sql": sql,
-            "steps": -1
+            "track": true
         });
 
         runSort(txId, order, bucketNum, profileInfo)
@@ -267,7 +267,7 @@ window.ProfileEngine = (function(ProfileEngine) {
         var txId = Transaction.start({
             "operation": SQLOps.ProfileBucketing,
             "sql": sql,
-            "steps": -1
+            "track": true
         });
 
         var bucketSizeDef = fitAll
@@ -316,6 +316,7 @@ window.ProfileEngine = (function(ProfileEngine) {
         var txId = Transaction.start({
             "operation": SQLOps.ProfileAgg,
             "sql": sql,
+            "track": true,
             "steps": ((aggKeys.length - 1) * 2)
         });
 
@@ -349,7 +350,8 @@ window.ProfileEngine = (function(ProfileEngine) {
         var txId = Transaction.start({
             "operation": SQLOps.ProfileStats,
             "sql": sql,
-            "steps": 1
+            "steps": 1,
+            "track": true
         });
 
         XIApi.sortAscending(txId, colName, tableName)

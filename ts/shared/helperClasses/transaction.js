@@ -9,9 +9,8 @@
 
     var has_require = (typeof require !== "undefined" && typeof nw === "undefined");
 
-    // if you want to track the transaction in the monitor panel, either pass
-    // a value for "steps" in options, corresponding to the number of operations
-    // involved in the transaction, or "track" with a value of true
+    // if you want to track the transaction in the monitor panel, pass in
+    // "track" in options with a value of true
     Transaction.start = function(options) {
         options = options || {};
 
@@ -40,7 +39,7 @@
         txCache[curId] = txLog;
 
         var numSubQueries;
-        if (!has_require && (options.steps != null || options.track)) {
+        if (!has_require && options.track) {
             if (!isNaN(options.steps) || options.steps < 1) {
                 numSubQueries = options.steps;
             } else {
@@ -53,9 +52,7 @@
                 numSteps: numSubQueries,
                 cancelable: options.cancelable,
                 exportName: options.exportName,
-                srcTables: getSrcTables(options.sql),
-                query: options.query,
-                queryName: options.queryName
+                srcTables: getSrcTables(options.sql)
             };
 
             QueryManager.addQuery(curId, operation, queryOptions);
