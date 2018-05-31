@@ -411,25 +411,23 @@ class KVStore {
         const key: string = this.key;
         const scope: number = this.scope;
         const lock = KVStore.genMutex(key, scope);
+        const concurrency: Concurrency = new Concurrency(lock);
 
         function lockAndPut(): XDPromise<void> {
             const innerDeferred: XDDeferred<void> = PromiseHelper.deferred();
-            let lockString: string;
 
-            Concurrency.tryLock(lock)
-            .then(function(res) {
-                lockString = res;
-                console.log("lock key", key, "with", lockString);
+            concurrency.tryLock()
+            .then(function() {
                 return XcalarKeyPut(key, value, persist, scope);
             })
             .then(function() {
-                return Concurrency.unlock(lock, lockString);
+                return concurrency.unlock();
             })
             .then(innerDeferred.resolve)
             .fail(function(error) {
                 console.error("Put to KV Store with mutex fails!", error);
-                if (lockString != null) {
-                    Concurrency.unlock(lock, lockString)
+                if (concurrency.isLocked()) {
+                    concurrency.unlock()
                     .always(function() {
                         innerDeferred.reject(error);
                     });
@@ -449,7 +447,7 @@ class KVStore {
         .fail(function(error) {
             if (error === ConcurrencyEnum.NoKVStore) {
                 // XXX it's an error handling code, fix me if not correct
-                Concurrency.initLock(lock)
+                concurrency.initLock()
                 .then(lockAndPut)
                 .then(deferred.resolve)
                 .fail(deferred.reject);
@@ -457,6 +455,26 @@ class KVStore {
                 deferred.reject(error);
             }
         });
+
+        return deferred.promise();
+    }
+
+    public setIfEqual(
+        oldValue: string,
+        newValue: string,
+        persist: boolean,
+        noCommitCheck: boolean = false
+    ): XDPromise<any> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        const key: string = this.key;
+        const scope: number = this.scope;
+
+        this.commitCheck(noCommitCheck)
+        .then(function() {
+            return XcalarKeySetIfEqual(scope, persist, key, oldValue, newValue);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
 
         return deferred.promise();
     }

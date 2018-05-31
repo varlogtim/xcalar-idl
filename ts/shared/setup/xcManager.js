@@ -348,7 +348,8 @@ window.xcManager = (function(xcManager, $) {
 
             keyAttrs.forEach(function(keyAttr) {
                 var mutex = KVStore.genMutex(keyAttr.key, keyAttr.scope);
-                promises.push(Concurrency.initLock(mutex));
+                var concurrency = new Concurrency(mutex);
+                promises.push(concurrency.initLock());
             });
 
             return PromiseHelper.when.apply(this, promises);
@@ -457,14 +458,13 @@ window.xcManager = (function(xcManager, $) {
             // This is a one time setup where the lock init phase is part of the
             // backend startup process
                 var globalMutex = new Mutex(GlobalKVKeys.XdFlag);
-                var ls = "";
-                Concurrency.tryLock(globalMutex)
+                var concurrency = new Concurrency(globalMutex);
+                concurrency.tryLock()
                 .then(function(lockString) {
-                    ls = lockString;
                     return actualOneTimeSetup();
                 })
                 .then(function() {
-                    return Concurrency.unlock(globalMutex, ls);
+                    return concurrency.unlock();
                 })
                 .then(deferred.resolve)
                 .fail(function(err) {

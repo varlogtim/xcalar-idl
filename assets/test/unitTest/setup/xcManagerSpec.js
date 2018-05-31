@@ -641,9 +641,9 @@ describe("xcManager Test", function() {
         before(function() {
             oldKeyLookup = XcalarKeyLookup;
             oldKeyPut = XcalarKeyPut;
-            oldInitLock = Concurrency.initLock;
-            oldTryLock = Concurrency.tryLock;
-            oldUnLock = Concurrency.unlock;
+            oldInitLock = Concurrency.prototype.initLock;
+            oldTryLock = Concurrency.prototype.tryLock;
+            oldUnLock = Concurrency.prototype.unlock;
             oneTimeSetup = xcManager.__testOnly__.oneTimeSetup;
             UnitTest.onMinMode();
             XcSupport.stopHeartbeatCheck();
@@ -653,15 +653,15 @@ describe("xcManager Test", function() {
                 return PromiseHelper.resolve();
             };
 
-            Concurrency.initLock = function() {
+            Concurrency.prototype.initLock = function() {
                 return PromiseHelper.resolve();
             };
 
-            Concurrency.tryLock = function() {
+            Concurrency.prototype.tryLock = function() {
                 return PromiseHelper.resolve("testLockStr");
             };
 
-            Concurrency.unlock = function() {
+            Concurrency.prototype.unlock = function() {
                 return PromiseHelper.resolve();
             };
         });
@@ -722,8 +722,8 @@ describe("xcManager Test", function() {
         });
 
         it("should force unlock", function(done) {
-            var curTryLock = Concurrency.tryLock;
-            Concurrency.tryLock = function() {
+            var curTryLock = Concurrency.prototype.tryLock;
+            Concurrency.prototype.tryLock = function() {
                 return PromiseHelper.reject(ConcurrencyEnum.OverLimit);
             };
 
@@ -754,16 +754,16 @@ describe("xcManager Test", function() {
                 done("fail");
             })
             .always(function() {
-                Concurrency.tryLock = curTryLock;
+                Concurrency.prototype.tryLock = curTryLock;
                 $("#initialLoadScreen").hide();
             });
         });
 
         it("should reftry unlock", function(done) {
-            var curTryLock = Concurrency.tryLock;
+            var curTryLock = Concurrency.prototype.tryLock;
             var curKeyLookUp = XcalarKeyLookup;
 
-            Concurrency.tryLock = function() {
+            Concurrency.prototype.tryLock = function() {
                 return PromiseHelper.reject();
             };
 
@@ -797,7 +797,7 @@ describe("xcManager Test", function() {
                 done("fail");
             })
             .always(function() {
-                Concurrency.tryLock = curTryLock;
+                Concurrency.prototype.tryLock = curTryLock;
                 XcalarKeyLookup = curKeyLookUp;
                 $("#initialLoadScreen").hide();
             });
@@ -806,9 +806,9 @@ describe("xcManager Test", function() {
         after(function() {
             XcalarKeyLookup = oldKeyLookup;
             XcalarKeyPut = oldKeyPut;
-            Concurrency.initLock = oldInitLock;
-            Concurrency.tryLock = oldTryLock;
-            Concurrency.unlock = oldUnLock;
+            Concurrency.prototype.initLock = oldInitLock;
+            Concurrency.prototype.tryLock = oldTryLock;
+            Concurrency.prototype.unlock = oldUnLock;
 
             UnitTest.offMinMode();
             XcSupport.restartHeartbeatCheck();

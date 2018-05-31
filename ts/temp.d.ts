@@ -205,6 +205,7 @@ declare function XcalarFilter(fltStr: string, tableName: string, newTableName: s
 declare function XcalarKeyLookup(key: string, scope: number): XDPromise<any>;
 declare function XcalarKeyPut(key: string, value: string, persist: boolean, scope: number): XDPromise<any>;
 declare function XcalarKeyAppend(key: string, value: string, persist: boolean, scope: number): XDPromise<any>;
+declare function XcalarKeySetIfEqual(scope: number, persist: boolean, keyCompare: string, oldValue: string, newValue: string): XDPromise<any>;
 declare function XcalarKeyDelete(key: string, scope: number): XDPromise<any>;
 declare function XcalarSaveWorkbooks(wkbkName: string): XDPromise<void>;
 declare function XcalarListXdfs(fnNamePattern: string, categoryPattern: string): XDPromise<any>;
@@ -273,7 +274,8 @@ declare enum StatusT {
     StatusDsODBCTableExists,
     StatusExist,
     StatusExportSFFileExists,
-    StatusSessionNotFound
+    StatusSessionNotFound,
+    StatusKvEntryNotEqual
 }
 
 declare enum FunctionCategoryT {
@@ -617,6 +619,8 @@ declare class UserInfoConstructor {
 
 declare class Mutex {
     public constructor(key: string, scope: number);
+    public key: string;
+    public scope: number;
 }
 
 declare class XcAuth {
@@ -836,12 +840,6 @@ declare namespace DF {
 declare namespace DFCard {
     export function adjustScrollBarPositionAndSize(): void;
     export function getCurrentDF(): string;
-}
-
-declare namespace Concurrency {
-    export function tryLock(lock: Mutex): XDPromise<string>;
-    export function unlock(lock: Mutex, lockString: string): XDPromise<void>;
-    export function initLock(lock: Mutex): XDPromise<void>;
 }
 
 declare namespace JupyterUDFModal {

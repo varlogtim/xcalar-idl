@@ -4015,10 +4015,10 @@ XcalarKeySetIfEqual = function(scope, persist, keyCompare, oldValue, newValue) {
     .fail(function(error) {
         var thriftError = thriftLog("XcalarKeySetIfEqual", error);
         if (thriftError.status === StatusT.StatusKvEntryNotFound) {
-            deferred.resolve(null);
+            deferred.resolve(null, true);
         } else if (thriftError.status === StatusT.StatusKvStoreNotFound) {
             console.warn("Status", error, "kvStore, not found");
-            deferred.resolve(null);
+            deferred.resolve(null, true);
         } else {
             Log.errorLog("Key Set If Equal", null, null, thriftError);
             deferred.reject(thriftError);
