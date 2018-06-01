@@ -130,6 +130,16 @@ interface UDFInfo {
     displayName: string;
     fnName: string;
 }
+
+interface SQLInfo {
+    retName?: string,
+    tableId?: TableId,
+    srcTables?: string[],
+    tableName?: string,
+    lTableName?: string,
+    rTableName?: string
+}
+
 /* ============== GLOBAL VARIABLES ============= */
 declare var KB: number
 declare var MB: number;
@@ -348,6 +358,7 @@ declare namespace CommonTxtTstr {
     export var Back: string;
     export var HighXcalarMemUsage: string;
     export var XcalarMemUsage: string;
+    export var OpFail: string;
 }
 
 declare namespace IndexTStr {
@@ -639,6 +650,7 @@ declare class KVVersion {
 declare class ScrollTableChecker {
     public checkScroll(): boolean;
 }
+
 /* ============== NAMESPACE ====================== */
 declare namespace xcManager {
     export function removeUnloadPrompt(markUser: boolean): void;
@@ -686,6 +698,9 @@ declare namespace Log {
     export function lockUndoRedo(): void;
     export function unlockUndoRedo(): void;
     export function backup(): void;
+    export function add(title: string, options: object | null, cli: string, willCommit: boolean): void;
+    export function getCursor(): number;
+    export function errorLog(title: string, sql: object, cli: string, error: string);
 }
 
 declare namespace SupTicketModal {
@@ -707,6 +722,7 @@ declare namespace Alert {
 
 declare namespace MonitorGraph {
     export function stop(): void;
+    export function tableUsageChange(): void;
 }
 
 declare namespace TblFunc {
@@ -732,6 +748,7 @@ declare namespace TblManager {
     export function setOrphanTableMeta(tableName: string, tableCols: ProgCol[]): void;
     export function refreshTable(newTableNames: string[], tableCols: ProgCol[], oldTableNames: string[], worksheet: string, txId: number, options: object): XDPromise<void>;
     export function updateHeaderAndListInfo(tableId: TableId): void;
+    export function deleteTables(tables: TableId[], tableType: string, noAlert?: boolean, noLog?: boolean, options?: object);
 }
 
 declare namespace TblMenu{
@@ -790,6 +807,14 @@ declare namespace WorkbookManager {
 declare namespace QueryManager{
     export function restore(oldMeta: object[]);
     export function addIndexTable(txId: number, tableName: string): void;
+    export function addQuery(id: number, name: string, options: object): void;
+    export function cleanUpCanceledTables(id: number): void;
+    export function queryDone(id: number, sqlNum?: number): void;
+    export function getAllDstTables(id: number, force?: boolean);
+    export function fail(id: number, error: string);
+    export function confirmCanceledQuery(id: number);
+    export function subQueryDone(id: number, dstTableName: string | null, time: object, options?: object);
+    export function addSubQuery(id: number, name: string, dstTable: string, query: string, options?: object);
 }
 
 declare namespace Dag {
@@ -862,15 +887,6 @@ declare namespace UDF {
 
 declare namespace DSExport {
     export function refresh(): void;
-}
-
-declare namespace Transaction {
-    export function isSimulate(txId: number): boolean;
-    export function isEdit(txId: number): boolean;
-    export function start(options: object): number;
-    export function done(txId: number, options: object): void;
-    export function fail(txId: number, options: object): void;
-    export function cancel(txId: number): void;
 }
 
 declare namespace SQLApi {

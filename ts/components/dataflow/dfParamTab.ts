@@ -1,6 +1,4 @@
 namespace DFParamTab {
-    let paramTab: ParamTab;
-
     class ParamTab {
         private $retTabSection: JQuery;
         private $dfCard: JQuery;
@@ -297,7 +295,7 @@ namespace DFParamTab {
      * DFParamTab.setup
      */
     export function setup(): void {
-        paramTab = new ParamTab();
+        new ParamTab();
     }
 
 }

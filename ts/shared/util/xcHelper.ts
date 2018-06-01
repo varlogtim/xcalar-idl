@@ -2657,7 +2657,7 @@ namespace xcHelper {
      * @param tableId
      * @param winWidth
      */
-    export function isTableInScreen(tableId: string, winWidth?: number): boolean {
+    export function isTableInScreen(tableId: TableId, winWidth?: number): boolean {
         const $tableWrap: JQuery = $("#xcTableWrap-" + tableId);
         if ($tableWrap.length === 0) {
             return false;

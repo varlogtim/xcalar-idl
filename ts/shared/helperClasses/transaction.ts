@@ -1,21 +1,106 @@
-(function() {
-    var Transaction = {};
+namespace Transaction {
+    const txCache = {};
+    const canceledTxCache = {};
+    const disabledCancels = {};
+    let txIdCount = 1;
+    let isDeleting = false;
 
-    var txCache = {};
-    var canceledTxCache = {};
-    var disabledCancels = {};
-    var txIdCount = 1;
-    var isDeleting = false;
+    const has_require = (typeof require !== "undefined" && typeof nw === "undefined");
 
-    var has_require = (typeof require !== "undefined" && typeof nw === "undefined");
+    export interface TransactionStartOptions {
+        operation?: string,
+        msg?: string,
+        simulate?: boolean,
+        sql?: SQLInfo,
+        isEdit?: boolean,
+        track?: boolean,
+        steps?: number,
+        cancelable?: boolean,
+        exportName?: string
+    }
+
+    export interface TransactionDoneOptions {
+        noNotification?: boolean,
+        msgTable?: TableId,
+        msgOptions?: object,
+        noCommit?: boolean,
+        noSql?: boolean,
+        sql?: object,
+        title?: string
+    }
+
+    export interface TransactionFailOptions {
+        failMsg?: string,
+        sql?: SQLInfo,
+        error?: string,
+        title?: string,
+        noAlert?: boolean
+    }
+
+    export interface TransactionCancelOptions {
+        sql?: SQLInfo,
+        title?: string
+    }
+
+    interface TXLogOptions {
+        msgId?: number;
+        operation: string;
+        sql?: SQLInfo;
+        isEdit?: boolean;
+    }
+
+    // tx is short for transaction
+    class TXLog {
+        msgId: number;
+        operation: string;
+        cli: string;
+        sql: SQLInfo;
+        isEdit: boolean;
+
+        constructor(options: TXLogOptions) {
+            this.msgId = options.msgId || null;
+            this.operation = options.operation;
+            this.cli = "";
+            this.sql = options.sql || null;
+            this.isEdit = options.isEdit || false;
+        }
+
+
+        getMsgId(): number {
+            return this.msgId;
+        }
+
+        getCli(): string {
+            return this.cli;
+        }
+
+        getSQL(): SQLInfo {
+            return this.sql;
+        }
+
+        getOperation(): string {
+            return this.operation;
+        }
+
+        addCli(cli: string): void {
+            this.cli += cli;
+            if (cli.slice(-1) !== ",") {
+                this.cli += ",";
+            }
+        }
+    }
 
     // if you want to track the transaction in the monitor panel, pass in
     // "track" in options with a value of true
-    Transaction.start = function(options) {
+    /**
+     * Transaction.start
+     * @param options
+     */
+    export function start(options: TransactionStartOptions): number {
         options = options || {};
 
-        var msgId;
-        var operation = options.operation;
+        let msgId: number;
+        let operation: string = options.operation;
 
         if (options.msg != null) {
             msgId = StatusMessage.addMsg({
@@ -23,13 +108,13 @@
                 "operation": operation
             });
         }
-        // options.simulate = true;
-        var curId = txIdCount;
+
+        let curId: number = txIdCount;
         if (options.simulate) {
             curId = curId + 0.5; // use float to mark simulate case
         }
 
-        var txLog = new TXLog({
+        const txLog = new TXLog({
             "msgId": msgId,
             "operation": operation,
             "sql": options.sql,
@@ -38,7 +123,7 @@
 
         txCache[curId] = txLog;
 
-        var numSubQueries;
+        let numSubQueries: number;
         if (!has_require && options.track) {
             if (!isNaN(options.steps) || options.steps < 1) {
                 numSubQueries = options.steps;
@@ -48,7 +133,7 @@
             if (options.sql && options.sql.retName) {
                 operation += " " + options.sql.retName;
             }
-            var queryOptions = {
+            const queryOptions = {
                 numSteps: numSubQueries,
                 cancelable: options.cancelable,
                 exportName: options.exportName,
@@ -62,7 +147,12 @@
         return curId;
     };
 
-    Transaction.done = function(txId, options) {
+    /**
+     * Transaction.done
+     * @param txId
+     * @param options
+     */
+    export function done(txId: number, options: TransactionDoneOptions): string | null {
         if (!isValidTX(txId)) {
             return;
         }
@@ -77,28 +167,28 @@
 
         options = options || {};
 
-        var txLog = txCache[txId];
+        const txLog: TXLog = txCache[txId];
         // add success msg
-        var msgId = txLog.getMsgId();
+        const msgId = txLog.getMsgId();
 
         if (msgId != null && !has_require) {
-            var noNotification = options.noNotification || false;
-            var tableId = options.msgTable;
-            var msgOptions = options.msgOptions;
+            const noNotification: boolean = options.noNotification || false;
+            const tableId: TableId = options.msgTable;
+            const msgOptions: object = options.msgOptions;
 
             StatusMessage.success(msgId, noNotification, tableId, msgOptions);
         }
 
         // add sql
-        var willCommit = !options.noCommit;
-        var queryNum;
+        const willCommit = !options.noCommit;
+        let queryNum: number;
         if (options.noSql) {
             queryNum = null;
         } else if (!has_require) {
-            var cli = txLog.getCli();
+            const cli: string = txLog.getCli();
             // if has new sql, use the new one, otherwise, use the cached one
-            var sql = options.sql || txLog.getSQL();
-            var title = options.title || txLog.getOperation();
+            const sql: SQLInfo = options.sql || txLog.getSQL();
+            let title: string = options.title || txLog.getOperation();
             title = xcHelper.capitalize(title);
             Log.add(title, sql, cli, willCommit);
             queryNum = Log.getCursor();
@@ -108,10 +198,10 @@
             QueryManager.queryDone(txId, queryNum);
 
             // check if we need to update monitorGraph's table usage
-            var dstTables = QueryManager.getAllDstTables(txId);
+            const dstTables: string[] = QueryManager.getAllDstTables(txId);
             if (dstTables.length) {
-                var hasTableChange = false;
-                for (var i = 0; i < dstTables.length; i++) {
+                let hasTableChange = false;
+                for (let i = 0; i < dstTables.length; i++) {
                     if (dstTables[i].indexOf(gDSPrefix) === -1) {
                         hasTableChange = true;
                         break;
@@ -140,7 +230,12 @@
         }
     };
 
-    Transaction.fail = function(txId, options) {
+    /**
+     * Transaction.fail
+     * @param txId
+     * @param options
+     */
+    export function fail(txId: number, options?: TransactionFailOptions): string | null {
         if (!isValidTX(txId)) {
             return;
         }
@@ -154,13 +249,13 @@
 
         options = options || {};
 
-        var txLog = txCache[txId];
+        const txLog: TXLog = txCache[txId];
         // add fail msg
-        var msgId = txLog.getMsgId();
-        var failMsg = options.failMsg;
+        const msgId: number = txLog.getMsgId();
+        const failMsg: string = options.failMsg;
 
         if (msgId != null) {
-            var srcTableId = null;
+            let srcTableId = null;
             if (options && options.sql && options.sql.tableId) {
                 srcTableId = options.sql.tableId;
             }
@@ -170,10 +265,10 @@
         }
 
         // add error sql
-        var error = options.error;
-        var sql = options.sql || txLog.getSQL();
-        var cli = txLog.getCli(); //
-        var title = options.title || failMsg;
+        const error = options.error;
+        const sql: SQLInfo = options.sql || txLog.getSQL();
+        const cli: string = txLog.getCli(); //
+        let title: string = options.title || failMsg;
         if (!title) {
             title = txLog.getOperation();
         }
@@ -185,7 +280,7 @@
 
             // add alert(optional)
             if (!options.noAlert) {
-                var alertTitle = failMsg || CommonTxtTstr.OpFail;
+                const alertTitle = failMsg || CommonTxtTstr.OpFail;
                 Alert.error(alertTitle, error);
             }
         }
@@ -201,7 +296,11 @@
         }
     };
 
-    Transaction.disableCancel = function(txId) {
+    /**
+     * Transaction.disableCancel
+     * @param txId
+     */
+    export function disableCancel(txId): void {
         // when a replaceTable is called in the worksheet, we disable the
         // ability to cancel because it's too late at this point
         if (isValidTX(txId)) {
@@ -211,19 +310,36 @@
         }
     };
 
-    Transaction.isCancelable = function(txId) {
+    /**
+     * Transaction.isCancelable
+     * @param txId
+     */
+    export function isCancelable(txId): boolean {
         return (isValidTX(txId) && !disabledCancels.hasOwnProperty(txId));
     };
 
-    Transaction.isSimulate = function(txId) {
+    /**
+     * Transaction.isSimulate
+     * @param txId
+     */
+    export function isSimulate(txId: number): boolean {
         return (txId && !Number.isInteger(txId));
     };
 
-    Transaction.isEdit = function(txId) {
+    /**
+     * Transaction.isEdit
+     * @param txId
+     */
+    export function isEdit(txId: number): boolean {
         return (txId && txCache[txId] && txCache[txId].isEdit);
     };
 
-    Transaction.cancel = function(txId, options) {
+    /**
+     * Transaction.cancel
+     * @param txId
+     * @param options
+     */
+    export function cancel(txId: number, options?: TransactionCancelOptions): void {
         if (!isValidTX(txId)) {
             return;
         }
@@ -233,20 +349,20 @@
         }
         options = options || {};
 
-        var txLog = txCache[txId];
+        const txLog: TXLog = txCache[txId];
         // cancel msg
-        var msgId = txLog.getMsgId();
+        const msgId: number = txLog.getMsgId();
         if (msgId != null) {
             StatusMessage.cancel(msgId);
         }
 
         // add sql
-        var cli = txLog.getCli();
+        const cli: string = txLog.getCli();
 
         if (cli !== "") {
             // if cli is empty, no need to log
-            var sql = options.sql || txLog.getSQL();
-            var title = options.title || txLog.getOperation();
+            const sql: SQLInfo = options.sql || txLog.getSQL();
+            let title: string = options.title || txLog.getOperation();
             title = xcHelper.capitalize(title);
 
             Log.errorLog(title, sql, cli, SQLType.Cancel);
@@ -260,7 +376,15 @@
     };
 
     // dstTableName is optional - only needed to trigger subQueryDone
-    Transaction.log = function(txId, cli, dstTableName, timeObj, options) {
+    /**
+     * Transaction.log
+     * @param txId
+     * @param cli
+     * @param dstTableName
+     * @param timeObj
+     * @param options
+     */
+    export function log(txId, cli, dstTableName, timeObj, options): void {
         if (!isValidTX(txId)) {
             return;
         }
@@ -268,7 +392,7 @@
             return;
         }
 
-        var tx = txCache[txId];
+        const tx: TXLog = txCache[txId];
         tx.addCli(cli);
 
         if (!has_require && (dstTableName || timeObj != null)) {
@@ -276,7 +400,15 @@
         }
     };
 
-    Transaction.startSubQuery = function(txId, name, dstTable, query, options) {
+    /**
+     * Transaction.startSubQuery
+     * @param txId
+     * @param name
+     * @param dstTable
+     * @param query
+     * @param options
+     */
+    export function startSubQuery(txId, name, dstTable, query, options): void {
         if (has_require) {
             return;
         }
@@ -284,7 +416,7 @@
             return;
         }
         options = options || {};
-        var subQueries = xcHelper.parseQuery(query);
+        const subQueries = xcHelper.parseQuery(query);
         if (dstTable && subQueries.length === 1 && !options.retName) {
             options.exportFileName = subQueries[0].exportFileName;
             QueryManager.addSubQuery(txId, name, dstTable, query, options);
@@ -294,7 +426,7 @@
             } else {
                 options.queryName = name;
             }
-            for (var i = 0; i < subQueries.length; i++) {
+            for (let i = 0; i < subQueries.length; i++) {
                 QueryManager.addSubQuery(txId, subQueries[i].name,
                                             subQueries[i].dstTable,
                                             subQueries[i].query, options);
@@ -302,28 +434,32 @@
         }
     };
 
-    Transaction.checkCanceled = function(txId) {
+    /**
+     * Transaction.checkCanceled
+     * @param txId
+     */
+    export function checkCanceled(txId): boolean {
         return (txId in canceledTxCache);
     };
 
-    Transaction.cleanUpCanceledTables = function(txId) {
+    /**
+     * Transaction.cleanUpCanceledTables
+     * @param txId
+     */
+    export function cleanUpCanceledTables(txId): void {
         if (!has_require) {
             QueryManager.cleanUpCanceledTables(txId);
         }
     };
 
-    Transaction.getCache = function() {
+    /**
+     * Transaction.getCache
+     */
+    export function getCache(): object {
         return txCache;
     };
 
-    // Transaction.errorLog = function(txId) {
-    //     if (!isValidTX(txId)) {
-    //         console.warn("transaction does't exist!");
-    //         return;
-    //     }
-    // };
-
-    function isValidTX(txId) {
+    function isValidTX(txId: number): boolean {
         if (txId == null) {
             console.error("transaction does't exist!");
             return false;
@@ -337,16 +473,16 @@
         return true;
     }
 
-    function cancelTX(txId) {
+    function cancelTX(txId: number): void {
         canceledTxCache[txId] = true;
     }
 
-    function removeTX(txId) {
+    function removeTX(txId: number): void {
         delete disabledCancels[txId];
         delete txCache[txId];
     }
 
-    function transactionCleaner() {
+    function transactionCleaner(): void {
         if (!has_require && gAlwaysDelete && !isDeleting) {
             isDeleting = true;
 
@@ -365,13 +501,13 @@
     }
 
     // only used to determine which tables to unlock when canceling
-    function getSrcTables(sql) {
-        var tables = [];
+    function getSrcTables(sql: SQLInfo): string[] {
+        const tables = [];
         if (!sql) {
             return tables;
         }
         if (sql.srcTables) {
-            for (var i = 0; i < sql.srcTables.length; i++) {
+            for (let i = 0; i < sql.srcTables.length; i++) {
                 tables.push(sql.srcTables[i]);
             }
         } else if (sql.tableName) {
@@ -386,49 +522,10 @@
         }
         return tables;
     }
-
-    // tx is short for transaction
-    function TXLog(options) {
-        this.msgId = options.msgId || null;
-        this.operation = options.operation;
-        this.cli = "";
-        this.sql = options.sql || null;
-        this.isEdit = options.isEdit || false;
-
-        return this;
+}
+if (typeof exports !== "undefined") {
+    if (typeof module !== "undefined" && module.exports) {
+        exports = module.exports = Transaction;
     }
-
-    TXLog.prototype = {
-        "getMsgId": function() {
-            return this.msgId;
-        },
-
-        "getCli": function() {
-            return this.cli;
-        },
-
-        "getSQL": function() {
-            return this.sql;
-        },
-
-        "getOperation": function() {
-            return this.operation;
-        },
-
-        "addCli": function(cli) {
-            this.cli += cli;
-            if (cli.slice(-1) !== ",") {
-                this.cli += ",";
-            }
-        }
-    };
-
-    if (typeof exports !== "undefined") {
-        if (typeof module !== "undefined" && module.exports) {
-            exports = module.exports = Transaction;
-        }
-        exports.Transaction = Transaction;
-    } else {
-        window.Transaction = Transaction;
-    }
-}());
+    exports.Transaction = Transaction;
+}

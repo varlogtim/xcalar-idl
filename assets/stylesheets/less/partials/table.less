@@ -233,8 +233,8 @@ html.edge {
         border-right: 5px solid @color-white;
         border-left: 5px solid @color-white;
         .flex-display;
-        .justify-content (center);
-        .align-items (center);
+        .justify-content(center);
+        .align-items(center);
         z-index: @z-index-firstColumn;
 
         &::after {
@@ -1106,7 +1106,6 @@ html.edge {
             z-index: @z-index-tableHeaderInput; // used for editable table name
 
             > input, > span {
-                display: inline-block;
                 float: left;
                 .size(@height: 20px);
                 line-height: 20px;
@@ -1126,7 +1125,7 @@ html.edge {
                 font-weight: 200;
 
                 .hashPart {
-                    display: inline-block;
+                    display: block;
                     float: left;
                 }
 
@@ -1137,7 +1136,7 @@ html.edge {
                     line-height: 20px;
 
                     .animPart {
-                        display: inline-block;
+                        display: block;
                         .position(relative, @top: 0px);
                         z-index: @z-index-table-title;
                         float: left;

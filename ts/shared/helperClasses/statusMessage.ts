@@ -161,7 +161,7 @@ namespace StatusMessage {
         public success(
             msgId: number,
             noNotification: boolean,
-            newTableId: string,
+            newTableId: TableId,
             options: object
         ): void {
             if (!noNotification) {
@@ -203,7 +203,7 @@ namespace StatusMessage {
         public fail(
             failMessage: string = StatusMessageTStr.Error,
             msgId: number,
-            srcTableId: string
+            srcTableId: TableId
         ): void {
             const self = this;
             this.showDoneNotification(msgId, true, null, srcTableId);
@@ -443,8 +443,8 @@ namespace StatusMessage {
         private showDoneNotification(
             msgId: number,
             failed: boolean,
-            newTableId: string,
-            srcTableId: string,
+            newTableId: TableId,
+            srcTableId: TableId,
             options: ShowDoneNotificationOptions = {}
         ): void {
             const operation: string = this.msgObjs[msgId].operation;
@@ -473,7 +473,7 @@ namespace StatusMessage {
             let status: string = failed ? ' failed' : ' completed';
             let $popups: JQuery;
             let $popupWrap: JQuery;
-            let tableId: string = newTableId || srcTableId;
+            let tableId: TableId = newTableId || srcTableId;
             // Either newTableId or srcTableId but not both will be defined
             // Possible to have neither (load);
             const self = this;
@@ -722,7 +722,7 @@ namespace StatusMessage {
             });
         }
 
-        private tableVisibility(tableId: string): string | null {
+        private tableVisibility(tableId: TableId): string | null {
             const wsId: string = WSManager.getWSFromTable(tableId);
             const activeWS: string = WSManager.getActiveWS();
 
@@ -805,7 +805,7 @@ namespace StatusMessage {
     export function success(
         msgId: number,
         noNotification: boolean,
-        newTableId: string,
+        newTableId: TableId,
         options: object
     ): void {
         statusMessage.success(msgId, noNotification, newTableId, options);
@@ -820,7 +820,7 @@ namespace StatusMessage {
     export function fail(
         failMessage: string = StatusMessageTStr.Error,
         msgId: number,
-        srcTableId: string
+        srcTableId: number
     ): void {
         statusMessage.fail(failMessage, msgId, srcTableId);
     }

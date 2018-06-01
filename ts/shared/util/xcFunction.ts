@@ -515,7 +515,7 @@ namespace xcFunction {
 
         // joined table will in the current active worksheet.
         const worksheet: string = WSManager.getActiveWS();
-        var sql = {
+        const sql: object = {
             "operation": SQLOps.Join,
             "lTableName": lTableName,
             "lColNums": lColNums,
@@ -1032,7 +1032,7 @@ namespace xcFunction {
         const table: TableMeta = gTables[tableId];
         const tableName: string = table.getName();
 
-        var worksheet = WSManager.getWSFromTable(tableId);
+        const worksheet = WSManager.getWSFromTable(tableId);
         const sql: object = {
             operation: SQLOps.Map,
             tableName: tableName,
@@ -1121,14 +1121,6 @@ namespace xcFunction {
     ): XDPromise<void> {
         // use timestap to guarantee unique name
         options.handleName = tableName + ".export." + new Date().getTime();
-
-        // now disable retName
-        // let retName: string = $(".retTitle:disabled").val();
-        // if (!retName || retName === "") {
-        //     retName = "testing";
-        // }
-        // var fileName = retName + ".csv";
-        // var location = hostname + ":/var/tmp/xcalar/" + exportName;
 
         const sql: object = {
             operation: SQLOps.ExportTable,

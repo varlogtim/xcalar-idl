@@ -162,7 +162,7 @@ var WATCH_FILETYPES = {
 // files: file globs (grunt style) within src dir
 // dest: dest dir
 // remove: files / dirs to skip copy. UNIX, not Grunt, style globbing patterns
-//         can be used. 
+//         can be used.
 // exclude: files / dirs to copy, but skip build
 // required: files / dires to copy, build, and delete on completion
 
@@ -196,13 +196,13 @@ var jsMapping = {
     required: []};
 var helpContentRoot = "assets/help/";
 var helpContentMapping = {
-    src: helpContentRoot + 'user/', 
+    src: helpContentRoot + 'user/',
     dest: "assets/js/shared/util/helpHashTags.js",
     exclude: {},
     remove: [],
     required: []};
 var typescriptMapping = {
-    src:  'ts/', 
+    src:  'ts/',
     dest: "assets/js/",
     exclude: {},
     remove: [],
@@ -292,10 +292,10 @@ var htmlTemplateMapping = {
 
 /**
     global vars FOR PARAM VALIDATION of cmd options..
-    VALID_OPTIONS: 
+    VALID_OPTIONS:
 */
 
-// Used to store params and flags during input. 
+// Used to store params and flags during input.
 var VALUES_KEY = "values"; // the values it's limited to
 var REQUIRES_ONE_KEY = 'requiresOne'; // option requires at least one in a list of other options/flags
 var REQUIRES_ALL_KEY = 'requiresAll'; // option requires all of a particular list of other options/flags
@@ -1808,7 +1808,7 @@ module.exports = function(grunt) {
                 } else {
                     grunt.task.run("rsync:initial");
                 }
-                
+
             }
             grunt.task.run(HELP_CONTENTS);
             grunt.task.run(BUILD_CSS);
@@ -2501,7 +2501,7 @@ module.exports = function(grunt) {
         var allFiles = ["shared/setup/enums.ts",
             "shared/util/xcHelper.ts",
             "shared/setup/xcGlobal.ts",
-            "shared/helperClasses/transaction.js",
+            "shared/helperClasses/transaction.ts",
             "shared/api/xiApi.ts",
             "components/sql/sqlApi.js",
             "components/sql/sqlCompiler.js"];
@@ -3369,7 +3369,7 @@ module.exports = function(grunt) {
         }
         var modified = false;
         var filedir = path.dirname(htmlFilepathAbs); // will need to resolve filepaths so need the files dir
-        var src, srcResolved, srcRelBld; 
+        var src, srcResolved, srcRelBld;
         grunt.log.write(("\t" + htmlFilepathRelBld + "... ").blue);
         $('script').each(function(i, elem) { // go through each script tag
 
@@ -4554,7 +4554,7 @@ module.exports = function(grunt) {
         grunt.log.write("Autogen: " + filepath + " ... ");
         /**
             in the case of the files we're autogenning always want to overwrite
-            and it is valid case we'll have to do this    
+            and it is valid case we'll have to do this
         */
         grunt.file.write(filepath, content);
         grunt.log.ok();
@@ -5401,7 +5401,7 @@ module.exports = function(grunt) {
             // Valid examples of param
             // param: "--hello=world1,world2"
             // param: "--helloWord"
-            var paramPlain = param.split(paramIndicator)[1]; 
+            var paramPlain = param.split(paramIndicator)[1];
 
             // Check if a flag or param option. if values supplied, get the value String
             var flagCheck = paramPlain.split('='); // ['hello', '=val1,val2']
@@ -5438,7 +5438,7 @@ module.exports = function(grunt) {
                      grunt.fail.fatal("Option "  + param +
                                       " only valid for watch task");
                 }
- 
+
                 if (VALID_OPTIONS[paramPlain][FLAG_KEY] && !flag) {
                     grunt.fail.fatal("Flag --" + paramPlain +
                                      " cannot have values");
@@ -5507,7 +5507,7 @@ module.exports = function(grunt) {
                                          [paramPlain][REQUIRES_ONE_KEY]));
                     }
                 }
-   
+
                 if (VALID_OPTIONS[paramPlain].hasOwnProperty(REQUIRES_ALL_KEY)) {
                     for (var requires of VALID_OPTIONS[paramPlain][REQUIRES_ALL_KEY]) {
                         if (!grunt.option(requires)) {
