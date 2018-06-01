@@ -716,6 +716,48 @@ namespace IMDPanel {
                 }
             })
         });
+
+        let initialIndex;
+        $imdPanel.find(".activeTablesList").sortable({
+            revert: 300,
+            axis: "y",
+            handle: ".dragIcon",
+            start: function(event, ui) {
+                initialIndex = $(ui.item).index();
+                xcTooltip.hideAll();
+            },
+            stop: function(event, ui) {
+                resortTableList("visible", initialIndex, $(ui.item).index());
+            }
+        });
+
+        $imdPanel.find(".hiddenTablesListItems").sortable({
+            revert: 300,
+            axis: "y",
+            handle: ".dragIcon",
+            start: function(event, ui) {
+                initialIndex = $(ui.item).index();
+                xcTooltip.hideAll();
+            },
+            stop: function(event, ui) {
+                resortTableList("hidden", initialIndex, $(ui.item).index());
+            }
+        });
+
+        function resortTableList(type: string, initialIndex: number, newIndex: number): void {
+            if (initialIndex === newIndex) {
+                return;
+            }
+            let tables: PublishTable[];
+            if (type === "visible") {
+                tables = pTables;
+            } else {
+                tables = hTables;
+            }
+            const table: PublishTable = tables.splice(initialIndex, 1)[0];
+            tables.splice(newIndex, 0, table);
+            storeTables();
+        }
     }
 
     function submitRefreshTables(latest?: boolean): XDPromise<void> {
@@ -901,7 +943,7 @@ namespace IMDPanel {
         listAndCheckActive()
         .then((tables) => {
             pTables = tables || [];
-            return restoreHiddenTables();
+            return restoreTableOrder();
         })
         .then(() => {
             let html: string = getListHtml(pTables);
@@ -933,7 +975,7 @@ namespace IMDPanel {
         return deferred.promise();
     }
 
-    function restoreHiddenTables(): XDPromise<void> {
+    function restoreTableOrder(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const key: string = KVStore.getKey("gIMDKey");
         const kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
@@ -943,15 +985,31 @@ namespace IMDPanel {
                 try {
                     imdMeta = $.parseJSON(imdMeta);
                     if (imdMeta) {
-                       const hiddenTables: string[] = imdMeta['hiddenTables'];
-                       for (let i = 0; i < pTables.length; i++) {
-                            const table: PublishTable = pTables[i];
-                            if (hiddenTables.indexOf(table.name) !== -1) {
-                                pTables.splice(i, 1);
-                                hTables.push(table);
-                                i--;
+                        const visibleTables: string[] = imdMeta['visibleTables'];
+                        const hiddenTables: string[] = imdMeta['hiddenTables'];
+                        hiddenTables.forEach(function(table) {
+                            for (let i = 0; i < pTables.length; i++) {
+                                if (pTables[i].name === table) {
+                                    hTables.push(pTables[i]);
+                                    pTables.splice(i, 1);
+                                    break;
+                                }
                             }
-                       }
+                        });
+
+                        if (visibleTables) {
+                            const orderedPTables: PublishTable[] = [];
+                            visibleTables.forEach(function(table) {
+                                for (let i = 0; i < pTables.length; i++) {
+                                    if (pTables[i].name === table) {
+                                        orderedPTables.push(pTables[i]);
+                                        pTables.splice(i, 1);
+                                        break;
+                                    }
+                                }
+                            });
+                            pTables = orderedPTables.concat(pTables);
+                        }
                     }
                 } catch (err) {
                     console.error(err);
@@ -1076,19 +1134,19 @@ namespace IMDPanel {
     function getListHtml(tables: PublishTable[]): string {
         let html: string = "";
         tables.forEach((table) => {
-            html += "<div data-name=\"" + table.name + "\" class=\"listBox listInfo tableListItem\">\
-                <div class =\"tableListLeft\">\
-                    <div class=\"iconWrap\"></div>\
-                    <span class=\"tableName\" data-original-title=\"" + table.name + "\">" + table.name + "</span>\
-                    <i class=\"icon xi-trash deleteTable tableIcon\" title=\"Delete published table\" data-toggle=\"tooltip\" \
-                    data-placement=\"top\" data-container=\"body\"></i> \
-                    <i class=\"icon xi-hide hideTable tableIcon\" title=\"Hide published table\" data-toggle=\"tooltip\" \
-                    data-placement=\"top\" data-container=\"body\"></i>\
-                    <i class=\"icon xi-show showTable tableIcon\" title=\"Show published table\" data-toggle=\"tooltip\" \
-                    data-placement=\"top\" data-container=\"body\"></i>\
+            html += '<div data-name="' + table.name + '" class="listBox listInfo tableListItem">\
+                <div class="tableListLeft">\
+                    <i class="icon xi-ellipsis-v dragIcon" ' + xcTooltip.Attrs+ ' data-original-title="' + CommonTxtTstr.HoldToDrag+ '"></i>\
+                    <span class="tableName" data-original-title="' + table.name + '">' + table.name + '</span>\
+                    <i class="icon xi-trash deleteTable tableIcon" title="Delete published table" data-toggle="tooltip" \
+                    data-placement="top" data-container="body"></i> \
+                    <i class="icon xi-hide hideTable tableIcon" title="Hide published table" data-toggle="tooltip" \
+                    data-placement="top" data-container="body"></i>\
+                    <i class="icon xi-show showTable tableIcon" title="Show published table" data-toggle="tooltip" \
+                    data-placement="top" data-container="body"></i>\
                 </div>\
-                <div class = \"tableListHist tableTimePanel\" data-name=\"" + table.name + "\"></div> \
-            </div>";
+                <div class="tableListHist tableTimePanel" data-name="' + table.name + '"></div> \
+            </div>';
         });
 
         return html;
@@ -1197,19 +1255,24 @@ namespace IMDPanel {
                 return;
             }
         });
-        storeHiddenTables();
+        storeTables();
         if ($tableDetail.data("tablename") === tableName) {
             updateTableDetailSection();
         }
     }
 
-    function storeHiddenTables(): XDPromise<void> {
+    function storeTables(): XDPromise<void> {
         const kvsKey: string = KVStore.getKey("gIMDKey");
         const kvStore: KVStore = new KVStore(kvsKey, gKVScope.WKBK);
+
+        const visibleTables: string[] = pTables.map((table) => {
+            return table.name;
+        });
         const hiddenTables: string[] = hTables.map((table) => {
             return table.name;
         });
         const imdInfo = {
+            visibleTables: visibleTables,
             hiddenTables: hiddenTables
         };
         return kvStore.put(JSON.stringify(imdInfo), true);
@@ -1228,7 +1291,7 @@ namespace IMDPanel {
                 return;
             }
         });
-        storeHiddenTables();
+        storeTables();
     }
 
     function deleteTable(tableName: string): XDPromise<void> {
