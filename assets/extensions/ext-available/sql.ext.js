@@ -261,12 +261,16 @@ window.UExtSQL = (function(UExtSQL) {
                 TblManager.makeTableNoDelete(finalizedTableName);
                 deferred.resolve();
             })
-            .fail(function() {
+            .fail(function(err) {
                 srcTable.addToWorksheet(finalizedTableName)
                 .then(function() {
                     TblManager.deleteTables(tempTableNames, "orphaned", true);
-                    deferred.reject();
-                })
+                    if (err && err.responseJSON) {
+                        deferred.reject(err.responseJSON.exceptionMsg);
+                    } else {
+                        deferred.reject();
+                    }
+                });
             });
 
             return deferred.promise();
