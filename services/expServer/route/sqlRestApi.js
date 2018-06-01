@@ -1633,7 +1633,7 @@ var sqlTable;
 var sqlUser = "xcalar-internal-sql";
 var sqlId = 4193719;
 var logInUser;
-function sqlLoad(path) {
+function sqlLoad(path, publishName) {
     global.sqlMode = true;
     sqlTable = xcHelper.randName("SQL") + Authentication.getHashId();
     var sqlTableAlias = "sql";
@@ -1658,7 +1658,16 @@ function sqlLoad(path) {
         return goToSqlWkbk();
     })
     .then(function() {
-        return loadDatasets(args);
+        if (publishName) {
+            var publishArgs = {
+                publishName: publishName,
+                importTable: args.importTable,
+                txId: args.txId
+            }
+            return loadPublishedTable(publishArgs);
+        } else {
+            return loadDatasets(args);
+        }
     })
     .then(function() {
         console.log("create table");
@@ -1682,6 +1691,27 @@ function sqlLoad(path) {
         deferred.reject(err);
     });
 
+    return deferred.promise();
+};
+
+
+function listPublishTables(pattern) {
+    var deferred = PromiseHelper.deferred();
+    connect("localhost", sqlUser, sqlId)
+    .then(function() {
+        console.log("connected");
+        var pubPatternMatch = pattern || "*";
+        return XcalarListPublishedTables(pubPatternMatch);
+    })
+    .then(function(res) {
+        var publishedTables = [];
+        for (var i = 0; i < res.tables.length; i++) {
+            var table = res.tables[i];
+            publishedTables.push(table.name);
+        }
+        deferred.resolve(publishedTables);
+    })
+    .fail(deferred.reject);
     return deferred.promise();
 };
 
@@ -1733,6 +1763,11 @@ function goToSqlWkbk() {
     .fail(deferred.reject);
 
     return deferred.promise();
+}
+
+function loadPublishedTable(args) {
+    return XcalarRefreshTable(args.publishName, args.importTable, undefined,
+                              undefined, args.txId);
 }
 
 function loadDatasets(args) {
@@ -1993,6 +2028,21 @@ router.post("/xcedf/load", function(req, res) {
     });
 });
 
+router.post("/xcedf/select", function(req, res) {
+    var publishName = req.body.name;
+    console.log("load from published table: ", publishName);
+    sqlLoad(undefined, publishName)
+    .then(function(output) {
+        console.log("sql load published table finishes");
+        res.send(output);
+    })
+    .fail(function(error) {
+        console.log("sql load error", error);
+        res.status(500).send(error);
+    });
+
+});
+
 function getColType(typeId) {
     // XXX TODO generalize it with setImmediateType()
     if (!DfFieldTypeTStr.hasOwnProperty(typeId)) {
@@ -2039,6 +2089,20 @@ router.post("/xcedf/query", function(req, res) {
         res.status(500).send(error);
     });
 });
+
+router.post("/xcedf/list", function(req, res) {
+    var pattern = req.body.pattern;
+    listPublishTables(pattern)
+    .then(function(tables) {
+        console.log("get published tables: ", tables);
+        res.send(tables);
+    })
+    .fail(function(error) {
+        console.log("get published tables error", error);
+        res.status(500).send(error);
+    });
+})
+
 // For unit tests
 function fakeSqlLoad(func) {
     sqlLoad = func;
