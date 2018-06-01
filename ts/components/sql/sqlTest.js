@@ -212,7 +212,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                               "numOfRows": "1"},
         "timestamp": {"row0": ["1969", "0"],
                       "row10": ["1969", "4"]},
-        "timestampFromStr": {"row1": ["1525158000.0"]},
+        // "timestampFromStr": {"row1": ["1525158000.0"]},
         "caseWhenNoElse": {"row5": ["5"],
                            "row13": ["FNF"]},
         "decimal": {"row0": ["0"],

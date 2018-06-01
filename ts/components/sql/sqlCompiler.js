@@ -112,9 +112,10 @@
         "expressions.StringTrim": "strip",
         "expressions.StringTrimLeft": "stripLeft",
         "expressions.StringTrimRight": "stripRight",
-        "expressions.StringInstr": "find", // XXX 1-based index
+        "expressions.StringInstr": null,
         "expressions.SubstringIndex": "substringIndex",
-        "expressions.StringLocate": "find", // XXX 1-based index
+        "expressions.StringLocate": null,
+        "expressions.Find": "find",
         "expressions.StringLPad": null, // TODO
         "expressions.StringRPad": null, // TODO
         "expressions.ParseUrl": null, // TODO
@@ -150,8 +151,8 @@
         "expressions.DayOfMonth": null,
         "expressions.DateAdd": null,
         "expressions.DateSub": null,
-        "expressions.TimeAdd": "sql:timeAdd",
-        "expressions.TimeSub": "sql:timeSub",
+        "expressions.TimeAdd": "default:timeAdd",
+        "expressions.TimeSub": "default:timeSub",
         "expressions.convertFormats": "default:convertFormats", // XXX default value for udf when input format is not specified is wrong
         "expressions.convertFromUnixTS": "default:convertFromUnixTS", // Use default module here because implementation different from convertFromUnixTS
         "expressions.convertToUnixTS": "default:convertToUnixTS", // And cannot peak what's in the other function
@@ -416,6 +417,12 @@
             return new TreeNode({
                 "class": "org.apache.spark.sql.catalyst.plans.logical.XcAggregate",
                 "num-children": 1
+            });
+        }
+        function findNode() {
+            return new TreeNode({
+                "class": "org.apache.spark.sql.catalyst.expressions.Find",
+                "num-children": 4
             });
         }
 
@@ -775,6 +782,31 @@
                 assert(node.children.length === 1,
                        SQLErrTStr.DecimalNodeChildren + node.children.length);
                 node = secondTraverse(node.children[0], options);
+                break;
+            case ("expressions.StringInstr"):
+                var retNode = addNode();
+                var fNode = findNode();
+                var zeroNode = literalNumberNode(0);
+                var oneNode = literalNumberNode(1);
+                retNode.children = [fNode, oneNode];
+                fNode.children = [node.children[node.value["str"]],
+                    node.children[node.value["substr"]], zeroNode, zeroNode];
+                node = retNode;
+                break;
+            case ("expressions.StringLocate"):
+                var retNode = addNode();
+                var subNode = subtractNode();
+                var fNode = findNode();
+                var intNode = castNode("int");
+                var zeroNode = literalNumberNode(0);
+                var oneNode = literalNumberNode(1);
+                retNode.children = [fNode, oneNode];
+                intNode.children = [subNode];
+                subNode.children = [node.children[node.value["start"]], oneNode];
+                fNode.children = [node.children[node.value["str"]],
+                    node.children[node.value["substr"]], intNode, zeroNode];
+                node = retNode;
+                break;
             default:
                 break;
         }
