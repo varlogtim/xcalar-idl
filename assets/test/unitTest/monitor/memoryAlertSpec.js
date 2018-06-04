@@ -52,8 +52,8 @@ describe('Memory Alert Test', () => {
 
         it('should not show alert if Alert is on', (done) => {
             setMemUsage(1, 1);
-            let oldFunc = Alert.isVisible;
-            Alert.isVisible = () => true;
+            let oldFunc = Alert.isOpen;
+            Alert.isOpen = () => true;
 
             MemoryAlert.Instance.detectUsage(fakeTopOutput)
                 .then(() => {
@@ -65,7 +65,7 @@ describe('Memory Alert Test', () => {
                     done('fail');
                 })
                 .always(() => {
-                    Alert.isVisible = oldFunc;
+                    Alert.isOpen = oldFunc;
                 });
         });
 

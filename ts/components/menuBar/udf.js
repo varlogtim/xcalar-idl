@@ -654,8 +654,7 @@ window.UDF = (function($, UDF) {
                 "title": SideBarTStr.DupUDF,
                 "msg": msg,
                 "onConfirm": function() { uploadHelper(); },
-                "onCancel": function() { deferred.resolve(); },
-                "focusOnConfirm": true
+                "onCancel": function() { deferred.resolve(); }
             });
         } else {
             uploadHelper();

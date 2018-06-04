@@ -35,7 +35,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
 
         if ($("#modalBackground").hasClass('locked')) {
             $modal.addClass('locked');
-            Alert.tempHide();
+            Alert.hide();
         }
         updateTimes();
     };

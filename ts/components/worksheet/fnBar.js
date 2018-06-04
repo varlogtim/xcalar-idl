@@ -878,7 +878,6 @@ window.FnBar = (function(FnBar, $) {
             "title": alertTitle,
             "msgTemplate": alertMsg,
             "keepFnBar": true,
-            "focusOnConfirm": true,
             "buttons": btns,
             "onCancel": function() {
                 if ($colInput.length) {

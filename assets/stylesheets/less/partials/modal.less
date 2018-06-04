@@ -1396,31 +1396,6 @@ html.microsoft {
         text-transform: uppercase;
     }
 
-    &.withOptions {
-        overflow: visible;
-
-        #alertContent {
-            overflow-y: visible;
-        }
-    }
-
-    #alertUserInputArea {
-        .flex-display;
-        .justify-content(center);
-        width: 100%;
-        margin-top: 10px;
-        margin-bottom: 10px;
-        .label {
-            float: left;
-            line-height: 30px;
-            margin-right: 10px;
-        }
-        input {
-            width: ~"calc(100% - 200px)";
-            background-color: @color-white;
-        }
-    }
-
     &.locked {
         z-index: @z-index-locked + 2;
         #alertHeader {
@@ -1553,39 +1528,6 @@ html.microsoft {
             .label {
                 display: inline-block;
                 min-width: 100px;
-            }
-        }
-
-        .options {
-            .size(@width: 325px, @height: 30px);
-            .font(@line-height: 30px);
-            .center-align;
-            .position(absolute);
-            margin-top: 15px;
-            z-index: @z-index-modal;
-
-            .label {
-                float: left;
-            }
-
-            .dropDownList {
-                .styleDropDownList(165px, 20px);
-
-                .size(@width: 165px, @height: 30px);
-                .position(absolute, @left: 44%);
-
-                .input-box(@w: 100%, @h: 30px);
-
-                input {
-                    background-color: @color-white;
-                }
-
-                .list {
-                    .size(@width: 100%);
-                    .position(@top: 31px);
-                    .font(@size: 12px);
-                    white-space: nowrap;
-                }
             }
         }
     }

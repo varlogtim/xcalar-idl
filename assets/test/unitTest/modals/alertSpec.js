@@ -38,7 +38,7 @@ describe("Alert Modal Test", function() {
             "isAlert": true
         });
 
-        assert.isTrue($alertModal.is(":visible"));
+        expect(Alert.isOpen()).to.be.true;
         assert.isFalse($("#alertCheckBox").is(":visible"));
         expect($alertTitle.text()).to.equal(title);
         expect($alertInstr.text()).to.equal(instr);
@@ -46,7 +46,7 @@ describe("Alert Modal Test", function() {
     });
 
     it("should hide alert", function() {
-        Alert.tempHide();
+        Alert.hide();
         expect($alertModal.hasClass("xc-hidden"));
     });
 
@@ -57,7 +57,7 @@ describe("Alert Modal Test", function() {
 
     it("Should close alert", function() {
         $alertModal.find(".close").click();
-        assert.isFalse($alertModal.is(":visible"));
+        expect(Alert.isOpen()).to.be.false;
     });
 
     it("should update message", function() {
@@ -191,34 +191,6 @@ describe("Alert Modal Test", function() {
         expect($alertModal.hasClass("expandDetail")).to.be.false;
     });
 
-    it("Should show alert with dropdownlist", function() {
-        var title = "Dropdown alert test";
-        var testLabel = "test label";
-        var testLi = "<li>Test 1</li>" +
-                     "<li>Test 2</li>";
-
-        Alert.show({
-            "title": title,
-            "optList": {
-                "label": testLabel,
-                "list": testLi
-            }
-        });
-
-        assert.isTrue($alertModal.is(":visible"));
-        expect($alertTitle.text()).to.equal(title);
-        expect($("#alertOptionLabel").text()).to.equal(testLabel + ":");
-        expect($("#alertlist").find("li").length).to.equal(2);
-
-        // select an option
-        $("#alertlist").find("li").eq(0).trigger(fakeEvent.mouseup);
-        var val = Alert.getOptionVal();
-        expect(val).to.equal("Test 1");
-
-        $alertModal.find(".close").click();
-        assert.isFalse($alertModal.is(":visible"));
-    });
-
     it("Should show alert with buttons", function() {
         var title = "buttons test";
         var msg = "buttons";
@@ -245,27 +217,6 @@ describe("Alert Modal Test", function() {
 
         $alertModal.find(".button1").click();
         expect(test).to.be.true;
-        assert.isFalse($alertModal.is(":visible"));
-    });
-
-    it("should show with user input", function() {
-        var $inputArea = $("#alertUserInputArea");
-
-        Alert.show({
-            "title": "test",
-            "msg": "test",
-            "userInput": {
-                "label": "testLabel",
-                "autofill": "testVal"
-            }
-        });
-
-        assert.isTrue($alertModal.is(":visible"));
-        expect($inputArea.hasClass("xc-hidden")).to.be.false;
-        expect($inputArea.find(".label").text()).to.equal("testLabel");
-        expect($("#alertUserInput").val()).to.equal("testVal");
-
-        $alertModal.find(".close").click();
         assert.isFalse($alertModal.is(":visible"));
     });
 

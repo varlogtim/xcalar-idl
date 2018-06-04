@@ -146,7 +146,7 @@ namespace xcHelper {
      */
     export function reload(hardLoad: boolean = false): void {
         // override heartbeat check function so that it cannot run during reload
-        XcSupport.heartbeatCheck = function() {};
+        XcSupport.heartbeatCheck = () => false;
         xcManager.removeUnloadPrompt(true);
         location.reload(hardLoad);
     }
@@ -1957,7 +1957,6 @@ namespace xcHelper {
                 $btn.click(function() {
                     SupTicketModal.show();
                     $(this).blur();
-                    Alert.tempHide();
                     MonitorGraph.stop();
                 });
                 break;

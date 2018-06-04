@@ -132,7 +132,7 @@ class MemoryAlert {
     }
 
     private redMemoryAlert(): void {
-        if (this._turnOffRedMemoryAlert || Alert.isVisible()) {
+        if (this._turnOffRedMemoryAlert || Alert.isOpen()) {
             return;
         }
 
@@ -145,8 +145,8 @@ class MemoryAlert {
             msg: MonitorTStr.LowMemMsg,
             isAlert: true,
             isCheckBox: true,
-            onCancel: () => {
-                this._turnOffRedMemoryAlert = Alert.isChecked();
+            onCancel: (checked) => {
+                this._turnOffRedMemoryAlert = checked;
             }
         });
     }

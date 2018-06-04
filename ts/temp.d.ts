@@ -141,6 +141,7 @@ interface SQLInfo {
 }
 
 /* ============== GLOBAL VARIABLES ============= */
+declare var isBrowserIE: boolean;
 declare var KB: number
 declare var MB: number;
 declare var GB: number;
@@ -479,6 +480,9 @@ declare namespace AlertTStr {
     export var NoConnect: string;
     export var Connecting: string;
     export var TryConnect: string;
+    export var Title: string;
+    export var CLOSE: string;
+    export var ErrorMsg: string;
 }
 
 declare namespace ThriftTStr {
@@ -652,6 +656,17 @@ declare class ScrollTableChecker {
     public checkScroll(): boolean;
 }
 
+declare class ModalHelper {
+    constructor($el: JQuery, optoins: Object);
+    setup(options: any): void;
+    center(options: any): void;
+    clear(optoins: any): void;
+}
+
+declare class MenuHelper {
+    constructor($el: JQuery, optoins: Object);
+    public setupListeners(): void;
+}
 /* ============== NAMESPACE ====================== */
 declare namespace xcManager {
     export function removeUnloadPrompt(markUser: boolean): void;
@@ -710,15 +725,6 @@ declare namespace SupTicketModal {
 
 declare namespace EULAModal {
     export function show(): XDPromise<void>;
-}
-
-declare namespace Alert {
-    export function tempHide(): void;
-    export function error(title: string, error: any, options?: object): string;
-    export function show(options: {title: string, instr?: string, msg?: string, isAlert?: boolean, msgTemplate?: string, onConfirm?: Function, onCancel?: Function, buttons?: any, noCancel?: boolean, lockScreen?: boolean, logout?: boolean, instrTemplate?: string, isCheckBox?: boolean}): string;
-    export function isVisible(): boolean;
-    export function isChecked(): boolean;
-    export function updateMsg(alertId: string, msg: string): void;
 }
 
 declare namespace MonitorGraph {
