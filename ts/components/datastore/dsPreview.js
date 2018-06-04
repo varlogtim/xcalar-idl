@@ -1654,7 +1654,7 @@ window.DSPreview = (function($, DSPreview) {
                 var type = $th.data("type") || "string";
                 var header = {
                     colType: type,
-                    colName: $th.find(".text").val().trim()
+                    colName: $th.find(".text").val()
                 };
                 headers.push(header);
             });
@@ -1662,7 +1662,7 @@ window.DSPreview = (function($, DSPreview) {
             $ths.each(function() {
                 var header = {
                     colType: "",
-                    colName: $(this).find(".text").text().trim()
+                    colName: $(this).find(".text").text()
                 };
                 headers.push(header);
             });

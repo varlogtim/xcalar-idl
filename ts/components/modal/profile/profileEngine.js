@@ -35,8 +35,8 @@ window.ProfileEngine = (function(ProfileEngine) {
         var groupbyTable;
         var finalTable;
         var colName = profileInfo.colName;
-        var rename = xcHelper.stripColName(colName);
-        rename = xcHelper.parsePrefixColName(rename).name;
+        var rename = xcHelper.parsePrefixColName(colName).name;
+        rename = xcHelper.stripColName(rename);
         var tablesToDelete = {};
 
         profileInfo.groupByInfo.isComplete = "running";

@@ -197,8 +197,9 @@ window.FilePreviewer = (function(FilePreviewer, $) {
     }
 
     function showPreview(base64Data, blockSize) {
-        // var buffer = atob(base64Data);
-        var buffer = Base64.decode(base64Data);
+        // Note: hexdump is different from view the data using editor.
+        // so use atob instead of Base64.decode
+        var buffer = atob(base64Data);
         var codeHtml = "";
         var charHtml = "";
 
@@ -206,7 +207,8 @@ window.FilePreviewer = (function(FilePreviewer, $) {
             var endIndex = Math.min(i + blockSize, buffer.length);
             var block = buffer.slice(i, endIndex);
             // use dot to replace special chars
-            var chars = block.replace(/[\x00-\x1F\x20]/g, '.');
+            var chars = block.replace(/[\x00-\x1F\x20]/g, '.')
+                                .replace(/[^\x00-\x7F]/g, '.'); // non-ascii chars
 
             charHtml += getCharHtml(chars, blockSize, i);
             codeHtml += getCodeHtml(block, blockSize, i);
