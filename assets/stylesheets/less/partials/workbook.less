@@ -426,9 +426,25 @@
         }
 
         .content {
+            position: relative;
             .flex(1 0 250px);
             .innerContent {
                 width: 250px;
+            }
+
+            .icon {
+                color: @color-bg-select-blue;
+                .size(20px, 35px);
+                line-height: 40px;
+                padding: 0 10px 0 0;
+
+                &.preview {
+                    .position(absolute, @right: 30px, @top: 0px);
+                }
+                &.dropDown {
+                    .position(absolute, @right: 0px, @top: 0px);
+
+                }
             }
         }
 
@@ -488,21 +504,6 @@
 
             .workbookName, .description {
                 .size(@width: ~"calc(100% - 40px)");
-            }
-
-            .icon {
-                color: @color-bg-select-blue;
-                .size(20px, 100%);
-                line-height: 30px;
-                padding: 0 5px;
-
-                &.preview {
-                    .position(absolute, @right: 10px);
-                }
-                &.dropDown {
-                    .position(absolute, @right: -20px);
-
-                }
             }
         }
 

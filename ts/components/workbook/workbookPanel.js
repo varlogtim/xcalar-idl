@@ -879,16 +879,6 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                                     ' value="' + workbookName + '"' +
                                     (isNewWKBK ? '' : ' disabled') +
                                     ' spellcheck="false"/>' +
-                                    '<i class="preview icon xi-show xc-action" ' +
-                                    ' data-toggle="tooltip" data-container="body"' +
-                                    ' data-placement="top"' +
-                                    ' data-title="' + CommonTxtTstr.Preview + '"' +
-                                    '></i>' +
-                                    '<i class="dropDown icon xi-ellipsis-h xc-action" ' +
-                                    ' data-toggle="tooltip" data-container="body"' +
-                                    ' data-placement="top"' +
-                                    ' data-title="' + WKBKTStr.MoreActions + '"' +
-                                    '></i>' +
                                 '</div>' +
                                 '<div class="description textOverflowOneLine">' +
                                     xcHelper.escapeHTMLSpecialChar(description) +
@@ -931,6 +921,16 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                                 '</div>' +
                             '</div>' +
                         '</div>' +
+                        '<i class="preview icon xi-show xc-action" ' +
+                        ' data-toggle="tooltip" data-container="body"' +
+                        ' data-placement="top"' +
+                        ' data-title="' + CommonTxtTstr.Preview + '"' +
+                        '></i>' +
+                        '<i class="dropDown icon xi-ellipsis-h xc-action" ' +
+                        ' data-toggle="tooltip" data-container="body"' +
+                        ' data-placement="top"' +
+                        ' data-title="' + WKBKTStr.MoreActions + '"' +
+                        '></i>' +
                     '</div>' +
                 '</div>' +
             '</div>';
