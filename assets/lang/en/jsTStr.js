@@ -952,7 +952,7 @@ MonitorTStr = {
     "TicketErr1": "Your organization could not be verified.",
     "TicketErr2": "This ticket could not be found within your organization.",
     "LowMem": "Low Memory Warning",
-    "LowMemMsg": "Warning! Cluster is on low meory. Please check the memory warning icon for details.",
+    "LowMemMsg": "Warning! Cluster is on low memory. Please check the memory warning icon for details.",
     "LowMemInstr": "To find out more about memory mangement, please reference <a href=\"<link>\" target=\"_blank\">the link</a>",
 
     // with replace

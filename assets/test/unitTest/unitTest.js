@@ -54,6 +54,7 @@ window.UnitTest = (function(UnitTest, $) {
                 }
                 if (!resultsSent) {
                     sendResultsToParent();
+                    removeUserFromKVStore();
                 }
             });
             window.onbeforeunload = function() {
@@ -114,13 +115,20 @@ window.UnitTest = (function(UnitTest, $) {
                 if (window.mochaPct === 100) {
                     if (!resultsSent) {
                         sendResultsToParent();
+                        removeUserFromKVStore();
                     }
                     console.info("TEST FINISHED");
                     // if (String(mocha.options.grep) === "/Mocha Setup Test|.*/") {
                     //     UnitTest.getCoverage();
                     // }
+
                 } else {
-                    consolePct();
+                    if (parseInt($("#mocha-stats").find(".failures em").text()) > 0) {
+                        sendResultsToParent();
+                        removeUserFromKVStore();
+                    } else {
+                        consolePct();
+                    }
                 }
             }, 10000);
         }
@@ -180,6 +188,30 @@ window.UnitTest = (function(UnitTest, $) {
             }
         }
     }
+
+
+    function removeUserFromKVStore() {
+        var urlArgs = xcHelper.decodeFromUrl(window.location.href);
+        var user = urlArgs.user;
+        if (!user) {
+            return;
+        }
+        var kvStore = new KVStore("gUserListKey", gKVScope.GLOB);
+
+        kvStore.get()
+        .then(function(value) {
+            if (value != null) {
+                var len = value.length;
+                var userList = value.split(",");
+                var newList = userList.filter(function(user) {
+                    return ('"' + user + '"' !== username);
+                });
+                var newListStr = newList.join(",");
+                kvStore.put(newListStr, true, true);
+            }
+        });
+    }
+
 
     UnitTest.testFinish = function(checkFunc, interval) {
         var deferred = PromiseHelper.deferred();

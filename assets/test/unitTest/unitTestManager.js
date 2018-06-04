@@ -23,14 +23,14 @@ window.UnitTestManager = (function(UnitTestManager, $) {
                 var nextTest = parseInt(s.testId) + 1;
 
                 if (!success) {
-                    finisTest("Test Fails!");
+                    finishTest("Test Fails!");
                 } else if (nextTest >= numTests) {
-                    finisTest("All tests done!");
+                    finishTest("All tests done!");
                 } else {
                     runTest(nextTest);
                 }
             } catch (e) {
-                finisTest(e);
+                finishTest(e);
             }
         });
 
@@ -52,7 +52,7 @@ window.UnitTestManager = (function(UnitTestManager, $) {
         $("#unitTestFrame").attr("src", url.href);
     }
 
-    function finisTest(msg) {
+    function finishTest(msg) {
         // used for puppeteer
         $("body").append('<div id="testFinish">Test Fnish</div>');
         alert(msg);

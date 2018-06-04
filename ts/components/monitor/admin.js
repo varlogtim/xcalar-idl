@@ -65,7 +65,7 @@ window.Admin = (function($, Admin) {
             if (value == null) {
                 return storeUsername(kvStore, username);
             } else {
-                parseStrIntoUserList(value);
+                userList = parseStrIntoUserList(value);
                 // usernames are case sensitive
                 if (userList.indexOf(username) === -1) {
                     return storeUsername(kvStore, username, true);
@@ -510,6 +510,7 @@ window.Admin = (function($, Admin) {
             console.error("restore error logs failed!", err);
         }
         userList.sort(xcHelper.sortVals);
+        return userList;
     }
 
     // xcalar put by default, or append if append param is true
@@ -604,7 +605,7 @@ window.Admin = (function($, Admin) {
             if (value == null) {
                 userList = [];
             } else {
-                parseStrIntoUserList(value);
+                userList = parseStrIntoUserList(value);
             }
             if (!firstTime) {
                 return getAllUsersMemory(sortByUsage);
