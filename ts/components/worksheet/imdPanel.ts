@@ -103,8 +103,8 @@ namespace IMDPanel {
         $(window).on("resize.canvasResize", function () {
             clearTimeout(timer);
             timer = setTimeout(function () {
-                redrawTimeCanvas();
                 updateTimeInputs();
+                updateHistory();
             }, 300);
         });
         redrawTimeCanvas();
@@ -135,8 +135,15 @@ namespace IMDPanel {
      */
     function updateViewportForDateRange(ts1: number, ts2: number): void {
         const numberOfUnits: number = $canvas.width() / tickSpacing;
-        const scale: number = (ts2 - ts1) / numberOfUnits;
-        updateScale(scale, ts1, ts2);
+        let scale: number = (ts2 - ts1) / numberOfUnits;
+        ruler.uiScale = scale; //cache scale value
+        if (scale <= 0) { //make sure to avoid div by zero or neg values
+            scale = 1;
+        }
+
+        ruler.pixelToTime = parseFloat(<any>scale) / parseFloat(<any>tickSpacing);
+        resetTimePanels(pTables, ts1, ts2);
+        updateHistory();
     }
 
     // for the first time that we list tables, we create a range that shows
@@ -172,25 +179,6 @@ namespace IMDPanel {
         fromTimePicker.showTimeHelper(new Date(min * 1000));
         toTimePicker.showTimeHelper(new Date(max * 1000));
         updateViewportForDateRange(min, max);
-    }
-
-    /**
-     * updates the ruler's pixelToTime var from UI value
-     * redraw all time panel
-     */
-    function updateScale(
-        scale: number,
-        rangeMin: number,
-        rangeMax: number
-    ): void {
-        ruler.uiScale = scale; //cache scale value
-        if (scale <= 0) { //make sure to avoid div by zero or neg values
-            scale = 1;
-        }
-
-        ruler.pixelToTime = parseFloat(<any>scale) / parseFloat(<any>tickSpacing);
-        initTimePanels(pTables, rangeMin, rangeMax);
-        updateHistory();
     }
 
     function timeString(timeStamp: number): string {
@@ -269,11 +257,12 @@ namespace IMDPanel {
             if (table.name == tableName) {
             //updated may not sorted by timestamp , need to check all of them
                 for (let i = 0; i < table.updates.length; i++) {
-                    var time = moment.unix(table.updates[i].startTS).format("MMMM Do YYYY, h:mm:ss a");
+                    var time = moment.unix(table.updates[i].startTS).format("MMMM Do YYYY, h:mm:ss A");
+                    var timeTip = moment.unix(table.updates[i].startTS).format("M-D-Y h:mm:ss A");
                     html += '<div class="tableDetailRow" data-tablename="' + table.name + '">' +
                             '<div class="tableColumn sourceName" data-original-title="' + table.updates[i].source + '"><span class="dummy">a</span>' + table.updates[i].source + '</div>' +
                             '<div class="tableColumn batchId">' + table.updates[i].batchId + '</div>' +
-                            '<div class="tableColumn">' + time + '</div>' +
+                            '<div class="tableColumn" ' + xcTooltip.Attrs + ' data-original-title="' + timeTip + '">' + time + '</div>' +
                             '<div class="tableColumn">' + xcHelper.numToStr(table.updates[i].numRows) + '</div>' +
                             '</div>';
                 }
@@ -627,7 +616,7 @@ namespace IMDPanel {
             let delta: number = Math.max((<any>event).deltaY, -3);
             delta = Math.min(delta, 3);
 
-            // zoom in our out by
+            // zoom in our out by 20% per delta, with a max of 3 or 60%
             if (delta > 0) { // zooming in
                 range /= (1 + (delta / 5));
                 if (range / canvasWidth < .15) { // when 6 pixels is less than 1 second
@@ -804,7 +793,7 @@ namespace IMDPanel {
             return;
         }
         ruler.visibleLeft = $scrollDiv.scrollLeft();
-        ruler.visibleRight = $scrollDiv.scrollLeft() + $scrollDiv.width();
+        ruler.visibleRight = ruler.visibleLeft + $scrollDiv.width();
         hideUpdatePrompt();
         redrawTimeCanvas();
 
@@ -886,10 +875,10 @@ namespace IMDPanel {
      * iterate all updates
      * Calculate min max etc that will be used in update history
      */
-    function initTimePanels(
+    function resetTimePanels(
         tables: PublishTable[],
-        rangeMin?: number,
-        rangeMax?: number
+        rangeMin: number,
+        rangeMax: number
     ): void {
         //global time start and end for history panel
         if (!tables){
@@ -1291,6 +1280,7 @@ namespace IMDPanel {
                 return;
             }
         });
+        checkDateChange();
         storeTables();
     }
 

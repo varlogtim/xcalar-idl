@@ -105,7 +105,7 @@ describe('IMD Test', function() {
                 expect(tables.hTables.length).to.equal(0);
                 expect($imdPanel.find(".activeTablesList .tableListItem").length).to.equal(2);
                 expect($imdPanel.find(".tableListItem .tableListLeft").eq(0).text().trim()).to.equal("test1");
-                expect($imdPanel.find(".tableListItem .tableListHist").eq(0).text().trim()).to.equal("210");
+                expect($imdPanel.find(".tableListItem .tableListHist").eq(0).text().trim().slice(-2)).to.equal("10");
                 expect($imdPanel.find(".hiddenTablesList .tableListItem").length).to.equal(0);
                 expect($imdPanel.find(".tableDetailSection .tableName").text().trim()).to.equal("test1:");
                 expect($imdPanel.find(".tableDetailSection").hasClass("active")).to.be.true;
@@ -350,8 +350,9 @@ describe('IMD Test', function() {
             expect(cells.hasOwnProperty("test2")).to.be.true;
             expect(cells["test2"]).to.equal(0);
             expect($imdPanel.find(".selectedBar").length).to.equal(1);
-            var left = $imdPanel.find(".selectedBar").css("left");
-            expect($imdPanel.find(".tableListHist").last().find(".indicator1").css("left")).to.equal(left);
+            var expectedLeft = parseInt($imdPanel.find(".selectedBar").css("left"));
+            var left = parseInt($imdPanel.find(".tableListHist").last().find(".indicator1").css("left"));
+            expect(left).to.equal(expectedLeft);
         });
     });
 
