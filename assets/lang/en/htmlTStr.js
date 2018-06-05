@@ -352,7 +352,7 @@ module.exports = {
         "RawDSFieldDelim": "Select a string from the drop-down list or type a string as a field delimiter. Length can be 0 to 255.",
         "RawDSQuote": "Character used as a quote mark. Delimiter characters between quote marks are interpreted literally, not as delimiters. Leave this field empty if you want to treat delimiter characters as delimiters regardless of where these characters appear.",
         "RawDSSkipRows": "Skip the first specified number of rows in each file.",
-        "RawDSExcelIndex": "Index of the worksheet in the excel workbook. Indexing starts at 0 (first worksheet).",
+        "RawDSExcelIndex": "Index of the worksheet in the Excel workbook. Indexing starts at 0 (first worksheet).",
         "RawDSUDFModule": "Select an existing import UDF module or 'Write Parser Using Jupyter' to create a module.",
         "RawDSUDFFunction": "Select import function from import module to apply to the dataset. Click 'Apply UDF' button to apply the import function to the dataset.",
         "RawDSXMLXPath": "Comma-delimited list of XPaths that will become records. For information about XPaths, search for XML in online help.",
@@ -581,7 +581,7 @@ module.exports = {
         "AdditionalInfo": "Additional (New) Information",
         "GenBundle": "Generate Support Bundle",
         "MiniDump": "Mini Dump",
-        "MiniDumpTip": "You must select Regenerate Support Bundle first",
+        "MiniDumpTip": "You must select Generate Support Bundle first",
         "Severity": "Severity",
         "Severity1": "Cluster is down",
         "Severity2": "Functionality is compromised",
@@ -857,7 +857,7 @@ module.exports = {
         "noRun": "Not run yet",
         "runHistory": "Run History",
         "details": "Details",
-        "cronHint": "This mode allows you to specify the schedule as a cron string. It follows the standard cron syntax. You can simulate the run times for the cron schedule by clicking the simulate button. Once you have a string that you are satisfied with, click Save to apply it to the batch dataflow."
+        "cronHint": "This mode allows you to specify the schedule as a cron string. It follows the standard cron syntax. You can simulate the run times for the cron schedule by clicking the SIMULATE button. Once you have a string that you are satisfied with, click SAVE to apply it to the batch dataflow."
     },
 
     "exportView": {
@@ -937,8 +937,8 @@ module.exports = {
     },
 
     "project": {
-        "instr": "Projection enables you to eliminate unnecessary fields that Xcalar Design keeps in memory for a table.",
-        "colInstr": "Select columns to keep. Each set of prefixed columns acts as a unit and only uses the memory of one column.",
+        "instr": "Projection enables you to reduce table memory consumption by eliminating unnecessary fields.",
+        "colInstr": "Select columns to keep. Each set of prefixed columns acts as one unit and only uses the memory of one column.",
         "colsToProject": "Columns to project",
         "project": "Project",
         "derived": "Derived columns",
@@ -951,7 +951,7 @@ module.exports = {
         "AddTables": "ADD TABLES",
         "TableTitle": "Tables",
         "ColumnTitle": "Columns In Resultant Table",
-        "Instr": "Select tables you would like to union / except / intersect and select columns from each table.",
+        "Instr": "Select tables you would like to union / intersect / except and select columns from each table.",
         "CandidateTitle": "To be Dropped",
         "AddTable": "Add Table To Operation",
         "confirm": "Union",
@@ -1214,7 +1214,7 @@ module.exports = {
 
     "loginConfig": {
         "title": "Login Configuration",
-        "instructions": "Configure how users login to Xcalar",
+        "instructions": "Configure how users log in to Xcalar",
         "enableDefaultAdminUser": "Enable default admin user account",
         "adminUsername": "Admin Username",
         "adminEmail": "Admin email",

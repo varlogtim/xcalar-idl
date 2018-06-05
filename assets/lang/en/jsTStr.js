@@ -32,7 +32,7 @@ StatusMessageTStr = {
     'SplitColumn': 'Splitting column',
     'SplitColumnFailed': 'Split column failed',
     'ChangeType': 'Changing data type',
-    'ChangeTypeFailed': 'Changing data type failed',
+    'ChangeTypeFailed': 'Change to data type failed',
     'OnColumn': 'on column',
     'Sort': 'Sorting column',
     'SortFailed': 'Sort column failed',
@@ -48,7 +48,7 @@ StatusMessageTStr = {
     'Project': 'Projecting Columns',
     'ProjectFailed': 'Projection Failed',
     'Ext': 'Performing Extension <extension>',
-    'ExtFailed': 'Performing Extension Failed',
+    'ExtFailed': 'Extension Execution Failed',
     'StoredProc': 'Performing Stored Procedure',
     'StoredProcFailed': 'Stored Procedure execution failed',
     'SettingExtensions': 'Setting up extensions',
@@ -107,7 +107,7 @@ TooltipTStr = {
     "Saved": "Last saved",
     "SavedOn": "Last saved on",
     "GeneratingComplement": "Generating complement table",
-    "ComplementSourceDropped": "Cannot create complement table; descendant table has been dropped",
+    "ComplementSourceDropped": "Cannot create complement table; parent table has been dropped",
     "ComplementRestriction": "Complement table only available for Filter",
     "AddToWorksheet": "Add To Worksheet",
     "NoActiveUndone": "Tables in an undo state cannot be added to the worksheet",
@@ -146,10 +146,10 @@ TooltipTStr = {
     'UndoTableTip': "Table <name> is in an undo state and cannot be directly " +
                                 "added to a worksheet.",
     'CollapsedTables': '<number> tables are collapsed',
-    'ShowGroupTablesSingle': 'Click to reveal the other operation involved in the <op> operation',
-    'ShowGroupTables': 'Click to reveal the <number> other operations involved in the <op> operation',
-    'HideGroupTablesSingle': 'Click to hide the other operation involved in the <op> operation',
-    'HideGroupTables': 'Click to hide the <number> other operations involved in the <op> operation',
+    'ShowGroupTablesSingle': 'Click to expand one operation icon collapsed into the <op> operation',
+    'ShowGroupTables': 'Click to expand <number> operation icons collapsed into the <op> operation',
+    'HideGroupTablesSingle': 'Click to collapse one operation icon into the <op> operation',
+    'HideGroupTables': 'Click to collapse <number> operation icons into the <op> operation',
     'DroppedTable': 'Table \'<tablename>\' has been dropped',
     'DroppedDS': 'Dataset \'<datasetname>\' has been dropped',
     'DroppedTableNoInfo': 'Table \'<tablename>\' has been dropped and contains no information',
@@ -249,7 +249,7 @@ ErrTStr = {
                             ' characters or spaces.',
     'NoSpecialCharInParam': 'No special characters or spaces allowed within' +
                             ' parameter braces.',
-    'UnclosedParamBracket': 'Unclosed parameter bracket detected.',
+    'UnclosedParamBracket': 'Missing close bracket on parameter detected.',
     "FilterTypeNoSupport": 'Filter type not currently supported.',
     'NoEmptyList': 'Please choose an option on the dropdown list.',
     'NoEmptyFn': 'There are no function definitions to upload.',
@@ -290,9 +290,9 @@ ErrTStr = {
     'MVFolderConflict': 'Cannot move. Name conflicts with files in target ' +
                         'folder.',
     'MakrForDel': 'Cannot preview dataset that is marked for deletion',
-    'TimeExpire': 'Please choose a time that is in the future.',
+    'TimeExpire': 'That time is in the past. Please choose a valid time.',
     'LongFileName': 'File name is too long. Please use less than 255 chars.',
-    'LargeFile': 'File is too large. Please break into smaller files(<10MB).',
+    'LargeFile': 'Module is >10MB. Please reduce or install as a library on all cluster nodes.',
     'NoSupportOp': 'This operation is not supported.',
     'PreservedName': 'This name is reserved, please use another name.',
     'InvalidWin': 'Cannot window an unsorted table',
@@ -668,7 +668,7 @@ AlertTStr = {
 ErrorMessageTStr = {
     "title": "Error",
     "instrUp": "An error has occurred.",
-    "instrDown": "Please review the following error(s)."
+    "instrDown": "Please review the following error(s):"
 };
 
 FnBarTStr = {
@@ -890,7 +890,7 @@ WKBKTStr = {
     'DeactivateErr': 'Error occurred when deactivating workbook',
     'Refreshing': 'Refreshing in <time> seconds',
     'MoreActions': 'More Actions',
-    'SwitchWarn': 'There is outstanding operation \"<op>\" in the current workbook, do you still want to continue switch to another workbook?'
+    'SwitchWarn': 'The operation \"<op>\" is in progress in the current workbook, do you still want to continue switch to another workbook?'
 };
 
 MonitorTStr = {
@@ -952,7 +952,7 @@ MonitorTStr = {
     "TicketErr1": "Your organization could not be verified.",
     "TicketErr2": "This ticket could not be found within your organization.",
     "LowMem": "Low Memory Warning",
-    "LowMemMsg": "Warning! Cluster is on low memory. Please check the memory warning icon for details.",
+    "LowMemMsg": "Warning! Cluster is low on memory. Please check the system status icon for details.",
     "LowMemInstr": "To find out more about memory mangement, please reference <a href=\"<link>\" target=\"_blank\">the link</a>",
 
     // with replace
@@ -1127,7 +1127,7 @@ DSTStr = {
     'DetectInvalidColInstr': 'Invalid column names may cause unexpected issues when operating on the data. We recommend cleaning the column name first.',
     'DetectInvalidColInstrForce': 'Invalid column names may cause unexpected issues when operating on the data. Please clean the column names first.',
     'InUseInstr': 'Please delete all active/hidden/temporary tables and constants associated with the dataset before unlocking it.',
-    'SkipRowsError': 'The Skip Rows setting is higher than the number of rows in your preview. Please lower it.',
+    'SkipRowsError': 'The Skip Rows setting is higher than the number of rows in your preview. Please lower it or increase the number of rows in your preview.',
     'ClickChange': 'Click to change',
     'DetectInvalidColMsg': 'The following column names contain invalid characters. Do you want to continue?',
     'DetectInvalidColMsgFix': 'The following column names contain invalid characters',
