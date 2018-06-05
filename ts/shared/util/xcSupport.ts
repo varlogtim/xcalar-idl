@@ -152,15 +152,22 @@ namespace XcSupport {
     export function checkConnection() {
         checkXcalarConnection()
             .fail(() => {
-                const error: object = { error: ThriftTStr.CCNBE };
-                const id: string = Alert.error(ThriftTStr.CCNBEErr, error, {
-                    lockScreen: true,
-                    noLogout: true
-                });
+                const id: string = XcSupport.connectionError();
                 Log.backup();
-
                 checkConnectionTrigger(10, id);
             });
+    }
+
+    /**
+     * XcSupport.connectionError
+     */
+    export function connectionError(): string {
+        const error: object = { error: ThriftTStr.CCNBE };
+        const id: string = Alert.error(ThriftTStr.CCNBEErr, error, {
+            lockScreen: true,
+            noLogout: true
+        });
+        return id;
     }
 
     /**

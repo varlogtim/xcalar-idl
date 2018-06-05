@@ -137,6 +137,20 @@ describe('XcSupport Test', () => {
         });
     });
 
+    it('XcSupport.connectionError should work', () => {
+        const oldFunc = Alert.error;
+        let testTitle;
+        Alert.error = (title) => {
+            testTitle = title;
+            return 'testId';
+        };
+
+        const id = XcSupport.connectionError();
+        expect(id).to.equal('testId');
+        expect(testTitle).to.equal(ThriftTStr.CCNBEErr);
+        Alert.error = oldFunc;
+    });
+
     it('XcSupport.downloadLRQ should work', (done) => {
         const oldExportRetina = XcalarExportRetina;
         const oldDownload = xcHelper.downloadAsFile;

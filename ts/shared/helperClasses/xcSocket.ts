@@ -133,6 +133,12 @@ class XcSocket {
             this._initDeferred.resolve();
         });
 
+        socket.on('disconnect', () => {
+            console.error('expServer is disconnected!');
+            XcSupport.stopHeartbeatCheck();
+            XcSupport.connectionError();
+        });
+
         socket.on('reconnect_failed', () => {
             console.error('connect failed');
             this._initDeferred.reject(AlertTStr.NoConnectToServer);
