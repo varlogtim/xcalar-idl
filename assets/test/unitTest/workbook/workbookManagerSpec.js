@@ -1,5 +1,5 @@
 describe("WorkbookManager Test", function() {
-    var oldKVGet, oldKVPut, oldKVDelete;
+    var oldKVGet, oldCommitCheck;
     var oldXcalarPut, oldXcalarDelete;
     var oldJupyterNewWkbk;
     var fakeMap = {};
@@ -9,8 +9,7 @@ describe("WorkbookManager Test", function() {
         console.clear();
         UnitTest.onMinMode();
         oldKVGet = KVStore.prototype.get;
-        oldKVPut = KVStore.prototype.put;
-        oldKVDelete = KVStore.prototype.delete;
+        oldCommitCheck = XcUser.prototype.commitCheck;
         oldXcalarPut = XcalarKeyPut;
         oldXcalarDelete = XcalarKeyDelete;
         oldJupyterNewWkbk = JupyterPanel.newWorkbook;
@@ -32,6 +31,10 @@ describe("WorkbookManager Test", function() {
 
         KVStore.prototype.get = function(key) {
             return PromiseHelper.resolve(fakeMap[key]);
+        };
+
+        XcUser.prototype.commitCheck = function() {
+            return PromiseHelper.resolve();
         };
 
         JupyterPanel.newWorkbook = function() {
@@ -925,6 +928,7 @@ describe("WorkbookManager Test", function() {
         var oldGetWKBK;
         var oldWKBKAsync;
         var oldHoldSession;
+        var oldUpdateWorkbooks;
 
         var passed;
 
@@ -934,6 +938,7 @@ describe("WorkbookManager Test", function() {
             oldWKBKAsync = WorkbookManager.getWKBKsAsync;
             oldHoldSession = XcUser.CurrentUser.holdSession;
             oldUpdateFolderName = JupyterPanel.updateFolderName;
+            oldUpdateWorkbooks = WorkbookPanel.updateWorkbooks;
             WorkbookManager.getWorkbook = function() {
                 return {"jupyterFolder": "temp"};
             };
@@ -974,11 +979,13 @@ describe("WorkbookManager Test", function() {
             WorkbookManager.getWKBKsAsync = oldWKBKAsync;
             JupyterPanel.updateFolderName = oldUpdateFolderName;
             XcUser.CurrentUser.holdSession = oldHoldSession;
+            WorkbookPanel.updateWorkbooks = oldUpdateWorkbooks;
         });
     });
 
     after(function() {
         KVStore.prototype.get = oldKVGet;
+        XcUser.prototype.commitCheck = oldCommitCheck;
         XcalarKeyPut = oldXcalarPut;
         XcalarKeyDelete = oldXcalarDelete;
         JupyterPanel.newWorkbook = oldJupyterNewWkbk;

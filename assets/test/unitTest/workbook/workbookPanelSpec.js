@@ -1,5 +1,6 @@
 describe("Workbook- Workbook Pane Test", function() {
     var $workbookPanel;
+    var oldCommitCheck;
     var menuAction = function($box, action) {
         $box.find(".dropDown").click();
         $("#wkbkMenu").find("." + action).click();
@@ -9,6 +10,11 @@ describe("Workbook- Workbook Pane Test", function() {
     before(function(){
         $workbookPanel = $("#workbookPanel");
         UnitTest.onMinMode();
+        oldCommitCheck = XcUser.prototype.commitCheck;
+
+        XcUser.prototype.commitCheck = function() {
+            return PromiseHelper.resolve();
+        };
     });
 
     describe("Basic Api Test", function() {
@@ -507,8 +513,17 @@ describe("Workbook- Workbook Pane Test", function() {
             UnitTest.testFinish(checkFunc)
             .then(function() {
                 WorkbookPanel.updateWorkbooks(info);
-                expect($wkbkMenu.is(":visible")).to.be.false;
-                done();
+
+                var checkFunc2 = function() {
+                    return !$wkbkMenu.is(":visible");
+                };
+                UnitTest.testFinish(checkFunc2)
+                .then(function() {
+                    done();
+                })
+                .fail(function() {
+                    done("fail")
+                });
             })
             .fail(function() {
                 done("fail");
@@ -535,10 +550,19 @@ describe("Workbook- Workbook Pane Test", function() {
             UnitTest.testFinish(checkFunc)
             .then(function() {
                 WorkbookPanel.updateWorkbooks(info);
-                expect($box.attr("data-workbook-id")).to.equal(WorkbookManager.getIDfromName(info.newName));
-                $box.attr("data-workbook-id", activeWkbkId);
-                $wkbkMenu.hide();
-                done();
+
+                var checkFunc2 = function() {
+                    return $box.attr("data-workbook-id") === WorkbookManager.getIDfromName(info.newName);
+                };
+                UnitTest.testFinish(checkFunc2)
+                .then(function() {
+                    $box.attr("data-workbook-id", activeWkbkId);
+                    $wkbkMenu.hide();
+                    done();
+                })
+                .fail(function() {
+                    done("fail")
+                });
             })
             .fail(function() {
                 done("fail");
@@ -757,6 +781,7 @@ describe("Workbook- Workbook Pane Test", function() {
             KVStore.prototype.get = oldKVGet;
             KVStore.prototype.put = oldKVPut;
             KVStore.prototype.delete = oldKVDelete;
+            XcUser.prototype.commitCheck = oldCommitCheck;
             XcalarKeyPut = oldXcalarPut;
             XcalarKeyDelete = oldXcalarDelete;
 
