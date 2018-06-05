@@ -675,13 +675,13 @@ window.UDF = (function($, UDF) {
 
             XcalarUploadPython(moduleName, entireString)
             .then(function() {
-                storePython(moduleName, entireString);
+                storePython(udfPath, entireString);
                 KVStore.commit();
                 xcHelper.showSuccess(SuccessTStr.UploadUDF);
 
                 refreshUDF(true, true);
                 var $uploadedFunc = $("#udf-fnMenu")
-                                .find('li[data-title="' + moduleName +
+                                .find('li[data-udf-path="' + udfPath +
                                        '"]');
                 // select list directly use
                 // $uploadedFunc.trigger(fakeEvent.mouseup) will reset
