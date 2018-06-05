@@ -1029,7 +1029,7 @@
         }
     }
     SQLCompiler.prototype = {
-        compile: function(sqlQueryString, isJsonPlan) {
+        compile: function(sqlQueryString, isJsonPlan, prefix) {
             // XXX PLEASE DO NOT DO THIS. THIS IS CRAP
             var oldKVcommit;
             if (typeof KVStore !== "undefined") {
@@ -1105,6 +1105,14 @@
                         var queryString = "[" + cliArray.join(",") + "]";
                         // queryString = queryString.replace(/\\/g, "\\");
                         // console.log(queryString);
+                        if (prefix) {
+                            var plan = JSON.parse(queryString);
+                            tree.newTableName = addPrefix(plan,
+                                                           allTableNames,
+                                                           tree.newTableName,
+                                                           prefix);
+                            queryString = JSON.stringify(plan);
+                        }
 
                         // Cache the query so that we can reuse it later
                         // Caching only happens on successful run
@@ -1288,7 +1296,7 @@
                 })
                 .then(function(ret) {
                     cliStatements += ret.cli;
-                    return self.sqlObj.project(colNames, newTableName);
+                    return self.sqlObj.project(colNames, ret.newTableName);
                 })
                 .then(function(ret) {
                     deferred.resolve({newTableName: ret.newTableName,
@@ -4361,6 +4369,35 @@
             return false;
         }
     }
+    function addPrefix(plan, startingTables, finalTable, prefix) {
+        var newFinalTable;
+        for (var i = 0; i < plan.length; i++) {
+            var operation = plan[i];
+            var source = operation.args.source;
+            var dest = operation.args.dest;
+            if (typeof(source) === "string") {
+                source = [source];
+            }
+            var newName;
+            for (var j = 0; j < source.length; j++) {
+                if (source[j] in startingTables) {
+                    continue;
+                }
+                if (source.length === 1) {
+                    operation.args.source = prefix + source[j];
+                } else {
+                    operation.args.source[j] = prefix + source[j];
+                }
+            }
+            if (!(dest in startingTables)) {
+                if (operation.args.dest === finalTable) {
+                    newFinalTable = prefix + dest;
+                }
+                operation.args.dest = prefix + dest;
+            }
+        }
+        return newFinalTable;
+    };
 
     if (typeof exports !== "undefined") {
         if (typeof module !== "undefined" && module.exports) {

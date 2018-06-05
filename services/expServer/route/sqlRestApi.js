@@ -1634,7 +1634,6 @@ var sqlUser = "xcalar-internal-sql";
 var sqlId = 4193719;
 var logInUser;
 function sqlLoad(path, publishName) {
-    global.sqlMode = true;
     sqlTable = xcHelper.randName("SQL") + Authentication.getHashId();
     var sqlTableAlias = "sql";
 
@@ -1683,11 +1682,9 @@ function sqlLoad(path, publishName) {
             schema: schema
         };
         console.log("get schema", schema);
-        global.sqlMode = false;
         deferred.resolve(res);
     })
     .fail(function(err) {
-        global.sqlMode = false;
         deferred.reject(err);
     });
 
@@ -1939,7 +1936,7 @@ function getDerivedCol(txId, tableName, schema, dstTable) {
 }
 
 
-function sqlPlan(execid, planStr, rowsToFetch) {
+function sqlPlan(execid, planStr, rowsToFetch, sessionId) {
     var deferred = PromiseHelper.deferred();
     if (rowsToFetch == null) {
         rowsToFetch = 10; // default to be 10
@@ -1957,9 +1954,11 @@ function sqlPlan(execid, planStr, rowsToFetch) {
             return goToSqlWkbk();
         })
         .then(function() {
-            return new SQLCompiler().compile(plan, true);
+            console.log(sessionId, " starts compiling...");
+            return new SQLCompiler().compile(plan, true, sessionId);
         })
         .then(function(res) {
+            console.log("compiling finished!");
             tableName = res[0];
             orderedColumns = res[1];
             console.log("get table from plan", tableName);
@@ -2040,8 +2039,12 @@ router.post("/xcedf/select", function(req, res) {
         console.log("sql load error", error);
         res.status(500).send(error);
     });
-
 });
+
+function cleanAllTables(sessionId) {
+    console.log("deleting: ", sessionId + "*");
+    return XIApi.deleteTable(1, sessionId + "*");
+}
 
 function getColType(typeId) {
     // XXX TODO generalize it with setImmediateType()
@@ -2079,13 +2082,15 @@ router.post("/xcedf/query", function(req, res) {
     var execid = req.body.execid;
     var plan = req.body.plan;
     var limit = req.body.limit;
-    sqlPlan(execid, plan, limit)
+    var sessionId = req.body.sessionId;
+    sessionId = "sql" + sessionId.replace(/-/g, "_") + "_";
+    sqlPlan(execid, plan, limit, sessionId)
     .then(function(output) {
         console.log("sql plan finishes", output);
         res.send(output);
     })
     .fail(function(error) {
-        console.log("sql plan error", error);
+        console.log("sql plan error: ", error);
         res.status(500).send(error);
     });
 });
@@ -2098,10 +2103,24 @@ router.post("/xcedf/list", function(req, res) {
         res.send(tables);
     })
     .fail(function(error) {
-        console.log("get published tables error", error);
+        console.log("get published tables error: ", error);
         res.status(500).send(error);
     });
-})
+});
+
+router.post("/xcedf/clean", function(req, res) {
+    var sessionId = req.body.sessionId;
+    sessionId = "sql" + sessionId.replace(/-/g, "_") + "_";
+    cleanAllTables(sessionId)
+    .then(function(output) {
+        console.log("all temp and result tables deleted");
+        res.send(output);
+    })
+    .fail(function(error) {
+        console.log("clean tables error: ", error)
+        res.status(500).send(error);
+    });
+});
 
 // For unit tests
 function fakeSqlLoad(func) {
