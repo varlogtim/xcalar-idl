@@ -641,7 +641,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                     var res = $(table + " thead" + " ." + col
                                 + " .flex-mid input").attr('value');
                     if (answers[i] !== res) {
-                        console.log(row + ": expect " + answers[i][i]
+                        console.log(row + ": expect " + answers[i]
                                     + ", get " + res);
                         test.assert(0);
                         return false;
@@ -660,7 +660,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                         if (Math .abs(answers[i].toFixed(2) -
                                       parseFloat(res).toFixed(2))
                                  .toFixed(2) > 0.01) {
-                            console.log(row + ": expect " + answers[i][i]
+                            console.log(row + ": expect " + answers[i]
                                         + ", get " + res);
                             test.assert(0);
                             return false;

@@ -143,6 +143,7 @@
         "expressions.Sentences": null, // XXX Returns an array.
         "expressions.IsNotNull": "exists",
         "expressions.IsNull": null, // XXX we have to put not(exists)
+        "expressions.IsString": "isString",
 
         // datetimeExpressions.scala
         "expressions.Cut": "cut", // Split string and extract year
@@ -425,6 +426,12 @@
                 "num-children": 4
             });
         }
+        function isStrNode() {
+            return new TreeNode({
+                "class": "org.apache.spark.sql.catalyst.expressions.IsString",
+                "num-children": 1
+            });
+        }
 
         // This function traverses the tree for a second time.
         // To process expressions such as Substring, Case When, etc.
@@ -497,13 +504,7 @@
                 // Check whether to use if or ifstr
                 // XXX backend to fix if and ifStr such that `if` is generic
                 // For now we are hacking this
-                var type = __getColType(node);
-                var getNewNode;
-                if (type === "string") {
-                    getNewNode = ifStrNode; // nifty little trick :)
-                } else {
-                    getNewNode = ifNode;
-                }
+                getNewNode = ifNode;
                 var newNode = getNewNode();
                 var curNode = newNode;
                 var lastNode;
@@ -579,18 +580,16 @@
             case ("expressions.Cast"):
                 var type = node.value.dataType;
                 if (type === "timestamp") {
-                    var origType = convertSparkTypeToXcalarType(
-                                            __getColType(node.children[0]));
-                    if (origType === "string") {
-                        // No "timestamp" type in Xcalar, so create a UDF node
-                        // Datetime related conversion depends on timezone
-                        var dttsNode = dateToTimestampNode(node.children[0]);
-                        node = dttsNode;
-                    } else {
-                        var intNode = castNode("int");
-                        intNode.children = [node.children[0]];
-                        node = intNode;
-                    }
+                    var retNode = ifNode();
+                    var isStringNode = isStrNode();
+                    isStringNode.children = [node.children[0]];
+                    var dttsNode = dateToTimestampNode(node.children[0]);
+                    var intNode = castNode("int");
+                    var intNode2 = castNode("int");
+                    intNode.children = [node.children[0]];
+                    intNode2.children = [dttsNode];
+                    retNode.children = [isStringNode, intNode2, intNode];
+                    node = retNode;
                 } else {
                     var convertedType = convertSparkTypeToXcalarType(type);
                     node.value.class = node.value.class
@@ -723,14 +722,7 @@
                 assert(node.children.length === 2,
                        SQLErrTStr.CoalesceTwoChildren + node.children.length);
 
-                var newNode;
-                var type = __getColType(node);
-                // All children are already casted to the same type, just take 1
-                if (type === "string") {
-                    newNode = ifStrNode();
-                } else {
-                    newNode = ifNode();
-                }
+                var newNode = ifNode();
                 // XXX Revisit for strings
                 var childNode = existNode();
                 childNode.children.push(node.children[0]);
@@ -2955,45 +2947,6 @@
         return validIds;
     }
 
-    function __getColType(node) {
-        // There are some exceptions in expressions like b in substr(a,b,c)
-        if (node.value.class ===
-            "org.apache.spark.sql.catalyst.expressions.AttributeReference" ||
-            node.value.class ===
-            "org.apache.spark.sql.catalyst.expressions.Cast" ||
-            node.value.class ===
-            "org.apache.spark.sql.catalyst.expressions.Literal") {
-                return convertSparkTypeToXcalarType(node.value.dataType);
-        } else if (isMathOperator(node.value.class)) {
-            return "float";
-        } else if (node.value.class ===
-            "org.apache.spark.sql.catalyst.expressions.ScalarSubquery") {
-            return __getColType(SQLCompiler.genTree(undefined,
-                                            node.value.plan.slice(0)));
-        } else if (node.value.class ===
-            "org.apache.spark.sql.catalyst.plans.logical.Project") {
-            return __getColType(SQLCompiler.genTree(undefined,
-                                        node.value.projectList[0].slice(0)));
-        } else if (node.value.class ===
-            "org.apache.spark.sql.catalyst.plans.logical.Aggregate") {
-            return __getColType(SQLCompiler.genTree(undefined,
-                                node.value.aggregateExpressions[0].slice(0)));
-        }
-        var left = 0;
-        if (node.value.class ===
-            "org.apache.spark.sql.catalyst.expressions.CaseWhen" ||
-            node.value.class ===
-            "org.apache.spark.sql.catalyst.expressions.If") {
-                left = 1;
-        }
-        for (var i = left; i < node.children.length; i++) {
-            if (__getColType(node.children[i])) {
-                return __getColType(node.children[i]);
-            }
-        }
-        assert(0, SQLErrTStr.UnknownType + node.value.class);
-    }
-
     function __genSortStruct(orderArray, options) {
         var sortColsAndOrder = [];
         var colNameSet = new Set();
@@ -3029,7 +2982,7 @@
                         + xcHelper.getTableId(options.tableName);
                 var orderNode = SQLCompiler.genExpressionTree(undefined,
                                                         orderArray[i].slice(1));
-                type = __getColType(orderNode);
+                type = "DfUnknown";
                 var mapStr = genEvalStringRecur(orderNode, undefined, options);
                 options.maps.push({colName: colName, mapStr: mapStr});
             }
