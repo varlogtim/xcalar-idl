@@ -2701,7 +2701,6 @@ window.TblManager = (function($, TblManager) {
             xcHelper.dropdownOpen($el, $menu, options);
         });
 
-
         function setUnavailableClassesAndTips(colType, isNewCol) {
             var $menu = $("#colMenu");
             var $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
@@ -2736,6 +2735,15 @@ window.TblManager = (function($, TblManager) {
                 $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
                     ".join, .operations, .profile, .corrAgg, " +
                     ".roundToFixed");
+                $lis.addClass("unavailable");
+                xcTooltip.add($lis, {
+                    title: ColTStr.NoOperateGeneral
+                });
+            } else if (colType === ColumnType.undefined) {
+                $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
+                        ".join, .operations, .profile, .corrAgg, " +
+                        ".extensions, .format, .roundToFixed, " +
+                        ".project, .union");
                 $lis.addClass("unavailable");
                 xcTooltip.add($lis, {
                     title: ColTStr.NoOperateGeneral
