@@ -8564,6 +8564,7 @@ XcalarApiDagNodeInfoT = function(args) {
   this.dagNodeId = null;
   this.state = null;
   this.size = null;
+  this.api = null;
   if (args) {
     if (args.name !== undefined && args.name !== null) {
       this.name = args.name;
@@ -8576,6 +8577,9 @@ XcalarApiDagNodeInfoT = function(args) {
     }
     if (args.size !== undefined && args.size !== null) {
       this.size = args.size;
+    }
+    if (args.api !== undefined && args.api !== null) {
+      this.api = args.api;
     }
   }
 };
@@ -8621,6 +8625,13 @@ XcalarApiDagNodeInfoT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 5:
+      if (ftype == Thrift.Type.I32) {
+        this.api = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -8650,6 +8661,11 @@ XcalarApiDagNodeInfoT.prototype.write = function(output) {
   if (this.size !== null && this.size !== undefined) {
     output.writeFieldBegin('size', Thrift.Type.I64, 4);
     output.writeI64(this.size);
+    output.writeFieldEnd();
+  }
+  if (this.api !== null && this.api !== undefined) {
+    output.writeFieldBegin('api', Thrift.Type.I32, 5);
+    output.writeI32(this.api);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
