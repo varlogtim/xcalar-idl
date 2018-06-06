@@ -355,6 +355,72 @@ body {
             .flex-direction(column);
         }
 
+        &.pubTable {
+            .cancel {
+                display: none;
+            }
+            .animatedEllipsisWrapper {
+                display: none;
+            }
+            .publishSection {
+                display: block;
+            }
+        }
+
+        .publishSection {
+            pointer-events: initial;
+            .position(absolute, @left:0px, @top:0px);
+            .size(100%, 100%);
+            display: none;
+
+            .progressCircle {
+                left:0px;
+                top: 0px;
+                width: 100%;
+                height: 100%;
+                .transform(translateX(0));
+            }
+
+            .iconPart {
+                opacity: 1;
+                height: 30px;
+                width: 30px;
+                .position(absolute, @right: 0px, @top: 0px);
+            }
+
+            .textPart, .leftPart, .rightPart {
+                background-color: transparent;
+                .font(@size: 18px, @weight: 300, @color: @color-font-greyish-brown);
+                margin-top: 0px;
+            }
+            .leftPart, .rightPart, .progress {
+                display: none;
+            }
+            .textPart {
+                .position(absolute, @bottom: 0px);
+                height: 120px;
+                width: 100%;
+                padding-top: 20px;
+                .flex-display;
+                .justify-content(center);
+                .align-items(center);
+                .flex-direction(column);
+            }
+            .xi-close {
+                display: inline-block;
+                font-size: 20px;
+                top: 8px;
+                right: 8px;
+                left: auto;
+            }
+            .xi-clock, .cancelText {
+                display: none;
+            }
+            .stepText {
+                display: block;
+            }
+        }
+
         .cancel {
             display: none;
             .position(absolute, @right: 8px, @top: 8px);

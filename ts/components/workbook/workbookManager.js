@@ -315,14 +315,21 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
     function switchWorkBookHelper(wkbkName) {
         var deferred = PromiseHelper.deferred();
-        var queryName = XcUser.getCurrentUserName() + ":" + wkbkName;
-        progressCycle(queryName, checkInterval);
-        $("#initialLoadScreen").data("curquery", queryName);
-        $("#container").addClass("switchingWkbk");
 
-        XcalarActivateWorkbook(wkbkName)
+        restoreInactivePublishedTable()
+        .then(function() {
+            var queryName = XcUser.getCurrentUserName() + ":" + wkbkName;
+            progressCycle(queryName, checkInterval);
+            $("#initialLoadScreen").data("curquery", queryName);
+            $("#container").addClass("switchingWkbk");
+            return XcalarActivateWorkbook(wkbkName);
+        })
         .then(deferred.resolve)
         .fail(function(error) {
+            if (error && error.canceled) {
+                deferred.reject(error);
+                return;
+            }
             console.error(error);
 
             isActiveWorkbook(wkbkName)
@@ -1372,6 +1379,75 @@ window.WorkbookManager = (function($, WorkbookManager) {
 
         return deferred.promise();
     }
+
+    // always resolves
+    function restoreInactivePublishedTable() {
+        var deferred = PromiseHelper.deferred();
+        var progressCircle;
+        var canceled = false;
+        XcalarListPublishedTables("*")
+        .then(function(result) {
+            var inactiveTables = result.tables.filter(function(table) {
+                return !table.active;
+            });
+            var promises = [];
+            inactiveTables.forEach(function(table) {
+                promises.push(function() {
+                    if (canceled) {
+                        return PromiseHelper.reject({canceled: true});
+                    } else {
+                        return restorePublishedTable(table.name);
+                    }
+                });
+            });
+            if (promises.length) {
+                showRestoreProgress(inactiveTables.length);
+            }
+            return PromiseHelper.chain(promises);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject)
+        .always(function() {
+            var $waitSection = $("#initialLoadScreen").find(".publishSection");
+            $waitSection.empty();
+            $waitSection.removeClass("hasProgress");
+            $waitSection.parent().removeClass("pubTable");
+        });
+
+        return deferred.promise();
+
+        function restorePublishedTable(tableName) {
+            var deferred = PromiseHelper.deferred();
+            XcalarRestoreTable(tableName)
+            .then(function () {
+                progressCircle.increment();
+                deferred.resolve();
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        }
+
+        function showRestoreProgress(numSteps) {
+            var $waitSection = $("#initialLoadScreen").find(".publishSection");
+            $waitSection.addClass("hasProgress");
+            $waitSection.parent().addClass("pubTable");
+            var progressAreaHtml = xcHelper.getLockIconHtml("pubTablesWorksheet", 0, true, true);
+            $waitSection.html(progressAreaHtml);
+            $waitSection.find(".stepText").addClass("extra").append(
+                '<span class="extraText">' + IMDTStr.Activating + '</span>')
+            progressCircle = new ProgressCircle("pubTablesWorksheet", 0, true, {steps: numSteps});
+            $waitSection.find(".cancelLoad").data("progresscircle",
+                                                    progressCircle);
+            progressCircle.update(0, 1000);
+
+            $waitSection.find(".progressCircle .xi-close").click(function() {
+                canceled = true;
+            });
+        }
+    }
+
+
 
     /* Unit Test Only */
     if (window.unitTestMode) {

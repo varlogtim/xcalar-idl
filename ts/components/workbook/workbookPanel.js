@@ -678,13 +678,13 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                 return deferred.promise();
             }
         }
-        
+
         var key = keys[0];
         var operation = txCache[key].getOperation();
         var msg = xcHelper.replaceMsg(WKBKTStr.SwitchWarn, {
             op: operation
         });
-        
+
         Alert.show({
             title: AlertTStr.Title,
             msg: msg,
@@ -749,6 +749,9 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
     }
 
     function handleError(error, $ele) {
+        if (error && error.canceled) {
+            return;
+        }
         var errorText;
         var log;
         if (typeof error === "object" && error.error != null) {
