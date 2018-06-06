@@ -270,6 +270,10 @@ window.UExtSQL = (function(UExtSQL) {
                     } else {
                         deferred.reject();
                     }
+                })
+                .fail(function(tableErr) {
+                    deferred.reject(err.responseJSON.exceptionMsg + "\n" +
+                                    JSON.stringify(tableErr));
                 });
             });
 
