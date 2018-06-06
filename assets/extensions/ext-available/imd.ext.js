@@ -75,15 +75,15 @@ window.UExtIMD = (function(UExtIMD) {
         },
         {
             "type": "number",
-            "name": "Batch Id",
+            "name": "Min BatchId",
             "autofill": -1,
-            "fieldClass": "batchId"
+            "fieldClass": "minbatchId"
         },
         {
-            "type": "boolean",
-            "name": "Checkpoint",
-            "autofill": false,
-            "fieldClass": "checkpoint"
+            "type": "number",
+            "name": "Max BatchId",
+            "autofill": -1,
+            "fieldClass": "maxbatchId"
         }]
     }];
 
@@ -167,6 +167,18 @@ window.UExtIMD = (function(UExtIMD) {
             }
         }
 
+        var imdCol;
+        if (ext.getArgs().imdCol) {
+            imdCol = ext.getArgs().imdCol.getName();
+        }
+
+        mapNewNamesArray.push(opCode);
+        if (!imdCol) {
+            mapArray.push("int(1)");
+        } else {
+            mapArray.push("int(" + imdCol + ")")
+        }
+
         var finalTableName;
         var prom;
 
@@ -244,11 +256,12 @@ window.UExtIMD = (function(UExtIMD) {
 
             var prom;
             if (!imdCol) {
-                prom = ext.map(["int(1)", "int(1)"], srcTableName,
-                    [opCode, roColName], mapTableName);
+                prom = ext.map(["int(1)"], srcTableName,
+                    [roColName], mapTableName);
             } else {
-                prom = rankOver(srcTableName, self);
+                prom = roGenRowNum(srcTableName, self, roColName)
             }
+
             prom
             .then(function(table) {
                 var newTableStruct = ext.createNewTable(table);
@@ -279,196 +292,16 @@ window.UExtIMD = (function(UExtIMD) {
         return ext;
     }
 
-    function rankOver(startTable, ext, useImm) {
-        var self = ext;
-        var deferred = jQuery.Deferred();
-        var columns = ext.getTriggerTable().getColNamesAsArray()
-                             .map(function(ele) {
-                return xcHelper.parsePrefixColName(ele).name;
-            });
-        var keyColName = ext.getArgs().primaryKey.getName();
-        var imdCol = ext.getArgs().imdCol.getName();
-        var direction = XcSDK.Enums.SortType.Asc;
-        columns = columns.concat(roColName);
-        if (useImm) {
-            keyColName = xcHelper.parsePrefixColName(keyColName).name;
-            imdCol = xcHelper.parsePrefixColName(imdCol).name;
-        }
-        self.setAttribute("rank_over_col_name", roColName);
-        function roGenRowNum(ext, srcTable, colName) {
-            var deferred = XcSDK.Promise.deferred();
-            var newColName = colName + Math.floor(Math.random() * 100);
-            var dstTable = ext.createTableName();
+    function roGenRowNum(srcTable, ext, colName) {
+        var deferred = XcSDK.Promise.deferred();
+        var dstTable = ext.createTableName();
 
-            ext.genRowNum(srcTable, newColName, dstTable)
-            .then(function(tableAfterGenRowNum) {
-                deferred.resolve(tableAfterGenRowNum, newColName);
-            })
-            .fail(deferred.reject);
-
-            return deferred.promise();
-        }
-
-        function roSortTable(ext, srcTable, sortColNames, directions) {
-            var deferred = XcSDK.Promise.deferred();
-            var dstTable = ext.createTableName();
-            ext.sort(directions, sortColNames, srcTable, dstTable)
-            .then(deferred.resolve)
-            .fail(function(error, sorted) {
-                if (sorted) {
-                    // when already sort correctly on the column
-                    deferred.resolve(srcTable);
-                } else {
-                    deferred.reject(error);
-                }
-            });
-
-            return deferred.promise();
-        }
-
-        function roGroupBy(ext, srcTable, keyColName, groupByColName) {
-            var deferred = XcSDK.Promise.deferred();
-            var aggOp = XcSDK.Enums.AggType.Min;
-            var newGBColName = ext.createColumnName();
-            var options = {
-                "newTableName": ext.createTableName("GB.")
-            };
-
-            var prom;
-            if (!useImm && xcHelper.getPrefixColName(keyColName).name != keyColName) {
-                // Has prefix
-                newKeyColName = keyColName.replace("::", "__");
-                var keyColType = ext.getArgs().primaryKey.getType();
-                var type = "string";
-                switch (keyColType) {
-                    case("float"):
-                    case("number"):
-                        type = "float";
-                        break;
-                    case("integer"):
-                        type = "int";
-                        break;
-                    case("boolean"):
-                        type = "bool";
-                        break;
-                    default:
-                        type = "string";
-                        break;
-                }
-                prom = ext.map([type + "(" + keyColName + ")"], srcTable,
-                    [newKeyColName]);
-                keyColName = newKeyColName;
-            } else {
-                prom = PromiseHelper.resolve(srcTable);
-            }
-            prom
-            .then(function(tableName) {
-                return ext.groupBy(aggOp, keyColName, groupByColName, tableName,
-                                   newGBColName, options);
-            })
-            .then(function(tableAfterGroupBy, dstColumnsSDK) {
-                var keyColNameAfterGroupBy;
-                var keyColTypeAfterGroupBy;
-                dstColumnsSDK.forEach(function(col) {
-                    var name = col.getName();
-                    if (name !== "DATA" && name !== newGBColName) {
-                        keyColNameAfterGroupBy = name;
-                        keyColTypeAfterGroupBy = col.getType();
-                        return false;
-                    }
-                });
-                deferred.resolve(tableAfterGroupBy, keyColNameAfterGroupBy, keyColTypeAfterGroupBy, newGBColName);
-            })
-            .fail(deferred.reject);
-
-            return deferred.promise();
-        }
-
-        function roJoinBack(ext, lTable, lColName, rTable, rColName, rColType) {
-            var deferred = XcSDK.Promise.deferred();
-            var joinType = XcSDK.Enums.JoinType.InnerJoin;
-            var lTableInfo = {
-                "tableName": lTable,
-                "columns": [lColName],
-            };
-
-            // XXX rename failed here
-            var rTableInfo = {
-                "tableName": rTable,
-                "columns": [rColName],
-                "rename": [{
-                    "new": "extraKeyCol",
-                    "orig": rColName,
-                    "type": DfFieldTypeT.DfUnknown
-                }]
-            };
-            var joinOPs = {
-                "clean": true,
-                "newTableName": ext.createTableName()
-            };
-
-            ext.join(joinType, lTableInfo, rTableInfo, joinOPs)
-            .then(function(tableAfterJoin) {
-                deferred.resolve(tableAfterJoin);
-            })
-            .fail(deferred.reject);
-
-            return deferred.promise();
-        }
-
-        function roMap(ext, srcTable, orderColName, minColName) {
-            var deferred = XcSDK.Promise.deferred();
-            var newColName = ext.getAttribute("rank_over_col_name");
-            var newTableName =  ext.createTableName();
-            var mapStr = "int(add(sub(" + orderColName + ", " + minColName +
-                         "), 1))";
-            ext.map(mapStr, srcTable, newColName, newTableName)
-            .then(function(dstTable) {
-                var table = ext.getTable(dstTable);
-                var minCol = new XcSDK.Column(minColName, "integer");
-                table.deleteCol(minCol);
-                deferred.resolve(dstTable);
-            })
-            .fail(deferred.reject);
-
-            return deferred.promise();
-        }
-
-        roGenRowNum(self, startTable, "orig_order_")
-        .then(function(tableWithRowNum, oriRowNumColName) {
-            self.setAttribute("orig_order_col", oriRowNumColName);
-            columns = columns.concat(oriRowNumColName);
-            return roSortTable(self, tableWithRowNum,
-                              [keyColName, oriRowNumColName],
-                              [direction,direction]);
-        })
-        .then(function(tableAfterSort) {
-            return roGenRowNum(self, tableAfterSort, "new_order_");
-        })
-        .then(function(tableWithNewRowNum, newRowNumColName) {
-            self.setAttribute("new_order_col", newRowNumColName);
-            self.setAttribute("table_to_group_by", tableWithNewRowNum);
-            return roGroupBy(self, tableWithNewRowNum, keyColName,
-                             newRowNumColName);
-        })
-        .then(function(groupByTableName, rkeyColName, rkeyType, rGBColName) {
-            self.setAttribute("GBColName", rGBColName);
-            return roJoinBack(self, self.getAttribute("table_to_group_by"),
-                              keyColName, groupByTableName, rkeyColName,
-                              rkeyType);
-        })
-        .then(function(tableAfterJoin) {
-            return roMap(self, tableAfterJoin,
-                         self.getAttribute("new_order_col"),
-                         self.getAttribute("GBColName"));
-        })
-        .then(function(dstTable) {
-            return ext.map(["int(" + imdCol + ")"], dstTable, [opCode]);
-        })
-        .then(function(finalTable) {
-            deferred.resolve(finalTable);
+        ext.genRowNum(srcTable, colName, dstTable)
+        .then(function(tableAfterGenRowNum) {
+            deferred.resolve(tableAfterGenRowNum);
         })
         .fail(deferred.reject);
+
         return deferred.promise();
     }
 
@@ -487,9 +320,11 @@ window.UExtIMD = (function(UExtIMD) {
             var srcTableName = srcTable.getName();
             var primaryKey = ext.getArgs().primaryKey.getName();
             primaryKey = xcHelper.parsePrefixColName(primaryKey).name;
+            var indexTableName = ext.createTableName("", "", srcTableName);
             var finalTableName;
             var indexTableName = ext.createTableName("", "", srcTableName);
-            rankOver(srcTable.getName(), ext, true)
+
+            roGenRowNum(srcTableName, self, roColName)
             .then(function(table) {
                 var newTableStruct = ext.createNewTable(table);
                 newTableStruct.tableCols = srcTable.tableCols;
@@ -500,7 +335,7 @@ window.UExtIMD = (function(UExtIMD) {
                             ordering: XcalarOrderingT.XcalarOrderingUnordered}],
                                             indexTableName, undefined, true);
             })
-            .then(function() {
+            .then(function(indexTable) {
                 pubTable = ext.getArgs().updateTable;
                 finalTableName = indexTableName;
                 return XcalarUpdateTable(indexTableName, pubTable);
@@ -533,8 +368,8 @@ window.UExtIMD = (function(UExtIMD) {
                 replaceTableName = replaceTable.getName();
             }
 
-            var batchId = ext.getArgs().batchId;
-            var checkpoint = ext.getArgs().checkpoint;
+            var minBatchId = ext.getArgs().minbatchId;
+            var maxBatchId = ext.getArgs().maxbatchId;
 
             if (destTableName === "" || !destTableName) {
                 destTableName = ext.createTableName("", "",
@@ -543,8 +378,8 @@ window.UExtIMD = (function(UExtIMD) {
                 destTableName = ext.createTableName(destTableName, "", "");
             }
 
-            XcalarRefreshTable(pubTableName, destTableName, batchId,
-                               checkpoint)
+            XcalarRefreshTable(pubTableName, destTableName, minBatchId,
+                               maxBatchId)
             .then(function() {
                 // Find original table meta
                 return XcalarListPublishedTables(pubTableName);
