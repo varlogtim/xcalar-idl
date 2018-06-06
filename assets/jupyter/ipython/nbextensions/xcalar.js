@@ -556,9 +556,17 @@ define(['base/js/utils'], function(utils) {
                         if (item.type === "notebook") {
                             Jupyter.contents.copy(item.path, newFolder);
                         } else if (item.type === "directory") {
-                            // XXX Need to create new folder, give it a name
-                            // and recursively call copyFolder with the
-                            // appropriate paths
+                            Jupyter.contents.new_untitled(newFolder, {type: 'directory'})
+                            .then(function(data) {
+                                var split = data.path.split("/");
+                                split.pop();
+                                split.push(item.name);
+                                var desiredPath = split.join("/");
+                                renameFolderHelper({folderName: desiredPath}, desiredPath, data.path)
+                                .then(function(result) {
+                                    copyFolder(item.path, desiredPath);
+                                });
+                            });
                         }
                     });
 
@@ -570,7 +578,7 @@ define(['base/js/utils'], function(utils) {
 
                 attemptNumber = attemptNumber || 0;
                 attemptNumber++;
-                Jupyter.contents.rename(prevName, utils.url_path_join("", folderName))
+                Jupyter.contents.rename(prevName, folderName)
                 .then(function(data) {
                     deferred.resolve({newName: data.name});
                 })

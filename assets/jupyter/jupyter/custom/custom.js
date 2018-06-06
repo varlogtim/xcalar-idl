@@ -124,7 +124,7 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
 
         attemptNumber = attemptNumber || 0;
         attemptNumber++;
-        Jupyter.notebook_list.contents.rename(prevName, utils.url_path_join("", folderName))
+        Jupyter.notebook_list.contents.rename(prevName, folderName)
         .then(function(data) {
             Jupyter.notebook_list.load_list();
             deferred.resolve({newName: data.name});
@@ -273,19 +273,26 @@ define(['base/js/namespace', 'base/js/utils'], function(Jupyter, utils) {
         $("#ipython_notebook").find("a").attr("href", folderUrl);
     }
 
-    // XXX need to recursively call folders
     function copyFolder(oldFolder, newFolder) {
         Jupyter.notebook_list.contents.list_contents(oldFolder)
         .then(function(contents) {
             contents.content.forEach(function(item) {
                 if (item.type === "notebook") {
-                    Jupyter.notebook_list.contents.copy(item.path, newFolder)
-                    .then(function() {
-
-                    })
+                    Jupyter.notebook_list.contents.copy(item.path, newFolder);
+                } else if (item.type === "directory") {
+                    Jupyter.notebook_list.contents.new_untitled(newFolder, {type: 'directory'})
+                    .then(function(data) {
+                        var split = data.path.split("/");
+                        split.pop();
+                        split.push(item.name);
+                        var desiredPath = split.join("/");
+                        renameFolderHelper({folderName: desiredPath}, desiredPath, data.path)
+                        .then(function(result) {
+                            copyFolder(item.path, desiredPath);
+                        });
+                    });
                 }
             });
-
         });
     }
 
