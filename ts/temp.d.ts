@@ -739,6 +739,7 @@ declare namespace TableList {
     export function unlockTable(tableId: TableId): void;
     export function refreshConstantList(): void;
     export function refreshOrphanList(prettyPrint: boolean): XDPromise<void>;
+    export function removeTable(tableIdOrName: TableId | string, type?: string, lock?: boolean): void;
 }
 
 declare namespace TblManager {

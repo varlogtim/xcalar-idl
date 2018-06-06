@@ -2697,6 +2697,7 @@ namespace XIApi {
         XIApi.deleteTable(txId, tableName, toIgnoreError)
         .then(() => {
             const tableId: TableId = xcHelper.getTableId(tableName);
+            TableList.removeTable(tableId);
             if (tableId != null && gTables[tableId] != null) {
                 delete gTables[tableId];
             }

@@ -431,7 +431,6 @@ window.XcSDK.Extension.prototype = (function() {
 
             TblManager.setOrphanTableMeta(dstTable, dstCols);
             this.newTables.push(new XcSDK.Table(dstTable, this.worksheet));
-
         },
 
         _addAgg: function(value, tableName, colName, aggOp, dstAggName, dstDagName) {
