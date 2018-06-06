@@ -2707,13 +2707,13 @@ window.DSPreview = (function($, DSPreview) {
                 });
             }
 
-            if (clearPreview && hasUDF) {
-                clearPreviewTable(cachedTableName); // async remove the old ds
-            }
-
             if (!result) {
                 var error = DSTStr.NoRecords + '\n' + DSTStr.NoRecrodsHint;
                 return PromiseHelper.reject(error);
+            }
+
+            if (clearPreview && hasUDF) {
+                clearPreviewTable(cachedTableName); // async remove the old ds
             }
 
             $waitSection.addClass("hidden").removeClass("hasUdf")
