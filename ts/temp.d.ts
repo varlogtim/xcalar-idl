@@ -249,7 +249,6 @@ declare var isBrowserSafari: boolean;
 /* ============== GLOBAL FUNCTIONS ============= */
 declare function setSessionName(sessionName: string): void;
 declare function getUnsortedTableName(tableName: string, otherTableName: string, txId: number, colsToIndex: string[]): XDPromise<string>;
-declare function XcalarGetTables(): XDPromise<any>;
 declare function XcalarNewWorkbook(wkbkName: string, isCopy: boolean, copySrcName: string): XDPromise<void>;
 declare function XcalarActivateWorkbook(wkbkName: string): XDPromise<void>;
 declare function XcalarDownloadWorkbook(workbookName: string, jupyterFolderPath: string): XDPromise<any>;
@@ -260,6 +259,8 @@ declare function XcalarDeleteWorkbook(workbookName: string): XDPromise<void>;
 declare function XcalarQueryCancel(queryName: string): XDPromise<{}>;
 declare function XcalarDownloadPython(fnName: string): XDPromise<any>;
 declare function XcalarUploadPython(moduleName: string, pythonStr: string, absolutePath: boolean): XDPromise<void>;
+declare function XcalarGetTables(tableName?: string): XDPromise<any>;
+declare function XcalarGetDag(tableName: string, workbookName: string): XDPromise<any>;
 declare function XcalarGetTableMeta(tableName: string): XDPromise<any>;
 declare function XcalarDeleteTable(tableName: string, txId?: number, isRetry?: boolean): XDPromise<void>;
 declare function XcalarFilter(fltStr: string, tableName: string, newTableName: string, txId: number): XDPromise<any>;
@@ -586,6 +587,7 @@ declare namespace WSTStr {
 declare namespace DFTStr {
     export var BatchDF: string;
     export var DownloadErr: string;
+    export var DFDrawError: string;
 }
 
 declare namespace JupyterTStr {
@@ -634,6 +636,12 @@ declare namespace WKBKTStr {
     export var DelErr: string;
     export var CancelTitle: string;
     export var CancelMsg: string;
+    export var WkbkNameRequired: string;
+}
+
+declare namespace TblTStr {
+    export var ActiveStatus: string;
+    export var TempStatus: string;
 }
 
 declare namespace UDFTStr {
@@ -761,11 +769,20 @@ declare class WKBKSet {
     public getWithStringify(): string;
 }
 
+declare class WorksheetObj {
+
+}
+
+declare class WSMETA {
+    public constructor();
+    public wsInfos: Set<WorksheetObj>
+}
+
 declare class METAConstructor {
     public constructor(meta: object);
     public update(): void;
     public getQueryMeta(): QueryManager.XcQueryAbbr[];
-    public getWSMeta(): object;
+    public getWSMeta(): WSMETA;
     public getTpfxMeta(): object;
     public getAggMeta(): object;
     public getTableMeta(): object;
@@ -809,10 +826,10 @@ declare class ScrollTableChecker {
 }
 
 declare class ModalHelper {
-    constructor($el: JQuery, optoins: Object);
-    setup(options: any): void;
+    constructor($el: JQuery, optoins?: Object);
+    setup(options?: any): void;
     center(options: any): void;
-    clear(optoins: any): void;
+    clear(optoins?: any): void;
 }
 
 declare class MenuHelper {
@@ -1022,19 +1039,29 @@ declare namespace WSManager {
     export function restore(oldMeat: object): void;
     export function focusOnWorksheet(): void;
     export function addWS(wsId: string, wsName: string, wsIndex?: number): string;
+    export function getAllMeta(): WSMETA;
 }
 
-/*declare namespace WorkbookManager {
-    export function getActiveWKBK(): string;
-    export function getWorkbooks(): WKBK[];
-    export function commit(): XDPromise<void>;
-    export function getWorkbook(wkbkId: string): WKBK;
-    export function gotoWorkbook(workbookId: string | null, replaceURL: boolean): void;
-    export function getWKBKsAsync(): XDPromise<any>;
-    export function getKeysForUpgrade(sessionInfo: object[], version: number): object;
-    export function upgrade(oldWkbks: object): object;
-    export function updateWorkbooks(info: object): void;
-}*/
+declare namespace Dag {
+    export function addEventListeners($dagWrap: JQuery): void;
+}
+
+declare namespace DagDraw {
+    export function createDagImage(node: any, $dagWrap: JQuery): void;
+}
+
+declare namespace QueryManager{
+    export function restore(oldMeta: object[]);
+    export function addIndexTable(txId: number, tableName: string): void;
+    export function addQuery(id: number, name: string, options: object): void;
+    export function cleanUpCanceledTables(id: number): void;
+    export function queryDone(id: number, sqlNum?: number): void;
+    export function getAllDstTables(id: number, force?: boolean);
+    export function fail(id: number, error: string);
+    export function confirmCanceledQuery(id: number);
+    export function subQueryDone(id: number, dstTableName: string | null, time: object, options?: object);
+    export function addSubQuery(id: number, name: string, dstTable: string, query: string, options?: object);
+}
 
 declare namespace Dag {
     export function renameAllOccurrences(oldTableName: string, newTableName: string): void;
@@ -1156,13 +1183,4 @@ declare namespace MonitorPanel {
 
 declare namespace MonitorConfig {
     export function refreshParams(firstTouch: boolean): XDPromise<{}>;
-}
-
-declare namespace WorkbookInfoModal {
-    export function show(workbookId: string): void;
-    export function update(info: any): void;
-}
-
-declare namespace WorkbookPreview {
-    export function show(workbookId: string): void;
 }

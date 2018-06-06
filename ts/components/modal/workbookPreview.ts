@@ -1,18 +1,27 @@
-window.WorkbookPreview = (function(WorkbookPreview, $) {
-    var $workbookPreview; // $("#workbookPreview")
-    var modalHelper;
-    var curTableList = [];
-    var id;
-    var curWorkbookId;
+namespace WorkbookPreview {
+    let $workbookPreview: JQuery; // $("#workbookPreview")
+    let modalHelper: ModalHelper;
+    let curTableList: object[] = [];
+    let id: string;
+    let curWorkbookId: string;
 
-    WorkbookPreview.setup = function() {
+    /**
+     * WorkbookPreview.setup
+     * initalize variables and add event handlers
+     */
+    export function setup(): void {
         $workbookPreview = $("#workbookPreview");
         modalHelper = new ModalHelper($workbookPreview);
 
         addEvents();
     };
 
-    WorkbookPreview.show = function(workbookId) {
+    /**
+     * WorkbookPreview.show
+     * Show the workbook preview modal
+     * @param workbookId - id of the workbook to be shown
+     */
+    export function show(workbookId: string): XDPromise<void> {
         id = xcHelper.randName("worbookPreview");
         curWorkbookId = workbookId;
         modalHelper.setup();
@@ -21,20 +30,20 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         return showTableInfo(workbookId);
     };
 
-    function addEvents() {
+    function addEvents(): void {
         // Temporary until delete tables is ready
         $workbookPreview.on("click", ".listSection .grid-unit", function() {
         // $workbookPreview.on("click", ".listSection .view, .listSection .name", function() {
-            var tableName = getTableNameFromEle(this);
-            var workbookName = WorkbookManager.getWorkbook(curWorkbookId).getName();
+            const tableName: string = getTableNameFromEle(this);
+            const workbookName: string = WorkbookManager.getWorkbook(curWorkbookId).getName();
             showDag(tableName, workbookName);
         });
 
         $workbookPreview.on("click", ".title .label, .title .xi-sort", function() {
-            var $title = $(this).closest(".title");
-            var sortKey = $title.data("sortkey");
-            var $section = $title.closest(".titleSection");
-            var tableList;
+            const $title: JQuery = $(this).closest(".title");
+            const sortKey: string = $title.data("sortkey");
+            const $section: JQuery = $title.closest(".titleSection");
+            let tableList: object[];
 
             if ($title.hasClass("active")) {
                 tableList = reverseTableList(curTableList);
@@ -64,17 +73,17 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         });
     }
 
-    function getTableNameFromEle(ele) {
+    function getTableNameFromEle(ele: JQuery): string {
         return $(ele).closest(".grid-unit").find(".name").data("title");
     }
 
-    function reset() {
+    function reset(): void {
         curTableList = [];
         $workbookPreview.find(".title.active").removeClass("active");
         updateTotalSize("--");
     }
 
-    function closeModal() {
+    function closeModal(): void {
         modalHelper.clear();
         $workbookPreview.removeClass("loading error");
         $workbookPreview.find(".errorSection").empty();
@@ -83,22 +92,22 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         curWorkbookId = null;
     }
 
-    function updateTotalSize(size) {
+    function updateTotalSize(size: string): void {
         $workbookPreview.find(".infoSection .size .text").text(size);
     }
 
-    function showWorkbookInfo(workbookId) {
-        var $section = $workbookPreview.find(".infoSection");
-        var workbook = WorkbookManager.getWorkbook(workbookId);
+    function showWorkbookInfo(workbookId: string): void {
+        const $section: JQuery = $workbookPreview.find(".infoSection");
+        const workbook: WKBK = WorkbookManager.getWorkbook(workbookId);
         $section.find(".name .text").text(workbook.getName());
     }
 
-    function showTableInfo(workbookId) {
-        var deferred = PromiseHelper.deferred();
-        var nodeInfo;
-        var curId = id;
-        var workbookName = WorkbookManager.getWorkbook(workbookId).getName();
-        var currentSession = sessionName;
+    function showTableInfo(workbookId: string): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let nodeInfo: any[];
+        const curId: string = id;
+        const workbookName: string = WorkbookManager.getWorkbook(workbookId).getName();
+        const currentSession: string = sessionName;
         $workbookPreview.addClass("loading");
         setSessionName(workbookName);
 
@@ -111,7 +120,7 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
             if (curId === id) {
                 curTableList = getTableList(nodeInfo, tableMeta, wsInfo);
                 // sort by status
-                var tableList = sortTableList(curTableList, "status");
+                const tableList: object[] = sortTableList(curTableList, "status");
                 updateTableList(tableList);
             }
             deferred.resolve();
@@ -132,30 +141,30 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         return deferred.promise();
     }
 
-    function handleError(error) {
-        var errorMsg = xcHelper.parseError(error);
+    function handleError(error: string|object): void {
+        const errorMsg: string = xcHelper.parseError(error);
         $workbookPreview.find(".errorSection").text(errorMsg);
         $workbookPreview.addClass("error");
     }
 
-    function getTableKVStoreMeta(workbookName) {
-        var deferred = PromiseHelper.deferred();
-        var currentSession = sessionName;
+    function getTableKVStoreMeta(workbookName: string): XDPromise<{}> {
+        const deferred: XDDeferred<{}> = PromiseHelper.deferred();
+        const currentSession: string = sessionName;
 
         if (workbookName === currentSession) {
             deferred.resolve(gTables, getWSInfo(WSManager.getAllMeta()));
             return deferred.promise();
         }
 
-        var key = WorkbookManager.getStorageKey();
-        var kvStore = new KVStore(key, gKVScope.WKBK);
+        const key: string = WorkbookManager.getStorageKey();
+        const kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
         setSessionName(workbookName);
 
         kvStore.getAndParse()
         .then(function(res) {
             try {
-                var metaInfos = new METAConstructor(res);
-                var wsInfo = getWSInfo(metaInfos.getWSMeta());
+                const metaInfos: METAConstructor = new METAConstructor(res);
+                const wsInfo: object = getWSInfo(metaInfos.getWSMeta());
                 deferred.resolve(metaInfos.getTableMeta(), wsInfo);
             } catch (e) {
                 console.error(e);
@@ -171,15 +180,15 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         return deferred.promise();
     }
 
-    function getWSInfo(wsMeta) {
-        var res = {};
+    function getWSInfo(wsMeta: WSMETA): object {
+        const res: object = {};
         try {
-            var worksheets = wsMeta.wsInfos;
-            for (var wsId in worksheets) {
-                var wsName = worksheets[wsId].name;
-                var tables = worksheets[wsId].tables;
-                for (var i = 0; i < tables.length; i++) {
-                    var tableId = tables[i];
+            const worksheets: Set<WorksheetObj> = wsMeta.wsInfos;
+            for (let wsId in worksheets) {
+                const wsName: string = worksheets[wsId].name;
+                const tables: string[] = worksheets[wsId].tables;
+                for (let i: number = 0; i < tables.length; i++) {
+                    const tableId: string = tables[i];
                     res[tableId] = wsName;
                 }
             }
@@ -190,15 +199,15 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         }
     }
 
-    function getTableList(nodeInfo, tableMeta, wsInfo) {
+    function getTableList(nodeInfo: any[], tableMeta: object, wsInfo: WorksheetObj): object[] {
         return nodeInfo.map(function(node) {
-            var tableName = node.name;
-            var size = xcHelper.sizeTranslator(node.size);
-            var tableId = xcHelper.getTableId(tableName);
-            var status = tableMeta.hasOwnProperty(tableId)
+            const tableName: string = node.name;
+            const size: string = <string>xcHelper.sizeTranslator(node.size);
+            const tableId: string|number = xcHelper.getTableId(tableName);
+            const status: string = tableMeta.hasOwnProperty(tableId)
                         ? tableMeta[tableId].status
                         : TableType.Orphan;
-            var worksheet = (wsInfo && wsInfo.hasOwnProperty(tableId))
+            const worksheet: WorksheetObj = (wsInfo && wsInfo.hasOwnProperty(tableId))
                             ? wsInfo[tableId]
                             : "--";
             return {
@@ -211,12 +220,12 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         });
     }
 
-    function sortTableList(tableList, key) {
+    function sortTableList(tableList: any[], key: string) {
         if (key === "size") {
             // sort on size
             tableList.sort(function(a, b) {
-                var sizeA = a.sizeInNum;
-                var sizeB = b.sizeInNum;
+                const sizeA: number = a.sizeInNum;
+                const sizeB: number = b.sizeInNum;
                 if (sizeA === sizeB) {
                     return a.name.localeCompare(b.name);
                 } else if (sizeA > sizeB) {
@@ -252,14 +261,14 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         return tableList;
     }
 
-    function reverseTableList(tableList) {
+    function reverseTableList(tableList: object[]) {
         tableList.reverse();
         return tableList;
     }
 
-    function updateTableList(tableList) {
-        var totalSize = 0;
-        var html = tableList.map(function(tableInfo) {
+    function updateTableList(tableList): void {
+        let totalSize: number = 0;
+        let html: string = tableList.map(function(tableInfo) {
             totalSize += tableInfo.sizeInNum;
             return '<div class="grid-unit">' +
                         '<div class="name tooltipOverflow"' +
@@ -295,7 +304,7 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
                     '</div>';
         }).join("");
         $workbookPreview.find(".listSection").html(html);
-        updateTotalSize(xcHelper.sizeTranslator(totalSize));
+        updateTotalSize(<string>xcHelper.sizeTranslator(totalSize));
     }
 
     // function deleteTable(tableName) {
@@ -331,10 +340,10 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
     //     });
     // }
 
-    function showDag(tableName, workbookName) {
-        var deferred = PromiseHelper.deferred();
-        var curId = id;
-        var html = '<div class="dagWrap clearfix">' +
+    function showDag(tableName: string, workbookName: string): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const curId: string = id;
+        const html: string = '<div class="dagWrap clearfix">' +
                     '<div class="header clearfix">' +
                         '<div class="btn infoIcon">' +
                             '<i class="icon xi-info-rectangle"></i>' +
@@ -347,7 +356,7 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
                         '</div>' +
                     '</div>' +
                 '</div>';
-        var $dagWrap = $(html);
+        const $dagWrap: JQuery = $(html);
         $workbookPreview.addClass("dagMode")
                         .find(".dagSection").append($dagWrap);
 
@@ -358,7 +367,7 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
             if (curId === id) {
                 DagDraw.createDagImage(dagObj.node, $dagWrap);
                 // remove "click to see options" tooltips
-                var $tooltipTables = $dagWrap.find('.dagTableIcon, ' +
+                const $tooltipTables: JQuery = $dagWrap.find('.dagTableIcon, ' +
                                                     '.dataStoreIcon');
                 xcTooltip.disable($tooltipTables);
                 Dag.addEventListeners($dagWrap);
@@ -379,10 +388,8 @@ window.WorkbookPreview = (function(WorkbookPreview, $) {
         return deferred.promise();
     }
 
-    function closeDag() {
+    function closeDag(): void {
         $workbookPreview.removeClass("dagMode")
                         .find(".dagSection").empty();
     }
-
-    return WorkbookPreview;
-}({}, jQuery));
+}
