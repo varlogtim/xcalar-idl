@@ -123,8 +123,17 @@
                 var valueAttrs = tableMeta.valueAttrs || [];
                 var progCols = [];
                 if (!isImmediate) {
+                    var colNameSet = new Set();
                     for (var i = 0; i < allCols.length; i++) {
                         var found = false;
+                        if (colNameSet.has(allCols[i].colName)) {
+                            var k = 1;
+                            while (colNameSet.has(allCols[i].colName + "_" + k)) {
+                                k++;
+                            }
+                            allCols[i].colName = allCols[i].colName + "_" + k;
+                        }
+                        colNameSet.add(allCols[i].colName);
                         var colName = allCols[i].rename || allCols[i].colName;
                         var prefix = colName;
                         if (colName.indexOf("::") > 0) {
