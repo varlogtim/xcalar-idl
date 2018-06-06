@@ -644,7 +644,8 @@ StatusT = {
   'StatusPubTableNameNotFound' : 635,
   'StatusPubTableUpdateNotFound' : 636,
   'StatusUpgradeRequired' : 637,
-  'StatusUdfNotSupportedInCrossJoins' : 638
+  'StatusUdfNotSupportedInCrossJoins' : 638,
+  'StatusRetinaNameInvalid' : 639
 };
 StatusTStr = {
   0 : 'Success',
@@ -1285,7 +1286,8 @@ StatusTStr = {
   635 : 'Publish table name not found',
   636 : 'Publish table update not found',
   637 : 'An upgrade using the Xcalar upgrade tool is required',
-  638 : 'UDFs are not supported as part of filter condition in cross joins'
+  638 : 'UDFs are not supported as part of filter condition in cross joins',
+  639 : 'Invalid name supplied for the batch dataflow'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -1926,5 +1928,6 @@ StatusTFromStr = {
   'Publish table name not found' : 635,
   'Publish table update not found' : 636,
   'An upgrade using the Xcalar upgrade tool is required' : 637,
-  'UDFs are not supported as part of filter condition in cross joins' : 638
+  'UDFs are not supported as part of filter condition in cross joins' : 638,
+  'Invalid name supplied for the batch dataflow' : 639
 };
