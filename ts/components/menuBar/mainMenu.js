@@ -489,6 +489,7 @@ window.MainMenu = (function($, MainMenu) {
         if (!noAnim && $("#workspacePanel").hasClass("active")) {
             xcHelper.menuAnimAligner(true, checkMenuAnimFinish);
         } else {
+            IMDPanel.redraw();
             menuAnimAlign = null;
         }
         setTimeout(function () {

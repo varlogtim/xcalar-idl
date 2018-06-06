@@ -103,8 +103,7 @@ namespace IMDPanel {
         $(window).on("resize.canvasResize", function () {
             clearTimeout(timer);
             timer = setTimeout(function () {
-                updateTimeInputs();
-                updateHistory();
+                redraw();
             }, 300);
         });
         redrawTimeCanvas();
@@ -126,6 +125,13 @@ namespace IMDPanel {
         isPanelActive = false;
         $(window).off("resize.canvasResize");
         hideUpdatePrompt();
+    }
+
+    export function redraw(): void {
+        if (isPanelActive) {
+            updateTimeInputs();
+            updateHistory();
+        }
     }
 
     /**
@@ -789,9 +795,6 @@ namespace IMDPanel {
         if it is within the visible history range , add div with left border and a text (update id)
     */
     function updateHistory(): void {
-        if (!pTables.length) {
-            return;
-        }
         ruler.visibleLeft = $scrollDiv.scrollLeft();
         ruler.visibleRight = ruler.visibleLeft + $scrollDiv.width();
         hideUpdatePrompt();

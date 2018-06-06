@@ -4322,6 +4322,7 @@ namespace xcHelper {
             DagPanel.adjustScrollBarPositionAndSize();
             $('.dfScrollBar').addClass('xc-hidden');
             DFCard.adjustScrollBarPositionAndSize();
+            IMDPanel.redraw();
         });
     }
 

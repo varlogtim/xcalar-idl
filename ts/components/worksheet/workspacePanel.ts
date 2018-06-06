@@ -1,6 +1,7 @@
 // sets up monitor panel and system menubar
 namespace WorkspacePanel {
     let $workspacePanel: JQuery;
+    let wasWorkspaceMenuOpen: boolean = false;
 
     export function setup() {
         $workspacePanel = $("#workspacePanel");
@@ -45,21 +46,25 @@ namespace WorkspacePanel {
                 return;
             }
             let $menu: JQuery = $("#workspaceMenu");
-            $menu.find(".menuSection").addClass("xc-hidden");
 
             switch ($button.attr("id")) {
                 case ("worksheetButton"):
+                    if (wasWorkspaceMenuOpen) {
+                        MainMenu.open(true);
+                    }
+                    $menu.removeClass("imdMode");
                     $("#imdView").removeClass("active");
                     $workspacePanel.find(".mainContent").scrollTop(0);
                     $("#worksheetView").addClass("active");
                     $("#workspaceBar").removeClass("xc-hidden");
                     $("#imdBar").addClass("xc-hidden");
-                    $menu.find(".menuSection.worksheets").removeClass("xc-hidden");
                     $("#statusBar").addClass("worksheetMode");
                     WSManager.focusOnWorksheet();
                     IMDPanel.inActive();
                     break;
                 case ("imdButton"):
+                    wasWorkspaceMenuOpen = $menu.hasClass("active");
+                    $menu.addClass("imdMode");
                     TblFunc.hideOffScreenTables();
                     $("#worksheetView").removeClass("active");
                     $("#imdView").addClass("active");
