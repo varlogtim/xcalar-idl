@@ -4460,6 +4460,9 @@
                 if (source[j] in startingTables) {
                     continue;
                 }
+                if (source[j].startsWith("src") || source[j].startsWith("sql")) {
+                    source[j] = source[j].substring(source[j].indexOf("_") + 1);
+                }
                 if (source.length === 1) {
                     operation.args.source = prefix + source[j];
                 } else {
@@ -4467,6 +4470,9 @@
                 }
             }
             if (!(dest in startingTables)) {
+                if (dest.startsWith("src") || dest.startsWith("sql")) {
+                    dest = dest.substring(dest.indexOf("_") + 1);
+                }
                 if (operation.args.dest === finalTable) {
                     newFinalTable = prefix + dest;
                 }

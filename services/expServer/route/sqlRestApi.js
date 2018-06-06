@@ -1633,8 +1633,9 @@ var sqlTable;
 var sqlUser = "xcalar-internal-sql";
 var sqlId = 4193719;
 var logInUser;
-function sqlLoad(path, publishName) {
-    sqlTable = xcHelper.randName("SQL") + Authentication.getHashId();
+function sqlLoad(path, publishName, sessionId) {
+    var prefix = sessionId || "";
+    sqlTable = prefix + xcHelper.randName("SQL") + Authentication.getHashId();
     var sqlTableAlias = "sql";
 
     var deferred = PromiseHelper.deferred();
@@ -2029,8 +2030,10 @@ router.post("/xcedf/load", function(req, res) {
 
 router.post("/xcedf/select", function(req, res) {
     var publishName = req.body.name;
+    var sessionId = req.body.sessionId;
+    sessionId = "src" + sessionId.replace(/-/g, "") + "_";
     console.log("load from published table: ", publishName);
-    sqlLoad(undefined, publishName)
+    sqlLoad(undefined, publishName, sessionId)
     .then(function(output) {
         console.log("sql load published table finishes");
         res.send(output);
@@ -2041,9 +2044,20 @@ router.post("/xcedf/select", function(req, res) {
     });
 });
 
-function cleanAllTables(sessionId) {
-    console.log("deleting: ", sessionId + "*");
-    return XIApi.deleteTable(1, sessionId + "*");
+function cleanAllTables(allIds) {
+    var queryArray = [];
+    for (var i = 0; i < allIds.length; i++) {
+        var query = {
+                        "operation": "XcalarApiDeleteObjects",
+                        "args": {
+                            "namePattern": allIds[i] + "*",
+                            "srcType": "Table"
+                        }
+                    };
+        queryArray.push(query);
+    }
+    console.log("deleting: ", JSON.stringify(allIds));
+    return XIApi.deleteTables(1, queryArray);
 }
 
 function getColType(typeId) {
@@ -2083,7 +2097,7 @@ router.post("/xcedf/query", function(req, res) {
     var plan = req.body.plan;
     var limit = req.body.limit;
     var sessionId = req.body.sessionId;
-    sessionId = "sql" + sessionId.replace(/-/g, "_") + "_";
+    sessionId = "sql" + sessionId.replace(/-/g, "") + "_";
     sqlPlan(execid, plan, limit, sessionId)
     .then(function(output) {
         console.log("sql plan finishes", output);
@@ -2110,8 +2124,21 @@ router.post("/xcedf/list", function(req, res) {
 
 router.post("/xcedf/clean", function(req, res) {
     var sessionId = req.body.sessionId;
-    sessionId = "sql" + sessionId.replace(/-/g, "_") + "_";
-    cleanAllTables(sessionId)
+    var type = req.body.type;
+    var srcId = "src" + sessionId.replace(/-/g, "") + "_";
+    var otherId = "sql" + sessionId.replace(/-/g, "") + "_";
+    var allIds = [];
+    if (type === "select") {
+        allIds.push(srcId);
+    } else if (type === "other") {
+        allIds.push(otherId);
+    } else if (type === "all") {
+        allIds.push(srcId);
+        allIds.push(otherId);
+    } else {
+        res.status(500).send("Invalid type provided");
+    }
+    cleanAllTables(allIds)
     .then(function(output) {
         console.log("all temp and result tables deleted");
         res.send(output);
