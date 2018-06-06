@@ -306,6 +306,31 @@ window.XcSDK.Extension.prototype = (function() {
             return deferred.promise();
         },
 
+        /*
+            colInfos: an array of colInfo object, example:
+                {
+                    "orig": "prefix::col",
+                    "new": "newCol",
+                    "type": DfFieldTypeT.DfString
+                }
+            tableName: table's name
+            newTableName(optional): new table's name
+        */
+        synthesize: function(colInfos, tableName, newTableName) {
+            var deferred = PromiseHelper.deferred();
+            var self = this;
+            var txId = self.txId;
+
+            XIApi.synthesize(txId, colInfos, tableName, newTableName)
+            .then(function(dstTable) {
+                self._addMeta(tableName, dstTable);
+                deferred.resolve(dstTable);
+            })
+            .fail(deferred.reject);
+
+            return deferred.promise();
+        },
+
         query: function(queryStr) {
             if (!this.__checkDstTableNameInQuery(queryStr)) {
                 return PromiseHelper.reject(ExtTStr.InvalidTableName);

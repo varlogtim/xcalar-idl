@@ -2495,6 +2495,34 @@ describe('XIApi Test', () => {
                 });
         });
 
+        it('XIApi.synthesize should handle fail case', (done) => {
+            XIApi.synthesize()
+                .then(() => {
+                    done('fail');
+                })
+                .fail((error) => {
+                    expect(error).to.equal('Invalid args in synthesize');
+                    done();
+                });
+        });
+
+        it('XIApi.synthesize should work', (done) => {
+            const oldFunc = XcalarSynthesize;
+            XcalarSynthesize = () => PromiseHelper.resolve();
+
+            XIApi.synthesize(1, [{}], 'table')
+                .then((newTableName) => {
+                    expect(newTableName).to.equal('table#12');
+                    done();
+                })
+                .fail(() => {
+                    done('fail');
+                })
+                .always(() => {
+                    XcalarSynthesize = oldFunc;
+                });
+        });
+
         it('XIApi.query should handle fail case', (done) => {
             XIApi.query()
                 .then(() => {
@@ -2676,7 +2704,7 @@ describe('XIApi Test', () => {
                         done('fail');
                     })
                     .fail((error) => {
-                        expect(error).to.equal('Invalid args in fetch data');
+                        expect(error.error).to.equal('Invalid args in fetch data');
                         done();
                     });
             });

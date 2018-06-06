@@ -3179,7 +3179,7 @@ XcalarListFiles = function(args) {
     return (deferred.promise());
 };
 
-XcalarSynthesize = function(srcTableName, dstTableName, columns, txId) {
+XcalarSynthesize = function(srcTableName, dstTableName, colInfos, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -3197,7 +3197,7 @@ XcalarSynthesize = function(srcTableName, dstTableName, columns, txId) {
             return deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise();
         }
 
-        var columnArray = columns.map(colInfoMap);
+        var columnArray = colInfos.map(colInfoMap);
         var workItem = xcalarApiSynthesizeWorkItem(unsortedSrcTablename,
                                                     dstTableName,
                                                     columnArray);

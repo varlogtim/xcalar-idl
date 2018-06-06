@@ -2381,6 +2381,30 @@ namespace XIApi {
         return deferred.promise();
     }
 
+    export function synthesize(
+        txId: number,
+        colInfos: ColRenameInfo[],
+        tableName: string,
+        newTableName?: string
+    ): XDPromise<string> {
+        if (txId == null || colInfos == null || tableName == null) {
+            return PromiseHelper.reject("Invalid args in synthesize");
+        }
+
+        if (!isValidTableName(newTableName)) {
+            newTableName = getNewTableName(tableName);
+        }
+
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        XcalarSynthesize(tableName, newTableName, colInfos, txId)
+        .then(() => {
+            deferred.resolve(newTableName);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     /**
      * XIApi.query
      * @param txId
@@ -2498,7 +2522,7 @@ namespace XIApi {
         if (tableName == null || startRowNum == null ||
             rowsRequested == null || rowsRequested <= 0)
         {
-            return PromiseHelper.reject({error:"Invalid args in fetch data"});
+            return PromiseHelper.reject({error: "Invalid args in fetch data"});
         }
 
         const deferred: XDDeferred<string[]> = PromiseHelper.deferred();

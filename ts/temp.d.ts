@@ -229,6 +229,7 @@ declare function XcalarGroupByWithEvalStrings(newColNames: string[], evalStrs: s
 declare function XcalarGroupBy(operators: string[], newColNames: string[], aggColNames: string[], tableName: string, newTableName: string, incSample: boolean, icvMode: boolean, newKeyFieldName: string, groupAll: boolean, txId: number): XDPromise<any>;
 declare function XcalarUnion(tableNames: string[], newTableNmae: string, colInfos: object[], dedup: boolean, unionType: UnionOperatorT, txId: number): XDPromise<any>;
 declare function XcalarProject(columns: string[], tableName: string, newTableName: string, txId: number): XDPromise<any>;
+declare function XcalarSynthesize(tableName: string, newTableName: string, colInfos: ColRenameInfo[], txId: number): XDPromise<any>;
 declare function XcalarQueryWithCheck(queryName: string, queryStr: string, txId: number, bailOnError: boolean): XDPromise<any>;
 declare function XcalarExport(tableName: string, exportName: string, targetName: string, numCols: number, backColumns: string[], frontColumns: string[], keepOrder: boolean, options: ExportTableOptions, txId: number): XDPromise<void>;
 declare function XcalarGenRowNum(tableName: string, newTableName: string, newColName: string, txId: number): XDPromise<void>;
