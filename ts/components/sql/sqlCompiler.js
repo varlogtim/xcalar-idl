@@ -1653,6 +1653,7 @@
             node.orderCols = [];
             node.newTableName = node.children[0].newTableName;
             var groupingCols = [];
+            var projections = node.value.projections;
             node.value.output.forEach(function(item) {
                 groupingCols.push(__genColStruct(item[0]));
             });
@@ -1661,11 +1662,13 @@
                     "SPARK_GROUPING_ID", SQLErrTStr.IllegalGroupingCols +
                     groupingCols[groupingCols.length - 1].colName);
             var groupingIds = [];
-            // XXX Here assume all expands are full rollup, still not clear
-            // how spark represent other type of grouping sets
-            for (var i = 0, curId = 0; i < groupingCols.length; i++) {
-                groupingIds.push(curId);
-                curId = (curId << 1) + 1;
+
+            for (var i = 0; i < projections.length; i++) {
+                var idStruct = projections[i][projections[i].length - 1][0];
+                assert(idStruct.class ===
+                    "org.apache.spark.sql.catalyst.expressions.Literal" &&
+                        idStruct.dataType === "integer");
+                groupingIds.push(Number(idStruct.value));
             }
             node.sparkCols.push(groupingCols[groupingCols.length - 1]);
             var newRenames = __resolveCollision([],node.usrCols
@@ -3936,7 +3939,6 @@
         return deferred.promise();
     }
 
-    // XXX plan server fixed, need design to support cube/grouping_sets
     function __handleMultiDimAgg(self, gbColNames, gbStrColNames, gArray, tableName, expand) {
         var cli = "";
         var deferred = PromiseHelper.deferred();
@@ -3945,9 +3947,10 @@
         // Currently expand is not used here
         //var groupingIds = expand.groupingIds;
         var gIdColName = __getCurrentName(expand.groupingColStruct);
-        var curIndex = 0;
+        var curIndex = expand.groupingIds[0];
+        var curI = 0;
         var tableInfos = [];
-        // Only support full rollup, which always need extra gb column
+        // This column is used to create nulls
         var gbTempColName = "XC_GB_COL_" + Authentication.getHashId()
                                                          .substring(1);
         var tempCols = [{colName: gbTempColName}];
@@ -3956,12 +3959,11 @@
                                         tableName = ret.newTableName;
                                         return ret;
                                     });
-        for (var i = 0; i < gbColNames.length; i++) {
+        for (var i = 0; i < expand.groupingIds.length; i++) {
             curPromise = curPromise.then(function(ret) {
                 cli += ret.cli;
-                //var newTableName = tableName + "-GB-" + curIndex + "-"
-                //                   + Authentication.getHashId();
                 options = {};
+                curIndex = expand.groupingIds[curI];
                 if (ret.tempCols) {
                     for (var i = 0; i < ret.tempCols.length; i++) {
                         tempCols.push({colName: ret.tempCols[i]});
@@ -4015,21 +4017,22 @@
                     })
                 }
 
-                curIndex = (curIndex << 1) + 1;
+                curI++;
 
                 return self.sqlObj.groupBy(tempGBColNames, tempGArray,
-                    tableName, options).then(function(ret) {
-                        cli += ret.cli;
-                        return self.sqlObj.map(mapStrs, ret.newTableName,
-                                            newColNames)
-                            .then(function(ret) {
-                                tableInfos.push({
-                                    tableName: ret.newTableName,
-                                    columns: columns
-                                });
-                                return ret;
-                            });
+                    tableName, options)
+                .then(function(ret) {
+                    cli += ret.cli;
+                    return self.sqlObj.map(mapStrs, ret.newTableName,
+                                            newColNames);
+                })
+                .then(function(ret) {
+                    tableInfos.push({
+                        tableName: ret.newTableName,
+                        columns: columns
                     });
+                    return ret;
+                });
             });
         }
 
