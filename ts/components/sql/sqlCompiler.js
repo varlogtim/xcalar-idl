@@ -125,6 +125,7 @@
         "expressions.StringReverse": null, // TODO
         "expressions.StringSpace": null, // TODO
         "expressions.Substring": "substring", // XXX 1-based index
+        "expressions.XCSubstring": "substring",
         "expressions.Right": "right", // XXX right(str, 5) ==
                                       // substring(str, -5, 0)
         "expressions.Left": "left", // XXX left(str, 4) == substring(str, 0, 4)
@@ -432,6 +433,24 @@
                 "num-children": 1
             });
         }
+        function greaterThanNode() {
+            return new TreeNode({
+                "class": "org.apache.spark.sql.catalyst.expressions.GreaterThan",
+                "num-children": 2
+            });
+        }
+        function greaterThanEqualNode() {
+            return new TreeNode({
+                "class": "org.apache.spark.sql.catalyst.expressions.GreaterThanOrEqual",
+                "num-children": 2
+            });
+        }
+        function andNode() {
+            return new TreeNode({
+                "class": "org.apache.spark.sql.catalyst.expressions.And",
+                "num-children": 2
+            });
+        }
 
         // This function traverses the tree for a second time.
         // To process expressions such as Substring, Case When, etc.
@@ -451,30 +470,88 @@
                 var length = node.children[2].value;
                 if (startIndex.class.endsWith("Literal") &&
                     startIndex.dataType === "integer") {
-                    startIndex.value = "" + (startIndex.value * 1 - 1);
                     if (length.class.endsWith("Literal") &&
                         length.dataType === "integer") {
-                        length.value = "" + (startIndex.value * 1 +
-                                             length.value * 1);
+                        if (length.value * 1 <= 0) {
+                            var strNode = castNode("string");
+                            strNode.children = [literalStringNode("")];
+                            node = strNode;
+                        } else {
+                            if (startIndex.value * 1 > 0) {
+                                startIndex.value = "" + (startIndex.value * 1 - 1);
+                            }
+                            if (startIndex.value * 1 < 0 && startIndex.value
+                                            * 1 + length.value * 1 >= 0) {
+                                length.value = "0";
+                            } else {
+                                length.value = "" + (startIndex.value * 1 +
+                                               length.value * 1);
+                            }
+                        }
                     } else {
+                        node.value.class =
+                        "org.apache.spark.sql.catalyst.expressions.XCSubstring";
+                        var retNode = ifNode();
+                        var gtNode = greaterThanNode();
+                        var emptyStrNode = castNode("string");
+                        emptyStrNode.children = [literalStringNode("")];
+                        var zeroNode = castNode("int");
+                        zeroNode.children = [literalNumberNode(0)];
+                        retNode.children = [gtNode, node, emptyStrNode];
+                        gtNode.children = [node.children[2], zeroNode];
+                        if (startIndex.value * 1 > 0) {
+                            startIndex.value = "" + (startIndex.value * 1 - 1);
+                        }
                         var addN = addNode();
                         var intN = castNode("int");
                         addN.children.push(node.children[1], node.children[2]);
                         intN.children = [addN];
-                        node.children[2] = intN;
+                        if (startIndex.value * 1 < 0) {
+                            var innerIfNode = ifNode();
+                            var geNode = greaterThanEqualNode();
+                            geNode.children = [intN, zeroNode];
+                            innerIfNode.children = [geNode, zeroNode, intN];
+                            node.children[2] = innerIfNode;
+                        } else {
+                            node.children[2] = intN;
+                        }
+                        node = retNode;
                     }
                 } else {
+                    node.value.class =
+                        "org.apache.spark.sql.catalyst.expressions.XCSubstring";
+                    var retNode = ifNode();
+                    var gtNode = greaterThanNode();
+                    var emptyStrNode = castNode("string");
+                    emptyStrNode.children = [literalStringNode("")];
+                    var zeroNode = castNode("int");
+                    zeroNode.children = [literalNumberNode(0)];
+                    retNode.children = [gtNode, node, emptyStrNode];
+                    gtNode.children = [node.children[2], zeroNode];
+                    var ifNodeI = ifNode();
+                    var gtNodeI = greaterThanNode();
                     var subNode = subtractNode();
                     subNode.children.push(node.children[1],
                                           literalNumberNode(1));
                     var addN = addNode();
                     var intNLeft = castNode("int");
                     var intNRight = castNode("int");
-                    addN.children.push(subNode, node.children[2]);
+                    var ifNodeL = ifNode();
+                    var andN = andNode();
+                    var gtNodeL = greaterThanNode();
+                    var geNode = greaterThanEqualNode();
+                    gtNodeL.children = [zeroNode, node.children[1]];
+                    addN.children.push(ifNodeI, node.children[2]);
                     intNLeft.children = [subNode];
                     intNRight.children = [addN];
-                    node.children[1] = intNLeft;
-                    node.children[2] = intNRight;
+                    geNode.children = [intNRight, zeroNode];
+                    andN.children = [gtNodeL, geNode];
+                    ifNodeL.children = [andN, zeroNode, intNRight];
+                    gtNodeI.children = [node.children[1], zeroNode];
+                    ifNodeI.children = [gtNodeI, intNLeft, node.children[1]];
+                    node.children[1] = ifNodeI;
+                    node.children[2] = ifNodeL;
+                    node = retNode;
                 }
                 break;
             // Left & Right are now handled by UDFs
