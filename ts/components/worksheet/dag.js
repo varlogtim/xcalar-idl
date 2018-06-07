@@ -1147,9 +1147,9 @@ window.Dag = (function($, Dag) {
         }
     };
 
-    Dag.updateComment = function($opIcon, newComment, node) {
+    Dag.updateComment = function($opIcon, commentObj, node) {
         var commentStr = "Comments: " +
-                                xcHelper.escapeDblQuoteForHTML(newComment);
+                                xcHelper.escapeDblQuoteForHTML(commentObj.userComment);
         $opIcon.find(".tipIcons").append('<div class="commentIcon" ' +
                     'data-toggle="tooltip" data-placement="top" ' +
                     'data-container="body" data-original-title="' +
@@ -1163,7 +1163,7 @@ window.Dag = (function($, Dag) {
                                                        .nodeIdMap;
             node = nodeIdMap[$opIcon.data("id")];
         }
-        node.value.comment = newComment;
+        node.value.comment = commentObj;
     };
 
     // actually tags the .dagTableWrap so operation and table get styled

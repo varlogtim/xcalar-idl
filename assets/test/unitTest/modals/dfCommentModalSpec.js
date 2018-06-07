@@ -14,7 +14,7 @@ describe("DFCommentModal Test", function() {
         node = {
                 value: {
                     name: "somename",
-                    comment: ""
+                    comment: {userComment:"", meta:{}}
                 }
             }
         $dagWrap.data("allDagInfo", {
@@ -32,17 +32,17 @@ describe("DFCommentModal Test", function() {
             $modal.find(".close").click();
         });
         it("should show with comment", function() {
-            node.value.comment = "something";
+            node.value.comment = {userComment:"something", meta:{}};
             DFCommentModal.show($opIcon, 0);
             expect($modal.hasClass("hasComment")).to.be.true;
             expect($modal.find("textarea").val()).to.equal("something");
 
         });
         it("should not open if already open", function() {
-            node.value.comment = "somethingElse";
+            node.value.comment = {userComment:"somethingElse", meta:{}};
             DFCommentModal.show($opIcon, 0);
             expect($modal.find("textarea").val()).to.equal("something");
-            node.value.comment = "something";
+            node.value.comment = {userComment:"something", meta:{}};
 
         });
         it("clear should work", function() {
@@ -76,7 +76,7 @@ describe("DFCommentModal Test", function() {
             var cachedFn = XcalarCommentDagNodes;
             var called = false;
             XcalarCommentDagNodes = function(newComment, tableNames) {
-                expect(newComment).to.equal(text);
+                expect(newComment).to.equal('{"userComment":"' + text + '","meta":{}}');
                 expect(tableNames.length).to.equal(1);
                 expect(tableNames[0]).to.equal("somename");
                 called = true;
@@ -90,7 +90,7 @@ describe("DFCommentModal Test", function() {
 
             expect(called).to.be.true;
             expect($opIcon.hasClass("hasComment")).to.be.true;
-            expect(node.value.comment).to.equal(text);
+            expect(node.value.comment.userComment).to.equal(text);
 
             XcalarCommentDagNodes = cachedFn;
         });
@@ -100,7 +100,7 @@ describe("DFCommentModal Test", function() {
             var cachedFn = XcalarCommentDagNodes;
             var called = false;
             XcalarCommentDagNodes = function(newComment, tableNames) {
-                expect(newComment).to.equal("");
+                expect(newComment).to.equal('{"userComment":"","meta":{}}');
                 expect(tableNames.length).to.equal(1);
                 expect(tableNames[0]).to.equal("somename");
                 called = true;
@@ -112,7 +112,7 @@ describe("DFCommentModal Test", function() {
 
             expect(called).to.be.true;
             expect($opIcon.hasClass("hasComment")).to.be.false;
-            expect(node.value.comment).to.equal("");
+            expect(node.value.comment.userComment).to.equal("");
 
             XcalarCommentDagNodes = cachedFn;
         });
@@ -122,7 +122,7 @@ describe("DFCommentModal Test", function() {
             var cachedFn = XcalarCommentDagNodes;
             var called = false;
             XcalarCommentDagNodes = function(newComment, tableNames) {
-                expect(newComment).to.equal("");
+                expect(newComment).to.equal('{"userComment":"","meta":{}}');
                 expect(tableNames.length).to.equal(1);
                 expect(tableNames[0]).to.equal("somename");
                 called = true;

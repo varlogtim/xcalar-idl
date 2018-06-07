@@ -671,7 +671,6 @@ namespace xcFunction {
             .then((nTableName, nTableCols) => {
                 finalTableCols = nTableCols;
                 finalTableName = nTableName;
-
                 focusOnTable = scrollChecker.checkScroll();
                 const tablesToReplace: string[] = options.keepTables ? [] : tableNames;
                 return TblManager.refreshTable([finalTableName], finalTableCols,

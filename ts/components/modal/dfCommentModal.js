@@ -3,6 +3,7 @@ window.DFCommentModal = (function(DFCommentModal, $) {
     var $textArea; // $modal.find(".xc-textArea")
     var modalHelper;
     var tableName;
+    var curCommentObj;
 
     DFCommentModal.setup = function() {
         $modal = $("#dfCommentModal");
@@ -34,8 +35,8 @@ window.DFCommentModal = (function(DFCommentModal, $) {
 
         var node = Dag.getNodeById($dagWrap, nodeId);
         tableName = node.value.name;
-
-        var curComment = node.value.comment;
+        curCommentObj = xcHelper.deepCopy(node.value.comment);
+        var curComment = curCommentObj.userComment;
 
         if (curComment) {
             $modal.addClass("hasComment");
@@ -68,11 +69,12 @@ window.DFCommentModal = (function(DFCommentModal, $) {
             StatusBox.show(errMsg, $textArea);
             return false;
         }
-
-        var tName = tableName;
+        var commentObj = curCommentObj;
+        commentObj.userComment = newComment;
+        var tName = tableName; // store because tableName will be reset
         closeModal();
 
-        XcalarCommentDagNodes(newComment, [tName])
+        DagFunction.commentDagNodes([tName], newComment, commentObj.meta)
         .then(function() {
             var $dagPanel = $('#dagPanel');
             var $dagTableTitles = $dagPanel.find('.tableTitle').filter(function() {
@@ -88,7 +90,7 @@ window.DFCommentModal = (function(DFCommentModal, $) {
                     var nodeIdMap = $dagWrap.data("allDagInfo").nodeIdMap;
 
                     $opIcon.find(".commentIcon").remove();
-                    Dag.updateComment($opIcon, newComment, nodeIdMap[nodeId]);
+                    Dag.updateComment($opIcon, commentObj, nodeIdMap[nodeId]);
                 });
             } else {
                 $dagTableTitles.each(function() {
@@ -100,7 +102,7 @@ window.DFCommentModal = (function(DFCommentModal, $) {
                     var $dagWrap = $opIcon.closest(".dagWrap");
                     var nodeIdMap = $dagWrap.data("allDagInfo").nodeIdMap;
 
-                    nodeIdMap[nodeId].value.comment = newComment;
+                    nodeIdMap[nodeId].value.comment = commentObj;
                 });
             }
         })

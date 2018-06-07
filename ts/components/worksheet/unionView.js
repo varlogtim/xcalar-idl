@@ -194,9 +194,12 @@ window.UnionView = (function(UnionView, $) {
             $resultInputs.eq(i).val(options.tableCols[0][i].rename);
         }
         $unionView.find(".newTableName").val(options.dest);
-        if (options.dedup) {
-            $unionView.find(".modeList").find('li[name="union"]').trigger(fakeEvent.mouseup);
+        var type = UnionTypeTStr[options.type].toLowerCase();
+        if (!options.dedup) {
+            type += "All";
         }
+        $unionView.find(".modeList").find('li[name="' + type + '"]')
+                                        .trigger(fakeEvent.mouseup);
     }
 
     function searchColumn(keyword, index) {

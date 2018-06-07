@@ -1428,14 +1428,14 @@ window.DagDraw = (function($, DagDraw) {
                             '><i class="icon xi-ellipsis-h-circle">' +
                             '</i></div>';
         }
-
-        if (node.value.comment) {
+        var comment = node.value.comment.userComment;
+        if (comment) {
             classes += " hasComment ";
-            var comment = "Comments: " +
-                            xcHelper.escapeDblQuoteForHTML(node.value.comment);
+            var commentStr = "Comments: " +
+                            xcHelper.escapeDblQuoteForHTML(comment);
             commentIcon += '<div class="commentIcon" ' +
                             xcTooltip.Attrs + 'data-tiphtml="false" ' +
-                            'data-original-title="' + comment + '" ' +
+                            'data-original-title="' + commentStr + '" ' +
                             '><i class="icon xi-info-circle">' +
                             '</i></div>';
         }
@@ -1730,7 +1730,7 @@ window.DagDraw = (function($, DagDraw) {
         options = options || {};
         var parenIndex;
         var evalStr = "";
-        var value = node.value.struct;
+        var struct = node.value.struct;
         var info = {
             type: "unknown",
             taggedType: "",
@@ -1753,7 +1753,7 @@ window.DagDraw = (function($, DagDraw) {
         if (node.value.display.tagHeader && node.value.display.tagCollapsed &&
             node.value.tags.length === 1 &&
             node.value.api !== XcalarApisT.XcalarApiSynthesize) {
-            taggedInfo = setTaggedOpInfo(info, value, node, parentNames);
+            taggedInfo = setTaggedOpInfo(info, struct, node, parentNames);
             if (node.value.display.hasTagGroup) {
                 isCollapsedTag = true;
             }
@@ -1762,14 +1762,14 @@ window.DagDraw = (function($, DagDraw) {
         if (!taggedInfo) {
             switch (key) {
                 case ('aggregateInput'):
-                    evalStr = value.eval[0].evalString;
+                    evalStr = struct.eval[0].evalString;
                     info.subType = "aggregate" + evalStr.slice(0, evalStr.indexOf('('));
                     info.tooltip = "Aggregate: " + xcHelper.escapeHTMLSpecialChar(evalStr);
                     info.opText = evalStr.slice(evalStr.indexOf('(') + 1,
                                                 evalStr.lastIndexOf(')'));
                     break;
                 case ('loadInput'):
-                    var loadInfo = xcHelper.deepCopy(value);
+                    var loadInfo = xcHelper.deepCopy(struct);
                     info.loadInfo = loadInfo;
 
                     loadInfo.format = xcHelper.parseDSFormat(loadInfo);
@@ -1785,17 +1785,17 @@ window.DagDraw = (function($, DagDraw) {
                     delete loadInfo.dagNodeId;
                     break;
                 case ('filterInput'):
-                    info = getFilterInfo(info, value.eval[0].evalString, parentNames);
+                    info = getFilterInfo(info, struct.eval[0].evalString, parentNames);
                     break;
                 case ('groupByInput'):
                     var sampleStr = "";
                     var groupedOn = getGroupedOnText(node);
-                    if (value.includeSrcTableSample) {
+                    if (struct.includeSrcTableSample) {
                         sampleStr = " (Sample included)";
                     } else {
                         sampleStr = " (Sample not included)";
                     }
-                    var evalStrs = value.eval;
+                    var evalStrs = struct.eval;
                     evalStr = "";
                     for (var i = 0; i < evalStrs.length; i++) {
                         evalStr += evalStrs[i].evalString + ", ";
@@ -1811,14 +1811,14 @@ window.DagDraw = (function($, DagDraw) {
                                                 evalStr.lastIndexOf(')'));
                     break;
                 case ('indexInput'):
-                    var keyNames = value.key.map(function(key) {
+                    var keyNames = struct.key.map(function(key) {
                         return key.name;
                     });
                     var isSorted = false;
-                    for (var i = 0; i < value.key.length; i++) {
-                        if (value.key[i].ordering ===
+                    for (var i = 0; i < struct.key.length; i++) {
+                        if (struct.key[i].ordering ===
                             XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending] ||
-                            value.key[i].ordering ===
+                            struct.key[i].ordering ===
                             XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
                             isSorted = true;
                             break;
@@ -1834,9 +1834,9 @@ window.DagDraw = (function($, DagDraw) {
                     } else if (isSorted) {
                         info.taggedType = "sort";
                         info.subType = SQLOps.Sort;
-                        info.order = value.key[0].ordering.toLowerCase();
+                        info.order = struct.key[0].ordering.toLowerCase();
                         var order = "(" + info.order + ") ";
-                        var keyNameStrs = value.key.map(function(key) {
+                        var keyNameStrs = struct.key.map(function(key) {
                             return key.ordering.toLowerCase() + " on " + key.name;
                         });
                         info.tooltip = "Sorted " + xcHelper.escapeHTMLSpecialChar(
@@ -1854,10 +1854,10 @@ window.DagDraw = (function($, DagDraw) {
                     }
                     break;
                 case ('joinInput'):
-                    info = getJoinInfo(info, node, value, parentNames, isCollapsedTag);
+                    info = getJoinInfo(info, node, struct, parentNames, isCollapsedTag);
                     break;
                 case ('mapInput'):
-                    var evalStrs = value.eval;
+                    var evalStrs = struct.eval;
                     var fieldNames = "New fields: ";
                     evalStr = "";
                     for (var i = 0; i < evalStrs.length; i++) {
@@ -1873,8 +1873,8 @@ window.DagDraw = (function($, DagDraw) {
                                                 evalStr.lastIndexOf(')'));
                     break;
                 case ('projectInput'):
-                    for (var i = 0; i < value.columns.length; i++) {
-                        info.opText += value.columns[i] + ", ";
+                    for (var i = 0; i < struct.columns.length; i++) {
+                        info.opText += struct.columns[i] + ", ";
                     }
 
                     info.opText = info.opText.slice(0, info.opText.length - 2);
@@ -1886,13 +1886,18 @@ window.DagDraw = (function($, DagDraw) {
                     break;
                 case ('exportInput'):
                     // XXX fix url
-                    info.url = value.fileName || "";
+                    info.url = struct.fileName || "";
                     info.opText = "";
-                    info.altName = value.dest;
+                    info.altName = struct.dest;
                     break;
                 case ('unionInput'):
+                    var unionType = UnionTypeTStr[UnionOperatorT[xcHelper.capitalize(struct.unionType)]];
+                    if (!struct.dedup) {
+                        unionType += " All";
+                    }
+                    info.text = unionType;
                     node.value.indexedFields = getUnionSrcCols(node, isCollapsedTag);
-                    info.tooltip = generateUnionTooltip(parentNames, node.value.indexedFields);
+                    info.tooltip = generateUnionTooltip(parentNames, node.value.indexedFields, unionType);
                     break;
                 default:
                     var name;
@@ -1928,7 +1933,7 @@ window.DagDraw = (function($, DagDraw) {
         return (info);
     }
 
-    function setTaggedOpInfo(info, value, node, parentNames) {
+    function setTaggedOpInfo(info, struct, node, parentNames) {
         var taggedOp = getOpFromTag(node.value.tags[0]);
         var opFound = true;
         var evalStr;
@@ -1937,7 +1942,7 @@ window.DagDraw = (function($, DagDraw) {
 
         switch (taggedOp) {
             case (SQLOps.SplitCol):
-                evalStr = value.eval[0].evalString;
+                evalStr = struct.eval[0].evalString;
                 info.text = "Split Column";
                 info.opText = evalStr.slice(evalStr.indexOf('(') + 1,
                                             evalStr.indexOf(','));
@@ -1949,9 +1954,9 @@ window.DagDraw = (function($, DagDraw) {
                                 delimiter;
                 break;
             case (SQLOps.ChangeType):
-                evalStr = value.eval[0].evalString;
+                evalStr = struct.eval[0].evalString;
                 info.text = "Change Type";
-                if (value.eval.length > 1) {
+                if (struct.eval.length > 1) {
                     // multiple casts, show general info
                     info.tooltip = "Changed column type of multiple columns";
                     info.opText = "multiple columns";
@@ -2025,20 +2030,25 @@ window.DagDraw = (function($, DagDraw) {
                         var ancestor = ancestors[i];
                         if (ancestor.value.api === XcalarApisT.XcalarApiJoin) {
                             node = ancestor;
-                            value = node.value.struct;
+                            struct = node.value.struct;
                             break;
                         }
                     }
                 }
-                info = getJoinInfo(info, node, value, parentNames, true,
+                info = getJoinInfo(info, node, struct, parentNames, true,
                                     joinSubType);
                 break;
             case (SQLOps.Union):
+                var unionType = UnionTypeTStr[UnionOperatorT[xcHelper.capitalize(struct.unionType)]];
+                if (!struct.dedup) {
+                    unionType += " All";
+                }
+                info.text = unionType;
                 node.value.indexedFields = getUnionSrcCols(node, true);
-                info.tooltip = generateUnionTooltip(parentNames, node.value.indexedFields);
+                info.tooltip = generateUnionTooltip(parentNames, node.value.indexedFields, unionType);
                 break;
             case ("ExecuteSQL"):
-                info.tooltip = xcHelper.escapeHTMLSpecialChar(node.value.comment);
+                info.tooltip = xcHelper.escapeHTMLSpecialChar(node.value.comment.userComment);
                 info.text = "SQL";
                 info.opText = info.tooltip;
                 info.subType = "ExecuteSQL";
@@ -2066,7 +2076,7 @@ window.DagDraw = (function($, DagDraw) {
         }
     }
 
-    function generateUnionTooltip(parentNames, fields) {
+    function generateUnionTooltip(parentNames, fields, unionType) {
         var columns = "";
         for (var i = 0; i < fields[0].length; i++) {
             if (i > 0) {
@@ -2079,7 +2089,7 @@ window.DagDraw = (function($, DagDraw) {
                 columns += fields[j][i];
             }
         }
-        var tooltip = "Union between tables: <br>" +
+        var tooltip = unionType + " between tables: <br>" +
                 xcHelper.escapeHTMLSpecialChar(parentNames.join(", ")) +
                 "<br>Columns : " + xcHelper.escapeHTMLSpecialChar(columns);
         return tooltip;

@@ -277,7 +277,7 @@
             XIApi.query(txId, queryName, query)
             .then(function() {
                 if (!isSqlMode) {
-                    XcalarCommentDagNodes(sqlQueryString, [tableName]);
+                    DagFunction.commentDagNodes([tableName], sqlQueryString);
                     return self._refreshTable(txId, tableName, allCols);
                 }
             })

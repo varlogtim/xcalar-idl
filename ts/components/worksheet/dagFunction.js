@@ -206,7 +206,7 @@ window.DagFunction = (function($, DagFunction) {
                 }
             }
             var tag = nodes[i].tag;
-            var comment = nodes[i].comment;
+            var comment = parseUserComment(nodes[i].comment);
             var state = nodes[i].state;
             var values = {
                 api: nodes[i].api,
@@ -605,6 +605,33 @@ window.DagFunction = (function($, DagFunction) {
         return deferred.promise();
     };
 
+    function parseUserComment(comment) {
+        var commentObj;
+        try {
+            commentObj = JSON.parse(comment);
+            if (typeof commentObj !== "object") {
+                commentObj = {
+                    userComment: commentObj,
+                    meta: {}
+                };
+            }
+        } catch (e) {
+            commentObj = {
+                userComment: comment || "",
+                meta: {}
+            };
+        }
+        return commentObj;
+    };
+
+    DagFunction.commentDagNodes = function(tableNames, userComment, meta) {
+        var commentObj = {
+            userComment: userComment || "",
+            meta: meta || {}
+        };
+        return XcalarCommentDagNodes(JSON.stringify(commentObj), tableNames);
+    };
+
     // will always resolve
     // get indexed tables that were used but not logged in a transaction
     // and append tagName
@@ -935,7 +962,7 @@ window.DagFunction = (function($, DagFunction) {
 
         var commentsToNamesMap = {};
         for (var i = 0; i < treeNodesToRerun.length; i++) {
-            var comment = treeNodesToRerun[i].value.comment;
+            var comment = modifyCommentsForEdit(treeNodesToRerun[i]);
             if (comment) {
                 if (!commentsToNamesMap[comment]) {
                     commentsToNamesMap[comment] = [];
@@ -1258,6 +1285,11 @@ window.DagFunction = (function($, DagFunction) {
         .always(deferred.resolve);
 
         return deferred.promise();
+    }
+
+    function modifyCommentsForEdit(node) {
+        var comment = node.value.comment;
+        return JSON.stringify(comment);
     }
 
     // nameToTagsMap {newTableName: [tag#oldId, otherTag#oldId2]}

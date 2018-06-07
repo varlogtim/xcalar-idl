@@ -294,7 +294,8 @@ window.DagEdit = (function($, DagEdit) {
             curEdit.structs[curEdit.editingNode.value.name] = {
                 columns: info.args.columns,
                 dedup: info.args.dedup,
-                source: info.args.source
+                source: info.args.source,
+                unionType: info.args.unionType
             };
         } else if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiAggregate) {
             curEdit.structs[curEdit.editingNode.value.name] = info.args;
@@ -340,15 +341,15 @@ window.DagEdit = (function($, DagEdit) {
 
         XIApi.union(txId, tableInfos, dedup, newTableName, unionType)
         .then(function(nTableName, nTableCols) {
-            var query = Transaction.done(txId, {
+            var queryStr = Transaction.done(txId, {
                 "noNotification": true,
                 "noSql": true
             });
 
-            if (query[query.length - 1] === ",") {
-                query = query.slice(0, -1);
+            if (queryStr[queryStr.length - 1] === ",") {
+                queryStr = queryStr.slice(0, -1);
             }
-            query = JSON.parse("[" + query + "]");
+            var query = JSON.parse("[" + queryStr + "]");
 
             if (query.length > 1) {
                 if (!curEdit.insertedNodes[curEdit.editingNode.value.name]) {
@@ -740,6 +741,7 @@ window.DagEdit = (function($, DagEdit) {
 
                 prefillInfo = {
                     "dedup": struct.dedup,
+                    "type": node.value.comment.meta.unionType,
                     "sourceTables": sourceTableNames,
                     "dest": xcHelper.getTableName(origStruct.dest), // XXX allow changing
                     "isDroppedTable": isDroppedTable,

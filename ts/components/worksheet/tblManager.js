@@ -2739,7 +2739,7 @@ window.TblManager = (function($, TblManager) {
                 xcTooltip.add($lis, {
                     title: ColTStr.NoOperateGeneral
                 });
-            } else if (colType === ColumnType.undefined) {
+            }  else if (colType === ColumnType.undefined) {
                 $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
                         ".join, .operations, .profile, .corrAgg, " +
                         ".extensions, .format, .roundToFixed, " +

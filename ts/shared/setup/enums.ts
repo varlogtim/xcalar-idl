@@ -354,6 +354,12 @@ enum JoinCompoundOperatorTStr {
     ExistenceJoin = "Existence Join",
 }
 
+enum UnionTypeTStr {
+    "Union",
+    "Intersect",
+    "Except"
+}
+
 if (typeof global !== 'undefined') {
     global.RowDirection = RowDirection;
     global.WSTableType = WSTableType;
