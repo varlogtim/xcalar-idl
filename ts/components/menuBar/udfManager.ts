@@ -380,7 +380,16 @@ class UDFManager {
     }
 
     public setDFUDFs = function(udfs) {
-        this._dfUDFs = udfs;
+        this._dfUDFs = udfs.filter((udf) => {
+            try {
+                // name like module#tablename#id is generated
+                // when running a df and is ephmeral
+                const udfName: string = udf.split("/")[4];
+                return udfName.indexOf('#') < 0;
+            } catch (e) {
+                return true; // treat as a valid udf
+            }
+        });
     }
 
     public update(): void {
