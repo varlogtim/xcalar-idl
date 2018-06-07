@@ -646,9 +646,12 @@ window.WorkbookPanel = (function($, WorkbookPanel) {
                 });
             }
         } else {
-            WorkbookManager.switchWKBK(workbookId, true, $workbookBox)
-            .fail(function(error) {
-                handleError(error, $workbookBox);
+            alertActivate(workbookId, activeWKBKId)
+            .then(function() {
+                WorkbookManager.switchWKBK(workbookId, true, $workbookBox)
+                .fail(function(error) {
+                    handleError(error, $workbookBox);
+                });
             });
         }
     }
