@@ -1125,8 +1125,8 @@
             var promise;
             if (isJsonPlan) {
                 promise = PromiseHelper.resolve(sqlQueryString);
-            } else if (cached) {
-                promise = PromiseHelper.resolve(cached, true);
+            // } else if (cached) {
+            //     promise = PromiseHelper.resolve(cached, true);
             } else {
                 promise = sendPost({"sqlQuery": sqlQueryString});
             }
