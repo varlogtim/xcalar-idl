@@ -951,8 +951,7 @@ window.DagFunction = (function($, DagFunction) {
             var tags = treeNodesToRerun[i].value.tags;
             if (tags.length === 1) {
                 if (paramNodes.indexOf(treeNodesToRerun[i].value.name) > -1 &&
-                    (xcHelper.getTableName(tags[0]) === SQLOps.SplitCol ||
-                    xcHelper.getTableName(tags[0]) === SQLOps.ChangeType)) {
+                showSkipTag(tags[0])) {
                     // if node is splitcol or changetype and is edited, do not keep tag
                     continue;
                 }
@@ -1624,6 +1623,12 @@ window.DagFunction = (function($, DagFunction) {
         }
     }
 
+    function showSkipTag(tag) {
+        var op = xcHelper.getTableName(tag);
+        return (op === SQLOps.SplitCol ||
+                op === SQLOps.ChangeType ||
+                op === SQLOps.Round);
+    }
 
     /* Unit Test Only */
     if (window.unitTestMode) {

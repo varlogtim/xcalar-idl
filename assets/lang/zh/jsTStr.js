@@ -1196,7 +1196,6 @@ SQLTStr = {
     "ResizeCols": "Resize Columns",
     "ResizeRow": "Resize Row",
     "RevertTable": "Revert Table",
-    "RoundToFixed": "Round To Fixed",
     "SortTableCols": "Sort Table Columns",
     "TextAlign": "Text Align",
     "UnHideWS": "Unhide Worksheet",

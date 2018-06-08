@@ -704,7 +704,6 @@ declare class ProgCol {
     public getFrontColName(includePrefix: boolean): string;
     public isKnownType(): boolean;
     public getFormat(): string;
-    public getDecimal(): number;
     public getType(): ColumnType;
     public getBackColName(): string;
 }

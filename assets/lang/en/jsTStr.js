@@ -33,6 +33,8 @@ StatusMessageTStr = {
     'SplitColumnFailed': 'Split column failed',
     'ChangeType': 'Changing data type',
     'ChangeTypeFailed': 'Change to data type failed',
+    'Round': 'Round',
+    'RoundFailed': 'Round failed',
     'OnColumn': 'on column',
     'Sort': 'Sorting column',
     'SortFailed': 'Sort column failed',
@@ -1474,7 +1476,6 @@ SQLTStr = {
     "ResizeCols": "Resize Columns",
     "ResizeRow": "Resize Row",
     "RevertTable": "Revert Table",
-    "RoundToFixed": "Round To Fixed",
     "SortTableCols": "Sort Table Columns",
     "TextAlign": "Text Align",
     "UnHideWS": "Unhide Worksheet"

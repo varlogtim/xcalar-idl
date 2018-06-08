@@ -575,42 +575,10 @@ window.TblMenu = (function(TblMenu, $) {
 
             var tableId = $colMenu.data('tableId');
             var colNums = $colMenu.data('colNums');
-            var decimals = getDecimals(tableId, decimal, colNums);
 
-            ColManager.roundToFixed(colNums, tableId, decimals);
+            ColManager.round(colNums, tableId, decimal);
             xcMenu.close($allMenus);
         });
-
-        $subMenu.on('mouseup', '.changeRound.default', function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-            // chagne round to default value
-            var tableId = $colMenu.data('tableId');
-            var colNums = $colMenu.data('colNums');
-            var decimals = getDecimals(tableId, -1, colNums);
-
-            ColManager.roundToFixed(colNums, tableId, decimals);
-        });
-
-        function getDecimals(tableId, decimal, colNums) {
-            var decimals = [];
-            var table = gTables[tableId];
-
-            for (var i = 0; i < colNums.length; i++) {
-                var colNum = colNums[i];
-                var progCol = table.getCol(colNum);
-                if (progCol.getType() === ColumnType.float) {
-                    decimals.push(decimal);
-                } else {
-                    // remove columns that are not floats
-                    colNums.splice(i, 1);
-                    i--;
-                }
-            }
-
-            return decimals;
-        }
 
         $subMenu.on('keypress', '.splitCol input', function(event) {
             if (event.which === keyCode.Enter) {

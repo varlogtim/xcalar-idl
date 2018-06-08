@@ -619,7 +619,7 @@ window.ColManager = (function($, ColManager) {
             colNames.push(progCol.getFrontColName(true));
 
             progCol.setFormat(format);
-            updateFormatAndDecimal(tableId, colNum);
+            updateColumnFormat(tableId, colNum);
         });
 
         if (!filteredColNums.length) {
@@ -638,32 +638,115 @@ window.ColManager = (function($, ColManager) {
         });
     };
 
-    ColManager.roundToFixed = function(colNums, tableId, decimals) {
+    ColManager.round = function(colNums, tableId, decimal) {
+        var deferred = PromiseHelper.deferred();
+        var worksheet = WSManager.getWSFromTable(tableId);
         var table = gTables[tableId];
-        var prevDecimals = [];
-        var colNames = [];
+        var tableName = table.getName();
+        
+        var mapStrs = [];
+        var oldNames = [];
+        var fieldNames = [];
+        var newTablCols = table.tableCols;
+        var validColNums = [];
+        var newTableName;
+        var usedName = {};
 
-        colNums.forEach(function(colNum, i) {
+        colNums.forEach(function(colNum) {
             var progCol = table.getCol(colNum);
-            var newDecimal = decimals[i];
+            if (progCol.getType() !== ColumnType.float) {
+                return true; // continue loop
+            }
 
-            prevDecimals.push(progCol.getDecimal());
-            colNames.push(progCol.getFrontColName(true));
-            progCol.setDecimal(newDecimal);
+            var frontName = progCol.getFrontColName();
+            var backName = progCol.getBackColName();
 
-            updateFormatAndDecimal(tableId, colNum);
+            var mapStr = 'round(' + backName + ', ' + decimal + ')';
+
+            // Note: it's intended to overwrite the column
+            var fieldName = xcHelper.stripColName(frontName);
+            fieldName = xcHelper.getUniqColName(tableId, fieldName, false,
+                                                usedName, colNum);
+            usedName[fieldName] = true;
+            mapStrs.push(mapStr);
+            fieldNames.push(fieldName);
+            oldNames.push(backName);
+            validColNums.push(colNum);
+
+            var mapOptions = {
+                "replaceColumn": true,
+                "resize": true,
+                "type": progCol.getType()
+            };
+            newTablCols = xcHelper.mapColGenerate(colNum, fieldName, mapStr,
+                                                  newTablCols, mapOptions);
         });
 
-        Log.add(SQLTStr.RoundToFixed, {
-            "operation": SQLOps.RoundToFixed,
-            "tableName": table.getName(),
+        if (validColNums.length === 0) {
+            // no col to filter
+            return PromiseHelper.resolve(tableId);
+        }
+
+        var sql = {
+            "operation": SQLOps.Round,
+            "tableName": tableName,
             "tableId": tableId,
-            "colNames": colNames,
-            "colNums": colNums,
-            "decimals": decimals,
-            "prevDecimals": prevDecimals,
-            "htmlExclude": ["prevDecimals"]
+            "colNums": validColNums,
+            "decimal": decimal,
+        };
+
+        var txId = Transaction.start({
+            "msg": StatusMessageTStr.Round,
+            "operation": SQLOps.Round,
+            "sql": sql,
+            "track": true
         });
+
+        xcHelper.lockTable(tableId, txId);
+
+        XIApi.map(txId, mapStrs, tableName, fieldNames)
+        .then(function(tableAfterMap) {
+            newTableName = tableAfterMap;
+            sql.newTableName = newTableName;
+
+            var options = {"selectCol": validColNums};
+            return TblManager.refreshTable([newTableName], newTablCols,
+                                        [tableName], worksheet, txId, options);
+        })
+        .then(function() {
+            var newTableId = xcHelper.getTableId(newTableName);
+            // map do not change stats of the table
+            Profile.copy(tableId, newTableId);
+            // because the name can dup when change type,
+            // need to remove old profile meta
+            var profilInfo = Profile.getCache()[newTableId];
+            if (profilInfo != null) {
+                fieldNames.forEach(function(newColName, index) {
+                    if (newColName === oldNames[index]) {
+                        delete profilInfo[newColName];
+                    }
+                });
+            }
+
+            xcHelper.unlockTable(tableId);
+            Transaction.done(txId, {
+                "msgTable": newTableId,
+                "sql": sql
+            });
+            deferred.resolve(newTableId);
+        })
+        .fail(function(error) {
+            xcHelper.unlockTable(tableId);
+
+            Transaction.fail(txId, {
+                "failMsg": StatusMessageTStr.RoundFailed,
+                "error": error,
+                "sql": sql
+            });
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
     };
 
     // currently only being used by drag and drop (and undo/redo)
@@ -1506,13 +1589,12 @@ window.ColManager = (function($, ColManager) {
         // formatting
         var parsedVal = xcHelper.parseJsonValue(tdValue, knf);
         var formatVal = parsedVal;
-        var decimal = progCol.getDecimal();
         var format = progCol.getFormat();
 
-        if (!knf && tdValue != null && (decimal > -1 ||
-            format !== ColFormat.Default && typeof parsedVal !== "string"))
+        if (!knf && tdValue != null && (format !== ColFormat.Default &&
+            typeof parsedVal !== "string"))
         {
-            formatVal = formatColumnCell(parsedVal, format, decimal);
+            formatVal = formatColumnCell(parsedVal, format);
         }
 
         var limit = isDATACol ? truncLimit : colTruncLimit;
@@ -2152,11 +2234,10 @@ window.ColManager = (function($, ColManager) {
         }
     }
 
-    function updateFormatAndDecimal(tableId, colNum) {
+    function updateColumnFormat(tableId, colNum) {
         var $table = $("#xcTable-" + tableId);
         var progCol = gTables[tableId].getCol(colNum);
         var format = progCol.getFormat();
-        var decimal = progCol.getDecimal();
         var isMixed = progCol.getType() === ColumnType.mixed;
 
         $table.find("td.col" + colNum).each(function() {
@@ -2173,7 +2254,7 @@ window.ColManager = (function($, ColManager) {
             if (oldVal != null && !$td.find(".undefined").length &&
                 !$td.find(".null").length) {
                 // not knf
-                var newVal = formatColumnCell(oldVal, format, decimal);
+                var newVal = formatColumnCell(oldVal, format);
                 $td.children(".displayedData").text(newVal);
             }
         });
@@ -2181,26 +2262,14 @@ window.ColManager = (function($, ColManager) {
 
     /*
     *@property {string} val: Text that would be in a table td
-    *@property {string} format: "percent" or null which defaults to decimal rounding
-    *@property {integer} decimal: Number of decimal places to show, -1 for default
+    *@property {string} format: "percent" or null
     */
-    function formatColumnCell(val, format, decimal) {
+    function formatColumnCell(val, format) {
         var cachedVal = val;
         val = parseFloat(val);
 
         if (isNaN(val)) {
             return cachedVal;
-        }
-
-        // round it first
-        var pow;
-        if (decimal > -1) {
-            if (format === ColFormat.Percent) {
-                pow = Math.pow(10, decimal + 2);
-            } else {
-                pow = Math.pow(10, decimal);
-            }
-            val = Math.round(val * pow) / pow;
         }
 
         switch (format) {
@@ -2209,35 +2278,19 @@ window.ColManager = (function($, ColManager) {
                 // so must round it
                 var newVal = val * 100;
                 var decimalPartLen;
-
-                if (decimal === -1) {
-                    // when no roundToFixed
-                    var decimalPart = (val + "").split(".")[1];
-                    if (decimalPart != null) {
-                        decimalPartLen = decimalPart.length;
-                        pow = Math.pow(10, decimalPartLen);
-                    } else {
-                        pow = 1;
-                    }
-                } else {
-                    // when has roundToFixed
-                    decimalPartLen = decimal;
+                var pow;
+                var decimalPart = (val + "").split(".")[1];
+                if (decimalPart != null) {
+                    decimalPartLen = decimalPart.length;
                     pow = Math.pow(10, decimalPartLen);
+                } else {
+                    pow = 1;
                 }
 
                 newVal = Math.round(newVal * pow) / pow;
-
-                if (decimal > -1) {
-                    // when has roundToFixed, need to fix the decimal digits
-                    newVal = newVal.toFixed(decimalPartLen);
-                }
                 return newVal + "%";
             default:
-                if (decimal > -1) {
-                    val = val.toFixed(decimal);
-                } else {
-                    val = val + ""; // change to type string
-                }
+                val = val + ""; // change to type string
                 return val;
         }
     }

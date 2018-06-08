@@ -442,7 +442,7 @@ window.Replay = (function($, Replay) {
                                     "delimiter", "numColToGet"];
         argsMap[SQLOps.ChangeType] = ["colTypeInfos", "tableId"];
         argsMap[SQLOps.ChangeFormat] = ["colNums", "tableId", "formats"];
-        argsMap[SQLOps.RoundToFixed] = ["colNums", "tableId", "decimals"];
+        argsMap[SQLOps.Round] = ["colNums", "tableId", "decimal"];
         argsMap[SQLOps.Ext] = ["tableId", "module", "func", "args", "options"];
         argsMap[SQLOps.MarkPrefix] = ["prefix", "newColor"];
     }
@@ -1319,9 +1319,9 @@ window.Replay = (function($, Replay) {
         return PromiseHelper.resolve(null);
     };
 
-    replayFuncs[SQLOps.RoundToFixed] = function(options) {
+    replayFuncs[SQLOps.Round] = function(options) {
         var args = getArgs(options);
-        ColManager.roundToFixed.apply(window, args);
+        ColManager.round.apply(window, args);
         return PromiseHelper.resolve(null);
     };
 

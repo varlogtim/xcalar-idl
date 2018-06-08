@@ -646,11 +646,16 @@ window.Undo = (function($, Undo) {
         return PromiseHelper.resolve(null);
     };
 
-    undoFuncs[SQLOps.RoundToFixed] = function(options) {
-        focusTableHelper(options);
-        ColManager.roundToFixed(options.colNums, options.tableId,
-                                options.prevDecimals);
-        return PromiseHelper.resolve(null);
+    undoFuncs[SQLOps.Round] = function(options) {
+        var newTableId = xcHelper.getTableId(options.newTableName);
+        var worksheet = WSManager.getWSFromTable(newTableId);
+        var refreshOptions = {
+            isUndo: true,
+            replacingDest: TableType.Undone
+        };
+        return TblManager.refreshTable([options.tableName], null,
+                                       [options.newTableName],
+                                       worksheet, null, refreshOptions);
     };
     /* END USER STYLING/FORMATING OPERATIONS */
 

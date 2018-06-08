@@ -1239,14 +1239,6 @@
                 }
             },
 
-            getDecimal: function() {
-                return this.decimal;
-            },
-
-            setDecimal: function(decimal) {
-                this.decimal = decimal;
-            },
-
             minimize: function() {
                 this.isMinimized = true;
             },

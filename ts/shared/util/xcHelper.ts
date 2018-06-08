@@ -5261,8 +5261,7 @@ namespace xcHelper {
         }
 
         if (!options.isMultiCol &&
-            (tableCol.getFormat() !== ColFormat.Default ||
-            tableCol.getDecimal() > -1)
+            (tableCol.getFormat() !== ColFormat.Default)
         ) {
             $tdFilter.addClass("preFormatted");
             $tdExclude.addClass("preFormatted");

@@ -1059,12 +1059,12 @@ describe('TableMenu Test', function() {
             });
 
             it('digitsToRound', function() {
-                var cachedFunc = ColManager.roundToFixed;
+                var cachedFunc = ColManager.round;
                 var called = false;
-                ColManager.roundToFixed = function(colNums, tId, decimals) {
+                ColManager.round = function(colNums, tId, decimal) {
                     expect(colNums[0]).to.equal(1);
                     expect(tId).to.equal(tableId);
-                    expect(decimals[0]).to.equal(3);
+                    expect(decimal).to.equal(3);
                     called = true;
                 };
 
@@ -1080,13 +1080,13 @@ describe('TableMenu Test', function() {
                 $colSubMenu.find('.digitsToRound').eq(0).trigger(fakeEvent.enter);
                 expect(called).to.be.true;
 
-                ColManager.roundToFixed = cachedFunc;
+                ColManager.round = cachedFunc;
             });
 
             it('digitsToRound invalid', function() {
-                var cachedFunc = ColManager.roundToFixed;
+                var cachedFunc = ColManager.round;
                 var called = false;
-                ColManager.roundToFixed = function() {
+                ColManager.round = function() {
                     called = true;
                 };
 
@@ -1097,26 +1097,7 @@ describe('TableMenu Test', function() {
 
                 UnitTest.hasStatusBoxWithError("Please enter a value between 0 and 14.");
 
-                ColManager.roundToFixed = cachedFunc;
-            });
-
-            it('changeRound.default', function() {
-                var cachedFunc = ColManager.roundToFixed;
-                var called = false;
-                ColManager.roundToFixed = function(colNums, tId, decimals) {
-                    expect(colNums[0]).to.equal(1);
-                    expect(tId).to.equal(tableId);
-                    expect(decimals[0]).to.equal(-1);
-                    called = true;
-                };
-
-                $colSubMenu.find('.changeRound.default').eq(0).trigger(rightMouseup);
-                expect(called).to.be.false;
-
-                $colSubMenu.find('.changeRound.default').eq(0).trigger(fakeEvent.mouseup);
-                expect(called).to.be.true;
-
-                ColManager.roundToFixed = cachedFunc;
+                ColManager.round = cachedFunc;
             });
 
             it('splitCol input', function() {
@@ -1396,25 +1377,6 @@ describe('TableMenu Test', function() {
                 expect(called).to.be.true;
 
                 ColManager.maximizeCols = cachedFunc;
-            });
-
-            it('changeRound.default', function() {
-                var cachedFunc = ColManager.roundToFixed;
-                var called = false;
-                ColManager.roundToFixed = function(colNums, tId, decimals) {
-                    expect(colNums.length).to.equal(0);
-                    expect(tId).to.equal(tableId);
-                    expect(decimals.length).to.equal(0);
-                    called = true;
-                };
-
-                $colSubMenu.find('.changeRound.default').eq(0).trigger(rightMouseup);
-                expect(called).to.be.false;
-
-                $colSubMenu.find('.changeRound.default').eq(0).trigger(fakeEvent.mouseup);
-                expect(called).to.be.true;
-
-                ColManager.roundToFixed = cachedFunc;
             });
         });
     });

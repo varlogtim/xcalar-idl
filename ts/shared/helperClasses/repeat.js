@@ -180,23 +180,8 @@ window.Repeat = (function($, Repeat) {
         return PromiseHelper.resolve(null);
     };
 
-    repeatFuncs[SQLOps.RoundToFixed] = function(options, colNums, tableId) {
-        var decimals = xcHelper.deepCopy(options.decimals);
-        var table = gTables[tableId];
-        for (var i = 0; i < colNums.length; i++) {
-            var colNum = colNums[i];
-            var progCol = table.getCol(colNum);
-            if (progCol.getType() !== ColumnType.float) {
-                colNums.splice(i, 1);
-                decimals.splice(i, 1);
-                i--;
-            }
-        }
-        if (colNums.length) {
-            ColManager.roundToFixed(colNums, tableId, decimals);
-        }
-
-        return PromiseHelper.resolve(null);
+    repeatFuncs[SQLOps.Round] = function(options, colNums, tableId) {
+        return ColManager.round(colNums, tableId, options.decimal);
     };
 
     /* END USER STYLING/FORMATING OPERATIONS */

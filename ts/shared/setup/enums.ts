@@ -294,7 +294,7 @@ enum SQLOps {
     SplitCol = "splitCol",
     ChangeType = "changeType",
     ChangeFormat = "changeFormat",
-    RoundToFixed = "roundToFixed",
+    Round = "round",
     Finalize = "finalizeTable",
     Ext = "extension",
     MarkPrefix = "markPrefix",

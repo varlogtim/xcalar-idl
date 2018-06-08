@@ -810,6 +810,7 @@ window.Log = (function($, Log) {
             case SQLOps.Corr:
             case SQLOps.Aggr:
             case SQLOps.DeleteAgg:
+            case "roundToFixed": // this is a deprecated op in Chronos Patch Set 1
                 return UndoType.Skip;
             default:
                 return UndoType.Valid;
@@ -1295,7 +1296,6 @@ window.Log = (function($, Log) {
             // case (SQLOps.DSDropBack):
             // case (SQLOps.DelFolder):
             case (SQLOps.ChangeFormat):
-            case (SQLOps.RoundToFixed):
             case (SQLOps.MarkPrefix):
                 return false;
             // thrift operation
@@ -1320,6 +1320,7 @@ window.Log = (function($, Log) {
             case (SQLOps.Corr):
             case (SQLOps.SplitCol):
             case (SQLOps.ChangeType):
+            case (SQLOps.Round):
             case (SQLOps.Profile):
             case (SQLOps.ProfileSort):
             case (SQLOps.ProfileBucketing):

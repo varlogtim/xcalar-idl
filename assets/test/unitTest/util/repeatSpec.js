@@ -365,21 +365,38 @@ describe("Repeat Test", function() {
             });
         });
 
-        it("round to fixed should work", function(done) {
-            ColManager.roundToFixed([1], tableId, [4]);
+        it("round should work", function(done) {
+            var cachedMapFn = XIApi.map;
+            var cachedRefreshFn = TblManager.refreshTable;
+            var mapCalled = false;
+            XIApi.map = function() {
+                mapCalled = true;
+                return PromiseHelper.resolve();
+            };
 
-            TblManager.highlightColumn($table.find("th.col1"));
+            TblManager.refreshTable = function() {
+                return PromiseHelper.resolve();
+            };
 
-            Log.repeat()
+            ColManager.round([1], tableId, 4)
+            .then(function() {
+                mapCalled = false;
+                TblManager.highlightColumn($table.find("th.col4"));
+                return Log.repeat();
+            })
             .then(function() {
                 var lastLog = Log.viewLastAction(true);
-                expect(lastLog.title).to.equal("Round To Fixed");
+                expect(lastLog.title).to.equal("Round");
                 expect(lastLog.options.colNums[0]).to.equal(1);
-                expect(lastLog.options.decimals[0]).to.equal(4);
+                expect(lastLog.options.decimal).to.equal(4);
                 done();
             })
             .fail(function() {
                 done("failed");
+            })
+            .always(function() {
+                XIApi.map = cachedMapFn;
+                TblManager.refreshTable = cachedRefreshFn ;
             });
         });
     });

@@ -1626,6 +1626,9 @@ window.DagDraw = (function($, DagDraw) {
             case (SQLOps.ChangeType):
                 iconClass = getCastIconClass(type);
                 break;
+            case (SQLOps.Round):
+                iconClass = "integer";
+                break;
             case (SQLOps.Filter):
                 iconClass = getFilterIconClass(type);
                 break;
@@ -1976,11 +1979,8 @@ window.DagDraw = (function($, DagDraw) {
             case (SQLOps.SplitCol):
                 evalStr = struct.eval[0].evalString;
                 info.text = "Split Column";
-                info.opText = evalStr.slice(evalStr.indexOf('(') + 1,
-                                            evalStr.indexOf(','));
-                var delimiter = xcHelper.escapeHTMLSpecialChar($.trim(evalStr.slice(
-                                              evalStr.lastIndexOf(",") + 1,
-                                              evalStr.lastIndexOf(")"))));
+                info.opText = getFirstArgFromEvalStr(evalStr);
+                var delimiter = xcHelper.escapeHTMLSpecialChar(getSecondArgFromEvalStr(evalStr));
                 info.tooltip = "Split column " +
                                 xcHelper.escapeHTMLSpecialChar(info.opText) + " by " +
                                 delimiter;
@@ -1994,8 +1994,7 @@ window.DagDraw = (function($, DagDraw) {
                     info.opText = "multiple columns";
                 } else {
                     // only 1 cast so show specific info
-                    info.opText = evalStr.slice(evalStr.indexOf("(") + 1,
-                                            evalStr.indexOf(","));
+                    info.opText = getFirstArgFromEvalStr(evalStr);
                     var castType = evalStr.slice(0, evalStr.indexOf("("));
                     if (castType === "bool") {
                         castType = "boolean";
@@ -2006,6 +2005,24 @@ window.DagDraw = (function($, DagDraw) {
                                     xcHelper.escapeHTMLSpecialChar(info.opText) +
                                     " type to " + castType;
                     info.subType = opType + "-" + castType;
+                }
+                break;
+            case (SQLOps.Round):
+                evalStr = struct.eval[0].evalString;
+                info.text = "Round";
+                if (struct.eval.length > 1) {
+                    // multiple casts, show general info
+                    info.tooltip = "Rounded multiple columns";
+                    info.opText = "multiple columns";
+                } else {
+                    // only 1 cast so show specific info
+                    info.opText = getFirstArgFromEvalStr(evalStr);
+                    var decimal = xcHelper.escapeHTMLSpecialChar(getSecondArgFromEvalStr(evalStr));
+                    var decimalText = parseInt(decimal) > 1 ?
+                    "decimal places" : "decimal place";
+                    info.tooltip = "Round column " +
+                                    xcHelper.escapeHTMLSpecialChar(info.opText) +
+                                    " to " + decimal + " " + decimalText;
                 }
                 break;
             case (SQLOps.GroupBy):
@@ -2106,6 +2123,16 @@ window.DagDraw = (function($, DagDraw) {
         } else {
             return null;
         }
+    }
+
+    function getFirstArgFromEvalStr(evalStr) {
+        return evalStr.slice(evalStr.indexOf('(') + 1, evalStr.indexOf(','));
+    }
+
+    function getSecondArgFromEvalStr(evalStr) {
+        return $.trim(evalStr.slice(
+            evalStr.lastIndexOf(",") + 1,
+            evalStr.lastIndexOf(")")));
     }
 
     function generateUnionTooltip(parentNames, fields, unionType) {

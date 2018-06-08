@@ -314,11 +314,11 @@ window.Redo = (function($, Redo) {
         return PromiseHelper.resolve(null);
     };
 
-    redoFuncs[SQLOps.RoundToFixed] = function(options) {
-        focusTableHelper(options);
-        ColManager.roundToFixed(options.colNums, options.tableId,
-                                options.decimals);
-        return PromiseHelper.resolve(null);
+    redoFuncs[SQLOps.Round] = function(options) {
+        var worksheet = WSManager.getWSFromTable(options.tableId);
+        return TblManager.refreshTable([options.newTableName], null,
+                                            [options.tableName],
+                                            worksheet);
     };
 
     /* END USER STYLING/FORMATING OPERATIONS */

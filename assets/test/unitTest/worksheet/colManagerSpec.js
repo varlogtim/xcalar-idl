@@ -285,34 +285,20 @@ describe('ColManager Test', function() {
 
             // always takes a number-like string from an int or float column
 
-            expect(fn('word', 'percent', 3)).to.equal('word');
-            expect(fn('null', 'percent', 3)).to.equal('null');
+            expect(fn('word', 'percent')).to.equal('word');
+            expect(fn('null', 'percent')).to.equal('null');
 
-            expect(fn('word234', 'percent', 3)).to.equal('word234');
-            expect(fn('234word', 'percent', 4)).to.equal('23400.0000%');
+            expect(fn('word234', 'percent')).to.equal('word234');
+            expect(fn('234word', 'percent')).to.equal('23400%');
 
-            expect(fn('123', 'percent', 1)).to.equal('12300.0%');
-            expect(fn('123', 'percent', -1)).to.equal('12300%');
+            expect(fn('123', 'percent')).to.equal('12300%');
 
-            expect(fn('123.567', 'percent', 1)).to.equal('12356.7%');
-            expect(fn('123.567', 'percent', -1)).to.equal('12356.7%');
-            expect(fn('1.23567', 'percent', -1)).to.equal('123.567%');
-            expect(fn('1.23567', 'percent', 2)).to.equal('123.57%');
-            expect(fn('1.23567', 'percent', 3)).to.equal('123.567%');
-            expect(fn('1.23567', 'percent', 0)).to.equal('124%');
+            expect(fn('123.567', 'percent')).to.equal('12356.7%');
+            expect(fn('1.23567', 'percent')).to.equal('123.567%');
 
-            expect(fn('123', 'default', -1)).to.equal('123');
-            expect(fn('123', 'default', 0)).to.equal('123');
-            expect(fn('123', 'default', 3)).to.equal('123.000');
-            expect(fn('123', 'default', 3)).to.equal('123.000');
+            expect(fn('123', 'default')).to.equal('123');
 
-            expect(fn('123.456', 'default', -1)).to.equal('123.456');
-            expect(fn('123.456', 'default', 0)).to.equal('123');
-            expect(fn('123.456', 'default', 1)).to.equal('123.5'); // ceil round
-            expect(fn('123.41', 'default', 1)).to.equal('123.4'); // floor round
-            expect(fn('123.456789', 'default', 2)).to.equal('123.46');// ceil round
-            expect(fn('123.45123', 'default', 2)).to.equal('123.45');// floor round
-            expect(fn('123.456', 'default', 5)).to.equal('123.45600');
+            expect(fn('123.456', 'default')).to.equal('123.456');
         });
 
         it('getTdInfo should work', function() {
@@ -623,28 +609,40 @@ describe('ColManager Test', function() {
             expect(text.endsWith("%")).to.be.false;
         });
 
-        it("Should Round Column", function() {
+        it("should round column", function(done) {
             var table = gTables[tableId];
             var backCol = xcHelper.getPrefixColName(prefix, "average_stars");
             var colNum = table.getColNumByBackName(backCol);
-            var progCol = table.getCol(colNum);
-            expect(progCol).not.to.be.null;
+            var numCols = table.getNumCols();
+            expect(colNum).not.to.equal(-1);
 
-            var $td = $("#xcTable-" + tableId).find("td.col" + colNum).eq(0);
-            var srcText = $td.find(".displayedData").text();
-            // case 1
-            ColManager.roundToFixed([colNum], tableId, [3]);
-            expect(progCol.getDecimal()).to.equal(3);
-            var text = $td.find(".displayedData").text();
-            expect(text).not.to.be.equal(srcText);
-            var index = text.indexOf(".");
-            // has 3 decimals after dot, include dot is 4
-            expect(text.length - index).to.equal(4);
-            // case 2
-            ColManager.roundToFixed([colNum], tableId, [-1]);
-            expect(progCol.getDecimal()).to.equal(-1);
-            text = $td.find(".displayedData").text();
-            expect(text).to.be.equal(srcText);
+            ColManager.round([colNum], tableId, 4)
+            .then(function(newTableId) {
+                var newTable = gTables[newTableId];
+                expect(newTable.getNumCols()).to.equal(numCols);
+                var newCol = newTable.getCol(colNum);
+                expect(newCol).not.to.be.null;
+                expect(newCol.getType()).to.equal(ColumnType.float);
+                expect(newCol.getFrontColName()).to.equal("average_stars");
+
+                done();
+            })
+            .fail(function(error) {
+                done(error);
+            });
+        });
+
+        it("should undo round column", function(done) {
+            Log.undo()
+            .then(function() {
+                var table = gTables[tableId];
+                expect(table.getType()).to.equal(TableType.Active);
+                xcTooltip.hideAll();
+                done();
+            })
+            .fail(function(error) {
+                done(error);
+            });
         });
 
         it("Should Reorder Column", function() {

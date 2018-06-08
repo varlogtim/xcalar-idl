@@ -684,23 +684,6 @@ describe("Persistent Constructor Test", function() {
             expect(progCol.getFormat()).to.equal(ColFormat.Default);
         });
 
-        it("Should get and set decimal", function() {
-            var progCol = new ProgCol({
-                "name": "test",
-                "backName": "backTest",
-                "type": ColumnType.float,
-                "isNewCol": false,
-                "width": 100,
-                "func": {
-                    "name": "pull"
-                }
-            });
-
-            expect(progCol.getDecimal()).to.equal(-1);
-            progCol.setDecimal(2);
-            expect(progCol.getDecimal()).to.equal(2);
-        });
-
         it("Should stringify func", function() {
             var progCol = new ProgCol({
                 "name": "test",
