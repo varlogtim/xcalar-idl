@@ -627,7 +627,6 @@ window.OperationsView = (function($, OperationsView) {
 
         var $aggList = $('.aggregate .functionsList');
         aggFunctionsListScroller = new MenuHelper($aggList, {
-            scrollerOnly: true,
             bounds: '#operationsView',
             bottomPadding: 5
         });
@@ -997,7 +996,6 @@ window.OperationsView = (function($, OperationsView) {
                 $list = $('.groupby .functionsList');
             }
             var functionsListScroller = new MenuHelper($list, {
-                scrollerOnly: true,
                 bounds: '#operationsView',
                 bottomPadding: 5
             });
@@ -1892,7 +1890,6 @@ window.OperationsView = (function($, OperationsView) {
         }
         $activeOpSection.find('.list.hint.new').each(function() {
             var scroller = new MenuHelper($(this), {
-                scrollerOnly: true,
                 bounds: '#operationsView',
                 bottomPadding: 5
             });
@@ -4627,7 +4624,6 @@ window.OperationsView = (function($, OperationsView) {
         var functionsListScroller = new MenuHelper(
             $('.functionsList[data-fnlistnum="' + newGroupIndex + '"]'),
             {
-                scrollerOnly: true,
                 bounds: '#operationsView',
                 bottomPadding: 5
             }
@@ -4693,7 +4689,6 @@ window.OperationsView = (function($, OperationsView) {
         var functionsListScroller = new MenuHelper(
             $('.functionsList[data-fnlistnum="' + newGroupIndex + '"]'),
             {
-                scrollerOnly: true,
                 bounds: '#operationsView',
                 bottomPadding: 5
             }
@@ -4729,7 +4724,6 @@ window.OperationsView = (function($, OperationsView) {
         var argIndex = $ul.closest('.group').find('.list.hint').index($ul);
 
         var scroller = new MenuHelper($ul, {
-            scrollerOnly: true,
             bounds: '#operationsView',
             bottomPadding: 5
         });

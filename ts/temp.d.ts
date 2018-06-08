@@ -11,6 +11,8 @@ type XDDeferred<T> = JQueryDeferred<T>;
 type TableId = string | number;
 type XcCast = ColumnType | null;
 type JoinType = JoinCompoundOperatorTStr | JoinOperatorT;
+type HTML = string;
+
 
 /* ============== INTERFACE ======================== */
 interface PrefixColInfo {
@@ -176,14 +178,35 @@ interface JQuery {
     datepicker(methodName: string): JQuery;
     datepicker(methodName: string, params: any): JQuery;
     datepicker(options: DatepickerOptions): JQuery;
+    sort(fn?: Function): JQuery;
+}
+
+interface LocalStorage {
+    setItem(key: string, value: string): void;
+    getItem(key: string): string | null;
+    removeItem(key: string): string | null;
 }
 
 interface JQueryEventObject {
      keyTriggered: boolean;
  }
 
+interface OpStatsDetails {
+    numWorkCompleted: number,
+    numWorkTotal: number
+}
+interface OpStatsOutput {
+    opDetails: OpStatsDetails;
+}
 /* ============== GLOBAL VARIABLES ============= */
 declare var nw: any; // nw js for XD CE
+interface Window {
+    FnBar: any;
+    gMinModeOn: boolean;
+    xcLocalStorage: any;
+    xcSessionStorage: any;
+}
+
 declare var isBrowserIE: boolean;
 declare var KB: number
 declare var MB: number;
@@ -268,41 +291,54 @@ declare function XcalarUploadPython(moduleName: string, pythonStr: string, absol
 declare function XcalarGetTables(tableName?: string): XDPromise<any>;
 declare function XcalarGetDag(tableName: string, workbookName: string): XDPromise<any>;
 declare function XcalarGetTableMeta(tableName: string): XDPromise<any>;
-declare function XcalarDeleteTable(tableName: string, txId?: number, isRetry?: boolean): XDPromise<void>;
-declare function XcalarFilter(fltStr: string, tableName: string, newTableName: string, txId: number): XDPromise<any>;
-declare function XcalarKeyLookup(key: string, scope: number): XDPromise<any>;
-declare function XcalarKeyPut(key: string, value: string, persist: boolean, scope: number): XDPromise<any>;
-declare function XcalarKeyAppend(key: string, value: string, persist: boolean, scope: number): XDPromise<any>;
-declare function XcalarKeySetIfEqual(scope: number, persist: boolean, keyCompare: string, oldValue: string, newValue: string): XDPromise<any>;
-declare function XcalarKeyDelete(key: string, scope: number): XDPromise<any>;
-declare function XcalarSaveWorkbooks(wkbkName: string): XDPromise<void>;
-declare function XcalarListXdfs(fnNamePattern: string, categoryPattern: string): XDPromise<any>;
 declare function XcalarAggregate(evalStr: string, dstAggName: string, tableName: string, txId: number): XDPromise<string>;
-declare function XcalarLoad(dsName: string, options: object, txId: number): XDPromise<void>;
+declare function XcalarApiTop(measureIntervalInMs?: any): XDPromise<any>;
+declare function XcalarCancelOp(dstTableName: string, statusesToIgnore?: number[]): XDPromise<any>;
+declare function XcalarDeleteTable(tableName: string, txId?: number, isRetry?: boolean): XDPromise<void>;
+declare function XcalarDestroyDataset(dsName: string, txId: number): XDPromise<any>;
+declare function XcalarExport(tableName: string, exportName: string, targetName: string, numCols: number, backColumns: string[], frontColumns: string[], keepOrder: boolean, options: ExportTableOptions, txId: number): XDPromise<void>;
+declare function XcalarExportRetina(retinaName: string): XDPromise<any>;
+declare function XcalarFetchData(resultSetId: string, rowPosition: number, rowsToEach: number, totalRows: number, data: string[], tryCnt: number, maxNumRowsPerCall: number): XDPromise<string[]>;
+declare function XcalarFilter(fltStr: string, tableName: string, newTableName: string, txId: number): XDPromise<any>;
+declare function XcalarGenRowNum(tableName: string, newTableName: string, newColName: string, txId: number): XDPromise<void>;
+declare function XcalarGetLicense(): XDPromise<any>;
+declare function XcalarGetMemoryUsage(username: string, userId: number): XDPromise<any>;
+declare function XcalarGetOpStats(dstTable: string): XDPromise<any>;
+declare function XcalarGetStatGroupIdMap(nodeId: number, numGroupId: number): XDPromise<any>;
+declare function XcalarGetTableCount(tableName: string): XDPromise<number>;
+declare function XcalarGetTableMeta(tableName: string): XDPromise<any>;
+declare function XcalarGetTables(): XDPromise<any>;
+declare function XcalarGetVersion(connectionCheck: boolean): XDPromise<any>;
+declare function XcalarGroupBy(operators: string[], newColNames: string[], aggColNames: string[], tableName: string, newTableName: string, incSample: boolean, icvMode: boolean, newKeyFieldName: string, groupAll: boolean, txId: number): XDPromise<any>;
+declare function XcalarGroupByWithEvalStrings(newColNames: string[], evalStrs: string[], tableName: string, newTableName: string, incSample: boolean, icvMode: boolean, newKeyFieldName: string, groupAll: boolean, txId: number): XDPromise<any>;
 declare function XcalarIndexFromDataset(dsName: string, indexCol: string, newTableName: string, prefix: string, txId: number): XDPromise<void>;
 declare function XcalarIndexFromTable(tableName: string, keyInfos: object[], newTableName: string, txId: number): XDPromise<any>
-declare function XcalarMap(colNames: string[], mapStrs: string[], tableName: string, newTableName: string, txId: number, doNotUnsort?: boolean, icvMode?: boolean): XDPromise<string>;
 declare function XcalarJoin(lTable: string, rTable: string, newTableName: string, joinType: number, lRename: ColRenameInfo[], rRename: ColRenameInfo[], joinOptions: object, txId: number): XDPromise<any>;
-declare function XcalarGroupByWithEvalStrings(newColNames: string[], evalStrs: string[], tableName: string, newTableName: string, incSample: boolean, icvMode: boolean, newKeyFieldName: string, groupAll: boolean, txId: number): XDPromise<any>;
-declare function XcalarGroupBy(operators: string[], newColNames: string[], aggColNames: string[], tableName: string, newTableName: string, incSample: boolean, icvMode: boolean, newKeyFieldName: string, groupAll: boolean, txId: number): XDPromise<any>;
-declare function XcalarUnion(tableNames: string[], newTableNmae: string, colInfos: object[], dedup: boolean, unionType: UnionOperatorT, txId: number): XDPromise<any>;
-declare function XcalarProject(columns: string[], tableName: string, newTableName: string, txId: number): XDPromise<any>;
-declare function XcalarSynthesize(tableName: string, newTableName: string, colInfos: ColRenameInfo[], txId: number): XDPromise<any>;
-declare function XcalarQueryWithCheck(queryName: string, queryStr: string, txId: number, bailOnError: boolean): XDPromise<any>;
-declare function XcalarExport(tableName: string, exportName: string, targetName: string, numCols: number, backColumns: string[], frontColumns: string[], keepOrder: boolean, options: ExportTableOptions, txId: number): XDPromise<void>;
-declare function XcalarGenRowNum(tableName: string, newTableName: string, newColName: string, txId: number): XDPromise<void>;
-declare function XcalarGetTableCount(tableName: string): XDPromise<number>;
+declare function XcalarKeyAppend(key: string, value: string, persist: boolean, scope: number): XDPromise<any>;
+declare function XcalarKeyDelete(key: string, scope: number): XDPromise<any>;
+declare function XcalarKeyLookup(key: string, scope: number): XDPromise<any>;
+declare function XcalarKeyPut(key: string, value: string, persist: boolean, scope: number): XDPromise<any>;
+declare function XcalarKeySetIfEqual(scope: number, persist: boolean, keyCompare: string, oldValue: string, newValue: string): XDPromise<any>;
+declare function XcalarListFiles(args: object): XDPromise<any>;
+declare function XcalarListPublishedTables(pattern: string): XDPromise<any>;
+declare function XcalarListWorkbooks(pattern: string): XDPromise<any>;
+declare function XcalarListXdfs(fnNamePattern: string, categoryPattern: string): XDPromise<any>;
+declare function XcalarLoad(dsName: string, options: object, txId: number): XDPromise<void>;
 declare function XcalarMakeResultSetFromTable(tableName): XDPromise<any>;
-declare function XcalarFetchData(resultSetId: string, rowPosition: number, rowsToEach: number, totalRows: number, data: string[], tryCnt: number, maxNumRowsPerCall: number): XDPromise<string[]>;
+declare function XcalarMap(colNames: string[], mapStrs: string[], tableName: string, newTableName: string, txId: number, doNotUnsort?: boolean, icvMode?: boolean): XDPromise<string>;
+declare function XcalarProject(columns: string[], tableName: string, newTableName: string, txId: number): XDPromise<any>;
+declare function XcalarQueryCancel(queryName: string, statusesToIgnore?: number[]): XDPromise<any>;
+declare function XcalarQueryState(queryName: string): XDPromise<any>;
+declare function XcalarQueryWithCheck(queryName: string, queryStr: string, txId: number, bailOnError: boolean): XDPromise<any>;
+declare function XcalarRefreshTable(pubTableName: string, dstTableName: string, minBatch: number, maxBatch: number, txId: number): XDPromise<any>;
+declare function XcalarRenameTable(oldTableName: string, newTableName: string, txId: number): XDPromise<void>;
+declare function XcalarRestoreTable(tableName: string): XDPromise<any>;
+declare function XcalarSaveWorkbooks(wkbkName: string): XDPromise<void>;
 declare function XcalarSetFree(resultSetId: string): XDPromise<void>;
+declare function XcalarSynthesize(tableName: string, newTableName: string, colInfos: ColRenameInfo[], txId: number): XDPromise<any>;
 declare function XcalarTargetCreate(targetType: string, targetName: string, targetParams: object[]): XDPromise<void>;
 declare function XcalarTargetDelete(targetName: string): XDPromise<void>;
-declare function XcalarGetVersion(connectionCheck: boolean): XDPromise<any>;
-declare function XcalarGetLicense(): XDPromise<any>;
-declare function XcalarRenameTable(oldTableName: string, newTableName: string, txId: number): XDPromise<void>;
-declare function XcalarListWorkbooks(pattern: string): XDPromise<any>;
-declare function XcalarListPublishedTables(pattern: string): XDPromise<any>;
-declare function XcalarRestoreTable(tableName: string): XDPromise<any>;
+declare function XcalarUnion(tableNames: string[], newTableNmae: string, colInfos: object[], dedup: boolean, unionType: UnionOperatorT, txId: number): XDPromise<any>;
 declare function XcalarUnpublishTable(tableName: string): XDPromise<any>;
 declare function XcalarRefreshTable(pubTableName: string, dstTableName: string, minBatch: number, maxBatch: number, txId: number): XDPromise<any>;
 declare function XcalarApiTop(measureIntervalInMs?: any): XDPromise<any>;
@@ -314,6 +350,8 @@ declare function XcalarQueryCancel(queryName: string, statusesToIgnore?: number[
 declare function XcalarCancelOp(dstTableName: string, statusesToIgnore?: number[]): XDPromise<any>;
 declare function XcalarDestroyDataset(dsName: string, txId: number): XDPromise<any>;
 declare function XcalarCoalesce(tableName: string): XDPromise<any>;
+declare function getUnsortedTableName(tableName: string, otherTableName: string, txId: number, colsToIndex: string[]): XDPromise<string>;
+declare function setSessionName(sessionName: string): void;
 /* ============= THRIFT ENUMS ================= */
 declare enum DfFieldTypeT {
     DfString,
@@ -416,6 +454,10 @@ declare enum QueryStateT{
     qrError,
     qrCancelled
 }
+
+declare enum QueryStateTStr {
+
+}
 /* ============= JSTSTR ==================== */
 declare namespace DSTStr {
     export var UnknownUser: string;
@@ -437,6 +479,11 @@ declare namespace CommonTxtTstr {
     export var StartTime: string;
     export var HoldToDrag: string;
     export var Preview: string;
+    export var NoResult: string;
+}
+
+declare namespace ExtTStr {
+    export var XcCategory: string;
 }
 
 declare namespace IndexTStr {
@@ -501,6 +548,8 @@ declare namespace TooltipTStr {
     export var SystemGood: string;
     export var SysOperation: string;
     export var RemoveQuery: string;
+    export var FocusColumn: string;
+    export var CancelSearch: string;
 }
 
 declare namespace SuccessTStr{
@@ -523,25 +572,27 @@ declare namespace AggTStr {
 }
 
 declare namespace ErrTStr {
-    export var InvalidField: string;
-    export var NoEmpty: string;
-    export var InvalidTableName: string;
-    export var TooLong: string;
-    export var NoEmpty: string;
-    export var PreservedName: string;
-    export var PrefixStartsWithLetter: string;
-    export var PrefixTooLong: string;
-    export var LicenseExpire: string;
-    export var Unknown: string;
-    export var NameInUse: string;
     export var InUsedNoDelete: string;
+    export var InvalidField: string;
+    export var InvalidTableName: string;
+    export var LicenseExpire: string;
+    export var NameInUse: string;
+    export var NoEmpty: string;
+    export var NoEmpty: string;
     export var NoSpecialCharOrSpace: string;
-    export var ParamInUse: string;
     export var OutputNotFoundMsg: string;
     export var InvalidWBName: string;
     export var WorkbookExists: string;
     export var NoWKBKErr: string;
     export var MultipleWKBKErr: string;
+    export var ParamInUse: string;
+    export var PrefixStartsWithLetter: string;
+    export var PrefixTooLong: string;
+    export var PreservedName: string;
+    export var SelectOption: string;
+    export var TooLong: string;
+    export var Unknown: string;
+
 }
 
 declare namespace ErrWRepTStr {
@@ -558,6 +609,9 @@ declare namespace ColTStr {
     export var ColNameInvalidCharSpace: string;
     export var ColNameInvalidChar: string;
     export var RenameSpecialChar: string;
+    export var NoOperateArray: string;
+    export var NoOperateObject: string;
+    export var NoOperateGeneral: string;
 }
 
 declare namespace AlertTStr {
@@ -679,16 +733,6 @@ declare namespace TimeTStr {
 // }
 
 /* ============== CLASSES ====================== */
-declare class ProgressCircle {
-    constructor(txId: number | string, iconNum: number, hasText?: boolean, options?: object);
-    public increment(): void;
-    public update(pctOrStep: number, duration: number): void;
-}
-
-declare class MouseEvents {
-    public setMouseDownTarget($input: JQuery): void;
-    public getLastMouseDownTime(): number;
-}
 
 declare class ColFunc {
     public name: string;
@@ -766,17 +810,7 @@ declare class WKBK {
     public constructor(params: object);
 }
 
-declare class WKBKSet {
-    public get(workbookId: string): WKBK;
-    public getAll(): object;
-    public has(wkbkId: string): boolean;
-    public put(newWKBKId: string, newWkbk: WKBK): void;
-    public delete(workbookId: string): void;
-    public getWithStringify(): string;
-}
-
 declare class WorksheetObj {
-
 }
 
 declare class WSMETA {
@@ -808,12 +842,6 @@ declare class UserInfoConstructor {
     public getMetaKeys(): {DS: 'gDSObj'};
 }
 
-declare class Mutex {
-    public constructor(key: string, scope: number);
-    public key: string;
-    public scope: number;
-}
-
 declare class XcAuth {
     constructor(options: object);
     getIdCount(): number;
@@ -825,27 +853,6 @@ declare class KVVersion {
     public stripEmail: boolean;
     public needCommit: boolean;
     public constructor(options: object);
-}
-
-declare class ScrollTableChecker {
-    public checkScroll(): boolean;
-}
-
-declare class ModalHelper {
-    constructor($el: JQuery, optoins?: Object);
-    setup(options?: any): void;
-    center(options: any): void;
-    clear(optoins?: any): void;
-}
-
-declare class MenuHelper {
-    constructor($el: JQuery, optoins: Object);
-    public setupListeners(): void;
-    public showOrHideScrollers($target: JQuery): void;
-}
-declare class InfList {
-    public restore(selector: string): void;
-    public constructor($list: JQuery, options: object);
 }
 
 declare class XcQuery {
@@ -888,23 +895,22 @@ declare class XcQuery {
     public getOutputTableState(): string;
 }
 
-declare class XcSubQuery {
-    public dstTable: string;
-    public state: QueryStatus;
-    public queryName: string;
-    public retName?: string;
-    public index: number;
-    public name: string;
-
-    public constructor(options: object);
-    public getName(): string;
-    public getId(): number;
-    public getProgress(): XDPromise<number>;
-}
-
 declare class XcLog {
     public options: XcLogOptions;
     public cli: string;
+}
+
+declare class d3 {
+    public select(selector: string): d3;
+    public selectAll(selector: string): d3;
+    public data(callback: Function);
+    public transition(): d3;
+    public interpolateNumber(num: number, step: number): Function;
+    public duration(time: number): d3;
+    public ease(type: string): d3;
+    public tween(type: string, callback: Function): d3;
+    public append(selector: string): d3;
+    public attr(options: object | string, options2?: string): d3;
 }
 
 /* ============== NAMESPACE ====================== */
@@ -920,6 +926,7 @@ declare namespace UserSettings {
     export function commit(): XDPromise<void>;
     export function restore(oldMeta: UserInfoConstructor, gInfosSetting: object): XDPromise<void>;
     export function sync(): void;
+    export function setPref(name: string, val: string | number, something?: boolean): void;
 }
 
 declare namespace ColManager {
@@ -1007,6 +1014,7 @@ declare namespace TblManager {
 
 declare namespace TblMenu{
     export function showDagAndTableOptions($menu: JQuery, tableId: string | number): void;
+    export function updateExitOptions(id: string, name?: string): void;
 }
 
 declare namespace TPrefix {
@@ -1024,11 +1032,17 @@ declare namespace MainMenu {
     export function openPanel(panelId: string, subTabId: string, options?: object): void;
     export function tempNoAnim(): void;
     export function close(noAnim: boolean): void;
-    export function open(noAnim: boolean): void;
+    export function setFormOpen(): void;
+    export function setFormClose(): void;
+    export function isMenuOpen(type: string): boolean;
+    export function open(noAnim?: boolean): void;
+    export function getState(): object;
+    export function restoreState(state: object, ignoreClose?: boolean): void;
 }
 
 declare namespace BottomMenu {
     export function unsetMenuCache(): void;
+    export function close(something: boolean): void;
 }
 
 declare namespace WSManager {
@@ -1045,7 +1059,7 @@ declare namespace WSManager {
     export function getWSLists(isAll: boolean): string;
     export function getWSName(ws: string): string;
     export function restore(oldMeat: object): void;
-    export function focusOnWorksheet(): void;
+    export function focusOnWorksheet(ws?: string, something?: boolean): void;
     export function addWS(wsId: string, wsName: string, wsIndex?: number): string;
     export function getAllMeta(): WSMETA;
 }
@@ -1064,10 +1078,12 @@ declare namespace Dag {
 
 declare namespace DagPanel {
     export function adjustScrollBarPositionAndSize(): void;
+    export function updateExitMenu(name?: string): void;
 }
 
 declare namespace DagEdit {
     export function isEditMode(): boolean;
+    export function exitForm(): void;
 }
 
 declare namespace DataflowPanel {
@@ -1161,4 +1177,43 @@ declare namespace MonitorPanel {
 
 declare namespace MonitorConfig {
     export function refreshParams(firstTouch: boolean): XDPromise<{}>;
+}
+declare namespace DFCreateView {
+    export function updateTables(tableId: TableId, something: boolean);
+}
+declare namespace ProjectView {
+    export function updateColumns(): void;
+}
+declare namespace OperationsView {
+    export function updateColumns(): void;
+}
+declare namespace JoinView {
+    export function updateColumns(): void;
+}
+declare namespace ExportView {
+    export function updateColumns(): void;
+}
+declare namespace SmartCastView {
+    export function updateColumns(tableId: TableId): void;
+}
+declare namespace UnionView {
+    export function updateColumns(tableId: TableId): void;
+}
+declare namespace SortView {
+    export function updateColumns(tableId: TableId): void;
+}
+declare namespace FnBar {
+    export function clear(): void;
+}
+
+declare namespace d3 {
+    export function interpolate(current: any, a: any);
+    export function interpolateNumber(num: number, step: number): Function;
+    export function select(selector: string): d3;
+    export function transition(): d3;
+    export function duration(): d3;
+    export function append(selector: string): d3;
+    export var svg;
+    export var layout;
+
 }

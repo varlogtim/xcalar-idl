@@ -2623,7 +2623,7 @@ namespace xcHelper {
      * @param noSelect
      */
     export function centerFocusedColumn(
-        tableId: string,
+        tableId: TableId,
         colNum: number,
         animate: boolean,
         noSelect: boolean
@@ -4667,7 +4667,7 @@ namespace xcHelper {
         $input: JQuery,
         event: JQueryEventObject,
         isArgInput: boolean
-    ): void {
+    ): boolean {
         let direction: number;
         const keyCodeNum: number = event.which;
         if (keyCodeNum === keyCode.Up) {

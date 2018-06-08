@@ -257,7 +257,7 @@ namespace StatusBox {
     export function show(
         text: string,
         $target: JQuery,
-        isFormMode: boolean = false,
+        isFormMode?: boolean,
         options: StatusDisplayerOpions = <StatusDisplayerOpions>{}
     ): void {
        statusDisplayer.show(text, $target, isFormMode, options);

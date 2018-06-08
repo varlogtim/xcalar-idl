@@ -10,9 +10,9 @@ namespace xcMenu {
     //      hotKeys: callback function for hotkeys
     //      allowSelection: boolean, if true will not clear selected text
     export interface Options {
-        keepOpen: boolean;
-        hotkeys: Function;
-        allowSelection: boolean;
+        keepOpen?: boolean;
+        hotkeys?: Function;
+        allowSelection?: boolean;
     }
 
     /**
@@ -33,7 +33,6 @@ namespace xcMenu {
             $subMenu = $('#' + subMenuId);
             $allMenus = $allMenus.add($subMenu);
             subListScroller = new MenuHelper($subMenu, {
-                "scrollerOnly": true,
                 "bottomPadding": 4
             });
 
@@ -226,8 +225,7 @@ namespace xcMenu {
 
         if ($mainMenu.find('.scrollArea').length !== 0) {
             new MenuHelper($mainMenu, {
-                $subMenu: $subMenu,
-                scrollerOnly: true
+                $subMenu: $subMenu
             });
         }
 
@@ -304,7 +302,7 @@ namespace xcMenu {
      * close/ hide a menu element and any sub menues
      * @param $menu - the menu object to hide
      */
-    export function close($menu: JQuery) {
+    export function close($menu?: JQuery) {
         if (!$menu) {
             $(".menu").hide();
         } else {

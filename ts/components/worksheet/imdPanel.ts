@@ -82,7 +82,6 @@ namespace IMDPanel {
     let progressState: ProgressState = {canceled: false};
     let isScrolling: boolean = false;
     let restoreErrors: RestoreError[] = [];
-    let reverseSort: boolean;
 
     /**
      * IMDPanel.setup
