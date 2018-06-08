@@ -30,7 +30,15 @@ window.SQLEditor = (function(SQLEditor, $) {
     function setupSchemas() {
         sqlKvStore.get()
         .then(function(ret) {
-            sqlTables = ret ? JSON.parse(ret) : {};
+            try {
+                sqlTables = ret ? JSON.parse(ret) : {};
+            } catch (e) {
+                Alert.show({
+                    title: "SQLEditor Error",
+                    msg: SQLErrTStr.InvalidSQLTable,
+                    isAlert: true
+                });
+            }
             genTablesHTML();
         });
     }

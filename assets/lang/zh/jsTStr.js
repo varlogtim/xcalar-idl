@@ -1321,7 +1321,11 @@ SQLErrTStr = {
     "NoDataType": "Node should has dataType",
     "EvalOnlyChildAttr": "Eval list's only child should be AttributeReference",
     "UnsupportedColType": "Unsupported column type: ",
-    "UDFColumnMismatch": "UDF columns mimatch"
+    "UDFColumnMismatch": "UDF columns mismatch",
+    "InvalidLogicalPlan": "Invalid logical plan",
+    "InvalidXcalarQuery": "Invalid Xcalar Query String",
+    "InvalidPageInfo": "Invalid Xcalar result set page",
+    "InvalidSQLTable": "Invalid SQL table from KvStore"
 };
 
 SQLInfoTStr = {

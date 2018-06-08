@@ -209,7 +209,16 @@
                 return self._addMetaForImmediates(allTables, constants);
             })
             .then(deferred.resolve)
-            .fail(deferred.reject);
+            .fail(function () {
+                var ret = "";
+                for (var i = 0; i < arguments.length; i++) {
+                    if (i > 0) {
+                        ret += "\n";
+                    }
+                    ret += JSON.stringify(arguments[i]);
+                };
+                deferred.reject(ret);
+            });
 
             return deferred.promise();
         },
@@ -237,7 +246,12 @@
                         return XcalarGetNextPage(resultSetId, ret.numEntries);
                     })
                     .then(function(ret) {
-                        var value = JSON.parse(ret.values[0]).constant;
+                        try {
+                            var value = JSON.parse(ret.values[0]).constant;
+                        } catch (e) {
+                            deferred.reject(SQLErrTStr.InvalidPageInfo);
+                            return;
+                        }
                         var aggRes = {
                             value: value,
                             dagName: constantName,

@@ -907,7 +907,11 @@
                  encodeURIComponent(encodeURIComponent(WorkbookManager.getActiveWKBK())) +
                  "/true/true",
             success: function(data) {
-                deferred.resolve(JSON.parse(data.sqlQuery));
+                try {
+                    deferred.resolve(JSON.parse(data.sqlQuery));
+                } catch (e) {
+                    deferred.reject(SQLErrTStr.InvalidLogicalPlan);
+                }
             },
             error: function(error) {
                 deferred.reject(error);
@@ -1137,7 +1141,11 @@
             .then(function(jsonArray, hasPlan) {
                 var deferred = PromiseHelper.deferred();
                 if (hasPlan) {
-                    var plan = JSON.parse(jsonArray.plan);
+                    try {
+                        var plan = JSON.parse(jsonArray.plan);
+                    } catch (e) {
+                        return PromiseHelper.reject(SQLErrTStr.InvalidLogicalPlan);
+                    }
                     var finalTableName = SQLCache.setNewTableNames(plan,
                                                          jsonArray.startTables,
                                                          jsonArray.finalTable);
@@ -1183,7 +1191,11 @@
                         // queryString = queryString.replace(/\\/g, "\\");
                         // console.log(queryString);
                         if (prefix) {
-                            var plan = JSON.parse(queryString);
+                            try {
+                                var plan = JSON.parse(queryString);
+                            } catch (e) {
+                                return PromiseHelper.reject(SQLErrTStr.InvalidXcalarQuery);
+                            }
                             tree.newTableName = addPrefix(plan,
                                                            allTableNames,
                                                            tree.newTableName,
