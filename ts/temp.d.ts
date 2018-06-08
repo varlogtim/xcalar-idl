@@ -143,6 +143,41 @@ interface SQLInfo {
 interface XCThriftError {
     error: string
 }
+
+interface DFProgressData {
+    pct: number,
+    curOpPct: number,
+    opTime: number,
+    numCompleted: number
+}
+
+interface XcLogOptions {
+    operation: string,
+    func: string,
+    retName?: string
+}
+
+interface DatepickerOptions {
+    format?: string;
+    weekStart?: number;
+    startDate?: Date;
+    endDate?: Date;
+    autoclose?: boolean;
+    startView?: number;
+    todayBtn?: boolean;
+    todayHighlight?: boolean;
+    keyboardNavigation?: boolean;
+    language?: string;
+    dateFormat?: string,
+    beforeShow?: Function
+}
+interface JQuery {
+    datepicker(): JQuery;
+    datepicker(methodName: string): JQuery;
+    datepicker(methodName: string, params: any): JQuery;
+    datepicker(options: DatepickerOptions): JQuery;
+}
+
 /* ============== GLOBAL VARIABLES ============= */
 declare var isBrowserIE: boolean;
 declare var KB: number
@@ -214,7 +249,7 @@ declare function setSessionName(sessionName: string): void;
 declare function getUnsortedTableName(tableName: string, otherTableName: string, txId: number, colsToIndex: string[]): XDPromise<string>;
 declare function XcalarGetTables(): XDPromise<any>;
 declare function XcalarGetTableMeta(tableName: string): XDPromise<any>;
-declare function XcalarDeleteTable(tableName: string, txId: number): XDPromise<void>;
+declare function XcalarDeleteTable(tableName: string, txId?: number, isRetry?: boolean): XDPromise<void>;
 declare function XcalarFilter(fltStr: string, tableName: string, newTableName: string, txId: number): XDPromise<any>;
 declare function XcalarKeyLookup(key: string, scope: number): XDPromise<any>;
 declare function XcalarKeyPut(key: string, value: string, persist: boolean, scope: number): XDPromise<any>;
@@ -256,6 +291,9 @@ declare function XcalarGetStatGroupIdMap(nodeId: number, numGroupId: number): XD
 declare function XcalarExportRetina(retinaName: string): XDPromise<any>;
 declare function XcalarQueryState(queryName: string): XDPromise<any>;
 declare function XcalarGetMemoryUsage(username: string, userId: number): XDPromise<any>;
+declare function XcalarQueryCancel(queryName: string, statusesToIgnore?: number[]): XDPromise<any>;
+declare function XcalarCancelOp(dstTableName: string, statusesToIgnore?: number[]): XDPromise<any>;
+declare function XcalarDestroyDataset(dsName: string, txId: number): XDPromise<any>;
 /* ============= THRIFT ENUMS ================= */
 declare enum DfFieldTypeT {
     DfString,
@@ -290,7 +328,10 @@ declare enum StatusT {
     StatusExist,
     StatusExportSFFileExists,
     StatusSessionNotFound,
-    StatusKvEntryNotEqual
+    StatusKvEntryNotEqual,
+    StatusOperationHasFinished,
+    StatusQrQueryNotExist,
+    StatusDagNodeNotFound
 }
 
 declare enum FunctionCategoryT {
@@ -346,6 +387,14 @@ declare enum XcalarApiVersionTStr{}
 declare enum XcalarApiVersionT{
     XcalarApiVersionSignature
 }
+
+declare enum QueryStateT{
+    qrNotStarted,
+    qrProcessing,
+    qrFinished,
+    qrError,
+    qrCancelled
+}
 /* ============= JSTSTR ==================== */
 declare namespace DSTStr {
     export var UnknownUser: string;
@@ -364,6 +413,8 @@ declare namespace CommonTxtTstr {
     export var HighXcalarMemUsage: string;
     export var XcalarMemUsage: string;
     export var OpFail: string;
+    export var StartTime: string;
+    export var HoldToDrag: string;
 }
 
 declare namespace IndexTStr {
@@ -422,6 +473,8 @@ declare namespace TooltipTStr {
     export var LowMemInDS: string;
     export var LowMemInTable: string;
     export var SystemGood: string;
+    export var SysOperation: string;
+    export var RemoveQuery: string;
 }
 
 declare namespace SuccessTStr{
@@ -458,11 +511,15 @@ declare namespace ErrTStr {
     export var InUsedNoDelete: string;
     export var NoSpecialCharOrSpace: string;
     export var ParamInUse: string;
+    export var OutputNotFoundMsg: string;
+
 }
 
 declare namespace ErrWRepTStr {
     export var SystemParamConflict: string;
     export var ParamConflict: string;
+    export var OutputNotFound: string;
+    export var OutputNotExists: string;
 }
 
 declare namespace ColTStr {
@@ -615,7 +672,7 @@ declare class WKBK {
 declare class METAConstructor {
     public constructor(meta: object);
     public update(): void;
-    public getQueryMeta(): object[];
+    public getQueryMeta(): QueryManager.XcQueryAbbr[];
     public getWSMeta(): object;
     public getTpfxMeta(): object;
     public getAggMeta(): object;
@@ -670,6 +727,70 @@ declare class MenuHelper {
     constructor($el: JQuery, optoins: Object);
     public setupListeners(): void;
 }
+declare class InfList {
+    public restore(selector: string): void;
+    public constructor($list: JQuery, options: object);
+}
+
+declare class XcQuery {
+    public state: QueryStatus | QueryStateT;
+    public sqlNum: number;
+    public queryStr: string;
+    public name: string;
+    public fullName: string;
+    public time: number;
+    public elapsedTime: number;
+    public opTime: number;
+    public opTimeAdded: boolean;
+    public outputTableName: string;
+    public outputTableState: string;
+    public error: string;
+    public subQueries: XcSubQuery[];
+    public currStep: number;
+    public numSteps: number;
+    public type: string;
+    public cancelable: boolean;
+    public id: number;
+    public srcTables: string[];
+
+    public constructor(options: object);
+    public getState(): QueryStatus | QueryStateT;
+    public getOpTime(): number;
+    public getOutputTableName(): string;
+    public getName(): string;
+    public addSubQuery(XcSubQuery);
+    public getQuery(): string;
+    public setElapsedTime(): void;
+    public getTime(): number;
+    public getElapsedTime(): number;
+    public setOpTime(number): void;
+    public addOpTime(number): void;
+    public getId(): number;
+    public getAllTableNames(force?: boolean): string[];
+    public addIndexTable(tableName: string): void;
+    public getIndexTables(): string[];
+    public getOutputTableState(): string;
+}
+
+declare class XcSubQuery {
+    public dstTable: string;
+    public state: QueryStatus;
+    public queryName: string;
+    public retName?: string;
+    public index: number;
+    public name: string;
+
+    public constructor(options: object);
+    public getName(): string;
+    public getId(): number;
+    public getProgress(): XDPromise<number>;
+}
+
+declare class XcLog {
+    public options: XcLogOptions;
+    public cli: string;
+}
+
 /* ============== NAMESPACE ====================== */
 declare namespace xcManager {
     export function removeUnloadPrompt(markUser: boolean): void;
@@ -708,6 +829,8 @@ declare namespace PromiseHelper {
 
 declare namespace Log {
     export function getAllLogs(): object[];
+    export function getErrorLogs(): XcLog[];
+    export function getLogs(): XcLog[];
     export function getLocalStorage(): string;
     export function getBackup(): string;
     export function commit(): XDPromise<void>;
@@ -750,6 +873,8 @@ declare namespace TableList {
     export function refreshConstantList(): void;
     export function refreshOrphanList(prettyPrint: boolean): XDPromise<void>;
     export function removeTable(tableIdOrName: TableId | string, type?: string, lock?: boolean): void;
+    export function addToCanceledList(tableName: string): void;
+    export function removeFromCanceledList(tableName: string): void;
 }
 
 declare namespace TblManager {
@@ -760,6 +885,7 @@ declare namespace TblManager {
     export function refreshTable(newTableNames: string[], tableCols: ProgCol[], oldTableNames: string[], worksheet: string, txId: number, options: object): XDPromise<void>;
     export function updateHeaderAndListInfo(tableId: TableId): void;
     export function deleteTables(tables: TableId[], tableType: string, noAlert?: boolean, noLog?: boolean, options?: object);
+    export function findAndFocusTable(tableName: string, noAnimate?: boolean): XDPromise<any>;
 }
 
 declare namespace TblMenu{
@@ -815,19 +941,6 @@ declare namespace WorkbookManager {
     export function updateWorkbooks(info: object): void;
 }
 
-declare namespace QueryManager{
-    export function restore(oldMeta: object[]);
-    export function addIndexTable(txId: number, tableName: string): void;
-    export function addQuery(id: number, name: string, options: object): void;
-    export function cleanUpCanceledTables(id: number): void;
-    export function queryDone(id: number, sqlNum?: number): void;
-    export function getAllDstTables(id: number, force?: boolean);
-    export function fail(id: number, error: string);
-    export function confirmCanceledQuery(id: number);
-    export function subQueryDone(id: number, dstTableName: string | null, time: object, options?: object);
-    export function addSubQuery(id: number, name: string, dstTable: string, query: string, options?: object);
-}
-
 declare namespace Dag {
     export function renameAllOccurrences(oldTableName: string, newTableName: string): void;
 }
@@ -855,10 +968,22 @@ declare namespace DS {
     export function getGrid(dsId: string): JQuery;
     export function updateDSInfo(arg: object): void;
     export function upgrade(oldDS: object): object;
+    export function cancel($grid: JQuery): XDPromise<any>;
+    export function restore(oldHomeFolder: object, atStartup?: boolean): XDPromise<any>;
+    export function getHomeDir(toPersist?: boolean): object;
+    export function getDSObj(dsId: number | string): DSObj | null;
+    export function goToDir(foldderId: string): void;
+    export function focusOn($grid: JQuery): XDPromise<any>;
+
+    interface DSObj {
+        parentId: string
+    }
 }
 
 declare namespace DSCart {
     export function restore(oldMeat: object): void;
+    export function queryDone(id: number, isCancel?: boolean): void;
+    export function addQuery(XcQuery);
 }
 
 declare namespace Profile {
@@ -876,6 +1001,9 @@ declare namespace DF {
 declare namespace DFCard {
     export function adjustScrollBarPositionAndSize(): void;
     export function getCurrentDF(): string;
+    export function cancelDF(retName: string, txId: number): XDPromise<any>;
+    export function getProgress(queryName: string): DFProgressData;
+
 }
 
 declare namespace JupyterUDFModal {

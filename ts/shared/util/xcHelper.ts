@@ -4841,9 +4841,9 @@ namespace xcHelper {
      * @param rejectZero - 0 to be treated as N/A
      */
     export function getElapsedTimeStr(
-        milliSeconds: string,
-        round: boolean,
-        rejectZero: boolean
+        milliSeconds: number | string,
+        round?: boolean,
+        rejectZero?: boolean
     ): string {
         if (!milliSeconds && rejectZero || typeof milliSeconds === "string") {
             return CommonTxtTstr.NA;

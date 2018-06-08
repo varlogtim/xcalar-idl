@@ -442,20 +442,15 @@ namespace IMDPanel {
             }
         });
 
-        $("#imdFromInput").datepicker({
-            "dateFormat": "m/d/yy",
-            "beforeShow": function() {
+        let options: DatepickerOptions = {
+            dateFormat: "m/d/yy",
+            beforeShow: function() {
                 var $el = $("#ui-datepicker-div");
                 $el.appendTo("#imdBar");
             }
-        });
-        $("#imdToInput").datepicker({
-            "dateFormat": "m/d/yy",
-            "beforeShow": function() {
-                var $el = $("#ui-datepicker-div");
-                $el.appendTo("#imdBar");
-            }
-        });
+        };
+        $("#imdFromInput").datepicker(options);
+        $("#imdToInput").datepicker(options);
 
         fromTimePicker = new XcTimePicker($("#imdBar").find(".fromTimeArea .timePickerArea"), {
             onClose: function() {
@@ -723,11 +718,11 @@ namespace IMDPanel {
             revert: 300,
             axis: "y",
             handle: ".dragIcon",
-            start: function(event, ui) {
+            start: function(_event, ui) {
                 initialIndex = $(ui.item).index();
                 xcTooltip.hideAll();
             },
-            stop: function(event, ui) {
+            stop: function(_event, ui) {
                 resortTableList("visible", initialIndex, $(ui.item).index());
             }
         });
@@ -736,11 +731,11 @@ namespace IMDPanel {
             revert: 300,
             axis: "y",
             handle: ".dragIcon",
-            start: function(event, ui) {
+            start: function(_event, ui) {
                 initialIndex = $(ui.item).index();
                 xcTooltip.hideAll();
             },
-            stop: function(event, ui) {
+            stop: function(_event, ui) {
                 resortTableList("hidden", initialIndex, $(ui.item).index());
             }
         });

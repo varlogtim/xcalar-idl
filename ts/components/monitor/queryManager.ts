@@ -1,27 +1,66 @@
-window.QueryManager = (function(QueryManager, $) {
-    var $queryList;   // $("#monitor-queryList")
-    var $queryDetail; // $("#monitor-queryDetail")
-    var queryLists = {}; // will be populated by xcQuery objs with transaction id as key
-    var queryCheckList = {}; // setTimeout timers
-    var canceledQueries = {}; // for canceled queries that have been deleted
+namespace QueryManager {
+    let $queryList: JQuery;   // $("#monitor-queryList")
+    let $queryDetail: JQuery; // $("#monitor-queryDetail")
+    let queryLists: {[key: string]: XcQuery} = {}; // will be populated by xcQuery objs with transaction id as key
+    let queryCheckList: {[key: number]: number} = {}; // setTimeout timers
+    let canceledQueries: {[key: number]: XcQuery} = {}; // for canceled queries that have been deleted
                               // but the operation has not returned yet
     // XXX store this as a query property
-    var sysQueryTypes = [SQLOps.ProfileSort, SQLOps.ProfileBucketing,
+    const sysQueryTypes: string[] = [SQLOps.ProfileSort, SQLOps.ProfileBucketing,
                            SQLOps.ProfileAgg, SQLOps.ProfileStats,
                            SQLOps.RenameOrphanTable,
                            SQLOps.QuickAgg, SQLOps.Corr, SQLOps.PreviewDS,
                            SQLOps.DestroyPreviewDS];
-    var nonCancelableTypes = [SQLOps.RenameTable, SQLOps.RenameOrphanTable,
+    const nonCancelableTypes: string[] = [SQLOps.RenameTable, SQLOps.RenameOrphanTable,
                             SQLOps.DestroyDS, SQLOps.DestroyPreviewDS,
                             SQLOps.DeleteTable, SQLOps.DeleteAgg];
-    var noOutputs = [SQLOps.DestroyDS, SQLOps.DestroyPreviewDS,
+    const noOutputs: string[] = [SQLOps.DestroyDS, SQLOps.DestroyPreviewDS,
                             SQLOps.DeleteTable, SQLOps.DeleteAgg];
 
     // constant
-    var checkInterval = 2000; // check query every 2s
-    var infList;
+    const checkInterval: number = 2000; // check query every 2s
+    let infList: InfList;
 
-    QueryManager.setup = function() {
+    export interface AddQueryOptions {
+        numSteps?: number,
+        cancelable?: boolean,
+        srcTables?: string[]
+    }
+
+    export interface AddSubQueryOptions {
+        queryName?: string,
+        exportFileName?: string,
+        retName?: string
+    }
+
+    export interface SubQueryDoneOptions {
+        retName?: string
+    }
+
+    export interface XcQueryAbbr {
+        sqlNum: number,
+        time: number,
+        elapsedTime: number,
+        opTime: number,
+        opTimeAdded: boolean,
+        outputTableName: string,
+        outputTableState: string | number,
+        state: string | number,
+        name?: string,
+        fullName?: string,
+        queryStr?: string,
+        error?: string
+    }
+
+    interface TimeObj {
+        tip: string,
+        text: string
+    }
+
+    /**
+     * QueryManager.setup
+     */
+    export function setup(): void {
         $queryList = $("#monitor-queryList");
         $queryDetail = $("#monitor-queryDetail");
         infList = new InfList($queryList, {numInitial: 30});
@@ -29,21 +68,31 @@ window.QueryManager = (function(QueryManager, $) {
     };
 
     // if numSteps is unknown, should take in -1
-    QueryManager.addQuery = function(id, name, options) {
+    /**
+     * QueryManager.addQuery
+     * @param id
+     * @param name
+     * @param options
+     */
+    export function addQuery(
+        id: number,
+        name: string,
+        options: AddQueryOptions
+    ): void {
         if (Transaction.isSimulate(id)) {
             return;
         }
 
         options = options || {};
-        var time = new Date().getTime();
-        var fullName = name + "-" + time;
-        var numSteps = options.numSteps || -1;
+        const time: number = new Date().getTime();
+        const fullName: string = name + "-" + time;
+        const numSteps: number = options.numSteps || -1;
 
         if (nonCancelableTypes.indexOf(name) > -1) {
             options.cancelable = false;
         }
 
-        var mainQuery = new XcQuery({
+        const mainQuery: XcQuery = new XcQuery({
             "name": name,
             "fullName": fullName,
             "time": time,
@@ -55,7 +104,7 @@ window.QueryManager = (function(QueryManager, $) {
         });
 
         queryLists[id] = mainQuery;
-        var $query = $(getQueryHTML(mainQuery));
+        const $query: JQuery = $(getQueryHTML(mainQuery));
         $queryList.find(".hint").remove();
         $queryList.append($query);
 
@@ -75,18 +124,31 @@ window.QueryManager = (function(QueryManager, $) {
     };
 
     // queryName will be empty if subquery doesn't belong to a xcalarQuery
-    // options = {exportFileName: string, queryName: string, retName; string}
-    QueryManager.addSubQuery = function(id, name, dstTable, query, options) {
+    /**
+     * QueryManager.addSubQuery
+     * @param id
+     * @param name
+     * @param dstTable
+     * @param query
+     * @param options
+     */
+    export function addSubQuery(
+        id: number,
+        name: string,
+        dstTable: string,
+        query: string,
+        options?: AddSubQueryOptions
+    ): void {
         if (Transaction.isSimulate(id) ||
             !queryLists[id] ||
             Transaction.checkCanceled(id)) {
             return;
         }
 
-        var mainQuery = queryLists[id];
-        var time = new Date().getTime();
+        const mainQuery: XcQuery = queryLists[id];
+        const time: number = new Date().getTime();
         options = options || {};
-        var subQuery = new XcSubQuery({
+        const subQuery: XcSubQuery = new XcSubQuery({
             "name": name,
             "time": time,
             "query": query,
@@ -105,37 +167,44 @@ window.QueryManager = (function(QueryManager, $) {
             } else {
                 // delay first check so we don't check too early before
                 // the operation has been started
-                var delay = 10;
-                operationCheck(subQuery, delay);
+                operationCheck(subQuery, 10);
             }
         }
-        var $query = $queryList.find('.query[data-id="' + id + '"]');
+        const $query: JQuery = $queryList.find('.query[data-id="' + id + '"]');
         if ($query.hasClass('active')) {
             updateQueryTextDisplay(mainQuery.getQuery());
         }
     };
 
-    QueryManager.scrollToFocused = function() {
-        var $activeLi = $queryList.find('.active');
+    /**
+     * QueryManager.scrollToFocused
+     */
+    export function scrollToFocused(): void {
+        const $activeLi: JQuery = $queryList.find('.active');
         if ($activeLi.length && $('#monitorMenu').hasClass('active') &&
             !$('#monitorMenu').find('.menuSection.query')
             .hasClass('xc-hidden')) {
-            var listHeight = $queryList.height();
-            var liHeight = $activeLi.height();
-            var position = $activeLi.position();
+            const listHeight: number = $queryList.height();
+            const liHeight: number = $activeLi.height();
+            let position: JQueryCoordinates = $activeLi.position();
             if (position.top < 0 || position.top + liHeight > listHeight) {
-                var scrollTop = $queryList.scrollTop();
+                const scrollTop: number = $queryList.scrollTop();
                 $queryList.scrollTop(scrollTop + position.top);
             }
         }
     };
 
-    QueryManager.queryDone = function(id, sqlNum) {
+    /**
+     * QueryManager.queryDone
+     * @param id
+     * @param sqlNum
+     */
+    export function queryDone(id: number, sqlNum?: number): void {
         if (Transaction.isSimulate(id) || !queryLists[id]) {
             return;
         }
 
-        var mainQuery = queryLists[id];
+        const mainQuery: XcQuery = queryLists[id];
         mainQuery.state = QueryStatus.Done;
         if (mainQuery.name === SQLOps.ExportTable) {
             mainQuery.outputTableState = "exported";
@@ -163,13 +232,24 @@ window.QueryManager = (function(QueryManager, $) {
         updateOutputSection(id);
     };
 
-    QueryManager.subQueryDone = function(id, dstTable, time, options) {
+    /**
+     * QueryManager.subQueryDone
+     * @param id
+     * @param dstTable
+     * @param time
+     * @param options
+     */
+    export function subQueryDone(
+        id: number, dstTable: string | null,
+        time: object,
+        options?: SubQueryDoneOptions
+    ): void {
         if (Transaction.isSimulate(id) || !queryLists[id]) {
             return;
         }
 
         options = options || {};
-        var mainQuery = queryLists[id];
+        const mainQuery: XcQuery = queryLists[id];
         if (time != null) {
             if (mainQuery.name === SQLOps.Retina && options.retName) {
                 mainQuery.setOpTime(time);
@@ -181,7 +261,7 @@ window.QueryManager = (function(QueryManager, $) {
         // execute retina returned, should be on last step of the group of
         // queries
         if (options.retName) {
-            var lastQueryPos = getLastOperationPos(mainQuery, mainQuery.currStep);
+            const lastQueryPos: number = getLastOperationPos(mainQuery, mainQuery.currStep);
             setQueriesDone(mainQuery, mainQuery.currStep, lastQueryPos);
             mainQuery.currStep = lastQueryPos;
         }
@@ -192,8 +272,8 @@ window.QueryManager = (function(QueryManager, $) {
             return;
         }
 
-        for (var i = 0; i < mainQuery.subQueries.length; i++) {
-            var subQuery = mainQuery.subQueries[i];
+        for (let i = 0; i < mainQuery.subQueries.length; i++) {
+            let subQuery: XcSubQuery = mainQuery.subQueries[i];
             if (subQuery.dstTable === dstTable || (options.retName &&
                 mainQuery.currStep === i)) {
                 subQuery.state = QueryStatus.Done;
@@ -223,7 +303,12 @@ window.QueryManager = (function(QueryManager, $) {
         }
     };
 
-    QueryManager.removeQuery = function(ids, userTriggered) {
+    /**
+     * QueryManager.removeQuery
+     * @param ids
+     * @param userTriggered
+     */
+    export function removeQuery(ids: number[] | number, userTriggered?: boolean) {
         if (!(ids instanceof Array)) {
             ids = [ids];
         }
@@ -235,7 +320,7 @@ window.QueryManager = (function(QueryManager, $) {
 
             if (userTriggered) {
                 // do not allow user to click on trash if not started or processing
-                var state = queryLists[id].state;
+                const state: number | string = queryLists[id].state;
                 if (state === QueryStateT.qrNotStarted ||
                     state === QueryStateT.qrProcessing) {
                     return;
@@ -250,7 +335,7 @@ window.QueryManager = (function(QueryManager, $) {
             }
 
             delete queryLists[id];
-            var $query = $queryList.find('.query[data-id="' + id + '"]');
+            const $query:JQuery = $queryList.find('.query[data-id="' + id + '"]');
             if ($query.hasClass('active')) {
                 setDisplayToDefault();
             }
@@ -260,12 +345,16 @@ window.QueryManager = (function(QueryManager, $) {
         xcTooltip.hideAll();
     };
 
-    QueryManager.cancelQuery = function(id) {
+    /**
+     * QueryManager.cancelQuery
+     * @param id
+     */
+    export function cancelQuery(id: number): XDPromise<any> {
         if (Transaction.isSimulate(id)) {
             return;
         }
-        var deferred = PromiseHelper.deferred();
-        var mainQuery = queryLists[id];
+        const deferred: XDDeferred<object> = PromiseHelper.deferred();
+        const mainQuery: XcQuery = queryLists[id];
         if (mainQuery == null) {
             // error case
             console.warn('invalid operation', 'transaction id: ' + id);
@@ -281,9 +370,9 @@ window.QueryManager = (function(QueryManager, $) {
             return deferred.promise();
         }
 
-        var prevState = mainQuery.getState();
+        const prevState: string | number = mainQuery.getState();
 
-        var $query = $queryList.find('.query[data-id="' + id + '"]');
+        const $query: JQuery = $queryList.find('.query[data-id="' + id + '"]');
         $query.find('.cancelIcon').addClass('disabled');
 
         if (!Transaction.isCancelable(id)) {
@@ -297,11 +386,11 @@ window.QueryManager = (function(QueryManager, $) {
         unlockSrcTables(mainQuery);
 
         // unfinished tables will be dropped when Transaction.fail is reached
-        var onlyFinishedTables = true;
+        const onlyFinishedTables: boolean = true;
         dropCanceledTables(mainQuery, onlyFinishedTables);
         tableListCanceled(mainQuery);
 
-        var currStep = mainQuery.currStep;
+        const currStep: number = mainQuery.currStep;
 
         if (!mainQuery.subQueries[currStep]) {
             if (currStep === 0 && prevState === QueryStateT.qrNotStarted) {
@@ -315,7 +404,7 @@ window.QueryManager = (function(QueryManager, $) {
             return deferred.promise();
         }
 
-        var statusesToIgnore = [StatusT.StatusOperationHasFinished];
+        const statusesToIgnore: number[] = [StatusT.StatusOperationHasFinished];
 
         // this is a xcalar query
         if (mainQuery.subQueries[currStep].queryName) {
@@ -340,47 +429,59 @@ window.QueryManager = (function(QueryManager, $) {
         return deferred.promise();
     };
 
-    QueryManager.cancelDS = function(id) {
+    /**
+     * QueryManager.cancelDS
+     * @param id
+     */
+    export function cancelDS(id: number): void {
         if (Transaction.isSimulate(id)) {
             return;
         }
-        var mainQuery = queryLists[id];
-        var subQuery = mainQuery.subQueries[0];
+        const mainQuery: XcQuery = queryLists[id];
+        const subQuery: XcSubQuery = mainQuery.subQueries[0];
         if (!subQuery) {
             // Load hasn't been triggered yet so no DS to cancel (rare)
             return;
         }
 
-        var dsId = subQuery.dstTable.substring(gDSPrefix.length);
-        var $grid = DS.getGrid(dsId);
+        const dsId: string = subQuery.dstTable.substring(gDSPrefix.length);
+        const $grid: JQuery = DS.getGrid(dsId);
         DS.cancel($grid);
         // DS.cancel preps the DsObj and icon and
         // eventually calls QueryManager.cancelQuery
     };
 
-    QueryManager.cancelDF = function(id) {
+    /**
+     * QueryManager.cancelDF
+     * @param id
+     */
+    export function cancelDF(id: number) {
         if (Transaction.isSimulate(id)) {
             return;
         }
-        var mainQuery = queryLists[id];
+        const mainQuery: XcQuery = queryLists[id];
         if (!mainQuery) {
             return;
         }
         if (mainQuery.subQueries[0]) {
-            var retName = mainQuery.subQueries[0].retName;
+            const retName: string = mainQuery.subQueries[0].retName;
             DFCard.cancelDF(retName, id);
         }
     };
 
     // this gets called after cancel is successful. It cleans up and updates
     // the query state and views
-    QueryManager.confirmCanceledQuery = function(id) {
+    /**
+     * QueryManager.confirmCanceledQuery
+     * @param id
+     */
+    export function confirmCanceledQuery(id: number): void {
         if (Transaction.isSimulate(id) || !queryLists[id]) {
             return;
         }
         clearIntervalHelper(id);
 
-        var mainQuery = queryLists[id];
+        const mainQuery: XcQuery = queryLists[id];
         mainQuery.state = QueryStatus.Cancel;
         mainQuery.outputTableState = "deleted";
         mainQuery.setElapsedTime();
@@ -393,7 +494,7 @@ window.QueryManager = (function(QueryManager, $) {
             "total": CommonTxtTstr.NA
         }, id);
         updateOutputSection(id, true);
-        var $query = $('.query[data-id="' + id + '"]');
+        const $query: JQuery = $('.query[data-id="' + id + '"]');
         $query.addClass(QueryStatus.Cancel).find('.querySteps')
               .text(xcHelper.capitalize(QueryStatus.Cancel));
         if ($query.hasClass('active')) {
@@ -402,37 +503,45 @@ window.QueryManager = (function(QueryManager, $) {
         if (mainQuery.subQueries[0] &&
             mainQuery.subQueries[0].getName() === "index from DS")
         {
-            var isCanceled = true;
+            const isCanceled: boolean = true;
             DSCart.queryDone(mainQuery.getId(), isCanceled);
-            return;
         }
     };
 
-    QueryManager.cleanUpCanceledTables = function(id) {
+    /**
+     * QueryManager.cleanUpCanceledTables
+     * @param id
+     */
+    export function cleanUpCanceledTables(id: number): void {
         if (Transaction.isSimulate(id)) {
             return;
         }
         if (!queryLists[id] && !canceledQueries[id]) {
             return;
         }
-        var mainQuery;
+        let mainQuery: XcQuery;
         if (queryLists[id]) {
             mainQuery = queryLists[id];
         } else {
             mainQuery = canceledQueries[id];
         }
-        var onlyFinishedTables = false;
-        dropCanceledTables(mainQuery, onlyFinishedTables);
+
+        dropCanceledTables(mainQuery, false);
         clearTableListCanceled(mainQuery);
         delete canceledQueries[id];
     };
 
-    QueryManager.fail = function(id, error) {
+    /**
+     * QueryManager.fail
+     * @param id
+     * @param error
+     */
+    export function fail(id: number, error: string | XCThriftError): void {
         if (Transaction.isSimulate(id) || !queryLists[id]) {
             return;
         }
 
-        var mainQuery = queryLists[id];
+        const mainQuery: XcQuery = queryLists[id];
         mainQuery.state = QueryStatus.Error;
         mainQuery.outputTableState = "unavailable";
         mainQuery.sqlNum = Log.getErrorLogs().length - 1;
@@ -457,7 +566,7 @@ window.QueryManager = (function(QueryManager, $) {
             "total": CommonTxtTstr.NA
         }, id, QueryStatus.Error);
         updateOutputSection(id);
-        var $query = $('.query[data-id="' + id + '"]');
+        const $query: JQuery = $('.query[data-id="' + id + '"]');
         $query.addClass(QueryStatus.Error).find('.querySteps')
               .text(xcHelper.capitalize(QueryStatus.Error));
         if ($query.hasClass('active')) {
@@ -465,18 +574,22 @@ window.QueryManager = (function(QueryManager, $) {
         }
     };
 
-    QueryManager.check = function(doNotAnimate) {
+    /**
+     * QueryManager.check
+     * @param doNotAnimate
+     */
+    export function check(doNotAnimate?: boolean): void {
         // check queries
-        for (var xcQuery in queryLists) {
-            var query = queryLists[xcQuery];
+        for (const xcQuery in queryLists) {
+            const query: XcQuery = queryLists[xcQuery];
             if (query.type === "restored") {
                 continue;
             }
             if (query.state !== QueryStatus.Done &&
                 query.state !== QueryStatus.Cancel &&
                 query.state !== QueryStatus.Error) {
-                for (var i = 0; i < query.subQueries.length; i++) {
-                    var subQuery = query.subQueries[i];
+                for (let i = 0; i < query.subQueries.length; i++) {
+                    const subQuery: XcSubQuery = query.subQueries[i];
                     if (subQuery.state !== QueryStatus.Done) {
                         if (subQuery.queryName) {
                             xcalarQueryCheck(query.getId(), doNotAnimate);
@@ -490,28 +603,37 @@ window.QueryManager = (function(QueryManager, $) {
         }
     };
 
-    // XX used for testing;
-    QueryManager.getAll = function() {
+    /**
+     * QueryManager.getAll
+     */
+    export function getAll(): object {
         return ({
             "queryLists": queryLists,
             "queryCheckLists": queryCheckList
         });
     };
 
-    QueryManager.getQuery = function(id) {
+    /**
+     * QueryManager.getQuery
+     * @param id
+     */
+    export function getQuery(id: number): XcQuery {
         return queryLists[id];
     };
 
-    QueryManager.getCache = function() {
+    /**
+     * QueryManager.getCache
+     */
+    export function getCache(): XcQueryAbbr[] {
         // used for saving query info for browser refresh
         // put minimal query properties into an array and order by start time
-        var queryObjs = [];
-        var abbrQueryObj;
-        var queryObj;
-        var queryMap = {}; // we store queries into a map first to overwrite any
+        const queryObjs: XcQueryAbbr[] = [];
+        let abbrQueryObj: XcQueryAbbr;
+        let queryObj: XcQuery;
+        const queryMap: object = {}; // we store queries into a map first to overwrite any
         // queries with duplicate sqlNums due to Log.undo/redo operations
         // then sort in an array
-        for (var id in queryLists) {
+        for (const id in queryLists) {
             queryObj = queryLists[id];
             if (queryObj.state === QueryStatus.Done ||
                 queryObj.state === QueryStatus.Cancel ||
@@ -526,6 +648,7 @@ window.QueryManager = (function(QueryManager, $) {
                     "outputTableState": queryObj.getOutputTableState(),
                     "state": queryObj.state
                 };
+
                 if (queryObj.sqlNum === null ||
                     queryObj.state === QueryStatus.Cancel) {
                     abbrQueryObj.name = queryObj.name;
@@ -540,29 +663,33 @@ window.QueryManager = (function(QueryManager, $) {
                 }
             }
         }
-        for (var i in queryMap) {
+        for (const i in queryMap) {
             queryObjs.push(queryMap[i]);
         }
         queryObjs.sort(querySqlSorter);
         return queryObjs;
     };
 
-    QueryManager.restore = function(queries) {
+    /**
+     * QueryManager.restore
+     * @param queries
+     */
+    export function restore(queries: XcQueryAbbr[]): void {
         QueryManager.toggleSysOps(UserSettings.getPref("hideSysOps"));
         if (!queries) {
             return;
         }
 
-        var logs = Log.getLogs();
-        var errorLogs = Log.getErrorLogs();
-        var xcLog;
-        var query;
-        var numQueries = queries.length;
-        var html = "";
-        var name;
-        var fullName;
-        var cli;
-        for (var i = 0; i < numQueries; i++) {
+        const logs: XcLog[] = Log.getLogs();
+        const errorLogs: XcLog[] = Log.getErrorLogs();
+        let xcLog: XcLog;
+        let query: XcQuery;
+        const numQueries: number = queries.length;
+        let html: string = "";
+        let name; // string or sqlops
+        let fullName: string;
+        let cli: string;
+        for (let i = 0; i < numQueries; i++) {
             if (queries[i].state === QueryStatus.Error) {
                 xcLog = errorLogs[queries[i].sqlNum];
             } else {
@@ -626,7 +753,11 @@ window.QueryManager = (function(QueryManager, $) {
         }
     };
 
-    QueryManager.toggleSysOps = function(hide) {
+    /**
+     * QueryManager.toggleSysOps
+     * @param hide
+     */
+    export function toggleSysOps(hide?: boolean): void {
         if (hide) {
             $queryList.addClass("hideSysOps");
             if ($queryList.find(".sysType.active").length) {
@@ -638,9 +769,14 @@ window.QueryManager = (function(QueryManager, $) {
         }
     };
 
-    QueryManager.getAllDstTables = function(id, force) {
-        var tables = [];
-        var query = queryLists[id];
+    /**
+     * QueryManager.getAllDstTables
+     * @param id
+     * @param force
+     */
+    export function getAllDstTables(id: number, force?: boolean) {
+        const tables: string[] = [];
+        const query: XcQuery = queryLists[id];
         if (!query) {
             return tables;
         }
@@ -648,37 +784,46 @@ window.QueryManager = (function(QueryManager, $) {
     };
 
     // stores reused indexed table names
-    QueryManager.addIndexTable = function(id, tableName) {
-        var query = queryLists[id];
+    /**
+     * QueryManager.addIndexTable
+     * @param id
+     * @param tableName
+     */
+    export function addIndexTable(id: number, tableName: string): void {
+        const query: XcQuery = queryLists[id];
         if (query) {
             query.addIndexTable(tableName);
         }
     };
 
-    QueryManager.getIndexTables = function(id) {
-        var tables = [];
-        var query = queryLists[id];
+    /**
+     * QueryManager.getIndexTables
+     * @param id
+     */
+    export function getIndexTables(id: number): string[] {
+        const tables: string[] = [];
+        const query: XcQuery = queryLists[id];
         if (!query) {
             return tables;
         }
         return query.getIndexTables();
     };
 
-    function checkCycle(callback, id, adjustTime) {
+    function checkCycle(callback: Function, id: number, adjustTime: number): number {
         clearIntervalHelper(id);
 
-        var intTime = checkInterval;
+        let intTime: number = checkInterval;
         if (adjustTime) { // prevents check from occuring too soon after the
             // previous check
             intTime = Math.max(200, checkInterval - adjustTime);
         }
 
-        queryCheckList[id] = setTimeout(function() {
-            var startTime = Date.now();
+        queryCheckList[id] = window.setTimeout(function() {
+            const startTime: number = Date.now();
             callback()
             .then(function() {
                 if (queryCheckList[id] != null) {
-                    var elapsedTime = Date.now() - startTime;
+                    const elapsedTime: number = Date.now() - startTime;
                     checkCycle(callback, id, elapsedTime);
                 }
             });
@@ -688,12 +833,12 @@ window.QueryManager = (function(QueryManager, $) {
     }
 
     // get the first subquery index of a group of subqueries inside of a mainquery
-    function getFirstOperationPos(mainQuery) {
-        var currStep = mainQuery.currStep;
-        var subQueries = mainQuery.subQueries;
-        var queryName = subQueries[currStep].queryName;
-        var firstOperationPos = currStep;
-        for (var i = mainQuery.currStep; i >= 0; i--) {
+    function getFirstOperationPos(mainQuery: XcQuery): number {
+        const currStep: number = mainQuery.currStep;
+        const subQueries: XcSubQuery[] = mainQuery.subQueries;
+        const queryName: string = subQueries[currStep].queryName;
+        let firstOperationPos: number = currStep;
+        for (let i = mainQuery.currStep; i >= 0; i--) {
             if (subQueries[i].queryName !== queryName) {
                 firstOperationPos = i + 1;
                 break;
@@ -702,12 +847,12 @@ window.QueryManager = (function(QueryManager, $) {
         return (firstOperationPos);
     }
 
-    function getLastOperationPos(mainQuery, start) {
-        var currStep = mainQuery.currStep;
-        var subQueries = mainQuery.subQueries;
-        var queryName = subQueries[currStep].queryName;
-        var lastOperationPos = start;
-        for (var i = subQueries.length - 1; i >= 0; i--) {
+    function getLastOperationPos(mainQuery: XcQuery, start: number): number {
+        const currStep: number = mainQuery.currStep;
+        const subQueries: XcSubQuery[] = mainQuery.subQueries;
+        const queryName: string = subQueries[currStep].queryName;
+        let lastOperationPos: number = start;
+        for (let i = subQueries.length - 1; i >= 0; i--) {
             if (subQueries[i].queryName === queryName) {
                 lastOperationPos = i;
                 break;
@@ -718,39 +863,39 @@ window.QueryManager = (function(QueryManager, $) {
 
     // used for xcalarQuery subqueries since QueryManager.subQueryDone does not
     // get called
-    function setQueriesDone(mainQuery, start, end) {
-        var subQueries = mainQuery.subQueries;
-        for (var i = start; i < end; i++) {
+    function setQueriesDone(mainQuery: XcQuery, start: number, end: number): void {
+        const subQueries: XcSubQuery[] = mainQuery.subQueries;
+        for (let i = start; i < end; i++) {
             subQueries[i].state = QueryStatus.Done;
         }
     }
 
     // checks a group of subqueries by checking the single query name they're
     // associated with
-    function xcalarQueryCheck(id, doNotAnimate) {
+    function xcalarQueryCheck(id: number, doNotAnimate?: boolean): void {
         if (!queryLists[id]) {
             console.error("error case");
             return;
         }
 
-        var mainQuery = queryLists[id];
-        var firstQueryPos = getFirstOperationPos(mainQuery);
+        const mainQuery: XcQuery = queryLists[id];
+        const firstQueryPos: number = getFirstOperationPos(mainQuery);
 
-        var startTime = Date.now();
+        const startTime: number = Date.now();
         check()
         .then(function() {
-            var elapsedTime = Date.now() - startTime;
+            const elapsedTime: number = Date.now() - startTime;
             checkCycle(check, id, elapsedTime);
         });
 
-        function check() {
+        function check(): XDPromise<any> {
             if (mainQuery.state === QueryStatus.Error ||
                 mainQuery.state === QueryStatus.Cancel ||
                 mainQuery.state === QueryStatus.Done) {
                 return PromiseHelper.reject();
             }
-            var deferred = PromiseHelper.deferred();
-            var queryName = mainQuery.subQueries[mainQuery.currStep].queryName;
+            const deferred: XDDeferred<any> = PromiseHelper.deferred();
+            const queryName: string = mainQuery.subQueries[mainQuery.currStep].queryName;
             xcalarQueryCheckHelper(id, queryName)
             .then(function(res) {
                 if (mainQuery.state === QueryStatus.Error ||
@@ -760,16 +905,16 @@ window.QueryManager = (function(QueryManager, $) {
                     return;
                 }
 
-                var numCompleted = res.numCompletedWorkItem;
-                var lastQueryPos = getLastOperationPos(mainQuery, firstQueryPos);
-                var currStep = Math.min(numCompleted + firstQueryPos,
+                const numCompleted: number = res.numCompletedWorkItem;
+                const lastQueryPos: number = getLastOperationPos(mainQuery, firstQueryPos);
+                let currStep: number = Math.min(numCompleted + firstQueryPos,
                                         lastQueryPos);
                 mainQuery.currStep = Math.max(mainQuery.currStep, currStep);
                 setQueriesDone(mainQuery, firstQueryPos, currStep);
-                var state = res.queryState;
+                const state: string | number = res.queryState;
 
                 if (state === QueryStateT.qrFinished) {
-                    var curSubQuery = mainQuery.subQueries[mainQuery.currStep];
+                    const curSubQuery: XcSubQuery = mainQuery.subQueries[mainQuery.currStep];
                     currStep = mainQuery.currStep + 1;
                     setQueriesDone(mainQuery, firstQueryPos, currStep);
                     if (!curSubQuery.retName) {
@@ -778,7 +923,7 @@ window.QueryManager = (function(QueryManager, $) {
                         mainQuery.currStep++;
                     }
                     clearIntervalHelper(id);
-                    var subQuery = mainQuery.subQueries[currStep];
+                    const subQuery: XcSubQuery = mainQuery.subQueries[currStep];
                     if (subQuery) {
                         if (subQuery.queryName) {
                             xcalarQueryCheck(id, doNotAnimate);
@@ -794,7 +939,7 @@ window.QueryManager = (function(QueryManager, $) {
                     deferred.reject(); // ends cycle
                 } else {
                     if (mainQuery.subQueries[currStep].retName) {
-                        var pct = parseFloat((100 * DFCard.getProgress(queryName).curOpPct)
+                        const pct: number = parseFloat((100 * DFCard.getProgress(queryName).curOpPct)
                                     .toFixed(2));
                         updateQueryBar(id, pct, false, false, doNotAnimate);
                         mainQuery.setElapsedTime();
@@ -829,20 +974,20 @@ window.QueryManager = (function(QueryManager, $) {
         }
     }
 
-    function xcalarQueryCheckHelper(id, queryName) {
-        var mainQuery = queryLists[id];
-        var curSubQuery = mainQuery.subQueries[mainQuery.currStep];
+    function xcalarQueryCheckHelper(id: number, queryName: string): XDPromise<any> {
+        const mainQuery: XcQuery = queryLists[id];
+        const curSubQuery: XcSubQuery = mainQuery.subQueries[mainQuery.currStep];
         if (curSubQuery.retName) {
             // if retina doesn't exist in dfcard, we stil update the elapsed
             // time, but the steps and % will be at 0
-            var progress = DFCard.getProgress(curSubQuery.retName);
-            var status;
+            const progress: DFProgressData  = DFCard.getProgress(curSubQuery.retName);
+            let status: QueryStateT;
             if (progress.pct === 1) {
                 status = QueryStateT.qrFinished;
             } else {
                 status = QueryStateT.qrProcessing;
             }
-            var ret = {
+            const ret: object = {
                 numCompletedWorkItem: progress.numCompleted,
                 queryState: status
             };
@@ -855,11 +1000,11 @@ window.QueryManager = (function(QueryManager, $) {
         }
     }
 
-    function incrementStep(mainQuery) {
+    function incrementStep(mainQuery: XcQuery): void {
         mainQuery.currStep++;
 
-        var id = mainQuery.getId();
-        var $query = $queryList.find('.query[data-id="' + id + '"]');
+        const id: number = mainQuery.getId();
+        const $query: JQuery = $queryList.find('.query[data-id="' + id + '"]');
 
         if ($query.hasClass('active')) {
             updateQueryTextDisplay(mainQuery.getQuery());
@@ -872,20 +1017,20 @@ window.QueryManager = (function(QueryManager, $) {
         }
     }
 
-    function focusOnQuery($target) {
+    function focusOnQuery($target: JQuery): void {
         if ($target.hasClass("active") || ($target.hasClass("sysType") &&
             UserSettings.getPref("hideSysOps"))) {
             return;
         }
 
-        var queryId = parseInt($target.data("id"));
+        const queryId: number = parseInt($target.data("id"));
         $target.siblings(".active").removeClass("active");
         $target.addClass("active");
 
         // update right section
-        var mainQuery = queryLists[queryId];
-        var query = (mainQuery == null) ? "" : mainQuery.getQuery();
-        var startTime;
+        const mainQuery: XcQuery = queryLists[queryId];
+        let query: string = (mainQuery == null) ? "" : mainQuery.getQuery();
+        let startTime: string | object;
 
         if (mainQuery == null) {
             console.error("cannot find query", queryId);
@@ -896,9 +1041,9 @@ window.QueryManager = (function(QueryManager, $) {
             startTime = getQueryTime(mainQuery.getTime());
         }
 
-        var totalTime = CommonTxtTstr.NA;
-        var elapsedTime;
-        var opTime;
+        let totalTime: string = CommonTxtTstr.NA;
+        let elapsedTime: string;
+        let opTime: string;
         if (mainQuery.getState() === QueryStatus.Done ||
             mainQuery.getState() === QueryStatus.Cancel ||
             mainQuery.getState() === QueryStatus.Error) {
@@ -927,11 +1072,11 @@ window.QueryManager = (function(QueryManager, $) {
         updateOutputSection(queryId);
     }
 
-    function updateHeadingSection(mainQuery) {
-        var state = mainQuery.getState();
-        var id = mainQuery.id;
-        var $text = $queryDetail.find(".op .text");
-        var name = mainQuery.name;
+    function updateHeadingSection(mainQuery: XcQuery): void {
+        let state: string | number = mainQuery.getState();
+        const id: number = mainQuery.id;
+        const $text: JQuery = $queryDetail.find(".op .text");
+        let name: string = mainQuery.name;
         if (sysQueryTypes.indexOf(name) > -1) {
             name = "Sys-" + name;
         }
@@ -957,15 +1102,15 @@ window.QueryManager = (function(QueryManager, $) {
                     .removeClass(QueryStatus.Error)
                     .removeClass(QueryStatus.Cancel)
                     .removeClass(QueryStatus.RM)
-                    .addClass(state);
+                    .addClass(state + "");
         if (state === QueryStatus.Run) {
             QueryManager.check(true);
             // we need to update the extraProgressBar even if we don't
             // have status data otherwise we'll have the progressBar of the
             // previous query
-            var $progressBar = $queryList.find('.query[data-id="' + id + '"]')
+            const $progressBar: JQuery = $queryList.find('.query[data-id="' + id + '"]')
                                          .find(".progressBar");
-            var prevProgress = 100 * $progressBar.width() /
+            let prevProgress: number = 100 * $progressBar.width() /
                                              $progressBar.parent().width();
             prevProgress = prevProgress || 0; // in case of 0/0 NaN;
             updateQueryBar(id, prevProgress, false, false, true);
@@ -978,17 +1123,17 @@ window.QueryManager = (function(QueryManager, $) {
         }
     }
 
-    function updateQueryTextDisplay(query, blank, errorText) {
-        var queryString = "";
+    function updateQueryTextDisplay(query: string, blank?: boolean, errorText?: string): void {
+        let queryString: string = "";
         if (query) {
-            var querySplit = [];
+            let querySplit: string[] = [];
             try {
                 querySplit = JSON.parse('[' + query + ']');
             } catch (error) {
                 console.error(error);
             }
-            for (var i = 0; i < querySplit.length; i++) {
-                var subQuery = querySplit[i];
+            for (let i = 0; i < querySplit.length; i++) {
+                const subQuery: string = querySplit[i];
                 queryString += '<div class="queryRow"><pre>' + JSON.stringify(subQuery, null, 2);
                 if (i + 1 < querySplit.length) {
                     queryString += ',</pre></div>';
@@ -1011,7 +1156,7 @@ window.QueryManager = (function(QueryManager, $) {
     }
 
     // updates the status text in the main card
-    function updateStatusDetail(info, id, status, reset) {
+    function updateStatusDetail(info: object, id, status?: string, reset?: boolean): void {
         if (id != null) {
             // do not update detail if not focused on this query bar
             if (!$queryList.find('.query[data-id="' + id + '"]')
@@ -1020,11 +1165,11 @@ window.QueryManager = (function(QueryManager, $) {
             }
         }
 
-        var $statusDetail = $queryDetail.find(".statusSection");
-        var $query = $queryDetail.find(".querySection");
-        for (var i in info) {
+        const $statusDetail: JQuery = $queryDetail.find(".statusSection");
+        const $query: JQuery = $queryDetail.find(".querySection");
+        for (const i in info) {
             if (i === "op") {
-                var name = info[i];
+                let name: string = info[i];
                 if (sysQueryTypes.indexOf(name) > -1) {
                     name = "Sys-" + name;
                 }
@@ -1059,8 +1204,8 @@ window.QueryManager = (function(QueryManager, $) {
     }
 
     // enables or disbles the view output button
-    function updateOutputSection(id, forceInactive) {
-        var $focusOutputBtn = $("#monitor-inspect");
+    function updateOutputSection(id: number, forceInactive?: boolean): void {
+        const $focusOutputBtn: JQuery = $("#monitor-inspect");
         if (forceInactive) {
             $focusOutputBtn.addClass('btn-disabled');
             $queryDetail.find('.outputSection').find('.text')
@@ -1071,14 +1216,14 @@ window.QueryManager = (function(QueryManager, $) {
         if (!$queryList.find('.query[data-id="' + id + '"]').hasClass('active')) {
             return;
         }
-        var mainQuery = queryLists[id];
-        var queryState = mainQuery.getState();
-        var dstTableState = mainQuery.getOutputTableState();
+        const mainQuery: XcQuery = queryLists[id];
+        const queryState: string | number = mainQuery.getState();
+        const dstTableState: string | number = mainQuery.getOutputTableState();
 
         if (queryState === QueryStatus.Done && mainQuery.getOutputTableName() &&
             sysQueryTypes.indexOf(mainQuery.getName()) === -1 &&
             noOutputs.indexOf(mainQuery.getName()) === -1) {
-            var dstTableName = mainQuery.getOutputTableName();
+            const dstTableName: string = mainQuery.getOutputTableName();
 
             if (dstTableState === "active" || dstTableState === "exported" ||
              dstTableState === TableType.Undone) {
@@ -1112,12 +1257,12 @@ window.QueryManager = (function(QueryManager, $) {
         }
     }
 
-    function checkIfTableIsUndone(tableName) {
+    function checkIfTableIsUndone(tableName: string): boolean {
         if (tableName.startsWith(gDSPrefix)) {
             return false;
         }
 
-        var tableId = xcHelper.getTableId(tableName);
+        const tableId: TableId = xcHelper.getTableId(tableName);
         if (gTables[tableId]) {
             return gTables[tableId].getType() === TableType.Undone;
         } else {
@@ -1125,8 +1270,8 @@ window.QueryManager = (function(QueryManager, $) {
         }
     }
 
-    function operationCheck(subQuery, delay) {
-        var id = subQuery.getId();
+    function operationCheck(subQuery: XcSubQuery, delay?: number): void {
+        const id: number = subQuery.getId();
         if (!queryLists[id]) {
             console.error("error case");
             return;
@@ -1137,14 +1282,14 @@ window.QueryManager = (function(QueryManager, $) {
             }
         }
         // only stop animation the first time, do not persist it
-        var doNotAnimate = false;
+        const doNotAnimate: boolean = false;
 
-        var startTime = Date.now();
+        const startTime: number = Date.now();
         if (delay) {
             setTimeout(function() {
                 operationCheckHelper(subQuery, id, subQuery.index, doNotAnimate)
                 .then(function() {
-                    var elapsedTime = Date.now() - startTime;
+                    const elapsedTime: number = Date.now() - startTime;
                     checkCycle(function() {
                         return operationCheckHelper(subQuery, id, subQuery.index,
                                                    doNotAnimate);
@@ -1154,7 +1299,7 @@ window.QueryManager = (function(QueryManager, $) {
         } else {
             operationCheckHelper(subQuery, id, subQuery.index, doNotAnimate)
             .then(function() {
-                var elapsedTime = Date.now() - startTime;
+                const elapsedTime: number = Date.now() - startTime;
                 checkCycle(function() {
                     return operationCheckHelper(subQuery, id, subQuery.index,
                                                doNotAnimate);
@@ -1163,8 +1308,13 @@ window.QueryManager = (function(QueryManager, $) {
         }
     }
 
-    function operationCheckHelper(subQuery, id, step, doNotAnimate) {
-        var deferred = PromiseHelper.deferred();
+    function operationCheckHelper(
+        subQuery: XcSubQuery,
+        id: number,
+        step: number,
+        doNotAnimate: boolean
+    ): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         if (subQuery.state === QueryStatus.Done) {
             clearIntervalHelper(id);
             return PromiseHelper.reject();
@@ -1176,7 +1326,7 @@ window.QueryManager = (function(QueryManager, $) {
                 clearIntervalHelper(id);
                 return PromiseHelper.reject();
             }
-            var mainQuery = queryLists[id];
+            const mainQuery: XcQuery = queryLists[id];
             if (mainQuery.state === QueryStatus.Cancel ||
                 mainQuery.state === QueryStatus.Done ||
                 mainQuery.state === QueryStatus.Error) {
@@ -1184,12 +1334,12 @@ window.QueryManager = (function(QueryManager, $) {
                 return PromiseHelper.reject();
             }
 
-            var currStep = mainQuery.currStep;
+            const currStep: number = mainQuery.currStep;
             // check for edge case where percentage is old
             // and mainQuery already incremented to the next step
             if (currStep !== step) {
-                var numSteps = mainQuery.numSteps;
-                var $query = $queryList.find('.query[data-id="' + id + '"]');
+                const numSteps: number = mainQuery.numSteps;
+                const $query: JQuery = $queryList.find('.query[data-id="' + id + '"]');
                 if (numSteps === -1) {
                     $query.find('.querySteps').text('step ' + (currStep + 1));
                 } else if (currStep < numSteps) {
@@ -1215,7 +1365,7 @@ window.QueryManager = (function(QueryManager, $) {
         .fail(function(error) {
             if (queryLists[id] && error &&
                 error.status === StatusT.StatusDagNodeNotFound) {
-                var mainQuery = queryLists[id];
+                const mainQuery: XcQuery = queryLists[id];
                 if (subQuery.name.indexOf("delete") > -1) {
                     clearIntervalHelper(id);
                     deferred.reject();
@@ -1241,21 +1391,27 @@ window.QueryManager = (function(QueryManager, $) {
         return deferred.promise();
     }
 
-    function updateQueryBar(id, progress, isError, isCanceled, doNotAnimate) {
-        var $query = $queryList.find('.query[data-id="' + id + '"]');
+    function updateQueryBar(
+        id: number,
+        progress: string | number,
+        isError?: boolean,
+        isCanceled?: boolean,
+        doNotAnimate?: boolean
+    ): void {
+        const $query: JQuery = $queryList.find('.query[data-id="' + id + '"]');
         if (progress == null && !isCanceled) {
             $query.removeClass("processing");
         }
         if ($query.hasClass("done") && !doNotAnimate) {
             return;
         }
-        var mainQuery = queryLists[id];
-        var currStep = mainQuery.currStep;
-        var numSteps = mainQuery.numSteps;
+        const mainQuery: XcQuery = queryLists[id];
+        const currStep: number = mainQuery.currStep;
+        const numSteps: number = mainQuery.numSteps;
 
-        var $progressBar = $query.find(".progressBar");
-        var $extraProgressBar = null;
-        var $extraStepText = null;
+        const $progressBar: JQuery = $query.find(".progressBar");
+        let $extraProgressBar: JQuery = null;
+        let $extraStepText: JQuery = null;
         if ($query.hasClass("active")) {
             $extraProgressBar = $queryDetail.find(".progressBar");
             $extraStepText = $queryDetail.find(".querySteps");
@@ -1266,8 +1422,8 @@ window.QueryManager = (function(QueryManager, $) {
             }
         }
 
-        var newClass = null;
-        progress = Math.min(Math.max(progress, 0), 100);
+        let newClass: string = null;
+        progress = Math.min(Math.max(parseFloat(progress + ""), 0), 100);
         if (progress >= 100 && ((numSteps > 0 && currStep >= numSteps) ||
             (mainQuery.state === QueryStatus.Done))) {
             progress = "100%";
@@ -1283,8 +1439,8 @@ window.QueryManager = (function(QueryManager, $) {
             progress = progress + "%";
         }
 
-        var $lockIcon = $('.lockedTableIcon[data-txid="' + id + '"]');
-        var progressCircles = [];
+        const $lockIcon: JQuery = $('.lockedTableIcon[data-txid="' + id + '"]');
+        const progressCircles: ProgressCircle[] = [];
         if ($lockIcon.length) {
             $lockIcon.each(function() {
                 progressCircles.push($(this).data("progresscircle"));
@@ -1298,7 +1454,7 @@ window.QueryManager = (function(QueryManager, $) {
             if (!$query.hasClass("done")) {
                 $progressBar.stop().width(0).data('step', currStep);
 
-                for (var i = 0; i < progressCircles.length; i++) {
+                for (let i = 0; i < progressCircles.length; i++) {
                     progressCircles[i].update(0, 0);
                 }
                 if ($extraProgressBar != null) {
@@ -1310,13 +1466,13 @@ window.QueryManager = (function(QueryManager, $) {
         // .stop() stops any previous animation;
         if (isCanceled || isError) {
             $progressBar.stop().width(progress);
-            for (var i = 0; i < progressCircles.length; i++) {
+            for (let i = 0; i < progressCircles.length; i++) {
                 progressCircles[i].update(parseInt(progress), 0);
             }
         } else {
             $progressBar.stop().animate({"width": progress}, checkInterval,
                                         "linear", progressBarContinuation);
-            for (var i = 0; i < progressCircles.length; i++) {
+            for (let i = 0; i < progressCircles.length; i++) {
                 progressCircles[i].update(parseInt(progress), checkInterval);
             }
         }
@@ -1328,7 +1484,7 @@ window.QueryManager = (function(QueryManager, $) {
                 if (isCanceled) {
                     $extraProgressBar.stop().width(progress);
                 } else {
-                    var prevProgress = 100 * $progressBar.width() /
+                    let prevProgress: number = 100 * $progressBar.width() /
                                              $progressBar.parent().width();
                     prevProgress = prevProgress || 0; // in case of NaN 0/0
                     // set extraProgressBar's to match progressBar's width
@@ -1368,10 +1524,14 @@ window.QueryManager = (function(QueryManager, $) {
     }
 
     // $extraStepText -> the main panel $queryDetail.find(".querySteps");
-    function updateQueryStepsDisplay(mainQuery, $query, newClass,
-                                    $extraStepText) {
-        var displayedStep;
-        var stepText;
+    function updateQueryStepsDisplay(
+        mainQuery: XcQuery,
+        $query: JQuery,
+        newClass: string,
+        $extraStepText: JQuery
+    ): void {
+        let displayedStep: number;
+        let stepText: string;
         // if query stopped in some way or another
         if (newClass !== null) {
             if (newClass === QueryStatus.Done ||
@@ -1408,17 +1568,17 @@ window.QueryManager = (function(QueryManager, $) {
         }
     }
 
-    function getQueryTime(time) {
-        time = moment(time);
-        var timeObj = {
-            text: time.calendar(),
-            tip: time.format("h:mm:ss A M-D-Y")
+    function getQueryTime(time: number): TimeObj {
+        const momTime: moment.Moment = moment(time);
+        const timeObj: TimeObj = {
+            text: momTime.calendar(),
+            tip: momTime.format("h:mm:ss A M-D-Y")
         };
         return timeObj;
     }
 
-    function addEventHandlers() {
-        var $querySideBar = $("#monitorMenu-query");
+    function addEventHandlers(): void {
+        const $querySideBar: JQuery = $("#monitorMenu-query");
 
         $querySideBar.on("click", ".filterSection .xc-action", function() {
             filterQuery($(this));
@@ -1441,7 +1601,7 @@ window.QueryManager = (function(QueryManager, $) {
         });
 
         $queryList.on("click", ".checkbox", function() {
-            var $checkbox = $(this);
+            const $checkbox: JQuery = $(this);
             if ($checkbox.hasClass("checked")) {
                 $checkbox.removeClass("checked");
             } else {
@@ -1450,14 +1610,14 @@ window.QueryManager = (function(QueryManager, $) {
         });
 
         $queryList.on("click", ".query", function(event) {
-            var $clickTarget = $(event.target);
-            var id = $clickTarget.closest('.query').data('id');
+            const $clickTarget: JQuery = $(event.target);
+            const id: number = $clickTarget.closest('.query').data('id');
 
             if ($clickTarget.hasClass('deleteIcon')) {
                 QueryManager.removeQuery(id, true);
             } else if ($clickTarget.hasClass('cancelIcon')) {
-                var mainQuery = queryLists[id];
-                var qName;
+                const mainQuery: XcQuery = queryLists[id];
+                let qName: string;
                 if (mainQuery) {
                     qName = mainQuery.name;
                 }
@@ -1488,13 +1648,13 @@ window.QueryManager = (function(QueryManager, $) {
 
         bulkOptions();
 
-        function focusOnOutput() {
-            var queryId = parseInt($queryList.find('.query.active').data('id'));
-            var mainQuery = queryLists[queryId];
-            var tableName = mainQuery.getOutputTableName();
+        function focusOnOutput(): void {
+            const queryId: number = parseInt($queryList.find('.query.active').data('id'));
+            const mainQuery: XcQuery = queryLists[queryId];
+            const tableName: string = mainQuery.getOutputTableName();
 
             if (!tableName) {
-                var type;
+                let type: string;
                 if (mainQuery.getName() === SQLOps.DSPoint) {
                     type = "dataset";
                 } else {
@@ -1505,8 +1665,8 @@ window.QueryManager = (function(QueryManager, $) {
             }
 
             if (tableName.indexOf(gDSPrefix) > -1) {
-                var dsId = tableName.slice(gDSPrefix.length);
-                var $grid = DS.getGrid(dsId);
+                const dsId: string = tableName.slice(gDSPrefix.length);
+                let $grid: JQuery = DS.getGrid(dsId);
                 if ($grid.length) {
                     focusOnDSGrid($grid, dsId);
                 } else {
@@ -1526,7 +1686,7 @@ window.QueryManager = (function(QueryManager, $) {
                 return;
             }
 
-            var tableId = xcHelper.getTableId(tableName);
+            const tableId: TableId = xcHelper.getTableId(tableName);
 
             if (tableId == null) {
                 focusOutputErrorHandler('output', mainQuery);
@@ -1541,9 +1701,9 @@ window.QueryManager = (function(QueryManager, $) {
             });
         }
 
-        function focusOnDSGrid($grid, dsId) {
+        function focusOnDSGrid($grid: JQuery, dsId: number | string): void {
             // switch to correct panels
-            var $datastoreTab = $("#dataStoresTab");
+            const $datastoreTab: JQuery = $("#dataStoresTab");
             if (!$datastoreTab.hasClass("active")) {
                 $datastoreTab.click();
             }
@@ -1552,22 +1712,26 @@ window.QueryManager = (function(QueryManager, $) {
                 $datastoreTab.find(".mainTab").click();
             }
 
-            var $inButton = $("#inButton");
+            const $inButton: JQuery = $("#inButton");
             if (!$inButton.hasClass("active")) {
                 $inButton.click();
             }
 
-            var folderId = DS.getDSObj(dsId).parentId;
+            const folderId: string = DS.getDSObj(dsId).parentId;
             DS.goToDir(folderId);
             DS.focusOn($grid);
         }
 
-        function focusOutputErrorHandler(type, mainQuery, status) {
-            var typeUpper = type[0].toUpperCase() + type.slice(1);
-            var title = xcHelper.replaceMsg(ErrWRepTStr.OutputNotFound, {
+        function focusOutputErrorHandler(
+            type: string,
+            mainQuery: XcQuery,
+            status?: string
+        ): void {
+            const typeUpper: string = type[0].toUpperCase() + type.slice(1);
+            const title: string = xcHelper.replaceMsg(ErrWRepTStr.OutputNotFound, {
                 "name": typeUpper
             });
-            var desc;
+            let desc: string;
             if (type === "output") {
                 desc =ErrTStr.OutputNotFoundMsg;
             } else {
@@ -1588,15 +1752,15 @@ window.QueryManager = (function(QueryManager, $) {
                                                .text(CommonTxtTstr.NA);
         }
 
-        function bulkOptions() {
+        function bulkOptions(): void {
             $querySideBar.find(".bulkOptions").on("click", "li", function() {
-                var action = $(this).data('action');
+                const action: string = $(this).data('action');
 
                 switch (action) {
                     case ("deleteAll"):
-                        var ids = [];
+                        const ids: number[] = [];
                         $queryList.find(".checkbox.checked").each(function() {
-                            var id = $(this).closest(".query").data("id");
+                            const id: number = $(this).closest(".query").data("id");
                             ids.push(id);
                         });
                         QueryManager.removeQuery(ids, true);
@@ -1619,23 +1783,27 @@ window.QueryManager = (function(QueryManager, $) {
         }
     }
 
-    function querySqlSorter(a, b) {
+    function querySqlSorter(a, b): number {
         if (a.time > b.time) {
             return 1;
         } else if (a.time < b.time) {
             return -1;
         } else {
-            return a.sqlNum > b.sqlNum;
+            if (a.sqlNum > b.sqlNum) {
+                return 1;
+            } else {
+                return -1;
+            }
         }
     }
 
-    function filterQuery($el) {
+    function filterQuery($el: JQuery): void {
         if ($el.hasClass("active")) {
             return;
         }
 
         $el.addClass("active").siblings().removeClass("active");
-        var $queries = $queryList.find(".query").addClass("xc-hidden");
+        const $queries: JQuery = $queryList.find(".query").addClass("xc-hidden");
         if ($el.hasClass("error")) {
             $queryList.find(".query.error").removeClass("xc-hidden");
         } else if ($el.hasClass("processing")) {
@@ -1648,17 +1816,17 @@ window.QueryManager = (function(QueryManager, $) {
         QueryManager.scrollToFocused();
     }
 
-    function getQueryHTML(xcQuery, restored) {
-        var id = xcQuery.getId();
-        var time = xcQuery.getTime();
-        var dateObj = getQueryTime(time);
-        var cancelClass = xcQuery.cancelable ? "" : " disabled";
-        var statusClass = "";
-        var pct;
-        var step = "";
-        var originalName = xcQuery.getName();
-        var name = originalName;
-        var tooltip = "";
+    function getQueryHTML(xcQuery: XcQuery, restored?: boolean): string {
+        const id: number = xcQuery.getId();
+        const time: number = xcQuery.getTime();
+        const dateObj : TimeObj = getQueryTime(time);
+        const cancelClass: string = xcQuery.cancelable ? "" : " disabled";
+        let statusClass: string | number = "";
+        let pct: number;
+        let step: string = "";
+        const originalName: string = xcQuery.getName();
+        let name: string = originalName;
+        let tooltip: string = "";
         if (sysQueryTypes.indexOf(name) > -1) {
             name = "Sys-" + name;
             tooltip = TooltipTStr.SysOperation;
@@ -1683,7 +1851,7 @@ window.QueryManager = (function(QueryManager, $) {
         if (sysQueryTypes.indexOf(originalName) > -1) {
             statusClass += " sysType";
         }
-        var html =
+        const html: string =
             '<div class="xc-query query no-selection ' + statusClass +
             '" data-id="' + id + '">' +
                 '<div class="queryInfo">' +
@@ -1729,31 +1897,31 @@ window.QueryManager = (function(QueryManager, $) {
 
     // XXX can some of the src tables be simultaneously used by another operation
     // and need to remain locked?
-    function unlockSrcTables(mainQuery) {
-        var srcTables = {};
+    function unlockSrcTables(mainQuery: XcQuery): void {
+        const srcTables: object = {};
 
         // check original source tables
         if (mainQuery.srcTables) {
-            for (var i = 0; i < mainQuery.srcTables.length; i++) {
+            for (let i = 0; i < mainQuery.srcTables.length; i++) {
                 srcTables[mainQuery.srcTables[i]] = true;
             }
         }
 
         // scan query strings for other source tables in case they were missed
-        var queryStr = mainQuery.getQuery();
+        const queryStr: string = mainQuery.getQuery();
         if (queryStr) {
-            var queries = xcHelper.parseQuery(queryStr);
-            for (var i = 0; i < queries.length; i++) {
+            const queries: xcHelper.QueryParser[] = xcHelper.parseQuery(queryStr);
+            for (let i = 0; i < queries.length; i++) {
                 if (queries[i].srcTables) {
-                    for (var j = 0; j < queries[i].srcTables.length; j++) {
+                    for (let j = 0; j < queries[i].srcTables.length; j++) {
                         srcTables[queries[i].srcTables[j]] = true;
                     }
                 }
             }
         }
 
-        var tableId;
-        for (var table in srcTables) {
+        let tableId: TableId;
+        for (const table in srcTables) {
             tableId = xcHelper.getTableId(table);
             if (tableId) {
                 xcHelper.unlockTable(tableId);
@@ -1761,11 +1929,11 @@ window.QueryManager = (function(QueryManager, $) {
         }
     }
 
-    function tableListCanceled(mainQuery) {
-        var queryStr = mainQuery.getQuery();
-        var queries = xcHelper.parseQuery(queryStr);
-        var numQueries = queries.length;
-        for (var i = 0; i < numQueries; i++) {
+    function tableListCanceled(mainQuery: XcQuery): void {
+        const queryStr: string = mainQuery.getQuery();
+        const queries: xcHelper.QueryParser[] = xcHelper.parseQuery(queryStr);
+        const numQueries: number = queries.length;
+        for (let i = 0; i < numQueries; i++) {
             if (queries[i].dstTable) {
                 if (queries[i].dstTable.indexOf(gDSPrefix) === -1) {
                     TableList.addToCanceledList(queries[i].dstTable);
@@ -1774,11 +1942,11 @@ window.QueryManager = (function(QueryManager, $) {
         }
     }
 
-    function clearTableListCanceled(mainQuery) {
-        var queryStr = mainQuery.getQuery();
-        var queries = xcHelper.parseQuery(queryStr);
-        var numQueries = queries.length;
-        for (var i = 0; i < numQueries; i++) {
+    function clearTableListCanceled(mainQuery: XcQuery): void {
+        const queryStr: string = mainQuery.getQuery();
+        const queries: xcHelper.QueryParser[] = xcHelper.parseQuery(queryStr);
+        const numQueries: number = queries.length;
+        for (let i = 0; i < numQueries; i++) {
             if (queries[i].dstTable) {
                 if (queries[i].dstTable.indexOf(gDSPrefix) === -1) {
                     TableList.removeFromCanceledList(queries[i].dstTable);
@@ -1789,20 +1957,23 @@ window.QueryManager = (function(QueryManager, $) {
 
     // drops all the tables generated, even the intermediate tables
     // or drops dataset if importDataSource operation
-    function dropCanceledTables(mainQuery, onlyFinishedTables) {
-        var queryStr = mainQuery.getQuery();
-        var queries = xcHelper.parseQuery(queryStr);
-        var dstTables = [];
-        var dstDatasets = [];
-        var numQueries;
+    function dropCanceledTables(
+        mainQuery: XcQuery,
+        onlyFinishedTables: boolean
+    ): void {
+        const queryStr: string = mainQuery.getQuery();
+        const queries: xcHelper.QueryParser[] = xcHelper.parseQuery(queryStr);
+        const dstTables: string[] = [];
+        const dstDatasets: string[] = [];
+        let numQueries: number;
         if (onlyFinishedTables) {
             numQueries = mainQuery.currStep;
         } else {
             numQueries = queries.length;
         }
 
-        var dstTable;
-        for (var i = 0; i < numQueries; i++) {
+        let dstTable: string;
+        for (let i = 0; i < numQueries; i++) {
             dstTable = queries[i].dstTable;
             if (dstTable) {
                 if (dstTable.indexOf(gRetSign) > -1) {
@@ -1815,10 +1986,10 @@ window.QueryManager = (function(QueryManager, $) {
                 }
             }
         }
-        var tableId;
-        var orphanListTables = [];
-        var backendTables = [];
-        for (var i = 0; i < dstTables.length; i++) {
+        let tableId: TableId;
+        const orphanListTables: string[] = [];
+        const backendTables: string[] = [];
+        for (let i = 0; i < dstTables.length; i++) {
             tableId = xcHelper.getTableId(dstTables[i]);
             if (gTables[tableId]) {
                 if (gTables[tableId].getType() === TableType.Orphan) {
@@ -1830,23 +2001,23 @@ window.QueryManager = (function(QueryManager, $) {
         }
         // delete tables that are in the orphaned list
         if (orphanListTables.length) {
-            var noAlertOrLog = true;
+
             TblManager.deleteTables(orphanListTables, TableType.Orphan,
-                                    noAlertOrLog, noAlertOrLog);
+                                    true, true);
         }
 
         // delete tables not found in gTables
-        for (var i = 0; i < backendTables.length; i++) {
-            var tableName = backendTables[i];
+        for (let i = 0; i < backendTables.length; i++) {
+            const tableName: string = backendTables[i];
             deleteTableHelper(tableName);
         }
 
-        for (var i = 0; i < dstDatasets.length; i++) {
+        for (let i = 0; i < dstDatasets.length; i++) {
             deleteDatasetHelper(dstDatasets[i]);
         }
     }
 
-    function deleteTableHelper(tableName) {
+    function deleteTableHelper(tableName: string): void {
         XcalarDeleteTable(tableName)
         .then(function() {
             // in case any tables are in the orphaned list
@@ -1854,17 +2025,17 @@ window.QueryManager = (function(QueryManager, $) {
         });
     }
 
-    function deleteDatasetHelper(dsName) {
+    function deleteDatasetHelper(dsName: string): void {
         dsName = dsName.slice(gDSPrefix.length);
         XcalarDestroyDataset(dsName, null);
     }
 
-    function clearIntervalHelper(id) {
+    function clearIntervalHelper(id: number): void {
         clearTimeout(queryCheckList[id]);
         delete queryCheckList[id];
     }
 
-    function setDisplayToDefault() {
+    function setDisplayToDefault(): void {
         updateQueryTextDisplay("", true);
         updateStatusDetail({
             "start": CommonTxtTstr.NA,
@@ -1875,15 +2046,12 @@ window.QueryManager = (function(QueryManager, $) {
         updateOutputSection(null, true);
     }
 
-     /* Unit Test Only */
-    if (window.unitTestMode) {
-        QueryManager.__testOnly__ = {};
-        QueryManager.__testOnly__.queryLists = queryLists;
-        QueryManager.__testOnly__.queryCheckLists = queryCheckList;
-        QueryManager.__testOnly__.canceledQueries = canceledQueries;
-        QueryManager.__testOnly__.unlockSrcTables = unlockSrcTables;
-    }
-    /* End Of Unit Test Only */
+    export let __testOnly__: any = {};
 
-    return (QueryManager);
-}({}, jQuery));
+    if (typeof window !== 'undefined' && window['unitTestMode']) {
+        __testOnly__.queryLists = queryLists;
+        __testOnly__.queryCheckLists = queryCheckList;
+        __testOnly__.canceledQueries = canceledQueries;
+        __testOnly__.unlockSrcTables = unlockSrcTables;
+    }
+}
