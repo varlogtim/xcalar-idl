@@ -122,10 +122,12 @@ describe('IMD Test', function() {
         it("listAndCheckActive cancel should work", function(done) {
             var cache1 = XcalarListPublishedTables;
             XcalarListPublishedTables = function() {
-                return PromiseHelper.resolve({tables: [{active: false, name: "one"}]});
+                return PromiseHelper.resolve({tables: [{active: false, name: "one"}, {active: false, name: "two"}]});
             };
             var cache2 = XcalarRestoreTable;
             XcalarRestoreTable = function() {
+                var pState = IMDPanel.__testOnly__.getProgressState();
+                pState.canceled = true;
                 return PromiseHelper.reject({error: "canceled", count: 0});
             };
 
@@ -138,6 +140,7 @@ describe('IMD Test', function() {
                 };
                 return PromiseHelper.reject();
             };
+
             IMDPanel.__testOnly__.listAndCheckActive()
             .then(function() {
                 done("fail");

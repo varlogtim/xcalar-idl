@@ -21,6 +21,7 @@ namespace Alert {
         noCancel?: boolean; // remove cancel button
         expired?: boolean; // expire license case
         logout?: boolean; // want user to logout case
+        msgTemplate?: string;
     }
 
     export interface AlertOptions extends BasicAlertOptions {
@@ -90,12 +91,12 @@ namespace Alert {
 
         return id;
     }
-    
+
     /**
      * Alert.error
-     * @param title 
-     * @param error 
-     * @param options 
+     * @param title
+     * @param error
+     * @param options
      */
     export function error(
         title: string,
@@ -157,7 +158,7 @@ namespace Alert {
     }
 
     /**
-     * Alert.updateMsg 
+     * Alert.updateMsg
      * @param id
      * @param msg
      */

@@ -39,6 +39,11 @@ namespace IMDPanel {
         columns: TableCol[]
     }
 
+    interface RestoreError {
+        error: string,
+        tableName: string
+    }
+
     let $imdPanel: JQuery;
     let $canvas: JQuery;
     let $tableDetail: JQuery; //$(".tableDetailSection")
@@ -73,6 +78,7 @@ namespace IMDPanel {
     let progressCircle: ProgressCircle; // for progress of activating tables
     let progressState: ProgressState = {canceled: false};
     let isScrolling: boolean = false;
+    let restoreErrors: RestoreError[] = [];
 
     /**
      * IMDPanel.setup
@@ -1055,8 +1061,12 @@ namespace IMDPanel {
             return PromiseHelper.chain(promises);
         })
         .then(function() {
+            if (restoreErrors.length) {
+                showRestoreError();
+            }
+
             listOnlyActiveTables()
-            .then(deferred.resolve)
+            .then( deferred.resolve)
             .fail(deferred.reject);
         })
         .fail(function(error) {
@@ -1087,6 +1097,9 @@ namespace IMDPanel {
             } else {
                 deferred.reject(error);
             }
+        })
+        .always(function() {
+            restoreErrors = [];
         });
 
         return deferred.promise();
@@ -1094,14 +1107,32 @@ namespace IMDPanel {
 
     function restoreTable(tableName: string): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        XcalarRestoreTable(tableName)
-        .then(() => {
+        PromiseHelper.alwaysResolve(XcalarRestoreTable(tableName))
+        .then((res: XCThriftError) => {
+            if (res && res.error) {
+                const ret: RestoreError = {
+                    error: res.error,
+                    tableName: tableName
+                };
+                restoreErrors.push(ret);
+            }
             progressCircle.increment();
             deferred.resolve();
-        })
-        .fail(deferred.reject);
-
+        });
         return deferred.promise();
+    }
+
+    function showRestoreError() {
+        let erroredTableNames: string[] = [];
+        for (let i = 0; i < restoreErrors.length; i++) {
+            erroredTableNames.push(restoreErrors[i].tableName);
+        }
+
+        let msg = restoreErrors[0].error + "<br>" +
+                "Tables: " + xcHelper.listToEnglish(erroredTableNames);
+        Alert.error("Some tables could not be activated", msg, {
+            msgTemplate: msg
+        });
     }
 
     function listOnlyActiveTables(): XDPromise<any> {
@@ -1523,7 +1554,10 @@ namespace IMDPanel {
             },
             submitRefreshTables: submitRefreshTables,
             getClosestUpdate: getClosestUpdate,
-            listAndCheckActive: listAndCheckActive
+            listAndCheckActive: listAndCheckActive,
+            getProgressState: function() {
+                return progressState;
+            }
         };
     }
     /* End Of Unit Test Only */

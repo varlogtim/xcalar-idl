@@ -140,6 +140,9 @@ interface SQLInfo {
     rTableName?: string
 }
 
+interface XCThriftError {
+    error: string
+}
 /* ============== GLOBAL VARIABLES ============= */
 declare var isBrowserIE: boolean;
 declare var KB: number
