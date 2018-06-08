@@ -652,28 +652,48 @@ function getXlrRoot(filePath) {
 
 function getLicense() {
     var deferredOut = jQuery.Deferred();
-    var location = process.env.XCE_LICENSEDIR ? process.env.XCE_LICENSEDIR : "/etc/xcalar";
-    var licenseLocation = location + "/XcalarLic.key";
-    try {
-        fs.readFile(licenseLocation, 'utf8', function(err, data) {
-            var retMsg;
-            try {
-                if (err) throw err;
-                var license = data;
-                retMsg = {"status": httpStatus.OK,
-                    "logs": license};
-                deferredOut.resolve(retMsg);
-            } catch (error) {
+    var retMsg;
+    getXlrRoot()
+    .then(function(xlrRoot) {
+        var location = path.join(xlrRoot, "license");
+        var licenseLocation;
+        try {
+            var max = -1;
+            fs.readdirSync(location).forEach(function(file) {
+                if (file.startsWith("XcalarLic#")) {
+                    var licNum = parseInt(file.substring(file.lastIndexOf("#") + 1));
+                    max = Math.max(max, licNum);
+                }
+            });
+            if (isNaN(max)) {
                 retMsg = {"status": httpStatus.BadRequest,
-                    "error": error};
+                          "error": "Invalid license name"};
                 deferredOut.reject(retMsg);
+            } else if (max === -1) {
+                retMsg = {"status": httpStatus.BadRequest,
+                          "error": "No license found"};
+                deferredOut.reject(retMsg);
+            } else {
+                licenseLocation = path.join(location, "XcalarLic#" + max);
+                xcConsole.log("Fetching license at: " + licenseLocation);
+                var licenseContent = fs.readFileSync(licenseLocation);
+                retMsg = {"status": httpStatus.OK,
+                          "logs": licenseContent.slice(24).toString()};
+                deferredOut.resolve(retMsg);
             }
-        });
-    } catch (error) {
+        } catch (error) {
+            console.log(error);
+            retMsg = {"status": httpStatus.BadRequest,
+                      "error": error};
+            deferredOut.reject(retMsg);
+        }
+    })
+    .fail(function(error) {
         retMsg = {"status": httpStatus.BadRequest,
                   "error": error};
         deferredOut.reject(retMsg);
-    }
+    });
+
     return deferredOut.promise();
 }
 
