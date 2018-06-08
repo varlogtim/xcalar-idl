@@ -45,7 +45,15 @@ class Authentication {
     public static getHashId(excludeHash?: boolean): String {
         let idCount: number = Authentication.authInfo.getIdCount();
         Authentication.authInfo.incIdCount();
-        while (gTables.hasOwnProperty(idCount)) {
+        let orphIds = {};
+        gOrphanTables.forEach(function(tableName: string) {
+            let orphId = xcHelper.getTableId(tableName);
+            if (orphId) {
+                orphIds[orphId] = true;
+            }
+        });
+        while (gTables.hasOwnProperty(idCount) ||
+               orphIds.hasOwnProperty(idCount)) {
             console.warn('id', idCount, 'alreay exits');
             idCount = Authentication.authInfo.getIdCount();
             Authentication.authInfo.incIdCount();
