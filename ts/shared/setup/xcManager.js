@@ -282,13 +282,18 @@ window.xcManager = (function(xcManager, $) {
     };
 
     xcManager.unload = function(isAsync, doNotLogout) {
+
         if (isAsync) {
             // async unload should only be called in beforeload
             // this time, no commit, only free result set
             // as commit may only partially finished, which is dangerous
+            SQLEditor.storeQuery();
             TblManager.freeAllResultSets();
         } else {
-            TblManager.freeAllResultSetsSync()
+            PromiseHelper.alwaysResolve(SQLEditor.storeQuery())
+            .then(function() {
+                return TblManager.freeAllResultSetsSync();
+            })
             .then(function() {
                 return XcUser.CurrentUser.releaseSession();
             })
@@ -1221,6 +1226,7 @@ window.xcManager = (function(xcManager, $) {
             var lastTargets = gMouseEvents.getLastMouseDownTargets();
             var $lastTarget = lastTargets[0];
             var prevTargetsHtml = [];
+            var promise = PromiseHelper.alwaysResolve(SQLEditor.storeQuery());
 
             // get last 3 mousedown elements and parents
             if ($lastTarget && !$lastTarget.is(document)) {
@@ -1293,7 +1299,9 @@ window.xcManager = (function(xcManager, $) {
                 !(isBrowserIE && (msg === "Unspecified error." ||
                     (stack[1] && stack[1].indexOf("__BROWSERTOOLS") > -1)))) {
 
-                var promise = Log.commitErrors();
+                promise = promise.then(function() {
+                        return Log.commitErrors();
+                    });
 
                 if (typeof mixpanel !== "undefined") {
                     var timestamp = (new Date()).getTime();

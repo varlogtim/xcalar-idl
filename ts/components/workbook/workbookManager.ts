@@ -894,6 +894,8 @@ namespace WorkbookManager {
         const gNotebookKey: string = generateKey("gNotebook", version);
         const gAuthKey: string = generateKey("authentication", version);
         const gIMDKey: string = generateKey("gIMDKey", version);
+        const gSQLTablesKey: string = generateKey("gSQLTables", version);
+        const gSQLQueryKey: string = generateKey("SQLQuery", version);
 
         return {
             "gStorageKey": gStorageKey,
@@ -902,7 +904,9 @@ namespace WorkbookManager {
             "gOverwrittenLogKey": gOverwrittenLogKey,
             "gAuthKey": gAuthKey,
             "gNotebookKey": gNotebookKey,
-            "gIMDKey": gIMDKey
+            "gIMDKey": gIMDKey,
+            "gSQLTables": gSQLTablesKey,
+            "gSQLQuery": gSQLQueryKey
         };
     }
 
@@ -1320,9 +1324,11 @@ namespace WorkbookManager {
     function commitActiveWkbk(): XDPromise<void> {
         // to switch workbook, should release all ref count first
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const promise: XDPromise<void> = TblManager.freeAllResultSetsSync();
 
-        PromiseHelper.alwaysResolve(promise)
+        PromiseHelper.alwaysResolve(SQLEditor.storeQuery())
+        .then(function() {
+            return PromiseHelper.alwaysResolve(TblManager.freeAllResultSetsSync());
+        })
         .then(function() {
             return KVStore.commit();
         })

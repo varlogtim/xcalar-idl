@@ -8,6 +8,7 @@ window.SQLEditor = (function(SQLEditor, $) {
     var $sqlColumnList = $("#sqlColumnList");
     var sqlTables = {};
     var sqlKvStore;
+    var sqlQueryKvStore;
 
     SQLEditor.setup = function() {
         setupEditor();
@@ -23,8 +24,12 @@ window.SQLEditor = (function(SQLEditor, $) {
     }
 
     SQLEditor.initialize = function() {
-        sqlKvStore = new KVStore("SQLTables", gKVScope.WKBK);
+        var tablesKey = KVStore.getKey("gSQLTables");
+        var queryKey = KVStore.getKey("gSQLQuery");
+        sqlKvStore = new KVStore(tablesKey, gKVScope.WKBK);
+        sqlQueryKvStore = new KVStore(queryKey, gKVScope.WKBK);
         setupSchemas();
+        restoreSQLQuery();
     }
 
     function setupSchemas() {
@@ -41,6 +46,19 @@ window.SQLEditor = (function(SQLEditor, $) {
             }
             genTablesHTML();
         });
+    }
+
+    function restoreSQLQuery() {
+        sqlQueryKvStore.get()
+        .then(function(ret) {
+            if (ret) {
+                editor.setValue(ret);
+            }
+        });
+    }
+
+    SQLEditor.storeQuery = function() {
+        return sqlQueryKvStore.put(editor.getValue(), true);
     }
 
     SQLEditor.fakeCompile = function(numSteps) {
