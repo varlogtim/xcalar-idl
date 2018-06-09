@@ -6,6 +6,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
     var extInInstall = null;
 
     ExtensionPanel.setup = function() {
+        extSet = new ExtCategorySet();
         $panel = $("#extensionInstallPanel");
         $extLists = $("#extension-lists");
 
@@ -138,7 +139,6 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
     }
 
     function initializeExtCategory(extensions) {
-        extSet = new ExtCategorySet();
         extensions = extensions || [];
 
         for (var i = 0, len = extensions.length; i < len; i++) {
