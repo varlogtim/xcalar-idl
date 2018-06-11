@@ -155,6 +155,10 @@ window.SQLEditor = (function(SQLEditor, $) {
         return KVStore.commit();
     }
 
+    SQLEditor.dropAllSchemas = function(sessionName) {
+        return updatePlanServer(undefined, "drop", sessionName);
+    }
+
     SQLEditor.deleteSchemas = function(tableName, tableIds) {
         // XXX Think about updating plan server
         // Remove from KVStore & UI table list
@@ -184,6 +188,7 @@ window.SQLEditor = (function(SQLEditor, $) {
             delete sqlTablesCopy[tableName];
         }
         var deferred = PromiseHelper.deferred();
+
         updateKVStore(JSON.stringify(sqlTablesCopy), true)
         .then(function(ret) {
             if (tableIds) {
@@ -410,7 +415,7 @@ window.SQLEditor = (function(SQLEditor, $) {
             structToSend.tableName = tableName.toUpperCase();
             structToSend.tableColumns = schema;
             // allSchemas = structToSend;
-            promiseArray.push(updatePlanServer.bind(window, structToSend));
+            promiseArray.push(updatePlanServer.bind(window, structToSend, "update"));
         });
         PromiseHelper.chain(promiseArray)
         // updatePlanServer(allSchemas)
@@ -441,21 +446,35 @@ window.SQLEditor = (function(SQLEditor, $) {
         return schema;
     }
 
-    function updatePlanServer(struct) {
+    function updatePlanServer(struct, type, sessionName) {
+        var url;
+        var action;
+        var session = WorkbookManager.getActiveWKBK();
+        switch (type) {
+            case ("update"):
+                url = "/schemaupdate/";
+                action = "PUT";
+                break;
+            case ("delete"):
+                // XXX TODO
+                return PromiseHelper.reject("delete is unsupported");
+            case ("drop"):
+                url = "/schemadrop/";
+                action = "DELETE";
+                session = sessionName;
+                break;
+            default:
+                return PromiseHelper.reject("Invalid type for updatePlanServer");
+        }
         var deferred = PromiseHelper.deferred();
         jQuery.ajax({
-            type: 'PUT',
+            type: action,
             data: JSON.stringify(struct),
             contentType: 'application/json; charset=utf-8',
-            url: planServer + "/schemaupdate/" +
-                 encodeURIComponent(encodeURIComponent(WorkbookManager.getActiveWKBK())),
+            url: planServer + url +
+                 encodeURIComponent(encodeURIComponent(session)),
             success: function(data) {
-                try {
-                    deferred.resolve(data);
-                } catch (e) {
-                    deferred.reject(e);
-                    console.error(e);
-                }
+                deferred.resolve(data);
             },
             error: function(error) {
                 deferred.reject(error);

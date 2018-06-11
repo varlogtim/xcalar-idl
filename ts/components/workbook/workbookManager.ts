@@ -216,7 +216,12 @@ namespace WorkbookManager {
         .then(function() {
             return finishCreatingWKBK(wkbkName, username, isCopy, copySrc);
         })
-        .then(deferred.resolve)
+        .then(function(wkbkId) {
+            if (typeof SQLEditor !== "undefined") {
+                SQLEditor.dropAllSchemas(wkbkId);
+            }
+            deferred.resolve(wkbkId);
+        })
         .fail(function(error) {
             console.error("Create workbook failed!", error);
             deferred.reject(error);
@@ -510,7 +515,12 @@ namespace WorkbookManager {
             return finishCreatingWKBK(workbookName, username, null, null,
                                       jupFolderName);
         })
-        .then(deferred.resolve)
+        .then(function(wkbkId) {
+            if (typeof SQLEditor !== "undefined") {
+                SQLEditor.dropAllSchemas(wkbkId);
+            }
+            deferred.resolve(wkbkId);
+        })
         .fail(function(err) {
             // XXX need to remove jupyter folder
             deferred.reject(err);
@@ -699,6 +709,9 @@ namespace WorkbookManager {
                 "oldName": srcWKBK.name,
                 "newName": newName
             });
+            if (typeof SQLEditor !== "undefined") {
+                SQLEditor.dropAllSchemas(newWKBKId);
+            }
             if (isCurrentWKBK) {
                 /// Change workbookname in status bar
                 $("#worksheetInfo .wkbkName").text(newName);
@@ -749,6 +762,9 @@ namespace WorkbookManager {
                 "user": XcUser.getCurrentUserName(),
                 "triggerWkbk":workbookId
             });
+            if (typeof SQLEditor !== "undefined") {
+                SQLEditor.dropAllSchemas(workbookId);
+            }
             deferred.resolve.apply(this, arguments);
         })
         .fail(deferred.reject)
