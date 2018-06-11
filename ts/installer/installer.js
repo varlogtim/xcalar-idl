@@ -98,7 +98,7 @@ window.Installer = (function(Installer, $) {
     };
 
     function generateHostFields($form) {
-        var numServers = $form.find("#numServers").val();
+        var numServers = parseInt($form.find("#numServers").val());
         var html = "";
         var i;
         var license = InstallerCommon.getLicense();

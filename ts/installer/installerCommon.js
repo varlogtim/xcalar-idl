@@ -192,6 +192,12 @@ window.InstallerCommon = (function(InstallerCommon, $) {
         .then(function(hints, ret) {
             if (ret.verified) {
                 licenseData = ret.data;
+                if (licenseData.NodeCount) {
+                    licenseData.NodeCount=parseInt(licenseData.NodeCount);
+                }
+                if (licenseData.UserCount) {
+                    licenseData.UserCount=parseInt(licenseData.UserCount);
+                }
                 deferred.resolve();
             } else {
                 deferred.reject("Invalid server license key", "The license key that " +
