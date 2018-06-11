@@ -129,6 +129,16 @@ require("jsdom/lib/old-api").env("", function(err, window) {
                 exports.server = httpServer;
             }
         });
+
+        httpServer.on('error', function(err){
+            xcConsole.log('error on error hanlder');
+            xcConsole.log(err);
+        });
+    });
+
+    process.on('uncaughtException', function(err) {
+        xcConsole.log('process.on handler');
+        xcConsole.log(err);
     });
 
     if (process.env.NODE_ENV === "test") {
