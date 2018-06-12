@@ -3564,6 +3564,25 @@ namespace xcHelper {
     }
 
     /**
+     * Converts a map into a json struct. If you do a JSON.strintify([...map])
+     * Instead of getting a struct, you are going to end up with an array. This
+     * function produces a struct.
+     * @param origMap Original Map struct
+     */
+    export function mapToJsonStruct(origMap: Map<string | number, any>) {
+        const keyIter: IterableIterator<string | number> = origMap.keys();
+        let key: IteratorResult<any> = keyIter.next();
+        const out: object = {};
+        while (!key.done) {
+            const k: string | number = key.value;
+            const value: any = origMap.get(k);
+            out[k] = value;
+            key = keyIter.next();
+        }
+        return out;
+    }
+
+    /**
      * xcHelper.getFormat
      * a.json returns JSON
      * @param name

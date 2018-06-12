@@ -106,8 +106,10 @@ namespace adminTools {
                 lastReturnSucc = false;
                 const action: string = "GET";
                 const url: string = "/service/logs";
+                const lmmJson: string =
+                    JSON.stringify(xcHelper.mapToJsonStruct(lastMonitorMap));
                 const content: RequestStructMonitor = {
-                    "lastMonitorMap": JSON.stringify(lastMonitorMap),
+                    "lastMonitorMap": lmmJson,
                     "isMonitoring": true,
                     "filePath": filePath,
                     "fileName": fileName,
