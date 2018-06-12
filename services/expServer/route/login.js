@@ -11,6 +11,8 @@ const fs = require('fs');
 const ldap = require('ldapjs');
 const express = require('express');
 const crypto = require('crypto');
+const btoa = require('btoa');
+const atob = require('atob');
 var router = express.Router();
 var ssf = require('../supportStatusFile.js');
 var httpStatus = require('../../../assets/js/httpStatus.js').httpStatus;
@@ -765,6 +767,7 @@ function loginAuthentication(credArray) {
     .then(function(userInfo) {
         // We've authenticated successfully with either ldap or default admin
         userInfo.status = message.status;
+        userInfo.xiusername = credArray.xiusername;
         deferred.resolve(userInfo)
     })
     .fail(function(errorMsg) {
@@ -801,6 +804,59 @@ router.post('/login', function(req, res) {
     .always(function(message) {
         res.status(message.status).send(message);
     });
+});
+
+router.post('/login/with/HttpAuth', function(req, res) {
+    try {
+        var credString = atob(req.body.credentials);
+        var credArray = {
+            "xiusername": credString.substring(0, credString.indexOf(":")),
+            "xipassword": credString.substring(credString.indexOf(":") + 1)
+        };
+        loginAuthentication(credArray)
+        .then(function(message) {
+            var userInfo = message;
+            delete userInfo.status
+
+            // Add in token information for SSO access
+            userInfo.timestamp = Date.now();
+            userInfo.signature = crypto.createHmac("sha256", "xcalar-salt2").update(JSON.stringify(userInfo, Object.keys(userInfo).sort())).digest("hex");
+
+            var token = btoa(JSON.stringify(userInfo));
+            res.status(200).send(token);
+        })
+        .fail(function(message) {
+            res.status(403).send("Invalid credentials");
+        });
+    } catch (err) {
+        res.status(400).send("Malformed credentials: " + err)
+    }
+});
+
+router.post('/login/verifyToken', function(req, res) {
+    try {
+        var userInfo = JSON.parse(atob(req.body.token));
+        var userInfoSignature = userInfo.signature;
+        delete userInfo.signature;
+
+        var computedSignature = crypto.createHmac("sha256", "xcalar-salt2").update(JSON.stringify(userInfo, Object.keys(userInfo).sort())).digest("hex");
+
+        if (userInfoSignature != computedSignature) {
+            throw new Error("Token has been tampered with!");
+        }
+
+        var currTime = Date.now();
+        if (currTime > (userInfo.timestamp + (1000 * 60 * 5))) {
+            res.status(403).send("Token has expired");
+            return;
+        }
+
+        delete userInfo.timestamp;
+
+        res.status(200).send(userInfo);
+    } catch (err) {
+        res.status(400).send("Malformed token: " + err);
+    }
 });
 
 router.post('/login/msalConfig/get', function(req, res) {

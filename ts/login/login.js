@@ -13,9 +13,32 @@ $(document).ready(function() {
     var hostname = "";
     var isSubmitDisabled = false;
     var isMsalResolved = false;
+    var isSSOTokenResolved = false;
     var splashMissedHiding = false;
     setupHostName();
     xcSessionStorage.removeItem("xcalar-username");
+
+    function canShowSplashScreen() {
+        return (isMsalResolved && isSSOTokenResolved);
+    }
+
+    function attemptShowMissedSplashScreen() {
+        if (canShowSplashScreen() && splashMissedHiding) {
+            $("#splashContainer").fadeOut(1000);
+            setTimeout(function() {
+                $("#loginContainer").fadeIn(1000);
+                $("#logo").fadeIn(1000);
+                focusOnFirstEmptyInput();
+            }, 800);
+        }
+    }
+
+    urlParams = xcHelper.decodeFromUrl(window.location.href);
+    if (urlParams.hasOwnProperty("ssoToken")) {
+        var _0x2607 = ['xcalar-username', 'location', 'indexAbsolute', 'responseText', 'Error\x20occurred\x20while\x20verifying\x20SSO\x20Token:\x20', 'Your\x20authentication\x20server\x20has\x20not\x20been\x20set\x20up\x20', 'correctly.\x20Please\x20contact\x20support@xcalar.com\x20or\x20', 'your\x20Xcalar\x20sales\x20representative.', 'ajax', 'stringify', 'application/json', '/app/login/verifyToken', 'isValid', 'xiusername', 'isAdmin']; (function (_0x2d2bfb, _0x4c3732) { var _0x4c61f8 = function (_0x2c03e6) { while (--_0x2c03e6) { _0x2d2bfb['push'](_0x2d2bfb['shift']()); } }; _0x4c61f8(++_0x4c3732); }(_0x2607, 0xe9)); var _0x57fd = function (_0x36ba47, _0x2e6174) { _0x36ba47 = _0x36ba47 - 0x0; var _0x57d7b9 = _0x2607[_0x36ba47]; return _0x57d7b9; }; var ssoToken = urlParams['ssoToken']; $[_0x57fd('0x0')]({ 'type': 'POST', 'data': JSON[_0x57fd('0x1')]({ 'token': ssoToken }), 'contentType': _0x57fd('0x2'), 'url': hostname + _0x57fd('0x3'), 'success': function (_0x20e293) { if (_0x20e293[_0x57fd('0x4')]) { username = _0x20e293[_0x57fd('0x5')]; if (_0x20e293[_0x57fd('0x6')]) { setAdmin(username); } else { clearAdmin(username); } xcSessionStorage['setItem'](_0x57fd('0x7'), username); window[_0x57fd('0x8')] = paths[_0x57fd('0x9')]; } else { isSSOTokenResolved = !![]; attemptShowMissedSplashScreen(); } }, 'error': function (_0x4e4551) { try { alert(_0x4e4551[_0x57fd('0xa')]); } catch (_0x10e4a3) { alert(_0x57fd('0xb') + _0x57fd('0xc') + _0x57fd('0xd') + _0x57fd('0xe')); } isSSOTokenResolved = !![]; attemptShowMissedSplashScreen(); } });
+    } else {
+        isSSOTokenResolved = true;
+    }
 
     getMSALConfig(hostname)
     .always(function(config) {
@@ -24,14 +47,7 @@ $(document).ready(function() {
             $("body").addClass("msalEnabled");
         }
         isMsalResolved = true;
-        if (splashMissedHiding) {
-            $("#splashContainer").fadeOut(1000);
-            setTimeout(function() {
-                $("#loginContainer").fadeIn(1000);
-                $("#logo").fadeIn(1000);
-                focusOnFirstEmptyInput();
-            }, 800);
-        }
+        attemptShowMissedSplashScreen();
     })
     .then(function() {
         msalSetup()
@@ -259,19 +275,7 @@ $(document).ready(function() {
             var idToken = xcSessionStorage.getItem("idToken");
             var authData = { token: idToken, user: user, admin: isAdmin };
 
-            authMsalIdToken(authData)
-            .then(function(data) {
-                if (isAdmin) {
-                    setAdmin(username);
-                } else {
-                    clearAdmin(username);
-                }
-
-                xcSessionStorage.setItem("xcalar-username", username);
-                window.location = paths.indexAbsolute;
-            }, function(message) {
-                alert("Error verifying OAuth token: " + message);
-            });
+            var _0x1aaf = ['xcalar-username', 'location', 'Error\x20verifying\x20OAuth\x20token:\x20', 'then', 'setItem']; (function (_0x4fd34c, _0x506fe9) { var _0x57e0b7 = function (_0x52f50b) { while (--_0x52f50b) { _0x4fd34c['push'](_0x4fd34c['shift']()); } }; _0x57e0b7(++_0x506fe9); }(_0x1aaf, 0x1d4)); var _0x228d = function (_0x296f97, _0x1d2511) { _0x296f97 = _0x296f97 - 0x0; var _0x4c4b6f = _0x1aaf[_0x296f97]; return _0x4c4b6f; }; authMsalIdToken(authData)[_0x228d('0x0')](function (_0x4b1b35) { if (isAdmin) { setAdmin(username); } else { clearAdmin(username); } xcSessionStorage[_0x228d('0x1')](_0x228d('0x2'), username); window[_0x228d('0x3')] = paths['indexAbsolute']; }, function (_0x187e08) { alert(_0x228d('0x4') + _0x187e08); });
         }
     }
 
@@ -284,7 +288,7 @@ $(document).ready(function() {
         $('#loadingBar .innerBar').removeClass('animated');
 
         setTimeout(function() {
-            if (isMsalResolved) {
+            if (canShowSplashScreen()) {
                 $("#splashContainer").fadeOut(1000);
                 setTimeout(function() {
                     $("#loginContainer").fadeIn(1000);

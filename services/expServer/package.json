@@ -15,6 +15,7 @@
     "atob": "^2.0.3",
     "aws-sdk": "*",
     "body-parser": "^1.15.0",
+    "btoa": "^1.2.1",
     "crypto": "^0.0.3",
     "express": "^4.13.4",
     "jquery": "^1.5.1",
