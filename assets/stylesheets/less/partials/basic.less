@@ -356,14 +356,22 @@ body {
         }
 
         &.pubTable {
+            .bottom {
+                display: none;
+            }
             .cancel {
                 display: none;
+                pointer-events: none;
+                visibility: hidden;
             }
             .animatedEllipsisWrapper {
                 display: none;
             }
             .publishSection {
                 display: block;
+            }
+            .progressWrap {
+                display: none !important;
             }
         }
 

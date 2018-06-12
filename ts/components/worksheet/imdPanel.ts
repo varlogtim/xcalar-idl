@@ -24,6 +24,7 @@ namespace IMDPanel {
 
     interface ProgressState {
         canceled: boolean;
+        currentTable?: string;
     }
 
     interface TableCol {
@@ -649,7 +650,12 @@ namespace IMDPanel {
         });
 
         $imdPanel.on("click", ".progressCircle", function() {
+            if (progressState.canceled) {
+                return;
+            }
+
             progressState.canceled = true;
+            XcalarQueryCancel("Xc.tmp.updateRetina." + progressState.currentTable);
         });
 
         $imdPanel.find(".tableList").on("mouseenter", ".tableName", function() {
@@ -1027,33 +1033,22 @@ namespace IMDPanel {
         XcalarListPublishedTables("*")
         .then((result) => {
             listPassed = true;
-            const promises = [];
-            let inactiveCount: number = 0;
             progressState.canceled = false;
+
             result.tables.forEach(function(table) {
                 if (!table.active) {
                     inactiveTables.push(table);
-                    promises.push(function() {
-                        inactiveCount++;
-                        if (progressState.canceled) {
-                            return PromiseHelper.reject({
-                                error: "canceled",
-                                count: inactiveCount - 1
-                            });
-                        } else {
-                            return restoreTable(table.name);
-                        }
-                    });
                 } else {
                     activeTables.push(table);
                 }
             });
 
-            if (promises.length) {
+            if (inactiveTables.length) {
                 showProgressCircle(result.tables.length, activeTables.length);
+                return restoreAllInactiveTables(inactiveTables);
+            } else {
+                return PromiseHelper.resolve();
             }
-
-            return PromiseHelper.chain(promises);
         })
         .then(function() {
             if (restoreErrors.length) {
@@ -1100,10 +1095,41 @@ namespace IMDPanel {
         return deferred.promise();
     }
 
-    function restoreTable(tableName: string): XDPromise<void> {
+    function restoreAllInactiveTables(inactiveTables: PublishTable[]) {
+        const promises = [];
+        let inactiveCount: number = 0;
+
+        inactiveTables.forEach(function(table) {
+            promises.push(function() {
+                inactiveCount++;
+                if (progressState.canceled) {
+                    return PromiseHelper.reject({
+                        error: "canceled",
+                        count: inactiveCount - 1
+                    });
+                } else {
+                    progressState.currentTable = table.name;
+                    return restoreTable(table.name, inactiveCount);
+                }
+            });
+        });
+        return PromiseHelper.chain(promises);
+    }
+
+    function restoreTable(
+        tableName: string,
+        inactiveCount: number
+    ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         PromiseHelper.alwaysResolve(XcalarRestoreTable(tableName))
         .then((res: XCThriftError) => {
+            if (progressState.canceled) {
+                deferred.reject({
+                    error: "canceled",
+                    count: inactiveCount - 1
+                });
+                return;
+            }
             if (res && res.error) {
                 const ret: RestoreError = {
                     error: res.error,

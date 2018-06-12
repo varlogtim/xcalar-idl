@@ -1500,25 +1500,27 @@ namespace WorkbookManager {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let progressCircle: ProgressCircle;
         let canceled: boolean = false;
+        let currTable: string;
+        let successTables: string[] = [];
+        let failedTables: string[] = [];
+
         XcalarListPublishedTables("*")
         .then(function(result) {
-            const inactiveTables: any[] = result.tables.filter(function(table) {
+            let inactiveTables: any[] = result.tables.filter(function(table) {
                 return !table.active;
             });
-            let promises: Function[] = [];
-            inactiveTables.forEach(function(table) {
-                promises.push(function() {
-                    if (canceled) {
-                        return PromiseHelper.reject({canceled: true});
-                    } else {
-                        return restorePublishedTable(table.name);
-                    }
-                });
+
+
+            inactiveTables = inactiveTables.map(function(table) {
+                return table.name;
             });
-            if (promises.length) {
+
+            if (inactiveTables.length) {
                 showRestoreProgress(inactiveTables.length);
+                return restoreAllPublishedTables(inactiveTables);
+            } else {
+                return PromiseHelper.resolve();
             }
-            return PromiseHelper.chain<void>(promises);
         })
         .then(deferred.resolve)
         .fail(deferred.reject)
@@ -1531,14 +1533,62 @@ namespace WorkbookManager {
 
         return deferred.promise();
 
-        function restorePublishedTable(tableName: string): XDPromise<void> {
-            const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        function restoreAllPublishedTables(inactiveTables) {
+            const innerDeferred: XDDeferred<void> = PromiseHelper.deferred();
+            let promises: Function[] = [];
+
+            successTables = [];
+            failedTables = [];
+
+            inactiveTables.forEach(function(tableName) {
+                promises.push(function() {
+                    if (canceled) {
+                        return PromiseHelper.reject({canceled: true});
+                    } else {
+                        return restorePublishedTable(tableName);
+                    }
+                });
+            });
+            PromiseHelper.chain(promises)
+            .then(function() {
+                if (successTables.length === inactiveTables.length) {
+                    innerDeferred.resolve();
+                } else {
+                    if (!successTables.length) {
+                        innerDeferred.reject.apply(this, arguments);
+                    } else {
+                        restoreAllPublishedTables(failedTables)
+                        .then(innerDeferred.resolve)
+                        .fail(innerDeferred.reject);
+                    }
+                }
+            })
+            .fail(function() { // only fails if canceled
+                innerDeferred.reject.apply(this, arguments);
+            });
+
+            return innerDeferred.promise();
+        }
+
+        // loop through all tables, do as many as possible
+
+        function restorePublishedTable(tableName: string): XDPromise<any> {
+            const deferred: XDDeferred<any> = PromiseHelper.deferred();
+            currTable = tableName;
             XcalarRestoreTable(tableName)
             .then(function () {
+                successTables.push(tableName);
                 progressCircle.increment();
                 deferred.resolve();
             })
-            .fail(deferred.reject);
+            .fail(function(err) {
+                if (err && err.status === StatusT.StatusCanceled) {
+                    deferred.reject({canceled: true});
+                } else {
+                    failedTables.push(tableName);
+                    deferred.resolve.apply(this, arguments);
+                }
+            });
 
             return deferred.promise();
         }
@@ -1557,7 +1607,11 @@ namespace WorkbookManager {
             progressCircle.update(0, 1000);
 
             $waitSection.find(".progressCircle .xi-close").click(function() {
+                if (canceled) {
+                    return;
+                }
                 canceled = true;
+                XcalarQueryCancel("Xc.tmp.updateRetina." + currTable);
             });
         }
     }
