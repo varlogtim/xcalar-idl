@@ -1326,7 +1326,8 @@ SQLErrTStr = {
     "InvalidPageInfo": "Invalid Xcalar result set page",
     "InvalidSQLTable": "Invalid SQL table from KvStore",
     "FinalizingFailed": "Finalizing failed",
-    "FailToConnectPlanner": "Failed to connect to SQL Planner"
+    "FailToConnectPlanner": "Failed to connect to SQL Planner",
+    "InvalidColTypeForFinalize": "Column with unsupported type found: "
 };
 
 SQLInfoTStr = {

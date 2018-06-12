@@ -42,14 +42,16 @@ window.UExtSQL = (function(UExtSQL) {
     // === Copied from derived conversion
     function getDerivedCol(col) {
 
-        if (col.type === 'array' || col.type === 'object') {
+        if (col.type === 'array' || col.type === 'object' || col.type === 'mixed'
+            || col.type === 'undefined' || col.type === 'unknown') {
             // array and object columns will be projected away at the end
             // this case also handles 'DATA' column, and leaves table unchanged
             return;
         } else {
             // convert prefix field of primitive type to derived
             var mapFn;
-            if (col.type === 'integer' || col.type === 'float') {
+            if (col.type === 'integer' ||col.type === 'number'
+                || col.type === 'float') {
                 // convert all numbers to float, since we cannot determine
                 // actual type of prefix fields
                 mapFn = "float";
@@ -85,7 +87,9 @@ window.UExtSQL = (function(UExtSQL) {
             }
             var colStruct = getDerivedCol(col);
             if (!colStruct) {
-                deferred.reject("Cannot have arrays / structs");
+                deferred.reject(SQLErrTStr.InvalidColTypeForFinalize
+                                + col.backName + "(" + col.type + ")");
+                return deferred.promise();
             }
             tableInfo.colsToProject.push(colStruct.colName);
             mapArray.push(colStruct.mapStr);
@@ -232,9 +236,12 @@ window.UExtSQL = (function(UExtSQL) {
             var structToSend = {};
             var tableName = ext.getArgs().sqlTableName;
             var finalizedTableName;
-            var tempTableNames;
+            var tempTableNames = [];
 
             finalizeTable(srcTable, ext)
+            .fail(function(err) {
+                deferred.reject(err);
+            })
             .then(function([newTableName, tempTableNameList]) {
                 finalizedTableName = newTableName;
                 tempTableNames = tempTableNameList;
@@ -262,14 +269,18 @@ window.UExtSQL = (function(UExtSQL) {
                 deferred.resolve();
             })
             .fail(function(err) {
-                if (err === SQLErrTStr.FinalizingFailed) {
-                    deferred.reject(err);
-                    return;
-                }
                 // Finalize succeeded, then we'll add original table
-                srcTable.addToWorksheet(finalizedTableName)
+                var promise;
+                if (tempTableNames.length === 0) {
+                    promise = PromiseHelper.resolve();
+                } else {
+                    promise = srcTable.addToWorksheet(finalizedTableName)
+                    .then(function() {
+                        TblManager.deleteTables(tempTableNames, "orphaned", true);
+                    });
+                }
+                promise
                 .then(function() {
-                    TblManager.deleteTables(tempTableNames, "orphaned", true);
                     if (err && err.responseJSON) {
                         deferred.reject(err.responseJSON.exceptionMsg);
                     } else if (err && err.status === 0) {
