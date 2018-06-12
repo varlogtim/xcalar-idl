@@ -45,6 +45,7 @@ router.post("/service/restart", function(req, res) {
     }
     stop()
     .then(function(ret) {
+        xcConsole.log("stop succeeds, start Xcalar as Master");
         var deferred = jQuery.Deferred();
         message1 = ret;
         support.masterExecuteAction("POST", "/service/start/slave", req.body)

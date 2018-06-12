@@ -1,7 +1,8 @@
+var xcConsole = require('../expServerXcConsole.js').xcConsole;
 var jQuery;
 require("jsdom/lib/old-api").env("", function(err, window) {
     if (err) {
-        console.error(err);
+        xcConsole.error('require in auth', err);
         return;
     }
     jQuery = require("jquery")(window);
@@ -16,7 +17,6 @@ var jwt = require('jsonwebtoken');
 var httpStatus = require('../../../assets/js/httpStatus.js').httpStatus;
 var msKeyCache = new NodeCache( { stdTTL:86400, checkperiod: 21600 } );
 var msAzureUrl = 'https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration';
-var xcConsole = require('../expServerXcConsole.js').xcConsole;
 
 function getUrl(url) {
     var deferred = jQuery.Deferred();
@@ -38,7 +38,7 @@ function getUrl(url) {
 
 function getError(data) {
     var deferred = jQuery.Deferred();
-    xcConsole.log("Key URL not found or returned unexpected data: " + data.url);
+    xcConsole.error("Key URL not found or returned unexpected data: " + data.url);
     deferred.reject(data)
     return deferred.promise();
 }
@@ -161,6 +161,7 @@ function processToken(idToken) {
 }
 
 router.post('/auth/azureIdToken', function(req, res) {
+    xcConsole.log('auth, azure token');
     var idToken = req.body.token;
     var user = req.body.user;
     var admin = req.body.admin;

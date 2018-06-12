@@ -17,7 +17,7 @@ var hotPatchPath = "/config/hotPatch.json";
 var jQuery;
 require("jsdom/lib/old-api").env("", function(err, window) {
     if (err) {
-        console.error(err);
+        xcConsole.error('require in expServerSupport', err);
         return;
     }
     jQuery = require("jquery")(window);
@@ -90,7 +90,7 @@ function getMatchedHosts(query) {
                 };
                 deferred.resolve(retMsg);
             } catch (err) {
-                xcConsole.log(err);
+                xcConsole.error('get host', err);
                 retMsg = {
                     // No matter what error happens, the master
                     // should return return a 404 uniformly
@@ -103,7 +103,7 @@ function getMatchedHosts(query) {
         }
     })
     .fail(function(err) {
-        xcConsole.log(err);
+        xcConsole.error('get host', err);
         retMsg = {
             // No matter what error happens, the master
             // should return return a 404 uniformly
@@ -124,6 +124,7 @@ function readHostsFromFile(hostFile) {
 
     fs.readFile(hostFile, "utf8", function(err, hostData) {
         if (err) {
+            xcConsole.error('read host file', err);
             return deferred.reject(err);
         }
         var tempHosts = hostData.split("\n");
@@ -303,7 +304,7 @@ function slaveExecuteAction(action, slaveUrl, content) {
         case "/service/bundle/slave":
             return generateSupportBundle();
         default:
-            xcConsole.log("Should not be here!");
+            xcConsole.error("Should not be here!");
     }
 }
 
@@ -392,7 +393,7 @@ function sendCommandToSlaves(action, slaveUrl, content, hosts) {
             });
         });
         req.on('error', function(error) {
-            console.error(error);
+            xcConsole.error('req in postRequest', error);
             retMsg = {
                 status: httpStatus.InternalServerError,
                 logs: error.message
@@ -470,6 +471,7 @@ function generateSupportBundle() {
 }
 // Remove session files
 function removeSessionFiles(filePath) {
+    xcConsole.log("Remove Session Files");
     // '/var/opt/xcalar/sessions' without the final slash is also legal
     var deferredOut = jQuery.Deferred();
 
@@ -519,6 +521,7 @@ function removeSessionFiles(filePath) {
 }
 
 function removeSHM() {
+    xcConsole.log("Remove SHM");
     var command = 'rm /dev/shm/xcalar-*';
     return executeCommand(command);
 }
@@ -591,11 +594,13 @@ function executeCommand(command) {
     });
 
     out.stdout.on('error', function(data) {
-        xcConsole.log(data);
+        xcConsole.error('running command', data);
         lines += data;
         var result;
-        result = {"status": httpStatus.InternalServerError,
-            "logs": lines};
+        result = {
+            "status": httpStatus.InternalServerError,
+            "logs": lines
+        };
         deferred.reject(result);
         return;
     });
@@ -682,15 +687,19 @@ function getLicense() {
                 deferredOut.resolve(retMsg);
             }
         } catch (error) {
-            console.log(error);
-            retMsg = {"status": httpStatus.BadRequest,
-                      "error": error};
+            xcConsole.error('get license', error);
+            retMsg = {
+                "status": httpStatus.BadRequest,
+                "error": error
+            };
             deferredOut.reject(retMsg);
         }
     })
     .fail(function(error) {
-        retMsg = {"status": httpStatus.BadRequest,
-                  "error": error};
+        retMsg = {
+            "status": httpStatus.BadRequest,
+            "error": error
+        };
         deferredOut.reject(retMsg);
     });
 
@@ -713,14 +722,14 @@ function submitTicket(contents) {
         "url": "https://1pgdmk91wj.execute-api.us-west-2.amazonaws.com/stable/zendesk",
         "cache": false,
         success: function(data) {
-            xcConsole.log(data);
+            xcConsole.log('submit ticket', data);
             deferredOut.resolve({
                 "status": httpStatus.OK,
                 "logs": JSON.stringify(data)
             });
         },
         error: function(err) {
-            xcConsole.log(err);
+            xcConsole.error('submit ticket', err);
             deferredOut.reject(err);
             return;
         }
@@ -738,14 +747,14 @@ function getTickets(contents) {
         "url": "https://1pgdmk91wj.execute-api.us-west-2.amazonaws.com/stable/zendesklist",
         "cache": false,
         success: function(data) {
-            xcConsole.log(data);
+            xcConsole.log('get ticket', data);
             deferred.resolve({
                 "status": httpStatus.OK,
                 "logs": JSON.stringify(data)
             });
         },
         error: function(err) {
-            xcConsole.log(err);
+            xcConsole.error('get ticket', err);
             deferred.reject(err);
             return;
         }
@@ -788,17 +797,16 @@ function readInstallerLog(filePath) {
     }
     fs.readFile(defaultPath, 'utf8', function(err, data) {
         if (err) {
-            retMsg = {
+            deferred.reject({
                 "status": httpStatus.InternalServerError,
                 "error": err
-            };
-            deferred.reject(retMsg);
+            });
+        } else {
+            deferred.resolve({
+                "status": httpStatus.OK,
+                "logs": data
+            });
         }
-        retMsg = {
-            "status": httpStatus.OK,
-            "logs": data
-        };
-        deferred.resolve(retMsg);
     });
     return deferred.promise();
 }
@@ -852,10 +860,9 @@ function writeToFile(filePath, fileContents, fileOptions) {
 
     function callback(err) {
         if (err) {
-            console.log("fail write: " + JSON.stringify(err));
-            console.log("Failed to write to " + filePath);
+            xcConsole.error("Failed to write: " + JSON.stringify(err), 'to', filePath);
             deferred.reject("Failed to write to " + filePath);
-            return deferred.promise();
+            return;
         }
 
         xcConsole.log("Successfully wrote " + JSON.stringify(fileContents, null, 2) + " to " + filePath)

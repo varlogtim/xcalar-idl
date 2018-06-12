@@ -258,7 +258,7 @@ function checkLicense(credArray, script) {
     var retMsg;
     zlibStream.on('error', function(err) {
         // will hit this when has error format license
-        console.error(err);
+        xcConsole.error('zlibStream', err);
         retMsg = {"status": httpStatus.InternalServerError};
         if (err) {
             deferredOut.reject(retMsg);
@@ -267,7 +267,7 @@ function checkLicense(credArray, script) {
     });
 
     licenseFileStream.on('error', function(err) {
-        console.error(err);
+        xcConsole.error('licenseFileStream', err);
         retMsg = {"status": httpStatus.InternalServerError};
         if (err) {
             deferredOut.reject(retMsg);
@@ -335,12 +335,12 @@ function copyFiles(script) {
     var errorMessage = "ERROR: ";
     out.stderr.on('data', function(data) {
         errorMessage += data;
-        xcConsole.log("ERROR: " + data);
+        xcConsole.error("Copy File ERROR: " + data);
     });
     out.on('close', function(code) {
         var retMsg;
         if (code) {
-            xcConsole.log("Failure: Copy files.");
+            xcConsole.error("Failure: Copy files.");
             retMsg = {
                 "status": httpStatus.InternalServerError,
                 "reason": errorMessage

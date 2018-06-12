@@ -2,10 +2,18 @@ var xcConsole = {
     "verbose": function() {
         return true;
     },
-    "log": function(error) {
+    "log": function() {
         if (this.verbose()) {
-            console.log(getTimeStamp() + ":Xcalar ExpServer:",
-            error);
+            var args = Array.prototype.slice.call(arguments);
+            args.unshift(getTimeStamp() + ":Xcalar ExpServer:");
+            console.log.apply(console, args);
+        }
+    },
+    "error": function(error) {
+        if (this.verbose()) {
+            var args = Array.prototype.slice.call(arguments);
+            args.unshift(getTimeStamp() + ":Xcalar ExpServer ERROR:");
+            console.log.apply(console, args);
         }
     }
 };

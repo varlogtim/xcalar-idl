@@ -123,22 +123,19 @@ require("jsdom/lib/old-api").env("", function(err, window) {
             if (!hostname) {
                 hostname = "localhost";
             }
-            xcConsole.log("All ready");
-            xcConsole.log("Listen on port " + port);
+            xcConsole.log("All ready, Listen on port " + port);
             if (process.env.NODE_ENV === "test") {
                 exports.server = httpServer;
             }
         });
 
         httpServer.on('error', function(err){
-            xcConsole.log('error on error hanlder');
-            xcConsole.log(err);
+            xcConsole.error('error on error hanlder', err);
         });
     });
 
     process.on('uncaughtException', function(err) {
-        xcConsole.log('process.on handler');
-        xcConsole.log(err);
+        xcConsole.error('process.on handler', err);
     });
 
     if (process.env.NODE_ENV === "test") {

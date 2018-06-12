@@ -1,4 +1,5 @@
 var socketio = require("socket.io");
+var xcConsole = require('./expServerXcConsole.js').xcConsole;
 
 module.exports = function(server) {
     var io = socketio(server);
@@ -11,6 +12,7 @@ module.exports = function(server) {
          *  3. socket.broadcast.emit: emit to all others
          */
         socket.on("registerUserSession", function(userOption, callback) {
+            xcConsole.log('register user');
             try {
                 socket.userOption = userOption;
                 var user = userOption.user;
@@ -29,15 +31,16 @@ module.exports = function(server) {
                 } else {
                     userInfos[user].workbooks[id] = 1;
                 }
-                console.log("userInfos", JSON.stringify(userInfos, null, 2));
-            } catch(e) {
-                console.error(e);
+                xcConsole.log(user, 'is registered');
+            } catch (e) {
+                xcConsole.error('register user error', e);
             }
             callback();
             io.sockets.emit("system-allUsers", userInfos);
         });
 
         socket.on("unregisterUserSession", function(userOption, callback) {
+            xcConsole.log('unregister user');
             try {
                 var user = userOption.user;
                 var id = userOption.id;
@@ -48,37 +51,39 @@ module.exports = function(server) {
                 if (!userInfos[user].workbooks[id]) {
                     delete userInfos[user].workbooks[id];
                 }
-                console.log("userInfos", JSON.stringify(userInfos, null, 2));
-            } catch(e) {
-                console.error(e);
+                xcConsole.log(user, 'is unresigtered');
+            } catch (e) {
+                xcConsole.error('unregister error', e);
             }
             callback();
         });
 
         socket.on("checkUserSession", function(userOption, callback) {
-            console.log("check", userOption, "in", JSON.stringify(userInfos, null, 2));
+            xcConsole.log("check user");
             var exist = hasWorkbook(userOption);
             callback(exist);
         });
 
         socket.on("disconnect", function() {
+            xcConsole.log("logout user");
             try {
                 var userOption = socket.userOption;
                 if (userOption != null && userInfos.hasOwnProperty(userOption.user)) {
-                    userInfos[userOption.user].count--;
-                    if (userInfos[userOption.user].count <= 0) {
-                        delete userInfos[userOption.user];
+                    var user = userOption.user;
+                    userInfos[user].count--;
+                    if (userInfos[user].count <= 0) {
+                        delete userInfos[user];
                     } else {
-                        userInfos[userOption.user].workbooks[userOption.id]--;
-                        if (userInfos[userOption.user].workbooks[userOption.id] <= 0) {
-                            delete userInfos[userOption.user].workbooks[userOption.id];
+                        userInfos[user].workbooks[userOption.id]--;
+                        if (userInfos[user].workbooks[userOption.id] <= 0) {
+                            delete userInfos[user].workbooks[userOption.id];
                         }
                     }
-                    console.log("logout", userOption, JSON.stringify(userInfos, null, 2))
+                    xcConsole.log(user, "has logout");
                     io.sockets.emit("system-allUsers", userInfos);
                 }
             } catch (e) {
-                console.error(e);
+                xcConsole.error('logout error', e);
             }
         });
 
@@ -143,9 +148,11 @@ module.exports = function(server) {
 
             switch ( arg.event) {
                 case "updateVersionId":
+                    xcConsole.log('dataset: sync');
                     updateVersionId(versionId);
                     break;
                 case "changeStart":
+                    xcConsole.log('dataset change: start');
                     if (versionId <= dsInfo.id || dsInfo.lock.id != null) {
                         success = false;
                     } else {
@@ -164,6 +171,7 @@ module.exports = function(server) {
                     }
                     break;
                 case "changeEnd":
+                    xcConsole.log('dataset change: end');
                     if (versionId === dsInfo.lock.id) {
                         updateVersionId(versionId);
                         socket.broadcast.emit("ds.update", dsInfo.lock.arg);
@@ -177,6 +185,7 @@ module.exports = function(server) {
                     }
                     break;
                 case "changeError":
+                    xcConsole.log('dataset change: error');
                     if (versionId === dsInfo.lock.id) {
                         unlockDSInfo();
                     }
