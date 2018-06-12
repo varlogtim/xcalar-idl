@@ -511,7 +511,7 @@ function ldapAuthentication(ldapConn, loginId) {
             xcConsole.log("Failure: Binding process " + error.message);
             increaseLoginId();
             ldapConn.hasBind = false;
-            ldapConn.client.unbind();
+            ldapConn.client.destroy();
             deferred.reject("ldapAuthentication fails");
         } else {
             xcConsole.log('Success: Binding process finished!');
@@ -697,11 +697,12 @@ function ldapLogin(credArray) {
         return prepareResponse(currLoginId, ldapConn.activeDir);
     })
     .then(function(message) {
+        ldapConn.client.destroy();
         deferred.resolve(message);
     })
     .fail(function(errorMsg) {
         if (ldapConn.hasBind) {
-            ldapConn.client.unbind();
+            ldapConn.client.destroy();
         }
         deferred.reject(errorMsg);
     });
