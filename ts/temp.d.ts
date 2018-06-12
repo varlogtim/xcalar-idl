@@ -178,6 +178,10 @@ interface JQuery {
     datepicker(options: DatepickerOptions): JQuery;
 }
 
+interface JQueryEventObject {
+     keyTriggered: boolean;
+ }
+
 /* ============== GLOBAL VARIABLES ============= */
 declare var nw: any; // nw js for XD CE
 declare var isBrowserIE: boolean;
@@ -247,6 +251,7 @@ declare var sqlMode: boolean;
 declare var skRFPredictor: any;
 
 declare var isBrowserSafari: boolean;
+declare var isSystemMac: boolean;
 /* ============== GLOBAL FUNCTIONS ============= */
 declare function setSessionName(sessionName: string): void;
 declare function getUnsortedTableName(tableName: string, otherTableName: string, txId: number, colsToIndex: string[]): XDPromise<string>;
@@ -836,6 +841,7 @@ declare class ModalHelper {
 declare class MenuHelper {
     constructor($el: JQuery, optoins: Object);
     public setupListeners(): void;
+    public showOrHideScrollers($target: JQuery): void;
 }
 declare class InfList {
     public restore(selector: string): void;
@@ -1066,13 +1072,6 @@ declare namespace DagEdit {
 
 declare namespace DataflowPanel {
     export function refresh(dfName: string): void;
-}
-
-declare namespace xcMenu {
-    export function add($menu: JQuery): void
-    export function removeKeyboardNavigation(): void;
-    export function close($menu?: JQuery): void;
-    export function addKeyboardNavigation($menu: JQuery, $subMenu: JQuery, options: object): void;
 }
 
 declare namespace DS {

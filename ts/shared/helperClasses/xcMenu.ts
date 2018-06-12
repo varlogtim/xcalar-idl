@@ -1,21 +1,33 @@
-window.xcMenu = (function(xcMenu, $) {
+namespace xcMenu {
     // adds default menu behaviors to menus passed in as arguments
     // behaviors include highlighting lis on hover, opening submenus on hover
 
-    var closeCallback;
-    var hotKeyFns = {}; // menuId: callbackFn
+    let closeCallback: Function;
+    const hotKeyFns: Map<string, Function> = new Map<string, Function>(); // menuId: callbackFn
 
     // options:
-    //  keepOpen: if set true, main menu will not close when click the li
-    //  hotKeys: callback function for hotkeys
-    xcMenu.add = function($mainMenu, options) {
-        var $subMenu;
-        var $allMenus = $mainMenu;
-        var subMenuId = $mainMenu.data('submenu');
-        var hideTimeout;
-        var showTimeout;
-        var subListScroller;
-        options = options || {};
+    //      keepOpen: if set true, main menu will not close when click the li
+    //      hotKeys: callback function for hotkeys
+    //      allowSelection: boolean, if true will not clear selected text
+    export interface Options {
+        keepOpen: boolean;
+        hotkeys: Function;
+        allowSelection: boolean;
+    }
+
+    /**
+     * xcMenu.add
+     * Add a new xcMenu based on a jquery element
+     * @param $mainMenu - the root menu for the new xcMenu, sub menues can exist below this
+     * @param options - menu options to set if the menu stays open or has hotkeys
+     */
+    export function add($mainMenu: JQuery, options: xcMenu.Options = <xcMenu.Options>{}): void {
+        let $subMenu: JQuery;
+        let $allMenus: JQuery = $mainMenu;
+        const subMenuId: string = $mainMenu.data('submenu');
+        let hideTimeout: NodeJS.Timer;
+        let showTimeout: NodeJS.Timer;
+        let subListScroller: MenuHelper;
 
         if (subMenuId) {
             $subMenu = $('#' + subMenuId);
@@ -41,7 +53,7 @@ window.xcMenu = (function(xcMenu, $) {
                     if ($subMenu.find('li.selected').length) {
                         return;
                     }
-                    var $input = $(this);
+                    const $input: JQuery = $(this);
                     $input.parents('li').addClass('inputSelected')
                     .parents('.subMenu').addClass('inputSelected');
 
@@ -52,7 +64,7 @@ window.xcMenu = (function(xcMenu, $) {
                 if (event.which !== 1) {
                     return;
                 }
-                var $li = $(this);
+                const $li: JQuery = $(this);
                 event.stopPropagation();
 
                 if (!$li.hasClass('unavailable') &&
@@ -71,8 +83,8 @@ window.xcMenu = (function(xcMenu, $) {
                     }
                     $subMenu.find('li').removeClass('selected');
 
-                    var $li = $(this);
-                    var className = $li.parent().attr('class');
+                    const $li: JQuery = $(this);
+                    const className: string = $li.parent().attr('class');
                     $mainMenu.find('.' + className).addClass('selected');
                     $li.addClass('selected');
 
@@ -83,7 +95,7 @@ window.xcMenu = (function(xcMenu, $) {
                 },
                 "mouseleave": function() {
                     $subMenu.find('li').removeClass('selected');
-                    var $li = $(this);
+                    const $li: JQuery = $(this);
                     $li.find('.dropDownList').removeClass("open")
                         .find('.list').hide();
                     // $li.removeClass('selected');
@@ -100,7 +112,7 @@ window.xcMenu = (function(xcMenu, $) {
             if (event.which !== 1) {
                 return;
             }
-            var $li = $(this);
+            const $li: JQuery = $(this);
             if ($li.hasClass('parentMenu')) {
                 return;
             }
@@ -119,11 +131,11 @@ window.xcMenu = (function(xcMenu, $) {
                     $mainMenu.removeClass('disableMouseEnter');
                     return;
                 }
-                var $li = $(this);
+                const $li = $(this);
                 $mainMenu.find('.selected').removeClass('selected');
                 $mainMenu.addClass('hovering');
                 $li.addClass('selected');
-                var hasSubMenu = $li.hasClass('parentMenu');
+                const hasSubMenu: boolean = $li.hasClass('parentMenu');
 
                 if (!hasSubMenu || $li.hasClass('unavailable')) {
                     if ($subMenu) {
@@ -140,7 +152,7 @@ window.xcMenu = (function(xcMenu, $) {
                 }
 
                 clearTimeout(hideTimeout);
-                var subMenuClass = $li.data('submenu');
+                const subMenuClass: string = $li.data('submenu');
                 if (event.keyTriggered) { // mouseenter triggered by keypress
                     showSubMenu($li, subMenuClass);
                 } else {
@@ -156,7 +168,7 @@ window.xcMenu = (function(xcMenu, $) {
                 }
                 $mainMenu.removeClass('hovering');
                 $mainMenu.find('.selected').removeClass('selected');
-                var $li = $(this);
+                const $li: JQuery = $(this);
                 $li.children('ul').removeClass('visible');
                 $('.tooltip').remove();
             }
@@ -166,11 +178,11 @@ window.xcMenu = (function(xcMenu, $) {
             e.preventDefault();
         });
 
-        function showSubMenu($li, subMenuClass) {
+        function showSubMenu($li: JQuery, subMenuClass: string): void {
             if ($li.hasClass('selected')) {
                 $subMenu.show();
-                var $targetSubMenu = $subMenu.find('ul.' + subMenuClass);
-                var visible = false;
+                const $targetSubMenu: JQuery = $subMenu.find('ul.' + subMenuClass);
+                let visible: boolean = false;
                 if ($targetSubMenu.is(':visible')) {
                     visible = true;
                 }
@@ -182,12 +194,12 @@ window.xcMenu = (function(xcMenu, $) {
                 if (!visible) {
                     StatusBox.forceHide();
                 }
-                var top = $li.offset().top + 28;
-                var left = $li.offset().left + 155;
-                var shiftedLeft = false;
+                let top: number = $li.offset().top + 28;
+                let left: number = $li.offset().left + 155;
+                let shiftedLeft: boolean = false;
 
                 // move submenu to left if overflowing to the right
-                var viewportRight = $(window).width() - 5;
+                const viewportRight: number = $(window).width() - 5;
                 if (left + $subMenu.width() > viewportRight) {
                     $subMenu.addClass('left');
                     shiftedLeft = true;
@@ -197,7 +209,7 @@ window.xcMenu = (function(xcMenu, $) {
                 }
 
                 // move submenu up if overflowing to the bottom
-                var viewportBottom = $(window).height();
+                const viewportBottom: number = $(window).height();
                 if (top + $subMenu.height() > viewportBottom) {
                     top -= $subMenu.height();
                     if (shiftedLeft) {
@@ -221,11 +233,17 @@ window.xcMenu = (function(xcMenu, $) {
 
         if (options.hotkeys && $mainMenu.attr("id") &&
             $("html").attr("lang") === "en-US") {
-            hotKeyFns[$mainMenu.attr("id")] = options.hotkeys;
+            hotKeyFns.set($mainMenu.attr("id"), options.hotkeys);
         }
     };
 
-    xcMenu.show = function($menu, callback) {
+    /**
+     * xcMenu.show
+     * make a menu visable
+     * @param $menu - the menu element to show
+     * @param callback - any function to run after the menu is closed
+     */
+    export function show($menu: JQuery, callback: Function) {
         xcMenu.removeKeyboardNavigation();
         $(document).off(".xcMenu");
         $(window).off(".xcMenu");
@@ -239,9 +257,9 @@ window.xcMenu = (function(xcMenu, $) {
         $menu.show();
 
         $(document).on("mousedown.xcMenu", function(event) {
-            var $target = $(event.target);
+            const $target: JQuery = $(event.target);
             gMouseEvents.setMouseDownTarget($target);
-            var clickable = $target.closest('.menu').length > 0 ||
+            const clickable: boolean = $target.closest('.menu').length > 0 ||
                             $target.closest('.clickable').length > 0 ||
                             $target.hasClass("highlightBox");
             if (!clickable && $target.closest('.dropdownBox').length === 0) {
@@ -253,8 +271,8 @@ window.xcMenu = (function(xcMenu, $) {
             xcMenu.close($menu);
         });
 
-        var mainFrameScrolling = false;
-        var mainFrameScrollTimer;
+        let mainFrameScrolling: boolean = false;
+        let mainFrameScrollTimer: NodeJS.Timer;
         $("#mainFrame").on("scroll.xcMenu", function() {
             if (!mainFrameScrolling) {
                 mainFrameScrolling = true;
@@ -267,8 +285,8 @@ window.xcMenu = (function(xcMenu, $) {
             }, 300);
         });
 
-        var winResizeTimer;
-        var resizing = false;
+        let winResizeTimer: NodeJS.Timer;
+        let resizing: boolean = false;
         $(window).on("resize.xcMenu", function() {
             if (!resizing) {
                 resizing = true;
@@ -281,7 +299,12 @@ window.xcMenu = (function(xcMenu, $) {
         });
     };
 
-    xcMenu.close = function($menu) {
+    /**
+     * xcMenu.close
+     * close/ hide a menu element and any sub menues
+     * @param $menu - the menu object to hide
+     */
+    export function close($menu: JQuery) {
         if (!$menu) {
             $(".menu").hide();
         } else {
@@ -298,19 +321,23 @@ window.xcMenu = (function(xcMenu, $) {
         }
     };
 
-    // options:
-    //      allowSelection: boolean, if true will not clear selected text
-    xcMenu.addKeyboardNavigation = function($menu, $subMenu, options) {
-        options = options || {};
+    /**
+     * xcMenu.addKeyboardNavigation
+     * adds keyboard navigation to an xcMenu and its submenues
+     * @param $menu - the main menu to add navigation to
+     * @param $subMenu -the submenues to add navigation to
+     * @param options - option if the menu has the ability to be selected
+     */
+    export function addKeyboardNavigation($menu: JQuery, $subMenu: JQuery, options: xcMenu.Options = <xcMenu.Options>{}) {
         if (!options.allowSelection) {
             $('body').addClass('noSelection');
         }
-        var $lis = $menu.find('li:visible:not(.unavailable)');
-        var numLis = $lis.length;
+        const $lis: JQuery = $menu.find('li:visible:not(.unavailable)');
+        const numLis: number = $lis.length;
 
         $(document).on('keydown.menuNavigation', listHighlight);
-        var menuId = $menu.attr("id");
-        if (menuId && hotKeyFns[menuId]) {
+        const menuId: string = $menu.attr("id");
+        if (menuId && hotKeyFns.has(menuId)) {
             $(document).on("keydown.menuHotKeys", function(event) {
                 if ((isSystemMac && event.metaKey) ||
                     (!isSystemMac && event.ctrlKey))
@@ -320,15 +347,15 @@ window.xcMenu = (function(xcMenu, $) {
                 if ($("input:focus").length) {
                     return;
                 }
-                hotKeyFns[menuId](event, $menu);
+                hotKeyFns.get(menuId)(event, $menu);
             });
         }
 
-        function listHighlight(event) {
-            var keyCodeNum = event.which;
-            var direction;
-            var lateral = false;
-            var enter;
+        function listHighlight(event: JQueryEventObject): void {
+            let keyCodeNum: number = event.which;
+            let direction: number;
+            let lateral: boolean = false;
+            let enter: boolean;
 
             switch (keyCodeNum) {
                 case (keyCode.Up):
@@ -342,7 +369,7 @@ window.xcMenu = (function(xcMenu, $) {
                         if ($(event.target).attr('type') === "number") {
                             return;
                         }
-                        if ($(event.target)[0].selectionStart !== 0) {
+                        if ((<HTMLInputElement>$(event.target)[0]).selectionStart !== 0) {
                             return;
                         }
                     }
@@ -373,13 +400,13 @@ window.xcMenu = (function(xcMenu, $) {
                 event.preventDefault();
             }
 
-            var $highlightedLi = $lis.filter(function() {
+            let $highlightedLi: JQuery = $lis.filter(function() {
                 return ($(this).hasClass('selected'));
             });
 
-            var $highlightedSubLi = "";
-            var $subLis;
-            var numSubLis;
+            let $highlightedSubLi: JQuery;// = "";
+            let $subLis: JQuery;
+            let numSubLis: number;
             if ($subMenu) {
                 $subLis = $subMenu.find('li:visible');
                 numSubLis = $subLis.length;
@@ -416,8 +443,8 @@ window.xcMenu = (function(xcMenu, $) {
             }
 
             if (!lateral) { // up and down keys
-                var index;
-                var newIndex;
+                let index: number;
+                let newIndex: number;
                 if ($subMenu && $subMenu.is(':visible')) {
                     // navigate vertically through sub menu if it's open
                     if ($highlightedSubLi.length) {
@@ -448,14 +475,14 @@ window.xcMenu = (function(xcMenu, $) {
                     $highlightedLi.addClass('selected');
 
                     // adjust scroll position if newly highlighted li is not visible
-                    var menuHeight = $menu.height();
-                    var liTop = $highlightedLi.position().top;
-                    var liHeight = 30;
-                    var currentScrollTop;
+                    const menuHeight: number = $menu.height();
+                    const liTop: number = $highlightedLi.position().top;
+                    const liHeight: number = 30;
+                    let currentScrollTop: number;
 
                     if (liTop > menuHeight - liHeight) {
                         currentScrollTop = $menu.find('ul').scrollTop();
-                        var newScrollTop = liTop - menuHeight + liHeight +
+                        const newScrollTop: number = liTop - menuHeight + liHeight +
                                            currentScrollTop;
                         $menu.find('ul').scrollTop(newScrollTop);
                         if ($menu.hasClass('hovering')) {
@@ -475,7 +502,7 @@ window.xcMenu = (function(xcMenu, $) {
                 }
                 if ($highlightedLi.length &&
                     $highlightedLi.hasClass('parentMenu')) {
-                    var e;
+                    let e: JQueryEventObject;
                     // if mainmenu li is highlighted and has a submenu
                     if (keyCodeNum === keyCode.Right) {
                         if ($subMenu.is(':visible')) {
@@ -519,11 +546,13 @@ window.xcMenu = (function(xcMenu, $) {
         }
     };
 
-    xcMenu.removeKeyboardNavigation = function() {
+    /**
+     * xcMenu.removeKeyboardNavigation
+     * remove the ability to navigate a menu by keyboard
+     */
+    export function removeKeyboardNavigation(): void {
         $(document).off('keydown.menuNavigation');
         $(document).off('keydown.menuHotKeys');
         $('body').removeClass('noSelection');
     };
-
-    return (xcMenu);
-}({}, jQuery));
+}
