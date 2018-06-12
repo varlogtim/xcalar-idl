@@ -2992,6 +2992,16 @@ describe("xcHelper Test", function() {
         expect(res.indexOf("workbook=")).to.equal(-1);
     });
 
+    it("xcHelper.getLockIconHtml should work", function() {
+        var loadWithStepHtml = xcHelper.getLockIconHtml(1, 1, false, true);
+        var loadWithTextHtml = xcHelper.getLockIconHtml(1, 1, true, false);
+        var searchHtml = xcHelper.getLockIconHtml(undefined, undefined, false,
+                                                  false, true);
+        expect(loadWithStepHtml.indexOf("cancelLoad")).to.be.gt(-1);
+        expect(loadWithStepHtml.indexOf("stepText")).to.be.gt(-1);
+        expect(loadWithTextHtml.indexOf("pctText")).to.be.gt(-1);
+        expect(searchHtml.indexOf("cancelSearch")).to.be.gt(-1);
+    });
 
     after(function() {
         StatusBox.forceHide();

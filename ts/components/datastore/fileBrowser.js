@@ -87,6 +87,10 @@ window.FileBrowser = (function($, FileBrowser) {
         $pickedFileList = $("#fileInfoContainer .pickedFileList").eq(0);
         $visibleFiles = $();
 
+        $fileBrowser.find(".searchLoadingSection")
+                    .html(xcHelper.getLockIconHtml(undefined, undefined, false,
+                                                   false, true));
+
         FilePreviewer.setup();
 
         if (!window.isBrowserChrome) {

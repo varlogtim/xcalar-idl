@@ -2311,26 +2311,35 @@ namespace xcHelper {
      * @param iconNum
      * @param withText
      * @param withSteps
+     * @param forFileSearch
      */
     export function getLockIconHtml(
         txId: number | string,
         iconNum: number,
         withText: boolean = false,
-        withSteps: boolean = false
+        withSteps: boolean = false,
+        forFileSearch: boolean = false
     ): string {
+        let cancelType: string = forFileSearch ? "cancelSearch" : "cancelLoad";
         let html: string =
-            '<div class="progressCircle cancelLoad lockedTableIcon"' +
-            ' data-txid="' + txId +
-            '" data-iconnum="' + iconNum + '">' +
+            '<div class="progressCircle ' + cancelType + ' lockedTableIcon"';
+        if (!forFileSearch) {
+            html += ' data-txid="' + txId + '" data-iconnum="' + iconNum + '"';
+        }
+        let title: string = forFileSearch ? TooltipTStr.CancelSearch :
+                                            TooltipTStr.CancelQuery;
+        html += '>' +
                 '<div class="iconPart" data-toggle="tooltip" ' +
-                'data-original-title="' + TooltipTStr.CancelQuery + '" ' +
+                'data-original-title="' + title + '" ' +
                 'data-placement="top" data-container="body">' +
                     '<div class="leftPart"></div>' +
                     '<div class="rightPart"></div>' +
                     '<i class="icon xi-clock"></i>' +
-                    '<i class="icon xi-close"></i>' +
-                    '<div class="progress"></div>' +
-                '</div>';
+                    '<i class="icon xi-close"></i>';
+        if (!forFileSearch) {
+            html += '<div class="progress"></div>';
+        }
+        html += '</div>';
         if (withSteps) {
             html += '<div class="textPart stepText">' +
             '<span class="currentStep">0</span>' + ' / ' +

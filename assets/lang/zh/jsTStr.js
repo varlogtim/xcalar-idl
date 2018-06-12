@@ -149,6 +149,7 @@ TooltipTStr = {
 "UnionSearch": "在表中查找",
 "ShowDatasetHint": "Begin by creating a new dataset here!",
 "ShowDatasetTableHint": "Create a table from an existing dataset or import a new one here!",
+"CancelSearch": "取消搜索"
 };
 CommonTxtTstr = {
 'ArrayVal': '数组值',

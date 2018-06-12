@@ -133,6 +133,7 @@ TooltipTStr = {
     "ParquetCannotRemovePartition": "Partition key must be added as part of the dataset",
     "AboutCopy": "Click to copy",
     "AboutCopied": "Copied to clipboard!",
+    "CancelSearch": "Cancel search",
 
     // Sync with htmlTStr
     "IcvGenerating": "Generating Erroneous Rows(ER) Table",
