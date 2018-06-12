@@ -135,9 +135,6 @@ window.Dag = (function($, Dag) {
 
             Dag.focusDagForActiveTable(tableId);
 
-            // add lock icon to tables that should be locked or not dropped
-            applyLockIfNeeded($dagWrap);
-
             if ($('#xcTableWrap-' + tableId).find('.tblTitleSelected').length) {
                 $('.dagWrap.selected').removeClass('selected')
                                       .addClass('notSelected');
@@ -1375,37 +1372,6 @@ window.Dag = (function($, Dag) {
         $('#dagSchema').removeClass("active");
         $(document).off('.hideDagSchema');
         $("#dagPanel").find(".dagTable.selected").removeClass("selected");
-    }
-
-    function applyLockIfNeeded($dagWrap) {
-        var $table;
-        var tId;
-        var table;
-        var isLocked;
-        var noDelete;
-        var needsIcon;
-        var lockHTML = '<i class="lockIcon icon xi-lockwithkeyhole"></i>';
-        $dagWrap.find(".dagTable").each(function() {
-            $table = $(this);
-            tId = $table.data('id');
-            table = gTables[tId];
-            if (!table) {
-                return;
-            }
-
-            isLocked = table.hasLock();
-            noDelete = table.isNoDelete();
-            needsIcon = isLocked || noDelete;
-            if (needsIcon) {
-                $table.append(lockHTML);
-                if (isLocked) {
-                    $table.addClass("locked");
-                }
-                if (noDelete) {
-                    $table.addClass("noDelete");
-                }
-            }
-        });
     }
 
     function expandGroup(groupInfo, $dagWrap, $expandIcon) {

@@ -171,17 +171,18 @@ window.DagDraw = (function($, DagDraw) {
             sets: sets
         };
         $container.data('allDagInfo', allDagInfo);
-        postDagHtmlOperations($container, options.tableId);
+        postDagHtmlOperations($container, options);
     };
 
-    function postDagHtmlOperations($dagWrap, tableId) {
+    function postDagHtmlOperations($dagWrap, options) {
         var datasets = $dagWrap.data("allDagInfo").datasets;
         for (var i in datasets) {
             var nodeId = datasets[i].dagNodeId;
             var $icon = Dag.getTableIcon($dagWrap, nodeId);
         }
-        if (tableId != null) {
+        if (options.tableId != null || options.refresh) {
             styleDroppedTables($dagWrap);
+            applyLockIfNeeded($dagWrap);
         }
     }
 
@@ -197,6 +198,37 @@ window.DagDraw = (function($, DagDraw) {
                         tablename: $dagTable.data("tablename")
                     })
                 });
+            }
+        });
+    }
+
+    function applyLockIfNeeded($dagWrap) {
+        var $table;
+        var tId;
+        var table;
+        var isLocked;
+        var noDelete;
+        var needsIcon;
+        var lockHTML = '<i class="lockIcon icon xi-lockwithkeyhole"></i>';
+        $dagWrap.find(".dagTable").each(function() {
+            $table = $(this);
+            tId = $table.data('id');
+            table = gTables[tId];
+            if (!table) {
+                return;
+            }
+
+            isLocked = table.hasLock();
+            noDelete = table.isNoDelete();
+            needsIcon = isLocked || noDelete;
+            if (needsIcon) {
+                $table.append(lockHTML);
+                if (isLocked) {
+                    $table.addClass("locked");
+                }
+                if (noDelete) {
+                    $table.addClass("noDelete");
+                }
             }
         });
     }
