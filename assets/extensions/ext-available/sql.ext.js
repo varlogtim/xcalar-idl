@@ -119,7 +119,7 @@ window.UExtSQL = (function(UExtSQL) {
         })
         .fail(function() {
             TblManager.deleteTables(tempTableNames, "orphaned", true);
-            deferred.reject();
+            deferred.reject(SQLErrTStr.FinalizingFailed);
         });
 
         return deferred.promise();
@@ -262,11 +262,18 @@ window.UExtSQL = (function(UExtSQL) {
                 deferred.resolve();
             })
             .fail(function(err) {
+                if (err === SQLErrTStr.FinalizingFailed) {
+                    deferred.reject(err);
+                    return;
+                }
+                // Finalize succeeded, then we'll add original table
                 srcTable.addToWorksheet(finalizedTableName)
                 .then(function() {
                     TblManager.deleteTables(tempTableNames, "orphaned", true);
                     if (err && err.responseJSON) {
                         deferred.reject(err.responseJSON.exceptionMsg);
+                    } else if (err && err.status === 0) {
+                        deferred.reject(SQLErrTStr.FailToConnectPlanner);
                     } else {
                         deferred.reject();
                     }

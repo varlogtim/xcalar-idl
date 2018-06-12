@@ -631,6 +631,8 @@ window.SQLEditor = (function(SQLEditor, $) {
                                     }
                                 }
                             }
+                        } else if (errorObj && errorObj.status === 0) {
+                            errorMsg = SQLErrTStr.FailToConnectPlanner;
                         }
                     }
                 } else {

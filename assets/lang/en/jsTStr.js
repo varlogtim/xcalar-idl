@@ -505,7 +505,9 @@ SQLErrTStr = {
     "InvalidLogicalPlan": "Invalid logical plan",
     "InvalidXcalarQuery": "Invalid Xcalar Query String",
     "InvalidPageInfo": "Invalid Xcalar result set page",
-    "InvalidSQLTable": "Invalid SQL table from KvStore"
+    "InvalidSQLTable": "Invalid SQL table from KvStore",
+    "FinalizingFailed": "Finalizing failed",
+    "FailToConnectPlanner": "Failed to connect to SQL Planner"
 };
 
 SQLInfoTStr = {
