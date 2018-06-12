@@ -590,7 +590,7 @@ namespace WorkbookPanel {
             return PromiseHelper.when(deferred1, deferred2);
         })
         .then(function(id, $fauxCard) {
-            const $newCard: JQuery = replaceLoadingCard($fauxCard, <string>id, true);
+            replaceLoadingCard($fauxCard, <string>id, true);
             return WorkbookPanel.edit(<string>id, workbookName, description, true);
         })
         .then(deferred.resolve)
@@ -879,33 +879,14 @@ namespace WorkbookPanel {
             modifiedTimeDisplay = time.calendar();
             modifiedTimeTip = xcTimeHelper.getDateTip(time);
         }
-        let activateTooltip: string;
         let isActive: string;
-        let stopTab: string = "";
 
         if (workbook.hasResource()) {
             extraClasses.push("active");
             isActive = WKBKTStr.Active;
-            activateTooltip = WKBKTStr.ReturnWKBK;
-            // stop button
-            stopTab =
-                    '<div class="vertBarBtn deactivate"><div class="tab btn btn-small"' +
-                    ' data-toggle="tooltip" data-container="body"' +
-                    ' data-placement="auto right"' +
-                    ' title="' + WKBKTStr.Deactivate + '">' +
-                        '<i class="icon xi-stop-circle"></i>' +
-                    '</div></div>';
         } else {
             isActive = WKBKTStr.Inactive;
             extraClasses.push("noResource");
-            // delete button
-            stopTab =
-            '<div class="vertBarBtn delete"><div class="tab btn btn-small"' +
-            ' data-toggle="tooltip" data-container="body"' +
-            ' data-placement="auto right"' +
-            ' title="' + WKBKTStr.Delete + '">' +
-                '<i class="icon xi-trash"></i>' +
-            '</div></div>';
         }
 
         let loadSection: string = "loadSection";
@@ -1009,7 +990,7 @@ namespace WorkbookPanel {
         if (dragFile) {
             file = dragFile;
         } else {
-            file = $fileUpload[0].files[0]; //XXX
+            file = (<HTMLInputElement>$fileUpload[0]).files[0];
         }
 
         path = file.name.replace(/C:\\fakepath\\/i, '').trim();
@@ -1103,7 +1084,7 @@ namespace WorkbookPanel {
     }
 
     function setupDragDrop(): void {
-        const ddUploader: DragDropUploader = new DragDropUploader({
+        new DragDropUploader({
             $container: $workbookPanel.find(".mainContent"),
             text: "Drop a workbook file to upload",
             onDrop: function(files) {

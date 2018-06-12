@@ -179,6 +179,7 @@ interface JQuery {
 }
 
 /* ============== GLOBAL VARIABLES ============= */
+declare var nw: any; // nw js for XD CE
 declare var isBrowserIE: boolean;
 declare var KB: number
 declare var MB: number;
@@ -1016,6 +1017,7 @@ declare namespace MainMenu {
     export function openPanel(panelId: string, subTabId: string, options?: object): void;
     export function tempNoAnim(): void;
     export function close(noAnim: boolean): void;
+    export function open(noAnim: boolean): void;
 }
 
 declare namespace BottomMenu {
@@ -1047,19 +1049,6 @@ declare namespace Dag {
 
 declare namespace DagDraw {
     export function createDagImage(node: any, $dagWrap: JQuery): void;
-}
-
-declare namespace QueryManager{
-    export function restore(oldMeta: object[]);
-    export function addIndexTable(txId: number, tableName: string): void;
-    export function addQuery(id: number, name: string, options: object): void;
-    export function cleanUpCanceledTables(id: number): void;
-    export function queryDone(id: number, sqlNum?: number): void;
-    export function getAllDstTables(id: number, force?: boolean);
-    export function fail(id: number, error: string);
-    export function confirmCanceledQuery(id: number);
-    export function subQueryDone(id: number, dstTableName: string | null, time: object, options?: object);
-    export function addSubQuery(id: number, name: string, dstTable: string, query: string, options?: object);
 }
 
 declare namespace Dag {
@@ -1153,16 +1142,6 @@ declare namespace UDF {
 
 declare namespace DSExport {
     export function refresh(): void;
-}
-
-declare namespace Transaction {
-    export function isSimulate(txId: number): boolean;
-    export function isEdit(txId: number): boolean;
-    export function start(options: object): number;
-    export function done(txId: number, options: object): void;
-    export function fail(txId: number, options: object): void;
-    export function cancel(txId: number): void;
-    export function getCache();
 }
 
 declare namespace SQLApi {

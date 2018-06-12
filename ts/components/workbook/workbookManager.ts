@@ -147,7 +147,6 @@ namespace WorkbookManager {
     function setURL(workbookId: string, replace: boolean, newTab: boolean = false): void {
         try {
             const curHref: string = window.location.href;
-            const url: URL = new URL(window.location.href);
             let workbookName: string = null;
             let newHref: string;
             if (workbookId != null && wkbkSet.has(workbookId)) {
@@ -1480,11 +1479,11 @@ namespace WorkbookManager {
         const deferred: XDDeferred<any> = PromiseHelper.deferred(); //string or array buffer
         const reader: FileReader = new FileReader();
 
-        reader.onload = function(event) {
+        reader.onload = function(event: any) {
             deferred.resolve(event.target.result);
         };
 
-        reader.onloadend = function(event) {
+        reader.onloadend = function(event: any) {
             const error: DOMException = event.target.error;
             if (error != null) {
                 deferred.reject(error);
@@ -1506,7 +1505,7 @@ namespace WorkbookManager {
             const inactiveTables: any[] = result.tables.filter(function(table) {
                 return !table.active;
             });
-            let promises: XDPromise<void>[] = [];
+            let promises: Function[] = [];
             inactiveTables.forEach(function(table) {
                 promises.push(function() {
                     if (canceled) {
@@ -1519,7 +1518,7 @@ namespace WorkbookManager {
             if (promises.length) {
                 showRestoreProgress(inactiveTables.length);
             }
-            return PromiseHelper.chain(promises);
+            return PromiseHelper.chain<void>(promises);
         })
         .then(deferred.resolve)
         .fail(deferred.reject)
