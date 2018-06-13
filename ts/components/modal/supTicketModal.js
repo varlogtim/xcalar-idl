@@ -920,38 +920,68 @@ window.SupTicketModal = (function($, SupTicketModal) {
     SupTicketModal.submitTicket = function (ticketObj, licenseObj, noTop, noLog) {
         ticketObj.license = licenseObj;
         var deferred = PromiseHelper.deferred();
+        var ticketStr;
         PromiseHelper.alwaysResolve(XcalarApiTop(1000))
         .then(function(ret) {
             if (!noTop) {
                 ticketObj.topInfo = ret;
             }
-            var ticketStr = JSON.stringify(ticketObj);
+            ticketStr = JSON.stringify(ticketObj);
             if (!noLog) {
                 var logStr = SupTicketModal.trimRecentLogs();
                 ticketStr = ticketStr.slice(0, -1);
                 ticketStr += ',"xiLog":' + logStr + "}";
             }
-
             return adminTools.fileTicket(ticketStr);
         })
         .then(deferred.resolve)
-        .fail(deferred.reject);
+        .fail(function() {
+            submitTicketBrowser(ticketStr)
+            .then(deferred.resolve)
+            .fail(deferred.reject);
+        });
 
         return deferred.promise();
     };
+
+    function submitTicketBrowser(ticketStr) {
+        var deferred = PromiseHelper.deferred();
+        jQuery.ajax({
+            "type": "POST",
+            "data": ticketStr,
+            "contentType": "application/json",
+            "url": "https://1pgdmk91wj.execute-api.us-west-2.amazonaws.com/stable/zendesk",
+            "cache": false,
+            success: function(data) {
+                xcConsole.log(data);
+                deferred.resolve({
+                    "status": 200,
+                    "logs": JSON.stringify(data)
+                });
+            },
+            error: function(err) {
+                xcConsole.log(err);
+                deferred.reject(err);
+                return;
+            }
+        });
+
+        return deferred.promise();
+    }
 
     SupTicketModal.fetchLicenseInfo = function() {
         var deferred = PromiseHelper.deferred();
         adminTools.getLicense()
         .then(function(data) {
-            var key = data.logs;
+            var key = data.logs || "";
             jQuery.ajax({
                 "type": "GET",
-                "url": "https://x3xjvoyc6f.execute-api.us-west-2.amazonaws.com/production/license/api/v1.0/keyinfo/" + encodeURIComponent(key),
+                "url": "https://x3xjvoyc6f.execute-api.us-west-2.amazonaws.com/production/license/api/v1.0/keyinfo/"
+                        + adminTools.compressLicenseKey(key),
                 success: function(data) {
-                    if (data.hasOwnProperty("expiration")) {
+                    if (data.hasOwnProperty("ExpirationDate")) {
                         deferred.resolve({"key": key,
-                                          "expiration": data.expiration,
+                                          "expiration": data.ExpirationDate,
                                           "organization": data.organization});
                     } else {
                         deferred.reject();
@@ -1013,6 +1043,9 @@ window.SupTicketModal = (function($, SupTicketModal) {
         };
         SupTicketModal.__testOnly__.get = function() {
             return tickets;
+        };
+        SupTicketModal.__testOnly__.submitTicketBrowser = function() {
+            return PromiseHelper.reject();
         };
     }
     /* End Of Unit Test Only */

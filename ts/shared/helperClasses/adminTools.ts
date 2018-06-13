@@ -226,6 +226,16 @@ namespace adminTools {
     }
 
     /**
+     * adminTools.compressLicenseKey
+     * compress license key from XD info to avoid exp server
+     * @param key - license info to be compressed
+     */
+    export function compressLicenseKey(key: string): string {
+        const options: object = {"to": "string"};
+        return btoa(pako.gzip(key, options));
+    }
+
+    /**
      * Files a ticket on behalf of the user against zendesk
      * @param inputStr Stringified contents of the ticket
      */
