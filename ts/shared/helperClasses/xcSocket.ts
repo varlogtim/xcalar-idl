@@ -11,13 +11,11 @@ class XcSocket {
     }
 
     private _socket: SocketIOClient.Socket;
-    private _connected: boolean;
     private _isRegistered: boolean;
     private _initDeferred: XDDeferred<void>;
 
     private constructor() {
         this._socket = null;
-        this._connected = false;
         this._isRegistered = false; // becomes true when has an active wkbk
         this._initDeferred = null;
     }
@@ -91,12 +89,12 @@ class XcSocket {
     }
 
     public isConnected(): boolean {
-        return this._connected;
-    };
+        return this._socket.connected;
+    }
 
     public isResigered(): boolean {
         return this._isRegistered;
-    };
+    }
 
     public sendMessage(msg: string, arg?: any, callback?: Function): boolean {
         if (this._socket == null) {
@@ -129,14 +127,13 @@ class XcSocket {
         });
 
         socket.on('connect', () => {
-            this._connected = true;
+            console.log('socket is connected!');
             this._initDeferred.resolve();
         });
 
         socket.on('disconnect', () => {
-            console.error('expServer is disconnected!');
-            XcSupport.stopHeartbeatCheck();
-            XcSupport.connectionError();
+            console.error('socket is disconnected!');
+            this._disconnectHandler();
         });
 
         socket.on('reconnect_failed', () => {
@@ -246,5 +243,29 @@ class XcSocket {
             user: XcUser.getCurrentUserName(),
             id: workbookId
         };
+    }
+
+    /**
+     * There are 2 cases, one is server is fine but client somehow disconnect
+     * another is server restarts.
+     * The disconnect handler on server side already handle case 1
+     * so we only need to call hold session again when connect is back
+     * Note that socket io will try reconnect and
+     * if succeed the connect event will be triggered
+     */
+    private _disconnectHandler() {
+        // connect event will connect to it if works
+        this._initDeferred = PromiseHelper.deferred();
+        this._isRegistered = false;
+        const wkbkId: string = WorkbookManager.getActiveWKBK();
+        XcUser.CurrentUser.holdSession(wkbkId, false)
+        .fail(function(err) {
+            if (err === WKBKTStr.Hold) {
+                WorkbookManager.gotoWorkbook(null, true);
+            } else {
+                // should be an connection error
+                XcSupport.checkConnection();
+            }
+        });
     }
 }
