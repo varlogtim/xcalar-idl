@@ -10,10 +10,11 @@ window.SmartCastView = (function($, SmartCastView) {
     var isOpen = false;
     var formHelper;
 
-    // constant
-    var validTypes = ["string", "integer", "float", "boolean"];
+    var validTypes;
 
     SmartCastView.setup = function() {
+        validTypes = [ColumnType.string, ColumnType.integer, ColumnType.float,
+            ColumnType.boolean, ColumnType.mixed]
         $castView = $("#smartCastView");
         $castTable = $("#smartCast-table");
 
@@ -300,7 +301,10 @@ window.SmartCastView = (function($, SmartCastView) {
     }
 
     function suggestType($tbody, colNum, type) {
-        if (type === "float" || type === "boolean") {
+        if (type === ColumnType.float ||
+            type === ColumnType.boolean ||
+            type === ColumnType.mixed
+        ) {
             return type;
         }
 
@@ -346,7 +350,6 @@ window.SmartCastView = (function($, SmartCastView) {
 
             if (type === ColumnType.object ||
                 type === ColumnType.array ||
-                type === ColumnType.mixed ||
                 type === ColumnType.undefined ||
                 progCol.isEmptyCol())
             {

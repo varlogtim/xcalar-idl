@@ -2,12 +2,13 @@ window.UnionView = (function(UnionView, $) {
     var $unionView; // $("#unionView")
     var formHelper;
     var isOpen = false;
-    // constant
-    var validTypes = ["string", "integer", "float", "boolean"];
+    var validTypes;
     var tableInfoLists = [];
     var editingInfo = {};
 
     UnionView.setup = function() {
+        validTypes = [ColumnType.string, ColumnType.integer, ColumnType.float,
+            ColumnType.boolean, ColumnType.mixed]
         $unionView = $("#unionView");
         var columnPicker = {
             "state": "unionState",
