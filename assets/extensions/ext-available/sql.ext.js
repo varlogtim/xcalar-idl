@@ -87,8 +87,9 @@ window.UExtSQL = (function(UExtSQL) {
             }
             var colStruct = getDerivedCol(col);
             if (!colStruct) {
+                var colName = col.backName === ""? col.name : col.backName;
                 deferred.reject(SQLErrTStr.InvalidColTypeForFinalize
-                                + col.backName + "(" + col.type + ")");
+                                + colName + "(" + col.type + ")");
                 return deferred.promise();
             }
             tableInfo.colsToProject.push(colStruct.colName);
@@ -241,6 +242,7 @@ window.UExtSQL = (function(UExtSQL) {
             finalizeTable(srcTable, ext)
             .fail(function(err) {
                 deferred.reject(err);
+                return PromiseHelper.reject();
             })
             .then(function([newTableName, tempTableNameList]) {
                 finalizedTableName = newTableName;
@@ -270,7 +272,13 @@ window.UExtSQL = (function(UExtSQL) {
             })
             .fail(function(err) {
                 // Finalize succeeded, then we'll add original table
+                // Err is undefined, which means finalize fails and we
+                // have already reject the promise
+                if (err == undefined) {
+                    return;
+                }
                 var promise;
+                // This if is for future use - there is no operation in finalize
                 if (tempTableNames.length === 0) {
                     promise = PromiseHelper.resolve();
                 } else {
