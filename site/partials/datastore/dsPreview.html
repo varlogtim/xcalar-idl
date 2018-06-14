@@ -153,6 +153,7 @@
                     <li name="PARQUET"><%= dicts.dsFormat.PARQUET %></li>
                     <li name="PARQUETFILE"><%= dicts.dsFormat.PARQUETFILE %></li>
                     <li name="UDF"><%= dicts.dsFormat.UDF %></li>
+                    <li name="DATABASE"><%= dicts.dsFormat.DATABASE %></li>
                   </ul>
                   include "../../util/menuScrollArea.html"
                 </div>
@@ -299,6 +300,29 @@
                   <i class="icon xi-ckbox-empty"></i>
                   <i class="icon xi-ckbox-selected"></i>
                 </div>
+              </div>
+            </div>
+            <!-- database DSN -->
+            <div class="row format database">
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSDatabaseDSN %>" data-placement="top"></i>
+              <label><%= dicts.dsForm.DatabaseDSN %>:</label>
+              <div id="dbArgs-dsnList" class="rowContent dropDownList">
+                <input class="text" type="text" spellcheck="false" disabled>
+                <div class="iconWrapper">
+                  <i class="icon xi-arrow-down"></i>
+                </div>
+                <div class="list">
+                  <ul></ul>
+                  include "../../util/menuScrollArea.html"
+                </div>
+              </div>
+            </div>
+            <!-- database SQL -->
+            <div class="row format database">
+              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSDatabaseQuery %>" data-placement="top"></i>
+              <label for="dsForm-dbSQL"><%= dicts.dsForm.DatabaseQuery %>:</label>
+              <div class="inputWrap inputWrap-large">
+                <input id="dsForm-dbSQL" class="text" type="text" spellcheck="false">
               </div>
             </div>
           </section>

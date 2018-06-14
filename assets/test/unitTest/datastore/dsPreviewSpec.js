@@ -1424,6 +1424,21 @@ describe("Dataset-DSPreview Test", function() {
             XcalarAppExecute = oldFunc;
         });
 
+        it("Format Should be DATABASE", function() {
+            DSPreview.__testOnly__.toggleFormat("DATABASE");
+            expect($formatText.data("format")).to.equal("DATABASE");
+            // UI part
+            assert.isFalse($headerCheckBox.is(":visible"), "no header checkbox");
+            assert.isFalse($fieldText.is(":visible"), "no field delimiter");
+            assert.isFalse($lineText.is(":visible"), "no line delimiter");
+            assert.isFalse($quoteInput.is(":visible"), "no quote char");
+            assert.isFalse($skipInput.is(":visible"), "no skip rows");
+            assert.isFalse($udfModuleList.is(":visible"), "no udf module");
+            assert.isFalse($udfFuncList.is(":visible"), "no udf func");
+            assert.isTrue($("#dbArgs-dsnList").find('.text').is(":visible"), "has database DSN");
+            assert.isTrue($("#dsForm-dbSQL").is(":visible"), "has database SQL");
+        });
+
         after(function() {
             DSPreview.__testOnly__.resetForm();
             DSForm.show({"noReset": true});
@@ -1909,6 +1924,43 @@ describe("Dataset-DSPreview Test", function() {
             $("#dsForm-xPaths").val("");
         });
 
+        it("should validate DATABASE case", function() {
+            loadArgs.set({format: "DATABASE"});
+
+            // Test for empty dsn
+            $("#dbArgs-dsnList").find('.text').val("");
+            $("#dsForm-dbSQL").val("test");
+            expect(validateForm()).to.be.null;
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
+
+            // Test for empty sql
+            $("#dbArgs-dsnList").find('.text').val("test");
+            $("#dsForm-dbSQL").val("");
+            expect(validateForm()).to.be.null;
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
+
+            // Test for empty dsn and sql
+            $("#dbArgs-dsnList").find('.text').val("");
+            $("#dsForm-dbSQL").val("");
+            expect(validateForm()).to.be.null;
+            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
+
+            // Test for normal output
+            $("#dbArgs-dsnList").find('.text').val("test_dsn");
+            $("#dsForm-dbSQL").val("test_sql");
+            var res = validateForm();
+            expect(res).to.be.an("object");
+            expect(res.format).to.equal("DATABASE");
+            expect(res.udfModule).to.equal("default");
+            expect(res.udfFunc).to.equal("ingestFromDB");
+            expect(res.udfQuery).to.be.an("object");
+            expect(res.udfQuery.dsn).to.equal("test_dsn");
+            expect(res.udfQuery.query).to.equal("test_sql");
+            // restore
+            $("#dbArgs-dsnList").find('.text').val("");
+            $("#dsForm-dbSQL").val("");
+        });
+
         it("should validte PARQUET case", function() {
             var $parquetSection = $form.find(".parquetSection");
             var $selectedColList = $parquetSection.find(".selectedColSection .colList");
@@ -2174,6 +2226,25 @@ describe("Dataset-DSPreview Test", function() {
 
             // restore
             $("#dsForm-xPaths").val("");
+        });
+
+        it("should restore DATABASE", function() {
+            resetForm({
+                dsName: "test",
+                format: "DATABASE",
+                udfQuery: {
+                    dsn: "test_dsn",
+                    query: "test_sql"
+                }
+            });
+
+            expect(loadArgs.getFormat()).to.equal("DATABASE");
+            expect($("#dbArgs-dsnList").find('.text').val()).to.equal("test_dsn");
+            expect($("#dsForm-dbSQL").val()).to.equal("test_sql");
+
+            // restore
+            $("#dbArgs-dsnList").find('.text').val("");
+            $("#dsForm-dbSQL").val("");
         });
 
         it("should restore PARQUET", function() {

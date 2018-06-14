@@ -357,6 +357,8 @@ module.exports = {
         "RawDSXMLXPath": "Comma-delimited list of XPaths that will become records. For information about XPaths, search for XML in online help.",
         "RawDSXMLMatched": "Add a field containing the matched XPath name to each record.",
         "RawDSXMLElement": "Add a field containing the XPath to the element. (Adding this field might cause Import to be slow.)",
+        "RawDSDatabaseDSN": "Data source name",
+        "RawDSDatabaseQuery": "SQL query",
         "RawDSAdvMeta": "To apply an external metadata file to this dataset, enter the complete path to the metadata file, starting from the data target name. For example: Default Shared Root:/tmp/metadata.json",
         "RawDSAdvFile": "Add an extra field with the file name to each record",
         "RawDSAdvRow": "Add a field containing the record number to each record. Record number restarts at 1 for each file.",
@@ -689,6 +691,8 @@ module.exports = {
         "xPaths": "XPaths",
         "MatchedXPath": "Matched XPath",
         "ElementXPath": "Element XPath",
+        "DatabaseDSN": "DSN",
+        "DatabaseQuery": "SQL",
         "SelectFile": "Select a file to preview from the dropdown.",
         "PartitionsAdvanced": "Partitions (Advanced)",
         "SelectedColumns": "Selected Columns",
@@ -722,7 +726,8 @@ module.exports = {
         "PLAINTEXT": "PLAIN TEXT",
         "PARQUET": "Parquet Dataset",
         "PARQUETFILE": "Parquet File",
-        "UDF": "Custom Format"
+        "UDF": "Custom Format",
+        "DATABASE": "Custom Database"
     },
 
     "dsTable": {

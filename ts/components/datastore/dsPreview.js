@@ -22,6 +22,7 @@ window.DSPreview = (function($, DSPreview) {
     var udfFuncHint;
 
     var $headerCheckBox; // $("#promoteHeaderCheckbox") promote header checkbox
+    var componentDBFormat;
 
     var tableName = null;
     var rawData = null;
@@ -61,6 +62,7 @@ window.DSPreview = (function($, DSPreview) {
         "XML": "XML",
         "PARQUET": "PARQUET",
         "PARQUETFILE": "PARQUETFILE",
+        "DATABASE": "DATABASE",
     };
 
     DSPreview.setup = function() {
@@ -82,6 +84,12 @@ window.DSPreview = (function($, DSPreview) {
         $udfFuncList = $("#udfArgs-funcList");
 
         $headerCheckBox = $("#promoteHeaderCheckbox");
+        componentDBFormat = createDatabaseFormat({
+            dsnID: 'dbArgs-dsnList',
+            sqlID: 'dsForm-dbSQL',
+            containerID: 'importDataForm-content',
+            parseJSONDataFunc: parseJSONData
+        });
 
         // select a char as candidate delimiter
         $previewTable.mouseup(function(event) {
@@ -1222,6 +1230,13 @@ window.DSPreview = (function($, DSPreview) {
             // CSV preview don't use UDF
             delete options.moduleName;
             delete options.funcName;
+        } else if (format == formatMap.DATABASE) {
+            componentDBFormat.restore({
+                dsn: options.udfQuery.dsn,
+                query: options.udfQuery.query
+            });
+            delete options.moduleName;
+            delete options.funcName;
         }
         // Nothing to do for PARQUET FILE since it's just one thing
         options.format = format;
@@ -2121,6 +2136,7 @@ window.DSPreview = (function($, DSPreview) {
         var skipRows = null;
         var xmlArgs = {};
         var parquetArgs = {};
+        var dbArgs = {};
 
         if (hasUDF) {
             var udfArgs = validateUDF();
@@ -2175,6 +2191,14 @@ window.DSPreview = (function($, DSPreview) {
         } else if (format === formatMap.PARQUETFILE) {
             udfModule = parquetModule;
             udfFunc = parquetFunc;
+        } else if (format === formatMap.DATABASE) {
+            dbArgs = componentDBFormat.validateValues();
+            if (dbArgs == null) {
+                return null;
+            }
+            udfModule = 'default';
+            udfFunc = 'ingestFromDB';
+            udfQuery = { dsn: dbArgs.dsn, query: dbArgs.query };
         }
 
         var advanceArgs = validateAdvancedArgs();
@@ -2431,6 +2455,9 @@ window.DSPreview = (function($, DSPreview) {
                 break;
             case "XML":
                 $form.find(".format.xml").removeClass("xc-hidden");
+                break;
+            case "DATABASE":
+                componentDBFormat.show();
                 break;
             default:
                 throw ("Format Not Support");
@@ -3445,6 +3472,14 @@ window.DSPreview = (function($, DSPreview) {
             }
         } else if (format === formatMap.XML) {
             isSuccess = getXMLTable(rawData);
+        } else if (format === formatMap.DATABASE) {
+            var parseResult =  componentDBFormat.parseConfig(rawData);
+            if (parseResult) {
+                showJSONTable(parseResult.json);
+                componentDBFormat.updateDSNList(parseResult.dsnList);
+            }
+            isSuccess = parseResult ? true : false;
+
         } else {
             isSuccess = getCSVTable(rawData, format);
 
@@ -3655,7 +3690,7 @@ window.DSPreview = (function($, DSPreview) {
         return name;
     }
 
-    function getJSONTable(datas, skipRows) {
+    function getJSONTable(datas, skipRows = 0) {
         var json = parseJSONData(datas);
         if (json == null) {
             // error case
@@ -3663,9 +3698,14 @@ window.DSPreview = (function($, DSPreview) {
         }
         json = json.splice(skipRows);
 
-        $previewTable.html(getJSONTableHTML(json))
-        .addClass("has-delimiter");
+        showJSONTable(json);
+
         return true;
+    }
+
+    function showJSONTable(jsonData) {
+        $previewTable.html(getJSONTableHTML(jsonData))
+        .addClass("has-delimiter");
     }
 
     function parseJSONByRow(data) {
@@ -4863,6 +4903,101 @@ window.DSPreview = (function($, DSPreview) {
 
         return newNames;
     }
+
+    // Start === DatabaseFormat component factory
+    function createDatabaseFormat({
+        dsnID = 'dbArgs-dsnList',
+        sqlID = 'dsForm-dbSQL',
+        containerID = 'importDataForm-content',
+        parseJSONDataFunc}) {
+        // Dependencies
+        const libs = {
+            xcHelper: xcHelper,
+            ErrTStr: ErrTStr,
+            parseJSONData: parseJSONDataFunc,
+            MenuHelper: MenuHelper,
+            InputDropdownHint: InputDropdownHint
+        };
+
+        // Constants
+        const DSN_LINE_TEMPLATE = '<li data-dsn="{dsn}">{dsn}</li>';
+
+        // Private variables
+        const $elementDSN = $('#' + dsnID);
+        const $elementSQL = $('#' + sqlID);
+        const $container = $('#' + containerID);
+        const $elementDSNInput = $('#' + dsnID + ' .text');
+
+        // Private methods
+        function init() {
+            new libs.MenuHelper($elementDSN, {
+                "onSelect": ($li) => selectDSN($li.data('dsn')),
+                "container": '#' + containerID,
+                "bounds": '#' + containerID
+            }).setupListeners();
+        }
+
+        function selectDSN(dsn) {
+            $elementDSNInput.val(dsn);
+        }
+
+        // Initialize
+        init();
+
+        // Public methods
+        return {
+            restore: function({dsn, query}) {
+                if (dsn != null) {
+                    $elementDSNInput.val(dsn);
+                }
+                if (query != null) {
+                    $elementSQL.val(query);
+                }
+            },
+            validateValues: function() {
+                const strDSN = $elementDSNInput.val().trim();
+                const strSQL = $elementSQL.val().trim();
+                const isValid = libs.xcHelper.validate([
+                    {
+                        "$ele": $elementDSN,
+                        "error": libs.ErrTStr.NoEmpty,
+                        "formMode": true,
+                        "check": () => (strDSN.length === 0)
+                    },
+                    {
+                        "$ele": $elementSQL,
+                        "error": libs.ErrTStr.NoEmpty,
+                        "formMode": true,
+                        "check": () => (strSQL.length === 0)
+                    }
+                ]);
+                return (isValid) ? { dsn: strDSN, query: strSQL } : null;
+            },
+            show: function() {
+                $container.find(".format.database").removeClass("xc-hidden");
+            },
+            parseConfig: function(rawData) {
+                try {
+                    const json = libs.parseJSONData(rawData);
+                    return {
+                        json: json,
+                        dsnList: json.map( (dsn) => (libs.xcHelper.escapeHTMLSpecialChar(dsn.name)) )
+                    };
+                } catch(e) {
+                    console.error(e);
+                    return false;
+                }
+            },
+            updateDSNList: function(dsnList) {
+                const html = dsnList.reduce(
+                    (accm, dsn) => ( accm + DSN_LINE_TEMPLATE.replace(/\{dsn\}/g, dsn) ),
+                    '');
+                $elementDSN.find("ul").html(html);
+            },
+        };
+
+    }
+    // End === DatabaseFormat component factory
 
     /* Unit Test Only */
     if (window.unitTestMode) {
