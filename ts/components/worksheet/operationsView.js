@@ -564,6 +564,11 @@ window.OperationsView = (function($, OperationsView) {
             updateStrPreview(true);
         });
 
+        $operationsView.on("click", ".distinct", function() {
+            var $checkbox = $(this).find(".checkbox");
+            $checkbox.toggleClass("checked");
+        });
+
         // empty options checkboxes
         $operationsView.on('click', '.emptyOptions .checkboxWrap', function() {
             var $checkboxWrap = $(this);
@@ -1623,7 +1628,8 @@ window.OperationsView = (function($, OperationsView) {
             }
         }
 
-        StatusBox.show(text, $target, false, {"offsetX": -5});
+        StatusBox.show(text, $target, false, {"offsetX": -5,
+                                              preventImmediateHide: true});
     }
 
     // scrolls to target before showing statusbox
@@ -2053,6 +2059,18 @@ window.OperationsView = (function($, OperationsView) {
         // agg input
         var $gbOnRow = $rows.eq(0);
         $gbOnRow.find(".arg").addClass("gbAgg").focus();
+        $gbOnRow.before('<div class="row checkboxWrap distinct">' +
+            '<div class="text">Distinct ' +
+                '<i class="hint qMark icon xi-unknown new" ' +
+                xcTooltip.Attrs + ' data-original-title="' +
+                TooltipTStr.Distinct + '"></i>' +
+            '</div>' +
+            '<div class="checkbox">' +
+                '<i class="icon xi-ckbox-empty fa-11"></i>' +
+                '<i class="icon xi-ckbox-selected fa-11"></i>' +
+            '</div>' +
+        '</div>');
+
         var description = OpFormTStr.NewColName + ":";
         // new col name field
         var $newColRow = $rows.eq(numArgs);
@@ -3439,6 +3457,7 @@ window.OperationsView = (function($, OperationsView) {
             });
         }
 
+        var $groups = $activeOpSection.find('.group');
         var operatorsFound = {};
         for (var i = 0; i < args.length; i++) {
             var numArgs = args[i].length;
@@ -3456,7 +3475,9 @@ window.OperationsView = (function($, OperationsView) {
                 operator: operators[i],
                 aggColName: aggCol,
                 newColName: args[i][numArgs - 1],
-                cast: null
+                cast: null,
+                isDistinct: $groups.eq(i).find(".distinct .checkbox")
+                                        .hasClass("checked")
             });
 
             colTypeInfo = colTypeInfos[i] || [];

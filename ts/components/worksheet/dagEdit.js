@@ -40,14 +40,19 @@ window.DagEdit = (function($, DagEdit) {
         $("#tableListSection").append('<div id="tableListEditText">' + DFTStr.TableListNoEdit + '</div>');
         xcTooltip.add($("#monitor-delete"), {title: DFTStr.NoReleaseMemoryEdit});
 
-        // if union or join tag, collapse and only allow editing of whole group
-        $dagWrap.find(".tagHeader.union.expanded").filter(function() {
+        // if union, join, or groupby tag, collapse and only allow editing of whole group
+        $dagWrap.find(".tag-union.expanded").filter(function() {
             return $(this).data("tag").indexOf("ExecuteSQL") === -1;
         }).find(".groupTagIcon").click();
 
-        $dagWrap.find(".tagHeader.join.expanded").filter(function() {
+        $dagWrap.find(".tag-join.expanded").filter(function() {
             return $(this).data("tag").indexOf("ExecuteSQL") === -1;
         }).find(".groupTagIcon").click();
+
+        $dagWrap.find(".tag-groupBy.expanded").filter(function() {
+            return $(this).data("tag").indexOf("ExecuteSQL") === -1;
+        }).find(".groupTagIcon").click();
+
         // if tag is sql, expand and allow editing of individual parts
         $dagWrap.find(".tagHeader.collapsed").filter(function() {
             return $(this).data("tag").indexOf("ExecuteSQL") === 0;
@@ -446,6 +451,11 @@ window.DagEdit = (function($, DagEdit) {
         .fail(function(err) {
 
         });
+    };
+
+    DagEdit.storeGroupby = function(tableId, aggregateArgs, groupByCols, options) {
+        options.simulate = true;
+        options.dstTableName
     };
 
     DagEdit.undoEdit = function(node) {

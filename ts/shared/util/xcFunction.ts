@@ -702,21 +702,21 @@ namespace xcFunction {
     /**
      * xcFunction.groupBy
      * @param tableId
-     * @param aggRegateArgs
+     * @param aggregateArgs
      * @param groupByCols
      * @param options
      */
     export function groupBy(
         tableId: TableId,
-        aggRegateArgs: XcFuncAggColInfo[],
+        aggregateArgs: XcFuncAggColInfo[],
         groupByCols: XcFuncGroupByColInfo[],
         options: XcFuncGroupByOptions = <XcFuncGroupByOptions>{}
     ): XDPromise<string> {
         // Validation
         if (tableId == null ||
             groupByCols.length < 1 ||
-            aggRegateArgs.length < 1 ||
-            aggRegateArgs[0].aggColName.length < 1
+            aggregateArgs.length < 1 ||
+            aggregateArgs[0].aggColName.length < 1
         ) {
             return PromiseHelper.reject('Invalid Parameters!');
         }
@@ -748,13 +748,13 @@ namespace xcFunction {
                 steps += 2;
             }
         }
-        if (aggRegateArgs.length > 1) {
+        if (aggregateArgs.length > 1) {
             steps = -1;
         }
 
         const sql: object = {
             operation: SQLOps.GroupBy,
-            args: aggRegateArgs,
+            args: aggregateArgs,
             tableName: tableName,
             tableId: tableId,
             groupByCols: groupByCols,
@@ -775,11 +775,12 @@ namespace xcFunction {
 
         const isIncSample: boolean = options.isIncSample || false;
         // do not pass in the cast property
-        const aggArgs: AggColInfo[] = aggRegateArgs.map((aggArg) => {
+        const aggArgs: AggColInfo[] = aggregateArgs.map((aggArg) => {
             return {
                 operator: aggArg.operator,
                 aggColName: aggArg.aggColName,
-                newColName: aggArg.newColName
+                newColName: aggArg.newColName,
+                isDistinct: aggArg.isDistinct
             };
         });
 
@@ -796,10 +797,10 @@ namespace xcFunction {
         }).length > 0;
         let castArgsPromise: XDPromise<string>;
         // agg and groupByCols has no cast
-        if (aggArgs.length === 1 && aggRegateArgs[0].cast && !needsIndexCast) {
+        if (aggArgs.length === 1 && aggregateArgs[0].cast && !needsIndexCast) {
             // if single group by
-            aggArgs[0].aggColName = xcHelper.castStrHelper(aggRegateArgs[0].aggColName,
-                aggRegateArgs[0].cast, false);
+            aggArgs[0].aggColName = xcHelper.castStrHelper(aggregateArgs[0].aggColName,
+                aggregateArgs[0].cast, false);
             castArgsPromise = PromiseHelper.resolve(tableName);
         } else {
             castArgsPromise = castCols();
@@ -834,7 +835,7 @@ namespace xcFunction {
                 let tablesToReplace: string[] = null;
                 if (isJoin) {
                     const colsToSelect: number[] = [];
-                    for (let i = 0; i < aggRegateArgs.length; i++) {
+                    for (let i = 0; i < aggregateArgs.length; i++) {
                         colsToSelect.push(i + 1);
                     }
                     tableOptions['selectCol'] = colsToSelect;
@@ -898,9 +899,9 @@ namespace xcFunction {
             };
 
             for (let i = 0; i < aggArgs.length; i++) {
-                const type: ColumnType = aggRegateArgs[i].cast;
+                const type: ColumnType = aggregateArgs[i].cast;
                 if (type != null) {
-                    const colName: string = aggRegateArgs[i].aggColName;
+                    const colName: string = aggregateArgs[i].aggColName;
                     const newCastName: string = castHelper(type, colName);
                     aggArgs[i].aggColName = newCastName;
                 }
@@ -998,7 +999,7 @@ namespace xcFunction {
                     joinTableCols.splice(dataColNum - 1, 0,
                         joinTableCols.splice(joinTableCols.length - 1, 1)[0]);
                     // put the groupBy column in front
-                    for (let i = 0; i < aggRegateArgs.length; i++) {
+                    for (let i = 0; i < aggregateArgs.length; i++) {
                         joinTableCols.unshift(nCols[i]);
                     }
                     innerDeferred.resolve(jonTable, joinTableCols);

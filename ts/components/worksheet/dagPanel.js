@@ -700,7 +700,8 @@ window.DagPanel = (function($, DagPanel) {
                             var node = allDagInfo.nodeIdMap[nodeId];
                             for (var i = 0; i < node.value.tags.length; i++) {
                                 if (node.value.tags[i].indexOf(SQLOps.Union) === 0 ||
-                                    node.value.tags[i].indexOf(SQLOps.Join) === 0) {
+                                    node.value.tags[i].indexOf(SQLOps.Join) === 0 ||
+                                    node.value.tags[i].indexOf(SQLOps.GroupBy) === 0) {
                                     var tagId = xcHelper.getTableId(node.value.tags[i]);
                                     if (allDagInfo.tagGroups[tagId] &&
                                         allDagInfo.tagGroups[tagId].group.indexOf(nodeId) > -1) {
@@ -708,8 +709,11 @@ window.DagPanel = (function($, DagPanel) {
                                         if (node.value.tags[i]
                                             .indexOf(SQLOps.Union) === 0) {
                                             hideOp = SQLOps.Union;
-                                        } else {
+                                        } else if (node.value.tags[i]
+                                            .indexOf(SQLOps.Join) === 0) {
                                             hideOp = SQLOps.Join;
+                                        } else {
+                                            hideOp = "group by";
                                         }
                                         break;
                                     }

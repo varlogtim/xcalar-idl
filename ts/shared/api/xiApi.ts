@@ -1116,6 +1116,10 @@ namespace XIApi {
                     tempTables.push(tempTable);
                 });
             }
+            for (let i: number = 0; i < newGroupOnCols.length; i++) {
+                newGroupOnCols[i] = newGroupOnCols[i].substr(newGroupOnCols[i]
+                                                        .lastIndexOf(":") + 1);
+            }
 
             const indexedTableName: string = res.indexTable;
             const newAggColName = "XC_COUNT_" + xcHelper.getTableId(gbTableName);
@@ -1139,6 +1143,10 @@ namespace XIApi {
             } else {
                 newIndexTable = getNewTableName(origTableName, "index");
                 tempTables.push(newIndexTable);
+                for (let i: number = 0; i < groupOnCols.length; i++) {
+                    groupOnCols[i] = groupOnCols[i].substr(groupOnCols[i]
+                                                    .lastIndexOf(":") + 1);
+                }
                 const keyInfos: object[] = groupOnCols.map((colName) => {
                     return {
                         name: colName,
@@ -1153,6 +1161,8 @@ namespace XIApi {
             const evalStrs: string[] = [];
             const newColNames: string[] = [];
             aggArgs.forEach((aggArg) => {
+                aggArg.aggColName = aggArg.aggColName.substr(aggArg.aggColName
+                                                        .lastIndexOf(":") + 1);
                 evalStrs.push(aggArg.operator + "(" + aggArg.aggColName + ")");
                 newColNames.push(aggArg.newColName);
             });
@@ -1218,7 +1228,12 @@ namespace XIApi {
                 });
             }
 
-            const newTableName: string = getNewTableName(origGbTable, "join");
+            let newTableName: string;
+            if (i === distinctGbTables.length - 1) {
+                newTableName = getNewTableName(origGbTable);
+            } else {
+                newTableName = getNewTableName(origGbTable, "join");
+            }
             if (i < distinctGbTables.length - 1) {
                 // Don't push final table
                 tempTables.push(newTableName);
@@ -2192,8 +2207,9 @@ namespace XIApi {
         // cleanliness, we're going to use this workaround for now. Eventually
         // If opArray.length === 0, we want to skip until after the first
         // XcalarGroupBy call
+        let tempColName: string;
         if (normalAggArgs.length === 0) {
-            const tempColName: string = "XC_COUNT_" + xcHelper.getTableId(tableName);
+            tempColName = "XC_COUNT_" + xcHelper.getTableId(tableName);
             normalAggArgs = [{
                 operator: "count",
                 aggColName: "1",
@@ -2212,6 +2228,7 @@ namespace XIApi {
         let tempTables: string[] = [];
         let finalCols: ProgCol[];
         let renamedGroupByCols: string[] = [];
+        let finalTable: string;
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         // tableName is the original table name that started xiApi.groupby
@@ -2245,20 +2262,20 @@ namespace XIApi {
                 icvMode, newKeyFieldName, groupAll, txId)
         })
         .then(() => {
-            return getFinalGroupByCols(txId, tableName, gbTableName, groupByCols,
-                                        normalAggArgs, isIncSample, sampleCols);
-        })
-        .then((resCols, resRenamedCols) => {
-            finalCols = resCols;
-            renamedGroupByCols = resRenamedCols;
             // XXX Check whether tempTables is well tracked
             return distinctGroupby(txId, tableName, groupByCols,
                                     distinctAggArgs, gbTableName);
         })
         .then((resTable, resTempTables, resTempCols) => {
-            const finalTable: string = resTable;
+            finalTable = resTable;
             tempTables = tempTables.concat(resTempTables);
             tempCols = tempCols.concat(resTempCols);
+            return getFinalGroupByCols(txId, tableName, resTable, groupByCols,
+                                       aggArgs, isIncSample, sampleCols);
+        })
+        .then((resCols, resRenamedCols) => {
+            finalCols = resCols;
+            renamedGroupByCols = resRenamedCols;
             if (clean) {
                 // remove intermediate table
                 XIApi.deleteTableAndMetaInBulk(txId, tempTables, true)

@@ -134,6 +134,7 @@ TooltipTStr = {
     "AboutCopy": "Click to copy",
     "AboutCopied": "Copied to clipboard!",
     "CancelSearch": "Cancel search",
+    'Distinct': "Select to eliminate duplicate values",
 
     // Sync with htmlTStr
     "IcvGenerating": "Generating Erroneous Rows(ER) Table",
@@ -1083,7 +1084,7 @@ DFTStr = {
     "AdvExportInstructions": "To convert this operation into a parameterized operation, please wrap parameter names between left and right angle brackets as follows: <paramName>.csv. Only the fileName and targetName values can be parameterized. To return to basic mode, all values must be valid.",
     "SynthInstructions": "To convert this operation into a parameterized operation, please wrap parameter names between left and right angle brackets as follows: <paramName>.csv. Only the source value can be parameterized. To return to basic mode, all values must be valid.",
     // with replace
-    "EditOpDirectly": "Please edit the <op> operation directly",
+    "EditOpDirectly": "Please edit the overall <op> operation directly",
     'CancelAlertMsg': 'Batch dataflow \'<name>\' was canceled.',
     "ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized."
 

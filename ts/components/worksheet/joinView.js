@@ -1744,7 +1744,7 @@ window.JoinView = (function($, JoinView) {
             }
         }
 
-        JoinView.close();
+
 
         var origFormOpenTime = formHelper.getOpenTime();
 
@@ -1763,6 +1763,7 @@ window.JoinView = (function($, JoinView) {
             });
         }
 
+        JoinView.close();
         return deferred.promise();
     }
 

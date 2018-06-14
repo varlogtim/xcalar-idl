@@ -211,13 +211,11 @@ html.firefox {
             }
         }
 
-        // xx need to generalize
-        .icvContainer, .gbCheckboxes, .keepTablesCBWrap {
-            width: 100%;
+        .icvContainer {
             height: 30px;
         }
         // xx need to generalize
-        .icvMode, .gbCheckboxes > div, .keepTableCheckbox {
+        .icvMode, .gbCheckboxRow > div, .keepTableCheckbox {
             float: right;
             padding-right: 10px;
             &.inactive {
@@ -894,12 +892,11 @@ html.firefox {
             margin-top: 10px;
         }
         .argsSection {
-            .resultantColNameRow:nth-child(3), .resultantColNameRow:nth-child(4) {
+            .resultantColNameRow:nth-child(4), .resultantColNameRow:nth-child(5) {
                 .description {
                     display: none;
                 }
                 .checkboxSection {
-                    display: inline-block;
                     width: auto !important;
                     float: right;
 
@@ -907,6 +904,21 @@ html.firefox {
                         width: 26px;
                         float: right;
                     }
+                }
+            }
+            .row.checkboxWrap {
+                float: none;
+                margin-top: 0px;
+
+                .text {
+                    float: left;
+                    margin-left: 10px;
+                    font-weight: 600;
+                    line-height: 23px;
+                    font-size: 11px;
+                }
+                .checkbox {
+                    margin-top: 6px;
                 }
             }
         }
@@ -948,7 +960,6 @@ html.firefox {
         .selectAllWrap {
             margin-bottom: 8px;
             float: right;
-            display: inline-block;
 
             .clearfix;
             .text {

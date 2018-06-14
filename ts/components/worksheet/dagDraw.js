@@ -1400,10 +1400,10 @@ window.DagDraw = (function($, DagDraw) {
         var altName = info.altName || resultTableName;
 
         if (node.value.display.hasTagGroup) {
-            classes += " tagHeader ";
             var tagIconTip;
             var tagId = xcHelper.getTableId(node.value.tag);
             var tagName = getOpFromTag(node.value.tag);
+            classes += " tagHeader tag-" + tagName.replace(/\s/g, "") + " ";
             var tagGroup = generalInfo.tagGroups[tagId].group;
             var numInGroup = tagGroup.length + 1; // include self + 1
             if (node.value.display.tagCollapsed) {
