@@ -161,7 +161,7 @@ function processToken(idToken) {
 }
 
 router.post('/auth/azureIdToken', function(req, res) {
-    xcConsole.log('auth, azure token');
+    xcConsole.log("Authenticaking Azure Id Token");
     var idToken = req.body.token;
     var user = req.body.user;
     var admin = req.body.admin;

@@ -37,7 +37,7 @@ function writeTarGz(targz, name, version) {
         out.on('close', function(code) {
             // Code is either 0, which means success, or 1, which means error.
             if (code) {
-                xcConsole.error("Unable to untar");
+                xcConsole.log("Failure: Untar failed");
                 deferred.reject("Unable to untar");
             } else {
                 xcConsole.log("Success: Untar finishes");
@@ -312,17 +312,17 @@ postData: // For Posts
 */
 
 router.post("/extension/upload", function(req, res) {
-    xcConsole.log('Upload Extension');
+    xcConsole.log("Writing Extension");
     var targz = req.body.targz;
     var name = req.body.name;
     var defaultVersion = "0.0.1";
     writeTarGzWithCleanup(targz, name, defaultVersion)
     .then(function() {
-        xcConsole.log("Intall extension finishes, enabling it");
+        xcConsole.log("Install extension finished. Enabling it...");
         return enableExtension(name);
     })
     .then(function() {
-        xcConsole.log("Enable installed extension finishes");
+        xcConsole.log("Enable installed extension finished");
         res.jsonp({status: Status.Ok});
     })
     .fail(function(err) {
@@ -361,6 +361,7 @@ router.post("/extension/download", function(req, res) {
 });
 
 router.delete("/extension/remove", function(req, res) {
+    xcConsole.log("Removing Extension");
     var extName = req.body.name;
     xcConsole.log("Removing extension: " + extName);
     removeExtension(extName)
@@ -464,7 +465,7 @@ router.get("/extension/getEnabled", function(req, res) {
 });
 
 router.get("/extension/listPackage", function(req, res) {
-    xcConsole.log('list extension');
+    xcConsole.log("Listing Extensions");
     if (!s3) {
         return res.jsonp({
             status: Status.Error,
@@ -484,7 +485,7 @@ Right /extension/publish (originally as /uploadContent) is implemented in a real
 Will fix in the next version.
 */
 router.post("/extension/publish", function(req, res) {
-    xcConsole.log("Uploading extension");
+    xcConsole.log("Publish Extension");
     upload.uploadContent(req, res)
     .then(function(data) {
         res.send({"status": Status.Ok, "data": data});

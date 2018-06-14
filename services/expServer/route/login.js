@@ -807,6 +807,7 @@ router.post('/login', function(req, res) {
 });
 
 router.post('/login/with/HttpAuth', function(req, res) {
+    xcConsole.log("Login with http auth");
     try {
         var credString = atob(req.body.credentials);
         var credArray = {
@@ -834,6 +835,7 @@ router.post('/login/with/HttpAuth', function(req, res) {
 });
 
 router.post('/login/verifyToken', function(req, res) {
+    xcConsole.log("Verify token");
     try {
         var userInfo = JSON.parse(atob(req.body.token));
         var userInfoSignature = userInfo.signature;
@@ -860,6 +862,7 @@ router.post('/login/verifyToken', function(req, res) {
 });
 
 router.post('/login/msalConfig/get', function(req, res) {
+    xcConsole.log("Getting msal config");
     getMsalConfig()
     .always(function(message) {
         res.status(message.status).send(message);
@@ -867,6 +870,7 @@ router.post('/login/msalConfig/get', function(req, res) {
 });
 
 router.post('/login/msalConfig/set', function(req, res) {
+    xcConsole.log("Setting msal config");
     var credArray = req.body;
     setMsalConfig(credArray)
     .always(function(message) {
@@ -875,6 +879,7 @@ router.post('/login/msalConfig/set', function(req, res) {
 });
 
 router.post('/login/defaultAdmin/get', function(req, res) {
+    xcConsole.log("Getting default admin");
     getDefaultAdmin()
     .always(function(message) {
         // Don't return password
@@ -885,6 +890,7 @@ router.post('/login/defaultAdmin/get', function(req, res) {
 });
 
 router.post('/login/defaultAdmin/set', function(req, res) {
+    xcConsole.log("Setting default admin");
     var credArray = req.body;
     setDefaultAdmin(credArray)
     .always(function(message) {
@@ -893,6 +899,7 @@ router.post('/login/defaultAdmin/set', function(req, res) {
 });
 
 router.post('/login/ldapConfig/set', function(req, res) {
+    xcConsole.log("Setting ldap config");
     var credArray = req.body;
     setLdapConfig(credArray)
     .always(function(message) {
@@ -901,6 +908,7 @@ router.post('/login/ldapConfig/set', function(req, res) {
 });
 
 router.post('/login/ldapConfig/get', function(req, res) {
+    xcConsole.log("Getting ldap config");
     getLdapConfig()
     .always(function(message) {
         res.status(message.status).send(message);
