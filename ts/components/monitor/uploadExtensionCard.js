@@ -46,7 +46,7 @@ window.UploadExtensionCard = (function($, UploadExtensionCard) {
             .fail(function(error) {
                 console.error(error);
                 StatusBox.show(ErrTStr.ExtUploadFailed, $card.find(".confirm"),
-                               false, {"side": "left"});
+                false, {side: "left", detail: error});
                 deferred.reject(error);
             });
         };
@@ -56,13 +56,12 @@ window.UploadExtensionCard = (function($, UploadExtensionCard) {
 
     function uploadExt(str) {
         var url = xcHelper.getAppUrl();
-        var promise = $.ajax({
+        return ExtensionPanel.request({
             "type": "POST",
             "dataType": "JSON",
             "url": url + "/extension/upload",
             "data": {"targz": str, "name": extName},
         });
-        return promise;
     }
 
     function addCardEvents() {

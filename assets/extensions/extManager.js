@@ -31,7 +31,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         $extOpsView.addClass("loading");
         xcHelper.showRefreshIcon($extOpsView.find(".extLists"), true, deferred);
 
-        $.ajax({
+        ExtensionPanel.request({
             "type": "GET",
             "dataType": "JSON",
             "url": url + "/extension/getEnabled",

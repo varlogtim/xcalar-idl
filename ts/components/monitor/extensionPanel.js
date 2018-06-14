@@ -61,6 +61,28 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         ext.setImage(imgSrc);
     };
 
+    ExtensionPanel.request = function(json) {
+        var deferred = PromiseHelper.deferred();
+        $.ajax(json)
+        .then(function(res) {
+            try {
+                if (res.status === Status.Error) {
+                    deferred.reject(res.error);
+                } else {
+                    deferred.resolve.apply(this, arguments);
+                }
+            } catch (e) {
+                console.error(e);
+                deferred.resolve.apply(this, arguments);
+            }
+        })
+        .fail(function(error) {
+            deferred.reject(JSON.stringify(error));
+        });
+
+        return deferred.promise();
+    };
+
     function setupExtLists() {
         if (Admin.isAdmin()) {
             $extLists.addClass("admin");
@@ -114,22 +136,22 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
     function fetchData() {
         $panel.addClass("wait");
         var url = xcHelper.getAppUrl();
-        $.ajax({
+        ExtensionPanel.request({
             "type": "GET",
             "dataType": "JSON",
-            "url": url + "/extension/listPackage",
-            "success": function(data) {
-                $panel.removeClass("wait");
-                try {
-                    var d = data;
-                    initializeExtCategory(d);
-                } catch (error) {
-                    handleError(error);
-                }
-            },
-            "error": function(error) {
+            "url": url + "/extension/listPackage"
+        })
+        .then(function(data) {
+            $panel.removeClass("wait");
+            try {
+                var d = data;
+                initializeExtCategory(d);
+            } catch (error) {
                 handleError(error);
             }
+        })
+        .fail(function(error) {
+            handleError(error);
         });
     }
 
@@ -158,7 +180,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         xcHelper.toggleBtnInProgress($submitBtn);
 
         extInInstall = ext.getName();
-        $.ajax({
+        ExtensionPanel.request({
             "type": "POST",
             "dataType": "JSON",
             "url": url + "/extension/download",
@@ -181,7 +203,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         })
         .fail(function(error) {
             xcHelper.toggleBtnInProgress($submitBtn);
-            Alert.error(ErrTStr.ExtDownloadFailure, JSON.stringify(error));
+            Alert.error(ErrTStr.ExtDownloadFailure, error);
         });
     }
 
@@ -190,7 +212,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         var extName = getExtNameFromList($ext);
         $ext.addClass("xc-disabled");
 
-        $.ajax({
+        ExtensionPanel.request({
             "type": "DELETE",
             "dataType": "JSON",
             "url": url + "/extension/remove",
@@ -202,7 +224,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             refreshAfterInstall();
         })
         .fail(function(error) {
-            Alert.error(ErrTStr.ExtRemovalFailure, JSON.stringify(error));
+            Alert.error(ErrTStr.ExtRemovalFailure, error);
             $ext.removeClass("xc-disabled");
         });
     }
@@ -242,7 +264,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         .fail(function(error) {
             var title = enable ? ErrTStr.ExtEnableFailure :
                                  ErrTStr.ExtDisableFailure;
-            Alert.error(title, JSON.stringify(error));
+            Alert.error(title, error);
         })
         .always(function() {
             $ext.removeClass("xc-disabled");
@@ -250,45 +272,23 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
     }
 
     function enableExtension(extName) {
-        var deferred = PromiseHelper.deferred();
         var url = xcHelper.getAppUrl();
-        $.ajax({
+        return ExtensionPanel.request({
             "type": "POST",
             "dataType": "JSON",
             "url": url + "/extension/enable",
-            "data": {name: extName},
-            "success": function(data) {
-                console.log(data);
-                xcHelper.showSuccess(SuccessTStr.ExtEnable);
-                deferred.resolve();
-            },
-            "error": function(error) {
-                Alert.error(ErrTStr.ExtEnableFailure, JSON.stringify(error));
-                deferred.reject();
-            }
+            "data": {name: extName}
         });
-        return deferred.promise();
     }
 
     function disableExtension(extName) {
-        var deferred = PromiseHelper.deferred();
         var url = xcHelper.getAppUrl();
-        $.ajax({
+        return ExtensionPanel.request({
             "type": "POST",
             "dataType": "JSON",
             "url": url + "/extension/disable",
-            "data": {name: extName},
-            "success": function(data) {
-                console.log(data);
-                xcHelper.showSuccess(SuccessTStr.ExtDisable);
-                deferred.resolve();
-            },
-            "error": function(error) {
-                Alert.error(ErrTStr.ExtDisableFailure, JSON.stringify(error));
-                deferred.reject();
-            }
+            "data": {name: extName}
         });
-        return deferred.promise();
     }
 
     function refreshAfterInstall() {
@@ -324,33 +324,26 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
     function generateInstalledExtList() {
         var deferred = PromiseHelper.deferred();
         var url = xcHelper.getAppUrl();
-        $.ajax({
+        ExtensionPanel.request({
             "type": "GET",
             "dataType": "JSON",
-            "url": url + "/extension/getAvailable",
-            "success": function(data) {
-                // {status: Status.Ok, extensionsAvailable: ["bizRules", "dev"]}
-                var passed = false;
-                var err;
-                try {
-                    getInstalledExtListHTML(data.extensionsAvailable);
-                    passed = true;
-                } catch (error) {
-                    console.error(error);
-                    handleExtListError();
-                    err = error;
-                }
-                if (passed) {
-                    deferred.resolve();
-                } else {
-                    deferred.reject(err);
-                }
-            },
-            "error": function(error) {
+            "url": url + "/extension/getAvailable"
+        })
+        .then(function(data) {
+            // {status: Status.Ok, extensionsAvailable: ["bizRules", "dev"]}
+            try {
+                getInstalledExtListHTML(data.extensionsAvailable);
+                deferred.resolve();
+            } catch (error) {
                 console.error(error);
                 handleExtListError();
                 deferred.reject(error);
             }
+        })
+        .fail(function(error) {
+            console.error(error);
+            handleExtListError();
+            deferred.reject(error);
         });
 
         return deferred.promise();
