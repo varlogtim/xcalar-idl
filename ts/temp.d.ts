@@ -308,6 +308,7 @@ declare function XcalarGetMemoryUsage(username: string, userId: number): XDPromi
 declare function XcalarQueryCancel(queryName: string, statusesToIgnore?: number[]): XDPromise<any>;
 declare function XcalarCancelOp(dstTableName: string, statusesToIgnore?: number[]): XDPromise<any>;
 declare function XcalarDestroyDataset(dsName: string, txId: number): XDPromise<any>;
+declare function XcalarCoalesce(tableName: string): XDPromise<any>;
 /* ============= THRIFT ENUMS ================= */
 declare enum DfFieldTypeT {
     DfString,

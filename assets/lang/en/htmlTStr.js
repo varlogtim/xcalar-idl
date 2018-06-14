@@ -381,7 +381,12 @@ module.exports = {
     },
 
     "IMDPanel": {
-        "emptyDetails": "Select a table from the published tables list to view details."
+        "emptyDetails": "Select a table from the published tables list to view details.",
+        "RefreshTables": "Refresh Tables(s)",
+        "more": "more",
+        "back": "back",
+        "Coalesce": "Coalesce",
+        "CoalesceTip": "Conserve memory by combining updated tables into one."
     },
 
     "UDF": {

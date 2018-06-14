@@ -1071,8 +1071,14 @@ module.exports = {
         "ScaleUnit": "Per Tick"
     },
     "IMDPanel": {
-        "emptyDetails": "Select a table from the published tables list to view details."
+        "emptyDetails": "Select a table from the published tables list to view details.",
+        "RefreshTables": "Refresh Tables(s)",
+        "more": "more",
+        "back": "back",
+        "Coalesce": "Coalesce",
+        "CoalesceTip": "Conserve memory by combining updated tables into one."
     },
+
     "ws": {
         "ActiveList": "激活表",
         "ActiveTableInstr": "要将表添加到工作表中，请在<b>数据集</b>面板中导入数据集，然后从此数据集中生成表并添加到当前工作表中。",

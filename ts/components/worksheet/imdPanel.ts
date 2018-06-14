@@ -10,7 +10,9 @@ namespace IMDPanel {
     interface PublishTable {
         updates: UpdateInfo[];
         name: string;
-        values: TableCol[]
+        values: TableCol[],
+        oldestBatchId: number,
+        active: boolean
     }
 
     interface Ruler {
@@ -169,7 +171,7 @@ namespace IMDPanel {
         let min: number = max - seconds;
         let tempMax: number = 0;
 
-        pTables.forEach((table) => {
+        pTables.forEach((table: PublishTable) => {
             const len: number = table.updates.length;
             if (len && table.updates[len - 1]) {
                 min = Math.min(min, table.updates[len - 1].startTS);
@@ -298,7 +300,8 @@ namespace IMDPanel {
         x: number,
         y: number,
         hasPointInTime: boolean,
-        multiple: boolean
+        multiple: boolean,
+        isUnavailable?: boolean
     ): void {
         $updatePrompt.removeClass("xc-hidden");
         const promptWidth: number = $updatePrompt.outerWidth();
@@ -316,14 +319,17 @@ namespace IMDPanel {
             top: y + 10 // for arrow piece
         });
         if (multiple && pTables.length > 1) {
-            $updatePrompt.find(".heading").text("Refresh Tables:");
+            $updatePrompt.find(".basicOptions .heading").text("Refresh Tables:");
         } else {
-            $updatePrompt.find(".heading").text("Refresh Table:");
+            $updatePrompt.find(".basicOptions .heading").text("Refresh Table:");
         }
 
-        if (hasPointInTime) {
+        if (hasPointInTime && !isUnavailable) {
             $imdPanel.find(".pointInTime").removeClass("unavailable");
             xcTooltip.remove( $imdPanel.find(".pointInTime"));
+        } else if (isUnavailable) {
+            $imdPanel.find(".pointInTime").addClass("unavailable");
+            xcTooltip.add($imdPanel.find(".pointInTime"), {title: "Updates prior to this point in time have been coalesced."});
         } else {
             $imdPanel.find(".pointInTime").addClass("unavailable");
             xcTooltip.add($imdPanel.find(".pointInTime"), {title: "Table did not yet exist at this point in time."});
@@ -335,6 +341,7 @@ namespace IMDPanel {
      */
     function hideUpdatePrompt(): void {
         $updatePrompt.addClass("xc-hidden");
+        $updatePrompt.removeClass("advanced");
         selectedCells = {};
         $imdPanel.find(".tableListItem").removeClass("selected");
         $imdPanel.find(".dateTipLineSelect").remove();
@@ -508,10 +515,20 @@ namespace IMDPanel {
             $clickedElement.parent().addClass("selected");
             const selectedBar: string = '<div class="selectedBar" data-time="" style="left:' + pos + 'px"></div>';
             $clickedElement.prepend(selectedBar);
-
+            let hasPointInTime: boolean = closestUpdate !== null;
+            let isUnavailable: boolean = false;
+            let pTable: PublishTable;
+            pTables.forEach((table) => {
+                if (table.name == tableName) {
+                    pTable = table;
+                }
+            });
+            if (hasPointInTime && closestUpdate < pTable.oldestBatchId) {
+                isUnavailable = true;
+            }
             showUpdatePrompt(event.pageX - $imdPanel.offset().left,
                 $clickedElement.offset().top  + $clickedElement.height() - $updatePrompt.parent().offset().top,
-                closestUpdate !== null, false);
+                hasPointInTime, false, isUnavailable);
         });
 
         $imdPanel.find(".activeTablesList").on("mousedown", ".tableListItem", function() {
@@ -537,17 +554,20 @@ namespace IMDPanel {
             const clickedTime: number = (((event.offsetX + ruler.visibleLeft) * ruler.pixelToTime) + ruler.minTS);
 
             selectedCells = {};
+            let isUnavailable: boolean = false;
             pTables.forEach((table) => {
                 const tableName: string = table.name;
-                const closestUpdate: number = getClosestUpdate(tableName, clickedTime);
+                let closestUpdate: number = getClosestUpdate(tableName, clickedTime);
                 if (closestUpdate === null) {
-                    selectedCells[tableName] = 0; // should we include these
-                } else {
-                    selectedCells[tableName] = closestUpdate;
+                    closestUpdate = 0;
                 }
+                if (closestUpdate < table.oldestBatchId) {
+                    isUnavailable = true;
+                }
+                selectedCells[tableName] = closestUpdate;
             });
 
-            showUpdatePrompt(left, $canvas.height() + 10, true, true);
+            showUpdatePrompt(left, $canvas.height() + 10, true, true, isUnavailable);
         });
 
         $imdPanel.find(".activeTablesList").on("click", ".hideTable", function() {
@@ -579,6 +599,10 @@ namespace IMDPanel {
             hideUpdatePrompt();
         });
 
+        $updatePrompt.find(".moreOptions").click(function() {
+            $updatePrompt.toggleClass("advanced");
+        });
+
         $updatePrompt.find(".btn.pointInTime").click(function() {
             if ($(this).hasClass("unavailable")) {
                 return;
@@ -588,6 +612,10 @@ namespace IMDPanel {
 
         $updatePrompt.find(".btn.latest").click(function() {
             submitRefreshTables(true);
+        });
+
+        $updatePrompt.find(".btn.coalesce").click(function() {
+            submitCoalesce();
         });
 
         var timer;
@@ -669,7 +697,7 @@ namespace IMDPanel {
         $tableDetail.on("click", ".batchId", function() {
             const batchId: number = parseInt($(this).text());
             const name: string = $(this).closest(".tableDetailRow").data("tablename");
-            pTables.forEach(function(table) {
+            pTables.forEach(function(table: PublishTable) {
                 if (table.name === name) {
                     table.updates.forEach(function(update, i) {
                         if (update.batchId === batchId) {
@@ -704,9 +732,14 @@ namespace IMDPanel {
                             const selectedBar: string = '<div class="selectedBar" data-time="" style="left:' + pos + 'px"></div>';
                             $clickedElement.prepend(selectedBar);
 
+                            let isUnavailable: boolean = false;
+                            if (batchId < table.oldestBatchId) {
+                                isUnavailable = true;
+                            }
+
                             showUpdatePrompt(pageX - $imdPanel.offset().left,
                             $clickedElement.offset().top  + $clickedElement.height() -
-                            $updatePrompt.parent().offset().top, true, false);
+                            $updatePrompt.parent().offset().top, true, false, isUnavailable);
 
                             setTimeout(function() { // need to delay
                                 isScrolling = false;
@@ -767,10 +800,10 @@ namespace IMDPanel {
 
         for (let i in selectedCells) {
             let maxBatch: number = selectedCells[i];
-            let columns: TableCol[] = [];
+            let pTable: PublishTable;
             pTables.forEach((table) => {
                 if (table.name === i) {
-                    columns = table.values;
+                    pTable = table
                     if (latest) {
                         maxBatch = table.updates.length - 1;
                     }
@@ -780,9 +813,9 @@ namespace IMDPanel {
             tables.push({
                 pubTableName: i,
                 dstTableName: i,
-                minBatch: 0,
+                minBatch: pTable.oldestBatchId,
                 maxBatch: maxBatch,
-                columns: columns
+                columns: pTable.values
             });
         }
 
@@ -793,6 +826,30 @@ namespace IMDPanel {
         } else {
             return PromiseHelper.reject();
         }
+    }
+
+    function submitCoalesce(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+
+        const promises: XDPromise<void>[] = [];
+
+
+        for (let tableName in selectedCells) {
+            promises.push(XcalarCoalesce(tableName));
+        }
+        hideUpdatePrompt();
+        showWaitScreen();
+        PromiseHelper.when.apply(this, promises)
+        .then(function() {
+            removeWaitScreen();
+            refreshTableList()
+        })
+        .fail(function(err) {
+            removeWaitScreen();
+            Alert.error("Coalesce Failed",err);
+        });
+
+        return deferred.promise();
     }
 
     /*
@@ -807,7 +864,7 @@ namespace IMDPanel {
         hideUpdatePrompt();
         redrawTimeCanvas();
 
-        pTables.forEach((table) => {
+        pTables.forEach((table: PublishTable) => {
             const $histPanel: JQuery = $(".tableTimePanel[data-name=\"" + table.name + "\"]");
             $histPanel.empty();
 
@@ -823,7 +880,12 @@ namespace IMDPanel {
                             right: pos + 8 + (("" + update.batchId).length * 7),
                             id: i
                         });
-                        const $htmlElem: JQuery = $('<div class="updateIndicator indicator' + i + '" ' +
+                        let classes = "";
+                        if (update.batchId < table.oldestBatchId) {
+                            classes += " unavailable ";
+                        }
+                        const $htmlElem: JQuery = $('<div class="updateIndicator indicator' + i +
+                                            classes + '" ' +
                                             xcTooltip.Attrs +
                                             ' data-original-title="' +
                                             moment.unix(update.startTS).format("MMMM Do YYYY, h:mm:ss a") + '">' +
@@ -1441,7 +1503,7 @@ namespace IMDPanel {
             const foundPTables: object = {};
             const foundHTables: object = {};
             let numPTables = pTables.length;
-            tables.forEach(function(table) {
+            tables.forEach(function(table: PublishTable) {
                 if (table.active) {
                     let inHTables: boolean = false;
                     hTables.forEach(function(hTable, i) {

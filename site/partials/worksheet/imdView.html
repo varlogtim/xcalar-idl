@@ -59,10 +59,21 @@
     <div class="arrow arrowSecondary"></div>
     <div class="arrow"></div>
     <i class="icon xi-close close"></i>
-    <div class="heading">Refresh Table(s):</div>
-    <div>
-        <button type="button" class="btn pointInTime">Point in time</button>
-        <button type="button" class="btn latest">Latest</button>
+    <div class="basicOptions">
+       <div class="heading"><%= dicts.IMDPanel.RefreshTables %>:</div>
+        <div class="buttonWrap">
+            <button type="button" class="btn pointInTime">Point in time</button>
+            <button type="button" class="btn latest">Latest</button>
+        </div>
+        <div class="moreOptions xc-action"><%= dicts.IMDPanel.more %></div>
+    </div>
+    <div class="advancedOptions">
+        <div class="heading"><%= dicts.IMDPanel.Coalesce %> <i class="hint qMark icon xi-unknown"
+            data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.IMDPanel.CoalesceTip %>"></i> :</div>
+        <div class="buttonWrap">
+            <button type="button" class="btn coalesce"><%= dicts.IMDPanel.Coalesce %></button>
+        </div>
+        <div class="moreOptions xc-action"><%= dicts.IMDPanel.back %></div>
     </div>
 </div>
 <div class="dateTipLine"></div>

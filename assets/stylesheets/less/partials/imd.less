@@ -455,6 +455,11 @@
         color: @color-bg-softBlue;
         padding: 0px 4px;
 
+        &.unavailable {
+            color: @color-white;
+            border-left-color: @color-white;
+        }
+
         &.overlap {
             .text {
                 display: none;
@@ -512,6 +517,11 @@
             width: 100%;
             text-align: left;
             font-size: 12px;
+
+            .qMark {
+                .position(relative, @top: -1px);
+                background: @color-bg-btn-hover-blue;
+            }
         }
 
         .text-input-wrapper {
@@ -522,9 +532,31 @@
             padding: 0 10px;
         }
 
+        .buttonWrap {
+            min-height: 92px;
+        }
+
         .btn {
             width: 100%;
             margin-top: 10px;
+        }
+
+        .moreOptions {
+            font-size: 11px;
+            text-decoration: underline;
+            padding-top: 2px;
+        }
+
+        .advancedOptions {
+            display:none;
+        }
+        &.advanced {
+            .advancedOptions {
+                display: block;
+            }
+            .basicOptions {
+                display: none;
+            }
         }
     }
     .date-tipbox {
