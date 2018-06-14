@@ -1372,8 +1372,11 @@ ExtTStr = {
     "InvalidTableName": "Invalid table name, please use extension api to create a valid name",
     "AddClause": "Add another argument",
     "LoadScriptFail": "Fail to load extension script",
-    "LoadUDFFail": "Fail to load extension UDF",
-    "Instruction": "Instruction"
+    "LoadUDFFail": "Fail to load extension UDF, please test the UDF first and make sure it can be uploaded to Xcalar",
+    "Instruction": "Instruction",
+    "NoScript": "The extension file was not found on the server",
+    "ParseFail": "Cannot parse the extension, please check syntax",
+    "FindExtFail": "Extension file is loaded but cannot find the extension module, please check the name conventions"
 };
 
 DaysTStr = {

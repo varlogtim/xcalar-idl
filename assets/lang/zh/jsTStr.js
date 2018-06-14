@@ -1098,8 +1098,11 @@ ExtTStr = {
 "WEBSITE": "网站",
 "MODIFY": "修改插件",
 "LoadScriptFail": "加载插件脚本失败",
-"LoadUDFFail": "加载插件UDF失败",
-"Instruction": "说明"
+"LoadUDFFail": "Fail to load extension UDF, please test the UDF first and make sure it can be uploaded to Xcalar",
+"Instruction": "说明",
+"NoScript": "The extension file was not found on the server",
+"ParseFail": "Cannot parse the extension, please check syntax",
+"FindExtFail": "Extension file is loaded but cannot find the extension module, please check the name conventions"
 };
 DaysTStr = {
 'Sunday': '星期日',

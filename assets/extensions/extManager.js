@@ -105,11 +105,24 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             setExtensionState(extName, "installScript", true);
             deferred.resolve();
         })
-        .fail(function(error) {
+        .fail(function(err) {
+            var error;
+            try {
+                if (err.status === 404) {
+                    error = ExtTStr.NoScript;
+                } else if (err.status === 200) {
+                    error = ExtTStr.ParseFail;
+                } else {
+                    error = ExtTStr.LoadScriptFail;
+                }
+            } catch (e) {
+                console.error(e);
+                error = ExtTStr.LoadScriptFail;
+            }
+
             console.error(error, src + " could not be loaded.");
-            setExtensionState(extName, "error", ExtTStr.LoadScriptFail);
-            // still resolve it
-            deferred.resolve();
+            setExtensionState(extName, "error", error);
+            deferred.resolve(); // still resolve it
         });
 
         return deferred.promise();
@@ -150,6 +163,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     {
                         // Found it!
                         extList.push(objs);
+                        extNames.splice(i, 1);
                         break;
                     }
                 }
@@ -159,6 +173,11 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         extList.sort();
         generateExtList(extList);
         storeExtConfigParams();
+        // cannot find these extensions
+        extNames.forEach(function(extName) {
+            setExtensionState(extName, "installScript", false);
+            setExtensionState(extName, "error", ExtTStr.FindExtFail);
+        });
     }
 
     function checkPythonFunctions(extNames) {
