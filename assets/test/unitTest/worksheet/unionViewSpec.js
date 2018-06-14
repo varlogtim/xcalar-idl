@@ -38,14 +38,17 @@ describe("Union View Test", function() {
         var $text = $modeList.find(".text");
         var $confirm = $unionView.find(".confirm");
         // default to be union all
-        expect($text.text()).to.contains("Union All (Combine all rows)");
-        expect($confirm.text()).to.equal("Union All");
-        $modeList.find('li[name="union"]').trigger(fakeEvent.mouseup);
-        expect($text.text()).to.contains("Union (Combine and deduplicate)");
+        expect($text.text()).to.contains("Union (Combine)");
         expect($confirm.text()).to.equal("Union");
-        $modeList.find('li[name="unionAll"]').trigger(fakeEvent.mouseup);
-        expect($text.text()).to.contains("Union All (Combine all rows)");
-        expect($confirm.text()).to.equal("Union All");
+        $modeList.find('li[name="union"]').trigger(fakeEvent.mouseup);
+        expect($text.text()).to.contains("Union (Combine)");
+        expect($confirm.text()).to.equal("Union");
+        $modeList.find('li[name="except"]').trigger(fakeEvent.mouseup);
+        expect($text.text()).to.contains("Except (Minus)");
+        expect($confirm.text()).to.equal("Except");
+        $modeList.find('li[name="intersect"]').trigger(fakeEvent.mouseup);
+        expect($text.text()).to.contains("Intersect");
+        expect($confirm.text()).to.equal("Intersect");
     });
 
     it("should remove table", function() {

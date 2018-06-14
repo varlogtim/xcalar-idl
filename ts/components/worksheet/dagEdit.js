@@ -751,7 +751,7 @@ window.DagEdit = (function($, DagEdit) {
 
                 prefillInfo = {
                     "dedup": struct.dedup,
-                    "type": node.value.comment.meta.unionType,
+                    "type": struct.unionType,
                     "sourceTables": sourceTableNames,
                     "dest": xcHelper.getTableName(origStruct.dest), // XXX allow changing
                     "isDroppedTable": isDroppedTable,

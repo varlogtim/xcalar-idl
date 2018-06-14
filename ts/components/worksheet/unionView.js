@@ -197,12 +197,23 @@ window.UnionView = (function(UnionView, $) {
             $resultInputs.eq(i).val(options.tableCols[0][i].rename);
         }
         $unionView.find(".newTableName").val(options.dest);
-        var type = UnionTypeTStr[options.type].toLowerCase();
-        if (!options.dedup) {
-            type += "All";
+        var type = getUnionTypeFromPrefill(options.type);
+        seletSetType(type);
+        seletDedup(options.dedup);
+    }
+
+    function getUnionTypeFromPrefill(type) {
+        switch (type) {
+            case UnionOperatorTStr[UnionOperatorT.UnionStandard]:
+                return "union";
+            case UnionOperatorTStr[UnionOperatorT.UnionIntersect]:
+                return "intersect";
+            case UnionOperatorTStr[UnionOperatorT.UnionExcept]:
+                return "except";
+            default:
+                console.error("error case");
+                return "";
         }
-        $unionView.find(".modeList").find('li[name="' + type + '"]')
-                                        .trigger(fakeEvent.mouseup);
     }
 
     function searchColumn(keyword, index) {
@@ -860,10 +871,23 @@ window.UnionView = (function(UnionView, $) {
         $dropDownList.find("ul").html(list);
     }
 
+    function seletSetType(type) {
+        $unionView.find(".modeList").find('li[name="' + type + '"]')
+        .trigger(fakeEvent.mouseup);
+    }
+
+    function seletDedup(dedup) {
+        // it's asking include dedup rows or not
+        var option = dedup? "no" : "yes";
+        $("#dedupSection .radiwButton." + option).click();
+    }
+
     function reset() {
         $unionView.find(".newTableName").val("");
         $unionView.find(".listSection").empty();
-        $unionView.find(".modeList li:first-child").trigger(fakeEvent.mouseup);
+
+        seletSetType("union"); // select union by default
+        seletDedup(false); // no dedup by default
         $unionView.find(".searchArea input").val("");
         $unionView.find(".highlight").removeClass("highlight");
         tableInfoLists = [];
