@@ -70,6 +70,8 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         "timestampFromStr": "select cast(cast(n_regionkey as string) as timestamp) from nation order by n_nationkey",
         "caseWhenNoElse": "select case when n_regionkey = 0 then n_nationkey end from nation order by n_nationkey",
         "decimal": "select cast(n_nationkey as decimal(10, 2)) * 10 / 2 from nation order by n_nationkey",
+        "intersect": "select * from (select r_regionkey, r_name from region intersect select r_regionkey, r_name from region) order by r_regionkey",
+        "except": "select * from region except select * from region",
     };
     var sqlTestAnswers = {
         "filterWithAggregates": {"row0": ["12", "JAPAN"],
@@ -217,6 +219,8 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                            "row13": ["FNF"]},
         "decimal": {"row0": ["0"],
                     "row19": ["95"]},
+        "intersect": {"row0": ["0", "AFRICA"]},
+        "except": {"row0": ["FNF", "FNF", "FNF"]},
     };
     var tpchCases = {
         "q1": "select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty," +

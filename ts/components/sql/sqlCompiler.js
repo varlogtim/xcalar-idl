@@ -2057,8 +2057,10 @@
             if (condTree && condTree.value.class ===
                 "org.apache.spark.sql.catalyst.expressions.And") {
                 andSubtrees.push(condTree);
-            } else if (condTree && condTree.value.class ===
-                "org.apache.spark.sql.catalyst.expressions.EqualTo") {
+            } else if (condTree && (condTree.value.class ===
+                "org.apache.spark.sql.catalyst.expressions.EqualTo" ||
+                condTree.value.class ===
+                "org.apache.spark.sql.catalyst.expressions.EqualNullSafe")) {
                 eqSubtrees.push(condTree);
             } else {
                 // No optimization
@@ -2086,7 +2088,9 @@
                         "org.apache.spark.sql.catalyst.expressions.And") {
                         andSubtrees.push(andTree.children[i]);
                     } else if (andTree.children[i].value.class ===
-                        "org.apache.spark.sql.catalyst.expressions.EqualTo") {
+                        "org.apache.spark.sql.catalyst.expressions.EqualTo" ||
+                               andTree.children[i].value.class ===
+                        "org.apache.spark.sql.catalyst.expressions.EqualNullSafe") {
                         eqSubtrees.push(andTree.children[i]);
                     } else {
                         filterSubtrees.push(andTree.children[i]);
