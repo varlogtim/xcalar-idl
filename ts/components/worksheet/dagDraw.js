@@ -701,28 +701,6 @@ window.DagDraw = (function($, DagDraw) {
         ctx.restore();
     }
 
-    function getSourceColNames(func) {
-        var names = [];
-
-        getNames(func.args);
-
-        function getNames(args) {
-            for (var i = 0; i < args.length; i++) {
-                if (typeof args[i] === "string") {
-                    if (args[i][0] !== "\"" &&
-                        args[i][args.length - 1] !== "\"" &&
-                        names.indexOf(args[i]) === -1) {
-                        names.push(args[i]);
-                    }
-                } else if (typeof args[i] === "object") {
-                    getNames(args[i].args);
-                }
-            }
-        }
-
-        return (names);
-    }
-
     function getTags(node) {
         if (!node.value.tag) {
             return [];
@@ -2487,7 +2465,7 @@ window.DagDraw = (function($, DagDraw) {
             var evals = node.value.struct.eval;
             for (var i = 0; i < evals.length; i++) {
                 var func = ColManager.parseFuncString(evals[i].evalString);
-                cols = cols.concat(getSourceColNames(func));
+                cols = cols.concat(xcHelper.getNamesFromFunc(func));
             }
         }
         return cols;

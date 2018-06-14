@@ -653,7 +653,7 @@ window.Dag = (function($, Dag) {
                 backName = name;
             }
 
-            var sourceColNames = getSourceColNames(progCol.func);
+            var sourceColNames = xcHelper.getNamesFromFunc(progCol.func);
             $('.columnOriginInfo').remove();
             $dagPanel.find('.highlighted').removeClass('highlighted');
             $dagPanel.find(".dagTableTip").remove();
@@ -1850,27 +1850,7 @@ window.Dag = (function($, Dag) {
         });
     }
 
-    function getSourceColNames(func) {
-        var names = [];
 
-        getNames(func.args);
-
-        function getNames(args) {
-            for (var i = 0; i < args.length; i++) {
-                if (typeof args[i] === "string") {
-                    if (args[i][0] !== "\"" &&
-                        args[i][args.length - 1] !== "\"" &&
-                        names.indexOf(args[i]) === -1) {
-                        names.push(args[i]);
-                    }
-                } else if (typeof args[i] === "object") {
-                    getNames(args[i].args);
-                }
-            }
-        }
-
-        return (names);
-    }
 
     function getRenamedColName(colName, node) {
         switch (node.value.api) {
@@ -2020,7 +2000,7 @@ window.Dag = (function($, Dag) {
                         var colNameIndex = sourceColNamesCopy
                                                         .indexOf(backColName);
                         if (colNameIndex > -1) {
-                            srcNames = getSourceColNames(cols[j].func);
+                            srcNames = xcHelper.getNamesFromFunc(cols[j].func);
 
                             sourceColNamesCopy.splice(colNameIndex, 1);
                             isEmpty = cols[j].isEmptyCol();

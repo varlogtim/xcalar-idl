@@ -487,6 +487,7 @@ describe('FnBar Test', function() {
         });
     });
 
+
     after(function(done) {
         UnitTest.deleteTable(tableName, TableType.Orphan)
         .always(function(){

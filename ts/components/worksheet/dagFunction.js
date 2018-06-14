@@ -284,7 +284,7 @@ window.DagFunction = (function($, DagFunction) {
             var tables = [];
             try {
                 var func = ColManager.parseFuncString(evalStr);
-                tables = getAggNamesFromFunc(func);
+                tables = xcHelper.getNamesFromFunc(func, true);
             } catch (err) {
                 console.error("could not parse eval str", evalStr);
             }
@@ -297,29 +297,6 @@ window.DagFunction = (function($, DagFunction) {
         return allTables;
     };
 
-    function getAggNamesFromFunc(func) {
-        var names = [];
-
-        getNames(func.args);
-
-        function getNames(args) {
-            for (var i = 0; i < args.length; i++) {
-                if (typeof args[i] === "string") {
-                    if (args[i][0] !== "\"" &&
-                        args[i][args.length - 1] !== "\"" &&
-                        names.indexOf(args[i]) === -1 &&
-                        args[i][0] === gAggVarPrefix &&
-                        args[i].length > 1) {
-                        names.push(args[i].slice(1));
-                    }
-                } else if (typeof args[i] === "object") {
-                    getNames(args[i].args);
-                }
-            }
-        }
-
-        return (names);
-    }
     // only being used for group by, join, union
     function setIndexedFields(sets) {
         var seen = {};

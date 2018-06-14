@@ -4947,6 +4947,47 @@ namespace xcHelper {
         return parseFunc(func);
     }
 
+    export function getNamesFromFunc(
+        funcObj: ColFunc,
+        isAgg?: boolean
+    ): string[] {
+        let names: string[] = [];
+        getNames(funcObj.args);
+        return names;
+
+        function getNames(args) {
+            for (let i = 0; i < args.length; i++) {
+                const arg = args[i];
+                if (typeof arg === "string" && !/[0-9.]/.test(arg[0]) &&
+                    isNaN(arg as any)) {
+                    const firstChar: string = arg[0];
+                    const lastChar: string = arg[arg.length - 1];
+                    if (firstChar !== "\"" && lastChar !== "\"" &&
+                        firstChar !== "'" && lastChar !== "'" &&
+                        aggCheck(arg)) {
+                            if (isAgg) {
+                                names.push(arg.slice(1));
+                            } else {
+                                names.push(arg);
+                            }
+                    }
+                } else if (typeof arg === "object") {
+                    getNames(args[i].args);
+                }
+            }
+        }
+
+        function aggCheck(arg: string): boolean {
+            if (isAgg) {
+                return (arg[0] === gAggVarPrefix &&
+                        arg.length > 1 &&
+                        names.indexOf(arg.slice(1)) === -1);
+            } else {
+                return names.indexOf(arg) === -1;
+            }
+        }
+    }
+
     /**
      * xcHelper.styleNewLineChar
      * @param text

@@ -740,7 +740,7 @@ window.FnBar = (function(FnBar, $) {
 
             var selectedColNames;
             if (operation !== "pull") {
-                selectedColNames = getColNamesFromFunc(funcObj);
+                selectedColNames = xcHelper.getNamesFromFunc(funcObj);
             }
 
             // show alert if column in string does not match selected col,
@@ -918,27 +918,6 @@ window.FnBar = (function(FnBar, $) {
             return false;
         } else {
             return true;
-        }
-    }
-
-    function getColNamesFromFunc(funcObj) {
-        var names = [];
-        getNames(funcObj.args);
-        return names;
-
-        function getNames(args) {
-            for (var i = 0; i < args.length; i++) {
-                if (typeof args[i] === "string" && !/[0-9.]/.test(args[i][0]) &&
-                    isNaN(args[i])) {
-                    if (args[i][0] !== "\"" &&
-                        args[i][args.length - 1] !== "\"" &&
-                        names.indexOf(args[i]) === -1) {
-                        names.push(args[i]);
-                    }
-                } else if (typeof args[i] === "object") {
-                    getNames(args[i].args);
-                }
-            }
         }
     }
 

@@ -2702,6 +2702,93 @@ describe("xcHelper Test", function() {
         });
     });
 
+    describe("xcHelper.getNamesFromFunc", function() {
+        var fn, args;
+        it ("quotes should be detected", function() {
+            fn = xcHelper.getNamesFromFunc;
+            args = {args: ["one", "two"]};
+            expect(fn(args).length).to.equal(2);
+            expect(fn(args)[0]).to.equal("one");
+            expect(fn(args)[1]).to.equal("two");
+
+            args = {args: ["'one"]};
+            expect(fn(args).length).to.equal(0);
+
+            args = {args: ["one'"]};
+            expect(fn(args).length).to.equal(0);
+
+            args = {args: ["\"one"]};
+            expect(fn(args).length).to.equal(0);
+
+            args = {args: ["one\""]};
+            expect(fn(args).length).to.equal(0);
+
+            args = {args: ["\"one\""]};
+            expect(fn(args).length).to.equal(0);
+
+            args = {args: ["'one'"]};
+            expect(fn(args).length).to.equal(0);
+
+            args = {args: ["'one\""]};
+            expect(fn(args).length).to.equal(0);
+
+            args = {args: ["'one\"", "two"]};
+            expect(fn(args).length).to.equal(1);
+            expect(fn(args)[0]).to.equal("two");
+
+            args = {args: ["o'ne"]};
+            expect(fn(args).length).to.equal(1);
+            expect(fn(args)[0]).to.equal("o'ne");
+
+            args = {args: [{args: ["'one\"", "two"]}]};
+            expect(fn(args).length).to.equal(1);
+            expect(fn(args)[0]).to.equal("two");
+
+
+        });
+
+        it("nested and duplicates should work", function() {
+            args = {args: ["three", {args: ["'one\"", "two"]}, "'four", "five"]};
+            expect(fn(args).length).to.equal(3);
+            expect(fn(args)[0]).to.equal("three");
+            expect(fn(args)[1]).to.equal("two");
+            expect(fn(args)[2]).to.equal("five");
+
+            args = {args: ["three", {args: ["two", "two", "four"]}, "'four", "five"]};
+            expect(fn(args).length).to.equal(4);
+            expect(fn(args)[0]).to.equal("three");
+            expect(fn(args)[1]).to.equal("two");
+            expect(fn(args)[2]).to.equal("four");
+            expect(fn(args)[3]).to.equal("five");
+        });
+
+        it("numbers should be detected", function() {
+            args = {args: ["9"]};
+            expect(fn(args).length).to.equal(0);
+
+            args = {args: ["a9"]};
+            expect(fn(args).length).to.equal(1);
+            expect(fn(args)[0]).to.equal("a9");
+
+            args = {args: ["'9'"]};
+            expect(fn(args).length).to.equal(0);
+        });
+
+        it("getting agg names should work", function() {
+            args = {args: ["^one", "two", "^one", "^three", "three"]};
+            expect(fn(args).length).to.equal(4);
+            expect(fn(args)[0]).to.equal("^one");
+            expect(fn(args)[1]).to.equal("two");
+            expect(fn(args)[2]).to.equal("^three");
+            expect(fn(args)[3]).to.equal("three");
+
+            args = {args: ["^one", "two", "^one", "^three", "three", "^"]};
+            expect(fn(args, true).length).to.equal(2);
+            expect(fn(args, true)[0]).to.equal("one");
+            expect(fn(args, true)[1]).to.equal("three");
+        });
+    })
+
     it("xcHelper.styleNewLineChar should work", function() {
         expect(xcHelper.styleNewLineChar('\n\r'))
         .to.equal('<span class="newLine lineChar">\\n</span><span class="carriageReturn lineChar">\\r</span>');
