@@ -58,6 +58,9 @@ window.SQLEditor = (function(SQLEditor, $) {
     }
 
     SQLEditor.storeQuery = function() {
+        if (!sqlQueryKvStore) {
+            return PromiseHelper.resolve();
+        }
         return sqlQueryKvStore.put(editor.getValue(), true);
     }
 
