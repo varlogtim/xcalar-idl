@@ -25,10 +25,10 @@
         "expressions.BitwiseNot": null,
         // Cast.scala
         "expressions.Cast": null, // NOTE: This will be replaced
-        "expressions.XcType.float": "float",
-        "expressions.XcType.int": "int",
-        "expressions.XcType.bool": "bool",
-        "expressions.XcType.string": "string",
+        "expressions.XcType.float": "float", // Xcalar generated
+        "expressions.XcType.int": "int", // Xcalar generated
+        "expressions.XcType.bool": "bool", // Xcalar generated
+        "expressions.XcType.string": "string", // Xcalar generated
         // conditionalExpressions.scala
         "expressions.If": "if",
         "expressions.IfStr": "ifStr", // Xcalar generated
@@ -75,7 +75,7 @@
         "expressions.Hypot": null,
         "expressions.Logarithm": null,
         "expressions.Round": null,
-        "expressions.xcRound": "round",
+        "expressions.XcRound": "round", // Xcalar generated
         "expressions.BRound": null,
         // predicates.scala
         "expressions.Not": "not",
@@ -89,7 +89,8 @@
         "expressions.GreaterThan": "gt",
         "expressions.GreaterThanOrEqual": "ge",
         // randomExpressions.scala,
-        "expressions.Rand": "genRandom", // XXX a little different
+        "expressions.Rand": null, // XXX a little different
+        "expressions.GenRandom": "genRandom", // Xcalar generated
         "expressions.Randn": null,
         // regexpExpressions.scala
         "expressions.Like": "like",
@@ -115,7 +116,7 @@
         "expressions.StringInstr": null,
         "expressions.SubstringIndex": "substringIndex",
         "expressions.StringLocate": null,
-        "expressions.Find": "find",
+        "expressions.Find": "find", // Xcalar generated
         "expressions.StringLPad": null, // TODO
         "expressions.StringRPad": null, // TODO
         "expressions.ParseUrl": null, // TODO
@@ -125,7 +126,7 @@
         "expressions.StringReverse": null, // TODO
         "expressions.StringSpace": null, // TODO
         "expressions.Substring": "substring", // XXX 1-based index
-        "expressions.XCSubstring": "substring",
+        "expressions.XcSubstring": "substring", // Xcalar generated
         "expressions.Right": "right", // XXX right(str, 5) ==
                                       // substring(str, -5, 0)
         "expressions.Left": "left", // XXX left(str, 4) == substring(str, 0, 4)
@@ -144,20 +145,26 @@
         "expressions.Sentences": null, // XXX Returns an array.
         "expressions.IsNotNull": "exists",
         "expressions.IsNull": null, // XXX we have to put not(exists)
-        "expressions.IsString": "isString",
+        "expressions.IsString": "isString", // Xcalar generated
 
         // datetimeExpressions.scala
-        "expressions.Cut": "cut", // Split string and extract year
+        "expressions.Cut": "cut", // Split string and extract year // Xcalar generated
         "expressions.Year": null,
         "expressions.Month": null,
         "expressions.DayOfMonth": null,
+        "expressions.DayOfWeek": null,
+        "expressions.DayOfYear": null,
+        "expressions.WeekOfYear": null,
+        "expressions.XcDayOfWeek": "default:dayOfWeek", // Xcalar generated
+        "expressions.XcDayOfYear": "default:dayOfYear", // Xcalar generated
+        "expressions.XcWeekOfYear": "default:weekOfYear", // Xcalar generated
         "expressions.DateAdd": null,
         "expressions.DateSub": null,
         "expressions.TimeAdd": "default:timeAdd",
         "expressions.TimeSub": "default:timeSub",
-        "expressions.convertFormats": "default:convertFormats", // XXX default value for udf when input format is not specified is wrong
-        "expressions.convertFromUnixTS": "default:convertFromUnixTS", // Use default module here because implementation different from convertFromUnixTS
-        "expressions.convertToUnixTS": "default:convertToUnixTS", // And cannot peak what's in the other function
+        "expressions.convertFormats": "default:convertFormats", // XXX default value for udf when input format is not specified is wrong // Xcalar generated
+        "expressions.convertFromUnixTS": "default:convertFromUnixTS", // Use default module here because implementation different from convertFromUnixTS // Xcalar generated
+        "expressions.convertToUnixTS": "default:convertToUnixTS", // And cannot peak what's in the other function // Xcalar generated
 
         "expressions.aggregate.Sum": "sum",
         "expressions.aggregate.Count": "count",
@@ -320,7 +327,7 @@
         }
         function roundNode() {
             return new TreeNode({
-                "class": "org.apache.spark.sql.catalyst.expressions.xcRound",
+                "class": "org.apache.spark.sql.catalyst.expressions.XcRound",
                 "num-children": 1
             });
         }
@@ -462,6 +469,38 @@
         var opName = node.value.class.substring(
             node.value.class.indexOf("expressions."));
         switch (opName) {
+            case ("expressions.Remainder"):
+                var intNodeL = castNode("int");
+                var intNodeR = castNode("int");
+                intNodeL.children = [node.children[0]];
+                intNodeR.children = [node.children[1]];
+                node.children = [intNodeL, intNodeR];
+                break;
+            case ("expressions.Rand"):
+                var intMax = 2147483647;
+                var intMaxNode = literalNumberNode(intMax);
+                var endNode = literalNumberNode(intMax-1);
+                var zeroNode = literalNumberNode(0);
+                var divNode = divideNode();
+                divNode.children = [node, intMaxNode];
+                node.children = [zeroNode, endNode];
+                node.value.class = "org.apache.spark.sql.catalyst.expressions.GenRandom";
+                node.value["num-children"] = 2;
+                node = divNode;
+                break;
+            case ("expressions.FindInSet"):
+                node.children = [node.children[1], node.children[0]];
+                break;
+            case ("expressions.DayOfWeek"):
+            case ("expressions.DayOfYear"):
+            case ("expressions.WeekOfYear"):
+                var intNode = castNode("int");
+                node.value.class = node.value.class.substring(0,
+                                   node.value.class.lastIndexOf(".")) + ".Xc"
+                                   + opName.substring("expressions.".length);
+                intNode.children = [node];
+                node = intNode;
+                break;
             case ("expressions.Substring"):
                 // XXX since this traverse is top down, we will end up
                 // traversing the subtrees twice. Might need to add a flag
@@ -490,7 +529,7 @@
                         }
                     } else {
                         node.value.class =
-                        "org.apache.spark.sql.catalyst.expressions.XCSubstring";
+                        "org.apache.spark.sql.catalyst.expressions.XcSubstring";
                         var retNode = ifNode();
                         var gtNode = greaterThanNode();
                         var emptyStrNode = castNode("string");
@@ -519,7 +558,7 @@
                     }
                 } else {
                     node.value.class =
-                        "org.apache.spark.sql.catalyst.expressions.XCSubstring";
+                        "org.apache.spark.sql.catalyst.expressions.XcSubstring";
                     var retNode = ifNode();
                     var gtNode = greaterThanNode();
                     var emptyStrNode = castNode("string");
@@ -3480,11 +3519,12 @@
                                    .value.value;
                 var defaultValue = opNode.children[opNode.value.default]
                                          .value.value;
-                // XXX Not supported currently
-                assert(opNode.children[opNode.value.default].value.dataType
-                            != "null", SQLErrTStr.NullDefaultLead);
-                var defaultType = convertSparkTypeToXcalarType(opNode
+                if (opNode.children[opNode.value.default].value.dataType === "null") {
+                    var defaultType = "null";
+                } else {
+                    var defaultType = convertSparkTypeToXcalarType(opNode
                                 .children[opNode.value.default].value.dataType);
+                }
                 var windowStruct = {cli: ""};
                 var rightKeyColStruct;
                 windowStruct.node = node;
@@ -3556,12 +3596,9 @@
                     cli += windowStruct.cli;
                     cli += ret.cli;
                     node.usrCols.push(newColStruct);
-                    var mapStr;
+                    var mapStr = "if(";
                     if (defaultType === "string") {
-                        mapStr = "ifStr(";
-                        defaultValue = "string(" + defaultValue + ")";
-                    } else {
-                        mapStr = "if(";
+                        defaultValue = "\'" + defaultValue + "\'";
                     }
                     // Need to check rename here
                     for (var i = 0; i < leftJoinCols.length - 1; i++) {

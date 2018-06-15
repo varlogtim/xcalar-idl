@@ -644,7 +644,7 @@ window.SQLEditor = (function(SQLEditor, $) {
 
     SQLEditor.executeSQL = function(query) {
         var deferred = PromiseHelper.deferred();
-        var sql = query || editor.getValue().replace(/\n/g, " ").trim()
+        var sql = query || editor.getValue().replace(/--.*\n/g, "\n")
                                             .replace(/;+$/, "");
         var sqlCom = new SQLCompiler();
         var republish = false;
