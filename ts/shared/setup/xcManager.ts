@@ -1,15 +1,14 @@
-window.xcManager = (function(xcManager, $) {
-    var setupStatus;
-    var SetupStatus = {
-        "Success": "Success",
-        "Fail": "Fail",
-        "Setup": "Setup"
-    };
+namespace xcManager {
+    let setupStatus: string;
 
-    xcManager.setup = function() {
-        setupStatus = SetupStatus.Setup;
+    /**
+     * xcManager.setup
+     * Sets up most services for XD
+     */
+    export function setup(): XDPromise<void> {
+        setupStatus = SetupStatus["Setup"];
         // use promise for better unit test
-        var deferred = PromiseHelper.deferred();
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         gMinModeOn = true; // startup use min mode;
         $("body").addClass("xc-setup");
         $("#favicon").attr("href", paths.favicon);
@@ -17,15 +16,15 @@ window.xcManager = (function(xcManager, $) {
         Compatible.check();
         xcGlobal.setup();
         xcTimeHelper.setup();
-        setupThrift();
+        setupThrift("");
 
-        var xcSocket;
-        var firstTimeUser;
+        let xcSocket: XcSocket;
+        let firstTimeUser: boolean;
 
         hotPatch()
         .then(function() {
             // XcUser.setCurrentUser() get username, so need to be at very early time
-            XcUser.setCurrentUser();
+            XcUser.setCurrentUser(false);
             XVM.setup();
 
             setupUserArea();
@@ -84,7 +83,7 @@ window.xcManager = (function(xcManager, $) {
             // somehow uploadUdf causes mgmtd to crash if checkVersion doesn't
             // pass
             // Extmanager promise so unit test can wait on resolution.
-            var extPromise = setupExtensions();
+            const extPromise: XDPromise<void> = setupExtensions();
 
             setupDag();
             JSONModal.setup();
@@ -115,17 +114,17 @@ window.xcManager = (function(xcManager, $) {
             return extPromise;
         })
         .then(function() {
-            if (Authentication.getInfo().idCount === 1) {
+            if (Authentication.getInfo()["idCount"] === 1) {
                 // show hint to create datasets if no tables have been created
                 // in this workbook
                 WSManager.showDatasetHint();
             }
-            StatusMessage.updateLocation();
+            StatusMessage.updateLocation(false, null);
             if (!isBrowserFirefox && !isBrowserIE) {
                 gMinModeOn = false; // turn off min mode
             }
 
-            setupStatus = SetupStatus.Success;
+            setupStatus = SetupStatus["Success"];
 
             console.log('%c ' + CommonTxtTstr.XcWelcome + ' ',
             'background-color: #5CB2E8; ' +
@@ -135,7 +134,7 @@ window.xcManager = (function(xcManager, $) {
             // start heartbeat check
             XcSupport.heartbeatCheck();
 
-            if(!window.isBrowserSupported) {
+            if(window["isBrowserSupported"]) {
                 Alert.error(AlertTStr.UnsupportedBrowser, "", {
                     msgTemplate: AlertTStr.BrowserVersions,
                     sizeToText: true
@@ -145,7 +144,7 @@ window.xcManager = (function(xcManager, $) {
         })
         .fail(function(error) {
             $("body").addClass("xc-setup-error");
-            setupStatus = SetupStatus.Fail;
+            setupStatus = SetupStatus["Fail"];
             handleSetupFail(error, firstTimeUser);
             deferred.reject(error);
         })
@@ -168,17 +167,17 @@ window.xcManager = (function(xcManager, $) {
         return deferred.promise();
     };
 
-    function handleSetupFail(error, firstTimeUser) {
-        var locationText = StatusMessageTStr.Error;
-        var isNotNullObj = error && (typeof error === "object");
+    function handleSetupFail(error: string|object, firstTimeUser: boolean): void {
+        let locationText: string = StatusMessageTStr.Error;
+        const isNotNullObj: boolean = error && (typeof error === "object");
         if (error === WKBKTStr.NoWkbk){
             // when it's new workbook
             $("#initialLoadScreen").hide();
             WorkbookPanel.forceShow();
             locationText = StatusMessageTStr.Viewing + " " + WKBKTStr.Location;
             // start socket (no workbook is also a valid login case)
-            var userExists = false;
-            XcUser.CurrentUser.holdSession()
+            let userExists: boolean = false;
+            XcUser.CurrentUser.holdSession(null, false)
             .fail(function(err) {
                 if (err === WKBKTStr.Hold) {
                     userExists = true;
@@ -189,7 +188,7 @@ window.xcManager = (function(xcManager, $) {
                 if (firstTimeUser && !userExists) {
                     Admin.addNewUser();
                     // when it's new user first time login
-                    Alert.show({
+                    Alert.show(<Alert.AlertOptions>{
                         "title": DemoTStr.title,
                         "msg": NewUserTStr.msg,
                         "buttons": [{
@@ -200,7 +199,7 @@ window.xcManager = (function(xcManager, $) {
                             "name": NewUserTStr.openGuide,
                             "className": "confirm",
                             "func": function() {
-                                var url = "https://discourse.xcalar.com/c/xcalar-training-videos";
+                                const url: string = "https://discourse.xcalar.com/c/xcalar-training-videos";
                                 window.open(url, "_blank");
                             }
                         }],
@@ -213,8 +212,8 @@ window.xcManager = (function(xcManager, $) {
             // when seesion is hold by others and user choose to not login
             WorkbookManager.gotoWorkbook(null, true);
         } else if (isNotNullObj &&
-                   error.status != null &&
-                   error.status === StatusT.StatusSessionNotFound)
+                   error["status"] != null &&
+                   error["status"] === StatusT.StatusSessionNotFound)
         {
             locationText = WKBKTStr.NoOldWKBK;
             Alert.show({
@@ -232,32 +231,32 @@ window.xcManager = (function(xcManager, $) {
                 "hideButtons": ['copyLog']
             });
         } else if (isNotNullObj &&
-                   error.status != null &&
-                   error.status === StatusT.StatusSessionUsrAlreadyExists)
+                   error["status"] != null &&
+                   error["status"] === StatusT.StatusSessionUsrAlreadyExists)
         {
             locationText = ThriftTStr.SessionElsewhere;
-            var errorMsg = error.error + '\n' + ThriftTStr.LogInDifferent;
+            const errorMsg: string = error["error"] + '\n' + ThriftTStr.LogInDifferent;
             Alert.error(ThriftTStr.SessionElsewhere, errorMsg, {
                 "lockScreen": true
             });
         } else {
             // when it's an error from backend we cannot handle
-            var errorStruct = {"lockScreen": true};
-            var title;
+            let errorStruct: Alert.AlertErrorOptions = {"lockScreen": true};
+            let title: string;
             if (!isNotNullObj ||
-                !error.error ||
-                typeof(error.error) !== "string")
+                !error["error"] ||
+                typeof(error["error"]) !== "string")
             {
                 title = ThriftTStr.SetupErr;
             } else {
-                if (error.error.includes("expired")) {
+                if (error["error"].includes("expired")) {
                     title = ThriftTStr.SetupErr;
                     errorStruct = {"lockScreen": true, "expired": true};
-                } else if (error.error.includes("Update required")) {
+                } else if (error["error"].includes("Update required")) {
                     title = ThriftTStr.UpdateErr;
-                } else if (error.error.includes("Connection")) {
+                } else if (error["error"].includes("Connection")) {
                     title = ThriftTStr.CCNBEErr;
-                    errorStruct.noLogout = true;
+                    errorStruct["noLogout"] = true;
                 } else {
                     title = ThriftTStr.SetupErr;
                 }
@@ -269,20 +268,38 @@ window.xcManager = (function(xcManager, $) {
         StatusMessage.updateLocation(true, locationText);
     }
 
-    xcManager.isInSetup = function() {
+    /**
+     * xcManager.isInSetup
+     * returns true if the webpage is in setup mode
+     */
+    export function isInSetup(): boolean {
         return $("body").hasClass("xc-setup") ||
                $("body").hasClass("xc-setup-error");
     };
 
-    xcManager.getStatus = function() {
+    /**
+     * xcManager.getStatus
+     * returns the setup status
+     */
+    export function getStatus(): string {
         return setupStatus;
     };
 
-    xcManager.isStatusFail = function() {
-        return (setupStatus === SetupStatus.Fail);
+    /**
+     * xcManager.isStatusFail
+     * returns true if setup has failed
+     */
+    export function isStatusFail(): boolean {
+        return (setupStatus === SetupStatus["Fail"]);
     };
 
-    xcManager.unload = function(isAsync, doNotLogout) {
+    /**
+     * xcManager.unload
+     * unloads user's resources from XD
+     * @param isAsync - boolean, if request is async
+     * @param doNotLogout - if user should not be logged out durring unload
+     */
+    export function unload(isAsync: boolean = false, doNotLogout: boolean = false): void {
 
         if (isAsync) {
             // async unload should only be called in beforeload
@@ -304,7 +321,7 @@ window.xcManager = (function(xcManager, $) {
             .always(function() {
                 xcManager.removeUnloadPrompt();
                 if (doNotLogout) {
-                    window.location = paths.index;
+                    window["location"]["href"] = paths.index;
                 } else {
                     logoutRedirect();
                 }
@@ -312,12 +329,21 @@ window.xcManager = (function(xcManager, $) {
         }
     };
 
-    xcManager.forceLogout = function() {
+    /**
+     * xcManager.forceLogout
+     * logs the user out with no confirmation modals
+     */
+    export function forceLogout(): void {
         xcManager.removeUnloadPrompt();
         logoutRedirect();
     };
 
-    xcManager.removeUnloadPrompt = function(markUser) {
+    /**
+     * xcManager.removeUnloadPrompt
+     * Removes prompt for user unload.
+     * @param markUser - boolean, if true record the time the user unloaded
+     */
+    export function removeUnloadPrompt(markUser: boolean = false): void {
         window.onbeforeunload = function() {
             if (markUser) {
                 markUserUnload();
@@ -330,17 +356,17 @@ window.xcManager = (function(xcManager, $) {
         };
     };
 
-    function markUserUnload() {
-        var xcSocket = XcSocket.Instance;
+    function markUserUnload(): void {
+        const xcSocket: XcSocket = XcSocket.Instance;
         if (xcSocket.isResigered()) {
-            xcSessionStorage.setItem(XcUser.getCurrentUserName(), new Date().getTime());
+            xcSessionStorage.setItem(XcUser.getCurrentUserName(), String(new Date().getTime()));
         }
     }
 
-    function oneTimeSetup() {
+    function oneTimeSetup(): XDPromise<any> {
         function initLocks() {
-            var keys = WorkbookManager.getGlobalScopeKeys(currentVersion);
-            var keyAttrs = [{
+            const keys: any = WorkbookManager.getGlobalScopeKeys(currentVersion);
+            const keyAttrs: object[] = [{
                 "key": keys.gEphStorageKey,
                 "scope": gKVScope.GLOB
             }, {
@@ -350,26 +376,26 @@ window.xcManager = (function(xcManager, $) {
                 "key": keys.gSharedDSKey,
                 "scope": gKVScope.GLOB
             }];
-            var promises = [];
+            const promises: XDPromise<void>[] = [];
 
             keyAttrs.forEach(function(keyAttr) {
-                var mutex = KVStore.genMutex(keyAttr.key, keyAttr.scope);
-                var concurrency = new Concurrency(mutex);
+                const mutex: Mutex = KVStore.genMutex(keyAttr["key"], keyAttr["scope"]);
+                const concurrency: Concurrency = new Concurrency(mutex);
                 promises.push(concurrency.initLock());
             });
 
             return PromiseHelper.when.apply(this, promises);
         }
 
-        function actualOneTimeSetup(force) {
-            var def = PromiseHelper.deferred();
-            var markAsAlreadyInit = function() {
+        function actualOneTimeSetup(force: boolean = false): XDPromise<any> {
+            let def: XDDeferred<any> = PromiseHelper.deferred();
+            let markAsAlreadyInit: () => XDPromise<any> = function() {
                 return XcalarKeyPut(GlobalKVKeys.InitFlag,
                                         InitFlagState.AlreadyInit, false,
                                         gKVScope.GLOB);
             };
-            var initPhase = function() {
-                var innerDeferred = PromiseHelper.deferred();
+            const initPhase: Function = function(): XDPromise<any> {
+                const innerDeferred: XDDeferred<any> = PromiseHelper.deferred();
                 initLocks()
                 .then(function() {
                     return markAsAlreadyInit();
@@ -401,7 +427,7 @@ window.xcManager = (function(xcManager, $) {
             return def.promise();
         }
 
-        function showForceAlert(deferred) {
+        function showForceAlert(deferred: XDDeferred<StatusT>): void {
             $("#initialLoadScreen").hide();
             Alert.show({
                 title: AlertTStr.UnexpectInit,
@@ -454,7 +480,7 @@ window.xcManager = (function(xcManager, $) {
             });
         }
 
-        var deferred = PromiseHelper.deferred();
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
         XcalarKeyLookup(GlobalKVKeys.InitFlag, gKVScope.GLOB)
         .then(function(ret) {
             if (ret && ret.value === InitFlagState.AlreadyInit) {
@@ -463,10 +489,10 @@ window.xcManager = (function(xcManager, $) {
             // NOTE: Please do not follow this for generic concurrency use.
             // This is a one time setup where the lock init phase is part of the
             // backend startup process
-                var globalMutex = new Mutex(GlobalKVKeys.XdFlag);
-                var concurrency = new Concurrency(globalMutex);
+                const globalMutex: Mutex = new Mutex(GlobalKVKeys.XdFlag, XcalarApiKeyScopeT.XcalarApiKeyScopeGlobal);
+                const concurrency: Concurrency = new Concurrency(globalMutex);
                 concurrency.tryLock()
-                .then(function(lockString) {
+                .then(function() {
                     return actualOneTimeSetup();
                 })
                 .then(function() {
@@ -507,19 +533,19 @@ window.xcManager = (function(xcManager, $) {
     }
 
     function setupDag() {
-        var activeWKBNK = WorkbookManager.getActiveWKBK();
-        var workbook = WorkbookManager.getWorkbook(activeWKBNK);
+        const activeWKBNK: string = WorkbookManager.getActiveWKBK();
+        const workbook: WKBK = WorkbookManager.getWorkbook(activeWKBNK);
         // in case no session Id
-        var idPrefix = workbook.sessionId || xcHelper.randName("dag");
+        const idPrefix: string = workbook.sessionId || xcHelper.randName("dag");
         DagNode.setIdPrefix(idPrefix);
     }
 
-    function setupSession() {
-        var deferred = PromiseHelper.deferred();
+    function setupSession(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         WorkbookManager.setup()
         .then(function(wkbkId) {
-            return XcUser.CurrentUser.holdSession(wkbkId);
+            return XcUser.CurrentUser.holdSession(wkbkId, false);
         })
         .then(function() {
             return JupyterPanel.initialize();
@@ -533,14 +559,14 @@ window.xcManager = (function(xcManager, $) {
         return deferred.promise();
     }
 
-    function setupConfigParams() {
-        var deferred = PromiseHelper.deferred();
+    function setupConfigParams(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         MonitorConfig.refreshParams(true)
         .then(function(params) {
             try {
-                var paraName = "maxinteractivedatasize";
-                var size = Number(params[paraName].paramValue);
+                const paraName: string = "maxinteractivedatasize";
+                const size: number = Number(params[paraName].paramValue);
                 setMaxSampleSize(size);
             } catch (error) {
                 console.error("error case", error);
@@ -554,15 +580,15 @@ window.xcManager = (function(xcManager, $) {
         return deferred.promise();
     }
 
-    function loadDynamicPath() {
-        var dynamicSrc = 'https://www.xcalar.com/xdscripts/dynamic.js';
-        var randId = '' + Math.ceil(Math.random() * 100000);
-        var src = dynamicSrc + '?r=' + randId;
+    function loadDynamicPath(): XDPromise<void> {
+        const dynamicSrc: string = 'https://www.xcalar.com/xdscripts/dynamic.js';
+        const randId: string = String(Math.ceil(Math.random() * 100000));
+        const src: string = dynamicSrc + '?r=' + randId;
         return $.getScript(src);
     }
 
-    function checkHotPathEnable() {
-        var deferred = PromiseHelper.deferred();
+    function checkHotPathEnable(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         adminTools.getHotPatch()
         .then(function(res) {
@@ -572,7 +598,6 @@ window.xcManager = (function(xcManager, $) {
                 console.info("Hot Patch is disabled");
                 deferred.reject(null, true);
             }
-
         })
         .fail(function() {
             deferred.resolve(); // still  resolve it
@@ -581,8 +606,8 @@ window.xcManager = (function(xcManager, $) {
         return deferred.promise();
     }
 
-    function hotPatch() {
-        var deferred = PromiseHelper.deferred();
+    function hotPatch(): XDPromise<void> {
+        let deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         checkHotPathEnable()
         .then(function() {
@@ -591,7 +616,7 @@ window.xcManager = (function(xcManager, $) {
         .then(function() {
             try {
                 if (typeof XCPatch.patch !== 'undefined') {
-                    var promise = XCPatch.patch();
+                    const promise: XDPromise<void> = XCPatch.patch();
                     if (promise != null) {
                         return promise;
                     }
@@ -611,15 +636,15 @@ window.xcManager = (function(xcManager, $) {
         return deferred.promise();
     }
 
-    function setMaxSampleSize(size) {
+    function setMaxSampleSize(size: number): void {
         if (size != null) {
             gMaxSampleSize = size;
         }
     }
 
-    function setupExtensions() {
+    function setupExtensions(): XDPromise<void> {
         try {
-            var extPromise = ExtensionManager.setup();
+            const extPromise: XDPromise<void> = ExtensionManager.setup();
             ExtensionPanel.setup();
             return extPromise;
         } catch (error) {
@@ -630,7 +655,7 @@ window.xcManager = (function(xcManager, $) {
     }
 
     // excludes alert modal wish is set up earlier
-    function setupModals() {
+    function setupModals(): void {
         Alert.setup();
         Profile.setup();
         WorkbookPanel.setup();
@@ -653,40 +678,40 @@ window.xcManager = (function(xcManager, $) {
         DSImportErrorModal.setup();
     }
 
-    function setupUserArea() {
+    function setupUserArea(): void {
         setupUserBox();
         MemoryAlert.Instance.setup();
     }
 
-    function setupUserBox() {
-        var $menu = $("#userMenu");
+    function setupUserBox(): void {
+        const $menu: JQuery = $("#userMenu");
         xcMenu.add($menu);
         $("#userName").text(XcUser.CurrentUser.getFullName());
 
         $("#userNameArea").click(function() {
-            var $target = $(this);
-            xcHelper.dropdownOpen($target, $menu, {
+            const $target: JQuery = $(this);
+            xcHelper.dropdownOpen($target, $menu, <xcHelper.DropdownOptions>{
                 "offsetY": -3,
                 "toggle": true,
                 "closeListener": true
             });
         });
 
-        $menu.on("mouseup", ".help", function(event) {
+        $menu.on("mouseup", ".help", function(event: JQueryEventObject): void {
             if (event.which !== 1) {
                 return;
             }
-            var $tab = $("#helpTab");
+            const $tab: JQuery = $("#helpTab");
             if (!$tab.hasClass("active")) {
                 $tab.click();
             }
         });
 
-        $menu.on("mouseup", ".discourse", function(event) {
+        $menu.on("mouseup", ".discourse", function(event: JQueryEventObject): void {
             if (event.which !== 1) {
                 return;
             }
-            var win = window.open('https://discourse.xcalar.com/', '_blank');
+            const win: Window = window.open('https://discourse.xcalar.com/', '_blank');
             if (win) {
                 win.focus();
             } else {
@@ -694,14 +719,14 @@ window.xcManager = (function(xcManager, $) {
             }
         });
 
-        $menu.on("mouseup", ".about", function(event) {
+        $menu.on("mouseup", ".about", function(event: JQueryEventObject): void {
             if (event.which !== 1) {
                 return;
             }
             AboutModal.show();
         });
 
-        $menu.on('mouseup', ".setup", function(event) {
+        $menu.on('mouseup', ".setup", function(event: JQueryEventObject): void {
             if (event.which !== 1) {
                 return;
             }
@@ -714,21 +739,21 @@ window.xcManager = (function(xcManager, $) {
             }
 
         });
-        $menu.on("mouseup", ".liveHelp", function(event) {
+        $menu.on("mouseup", ".liveHelp", function(event: JQueryEventObject): void {
             if (event.which !== 1) {
                 return;
             }
             LiveHelpModal.show();
         });
 
-        $menu.on("mouseup", ".supTicket", function(event) {
+        $menu.on("mouseup", ".supTicket", function(event: JQueryEventObject): void {
             if (event.which !== 1) {
                 return;
             }
             SupTicketModal.show();
         });
 
-        $("#logout").mouseup(function(event) {
+        $("#logout").mouseup(function(event: JQueryEventObject): void {
             if (event.which !== 1) {
                 return;
             }
@@ -736,29 +761,29 @@ window.xcManager = (function(xcManager, $) {
         });
     }
 
-    function setupWorkspaceBar() {
+    function setupWorkspaceBar(): void {
         RowScroller.setup();
-        var fnBar = FnBar.Instance;
+        const fnBar: FnBar = FnBar.Instance;
         fnBar.setup();
     }
 
-    function setupSocket() {
-        const xcSocket = XcSocket.Instance;
+    function setupSocket(): XcSocket {
+        const xcSocket: XcSocket = XcSocket.Instance;
         xcSocket.setup();
         return xcSocket;
     }
 
-    function restoreActiveTable(tableId, worksheetId, failures) {
-        var deferred = PromiseHelper.deferred();
-        var table = gTables[tableId];
-        var passedUpdate = false;
+    function restoreActiveTable(tableId: string, worksheetId: string, failures: any[]): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let table: any = gTables[tableId];
+        let passedUpdate: boolean = false;
 
         table.beActive();
 
         table.getMetaAndResultSet()
         .then(function() {
             passedUpdate = true;
-            var options = {
+            const options: object = {
                 wsId: worksheetId,
                 atStartUp: true
             };
@@ -779,11 +804,11 @@ window.xcManager = (function(xcManager, $) {
         return deferred.promise();
     }
 
-    function initializeTable() {
-        var deferred = PromiseHelper.deferred();
-        var failures = [];
-        var hasTable = false;
-        var noMetaTables = [];
+    function initializeTable(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const failures: string[] = [];
+        let hasTable: boolean = false;
+        const noMetaTables: string[] = [];
 
         StatusMessage.updateLocation(true, StatusMessageTStr.ImportTables);
         // since we are not storing any redo states on start up, we should
@@ -795,7 +820,7 @@ window.xcManager = (function(xcManager, $) {
         })
         .then(function(backTableSet) {
             syncTableMetaWithBackTable(backTableSet);
-            var promises = syncTableMetaWithWorksheet(backTableSet);
+            const promises: any[] = syncTableMetaWithWorksheet(backTableSet);
             cleanNoMetaTables();
             // setup leftover tables
             TblManager.setOrphanedList(backTableSet);
@@ -822,11 +847,11 @@ window.xcManager = (function(xcManager, $) {
 
         return deferred.promise();
 
-        function syncTableMetaWithBackTable(backTableSet) {
+        function syncTableMetaWithBackTable(backTableSet: object): void {
             // check if some table has front meta but not backend info
             // if yes, delete front meta (gTables and wsManager)
-            for (var tableId in gTables) {
-                var tableName = gTables[tableId].getName();
+            for (let tableId in gTables) {
+                const tableName: string = gTables[tableId].getName();
                 if (!backTableSet.hasOwnProperty(tableName)) {
                     console.warn(tableName, "is not in backend");
                     WSManager.removeTable(tableId);
@@ -835,54 +860,54 @@ window.xcManager = (function(xcManager, $) {
             }
         }
 
-        function syncTableMetaWithWorksheet(backTableSet) {
-            var promises = [];
-            var worksheetList = WSManager.getWSList();
-            var activeTables = {};
+        function syncTableMetaWithWorksheet(backTableSet: object): any[] {
+            const promises: any[] = [];
+            const worksheetList: string[] = WSManager.getWSList();
+            const activeTables: Set<string> = new Set<string>();
 
             worksheetList.forEach(function(worksheetId) {
-                var worksheet = WSManager.getWSById(worksheetId);
-                if (!hasTable && worksheet.tables.length > 0) {
+                const worksheet: object = WSManager.getWSById(worksheetId);
+                if (!hasTable && worksheet["tables"].length > 0) {
                     hasTable = true;
                 }
 
-                worksheet.tables.forEach(function(tableId) {
+                worksheet["tables"].forEach(function(tableId) {
                     if (checkIfHasTableMeta(tableId, backTableSet)) {
                         promises.push(restoreActiveTable.bind(window, tableId,
                                                 worksheetId, failures));
                     }
-                    activeTables[tableId] = true;
+                    activeTables.add(tableId);
                 });
 
                 // pending tables will be orphaned
-                worksheet.pendingTables.forEach(function(tableId) {
+                worksheet["pendingTables"].forEach(function(tableId) {
                     if (gTables[tableId]) {
                         gTables[tableId].beOrphaned();
                     }
                 });
-                worksheet.pendingTables = [];
+                worksheet["pendingTables"] = [];
             });
 
             // set up tables in hidden worksheets
-            var hiddenWorksheets = WSManager.getHiddenWSList();
+            const hiddenWorksheets: string[] = WSManager.getHiddenWSList();
             hiddenWorksheets.forEach(function(worksheetId) {
-                var worksheet = WSManager.getWSById(worksheetId);
+                const worksheet: object = WSManager.getWSById(worksheetId);
                 if (worksheet == null) {
                     // this is error case
                     return;
                 }
 
-                worksheet.tempHiddenTables.forEach(function(tableId) {
+                worksheet["tempHiddenTables"].forEach(function(tableId) {
                     checkIfHasTableMeta(tableId, backTableSet);
-                    activeTables[tableId] = true;
+                    activeTables.add(tableId);
                 });
             });
 
-            for (var i in gTables) {
-                var table = gTables[i];
+            for (let i in gTables) {
+                let table: TableMeta = gTables[i];
                 if (table.isActive()) {
-                    var tableId = table.getId();
-                    if (!activeTables[tableId]) {
+                    const tableId: string = table.getId();
+                    if (!activeTables.has(tableId)) {
                         console.error("active table without worksheet",
                                        tableId);
                         table.beOrphaned();
@@ -895,19 +920,19 @@ window.xcManager = (function(xcManager, $) {
             return promises;
         }
 
-        function checkIfHasTableMeta(tableId, backTableSet) {
-            var table = gTables[tableId];
+        function checkIfHasTableMeta(tableId: string, backTableSet: object): boolean {
+            let table: TableMeta = gTables[tableId];
             if (table == null) {
                 noMetaTables.push(tableId);
                 return false;
             } else {
-                var tableName = table.getName();
+                const tableName: string = table.getName();
                 delete backTableSet[tableName];
                 return true;
             }
         }
 
-        function cleanNoMetaTables() {
+        function cleanNoMetaTables(): void {
             noMetaTables.forEach(function(tableId) {
                 console.info("not find table", tableId);
                 WSManager.removeTable(tableId);
@@ -915,9 +940,9 @@ window.xcManager = (function(xcManager, $) {
         }
     }
 
-    function documentReadyGeneralFunction() {
-        $(document).keydown(function(event){
-            var isPreventEvent;
+    function documentReadyGeneralFunction(): void {
+        $(document).keydown(function(event: JQueryEventObject): void{
+            let isPreventEvent: boolean;
 
             switch (event.which) {
                 case keyCode.PageUp:
@@ -953,7 +978,7 @@ window.xcManager = (function(xcManager, $) {
             }
         });
 
-        $("#autoSaveBtn").click(function() {
+        $("#autoSaveBtn").click(function(): void {
             $(this).blur();
 
             KVStore.commit()
@@ -965,7 +990,7 @@ window.xcManager = (function(xcManager, $) {
             });
         });
 
-        window.onbeforeunload = function() {
+        window.onbeforeunload = function(): string {
             xcManager.unload(true);
             markUserUnload();
             if (Log.hasUncommitChange() || KVStore.hasUnCommitChange()) {
@@ -974,26 +999,26 @@ window.xcManager = (function(xcManager, $) {
                 return CommonTxtTstr.LeaveWarn;
             }
         };
-        window.onunload = function() {
+        window.onunload = function(): void {
             LiveHelpModal.userLeft();
         };
 
-        var winResizeTimer;
-        var resizing = false;
-        var otherResize = false; // true if winresize is triggered by 3rd party code
-        var modalSpecs;
-        var windowSpecs = {
+        let winResizeTimer: number;
+        let resizing: boolean = false;
+        let otherResize: boolean = false; // true if winresize is triggered by 3rd party code
+        let modalSpecs: xcHelper.ModalSpec;
+        const windowSpecs: xcHelper.WindowSpec = {
             winHeight: $(window).height(),
             winWidth: $(window).width()
         };
 
-        $(window).resize(function(event) {
+        $(window).resize(function(event: JQueryEventObject): void {
             if (!resizing) {
                 xcMenu.close();
                 $('#dagScrollBarWrap').hide();
                 $(".dfScrollBar").hide();
                 resizing = true;
-                var $modal = $('.modalContainer:visible');
+                const $modal: JQuery = $('.modalContainer:visible');
                 if ($modal.length && !$modal.hasClass("noWinResize")) {
                     modalSpecs = {
                         $modal: $modal,
@@ -1005,7 +1030,7 @@ window.xcManager = (function(xcManager, $) {
                 }
             }
 
-            if (event.target !== window) {
+            if (event.target !== <any>window) {
                 otherResize = true;
             } else {
                 otherResize = false;
@@ -1014,15 +1039,15 @@ window.xcManager = (function(xcManager, $) {
 
             DSCart.resize();
             clearTimeout(winResizeTimer);
-            winResizeTimer = setTimeout(winResizeStop, 100);
+            winResizeTimer = <any>setTimeout(winResizeStop, 100);
         });
 
-        function winResizeStop() {
+        function winResizeStop(): void {
             if (otherResize) {
                 otherResize = false;
             } else {
-                var table = gTables[gActiveTableId];
-                if (table && table.resultSetCount !== 0) {
+                const table: TableMeta = gTables[gActiveTableId];
+                if (table && table["resultSetCount"] !== 0) {
                     RowScroller.genFirstVisibleRowNum();
                 }
                 TblFunc.moveTableDropdownBoxes();
@@ -1042,19 +1067,19 @@ window.xcManager = (function(xcManager, $) {
         }
 
         // using this to keep window from scrolling on dragdrop
-        $(window).scroll(function() {
+        $(window).scroll(function(): void {
             $(this).scrollLeft(0);
         });
 
         // using this to keep window from scrolling up and down;
-        $('#container').scroll(function() {
+        $('#container').scroll(function(): void {
             $(this).scrollTop(0);
         });
 
-        var mainFrameScrolling = false;
-        var mainFrameScrollTimer;
-        var scrollPrevented = false;
-        $('#mainFrame').scroll(function() {
+        let mainFrameScrolling: boolean = false;
+        let mainFrameScrollTimer: number;
+        let scrollPrevented: boolean = false;
+        $('#mainFrame').scroll(function(): void {
             if (!mainFrameScrolling) {
                 mainFrameScrolling = true;
                 // apply the following actions only once per scroll session
@@ -1076,14 +1101,14 @@ window.xcManager = (function(xcManager, $) {
             $(this).scrollTop(0);
 
             clearTimeout(mainFrameScrollTimer);
-            mainFrameScrollTimer = setTimeout(mainFrameScrollingStop, 300);
+            mainFrameScrollTimer = <any>setTimeout(mainFrameScrollingStop, 300);
             if (!scrollPrevented) {
                 TblFunc.moveFirstColumn(null, true);
                 TblFunc.moveTableTitles();
             }
         });
 
-        function mainFrameScrollingStop() {
+        function mainFrameScrollingStop(): void {
             $('.xcTheadWrap').find('.dropdownBox')
                              .removeClass('dropdownBoxHidden');
             $(".xcTheadWrap").find(".lockIcon").removeClass("xc-hidden");
@@ -1094,10 +1119,10 @@ window.xcManager = (function(xcManager, $) {
             scrollPrevented = false;
         }
 
-        $(document).mousedown(function(event) {
-            if (window.isBrowserMicrosoft && event.shiftKey) {
+        $(document).mousedown(function(event: JQueryEventObject): void {
+            if (window["isBrowserMicrosoft"] && event.shiftKey) {
                 // prevents text from being selected on shift click
-                var cachedFn = document.onselectstart;
+                const cachedFn: any = document.onselectstart;
                 document.onselectstart = function() {
                     return false;
                 };
@@ -1106,9 +1131,9 @@ window.xcManager = (function(xcManager, $) {
                 }, 0);
             }
 
-            var $target = $(event.target);
+            const $target: JQuery = $(event.target);
             gMouseEvents.setMouseDownTarget($target);
-            var clickable = $target.closest('.menu').length > 0 ||
+            const clickable: boolean = $target.closest('.menu').length > 0 ||
                             $target.closest('.clickable').length > 0 ||
                             $target.hasClass("highlightBox");
             if (!clickable && $target.closest('.dropdownBox').length === 0) {
@@ -1151,15 +1176,15 @@ window.xcManager = (function(xcManager, $) {
                 !isTargetFnBar($target) && !$(".fnBarLocked").length) {
 
                 $(".selectedCell").removeClass("selectedCell");
-                var fnBar = FnBar.Instance;
+                const fnBar: FnBar = FnBar.Instance;
                 fnBar.setup();
             }
         });
 
-        function isTargetFnBar($target) {
+        function isTargetFnBar($target: JQuery): boolean {
             // some code mirror elements don't have parents for some reason
             // such as the pre tag
-            var isCodeMirror = $target.hasClass("fnbarPre") ||
+            const isCodeMirror: boolean = $target.hasClass("fnbarPre") ||
                                $target.closest("#functionArea").length > 0 ||
                                $target.hasClass("CodeMirror-cursor") ||
                                $target.closest(".CodeMirror-hint").length > 0 ||
@@ -1169,10 +1194,10 @@ window.xcManager = (function(xcManager, $) {
             return isCodeMirror;
         }
 
-        var dragCount = 0; // tracks document drag enters and drag leaves
+        let dragCount: number = 0; // tracks document drag enters and drag leaves
         // as multiple enters/leaves get triggered by children
-        $(document).on('dragenter', function(event) {
-            var dt = event.originalEvent.dataTransfer;
+        $(document).on('dragenter', function(event: JQueryEventObject): void {
+            const dt: any = event.originalEvent["dataTransfer"];
             if (dt.types && (dt.types.indexOf ?
                 dt.types.indexOf('Files') !== -1 :
                 dt.types.contains('Files'))) {
@@ -1188,8 +1213,8 @@ window.xcManager = (function(xcManager, $) {
             }
         });
 
-        $(document).on('dragover', function(event) {
-            var dt = event.originalEvent.dataTransfer;
+        $(document).on('dragover', function(event: JQueryEventObject): void {
+            const dt = event.originalEvent["dataTransfer"];
             if (dt.types && (dt.types.indexOf ?
                 dt.types.indexOf('Files') !== -1 :
                 dt.types.contains('Files'))) {
@@ -1201,11 +1226,11 @@ window.xcManager = (function(xcManager, $) {
             }
         });
 
-        $(document).on('dragleave', function(event) {
-            var dt = event.originalEvent.dataTransfer;
+        $(document).on('dragleave', function(event: JQueryEventObject): void {
+            let dt: DataTransfer = event.originalEvent["dataTransfer"];
             if (dt.types && (dt.types.indexOf ?
                 dt.types.indexOf('Files') !== -1 :
-                dt.types.contains('Files'))) {
+                dt.types.includes('Files'))) {
                 dragCount--;
                 if (dragCount === 0) {
                     $('.xc-fileDroppable').removeClass('xc-fileDragging');
@@ -1213,31 +1238,31 @@ window.xcManager = (function(xcManager, $) {
             }
         });
 
-        $(document).on('drop', function(event) {
+        $(document).on('drop', function(event: JQueryEventObject): void {
             event.preventDefault();
             $('.xc-fileDroppable').removeClass('xc-fileDragging');
         });
 
-        $(window).blur(function() {
+        $(window).blur(function(): void {
             xcMenu.close();
         });
 
         setupMouseWheel();
 
-        if (!window.isBrowserChrome) {
+        if (!window["isBrowserChrome"]) {
             //  prevent cursor from showing in IE and firefox
             $(document).on('focus', 'input[readonly]', function(){
                 this.blur();
             });
         }
 
-        window.onerror = function(msg, url, line, column, error) {
-            var mouseDownTargetHTML = "";
-            var parentsHTML = [];
-            var lastTargets = gMouseEvents.getLastMouseDownTargets();
-            var $lastTarget = lastTargets[0];
-            var prevTargetsHtml = [];
-            var promise = PromiseHelper.alwaysResolve(SQLEditor.storeQuery());
+        window.onerror = function(msg: string|Event, url: string, line: number, column: number, error: Error): void {
+            let mouseDownTargetHTML: string = "";
+            const parentsHTML: string[] = [];
+            const lastTargets: JQuery[] = gMouseEvents.getLastMouseDownTargets();
+            const $lastTarget: JQuery = lastTargets[0];
+            const prevTargetsHtml: string[][] = [];
+            let promise: XDPromise<void> = PromiseHelper.alwaysResolve(SQLEditor.storeQuery());
 
             // get last 3 mousedown elements and parents
             if ($lastTarget && !$lastTarget.is(document)) {
@@ -1247,7 +1272,7 @@ window.xcManager = (function(xcManager, $) {
                     if (!this.tagName) {
                         return;
                     }
-                    var html = "<" + this.tagName.toLowerCase();
+                    let html: string = "<" + this.tagName.toLowerCase();
                     $.each(this.attributes, function() {
                         if (this.specified) {
                             html += ' ' + this.name + '="' + this.value + '"';
@@ -1257,13 +1282,13 @@ window.xcManager = (function(xcManager, $) {
                     parentsHTML.push(html);
                 });
 
-                for (var i = 1; i < lastTargets.length; i++) {
-                    var prevTargetParents = [];
-                    lastTargets[i].parents().andSelf().each(function() {
+                for (let i = 1; i < lastTargets.length; i++) {
+                    const prevTargetParents: string[] = [];
+                    lastTargets[i].parents().addBack().each(function() {
                         if (!this.tagName) {
                             return;
                         }
-                        var html = "<" + this.tagName.toLowerCase();
+                        let html: string = "<" + this.tagName.toLowerCase();
                         $.each(this.attributes, function() {
                             if (this.specified) {
                                 html += ' ' + this.name + '="' + this.value +
@@ -1278,13 +1303,13 @@ window.xcManager = (function(xcManager, $) {
                 }
             }
 
-            var mouseDownTime = gMouseEvents.getLastMouseDownTime();
-            var stack = null;
+            const mouseDownTime: number = gMouseEvents.getLastMouseDownTime();
+            let stack: string[] = null;
             if (error && error.stack) {
                 stack = error.stack.split("\n");
             }
 
-            var info = {
+            let info: object = {
                 "error": msg,
                 "url": url,
                 "line": line,
@@ -1306,7 +1331,7 @@ window.xcManager = (function(xcManager, $) {
 
             // if debugOn, xcConsole.log will show it's own error
             // if no stack, then it's a custom error, don't show message
-            if (!window.debugOn && stack &&
+            if (!window["debugOn"] && stack &&
                 !(isBrowserIE && (msg === "Unspecified error." ||
                     (stack[1] && stack[1].indexOf("__BROWSERTOOLS") > -1)))) {
 
@@ -1315,14 +1340,14 @@ window.xcManager = (function(xcManager, $) {
                     });
 
                 if (typeof mixpanel !== "undefined") {
-                    var timestamp = (new Date()).getTime();
-                    mixpanel.track("XdCrash", {
+                    const timestamp: number = (new Date()).getTime();
+                    mixpanel["track"]("XdCrash", {
                         "Timestamp": timestamp,
                         "errorMsg": JSON.stringify(info)
                     });
                 }
 
-                Alert.error(ErrTStr.RefreshBrowser, ErrTStr.RefreshBrowserDesc, {
+                Alert.error(ErrTStr.RefreshBrowser, ErrTStr.RefreshBrowserDesc, <Alert.AlertErrorOptions>{
                     "lockScreen": true,
                     "buttons": [{
                         className: "refresh",
@@ -1339,7 +1364,7 @@ window.xcManager = (function(xcManager, $) {
             }
         };
 
-        function checkUndoRedo(event) {
+        function checkUndoRedo(event: JQueryEventObject): void {
             if (!(isSystemMac && event.metaKey) &&
                 !(!isSystemMac && event.ctrlKey))
             {
@@ -1368,7 +1393,7 @@ window.xcManager = (function(xcManager, $) {
         }
     }
 
-    function tableScroll(scrollType, isUp) {
+    let tableScroll: Function = function(scrollType: string, isUp: boolean): boolean {
         if (!$("#workspaceTab").hasClass("active") ||
             !$("#worksheetButton").hasClass("active") ||
             gActiveTableId == null)
@@ -1376,7 +1401,7 @@ window.xcManager = (function(xcManager, $) {
             return false;
         }
 
-        var $visibleMenu = $('.menu:visible');
+        const $visibleMenu: JQuery = $('.menu:visible');
         if ($visibleMenu.length !== 0) {
             // if the menu is only .tdMenu, allow scroll
             if ($visibleMenu.length > 1 || !$visibleMenu.hasClass("tdMenu")) {
@@ -1389,10 +1414,10 @@ window.xcManager = (function(xcManager, $) {
             return false;
         }
 
-        var $rowInput = $("#rowInput");
-        var tableId = gActiveTableId;
-        var $lastTarget = gMouseEvents.getLastMouseDownTarget();
-        var isInMainFrame = !$lastTarget.context ||
+        const $rowInput: JQuery = $("#rowInput");
+        const tableId: string = <string>gActiveTableId;
+        const $lastTarget: JQuery = gMouseEvents.getLastMouseDownTarget();
+        const isInMainFrame: boolean = !$lastTarget.context ||
                             ($lastTarget.closest("#mainFrame").length > 0 &&
                             !$lastTarget.is("input"));
 
@@ -1405,10 +1430,10 @@ window.xcManager = (function(xcManager, $) {
                 return true;
             }
 
-            var maxRow = gTables[tableId].resultSetCount;
-            var curRow = $rowInput.data("val");
-            var lastRowNum = RowScroller.getLastVisibleRowNum(tableId);
-            var rowToGo;
+            const maxRow: number = gTables[tableId].resultSetCount;
+            const curRow: number = $rowInput.data("val");
+            const lastRowNum: number = RowScroller.getLastVisibleRowNum(tableId);
+            let rowToGo: number;
 
             // validation check
             xcAssert((lastRowNum != null), "Error Case!");
@@ -1417,13 +1442,13 @@ window.xcManager = (function(xcManager, $) {
                 // isUp === true for home button, false for end button
                 rowToGo = isUp ? 1 : maxRow;
             } else {
-                var rowToSkip;
+                let rowToSkip: number;
                 if (scrollType === "updown") {
-                    var $xcTbodyWrap = $("#xcTbodyWrap-" + tableId);
-                    var scrollTop = $xcTbodyWrap.scrollTop();
-                    var $trs = $("#xcTable-" + tableId + " tbody tr");
-                    var trHeight = $trs.height();
-                    var rowNum;
+                    const $xcTbodyWrap: JQuery = $("#xcTbodyWrap-" + tableId);
+                    const scrollTop: number = $xcTbodyWrap.scrollTop();
+                    const $trs: JQuery = $("#xcTable-" + tableId + " tbody tr");
+                    const trHeight: number = $trs.height();
+                    let rowNum: number;
 
                     if (!isUp) {
                         rowNum = xcHelper.parseRowNum($trs.eq($trs.length - 1)) + 1;
@@ -1470,7 +1495,7 @@ window.xcManager = (function(xcManager, $) {
         return false;
     }
 
-    function tableKeyEvents(event) {
+    function tableKeyEvents(event: JQueryEventObject): void {
         // only being used for ctrl+o to open column dropdown
         if (!(isSystemMac && event.metaKey) &&
             !(!isSystemMac && event.ctrlKey))
@@ -1486,7 +1511,7 @@ window.xcManager = (function(xcManager, $) {
             !$('textarea:focus').length &&
             !$('input:focus').length) {
 
-            var $th = $(".xcTable th.selectedCell");
+            const $th: JQuery = $(".xcTable th.selectedCell");
             if ($th.length > 0) {
                 event.preventDefault();
             }
@@ -1498,20 +1523,20 @@ window.xcManager = (function(xcManager, $) {
         }
     }
 
-    function logoutRedirect() {
+    let logoutRedirect: Function = function(): void {
         xcSessionStorage.removeItem("xcalar-username");
-        var msalUser = null;
-        var msalAgentApplication = null;
-        var config = getMsalConfigFromLocalStorage();
+        let msalUser: string = null;
+        let msalAgentApplication: Msal.UserAgentApplication = null;
+        const config: any = getMsalConfigFromLocalStorage();
 
         if (config != null &&
             config.hasOwnProperty('msal') &&
             config.msal.hasOwnProperty('enabled') &&
             config.msal.enabled) {
 
-            var msalLogger = new Msal.Logger(
+            const msalLogger: Msal.Logger = new Msal.Logger(
                 msalLoggerCallback,
-                { level: Msal.LogLevel.Verbose, correlationId: '12345' }
+                { level: Msal["LogLevel"].Verbose, correlationId: '12345' }
             );
 
             function msalLoggerCallback(logLevel, message, piiEnabled) {
@@ -1537,28 +1562,28 @@ window.xcManager = (function(xcManager, $) {
         if (msalUser != null) {
             msalAgentApplication.logout();
         } else {
-            window.location = paths.dologout;
+            window["location"]["href"] = paths.dologout;
         }
     }
 
-    function isRetinaDevice() {
+    function isRetinaDevice(): boolean {
         return window.devicePixelRatio > 1;
     }
 
-    function reImplementMouseWheel(e) {
-        var deltaX = e.originalEvent.wheelDeltaX * -1;
-        var deltaY = e.originalEvent.wheelDeltaY;
+    function reImplementMouseWheel(e: JQueryEventObject): void {
+        let deltaX: number = e.originalEvent["wheelDeltaX"] * -1;
+        let deltaY: number = e.originalEvent["wheelDeltaY"];
         if (isNaN(deltaX)) {
-            deltaX = e.deltaX;
+            deltaX = e["deltaX"];
         }
         if (isNaN(deltaY)) {
-            deltaY = e.deltaY;
+            deltaY = e["deltaY"];
         }
-        var x = Math.abs(deltaX);
-        var y = Math.abs(deltaY);
+        let x: number = Math.abs(deltaX);
+        let y: number = Math.abs(deltaY);
         // iterate over the target and all its parents in turn
-        var $target = $(e.target);
-        var $pathToRoot = $target.add($target.parents());
+        const $target: JQuery = $(e.target);
+        const $pathToRoot: JQuery = $target.add($target.parents());
 
         // this is to fix the issue when scroll table
         // both horizontally and verticall will move
@@ -1570,13 +1595,13 @@ window.xcManager = (function(xcManager, $) {
             }
         }
         $($pathToRoot.get().reverse()).each(function() {
-            var $el = $(this);
-            var delta;
+            const $el: JQuery = $(this);
+            let delta: number;
 
             if ($el.css("overflow") !== "hidden") {
                 // do horizontal scrolling
                 if (deltaX > 0) {
-                    var scrollWidth = $el.prop("scrollWidth");
+                    let scrollWidth: number = $el.prop("scrollWidth");
                     // because there is a rowReiszer in .idWrap,
                     // which wrongly detect the element as scrollable
                     // we just skip it
@@ -1584,7 +1609,7 @@ window.xcManager = (function(xcManager, $) {
                         scrollWidth = 0;
                     }
 
-                    var scrollLeftMax = scrollWidth - $el.outerWidth();
+                    const scrollLeftMax: number = scrollWidth - $el.outerWidth();
                     if ($el.scrollLeft() < scrollLeftMax) {
                         // we can scroll right
                         delta = scrollLeftMax - $el.scrollLeft();
@@ -1608,8 +1633,8 @@ window.xcManager = (function(xcManager, $) {
 
                 // do vertical scrolling
                 if (deltaY < 0) {
-                    var scrollHeight = $el.prop("scrollHeight");
-                    var scrollTopMax = scrollHeight - $el.outerHeight();
+                    const scrollHeight: number = $el.prop("scrollHeight");
+                    const scrollTopMax: number = scrollHeight - $el.outerHeight();
                     if ($el.scrollTop() < scrollTopMax) {
                         // we can scroll down
                         delta = scrollTopMax - $el.scrollTop();
@@ -1640,22 +1665,22 @@ window.xcManager = (function(xcManager, $) {
     // and the same time, it can prevent both back/forwad swipe
     // Case 2: for other cases, only prevent back swipe
     // (not found a good soution to also prevent forward)
-    function setupMouseWheel() {
-        $(window).on("mousewheel", function(event) {
+    function setupMouseWheel(): void {
+        $(window).on("mousewheel", function(event: JQueryEventObject): void {
             // This code is only valid for Mac
-            if (!window.isSystemMac) {
+            if (!window["isSystemMac"]) {
                 return;
             }
 
-            var isBrowserToHandle = window.isBrowserChrome
-                                || window.isBrowserFirefox
-                                || window.isBrowserSafari;
+            const isBrowserToHandle: boolean = window["isBrowserChrome"]
+                                || window["isBrowserFirefox"]
+                                || window["isBrowserSafari"];
             if (!isBrowserToHandle) {
                 return;
             }
 
-            if ((window.isBrowserChrome && isRetinaDevice()
-                || window.isBrowserFirefox) &&
+            if ((window["isBrowserChrome"] && isRetinaDevice()
+                || window["isBrowserFirefox"]) &&
                 ($(event.target).closest(".dataTable").length))
             {
                 reImplementMouseWheel(event);
@@ -1664,19 +1689,19 @@ window.xcManager = (function(xcManager, $) {
                 return;
             }
 
-            var $target = $(event.target);
-            var $parents = $(event.target).parents().add($target);
+            const $target: JQuery = $(event.target);
+            const $parents: JQuery = $(event.target).parents().add($target);
             // If none of the parents can be scrolled left
             // when we try to scroll left
-            var prevent_left = event.deltaX < 0 && $parents.filter(function() {
+            const prevent_left: boolean = event["deltaX"] < 0 && $parents.filter(function() {
                 return $(this).scrollLeft() > 0;
             }).length === 0;
 
             // If none of the parents can be scrolled up
             // when we try to scroll up
-            var prevent_up = event.deltaY > 0 && !$parents.filter(function() {
+            const prevent_up: boolean = event["deltaY"] > 0 && !($parents.filter(function() {
                 return $(this).scrollTop() > 0;
-            }).length === 0;
+            }).length === 0);
             // Prevent swipe scroll,
             // which would trigger the Back/Next page event
             if (prevent_left || prevent_up) {
@@ -1686,34 +1711,29 @@ window.xcManager = (function(xcManager, $) {
     }
 
     /* Unit Test Only */
-    if (window.unitTestMode) {
-        var oldLogoutRedirect;
-        var oldTableScroll;
-        xcManager.__testOnly__ = {};
-        xcManager.__testOnly__.handleSetupFail = handleSetupFail;
-        xcManager.__testOnly__.reImplementMouseWheel = reImplementMouseWheel;
-        xcManager.__testOnly__.oneTimeSetup = oneTimeSetup;
-        xcManager.__testOnly__.restoreActiveTable = restoreActiveTable;
-
-        xcManager.__testOnly__.fakeLogoutRedirect = function() {
-            oldLogoutRedirect = logoutRedirect;
-            logoutRedirect = function() {};
-        };
-
-        xcManager.__testOnly__.resetLogoutRedirect = function() {
-            logoutRedirect = oldLogoutRedirect;
-        };
-
-        xcManager.__testOnly__.fakeTableScroll = function(func) {
-            oldTableScroll = tableScroll;
-            tableScroll = func;
-        };
-
-        xcManager.__testOnly__.resetFakeScroll = function() {
-            tableScroll = oldTableScroll;
+    if (window["unitTestMode"]) {
+        let oldLogoutRedirect: Function;
+        let oldTableScroll: Function;
+        xcManager["__testOnly__"] = {
+            handleSetupFail: handleSetupFail,
+            reImplementMouseWheel: reImplementMouseWheel,
+            oneTimeSetup: oneTimeSetup,
+            restoreActiveTable: restoreActiveTable,
+            fakeLogoutRedirect: function() {
+                oldLogoutRedirect = logoutRedirect;
+                logoutRedirect = function() {};
+            },
+            resetLogoutRedirect: function() {
+                logoutRedirect = oldLogoutRedirect;
+            },
+            fakeTableScroll: function(func) {
+                oldTableScroll = tableScroll;
+                tableScroll = func;
+            },
+            resetFakeScroll: function() {
+                tableScroll = oldTableScroll;
+            }
         };
     }
     /* End Of Unit Test Only */
-
-    return (xcManager);
-}({}, jQuery));
+}

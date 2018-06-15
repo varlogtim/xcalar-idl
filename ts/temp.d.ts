@@ -242,7 +242,6 @@ declare namespace Base64 {
 }
 /* ============== GLOBAL VARIABLES ============= */
 declare var nw: any; // nw js for XD CE
-declare var SQLEditor: any;
 interface Window {
     FnBar: any;
     gMinModeOn: boolean;
@@ -317,8 +316,14 @@ declare var sqlMode: boolean;
 declare var skRFPredictor: any;
 
 declare var isBrowserSafari: boolean;
+declare var isBrowserFirefox: boolean;
 declare var isSystemMac: boolean;
+<<<<<<< HEAD
 declare var isBrowserMicrosoft: boolean;
+=======
+
+declare var mixpanel: object;
+>>>>>>> 0f7f8650a... GUI-12295 xcManager TS conv
 /* ============== GLOBAL FUNCTIONS ============= */
 // Declaration of XcalarApi moved to IXcalarApi.ts
 /* ============= THRIFT ENUMS ================= */
@@ -443,10 +448,20 @@ declare namespace CommonTxtTstr {
     export var HoldToDrag: string;
     export var Preview: string;
     export var NoResult: string;
+    export var XcWelcome: string;
+    export var Retry: string;
+    export var Overwrite: string;
+    export var LogoutWarn: string;
+    export var LeaveWarn: string;
 }
 
 declare namespace ExtTStr {
     export var XcCategory: string;
+    export var XcWelcome: string;
+    export var Retry: string;
+    export var Overwrite: string;
+    export var LogoutWarn: string;
+    export var LeaveWarn: string;
 }
 
 declare namespace IndexTStr {
@@ -485,6 +500,8 @@ declare namespace StatusMessageTStr {
     export var Canceling: string;
     export var CurrReplay: string;
     export var CompReplay: string;
+    export var SettingExtensions: string;
+    export var ImportTables: string;
 }
 
 declare namespace ExportTStr {
@@ -519,6 +536,7 @@ declare namespace TooltipTStr {
 
 declare namespace SuccessTStr{
     export var Copy: string;
+    export var Saved: string;
 }
 
 declare namespace MonitorTStr {
@@ -557,7 +575,8 @@ declare namespace ErrTStr {
     export var SelectOption: string;
     export var TooLong: string;
     export var Unknown: string;
-
+    export var RefreshBrowser: string;
+    export var RefreshBrowserDesc: string;
 }
 
 declare namespace ErrWRepTStr {
@@ -593,9 +612,17 @@ declare namespace AlertTStr {
     export var CLOSE: string;
     export var ErrorMsg: string;
     export var CONFIRM: string;
+    export var UnsupportedBrowser: string;
+    export var BrowserVersions: string;
+    export var UnexpectInit: string;
+    export var UnexpectInitMsg: string;
+    export var Error: string;
 }
 
 declare namespace ThriftTStr {
+    export var SessionElsewhere: string;
+    export var LogInDifferent: string;
+    export var UpdateErr: string;
     export var Update: string;
     export var CCNBE: string;
     export var CCNBEErr: string;
@@ -669,6 +696,20 @@ declare namespace WKBKTStr {
     export var CancelTitle: string;
     export var CancelMsg: string;
     export var WkbkNameRequired: string;
+    export var Location: string;
+    export var NoOldWKBK:string;
+    export var NoOldWKBKInstr: string;
+    export var NoOldWKBKMsg: string;
+    export var NewWKBK: string;
+}
+
+declare namespace DemoTStr {
+    export var title: string;
+}
+
+declare namespace NewUserTStr {
+    export var msg:string;
+    export var openGuide:string;
 }
 
 declare namespace TblTStr {
@@ -705,7 +746,6 @@ declare namespace TimeTStr {
 // }
 
 /* ============== CLASSES ====================== */
-
 declare class ColFunc {
     public name: string;
     public args: any[];
@@ -735,6 +775,7 @@ declare class TableMeta {
     public tableName: string;
     public tableCols: ProgCol[];
     public backTableMeta: any;
+    public status: string;
     public highlightedCells: object;
     public getAllCols(onlyValid?: boolean): ProgCol[]
     public getCol(colNum: number): ProgCol;
@@ -748,6 +789,10 @@ declare class TableMeta {
     public getColNumByBackName(name: string): number;
     public getName(): string;
     public hasLock(): boolean;
+    public isActive(): boolean;
+    public getId(): string;
+    public beOrphaned(): void;
+    public getName(): string;
 }
 
 declare class XcStorage {
@@ -872,14 +917,6 @@ declare class XcLog {
     public cli: string;
 }
 /* ============== NAMESPACE ====================== */
-declare namespace xcManager {
-    export function removeUnloadPrompt(markUser: boolean): void;
-    export function setup(): XDPromise<void>;
-    export function unload();
-    export function isStatusFail(): boolean;
-    export function isInSetup(): boolean;
-}
-
 declare namespace UserSettings {
     export function getPref(prop: string): any;
     export function commit(): XDPromise<void>;
@@ -896,9 +933,11 @@ declare namespace ColManager {
 }
 
 declare namespace Admin {
+    export function initialize(): void;
     export function showSupport();
     export function updateLoggedInUsers(userInfos: object): void;
     export function isAdmin(): boolean;
+    export function addNewUser(): void;
 }
 
 declare namespace PromiseHelper {
@@ -925,10 +964,13 @@ declare namespace Log {
     export function backup(): void;
     export function add(title: string, options: object | null, cli: string, willCommit: boolean): void;
     export function getCursor(): number;
-    export function errorLog(title: string, sql: object, cli: string, error: any);
+    export function errorLog(title: string, sql: object, cli: string, error: string | object);
+    export function commitErrors(): void;
+    export function repeat(): void;
 }
 
 declare namespace SupTicketModal {
+    export function setup(): void;
     export function show(): void;
 }
 
@@ -948,6 +990,9 @@ declare namespace TblFunc {
     export function moveTableTitles($tableWraps: JQuery | null, options: object): void;
     export function unhideOffScreenTables(): void;
     export function hideOffScreenTables(): void;
+    export function moveTableDropdownBoxes(): void;
+    export function moveFirstColumn($targetTable?: JQuery, noScrollBar?: boolean): void;
+    export function isTableScrollable(tableId): boolean;
 }
 
 declare namespace TableList {
@@ -971,9 +1016,14 @@ declare namespace TblManager {
     export function findAndFocusTable(tableName: string, noAnimate?: boolean): XDPromise<any>;
     export function freeAllResultSetsSync(): XDPromise<void>;
     export function highlightColumn($match: JQuery): void;
+    export function freeAllResultSets(): void;
+    export function parallelConstruct(tableId: string, tableToReplace: string, options: object): XDPromise<void>;
+    export function setOrphanedList(tableMap: any): void;
+    export function adjustRowFetchQuantity(): void;
 }
 
 declare namespace TblMenu{
+    export function setup(): void;
     export function showDagAndTableOptions($menu: JQuery, tableId: string | number): void;
     export function updateExitOptions(id: string, name?: string): void;
 }
@@ -989,6 +1039,7 @@ declare namespace Aggregates {
 }
 
 declare namespace MainMenu {
+    export function setup(): void;
     export function getOffset(): number;
     export function openPanel(panelId: string, subTabId: string, options?: object): void;
     export function tempNoAnim(): void;
@@ -1002,11 +1053,16 @@ declare namespace MainMenu {
 }
 
 declare namespace BottomMenu {
+    export function setup(): void;
+    export function initialize(): void;
     export function unsetMenuCache(): void;
     export function close(something: boolean): void;
 }
 
 declare namespace WSManager {
+    export function setup(): void;
+    export function initialize(): void;
+    export function showDatasetHint(): void;
     export function lockTable(tableId: TableId): void;
     export function unlockTable(tableId: TableId): void;
     export function getWSFromTable(tableId: TableId): string;
@@ -1023,6 +1079,10 @@ declare namespace WSManager {
     export function focusOnWorksheet(ws?: string, something?: boolean): void;
     export function addWS(wsId: string, wsName: string, wsIndex?: number): string;
     export function getAllMeta(): WSMETA;
+    export function removeTable(tableId: string): void;
+    export function dropUndoneTables(): XDPromise<void>;
+    export function getWSById(worksheetId: string): object;
+    export function getHiddenWSList(): string[];
 }
 
 declare namespace Dag {
@@ -1038,8 +1098,10 @@ declare namespace Dag {
 }
 
 declare namespace DagPanel {
+    export function setup(): void;
     export function adjustScrollBarPositionAndSize(): void;
     export function updateExitMenu(name?: string): void;
+    export function setScrollBarId(winHeight: number): void;
 }
 
 declare namespace DagEdit {
@@ -1048,7 +1110,20 @@ declare namespace DagEdit {
 }
 
 declare namespace DataflowPanel {
+    export function setup(): void;
+    export function initialize(): void;
     export function refresh(dfName: string): void;
+}
+
+declare namespace DataStore {
+    export function setup(): void;
+}
+
+declare namespace xcMenu {
+    export function add($menu: JQuery): void
+    export function removeKeyboardNavigation(): void;
+    export function close($menu?: JQuery): void;
+    export function addKeyboardNavigation($menu: JQuery, $subMenu: JQuery, options: object): void;
 }
 
 declare namespace DS {
@@ -1071,9 +1146,11 @@ declare namespace DSCart {
     export function restore(oldMeat: object): void;
     export function queryDone(id: number, isCancel?: boolean): void;
     export function addQuery(XcQuery);
+    export function resize(): void;
 }
 
 declare namespace Profile {
+    export function setup(): void;
     export function restore(oldMeat: object): void;
     export function copy(tableId: TableId, newTableId: TableId): void;
 }
@@ -1094,16 +1171,19 @@ declare namespace DFCard {
 }
 
 declare namespace JupyterUDFModal {
+    export function setup(): void;
     export function show(type: string): void;
 }
 
 declare namespace JupyterPanel {
+    export function setup(): void;
     export function appendStub(stubName: string, args?: object): void;
     export function newWorkbook(workbookName: string): XDPromise<string>;
     export function renameWorkbook(jupyterFolder: string, newName: string): XDPromise<string>;
     export function deleteWorkbook(workbookId: string): void;
     export function updateFolderName(newFoldername: string): void;
     export function copyWorkbook(oldJupyterFolder: string, newJupyterFolder: string): void;
+    export function initialize(noRestore?: boolean): void;
 }
 
 declare namespace UDF {
@@ -1127,10 +1207,12 @@ declare namespace SQLApi {
 }
 
 declare namespace DeleteTableModal {
-    export function show();
+    export function setup(): void;
+    export function show(): void;
 }
 
 declare namespace MonitorPanel {
+    export function setup(): void;
     export function inActive(): void;
     export function active(): void;
     export function isGraphActive(): boolean;
@@ -1198,4 +1280,156 @@ declare namespace DagFunction {
     }
 
     export function construct(nodes: XcalarApiDagNodeT[], tableId?: string): LineageStruct;
+}
+
+declare namespace TutorialsSetup {
+    export function setup(): void;
+}
+
+declare namespace xcMixpanel {
+    export function setup(): void;
+}
+
+declare namespace DSTargetManager {
+    export function refreshTargets(noWaitIcon: boolean): object[];
+}
+
+declare namespace JSONModal {
+    export function setup(): void;
+}
+
+declare namespace ExportView {
+    export function setup(): void;
+}
+
+declare namespace JoinView {
+    export function setup(): void;
+    export function restore(): void;
+}
+
+declare namespace UnionView {
+    export function setup(): void;
+}
+
+declare namespace AggModal {
+    export function setup(): void;
+}
+
+declare namespace OperationsView {
+    export function setup(): void;
+    export function restore(): void;
+}
+
+declare namespace DFCreateView {
+    export function setup(): void;
+}
+
+declare namespace ProjectView {
+    export function setup(): void;
+}
+
+declare namespace DFParamModal {
+    export function setup(): void;
+}
+
+declare namespace SmartCastView {
+    export function setup(): void;
+}
+
+declare namespace SortView {
+    export function setup(): void;
+}
+
+declare namespace FileBrowser {
+    export function restore(): void;
+}
+
+declare namespace ExtensionManager {
+    export function setup(): XDPromise<void>;
+}
+
+declare namespace ExtensionPanel {
+    export function setup(): void;
+}
+
+declare namespace ExtModal {
+    export function setup(): void;
+}
+declare namespace LicenseModal {
+    export function setup(): void;
+}
+
+declare namespace AboutModal {
+    export function setup(): void;
+    export function show(): void;
+}
+
+declare namespace FileInfoModal {
+    export function setup(): void;
+}
+
+declare namespace DSInfoModal {
+    export function setup(): void;
+}
+
+declare namespace SkewInfoModal {
+    export function setup(): void;
+}
+
+declare namespace LoginConfigModal {
+    export function setup(): void;
+}
+
+declare namespace LiveHelpModal {
+    export function setup(): void;
+    export function show(): void;
+    export function userLeft(): void;
+}
+
+declare namespace JupyterFinalizeModal {
+    export function setup(): void;
+}
+
+declare namespace DFCommentModal {
+    export function setup(): void;
+}
+
+declare namespace FileListModal {
+    export function setup(): void;
+}
+
+declare namespace DSImportErrorModal {
+    export function setup(): void;
+}
+
+declare namespace RowScroller {
+    export function setup(): void;
+    export function resize(): void;
+    export function genFirstVisibleRowNum(): void;
+    export function getLastVisibleRowNum(tableId: string): number;
+}
+
+declare namespace FnBar {
+    export function setup(): void;
+    export function clear(): void;
+}
+
+declare namespace MonitorLog {
+    export function adjustTabNumber(): void;
+}
+
+declare namespace SQLEditor {
+    export function initialize(): void;
+    export function storeQuery(): void;
+}
+
+declare namespace Msal {
+    export class UserAgentApplication {
+        public constructor(clientID: string, authority: any, authCallback: Function, options: object);
+        public getUser(): string;
+        public logout(): void;
+    }
+    export class Logger{
+        public constructor(callback: Function, options: object);
+    }
 }

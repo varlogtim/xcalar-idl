@@ -359,6 +359,11 @@ enum UnionTypeTStr {
     "Intersect",
     "Except"
 }
+enum SetupStatus {
+    Success = "Success",
+    Fail = "Fail",
+    Setup = "Setup"
+}
 
 if (typeof global !== 'undefined') {
     global.RowDirection = RowDirection;
@@ -390,4 +395,5 @@ if (typeof global !== 'undefined') {
     global.ConcurrencyEnum = ConcurrencyEnum;
     global.JoinCompoundOperator = JoinCompoundOperator;
     global.JoinCompoundOperatorTStr = JoinCompoundOperatorTStr;
+    global.SetupStatus = SetupStatus;
 }
