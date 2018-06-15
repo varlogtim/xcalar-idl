@@ -421,6 +421,9 @@ window.FileBrowser = (function($, FileBrowser) {
         $infoContainer.on("click", ".pickedFileList li span", function() {
             var filePath = $(this).parent().attr("data-fullpath");
             if (filePath) {
+                if (filePath.endsWith("/")) {
+                    filePath = filePath.substring(0, filePath.length - 1);
+                }
                 filePath = filePath.substring(0, filePath.lastIndexOf("/") + 1);
                 displayFiles(filePath);
             }
@@ -2219,6 +2222,10 @@ window.FileBrowser = (function($, FileBrowser) {
         }
     }
 
+    function getFullPath(path, isFolder) {
+        return isFolder ? path + '/' : path;
+    }
+
     function createListElement($grid, preChecked) {
         // e.g. path can be "/netstore" and name can be "/datasets/test.txt"
         var curDir = getCurrentPath();
@@ -2232,16 +2239,18 @@ window.FileBrowser = (function($, FileBrowser) {
             var isFolder = file.attr.isDirectory;
             var fileType = isFolder ? "Folder" : xcHelper.getFormat(name);
             var ckBoxClass = isFolder ? "xi-ckbox-empty" : "xi-ckbox-empty xc-disabled";
+            var fullPath = getFullPath(escDir + escName, isFolder);
+            var displayPath = getFullPath(curDir + name, isFolder);
             if (preChecked) {
                 ckBoxClass = "xi-ckbox-selected";
             }
 
             return '<li data-name="' + escName + '"' +
-                   ' data-fullpath="' + escDir + escName + '"' +
+                   ' data-fullpath="' + fullPath + '"' +
                    ' data-type="' + fileType + '">' +
                         '<i class="icon xi-close close"></i>' +
                         '<i class="icon ' + ckBoxClass + '"></i>' +
-                        '<span>' + curDir + name + '</span>' +
+                        '<span>' + displayPath + '</span>' +
                     '</li>';
         } else {
             // For the case where we add input box for regex
@@ -2263,15 +2272,18 @@ window.FileBrowser = (function($, FileBrowser) {
         } else if (!$grid || $grid.length === 0) {
             // Multiple files
             $innerContainer.find(".grid-unit.selected").each(function() {
-                var name = getGridUnitName($(this));
+                var $ele = $(this);
+                var name = getGridUnitName($ele);
                 var escName = xcHelper.escapeDblQuote(name);
+                var isFolder = $ele.hasClass("folder");
+                var fullpath = getFullPath(escPath + escName, isFolder);
                 if (options && options.isRemove) {
-                    $pickedFileList.find('li[data-fullpath="' + escPath + escName +
+                    $pickedFileList.find('li[data-fullpath="' + fullpath +
                                      '"]').remove();
-                } else if ($pickedFileList.find('li[data-fullpath="' + escPath +
-                                         escName + '"]').length === 0) {
+                } else if ($pickedFileList.find('li[data-fullpath="' +
+                            fullpath + '"]').length === 0) {
                     // If it doesn't exist, append the file
-                    var html = createListElement($(this));
+                    var html = createListElement($ele);
                     var $span = $(html).appendTo($pickedFileList).find("span");
                     refreshFileListEllipsis($span);
                 }
@@ -2280,11 +2292,13 @@ window.FileBrowser = (function($, FileBrowser) {
             // Single file
             var name = getGridUnitName($grid);
             var escName = xcHelper.escapeDblQuote(name);
+            var isFolder = $grid.hasClass("folder");
+            var fullpath = getFullPath(escPath + escName, isFolder);
             if (options && options.isRemove) {
-                $pickedFileList.find('li[data-fullpath="' + escPath + escName +
+                $pickedFileList.find('li[data-fullpath="' + fullpath +
                                      '"]').remove();
-            } else if ($pickedFileList.find('li[data-fullpath="' + escPath +
-                                            escName + '"]').length === 0) {
+            } else if ($pickedFileList.find('li[data-fullpath="' + fullpath +
+                                    '"]').length === 0) {
                 // If it doesn't exist, append the file
                 var html = createListElement($grid);
                 var $span = $(html).appendTo($pickedFileList).find("span");
@@ -2381,7 +2395,9 @@ window.FileBrowser = (function($, FileBrowser) {
         for (var i = 0; i < files.length; i++) {
             var name = files[i].name;
             var escName = xcHelper.escapeDblQuote(name);
-            if ($pickedFileList.find('li[data-fullpath="' + escPath + escName +
+            var isFolder = files[i].attr.isDirectory;
+            var fullPath = getFullPath(escPath + escName, isFolder);
+            if ($pickedFileList.find('li[data-fullpath="' + fullPath +
                                  '"]').length > 0) {
                 files[i].isPicked = true;
             }
