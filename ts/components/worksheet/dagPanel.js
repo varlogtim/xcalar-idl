@@ -1227,24 +1227,21 @@ window.DagPanel = (function($, DagPanel) {
 
             switch (action) {
                 case ("editOp"):
-                    allDagInfo = $dagWrap.data("allDagInfo");
-                    node = allDagInfo.nodeIdMap[nodeId];
-
+                    node = Dag.getNodeById($dagWrap, nodeId);
                     if (!$dagWrap.hasClass("editMode")) {
                         $dagWrap.find(".startEdit").click();
                     }
                     DagEdit.editOp(node);
                     break;
                 case ("undoEdit"):
-                    allDagInfo = $dagWrap.data("allDagInfo");
-                    node = allDagInfo.nodeIdMap[nodeId];
+                    node = Dag.getNodeById($dagWrap, nodeId);
                     DagEdit.undoEdit(node);
                     break;
                 case ("exitEdit"):
                     DagEdit.off();
                     break;
                 case ("commentOp"):
-                    DFCommentModal.show($menu.data("opIcon"), nodeId);
+                    DFCommentModal.show($menu.data("opIcon"));
                     break;
                 case ("expandTag"):
                 case ("collapseTag"):

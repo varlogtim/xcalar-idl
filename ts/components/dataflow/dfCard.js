@@ -580,17 +580,28 @@ window.DFCard = (function($, DFCard) {
                     .addClass('noDropdown');
         }
 
-        $dagArea.on('click', selector, function() {
+        $dagArea.on('click', selector, function(event) {
             $('.menu').hide();
             xcMenu.removeKeyboardNavigation();
             $('.leftColMenu').removeClass('leftColMenu');
             $currentIcon = $(this);
+            if ($(event.target).closest(".commentIcon").length) {
+                return;
+            }
 
             $menu.find("li").hide();
             var $queryLi = $menu.find(".createParamQuery");
 
             if (XVM.getLicenseMode() !== XcalarMode.Mod) {
                 $queryLi.show();
+            }
+            if ($currentIcon.hasClass("operationTypeWrap")) {
+                $menu.find(".commentOp").show();
+                if ($currentIcon.hasClass("hasComment")) {
+                    $menu.find(".commentOp").text(DFTStr.EditComment);
+                } else {
+                    $menu.find(".commentOp").text(DFTStr.NewComment);
+                }
             }
 
             // If node is not export, hide showExportCols option
@@ -655,6 +666,8 @@ window.DFCard = (function($, DFCard) {
                 case ("newTabImage"):
                     DagPanel.newTabImageAction($dagWrap);
                     break;
+                case ("commentOp"):
+                    DFCommentModal.show($currentIcon, true);
                 default:
                     break;
             }

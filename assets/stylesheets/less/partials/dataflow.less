@@ -85,7 +85,7 @@
 
         .retTabSection {
             .position(relative, @top: 3px);
-            display: inline-block;
+            display: block;
             float: right;
 
             &.hidden {
@@ -99,7 +99,7 @@
             .retTab {
                 .position(relative);
                 .size(@width: 135px, @height: 30px);
-                display: inline-block;
+                display: block;
                 float: right;
                 margin-right: 8px;
 
@@ -671,9 +671,6 @@
                 // }
             }
             &.noDropdown {
-                cursor: initial;
-            }
-            .commentIcon {
                 cursor: initial;
             }
         }

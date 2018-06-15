@@ -3344,7 +3344,7 @@ XcalarGetRetinaJson = function(retName) {
 // replaced with "filter(<opera>(<colName>, <val>))"
 // val = \"hello\"
 // <argument> is used to denote a parameter
-XcalarUpdateRetina = function(retName, tableName, paramValues, txId) {
+XcalarUpdateRetina = function(retName, tableName, paramValues, comment, txId) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -3361,7 +3361,12 @@ XcalarUpdateRetina = function(retName, tableName, paramValues, txId) {
         for (var i = 0; i < queries.length; i++) {
             var args = queries[i].args;
             if (args.dest === tableName) {
-                queries[i].args = paramValues;
+                if (paramValues != null) {
+                    queries[i].args = paramValues;
+                }
+                if (comment != null) {
+                    queries[i].comment = comment;
+                }
                 break;
             }
         }
@@ -3376,8 +3381,6 @@ XcalarUpdateRetina = function(retName, tableName, paramValues, txId) {
 
     return deferred.promise();
 };
-
-
 
 // Don't call this for now. When bohan's change for 8137 is fixed, we will
 // no longer call updateRetina for export changes and instead switch to this

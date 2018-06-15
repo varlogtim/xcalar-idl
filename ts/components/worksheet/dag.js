@@ -1033,11 +1033,9 @@ window.Dag = (function($, Dag) {
         });
 
         $dagWrap.on("click", ".commentIcon", function() {
-            if (!$dagWrap.closest("#dagPanel").length) {
-                return;
-            }
+            var isBatchDF = $dagWrap.closest("#dfViz").length > 0;
             var $opIcon = $(this).closest(".operationTypeWrap");
-            DFCommentModal.show($opIcon, $opIcon.data("nodeid"));
+            DFCommentModal.show($opIcon, isBatchDF);
         });
 
         dagScrollListeners($dagWrap.find('.dagImageWrap'));

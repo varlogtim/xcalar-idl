@@ -494,6 +494,22 @@ window.DF = (function($, DF) {
         return hasNewParam;
     }
 
+    DF.comment= function(dfName, tableName, newComment, meta) {
+        var deferred = PromiseHelper.deferred();
+
+        var commentObj = {
+            userComment: newComment || "",
+            meta: meta || {}
+        };
+        XcalarUpdateRetina(dfName, tableName, null, JSON.stringify(commentObj))
+        .then(function() {
+            DF.commitAndBroadCast(dfName);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
+    };
+
     function getParametersHelper(value) {
         var paramMap = {};
         getParamHelper(value);

@@ -4,6 +4,8 @@ window.DFCommentModal = (function(DFCommentModal, $) {
     var modalHelper;
     var tableName;
     var curCommentObj;
+    var isBatchDF;
+    var $dagWrap;
 
     DFCommentModal.setup = function() {
         $modal = $("#dfCommentModal");
@@ -24,15 +26,16 @@ window.DFCommentModal = (function(DFCommentModal, $) {
         });
     };
 
-    DFCommentModal.show = function($opIcon, nodeId) {
+    DFCommentModal.show = function($opIcon, isBDF) {
         if ($modal.is(":visible")) {
             return;
         }
+        isBatchDF = isBDF;
 
         var title = $opIcon.find(".typeTitle").text();
         $modal.find(".modalHeader .text").text(title);
-        var $dagWrap = $opIcon.closest(".dagWrap");
-
+        $dagWrap = $opIcon.closest(".dagWrap");
+        var nodeId = $opIcon.data("nodeid");
         var node = Dag.getNodeById($dagWrap, nodeId);
         tableName = node.value.name;
         curCommentObj = xcHelper.deepCopy(node.value.comment);
@@ -69,42 +72,50 @@ window.DFCommentModal = (function(DFCommentModal, $) {
             StatusBox.show(errMsg, $textArea);
             return false;
         }
+        var tName = tableName; // store because tableName will be reset
+        var isBDF = isBatchDF;
         var commentObj = curCommentObj;
         commentObj.userComment = newComment;
-        var tName = tableName; // store because tableName will be reset
         closeModal();
 
-        DagFunction.commentDagNodes([tName], newComment, commentObj.meta)
+        var promise;
+        if (isBDF) {
+            var dfName = $dagWrap.data("dataflowname");
+            promise = DF.comment(dfName, tName, newComment, commentObj.meta);
+        } else {
+            promise = DagFunction.commentDagNodes([tName], newComment, commentObj.meta);
+        }
+
+        promise
         .then(function() {
-            var $dagPanel = $('#dagPanel');
-            var $dagTableTitles = $dagPanel.find('.tableTitle').filter(function() {
-                return ($(this).text() === tName);
-            });
-            if (newComment) {
-                // remove comment entirely to fix tooltip html rendering
-                $dagTableTitles.each(function() {
-                    var $dagTable = $(this).closest(".dagTable");
-                    var nodeId = $dagTable.data("nodeid");
-                    var $opIcon = $dagTable.closest(".dagTableWrap").find(".operationTypeWrap");
-                    var $dagWrap = $opIcon.closest(".dagWrap");
-                    var node = Dag.getNodeById($dagWrap, nodeId);
-
-                    $opIcon.find(".commentIcon").remove();
-                    Dag.updateComment($opIcon, commentObj, node);
-                });
+            var $dagTableTitles;
+            if (isBDF) {
+                $dagTableTitles = $dagWrap.find('.dagTable').filter(function() {
+                    return ($(this).data("tablename") === tName);
+                }).find(".tableTitle");
             } else {
-                $dagTableTitles.each(function() {
-                    var $dagTable = $(this).closest(".dagTable");
-                    var nodeId = $dagTable.data("nodeid");
-                    var $opIcon = $dagTable.closest(".dagTableWrap").find(".operationTypeWrap");
-                    $opIcon.removeClass("hasComment");
-                    $opIcon.find(".commentIcon").remove();
-                    var $dagWrap = $opIcon.closest(".dagWrap");
-                    var node = Dag.getNodeById($dagWrap, nodeId);
-
-                    node.value.comment = commentObj;
+                var $dagPanel = $('#dagPanel');
+                $dagTableTitles = $dagPanel.find('.tableTitle').filter(function() {
+                    return ($(this).text() === tName);
                 });
             }
+
+            // remove comment entirely to fix tooltip html rendering
+            $dagTableTitles.each(function() {
+                var $dagTable = $(this).closest(".dagTable");
+                var nodeId = $dagTable.data("nodeid");
+                var $opIcon = $dagTable.closest(".dagTableWrap").find(".operationTypeWrap");
+                var $dagWrap = $opIcon.closest(".dagWrap");
+                var node = Dag.getNodeById($dagWrap, nodeId);
+                $opIcon.find(".commentIcon").remove();
+
+                if (newComment) {
+                    Dag.updateComment($opIcon, commentObj, node);
+                } else {
+                    $opIcon.removeClass("hasComment");
+                    node.value.comment = commentObj;
+                }
+            });
         })
         .fail(function(err) {
             console.log(err);
