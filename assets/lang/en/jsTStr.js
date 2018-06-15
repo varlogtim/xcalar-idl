@@ -571,7 +571,7 @@ SuccessTStr = {
     "Saved": "Saved!",
     "SaveDF": "Dataflow Saved!",
     "SaveParam": "Parameters Saved!",
-    "OperationParameterized": "Operation Parameterized!",
+    "OperationParameterized": "Operation Saved!",
     "ChangesSaved": "Changes Saved!",
     "SaveSettings": "Settings Saved!",
     "Sched": "Schedule Added!",
@@ -1086,8 +1086,8 @@ DFTStr = {
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
     'CancelAlertMsg': 'Batch dataflow \'<name>\' was canceled.',
-    "ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized."
-
+    "ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized.",
+    "CustomizeTitle": "Customize <op> Operation"
 };
 
 DSTStr = {

@@ -239,12 +239,14 @@ window.DFParamModal = (function($, DFParamModal){
                                  DFTStr.ParamBasicNotAllowed);
         }
 
+        var modalTitle;
         if (type === "dataStore") {
-            $modal.find(".modalHeader .text").text("Parameterize Dataset Operation");
+            modalTitle = xcHelper.replaceMsg(DFTStr.CustomizeTitle, {op: "Dataset"});
         } else {
-            $modal.find(".modalHeader .text").text("Parameterize " +
-                                    xcHelper.camelCaseToRegular(type) + " Operation");
+            modalTitle = xcHelper.replaceMsg(DFTStr.CustomizeTitle, {
+                                op: xcHelper.camelCaseToRegular(type)});
         }
+        $modal.find(".modalHeader .text").text(modalTitle);
 
         if (type === "dataStore" || type === "export") {
             $modal.height(630);
@@ -1412,13 +1414,7 @@ window.DFParamModal = (function($, DFParamModal){
             // show success message??
             DF.commitAndBroadCast(dfName);
             hasChange = false;
-            var successMsg;
-            if (params.length) {
-                successMsg = SuccessTStr.OperationParameterized;
-            } else {
-                successMsg = SuccessTStr.ChangesSaved;
-            }
-            xcHelper.showSuccess(successMsg);
+            xcHelper.showSuccess(SuccessTStr.ChangesSaved);
             deferred.resolve();
         })
         .fail(function(error) {

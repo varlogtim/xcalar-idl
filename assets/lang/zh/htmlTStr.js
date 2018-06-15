@@ -19,7 +19,7 @@ module.exports = {
         "ComplementTable": "创建补集表",
         "CopyTbl": "复制表格名",
         "CreateDF": "创建批量数据流",
-        "CreateParamQuery": "创建参数化操作",
+        "CreateParamQuery": "Customize operation",
         "CreateTarget": "新建导出目标",
         "Del": "删除",
         "DelCol": "删除列",
@@ -415,7 +415,7 @@ module.exports = {
         "param": "参数",
         "query": "初始操作",
         "systemParamList": "系统参数表",
-        "title": "参数化操作",
+        "title": "Customize Operation",
         "val": "值"
     },
     "ds": {

@@ -178,7 +178,7 @@ module.exports = {
         "CPCell": "Copy to clipboard",
         "CPColNames": "Copy column names",
         "CreateDF": "Create batch dataflow",
-        "CreateParamQuery": "Create parameterized operation",
+        "CreateParamQuery": "Customize operation",
         "CreateTarget": "Create new target",
         "Del": "Delete",
         "DelCol": "Delete column",
@@ -1037,7 +1037,7 @@ module.exports = {
     },
 
     "dfParam": {
-        "title": "Parameterize Operation",
+        "title": "Customize Operation",
         "instr": "To convert this operation into a parameterized operation, please click the New Parameter button, provide a name, and drag and drop the parameter into its appropriate place.",
         "query": "Original Operation",
         "currParamList": "Current Parameter List",

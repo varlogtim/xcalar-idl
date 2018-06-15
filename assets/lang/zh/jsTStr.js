@@ -849,8 +849,8 @@ DFTStr = {
 // with replace
 "EditOpDirectly": "Please edit the <op> operation directly",
 "CancelAlertMsg": "Batch dataflow \'<name>\' was canceled.",
-"ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized."
-
+"ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized.",
+"CustomizeTitle": "Customize <op> Operation"
 
 };
 DSTStr = {
