@@ -1,13 +1,17 @@
-window.Compatible = (function($, Compatible) {
-    window.isBrowserMicrosoft = false;
-    window.isBrowserEdge = false;
-    window.isBrowserIE = false;
-    window.isBrowserChrome = false;
-    window.isBrowserFirefox = false;
-    window.isBrowserSafari = false;
-    window.isSystemMac = false;
+namespace Compatible {
+    window["isBrowserMicrosoft"] = false;
+    window["isBrowserEdge"] = false;
+    window["isBrowserIE"] = false;
+    window["isBrowserChrome"] = false;
+    window["isBrowserFirefox"] = false;
+    window["isBrowserSafari"] = false;
+    window["isSystemMac"] = false;
 
-    Compatible.check = function() {
+    /**
+     * Compatible.check
+     * checks all compatibility
+     */
+    export function check(): void {
         stringCheck();
         browserCheck();
         systemCheck();
@@ -15,13 +19,13 @@ window.Compatible = (function($, Compatible) {
         extraCheck();
     };
 
-    function stringCheck() {
+    function stringCheck(): void {
         // XXX(Always Open) check if those functions are already
         // supported by all browsers frequently
 
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/startsWith
         if (!String.prototype.startsWith) {
-            String.prototype.startsWith = function(searchString, position) {
+            String.prototype.startsWith = function(searchString: string, position: number): boolean {
                 position = position || 0;
                 return this.indexOf(searchString, position) === position;
             };
@@ -29,41 +33,41 @@ window.Compatible = (function($, Compatible) {
 
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith
         if (!String.prototype.endsWith) {
-            String.prototype.endsWith = function(searchString, position) {
-                var subjectString = this.toString();
+            String.prototype.endsWith = function(searchString: string, position: number): boolean {
+                var subjectString: string = this.toString();
                 if (position === undefined || position > subjectString.length) {
                     position = subjectString.length;
                 }
                 position -= searchString.length;
-                var lastIndex = subjectString.indexOf(searchString, position);
+                var lastIndex: number = subjectString.indexOf(searchString, position);
                 return lastIndex !== -1 && lastIndex === position;
             };
         }
 
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes
         if (!String.prototype.includes) {
-            String.prototype.includes = function() {'use strict';
+            String.prototype.includes = function(): boolean {'use strict';
                 return String.prototype.indexOf.apply(this, arguments) !== -1;
             };
         }
 
         // custom
         if (!String.prototype.trimLeft) {
-            String.prototype.trimLeft = function () {
+            String.prototype.trimLeft = function (): string {
                 return String(this).replace(/^\s+/, '');
             };
         }
 
         // custom
         if (!String.prototype.trimRight) {
-            String.prototype.trimRight = function() {
+            String.prototype.trimRight = function(): string {
                 return String(this).replace(/\s+$/, '');
             };
         }
 
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/isInteger
-        if (!Number.prototype.isInteger) {
-            Number.isInteger = function(value) {
+        if (!Number.prototype["isInteger"]) {
+            Number.isInteger = function(value: any): boolean {
                 return (typeof value === "number" &&
                         isFinite(value) &&
                         Math.floor(value) === value);
@@ -76,8 +80,8 @@ window.Compatible = (function($, Compatible) {
                 enumerable: false,
                 writable: false,
                 configurable: false,
-                value: function(callback, thisArg) {
-                    var T, A, k;
+                value: function(callback: Function, thisArg: any) {
+                    var T: any, A: any[], k: number;
 
                     if (this == null) {
                         throw (' this is null or not defined');
@@ -85,12 +89,12 @@ window.Compatible = (function($, Compatible) {
 
                     // 1. Let O be the result of calling ToObject passing the |this|
                     //    value as the argument.
-                    var O = Object(this);
+                    var O: object = Object(this);
 
                     // 2. Let lenValue be the result of calling the Get internal
                     //    method of O with the argument "length".
                     // 3. Let len be ToUint32(lenValue).
-                    var len = O.length >>> 0;
+                    var len: number = O["length"] >>> 0;
 
                     // 4. If IsCallable(callback) is false, throw a TypeError exception.
                     // See: http://es5.github.com/#x9.11
@@ -113,7 +117,7 @@ window.Compatible = (function($, Compatible) {
 
                     // 8. Repeat, while k < len
                     while (k < len) {
-                        var kValue, mappedValue;
+                        var kValue: any, mappedValue: any;
 
                         // a. Let Pk be ToString(k).
                         //   This is implicit for LHS operands of the in operator
@@ -165,34 +169,34 @@ window.Compatible = (function($, Compatible) {
                 enumerable: false,
                 writable: false,
                 configurable: false,
-                value: function(value) {
+                value: function(value: any): object {
 
                     // Steps 1-2.
                     if (this == null) {
                         throw new TypeError('this is null or not defined');
                     }
 
-                    var O = Object(this);
+                    var O: object = Object(this);
 
                     // Steps 3-5.
-                    var len = O.length >>> 0;
+                    var len: number = O["length"] >>> 0;
 
                     // Steps 6-7.
-                    var start = arguments[1];
-                    var relativeStart = start >> 0;
+                    var start: number = arguments[1];
+                    var relativeStart: number = start >> 0;
 
                     // Step 8.
-                    var k = relativeStart < 0 ?
+                    var k: number = relativeStart < 0 ?
                     Math.max(len + relativeStart, 0) :
                     Math.min(relativeStart, len);
 
                     // Steps 9-10.
-                    var end = arguments[2];
-                    var relativeEnd = end === undefined ?
+                    var end: number = arguments[2];
+                    var relativeEnd: number = end === undefined ?
                     len : end >> 0;
 
                     // Step 11.
-                    var final = relativeEnd < 0 ?
+                    var final: number = relativeEnd < 0 ?
                     Math.max(len + relativeEnd, 0) :
                     Math.min(relativeEnd, len);
 
@@ -213,26 +217,26 @@ window.Compatible = (function($, Compatible) {
                 enumerable: false,
                 writable: false,
                 configurable: false,
-                value: function(searchElement) {
+                value: function(searchElement: any): boolean {
                     'use strict';
                     if (this == null) {
                         throw ('Array.prototype.includes called on null or undefined');
                     }
 
-                    var O = Object(this);
-                    var len = parseInt(O.length, 10) || 0;
+                    var O: object = Object(this);
+                    var len = parseInt(O["length"], 10) || 0;
                     if (len === 0) {
                         return false;
                     }
-                    var n = parseInt(arguments[1], 10) || 0;
-                    var k;
+                    var n: number = parseInt(arguments[1], 10) || 0;
+                    var k: number;
                     if (n >= 0) {
                         k = n;
                     } else {
                         k = len + n;
                         if (k < 0) {k = 0;}
                     }
-                    var currentElement;
+                    var currentElement: any;
                     while (k < len) {
                         currentElement = O[k];
                         if (searchElement === currentElement ||
@@ -247,30 +251,30 @@ window.Compatible = (function($, Compatible) {
         }
 
         if (!Array.from) {
-            Array.from = (function () {
-                var toStr = Object.prototype.toString;
-                var isCallable = function (fn) {
+            Array.from = (function (): any {
+                var toStr: Function = Object.prototype.toString;
+                var isCallable: Function = function (fn: Function): boolean {
                     return typeof fn === 'function' || toStr.call(fn) === '[object Function]';
                 };
-                var toInteger = function (value) {
-                    var number = Number(value);
+                var toInteger: Function = function (value: any): number {
+                    var number: number = Number(value);
                     if (isNaN(number)) { return 0; }
                     if (number === 0 || !isFinite(number)) { return number; }
                     return (number > 0 ? 1 : -1) * Math.floor(Math.abs(number));
                 };
-                var maxSafeInteger = Math.pow(2, 53) - 1;
-                var toLength = function (value) {
-                    var len = toInteger(value);
+                var maxSafeInteger: number = Math.pow(2, 53) - 1;
+                var toLength: Function = function (value: any): number {
+                    var len: number = toInteger(value);
                     return Math.min(Math.max(len, 0), maxSafeInteger);
                 };
 
                 // The length property of the from method is 1.
-                return function from(arrayLike/*, mapFn, thisArg */) {
+                return function from(arrayLike: any/*, mapFn, thisArg */) {
                     // 1. Let C be the this value.
-                    var C = this;
+                    var C: any = this;
 
                     // 2. Let items be ToObject(arrayLike).
-                    var items = Object(arrayLike);
+                    var items: object = Object(arrayLike);
 
                     // 3. ReturnIfAbrupt(items).
                     if (arrayLike == null) {
@@ -278,8 +282,8 @@ window.Compatible = (function($, Compatible) {
                     }
 
                     // 4. If mapfn is undefined, then let mapping be false.
-                    var mapFn = arguments.length > 1 ? arguments[1] : void undefined;
-                    var T;
+                    var mapFn: Function = arguments.length > 1 ? arguments[1] : void undefined;
+                    var T: any;
                     if (typeof mapFn !== 'undefined') {
                         // 5. else
                         // 5. a If IsCallable(mapfn) is false, throw a TypeError exception.
@@ -295,18 +299,18 @@ window.Compatible = (function($, Compatible) {
 
                     // 10. Let lenValue be Get(items, "length").
                     // 11. Let len be ToLength(lenValue).
-                    var len = toLength(items.length);
+                    var len: number = toLength(items["length"]);
 
-                    // 13. If IsConstructor(C) is true, then
+                // 13. If IsConstructor(C) is true, then
                     // 13. a. Let A be the result of calling the [[Construct]] internal method
                     // of C with an argument list containing the single item len.
                     // 14. a. Else, Let A be ArrayCreate(len).
-                    var A = isCallable(C) ? Object(new C(len)) : new Array(len);
+                    var A: object[] = isCallable(C) ? Object(new C(len)) : new Array(len);
 
                     // 16. Let k be 0.
-                    var k = 0;
+                    var k: number = 0;
                     // 17. Repeat, while k < len… (also steps a - h)
-                    var kValue;
+                    var kValue: any;
                     while (k < len) {
                         kValue = items[k];
                         if (mapFn) {
@@ -327,16 +331,16 @@ window.Compatible = (function($, Compatible) {
         // https://tc39.github.io/ecma262/#sec-array.prototype.find
         if (!Array.prototype.find) {
             Object.defineProperty(Array.prototype, 'find', {
-                value: function(predicate) {
+                value: function(predicate: Function): any {
                     // 1. Let O be ? ToObject(this value).
                     if (this == null) {
                         throw new TypeError('"this" is null or not defined');
                     }
 
-                    var o = Object(this);
+                    var o: object = Object(this);
 
                     // 2. Let len be ? ToLength(? Get(O, "length")).
-                    var len = o.length >>> 0;
+                    var len = o["length"] >>> 0;
 
                     // 3. If IsCallable(predicate) is false, throw a TypeError exception.
                     if (typeof predicate !== 'function') {
@@ -344,10 +348,10 @@ window.Compatible = (function($, Compatible) {
                     }
 
                     // 4. If thisArg was supplied, let T be thisArg; else let T be undefined.
-                    var thisArg = arguments[1];
+                    var thisArg: any = arguments[1];
 
                     // 5. Let k be 0.
-                    var k = 0;
+                    var k: number = 0;
 
                     // 6. Repeat, while k < len
                     while (k < len) {
@@ -355,7 +359,7 @@ window.Compatible = (function($, Compatible) {
                         // b. Let kValue be ? Get(O, Pk).
                         // c. Let testResult be ToBoolean(? Call(predicate, T, « kValue, k, O »)).
                         // d. If testResult is true, return kValue.
-                        var kValue = o[k];
+                        var kValue: any = o[k];
                         if (predicate.call(thisArg, kValue, k, o)) {
                             return kValue;
                         }
@@ -374,12 +378,12 @@ window.Compatible = (function($, Compatible) {
                 enumerable: false,
                 writable: false,
                 configurable: false,
-                value: function(count) {
+                value: function(count: number): string {
                     'use strict';
                     if (this == null) {
                         throw ('can\'t convert ' + this + ' to object');
                     }
-                    var str = '' + this;
+                    var str: string = '' + this;
                     count = +count;
                     if (count !== count) {
                         count = 0;
@@ -400,7 +404,7 @@ window.Compatible = (function($, Compatible) {
                     if (str.length * count >= 1 << 28) {
                         throw ('repeat count must not overflow maximum string size');
                     }
-                    var rpt = '';
+                    var rpt: string = '';
                     for (;;) {
                         if ((count & 1) === 1) {
                             rpt += str;
@@ -419,66 +423,66 @@ window.Compatible = (function($, Compatible) {
         }
     }
 
-    function browserCheck() {
+    function browserCheck(): void {
         var userAgent = navigator.userAgent;
         if (/MSIE 10/i.test(userAgent)) {
            // this is internet explorer 10
-            window.isBrowserMicrosoft = true;
-            window.isBrowserIE = true;
+            window["isBrowserMicrosoft"] = true;
+            window["isBrowserIE"] = true;
         }
 
         if (/MSIE 9/i.test(userAgent) || /rv:11.0/i.test(userAgent)) {
             // this is internet explorer 9 and 11
-            window.isBrowserMicrosoft = true;
-            window.isBrowserIE = true;
+            window["isBrowserMicrosoft"] = true;
+            window["isBrowserIE"] = true;
         }
 
         if (/Edge/i.test(userAgent)) {
            // this is Microsoft Edge
-            window.isBrowserMicrosoft = true;
-            window.isBrowserEdge = true;
+            window["isBrowserMicrosoft"] = true;
+            window["isBrowserEdge"] = true;
             $('html').addClass('edge');
         }
         if (isBrowserMicrosoft) {
             $('html').addClass('microsoft');
         } else if (/chrome/i.test(userAgent)) {
-            window.isBrowserChrome = true;
+            window["isBrowserChrome"] = true;
         } else if (/firefox/i.test(userAgent)) {
-            window.isBrowserFirefox = true;
+            window["isBrowserFirefox"] = true;
             $('html').addClass('firefox');
         }
 
-        if (/safari/i.test(userAgent) && !window.isBrowserChrome) {
-            window.isBrowserSafari = true;
+        if (/safari/i.test(userAgent) && !window["isBrowserChrome"]) {
+            window["isBrowserSafari"] = true;
             $('html').addClass('safari');
         }
-        if (window.isBrowserSafari ||
-            window.isBrowserChrome ||
-            window.isBrowserFirefox ||
-            window.isBrowserEdge) {
-                window.isBrowserSupported = true;
+        if (window["isBrowserSafari"] ||
+            window["isBrowserChrome"] ||
+            window["isBrowserFirefox"] ||
+            window["isBrowserEdge"]) {
+                window["isBrowserSupported"] = true;
         } else {
-            window.isBrowserSupported = false;
+            window["isBrowserSupported"] = false;
         }
     }
 
-    function systemCheck() {
+    function systemCheck(): void {
         if (/MAC/i.test(navigator.platform)) {
-            window.isSystemMac = true;
+            window["isSystemMac"] = true;
         }
     }
 
     function featureCheck() {
-        window.hasFlash = flashBlockDetect() === 0;
-        window.gMaxDivHeight = getMaxDivHeight();
-        window.gScrollbarWidth = getScrollbarWidth();
+        window["hasFlash"] = flashBlockDetect() === 0;
+        window["gMaxDivHeight"] = getMaxDivHeight();
+        window["gScrollbarWidth"] = getScrollbarWidth();
 
-        function flashBlockDetect(callbackMethod){
-            var return_value = 0;
+        function flashBlockDetect(callbackMethod?: Function): number{
+            var return_value: number = 0;
 
             if (navigator.plugins["Shockwave Flash"]) {
-                embed_length = $('embed').length;
-                object_length = $('object').length;
+                var embed_length: number = $('embed').length;
+                var object_length: number = $('object').length;
 
                 if ((embed_length > 0) || (object_length > 0)) {
                     // Mac / Chrome using FlashBlock + Mac / Safari using AdBlock
@@ -511,24 +515,24 @@ window.Compatible = (function($, Compatible) {
             }
         }
 
-        function getMaxDivHeight() {
-            var max = Math.pow(2, 53);
-            var curHeight = 1000000;
+        function getMaxDivHeight(): number {
+            var max: number = Math.pow(2, 53);
+            var curHeight: number = 1000000;
             $("body").append('<div id="maxDivHeight"></div>');
-            var $div = $("#maxDivHeight");
-            var height = findHeight(curHeight);
+            var $div: JQuery = $("#maxDivHeight");
+            var height: number = findHeight(curHeight);
             height = Math.max(curHeight, Math.floor(height * .99)); // 1% buffer
             $("#maxDivHeight").remove();
 
             return height;
 
-            function findHeight(height) {
-                var newHeight = height * 2;
+            function findHeight(height: number): number {
+                var newHeight: number = height * 2;
                 if (newHeight > max) {
                     return 1000000;
                 }
                 $div.height(newHeight);
-                var divHeight = $div.height();
+                var divHeight: number = $div.height();
                 if (divHeight === 0) {
                     return getMaxHeight(height, newHeight);
                 } else if (divHeight === height) {
@@ -538,13 +542,13 @@ window.Compatible = (function($, Compatible) {
                 }
             }
 
-            function getMaxHeight(minHeight, maxHeight) {
-                var mid = Math.floor((minHeight + maxHeight) / 2);
+            function getMaxHeight(minHeight: number, maxHeight: number): number {
+                var mid: number = Math.floor((minHeight + maxHeight) / 2);
                 if (mid === minHeight) {
                     return minHeight;
                 }
                 $div.height(mid);
-                var midHeight = $div.height();
+                var midHeight: number = $div.height();
                 if (midHeight === 0) {
                     return getMaxHeight(minHeight, mid);
                 } else {
@@ -554,23 +558,23 @@ window.Compatible = (function($, Compatible) {
         }
 
         function getScrollbarWidth() {
-            var outer = document.createElement("div");
+            var outer: HTMLDivElement = document.createElement("div");
             outer.style.visibility = "hidden";
             outer.style.width = "100px";
             outer.style.msOverflowStyle = "scrollbar"; // needed for WinJS apps
 
             document.body.appendChild(outer);
 
-            var widthNoScroll = outer.offsetWidth;
+            var widthNoScroll: number = outer.offsetWidth;
             // force scrollbars
             outer.style.overflow = "scroll";
 
             // add innerdiv
-            var inner = document.createElement("div");
+            var inner: HTMLDivElement = document.createElement("div");
             inner.style.width = "100%";
             outer.appendChild(inner);
 
-            var widthWithScroll = inner.offsetWidth;
+            var widthWithScroll: number = inner.offsetWidth;
 
             // remove divs
             outer.parentNode.removeChild(outer);
@@ -579,21 +583,21 @@ window.Compatible = (function($, Compatible) {
         }
     }
 
-    function extraCheck() {
+    function extraCheck(): void {
         /**
         *
         *  Base64 encode / decode
         *  http://www.webtoolkit.info/
         *
         **/
-        window.Base64 = {
+        window["Base64"] = {
             // private property
             _keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
             // public method for encoding
-            encode: function (input) {
-                var output = "";
-                var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
-                var i = 0;
+            encode: function (input: string): string {
+                var output: string = "";
+                var chr1: any, chr2: any, chr3: any, enc1: any, enc2: any, enc3: any, enc4: any;
+                var i: number = 0;
 
                 input = Base64._utf8_encode(input);
 
@@ -622,11 +626,11 @@ window.Compatible = (function($, Compatible) {
             },
 
             // public method for decoding
-            decode: function (input) {
-                var output = "";
-                var chr1, chr2, chr3;
-                var enc1, enc2, enc3, enc4;
-                var i = 0;
+            decode: function (input: string): string {
+                var output: string = "";
+                var chr1: number, chr2: number, chr3: number;
+                var enc1: number, enc2: number, enc3: number, enc4: number;
+                var i: number = 0;
 
                 input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
 
@@ -656,11 +660,11 @@ window.Compatible = (function($, Compatible) {
             },
 
             // private method for UTF-8 encoding
-            _utf8_encode: function (string) {
+            _utf8_encode: function (string: string): string {
                 string = string.replace(/\r\n/g,"\n");
-                var utftext = "";
-                for (var n = 0; n < string.length; n++) {
-                    var c = string.charCodeAt(n);
+                var utftext: string = "";
+                for (var n: number = 0; n < string.length; n++) {
+                    var c: number = string.charCodeAt(n);
 
                     if (c < 128) {
                         utftext += String.fromCharCode(c);
@@ -682,10 +686,10 @@ window.Compatible = (function($, Compatible) {
             },
 
             // private method for UTF-8 decoding
-            _utf8_decode: function (utftext) {
-                var string = "";
-                var i = 0;
-                var c = c1 = c2 = 0;
+            _utf8_decode: function (utftext: string): string {
+                var string: string = "";
+                var i: number = 0;
+                var c: number = 0, c2: number = 0, c3: number = 0;
 
                 while ( i < utftext.length ) {
                     c = utftext.charCodeAt(i);
@@ -716,13 +720,13 @@ window.Compatible = (function($, Compatible) {
 
 
         if (FileReader.prototype.readAsBinaryString === undefined) {
-            FileReader.prototype.readAsBinaryString = function (fileData) {
-                var binary = "";
-                var pt = this;
-                var reader = new FileReader();
+            FileReader.prototype.readAsBinaryString = function (fileData: Blob): void {
+                var binary: string = "";
+                var pt: any = this;
+                var reader: FileReader = new FileReader();
                 reader.onload = function () {
-                    var bytes = new Uint8Array(reader.result);
-                    var length = bytes.byteLength;
+                    var bytes: Uint8Array = new Uint8Array(reader.result);
+                    var length: number = bytes.byteLength;
                     for (var i = 0; i < length; i++) {
                         binary += String.fromCharCode(bytes[i]);
                     }
@@ -736,8 +740,8 @@ window.Compatible = (function($, Compatible) {
 
         // check set up transitionEnd event
         (function() {
-            var fakeEl = document.createElement('fakeelement');
-            var transitions = {
+            var fakeEl: HTMLElement = document.createElement('fakeelement');
+            var transitions: object = {
                 'transition': 'transitionend',
                 'OTransition': 'oTransitionEnd',
                 'MozTransition': 'transitionend',
@@ -746,12 +750,10 @@ window.Compatible = (function($, Compatible) {
 
             for (var t in transitions){
                 if (fakeEl.style[t] !== undefined ) {
-                    window.transitionEnd = transitions[t];
+                    window["transitionEnd"] = transitions[t];
                     return;
                 }
             }
         }());
     }
-
-    return (Compatible);
-}(jQuery, {}));
+}

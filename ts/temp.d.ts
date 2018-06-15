@@ -237,6 +237,8 @@ interface OpStatsOutput {
 declare namespace Base64 {
     function encode(input: string): string;
     function decode(input: string): string;
+    function _utf8_encode(input: string): string;
+    function _utf8_decode(input: string): string;
 }
 /* ============== GLOBAL VARIABLES ============= */
 declare var nw: any; // nw js for XD CE
@@ -316,6 +318,7 @@ declare var skRFPredictor: any;
 
 declare var isBrowserSafari: boolean;
 declare var isSystemMac: boolean;
+declare var isBrowserMicrosoft: boolean;
 /* ============== GLOBAL FUNCTIONS ============= */
 // Declaration of XcalarApi moved to IXcalarApi.ts
 /* ============= THRIFT ENUMS ================= */
