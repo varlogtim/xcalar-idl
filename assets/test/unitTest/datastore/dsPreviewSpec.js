@@ -805,7 +805,7 @@ describe("Dataset-DSPreview Test", function() {
             expect(detectFormat(data, "\n")).to.equal("JSON");
 
             data = "{\"test\": \"val\"}";
-            expect(detectFormat(data, "\n")).to.equal("JSON");
+            expect(detectFormat(data, "\n")).to.equal(DSFormat.SpecialJSON);
 
             data = "abc";
             expect(detectFormat(data, "\n")).to.equal("CSV");
@@ -1848,22 +1848,6 @@ describe("Dataset-DSPreview Test", function() {
             expect(validateForm()).not.to.be.null;
         });
 
-        it("should validate special JSON case", function() {
-            var detectArgs = DSPreview.__testOnly__.get().detectArgs;
-            detectArgs.isSpecialJSON = true;
-            loadArgs.set({format: "JSON"});
-            $udfModuleList.find("input").val("");
-
-            var res = validateForm();
-            expect(res).to.be.an("object");
-            expect(res.format).to.equal("JSON");
-            expect(res.udfModule).to.equal("default");
-            expect(res.udfFunc).to.equal("convertNewLineJsonToArrayJson");
-
-            // clear up
-            detectArgs.isSpecialJSON = false;
-        });
-
         it("should validate Excel case", function() {
             loadArgs.set({format: "Excel"});
 
@@ -1893,7 +1877,7 @@ describe("Dataset-DSPreview Test", function() {
             var res = validateForm();
             expect(res).to.be.an("object");
             expect(res.format).to.equal("Excel");
-            expect(res.udfModule).to.equal("default");
+            expect(res.udfModule).to.equal("/globaludf/default");
             expect(res.udfFunc).to.equal("openExcel");
             expect(res.udfQuery).to.be.an("object");
             expect(res.udfQuery.skipRows).to.equal(0);
@@ -1914,7 +1898,7 @@ describe("Dataset-DSPreview Test", function() {
             var res = validateForm();
             expect(res).to.be.an("object");
             expect(res.format).to.equal("XML");
-            expect(res.udfModule).to.equal("default");
+            expect(res.udfModule).to.equal("/globaludf/default");
             expect(res.udfFunc).to.equal("xmlToJson");
             expect(res.udfQuery).to.be.an("object");
             expect(res.udfQuery.xPath).to.equal("test");
@@ -1951,7 +1935,7 @@ describe("Dataset-DSPreview Test", function() {
             var res = validateForm();
             expect(res).to.be.an("object");
             expect(res.format).to.equal("DATABASE");
-            expect(res.udfModule).to.equal("default");
+            expect(res.udfModule).to.equal("/globaludf/default");
             expect(res.udfFunc).to.equal("ingestFromDB");
             expect(res.udfQuery).to.be.an("object");
             expect(res.udfQuery.dsn).to.equal("test_dsn");
@@ -1983,7 +1967,7 @@ describe("Dataset-DSPreview Test", function() {
             var res = validateForm();
             expect(res).to.be.an("object");
             expect(res.format).to.equal("PARQUET");
-            expect(res.udfModule).to.equal("default");
+            expect(res.udfModule).to.equal("/globaludf/default");
             expect(res.udfFunc).to.equal("parseParquet");
             expect(res.udfQuery).to.be.an("object");
             expect(res.udfQuery.columns).to.be.an("array");
@@ -2000,7 +1984,7 @@ describe("Dataset-DSPreview Test", function() {
             var res = validateForm();
             expect(res).to.be.an("object");
             expect(res.format).to.equal("PARQUETFILE");
-            expect(res.udfModule).to.equal("default");
+            expect(res.udfModule).to.equal("/globaludf/default");
             expect(res.udfFunc).to.equal("parseParquet");
         });
 
@@ -2126,7 +2110,7 @@ describe("Dataset-DSPreview Test", function() {
             var res = validatePreview();
             expect(res).to.be.an("object");
             expect(res.format).to.equal("Excel");
-            expect(res.udfModule).to.equal("default");
+            expect(res.udfModule).to.equal("/globaludf/default");
             expect(res.udfFunc).to.equal("openExcel");
             expect(res.udfQuery).to.be.an("object");
             expect(res.udfQuery.skipRows).to.equal(0);
@@ -2137,7 +2121,7 @@ describe("Dataset-DSPreview Test", function() {
             var res = validatePreview();
             expect(res).to.be.an("object");
             expect(res.format).to.equal("PARQUETFILE");
-            expect(res.udfModule).to.equal("default");
+            expect(res.udfModule).to.equal("/globaludf/default");
             expect(res.udfFunc).to.equal("parseParquet");
         });
     });
@@ -2178,23 +2162,10 @@ describe("Dataset-DSPreview Test", function() {
             expect($("#dsForm-skipRows").val()).to.equal("1");
         });
 
-        it("should restore special json", function() {
-            resetForm({
-                dsName: "test",
-                moduleName: "default",
-                funcName: "convertNewLineJsonToArrayJson",
-                format: "JSON"
-            });
-
-            var detectArgs = DSPreview.__testOnly__.get().detectArgs;
-            expect(detectArgs.isSpecialJSON).to.be.true;
-            expect(loadArgs.getFormat()).to.equal("JSON");
-        });
-
         it("should restore excel", function() {
             resetForm({
                 dsName: "test",
-                moduleName: "default",
+                moduleName: "/globaludf/default",
                 funcName: "openExcel",
                 format: "Excel",
                 udfQuery: {

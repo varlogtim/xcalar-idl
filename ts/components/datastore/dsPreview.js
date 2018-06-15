@@ -46,9 +46,10 @@ window.DSPreview = (function($, DSPreview) {
     var minRowsToShow = 20;
     var numBytesRequest = 15000;
     var maxBytesRequest = 500000;
-    var excelModule = "default";
+    var defaultModule = '/globaludf/default';
+    var excelModule = defaultModule;
     var excelFunc = "openExcel";
-    var parquetModule = "default";
+    var parquetModule = defaultModule;
     var parquetFunc = "parseParquet";
     var colGrabTemplate = '<div class="colGrab" data-sizedtoheader="false"></div>';
     var oldPreviewError = "old preview error";
@@ -1183,7 +1184,6 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function restoreForm(options) {
-        var isSpecialJSON = false;
         $form.find("input").not($formatText).val("");
         $form.find(".checkbox.checked").removeClass("checked");
 
@@ -1195,10 +1195,6 @@ window.DSPreview = (function($, DSPreview) {
         if (format === formatMap.UDF) {
             cacheUDF(options.moduleName, options.funcName);
             resetUdfSection();
-        } else if (format === formatMap.JSON &&
-                    options.moduleName === "default" &&
-                    options.funcName === "convertNewLineJsonToArrayJson") {
-            isSpecialJSON = true;
         } else if (format === formatMap.EXCEL) {
             $("#dsForm-excelIndex").val(0);
             $("#dsForm-skipRows").val(0);
@@ -1264,8 +1260,7 @@ window.DSPreview = (function($, DSPreview) {
             "lineDelim": options.lineDelim,
             "hasHeader": options.hasHeader,
             "skipRows": options.skipRows,
-            "quote": options.quoteChar,
-            "isSpecialJSON": isSpecialJSON
+            "quote": options.quoteChar
         };
     }
 
@@ -1596,7 +1591,7 @@ window.DSPreview = (function($, DSPreview) {
             }
 
             return {
-                moduleName: "default",
+                moduleName: defaultModule,
                 funcName: "standardizeColumnNamesAndTypes",
                 udfQuery: {
                     withHeader: dsArgs.hasHeader,
@@ -2157,13 +2152,6 @@ window.DSPreview = (function($, DSPreview) {
             lineDelim = csvArgs[1];
             quote = csvArgs[2];
             skipRows = csvArgs[3];
-        } else if (format === formatMap.JSON &&
-                    detectArgs.isSpecialJSON === true) {
-            // special case: special json
-            // if user specified udf, then use the udf (hasUDF case).
-            // otherwise, treat it as special json
-            udfModule = "default";
-            udfFunc = "convertNewLineJsonToArrayJson";
         } else if (format === formatMap.EXCEL) {
             udfModule = excelModule;
             udfFunc = excelFunc;
@@ -2177,7 +2165,7 @@ window.DSPreview = (function($, DSPreview) {
                 // error case
                 return null;
             }
-            udfModule = "default";
+            udfModule = defaultModule;
             udfFunc = "xmlToJson";
             udfQuery = xmlArgs;
         } else if (format === formatMap.PARQUET) {
@@ -2196,7 +2184,7 @@ window.DSPreview = (function($, DSPreview) {
             if (dbArgs == null) {
                 return null;
             }
-            udfModule = 'default';
+            udfModule = defaultModule;
             udfFunc = 'ingestFromDB';
             udfQuery = { dsn: dbArgs.dsn, query: dbArgs.query };
         }
@@ -2690,11 +2678,9 @@ window.DSPreview = (function($, DSPreview) {
                     // special case
                     hasUDF = true;
                     noDetect = true;
-                    udfModule = "default";
+                    udfModule = defaultModule;
                     udfFunc = "convertNewLineJsonToArrayJson";
-                    toggleFormat("UDF");
-                    selectUDFModule(udfModule);
-                    selectUDFFunc(udfFunc);
+                    seletNewLineJSONToArrayUDF();
                 }
             }
 
@@ -2752,16 +2738,19 @@ window.DSPreview = (function($, DSPreview) {
             $loadHiddenSection.removeClass("hidden");
 
             var hasSmartDetect = false;
+            var notGetPreviewTable = false;
             if (!noDetect) {
                 var currentLoadArgStr = loadArgs.getArgStr();
                 // when user not do any modification, then do smart detect
                 if (initialLoadArgStr === currentLoadArgStr) {
                     hasSmartDetect = true;
-                    smartDetect();
+                    notGetPreviewTable = smartDetect();
                 }
             }
-
-            if (hasSmartDetect || loadArgs.getFormat() === format) { // check
+            // check
+            if (!notGetPreviewTable &&
+                (hasSmartDetect || loadArgs.getFormat() === format)
+            ) {
                 getPreviewTable();
             }
 
@@ -4375,12 +4364,15 @@ window.DSPreview = (function($, DSPreview) {
         return content;
     }
 
-    function smartDetect(showMessage) {
+    function seletNewLineJSONToArrayUDF() {
+        toggleFormat("UDF");
+        selectUDFModule(defaultModule);
+        selectUDFFunc("convertNewLineJsonToArrayJson");
+    }
+
+    function smartDetect() {
         if (rawData == null) {
-            if (showMessage) {
-                xcHelper.showFail(DSTStr.NoRecords);
-            }
-            return;
+            return false;
         }
 
         // applyLineDelim("\n");
@@ -4389,6 +4381,13 @@ window.DSPreview = (function($, DSPreview) {
         // step 1: detect format
         var lineDelim = loadArgs.getLineDelim();
         detectArgs.format = detectFormat(rawData, lineDelim);
+
+        if (detectArgs.format === DSFormat.SpecialJSON) {
+            detectArgs.format = formatMap.UDF;
+            seletNewLineJSONToArrayUDF();
+            refreshPreview(true, true);
+            return true;
+        }
 
         var formatText;
         for (var key in formatMap) {
@@ -4434,10 +4433,7 @@ window.DSPreview = (function($, DSPreview) {
         } else {
             toggleHeader(false);
         }
-
-        if (showMessage) {
-            xcHelper.showSuccess(SuccessTStr.Detect);
-        }
+        return false;
     }
 
     function detectFormat(data, lineDelim) {
@@ -4461,13 +4457,11 @@ window.DSPreview = (function($, DSPreview) {
             var detectRes = xcSuggest.detectFormat(rows);
 
             if (detectRes === DSFormat.JSON) {
-                detectArgs.isSpecialJSON = false;
                 return formatMap.JSON;
             } else if (!isUseUDF() && detectRes === DSFormat.SpecialJSON) {
                 // speical json should use udf to parse,
                 // so if already use udf, cannot be speical json
-                detectArgs.isSpecialJSON = true;
-                return formatMap.JSON;
+                return DSFormat.SpecialJSON;
             } else if (detectRes === DSFormat.XML) {
                 return formatMap.XML;
             } else {
