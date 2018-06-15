@@ -774,11 +774,11 @@ table.datasetTable {
                 .size(@width: ~"calc(100% - 50px)", @height: 100%, @min-width: 205px);
                 border: solid 1px @color-border-warm-grey-two;
                 float: left;
-                display: inline-block;
+                display: block;
                 cursor: default;
 
                 > span {
-                    display: inline-block;
+                    display: block;
                     float: left;
                 }
 
@@ -3308,7 +3308,7 @@ table.datasetTable {
                 &.loading {
                     border-style: dashed;
                     border-width: 1px;
-                    
+
                     .icon, div {
                         opacity: @opacity-disabled;
                     }

@@ -82,6 +82,7 @@ namespace IMDPanel {
     let progressState: ProgressState = {canceled: false};
     let isScrolling: boolean = false;
     let restoreErrors: RestoreError[] = [];
+    let reverseSort: boolean;
 
     /**
      * IMDPanel.setup
@@ -255,40 +256,82 @@ namespace IMDPanel {
         ctx.stroke();
     }
 
-    // either pass in a table to update or track which table is focused
-    // XXX does not need the full list of tables
     function updateTableDetailSection(tableName?: string): void {
         if (!tableName) {
             $tableDetail.removeClass("active");
+            $tableDetail.data("tablename", "");
             return;
         }
+        const table: PublishTable = xcHelper.deepCopy(pTables.filter((table) => {
+            return (table.name == tableName);
+        })[0]);
+        if (!table) {
+            $tableDetail.removeClass("active");
+            $tableDetail.data("tablename", "");
+            return;
+        }
+
         $tableDetail.addClass("active");
         $tableDetail.find(".tableName").text(tableName + ":");
         $tableDetail.data("tablename", tableName);
 
-        let $tableContent: JQuery = $tableDetail.find(".tableDetailContent");
-        let html: string = '';
-        pTables.forEach((table) => {
-            if (table.name == tableName) {
-            //updated may not sorted by timestamp , need to check all of them
-                for (let i = 0; i < table.updates.length; i++) {
-                    var time = moment.unix(table.updates[i].startTS).format("MMMM Do YYYY, h:mm:ss A");
-                    var timeTip = moment.unix(table.updates[i].startTS).format("M-D-Y h:mm:ss A");
-                    html += '<div class="tableDetailRow" data-tablename="' + table.name + '">' +
-                            '<div class="tableColumn sourceName" data-original-title="' + table.updates[i].source + '"><span class="dummy">a</span>' + table.updates[i].source + '</div>' +
-                            '<div class="tableColumn batchId">' + table.updates[i].batchId + '</div>' +
-                            '<div class="tableColumn" ' + xcTooltip.Attrs + ' data-original-title="' + timeTip + '">' + time + '</div>' +
-                            '<div class="tableColumn">' + xcHelper.numToStr(table.updates[i].numRows) + '</div>' +
-                            '</div>';
-                }
-                return;
+        let $tableContent: JQuery = $tableDetail.find(".updatesList .tableDetailContent");
+        if ($tableDetail.find(".headerRow .select").length) {
+            const $selectedHeader: JQuery = $tableDetail.find(".updatesList .headerRow .select");
+            const type: string = $selectedHeader.data("type");
+            var keyTypeMap = {
+                "name": "source",
+                "batchID": "batchId",
+                "timestamp": "startTS",
+                "meta": "numRows",
             }
-        });
+            let key: string = keyTypeMap[type];
+            let order = -1;
+            if ($selectedHeader.find(".xi-arrow-down").length !== 0) {
+                order = 1;
+            }
+            table.updates.sort(function(a, b) {
+                if (a[key] < b[key]) {
+                    return order;
+                } else if (a[key] > b[key]) {
+                    return (-order);
+                } else {
+                    return 0;
+                }
+            });
+        }
+        let html: string = '';
+
+        for (let i = 0; i < table.updates.length; i++) {
+            const time = moment.unix(table.updates[i].startTS).format("MMMM Do YYYY, h:mm:ss A");
+            const timeTip = moment.unix(table.updates[i].startTS).format("M-D-Y h:mm:ss A");
+            html += '<div class="tableDetailRow" data-tablename="' + table.name + '">' +
+                    '<div class="tableColumn sourceName" data-original-title="' + table.updates[i].source + '"><span class="dummy">a</span>' + table.updates[i].source + '</div>' +
+                    '<div class="tableColumn batchId">' + table.updates[i].batchId + '</div>' +
+                    '<div class="tableColumn" ' + xcTooltip.Attrs + ' data-original-title="' + timeTip + '">' + time + '</div>' +
+                    '<div class="tableColumn">' + xcHelper.numToStr(table.updates[i].numRows) + '</div>' +
+                    '</div>';
+        }
         if (!html) {
             html = '<div class="tableDetailRow empty">No updates</div>'
         }
 
         $tableContent.html(html);
+        updateColumnSection(table);
+    }
+
+    function updateColumnSection(table: PublishTable): void {
+        let html: string = "";
+        for (let i = 0; i < table.values.length; i++) {
+            let xcTypeIcon = xcHelper.getColTypeIcon(DfFieldTypeTFromStr[table.values[i].type]);
+            html += '<div class="columnRow">' +
+                    '  <div class="iconWrap">' +
+                    '    <i class="icon ' + xcTypeIcon + '"></i>' +
+                    '  </div>' +
+                    '  <span class="colName">' + xcHelper.escapeHTMLSpecialChar(table.values[i].name) + '</span>' +
+                    '</div>'
+        }
+        $tableDetail.find(".columnsList").html(html);
     }
 
     /**
@@ -751,6 +794,53 @@ namespace IMDPanel {
                 }
             })
         });
+
+        $tableDetail.on("click", ".updatesList .headerRow .tableColumn", function() {
+            var $title = $(this);
+
+            // click on selected title, reverse sort
+            if ($title.hasClass("select")) {
+                var $icon = $title.find(".icon");
+                toggleSortIcon($icon);
+                if ($tableDetail.data("tablename")) {
+                    updateTableDetailSection($tableDetail.data("tablename"));
+                }
+            } else {
+                sortAction($title);
+            }
+        });
+
+        $tableDetail.on("click", ".viewColumns, .viewTables", function() {
+            $tableDetail.toggleClass("columnsMode");
+        });
+
+        function toggleSortIcon($icon, restoreDefault?: boolean) {
+            if (restoreDefault) {
+                // If restore to non-sorted
+                $icon.removeClass("xi-arrow-up xi-arrow-down fa-8");
+                $icon.addClass("xi-sort fa-15");
+            } else if ($icon.hasClass("xi-arrow-up")) {
+                // ascending > descending
+                $icon.removeClass("xi-sort xi-arrow-up fa-15");
+                $icon.addClass("xi-arrow-down fa-8");
+            } else {
+                // Two cases: 1.first time sort & 2.descending > ascending
+                $icon.removeClass("xi-sort xi-arrow-down fa-15");
+                $icon.addClass("xi-arrow-up fa-8");
+            }
+        }
+        function sortAction($title) {
+            $title.siblings(".select").each(function() {
+                var $currOpt = $(this);
+                $currOpt.removeClass("select");
+                toggleSortIcon($currOpt.find(".icon"), true);
+            });
+            $title.addClass("select");
+            toggleSortIcon($title.find(".icon"));
+            if ($tableDetail.data("tablename")) {
+                updateTableDetailSection($tableDetail.data("tablename"));
+            }
+        }
 
         let initialIndex;
         $imdPanel.find(".activeTablesList").sortable({

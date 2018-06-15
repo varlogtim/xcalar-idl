@@ -274,15 +274,45 @@
         background: @color-white;
         color: @color-font-greyish-brown;
 
+        &.columnsMode {
+            .viewTables, .columnsList  {
+                display: block !important;
+            }
+            .viewColumns, .updatesList {
+                display: none !important;
+            }
+        }
+
+        .viewTables, .columnsList {
+            display: none;
+        }
+
         .subHeading {
             display: none;
             height: 48px;
             padding: 14px 10px;
             font-size: 15px;
+            line-height: 20px;
+
+            .preText {
+                float: left;
+                margin-right: 5px;
+            }
 
             .tableName {
                 color: @color-font-select-blue;
                 font-weight: bold;
+                width: ~"calc(100% - 250px)";
+                float: left;
+                display: block;
+                .textOverflowOneLine;
+            }
+            .viewColumns, .viewTables {
+                float: right;
+                text-decoration: underline;
+                color: @color-font-select-blue;
+                font-size: 13px;
+                padding-right: 4px;
             }
         }
         .tableDetailList {
@@ -316,10 +346,24 @@
                     height: @listHeaderHeight;
                     background-color: @color-bg-white-seven;
                     padding-right: 11px;
+                    cursor: pointer;
 
                     .tableColumn {
                         line-height: @listHeaderHeight;
                         font-weight: 700;
+
+                        &.select {
+                            color: @color-font-select-blue;
+                        }
+                    }
+                    .label {
+                        .textOverflowOneLine;
+                        float: left;
+                    }
+                    .icon {
+                        float: right;
+                        height: 100%;
+                        line-height: @listHeaderHeight;
                     }
                 }
                 .tableColumn {
@@ -375,6 +419,38 @@
             }
             .emptyText {
                 display: none;
+            }
+        }
+
+        .columnRow {
+            border: 1px solid  @color-bg-pinkish-grey2;
+            border-left: none;
+            line-height: 30px;
+            height: 30px;
+            padding: 0px 5px 0px 0px;
+            margin-top: -1px; // hides top border
+            overflow: hidden;
+            width: 50%;
+            float: left;
+
+            .iconWrap {
+                float: left;
+                text-align: center;
+                line-height: 32px;
+                .size(@width: 28px, @height: 30px);
+                background: @color-bg-white-eight;
+                border-bottom: @color-bg-white-two;
+
+                .icon {
+                    font-size: 16px;
+                }
+            }
+
+            .colName  {
+                display: inline-block;
+                padding: 0px 10px;
+                width: ~"calc(100% - 40px)";
+                .textOverflowOneLine;
             }
         }
     }
