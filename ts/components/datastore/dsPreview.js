@@ -4207,6 +4207,7 @@ window.DSPreview = (function($, DSPreview) {
                     tdData = stripQuote(tdData, quote);
 
                     val = tdData.join("");
+                    val = xcHelper.escapeDblQuoteForHTML(xcHelper.escapeHTMLSpecialChar(val));
                     html += val;
                     tdData = [];
                     // skip delimiter
@@ -4267,7 +4268,7 @@ window.DSPreview = (function($, DSPreview) {
                     if (strLen > colStrLimit) {
                         hiddenStrLen++;
                     } else {
-                        tdData.push(xcHelper.escapeDblQuoteForHTML(xcHelper.escapeHTMLSpecialChar(d)));
+                        tdData.push(d);
                     }
 
                     strLen++;
@@ -4280,7 +4281,7 @@ window.DSPreview = (function($, DSPreview) {
             if (strToDelimit !== "\n") {
                 val = xcHelper.styleNewLineChar(val);
             }
-
+            val = xcHelper.escapeDblQuoteForHTML(xcHelper.escapeHTMLSpecialChar(val));
             html += val;
             tdData = [];
         } else {
