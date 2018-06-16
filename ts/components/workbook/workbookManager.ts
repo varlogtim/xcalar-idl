@@ -372,7 +372,7 @@ namespace WorkbookManager {
         $("#initialLoadScreen").data("curquery", queryName);
         $("#container").addClass("switchingWkbk");
 
-        restoreInactivePublishedTable()
+        restoreInactivePublishedTable(wkbkName)
         .then(function() {
             const queryName: string = XcUser.getCurrentUserName() + ":" + wkbkName;
             progressCycle(queryName, checkInterval);
@@ -1518,7 +1518,7 @@ namespace WorkbookManager {
     }
 
     // always resolves
-    function restoreInactivePublishedTable(): XDPromise<void> {
+    function restoreInactivePublishedTable(wkbkName: string): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let progressCircle: ProgressCircle;
         let canceled: boolean = false;
@@ -1526,15 +1526,20 @@ namespace WorkbookManager {
         let successTables: string[] = [];
         let failedTables: string[] = [];
 
-        XcalarListPublishedTables("*")
+        checkHasSessionTables(wkbkName)
+        .then(function(hasTables) {
+            if (hasTables) {
+                return XcalarListPublishedTables("*")
+            } else {
+                return PromiseHelper.resolve({tables: []});
+            }
+        })
         .then(function(result) {
-            let inactiveTables: any[] = result.tables.filter(function(table) {
-                return !table.active;
-            });
-
-
-            inactiveTables = inactiveTables.map(function(table) {
-                return table.name;
+            let inactiveTables: string[] = [];
+            result.tables.forEach(function(table) {
+                if (!table.active) {
+                    inactiveTables.push(table.name);
+                }
             });
 
             if (inactiveTables.length) {
@@ -1555,7 +1560,24 @@ namespace WorkbookManager {
 
         return deferred.promise();
 
-        function restoreAllPublishedTables(inactiveTables) {
+        function checkHasSessionTables(wkbkName: string): XDPromise<boolean> {
+            const innerDeferred: XDDeferred<boolean> = PromiseHelper.deferred();
+            const currentSession: string = sessionName;
+            setSessionName(wkbkName);
+
+            XcalarGetTables("*")
+            .then(function(res) {
+                innerDeferred.resolve(res.numNodes > 0)
+            })
+            .fail(function() {
+                innerDeferred.resolve(false);
+            });
+
+            setSessionName(currentSession);
+            return innerDeferred.promise();
+        }
+
+        function restoreAllPublishedTables(inactiveTables): XDPromise<any> {
             const innerDeferred: XDDeferred<void> = PromiseHelper.deferred();
             let promises: Function[] = [];
 

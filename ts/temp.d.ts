@@ -200,6 +200,7 @@ interface OpStatsOutput {
 }
 /* ============== GLOBAL VARIABLES ============= */
 declare var nw: any; // nw js for XD CE
+declare var SQLEditor: any;
 interface Window {
     FnBar: any;
     gMinModeOn: boolean;
