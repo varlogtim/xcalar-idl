@@ -669,10 +669,18 @@ namespace IMDPanel {
             }
         });
 
-        $('.mainTableSection').on('mousewheel DOMMouseScroll', function(e) {
+        $imdPanel.find('.mainTableSection').on('mousewheel DOMMouseScroll', function(e) {
             if (e.offsetX > leftPanelWidth) {
                 $scrollDiv.scrollLeft($scrollDiv.scrollLeft() + (<any>e).deltaX);
             }
+        });
+
+        var vertTimer;
+        $imdPanel.find('.activeTablesList').scroll(function() {
+            clearTimeout(vertTimer);
+            vertTimer = setTimeout(function() {
+                updateHistory();
+            }, 200);
         });
 
         $canvas.mousemove(function(event) {
@@ -953,9 +961,13 @@ namespace IMDPanel {
         pTables.forEach((table: PublishTable) => {
             const $histPanel: JQuery = $(".tableTimePanel[data-name=\"" + table.name + "\"]");
             $histPanel.empty();
-
-            if ($histPanel.offset().top < 1000) {
+            const offsetTop: number = $histPanel.offset().top;
+            if (offsetTop > 1000) {
+                return; // further tables are below, so break
+            }
+            if (offsetTop > -100) {
                 const positions: any[] = [];
+                let updateHtml: HTML = "";
                 table.updates.forEach((update, i) => {
                     const timeDiff: number = update.startTS - ruler.minTS;
                     const tStampPx: number = parseFloat(<any>timeDiff) / parseFloat(<any>ruler.pixelToTime);
@@ -970,17 +982,17 @@ namespace IMDPanel {
                         if (update.batchId < table.oldestBatchId) {
                             classes += " unavailable ";
                         }
-                        const $htmlElem: JQuery = $('<div class="updateIndicator indicator' + i +
+                        updateHtml += '<div class="updateIndicator indicator' + i +
                                             classes + '" ' +
                                             xcTooltip.Attrs +
                                             ' data-original-title="' +
-                                            moment.unix(update.startTS).format("MMMM Do YYYY, h:mm:ss a") + '">' +
+                                            moment.unix(update.startTS).format("MMMM Do YYYY, h:mm:ss a") + '" ' +
+                                            'style="left:' + pos + 'px">' +
                                             '<span class="text">'  +
-                                            parseInt(<any>update.batchId) + '</span></div>');
-                        $histPanel.append($htmlElem);
-                        $htmlElem.css("left", pos);
+                                            parseInt(<any>update.batchId) + '</span></div>';
                     }
                 });
+                $histPanel.html(updateHtml);
                 positions.sort((a, b) => {
                     const aLeft: number = a.left;
                     const bLeft: number = b.left
@@ -992,7 +1004,6 @@ namespace IMDPanel {
                         $histPanel.find(".indicator" + positions[i - 1].id).addClass("overlap");
                     }
                 }
-
             }
         });
     }

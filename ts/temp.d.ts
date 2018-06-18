@@ -366,6 +366,10 @@ declare enum DfFieldTypeT {
     DfFatptr,
 }
 
+declare enum DfFieldTypeTFromStr {
+
+}
+
 declare enum XcalarApiKeyScopeT {
     XcalarApiKeyScopeGlobal,
     XcalarApiKeyScopeSession
@@ -728,6 +732,7 @@ declare namespace TimeTStr {
     export var Created: string;
     export var LastSaved: string;
 }
+
 // declare namespace WSTStr {
 //     export var Ws:
 // }
