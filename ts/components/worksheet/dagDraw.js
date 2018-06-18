@@ -189,7 +189,7 @@ window.DagDraw = (function($, DagDraw) {
     function styleDroppedTables($dagWrap) {
         $dagWrap.find(".dagTable.Dropped").each(function() {
             var $dagTable = $(this);
-            var tId = $dagTable.data("id");
+            var tId = $dagTable.data("tableid");
             if (gDroppedTables[tId]) {
                 $dagTable.addClass("hasMeta");
             } else {
@@ -212,7 +212,7 @@ window.DagDraw = (function($, DagDraw) {
         var lockHTML = '<i class="lockIcon icon xi-lockwithkeyhole"></i>';
         $dagWrap.find(".dagTable").each(function() {
             $table = $(this);
-            tId = $table.data('id');
+            tId = $table.data('tableid');
             table = gTables[tId];
             if (!table) {
                 return;
@@ -307,22 +307,22 @@ window.DagDraw = (function($, DagDraw) {
         var nodeIdMap = dagInfo.nodeIdMap;
         var $dagTable;
         var node;
-        var id;
+        var nodeId;
         for (var i = 0; i < tables.length; i++) {
             $dagTable = $dagWrap.find(".dagTable[data-tablename='" +
                                           tables[i] + "']");
             if (!$dagTable.length) {
                 continue;
             }
-            id = $dagTable.data("index");
-            node = nodeIdMap[id];
+            nodeId = $dagTable.data("nodeid");
+            node = nodeIdMap[nodeId];
             if (node.value.tag) {
                 node.value.tag += ",";
             }
             node.value.tag += tagName;
         }
-        for (id in nodeIdMap) {
-            node = nodeIdMap[id];
+        for (nodeId in nodeIdMap) {
+            node = nodeIdMap[nodeId];
             node.value.display = {};
         }
         var options = {
@@ -1114,7 +1114,7 @@ window.DagDraw = (function($, DagDraw) {
     }
 
     function refreshNodeInfo($dagWrap, node, generalInfo) {
-        var $operation = $dagWrap.find('.operationTypeWrap[data-id="' +
+        var $operation = $dagWrap.find('.operationTypeWrap[data-nodeid="' +
                                             node.value.dagNodeId + '"]');
         var key = DagFunction.getInputType(XcalarApisTStr[node.value.api]);
         var info = getDagNodeInfo(node, key, {noTooltipEscape: true});
@@ -1161,7 +1161,7 @@ window.DagDraw = (function($, DagDraw) {
     function repositionAllNodes($dagWrap, nodeIdMap, storedInfo) {
         $dagWrap.find(".dagTableWrap").each(function() {
             var $tableWrap = $(this);
-            var nodeId = $tableWrap.find(".dagTable").data("index");
+            var nodeId = $tableWrap.find(".dagTable").data("nodeid");
             var node = nodeIdMap[nodeId];
             $tableWrap.css({
                 "right": node.value.display.x,
@@ -1326,7 +1326,7 @@ window.DagDraw = (function($, DagDraw) {
             var type = (dagInfo.type === "load") ? "dataStore" : dagInfo.type;
             dataAttrs += 'data-table="' + originalTableName + '" ' +
                         'data-type="' + type + '" ' +
-                        'data-id="' + tId + '"';
+                        'data-tableid="' + tId + '"';
             tableTitle = dsText + tableName;
             tableTitleTip = tableName;
         } else {
@@ -1337,7 +1337,7 @@ window.DagDraw = (function($, DagDraw) {
             tableClasses += "typeTable ";
             iconClasses += "dagTableIcon ";
             var tableId = xcHelper.getTableId(tableName);
-            dataAttrs += 'data-id="' + tableId + '"';
+            dataAttrs += 'data-tableid="' + tableId + '"';
             titleClasses += "exportFileName ";
 
             if (node.value.api === XcalarApisT.XcalarApiExport) {
@@ -1458,7 +1458,7 @@ window.DagDraw = (function($, DagDraw) {
                     'data-table="' + resultTableName + '"' +
 
                     'data-altname="' + altName + '" ' +
-                    'data-id="' + node.value.dagNodeId + '">' +
+                    'data-nodeid="' + node.value.dagNodeId + '">' +
                         '<div class="operationType" ' +
                         xcTooltip.Attrs + 'data-original-title="' +
                         info.tooltip + '"' +'>' +

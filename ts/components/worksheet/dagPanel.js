@@ -493,7 +493,7 @@ window.DagPanel = (function($, DagPanel) {
             $('#dagSchema').removeClass("active");
             var $dagTable = $(this).closest('.dagTable');
             var tableName = $dagTable.find('.tableTitle').text().trim();
-            var tableId = $dagTable.data('id');
+            var tableId = $dagTable.data('tableid');
             var table = gTables[tableId];
             var isDropped = false;
             if (!$dagTable.hasClass(DgDagStateTStr[DgDagStateT
@@ -696,7 +696,7 @@ window.DagPanel = (function($, DagPanel) {
                         var hideOp = "";
                         if ($opWrap.parent().hasClass("tagged")) {
                             var allDagInfo = $dagWrap.data("allDagInfo");
-                            var nodeId = $opWrap.data("id") + "";
+                            var nodeId = $opWrap.data("nodeid") + "";
                             var node = allDagInfo.nodeIdMap[nodeId];
                             for (var i = 0; i < node.value.tags.length; i++) {
                                 if (node.value.tags[i].indexOf(SQLOps.Union) === 0 ||
@@ -766,7 +766,7 @@ window.DagPanel = (function($, DagPanel) {
             xcMenu.addKeyboardNavigation($menu);
             $menu.data('tablename', tableName);
             $menu.data('tableId', tableId);
-            $menu.data('nodeId', $opWrap.data("id"));
+            $menu.data('nodeId', $opWrap.data("nodeid"));
             $menu.data('opIcon', $opWrap);
             // $dagTable.addClass("selected");
         });
@@ -812,7 +812,7 @@ window.DagPanel = (function($, DagPanel) {
         }).length > 0;
 
         if (!formBusy) {
-            var tableId = $dagWrap.data('id');
+            var tableId = $dagWrap.data("id");
             DagFunction.focusTable(tableId);
             if (!gTables[tableId].hasLock()) {
                 DFCreateView.show($dagWrap);

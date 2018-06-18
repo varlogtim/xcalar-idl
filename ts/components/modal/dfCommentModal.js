@@ -84,25 +84,25 @@ window.DFCommentModal = (function(DFCommentModal, $) {
                 // remove comment entirely to fix tooltip html rendering
                 $dagTableTitles.each(function() {
                     var $dagTable = $(this).closest(".dagTable");
-                    var nodeId = $dagTable.data("index");
+                    var nodeId = $dagTable.data("nodeid");
                     var $opIcon = $dagTable.closest(".dagTableWrap").find(".operationTypeWrap");
                     var $dagWrap = $opIcon.closest(".dagWrap");
-                    var nodeIdMap = $dagWrap.data("allDagInfo").nodeIdMap;
+                    var node = Dag.getNodeById($dagWrap, nodeId);
 
                     $opIcon.find(".commentIcon").remove();
-                    Dag.updateComment($opIcon, commentObj, nodeIdMap[nodeId]);
+                    Dag.updateComment($opIcon, commentObj, node);
                 });
             } else {
                 $dagTableTitles.each(function() {
                     var $dagTable = $(this).closest(".dagTable");
-                    var nodeId = $dagTable.data("index");
+                    var nodeId = $dagTable.data("nodeid");
                     var $opIcon = $dagTable.closest(".dagTableWrap").find(".operationTypeWrap");
                     $opIcon.removeClass("hasComment");
                     $opIcon.find(".commentIcon").remove();
                     var $dagWrap = $opIcon.closest(".dagWrap");
-                    var nodeIdMap = $dagWrap.data("allDagInfo").nodeIdMap;
+                    var node = Dag.getNodeById($dagWrap, nodeId);
 
-                    nodeIdMap[nodeId].value.comment = commentObj;
+                    node.value.comment = commentObj;
                 });
             }
         })

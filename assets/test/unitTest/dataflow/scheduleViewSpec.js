@@ -1080,7 +1080,7 @@ function viewRelatedFunctionTest() {
         if ($(".ui-datepicker-today").length > 0) {
             var date = new Date("1/1/2000");
             Scheduler.__testOnly__.dataPickerUTCDisplay(date);
-            if ($(".ui-datepicker-today").length > 0) {
+            if ($(".ui-datepicker-today").length > 0 && $(".ui-datepicker-today").prev().length > 0) {
                 expect($(".ui-datepicker-today").prev().hasClass("ui-state-disabled")).to.be.true;
             }
         } else {

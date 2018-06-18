@@ -189,7 +189,7 @@ window.Dag = (function($, Dag) {
         $dagTableTitles.parent().data('tablename', newTableName);
         $dagTableTitles.parent().attr('data-tablename', newTableName);
 
-        var nodeId = $dagTableTitles.parent().data("index");
+        var nodeId = $dagTableTitles.parent().data("nodeid");
         $dagTableTitles.each(function() {
             var $dagWrap = $(this).closest(".dagWrap");
             var nodeIdMap = $dagWrap.data("allDagInfo").nodeIdMap;
@@ -220,7 +220,7 @@ window.Dag = (function($, Dag) {
     };
 
     Dag.styleTableInWS = function(tableId, toRemove) {
-        var $dagTableWraps = $dagPanel.find('.dagTable[data-id="' + tableId + '"]')
+        var $dagTableWraps = $dagPanel.find('.dagTable[data-tableid="' + tableId + '"]')
                                       .closest(".dagTableWrap");
         if (toRemove) {
             $dagTableWraps.removeClass("inWS");
@@ -232,24 +232,24 @@ window.Dag = (function($, Dag) {
     // nameProvided: boolean, if true, tableId arg is actually a tablename
     Dag.makeInactive = function(tableId, nameProvided) {
         var tableName;
-        var $dags;
+        var $dagTbles;
         $dagPanel = $('#dagPanel');
         if (nameProvided) {
             tableName = tableId;
-            $dags = $dagPanel.find('.dagTable[data-tableName="' +
+            $dagTables = $dagPanel.find('.dagTable[data-tableName="' +
                                    tableName + '"]');
         } else {
             tableName = gTables[tableId].tableName;
-            $dags = $dagPanel.find('.dagTable[data-id="' + tableId + '"]');
+            $dagTables = $dagPanel.find('.dagTable[data-tableid="' + tableId + '"]');
         }
-        if (!$dags.length) {
+        if (!$dagTables.length) {
             return;
         }
 
-        $dags.removeClass('Ready')
+        $dagTables.removeClass('Ready')
              .addClass('Dropped');
         var text;
-        if ($dags.hasClass("dataset")) {
+        if ($dagTables.hasClass("dataset")) {
             text = xcHelper.replaceMsg(TooltipTStr.DroppedDS,
                                         {"datasetname": tableName});
         } else {
@@ -257,14 +257,14 @@ window.Dag = (function($, Dag) {
                                         {"tablename": tableName});
         }
 
-        $dags.find(".dagTableIcon, .dataStoreIcon").each(function() {
+        $dagTables.find(".dagTableIcon, .dataStoreIcon").each(function() {
             xcTooltip.changeText($(this), text);
         });
-        $dags.each(function() {
-            var dagId = $(this).data("index");
+        $dagTables.each(function() {
+            var nodeId = $(this).data("nodeid");
             var nodeIdMap = $(this).closest(".dagWrap").data("allDagInfo")
                           .nodeIdMap;
-            nodeIdMap[dagId].value.state = DgDagStateT.DgDagStateDropped;
+            nodeIdMap[nodeId].value.state = DgDagStateT.DgDagStateDropped;
         });
     };
 
@@ -357,7 +357,7 @@ window.Dag = (function($, Dag) {
                 var nodeId = $table.data("nodeid");
                 var node = Dag.getNodeById($dagWrap, nodeId);
                 var groupId = node.value.display.tagGroupId;
-                var $tagHeaderTable = $dagWrap.find('.dagTable[data-id="' +
+                var $tagHeaderTable = $dagWrap.find('.dagTable[data-tableid="' +
                                                     groupId + '"]');
                 Dag.toggleTaggedGroup($dagWrap, $tagHeaderTable.prev());
             } else if ($table.closest(".hidden").length) {
@@ -408,7 +408,7 @@ window.Dag = (function($, Dag) {
             $dagOperation.addClass("collapsed").removeClass("expanded");
         }
 
-        var dagNodeId = $dagOperation.data("id");
+        var dagNodeId = $dagOperation.data("nodeid");
         nodeIdMap[dagNodeId].value.display.tagCollapsed = !expand;
 
         var $groupTables = $dagOperation.parent();
@@ -638,10 +638,10 @@ window.Dag = (function($, Dag) {
             $li.addClass('selected');
             var tableId   = $dagSchema.data('tableid');
             var $dagTable = $dagSchema.data('$dagTable');
-            var id        = $dagTable.data('index');
+            var nodeId    = $dagTable.data("nodeid");
             var $dagWrap  = $dagTable.closest('.dagWrap');
             var idMap     = $dagWrap.data('allDagInfo').nodeIdMap;
-            var node = idMap[id];
+            var node = idMap[nodeId];
             var name      = $name.text();
             var table = gTables[tableId] || gDroppedTables[tableId];
             if (!table) {
@@ -813,7 +813,7 @@ window.Dag = (function($, Dag) {
     };
 
     Dag.showSchema = function($dagTable) {
-        var tableId = $dagTable.data('id');
+        var tableId = $dagTable.data('tableid');
         var table = gTables[tableId] || gDroppedTables[tableId];
         var $schema = $('#dagSchema');
         $schema.removeClass("loadInfo");
@@ -918,7 +918,7 @@ window.Dag = (function($, Dag) {
     // need full tableName in case we need to create new table meta
     Dag.makeTableNoDelete = function(tableName) {
         var tableId = xcHelper.getTableId(tableName);
-        var $dagTables = $("#dagPanel").find('.dagTable[data-id="' +
+        var $dagTables = $("#dagPanel").find('.dagTable[data-tableid="' +
                                         tableId + '"]');
         $dagTables.addClass("noDelete");
         if (!$dagTables.hasClass("locked")) {
@@ -928,7 +928,7 @@ window.Dag = (function($, Dag) {
     };
 
     Dag.removeNoDelete = function(tableId) {
-        var $dagTables = $("#dagPanel").find('.dagTable[data-id="' +
+        var $dagTables = $("#dagPanel").find('.dagTable[data-tableid="' +
                                         tableId + '"]');
         $dagTables.removeClass('noDelete');
         if (!$dagTables.hasClass("locked")) {
@@ -1034,7 +1034,7 @@ window.Dag = (function($, Dag) {
                 return;
             }
             var $opIcon = $(this).closest(".operationTypeWrap");
-            DFCommentModal.show($opIcon, $opIcon.data("id"));
+            DFCommentModal.show($opIcon, $opIcon.data("nodeid"));
         });
 
         dagScrollListeners($dagWrap.find('.dagImageWrap'));
@@ -1062,13 +1062,12 @@ window.Dag = (function($, Dag) {
     };
 
     Dag.isParentDropped = function($dagTable) {
-        var id = $dagTable.data('index');
+        var nodeId = $dagTable.data("nodeid");
         var $dagWrap = $dagTable.closest('.dagWrap');
-        var idMap = $dagWrap.data('allDagInfo').nodeIdMap;
-        var node = idMap[id];
+        var node = Dag.getNodeById($dagWrap, nodeId);
         for (var i = 0; i < node.parents.length; i++) {
-            var parentId = node.parents[i].value.dagNodeId;
-            if (idMap[parentId].value.state === DgDagStateT.DgDagStateDropped) {
+            var parentNode = node.parents[i];
+            if (parentNode.value.state === DgDagStateT.DgDagStateDropped) {
                 return true;
             }
         }
@@ -1076,10 +1075,8 @@ window.Dag = (function($, Dag) {
     };
 
     Dag.hasDroppedParentAndNoMeta = function($dagTable) {
-        var nodeId = $dagTable.data('index');
-        var idMap = $dagTable.closest(".dagWrap").data("allDagInfo")
-                                                         .nodeIdMap;
-        var node = idMap[nodeId];
+        var nodeId = $dagTable.data("nodeid");
+        var node = Dag.getNodeById($dagTable.closest(".dagWrap"), nodeId);
         for (var i = 0; i < node.parents.length; i++) {
             if (node.parents[i].value.state ===
                 DgDagStateT.DgDagStateDropped) {
@@ -1094,7 +1091,7 @@ window.Dag = (function($, Dag) {
     };
 
     Dag.getTableIcon = function($dagWrap, nodeId) {
-        return $dagWrap.find('.dagTable[data-index=' + nodeId + ']');
+        return $dagWrap.find('.dagTable[data-nodeid=' + nodeId + ']');
     };
 
     Dag.getTableIconByName = function($dagWrap, tableName) {
@@ -1156,9 +1153,8 @@ window.Dag = (function($, Dag) {
                     '</i></div>');
         $opIcon.addClass("hasComment");
         if (!node) {
-            var nodeIdMap = $opIcon.closest(".dagWrap").data("allDagInfo")
-                                                       .nodeIdMap;
-            node = nodeIdMap[$opIcon.data("id")];
+            node = Dag.getNodeById($opIcon.closest(".dagWrap"),
+                                   $opIcon.data("nodeid"))
         }
         node.value.comment = commentObj;
     };
@@ -1166,7 +1162,7 @@ window.Dag = (function($, Dag) {
     // actually tags the .dagTableWrap so operation and table get styled
     Dag.styleSrcTables = function($dagWrap, tableName) {
         var $dagTable = Dag.getTableIconByName($dagWrap, tableName);
-        var nodeId = $dagTable.data("index");
+        var nodeId = $dagTable.data("nodeid");
         var node = $dagWrap.data("allDagInfo").nodeIdMap[nodeId];
         var ancestorNodes = node.getAllAncestorNodes();
         var $curDagTable;
@@ -1184,7 +1180,7 @@ window.Dag = (function($, Dag) {
 
     Dag.styleDestTables = function($dagWrap, tableName, className) {
         var $dagTable = Dag.getTableIconByName($dagWrap, tableName);
-        var nodeId = $dagTable.data("index");
+        var nodeId = $dagTable.data("nodeid");
         var node = $dagWrap.data("allDagInfo").nodeIdMap[nodeId];
         var descendantNodes = node.getAllDescendantNodes();
         var $curDagTable;
@@ -1976,7 +1972,7 @@ window.Dag = (function($, Dag) {
                     // check if table has column of the same name
                     if (!foundSameColName && backColName === curColName) {
                         foundSameColName = true;
-                        srcNames = getSourceColNames(cols[j].func);
+                        srcNames = xcHelper.getNamesFromFunc(cols[j].func);
                         found = true;
                         storedInfo.foundTables[parentNode.value.dagNodeId] = true;
                         storedInfo.lastFoundTable = parentNode.value.dagNodeId;
@@ -2115,7 +2111,7 @@ window.Dag = (function($, Dag) {
 
         // XX showing column name on each table is disabled
 
-        // var id = $dagTable.data('id');
+        // var id = $dagTable.data('nodeid');
 
         // var rect = $dagTable[0].getBoundingClientRect();
         // if ($dagWrap.find('.columnOriginInfo[data-id="' + id + '"]')

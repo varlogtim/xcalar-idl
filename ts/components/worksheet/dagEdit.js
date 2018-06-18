@@ -1079,7 +1079,7 @@ window.DagEdit = (function($, DagEdit) {
         var $dagTableWraps = $(".dagWrap.editMode").find(".aggError");
         var $dagWrap = $(".dagWrap.editMode");
         $dagTableWraps.each(function() {
-            var nodeId = $(this).find(".dagTable").data("index");
+            var nodeId = $(this).find(".dagTable").data("nodeid");
             var mapNode = Dag.getNodeById($dagWrap, nodeId);
             checkOpForAgg(mapNode);
         });

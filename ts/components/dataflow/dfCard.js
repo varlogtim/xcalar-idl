@@ -708,10 +708,8 @@ window.DFCard = (function($, DFCard) {
         // var df = DF.getDataflow(DFCard.getCurrentDF());
         var $popup = $('#exportColPopup');
         var tableName = $dagTable.data('table');
-        var nodeId = $dagTable.data("id") + "";
-        var nodeIdMap = $dagTable.closest(".dagWrap").data("allDagInfo")
-                                                     .nodeIdMap;
-        var exportNode = nodeIdMap[nodeId];
+        var nodeId = $dagTable.data("nodeid");
+        var exportNode = Dag.getNodeById($dagTable.closest(".dagWrap"), nodeId);
         var cols = exportNode.value.struct.columns;
         var numCols = cols.length;
 

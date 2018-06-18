@@ -7,7 +7,7 @@ describe("DFCommentModal Test", function() {
         UnitTest.onMinMode();
         $modal = $("#dfCommentModal");
         $opIcon = $('<div class="operationTypeWrap"><div class="typeTitle">Test</div></div>');
-        var $dagTable = $('<div class="dagTable" data-index="0"><div class="tableTitle">somename</div></div>');
+        var $dagTable = $('<div class="dagTable" data-nodeid="0"><div class="tableTitle">somename</div></div>');
         $dagWrap = $('<div class="dagWrap"><div class="dagTableWrap"></div></div>');
         $dagWrap.find(".dagTableWrap").append($opIcon);
         $dagWrap.find(".dagTableWrap").append($dagTable);

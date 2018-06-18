@@ -161,7 +161,7 @@ describe("DagEdit Test", function() {
         it("map pre form should show", function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "Split Column";
-            }).closest(".operationTypeWrap").data("id");
+            }).closest(".operationTypeWrap").data("nodeid");
             var node = nodeIdMap[nodeId];
 
             var cachedFn = TblManager.findAndFocusTable;
@@ -197,7 +197,7 @@ describe("DagEdit Test", function() {
 
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "Split Column";
-            }).closest(".operationTypeWrap").data("id");
+            }).closest(".operationTypeWrap").data("nodeid");
             var node = nodeIdMap[nodeId];
 
             DagEdit.editOp(node);
@@ -212,7 +212,7 @@ describe("DagEdit Test", function() {
         it("clicking on row should prompt edit", function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "Split Column";
-            }).closest(".operationTypeWrap").data("id");
+            }).closest(".operationTypeWrap").data("nodeid");
             var node = nodeIdMap[nodeId];
 
             var called = false;
@@ -275,7 +275,7 @@ describe("DagEdit Test", function() {
         after(function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "Split Column";
-            }).closest(".operationTypeWrap").data("id");
+            }).closest(".operationTypeWrap").data("nodeid");
             var node = nodeIdMap[nodeId];
             DagEdit.undoEdit(node);
         });
@@ -287,7 +287,7 @@ describe("DagEdit Test", function() {
         before(function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "Split Column";
-            }).closest(".operationTypeWrap").data("id");
+            }).closest(".operationTypeWrap").data("nodeid");
             node = nodeIdMap[nodeId];
 
             var cachedFocusFn = TblManager.findAndFocusTable;
@@ -358,7 +358,7 @@ describe("DagEdit Test", function() {
         before(function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "Group by";
-            }).closest(".operationTypeWrap").data("id");
+            }).closest(".operationTypeWrap").data("nodeid");
             node = nodeIdMap[nodeId];
 
             var cachedFocusFn = TblManager.findAndFocusTable;
@@ -444,7 +444,7 @@ describe("DagEdit Test", function() {
         before(function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "filter";
-            }).closest(".operationTypeWrap").data("id");
+            }).closest(".operationTypeWrap").data("nodeid");
             node = nodeIdMap[nodeId];
 
             var cachedFocusFn = TblManager.findAndFocusTable;
@@ -544,7 +544,7 @@ describe("DagEdit Test", function() {
         before(function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "aggregate";
-            }).closest(".operationTypeWrap").data("id");
+            }).closest(".operationTypeWrap").data("nodeid");
             node = nodeIdMap[nodeId];
 
             var cachedFocusFn = TblManager.findAndFocusTable;
@@ -625,7 +625,7 @@ describe("DagEdit Test", function() {
         before(function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "Join";
-            }).closest(".operationTypeWrap").data("id");
+            }).closest(".operationTypeWrap").data("nodeid");
             node = nodeIdMap[nodeId];
 
             var cachedFocusFn = TblManager.findAndFocusTable;
@@ -780,8 +780,8 @@ describe("DagEdit Test", function() {
         var cachedFocusFn;
         before(function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
-                return $(this).text() === "union";
-            }).closest(".operationTypeWrap").data("id");
+                return $(this).text() === "Union All";
+            }).closest(".operationTypeWrap").data("nodeid");
             node = nodeIdMap[nodeId];
 
             var cachedFocusFn = TblManager.findAndFocusTable;
@@ -906,7 +906,7 @@ describe("DagEdit Test", function() {
         before(function() {
             var nodeId = $dagWrap.find(".typeTitle").filter(function() {
                 return $(this).text() === "project";
-            }).closest(".operationTypeWrap").data("id");
+            }).closest(".operationTypeWrap").data("nodeid");
             node = nodeIdMap[nodeId];
 
             var cachedFocusFn = TblManager.findAndFocusTable;
@@ -1008,7 +1008,7 @@ describe("DagEdit Test", function() {
             expect(edits.structs).to.be.empty;
             // make edit to first map operation
             var $dagTable = Dag.getTableIconByName($dagWrap, firstMapName);
-            var nodeId = $dagTable.data("index");
+            var nodeId = $dagTable.data("nodeid");
 
             // use find node by name to get the node or just create struct without it
             edits.structs[firstMapName] = {
@@ -1058,7 +1058,7 @@ describe("DagEdit Test", function() {
             expect(edits.structs).to.not.be.empty;
             // make edit to first map operation
             var $dagTable = Dag.getTableIconByName($dagWrap, firstMapName);
-            var nodeId = $dagTable.data("index");
+            var nodeId = $dagTable.data("nodeid");
 
             var count = Authentication.getInfo().idCount;
             DagFunction.runProcedureWithParams(tableName, edits.structs, {})
@@ -1080,7 +1080,7 @@ describe("DagEdit Test", function() {
             $dagWrap.find(".editBtn:visible").click();
             expect($dagWrap.hasClass("editMode")).to.be.true;
 
-            var nodeId = $dagWrap.find(".operationTypeWrap").eq(0).data("id");
+            var nodeId = $dagWrap.find(".operationTypeWrap").eq(0).data("nodeid");
             var node = nodeIdMap[nodeId];
 
             var editInfo = DagEdit.getInfo();
