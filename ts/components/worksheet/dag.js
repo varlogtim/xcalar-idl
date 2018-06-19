@@ -181,6 +181,7 @@ window.Dag = (function($, Dag) {
             return ($(this).text() === oldTableName);
         }).text(newTableName);
 
+        // rename the individual dag table icons
         var $dagTableTitles = $dagPanel.find('.tableTitle').filter(function() {
             return ($(this).text() === oldTableName);
         });
@@ -189,13 +190,15 @@ window.Dag = (function($, Dag) {
         $dagTableTitles.parent().data('tablename', newTableName);
         $dagTableTitles.parent().attr('data-tablename', newTableName);
 
+        // change the structs
         var nodeId = $dagTableTitles.parent().data("nodeid");
         $dagTableTitles.each(function() {
-            var $dagWrap = $(this).closest(".dagWrap");
-            var nodeIdMap = $dagWrap.data("allDagInfo").nodeIdMap;
-            nodeIdMap[nodeId].value.name = newTableName;
+            var node = Dag.getNodeById($(this).closest(".dagWrap"), nodeId);
+            node.value.name = newTableName;
+            node.value.struct.dest = newTableName;
         });
 
+        // change the text within the operation rectangle
         var $dagOpText = $dagPanel.find(".opInfoText").filter(function() {
             return ($(this).text().indexOf(oldTableName) > -1);
         });
