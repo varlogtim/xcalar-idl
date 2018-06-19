@@ -140,7 +140,7 @@ class ExtCategory {
             return false;
         }
 
-        this.extensions[extName] = new ExtItem(extension);
+        this.extensions[extName] = extension;
         return true;
     }
 
@@ -201,8 +201,9 @@ class ExtCategorySet {
         return this.set.hasOwnProperty(categoryName);
     }
 
-    public addExtension(extension): void {
-        let categoryName: string = extension.category || ExtTStr.XcCategory;
+    public addExtension(data: object): void {
+        const extension: ExtItem = new ExtItem(data);
+        let categoryName: string = extension.getCategory() || ExtTStr.XcCategory;
         categoryName = categoryName.toLowerCase();
         let extCategory: ExtCategory;
 
