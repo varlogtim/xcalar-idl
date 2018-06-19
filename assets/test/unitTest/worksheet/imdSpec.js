@@ -68,7 +68,8 @@ describe('IMD Test', function() {
                     {batchId: 1, numRows:12, source:"source1b", startTS: startTime},
                     {batchId: 0, numRows:12, source:"source0b", startTS: startTime - 7200}
                 ],
-                values: [{name: "testCol", type: 0}]
+                values: [{name: "testCol", type: 0}],
+                oldestBatchId: 0
             };
             XcalarListPublishedTables = function() {
                 return PromiseHelper.resolve({
@@ -82,6 +83,7 @@ describe('IMD Test', function() {
                                 {batchId: 1, numRows:12, source:"source1a", startTS: startTime - 3600},
                                 {batchId: 0, numRows:12, source:"source0a", startTS: startTime - 7200}
                             ],
+                            oldestBatchId: 0,
                             values: [{name: "testCol", type: 0}]
                         },
                         table2
@@ -408,8 +410,8 @@ describe('IMD Test', function() {
             XcalarRefreshTable = function(name, dstName, min, max) {
                 expect(name).to.equal("test2");
                 expect(dstName.indexOf("test2")).to.equal(0);
-                expect(min).to.equal(0);
-                expect(max).to.equal(1);
+                expect(min).to.equal(-1);
+                expect(max).to.equal(-1);
                 called = true;
                 return PromiseHelper.resolve();
             };
@@ -459,8 +461,8 @@ describe('IMD Test', function() {
             XcalarRefreshTable = function(name, dstName, min, max) {
                 expect(name).to.equal("test2");
                 expect(dstName.indexOf("test2")).to.equal(0);
-                expect(min).to.equal(0);
-                expect(max).to.equal(1);
+                expect(min).to.equal(-1);
+                expect(max).to.equal(-1);
                 called = true;
                 return PromiseHelper.resolve();
             };
@@ -592,7 +594,8 @@ describe('IMD Test', function() {
                             {batchId: 1, numRows:12, source:"source1a", startTS: startTime - 3600},
                             {batchId: 0, numRows:12, source:"source0a", startTS: startTime - 7200}
                         ],
-                        values: [{name: "testCol", type: 0}]
+                        values: [{name: "testCol", type: 0}],
+                        oldestBatchId: 0
                     },
                     {
                         active: false,
@@ -603,7 +606,8 @@ describe('IMD Test', function() {
                             {batchId: 1, numRows:12, source:"source1a", startTS: startTime - 3600},
                             {batchId: 0, numRows:12, source:"source0a", startTS: startTime - 7200}
                         ],
-                        values: [{name: "testCol", type: 0}]
+                        values: [{name: "testCol", type: 0}],
+                        oldestBatchId: 0
                     }
                 ]});
             }
@@ -630,7 +634,8 @@ describe('IMD Test', function() {
                             {batchId: 1, numRows:12, source:"source1a", startTS: startTime - 3600},
                             {batchId: 0, numRows:12, source:"source0a", startTS: startTime - 7200}
                         ],
-                        values: [{name: "testCol", type: 0}]
+                        values: [{name: "testCol", type: 0}],
+                        oldestBatchId: 0
                     },
                     {
                         active: true,
@@ -641,7 +646,8 @@ describe('IMD Test', function() {
                             {batchId: 1, numRows:12, source:"source1a", startTS: startTime - 3600},
                             {batchId: 0, numRows:12, source:"source0a", startTS: startTime - 7200}
                         ],
-                        values: [{name: "testCol", type: 0}]
+                        values: [{name: "testCol", type: 0}],
+                        oldestBatchId: 0
                     }
                 ]});
             }
@@ -656,7 +662,8 @@ describe('IMD Test', function() {
                         {batchId: 1, numRows:12, source:"source1a", startTS: startTime - 3600},
                         {batchId: 0, numRows:12, source:"source0a", startTS: startTime - 7200}
                     ],
-                    values: [{name: "testCol", type: 0}]
+                    values: [{name: "testCol", type: 0}],
+                    oldestBatchId: 0
                 });
             tables.hTables.push(
                 {
@@ -668,7 +675,8 @@ describe('IMD Test', function() {
                         {batchId: 1, numRows:12, source:"source1a", startTS: startTime - 3600},
                         {batchId: 0, numRows:12, source:"source0a", startTS: startTime - 7200}
                     ],
-                    values: [{name: "testCol", type: 0}]
+                    values: [{name: "testCol", type: 0}],
+                    oldestBatchId: 0
                 }
             );
             tables = IMDPanel.__testOnly__.getTables();
@@ -689,9 +697,14 @@ describe('IMD Test', function() {
     describe("Table detail content", function() {
         it("no updates should show message", function() {
             var pTables = IMDPanel.__testOnly__.getTables().pTables;
-            pTables
-            IMDPanel.__testOnly__.updateTableDetailSection("nothing");
+            pTables.push({
+                name: "empty",
+                updates: [],
+                values: []
+            });
+            IMDPanel.__testOnly__.updateTableDetailSection("empty");
             expect($imdPanel.find(".tableDetailContent").text()).to.equal("No updates");
+            pTables.pop();
         });
     });
 

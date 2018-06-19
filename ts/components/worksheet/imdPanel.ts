@@ -547,9 +547,7 @@ namespace IMDPanel {
             $imdPanel.find(".dateTipLineSelect").remove();
             $imdPanel.find(".selected").removeClass("selected");
             const pos: number = event.pageX - $clickedElement.closest(".tableListHist").offset().left - 1;
-            // var selectedBar;
             if (closestUpdate === null) {
-                // selectedBar = '<div class="selectedBar selectedInvalid" data-time="" style="left:' + pos + 'px"></div>';
                 selectedCells[tableName] = 0
             } else {
                 selectedCells[tableName] = closestUpdate;
@@ -887,22 +885,21 @@ namespace IMDPanel {
     function submitRefreshTables(latest?: boolean): XDPromise<void> {
         const tables: RefreshTableInfos[] = [];
 
-        for (let i in selectedCells) {
-            let maxBatch: number = selectedCells[i];
-            let pTable: PublishTable;
-            pTables.forEach((table) => {
-                if (table.name === i) {
-                    pTable = table
-                    if (latest) {
-                        maxBatch = table.updates.length - 1;
-                    }
-                    return;
-                }
-            });
+        for (let tableName in selectedCells) {
+            let pTable: PublishTable = pTables.filter((table) => {
+                return (table.name === tableName);
+            })[0];
+
+            let maxBatch: number;
+            if (latest) {
+                maxBatch = -1; // -1 defaults to the latest
+            } else {
+                maxBatch = selectedCells[tableName];
+            }
             tables.push({
-                pubTableName: i,
-                dstTableName: i,
-                minBatch: pTable.oldestBatchId,
+                pubTableName: tableName,
+                dstTableName: tableName,
+                minBatch: -1, // defaults to oldest
                 maxBatch: maxBatch,
                 columns: pTable.values
             });
