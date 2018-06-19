@@ -140,7 +140,9 @@ XcalarApisT = {
   'XcalarApiListTables' : 131,
   'XcalarApiRestoreTable' : 132,
   'XcalarApiCoalesce' : 133,
-  'XcalarApiFunctionInvalid' : 134
+  'XcalarApiUserDetach' : 134,
+  'XcalarApiSessionActivate' : 135,
+  'XcalarApiFunctionInvalid' : 136
 };
 XcalarApisTStr = {
   0 : 'XcalarApiUnknown',
@@ -277,7 +279,9 @@ XcalarApisTStr = {
   131 : 'XcalarApiListTables',
   132 : 'XcalarApiRestoreTable',
   133 : 'XcalarApiCoalesce',
-  134 : 'XcalarApiFunctionInvalid'
+  134 : 'XcalarApiUserDetach',
+  135 : 'XcalarApiSessionActivate',
+  136 : 'XcalarApiFunctionInvalid'
 };
 XcalarApisTFromStr = {
   'XcalarApiUnknown' : 0,
@@ -414,5 +418,7 @@ XcalarApisTFromStr = {
   'XcalarApiListTables' : 131,
   'XcalarApiRestoreTable' : 132,
   'XcalarApiCoalesce' : 133,
-  'XcalarApiFunctionInvalid' : 134
+  'XcalarApiUserDetach' : 134,
+  'XcalarApiSessionActivate' : 135,
+  'XcalarApiFunctionInvalid' : 136
 };

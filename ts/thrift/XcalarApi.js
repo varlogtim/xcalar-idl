@@ -4396,6 +4396,46 @@ xcalarApiSessionSwitch = runEntity.xcalarApiSessionSwitch = function(thriftHandl
     return (deferred.promise());
 };
 
+xcalarApiSessionActivateWorkItem = runEntity.xcalarApiSessionActivateWorkItem = function(sessionName) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+
+    workItem.input.sessionActivateInput = new XcalarApiSessionActivateInputT();
+
+    workItem.api = XcalarApisT.XcalarApiSessionActivate;
+    workItem.input.sessionActivateInput.sessionName = sessionName;
+    return (workItem);
+};
+
+xcalarApiSessionActivate = runEntity.xcalarApiSessionActivate = function(thriftHandle, sessionName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarApiSessionActivate(sessionName = ", sessionName, ")");
+    }
+    var workItem = xcalarApiSessionActivateWorkItem(sessionName);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            result.timeElapsed = result.output.hdr.elapsed.milliseconds;
+            deferred.resolve(result);
+        }
+    })
+    .fail(function(error) {
+        console.log("xcalarApiSessionActivate() caught exception:", error);
+        deferred.reject(handleRejection(error));
+    });
+
+    return (deferred.promise());
+};
+
 xcalarApiSessionRenameWorkItem = runEntity.xcalarApiSessionRenameWorkItem = function(sessionName, origSessionName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -4533,6 +4573,46 @@ xcalarApiSessionUpload = runEntity.xcalarApiSessionUpload = function(thriftHandl
     .fail(function(error) {
         console.log("xcalarSessionUpload() caught exception:", error);
         deferred.reject(handleRejection(error));
+    });
+
+    return (deferred.promise());
+};
+
+xcalarApiUserDetachWorkItem = runEntity.xcalarApiUserDetachWorkItem = function(userName) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+
+    workItem.api = XcalarApisT.XcalarApiUserDetach;
+    workItem.input.userDetachInput = new XcalarApiUserDetachInputT();
+    workItem.input.userDetachInput.userName = userName;
+
+    return (workItem);
+};
+
+xcalarApiUserDetach = runEntity.xcalarApiUserDetach = function(thriftHandle, userName) {
+    var deferred = jQuery.Deferred();
+
+    if (verbose) {
+        console.log("xcalarApiUserDetach(userName = ", userName, ")");
+    }
+
+    var workItem = xcalarApiUserDetachWorkItem(userName);
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(result);
+        }
+    })
+    .fail(function(error) {
+        console.log("xcalarUserDetach() caught exception:", error);
+        deferred.reject(handleRejetion(error));
     });
 
     return (deferred.promise());

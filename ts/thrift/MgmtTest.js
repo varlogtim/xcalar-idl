@@ -803,10 +803,9 @@ window.Function.prototype.bind = function() {
                 test.fail("Fail struct type is wrong");
             }
             var loadOutput = failStruct.output;
-            var errStr = "record: -1, line: 2, column: 1, position: 10892, error: " +
-                         "end of file expected near '{'";
+            var errStr = "Extra data: line 2 column 1 (char 10891)";
             var errFile = qaTestDir + "/edgeCases/bad.json";
-            if (loadOutput.errorString == errStr &&
+            if (loadOutput.errorString.indexOf(errStr) !== -1 &&
                 loadOutput.errorFile == errFile) {
                 test.pass();
             } else {
@@ -972,7 +971,7 @@ window.Function.prototype.bind = function() {
         // Start a new session
         xcalarApiSessionNew(thriftHandle, testLockSession, false, "")
         .then(function() {
-            return xcalarApiSessionSwitch(thriftHandle, testLockSession, undefined, false);
+            return xcalarApiSessionActivate(thriftHandle, testLockSession);
         })
         .then(function() {
             setSessionName(testLockSession);
@@ -984,9 +983,9 @@ window.Function.prototype.bind = function() {
         .then(function(listDatasetUsersOutput) {
             printResult(listDatasetUsersOutput);
 
-            // Put back original session
+            // Inactivate the testLockSession as we no longer need it.
             setSessionName(session2);
-            return xcalarApiSessionSwitch(thriftHandle, session2, undefined, false);
+            return xcalarApiSessionInact(thriftHandle, testLockSession, false);
         })
         .then(function() {
             test.pass();
@@ -3043,7 +3042,7 @@ window.Function.prototype.bind = function() {
                 xcalarApiSessionNew(thriftHandle, session1, false, "")
                 .then(function() {
                     // ..activate it since a new session is inactive on birth
-                    return xcalarApiSessionSwitch(thriftHandle, session1, undefined, false);
+                    return xcalarApiSessionActivate(thriftHandle, session1);
                 })
                 .then(function() {
                     // ... and add a key.
@@ -3069,7 +3068,7 @@ window.Function.prototype.bind = function() {
                 .then(function(sessionNewRet) {
                     session2Id = sessionNewRet.output.outputResult.
                         sessionNewOutput.sessionId
-                    return xcalarApiSessionSwitch(thriftHandle, session2, session1, false);
+                    return xcalarApiSessionActivate(thriftHandle, session2);
                 })
                 .then (function() {
                     // Make sure the key we created in the other session doesn't turn up
@@ -3453,7 +3452,7 @@ window.Function.prototype.bind = function() {
             test.assert(ret.numSessions === 1);
             test.assert(ret.sessions[0].name === session2);
             test.assert(ret.sessions[0].state.toLowerCase() === "inactive");
-            return xcalarApiSessionSwitch(thriftHandle, session2, undefined);
+            return xcalarApiSessionActivate(thriftHandle, session2);
         })
         .then(function(ret) {
             printResult(ret);
@@ -3492,6 +3491,32 @@ window.Function.prototype.bind = function() {
         })
         .fail(function(reason) {
             test.fail(reason);
+        })
+    }
+
+    function testUserDetach(test) {
+        var userToDetach = "detachUser";
+        // Save the current user name as we're going to change it to one specific
+        // to this test.
+        var savedUserIdName = userIdName;
+        userIdName = userToDetach;
+        var sessName = "detachSession";
+
+        xcalarApiSessionNew(thriftHandle, sessName, false, "")
+        .then(function() {
+            // Switch back to the original user and detach the user
+            // that was just created
+            userIdName = savedUserIdName;
+            return xcalarApiUserDetach(thriftHandle, userToDetach)
+        })
+        .then(function() {
+            // It would be nice to verify that the user and sessions
+            // are gone but the act of listing (via SessionList) reloads
+            // them.
+            test.pass();
+        })
+        .fail(function(reason) {
+           test.fail(reason);
         })
     }
 
@@ -4249,11 +4274,9 @@ window.Function.prototype.bind = function() {
     addTestCase(testSessionInact, "inact session", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testSessionDownload, "download session", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testSessionUpload, "upload session", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testUserDetach, "detach user", defaultTimeout, TestCaseEnabled, "");
 
-    // XXX Re-enable as soon as bug is fixed
     addTestCase(testGetStats, "get stats", defaultTimeout, TestCaseEnabled, "");
-
-    // XXX Re-enable as soon as bug is fixed
     addTestCase(testGetStatGroupIdMap, "get stats group id map", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testIndexDatasetWithPrefix, "index dataset with prefix", defaultTimeout, TestCaseEnabled, "");

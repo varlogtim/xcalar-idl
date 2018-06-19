@@ -4500,16 +4500,13 @@ XcalarSwitchToWorkbook = function(toWhichWorkbook, fromWhichWorkbook) {
     return (deferred.promise());
 };
 
-// XXX this function is temporarily using SessionSwitch to
-// produce the multiple active workbook behavior
-// switch this to use the correct API when Bug 11523 is ready
 XcalarActivateWorkbook = function(workbookName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
     var deferred = PromiseHelper.deferred();
     // fromWhichWorkbook can be null
-    xcalarApiSessionSwitch(tHandle, workbookName, "notExists12345XYZ", true)
+    xcalarApiSessionActivate(tHandle, workbookName)
     .then(function(output) {
         deferred.resolve(output);
     })
@@ -4571,6 +4568,22 @@ XcalarDownloadWorkbook = function(workbookName, pathToAdditionalFiles) {
     });
     return (deferred.promise());
 };
+
+XcalarDetachWorkbook = function(userToDetachFrom) {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+    var deferred = PromiseHelper.deferred();
+
+    xcalarApiUserDetach(tHandle, userToDetachFrom)
+    .then(deferred.resolve)
+    .fail(function (error) {
+        var thriftError = thriftLog("XcalarDetachWorkbook", error);
+        Log.errorLog("Detach Workbook", null, null, thriftError);
+        deferred.reject(thriftError);
+    });
+    return (deferred.promise());
+}
 
 XcalarGetStatGroupIdMap = function(nodeId, numGroupId) {
     // nodeId is the node (be 0, 1, 2, 3, 4)

@@ -11199,6 +11199,59 @@ XcalarApiSessionSwitchInputT.prototype.write = function(output) {
   return;
 };
 
+XcalarApiSessionActivateInputT = function(args) {
+  this.sessionName = null;
+  if (args) {
+    if (args.sessionName !== undefined && args.sessionName !== null) {
+      this.sessionName = args.sessionName;
+    }
+  }
+};
+XcalarApiSessionActivateInputT.prototype = {};
+XcalarApiSessionActivateInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.sessionName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiSessionActivateInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiSessionActivateInputT');
+  if (this.sessionName !== null && this.sessionName !== undefined) {
+    output.writeFieldBegin('sessionName', Thrift.Type.STRING, 1);
+    output.writeString(this.sessionName);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 XcalarApiSessionRenameInputT = function(args) {
   this.sessionName = null;
   this.origSessionName = null;
@@ -11488,6 +11541,59 @@ XcalarApiSessionUploadInputT.prototype.write = function(output) {
   if (this.sessionContent !== null && this.sessionContent !== undefined) {
     output.writeFieldBegin('sessionContent', Thrift.Type.STRING, 4);
     output.writeString(this.sessionContent);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+XcalarApiUserDetachInputT = function(args) {
+  this.userName = null;
+  if (args) {
+    if (args.userName !== undefined && args.userName !== null) {
+      this.userName = args.userName;
+    }
+  }
+};
+XcalarApiUserDetachInputT.prototype = {};
+XcalarApiUserDetachInputT.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.userName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+XcalarApiUserDetachInputT.prototype.write = function(output) {
+  output.writeStructBegin('XcalarApiUserDetachInputT');
+  if (this.userName !== null && this.userName !== undefined) {
+    output.writeFieldBegin('userName', Thrift.Type.STRING, 1);
+    output.writeString(this.userName);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -15439,6 +15545,8 @@ XcalarApiInputT = function(args) {
   this.listTablesInput = null;
   this.restoreTableInput = null;
   this.coalesceInput = null;
+  this.userDetachInput = null;
+  this.sessionActivateInput = null;
   if (args) {
     if (args.loadInput !== undefined && args.loadInput !== null) {
       this.loadInput = new XcalarApiBulkLoadInputT(args.loadInput);
@@ -15718,6 +15826,12 @@ XcalarApiInputT = function(args) {
     }
     if (args.coalesceInput !== undefined && args.coalesceInput !== null) {
       this.coalesceInput = new XcalarApiCoalesceInputT(args.coalesceInput);
+    }
+    if (args.userDetachInput !== undefined && args.userDetachInput !== null) {
+      this.userDetachInput = new XcalarApiUserDetachInputT(args.userDetachInput);
+    }
+    if (args.sessionActivateInput !== undefined && args.sessionActivateInput !== null) {
+      this.sessionActivateInput = new XcalarApiSessionActivateInputT(args.sessionActivateInput);
     }
   }
 };
@@ -16479,6 +16593,22 @@ XcalarApiInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 97:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.userDetachInput = new XcalarApiUserDetachInputT();
+        this.userDetachInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 98:
+      if (ftype == Thrift.Type.STRUCT) {
+        this.sessionActivateInput = new XcalarApiSessionActivateInputT();
+        this.sessionActivateInput.read(input);
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -16953,6 +17083,16 @@ XcalarApiInputT.prototype.write = function(output) {
   if (this.coalesceInput !== null && this.coalesceInput !== undefined) {
     output.writeFieldBegin('coalesceInput', Thrift.Type.STRUCT, 96);
     this.coalesceInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.userDetachInput !== null && this.userDetachInput !== undefined) {
+    output.writeFieldBegin('userDetachInput', Thrift.Type.STRUCT, 97);
+    this.userDetachInput.write(output);
+    output.writeFieldEnd();
+  }
+  if (this.sessionActivateInput !== null && this.sessionActivateInput !== undefined) {
+    output.writeFieldBegin('sessionActivateInput', Thrift.Type.STRUCT, 98);
+    this.sessionActivateInput.write(output);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
