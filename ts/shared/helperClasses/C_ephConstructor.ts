@@ -376,11 +376,16 @@ class SearchBar {
     private _setup(): void {
         const searchBar: SearchBar = this;
         const options: SearchBarOptions = searchBar.options || {};
-        let $searchInput: JQuery = searchBar.$searchInput;
+        // let $searchInput: JQuery | CodeMirror.Editor;
+        // if (options.codeMirror) {
+        //     $searchInput = searchBar.codeMirror;
+        // } else {
+        //     $searchInput = searchBar.$searchInput;
+        // }
 
         // keydown event for up, down, enter keys
         // secondaryEvent is the event passed in by codemirror
-        function handleKeyDownEvent(event: JQueryEventObject, secondaryEvent: JQueryEventObject): void {
+        function handleKeyDownEvent(event: JQueryEventObject | CodeMirror.Editor, secondaryEvent: JQueryEventObject): void {
             if (searchBar.numMatches === 0) {
                 return;
             }
@@ -388,7 +393,7 @@ class SearchBar {
             if (searchBar.codeMirror) {
                 e = secondaryEvent;
             } else {
-                e = event;
+                e = <JQueryEventObject> event;
             }
 
             if (e.which === keyCode.Up ||
@@ -398,7 +403,7 @@ class SearchBar {
                 if (searchBar.codeMirror) {
                     val = searchBar.codeMirror.getValue();
                 } else {
-                    val = $searchInput.val();
+                    val = searchBar.$searchInput.val();
                 }
                 val = val.trim();
                 // if ignore value exists in the input, do not search
@@ -441,17 +446,25 @@ class SearchBar {
             }
         }
         // secondaryEvent is the event passed in by codemirror
-        $searchInput.on("keydown",
-        function (event: JQueryEventObject, secondaryEvent: JQueryEventObject) {
-            handleKeyDownEvent(event, secondaryEvent);
-        });
+        if (searchBar.codeMirror) {
+            searchBar.codeMirror.on("keydown",
+            function (instance: CodeMirror.Editor, secondaryEvent: JQueryEventObject) {
+                handleKeyDownEvent(instance, secondaryEvent);
+                return false;
+            });
+        } else {
+            searchBar.$searchInput.on("keydown",
+            function (event: JQueryEventObject, secondaryEvent: JQueryEventObject) {
+                handleKeyDownEvent(event, secondaryEvent);
+            });
+        }
 
         searchBar.$downArrow.click(function() {
             const evt = $.Event("keydown", {which: keyCode.Down});
             if (searchBar.codeMirror) {
                 handleKeyDownEvent(evt, evt);
             } else {
-                $searchInput.trigger(evt);
+                searchBar.$searchInput.trigger(evt);
             }
         });
 
@@ -460,7 +473,7 @@ class SearchBar {
             if (searchBar.codeMirror) {
                 handleKeyDownEvent(evt, evt);
             } else {
-                $searchInput.trigger(evt);
+                searchBar.$searchInput.trigger(evt);
             }
         });
 
