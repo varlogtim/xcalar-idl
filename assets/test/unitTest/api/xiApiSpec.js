@@ -1540,8 +1540,9 @@ describe('XIApi Test', () => {
 
         it('getUnionConcatMapStr should work', () => {
             const getUnionConcatMapStr = XIApi.__testOnly__.getUnionConcatMapStr;
-            const res = 'concat(string(ifStr(exists(a), a, "XC_FNF")), concat(".Xc.", string(ifStr(exists(b), b, "XC_FNF"))))';
-            expect(getUnionConcatMapStr(['a', 'b'])).to.equal(res);
+            const res = 'concat(ifStr(exists(a), a, "XC_FNF"), concat(".Xc.", ifStr(exists(string(b)), string(b), "XC_FNF")))';
+            expect(getUnionConcatMapStr(['a', 'b'], [DfFieldTypeT.DfString, DfFieldTypeT.DfInt64]))
+            .to.equal(res);
         });
 
         it('unionAllIndex should work', (done) => {
@@ -1565,7 +1566,7 @@ describe('XIApi Test', () => {
                     expect(unionRenameInfos.length).to.equal(1);
                     expect(unionRenameInfos[0].tableName).to.equal('testIndexTable');
                     expect(unionRenameInfos[0].renames.length).to.equal(2);
-                    expect(tempTables.length).to.equal(3);
+                    expect(tempTables.length).to.equal(2);
                     done();
                 })
                 .fail(() => {

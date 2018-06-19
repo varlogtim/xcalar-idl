@@ -1394,17 +1394,25 @@ namespace XIApi {
         return deferred.promise();
     }
 
-    function getUnionConcatMapStr(colNames: string[]): string {
+    function getUnionConcatMapStr(
+        colNames: string[],
+        colTypes: DfFieldTypeT[]
+    ): string {
         let mapStr: string = "";
         const len: number = colNames.length;
+        const vals = colNames.map((colName, index) => {
+            if (colTypes[index] === DfFieldTypeT.DfString) {
+                return `ifStr(exists(${colName}), ${colName}, "XC_FNF")`;
+            } else {
+                return `ifStr(exists(string(${colName})), string(${colName}), "XC_FNF")`;
+            }
+        });
+
         for (let i = 0; i < len - 1; i++) {
-            let val = `ifStr(exists(${colNames[i]}), ${colNames[i]}, "XC_FNF")`;
-            mapStr += `concat(string(${val}), concat(".Xc.", `;
+            mapStr += `concat(${vals[i]}, concat(".Xc.", `;
         }
 
-        const colName: string = colNames[len - 1];
-        let val = `ifStr(exists(${colName }), ${colName}, "XC_FNF")`;
-        mapStr += `string(${val})`;
+        mapStr += vals[len - 1];
         mapStr += '))'.repeat(len - 1);
         return mapStr;
     }
@@ -1415,42 +1423,27 @@ namespace XIApi {
         indexColName: string,
         tempTables: string[]
     ): XDPromise<void> {
-        // step 1: change all columns to type string(null will become FNF)
-        // step 2: concat all columns
-        // step 3: index on the concat column
+        // step 1: concat all columns
+        // step 2: index on the concat column
         const colNames: string[] = [];
-        const newColNames: string[] = [];
-        const mapStrs: string[] = [];
-        const suffix: string = xcHelper.randName("_xc_");
+        const colTypes: DfFieldTypeT[] = [];
         unionRenameInfo.renames.forEach((renameInfo) => {
             const colName: string = renameInfo.orig;
             colNames.push(colName);
-            // this will change all null to FNF
-            mapStrs.push(`string(${colName})`);
-            const newColName: string = xcHelper.parsePrefixColName(colName)
-                .name + suffix;
-            newColNames.push(newColName);
+            colTypes.push(renameInfo.type);
         });
 
+        const mapStr: string = getUnionConcatMapStr(colNames, colTypes);
+        const concatColName: string =  xcHelper.randName("XC_CONCAT");
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const tableName: string = unionRenameInfo.tableName;
-        let curTableName: string = tableName;
-        let concatColName: string;
+        let curTableName: string = unionRenameInfo.tableName;
 
-        XIApi.map(txId, mapStrs, curTableName, newColNames)
-        .then((tableAfterMap) => {
-            tempTables.push(curTableName);
-
-            curTableName = tableAfterMap;
-            concatColName = xcHelper.randName("XC_CONCAT");
-            const mapStr: string = getUnionConcatMapStr(newColNames);
-            // step 2, concat all cols into one col
-            return XIApi.map(txId, [mapStr], curTableName, [concatColName]);
-        })
+        // step 1, concat all cols into one col
+        XIApi.map(txId, [mapStr], curTableName, [concatColName])
         .then((tableAfterMap) => {
             tempTables.push(curTableName);
             curTableName = tableAfterMap;
-            // step 3: index on the concat column
+            // step 2: index on the concat column
             return XIApi.index(txId, concatColName, curTableName);
         })
         .then((finalTableName) => {
