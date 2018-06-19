@@ -138,6 +138,7 @@ interface SQLInfo {
     tableId?: TableId,
     srcTables?: string[],
     tableName?: string,
+    tableNames?: string[],
     lTableName?: string,
     rTableName?: string
 }

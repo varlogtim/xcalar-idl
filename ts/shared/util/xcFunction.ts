@@ -677,9 +677,11 @@ namespace xcFunction {
                     tablesToReplace, curWS, txId, { focusWorkspace: focusOnTable });
             })
             .then(() => {
+                sql["newTableName"] = finalTableName;
                 Transaction.done(txId, {
                     msgTable: xcHelper.getTableId(finalTableName),
-                    noNotification: focusOnTable
+                    noNotification: focusOnTable,
+                    sql: sql
                 });
                 deferred.resolve(finalTableName);
             })

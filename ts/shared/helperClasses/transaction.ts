@@ -512,6 +512,10 @@ namespace Transaction {
             }
         } else if (sql.tableName) {
             tables.push(sql.tableName);
+        } else if (sql.tableNames) {
+            for (let i = 0; i < sql.tableNames.length; i++) {
+                tables.push(sql.tableNames[i]);
+            }
         } else if (sql.tableId != null && gTables[sql.tableId]) {
             tables.push(gTables[sql.tableId].getName());
         } else if (sql.lTableName) {
