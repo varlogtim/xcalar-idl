@@ -219,8 +219,21 @@ namespace IMDPanel {
         const ctx: CanvasRenderingContext2D = canvas.getContext("2d");
         let canvasWidth: number = $canvas.parent().width();
         let canvasHeight: number = $canvas.parent().height();
-        canvas.setAttribute("width", "" + canvasWidth);
-        canvas.setAttribute("height", "" + canvasHeight);
+
+        const dpr: number = window.devicePixelRatio || 1;
+        const bsr: number = ctx.webkitBackingStorePixelRatio ||
+              ctx.mozBackingStorePixelRatio ||
+              ctx.msBackingStorePixelRatio ||
+              ctx.oBackingStorePixelRatio ||
+              ctx.backingStorePixelRatio || 1;
+
+        const ratio: number = dpr / bsr;
+
+        canvas.width = canvasWidth * ratio;
+        canvas.height = canvasWidth * ratio;
+        canvas.style.width = canvasWidth + "px";
+        canvas.style.height = canvasWidth + "px";
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
         ctx.strokeStyle = tickColor;
         ctx.lineWidth = tickWidth;
         ctx.font = "9px Open Sans";
