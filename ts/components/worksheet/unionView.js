@@ -396,7 +396,7 @@ window.UnionView = (function(UnionView, $) {
             var $col = $(this);
             var type = $col.data("type");
             resultCols[index] = {
-                name: $col.find("input").val()
+                name: xcHelper.stripColName($col.find("input").val())
             };
             if ($col.hasClass("cast") && type != null) {
                 resultCols[index].type = type;
@@ -1020,6 +1020,27 @@ window.UnionView = (function(UnionView, $) {
             newColumnValids.push({$ele: $(this)});
         });
         if (!xcHelper.validate(newColumnValids)) {
+            return false;
+        }
+
+        $unionView.find(".resultInput").each(function(index) {
+            var $input = $(this);
+            var error;
+            var newName = $input.val();
+            if (newName.trim().length === 0) {
+                error = ErrTStr.NoEmpty;
+            } else {
+                error = xcHelper.validateColName(newName);
+            }
+
+            if (error != null) {
+                StatusBox.show(error, $input, true);
+                isValid = false;
+                return false;  // stop loop
+            }
+        });
+
+        if (!isValid) {
             return false;
         }
 
