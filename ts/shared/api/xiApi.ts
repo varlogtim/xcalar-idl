@@ -556,6 +556,56 @@ namespace XIApi {
 
         return deferred.promise();
     }
+
+    function synthesizeColumns(
+        txId: number,
+        tableName: string,
+        colNames: string[],
+        casts: XcCast[]
+    ): XDPromise<CastResult> {
+        const options: CastInfoOptions = {
+            castPrefix: true,
+            handleNull: true,
+            overWrite: false
+        };
+        const castInfo = getCastInfo(tableName, colNames, casts, options);
+        if (castInfo.mapStrs.length === 0) {
+            return PromiseHelper.resolve({
+                tableName: tableName,
+                colNames: castInfo.newColNames,
+                types: castInfo.newTypes,
+                newTable: false
+            });
+        }
+
+        const progCols: ProgCol[] = [];
+        const colInfos: ColRenameInfo[] = colNames.map((colName, i) => {
+            const newName: string = castInfo.newColNames[i];
+            const type: ColumnType = castInfo.newTypes[i];
+            const fieldType: DfFieldTypeT = xcHelper.convertColTypeToFieldType(type);
+            progCols.push(ColManager.newPullCol(newName, newName, type));
+            return xcHelper.getJoinRenameMap(colName, newName, fieldType);
+        });
+
+        const newTableName: string = getNewTableName(tableName);
+        const deferred: XDDeferred<CastResult> = PromiseHelper.deferred();
+
+        XIApi.synthesize(txId, colInfos, tableName, newTableName)
+        .then(() => {
+            progCols.push(ColManager.newDATACol());
+            TblManager.setOrphanTableMeta(newTableName, progCols);
+
+            deferred.resolve({
+                tableName: newTableName,
+                colNames: castInfo.newColNames,
+                types: castInfo.newTypes,
+                newTable: true
+            });
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
     /* ============= End of Cast Helper ============== */
 
     /* ============= Join Helper ===================== */
@@ -1353,18 +1403,13 @@ namespace XIApi {
             });
 
             const tableName: string = tableInfo.tableName;
-            const options: CastInfoOptions = {
-                castPrefix: true,
-                handleNull: true,
-                overWrite: false
-            };
-
             const innerDeferred: XDDeferred<void> = PromiseHelper.deferred();
-            castColumns(txId, tableName, colNames, casts, options)
+            synthesizeColumns(txId, tableName, colNames, casts)
             .then((res) => {
                 if (res.newTable) {
                     tempTables.push(res.tableName);
                 }
+
                 const renames: ColRenameInfo[] = res.colNames.map((colName, i) => {
                     const newName: string = columns[i].rename;
                     const type: ColumnType = res.types[i] ? res.types[i] : columns[i].type;
@@ -2787,6 +2832,7 @@ namespace XIApi {
             getUnusedImmNames: getUnusedImmNames,
             getCastInfo: getCastInfo,
             castColumns: castColumns,
+            synthesizeColumns: synthesizeColumns,
             joinCast: joinCast,
             joinIndex: joinIndex,
             resolveJoinColRename: resolveJoinColRename,

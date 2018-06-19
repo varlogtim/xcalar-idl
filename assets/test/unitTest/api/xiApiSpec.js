@@ -563,6 +563,7 @@ describe('XIApi Test', () => {
             const txId = 0;
             const tableName = 'testTable#abc';
 
+
             before(() => {
                 castColumns = XIApi.__testOnly__.castColumns;
                 Authentication.getHashId = () => '#12';
@@ -608,6 +609,61 @@ describe('XIApi Test', () => {
                     })
                     .always(() => {
                         XIApi.map = oldMap;
+                        TblManager.setOrphanTableMeta = oldSetMeta;
+                    });
+            });
+        });
+
+        describe('synthesizeColumns Test', () => {
+            let synthesizeColumns;
+            const txId = 0;
+            const tableName = 'testTable#abc';
+
+            before(() => {
+                synthesizeColumns = XIApi.__testOnly__.synthesizeColumns;
+                Authentication.getHashId = () => '#12';
+            });
+
+            it('should return when there is no column to synthesize', (done) => {
+                synthesizeColumns(txId, tableName, ['col'], [null])
+                    .then((res) => {
+                        expect(res).to.be.an('object');
+                        expect(res.tableName).to.equal(tableName);
+                        expect(res.colNames.length).to.equal(1);
+                        expect(res.colNames[0]).to.equal('col');
+                        expect(res.types.length).to.equal(1);
+                        expect(res.types[0]).to.equal(null);
+                        expect(res.newTable).to.be.false;
+                        done();
+                    })
+                    .fail(() => {
+                        done('fail');
+                    });
+            });
+
+            it('should synthesize', (done) => {
+                const oldSynthesize = XIApi.synthesize;
+                const oldSetMeta = TblManager.setOrphanTableMeta;
+
+                XIApi.synthesize = () => PromiseHelper.resolve();
+                TblManager.setOrphanTableMeta = () => { };
+
+                synthesizeColumns(txId, tableName, ['col'], [ColumnType.integer])
+                    .then((res) => {
+                        expect(res).to.be.an('object');
+                        expect(res.tableName).not.to.equal(tableName);
+                        expect(res.colNames.length).to.equal(1);
+                        expect(res.colNames[0]).to.contains('col');
+                        expect(res.types.length).to.equal(1);
+                        expect(res.types[0]).to.equal(ColumnType.integer);
+                        expect(res.newTable).to.be.true;
+                        done();
+                    })
+                    .fail(() => {
+                        done('fail');
+                    })
+                    .always(() => {
+                        XIApi.synthesize = oldSynthesize;
                         TblManager.setOrphanTableMeta = oldSetMeta;
                     });
             });
@@ -1496,9 +1552,9 @@ describe('XIApi Test', () => {
 
         it('unionCast should work', (done) => {
             const unionCast = XIApi.__testOnly__.unionCast;
-            const oldMap = XIApi.map;
+            const oldSynthesize = XIApi.synthesize;
             const oldSetMeta = TblManager.setOrphanTableMeta;
-            XIApi.map = () => PromiseHelper.resolve();
+            XIApi.synthesize = () => PromiseHelper.resolve();
             TblManager.setOrphanTableMeta = () => { };
 
             const txId = 0;
@@ -1529,7 +1585,7 @@ describe('XIApi Test', () => {
                     done('fail');
                 })
                 .always(() => {
-                    XIApi.map = oldMap;
+                    XIApi.synthesize = oldSynthesize;
                     TblManager.setOrphanTableMeta = oldSetMeta;
                 });
         });

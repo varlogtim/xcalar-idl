@@ -2122,6 +2122,9 @@ window.DagDraw = (function($, DagDraw) {
     }
 
     function generateUnionTooltip(parentNames, fields, unionType) {
+        if (fields.length === 0) {
+            return "";
+        }
         var columns = "";
         for (var i = 0; i < fields[0].length; i++) {
             if (i > 0) {
@@ -2286,18 +2289,24 @@ window.DagDraw = (function($, DagDraw) {
 
         for (var i = 0; i < parents.length; i++) {
             var parentIndex = i;
-            if (parents[i].value.api === XcalarApisT.XcalarApiMap) {
+            var api = parents[i].value.api;
+            if (api === XcalarApisT.XcalarApiMap) {
+                // this is deprecated after we use synthesize in Chronos Patch Set 1
                 srcColSets[parentIndex] = parseConcatCols(parents[i]);
-            } else if (parents[i].value.api === XcalarApisT.XcalarApiIndex) {
+            } else if (api === XcalarApisT.XcalarApiSynthesize) {
+                srcColSets[parentIndex] = parseConcatCols(parents[i]);
+            } else if (api === XcalarApisT.XcalarApiIndex) {
                 var cols = [];
                 for (var j = 0; j < parents[i].value.struct.key.length; j++) {
                     cols.push(parents[i].value.struct.key[j].name);
                 }
                 srcColSets[parentIndex] = cols;
-            } else if (parents[i].value.api === XcalarApisT.XcalarApiUnion) {
+            } else if (api === XcalarApisT.XcalarApiUnion) {
                 srcColSets[parentIndex] = parents[i].value.struct.columns[parentIndex].map(function(colInfo) {
                     return colInfo.sourceColumn;
                 });
+            } else {
+                console.warn(api, 'should not be included in union');
             }
             node.value.struct.columns[parentIndex].forEach(function(colInfo) {
                 if (colInfo.sourceColumn === colInfo.destColumn && colInfo.sourceColumn.indexOf("XC_") !== 0) {
@@ -2482,12 +2491,18 @@ window.DagDraw = (function($, DagDraw) {
     // and maps within multijoin
     function parseConcatCols(node) {
         var cols = [];
-        if (node.value.api === XcalarApisT.XcalarApiMap) {
+        var api = node.value.api;
+        if (api === XcalarApisT.XcalarApiMap) {
             var evals = node.value.struct.eval;
             for (var i = 0; i < evals.length; i++) {
                 var func = ColManager.parseFuncString(evals[i].evalString);
                 cols = cols.concat(xcHelper.getNamesFromFunc(func));
             }
+        } else if (api === XcalarApisT.XcalarApiSynthesize) {
+            var columns = node.value.struct.columns;
+            cols = columns.map(function(column) {
+                return column.sourceColumn;
+            });
         }
         return cols;
     }
