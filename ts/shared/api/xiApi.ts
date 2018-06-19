@@ -1966,24 +1966,7 @@ namespace XIApi {
         .then(() => {
             deferred.resolve(newTableName);
         })
-        .fail((error) => {
-            if (typeof error === "object" && error.status === StatusT.StatusCannotReplaceKey) {
-                // We assume if can only occur when the column is indexed but not sorted
-                // if later we break this assumption, need to fix sort issue
-                XIApi.index(txId, gXcalarRecordNum, tableName)
-                .then((indexTable) => {
-                    const doNotUnSort: boolean = true;
-                    return XcalarMap(newColNames, mapStrs, indexTable,
-                                    newTableName, txId, doNotUnSort, icvMode);
-                })
-                .then(() => {
-                    deferred.resolve(newTableName);
-                })
-                .fail(deferred.reject);
-            } else {
-                deferred.reject(error);
-            }
-        });
+        .fail(deferred.reject);
 
         return deferred.promise();
     }

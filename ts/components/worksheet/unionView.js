@@ -879,7 +879,7 @@ window.UnionView = (function(UnionView, $) {
     function seletDedup(dedup) {
         // it's asking include dedup rows or not
         var option = dedup? "no" : "yes";
-        $("#dedupSection .radiwButton." + option).click();
+        $("#dedupSection .radioButton." + option).click();
     }
 
     function reset() {

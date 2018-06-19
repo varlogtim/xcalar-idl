@@ -2067,31 +2067,6 @@ describe('XIApi Test', () => {
                 });
         });
 
-        it('XIApi.map should handle cannot replace key case', (done) => {
-            const oldMap = XcalarMap;
-            const oldIndex = XIApi.index;
-            let test = false;
-            XcalarMap = () => PromiseHelper.reject({ status: StatusT.StatusCannotReplaceKey });
-            XIApi.index = () => {
-                test = true;
-                XcalarMap = () => PromiseHelper.resolve();
-                return PromiseHelper.resolve();
-            };
-
-            XIApi.map(1, ['concat(a)'], 'table', 'newCol')
-                .then((newTableName) => {
-                    expect(newTableName).to.equal('table#12');
-                    done();
-                })
-                .fail(() => {
-                    done('fail');
-                })
-                .always(() => {
-                    XcalarMap = oldMap;
-                    XIApi.index = oldIndex;
-                });
-        });
-
         it('XIApi.map should reject normal fail', (done) => {
             const oldMap = XcalarMap;
             XcalarMap = () => PromiseHelper.reject('test');
