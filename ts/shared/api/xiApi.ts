@@ -2403,16 +2403,18 @@ namespace XIApi {
      * @param txId
      * @param queryName
      * @param queryStr
+     * @param fromJdbc
      */
     export function query(
         txId: number,
         queryName: string,
-        queryStr: string
+        queryStr: string,
+        jdbcCheckTime: number
     ): XDPromise<void> {
         if (txId == null || queryName == null || queryStr == null) {
             return PromiseHelper.reject("Invalid args in query");
         }
-        return XcalarQueryWithCheck(queryName, queryStr, txId, false);
+        return XcalarQueryWithCheck(queryName, queryStr, txId, false, jdbcCheckTime);
     }
 
     /**
@@ -2646,10 +2648,12 @@ namespace XIApi {
      * XIApi.deleteTables
      * @param txId
      * @param arrayOfQueries
+     * @param jdbcCheckTime
      */
     export function deleteTables(
         txId: number,
-        arrayOfQueries: object[]
+        arrayOfQueries: object[],
+        jdbcCheckTime: number
     ): XDPromise<any> {
         if (txId == null || arrayOfQueries == null) {
             return PromiseHelper.reject('Invalid args in delete table');
@@ -2658,7 +2662,7 @@ namespace XIApi {
         let queryName: string = xcHelper.randName('sql');
         let queryStr: string = JSON.stringify(arrayOfQueries);
         let deferred: XDDeferred<any> = PromiseHelper.deferred();
-        XcalarQueryWithCheck(queryName, queryStr, txId, false)
+        XcalarQueryWithCheck(queryName, queryStr, txId, false, jdbcCheckTime)
         .then((res) => {
             // results come back in random order so we create a map of names
             let resMap: Map<string, number> = new Map();

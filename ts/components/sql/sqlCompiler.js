@@ -1149,7 +1149,7 @@
         }
     }
     SQLCompiler.prototype = {
-        compile: function(sqlQueryString, isJsonPlan, prefix) {
+        compile: function(sqlQueryString, isJsonPlan, jdbcOption) {
             // XXX PLEASE DO NOT DO THIS. THIS IS CRAP
             var oldKVcommit;
             if (typeof KVStore !== "undefined") {
@@ -1229,7 +1229,7 @@
                         var queryString = "[" + cliArray.join(",") + "]";
                         // queryString = queryString.replace(/\\/g, "\\");
                         // console.log(queryString);
-                        if (prefix) {
+                        if (jdbcOption && jdbcOption.prefix) {
                             try {
                                 var plan = JSON.parse(queryString);
                             } catch (e) {
@@ -1238,7 +1238,7 @@
                             tree.newTableName = addPrefix(plan,
                                                            allTableNames,
                                                            tree.newTableName,
-                                                           prefix);
+                                                           jdbcOption.prefix);
                             queryString = JSON.stringify(plan);
                         }
 
@@ -1259,7 +1259,9 @@
                 if (typeof SQLEditor !== "undefined") {
                     SQLEditor.startExecution();
                 }
-                self.sqlObj.run(queryString, newTableName, newCols, sqlQueryString)
+                var jdbcCheckTime = jdbcOption ? jdbcOption.jdbcCheckTime : undefined;
+                self.sqlObj.run(queryString, newTableName, newCols,
+                                sqlQueryString, jdbcCheckTime)
                 .then(function() {
                     if (typeof SQLCache !== "undefined" && toCache) {
                         SQLCache.cacheQuery(sqlQueryString, toCache);

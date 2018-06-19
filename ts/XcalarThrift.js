@@ -2886,7 +2886,7 @@ function queryStateErrorStatusHandler(error, statusesToIgnore) {
 }
 
 // used to check when a query finishes or when a queryCancel finishes
-XcalarQueryCheck = function(queryName, canceling) {
+XcalarQueryCheck = function(queryName, canceling, jdbcCheckTime) {
     // function getDagNodeStatuses(dagOutput) {
     //     var nodeStatuses = {};
     //     for (var i = 0; i < dagOutput.length; i++) {
@@ -2911,6 +2911,9 @@ XcalarQueryCheck = function(queryName, canceling) {
     var checkTime = 1000;// 1s per check
     if (canceling) {
         checkTime = 2000;
+    }
+    if (jdbcCheckTime) {
+        checkTime = jdbcCheckTime;
     }
     cycle();
 
@@ -2950,7 +2953,7 @@ XcalarQueryCheck = function(queryName, canceling) {
     return (deferred.promise());
 };
 
-XcalarQueryWithCheck = function(queryName, queryString, txId, bailOnError) {
+XcalarQueryWithCheck = function(queryName, queryString, txId, bailOnError, jdbcCheckTime) {
     var deferred = PromiseHelper.deferred();
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
@@ -2958,7 +2961,7 @@ XcalarQueryWithCheck = function(queryName, queryString, txId, bailOnError) {
 
     XcalarQuery(queryName, queryString, txId, bailOnError)
     .then(function() {
-        return XcalarQueryCheck(queryName);
+        return XcalarQueryCheck(queryName, undefined, jdbcCheckTime);
     })
     .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {

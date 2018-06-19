@@ -278,7 +278,7 @@
             return PromiseHelper.when.apply(window, promiseArray);
         },
 
-        run: function(query, tableName, allCols, sqlQueryString) {
+        run: function(query, tableName, allCols, sqlQueryString, jdbcCheckTime) {
             var deferred = PromiseHelper.deferred();
             var isSqlMode = (typeof sqlMode !== "undefined" && sqlMode);
             var queryName = xcHelper.randName("sql");
@@ -288,7 +288,7 @@
                 "track": true
             });
             var self = this;
-            XIApi.query(txId, queryName, query)
+            XIApi.query(txId, queryName, query, jdbcCheckTime)
             .then(function() {
                 if (!isSqlMode) {
                     DagFunction.commentDagNodes([tableName], sqlQueryString);
