@@ -804,6 +804,7 @@ UnionTStr = {
     "TypeMismatch": "Columns to union have different types. Select columns of the same type.",
     "header": "SET OPERATION", // sync with htmlTStr
     "UsedFor": "Used for <col>",
+    "MixType": "Mixed type columns must cast first. Please select a type for the resultant column."
 };
 
 ExportTStr = {

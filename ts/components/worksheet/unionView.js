@@ -1000,9 +1000,7 @@ window.UnionView = (function(UnionView, $) {
             }
         }
 
-        isValid = xcHelper.validate([{
-            $ele: $unionView.find(".newTableName")
-        }]);
+        isValid = xcHelper.tableNameInputChecker($unionView.find(".newTableName"));
 
         if (!isValid) {
             return false;
@@ -1042,6 +1040,14 @@ window.UnionView = (function(UnionView, $) {
                 if (tableInfoLists[j].selectedCols[i] != null) {
                     if (columnInfo == null) {
                         columnInfo = tableInfoLists[j].selectedCols[i];
+                    } else if (columnInfo.type === ColumnType.mixed &&
+                                !$resultCol.hasClass("cast")) {
+                        $resultCol.addClass("cast");
+                        $unionView.find('.columnList[data-index="' + i + '"]')
+                              .addClass("cast");
+                        StatusBox.show(UnionTStr.MixType,
+                                       $resultCol.find(".typeList"));
+                        return false;
                     } else if (columnInfo.type !==
                               tableInfoLists[j].selectedCols[i].type &&
                               !$resultCol.hasClass("cast")) {

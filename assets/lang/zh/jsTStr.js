@@ -591,7 +591,8 @@ UnionTStr = {
 "SelectCol": "请选择用于合并的列",
 "NoMatch": "无匹配",
 "TypeMismatch": "Columns to union have different types. Select columns of the same type.",
-"UsedFor": "用于<col>"
+"UsedFor": "用于<col>",
+"MixType": "Mixed type columns must cast first. Please select a type for the resultant column."
 };
 ExportTStr = {
 'Success': '导出成功',
