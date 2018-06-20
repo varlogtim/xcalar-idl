@@ -357,6 +357,12 @@ namespace Transaction {
         }
 
         // add sql
+        // We always commit when there is a cancel.
+        // Usually the operations that have a noCommit option are
+        // front end operations that don't even have a cancel option.
+        // And we actually don't know if we should commit
+        // when transactions.cancel() is called.
+        const willCommit = true;
         const cli: string = txLog.getCli();
 
         if (cli !== "") {
@@ -372,6 +378,12 @@ namespace Transaction {
         removeTX(txId);
 
         QueryManager.confirmCanceledQuery(txId);
+
+        // commit
+        if (willCommit && !has_require) {
+            KVStore.commit();
+        }
+
         transactionCleaner();
     };
 
