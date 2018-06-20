@@ -372,7 +372,7 @@
 
     .counter {
         .position(absolute, @top: 9px, @right: 75px);
-        .size (@height: 30px);
+        .size(@height: 30px);
         .font(@color: @color-text-graySoft, @size: 14px, @line-height: 30px);
         pointer-events: none;
     }
@@ -483,6 +483,29 @@
         pointer-events: none;
         color: @color-lightSilverChalice;
         display: none;
+    }
+
+    .exitFnBar {
+        display: none;
+    }
+
+    &.fnBarLocked {
+        #fnBar, .fnBarClone, .CodeMirror {
+            padding-right: 30px;
+        }
+        .exitFnBar {
+            display: block;
+            position: absolute;
+            right: 24px;
+            font-size: 16px;
+            height: 32px;
+            line-height: 32px;
+        }
+        .CodeMirror {
+            background-color: @color-white;
+            color: @color-text-fnBar-blue;
+            border: 1px solid @color-border-softBlue;
+        }
     }
 
     .fnbarPre {

@@ -209,6 +209,8 @@ window.TblMenu = (function(TblMenu, $) {
                 BottomMenu.close();
             } else if ($li.hasClass("exitDFEdit")) {
                 DagEdit.off();
+            }  else if ($li.hasClass("exitFunctionBar")) {
+                FnBar.unlock();
             } else {
                 MainMenu.closeForms();
             }
@@ -975,6 +977,8 @@ window.TblMenu = (function(TblMenu, $) {
                 BottomMenu.close();
             } else if ($li.hasClass("exitDFEdit")) {
                 DagEdit.off();
+            } else if ($li.hasClass("exitFunctionBar")) {
+                FnBar.unlock();
             } else {
                 MainMenu.closeForms();
             }

@@ -38,13 +38,17 @@ window.FnBar = (function(FnBar, $) {
         $functionArea.find('pre').addClass('fnbarPre');
         $fnBar = $('#functionArea .CodeMirror');
 
+        $functionArea.find(".exitFnBar").click(function() {
+            FnBar.unlock();
+        });
+
         setupSearchHelper();
 
         editor.on("keydown", function(instance, event) {
-            if (event.which !== keyCode.Enter) {
+            if ($('.CodeMirror-hints').length) { // do not submit fn if hints
                 return;
             }
-            if ($('.CodeMirror-hints').length) { // do not submit fn if hints
+            if (event.which !== keyCode.Enter) {
                 return;
             }
 
@@ -93,6 +97,9 @@ window.FnBar = (function(FnBar, $) {
         });
 
         editor.on("focus", function() {
+            if (!$functionArea.hasClass("searching")) {
+                fnBarLock();
+            }
             xcTooltip.hideAll();
             FnBar.updateColNameCache();
         });
@@ -166,9 +173,82 @@ window.FnBar = (function(FnBar, $) {
                 };
                 ColManager.execCol("search", null, null, null, args);
                 $lastColInput = null;
+                FnBar.unlock();
             }
         });
     };
+
+    function fnBarLock() {
+        if (!$("#container").hasClass("columnPicker")) {
+            console.log("locked")
+            $functionArea.addClass("fnBarLocked");
+            $("#container").addClass("columnPicker");
+            $("#container").addClass("formOpen");
+            DagPanel.updateExitMenu("Function Bar");
+            TblMenu.updateExitOptions("#tableMenu", "Function Bar");
+            TblMenu.updateExitOptions("#colMenu", "Function Bar");
+
+            const selector = ".xcTable .header, .xcTable td.clickable";
+            $("#mainFrame").on("mousedown.columnPicker", selector, function(event) {
+                if (!editor.getValue().trim().startsWith("=")) {
+                    $functionArea.find(".exitFnBar").click();
+                    $(this).trigger(event);
+                } else {
+                    // prevents fnbar from blurring
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            });
+            $("#mainFrame").on("click.columnPicker", selector, function(event) {
+                const $target = $(event.target);
+                if ($target.closest('.dataCol').length ||
+                    $target.closest('.jsonElement').length ||
+                    $target.closest('.dropdownBox').length) {
+                    return;
+                }
+
+                // check to see if cell has a valid type
+                const $td = $target.closest('td');
+                let $header;
+                if ($td.length) {
+                    const colNum = xcHelper.parseColNum($td);
+                    $header = $td.closest('.xcTable').find('th.col' + colNum)
+                                                     .find('.header');
+                } else {
+                    $header = $(this);
+                }
+                const $prefixDiv = $header.find('.topHeader .prefix');
+                const colPrefix = $prefixDiv.hasClass('immediate') ?
+                                        "" : $prefixDiv.text();
+                const columnVal = xcHelper.getPrefixColName(colPrefix,
+                                           $header.find(".editableHead").val());
+                                           console.log("clicked");
+                editor.replaceSelection(columnVal, "around");
+            });
+            $(document).on("keydown", function(event) {
+                if ($('.CodeMirror-hints').length) {
+                    return;
+                }
+                if (event.which === keyCode.Escape) {
+                    $functionArea.find(".exitFnBar").click(); // causes blur
+                    // and exits
+                }
+            });
+        }
+    }
+
+    FnBar.unlock = function() {
+        if ($functionArea.hasClass("fnBarLocked")) {
+            console.log("unlocked")
+            $("#container").removeClass("columnPicker");
+            $("#container").removeClass("formOpen");
+            $functionArea.removeClass("fnBarLocked");
+            TblMenu.updateExitOptions("#tableMenu");
+            TblMenu.updateExitOptions("#colMenu");
+            DagPanel.updateExitMenu();
+            $("#mainFrame").off(".columnPicker");
+        }
+    }
 
     FnBar.updateOperationsMap = function(opMap, isOnlyUDF) {
         opMap = xcHelper.deepCopy(opMap);
@@ -322,6 +402,8 @@ window.FnBar = (function(FnBar, $) {
         $fnBar.removeClass("active inFocus disabled");
         $functionArea.addClass("searching");
         colNamesCache = {};
+
+        FnBar.unlock();
     };
 
     // sets cursor to blink at the end of the input string
@@ -340,6 +422,9 @@ window.FnBar = (function(FnBar, $) {
         $functionArea.find('.position').hide();
         $functionArea.find('.counter').hide();
         $functionArea.find('.arrows').hide();
+        if ($fnBar.hasClass("CodeMirror-focused")) {
+            fnBarLock();
+        }
     }
 
     function setupAutocomplete() {
@@ -658,7 +743,7 @@ window.FnBar = (function(FnBar, $) {
         var tableCol = table.tableCols[colNum - 1];
         var colName = tableCol.getBackColName();
         var frontColName = tableCol.getFrontColName();
-        var cursor = editor.getCursor();
+        var cursor = editor.getCursor().ch;
         var alertTitle;
         var alertMsg;
         var confirmFunc;
@@ -887,7 +972,7 @@ window.FnBar = (function(FnBar, $) {
                     $fnBar.removeAttr("disabled").focus();
                     $fnBar.addClass("inFocus");
                     editor.focus();
-                    editor.setCursor(cursor);
+                    editor.setCursor(0, cursor);
                 }
                 $fnBar.removeAttr("disabled");
                 isAlertOpen = false;

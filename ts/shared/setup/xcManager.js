@@ -27,7 +27,7 @@ window.xcManager = (function(xcManager, $) {
             // XcUser.setCurrentUser() get username, so need to be at very early time
             XcUser.setCurrentUser();
             XVM.setup();
-    
+
             setupUserArea();
             xcTooltip.setup();
             CSHelp.setup();
@@ -551,10 +551,10 @@ window.xcManager = (function(xcManager, $) {
         var src = dynamicSrc + '?r=' + randId;
         return $.getScript(src);
     }
-    
+
     function checkHotPathEnable() {
         var deferred = PromiseHelper.deferred();
-    
+
         adminTools.getHotPatch()
         .then(function(res) {
             if (res.hotPatchEnabled) {
@@ -568,13 +568,13 @@ window.xcManager = (function(xcManager, $) {
         .fail(function() {
             deferred.resolve(); // still  resolve it
         });
-    
+
         return deferred.promise();
     }
-    
+
     function hotPatch() {
         var deferred = PromiseHelper.deferred();
-    
+
         checkHotPathEnable()
         .then(function() {
             return loadDynamicPath();
@@ -598,7 +598,7 @@ window.xcManager = (function(xcManager, $) {
             }
             deferred.resolve(); // still resolve it
         });
-    
+
         return deferred.promise();
     }
 
@@ -1138,7 +1138,7 @@ window.xcManager = (function(xcManager, $) {
                 !($target.closest("li.column").length &&
                  $target.closest("#activeTablesList").length) &&
                 !$target.closest(".tableScrollBar").length &&
-                !isTargetFnBar($target)) {
+                !isTargetFnBar($target) && !$(".fnBarLocked").length) {
 
                 $(".selectedCell").removeClass("selectedCell");
                 FnBar.clear();
