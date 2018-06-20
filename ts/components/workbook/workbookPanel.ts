@@ -421,7 +421,9 @@ namespace WorkbookPanel {
 
             WorkbookManager.downloadWKBK(workbookName)
             .fail(function(err) {
-                StatusBox.show(err.error, $dropDownCard);
+                StatusBox.show(err.error, $dropDownCard, false, {
+                    detail: err.log
+                });
             })
             .always(function() {
                 const index: number = downloadingWKBKs.indexOf(workbookName);
