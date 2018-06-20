@@ -181,11 +181,11 @@ window.SQLEditor = (function(SQLEditor, $) {
     }
 
     SQLEditor.deleteSchemas = function(tableName, tableIds) {
-        // XXX Think about updating plan server
         // Remove from KVStore & UI table list
         if ((!tableIds || tableIds.legnth === 0) && !sqlTables[tableName]) {
             return PromiseHelper.resolve("Table doesn't exist");
         }
+        var promiseArray = [];
         // Create a copy for aysnc call
         var sqlTablesCopy = $.extend(true, {}, sqlTables);
         if (tableIds && tableIds.length > 0) {
@@ -195,6 +195,8 @@ window.SQLEditor = (function(SQLEditor, $) {
             for (var key in sqlTablesCopy) {
                 if (tableIds.indexOf(sqlTablesCopy[key]) > -1) {
                     found = true;
+                    promiseArray.push(updatePlanServer(undefined, "delete",
+                                                       undefined, key));
                     delete sqlTablesCopy[key];
                 }
             }
@@ -206,11 +208,25 @@ window.SQLEditor = (function(SQLEditor, $) {
                 return PromiseHelper.resolve("No tables to delete");
             }
         } else {
+            promiseArray.push(updatePlanServer(undefined, "delete", undefined,
+                                                                    tableName));
             delete sqlTablesCopy[tableName];
         }
         var deferred = PromiseHelper.deferred();
 
-        updateKVStore(JSON.stringify(sqlTablesCopy), true)
+        PromiseHelper.when.apply(window, promiseArray)
+        .then(undefined, function(error) {
+            if (error && error.responseText &&
+                        (error.responseText.indexOf(SQLErrTStr.NoKey) > -1 ||
+                         error.responseText.indexOf(SQLErrTStr.NoTable) > -1)) {
+                return PromiseHelper.resolve();
+            } else {
+                return PromiseHelper.reject(error);
+            }
+        })
+        .then(function() {
+            return updateKVStore(JSON.stringify(sqlTablesCopy), true);
+        })
         .then(function(ret) {
             if (tableIds) {
                 for (var i = 0; i < tableIds.length; i++) {
@@ -232,7 +248,7 @@ window.SQLEditor = (function(SQLEditor, $) {
             deferred.resolve(ret);
         })
         .fail(function(error) {
-            var errMsg = "Delete failed: " + error;
+            var errMsg = "Deletion failed: " + JSON.stringify(error);
             console.error(errMsg);
             deferred.reject(errMsg);
         })
@@ -436,9 +452,9 @@ window.SQLEditor = (function(SQLEditor, $) {
             structToSend.tableName = tableName.toUpperCase();
             structToSend.tableColumns = schema;
             // allSchemas = structToSend;
-            promiseArray.push(updatePlanServer.bind(window, structToSend, "update"));
+            promiseArray.push(updatePlanServer(structToSend, "update"));
         });
-        PromiseHelper.chain(promiseArray)
+        PromiseHelper.when.apply(window, promiseArray)
         // updatePlanServer(allSchemas)
         .then(function() {
             return SQLEditor.executeSQL(query);
@@ -467,22 +483,26 @@ window.SQLEditor = (function(SQLEditor, $) {
         return schema;
     }
 
-    function updatePlanServer(struct, type, sessionName) {
+    function updatePlanServer(struct, type, sessionName, tableName) {
         var url;
         var action;
         var session = WorkbookManager.getActiveWKBK();
         switch (type) {
             case ("update"):
-                url = "/schemaupdate/";
+                url = planServer + "/schemaupdate/" +
+                      encodeURIComponent(encodeURIComponent(session));
                 action = "PUT";
                 break;
             case ("delete"):
-                // XXX TODO
-                return PromiseHelper.reject("delete is unsupported");
-            case ("drop"):
-                url = "/schemadrop/";
+                url = planServer + "/schemadrop/" +
+                      encodeURIComponent(encodeURIComponent(session)) +
+                      "/" + tableName;
                 action = "DELETE";
-                session = sessionName;
+                break;
+            case ("drop"):
+                url = planServer + "/schemadrop/" +
+                      encodeURIComponent(encodeURIComponent(sessionName));
+                action = "DELETE";
                 break;
             default:
                 return PromiseHelper.reject("Invalid type for updatePlanServer");
@@ -492,8 +512,8 @@ window.SQLEditor = (function(SQLEditor, $) {
             type: action,
             data: JSON.stringify(struct),
             contentType: 'application/json; charset=utf-8',
-            url: planServer + url +
-                 encodeURIComponent(encodeURIComponent(session)),
+            url: url,
+            dataType: "text", // XXX remove this when the planner bug is fixed
             success: function(data) {
                 deferred.resolve(data);
             },
