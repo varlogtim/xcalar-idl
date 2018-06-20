@@ -2343,9 +2343,9 @@ describe('XIApi Test', () => {
 
                 XIApi.groupBy(1, aggArgs, groupByCols, tableName)
                     .then((finalTable, finalCols, renamedGroupByCols, tempCols) => {
-                        expect(finalTable).to.equal('test-GBjoin#12');
+                        expect(finalTable).to.equal('test-GB#12');
                         expect(finalCols.length).to.equal(3);
-                        expect(finalCols[0].backName).not.to.equal('newAggCol');
+                        expect(finalCols[0].backName).to.equal('newAggCol');
                         expect(finalCols[1].backName).to.equal('groupByCol');
                         expect(renamedGroupByCols.length).to.equal(1);
                         expect(tempCols.length).to.equal(3);
