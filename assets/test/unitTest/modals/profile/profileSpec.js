@@ -91,26 +91,65 @@ describe("Profile-Profile Test", function() {
             expect(cache.hasOwnProperty(key)).to.be.false;
         });
 
+        it("Profile.copy should handle no cache case", function() {
+            var cache = Profile.getCache();
+            var key = xcHelper.randName("testKey");
+            var key2 = xcHelper.randName("testKey2");
+
+            var res = Profile.copy(key, key2);
+            expect(res).to.be.false;
+            expect(cache.hasOwnProperty(key2)).to.be.false;
+        });
+
+        it("Profile.copy should handle table row now match case", function() {
+            var cache = Profile.getCache();
+            var key = xcHelper.randName("testKey");
+            var key2 = xcHelper.randName("testKey2");
+
+            gTables[key] = new TableMeta({
+                tableName: "test",
+                tableId: 1
+            });
+            gTables[key2] = new TableMeta({
+                tableName: "test",
+                tableId: 2
+            });
+            gTables[key].resultSetCount = 1;
+            gTables[key2].resultSetCount = 2;
+
+            var res = Profile.copy(key, key2);
+            expect(res).to.be.false;
+            expect(cache.hasOwnProperty(key2)).to.be.false;
+
+            delete gTables[key];
+            delete gTables[key2];
+        });
+
         it("Profile.copy should work", function() {
             var cache = Profile.getCache();
             var key = xcHelper.randName("testKey");
             var key2 = xcHelper.randName("testKey2");
             cache[key] = "test";
 
-            Profile.copy(key, key2);
+            gTables[key] = new TableMeta({
+                tableName: "test",
+                tableId: 1
+            });
+            gTables[key2] = new TableMeta({
+                tableName: "test",
+                tableId: 2
+            });
+            gTables[key].resultSetCount = 1;
+            gTables[key2].resultSetCount = 1;
+
+            var res = Profile.copy(key, key2);
+            expect(res).to.be.true;
             expect(cache.hasOwnProperty(key2)).to.be.true;
 
             Profile.deleteCache(key);
             Profile.deleteCache(key2);
-        });
-
-        it("Profile.copy should handle error case", function() {
-            var cache = Profile.getCache();
-            var key = xcHelper.randName("testKey");
-            var key2 = xcHelper.randName("testKey2");
-
-            Profile.copy(key, key2);
-            expect(cache.hasOwnProperty(key2)).to.be.false;
+            delete gTables[key];
+            delete gTables[key2];
         });
     });
 

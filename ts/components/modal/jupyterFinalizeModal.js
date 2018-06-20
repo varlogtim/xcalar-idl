@@ -243,8 +243,8 @@ window.JupyterFinalizeModal = (function(JupyterFinalizeModal, $) {
             .then(function(tableAfterMap) {
                 finalTableName = tableAfterMap;
                 finalTableId = xcHelper.getTableId(finalTableName);
-                Profile.copy(tableId, finalTableId);
                 TblManager.setOrphanTableMeta(finalTableName, xcHelper.deepCopy(newTableCols));
+                Profile.copy(tableId, finalTableId);
 
                 xcHelper.unlockTable(tableId);
                 sql.newTableName = finalTableName;

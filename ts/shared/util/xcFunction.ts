@@ -1068,13 +1068,11 @@ namespace xcFunction {
 
                 const tablCols: ProgCol[] = xcHelper.mapColGenerate(colNum, fieldName,
                     mapString, table.tableCols, mapOptions);
-
-                // map do not change groupby stats of the table
-                Profile.copy(tableId, finalTableId);
                 return TblManager.refreshTable([finalTableName], tablCols,
                     [tableName], worksheet, txId, { selectCol: colNum });
             })
             .then(() => {
+                Profile.copy(tableId, finalTableId);
                 sql['newTableName'] = finalTableName;
                 Transaction.done(txId, {
                     msgTable: xcHelper.getTableId(finalTableName),

@@ -106,14 +106,31 @@ window.Profile = (function($, Profile, d3) {
     };
 
     Profile.copy = function(oldTableId, newTableId) {
-        if (statsInfos[oldTableId] == null) {
-            return;
+        if (statsInfos[oldTableId] == null ||
+            gTables[oldTableId] == null ||
+            gTables[newTableId] == null
+        ) {
+            return false;
         }
+        // because the exploadString xdf,map can also change the total row num
+        // so need to do a check first
+        try {
+            var oldTotalRow = gTables[newTableId].resultSetCount;
+            var newTotalRow = gTables[newTableId].resultSetCount;
+            if (newTotalRow == null ||
+                oldTotalRow !== newTotalRow) {
+                return false;
+            }
 
-        statsInfos[newTableId] = {};
-        for (var colName in statsInfos[oldTableId]) {
-            var options = statsInfos[oldTableId][colName];
-            statsInfos[newTableId][colName] = new ProfileInfo(options);
+            statsInfos[newTableId] = {};
+            for (var colName in statsInfos[oldTableId]) {
+                var options = statsInfos[oldTableId][colName];
+                statsInfos[newTableId][colName] = new ProfileInfo(options);
+            }
+            return true;
+        } catch (e) {
+            console.error(e);
+            return false;
         }
     };
 
