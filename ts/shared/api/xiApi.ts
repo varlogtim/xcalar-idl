@@ -1571,7 +1571,7 @@ namespace XIApi {
         .then((val, dstDagName) => {
             aggVal = val;
             if (toDelete) {
-                const promise: XDPromise<void> = XIApi.deleteTable(txId, dstDagName);
+                const promise: XDPromise<XcalarApiDeleteDagNodeOutputT> = XIApi.deleteTable(txId, dstDagName);
                 return PromiseHelper.alwaysResolve(promise);
             }
         })
@@ -2410,7 +2410,7 @@ namespace XIApi {
         queryName: string,
         queryStr: string,
         jdbcCheckTime: number
-    ): XDPromise<void> {
+    ): XDPromise<XcalarApiQueryStateOutputT> {
         if (txId == null || queryName == null || queryStr == null) {
             return PromiseHelper.reject("Invalid args in query");
         }
@@ -2624,12 +2624,12 @@ namespace XIApi {
         txId: number,
         tableName: string,
         toIgnoreError: boolean = false
-    ): XDPromise<void> {
+    ): XDPromise<XcalarApiDeleteDagNodeOutputT> {
         if (txId == null || tableName == null) {
             return PromiseHelper.reject("Invalid args in delete table");
         }
 
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const deferred: XDDeferred<XcalarApiDeleteDagNodeOutputT> = PromiseHelper.deferred();
         XcalarDeleteTable(tableName, txId)
         .then(deferred.resolve)
         .fail((error) => {

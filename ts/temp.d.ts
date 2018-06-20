@@ -93,11 +93,12 @@ interface UnionTableInfo {
 }
 
 interface ExportTableOptions {
-    splitType: string;
-    headerType: string;
-    format: string;
-    createRule: string;
+    splitType: number;
+    headerType: number;
+    format: number;
+    createRule: ExExportCreateRuleT;
     handleName: string;
+    csvArgs: { fieldDelim: string, recordDelim: string };
 }
 
 interface GetNumRowsOptions {
@@ -232,6 +233,11 @@ interface OpStatsDetails {
 interface OpStatsOutput {
     opDetails: OpStatsDetails;
 }
+
+declare namespace Base64 {
+    function encode(input: string): string;
+    function decode(input: string): string;
+}
 /* ============== GLOBAL VARIABLES ============= */
 declare var nw: any; // nw js for XD CE
 declare var SQLEditor: any;
@@ -298,7 +304,7 @@ declare var gXcalarRecordNum: string;
 declare var gBuildNumber: number;
 declare var gGitVersion: number;
 declare var XcalarApisTStr: object;
-declare var StatusTStr: object;
+declare var StatusTStr: { [key: string]: string };
 declare var currentVersion: number;
 declare var xcLocalStorage: XcStorage;
 declare var xcSessionStorage: XcStorage;
@@ -311,110 +317,18 @@ declare var skRFPredictor: any;
 declare var isBrowserSafari: boolean;
 declare var isSystemMac: boolean;
 /* ============== GLOBAL FUNCTIONS ============= */
-declare function setSessionName(sessionName: string): void;
-declare function getUnsortedTableName(tableName: string, otherTableName: string, txId: number, colsToIndex: string[]): XDPromise<string>;
-declare function XcalarNewWorkbook(wkbkName: string, isCopy: boolean, copySrcName: string): XDPromise<void>;
-declare function XcalarActivateWorkbook(wkbkName: string): XDPromise<void>;
-declare function XcalarDownloadWorkbook(workbookName: string, jupyterFolderPath: string): XDPromise<any>;
-declare function XcalarUploadWorkbook(workbookName: string, parsedWorkbookContent: any, jupyterFolderPath: string): XDPromise<void>;
-declare function XcalarDeactivateWorkbook(workbookName: string): XDPromise<void>;
-declare function XcalarRenameWorkbook(newName: string, srcName: string): XDPromise<void>
-declare function XcalarDeleteWorkbook(workbookName: string): XDPromise<void>;
-declare function XcalarQueryCancel(queryName: string): XDPromise<{}>;
-declare function XcalarDownloadPython(fnName: string): XDPromise<any>;
-declare function XcalarUploadPython(moduleName: string, pythonStr: string, absolutePath: boolean): XDPromise<void>;
-declare function XcalarGetTables(tableName?: string): XDPromise<any>;
-declare function XcalarGetDag(tableName: string, workbookName: string): XDPromise<any>;
-declare function XcalarGetTableMeta(tableName: string): XDPromise<any>;
-declare function XcalarAggregate(evalStr: string, dstAggName: string, tableName: string, txId: number): XDPromise<string>;
-declare function XcalarApiTop(measureIntervalInMs?: any): XDPromise<any>;
-declare function XcalarCancelOp(dstTableName: string, statusesToIgnore?: number[]): XDPromise<any>;
-declare function XcalarDeleteTable(tableName: string, txId?: number, isRetry?: boolean): XDPromise<void>;
-declare function XcalarDestroyDataset(dsName: string, txId: number): XDPromise<any>;
-declare function XcalarExport(tableName: string, exportName: string, targetName: string, numCols: number, backColumns: string[], frontColumns: string[], keepOrder: boolean, options: ExportTableOptions, txId: number): XDPromise<void>;
-declare function XcalarExportRetina(retinaName: string): XDPromise<any>;
-declare function XcalarFetchData(resultSetId: string, rowPosition: number, rowsToEach: number, totalRows: number, data: string[], tryCnt: number, maxNumRowsPerCall: number): XDPromise<string[]>;
-declare function XcalarFilter(fltStr: string, tableName: string, newTableName: string, txId: number): XDPromise<any>;
-declare function XcalarGenRowNum(tableName: string, newTableName: string, newColName: string, txId: number): XDPromise<void>;
-declare function XcalarGetLicense(): XDPromise<any>;
-declare function XcalarGetMemoryUsage(username: string, userId: number): XDPromise<any>;
-declare function XcalarGetOpStats(dstTable: string): XDPromise<any>;
-declare function XcalarGetStatGroupIdMap(nodeId: number, numGroupId: number): XDPromise<any>;
-declare function XcalarGetTableCount(tableName: string): XDPromise<number>;
-declare function XcalarGetTableMeta(tableName: string): XDPromise<any>;
-declare function XcalarGetTables(): XDPromise<any>;
-declare function XcalarGetVersion(connectionCheck: boolean): XDPromise<any>;
-declare function XcalarGroupBy(operators: string[], newColNames: string[], aggColNames: string[], tableName: string, newTableName: string, incSample: boolean, icvMode: boolean, newKeyFieldName: string, groupAll: boolean, txId: number): XDPromise<any>;
-declare function XcalarGroupByWithEvalStrings(newColNames: string[], evalStrs: string[], tableName: string, newTableName: string, incSample: boolean, icvMode: boolean, newKeyFieldName: string, groupAll: boolean, txId: number): XDPromise<any>;
-declare function XcalarIndexFromDataset(dsName: string, indexCol: string, newTableName: string, prefix: string, txId: number): XDPromise<void>;
-declare function XcalarIndexFromTable(tableName: string, keyInfos: object[], newTableName: string, txId: number): XDPromise<any>
-declare function XcalarJoin(lTable: string, rTable: string, newTableName: string, joinType: number, lRename: ColRenameInfo[], rRename: ColRenameInfo[], joinOptions: object, txId: number): XDPromise<any>;
-declare function XcalarKeyAppend(key: string, value: string, persist: boolean, scope: number): XDPromise<any>;
-declare function XcalarKeyDelete(key: string, scope: number): XDPromise<any>;
-declare function XcalarKeyLookup(key: string, scope: number): XDPromise<any>;
-declare function XcalarKeyPut(key: string, value: string, persist: boolean, scope: number): XDPromise<any>;
-declare function XcalarKeySetIfEqual(scope: number, persist: boolean, keyCompare: string, oldValue: string, newValue: string): XDPromise<any>;
-declare function XcalarListFiles(args: object): XDPromise<any>;
-declare function XcalarListPublishedTables(pattern: string): XDPromise<any>;
-declare function XcalarListWorkbooks(pattern: string): XDPromise<any>;
-declare function XcalarListXdfs(fnNamePattern: string, categoryPattern: string): XDPromise<any>;
-declare function XcalarLoad(dsName: string, options: object, txId: number): XDPromise<void>;
-declare function XcalarMakeResultSetFromTable(tableName): XDPromise<any>;
-declare function XcalarMap(colNames: string[], mapStrs: string[], tableName: string, newTableName: string, txId: number, doNotUnsort?: boolean, icvMode?: boolean): XDPromise<string>;
-declare function XcalarProject(columns: string[], tableName: string, newTableName: string, txId: number): XDPromise<any>;
-declare function XcalarQueryCancel(queryName: string, statusesToIgnore?: number[]): XDPromise<any>;
-declare function XcalarQueryState(queryName: string): XDPromise<any>;
-declare function XcalarQueryWithCheck(queryName: string, queryStr: string, txId: number, bailOnError: boolean, jdbcCheckTime?: number): XDPromise<any>;
-declare function XcalarRefreshTable(pubTableName: string, dstTableName: string, minBatch: number, maxBatch: number, txId: number): XDPromise<any>;
-declare function XcalarRenameTable(oldTableName: string, newTableName: string, txId: number): XDPromise<void>;
-declare function XcalarRestoreTable(tableName: string): XDPromise<any>;
-declare function XcalarSaveWorkbooks(wkbkName: string): XDPromise<void>;
-declare function XcalarSetFree(resultSetId: string): XDPromise<void>;
-declare function XcalarSynthesize(tableName: string, newTableName: string, colInfos: ColRenameInfo[], txId: number): XDPromise<any>;
-declare function XcalarTargetCreate(targetType: string, targetName: string, targetParams: object[]): XDPromise<void>;
-declare function XcalarTargetDelete(targetName: string): XDPromise<void>;
-declare function XcalarUnion(tableNames: string[], newTableNmae: string, colInfos: object[], dedup: boolean, unionType: UnionOperatorT, txId: number): XDPromise<any>;
-declare function XcalarUnpublishTable(tableName: string, inactivateOnly?: boolean): XDPromise<any>;
-declare function XcalarRefreshTable(pubTableName: string, dstTableName: string, minBatch: number, maxBatch: number, txId: number): XDPromise<any>;
-declare function XcalarApiTop(measureIntervalInMs?: any): XDPromise<any>;
-declare function XcalarGetStatGroupIdMap(nodeId: number, numGroupId: number): XDPromise<any>;
-declare function XcalarExportRetina(retinaName: string): XDPromise<any>;
-declare function XcalarQueryState(queryName: string): XDPromise<any>;
-declare function XcalarGetMemoryUsage(username: string, userId: number): XDPromise<any>;
-declare function XcalarQueryCancel(queryName: string, statusesToIgnore?: number[]): XDPromise<any>;
-declare function XcalarCancelOp(dstTableName: string, statusesToIgnore?: number[]): XDPromise<any>;
-declare function XcalarDestroyDataset(dsName: string, txId: number): XDPromise<any>;
-declare function XcalarCoalesce(tableName: string): XDPromise<any>;
-declare function getUnsortedTableName(tableName: string, otherTableName: string, txId: number, colsToIndex: string[]): XDPromise<string>;
-declare function setSessionName(sessionName: string): void;
+// Declaration of XcalarApi moved to IXcalarApi.ts
 /* ============= THRIFT ENUMS ================= */
-declare enum DfFieldTypeT {
-    DfString,
-    DfInt32,
-    DfInt64,
-    DfUInt32,
-    DfUInt64,
-    DfFloat32,
-    DfFloat64,
-    DfBoolean,
-    DfUnknown,
-    DfFatptr,
-}
-
-declare enum DfFieldTypeTFromStr {
-
-}
-
 declare enum XcalarApiKeyScopeT {
     XcalarApiKeyScopeGlobal,
     XcalarApiKeyScopeSession
 }
 
-declare enum XcalarApisT {
-    XcalarApiJoin = 15,
-    XcalarApiBulkLoad = 2,
-    XcalarApiExport = 33
-}
+// declare enum XcalarApisT {
+//     XcalarApiJoin = 15,
+//     XcalarApiBulkLoad = 2,
+//     XcalarApiExport = 33
+// }
 
 declare enum StatusT {
     StatusCanceled,
@@ -428,7 +342,17 @@ declare enum StatusT {
     StatusKvEntryNotEqual,
     StatusOperationHasFinished,
     StatusQrQueryNotExist,
-    StatusDagNodeNotFound
+    StatusDagNodeNotFound,
+    StatusUdfExecuteFailed,
+    StatusOk,
+    StatusConnReset,
+    StatusConnRefused,
+    StatusDgNodeInUse,
+    StatusKvEntryNotFound,
+    StatusKvStoreNotFound,
+    StatusUdfModuleAlreadyExists,
+    StatusUdfModuleEmpty,
+    StatusQrQueryAlreadyExists
 }
 
 declare enum FunctionCategoryT {
@@ -445,21 +369,16 @@ declare enum DgDagStateT {
 }
 declare enum DgDagStateTStr {}
 
-declare enum CsvSchemaModeT {
-    CsvSchemaModeNoneProvided
-}
-
-declare var XcalarOrderingTStr: object;
-declare enum XcalarOrderingT {
-    XcalarOrderingUnordered,
-    XcalarOrderingInvalid,
-    XcalarOrderingAscending,
-    XcalarOrderingDescending
-}
+// declare enum CsvSchemaModeT {
+//     CsvSchemaModeNoneProvided
+// }
 
 declare namespace XcalarApisConstantsT {
     export var XcalarApiMaxTableNameLen: number;
     export var XcalarApiMaxFieldNameLen: number;
+    export var XcalarApiMaxEvalStringLen: number;
+    export var XcalarApiMaxEvalStirngLen: number;
+    export var XcalarApiDefaultTopIntervalInMs: number;
 }
 
 declare enum JoinOperatorTStr {
@@ -502,6 +421,8 @@ declare namespace DSTStr {
     export var UnknownUser: string;
     export var UnknownId: string;
     export var DS: string;
+    export var LoadErr: string;
+    export var LoadErrFile: string;
 }
 
 declare namespace CommonTxtTstr {
@@ -950,6 +871,7 @@ declare namespace xcManager {
     export function setup(): XDPromise<void>;
     export function unload();
     export function isStatusFail(): boolean;
+    export function isInSetup(): boolean;
 }
 
 declare namespace UserSettings {
@@ -996,7 +918,7 @@ declare namespace Log {
     export function backup(): void;
     export function add(title: string, options: object | null, cli: string, willCommit: boolean): void;
     export function getCursor(): number;
-    export function errorLog(title: string, sql: object, cli: string, error: string);
+    export function errorLog(title: string, sql: object, cli: string, error: any);
 }
 
 declare namespace SupTicketModal {
@@ -1209,6 +1131,7 @@ declare namespace MonitorPanel {
 declare namespace MonitorConfig {
     export function refreshParams(firstTouch: boolean): XDPromise<{}>;
 }
+
 declare namespace DFCreateView {
     export function updateTables(tableId: TableId, something: boolean);
 }
@@ -1246,5 +1169,25 @@ declare namespace d3 {
     export function append(selector: string): d3;
     export var svg;
     export var layout;
+}
 
+declare namespace DagFunction {
+    interface TreeNode {
+        value: any, // TODO: figure out the type
+        parents: TreeNode[],
+        children: TreeNode[],
+
+        getSourceNames(excludeTags?: boolean): string[]
+    }
+
+    interface LineageStruct {
+        tree: TreeNode,
+        trees: TreeNode[],
+        sets: TreeNode[],
+        endPoints: TreeNode[],
+        orderedPrintArray: TreeNode[],
+        nodeIdMap: object
+    }
+
+    export function construct(nodes: XcalarApiDagNodeT[], tableId?: string): LineageStruct;
 }

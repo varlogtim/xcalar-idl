@@ -395,7 +395,7 @@ namespace Transaction {
      * @param timeObj
      * @param options
      */
-    export function log(txId, cli, dstTableName, timeObj, options): void {
+    export function log(txId, cli, dstTableName?, timeObj?, options?): void {
         if (!isValidTX(txId)) {
             return;
         }
@@ -419,7 +419,7 @@ namespace Transaction {
      * @param query
      * @param options
      */
-    export function startSubQuery(txId, name, dstTable, query, options): void {
+    export function startSubQuery(txId, name, dstTable, query, options?): void {
         if (has_require) {
             return;
         }
