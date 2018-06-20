@@ -423,7 +423,6 @@ namespace WorkbookManager {
     */
     export function copyWKBK(srcWKBKId: string, wkbkName: string): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        let newId: string;
         const promise: XDPromise<void> = (activeWKBKId == null)
                       ? PromiseHelper.resolve() // no active workbook
                       : KVStore.commit();
@@ -432,12 +431,12 @@ namespace WorkbookManager {
         .then(function() {
             return WorkbookManager.newWKBK(wkbkName, srcWKBKId);
         })
-        .then(function(id) {
-            newId = id;
-            return copyHelper(srcWKBKId, newId);
-        })
-        .then(function() {
-            deferred.resolve(newId);
+        .then(function(newId) {
+            if (copyHelper(srcWKBKId, newId)) {
+                deferred.resolve(newId);
+            } else {
+                deferred.reject("Error when copy workbook meta data");
+            }
         })
         .fail(function(error) {
             console.error("Copy Workbook fails!", error);
@@ -1201,126 +1200,14 @@ namespace WorkbookManager {
     }
 
     // helper for WorkbookManager.copyWKBK
-    function copyHelper(srcId: string, newId: string): any {
+    function copyHelper(srcId: string, newId: string): boolean {
         const oldWKBK: WKBK = wkbkSet.get(srcId);
         const newWKBK: WKBK = wkbkSet.get(newId);
         if (oldWKBK == null || newWKBK == null) {
-            return PromiseHelper.reject('error case');
+            return false;
         }
-
-        const oldName: string = oldWKBK.getName();
-        const sessionId: string = oldWKBK.sessionId;
-        const newName: string = newWKBK.getName();
-
-        const getKVHelper = function(key: string): XDPromise<string> {
-            const currentSession: string = sessionName;
-            const kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
-
-            setSessionName(oldName);
-            const promise: XDPromise<string> = kvStore.get();
-            setSessionName(currentSession);
-            return promise;
-        };
-
-        const putKVHelper = function(key: string, value: string): XDPromise<void> {
-            const currentSession: string = sessionName;
-            const kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
-
-            setSessionName(newName);
-            const promise: XDPromise<void> = kvStore.put(value, true);
-            setSessionName(currentSession);
-            return promise;
-        };
-
-        const copyAction = function(key: string): XDPromise<void> {
-            // copy all info to new key
-            const deferred: XDDeferred<void> = PromiseHelper.deferred();
-
-            getKVHelper(key)
-            .then(function(value) {
-                return putKVHelper(key, value);
-            })
-            .then(deferred.resolve)
-            .fail(deferred.reject);
-
-            return deferred.promise();
-        };
-
-        const wkbkScopeKeys = getWkbkScopeKeys(currentVersion);
-        const promises: XDPromise<void>[] = [];
-        for (let key in wkbkScopeKeys) {
-            if (key === 'gNotebookKey') {
-                continue; // XXX temporarily skip it
-            }
-            promises.push(copyAction(wkbkScopeKeys[key]));
-        }
-        promises.push(copyUDFs());
-
-        function copyUDFs(): XDPromise<void> {
-            // list udfs belonging to the src workbook
-            // get the code for each udf in the list
-            // submit the code as a new udf for the dest workbook
-            const innerDeferred: XDDeferred<void> = PromiseHelper.deferred();
-
-            const workbookUDFPath: string = "/workbook/" + userIdName + "/" + sessionId + "/udf/";
-
-            XcalarListXdfs("*" + workbookUDFPath + "*", "*")
-            .then(function(result) {
-                let promises: XDPromise<void>[] = [];
-                let udfs: Set<boolean> = new Set<boolean>();
-                result.fnDescs.forEach(function(fn) {
-                    let udfName: string = fn.fnName.split(":")[0];
-                    udfs[udfName] = true;
-                });
-                for (let name in udfs) {
-                    promises.push(uploadUDF(name, newName));
-                }
-                PromiseHelper.when.apply(this, promises)
-                .always(function() {
-                    if (Object.keys(udfs).length) {
-                        let xcSocket: XcSocket = XcSocket.Instance;
-                        xcSocket.sendMessage("refreshUDFWithoutClear");
-                    }
-                    innerDeferred.resolve();
-                });
-            });
-
-            return innerDeferred.promise();
-        }
-
         JupyterPanel.copyWorkbook(oldWKBK.jupyterFolder, newWKBK.jupyterFolder);
-
-        return PromiseHelper.when.apply(this, promises);
-    }
-
-    // when copying a workbook, we must make a copy of the udfs and upload
-    // to the new workbook
-    function uploadUDF(fnName: string, newName: string): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const storedUdfs: any = UDF.getUDFs();
-        let promise: XDPromise<string>;
-        if (storedUdfs[fnName]) {
-            promise = PromiseHelper.resolve(storedUdfs[fnName]);
-        } else {
-            promise = XcalarDownloadPython(fnName);
-        }
-        promise
-        .always(function(res) {
-            if (res) {
-                fnName = fnName.split("/").pop();
-                const currentSession: string = sessionName;
-                setSessionName(newName);
-
-                XcalarUploadPython(fnName, res, true)
-                .always(function() {
-                    deferred.resolve();
-                });
-                setSessionName(currentSession);
-            } else {
-                deferred.resolve();
-            }
-        });
-        return deferred.promise();
+        return true;
     }
 
     function commitActiveWkbk(): XDPromise<void> {

@@ -1572,6 +1572,7 @@ declare namespace MonitorLog {
 declare namespace SQLEditor {
     export function initialize(): void;
     export function storeQuery(): void;
+    export function dropAllSchemas(wkbkId: string): void;
 }
 
 declare namespace Msal {

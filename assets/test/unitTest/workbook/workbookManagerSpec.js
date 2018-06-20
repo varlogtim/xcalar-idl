@@ -87,46 +87,26 @@ describe("WorkbookManager Test", function() {
             expect(res).to.equal(XcUser.getCurrentUserName() + "-wkbk-test");
         });
 
-        it("copyHelper should work", function(done) {
+        it("copyHelper should work", function() {
             var oldId = "oldId";
             var newId = "newId";
-            var keys = ["gInfo", "gLog", "gErr", "gIMDKey", "authentication", "SQLQuery", "gSQLTables"];
             var workbooks = WorkbookManager.getWorkbooks();
             workbooks[oldId] = new WKBK({id: oldId, name: "old"});
             workbooks[newId] = new WKBK({id: newId, name: "new"});
 
-            fakeMap = {};
+            const oldFunc = JupyterPanel.copyWorkbook;
+            let test = false;
+            JupyterPanel.copyWorkbook = () => { test = true };
 
-            WorkbookManager.__testOnly__.copyHelper(oldId, newId)
-            .then(function() {
-                expect(Object.keys(fakeMap).length).to.equal(8);
-
-                keys.forEach(function(key) {
-                    var kvKey = generateKey(key, currentVersion);
-                    expect(fakeMap).to.ownProperty(kvKey);
-                });
-
-                fakeMap = {};
-                done();
-            })
-            .fail(function() {
-                done("fail");
-            })
-            .always(function() {
-                delete workbooks[oldId];
-                delete workbooks[newId];
-            });
+            const res = WorkbookManager.__testOnly__.copyHelper(oldId, newId);
+            expect(res).to.equal(true);
+            expect(test).to.equal(true);
+            JupyterPanel.copyWorkbook = oldFunc;
         });
 
-        it("copyHelper should work handle error case", function(done) {
-            WorkbookManager.__testOnly__.copyHelper()
-            .then(function() {
-                done('fail');
-            })
-            .fail(function(error) {
-                expect(error).not.to.be.null;
-                done();
-            });
+        it("copyHelper should work handle error case", function() {
+            const res = WorkbookManager.__testOnly__.copyHelper()
+            expect(res).to.equal(false);
         });
 
         it("resetActiveWKBK should work", function(done) {
