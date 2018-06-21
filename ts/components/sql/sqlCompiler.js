@@ -1062,6 +1062,9 @@
             }
         }
         function pushDown(treeNode) {
+            if (self.sqlObj.getStatus() === -2) {
+                return PromiseHelper.reject(SQLErrTStr.Cancel);
+            }
             var deferred = PromiseHelper.deferred();
             var retStruct;
             if (typeof SQLEditor !== "undefined" && updateUI) {
@@ -1149,6 +1152,12 @@
         }
     }
     SQLCompiler.prototype = {
+        getStatus: function() {
+            return this.sqlObj.getStatus();
+        },
+        setStatus: function(st) {
+            this.sqlObj.setStatus(st);
+        },
         compile: function(sqlQueryString, isJsonPlan, jdbcOption) {
             // XXX PLEASE DO NOT DO THIS. THIS IS CRAP
             var oldKVcommit;
@@ -1196,6 +1205,9 @@
                         });
                     }
                 } else {
+                    if (self.sqlObj.getStatus() === -2) {
+                        return PromiseHelper.reject(SQLErrTStr.Cancel);
+                    }
                     var allTableNames = getAllTableNames(jsonArray);
 
                     var tree = SQLCompiler.genTree(undefined, jsonArray);
@@ -1251,7 +1263,8 @@
                                    finalTableCols: tree.usrCols};
                         deferred.resolve(queryString,
                                          tree.newTableName, tree.usrCols);
-                    });
+                    })
+                    .fail(deferred.reject);
                 }
                 return deferred.promise();
             })
@@ -1431,7 +1444,8 @@
                 .then(function(ret) {
                     deferred.resolve({newTableName: ret.newTableName,
                                       cli: cliStatements + ret.cli});
-                });
+                })
+                .fail(deferred.reject);
             } else {
                 produceSubqueryCli(self, subqueryArray)
                 .then(function(cli) {
@@ -1441,7 +1455,8 @@
                 .then(function(ret) {
                     deferred.resolve({newTableName: ret.newTableName,
                                         cli: cliStatements + ret.cli});
-                });
+                })
+                .fail(deferred.reject);
             }
             return deferred.promise();
         },

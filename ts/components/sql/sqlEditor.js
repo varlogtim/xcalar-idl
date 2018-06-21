@@ -9,6 +9,7 @@ window.SQLEditor = (function(SQLEditor, $) {
     var sqlTables = {};
     var sqlKvStore;
     var sqlQueryKvStore;
+    var sqlComs = [];
 
     SQLEditor.setup = function() {
         setupEditor();
@@ -63,6 +64,10 @@ window.SQLEditor = (function(SQLEditor, $) {
         }
         return sqlQueryKvStore.put(editor.getValue(), true);
     }
+
+    // SQLEditor.setCurId = function(txId) {
+    //     curQueryId = txId;
+    // }
 
     SQLEditor.fakeCompile = function(numSteps) {
         var deferred = PromiseHelper.deferred();
@@ -255,12 +260,122 @@ window.SQLEditor = (function(SQLEditor, $) {
         return deferred.promise();
     }
 
+    function executeTrigger(cm) {
+        // TODO: execute selection
+        SQLEditor.executeSQL();
+    }
+
+    function cancelExec(cm) {
+        console.error("SQL cancel triggered!");
+        sqlComs.forEach(function(sqlCom) {
+            if (sqlCom.getStatus() > 0) {
+                sqlCom.setStatus(-2);
+            }
+        })
+    }
+
+    function convertTextCase(flag, cm) {
+        var text = editor.getSelection();
+        if (text != "") {
+            if (flag) {
+                editor.replaceSelection(text.toLocaleUpperCase(), "around");
+            } else {
+                editor.replaceSelection(text.toLocaleLowerCase(), "around");
+            }
+        }
+    }
+
+    function toggleComment(cm) {
+        var startPos = editor.getCursor("from");
+        var endPos = editor.getCursor("to");
+        var startLineNum = startPos.line;
+        var endLineNum = endPos.line;
+        var commentCount = 0;
+        editor.eachLine(startLineNum, endLineNum + 1, function(lh) {
+            if (lh.text.trimStart().startsWith("--")) {
+                commentCount++;
+            }
+        })
+        if (commentCount === endLineNum - startLineNum + 1) {
+            for (var i = startLineNum; i <= endLineNum; i++) {
+                var text = editor.getLine(i);
+                editor.setSelection({line: i, ch: 0}, {line: i, ch: text.length});
+                editor.replaceSelection(text.replace(/--/, ""));
+            }
+        } else {
+            for (var i = startLineNum; i <= endLineNum; i++) {
+                var text = editor.getLine(i);
+                editor.setSelection({line: i, ch: 0}, {line: i, ch: text.length});
+                editor.replaceSelection("--" + text);
+            }
+        }
+        editor.setSelection(startPos,endPos);
+    }
+
+    function deleteAll(cm) {
+        editor.setValue("");
+    }
+
+    function scrollLine(flag, cm) {
+        if (flag) {
+            editor.scrollTo(null, editor.getScrollInfo().top
+                                        - editor.defaultTextHeight());
+        } else {
+            editor.scrollTo(null, editor.getScrollInfo().top
+                                        + editor.defaultTextHeight());
+        }
+    }
+
+    function insertLine(flag, cm) {
+        if (flag) {
+            var curPos = editor.getCursor("from");
+            var insertPos = {line: curPos.line, ch: 0};
+            editor.replaceRange("\n", insertPos);
+            editor.setCursor(insertPos);
+        } else {
+            var curPos = editor.getCursor("to");
+            var insertPos = {line: curPos.line,
+                             ch: editor.getLine(curPos.line).length};
+            editor.replaceRange("\n", insertPos);
+            editor.setCursor({line: curPos.line + 1, ch: 0});
+        }
+    }
+
     function setupEditor() {
         var textArea = document.getElementById("sqlEditor");
         if (!textArea) {
             // For Release Candidates
             return;
         }
+
+        var extraKeys = {"F5": executeTrigger,
+                         "Alt-X": executeTrigger,
+                         "F6": cancelExec,
+                         "F3": "findNext",
+                         "Shift-F3": "findPrev",
+                         "Ctrl-Space": "autocomplete", // Need to write autocomplete code
+                         "Ctrl--": toggleComment};
+
+        var cButton = "Ctrl";
+        if (isSystemMac) {
+            cButton = "Cmd";
+            extraKeys[cButton + "-Alt-F"] = "replace";
+        } else {
+            extraKeys[cButton + "-H"] = "replace";
+        }
+        extraKeys[cButton + "-E"] = executeTrigger;
+        extraKeys[cButton + "-Left"] = "goWordLeft";
+        extraKeys[cButton + "-Right"] = "goWordRight";
+        extraKeys[cButton + "-Backspace"] = "delWordBefore";
+        extraKeys[cButton + "-Delete"] = "delWordAfter";
+        extraKeys["Shift-" + cButton + "-U"] = convertTextCase.bind(window, true);
+        extraKeys["Shift-" + cButton + "-L"] = convertTextCase.bind(window, false);
+        extraKeys["Shift-" + cButton + "-K"] = "deleteLine";
+        extraKeys["Shift-" + cButton + "-Delete"] = deleteAll;
+        extraKeys[cButton + "-Up"] = scrollLine.bind(window, true);
+        extraKeys[cButton + "-Down"] = scrollLine.bind(window, false);
+        extraKeys[cButton + "-Enter"] = insertLine.bind(window, true);
+        extraKeys["Shift-" + cButton + "-Enter"] = insertLine.bind(window, false);
 
         editor = CodeMirror.fromTextArea(textArea, {
             "mode": "text/x-sql",
@@ -272,9 +387,9 @@ window.SQLEditor = (function(SQLEditor, $) {
             // "indentUnit": 4,
             "matchBrackets": true,
             "autofocus": true,
-            // "autoCloseBrackets": true,
-            // "search": true
-            "extraKeys": {"Ctrl-Space": "autocomplete"},
+            "autoCloseBrackets": true,
+            "search": true,
+            "extraKeys": extraKeys,
         });
 
         editor.refresh();
@@ -644,17 +759,26 @@ window.SQLEditor = (function(SQLEditor, $) {
 
     SQLEditor.executeSQL = function(query) {
         var deferred = PromiseHelper.deferred();
-        var sql = query || editor.getValue().replace(/--.*\n/g, "\n")
-                                            .replace(/;+$/, "");
+        var sql = query || editor.getSelection().replace(/;+$/, "") ||
+                           editor.getValue().replace(/;+$/, "");
         var sqlCom = new SQLCompiler();
+        sqlComs.push(sqlCom);
         var republish = false;
         try {
             $("#sqlExecute").addClass("btn-disabled");
+            if (sqlCom.getStatus === -2) {
+                return PromiseHelper.reject();
+            }
+            sqlCom.setStatus(2);
             sqlCom.compile(sql)
             .done(function() {
+                sqlCom.setStatus(0);
                 deferred.resolve();
             })
             .fail(function() {
+                if (sqlCom.getStatus() > 0) {
+                    sqlCom.setStatus(-1);
+                }
                 var errorMsg = "";
                 var table;
                 if (arguments.length === 1) {
@@ -711,11 +835,16 @@ window.SQLEditor = (function(SQLEditor, $) {
                 deferred.reject();
             })
             .always(function() {
+                // XXX need to change this line once we decide the new sql status panel design
+                sqlComs.splice(sqlComs.indexOf(sqlCom, 1));
                 if (!republish) {
                     SQLEditor.resetProgress();
                 }
             });
         } catch (e) {
+            // XXX need to change this line once we decide the new sql status panel design
+            sqlComs.splice(sqlComs.indexOf(sqlCom, 1));
+            sqlCom.setStatus(-1);
             SQLEditor.resetProgress();
             Alert.show({
                 title: "Compilation Error",
@@ -765,6 +894,16 @@ window.SQLEditor = (function(SQLEditor, $) {
         SQLEditor.__testOnly__.focusOnTableColumn = focusOnTableColumn;
         SQLEditor.__testOnly__.setFocusOnTableColumn = function(func) {
             focusOnTableColumn = func;
+        }
+        SQLEditor.__testOnly__.executeTrigger = executeTrigger;
+        SQLEditor.__testOnly__.cancelExec = cancelExec;
+        SQLEditor.__testOnly__.convertTextCase = convertTextCase;
+        SQLEditor.__testOnly__.toggleComment = toggleComment;
+        SQLEditor.__testOnly__.deleteAll = deleteAll;
+        SQLEditor.__testOnly__.scrollLine = scrollLine;
+        SQLEditor.__testOnly__.insertLine = insertLine;
+        SQLEditor.__testOnly__.setSqlComs = function(comList) {
+            sqlComs = comList;
         }
     }
     /* End Of Unit Test Only */

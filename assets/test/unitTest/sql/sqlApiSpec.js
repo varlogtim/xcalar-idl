@@ -64,7 +64,33 @@ describe("SQLApi Test", function() {
         it("should create an SQLApi object", function() {
             sqlApi = new SQLApi();
             expect(sqlApi).to.be.instanceof(SQLApi);
-            expect(Object.keys(sqlApi).length).to.equal(0);
+            expect(Object.keys(sqlApi).length).to.equal(2);
+        });
+
+        it("get/setStatus should work", function() {
+            var test = false;
+            var oldCancel = QueryManager.cancelQuery;
+            QueryManager.cancelQuery = function() {
+                test = true;
+            };
+
+            expect(sqlApi.status).to.equal(1);
+            sqlApi.status = 2;
+            expect(sqlApi.getStatus()).to.equal(2);
+            sqlApi.setStatus(-2);
+            expect(sqlApi.getStatus()).to.equal(-2);
+            sqlApi.setStatus(4);
+            expect(sqlApi.getStatus()).to.equal(-2);
+            sqlApi.status = 4;
+            sqlApi.setStatus(-2);
+            expect(sqlApi.getStatus()).to.equal(4);
+            QueryManager.cancelQuery(this.runTxId);
+            sqlApi.status = 3;
+            sqlApi.setStatus(-2);
+            expect(test).to.be.true;
+
+            sqlApi.status = 1;
+            QueryManager.cancelQuery = oldCancel;
         });
 
         it("_start should work", function() {
@@ -343,6 +369,7 @@ describe("SQLApi Test", function() {
             var oldGetMeta = XcalarGetTableMeta;
             var oldRefresh = TblManager.refreshTable;
             var oldGetDag = XcalarGetDag;
+            var oldCancel = Transaction.cancel;
             var testQuery = null;
             var testTable = null;
             var test = false;
@@ -362,22 +389,34 @@ describe("SQLApi Test", function() {
             XcalarGetDag = function() {
                 return PromiseHelper.resolve({node: []});
             }
+            Transaction.cancel = function() {
+                test = false;
+            }
 
             sqlApi.run("testQuery", "testTable")
+            .fail(function() {
+                done("fail");
+            })
             .then(function() {
                 expect(test).to.be.true;
                 expect(testQuery).to.equal("testQuery");
                 expect(testTable).to.equal("testTable");
-                done();
+                sqlApi.status = -2;
+                return sqlApi.run("testQuery2", "testTable2");
             })
             .fail(function() {
-                done("fail");
+                expect(test).to.be.false;
+                expect(testQuery).to.equal("testQuery");
+                expect(testTable).to.equal("testTable");
+                done();
             })
             .always(function() {
                 XIApi.query = oldQuery;
                 XcalarGetTableMeta = oldGetMeta;
                 TblManager.refreshTable = oldRefresh;
                 XcalarGetDag = oldGetDag;
+                Transaction.cancel = oldCancel;
+                sqlApi.status = 1;
             });
         });
 
@@ -398,11 +437,25 @@ describe("SQLApi Test", function() {
             .fail(function(error) {
                 expect(test).to.be.true;
                 expect(error).to.equal("test error");
-                done();
+                XIApi.query = function() {
+                    return PromiseHelper.reject(SQLErrTStr.Cancel);
+                };
+                test = false;
+                sqlApi.run("testQuery", "testTable")
+                .then(function() {
+                    done("fail");
+                })
+                .fail(function(error) {
+                    expect(test).to.be.true;
+                    expect(error).to.equal(SQLErrTStr.Cancel);
+                    expect(sqlApi.status).to.equal(-2);
+                    done();
+                })
             })
             .always(function() {
                 XIApi.query = oldQuery;
                 Transaction.fail = oldFail;
+                sqlApi.status = 1;
             });
         });
 

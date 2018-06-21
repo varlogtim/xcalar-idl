@@ -4,6 +4,9 @@
     var root = this;
 
     function SQLApi() {
+        // status: -2: canceled, -1: error, 0: finished, 1: created-idle, 2: compile, 3: run, 4: post-run
+        this.status = 1;
+        this.runTxId = -1;
         return this;
     }
 
@@ -288,8 +291,15 @@
                 "track": true
             });
             var self = this;
+            self.runTxId = txId;
+            if (self.status === -2) {
+                Transaction.cancel(txId);
+                return PromiseHelper.reject(SQLErrTStr.Cancel);
+            }
+            self.status = 3;
             XIApi.query(txId, queryName, query, jdbcCheckTime)
             .then(function() {
+                self.status = 4;
                 if (!isSqlMode) {
                     DagFunction.commentDagNodes([tableName], sqlQueryString);
                     return self._refreshTable(txId, tableName, allCols);
@@ -310,6 +320,9 @@
                 deferred.resolve(tableName);
             })
             .fail(function(error) {
+                if (error === SQLErrTStr.Cancel) {
+                    self.status = -2;
+                }
                 if (!isSqlMode) {
                     Transaction.fail(txId, {
                         "failMsg": "Execute SQL failed",
@@ -613,6 +626,22 @@
 
             return deferred.promise();
         },
+
+        getStatus: function() {
+            return this.status;
+        },
+
+        setStatus: function(st) {
+            if (st === -2 && this.status === 3) {
+                QueryManager.cancelQuery(this.runTxId);
+                // $queryList.find(".query.active .cancelIcon").click();
+                this.status = -2;
+            } else if (st === -2 && this.status === 4) {
+                console.error("operation is done, cannot cancel");
+            } else if (this.status > 0) {
+                this.status = st;
+            }
+        }
 
         // dstAggName is optional and can be left blank (will autogenerate)
         // aggregateWithEvalStr: function(evalStr, tableName, dstAggName) {

@@ -10,9 +10,12 @@ describe("SQLEditor Test", function() {
     var oldGTables;
     var oldUpdateKVStore;
     var oldKVStoreCommit;
+    var editor;
+    var queryText;
     before(function(){
         UnitTest.onMinMode();
         BottomMenu.close(true);
+        queryText = SQLEditor.getEditor().getValue();
         oldGTables = gTables;
         oldSQLTables = SQLEditor.__testOnly__.getSQLTables();
         oldUpdateKVStore = SQLEditor.__testOnly__.updateKVStore;
@@ -128,6 +131,12 @@ describe("SQLEditor Test", function() {
                     test = true;
                     return PromiseHelper.resolve();
                 }
+                this.setStatus = function() {
+                    return;
+                }
+                this.getStatus = function() {
+                    return 2;
+                }
             };
             $("#sqlExecute").click();
             expect(test).to.be.true;
@@ -144,6 +153,12 @@ describe("SQLEditor Test", function() {
                     'ble or view not found: k; line 1 pos 14"},"status":500,' +
                     '"statusText":"Internal Server Error"}'));
                 }
+                this.setStatus = function() {
+                    return;
+                }
+                this.getStatus = function() {
+                    return 2;
+                }
             };
             $("#sqlExecute").click();
             expect($("#alertHeader").find(".text").text()).to.equal(SQLErrTStr.Err);
@@ -157,6 +172,12 @@ describe("SQLEditor Test", function() {
                 this.compile = function() {
                     throw "Error";
                 }
+                this.setStatus = function() {
+                    return;
+                }
+                this.getStatus = function() {
+                    return 2;
+                }
             };
             $("#sqlExecute").click();
             expect($("#alertHeader").find(".text").text()).to.equal("Compilation Error");
@@ -169,6 +190,12 @@ describe("SQLEditor Test", function() {
             SQLCompiler = function() {
                 this.compile = function() {
                     return PromiseHelper.reject("test1", "test2");
+                }
+                this.setStatus = function() {
+                    return;
+                }
+                this.getStatus = function() {
+                    return 2;
                 }
             };
             $("#sqlExecute").click();
@@ -266,7 +293,13 @@ describe("SQLEditor Test", function() {
             SQLCompiler = function() {
                 this.compile = function() {
                     return PromiseHelper.resolve();
-                };
+                }
+                this.setStatus = function() {
+                    return;
+                }
+                this.getStatus = function() {
+                    return 2;
+                }
             };
             SQLEditor.__testOnly__.setSQLTables({"TESTSQLTABLE1": "test1",
                                                  "testSqlTable2": "test2",
@@ -288,7 +321,13 @@ describe("SQLEditor Test", function() {
             SQLCompiler = function() {
                 this.compile = function() {
                     return PromiseHelper.reject({"readyState":4,"responseText":"{\"exceptionName\":\"java.util.NoSuchElementException\",\"exceptionMsg\":\"key not found: jiyuan1-wkbk-New%20Workbook\"}","responseJSON":{"exceptionName":"java.util.NoSuchElementException","exceptionMsg":"key not found: jiyuan1-wkbk-New%20Workbook"},"status":500,"statusText":"error"});
-                };
+                }
+                this.setStatus = function() {
+                    return;
+                }
+                this.getStatus = function() {
+                    return 2;
+                }
             };
             var oldRepublishSchemas = SQLEditor.__testOnly__.republishSchemas;
             SQLEditor.__testOnly__.setRepublishSchemas(function(query) {
@@ -315,7 +354,13 @@ describe("SQLEditor Test", function() {
             SQLCompiler = function() {
                 this.compile = function() {
                     return PromiseHelper.reject({"readyState":4,"responseText":"{\"exceptionName\":\"org.apache.spark.sql.AnalysisException\",\"exceptionMsg\":\"Table or view not found: testsqltable1; line 1 pos 14\"}","responseJSON":{"exceptionName":"org.apache.spark.sql.AnalysisException","exceptionMsg":"Table or view not found: testsqltable1; line 1 pos 14"},"status":500,"statusText":"Internal Server Error"});
-                };
+                }
+                this.setStatus = function() {
+                    return;
+                }
+                this.getStatus = function() {
+                    return 2;
+                }
             };
             var oldRepublishSchemas = SQLEditor.__testOnly__.republishSchemas;
             SQLEditor.__testOnly__.setRepublishSchemas(function(query) {
@@ -559,6 +604,94 @@ describe("SQLEditor Test", function() {
         });
     });
 
+    describe("SQL Hotkey Function Test", function() {
+        before(function() {
+            // Open SQL tab
+            editor = SQLEditor.getEditor();
+        });
+
+        it("Should execute when executeTrigger", function() {
+            var test = false;
+            var oldexec = SQLEditor.executeSQL;
+            SQLEditor.executeSQL = function() {
+                test = true;
+            }
+            SQLEditor.__testOnly__.executeTrigger();
+            expect(test).to.be.true;
+            SQLEditor.executeSQL = oldexec;
+        });
+
+        it("CancelExec should stop execute", function() {
+            var status = 1;
+            var testCom = {};
+            testCom.getStatus = function() {
+                return status;
+            }
+            testCom.setStatus = function(num) {
+                status = num;
+            }
+            SQLEditor.__testOnly__.setSqlComs([testCom]);
+            SQLEditor.__testOnly__.cancelExec();
+            expect(status).to.equal(-2);
+        });
+
+        it("Should convertTextCase", function() {
+            editor.setValue("aBc,)1i");
+            editor.setSelection({line: 0, ch: 0}, {line: 0, ch: 6});
+            SQLEditor.__testOnly__.convertTextCase(true);
+            expect(editor.getValue()).to.equal("ABC,)1i");
+            editor.setSelection({line: 0, ch: 1}, {line: 0, ch: 7});
+            SQLEditor.__testOnly__.convertTextCase(false);
+            expect(editor.getValue()).to.equal("Abc,)1i");
+        });
+
+        it("Should toggleComment", function() {
+            editor.setValue("firstline\n--secondline");
+            editor.setSelection({line: 0, ch: 0}, {line: 1, ch: 6});
+            SQLEditor.__testOnly__.toggleComment();
+            expect(editor.getValue()).to.equal("--firstline\n----secondline");
+            editor.setSelection({line: 1, ch: 0}, {line: 1, ch: 0});
+            SQLEditor.__testOnly__.toggleComment();
+            expect(editor.getValue()).to.equal("--firstline\n--secondline");
+            editor.setSelection({line: 0, ch: 0}, {line: 1, ch: 0});
+            SQLEditor.__testOnly__.toggleComment();
+            expect(editor.getValue()).to.equal("firstline\nsecondline");
+            editor.setSelection({line: 1, ch: 0}, {line: 1, ch: 0});
+            SQLEditor.__testOnly__.toggleComment();
+            expect(editor.getValue()).to.equal("firstline\n--secondline");
+        });
+
+        it("Should deleteAll", function() {
+            editor.setValue("test");
+            SQLEditor.__testOnly__.deleteAll();
+            expect(editor.getValue()).to.equal("");
+        });
+
+        it("Should scrollLine", function() {
+            editor.setValue("test\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+            + "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+            + "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+            var iniPos = editor.getScrollInfo().top;
+            var lineHight = editor.defaultTextHeight()
+            SQLEditor.__testOnly__.scrollLine(false);
+            expect(editor.getScrollInfo().top).to.equal(iniPos + lineHight);
+            SQLEditor.__testOnly__.scrollLine(true);
+            expect(editor.getScrollInfo().top).to.equal(iniPos);
+        });
+
+        it("Should insertLine", function() {
+            editor.setValue("line1\nline2\nline3\nline4");
+            editor.setSelection({line: 1, ch: 0}, {line: 2, ch: 0});
+            SQLEditor.__testOnly__.insertLine(true);
+            expect(editor.getValue()).to.equal("line1\n\nline2\nline3\nline4");
+            expect(editor.getCursor().line).to.equal(1);
+            editor.setSelection({line: 3, ch: 0});
+            SQLEditor.__testOnly__.insertLine(false);
+            expect(editor.getValue()).to.equal("line1\n\nline2\nline3\n\nline4");
+            expect(editor.getCursor().line).to.equal(4);
+        });
+    });
+
     after(function() {
         UnitTest.offMinMode();
         gTables = oldGTables;
@@ -566,5 +699,6 @@ describe("SQLEditor Test", function() {
         SQLEditor.__testOnly__.setUpdatePlanServer(oldUpdatePlanServer);
         KVStore.commit = oldKVStoreCommit;
         SQLEditor.__testOnly__.setSQLTables(oldSQLTables);
+        SQLEditor.getEditor().setValue(queryText);
     });
 });
