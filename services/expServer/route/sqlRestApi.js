@@ -1871,8 +1871,8 @@ function loadDatasets(args) {
 function convertToDerivedColAndGetSchema(txId, tableName, dstTable) {
     var deferred = PromiseHelper.deferred();
     getSchema(tableName)
-    .then(function(schema) {
-        return getDerivedCol(txId, tableName, schema, dstTable);
+    .then(function(res) {
+        return getDerivedCol(txId, tableName, res.schema, dstTable);
     })
     .then(deferred.resolve)
     .fail(deferred.reject);
@@ -1896,9 +1896,10 @@ function getSchema(tableName, orderedColumns) {
     .then(function(tableMeta) {
         try {
             var row = JSON.parse(data);
-            var colMap = [];
+            var colMap = {};
             var headers = [];
             var orderedHeaders = [];
+            var renameMap = {};
             if (!orderedColumns) {
                 for (var colName in row) {
                     if (colName.startsWith("XC_ROW_COL_")) {
@@ -1924,8 +1925,6 @@ function getSchema(tableName, orderedColumns) {
                 }
                 var valueAttrs = tableMeta.valueAttrs;
                 var row = JSON.parse(data);
-                var colMap = [];
-                var headers = [];
                 for (var i = 0; i < valueAttrs.length; i++) {
                     var colName = valueAttrs[i].name;
                     var type = getColType(valueAttrs[i].type);
@@ -1939,8 +1938,11 @@ function getSchema(tableName, orderedColumns) {
                 }
                 for (var i = 0; i < orderedColumns.length; i++) {
                     var found = false;
-                    var colName = orderedColumns[i].rename ||
-                                  orderedColumns[i].colName;
+                    var colName = orderedColumns[i].colName;
+                    if (orderedColumns[i].rename) {
+                        renameMap[colName] = orderedColumns[i].rename;
+                        colName = orderedColumns[i].rename;
+                    }
                     var prefix = colName;
                     if (colName.indexOf("::") > 0) {
                         prefix = colName.split("::")[0];
@@ -1959,12 +1961,14 @@ function getSchema(tableName, orderedColumns) {
                     }
                 }
             }
+
             var schema = orderedHeaders.map(function(header) {
                 var cell = {};
-                cell[header] = colMap[header];
+                cell[header] = renameMap[header] ? colMap[renameMap[header]] :
+                                                   colMap[header];
                 return cell;
             });
-            deferred.resolve(schema);
+            deferred.resolve({schema: schema, renameMap: renameMap});
         } catch (e) {
             console.error("parse error", e);
             deferred.reject(e);
@@ -2026,6 +2030,7 @@ function sqlPlan(execid, planStr, rowsToFetch, sessionId, checkTime) {
     var finalTable;
     var schema;
     var orderedColumns;
+    var renameMap;
 
     try {
         global.sqlMode = true;
@@ -2052,11 +2057,12 @@ function sqlPlan(execid, planStr, rowsToFetch, sessionId, checkTime) {
             return getSchema(finalTable, orderedColumns);
         })
         .then(function(res) {
-            schema = res;
+            schema = res.schema;
+            renameMap = res.renameMap;
             return getRows(finalTable, 1, rowsToFetch);
         })
         .then(function(data) {
-            var result = parseRows(data, schema);
+            var result = parseRows(data, schema, renameMap);
             console.log("schema:" + JSON.stringify(schema));
             XIApi.deleteTable(1, finalTable);
             var res = {
@@ -2080,16 +2086,15 @@ function sqlPlan(execid, planStr, rowsToFetch, sessionId, checkTime) {
     return deferred.promise();
 };
 
-function parseRows(data, schema) {
+function parseRows(data, schema, renameMap) {
     try {
         var headers = schema.map(function(cell) {
             return Object.keys(cell)[0];
         });
-
         var rows = data.map(function(row) {
             row = JSON.parse(row);
             return headers.map(function(header) {
-                return row[header];
+                return renameMap[header] ? row[renameMap[header]] : row[header];
             });
         });
         return rows;
