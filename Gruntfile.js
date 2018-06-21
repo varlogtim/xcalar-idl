@@ -3622,10 +3622,17 @@ module.exports = function(grunt) {
             // store by the minipath, not filename, in case two same
             // i.e., A/B/C.js and A/D/C.js
             if( !uglifyConfig.hasOwnProperty(minipathRelDivergeAt) ) {
-                uglifyConfig[minipathRelDivergeAt] = {'src':[], 'dest':minifileBldDestAbs, 'options':{}};
+                uglifyConfig[minipathRelDivergeAt] = {
+                    'src':[],
+                    'dest':minifileBldDestAbs,
+                    'options':{
+                        'compress': {
+                            'inline': false
+                        }
+                    }
+                };
             }
             uglifyConfig[minipathRelDivergeAt].src.push(srcFilepathAbs); // add in as src for proper target
-
             // add to the jsFilepathMapping hash for updating script tags later in bld process.
             // THESE NEED TO BE REL BLD!
             jsFilepathMapping[scriptTagSrcAttr] = minifileBldDest;
