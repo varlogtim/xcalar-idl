@@ -1832,6 +1832,16 @@ window.FileBrowser = (function($, FileBrowser) {
                 // importData form
                 // input doese trigger keyboard event
                 return true;
+            } else {
+                // Should always return true, in case fileBrowser is invisible
+                // Is this true?
+
+                // hack for textareas in importData form
+                if ($target.is('textarea') &&
+                    $lastTarget != null &&
+                    $lastTargParents.filter('#importDataForm').length) {
+                    return true;
+                }
             }
 
             if (code === keyCode.Backspace) {

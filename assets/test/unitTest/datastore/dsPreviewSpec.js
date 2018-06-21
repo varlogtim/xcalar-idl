@@ -1348,6 +1348,7 @@ describe("Dataset-DSPreview Test", function() {
             assert.isFalse($lineText.is(":visible"), "no line delimiter");
             assert.isFalse($quoteInput.is(":visible"), "no quote char");
             assert.isFalse($skipInput.is(":visible"), "no skip rows");
+            assert.isTrue($("#dsForm-jsonJmespath").is(":visible"), "has JSON Jmespath");
         });
 
         it("Format Should be Text", function() {
@@ -1945,6 +1946,33 @@ describe("Dataset-DSPreview Test", function() {
             $("#dsForm-dbSQL").val("");
         });
 
+        it("should validate JSON case", function() {
+            loadArgs.set({format: "JSON"});
+            let validateResult;
+
+            // No UDF case
+            $("#dsForm-jsonJmespath").val('');
+            validateResult = validateForm();
+            expect(validateResult).to.be.an("object");
+            expect(validateResult.format).to.equal("JSON");
+            expect(validateResult.udfModule).to.equal("");
+            expect(validateResult.udfFunc).to.equal("");
+            expect(validateResult.udfQuery).to.be.null;
+
+            // Use UDF case
+            $("#dsForm-jsonJmespath").val('test_path');
+            validateResult = validateForm();
+            expect(validateResult).to.be.an("object");
+            expect(validateResult.format).to.equal("JSON");
+            expect(validateResult.udfModule).to.equal("/globaludf/default");
+            expect(validateResult.udfFunc).to.equal("extractJsonRecords");
+            expect(validateResult.udfQuery).to.be.an("object");
+            expect(validateResult.udfQuery.structsToExtract).to.equal("test_path");
+
+            // restore
+            $("#dsForm-jsonJmespath").val("");
+        });
+
         it("should validte PARQUET case", function() {
             var $parquetSection = $form.find(".parquetSection");
             var $selectedColList = $parquetSection.find(".selectedColSection .colList");
@@ -2218,6 +2246,51 @@ describe("Dataset-DSPreview Test", function() {
             $("#dsForm-dbSQL").val("");
         });
 
+        it("should restore JSON", function() {
+            // [*] ==> ''
+            resetForm({
+                dsName: "test",
+                format: "JSON",
+                udfQuery: {
+                    structsToExtract: "[*]"
+                }
+            });
+            expect(loadArgs.getFormat()).to.equal("JSON");
+            expect($("#dsForm-jsonJmespath").val().length).to.equal(0);
+
+            // Code protective test1
+            resetForm({
+                dsName: "test",
+                format: "JSON",
+                udfQuery: {}
+            });
+            expect(loadArgs.getFormat()).to.equal("JSON");
+            expect($("#dsForm-jsonJmespath").val().length).to.equal(0);
+
+            // Code protective test2
+            resetForm({
+                dsName: "test",
+                format: "JSON",
+                udfQuery: null
+            });
+            expect(loadArgs.getFormat()).to.equal("JSON");
+            expect($("#dsForm-jsonJmespath").val().length).to.equal(0);
+
+            // Normal case
+            resetForm({
+                dsName: "test",
+                format: "JSON",
+                udfQuery: {
+                    structsToExtract: "test_path"
+                }
+            });
+            expect(loadArgs.getFormat()).to.equal("JSON");
+            expect($("#dsForm-jsonJmespath").val()).to.equal("test_path");
+
+            // restore
+            $("#dsForm-jsonJmespath").val("");
+        });
+
         it("should restore PARQUET", function() {
             var oldFunc = XcalarAppExecute;
             window.a = true
@@ -2249,7 +2322,7 @@ describe("Dataset-DSPreview Test", function() {
 
         it("should click suggest to change format", function() {
             var $errorSection = $previewCard.find(".errorSection");
-            DSPreview.__testOnly__.toggleFormat("JSON");
+            DSPreview.__testOnly__.toggleFormat("TEXT");
             $errorSection.find(".content").html('<div class="suggest" data-format="CSV"></div>');
             $errorSection.find(".suggest").click();
             expect(loadArgs.getFormat()).to.equal("CSV");
@@ -2560,11 +2633,14 @@ describe("Dataset-DSPreview Test", function() {
 
         it("should change format", function() {
             loadArgs.set({format: "CSV"});
-            $("#fileFormatMenu").find("li[name=JSON]").trigger(fakeEvent.mouseup);
-            expect(loadArgs.getFormat()).to.equal("JSON");
-            expect($("#fileFormat input").val()).to.equal("JSON");
+            $("#fileFormat .text").data('format', 'CSV');
+
+            $("#fileFormatMenu").find("li[name=TEXT]").trigger(fakeEvent.mouseup);
+            expect(loadArgs.getFormat()).to.equal("TEXT");
+            expect($("#fileFormat input").val()).to.equal("Text");
             // clear up
             loadArgs.set({format: "CSV"});
+            $("#fileFormat .text").data('format', 'CSV');
         });
 
         it("should click confirm to submit the form", function() {

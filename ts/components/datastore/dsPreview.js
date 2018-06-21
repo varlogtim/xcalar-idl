@@ -23,6 +23,7 @@ window.DSPreview = (function($, DSPreview) {
 
     var $headerCheckBox; // $("#promoteHeaderCheckbox") promote header checkbox
     var componentDBFormat;
+    var componentJsonFormat;
 
     var tableName = null;
     var rawData = null;
@@ -90,6 +91,16 @@ window.DSPreview = (function($, DSPreview) {
             sqlID: 'dsForm-dbSQL',
             containerID: 'importDataForm-content',
             parseJSONDataFunc: parseJSONData
+        });
+        componentJsonFormat = createJsonFormat({
+            $container: $form,
+            udfModule: defaultModule,
+            udfFunction: 'extractJsonRecords',
+            refreshPreviewFunc: () => refreshPreview(true, true)
+        });
+        createPreviewLoader({
+            $container: $form,
+            refreshPreviewFunc: () => refreshPreview(true, true)
         });
 
         // select a char as candidate delimiter
@@ -1142,6 +1153,7 @@ window.DSPreview = (function($, DSPreview) {
         $("#dsForm-skipRows").val("0");
         $("#dsForm-excelIndex").val("0");
         $("#dsForm-xPaths").val("");
+        componentJsonFormat.reset();
         $form.find(".checkbox.checked").removeClass("checked");
         $form.find(".collapse").removeClass("collapse");
         $previewWrap.find(".inputWaitingBG").remove();
@@ -1233,6 +1245,13 @@ window.DSPreview = (function($, DSPreview) {
             });
             delete options.moduleName;
             delete options.funcName;
+        } else if (format === formatMap.JSON) {
+            const useUDF = componentJsonFormat.restore(
+                {udfQuery: options.udfQuery});
+            if (!useUDF) {
+                delete options.moduleName;
+                delete options.funcName;
+            }
         }
         // Nothing to do for PARQUET FILE since it's just one thing
         options.format = format;
@@ -2094,6 +2113,18 @@ window.DSPreview = (function($, DSPreview) {
         } else if (format === formatMap.PARQUETFILE) {
             udfModule = parquetModule;
             udfFunc = parquetFunc;
+        } else if (format === formatMap.JSON) {
+            const validRes = componentJsonFormat.validateValues();
+            if (validRes == null) {
+                return null;
+            }
+
+            const udfDef = componentJsonFormat.getUDFDefinition({
+                jmespath: validRes.jmespath
+            });
+            udfModule = udfDef.udfModule;
+            udfFunc = udfDef.udfFunc;
+            udfQuery = udfDef.udfQuery;
         }
 
         var terminationOptions = getTerminationOptions();
@@ -2187,6 +2218,17 @@ window.DSPreview = (function($, DSPreview) {
             udfModule = defaultModule;
             udfFunc = 'ingestFromDB';
             udfQuery = { dsn: dbArgs.dsn, query: dbArgs.query };
+        } else if (format === formatMap.JSON) {
+            const jsonArgs = componentJsonFormat.validateValues();
+            if (jsonArgs == null) {
+                return null;
+            }
+            const udfDef = componentJsonFormat.getUDFDefinition({
+                jmespath: jsonArgs.jmespath
+            });
+            udfModule = udfDef.udfModule;
+            udfFunc = udfDef.udfFunc;
+            udfQuery = udfDef.udfQuery;
         }
 
         var advanceArgs = validateAdvancedArgs();
@@ -2422,6 +2464,8 @@ window.DSPreview = (function($, DSPreview) {
                 $form.find(".format.excel").removeClass("xc-hidden");
                 break;
             case "JSON":
+                componentJsonFormat.show();
+                break;
             case "PARQUETFILE":
                 break;
             case "PARQUET":
@@ -2470,6 +2514,12 @@ window.DSPreview = (function($, DSPreview) {
                     formatNew.toUpperCase() === "PARQUETFILE");
         };
 
+        const changeWithJson = function(formatOld, formatNew) {
+            return formatOld != null &&
+                   (formatOld.toUpperCase() === "JSON" ||
+                    formatNew.toUpperCase() === "JSON");
+        }
+
         if (hasChangeFormat) {
             if (oldFormat === formatMap.CSV) {
                 showHeadersWarning(true);
@@ -2481,6 +2531,7 @@ window.DSPreview = (function($, DSPreview) {
                 getPreviewTable(true);
             } else if (changeWithExcel(oldFormat, format) ||
                 changeWithParquetFile(oldFormat, format) ||
+                changeWithJson(oldFormat, format) ||
                 oldFormat === formatMap.UDF) {
                 refreshPreview(true, true);
             } else {
@@ -2674,7 +2725,7 @@ window.DSPreview = (function($, DSPreview) {
                     udfModule = parquetModule;
                     udfFunc = parquetFunc;
                     toggleFormat("PARQUETFILE");
-                } else if (DSTargetManager.isGeneratedTarget(targetName)) {
+                 } else if (DSTargetManager.isGeneratedTarget(targetName)) {
                     // special case
                     hasUDF = true;
                     noDetect = true;
@@ -3467,7 +3518,7 @@ window.DSPreview = (function($, DSPreview) {
                 showJSONTable(parseResult.json);
                 componentDBFormat.updateDSNList(parseResult.dsnList);
             }
-            isSuccess = parseResult ? true : false;
+            isSuccess = (parseResult != null) ? true : false;
 
         } else {
             isSuccess = getCSVTable(rawData, format);
@@ -4899,6 +4950,91 @@ window.DSPreview = (function($, DSPreview) {
         return newNames;
     }
 
+    // Start === JsonFormat component factory
+    function createJsonFormat({
+        $container,
+        udfModule,
+        udfFunction,
+        refreshPreviewFunc
+    }) {
+        // Dependencies
+        const libs = { keyCode: keyCode };
+
+        // Contants
+        const DEFAULT_JMESPATH = '[*]';
+        const ID_JMESPATH = 'dsForm-jsonJmespath';
+
+        // Private variables
+        const $elementPath = $(`#${ID_JMESPATH}`);
+
+        // Private methods
+        function init() {
+            // Component initialization code goes here
+        }
+
+        // Initialize
+        init();
+
+        // Public methods
+        return {
+            show: function() {
+                $container.find('.format.json').removeClass("xc-hidden");
+            },
+
+            validateValues: function() {
+                try {
+                    const strJemspath = $elementPath.val().trim();
+                    return { jmespath: strJemspath };
+                } catch(e) {
+                    return null;
+                }
+            },
+
+            restore: function({udfQuery}) {
+                let jmespath;
+                try {
+                    jmespath = udfQuery.structsToExtract;
+                    jmespath = (jmespath == null) ? '' : jmespath;
+                } catch(e) {
+                    jmespath = '';
+                }
+                if (jmespath === DEFAULT_JMESPATH) {
+                    jmespath = '';
+                }
+                $elementPath.val(jmespath);
+
+                const useUDF = (jmespath !== DEFAULT_JMESPATH)
+                    && (jmespath.length > 0);
+                return useUDF;
+            },
+
+            reset: function() {
+                $elementPath.val('');
+            },
+
+            getUDFDefinition: function( { jmespath = '' } = {} ) {
+                let udfDef;
+                if (jmespath.length > 0) {
+                    // Use UDF, in case jmespath is provided
+                    udfDef = {
+                        udfModule: udfModule,
+                        udfFunc: udfFunction,
+                        udfQuery: { structsToExtract: jmespath }
+                    };
+                } else {
+                    // no UDF, in case jmespath is not provided
+                    udfDef = {
+                        udfModule: '',
+                        udfFunc: '',
+                        udfQuery: null
+                    };
+                }
+                return udfDef;
+            }
+        };
+    }
+    // End === JsonFormat component factory
+
     // Start === DatabaseFormat component factory
     function createDatabaseFormat({
         dsnID = 'dbArgs-dsnList',
@@ -4974,13 +5110,16 @@ window.DSPreview = (function($, DSPreview) {
             parseConfig: function(rawData) {
                 try {
                     const json = libs.parseJSONData(rawData);
-                    return {
-                        json: json,
-                        dsnList: json.map( (dsn) => (libs.xcHelper.escapeHTMLSpecialChar(dsn.name)) )
-                    };
+                    const dsnList = [];
+                    for (const dsn of json) {
+                        if (dsn.name != null) {
+                            dsnList.push(libs.xcHelper.escapeHTMLSpecialChar(dsn.name));
+                        }
+                    }
+                    return { json: json, dsnList: dsnList };
                 } catch(e) {
                     console.error(e);
-                    return false;
+                    return null;
                 }
             },
             updateDSNList: function(dsnList) {
@@ -4993,6 +5132,29 @@ window.DSPreview = (function($, DSPreview) {
 
     }
     // End === DatabaseFormat component factory
+
+    // Start === PreviewLoader component factory
+    function createPreviewLoader({
+        $container,
+        refreshPreviewFunc
+    }) {
+        // Constants
+        const XCID_BTN_REFRESH = 'format.refresh';
+
+        // Private methods
+        function init() {
+            const $elementRefresh = $container.find(`[data-xcid="${XCID_BTN_REFRESH}"]`);
+            $elementRefresh.off('click');
+            $elementRefresh.on('click', refreshPreviewFunc);
+        }
+
+        // Initialize
+        init();
+
+        // Public methods
+        return {};
+    }
+    // End === PreviewLoader component factory
 
     /* Unit Test Only */
     if (window.unitTestMode) {

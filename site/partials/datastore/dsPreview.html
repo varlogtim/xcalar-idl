@@ -158,6 +158,10 @@
                   include "../../util/menuScrollArea.html"
                 </div>
               </div>
+              <!-- Refresh icon -->
+              <div class="refresh xc-action btn-transparent" data-toggle="tooltip" data-placement="top" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSPreviewRefresh %>" data-xcid="format.refresh">
+                  <i class="icon xi-refresh blue"></i>
+              </div>
             </div>
             <!-- promote header -->
             <div class="row format csv text excel checkboxRow">
@@ -323,6 +327,14 @@
               <label for="dsForm-dbSQL"><%= dicts.dsForm.DatabaseQuery %>:</label>
               <div class="inputWrap inputWrap-large">
                 <input id="dsForm-dbSQL" class="text" type="text" spellcheck="false">
+              </div>
+            </div>
+            <!-- JSON Jmespath -->
+            <div class="row format json clearfix">
+              <i class="qMark icon xi-unknown qmark-mid" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSJsonJmespath %>" data-placement="top"></i>
+              <label for="dsForm-jsonJmespath"><%= dicts.dsForm.Jmespath %>:</label>
+              <div class="inputWrap-large">
+                <textarea class="xc-textArea textarea" id="dsForm-jsonJmespath" spellcheck="false"></textarea>
               </div>
             </div>
           </section>
