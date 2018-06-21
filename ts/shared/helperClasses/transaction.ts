@@ -199,19 +199,18 @@ namespace Transaction {
 
             // check if we need to update monitorGraph's table usage
             const dstTables: string[] = QueryManager.getAllDstTables(txId);
-            if (dstTables.length) {
-                let hasTableChange = false;
-                for (let i = 0; i < dstTables.length; i++) {
-                    if (dstTables[i].indexOf(gDSPrefix) === -1) {
-                        hasTableChange = true;
-                        break;
-                    }
-                }
-                // XcalarDeleteTable also triggers tableUsageChange
-                if (hasTableChange) {
-                    MonitorGraph.tableUsageChange();
+            let hasTableChange = false;
+            for (let i = 0; i < dstTables.length; i++) {
+                if (dstTables[i].indexOf(gDSPrefix) === -1) {
+                    hasTableChange = true;
+                    break;
                 }
             }
+            // XcalarDeleteTable also triggers tableUsageChange
+            if (hasTableChange) {
+                MonitorGraph.tableUsageChange();
+            }
+
         }
 
         // remove transaction
@@ -537,6 +536,22 @@ namespace Transaction {
             }
         }
         return tables;
+    }
+
+    export let __testOnly__: any = {};
+
+    if (typeof window !== 'undefined' && window['unitTestMode']) {
+        __testOnly__.getAll = function() {
+            return {
+                txCache: txCache,
+                canceledTxCache: canceledTxCache,
+                disabledCancels: disabledCancels,
+                txIdCount: txIdCount,
+                isDeleting: isDeleting
+            };
+        };
+        __testOnly__.transactionCleaner = transactionCleaner;
+        __testOnly__.getSrcTables = getSrcTables;
     }
 }
 if (typeof exports !== "undefined") {

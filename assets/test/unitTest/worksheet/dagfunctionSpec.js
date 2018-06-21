@@ -96,33 +96,6 @@ describe("DagFunction Test", function() {
 			XcalarTagDagNodes = tagNodeCache;
 		});
 
-		it("recomment after edit should work", function(done) {
-			var cacheFn = XcalarCommentDagNodes;
-			var called = false;
-			XcalarCommentDagNodes = function(comment, tables) {
-				expect(comment).to.equal("some comment");
-				expect(tables.length).to.equal(2);
-				expect(tables[0]).to.equal("table1");
-				expect(tables[1]).to.equal("table2");
-				called = true;
-				return PromiseHelper.reject("test");
-			};
-
-			var commentMap = {
-				"some comment": ["table1", "table2"]
-			}
-			DagFunction.__testOnly__recommentAfterEdit(commentMap)
-			.then(function(ret) {
-				expect(called).to.be.true;
-				expect(ret).to.equal("test");
-				XcalarCommentDagNodes = cacheFn;
-				done();
-			})
-			.fail(function() {
-				done("fail");
-			});
-		});
-
 		it("set columns after edit should work", function(done) {
 			var table = setupFakeTable();
 			table.backTableMeta = {
