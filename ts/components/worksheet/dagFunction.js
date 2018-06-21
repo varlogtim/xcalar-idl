@@ -793,9 +793,7 @@ window.DagFunction = (function($, DagFunction) {
         }
     }
 
-    // DagFunction.runProcedureWithParams("students#p7304", {"students#p7303":{"eval": [{"evalString":"eq(students::student_id, 2)","newField":""}]}})
-    DagFunction.runProcedureWithParams = function(tableName, params, newIndexNodes, newNodes) {
-        var deferred = PromiseHelper.deferred();
+    DagFunction.getReRunQueryString = function(tableName, params, newIndexNodes, newNodes) {
         params = xcHelper.deepCopy(params);
         var paramNodes = Object.keys(params);
 
@@ -917,62 +915,146 @@ window.DagFunction = (function($, DagFunction) {
         }
 
         replaceAggRenames(treeNodesToRerun, aggRenames);
+        var aggsToStore = getAggsToStore(aggNodes, aggRenames, parameterizedAggs);
 
-        var finalTreeValue = treeNodesToRerun[treeNodesToRerun.length - 1].value;
-        var finalTableName = finalTreeValue.struct.dest;
+        // assign tags to nodes that need it
+        updateTags(paramNodes, treeNodesToRerun, tagHeaders);
+        // if some nonInvolvedNodes require tag changes, get a map of
+        // {tag: names[]}
+        var tagMap = getNonInvolvedTagMap(nonInvolvedNames, tagHeaders);
+        var queryString = getXcalarQueryCli(treeNodesToRerun);
 
-        // store the old tags so we can replace and add back with no tags after
-        // query is run
-        var nameToTagsMap = {};
-        for (var i = 0; i < treeNodesToRerun.length; i++) {
-            var tags = treeNodesToRerun[i].value.tags;
-            if (tags.length === 1) {
-                if (paramNodes.indexOf(treeNodesToRerun[i].value.name) > -1 &&
-                showSkipTag(tags[0])) {
-                    // if node is splitcol or changetype and is edited, do not keep tag
-                    continue;
+        function updateSourceName(value, translation) {
+            var struct = value.struct;
+            if ("source" in struct) {
+                if (typeof struct.source === "string") {
+                    if (translation[struct.source]) {
+                        struct.source = translation[struct.source];
+                    }
+                } else {
+                    for (var i = 0; i < struct.source.length; i++) {
+                        if (translation[struct.source[i]]) {
+                            struct.source[i] = translation[struct.source[i]];
+                        }
+                    }
                 }
-            }
-            nameToTagsMap[treeNodesToRerun[i].value.struct.dest] = tags;
-        }
-
-        var commentsToNamesMap = {};
-        for (var i = 0; i < treeNodesToRerun.length; i++) {
-            var comment = modifyCommentsForEdit(treeNodesToRerun[i]);
-            if (comment) {
-                if (!commentsToNamesMap[comment]) {
-                    commentsToNamesMap[comment] = [];
-                }
-                commentsToNamesMap[comment].push(
-                                        treeNodesToRerun[i].value.struct.dest);
             }
         }
 
-        var sql = {
-            "operation": SQLOps.DFRerun,
-            "tableName": tableName,
-            "tableId": tableId,
-            "newTableName": finalTableName
-        };
-        var txId = Transaction.start({
-            "msg": 'Rerun: ' + tableName,
-            "operation": SQLOps.DFRerun,
-            "sql": sql,
-            "steps": treeNodesToRerun,
-            "track": true
-        });
+        function updateDestinationName(value, translation, tagHeaders, aggRenames, paramNodes) {
+            if (value.struct.dest in translation) {
+                value.struct.dest = translation[value.struct.dest];
+            } else {
+                var tableName = xcHelper.getTableName(value.struct.dest);
+                var oldId = xcHelper.getTableId(value.struct.dest);
+                var newId = Authentication.getHashId();
+                var newTableName = tableName + newId;
 
-        var entireString =  getXcalarQueryCli(treeNodesToRerun);
-        xcHelper.lockTable(tableId, txId);
+                for (var i = 0; i < value.tags.length; i++) {
+                    if (xcHelper.getTableId(value.tags[i]) === oldId) {
+                        tagHeaders[value.tags[i]] = xcHelper.getTableName(value.tags[i]) + newId;
+                    }
+                }
 
-        var queryName = "Rerun" + tableName + Math.ceil(Math.random() * 10000);
-        // var finalTableId = xcHelper.getTableId(finalTableName);
+                if (value.api === XcalarApisT.XcalarApiAggregate) {
+                    if (paramNodes.indexOf(value.name) > -1) {
+                        aggRenames[gAggVarPrefix + value.struct.dest] = gAggVarPrefix + tableName;
+                        value.struct.dest = tableName;
+                    } else {
+                        aggRenames[gAggVarPrefix + value.struct.dest] = gAggVarPrefix + newTableName;
+                        value.struct.dest = newTableName;
+                    }
+                } else {
+                    translation[value.struct.dest] = newTableName;
+                    value.struct.dest = newTableName;
+                }
+            }
+        }
 
-        $("#dagWrap-" + tableId).addClass("rerunning");
-        var queryPassed = false;
+        function modifyValueArrayWithParameters(valArray, params) {
+            for (var p in params) {
+                var tValue = findTreeValueInValArrayByName(p, valArray);
+                var struct = tValue.struct;
+                var param = params[p];
+                for (var key in param) {
+                    var sub = param[key];
+                    var keyArray = key.split(".");
+                    var obj = struct;
+                    for (var i = 0; i < keyArray.length; i++) {
+                        if (keyArray[i] in obj) {
+                            if (i === keyArray.length - 1) {
+                                obj[keyArray[i]] = sub;
+                            } else {
+                                obj = obj[keyArray[i]];
+                            }
+                        } else {
+                            console.error("No such param!");
+                            return (false);
+                        }
+                    }
+                }
+            }
+            return (true);
+        }
 
-        XIApi.query(txId, queryName, entireString)
-        .then(function() {
+        function updateTags(paramNodes, treeNodesToRerun, tagHeaders) {
+            for (var i = 0; i < treeNodesToRerun.length; i++) {
+                var tags = treeNodesToRerun[i].value.tags;
+                if (tags.length === 1) {
+                    if (paramNodes.indexOf(treeNodesToRerun[i].value.name) > -1 &&
+                    showSkipTag(tags[0])) {
+                        // if node is splitcol or changetype and is edited, do not keep tag
+                        treeNodesToRerun[i].value.tag = "";
+                        continue;
+                    }
+                }
+
+                var newTag = "";
+                tags.forEach(function(tag) {
+                    var headerTag = tagHeaders[tag];
+                    if (headerTag) {
+                        if (newTag) {
+                            newTag += ",";
+                        }
+                        newTag += headerTag;
+                    }
+                });
+                if (newTag) {
+                    treeNodesToRerun[i].value.tag = newTag;
+                } else {
+                    treeNodesToRerun[i].value.tag = "";
+                }
+            }
+        }
+
+        // if some nonInvolvedNodes require tag changes, get a map of
+        // {tag: names[]}
+        function getNonInvolvedTagMap(nonInvolvedNames, tagHeaders) {
+            var tagMap = {};
+            for (var name in nonInvolvedNames) {
+                var newTag = nonInvolvedNames[name].tag;
+                var tags = nonInvolvedNames[name].tags;
+                var hasChange = false;
+                for (var i = 0; i < tags.length; i++) {
+                    var tag = tags[i];
+                    var headerTag = tagHeaders[tag];
+                    if (headerTag) {
+                        newTag += "," + headerTag;
+                        hasChange = true;
+                    }
+                }
+                if (hasChange) {
+                    if (!tagMap[newTag]) {
+                        tagMap[newTag] = [];
+                    }
+                    tagMap[newTag].push(name);
+                }
+            }
+            return tagMap;
+        }
+
+        function getAggsToStore(aggNodes, aggRenames, parameterizedAggs) {
+            var aggsToStore = [];
             var storedAggs = Aggregates.getNamedAggs();
             for (var name in aggRenames) {
                 var backName = aggRenames[name].slice(gAggVarPrefix.length);
@@ -993,17 +1075,58 @@ window.DagFunction = (function($, DagFunction) {
                         "backColName": arg,
                         "op": op
                     };
-
-                    Aggregates.addAgg(aggInfo);
+                    aggsToStore.push(aggInfo);
                 }
             }
+            return aggsToStore;
+        }
 
-            queryPassed = true;
-            return tagNodesAfterEdit(nameToTagsMap, tagHeaders,
-                                     nonInvolvedNames);
-        })
+        return {
+            queryString: queryString,
+            tagsNeeded: tagMap,
+            aggsToStore: aggsToStore
+        };
+    }
+
+    // DagFunction.runProcedureWithParams("students#p7304", {"students#p7303":{"eval": [{"evalString":"eq(students::student_id, 2)","newField":""}]}})
+    DagFunction.runProcedureWithParams = function(tableName, params, newIndexNodes, newNodes) {
+        var deferred = PromiseHelper.deferred();
+
+        var info = DagFunction.getReRunQueryString(tableName, params, newIndexNodes, newNodes);
+        var queryStr = info.queryString;
+        var tagMap = info.tagsNeeded;
+        var aggsToStore = info.aggsToStore;
+        var nodes = JSON.parse(queryStr);
+        var finalTableName = nodes[nodes.length - 1].args.dest;
+        var tableId = xcHelper.getTableId(tableName);
+
+        var sql = {
+            "operation": SQLOps.DFRerun,
+            "tableName": tableName,
+            "tableId": tableId,
+            "newTableName": finalTableName
+        };
+        var txId = Transaction.start({
+            "msg": 'Rerun: ' + tableName,
+            "operation": SQLOps.DFRerun,
+            "sql": sql,
+            "steps": nodes.length,
+            "track": true
+        });
+
+        xcHelper.lockTable(tableId, txId);
+
+        var queryName = "Rerun" + tableName + Math.ceil(Math.random() * 10000);
+        $("#dagWrap-" + tableId).addClass("rerunning");
+        var queryPassed = false;
+
+        XIApi.query(txId, queryName, queryStr)
         .then(function() {
-            return recommentAfterEdit(commentsToNamesMap);
+            for (var i = 0; i < aggsToStore.length; i++) {
+                Aggregates.addAgg(aggsToStore[i]);
+            }
+            queryPassed = true;
+            return tagNodesAfterEdit(tagMap);
         })
         .then(function() {
             DagEdit.clearEdit();
@@ -1068,80 +1191,6 @@ window.DagFunction = (function($, DagFunction) {
         });
 
         return deferred.promise();
-
-        function updateSourceName(value, translation) {
-            var struct = value.struct;
-            if ("source" in struct) {
-                if (typeof struct.source === "string") {
-                    if (translation[struct.source]) {
-                        struct.source = translation[struct.source];
-                    }
-                } else {
-                    for (var i = 0; i < struct.source.length; i++) {
-                        if (translation[struct.source[i]]) {
-                            struct.source[i] = translation[struct.source[i]];
-                        }
-                    }
-                }
-            }
-        }
-
-        function updateDestinationName(value, translation, tagHeaders, aggRenames, paramNodes) {
-            if (value.struct.dest in translation) {
-                value.struct.dest = translation[value.struct.dest];
-            } else {
-                var tableName = xcHelper.getTableName(value.struct.dest);
-                var oldId = xcHelper.getTableId(value.struct.dest);
-                var newId = Authentication.getHashId();
-                var newTableName = tableName + newId;
-
-                for (var i = 0; i < value.tags.length; i++) {
-                    if (xcHelper.getTableId(value.tags[i]) === oldId) {
-                        tagHeaders[value.tags[i]] = xcHelper.getTableName(value.tags[i]) + newId;
-                    }
-                }
-
-                if (value.api === XcalarApisT.XcalarApiAggregate) {
-                    if (paramNodes.indexOf(value.name) > -1) {
-                        aggRenames[gAggVarPrefix + value.struct.dest] = gAggVarPrefix + tableName;
-                        value.struct.dest = tableName;
-                    } else {
-                        aggRenames[gAggVarPrefix + value.struct.dest] = gAggVarPrefix + newTableName;
-                        value.struct.dest = newTableName;
-                    }
-                    // aggRenames[gAggVarPrefix + value.struct.dest] = gAggVarPrefix + newTableName;
-                } else {
-                    translation[value.struct.dest] = newTableName;
-                    value.struct.dest = newTableName;
-                }
-            }
-        }
-
-        function modifyValueArrayWithParameters(valArray, params) {
-            for (var p in params) {
-                var tValue = findTreeValueInValArrayByName(p, valArray);
-                var struct = tValue.struct;
-                var param = params[p];
-                for (var key in param) {
-                    var sub = param[key];
-                    var keyArray = key.split(".");
-                    var obj = struct;
-                    for (var i = 0; i < keyArray.length; i++) {
-                        if (keyArray[i] in obj) {
-                            if (i === keyArray.length - 1) {
-                                obj[keyArray[i]] = sub;
-                            } else {
-                                obj = obj[keyArray[i]];
-                            }
-                        } else {
-                            console.error("No such param!");
-                            return (false);
-                        }
-                    }
-                }
-            }
-            return (true);
-        }
     };
 
     // for new index nodes
@@ -1248,69 +1297,8 @@ window.DagFunction = (function($, DagFunction) {
         }
     }
 
-    function recommentAfterEdit(commentsToNamesMap) {
-        var deferred = PromiseHelper.deferred();
-        var promises = [];
-
-        for (var comment in commentsToNamesMap) {
-            var tables = commentsToNamesMap[comment];
-            promises.push(XcalarCommentDagNodes(comment, tables));
-        }
-
-        PromiseHelper.when.apply(null, promises)
-        .always(deferred.resolve);
-
-        return deferred.promise();
-    }
-
-    function modifyCommentsForEdit(node) {
-        var comment = node.value.comment;
-        return JSON.stringify(comment);
-    }
-
-    // nameToTagsMap {newTableName: [tag#oldId, otherTag#oldId2]}
-    // tagHeaders {tag#oldId: tag#newId}
-    // nonInvolvedNames {oldTableName: valueStruct}
-    function tagNodesAfterEdit(nameToTagsMap, tagHeaders, nonInvolvedNames) {
-        var tagMap = {};
-        var newTag;
-        for (var name in nameToTagsMap) {
-            newTag = "";
-            var oldTags = nameToTagsMap[name];
-            for (var i = 0; i < oldTags.length; i++) {
-                var tag = tagHeaders[oldTags[i]];
-                if (tag) {
-                    if (newTag) {
-                        newTag += ",";
-                    }
-                    newTag += tag;
-                }
-            }
-            if (newTag) {
-                if (!tagMap[newTag]) {
-                    tagMap[newTag] = [];
-                }
-                tagMap[newTag].push(name);
-            }
-        }
-        for (var name in nonInvolvedNames) {
-            newTag = nonInvolvedNames[name].tag;
-            var hasChange = false;
-            for (var i = 0; i < nonInvolvedNames[name].tags.length; i++) {
-                var tag = nonInvolvedNames[name].tags[i];
-                if (tagHeaders[tag]) {
-                    newTag += "," + tagHeaders[tag];
-                    hasChange = true;
-                }
-            }
-            if (hasChange) {
-                if (!tagMap[newTag]) {
-                    tagMap[newTag] = [];
-                }
-                tagMap[newTag].push(name);
-            }
-        }
-
+    // tagMap {nonInvolvedTableName: [tag#oldId1, tag#newId2]}
+    function tagNodesAfterEdit(tagMap) {
         var deferred = PromiseHelper.deferred();
         var promises = [];
         for (var tag in tagMap) {
@@ -1324,11 +1312,14 @@ window.DagFunction = (function($, DagFunction) {
 
     function getXcalarQueryCli(orderedArray) {
         var queryArray = [];
-
+        var node;
         for (var i = 0; i < orderedArray.length; i++) {
+            node = orderedArray[i];
             var query = {
-                "operation": XcalarApisTStr[orderedArray[i].value.api],
-                "args": orderedArray[i].value.struct
+                "operation": XcalarApisTStr[node.value.api],
+                "args": node.value.struct,
+                "comment": JSON.stringify(node.value.comment),
+                "tag": node.value.tag
             };
             queryArray.push(query);
         }

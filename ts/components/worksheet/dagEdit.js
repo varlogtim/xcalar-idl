@@ -49,10 +49,6 @@ window.DagEdit = (function($, DagEdit) {
             return $(this).data("tag").indexOf("ExecuteSQL") === -1;
         }).find(".groupTagIcon").click();
 
-        $dagWrap.find(".tag-groupBy.expanded").filter(function() {
-            return $(this).data("tag").indexOf("ExecuteSQL") === -1;
-        }).find(".groupTagIcon").click();
-
         // if tag is sql, expand and allow editing of individual parts
         $dagWrap.find(".tagHeader.collapsed").filter(function() {
             return $(this).data("tag").indexOf("ExecuteSQL") === 0;
