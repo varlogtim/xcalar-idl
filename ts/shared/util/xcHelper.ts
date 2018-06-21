@@ -3037,7 +3037,28 @@ namespace xcHelper {
         return error;
     };
 
-    // xcHelper.escapeHTMLSpecialChar
+    /**
+     * xcHelper.escapeNonPrintableChar
+     * @param str - str to escapse
+     * @param replace - char that replcae the non printable chars
+     */
+    export function escapeNonPrintableChar(str: string, replace: string): string {
+        try {
+            // this special chars is coming from CodeMirror
+            const specialChars: RegExp = /[\t\u0000-\u0019\u00ad\u200b-\u200f\u2028\u2029\ufeff]/g
+            const replaceChar: string = replace;
+            return str.replace(specialChars, replaceChar);
+        } catch (e) {
+            console.error(e);
+            return str;
+        }
+    }
+
+    /**
+     * xcHelper.escapeHTMLSpecialChar
+     * @param str - str to replace
+     * @param ignoreTab - ignore tab or not
+     */
     export function escapeHTMLSpecialChar(
         str: string,
         ignoreTab?: boolean
@@ -3099,6 +3120,7 @@ namespace xcHelper {
         colName: string,
         stripSpace: boolean = false
     ): string {
+        colName = xcHelper.escapeNonPrintableChar(colName, "");
         const pattern = stripSpace ?
                         /[\^,{}'"()\[\]\.\\ ]/g :
                         /[\^,{}'"()\[\]\.\\]/g;

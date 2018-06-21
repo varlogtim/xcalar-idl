@@ -1661,6 +1661,25 @@ describe("xcHelper Test", function() {
         expect(res).to.equal('te\\"st\'ing\\"');
     });
 
+    it('xcHelper.escapeNonPrintableChar should work', function() {
+        var res = xcHelper.escapeNonPrintableChar(String.fromCharCode('feff'), '.');
+        expect(res).to.equal('.');
+        // case 2
+        res = xcHelper.escapeNonPrintableChar('test', '.');
+        expect(res).to.equal('test');
+        // case 3
+        res = xcHelper.escapeNonPrintableChar(null, '.');
+        expect(res).to.equal(null);
+    });
+
+    it('xcHelper.escapeHTMLSpecialChar should work', function() {
+        var res = xcHelper.escapeHTMLSpecialChar('&<>\tabc', false);
+        expect(res).to.equal("&amp;&lt;&gt;	abc");
+        // case 2
+        res = xcHelper.escapeHTMLSpecialChar(null, false);
+        expect(res).to.equal(null);
+    });
+
     it("xcHelper.escapeRegExp should work", function() {
         // case 1
         var res = xcHelper.escapeRegExp("]");
