@@ -2250,7 +2250,7 @@ namespace xcHelper {
             }
         }
         const lockHTML: string = '<i class="lockIcon icon xi-lockwithkeyhole"></i>';
-        const $dagTables: JQuery = $('#dagPanel').find('.dagTable[data-id="' +
+        const $dagTables: JQuery = $('#dagPanel').find('.dagTable[data-tableid="' +
                                                     tableId + '"]');
         $dagTables.addClass('locked');
         if (!gTables[tableId].isNoDelete()) {
@@ -2273,7 +2273,7 @@ namespace xcHelper {
         xcAssert((tableId != null), 'Invalid Parameters!');
 
         const table = gTables[tableId];
-        const $dagTables: JQuery = $('#dagPanel').find('.dagTable[data-id="' +
+        const $dagTables: JQuery = $('#dagPanel').find('.dagTable[data-tableid="' +
                                                         tableId + '"]');
 
         if (!table) {

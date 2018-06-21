@@ -1360,7 +1360,6 @@ window.DagDraw = (function($, DagDraw) {
 
         html += '<div class="dagTable ' + tableClasses + '" ' +
                     'data-tablename="' + tableName + '" ' +
-                    'data-index="' + node.value.dagNodeId + '" ' +
                     'data-nodeid="' + node.value.dagNodeId + '" ' +
                     dataAttrs + '>' +
                         '<div class="' + iconClasses + '" ' +
