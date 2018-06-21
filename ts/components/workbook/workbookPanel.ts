@@ -421,9 +421,7 @@ namespace WorkbookPanel {
 
             WorkbookManager.downloadWKBK(workbookName)
             .fail(function(err) {
-                StatusBox.show(err.error, $dropDownCard, false, {
-                    detail: err.log
-                });
+                handleError(err, $dropDownCard);
             })
             .always(function() {
                 const index: number = downloadingWKBKs.indexOf(workbookName);
@@ -813,7 +811,7 @@ namespace WorkbookPanel {
     }
 
     function handleError(error: any, $ele: JQuery): void {
-        if (error && error.canceled) {
+        if (typeof error === "object" && error.canceled) {
             return;
         }
         let errorText: string;
@@ -1005,7 +1003,7 @@ namespace WorkbookPanel {
 
         WorkbookPanel.createNewWorkbook(wbName, null, file)
         .fail(function(error) {
-            StatusBox.show(error.error || error, $("#browseWKBKbtn"));
+            handleError(error, $("#browseWKBKbtn"));
         })
         .always(function() {
             $fileUpload.val("");

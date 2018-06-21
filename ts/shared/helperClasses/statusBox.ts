@@ -250,19 +250,32 @@ namespace StatusBox {
         }
     }
 
+    /**
+     * StatusBox.setup
+     */
     export function setup(): void {
         statusDisplayer = new StatusDisplayer();
     }
 
+    /**
+     * StatusBox.show
+     * @param text
+     * @param $target
+     * @param isFormMode
+     * @param options
+     */
     export function show(
         text: string,
         $target: JQuery,
         isFormMode?: boolean,
         options: StatusDisplayerOpions = <StatusDisplayerOpions>{}
     ): void {
-       statusDisplayer.show(text, $target, isFormMode, options);
+        statusDisplayer.show(text, $target, isFormMode, options);
     };
 
+    /**
+     * StatusBox.forceHide
+     */
     export function forceHide(): void {
         statusDisplayer.forceHide();
     }
