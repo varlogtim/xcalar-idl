@@ -1167,6 +1167,7 @@ JsonModalTStr = {
 'PrefixedField': '含前缀的列',
 'Derived': '派生列',
 "SyntaxErrorTitle": "解析数据出错",
+"ImmediatesNotPresent": "Fields not present in current row",
         // with replace
 "SyntaxErrorDesc": "解析行<row>数据时出错。"
 };

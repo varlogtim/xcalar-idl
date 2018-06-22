@@ -94,6 +94,7 @@ namespace xcHelper {
         inArray?: number;
         comparison?: boolean;
         checkboxes: boolean;
+        noQuotes?: boolean;
     }
 
     export interface MouseCoors {
@@ -1645,6 +1646,30 @@ namespace xcHelper {
             default:
                 // DfScalarObj will be mixed
                 return 'xi-mixed';
+        }
+    }
+
+     /**
+     * xcHelper.getColTypeIcon
+     * @param type
+     */
+    export function getDFFieldTypeToString(type: DfFieldTypeT): string {
+        switch (type) {
+            case (DfFieldTypeT.DfInt32):
+            case (DfFieldTypeT.DfInt64):
+            case (DfFieldTypeT.DfUInt32):
+            case (DfFieldTypeT.DfUInt64):
+                return ColumnType.integer;
+            case (DfFieldTypeT.DfFloat32):
+            case (DfFieldTypeT.DfFloat64):
+                return ColumnType.float;
+            case (DfFieldTypeT.DfString):
+                return ColumnType.string;
+            case (DfFieldTypeT.DfBoolean):
+                return ColumnType.boolean;
+            default:
+                // DfScalarObj will be mixed
+                return ColumnType.mixed;
         }
     }
 
@@ -4519,6 +4544,7 @@ namespace xcHelper {
 
         let result: string = "";
         options.inArray = options.inArray || 0;
+        let quote = options.noQuotes ? '': '"';
 
         for (let key in obj) {
             if (!obj.hasOwnProperty(key)) {
@@ -4526,14 +4552,14 @@ namespace xcHelper {
             }
             let value: any = obj[key];
             key = xcHelper.escapeHTMLSpecialChar(key);
-            const dataKey: string = key.replace(/\"/g, "&quot;"); // replace " with &quot;
+            const dataKey: string = xcHelper.escapeDblQuoteForHTML(key);
             const arrayElClass: string = isArrayEl ? " arrayEl" : "";
 
             switch (typeof value) {
                 case ('string'):
                     value = xcHelper.escapeHTMLSpecialChar(value, true);
-                    value = '"<span class="jString text ' + arrayElClass +
-                            '">' + value + '</span>"';
+                    value = quote + '<span class="jString text ' + arrayElClass +
+                            '">' + value + '</span>' + quote;
                     break;
                 case ('number'):
                     value = '<span class="jNum text ' + arrayElClass +

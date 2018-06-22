@@ -1446,6 +1446,7 @@ JsonModalTStr = {
     'PrefixedField': 'Prefixed Fields',
     'Derived': 'Derived',
     "SyntaxErrorTitle": "Error parsing data",
+    "ImmediatesNotPresent": "Fields not present in current row",
         // with replace
     "SyntaxErrorDesc": "An error occured while parsing the data from row <row>."
 

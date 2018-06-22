@@ -643,7 +643,7 @@ window.ColManager = (function($, ColManager) {
         var worksheet = WSManager.getWSFromTable(tableId);
         var table = gTables[tableId];
         var tableName = table.getName();
-        
+
         var mapStrs = [];
         var oldNames = [];
         var fieldNames = [];
@@ -1350,12 +1350,18 @@ window.ColManager = (function($, ColManager) {
         var $table = $('#xcTable-' + tableId);
         var $jsonTd = $table.find('.row' + rowNum).find('td.col' + colNum);
         var jsonTdObj = parseRowJSON($jsonTd.find('.originalData').text());
+        var table = gTables[tableId];
+        var immediates = table.getImmediates();
+        immediates.forEach(function(immediate) {
+            if (!jsonTdObj.hasOwnProperty(immediate.name)) {
+                jsonTdObj[immediate.name] = true;
+            }
+        });
 
         if (jsonTdObj == null) {
             return;
         }
 
-        var table = gTables[tableId];
         var progCol = table.getCol(colNum);
         var isDATACol = progCol.isDATACol();
         var colNums = [];

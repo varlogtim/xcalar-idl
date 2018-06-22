@@ -343,7 +343,7 @@ window.JSONModal = (function($, JSONModal) {
                 '</style>';
             $(document.head).append(cursorStyle);
 
-            $(document).on("mouseup.dragHandleMouseUp", function() {
+            $(document).on("mouseup.dragHaFndleMouseUp", function() {
                 $('#moveCursor').remove();
                 $(document).off('.dragHandleMouseUp');
             });
@@ -373,6 +373,7 @@ window.JSONModal = (function($, JSONModal) {
             $prefixGroups.find('.prefix').removeClass('xc-hidden');
             $jsonWrap.removeClass('tabFiltered');
             $jsonWrap.find('.groupType').removeClass('xc-hidden');
+            $jsonWrap.find(".missingImmediatesSection").removeClass("xc-hidden");
         } else {
             $jsonWrap.addClass('tabFiltered');
             $prefixGroups.addClass('xc-hidden');
@@ -381,6 +382,7 @@ window.JSONModal = (function($, JSONModal) {
                 $prefixGroups.filter('.immediatesGroup').removeClass('xc-hidden');
                 $jsonWrap.find('.prefixedType').addClass('xc-hidden');
                 $jsonWrap.find('.immediatesType').removeClass('xc-hidden');
+                $jsonWrap.find(".missingImmediatesSection").removeClass("xc-hidden");
             } else {
                 var prefix = $tab.data('id');
                 $prefixGroups.find('.prefix').filter(function() {
@@ -388,6 +390,7 @@ window.JSONModal = (function($, JSONModal) {
                 }).parent().removeClass('xc-hidden');
                 $jsonWrap.find('.prefixedType').removeClass('xc-hidden');
                 $jsonWrap.find('.immediatesType').addClass('xc-hidden');
+                $jsonWrap.find(".missingImmediatesSection").addClass("xc-hidden");
             }
         }
         searchHelper.clearSearch(function() {
@@ -975,13 +978,17 @@ window.JSONModal = (function($, JSONModal) {
         var dataObj = {
             full: jsonObj,
             immediates: {},
-            prefixed: {}
+            prefixed: {},
+            missingImmediates: {}
         };
         if (isDataCol) {
-            var groups = splitJsonIntoGroups(jsonObj);
+            var tableId = xcHelper.parseTableId($jsonTd.closest('table'));
+            var groups = splitJsonIntoGroups(jsonObj, tableId);
             for (var i = 0; i < groups.length; i++) {
                 if (groups[i].prefix === gPrefixSign) {
                     dataObj.immediates = groups[i].objs;
+                } else if (groups[i].prefix === gPrefixSign + "-") {
+                    dataObj.missingImmediates = groups[i].objs;
                 } else {
                     dataObj.prefixed[groups[i].prefix] = groups[i].objs;
                 }
@@ -1074,28 +1081,31 @@ window.JSONModal = (function($, JSONModal) {
             var groups;
 
             if (isArray) {
-                prettyJson = "[";
+                prettyJson = '<div class="brace">[</div>';
             } else {
-                prettyJson = "{";
+                prettyJson = '<div class="brace">{</div>';
             }
 
             if (isDataCol) {
-                groups = splitJsonIntoGroups(jsonObj);
+                groups = splitJsonIntoGroups(jsonObj, tableId);
                 prettyJson += getJsonHtmlForDataCol(groups);
             } else {
                 prettyJson += getJsonHtmlForNonDataCol(jsonObj, isArray);
             }
 
             if (isArray) {
-                prettyJson += "]";
+                prettyJson += '<div class="brace">]</div>';
             } else {
-                prettyJson += "}";
+                prettyJson += '<div class="brace">}</div>';;
             }
+        }
+        if (isDataCol && Object.keys(groups[groups.length - 1].objs).length) {
+            prettyJson += getMissingImmediatesHtml(groups[groups.length - 1].objs);
         }
 
         var location;
         if (isDataCol) {
-            location = gTables[tableId].tableName;
+            location = gTables[tableId].getName();
         } else {
             var colNum = xcHelper.parseColNum($jsonTd);
             location = gTables[tableId].getCol(colNum).getBackColName();
@@ -1126,7 +1136,7 @@ window.JSONModal = (function($, JSONModal) {
                   '</div>' +
                   JsonModalTStr.PrefixedField +
                 '</h3>';
-        for (var i = 0; i < groups.length; i++) {
+        for (var i = 0; i < groups.length - 1; i++) {
             var tempJson = xcHelper.prettifyJson(groups[i].objs, null,
             checkboxes, {
                 "inArray": isArray,
@@ -1175,9 +1185,30 @@ window.JSONModal = (function($, JSONModal) {
         return prettyJson;
     }
 
+    function getMissingImmediatesHtml(immediates) {
+        var html = '<div class="missingImmediatesSection">' +
+                    '<div class="subHeading">' +
+                        JsonModalTStr.ImmediatesNotPresent +
+                    '</div>' +
+                    '<div class="jObject">' +
+                    xcHelper.prettifyJson(immediates, 0, true,
+                                            {noQuotes: true, checkboxes: true}) +
+                    '</div>' +
+                '</div>';
+
+        return html;
+    }
+
     // splits json into array, grouped by prefix
-    function splitJsonIntoGroups(jsonObj) {
+    function splitJsonIntoGroups(jsonObj, tableId) {
         var groups = {};
+        var table = gTables[tableId];
+        var knownImmediatesArray = table.getImmediates();
+        var knownImmediates = {};
+        knownImmediatesArray.forEach(function(imm) {
+            knownImmediates[imm.name] = xcHelper.getDFFieldTypeToString(imm.type);
+        });
+
         var splitName;
         for (var key in jsonObj) {
             splitName = xcHelper.parsePrefixColName(key);
@@ -1188,6 +1219,7 @@ window.JSONModal = (function($, JSONModal) {
                     //          can't be taken
                 }
                 groups[gPrefixSign][splitName.name] = jsonObj[key];
+                delete knownImmediates[splitName.name];
             } else {
                 if (!groups[splitName.prefix]) {
                     groups[splitName.prefix] = {};
@@ -1195,6 +1227,7 @@ window.JSONModal = (function($, JSONModal) {
                 groups[splitName.prefix][splitName.name] = jsonObj[key];
             }
         }
+
         var groupsArray = [];
         var groupObj;
         for (var i in groups) {
@@ -1212,6 +1245,11 @@ window.JSONModal = (function($, JSONModal) {
             groupsArray.unshift(groupObj);
         }
 
+        groupsArray.push({
+            prefix: gPrefixSign + "-",
+            objs: knownImmediates
+        });
+
         return (groupsArray);
     }
 
@@ -1221,11 +1259,17 @@ window.JSONModal = (function($, JSONModal) {
         var html = "";
         var prefix;
         var classNames;
+        var immediatesFound = false;
         for (var i = 0; i < groups.length; i++) {
             classNames = "";
             prefix = groups[i].prefix;
             prefixText = prefix;
-            if (prefix === gPrefixSign) {
+            if (prefix === gPrefixSign || prefix === gPrefixSign + "-") {
+                if (immediatesFound) {
+                    continue;
+                } else {
+                    immediatesFound = true;
+                }
                 prefix = "Derived";
                 prefixText = JsonModalTStr.Derived;
                 classNames += " immediates";
@@ -1401,6 +1445,11 @@ window.JSONModal = (function($, JSONModal) {
             html = html.replace(/,([^,]*)$/, '$1');// remove last comma
 
             html = '{<div class="jObject">' + html + '</div>}';
+            var $missingImmediates = $jsonArea.find('.jsonWrap').eq(obj).find(".missingImmediatesSection");
+            if ($missingImmediates.length) {
+                html += $missingImmediates[0].outerHTML;
+            }
+
             $jsonArea.find('.jsonWrap').eq(obj)
                                        .addClass('comparison')
                                        .find('.prettyJson.secondary')

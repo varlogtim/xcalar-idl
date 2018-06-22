@@ -330,6 +330,12 @@
                 }
             }
 
+            .missingImmediatesSection {
+                .jsonCheckbox {
+                    display: block;
+                }
+            }
+
             .pullAll, .compareIcon, .sort {
                 opacity: 0.5;
                 pointer-events: none;
@@ -384,6 +390,12 @@
                     .checkbox  {
                         display: none;
                     }
+                }
+            }
+
+            .missingImmediatesSection {
+                .jsonCheckbox {
+                    display: block;
                 }
             }
 
@@ -870,10 +882,18 @@
     .prefix {
         color: @color-prefix-gray;
         margin-bottom: 4px;
-        margin-left: 11px;
         margin-left: 15px;
+
+
     }
 
+    .missingImmediatesSection {
+        margin-bottom: 10px;
+        .subHeading {
+            color: @color-prefix-gray;
+            margin: 10px 0px 4px 15px;
+        }
+    }
 
     .emptyObj, .emptyArray {
         font-size: 4px;
