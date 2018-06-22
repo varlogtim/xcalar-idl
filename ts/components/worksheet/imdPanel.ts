@@ -59,7 +59,9 @@ namespace IMDPanel {
     const tickTextInterval: number = 20;
     const maxUpdates: number = 127; //maximum number of table updates that can be fetched from the back end.
     let pTables: PublishTable[]; //published tables return from thrift call
-    let hTables: PublishTable[]; // hidden tables
+    let iTables: PublishTable[]; // inactive tables
+    let pCheckedTables: PublishTable[]; //tables the user has checked to perform operations
+    let iCheckedTables: PublishTable[]; // inactive tables checked
     let $updatePrompt: JQuery;
     const leftPanelWidth: number = 280;
     //ruler object
@@ -84,6 +86,12 @@ namespace IMDPanel {
     let isScrolling: boolean = false;
     let restoreErrors: RestoreError[] = [];
 
+    let pListOrder: number; //holds 1 if list is sorted ascending, -1 if sorted desc, 0/null if unsorted
+    let iListOrder: number; //holds 1 if list is sorted ascending, -1 if sorted desc, 0/null if unsorted
+
+    let pVisibleTables: number;
+    let iVisibleTables: number;
+
     /**
      * IMDPanel.setup
      */
@@ -94,7 +102,9 @@ namespace IMDPanel {
         $scrollDiv = $imdPanel.find(".scrollDiv");
         $tableDetail = $(".tableDetailSection");
         pTables = [];
-        hTables = [];
+        iTables = [];
+        iCheckedTables = [];
+        pCheckedTables = [];
 
         setupTimeInputs();
         addEventListeners();
@@ -602,14 +612,23 @@ namespace IMDPanel {
         $canvas.mousedown(function(event) {
             hideUpdatePrompt();
             $imdPanel.find(".selectedBar").remove();
-            $imdPanel.find(".activeTablesList").find(".tableListItem").addClass("selected");
+
+            if (pCheckedTables.length === 0) {
+                return;
+            }
+            const $tableList = $imdPanel.find(".activeTablesList").find(".tableListItem");
+            $tableList.each(function() {
+                if($(this).find(".checkbox.checked").length > 0) {
+                    $(this).addClass("selected");
+                }
+            });
             const left: number = event.offsetX + leftPanelWidth;
             $imdPanel.append('<div class="dateTipLineSelect" style="left:' + left + 'px;"></div>');
             const clickedTime: number = (((event.offsetX + ruler.visibleLeft) * ruler.pixelToTime) + ruler.minTS);
 
             selectedCells = {};
             let isUnavailable: boolean = false;
-            pTables.forEach((table) => {
+            pCheckedTables.forEach((table) => {
                 const tableName: string = table.name;
                 let closestUpdate: number = getClosestUpdate(tableName, clickedTime);
                 if (closestUpdate === null) {
@@ -624,27 +643,210 @@ namespace IMDPanel {
             showUpdatePrompt(left, $canvas.height() + 10, true, true, isUnavailable);
         });
 
-        $imdPanel.find(".activeTablesList").on("click", ".hideTable", function() {
-            const tableName: string = $(this).closest(".tableListItem").data("name");
-            hideTable(tableName);
+        $imdPanel.on("click", ".sortActive", function() {
+            pListOrder = pListOrder? -1 * pListOrder: 1;
+            sortTableList(pTables, pListOrder);
+            let html: string = getListHtml(pTables);
+            $imdPanel.find(".activeTablesList").html(html);
+            redraw();
+            filterLists($("#imdFilterInput").val());
+        });
+
+        $imdPanel.on("click", ".sortInactive", function() {
+            iListOrder = iListOrder? -1 * iListOrder: 1;
+            sortTableList(iTables, iListOrder);
+            let html: string = getListHtml(iTables);
+            $imdPanel.find(".inactiveTablesListItems").html(html);
+            filterLists($("#imdFilterInput").val());
+        });
+
+        $imdPanel.on("click", ".deleteActiveTable", function() {
+            deleteTables(pCheckedTables, $(this), true);
+        });
+
+        $imdPanel.on("click", ".deleteInactiveTable", function() {
+            deleteTables(iCheckedTables, $(this), false);
+        });
+
+        $imdPanel.on("click", ".checkAllActive", function() {
+            if (pTables.length === 0) {
+                return;
+            }
+            const $this = $(this);
+            if (pCheckedTables.length === pTables.length && pTables.length !== 0) {
+                resetActiveChecked();
+                $imdPanel.find(".tableListSubheader").removeClass("active");
+            } else if (pTables.length > 0) {
+                $imdPanel.find(".activeTablesList").find(".checkbox").addClass("checked");
+                pCheckedTables = pTables.slice();
+                $this.addClass("checked");
+                $imdPanel.find(".tableListSubheader").addClass("active");
+            }
             xcTooltip.hideAll();
         });
 
-        $imdPanel.find(".hiddenTablesList").on("click", ".showTable", function() {
-            const tableName: string = $(this).closest(".tableListItem").data("name");
-            showTable(tableName);
+        $imdPanel.on("click", ".checkAllInactive", function() {
+            if (iTables.length === 0) {
+                return;
+            }
+            const $this = $(this);
+            if (iCheckedTables.length === iTables.length &&  iTables.length !== 0) {
+                resetInactiveChecked();
+            } else if (iTables.length > 0){
+                $imdPanel.find(".inactiveTablesListItems").find(".checkbox").addClass("checked");
+                iCheckedTables = iTables.slice();
+                $this.addClass("checked");
+                $imdPanel.find(".inactiveTablesList").find(".iconSection").addClass("active");
+            }
             xcTooltip.hideAll();
         });
 
-        $imdPanel.on("click", ".deleteTable", function() {
-            const tableName: string = $(this).closest(".tableListItem").data("name");
+        $imdPanel.find(".inactiveTablesListItems").on("click", ".checkbox", function() {
+            $(this).toggleClass("checked");
+            const checked = $(this).hasClass("checked");
+            const $inactiveSection = $imdPanel.find(".inactiveTablesList");
+            const tableName = $(this).parents(".tableListItem").attr("data-name");
+            const table = iTables.filter((table) => {
+                return (table.name === tableName);
+            })[0];
+
+            if (checked) {
+                iCheckedTables.push(table);
+                $inactiveSection.find(".iconSection").addClass("active");
+                if (iTables.length === iCheckedTables.length) {
+                    $inactiveSection.find(".checkAllInactive").addClass("checked");
+                }
+            } else {
+                const index = iCheckedTables.indexOf(table);
+                iCheckedTables.splice(index, 1);
+                $imdPanel.find(".checkAllInactive").removeClass("checked");
+                if (iCheckedTables.length === 0) {
+                    $inactiveSection.find(".iconSection").removeClass("active");
+                }
+            }
+        });
+
+        $imdPanel.find(".activeTablesList").on("click", ".checkbox", function() {
+            $(this).toggleClass("checked");
+            const checked = $(this).hasClass("checked");
+            const tableName = $(this).parents(".tableListItem").attr("data-name");
+            const table = pTables.filter((table) => {
+                return (table.name === tableName);
+            })[0];
+
+            if (checked) {
+                pCheckedTables.push(table);
+                $imdPanel.find(".tableListSubheader").addClass("active");
+                if (pTables.length === pCheckedTables.length) {
+                    $imdPanel.find(".checkAllActive").addClass("checked");
+                }
+            } else {
+                const index = pCheckedTables.indexOf(table);
+                pCheckedTables.splice(index, 1);
+                $imdPanel.find(".checkAllActive").removeClass("checked");
+                if (pCheckedTables.length === 0) {
+                    $imdPanel.find(".tableListSubheader").removeClass("active");
+                }
+            }
+        });
+
+        $imdPanel.on("click", ".activate", function() {
+            if(iCheckedTables.length === 0) {
+                return;
+            }
+
+            showWaitScreen();
+            showProgressCircle(iCheckedTables.length, 0);
+            restoreTables(iCheckedTables)
+            .then(function() {
+                iCheckedTables.forEach(function (table:PublishTable) {
+                    showTable(table.name);
+                });
+                resetInactiveChecked();
+                updateHistory();
+            })
+            .fail(function(error) {
+                if (error && error.error === "canceled") {
+                    // user canceled part way through restoration
+                    // unpublish the rest of the inactive tables
+                    // and add the restored ones to the activeTables list
+
+                    const promises: XDPromise<void>[] = [];
+                    for (let i = error.count; i < iCheckedTables.length; i++) {
+                        promises.push(XcalarUnpublishTable(iCheckedTables[i].name, true));
+                    }
+                    PromiseHelper.when.apply(this, promises)
+                    .always(function() {
+                        listTables();
+                    });
+                } else { // restoration failed without being canceled
+                    // list tables and find out which ones succeeded
+                    listTables();
+                }
+            })
+            .always(function() {
+                restoreErrors = [];
+                removeWaitScreen();
+            });;
+            xcTooltip.hideAll();
+        });
+
+        $imdPanel.on("click", ".deactivate", function() {
+            if (pCheckedTables.length === 0) {
+
+            }
+
+            let tableName = "";
+            pCheckedTables.forEach(function(table: PublishTable) {
+                tableName += table.name + ", ";
+            });
+            tableName = tableName.slice(0, -2);
             Alert.show({
-                'title': IMDTStr.DelTable,
-                'msg': xcHelper.replaceMsg(IMDTStr.DelTableMsg, {
+                'title': IMDTStr.DeactivateTable,
+                'msg': xcHelper.replaceMsg(IMDTStr.DeactivateTablesMsg, {
                     "tableName": tableName
                 }),
                 'onConfirm': () => {
-                    deleteTable(tableName);
+                    showWaitScreen();
+                    showProgressCircle(pCheckedTables.length, 0);
+                    deactivateTables(pCheckedTables)
+                    .then(function() {
+                        pCheckedTables.forEach(function (table:PublishTable) {
+                            hideTable(table.name);
+                            XcSocket.Instance.sendMessage("refreshIMD", {
+                                "action": "deactivate",
+                                "tableName": tableName
+                            }, null);
+                        });
+                        resetActiveChecked();
+                        initScale();
+                        if (pTables.length) {
+                            updateTableDetailSection(pTables[0].name);
+                        }
+                    })
+                    .fail(function(error) {
+                        if (error && error.error === "canceled") {
+                            // user canceled part way through restoration
+                            // unpublish the rest of the inactive tables
+                            // and add the restored ones to the activeTables list
+
+                            const promises: XDPromise<void>[] = [];
+                            for (let i = error.count; i < iCheckedTables.length; i++) {
+                                promises.push(XcalarRestoreTable(tableName));
+                            }
+                            PromiseHelper.when.apply(this, promises)
+                            .always(function() {
+                                listTables();
+                            });
+                        } else { // restoration failed without being canceled
+                            // list tables and find out which ones succeeded
+                            listTables();
+                        }
+                    })
+                    .always(function() {
+                        removeWaitScreen();
+                    });
+                    xcTooltip.hideAll();
                 }
             });
         });
@@ -668,8 +870,21 @@ namespace IMDPanel {
             submitRefreshTables(true);
         });
 
-        $updatePrompt.find(".btn.coalesce").click(function() {
-            submitCoalesce();
+        $imdPanel.find(".icon.coalesce").click(function() {
+            let tableName = "";
+            pCheckedTables.forEach(function(table: PublishTable) {
+                tableName += table.name + ", ";
+            });
+            tableName = tableName.slice(0, -2);
+            Alert.show({
+                'title': IMDTStr.Coalesce,
+                'msg': xcHelper.replaceMsg(IMDTStr.CoalesceTip, {
+                    "tableName": tableName
+                }),
+                'onConfirm': () => {
+                    submitCoalesce();
+                }
+            });
         });
 
         var timer;
@@ -699,6 +914,7 @@ namespace IMDPanel {
 
         $canvas.mousemove(function(event) {
             const clickedTime: number = (((event.offsetX + ruler.visibleLeft) * ruler.pixelToTime) + ruler.minTS);
+            console.log($canvas.height());
             showDateTipBox(event.offsetX + leftPanelWidth, $canvas.height(), clickedTime);
         });
 
@@ -875,11 +1091,14 @@ namespace IMDPanel {
                 xcTooltip.hideAll();
             },
             stop: function(_event, ui) {
-                resortTableList("visible", initialIndex, $(ui.item).index());
+                if (initialIndex != $(ui.item).index()) {
+                    resortTableList("visible", initialIndex, $(ui.item).index());
+                    pListOrder = 0;
+                }
             }
         });
 
-        $imdPanel.find(".hiddenTablesListItems").sortable({
+        $imdPanel.find(".inactiveTablesListItems").sortable({
             revert: 300,
             axis: "y",
             handle: ".dragIcon",
@@ -888,12 +1107,15 @@ namespace IMDPanel {
                 xcTooltip.hideAll();
             },
             stop: function(_event, ui) {
-                resortTableList("hidden", initialIndex, $(ui.item).index());
+                if (initialIndex != $(ui.item).index()) {
+                    resortTableList("inactive", initialIndex, $(ui.item).index());
+                    iListOrder = 0;
+                }
             }
         });
 
         $("#imdFilterInput").keyup(function () {
-            filterLists($(this).val().toLowerCase());
+            filterLists($(this).val());
         });
 
         function resortTableList(type: string, initialIndex: number, newIndex: number): void {
@@ -904,7 +1126,7 @@ namespace IMDPanel {
             if (type === "visible") {
                 tables = pTables;
             } else {
-                tables = hTables;
+                tables = iTables;
             }
             const table: PublishTable = tables.splice(initialIndex, 1)[0];
             tables.splice(newIndex, 0, table);
@@ -912,14 +1134,38 @@ namespace IMDPanel {
         }
 
         function filterLists(text: string) {
-            $imdPanel.find(".tableListItem").each(function() {
+            text = text.toLowerCase();
+            let pCheckAllVisible: boolean = true;
+            $imdPanel.find(".activeTablesList").find(".tableListItem").each(function() {
                 var $currItem = $(this);
                 if (!$currItem.attr("data-name").toLowerCase().includes(text)) {
                     $currItem.hide();
+                    pCheckAllVisible = false;
                 } else {
                     $currItem.show();
                 }
             });
+            let iCheckAllVisible: boolean = true;
+            $imdPanel.find(".inactiveTablesList").find(".tableListItem").each(function() {
+                var $currItem = $(this);
+                if (!$currItem.attr("data-name").toLowerCase().includes(text)) {
+                    $currItem.hide();
+                    iCheckAllVisible = false;
+                } else {
+                    $currItem.show();
+                }
+            });
+            if (pCheckAllVisible) {
+                $imdPanel.find(".checkAllActive").css("visibility", "visible");
+            } else {
+                $imdPanel.find(".checkAllActive").css("visibility", "hidden");
+            }
+
+            if (iCheckAllVisible) {
+                $imdPanel.find(".checkAllInctive").css("visibility", "visible");
+            } else {
+                $imdPanel.find(".checkAllInctive").css("visibility", "hidden");
+            }
         }
     }
 
@@ -960,14 +1206,19 @@ namespace IMDPanel {
 
         const promises: XDPromise<void>[] = [];
 
-
-        for (let tableName in selectedCells) {
-            promises.push(XcalarCoalesce(tableName));
-        }
+        pCheckedTables.forEach(function (table: PublishTable) {
+            promises.push(XcalarCoalesce(table.name));
+        });
         hideUpdatePrompt();
         showWaitScreen();
         PromiseHelper.when.apply(this, promises)
         .then(function() {
+            pCheckedTables.forEach(function (table: PublishTable) {
+                XcSocket.Instance.sendMessage("refreshIMD", {
+                    "action": "coalesce",
+                    "tableName": table.name
+                }, null);
+            });
             removeWaitScreen();
             refreshTableList()
         })
@@ -1152,20 +1403,20 @@ namespace IMDPanel {
         showWaitScreen();
 
         listAndCheckActive()
-        .then((tables) => {
-            pTables = tables || [];
+        .then(function() {
             return restoreTableOrder();
         })
         .then(() => {
+            //pTables = tables || [];
             let html: string = getListHtml(pTables);
             $imdPanel.find(".activeTablesList").html(html);
             initScale();
             if (pTables.length) {
                 updateTableDetailSection(pTables[0].name);
             }
-            if (hTables.length) {
-                html = getListHtml(hTables);
-                $imdPanel.find(".hiddenTablesListItems").html(html);
+            if (iTables.length) {
+                html = getListHtml(iTables);
+                $imdPanel.find(".inactiveTablesListItems").html(html);
             }
             deferred.resolve();
         })
@@ -1186,6 +1437,35 @@ namespace IMDPanel {
         return deferred.promise();
     }
 
+    //sorts table list with insertion sort. Order determines 1: asc or -1: desc.
+    function sortTableList(tableList: PublishTable[], order: number) {
+        for (let i = 1; i < tableList.length; i ++) {
+            const table = tableList[i];
+            let j;
+            for(j = i; j > 0 && xcHelper.sortVals(table.name, tableList[j - 1].name, order)  === 1; j--) {
+                tableList[j] = tableList[j - 1];
+            }
+
+            tableList[j] = table;
+        }
+        storeTables();
+    }
+
+    //reset checkmarks for the active table section
+    function resetActiveChecked() {
+        $imdPanel.find(".activeTablesList").find(".checkbox").removeClass("checked");
+        pCheckedTables = [];
+        $imdPanel.find(".checkAllActive").removeClass("checked");
+        $imdPanel.find(".tableListSubheader").removeClass("active");
+    }
+    //reset checkmarks for the inactive table section
+    function resetInactiveChecked() {
+        $imdPanel.find(".inactiveTablesList").find(".checkbox").removeClass("checked");
+        $imdPanel.find(".inactiveTablesList").find(".iconSection").removeClass("active");
+        iCheckedTables = [];
+        //$imdPanel.find(".checkAllInactive").removeClass("checked");
+    }
+
     function restoreTableOrder(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const key: string = KVStore.getKey("gIMDKey");
@@ -1196,21 +1476,26 @@ namespace IMDPanel {
                 try {
                     imdMeta = $.parseJSON(imdMeta);
                     if (imdMeta) {
-                        const visibleTables: string[] = imdMeta['visibleTables'];
-                        const hiddenTables: string[] = imdMeta['hiddenTables'];
-                        hiddenTables.forEach(function(table) {
-                            for (let i = 0; i < pTables.length; i++) {
-                                if (pTables[i].name === table) {
-                                    hTables.push(pTables[i]);
-                                    pTables.splice(i, 1);
-                                    break;
-                                }
-                            }
-                        });
+                        const activeTables: string[] = imdMeta['activeTables'];
+                        const inactiveTables: string[] = imdMeta['inactiveTables'];
 
-                        if (visibleTables) {
+                        if (inactiveTables) {
+                            const orderedITables: PublishTable[] = [];
+                            inactiveTables.forEach(function(table) {
+                                for (let i = 0; i < iTables.length; i++) {
+                                    if (iTables[i].name === table) {
+                                        orderedITables.push(iTables[i]);
+                                        iTables.splice(i, 1);
+                                        break;
+                                    }
+                                }
+                            });
+                            iTables = orderedITables.concat(iTables);
+                        }
+
+                        if (activeTables) {
                             const orderedPTables: PublishTable[] = [];
-                            visibleTables.forEach(function(table) {
+                            activeTables.forEach(function(table) {
                                 for (let i = 0; i < pTables.length; i++) {
                                     if (pTables[i].name === table) {
                                         orderedPTables.push(pTables[i]);
@@ -1233,72 +1518,39 @@ namespace IMDPanel {
         return deferred.promise();
     }
 
-    // list tables and if inactive ones are found, restore them. Restoration
-    // can be canceled and if so, unpublish the inactive tables that
-    // haven't been restored yet
+    // list tables and separate which list they go in
     function listAndCheckActive(): XDPromise<PublishTable[]> {
         const deferred: XDDeferred<PublishTable[]> = PromiseHelper.deferred();
-        const activeTables: PublishTable[] = [];
-        const inactiveTables: PublishTable[] = [];
-        let listPassed: boolean = false;
 
         XcalarListPublishedTables("*")
         .then((result) => {
-            listPassed = true;
             progressState.canceled = false;
 
             result.tables.forEach(function(table) {
                 if (!table.active) {
-                    inactiveTables.push(table);
+                    iTables.push(table);
                 } else {
-                    activeTables.push(table);
+                    pTables.push(table);
                 }
             });
 
-            if (inactiveTables.length) {
-                showProgressCircle(result.tables.length, activeTables.length);
-                return restoreAllInactiveTables(inactiveTables);
-            } else {
-                return PromiseHelper.resolve();
-            }
+           return PromiseHelper.resolve();
         })
         .then(function() {
             if (restoreErrors.length) {
                 showRestoreError();
             }
 
-            listOnlyActiveTables()
+            listTables()
             .then( deferred.resolve)
             .fail(deferred.reject);
         })
-        .fail(function(error) {
-            if (listPassed) {
-                if (error && error.error === "canceled") {
-                    // user canceled part way through restoration
-                    // unpublish the rest of the inactive tables
-                    // and add the restored ones to the activeTables list
-
-                    const promises: XDPromise<void>[] = [];
-                    for (let i = error.count; i < inactiveTables.length; i++) {
-                        promises.push(XcalarUnpublishTable(inactiveTables[i].name, true));
-                    }
-                    PromiseHelper.when.apply(this, promises)
-                    .always(function() {
-                        listOnlyActiveTables()
-                        .then(deferred.resolve)
-                        .fail(deferred.reject);
-                    });
-                } else { // restoration failed without being canceled
-                    // list tables and find out which ones succeeded
-                    listOnlyActiveTables()
-                    .then(deferred.resolve)
-                    .fail(function() {
-                        deferred.resolve(activeTables);
-                    });
-                }
-            } else {
-                deferred.reject(error);
-            }
+        .fail(function() {
+            listTables()
+            .then(deferred.resolve)
+            .fail(function() {
+                deferred.resolve(pTables);
+            });
         })
         .always(function() {
             restoreErrors = [];
@@ -1307,23 +1559,49 @@ namespace IMDPanel {
         return deferred.promise();
     }
 
-    function restoreAllInactiveTables(inactiveTables: PublishTable[]) {
+    function deactivateTables(tables: PublishTable[]) {
         const promises = [];
         let inactiveCount: number = 0;
 
-        inactiveTables.forEach(function(table) {
-            promises.push(function() {
-                inactiveCount++;
-                if (progressState.canceled) {
-                    return PromiseHelper.reject({
-                        error: "canceled",
-                        count: inactiveCount - 1
-                    });
-                } else {
-                    progressState.currentTable = table.name;
-                    return restoreTable(table.name, inactiveCount);
-                }
-            });
+        tables.forEach(function(table) {
+            if (table.active) {
+                promises.push(function() {
+                    inactiveCount++;
+                    if (progressState.canceled) {
+                        return PromiseHelper.reject({
+                            error: "canceled",
+                            count: inactiveCount - 1
+                        });
+                    } else {
+                        progressState.currentTable = table.name;
+                        progressCircle.increment();
+                        return XcalarUnpublishTable(table.name, true);
+                    }
+                });
+            }
+        });
+        return PromiseHelper.chain(promises);
+    }
+
+    function restoreTables(tables: PublishTable[]) {
+        const promises = [];
+        let inactiveCount: number = 0;
+
+        tables.forEach(function(table) {
+            if (!table.active) {
+                promises.push(function() {
+                    inactiveCount++;
+                    if (progressState.canceled) {
+                        return PromiseHelper.reject({
+                            error: "canceled",
+                            count: inactiveCount - 1
+                        });
+                    } else {
+                        progressState.currentTable = table.name;
+                        return restoreTable(table.name, inactiveCount);
+                    }
+                });
+            }
         });
         return PromiseHelper.chain(promises);
     }
@@ -1351,6 +1629,10 @@ namespace IMDPanel {
             }
             progressCircle.increment();
             deferred.resolve();
+            XcSocket.Instance.sendMessage("refreshIMD", {
+                "action": "activate",
+                "tableName": tableName
+            }, null);
         });
         return deferred.promise();
     }
@@ -1368,38 +1650,30 @@ namespace IMDPanel {
         });
     }
 
-    function listOnlyActiveTables(): XDPromise<any> {
+    function listTables(): XDPromise<any> {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         XcalarListPublishedTables("*")
         .then(function (result) {
-            const activeTables = [];
-            result.tables.forEach(function(table) {
-                if (table.active) {
-                    activeTables.push(table);
-                }
-            });
-            deferred.resolve(activeTables);
+            deferred.resolve(result.tables);
         })
         .fail(deferred.reject);
 
         return deferred.promise();
     }
+
     /**
      * Create HTML List for publlished tables
      */
     function getListHtml(tables: PublishTable[]): string {
         let html: string = "";
         tables.forEach((table) => {
+            let isChecked = (pCheckedTables.includes(table) || iCheckedTables.includes(table)) ? 'checked' : '';
             html += '<div data-name="' + table.name + '" class="listBox listInfo tableListItem">\
-                <div class="tableListLeft">\
+                <div class="tableListLeft checkboxSection">\
                     <i class="icon xi-ellipsis-v dragIcon" ' + xcTooltip.Attrs+ ' data-original-title="' + CommonTxtTstr.HoldToDrag+ '"></i>\
+                    <div class="checkbox ' + isChecked + '">\
+                    <i class="icon xi-ckbox-empty"></i><i class="icon xi-ckbox-selected"></i></div>\
                     <span class="tableName" data-original-title="' + table.name + '">' + table.name + '</span>\
-                    <i class="icon xi-trash deleteTable tableIcon" title="Delete published table" data-toggle="tooltip" \
-                    data-placement="top" data-container="body"></i> \
-                    <i class="icon xi-hide hideTable tableIcon" title="Hide published table" data-toggle="tooltip" \
-                    data-placement="top" data-container="body"></i>\
-                    <i class="icon xi-show showTable tableIcon" title="Show published table" data-toggle="tooltip" \
-                    data-placement="top" data-container="body"></i>\
                 </div>\
                 <div class="tableListHist tableTimePanel" data-name="' + table.name + '"></div> \
             </div>';
@@ -1503,11 +1777,13 @@ namespace IMDPanel {
         $listItem.remove();
         $listItem.removeClass("active selected");
         $listItem.find(".selectedBar").remove();
-        $listItem.appendTo($imdPanel.find(".hiddenTablesListItems"));
+        $listItem.find(".checkbox").removeClass("checked");
+        $listItem.appendTo($imdPanel.find(".inactiveTablesListItems"));
         pTables.forEach((table, i) => {
             if (table.name === tableName) {
                 pTables.splice(i, 1);
-                hTables.push(table);
+                table.active = false;
+                iTables.push(table);
                 return;
             }
         });
@@ -1521,15 +1797,15 @@ namespace IMDPanel {
         const kvsKey: string = KVStore.getKey("gIMDKey");
         const kvStore: KVStore = new KVStore(kvsKey, gKVScope.WKBK);
 
-        const visibleTables: string[] = pTables.map((table) => {
+        const activeTables: string[] = pTables.map((table) => {
             return table.name;
         });
-        const hiddenTables: string[] = hTables.map((table) => {
+        const inactiveTables: string[] = iTables.map((table) => {
             return table.name;
         });
         const imdInfo = {
-            visibleTables: visibleTables,
-            hiddenTables: hiddenTables
+            activeTables: activeTables,
+            inactiveTables: inactiveTables
         };
         return kvStore.put(JSON.stringify(imdInfo), true);
     }
@@ -1539,16 +1815,45 @@ namespace IMDPanel {
         $listItem.remove();
         $listItem.removeClass("active selected");
         $listItem.find(".selectedBar").remove();
+        $listItem.find(".checkbox").removeClass("checked");
         $listItem.appendTo($imdPanel.find(".activeTablesList"));
-        hTables.forEach((table, i) => {
+        iTables.forEach((table, i) => {
             if (table.name === tableName) {
-                hTables.splice(i, 1);
+                iTables.splice(i, 1);
+                table.active = true;
                 pTables.push(table);
                 return;
             }
         });
         checkDateChange();
         storeTables();
+    }
+
+    function deleteTables(checkedTables: PublishTable[], iconElelment: JQuery, isActiveList: boolean) {
+        if (checkedTables.length === 0) {
+            return; //XXX pop up alert here
+        }
+        let tableName = "";
+        checkedTables.forEach(function(table: PublishTable) {
+            tableName += table.name + ", ";
+        });
+        tableName = tableName.slice(0, -2);
+        Alert.show({
+            'title': IMDTStr.DelTable,
+            'msg': xcHelper.replaceMsg(IMDTStr.DelTableMsg, {
+                "tableName": tableName
+            }),
+            'onConfirm': () => {
+                checkedTables.forEach(function(table: PublishTable) {
+                    deleteTable(table.name);
+                });
+                if (isActiveList) {
+                    resetActiveChecked();
+                } else {
+                    resetInactiveChecked();
+                }
+            }
+        });
     }
 
     function deleteTable(tableName: string): XDPromise<void> {
@@ -1582,7 +1887,13 @@ namespace IMDPanel {
      */
     export function updateInfo(info: any): void {
         if (info.action === "delete") {
-            cleanUpAfterDeleteTable(info.tableName);
+            refreshTableList();
+        } else if (info.action === "activate") {
+            refreshTableList();
+        } else if (info.action === "deactivate") {
+            refreshTableList();
+        } else if (info.action === "coalesce") {
+            refreshTableList();
         }
     }
 
@@ -1599,9 +1910,9 @@ namespace IMDPanel {
             }
         });
         if (!found) {
-            hTables.forEach((table, i) => {
+            iTables.forEach((table, i) => {
                 if (table.name === tableName) {
-                    hTables.splice(i, 1);
+                    iTables.splice(i, 1);
                     return;
                 }
             });
@@ -1649,56 +1960,26 @@ namespace IMDPanel {
 
         const startTime: number = Date.now();
 
-        listOnlyActiveTables()
+        listTables()
         .then(function(tables) {
-            const foundPTables: object = {};
-            const foundHTables: object = {};
-            let numPTables = pTables.length;
+            pTables = [];
+            iTables = [];
             tables.forEach(function(table: PublishTable) {
                 if (table.active) {
-                    let inHTables: boolean = false;
-                    hTables.forEach(function(hTable, i) {
-                        if (hTable.name === table.name) {
-                            hTables[i] = table;
-                            inHTables = true;
-                            foundHTables[table.name] = true;
-                            return;
-                        }
-                    });
-
-                    if (!inHTables) {
-                        let found: boolean = false;
-                        pTables.forEach(function(pTable, i) {
-                            if (pTable.name === table.name) {
-                                pTables[i] = table;
-                                found = true;
-                                foundPTables[table.name] = true;
-                                return;
-                            }
-                        });
-                        if (!found) {
-                            pTables.push(table);
-                        }
-                    }
+                    pTables.push(table);
+                } else {
+                    iTables.push(table);
                 }
             });
-            for (let i = 0; i < numPTables; i++) {
-                if (!foundPTables[pTables[i].name]) {
-                    pTables.splice(i, 1);
-                    i--;
-                    numPTables--;
-                }
-            }
-            for (let i = 0; i < hTables.length; i++) {
-                if (!foundHTables[hTables[i].name]) {
-                    hTables.splice(i, 1);
-                    i--;
-                }
-            }
+            return restoreTableOrder();
+        })
+        .then(function() {
+            pCheckedTables = [];
+            iCheckedTables = [];
             let html: string = getListHtml(pTables);
             $imdPanel.find(".activeTablesList").html(html);
-            html = getListHtml(hTables);
-            $imdPanel.find(".hiddenTablesListItems").html(html);
+            html = getListHtml(iTables);
+            $imdPanel.find(".inactiveTablesListItems").html(html);
             checkDateChange();
             if (pTables.length) {
                 updateTableDetailSection(pTables[0].name);
@@ -1784,7 +2065,7 @@ namespace IMDPanel {
             },
             listTablesFirstTime: listTablesFirstTime,
             getTables: function() {
-                return {pTables: pTables, hTables: hTables};
+                return {pTables: pTables, iTables: iTables};
             },
             getRuler: function() {
                 return ruler;

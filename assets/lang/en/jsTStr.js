@@ -1530,7 +1530,11 @@ UploadTStr = {
 
 IMDTStr = {
     "DelTable": "Delete Published Table",
-    "DelTableMsg": "Are you sure you want to permanently delete the table : \"<tableName>\"? This action cannot be undone.",
+    "DataUnavailable":  "Only showing last 128 updates.",
+    "DelTableMsg": "Are you sure you want to permanently delete the following tables : \"<tableName>\"? This action cannot be undone.",
     "Activating": "Activating Tables",
-    "DataUnavailable":  "Only showing last 128 updates."
+    "DeactivateTablesMsg": "Are you sure you want to deactivate the following tables : \"<tableName>\"?",
+    "DeactivateTable": "Deactivate Published Tables",
+    "Coalesce": "Coalesce",
+    "CoalesceTip": "Conserve memory by combining updated tables into one. This operation cannot be undone."
 };

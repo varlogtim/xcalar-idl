@@ -103,15 +103,27 @@
         height: 48%;
     }
     .upperTableHeader {
-        height: @listHeaderHeight;
+        height: 50px;
+    }
+
+    .checkbox {
+        .icon {
+            font-size: 14px!important;
+        }
     }
     .tableListHeader {
         width: @listWidth;
         height: 100%;
         background: @color-bg-dusk-blue;
         float: left;
-        line-height: @listHeaderHeight;
+        line-height: 30px;
         padding: 0 10px;
+        display: block;
+
+        .tableListTopHeader {
+            height: 30px;
+            width: 100%;
+        }
 
         .text {
             float: left;
@@ -119,18 +131,75 @@
         }
         .iconSection {
             float: right;
+            height: 100%;
         }
         .icon {
-            line-height: @listHeaderHeight;
             padding: 0 5px;
             font-size: 16px;
-            display: none; // XXX design choice not to show
+            height: 100%;
+            cursor: pointer;
+            
+            &.activate {
+                color: @color-bg-apple-green;
+            }
+            &.deactivate {
+                color: @color-table-red;
+            }
         }
 
         .refreshList {
+            line-height: 30px;
+        }
+
+        .checkbox, .icon {
+            color: @color-white;
+            height: 100%;
+            width: auto;
+        }
+
+        .tableListSubheader {
             display: block;
+            line-height: 20px;
+            height: 20px;
+            width: 100%;
+
+            .tableOperationMessage {
+                display: block;
+                font-size: 11px;
+                color: @color-table-col-darkGray;
+                width: 200px;
+                float: left;
+            }
+
+            .iconSection {
+                .icon {
+                    display: none;
+                }
+            }
+            .checkbox, .sort {
+                line-height: 20px;
+                float: left;
+                margin-left: 5px;
+            }
+            .sortActive{
+                line-height: 20px;
+                float: right;
+                display: block!important;
+            }
+            &.active {
+                .iconSection {
+                    .icon {
+                        display: block;
+                    }
+                }
+
+                .tableOperationMessage {
+                    display: none;
+                }
+            }
         }
     }
+
     .tickContainer {
         width: ~"calc(100% - @{listWidth})";
         height: 100%;
@@ -139,7 +208,7 @@
     }
 
     .mainTableSection {
-        height: ~"calc(100% - @{listHeaderHeight})";
+        height: ~"calc(100% - 50px)";
         background: @color-bg-marine;
         &::-webkit-scrollbar-thumb {
             background-color: rgba(55, 140, 179, 0.9) !important;
@@ -227,13 +296,19 @@
         height: 100%;
         padding: 0px 10px 0px 0px;
 
+        .checkbox {
+            width: 26px;
+            margin: 0!important;
+        }
         .icon {
-            display:none;
+            //display:none;
             cursor: pointer;
             line-height: @listHeaderHeight;
-            padding: 0 5px;
+            padding: 0;
             border: none;
             font-size: 16px;
+            color: @color-white;
+            height: 100%;
         }
         .showTable {
             display: none;
@@ -242,7 +317,7 @@
         .tableName {
             .textOverflowOneLine;
             display: inline-block;
-            width: ~"calc(100% - 20px)";
+            width: ~"calc(100% - 46px)";
         }
         .dragIcon {
             display: block;
@@ -254,7 +329,7 @@
             .cursor-move;
         }
     }
-    .hiddenTablesList {
+    .inactiveTablesList {
         width: @listWidth;
         height: 100%;
         background: @color-bg-marine;
@@ -263,9 +338,30 @@
         .tableListHeader {
             height: @listHeaderHeight;
             float: none;
+            line-height:  @listHeaderHeight;
+
+            .text {
+                padding-left: 5px;
+            }
+
+            .iconSection {
+                display: none;
+
+                &.active {
+                    display: block;
+                }
+            }
+
+            .checkbox {
+                float: left;
+                margin-left: 5px;
+            }
+            .icon {
+                line-height:  @listHeaderHeight;
+            }
         }
 
-        .hiddenTablesListItems {
+        .inactiveTablesListItems {
             height: ~"calc(100% - @{listHeaderHeight})";
             overflow: auto;
             &::-webkit-scrollbar-thumb {
@@ -676,7 +772,7 @@
     }
 
     .dateTipLine, .dateTipLineSelect {
-        height: @listHeaderHeight;
+        height: 50px;
         width: 2px;
         background: @color-bg-select-blue;
         margin-left: -1px;

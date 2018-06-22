@@ -1,11 +1,28 @@
 <div class="tableSection upperTableSection">
     <div class="upperTableHeader">
         <div class="tableListHeader">
-            <div class="text">Published Tables</div>
-            <div class="iconSection">
-                <i class="icon xi-trash tableIcon"></i>
-                <i class="icon xi-hide tableIcon"></i>
-                <i class="icon xi-refresh xc-action refreshList tableIcon"></i>
+            <div class="tableListTopHeader">
+                <div class="text">Published Tables</div>
+                <div class="iconSection">
+                    <i class="icon xi-refresh xc-action refreshList tableIcon"></i>
+                </div>
+            </div>
+            <div class="tableListSubheader">
+                <div class="checkbox checkAllActive">
+                    <i class="icon xi-ckbox-empty"></i>
+                    <i class="icon xi-ckbox-selected"></i>
+                </div>
+                <span class="tableOperationMessage">Select tables to perform operations</span>
+                <div class="iconSection">
+                    <i class="icon xi-sort sortActive tableIcon" title="Sort the table list" data-toggle="tooltip"
+                        data-placement="top" data-container="body"></i>
+                    <i class="icon xi-trash deleteActiveTable tableIcon" title="Delete selected tables" data-toggle="tooltip"
+                        data-placement="top" data-container="body"></i>
+                    <i class="icon xi-compare-arrows coalesce tableIcon" title="Coalesce selected tables" data-toggle="tooltip"
+                        data-placement="top" data-container="body"></i>
+                    <i class="icon xi-forbid deactivate tableIcon" title="Deactivate selected tables" data-toggle="tooltip"
+                        data-placement="top" data-container="body"></i>
+                </div>
             </div>
         </div>
         <div class="tickContainer">
@@ -24,16 +41,24 @@
     </div>
 </div>
 <div class="tableSection lowerTableSection">
-    <div class="hiddenTablesList tableList">
+    <div class="inactiveTablesList tableList">
         <div class="tableListHeader">
-            <div class="text">Hidden Tables</div>
+            <div class="checkbox checkAllInactive">
+                <i class="icon xi-ckbox-empty"></i>
+                <i class="icon xi-ckbox-selected"></i>
+            </div>
+            <div class="text">Inactive Tables</div>
+            <i class="icon xi-sort sortInactive tableIcon" title="Sort the table list" data-toggle="tooltip"
+                    data-placement="top" data-container="body"></i>
             <div class="iconSection">
-                <i class="icon xi-trash tableIcon"></i>
-                <i class="icon xi-show tableIcon"></i>
+                    <i class="icon xi-trash deleteInactiveTable tableIcon" title="Delete selected tables" data-toggle="tooltip"
+                    data-placement="top" data-container="body"></i>
+                    <i class="icon xi-installerscreen-opencircle activate tableIcon" title="Activate selected tables" data-toggle="tooltip"
+                    data-placement="top" data-container="body"></i>
             </div>
         </div>
-        <div class="hiddenTablesListItems">
-             <!-- autogenerate list of tables will go here -->
+        <div class="inactiveTablesListItems">
+            <!-- autogenerate list of tables will go here -->
         </div>
     </div>
     <div class="tableDetailSection">
@@ -77,15 +102,6 @@
             <button type="button" class="btn pointInTime">Point in time</button>
             <button type="button" class="btn latest">Latest</button>
         </div>
-        <div class="moreOptions xc-action"><%= dicts.IMDPanel.more %></div>
-    </div>
-    <div class="advancedOptions">
-        <div class="heading"><%= dicts.IMDPanel.Coalesce %> <i class="hint qMark icon xi-unknown"
-            data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.IMDPanel.CoalesceTip %>"></i> :</div>
-        <div class="buttonWrap">
-            <button type="button" class="btn coalesce"><%= dicts.IMDPanel.Coalesce %></button>
-        </div>
-        <div class="moreOptions xc-action"><%= dicts.IMDPanel.back %></div>
     </div>
 </div>
 <div class="dateTipLine"></div>

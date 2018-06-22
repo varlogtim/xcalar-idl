@@ -28,13 +28,12 @@ describe('IMD Test', function() {
             var called = false;
             XcalarListPublishedTables = function() {
                 called = true;
-                return PromiseHelper.reject({error: "testError"});
+                return PromiseHelper.reject();
             };
             expect($imdPanel.find("#modalWaitingBG").length).to.equal(0);
             IMDPanel.active(true);
             expect($imdPanel.find("#modalWaitingBG").length).to.equal(1);
             expect(called).to.be.true;
-            UnitTest.hasAlertWithText("testError");
             setTimeout(function() {
                 XcalarListPublishedTables = cachedFn;
                 done();
@@ -103,12 +102,12 @@ describe('IMD Test', function() {
             IMDPanel.__testOnly__.listTablesFirstTime()
             .then(function() {
                 var tables = IMDPanel.__testOnly__.getTables();
-                expect(tables.pTables.length).to.equal(2);
-                expect(tables.hTables.length).to.equal(0);
-                expect($imdPanel.find(".activeTablesList .tableListItem").length).to.equal(2);
+                expect(tables.pTables.length).to.equal(1);
+                expect(tables.iTables.length).to.equal(1);
+                expect($imdPanel.find(".activeTablesList .tableListItem").length).to.equal(1);
                 expect($imdPanel.find(".tableListItem .tableListLeft").eq(0).text().trim()).to.equal("test1");
                 expect($imdPanel.find(".tableListItem .tableListHist").eq(0).text().trim().slice(-2)).to.equal("10");
-                expect($imdPanel.find(".hiddenTablesList .tableListItem").length).to.equal(0);
+                expect($imdPanel.find(".inactiveTablesList .tableListItem").length).to.equal(1);
                 expect($imdPanel.find(".tableDetailSection .tableName").text().trim()).to.equal("test1:");
                 expect($imdPanel.find(".tableDetailSection").hasClass("active")).to.be.true;
                 expect($imdPanel.find(".tableDetailSection .tableDetailContent .tableDetailRow").length).to.equal(3);
@@ -118,41 +117,6 @@ describe('IMD Test', function() {
             })
             .fail(function() {
                 done('failed');
-            });
-        });
-
-        it("listAndCheckActive cancel should work", function(done) {
-            var cache1 = XcalarListPublishedTables;
-            XcalarListPublishedTables = function() {
-                return PromiseHelper.resolve({tables: [{active: false, name: "one"}, {active: false, name: "two"}]});
-            };
-            var cache2 = XcalarRestoreTable;
-            XcalarRestoreTable = function() {
-                var pState = IMDPanel.__testOnly__.getProgressState();
-                pState.canceled = true;
-                return PromiseHelper.reject({error: "canceled", count: 0});
-            };
-
-            var called = false;
-            var cache3 = XcalarUnpublishTable;
-            XcalarUnpublishTable = function() {
-                called = true;
-                XcalarListPublishedTables = function() {
-                    return PromiseHelper.reject();
-                };
-                return PromiseHelper.reject();
-            };
-
-            IMDPanel.__testOnly__.listAndCheckActive()
-            .then(function() {
-                done("fail");
-            })
-            .fail(function() {
-                expect(called).to.be.true;
-                XcalarListPublishedTables = cache1;
-                XcalarRestoreTable = cache2;
-                XcalarUnpublishTable = cache3;
-                done();
             });
         });
 
@@ -198,6 +162,52 @@ describe('IMD Test', function() {
         });
     });
 
+    describe("filter list", function() {
+        it("should filter the table lists", function() {
+            var $filterInput = $("#imdFilterInput");
+            var $tableListItems = $imdPanel.find(".tableListItem");
+
+            $filterInput.val("t");
+            $filterInput.trigger("keyup");
+
+            expect($tableListItems.eq(0).css("display")).to.equal("block");
+
+            $filterInput.val("tu");
+            $filterInput.trigger("keyup");
+
+            expect($tableListItems.eq(0).css("display")).to.equal("none");
+
+            $filterInput.val("");
+            $filterInput.trigger("keyup");
+
+            expect($tableListItems.eq(0).css("display")).to.equal("block");
+        });
+        it("should check all active", function(){
+            var $checkAll = $imdPanel.find(".checkAllActive");
+            var $activeList = $imdPanel.find(".activeTablesList").find(".tableListItem");
+
+            expect($activeList.find(".checkbox").hasClass("checked")).to.be.false;
+
+            $checkAll.click();
+            expect($activeList.find(".checkbox").hasClass("checked")).to.be.true;
+
+            $checkAll.click();
+            expect($activeList.find(".checkbox").hasClass("checked")).to.be.false;
+        });
+        it("should check all inactive", function(){
+            var $checkAll = $imdPanel.find(".checkAllInactive");
+            var $inactiveList = $imdPanel.find(".inactiveTablesList").find(".tableListItem");
+
+            expect($inactiveList.find(".checkbox").hasClass("checked")).to.be.false;
+
+            $checkAll.click();
+            expect($inactiveList.find(".checkbox").hasClass("checked")).to.be.true;
+
+            $checkAll.click();
+            expect($inactiveList.find(".checkbox").hasClass("checked")).to.be.false;
+        });
+    });
+
     describe("canvas time tip", function() {
 
         it("mousemove on left canvas should work", function() {
@@ -213,6 +223,14 @@ describe('IMD Test', function() {
             var leftTime = new Date((startTime - range) * 1000);
             var timeText = moment(leftTime).format("MMMM Do YYYY, h:mm");
             expect($tipBox.text().indexOf(timeText)).to.equal(0);
+        });
+
+        it("should resort the update list", function() {
+            var $timestamp = $imdPanel.find(".timeStamp");
+            var firstUpdate = $imdPanel.find(".tableDetailRow").eq(1).find(".sourceName").attr("data-original-title");
+            $timestamp.click();
+            $timestamp.click(); //changes sort order
+            expect($imdPanel.find(".tableDetailRow").eq(1).find(".sourceName").attr("data-original-title")).to.equal(firstUpdate);
         });
 
         it("mousemove on right canvas should work", function() {
@@ -311,53 +329,39 @@ describe('IMD Test', function() {
         })
         it("mousedown on left side should trigger update prompt", function() {
             expect($imdPanel.find(".update-prompt").is(":visible")).to.be.false;
-            var e = {type: "mousedown", pageX: 340};
-            $imdPanel.find(".tableTimePanel").last().trigger(e);
+            var e = {type: "mousedown", pageX: 360};
+            $imdPanel.find(".tableTimePanel").eq(0).trigger(e);
 
             expect($imdPanel.find(".update-prompt").is(":visible")).to.be.true;
             expect($imdPanel.find(".update-prompt .pointInTime").hasClass("unavailable")).to.be.true;
             var cells = IMDPanel.__testOnly__.getSelectedCells();
             expect(Object.keys(cells).length).to.equal(1);
-            expect(cells.hasOwnProperty("test2")).to.be.true;
-            expect(cells["test2"]).to.equal(0);
+            expect(cells.hasOwnProperty("test1")).to.be.true;
+            expect(cells["test1"]).to.equal(0);
         });
 
         it("mousedown on right side should trigger update prompt", function() {
             var e = {type: "mousedown", pageX: $(window).width()};
-            $imdPanel.find(".tableTimePanel").last().trigger(e);
+            $imdPanel.find(".tableTimePanel").eq(0).trigger(e);
 
             expect($imdPanel.find(".update-prompt .pointInTime").hasClass("unavailable")).to.be.false;
             var cells = IMDPanel.__testOnly__.getSelectedCells();
             expect(Object.keys(cells).length).to.equal(1);
-            expect(cells.hasOwnProperty("test2")).to.be.true;
-            expect(cells["test2"]).to.equal(1);
+            expect(cells.hasOwnProperty("test1")).to.be.true;
+            expect(cells["test1"]).to.equal(2);
         });
         // XXX check positioning of green status bars
 
         it("mousedown on canvas should trigger update prompt", function() {
             var e = {type: "mousedown", offsetX: $imdPanel.find("canvas").width()};
+            $imdPanel.find(".tableListItem").eq(0).find(".checkbox").click();
             $imdPanel.find("canvas").trigger(e);
 
             expect($imdPanel.find(".update-prompt").is(":visible")).to.be.true;
             var cells = IMDPanel.__testOnly__.getSelectedCells();
-            expect(Object.keys(cells).length).to.equal(2);
+            expect(Object.keys(cells).length).to.equal(1);
             expect(cells.hasOwnProperty("test1")).to.be.true;
             expect(cells["test1"]).to.equal(2);
-            expect(cells.hasOwnProperty("test2")).to.be.true;
-            expect(cells["test2"]).to.equal(1);
-        });
-
-        it("mousedown on table detail should trigger update prompt", function() {
-            $imdPanel.find(".tableDetailSection .batchId").last().click();
-
-            var cells = IMDPanel.__testOnly__.getSelectedCells();
-            expect(Object.keys(cells).length).to.equal(1);
-            expect(cells.hasOwnProperty("test2")).to.be.true;
-            expect(cells["test2"]).to.equal(0);
-            expect($imdPanel.find(".selectedBar").length).to.equal(1);
-            var expectedLeft = parseInt($imdPanel.find(".selectedBar").css("left"));
-            var left = parseInt($imdPanel.find(".tableListHist").last().find(".indicator1").css("left"));
-            expect(left).to.equal(expectedLeft);
         });
     });
 
@@ -399,8 +403,8 @@ describe('IMD Test', function() {
 
             var cells = IMDPanel.__testOnly__.getSelectedCells();
             expect(Object.keys(cells).length).to.equal(1);
-            expect(cells.hasOwnProperty("test2")).to.be.true;
-            expect(cells["test2"]).to.equal(0);
+            expect(cells.hasOwnProperty("test1")).to.be.true;
+            expect(cells["test1"]).to.equal(0);
             expect($imdPanel.find(".update-prompt").is(":visible")).to.be.true;
         });
 
@@ -408,8 +412,8 @@ describe('IMD Test', function() {
             var cachedFn = XcalarRefreshTable;
             var called = false;
             XcalarRefreshTable = function(name, dstName, min, max) {
-                expect(name).to.equal("test2");
-                expect(dstName.indexOf("test2")).to.equal(0);
+                expect(name).to.equal("test1");
+                expect(dstName.indexOf("test1")).to.equal(0);
                 expect(min).to.equal(-1);
                 expect(max).to.equal(-1);
                 called = true;
@@ -422,7 +426,7 @@ describe('IMD Test', function() {
             var cachedFn3 = TblManager.refreshTable;
             var called2 = false;
             TblManager.refreshTable = function(tNames) {
-                expect(tNames[0].indexOf("test2")).to.equal(0);
+                expect(tNames[0].indexOf("test1")).to.equal(0);
                 called2 = true;
                 return PromiseHelper.resolve();
             };
@@ -450,8 +454,8 @@ describe('IMD Test', function() {
 
             var cells = IMDPanel.__testOnly__.getSelectedCells();
             expect(Object.keys(cells).length).to.equal(1);
-            expect(cells.hasOwnProperty("test2")).to.be.true;
-            expect(cells["test2"]).to.equal(0);
+            expect(cells.hasOwnProperty("test1")).to.be.true;
+            expect(cells["test1"]).to.equal(0);
             expect($imdPanel.find(".update-prompt").is(":visible")).to.be.true;
         });
 
@@ -459,8 +463,8 @@ describe('IMD Test', function() {
             var cachedFn = XcalarRefreshTable;
             var called = false;
             XcalarRefreshTable = function(name, dstName, min, max) {
-                expect(name).to.equal("test2");
-                expect(dstName.indexOf("test2")).to.equal(0);
+                expect(name).to.equal("test1");
+                expect(dstName.indexOf("test1")).to.equal(0);
                 expect(min).to.equal(-1);
                 expect(max).to.equal(-1);
                 called = true;
@@ -473,7 +477,7 @@ describe('IMD Test', function() {
             var cachedFn3 = TblManager.refreshTable;
             var called2 = false;
             TblManager.refreshTable = function(tNames) {
-                expect(tNames[0].indexOf("test2")).to.equal(0);
+                expect(tNames[0].indexOf("test1")).to.equal(0);
                 called2 = true;
                 return PromiseHelper.reject();
             };
@@ -531,47 +535,19 @@ describe('IMD Test', function() {
         });
     });
 
-    describe("hide and unhide", function() {
-        it("hide should work", function() {
-            $imdPanel.find(".activeTablesList .hideTable").eq(0).click();
-            expect($imdPanel.find(".activeTablesList .tableListItem").length).to.equal(1);
-            expect($imdPanel.find(".tableListItem .tableListLeft").eq(0).text().trim()).to.equal("test2");
-            expect($imdPanel.find(".hiddenTablesList .tableListItem").length).to.equal(1);
-            expect($imdPanel.find(".hiddenTablesList .tableListLeft").eq(0).text().trim()).to.equal("test1");
-            var tables = IMDPanel.__testOnly__.getTables();
-            expect(tables.pTables.length).to.equal(1);
-            expect(tables.pTables[0].name).to.equal("test2");
-            expect(tables.hTables.length).to.equal(1);
-            expect(tables.hTables[0].name).to.equal("test1");
-        });
-
-        it("show should work", function() {
-            $imdPanel.find(".hiddenTablesList .showTable").eq(0).click();
-            expect($imdPanel.find(".activeTablesList .tableListItem").length).to.equal(2);
-            expect($imdPanel.find(".tableListItem .tableListLeft").eq(0).text().trim()).to.equal("test2");
-            expect($imdPanel.find(".tableListItem .tableListLeft").eq(1).text().trim()).to.equal("test1");
-
-            var tables = IMDPanel.__testOnly__.getTables();
-            expect(tables.pTables.length).to.equal(2);
-            expect(tables.pTables[0].name).to.equal("test2");
-            expect(tables.pTables[1].name).to.equal("test1");
-        });
-    });
-
     describe("delete table", function() {
         it("delete table should work", function(done) {
             var cachedFn = XcalarUnpublishTable;
             XcalarUnpublishTable = function() {
                 return PromiseHelper.resolve();
             };
-            $imdPanel.find(".deleteTable").eq(0).click();
+            $imdPanel.find(".deleteActiveTable").eq(0).click();
             UnitTest.hasAlertWithTitle(IMDTStr.DelTable, {
                 confirm: true
             });
 
             var tables = IMDPanel.__testOnly__.getTables();
-            expect(tables.pTables.length).to.equal(1);
-            expect(tables.pTables[0].name).to.equal("test1");
+            expect(tables.pTables.length).to.equal(0);
             setTimeout(function() {
                 XcalarUnpublishTable = cachedFn;
                 done();
@@ -652,7 +628,7 @@ describe('IMD Test', function() {
                 ]});
             }
             var tables = IMDPanel.__testOnly__.getTables();
-            tables.hTables.push(
+            tables.iTables.push(
                 {
                     active: true,
                     name: "test5",
@@ -665,7 +641,7 @@ describe('IMD Test', function() {
                     values: [{name: "testCol", type: 0}],
                     oldestBatchId: 0
                 });
-            tables.hTables.push(
+            tables.iTables.push(
                 {
                     active: true,
                     name: "test6",
@@ -680,16 +656,123 @@ describe('IMD Test', function() {
                 }
             );
             tables = IMDPanel.__testOnly__.getTables();
-            expect(tables.hTables.length).to.equal(2);
+            expect(tables.iTables.length).to.equal(3);
             $imdPanel.find(".refreshList").click();
             setTimeout(function() {
                 var tables = IMDPanel.__testOnly__.getTables();
-                expect(tables.pTables.length).to.equal(1);
+                expect(tables.pTables.length).to.equal(2);
                 expect(tables.pTables[0].name).to.equal("test4");
-                expect(tables.hTables.length).to.equal(1);
-                expect(tables.hTables[0].name).to.equal("test5");
+                expect(tables.iTables.length).to.equal(0);
                 XcalarListPublishedTables = cachedFn;
                 done();
+            });
+        });
+    });
+
+    describe("activate deactivate", function() {
+        it("deactivate should work", function(done) {
+            var $table = $imdPanel.find(".activeTablesList .tableListItem").eq(0);
+            var activeName = $table.attr("data-name");
+            var XcalarUnpublishTableCache = XcalarUnpublishTable;
+
+            var tables = IMDPanel.__testOnly__.getTables();
+
+            var called = false;
+            XcalarUnpublishTable = function(tableName) {
+                
+                tables.pTables.forEach(function(table) {
+                    if(table.name === tableName) {
+                        table.active = false;
+                    }
+                });
+                called = true;
+                return PromiseHelper.resolve();
+            };
+
+            $table.find(".checkbox").click();
+            $imdPanel.find(".deactivate").click();
+            $("#alertActions").find(".confirm").click();
+
+            var checkFunc = function () {
+                return called;
+            }
+
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                tables.iTables.forEach(function(table) {
+                    if(table.name === activeName) {
+                        expect(table.active).to.be.false;
+                        XcalarUnpublishTable = XcalarUnpublishTableCache;
+                        done();
+                    }
+                });
+
+            });
+        });
+
+        it("activate should work", function(done) {
+            var $table = $imdPanel.find(".inactiveTablesList .tableListItem").eq(0);
+            var activeName = $table.attr("data-name");
+            var XcalarRestoreTableCache = XcalarRestoreTable;
+
+            var tables = IMDPanel.__testOnly__.getTables();
+
+            var called = false;
+            XcalarRestoreTable = function(tableName) {
+                
+                tables.iTables.forEach(function(table) {
+                    if(table.name === tableName) {
+                        table.active = true;
+                    }
+                });
+                called = true;
+                return PromiseHelper.resolve();
+            };
+
+            $table.find(".checkbox").click();
+            $imdPanel.find(".activate").click();
+
+            var checkFunc = function () {
+                return called;
+            }
+
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                tables.pTables.forEach(function(table) {
+                    if(table.name === activeName) {
+                        expect(table.active).to.be.true;
+                        XcalarRestoreTable = XcalarRestoreTableCache;
+                        done();
+                    }
+                });
+
+            });
+        });
+
+        it("coalesce should work", function(done) {
+            var XcalarCoalesceCache = XcalarCoalesce;
+            var called = false;
+            XcalarCoalesce = function() {
+                called = true;
+                return PromiseHelper.resolve();
+            }
+
+            var checkFunc = function () {
+                return called;
+            }
+
+
+            $imdPanel.find(".tableListItem").eq(0).find(".checkbox").click();
+
+            $imdPanel.find(".coalesce").click();
+            $("#alertActions").find(".confirm").click();
+
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                expect($imdPanel.find(".tableListItem").eq(0).find(".batchId").length).to.equal(0);
+                XcalarCoalesce = XcalarCoalesceCache;
+                done();
+
             });
         });
     });

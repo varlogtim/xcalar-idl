@@ -700,6 +700,10 @@ declare namespace IMDTStr {
     export var DelTableMsg: string;
     export var Activating: string;
     export var DataUnavailable: string;
+    export var DeactivateTable: string;
+    export var DeactivateTablesMsg: string;
+    export var Coalesce: string;
+    export var CoalesceTip: string;
 }
 
 declare namespace WKBKTStr {
