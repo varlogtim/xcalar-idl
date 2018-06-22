@@ -230,9 +230,9 @@ namespace IMDPanel {
         const ratio: number = dpr / bsr;
 
         canvas.width = canvasWidth * ratio;
-        canvas.height = canvasWidth * ratio;
+        canvas.height = canvasHeight * ratio;
         canvas.style.width = canvasWidth + "px";
-        canvas.style.height = canvasWidth + "px";
+        canvas.style.height = canvasHeight + "px";
         ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
         ctx.strokeStyle = tickColor;
         ctx.lineWidth = tickWidth;
