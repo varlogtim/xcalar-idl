@@ -192,6 +192,39 @@ interface JQueryEventObject {
      keyTriggered: boolean;
  }
 
+ declare class d3 {
+    public select(selector: string): d3;
+    public selectAll(selector: string): d3;
+    public data(callback: Function);
+    public transition(): d3;
+    public interpolateNumber(num: number, step: number): Function;
+    public duration(time: number): d3;
+    public ease(type: string): d3;
+    public tween(type: string, callback: Function): d3;
+    public append(selector: string): d3;
+    public attr(options: object | string, options2?: string): d3;
+}
+
+interface JQueryStatic {
+    md5(str: string): string;
+}
+
+declare namespace pako {
+    export function gzip(key: string, options: object): string;
+}
+
+interface CanvasRenderingContext2D {
+    webkitBackingStorePixelRatio: number;
+    mozBackingStorePixelRatio: number;
+    msBackingStorePixelRatio: number;
+    oBackingStorePixelRatio: number;
+    backingStorePixelRatio: number;
+}
+
+interface Array<T> {
+    includes(...args: any[]): boolean;
+}
+
 interface OpStatsDetails {
     numWorkCompleted: number,
     numWorkTotal: number
@@ -906,20 +939,6 @@ declare class XcLog {
     public options: XcLogOptions;
     public cli: string;
 }
-
-declare class d3 {
-    public select(selector: string): d3;
-    public selectAll(selector: string): d3;
-    public data(callback: Function);
-    public transition(): d3;
-    public interpolateNumber(num: number, step: number): Function;
-    public duration(time: number): d3;
-    public ease(type: string): d3;
-    public tween(type: string, callback: Function): d3;
-    public append(selector: string): d3;
-    public attr(options: object | string, options2?: string): d3;
-}
-
 /* ============== NAMESPACE ====================== */
 declare namespace xcManager {
     export function removeUnloadPrompt(markUser: boolean): void;
