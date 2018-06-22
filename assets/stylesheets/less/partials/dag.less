@@ -46,7 +46,7 @@ html.firefox, html.microsoft {
     border-right: 5px solid @color-bg-dusk-blue;
     background-color: rgb(140, 173, 181);
     .image("../../images/dagIcons/dag-background.png", left, top, repeat);
-    .transition (~"transform 0.3s ease-in");
+    .transition(~"transform 0.3s ease-in");
     pointer-events: initial;
     z-index: @z-index-dfPanel;
 
@@ -98,7 +98,7 @@ html.firefox, html.microsoft {
         -ms-transform:  translate3d(0, 100%, 0) !important;
         -o-transform:  translate3d(0, 100%, 0) !important;
         transform:  translate3d(0, 100%, 0) !important;
-        .transition (~"transform 0.4s ease-in");
+        .transition(~"transform 0.4s ease-in");
     }
 
     &.noTransform {
@@ -311,13 +311,9 @@ html.firefox, html.microsoft {
 .dataStoreIcon {
     display: inline-block;
     .size(26px, 26px);
-    .transform (rotate(-45deg));
+    .transform(rotate(-45deg));
     .rounded(2px);
-    background-color:  @color-bg-select-blue;
-
-    ~ .dagTableTip {
-        margin-left: -4px;
-    }
+    background-color: @color-bg-select-blue;
 }
 
 .dagIcon {
@@ -427,7 +423,7 @@ html.firefox, html.microsoft {
     }
 
     .retinaArea {
-        display: inline-block;
+        display: block;
         float: right;
         margin-top: -5px;
         > .btn {
@@ -825,7 +821,7 @@ html.firefox, html.microsoft {
             left: 4px;
             .tableTitle {
                 .position(@top: 38px);
-                .transform (translateX(-55%));
+                .transform(translateX(-55%));
                 width: 130px;
                 text-align: center;
 
@@ -834,6 +830,9 @@ html.firefox, html.microsoft {
                 .position(@top: 11px, @left: 7px);
                 font-size: 16px;
                 color: @color-white;
+                &.xi-table-2 {
+                    left: 6px;
+                }
             }
             .dataStoreIcon {
                 .position(absolute, @top: 6px, @left: 2px);
@@ -844,6 +843,10 @@ html.firefox, html.microsoft {
                     font-size: 15px;
                 }
             }
+
+            .dagTableTip {
+                margin-left: -5px;
+            }
         }
 
         .tableTitle {
@@ -851,7 +854,7 @@ html.firefox, html.microsoft {
             color: @color-font-gray36;
             .font(@weight: 700, @size: 10px, @line-height: 14px);
             white-space: nowrap;
-            .transform (translateX(-50%));
+            .transform(translateX(-50%));
             max-width: 200px;
             max-height: 30px;
             .textOverflow;

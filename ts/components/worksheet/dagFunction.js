@@ -1274,7 +1274,7 @@ window.DagFunction = (function($, DagFunction) {
                 var parentNames = [];
                 if (typeof struct.source === "string") {
                     parentNames = [struct.source];
-                } else {
+                } else if (typeof struct.source === "object") {
                     parentNames = struct.source;
                 }
                 var values = {
@@ -1283,7 +1283,7 @@ window.DagFunction = (function($, DagFunction) {
                     dagNodeId: struct.dest,
                     inputName: inputName,
                     name: struct.dest,
-                    numParents: 1,
+                    numParents: parentNames.length,
                     parents: parentNames,
                     parentNames: parentNames,
                     tag: dest.tag,
@@ -1332,11 +1332,11 @@ window.DagFunction = (function($, DagFunction) {
         while (queue.length > 0) {
             var node = queue.shift();
             var allParentsPrinted = true;
-            if ((node.parents[0] &&
-                (printed.indexOf(node.parents[0]) === -1)) ||
-                (node.parents[1] &&
-                (printed.indexOf(node.parents[1]) === -1))) {
-                allParentsPrinted = false;
+            for (var i = 0; i < node.parents.length; i++) {
+                if (printed.indexOf(node.parents[i]) === -1) {
+                    allParentsPrinted = false;
+                    break;
+                }
             }
             if (allParentsPrinted) {
                 printed.push(node);
