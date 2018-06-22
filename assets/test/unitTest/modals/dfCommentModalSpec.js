@@ -6,7 +6,7 @@ describe("DFCommentModal Test", function() {
     before(function() {
         UnitTest.onMinMode();
         $modal = $("#dfCommentModal");
-        $opIcon = $('<div class="operationTypeWrap"><div class="typeTitle">Test</div></div>');
+        $opIcon = $('<div class="operationTypeWrap" data-nodeid="0"><div class="typeTitle">Test</div></div>');
         var $dagTable = $('<div class="dagTable" data-nodeid="0"><div class="tableTitle">somename</div></div>');
         $dagWrap = $('<div class="dagWrap"><div class="dagTableWrap"></div></div>');
         $dagWrap.find(".dagTableWrap").append($opIcon);
@@ -26,21 +26,21 @@ describe("DFCommentModal Test", function() {
     });
     describe("testing show and initial state", function() {
         it("should show with no comment", function() {
-            DFCommentModal.show($opIcon, 0);
+            DFCommentModal.show($opIcon);
             expect($modal.hasClass("hasComment")).to.be.false;
             expect($modal.find(".modalHeader .text").text()).to.equal("Test");
             $modal.find(".close").click();
         });
         it("should show with comment", function() {
             node.value.comment = {userComment:"something", meta:{}};
-            DFCommentModal.show($opIcon, 0);
+            DFCommentModal.show($opIcon);
             expect($modal.hasClass("hasComment")).to.be.true;
             expect($modal.find("textarea").val()).to.equal("something");
 
         });
         it("should not open if already open", function() {
             node.value.comment = {userComment:"somethingElse", meta:{}};
-            DFCommentModal.show($opIcon, 0);
+            DFCommentModal.show($opIcon);
             expect($modal.find("textarea").val()).to.equal("something");
             node.value.comment = {userComment:"something", meta:{}};
 
@@ -96,7 +96,7 @@ describe("DFCommentModal Test", function() {
         });
 
         it("no comment should work", function() {
-            DFCommentModal.show($opIcon, 0);
+            DFCommentModal.show($opIcon);
             var cachedFn = XcalarCommentDagNodes;
             var called = false;
             XcalarCommentDagNodes = function(newComment, tableNames) {
@@ -118,7 +118,7 @@ describe("DFCommentModal Test", function() {
         });
 
         it("error should show", function() {
-            DFCommentModal.show($opIcon, 0);
+            DFCommentModal.show($opIcon);
             var cachedFn = XcalarCommentDagNodes;
             var called = false;
             XcalarCommentDagNodes = function(newComment, tableNames) {

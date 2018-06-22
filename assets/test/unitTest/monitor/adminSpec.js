@@ -2,11 +2,14 @@ describe("Admin Test", function() {
     var cachedGetItem;
     var $userList;
     var oldSend;
+    var oldIsAdmin;
 
     before(function() {
         UnitTest.onMinMode();
         cachedGetItem = xcLocalStorage.getItem;
         $userList = $("#monitorMenu-setup .userList");
+        oldIsAdmin = Admin.isAdmin;
+        Admin.isAdmin = () => true;
 
         function hashFnv32a(str, asString, seed) {
             /*jshint bitwise:false */
@@ -52,7 +55,7 @@ describe("Admin Test", function() {
             }
         };
 
-        Admin.__testOnly__.setPosingAs(wasAdmin);
+        Admin.__testOnly__.setPosingAs();
         if (!wasAdmin) {
             Admin.initialize();
         }
@@ -153,6 +156,13 @@ describe("Admin Test", function() {
         });
 
         it("switch user should work", function() {
+            var oldSet = xcSessionStorage.setItem;
+            var oldGet = xcSessionStorage.getItem;
+            var oldRemove = xcSessionStorage.removeItem;
+            var storage = {};
+            xcSessionStorage.setItem = (k, v) => { storage[k] = String(v) };
+            xcSessionStorage.getItem = (k) => storage[k];
+            xcSessionStorage.removeItem = (k) => {delete storage[k] };
             var cachedunload = xcManager.unload;
             xcManager.unload = function() { return null; };
             var ownName = XcUser.getCurrentUserName();
@@ -177,6 +187,9 @@ describe("Admin Test", function() {
             expect(xcSessionStorage.getItem("usingAs")).to.not.equal("true");
             xcManager.unload = cachedunload;
             $ownLi.addClass("self");
+            xcSessionStorage.setItem = oldSet;
+            xcSessionStorage.getItem = oldGet;
+            xcSessionStorage.removeItem = oldRemove;
         });
 
         it("get memory should work", function(done) {
@@ -282,21 +295,22 @@ describe("Admin Test", function() {
         });
 
         it("sorting user list by name should work", function() {
-            var fakeLi = '<li><div class="text">0000</div><div class="memory" data-title"5 MB"></div></li>';
+            var userName = '\b0000';
+            var fakeLi = '<li><div class="text">' + userName + '</div><div class="memory" data-title"5 MB"></div></li>';
             $userList.find("ul").append(fakeLi);
-            expect($userList.find("li").eq(0).find(".text").text()).to.not.equal("0000");
-            expect($userList.find("li").last().find(".text").text()).to.equal("0000");
+            expect($userList.find("li").eq(0).find(".text").text()).to.not.equal(userName);
+            expect($userList.find("li").last().find(".text").text()).to.equal(userName);
             expect($userList.hasClass("sortedByName")).to.be.true;
             expect($userList.hasClass("sortedByUsage")).to.be.false;
 
             $userList.find(".sortName").click();
-            expect($userList.find("li").eq(0).find(".text").text()).to.not.equal("0000");
-            expect($userList.find("li").last().find(".text").text()).to.equal("0000");
+            expect($userList.find("li").eq(0).find(".text").text()).to.not.equal(userName);
+            expect($userList.find("li").last().find(".text").text()).to.equal(userName);
 
             $userList.removeClass("sortedByName").addClass("sortedByUsage");
             $userList.find(".sortName").click();
-            expect($userList.find("li").eq(0).find(".text").text()).to.equal("0000");
-            expect($userList.find("li").last().find(".text").text()).to.not.equal("0000");
+            expect($userList.find("li").eq(0).find(".text").text()).to.equal(userName);
+            expect($userList.find("li").last().find(".text").text()).to.not.equal(userName);
             expect($userList.hasClass("sortedByName")).to.be.true;
         });
 
@@ -558,5 +572,6 @@ describe("Admin Test", function() {
         $("#container").removeClass("admin posingAsUser");
         UnitTest.offMinMode();
         XcSocket.prototype.sendMessage = oldSend;
+        Admin.isAdmin = oldIsAdmin;
     });
 });

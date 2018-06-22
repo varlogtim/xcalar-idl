@@ -819,7 +819,7 @@ function viewRelatedFunctionTest() {
 
     it("unparamaterized export file name should show alert", function() {
         var dfObj = DF.getDataflow("df1");
-        dfObj.retinaNodes[".XcalarLRQExport.test2"].type = "XcalarApiExport";
+        dfObj.retinaNodes[".XcalarLRQExport.test2"].operation = "XcalarApiExport";
         dfObj.retinaNodes[".XcalarLRQExport.test2"].args = {
                 fileName: "fakeFileName",
                 targetName: "Default"

@@ -1604,6 +1604,7 @@ window.DagFunction = (function($, DagFunction) {
         DagFunction.__testOnly__insertNewNodesIntoValArray = insertNewNodesIntoValArray;
         DagFunction.__testOnly__insertIndexNodesIntoValArray = insertIndexNodesIntoValArray;
         DagFunction.__testOnly__tagNodesAfterEdit = tagNodesAfterEdit;
+        // DagFunction.__testOnly__recommentAfterEdit = recommentAfterEdit;
         DagFunction.__testOnly__setColumnsAfterEdit = setColumnsAfterEdit;
         DagFunction.__testOnly__includeDroppedNodesInStartNodes = includeDroppedNodesInStartNodes;
     }

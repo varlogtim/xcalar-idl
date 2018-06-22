@@ -1,4 +1,4 @@
-describe("Workbook- Workbook Pane Test", function() {
+describe("Workbook-Workbook Pane Test", function() {
     var $workbookPanel;
     var oldCommitCheck;
     var menuAction = function($box, action) {
@@ -10,9 +10,9 @@ describe("Workbook- Workbook Pane Test", function() {
     before(function(){
         $workbookPanel = $("#workbookPanel");
         UnitTest.onMinMode();
-        oldCommitCheck = XcUser.prototype.commitCheck;
+        oldCommitCheck = XcUser.CurrentUser.commitCheck;
 
-        XcUser.prototype.commitCheck = function() {
+        XcUser.CurrentUser.commitCheck = function() {
             return PromiseHelper.resolve();
         };
     });
@@ -357,7 +357,7 @@ describe("Workbook- Workbook Pane Test", function() {
             $("#container").removeClass("noWorkbook");
         });
 
-        it("should handle create workbook error case", function(done) {
+        it("should handle create workbook error case", function() {
             var name = xcHelper.randName("testWorkbook");
             var oldFunc = XcUser.CurrentUser.commitCheck;
 
@@ -369,8 +369,6 @@ describe("Workbook- Workbook Pane Test", function() {
             $newWorkbookButton.click();
 
             UnitTest.hasStatusBoxWithError(WKBKTStr.CreateErr);
-            done();
-
             XcUser.CurrentUser.commitCheck = oldFunc;
         });
 
@@ -781,7 +779,6 @@ describe("Workbook- Workbook Pane Test", function() {
             KVStore.prototype.get = oldKVGet;
             KVStore.prototype.put = oldKVPut;
             KVStore.prototype.delete = oldKVDelete;
-            XcUser.prototype.commitCheck = oldCommitCheck;
             XcalarKeyPut = oldXcalarPut;
             XcalarKeyDelete = oldXcalarDelete;
 
@@ -796,6 +793,7 @@ describe("Workbook- Workbook Pane Test", function() {
     });
 
     after(function() {
+        XcUser.CurrentUser.commitCheck = oldCommitCheck;
         UnitTest.offMinMode();
     });
 });

@@ -708,7 +708,7 @@ window.DF = (function($, DF) {
                 try {
                     var exportNode;
                     for (var name in retinaNodes) {
-                        if (retinaNodes[name].type === "XcalarApiExport") {
+                        if (retinaNodes[name].operation === "XcalarApiExport") {
                             exportNode = retinaNodes[name];
                             break;
                         }

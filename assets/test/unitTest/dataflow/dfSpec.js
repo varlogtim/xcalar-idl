@@ -83,7 +83,7 @@ describe("DF Test", function() {
             var df = {retinaNodes: {
                 "1":
                     {
-                        type: "XcalarApiExport",
+                        operation: "XcalarApiExport",
                         args: {
                             meta: {
                                 target: {

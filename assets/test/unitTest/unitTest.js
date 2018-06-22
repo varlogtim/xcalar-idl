@@ -192,8 +192,8 @@ window.UnitTest = (function(UnitTest, $) {
 
     function removeUserFromKVStore() {
         var urlArgs = xcHelper.decodeFromUrl(window.location.href);
-        var user = urlArgs.user;
-        if (!user) {
+        var username = urlArgs.user;
+        if (!username) {
             return;
         }
         var kvStore = new KVStore("gUserListKey", gKVScope.GLOB);

@@ -228,6 +228,7 @@ describe('Memory Alert Test', () => {
                 })
                 .always(() => {
                     gOrphanTables = oldGOrphanTables;
+                    TableList.refreshOrphanList = oldFunc;
                 });
         });
     });

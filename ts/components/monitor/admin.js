@@ -972,10 +972,8 @@ window.Admin = (function($, Admin) {
       /* Unit Test Only */
     if (window.unitTestMode) {
         Admin.__testOnly__ = {};
-        Admin.__testOnly__.setPosingAs = function(wasAdmin) {
-            if (wasAdmin) {
-                setupAdminStatusBar(true);
-            }
+        Admin.__testOnly__.setPosingAs = function() {
+            setupAdminStatusBar(true);
         };
         Admin.__testOnly__.refreshUserList = refreshUserList;
     }

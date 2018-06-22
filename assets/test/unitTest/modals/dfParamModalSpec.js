@@ -499,7 +499,7 @@ describe("DFParamModal Test", function() {
                 } else {
                     console.log("passed");
                 }
-                UnitTest.hasStatusBoxWithError("Unclosed parameter bracket detected.");
+                UnitTest.hasStatusBoxWithError(ErrTStr.UnclosedParamBracket);
                 done();
             });
         });

@@ -9,7 +9,7 @@ describe("WorkbookManager Test", function() {
         console.clear();
         UnitTest.onMinMode();
         oldKVGet = KVStore.prototype.get;
-        oldCommitCheck = XcUser.prototype.commitCheck;
+        oldCommitCheck = XcUser.CurrentUser.commitCheck;
         oldXcalarPut = XcalarKeyPut;
         oldXcalarDelete = XcalarKeyDelete;
         oldJupyterNewWkbk = JupyterPanel.newWorkbook;
@@ -33,7 +33,7 @@ describe("WorkbookManager Test", function() {
             return PromiseHelper.resolve(fakeMap[key]);
         };
 
-        XcUser.prototype.commitCheck = function() {
+        XcUser.CurrentUser.commitCheck = function() {
             return PromiseHelper.resolve();
         };
 
@@ -90,7 +90,7 @@ describe("WorkbookManager Test", function() {
         it("copyHelper should work", function(done) {
             var oldId = "oldId";
             var newId = "newId";
-            var keys = ["gInfo", "gLog", "gErr", "gIMDKey"];
+            var keys = ["gInfo", "gLog", "gErr", "gIMDKey", "authentication", "SQLQuery", "gSQLTables"];
             var workbooks = WorkbookManager.getWorkbooks();
             workbooks[oldId] = new WKBK({id: oldId, name: "old"});
             workbooks[newId] = new WKBK({id: newId, name: "new"});
@@ -99,7 +99,7 @@ describe("WorkbookManager Test", function() {
 
             WorkbookManager.__testOnly__.copyHelper(oldId, newId)
             .then(function() {
-                expect(Object.keys(fakeMap).length).to.equal(6);
+                expect(Object.keys(fakeMap).length).to.equal(8);
 
                 keys.forEach(function(key) {
                     var kvKey = generateKey(key, currentVersion);
@@ -929,10 +929,15 @@ describe("WorkbookManager Test", function() {
         var oldWKBKAsync;
         var oldHoldSession;
         var oldUpdateWorkbooks;
+        var oldName;
+        var wkbkId;
 
         var passed;
 
-        before(function(){
+        before(function() {
+            wkbkId = WorkbookManager.getActiveWKBK();
+            oldName = WorkbookManager.getWorkbook(wkbkId).getName();
+
             passed = false;
             oldGetWKBK = WorkbookManager.getWorkbook;
             oldWKBKAsync = WorkbookManager.getWKBKsAsync;
@@ -953,12 +958,16 @@ describe("WorkbookManager Test", function() {
             WorkbookInfoModal.update = function() {};
         });
 
+        beforeEach(function() {
+            passed = false;
+        });
+
         it("Should rename workbook through socket", function(done) {
             var info = {};
             info.user = XcUser.getCurrentUserName();
             info.action = "rename";
             info.newName = xcHelper.randName("newName");
-            info.triggerWkbk = WorkbookManager.getActiveWKBK();
+            info.triggerWkbk = wkbkId;
 
             var checkFunc = function() {
                 return passed;
@@ -974,6 +983,29 @@ describe("WorkbookManager Test", function() {
                 done("fail");
             });
         });
+
+        it("Should rename workbook back to old name", function(done) {
+            var info = {};
+            info.user = XcUser.getCurrentUserName();
+            info.action = "rename";
+            info.newName = oldName;
+            info.triggerWkbk = wkbkId;
+
+            var checkFunc = function() {
+                return passed;
+            };
+
+            WorkbookManager.updateWorkbooks(info);
+            UnitTest.testFinish(checkFunc)
+            .then(function() {
+                expect($("#worksheetInfo .wkbkName").text()).to.equal(oldName);
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
+
         after(function() {
             WorkbookManager.getWorkbook = oldGetWKBK;
             WorkbookManager.getWKBKsAsync = oldWKBKAsync;
@@ -985,11 +1017,13 @@ describe("WorkbookManager Test", function() {
 
     after(function() {
         KVStore.prototype.get = oldKVGet;
-        XcUser.prototype.commitCheck = oldCommitCheck;
+        XcUser.CurrentUser.commitCheck = oldCommitCheck;
         XcalarKeyPut = oldXcalarPut;
         XcalarKeyDelete = oldXcalarDelete;
         JupyterPanel.newWorkbook = oldJupyterNewWkbk;
         XcalarUploadWorkbook = oldXcalarUploadWorkbook;
+        $("#container").removeClass("noWorkbook noMenuBar");
+        WorkbookPanel.hide();
         UnitTest.offMinMode();
     });
 });

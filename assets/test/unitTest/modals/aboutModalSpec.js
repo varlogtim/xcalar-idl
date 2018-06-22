@@ -1,6 +1,7 @@
 describe("About Modal Test", function() {
     before(function() {
         UnitTest.onMinMode();
+        $("#modalBackground").hide();
     });
 
     it("Should open the about modal", function() {

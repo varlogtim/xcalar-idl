@@ -333,20 +333,6 @@ describe("Alert Modal Test", function() {
         closeModal();
     });
 
-    it("should lock screen with disconnect case", function() {
-        Alert.show({
-            "title": "test",
-            "msg": "test",
-            "lockScreen": true,
-            "disconnect": true
-        });
-
-        var $button = $alertModal.find("button:not(.adminOnly):visible");
-        expect($button.length).to.equal(2);
-
-        closeModal();
-    });
-
     it("should lock screen with noLogout case", function() {
         Alert.show({
             "title": "test",

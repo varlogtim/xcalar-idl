@@ -136,7 +136,7 @@ describe("DFCard Test", function() {
 
             var $dfWrap = getDfWrap(testDfName);
             $dfWrap.find(".export .operationType").click();
-            expect($menu.find("li:visible").length).to.equal(2);
+            expect($menu.find("li:visible").length).to.equal(3);
             expect($menu.find("li.createParamQuery:visible").length).to.equal(1);
 
             XVM.getLicenseMode = function() {
@@ -144,7 +144,7 @@ describe("DFCard Test", function() {
             };
 
             $dfWrap.find(".export .operationType").click();
-            expect($menu.find("li:visible").length).to.equal(1);
+            expect($menu.find("li:visible").length).to.equal(2);
             expect($menu.find("li.createParamQuery:visible").length).to.equal(0);
 
             XVM.getLicenseMode = cachedFn;
