@@ -8,7 +8,7 @@
     var opLookup = {
         // arithmetic.scala
         "expressions.UnaryMinus": null,
-        "expressions.UnaryPositive": null,
+        "expressions.UnaryPositive": null, // Seems it's removed by spark
         "expressions.Abs": "abs",
         "expressions.Add": "add",
         "expressions.Subtract": "sub",
@@ -117,13 +117,13 @@
         "expressions.SubstringIndex": "substringIndex",
         "expressions.StringLocate": null,
         "expressions.Find": "find", // Xcalar generated
-        "expressions.StringLPad": null, // TODO
-        "expressions.StringRPad": null, // TODO
+        "expressions.StringLPad": "stringLPad",
+        "expressions.StringRPad": "stringRPad",
         "expressions.ParseUrl": null, // TODO
         "expressions.FormatString": null, // TODO
-        "expressions.InitCap": null, // TODO
+        "expressions.InitCap": "initCap", // Different behavior
         "expressions.StringRepeat": "repeat",
-        "expressions.StringReverse": null, // TODO
+        "expressions.StringReverse": "stringReverse",
         "expressions.StringSpace": null, // TODO
         "expressions.Substring": "substring", // XXX 1-based index
         "expressions.XcSubstring": "substring", // Xcalar generated
@@ -131,17 +131,17 @@
                                       // substring(str, -5, 0)
         "expressions.Left": "left", // XXX left(str, 4) == substring(str, 0, 4)
         "expressions.Length": "len",
-        "expressions.BitLength": null, // TODO
-        "expressions.OctetLength": null, // TODO
-        "expressions.Levenshtein": null, // TODO
-        "expressions.SoundEx": null, // TODO
-        "expressions.Ascii": null, // TODO
-        "expressions.Chr": null, // TODO
+        "expressions.BitLength": "bitLength",
+        "expressions.OctetLength": "octetLength",
+        "expressions.Levenshtein": "levenshtein",
+        "expressions.SoundEx": "soundEx",
+        "expressions.Ascii": "ascii",
+        "expressions.Chr": "chr",
         "expressions.Base64": null, // TODO
         "expressions.UnBase64": null, // TODO
         "expressions.Decode": null, // TODO
         "expressions.Encode": null, // TODO
-        "expressions.FormatNumber": null, // TODO
+        "expressions.FormatNumber": "formatNumber",
         "expressions.Sentences": null, // XXX Returns an array.
         "expressions.IsNotNull": "exists",
         "expressions.IsNull": null, // XXX we have to put not(exists)

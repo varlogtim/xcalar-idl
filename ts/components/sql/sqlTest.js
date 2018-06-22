@@ -88,7 +88,8 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         "stdSamp": "select std(n_nationkey) from nation group by n_regionkey order by n_regionkey",
         "stdPop": "select stddev_pop(n_nationkey) from nation group by n_regionkey order by n_regionkey",
         "varSamp": "select variance(n_nationkey) from nation group by n_regionkey order by n_regionkey",
-        "varPop": "select var_pop(n_nationkey) from nation group by n_regionkey order by n_regionkey"
+        "varPop": "select var_pop(n_nationkey) from nation group by n_regionkey order by n_regionkey",
+        "newExps1": "select lpad(n_name, 7, 'a') a, rpad(n_name, 1, 'b') b,/* initcap(n_name) c,*/ reverse(n_name) d, bit_length(n_name) e, octet_length(n_name) f, levenshtein(n_name, n_comment) g, soundex(n_comment) h, ascii(n_name) i, chr(n_nationkey+100) j, format_number(n_nationkey+n_regionkey*1000.1,1) k, format_number(n_nationkey+n_regionkey*1000.1,0) l from nation order by n_nationkey"
     };
     var sqlTestAnswers = {
         "filterWithAggregates": {"row0": ["12", "JAPAN"],
@@ -272,7 +273,10 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         "varSamp": {"row2": [32.3],
                     "row4": [33.3]},
         "varPop": {"row0": [40.4],
-                   "row2": [25.84]}
+                   "row2": [25.84]},
+        "newExps1": {"row6": ["aFRANCE", "F", /*"France", */"ECNARF", 120, 15, 38, "R141", 70, "j", "3,006.3", "3,006"],
+                     "row15": ["MOROCCO", "M", "OCCOROM", /*"Morocco", */128, 16, 90, "R521", 77, "s", "15.0", "15"],
+                     "row22": ["aRUSSIA", "R", "AISSUR", /*"Russia", */120, 15, 79, "FNF", 82, "z", "3,022.3", "3,022"]}
     };
     var tpchCases = {
         "q1": "select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty," +
