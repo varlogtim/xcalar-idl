@@ -646,7 +646,9 @@ StatusT = {
   'StatusUpgradeRequired' : 637,
   'StatusUdfNotSupportedInCrossJoins' : 638,
   'StatusRetinaNameInvalid' : 639,
-  'StatusNoSerDesPath' : 640
+  'StatusNoSerDesPath' : 640,
+  'StatusEvalInvalidToken' : 641,
+  'StatusXdfInvalidArrayInput' : 642
 };
 StatusTStr = {
   0 : 'Success',
@@ -1289,7 +1291,9 @@ StatusTStr = {
   637 : 'An upgrade using the Xcalar upgrade tool is required',
   638 : 'UDFs are not supported as part of filter condition in cross joins',
   639 : 'Invalid name supplied for the batch dataflow',
-  640 : 'Serialization disabled due to missing serialization path'
+  640 : 'Serialization disabled due to missing serialization path',
+  641 : 'Token name in evalString is invalid',
+  642 : 'Function does not support array input'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -1932,5 +1936,7 @@ StatusTFromStr = {
   'An upgrade using the Xcalar upgrade tool is required' : 637,
   'UDFs are not supported as part of filter condition in cross joins' : 638,
   'Invalid name supplied for the batch dataflow' : 639,
-  'Serialization disabled due to missing serialization path' : 640
+  'Serialization disabled due to missing serialization path' : 640,
+  'Token name in evalString is invalid' : 641,
+  'Function does not support array input' : 642
 };
