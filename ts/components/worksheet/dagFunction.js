@@ -1297,7 +1297,7 @@ window.DagFunction = (function($, DagFunction) {
         }
     }
 
-    // tagMap {nonInvolvedTableName: [tag#oldId1, tag#newId2]}
+    // tagMap {"tag#oldId1,tag#newId2": ["nonInvolvedTable1", "nonInvolvedTable2"]}
     function tagNodesAfterEdit(tagMap) {
         var deferred = PromiseHelper.deferred();
         var promises = [];
