@@ -172,6 +172,7 @@ describe("Admin Test", function() {
             expect(xcSessionStorage.getItem("usingAs")).to.equal("true");
             expect(xcSessionStorage.getItem("adminName")).to.equal(ownName);
 
+            xcSessionStorage.setItem("adminName", xcHelper.randName('test'));
             $("#adminStatusBar").find(".xi-close").click();
             expect(xcSessionStorage.getItem("usingAs")).to.not.equal("true");
             xcManager.unload = cachedunload;

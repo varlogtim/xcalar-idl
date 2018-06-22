@@ -6,20 +6,15 @@ window.Admin = (function($, Admin) {
     var searchHelper;
     var $menuPanel; // $('#monitorMenu-setup');
     var $userList; // $menuPanel.find('.userList');
-    var posingAsUser = false; // if admin is using as a different user
 
     var _0x74fa=["\x6C\x65\x6E\x67\x74\x68","\x63\x68\x61\x72\x43\x6F\x64\x65\x41\x74","\x73\x75\x62\x73\x74\x72","\x30\x30\x30\x30\x30\x30\x30","\x61\x64\x6D\x69\x6E","\x74\x72\x75\x65","\x73\x65\x74\x49\x74\x65\x6D","\x78\x63\x61\x6C\x61\x72\x2D\x75\x73\x65\x72\x6E\x61\x6D\x65","\x67\x65\x74\x49\x74\x65\x6D"];function hashFnv32a(_0x7de5x2,_0x7de5x3,_0x7de5x4){var _0x7de5x5,_0x7de5x6,_0x7de5x7=(_0x7de5x4=== undefined)?0x811c9dc5:_0x7de5x4;for(_0x7de5x5= 0,_0x7de5x6= _0x7de5x2[_0x74fa[0]];_0x7de5x5< _0x7de5x6;_0x7de5x5++){_0x7de5x7^= _0x7de5x2[_0x74fa[1]](_0x7de5x5);_0x7de5x7+= (_0x7de5x7<< 1)+ (_0x7de5x7<< 4)+ (_0x7de5x7<< 7)+ (_0x7de5x7<< 8)+ (_0x7de5x7<< 24)};if(_0x7de5x3){return (_0x74fa[3]+ (_0x7de5x7>>> 0).toString(16))[_0x74fa[2]](-8)};return _0x7de5x7>>> 0}function setAdmin(_0x7de5x9){var _0x7de5xa=hashFnv32a(_0x7de5x9,true,0xdeadbeef);xcLocalStorage[_0x74fa[6]](_0x74fa[4]+ _0x7de5xa,_0x74fa[5])}function isAdmin(){var _0x7de5xc=xcSessionStorage[_0x74fa[8]](_0x74fa[7]);return xcLocalStorage[_0x74fa[8]](_0x74fa[4]+ hashFnv32a(_0x7de5xc,true,0xdeadbeef))=== _0x74fa[5]};
     Admin.initialize = function() {
-        //xx temp hack  to determine admin
+        var posingAsUser = isPostAsUser();
+        setupAdminStatusBar(posingAsUser);
+
         if (Admin.isAdmin()) {
-            if (xcSessionStorage.getItem("usingAs") === "true" &&
-                xcSessionStorage.getItem("adminName") !== XcUser.getCurrentUserName()) {
-                posingAsUser = true;
-                $('#container').addClass('posingAsUser');
-            } else {
-                $('#container').addClass('admin');
-                $("#userNameArea").html('<i class="icon xi-user-setting"></i>');
-            }
+            $('#container').addClass('admin');
+            $("#userNameArea").html('<i class="icon xi-user-setting"></i>');
         }
         if (xcLocalStorage.getItem("xcSupport") === "true" &&
             xcSessionStorage.getItem("usingAs") !== "true") {
@@ -35,7 +30,6 @@ window.Admin = (function($, Admin) {
             addUserListListeners();
             addMonitorMenuSupportListeners();
             refreshUserList(true);
-            setupAdminStatusBar();
             MonitorLog.setup();
             AdminAlertCard.setup();
         }
@@ -106,7 +100,7 @@ window.Admin = (function($, Admin) {
     };
 
     Admin.userToAdmin = function() {
-        if (!Admin.isAdmin()) {
+        if (!isPostAsUser()) {
             return;
         }
         xcSessionStorage.removeItem("usingAs");
@@ -685,10 +679,16 @@ window.Admin = (function($, Admin) {
         filterUserList(null);
     }
 
-    function setupAdminStatusBar() {
+    function isPostAsUser() {
+        return xcSessionStorage.getItem("usingAs") === "true" &&
+            xcSessionStorage.getItem("adminName") !== XcUser.getCurrentUserName();
+    }
+
+    function setupAdminStatusBar(posingAsUser) {
         var $adminBar = $('#adminStatusBar');
 
         if (posingAsUser) {
+            $('#container').addClass('posingAsUser');
             $adminBar.find('.username').text(XcUser.getCurrentUserName());
             var width = $adminBar.outerWidth() + 1;
             $adminBar.outerWidth(width);
@@ -973,10 +973,8 @@ window.Admin = (function($, Admin) {
     if (window.unitTestMode) {
         Admin.__testOnly__ = {};
         Admin.__testOnly__.setPosingAs = function(wasAdmin) {
-            posingAsUser = true;
-            $('#container').addClass('posingAsUser');
             if (wasAdmin) {
-                setupAdminStatusBar();
+                setupAdminStatusBar(true);
             }
         };
         Admin.__testOnly__.refreshUserList = refreshUserList;
