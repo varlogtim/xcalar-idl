@@ -85,7 +85,8 @@ namespace StatusBox {
         }
 
         private _mousedownEvent(event: JQueryEventObject) {
-            if (this.notPersist()) {
+            if (this.notPersist() &&
+                $(event.target).closest("#statusBox").length === 0) {
                 event.stopPropagation();
                 event.preventDefault();
                 this.forceHide();
@@ -225,8 +226,8 @@ namespace StatusBox {
                                      .removeClass(event.data.type);
                     this.clear();
                 }
-
-            } else if (id === "statusBoxClose" || this.notPersist()) {
+            } else if (id === "statusBoxClose" || this.notPersist() &&
+                $(event.target).closest("#statusBox").length === 0) {
                 this.clear();
             }
         }
