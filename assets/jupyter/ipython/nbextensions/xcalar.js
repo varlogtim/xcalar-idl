@@ -178,7 +178,17 @@ define(['base/js/utils'], function(utils) {
                                 '#\n' +
                                 '# If you wish to use this Jupyter Notebook with a different Xcalar Workbook \n' +
                                 '# delete this cell and click CODE SNIPPETS --> Connect to Xcalar Workbook.\n';
-                        text += '\n%matplotlib inline\n\n# Importing third-party modules to faciliate data work. \nimport pandas as pd\nimport matplotlib.pyplot as plt\n\n# Importing Xcalar packages and modules. \n# For more information, search and post questions on discourse.xcalar.com\nfrom xcalar.compute.api.XcalarApi import XcalarApi\nfrom xcalar.compute.api.Session import Session\nfrom xcalar.compute.api.WorkItem import WorkItem\nfrom xcalar.compute.api.ResultSet import ResultSet\n\n# Create a XcalarApi object\nxcalarApi = XcalarApi()\n';
+                        text += '\n%matplotlib inline\n\n' +
+                                '# Importing third-party modules to faciliate data work. \n' +
+                                'import pandas as pd\n' +
+                                'import matplotlib.pyplot as plt\n\n' +
+                                '# Importing Xcalar packages and modules. \n' +
+                                '# For more information, search and post questions on discourse.xcalar.com\n' +
+                                'from xcalar.external.LegacyApi.XcalarApi import XcalarApi\n' +
+                                'from xcalar.external.LegacyApi.Session import Session\n' +
+                                'from xcalar.external.LegacyApi.WorkItem import WorkItem\n' +
+                                'from xcalar.external.LegacyApi.ResultSet import ResultSet\n\n' +
+                                '# Create a XcalarApi object\nxcalarApi = XcalarApi()\n';
                         text += '# Connect to current workbook that you are in\n' +
                                 'workbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")\n' +
                                 'xcalarApi.setSession(workbook)';
@@ -248,9 +258,9 @@ define(['base/js/utils'], function(utils) {
                                 '    # Your code starts from here. This is an example code.\n' +
                                 '    return ' + retStr + '\n\n' +
                                 '### WARNING DO NOT EDIT CODE BELOW THIS LINE ###\n' +
-                                'from xcalar.compute.api.Dataset import *\n' +
+                                'from xcalar.external.LegacyApi.Dataset import *\n' +
                                 'from xcalar.compute.coretypes.DataFormatEnums.ttypes import DfFormatTypeT\n' +
-                                'from xcalar.compute.api.Udf import Udf\n' +
+                                'from xcalar.external.LegacyApi.Udf import Udf\n' +
                                 'from xcalar.compute.coretypes.LibApisCommon.ttypes import XcalarApiException\n' +
                                 'import random\n' +
                                 '\n' +
@@ -343,9 +353,9 @@ define(['base/js/utils'], function(utils) {
                                 '        lineNumber += 1\n' +
                                 '\n' : '') +
                                 '### WARNING DO NOT EDIT CODE BELOW THIS LINE ###\n' +
-                                'from xcalar.compute.api.Dataset import *\n' +
+                                'from xcalar.external.LegacyApi.Dataset import *\n' +
                                 'from xcalar.compute.coretypes.DataFormatEnums.ttypes import DfFormatTypeT\n' +
-                                'from xcalar.compute.api.Udf import Udf\n' +
+                                'from xcalar.external.LegacyApi.Udf import Udf\n' +
                                 'from xcalar.compute.coretypes.LibApisCommon.ttypes import XcalarApiException\n' +
                                 'import random\n' +
                                 '\n' +
@@ -427,7 +437,17 @@ define(['base/js/utils'], function(utils) {
                                 '#\n' +
                                 '# If you wish to use this Jupyter Notebook with a different Xcalar Workbook \n' +
                                 '# delete this cell and click CODE SNIPPETS --> Connect to Xcalar Workbook.\n';
-                text += '\n%matplotlib inline\n\n# Importing third-party modules to faciliate data work. \nimport pandas as pd\nimport matplotlib.pyplot as plt\n\n# Importing Xcalar packages and modules. \n# For more information, search and post questions on discourse.xcalar.com\nfrom xcalar.compute.api.XcalarApi import XcalarApi\nfrom xcalar.compute.api.Session import Session\nfrom xcalar.compute.api.WorkItem import WorkItem\nfrom xcalar.compute.api.ResultSet import ResultSet\n\n# Create a XcalarApi object\nxcalarApi = XcalarApi()\n';
+                text += '\n%matplotlib inline\n\n' +
+                        '# Importing third-party modules to faciliate data work. \n' +
+                        'import pandas as pd\n' +
+                        'import matplotlib.pyplot as plt\n\n' +
+                        '# Importing Xcalar packages and modules. \n' +
+                        '# For more information, search and post questions on discourse.xcalar.com\n' +
+                        'from xcalar.external.LegacyApi.XcalarApi import XcalarApi\n' +
+                        'from xcalar.external.LegacyApi.Session import Session\n' +
+                        'from xcalar.external.LegacyApi.WorkItem import WorkItem\n' +
+                        'from xcalar.external.LegacyApi.ResultSet import ResultSet\n\n' +
+                        '# Create a XcalarApi object\nxcalarApi = XcalarApi()\n';
                 text += '# Connect to current workbook that you are in\n' +
                         'workbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")\n' +
                         'xcalarApi.setSession(workbook)';
