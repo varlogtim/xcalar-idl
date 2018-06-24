@@ -162,6 +162,10 @@
               <div class="refresh xc-action btn-transparent" data-toggle="tooltip" data-placement="top" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSPreviewRefresh %>" data-xcid="format.refresh">
                   <i class="icon xi-refresh blue"></i>
               </div>
+              <!-- New XPath button -->
+              <div class="add_xpath format xml">
+                  <button class="btn btn-transparent" data-xcid="xml.newXPath"><%= dicts.dsForm.NEWXPATH %></button>
+              </div>
             </div>
             <!-- promote header -->
             <div class="row format csv text excel checkboxRow">
@@ -276,35 +280,85 @@
               <button id="dsForm-applyUDF" class="btn btn-transparent"><%= dicts.dsForm.APPLYUDF %></button>
               <button id="dsForm-writeUDF" class="btn btn-transparent"><%= dicts.dsForm.WRITEPARSER %></button>
             </div>
-            <!-- xml xPaths -->
+            <!-- xml section -->
             <div class="row format xml">
-              <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLXPath %>" data-placement="top"></i>
-              <label for="dsForm-xPaths"><%= dicts.dsForm.xPaths %>:</label>
-              <div class="inputWrap">
-                <input id="dsForm-xPaths" class="text" type="text" spellcheck="false">
-              </div>
-            </div>
-            <!-- xml matched xPath -->
-            <div class="row format xml checkboxRow matchedXPath">
-              <div class="checkboxSection rowContent">
-                <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLMatched %>" data-placement="top"></i>
-                <div class="text"><%= dicts.dsForm.MatchedXPath %></div>
-                <div class="checkbox">
-                  <i class="icon xi-ckbox-empty"></i>
-                  <i class="icon xi-ckbox-selected"></i>
+                <!-- XPath section template -->
+                <div class="xpath_template" style="display:none;">
+                    <div class="xpath_section">
+                        <div class="divider xpath_divider"></div>
+                        <div class="xpath_info">
+                            <!-- XPath -->
+                            <div class="row xml_row">
+                              <i class="col icon xi-cancel xi-cancel-grey" data-placement="top" data-xcid="xpath.close"></i>
+                              <i class="col qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLXPath %>" data-placement="top"></i>
+                              <label class="col xpathLabel"><%= dicts.dsForm.xPath %>:</label>
+                              <div class="col xpathInputWrap">
+                                <input class="text" type="text" spellcheck="false" data-xcid="xpath.xpath">
+                              </div>
+                            </div>
+                            <!-- XtraKeys -->
+                            <div class="extrakey">
+                                <div class="extrakey_list xc-hidden" data-xcid="xpath.extrakeyList"></div>
+                                <!-- New Key button -->
+                                <button class="btn btn-transparent xml_newkey" data-xcid="xpath.newKey"><%= dicts.dsForm.NEWEXTRAKEY %></button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
-            </div>
-            <!-- xml element xPath -->
-            <div class="row format xml checkboxRow elementXPath">
-              <div class="checkboxSection rowContent">
-                <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLElement %>" data-placement="top"></i>
-                <div class="text"><%= dicts.dsForm.ElementXPath %></div>
-                <div class="checkbox">
-                  <i class="icon xi-ckbox-empty"></i>
-                  <i class="icon xi-ckbox-selected"></i>
+
+                <!-- Extrakey section template -->
+                <div class="xtrakey_template" style="display:none;">
+                    <div class="row xml_row">
+                        <i class="col icon xi-cancel xi-cancel-grey" data-placement="top" data-xcid="xtrakey.close"></i>
+                        <div class="col key_col key_col-left">
+                            <div class="row">
+                                <i class="col qMark icon xi-unknown" data-xcid="xtrakey.tooltip" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLExtraKeyValue %>" data-placement="top"></i>
+                                <!-- <label class="col"><%= dicts.dsForm.extraKeyValue %>:</label> -->
+                                <div class="col keyInputWrap">
+                                  <input class="text" type="text" spellcheck="false" data-xcid="xtrakey.value" placeholder="<%= dicts.dsForm.extraKeyValue %>">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col key_col">
+                            <div class="row">
+                                <i class="col qMark icon xi-unknown" data-xcid="xtrakey.tooltip" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLExtraKeyName %>" data-placement="top"></i>
+                                <!-- <label class="col"><%= dicts.dsForm.extraKeyName %>:</label> -->
+                                <div class="col keyInputWrap">
+                                  <input class="text" type="text" spellcheck="false" data-xcid="xtrakey.name" placeholder="<%= dicts.dsForm.extraKeyName %>">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
+
+                <!-- XPaths container -->
+                <div class="xpath_container"></div>
+
+                <div class="divider section_divider"></div>
+
+                <!-- Matched XPath -->
+                <div class="row format xml checkboxRow matchedXPath">
+                  <div class="checkboxSection rowContent">
+                    <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLMatched %>" data-placement="top"></i>
+                    <div class="text"><%= dicts.dsForm.MatchedXPath %></div>
+                    <div class="checkbox" data-xcid="xml.matchedPath">
+                      <i class="icon xi-ckbox-empty"></i>
+                      <i class="icon xi-ckbox-selected"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- xml element xPath -->
+                <div class="row format xml checkboxRow elementXPath">
+                  <div class="checkboxSection rowContent">
+                    <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLElement %>" data-placement="top"></i>
+                    <div class="text"><%= dicts.dsForm.ElementXPath %></div>
+                    <div class="checkbox" data-xcid="xml.withPath">
+                      <i class="icon xi-ckbox-empty"></i>
+                      <i class="icon xi-ckbox-selected"></i>
+                    </div>
+                  </div>
+                </div>
             </div>
             <!-- database DSN -->
             <div class="row format database">

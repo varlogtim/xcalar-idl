@@ -3089,19 +3089,135 @@ table.datasetTable {
             }
         }
 
-        &.xml {
-            .inputWrap {
-                .size(@width: ~"calc(100% - 200px)");
-
-                input {
-                    .size(@width: 100%);
+        .xml {
+            &.add_xpath {
+                position: relative;
+                top: -3px;
+                .btn {
+                    margin-left: 0;
                 }
+            }
+        }
+
+        &.xml {
+            float: none;
+            .size(@height: auto);
+            .clearfix();
+            @close-width: 21px;
+            @qmark-width: 22px;
+            @keycol-space: 20px;
+            @xpath-label-space: 10px;
+
+            > label, > div {
+                float: none;
+                display: block;
+                margin-right: 0;
+            }
+
+            .col {
+                position: relative;
+                float: left;
+            }
+
+            .row {
+                .clearfix();
+                padding-left: 0;
+            }
+            .row-flex {
+                .size(@height: auto);
+            }
+
+            .hidden {
+                visibility: hidden;
+            }
+
+            .extrakey {
+                display: flex;
+                flex-flow: row nowrap;
+                align-items: flex-end;
+                margin-top: 10px;
+            }
+
+            .xpath_section {
+                padding-top: 15px;
+            }
+            .extrakey_list {
+                .size(@width: 100%);
+            }
+
+            .xml_newkey {
+                float: none;
+                position: relative;
+                top: 3px;
+                margin-left: 20px;
+            }
+
+            .xml_newxpath {
+                float: none;
+                width: 446px;
+            }
+
+            .divider {
+                margin: 0;
+            }
+            .xpath_divider {
+                margin-bottom: 10px;
+            }
+            .section_divider {
+                margin-top: 20px;
+            }
+
+            .xml_row {
+                padding-right: 0;
+                padding-left: 0;
+            }
+
+            .xpathLabel {
+                .size(@width: @row-width - @close-width);
+                margin-right: @xpath-label-space;
+            }
+
+            .key_col {
+                margin: 0;
+                .size(@width: ~"calc((100% - @{close-width} - @{keycol-space})/2)");
+                .row {
+                    padding: 0;
+                }
+                .keyInputWrap {
+                    .size(@width: ~"calc(100% - @{qmark-width})");
+                    .input-box(@w: 100%, @h: 30px);
+                    margin: 0;
+                }
+            }
+            .key_col-left {
+                margin-right: @keycol-space;
+            }
+
+            .xpathInputWrap {
+                .size(@width: ~"calc(100% - @{row-width} + @{xpath-label-space} - @{close-width} - @{qmark-width})");
+                .input-box(@w: 100%, @h: 30px);
+                margin: 0;
+            }
+
+            .xi-cancel-grey {
+                .size(15px, 15px);
+                font-size: 15px;
+                line-height: 18px;
+                padding: 3px 3px 3px 0;
+                margin: 3px 3px 0 0;
+                opacity: 0.3;
+                cursor: pointer;
             }
 
             .checkboxSection {
+                float: left;
                 .text {
                     .size(@width: 100px);
                 }
+            }
+
+            &.checkboxRow {
+                margin-left: 0;
             }
         }
 
@@ -3133,9 +3249,9 @@ table.datasetTable {
         }
 
         .refresh {
-            padding: 0 5px;
+            padding: 2px 7px;
             position: relative;
-            top: -1px;
+            top: -3px;
             .icon {
                 line-height: 1.5;
             }

@@ -1407,7 +1407,7 @@ describe("Dataset-DSPreview Test", function() {
             assert.isFalse($skipInput.is(":visible"), "no skip rows");
             assert.isFalse($udfModuleList.is(":visible"), "no udf module");
             assert.isFalse($udfFuncList.is(":visible"), "no udf func");
-            assert.isTrue($("#dsForm-xPaths").is(":visible"), "has xml paths");
+            assert.isTrue($form.find(".format.xml").is(":visible"), "has xml paths");
             assert.isTrue($form.find(".matchedXPath").is(":visible"), "has xml paths");
             assert.isTrue($form.find(".elementXPath").is(":visible"), "has xml paths");
         });
@@ -1888,25 +1888,74 @@ describe("Dataset-DSPreview Test", function() {
             $("#dsForm-excelIndex").val("0");
         });
 
-        it("should validte XML case", function() {
+        it("should validate XML case", function(done) {
+            const componentXmlFormat = DSPreview.__testOnly__.componentXmlFormat();
+            const testHelper = componentXmlFormat.getTestHelper();
             loadArgs.set({format: "XML"});
 
-            $("#dsForm-xPaths").val("");
+            // Test default state
+            testHelper.setState(testHelper.getDefaultState());
             expect(validateForm()).to.be.null;
             UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
 
-            $("#dsForm-xPaths").val("test");
-            var res = validateForm();
-            expect(res).to.be.an("object");
-            expect(res.format).to.equal("XML");
-            expect(res.udfModule).to.equal("/globaludf/default");
-            expect(res.udfFunc).to.equal("xmlToJson");
-            expect(res.udfQuery).to.be.an("object");
-            expect(res.udfQuery.xPath).to.equal("test");
-            expect(res.udfQuery).to.have.property("matchedPath");
-            expect(res.udfQuery).to.have.property("withPath");
-            // restore
-            $("#dsForm-xPaths").val("");
+            // Test normal case
+            testHelper.setState({
+                xPaths: [
+                    {
+                        xPath: 'test_xPath1',
+                        extraKeys: [
+                            { name: 'extName11', value: 'extValue11' },
+                            { name: 'extName12', value: 'extValue12' }
+                        ]
+                    },
+                    {
+                        xPath: 'test_xPath2',
+                        extraKeys: [
+                            { name: 'extName21', value: 'extValue21' },
+                            { name: 'extName22', value: 'extValue22' }
+                        ]
+                    },
+                ],
+                isWithPath: true,
+                isMatchedPath: true
+            }).then( () => {
+                const res = validateForm();
+                expect(res).to.be.an("object");
+                expect(res.format).to.equal("XML");
+                expect(res.udfModule).to.equal("/globaludf/default");
+                expect(res.udfFunc).to.equal("xmlToJsonWithExtraKeys");
+                expect(res.udfQuery).to.be.an("object");
+                expect(res.udfQuery.allPaths).to.be.an("array");
+                expect(res.udfQuery.allPaths.length).to.equal(2);
+
+                expect(res.udfQuery.allPaths[0]).to.have.property("xPath");
+                expect(res.udfQuery.allPaths[0].xPath).to.equal("test_xPath1");
+                expect(res.udfQuery.allPaths[0].extraKeys).to.be.an("object");
+                expect(res.udfQuery.allPaths[0].extraKeys).to.have.property("extName11");
+                expect(res.udfQuery.allPaths[0].extraKeys.extName11).to.equal("extValue11");
+                expect(res.udfQuery.allPaths[0].extraKeys).to.have.property("extName12");
+                expect(res.udfQuery.allPaths[0].extraKeys.extName12).to.equal("extValue12");
+
+                expect(res.udfQuery.allPaths[1]).to.have.property("xPath");
+                expect(res.udfQuery.allPaths[1].xPath).to.equal("test_xPath2");
+                expect(res.udfQuery.allPaths[1].extraKeys).to.be.an("object");
+                expect(res.udfQuery.allPaths[1].extraKeys).to.have.property("extName21");
+                expect(res.udfQuery.allPaths[1].extraKeys.extName21).to.equal("extValue21");
+                expect(res.udfQuery.allPaths[1].extraKeys).to.have.property("extName22");
+                expect(res.udfQuery.allPaths[1].extraKeys.extName22).to.equal("extValue22");
+
+                expect(res.udfQuery).to.have.property("matchedPath");
+                expect(res.udfQuery.matchedPath).to.equal(true);
+                expect(res.udfQuery).to.have.property("withPath");
+                expect(res.udfQuery.withPath).to.equal(true);
+
+                done();
+            }).fail( () => {
+                done('fail');
+            }).always( () => {
+                // restore
+                testHelper.setState(testHelper.getDefaultState());
+            })
         });
 
         it("should validate DATABASE case", function() {
@@ -2212,19 +2261,44 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         it("should restore XML", function() {
+            const componentXmlFormat = DSPreview.__testOnly__.componentXmlFormat();
+            const testHelper = componentXmlFormat.getTestHelper();
+
             resetForm({
                 dsName: "test",
                 format: "XML",
                 udfQuery: {
-                    xPath: "test"
+                    allPaths: [{
+                        xPath: 'test_xPath',
+                        extraKeys: { extName1: 'extValue1' }
+                    }],
+                    withPath: true,
+                    matchedPath: true
                 }
             });
 
+
+            const state = testHelper.getState();
             expect(loadArgs.getFormat()).to.equal("XML");
-            expect($("#dsForm-xPaths").val()).to.equal("test");
+            expect($form.find('[data-xcid="xml.matchedPath"]').hasClass("checked"));
+            expect($form.find('[data-xcid="xml.xml.withPath"]').hasClass("checked"));
+
+            expect(state.xPaths).to.be.an('array');
+            expect(state.xPaths.length).to.equal(1);
+            expect(state.xPaths[0]).to.be.an('object');
+            expect(state.xPaths[0]).to.have.property('xPath');
+            expect(state.xPaths[0].xPath).to.equal('test_xPath');
+            expect(state.xPaths[0]).to.have.property('extraKeys');
+            expect(state.xPaths[0].extraKeys).to.be.an('array');
+            expect(state.xPaths[0].extraKeys.length).to.equal(1);
+            expect(state.xPaths[0].extraKeys[0]).to.be.an('object');
+            expect(state.xPaths[0].extraKeys[0]).to.have.property('name');
+            expect(state.xPaths[0].extraKeys[0].name).to.equal('extName1');
+            expect(state.xPaths[0].extraKeys[0]).to.have.property('value');
+            expect(state.xPaths[0].extraKeys[0].value).to.equal('extValue1');
 
             // restore
-            $("#dsForm-xPaths").val("");
+            testHelper.setState(testHelper.getDefaultState());
         });
 
         it("should restore DATABASE", function() {

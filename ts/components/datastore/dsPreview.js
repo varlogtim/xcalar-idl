@@ -24,6 +24,7 @@ window.DSPreview = (function($, DSPreview) {
     var $headerCheckBox; // $("#promoteHeaderCheckbox") promote header checkbox
     var componentDBFormat;
     var componentJsonFormat;
+    var componentXmlFormat;
 
     var tableName = null;
     var rawData = null;
@@ -95,12 +96,16 @@ window.DSPreview = (function($, DSPreview) {
         componentJsonFormat = createJsonFormat({
             $container: $form,
             udfModule: defaultModule,
-            udfFunction: 'extractJsonRecords',
-            refreshPreviewFunc: () => refreshPreview(true, true)
+            udfFunction: 'extractJsonRecords'
         });
         createPreviewLoader({
             $container: $form,
             refreshPreviewFunc: () => refreshPreview(true, true)
+        });
+        componentXmlFormat = createXMLFormat({
+            $container: $form,
+            udfModule: defaultModule,
+            udfFunction: 'xmlToJsonWithExtraKeys'
         });
 
         // select a char as candidate delimiter
@@ -1152,7 +1157,7 @@ window.DSPreview = (function($, DSPreview) {
         $form.find("input").val("");
         $("#dsForm-skipRows").val("0");
         $("#dsForm-excelIndex").val("0");
-        $("#dsForm-xPaths").val("");
+        componentXmlFormat.resetState();
         componentJsonFormat.reset();
         $form.find(".checkbox.checked").removeClass("checked");
         $form.find(".collapse").removeClass("collapse");
@@ -1220,11 +1225,7 @@ window.DSPreview = (function($, DSPreview) {
                 }
             }
         } else if (format === formatMap.XML) {
-            $("#dsForm-xPaths").val(options.udfQuery.xPath);
-            toggleXMLCheckboxes(options.udfQuery);
-            // XML preview don't use UDF
-            delete options.moduleName;
-            delete options.funcName;
+            componentXmlFormat.restore({ udfQuery: options.udfQuery });
         } else if (format === formatMap.PARQUET) {
             // Restore partitions based on the url
             var partitions = options.files[0].path.split("?")[1].split("&");
@@ -1904,35 +1905,6 @@ window.DSPreview = (function($, DSPreview) {
         };
     }
 
-    function validateXMLArgs() {
-        var $xPath = $("#dsForm-xPaths");
-        var xPath = $xPath.val().trim();
-        var isValid = xcHelper.validate([
-            {
-                "$ele": $xPath,
-                "error": ErrTStr.NoEmpty,
-                "formMode": true,
-                "check": function() {
-                    return xPath.length === 0;
-                }
-            }
-        ]);
-
-        if (!isValid) {
-            return null;
-        }
-
-        var matchedXPath = $form.find(".matchedXPath")
-                                .find(".checkbox").hasClass("checked");
-        var elementXPath = $form.find(".elementXPath")
-                                .find(".checkbox").hasClass("checked");
-        return {
-            xPath: xPath,
-            matchedPath: matchedXPath,
-            withPath: elementXPath
-        };
-    }
-
     function validateParquetArgs() {
         var $parquetSection = $form.find(".parquetSection");
         var $selectedColList = $parquetSection.find(".selectedColSection .colList");
@@ -2083,7 +2055,7 @@ window.DSPreview = (function($, DSPreview) {
         };
     }
 
-    function validatePreview() {
+    function validatePreview( {isChangeFormat = false} = {} ) {
         var format = validateFormat();
         if (format == null) {
             // error case
@@ -2113,6 +2085,20 @@ window.DSPreview = (function($, DSPreview) {
         } else if (format === formatMap.PARQUETFILE) {
             udfModule = parquetModule;
             udfFunc = parquetFunc;
+        } else if (format == formatMap.XML) {
+            const xmlArgs = componentXmlFormat.validateValues({
+                isShowError: !isChangeFormat
+            });
+            if (xmlArgs != null) {
+                const udfDef = componentXmlFormat.getUDFDefinition({
+                    xPaths: xmlArgs.xPaths,
+                    isWithPath: xmlArgs.isWithPath,
+                    isMatchedPath: xmlArgs.isMatchedPath
+                });
+                udfModule = udfDef.udfModule;
+                udfFunc = udfDef.udfFunc;
+                udfQuery = udfDef.udfQuery;
+            }
         } else if (format === formatMap.JSON) {
             const validRes = componentJsonFormat.validateValues();
             if (validRes == null) {
@@ -2160,7 +2146,6 @@ window.DSPreview = (function($, DSPreview) {
         var lineDelim = null;
         var quote = null;
         var skipRows = null;
-        var xmlArgs = {};
         var parquetArgs = {};
         var dbArgs = {};
 
@@ -2191,14 +2176,19 @@ window.DSPreview = (function($, DSPreview) {
                 return null;
             }
         } else if (format === formatMap.XML) {
-            xmlArgs = validateXMLArgs();
+            const xmlArgs = componentXmlFormat.validateValues();
             if (xmlArgs == null) {
-                // error case
                 return null;
             }
-            udfModule = defaultModule;
-            udfFunc = "xmlToJson";
-            udfQuery = xmlArgs;
+            const udfDef = componentXmlFormat.getUDFDefinition({
+                xPaths: xmlArgs.xPaths,
+                isWithPath: xmlArgs.isWithPath,
+                isMatchedPath: xmlArgs.isMatchedPath
+            });
+
+            udfModule = udfDef.udfModule;
+            udfFunc = udfDef.udfFunc;
+            udfQuery = udfDef.udfQuery;
         } else if (format === formatMap.PARQUET) {
             parquetArgs = validateParquetArgs();
             if (parquetArgs == null) {
@@ -2486,7 +2476,7 @@ window.DSPreview = (function($, DSPreview) {
                 $form.find(".format.udf").removeClass("xc-hidden");
                 break;
             case "XML":
-                $form.find(".format.xml").removeClass("xc-hidden");
+                componentXmlFormat.show();
                 break;
             case "DATABASE":
                 componentDBFormat.show();
@@ -2514,11 +2504,16 @@ window.DSPreview = (function($, DSPreview) {
                     formatNew.toUpperCase() === "PARQUETFILE");
         };
 
+        const changeWithXml = function(formatOld, formatNew) {
+            return formatOld != null &&
+                   (formatOld.toUpperCase() === "XML" ||
+                    formatNew.toUpperCase() === "XML");
+        };
         const changeWithJson = function(formatOld, formatNew) {
             return formatOld != null &&
                    (formatOld.toUpperCase() === "JSON" ||
                     formatNew.toUpperCase() === "JSON");
-        }
+        };
 
         if (hasChangeFormat) {
             if (oldFormat === formatMap.CSV) {
@@ -2532,8 +2527,9 @@ window.DSPreview = (function($, DSPreview) {
             } else if (changeWithExcel(oldFormat, format) ||
                 changeWithParquetFile(oldFormat, format) ||
                 changeWithJson(oldFormat, format) ||
+                changeWithXml(oldFormat, format) ||
                 oldFormat === formatMap.UDF) {
-                refreshPreview(true, true);
+                refreshPreview(true, true, true);
             } else {
                 getPreviewTable();
             }
@@ -2802,7 +2798,7 @@ window.DSPreview = (function($, DSPreview) {
             if (!notGetPreviewTable &&
                 (hasSmartDetect || loadArgs.getFormat() === format)
             ) {
-                getPreviewTable();
+                getPreviewTable(false, hasUDF);
             }
 
             // not cache to sql log, only show when fail
@@ -3450,8 +3446,9 @@ window.DSPreview = (function($, DSPreview) {
         return getDataFromPreview(args, buffer, rowsToShow);
     }
 
-    function refreshPreview(noDetect, isPreview) {
-        var formOptions = isPreview ? validatePreview() : validateForm();
+    function refreshPreview(noDetect, isPreview, isChangeFormat = false) {
+        var formOptions = isPreview ?
+            validatePreview( {isChangeFormat: isChangeFormat} ) : validateForm();
         if (formOptions == null) {
             return null;
         }
@@ -3470,7 +3467,7 @@ window.DSPreview = (function($, DSPreview) {
         return !$previewWrap.find(".errorSection").hasClass("hidden");
     }
 
-    function getPreviewTable(udfHint) {
+    function getPreviewTable(udfHint = false, hasUDF = false) {
         if (rawData == null && !udfHint) {
             // error case
             if (isInError()) {
@@ -3511,7 +3508,7 @@ window.DSPreview = (function($, DSPreview) {
                 toggleHeader(true, true);
             }
         } else if (format === formatMap.XML) {
-            isSuccess = getXMLTable(rawData);
+            isSuccess = hasUDF ? getJSONTable(rawData) : getXMLTable(rawData);
         } else if (format === formatMap.DATABASE) {
             var parseResult =  componentDBFormat.parseConfig(rawData);
             if (parseResult) {
@@ -4954,8 +4951,7 @@ window.DSPreview = (function($, DSPreview) {
     function createJsonFormat({
         $container,
         udfModule,
-        udfFunction,
-        refreshPreviewFunc
+        udfFunction
     }) {
         // Dependencies
         const libs = { keyCode: keyCode };
@@ -5133,6 +5129,431 @@ window.DSPreview = (function($, DSPreview) {
     }
     // End === DatabaseFormat component factory
 
+    // Start === XMLFormat component factory
+    function createXMLFormat({
+        $container,
+        udfModule,
+        udfFunction }) {
+        // Dependencies
+        const libs = {
+            keyCode: keyCode,
+            xcHelper: xcHelper,
+            ErrTStr: ErrTStr,
+            PromiseHelper: PromiseHelper,
+        };
+
+        // Constants
+        const XPATH_TEMPLATE_CLASS = 'xpath_template';
+        const EXTRAKEY_TEMPLATE_CLASS = 'xtrakey_template';
+        const XPATH_CONTAINER_CLASS = 'xpath_container';
+        const EXTRAKEY_CONTAINER_CLASS = 'extrakey_list';
+        const XCID_NEWXPATH = 'xml.newXPath';
+        const XCID_MATCHEDPATH = 'xml.matchedPath';
+        const XCID_WITHPATH = 'xml.withPath';
+
+        // private variables
+        let xPathTemplate = '';
+        let extraKeyTemplate = '';
+        let $xPathContainer;
+        let state = getDefaultState();
+        let validateOptions = [];
+
+        // Event handlers
+        function onXPathClose(xpathIndex) {
+            return () => {
+                try {
+                    const newState = JSON.parse(JSON.stringify(state));
+                    newState.xPaths.splice(xpathIndex, 1);
+                    setStateInternal(newState);
+                } catch(e) {
+                    console.error(e);
+                }
+            };
+        }
+
+        function onXPathChange(xpathIndex) {
+            return (event) => {
+                try {
+                    const newXPathValue = event.target.value;
+                    const newState = JSON.parse(JSON.stringify(state));
+                    newState.xPaths[xpathIndex].xPath = newXPathValue.trim();
+                    setStateInternal(newState, true);
+                } catch(e) {
+                    console.error(e);
+                }
+            };
+        }
+
+        function onNewKeyClick(xpathIndex) {
+            return () => {
+                try {
+                    const newState = JSON.parse(JSON.stringify(state));
+                    newState.xPaths[xpathIndex].extraKeys.push(getDefaultExtrakey());
+                    setStateInternal(newState);
+                } catch(e) {
+                    console.error(e);
+                }
+            };
+        }
+
+        function onExtrakeyClose(xpathIndex, extrakeyIndex) {
+            return () => {
+                try {
+                    const newState = JSON.parse(JSON.stringify(state));
+                    newState.xPaths[xpathIndex].extraKeys.splice(extrakeyIndex, 1);
+                    setStateInternal(newState);
+                } catch(e) {
+                    console.error(e);
+                }
+            };
+        }
+
+        function onExtrakeyNameChange(xpathIndex, extrakeyIndex) {
+            return (event) => {
+                try {
+                    const newName = event.target.value;
+                    const newState = JSON.parse(JSON.stringify(state));
+                    newState.xPaths[xpathIndex]
+                        .extraKeys[extrakeyIndex].name = newName;
+                    setStateInternal(newState, true);
+                } catch(e) {
+                    console.error(e);
+                }
+            };
+        }
+
+        function onExtrakeyValueChange(xpathIndex, extrakeyIndex) {
+            return (event) => {
+                try {
+                    const newValue = event.target.value;
+                    const newState = JSON.parse(JSON.stringify(state));
+                    newState.xPaths[xpathIndex]
+                        .extraKeys[extrakeyIndex].value = newValue;
+                    setStateInternal(newState, true);
+                } catch(e) {
+                    console.error(e);
+                }
+            };
+        }
+
+        function onNewXPathClick() {
+            return () => {
+                try {
+                    const newState = JSON.parse(JSON.stringify(state));
+                    newState.xPaths.push(getDefaultXPath());
+                    setStateInternal(newState);
+                } catch(e) {
+                    console.error(e);
+                }
+            };
+        }
+
+        function onMatchedPathClick() {
+            return () => {
+                try {
+                    const newState = JSON.parse(JSON.stringify(state));
+                    newState.isMatchedPath = !newState.isMatchedPath;
+                    setStateInternal(newState, true);
+                } catch(e) {
+                    console.error(e);
+                }
+            }
+        }
+
+        function onWithPathClick() {
+            return () => {
+                try {
+                    const newState = JSON.parse(JSON.stringify(state));
+                    newState.isWithPath = !newState.isWithPath;
+                    setStateInternal(newState, true);
+                } catch(e) {
+                    console.error(e);
+                }
+            }
+        }
+
+        function onInputKeydown() {
+            return (event) => {
+                if (event.which === libs.keyCode.Enter) {
+                    $(event.target).trigger('change', event);
+                    event.preventDefault();
+                }
+            }
+        }
+
+        // private methods
+        function init() {
+            xPathTemplate = $container.find(`.${XPATH_TEMPLATE_CLASS}`).html();
+            extraKeyTemplate = $container.find(`.${EXTRAKEY_TEMPLATE_CLASS}`).html();
+            $xPathContainer = $container.find(`.${XPATH_CONTAINER_CLASS}`);
+            // Setup newXPath button
+            const $elementNewXPath = findXCElement($container, XCID_NEWXPATH);
+            $elementNewXPath.off('click');
+            $elementNewXPath.on('click', onNewXPathClick());
+            // Setup matchedPath checkbox
+            const $elementMatchedPath = findXCElement($container, XCID_MATCHEDPATH);
+            $elementMatchedPath.off('click.xml');
+            $elementMatchedPath.on('click.xml', onMatchedPathClick());
+            // Setup elementPath checkbox
+            const $elementWithPath = findXCElement($container, XCID_WITHPATH);
+            $elementWithPath.off('click.xml');
+            $elementWithPath.on('click.xml', onWithPathClick());
+        }
+
+        function getDefaultExtrakey() {
+            return { name: '', value: '' };
+        }
+
+        function getDefaultXPath() {
+            return { xPath: '', extraKeys: [] };
+        }
+
+        function getDefaultState() {
+            return { xPaths: [ getDefaultXPath() ], isWithPath: false, isMatchedPath: false};
+        }
+
+        function htmlToElement(htmlStr) {
+            return $($.trim(htmlStr));
+        }
+
+        function findXCElement($container, xcid) {
+            return $container.find(`[data-xcid="${xcid}"]`);
+        }
+
+        function createExtraKey({
+            keyName,
+            keyValue,
+            onNameChange,
+            onValueChange,
+            onInputKeydown,
+            onClose,
+            isShowTooltip = true }) {
+            const $dom = htmlToElement(extraKeyTemplate);
+
+            // Setup ExtrakeyName input
+            const $elementName = findXCElement($dom, 'xtrakey.name')
+            $elementName.val(keyName);
+            $elementName.on('change', onNameChange);
+            $elementName.on('keydown', onInputKeydown)
+            addValidateOption({
+                $element: $elementName,
+                errorMessage: libs.ErrTStr.NoEmpty,
+                checkFunc: () => CheckFunctions.isInputEmpty($elementName)
+            });
+            // Setup ExtrakeyValue input
+            const $elementValue = findXCElement($dom, 'xtrakey.value');
+            $elementValue.val(keyValue);
+            $elementValue.on('change', onValueChange);
+            $elementValue.on('keydown', onInputKeydown);
+            addValidateOption({
+                $element: $elementValue,
+                errorMessage: libs.ErrTStr.NoEmpty,
+                checkFunc: () => CheckFunctions.isInputEmpty($elementValue)
+            });
+            // Setup close buttun
+            const $elementClose = findXCElement($dom, 'xtrakey.close');
+            $elementClose.on('click', onClose);
+            // Setup tooltip
+            if (!isShowTooltip) {
+                const $elementTooltip = findXCElement($dom, 'xtrakey.tooltip');
+                $elementTooltip.css('visibility', 'hidden');
+            }
+
+            return $dom;
+        }
+
+        function setStateInternal(newState = {}, noRender = false) {
+            const deferred = libs.PromiseHelper.deferred();
+            state = newState;
+            if (!noRender) {
+                setTimeout( () => { render(); deferred.resolve(); }, 0);
+            } else {
+                deferred.resolve();
+            }
+            return deferred.promise();
+        }
+
+        function clearValidateOptions() {
+            validateOptions = [];
+        }
+
+        function addValidateOption({ $element, errorMessage, checkFunc }) {
+            validateOptions.push({
+                "$ele": $element,
+                "error": errorMessage,
+                "formMode": true,
+                "check": checkFunc
+            });
+        }
+
+        function validateElements() {
+            if (validateOptions.length === 0) {
+                return true;
+            }
+            return libs.xcHelper.validate(validateOptions);
+        }
+
+        const CheckFunctions = {
+            isInputEmpty: ($element) => ($element.val().trim().length === 0),
+        };
+
+        function render() {
+            // Reset the list of elements need to validate
+            clearValidateOptions();
+
+            // Static sections (newXPath button, checkboxes ...)
+            // Update UI only ... setup event handlers in init()
+            const $elementMatchedPath = findXCElement($container, XCID_MATCHEDPATH);
+            state.isMatchedPath ?
+                $elementMatchedPath.addClass('checked') :
+                $elementMatchedPath.removeClass('checked');
+            const $elementWithPath = findXCElement($container, XCID_WITHPATH);
+            state.isWithPath ?
+                $elementWithPath.addClass('checked') :
+                $elementWithPath.removeClass('checked');
+
+            // Dynamic sections (xPath list /w extraKey list)
+            // Update UI & setup event handlers
+            const xPathCount = state.xPaths.length;
+            const domList = state.xPaths.map( (xPath, xPathIndex) => {
+                const $dom = htmlToElement(xPathTemplate);
+
+                // Setup xPath close button
+                const $elementClose = findXCElement($dom, 'xpath.close');
+                if (xPathCount > 1) {
+                    $elementClose.on('click', onXPathClose(xPathIndex));
+                } else {
+                    // This is the only xpath, and it cannot be deleted
+                    $elementClose.css('visibility', 'hidden');
+                }
+                // Setup xPath input
+                const $elementXPath = findXCElement($dom, 'xpath.xpath');
+                $elementXPath.on('change', onXPathChange(xPathIndex));
+                $elementXPath.on('keydown', onInputKeydown());
+                $elementXPath.val(xPath.xPath);
+                addValidateOption({
+                    $element: $elementXPath,
+                    errorMessage: libs.ErrTStr.NoEmpty,
+                    checkFunc: () => CheckFunctions.isInputEmpty($elementXPath)
+                });
+                // Setup new key button
+                const $elementNewKey = findXCElement($dom, 'xpath.newKey');
+                $elementNewKey.on('click', onNewKeyClick(xPathIndex));
+                // Setup ExtraKey list
+                const extrakeyList = xPath.extraKeys.map(
+                    (key, keyIndex) => createExtraKey({
+                        keyName: key.name,
+                        keyValue: key.value,
+                        onNameChange: onExtrakeyNameChange(xPathIndex, keyIndex),
+                        onValueChange: onExtrakeyValueChange(xPathIndex, keyIndex),
+                        onInputKeydown: onInputKeydown(),
+                        onClose: onExtrakeyClose(xPathIndex, keyIndex),
+                        isShowTooltip: (keyIndex === 0)
+                    })
+                );
+                const $elementKeyList = findXCElement($dom, 'xpath.extrakeyList');
+                if (extrakeyList.length === 0) {
+                    // Hide empty container
+                    $elementKeyList.addClass('xc-hidden');
+                } else {
+                    $elementKeyList.removeClass('xc-hidden');
+                    $elementKeyList.append(extrakeyList);
+                }
+
+                return $dom;
+            });
+
+            $xPathContainer.empty();
+            $xPathContainer.append(domList);
+        }
+
+        // Initialize
+        init();
+
+        // public methods
+        return {
+            getTestHelper: function() {
+                return {
+                    getDefaultExtrakey: () => getDefaultExtrakey(),
+                    getDefaultXPath: () => getDefaultXPath(),
+                    getDefaultState: () => getDefaultState(),
+                    setState: (newState) => setStateInternal(newState),
+                    getState: () => JSON.parse(JSON.stringify(state)),
+                };
+            },
+            resetState: function() {
+                return setStateInternal(getDefaultState());
+            },
+            show: function() {
+                render();
+                $container.find('.format.xml').removeClass("xc-hidden");
+            },
+            restore: function({udfQuery}) {
+                const newState = getDefaultState();
+                newState.isWithPath = udfQuery.withPath;
+                newState.isMatchedPath = udfQuery.matchedPath;
+                if (udfQuery.allPaths != null && udfQuery.allPaths.length > 0) {
+                    newState.xPaths = udfQuery.allPaths.map( (xPath) => {
+                        const res = getDefaultXPath();
+                        res.xPath = xPath.xPath;
+                        res.extraKeys = Object.keys(xPath.extraKeys).map(
+                            (keyName) => ({
+                                name: keyName,
+                                value: xPath.extraKeys[keyName]})
+                        );
+                        return res;
+                    });
+                }
+                setStateInternal(newState);
+            },
+            getUDFDefinition: function({isWithPath, isMatchedPath, xPaths}) {
+                return {
+                    udfModule: udfModule,
+                    udfFunc: udfFunction,
+                    udfQuery: {
+                        allPaths: xPaths,
+                        withPath: isWithPath,
+                        matchedPath: isMatchedPath
+                    }
+                };
+            },
+            validateValues: function( {isShowError = true} = {} ) {
+                if (isShowError) {
+                    if (!validateElements()) {
+                        return null;
+                    }
+                }
+
+                const xPaths = state.xPaths.reduce( (resXPath, xPath) => {
+                    const result = getDefaultXPath();
+                    if (xPath.xPath.trim().length === 0) {
+                        return resXPath;
+                    }
+                    result.xPath = xPath.xPath.trim();
+                    result.extraKeys = xPath.extraKeys.reduce( (resKey, key) => {
+                        const name = key.name.trim();
+                        const value = key.value.trim();
+                        if (name.length === 0 || value.length === 0) {
+                            return resKey;
+                        }
+                        resKey[name] = value;
+                        return resKey;
+                    }, {});
+
+                    resXPath.push(result);
+                    return resXPath;
+                }, []);
+
+                return xPaths.length === 0 ? null : {
+                    isWithPath: state.isWithPath,
+                    isMatchedPath: state.isMatchedPath,
+                    xPaths: xPaths
+                };
+            }
+        };
+    }
+    // End === XMLFormat component factory
+
     // Start === PreviewLoader component factory
     function createPreviewLoader({
         $container,
@@ -5209,6 +5630,8 @@ window.DSPreview = (function($, DSPreview) {
         DSPreview.__testOnly__.errorHandler = errorHandler;
         DSPreview.__testOnly__.previewData = previewData;
         DSPreview.__testOnly__.importDataHelper = importDataHelper;
+
+        DSPreview.__testOnly__.componentXmlFormat = () => componentXmlFormat;
 
         DSPreview.__testOnly__.get = function() {
             return {
