@@ -119,7 +119,7 @@ describe("SQLEditor Test", function() {
 
     describe("SQL Behavior Test", function() {
         it("should get editor", function() {
-            var editor = SQLEditor.getEditor();
+            editor = SQLEditor.getEditor();
             expect(editor instanceof CodeMirror).to.be.true;
         });
 
@@ -245,6 +245,17 @@ describe("SQLEditor Test", function() {
         it("Should gen tables HTML", function() {
             SQLEditor.__testOnly__.genTablesHTML();
             expect($sqlTableList.find(".unit").length).to.be.at.least(4);
+        })
+
+        it("Should show hint", function() {
+            var test = false;
+            var oldShowHint = CodeMirror.showHint;
+            CodeMirror.showHint = function() {
+                test = true;
+            }
+            editor.execCommand("autocomplete");
+            expect(test).to.be.true;
+            CodeMirror.showHint = oldShowHint;
         })
 
         it("Should fail updateSchema if updateGTables fail", function(done) {
@@ -605,11 +616,6 @@ describe("SQLEditor Test", function() {
     });
 
     describe("SQL Hotkey Function Test", function() {
-        before(function() {
-            // Open SQL tab
-            editor = SQLEditor.getEditor();
-        });
-
         it("Should execute when executeTrigger", function() {
             var test = false;
             var oldexec = SQLEditor.executeSQL;

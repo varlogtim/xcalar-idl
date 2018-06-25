@@ -10,6 +10,12 @@ window.SQLEditor = (function(SQLEditor, $) {
     var sqlKvStore;
     var sqlQueryKvStore;
     var sqlComs = [];
+    var keywordsToRemove = ["alter", "begin", "create", "delete", "drop",
+                            "insert", "into", "set", "table", "update", "values"];
+    var keywordsToAdd = ["over", "partition", "intersect", "except", "with",
+                         "left", "right", "outer", "natural", "semi", "anti",
+                         "rollup", "cube", "grouping", "sets", "limit", "sum",
+                         "avg", "max", "min"];
 
     SQLEditor.setup = function() {
         setupEditor();
@@ -389,8 +395,49 @@ window.SQLEditor = (function(SQLEditor, $) {
             "autofocus": true,
             "autoCloseBrackets": true,
             "search": true,
+            "hint": CodeMirror.hint.sql,
             "extraKeys": extraKeys,
         });
+
+        editor.on("keyup", function(cm, e) {
+            if (e.keyCode >= 65 && e.keyCode <= 90 ||
+                e.keyCode >= 48 && e.keyCode <= 57 && !e.shiftKey ||
+                e.keyCode === 190 && !e.shiftKey) {
+                editor.execCommand("autocomplete");
+            }
+        });
+
+        keywordsToRemove.forEach(function(key) {
+            delete CodeMirror.resolveMode("text/x-sql").keywords[key];
+        })
+
+        keywordsToAdd.forEach(function(key) {
+            CodeMirror.resolveMode("text/x-sql").keywords[key] = true;
+        })
+
+        CodeMirror.commands.autocomplete = function (cmeditor) {
+            var acTables = {};
+            for(var tableName in sqlTables) {
+                acTables[tableName] = [];
+                if (gTables[sqlTables[tableName]]) {
+                    gTables[sqlTables[tableName]].tableCols.forEach(function(col) {
+                        if (col.name != "DATA") {
+                            acTables[tableName].push(col.name);
+                            acTables[col.name] = [];
+                        }
+                    });
+                } else {
+                    SQLEditor.deleteSchemas(null, [sqlTables[tableName]]);
+                }
+            }
+
+            CodeMirror.showHint(cmeditor, CodeMirror.hint.sql, {
+                alignWithWord: true,
+                completeSingle: false,
+                completeOnSingleClick: true,
+                tables: acTables
+            });
+        }
 
         editor.refresh();
     }
