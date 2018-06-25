@@ -6,9 +6,8 @@ describe("Transaction Test", function() {
             var cacheFn = QueryManager.addQuery;
             QueryManager.addQuery = function(curId, operation, queryOptions) {
                 called1 = true;
-            }
+            };
 
-            console.log(info)
             id = Transaction.start({
                 operation: "test operation",
                 msg: "msg",

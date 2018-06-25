@@ -494,11 +494,11 @@ describe("DFParamModal Test", function() {
                 done("fail");
             })
             .fail(function(err){
-                if (!$("#statusBox").is(":visible")) {
-                    debugger;
-                } else {
-                    console.log("passed");
-                }
+                // if (!$("#statusBox").is(":visible")) {
+                //     debugger;
+                // } else {
+                //     console.log("passed");
+                // }
                 UnitTest.hasStatusBoxWithError(ErrTStr.UnclosedParamBracket);
                 done();
             });

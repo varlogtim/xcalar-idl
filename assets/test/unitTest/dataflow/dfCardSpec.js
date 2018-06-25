@@ -657,6 +657,9 @@ describe("DFCard Test", function() {
 
     it("dag tables should have Created class", function() {
         var $dfWrap = getDfWrap(testDfName);
+        // if ($dfWrap.find(".dagTable").length !== 3) {
+        //     debugger
+        // }
         expect($dfWrap.find(".dagTable").length).to.equal(3);
         expect($dfWrap.find(".dagTable.Created").length).to.equal(3);
     });
