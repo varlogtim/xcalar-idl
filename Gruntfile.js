@@ -1517,7 +1517,7 @@ module.exports = function(grunt) {
 
         grunt.log.writeln(("\n=== ALERT:: ==="
             + "\nThis task is about to run 'npm install'"
-            + "\nin your cwd, and will then any needed "
+            + "\nin your cwd, and will then apply any needed "
             + "\npatches to grunt plugins.\n\n").bold.yellow);
 
         // save cwd so can go back to at end of all cmd executions
