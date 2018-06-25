@@ -364,9 +364,9 @@ module.exports = {
         "RawDSAdvRow": "Add a field containing the record number to each record. Record number restarts at 1 for each file.",
         "RawDSAdvTerm": "When to stop processing records",
         "RawDSAdvTermStopAll": "Stop importing data as soon as the first error is encountered.",
-        "RawDSAdvTermAllow": "Stop processing records in a file when the first unrecoverable error is found, and continue to the next file. Report all errors.",
+        "RawDSAdvTermAllow": "Stop processing records within a file only when parser completes or cannot continue, and continue to the next file. Report all errors.",
         "RawDSAdvTermStopFile": "Stop importing data as soon as the first file level error is encountered. Record level errors are logged.",
-        "RawDSAdvTermStopRecord": "Stop importing data as soon as the first record level error is encountered, and continue to the next file. Report all errors.",
+        "RawDSAdvTermStopRecord": "Stop importing data from current file when first error is encountered, and continue to the next file. Report encountered errors.",
     },
 
     "workspaceBar": {
@@ -685,7 +685,7 @@ module.exports = {
         "UnsortedRows": "Unsorted Rows",
         "Termination": "Error Tolerance",
         "TerminateOnError": "Low – Abort import on error",
-        "ContinueOnError": "High – Skip to next file on unrecoverable error, continue",
+        "ContinueOnError": "High - Skip to next file on parse fail or completion, continue",
         "StopFile": "Stop import on first file level error", // Not used
         "StopRecord": "Medium – Skip to next file on error, continue",
         "xPaths": "XPaths",
