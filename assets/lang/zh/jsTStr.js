@@ -1363,5 +1363,6 @@ UploadTStr = {
 IMDTStr = {
     "DelTable": "Delete Published Table",
     "DelTableMsg": "Are you sure you want to permanently delete the table : \"<tableName>\"? This action cannot be undone.",
-    "Activating": "Activating Tables"
+    "Activating": "Activating Tables",
+    "DataUnavailable": "Only showing last 128 updates."
 };

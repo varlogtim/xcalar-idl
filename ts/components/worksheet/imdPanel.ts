@@ -57,6 +57,7 @@ namespace IMDPanel {
     const tickHeightLarge: number = 20;
     const largeTickInterval: number = 5;
     const tickTextInterval: number = 20;
+    const maxUpdates: number = 127; //maximum number of table updates that can be fetched from the back end.
     let pTables: PublishTable[]; //published tables return from thrift call
     let hTables: PublishTable[]; // hidden tables
     let $updatePrompt: JQuery;
@@ -996,9 +997,15 @@ namespace IMDPanel {
             if (offsetTop > -100) {
                 const positions: any[] = [];
                 let updateHtml: HTML = "";
+                let lowestBatch: number = -1;
+                let lowestBatchPos: number = 0;
                 table.updates.forEach((update, i) => {
                     const timeDiff: number = update.startTS - ruler.minTS;
                     const tStampPx: number = parseFloat(<any>timeDiff) / parseFloat(<any>ruler.pixelToTime);
+                    if (lowestBatch > update.batchId) {
+                        lowestBatch = update.batchId;
+                        lowestBatchPos = tStampPx;
+                    }
                     if (tStampPx > ruler.visibleLeft && tStampPx < ruler.visibleRight) {
                         const pos: number = tStampPx - ruler.visibleLeft;
                         positions.push({
@@ -1020,6 +1027,20 @@ namespace IMDPanel {
                                             parseInt(<any>update.batchId) + '</span></div>';
                     }
                 });
+                if (table.updates.length >= maxUpdates && lowestBatch !== 0) {
+                    let pos: string = null;
+                    if (lowestBatchPos > ruler.visibleLeft && lowestBatchPos < ruler.visibleRight) {
+                        pos = String(lowestBatchPos - ruler.visibleLeft) + "px";
+                    } else if (lowestBatchPos > ruler.visibleRight) {
+                        pos = "100%";
+                    }
+
+                    if (pos) {
+                        updateHtml = updateHtml + '<div class="unavailableSection" style="width:'+ pos +';" ' +
+                        xcTooltip.Attrs + ' data-original-title="' + IMDTStr.DataUnavailable + '"></div>';
+                    }
+                }
+                
                 $histPanel.html(updateHtml);
                 positions.sort((a, b) => {
                     const aLeft: number = a.left;

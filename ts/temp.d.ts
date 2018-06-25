@@ -699,6 +699,7 @@ declare namespace IMDTStr {
     export var DelTable: string;
     export var DelTableMsg: string;
     export var Activating: string;
+    export var DataUnavailable: string;
 }
 
 declare namespace WKBKTStr {
