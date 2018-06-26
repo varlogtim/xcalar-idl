@@ -628,7 +628,10 @@ window.TblMenu = (function(TblMenu, $) {
                     }
                 }
                 var $colNamesInput = $li.find(".colNames");
-                var colNames = $colNamesInput.val();
+                var colNames = validateNewSplitColNames($colNamesInput, tableId);
+                if (colNames == null) {
+                    return;
+                }
 
                 ColManager.splitCol(colNum, tableId, delim, numColToGet,
                     colNames, true);
@@ -638,6 +641,32 @@ window.TblMenu = (function(TblMenu, $) {
                 xcMenu.close($allMenus);
             }
         });
+
+        function validateNewSplitColNames($input, tableId) {
+            var nameSet = new Set();
+            var usedName = new Set();
+            var table = gTables[tableId];
+            var curColNames = table ? table.getImmediateNames() : [];
+            curColNames.forEach((name) => {
+                nameSet.add(name);
+            });
+
+            var colNames = $input.val().split(",").map((v) => v.trim());
+            var valid = true;
+            for (var i = 0; i < colNames.length; i++) {
+                var name = colNames[i];
+                var err = xcHelper.validateColName(name) ||
+                        (usedName.has(name) ? ErrTStr.ColumnConflict : null) ||
+                        (nameSet.has(name) ? ColTStr.ImmediateClash : null);
+                // it's optional so we allow empty
+                if (err && err !== ErrTStr.NoEmpty) {
+                    StatusBox.show(err, $input);
+                    return null;
+                }
+                usedName.add(name);
+            }
+            return colNames;
+        }
 
         $colMenu.on('mouseup', '.minimize', function(event) {
             if (event.which !== 1) {

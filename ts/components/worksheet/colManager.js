@@ -361,15 +361,9 @@ window.ColManager = (function($, ColManager) {
             numNewCols = colNumToSplit;
             sql.numNewCols = colNumToSplit;
 
-            var curColNames = [];
-            if (table && table.backTableMeta) {
-                curColNames = table.backTableMeta.valueAttrs.map(function (e) {
-                    return e.name;
-                });
-            }
 
-            newFieldNames = getSplitColNames(progCol.getFrontColName(),
-                colNames, curColNames);
+            newFieldNames = getSplitColNames(progCol.getFrontColName(), colNames);
+            sql.colNames = newFieldNames;
             mapStrs = getSplitStrs();
             return XIApi.map(txId, mapStrs, tableName, newFieldNames);
         })
@@ -475,23 +469,40 @@ window.ColManager = (function($, ColManager) {
             return innerDeferred.promise();
         }
 
-        function getSplitColNames(colName, colNames, curColNames) {
+        function getSplitColNames(colName, colNames) {
+            colNames = colNames || [];
             // Check duplication
             var tryCount = 0;
             var colPrefix = colName + "-split";
             var i = 0;
             var newFieldNames = [];
+            var usedName = new Set();
+            var colLen = colNames.length;
+
+            // as split can be triggered from repeat, need to check if it's used
+            // or not, if used, reset
+            for (var j = 0; j < colLen; j++) {
+                if (table.hasCol(colNames[j], "")) {
+                    colNames = [];
+                    break;
+                }
+            }
+
             while (i < numNewCols && tryCount <= 50) {
                 ++tryCount;
 
                 for (i = 0; i < numNewCols; i++) {
-                    newFieldNames[i] = colPrefix + "-" + (i + 1);
+                    var newColName = (i < colLen) ?  colNames[i] : null;
+                    newColName = newColName || colPrefix + "-" + (i + 1);
 
-                    if (table.hasCol(newFieldNames[i], "")) {
+                    if (table.hasCol(newColName, "") || usedName.has(newColName)) {
                         newFieldNames = [];
+                        usedName = new Set();
                         colPrefix = colName + "-split-" + tryCount;
                         break;
                     }
+                    newFieldNames[i] = newColName;
+                    usedName.add(newColName);
                 }
             }
 
@@ -499,23 +510,6 @@ window.ColManager = (function($, ColManager) {
                 console.warn("Too much try, overwrite origin col name!");
                 for (i = 0; i < numNewCols; i++) {
                     newFieldNames[i] = colName + "-split" + i;
-                }
-            }
-
-            if (colNames) {
-                colNames = colNames.split(",").map(function (v) {
-                    return v.trim();
-                });
-
-                for (var i = 0; i < colNames.length; i++) {
-                    var colName = colNames[i];
-                    if (!xcHelper.validateColName(colName, false) &&
-                        curColNames.indexOf(colName) === -1 &&
-                        newFieldNames.indexOf(colName) === -1) {
-                        if (i < newFieldNames.length) {
-                            newFieldNames[i] = colName;
-                        }
-                    }
                 }
             }
 

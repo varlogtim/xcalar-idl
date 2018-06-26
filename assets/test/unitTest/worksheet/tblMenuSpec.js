@@ -1109,7 +1109,7 @@ describe('TableMenu Test', function() {
                     expect(tId).to.equal(tableId);
                     expect(delim).to.equal("\\");
                     expect(numColToGet).to.equal(3);
-                    expect(colNames).to.equal("a, b");
+                    expect(colNames).to.deep.equal(["a", "b"]);
                     called = true;
                 };
                 $colMenu.data("colNums", [12]);
