@@ -131,6 +131,29 @@ describe("DF Test", function() {
 
             DF.getDataflow = cache1;
         });
+
+        it("DF.comment should work", function() {
+            var cachedFn = XcalarUpdateRetina;
+            var called = false;
+            XcalarUpdateRetina = function(dfName, tableName, paramValues, comment) {
+                expect(dfName).to.equal("test");
+                expect(tableName).to.equal("somename");
+                expect(comment).to.equal('{"userComment":"a","meta":{}}');
+                called = true;
+                return PromiseHelper.resolve();
+            };
+
+            var cachedFn2 = DF.commitAndBroadCast;
+            DF.commitAndBroadCast = function() {};
+
+            DF.comment("test", "somename", "a");
+
+
+            expect(called).to.be.true;
+
+            XcalarUpdateRetina = cachedFn;
+            DF.commitAndBroadCast = cachedFn2;
+        });
     });
 
     describe("other functions", function() {

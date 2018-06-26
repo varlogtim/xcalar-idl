@@ -3,11 +3,12 @@ describe("DFCommentModal Test", function() {
     var $modal;
     var node;
     var $dagWrap;
+    var $dagTable;
     before(function() {
         UnitTest.onMinMode();
         $modal = $("#dfCommentModal");
         $opIcon = $('<div class="operationTypeWrap" data-nodeid="0"><div class="typeTitle">Test</div></div>');
-        var $dagTable = $('<div class="dagTable" data-nodeid="0"><div class="tableTitle">somename</div></div>');
+        $dagTable = $('<div class="dagTable" data-nodeid="0"><div class="tableTitle">somename</div></div>');
         $dagWrap = $('<div class="dagWrap"><div class="dagTableWrap"></div></div>');
         $dagWrap.find(".dagTableWrap").append($opIcon);
         $dagWrap.find(".dagTableWrap").append($dagTable);
@@ -138,6 +139,36 @@ describe("DFCommentModal Test", function() {
             XcalarCommentDagNodes = cachedFn;
         });
     });
+
+    describe("using batch dataflow", function() {
+        it("submitting should work", function() {
+            var cachedFn = XcalarUpdateRetina;
+            var called = false;
+            XcalarUpdateRetina = function(dfName, tableName, paramValues, comment) {
+                expect(dfName).to.equal("test");
+                expect(tableName).to.equal("somename");
+                expect(comment).to.equal('{"userComment":"a","meta":{}}');
+                called = true;
+                return PromiseHelper.resolve();
+            };
+
+            $dagWrap.data("dataflowname", "test");
+            $dagTable.data('tablename', "somename");
+
+            var text = "a";
+            DFCommentModal.show($opIcon, true);
+            $modal.find("textarea").val(text);
+            $modal.find(".confirm").click();
+
+
+            expect(called).to.be.true;
+            expect($opIcon.hasClass("hasComment")).to.be.true;
+            expect(node.value.comment.userComment).to.equal(text);
+
+            XcalarUpdateRetina = cachedFn;
+        });
+    });
+
     after(function() {
         UnitTest.offMinMode();
         $dagWrap.remove();

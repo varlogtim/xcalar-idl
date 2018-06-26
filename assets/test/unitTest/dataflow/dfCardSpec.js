@@ -236,6 +236,21 @@ describe("DFCard Test", function() {
             expect($("#exportColPopup").text().indexOf("user_id")).to.be.gt(-1);
         });
 
+        it("commentOp li should work", function() {
+            var cachedFn = DFCommentModal.show;
+            var cachedFnTriggered = false;
+            DFCommentModal.show = function($icon, isBDF) {
+                expect($icon.data("table")).to.equal(".XcalarLRQExport." + tableName);
+                expect(isBDF).to.be.true;
+                cachedFnTriggered = true;
+            };
+            expect(cachedFnTriggered).to.be.false;
+            $menu.find(".commentOp").trigger(fakeEvent.mouseup);
+            expect(cachedFnTriggered).to.be.true;
+
+            DFCommentModal.show = cachedFn;
+        });
+
         it("right click should work", function() {
             $(document).mousedown();
             expect($menu.is(":visible")).to.be.false;
