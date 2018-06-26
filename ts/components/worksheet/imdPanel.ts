@@ -887,6 +887,10 @@ namespace IMDPanel {
             }
         });
 
+        $("#imdFilterInput").keyup(function () {
+            filterLists($(this).val().toLowerCase());
+        });
+
         function resortTableList(type: string, initialIndex: number, newIndex: number): void {
             if (initialIndex === newIndex) {
                 return;
@@ -900,6 +904,17 @@ namespace IMDPanel {
             const table: PublishTable = tables.splice(initialIndex, 1)[0];
             tables.splice(newIndex, 0, table);
             storeTables();
+        }
+
+        function filterLists(text: string) {
+            $imdPanel.find(".tableListItem").each(function() {
+                var $currItem = $(this);
+                if (!$currItem.attr("data-name").toLowerCase().includes(text)) {
+                    $currItem.hide();
+                } else {
+                    $currItem.show();
+                }
+            });
         }
     }
 
@@ -1605,6 +1620,7 @@ namespace IMDPanel {
     function refreshTableList(): void {
         hideUpdatePrompt();
         showWaitScreen();
+        $("#imdFilterInput").val("");
 
         const startTime: number = Date.now();
 

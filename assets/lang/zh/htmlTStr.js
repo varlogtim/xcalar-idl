@@ -1068,7 +1068,8 @@ module.exports = {
         "From": "From",
         "To": "To",
         "Scale": "Scale",
-        "ScaleUnit": "Per Tick"
+        "ScaleUnit": "Per Tick",
+        "Filter": "Filter"
     },
     "IMDPanel": {
         "emptyDetails": "Select a table from the published tables list to view details.",

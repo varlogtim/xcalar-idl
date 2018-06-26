@@ -5,12 +5,27 @@
     position: relative;
     width: @width-topBar;
     text-transform: none;
-    padding-left: 10px;
+    padding-left: 0;
     overflow: visible;
+
+    .filterListSection {
+        background-color: @color-bg-dusk-blue;
+        width: 280px;
+        min-width: 280px;
+        color: @color-white;
+        .filterArea {
+            padding-left: 10px;
+            margin-top: 10px;
+            >input {
+                width: 200px;
+            }
+        }
+    }
 
     .rangeInputArea {
         padding-left: 10px;
         margin-top: 10px;
+        min-width: 541px;
     }
 
     input {
@@ -24,7 +39,7 @@
         > input {
             background-color: @color-white;
             margin: 0 10px;
-            width: 126px;
+            width: 96px;
         }
 
         .highlight {
@@ -32,7 +47,7 @@
         }
     }
 
-    .dateArea {
+    .dateArea, .filterArea {
         position: relative;
 
         .icon-wrap {
@@ -49,7 +64,7 @@
         margin-right: 20px;
 
         .timePickerBox {
-            width: 126px;
+            width: 96px;
         }
         .input-wrap {
             width: 96px;

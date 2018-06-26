@@ -383,7 +383,8 @@ module.exports = {
         "From": "From",
         "To": "To",
         "Scale": "Scale",
-        "ScaleUnit": "Per Tick"
+        "ScaleUnit": "Per Tick",
+        "Filter": "Filter"
     },
 
     "IMDPanel": {
