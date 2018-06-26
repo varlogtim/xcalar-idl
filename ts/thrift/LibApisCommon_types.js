@@ -3564,9 +3564,13 @@ XcalarApiAppRunOutputT.prototype.write = function(output) {
 
 XcalarApiAppReapInputT = function(args) {
   this.appGroupId = null;
+  this.cancel = null;
   if (args) {
     if (args.appGroupId !== undefined && args.appGroupId !== null) {
       this.appGroupId = args.appGroupId;
+    }
+    if (args.cancel !== undefined && args.cancel !== null) {
+      this.cancel = args.cancel;
     }
   }
 };
@@ -3591,9 +3595,13 @@ XcalarApiAppReapInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 0:
+      case 2:
+      if (ftype == Thrift.Type.BOOL) {
+        this.cancel = input.readBool().value;
+      } else {
         input.skip(ftype);
-        break;
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -3608,6 +3616,11 @@ XcalarApiAppReapInputT.prototype.write = function(output) {
   if (this.appGroupId !== null && this.appGroupId !== undefined) {
     output.writeFieldBegin('appGroupId', Thrift.Type.STRING, 1);
     output.writeString(this.appGroupId);
+    output.writeFieldEnd();
+  }
+  if (this.cancel !== null && this.cancel !== undefined) {
+    output.writeFieldBegin('cancel', Thrift.Type.BOOL, 2);
+    output.writeBool(this.cancel);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

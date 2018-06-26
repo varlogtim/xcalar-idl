@@ -4487,25 +4487,6 @@ XcalarSaveWorkbooks = function(workbookName) {
     return (deferred.promise());
 };
 
-XcalarSwitchToWorkbook = function(toWhichWorkbook, fromWhichWorkbook) {
-    if ([null, undefined].indexOf(tHandle) !== -1) {
-        return PromiseHelper.resolve(null);
-    }
-    var deferred = PromiseHelper.deferred();
-    // fromWhichWorkbook can be null
-    xcalarApiSessionSwitch(tHandle, toWhichWorkbook, fromWhichWorkbook,
-                           gSessionNoCleanup)
-    .then(function(output) {
-        deferred.resolve(output);
-    })
-    .fail(function(error) {
-        var thriftError = thriftLog("XcalarSwitchToWorkbook", error);
-        Log.errorLog("Switch Workbook", null, null, thriftError);
-        deferred.reject(thriftError);
-    });
-    return (deferred.promise());
-};
-
 XcalarActivateWorkbook = function(workbookName) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -4665,12 +4646,15 @@ XcalarAppRun = function(name, isGlobal, inStr) {
     return (deferred.promise());
 };
 
-XcalarAppReap = function(name, appGroupId) {
+XcalarAppReap = function(name, appGroupId, cancel) {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
     var deferred = PromiseHelper.deferred();
-    xcalarAppReap(tHandle, appGroupId)
+    if (!cancel) {
+        cancel = false;
+    }
+    xcalarAppReap(tHandle, appGroupId, cancel)
     .then(deferred.resolve)
     .fail(function(error) {
         var outError;

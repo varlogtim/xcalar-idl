@@ -378,18 +378,21 @@ xcalarAppRun = runEntity.xcalarAppRun = function(thriftHandle, name, isGlobal, i
     return (deferred.promise());
 };
 
-xcalarAppReapWorkItem = runEntity.xcalarAppReapWorkItem = function(appGroupId) {
+xcalarAppReapWorkItem = runEntity.xcalarAppReapWorkItem = function(appGroupId,
+                                                                  cancel) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.api = XcalarApisT.XcalarApiAppReap;
 
     workItem.input.appReapInput = new XcalarApiAppReapInputT();
     workItem.input.appReapInput.appGroupId = appGroupId;
+    workItem.input.appReapInput.cancel = cancel;
 
     return (workItem);
 };
 
-xcalarAppReap = runEntity.xcalarAppReap = function(thriftHandle, appGroupId) {
+xcalarAppReap = runEntity.xcalarAppReap = function(thriftHandle, appGroupId,
+                                                  cancel) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarAppReap(appGroupId = " + appGroupId + ")");
@@ -4341,55 +4344,6 @@ xcalarApiSessionPersist = runEntity.xcalarApiSessionPersist = function(thriftHan
     })
     .fail(function(error) {
         console.log("xcalarApiSessionPersist() caught exception:", error);
-        deferred.reject(handleRejection(error));
-    });
-
-    return (deferred.promise());
-};
-
-// noCleanup = true means the tables and datasets will not be dropped
-// when the old session is made inactive
-xcalarApiSessionSwitchWorkItem = runEntity.xcalarApiSessionSwitchWorkItem = function(sessionName, origSessionName,
-                                        noCleanup) {
-    var workItem = new WorkItem();
-    workItem.input = new XcalarApiInputT();
-    workItem.input.sessionSwitchInput = new XcalarApiSessionSwitchInputT();
-
-    workItem.api = XcalarApisT.XcalarApiSessionSwitch;
-    workItem.input.sessionSwitchInput.sessionName = sessionName;
-    workItem.input.sessionSwitchInput.origSessionName = origSessionName;
-    workItem.input.sessionSwitchInput.noCleanup = noCleanup;
-    return (workItem);
-};
-
-xcalarApiSessionSwitch = runEntity.xcalarApiSessionSwitch = function(thriftHandle, sessionName, origSessionName,
-                                noCleanup) {
-    var deferred = jQuery.Deferred();
-    if (verbose) {
-        console.log("xcalarApiSessionSwitch(sessionName = ", sessionName, ", ",
-                    "origSessionName = ", origSessionName,
-                    "bypass clean up = ", noCleanup, ")");
-    }
-    var workItem = xcalarApiSessionSwitchWorkItem(sessionName, origSessionName,
-                                                  noCleanup);
-
-    thriftHandle.client.queueWorkAsync(workItem)
-    .then(function(result) {
-        var status = result.output.hdr.status;
-        var log = result.output.hdr.log;
-
-        if (result.jobStatus != StatusT.StatusOk) {
-            status = result.jobStatus;
-        }
-        if (status != StatusT.StatusOk) {
-            deferred.reject({xcalarStatus: status, log: log});
-        } else {
-            result.timeElapsed = result.output.hdr.elapsed.milliseconds;
-            deferred.resolve(result);
-        }
-    })
-    .fail(function(error) {
-        console.log("xcalarApiSessionSwitch() caught exception:", error);
         deferred.reject(handleRejection(error));
     });
 
