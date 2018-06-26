@@ -494,7 +494,7 @@ window.DF = (function($, DF) {
         return hasNewParam;
     }
 
-    DF.comment= function(dfName, tableName, newComment, meta) {
+    DF.comment = function(dfName, tableName, newComment, meta) {
         var deferred = PromiseHelper.deferred();
 
         var commentObj = {

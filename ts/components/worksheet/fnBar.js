@@ -180,7 +180,6 @@ window.FnBar = (function(FnBar, $) {
 
     function fnBarLock() {
         if (!$("#container").hasClass("columnPicker")) {
-            console.log("locked")
             $functionArea.addClass("fnBarLocked");
             $("#container").addClass("columnPicker");
             $("#container").addClass("formOpen");
@@ -222,7 +221,6 @@ window.FnBar = (function(FnBar, $) {
                                         "" : $prefixDiv.text();
                 const columnVal = xcHelper.getPrefixColName(colPrefix,
                                            $header.find(".editableHead").val());
-                                           console.log("clicked");
                 editor.replaceSelection(columnVal, "around");
             });
             $(document).on("keydown", function(event) {
@@ -239,7 +237,6 @@ window.FnBar = (function(FnBar, $) {
 
     FnBar.unlock = function() {
         if ($functionArea.hasClass("fnBarLocked")) {
-            console.log("unlocked")
             $("#container").removeClass("columnPicker");
             $("#container").removeClass("formOpen");
             $functionArea.removeClass("fnBarLocked");
@@ -1088,6 +1085,8 @@ window.FnBar = (function(FnBar, $) {
     if (window.unitTestMode) {
         FnBar.__testOnly__ = {};
         FnBar.__testOnly__.functionBarEnter = functionBarEnter;
+        FnBar.__testOnly__.getUnknownFuncs = getUnknownFuncs;
+        FnBar.__testOnly__.getUnknownSelectedColNames = getUnknownSelectedColNames;
     }
     /* End Of Unit Test Only */
 

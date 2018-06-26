@@ -303,6 +303,67 @@ describe('FnBar Test', function() {
         });
     });
 
+    describe("locking and unlocking focus", function() {
+        it("should lock", function() {
+            $table.find('th.col1 .dragArea').mousedown();
+
+            expect($("#functionArea").find(".CodeMirror-code").text())
+            .to.equal('= pull(' + prefix + gPrefixSign + 'average_stars)');
+            expect($fnArea.hasClass("fnBarLocked")).to.be.false;
+
+            editor.focus();
+            var e = new Event("mousedown");
+            CodeMirror.signal(editor, "mousedown", editor, e);
+            var e = new Event("focus");
+            CodeMirror.signal(editor, "focus", editor, e);
+
+            expect($fnArea.hasClass("fnBarLocked")).to.be.true;
+        });
+        it("lock should have correct states", function() {
+            expect($("#container").hasClass("columnPicker")).to.be.true;
+            expect($("#container").hasClass("formOpen")).to.be.true;
+        });
+        it("column picker should work", function() {
+            var valLen = editor.getValue().length;
+            editor.setCursor(0, valLen);
+            $table.find('th.col1 .dragArea').click();
+
+            expect($("#functionArea").find(".CodeMirror-code").text())
+            .to.equal('= pull(' + prefix + gPrefixSign + 'average_stars)' +
+            prefix + gPrefixSign + 'average_stars');
+        });
+        it("should unlock", function() {
+            $(document).trigger({
+                type: "keydown",
+                which: keyCode.Escape
+            });
+            expect($fnArea.hasClass("fnBarLocked")).to.be.false;
+        });
+    });
+
+    describe("other functions", function() {
+        it("get unknown funcs should work", function() {
+            var fn = FnBar.__testOnly__.getUnknownFuncs;
+            var res = fn({name: "add", args: [
+                {name: "sub", args:[1]},
+                {name: "zzzDoesNotExistzzz", args:[1]},
+                {name: "default:now", args:[1]},
+                {name: "zzzDoesNotExistzzz", args:[1]},
+                {name: "zzzDoesNotExist2zzz", args:[1]}
+            ]});
+            expect(res.length).to.equal(2);
+            expect(res[0]).to.equal("zzzDoesNotExistzzz");
+            expect(res[1]).to.equal("zzzDoesNotExist2zzz");
+        });
+
+        it("getUnknownSelectedColNames should work", function(){
+            var fn = FnBar.__testOnly__.getUnknownSelectedColNames;
+            var res = fn([prefix + gPrefixSign + 'average_stars', "zzzDoesNotExistzzz"], tableId);
+            expect(res.length).to.equal(1);
+            expect(res[0]).to.equal("zzzDoesNotExistzzz");
+        })
+    })
+
     describe('Function bar operations test', function() {
         describe("Filter test", function() {
             it("invalid operator should be detected", function(done) {
@@ -486,7 +547,6 @@ describe('FnBar Test', function() {
             });
         });
     });
-
 
     after(function(done) {
         UnitTest.deleteTable(tableName, TableType.Orphan)
