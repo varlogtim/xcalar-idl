@@ -1306,7 +1306,7 @@ namespace XIApi {
     function checkUnionTableInfos(tableInfos: UnionTableInfo[]): UnionTableInfo[] {
         if (tableInfos == null ||
             !(tableInfos instanceof Array) ||
-            tableInfos.length < 2
+            tableInfos.length < 1
         ) {
             return null;
         }

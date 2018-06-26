@@ -894,6 +894,27 @@ window.UnionView = (function(UnionView, $) {
         editingInfo = {};
     }
 
+    function hasDedup() {
+        return $("#dedupSection").find(".radioButton.active").hasClass("no");
+    }
+
+    function getUnionType() {
+        var unionType = UnionOperatorT.UnionStandard;
+        var unionOption = $unionView.find(".modeList").data("option");
+        switch (unionOption) {
+            case ("except"):
+                unionType = UnionOperatorT.UnionExcept;
+                break;
+            case ("intersect"):
+                unionType = UnionOperatorT.UnionIntersect;
+                break;
+            case ("union"):
+                unionType = UnionOperatorT.UnionStandard;
+                break;
+        }
+        return unionType;
+    }
+
     function submitForm() {
         if (!validate()) {
             return;
@@ -938,20 +959,8 @@ window.UnionView = (function(UnionView, $) {
                 columns: columns
             });
         });
-        var unionType = UnionOperatorT.UnionStandard;
-        var dedup = $("#dedupSection").find(".radioButton.active").hasClass("no");
-        var unionOption = $unionView.find(".modeList").data("option");
-        switch (unionOption) {
-            case ("except"):
-                unionType = UnionOperatorT.UnionExcept;
-                break;
-            case ("intersect"):
-                unionType = UnionOperatorT.UnionIntersect;
-                break;
-            case ("union"):
-                unionType = UnionOperatorT.UnionStandard;
-                break;
-        }
+        var dedup = hasDedup();
+        var unionType = getUnionType();
 
         var newTableName = $unionView.find(".newTableName").val();
         var options = {
@@ -975,7 +984,18 @@ window.UnionView = (function(UnionView, $) {
         isValid = xcHelper.validate([{
             $ele: $unionView.find(".addTable"),
             error: UnionTStr.OneTableToUnion,
-            check: function() { return $unionTableList.length <= 1; }
+            check: function() {
+                if ($unionTableList.length <= 1) {
+                    // XXX this is temporarily allowed before we have dedbup UX
+                    if (getUnionType() === UnionOperatorT.UnionStandard &&
+                        hasDedup() === true) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+                return false;
+            }
         }]);
         if (!isValid) {
             return false;

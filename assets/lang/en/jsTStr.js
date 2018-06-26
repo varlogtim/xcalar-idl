@@ -789,9 +789,9 @@ JoinTStr = {
 
 UnionTStr = {
     "ChooseType": "Select column type",
-    "OneTableToUnion": "Need at least two tables to union.",
-    "Cast": "Columns to union have different types. Please select a type for the resultant column.",
-    "AddCol": "Click to add to the union table",
+    "OneTableToUnion": "Need at least two tables for the operation.",
+    "Cast": "Columns for the set operation have different types. Please select a type for the resultant column.",
+    "AddCol": "Click to add",
     "Table": "Table",
     "UnionTable": "Results Table",
     "NewTableName": "New Table Name",
@@ -799,9 +799,9 @@ UnionTStr = {
     "CandidateHint": "Columns in this section will not be added to the results table. Click column name to add the column to the results table.",
     "EmptyList": "Empty List",
     "SearchCol": "Find column name",
-    "SelectCol": "Please select columns to union",
+    "SelectCol": "Please select columns for the set operation",
     "NoMatch": "No Match",
-    "TypeMismatch": "Columns to union have different types. Select columns of the same type.",
+    "TypeMismatch": "Columns for the set operation have different types. Select columns of the same type.",
     "header": "SET OPERATION", // sync with htmlTStr
     "UsedFor": "Used for <col>",
     "MixType": "Mixed type columns must cast first. Please select a type for the resultant column."

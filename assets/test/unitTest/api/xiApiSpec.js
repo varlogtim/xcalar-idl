@@ -1779,7 +1779,7 @@ describe('XIApi Test', () => {
             const oldFunc = Transaction.isSimulate;
             Transaction.isSimulate = () => true;
 
-            XIApi.checkOrder('test#1', 1)
+            XIApi.checkOrder('test#abc', 1)
                 .then((ordering, keys) => {
                     expect(ordering).to.be.null;
                     expect(keys.length).to.equal(0);
