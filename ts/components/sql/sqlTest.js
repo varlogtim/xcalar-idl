@@ -45,7 +45,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         "joinSemiOptimize": "select * from nation n1 where exists(   select *   from nation n2   where n2.n_regionkey = n1.n_regionkey and n2.n_nationkey >= n1.n_nationkey) order by n_nationkey",
         "joinAntiOptimize": "select * from nation n1 where not exists(   select *   from nation n2   where n2.n_regionkey = n1.n_regionkey and n2.n_nationkey > n1.n_nationkey) order by n_nationkey",
         "joinCatchall": "select * from region, nation where r_regionkey > n_regionkey order by n_nationkey, r_regionkey",
-        "joinOptimizeFilter": "select * from region, nation where r_regionkey = n_regionkey and r_regionkey <> n_nationkey order by n_nationkey, r_regionkey",
+        "joinOptimizeFilter": "select * from region, nation where r_regionkey*2 = n_regionkey and r_regionkey <> n_nationkey order by n_nationkey, r_regionkey",
         "crossJoinNoFilter": "select * from nation cross join region order by n_nationkey, r_regionkey",
         // "dateExpWithTS": "select year(timestamp(someTimestampCol)) from table",
         "existenceJoin": "select * from region r1 where exists(select * from region r2 where r2.r_regionkey >= r1.r_regionkey) or exists(select * from region r3 where r3.r_regionkey < r1.r_regionkey) order by r_regionkey",
@@ -89,7 +89,10 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         "stdPop": "select stddev_pop(n_nationkey) from nation group by n_regionkey order by n_regionkey",
         "varSamp": "select variance(n_nationkey) from nation group by n_regionkey order by n_regionkey",
         "varPop": "select var_pop(n_nationkey) from nation group by n_regionkey order by n_regionkey",
-        "newExps1": "select lpad(n_name, 7, 'a') a, rpad(n_name, 1, 'b') b,/* initcap(n_name) c,*/ reverse(n_name) d, bit_length(n_name) e, octet_length(n_name) f, levenshtein(n_name, n_comment) g, soundex(n_comment) h, ascii(n_name) i, chr(n_nationkey+100) j, format_number(n_nationkey+n_regionkey*1000.1,1) k, format_number(n_nationkey+n_regionkey*1000.1,0) l from nation order by n_nationkey"
+        "newExps1": "select lpad(n_name, 7, 'a') a, rpad(n_name, 1, 'b') b,/* initcap(n_name) c,*/ reverse(n_name) d, bit_length(n_name) e, octet_length(n_name) f, levenshtein(n_name, n_comment) g, soundex(n_comment) h, ascii(n_name) i, chr(n_nationkey+100) j, format_number(n_nationkey+n_regionkey*1000.1,1) k, format_number(n_nationkey+n_regionkey*1000.1,0) l from nation order by n_nationkey",
+        "find": "SELECT instr(N_NAME, 'AN') a, locate('ol', N_COMMENT) b FROM NATION WHERE N_REGIONKEY > (SELECT min(N_REGIONKEY) from NATION) OR N_REGIONKEY < (SELECT N_REGIONKEY FROM NATION ORDER BY N_NATIONKEY limit 1) ORDER BY N_NATIONKEY limit 15",
+        "projectRename": "SELECT N_NATIONKEY N_NAME, N_REGIONKEY N_NAME, N_NAME from NATION order BY N_NATIONKEY",
+        "dateUDFs1": "SELECT dayofweek(O_ORDERDATE) a, dayofyear(O_ORDERDATE) b, weekofyear(O_ORDERDATE) c from (select O_ORDERKEY, O_ORDERDATE from ORDERS order by O_ORDERKEY limit 30) order by O_ORDERKEY"
     };
     var sqlTestAnswers = {
         "filterWithAggregates": {"row0": ["12", "JAPAN"],
@@ -181,9 +184,9 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         "joinCatchall": {"row1": ["2", "ASIA"],
                          "row5": ["3", "EUROPE"],
                          "numOfRows": "50"},
-        "joinOptimizeFilter": {"row7": ["4", "MIDDLE EAST"],
-                               "row15": ["2", "ASIA"],
-                               "numOfRows": "22"},
+        "joinOptimizeFilter": {"row7": ["2", "ASIA"],
+                               "row10": ["0", "AFRICA"],
+                               "numOfRows": "14"},
         "crossJoinNoFilter": {"row0": ["0", "ALGERIA", "0"],
                               "numOfRows": "125"},
         "existenceJoin": {"row2": ["2", "ASIA"],
@@ -276,7 +279,14 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                    "row2": [25.84]},
         "newExps1": {"row6": ["aFRANCE", "F", /*"France", */"ECNARF", 120, 15, 38, "R141", 70, "j", "3,006.3", "3,006"],
                      "row15": ["MOROCCO", "M", "OCCOROM", /*"Morocco", */128, 16, 90, "R521", 77, "s", "15.0", "15"],
-                     "row22": ["aRUSSIA", "R", "AISSUR", /*"Russia", */120, 15, 79, "FNF", 82, "z", "3,022.3", "3,022"]}
+                     "row22": ["aRUSSIA", "R", "AISSUR", /*"Russia", */120, 15, 79, "FNF", 82, "z", "3,022.3", "3,022"]},
+        "find": {"row3": [0, 36],
+                 "row10": [4, 32]},
+        "projectRename": {"columns": ["N_NAME", "N_NAME_1", "N_NAME_2"],
+                          "row3": [3, 1, "CANADA"]},
+        "dateUDFs1": {"row1": [7, 336, 48],
+                      "row17": [4, 20, 3],
+                      "numOfRows": "30"}
     };
     var tpchCases = {
         "q1": "select l_returnflag, l_linestatus, sum(l_quantity) as sum_qty," +

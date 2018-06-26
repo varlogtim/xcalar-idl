@@ -340,13 +340,13 @@
                 "right": 1
             });
         }
-        function ifStrNode() {
-            return new TreeNode({
-                "class": "org.apache.spark.sql.catalyst.expressions.IfStr",
-                "num-children": 3,
-                "branches": null,
-            });
-        }
+        // function ifStrNode() {
+        //     return new TreeNode({
+        //         "class": "org.apache.spark.sql.catalyst.expressions.IfStr",
+        //         "num-children": 3,
+        //         "branches": null,
+        //     });
+        // }
         function ifNode() {
             return new TreeNode({
                 "class": "org.apache.spark.sql.catalyst.expressions.If",
@@ -4453,69 +4453,70 @@
         });
     }
 
-    function isMathOperator(expression) {
-        var mathOps = {
-            // arithmetic.scala
-            "expressions.UnaryMinus": null,
-            "expressions.UnaryPositive": null,
-            "expressions.Abs": "abs",
-            "expressions.Add": "add",
-            "expressions.Subtract": "sub",
-            "expressions.Multiply": "mult",
-            "expressions.Divide": "div",
-            "expressions.Remainder": "mod",
-            "expressions.Pmod": null,
-            "expressions.Least": null,
-            "expressions.Greatest": null,
-            // mathExpressions.scala
-            "expressions.EulerNumber": null,
-            "expressions.Pi": "pi",
-            "expressions.Acos": "acos",
-            "expressions.Asin": "asin",
-            "expressions.Atan": "atan",
-            "expressions.Cbrt": null,
-            "expressions.Ceil": "ceil",
-            "expressions.Cos": "cos",
-            "expressions.Cosh": "cosh",
-            "expressions.Conv": null,
-            "expressions.Exp": "exp",
-            "expressions.Expm1": null,
-            "expressions.Floor": "floor",
-            "expressions.Factorial": null,
-            "expressions.Log": "log",
-            "expressions.Log2": "log2",
-            "expressions.Log10": "log10",
-            "expressions.Log1p": null,
-            "expressions:Rint": null,
-            "expressions.Signum": null,
-            "expressions.Sin": "sin",
-            "expressions.Sinh": "sinh",
-            "expressions.Sqrt": "sqrt",
-            "expressions.Tan": "tan",
-            "expressions.Cot": null,
-            "expressions.Tanh": "tanh",
-            "expressions.ToDegrees": "degrees",
-            "expressions.ToRadians": "radians",
-            "expressions.Bin": null,
-            "expressions.Hex": null,
-            "expressions.Unhex": null,
-            "expressions.Atan2": "atan2",
-            "expressions.Pow": "pow",
-            "expressions.ShiftLeft": "bitlshift",
-            "expressions.ShiftRight": "bitrshift",
-            "expressions.ShiftRightUnsigned": null,
-            "expressions.Hypot": null,
-            "expressions.Logarithm": null,
-            "expressions.Round": "round",
-            "expressions.BRound": null,
-        };
-        if (expression.substring("org.apache.spark.sql.catalyst.".length) in
-            mathOps) {
-            return true;
-        } else {
-            return false;
-        }
-    }
+    // Not used currently
+    // function isMathOperator(expression) {
+    //     var mathOps = {
+    //         // arithmetic.scala
+    //         "expressions.UnaryMinus": null,
+    //         "expressions.UnaryPositive": null,
+    //         "expressions.Abs": "abs",
+    //         "expressions.Add": "add",
+    //         "expressions.Subtract": "sub",
+    //         "expressions.Multiply": "mult",
+    //         "expressions.Divide": "div",
+    //         "expressions.Remainder": "mod",
+    //         "expressions.Pmod": null,
+    //         "expressions.Least": null,
+    //         "expressions.Greatest": null,
+    //         // mathExpressions.scala
+    //         "expressions.EulerNumber": null,
+    //         "expressions.Pi": "pi",
+    //         "expressions.Acos": "acos",
+    //         "expressions.Asin": "asin",
+    //         "expressions.Atan": "atan",
+    //         "expressions.Cbrt": null,
+    //         "expressions.Ceil": "ceil",
+    //         "expressions.Cos": "cos",
+    //         "expressions.Cosh": "cosh",
+    //         "expressions.Conv": null,
+    //         "expressions.Exp": "exp",
+    //         "expressions.Expm1": null,
+    //         "expressions.Floor": "floor",
+    //         "expressions.Factorial": null,
+    //         "expressions.Log": "log",
+    //         "expressions.Log2": "log2",
+    //         "expressions.Log10": "log10",
+    //         "expressions.Log1p": null,
+    //         "expressions:Rint": null,
+    //         "expressions.Signum": null,
+    //         "expressions.Sin": "sin",
+    //         "expressions.Sinh": "sinh",
+    //         "expressions.Sqrt": "sqrt",
+    //         "expressions.Tan": "tan",
+    //         "expressions.Cot": null,
+    //         "expressions.Tanh": "tanh",
+    //         "expressions.ToDegrees": "degrees",
+    //         "expressions.ToRadians": "radians",
+    //         "expressions.Bin": null,
+    //         "expressions.Hex": null,
+    //         "expressions.Unhex": null,
+    //         "expressions.Atan2": "atan2",
+    //         "expressions.Pow": "pow",
+    //         "expressions.ShiftLeft": "bitlshift",
+    //         "expressions.ShiftRight": "bitrshift",
+    //         "expressions.ShiftRightUnsigned": null,
+    //         "expressions.Hypot": null,
+    //         "expressions.Logarithm": null,
+    //         "expressions.Round": "round",
+    //         "expressions.BRound": null,
+    //     };
+    //     if (expression.substring("org.apache.spark.sql.catalyst.".length) in
+    //         mathOps) {
+    //         return true;
+    //     } else {
+    //         return false;
+    //     }
+    // }
     function addPrefix(plan, startingTables, finalTable, prefix) {
         var newFinalTable;
         for (var i = 0; i < plan.length; i++) {
