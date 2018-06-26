@@ -3,6 +3,7 @@ describe('JsonModal Test', function() {
     var tableName;
     var prefix;
     var $jsonModal;
+    var $modal;
     var tableId;
     var $table;
 
@@ -15,6 +16,7 @@ describe('JsonModal Test', function() {
             tableName = tName;
             prefix = tPrefix;
             $jsonModal = $('#jsonModal');
+            $modal = $jsonModal;
             tableId = xcHelper.getTableId(tableName);
             var colInfo = [{colNum: 10, ordering: XcalarOrderingT.XcalarOrderingAscending}];
             xcFunction.sort(tableId, colInfo)
@@ -59,7 +61,42 @@ describe('JsonModal Test', function() {
             var jsonObj = JSON.parse("{" + $jsonModal.find('.jObject').last().text().replace(/[\s\n]/g, "") + "}");
             expect(Object.keys(jsonObj).length).to.equal(12);
         });
+
+        it("getMissingImmediatesHtml should work", function() {
+            var html = JSONModal.__testOnly__.getMissingImmediatesHtml({
+                "something": "string"
+            });
+            var $html = $(html);
+            expect($html.find(".jKey").text()).to.equal("something");
+            expect($html.find(".jString").text()).to.equal("string");
+        });
     });
+
+    describe("modal resizing", function() {
+        it("should resize", function() {
+            var $bar = $modal.find(".ui-resizable-e").eq(0);
+            var pageX = $bar.offset().left;
+            var pageY = $bar.offset().top;
+
+            expect($modal.find(".tabs").hasClass("small")).to.be.false;
+
+            $bar.trigger("mouseover");
+            $bar.trigger({ type: "mousedown", which: 1, pageX: pageX, pageY: pageY });
+            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX - 200, pageY: pageY});
+            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX - 200, pageY: pageY});
+
+            expect($bar.offset().left > pageX);
+            expect($modal.find(".tabs").hasClass("small")).to.be.true;
+
+            $bar.trigger("mouseover");
+            $bar.trigger({ type: "mousedown", which: 1, pageX: pageX - 200, pageY: pageY});
+            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX, pageY: pageY});
+            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX, pageY: pageY});
+            expect($bar.offset().left === pageY);
+            expect($modal.find(".tabs").hasClass("small")).to.be.false;
+        });
+    });
+
 
     describe('mousedown on jsonDrag element', function() {
         it('mousedown on jsonDrag should work', function() {
@@ -406,6 +443,22 @@ describe('JsonModal Test', function() {
             expect($jsonModal.find('.unmatched').eq(0).children().length).to.equal(0);
             expect($jsonModal.find('.unmatched').eq(1).children().length).to.equal(0);
         });
+
+        it("sort columns should work", function() {
+            var data = JSONModal.__testOnly__.getJsons();
+            var firstVal = data[0].immediates.user_id;
+            var secondVal = data[1].immediates.user_id;
+            var thirdVal = data[2].immediates.user_id;
+
+            JSONModal.__testOnly__.resortJsons(0, 2);
+            expect(data[0].immediates.user_id).to.equal(secondVal);
+            expect(data[1].immediates.user_id).to.equal(thirdVal);
+            expect(data[2].immediates.user_id).to.equal(firstVal);
+            JSONModal.__testOnly__.resortJsons(2, 0);
+            expect(data[0].immediates.user_id).to.equal(firstVal);
+            expect(data[1].immediates.user_id).to.equal(secondVal);
+            expect(data[2].immediates.user_id).to.equal(thirdVal);
+        })
 
         it('remove panel should work', function() {
             expect($jsonModal.find('.jsonWrap').length).to.equal(3);

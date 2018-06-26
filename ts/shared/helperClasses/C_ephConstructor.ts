@@ -376,12 +376,6 @@ class SearchBar {
     private _setup(): void {
         const searchBar: SearchBar = this;
         const options: SearchBarOptions = searchBar.options || {};
-        // let $searchInput: JQuery | CodeMirror.Editor;
-        // if (options.codeMirror) {
-        //     $searchInput = searchBar.codeMirror;
-        // } else {
-        //     $searchInput = searchBar.$searchInput;
-        // }
 
         // keydown event for up, down, enter keys
         // secondaryEvent is the event passed in by codemirror

@@ -1910,6 +1910,11 @@ window.JSONModal = (function($, JSONModal) {
         JSONModal.__testOnly__.compareIconSelect = compareIconSelect;
         JSONModal.__testOnly__.selectTab = selectTab;
         JSONModal.__testOnly__.saveLastMode = saveLastMode;
+        JSONModal.__testOnly__.resortJsons = resortJsons;
+        JSONModal.__testOnly__.getMissingImmediatesHtml = getMissingImmediatesHtml;
+        JSONModal.__testOnly__.getJsons = function() {
+            return jsonData;
+        }
     }
     /* End Of Unit Test Only */
 
