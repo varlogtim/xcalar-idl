@@ -2258,11 +2258,26 @@ function fakeSqlLoad(func) {
 function fakeSqlPlan(func) {
     sqlPlan = func;
 }
+function fakeSqlSelect(func) {
+    sqlSelect = func;
+}
+function fakeListPublishTables(func) {
+    listPublishTables = func;
+}
+function fakeCleanAllTables(func) {
+    cleanAllTables = func;
+}
 if (process.env.NODE_ENV === "test") {
     exports.sqlLoad = sqlLoad;
     exports.sqlPlan = sqlPlan;
+    exports.sqlSelect = sqlSelect;
+    exports.listPublishTables = listPublishTables;
+    exports.cleanAllTables = cleanAllTables;
     // Stub functions
     exports.fakeSqlLoad = fakeSqlLoad;
     exports.fakeSqlPlan = fakeSqlPlan;
+    exports.fakeSqlSelect = fakeSqlSelect;
+    exports.fakeListPublishTables = fakeListPublishTables;
+    exports.fakeCleanAllTables = fakeCleanAllTables;
 }
 exports.router = router;

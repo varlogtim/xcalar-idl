@@ -30,7 +30,7 @@ async function runTest(testType, hostname) {
         } else if (testType === "expServer") {
             let exitCode = 0;
             try {
-                let mochaTest = "NODE_ENV=test node_modules/istanbul/lib/cli.js cover mocha ../../../xcalar-gui/services/test/expServerSpec/*.js --dir ../../../services/test/report";
+                let mochaTest = "NODE_ENV=test node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/mocha ../../../xcalar-gui/services/test/expServerSpec/*.js --dir ../../../services/test/report";
                 exec(mochaTest);
                 console.log("Expserver test passed.");
             } catch (error) {
