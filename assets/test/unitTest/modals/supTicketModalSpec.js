@@ -262,6 +262,17 @@ describe("SupTicketModal Test", function() {
             expect(tix.length).to.equal(3);
             tix.splice(0, 1);
         });
+
+        it("reverseLogs should work", () => {
+            const reverseLogs = SupTicketModal.__testOnly__.reverseLogs;
+            const logs = {a: [1, 2], b: "test"};
+            const res = reverseLogs(logs);
+            expect(Object.keys(res).length).to.equal(2);
+            expect(res.a).to.deep.equal([2, 1]);
+            expect(res.b).to.equal("test");
+            // error case
+            expect(reverseLogs(null)).to.be.null;
+        });
     });
 
     describe("SupTicketModal Submit Test", function() {

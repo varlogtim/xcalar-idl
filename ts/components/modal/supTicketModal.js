@@ -409,7 +409,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         };
 
         if (download) {
-            ticketObj.xiLog = Log.getAllLogs(true);
+            ticketObj.xiLog = reverseLogs(Log.getAllLogs(true));
             downloadTicket(ticketObj);
             $modal.addClass("downloadSuccess");
             $modal.removeClass("downloadMode");
@@ -913,6 +913,9 @@ window.SupTicketModal = (function($, SupTicketModal) {
                          '"logs":[' + strLogs + '],' +
                          '"overwrittenLogs":[' + strOverwrites + '],' +
                          '"errors":[' + strErrors + ']}';
+        } else {
+            // make most recent logs at top
+            strLogs = JSON.stringify(reverseLogs(xiLogs));
         }
         return strLogs;
     };
@@ -1029,6 +1032,20 @@ window.SupTicketModal = (function($, SupTicketModal) {
         return data;
     }
 
+    function reverseLogs(logs) {
+        try {
+            for (var key in logs) {
+                if (logs[key] instanceof Array) {
+                    logs[key] = logs[key].reverse();
+                }
+            }
+            return logs;
+        } catch (e) {
+            console.error(e);
+            return logs;
+        }
+    }
+
     /* Unit Test Only */
     if (window.unitTestMode) {
         SupTicketModal.__testOnly__ = {};
@@ -1038,6 +1055,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         SupTicketModal.__testOnly__.parseTicketList = parseTicketList;
         SupTicketModal.__testOnly__.getTickets = getTickets;
         SupTicketModal.__testOnly__.includeUpdatedTickets = includeUpdatedTickets;
+        SupTicketModal.__testOnly__.reverseLogs = reverseLogs;
         SupTicketModal.__testOnly__.addUpdatedTickets = function(tixs) {
             updatedTickets = tixs;
         };
