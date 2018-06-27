@@ -364,7 +364,7 @@ declare function XcalarMap(colNames: string[], mapStrs: string[], tableName: str
 declare function XcalarProject(columns: string[], tableName: string, newTableName: string, txId: number): XDPromise<any>;
 declare function XcalarQueryCancel(queryName: string, statusesToIgnore?: number[]): XDPromise<any>;
 declare function XcalarQueryState(queryName: string): XDPromise<any>;
-declare function XcalarQueryWithCheck(queryName: string, queryStr: string, txId: number, bailOnError: boolean): XDPromise<any>;
+declare function XcalarQueryWithCheck(queryName: string, queryStr: string, txId: number, bailOnError: boolean, jdbcCheckTime?: number): XDPromise<any>;
 declare function XcalarRefreshTable(pubTableName: string, dstTableName: string, minBatch: number, maxBatch: number, txId: number): XDPromise<any>;
 declare function XcalarRenameTable(oldTableName: string, newTableName: string, txId: number): XDPromise<void>;
 declare function XcalarRestoreTable(tableName: string): XDPromise<any>;

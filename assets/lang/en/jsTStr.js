@@ -860,10 +860,8 @@ WKBKTStr = {
     'NoOldWKBKMsg': 'Please use new workbook or log out and try again!',
     'Expire': 'Please Log out',
     'ExpireMsg': 'You are logged in somewhere else!',
-    'Hold': 'Login Warning',
-    'HoldMsg': 'You are logged in somewhere else. Continuing to log in might ' +
-               'cause you to lose unsaved work.',
-    'Release': 'Continue login',
+    'HoldMsg': 'You opened the workbook somewhere else. Continuing to open this workbook might cause you to lose unsaved work.',
+    'Release': 'Open workbook',
     'WKBKnotExists': 'No workbooks exist',
     "WkbkNameRequired": "Workbook name is required.",
     "Activate": "Activate Workbook",

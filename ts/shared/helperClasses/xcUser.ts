@@ -235,7 +235,7 @@ class XcUser {
         }
         // when seesion is hold by others
         Alert.show({
-            title: WKBKTStr.Hold,
+            title: AlertTStr.Title,
             msg: WKBKTStr.HoldMsg,
             buttons: [{
                 name: CommonTxtTstr.Back,
@@ -246,7 +246,7 @@ class XcUser {
             },
             {
                 name: WKBKTStr.Release,
-                className: "cancel",
+                className: "cancel larger",
                 func: function() {
                     if (isVisible) {
                         $initScreen.show();
