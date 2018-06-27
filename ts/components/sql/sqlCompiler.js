@@ -1250,10 +1250,8 @@
                             } catch (e) {
                                 return PromiseHelper.reject(SQLErrTStr.InvalidXcalarQuery);
                             }
-                            tree.newTableName = addPrefix(plan,
-                                                           allTableNames,
-                                                           tree.newTableName,
-                                                           jdbcOption.prefix);
+                            addPrefix(plan, allTableNames, tree.newTableName,
+                                      jdbcOption.prefix);
                             queryString = JSON.stringify(plan);
                         }
 
@@ -1275,7 +1273,8 @@
                 if (typeof SQLEditor !== "undefined") {
                     SQLEditor.startExecution();
                 }
-                var jdbcCheckTime = jdbcOption ? jdbcOption.jdbcCheckTime : undefined;
+                var jdbcCheckTime = jdbcOption && jdbcOption.jdbcCheckTime ?
+                                    jdbcOption.jdbcCheckTime : 200;
                 self.sqlObj.run(queryString, newTableName, newCols,
                                 sqlQueryString, jdbcCheckTime)
                 .then(function() {
@@ -4521,7 +4520,6 @@
     //     }
     // }
     function addPrefix(plan, startingTables, finalTable, prefix) {
-        var newFinalTable;
         for (var i = 0; i < plan.length; i++) {
             var operation = plan[i];
             var source = operation.args.source;
@@ -4547,13 +4545,11 @@
                 if (dest.startsWith("src") || dest.startsWith("sql")) {
                     dest = dest.substring(dest.indexOf("_") + 1);
                 }
-                if (operation.args.dest === finalTable) {
-                    newFinalTable = prefix + dest;
+                if (operation.args.dest !== finalTable) {
+                    operation.args.dest = prefix + dest;
                 }
-                operation.args.dest = prefix + dest;
             }
         }
-        return newFinalTable;
     };
 
     if (typeof exports !== "undefined") {

@@ -1460,6 +1460,7 @@ var XIApi;
 var Transaction;
 var SQLApi;
 var SQLCompiler;
+var request = require('request');
 var express = require('express');
 var router = express.Router();
 
@@ -1632,7 +1633,6 @@ function getRows(tableName, startRowNum, rowsToFetch) {
 var sqlTable;
 var sqlUser = "xcalar-internal-sql";
 var sqlId = 4193719;
-var logInUser;
 
 function finalizeTable(publishArgsList, cleanup, checkTime) {
     var deferred = PromiseHelper.deferred();
@@ -1779,27 +1779,21 @@ function listPublishTables(pattern) {
 };
 
 function connect(hostname, username, id) {
-    if (getTHandle() != null) {
-        if (username !== logInUser) {
-            return PromiseHelper.reject("Authentication fails");
-        } else {
-            return XcalarGetVersion();
-        }
-    }
     var valid = xcalarApi.setUserIdAndName(username, id, jQuery.md5);
     if (valid) {
-        setupThrift(hostname);
-        logInUser = username;
+        if (getTHandle() == null) {
+            setupThrift(hostname);
+        }
         return XcalarGetVersion();
     } else {
         return PromiseHelper.reject("Authentication fails");
     }
 };
 
-function goToSqlWkbk() {
-    var wkbkName = "sql-workbook";
+function goToSqlWkbk(workbook) {
+    var wkbkName = workbook || "sql-workbook";
     var deferred = PromiseHelper.deferred();
-    var activeSessionName = null;
+    var activeSessionNames = [];
     var sqlSession = null;
 
     XcalarListWorkbooks("*")
@@ -1809,7 +1803,7 @@ function goToSqlWkbk() {
                 sqlSession = session;
             }
             if (session.state === "Active") {
-                activeSessionName = session.name;
+                activeSessionNames.push(session.name);
             }
         });
         if (sqlSession == null) {
@@ -1817,7 +1811,7 @@ function goToSqlWkbk() {
         }
     })
     .then(function() {
-        if (wkbkName !== activeSessionName) {
+        if (activeSessionNames.indexOf(wkbkName) < 0) {
             return XcalarActivateWorkbook(wkbkName);
         } else {
             return PromiseHelper.resolve("already activated");
@@ -2083,6 +2077,51 @@ function sqlPlan(execid, planStr, rowsToFetch, sessionId, checkTime) {
     return deferred.promise();
 };
 
+function sqlQuery(userIdName, userIdUnique, wkbkName, queryString, queryTablePrefix) {
+    var deferred = PromiseHelper.deferred();
+    connect("localhost", userIdName, userIdUnique)
+    .then(function() {
+        console.log("connected");
+        return goToSqlWkbk(wkbkName);
+    })
+    .then(function() {
+        var innerDeferred = PromiseHelper.deferred();
+        var url = "http://127.0.0.1:27000/xcesql/sqlquery/" +
+                encodeURIComponent(encodeURIComponent(userIdName + "-wkbk-" + wkbkName)) +
+                "/true/true";
+        request.post(
+            url,
+            {json: {sqlQuery: queryString}},
+            function (error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    innerDeferred.resolve(JSON.parse(body.sqlQuery));
+                } else {
+                    innerDeferred.reject(error);
+                }
+            }
+        );
+        return innerDeferred.promise();
+    })
+    .then(function(plan) {
+        console.log(queryTablePrefix, " starts compiling...");
+        var option = {prefix: queryTablePrefix,
+                      sqlMode: true};
+        return new SQLCompiler().compile(plan, true, option);
+    })
+    .then(function(res) {
+        console.log("compiling finished!");
+        var result = {
+            tableName: res[0],
+            columns: res[1]
+        }
+        deferred.resolve(result)
+    })
+    .fail(function(err) {
+        deferred.reject(err);
+    });
+    return deferred.promise();
+};
+
 function parseRows(data, schema, renameMap) {
     try {
         var headers = schema.map(function(cell) {
@@ -2186,6 +2225,23 @@ function getColType(typeId) {
             return null;
     }
 }
+
+router.post("/sql/query", function(req, res) {
+    var userIdName = req.body.userIdName;
+    var userIdUnique = req.body.userIdUnique;
+    var wkbkName = req.body.wkbkName;
+    var queryString = req.body.queryString;
+    var queryTablePrefix = req.body.queryTablePrefix;
+    sqlQuery(userIdName, userIdUnique, wkbkName, queryString, queryTablePrefix)
+    .then(function(output) {
+        console.log("sql query finishes");
+        res.send(output);
+    })
+    .fail(function(error) {
+        console.log("sql query error: ", error);
+        res.status(500).send(error);
+    });
+})
 
 router.post("/xcedf/query", function(req, res) {
     var execid = req.body.execid;
