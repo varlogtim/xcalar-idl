@@ -1,5 +1,9 @@
 describe("Dataflow Panel Test", function() {
+    var oldDFCardRefresh;
+
     before(function() {
+        oldDFCardRefresh = DFCard.refresh;
+        DFCard.refresh = () => {};
         var $mainTabCache = $(".topMenuBarTab.active");
         if ($mainTabCache.attr("id") !== "dataflowTab") {
             $("#dataflowTab").click();
@@ -12,7 +16,6 @@ describe("Dataflow Panel Test", function() {
             DFCard.getActiveDF = function() {
                 return "unitTestDF";
             };
-
 
             $("#scheduleDetail").removeClass("xc-hidden");
             $("#dfViz .retTab").addClass("active");
@@ -76,6 +79,6 @@ describe("Dataflow Panel Test", function() {
     });
 
     after(function() {
-
+        DFCard.refresh = oldDFCardRefresh;
     });
 });

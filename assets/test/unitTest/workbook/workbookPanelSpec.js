@@ -1,4 +1,4 @@
-describe("Workbook-Workbook Pane Test", function() {
+describe("Workbook-Workbook Panel Test", function() {
     var $workbookPanel;
     var oldCommitCheck;
     var menuAction = function($box, action) {
@@ -771,7 +771,16 @@ describe("Workbook-Workbook Pane Test", function() {
                 done();
             })
             .fail(function() {
-                done("fail");
+                // try again
+                $("#homeBtn").click();
+
+                UnitTest.testFinish(checkFunc)
+                .then(function() {
+                    done();
+                })
+                .fail(function() {
+                    done("fail");
+                });
             });
         });
 

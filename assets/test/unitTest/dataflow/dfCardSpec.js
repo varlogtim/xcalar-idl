@@ -680,23 +680,13 @@ describe("DFCard Test", function() {
     });
 
     it("Dataflow refresh test", function() {
-        var allNames = [];
-        $("#dfMenu .groupName").each(function(idx, obj) {
-            allNames.push($(obj).text());
-        });
-
+        const oldFunc = DFCard.refresh;
+        let test = false;
+        DFCard.refresh = () => { test = true; }
         // Now hit refresh
         $(".dfList .refreshBtn").click();
-        var newNames = [];
-        $("#dfMenu .groupName").each(function(idx, obj) {
-            newNames.push($(obj).text());
-        });
-
-        // Everything in newNames must be in oldNames
-        expect(newNames.length).to.equal(allNames.length);
-        for (var i = 0; i < allNames.length; i++) {
-            expect(newNames).to.include(allNames[i]);
-        }
+        expect(test).to.be.true;
+        DFCard.refresh = oldFunc;
     });
 
     describe("Status Progress check", function() {

@@ -205,7 +205,9 @@ window.DFCard = (function($, DFCard) {
     };
 
     function addListeners() {
-        $dfMenu.on('click', '.refreshBtn', DFCard.refresh);
+        $dfMenu.on('click', '.refreshBtn', function() {
+            DFCard.refresh();
+        });
 
         $listSection.on('click', '.dataFlowGroup', function() {
             var $df = $(this);

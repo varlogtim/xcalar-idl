@@ -282,7 +282,6 @@ describe("DFParamModal Test", function() {
 
         after(function() {
             DF.commitAndBroadcast = cache1;
-            cache2 = DF.getParameters;
             DF.updateParamMap(cache2);
         });
     });
