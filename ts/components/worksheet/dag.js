@@ -822,7 +822,7 @@ window.Dag = (function($, Dag) {
         $schema.removeClass("loadInfo");
         var tableName;
         var numCols;
-        var numRows = CommonTxtTstr.Unknown;
+        var numRows = CommonTxtTstr.NA;
         $schema.data('tableid', tableId);
         $schema.data('$dagTable', $dagTable);
         var schemaId = Math.floor(Math.random() * 100000);
@@ -847,7 +847,7 @@ window.Dag = (function($, Dag) {
                 reversed = true;
             }
             getSchemaNodeInfo($schema, table, sortByNode, reversed);
-            if (table.resultSetCount > -1) {
+            if (table.isActive() && table.resultSetCount > -1) {
                 numRows = table.resultSetCount;
                 numRows = xcHelper.numToStr(numRows);
             } else {
@@ -1316,7 +1316,7 @@ window.Dag = (function($, Dag) {
 
         })
         .fail(function() {
-            $schema.find('.rowCount .value').text(CommonTxtTstr.Unknown);
+            $schema.find('.rowCount .value').text(CommonTxtTstr.NA);
         })
         .always(deferred.resolve);
         return deferred.promise();
