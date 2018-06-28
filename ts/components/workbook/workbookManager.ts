@@ -1687,7 +1687,8 @@ namespace WorkbookManager {
             progressCycle: progressCycle,
             endProgressCycle: endProgressCycle,
             countdown: countdown,
-            setupWorkbooks: setupWorkbooks
+            setupWorkbooks: setupWorkbooks,
+            restoreInactivePublishedTable: restoreInactivePublishedTable
         }
     }
     /* End Of Unit Test Only */

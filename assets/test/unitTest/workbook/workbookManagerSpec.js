@@ -1015,6 +1015,56 @@ describe("WorkbookManager Test", function() {
         });
     });
 
+    describe("restoreAllPublishedTables", function() {
+        it("restoreInactivePublishedTable should work", function(done) {
+            var called1 = false;
+            var cachedFn1 = XcalarGetTables;
+            XcalarGetTables = function() {
+                called1 = true;
+                return PromiseHelper.resolve({numNodes: 2});
+            }
+            var called2 = false;
+            var cachedFn2 = XcalarListPublishedTables;
+            XcalarListPublishedTables = function() {
+                called2 = true;
+
+                return PromiseHelper.resolve({tables: [
+                    {active: false, name: "test1"},
+                    {active: false, name: "test2"},
+                ]});
+            };
+
+            var called3 = false;
+            var cachedFn3 = XcalarRestoreTable;
+            XcalarRestoreTable = function() {
+                if (called3) {
+                    called3 = true;
+                    return PromiseHelper.resolve();
+                } else {
+                    // reject the first time
+                    called3 = true;
+                    return PromiseHelper.reject();
+                }
+            }
+
+            WorkbookManager.__testOnly__.restoreInactivePublishedTable()
+            .then(function() {
+                expect(called1).to.be.true;
+                expect(called2).to.be.true;
+                expect(called3).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("failed");
+            })
+            .always(function() {
+                XcalarGetTables = cachedFn1;
+                XcalarListPublishedTables = cachedFn2;
+                XcalarRestoreTable = cachedFn3;
+            });
+        });
+    });
+
     after(function() {
         KVStore.prototype.get = oldKVGet;
         XcUser.CurrentUser.commitCheck = oldCommitCheck;

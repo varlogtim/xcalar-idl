@@ -47,6 +47,27 @@ describe("DFCard Test", function() {
         });
     });
 
+    it("DFCard.refresh should work", function() {
+        var cache1 = DF.getEmataInfo;
+        var called1 = false;
+        DF.getEmataInfo = function() {
+            called1 = true;
+            return PromiseHelper.resolve({});
+        };
+        var cache2 = DF.refresh;
+        var called2 = false;
+        DF.refresh = function() {
+            called2 = true;
+            return PromiseHelper.resolve();
+        }
+        DFCard.refresh();
+        expect(called1).to.be.true;
+        expect(called2).to.be.true;
+        DF.getEmataInfo = cache1;
+        DF.refresh = cache2;
+
+    });
+
     it("DFCard.addDFToList should work if not restored", function() {
         var cache1 = DF.wasRestored;
         var cache2 = DF.setLastCreatedDF;

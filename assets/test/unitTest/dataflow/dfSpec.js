@@ -1,5 +1,77 @@
 describe("DF Test", function() {
     describe("main functions", function() {
+        it("DF.refresh", function(done) {
+
+            var oldDfs = DFParamModal.__testOnly__.updateDataflows({});
+
+
+            var called1 = false;
+            var cachedFn1 = XcalarListRetinas;
+            XcalarListRetinas = function() {
+                called1 = true;
+                return PromiseHelper.resolve({numRetinas: 1, retinaDescs: [
+                    {retinaName: "test"}
+                ]})
+            };
+
+            var called2 = false;
+            var cachedFn2 = XcalarGetRetina;
+            XcalarGetRetina = function(name) {
+                expect(name).to.equal("test");
+                called2 = true;
+                return PromiseHelper.resolve({
+                    retina: {retinaDag: []}
+                });
+            }
+
+            var called3 = false;
+            var cachedFn3 = XcalarGetRetinaJson;
+            XcalarGetRetinaJson = function() {
+                called3 = true;
+                return PromiseHelper.resolve({query: [{
+                    args: {dest: "somedest"}
+                }]});
+            }
+
+            var called4 = false;
+            var cachedFn4 = XcalarListSchedules;
+            XcalarListSchedules = function() {
+                called4 = true;
+                return PromiseHelper.resolve([
+                    {scheduleMain: {
+                        retName: "test"
+                    }}
+                ]);
+            }
+
+            var cachedFn5 = DFCard.refreshDFList;
+            DFCard.refreshDFList = function() {};
+
+
+            DF.refresh({dataflows: {}})
+            .then(function() {
+                expect(called1).to.be.true;
+                expect(called2).to.be.true;
+                expect(called3).to.be.true;
+                expect(called4).to.be.true;
+                var newDfs = DFParamModal.__testOnly__.updateDataflows({});
+                expect(Object.keys(newDfs).length).to.equal(1);
+                expect(newDfs.hasOwnProperty("test")).to.be.true;
+                DFParamModal.__testOnly__.updateDataflows(oldDfs);
+                done();
+            })
+            .fail(function() {
+                done("failed");
+            })
+            .always(function() {
+                XcalarListRetinas = cachedFn1;
+                XcalarGetRetina = cachedFn2;
+                XcalarGetRetinaJson = cachedFn3;
+                XcalarListSchedules = cachedFn4;
+                DFCard.refreshDFList - cachedFn5;
+            });
+        });
+
         it("DF.addScheduleToDataflow should work", function() {
             var called = false;
             // var dfName = "df" + Date.now();
