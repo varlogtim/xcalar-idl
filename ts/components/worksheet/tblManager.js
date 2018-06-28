@@ -3506,12 +3506,12 @@ window.TblManager = (function($, TblManager) {
         }
         if (dataCol.width === "auto") {
             var winWidth = $(window).width();
-            var maxWidth = 400;
-            var minWidth = 200;
+            var maxWidth = 200;
+            var minWidth = 150;
             if (winWidth > 1400) {
-                maxWidth = 600;
+                maxWidth = 300;
             } else if (winWidth > 1100) {
-                maxWidth = 500;
+                maxWidth = 250;
             }
             if (dataCol.hasMinimized()) {
                 dataCol.width = minWidth;
