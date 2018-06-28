@@ -2,7 +2,7 @@
 namespace XVM {
     const majorVersion: string = '1';
     const minorVersion: string = '4';
-    const revisionVersion: string = '0';
+    const revisionVersion: string = '1';
 
     // build number is generated during the build process by Makefile and jenkins
     if (typeof gBuildNumber === 'undefined') {
