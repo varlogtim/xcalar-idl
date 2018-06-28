@@ -15190,15 +15190,15 @@ XcalarApiSelectInputT.prototype.read = function(input) {
       }
       break;
       case 3:
-      if (ftype == Thrift.Type.I32) {
-        this.minBatchId = input.readI32().value;
+      if (ftype == Thrift.Type.I64) {
+        this.minBatchId = input.readI64().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 4:
-      if (ftype == Thrift.Type.I32) {
-        this.maxBatchId = input.readI32().value;
+      if (ftype == Thrift.Type.I64) {
+        this.maxBatchId = input.readI64().value;
       } else {
         input.skip(ftype);
       }
@@ -15225,13 +15225,13 @@ XcalarApiSelectInputT.prototype.write = function(output) {
     output.writeFieldEnd();
   }
   if (this.minBatchId !== null && this.minBatchId !== undefined) {
-    output.writeFieldBegin('minBatchId', Thrift.Type.I32, 3);
-    output.writeI32(this.minBatchId);
+    output.writeFieldBegin('minBatchId', Thrift.Type.I64, 3);
+    output.writeI64(this.minBatchId);
     output.writeFieldEnd();
   }
   if (this.maxBatchId !== null && this.maxBatchId !== undefined) {
-    output.writeFieldBegin('maxBatchId', Thrift.Type.I32, 4);
-    output.writeI32(this.maxBatchId);
+    output.writeFieldBegin('maxBatchId', Thrift.Type.I64, 4);
+    output.writeI64(this.maxBatchId);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -20278,15 +20278,15 @@ XcalarApiTableInfoT.prototype.read = function(input) {
       }
       break;
       case 6:
-      if (ftype == Thrift.Type.I32) {
-        this.oldestBatchId = input.readI32().value;
+      if (ftype == Thrift.Type.I64) {
+        this.oldestBatchId = input.readI64().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 7:
-      if (ftype == Thrift.Type.I32) {
-        this.nextBatchId = input.readI32().value;
+      if (ftype == Thrift.Type.I64) {
+        this.nextBatchId = input.readI64().value;
       } else {
         input.skip(ftype);
       }
@@ -20395,13 +20395,13 @@ XcalarApiTableInfoT.prototype.write = function(output) {
     output.writeFieldEnd();
   }
   if (this.oldestBatchId !== null && this.oldestBatchId !== undefined) {
-    output.writeFieldBegin('oldestBatchId', Thrift.Type.I32, 6);
-    output.writeI32(this.oldestBatchId);
+    output.writeFieldBegin('oldestBatchId', Thrift.Type.I64, 6);
+    output.writeI64(this.oldestBatchId);
     output.writeFieldEnd();
   }
   if (this.nextBatchId !== null && this.nextBatchId !== undefined) {
-    output.writeFieldBegin('nextBatchId', Thrift.Type.I32, 7);
-    output.writeI32(this.nextBatchId);
+    output.writeFieldBegin('nextBatchId', Thrift.Type.I64, 7);
+    output.writeI64(this.nextBatchId);
     output.writeFieldEnd();
   }
   if (this.keys !== null && this.keys !== undefined) {
@@ -20565,7 +20565,7 @@ XcalarApiUpdateOutputT.prototype.read = function(input) {
         for (var _i597 = 0; _i597 < _size592; ++_i597)
         {
           var elem598 = null;
-          elem598 = input.readI32().value;
+          elem598 = input.readI64().value;
           this.batchIds.push(elem598);
         }
         input.readListEnd();
@@ -20589,13 +20589,13 @@ XcalarApiUpdateOutputT.prototype.write = function(output) {
   output.writeStructBegin('XcalarApiUpdateOutputT');
   if (this.batchIds !== null && this.batchIds !== undefined) {
     output.writeFieldBegin('batchIds', Thrift.Type.LIST, 1);
-    output.writeListBegin(Thrift.Type.I32, this.batchIds.length);
+    output.writeListBegin(Thrift.Type.I64, this.batchIds.length);
     for (var iter599 in this.batchIds)
     {
       if (this.batchIds.hasOwnProperty(iter599))
       {
         iter599 = this.batchIds[iter599];
-        output.writeI32(iter599);
+        output.writeI64(iter599);
       }
     }
     output.writeListEnd();
