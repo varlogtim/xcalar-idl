@@ -1173,6 +1173,9 @@
             if (typeof SQLCache !== "undefined") {
                 cached = SQLCache.getCached(sqlQueryString);
             }
+            if (jdbcOption && jdbcOption.sqlMode) {
+                self.sqlObj.setSqlMode();
+            }
 
             var promise;
             if (isJsonPlan) {

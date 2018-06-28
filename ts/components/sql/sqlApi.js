@@ -7,6 +7,7 @@
         // status: -2: canceled, -1: error, 0: finished, 1: created-idle, 2: compile, 3: run, 4: post-run
         this.status = 1;
         this.runTxId = -1;
+        this.sqlMode = false;
         return this;
     }
 
@@ -282,15 +283,14 @@
         },
 
         run: function(query, tableName, allCols, sqlQueryString, jdbcCheckTime) {
+            var self = this;
             var deferred = PromiseHelper.deferred();
-            var isSqlMode = (typeof sqlMode !== "undefined" && sqlMode);
             var queryName = xcHelper.randName("sql");
 
-            var txId = !isSqlMode && Transaction.start({
+            var txId = !self.sqlMode && Transaction.start({
                 "operation": "Execute SQL",
                 "track": true
             });
-            var self = this;
             self.runTxId = txId;
             if (self.status === -2) {
                 Transaction.cancel(txId);
@@ -300,13 +300,13 @@
             XIApi.query(txId, queryName, query, jdbcCheckTime)
             .then(function() {
                 self.status = 4;
-                if (!isSqlMode) {
+                if (!self.sqlMode) {
                     DagFunction.commentDagNodes([tableName], sqlQueryString);
                     return self._refreshTable(txId, tableName, allCols);
                 }
             })
             .then(function() {
-                if (!isSqlMode) {
+                if (!self.sqlMode) {
                     var sql = {
                         "operation": "Execute SQL",
                         "query": query,
@@ -323,7 +323,7 @@
                 if (error === SQLErrTStr.Cancel) {
                     self.status = -2;
                 }
-                if (!isSqlMode) {
+                if (!self.sqlMode) {
                     Transaction.fail(txId, {
                         "failMsg": "Execute SQL failed",
                         "error": error
@@ -641,6 +641,10 @@
             } else if (this.status > 0) {
                 this.status = st;
             }
+        },
+
+        setSqlMode: function() {
+            this.sqlMode = true;
         }
 
         // dstAggName is optional and can be left blank (will autogenerate)

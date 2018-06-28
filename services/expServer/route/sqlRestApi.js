@@ -2033,7 +2033,6 @@ function sqlPlan(execid, planStr, rowsToFetch, sessionId, checkTime) {
     var renameMap;
 
     try {
-        global.sqlMode = true;
         var plan = JSON.parse(planStr);
         connect("localhost", sqlUser, sqlId)
         .then(function() {
@@ -2044,7 +2043,8 @@ function sqlPlan(execid, planStr, rowsToFetch, sessionId, checkTime) {
             console.log(sessionId, " starts compiling...");
             var jdbcOption = {
                 prefix: sessionId,
-                jdbcCheckTime: checkTime
+                jdbcCheckTime: checkTime,
+                sqlMode: true
             };
             return new SQLCompiler().compile(plan, true, jdbcOption);
         })
@@ -2070,15 +2070,12 @@ function sqlPlan(execid, planStr, rowsToFetch, sessionId, checkTime) {
                 schema: schema,
                 result: result
             };
-            global.sqlMode = false;
             deferred.resolve(res);
         })
         .fail(function(err) {
-            global.sqlMode = false;
             deferred.reject(err);
         });
     } catch (e) {
-        global.sqlMode = false;
         console.error("plan parse error", e);
         deferred.reject(e);
     }
