@@ -33,14 +33,7 @@ window.AboutModal = (function($, AboutModal) {
         var frontVersion = XVM.getVersion();
         var frontVers = frontVersion.substring(0,
                              frontVersion.lastIndexOf("-")) + "-" + gGitVersion;
-        var buildNumber = gBuildNumber;
-        var backVersionParts = XVM.getBackendVersion().split("-");
-        var backVersion = backVersionParts[1] + "-" +
-                          backVersionParts[backVersionParts.length - 2];
-        if (buildNumber === "git") {
-            buildNumber = backVersionParts[2];
-        }
-
+        var buildNumber = XVM.getBuildNumber();
         buildNumber += (window.gPatchVersion == null)
                         ? "" : "P" + window.gPatchVersion;
         var expiration = XVM.getLicenseExipreInfo();

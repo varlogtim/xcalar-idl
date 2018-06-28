@@ -295,7 +295,7 @@ declare var gXcSupport: boolean;
 declare var gCollab: boolean;
 declare var gXcalarRecordNum: string;
 
-declare var gBuildNumber: string;
+declare var gBuildNumber: number;
 declare var gGitVersion: number;
 declare var XcalarApisTStr: object;
 declare var StatusTStr: object;

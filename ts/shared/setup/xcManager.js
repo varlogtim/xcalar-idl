@@ -59,10 +59,12 @@ window.xcManager = (function(xcManager, $) {
                 console.log("mixpanel is not loaded");
             }
 
-
             return XVM.checkVersionAndLicense();
         })
-        .then(XVM.checkKVVersion)
+        .then(function() {
+            XVM.checkBuildNumber();
+            return XVM.checkKVVersion();
+        })
         .then(function(isFirstTimeUser) {
             firstTimeUser = isFirstTimeUser;
         })

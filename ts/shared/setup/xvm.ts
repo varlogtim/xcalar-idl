@@ -4,12 +4,6 @@ namespace XVM {
     const minorVersion: string = '4';
     const revisionVersion: string = '1';
 
-    // build number is generated during the build process by Makefile and jenkins
-    if (typeof gBuildNumber === 'undefined') {
-        gBuildNumber = 'git';
-    }
-    const fullVersion: string = `${majorVersion}.${minorVersion}.${revisionVersion}-${gBuildNumber}`;
-
     let kvVersion: KVVersion;
     let kvVersionStore: KVStore;
     let backendVersion: string = '';
@@ -122,7 +116,8 @@ namespace XVM {
      * XVM.getVersion
      */
     export function getVersion(): string {
-        return fullVersion;
+        const frontBuildNumber: string = XVM.getFrontBuildNumber();
+        return `${majorVersion}.${minorVersion}.${revisionVersion}-${frontBuildNumber}`;;
     }
 
     /**
@@ -172,6 +167,37 @@ namespace XVM {
         // return (XcalarMode.Oper);
         // return (XcalarMode.Mod);
         return licenseMode;
+    }
+
+    /**
+     * XVM.getFrontBuildNumber
+     * @return(string): the front end cached build number
+     */
+    export function getFrontBuildNumber(): string {
+        // build number is generated during the build process by Makefile and jenkins
+        return (typeof gBuildNumber === "undefined") ? "git" : String(gBuildNumber);
+    }
+
+    /**
+     * XVM.getBuildNumber
+     * @return(string): the backend cached build numbe
+     */
+    export function getBackBuildNumber(): string {
+        try {
+            return backendVersion.split("-")[2];
+        } catch (e) {
+            console.error(e);
+            return "";
+        }
+    }
+
+    /**
+     * XVM.getBuildNumber
+     * @return(string) the disaplyed buld number
+     */
+    export function getBuildNumber(): string {
+        const frontBuildNumber: string = XVM.getFrontBuildNumber();
+        return (frontBuildNumber === "git") ? XVM.getBackBuildNumber() : frontBuildNumber;
     }
 
     /**
@@ -312,6 +338,35 @@ namespace XVM {
             });
 
         return deferred.promise();
+    }
+
+    export function checkBuildNumber(): boolean {
+        const frontBuildNumber: string = XVM.getFrontBuildNumber();
+        if (frontBuildNumber === "git") {
+            // dev build, not handle it
+            return true;
+        } else if (frontBuildNumber === XVM.getBackBuildNumber()) {
+            // when build number match
+            return true;
+        }
+
+        // when build number not match, most likely it's XD has old cache
+        // we'll check and hard reload the page
+        try {
+            const key = "buildNumCheck";
+            // if it's null, will be 0
+            const buildNumCheckTime = Number(xcLocalStorage.getItem(key));
+            const currentTime = new Date().getTime();
+            if (currentTime - buildNumCheckTime > 60000) {
+                // if last check time is more than 1 minute
+                xcLocalStorage.setItem(key, String(currentTime));
+                xcHelper.reload(true);
+            }
+            return false;
+        } catch (e) {
+            console.error(e);
+            return true;
+        }
     }
 
     /**

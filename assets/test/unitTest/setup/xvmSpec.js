@@ -122,5 +122,81 @@ describe('XVM Test', () => {
             expect(test).to.be.true;
             KVStore.prototype.put = oldFunc;
         });
+
+        it('XVM.getFrontBuildNumber should work', () => {
+            const res = XVM.getFrontBuildNumber();
+            expect(res).to.be.a("string");
+        });
+
+        it('XVM.getFrontBuildNumber should work', () => {
+            const res = XVM.getBackBuildNumber();
+            expect(res).to.be.a("string");
+        });
+
+        it('XVM.getBuildNumber should work', () => {
+            const res = XVM.getBuildNumber();
+            expect(res).to.be.a("string");
+        });
+    });
+
+    describe('check buld number test', () => {
+        let oldGetFrontBuldNumber;
+        let oldGetBackBuildNumber;
+        let oldReload;
+        let test;
+
+        before(() => {
+            oldGetFrontBuldNumber = XVM.getFrontBuildNumber;
+            oldGetBackBuildNumber = XVM.getBackBuildNumber();
+            oldReload = xcHelper.reload;
+
+            xcHelper.reload = (t) => { test = t };
+        });
+
+        beforeEach(() => {
+            test = undefined;
+        });
+
+        it('should be valid if front build is git', () => {
+            XVM.getFrontBuildNumber = () => "git";
+            const res = XVM.checkBuildNumber();
+            expect(res).to.be.true;
+        })
+
+        it('should be valid if buld number match', () => {
+            XVM.getFrontBuildNumber = () => "123";
+            XVM.getBackBuildNumber = () => "123";
+            const res = XVM.checkBuildNumber();
+            expect(res).to.be.true;
+        });
+
+        it("should realod if build number not match", () => {
+            xcLocalStorage.removeItem("buildNumCheck");
+            XVM.getFrontBuildNumber = () => "123";
+            XVM.getBackBuildNumber = () => "456";
+            const res = XVM.checkBuildNumber();
+            expect(res).to.be.false;
+            expect(test).to.be.true;
+        });
+
+        it("should not realod if not match but has realoded", () => {
+            const res = XVM.checkBuildNumber();
+            expect(res).to.be.false;
+            expect(test).to.be.undefined;
+        });
+
+        it("should handle error case", () => {
+            xcLocalStorage.removeItem("buildNumCheck");
+            xcHelper.reload = () => { throw "test"; };
+            const res = XVM.checkBuildNumber();
+            expect(res).to.be.true;
+        });
+
+        after(() => {
+            xcLocalStorage.removeItem("buildNumCheck");
+            XVM.getFrontBuildNumber = oldGetFrontBuldNumber;
+            XVM.getBackBuildNumber = oldGetBackBuildNumber;
+            xcHelper.reload = oldReload;
+        });
     });
 });
