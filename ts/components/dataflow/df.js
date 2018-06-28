@@ -410,6 +410,10 @@ window.DF = (function($, DF) {
 
         getRetinaAndJson(dfName)
         .then(function(retStruct) {
+            if (!dataflows[dfName]) {
+                deferred.reject(); // could have been deleted
+                return;
+            }
             updateDFInfo(retStruct);
             nodesCache = df.nodes;
 
@@ -423,7 +427,6 @@ window.DF = (function($, DF) {
             }
             deferred.resolve();
         })
-        // .then(deferred.resolve)
         .fail(deferred.reject);
 
         return deferred.promise();

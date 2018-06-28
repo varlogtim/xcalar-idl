@@ -1585,7 +1585,7 @@ window.DFCard = (function($, DFCard) {
         .always(function() {
             var $dagWrap = getDagWrap(dataflowName);
             if ($.isEmptyObject(df.parameterizedNodes) &&
-                !$dagWrap.hasClass("error")) {
+                !$dagWrap.hasClass("error") && $dagWrap.length) {
                 restoreParameterizedNodes(dataflowName);
             }
             DFCard.adjustScrollBarPositionAndSize();
