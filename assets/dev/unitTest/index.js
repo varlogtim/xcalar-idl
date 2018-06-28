@@ -38,6 +38,12 @@ async function runTest(testType, hostname) {
                 exitCode = error.status;
             }
             process.exit(exitCode);
+        } else if (testType === "unitTest") {
+            browser = await puppeteer.launch({
+                headless: true,
+                ignoreHTTPSErrors: true,
+                args: ['--no-sandbox', '--disable-setuid-sandbox']
+            });
         } else {
             browser = await puppeteer.launch({
                 headless: false,
@@ -58,7 +64,7 @@ async function runTest(testType, hostname) {
         } else if (testType === "sqlTest") {
             url = hostname + "/testSuite.html?type=sql&test=y&noPopup=y&animation=y&cleanup=y&close=y&user=ts-" + userName + "&id=0&createWorkbook=sqlTest";
         } else {
-            url = hostname + "/unitTest.html?createWorkbook=y&user=" + userName;
+            url = hostname + "/unitTest.html?noPopup=y&createWorkbook=y&user=" + userName;
         }
         if (testType === "unitTest") {
             await page.coverage.startJSCoverage({ resetOnNavigation: true });

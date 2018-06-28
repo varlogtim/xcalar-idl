@@ -50,7 +50,9 @@ window.UnitTest = (function(UnitTest, $) {
                 if (parent.location.href.indexOf("unitTestManager.html") < 0) {
                     // used for puppeteer
                     $("body").append('<div id="testFinish">Test Fnish</div>');
-                    alert("Test Exited");
+                    if (window.location.search.indexOf("noPopup=y") < 0) {
+                        alert("Test Exited");
+                    }
                 }
                 if (!resultsSent) {
                     sendResultsToParent();

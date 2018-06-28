@@ -3808,7 +3808,7 @@ module.exports = function(grunt) {
             // (gets triggered from the bld dest, and if you properly include it,
             // they would need to re-build every time they make
             // a change the any of the unit tests they want reflected)
-            if ( BLDTYPE == DEV ) {
+            if ( BLDTYPE == DEV || BLDTYPE == DEBUG ) {
                 grunt.log.debug("Sym link " + BLDROOT + " --> " + SRCROOT + UNIT_TEST_FOLDER + " in bld");
                 fs.symlinkSync(SRCROOT + UNIT_TEST_FOLDER, BLDROOT + UNIT_TEST_FOLDER);
             }
