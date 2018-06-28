@@ -43,9 +43,7 @@ class DragDropUploader {
             this.$container.addClass("xc-fileDroppable");
             this.$container.on('dragenter.xcUpload', function(event: JQueryEventObject) {
                 const dt = (<DragEvent>event.originalEvent).dataTransfer;
-                if (dt.types && (dt.types.indexOf ?
-                    dt.types.indexOf('Files') !== -1 :
-                    dt.types.contains('Files'))) {
+                if (dt.types && dt.types.indexOf && dt.types.indexOf('Files') !== -1) {
                     dt.effectAllowed = "copy";
                     dt.dropEffect = "copy";
                     self.$dropArea.addClass('entering');
@@ -60,9 +58,7 @@ class DragDropUploader {
 
             this.$container.on('dragleave.xcUpload', function(event) {
                 const dt = (<DragEvent>event.originalEvent).dataTransfer;
-                if (dt.types && (dt.types.indexOf ?
-                    dt.types.indexOf('Files') !== -1 :
-                    dt.types.contains('Files'))) {
+                if (dt.types && dt.types.indexOf && dt.types.indexOf('Files') !== -1) {
                     self.dragCount--;
                     if (self.dragCount === 0) {
                         self.$dropArea.removeClass('entering');
