@@ -1558,7 +1558,7 @@ function hackFunction() {
 
     global.Authentication = {
         getHashId: function() {
-            return xcHelper.randName("#");
+            return xcHelper.randName("#", 8);
         }
     };
 

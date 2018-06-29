@@ -753,8 +753,12 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         function deleteTables() {
             return TblManager.deleteTables(gOrphanTables, "orphaned", true);
         }
-        return TableList.refreshOrphanList(false)
-                .then(deleteTables, deleteTables);
+        var deferred = PromiseHelper.deferred();
+        TableList.refreshOrphanList(false)
+                 .then(deleteTables, deleteTables)
+                 .always(deferred.resolve);
+
+        return deferred.promise();
     }
     function prepareData(test, tableName, randId, dataPath, check, index) {
         var deferred = PromiseHelper.deferred();
