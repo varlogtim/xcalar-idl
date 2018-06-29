@@ -191,6 +191,11 @@ function thriftLog() {
     function parseUDFLog(log) {
         var res = log;
         try {
+            var index = res.indexOf("Traceback");
+            if (index > 0) {
+                return res.substring(index);
+            }
+
             match = res.match(/ValueError:(.+)/);
             if (match && match.length >= 2) {
                 res = match[1].trim();
