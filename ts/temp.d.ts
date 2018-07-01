@@ -374,7 +374,7 @@ declare function XcalarSynthesize(tableName: string, newTableName: string, colIn
 declare function XcalarTargetCreate(targetType: string, targetName: string, targetParams: object[]): XDPromise<void>;
 declare function XcalarTargetDelete(targetName: string): XDPromise<void>;
 declare function XcalarUnion(tableNames: string[], newTableNmae: string, colInfos: object[], dedup: boolean, unionType: UnionOperatorT, txId: number): XDPromise<any>;
-declare function XcalarUnpublishTable(tableName: string): XDPromise<any>;
+declare function XcalarUnpublishTable(tableName: string, inactivateOnly?: boolean): XDPromise<any>;
 declare function XcalarRefreshTable(pubTableName: string, dstTableName: string, minBatch: number, maxBatch: number, txId: number): XDPromise<any>;
 declare function XcalarApiTop(measureIntervalInMs?: any): XDPromise<any>;
 declare function XcalarGetStatGroupIdMap(nodeId: number, numGroupId: number): XDPromise<any>;

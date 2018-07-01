@@ -1040,7 +1040,7 @@ namespace IMDPanel {
                         xcTooltip.Attrs + ' data-original-title="' + IMDTStr.DataUnavailable + '"></div>';
                     }
                 }
-                
+
                 $histPanel.html(updateHtml);
                 positions.sort((a, b) => {
                     const aLeft: number = a.left;
@@ -1276,7 +1276,7 @@ namespace IMDPanel {
 
                     const promises: XDPromise<void>[] = [];
                     for (let i = error.count; i < inactiveTables.length; i++) {
-                        promises.push(XcalarUnpublishTable(inactiveTables[i].name));
+                        promises.push(XcalarUnpublishTable(inactiveTables[i].name, true));
                     }
                     PromiseHelper.when.apply(this, promises)
                     .always(function() {
