@@ -202,7 +202,7 @@
             if (!message) {
                 message = "Compilation Error";
             }
-            SQLEditor.throwError(message);
+            // SQLEditor.throwError(message);
             throw "Assertion Failure: " + message;
         }
     }
@@ -998,7 +998,9 @@
                 try {
                     deferred.resolve(plan);
                 } catch (e) {
-                    SQLEditor.throwError(e);
+                    if (typeof SQLEditor !== "undefined") {
+                        SQLEditor.throwError(e);
+                    }
                 }
             },
             error: function(error) {
@@ -1300,7 +1302,8 @@
                             try {
                                 var plan = JSON.parse(queryString);
                             } catch (e) {
-                                return PromiseHelper.reject(SQLErrTStr.InvalidXcalarQuery);
+                                return PromiseHelper.reject(
+                                    SQLErrTStr.InvalidXcalarQuery);
                             }
                             addPrefix(plan, allTableNames, tree.newTableName,
                                       jdbcOption.prefix);
@@ -1322,23 +1325,10 @@
                 return deferred.promise();
             })
             .then(function(queryString, newTableName, newCols) {
-                if (typeof SQLEditor !== "undefined") {
-                    SQLEditor.startExecution();
-                }
-                var jdbcCheckTime = jdbcOption && jdbcOption.jdbcCheckTime ?
-                                    jdbcOption.jdbcCheckTime : 200;
-                self.sqlObj.run(queryString, newTableName, newCols,
-                                sqlQueryString, jdbcCheckTime)
-                .then(function() {
-                    if (typeof SQLCache !== "undefined" && toCache) {
-                        SQLCache.cacheQuery(sqlQueryString, toCache);
-                    }
-                    outDeferred.resolve([newTableName, newCols]);
-                })
-                .fail(outDeferred.reject);
+                outDeferred.resolve(queryString, newTableName, newCols, toCache);
             })
             .fail(outDeferred.reject)
-            .always(function() {
+            .always(function () {
                 if (typeof KVStore !== "undefined" && oldKVcommit) {
                     // Restore the old KVcommit code
                     KVStore.commit = oldKVcommit;
@@ -1346,6 +1336,25 @@
             });
 
             return outDeferred.promise();
+        },
+        execute: function(queryString, newTableName, newCols, sqlQueryString,
+            toCache, checkTime) {
+            var self = this;
+            var deferred = jQuery.Deferred();
+            if (typeof SQLEditor !== "undefined") {
+                SQLEditor.startExecution();
+            }
+            checkTime = checkTime ? checkTime : 200;
+            self.sqlObj.run(queryString, newTableName, newCols,
+                sqlQueryString, checkTime)
+            .then(function(newTableName, cols) {
+                if (typeof SQLCache !== "undefined" && toCache) {
+                    SQLCache.cacheQuery(sqlQueryString, toCache);
+                }
+                deferred.resolve(newTableName, cols);
+            })
+            .fail(deferred.reject);
+            return deferred.promise();
         },
         _pushDownIgnore: function(node) {
             assert(node.children.length === 1,

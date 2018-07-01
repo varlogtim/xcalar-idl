@@ -5560,3 +5560,7 @@ XcalarCoalesce = function(pubTableName: string): XDPromise<StatusT> {
 
     return deferred.promise();
 }
+
+if (typeof exports !== "undefined") {
+    exports.TypeCheck = TypeCheck;
+}

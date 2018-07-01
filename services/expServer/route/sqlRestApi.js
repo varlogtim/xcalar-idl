@@ -61,6 +61,8 @@ require("jsdom/lib/old-api").env("", function(err, window) {
                                  require("../sqlHelpers/xcHelper.js").xcHelper;
     global.xcGlobal = xcGlobal = sqlHelpers ? sqlHelpers.xcGlobal :
                                  require("../sqlHelpers/xcGlobal.js").xcGlobal;
+    global.xcConsole = xcConsole = sqlHelpers ? sqlHelpers.xcConsole :
+        require("../expServerXcConsole.js").xcConsole;
     xcGlobal.setup();
     require("../../../assets/js/thrift/XcalarApiService.js");
     require("../../../assets/js/thrift/XcalarApiVersionSignature_types.js");
@@ -83,13 +85,15 @@ require("jsdom/lib/old-api").env("", function(err, window) {
                   require("../sqlHelpers/sqlCompiler.js").SQLCompiler;
     require("../../../assets/lang/en/jsTStr.js");
 
+    antlr4 = require('antlr4/index');
     SqlBaseListener = require("../sqlParser/SqlBaseListener.js").SqlBaseListener;
     SqlBaseParser = require("../sqlParser/SqlBaseParser.js").SqlBaseParser;
     SqlBaseLexer = require("../sqlParser/SqlBaseLexer.js").SqlBaseLexer;
     SqlBaseVisitor = require("../sqlParser/SqlBaseVisitor.js").SqlBaseVisitor;
     TableVisitor = require("../sqlParser/TableVisitor.js").TableVisitor;
-    antlr4 = require('antlr4/index');
 });
+
+var gTurnSelectCacheOn = false;
 
 function generateJDBCId(userName, wkbkName) {
     var curNum = idNum;
@@ -148,16 +152,13 @@ function hackFunction() {
         tableUsageChange: function() {}
     };
 
-    global.Log = {
-        errorLog: function() { console.log.apply(this, arguments); }
+    global.Log = Log = {
+        errorLog: function() { xcConsole.log.apply(this, arguments); }
     };
     global.DagEdit = {
         isEditMode: function() { return false; }
     };
 }
-
-
-
 
 function getRows(tableName, startRowNum, rowsToFetch) {
     var deferred = PromiseHelper.deferred();
@@ -211,10 +212,7 @@ function getRows(tableName, startRowNum, rowsToFetch) {
     return deferred.promise();
 };
 
-var sqlTable;
-var sqlUser = "xcalar-internal-sql";
-var sqlId = 4193719;
-
+// Deprecated
 function finalizeTable(publishArgsList, cleanup, checkTime) {
     var deferred = PromiseHelper.deferred();
     var res = [];
@@ -234,7 +232,7 @@ function finalizeTable(publishArgsList, cleanup, checkTime) {
                     table: publishArgs.publishName,
                     schema: schema
                 });
-                console.log("get schema", schema);
+                xcConsole.log("get schema", schema);
                 sqlTables.push(publishArgs.sqlTable);
                 innerDeferred.resolve();
             })
@@ -244,7 +242,7 @@ function finalizeTable(publishArgsList, cleanup, checkTime) {
     PromiseHelper.when.apply(this, promiseArray)
     .then(function() {
         if (cleanup) {
-            console.log("clean up after select");
+            xcConsole.log("clean up after select");
             return cleanAllTables(sqlTables, checkTime);
         }
     })
@@ -255,32 +253,33 @@ function finalizeTable(publishArgsList, cleanup, checkTime) {
     return deferred.promise();
 }
 
-function sqlSelect(publishNames, sessionId, cleanup, checkTime) {
+// Already deprecated
+function sqlSelect(publishNames, sessionPrefix, cleanup, checkTime) {
     var deferred = PromiseHelper.deferred();
     var sqlTableAlias = "sql";
     var res;
     var publishArgsList = [];
-    connect("localhost", sqlUser, sqlId)
+    connect("localhost")
     .then(function() {
-        console.log("Connected. Going to workbook...");
+        xcConsole.log("Connected. Going to workbook...");
         return goToSqlWkbk();
     })
     .then(function() {
-        console.log("Selecting published tables: ", publishNames);
+        xcConsole.log("Selecting published tables: ", publishNames);
         publishArgsList = publishNames.map(function(name) {
             return {
-                    sqlTable: sessionId + xcHelper.randName("SQL") +
-                                                     Authentication.getHashId(),
-                    importTable: xcHelper.randName("importTable") +
-                                                     Authentication.getHashId(),
-                    txId: 1,
-                    publishName: name
+                sqlTable: sessionPrefix + xcHelper.randName("SQL") +
+                                                    Authentication.getHashId(),
+                importTable: xcHelper.randName("importTable") +
+                                                    Authentication.getHashId(),
+                txId: 1,
+                publishName: name
             };
         });
-        return loadPublishedTables(publishArgsList, checkTime);
+        return selectPublishedTables(publishArgsList, checkTime);
     })
     .then(function() {
-        console.log("Finalizing tables");
+        xcConsole.log("Finalizing tables");
         return finalizeTable(publishArgsList, cleanup, checkTime);
     })
     .then(deferred.resolve)
@@ -290,7 +289,7 @@ function sqlSelect(publishNames, sessionId, cleanup, checkTime) {
 }
 
 function sqlLoad(path) {
-    sqlTable = xcHelper.randName("SQL") + Authentication.getHashId();
+    var sqlTable = xcHelper.randName("SQL") + Authentication.getHashId();
     var sqlTableAlias = "sql";
 
     var deferred = PromiseHelper.deferred();
@@ -307,16 +306,16 @@ function sqlLoad(path) {
     args.txId = 1;
     args.sqlDS = xcHelper.randName("sql.12345.ds");
 
-    connect("localhost", sqlUser, sqlId)
+    connect("localhost")
     .then(function() {
-        console.log("connected");
+        xcConsole.log("connected");
         return goToSqlWkbk();
     })
     .then(function() {
         return loadDatasets(args);
     })
     .then(function() {
-        console.log("create table");
+        xcConsole.log("create table");
         return convertToDerivedColAndGetSchema(args.txId, args.importTable, sqlTable);
     })
     .then(function(schema) {
@@ -328,7 +327,7 @@ function sqlLoad(path) {
             tableName: sqlTableAlias,
             schema: schema
         };
-        console.log("get schema", schema);
+        xcConsole.log("get schema", schema);
         deferred.resolve(res);
     })
     .fail(function(err) {
@@ -338,12 +337,11 @@ function sqlLoad(path) {
     return deferred.promise();
 };
 
-
-function listPublishTables(pattern) {
+function listPublishedTables(pattern) {
     var deferred = PromiseHelper.deferred();
-    connect("localhost", sqlUser, sqlId)
+    connect("localhost")
     .then(function() {
-        console.log("connected");
+        xcConsole.log("connected");
         var pubPatternMatch = pattern || "*";
         return XcalarListPublishedTables(pubPatternMatch);
     })
@@ -353,13 +351,17 @@ function listPublishTables(pattern) {
             var table = res.tables[i];
             publishedTables.push(table.name);
         }
-        deferred.resolve(publishedTables);
+        deferred.resolve(publishedTables, res);
     })
     .fail(deferred.reject);
     return deferred.promise();
 };
 
 function connect(hostname, username, id) {
+    if (!username) {
+        username = "xcalar-internal-sql";
+        id = 4193719;
+    }
     var valid = xcalarApi.setUserIdAndName(username, id, jQuery.md5);
     if (valid) {
         if (getTHandle() == null) {
@@ -399,32 +401,53 @@ function goToSqlWkbk(workbook) {
         }
     })
     .then(function(ret) {
-        console.log("Activating workbook: ", ret);
+        xcConsole.log("Activating workbook: ", ret);
         setSessionName(wkbkName);
         deferred.resolve(ret);
     })
-    .fail(deferred.reject);
+    .fail(function(err) {
+        deferred.reject(err);
+    });
 
     return deferred.promise();
 }
 
-function loadPublishedTables(args, checkTime) {
+function selectPublishedTables(args, allSchemas) {
     var queryArray = [];
     for (var i = 0; i < args.length; i++) {
+        var renameMap = [];
+        for(var j = 0; j < allSchemas[args[i].publishName].length;) {
+            var obj = allSchemas[args[i].publishName][j];
+            var colName = Object.keys(obj)[0];
+            var upColName = colName.toUpperCase();
+            if (!upColName.startsWith("XCALARRANKOVER") &&
+                !upColName.startsWith("XCALAROPCODE") &&
+                !upColName.startsWith("XCALARBATCHID") &&
+                !upColName.startsWith("XCALARROWNUMPK")) {
+                renameMap.push({sourceColumn: colName, destColumn: upColName,
+                                columnType: DfFieldTypeTStr[xcHelper
+                                    .convertColTypeToFieldType(obj[colName])]});
+                var newColObj = {};
+                newColObj[upColName] = obj[colName];
+                allSchemas[args[i].publishName][j] = newColObj;
+                j++;
+            } else {
+                allSchemas[args[i].publishName].splice(j, 1);
+            }
+        }
         var query = {
             "operation": "XcalarApiSelect",
             "args": {
                 "source": args[i].publishName,
                 "dest": args[i].importTable,
                 "minBatchId": -1,
-                "maxBatchId": -1
+                "maxBatchId": -1,
+                "columns": renameMap
             }
         }
         queryArray.push(query);
     }
-    return XIApi.query(1, "JDBC Select" + Math.ceil(Math.random() * 100000),
-        JSON.stringify(queryArray), checkTime);
-    // return XIApi.query(1, "JDBCSelect" + generateJDBCId(userName, wkbkName), JSON.stringify(queryArray), checkTime);
+    return queryArray;
 }
 
 function loadDatasets(args) {
@@ -437,7 +460,7 @@ function loadDatasets(args) {
     var deferred = PromiseHelper.deferred();
     XIApi.load(dsArgs, formatArgs, sqlDS, txId)
     .then(function() {
-        console.log("load dataset");
+        xcConsole.log("load dataset");
         return XIApi.indexFromDataset(txId, sqlDS, importTable, "p");
     })
     .then(deferred.resolve)
@@ -506,7 +529,11 @@ function getSchema(tableName, orderedColumns) {
                     var colName = valueAttrs[i].name;
                     var type = getColType(valueAttrs[i].type);
 
-                    if (colName.startsWith("XC_ROW_COL_")) {
+                    if (colName.startsWith("XC_ROW_COL_") ||
+                        colName.startsWith("XCALARRANKOVER") ||
+                        colName.startsWith("XCALAROPCODE") ||
+                        colName.startsWith("XCALARBATCHID") ||
+                        colName.startsWith("XCALARROWNUMPK")) {
                         // this is auto-generated by xcalar
                         continue;
                     }
@@ -519,6 +546,14 @@ function getSchema(tableName, orderedColumns) {
                     if (orderedColumns[i].rename) {
                         renameMap[colName] = orderedColumns[i].rename;
                         colName = orderedColumns[i].rename;
+                    }
+                    if (colName.startsWith("XC_ROW_COL_") ||
+                        colName.startsWith("XCALARRANKOVER") ||
+                        colName.startsWith("XCALAROPCODE") ||
+                        colName.startsWith("XCALARBATCHID") ||
+                        colName.startsWith("XCALARROWNUMPK")) {
+                        // this is auto-generated by xcalar
+                        continue;
                     }
                     var prefix = colName;
                     if (colName.indexOf("::") > 0) {
@@ -598,7 +633,8 @@ function getDerivedCol(txId, tableName, schema, dstTable) {
     return deferred.promise();
 }
 
-function getListOfPublishedTablesFromQuery(sqlStatement, listOfPubTables) {
+function getListOfPublishedTablesFromQueryViaParser(sqlStatement,
+    listOfPubTables) {
     var chars = new antlr4.InputStream(sqlStatement.toUpperCase());
     var lexer = new SqlBaseLexer(chars);
     var tokens  = new antlr4.CommonTokenStream(lexer);
@@ -611,10 +647,14 @@ function getListOfPublishedTablesFromQuery(sqlStatement, listOfPubTables) {
 
     var tableIdentifiers = [];
     var errorTables = [];
+    var upperCaseListOfPubTables = listOfPubTables.map(function(v) {
+        return v.toUpperCase();
+    });
     visitor.tableIdentifiers.forEach(function(identifier) {
         if (visitor.namedQueries.indexOf(identifier) === -1) {
-            if (listOfPubTables.indexOf(identifier) > -1) {
-                tableIdentifiers.push(identifier);
+            var idx = upperCaseListOfPubTables.indexOf(identifier);
+            if (idx > -1) {
+                tableIdentifiers.push(listOfPubTables[idx]);
             } else {
                 errorTables.push(identifier);
             }
@@ -622,118 +662,377 @@ function getListOfPublishedTablesFromQuery(sqlStatement, listOfPubTables) {
     });
 
     if (errorTables.length > 0) {
-        return "Please publish these tables first: " + JSON.stringify(errorTables);
+        return "Please publish these tables first: " +
+            JSON.stringify(errorTables);
     }
     return tableIdentifiers;
 }
 
-function sqlPlan(execid, planStr, rowsToFetch, sessionId, checkTime) {
+
+function sendToPlanner(allSchemas, queryStr, username, wkbkName) {
+    var type;
+    var requestStruct;
+    var method = "get";
+    if (allSchemas) {
+        method = "put";
+        type = "schemasupdate";
+        requestStruct = allSchemas;
+    } else if (queryStr) {
+        method = "post";
+        type = "sqlquery";
+        requestStruct = {"sqlQuery": queryStr};
+    } else {
+        return PromiseHelper.reject("Invalid args in sendToPlanner");
+    }
+    if (!username) {
+        username = "xcalar-internal-sql";
+        wkbkName = "sql-workbook";
+    }
+    var deferred = PromiseHelper.deferred();
+    var url = "http://localhost:27000/xcesql/" + type + "/";
+    if (type === "schemasupdate") {
+        url += encodeURIComponent(encodeURIComponent(username + "-wkbk-" +
+            wkbkName));
+    } else {
+        url += encodeURIComponent(encodeURIComponent(username + "-wkbk-" +
+            wkbkName)) + "/true/true";
+    }
+
+    request({
+        method: method,
+        url: url,
+        json: true,
+        body: requestStruct
+        },
+        function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+                if (queryStr) {
+                    deferred.resolve(JSON.parse(body.sqlQuery));
+                } else {
+                    deferred.resolve();
+                }
+            } else {
+                deferred.reject(error);
+            }
+        }
+    );
+    return deferred.promise();
+}
+
+function getRowsAndCleanup(finalTable, orderedColumns, rowsToFetch, tablePrefix, execid) {
+    var deferred = jQuery.Deferred();
+    var schema;
+    var renameMap;
+    getSchema(finalTable, orderedColumns)
+    .then(function(res) {
+        schema = res.schema;
+        renameMap = res.renameMap;
+        return getRows(finalTable, 1, rowsToFetch);
+    })
+    .then(function(data) {
+        var result = parseRows(data, schema, renameMap);
+        xcConsole.log("Final table schema: " + JSON.stringify(schema));
+        XIApi.deleteTable(1, tablePrefix + "*");
+        var res = {
+            execid: execid,
+            schema: schema,
+            result: result
+        };
+        deferred.resolve(res);
+    })
+    .fail(deferred.reject);
+    return deferred.promise();
+}
+
+function executeSqlWithQueryInteractivePublished(userIdName, userIdUnique,
+    wbkbName, queryString, quertyTablePrefix) {
+    // To implement
+}
+
+function getInfoForPublishedTable(pubTableReturn, pubTableName) {
+    function findPubTableByName(pubList, pubName) {
+        for (var pubTable of pubList.tables) {
+            if (pubTable.name === pubName) {
+                return pubTable;
+            }
+        }
+    }
+    var tableStruct = findPubTableByName(pubTableReturn, pubTableName);
+
+    var columns = tableStruct.values;
+    var schema = [];
+    for (var i = 0; i < columns.length; i++) {
+        var colStruct = {};
+        var column = columns[i];
+        var type = xcHelper.getDFFieldTypeToString(
+            DfFieldTypeTFromStr[column.type]);
+        colStruct[column.name] = type;
+        schema.push(colStruct);
+    }
+    tableStruct.schema = schema;
+
+    return tableStruct;
+}
+
+function selectUsedPublishedTables(queryStr, tablePrefix) {
+    function findValidLastSelect(selects, nextBatchId) {
+        for (var select of selects) {
+            if (select.maxBatchId + 1 === nextBatchId &&
+                select.minBatchId === 0) {
+                return select.dest;
+            }
+        }
+    }
+
+    function tableValid(pubTableName, tableName) {
+        var deferred = jQuery.Deferred();
+        if (!gTurnSelectCacheOn) {
+            return PromiseHelper.resolve({
+                "pubTableName": pubTableName,
+                "tableName": tableName,
+                "found": false
+            });
+        }
+        XcalarGetTableMeta(tableName)
+        .then(function(ret) {
+            deferred.resolve({
+                "pubTableName": pubTableName,
+                "tableName": tableName,
+                "found": true
+            });
+        })
+        .fail(function() {
+            deferred.resolve({
+                "pubTableName": pubTableName,
+                "tableName": tableName,
+                "found": false
+            });
+        });
+        return deferred.promise();
+    }
+
+    var allSchemas = {};
+    var allSelects = {};
+    var deferred = jQuery.Deferred();
+    var error = false;
+
+    listPublishedTables("*")
+    .then(function(allPubTableNames, res) {
+        var usedTables = getListOfPublishedTablesFromQueryViaParser(queryStr,
+            allPubTableNames);
+        if (typeof(usedTables) !== "object") {
+            return PromiseHelper.reject("Cannot find all published tables");
+        }
+        var tableValidPromiseArray = [];
+        for (var usedTable of usedTables) {
+            var tableStruct = getInfoForPublishedTable(res, usedTable);
+            // schema must exist because getListOfPublishedTables ensures
+            // that it exists
+            allSchemas[usedTable] = tableStruct.schema;
+            var candidateSelectTable = findValidLastSelect(tableStruct.selects,
+                tableStruct.nextBatchId);
+            allSelects[usedTable] = candidateSelectTable;
+            tableValidPromiseArray.push(tableValid(usedTable, candidateSelectTable));
+        }
+        
+        return PromiseHelper.when(...tableValidPromiseArray);
+    })
+    .then(function() {
+        var returns = arguments;
+        // XXX FIX ME We need to make sure from when we check to when we run
+        // this call, that the table still exists and that no one has dropped
+        // it in the meantime. Alternatively, we can just put in a backup clause
+        for (var retStruct of returns) {
+            if (!retStruct.found) {
+                allSelects[retStruct.pubTableName] = undefined;
+            }
+        }
+        var toSelect = [];
+        for (var pubTable in allSelects) {
+            if (!allSelects[pubTable]) {
+                var xcalarTableName = xcHelper.randName(tablePrefix) +
+                    Authentication.getHashId();
+                toSelect.push({
+                    importTable: xcalarTableName,
+                    publishName: pubTable
+                });
+                allSelects[pubTable] = xcalarTableName;
+            }
+        }
+        deferred.resolve(selectPublishedTables(toSelect, allSchemas), allSchemas,
+            allSelects);
+    })
+    .fail(deferred.reject);
+    return deferred.promise();
+}
+
+function executeSqlWithExtQuery(execid, queryStr, rowsToFetch, sessionPrefix,
+                                checkTime) {
     var deferred = PromiseHelper.deferred();
     if (rowsToFetch == null) {
         rowsToFetch = 10; // default to be 10
     }
     var finalTable;
-    var schema;
     var orderedColumns;
-    var renameMap;
+    var tables;
+    var allSchemas = [];
+    var allPublishArgs = [];
 
-    try {
-        var plan = JSON.parse(planStr);
-        connect("localhost", sqlUser, sqlId)
-        .then(function() {
-            console.log("connected");
-            return goToSqlWkbk();
-        })
-        .then(function() {
-            console.log(sessionId, " starts compiling...");
-            var jdbcOption = {
-                prefix: sessionId,
-                jdbcCheckTime: checkTime,
-                sqlMode: true
-            };
-            var queryName = "sql" + sessionId;
-            return new SQLCompiler().compile(queryName, plan, true, jdbcOption);
-        })
-        .then(function(res) {
-            console.log("compiling finished!");
-            tableName = res[0];
-            orderedColumns = res[1];
-            console.log("get table from plan", tableName);
-            finalTable = tableName;
-            return getSchema(finalTable, orderedColumns);
-        })
-        .then(function(res) {
-            schema = res.schema;
-            renameMap = res.renameMap;
-            return getRows(finalTable, 1, rowsToFetch);
-        })
-        .then(function(data) {
-            var result = parseRows(data, schema, renameMap);
-            console.log("schema:" + JSON.stringify(schema));
-            XIApi.deleteTable(1, finalTable);
-            var res = {
-                execid: execid,
-                schema: schema,
-                result: result
-            };
-            deferred.resolve(res);
-        })
-        .fail(function(err) {
-            deferred.reject(err);
-        });
-    } catch (e) {
-        console.error("plan parse error", e);
-        deferred.reject(e);
-    }
+    var selectQuery = "";
+    selectUsedPublishedTables(queryStr, sessionPrefix)
+    .then(function(selQuery, schemas, selects) {
+        selectQuery = selQuery;
+        var schemasToSendToSqlDf = [];
+        for (var pubTable in schemas) {
+            var tableNameCol = {};
+            tableNameCol["XC_TABLENAME_" + selects[pubTable]] = "string";
+            schemas[pubTable].push(tableNameCol);
+            schemasToSendToSqlDf.push({
+                tableName: pubTable,
+                tableColumns: schemas[pubTable]
+            });
+        }
+        return sendToPlanner(schemasToSendToSqlDf);
+    })
+    .then(function () {
+        // get logical plan
+        return sendToPlanner(undefined, queryStr);
+    })
+    .then(function(planStr) {
+        return setupAndCompile(planStr, sessionPrefix, checkTime)
+    })
+    .then(function(compilerObject, xcQueryString, newTableName, colNames) {
+        xcConsole.log("Compilation finished");
+        finalTable = newTableName;
+        orderedColumns = colNames;
+        var xcQueryWithSelect = JSON.stringify(selectQuery.concat(
+            JSON.parse(xcQueryString)));
+        return compilerObject.execute(xcQueryWithSelect, newTableName, colNames,
+            queryStr, undefined, checkTime);
+    })
+    .then(function() {
+        xcConsole.log("Execution finished!");
+        return getRowsAndCleanup(finalTable, orderedColumns, rowsToFetch,
+            sessionPrefix, execid);
+    })
+    .then(deferred.resolve)
+    .fail(deferred.reject);
 
     return deferred.promise();
 };
 
-function sqlQuery(userIdName, userIdUnique, wkbkName, queryString, queryTablePrefix) {
+function executeSqlWithExtPlan(execid, planStr, rowsToFetch, sessionPrefix,
+                            checkTime) {
     var deferred = PromiseHelper.deferred();
+    if (rowsToFetch == null) {
+        rowsToFetch = 10; // default to be 10
+    }
+    var finalTable;
+    var orderedColumns;
+
+    setupAndCompile(planStr, sessionPrefix, checkTime)
+    .then(function(compilerObject, xcQueryString, newTableName, colNames) {
+        xcConsole.log("Compilation finished!");
+        finalTable = newTableName;
+        orderedColumns = colNames;
+        return compilerObject.execute(xcQueryString, finalTable, orderedColumns,
+            "", undefined, checkTime);
+    })
+    .then(function() {
+        xcConsole.log("Execution finished!");
+        return getRowsAndCleanup(finalTable, orderedColumns, rowsToFetch,
+            sessionPrefix);
+    })
+    .then(deferred.resolve)
+    .fail(deferred.reject);
+    
+    return deferred.promise();
+};
+
+function executeSqlWithQueryInteractive(userIdName, userIdUnique, wkbkName,
+    queryString, queryTablePrefix) {
+    var deferred = PromiseHelper.deferred();
+    var finalTable;
+    var orderedColumns;
+    getSqlPlan(userIdName, wkbkName, queryString)
+    .then(function(planStr) {
+        return setupAndCompile(planStr, queryTablePrefix, undefined, userIdName,
+            userIdUnique);
+    })
+    .then(function(compilerObject, xcQueryString, newTableName, colNames) {
+        xcConsole.log("Compilation finished!");
+        finalTable = newTableName;
+        orderedColumns = colNames;
+        return compilerObject.execute(xcQueryString, finalTable, orderedColumns,
+            queryString);
+    })
+    .then(function() {
+        xcConsole.log("Execution finished!");
+        var result = {
+            tableName: finalTable,
+            columns: orderedColumns
+        }
+        deferred.resolve(result);
+    })
+    .fail(deferred.reject);
+    return deferred.promise();
+};
+
+function setupAndCompile(plan, sessionPrefix, checkTime, userIdName,
+                         userIdUnique, wkbkName) {
+    var deferred = jQuery.Deferred();
+    var compilerObject;
     connect("localhost", userIdName, userIdUnique)
     .then(function() {
-        console.log("connected");
+        xcConsole.log("connected");
         return goToSqlWkbk(wkbkName);
     })
     .then(function() {
-        var innerDeferred = PromiseHelper.deferred();
-        var url = "http://127.0.0.1:27000/xcesql/sqlquery/" +
-                encodeURIComponent(encodeURIComponent(userIdName + "-wkbk-" + wkbkName)) +
-                "/true/true";
-        request.post(
-            url,
-            {json: {sqlQuery: queryString}},
-            function (error, response, body) {
-                if (!error && response.statusCode == 200) {
-                    innerDeferred.resolve(JSON.parse(body.sqlQuery));
-                } else {
-                    innerDeferred.reject(error);
-                }
-            }
-        );
-        return innerDeferred.promise();
+        xcConsole.log(sessionPrefix, " started compiling.");
+        var option = {
+            prefix: sessionPrefix,
+            jdbcCheckTime: checkTime,
+            sqlMode: true
+        };
+        compilerObject = new SQLCompiler();
+        return compilerObject.compile(undefined, plan, true, option);
     })
-    .then(function(plan) {
-        console.log(queryTablePrefix, " starts compiling...");
-        var option = {prefix: queryTablePrefix,
-                      sqlMode: true};
-        var queryName = "sql" + queryTablePrefix;
-        return new SQLCompiler().compile(queryName, plan, true, option);
+    .then(function(xcQueryString, newTableName, colNames, toCache) {
+        // TODO integrate toCache in the future
+        deferred.resolve(compilerObject, xcQueryString, newTableName,
+            colNames);
     })
-    .then(function(res) {
-        console.log("compiling finished!");
-        var result = {
-            tableName: res[0],
-            columns: res[1]
+    .fail(deferred.reject);
+    return deferred.promise();
+}
+
+// deprecated
+function getListOfPublishedTablesFromQuery(sqlStatement, listOfPubTables) {
+    var pubTablesUsed = []
+    for (var table of listOfPubTables) {
+        var regex = new RegExp("\\b" + table + "\\b", "i");
+        if (regex.test(sqlStatement)) {
+            pubTablesUsed.push(table);
         }
-        deferred.resolve(result)
-    })
-    .fail(function(err) {
-        deferred.reject(err);
+    }
+    return pubTablesUsed;
+}
+
+function getSqlPlan(userIdName, wkbkName, queryString) {
+    var deferred = PromiseHelper.deferred();
+    var url = "http://127.0.0.1:27000/xcesql/sqlquery/" +
+        encodeURIComponent(encodeURIComponent(userIdName + "-wkbk-" +
+        wkbkName)) + "/true/true";
+    request.post(url, {json: {sqlQuery: queryString}}, function(error, response,
+        body) {
+        if (!error && response.statusCode == 200) {
+            deferred.resolve(JSON.parse(body.sqlQuery));
+        } else {
+            deferred.reject(error);
+        }
     });
     return deferred.promise();
-};
+}
 
 function parseRows(data, schema, renameMap) {
     try {
@@ -755,42 +1054,43 @@ function parseRows(data, schema, renameMap) {
 
 router.post("/xcedf/load", function(req, res) {
     var path = req.body.path;
-    console.log("load sql path", path);
+    xcConsole.log("load sql path", path);
     sqlLoad(path)
     .then(function(output) {
-        console.log("sql load finishes");
+        xcConsole.log("sql load finishes");
         res.send(output);
     })
     .fail(function(error) {
-        console.log("sql load error", error);
+        xcConsole.log("sql load error", error);
         res.status(500).send(error);
     });
 });
 
-router.post("/xcedf/select", function(req, res) {
+router.post("/deprecated/select", function(req, res) {
     try {
         var publishNames = JSON.parse(req.body.names);
     } catch (err) {
         res.status(500).send("Invalid table names.");
         return;
     }
-    var sessionId = req.body.sessionId;
+    var sessionPrefix = req.body.sessionId;
     var cleanup = (req.body.cleanup === "true");
     var checkTime = parseInt(req.body.checkTime);
     checkTime = isNaN(checkTime) ? undefined : checkTime;
-    sessionId = "src" + sessionId.replace(/-/g, "") + "_";
-    console.log("load from published table: ", publishNames);
-    sqlSelect(publishNames, sessionId, cleanup, checkTime)
+    sessionPrefix = "src" + sessionPrefix.replace(/-/g, "") + "_";
+    xcConsole.log("load from published table: ", publishNames);
+    sqlSelect(publishNames, sessionPrefix, cleanup, checkTime)
     .then(function(output) {
-        console.log("sql load published table finishes");
+        xcConsole.log("sql load published table finishes");
         res.send(output);
     })
     .fail(function(error) {
-        console.log("sql load error", error);
+        xcConsole.log("sql load error", error);
         res.status(500).send(error);
     });
 });
 
+// Deprecated
 function cleanAllTables(allIds, checkTime) {
     var queryArray = [];
     for (var i = 0; i < allIds.length; i++) {
@@ -803,7 +1103,7 @@ function cleanAllTables(allIds, checkTime) {
                     };
         queryArray.push(query);
     }
-    console.log("deleting: ", JSON.stringify(allIds));
+    xcConsole.log("deleting: ", JSON.stringify(allIds));
     return XIApi.deleteTables(1, queryArray, checkTime);
 }
 
@@ -839,62 +1139,96 @@ function getColType(typeId) {
     }
 }
 
-router.post("/sql/query", function(req, res) {
+router.post("/xcsql/query", function(req, res) {
     var userIdName = req.body.userIdName;
     var userIdUnique = req.body.userIdUnique;
     var wkbkName = req.body.wkbkName;
     var queryString = req.body.queryString;
     var queryTablePrefix = req.body.queryTablePrefix;
-    sqlQuery(userIdName, userIdUnique, wkbkName, queryString, queryTablePrefix)
+    executeSqlWithQueryInteractive(userIdName, userIdUnique, wkbkName,
+        queryString, queryTablePrefix)
     .then(function(output) {
-        console.log("sql query finishes");
+        xcConsole.log("sql query finishes");
         res.send(output);
     })
     .fail(function(error) {
-        console.log("sql query error: ", error);
+        xcConsole.log("sql query error: ", error);
         res.status(500).send(error);
     });
 })
 
-router.post("/xcedf/query", function(req, res) {
+// XXX Some parameters need to be renamed
+// apply similar code to /sql/query, or even simply merge them into one router 
+// Only difference is they take different parameters
+router.post("/xcsql/queryWithPublishedTables", function(req, res) {
     var execid = req.body.execid;
-    var plan = req.body.plan;
+    var queryString = req.body.queryString;
     var limit = req.body.limit;
-    var sessionId = req.body.sessionId;
+    var sessionPrefix = req.body.sessionId;
+    // jdbc only passes string to us
     var checkTime = parseInt(req.body.checkTime);
     checkTime = isNaN(checkTime) ? undefined : checkTime;
-    sessionId = "sql" + sessionId.replace(/-/g, "") + "_";
-    sqlPlan(execid, plan, limit, sessionId, checkTime)
+    sessionPrefix = "sql" + sessionPrefix.replace(/-/g, "") + "_";
+    executeSqlWithExtQuery(execid, queryString, limit, sessionPrefix, checkTime)
     .then(function(output) {
-        console.log("sql query finishes");
+        xcConsole.log("sql query finishes");
         res.send(output);
     })
     .fail(function(error) {
-        console.log("sql query error: ", error);
+        xcConsole.log("sql query error: ", error);
         res.status(500).send(error);
     });
 });
 
-router.post("/xcedf/list", function(req, res) {
+router.post("/xdh/query", function(req, res) {
+    var execid = req.body.execid;
+    var plan = req.body.plan;
+    var limit = req.body.limit;
+    var sessionPrefix = req.body.sessionId;
+    var checkTime = parseInt(req.body.checkTime);
+    checkTime = isNaN(checkTime) ? undefined : checkTime;
+    sessionPrefix = "sql" + sessionPrefix.replace(/-/g, "") + "_";
+    executeSqlWithExtPlan(execid, plan, limit, sessionPrefix, checkTime)
+    .then(function (output) {
+        xcConsole.log("sql query finishes");
+        res.send(output);
+    })
+    .fail(function (error) {
+        xcConsole.log("sql query error: ", error);
+        res.status(500).send(error);
+    });
+});
+
+router.post("/xcsql/list", function(req, res) {
     var pattern = req.body.pattern;
-    listPublishTables(pattern)
-    .then(function(tables) {
-        console.log("get published tables: ", tables);
-        res.send(tables);
+    listPublishedTables(pattern)
+    .then(function(tables, results) {
+        var retStruct = [];
+        
+        for (var pubTable of tables) {
+            var pubTableMeta = {};
+            pubTableMeta["tableName"] = pubTable;
+            pubTableMeta["tableColumns"] = getInfoForPublishedTable(results,
+                pubTable).schema;
+            retStruct.push(pubTableMeta);
+        }
+
+        xcConsole.log("List published tables schema");
+        res.send(retStruct);
     })
     .fail(function(error) {
-        console.log("get published tables error: ", error);
+        xcConsole.log("get published tables error: ", error);
         res.status(500).send(error);
     });
 });
 
-router.post("/xcedf/clean", function(req, res) {
-    var sessionId = req.body.sessionId;
+router.post("/deprecated/clean", function(req, res) {
+    var sessionPrefix = req.body.sessionId;
     var type = req.body.type;
     var checkTime = parseInt(req.body.checkTime);
     checkTime = isNaN(checkTime) ? undefined : checkTime;
-    var srcId = "src" + sessionId.replace(/-/g, "") + "_";
-    var otherId = "sql" + sessionId.replace(/-/g, "") + "_";
+    var srcId = "src" + sessionPrefix.replace(/-/g, "") + "_";
+    var otherId = "sql" + sessionPrefix.replace(/-/g, "") + "_";
     var allIds = [];
     if (type === "select") {
         allIds.push(srcId);
@@ -908,11 +1242,11 @@ router.post("/xcedf/clean", function(req, res) {
     }
     cleanAllTables(allIds, checkTime)
     .then(function(output) {
-        console.log("all temp and result tables deleted");
+        xcConsole.log("all temp and result tables deleted");
         res.send(output);
     })
     .fail(function(error) {
-        console.log("clean tables error: ", error);
+        xcConsole.log("clean tables error: ", error);
         res.send("Some tables are not deleted because: " + JSON.stringify(error));
     });
 });
@@ -921,27 +1255,22 @@ router.post("/xcedf/clean", function(req, res) {
 function fakeSqlLoad(func) {
     sqlLoad = func;
 }
-function fakeSqlPlan(func) {
-    sqlPlan = func;
-}
 function fakeSqlSelect(func) {
     sqlSelect = func;
 }
 function fakeListPublishTables(func) {
-    listPublishTables = func;
+    listPublishedTables = func;
 }
 function fakeCleanAllTables(func) {
     cleanAllTables = func;
 }
 if (process.env.NODE_ENV === "test") {
     exports.sqlLoad = sqlLoad;
-    exports.sqlPlan = sqlPlan;
     exports.sqlSelect = sqlSelect;
-    exports.listPublishTables = listPublishTables;
+    exports.listPublishedTables = listPublishedTables;
     exports.cleanAllTables = cleanAllTables;
     // Stub functions
     exports.fakeSqlLoad = fakeSqlLoad;
-    exports.fakeSqlPlan = fakeSqlPlan;
     exports.fakeSqlSelect = fakeSqlSelect;
     exports.fakeListPublishTables = fakeListPublishTables;
     exports.fakeCleanAllTables = fakeCleanAllTables;

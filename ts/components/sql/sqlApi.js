@@ -318,7 +318,7 @@
                         "sql": sql
                     });
                 }
-                deferred.resolve(tableName);
+                deferred.resolve(tableName, allCols);
             })
             .fail(function(error) {
                 if (error === SQLErrTStr.Cancel) {

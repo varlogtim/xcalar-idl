@@ -827,6 +827,10 @@ window.SQLEditor = (function(SQLEditor, $) {
             }
             sqlCom.setStatus(2);
             sqlCom.compile(queryName, sql)
+            .then(function(queryString, newTableName, cols, cacheStruct) {
+                return sqlCom.execute(queryString, newTableName, cols, sql,
+                    cacheStruct);
+            })
             .done(function() {
                 sqlCom.setStatus(0);
                 deferred.resolve();
