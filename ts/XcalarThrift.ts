@@ -3132,6 +3132,9 @@ let XcalarQuery = function(
         console.info('cancelation detected');
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
+    if (txId != null) {
+        Transaction.startSubQuery(txId, queryName, null, queryString);
+    }
 
     //Default behavior is true so if null or undefined, then should be set to true
     if (bailOnError == null) {
@@ -3144,9 +3147,6 @@ let XcalarQuery = function(
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
-            if (txId != null) {
-                Transaction.startSubQuery(txId, queryName, null, queryString);
-            }
             deferred.resolve();
         }
     })
