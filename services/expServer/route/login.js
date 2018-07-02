@@ -824,13 +824,13 @@ router.post('/login/with/HttpAuth', function(req, res) {
             userInfo.signature = crypto.createHmac("sha256", "xcalar-salt2").update(JSON.stringify(userInfo, Object.keys(userInfo).sort())).digest("hex");
 
             var token = btoa(JSON.stringify(userInfo));
-            res.status(200).send(token);
+            res.status(200).send({"data": token});
         })
         .fail(function(message) {
-            res.status(403).send("Invalid credentials");
+            res.status(403).send({"errorMsg": "Invalid credentials"});
         });
     } catch (err) {
-        res.status(400).send("Malformed credentials: " + err)
+        res.status(400).send({"errorMsg": "Malformed credentials: " + err})
     }
 });
 
@@ -849,7 +849,7 @@ router.post('/login/verifyToken', function(req, res) {
 
         var currTime = Date.now();
         if (currTime > (userInfo.timestamp + (1000 * 60 * 5))) {
-            res.status(403).send("Token has expired");
+            res.status(403).send({"errorMsg": "Token has expired"});
             return;
         }
 
@@ -857,7 +857,7 @@ router.post('/login/verifyToken', function(req, res) {
 
         res.status(200).send(userInfo);
     } catch (err) {
-        res.status(400).send("Malformed token: " + err);
+        res.status(400).send({"errorMsg": "Malformed token: " + err});
     }
 });
 
