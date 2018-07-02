@@ -774,7 +774,12 @@ namespace IMDPanel {
                             $("#imdToInput").datepicker("setDate", new Date(max * 1000));
                             fromTimePicker.showTimeHelper(new Date(min * 1000));
                             toTimePicker.showTimeHelper(new Date(max * 1000));
+                            const $clickedElement: JQuery = $imdPanel.find('.tableListItem[data-name="' +
+                            name +'"]').find(".tableTimePanel");
+
+                            scrollToListItem($clickedElement);
                             updateViewportForDateRange(min, max);
+
                             selectedCells = {};
                             const closestUpdate: number = batchId;
 
@@ -784,8 +789,7 @@ namespace IMDPanel {
                             isScrolling = true; // prevents scroll event from firing and closing update prompt
 
                             selectedCells[table.name] = closestUpdate;
-                            const $clickedElement: JQuery = $imdPanel.find('.tableListItem[data-name="' +
-                                        table.name +'"]').find(".tableTimePanel");
+
                             const $updateLine: JQuery = $clickedElement.find('.indicator' + i);
                             const pageX: number = $updateLine.offset().left;
                             const pos: number = pageX - $clickedElement.closest(".tableListHist").offset().left;
@@ -1757,6 +1761,16 @@ namespace IMDPanel {
         $waitSection.find(".cancelLoad").data("progresscircle",
                                                 progressCircle);
         progressCircle.update(numCompleted, 1000);
+    }
+
+    function scrollToListItem($listItem: JQuery) {
+        const offsetTop: number = $listItem.position().top -
+                        $imdPanel.find(".upperTableHeader").height();
+        const $list: JQuery = $imdPanel.find(".activeTablesList");
+        if (offsetTop < 0 || offsetTop > $list.height()) {
+            const curScrollTop = $list.scrollTop();
+            $list.scrollTop(curScrollTop + offsetTop);
+        }
     }
 
     /* Unit Test Only */
