@@ -1428,9 +1428,14 @@ XcalarDeleteTable = function(tableName, txId, isRetry) {
     .fail(function(error) {
         var thriftError = thriftLog("XcalarDeleteTable", error);
         if (!isRetry && thriftError.status === StatusT.StatusDgNodeInUse) {
-            forceDeleteTable(tableName, txId)
+            forceReleaseTable(error.output)
+            .then(function() {
+                return XcalarDeleteTable(tableName, txId, true);
+            })
             .then(deferred.resolve)
-            .fail(deferred.reject);
+            .fail(function() {
+                deferred.reject(thriftError);
+            });
         } else if (thriftError.status === StatusT.StatusDagNodeNotFound) {
             // if not found, then doesn't exist so it's essentially deleted
             deferred.resolve();
@@ -1486,27 +1491,19 @@ XcalarDeleteConstants = function(constantPattern, txId) {
     return deferred.promise();
 };
 
-function forceDeleteTable(tableName, txId) {
-    var deferred = PromiseHelper.deferred();
-    XcalarGetTableMeta(tableName)
-    .then(function(res) {
-        if (res && res.resultSetIds) {
-            var promises = [];
-            res.resultSetIds.forEach(function(resultSetId) {
-                var def = XcalarSetFree(resultSetId);
-                promises.push(def);
+function forceReleaseTable(deleteOutput) {
+    try {
+        var promises = [];
+        deleteOutput.statuses.forEach(function(status) {
+            status.refs.forEach(function(ref) {
+                promises.push(XcalarSetFree(ref.xid));
             });
-            return PromiseHelper.when.apply(this, promises);
-        }
-    })
-    .then(function() {
-        // it must be a retry case
-        return XcalarDeleteTable(tableName, txId, true);
-    })
-    .then(deferred.resolve)
-    .fail(deferred.reject);
-
-    return deferred.promise();
+        });
+        return PromiseHelper.when.apply(this, promises);
+    } catch (e) {
+        console.error(e);
+        return PromiseHelper.reject();
+    }
 }
 
 XcalarRenameTable = function(oldTableName, newTableName, txId) {

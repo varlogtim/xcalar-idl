@@ -12,10 +12,6 @@ describe('XIApi Test', () => {
             expect(isCorrectTableNameFormat(null)).to.be.false;
             expect(isCorrectTableNameFormat("")).to.be.false;
 
-            window.sqlMode = true;
-            expect(isCorrectTableNameFormat("table")).to.be.true;
-
-            window.sqlMode = false;
             expect(isCorrectTableNameFormat("table")).to.be.false;
             expect(isCorrectTableNameFormat("table#ab12")).to.be.false;
             expect(isCorrectTableNameFormat("table#12")).to.be.true;
