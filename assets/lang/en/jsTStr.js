@@ -1150,6 +1150,7 @@ DSTStr = {
     "FileError": "File error",
     "ContainsRecordError": "Your dataset contains 1 record error.<br/>Click to view.",
     "ContainsFileError": "Your dataset contains 1 file error.<br/>Click to view.",
+    "DBNoSQL": "Please type in the SQL query to preview the data.",
 
     // With replace
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds>?',

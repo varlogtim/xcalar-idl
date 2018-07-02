@@ -39,6 +39,15 @@ window.DSTargetManager = (function($, DSTargetManager) {
         }
     };
 
+    DSTargetManager.isDatabaseTarget = function(targetName) {
+        const target = DSTargetManager.getTarget(targetName);
+        if (target && target.type_id === "dsntarget") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     DSTargetManager.isPreSharedTarget = function(targetName) {
         var target = DSTargetManager.getTarget(targetName);
         if (target && target.type_id === "sharednothingsymm") {

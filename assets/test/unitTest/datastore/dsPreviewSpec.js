@@ -1436,7 +1436,6 @@ describe("Dataset-DSPreview Test", function() {
             assert.isFalse($skipInput.is(":visible"), "no skip rows");
             assert.isFalse($udfModuleList.is(":visible"), "no udf module");
             assert.isFalse($udfFuncList.is(":visible"), "no udf func");
-            assert.isTrue($("#dbArgs-dsnList").find('.text').is(":visible"), "has database DSN");
             assert.isTrue($("#dsForm-dbSQL").is(":visible"), "has database SQL");
         });
 
@@ -1964,26 +1963,12 @@ describe("Dataset-DSPreview Test", function() {
         it("should validate DATABASE case", function() {
             loadArgs.set({format: "DATABASE"});
 
-            // Test for empty dsn
-            $("#dbArgs-dsnList").find('.text').val("");
-            $("#dsForm-dbSQL").val("test");
-            expect(validateForm()).to.be.null;
-            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
-
             // Test for empty sql
-            $("#dbArgs-dsnList").find('.text').val("test");
-            $("#dsForm-dbSQL").val("");
-            expect(validateForm()).to.be.null;
-            UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
-
-            // Test for empty dsn and sql
-            $("#dbArgs-dsnList").find('.text').val("");
             $("#dsForm-dbSQL").val("");
             expect(validateForm()).to.be.null;
             UnitTest.hasStatusBoxWithError(ErrTStr.NoEmpty);
 
             // Test for normal output
-            $("#dbArgs-dsnList").find('.text').val("test_dsn");
             $("#dsForm-dbSQL").val("test_sql");
             var res = validateForm();
             expect(res).to.be.an("object");
@@ -1991,10 +1976,8 @@ describe("Dataset-DSPreview Test", function() {
             expect(res.udfModule).to.equal("/globaludf/default");
             expect(res.udfFunc).to.equal("ingestFromDB");
             expect(res.udfQuery).to.be.an("object");
-            expect(res.udfQuery.dsn).to.equal("test_dsn");
             expect(res.udfQuery.query).to.equal("test_sql");
             // restore
-            $("#dbArgs-dsnList").find('.text').val("");
             $("#dsForm-dbSQL").val("");
         });
 
@@ -2309,17 +2292,14 @@ describe("Dataset-DSPreview Test", function() {
                 dsName: "test",
                 format: "DATABASE",
                 udfQuery: {
-                    dsn: "test_dsn",
                     query: "test_sql"
                 }
             });
 
             expect(loadArgs.getFormat()).to.equal("DATABASE");
-            expect($("#dbArgs-dsnList").find('.text').val()).to.equal("test_dsn");
             expect($("#dsForm-dbSQL").val()).to.equal("test_sql");
 
             // restore
-            $("#dbArgs-dsnList").find('.text').val("");
             $("#dsForm-dbSQL").val("");
         });
 

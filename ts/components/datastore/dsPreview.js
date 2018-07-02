@@ -88,10 +88,10 @@ window.DSPreview = (function($, DSPreview) {
 
         $headerCheckBox = $("#promoteHeaderCheckbox");
         componentDBFormat = createDatabaseFormat({
-            dsnID: 'dbArgs-dsnList',
+            udfModule: defaultModule,
+            udfFunction: 'ingestFromDB',
             sqlID: 'dsForm-dbSQL',
             containerID: 'importDataForm-content',
-            parseJSONDataFunc: parseJSONData
         });
         componentJsonFormat = createJsonFormat({
             $container: $form,
@@ -2111,6 +2111,17 @@ window.DSPreview = (function($, DSPreview) {
             udfModule = udfDef.udfModule;
             udfFunc = udfDef.udfFunc;
             udfQuery = udfDef.udfQuery;
+        } else if (format === formatMap.DATABASE) {
+            const dbArgs = componentDBFormat.validateValues();
+            if (dbArgs == null) {
+                return null;
+            }
+            const udfDef = componentDBFormat.getUDFDefinition({
+                query: dbArgs.query
+            });
+            udfModule = udfDef.udfModule;
+            udfFunc = udfDef.udfFunc;
+            udfQuery = udfDef.udfQuery;
         }
 
         var terminationOptions = getTerminationOptions();
@@ -2147,7 +2158,6 @@ window.DSPreview = (function($, DSPreview) {
         var quote = null;
         var skipRows = null;
         var parquetArgs = {};
-        var dbArgs = {};
 
         if (hasUDF) {
             var udfArgs = validateUDF();
@@ -2201,13 +2211,17 @@ window.DSPreview = (function($, DSPreview) {
             udfModule = parquetModule;
             udfFunc = parquetFunc;
         } else if (format === formatMap.DATABASE) {
-            dbArgs = componentDBFormat.validateValues();
+            const dbArgs = componentDBFormat.validateValues();
             if (dbArgs == null) {
                 return null;
             }
-            udfModule = defaultModule;
-            udfFunc = 'ingestFromDB';
-            udfQuery = { dsn: dbArgs.dsn, query: dbArgs.query };
+
+            const udfDef = componentDBFormat.getUDFDefinition({
+                query: dbArgs.query
+            });
+            udfModule = udfDef.udfModule;
+            udfFunc = udfDef.udfFunc;
+            udfQuery = udfDef.udfQuery;
         } else if (format === formatMap.JSON) {
             const jsonArgs = componentJsonFormat.validateValues();
             if (jsonArgs == null) {
@@ -2728,6 +2742,31 @@ window.DSPreview = (function($, DSPreview) {
                     udfModule = defaultModule;
                     udfFunc = "convertNewLineJsonToArrayJson";
                     seletNewLineJSONToArrayUDF();
+                } else if (DSTargetManager.isDatabaseTarget(targetName)) {
+                    if (isRestore) {
+                        // Restore from error on dataset preview screen
+                        const dbArgs = componentDBFormat.validateValues();
+                        if (dbArgs == null) {
+                            // This should never happen, because we already did validateFrom
+                            return PromiseHelper.reject('Error case');
+                        }
+                        const udfDef = componentDBFormat.getUDFDefinition({
+                            query: dbArgs.query
+                        });
+                        hasUDF = true;
+                        udfModule = udfDef.udfModule;
+                        udfFunc = udfDef.udfFunc;
+                        udfQuery = udfDef.udfQuery;
+                    } else {
+                        // Comes from dsForm
+                        hasUDF = false;
+                        noDetect = true;
+                        udfModule = '';
+                        udfFunc = '';
+                        toggleFormat("DATABASE");
+                        // Nothing to preview, until SQL is provided
+                        return PromiseHelper.reject(DSTStr.DBNoSQL);
+                    }
                 }
             }
 
@@ -2956,16 +2995,27 @@ window.DSPreview = (function($, DSPreview) {
     }
 
     function hideDataFormatsByTarget(targetName) {
-        var nonParquet = $("#fileFormatMenu li:not([name=PARQUET])");
-        var parquet = $("#fileFormatMenu li[name=PARQUET]");
+        const exclusiveFormats = {
+            PARQUET: DSTargetManager.isSparkParquet(targetName),
+            DATABASE: DSTargetManager.isDatabaseTarget(targetName)
+        };
 
-        if (DSTargetManager.isSparkParquet(targetName)) {
-            nonParquet.hide();
-            parquet.show();
+        let exclusiveFormat = null;
+        for (const [format, isCurrentTarget] of Object.entries(exclusiveFormats)) {
+            if (isCurrentTarget) {
+                exclusiveFormat = format;
+                break;
+            }
+        }
 
+        if (exclusiveFormat != null) {
+            $(`#fileFormatMenu li:not([name=${exclusiveFormat}])`).hide();
+            $(`#fileFormatMenu li[name=${exclusiveFormat}]`).show();
         } else {
-            nonParquet.show();
-            parquet.hide();
+            $('#fileFormatMenu li').show();
+            for (const format of Object.keys(exclusiveFormats)) {
+                $(`#fileFormatMenu li[name=${format}]`).hide();
+            }
         }
     }
 
@@ -3046,7 +3096,10 @@ window.DSPreview = (function($, DSPreview) {
             if (index !== 0) {
                 classes += " collapse";
             }
-            if (file.isFolder === false || isGeneratedTarget) {
+            if (file.isFolder === false ||
+                isGeneratedTarget ||
+                DSTargetManager.isDatabaseTarget(targetName)
+            ) {
                 classes += " singlePath";
                 icons = '<i class="icon xi-radio-empty"></i>' +
                         '<i class="icon xi-radio-selected"></i>';
@@ -3510,13 +3563,7 @@ window.DSPreview = (function($, DSPreview) {
         } else if (format === formatMap.XML) {
             isSuccess = hasUDF ? getJSONTable(rawData) : getXMLTable(rawData);
         } else if (format === formatMap.DATABASE) {
-            var parseResult =  componentDBFormat.parseConfig(rawData);
-            if (parseResult) {
-                showJSONTable(parseResult.json);
-                componentDBFormat.updateDSNList(parseResult.dsnList);
-            }
-            isSuccess = (parseResult != null) ? true : false;
-
+            isSuccess = getJSONTable(rawData);
         } else {
             isSuccess = getCSVTable(rawData, format);
 
@@ -5033,39 +5080,26 @@ window.DSPreview = (function($, DSPreview) {
 
     // Start === DatabaseFormat component factory
     function createDatabaseFormat({
-        dsnID = 'dbArgs-dsnList',
+        udfModule,
+        udfFunction,
         sqlID = 'dsForm-dbSQL',
         containerID = 'importDataForm-content',
-        parseJSONDataFunc}) {
+    }) {
         // Dependencies
         const libs = {
             xcHelper: xcHelper,
             ErrTStr: ErrTStr,
-            parseJSONData: parseJSONDataFunc,
-            MenuHelper: MenuHelper,
-            InputDropdownHint: InputDropdownHint
         };
 
         // Constants
-        const DSN_LINE_TEMPLATE = '<li data-dsn="{dsn}">{dsn}</li>';
 
         // Private variables
-        const $elementDSN = $('#' + dsnID);
         const $elementSQL = $('#' + sqlID);
         const $container = $('#' + containerID);
-        const $elementDSNInput = $('#' + dsnID + ' .text');
 
         // Private methods
         function init() {
-            new libs.MenuHelper($elementDSN, {
-                "onSelect": ($li) => selectDSN($li.data('dsn')),
-                "container": '#' + containerID,
-                "bounds": '#' + containerID
-            }).setupListeners();
-        }
-
-        function selectDSN(dsn) {
-            $elementDSNInput.val(dsn);
+            // Component initialize code goes here
         }
 
         // Initialize
@@ -5073,24 +5107,14 @@ window.DSPreview = (function($, DSPreview) {
 
         // Public methods
         return {
-            restore: function({dsn, query}) {
-                if (dsn != null) {
-                    $elementDSNInput.val(dsn);
-                }
+            restore: function({query}) {
                 if (query != null) {
                     $elementSQL.val(query);
                 }
             },
             validateValues: function() {
-                const strDSN = $elementDSNInput.val().trim();
                 const strSQL = $elementSQL.val().trim();
                 const isValid = libs.xcHelper.validate([
-                    {
-                        "$ele": $elementDSN,
-                        "error": libs.ErrTStr.NoEmpty,
-                        "formMode": true,
-                        "check": () => (strDSN.length === 0)
-                    },
                     {
                         "$ele": $elementSQL,
                         "error": libs.ErrTStr.NoEmpty,
@@ -5098,34 +5122,19 @@ window.DSPreview = (function($, DSPreview) {
                         "check": () => (strSQL.length === 0)
                     }
                 ]);
-                return (isValid) ? { dsn: strDSN, query: strSQL } : null;
+                return (isValid) ? { query: strSQL } : null;
+            },
+            getUDFDefinition: function({query = ''} = {}) {
+                return {
+                    udfModule: udfModule,
+                    udfFunc: udfFunction,
+                    udfQuery: { query: query }
+                };
             },
             show: function() {
                 $container.find(".format.database").removeClass("xc-hidden");
             },
-            parseConfig: function(rawData) {
-                try {
-                    const json = libs.parseJSONData(rawData);
-                    const dsnList = [];
-                    for (const dsn of json) {
-                        if (dsn.name != null) {
-                            dsnList.push(libs.xcHelper.escapeHTMLSpecialChar(dsn.name));
-                        }
-                    }
-                    return { json: json, dsnList: dsnList };
-                } catch(e) {
-                    console.error(e);
-                    return null;
-                }
-            },
-            updateDSNList: function(dsnList) {
-                const html = dsnList.reduce(
-                    (accm, dsn) => ( accm + DSN_LINE_TEMPLATE.replace(/\{dsn\}/g, dsn) ),
-                    '');
-                $elementDSN.find("ul").html(html);
-            },
         };
-
     }
     // End === DatabaseFormat component factory
 

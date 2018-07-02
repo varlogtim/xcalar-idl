@@ -140,6 +140,15 @@ window.DSForm = (function($, DSForm) {
             $filePath.removeAttr("placeholder");
         }
 
+        if (DSTargetManager.isDatabaseTarget(targetName)) {
+            $pathCard.addClass("target-database");
+            $filePath.attr('disabled', 'true');
+            DSForm.addHistoryPath(targetName, `/${targetName}`);
+        } else {
+            $pathCard.removeClass("target-database");
+            $filePath.removeAttr("disabled");
+        }
+
         var historyPaths = historyPathsSet[targetName];
         var oldPath = "";
         if (historyPaths != null) {
@@ -169,6 +178,9 @@ window.DSForm = (function($, DSForm) {
         var path = $filePath.val().trim();
         if (!path.startsWith("/") && !DSTargetManager.isGeneratedTarget(targetName)) {
             path = "/" + path;
+        }
+        if (DSTargetManager.isDatabaseTarget(targetName)) {
+            path = `/${targetName}`;
         }
         return path;
     }
