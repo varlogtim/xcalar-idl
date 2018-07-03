@@ -137,7 +137,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
 
     DSTargetManager.isSparkParquet = function(targetName) {
         var target = DSTargetManager.getTarget(targetName);
-        if (target && target.type_id === "sparkparquet") {
+        if (target && target.type_id === "parquetds") {
             return true;
         } else {
             return false;
