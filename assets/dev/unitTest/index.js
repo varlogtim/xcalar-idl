@@ -6,7 +6,7 @@ const commandLineArgs = process.argv;
 
 // Usage: npm test <testName> <hostname>
 // E.g.: npm test unitTest https://cantor:8443
-let testName = "unitTest";
+let testName = "unitTestOnDev";
 let hostname = "http://localhost:8888";
 // Host name must be with protocol and whatever port
 if (commandLineArgs.length > 2) {
@@ -44,11 +44,13 @@ async function runTest(testType, hostname) {
                 ignoreHTTPSErrors: true,
                 args: ['--no-sandbox', '--disable-setuid-sandbox']
             });
-        } else {
+        } else if (testType === "unitTestOnDev") {
             browser = await puppeteer.launch({
                 headless: false,
                 ignoreHTTPSErrors: true
             });
+        } else {
+            throw "Unspport!";
         }
         const page = await browser.newPage();
         await page.setViewport({width: 1920, height: 1076});
@@ -66,7 +68,7 @@ async function runTest(testType, hostname) {
         } else {
             url = hostname + "/unitTest.html?noPopup=y&createWorkbook=y&user=" + userName;
         }
-        if (testType === "unitTest") {
+        if (testType === "unitTestOnDev") {
             await page.coverage.startJSCoverage({ resetOnNavigation: true });
         }
         console.log("Opening page:", url)
@@ -82,13 +84,16 @@ async function runTest(testType, hostname) {
             console.log("Failed: " + JSON.stringify(results));
         }
 
-        if (testType === "unitTest") {
+        if (testType === "unitTestOnDev") {
             console.log("test finished, getting code coverage");
             const jsCoverage = await page.coverage.stopJSCoverage();
             getCoverage(jsCoverage);
         }
-        browser.close();
-        process.exit(exitCode);
+
+        if (testType !== "unitTestOnDev") {
+            browser.close();
+            process.exit(exitCode);
+        }
     } catch (e) {
         console.error(e);
     }

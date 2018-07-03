@@ -162,7 +162,7 @@ describe('XcUser Test', () => {
         UnitTest.onMinMode();
 
         const def = XcUser.CurrentUser.sessionHoldAlert(true);
-        UnitTest.hasAlertWithTitle(WKBKTStr.Hold, { confirm: true });
+        UnitTest.hasAlertWithText(WKBKTStr.HoldMsg, { confirm: true });
 
         def
             .then(() => {

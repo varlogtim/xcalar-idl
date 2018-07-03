@@ -1994,7 +1994,7 @@ describe('OperationsView Test', function() {
             it('clicking away from category list should reset func list', function() {
                 expect($functionsMenu.find('li:visible').text()).to.equal("sub");
                 $operationsView.find('.map .catFuncHeadings').trigger(fakeEvent.mousedown);
-                expect($functionsMenu.find('li:visible').text()).to.equal("subsubstringsubstringIndex");
+                expect($functionsMenu.find('li:visible').text()).to.equal("subsubstringsubstringIndexdefault:timeSub");
                 expect($categoryMenu.find("li.active")).to.have.length(0);
                 $filterInput.val('').trigger(fakeEvent.input);
             });

@@ -49,8 +49,8 @@ window.UnitTest = (function(UnitTest, $) {
             mocha.run(function(a, b) {
                 if (parent.location.href.indexOf("unitTestManager.html") < 0) {
                     // used for puppeteer
-                    $("body").append('<div id="testFinish">Test Fnish\n<br>' +
-                                        getFailReason() +
+                    $("body").append('<div id="testFinish">' +
+                                        getTestResult() +
                                     '</div>');
                     if (window.location.search.indexOf("noPopup=y") < 0) {
                         alert("Test Exited");
@@ -144,12 +144,12 @@ window.UnitTest = (function(UnitTest, $) {
         // });
     };
 
-    function getFailReason() {
+    function getTestResult() {
         var fails = [];
         $('.test.fail').each(function() {
             fails.push($(this).text());
         });
-        return fails.join("\n");
+        return fails.length ? fails.join("\n") : "PASSED";
     }
 
     function setupTestDatasets() {

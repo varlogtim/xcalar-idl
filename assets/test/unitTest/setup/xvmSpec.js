@@ -147,7 +147,7 @@ describe('XVM Test', () => {
 
         before(() => {
             oldGetFrontBuldNumber = XVM.getFrontBuildNumber;
-            oldGetBackBuildNumber = XVM.getBackBuildNumber();
+            oldGetBackBuildNumber = XVM.getBackBuildNumber;
             oldReload = xcHelper.reload;
 
             xcHelper.reload = (t) => { test = t };

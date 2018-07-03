@@ -68,7 +68,7 @@ describe("DF Test", function() {
                 XcalarGetRetina = cachedFn2;
                 XcalarGetRetinaJson = cachedFn3;
                 XcalarListSchedules = cachedFn4;
-                DFCard.refreshDFList - cachedFn5;
+                DFCard.refreshDFList = cachedFn5;
             });
         });
 

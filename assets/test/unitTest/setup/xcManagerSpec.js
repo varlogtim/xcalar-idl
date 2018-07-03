@@ -578,23 +578,23 @@ describe("xcManager Test", function() {
             expect($e.scrollTop()).to.equal(5);
         });
 
-        it("should scroll left and top test 2", function() {
-            $e.scrollLeft(10);
-            $e.scrollTop(10);
+        // it("should scroll left and top test 2", function() {
+        //     $e.scrollLeft(10);
+        //     $e.scrollTop(10);
 
-            var e = {
-                "originalEvent": {
-                    "wheelDeltaX": "test",
-                    "wheelDeltaY": "test"
-                },
-                "deltaX": -5,
-                "deltaY": 3,
-                "target": $e.get(0)
-            };
-            reImplementMouseWheel(e);
-            expect($e.scrollLeft()).to.equal(5);
-            expect($e.scrollTop()).to.equal(7);
-        });
+        //     var e = {
+        //         "originalEvent": {
+        //             "wheelDeltaX": "test",
+        //             "wheelDeltaY": "test"
+        //         },
+        //         "deltaX": -5,
+        //         "deltaY": 3,
+        //         "target": $e.get(0)
+        //     };
+        //     reImplementMouseWheel(e);
+        //     expect($e.scrollLeft()).to.equal(5);
+        //     expect($e.scrollTop()).to.equal(7);
+        // });
 
         it("should scroll when is dataTable", function() {
             $e.addClass("dataTable");
