@@ -332,7 +332,8 @@ namespace IMDPanel {
                     '<div class="tableColumn sourceName" data-original-title="' + table.updates[i].source + '"><span class="dummy">a</span>' + table.updates[i].source + '</div>' +
                     '<div class="tableColumn batchId">' + table.updates[i].batchId + '</div>' +
                     '<div class="tableColumn" ' + xcTooltip.Attrs + ' data-original-title="' + timeTip + '">' + time + '</div>' +
-                    '<div class="tableColumn">' + xcHelper.numToStr(table.updates[i].numRows) + '</div>' +
+                    '<div class="tableColumn lastCol">' + xcHelper.numToStr(table.updates[i].numRows) + '</div>' +
+                    '<div class="spacer"></div>' +
                     '</div>';
         }
         if (!html) {

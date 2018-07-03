@@ -437,9 +437,30 @@
 
             .tableDetailContent {
                 max-height: ~"calc(100% - @{listHeaderHeight})";
-                overflow-y: scroll;
+                overflow-y: hidden;
+
+                .spacer {
+                    width: 11px;
+                    border-right: 1px solid @color-bg-pinkish-grey2;
+                }
+
+                &:hover {
+                    overflow-y: scroll;
+
+                    .spacer {
+                        display: none;
+                    }
+                    .tableDetailRow {
+                        .lastCol {
+                            border-right: 1px solid @color-bg-pinkish-grey2;
+                        }
+                    }
+                }
 
                 .tableDetailRow {
+                    .lastCol {
+                        border-right: none;
+                    }
                     &:hover {
                         background: rgba(55, 140, 179, 0.09);
                     }
