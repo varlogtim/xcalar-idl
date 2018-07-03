@@ -1246,7 +1246,6 @@ window.DagPanel = (function($, DagPanel) {
                     break;
                 case ("exitFormOption"):
                     MainMenu.closeForms();
-                    FnBar.unlock();
                     break;
                 case ("none"):
                     // do nothing;

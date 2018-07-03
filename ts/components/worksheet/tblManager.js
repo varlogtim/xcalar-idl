@@ -2451,7 +2451,6 @@ window.TblManager = (function($, TblManager) {
             }
 
             var colNum = xcHelper.parseColNum($editableHead);
-            FnBar.focusOnCol($editableHead, tableId, colNum);
 
             var $target = $(event.target);
             var notDropDown = $target.closest('.dropdownBox').length === 0 &&
@@ -2542,8 +2541,6 @@ window.TblManager = (function($, TblManager) {
 
         $thead.on("mousedown", ".sortIcon", function() {
             var $th = $(this).closest('th');
-            var colNum = xcHelper.parseColNum($th);
-            FnBar.focusOnCol($th, tableId, colNum);
             TblManager.highlightColumn($th, false);
             lastSelectedCell = $th;
         });
@@ -2586,7 +2583,6 @@ window.TblManager = (function($, TblManager) {
         $thead.on("mousedown", ".topHeader .dotWrap", function() {
             var $th = $(this).closest('th');
             var colNum = xcHelper.parseColNum($th);
-            FnBar.focusOnCol($th, tableId, colNum);
             TblManager.highlightColumn($th, false);
             lastSelectedCell = $th;
         });
