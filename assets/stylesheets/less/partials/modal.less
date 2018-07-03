@@ -883,8 +883,12 @@
         color: @color-prefix-gray;
         margin-bottom: 4px;
         margin-left: 15px;
+    }
 
-
+    .brace {
+        &.empty {
+            visibility: hidden; // maintain space
+        }
     }
 
     .missingImmediatesSection {

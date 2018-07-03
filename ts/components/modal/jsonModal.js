@@ -361,6 +361,7 @@ window.JSONModal = (function($, JSONModal) {
         var $prefixGroups = $jsonWrap.find('.primary').find('.prefixGroup');
         $tab.closest('.tabs').find('.tab').removeClass('active');
         $tab.addClass('active');
+        $jsonWrap.find(".brace").removeClass("empty");
 
         if ($jsonWrap.find(".compareIcon.selected").length) {
             // when switching tabs, uncompare, then recompare
@@ -383,6 +384,9 @@ window.JSONModal = (function($, JSONModal) {
                 $jsonWrap.find('.prefixedType').addClass('xc-hidden');
                 $jsonWrap.find('.immediatesType').removeClass('xc-hidden');
                 $jsonWrap.find(".missingImmediatesSection").removeClass("xc-hidden");
+                if (!$prefixGroups.filter('.immediatesGroup').length) {
+                    $jsonWrap.find(".brace").addClass("empty");
+                }
             } else {
                 var prefix = $tab.data('id');
                 $prefixGroups.find('.prefix').filter(function() {
@@ -1099,7 +1103,8 @@ window.JSONModal = (function($, JSONModal) {
                 prettyJson += '<div class="brace">}</div>';;
             }
         }
-        if (isDataCol && Object.keys(groups[groups.length - 1].objs).length) {
+        if (isDataCol && Object.keys(groups[groups.length - 1].objs).length &&
+            groups[groups.length - 1].prefix === gPrefixSign + "-") {
             prettyJson += getMissingImmediatesHtml(groups[groups.length - 1].objs);
         }
 
@@ -1264,6 +1269,10 @@ window.JSONModal = (function($, JSONModal) {
             classNames = "";
             prefix = groups[i].prefix;
             prefixText = prefix;
+            if (prefix === gPrefixSign + "-" &&
+                !Object.keys(groups[i].objs).length) {
+                continue;
+            }
             if (prefix === gPrefixSign || prefix === gPrefixSign + "-") {
                 if (immediatesFound) {
                     continue;
