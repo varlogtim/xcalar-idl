@@ -3952,6 +3952,9 @@ XcalarKeyPut = function(key, value, persist, scope) {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
+    if (key == null) {
+        return PromiseHelper.reject("key is not defined");
+    }
 
     var deferred = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {

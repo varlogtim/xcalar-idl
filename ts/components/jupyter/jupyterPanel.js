@@ -485,6 +485,10 @@ window.JupyterPanel = (function($, JupyterPanel) {
         JupyterStubMenu.toggleVisibility(jupyterMeta.getCurrentNotebook());
 
         var kvsKey = KVStore.getKey("gNotebookKey");
+        if (kvsKey == null) {
+            // when not set up yet
+            return PromiseHelper.resolve();
+        }
         var kvStore = new KVStore(kvsKey, gKVScope.WKBK);
         return kvStore.put(JSON.stringify(currNotebook), true);
     }
