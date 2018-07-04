@@ -136,7 +136,7 @@ window.xcManager = (function(xcManager, $) {
             // start heartbeat check
             XcSupport.heartbeatCheck();
 
-            if(window.isBrowserMicrosoft) {
+            if(!window.isBrowserSupported) {
                 Alert.error(AlertTStr.UnsupportedBrowser, "", {
                     msgTemplate: AlertTStr.BrowserVersions,
                     sizeToText: true

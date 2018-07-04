@@ -452,6 +452,14 @@ window.Compatible = (function($, Compatible) {
             window.isBrowserSafari = true;
             $('html').addClass('safari');
         }
+        if (window.isBrowserSafari ||
+            window.isBrowserChrome ||
+            window.isBrowserFirefox ||
+            window.isBrowserEdge) {
+                window.isBrowserSupported = true;
+        } else {
+            window.isBrowserSupported = false;
+        }
     }
 
     function systemCheck() {

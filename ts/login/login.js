@@ -18,6 +18,12 @@ $(document).ready(function() {
     setupHostName();
     xcSessionStorage.removeItem("xcalar-username");
 
+    if (!window.isBrowserSupported) {
+        alert("You are running an unsupported browser. Please use one of the " +
+                "following browsers: Chrome (version 65+), Firefox " +
+                "(version 59+), or Safari (version 11.1+)");
+    }
+
     function canShowSplashScreen() {
         return (isMsalResolved && isSSOTokenResolved);
     }
