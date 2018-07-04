@@ -793,6 +793,56 @@ window.DagFunction = (function($, DagFunction) {
         }
     }
 
+    // provide an array of xcalarQuery objects to cache a tree in
+    // dagLineage and return this tree
+    DagFunction.getTree = function (nodes) {
+        var valueArray = [];
+        for (var i = 0; i < nodes.length; i++) {
+            var struct = nodes[i].args;
+            var api = XcalarApisTFromStr[nodes[i].operation];
+            var inputName = DagFunction.getInputType(XcalarApisTStr[api]);
+            var parentNames = [];
+            if (typeof struct.source === "string" && api !== 129) {
+                parentNames = [struct.source];
+            } else if (typeof struct.source === "object") {
+                parentNames = struct.source;
+            }
+
+            var values = {
+                api: api,
+                struct: struct,
+                dagNodeId: struct.dest,
+                inputName: inputName,
+                name: struct.dest,
+                numParents: parentNames.length,
+                parents: parentNames,
+                parentNames: parentNames,
+                tag: nodes[i].tag || "",
+                comment: nodes[i].comment || ""
+            };
+            var node = new TreeValue(values);
+            valueArray.push(node)
+        }
+        var allEndPoints = [];
+        var alreadySeen = {};
+        var tree = constructTree(valueArray[valueArray.length - 1], valueArray, alreadySeen, null,
+            allEndPoints);
+
+        var lineageStruct = {};
+        var nodeIdMap = getIdMap([tree]);
+        var tableId = xcHelper.getTableId(valueArray[valueArray.length - 1].name);
+
+        lineageStruct.tree = tree;
+        lineageStruct.endPoints = allEndPoints;
+        lineageStruct.orderedPrintArray = getOrderedDedupedNodes(allEndPoints,
+            "TreeNode");
+        lineageStruct.nodeIdMap = nodeIdMap;
+        if (tableId != null) {
+            dagLineage[tableId] = lineageStruct;
+        }
+        return lineageStruct;
+    };
+
     DagFunction.getReRunQueryString = function(tableName, params, newIndexNodes, newNodes) {
         params = xcHelper.deepCopy(params);
         var paramNodes = Object.keys(params);
