@@ -86,8 +86,7 @@ window.xcManager = (function(xcManager, $) {
             // Extmanager promise so unit test can wait on resolution.
             var extPromise = setupExtensions();
 
-
-
+            setupDag();
             JSONModal.setup();
             ExportView.setup();
             JoinView.setup();
@@ -505,6 +504,14 @@ window.xcManager = (function(xcManager, $) {
             deferred.resolve();
         });
         return deferred.promise();
+    }
+
+    function setupDag() {
+        var activeWKBNK = WorkbookManager.getActiveWKBK();
+        var workbook = WorkbookManager.getWorkbook(activeWKBNK);
+        // in case no session Id
+        var idPrefix = workbook.sessionId || xcHelper.randName("dag");
+        DagNode.setIdPrefix(idPrefix);
     }
 
     function setupSession() {
