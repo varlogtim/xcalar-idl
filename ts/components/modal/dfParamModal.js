@@ -1185,6 +1185,16 @@ window.DFParamModal = (function($, DFParamModal){
 
         $list.show().find('li').hide();
 
+        $list.find("li").each(function() {
+            var pattern = new RegExp(value, 'i');
+            var $suggestion = $(this);
+            // Remove old strong tags
+            $suggestion.html($suggestion.text());
+            $suggestion.html(
+                $suggestion.html().replace(pattern,'<strong>$&</strong>')
+            );
+        });
+
         var $visibleLis = $list.find('li').filter(function() {
             return (value === "" ||
                     $(this).text().toLowerCase().indexOf(value) !== -1);
@@ -1208,6 +1218,7 @@ window.DFParamModal = (function($, DFParamModal){
         if ($list.find('li:visible').length === 0) {
             $list.hide();
         }
+
     }
 
     function setParamDivToDefault($paramDiv) {

@@ -1298,6 +1298,14 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             return;
         }
         $input.closest(".hintDropdown").find("ul").html(list);
+        $input.closest(".hintDropdown").find("li").each(function() {
+            var $pattern = new RegExp($input.val(), 'i');
+            var $suggestion = $(this);
+            $suggestion.html(
+                $suggestion.html().replace($pattern,'<strong>$&</strong>')
+            );
+            $suggestion.addClass("extHint");
+        });
         if (list.length) {
             menu.openList();
         } else {
