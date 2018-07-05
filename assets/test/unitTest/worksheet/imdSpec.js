@@ -757,10 +757,39 @@ describe('IMD Test', function() {
                 return PromiseHelper.resolve();
             }
 
+            var cachedFn = XcalarListPublishedTables;
+            XcalarListPublishedTables = function() {
+                return PromiseHelper.resolve({tables: [
+                    {
+                        active: true,
+                        name: "test3",
+                        keys: [],
+                        updates: [
+                            {batchId: 2, numRows:12, source:"source2a", startTS: startTime},
+                            {batchId: 1, numRows:12, source:"source1a", startTS: startTime - 3600},
+                            {batchId: 0, numRows:12, source:"source0a", startTS: startTime - 7200}
+                        ],
+                        values: [{name: "testCol", type: 0}],
+                        oldestBatchId: 2
+                    },
+                    {
+                        active: true,
+                        name: "test4",
+                        keys: [],
+                        updates: [
+                            {batchId: 2, numRows:12, source:"source2a", startTS: startTime},
+                            {batchId: 1, numRows:12, source:"source1a", startTS: startTime - 3600},
+                            {batchId: 0, numRows:12, source:"source0a", startTS: startTime - 7200}
+                        ],
+                        values: [{name: "testCol", type: 0}],
+                        oldestBatchId: 0
+                    }
+                ]});
+            }
+
             var checkFunc = function () {
                 return called;
             }
-
 
             $imdPanel.find(".tableListItem").eq(0).find(".checkbox").click();
 
@@ -769,8 +798,12 @@ describe('IMD Test', function() {
 
             UnitTest.testFinish(checkFunc)
             .then(function() {
-                expect($imdPanel.find(".tableListItem").eq(0).find(".batchId").length).to.equal(0);
+                var $batchIds = $imdPanel.find(".tableListItem").eq(0).find(".updateIndicator");
+                expect($batchIds.eq(2).hasClass("unavailable")).to.equal(true);
+                expect($batchIds.eq(1).hasClass("unavailable")).to.equal(true);
+                expect($batchIds.eq(0).hasClass("unavailable")).to.equal(false);
                 XcalarCoalesce = XcalarCoalesceCache;
+                XcalarListPublishedTables = cachedFn;
                 done();
 
             });

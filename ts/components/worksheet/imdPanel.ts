@@ -89,9 +89,6 @@ namespace IMDPanel {
     let pListOrder: number; //holds 1 if list is sorted ascending, -1 if sorted desc, 0/null if unsorted
     let iListOrder: number; //holds 1 if list is sorted ascending, -1 if sorted desc, 0/null if unsorted
 
-    let pVisibleTables: number;
-    let iVisibleTables: number;
-
     /**
      * IMDPanel.setup
      */
@@ -1440,15 +1437,9 @@ namespace IMDPanel {
 
     //sorts table list with insertion sort. Order determines 1: asc or -1: desc.
     function sortTableList(tableList: PublishTable[], order: number) {
-        for (let i = 1; i < tableList.length; i ++) {
-            const table = tableList[i];
-            let j;
-            for(j = i; j > 0 && xcHelper.sortVals(table.name, tableList[j - 1].name, order)  === 1; j--) {
-                tableList[j] = tableList[j - 1];
-            }
-
-            tableList[j] = table;
-        }
+        tableList.sort(function(a, b){
+            return xcHelper.sortVals(a.name, b.name, order);
+        });
         storeTables();
     }
 
@@ -1886,16 +1877,8 @@ namespace IMDPanel {
      * IMDPanel.updateInfo
      * @param info
      */
-    export function updateInfo(info: any): void {
-        if (info.action === "delete") {
-            refreshTableList();
-        } else if (info.action === "activate") {
-            refreshTableList();
-        } else if (info.action === "deactivate") {
-            refreshTableList();
-        } else if (info.action === "coalesce") {
-            refreshTableList();
-        }
+    export function updateInfo(info?: any): void {
+        refreshTableList();
     }
 
     function cleanUpAfterDeleteTable(tableName: string): void {
