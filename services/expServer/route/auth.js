@@ -16,7 +16,13 @@ var NodeCache = require( "node-cache" );
 var jwt = require('jsonwebtoken');
 var httpStatus = require('../../../assets/js/httpStatus.js').httpStatus;
 var msKeyCache = new NodeCache( { stdTTL:86400, checkperiod: 21600 } );
-var msAzureUrl = 'https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration';
+var msAzureCE2Url = 'https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration';
+var msAzureB2CUrl = 'https://login.microsoftonline.com/fabrikamb2c.onmicrosoft.com/v2.0/.well-known/openid-configuration?p=b2c_1_sign_in';
+var b2cEnabled = false;
+
+function enableB2C(enabled) {
+    b2cEnabled = enabled;
+}
 
 function getUrl(url) {
     var deferred = jQuery.Deferred();
@@ -52,6 +58,7 @@ function passData(data) {
 function getKeys(outKid) {
     var deferred = jQuery.Deferred();
     var retMsg = { status: false, data: null, message: 'Failure' };
+    var msAzureUrl = (b2cEnabled) ? msAzureB2CUrl : msAzureCE2Url;
 
     getUrl(msAzureUrl)
         .then(function(urlData) {
@@ -144,7 +151,8 @@ function processToken(idToken) {
             return;
         }
 
-        jwt.verify(idToken, msg.data, function(err, decoded) {
+        jwt.verify(idToken, msg.data, {clockTolerance: 120},
+                   function(err, decoded) {
             if (err) {
                 retMsg = { status: false,
                            data: decoded,
@@ -209,3 +217,4 @@ if (process.env.NODE_ENV === "test") {
 }
 
 exports.router = router;
+exports.enableB2C = enableB2C;

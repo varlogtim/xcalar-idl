@@ -18,6 +18,7 @@ var ssf = require('../supportStatusFile.js');
 var httpStatus = require('../../../assets/js/httpStatus.js').httpStatus;
 var support = require('../expServerSupport.js');
 var xcConsole = require('../expServerXcConsole.js').xcConsole;
+var enableB2C = require('./auth.js').enableB2C;
 var Status = ssf.Status;
 var strictSecurity = false;
 
@@ -223,6 +224,8 @@ function getMsalConfig() {
             }
         }
 
+        enableB2C(msalConfig.msal.b2cEnabled);
+
         msalConfig.status = message.status;
         deferred.resolve(msalConfig);
     })
@@ -281,6 +284,8 @@ function setMsalConfig(msalConfigIn) {
         }
 
         jQuery.extend(msalConfig, msalConfigIn);
+
+        enableB2C(msalConfig.msal.b2cEnabled);
 
         return (support.writeToFile(msalConfigPath, msalConfig, {"mode": 0600}));
     })
