@@ -5616,6 +5616,7 @@ window.DSPreview = (function($, DSPreview) {
         DSPreview.__testOnly__.validateUDFModule = validateUDFModule;
         DSPreview.__testOnly__.validateUDFFunc = validateUDFFunc;
         DSPreview.__testOnly__.resetUdfSection = resetUdfSection;
+        DSPreview.__testOnly__.listUDFSection = listUDFSection;
 
         DSPreview.__testOnly__.slowPreviewCheck = slowPreviewCheck;
         DSPreview.__testOnly__.autoDetectSourceHeaderTypes = autoDetectSourceHeaderTypes;

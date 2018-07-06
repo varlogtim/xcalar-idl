@@ -1449,10 +1449,13 @@ describe("Dataset-DSPreview Test", function() {
     describe("UDF Func Test", function() {
         var isUseUDFWithFunc;
 
-        before(function() {
+        before(function(done) {
             $previewCard.removeClass("xc-hidden")
                         .siblings().addClass("xc-hidden");
             isUseUDFWithFunc = DSPreview.__testOnly__.isUseUDFWithFunc;
+            // UDF module&Function dropdowns get rendered in asyn manner
+            // so all tests beblow should not start until the dropdowns are ready
+            DSPreview.__testOnly__.listUDFSection().always(done);
         });
 
         it("Should toggle UDF format", function() {
