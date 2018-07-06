@@ -2087,7 +2087,8 @@ window.DSPreview = (function($, DSPreview) {
             udfFunc = parquetFunc;
         } else if (format == formatMap.XML) {
             const xmlArgs = componentXmlFormat.validateValues({
-                isShowError: !isChangeFormat
+                isShowError: !isChangeFormat,
+                isCleanupModel: !isChangeFormat
             });
             if (xmlArgs != null) {
                 const udfDef = componentXmlFormat.getUDFDefinition({
@@ -5372,6 +5373,10 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         function setStateInternal(newState = {}, noRender = false) {
+            return setStateAsync({ newState: newState, noRender: noRender });
+        }
+
+        function setStateAsync( { newState = {}, noRender = false }) {
             const deferred = libs.PromiseHelper.deferred();
             state = newState;
             if (!noRender) {
@@ -5380,6 +5385,13 @@ window.DSPreview = (function($, DSPreview) {
                 deferred.resolve();
             }
             return deferred.promise();
+        }
+
+        function setStateSync( { newState = {}, noRender = false }) {
+            state = newState;
+            if (!noRender) {
+                render();
+            }
         }
 
         function clearValidateOptions() {
@@ -5405,6 +5417,55 @@ window.DSPreview = (function($, DSPreview) {
         const CheckFunctions = {
             isInputEmpty: ($element) => ($element.val().trim().length === 0),
         };
+
+        // Cleanup data model
+        // Remove the data in cases:
+        // #1 keyName and keyValue are both empty
+        // #2 xPath and extraKey list are both empty
+        function cleanupState() {
+            let hasEmpty = false;
+            const xPaths = state.xPaths.reduce( (resXPath, xPath) => {
+                const result = getDefaultXPath();
+                result.xPath = xPath.xPath.trim();
+                const isXPathEmpty = (result.xPath.length === 0);
+
+                let hasEmptyKey = false;
+                result.extraKeys = xPath.extraKeys.reduce( (resKey, key) => {
+                    const name = key.name.trim();
+                    const isNameEmpty = (name.length === 0);
+                    const value = key.value.trim();
+                    const isValueEmpty = (value.length === 0);
+
+                    // name and/or value are not empty, keep it
+                    if (!isNameEmpty || !isValueEmpty) {
+                        const result = getDefaultExtrakey();
+                        result.name = name;
+                        result.value = value;
+                        resKey.push(result);
+                        hasEmptyKey = hasEmptyKey || (isNameEmpty || isValueEmpty);
+                    }
+
+                    return resKey;
+                }, []);
+
+                // XPath and/or extraKeys is not empty, keep it
+                const isAllKeysEmpty = (result.extraKeys.length === 0);
+                if (!isXPathEmpty || !isAllKeysEmpty) {
+                    resXPath.push(result);
+                    hasEmpty = hasEmpty || (isXPathEmpty || hasEmptyKey);
+                }
+                return resXPath;
+            }, []);
+
+            const newState = getDefaultState();
+            if (xPaths.length > 0) { // We need at least 1 xPath
+                newState.xPaths = xPaths;
+            }
+            newState.isMatchedPath = state.isMatchedPath;
+            newState.isWithPath = state.isWithPath;
+
+            return { state: newState, hasEmpty: hasEmpty };
+        }
 
         function render() {
             // Reset the list of elements need to validate
@@ -5457,7 +5518,7 @@ window.DSPreview = (function($, DSPreview) {
                         onValueChange: onExtrakeyValueChange(xPathIndex, keyIndex),
                         onInputKeydown: onInputKeydown(),
                         onClose: onExtrakeyClose(xPathIndex, keyIndex),
-                        isShowTooltip: (keyIndex === 0)
+                        isShowTooltip: true
                     })
                 );
                 const $elementKeyList = findXCElement($dom, 'xpath.extrakeyList');
@@ -5526,30 +5587,41 @@ window.DSPreview = (function($, DSPreview) {
                     }
                 };
             },
-            validateValues: function( {isShowError = true} = {} ) {
+            validateValues: function({
+                isShowError = true,
+                isCleanupModel = true
+            } = {} ) {
+                const { state: newState, hasEmpty } = cleanupState();
+                if (isCleanupModel) {
+                    setStateSync({ newState: newState, noRender: !isShowError });
+                }
                 if (isShowError) {
                     if (!validateElements()) {
                         return null;
                     }
                 }
+                if (hasEmpty) {
+                    // Incomplete data model
+                    return null;
+                }
 
+                // Convert data model to udf query format
                 const xPaths = state.xPaths.reduce( (resXPath, xPath) => {
                     const result = getDefaultXPath();
-                    if (xPath.xPath.trim().length === 0) {
-                        return resXPath;
-                    }
-                    result.xPath = xPath.xPath.trim();
+                    result.xPath = xPath.xPath;
+
                     result.extraKeys = xPath.extraKeys.reduce( (resKey, key) => {
                         const name = key.name.trim();
                         const value = key.value.trim();
-                        if (name.length === 0 || value.length === 0) {
-                            return resKey;
+                        if (name.length > 0 && value.length > 0) {
+                            resKey[name] = value;
                         }
-                        resKey[name] = value;
                         return resKey;
                     }, {});
 
-                    resXPath.push(result);
+                    if (result.xPath.length > 0) {
+                        resXPath.push(result);
+                    }
                     return resXPath;
                 }, []);
 

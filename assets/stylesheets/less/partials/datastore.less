@@ -3093,8 +3093,9 @@ table.datasetTable {
         .xml {
             &.add_xpath {
                 position: relative;
-                top: -3px;
                 .btn {
+                    .size(@height: 30px);
+                    line-height: 30px;
                     margin-left: 0;
                 }
             }
@@ -3102,6 +3103,7 @@ table.datasetTable {
 
         &.xml {
             float: none;
+            margin-top: 0;
             .size(@height: auto);
             .clearfix();
             @close-width: 21px;
@@ -3147,25 +3149,22 @@ table.datasetTable {
             }
 
             .xml_newkey {
+                .size(@height: 30px);
                 float: none;
                 position: relative;
-                top: 3px;
                 margin-left: 20px;
-            }
-
-            .xml_newxpath {
-                float: none;
-                width: 446px;
+                line-height: 30px;
             }
 
             .divider {
                 margin: 0;
             }
             .xpath_divider {
-                margin-bottom: 10px;
+                margin-bottom: 15px;
             }
             .section_divider {
-                margin-top: 20px;
+                margin-top: 15px;
+                margin-bottom: 5px;
             }
 
             .xml_row {
@@ -3250,11 +3249,10 @@ table.datasetTable {
         }
 
         .refresh {
-            padding: 2px 7px;
+            padding: 0 4px;
             position: relative;
-            top: -3px;
             .icon {
-                line-height: 1.5;
+                line-height: 1.4;
             }
         }
     }
