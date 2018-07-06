@@ -51,8 +51,8 @@ describe("DF Test", function() {
             DF.refresh({dataflows: {}})
             .then(function() {
                 expect(called1).to.be.true;
-                expect(called2).to.be.true;
-                expect(called3).to.be.true;
+                expect(called2).to.be.false;
+                expect(called3).to.be.false;
                 expect(called4).to.be.true;
                 var newDfs = DFParamModal.__testOnly__.updateDataflows({});
                 expect(Object.keys(newDfs).length).to.equal(1);
