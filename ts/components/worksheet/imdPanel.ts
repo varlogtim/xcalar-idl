@@ -50,6 +50,9 @@ namespace IMDPanel {
     let $imdPanel: JQuery;
     let $canvas: JQuery;
     let $tableDetail: JQuery; //$(".tableDetailSection")
+    let $activeCount: JQuery;
+    let $inactiveCount: JQuery;
+
     const tickColor: string = "#777777";
     const tickWidth: number = 1;
     const tickSpacing: number = 6;
@@ -98,6 +101,8 @@ namespace IMDPanel {
         $updatePrompt = $imdPanel.find(".update-prompt");
         $scrollDiv = $imdPanel.find(".scrollDiv");
         $tableDetail = $(".tableDetailSection");
+        $activeCount = $imdPanel.find(".activeTableCount");
+        $inactiveCount = $imdPanel.find(".inactiveTableCount");
         pTables = [];
         iTables = [];
         iCheckedTables = [];
@@ -769,7 +774,7 @@ namespace IMDPanel {
                     // unpublish the rest of the inactive tables
                     // and add the restored ones to the activeTables list
 
-                    const promises: XDPromise<void>[] = [];
+                    const promises: XDPromise<StatusT>[] = [];
                     for (let i = error.count; i < iCheckedTables.length; i++) {
                         promises.push(XcalarUnpublishTable(iCheckedTables[i].name, true));
                     }
@@ -828,7 +833,7 @@ namespace IMDPanel {
                             // unpublish the rest of the inactive tables
                             // and add the restored ones to the activeTables list
 
-                            const promises: XDPromise<void>[] = [];
+                            const promises: XDPromise<StatusT>[] = [];
                             for (let i = error.count; i < iCheckedTables.length; i++) {
                                 promises.push(XcalarRestoreTable(tableName));
                             }
@@ -1202,7 +1207,7 @@ namespace IMDPanel {
     function submitCoalesce(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
-        const promises: XDPromise<void>[] = [];
+        const promises: XDPromise<StatusT>[] = [];
 
         pCheckedTables.forEach(function (table: PublishTable) {
             promises.push(XcalarCoalesce(table.name));
@@ -1431,6 +1436,7 @@ namespace IMDPanel {
             } else {
                 removeWaitScreen();
             }
+            updateTableCount();
         });
         return deferred.promise();
     }
@@ -1783,6 +1789,7 @@ namespace IMDPanel {
         if ($tableDetail.data("tablename") === tableName) {
             updateTableDetailSection();
         }
+        updateTableCount();
     }
 
     function storeTables(): XDPromise<void> {
@@ -1819,6 +1826,7 @@ namespace IMDPanel {
         });
         checkDateChange();
         storeTables();
+        updateTableCount();
     }
 
     function deleteTables(checkedTables: PublishTable[], iconElelment: JQuery, isActiveList: boolean) {
@@ -1855,7 +1863,7 @@ namespace IMDPanel {
                                          tableName + '"]');
         $listItem.addClass("locked");
 
-        XcalarUnpublishTable(tableName)
+        XcalarUnpublishTable(tableName, false)
         .then(() => {
             cleanUpAfterDeleteTable(tableName);
             XcSocket.Instance.sendMessage("refreshIMD", {
@@ -1983,7 +1991,13 @@ namespace IMDPanel {
             } else {
                 removeWaitScreen();
             }
+            updateTableCount();
         })
+    }
+
+    function updateTableCount() {
+        $activeCount.text("(" + pTables.length + ")");
+        $inactiveCount.text("(" + iTables.length + ")");
     }
 
     function showWaitScreen(): void {
