@@ -985,7 +985,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
                     if (data.hasOwnProperty("ExpirationDate")) {
                         deferred.resolve({"key": key,
                                           "expiration": data.ExpirationDate,
-                                          "organization": data.organization});
+                                          "organization": data.LicensedTo});
                     } else {
                         deferred.reject();
                     }
