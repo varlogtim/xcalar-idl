@@ -1225,7 +1225,7 @@ DSTargetTStr = {
     // with replace
     "DelConfirmMsg": "Are you sure you want to delete <target>?",
     "TargetExists": "Data target <target> already exists",
-    "MountpointNoExists": "Mountpoint <mountpoint> no exists, please choose a valid mountpoint",
+    "MountpointNoExists": "Mountpoint <mountpoint> does not exist, please choose a valid mountpoint",
 };
 
 DSExportTStr = {
