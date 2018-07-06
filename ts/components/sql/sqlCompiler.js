@@ -4484,7 +4484,7 @@
         if (isNewCol) {
             name = xcHelper.stripPrefixInColName(name);
         }
-        return xcHelper.stripColName(name,true).toUpperCase();
+        return xcHelper.stripColName(name, false).toUpperCase();
     }
 
     function replaceUDFName(name, udfs) {
