@@ -386,7 +386,8 @@ window.TblFunc = (function(TblFunc, $) {
         if (!alreadyFocused && gActiveTableId) {
             TblManager.unHighlightCells(gActiveTableId);
             if (!$("#xcTable-" + tableId).find(".selectedCell").length) {
-                FnBar.clear();
+                var fnBar = FnBar.Instance;
+                fnBar.clear();
             }
         }
         var wsNum = WSManager.getActiveWS();

@@ -1805,7 +1805,8 @@ window.TblManager = (function($, TblManager) {
                 var oldTableId = xcHelper.getTableId(tablesToReplace[0]);
                 animateTableId(newTableId, oldTableId);
             }
-            FnBar.updateColNameCache();
+            var fnBar = FnBar.Instance;
+            fnBar.updateColNameCache();
 
             deferred.resolve();
         })
@@ -2467,7 +2468,8 @@ window.TblManager = (function($, TblManager) {
                     event.which !== 3) {
                     if (notDropDown) {
                         unhighlightColumn($editableHead);
-                        FnBar.clear();
+                        var fnBar = FnBar.Instance;
+                        fnBar.clear();
                         return;
                     }
                 } else {
@@ -2498,7 +2500,8 @@ window.TblManager = (function($, TblManager) {
                             }
                         }
                         if ($table.find('.selectedCell').length === 0) {
-                            FnBar.clear();
+                            var fnBar = FnBar.Instance;
+                            fnBar.clear();
                         }
                     }
                 }
@@ -2631,7 +2634,8 @@ window.TblManager = (function($, TblManager) {
 
             if ($th.hasClass('dataCol')) {
                 $('.selectedCell').removeClass('selectedCell');
-                FnBar.clear();
+                var fnBar = FnBar.Instance;
+                fnBar.clear();
             }
 
             if ($th.hasClass('newColumn') ||

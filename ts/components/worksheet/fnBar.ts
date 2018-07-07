@@ -1,45 +1,54 @@
-window.FnBar = (function(FnBar, $) {
-    var $functionArea; // $("#functionArea");
-    var $fnBar; // $('#functionArea .CodeMirror')
+class FnBar {
+    private static _instance: FnBar;
 
-    var searchHelper;
-    var editor;
-    var colNamesCache = {};
-    var initialTableId;//used to track table that was initially active
+    public static get Instance() {
+        return this._instance || (this._instance = new this());
+    }
+
+    private _$functionArea: JQuery; // $("#functionArea");
+    private _$fnBar: JQuery; // $('#functionArea .CodeMirror')
+
+    private _searchHelper: SearchBar;
+    private _editor: CodeMirror.Editor;
+    private _colNamesCache: object;
+    private _initialTableId: TableId;//used to track table that was initially active
     // when user started searching
 
-    FnBar.setup = function() {
-        $functionArea = $("#functionArea");
-        $functionArea.addClass('searching');
+    private constructor() {
+        this._searchHelper = null;
+        this._colNamesCache = {};
+        this._initialTableId = null;
+    }
 
-        editor = CodeMirror.fromTextArea($('#fnBar')[0], {
+    public setup(): void {
+        const self = this;
+        self._$functionArea = $("#functionArea");
+        self._$functionArea.addClass('searching');
+
+        self._editor = CodeMirror.fromTextArea(<HTMLTextAreaElement>$('#fnBar')[0], {
             "mode": "spreadsheetCustom",
             "indentWithTabs": true,
             "indentUnit": 4,
-            "matchBrackets": true,
-            "matchTags": true,
             "placeholder": WSTStr.SearchTableAndColumn,
-            "autoCloseBrackets": true
         });
-
 
         $(window).blur(function() {
-            editor.getInputField().blur();
+            self._editor.getInputField().blur();
         });
 
-        $functionArea.find('pre').addClass('fnbarPre');
-        $fnBar = $('#functionArea .CodeMirror');
+        self._$functionArea.find('pre').addClass('fnbarPre');
+        self._$fnBar = $('#functionArea .CodeMirror');
 
-        setupSearchHelper();
+        self._setupSearchHelper();
 
-        editor.on("mousedown", function() {
-            $fnBar.addClass("inFocus");
-            $fnBar.find('.CodeMirror-placeholder').show();
+        self._editor.on("mousedown", function() {
+            self._$fnBar.addClass("inFocus");
+            self._$fnBar.find('.CodeMirror-placeholder').show();
         });
 
-        editor.on("focus", function() {
+        self._editor.on("focus", function() {
             xcTooltip.hideAll();
-            FnBar.updateColNameCache();
+            self.updateColNameCache();
         });
 
         // editor.on("blur") is triggered during selection range mousedown
@@ -47,7 +56,7 @@ window.FnBar = (function(FnBar, $) {
 
 
         // disallow adding newlines
-        editor.on("beforeChange", function(instance, change) {
+        self._editor.on("beforeChange", function(instance, change) {
         // remove ALL \n
             var newText = change.text.join("").replace(/\n/g, "");
             // Notes: "change" arg is incremental- user can type in "="
@@ -76,70 +85,71 @@ window.FnBar = (function(FnBar, $) {
 
         // change is triggered during user's input or when clearing/emptying
         // the input field
-        editor.on("change", function(instance, change) {
-            var val = editor.getValue();
+        self._editor.on("change", function(instance, change) {
+            var val = self._editor.getValue();
             var trimmedVal = val.trim();
-            if ($fnBar.hasClass('disabled')) {
+            if (self._$fnBar.hasClass('disabled')) {
                 // $functionArea.removeClass('searching');
                 return;
             }
 
-            if (!$fnBar.hasClass('inFocus')) {
+            if (!self._$fnBar.hasClass('inFocus')) {
                 // change event can be triggered when removing focus from
                 // a table column and switching to search mode when clicking
                 // away. We do not want to trigger search if fnBar is not
                 // in focus because user is not actually typing a change
                 return;
             }
-            colNamesCache = {};
+            self._colNamesCache = {};
 
             var args = {
                 "value": trimmedVal,
-                "searchBar": searchHelper,
-                "initialTableId": initialTableId
+                "searchBar": self._searchHelper,
+                "initialTableId": self._initialTableId
             };
             ColManager.execCol("search", null, null, null, args);
         });
     };
 
-    FnBar.updateColNameCache = function() {
-        if (initialTableId && initialTableId !== gActiveTableId ||
-            $.isEmptyObject(colNamesCache)) {
-            resetColNamesCache(gActiveTableId);
+    public updateColNameCache(): void {
+        if (this._initialTableId && this._initialTableId !== gActiveTableId ||
+            $.isEmptyObject(this._colNamesCache)) {
+            this._resetColNamesCache(gActiveTableId);
         }
-        initialTableId = gActiveTableId;
+        this._initialTableId = gActiveTableId;
     };
 
 
-    FnBar.clear = function() {
-        editor.setValue("");
-        $fnBar.removeClass("active inFocus disabled");
-        colNamesCache = {};
+    public clear(): void {
+        this._editor.setValue("");
+        this._$fnBar.removeClass("active inFocus disabled");
+        this._colNamesCache = {};
 
     };
 
     // sets cursor to blink at the end of the input string
-    FnBar.focusCursor = function() {
-        var valLen = editor.getValue().length;
-        editor.focus();
-        editor.setCursor(0, valLen);
+    public focusCursor(): void{
+        var valLen = this._editor.getValue().length;
+        this._editor.focus();
+        let pos: CodeMirror.Position = {ch: 0,line: valLen};
+        this._editor.getDoc().setCursor(pos);
     };
 
-    FnBar.getEditor = function() {
-        return editor;
+    public getEditor(): CodeMirror.Editor {
+        return this._editor;
     };
 
 
 
-    function resetColNamesCache(tableId) {
+    private _resetColNamesCache(tableId: TableId): void {
         if (!gTables[tableId]) {
             return;
         }
-        colNamesCache = xcHelper.getColNameMap(tableId);
+        this._colNamesCache = xcHelper.getColNameMap(<string>tableId);
     }
 
-    function setupSearchHelper() {
-        searchHelper = new SearchBar($functionArea, {
+    private _setupSearchHelper(): void {
+        this._searchHelper = new SearchBar(this._$functionArea, {
             "removeSelected": function() {
                 $('.xcTable').find('.selectedCell')
                              .removeClass('selectedCell');
@@ -181,20 +191,12 @@ window.FnBar = (function(FnBar, $) {
                                         ((mainFrameWidth - matchWidth) / 2));
                 }
             },
-            "codeMirror": editor,
-            "$input": $fnBar,
+            "codeMirror": this._editor,
+            "$input": this._$fnBar,
             "ignore": "=",
             "arrowsPreventDefault": true
         });
     }
 
 
-
-    /* Unit Test Only */
-    if (window.unitTestMode) {
-        FnBar.__testOnly__ = {};
-    }
-    /* End Of Unit Test Only */
-
-    return (FnBar);
-}({}, jQuery));
+}

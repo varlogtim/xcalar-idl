@@ -738,7 +738,8 @@ window.xcManager = (function(xcManager, $) {
 
     function setupWorkspaceBar() {
         RowScroller.setup();
-        FnBar.setup();
+        var fnBar = FnBar.Instance;
+        fnBar.setup();
     }
 
     function setupSocket() {
@@ -1150,7 +1151,8 @@ window.xcManager = (function(xcManager, $) {
                 !isTargetFnBar($target) && !$(".fnBarLocked").length) {
 
                 $(".selectedCell").removeClass("selectedCell");
-                FnBar.clear();
+                var fnBar = FnBar.Instance;
+                fnBar.setup();
             }
         });
 

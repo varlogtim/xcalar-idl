@@ -482,6 +482,7 @@ module.exports = {
         "TempTableInstr": "This section contains tables that are no longer active after an operation is performed.",
         "ConstTableInstr": "This section contains named aggregate values.",
         "WorksheetPanel": "Worksheet Panel",
+        "FnBar": "Function Bar",
         "IMDPanel": "IMD Panel"
     },
 

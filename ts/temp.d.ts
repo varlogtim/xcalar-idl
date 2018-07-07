@@ -510,6 +510,8 @@ declare namespace TooltipTStr {
     export var RemoveQuery: string;
     export var FocusColumn: string;
     export var CancelSearch: string;
+    export var SelectCol: string;
+    export var NoFnBarFormOpen: string;
 }
 
 declare namespace SuccessTStr{
@@ -603,6 +605,7 @@ declare namespace FailTStr {
 
 declare namespace WSTStr {
     export var Ws: string;
+    export var SearchTableAndColumn: string;
 }
 
 declare namespace DFTStr {
@@ -886,6 +889,7 @@ declare namespace ColManager {
     export function newCol(colInfo: object): ProgCol;
     export function newDATACol(): ProgCol;
     export function newPullCol(frontName: string, backName?: string, type?: ColumnType): ProgCol;
+    export function execCol(operation: string, usrStr: string, tableId: number, colNum: number, args: object): XDPromise<void>;
 }
 
 declare namespace Admin {
@@ -936,7 +940,7 @@ declare namespace MonitorGraph {
 
 declare namespace TblFunc {
     export function moveTableTitles(): void;
-    export function focusTable(tableId: TableId): void;
+    export function focusTable(tableId: TableId, focusDag: boolean): void;
     export function hideOffScreenTables(options: object): void;
     export function moveTableTitles($tableWraps: JQuery | null, options: object): void;
     export function unhideOffScreenTables(): void;
@@ -963,6 +967,7 @@ declare namespace TblManager {
     export function deleteTables(tables: TableId[], tableType: string, noAlert?: boolean, noLog?: boolean, options?: object);
     export function findAndFocusTable(tableName: string, noAnimate?: boolean): XDPromise<any>;
     export function freeAllResultSetsSync(): XDPromise<void>;
+    export function highlightColumn($match: JQuery): void;
 }
 
 declare namespace TblMenu{
@@ -1156,8 +1161,8 @@ declare namespace UnionView {
 declare namespace SortView {
     export function updateColumns(tableId: TableId): void;
 }
-declare namespace FnBar {
-    export function clear(): void;
+declare namespace RowScroller {
+    export function empty(): void;
 }
 
 declare namespace d3 {

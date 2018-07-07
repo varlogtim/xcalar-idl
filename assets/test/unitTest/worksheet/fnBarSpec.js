@@ -23,7 +23,8 @@ describe('FnBar Test', function() {
             prefix = tPrefix;
             tableId = xcHelper.getTableId(tableName);
             $table = $('#xcTable-' + tableId);
-            editor = FnBar.getEditor();
+            var fnBar = FnBar.Instance;
+            editor = fnBar.getEditor();
             $fnArea = $("#functionArea");
             done();
         });
@@ -46,8 +47,8 @@ describe('FnBar Test', function() {
 
         describe("Fnbar autocomplete and search should work", function() {
             it("Search results should work.", function() {
-                FnBar.clear();
-                $fnArea.removeClass("searching");
+                var fnBar = FnBar.Instance;
+                fnBar.clear();
                 editor.focus();
                 var e = new Event("mousedown");
                 CodeMirror.signal(editor, "mousedown", editor, e);
