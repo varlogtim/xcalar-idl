@@ -46,6 +46,9 @@ namespace WorkspacePanel {
                 return;
             }
             let $menu: JQuery = $("#workspaceMenu");
+            $("#dagView").removeClass("active");
+            // XXX temp
+            $("#workspacePanel").children(".mainContent").show();
 
             switch ($button.attr("id")) {
                 case ("worksheetButton"):
@@ -77,6 +80,18 @@ namespace WorkspacePanel {
                     }
                     BottomMenu.unsetMenuCache();
                     IMDPanel.active(firstTouch);
+                    break;
+                case ("dagButton"):
+                    wasWorkspaceMenuOpen = $menu.hasClass("active");
+                    TblFunc.hideOffScreenTables();
+                    // XXX temp
+                    $("#workspacePanel").children(".mainContent").hide();
+                    $("#worksheetView").removeClass("active");
+                    $("#workspaceBar").addClass("xc-hidden");
+                    $("#imdView").removeClass("active");
+                    $("#imdBar").addClass("xc-hidden");
+                    $("#statusBar").removeClass("worksheetMode");
+                    $("#dagView").addClass("active");
                     break;
                 default:
                     break;

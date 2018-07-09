@@ -1,0 +1,152 @@
+#dagView {
+    .flex-display;
+    .flex-direction(column);
+    color: #44515c;
+    height: 100%;
+
+    @color-border-bar: #849CB0;
+    @operator-height: 28px;
+
+    .topBar {
+        box-shadow: none;
+        border-bottom: 1px solid @color-border-bar;
+        z-index: 0;
+        min-height: 50px;
+    }
+
+    .categoryBar {
+        .size(@min-height: 40px);
+        background-color: @color-bg-white-eight;
+        border-bottom: 1px solid @color-border-bar;
+    }
+    .operatorBar {
+        .size(@min-height: 50px);
+        background: @color-white;
+        border-bottom: 1px solid @color-border-bar;
+
+        .operator {
+            margin-top: 10px;
+            margin-left: 10px;
+            margin-right: 10px;
+            float: left;
+
+            .connector {
+                display: none;
+            }
+        }
+    }
+    .operator {
+        height: @operator-height;
+        position: relative;
+
+        .main {
+            .size(@width: 90px, @height: @operator-height);
+            text-align: center;
+            .textOverflowOneLine;
+            line-height: @operator-height;
+            border-radius: @operator-height;
+            border: 1px solid @color-border-bar;
+            background-color: #dbe1e6;
+            font-size: 12px;
+            .cursor-move();
+            margin-left: 7px;
+            margin-right: 5px;
+        }
+
+        &.selected {
+            .main {
+                background-color: lightblue;
+            }
+        }
+    }
+
+    @inConnectorSize: 8px;
+    @outConnectorSize: 6px;
+
+    .connector {
+        position: absolute;
+        top: (@operator-height - @inConnectorSize) / 2;
+
+        &.in {
+            width: @inConnectorSize;
+            height: @inConnectorSize;
+            left: 0px;
+            background-color: lightgray;
+            border-radius: 2px;
+            border: 1px solid gray;
+        }
+        &.out {
+            top: 8px;
+            right: -1px;
+            width: 0;
+            height: 0;
+            border-top: @outConnectorSize solid transparent;
+            border-bottom: @outConnectorSize solid transparent;
+            border-left: @inConnectorSize solid gray;
+
+            &:after {
+                content: " ";
+                position: absolute;
+                right: 1px;
+                top: -4px;
+                width: 0;
+                height: 0;
+                border-top: (@outConnectorSize - 2px) solid transparent;
+                border-bottom: (@outConnectorSize - 2px) solid transparent;
+                border-left:(@inConnectorSize - 2px) solid lightGray;
+            }
+        }
+    }
+
+    .tabBar {
+        .size(@min-height: 24px);
+        background-color: @color-bg-white-eight;
+    }
+    .tableArea {
+        display: none;
+    }
+    .dataflowArea {
+        .flex(1 1 auto);
+        background-color: @color-white;
+        position: relative;
+        display: flex;
+        overflow: auto;
+
+        .dataflowWrap {
+            min-height: 100%;
+            min-width: 100%;
+            position: relative;
+            padding-bottom: 40px;
+            padding-right: 20px;
+
+            .sizer {
+                visibility: hidden;
+                height: 1px;
+            }
+        }
+
+        .operator {
+            position: absolute;
+        }
+    }
+    .dragContainer {
+        position: absolute;
+        z-index: 2;
+        // background: rgba(50, 250, 100, 0.2);
+        .operator {
+            position: absolute;
+        }
+        &.isOffScreen {
+            .operator {
+                .main {
+                    background-color: pink;
+                }
+            }
+        }
+        &.clone {
+            .operator {
+               opacity: 0.6;
+            }
+        }
+    }
+}
