@@ -15,6 +15,11 @@ type HTML = string;
 
 
 /* ============== INTERFACE ======================== */
+interface Coordinate {
+    x: number;
+    y: number;
+}
+
 interface PrefixColInfo {
     prefix: string;
     name: string;

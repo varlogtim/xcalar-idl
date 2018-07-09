@@ -537,7 +537,7 @@ namespace xcManager {
         const workbook: WKBK = WorkbookManager.getWorkbook(activeWKBNK);
         // in case no session Id
         const idPrefix: string = workbook.sessionId || xcHelper.randName("dag");
-        DagNode.setIdPrefix(idPrefix);
+        DagGraph.setIdPrefix(idPrefix);
     }
 
     function setupSession(): XDPromise<void> {

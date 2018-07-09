@@ -2,28 +2,17 @@
 // To interact with DagNode, use the public API in DagGraph.
 type DagNodeId = string;
 
-interface DagDisplyInfo {
-
-}
-
-interface DagStateInfo {
-    state: DagNodeState;
-}
-
 interface DagNodeInfo {
     type: DagNodeType;
     id?: string;
-    tableId?: string;
-    display? : DagDisplyInfo;
-    state? : DagStateInfo;
     input? : object;
+    comment?: string;
+    tableId?: string;
+    state?: DagNodeState;
+    display? : Coordinate;
 }
 
-
 class DagNode {
-    private static idCount: number = 0;
-    private static idPrefix: string;
-
     private id: DagNodeId;
     private parents: DagNode[];
     private children: DagNode[];
@@ -33,140 +22,252 @@ class DagNode {
     private comment: string;
     private input: object;
     private tableId: TableId;
-    private display: DagDisplyInfo;
-    private state: DagStateInfo;
-
-    public static setIdPrefix(idPrefix: string): void {
-        DagNode.idPrefix = idPrefix;
-    }
-
-    public static generateId(): DagNodeId {
-        return DagNode.idPrefix + "." +
-                new Date().getTime() + "." +
-                (DagNode.idCount++);
-    }
+    private state: DagNodeState;
+    private display: Coordinate;
 
     public constructor(options: DagNodeInfo = <DagNodeInfo>{}) {
-        this.id = options.id || DagNode.generateId();
+        this.id = options.id;
         this.type = options.type;
 
         this.parents = [];
         this.children = [];
         this.input = options.input || {};
+        this.comment = options.comment;
         this.tableId = options.tableId || null;
-        this.display = options.display || {};
-        this.state = options.state || {state: DagNodeState.Unused};
-    }
-
-    public getId(): DagNodeId {
-        return this.id;
-    }
-
-    public getMaxParents(): number {
-        if (this.maxParents == null) {
-            if (this.isSourceNode()) {
-                this.maxParents = 0;
-            } else if (this.isTwoInputNode()) {
-                this.maxParents = 2;
-            } else if (this.isMultiInputNode()) {
-                this.maxParents = -1;
-            } else {
-                // single input case
-                this.maxParents = 1;
-            }
-        }
+        this.state = options.state || DagNodeState.Unused;
+        this.display = options.display || {x: -1, y: -1};
         
-        return this.maxParents;
-    }
-
-    public getMaxChildren(): number {
-        if (this.maxChildren == null) {
-            this.maxChildren = this.isDestNode() ? 0 : -1;
-        }
-        return this.maxChildren;
-    }
-
-    // XXX TODO
-    public move(xDiff: number, yDiff: number): boolean {
-        return true;
+        this.maxParents = this._maxParents();
+        this.maxChildren = this._maxChildren();
     }
 
     /**
      *
-     * @param parentNode<DagNode>
-     * @param pos<number>, 0 based, the position where to connect with parentNode
+     * @returns {string} return the id of the dag node
      */
-    public connectToParent(parentNode: DagNode, pos: number = 0): boolean {
-        if (pos >= this.maxParents || this.parents[pos] != null) {
-            throw "Cannot connect to parent";
-        }
-        this.parents[pos] = parentNode;
-        return true;
+    public getId(): DagNodeId {
+        return this.id;
     }
 
-    public connectToChidren(childNode: DagNode): boolean {
-        if (this.getMaxChildren() === 0) {
-            throw "Cannot connect to children";
-        }
-
-        this.children.push(childNode);
-        return true;
+    /**
+     *
+     * @returns {number} return how many parents the node can have valid values are: 0, 1, 2, -1, where -1 means unlimited parents
+     */
+    public getMaxParents(): number {
+        return this.maxParents;
     }
 
-    // XXX TODO
-    public disconnectFromParent(pos: number): boolean {
-        return true;
+    /**
+     *
+     * @return {number} return how many children the node can have valid values are 0 and -1, where -1 means unlimited children
+     */
+    public getMaxChildren(): number {
+        return this.maxChildren;
     }
 
-    // XXX TODO
-    public disconnectFromChildren(childNode: DagNode): boolean {
-        return true;
+    public getPosition(): Coordinate {
+        return this.display;
     }
 
-    // XXX TODO
-    public remove(): boolean {
-        return true;
+    /**
+     * @returns {DagNode[]} return all parent nodes
+     */
+    public getParents(): DagNode[] {
+        return this.parents;
     }
 
+    /**
+     * @returns {DagNode[]} return all child nodes
+     */
+    public getChildren(): DagNode[] {
+        return this.children;
+    }
+
+    /**
+     *
+     * @param position new position of the node in canvas
+     */
+    public setPosition(position: Coordinate): void {
+        this.display.x = position.x;
+        this.display.y = position.y;
+    }
+
+    /**
+     *
+     * @returns {string} return user's comment
+     */
+    public getComment(): string {
+        return this.comment;
+    }
+
+    /**
+     *
+     * @param comment user comment for the node
+     */
     public addComment(comment: string): void {
         this.comment = comment;
     }
-
+ 
     public removeComment(): void {
         delete this.comment;
+    }
+
+    /**
+     *
+     * @returns {DagNodeState} return the state of the node
+     */
+    public getState(): DagNodeState {
+        return this.state;
+    }
+
+    /**
+     *
+     * @param state set state of the node
+     */
+    public setState(state: DagNodeState): void {
+        this.state = state;
+    }
+
+    /**
+     * @returns {TableId} return id of the table that associated with the node
+     */
+    public getTableId(): TableId {
+        return this.tableId;
+    }
+
+    /**
+     *
+     * @param tableId set the table associated with the node
+     */
+    public setTableId(tableId: TableId) {
+        this.tableId = tableId;
+    }
+
+    // XXX TODO
+    public clearTable(): void {
+        console.warn("not implemented!");
+    }
+
+    public getParams(): object {
+        console.warn("not fully implemented!");
+        return this.input;
+    }
+
+    public setParams(input: object) {
+        console.warn("not fully implemented!");
+        this.input = input;
+    }
+
+    /**
+     *
+     * @param parentNode parent node to connected to
+     * @param pos 0 based, the position where to connect with parentNode
+     */
+    public connectToParent(parentNode: DagNode, pos: number = 0): void {
+        if (pos >= this.getMaxParents()) {
+            throw new Error("Node has maximum parents connected");
+        }
+        if (this.parents[pos] != null) {
+            throw new Error("Pos " + pos + " already has parent")
+        }
+
+        this.parents[pos] = parentNode;
+    }
+
+    /**
+     *
+     * @param childNode child node to connected to
+     */
+    public connectToChidren(childNode: DagNode): void {
+        if (this.getMaxChildren() === 0) {
+            throw new Error("Node has maximum children connected");
+        }
+
+        this.children.push(childNode);
+    }
+
+    /**
+     *
+     * @param pos the index of the parent node that will be disconnected
+     */
+    public disconnectFromParent(parentNode: DagNode, pos: number): void {
+        if (this.parents[pos] == null) {
+            throw new Error("Parent in pos " + pos + " is empty");
+        }
+        if (this.parents[pos] !== parentNode) {
+            throw new Error("Parent in pos " + pos + " is not " + parentNode.getId());
+        }
+        this.parents[pos] = null;
+        this._clearInput(pos);
+    }
+
+    /**
+     * Disconnect from children, if node connect to the same children more than
+     * once (e.g. self-join, union...), remove the first occurred one
+     * @param pos the index of the child node that will be disconnected
+     */
+    public disconnectFromChildren(childNode: DagNode): void {
+        for (let i = 0; i < this.children.length; i++) {
+            if (this.children[i] === childNode) {
+                this.children[i] = null;
+                break;
+            }
+        }
+        throw new Error("Dag " + childNode.getId() + " is not child of " + this.getId());
     }
 
     // XXX TODO
     public geQuery(): string {
         // XXX TODO: reutrn a fake query string
+        console.warn("to be implemented!");
         return '[{}]';
     }
 
-    public setTableId(tableId: TableId) {
-        this.tableId = tableId;
+    // XXX TODO
+    public serialize(): string {
+        console.warn("to be implemented!");
+        return "";
     }
 
-    public getTableId() {
-        return this.tableId;
+    // XXX TODO
+    private _clearInput(pos: number): void {
+        console.warn("to be implemented!");
     }
 
-    private isSourceNode() {
+    private _isSourceNode(): boolean {
         const sourceType = [DagNodeType.Dataset];
         return sourceType.includes(this.type);
     }
 
-    private isTwoInputNode() {
+    private _isTwoInputNode(): boolean {
         const twoInputNodes = [DagNodeType.Join];
         return twoInputNodes.includes(this.type);
     }
 
-    private isMultiInputNode() {
+    private _isMultiInputNode(): boolean {
         const multiInputNode = [DagNodeType.Union];
         return multiInputNode.includes(this.type);
     }
 
-    private isDestNode() {
+    private _isDestNode(): boolean {
         const destNodes = [DagNodeType.Export];
         return destNodes.includes(this.type);
+    }
+
+    private _maxParents(): number {
+        if (this._isSourceNode()) {
+            return 0;
+        } else if (this._isTwoInputNode()) {
+            return 2;
+        } else if (this._isMultiInputNode()) {
+            return -1;
+        } else {
+            // single input case
+            return 1;
+        }
+    }
+
+    private _maxChildren(): number {
+        return this._isDestNode() ? 0 : -1;
     }
 }
