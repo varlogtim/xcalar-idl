@@ -9,6 +9,60 @@
 <link href="../stylesheets/css/login.css" rel="stylesheet" type="text/css">
 <script src="../../3rd/createjs-2015.11.26.min.js" type="text/javascript"></script>
 <script src="../js/login/loginAnim.js" type="text/javascript"></script>
+<script type="text/javascript">
+    function browserCheck() {
+        var userAgent = navigator.userAgent;
+        if (/MSIE 10/i.test(userAgent)) {
+           // this is internet explorer 10
+            window.isBrowserMicrosoft = true;
+            window.isBrowserIE = true;
+        }
+
+        if (/MSIE 9/i.test(userAgent) || /rv:11.0/i.test(userAgent)) {
+            // this is internet explorer 9 and 11
+            window.isBrowserMicrosoft = true;
+            window.isBrowserIE = true;
+        }
+
+        if (/Edge/i.test(userAgent)) {
+           // this is Microsoft Edge
+            window.isBrowserMicrosoft = true;
+            window.isBrowserEdge = true;
+
+        }
+        if (window.isBrowserMicrosoft) {
+
+        } else if (/chsrome/i.test(userAgent)) {
+            window.isBrowserChrome = true;
+        } else if (/firefox/i.test(userAgent)) {
+            window.isBrowserFirefox = true;
+
+        }
+
+        if (/safari/i.test(userAgent) && !window.isBrowserChrome) {
+            window.isBrowserSafari = true;
+
+        }
+        if (window.isBrowserSafari ||
+            window.isBrowserChrome ||
+            window.isBrowserFirefox ||
+            window.isBrowserEdge) {
+                window.isBrowserSupported = true;
+        } else {
+            window.isBrowserSupported = false;
+        }
+    }
+
+    browserCheck();
+    if (!window.isBrowserSupported) {
+        alert("You are running an unsupported browser. Please use one of the " +
+                "following browsers: Chrome (version 65+), Firefox " +
+                "(version 59+), or Safari (version 11.1+)");
+        document.write("You are running an unsupported browser. Please use one of the " +
+                "following browsers: Chrome (version 65+), Firefox " +
+                "(version 59+), or Safari (version 11.1+)");
+    }
+    </script>
 </head>
 <% if (dicts.product == "XI") { %>
 <!-- add class bodyXIVideo for insight video -->
