@@ -29,7 +29,7 @@ class DagNode {
     private children: DagNode[];
     private type: DagNodeType;
     private maxParents: number; // non-persistent
-    private maxChildren: number: // non-persistent
+    private maxChildren: number; // non-persistent
     private comment: string;
     private input: object;
     private tableId: TableId;
