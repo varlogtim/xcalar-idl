@@ -767,6 +767,10 @@ namespace IMDPanel {
                 });
                 resetInactiveChecked();
                 updateHistory();
+
+                if (restoreErrors.length) {
+                    showRestoreError();
+                }
             })
             .fail(function(error) {
                 if (error && error.error === "canceled") {
@@ -1531,14 +1535,6 @@ namespace IMDPanel {
                     pTables.push(table);
                 }
             });
-
-           return PromiseHelper.resolve();
-        })
-        .then(function() {
-            if (restoreErrors.length) {
-                showRestoreError();
-            }
-
             listTables()
             .then( deferred.resolve)
             .fail(deferred.reject);
@@ -1549,9 +1545,6 @@ namespace IMDPanel {
             .fail(function() {
                 deferred.resolve(pTables);
             });
-        })
-        .always(function() {
-            restoreErrors = [];
         });
 
         return deferred.promise();
@@ -1627,7 +1620,7 @@ namespace IMDPanel {
             }
             progressCircle.increment();
             deferred.resolve();
-            XcSocket.Instance.sendMessage("refreshIMD", {
+             XcSocket.Instance.sendMessage("refreshIMD", {
                 "action": "activate",
                 "tableName": tableName
             }, null);
