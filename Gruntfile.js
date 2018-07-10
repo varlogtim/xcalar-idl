@@ -82,8 +82,20 @@ var XLRDIR = 'XLRDIR';
 
 var XD = "XD";
 var XI = "XI";
+var XDEE = "XDEE";
 var XDprodName = "xcalar-gui";
 var XIprodName = "xcalar-insight";
+var XDEEprodName = "xcalar-design-ee";
+
+// a list of js files that are req. only for Xcalar Design EE
+// used by scriptlinker xpe targets, so should be rel those targets' cwd attr
+var XDEE_REQ_JS_FILES = [
+    'assets/js/xpe/xpeServerResponses.js',
+    'assets/js/xpe/nwjsXpeSetupHelper.js',
+    'assets/js/xpe/xpeSharedContextUtils.js',
+    'assets/js/xpe/xpeCommon.js',
+];
+
 var INITIAL_GRUNT_PROCESS_TASKLIST = 'taskflag4context';
 var TOPLEVEL_GRUNT_PROCESS = false; // will get set true if we detect this is parent process
 var LR_ON = 'LIVERELOADON';
@@ -197,7 +209,7 @@ var jsMapping = {
     required: []};
 var helpContentRoot = "assets/help/";
 var helpContentMapping = {
-    src: helpContentRoot + 'user/',
+    src: helpContentRoot + 'user/', // src in the bldroot after initial copy at bld start
     dest: "assets/js/shared/util/helpHashTags.js",
     exclude: {},
     remove: [],
@@ -208,6 +220,13 @@ var typescriptMapping = {
     exclude: {},
     remove: [],
     required: ['ts/']};
+
+// help content src in the actual src tree, for each product type
+var helpContentRootByProduct = {
+    XD: helpContentRoot + XD,
+    XDEE: helpContentRoot + XD,
+    XI: helpContentRoot + XD
+}
 
 // path rel src to the unitTest folder
 var UNIT_TEST_FOLDER = 'assets/test/unitTest';
@@ -327,7 +346,7 @@ var VALID_OPTIONS = {
     [BLD_OP_BLDROOT]:
         {[REQUIRES_VALUE_KEY]: true, [DESC_KEY]: "Directory path for dir in build where index.html should start (if does not exist will create for you)"},
     [BLD_OP_PRODUCT]:
-        {[REQUIRES_VALUE_KEY]: true, [VALUES_KEY]: [XD,XI], [DESC_KEY]: "Product type to build (Defaults to XD)"},
+        {[REQUIRES_VALUE_KEY]: true, [VALUES_KEY]: [XD,XI,XDEE], [DESC_KEY]: "Product type to build (Defaults to XD)"},
     [BLD_OP_BACKEND_SRC_REPO]:
         {[REQUIRES_VALUE_KEY]: true, [BLD_KEY]: true, [DESC_KEY]: "For trunk builds only: Path to xlr repo to copy in backend files from"},
     [BLD_OP_JS_MINIFICATION_CONCAT_DEPTH]:
@@ -396,11 +415,11 @@ for ( validOp of GRUNT_FLAGS ) {
 var oppOp;
 for ( validOp of Object.keys(VALID_OPTIONS) ) {
     oppOp = falseBooleanFlagPrefix + validOp;
-    if ( VALID_OPTIONS[validOp][TAKES_BOOLS] ||
+    if (VALID_OPTIONS[validOp][TAKES_BOOLS] ||
         (VALID_OPTIONS[validOp][FLAG_KEY] && !VALID_OPTIONS[validOp][NO_EXTRA_GRUNT_FLAG])
     ) {
         VALID_OPTIONS[oppOp] = {[FLAG_KEY]: true};
-        if ( VALID_OPTIONS[validOp][IS_GRUNT_OP] ) {
+        if (VALID_OPTIONS[validOp][IS_GRUNT_OP]) {
             VALID_OPTIONS[oppOp][IS_GRUNT_OP] = true;
         } else {
             VALID_OPTIONS[oppOp][DESC_KEY] = "Negation of: " + VALID_OPTIONS[validOp][DESC_KEY];
@@ -465,30 +484,30 @@ function optionInfoString() {
             'watch':{'header':"\n[Flags for watch only]:", 'matchingoptions':{}}}};
 
     for ( op of Object.keys(VALID_OPTIONS) ) {
-        if ( VALID_OPTIONS[op][IS_GRUNT_OP] ) {
+        if (VALID_OPTIONS[op][IS_GRUNT_OP]) {
             desc = "\t\t(Grunt option; see Grunt documentation for current description)";
         } else {
             desc = "\t\t" + VALID_OPTIONS[op][DESC_KEY];
         }
         // add in valid values to description if it's limited to certain values
-        if ( VALID_OPTIONS[op][VALUES_KEY] ) {
+        if (VALID_OPTIONS[op][VALUES_KEY]) {
             desc = desc + "\n\t\tValid values: " + VALID_OPTIONS[op][VALUES_KEY];
         }
 
         // add in description if its a flag or a value-taking option
         foundtypes = {};
-        if ( !VALID_OPTIONS[op][REQUIRES_VALUE_KEY] ) { // allows you to account for ones like --livereload that can be both flag and value taking option
+        if (!VALID_OPTIONS[op][REQUIRES_VALUE_KEY]) { // allows you to account for ones like --livereload that can be both flag and value taking option
             foundtypes['flags'] = {'useage':"\t--" + op, 'desc': desc};
         }
-        if ( !VALID_OPTIONS[op][FLAG_KEY] ) {
+        if (!VALID_OPTIONS[op][FLAG_KEY]) {
             foundtypes['options'] = {'useage':"\t--" + op + "=<value>", 'desc': desc};
         }
         // could be this option takes a value and is a flag.  go through each possibility found
         for ( optiontype of Object.keys(foundtypes) ) {
-            if ( VALID_OPTIONS[op][WATCH_KEY] ) {
+            if (VALID_OPTIONS[op][WATCH_KEY]) {
                 // its specified to watch - add this in
                 infos[optiontype]['watch']['matchingoptions'][op] = foundtypes[optiontype];
-            } else if ( VALID_OPTIONS[op][BLD_KEY] ) {
+            } else if (VALID_OPTIONS[op][BLD_KEY]) {
                 infos[optiontype]['build']['matchingoptions'][op] = foundtypes[optiontype];
             } else {
                 infos[optiontype]['general']['matchingoptions'][op] = foundtypes[optiontype];
@@ -501,7 +520,7 @@ function optionInfoString() {
     // could be confusing
     for ( var stype of Object.keys(infos) ) {
         for ( var subtype of Object.keys(infos[stype]) ) {
-            if ( Object.keys(infos[stype][subtype]['matchingoptions']).length == 0 ) {
+            if (Object.keys(infos[stype][subtype]['matchingoptions']).length == 0) {
                 delete infos[stype][subtype];
             }
         }
@@ -585,13 +604,13 @@ var VALID_TASKS = {
 var VALID_BLD_TASKS = {};
 var validTask;
 for ( validTask of Object.keys(VALID_TASKS) ) {
-    if ( VALID_TASKS[validTask][BLD_TASK_KEY] ) {
+    if (VALID_TASKS[validTask][BLD_TASK_KEY]) {
         VALID_BLD_TASKS[validTask] = VALID_TASKS[validTask][DESC_KEY];
     }
 }
 var VALID_OTHER_TASKS = {};
 for ( validTask of Object.keys(VALID_TASKS) ) {
-    if ( !VALID_TASKS[validTask][BLD_TASK_KEY] ) {
+    if (!VALID_TASKS[validTask][BLD_TASK_KEY]) {
         VALID_OTHER_TASKS[validTask] = VALID_TASKS[validTask][DESC_KEY];
     }
 }
@@ -819,8 +838,10 @@ var DONT_PRETTIFY = ["datastoreTut1.html", "datastoreTut2.html", "workbookTut.ht
         UNIT_TEST_FOLDER, // will just put symlink to this in dev blds
         'site/genHTML.js',
         "'/external'", // this contains the web site, which we do not need
-        "'/xcalar-design'", // common bld names, in case you've blt in to src under these names in past.. dont copy that in..
-        "'/xcalar-insight'", // """ ""
+            // don't regen previously build bld targets
+        "'/" + XDprodName + "'",
+        "'/" + XIprodName + "'",
+        "'/" + XDEEprodName + "'",
         "'/xcalar-infra'", // Jenkins jobs XDTestSuite whill clone xcalar-infra in to workspace, and grunt called later in the process.
             // therefore if the workspace is xcalar-gui, xcalar-infra will get built in to it, and then when grunt is called,
             // will end up in tarred build output if not excluded
@@ -855,7 +876,7 @@ module.exports = function(grunt) {
         (see function documentation)
     */
     grunt.log.writeln("check for parent process");
-    if ( !grunt.option(INITIAL_GRUNT_PROCESS_TASKLIST) ) {
+    if (!grunt.option(INITIAL_GRUNT_PROCESS_TASKLIST)) {
         parentInit();
     }
 
@@ -1078,7 +1099,7 @@ module.exports = function(grunt) {
             */
             transferDesiredHelpContent: {
                 options: {},
-                cwd: BLDROOT + helpContentRoot + PRODUCT, // worked with and without trailing '/'
+                cwd: BLDROOT + helpContentRootByProduct[PRODUCT], // worked with and without trailing '/'
                 src: "**/*", // get ALL files at and nested within cwd.  THey will all be paths relative to cwd (retaining dir structure)
                 expand: true, // need this option to make sure you go nested; it fails when I take it out.  allows you to expand items in 'src' arg dynamically
                 dest: BLDROOT + helpContentMapping.src, // confusing naming, it's src because this is the src of where the relative files should be
@@ -1179,7 +1200,7 @@ module.exports = function(grunt) {
                 ext: ".css",
                 filter: function(filepath) {
                     fileme = path.basename(filepath);
-                    if ( cssMapping.exclude.hasOwnProperty(fileme) ) { // check if one of the efiles to exclude
+                    if (cssMapping.exclude.hasOwnProperty(fileme)) { // check if one of the efiles to exclude
                         return false;
                     } else {
                         return true;
@@ -1248,8 +1269,8 @@ module.exports = function(grunt) {
                 filter: function(filepath) {
                     var ccwd = grunt.config('prettify.cheerio.cwd');
                     // remember there's alo prettification blacklist
-                    if ( canPrettify(filepath) &&
-                        HTML_BUILD_FILES.indexOf(path.relative(ccwd, filepath)) !== -1 ) {
+                    if (canPrettify(filepath) &&
+                        HTML_BUILD_FILES.indexOf(path.relative(ccwd, filepath)) !== -1) {
                         return true;
                     } else {
                         grunt.log.debug("Skip cheerio prettification of "
@@ -1320,23 +1341,29 @@ module.exports = function(grunt) {
             options: {
                 startTag: '<!-- start auto template tags -->',
                 endTag: '<!-- end auto template tags -->',
-                fileTmpl: '<script src="%s" type="text/javascript"></script>',
                 appRoot: htmlMapping.dest,
             },
-            indexNonDev: {
+            login: {
+                options: {
+                    // will end up with tags as ../../assets/js while most other
+                    // login script tags are ../js (common ancestor)
+                    // this is because the src attrs (list of files to create
+                    // script tags for) for both scriptlinker targets
+                    // are getting generated from a common list (see getExtraLoginTags)
+                    // so going out to the max depth needed between both targets
+                    fileTmpl: '<script src="../../%s" type="text/javascript"></script>',
+                },
                 cwd: BLDROOT,
-                src: ['assets/js/mixpanel/mixpanelAzure.js'],
-                dest: HTML_STAGING_II_ABS + htmlTemplateMapping['index.html'],
-            },
-            indexDev: {
-                cwd: BLDROOT,
-                src: ['assets/dev/shortcuts.js', 'assets/js/mixpanel/mixpanel.js'],
-                dest: HTML_STAGING_II_ABS + htmlTemplateMapping['index.html'],
-            },
-            loginDev: {
-                cwd: BLDROOT,
-                src: ['assets/dev/shortcuts.js'],
+                // src set in dynamically based on bld qualities
                 dest: HTML_STAGING_II_ABS + htmlTemplateMapping['login.html'],
+            },
+            index: {
+                options: {
+                    fileTmpl: '<script src="%s" type="text/javascript"></script>',
+                },
+                cwd: BLDROOT,
+                // src set in dynamically based on bld qualities
+                dest: HTML_STAGING_II_ABS + htmlTemplateMapping['index.html'],
             },
         },
 
@@ -1504,7 +1531,7 @@ module.exports = function(grunt) {
         in the parent, then add this as a cmd flag, as those are
         inherited by the child processes.)
     */
-    if ( IS_WATCH_TASK ) { // cant depend on grunt.options('watch' because could be child proc
+    if (IS_WATCH_TASK) { // cant depend on grunt.options('watch' because could be child proc
         configureWatchTasksBasedOnUserParams();
     }
 
@@ -1729,7 +1756,7 @@ module.exports = function(grunt) {
             } else {
                 // valid use case: in DEV blds, def behavior is srcroot same as destdir.
                 // so in this case you don't mind this happening.
-                if ( SRCROOT != BLDROOT ) {
+                if (SRCROOT != BLDROOT) {
                     grunt.fail.fatal("Root for build: "
                         + BLDROOT
                         + " already exists!  But option --"
@@ -1760,7 +1787,7 @@ module.exports = function(grunt) {
 
         */
         //if ( grunt.file.doesPathContain( SRCROOT, BLDROOT ) ) {
-        if ( grunt.file.doesPathContain( SRCROOT, BLDROOT ) ) {
+        if (grunt.file.doesPathContain(SRCROOT, BLDROOT)) {
             grunt.log.writeln(BLDROOT + " contained within " + SRCROOT );
             //DONT_RSYNC.push(path.basename(BLDROOT));
             DONT_RSYNC.push(path.relative(SRCROOT, BLDROOT));
@@ -1800,7 +1827,7 @@ module.exports = function(grunt) {
                 (Similarly on other blds user could use params to make it this way,
                 so only do the rsync if the bld and src root are different
             */
-            if ( SRCROOT != BLDROOT ) {
+            if (SRCROOT != BLDROOT) {
                 if (fastcopy) {
                     grunt.task.run("rsync:fastcopy");
                 } else if (grunt.option(BLD_FLAG_RC_SHORT) ||
@@ -1822,7 +1849,7 @@ module.exports = function(grunt) {
                 to display Xcalar Insight rather than xcalar design
                 (the files developed with XD strings by default)
             */
-            if ( PRODUCT == XI ) {
+            if (PRODUCT === XI) {
                 grunt.task.run(UPDATE_ESSENTIAL_JS_FILES_WITH_CORRECT_PRODUCT_NAME);
             }
     });
@@ -1857,7 +1884,7 @@ module.exports = function(grunt) {
 
         // delete out those folders not related (this could be done before or after the main generateHelpStructsFile task,
         // but putting it after in case there ever are some pending tasks for cleanup)
-        if ( SRCROOT != BLDROOT ) {
+        if (SRCROOT != BLDROOT) {
             grunt.task.run(CLEANUP_HELP_CONTENT_DIR);
         }
     });
@@ -1887,7 +1914,7 @@ module.exports = function(grunt) {
         // anew file loc
         basefilename = path.basename(readFile, path.extname(readFile));
         origFileLoc = path.dirname(readFile); // dir to put in
-        if ( !origFileLoc.endsWith(path.sep) ) { origFileLoc = origFileLoc + path.sep; }
+        if (!origFileLoc.endsWith(path.sep)) { origFileLoc = origFileLoc + path.sep; }
 
         newfilename = path.basename(readFile, path.extname(readFile)) + 'Insight.htm';
         newfileloc = origFileLoc + newfilename;
@@ -1905,7 +1932,7 @@ module.exports = function(grunt) {
         var styleDelim = '<style>';
         stylesplit = filecont.split(styleDelim);
         var newContent = "";
-        if ( stylesplit.length < 2 ) {
+        if (stylesplit.length < 2) {
             grunt.fail.fatal("Trying to inserted custom style section in to"
                 + readFile
                 + "\nSearchin for style tag: '"
@@ -1979,9 +2006,9 @@ module.exports = function(grunt) {
         helpDirs = grunt.file.expand(helpContentRootFull + "*");//, {filter:'isDirectory'});
         var helpDir, helpDirAbsSrc;
         for ( helpDir of helpDirs ) {
-            if(!helpDir.endsWith(path.sep)) { helpDir = helpDir + path.sep; }
+            if (!helpDir.endsWith(path.sep)) { helpDir = helpDir + path.sep; }
             helpDirAbsSrc = BLDROOT + helpContentMapping.src;
-            if ( helpDirAbsSrc !== helpDir ) { // we're only getting the dirs at that top level; not recursive
+            if (helpDirAbsSrc !== helpDir) { // we're only getting the dirs at that top level; not recursive
             //if ( helpDirAbsSrc !== helpDir && !grunt.file.doesPathContain(helpDirAbsSrc, helpDir) ) {
                 grunt.log.write("Delete unneeded help content dir : " + helpDir + " ... ");
                 grunt.file.delete(helpDir);
@@ -2033,7 +2060,7 @@ module.exports = function(grunt) {
 
             $('h1').each(function() {  // gets each 'h1' selector
                 // check if more than one
-                if ( myStructs[helpHashTags].hasOwnProperty(htmFilepath) ) {
+                if (myStructs[helpHashTags].hasOwnProperty(htmFilepath)) {
                     grunt.fail.fatal("Error encountered generating Help hash tags from documentation.\n"
                         + "\nFile: "
                         + htmFilepath
@@ -2062,7 +2089,7 @@ module.exports = function(grunt) {
             $('a.ForCSH').each(function() { // go through each script tag
                 name = $( this ).attr('name');
                 // if already an entry by this name (from this or some other file), fail out
-                if ( myStructs[csLookup].hasOwnProperty(name) ) {
+                if (myStructs[csLookup].hasOwnProperty(name)) {
 
                     /**
                         do a grep for this name in the help file root, so they can see wehre all
@@ -2120,7 +2147,6 @@ module.exports = function(grunt) {
 
     */
     grunt.task.registerTask(CONSTRUCTOR_FILES, "Generate additional js constructor file(s) for the build", function() {
-
         grunt.log.debug("Schedule tasks to Autogen constructor files,"
             + " then copy the auto-generated constructor files, from:\n"
             + grunt.config('copy.constructorFiles.cwd')
@@ -2131,13 +2157,13 @@ module.exports = function(grunt) {
         // next constructor file is only to show info about the bld to users.
         // devs don't need in their build, and if you auto-gen it, it will
         // cause it to show up in their 'git status', so skip for dev blds
-        if ( BLDTYPE != DEV && !isWatchEventProcessing() ) {
+        if (BLDTYPE != DEV && !isWatchEventProcessing()) {
             grunt.task.run(GENERATE_GIT_VAR_DEC_FILE);
         }
         // copy all constructor files from the xcalar-idl/xd submodule, in to constructor dir used by bld
         grunt.task.run('copy:constructorFiles');
 
-        if ( !KEEPSRC && SRCROOT != BLDROOT ) {
+        if (!KEEPSRC && SRCROOT != BLDROOT) {
             grunt.task.run(CLEAN_CONSTRUCTOR_SRC);
         }
     });
@@ -2241,15 +2267,15 @@ module.exports = function(grunt) {
         src = typeof src  !== 'undefined' ? src  : SRCROOT;
         dest = typeof dest  !== 'undefined' ? dest  : BLDROOT;
 
-        if ( !grunt.file.isPathAbsolute(src) || !grunt.file.isPathAbsolute(dest) ) {
+        if (!grunt.file.isPathAbsolute(src) || !grunt.file.isPathAbsolute(dest)) {
             grunt.fail.fatal("Trying to resolve dependencies, "
                 + " but either src or dest are not absolute paths..."
                 + "\n src: " + src + "\n dest: " + dest
                 + "  logic error contact jolsen@xcalar.com.");
         }
-        if ( fromDepth ) {
-            if ( grunt.file.isPathAbsolute(fromDepth) ) {
-                if ( grunt.file.doesPathContain(src, fromDepth) ) {
+        if (fromDepth) {
+            if (grunt.file.isPathAbsolute(fromDepth)) {
+                if (grunt.file.doesPathContain(src, fromDepth)) {
                     grunt.fail.fatal("Trying to resolve dependencies... "
                         + " want to copy dependencies in from " + src
                         + " and only maintain dir structure begininng @ start"
@@ -2276,17 +2302,17 @@ module.exports = function(grunt) {
         var dependency, dependencyAbsPath;
         for ( dependency of dependencies ) {
             grunt.log.debug("Next dependency: " + dependency);
-            if ( dependency.match(/\*/g) ) {
+            if (dependency.match(/\*/g)) {
                 grunt.log.writeln("this is a globbing pattern! can't do any checks");
                 glob = true;
             }
             // if its not a glob can check if exists and make sure its desc from src if abs.
-            if ( !glob ) {
+            if (!glob) {
                 grunt.log.debug("dependency " +  dependency + " is not a glob");
-                if ( grunt.file.isPathAbsolute(dependency) ) {
+                if (grunt.file.isPathAbsolute(dependency)) {
                     grunt.log.writeln("this is an absolute path");
                     // make sure rel. to src
-                    if ( grunt.file.doesPathContain(src, dependency) ) {
+                    if (grunt.file.doesPathContain(src, dependency)) {
                         dependencyAbsPath = dependency;
                     } else {
                         grunt.fail.fatal("Supplied dependency to resolveDependencies that is an abs. path, "
@@ -2300,7 +2326,7 @@ module.exports = function(grunt) {
 
                 grunt.log.debug("abs path have now: " + dependencyAbsPath);
                 // if dir, glob for entire thing
-                if ( grunt.file.isDir(dependencyAbsPath) ) {
+                if (grunt.file.isDir(dependencyAbsPath)) {
             /**
                 @TODO:
                 If it's a dir,
@@ -2311,7 +2337,7 @@ module.exports = function(grunt) {
                     dependencyAbsPath = dependencyAbsPath + "**/*";
 //                    srclist.push(dependencyRelSrc + "**/*");
 //                    srclist.push(dependencyRelPath + "**/*");
-                } else if ( !grunt.file.isFile(dependencyAbsPath) ) {
+                } else if (!grunt.file.isFile(dependencyAbsPath)) {
                     grunt.fail.fatal("A dependency pass to resolveDependencies is not a file or dir!\n"
                         + dependency
                         + "\n (Looking for existence @ abs path determined as:)\n"
@@ -2321,7 +2347,7 @@ module.exports = function(grunt) {
             } else {
                 grunt.log.debug("Dependency " + dependency + " is a glob");
                 // check if begins with '/' to determine if abs path...
-                if ( dependency.startsWith(path.sep) ) {
+                if (dependency.startsWith(path.sep)) {
                     dependencyAbsPath = dependency;
                 } else {
                     dependencyAbsPath = src + dependency;
@@ -2335,7 +2361,7 @@ module.exports = function(grunt) {
             srclist.push(relkeep);
         }
         // if any dependencies that need to be resolved, schedule this task
-        if ( srclist.length > 0 ) {
+        if (srclist.length > 0) {
             grunt.log.warn("There are dependencies required to build files of this type. "
                 + " Copy in if they don't exist " + srclist);
             grunt.config('copy.resolveDependencies.src', srclist);
@@ -2370,17 +2396,17 @@ module.exports = function(grunt) {
         var removePath;
         for ( removePath of content ) {
             grunt.log.writeln("Remove: " + removePath);
-            if ( removePath.match(/\*/g) ) {
+            if (removePath.match(/\*/g)) {
                 grunt.log.debug("this is a globbing pattern! can't do any checks");
                 glob = true;
             }
             // if its not a glob can check if exists and make sure its desc from src if abs.
-            if ( !glob ) {
-                if ( !grunt.file.isPathAbsolute(removePath) ) {
+            if (!glob) {
+                if (!grunt.file.isPathAbsolute(removePath)) {
                     removePath = relTo + removePath;
                 }
                 // now if it exists only get rid of it, otherwise don't worry about it
-                if ( !grunt.file.exists(removePath) ) {
+                if (!grunt.file.exists(removePath)) {
                     grunt.log.writeln("\n" + removePath
                         + " required, but does not exist in bld "
                         + "(probably a watch scenario of HTML, where required dirs were copied directly in to staging area)");
@@ -2391,7 +2417,7 @@ module.exports = function(grunt) {
             removelist.push(removePath);
         }
         // if found any paths to remove, schedule clean task
-        if ( removelist.length > 0 ) {
+        if (removelist.length > 0) {
             grunt.log.debug("Found paths to remove: " + removelist);
             grunt.config('clean.custom.src', removelist);
             grunt.task.run('clean:custom');
@@ -2408,7 +2434,7 @@ module.exports = function(grunt) {
 
         grunt.task.run('less:dist');
 
-        if ( !KEEPSRC && SRCROOT != BLDROOT ) {
+        if (!KEEPSRC && SRCROOT != BLDROOT) {
             grunt.task.run(CLEAN_CSS_SRC);
         }
     });
@@ -2486,8 +2512,8 @@ module.exports = function(grunt) {
         grunt.task.run('copy:destHTML');
 
         // Done with staging areas.  get rid!
-        grunt.task.run('clean:htmlStagingI');
-        grunt.task.run('clean:htmlStagingII');
+        //grunt.task.run('clean:htmlStagingI');
+        //grunt.task.run('clean:htmlStagingII');
 
         /**
             html clean:
@@ -2532,7 +2558,7 @@ module.exports = function(grunt) {
     grunt.task.registerTask(CLEAN_BUILD_SECTIONS, function() {
 
         // clean HTML src of uneeded files/dirs
-        if ( !KEEPSRC && SRCROOT != BLDROOT ) {
+        if (!KEEPSRC && SRCROOT != BLDROOT) {
             grunt.log.debug("don't want to keep stale html!");
             grunt.task.run(CLEAN_HTML_SRC);
         }
@@ -2558,7 +2584,7 @@ module.exports = function(grunt) {
             // but if you are watching,
             // then the files needed were copied in directly to the staging area. so they woin't exist here. so check if file exists to avoid confusing warnings
             // now that this has evolved should relook at this there is a better way
-            if ( grunt.file.exists(filepath) ) {
+            if (grunt.file.exists(filepath)) {
                 grunt.log.write("\tDelete untemplated bld file : " + filepath + "... ");
                 grunt.file.delete(filepath);
                 grunt.log.ok();
@@ -2574,6 +2600,36 @@ module.exports = function(grunt) {
 
     });
 
+    // return list of extra tags to add in to index.html
+    // filepaths rel to 'cwd' attr of scriptlinker targets
+    function getExtraIndexTags() {
+        var extraTags = [];
+        if (IS_WATCH_TASK || BLDTYPE == DEV) {
+            extraTags = extraTags.concat(
+                ['assets/dev/shortcuts.js', 'assets/js/mixpanel/mixpanel.js']);
+        } else {
+            extraTags.push('assets/js/mixpanel/mixpanelAzure.js');
+        }
+        // script tags just used by Xcalar Design EE app for nwjs set ups
+        if (PRODUCT === XDEE) {
+            // httpStatus a dep. for XDEE; it's included in login.html
+            // in all blds but not index.html
+            extraTags.push('assets/js/httpStatus.js');
+            extraTags = extraTags.concat(XDEE_REQ_JS_FILES);
+        }
+        return extraTags;
+    }
+
+    function getExtraLoginTags() {
+        var extraTags = [];
+        if (IS_WATCH_TASK || BLDTYPE == DEV) {
+            extraTags.push('assets/dev/shortcuts.js');
+        }
+        if (PRODUCT === XDEE) {
+            extraTags = extraTags.concat(XDEE_REQ_JS_FILES);
+        }
+        return extraTags;
+    }
 
     /**
         tasks to be done to the HTML files, while they are in the temporary staging areas
@@ -2601,17 +2657,29 @@ module.exports = function(grunt) {
             files were put here during templating.
         */
 
-         // auto-generate additional script tags needed in to some html files, depending on bld type being run
-        // do BEFORE htmlmin - 'scriptlinker' knows where to insert tags by scanning the html and looking
-        // for comment <!-- start auto template tags -->; this comment will get removed during htmlmin
-        if ( IS_WATCH_TASK || BLDTYPE == DEV ) {
-            grunt.task.run('scriptlinker:indexDev');
-            grunt.task.run('scriptlinker:loginDev');
-        } else {
-            grunt.task.run('scriptlinker:indexNonDev');
-        }
+        /**
+            add additional script tags needed
+              do BEFORE htmlmin - 'scriptlinker' knows where to insert tags by
+            scanning html and looking for <!-- start/end auto template tags -->
+            these comments will get removed during htmlmin
+
+            Also, each time scriptlinker run, the code between these tags is
+            replaced by the generated tags (does not append them)
+            so should only run one target per file, if relying only on this comment.
+            Therefore, have one target in scriptlinker for each file to add to;
+            determine which additional files to add and set as target src
+            (determination can't be done at setup), and then
+            run the target for each file
+        */
+        var addTagsIndex = getExtraIndexTags();
+        var addTagsLogin = getExtraLoginTags();
+        grunt.config('scriptlinker.index.src', addTagsIndex);
+        grunt.config('scriptlinker.login.src', addTagsLogin);
+        grunt.task.run('scriptlinker:index');
+        grunt.task.run('scriptlinker:login');
+
         // if bld flag given for rc option, remove debug comments first
-        if ( grunt.option(BLD_FLAG_RC_SHORT) || grunt.option(BLD_FLAG_RC_LONG) ) {
+        if (grunt.option(BLD_FLAG_RC_SHORT) || grunt.option(BLD_FLAG_RC_LONG)) {
             grunt.task.run(REMOVE_DEBUG_COMMENTS + ':html'); // passes positional arg 'html' to the task's function
         }
         grunt.task.run('htmlmin:stagingII'); // staging area II now has all, and only, completed bld files
@@ -2691,21 +2759,21 @@ module.exports = function(grunt) {
             matchPatterns = [],
             templatingSrc = grunt.config(STAGE_HTML_TEMPLATE_KEY); // dont just get all html but what template string specifies, in case watch task
 
-        if ( grunt.file.isFile(templatingSrc) ) {
+        if (grunt.file.isFile(templatingSrc)) {
             // do not do a grunt file expand - just use this single htmlfilepath
             grunt.log.debug("in if");
             htmlFilepaths = [HTML_STAGING_I_ABS + templatingSrc];
         } else {
             grunt.log.debug("get a glob");
             var mainGlob = HTML_STAGING_I_ABS + templatingSrc; // if just one file, or a current glob, this will be sufficient
-            if ( grunt.file.isDir(templatingSrc) ) { // if its a dir, get all html files nested within
+            if (grunt.file.isDir(templatingSrc)) { // if its a dir, get all html files nested within
                 mainGlob = mainGlob + "**/*.html";
             }
             matchPatterns.push(mainGlob);
             // if this a main bld task... also take care of the exclusion patterns...
-            if ( !IS_WATCH_TASK ) {
+            if (!IS_WATCH_TASK) {
                 for ( exclude of htmlMapping.exclude ) {
-                    if ( grunt.file.isDir(exclude) ) {
+                    if (grunt.file.isDir(exclude)) {
                         grunt.log.debug("Add match pattern for Exclusiun dir: " + exclude);
                         matchPatterns.push("!" + HTML_STAGING_I_ABS + exclude + "**");    // excludes this dir and everything within it
                     } else {
@@ -2726,7 +2794,7 @@ module.exports = function(grunt) {
         for ( filepath of htmlFilepaths ) {
             grunt.log.writeln(("`== Template HTML from templated file @ "['yellow'] + filepath + " ==`"['yellow']).bold);
             // genHTML will generate and write a new HTML file, from the templated file at filepath.
-            if ( grunt.file.doesPathContain(HTML_STAGING_I_ABS, filepath) ) {
+            if (grunt.file.doesPathContain(HTML_STAGING_I_ABS, filepath)) {
                 skipfile = false;
                 /**
                     There are some html files don't want to template.  For example, partials and utils.
@@ -2742,7 +2810,7 @@ module.exports = function(grunt) {
                 var dontTemplate;
                 for ( dontTemplate of DONT_TEMPLATE_HTML ) {
                     // remem everything in the 1st staging area is rel. to the html src
-                    if ( (grunt.file.isDir(dontTemplate) && grunt.file.doesPathContain(HTML_STAGING_I_ABS + path.relative(htmlMapping.src, dontTemplate), filepath)) ||
+                    if ((grunt.file.isDir(dontTemplate) && grunt.file.doesPathContain(HTML_STAGING_I_ABS + path.relative(htmlMapping.src, dontTemplate), filepath)) ||
                          (grunt.file.isFile(dontTemplate) && HTML_STAGING_I_ABS + path.relative(htmlMapping.src, dontTemplate) == filepath) ) {
                             // the requireds are rel. to the type src
                             grunt.log.writeln("\tWon't template " + filepath + " - it's designated as a file to skip, or in a dir to skip");
@@ -2750,7 +2818,7 @@ module.exports = function(grunt) {
                             break;
                     }
                 }
-                if ( !skipfile ) {
+                if (!skipfile) {
                     pathRelToHtmlSrcWithinBld = path.relative(HTML_STAGING_I_ABS, filepath);
                     genHTML(filepath, getTemplatingOutputFilepaths(pathRelToHtmlSrcWithinBld));
                 }
@@ -2823,10 +2891,10 @@ module.exports = function(grunt) {
             "browseDatasource2TutA4.html": "browseDatasource2TutA4"
         };
 
-        if ( !srcRoot ) {
+        if (!srcRoot) {
             srcRoot = HTML_STAGING_I_ABS;
         }
-        if ( !destRoot ) {
+        if (!destRoot) {
             destRoot = HTML_STAGING_II_ABS;
         }
 
@@ -2840,10 +2908,10 @@ module.exports = function(grunt) {
         */
         var relPart,
             unprocessedFileBldPath;
-        if ( !grunt.file.isPathAbsolute(htmlFilepath) ) {
+        if (!grunt.file.isPathAbsolute(htmlFilepath)) {
             htmlFilepath = srcRoot + htmlFilepath;
         }
-        if ( grunt.file.doesPathContain(HTML_STAGING_I_ABS, htmlFilepath) ) {
+        if (grunt.file.doesPathContain(HTML_STAGING_I_ABS, htmlFilepath)) {
             relPart = path.relative(HTML_STAGING_I_ABS, htmlFilepath);
         } else {
             grunt.fail.fatal("The filepath specified is not relative to the staging dir"
@@ -2855,7 +2923,7 @@ module.exports = function(grunt) {
         // make sure it exists.. to be on the safe side... since assuming where it is based on current workflow...
         //  h owever, during watch task - it is likely this won't exist, since the watched file might have been
         // copied directly in to the staging area
-        if ( !grunt.file.exists(unprocessedFileBldPath) && !IS_WATCH_TASK) {
+        if (!grunt.file.exists(unprocessedFileBldPath) && !IS_WATCH_TASK) {
             grunt.fail.fatal("During HTML templating, got a file: "
                 + htmlFilepath
                 + "\nIt should be within the HTML staging directory at this point."
@@ -2872,10 +2940,10 @@ module.exports = function(grunt) {
             or list of files it should be written to.
             Put all in a list, and converted each to an abs path
         */
-        if ( outputFiles ) {
-            if ( typeof(outputFiles) == 'String' ) {
+        if (outputFiles) {
+            if (typeof(outputFiles) == 'String') {
                 outputFiles = [outputFiles];
-            } else if ( !Array.isArray(outputFiles) ) {
+            } else if (!Array.isArray(outputFiles)) {
                 grunt.fail.fatal("'output' arg to genHTML not a Stirng or an Array.");
             }
         } else {
@@ -2884,7 +2952,7 @@ module.exports = function(grunt) {
             outputFiles = [relPart];
         }
         for ( var i = 0; i < outputFiles.length; i++ ) {
-            if ( !grunt.file.isPathAbsolute(outputFiles[i]) ) {
+            if (!grunt.file.isPathAbsolute(outputFiles[i])) {
                 outputFiles[i] = destRoot + outputFiles[i];
             }
         }
@@ -2904,10 +2972,10 @@ module.exports = function(grunt) {
         // dicts options when generating one HTML file
         var overwritten = false;
         var filename, destFilepath;
-        if ( outputFiles.length == 1 ) {
+        if (outputFiles.length == 1) {
             destFilepath = outputFiles[0];
             filename = path.basename(destFilepath);
-            if ( filename == 'userManagement.html' ) {
+            if (filename == 'userManagement.html') {
                 grunt.log.writeln("found usermanagement...");
             }
 
@@ -2938,7 +3006,7 @@ module.exports = function(grunt) {
             templateWrite(destFilepath);
 
             // finally, check if it mapped to the same place as the src.
-            if ( unprocessedFileBldPath == destFilepath ) {
+            if (unprocessedFileBldPath == destFilepath) {
                 overwritten = true;
             }
 
@@ -2961,14 +3029,14 @@ module.exports = function(grunt) {
                 templateWrite(destFilepath);
 
                 // finally, check if it mapped to the same place as the src.
-                if ( unprocessedFileBldPath == destFilepath ) {
+                if (unprocessedFileBldPath == destFilepath) {
                     overwritten = true;
                 }
             }
 
         }
 
-        if ( !overwritten && grunt.file.exists(unprocessedFileBldPath) ) {
+        if (!overwritten && grunt.file.exists(unprocessedFileBldPath)) {
             grunt.log.debug("\tOriginal file does not appear to be overwritten... "
                 + " Location of original file (now stale) determined as: "
                 + unprocessedFileBldPath);
@@ -2987,7 +3055,7 @@ module.exports = function(grunt) {
             var parsedHTML = template(dicts);
 
             // if this is an XI build, replace product 'xcalar diesng' names
-            if ( PRODUCT == XI ) {
+            if (PRODUCT === XI) {
                 parsedHTML = updateStringProductName(parsedHTML);
             }
 
@@ -2996,7 +3064,7 @@ module.exports = function(grunt) {
 
             // write the file to the proper destination
             // add to growing list of bld html
-            if ( !grunt.file.isPathAbsolute(destpath) ) {
+            if (!grunt.file.isPathAbsolute(destpath)) {
                 destpath = destRoot + path.sep + destpath;
             }
             grunt.log.write("\tWrite templated file @ " + (destpath).green + " ... ");
@@ -3017,13 +3085,13 @@ module.exports = function(grunt) {
     function getTemplatingOutputFilepaths(filepath) {
 
         var templatedFilepathList = [];
-        if ( grunt.file.isPathAbsolute(filepath) ) {
+        if (grunt.file.isPathAbsolute(filepath)) {
             grunt.fail.fatal("Gave abs path for trying to determine templating output filepaths"
                 + filepath
                 + "\nShould supply a rel path to the file, beginning at the src root of HTML within the bld");
         }
 
-        if ( htmlTemplateMapping.hasOwnProperty(filepath) ) {
+        if (htmlTemplateMapping.hasOwnProperty(filepath)) {
             templatedFilepathList = htmlTemplateMapping[filepath];
         } else {
             templatedFilepathList = [filepath];
@@ -3043,10 +3111,10 @@ module.exports = function(grunt) {
         grunt.task.run(WEBPACK);
 
         // if bld flag given for rc option, remove debug comments first, before js minification
-        if ( grunt.option(BLD_FLAG_RC_SHORT) || grunt.option(BLD_FLAG_RC_LONG) ) {
+        if (grunt.option(BLD_FLAG_RC_SHORT) || grunt.option(BLD_FLAG_RC_LONG)) {
             grunt.task.run(REMOVE_DEBUG_COMMENTS + ':js');
         }
-        if ( ! buildFrom ) {
+        if (!buildFrom) {
             grunt.task.run(CLEAN_JS);
         }
 
@@ -3096,7 +3164,7 @@ module.exports = function(grunt) {
             return;
         }
 
-        if ( !executeFrom || executeFrom == 'undefined' ) {
+        if (!executeFrom || executeFrom == 'undefined') {
             executeFrom = BLDROOT + typescriptMapping.src;
         }
 
@@ -3123,7 +3191,7 @@ module.exports = function(grunt) {
         grunt.file.setBase(currCwd); //  switch back before continuing
 
         // If this is a non-dev build, remove sourcemap if generated
-        if ( BLDTYPE != DEV && !IS_WATCH_TASK ) {
+        if (BLDTYPE != DEV && !IS_WATCH_TASK) {
 
             grunt.log.writeln("This is a non-dev build; delete any generated map files");
             var mapfiles, mapfile;
@@ -3155,7 +3223,7 @@ module.exports = function(grunt) {
         grunt.task.run('prettify:cheerio'); // using cheerio to remove script tags causes empty whitespaces; prettify again
 
         // rid bld of the original js files no longer needed, unless running with option to keep full src
-        if ( !KEEPSRC && SRCROOT != BLDROOT ) {
+        if (!KEEPSRC && SRCROOT != BLDROOT) {
             grunt.task.run(CLEAN_JS_SRC_POST_MINIFICATION);
         }
     });
@@ -3208,7 +3276,7 @@ module.exports = function(grunt) {
             If rel., will be rel. to current operating directory of Grunt
     */
     function removeDebug(filepath) {
-        if ( !grunt.file.isPathAbsolute(filepath) ) {
+        if (!grunt.file.isPathAbsolute(filepath)) {
             grunt.log.warn("Filepath "
                 + filepath
                 + " for file to remove debug comments from not abs;"
@@ -3243,7 +3311,7 @@ module.exports = function(grunt) {
         // the uglify configuration has all the files we minified in it.
         // go through that, and for each file in there, delete it
         var uglifyConfig = grunt.config('uglify');
-        if ( !uglifyConfig ) {
+        if (!uglifyConfig) {
             grunt.fail.fatal("There is no config data for the 'uglify' plugin!");
         }
         var uglifyTarget, srcFile, relPart;
@@ -3252,11 +3320,11 @@ module.exports = function(grunt) {
             grunt.log.writeln("Src files from minified target: " + uglifyTarget);
             for ( srcFile of uglifyConfig[uglifyTarget].src ) {
                 relPart = path.relative(BLDROOT + jsMapping.dest, srcFile);
-                if ( !grunt.file.isPathAbsolute(srcFile) ) {
+                if (!grunt.file.isPathAbsolute(srcFile)) {
                     grunt.fail.fatal("warning - you have change the configuration of the uglify path so src files are partial - you need to update the cleanJsSrc method as a result!");
                 }
                 // make sure it's not the name one of theo minified files or you'll end up deleting a minified file
-                if ( !uglifyConfig.hasOwnProperty(relPart) ) {
+                if (!uglifyConfig.hasOwnProperty(relPart)) {
                     grunt.log.write(("\t>>").green + " Unminified file : " + srcFile + " ... delete ...");
                     grunt.file.delete(srcFile);
                     grunt.log.ok();
@@ -3361,7 +3429,7 @@ module.exports = function(grunt) {
 
         // if rel make abs (need for resolving the rel filepaths in tags)
         var htmlFilepathRelBld, htmlFilepathAbs;
-        if ( !grunt.file.isPathAbsolute(htmlFilepath) ) {
+        if (!grunt.file.isPathAbsolute(htmlFilepath)) {
             htmlFilepathAbs = BLDROOT + htmlFilepath;
         }
         htmlFilepathRelBld = path.relative(BLDROOT, htmlFilepathAbs);
@@ -3371,7 +3439,7 @@ module.exports = function(grunt) {
         var mappingFilepaths = {}; // keep track of what 'src' attributes have been update to so far, so no dupes in final
         // retrieve the minification filepath maapping for script tags
         var jsFilepathMapping = grunt.config.get(JS_MINIFICATION_SCRIPT_TAG_FILEPATH_MAPPING_CONFIG_KEY);
-        if ( !jsFilepathMapping ) {
+        if (!jsFilepathMapping) {
             grunt.fail.fatal("The grunt config key "
                 + JS_MINIFICATION_SCRIPT_TAG_FILEPATH_MAPPING_CONFIG_KEY
                 + " has not been set in grunt config.\n"
@@ -3387,7 +3455,7 @@ module.exports = function(grunt) {
 
             src = $(this).attr('src'); // get ' src' attr of current script tag
 
-            if ( src ) { // make sure there was an 'src' attrihbute
+            if (src) { // make sure there was an 'src' attrihbute
 
                 /**
                     entries in jsFilepathMapping are rel bld
@@ -3401,7 +3469,7 @@ module.exports = function(grunt) {
                 grunt.log.debug("File: " + htmlFilepath + "| script tag Orig: " + src + " | resolved: " + srcResolved + " | rel bld: " + srcRelBld);
 
                 // see if the src is one the filepaths that has a new mapping
-                if( jsFilepathMapping.hasOwnProperty(srcRelBld) ) {
+                if (jsFilepathMapping.hasOwnProperty(srcRelBld)) {
 
                     equivSrcRelBld = jsFilepathMapping[srcRelBld];
 
@@ -3411,7 +3479,7 @@ module.exports = function(grunt) {
                         But now all those js files in the dir got minified in to a single file.
                         You want to essentially condense all those in to a single script tag for the mini file
                     */
-                    if( mappingFilepaths.hasOwnProperty(equivSrcRelBld) ) {
+                    if (mappingFilepaths.hasOwnProperty(equivSrcRelBld)) {
                         // delete this <script tag entirely
                         $(this).remove();
                     } else {
@@ -3428,7 +3496,7 @@ module.exports = function(grunt) {
             }
         });
 
-        if(modified) {
+        if (modified) {
             grunt.log.debug("DOM was modified... (a script tag was updated in this file)");
             fs.writeFileSync(htmlFilepathAbs, $.html(), {'encoding': 'utf-8'}); // renders the modified dom as html and overwrites file at filepath
             grunt.log.ok();
@@ -3520,21 +3588,21 @@ module.exports = function(grunt) {
             scriptTagSrcAttr = $(this).attr('src'); // get ' src'
 
             // some validation
-            if ( scriptTagSrcAttr ) {
+            if (scriptTagSrcAttr) {
 
                 // since written to be included in to index.html which is at root of bld,
                 // the src attrs should be rel bld root
                 srcFilepathAbs = BLDROOT + scriptTagSrcAttr;
 
                 // check 1: check if already found a script tag for this entry (bug in script.html)
-                if ( scriptTags.hasOwnProperty(scriptTagSrcAttr) ) {
+                if (scriptTags.hasOwnProperty(scriptTagSrcAttr)) {
                     END_OF_BUILD_WARNINGS.push(filepathForScriptTagParsing + " : Duplicate <script> tag w src attr '" + scriptTagSrcAttr + "'");
                     return; // jquery version of 'continue'
                 }
                 scriptTags[scriptTagSrcAttr] = true;
 
                 // check 2: if its not part of where we want to start minifying from, skip , probably 3 rd party
-                if ( !scriptTagSrcAttr.startsWith(minificationDivergeAt) ) {
+                if (!scriptTagSrcAttr.startsWith(minificationDivergeAt)) {
                     grunt.log.writeln(("\t" + scriptTagSrcAttr + (" not in path we want to minify files in... (probably 3rd party)... skip").bold).blue);
                     return; // jquery version of contionue;
                 }
@@ -3552,7 +3620,7 @@ module.exports = function(grunt) {
                     So if the file gets generated sometime between (1) and (2), the file
                     will end up getting deleted at (2) since it's still in here, and just didn't get minified
                 */
-                if ( !grunt.file.exists(srcFilepathAbs) ) {
+                if (!grunt.file.exists(srcFilepathAbs)) {
                     grunt.log.writeln(("\t" + scriptTagSrcAttr + (" Can NOT resolve src path- do NOT put in uglify config!").bold).blue);
                     return;  // 'continue' in jquery...
                 }
@@ -3569,7 +3637,7 @@ module.exports = function(grunt) {
                         break;
                     }
                 }
-                if ( ignore ) { return; }
+                if (ignore) { return; }
 
             } else {
                 /**
@@ -3604,7 +3672,7 @@ module.exports = function(grunt) {
             // but the file getting minified is NOT that existing file
             // i.e., if you had assets/js/stuff/A.js minifying in to --> assets/js/stuff.js, and there's also an assets/js/stuff.js regular file
             // but, not a problem if assets/js/stuff.js --> minifies in to itself at assets/js/stuff.js
-            if ( grunt.file.exists(minifileBldDestAbs) && minifileBldDestAbs !== srcFilepathAbs ) {
+            if (grunt.file.exists(minifileBldDestAbs) && minifileBldDestAbs !== srcFilepathAbs) {
                 END_OF_BUILD_WARNINGS.push("File " + srcFilepathAbs + " set to minify in to "
                     + minifileBldDestAbs
                     + ", and a file by this name already exists.  But, it is NOT "
@@ -3633,7 +3701,7 @@ module.exports = function(grunt) {
             // if first instance of this minified filepath encoutnered, initialize the new target - i.e.,. a key in the config hash
             // store by the minipath, not filename, in case two same
             // i.e., A/B/C.js and A/D/C.js
-            if( !uglifyConfig.hasOwnProperty(minipathRelDivergeAt) ) {
+            if (!uglifyConfig.hasOwnProperty(minipathRelDivergeAt)) {
                 uglifyConfig[minipathRelDivergeAt] = {
                     'src':[],
                     'dest':minifileBldDestAbs,
@@ -3685,10 +3753,10 @@ module.exports = function(grunt) {
             // keys/targets in the uglifyConfig are just filenames, hash value has 'dest' attr that holds abs path
             newmini = uglifyConfig[newmini].dest;
             // check if files exists
-            if ( grunt.file.exists(newmini) ) {
+            if (grunt.file.exists(newmini)) {
                 // could be just overwriting no problem... just make su re file that exists is getting minified too
                 unminirelbld = path.relative(BLDROOT, newmini);
-                if ( !jsFilepathMapping.hasOwnProperty(unminirelbld) ) {
+                if (!jsFilepathMapping.hasOwnProperty(unminirelbld)) {
                     grunt.fail.fatal("Grunt is set to create a minified file at path"
                         + newmini
                         + "\nHowever, a file by this name already exists,"
@@ -3753,15 +3821,18 @@ module.exports = function(grunt) {
 
         // if there were any results, warn the user
         if (grepCmdOutput) {
-            grunt.log.warn(("WARNING: There are still files within your build, "
-                + "which have some form of 'xcalar design', though this is an XI build."
-                + "\n Files: (from with in "
-                + BLDROOT
-                + ")\n").red.bold
-                + grepCmdOutput
-                + "\n** (If these files are expected to have xcalar design strings, "
-                + " and you want to suppress this warning on future builds: "
-                + "\nedit Gruntfile, and add files and/or dirs to ignore in function CHECK_FOR_XD_STRINGS)\n**");
+            grunt.log.warn(("WARNING: There are still files within your " +
+                "build, which have some form of the string 'xcalar design', " +
+                "though this is not an XD build. (it's type " +
+                PRODUCT +
+                ")\n Files: (rel " +
+                BLDROOT +
+                ")\n").red.bold +
+                grepCmdOutput +
+                "\n** (If these files are expected to have these strings, " +
+                "and you want to suppress this warning on future builds: " +
+                "\nedit Gruntfile, and add files and/or dirs to ignore in " +
+                "function CHECK_FOR_XD_STRINGS)\n**");
         } else {
             grunt.log.ok();
             grunt.log.writeln("Did not detect any relevant files in the build with product strings that need to be updated!");
@@ -3789,7 +3860,7 @@ module.exports = function(grunt) {
             But do display summary...
         */
 
-        if ( SRCROOT == BLDROOT ) {
+        if (SRCROOT == BLDROOT) {
             grunt.log.warn("Dir for build output is same"
                 + " as project source."
                 + "\nTherefore, will bypass final cleanup steps normally"
@@ -3802,17 +3873,17 @@ module.exports = function(grunt) {
             // didn't want to clean html until very end,
             // in case you do js minification, because it needs
             // html src file.  so do that clean now.
-            if ( !KEEPSRC ) {
+            if (!KEEPSRC) {
                 grunt.task.run(CLEAN_BUILD_SECTIONS);
             }
 
             // clean out any empty dirs in the bld, recursively.
             // this is time consuming - do not do it for individual watch tassks
-            if ( !IS_WATCH_TASK && !fastcopy) {
+            if (!IS_WATCH_TASK && !fastcopy) {
                 grunt.task.run('cleanempty:finalBuild');
             }
 
-            if ( PRODUCT != XD ) {
+            if (PRODUCT != XD) {
                 grunt.task.run(CHECK_FOR_XD_STRINGS);
             }
 
@@ -3820,7 +3891,7 @@ module.exports = function(grunt) {
             // (gets triggered from the bld dest, and if you properly include it,
             // they would need to re-build every time they make
             // a change the any of the unit tests they want reflected)
-            if ( BLDTYPE == DEV || BLDTYPE == DEBUG ) {
+            if (BLDTYPE == DEV || BLDTYPE == DEBUG) {
                 grunt.log.debug("Sym link " + BLDROOT + " --> " + SRCROOT + UNIT_TEST_FOLDER + " in bld");
                 fs.symlinkSync(SRCROOT + UNIT_TEST_FOLDER, BLDROOT + UNIT_TEST_FOLDER);
             }
@@ -3837,7 +3908,7 @@ module.exports = function(grunt) {
             its NOT a watch task, because you
             can run watch and a build task simultaneously)
         */
-        if ( !IS_WATCH_TASK ) {
+        if (!IS_WATCH_TASK) {
             grunt.task.run(DISPLAY_SUMMARY);
         }
 
@@ -3950,7 +4021,7 @@ module.exports = function(grunt) {
             thriftDestAbsPath = BLDROOT + GUIPROJ_THRIFT_DEST, // ok if doesn't exist yet; copy will create it
             tmpDirFullPath = BLDROOT + "tmpJsHolderThrift/";
 
-        if ( !grunt.file.exists(backendSrcAbsPath) ) {
+        if (!grunt.file.exists(backendSrcAbsPath)) {
             grunt.fail.fatal("Trying to copy backend xcalar scripts in to GUI project as part of thrift bld"
                 + ", but can not access backend source of those scripts:\n"
                 + backendSrcAbsPath
@@ -3959,7 +4030,7 @@ module.exports = function(grunt) {
                 + "\nthen re-run Grunt with option: "
                 + " --" + BLD_OP_BACKEND_SRC_REPO + "=<your proj root> )");
         }
-        if ( !grunt.file.exists(thriftDestAbsPath) ) {
+        if (!grunt.file.exists(thriftDestAbsPath)) {
             grunt.log.warn("Directory in bld to hold thrift files from backend: "
                 + GUIPROJ_THRIFT_DEST
                 + " does not exist within the build directory.");
@@ -3991,7 +4062,7 @@ module.exports = function(grunt) {
 
         // clear build thrift folder, so dev backend thrift files can be copied in
         grunt.log.writeln(("\n2. Clear GUI build files from " + thriftDestAbsPath).cyan);
-        if ( grunt.file.exists(thriftDestAbsPath) ) {
+        if (grunt.file.exists(thriftDestAbsPath)) {
             grunt.log.writeln("Delete dir " + thriftDestAbsPath);
             grunt.file.delete(thriftDestAbsPath);
         }
@@ -4051,7 +4122,7 @@ module.exports = function(grunt) {
         grunt.log.writeln(("\n5. Create sym link to the gui bld called " + THRIFT_APACHE_GUI_PATH + ", so backend Apache can access frontend GUI project").cyan);
         var thriftApacheFullPathToLookForGuiBld = SRCROOT + THRIFT_APACHE_GUI_PATH;
         // if destdir already is the path apache looking for, you do not need to do this
-        if ( BLDROOT == thriftApacheFullPathToLookForGuiBld ) {
+        if (BLDROOT == thriftApacheFullPathToLookForGuiBld) {
             grunt.log.writeln("The destination dir for the build is already named '"
                 + THRIFT_APACHE_GUI_PATH
                 + "\nThere is no need to create the symlink; apache can already find the GUI project");
@@ -4091,7 +4162,7 @@ module.exports = function(grunt) {
             }
             catch (err) {
                 // its ok if ENOENT file not existing error
-                if ( err.code != 'ENOENT' ) {
+                if (err.code != 'ENOENT') {
                     throw err;
                 }
             }
@@ -4145,7 +4216,7 @@ module.exports = function(grunt) {
 
         // make sure this is an xcalar design string
         xcalarDesignName = 'xcalar design';
-        if ( xdStr.toLowerCase() != xcalarDesignName ) {
+        if (xdStr.toLowerCase() != xcalarDesignName) {
             grunt.fail.fatal("Trying to convert a Xcalar Design string to a Xcalar Insight string, "
                 + " but String is not in expected format.\n"
                 + "String: " + xdStr
@@ -4182,7 +4253,7 @@ module.exports = function(grunt) {
         */
         var buildNumber = "N/A (dev bld)"; // def value in case no env variable available
         var envValue = process.env.BUILD_NUMBER;
-        if ( envValue ) {
+        if (envValue) {
             buildNumber = envValue;
         }
         return buildNumber;
@@ -4195,10 +4266,10 @@ module.exports = function(grunt) {
         Else, return the anscestor
     */
     function isSrcOrBldDescendentOfEachother() {
-        if ( grunt.file.doesPathContain(SRCROOT, filepath) ) {
+        if (grunt.file.doesPathContain(SRCROOT, filepath)) {
             return SRCROOT;
         }
-        if ( grunt.file.doesPathContain(BLDROOT, filepath) ) {
+        if (grunt.file.doesPathContain(BLDROOT, filepath)) {
             return BLDROOT;
         }
         return false;
@@ -4215,10 +4286,10 @@ module.exports = function(grunt) {
     */
     function getFilepathRelSrcOrBld(filepath) {
 
-        if ( grunt.file.isPathAbsolute(filepath) ) {
-            if ( grunt.file.doesPathContain(SRCROOT, filepath) ) {
+        if (grunt.file.isPathAbsolute(filepath)) {
+            if (grunt.file.doesPathContain(SRCROOT, filepath)) {
                 return path.relative(SRCROOT, filepath);
-            } else if ( grunt.file.doesPathContain(BLDROOT, filepath) ) {
+            } else if (grunt.file.doesPathContain(BLDROOT, filepath)) {
                 return path.relative(BLDROOT, filepath);
             } else {
                 grunt.fail.fatal("I can not determine if file at : "
@@ -4338,20 +4409,20 @@ module.exports = function(grunt) {
             + divergeAt
             + ", depth " + concatDepth);
 
-        if ( typeof divergeAt == 'undefined' ) {
+        if (typeof divergeAt == 'undefined') {
             divergeAt = JS_MINIFICATION_DIV_DIR;
         }
-        if ( typeof concatDepth == 'undefined' ) {
+        if (typeof concatDepth == 'undefined') {
             concatDepth = JS_MINIFICATION_CONCAT_DEPTH;
         }
 
         // validate
-        if ( concatDepth < 0 ) {
+        if (concatDepth < 0) {
             grunt.fail.fatal("Can not pass a concatenation depth < 0 to getMinifiedFilepath!");
         }
 
         // make sure this a javascript file
-        if ( path.extname(scriptPath) != '.js' ) {
+        if (path.extname(scriptPath) != '.js') {
             grunt.log.warn("This is NOT a javascript file!  Can not get a minification name for it!");
             return undefined;
         }
@@ -4363,7 +4434,7 @@ module.exports = function(grunt) {
             minification in (divergeAt argument)
             Since no filename or dir to base on, pick a special name these should map to
         */
-        if ( concatDepth == 0 ) {
+        if (concatDepth == 0) {
             grunt.log.debug("Special case of depth 0");
             return 'xlrjs' + MINIFY_FILE_EXT;
         }
@@ -4409,7 +4480,7 @@ module.exports = function(grunt) {
         // If concatDepth exceeded actual depth of the file, last piece should be the file.
         //  Need to strip off current file extension and add the minified one.
         filestep = bldPath[bldPath.length-1];
-        if ( grunt.file.isDir(filestep) ) {
+        if (grunt.file.isDir(filestep)) {
             filestep = filestep + MINIFY_FILE_EXT;
         } else {
             filestep = path.basename(filestep, path.extname(filestep)) + MINIFY_FILE_EXT;
@@ -4428,26 +4499,26 @@ module.exports = function(grunt) {
         function will return false as it is a build file, NOT a src file
     */
     function isSrcFile(filepath) {
-        if ( !grunt.file.isPathAbsolute(filepath) ) {
+        if (!grunt.file.isPathAbsolute(filepath)) {
             grunt.fail.fatal("Can not determine if src file because path is not abs.  Path: " + filepath);
         }
         // see if descendent of src or bld
         src = false;
         bld = false;
-        if ( grunt.file.doesPathContain(SRCROOT, filepath) ) {
+        if (grunt.file.doesPathContain(SRCROOT, filepath)) {
             src = true;
         }
-        if ( grunt.file.doesPathContain(BLDROOT, filepath) ) {
+        if (grunt.file.doesPathContain(BLDROOT, filepath)) {
             bld = true;
         }
         /**
             if descendent of both, SRC and DEST have a common ancestor.
             see which is nested further down - that is what type of file it is
         */
-        if ( src && bld ) {
-            if ( grunt.file.doesPathContain(SRCROOT, BLDROOT) ) {
+        if (src && bld) {
+            if (grunt.file.doesPathContain(SRCROOT, BLDROOT)) {
                 src = false;
-            } else if ( !grunt.file.doesPathContain(BLDROOT, SRCROOT) ) {
+            } else if (!grunt.file.doesPathContain(BLDROOT, SRCROOT)) {
                 grunt.fail.fatal("File "
                     + filepath
                     + " is descendent of both bld and src directory, "
@@ -4473,26 +4544,26 @@ module.exports = function(grunt) {
     */
     function updateFileProductName(filepath, destination, deleteOriginal) {
 
-        if ( typeof deleteOriginal == 'undefined' ) {
+        if (typeof deleteOriginal == 'undefined') {
             deleteOriginal = true;
         }
 
         var contents;
         var updatedContents;
         var dest = destination;
-        if ( !dest ) {
+        if (!dest) {
             dest = filepath;
         }
 
         // if the file exists, read it
-        if ( grunt.file.exists(filepath) ) {
+        if (grunt.file.exists(filepath)) {
             contents = grunt.file.read(filepath);
             updatedContents = updateStringProductName(contents);
             // write the file to the proper destination
             grunt.log.write("Writing/updating file with 'xcalar insight' product Strings, @ " + destination + "... ");
             grunt.file.write(destination, updatedContents);
             grunt.log.ok();
-            if ( destination != filepath && deleteOriginal ) {
+            if (destination != filepath && deleteOriginal) {
                 grunt.log.write("\tDelete old file... " + filepath + " ... ");
                 grunt.file.delete(filepath);
                 grunt.log.ok();
@@ -4549,18 +4620,14 @@ module.exports = function(grunt) {
             if true will not log the warning
 
     */
-    function writeAutoGeneratedFile(filepath, content, description, nowarning) {
+    function writeAutoGeneratedFile(filepath, content, description, nowarning=false) {
 
-        if ( typeof nowarning == 'undefined' ) {
-            nowarning = false;
-        }
-
-        if ( !nowarning ) {
+        if (!nowarning) {
             // determine if html or js comment type
             var filetype = path.extname(filepath)
-            if ( filetype == '.js' ) {
+            if (filetype == '.js') {
                 content = AUTOGENWARNINGJS + "\n" + content;
-            } else if ( filetype == '.html' || filetype == '.htm' ) {
+            } else if (filetype == '.html' || filetype == '.htm') {
                 content = AUTOGENWARNINGHTML + "\n" + content;
             } else {
                 grunt.fail.fatal("Trying to autogen a file of type "
@@ -4580,7 +4647,7 @@ module.exports = function(grunt) {
 
         // anything added to 'generatedDuringBld' hash will get displayed to user at summary
         var key = path.basename(filepath);
-        if ( description ) {
+        if (description) {
             key = description;
         }
         generatedDuringBuild[key] = filepath;
@@ -4636,7 +4703,7 @@ module.exports = function(grunt) {
 
         var deployTargets = [];
         for ( target of watchTargets ) {
-            if ( grunt.config(WATCH_PLUGIN + '.' + target + '.files').length > 0 ) {
+            if (grunt.config(WATCH_PLUGIN + '.' + target + '.files').length > 0) {
                 grunt.log.debug("Watch plugin-in target: " +target + " has files requested to watch!: "
                     + grunt.config(WATCH_PLUGIN + '.' + target + '.files')
                     + "\n--> schedule this target in concurrent plugin!");
@@ -4653,7 +4720,7 @@ module.exports = function(grunt) {
             If they requested to build CSS,
             then go ahead and build css.
         */
-        if ( grunt.option(WATCH_FLAG_INITIAL_BUILD_CSS) ) {
+        if (grunt.option(WATCH_FLAG_INITIAL_BUILD_CSS)) {
             grunt.task.run('less:dist');
         }
 
@@ -4694,14 +4761,14 @@ module.exports = function(grunt) {
             + " A file being watched, was modified: " + filepath);
 
         // if it sa dir skip it (its adding dirs to the waatch list!)
-        if ( grunt.file.isDir(filepath) ) {
+        if (grunt.file.isDir(filepath)) {
 //        if ( filepath.endsWith('/') ) {
             grunt.log.writeln("This is a dierectory; skip it");
             return;
         }
 
         var trackingData = isWatchEventProcessing();
-        if ( trackingData ) {
+        if (trackingData) {
 
             grunt.log.writeln(("This watch event was trigered by another "
                 + " watch event that is currently running: "
@@ -4733,7 +4800,7 @@ module.exports = function(grunt) {
             watchEventStartTracking(filepath, callingTarget, process.pid);
         }
 
-        if ( grunt.file.isPathAbsolute(filepath) && grunt.file.exists(filepath) ) {
+        if (grunt.file.isPathAbsolute(filepath) && grunt.file.exists(filepath)) {
             grunt.log.debug("Filepath exists and is abs." + filepath);
         } else {
             grunt.fail.fatal("Filepath not abs. or doesn't exit");
@@ -4760,7 +4827,7 @@ module.exports = function(grunt) {
                     could be af ile included in multi. less files
                 */
 
-                if ( grunt.file.arePathsEquivalent(containingDirRelBld, cssMapping.src) ) { // please use instead of ==, considers diff like trailing /
+                if (grunt.file.arePathsEquivalent(containingDirRelBld, cssMapping.src)) { // please use instead of ==, considers diff like trailing /
                     // copy in only the changed file and set template string
                     // (cwd for the target is less root in bld, so need filepath rel to that)
                     grunt.log.writeln(("\nFile @ : "
@@ -4783,16 +4850,16 @@ module.exports = function(grunt) {
                 determinedRebuildProcess = true;
                 break;
             case WATCH_TARGET_TYPESCRIPT:
-                if ( grunt.file.doesPathContain(typescriptMapping.src, filepathRelBld) ) {
+                if (grunt.file.doesPathContain(typescriptMapping.src, filepathRelBld)) {
                     grunt.log.writeln(("\nFile @ : "
                         + filepath
                         + " is one of the main ts files to autogen js from\n").bold.green);
-                    if ( grunt.file.exists(TS_WATCH_STAGING ) ) {
+                    if (grunt.file.exists(TS_WATCH_STAGING)) {
                         runShellCmd('rm -r ' + TS_WATCH_STAGING);
                     }
                     runShellCmd('mkdir -p ' + TS_WATCH_STAGING);
                     filepathRelTsSrc = path.relative(typescriptMapping.src, filepathRelBld);
-                    if ( filepath == SRCROOT + typescriptMapping.src + 'tsconfig.json' ) {
+                    if (filepath == SRCROOT + typescriptMapping.src + 'tsconfig.json') {
                         runShellCmd('cp -r ' + SRCROOT + typescriptMapping.src + '/. ' + TS_WATCH_STAGING);
                     } else {
                         grunt.file.copy(filepath, TS_WATCH_STAGING + filepathRelTsSrc);
@@ -4809,7 +4876,7 @@ module.exports = function(grunt) {
                                                filepathRelBld)) {
                     determinedRebuildProcess = true;
                     grunt.file.copy(filepath, BLDROOT + filepathRelBld);
-                } else if ( grunt.file.doesPathContain(typescriptMapping.src, filepathRelBld) ) {
+                } else if (grunt.file.doesPathContain(typescriptMapping.src, filepathRelBld)) {
                     determinedRebuildProcess = true;
                     filepathRelTsSrc = path.relative(typescriptMapping.src, filepathRelBld);
                     grunt.file.copy(filepath, BLDROOT + jsMapping.dest + filepathRelTsSrc);
@@ -4869,7 +4936,7 @@ module.exports = function(grunt) {
                 break;
         }
 
-        if ( !determinedRebuildProcess ) {
+        if (!determinedRebuildProcess) {
             grunt.fail.fatal(("I could not determine which build tasks to execute"
                 + " in response to edit of watched file:"
                 + filepath).bold.red);
@@ -5214,7 +5281,8 @@ module.exports = function(grunt) {
         PRODUCT = grunt.option(BLD_OP_PRODUCT) || process.env[BLD_OP_PRODUCT] || XD;
         var prodNameMapping = {
             XD: XDprodName,
-            XI: XIprodName
+            XI: XIprodName,
+            XDEE: XDEEprodName
         };
         if (prodNameMapping.hasOwnProperty(PRODUCT)) {
             PRODUCTNAME = prodNameMapping[PRODUCT];

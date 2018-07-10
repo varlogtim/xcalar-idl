@@ -7,7 +7,8 @@ var httpStatus = {
     "Unauthorized": 401,
     "Forbidden": 403,
     "NotFound": 404,
-    "InternalServerError": 500
+    "InternalServerError": 500,
+    "RequestTimeout": 504
 };
 
 runEntity.httpStatus = httpStatus;
