@@ -134,7 +134,7 @@ namespace xcManager {
             // start heartbeat check
             XcSupport.heartbeatCheck();
 
-            if(window["isBrowserSupported"]) {
+            if(!window["isBrowserSupported"]) {
                 Alert.error(AlertTStr.UnsupportedBrowser, "", {
                     msgTemplate: AlertTStr.BrowserVersions,
                     sizeToText: true
