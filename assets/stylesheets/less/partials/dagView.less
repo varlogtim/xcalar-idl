@@ -30,7 +30,7 @@
             margin-right: 10px;
             float: left;
 
-            .connector {
+            .connectorArea {
                 display: none;
             }
         }
@@ -50,7 +50,7 @@
             font-size: 12px;
             .cursor-move();
             margin-left: 7px;
-            margin-right: 5px;
+            margin-right: 6px;
         }
 
         &.selected {
@@ -63,20 +63,32 @@
     @inConnectorSize: 8px;
     @outConnectorSize: 6px;
 
-    .connector {
+    .connectorArea {
         position: absolute;
-        top: (@operator-height - @inConnectorSize) / 2;
+        top: 2px;
+        height: @operator-height - 4px;
+        .flex-display;
+        .flex-direction(column);
+        .justify-content(space-evenly);
 
+        &.in {
+            left: 0px;
+        }
+        &.out {
+            right: 0px;
+        }
+    }
+
+    .connector {
         &.in {
             width: @inConnectorSize;
             height: @inConnectorSize;
-            left: 0px;
             background-color: lightgray;
             border-radius: 2px;
             border: 1px solid gray;
         }
         &.out {
-            top: 8px;
+            position: relative;
             right: -1px;
             width: 0;
             height: 0;
@@ -105,19 +117,24 @@
     .tableArea {
         display: none;
     }
-    .dataflowArea {
+    .dataflowWrap {
         .flex(1 1 auto);
         background-color: @color-white;
         position: relative;
         display: flex;
         overflow: auto;
 
-        .dataflowWrap {
+        .dataflowArea {
             min-height: 100%;
             min-width: 100%;
             position: relative;
             padding-bottom: 40px;
             padding-right: 20px;
+            display: none;
+
+            &.active {
+                display: block;
+            }
 
             .sizer {
                 visibility: hidden;

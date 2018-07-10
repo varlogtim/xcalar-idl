@@ -86,6 +86,7 @@ namespace xcManager {
             const extPromise: XDPromise<void> = setupExtensions();
 
             setupDag();
+            DagView.setup();
             JSONModal.setup();
             ExportView.setup();
             JoinView.setup();

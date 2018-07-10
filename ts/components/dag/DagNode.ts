@@ -49,7 +49,7 @@ class DagNode {
         this.table = options.table || null;
         this.state = options.state || DagNodeState.Unused;
         this.display = options.display || {x: -1, y: -1};
-        
+
         this.maxParents = this._maxParents();
         this.maxChildren = this._maxChildren();
         this.numParent = 0;
@@ -88,6 +88,14 @@ class DagNode {
 
     public getPosition(): Coordinate {
         return this.display;
+    }
+
+    /**
+     *
+     * @return {string} returns type (dataset, map etc).
+     */
+    public getType(): string {
+        return this.type;
     }
 
     /**
@@ -141,7 +149,7 @@ class DagNode {
     public addComment(comment: string): void {
         this.comment = comment;
     }
- 
+
     public removeComment(): void {
         delete this.comment;
     }

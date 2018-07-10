@@ -72,16 +72,16 @@ class DragHelper {
         const cursorStyle = '<div id="moveCursor"></div>';
         $("body").addClass("tooltipOff").append(cursorStyle);
 
-        $(document).on("mousemove.checkDrag", function(event) {
+        $(document).on("mousemove.checkDrag", function(event: JQueryEventObject) {
             self.checkDrag(event);
         });
 
-        $(document).on("mouseup.endDrag", function(event) {
+        $(document).on("mouseup.endDrag", function(event: JQueryEventObject) {
             self.endDrag(event);
         });
     }
 
-    private checkDrag(event: JQueryEventObject) {
+    private checkDrag(event: JQueryEventObject): void {
         if (Math.abs(this.mouseDownCoors.x - event.pageX) < 2 &&
             Math.abs(this.mouseDownCoors.y - event.pageY) < 2) {
                 return;
@@ -95,13 +95,12 @@ class DragHelper {
         const self = this;
 
         this.$els.each(function() {
-            const elRect = this.getBoundingClientRect();
+            const elRect: DOMRect = this.getBoundingClientRect();
             self.origPositions.push({
                 x: elRect.left,
                 y: elRect.top
             });
         });
-
 
         this.targetRect = this.$dropTarget.parent()[0].getBoundingClientRect();
 
@@ -118,21 +117,21 @@ class DragHelper {
         this.positionDraggingEl(event);
     }
 
-    private adjustScrollBar() {
+    private adjustScrollBar(): void {
         if (!this.isDragging) {
             return;
         }
         const self = this;
 
         if (this.currentDragCoor.left < this.targetRect.left) {
-            const curScrollLeft = this.$dropTarget.parent().scrollLeft();
+            const curScrollLeft: number = this.$dropTarget.parent().scrollLeft();
             this.$dropTarget.parent().scrollLeft(curScrollLeft - 20);
             if (!this.isOffScreen) {
                 this.isOffScreen = true;
                 this.$draggingEl.addClass("isOffScreen");
             }
         } else if (this.currentDragCoor.top < this.targetRect.top) {
-            const curScrollTop = this.$dropTarget.parent().scrollTop();
+            const curScrollTop: number = this.$dropTarget.parent().scrollTop();
             this.$dropTarget.parent().scrollTop(curScrollTop - 20);
             if (!this.isOffScreen) {
                 this.isOffScreen = true;
@@ -140,7 +139,7 @@ class DragHelper {
             }
         } else if ((this.currentDragCoor.top + this.currentDragCoor.height) > this.targetRect.bottom) {
 
-            const curScrollTop = this.$dropTarget.parent().scrollTop();
+            const curScrollTop: number = this.$dropTarget.parent().scrollTop();
             if (this.$dropTarget.parent()[0].scrollHeight - curScrollTop -
             this.$dropTarget.parent().outerHeight() <= 1) {
                 this.$dropTarget.height("+=4");
@@ -148,7 +147,7 @@ class DragHelper {
             this.$dropTarget.parent().scrollTop(curScrollTop + 20);
 
         } else if ((this.currentDragCoor.left + this.currentDragCoor.width) > this.targetRect.right) {
-            const curScrollLeft = this.$dropTarget.parent().scrollLeft();
+            const curScrollLeft: number = this.$dropTarget.parent().scrollLeft();
             if (this.$dropTarget.parent()[0].scrollWidth - curScrollLeft -
             this.$dropTarget.parent().outerWidth() <= 1) {
                 this.$dropTarget.find(".sizer").width("+=4");
@@ -167,10 +166,10 @@ class DragHelper {
 
     private createClone(): void {
         const self = this;
-        let minX = this.targetRect.right;
-        let maxX = 0;
-        let minY = this.targetRect.bottom;
-        let maxY = 0;
+        let minX: number = this.targetRect.right;
+        let maxX: number = 0;
+        let minY: number = this.targetRect.bottom;
+        let maxY: number = 0;
 
         // find the left most element, right most, top-most, bottom-most
         // so we can create a div that's sized to encapsulate all dragging elements
@@ -182,10 +181,10 @@ class DragHelper {
             minY = Math.min(minY, rect.top);
             maxY = Math.max(maxY, rect.bottom);
         });
-        let width = maxX - minX;
-        let height = maxY - minY;
-        const left = minX;
-        const top = minY;
+        let width: number = maxX - minX;
+        let height: number = maxY - minY;
+        const left: number = minX;
+        const top: number = minY;
 
         this.offset = {
             x: left - this.mouseDownCoors.x + this.customOffset.x,
@@ -202,10 +201,10 @@ class DragHelper {
             height: height
         };
 
-        const $clones = this.$els.clone();
+        const $clones: JQuery = this.$els.clone();
         this.$draggingEl.append($clones);
 
-        $clones.each(function(i) {
+        $clones.each(function(i: number) {
             $(this).css({
                 left: self.origPositions[i].x - left,
                 top: self.origPositions[i].y - top
@@ -247,8 +246,8 @@ class DragHelper {
         this.isDragging = false;
         this.$draggingEl.removeClass("dragging clone");
 
-        let deltaX;
-        let deltaY;
+        let deltaX: number;
+        let deltaY: number;
         if (this.copying) {
             deltaX = event.pageX + this.offset.x - this.targetRect.left + this.$dropTarget.parent().scrollLeft()
             deltaY = event.pageY + this.offset.y - this.targetRect.top + this.$dropTarget.parent().scrollTop();
@@ -302,8 +301,8 @@ class DragLineHelper extends DragHelper {
         this.isDragging = false;
         this.$draggingEl.removeClass("dragging clone");
 
-        let deltaX = event.pageX - this.mouseDownCoors.x - this.targetRect.left + this.$dropTarget.parent().scrollLeft();
-        let deltaY = event.pageY - this.mouseDownCoors.y - this.targetRect.top + this.$dropTarget.parent().scrollTop();
+        let deltaX: number = event.pageX - this.mouseDownCoors.x - this.targetRect.left + this.$dropTarget.parent().scrollLeft();
+        let deltaY: number = event.pageY - this.mouseDownCoors.y - this.targetRect.top + this.$dropTarget.parent().scrollTop();
 
 
         if ((this.currentDragCoor.left - this.targetRect.left + this.$dropTarget.parent().scrollLeft() > 0) &&
@@ -319,80 +318,3 @@ class DragLineHelper extends DragHelper {
         this.$draggingEl.remove();
     }
 }
-
-// XXX move this to another file
-$(document).ready(function() {
-    $("#dagView").on("mousedown", ".operatorBar .operator .main", function(event) {
-        new DragHelper({
-            event: event,
-            $element: $(this).closest(".operator"),
-            $container: $("#dagView"),
-            $dropTarget: $("#dagView").find(".dataflowWrap"),
-            onDragEnd: function(_$el, _event) {
-
-            },
-            onDragFail: function() {
-
-            },
-            copy: true
-        });
-    });
-
-    $("#dagView").on("mousedown", ".dataflowWrap .operator .main", function(event) {
-        const self = this;
-        new DragHelper({
-            event: event,
-            $element: $(this).closest(".operator"),
-            $elements: $(this).closest(".operator").add($("#dagView").find(".dataflowWrap .operator.selected")),
-            $container: $("#dagView"),
-            $dropTarget: $("#dagView").find(".dataflowWrap"),
-            onDragEnd: function(_$el, _event) {
-
-            },
-            onDragFail: function() {
-                $(self).closest(".operator").toggleClass("selected");
-            },
-            move: true
-        });
-    });
-
-
-    $("#dagView").on("mousedown", ".dataflowWrap .operator .connector.out", function() {
-        var $operator = $(this).closest(".operator");
-        new DragLineHelper({
-            event: event,
-            $element: $(this),
-            $container: $("#dagView"),
-            $dropTarget: $("#dagView").find(".dataflowWrap"),
-            offset: {
-                x: 0,
-                y: -2
-            },
-            onDragEnd: function(_$el, event) {
-                let $inConnector;
-                $("#dagView").find(".dataflowWrap .operator").not($operator).each(function() {
-                    const rect = this.getBoundingClientRect();
-                    const left = rect.left;
-                    const right = rect.right;
-                    const top = rect.top;
-                    const bottom = rect.bottom;
-                    if (event.pageX > left && event.pageX < right &&
-                    event.pageY > top && event.pageY < bottom) {
-                        $inConnector = $(this);
-                        return false;
-                    }
-                });
-
-                if ($inConnector) {
-                    xcHelper.showSuccess("connection found");
-                } else {
-                    xcHelper.showFail("no connection found");
-                }
-            },
-            onDragFail: function() {
-
-            },
-            copy: true
-        });
-    });
-});
