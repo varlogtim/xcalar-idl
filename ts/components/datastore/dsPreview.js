@@ -5150,6 +5150,7 @@ window.DSPreview = (function($, DSPreview) {
             xcHelper: xcHelper,
             ErrTStr: ErrTStr,
             PromiseHelper: PromiseHelper,
+            xcHelper: xcHelper,
         };
 
         // Constants
@@ -5172,7 +5173,7 @@ window.DSPreview = (function($, DSPreview) {
         function onXPathClose(xpathIndex) {
             return () => {
                 try {
-                    const newState = JSON.parse(JSON.stringify(state));
+                    const newState = libs.xcHelper.deepCopy(state);
                     newState.xPaths.splice(xpathIndex, 1);
                     setStateInternal(newState);
                 } catch(e) {
@@ -5185,7 +5186,7 @@ window.DSPreview = (function($, DSPreview) {
             return (event) => {
                 try {
                     const newXPathValue = event.target.value;
-                    const newState = JSON.parse(JSON.stringify(state));
+                    const newState = libs.xcHelper.deepCopy(state);
                     newState.xPaths[xpathIndex].xPath = newXPathValue.trim();
                     setStateInternal(newState, true);
                 } catch(e) {
@@ -5197,7 +5198,7 @@ window.DSPreview = (function($, DSPreview) {
         function onNewKeyClick(xpathIndex) {
             return () => {
                 try {
-                    const newState = JSON.parse(JSON.stringify(state));
+                    const newState = libs.xcHelper.deepCopy(state);
                     newState.xPaths[xpathIndex].extraKeys.push(getDefaultExtrakey());
                     setStateInternal(newState);
                 } catch(e) {
@@ -5209,7 +5210,7 @@ window.DSPreview = (function($, DSPreview) {
         function onExtrakeyClose(xpathIndex, extrakeyIndex) {
             return () => {
                 try {
-                    const newState = JSON.parse(JSON.stringify(state));
+                    const newState = libs.xcHelper.deepCopy(state);
                     newState.xPaths[xpathIndex].extraKeys.splice(extrakeyIndex, 1);
                     setStateInternal(newState);
                 } catch(e) {
@@ -5222,7 +5223,7 @@ window.DSPreview = (function($, DSPreview) {
             return (event) => {
                 try {
                     const newName = event.target.value;
-                    const newState = JSON.parse(JSON.stringify(state));
+                    const newState = libs.xcHelper.deepCopy(state);
                     newState.xPaths[xpathIndex]
                         .extraKeys[extrakeyIndex].name = newName;
                     setStateInternal(newState, true);
@@ -5232,11 +5233,40 @@ window.DSPreview = (function($, DSPreview) {
             };
         }
 
+        function onExtrakeyValueInput(xpathIndex, extrakeyIndex, $elemName) {
+            return (event) => {
+                const keyName =
+                    state.xPaths[xpathIndex].extraKeys[extrakeyIndex].name;
+                if (keyName.length === 0) {
+                    // auto-fill the key name field
+                    $elemName.val(event.target.value);
+                }
+            };
+        }
+
+        function onExtrakeyValueBlur(xpathIndex, extrakeyIndex, $elemName) {
+            return (event) => {
+                try {
+                    const key = state.xPaths[xpathIndex].extraKeys[extrakeyIndex];
+                    const keyName = $elemName.val();
+                    if (key.name !== keyName) {
+                        // data model is out of sync with UI, caused by autofill intensionally
+                        const newState = libs.xcHelper.deepCopy(state);
+                        newState.xPaths[xpathIndex]
+                            .extraKeys[extrakeyIndex].name = keyName;
+                        setStateInternal(newState, true);
+                    }
+                } catch(e) {
+                    console.log(error);
+                }
+            };
+        }
+
         function onExtrakeyValueChange(xpathIndex, extrakeyIndex) {
             return (event) => {
                 try {
                     const newValue = event.target.value;
-                    const newState = JSON.parse(JSON.stringify(state));
+                    const newState = libs.xcHelper.deepCopy(state);
                     newState.xPaths[xpathIndex]
                         .extraKeys[extrakeyIndex].value = newValue;
                     setStateInternal(newState, true);
@@ -5249,7 +5279,7 @@ window.DSPreview = (function($, DSPreview) {
         function onNewXPathClick() {
             return () => {
                 try {
-                    const newState = JSON.parse(JSON.stringify(state));
+                    const newState = libs.xcHelper.deepCopy(state);
                     newState.xPaths.push(getDefaultXPath());
                     setStateInternal(newState);
                 } catch(e) {
@@ -5261,7 +5291,7 @@ window.DSPreview = (function($, DSPreview) {
         function onMatchedPathClick() {
             return () => {
                 try {
-                    const newState = JSON.parse(JSON.stringify(state));
+                    const newState = libs.xcHelper.deepCopy(state);
                     newState.isMatchedPath = !newState.isMatchedPath;
                     setStateInternal(newState, true);
                 } catch(e) {
@@ -5273,7 +5303,7 @@ window.DSPreview = (function($, DSPreview) {
         function onWithPathClick() {
             return () => {
                 try {
-                    const newState = JSON.parse(JSON.stringify(state));
+                    const newState = libs.xcHelper.deepCopy(state);
                     newState.isWithPath = !newState.isWithPath;
                     setStateInternal(newState, true);
                 } catch(e) {
@@ -5334,7 +5364,9 @@ window.DSPreview = (function($, DSPreview) {
             keyName,
             keyValue,
             onNameChange,
+            onValueInput,
             onValueChange,
+            onValueBlur,
             onInputKeydown,
             onClose,
             isShowTooltip = true }) {
@@ -5355,6 +5387,8 @@ window.DSPreview = (function($, DSPreview) {
             $elementValue.val(keyValue);
             $elementValue.on('change', onValueChange);
             $elementValue.on('keydown', onInputKeydown);
+            $elementValue.on('input', onValueInput($elementName));
+            $elementValue.on('blur', onValueBlur($elementName));
             addValidateOption({
                 $element: $elementValue,
                 errorMessage: libs.ErrTStr.NoEmpty,
@@ -5515,7 +5549,9 @@ window.DSPreview = (function($, DSPreview) {
                         keyName: key.name,
                         keyValue: key.value,
                         onNameChange: onExtrakeyNameChange(xPathIndex, keyIndex),
+                        onValueInput: onExtrakeyValueInput.bind(null, xPathIndex, keyIndex),
                         onValueChange: onExtrakeyValueChange(xPathIndex, keyIndex),
+                        onValueBlur: onExtrakeyValueBlur.bind(null, xPathIndex, keyIndex),
                         onInputKeydown: onInputKeydown(),
                         onClose: onExtrakeyClose(xPathIndex, keyIndex),
                         isShowTooltip: true
@@ -5548,7 +5584,7 @@ window.DSPreview = (function($, DSPreview) {
                     getDefaultXPath: () => getDefaultXPath(),
                     getDefaultState: () => getDefaultState(),
                     setState: (newState) => setStateInternal(newState),
-                    getState: () => JSON.parse(JSON.stringify(state)),
+                    getState: () => libs.xcHelper.deepCopy(state),
                 };
             },
             resetState: function() {
