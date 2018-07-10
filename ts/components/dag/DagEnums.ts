@@ -1,4 +1,5 @@
 enum DagNodeType {
+    SubGraph = "subGraph",
     Source = "source",
     Dataset = "dataset",
     Filter = "filter",
@@ -9,4 +10,8 @@ enum DagNodeType {
 
 enum DagNodeState {
     Unused = "unused",
+    Connected = "Connected",
+    Running = "running",
+    Complete = "Complete",
+    Error = "Error"
 }

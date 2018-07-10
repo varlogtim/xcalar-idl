@@ -5,40 +5,54 @@ type DagNodeId = string;
 interface DagNodeInfo {
     type: DagNodeType;
     id?: string;
-    input? : object;
+    input? : DagNodeInput;
     comment?: string;
-    tableId?: string;
+    table?: string;
     state?: DagNodeState;
     display? : Coordinate;
 }
 
 class DagNode {
+    private static idCount: number = 0;
+    private static idPrefix: string;
+
     private id: DagNodeId;
     private parents: DagNode[];
     private children: DagNode[];
     private type: DagNodeType;
     private maxParents: number; // non-persistent
     private maxChildren: number; // non-persistent
+    private numParent: number; // non-persisent
     private comment: string;
-    private input: object;
-    private tableId: TableId;
+    private input: DagNodeInput;
+    private table: string;
     private state: DagNodeState;
     private display: Coordinate;
 
+    public static setIdPrefix(idPrefix: string): void {
+        DagNode.idPrefix = idPrefix;
+    }
+
+    public static generateId(): string {
+        return "dag." + DagNode.idPrefix + "." +
+                new Date().getTime() + "." + (DagNode.idCount++);
+    }
+
     public constructor(options: DagNodeInfo = <DagNodeInfo>{}) {
-        this.id = options.id;
+        this.id = options.id || DagNode.generateId();
         this.type = options.type;
 
         this.parents = [];
         this.children = [];
         this.input = options.input || {};
         this.comment = options.comment;
-        this.tableId = options.tableId || null;
+        this.table = options.table || null;
         this.state = options.state || DagNodeState.Unused;
         this.display = options.display || {x: -1, y: -1};
         
         this.maxParents = this._maxParents();
         this.maxChildren = this._maxChildren();
+        this.numParent = 0;
     }
 
     /**
@@ -47,6 +61,13 @@ class DagNode {
      */
     public getId(): DagNodeId {
         return this.id;
+    }
+
+    /**
+     * @returns {DagNodeType} node's type
+     */
+    public getType(): DagNodeType {
+        return this.type;
     }
 
     /**
@@ -74,6 +95,19 @@ class DagNode {
      */
     public getParents(): DagNode[] {
         return this.parents;
+    }
+
+    /**
+     * return a parent node
+     * @param pos 0 based index
+     * @returns {DagNode} parent node in pos
+     */
+    public getParent(pos: number): DagNode {
+        return this.parents[pos];
+    }
+
+    public getNumParent(): number {
+        return this.numParent;
     }
 
     /**
@@ -129,18 +163,18 @@ class DagNode {
     }
 
     /**
-     * @returns {TableId} return id of the table that associated with the node
+     * @returns {Table} return id of the table that associated with the node
      */
-    public getTableId(): TableId {
-        return this.tableId;
+    public getTable(): string {
+        return this.table;
     }
 
     /**
      *
-     * @param tableId set the table associated with the node
+     * @param tableName set the table associated with the node
      */
-    public setTableId(tableId: TableId) {
-        this.tableId = tableId;
+    public setTable(tableName: string) {
+        this.table = tableName;
     }
 
     // XXX TODO
@@ -148,12 +182,12 @@ class DagNode {
         console.warn("not implemented!");
     }
 
-    public getParams(): object {
+    public getParams(): DagNodeInput {
         console.warn("not fully implemented!");
         return this.input;
     }
 
-    public setParams(input: object) {
+    public setParams(input: DagNodeInput) {
         console.warn("not fully implemented!");
         this.input = input;
     }
@@ -172,6 +206,7 @@ class DagNode {
         }
 
         this.parents[pos] = parentNode;
+        this.numParent++;
     }
 
     /**
@@ -199,6 +234,7 @@ class DagNode {
         }
         this.parents[pos] = null;
         this._clearInput(pos);
+        this.numParent--;
     }
 
     /**

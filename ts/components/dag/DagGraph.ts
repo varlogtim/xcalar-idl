@@ -1,16 +1,5 @@
 class DagGraph {
-    private static idCount: number = 0;
-    private static idPrefix: string;
-
     private nodesMap: Map<DagNodeId, DagNode>;
-
-    public static setIdPrefix(idPrefix: string): void {
-        DagGraph.idPrefix = idPrefix;
-    }
-
-    public static generateId(): string {
-        return "dag." + DagGraph.idPrefix + "." + new Date().getTime() + "." + (DagGraph.idCount++);
-    }
 
     public constructor() {
         this.nodesMap = new Map();
@@ -37,39 +26,46 @@ class DagGraph {
         //
         // ds3 -> filter3 -> export3
 
-        const ds1: DagNode = this.addNode({
+        const ds1: DagNode = new DagNode({
             type: DagNodeType.Dataset,
         });
+        this.addNode(ds1);
         const ds1Id: DagNodeId = ds1.getId();
 
-        const ds2: DagNode = this.addNode({
+        const ds2: DagNode = new DagNode({
             type: DagNodeType.Dataset,
         });
+        this.addNode(ds2);
         const ds2Id: DagNodeId = ds2.getId();
 
-        const ds3: DagNode = this.addNode({
+        const ds3: DagNode = new DagNode({
             type: DagNodeType.Dataset
         });
+        this.addNode(ds3);
         const ds3Id: DagNodeId = ds3.getId();
 
-        const filter1: DagNode = this.addNode({
+        const filter1: DagNode = new DagNode({
             type: DagNodeType.Filter
         });
+        this.addNode(filter1);
         const filter1Id: DagNodeId = filter1.getId();
     
-        const filter2: DagNode = this.addNode({
+        const filter2: DagNode = new DagNode({
             type: DagNodeType.Filter
         });
+        this.addNode(filter2);
         const filter2Id: DagNodeId = filter2.getId();
 
-        const filter3: DagNode = this.addNode({
+        const filter3: DagNode = new DagNode({
             type: DagNodeType.Filter
         });
+        this.addNode(filter3);
         const filter3Id: DagNodeId = filter3.getId();
 
-        const join: DagNode = this.addNode({
+        const join: DagNode = new DagNode({
             type: DagNodeType.Join
         });
+        this.addNode(join);
         const joinId: DagNodeId = join.getId();
 
         this.connect(ds1Id, filter1Id);
@@ -79,20 +75,55 @@ class DagGraph {
         this.connect(filter2Id, joinId, 1);
 
 
-        const exportNode1: DagNode = this.addNode({
+        const exportNode1: DagNode = new DagNode({
             type: DagNodeType.Export
         });
-        const exportNode2: DagNode = this.addNode({
+        this.addNode(exportNode1)
+        const exportNode2: DagNode = new DagNode({
             type: DagNodeType.Export
         });
-        const exportNode3: DagNode = this.addNode({
+        this.addNode(exportNode2);
+        const exportNode3: DagNode = new DagNode({
             type: DagNodeType.Export
         });
+        this.addNode(exportNode3);
 
         this.connect(joinId, exportNode1.getId());
         this.connect(filter2Id, exportNode2.getId());
         this.connect(filter3Id, exportNode3.getId());
         return [{endPoints: [exportNode1, exportNode2]}, {endPoints: [exportNode3]}];
+    }
+
+    // example: new DagGraph().fakeExecute("cheng.25132.gdelt", "prefix")
+    public fakeExecute(dsName, prefix) {
+        // XXX Only Sample Code
+        // ds1 -> filter1
+
+        const ds1: DagNode = new DagNode({
+            type: DagNodeType.Dataset,
+        });
+        this.addNode(ds1);
+        const ds1Id: DagNodeId = ds1.getId();
+
+        const filter1: DagNode = new DagNode({
+            type: DagNodeType.Filter
+        });
+        this.addNode(filter1);
+        const filter1Id: DagNodeId = filter1.getId();
+    
+        this.connect(ds1Id, filter1Id);
+
+        ds1.setParams({
+            source: dsName,
+            prefix: prefix
+        });
+
+
+        filter1.setParams({
+            fltStr: `eq(${prefix}::column0, 254487263)`
+        });
+
+        return this.executeNodes([filter1Id]);
     }
 
     // XXX TODO
@@ -112,13 +143,10 @@ class DagGraph {
 
     /**
      * add a new node
-     * @param nodeInfo node info
-     * @returns {DagNode} the created node
+     * @param dagNode node to add
      */
-    public addNode(nodeInfo: DagNodeInfo): DagNode {
-        const id: string = this._generateNodeId();
-        nodeInfo.id = id;
-        return this._newNode(nodeInfo);
+    public addNode(dagNode: DagNode): void {
+        this.nodesMap.set(dagNode.getId(), dagNode);
     }
 
     /**
@@ -128,6 +156,15 @@ class DagGraph {
     public removeNode(nodeId: DagNode): void {
         const node: DagNode = this._getNodeFromId(nodeId);
         return this._removeNode(node);
+    }
+
+    /**
+     * check if has the node or not
+     * @param nodeId node'id
+     * @returns {boolean} true if has the node, false otherwise
+     */
+    public hasNode(nodeId: DagNodeId): boolean {
+        return this.nodesMap.has(nodeId);
     }
 
     /**
@@ -152,9 +189,10 @@ class DagGraph {
         toPos: number = 0
     ): void {
         let connetedToParent = false;
+        let fromNode: DagNode;
         let toNode: DagNode;
         try {
-            const fromNode: DagNode = this._getNodeFromId(fromNodeId);
+            fromNode = this._getNodeFromId(fromNodeId);
             toNode = this._getNodeFromId(toNodeId);
             toNode.connectToParent(fromNode, toPos);
             connetedToParent = true;
@@ -162,7 +200,7 @@ class DagGraph {
         } catch (e) {
             if (connetedToParent) {
                 // error handler
-                toNode.disconnectFromParent(toPos);
+                toNode.disconnectFromParent(fromNode, toPos);
             }
             throw e;
         }
@@ -205,34 +243,100 @@ class DagGraph {
         }
     }
 
-    // XXX TODO
-    public executeToNode(nodeId: DagNodeId): XDPromise<void> {
-        // get the subGraph from sroucje to the node and execute
-        const subGraph: DagGraph = new DagGraph();
-        return subGraph.executeGraph(null);
-    }
-
-    // XXX TODO
+    /**
+     * exectue some nodes in graph
+     * @param nodeIds nodes that need to execute
+     * @returns {JQueryDeferred}
+     */
     public executeNodes(nodeIds: DagNodeId[]): XDPromise<void> {
         // get subGraph from nodes and execute
-        const subGraph: DagGraph = this.getSubGraph(nodeIds);
-        return subGraph.executeGraph(null);
+        const subGraph: DagGraph = this._backTraverseNodes(nodeIds);
+        return subGraph._executeGraph();
     }
 
+    /**
+     * execute the whole graph
+     * @returns {JQueryDeferred}
+     */
     public executeAll(): XDPromise<void> {
-        return this.executeGraph(this);
+        return this._executeGraph();
     }
 
     // XXX TODO, Idea is to do a topological sort first, then get the
     // ordere, then get the query, and run it one by one.
-    private executeGraph(graph: DagGraph): XDPromise<void> {
-        return PromiseHelper.resolve();
+    private _executeGraph(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const orderedNodes: DagNode[] = this._topologicalSort();
+        const txId = Transaction.start({});
+
+        const promises: XDPromise<void>[] = [];
+        orderedNodes.forEach((node) => {
+            if (node.getState() !== DagNodeState.Complete) {
+                const dagExecute: DagExecute = new DagExecute(node, txId);
+                promises.push(dagExecute.run.bind(dagExecute));
+            }
+        });
+
+        PromiseHelper.chain(promises)
+        .then(() => {
+            console.log("finish running", orderedNodes)
+            Transaction.done(txId, {});
+            deferred.resolve();
+        })
+        .fail((error) => {
+            Transaction.fail(txId);
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
     }
 
-    private _newNode(nodeInfo: DagNodeInfo): DagNode {
-        const dagNode: DagNode = new DagNode(nodeInfo);
-        this.nodesMap.set(dagNode.getId(), dagNode);
-        return dagNode;
+    private _backTraverseNodes(nodeIds: DagNodeId[]) {
+        const subGraph: DagGraph = new DagGraph();
+        let nodeStack: DagNode[] = nodeIds.map((nodeId) => this._getNodeFromId(nodeId));
+        while (nodeStack.length > 0) {
+            const node: DagNode = nodeStack.pop();
+            if (node != null && !subGraph.hasNode(node.getId())) {
+                subGraph.addNode(node);
+                const parents: any = node.getParents();
+                nodeStack = nodeStack.concat(parents);
+            }            
+        }
+        return subGraph;
+    }
+
+    private _topologicalSort(): DagNode[] {
+        const orderedNodes: DagNode[] = [];
+        const zeroInputNodes: DagNode[] = [];
+        const nodeInputMap: Map<DagNodeId, number> = new Map();
+
+        for (let [nodeId, node] of this.nodesMap) {
+            const numParent = node.getNumParent();
+            nodeInputMap.set(nodeId, numParent);
+            if (numParent === 0) {
+                zeroInputNodes.push(node);
+            }
+        }
+        while (zeroInputNodes.length > 0) {
+            const node: DagNode = zeroInputNodes.shift();
+            nodeInputMap.delete(node.getId());
+            orderedNodes.push(node);
+            node.getChildren().forEach((childNode) => {
+                if (childNode != null) {
+                    const childId: DagNodeId = childNode.getId();
+                    const numParent = nodeInputMap.get(childId) - 1;
+                    nodeInputMap.set(childId, numParent);
+                    if (numParent === 0) {
+                        zeroInputNodes.push(childNode);
+                    }
+                }
+            });
+        }
+        if (nodeInputMap.size > 0) {
+            throw new Error("Error Sort!");
+        }
+
+        return orderedNodes;
     }
 
     private _removeNode(node: DagNode): void {
@@ -255,23 +359,6 @@ class DagGraph {
 
         node.clearTable();
         this.nodesMap.delete(node.getId());
-    }
-
-    private _generateNodeId(): string {
-        let idGen = () => "dag." + DagGraph.generateId();
-
-        const tryCnt: number = 10000;
-        let id: string = idGen();
-        let cnt: number = 0;
-        while (this.nodesMap.has(id) && cnt <= tryCnt) {
-            id = idGen();
-            cnt++;
-        }
-        if (cnt > tryCnt) {
-            console.warn("too may tries");
-            id += Math.round(Math.random() * 10000) + 1;
-        }
-        return id;
     }
 
     private _getNodeFromId(nodeId): DagNode {
