@@ -1463,6 +1463,7 @@ var SQLCompiler;
 var request = require('request');
 var express = require('express');
 var router = express.Router();
+var idNum = 0;
 
 require("jsdom/lib/old-api").env("", function(err, window) {
     console.log("initting jQuery");
@@ -1515,6 +1516,12 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     SQLCompiler = require("../sqlHelpers/sqlCompiler.js");
     require("../../../assets/lang/en/jsTStr.js");
 });
+
+function generateJDBCId(userName, wkbkName) {
+    var curNum = idNum;
+    idNum++;
+    return userName + "-wkbk-" + wkbkName + "-" + Date.now() + "#JDBC" + curNum;
+}
 
 function hackFunction() {
     global.TblManager = {
@@ -1842,6 +1849,7 @@ function loadPublishedTables(args, checkTime) {
         queryArray.push(query);
     }
     return XIApi.query(1, "JDBC Select", JSON.stringify(queryArray), checkTime);
+    // return XIApi.query(1, "JDBCSelect" + generateJDBCId(userName, wkbkName), JSON.stringify(queryArray), checkTime);
 }
 
 function loadDatasets(args) {
