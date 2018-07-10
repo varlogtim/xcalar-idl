@@ -758,11 +758,16 @@ namespace IMDPanel {
                 return;
             }
 
+            let requery: boolean = false; //sets to true if table updates aren't loaded
+
             showWaitScreen();
             showProgressCircle(iCheckedTables.length, 0);
             restoreTables(iCheckedTables)
             .then(function() {
                 iCheckedTables.forEach(function (table:PublishTable) {
+                    if (!table.updates.length) {
+                        requery = true;
+                    }
                     showTable(table.name);
                 });
                 resetInactiveChecked();
@@ -771,6 +776,16 @@ namespace IMDPanel {
                 if (restoreErrors.length) {
                     showRestoreError();
                 }
+                
+                if (requery) {
+                    return listAndCheckActive();
+                     // tables that start inactive won't have update info
+                } else {
+                    updateHistory();
+                }
+            })
+            .then(function() {
+                updateHistory();
             })
             .fail(function(error) {
                 if (error && error.error === "canceled") {
