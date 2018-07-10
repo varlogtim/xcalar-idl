@@ -162,6 +162,10 @@
         "expressions.DateSub": null,
         "expressions.TimeAdd": "default:timeAdd",
         "expressions.TimeSub": "default:timeSub",
+        "expressions.ParseToDate": "default:toDate",
+        "expressions.UnixTimestamp": null,
+        "expressions.XcUnixTimestamp": "default:convertToUnixTS", // Xcalar generated
+        "expressions.ToUTCTimestamp": "default:toUTCTimestamp",
         "expressions.convertFormats": "default:convertFormats", // XXX default value for udf when input format is not specified is wrong // Xcalar generated
         "expressions.convertFromUnixTS": "default:convertFromUnixTS", // Use default module here because implementation different from convertFromUnixTS // Xcalar generated
         "expressions.convertToUnixTS": "default:convertToUnixTS", // And cannot peak what's in the other function // Xcalar generated
@@ -458,6 +462,11 @@
                 "num-children": 2
             });
         }
+        function dupNodeWithNewName(node, str) {
+            var dupNode = jQuery.extend(true, {}, node);
+            dupNode.value.class = str;
+            return dupNode;
+        }
 
         // This function traverses the tree for a second time.
         // To process expressions such as Substring, Case When, etc.
@@ -482,10 +491,11 @@
                 var endNode = literalNumberNode(intMax-1);
                 var zeroNode = literalNumberNode(0);
                 var divNode = divideNode();
-                divNode.children = [node, intMaxNode];
-                node.children = [zeroNode, endNode];
-                node.value.class = "org.apache.spark.sql.catalyst.expressions.GenRandom";
-                node.value["num-children"] = 2;
+                var dupNode = dupNodeWithNewName(node,
+                    "org.apache.spark.sql.catalyst.expressions.GenRandom");
+                divNode.children = [dupNode, intMaxNode];
+                dupNode.children = [zeroNode, endNode];
+                dupNode.value["num-children"] = 2;
                 node = divNode;
                 break;
             case ("expressions.FindInSet"):
@@ -495,10 +505,10 @@
             case ("expressions.DayOfYear"):
             case ("expressions.WeekOfYear"):
                 var intNode = castNode("int");
-                node.value.class = node.value.class.substring(0,
-                                   node.value.class.lastIndexOf(".")) + ".Xc"
-                                   + opName.substring("expressions.".length);
-                intNode.children = [node];
+                var dupNode = dupNodeWithNewName(node, node.value.class
+                            .substring(0, node.value.class.lastIndexOf("."))
+                            + ".Xc" + opName.substring("expressions.".length));
+                intNode.children = [dupNode];
                 node = intNode;
                 break;
             case ("expressions.Substring"):
@@ -705,6 +715,17 @@
                     intNode.children = [node.children[0]];
                     intNode2.children = [dttsNode];
                     retNode.children = [isStringNode, intNode2, intNode];
+                    node = retNode;
+                } else if (type === "date") {
+                    var retNode = ifNode();
+                    var isStringNode = isStrNode();
+                    isStringNode.children = [node.children[0]];
+                    var intNode = castNode("int");
+                    var strNode = castNode("string");
+                    strNode.children = [node.children[0]];
+                    intNode.children = [node.children[0]];
+                    var tstdNode = timestampToDateNode(intNode);
+                    retNode.children = [isStringNode, strNode, tstdNode];
                     node = retNode;
                 } else {
                     var convertedType = convertSparkTypeToXcalarType(type);
@@ -914,6 +935,27 @@
                 fNode.children = [node.children[node.value["str"]],
                     node.children[node.value["substr"]], intNode, zeroNode];
                 node = retNode;
+                break;
+            case ("expressions.ToUnixTimestamp"):
+            case ("expressions.UnixTimestamp"):
+                var formatNode = node.children[node.value["format"]];
+                if (formatNode.value.class ===
+                        "org.apache.spark.sql.catalyst.expressions.Literal") {
+                    var formatStr = formatNode.value.value;
+                    formatStr = formatStr.replace(/yyyy/g, "%Y")
+                                .replace(/YYYY/g, "%Y").replace(/yy/g, "%y")
+                                .replace(/YY/g, "%y").replace(/MM/g, "%m")
+                                .replace(/DD/g, "%d").replace(/dd/g, "%d")
+                                .replace(/HH/g, "%H").replace(/hh/g, "%I")
+                                .replace(/mm/g, "%M").replace(/ss/g, "%S")
+                                .replace(/SS/g, "%S");
+                    formatNode.value.value = formatStr;
+                }
+                var dupNode = dupNodeWithNewName(node,
+                    "org.apache.spark.sql.catalyst.expressions.XcUnixTimestamp");
+                var intNode = castNode("int");
+                intNode.children = [dupNode];
+                node = intNode;
                 break;
             default:
                 break;

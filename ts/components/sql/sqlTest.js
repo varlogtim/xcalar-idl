@@ -91,10 +91,10 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         "stdPop": "select stddev_pop(n_nationkey) from nation group by n_regionkey order by n_regionkey",
         "varSamp": "select variance(n_nationkey) from nation group by n_regionkey order by n_regionkey",
         "varPop": "select var_pop(n_nationkey) from nation group by n_regionkey order by n_regionkey",
-        "newExps1": "select lpad(n_name, 7, 'a') a, rpad(n_name, 1, 'b') b,/* initcap(n_name) c,*/ reverse(n_name) d, bit_length(n_name) e, octet_length(n_name) f, levenshtein(n_name, n_comment) g, soundex(n_comment) h, ascii(n_name) i, chr(n_nationkey+100) j, format_number(n_nationkey+n_regionkey*1000.1,1) k, format_number(n_nationkey+n_regionkey*1000.1,0) l from nation order by n_nationkey",
+        "newExps1": "select lpad(n_name, 7, 'a') a, rpad(n_name, 1, 'b') b,/* initcap(n_name) c,*/ reverse(n_name) d/*, bit_length(n_name) e, octet_length(n_name) f*/, levenshtein(n_name, n_comment) g, soundex(n_comment) h, ascii(n_name) i, chr(n_nationkey+100) j, format_number(n_nationkey+n_regionkey*1000.1,1) k, format_number(n_nationkey+n_regionkey*1000.1,0) l from nation order by n_nationkey",
         "find": "SELECT instr(N_NAME, 'AN') a, locate('ol', N_COMMENT) b FROM NATION WHERE N_REGIONKEY > (SELECT min(N_REGIONKEY) from NATION) OR N_REGIONKEY < (SELECT N_REGIONKEY FROM NATION ORDER BY N_NATIONKEY limit 1) ORDER BY N_NATIONKEY limit 15",
         "projectRename": "SELECT N_NATIONKEY N_NAME, N_REGIONKEY N_NAME, N_NAME from NATION order BY N_NATIONKEY",
-        "dateUDFs1": "SELECT dayofweek(O_ORDERDATE) a, dayofyear(O_ORDERDATE) b, weekofyear(O_ORDERDATE) c from (select O_ORDERKEY, O_ORDERDATE from ORDERS order by O_ORDERKEY limit 30) order by O_ORDERKEY"
+        "dateUDFs1": "SELECT dayofweek(O_ORDERDATE) a, dayofyear(O_ORDERDATE) b, weekofyear(O_ORDERDATE) c, to_date(o_orderdate, 'YYYY-MM-dd') d, to_unix_timestamp(o_orderdate, '%Y-%m-%d') e, unix_timestamp(o_orderdate) f from (select O_ORDERKEY, O_ORDERDATE from ORDERS order by O_ORDERKEY limit 30) order by O_ORDERKEY",
     };
     var sqlTestAnswers = {
         "filterWithAggregates": {"row0": ["12", "JAPAN"],
@@ -285,15 +285,15 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                     "row4": [33.3]},
         "varPop": {"row0": [40.4],
                    "row2": [25.84]},
-        "newExps1": {"row6": ["aFRANCE", "F", /*"France", */"ECNARF", 120, 15, 38, "R141", 70, "j", "3,006.3", "3,006"],
-                     "row15": ["MOROCCO", "M", "OCCOROM", /*"Morocco", */128, 16, 90, "R521", 77, "s", "15.0", "15"],
-                     "row22": ["aRUSSIA", "R", "AISSUR", /*"Russia", */120, 15, 79, "FNF", 82, "z", "3,022.3", "3,022"]},
+        "newExps1": {"row6": ["aFRANCE", "F", /*"France", */"ECNARF", /*120, 15, */38, "R141", 70, "j", "3,006.3", "3,006"],
+                     "row15": ["MOROCCO", "M", /*"Morocco", */"OCCOROM", /*128, 16, */90, "R521", 77, "s", "15.0", "15"],
+                     "row22": ["aRUSSIA", "R", /*"Russia", */"AISSUR", /*120, 15, */79, "FNF", 82, "z", "3,022.3", "3,022"]},
         "find": {"row3": [0, 36],
                  "row10": [4, 32]},
         "projectRename": {"columns": ["N_NAME", "N_NAME_1", "N_NAME_2"],
                           "row3": [3, 1, "CANADA"]},
-        "dateUDFs1": {"row1": [7, 336, 48],
-                      "row17": [4, 20, 3],
+        "dateUDFs1": {"row1": [7, 336, 48, "1996-12-01", 849427200, "FNF"],
+                      "row17": [4, 20, 3, "1994-01-20", 759052800, "FNF"],
                       "numOfRows": "30"}
     };
     var tpchCases = {
