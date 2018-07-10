@@ -58,11 +58,11 @@ class KeyInfo {
     }
 }
 
-const getTHandle = function(): ThriftHandler {
+getTHandle = function(): ThriftHandler {
     return tHandle;
 };
 
-const setupThrift = function(hostname: string): void {
+setupThrift = function(hostname: string): void {
     if (typeof window !== 'undefined') {
         setupHostName();
         hostname = (window as any).hostname;
@@ -72,7 +72,7 @@ const setupThrift = function(hostname: string): void {
     tHandle = xcalarConnectThrift(hostname);
 };
 
-const setupHostName = function(): void {
+setupHostName = function(): void {
     /*
         href example:
             protocol:/host:port/index.html?workbook=a
@@ -272,21 +272,20 @@ function sleep(val: string): void {
         const s: number = 1000;
         const m: number = s * 60;
         const h: number = m * 60;
-    
+
         const match: string[] = timeStr.exec(str);
-    
+
         if (!match) {
             return (0);
         }
-    
+
         const n: number = parseFloat(match[1]);
         const type: string = (match[2] || "ms").toLowerCase();
         let duration: number = null;
-    
+
         switch (type) {
             case "ms":
                 duration = n;
-    
                 break;
             case "s":
                 duration = s * n;
@@ -406,7 +405,7 @@ function insertError(
 // colsToIndex is optional array of colnames
 // if a new index table needs to be created, "colsToIndex" will be used
 // as the keys for the new index table
-let getUnsortedTableName = function(
+getUnsortedTableName = function(
     tableName: string,
     otherTableName: string,
     txId: number,
@@ -539,7 +538,7 @@ function checkIfTableHasReadyState(
 }
 
 // ========================= MAIN FUNCTIONS  =============================== //
-let XcalarGetVersion = function(
+XcalarGetVersion = function(
     connectionCheck: boolean
 ): XDPromise<XcalarApiGetVersionOutputT | {}> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -565,7 +564,7 @@ let XcalarGetVersion = function(
     return deferred.promise();
 };
 
-let XcalarGetLicense = function(): XDPromise<XcalarApiGetLicenseOutputT | {}> {
+XcalarGetLicense = function(): XDPromise<XcalarApiGetLicenseOutputT | {}> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -586,7 +585,7 @@ let XcalarGetLicense = function(): XDPromise<XcalarApiGetLicenseOutputT | {}> {
     return deferred.promise();
 };
 
-let XcalarGetNodeName = function(
+XcalarGetNodeName = function(
     nodeId: number
 ): XDPromise<string | {}> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -610,7 +609,7 @@ let XcalarGetNodeName = function(
     return deferred.promise();
 };
 
-let XcalarUpdateLicense = function(
+XcalarUpdateLicense = function(
     newLicense: string
 ): XDPromise<number|{}> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -648,7 +647,7 @@ interface XcalarPreviewOutput {
  *  fileNamePattern: ""
  *  recursive: false
  */
-let XcalarPreview = function(
+XcalarPreview = function(
     sourceArgs: XcalarApiPreivewInputSource,
     numBytesRequested: number,
     offset: number
@@ -750,7 +749,7 @@ interface XcalarLoadInputOptions {
         ]
     }
  */
-let XcalarLoad = function(
+XcalarLoad = function(
     datasetName: string,
     options: XcalarLoadInputOptions,
     txId: number
@@ -1007,7 +1006,7 @@ let XcalarLoad = function(
     }
 };
 
-let XcalarAddLocalFSExportTarget = function(
+XcalarAddLocalFSExportTarget = function(
     targetName: string,
     path: string,
     txId: number
@@ -1039,7 +1038,7 @@ let XcalarAddLocalFSExportTarget = function(
     return deferred.promise();
 };
 
-let XcalarAddUDFExportTarget = function(
+XcalarAddUDFExportTarget = function(
     targetName: string,
     path: string,
     udfName: string,
@@ -1073,7 +1072,7 @@ let XcalarAddUDFExportTarget = function(
     return deferred.promise();
 };
 
-let XcalarRemoveExportTarget = function(
+XcalarRemoveExportTarget = function(
     targetName: string,
     targetType: number
 ): XDPromise<StatusT> {
@@ -1097,7 +1096,7 @@ let XcalarRemoveExportTarget = function(
 };
 
 // typePattern: "*", "file", "udf"
-let XcalarListExportTargets = function(
+XcalarListExportTargets = function(
     typePattern: string,
     namePattern: string
 ): XDPromise<any> {
@@ -1120,7 +1119,7 @@ let XcalarListExportTargets = function(
     return deferred.promise();
 };
 
-let XcalarExport = function(
+XcalarExport = function(
     tableName: string,
     exportName: string,
     targetName: string,
@@ -1281,7 +1280,7 @@ let XcalarExport = function(
     return deferred.promise();
 };
 
-let XcalarLockDataset = function(dsName: string): XDPromise<any> {
+XcalarLockDataset = function(dsName: string): XDPromise<any> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -1298,7 +1297,7 @@ let XcalarLockDataset = function(dsName: string): XDPromise<any> {
     return deferred.promise();
 };
 
-let XcalarUnlockDataset = function(
+XcalarUnlockDataset = function(
     dsName: string,
     txId: number
 ): XDPromise<void> {
@@ -1345,7 +1344,7 @@ let XcalarUnlockDataset = function(
     return deferred.promise();
 };
 
-let XcalarDestroyDataset = function(
+XcalarDestroyDataset = function(
     dsName: string,
     txId: number
 ): XDPromise<void> {
@@ -1404,7 +1403,7 @@ let XcalarDestroyDataset = function(
     }
 };
 
-let XcalarIndexFromDataset = function(
+XcalarIndexFromDataset = function(
     datasetName: string,
     key: string,
     tableName: string,
@@ -1462,7 +1461,7 @@ let XcalarIndexFromDataset = function(
 
 // keys example:
 // [{name: "review_count", ordering: XcalarOrderingT.XcalarOrderingAscending}]
-let XcalarIndexFromTable = function(
+XcalarIndexFromTable = function(
     srcTablename: string,
     keys: any,
     dstTableName: string,
@@ -1545,7 +1544,7 @@ let XcalarIndexFromTable = function(
     return deferred.promise();
 };
 
-let XcalarDeleteTable = function(
+XcalarDeleteTable = function(
     tableName: string,
     txId?: number,
     isRetry?: boolean
@@ -1606,7 +1605,7 @@ let XcalarDeleteTable = function(
     return deferred.promise();
 };
 
-let XcalarDeleteConstants = function(
+XcalarDeleteConstants = function(
     constantPattern: string,
     txId: number
 ): XDPromise<XcalarApiDeleteDagNodeOutputT> {
@@ -1668,7 +1667,7 @@ function forceReleaseTable(deleteOutput: any): XDPromise<any> {
     }
 }
 
-let XcalarRenameTable = function(
+XcalarRenameTable = function(
     oldTableName: string,
     newTableName: string,
     txId: number
@@ -1768,7 +1767,7 @@ function fetchDataHelper(
     return deferred.promise();
 }
 
-let XcalarFetchData = function(
+XcalarFetchData = function(
     resultSetId: string,
     rowPosition: number,
     rowsToFetch: number,
@@ -1811,7 +1810,7 @@ let XcalarFetchData = function(
     return deferred.promise();
 };
 
-let XcalarGetConfigParams = function(): XDPromise<any> {
+XcalarGetConfigParams = function(): XDPromise<any> {
     if (tHandle == null) {
         return PromiseHelper.resolve(0);
     }
@@ -1832,7 +1831,7 @@ let XcalarGetConfigParams = function(): XDPromise<any> {
     return (deferred.promise());
 };
 
-let XcalarSetConfigParams = function(
+XcalarSetConfigParams = function(
     pName: string,
     pValue: string
 ): XDPromise<any> {
@@ -1857,7 +1856,7 @@ let XcalarSetConfigParams = function(
 };
 
 // XXX NOT TESTED
-let XcalarGetDatasetCount = function(dsName: string): XDPromise<number> {
+XcalarGetDatasetCount = function(dsName: string): XDPromise<number> {
     const deferred: XDDeferred<number> = PromiseHelper.deferred();
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
@@ -1884,7 +1883,7 @@ let XcalarGetDatasetCount = function(dsName: string): XDPromise<number> {
     return (deferred.promise());
 };
 
-let XcalarGetDatasetMeta = function(dsName: string): XDPromise<any> {
+XcalarGetDatasetMeta = function(dsName: string): XDPromise<any> {
     if (tHandle == null) {
         return PromiseHelper.resolve(0);
     }
@@ -1907,7 +1906,7 @@ let XcalarGetDatasetMeta = function(dsName: string): XDPromise<any> {
     return (deferred.promise());
 };
 
-let XcalarGetTableMeta = function(
+XcalarGetTableMeta = function(
     tableName: string
 ): XDPromise<XcalarApiGetTableMetaOutputT> {
     const deferred: XDDeferred<XcalarApiGetTableMetaOutputT>
@@ -1933,7 +1932,7 @@ let XcalarGetTableMeta = function(
 };
 
 // Not being called. We just use make result set's output
-let XcalarGetTableCount = function(
+XcalarGetTableCount = function(
     tableName: string
 ): XDPromise<number> {
     const deferred: XDDeferred<number> = PromiseHelper.deferred();
@@ -1962,7 +1961,7 @@ let XcalarGetTableCount = function(
     return (deferred.promise());
 };
 
-let XcalarGetDatasets = function(): XDPromise<any> {
+XcalarGetDatasets = function(): XDPromise<any> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -1988,7 +1987,7 @@ let XcalarGetDatasets = function(): XDPromise<any> {
     return (deferred.promise());
 };
 
-let XcalarGetDatasetUsers = function(
+XcalarGetDatasetUsers = function(
     dsName: string
 ): XDPromise<XcalarApiDatasetUserT[]> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -2015,7 +2014,7 @@ let XcalarGetDatasetUsers = function(
     return (deferred.promise());
 };
 
-let XcalarGetUserDatasets = function(
+XcalarGetUserDatasets = function(
     userName: string
 ): XDPromise<XcalarApiListUserDatasetsOutputT> {
     if (tHandle == null) {
@@ -2024,7 +2023,7 @@ let XcalarGetUserDatasets = function(
     return xcalarListUserDatasets(tHandle, userName);
 };
 
-let XcalarGetDatasetsInfo = function(
+XcalarGetDatasetsInfo = function(
     datasetsNamePattern?: string
 ): XDPromise<any> {
     if (tHandle == null) {
@@ -2038,7 +2037,7 @@ let XcalarGetDatasetsInfo = function(
     return xcalarGetDatasetsInfo(tHandle, datasetsNamePattern);
 };
 
-let XcalarGetConstants = function(
+XcalarGetConstants = function(
     constantName?: string
 ): XDPromise<any> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -2073,7 +2072,7 @@ let XcalarGetConstants = function(
     return (deferred.promise());
 };
 
-let XcalarGetTables = function(tableName?: string): XDPromise<any> {
+XcalarGetTables = function(tableName?: string): XDPromise<any> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -2101,7 +2100,7 @@ let XcalarGetTables = function(tableName?: string): XDPromise<any> {
     return (deferred.promise());
 };
 
-let XcalarGetDSNode = function(datasetName?: string): XDPromise<any> {
+XcalarGetDSNode = function(datasetName?: string): XDPromise<any> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -2133,7 +2132,7 @@ let XcalarGetDSNode = function(datasetName?: string): XDPromise<any> {
     return (deferred.promise());
 };
 
-let XcalarShutdown = function(force?: boolean): XDPromise<StatusT> {
+XcalarShutdown = function(force?: boolean): XDPromise<StatusT> {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
@@ -2176,7 +2175,7 @@ let XcalarShutdown = function(force?: boolean): XDPromise<StatusT> {
 //     return (deferred.promise());
 // };
 
-let XcalarGetStats = function(nodeId: number): XDPromise<any> {
+XcalarGetStats = function(nodeId: number): XDPromise<any> {
     // Today we have no use for this call yet.
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
@@ -2197,7 +2196,7 @@ let XcalarGetStats = function(nodeId: number): XDPromise<any> {
     return (deferred.promise());
 };
 
-let XcalarGetTableRefCount = function(tableName: string): XDPromise<any> {
+XcalarGetTableRefCount = function(tableName: string): XDPromise<any> {
     if (tHandle == null) {
         return PromiseHelper.resolve(0);
     }
@@ -2218,7 +2217,7 @@ let XcalarGetTableRefCount = function(tableName: string): XDPromise<any> {
     return (deferred.promise());
 };
 
-let XcalarMakeResultSetFromTable = function(
+XcalarMakeResultSetFromTable = function(
     tableName: string
 ): XDPromise<XcalarApiMakeResultSetOutputT> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -2241,7 +2240,7 @@ let XcalarMakeResultSetFromTable = function(
     return (deferred.promise());
 };
 
-let XcalarMakeResultSetFromDataset = function(
+XcalarMakeResultSetFromDataset = function(
     datasetName: string,
     getErrorDataset: boolean
 ): XDPromise<XcalarApiMakeResultSetOutputT> {
@@ -2272,7 +2271,7 @@ let XcalarMakeResultSetFromDataset = function(
 
 };
 
-let XcalarSetAbsolute = function(
+XcalarSetAbsolute = function(
     resultSetId: string,
     position: number
 ): XDPromise<StatusT> {
@@ -2296,7 +2295,7 @@ let XcalarSetAbsolute = function(
     return (deferred.promise());
 };
 
-let XcalarGetNextPage = function(
+XcalarGetNextPage = function(
     resultSetId: string,
     numEntries: number
 ): XDPromise<any> {
@@ -2320,7 +2319,7 @@ let XcalarGetNextPage = function(
     return (deferred.promise());
 };
 
-let XcalarSetFree = function(
+XcalarSetFree = function(
     resultSetId: string
 ): XDPromise<StatusT> {
     if (tHandle == null) {
@@ -2397,7 +2396,7 @@ function generateFilterString(
     return (filterStr);
 }
 
-let XcalarFilter = function(
+XcalarFilter = function(
     evalStr: string,
     srcTablename: string,
     dstTablename: string,
@@ -2459,7 +2458,7 @@ let XcalarFilter = function(
     return deferred.promise();
 };
 
-let XcalarMapWithInput = function(
+XcalarMapWithInput = function(
     txId: number,
     inputStruct: XcalarApiMapInputT
 ): XDPromise<any> {
@@ -2501,7 +2500,7 @@ let XcalarMapWithInput = function(
     return deferred.promise();
 };
 
-let XcalarMap = function(
+XcalarMap = function(
     newFieldNames: string[] | string,
     evalStrs: string[] | string,
     srcTablename: string,
@@ -2592,7 +2591,7 @@ let XcalarMap = function(
     return deferred.promise();
 };
 
-let XcalarAggregate = function(
+XcalarAggregate = function(
     evalStr: string,
     dstAggName: string,
     srcTablename: string,
@@ -2661,7 +2660,7 @@ let XcalarAggregate = function(
     options contain
         evalString: filter string for cross joins
 */
-let XcalarJoin = function(
+XcalarJoin = function(
     left: string,
     right: string,
     dst: string,
@@ -2738,7 +2737,7 @@ let XcalarJoin = function(
     return deferred.promise();
 };
 
-let XcalarGroupByWithInput = function(
+XcalarGroupByWithInput = function(
     txId: number,
     inputStruct: XcalarApiGroupByInputT
 ): XDPromise<any> {
@@ -2778,7 +2777,7 @@ let XcalarGroupByWithInput = function(
     return (deferred.promise());
 };
 
-let XcalarGroupByWithEvalStrings = function(
+XcalarGroupByWithEvalStrings = function(
     newColNames: string[] | string,
     evalStrs: string[] | string,
     tableName: string,
@@ -2856,7 +2855,7 @@ let XcalarGroupByWithEvalStrings = function(
     return deferred.promise();
 };
 
-let XcalarGroupBy = function(
+XcalarGroupBy = function(
     operators: string[] | string,
     newColNames: string[] | string,
     aggColNames: string[] | string,
@@ -2893,7 +2892,7 @@ let XcalarGroupBy = function(
                        groupAll, txId);
 };
 
-let XcalarProject = function(
+XcalarProject = function(
     columns: string[],
     tableName: string,
     dstTableName: string,
@@ -2946,7 +2945,7 @@ let XcalarProject = function(
 // if unionType is unionExcept or unionIntersect, it's actually the named
 // operation and not union
 // unionType is unionStandard, unionIntersect, unionExcept
-let XcalarUnion = function(
+XcalarUnion = function(
     tableNames: string[] | string,
     newTableName: string,
     colInfos: XcalarColInfo[][] | XcalarColInfo[],
@@ -3033,7 +3032,7 @@ let XcalarUnion = function(
     return deferred.promise();
 };
 
-let XcalarGenRowNum = function(
+XcalarGenRowNum = function(
     srcTableName: string,
     dstTableName: string,
     newFieldName: string,
@@ -3074,7 +3073,7 @@ let XcalarGenRowNum = function(
     return deferred.promise();
 };
 
-let XcalarArchiveTable = function(
+XcalarArchiveTable = function(
     srcTableNames: string[],
     txId?: number
 ): XDPromise<any> {
@@ -3105,7 +3104,7 @@ let XcalarArchiveTable = function(
 // must make sure that the first table that is being passed into XcalarQuery
 // is an unsorted table! Otherwise backend may crash
 // txId does not need to be passed in if xcalarquery not called inside a transaction
-let XcalarQuery = function(
+XcalarQuery = function(
     queryName: string,
     queryString: string,
     txId: number,
@@ -3160,7 +3159,7 @@ let XcalarQuery = function(
 };
 
 // for queries or retinas
-let XcalarQueryState = function(
+XcalarQueryState = function(
     queryName: string,
     statusesToIgnore?: any[]
 ): XDPromise<XcalarApiQueryStateOutputT> {
@@ -3203,7 +3202,7 @@ function queryStateErrorStatusHandler(
 }
 
 // used to check when a query finishes or when a queryCancel finishes
-let XcalarQueryCheck = function(
+XcalarQueryCheck = function(
     queryName: string,
     canceling: boolean,
     jdbcCheckTime?: number
@@ -3274,7 +3273,7 @@ let XcalarQueryCheck = function(
     return (deferred.promise());
 };
 
-const XcalarQueryWithCheck = function(
+XcalarQueryWithCheck = function(
     queryName: string,
     queryString: string,
     txId: number,
@@ -3328,7 +3327,7 @@ function queryErrorStatusHandler(
     return (thriftError);
 }
 
-let XcalarQueryCancel = function(
+XcalarQueryCancel = function(
     queryName: string,
     statusesToIgnore?: number[]
 ): XDPromise<StatusT> {
@@ -3356,7 +3355,7 @@ let XcalarQueryCancel = function(
     return (deferred.promise());
 };
 
-let XcalarQueryDelete = function(queryName: string): XDPromise<StatusT> {
+XcalarQueryDelete = function(queryName: string): XDPromise<StatusT> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -3383,7 +3382,7 @@ let XcalarQueryDelete = function(queryName: string): XDPromise<StatusT> {
  *      (when attempting to cancel a query, we cancel all future subqueries
  *      even when the dstTableName doesn't exist yet -- this produces errors)
  */
-let XcalarCancelOp = function(
+XcalarCancelOp = function(
     dstTableName: string,
     statusesToIgnore?: number[]
 ): XDPromise<StatusT> {
@@ -3408,7 +3407,7 @@ let XcalarCancelOp = function(
 
 };
 
-let XcalarGetDag = function(tableName: string): XDPromise<XcalarApiDagOutputT> {
+XcalarGetDag = function(tableName: string): XDPromise<XcalarApiDagOutputT> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -3429,7 +3428,7 @@ let XcalarGetDag = function(tableName: string): XDPromise<XcalarApiDagOutputT> {
     return (deferred.promise());
 };
 
-let XcalarTagDagNodes = function(
+XcalarTagDagNodes = function(
     tagName: string,
     dagNodeNames: string[] | string
 ): XDPromise<StatusT> {
@@ -3464,7 +3463,7 @@ let XcalarTagDagNodes = function(
     return (deferred.promise());
 };
 
-let XcalarCommentDagNodes = function(
+XcalarCommentDagNodes = function(
     comment: string,
     dagNodeNames: string[] | string
 ): XDPromise<StatusT> {
@@ -3505,7 +3504,7 @@ class XcalarListFilesInputArgs {
  *  fileNampattern: ""
  *  recursive: false
  */
-let XcalarListFiles = function(
+XcalarListFiles = function(
     args: XcalarListFilesInputArgs
 ): XDPromise<any> {
     if (tHandle == null) {
@@ -3536,7 +3535,7 @@ let XcalarListFiles = function(
     return (deferred.promise());
 };
 
-let XcalarSynthesize = function(
+XcalarSynthesize = function(
     srcTableName: string,
     dstTableName: string,
     colInfos: XcalarColInfo[],
@@ -3602,7 +3601,7 @@ let XcalarSynthesize = function(
 // and give it all new DagNodeIds. So when you call updateRetina, make sure to
 // pass in the DagNodeIds that are part of this new Retina instead of the
 // original DAG
-let XcalarMakeRetina = function(
+XcalarMakeRetina = function(
     retName: string,
     tableArray: XcalarApiRetinaDstT[],
     srcTables: XcalarApiRetinaSrcTableT[],
@@ -3629,7 +3628,7 @@ let XcalarMakeRetina = function(
     return (deferred.promise());
 };
 
-let XcalarListRetinas = function(): XDPromise<any> {
+XcalarListRetinas = function(): XDPromise<any> {
     // XXX This function is wrong because it does not take in a tablename even
     // though it should. Hence we just assume that all retinas belong to the
     // leftmost table.
@@ -3652,7 +3651,7 @@ let XcalarListRetinas = function(): XDPromise<any> {
     return (deferred.promise());
 };
 
-let XcalarGetRetina = function(retName: string): XDPromise<any> {
+XcalarGetRetina = function(retName: string): XDPromise<any> {
     if (retName === "" || retName == null ||
         [null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -3673,7 +3672,7 @@ let XcalarGetRetina = function(retName: string): XDPromise<any> {
     return (deferred.promise());
 };
 
-let XcalarGetRetinaJson = function(retName: string): XDPromise<object> {
+XcalarGetRetinaJson = function(retName: string): XDPromise<object> {
     if (retName === "" || retName == null ||
         [null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -3711,7 +3710,7 @@ let XcalarGetRetinaJson = function(retName: string): XDPromise<object> {
 // replaced with "filter(<opera>(<colName>, <val>))"
 // val = \"hello\"
 // <argument> is used to denote a parameter
-let XcalarUpdateRetina = function(
+XcalarUpdateRetina = function(
     retName: string,
     tableName: string,
     paramValues,
@@ -3792,7 +3791,7 @@ let XcalarUpdateRetina = function(
 // For example, if my paramValue was "filter(<opera>(<colName>, <val>))"
 // then, params = [{"paramName":"opera", "paramValue":"lt"},
 // {"pN":"colName", "pV":"column5"}, {, "pV":"\"hello\""}]
-let XcalarExecuteRetina = function(
+XcalarExecuteRetina = function(
     retName: string,
     params: XcalarApiParameterT[],
     options: any,
@@ -3852,7 +3851,7 @@ let XcalarExecuteRetina = function(
     return (deferred.promise());
 };
 
-let XcalarListParametersInRetina = function(retName: string): XDPromise<any> {
+XcalarListParametersInRetina = function(retName: string): XDPromise<any> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -3872,7 +3871,7 @@ let XcalarListParametersInRetina = function(retName: string): XDPromise<any> {
     return (deferred.promise());
 };
 
-let XcalarDeleteRetina = function(
+XcalarDeleteRetina = function(
     retName: string,
     txId: number
 ): XDPromise<StatusT> {
@@ -3894,7 +3893,7 @@ let XcalarDeleteRetina = function(
     return deferred.promise();
 };
 
-let XcalarImportRetina = function(
+XcalarImportRetina = function(
     retinaName: string,
     overwrite: boolean,
     retina: string,
@@ -3919,7 +3918,7 @@ let XcalarImportRetina = function(
     return deferred.promise();
 };
 
-let XcalarExportRetina = function(
+XcalarExportRetina = function(
     retName: string,
     txId: number
 ): XDPromise<any> {
@@ -3941,7 +3940,7 @@ let XcalarExportRetina = function(
     return deferred.promise();
 };
 
-let XcalarDeleteSched = function(
+XcalarDeleteSched = function(
     scheduleKey: string
 ): XDPromise<boolean> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -4013,7 +4012,7 @@ class XcalarScheduleObj {
     timingInfo: XcalarScheduleTimingInfo;
 }
 
-let XcalarCreateSched = function(
+XcalarCreateSched = function(
     scheduleKey: string,
     retName: string,
     substitutions: XcalarApiParameterT[],
@@ -4095,7 +4094,7 @@ let XcalarCreateSched = function(
     return (deferred.promise());
 };
 
-let XcalarUpdateSched = function(
+XcalarUpdateSched = function(
     scheduleKey: string,
     retName: string,
     substitutions: XcalarApiParameterT[],
@@ -4188,7 +4187,7 @@ class XcalarListScheduleObj {
         exportLoc: string
     };
 }
-let XcalarListSchedules = function(
+XcalarListSchedules = function(
     scheduleKey?: string,
     hasRunResults?: boolean
 ): XDPromise<XcalarListSchedulesOutput> {
@@ -4240,7 +4239,7 @@ let XcalarListSchedules = function(
     return deferred.promise();
 };
 
-let XcalarPauseSched = function(scheduleKey: string): XDPromise<boolean> {
+XcalarPauseSched = function(scheduleKey: string): XDPromise<boolean> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -4285,7 +4284,7 @@ let XcalarPauseSched = function(scheduleKey: string): XDPromise<boolean> {
     return deferred.promise();
 };
 
-let XcalarResumeSched = function(scheduleKey: string): XDPromise<boolean> {
+XcalarResumeSched = function(scheduleKey: string): XDPromise<boolean> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -4330,7 +4329,7 @@ let XcalarResumeSched = function(scheduleKey: string): XDPromise<boolean> {
     return deferred.promise();
 };
 
-let XcalarKeyLookup = function(
+XcalarKeyLookup = function(
     key: string,
     scope: number
 ): XDPromise<XcalarApiKeyLookupOutputT> {
@@ -4367,7 +4366,7 @@ let XcalarKeyLookup = function(
     return (deferred.promise());
 };
 
-let XcalarKeyList = function(
+XcalarKeyList = function(
     keyRegex: string,
     scope: number
 ): XDPromise<XcalarApiKeyListOutputT> {
@@ -4395,7 +4394,7 @@ let XcalarKeyList = function(
     return (deferred.promise());
 };
 
-let XcalarKeyPut = function(
+XcalarKeyPut = function(
     key: string,
     value: string,
     persist: boolean,
@@ -4432,7 +4431,7 @@ let XcalarKeyPut = function(
     return (deferred.promise());
 };
 
-let XcalarKeyDelete = function(
+XcalarKeyDelete = function(
     key: string,
     scope: number
 ): XDPromise<StatusT> {
@@ -4467,7 +4466,7 @@ let XcalarKeyDelete = function(
     return (deferred.promise());
 };
 
-let XcalarKeySetIfEqual = function(
+XcalarKeySetIfEqual = function(
     scope: number,
     persist: boolean,
     keyCompare: string,
@@ -4500,7 +4499,7 @@ let XcalarKeySetIfEqual = function(
     return (deferred.promise());
 };
 
-let XcalarKeySetBothIfEqual = function(
+XcalarKeySetBothIfEqual = function(
     scope: number,
     persist: boolean,
     keyCompare: string,
@@ -4537,7 +4536,7 @@ let XcalarKeySetBothIfEqual = function(
 
 };
 
-let XcalarKeyAppend = function(
+XcalarKeyAppend = function(
     key: string,
     stuffToAppend: string,
     persist: boolean,
@@ -4576,7 +4575,7 @@ let XcalarKeyAppend = function(
     return (deferred.promise());
 };
 
-let XcalarGetOpStats = function(
+XcalarGetOpStats = function(
     dstTableName: string
 ): XDPromise<XcalarApiOpStatsOutT> {
     if (!dstTableName) {
@@ -4600,7 +4599,7 @@ let XcalarGetOpStats = function(
     return (deferred.promise());
 };
 
-let XcalarApiTop = function(
+XcalarApiTop = function(
     measureIntervalInMs?: number
 ): XDPromise<XcalarApiTopOutputT> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -4625,7 +4624,7 @@ let XcalarApiTop = function(
     return (deferred.promise());
 };
 
-let XcalarGetMemoryUsage = function(
+XcalarGetMemoryUsage = function(
     userName: string,
     userId: number
 ): XDPromise<XcalarApiGetMemoryUsageOutputT> {
@@ -4648,7 +4647,7 @@ let XcalarGetMemoryUsage = function(
     return (deferred.promise());
 };
 
-let XcalarGetAllTableMemory = function(): XDPromise<number> {
+XcalarGetAllTableMemory = function(): XDPromise<number> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -4675,7 +4674,7 @@ let XcalarGetAllTableMemory = function(): XDPromise<number> {
     return (deferred.promise());
 };
 
-let XcalarListXdfs = function(
+XcalarListXdfs = function(
     fnNamePattern: string,
     categoryPattern: string
 ): XDPromise<any> {
@@ -4710,7 +4709,7 @@ let XcalarListXdfs = function(
     return (deferred.promise());
 };
 
-let XcalarUploadPythonRejectDuplicate = function(
+XcalarUploadPythonRejectDuplicate = function(
     moduleName: string,
     pythonStr: string
 ): XDPromise<StatusT> {
@@ -4740,7 +4739,7 @@ let XcalarUploadPythonRejectDuplicate = function(
     return deferred.promise();
 };
 
-let XcalarUploadPython = function(
+XcalarUploadPython = function(
     moduleName: string,
     pythonStr: string,
     absolutePath: string
@@ -4800,7 +4799,7 @@ let XcalarUploadPython = function(
     return (deferred.promise());
 };
 
-let XcalarUpdatePython = function(
+XcalarUpdatePython = function(
     moduleName: string,
     pythonStr: string
 ): XDPromise<StatusT> {
@@ -4831,7 +4830,7 @@ let XcalarUpdatePython = function(
     return (deferred.promise());
 };
 
-let XcalarDeletePython = function(moduleName: string): XDPromise<StatusT> {
+XcalarDeletePython = function(moduleName: string): XDPromise<StatusT> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -4852,7 +4851,7 @@ let XcalarDeletePython = function(moduleName: string): XDPromise<StatusT> {
     return (deferred.promise());
 };
 
-let XcalarDownloadPython = function(
+XcalarDownloadPython = function(
     moduleName: string
 ): XDPromise<string> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -4895,11 +4894,11 @@ let XcalarDownloadPython = function(
 //     return (deferred.promise());
 // };
 
-let XcalarGetQuery = function(workItem: WorkItem): string {
+XcalarGetQuery = function(workItem: WorkItem): string {
     return xcalarApiGetQuery(tHandle, workItem);
 };
 
-let XcalarNewWorkbook = function(
+XcalarNewWorkbook = function(
     newWorkbookName: string,
     isCopy: boolean,
     copyFromWhichWorkbook: string
@@ -4922,7 +4921,7 @@ let XcalarNewWorkbook = function(
     return (deferred.promise());
 };
 
-let XcalarDeleteWorkbook = function(workbookName: string): XDPromise<any> {
+XcalarDeleteWorkbook = function(workbookName: string): XDPromise<any> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -4940,7 +4939,7 @@ let XcalarDeleteWorkbook = function(workbookName: string): XDPromise<any> {
     return (deferred.promise());
 };
 
-let XcalarDeactivateWorkbook = function(
+XcalarDeactivateWorkbook = function(
     workbookName: string,
     noCleanup: boolean
 ): XDPromise<any> {
@@ -4961,7 +4960,7 @@ let XcalarDeactivateWorkbook = function(
     return (deferred.promise());
 };
 
-let XcalarListWorkbooks = function(
+XcalarListWorkbooks = function(
     pattern: string
 ): XDPromise<XcalarApiSessionListOutputT> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -4981,7 +4980,7 @@ let XcalarListWorkbooks = function(
     return (deferred.promise());
 };
 
-let XcalarSaveWorkbooks = function(
+XcalarSaveWorkbooks = function(
     workbookName: string
 ): XDPromise<XcalarApiSessionListOutputT> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -4999,7 +4998,7 @@ let XcalarSaveWorkbooks = function(
     return (deferred.promise());
 };
 
-let XcalarActivateWorkbook = function(workbookName: string): XDPromise<any> {
+XcalarActivateWorkbook = function(workbookName: string): XDPromise<any> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -5017,7 +5016,7 @@ let XcalarActivateWorkbook = function(workbookName: string): XDPromise<any> {
     return (deferred.promise());
 }
 
-let XcalarRenameWorkbook = function(
+XcalarRenameWorkbook = function(
     newName: string,
     oldName: string
 ): XDPromise<any> {
@@ -5038,7 +5037,7 @@ let XcalarRenameWorkbook = function(
     return (deferred.promise());
 };
 
-let XcalarUploadWorkbook = function(
+XcalarUploadWorkbook = function(
     workbookName: string,
     workbookContent: string,
     pathToAdditionalFiles: string
@@ -5058,7 +5057,7 @@ let XcalarUploadWorkbook = function(
     return (deferred.promise());
 };
 
-let XcalarDownloadWorkbook = function(
+XcalarDownloadWorkbook = function(
     workbookName: string,
     pathToAdditionalFiles: string
 ): XDPromise<XcalarApiSessionDownloadOutputT> {
@@ -5077,7 +5076,7 @@ let XcalarDownloadWorkbook = function(
     return (deferred.promise());
 };
 
-let XcalarDetachWorkbook = function(userToDetachFrom: string): XDPromise<any> {
+XcalarDetachWorkbook = function(userToDetachFrom: string): XDPromise<any> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -5093,7 +5092,7 @@ let XcalarDetachWorkbook = function(userToDetachFrom: string): XDPromise<any> {
     return (deferred.promise());
 }
 
-let XcalarGetStatGroupIdMap = function(
+XcalarGetStatGroupIdMap = function(
     nodeId: number,
     numGroupId: number
 ): XDPromise<XcalarApiGetStatGroupIdMapOutputT> {
@@ -5120,7 +5119,7 @@ let XcalarGetStatGroupIdMap = function(
     return deferred.promise();
 };
 
-let XcalarSupportGenerate = function(
+XcalarSupportGenerate = function(
     miniBundle: boolean,
     supportId: number
 ): XDPromise<XcalarApiSupportGenerateOutputT> {
@@ -5143,7 +5142,7 @@ let XcalarSupportGenerate = function(
     return (deferred.promise());
 };
 
-let XcalarAppSet = function(
+XcalarAppSet = function(
     name: string,
     hostType: string,
     duty: string,
@@ -5163,7 +5162,7 @@ let XcalarAppSet = function(
     return (deferred.promise());
 };
 
-let XcalarAppRun = function(
+XcalarAppRun = function(
     name: string,
     isGlobal: boolean,
     inStr: string
@@ -5182,7 +5181,7 @@ let XcalarAppRun = function(
     return (deferred.promise());
 };
 
-let XcalarAppReap = function(
+XcalarAppReap = function(
     name: string, // TODO: unused?
     appGroupId: string,
     cancel?: boolean
@@ -5213,7 +5212,7 @@ let XcalarAppReap = function(
     return (deferred.promise());
 };
 
-let XcalarAppExecute = function(
+XcalarAppExecute = function(
     name: string,
     isGlobal: boolean,
     inStr: string
@@ -5303,7 +5302,7 @@ let XcalarAppExecute = function(
 //     return (deferred.promise());
 // };
 
-let XcalarLogLevelGet = function(): XDPromise<XcalarApiLogLevelGetOutputT> {
+XcalarLogLevelGet = function(): XDPromise<XcalarApiLogLevelGetOutputT> {
     const deferred: XDDeferred<XcalarApiLogLevelGetOutputT> = PromiseHelper.deferred();
     xcalarLogLevelGet(tHandle)
     .then(deferred.resolve)
@@ -5315,7 +5314,7 @@ let XcalarLogLevelGet = function(): XDPromise<XcalarApiLogLevelGetOutputT> {
     return (deferred.promise());
 };
 
-let XcalarLogLevelSet = function(
+XcalarLogLevelSet = function(
     loglevel: number,
     logFlush: number
 ): XDPromise<StatusT> {
@@ -5337,7 +5336,7 @@ let XcalarLogLevelSet = function(
  * targetType: "shared";
  * targetParams = {"mountpoint": "/netstore"};
  */
-let XcalarTargetCreate = function(
+XcalarTargetCreate = function(
     targetType: string,
     targetName: string,
     targetParams: object
@@ -5357,7 +5356,7 @@ let XcalarTargetCreate = function(
     return deferred.promise();
 };
 
-let XcalarTargetDelete = function(targetName: string): XDPromise<any> {
+XcalarTargetDelete = function(targetName: string): XDPromise<any> {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
@@ -5373,7 +5372,7 @@ let XcalarTargetDelete = function(targetName: string): XDPromise<any> {
     return deferred.promise();
 };
 
-let XcalarTargetList = function(): XDPromise<any[]> {
+XcalarTargetList = function(): XDPromise<any[]> {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
@@ -5389,7 +5388,7 @@ let XcalarTargetList = function(): XDPromise<any[]> {
     return deferred.promise();
 };
 
-let XcalarTargetTypeList = function(): XDPromise<any[]> {
+XcalarTargetTypeList = function(): XDPromise<any[]> {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
@@ -5406,7 +5405,7 @@ let XcalarTargetTypeList = function(): XDPromise<any[]> {
 };
 
 // IMD APIs
-let XcalarListPublishedTables = function(
+XcalarListPublishedTables = function(
     pubPatternMatch: string
 ): XDPromise<XcalarApiListTablesOutputT> {
     if (tHandle == null) {
@@ -5424,7 +5423,7 @@ let XcalarListPublishedTables = function(
     return deferred.promise();
 };
 
-let XcalarUnpublishTable = function(
+XcalarUnpublishTable = function(
     pubTableName: string,
     inactivateOnly: boolean
 ): XDPromise<StatusT> {
@@ -5443,7 +5442,7 @@ let XcalarUnpublishTable = function(
     return deferred.promise();
 };
 
-let XcalarPublishTable = function(
+XcalarPublishTable = function(
     srcTableName: string,
     pubTableName: string
 ): XDPromise<StatusT> {
@@ -5463,7 +5462,7 @@ let XcalarPublishTable = function(
     return deferred.promise();
 };
 
-let XcalarUpdateTable = function(
+XcalarUpdateTable = function(
     deltaTableNames: string[] | string,
     pubTableNames: string[] | string
 ): XDPromise<XcalarApiUpdateOutputT> {
@@ -5483,7 +5482,7 @@ let XcalarUpdateTable = function(
     return deferred.promise();
 };
 
-let XcalarRefreshTable = function(
+XcalarRefreshTable = function(
     pubTableName: string,
     dstTableName: string,
     minBatch: number,
@@ -5514,7 +5513,7 @@ let XcalarRefreshTable = function(
     return deferred.promise();
 };
 
-let XcalarRestoreTable = function(pubTableName: string): XDPromise<StatusT> {
+XcalarRestoreTable = function(pubTableName: string): XDPromise<StatusT> {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
@@ -5530,7 +5529,7 @@ let XcalarRestoreTable = function(pubTableName: string): XDPromise<StatusT> {
     return deferred.promise();
 };
 
-let XcalarCoalesce = function(pubTableName: string): XDPromise<StatusT> {
+XcalarCoalesce = function(pubTableName: string): XDPromise<StatusT> {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
