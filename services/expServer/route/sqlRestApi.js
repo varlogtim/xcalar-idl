@@ -1465,6 +1465,14 @@ var express = require('express');
 var router = express.Router();
 var idNum = 0;
 
+// Antlr4 SQL Parser
+var SqlBaseListener;
+var SqlBaseParser;
+var SqlBaseLexer;
+var SqlBaseVisitor;
+var TableVisitor;
+var antlr4;
+
 require("jsdom/lib/old-api").env("", function(err, window) {
     console.log("initting jQuery");
     if (err) {
@@ -1515,6 +1523,13 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.SQLApi = SQLApi = require("../sqlHelpers/sqlApi.js");
     SQLCompiler = require("../sqlHelpers/sqlCompiler.js");
     require("../../../assets/lang/en/jsTStr.js");
+
+    SqlBaseListener = require("../sqlParser/SqlBaseListener.js").SqlBaseListener;
+    SqlBaseParser = require("../sqlParser/SqlBaseParser.js").SqlBaseParser;
+    SqlBaseLexer = require("../sqlParser/SqlBaseLexer.js").SqlBaseLexer;
+    SqlBaseVisitor = require("../sqlParser/SqlBaseVisitor.js").SqlBaseVisitor;
+    TableVisitor = require("../sqlParser/TableVisitor.js").TableVisitor;
+    antlr4 = require('antlr4/index');
 });
 
 function generateJDBCId(userName, wkbkName) {
@@ -2023,6 +2038,34 @@ function getDerivedCol(txId, tableName, schema, dstTable) {
     return deferred.promise();
 }
 
+function getListOfPublishedTablesFromQuery(sqlStatement, listOfPubTables) {
+    var chars = new antlr4.InputStream(sqlStatement.toUpperCase());
+    var lexer = new SqlBaseLexer(chars);
+    var tokens  = new antlr4.CommonTokenStream(lexer);
+    var parser = new SqlBaseParser(tokens);
+    parser.buildParseTrees = true;
+    var tree = parser.statement();
+
+    var visitor = new TableVisitor();
+    visitor.visitTables(tree);
+
+    var tableIdentifiers = [];
+    var errorTables = [];
+    visitor.tableIdentifiers.forEach(function(identifier) {
+        if (visitor.namedQueries.indexOf(identifier) === -1) {
+            if (listOfPubTables.indexOf(identifier) > -1) {
+                tableIdentifiers.push(identifier);
+            } else {
+                errorTables.push(identifier);
+            }
+        }
+    });
+
+    if (errorTables.length > 0) {
+        return "Please publish these tables first: " + JSON.stringify(errorTables);
+    }
+    return tableIdentifiers;
+}
 
 function sqlPlan(execid, planStr, rowsToFetch, sessionId, checkTime) {
     var deferred = PromiseHelper.deferred();

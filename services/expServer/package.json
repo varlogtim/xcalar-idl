@@ -12,6 +12,7 @@
     "url": "git@git:/gitrepos/xcalar-gui.git"
   },
   "dependencies": {
+    "antlr4": "^4.7.1",
     "atob": "^2.0.3",
     "aws-sdk": "*",
     "body-parser": "^1.15.0",
