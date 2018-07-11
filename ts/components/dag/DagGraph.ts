@@ -6,7 +6,7 @@ class DagGraph {
     }
 
     // XXX TODO
-    public restore(seralizedGraph: string): boolean {
+    public deserialize(seralizedGraph: string): boolean {
         console.warn("to be implemented!");
         return true;
     }
@@ -140,6 +140,17 @@ class DagGraph {
     public getNode(nodeId: DagNodeId): DagNode {
         return this._getNodeFromId(nodeId);
     }
+    
+    /**
+     * create a new node
+     * @param nodeInfo
+     * @returns {DagNode} dag node created
+     */
+    public newNode(nodeInfo: DagNodeInfo): DagNode {
+        const dagNode: DagNode = new DagNode(nodeInfo);
+        this.addNode(dagNode);
+        return dagNode;
+    }
 
     /**
      * add a new node
@@ -153,7 +164,7 @@ class DagGraph {
      * remove a node
      * @param nodeId node's id
      */
-    public removeNode(nodeId: DagNode): void {
+    public removeNode(nodeId: DagNodeId): void {
         const node: DagNode = this._getNodeFromId(nodeId);
         return this._removeNode(node);
     }
@@ -361,7 +372,7 @@ class DagGraph {
         this.nodesMap.delete(node.getId());
     }
 
-    private _getNodeFromId(nodeId): DagNode {
+    private _getNodeFromId(nodeId: DagNodeId): DagNode {
         const node: DagNode = this.nodesMap.get(nodeId);
         if (node == null) {
             throw new Error("Dag Node " + nodeId + " not exists");

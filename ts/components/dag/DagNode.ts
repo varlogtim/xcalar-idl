@@ -23,6 +23,7 @@ class DagNode {
     private maxParents: number; // non-persistent
     private maxChildren: number; // non-persistent
     private numParent: number; // non-persisent
+    private allowAggNode: boolean; // non-persistent
     private comment: string;
     private input: DagNodeInput;
     private table: string;
@@ -52,6 +53,7 @@ class DagNode {
 
         this.maxParents = this._maxParents();
         this.maxChildren = this._maxChildren();
+        this.allowAggNode = this._allowAggNode();
         this.numParent = 0;
     }
 
@@ -88,14 +90,6 @@ class DagNode {
 
     public getPosition(): Coordinate {
         return this.display;
-    }
-
-    /**
-     *
-     * @return {string} returns type (dataset, map etc).
-     */
-    public getType(): string {
-        return this.type;
     }
 
     /**
@@ -206,11 +200,17 @@ class DagNode {
      * @param pos 0 based, the position where to connect with parentNode
      */
     public connectToParent(parentNode: DagNode, pos: number = 0): void {
-        if (pos >= this.getMaxParents()) {
-            throw new Error("Node has maximum parents connected");
-        }
         if (this.parents[pos] != null) {
             throw new Error("Pos " + pos + " already has parent")
+        } else if (parentNode.getType() === DagNodeType.Aggregate) {
+            if (!this.allowAggNode) {
+                throw new Error("This node cannot connect with agg node");
+            }
+        } else {
+            const maxParents: number = this.getMaxParents();
+            if (maxParents >= 0 && this._getNonAggParents().length >= maxParents) {
+                throw new Error("Node has maximum parents connected");
+            }
         }
 
         this.parents[pos] = parentNode;
@@ -298,6 +298,11 @@ class DagNode {
         return destNodes.includes(this.type);
     }
 
+    private _allowAggNode(): boolean {
+        const allowedNodes = [DagNodeType.Map, DagNodeType.Filter];
+        return allowedNodes.includes(this.type);
+    }
+
     private _maxParents(): number {
         if (this._isSourceNode()) {
             return 0;
@@ -313,5 +318,9 @@ class DagNode {
 
     private _maxChildren(): number {
         return this._isDestNode() ? 0 : -1;
+    }
+
+    private _getNonAggParents(): DagNode[] {
+        return this.parents.filter((parent) => parent.getType() !== DagNodeType.Aggregate);
     }
 }
