@@ -45,8 +45,15 @@ class DagCategories {
             })
         ]);
 
+        const setCategory = new DagCategory(DagCategoryType.Set, [
+            new DagNode({
+                type: DagNodeType.Union
+            })
+        ]);
+
         this.categories = [inCategory, outCategory, valueCategory,
-                        operationsCategory, columnCategory, joinCategory];
+                        operationsCategory, columnCategory, joinCategory,
+                        setCategory];
     }
 
     public getCategories(): DagCategory[] {

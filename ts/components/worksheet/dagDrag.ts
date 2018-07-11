@@ -8,17 +8,17 @@ interface DragHelperOptions {
     copy?: boolean,
     move?: boolean,
     event: JQueryEventObject
-    offset?: DragHelperCoor
+    offset?: Coordinate
 }
 
-interface DragHelperDragCoor {
+interface DragHelperCoordinate {
     left: number,
     top: number,
     height: number,
     width: number
 }
 
-interface DragHelperCoor {
+interface Coordinate {
     x: number,
     y: number
 }
@@ -32,15 +32,15 @@ class DragHelper {
     protected $els: JQuery;
     protected $draggingEl: JQuery;
     protected $draggingEls: JQuery;
-    protected mouseDownCoors: DragHelperCoor;
+    protected mouseDownCoors: Coordinate;
     protected isDragging: boolean;
     protected targetRect: ClientRect;
     protected isOffScreen: boolean;
-    protected offset: DragHelperCoor;
+    protected offset: Coordinate;
     protected copying: boolean;
-    protected origPositions: DragHelperCoor[];
-    protected currentDragCoor: DragHelperDragCoor;
-    protected customOffset: DragHelperCoor;
+    protected origPositions: Coordinate[];
+    protected currentDragCoor: DragHelperCoordinate;
+    protected customOffset: Coordinate;
 
     public constructor(options: DragHelperOptions) {
         this.$container = options.$container;
@@ -217,7 +217,7 @@ class DragHelper {
             this.$draggingEl.addClass("clone");
         } else {
             this.$draggingEls = this.$els;
-            this.$draggingEls.addClass("xc-hidden");
+            this.$draggingEls.addClass("dragSelected");
         }
     }
 
@@ -255,6 +255,8 @@ class DragHelper {
             deltaX = event.pageX - this.mouseDownCoors.x - this.targetRect.left + this.$dropTarget.parent().scrollLeft();
             deltaY = event.pageY - this.mouseDownCoors.y - this.targetRect.top + this.$dropTarget.parent().scrollTop();
         }
+        let success = false;
+        let coors: Coordinate[] = [];
         if ((this.currentDragCoor.left - this.targetRect.left + this.$dropTarget.parent().scrollLeft() > 0) &&
         (this.currentDragCoor.top - this.targetRect.top + this.$dropTarget.parent().scrollTop() > 0)) {
             if (this.copying) {
@@ -263,19 +265,28 @@ class DragHelper {
                     top: deltaY
                 });
                 this.$draggingEls.appendTo(this.$dropTarget);
+                coors.push({x: deltaX, y: deltaY});
             } else {
+                coors = [];
                 this.$draggingEls.each(function(i) {
+                    let x: number = self.origPositions[i].x + deltaX;
+                    let y: number = self.origPositions[i].y + deltaY;
                     $(this).css({
-                        left: self.origPositions[i].x + deltaX,
-                        top: self.origPositions[i].y + deltaY
+                        left: x,
+                        top: y
                     });
+                    coors.push({x: x, y: y});
                 });
             }
-            this.onDragEndCallback(this.$draggingEls, event);
-
+            success = true;
         }
-        this.$draggingEls.removeClass("xc-hidden");
+
+        this.$draggingEls.removeClass("dragSelected");
         this.$draggingEl.remove();
+
+        if (success) {
+            this.onDragEndCallback(this.$draggingEls, event, {coors: coors});
+        }
     }
 }
 
@@ -304,7 +315,7 @@ class DragLineHelper extends DragHelper {
         let deltaX: number = event.pageX - this.mouseDownCoors.x - this.targetRect.left + this.$dropTarget.parent().scrollLeft();
         let deltaY: number = event.pageY - this.mouseDownCoors.y - this.targetRect.top + this.$dropTarget.parent().scrollTop();
 
-
+        let success: boolean = false;
         if ((this.currentDragCoor.left - this.targetRect.left + this.$dropTarget.parent().scrollLeft() > 0) &&
         (this.currentDragCoor.top - this.targetRect.top + this.$dropTarget.parent().scrollTop() > 0)) {
 
@@ -312,9 +323,13 @@ class DragLineHelper extends DragHelper {
                 left: self.origPositions[0].x + deltaX,
                 top: self.origPositions[0].y + deltaY
             });
+            success = true;
+        }
+
+        this.$draggingEls.removeClass("dragSelected");
+        this.$draggingEl.remove();
+        if (success) {
             this.onDragEndCallback(this.$draggingEls, event);
         }
-        this.$draggingEls.removeClass("xc-hidden");
-        this.$draggingEl.remove();
     }
 }
