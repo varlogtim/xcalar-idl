@@ -841,7 +841,6 @@ window.SQLEditor = (function(SQLEditor, $) {
                         }
                     } else {
                         var errorObj = arguments[0];
-                        errorMsg = JSON.stringify(arguments[0]);
                         // XXX Error parsing is bad. Needs to be fixed
                         if (errorObj && errorObj.responseJSON) {
                             var exceptionMsg = errorObj.responseJSON
@@ -862,6 +861,7 @@ window.SQLEditor = (function(SQLEditor, $) {
                                     }
                                 }
                             }
+                            errorMsg = exceptionMsg;
                         } else if (errorObj && errorObj.status === 0) {
                             errorMsg = SQLErrTStr.FailToConnectPlanner;
                         }
@@ -876,7 +876,10 @@ window.SQLEditor = (function(SQLEditor, $) {
                         Alert.show({
                             title: SQLErrTStr.Err,
                             msg: errorMsg,
-                            isAlert: true
+                            isAlert: true,
+                            align: "left",
+                            preSpace: true,
+                            sizeToText: true
                         });
                 }
                 deferred.reject();

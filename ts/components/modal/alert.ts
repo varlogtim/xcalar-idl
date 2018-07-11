@@ -15,6 +15,7 @@ namespace Alert {
         highZindex?: boolean; // if true then will set z-index above locked background modal,
         ultraHighZindex?: boolean; // if true then will set z-index above locked waiting screen
         align?: string; // it is left, with do left align,
+        preSpace?: boolean; // if true then set white-space:pre to preserve whitespaces
         sizeToText?: boolean; // when set true, size the modal to align text
         noLogout?: boolean; // remove log out button when  set true
         keepFnBar?: boolean;
@@ -83,7 +84,7 @@ namespace Alert {
             setLockScreen($modal);
         }
         setZIndex($modal, options);
-        setTextAlign(options.align);
+        setTextAlign(options.align, options.preSpace);
         modalHelper.setup(getExtraOptions(options));
 
         setButtonSize($modal);
@@ -296,12 +297,15 @@ namespace Alert {
         }
     }
 
-    function setTextAlign(align: string): void {
+    function setTextAlign(align: string, preSpace: boolean): void {
         const $text: JQuery = $("#alertContent .text");
         if (align === "left") {
             $text.addClass("left-align");
         } else {
             $text.removeClass("left-align");
+        }
+        if (preSpace) {
+            $text.addClass("preSpace")
         }
     }
 
