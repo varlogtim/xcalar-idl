@@ -21,4 +21,28 @@
             <div class="sizer"></div>
         </div>
     </div>
+
+    <div id="dagNodeMenu" class="menu">
+        <ul>
+            <li class="configureNode" data-action="configureNode">
+                <%= dicts.dag.configure %>
+            </li>
+            <li class="executeNode" data-action="executeNode">
+                <%= dicts.dag.execute %>
+            </li>
+            <li class="removeNode" data-action="removeNode">
+              <%= dicts.dag.removeNode %>
+            </li>
+            <li class="cloneNode" data-action="cloneNode">
+                <%= dicts.dag.cloneNode %>
+            </li>
+            <li class="comment" data-action="comment">
+                <%= dicts.dag.comment %>
+            </li>
+            <li class="removeInConnection" data-action="removeInConnection">
+                <%= dicts.dag.removeConnection %>
+            </li>
+        </ul>
+        include "../../util/menuScrollArea.html"
+      </div>
 </div>

@@ -49,7 +49,7 @@ class DagGraph {
         });
         this.addNode(filter1);
         const filter1Id: DagNodeId = filter1.getId();
-    
+
         const filter2: DagNode = new DagNode({
             type: DagNodeType.Filter
         });
@@ -110,7 +110,7 @@ class DagGraph {
         });
         this.addNode(filter1);
         const filter1Id: DagNodeId = filter1.getId();
-    
+
         this.connect(ds1Id, filter1Id);
 
         ds1.setParams({
@@ -140,7 +140,7 @@ class DagGraph {
     public getNode(nodeId: DagNodeId): DagNode {
         return this._getNodeFromId(nodeId);
     }
-    
+
     /**
      * create a new node
      * @param nodeInfo
@@ -150,6 +150,21 @@ class DagGraph {
         const dagNode: DagNode = new DagNode(nodeInfo);
         this.addNode(dagNode);
         return dagNode;
+    }
+
+    /**
+     * copy a node, type, comment, and input get copied but child/parents do not
+     * @param nodeId
+     */
+    public cloneNode(nodeId: DagNodeId): DagNode {
+        let originalNode: DagNode = this._getNodeFromId(nodeId);
+        let nodeInfo: DagNodeInfo =  {
+            type: originalNode.getType(),
+            comment: originalNode.getComment(),
+            input: originalNode.getParams()
+        };
+        nodeInfo = xcHelper.deepCopy(nodeInfo);
+        return this.newNode(nodeInfo);
     }
 
     /**
@@ -317,7 +332,7 @@ class DagGraph {
                 subGraph.addNode(node);
                 const parents: any = node.getParents();
                 nodeStack = nodeStack.concat(parents);
-            }            
+            }
         }
         return subGraph;
     }

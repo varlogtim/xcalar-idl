@@ -275,6 +275,7 @@ class DragHelper {
                         left: x,
                         top: y
                     });
+                    $(this).appendTo(self.$dropTarget); // positions this element in front
                     coors.push({x: x, y: y});
                 });
             }

@@ -9,11 +9,12 @@ namespace DagView {
         $dfWrap = $dagView.find(".dataflowWrap");
         $operatorBar = $dagView.find(".operatorWrap");
 
-        setupDragDrop();
-        setupCategoryBar();
-
         // XXX used for testing
         activeDag = new DagGraph();
+
+        setupDragDrop();
+        setupCategoryBar();
+        DagNodeMenu.setup();
     }
 
     // XXX test function
@@ -21,9 +22,118 @@ namespace DagView {
         return activeDag;
     }
 
+
+    /**
+     * DagView.removeNode
+     * @param nodeId
+     *  removes node from DagGraph, remove $element, connection lines, update
+     * connector classes
+     */
+    export function removeNode(nodeId: DagNodeId): void {
+        activeDag.removeNode(nodeId);
+        DagView.getNode(nodeId).remove();
+        $dagView.find('.edge[data-childnodeid="' + nodeId + '"]').remove();
+        $dagView.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function() {
+            const childNodeId = $(this).attr("data-childnodeid");
+            _removeConnection($(this), childNodeId);
+        });
+    }
+
+    /**
+     * DagView.cloneNode
+     * @param nodeId 
+     * finds new position for cloned node, adds to dagGraph and UI
+     */
+    export function cloneNode(nodeId: DagNodeId): void {
+        const offset = _getDFAreaOffset();
+        const $originalNode = DagView.getNode(nodeId);
+        const rect = $originalNode[0].getBoundingClientRect();
+        const $dfArea = $dagView.find(".dataflowArea.active");
+        const spacing = 20;
+        let newLeft = rect.left;
+        let newTop = rect.top + rect.height + spacing;
+        let positionConflict = true;
+    
+        // XXX improve detection of other node positions
+        while (positionConflict) {
+            positionConflict = false;
+            $dfArea.find(".operator").each(function() {
+                const rect = this.getBoundingClientRect();
+                if (rect.left === newLeft && rect.top === newTop) {
+                    positionConflict = true;
+                    newTop += 10;
+                    return false;
+                }
+            });
+        }
+
+        const newPos = {
+            x: newLeft + offset.left,
+            y: newTop + offset.top
+        };
+        
+        const newNode = activeDag.cloneNode(nodeId);
+        const newNodeId = newNode.getId();
+        activeDag.moveNode(newNodeId, newPos);
+        const type = newNode.getType();
+        const $newEl = $operatorBar.find('.operator[data-type="' + type + '"]').clone();
+        $newEl.css({
+            left: newPos.x,
+            top: newPos.y
+        });
+        $dfArea.append($newEl);
+        $newEl.attr("data-nodeid", newNodeId);
+        $dfWrap.find(".operator").removeClass("selected");
+        $newEl.addClass("selected");
+    }
+
+    /**
+     * DagView.disconnect
+     * @param parentNodeId
+     * @param childNodeId
+     * removes connection from DagGraph, connection line, updates connector classes
+     */
+    export function disconnect(parentNodeId, childNodeId) {
+        const $edge: JQuery = $dagView.find('.edge[data-parentnodeid="' + parentNodeId + '"][data-childnodeid="' + childNodeId + '"]')
+        const connectorIndex: number = parseInt($edge.attr('data-connectorindex'));
+        activeDag.disconnect(parentNodeId, childNodeId, connectorIndex);
+        _removeConnection($edge, childNodeId);
+    }
+
+    /**
+     * DagView.getNode
+     * @param nodeId
+     * returns $(".operator") element
+     */
+    export function getNode(nodeId: DagNodeId): JQuery {
+        return $dagView.find('.operator[data-nodeid="' + nodeId + '"]');
+    }
+
+    function _removeConnection($edge, childNodeId) {
+        const connectorIndex: number = parseInt($edge.attr('data-connectorindex'));
+        $edge.remove();
+
+        const $childNodeConnectors = DagView.getNode(childNodeId)
+                                    .find(".connector.in.hasConnection");
+        let $childConnector;
+        if ($childNodeConnectors.hasClass("multi")) {
+            $childConnector = $childNodeConnectors.eq(0);
+        } else {
+            $childConnector = $childNodeConnectors.eq(connectorIndex);
+        }
+        if (!$childConnector.hasClass("multi") ||
+            activeDag.getNode(childNodeId).getNumParent() === 0) {
+             $childConnector.removeClass("hasConnection")
+                            .addClass("noConnection");
+        }
+    }
+
     function setupDragDrop(): void {
         // dragging operator bar node into dataflow area
         $operatorBar.on("mousedown", ".operator .main", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             var $operator = $(this).closest(".operator");
             new DragHelper({
                 event: event,
@@ -49,6 +159,9 @@ namespace DagView {
 
         // moving node in dataflow area to another position
         $dfWrap.on("mousedown", ".operator .main", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             const self = this;
             const $operator = $(this).closest(".operator");
             var $dfArea = $dfWrap.find(".dataflowArea.active");
@@ -68,51 +181,50 @@ namespace DagView {
                             y: data.coors[i].y
                         });
 
-                        const containerRect = $dfWrap[0].getBoundingClientRect();
-                        const offset = {
-                            top: $dfWrap.scrollTop() - containerRect.top,
-                            left: $dfWrap.scrollLeft() - containerRect.left
-                        };
-
-                        let svgContainer = d3.select("#dagView .dataflowArea.active .mainG");
+                        const offset = _getDFAreaOffset();
+                        let svg = d3.select("#dagView .dataflowArea.active .mainSvg");
 
                         // redraw all paths that go out from this node
-                        $("#dagView").find('path[data-parentnodeid="' + nodeId + '"]').each(function() {
-                            const childNodeId = $(this).attr("data-childnodeid");
-                            let connectorIndex = parseInt($(this).attr("data-connectorindex"));
-                            if (connectorIndex === -1) {
-                                connectorIndex = 0;
-                            }
+                        $dagView.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function() {
+                            const childNodeId: DagNodeId = $(this).attr("data-childnodeid");
+                            let connectorIndex: number = parseInt($(this).attr("data-connectorindex"));
                             $(this).remove();
 
-                            const $childConnector = $dagView.find('.operator[data-nodeid="' + childNodeId + '"]')
-                                                            .find(".connector.in.hasConnection")
-                                                            .eq(connectorIndex);
+                            const $childNodeConnectors = DagView.getNode(childNodeId)
+                                                                .find(".connector.in.hasConnection");
+                            let $childConnector;
+                            if ($childNodeConnectors.hasClass("multi")) {
+                                $childConnector = $childNodeConnectors.eq(0);
+                            } else {
+                                $childConnector = $childNodeConnectors.eq(connectorIndex);
+                            }
+
                             const $parentConnector = $el.find(".connector.out");
 
                             drawLineBetweenNodes($parentConnector, $childConnector,
-                                nodeId, childNodeId, connectorIndex,
-                                svgContainer, offset);
-
+                                nodeId, childNodeId, connectorIndex, svg, offset);
                         });
 
                         // redraw all paths that lead into this node
-                        $("#dagView").find('path[data-childnodeid="' + nodeId + '"]').each(function() {
+                        $dagView.find('.edge[data-childnodeid="' + nodeId + '"]').each(function() {
                             const parentNodeId = $(this).attr("data-parentnodeid");
                             let connectorIndex = parseInt($(this).attr("data-connectorindex"));
-                            if (connectorIndex === -1) {
-                                connectorIndex = 0;
-                            }
                             $(this).remove();
 
-                            // XXX get index
-                            const $childConnector = $el.find(".connector.in.hasConnection").eq(connectorIndex);
-                            const $parentConnector = $dagView.find('.operator[data-nodeid="' + parentNodeId + '"]')
+                            const $childNodeConnectors = $el.find(".connector.in.hasConnection");
+                            let $childConnector;
+                            if ($childNodeConnectors.hasClass("multi")) {
+                                $childConnector = $childNodeConnectors.eq(0);
+                            } else {
+                                $childConnector = $childNodeConnectors.eq(connectorIndex);
+                            }
+
+                            const $parentConnector =  DagView.getNode(parentNodeId)
                                                              .find(".connector.out");
 
                             drawLineBetweenNodes($parentConnector, $childConnector,
                                  parentNodeId, nodeId, connectorIndex,
-                                 svgContainer, offset);
+                                 svg, offset);
                         });
                     });
                 },
@@ -124,7 +236,10 @@ namespace DagView {
         });
 
         // connecting 2 nodes
-        $dfWrap.on("mousedown", ".operator .connector.out", function() {
+        $dfWrap.on("mousedown", ".operator .connector.out", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             const $parentConnector = $(this);
             const $parentNode = $parentConnector.closest(".operator");
             const $dfArea = $dfWrap.find(".dataflowArea.active");
@@ -139,11 +254,26 @@ namespace DagView {
                 },
                 onDragEnd: function(_$el, event) {
                     let $childNode: JQuery;
-
+                    const node = activeDag.getNode($parentNode.data("nodeid"));
+                    const isAggNode = node.getType() === DagNodeType.Aggregate;
                     const $operators = $dfArea.find(".operator").filter(function() {
-                        return ($(this).find(".connector.in.noConnection").length > 0 ||
-                                $(this).find(".connector.in.multi").length > 0);
+                        const $operator: JQuery = $(this);
+                        let notAllowed: boolean = false;
+                        if (isAggNode) {
+                            const childNode = activeDag.getNode($operator.data("nodeid"));
+                            if (!childNode.isAllowAggNode()) {
+                                notAllowed = true;
+                            }
+                        }
+
+                        // return operators that allow agg nodes if parent is agg,
+                        // and has space for connection or is multi
+                        return (!notAllowed &&
+                                ($(this).find(".connector.in.noConnection").length > 0 ||
+                                $(this).find(".connector.in.multi").length) > 0);
                     });
+                    // check if location of drop matches position of a valid
+                    // $operator
                     $operators.not($parentNode).each(function() {
                         const rect: DOMRect = this.getBoundingClientRect();
                         const left: number = rect.left;
@@ -158,36 +288,34 @@ namespace DagView {
                     });
 
                     if (!$childNode) {
+                        console.log("invalid connection");
                         return;
                     }
+                    const parentNodeId: DagNodeId = $parentNode.data("nodeid");
+                    const childNodeId: DagNodeId = $childNode.data("nodeid");
 
                     let connectorIndex: number;
                     let $childConnector: JQuery;
                     if ($childNode.find(".connector.in.multi").length) {
                         $childConnector = $childNode.find(".connector.in.multi");
-                        connectorIndex = -1;
+                        connectorIndex = activeDag.getNode(childNodeId)
+                                                  .getNumParent();
                     } else {
                         $childConnector = $childNode.find(".connector.in.noConnection").eq(0);
                         connectorIndex = $childConnector.index();
                     }
-                    const parentNodeId: string = $parentNode.data("nodeid");
-                    const childNodeId: string = $childNode.data("nodeid");
+
                     activeDag.connect(parentNodeId, childNodeId, connectorIndex);
 
                     $childConnector.removeClass("noConnection")
                                    .addClass("hasConnection");
 
-                    const containerRect = $dfWrap[0].getBoundingClientRect();
-                    const offset = {
-                        top: $dfWrap.scrollTop() - containerRect.top,
-                        left: $dfWrap.scrollLeft() - containerRect.left
-                    };
-
-                    const svgContainer = d3.select("#dagView .dataflowArea.active .mainG");
+                    const offset = _getDFAreaOffset();
+                    const svg = d3.select("#dagView .dataflowArea.active .mainSvg");
 
                     drawLineBetweenNodes($parentConnector, $childConnector,
                                          parentNodeId, childNodeId,
-                                         connectorIndex, svgContainer, offset);
+                                         connectorIndex, svg, offset);
                 },
                 onDragFail: function() {
 
@@ -196,35 +324,39 @@ namespace DagView {
             });
         });
 
-    }
-
-    const lineFunction = d3.svg.line()
+        const lineFunction = d3.svg.line()
                                 .x(function(d) {return d.x;})
                                 .y(function(d) {return d.y;})
                                 .interpolate("cardinal");
 
-    function drawLineBetweenNodes($parentConnector, $childConnector,
-        parentNodeId, childNodeId, connectorIndex, svgContainer, offset) {
+        function drawLineBetweenNodes($parentConnector, $childConnector,
+            parentNodeId, childNodeId, connectorIndex, svg, offset) {
 
-        const parentRect = $parentConnector[0].getBoundingClientRect();
-        const parentCoors = {
-            x: parentRect.right + offset.left - 1,
-            y: parentRect.top + offset.top + 4
-        };
+            const parentRect = $parentConnector[0].getBoundingClientRect();
+            const parentCoors = {
+                x: parentRect.right + offset.left - 1,
+                y: parentRect.top + offset.top + 5
+            };
 
-        // XXX use index to find the correct connector
-        const childRect = $childConnector[0].getBoundingClientRect();
-        const childCoors = {
-            x: childRect.left + offset.left,
-            y: childRect.top + offset.top + 3
-        };
+            let offsetTop = $childConnector.height() / 2;
+            const childRect = $childConnector[0].getBoundingClientRect();
+            const childCoors = {
+                x: childRect.left + offset.left,
+                y: childRect.top + offset.top + offsetTop
+            };
 
-        svgContainer.append("path")
-                    .attr("class", "edge")
-                    .attr("d", lineFunction([parentCoors, childCoors]))
-                    .attr("data-childnodeid", childNodeId)
-                    .attr("data-parentnodeid", parentNodeId)
-                    .attr("data-connectorindex", connectorIndex);
+            const edge = svg.append("g")
+                        .attr("class", "edge")
+                        .attr("data-childnodeid", childNodeId)
+                        .attr("data-parentnodeid", parentNodeId)
+                        .attr("data-connectorindex", connectorIndex);
+            edge.append("path")
+                .attr("class", "visibleLine")
+                .attr("d", lineFunction([parentCoors, childCoors]))
+            edge.append("path")
+                .attr("class", "invisibleLine")
+                .attr("d", lineFunction([parentCoors, childCoors]))
+        }
     }
 
     function setupCategoryBar(): void {
@@ -264,6 +396,16 @@ namespace DagView {
         });
 
         $operatorBar.html(html);
+    }
 
+    function _getDFAreaOffset() {
+        const containerRect = $dfWrap[0].getBoundingClientRect();
+        const offsetTop = $dfWrap.scrollTop() - containerRect.top;
+        const offsetLeft = $dfWrap.scrollLeft() - containerRect.left;
+
+        return {
+            top: offsetTop,
+            left: offsetLeft
+        }
     }
 }

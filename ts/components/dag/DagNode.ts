@@ -273,10 +273,14 @@ class DagNode {
         throw new Error("Dag " + childNode.getId() + " is not child of " + this.getId());
     }
 
-    // XXX TODO
+    // XXX TODO - generates string that gets saved in kv store
     public serialize(): string {
         console.warn("to be implemented!");
         return "";
+    }
+
+    public isAllowAggNode(): boolean {
+        return this.allowAggNode;
     }
 
     private _isSourceNode(): boolean {

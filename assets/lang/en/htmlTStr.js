@@ -1303,5 +1303,14 @@ module.exports = {
         "wa2Tip": "Start import datasource walkthrough",
         "wa3Tip": "Start browse datasource walkthrough",
         "wa4Tip": "Start browse datasource walkthrough two"
+    },
+
+    "dag": {
+        "removeNode": "Remove Operator",
+        "cloneNode": "Copy Operator",
+        "removeConnection": "Remove Connection",
+        "configure": "Configure",
+        "comment": "Comment",
+        "execute": "Execute"
     }
 };
