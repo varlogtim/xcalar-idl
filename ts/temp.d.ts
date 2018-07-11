@@ -13,7 +13,6 @@ type XcCast = ColumnType | null;
 type JoinType = JoinCompoundOperatorTStr | JoinOperatorT;
 type HTML = string;
 
-
 /* ============== INTERFACE ======================== */
 interface Coordinate {
     x: number;

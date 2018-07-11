@@ -208,6 +208,12 @@ class DagGraph {
             toNode.connectToParent(fromNode, toPos);
             connetedToParent = true;
             fromNode.connectToChidren(toNode);
+
+            if (this._hasCycleInGraph(fromNode)) {
+                fromNode.disconnectFromChildren(toNode);
+                toNode.disconnectFromParent(fromNode, toPos);
+                throw new Error("has cycle in the dataflow");
+            }
         } catch (e) {
             if (connetedToParent) {
                 // error handler
@@ -368,7 +374,7 @@ class DagGraph {
             });
         });
 
-        node.clearTable();
+        node.removeTable();
         this.nodesMap.delete(node.getId());
     }
 
@@ -378,5 +384,26 @@ class DagGraph {
             throw new Error("Dag Node " + nodeId + " not exists");
         }
         return node;
+    }
+
+    private _hasCycleInGraph(startNode: DagNode): boolean {
+        const visited: Set<DagNodeId> = new Set();
+        const toVisit: DagNode[] = [startNode];
+
+        while (toVisit.length > 0) {
+            const node: DagNode = toVisit.shift();
+            const nodeId: DagNodeId = node.getId();
+            if (visited.has(nodeId)) {
+                return true;
+            }
+
+            visited.add(nodeId);
+            node.getChildren().forEach((child) => {
+                if (child != null) {
+                    toVisit.push(child);
+                }
+            });
+            return false;
+        }
     }
 }

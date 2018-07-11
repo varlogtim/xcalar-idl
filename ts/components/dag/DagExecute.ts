@@ -8,7 +8,7 @@ interface DagNodeDatasetInput extends DagNodeInput {
 }
 
 interface DagNodeFilterInput extends DagNodeInput {
-    fltStr: string;
+    eval: string[];
 }
 
 class DagExecute {
@@ -16,10 +16,10 @@ class DagExecute {
     private txId: number;
 
     public static test() {
-        const node = new DagNode({id: "12345", type: DagNodeType.Filter});  
-       
+        const node = new DagNode({id: "12345", type: DagNodeType.Filter});
+
         node.setParams({
-            fltStr: "eq(prefix::column0, 254487263)"
+            eval: ["eq(prefix::column0, 254487263)"]
         });
         const parentNode = new DagNode({id: "54321", type: DagNodeType.Dataset});
         parentNode.setParams({
@@ -85,8 +85,8 @@ class DagExecute {
 
     private _filter(): XDPromise<string> {
         const params: DagNodeFilterInput = <DagNodeFilterInput>this.node.getParams();
-        const fltStr: string = params.fltStr;
-        const parentNode = this.node.getParent(0);
+        const fltStr: string = params.eval[0];
+        const parentNode = this.node.getParents()[0];
         const srcTable = parentNode.getTable();
         const desTable = this._generateTableName();
         return XIApi.filter(this.txId, fltStr, srcTable, desTable);

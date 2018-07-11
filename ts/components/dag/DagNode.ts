@@ -47,7 +47,7 @@ class DagNode {
         this.children = [];
         this.input = options.input || {};
         this.comment = options.comment;
-        this.table = options.table || null;
+        this.table = options.table;
         this.state = options.state || DagNodeState.Unused;
         this.display = options.display || {x: -1, y: -1};
 
@@ -88,10 +88,6 @@ class DagNode {
         return this.maxChildren;
     }
 
-    public getPosition(): Coordinate {
-        return this.display;
-    }
-
     /**
      * @returns {DagNode[]} return all parent nodes
      */
@@ -100,14 +96,8 @@ class DagNode {
     }
 
     /**
-     * return a parent node
-     * @param pos 0 based index
-     * @returns {DagNode} parent node in pos
+     * @returns {number} current number of connected parent
      */
-    public getParent(pos: number): DagNode {
-        return this.parents[pos];
-    }
-
     public getNumParent(): number {
         return this.numParent;
     }
@@ -117,6 +107,13 @@ class DagNode {
      */
     public getChildren(): DagNode[] {
         return this.children;
+    }
+
+    /**
+     * @returns {Coordinate} the position of the node
+     */
+    public getPosition(): Coordinate {
+        return this.display;
     }
 
     /**
@@ -140,10 +137,13 @@ class DagNode {
      *
      * @param comment user comment for the node
      */
-    public addComment(comment: string): void {
+    public setComment(comment: string): void {
         this.comment = comment;
     }
 
+    /**
+     * remove comment
+     */
     public removeComment(): void {
         delete this.comment;
     }
@@ -172,25 +172,32 @@ class DagNode {
     }
 
     /**
-     *
-     * @param tableName set the table associated with the node
+     * attach table to the node
+     * @param tableName the name of the table associated with the node
      */
     public setTable(tableName: string) {
         this.table = tableName;
     }
 
-    // XXX TODO
-    public clearTable(): void {
-        console.warn("not implemented!");
+    /**
+     * deattach table from the node
+     */
+    public removeTable(): void {
+        delete this.table;
     }
 
+    /**
+     * @returns {DagNodeInput}, return the parameters of the node
+     */
     public getParams(): DagNodeInput {
-        console.warn("not fully implemented!");
         return this.input;
     }
 
+
+    // XXX TODO
     public setParams(input: DagNodeInput) {
         console.warn("not fully implemented!");
+        // XXXX this is only a sample
         this.input = input;
     }
 
@@ -240,8 +247,14 @@ class DagNode {
         if (this.parents[pos] !== parentNode) {
             throw new Error("Parent in pos " + pos + " is not " + parentNode.getId());
         }
-        this.parents[pos] = null;
-        this._clearInput(pos);
+
+        if (this._canHaveMultiParents()) {
+            this.parents.splice(pos, 1);
+        } else {
+            delete this.parents[pos];
+        }
+
+        this._removeParam(pos);
         this.numParent--;
     }
 
@@ -253,29 +266,17 @@ class DagNode {
     public disconnectFromChildren(childNode: DagNode): void {
         for (let i = 0; i < this.children.length; i++) {
             if (this.children[i] === childNode) {
-                this.children[i] = null;
-                break;
+                this.children.splice(i, 1);
+                return;
             }
         }
         throw new Error("Dag " + childNode.getId() + " is not child of " + this.getId());
     }
 
     // XXX TODO
-    public geQuery(): string {
-        // XXX TODO: reutrn a fake query string
-        console.warn("to be implemented!");
-        return '[{}]';
-    }
-
-    // XXX TODO
     public serialize(): string {
         console.warn("to be implemented!");
         return "";
-    }
-
-    // XXX TODO
-    private _clearInput(pos: number): void {
-        console.warn("to be implemented!");
     }
 
     private _isSourceNode(): boolean {
@@ -299,7 +300,8 @@ class DagNode {
     }
 
     private _allowAggNode(): boolean {
-        const allowedNodes = [DagNodeType.Map, DagNodeType.Filter];
+        const allowedNodes = [DagNodeType.Map, DagNodeType.Filter,
+            DagNodeType.Aggregate, DagNodeType.GroupBy];
         return allowedNodes.includes(this.type);
     }
 
@@ -322,5 +324,29 @@ class DagNode {
 
     private _getNonAggParents(): DagNode[] {
         return this.parents.filter((parent) => parent.getType() !== DagNodeType.Aggregate);
+    }
+
+    private _canHaveMultiParents() {
+        return this.maxParents === -1;
+    }
+
+    // XXX TODO
+    private _initParam(): void {
+
+    }
+
+    // XXX TODO
+    private _removeParam(pos: number): void {
+        // const multiNode = this._canHaveMultiParents();
+
+        // for (let key in this.input) {
+        //     if (this.input[key] instanceof Array) {
+        //         if (multiNode) {
+        //             delete this.input[key][pos];
+        //         } else {
+        //             this.input[key].splice(pos);
+        //         }
+        //     }
+        // }
     }
 }
