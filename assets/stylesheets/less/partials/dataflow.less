@@ -259,7 +259,7 @@
             margin-right: 30px;
         }
 
-        .runNowBtn, .addScheduleToDataflow {
+        .runNowBtn, .addScheduleToDataflow, .latestVersion {
             .size(@width: 25px, @height: 25px);
             float: right;
             padding: 0px;
@@ -363,6 +363,12 @@
         .addScheduleToDataflow .icon {
             font-size: 16px;
         }
+        .latestVersion {
+            margin-left: 50px;
+            .icon {
+                font-size: 18px;
+            }
+        }
 
         .border {
             float: right;
@@ -402,7 +408,7 @@
             }
 
             &.error, &.invalid {
-                .runNowBtn, .addScheduleToDataflow {
+                .runNowBtn, .addScheduleToDataflow, .latestVersion {
                     .xc-disabled
                 }
             }

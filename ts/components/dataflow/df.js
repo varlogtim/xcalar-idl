@@ -456,7 +456,7 @@ window.DF = (function($, DF) {
             userComment: newComment || "",
             meta: meta || {}
         };
-        XcalarUpdateRetina(dfName, tableName, null, JSON.stringify(commentObj))
+        XcalarUpdateRetina(dfName, [tableName], null, [JSON.stringify(commentObj)])
         .then(function() {
             DF.commitAndBroadCast(dfName);
             deferred.resolve();

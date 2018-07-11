@@ -274,6 +274,28 @@ window.DFCard = (function($, DFCard) {
             UploadDataflowCard.show();
         });
 
+        $dfCard.on('click', '.latestVersion', function() {
+            var $this = $(this);
+            var $run = $('#dfViz').find(".runNowBtn");
+            $this.addClass("xc-disabled");
+            $run.addClass("xc-disabled");
+            $this.blur();
+            updateToLatest()
+            .then(function(tableNames) {
+                if (tableNames) {
+                    console.log("Updated operations: " + tableNames);
+                }
+                xcHelper.showSuccess(SuccessTStr.ChangesSaved);
+            })
+            .fail(function(error) {
+                Alert.error(DFTStr.UpdateParamFail, error);
+            })
+            .always(function() {
+                $this.removeClass("xc-disabled");
+                $run.removeClass("xc-disabled");
+            });
+        });
+
         $dfCard.on("click", ".runNowBtn", function() {
             if (xdpMode === XcalarMode.Mod) {
                 return showLicenseTooltip(this);
@@ -394,6 +416,14 @@ window.DFCard = (function($, DFCard) {
                         dataflowName +
                     '</span>' +
                 '</div>' +
+                '<button class="latestVersion btn btn-small iconBtn ' +
+                xdpMode + '" ' +
+                'data-toggle="tooltip" data-container="body" ' +
+                'data-placement="top" data-original-title="' +
+                DFTStr.UpdateSelect + '">' +
+                    '<i class="icon xi-updatedallselected fa-18"></i>' +
+                '</button>' +
+                '<div class="border"></div>' +
                 '<button class="addScheduleToDataflow btn btn-small iconBtn ' +
                 xdpMode + '" ' +
                 'data-toggle="tooltip" data-container="body" ' +
@@ -1667,6 +1697,49 @@ window.DFCard = (function($, DFCard) {
         } else {
             $scrollBarWrap.hide();
         }
+    }
+
+    function updateToLatest() {
+        var df = DF.getDataflow(currentDataflow);
+        var deferred = PromiseHelper.deferred();
+
+        var promises = [];
+
+        var tableNames = [];
+        var params = [];
+        for (tableName in df["retinaNodes"]) {
+            var node = df["retinaNodes"][tableName];
+            if (node.operation == "XcalarApiSelect") {
+                var args = xcHelper.deepCopy(node.args);
+                if (node.args.maxBatchId != -1 || node.args.minBatchId != -1) {
+                    args.maxBatchId = -1;
+                    args.minBatchId = -1;
+
+                    tableNames.push(args.dest);
+                    params.push(args);
+                }
+            }
+        }
+
+        if (tableNames.length) {
+            XcalarUpdateRetina(currentDataflow, tableNames, params)
+            .then(function() {
+                tableNames.forEach(function(name) {
+                    var node = df["retinaNodes"][name];
+                    node.args.maxBatchId = -1;
+                    node.args.minBatchId = -1;
+                });
+                DF.commitAndBroadCast(currentDataflow);
+                deferred.resolve(tableNames);
+            })
+            .fail(function(error) {
+                deferred.reject(error);
+            });
+        } else {
+            deferred.resolve();
+        }
+
+        return deferred.promise();
     }
 
     DFCard.adjustScrollBarPositionAndSize = adjustScrollBarPositionAndSize;

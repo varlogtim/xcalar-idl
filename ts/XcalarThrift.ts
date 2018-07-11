@@ -305,7 +305,7 @@ function sleep(val: string): void {
                 break;
         }
         return (duration);
-    }    
+    }
 }
 
 function fakeApiCall<T>(ret?: T): XDPromise<T> {
@@ -3000,7 +3000,7 @@ XcalarUnion = function(
             return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
         }
 
-        const columns: XcalarApiColumnT[][] = 
+        const columns: XcalarApiColumnT[][] =
             (colInfos as XcalarColInfo[][]).map(
                 function(renameListForOneTable) {
                     return renameListForOneTable.map(colInfoMap);
@@ -3714,9 +3714,9 @@ XcalarGetRetinaJson = function(retName: string): XDPromise<object> {
 // <argument> is used to denote a parameter
 XcalarUpdateRetina = function(
     retName: string,
-    tableName: string,
+    tableNames: string[],
     paramValues,
-    comment: string,
+    comments: string,
     txId: number
 ): XDPromise<StatusT> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -3734,14 +3734,15 @@ XcalarUpdateRetina = function(
 
         for (let i = 0; i < queries.length; i++) {
             const args = queries[i].args;
-            if (args.dest === tableName) {
-                if (paramValues != null) {
-                    queries[i].args = paramValues;
+            const tableIndex = tableNames.indexOf(args.dest);
+            if (tableIndex > -1) {
+                if (paramValues !== null &&
+                    paramValues[tableIndex] != null) {
+                    queries[i].args = paramValues[tableIndex];
                 }
-                if (comment != null) {
-                    queries[i].comment = comment;
+                if (comments != null) {
+                    queries[i].comment = comments[tableIndex];
                 }
-                break;
             }
         }
 

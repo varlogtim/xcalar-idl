@@ -209,8 +209,8 @@ describe("DF Test", function() {
             var called = false;
             XcalarUpdateRetina = function(dfName, tableName, paramValues, comment) {
                 expect(dfName).to.equal("test");
-                expect(tableName).to.equal("somename");
-                expect(comment).to.equal('{"userComment":"a","meta":{}}');
+                expect(tableName[0]).to.equal("somename");
+                expect(comment[0]).to.equal('{"userComment":"a","meta":{}}');
                 called = true;
                 return PromiseHelper.resolve();
             };

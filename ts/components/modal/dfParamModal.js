@@ -1319,6 +1319,7 @@ window.DFParamModal = (function($, DFParamModal){
     function updateNode() {
         var deferred = PromiseHelper.deferred();
         var $btn = $('#dfViz').find(".runNowBtn");
+        var $updateAll = $('#dfViz').find(".latestVersion");
         var nodeStruct;
         var tName;
         var params;
@@ -1358,6 +1359,7 @@ window.DFParamModal = (function($, DFParamModal){
         }
 
         $btn.addClass('xc-disabled');
+        $updateAll.addClass('xc-disabled');
         $modal.addClass("locked");
 
         // wait 1 second to wait for any errors to return
@@ -1368,7 +1370,7 @@ window.DFParamModal = (function($, DFParamModal){
             closeModal(true);
         }, 1000);
 
-        XcalarUpdateRetina(dfName, tName, nodeStruct)
+        XcalarUpdateRetina(dfName, [tName], [nodeStruct])
         .then(function() {
             return XcalarGetRetinaJson(dfName);
         })
@@ -1434,6 +1436,7 @@ window.DFParamModal = (function($, DFParamModal){
         })
         .always(function() {
             $btn.removeClass('xc-disabled');
+            $updateAll.removeClass('xc-disabled');
         });
 
         return deferred.promise();
