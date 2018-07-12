@@ -649,7 +649,12 @@ StatusT = {
   'StatusNoSerDesPath' : 640,
   'StatusEvalInvalidToken' : 641,
   'StatusXdfInvalidArrayInput' : 642,
-  'StatusBufCacheThickAllocFailed' : 643
+  'StatusBufCacheThickAllocFailed' : 643,
+  'StatusDurBadSha' : 644,
+  'StatusDurBadIdlVer' : 645,
+  'StatusSessListIncomplete' : 646,
+  'StatusPubTableInactive' : 647,
+  'StatusPubTableRestoring' : 648
 };
 StatusTStr = {
   0 : 'Success',
@@ -1141,8 +1146,8 @@ StatusTStr = {
   486 : 'This user-defined function/application already exists. Delete before adding',
   487 : 'Too few parameters were passed to a user-defined function/application',
   488 : 'The reference count of the operation is incorrect',
-  489 : 'Application name is invalid',
   490 : 'Application host type is invalid',
+  489 : 'Application name is invalid',
   491 : 'Application is too large',
   492 : 'Transaction recovery context initialization error',
   493 : 'Transaction recovery context default status',
@@ -1295,7 +1300,12 @@ StatusTStr = {
   640 : 'Serialization disabled due to missing serialization path',
   641 : 'Token name in evalString is invalid',
   642 : 'Function does not support array input',
-  643 : 'Failed to thick allocate Buffer Cache due to out of memory'
+  643 : 'Failed to thick allocate Buffer Cache due to out of memory',
+  644 : 'Deserialization encountered an unknown IDL SHA',
+  645 : 'Deserialization encountered wrong IDL version',
+  646 : 'Incomplete session list (failed to read some sessions)',
+  647 : 'Publish table is inactive',
+  648 : 'Publish table is restoring'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -1941,5 +1951,10 @@ StatusTFromStr = {
   'Serialization disabled due to missing serialization path' : 640,
   'Token name in evalString is invalid' : 641,
   'Function does not support array input' : 642,
-  'Failed to thick allocate Buffer Cache due to out of memory' : 643
+  'Failed to thick allocate Buffer Cache due to out of memory' : 643,
+  'Deserialization encountered an unknown IDL SHA' : 644,
+  'Deserialization encountered wrong IDL version' : 645,
+  'Incomplete session list (failed to read some sessions)' : 646,
+  'Publish table is inactive' : 647,
+  'Publish table is restoring' : 648
 };

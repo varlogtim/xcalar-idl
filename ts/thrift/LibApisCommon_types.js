@@ -10754,6 +10754,7 @@ XcalarApiQueryInputT = function(args) {
   this.queryStr = null;
   this.bailOnError = null;
   this.latencyOptimized = null;
+  this.isAsync = null;
   if (args) {
     if (args.sameSession !== undefined && args.sameSession !== null) {
       this.sameSession = args.sameSession;
@@ -10769,6 +10770,9 @@ XcalarApiQueryInputT = function(args) {
     }
     if (args.latencyOptimized !== undefined && args.latencyOptimized !== null) {
       this.latencyOptimized = args.latencyOptimized;
+    }
+    if (args.isAsync !== undefined && args.isAsync !== null) {
+      this.isAsync = args.isAsync;
     }
   }
 };
@@ -10821,6 +10825,13 @@ XcalarApiQueryInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 6:
+      if (ftype == Thrift.Type.BOOL) {
+        this.isAsync = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -10855,6 +10866,11 @@ XcalarApiQueryInputT.prototype.write = function(output) {
   if (this.latencyOptimized !== null && this.latencyOptimized !== undefined) {
     output.writeFieldBegin('latencyOptimized', Thrift.Type.BOOL, 5);
     output.writeBool(this.latencyOptimized);
+    output.writeFieldEnd();
+  }
+  if (this.isAsync !== null && this.isAsync !== undefined) {
+    output.writeFieldBegin('isAsync', Thrift.Type.BOOL, 6);
+    output.writeBool(this.isAsync);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -15413,9 +15429,21 @@ XcalarApiCoalesceInputT.prototype.write = function(output) {
 
 XcalarApiListTablesInputT = function(args) {
   this.namePattern = null;
+  this.getUpdates = null;
+  this.getSelects = null;
+  this.updateStartBatchId = null;
   if (args) {
     if (args.namePattern !== undefined && args.namePattern !== null) {
       this.namePattern = args.namePattern;
+    }
+    if (args.getUpdates !== undefined && args.getUpdates !== null) {
+      this.getUpdates = args.getUpdates;
+    }
+    if (args.getSelects !== undefined && args.getSelects !== null) {
+      this.getSelects = args.getSelects;
+    }
+    if (args.updateStartBatchId !== undefined && args.updateStartBatchId !== null) {
+      this.updateStartBatchId = args.updateStartBatchId;
     }
   }
 };
@@ -15440,9 +15468,27 @@ XcalarApiListTablesInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 0:
+      case 2:
+      if (ftype == Thrift.Type.BOOL) {
+        this.getUpdates = input.readBool().value;
+      } else {
         input.skip(ftype);
-        break;
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.BOOL) {
+        this.getSelects = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 4:
+      if (ftype == Thrift.Type.I32) {
+        this.updateStartBatchId = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -15457,6 +15503,21 @@ XcalarApiListTablesInputT.prototype.write = function(output) {
   if (this.namePattern !== null && this.namePattern !== undefined) {
     output.writeFieldBegin('namePattern', Thrift.Type.STRING, 1);
     output.writeString(this.namePattern);
+    output.writeFieldEnd();
+  }
+  if (this.getUpdates !== null && this.getUpdates !== undefined) {
+    output.writeFieldBegin('getUpdates', Thrift.Type.BOOL, 2);
+    output.writeBool(this.getUpdates);
+    output.writeFieldEnd();
+  }
+  if (this.getSelects !== null && this.getSelects !== undefined) {
+    output.writeFieldBegin('getSelects', Thrift.Type.BOOL, 3);
+    output.writeBool(this.getSelects);
+    output.writeFieldEnd();
+  }
+  if (this.updateStartBatchId !== null && this.updateStartBatchId !== undefined) {
+    output.writeFieldBegin('updateStartBatchId', Thrift.Type.I32, 4);
+    output.writeI32(this.updateStartBatchId);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -20166,6 +20227,9 @@ XcalarApiTableInfoT = function(args) {
   this.keys = null;
   this.values = null;
   this.active = null;
+  this.sizeTotal = null;
+  this.numRowsTotal = null;
+  this.restoring = null;
   if (args) {
     if (args.name !== undefined && args.name !== null) {
       this.name = args.name;
@@ -20196,6 +20260,15 @@ XcalarApiTableInfoT = function(args) {
     }
     if (args.active !== undefined && args.active !== null) {
       this.active = args.active;
+    }
+    if (args.sizeTotal !== undefined && args.sizeTotal !== null) {
+      this.sizeTotal = args.sizeTotal;
+    }
+    if (args.numRowsTotal !== undefined && args.numRowsTotal !== null) {
+      this.numRowsTotal = args.numRowsTotal;
+    }
+    if (args.restoring !== undefined && args.restoring !== null) {
+      this.restoring = args.restoring;
     }
   }
 };
@@ -20340,6 +20413,27 @@ XcalarApiTableInfoT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 11:
+      if (ftype == Thrift.Type.I64) {
+        this.sizeTotal = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 12:
+      if (ftype == Thrift.Type.I64) {
+        this.numRowsTotal = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 13:
+      if (ftype == Thrift.Type.BOOL) {
+        this.restoring = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -20435,6 +20529,21 @@ XcalarApiTableInfoT.prototype.write = function(output) {
   if (this.active !== null && this.active !== undefined) {
     output.writeFieldBegin('active', Thrift.Type.BOOL, 10);
     output.writeBool(this.active);
+    output.writeFieldEnd();
+  }
+  if (this.sizeTotal !== null && this.sizeTotal !== undefined) {
+    output.writeFieldBegin('sizeTotal', Thrift.Type.I64, 11);
+    output.writeI64(this.sizeTotal);
+    output.writeFieldEnd();
+  }
+  if (this.numRowsTotal !== null && this.numRowsTotal !== undefined) {
+    output.writeFieldBegin('numRowsTotal', Thrift.Type.I64, 12);
+    output.writeI64(this.numRowsTotal);
+    output.writeFieldEnd();
+  }
+  if (this.restoring !== null && this.restoring !== undefined) {
+    output.writeFieldBegin('restoring', Thrift.Type.BOOL, 13);
+    output.writeBool(this.restoring);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

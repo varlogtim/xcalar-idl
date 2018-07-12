@@ -8,6 +8,7 @@
         this.status = 1;
         this.runTxId = -1;
         this.sqlMode = false;
+        this.queryName;
         return this;
     }
 
@@ -285,7 +286,7 @@
         run: function(query, tableName, allCols, sqlQueryString, jdbcCheckTime) {
             var self = this;
             var deferred = PromiseHelper.deferred();
-            var queryName = xcHelper.randName("sql");
+            var queryName = self.queryName;
 
             var txId = !self.sqlMode && Transaction.start({
                 "operation": "Execute SQL",
@@ -645,6 +646,14 @@
 
         setSqlMode: function() {
             this.sqlMode = true;
+        },
+
+        getQueryName: function() {
+            return this.queryName;
+        },
+
+        setQueryName: function(queryName) {
+            this.queryName = queryName;
         }
 
         // dstAggName is optional and can be left blank (will autogenerate)

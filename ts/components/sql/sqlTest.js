@@ -95,6 +95,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         "find": "SELECT instr(N_NAME, 'AN') a, locate('ol', N_COMMENT) b FROM NATION WHERE N_REGIONKEY > (SELECT min(N_REGIONKEY) from NATION) OR N_REGIONKEY < (SELECT N_REGIONKEY FROM NATION ORDER BY N_NATIONKEY limit 1) ORDER BY N_NATIONKEY limit 15",
         "projectRename": "SELECT N_NATIONKEY N_NAME, N_REGIONKEY N_NAME, N_NAME from NATION order BY N_NATIONKEY",
         "dateUDFs1": "SELECT dayofweek(O_ORDERDATE) a, dayofyear(O_ORDERDATE) b, weekofyear(O_ORDERDATE) c, to_date(o_orderdate, 'YYYY-MM-dd') d, to_unix_timestamp(o_orderdate, '%Y-%m-%d') e, unix_timestamp(o_orderdate) f from (select O_ORDERKEY, O_ORDERDATE from ORDERS order by O_ORDERKEY limit 30) order by O_ORDERKEY",
+        "cancelQuery": "select * from orders o1, orders o2"
     };
     var sqlTestAnswers = {
         "filterWithAggregates": {"row0": ["12", "JAPAN"],
@@ -678,21 +679,41 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                 WSManager.addWS();
             }
             SQLEditor.getEditor().setValue(sqlString);
-            SQLEditor.executeSQL()
-            .then(function() {
-                return dropTempTables();
-            })
-            .then(function() {
-                if (checkResult(answerSet, testName)) {
-                    test.pass(deferred, testName, currentTestNumber);
-                } else {
-                    test.fail(deferred, testName, currentTestNumber, "WrongAnswer");
-                }
-            })
-            .fail(function(error) {
-                console.error(error, "runQuery");
-                test.fail(deferred, testName, currentTestNumber, error);
-            });
+            if (testName === "cancelQuery") {
+                SQLEditor.executeSQL()
+                .then(function() {
+                    test.fail(deferred, testName, currentTestNumber, "Unable to cancel query");
+                })
+                .fail(function() {
+                    var prevQueries = SQLEditor.getPrevQueries();
+                    var lastQuery = prevQueries[prevQueries.length - 1];
+                    if (lastQuery.getStatus() === -2) {
+                        test.pass(deferred, testName, currentTestNumber);
+                    } else {
+                        test.fail(deferred, testName, currentTestNumber, "Unable to cancel query");
+                    }
+                });
+                // XXX FIXME please if you can find a better way other than setTimeout
+                setTimeout(function() {
+                    $("#monitor-queryList .query .cancelIcon").last().click();
+                }, 1000);
+            } else {
+                SQLEditor.executeSQL()
+                .then(function() {
+                    return dropTempTables();
+                })
+                .then(function() {
+                    if (checkResult(answerSet, testName)) {
+                        test.pass(deferred, testName, currentTestNumber);
+                    } else {
+                        test.fail(deferred, testName, currentTestNumber, "WrongAnswer");
+                    }
+                })
+                .fail(function(error) {
+                    console.error(error, "runQuery");
+                    test.fail(deferred, testName, currentTestNumber, error);
+                });
+            }
         }
 
         $("#sqlTab").click();

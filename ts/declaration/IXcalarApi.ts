@@ -414,7 +414,8 @@ declare function xcalarQuery(
     queryStr: string,
     sameSession: boolean,
     bailOnError: boolean,
-    latencyOptimized: boolean
+    latencyOptimized: boolean,
+    isAsync: boolean
 ): XDPromise<any>;
 
 declare function xcalarQueryState(
@@ -752,7 +753,10 @@ declare function xcalarTargetTypeList(
 
 declare function xcalarListPublishedTables(
     thriftHandle: ThriftHandler,
-    patternMatch: string
+    patternMatch: string,
+    getSelects: boolean,
+    getUpdates: boolean,
+    updateStartBatchId: number
 ): XDPromise<XcalarApiListTablesOutputT>;
 
 declare function xcalarUnpublish(

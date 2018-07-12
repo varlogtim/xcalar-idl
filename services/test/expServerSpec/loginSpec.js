@@ -110,6 +110,14 @@ describe('ExpServer Login Test', function() {
         emptyPromise = function() {
             return jQuery.Deferred().resolve().promise();
         }
+        ldapEmptyPromise = function(credArray, ldapConn, ldapConfig, currLoginId) {
+            ldapConn.client = ldap.createClient({
+                url: testLdapConn.client_url,
+                timeout: 10000,
+                connectTimeout: 20000
+            });
+            return jQuery.Deferred().resolve().promise();
+        };
         resolveResponse = function() {
             var msg = {
                 "status": httpStatus.OK,
@@ -139,15 +147,15 @@ describe('ExpServer Login Test', function() {
 
     it("login.setupLdapConfigs should fail when error", function(done) {
         var fakeFunc = function() {
-            return jQuery.Deferred().resolve("testError").promise();
+            return jQuery.Deferred().reject("testError").promise();
         };
-        support.fakeGetXlrRoot(fakeFunc);
+        login.fakeGetXlrRoot(fakeFunc);
         login.setupLdapConfigs(true)
         .then(function() {
             done("fail");
         })
         .fail(function(error) {
-            expect(error).to.have.string("setupLdapConfigs failed: Error: Cannot find module");
+            expect(error).to.have.string("setupLdapConfigs fails");
             done();
         })
         .always(function() {
@@ -281,7 +289,7 @@ describe('ExpServer Login Test', function() {
         var oldAuth = login.ldapAuthentication;
         var oldResponse = login.prepareResponse;
         login.fakeSetupLdapConfigs(emptyPromise);
-        login.fakeSetLdapConnection(emptyPromise);
+        login.fakeSetLdapConnection(ldapEmptyPromise);
         login.fakeLdapAuthentication(emptyPromise);
         var fakeResponse = function() {
             var msg = {
@@ -342,6 +350,7 @@ describe('ExpServer Login Test', function() {
             xiusername: "sPerson1@gmail.com",
             xipassword: "Welcome1"
         };
+        login.fakeGetXlrRoot(fakeRoot);
 
         var expectedRetMsg = {
             "status": 200,
@@ -349,7 +358,8 @@ describe('ExpServer Login Test', function() {
             "isAdmin": true,
             "isSupporter": false,
             "isValid": true,
-            "mail": "sPerson1@gmail.com"
+            "mail": "sPerson1@gmail.com",
+            "xiusername": "sPerson1@gmail.com"
         };
         postRequest("POST", "/login", testCredArray)
         .then(function(ret) {
@@ -639,6 +649,7 @@ describe('ExpServer Login Test', function() {
                 "isSupporter": false,
                 "isValid": true,
                 "mail": testInput.email,
+                "xiusername": testInput.username
             };
 
             expect(ret).to.deep.equal(expectedRetMsg);

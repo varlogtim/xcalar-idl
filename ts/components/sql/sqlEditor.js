@@ -199,24 +199,28 @@ window.SQLEditor = (function(SQLEditor, $) {
         var promiseArray = [];
         // Create a copy for aysnc call
         var sqlTablesCopy = $.extend(true, {}, sqlTables);
-        if (tableIds && tableIds.length > 0) {
+        if (tableIds) {
             // If tableId is provided, it's dropping XD tables. Then we delete
             // all associated sqlTables
-            var found = false;
-            for (var key in sqlTablesCopy) {
-                if (tableIds.indexOf(sqlTablesCopy[key]) > -1) {
-                    found = true;
-                    promiseArray.push(updatePlanServer(undefined, "delete",
-                                                       undefined, key));
-                    delete sqlTablesCopy[key];
+            if (tableIds.length > 0) {
+                var found = false;
+                for (var key in sqlTablesCopy) {
+                    if (tableIds.indexOf(sqlTablesCopy[key]) > -1) {
+                        found = true;
+                        promiseArray.push(updatePlanServer(undefined, "delete",
+                                                           undefined, key));
+                        delete sqlTablesCopy[key];
+                    }
                 }
-            }
-            if (!found) {
-                for (var i = 0; i < tableIds.length; i++) {
-                    $sqlTableList.find('li .unit[data-hashid="'+
-                                        tableIds[i] + '"]').remove();
+                if (!found) {
+                    for (var i = 0; i < tableIds.length; i++) {
+                        $sqlTableList.find('li .unit[data-hashid="'+
+                                            tableIds[i] + '"]').remove();
+                    }
+                    return PromiseHelper.resolve("No schemas to delete");
                 }
-                return PromiseHelper.resolve("No tables to delete");
+            } else {
+                return PromiseHelper.resolve("No schemas to delete");
             }
         } else {
             promiseArray.push(updatePlanServer(undefined, "delete", undefined,
@@ -804,10 +808,15 @@ window.SQLEditor = (function(SQLEditor, $) {
         return sqlKvStore.put(value, persist);
     }
 
+    SQLEditor.getPrevQueries = function() {
+        return sqlComs;
+    }
+
     SQLEditor.executeSQL = function(query) {
         var deferred = PromiseHelper.deferred();
         var sql = query || editor.getSelection().replace(/;+$/, "") ||
                            editor.getValue().replace(/;+$/, "");
+        var queryName = xcHelper.randName("sql");
         var sqlCom = new SQLCompiler();
         sqlComs.push(sqlCom);
         var republish = false;
@@ -817,7 +826,7 @@ window.SQLEditor = (function(SQLEditor, $) {
                 return PromiseHelper.reject();
             }
             sqlCom.setStatus(2);
-            sqlCom.compile(sql)
+            sqlCom.compile(queryName, sql)
             .done(function() {
                 sqlCom.setStatus(0);
                 deferred.resolve();

@@ -3131,9 +3131,6 @@ XcalarQuery = function(
         console.info('cancelation detected');
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
-    if (txId != null) {
-        Transaction.startSubQuery(txId, queryName, null, queryString);
-    }
 
     //Default behavior is true so if null or undefined, then should be set to true
     if (bailOnError == null) {
@@ -3141,11 +3138,14 @@ XcalarQuery = function(
     }
     const latencyOptimized = false; // New backend flag
     xcalarQuery(tHandle, queryName, queryString, true, bailOnError,
-                latencyOptimized)
+                latencyOptimized, true)
     .then(function() {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
+            if (txId != null) {
+                Transaction.startSubQuery(txId, queryName, null, queryString);
+            }
             deferred.resolve();
         }
     })
@@ -3342,8 +3342,6 @@ XcalarQueryCancel = function(
 
     xcalarQueryCancel(tHandle, queryName)
     .then(function() {
-        // will delete query when done checking
-        XcalarQueryCheck(queryName, true);
         deferred.resolve.apply(this, arguments);
     })
     .fail(function(error) {
@@ -5406,14 +5404,20 @@ XcalarTargetTypeList = function(): XDPromise<any[]> {
 
 // IMD APIs
 XcalarListPublishedTables = function(
-    pubPatternMatch: string
+    pubPatternMatch: string,
+    getSelects: boolean = true,
+    getUpdates: boolean = true,
+    updateStartBatchId: number = -1
 ): XDPromise<XcalarApiListTablesOutputT> {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
 
     const deferred: XDDeferred<XcalarApiListTablesOutputT> = jQuery.Deferred();
-    xcalarListPublishedTables(tHandle, pubPatternMatch)
+    // Note that the arguments are not in the same order. This is deliberate for
+    // programmer UX.
+    xcalarListPublishedTables(tHandle, pubPatternMatch, getUpdates,
+        updateStartBatchId, getSelects)
     .then(deferred.resolve)
     .fail(function(error) {
         const thriftError = thriftLog("XcalarListPublishedTables", error);

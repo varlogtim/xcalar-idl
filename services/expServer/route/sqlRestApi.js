@@ -2048,7 +2048,8 @@ function sqlPlan(execid, planStr, rowsToFetch, sessionId, checkTime) {
                 jdbcCheckTime: checkTime,
                 sqlMode: true
             };
-            return new SQLCompiler().compile(plan, true, jdbcOption);
+            var queryName = "sql" + sessionId;
+            return new SQLCompiler().compile(queryName, plan, true, jdbcOption);
         })
         .then(function(res) {
             console.log("compiling finished!");
@@ -2114,7 +2115,8 @@ function sqlQuery(userIdName, userIdUnique, wkbkName, queryString, queryTablePre
         console.log(queryTablePrefix, " starts compiling...");
         var option = {prefix: queryTablePrefix,
                       sqlMode: true};
-        return new SQLCompiler().compile(plan, true, option);
+        var queryName = "sql" + queryTablePrefix;
+        return new SQLCompiler().compile(queryName, plan, true, option);
     })
     .then(function(res) {
         console.log("compiling finished!");

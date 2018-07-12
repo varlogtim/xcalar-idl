@@ -1161,7 +1161,7 @@ xcalarGetStatGroupIdMap = runEntity.xcalarGetStatGroupIdMap = function(thriftHan
     return (deferred.promise());
 };
 
-xcalarQueryWorkItem = runEntity.xcalarQueryWorkItem = function(queryName, queryStr, sameSession, bailOnError, latencyOptimized) {
+xcalarQueryWorkItem = runEntity.xcalarQueryWorkItem = function(queryName, queryStr, sameSession, bailOnError, latencyOptimized, isAsync) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.queryInput = new XcalarApiQueryInputT();
@@ -1185,16 +1185,22 @@ xcalarQueryWorkItem = runEntity.xcalarQueryWorkItem = function(queryName, queryS
         workItem.input.queryInput.latencyOptimized = latencyOptimized;
     }
 
+    if (typeof isAsync === 'undefined') {
+        workItem.input.queryInput.isAsync = true;
+    } else {
+        workItem.input.queryInput.isAsync = isAsync;
+    }
+
     return (workItem);
 };
 
-xcalarQuery = runEntity.xcalarQuery = function(thriftHandle, queryName, queryStr, sameSession, bailOnError, latencyOptimized) {
+xcalarQuery = runEntity.xcalarQuery = function(thriftHandle, queryName, queryStr, sameSession, bailOnError, latencyOptimized, isAsync) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarQuery(query name= " + queryName +
                     " queryStr" + queryStr + ")");
     }
-    var workItem = xcalarQueryWorkItem(queryName, queryStr, sameSession, bailOnError, latencyOptimized);
+    var workItem = xcalarQueryWorkItem(queryName, queryStr, sameSession, bailOnError, latencyOptimized, isAsync);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -1552,18 +1558,26 @@ xcalarListDatasets = runEntity.xcalarListDatasets = function(thriftHandle) {
     return (deferred.promise());
 };
 
-xcalarListPublishedTablesWorkItem = runEntity.xcalarListPublishedTablesWorkItem = function(patternMatch) {
+xcalarListPublishedTablesWorkItem = runEntity.xcalarListPublishedTablesWorkItem = function(patternMatch, getUpdates, updateStartBatchId, getSelects) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.apiVersion = 0;
     workItem.api = XcalarApisT.XcalarApiListTables;
     workItem.input.listTablesInput = new XcalarApiListTablesInputT();
     workItem.input.listTablesInput.namePattern = patternMatch;
+    workItem.input.listTablesInput.getUpdates = getUpdates;
+    workItem.input.listTablesInput.getSelects = getSelects;
+
+    if (updateStartBatchId != null) {
+        workItem.input.listTablesInput.updateStartBatchId = updateStartBatchId;
+    } else {
+        workItem.input.listTablesInput.updateStartBatchId = -1;
+    }
 
     return (workItem);
 };
 
-xcalarListPublishedTables = runEntity.xcalarPublishedTables = function(thriftHandle, patternMatch) {
+xcalarListPublishedTables = runEntity.xcalarPublishedTables = function(thriftHandle, patternMatch, getUpdates, updateStartBatchId, getSelects) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarListPublishedTables(patternMatch = " + patternMatch + ")");

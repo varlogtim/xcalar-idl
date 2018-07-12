@@ -1200,7 +1200,7 @@
         setStatus: function(st) {
             this.sqlObj.setStatus(st);
         },
-        compile: function(sqlQueryString, isJsonPlan, jdbcOption) {
+        compile: function(queryName, sqlQueryString, isJsonPlan, jdbcOption) {
             // XXX PLEASE DO NOT DO THIS. THIS IS CRAP
             var oldKVcommit;
             if (typeof KVStore !== "undefined") {
@@ -1211,6 +1211,8 @@
             }
             var outDeferred = PromiseHelper.deferred();
             var self = this;
+            var name = queryName || xcHelper.randName("sql");
+            self.sqlObj.setQueryName(name);
             var cached;
             if (typeof SQLCache !== "undefined") {
                 cached = SQLCache.getCached(sqlQueryString);
