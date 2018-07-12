@@ -48,43 +48,6 @@ window.UExtIMD = (function(UExtIMD) {
                 "columnType": ["number"]
             },
         }]
-    },
-    {
-        "buttonText": "Refresh Table",
-        "fnName": "refresh",
-        "arrayOfFields": [{
-            "type": "string",
-            "name": "Published Table Name",
-            "fieldClass": "pubTableName",
-        },
-        {
-            "type": "string",
-            "name": "New Table Name",
-            "fieldClass": "destTableName",
-            "typeCheck": {
-                "allowEmpty": true,
-            }
-        },
-        {
-            "type": "table",
-            "name": "Replace Table (empty to add)",
-            "fieldClass": "replaceTable",
-            "typeCheck": {
-                "allowEmpty": true,
-            }
-        },
-        {
-            "type": "number",
-            "name": "Min BatchId",
-            "autofill": -1,
-            "fieldClass": "minbatchId"
-        },
-        {
-            "type": "number",
-            "name": "Max BatchId",
-            "autofill": -1,
-            "fieldClass": "maxbatchId"
-        }]
     }];
 
     UExtIMD.actionFn = function(functionName) {
@@ -93,8 +56,6 @@ window.UExtIMD = (function(UExtIMD) {
                 return publish();
             case ("update"):
                 return update();
-            case ("refresh"):
-                return refresh();
             default:
                 return null;
         }
@@ -351,50 +312,6 @@ window.UExtIMD = (function(UExtIMD) {
             return deferred.promise();
         };
 
-        return ext;
-    }
-
-    function refresh() {
-        var ext = new XcSDK.Extension();
-        ext.start = function() {
-            var self = this;
-            var deferred = XcSDK.Promise.deferred();
-
-            var pubTableName = ext.getArgs().pubTableName;
-            var destTableName = ext.getArgs().destTableName;
-            var replaceTable = ext.getArgs().replaceTable;
-            var replaceTableName;
-            if (replaceTable) {
-                replaceTableName = replaceTable.getName();
-            }
-
-            var minBatchId = ext.getArgs().minbatchId;
-            var maxBatchId = ext.getArgs().maxbatchId;
-
-            if (destTableName === "" || !destTableName) {
-                destTableName = ext.createTableName("", "",
-                                    ext.getTriggerTable().getName());
-            } else {
-                destTableName = ext.createTableName(destTableName, "", "");
-            }
-
-            XcalarRefreshTable(pubTableName, destTableName, minBatchId,
-                               maxBatchId)
-            .then(function() {
-                // Find original table meta
-                return XcalarListPublishedTables(pubTableName);
-            })
-            .then(function(ret) {
-                var newTable = ext.createNewTable(destTableName);
-                var origTableName = ret.tables[0].source.source;
-                var tableId = xcHelper.getTableId(origTableName);
-                return addTableToWorksheet(tableId, newTable, replaceTableName);
-            })
-            .then(deferred.resolve)
-            .fail(deferred.reject);
-
-            return deferred.promise();
-        };
         return ext;
     }
 
