@@ -32,7 +32,7 @@ window.UExtIMD = (function(UExtIMD) {
         "instruction": "This function updates an already published table with another table that contains the changes",
         "arrayOfFields": [{
             "type": "string",
-            "name": "Name of Published Table",
+            "name": "Published Table Name",
             "fieldClass": "updateTable",
         },
         {
