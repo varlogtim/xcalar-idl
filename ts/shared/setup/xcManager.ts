@@ -40,6 +40,7 @@ namespace xcManager {
             WSManager.setup();
             MonitorPanel.setup();
             WorkspacePanel.setup();
+            setupDagTabs();
             DagPanel.setup();
             DataflowPanel.setup();
             JupyterPanel.setup();
@@ -772,6 +773,11 @@ namespace xcManager {
         const xcSocket: XcSocket = XcSocket.Instance;
         xcSocket.setup();
         return xcSocket;
+    }
+
+    function setupDagTabs(): void {
+        const dagTabManager: DagTabManager = DagTabManager.Instance;
+        dagTabManager.setup();
     }
 
     function restoreActiveTable(tableId: string, worksheetId: string, failures: any[]): XDPromise<void> {

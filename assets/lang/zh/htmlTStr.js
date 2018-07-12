@@ -1108,7 +1108,8 @@ module.exports = {
         "sheet": "工作部",
         "unHideAll": "激活所有工作表",
         "WorksheetPanel": "Worksheet Panel",
-        "IMDPanel": "IMD Panel"
+        "IMDPanel": "IMD Panel",
+        "DagTabManager": "Dag Tab Manager"
     },
 
     "loginConfig": {
@@ -1200,5 +1201,5 @@ module.exports = {
         "configure": "Configure",
         "comment": "Comment",
         "execute": "Execute"
-    }
+    },
 }

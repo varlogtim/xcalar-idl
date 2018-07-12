@@ -1552,3 +1552,49 @@ td.col0:hover {
     .rounded(2px);
     box-shadow: inset 0px 0px 0px 2px @color-bg-softBlue;
 }
+
+
+/* ========== Dag Tabs ========== */
+
+.dagTabSectionTabs {
+    .size(@height: 35px);
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    z-index: 1;
+
+    .dagTab {
+        float: left;
+        flex: 0 0 auto;
+        .size(@height: 100%);
+        .font(@weight: 200,
+            @line-height: normal,
+            @size: 15px,
+            @color: @color-black,
+            @family: OpenSans);
+        text-align: center;
+        border-right: 1px solid @color-mercury;
+        border-top: 1px solid @color-mercury;
+        background-color: @color-iron;
+        padding: 9px 5px;
+        .noSelection;
+        .textOverflow;
+        cursor: pointer;
+
+        &:last-child {
+            border-right: none;
+        }
+
+        &:hover {
+            box-shadow: inset 0 2px 0 0 @color-border-select-blue;
+        }
+
+        &.active {
+            background-color: @color-white;
+            .flex(1 1 33%);
+            text-overflow: clip;
+        }
+    }
+}

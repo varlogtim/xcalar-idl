@@ -483,6 +483,7 @@ module.exports = {
         "ConstTableInstr": "This section contains named aggregate values.",
         "WorksheetPanel": "Worksheet Panel",
         "FnBar": "Function Bar",
+        "DagTabManager": "Dag Tab Manager",
         "IMDPanel": "IMD Panel"
     },
 
