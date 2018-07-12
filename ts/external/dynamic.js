@@ -5,7 +5,8 @@ var XCPatch;
     var fullVersion = XVM.getVersion();
     var patchVersionDict = {
         "1.3.0": 1,
-        "1.3.1": 1
+        "1.3.1": 1,
+        "1.4.0": 1
     };
 
     // Insert patch code here. Remembmer that all js files will be minified and
@@ -54,8 +55,12 @@ var XCPatch;
         } else {
             XCPatch.patch = function() {
                 var patchVersion;
-                // if (exactVersion(version, "1.3.2")) {
-                //     patchVersion = "1.3.2";
+                if (exactVersion(version, "1.4.0")) {
+                    patchVersion = "1.4.0";
+                }
+
+                // if (exactVersion(version, "1.4.1")) {
+                //     patchVersion = "1.4.1";
                 // }
 
                 if (patchVersion != null) {
