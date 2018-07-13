@@ -359,7 +359,7 @@ namespace WorkbookPreview {
         const $dagWrap: JQuery = $(html);
         $workbookPreview.addClass("dagMode")
                         .find(".dagSection").append($dagWrap);
-
+        const currentSession: string = sessionName;
         setSessionName(workbookName);
 
         XcalarGetDag(tableName, workbookName)
@@ -384,7 +384,7 @@ namespace WorkbookPreview {
             deferred.reject(error);
         });
 
-        setSessionName("");
+        setSessionName(currentSession);
         return deferred.promise();
     }
 
