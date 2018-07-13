@@ -246,6 +246,55 @@ namespace adminTools {
         return sendRequest<RequestStructTicket>(action, url, content);
     }
 
+    export function submitTicketBrowser(ticketStr: string): JQueryPromise<any> {
+        var deferred: JQueryDeferred<any> = PromiseHelper.deferred();
+        jQuery.ajax({
+            "type": "POST",
+            "data": ticketStr,
+            "contentType": "application/json",
+            "url": "https://1pgdmk91wj.execute-api.us-west-2.amazonaws.com/stable/zendesk",
+            "cache": false,
+            "timeout": adminTools.getTimeoutVal(),
+            success: function(data) {
+                deferred.resolve({
+                    "status": 200,
+                    "logs": JSON.stringify(data)
+                });
+            },
+            error: function(err) {
+                xcConsole.log(err);
+                deferred.reject(err);
+                return;
+            }
+        });
+
+        return deferred.promise();
+    }
+
+    export function finishGettingLicense(data: any): JQueryPromise<any> {
+        let deferred: JQueryDeferred<any> =  PromiseHelper.deferred();
+        let key: string = data.logs || "";
+        jQuery.ajax({
+            "type": "GET",
+            "url": "https://x3xjvoyc6f.execute-api.us-west-2.amazonaws.com/production/license/api/v1.0/keyinfo/"
+                    + adminTools.compressLicenseKey(key),
+            success: function(data) {
+                if (data.hasOwnProperty("ExpirationDate")) {
+                    deferred.resolve({"key": key,
+                                        "expiration": data.ExpirationDate,
+                                        "organization": data.LicensedTo});
+                } else {
+                    deferred.reject();
+                }
+            },
+            error: function(error) {
+                deferred.reject(error);
+            }
+        });
+        return deferred.promise();
+
+    }
+
     /**
      * Get all tickets that are filed by the user
      * @param inputStr Stringified contents of the request. We should really
@@ -366,6 +415,10 @@ namespace adminTools {
         for (let node in map) {
             lastMonitorMap.set(node, <MonitorReturnResults>map[node]);
         }
+    }
+
+    export function getTimeoutVal(): number {
+        return timeout;
     }
 
     /* Unit Test Only */

@@ -939,7 +939,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
         })
         .then(deferred.resolve)
         .fail(function() {
-            submitTicketBrowser(ticketStr)
+            adminTools.submitTicketBrowser(ticketStr)
             .then(deferred.resolve)
             .fail(deferred.reject);
         });
@@ -947,53 +947,11 @@ window.SupTicketModal = (function($, SupTicketModal) {
         return deferred.promise();
     };
 
-    function submitTicketBrowser(ticketStr) {
-        var deferred = PromiseHelper.deferred();
-        jQuery.ajax({
-            "type": "POST",
-            "data": ticketStr,
-            "contentType": "application/json",
-            "url": "https://1pgdmk91wj.execute-api.us-west-2.amazonaws.com/stable/zendesk",
-            "cache": false,
-            success: function(data) {
-                xcConsole.log(data);
-                deferred.resolve({
-                    "status": 200,
-                    "logs": JSON.stringify(data)
-                });
-            },
-            error: function(err) {
-                xcConsole.log(err);
-                deferred.reject(err);
-                return;
-            }
-        });
-
-        return deferred.promise();
-    }
-
     SupTicketModal.fetchLicenseInfo = function() {
         var deferred = PromiseHelper.deferred();
         adminTools.getLicense()
         .then(function(data) {
-            var key = data.logs || "";
-            jQuery.ajax({
-                "type": "GET",
-                "url": "https://x3xjvoyc6f.execute-api.us-west-2.amazonaws.com/production/license/api/v1.0/keyinfo/"
-                        + adminTools.compressLicenseKey(key),
-                success: function(data) {
-                    if (data.hasOwnProperty("ExpirationDate")) {
-                        deferred.resolve({"key": key,
-                                          "expiration": data.ExpirationDate,
-                                          "organization": data.LicensedTo});
-                    } else {
-                        deferred.reject();
-                    }
-                },
-                error: function(error) {
-                    deferred.reject(error);
-                }
-            });
+            return adminTools.finishGettingLicense(data);
         })
         .fail(function(err) {
             deferred.reject(err);
