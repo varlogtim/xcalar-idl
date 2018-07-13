@@ -1,27 +1,14 @@
-interface DagNodeInput {
-
-}
-
-interface DagNodeDatasetInput extends DagNodeInput {
-    source: string;
-    prefix: string;
-}
-
-interface DagNodeFilterInput extends DagNodeInput {
-    eval: string[];
-}
-
 class DagExecute {
     private node: DagNode;
     private txId: number;
 
     public static test() {
-        const node = new DagNode({id: "12345", type: DagNodeType.Filter});
+        const node = DagNodeFactory.create({id: "12345", type: DagNodeType.Filter});
 
         node.setParams({
             eval: ["eq(prefix::column0, 254487263)"]
         });
-        const parentNode = new DagNode({id: "54321", type: DagNodeType.Dataset});
+        const parentNode = DagNodeFactory.create({id: "54321", type: DagNodeType.Dataset});
         parentNode.setParams({
             source: "cheng.25132.gdelt",
             prefix: "prefix"

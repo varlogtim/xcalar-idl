@@ -141,11 +141,10 @@ namespace DagView {
                 $container: $dagView,
                 $dropTarget: $dfWrap.find(".dataflowArea.active"),
                 onDragEnd: function($newNode, _event, data) {
-                    const newNode = new DagNode({
+                    const newNode = activeDag.newNode({
                         type: $operator.data("type"),
                         display: {x: data.coors[0].x, y: data.coors[0].y}
                     });
-                    activeDag.addNode(newNode);
                     // use .attr instead of .data so we can grab by selector
                     $newNode.attr("data-nodeid", newNode.getId());
 

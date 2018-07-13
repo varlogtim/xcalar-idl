@@ -19,16 +19,17 @@ class DagNode {
     private id: DagNodeId;
     private parents: DagNode[];
     private children: DagNode[];
-    private type: DagNodeType;
-    private maxParents: number; // non-persistent
-    private maxChildren: number; // non-persistent
-    private numParent: number; // non-persisent
-    private allowAggNode: boolean; // non-persistent
     private comment: string;
-    private input: DagNodeInput;
     private table: string;
     private state: DagNodeState;
     private display: Coordinate;
+    private numParent: number; // non-persisent
+
+    protected type: DagNodeType;
+    protected input: DagNodeInput;
+    protected maxParents: number; // non-persistent
+    protected maxChildren: number; // non-persistent
+    protected allowAggNode: boolean; // non-persistent
 
     public static setIdPrefix(idPrefix: string): void {
         DagNode.idPrefix = idPrefix;
@@ -51,10 +52,10 @@ class DagNode {
         this.state = options.state || DagNodeState.Unused;
         this.display = options.display || {x: -1, y: -1};
 
-        this.maxParents = this._maxParents();
-        this.maxChildren = this._maxChildren();
-        this.allowAggNode = this._allowAggNode();
         this.numParent = 0;
+        this.maxParents = 1;
+        this.maxChildren = -1;
+        this.allowAggNode = false;
     }
 
     /**
@@ -281,49 +282,6 @@ class DagNode {
 
     public isAllowAggNode(): boolean {
         return this.allowAggNode;
-    }
-
-    private _isSourceNode(): boolean {
-        const sourceType = [DagNodeType.Dataset];
-        return sourceType.includes(this.type);
-    }
-
-    private _isTwoInputNode(): boolean {
-        const twoInputNodes = [DagNodeType.Join];
-        return twoInputNodes.includes(this.type);
-    }
-
-    private _isMultiInputNode(): boolean {
-        const multiInputNode = [DagNodeType.Union];
-        return multiInputNode.includes(this.type);
-    }
-
-    private _isDestNode(): boolean {
-        const destNodes = [DagNodeType.Export];
-        return destNodes.includes(this.type);
-    }
-
-    private _allowAggNode(): boolean {
-        const allowedNodes = [DagNodeType.Map, DagNodeType.Filter,
-            DagNodeType.Aggregate, DagNodeType.GroupBy];
-        return allowedNodes.includes(this.type);
-    }
-
-    private _maxParents(): number {
-        if (this._isSourceNode()) {
-            return 0;
-        } else if (this._isTwoInputNode()) {
-            return 2;
-        } else if (this._isMultiInputNode()) {
-            return -1;
-        } else {
-            // single input case
-            return 1;
-        }
-    }
-
-    private _maxChildren(): number {
-        return this._isDestNode() ? 0 : -1;
     }
 
     private _getNonAggParents(): DagNode[] {

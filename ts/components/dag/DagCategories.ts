@@ -10,44 +10,44 @@ class DagCategories {
         this.categories = [];
 
         const inCategory = new DagCategory(DagCategoryType.In, [
-            new DagNode({
+            DagNodeFactory.create({
                 type: DagNodeType.Dataset
             })
         ]);
 
         const outCategory = new DagCategory(DagCategoryType.Out, [
-            new DagNode({
+            DagNodeFactory.create({
                 type: DagNodeType.Export
             })
         ]);
 
         const valueCategory = new DagCategory(DagCategoryType.Value, [
-            new DagNode({
+            DagNodeFactory.create({
                 type: DagNodeType.Aggregate
             })
         ]);
 
         const operationsCategory = new DagCategory(DagCategoryType.Operations, [
-            new DagNode({
+            DagNodeFactory.create({
                 type: DagNodeType.Filter
             })
         ]);
 
         const columnCategory = new DagCategory(DagCategoryType.Column, [
-            new DagNode({
+            DagNodeFactory.create({
                 type: DagNodeType.Map
             })
         ]);
 
         const joinCategory = new DagCategory(DagCategoryType.Join, [
-            new DagNode({
+            DagNodeFactory.create({
                 type: DagNodeType.Join
             })
         ]);
 
         const setCategory = new DagCategory(DagCategoryType.Set, [
-            new DagNode({
-                type: DagNodeType.Union
+            DagNodeFactory.create({
+                type: DagNodeType.Set
             })
         ]);
 

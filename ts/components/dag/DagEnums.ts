@@ -4,7 +4,7 @@ enum DagNodeType {
     Dataset = "dataset",
     Filter = "filter",
     Join = "join",
-    Union = "union",
+    Set = "set",
     Export = "export",
     Aggregate = "aggregate",
     Map = "map",

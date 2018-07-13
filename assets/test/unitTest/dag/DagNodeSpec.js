@@ -25,7 +25,7 @@ describe("Dag Node Test", () => {
             type: DagNodeType.Join,
             expect: 2
         }, {
-            type: DagNodeType.Union,
+            type: DagNodeType.Set,
             expect: -1
         }];
 

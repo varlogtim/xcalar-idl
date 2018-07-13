@@ -26,43 +26,43 @@ class DagGraph {
         //
         // ds3 -> filter3 -> export3
 
-        const ds1: DagNode = new DagNode({
+        const ds1: DagNode = DagNodeFactory.create({
             type: DagNodeType.Dataset,
         });
         this.addNode(ds1);
         const ds1Id: DagNodeId = ds1.getId();
 
-        const ds2: DagNode = new DagNode({
+        const ds2: DagNode = DagNodeFactory.create({
             type: DagNodeType.Dataset,
         });
         this.addNode(ds2);
         const ds2Id: DagNodeId = ds2.getId();
 
-        const ds3: DagNode = new DagNode({
+        const ds3: DagNode = DagNodeFactory.create({
             type: DagNodeType.Dataset
         });
         this.addNode(ds3);
         const ds3Id: DagNodeId = ds3.getId();
 
-        const filter1: DagNode = new DagNode({
+        const filter1: DagNode = DagNodeFactory.create({
             type: DagNodeType.Filter
         });
         this.addNode(filter1);
         const filter1Id: DagNodeId = filter1.getId();
 
-        const filter2: DagNode = new DagNode({
+        const filter2: DagNode = DagNodeFactory.create({
             type: DagNodeType.Filter
         });
         this.addNode(filter2);
         const filter2Id: DagNodeId = filter2.getId();
 
-        const filter3: DagNode = new DagNode({
+        const filter3: DagNode = DagNodeFactory.create({
             type: DagNodeType.Filter
         });
         this.addNode(filter3);
         const filter3Id: DagNodeId = filter3.getId();
 
-        const join: DagNode = new DagNode({
+        const join: DagNode = DagNodeFactory.create({
             type: DagNodeType.Join
         });
         this.addNode(join);
@@ -99,13 +99,13 @@ class DagGraph {
         // XXX Only Sample Code
         // ds1 -> filter1
 
-        const ds1: DagNode = new DagNode({
+        const ds1: DagNode = DagNodeFactory.create({
             type: DagNodeType.Dataset,
         });
         this.addNode(ds1);
         const ds1Id: DagNodeId = ds1.getId();
 
-        const filter1: DagNode = new DagNode({
+        const filter1: DagNode = DagNodeFactory.create({
             type: DagNodeType.Filter
         });
         this.addNode(filter1);
@@ -147,7 +147,7 @@ class DagGraph {
      * @returns {DagNode} dag node created
      */
     public newNode(nodeInfo: DagNodeInfo): DagNode {
-        const dagNode: DagNode = new DagNode(nodeInfo);
+        const dagNode: DagNode = DagNodeFactory.create(nodeInfo);
         this.addNode(dagNode);
         return dagNode;
     }
@@ -157,14 +157,12 @@ class DagGraph {
      * @param nodeId
      */
     public cloneNode(nodeId: DagNodeId): DagNode {
-        let originalNode: DagNode = this._getNodeFromId(nodeId);
-        let nodeInfo: DagNodeInfo =  {
-            type: originalNode.getType(),
-            comment: originalNode.getComment(),
-            input: originalNode.getParams()
-        };
-        nodeInfo = xcHelper.deepCopy(nodeInfo);
-        return this.newNode(nodeInfo);
+        const node: DagNode = this._getNodeFromId(nodeId);
+        return this.newNode({
+            type: node.getType(),
+            input: xcHelper.deepCopy(node.getParams()),
+            comment: node.getComment(), // XXX DO we want to clone comment or not?
+        });
     }
 
     /**
