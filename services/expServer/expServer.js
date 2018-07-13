@@ -57,6 +57,9 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     // Invoke the sqlApi router
     app.use(require('./route/sqlRestApi.js').router);
 
+    // Invoke the xcrpc router
+    app.use(require('./route/xcrpc.js').router);
+
     function getOperatingSystem() {
         var deferred = jQuery.Deferred();
         var out = exec("cat /etc/*release");

@@ -3,7 +3,6 @@ var router = express.Router();
 var net = require('net');
 
 router.post("/service/xce", function(req, res) {
-    xcConsole.log("Forwarding request to XCE");
     var reqBuf = Buffer.from(req.body.data, 'base64');
     var reqSizeBuf = Buffer.alloc(8);
 
@@ -83,3 +82,5 @@ router.post("/service/xce", function(req, res) {
     });
 });
 
+// Export router
+exports.router = router;
