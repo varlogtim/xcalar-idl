@@ -1977,8 +1977,8 @@ namespace IMDPanel {
             return restoreTableOrder();
         })
         .then(function() {
-            pCheckedTables = [];
-            iCheckedTables = [];
+            resetActiveChecked();
+            resetInactiveChecked();
             let html: string = getListHtml(pTables);
             $imdPanel.find(".activeTablesList").html(html);
             html = getListHtml(iTables);
