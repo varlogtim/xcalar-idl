@@ -1700,9 +1700,9 @@ namespace xcManager {
 
             // If none of the parents can be scrolled up
             // when we try to scroll up
-            const prevent_up: boolean = event["deltaY"] > 0 && !($parents.filter(function() {
+            const prevent_up: boolean = event["deltaY"] > 0 && $parents.filter(function() {
                 return $(this).scrollTop() > 0;
-            }).length === 0);
+            }).length === 0;
             // Prevent swipe scroll,
             // which would trigger the Back/Next page event
             if (prevent_left || prevent_up) {
