@@ -112,6 +112,7 @@ window.UExtIMD = (function(UExtIMD) {
 
         var mapArray = [];
         var mapNewNamesArray = [];
+        var invalidColumns = "";
         for (var i = 0; i < cols.length; i++) {
             var col = cols[i];
             if (col.name === "DATA") {
@@ -119,13 +120,21 @@ window.UExtIMD = (function(UExtIMD) {
             }
             var colStruct = getDerivedCol(col);
             if (!colStruct) {
-                deferred.reject("Cannot have arrays / structs");
+                invalidColumns += col.name + ", ";
+                continue;
             }
-            tableInfo.colsToProject.push(colStruct.colName);
-            if (colStruct.mapStr) {
-                mapNewNamesArray.push(colStruct.colName);
-                mapArray.push(colStruct.mapStr);
+            if(!invalidColumns) {
+                tableInfo.colsToProject.push(colStruct.colName);
+                if (colStruct.mapStr) {
+                    mapNewNamesArray.push(colStruct.colName);
+                    mapArray.push(colStruct.mapStr);
+                }
             }
+        }
+
+        if (invalidColumns) {
+            invalidColumns = invalidColumns.slice(0, -2);
+            return deferred.reject("Table cannot have arrays / structs. \n Invalid Columns: " + invalidColumns);
         }
 
         var imdCol;
