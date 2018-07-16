@@ -105,7 +105,7 @@ namespace DagNodeMenu {
                 break;
             case (DagNodeType.Project):
                 console.log("open project form");
-                // ProjectOpPanel.show(node);
+                ProjectOpPanel.Instance.show(node);
                 break;
             default:
                 break;

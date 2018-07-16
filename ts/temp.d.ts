@@ -606,6 +606,11 @@ declare namespace CommonTxtTstr {
     export var Overwrite: string;
     export var LogoutWarn: string;
     export var LeaveWarn: string;
+    export var SelectAll: string;
+}
+
+declare namespace ProjectTStr {
+    export var prefixTip: string;
 }
 
 declare namespace ExtTStr {
@@ -728,6 +733,7 @@ declare namespace ErrTStr {
     export var RefreshBrowser: string;
     export var RefreshBrowserDesc: string;
     export var Update: string;
+    export var NoColumns: string;
 }
 
 declare namespace ErrWRepTStr {

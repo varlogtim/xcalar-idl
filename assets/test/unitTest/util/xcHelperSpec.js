@@ -937,6 +937,32 @@ describe("xcHelper Test", function() {
         expect(res).to.equal("<foo>");
     });
 
+    it("xcHelper.replaceTemplate should work", function() {
+        // Global replace
+        expect(
+            xcHelper.replaceTemplate('<1>abc<1>', {'<1>': '2'}, false)
+        ).to.equal('2abc<1>');
+        // First match replace
+        expect(
+            xcHelper.replaceTemplate('<1>abc<1>', {'<1>': '2'}, true)
+        ).to.equal('2abc2');
+        // Multiple replaces
+        expect(
+            xcHelper.replaceTemplate('<1>a<2>a<1>a<2>', {'<1>': '-1', '<2>': '-2'}, true)
+        ).to.equal('-1a-2a-1a-2');
+        // Regex replace
+        expect(
+            xcHelper.replaceTemplate('a12b45c0', {'[0-9]': 'D'}, true)
+        ).to.equal('aDDbDDcD');
+        // Invalid input
+        expect(
+            xcHelper.replaceTemplate('<1>abc<1>', {'<1>': null}, true)
+        ).to.equal('<1>abc<1>');
+        expect(
+            xcHelper.replaceTemplate('<1>abc<1>', {'<1>': undefined}, true)
+        ).to.equal('<1>abc<1>');
+    });
+
     it("xcHelper.toggleListGridBtn should work", function() {
         var $btn = $('<button class="gridView">' +
                         '<i class="icon"></i>' +

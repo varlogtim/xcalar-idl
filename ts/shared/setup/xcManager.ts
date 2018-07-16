@@ -96,6 +96,7 @@ namespace xcManager {
             OperationsView.setup();
             DFCreateView.setup();
             ProjectView.setup();
+            ProjectOpPanel.Instance.setup();
             DFParamModal.setup();
             SmartCastView.setup();
             SortView.setup();

@@ -1767,14 +1767,40 @@ namespace xcHelper {
      * @param replaces
      */
     export function replaceMsg(txt: string, replaces: object = {}): string {
-        for (let key in replaces) {
-            const str: string = replaces[key];
-            if (str == null) {
-                continue;
-            }
+        return replaceTemplate(
+            txt,
+            Object.keys(replaces).reduce((res, key) => {
+                res[`<${key}>`] = replaces[key];
+                return res;
+            }, {}),
+            false
+        );
+    }
 
-            const mark: string = "<" + key + ">";
-            txt = txt.replace(mark, str);
+    /**
+     * xcHelper.replaceTemplate
+     * @param txt Template string
+     * @param replaces An object. key is the string/regex to be replaced. value is the string to replace with.
+     * @param isGlobal true: replace all matches; false: replace the first math
+     * @example replaceTemplate('Replace <me>', {'<me>': 'you'}). The output is 'Replace you'.
+     */
+    export function replaceTemplate(
+        txt: string,
+        replaces: object = {},
+        isGlobal: boolean = false
+    ): string {
+        try {
+            const flag = isGlobal ? 'g' : undefined;
+            for (let key in replaces) {
+                const str: string = replaces[key];
+                if (str == null) {
+                    continue;
+                }
+    
+                txt = txt.replace(new RegExp(key, flag), str);
+            }
+        } catch(e) {
+            console.error(e);
         }
 
         return txt;

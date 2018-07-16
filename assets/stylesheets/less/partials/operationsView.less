@@ -1613,7 +1613,7 @@ html.firefox {
 }
 
 
-#exportView, #dfCreateView, #projectView {
+#exportView, #dfCreateView, #projectView, #projectOpPanel {
     @listHeight: 26px;
     @standardFontSize: 12px;
     @commonMargin: 10px;
@@ -1966,7 +1966,7 @@ html.firefox {
     }
 }
 
-#projectView {
+#projectView, #projectOpPanel {
     .prefixedSection, .derivedSection {
         margin-bottom: 10px;
         .subHeading {
@@ -2603,5 +2603,18 @@ html.firefox {
 
     .confirm {
         text-transform: uppercase;
+    }
+}
+
+#projectOpPanel {
+    .columnsWrap {
+        &.flexWrap {
+            li {
+                padding-right: 0;
+                .text {
+                    .size(@width: ~"calc(100% - 22px)");
+                }
+            }
+        }
     }
 }
