@@ -1,8 +1,10 @@
 class DagGraph {
     private nodesMap: Map<DagNodeId, DagNode>;
+    private removedNodesMap: Map<DagNodeId,{}>;
 
     public constructor() {
         this.nodesMap = new Map();
+        this.removedNodesMap = new Map();
     }
 
     // XXX TODO
@@ -153,6 +155,33 @@ class DagGraph {
     }
 
     /**
+     * adds back a removed node
+     * @param nodeId 
+     */
+    public addBackNode(nodeId): DagNode {
+        const nodeInfo = this._getRemovedNodeInfoFromId(nodeId);
+        const node = nodeInfo["node"]
+        const parents: DagNode[] = node.getParents();
+        const children: DagNode[] = node.getChildren();
+
+        parents.forEach((parent) => {
+            if (parent != null) {
+                parent.connectToChild(node);
+            }
+        });
+        children.forEach((child) => {
+            const childId = child.getId();
+            nodeInfo["childIndices"][childId].forEach((index) => {
+                child.connectToParent(node, index);
+            });
+        })
+        
+        this.nodesMap.set(node.getId(), node);
+        this.removedNodesMap.delete(node.getId());
+        return node;
+    }
+
+    /**
      * copy a node, type, comment, and input get copied but child/parents do not
      * @param nodeId
      */
@@ -220,10 +249,10 @@ class DagGraph {
             toNode = this._getNodeFromId(toNodeId);
             toNode.connectToParent(fromNode, toPos);
             connetedToParent = true;
-            fromNode.connectToChidren(toNode);
+            fromNode.connectToChild(toNode);
 
             if (this._hasCycleInGraph(fromNode)) {
-                fromNode.disconnectFromChildren(toNode);
+                fromNode.disconnectFromChild(toNode);
                 toNode.disconnectFromParent(fromNode, toPos);
                 throw new Error("has cycle in the dataflow");
             }
@@ -250,7 +279,7 @@ class DagGraph {
         const fromNode: DagNode = this._getNodeFromId(fromNodeId);
         const toNode: DagNode = this._getNodeFromId(toNodeId);
         toNode.disconnectFromParent(fromNode, toPos);
-        fromNode.disconnectFromChildren(toNode);
+        fromNode.disconnectFromChild(toNode);
     }
 
     // XXX TODO
@@ -375,19 +404,29 @@ class DagGraph {
 
         parents.forEach((parent) => {
             if (parent != null) {
-                parent.disconnectFromChildren(node);
+                parent.disconnectFromChild(node);
             }
         });
 
+        const childIndices = {};
         children.forEach((child) => {
+            const childId = child.getId();
             child.getParents().forEach((parent, index) => {
                 if (parent === node) {
+                    if (!childIndices[childId]) {
+                        childIndices[childId] = [];
+                    }
+                    childIndices[childId].push(index); 
                     child.disconnectFromParent(node, index);
                 }
             });
         });
 
         node.removeTable();
+        this.removedNodesMap.set(node.getId(), {
+            childIndices: childIndices,
+            node: node
+        });
         this.nodesMap.delete(node.getId());
     }
 
@@ -397,6 +436,14 @@ class DagGraph {
             throw new Error("Dag Node " + nodeId + " not exists");
         }
         return node;
+    }
+
+    private _getRemovedNodeInfoFromId(nodeId: DagNodeId) {
+        const nodeInfo = this.removedNodesMap.get(nodeId);
+        if (nodeInfo == null) {
+            throw new Error("Dag Node " + nodeId + " not exists");
+        }
+        return nodeInfo;
     }
 
     private _hasCycleInGraph(startNode: DagNode): boolean {

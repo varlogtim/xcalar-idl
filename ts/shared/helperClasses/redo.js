@@ -212,6 +212,28 @@ window.Redo = (function($, Redo) {
 
     /* END BACKEND OPERATIONS */
 
+    /* Dag operations */
+
+    redoFuncs[SQLOps.DisconnectOperation] = function(options) {
+        DagView.disconnect(options.parentNodeId, options.childNodeId, options.connectorIndex);
+        return PromiseHelper.resolve(null);
+    };
+
+    redoFuncs[SQLOps.ConnectOperations] = function(options) {
+        DagView.connect(options.parentNodeId, options.childNodeId, options.connectorIndex);
+        return PromiseHelper.resolve(null);
+    };
+
+    redoFuncs[SQLOps.RemoveOperations] = function(options) {
+        DagView.removeNodes(options.dataflowId, options.nodeIds);
+        return PromiseHelper.resolve(null);
+    };
+
+    redoFuncs[SQLOps.AddOperation] = function(options) {
+        DagView.addBackNodes(options.dataflowId, [options.nodeId]);
+        return PromiseHelper.resolve(null);
+    };
+
     /* USER STYLING/FORMATING OPERATIONS */
 
     redoFuncs[SQLOps.MinimizeCols] = function(options) {

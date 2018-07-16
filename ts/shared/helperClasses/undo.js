@@ -507,6 +507,28 @@ window.Undo = (function($, Undo) {
     };
     /* END BACKEND OPERATIONS */
 
+    /* Dataflow operations */
+
+    undoFuncs[SQLOps.DisconnectOperation] = function(options) {
+        DagView.connect(options.parentNodeId, options.childNodeId, options.connectorIndex);
+        return PromiseHelper.resolve(null);
+    };
+
+    undoFuncs[SQLOps.ConnectOperations] = function(options) {
+        DagView.disconnect(options.parentNodeId, options.childNodeId, options.connectorIndex);
+        return PromiseHelper.resolve(null);
+    };
+
+    undoFuncs[SQLOps.RemoveOperations] = function(options) {
+        DagView.addBackNodes(options.dataflowId, options.nodeIds);
+        return PromiseHelper.resolve(null);
+    };
+
+    undoFuncs[SQLOps.AddOperation] = function(options) {
+        DagView.removeNodes(options.dataflowId, [options.nodeId])
+        return PromiseHelper.resolve(null);
+    };
+
 
     /* USER STYLING/FORMATING OPERATIONS */
 

@@ -1297,6 +1297,10 @@ window.Log = (function($, Log) {
             // case (SQLOps.DelFolder):
             case (SQLOps.ChangeFormat):
             case (SQLOps.MarkPrefix):
+            case (SQLOps.ConnectOperations):
+            case (SQLOps.DisconnectOperation):
+            case (SQLOps.RemoveOperations):
+            case (SQLOps.AddOperation):
                 return false;
             // thrift operation
             case (SQLOps.DestroyDS):

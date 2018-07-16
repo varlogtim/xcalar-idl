@@ -229,7 +229,7 @@ class DagNode {
      *
      * @param childNode child node to connected to
      */
-    public connectToChidren(childNode: DagNode): void {
+    public connectToChild(childNode: DagNode): void {
         if (this.getMaxChildren() === 0) {
             throw new Error("Node has maximum children connected");
         }
@@ -264,7 +264,7 @@ class DagNode {
      * once (e.g. self-join, union...), remove the first occurred one
      * @param pos the index of the child node that will be disconnected
      */
-    public disconnectFromChildren(childNode: DagNode): void {
+    public disconnectFromChild(childNode: DagNode): void {
         for (let i = 0; i < this.children.length; i++) {
             if (this.children[i] === childNode) {
                 this.children.splice(i, 1);
@@ -276,7 +276,23 @@ class DagNode {
 
     // XXX TODO - generates string that gets saved in kv store
     public serialize(): string {
-        console.warn("to be implemented!");
+        // console.warn("to be implemented!");
+        // const parents = this.parents.map(function(parent) {
+        //     return parent.getId()
+        // });
+        // const children = this.children.map(function(child) {
+        //     return child.getId()
+        // });
+        
+        // return JSON.stringify({
+        //     parents: parents,
+        //     children: children,
+        //     type: this.type,
+        //     comment: this.comment,
+        //     input: this.input,
+        //     id: this.id
+        // });
+
         return "";
     }
 

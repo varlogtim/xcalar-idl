@@ -301,7 +301,11 @@ enum SQLOps {
     Replay = "Replay",
     DFRerun = "Dataflow Rerun",
     ExecSQL = "Execute SQL",
-    RefreshTables = "refreshTables"
+    RefreshTables = "refreshTables",
+    DisconnectOperation = "disconnectOperation",
+    ConnectOperations = "connectOperations",
+    RemoveOperations = "removeOperations",
+    AddOperation = "addOperation"
 }
 
 enum XcalarMode {

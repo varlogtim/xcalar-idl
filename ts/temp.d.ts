@@ -1097,7 +1097,7 @@ declare namespace Log {
     export function lockUndoRedo(): void;
     export function unlockUndoRedo(): void;
     export function backup(): void;
-    export function add(title: string, options: object | null, cli: string, willCommit: boolean): void;
+    export function add(title: string, options: object | null, cli?: string, willCommit?: boolean): void;
     export function getCursor(): number;
     export function errorLog(title: string, sql: object, cli: string, error: string | object);
     export function commitErrors(): void;

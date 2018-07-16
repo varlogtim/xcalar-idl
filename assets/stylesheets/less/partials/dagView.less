@@ -123,9 +123,9 @@
     }
     .dataflowWrap {
         .flex(1 1 auto);
+        .flex-display;
         background-color: @color-white;
         position: relative;
-        display: flex;
         overflow: auto;
 
         .dataflowArea {
@@ -171,6 +171,8 @@
 
     .mainSvg {
         .size(100%, 100%);
+        overflow: visible;
+        
         .edge {
             cursor: pointer;
 

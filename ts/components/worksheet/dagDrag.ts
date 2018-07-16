@@ -41,6 +41,7 @@ class DragHelper {
     protected origPositions: Coordinate[];
     protected currentDragCoor: DragHelperCoordinate;
     protected customOffset: Coordinate;
+    protected dragContainerPositions: Coordinate[];
 
     public constructor(options: DragHelperOptions) {
         this.$container = options.$container;
@@ -62,6 +63,7 @@ class DragHelper {
         this.currentDragCoor = {left: 0, top: 0, height: 0, width: 0};
         this.isDragging = false;
         this.customOffset = options.offset || {x: 0, y: 0};
+        this.dragContainerPositions = [];
 
         const self = this;
         this.mouseDownCoors = {
@@ -122,17 +124,18 @@ class DragHelper {
             return;
         }
         const self = this;
+        const pxToIncrement = 20;
 
         if (this.currentDragCoor.left < this.targetRect.left) {
             const curScrollLeft: number = this.$dropTarget.parent().scrollLeft();
-            this.$dropTarget.parent().scrollLeft(curScrollLeft - 20);
+            this.$dropTarget.parent().scrollLeft(curScrollLeft - pxToIncrement);
             if (!this.isOffScreen) {
                 this.isOffScreen = true;
                 this.$draggingEl.addClass("isOffScreen");
             }
         } else if (this.currentDragCoor.top < this.targetRect.top) {
             const curScrollTop: number = this.$dropTarget.parent().scrollTop();
-            this.$dropTarget.parent().scrollTop(curScrollTop - 20);
+            this.$dropTarget.parent().scrollTop(curScrollTop - pxToIncrement);
             if (!this.isOffScreen) {
                 this.isOffScreen = true;
                 this.$draggingEl.addClass("isOffScreen");
@@ -144,15 +147,17 @@ class DragHelper {
             this.$dropTarget.parent().outerHeight() <= 1) {
                 this.$dropTarget.height("+=4");
             }
-            this.$dropTarget.parent().scrollTop(curScrollTop + 20);
+            this.$dropTarget.parent().scrollTop(curScrollTop + pxToIncrement);
 
         } else if ((this.currentDragCoor.left + this.currentDragCoor.width) > this.targetRect.right) {
             const curScrollLeft: number = this.$dropTarget.parent().scrollLeft();
             if (this.$dropTarget.parent()[0].scrollWidth - curScrollLeft -
             this.$dropTarget.parent().outerWidth() <= 1) {
                 this.$dropTarget.find(".sizer").width("+=4");
+                const width = this.$dropTarget.find(".sizer").width();
+                this.$dropTarget.width(width);
             }
-            this.$dropTarget.parent().scrollLeft(curScrollLeft + 20);
+            this.$dropTarget.parent().scrollLeft(curScrollLeft + pxToIncrement);
 
         } else if (this.isOffScreen) {
             this.isOffScreen = false;
@@ -205,10 +210,16 @@ class DragHelper {
         this.$draggingEl.append($clones);
 
         $clones.each(function(i: number) {
+           let cloneLeft = self.origPositions[i].x - left;
+           let cloneTop = self.origPositions[i].y - top;
             $(this).css({
-                left: self.origPositions[i].x - left,
-                top: self.origPositions[i].y - top
+                left: cloneLeft,
+                top: cloneTop
             });
+            self.dragContainerPositions.push({
+                x: cloneLeft,
+                y: cloneTop
+            })
         });
         this.$container.append(this.$draggingEl);
 
@@ -243,43 +254,33 @@ class DragHelper {
             this.onDragFailCallback();
             return;
         }
+        this.positionDraggingEl(event);
         this.isDragging = false;
         this.$draggingEl.removeClass("dragging clone");
 
-        let deltaX: number;
-        let deltaY: number;
-        if (this.copying) {
-            deltaX = event.pageX + this.offset.x - this.targetRect.left + this.$dropTarget.parent().scrollLeft()
-            deltaY = event.pageY + this.offset.y - this.targetRect.top + this.$dropTarget.parent().scrollTop();
-        } else {
-            deltaX = event.pageX - this.mouseDownCoors.x - this.targetRect.left + this.$dropTarget.parent().scrollLeft();
-            deltaY = event.pageY - this.mouseDownCoors.y - this.targetRect.top + this.$dropTarget.parent().scrollTop();
-        }
+        let deltaX: number = self.currentDragCoor.left - self.targetRect.left + self.$dropTarget.parent().scrollLeft();
+        let deltaY: number = self.currentDragCoor.top - self.targetRect.top + self.$dropTarget.parent().scrollTop()
         let success = false;
         let coors: Coordinate[] = [];
-        if ((this.currentDragCoor.left - this.targetRect.left + this.$dropTarget.parent().scrollLeft() > 0) &&
-        (this.currentDragCoor.top - this.targetRect.top + this.$dropTarget.parent().scrollTop() > 0)) {
-            if (this.copying) {
-                this.$draggingEls.css({
-                    left: deltaX,
-                    top: deltaY
+       
+        // check if item was dropped within left and top boundaries of drop target
+        if (deltaX >= 0 && deltaY > 0) {
+            success = true;
+            this.dragContainerPositions.forEach(function(pos) {
+                coors.push({
+                    x: deltaX + pos.x,
+                    y: deltaY + pos.y
                 });
-                this.$draggingEls.appendTo(this.$dropTarget);
-                coors.push({x: deltaX, y: deltaY});
-            } else {
-                coors = [];
+            });
+            if (!this.copying) {
                 this.$draggingEls.each(function(i) {
-                    let x: number = self.origPositions[i].x + deltaX;
-                    let y: number = self.origPositions[i].y + deltaY;
                     $(this).css({
-                        left: x,
-                        top: y
+                        left: coors[i].x,
+                        top: coors[i].y
                     });
                     $(this).appendTo(self.$dropTarget); // positions this element in front
-                    coors.push({x: x, y: y});
                 });
             }
-            success = true;
         }
 
         this.$draggingEls.removeClass("dragSelected");
@@ -295,42 +296,41 @@ class DragLineHelper extends DragHelper {
     public constructor(options) {
         super(options);
         $("#moveCursor").addClass("arrowOnly");
-
     }
 
-    protected endDrag(event: JQueryEventObject): void {
-        const self = this;
-        $("body").removeClass("tooltipOff");
-        $("#moveCursor").remove();
-        $(document).off("mousemove.checkDrag");
-        $(document).off("mousemove.onDrag");
-        $(document).off("mouseup.endDrag");
-        if (!this.isDragging) {
-            this.isDragging = false;
-            this.onDragFailCallback();
-            return;
-        }
-        this.isDragging = false;
-        this.$draggingEl.removeClass("dragging clone");
+    // protected endDrag(event: JQueryEventObject): void {
+    //     const self = this;
+    //     $("body").removeClass("tooltipOff");
+    //     $("#moveCursor").remove();
+    //     $(document).off("mousemove.checkDrag");
+    //     $(document).off("mousemove.onDrag");
+    //     $(document).off("mouseup.endDrag");
+    //     if (!this.isDragging) {
+    //         this.isDragging = false;
+    //         this.onDragFailCallback();
+    //         return;
+    //     }
+    //     this.isDragging = false;
+    //     this.$draggingEl.removeClass("dragging clone");
 
-        let deltaX: number = event.pageX - this.mouseDownCoors.x - this.targetRect.left + this.$dropTarget.parent().scrollLeft();
-        let deltaY: number = event.pageY - this.mouseDownCoors.y - this.targetRect.top + this.$dropTarget.parent().scrollTop();
+    //     let deltaX: number = event.pageX - this.mouseDownCoors.x - this.targetRect.left + this.$dropTarget.parent().scrollLeft();
+    //     let deltaY: number = event.pageY - this.mouseDownCoors.y - this.targetRect.top + this.$dropTarget.parent().scrollTop();
 
-        let success: boolean = false;
-        if ((this.currentDragCoor.left - this.targetRect.left + this.$dropTarget.parent().scrollLeft() > 0) &&
-        (this.currentDragCoor.top - this.targetRect.top + this.$dropTarget.parent().scrollTop() > 0)) {
+    //     let success: boolean = false;
+    //     if ((this.currentDragCoor.left - this.targetRect.left + this.$dropTarget.parent().scrollLeft() > 0) &&
+    //     (this.currentDragCoor.top - this.targetRect.top + this.$dropTarget.parent().scrollTop() > 0)) {
 
-            this.$draggingEls.css({
-                left: self.origPositions[0].x + deltaX,
-                top: self.origPositions[0].y + deltaY
-            });
-            success = true;
-        }
+    //         this.$draggingEls.css({
+    //             left: self.origPositions[0].x + deltaX,
+    //             top: self.origPositions[0].y + deltaY
+    //         });
+    //         success = true;
+    //     }
 
-        this.$draggingEls.removeClass("dragSelected");
-        this.$draggingEl.remove();
-        if (success) {
-            this.onDragEndCallback(this.$draggingEls, event);
-        }
-    }
+    //     this.$draggingEls.removeClass("dragSelected");
+    //     this.$draggingEl.remove();
+    //     if (success) {
+    //         this.onDragEndCallback(this.$draggingEls, event);
+    //     }
+    // }
 }

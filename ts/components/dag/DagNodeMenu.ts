@@ -61,6 +61,7 @@ namespace DagNodeMenu {
             const parentNodeId: DagNodeId = $edge.attr("data-parentnodeid");
             $menu.data("nodeid", nodeId);
             $menu.data("parentnodeid", parentNodeId);
+            $menu.data("connectorindex", $edge.attr("data-connectorindex"));
 
             return false;
         });
@@ -88,12 +89,14 @@ namespace DagNodeMenu {
             }
             var nodeId = $menu.data("nodeid");
             var parentNodeId = $menu.data("parentnodeid");
+            var connectorIndex = $menu.data("connectorindex");
+
             switch (action) {
                 case ("removeNode"):
-                    DagView.removeNode(nodeId);
+                    DagView.removeNodes(0, [nodeId]);
                     break;
                 case ("removeInConnection"):
-                    DagView.disconnect(parentNodeId, nodeId);
+                    DagView.disconnect(parentNodeId, nodeId, connectorIndex);
                     break;
                 case ("cloneNode"):
                     DagView.cloneNode(nodeId);
