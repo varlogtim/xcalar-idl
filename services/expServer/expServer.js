@@ -17,6 +17,8 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     var exec = require("child_process").exec;
     var socket = require('./socket.js');
     var xcConsole = require('./expServerXcConsole.js').xcConsole;
+    var proxy = require('express-http-proxy');
+    var url = require('url')
     var serverPort = process.env.XCE_EXP_PORT ?
         process.env.XCE_EXP_PORT : 12124;
     if (process.env.NODE_ENV === "test") {
@@ -25,6 +27,16 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     }
 
     var app = express();
+
+    // proxy thrift requests to mgmtd
+    app.use('/thrift/service', proxy('localhost:9090', {
+        proxyReqPathResolver: function(req) {
+            return url.parse(req.url).path;
+        },
+        proxyErrorHandler: function(err) {
+            xcConsole.error('error on proxy', err);
+        }
+    }));
 
     // increase default limit payload size of 100kb
     app.use(bodyParser.urlencoded({extended: false, limit: '20mb'}));
