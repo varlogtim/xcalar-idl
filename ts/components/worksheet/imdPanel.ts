@@ -815,7 +815,7 @@ namespace IMDPanel {
 
         $imdPanel.on("click", ".deactivate", function() {
             if (pCheckedTables.length === 0) {
-
+                return;
             }
 
             let tableName = "";

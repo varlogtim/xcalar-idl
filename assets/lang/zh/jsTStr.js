@@ -1365,7 +1365,7 @@ IMDTStr = {
     "DataUnavailable": "Only showing last 128 updates.",
     "DelTableMsg": "Are you sure you want to permanently delete the following tables : \"<tableName>\"? This action cannot be undone.",
     "Activating": "Activating Tables",
-    "DeactivateTablesMsg": "Are you sure you want to deactivate the following tables : \"<tableName>\"?",
+    "DeactivateTablesMsg": "Note: activating and deactivating published tables may be slow.\nAre you sure you want to deactivate the following tables : \"<tableName>\"?",
     "DeactivateTable": "Deactivate Published Tables",
     "Coalesce": "Coalesce",
     "CoalesceTip": "Conserve memory by combining updated tables into one. This operation cannot be undone."
