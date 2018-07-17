@@ -537,6 +537,10 @@ declare enum JoinOperatorT {
     CrossJoin
 }
 
+declare enum UnionOperatorTStr {
+    
+}
+
 declare enum UnionOperatorT {
     UnionStandard,
     UnionIntersect,

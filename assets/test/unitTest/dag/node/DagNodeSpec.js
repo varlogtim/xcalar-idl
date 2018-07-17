@@ -15,39 +15,13 @@ describe("Dag Node Test", () => {
     });
 
     it("should get node's max parent that can have", () => {
-        const tests = [{
-            type: DagNodeType.Dataset,
-            expect: 0
-        }, {
-            type: DagNodeType.Filter,
-            expect: 1
-        }, {
-            type: DagNodeType.Join,
-            expect: 2
-        }, {
-            type: DagNodeType.Set,
-            expect: -1
-        }];
-
-        tests.forEach((test) => {
-            const node = new DagNode({type: test.type});
-            expect(node.getMaxParents()).to.equal(test.expect);
-        });
+        const node = new DagNode({});
+        expect(node.getMaxParents()).to.equal(1);
     });
 
     it("should get node's max children that can have", () => {
-        const tests = [{
-            type: DagNodeType.Export,
-            expect: 0
-        }, {
-            type: DagNodeType.Filter,
-            expect: -1
-        }];
-
-        tests.forEach((test) => {
-            const node = new DagNode({type: test.type});
-            expect(node.getMaxChildren()).to.equal(test.expect);
-        });
+        const node = new DagNode({});
+           expect(node.getMaxChildren()).to.equal(-1);
     });
 
     it("should get all parents", () => {
@@ -179,7 +153,7 @@ describe("Dag Node Test", () => {
     it("should connect to children", () => {
         const node = new DagNode();
         const childNode = new DagNode();
-        node.connectToChidren(childNode);
+        node.connectToChild(childNode);
         expect(node.getChildren().length).to.equal(1);
     });
 
@@ -187,7 +161,7 @@ describe("Dag Node Test", () => {
         const node = new DagNode({type: DagNodeType.Export});
         const childNode = new DagNode();
         try {
-            node.connectToChidren(childNode, 0);
+            node.connectToChild(childNode, 0);
         } catch (e) {
             expect(e).to.be.instanceof(Error);
             expect(node.getChildren().length).to.equal(0);
@@ -230,19 +204,19 @@ describe("Dag Node Test", () => {
     it("should disconnect from child node", () => {
         const node = new DagNode();
         const childNode = new DagNode();
-        node.connectToChidren(childNode);
+        node.connectToChild(childNode);
 
-        node.disconnectFromChildren(childNode);
+        node.disconnectFromChild(childNode);
         expect(node.getChildren().length).to.equal(0);
     });
 
     it("should throw error when disconnect wrong child node", () => {
         const node = new DagNode();
         const childNode = new DagNode();
-        node.connectToChidren(childNode);
+        node.connectToChild(childNode);
 
         try {
-            node.disconnectFromChildren(node);
+            node.disconnectFromChild(node);
         } catch (e) {
             expect(e).to.be.instanceof(Error);
             expect(node.getChildren().length).to.equal(1);

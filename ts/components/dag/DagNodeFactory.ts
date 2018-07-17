@@ -9,6 +9,8 @@ class DagNodeFactory {
                 return new DagNodeExport(options);
             case DagNodeType.Filter:
                 return new DagNodeFilter(options);
+            case DagNodeType.GroupBy:
+                return new DagNodeGroupBy(options);
             case DagNodeType.Join:
                 return new DagNodeJoin(options);
             case DagNodeType.Map:

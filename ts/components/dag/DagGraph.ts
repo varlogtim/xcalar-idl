@@ -101,13 +101,13 @@ class DagGraph {
         // XXX Only Sample Code
         // ds1 -> filter1
 
-        const ds1: DagNode = DagNodeFactory.create({
+        const ds1: DagNodeDataset = <DagNodeDataset>DagNodeFactory.create({
             type: DagNodeType.Dataset,
         });
         this.addNode(ds1);
         const ds1Id: DagNodeId = ds1.getId();
 
-        const filter1: DagNode = DagNodeFactory.create({
+        const filter1: DagNodeFilter = <DagNodeFilter>DagNodeFactory.create({
             type: DagNodeType.Filter
         });
         this.addNode(filter1);
@@ -115,14 +115,14 @@ class DagGraph {
 
         this.connect(ds1Id, filter1Id);
 
-        ds1.setParams({
+        ds1.setParam({
             source: dsName,
             prefix: prefix
         });
 
 
-        filter1.setParams({
-            fltStr: `eq(${prefix}::column0, 254487263)`
+        filter1.setParam({
+            evalString: `eq(${prefix}::column0, 254487263)`
         });
 
         return this.executeNodes([filter1Id]);
@@ -189,7 +189,7 @@ class DagGraph {
         const node: DagNode = this._getNodeFromId(nodeId);
         return this.newNode({
             type: node.getType(),
-            input: xcHelper.deepCopy(node.getParams()),
+            input: xcHelper.deepCopy(node.getParam()),
             comment: node.getComment(), // XXX DO we want to clone comment or not?
         });
     }

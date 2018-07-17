@@ -2,29 +2,6 @@ class DagExecute {
     private node: DagNode;
     private txId: number;
 
-    public static test() {
-        const node = DagNodeFactory.create({id: "12345", type: DagNodeType.Filter});
-
-        node.setParams({
-            eval: ["eq(prefix::column0, 254487263)"]
-        });
-        const parentNode = DagNodeFactory.create({id: "54321", type: DagNodeType.Dataset});
-        parentNode.setParams({
-            source: "cheng.25132.gdelt",
-            prefix: "prefix"
-        });
-        node.connectToParent(parentNode, 0);
-
-        const txId = Transaction.start({});
-        return new DagExecute(parentNode, txId).run()
-                .then(() => {
-                    return new DagExecute(node, txId).run();
-                })
-                .then(() => {
-                    console.info("check", node.getTable(), "in temp list");
-                })
-    }
-
     public constructor(node: DagNode, txId: number) {
         this.node = node;
         this.txId = txId;
@@ -63,7 +40,8 @@ class DagExecute {
     }
 
     private _loadDataset(): XDPromise<string> {
-        const params: DagNodeDatasetInput = <DagNodeDatasetInput>this.node.getParams();
+        const node: DagNodeDataset = <DagNodeDataset>this.node;
+        const params: DagNodeDatasetInput = node.getParam();
         const dsName: string = params.source;
         const prefix: string = params.prefix;
         const desTable = this._generateTableName();
@@ -71,8 +49,9 @@ class DagExecute {
     }
 
     private _filter(): XDPromise<string> {
-        const params: DagNodeFilterInput = <DagNodeFilterInput>this.node.getParams();
-        const fltStr: string = params.eval[0];
+        const node: DagNodeFilter = <DagNodeFilter>this.node;
+        const params: DagNodeFilterInput = node.getParam();
+        const fltStr: string = params.evalString;
         const parentNode = this.node.getParents()[0];
         const srcTable = parentNode.getTable();
         const desTable = this._generateTableName();

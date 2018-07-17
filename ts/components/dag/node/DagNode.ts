@@ -1,17 +1,5 @@
 // Warning, this class should only be used in the DagGraph.
 // To interact with DagNode, use the public API in DagGraph.
-type DagNodeId = string;
-
-interface DagNodeInfo {
-    type: DagNodeType;
-    id?: string;
-    input? : DagNodeInput;
-    comment?: string;
-    table?: string;
-    state?: DagNodeState;
-    display? : Coordinate;
-}
-
 class DagNode {
     private static idCount: number = 0;
     private static idPrefix: string;
@@ -26,7 +14,7 @@ class DagNode {
     private numParent: number; // non-persisent
 
     protected type: DagNodeType;
-    protected input: DagNodeInput;
+    protected input: object; // will be overridden by subClasses
     protected maxParents: number; // non-persistent
     protected maxChildren: number; // non-persistent
     protected allowAggNode: boolean; // non-persistent
@@ -46,11 +34,12 @@ class DagNode {
 
         this.parents = [];
         this.children = [];
-        this.input = options.input || {};
+
         this.comment = options.comment;
         this.table = options.table;
         this.state = options.state || DagNodeState.Unused;
         this.display = options.display || {x: -1, y: -1};
+        this.input = options.input || {};
 
         this.numParent = 0;
         this.maxParents = 1;
@@ -165,6 +154,11 @@ class DagNode {
         this.state = state;
     }
 
+
+    public getParam(): object {
+        return this.input;
+    }
+
     /**
      * @returns {Table} return id of the table that associated with the node
      */
@@ -185,21 +179,6 @@ class DagNode {
      */
     public removeTable(): void {
         delete this.table;
-    }
-
-    /**
-     * @returns {DagNodeInput}, return the parameters of the node
-     */
-    public getParams(): DagNodeInput {
-        return this.input;
-    }
-
-
-    // XXX TODO
-    public setParams(input: DagNodeInput) {
-        console.warn("not fully implemented!");
-        // XXXX this is only a sample
-        this.input = input;
     }
 
     /**
@@ -306,11 +285,6 @@ class DagNode {
 
     private _canHaveMultiParents() {
         return this.maxParents === -1;
-    }
-
-    // XXX TODO
-    private _initParam(): void {
-
     }
 
     // XXX TODO
