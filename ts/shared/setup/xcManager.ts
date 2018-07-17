@@ -40,7 +40,6 @@ namespace xcManager {
             WSManager.setup();
             MonitorPanel.setup();
             WorkspacePanel.setup();
-            setupDagTabs();
             DagPanel.setup();
             DataflowPanel.setup();
             JupyterPanel.setup();
@@ -103,6 +102,7 @@ namespace xcManager {
             BottomMenu.initialize(); // async
             WorkbookPanel.initialize();
             DataflowPanel.initialize(); // async if has df
+            setupDagTabs();
             if (typeof SQLEditor !== "undefined") {
                 SQLEditor.initialize();
             }

@@ -131,6 +131,7 @@ interface WkbkKVKeySet {
     gAuthKey: string;
     gNotebookKey: string;
     gIMDKey: string;
+    gDagManagerKey: string;
 }
 
 interface UDFInfo {

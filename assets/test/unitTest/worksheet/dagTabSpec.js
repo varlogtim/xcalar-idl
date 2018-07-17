@@ -9,7 +9,9 @@ describe('DagTab Test', function() {
 
     before(function(done) {
         UnitTest.onMinMode();
-        $dagTabArea = $(".dagTabSectionTabs");
+        var dagTabManager = DagTabManager.Instance;
+        dagTabManager.demoTabs();
+        $dagTabArea = $("#dagTabSectionTabs");
         $dagTabs = $(".dagTab");
         $newTabButton = $("#tabButton");
         done();
@@ -57,7 +59,18 @@ describe('DagTab Test', function() {
                 $newTabButton.click();
                 expect($(".dataflowArea").size()).to.equal(prior_len + 1);
             });
-        })
+        });
+
+        describe("dagTabManager should handle tab deletion", function() {
+            it("Should handle tab deletion", function(){
+                $newTabButton.click();
+                $dagTabs = $(".dagTab");
+                var prior_len = $dagTabs.length;
+                $dagTabs.last().find(".after").click();
+                expect($(".dagTab").length).to.equal(prior_len - 1);
+                expect($(".dataflowArea").length).to.equal(prior_len - 1);
+            });
+        });
     });
 
     after(function(done) {
