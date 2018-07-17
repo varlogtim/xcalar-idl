@@ -305,7 +305,9 @@ enum SQLOps {
     DisconnectOperation = "disconnectOperation",
     ConnectOperations = "connectOperations",
     RemoveOperations = "removeOperations",
-    AddOperation = "addOperation"
+    AddOperation = "addOperation",
+    CopyOperations = "copyOperations",
+    MoveOperations = "moveOperations"
 }
 
 enum XcalarMode {

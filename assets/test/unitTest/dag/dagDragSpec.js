@@ -68,7 +68,7 @@ describe("Dag Drag Test", function() {
             var rect = $(".dragContainer")[0].getBoundingClientRect();
             
             expect(rect.left).to.equal(53);
-            expect(rect.top).to.equal(51);
+            expect(rect.top).to.equal(51 - $(window).scrollTop());
         });
     });
 
@@ -79,7 +79,7 @@ describe("Dag Drag Test", function() {
                 var rect = $dfWrap[0].getBoundingClientRect();
                 expect(data.coors.length).to.equal(1);
                 expect(data.coors[0].x).to.equal(150 - rect.left);
-                expect(data.coors[0].y).to.equal(250 - rect.top);
+                expect(data.coors[0].y).to.equal(250 - rect.top - $(window).scrollTop());
                 called = true;
             };
             var e = $.Event('mousemove', {pageX: 200, pageY: 300});
@@ -87,6 +87,7 @@ describe("Dag Drag Test", function() {
             var e = $.Event('mouseup', {pageX: 200, pageY: 300});
             $(document).trigger(e);
             expect(called).to.be.true;
+            expect($(".testOperator").length).to.equal(1);
         });
     });
 });

@@ -215,12 +215,12 @@ window.Redo = (function($, Redo) {
     /* Dag operations */
 
     redoFuncs[SQLOps.DisconnectOperation] = function(options) {
-        DagView.disconnect(options.parentNodeId, options.childNodeId, options.connectorIndex);
+        DagView.disconnectNodes(options.parentNodeId, options.childNodeId, options.connectorIndex);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.ConnectOperations] = function(options) {
-        DagView.connect(options.parentNodeId, options.childNodeId, options.connectorIndex);
+        DagView.connectNodes(options.parentNodeId, options.childNodeId, options.connectorIndex);
         return PromiseHelper.resolve(null);
     };
 
@@ -231,6 +231,16 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.AddOperation] = function(options) {
         DagView.addBackNodes(options.dataflowId, [options.nodeId]);
+        return PromiseHelper.resolve(null);
+    };
+
+    redoFuncs[SQLOps.CopyOperations] = function(options) {
+        DagView.addBackNodes(options.dataflowId, options.nodeIds);
+        return PromiseHelper.resolve(null);
+    };
+
+    redoFuncs[SQLOps.MoveOperations] = function(options) {
+        DagView.moveNodes(options.dataflowId, options.nodeIds, options.newPositions);
         return PromiseHelper.resolve(null);
     };
 

@@ -14,6 +14,7 @@ namespace DagNodeMenu {
         xcMenu.add($menu);
         $dfWrap.on("contextmenu", ".operator .main", function(event: JQueryEventObject) {
             const $operator: JQuery = $(this).closest(".operator");
+            
             let classes = " operatorMenu ";
             xcHelper.dropdownOpen($(this), $menu, {
                 mouseCoors: {x: event.pageX, y: event.pageY},
@@ -26,9 +27,15 @@ namespace DagNodeMenu {
                 $operator.removeClass("selected");
                 $(document).off("mousedown.menuClose");
             });
+            let nodeIds = [];
+            $dfWrap.find(".operator.selected").each(function() {
+                nodeIds.push($(this).data("nodeid"));
+            });
+            // XXX need to change list items to plural if multiple nodes
 
             const nodeId = $(this).closest(".operator").data("nodeid");
             $menu.data("nodeid", nodeId);
+            $menu.data("nodeids", nodeIds);
             return false; // prevent default browser's rightclick menu
         });
 
@@ -67,11 +74,11 @@ namespace DagNodeMenu {
         });
 
         $dfWrap.on("contextmenu", ".edge", function(event) {
-            const e: JQueryEventObject = {
+            const e = $.Event("click",  {
                 type: "click",
                 pageX: event.pageX,
                 pageY: event.pageY
-            };
+            });
             $(event.target).trigger(e);
             return false;
         });
@@ -87,19 +94,21 @@ namespace DagNodeMenu {
             if (!action) {
                 return;
             }
-            var nodeId = $menu.data("nodeid");
-            var parentNodeId = $menu.data("parentnodeid");
-            var connectorIndex = $menu.data("connectorindex");
+            const nodeId = $menu.data("nodeid");
+            const nodeIds = $menu.data("nodeids");
+            
+            const parentNodeId = $menu.data("parentnodeid");
+            const connectorIndex = $menu.data("connectorindex");
 
             switch (action) {
                 case ("removeNode"):
-                    DagView.removeNodes(0, [nodeId]);
+                    DagView.removeNodes(0, nodeIds);
                     break;
                 case ("removeInConnection"):
-                    DagView.disconnect(parentNodeId, nodeId, connectorIndex);
+                    DagView.disconnectNodes(parentNodeId, nodeId, connectorIndex);
                     break;
                 case ("cloneNode"):
-                    DagView.cloneNode(nodeId);
+                    DagView.cloneNodes(0, nodeIds);
                     break;
                 case ("executeNode"):
                     break;

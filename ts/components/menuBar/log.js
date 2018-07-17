@@ -1301,6 +1301,8 @@ window.Log = (function($, Log) {
             case (SQLOps.DisconnectOperation):
             case (SQLOps.RemoveOperations):
             case (SQLOps.AddOperation):
+            case (SQLOps.CopyOperations):
+            case (SQLOps.MoveOperations):
                 return false;
             // thrift operation
             case (SQLOps.DestroyDS):

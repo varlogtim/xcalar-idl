@@ -510,12 +510,12 @@ window.Undo = (function($, Undo) {
     /* Dataflow operations */
 
     undoFuncs[SQLOps.DisconnectOperation] = function(options) {
-        DagView.connect(options.parentNodeId, options.childNodeId, options.connectorIndex);
+        DagView.connectNodes(options.parentNodeId, options.childNodeId, options.connectorIndex);
         return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.ConnectOperations] = function(options) {
-        DagView.disconnect(options.parentNodeId, options.childNodeId, options.connectorIndex);
+        DagView.disconnectNodes(options.parentNodeId, options.childNodeId, options.connectorIndex);
         return PromiseHelper.resolve(null);
     };
 
@@ -529,6 +529,15 @@ window.Undo = (function($, Undo) {
         return PromiseHelper.resolve(null);
     };
 
+    undoFuncs[SQLOps.CopyOperations] = function(options) {
+        DagView.removeNodes(options.dataflowId, options.nodeIds);
+        return PromiseHelper.resolve(null);
+    };
+
+    undoFuncs[SQLOps.MoveOperations] = function(options) {
+        DagView.moveNodes(options.dataflowId, options.nodeIds, options.oldPositions);
+        return PromiseHelper.resolve(null);
+    };
 
     /* USER STYLING/FORMATING OPERATIONS */
 

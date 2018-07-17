@@ -60,7 +60,8 @@ class DagTabManager{
         this._$dagTabs = $(".dagTab");
         $(".dataflowWrap").append(
                 '<div class="dataflowArea">\
-                <div class="sizer"></div>\
+                    <div class="sizer"></div>\
+                    <svg class="mainSvg"></svg>\
                 </div>'
         );
         this._$dataFlowAreas = $(".dataflowArea");

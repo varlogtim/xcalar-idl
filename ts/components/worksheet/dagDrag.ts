@@ -259,34 +259,23 @@ class DragHelper {
         this.$draggingEl.removeClass("dragging clone");
 
         let deltaX: number = self.currentDragCoor.left - self.targetRect.left + self.$dropTarget.parent().scrollLeft();
-        let deltaY: number = self.currentDragCoor.top - self.targetRect.top + self.$dropTarget.parent().scrollTop()
-        let success = false;
+        let deltaY: number = self.currentDragCoor.top - self.targetRect.top + self.$dropTarget.parent().scrollTop();
         let coors: Coordinate[] = [];
        
         // check if item was dropped within left and top boundaries of drop target
         if (deltaX >= 0 && deltaY > 0) {
-            success = true;
             this.dragContainerPositions.forEach(function(pos) {
                 coors.push({
                     x: deltaX + pos.x,
                     y: deltaY + pos.y
                 });
             });
-            if (!this.copying) {
-                this.$draggingEls.each(function(i) {
-                    $(this).css({
-                        left: coors[i].x,
-                        top: coors[i].y
-                    });
-                    $(this).appendTo(self.$dropTarget); // positions this element in front
-                });
-            }
         }
 
         this.$draggingEls.removeClass("dragSelected");
         this.$draggingEl.remove();
 
-        if (success) {
+        if (coors.length) {
             this.onDragEndCallback(this.$draggingEls, event, {coors: coors});
         }
     }
@@ -297,40 +286,4 @@ class DragLineHelper extends DragHelper {
         super(options);
         $("#moveCursor").addClass("arrowOnly");
     }
-
-    // protected endDrag(event: JQueryEventObject): void {
-    //     const self = this;
-    //     $("body").removeClass("tooltipOff");
-    //     $("#moveCursor").remove();
-    //     $(document).off("mousemove.checkDrag");
-    //     $(document).off("mousemove.onDrag");
-    //     $(document).off("mouseup.endDrag");
-    //     if (!this.isDragging) {
-    //         this.isDragging = false;
-    //         this.onDragFailCallback();
-    //         return;
-    //     }
-    //     this.isDragging = false;
-    //     this.$draggingEl.removeClass("dragging clone");
-
-    //     let deltaX: number = event.pageX - this.mouseDownCoors.x - this.targetRect.left + this.$dropTarget.parent().scrollLeft();
-    //     let deltaY: number = event.pageY - this.mouseDownCoors.y - this.targetRect.top + this.$dropTarget.parent().scrollTop();
-
-    //     let success: boolean = false;
-    //     if ((this.currentDragCoor.left - this.targetRect.left + this.$dropTarget.parent().scrollLeft() > 0) &&
-    //     (this.currentDragCoor.top - this.targetRect.top + this.$dropTarget.parent().scrollTop() > 0)) {
-
-    //         this.$draggingEls.css({
-    //             left: self.origPositions[0].x + deltaX,
-    //             top: self.origPositions[0].y + deltaY
-    //         });
-    //         success = true;
-    //     }
-
-    //     this.$draggingEls.removeClass("dragSelected");
-    //     this.$draggingEl.remove();
-    //     if (success) {
-    //         this.onDragEndCallback(this.$draggingEls, event);
-    //     }
-    // }
 }
