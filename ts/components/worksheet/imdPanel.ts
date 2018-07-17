@@ -90,6 +90,11 @@ namespace IMDPanel {
     let isScrolling: boolean = false;
     let restoreErrors: RestoreError[] = [];
 
+    let curIteration: number;
+    const intervalTime: number = 60000;
+    let imdCycle: number;
+    let detailTableName: string;
+
     let pListOrder: number; //holds 1 if list is sorted ascending, -1 if sorted desc, 0/null if unsorted
     let iListOrder: number; //holds 1 if list is sorted ascending, -1 if sorted desc, 0/null if unsorted
 
@@ -108,6 +113,7 @@ namespace IMDPanel {
         iTables = [];
         iCheckedTables = [];
         pCheckedTables = [];
+        curIteration = 0;
 
         setupTimeInputs();
         addEventListeners();
@@ -130,11 +136,18 @@ namespace IMDPanel {
             }, 300);
         });
         redrawTimeCanvas();
+        let promise;
         if (firstTouch) {
-            listTablesFirstTime();
+            promise = listTablesFirstTime();
         } else if (isPendingRefresh) {
-            refreshTableList();
+            promise = refreshTableList();
+        } else {
+            promise = PromiseHelper.resolve();
         }
+        promise
+        .then(function() {
+            startCycle();
+        });
         isPendingRefresh = false;
     }
 
@@ -148,6 +161,7 @@ namespace IMDPanel {
         isPanelActive = false;
         $(window).off("resize.canvasResize");
         hideUpdatePrompt();
+        clearTimeout(imdCycle);
     }
 
     export function redraw(): void {
@@ -208,6 +222,10 @@ namespace IMDPanel {
         fromTimePicker.showTimeHelper(new Date(min * 1000));
         toTimePicker.showTimeHelper(new Date(max * 1000));
         updateViewportForDateRange(min, max);
+    }
+
+    function updateScale(): void {
+
     }
 
     function timeString(timeStamp: number): string {
@@ -283,6 +301,7 @@ namespace IMDPanel {
     }
 
     function updateTableDetailSection(tableName?: string): void {
+        detailTableName = tableName;
         if (!tableName) {
             $tableDetail.removeClass("active");
             $tableDetail.data("tablename", "");
@@ -779,7 +798,7 @@ namespace IMDPanel {
                 if (restoreErrors.length) {
                     showRestoreError();
                 }
-                
+
                 if (requery) {
                     return listAndCheckActive();
                      // tables that start inactive won't have update info
@@ -939,7 +958,6 @@ namespace IMDPanel {
 
         $canvas.mousemove(function(event) {
             const clickedTime: number = (((event.offsetX + ruler.visibleLeft) * ruler.pixelToTime) + ruler.minTS);
-            console.log($canvas.height());
             showDateTipBox(event.offsetX + leftPanelWidth, $canvas.height(), clickedTime);
         });
 
@@ -1261,10 +1279,12 @@ namespace IMDPanel {
         calculate their time to pixel value
         if it is within the visible history range , add div with left border and a text (update id)
     */
-    function updateHistory(): void {
+    function updateHistory(hideUpdate: boolean = true): void {
         ruler.visibleLeft = $scrollDiv.scrollLeft();
         ruler.visibleRight = ruler.visibleLeft + $scrollDiv.width();
-        hideUpdatePrompt();
+        if (hideUpdate) {
+            hideUpdatePrompt();
+        }
         redrawTimeCanvas();
 
         pTables.forEach((table: PublishTable) => {
@@ -1336,6 +1356,7 @@ namespace IMDPanel {
             }
         });
     }
+
 
     /**
      * returns the closest update for given unixtime and table
@@ -1956,7 +1977,8 @@ namespace IMDPanel {
         toTimePicker.showTimeHelper(new Date(max * 1000));
     }
 
-    function refreshTableList(): void {
+    function refreshTableList(): XDPromise<void>{
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         hideUpdatePrompt();
         showWaitScreen();
         $("#imdFilterInput").val("");
@@ -2003,7 +2025,10 @@ namespace IMDPanel {
                 removeWaitScreen();
             }
             updateTableCount();
-        })
+            deferred.resolve();
+        });
+
+        return deferred.promise();
     }
 
     function updateTableCount() {
@@ -2061,6 +2086,68 @@ namespace IMDPanel {
             const curScrollTop = $list.scrollTop();
             $list.scrollTop(curScrollTop + offsetTop);
         }
+    }
+
+    function startCycle() {
+        curIteration++;
+        clearTimeout(imdCycle);
+        let prevIteration: number = curIteration;
+
+        getUpdatesAndDraw()
+        .always(function() {
+            if (prevIteration === curIteration) {
+                cycle();
+            }
+        });
+    }
+
+    // ajustTime is the time to subtract from the interval time due to the
+    // length of time it takes for the backend call to return
+    function cycle() {
+        var prevIteration = curIteration;
+
+        imdCycle = <any>setTimeout(function() {
+            getUpdatesAndDraw()
+            .always(function() {
+                if (prevIteration === curIteration) {
+                    cycle();
+                }
+            });
+        }, intervalTime);
+    }
+
+    function getUpdatesAndDraw(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+
+        listTables()
+        .then(function(tables) {
+            let latestUpdate: number = 0;
+            tables.forEach(function(table) {
+                for(let i = 0; i < pTables.length; i++) {
+                    if (table.name == pTables[i].name && table != pTables[i]) {
+                        pTables[i] = table;
+                        if (table.updates.length &&
+                            latestUpdate < table.updates[0].startTS) {
+                            latestUpdate = table.updates[0].startTS;
+                        }
+                        break;
+                    }
+                }
+                if (table.name === detailTableName) {
+                    updateTableDetailSection(detailTableName);
+                }
+            });
+            if (latestUpdate) {
+                ruler.maxTS = latestUpdate;
+            }
+
+            updateHistory(false);
+
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     /* Unit Test Only */
