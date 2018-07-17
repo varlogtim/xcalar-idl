@@ -12,7 +12,8 @@ namespace IMDPanel {
         name: string;
         values: TableCol[],
         oldestBatchId: number,
-        active: boolean
+        active: boolean,
+        sizeTotal: number
     }
 
     interface Ruler {
@@ -297,7 +298,9 @@ namespace IMDPanel {
         }
 
         $tableDetail.addClass("active");
-        $tableDetail.find(".tableName").text(tableName + ":");
+        $tableDetail.find(".tableName").text(tableName);
+        const tableSize = xcHelper.sizeTranslator(table.sizeTotal);
+        $tableDetail.find(".tableSize").text("(" + tableSize + "):");
         $tableDetail.data("tablename", tableName);
 
         let $tableContent: JQuery = $tableDetail.find(".updatesList .tableDetailContent");
