@@ -1184,7 +1184,7 @@ namespace xcManager {
 
                 $(".selectedCell").removeClass("selectedCell");
                 const fnBar: FnBar = FnBar.Instance;
-                fnBar.setup();
+                fnBar.clear();
             }
         });
 
