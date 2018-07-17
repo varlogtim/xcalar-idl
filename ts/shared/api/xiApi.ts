@@ -2805,8 +2805,5 @@ namespace XIApi {
 }
 
 if (typeof exports !== 'undefined') {
-    if (typeof module !== 'undefined' && module.exports) {
-        exports = module.exports = XIApi;
-    }
     exports.XIApi = XIApi;
 }

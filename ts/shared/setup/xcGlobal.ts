@@ -115,8 +115,5 @@ namespace xcGlobal {
 }
 
 if (typeof exports !== 'undefined') {
-    if (typeof module !== 'undefined' && module.exports) {
-        exports = module.exports = xcGlobal;
-    }
     exports.xcGlobal = xcGlobal;
 }

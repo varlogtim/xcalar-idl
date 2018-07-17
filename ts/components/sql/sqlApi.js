@@ -793,9 +793,6 @@
 
     if (typeof exports !== "undefined") {
         exports.SQLApi = SQLApi;
-        if (typeof module !== "undefined" && module.exports) {
-            exports = module.exports = SQLApi;
-        }
     } else {
         root.SQLApi = SQLApi;
     }

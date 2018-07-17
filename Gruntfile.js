@@ -1375,6 +1375,34 @@ module.exports = function(grunt) {
                 configuration for this plugin will be dynamically generated based on current src dirs
                 see function 'configureUglify'
             */
+            sqlHelpers: {
+                src: [BLDROOT + "services/expServer/sqlHelpers/enums.js",
+                      BLDROOT + "services/expServer/sqlHelpers/sqlApi.js",
+                      BLDROOT + "services/expServer/sqlHelpers/sqlCompiler.js",
+                      BLDROOT + "services/expServer/sqlHelpers/transaction.js",
+                      BLDROOT + "services/expServer/sqlHelpers/xcGlobal.js",
+                      BLDROOT + "services/expServer/sqlHelpers/xcHelper.js",
+                      BLDROOT + "services/expServer/sqlHelpers/xiApi.js"],
+                dest: BLDROOT + "services/expServer/sqlHelpers/sqlHelpers.js",
+                options: {
+                    compress: {
+                        inline: false
+                    }
+                }
+            }
+        },
+
+        /**
+            grunt-contrib-concat to concat javascript code/files
+        */
+        concat: {
+            options: {
+              footer: '\nif (typeof exports !== "undefined") {exports.Thrift = Thrift;}'
+            },
+            thrift: {
+                src: [BLDROOT + 'assets/js/thrift/thrift.js'],
+                dest: BLDROOT + 'assets/js/thrift/thrift.js',
+            },
         },
 
         /**
@@ -1490,6 +1518,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-uglify-es');
+    grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-includes');
     grunt.loadNpmTasks('grunt-prettify');
     grunt.loadNpmTasks('grunt-rsync');
@@ -2552,6 +2581,8 @@ module.exports = function(grunt) {
             ":" + expServerJSDestDir);
         // Clean up!
         grunt.task.run('clean:' + EXTRA_TS_FOLDER_NAME);
+        // Concat the export code to thrift.js
+        grunt.task.run('concat:thrift');
     });
 
 
@@ -3774,6 +3805,7 @@ module.exports = function(grunt) {
 
         // everythings kosher... configure uglify task with these details
         grunt.log.write(("\nStep 2: ").bold + (" Configure grunt's uglify task with gathered mapping... ")[STEPCOLOR]);
+        uglifyConfig = Object.assign(grunt.config('uglify'), uglifyConfig);
         grunt.config('uglify', uglifyConfig);
         grunt.log.ok();
         // set the jsFilepathMapping hash for updating script tags, in to grunt config property, for access in other tasks

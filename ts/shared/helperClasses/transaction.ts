@@ -559,8 +559,5 @@ namespace Transaction {
     }
 }
 if (typeof exports !== "undefined") {
-    if (typeof module !== "undefined" && module.exports) {
-        exports = module.exports = Transaction;
-    }
     exports.Transaction = Transaction;
 }

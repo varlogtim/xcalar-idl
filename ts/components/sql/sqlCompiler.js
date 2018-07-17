@@ -4885,9 +4885,6 @@
     };
 
     if (typeof exports !== "undefined") {
-        if (typeof module !== "undefined" && module.exports) {
-            exports = module.exports = SQLCompiler;
-        }
         exports.SQLCompiler = SQLCompiler;
     } else {
         root.SQLCompiler = SQLCompiler;
