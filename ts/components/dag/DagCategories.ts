@@ -30,6 +30,9 @@ class DagCategories {
         const operationsCategory = new DagCategory(DagCategoryType.Operations, [
             DagNodeFactory.create({
                 type: DagNodeType.Filter
+            }),
+            DagNodeFactory.create({
+                type: DagNodeType.Project
             })
         ]);
 

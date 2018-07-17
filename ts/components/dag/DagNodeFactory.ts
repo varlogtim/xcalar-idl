@@ -13,6 +13,8 @@ class DagNodeFactory {
                 return new DagNodeJoin(options);
             case DagNodeType.Map:
                 return new DagNodeMap(options);
+            case DagNodeType.Project:
+                return new DagNodeProject(options);
             case DagNodeType.Set:
                 return new DagNodeSet(options);
             default:

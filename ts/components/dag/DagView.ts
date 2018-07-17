@@ -13,7 +13,7 @@ namespace DagView {
         activeDag = new DagGraph();
 
         setupDragDrop();
-        setupCategoryBar();
+        DagCategoryBar.Instance.setup();
         DagNodeMenu.setup();
     }
 
@@ -466,50 +466,7 @@ namespace DagView {
         });
     }
 
-    function setupCategoryBar(): void {
-        var categories: DagCategory[] = new DagCategories().getCategories();
-        var html: HTML = "";
-
-        categories.forEach(function(category: DagCategory) {
-            // TODO: separate divs per category
-            let operators: DagNode[] = category.getOperators();
-
-            operators.forEach(function(operator: DagNode) {
-                let numParents: number = operator.getMaxParents();
-                let numChildren: number = operator.getMaxChildren();
-                let inConnectorClass = "";
-                if (numParents === -1) {
-                    numParents = 1;
-                    inConnectorClass += " multi "
-                }
-                if (numChildren === -1) {
-                    numChildren = 1;
-                }
-                html += '<div class="operator ' + operator.getType() + ' ' + 
-                        'category-' + category.getName() + '" ' +
-                            'data-category="' + category.getName() + '" ' +
-                            'data-type="' + operator.getType() + '">' +
-                        '<div class="connectorArea in">' +
-                            ('<div class="connector in noConnection' +
-                            inConnectorClass + '"></div>').repeat(numParents) +
-                        '</div>' +
-                        '<div class="main">' +
-                            '<div class="iconArea">' + 
-
-                            '</div>' +
-                            '<div class="nameArea">' + 
-                                xcHelper.capitalize(operator.getType()) +
-                            '</div>' + 
-                        '</div>' +
-                        '<div class="connectorArea out">' +
-                            ('<div class="connector out"></div>').repeat(numChildren) +
-                        '</div>' +
-                    '</div>';
-            });
-        });
-
-        $operatorBar.html(html);
-    }
+   
 
     function _getDFAreaOffset() {
         const containerRect = $dfWrap[0].getBoundingClientRect();

@@ -4,7 +4,11 @@
     color: #44515c;
     height: 100%;
 
-    @color-border-bar: #849CB0;
+    // TODO: move to constants.less when colors are finalized
+    @color-border-bar: #D4DCE3;
+    @color-border-operator: #849CB0;
+    @color-connector: #BBC7D1;
+    @color-edge: #627483;
     @operator-height: 28px;
     @operator-width: 90px;
 
@@ -16,14 +20,114 @@
     }
 
     .categoryBar {
-        .size(@min-height: 40px);
+        @category-height: 40px;
+        @icon-height: 22px;
+
+        .size(@min-height: @category-height);
         background-color: @color-bg-white-eight;
         border-bottom: 1px solid @color-border-bar;
+        line-height: @category-height;
+        .flex-display;
+        
+        .searchArea {
+            width: 150px;
+        }
+        .categoryWrap {
+            width: ~"calc(100% - 150px)";
+        }
+      
+        .category {
+            padding: 4px 10px;
+            margin: 4px 5px 0px;
+            float: left;
+            height: @category-height - 4px;
+            line-height: 22px;
+            font-size: 13px;
+            position: relative;
+            top: 1px;
+            cursor: pointer;
+
+            &:hover {
+                height: 30px;
+                border-radius: 5px;
+                background-color: rgba(0, 0, 0, 0.05);
+            }
+
+            &.active {
+                height: @category-height - 4px;
+                font-weight: bold;
+                background-color: @color-white;
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+                border-bottom-right-radius: 0px;
+                border-bottom-left-radius: 0px;
+                
+            }
+
+            .text {
+                float: left;
+            }
+
+            .categoryIcon {
+                .size(@icon-height,@icon-height);
+                border-radius: 100%;
+                float: left;
+                margin-right: 10px;
+                color: @color-white;
+                font-size: 12px;
+                line-height: @icon-height;
+                text-align: center;
+            }
+
+            &.category-in {
+                .icon {
+                    background-color: @color-operator-in;
+                }
+            }
+            &.category-out {
+                .icon {
+                    background-color: @color-operator-out;
+                }
+            }
+            &.category-value {
+                .icon {
+                    background-color: @color-operator-value;
+                }
+            }
+            &.category-operations {
+                .icon {
+                    background-color: @color-operator-operations;
+                }
+            }
+            &.category-column {
+                .icon {
+                    background-color: @color-operator-column;
+                }
+            }
+            &.category-join {
+                .icon {
+                    background-color: @color-operator-join;
+                }
+            }
+            &.category-set {
+                .icon {
+                    background-color: @color-operator-set;
+                }
+            }
+        }
     }
     .operatorBar {
         .size(@min-height: 50px);
         background: @color-white;
         border-bottom: 1px solid @color-border-bar;
+
+        .category {
+            display: none;
+            
+            &.active {
+                display: block;
+            }
+        }
 
         .operator {
             margin-top: 10px;
@@ -31,22 +135,22 @@
             margin-right: 10px;
             float: left;
 
-            .connectorArea {
-                display: none;
-            }
+            // .connectorArea {
+            //     display: none;
+            // }
         }
     }
     .operator {
         height: @operator-height;
         position: relative;
 
-        @iconArea-width: 22px;
+        @iconArea-width: 21px;
 
         .main {
             .size(@width: @operator-width, @height: @operator-height);
             line-height: @operator-height - 2px; 
             border-radius: (@operator-height / 2) - 2px;
-            border: 1px solid @color-border-bar; 
+            border: 1px solid  @color-border-operator; 
             font-size: 11px;
             .cursor-move();
             margin-left: 7px;
@@ -59,7 +163,7 @@
             .iconArea {
                 float: left;
                 .size(@width: @iconArea-width, @height: 100%);
-                border-right: 1px solid @color-border-bar;
+                border-right: 1px solid  @color-border-operator;
             }
 
             .nameArea {
@@ -72,8 +176,10 @@
         }
 
         &.selected, &.dragSelected {
-            .main {
-                background-color: lightblue;
+            .main, .iconArea {
+                border-color: #55c4de;
+                font-weight: bold;
+                box-shadow: 0px 0px 0px 1px #55c4de;
             }
         }
 
@@ -137,9 +243,9 @@
         &.in {
             width: @inConnectorSize;
             height: @inConnectorSize;
-            background-color: lightgray;
+            background-color: @color-connector;
             border-radius: 1px;
-            border: 1px solid gray;
+            border: 1px solid @color-border-operator;
 
             &.multi {
                 height: 80%;
@@ -152,7 +258,7 @@
             height: 12px;
             border-top: @outConnectorSize solid transparent;
             border-bottom: @outConnectorSize solid transparent;
-            border-left: @inConnectorSize solid gray;
+            border-left: @inConnectorSize solid @color-border-operator;
 
             &:after {
                 content: " ";
@@ -163,7 +269,7 @@
                 height: 0;
                 border-top: (@outConnectorSize - 2px) solid transparent;
                 border-bottom: (@outConnectorSize - 2px) solid transparent;
-                border-left:(@inConnectorSize - 2px) solid lightGray;
+                border-left:(@inConnectorSize - 2px) solid @color-connector;
             }
         }
     }
@@ -207,7 +313,7 @@
     .dragContainer {
         position: absolute;
         z-index: 2;
-        // background: rgba(50, 250, 100, 0.2);
+        
         .operator {
             position: absolute;
         }
@@ -231,7 +337,7 @@
             cursor: pointer;
 
             .visibleLine {
-                stroke: gray;
+                stroke: @color-edge;
                 stroke-width: 1px;
                 fill: none;
                 stroke-linecap: round;

@@ -8,7 +8,8 @@ enum DagNodeType {
     Export = "export",
     Aggregate = "aggregate",
     Map = "map",
-    GroupBy = "groupBy"
+    GroupBy = "groupBy",
+    Project = "project"
 }
 
 enum DagNodeState {
