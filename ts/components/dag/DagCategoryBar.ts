@@ -32,10 +32,10 @@ class DagCategoryBar {
         iconMap[DagCategoryType.Set] = "xi-union";
         iconMap[DagCategoryType.Extensions] = "xi-menu-extension";
         iconMap[DagCategoryType.SQL] = "xi-menu-sql";
-        
+
         categories.forEach((category: DagCategory) => {
             let classes = "";
-            
+
             const categoryName: string = category.getName();
             let icon = iconMap[categoryName];
             if (categoryName === DagCategoryType.In) {
@@ -61,6 +61,18 @@ class DagCategoryBar {
     }
 
     private _setupOperatorBar(): void {
+        // const iconMap = {};
+        const iconMap = {};
+        iconMap[DagNodeType.Dataset] = "xi_data";
+        iconMap[DagNodeType.Filter] = "xi-filter";
+        iconMap[DagNodeType.Join] = "xi-join-inner";
+        iconMap[DagNodeType.Set] = "xi-union";
+        iconMap[DagNodeType.Export] = "xi-data-out";
+        iconMap[DagNodeType.Aggregate] = "xi-aggregate";
+        iconMap[DagNodeType.Map] = "xi-data-update";
+        iconMap[DagNodeType.GroupBy] = "xi-groupby";
+        iconMap[DagNodeType.Project] = "xi-delete-column";
+
         const categories: DagCategory[] = new DagCategories().getCategories();
         let html: HTML = "";
         categories.forEach(function(category: DagCategory) {
@@ -80,7 +92,7 @@ class DagCategoryBar {
                 if (numChildren === -1) {
                     numChildren = 1;
                 }
-                html += '<div class="operator ' + operatorName + ' ' + 
+                html += '<div class="operator ' + operatorName + ' ' +
                         'category-' + categoryName + '" ' +
                             'data-category="' + categoryName + '" ' +
                             'data-type="' + operatorName + '">' +
@@ -89,11 +101,12 @@ class DagCategoryBar {
                             inConnectorClass + '"></div>').repeat(numParents) +
                         '</div>' +
                         '<div class="main">' +
-                            '<div class="iconArea">' + 
+                            '<div class="iconArea">' +
+                             '<i class="icon ' + iconMap[operatorName] + '"></i>' +
                             '</div>' +
-                            '<div class="nameArea">' + 
+                            '<div class="nameArea">' +
                                 xcHelper.capitalize(operatorName) +
-                            '</div>' + 
+                            '</div>' +
                         '</div>' +
                         '<div class="connectorArea out">' +
                             ('<div class="connector out"></div>').repeat(numChildren) +
@@ -125,7 +138,7 @@ class DagCategoryBar {
                     const newNodeInfo: DagNodeInfo = {
                         type: $operator.data("type"),
                         display: {
-                                    x: data.coors[0].x, 
+                                    x: data.coors[0].x,
                                     y: data.coors[0].y
                                 }
                     };

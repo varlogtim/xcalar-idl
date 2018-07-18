@@ -540,7 +540,7 @@ declare enum JoinOperatorT {
 }
 
 declare enum UnionOperatorTStr {
-    
+
 }
 
 declare enum UnionOperatorT {
@@ -888,6 +888,9 @@ declare namespace SQLTStr {
     export var MoveOperations: string;
 }
 
+declare namespace DagTStr {
+    export var CycleConnection: string;
+}
 // declare namespace WSTStr {
 //     export var Ws:
 // }

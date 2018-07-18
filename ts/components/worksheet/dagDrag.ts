@@ -131,6 +131,7 @@ class DragHelper {
         }
         const self = this;
         const pxToIncrement = 20;
+        const horzPxToIncrement = 40;
 
         if (this.currentDragCoor.left < this.targetRect.left) {
             const curScrollLeft: number = this.$dropTarget.parent().scrollLeft();
@@ -151,7 +152,7 @@ class DragHelper {
             const curScrollTop: number = this.$dropTarget.parent().scrollTop();
             if (this.$dropTarget.parent()[0].scrollHeight - curScrollTop -
             this.$dropTarget.parent().outerHeight() <= 1) {
-                this.$dropTarget.height("+=4");
+                this.$dropTarget.height("+=10");
             }
             this.$dropTarget.parent().scrollTop(curScrollTop + pxToIncrement);
 
@@ -159,11 +160,11 @@ class DragHelper {
             const curScrollLeft: number = this.$dropTarget.parent().scrollLeft();
             if (this.$dropTarget.parent()[0].scrollWidth - curScrollLeft -
             this.$dropTarget.parent().outerWidth() <= 1) {
-                this.$dropTarget.find(".sizer").width("+=4");
+                this.$dropTarget.find(".sizer").width("+=20");
                 const width = this.$dropTarget.find(".sizer").width();
                 this.$dropTarget.width(width);
             }
-            this.$dropTarget.parent().scrollLeft(curScrollLeft + pxToIncrement);
+            this.$dropTarget.parent().scrollLeft(curScrollLeft + horzPxToIncrement);
 
         } else if (this.isOffScreen) {
             this.isOffScreen = false;
@@ -267,7 +268,7 @@ class DragHelper {
         let deltaX: number = self.currentDragCoor.left - self.targetRect.left + self.$dropTarget.parent().scrollLeft();
         let deltaY: number = self.currentDragCoor.top - self.targetRect.top + self.$dropTarget.parent().scrollTop();
         let coors: Coordinate[] = [];
-       
+
         // check if item was dropped within left and top boundaries of drop target
         if (deltaX >= 0 && deltaY > 0) {
             this.dragContainerPositions.forEach(function(pos) {

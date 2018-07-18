@@ -1,10 +1,15 @@
 class DagGraph {
     private nodesMap: Map<DagNodeId, DagNode>;
     private removedNodesMap: Map<DagNodeId,{}>;
+    private display;
 
     public constructor() {
         this.nodesMap = new Map();
         this.removedNodesMap = new Map();
+        this.display = {
+            width: -1,
+            height: -1
+        };
     }
 
     // XXX TODO
@@ -156,7 +161,7 @@ class DagGraph {
 
     /**
      * adds back a removed node
-     * @param nodeId 
+     * @param nodeId
      */
     public addBackNode(nodeId): DagNode {
         const nodeInfo = this._getRemovedNodeInfoFromId(nodeId);
@@ -175,7 +180,7 @@ class DagGraph {
                 child.connectToParent(node, index);
             });
         })
-        
+
         this.nodesMap.set(node.getId(), node);
         this.removedNodesMap.delete(node.getId());
         return node;
@@ -231,6 +236,31 @@ class DagGraph {
     }
 
     /**
+     * DagGraph.canConnect
+     * @param fromNodeId
+     * @param toNodeId
+     * @param toPos
+     */
+    public canConnect(
+        fromNodeId: DagNodeId,
+        toNodeId: DagNodeId,
+        toPos: number,
+        allowCyclic?: boolean
+    ): boolean {
+        let canConnect: boolean = true;
+        try {
+            this.connect(fromNodeId, toNodeId, toPos, allowCyclic);
+        } catch (e) {
+            canConnect = false;
+        }
+        if (canConnect) {
+            this.disconnect(fromNodeId, toNodeId, toPos);
+        }
+
+        return canConnect;
+    }
+
+    /**
      * connect two nodes
      * @param fromNodeId parent node
      * @param toNodeId child node
@@ -239,25 +269,26 @@ class DagGraph {
     public connect(
         fromNodeId: DagNodeId,
         toNodeId: DagNodeId,
-        toPos: number = 0
+        toPos: number = 0,
+        allowCyclic?: boolean
     ): void {
-        let connetedToParent = false;
+        let connectedToParent = false;
         let fromNode: DagNode;
         let toNode: DagNode;
         try {
             fromNode = this._getNodeFromId(fromNodeId);
             toNode = this._getNodeFromId(toNodeId);
             toNode.connectToParent(fromNode, toPos);
-            connetedToParent = true;
+            connectedToParent = true;
             fromNode.connectToChild(toNode);
 
-            if (this._hasCycleInGraph(fromNode)) {
+            if (!allowCyclic && this._isCyclic(fromNode)) {
                 fromNode.disconnectFromChild(toNode);
                 toNode.disconnectFromParent(fromNode, toPos);
                 throw new Error("has cycle in the dataflow");
             }
         } catch (e) {
-            if (connetedToParent) {
+            if (connectedToParent) {
                 // error handler
                 toNode.disconnectFromParent(fromNode, toPos);
             }
@@ -319,6 +350,18 @@ class DagGraph {
      */
     public executeAll(): XDPromise<void> {
         return this._executeGraph();
+    }
+
+    public setDimensions(width: number, height: number): void  {
+        this.display.width = width;
+        this.display.height = height;
+    }
+
+    public getDimensions(): object {
+        return {
+            width: this.display.width,
+            height: this.display.height
+        }
     }
 
     // XXX TODO, Idea is to do a topological sort first, then get the
@@ -416,7 +459,7 @@ class DagGraph {
                     if (!childIndices[childId]) {
                         childIndices[childId] = [];
                     }
-                    childIndices[childId].push(index); 
+                    childIndices[childId].push(index);
                     child.disconnectFromParent(node, index);
                 }
             });
@@ -446,23 +489,32 @@ class DagGraph {
         return nodeInfo;
     }
 
-    private _hasCycleInGraph(startNode: DagNode): boolean {
+    private _isCyclic(startNode: DagNode): boolean {
         const visited: Set<DagNodeId> = new Set();
-        const toVisit: DagNode[] = [startNode];
+        const stack: DagNode[] = [];
+        if (isCyclicHelper(startNode, visited, stack)) {
+            return true;
+        }
+        return false;
 
-        while (toVisit.length > 0) {
-            const node: DagNode = toVisit.shift();
+        function isCyclicHelper(node, visited, stack) {
             const nodeId: DagNodeId = node.getId();
-            if (visited.has(nodeId)) {
+            if (stack.indexOf(node) > -1) {
                 return true;
             }
-
+            if (visited.has(nodeId)) {
+                return false;
+            }
             visited.add(nodeId);
-            node.getChildren().forEach((child) => {
-                if (child != null) {
-                    toVisit.push(child);
+            stack.push(node);
+
+            const children = node.getChildren();
+            for (let i = 0; i < children.length; i++) {
+                if (isCyclicHelper(children[i], visited, stack)) {
+                    return true;
                 }
-            });
+            }
+            stack.pop();
             return false;
         }
     }

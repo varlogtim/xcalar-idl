@@ -1545,3 +1545,7 @@ IMDTStr = {
     "Coalesce": "Coalesce",
     "CoalesceTip": "Conserve memory by combining updated tables into one. This operation cannot be undone."
 };
+
+DagTStr = {
+    "CycleConnection": "Connection cannot be made as this would create a cycle."
+}

@@ -66,7 +66,7 @@
             .vertical-align;
             background-color: @color-border-bar;
         }
-      
+
         .undo, .redo {
             &.disabled {
                 opacity: 0.3;
@@ -98,14 +98,14 @@
         border-bottom: 1px solid @color-border-bar;
         line-height: @category-height;
         .flex-display;
-        
+
         .searchArea {
             width: 150px;
         }
         .categoryWrap {
             width: ~"calc(100% - 150px)";
         }
-      
+
         .category {
             padding: 4px 10px;
             margin: 4px 5px 0px;
@@ -131,7 +131,7 @@
                 border-top-right-radius: 5px;
                 border-bottom-right-radius: 0px;
                 border-bottom-left-radius: 0px;
-                
+
             }
 
             .text {
@@ -198,7 +198,7 @@
 
         .category {
             display: none;
-            
+
             &.active {
                 display: block;
             }
@@ -220,12 +220,13 @@
         position: relative;
 
         @iconArea-width: 20px;
+        @border-width: 2px;
 
         .main {
             .size(@width: @operator-width, @height: @operator-height);
-            line-height: @operator-height - 2px; 
-            border-radius: (@operator-height / 2) - 2px;
-            border: 1px solid  @color-border-operator; 
+            line-height: @operator-height - @border-width;
+            border-radius: (@operator-height / 2) - @border-width;
+            border: 1px solid  @color-border-operator;
             font-size: 11px;
             .cursor-move();
             margin-left: 7px;
@@ -239,6 +240,19 @@
                 float: left;
                 .size(@width: @iconArea-width, @height: 100%);
                 border-right: 1px solid  @color-border-operator;
+
+                .icon {
+                    font-size: 12px;
+                    text-align: center;
+                    padding-left: 1px;
+                    width: 100%;
+                    line-height: @operator-height - @border-width;
+                    color: @color-white;
+
+                    &.xi-aggregate {
+                        font-size: 11px;
+                    }
+                }
             }
 
             .nameArea {
@@ -257,6 +271,16 @@
                 font-weight: bold;
                 box-shadow: 0px 0px 0px 1px #55c4de;
             }
+        }
+
+        &.dropAvailable {
+            .main, .iconArea {
+                // border-color: green;
+                // box-shadow: 0px 0px 0px 1p green;
+            }
+        }
+        &.noDrag {
+
         }
 
         &.category-in {
@@ -368,8 +392,8 @@
             min-height: 100%;
             min-width: 100%;
             position: relative;
-            padding-bottom: 40px;
-            padding-right: 20px;
+            padding-bottom: 10px;
+            padding-right: 10px;
             display: none;
 
             &.active {
@@ -389,7 +413,8 @@
     .dragContainer {
         position: absolute;
         z-index: 2;
-        
+        pointer-events: none;
+
         .operator {
             position: absolute;
         }
@@ -408,7 +433,7 @@
     .mainSvg {
         .size(100%, 100%);
         overflow: visible;
-        
+
         .edge {
             cursor: pointer;
 

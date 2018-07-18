@@ -35,8 +35,8 @@ namespace DagView {
 
     /**
      * DagView.addBackNodes
-     * @param _dagId 
-     * @param nodeIds 
+     * @param _dagId
+     * @param nodeIds
      * used for undoing/redoing operations
      */
     export function addBackNodes(_dagId, nodeIds) {
@@ -50,7 +50,7 @@ namespace DagView {
             $node.css({
                 left: pos.x,
                 top: pos.y
-            });  
+            });
             // use .attr instead of .data so we can grab by selector
             $node.attr("data-nodeid", nodeId);
             $node.appendTo($dfWrap.find(".dataflowArea.active"));
@@ -71,19 +71,19 @@ namespace DagView {
 
     /**
      * DagView.addNode
-     * @param dagId 
-     * @param nodeInfo 
+     * @param dagId
+     * @param nodeInfo
      */
-    export function addNode(dagId, nodeInfo: DagNodeInfo): void {   
+    export function addNode(dagId, nodeInfo: DagNodeInfo): void {
         const node = activeDag.newNode(nodeInfo);
         const type = nodeInfo.type;
         $dfWrap.find(".operator").removeClass("selected");
         const $node = $operatorBar.find('.operator[data-type="' + type + '"]').clone();
-        
+
         $node.css({
             left: nodeInfo.display.x,
             top: nodeInfo.display.y
-        });  
+        });
         const nodeId = node.getId();
         // use .attr instead of .data so we can grab by selector
         $node.attr("data-nodeid", nodeId);
@@ -104,7 +104,7 @@ namespace DagView {
      * connector classes
      */
     export function removeNodes(dagId, nodeIds: DagNodeId[]): void {
-        nodeIds.forEach(function(nodeId) {           
+        nodeIds.forEach(function(nodeId) {
             activeDag.removeNode(nodeId);
             DagView.getNode(nodeId).remove();
             $dagView.find('.edge[data-childnodeid="' + nodeId + '"]').remove();
@@ -123,7 +123,7 @@ namespace DagView {
 
     /**
      * DagView.cloneNode
-     * @param nodeId 
+     * @param nodeId
      * finds new position for cloned node, adds to dagGraph and UI
      */
     export function cloneNodes(_dagId, nodeIds: DagNodeId[]): void {
@@ -140,7 +140,7 @@ namespace DagView {
         // we use the first node in the jquery array and make sure it doesn't
         // conflict in positions with another node. The other nodes in the
         // array may have a problem however
-    
+
         // XXX improve detection of other node positions
         while (positionConflict) {
             positionConflict = false;
@@ -153,7 +153,7 @@ namespace DagView {
                 }
             });
         }
-        
+
         nodeIds.forEach((nodeId) => {
             const $node = DagView.getNode(nodeId);
             const rect = $node[0].getBoundingClientRect();
@@ -190,11 +190,11 @@ namespace DagView {
      * removes connection from DagGraph, connection line, updates connector classes
      */
     export function disconnectNodes(parentNodeId, childNodeId, connectorIndex) {
-        const $edge: JQuery = $dagView.find('.edge[data-parentnodeid="' + 
-                                            parentNodeId + 
-                                            '"][data-childnodeid="' + 
-                                            childNodeId + 
-                                            '"][data-connectorindex="' + 
+        const $edge: JQuery = $dagView.find('.edge[data-parentnodeid="' +
+                                            parentNodeId +
+                                            '"][data-childnodeid="' +
+                                            childNodeId +
+                                            '"][data-connectorindex="' +
                                             connectorIndex + '"]');
         activeDag.disconnect(parentNodeId, childNodeId, connectorIndex);
         _removeConnection($edge, childNodeId);
@@ -209,9 +209,9 @@ namespace DagView {
 
     /**
      * DagView.connectNodes
-     * @param parentNodeId 
-     * @param childNodeId 
-     * @param connectorIndex 
+     * @param parentNodeId
+     * @param childNodeId
+     * @param connectorIndex
      * connects 2 nodes and draws line
      */
     export function connectNodes(parentNodeId, childNodeId, connectorIndex) {
@@ -239,8 +239,8 @@ namespace DagView {
 
     /**
      * DagView.moveNodes
-     * @param dagId 
-     * @param nodeIds 
+     * @param dagId
+     * @param nodeIds
      */
     export function moveNodes(_dagId, nodeIds: DagNodeId[], positions) {
         const offset = _getDFAreaOffset();
@@ -270,15 +270,8 @@ namespace DagView {
                 let connectorIndex: number = parseInt($(this).attr("data-connectorindex"));
                 $(this).remove();
 
-                const $childNodeConnectors = DagView.getNode(childNodeId)
-                                                    .find(".connector.in.hasConnection");
-                let $childConnector;
-                if ($childNodeConnectors.hasClass("multi")) {
-                    $childConnector = $childNodeConnectors.eq(0);
-                } else {
-                    $childConnector = $childNodeConnectors.eq(connectorIndex);
-                }
-
+                const $childNode = DagView.getNode(childNodeId);
+                const $childConnector = _getChildConnector($childNode, connectorIndex);
                 const $parentConnector = $el.find(".connector.out");
 
                 _drawLineBetweenNodes($parentConnector, $childConnector,
@@ -291,14 +284,7 @@ namespace DagView {
                 let connectorIndex = parseInt($(this).attr("data-connectorindex"));
                 $(this).remove();
 
-                const $childNodeConnectors = $el.find(".connector.in.hasConnection");
-                let $childConnector;
-                if ($childNodeConnectors.hasClass("multi")) {
-                    $childConnector = $childNodeConnectors.eq(0);
-                } else {
-                    $childConnector = $childNodeConnectors.eq(connectorIndex);
-                }
-
+                const $childConnector = _getChildConnector($el, connectorIndex);
                 const $parentConnector =  DagView.getNode(parentNodeId)
                                                  .find(".connector.out");
 
@@ -307,6 +293,33 @@ namespace DagView {
                      svg, offset);
             });
         });
+
+        let dimensionsAltered = false;
+        const $dfArea = $dagView.find(".dataflowArea.active");
+        let dfAreaHeight = $dfArea.outerHeight();
+        const dfWrapHeight = $dfWrap.height();
+        const heightDiff = dfAreaHeight - dfWrapHeight;
+
+        let dfAreaWidth = $dfArea.find(".sizer").outerWidth();
+        const dfWrapWidth = $dfWrap.width();
+        const widthDiff = dfAreaWidth - dfWrapWidth;
+        if (heightDiff > 0) {
+            if (heightDiff < 40) {
+                dfAreaHeight = dfAreaHeight + 40;
+            }
+            $dfArea.outerHeight(dfAreaHeight);
+            dimensionsAltered = true;
+        }
+        if (widthDiff > 0) {
+            if (widthDiff < 40) {
+                dfAreaWidth = dfAreaWidth + 40;
+            }
+            $dfArea.outerWidth(dfAreaWidth);
+            dimensionsAltered = true;
+        }
+        if (dimensionsAltered) {
+            activeDag.setDimensions(dfAreaWidth, dfAreaHeight);
+        }
 
         Log.add(SQLTStr.MoveOperations, {
             "operation": SQLOps.MoveOperations,
@@ -319,36 +332,41 @@ namespace DagView {
 
     /**
      * DagView.run
-     * @param _dagId 
+     * @param _dagId
      * // run the entire dag
      */
     export function run(_dagId) {
-
+        activeDag.executeAll();
     }
 
     /**
      * DagView.cancel
-     * @param _dagId 
+     * @param _dagId
      * // cancel entire run or execution
      */
     export function cancel(_dagId) {
 
     }
-    
+
     function _removeConnection($edge, childNodeId) {
         const connectorIndex: number = parseInt($edge.attr('data-connectorindex'));
         $edge.remove();
 
-        const $childNodeConnectors = DagView.getNode(childNodeId)
-                                    .find(".connector.in");
-        let $childConnector;
-        if ($childNodeConnectors.hasClass("multi")) {
-            $childConnector = $childNodeConnectors.eq(0);
-        } else {
-            $childConnector = $childNodeConnectors.eq(connectorIndex);
-        }
-        if (!$childConnector.hasClass("multi") ||
-            activeDag.getNode(childNodeId).getNumParent() === 0) {
+        const $childNode: JQuery = DagView.getNode(childNodeId);
+        const $childConnector: JQuery = _getChildConnector($childNode, connectorIndex);
+
+        if ($childConnector.hasClass("multi")) {
+            // if removing an edge from a multichildnode then decrement all
+            // the edges that have a greater index than the removed one
+            // due to splice action on children array
+            $dagView.find('.edge[data-childnodeid="' + childNodeId + '"]').each(function() {
+                const $curEdge: JQuery = $(this);
+                const index: number = parseInt($curEdge.attr('data-connectorindex'));
+                if (index > connectorIndex) {
+                    $curEdge.attr("data-connectorindex", index - 1);
+                }
+            })
+        } else if (activeDag.getNode(childNodeId).getNumParent() === 0) {
              $childConnector.removeClass("hasConnection")
                             .addClass("noConnection");
         }
@@ -419,7 +437,9 @@ namespace DagView {
             }
             const $parentConnector = $(this);
             const $parentNode = $parentConnector.closest(".operator");
+            const parentNodeId: DagNodeId = $parentNode.data("nodeid");
             const $dfArea = $dfWrap.find(".dataflowArea.active");
+            let $candidates: JQuery;
             new DragLineHelper({
                 event: event,
                 $element: $parentConnector,
@@ -429,39 +449,37 @@ namespace DagView {
                     x: 0,
                     y: -2
                 },
+                onDragStart: function() {
+                    const $operators: JQuery = $dfArea.find(".operator");
+                    $candidates = $operators.filter(function() {
+                        const childNodeId = $(this).data("nodeid");
+                        if (childNodeId === parentNodeId) {
+                            return false;
+                        }
+                        let index = activeDag.getNode(childNodeId).getNextOpenConnectionIndex();
+                        if (index === -1) {
+                            return false;
+                        } else {
+                            return activeDag.canConnect(parentNodeId, childNodeId, index, true);
+                        }
+                    });
+                    $operators.addClass("noDrop");
+
+                    $candidates.removeClass("noDrop").addClass("dropAvailable");
+                },
                 onDragEnd: function(_$el, event) {
                     let $childNode: JQuery;
-                    const node = activeDag.getNode($parentNode.data("nodeid"));
-
-                    // TODO: use DagGraph.canConnect to detect if can connect
-                    // instead of the following check
-                    const isAggNode = node.getType() === DagNodeType.Aggregate;
-                    const $operators = $dfArea.find(".operator").filter(function() {
-                        const $operator: JQuery = $(this);
-                        let notAllowed: boolean = false;
-                        if (isAggNode) {
-                            const childNode = activeDag.getNode($operator.data("nodeid"));
-                            if (!childNode.isAllowAggNode()) {
-                                notAllowed = true;
-                            }
-                        }
-
-                        // return operators that allow agg nodes if parent is agg,
-                        // and has space for connection or is multi
-                        return (!notAllowed &&
-                                ($(this).find(".connector.in.noConnection").length > 0 ||
-                                $(this).find(".connector.in.multi").length) > 0);
-                    });
+                    $candidates.removeClass("dropAvailable noDrop");
                     // check if location of drop matches position of a valid
                     // $operator
-                    $operators.not($parentNode).each(function() {
+                    $candidates.not($parentNode).each(function() {
                         const rect: DOMRect = this.getBoundingClientRect();
                         const left: number = rect.left;
                         const right: number = rect.right;
                         const top: number = rect.top;
                         const bottom: number = rect.bottom;
                         if (event.pageX > left && event.pageX < right &&
-                        event.pageY > top && event.pageY < bottom) {
+                            event.pageY > top && event.pageY < bottom) {
                             $childNode = $(this);
                             return false;
                         }
@@ -471,16 +489,14 @@ namespace DagView {
                         console.log("invalid connection");
                         return;
                     }
-                    const parentNodeId: DagNodeId = $parentNode.data("nodeid");
-                    const childNodeId: DagNodeId = $childNode.data("nodeid");
 
-                    let connectorIndex: number;
-                    if ($childNode.find(".connector.in.multi").length) {
-                        connectorIndex = activeDag.getNode(childNodeId)
-                                                  .getNumParent();
-                    } else {
-                        connectorIndex = $childNode.find(".connector.in.noConnection")
-                                                    .first().index();
+                    const childNodeId: DagNodeId = $childNode.data("nodeid");
+                    const childNode: DagNode = activeDag.getNode(childNodeId);
+                    const connectorIndex: number = childNode.getNextOpenConnectionIndex();
+                    if (!activeDag.canConnect(parentNodeId, childNodeId, connectorIndex)) {
+                        StatusBox.show(DagTStr.CycleConnection, $childNode)
+
+                        return;
                     }
 
                     DagView.connectNodes(parentNodeId, childNodeId, connectorIndex);
@@ -540,20 +556,29 @@ namespace DagView {
         .attr("d", lineFunction([parentCoors, childCoors]));
     }
 
+    function _getChildConnector($childNode: JQuery, index: number): JQuery {
+        let $childConnector: JQuery;
+        let $childConnectors = $childNode.find(".connector.in");
+        if ($childConnectors.hasClass(".multi")) {
+            $childConnector = $childConnectors.eq(0);
+        } else {
+            $childConnector = $childConnectors.eq(index);
+            if (!$childConnector.length) {
+                // in case more connections exist than number of connection
+                // divs
+                $childConnector = $childConnectors.last();
+            }
+        }
+        return $childConnector;
+    }
 
     function _drawConnection(parentNodeId, childNodeId, connectorIndex) {
         const $childNode = DagView.getNode(childNodeId);
-        let $childConnector: JQuery;
-        if ($childNode.find(".connector.in.multi").length) {
-            $childConnector = $childNode.find(".connector.in.multi");
-        } else {
-            $childConnector = $childNode.find(".connector.in.noConnection").first();
-        }
-
+        const $childConnector: JQuery = _getChildConnector($childNode, connectorIndex);
         const $parentConnector = DagView.getNode(parentNodeId).find(".connector.out");
 
         $childConnector.removeClass("noConnection")
-                    .addClass("hasConnection");
+                       .addClass("hasConnection");
 
         const offset = _getDFAreaOffset();
         const svg = d3.select("#dagView .dataflowArea.active .mainSvg");

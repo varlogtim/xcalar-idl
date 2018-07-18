@@ -195,7 +195,7 @@ class DagNode {
             }
         } else {
             const maxParents: number = this.getMaxParents();
-            if (maxParents >= 0 && this._getNonAggParents().length >= maxParents) {
+            if (!this._canHaveMultiParents() && this._getNonAggParents().length >= maxParents) {
                 throw new Error("Node has maximum parents connected");
             }
         }
@@ -234,6 +234,7 @@ class DagNode {
             delete this.parents[pos];
         }
 
+        // XXX Rudy - I think it should retain params
         this._removeParam(pos);
         this.numParent--;
     }
@@ -277,6 +278,22 @@ class DagNode {
 
     public isAllowAggNode(): boolean {
         return this.allowAggNode;
+    }
+
+    // finds the first parent index that is empty
+    public getNextOpenConnectionIndex(): number {
+        let limit;
+        if (this.allowAggNode || this._canHaveMultiParents()) {
+            limit = this.parents.length + 1;
+        } else {
+            limit = this.maxParents;
+        }
+        for (let i = 0; i < limit; i++) {
+            if (this.parents[i] == null) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private _getNonAggParents(): DagNode[] {
