@@ -105,6 +105,7 @@ namespace xcGlobal {
         gXcSupport = false; // if xcalar support user
         gCollab = false; // if strip / in username or not
         gXcalarRecordNum = "xcalarRecordNum";
+        gShowDataflow2 = false;
 
         // Shut up the console logs
         verbose = false;

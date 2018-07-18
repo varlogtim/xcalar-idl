@@ -5,6 +5,9 @@ namespace DagView {
     let activeDag: DagGraph;
 
     export function setup(): void {
+        if (gShowDataflow2) {
+            $("#dagButton").show();
+        }
         $dagView = $("#dagView");
         $dfWrap = $dagView.find(".dataflowWrap");
         $operatorBar = $dagView.find(".operatorWrap");
