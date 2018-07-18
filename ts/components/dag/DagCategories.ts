@@ -70,9 +70,9 @@ class DagCategory {
     private name: string;
     private operators: DagNode[];
 
-    public constructor(name, items) {
+    public constructor(name, operators) {
         this.name = name;
-        this.operators = items;
+        this.operators = operators;
     }
 
     public getName(): string {

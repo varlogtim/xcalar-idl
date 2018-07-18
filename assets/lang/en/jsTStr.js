@@ -1485,7 +1485,13 @@ SQLTStr = {
     "RevertTable": "Revert Table",
     "SortTableCols": "Sort Table Columns",
     "TextAlign": "Text Align",
-    "UnHideWS": "Unhide Worksheet"
+    "UnHideWS": "Unhide Worksheet",
+    "DisconnectOperation": "Disconnect Operation",
+    "ConnectOperations": "Connect Operations",
+    "RemoveOperations": "Remove Operations",
+    "AddOperation": "Add Operation",
+    "CopyOperations": "Copy Operations",
+    "MoveOperations": "Move Operations"
 };
 
 LoginConfigTStr = {

@@ -49,6 +49,7 @@ namespace WorkspacePanel {
             $("#dagView").removeClass("active");
             // XXX temp
             $("#workspacePanel").children(".mainContent").show();
+            $("#userBox").removeClass("dagMode");
 
             switch ($button.attr("id")) {
                 case ("worksheetButton"):
@@ -86,6 +87,10 @@ namespace WorkspacePanel {
                     TblFunc.hideOffScreenTables();
                     // XXX temp
                     $("#workspacePanel").children(".mainContent").hide();
+                    $("#userBox").addClass("dagMode");
+
+
+
                     $("#worksheetView").removeClass("active");
                     $("#workspaceBar").addClass("xc-hidden");
                     $("#imdView").removeClass("active");

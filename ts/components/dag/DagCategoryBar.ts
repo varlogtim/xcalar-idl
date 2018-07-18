@@ -13,6 +13,7 @@ class DagCategoryBar {
         this.$operatorBar = this.$dagView.find(".operatorWrap");
         this._setupCategoryBar();
         this._setupOperatorBar();
+        this._setupDragDrop();
     }
 
     private _setupCategoryBar(): void {
@@ -104,5 +105,37 @@ class DagCategoryBar {
 
         this.$operatorBar.html(html);
         this.$dagView.find(".categories .category-" + DagCategoryType.In).click();
+    }
+
+    private _setupDragDrop(): void {
+        const self = this;
+        // dragging operator bar node into dataflow area
+        this.$operatorBar.on("mousedown", ".operator .main", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+
+            const $operator = $(this).closest(".operator");
+            new DragHelper({
+                event: event,
+                $element: $operator,
+                $container: self.$dagView,
+                $dropTarget: self.$dagView.find(".dataflowArea.active"),
+                onDragEnd: function(_$newNode, _event, data) {
+                    const newNodeInfo: DagNodeInfo = {
+                        type: $operator.data("type"),
+                        display: {
+                                    x: data.coors[0].x, 
+                                    y: data.coors[0].y
+                                }
+                    };
+                    DagView.addNode(0, newNodeInfo);
+                },
+                onDragFail: function() {
+
+                },
+                copy: true
+            });
+        });
     }
 }

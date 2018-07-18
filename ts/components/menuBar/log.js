@@ -42,8 +42,8 @@ window.Log = (function($, Log) {
         $textarea = $("#log-TextArea");
         $machineTextarea = $("#log-MachineTextArea");
 
-        $undo = $("#undo");
-        $redo = $("#redo");
+        $undo = $("#undo, #dagView .undo");
+        $redo = $("#redo, #dagView .redo");
 
         initialize();
         addEvents();
@@ -635,9 +635,25 @@ window.Log = (function($, Log) {
                     oldLogCursor = oldLogs.length - 1;
                 }
                 var logs = [];
+                // XXX temporary hack to prevent undoing on a dataflow 2.0
+                // action
+                var dataflow2Ops = [
+                    SQLOps.DisconnectOperation, 
+                    SQLOps.ConnectOperations,
+                    SQLOps.RemoveOperations,
+                    SQLOps.AddOperation,
+                    SQLOps.CopyOperations,
+                    SQLOps.MoveOperations
+                ];
                 for (var i = 0; i <= oldLogCursor; i++) {
+                    if (dataflow2Ops.indexOf(oldLogs[i].options.operation) > 0) {
+                        // part of temp hack
+                        oldLogs[i].options.noUndo = true;
+                    }
                     logs.push(new XcLog(oldLogs[i]));
                 }
+            
+              
                 addLog(logs, true);
                 infList.restore(".logContentWrap");
                 infListMachine.restore(".cliWrap");
@@ -782,6 +798,10 @@ window.Log = (function($, Log) {
         var operation = xcLog.getOperation();
         if (operation == null) {
             console.error("Invalid log", xcLog);
+            return UndoType.Invalid;
+        }
+        // XXX temp hack to prevent undoing in dataflow2.0 on refresh
+        if (xcLog.options.noUndo) {
             return UndoType.Invalid;
         }
 
@@ -1046,6 +1066,7 @@ window.Log = (function($, Log) {
 
         var opsToExclude = options.htmlExclude || []; // array of keys to
         // exclude from HTML
+        opsToExclude.push("noUndo"); // XXX temp
         var collapseClass;
         if (isCollapsed) {
             collapseClass = " collapsed";

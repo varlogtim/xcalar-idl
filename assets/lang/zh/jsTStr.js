@@ -1214,7 +1214,13 @@ SQLTStr = {
     "NoSortFirst": "First/Last requires window to be ordered",
     "ExprInNtile": "Variable in ntile() should not be expression. It is:",
     "InvalidNtile": "Argument of ntile() should be positive. Instead it is:",
-    "UnsupportedWindow": "Window function currently not supported. It is:"
+    "UnsupportedWindow": "Window function currently not supported. It is:",
+    "DisconnectOperation": "Disconnect Operation",
+    "ConnectOperations": "Connect Operations",
+    "RemoveOperations": "Remove Operations",
+    "AddOperation": "Add Operation",
+    "CopyOperations": "Copy Operations",
+    "MoveOperations": "Move Operations"
 };
 
 LoginConfigTStr = {

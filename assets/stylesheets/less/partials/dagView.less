@@ -9,6 +9,8 @@
     @color-border-operator: #849CB0;
     @color-connector: #BBC7D1;
     @color-edge: #627483;
+    @color-play: #49DAA0;
+    @color-stop: #FF6E57;
     @operator-height: 28px;
     @operator-width: 90px;
 
@@ -16,7 +18,72 @@
         box-shadow: none;
         border-bottom: 1px solid @color-border-bar;
         z-index: 0;
-        min-height: 50px;
+        min-height: @height-topBar;
+        padding-right: 45px;
+
+        .topButtons {
+            float: right;
+            .flex-display;
+            height: 100%;
+        }
+
+        .topButton {
+            cursor: pointer;
+            padding: 0px 5px;
+
+            .icon {
+                .vertical-align;
+                opacity: @opacity-unhover;
+                color: @color-connector;
+                font-size: 18px;
+            }
+
+            &:hover {
+                .icon {
+                    opacity: @opacity-hover;
+                }
+            }
+
+            &.run {
+                .icon {
+                    color: @color-play;
+                }
+            }
+            &.stop {
+                .icon {
+                    color: @color-stop;
+                }
+            }
+        }
+
+        .divider {
+            height: 25px;
+            width: 1px;
+            margin: 0px 5px;
+            .vertical-align;
+            background-color: @color-border-bar;
+        }
+      
+        .undo, .redo {
+            &.disabled {
+                opacity: 0.3;
+                cursor: not-allowed;
+            }
+            &.repeatable {
+                cursor: pointer;
+                opacity: 0.6;
+                &:hover {
+                    opacity: 0.8;
+                }
+            }
+            &.locked {
+                opacity: 0.3;
+                cursor: not-allowed;
+                &:hover {
+                    opacity: 0.3;
+                }
+            }
+        }
     }
 
     .categoryBar {
@@ -379,5 +446,13 @@
         .removeInConnection {
             display: list-item;
         }
+    }
+}
+
+// XXX temporary
+#userBox.dagMode {
+    width: 45px;
+    #memoryAlert {
+        display: none;
     }
 }

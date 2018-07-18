@@ -12,8 +12,8 @@ namespace DagView {
         // XXX used for testing
         activeDag = new DagGraph();
 
-        setupNodeSelection();
-        setupDragDrop();
+        _setupSelectingAndDragDrop();
+        DagTopBar.Instance.setup();
         DagCategoryBar.Instance.setup();
         DagNodeMenu.setup();
     }
@@ -87,7 +87,7 @@ namespace DagView {
         $node.addClass("selected");
         $node.appendTo($dfWrap.find(".dataflowArea.active"));
 
-        Log.add(SQLOps.AddOperation, {
+        Log.add(SQLTStr.AddOperation, {
             "operation": SQLOps.AddOperation,
             "dataflowId": dagId,
             "nodeId": nodeId
@@ -111,7 +111,7 @@ namespace DagView {
             });
         });
 
-        Log.add(SQLOps.RemoveOperations, {
+        Log.add(SQLTStr.RemoveOperations, {
             "operation": SQLOps.RemoveOperations,
             "dataflowId": dagId,
             "nodeIds": nodeIds
@@ -173,7 +173,7 @@ namespace DagView {
             $newEl.attr("data-nodeid", newNodeId);
         });
 
-        Log.add(SQLOps.CopyOperations, {
+        Log.add(SQLTStr.CopyOperations, {
             "operation": SQLOps.CopyOperations,
             "dataflowId": 0,
             "nodeIds": newNodeIds
@@ -195,7 +195,7 @@ namespace DagView {
                                             connectorIndex + '"]');
         activeDag.disconnect(parentNodeId, childNodeId, connectorIndex);
         _removeConnection($edge, childNodeId);
-        Log.add(SQLOps.DisconnectOperation, {
+        Log.add(SQLTStr.DisconnectOperation, {
             "operation": SQLOps.DisconnectOperation,
             "dataflowId": 0,
             "parentNodeId": parentNodeId,
@@ -205,7 +205,7 @@ namespace DagView {
     }
 
     /**
-     * DagView.connect
+     * DagView.connectNodes
      * @param parentNodeId 
      * @param childNodeId 
      * @param connectorIndex 
@@ -216,7 +216,7 @@ namespace DagView {
 
         _drawConnection(parentNodeId, childNodeId, connectorIndex);
 
-        Log.add(SQLOps.ConnectOperations, {
+        Log.add(SQLTStr.ConnectOperations, {
             "operation": SQLOps.ConnectOperations,
             "dataflowId": 0,
             "parentNodeId": parentNodeId,
@@ -305,7 +305,7 @@ namespace DagView {
             });
         });
 
-        Log.add(SQLOps.MoveOperations, {
+        Log.add(SQLTStr.MoveOperations, {
             "operation": SQLOps.MoveOperations,
             "dataflowId": 0,
             "nodeIds": nodeIds,
@@ -314,6 +314,23 @@ namespace DagView {
         });
     }
 
+    /**
+     * DagView.run
+     * @param _dagId 
+     * // run the entire dag
+     */
+    export function run(_dagId) {
+
+    }
+
+    /**
+     * DagView.cancel
+     * @param _dagId 
+     * // cancel entire run or execution
+     */
+    export function cancel(_dagId) {
+
+    }
     
     function _removeConnection($edge, childNodeId) {
         const connectorIndex: number = parseInt($edge.attr('data-connectorindex'));
@@ -334,10 +351,8 @@ namespace DagView {
         }
     }
 
-    function setupNodeSelection(): void {
-        // XXX node selection is handled in setupDragDrop mousedown
-        
 
+    function _setupSelectingAndDragDrop(): void {
         $dfWrap.click(function(event) {
             if (event.shiftKey) {
                 return;
@@ -347,42 +362,14 @@ namespace DagView {
                 $dfWrap.find(".operator").removeClass("selected");
             }
         });
-    }
-
-    function setupDragDrop(): void {
-        // dragging operator bar node into dataflow area
-        $operatorBar.on("mousedown", ".operator .main", function(event) {
-            if (event.which !== 1) {
-                return;
-            }
-
-            const $operator = $(this).closest(".operator");
-            new DragHelper({
-                event: event,
-                $element: $operator,
-                $container: $dagView,
-                $dropTarget: $dfWrap.find(".dataflowArea.active"),
-                onDragEnd: function(_$newNode, _event, data) {
-                    const newNodeInfo: DagNodeInfo = {
-                        type: $operator.data("type"),
-                        display: {
-                                    x: data.coors[0].x, 
-                                    y: data.coors[0].y
-                                }
-                    };
-                    DagView.addNode(0, newNodeInfo);
-                },
-                onDragFail: function() {
-
-                },
-                copy: true
-            });
-        });
 
         // moving node in dataflow area to another position
         $dfWrap.on("mousedown", ".operator .main", function(event) {
             const $operator = $(this).closest(".operator");
 
+            // if not shift clicking, deselect other nodes
+            // if shift clicking, and this is selected, then deselect it
+            // but don't allow dragging on deselected node
             if (!$operator.hasClass("selected") && !event.shiftKey) {
                 $dfWrap.find(".operator").removeClass("selected");
             } else if ($operator.hasClass("selected") && event.shiftKey) {
@@ -402,8 +389,6 @@ namespace DagView {
                 $container: $dagView,
                 $dropTarget: $dfArea,
                 onDragStart: function(_$els) {
-
-                    // $operator.addClass("selected");
                 },
                 onDragEnd: function($els, _event, data) {
                     let nodeIds: DagNodeId[] = [];
@@ -504,8 +489,6 @@ namespace DagView {
             });
         });
     }
-
-   
 
     function _getDFAreaOffset() {
         const containerRect = $dfWrap[0].getBoundingClientRect();

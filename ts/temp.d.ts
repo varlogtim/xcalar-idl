@@ -880,6 +880,15 @@ declare namespace TimeTStr {
     export var LastSaved: string;
 }
 
+declare namespace SQLTStr {
+    export var AddOperation: string;
+    export var RemoveOperations: string;
+    export var CopyOperations: string;
+    export var DisconnectOperation: string;
+    export var ConnectOperations: string;
+    export var MoveOperations: string;
+}
+
 // declare namespace WSTStr {
 //     export var Ws:
 // }
@@ -1571,4 +1580,9 @@ declare namespace Msal {
     export class Logger{
         public constructor(callback: Function, options: object);
     }
+}
+
+declare namespace Log {
+    export function undo(): void;
+    export function redo(): void;
 }

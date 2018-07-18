@@ -18,6 +18,7 @@ namespace DagNodeMenu {
             return false; // prevent default browser's rightclick menu
         });
 
+        // XXX undecided if we want menu to open on a regular click or just rightclick
         // $dfWrap.on("click", ".operator .main", function(event: JQueryEventObject) {
         //     _showNodeMenu($(this), event);
         // });
@@ -76,12 +77,6 @@ namespace DagNodeMenu {
                 floating: true,
                 classes: classes
             });
-            
-            // $(document).on("mousedown.menuClose", function() {
-            //     $operator.removeClass("selected");
-            //     $(document).off("mousedown.menuClose");
-            // });
-            // XXX need to change list items to plural if multiple node
         }
     }
 
