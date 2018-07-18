@@ -5,7 +5,7 @@ namespace DagView {
     let activeDag: DagGraph;
 
     export function setup(): void {
-        if (gShowDataflow2) {
+        if (gDionysus) {
             $("#dagButton").show();
         }
         $dagView = $("#dagView");

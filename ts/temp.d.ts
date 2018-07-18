@@ -305,7 +305,7 @@ declare var gEnableIndexStyle: boolean;
 declare var gXcSupport: boolean;
 declare var gCollab: boolean;
 declare var gXcalarRecordNum: string;
-declare var gShowDataflow2: boolean;
+declare var gDionysus: boolean;
 
 declare var gBuildNumber: number;
 declare var gGitVersion: number;
