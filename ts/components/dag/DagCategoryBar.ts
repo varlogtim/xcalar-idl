@@ -21,6 +21,7 @@ class DagCategoryBar {
         let html: HTML = "";
 
         const iconMap = {};
+        iconMap[DagCategoryType.Favorites] = "xi-recommend";
         iconMap[DagCategoryType.In] = "xi-horizontal-align-center";
         iconMap[DagCategoryType.Out] = "xi-horizontal-align-center";
         iconMap[DagCategoryType.Value] = "xi-aggregate";
@@ -54,7 +55,7 @@ class DagCategoryBar {
             self.$dagView.find(".categories .category").removeClass("active");
             $category.addClass("active");
             self.$operatorBar.find(".category").removeClass("active");
-            self.$operatorBar.find(".category-" + type).addClass("active");
+            self.$operatorBar.find(".category.category-" + type).addClass("active");
         });
     }
 

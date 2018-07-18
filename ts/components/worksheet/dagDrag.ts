@@ -3,6 +3,7 @@ interface DragHelperOptions {
     $dropTarget: JQuery,
     $element: JQuery,
     $elements?: JQuery,
+    onDragStart?: Function
     onDragEnd: Function,
     onDragFail: Function,
     copy?: boolean,
@@ -26,6 +27,7 @@ interface Coordinate {
 class DragHelper {
     protected $container: JQuery;
     protected $dropTarget: JQuery;
+    protected onDragStartCallback: Function;
     protected onDragEndCallback: Function;
     protected onDragFailCallback: Function;
     protected $el: JQuery;
@@ -52,6 +54,7 @@ class DragHelper {
         } else {
             this.$els = this.$el;
         }
+        this.onDragStartCallback = options.onDragStart;
         this.onDragEndCallback = options.onDragEnd;
         this.onDragFailCallback = options.onDragFail;
         this.copying = options.copy || false;
@@ -70,9 +73,6 @@ class DragHelper {
             x: options.event.pageX,
             y: options.event.pageY
         };
-
-        const cursorStyle = '<div id="moveCursor"></div>';
-        $("body").addClass("tooltipOff").append(cursorStyle);
 
         $(document).on("mousemove.checkDrag", function(event: JQueryEventObject) {
             self.checkDrag(event);
@@ -96,6 +96,9 @@ class DragHelper {
     private onDragStart(event: JQueryEventObject): void {
         const self = this;
 
+        const cursorStyle = '<div id="moveCursor"></div>';
+        $("body").addClass("tooltipOff").append(cursorStyle);
+
         this.$els.each(function() {
             const elRect: DOMRect = this.getBoundingClientRect();
             self.origPositions.push({
@@ -113,6 +116,9 @@ class DragHelper {
         $(document).on("mousemove.onDrag", function(event) {
             self.onDrag(event);
         });
+        if (this.onDragStartCallback) {
+            this.onDragStartCallback(this.$els);
+        }
     }
 
     private onDrag(event: JQueryEventObject): void {

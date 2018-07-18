@@ -9,6 +9,8 @@ class DagCategories {
 
         this.categories = [];
 
+        const favoritesCategory = new DagCategory(DagCategoryType.Favorites, []);
+
         const inCategory = new DagCategory(DagCategoryType.In, [
             DagNodeFactory.create({
                 type: DagNodeType.Dataset
@@ -54,9 +56,9 @@ class DagCategories {
             })
         ]);
 
-        this.categories = [inCategory, outCategory, valueCategory,
-                        operationsCategory, columnCategory, joinCategory,
-                        setCategory];
+        this.categories = [favoritesCategory, inCategory, outCategory, 
+                        valueCategory, operationsCategory, columnCategory, 
+                        joinCategory, setCategory];
     }
 
     public getCategories(): DagCategory[] {

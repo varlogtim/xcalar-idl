@@ -21,6 +21,7 @@ enum DagNodeState {
 }
 
 enum DagCategoryType {
+    Favorites = "favorites",
     In = "in",
     Out = "out",
     Value = "value",

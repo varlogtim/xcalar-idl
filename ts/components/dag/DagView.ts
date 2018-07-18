@@ -12,6 +12,7 @@ namespace DagView {
         // XXX used for testing
         activeDag = new DagGraph();
 
+        setupNodeSelection();
         setupDragDrop();
         DagCategoryBar.Instance.setup();
         DagNodeMenu.setup();
@@ -20,6 +21,13 @@ namespace DagView {
     // XXX test function
     export function getActiveDag(): DagGraph {
         return activeDag;
+    }
+
+    export function selectNodes(nodeIds: DagNodeId[]) {
+        nodeIds.forEach((nodeId) => {
+            const $node: JQuery = DagView.getNode(nodeId);
+            $node.addClass("selected");
+        });
     }
 
     /**
@@ -66,6 +74,7 @@ namespace DagView {
     export function addNode(dagId, nodeInfo: DagNodeInfo): void {   
         const node = activeDag.newNode(nodeInfo);
         const type = nodeInfo.type;
+        $dfWrap.find(".operator").removeClass("selected");
         const $node = $operatorBar.find('.operator[data-type="' + type + '"]').clone();
         
         $node.css({
@@ -75,6 +84,7 @@ namespace DagView {
         const nodeId = node.getId();
         // use .attr instead of .data so we can grab by selector
         $node.attr("data-nodeid", nodeId);
+        $node.addClass("selected");
         $node.appendTo($dfWrap.find(".dataflowArea.active"));
 
         Log.add(SQLOps.AddOperation, {
@@ -161,8 +171,6 @@ namespace DagView {
             });
             $dfArea.append($newEl);
             $newEl.attr("data-nodeid", newNodeId);
-            $dfWrap.find(".operator").removeClass("selected");
-            $newEl.addClass("selected");
         });
 
         Log.add(SQLOps.CopyOperations, {
@@ -326,13 +334,29 @@ namespace DagView {
         }
     }
 
+    function setupNodeSelection(): void {
+        // XXX node selection is handled in setupDragDrop mousedown
+        
+
+        $dfWrap.click(function(event) {
+            if (event.shiftKey) {
+                return;
+            }
+            const $target = $(event.target);
+            if (!$target.closest(".operator").length) {
+                $dfWrap.find(".operator").removeClass("selected");
+            }
+        });
+    }
+
     function setupDragDrop(): void {
         // dragging operator bar node into dataflow area
         $operatorBar.on("mousedown", ".operator .main", function(event) {
             if (event.which !== 1) {
                 return;
             }
-            var $operator = $(this).closest(".operator");
+
+            const $operator = $(this).closest(".operator");
             new DragHelper({
                 event: event,
                 $element: $operator,
@@ -357,12 +381,19 @@ namespace DagView {
 
         // moving node in dataflow area to another position
         $dfWrap.on("mousedown", ".operator .main", function(event) {
+            const $operator = $(this).closest(".operator");
+
+            if (!$operator.hasClass("selected") && !event.shiftKey) {
+                $dfWrap.find(".operator").removeClass("selected");
+            } else if ($operator.hasClass("selected") && event.shiftKey) {
+                $operator.removeClass("selected");
+                return;
+            }
+            $operator.addClass("selected");
             if (event.which !== 1) {
                 return;
             }
-            const self = this;
-            const $operator = $(this).closest(".operator");
-            var $dfArea = $dfWrap.find(".dataflowArea.active");
+            const $dfArea = $dfWrap.find(".dataflowArea.active");
 
             new DragHelper({
                 event: event,
@@ -370,6 +401,10 @@ namespace DagView {
                 $elements: $operator.add($dfArea.find(".operator.selected")),
                 $container: $dagView,
                 $dropTarget: $dfArea,
+                onDragStart: function(_$els) {
+
+                    // $operator.addClass("selected");
+                },
                 onDragEnd: function($els, _event, data) {
                     let nodeIds: DagNodeId[] = [];
                     $els.each(function() {
@@ -379,7 +414,11 @@ namespace DagView {
                     DagView.moveNodes(0, nodeIds, data.coors);
                 },
                 onDragFail: function() {
-                    $(self).closest(".operator").toggleClass("selected");
+                    // did not drag
+                    if (!event.shiftKey) {
+                        $dfWrap.find(".operator").removeClass("selected");
+                        $operator.addClass("selected");
+                    }
                 },
                 move: true
             });

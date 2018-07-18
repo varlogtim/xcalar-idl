@@ -46,10 +46,10 @@
             position: relative;
             top: 1px;
             cursor: pointer;
+            height: 30px;
+            border-radius: 5px;
 
             &:hover {
-                height: 30px;
-                border-radius: 5px;
                 background-color: rgba(0, 0, 0, 0.05);
             }
 
@@ -72,13 +72,18 @@
                 .size(@icon-height,@icon-height);
                 border-radius: 100%;
                 float: left;
-                margin-right: 10px;
+                margin-right: 8px;
                 color: @color-white;
                 font-size: 12px;
                 line-height: @icon-height;
                 text-align: center;
             }
 
+            &.category-favorites {
+                .icon {
+                    background-color: @color-operator-favorites;
+                }
+            }
             &.category-in {
                 .icon {
                     background-color: @color-operator-in;
@@ -144,7 +149,7 @@
         height: @operator-height;
         position: relative;
 
-        @iconArea-width: 21px;
+        @iconArea-width: 20px;
 
         .main {
             .size(@width: @operator-width, @height: @operator-height);
@@ -175,7 +180,8 @@
             }
         }
 
-        &.selected, &.dragSelected {
+        // &.selected, &.dragSelected {
+        &.selected {
             .main, .iconArea {
                 border-color: #55c4de;
                 font-weight: bold;

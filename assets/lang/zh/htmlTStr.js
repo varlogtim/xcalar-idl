@@ -1195,11 +1195,11 @@ module.exports = {
     },
 
     "dag": {
-        "removeNode": "Remove Operator",
-        "cloneNode": "Copy Operator",
+        "removeNode": "Remove",
+        "cloneNode": "Duplicate",
         "removeConnection": "Remove Connection",
         "configure": "Configure",
         "comment": "Comment",
         "execute": "Execute"
-    },
+    }
 }
