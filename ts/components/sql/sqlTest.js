@@ -582,9 +582,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         test = TestSuite.createTest();
         test.setMode(mode);
         initializeTests(testName)
-        .then(function() {
-            return test.run(hasAnimation, toClean, noPopup, withUndo, timeDilation);
-        })
+        return test.run(hasAnimation, toClean, noPopup, withUndo, timeDilation);
     };
     function initializeTests(testName) {
         // Add all test cases here
@@ -593,44 +591,39 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         }
         return sqlTest(testName);
     }
-    function sqlTest(testName) {
-        var deferred = PromiseHelper.deferred();
+    function sqlTest(testType) {
         var dataSource;
         var tableNames;
         var queries;
         var isTPCH = false;
-        setUpTpchDatasets({})
-        .then(function() {
-            if (isTPCH) {
-                runAllQueries(queries, testName);
-                deferred.resolve();
-            } else {
-                // XXX TO-DO run TPC-DS queries here
-                deferred.resolve();
-            }
-        })
-        .fail(deferred.reject);
-        return deferred.promise();
-        function setUpTpchDatasets(tableStruct) {
-            var deferred = PromiseHelper.deferred();
-            if (!testName) {
-                dataSource = testDataLoc + customTables.dataSource;
-                tableNames = customTables.tableNames;
-                queries = sqlTestCases;
-                isTPCH = true;
-            } else if (testName.toLowerCase() === "tpch") {
-                dataSource = testDataLoc + tpchTables.dataSource;
-                tableNames = tpchTables.tableNames;
-                queries = tpchCases;
-                isTPCH = true;
-            } else if (testName.toLowerCase() === "tpcds") {
-                dataSource = testDataLoc + tpcdsTables.dataSource;
-                tableNames = tpcdsTables.tableNames;
-                // XXX TO-DO create TPC-DS test cases
-                // queries = tpcdsCases;
-            } else {
+        if (!testType) {
+            dataSource = testDataLoc + customTables.dataSource;
+            tableNames = customTables.tableNames;
+            queries = sqlTestCases;
+            isTPCH = true;
+        } else if (testType.toLowerCase() === "tpch") {
+            dataSource = testDataLoc + tpchTables.dataSource;
+            tableNames = tpchTables.tableNames;
+            queries = tpchCases;
+            isTPCH = true;
+        } else if (testType.toLowerCase() === "tpcds") {
+            dataSource = testDataLoc + tpcdsTables.dataSource;
+            tableNames = tpcdsTables.tableNames;
+            // XXX TO-DO create TPC-DS test cases
+            // queries = tpcdsCases;
+        } else {
+            var error = "Test case doesn't exist";
+            console.error(error);
+        }
+        test.add(setUpTpchDatasets, "loading data", defaultTimeout, TestCaseEnabled);
+        if (isTPCH) {
+            runAllQueries(queries, testType);
+        } else {
+            // XXX TO-DO run TPC-DS queries here
+        }
+        function setUpTpchDatasets(deferred, testName, currentTestNumber) {
+            if (!dataSource) {
                 var error = "Test case doesn't exist";
-                console.error(error);
                 test.fail(deferred, testName, currentTestNumber, error);
             }
             var checkList = [];
@@ -642,7 +635,6 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             for (var i = 0; i < tableNames.length; i++) {
                 var extension = isTPCH ? ".tbl" : ".dat";
                 var dataPath = dataSource + tableNames[i] + extension;
-                tableStruct[tableNames[i]] = randId;
                 var tableName = tableNames[i];
                 var check = checkList[i];
                 promiseArray.push(prepareData.bind(window, test, tableName,
@@ -652,13 +644,12 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             // Remove all immediates
             PromiseHelper.chain(promiseArray)
             .then(function() {
-                deferred.resolve();
+                test.pass(deferred, testName, currentTestNumber);
             })
             .fail(function(error) {
                 console.error(error, " failed");
-                deferred.reject(error);
+                test.fail(deferred, testName, currentTestNumber, error);
             });
-            return deferred.promise();
         }
     }
     // All helper functions
