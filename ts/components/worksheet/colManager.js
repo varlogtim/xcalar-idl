@@ -113,8 +113,7 @@ window.ColManager = (function($, ColManager) {
             TblFunc.moveTableTitlesAnimated(tableId, tableWidth, colWidths, 200);
         }
 
-        var fnBar = FnBar.Instance;
-        fnBar.clear();
+        FnBar.clear();
 
         jQuery.when.apply($, promises)
         .done(function() {
@@ -560,6 +559,8 @@ window.ColManager = (function($, ColManager) {
         } else {
             $th.find('.editable').removeClass('editable');
             $editableHead.prop("disabled", true);
+            FnBar.focusOnCol($editableHead, tableId, colNum, true);
+            FnBar.focusCursor();
         }
 
         $editableHead.val(newName).attr("value", newName);
@@ -866,6 +867,35 @@ window.ColManager = (function($, ColManager) {
             case ("raw"):
                 console.log("Raw data");
                 deferred.resolve();
+                break;
+            case ("map"):
+                var fieldName = table.tableCols[colNum - 1].name;
+                var mapString = xcHelper.parseUserStr(usrStr);
+                mapString = mapString.substring(mapString.indexOf("(") + 1,
+                                                mapString.lastIndexOf(")"));
+
+                var options = {replaceColumn: true};
+                xcFunction.map(colNum, tableId, fieldName,
+                                mapString, options, gIcvMode)
+                .then(deferred.resolve)
+                .fail(function(error) {
+                    console.error("execCol fails!", error);
+                    deferred.reject(error);
+                });
+                break;
+            case ("filter"):
+                var fltString = xcHelper.parseUserStr(usrStr);
+                fltString = fltString.substring(fltString.indexOf("(") + 1,
+                                                fltString.lastIndexOf(")"));
+
+                xcFunction.filter(colNum, tableId, {
+                    "filterString": fltString
+                })
+                .then(deferred.resolve)
+                .fail(function(error) {
+                    console.error("execCol fails!", error);
+                    deferred.reject(error);
+                });
                 break;
             case ("search"):
                 searchColNames(args.value, args.searchBar, args.initialTableId);

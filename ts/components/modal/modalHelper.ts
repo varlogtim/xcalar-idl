@@ -172,8 +172,7 @@ class ModalHelper {
         xcTooltip.hideAll();
 
         if (!options.keepFnBar && window.FnBar) {
-            var fnBar = FnBar.Instance;
-            fnBar.clear();
+            FnBar.clear();
             $(".selectedCell").removeClass("selectedCell");
         }
 

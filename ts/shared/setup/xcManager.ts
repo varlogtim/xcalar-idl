@@ -765,8 +765,7 @@ namespace xcManager {
 
     function setupWorkspaceBar(): void {
         RowScroller.setup();
-        const fnBar: FnBar = FnBar.Instance;
-        fnBar.setup();
+        FnBar.setup();
     }
 
     function setupSocket(): XcSocket {
@@ -1183,8 +1182,7 @@ namespace xcManager {
                 !isTargetFnBar($target) && !$(".fnBarLocked").length) {
 
                 $(".selectedCell").removeClass("selectedCell");
-                const fnBar: FnBar = FnBar.Instance;
-                fnBar.clear();
+                FnBar.clear();
             }
         });
 

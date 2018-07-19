@@ -1805,8 +1805,7 @@ window.TblManager = (function($, TblManager) {
                 var oldTableId = xcHelper.getTableId(tablesToReplace[0]);
                 animateTableId(newTableId, oldTableId);
             }
-            var fnBar = FnBar.Instance;
-            fnBar.updateColNameCache();
+            FnBar.updateColNameCache();
 
             deferred.resolve();
         })
@@ -2452,6 +2451,7 @@ window.TblManager = (function($, TblManager) {
             }
 
             var colNum = xcHelper.parseColNum($editableHead);
+            FnBar.focusOnCol($editableHead, tableId, colNum);
 
             var $target = $(event.target);
             var notDropDown = $target.closest('.dropdownBox').length === 0 &&
@@ -2468,8 +2468,7 @@ window.TblManager = (function($, TblManager) {
                     event.which !== 3) {
                     if (notDropDown) {
                         unhighlightColumn($editableHead);
-                        var fnBar = FnBar.Instance;
-                        fnBar.clear();
+                        FnBar.clear();
                         return;
                     }
                 } else {
@@ -2500,8 +2499,7 @@ window.TblManager = (function($, TblManager) {
                             }
                         }
                         if ($table.find('.selectedCell').length === 0) {
-                            var fnBar = FnBar.Instance;
-                            fnBar.clear();
+                            FnBar.clear();
                         }
                     }
                 }
@@ -2544,6 +2542,8 @@ window.TblManager = (function($, TblManager) {
 
         $thead.on("mousedown", ".sortIcon", function() {
             var $th = $(this).closest('th');
+            var colNum = xcHelper.parseColNum($th);
+            FnBar.focusOnCol($th, tableId, colNum);
             TblManager.highlightColumn($th, false);
             lastSelectedCell = $th;
         });
@@ -2586,6 +2586,7 @@ window.TblManager = (function($, TblManager) {
         $thead.on("mousedown", ".topHeader .dotWrap", function() {
             var $th = $(this).closest('th');
             var colNum = xcHelper.parseColNum($th);
+            FnBar.focusOnCol($th, tableId, colNum);
             TblManager.highlightColumn($th, false);
             lastSelectedCell = $th;
         });
@@ -2634,8 +2635,7 @@ window.TblManager = (function($, TblManager) {
 
             if ($th.hasClass('dataCol')) {
                 $('.selectedCell').removeClass('selectedCell');
-                var fnBar = FnBar.Instance;
-                fnBar.clear();
+                FnBar.clear();
             }
 
             if ($th.hasClass('newColumn') ||

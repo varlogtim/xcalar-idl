@@ -730,6 +730,7 @@ window.OperationsView = (function($, OperationsView) {
         XcalarListXdfs("*", "*")
         .then(function(listXdfsObj) {
             var fns = xcHelper.filterUDFs(listXdfsObj.fnDescs);
+            FnBar.updateOperationsMap(fns);
             setupOperatorsMap(fns);
         })
         .fail(function(error) {

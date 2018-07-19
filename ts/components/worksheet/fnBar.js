@@ -1,6 +1,3 @@
-// This is the old function bar code. Current code at fnBar.js.
-// Some functionality here has been depreciated as we shift towards workflows.
-
 window.FnBar = (function(FnBar, $) {
     var $functionArea; // $("#functionArea");
     var $fnBar; // $('#functionArea .CodeMirror')
@@ -436,12 +433,12 @@ window.FnBar = (function(FnBar, $) {
         editor.on("keyup", function(cm, e) {
             var val = editor.getValue().trim();
             if (val.indexOf('=') === 0 && keysToIgnore.indexOf(e.keyCode) < 0) {
-                editor.execCommand("autocomplete");
+                editor.execCommand("autocompleteFnBar");
             }
         });
 
         // set up codemirror autcomplete command
-        CodeMirror.commands.autocomplete = function(cm) {
+        CodeMirror.commands.autocompleteFnBar = function(cm) {
             CodeMirror.showHint(cm, CodeMirror.hint.fnBarHint, {
                 alignWithWord: true,
                 completeSingle: false,

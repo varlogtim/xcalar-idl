@@ -42,8 +42,7 @@ window.TblAnim = (function($, TblAnim) {
 
         if (!rescol.$th.hasClass('selectedCell')) {
             $('.selectedCell').removeClass('selectedCell');
-            var fnBar = FnBar.Instance;
-            fnBar.clear();
+            FnBar.clear();
         }
 
         gMouseStatus = "checkingResizeCol";

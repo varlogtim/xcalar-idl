@@ -708,8 +708,7 @@ class FormHelper {
         // hide tooltip when open the form
         xcTooltip.hideAll();
         $(".selectedCell").removeClass("selectedCell");
-        var fnBar = FnBar.Instance;
-        fnBar.clear();
+        FnBar.clear();
 
         // Note: to find the visiable btn, must show the form first
         if (!options.noTabFocus) {
@@ -1577,8 +1576,7 @@ class MenuHelper {
             }
             self.showOrHideScrollers();
             $('.selectedCell').removeClass('selectedCell');
-            var fnBar = FnBar.Instance;
-            fnBar.clear();
+            FnBar.clear();
         }
         xcTooltip.hideAll();
     }
