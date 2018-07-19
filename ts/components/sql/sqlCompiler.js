@@ -249,7 +249,7 @@
                 }
                 if (evalStr.indexOf(tablePrefix) === 0) {
                     this.newTableName = evalStr.substring(tablePrefix.length);
-                    break;
+                    continue;
                 } else {
                     var col = {colName: evalStr,
                                colId: rdds[i][0].exprId.id};
@@ -773,6 +773,7 @@
                     var xcAggNode = xcAggregateNode();
                     var subqueryTree = SQLCompiler.genTree(xcAggNode,
                                                            node.value.plan);
+                    prepareUsedColIds(subqueryTree);
                     xcAggNode.children = [subqueryTree];
                     node.subqueryTree = xcAggNode;
                 }
@@ -988,10 +989,16 @@
                  encodeURIComponent(encodeURIComponent(WorkbookManager.getActiveWKBK())) +
                  "/true/true",
             success: function(data) {
+                var plan;
                 try {
-                    deferred.resolve(JSON.parse(data.sqlQuery));
+                    plan = JSON.parse(data.sqlQuery);
                 } catch (e) {
                     deferred.reject(SQLErrTStr.InvalidLogicalPlan);
+                }
+                try {
+                    deferred.resolve(plan);
+                } catch (e) {
+                    SQLEditor.throwError(e);
                 }
             },
             error: function(error) {
@@ -1273,6 +1280,7 @@
                         SQLEditor.startCompile(numNodes);
                     }
 
+                    prepareUsedColIds(tree);
                     var promiseArray = traverseAndPushDown(self, tree, true);
                     PromiseHelper.chain(promiseArray)
                     .then(function() {
@@ -1579,8 +1587,16 @@
             var deferred = PromiseHelper.deferred();
             assert(node.children.length === 1,
                    SQLErrTStr.FilterLength + node.children.length);
-            var treeNode = SQLCompiler.genExpressionTree(undefined,
-                node.value.condition.slice(0), {extractAggregates: true});
+            var tree = SQLCompiler.genTree(undefined, node.value.condition.slice(0));
+            tree = removeExtraExists(tree, node.usedColIds);
+            if (tree == undefined) {
+                deferred.resolve({
+                    "newTableName": node.children[0].newTableName,
+                    "cli": ""
+                });
+                return deferred.promise();
+            }
+            var treeNode = secondTraverse(tree, {extractAggregates: true}, true);
 
             var aggEvalStrArray = [];
             var subqueryArray = [];
@@ -4278,6 +4294,88 @@
         });
 
         return deferred.promise();
+    }
+
+    function extractCols(node) {
+        colIds = [];
+        function findColIds(node) {
+            var opName = node.value.class.substring(
+                            node.value.class.lastIndexOf(".") + 1);
+            if (opName === "Or" || opName === "Concat" || opName === "IsNotNull"
+                || opName === "ScalarSubquery" || opName === "IsNull"
+                || opName === "EqualNullSafe") {
+                    return;
+            } else if (opName === "AttributeReference") {
+                colIds.push(node.value.exprId.id);
+            }
+            for (var i = 0; i < node.children.length; i++) {
+                findColIds(node.children[i]);
+            }
+        }
+        if (node.value.condition) {
+            var dupCondition = jQuery.extend(true, [], node.value.condition);
+            var tree = SQLCompiler.genTree(undefined, dupCondition);
+            findColIds(tree);
+        }
+        node.usedColIds = node.usedColIds.concat(colIds);
+    }
+
+    function prepareUsedColIds(node) {
+        if (!node.usedColIds) {
+            node.usedColIds = [];
+        }
+        var treeNodeClass = node.value.class.substring(
+            "org.apache.spark.sql.catalyst.plans.logical.".length);
+        if (treeNodeClass === "Join" || treeNodeClass === "Filter") {
+            extractCols(node);
+        }
+        for (var i = 0; i < node.children.length; i++) {
+            node.children[i].usedColIds = node.usedColIds;
+            prepareUsedColIds(node.children[i]);
+        }
+    }
+
+    function removeExtraExists(node, usedColIds) {
+        var subtrees = [];
+        // Copied from secondTraverse
+        function andNode() {
+            return new TreeNode({
+                "class": "org.apache.spark.sql.catalyst.expressions.And",
+                "num-children": 2
+            });
+        }
+        function getFragments(node) {
+            var opName = node.value.class.substring(
+                            node.value.class.lastIndexOf(".") + 1);
+            if (opName === "IsNotNull") {
+                if (usedColIds.indexOf(node.children[0].value.exprId.id) === -1) {
+                    subtrees.push(node);
+                }
+            } else if (opName === "And") {
+                getFragments(node.children[0]);
+                getFragments(node.children[1]);
+            } else {
+                subtrees.push(node);
+            }
+        }
+        getFragments(node);
+        if (subtrees.length === 0) {
+            return undefined;
+        } else if (subtrees.length === 1) {
+            return subtrees[0];
+        } else {
+            var retNode = andNode();
+            var curNode = retNode;
+            curNode.children[0] = subtrees[0];
+            for (var i = 1; i < subtrees.length - 1; i++) {
+                var tempNode = andNode();
+                curNode.children[1] = tempNode;
+                tempNode.children[0] = subtrees[i];
+                curNode = tempNode;
+            }
+            curNode.children[1] = subtrees[subtrees.length - 1];
+            return retNode;
+        }
     }
 
     function getAllCols(node) {
