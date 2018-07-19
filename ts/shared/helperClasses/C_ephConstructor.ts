@@ -1791,11 +1791,8 @@ class InputSuggest {
             xcHelper.listHighlight($input, event, true);
             // bold the similar text
             $list.find("li").each(function() {
-                var $pattern = new RegExp($input.val(), 'i');
                 var $suggestion = $(this);
-                $suggestion.html(
-                    $suggestion.html().replace($pattern,'<strong>$&</strong>')
-                );
+                xcHelper.boldSuggestedText($suggestion, $input.val());
             });
         }
     }
@@ -1909,10 +1906,7 @@ class InputDropdownHint {
             let $li: JQuery = $(this);
             if ($li.text().toLowerCase().includes(searchKey)) {
                 $li.removeClass("xc-hidden");
-                var pattern = new RegExp(searchKey,'i');
-                $li.html(
-                    $li.html().replace(pattern,'<strong>$&</strong>')
-                );
+                xcHelper.boldSuggestedText($li, searchKey);
                 count++;
             } else {
                 $li.addClass("xc-hidden");

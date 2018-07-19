@@ -5772,6 +5772,21 @@ namespace xcHelper {
         }
     }
 
+    /**
+     * Bolds part of the suggested text
+     * Note: also clears it of any tags inside
+     * @param $suggestion The JQUERY for the suggestion
+     * @param searchKey The searchKey we want to bold
+     */
+    export function boldSuggestedText($suggestion: JQuery, searchKey: string): void {
+        const pattern: RegExp = new RegExp(searchKey,'i');
+        // Remove old strong tabs
+        $suggestion.html($suggestion.text());
+        $suggestion.html(
+            $suggestion.html().replace(pattern,'<strong>$&</strong>')
+        );
+    }
+
     export let __testOnly__: any = {};
 
     if (typeof window !== 'undefined' && window['unitTestMode']) {

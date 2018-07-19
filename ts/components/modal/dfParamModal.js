@@ -1186,13 +1186,8 @@ window.DFParamModal = (function($, DFParamModal){
         $list.show().find('li').hide();
 
         $list.find("li").each(function() {
-            var pattern = new RegExp(value, 'i');
             var $suggestion = $(this);
-            // Remove old strong tags
-            $suggestion.html($suggestion.text());
-            $suggestion.html(
-                $suggestion.html().replace(pattern,'<strong>$&</strong>')
-            );
+            xcHelper.boldSuggestedText($suggestion, value);
         });
 
         var $visibleLis = $list.find('li').filter(function() {
