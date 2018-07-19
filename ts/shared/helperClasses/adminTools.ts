@@ -293,7 +293,7 @@ namespace adminTools {
         content?: T): JQueryPromise<any> {
         let data = prePraseSendData<T>(action, content);
         let deferred = PromiseHelper.deferred();
-        $.ajax({
+        HTTPService.Instance.ajax({
             "type": action,
             "data": data,
             "contentType": "application/json",

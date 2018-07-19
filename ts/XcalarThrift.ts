@@ -131,6 +131,7 @@ function thriftLog(
     errorTitle: string,
     ...errResList: (XcalarApiError | number | string) []
 ): ThriftError {
+    const oldHttpStatus: any = httpStatus;
     const errorLists: ThriftError[] = [];
     const title: string = errorTitle || "thrift call";
     // check all errors
@@ -206,6 +207,9 @@ function thriftLog(
             return thriftError;
         } else if (status === StatusT.StatusOk || httpStatus === 0) {
             XcSupport.checkConnection();
+            return thriftError;
+        } else if (httpStatus === oldHttpStatus.Unauthorized ) {
+            xcManager.forceLogout();
             return thriftError;
         } else {
             // XXX We might need to include connection status 502 (Proxy error)

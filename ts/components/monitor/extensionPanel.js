@@ -63,7 +63,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
 
     ExtensionPanel.request = function(json) {
         var deferred = PromiseHelper.deferred();
-        $.ajax(json)
+        HTTPService.Instance.ajax(json)
         .then(function(res) {
             try {
                 if (res.status === Status.Error) {

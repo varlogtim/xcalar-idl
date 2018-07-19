@@ -653,7 +653,7 @@ window.SupTicketModal = (function($, SupTicketModal) {
                              ret.supportBundleSent);
         }, function() {
             var innerDeferred = PromiseHelper.deferred();
-            jQuery.ajax({
+            HTTPService.Instance.ajax({
                 "type": "POST",
                 "contentType": "application/json",
                 "url": xcHelper.getAppUrl() + "/service/bundle",
