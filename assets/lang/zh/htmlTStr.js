@@ -248,7 +248,7 @@ module.exports = {
         "InPageHelp": "页内帮助",
         "Walkthrough": "教程",
         "collapseAll": "收缩",
-        "copyLogBtn": "复制日志",
+        "downloadLogBtn": "下载日志",
         "dsTutor1": "数据集教程 - 第1部分",
         "dsTutor2": "数据集教程 - 第2部分",
         "expandAll": "展开",

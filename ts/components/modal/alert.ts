@@ -35,7 +35,7 @@ namespace Alert {
         isAlert?: boolean; // if it is an alert or a confirm
         isCheckBox?: boolean; // if checkbox is enabled or disabled
         buttons?: AlertButton[]; // buttons to show instead of confirm button
-        hideButtons?: string[]; // array of button class names to hide, values can be: logout, copyLog, or cancel
+        hideButtons?: string[]; // array of button class names to hide, values can be: logout, downloadLog, or cancel
     }
 
     export interface AlertErrorOptions extends BasicAlertOptions {}
@@ -210,7 +210,7 @@ namespace Alert {
         const $modal = getModal();
         const $btnSection = getButtonSection();
         $btnSection.find(".funcBtn").remove();
-        $btnSection.find(".copyLog, .logout, .genSub, .adminSupport").remove();
+        $btnSection.find(".downloadLog, .logout, .genSub, .adminSupport").remove();
         // remove all event listener
         $modal.off(".alert");
         $modal.find(".confirm, .cancel, .close").show();
@@ -470,7 +470,7 @@ namespace Alert {
             $modal.find(".close, .cancel").hide();
             $confirmBtn.hide();
 
-            const $copyLogBtn: JQuery = xcHelper.supportButton("log");
+            const $downloadLogBtn: JQuery = xcHelper.supportButton("log");
             const $logoutBtn: JQuery = xcHelper.supportButton(null);
             const $adminSupportBtn: JQuery = xcHelper.supportButton("adminSupport");
             const $supportBtn: JQuery = xcHelper.supportButton("support");
@@ -478,12 +478,12 @@ namespace Alert {
             if (options.expired) {
                 $btnSection.prepend($logoutBtn);
             } else if (options.logout) {
-                $btnSection.prepend($adminSupportBtn, $logoutBtn, $copyLogBtn,
+                $btnSection.prepend($adminSupportBtn, $logoutBtn, $downloadLogBtn,
                                     $supportBtn);
             } else if (options.noLogout) {
-                $btnSection.prepend($adminSupportBtn, $copyLogBtn, $supportBtn);
+                $btnSection.prepend($adminSupportBtn, $downloadLogBtn, $supportBtn);
             } else {
-                $btnSection.prepend($adminSupportBtn, $copyLogBtn, $logoutBtn,
+                $btnSection.prepend($adminSupportBtn, $downloadLogBtn, $logoutBtn,
                                     $supportBtn);
             }
         }

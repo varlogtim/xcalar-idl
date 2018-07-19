@@ -479,22 +479,21 @@ describe("Xcalar Log Test", function() {
             $logMenu.hide();
         });
 
-        it("Should copy log", function() {
+        it("should download log", function() {
             var test = false;
-            var cachedFunc = document.execCommand;
-            document.execCommand = function(type) {
-                expect(type).to.equal("copy");
+            var cachedFunc = xcHelper.downloadAsFile;
+            xcHelper.downloadAsFile = function(type) {
                 test = true;
             };
             var oldFunc = xcAssert;
             // it will fail the test
             xcAssert = function() { return true; };
 
-            $logButtons.find(".copyLog").click();
+            $logButtons.find(".downloadLog").click();
             expect(test).to.be.true;
 
             xcAssert = oldFunc;
-            document.execCommand = cachedFunc;
+            xcHelper.downloadAsFile = cachedFunc;
         });
 
         it("should toggle log size", function() {
@@ -513,22 +512,21 @@ describe("Xcalar Log Test", function() {
             expect($log.hasClass("collapsed")).to.equal(false);
         });
 
-        it("should right click to copy log", function() {
+        it("should right click to download log", function() {
             var test = false;
-            var cachedFunc = document.execCommand;
-            document.execCommand = function(type) {
-                expect(type).to.equal("copy");
+            var cachedFunc = xcHelper.downloadAsFile;
+            xcHelper.downloadAsFile = function() {
                 test = true;
             };
 
-            var $li = $logMenu.find("li.copy");
+            var $li = $logMenu.find("li.download");
             $li.mouseup();
             expect(test).to.be.false;
 
             $li.trigger(fakeEvent.mouseup);
             expect(test).to.be.true;
 
-            document.execCommand = cachedFunc;
+            xcHelper.downloadAsFile = cachedFunc;
         });
 
         it("should right click to collapse all", function() {

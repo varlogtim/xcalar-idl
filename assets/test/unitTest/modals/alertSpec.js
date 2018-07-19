@@ -7,7 +7,7 @@ describe("Alert Modal Test", function() {
     var $modalBg;
 
     function closeModal() {
-        $alertModal.find(".logout, .copyLog, .genSub").remove();
+        $alertModal.find(".logout, .downloadLog, .genSub").remove();
         $modalBg.removeClass("locked");
         $alertModal.removeClass("locked");
         $alertModal.find(".close").click();
@@ -298,7 +298,7 @@ describe("Alert Modal Test", function() {
         assert.isTrue($modalBg.hasClass("locked"));
         // has right button
         assert.isTrue($alertModal.find(".logout").length > 0);
-        assert.isTrue($alertModal.find(".copyLog").length > 0);
+        assert.isTrue($alertModal.find(".downloadLog").length > 0);
         assert.isTrue($alertModal.find(".genSub").length > 0);
         expect($alertTitle.text()).to.equal(title);
         expect($alertMsg.text()).to.equal(msg);

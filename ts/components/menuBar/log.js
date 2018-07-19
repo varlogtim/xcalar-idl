@@ -529,15 +529,8 @@ window.Log = (function($, Log) {
             }
         });
 
-        $logButtons.on("click", ".copyLog", function() {
-            copyLog();
-            var $btn = $(this);
-            var oldTitle = $btn.attr("data-original-title");
-            xcTooltip.changeText($btn, CommonTxtTstr.LogCopied);
-            xcTooltip.refresh($btn);
-            // the change back of text will not reflect unil user move mouse
-            // out and back
-            xcTooltip.changeText($btn, oldTitle);
+        $logButtons.on("click", ".downloadLog", function() {
+            downloadLog();
         });
 
         $undo.click(function() {
@@ -1132,7 +1125,7 @@ window.Log = (function($, Log) {
         }
     }
 
-    function copyLog() {
+    function downloadLog() {
         var value;
         if ($machineTextarea.is(":visible")) {
             xcAssert(!$textarea.is(":visible"),
@@ -1145,8 +1138,7 @@ window.Log = (function($, Log) {
                     "At least one bar should be showing");
             value = JSON.stringify(Log.getAllLogs());
         }
-
-        xcHelper.copyToClipboard(value);
+        xcHelper.downloadAsFile("xcalar.log", value, false);
     }
 
     function toggleLogSize($section) {
@@ -1172,8 +1164,8 @@ window.Log = (function($, Log) {
             }
 
             switch (action) {
-                case ("copy"):
-                    copyLog();
+                case ("download"):
+                    downloadLog();
                     break;
                 case ("collapseAll"):
                     $textarea.find(".logContentWrap").addClass("collapsed")

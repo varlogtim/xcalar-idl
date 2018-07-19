@@ -576,7 +576,7 @@ declare namespace DSTStr {
 
 declare namespace CommonTxtTstr {
     export var Immediates: string;
-    export var CopyLog: string;
+    export var DownloadLog: string;
     export var GenTicket: string;
     export var LogOut: string;
     export var NA: string;
@@ -655,7 +655,6 @@ declare namespace ExportTStr {
 declare namespace TooltipTStr {
     export var ToGridView: string;
     export var ToListView: string;
-    export var CopyLog: string;
     export var GenTicket: string;
     export var CancelQuery: string;
     export var CannotDropLocked: string;

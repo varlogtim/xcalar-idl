@@ -1947,11 +1947,9 @@ namespace xcHelper {
 
         switch (type) {
             case 'log':
-                // copy log button
-                html = '<button type="button" class="btn copyLog" ' +
-                        'data-toggle="tooltip" title="' +
-                        TooltipTStr.CopyLog + '">' +
-                            CommonTxtTstr.CopyLog +
+                // download log button
+                html = '<button type="button" class="btn downloadLog">' +
+                            CommonTxtTstr.DownloadLog +
                         '</button>';
                 $btn = $(html);
                 $btn.click(function() {
@@ -1967,7 +1965,7 @@ namespace xcHelper {
                         log = JSON.stringify(logCaches);
                     }
 
-                    xcHelper.copyToClipboard(log);
+                    xcHelper.downloadAsFile("xcalar.log", log, false);
                     xcHelper.showSuccess(SuccessTStr.Copy);
                 });
                 break;

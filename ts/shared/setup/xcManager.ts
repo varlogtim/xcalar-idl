@@ -230,7 +230,7 @@ namespace xcManager {
                         WorkbookManager.inActiveAllWKBK();
                     }
                 }],
-                "hideButtons": ['copyLog']
+                "hideButtons": ['downloadLog']
             });
         } else if (isNotNullObj &&
                    error["status"] != null &&

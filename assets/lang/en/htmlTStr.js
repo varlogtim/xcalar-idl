@@ -424,7 +424,7 @@ module.exports = {
     "bottomMenu": {
         "popOutBtn": "Undock",
         "toggleLog": "Toggle machine/human Log",
-        "copyLogBtn": "Copy Log",
+        "downloadLogBtn": "Download log",
         "helpCategories": "Categories",
         "Help": "Help",
         "HelpSupport": "HELP & SUPPORT",

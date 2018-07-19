@@ -1025,7 +1025,7 @@ describe("xcHelper Test", function() {
     it("xcHelper.supportButton should work", function() {
         // caase 1
         var $btn = xcHelper.supportButton("log");
-        expect($btn.hasClass("copyLog")).to.be.true;
+        expect($btn.hasClass("downloadLog")).to.be.true;
         // case 2
         $btn = xcHelper.supportButton("support");
         expect($btn.hasClass("genSub")).to.be.true;
