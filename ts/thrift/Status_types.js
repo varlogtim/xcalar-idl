@@ -654,7 +654,9 @@ StatusT = {
   'StatusDurBadIdlVer' : 645,
   'StatusSessListIncomplete' : 646,
   'StatusPubTableInactive' : 647,
-  'StatusPubTableRestoring' : 648
+  'StatusPubTableRestoring' : 648,
+  'StatusSelfSelectRequired' : 649,
+  'StatusSessionNameMissing' : 650
 };
 StatusTStr = {
   0 : 'Success',
@@ -1146,8 +1148,8 @@ StatusTStr = {
   486 : 'This user-defined function/application already exists. Delete before adding',
   487 : 'Too few parameters were passed to a user-defined function/application',
   488 : 'The reference count of the operation is incorrect',
-  490 : 'Application host type is invalid',
   489 : 'Application name is invalid',
+  490 : 'Application host type is invalid',
   491 : 'Application is too large',
   492 : 'Transaction recovery context initialization error',
   493 : 'Transaction recovery context default status',
@@ -1305,7 +1307,9 @@ StatusTStr = {
   645 : 'Deserialization encountered wrong IDL version',
   646 : 'Incomplete session list (failed to read some sessions)',
   647 : 'Publish table is inactive',
-  648 : 'Publish table is restoring'
+  648 : 'Publish table is restoring',
+  649 : 'Update requires a self select',
+  650 : 'Required session name is missing'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -1956,5 +1960,7 @@ StatusTFromStr = {
   'Deserialization encountered wrong IDL version' : 645,
   'Incomplete session list (failed to read some sessions)' : 646,
   'Publish table is inactive' : 647,
-  'Publish table is restoring' : 648
+  'Publish table is restoring' : 648,
+  'Update requires a self select' : 649,
+  'Required session name is missing' : 650
 };

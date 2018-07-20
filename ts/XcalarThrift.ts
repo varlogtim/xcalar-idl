@@ -5507,8 +5507,13 @@ XcalarRefreshTable = function(
     const query = XcalarGetQuery(workItem);
     Transaction.startSubQuery(txId, SQLOps.RefreshTables, dstTableName, query);
 
+    // FIXME TODO new parameters for predicate pushdown
+    var filterString;
+    var columns;
+
     // Note max and min places are switched because the API is a little strange
-    xcalarApiSelect(tHandle, pubTableName, dstTableName, maxBatch, minBatch)
+    xcalarApiSelect(tHandle, pubTableName, dstTableName, maxBatch, minBatch,
+        filterString, columns)
     .then(function(ret) {
         Transaction.log(txId, query, dstTableName, (ret as any).timeElapsed);
         deferred.resolve.apply(this, arguments);

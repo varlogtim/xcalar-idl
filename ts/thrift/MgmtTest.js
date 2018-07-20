@@ -2524,7 +2524,7 @@ window.Function.prototype.bind = function() {
                         test.pass();
                     })
                     .fail(function(status) {
-                        test.fail(StatusTStr[status]);
+                        test.fail(StatusTStr[status.xcalarStatus]);
                     });
                 } else if (reason.xcalarStatus === StatusT.StatusQrQueryInUse) {
                     console.log("Retina did not get the chance to run.  Trying again");

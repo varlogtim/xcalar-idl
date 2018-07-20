@@ -1583,7 +1583,7 @@ xcalarListPublishedTables = runEntity.xcalarPublishedTables = function(thriftHan
         console.log("xcalarListPublishedTables(patternMatch = " + patternMatch + ")");
     }
 
-    var workItem = xcalarListPublishedTablesWorkItem(patternMatch);
+    var workItem = xcalarListPublishedTablesWorkItem(patternMatch, getUpdates, updateStartBatchId, getSelects);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -2834,12 +2834,14 @@ xcalarApiSynthesize = runEntity.xcalarApiSynthesize = function(thriftHandle, src
     return (deferred.promise());
 };
 
-xcalarApiSelectWorkItem = runEntity.xcalarApiSelectWorkItem = function(srcTableName, dstTableName, batchIdMax, batchIdMin) {
+xcalarApiSelectWorkItem = runEntity.xcalarApiSelectWorkItem = function(srcTableName, dstTableName, batchIdMax, batchIdMin, filterString, columns) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.selectInput = new XcalarApiSelectInputT();
     workItem.input.selectInput.source = srcTableName;
     workItem.input.selectInput.dest = dstTableName;
+    workItem.input.selectInput.filterString = filterString;
+    workItem.input.selectInput.columns = columns;
 
     if (batchIdMax != null) {
         workItem.input.selectInput.maxBatchId = batchIdMax;
@@ -2857,17 +2859,20 @@ xcalarApiSelectWorkItem = runEntity.xcalarApiSelectWorkItem = function(srcTableN
     return (workItem);
 };
 
-xcalarApiSelect = runEntity.xcalarApiSelect = function(thriftHandle, srcTableName, dstTableName, batchIdMax, batchIdMin) {
+xcalarApiSelect = runEntity.xcalarApiSelect = function(thriftHandle, srcTableName, dstTableName, batchIdMax, batchIdMin, filterString, columns) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarApiSelect(srcTableName = " + srcTableName +
                     ", dstTableName = " + dstTableName +
+                    ", filterString = " + filterString +
+                    ", columns = " + columns +
                     ", batchIdMin = " + batchIdMin +
                     ", batchIdMax = " + batchIdMax + ")");
     }
 
     var workItem = xcalarApiSelectWorkItem(srcTableName, dstTableName,
-                                           batchIdMax, batchIdMin);
+                                           batchIdMax, batchIdMin,
+                                           filterString, columns);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
