@@ -374,15 +374,6 @@ namespace DagView {
 
 
     function _setupSelectingAndDragDrop(): void {
-        $dfWrap.click(function(event) {
-            if (event.shiftKey) {
-                return;
-            }
-            const $target = $(event.target);
-            if (!$target.closest(".operator").length) {
-                $dfWrap.find(".operator").removeClass("selected");
-            }
-        });
 
         // moving node in dataflow area to another position
         $dfWrap.on("mousedown", ".operator .main", function(event) {
@@ -507,6 +498,62 @@ namespace DagView {
                 copy: true
             });
         });
+
+        let $dfArea;
+        let $operators;
+        $dfWrap.on("mousedown", ".dataflowArea", function(event) {
+            let $target = $(event.target);
+            $dfArea = $(this);
+            if ($target.is(".dataflowArea") || $target.is(".mainSvg")) {
+                new RectSelction(event.pageX, event.pageY, {
+                    "id": "dataflow-rectSelection",
+                    "$container": $dfArea,
+                    "onStart": function() {
+                        $dfArea.addClass("drawing");
+                        $operators = $dfArea.find(".operator");
+                        $operators.removeClass("selected");
+                    },
+                    "onDraw": _drawRect,
+                    "onEnd": _endDrawRect
+                });
+            }
+        });
+
+        function _drawRect(
+            bound: DOMRect,
+            selectTop: number,
+            selectRight: number,
+            selectBottom: number,
+            selectLeft: number
+        ): void {
+            $operators.each(function() {
+                const $operator = $(this);
+                const opRect = this.getBoundingClientRect();
+                const opTop = opRect.top - bound.top;
+                const opLeft = opRect.left - bound.left;
+                const opRight = opRect.right - bound.left;
+                const opBottom = opRect.bottom - bound.top;
+                if (opTop > selectBottom || opLeft > selectRight ||
+                    opRight < selectLeft || opBottom < selectTop)
+                {
+                    $operator.removeClass("selecting");
+                } else {
+                    $operator.addClass("selecting");
+                }
+            });
+        }
+        function _endDrawRect(): void {
+            $dfArea.removeClass("drawing");
+            const $operators = $dfArea.find(".operator.selecting");
+            if ($operators.length === 0) {
+                $dfArea.find(".operator.selected").removeClass("selected");
+            } else {
+                $operators.each(function() {
+                    $(this).removeClass("selecting")
+                           .addClass("selected");
+                });
+            }
+        }
     }
 
     function _getDFAreaOffset() {

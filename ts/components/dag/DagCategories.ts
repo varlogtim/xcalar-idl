@@ -35,7 +35,10 @@ class DagCategories {
             }),
             DagNodeFactory.create({
                 type: DagNodeType.Project
-            })
+            }),
+            DagNodeFactory.create({
+                type: DagNodeType.GroupBy
+            }),
         ]);
 
         const columnCategory = new DagCategory(DagCategoryType.Column, [
@@ -56,8 +59,8 @@ class DagCategories {
             })
         ]);
 
-        this.categories = [favoritesCategory, inCategory, outCategory, 
-                        valueCategory, operationsCategory, columnCategory, 
+        this.categories = [favoritesCategory, inCategory, outCategory,
+                        valueCategory, operationsCategory, columnCategory,
                         joinCategory, setCategory];
     }
 

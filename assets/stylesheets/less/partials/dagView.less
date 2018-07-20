@@ -265,11 +265,17 @@
         }
 
         // &.selected, &.dragSelected {
-        &.selected {
+        &.selected , &.selecting {
             .main, .iconArea {
                 border-color: #55c4de;
-                font-weight: bold;
+                color: @color-font-darkGray;
                 box-shadow: 0px 0px 0px 1px #55c4de;
+            }
+        }
+
+        &.selecting {
+            .main {
+                background-color: #F8f8f8;
             }
         }
 
@@ -400,6 +406,10 @@
                 display: block;
             }
 
+            &.drawing {
+                pointer-events: none;
+            }
+
             .sizer {
                 visibility: hidden;
                 height: 1px;
@@ -475,6 +485,13 @@
             display: list-item;
         }
     }
+}
+
+#dataflow-rectSelection {
+    z-index: 2;
+    background-color: rgb(230, 237, 242);
+    border-style: dashed;
+    border-width: 2px;
 }
 
 // XXX temporary
