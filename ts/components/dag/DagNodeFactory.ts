@@ -24,6 +24,30 @@ class DagNodeFactory {
         }
     }
 
+        /**
+         * Deserializes the dagNode represented by dagNode
+         * Note that parents and children are not restored- that must
+         * be done by the DagGraph.
+         * @param dagNode The dagNode we want to restore.
+         * @returns {DeserializedNode}
+         */
+    public static deserialize(dagNode: string): DeserializedNode  {
+        // TODO add fail case.
+        let nodeJSON = null;
+        try {
+            nodeJSON = JSON.parse(dagNode);
+        } catch (error) {
+            console.error("Could not parse JSON of dagNode: " + error)
+            return null;
+        }
+        const parents: DagNodeId[] = nodeJSON.parents;
+        let newNode: DagNode = DagNodeFactory.create(nodeJSON);
+        return {
+            node: newNode,
+            parents: parents
+        }
+    }
+
     // Define this so you can't do new DagNodeFactory
     private constructor() {
 

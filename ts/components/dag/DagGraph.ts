@@ -15,16 +15,60 @@ class DagGraph {
         this._setupEvents();
     }
 
-    // XXX TODO
-    public deserialize(seralizedGraph: string): boolean {
-        console.warn("to be implemented!");
-        return true;
+    /**
+     * Outputs the serialized version of this graph.
+     */
+    public serialize(): string {
+        let nodes: string[] = [];
+        // Assemble node list
+        this.nodesMap.forEach((value: DagNode, key: DagNodeId) => {
+            nodes.push(value.serialize());
+        });
+        return JSON.stringify({
+            nodes: nodes,
+            display: this.display
+        });
     }
 
-    // XXX TODO
-    public serialize(): string {
-        console.warn("to be implemented!");
-        return "";
+    /**
+     * Deserializes the graph represented by serializedGraph
+     * @param serializedGraph The serialized graph we want to restore.
+     * @returns {boolean}
+     * TODO: Update for metaNodes
+     */
+    public deserializeDagGraph(serializedGraph: string): boolean {
+        if (serializedGraph == null) {
+            return false;
+        }
+        let graphJSON: {nodes:string[], display: Dimensions} = null;
+        try {
+            graphJSON = JSON.parse(serializedGraph);
+        } catch(error) {
+            console.error("Could not parse JSON of dagGraph: " + error)
+            return false;
+        }
+        let connections: NodeConnection[] = [];
+        this.display = graphJSON.display;
+        graphJSON.nodes.forEach((ele) => {
+            const desNode: DeserializedNode = DagNodeFactory.deserialize(ele);
+            if (desNode == null) {
+                return false;
+            }
+            const node: DagNode = desNode.node;
+            const childId: string = node.getId();
+            const parents: string[] = desNode.parents;
+            for (let i = 0; i < parents.length; i++) {
+                connections.push({
+                    parentId:parents[i],
+                    childId:childId,
+                    pos: i
+                });
+            }
+            this.addNode(node);
+        });
+        // restore edges
+        this.restoreConnections(connections);
+        return true;
     }
 
     private fakeDag(): object[] {
@@ -300,6 +344,18 @@ class DagGraph {
             }
             throw e;
         }
+    }
+
+    /**
+     * Mass adds the connections specified in connections
+     * @param connections The connections we want to restore.
+     */
+    public restoreConnections(connections: NodeConnection[]): void {
+        connections.forEach((edge: NodeConnection) => {
+            if (edge.parentId != null && edge.childId != null) {
+               this.connect(edge.parentId, edge.childId, edge.pos)
+            }
+        });
     }
 
     /**

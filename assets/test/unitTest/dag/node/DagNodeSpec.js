@@ -231,4 +231,19 @@ describe("Dag Node Basic Test", () => {
             expect(node.getChildren().length).to.equal(1);
         }
     });
+
+    it("should serialize correctly", () => {
+        const node = new DagNode();
+        const secondParentNode = new DagNode();
+        const childNode = new DagNodeJoin();
+        childNode.connectToParent(node);
+        childNode.connectToParent(secondParentNode, 1);
+        const serializedChild = childNode.serialize();
+        expect(serializedChild).to.equal(
+            '{"parents":["' + node.getId() + '","' + secondParentNode.getId() +
+            '"],"type":"join","display":{"x":-1,"y":-1},"input":{},"id":"'
+            + childNode.getId() + '","state":"unused"}'
+        );
+    });
+
 });

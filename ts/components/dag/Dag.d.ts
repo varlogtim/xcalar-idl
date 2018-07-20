@@ -60,3 +60,35 @@ interface DagNodeSetInput {
 }
 
 /* ==== End of Dag Node Input Intereface ==== */
+
+/* ==== Interfaces related to DagManager and DagTabs ==== */
+
+interface NodeConnection {
+    parentId: DagNodeId,
+    childId: DagNodeId,
+    pos: number
+}
+
+interface RemovedNodeDetails {
+    node: DagNode,
+    childIndices: {}
+}
+
+interface DeserializedNode {
+    node: DagNode,
+    parents: DagNodeId[]
+}
+
+interface DagTabManagerJSON {
+    id: number,
+    dagKeys: string[]
+}
+
+interface DagTabJSON {
+    name: string,
+    id: number,
+    key: string,
+    dag: string
+}
+
+/* ==== End of interfaces related to DagManager and DagTabs ==== */

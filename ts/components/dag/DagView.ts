@@ -3,6 +3,7 @@ namespace DagView {
     let $dfWrap: JQuery;
     let $operatorBar: JQuery;
     let activeDag: DagGraph;
+    let activeDagTab: DagTab;
 
     export function setup(): void {
         if (gDionysus) {
@@ -14,6 +15,7 @@ namespace DagView {
 
         // XXX used for testing
         activeDag = new DagGraph();
+        activeDagTab = null;
 
         _setupSelectingAndDragDrop();
         DagTopBar.Instance.setup();
@@ -22,9 +24,21 @@ namespace DagView {
         DagDatasetModal.setup();
     }
 
-    // XXX test function
+    /**
+     * Returns the current activeDag
+     * @returns {DagGraph}
+     */
     export function getActiveDag(): DagGraph {
         return activeDag;
+    }
+
+    /**
+     * Switches the current active tab, updating activeDag and activeDagTab
+     * @param dagTab The tab we want to make active.
+     */
+    export function switchActiveDagTab(dagTab: DagTab) {
+        activeDagTab = dagTab;
+        activeDag = dagTab.getGraph();
     }
 
     export function selectNodes(nodeIds: DagNodeId[]) {
@@ -97,6 +111,7 @@ namespace DagView {
             maxYCoor = Math.max(coors.y, maxYCoor);
         }
         _setGraphDimensions({x: maxXCoor, y: maxYCoor});
+        activeDagTab.saveTab();
     }
 
     /**
@@ -119,6 +134,7 @@ namespace DagView {
             "dataflowId": dagId,
             "nodeId": nodeId
         });
+        activeDagTab.saveTab();
     }
 
     /**
@@ -143,6 +159,7 @@ namespace DagView {
             "dataflowId": dagId,
             "nodeIds": nodeIds
         });
+        activeDagTab.saveTab();
     }
 
     /**
@@ -199,6 +216,7 @@ namespace DagView {
             "dataflowId": 0,
             "nodeIds": newNodeIds
         });
+        activeDagTab.saveTab();
     }
 
     /**
@@ -223,6 +241,7 @@ namespace DagView {
             "childNodeId": childNodeId,
             "connectorIndex": connectorIndex
         });
+        activeDagTab.saveTab();
     }
 
     /**
@@ -244,6 +263,7 @@ namespace DagView {
             "childNodeId": childNodeId,
             "connectorIndex": connectorIndex
         });
+        activeDagTab.saveTab();
     }
 
     /**
@@ -326,6 +346,7 @@ namespace DagView {
             "oldPositions": oldPositions,
             "newPositions": positions
         });
+        activeDagTab.saveTab();
     }
 
     /**
@@ -368,6 +389,7 @@ namespace DagView {
              $childConnector.removeClass("hasConnection")
                             .addClass("noConnection");
         }
+        activeDagTab.saveTab();
     }
 
 

@@ -1,11 +1,6 @@
 // dagTabManager is in charge of managing and loading dataflows
 // depending on which tab is selected.
 
-interface TabManagerJSON {
-    id: number,
-    dagKeys: string[]
-}
-
 class DagTabManager{
     private static _instance: DagTabManager;
 
@@ -71,7 +66,7 @@ class DagTabManager{
         this._getManagerDataAsync();
     }
 
-    private _getJSON(): TabManagerJSON {
+    private _getJSON(): DagTabManagerJSON {
         return {
             "id": this._unique_id,
             "dagKeys": this._keys
@@ -116,8 +111,8 @@ class DagTabManager{
                         self.reset();
                         innerDeferred.resolve();
                         return;
-                    }
-                    const tabJSON: TagJSON = tab.getJSON();
+                    } 
+                    const tabJSON: DagTabJSON = tab.getJSON();
                     if (tabJSON.name == null) {
                         innerDeferred.resolve();
                         return;
@@ -125,6 +120,8 @@ class DagTabManager{
                         // Success Case
                         self._addDagTab(tab);
                         self._addTabHTML(tabJSON.name);
+                        this._switchTabs(this._$dagTabs.last());
+                        DagView.redraw();
                         innerDeferred.resolve();
                     }
                 });
@@ -133,7 +130,12 @@ class DagTabManager{
             promises.push(promise);
         }
         //Use a chain to ensure all are run sequentially.
-        PromiseHelper.chain(promises);
+        PromiseHelper.chain(promises)
+        .then(() => {
+            if (this._$dagTabs.length > 0) {
+                this._switchTabs($(this._$dagTabs[0]));
+            }
+        });
     }
 
     // Clicking a tab activates the dataflow connected
@@ -145,13 +147,21 @@ class DagTabManager{
         let index = this._$dagTabs.index($tab);
         let dataflowArea = this._$dataFlowAreas.get(index);
         $(dataflowArea).addClass("active");
+        DagView.switchActiveDagTab(this._activeUserDags[index]);
     }
 
     // Deletes the tab represented by $tab
     private _deleteTab($tab: JQuery): void {
-        this._$dagTabs.removeClass("active");
-        this._$dataFlowAreas.removeClass("active");
         let index = this._$dagTabs.index($tab);
+        if ($tab.hasClass("active")) {
+            this._$dagTabs.removeClass("active");
+            this._$dataFlowAreas.removeClass("active");
+            if (index > 0) {
+                this._switchTabs($(this._$dagTabs[index-1]));
+            } else if (this._$dagTabs.length > 0) {
+                this._switchTabs($(this._$dagTabs[index+1]));
+            }
+        }
         this._activeUserDags[index].delete();
         this._activeUserDags.splice(index, 1);
         this._keys.splice(index,1);

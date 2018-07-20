@@ -1174,14 +1174,11 @@ declare namespace TblManager {
     export function deleteTables(tables: TableId[], tableType: string, noAlert?: boolean, noLog?: boolean, options?: object);
     export function findAndFocusTable(tableName: string, noAnimate?: boolean): XDPromise<any>;
     export function freeAllResultSetsSync(): XDPromise<void>;
-<<<<<<< HEAD
     export function highlightColumn($match: JQuery): void;
     export function freeAllResultSets(): void;
     export function parallelConstruct(tableId: string, tableToReplace: string, options: object): XDPromise<void>;
     export function setOrphanedList(tableMap: any): void;
     export function adjustRowFetchQuantity(): void;
-=======
->>>>>>> parent of 6618a5f... GUI-12521 Full Conversion of fnBar.js to fnBar.ts
 }
 
 declare namespace TblMenu{

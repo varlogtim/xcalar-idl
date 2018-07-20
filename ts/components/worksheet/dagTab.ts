@@ -1,12 +1,4 @@
 // dagTabs hold a user's dataflows and kvStore.
-
-interface TagJSON {
-    name: string,
-    id: number,
-    key: string,
-    dag: string
-}
-
 class DagTab{
 
     private _name: string;
@@ -33,11 +25,6 @@ class DagTab{
         let kvStore: KVStore = new KVStore(dagKey, gKVScope.WKBK);
         return kvStore.getAndParse()
             .then((dagTab) => {
-                let myDag = null;
-                /* TODO: Uncomment this once deserialize and serialize are done
-                let myDag = new DagGraph();
-                myDag.deserialize(dagTab.dag);
-                */
                 if (dagTab == null) {
                     // An invalid dagTab has been stored- let's delete it.
                     let kvStore = new KVStore(dagKey, gKVScope.WKBK);
@@ -48,7 +35,11 @@ class DagTab{
                 this._id = dagTab.id;
                 this._key = dagTab.key;
                 this._kvStore = new KVStore(dagTab.key, gKVScope.WKBK);
-                this._dagGraph = myDag;
+                let newGraph: DagGraph = new DagGraph();
+                if (!newGraph.deserializeDagGraph(dagTab.dag)) {
+                    return null;
+                }
+                this._dagGraph = newGraph;
                 return this;
             })
             .fail(function() {
@@ -74,14 +65,14 @@ class DagTab{
 
     /**
      * Returns the JSON representing this tab.
-     * @returns {TagJSON}
+     * @returns {DagTabJSON}
      */
-    public getJSON(): TagJSON {
+    public getJSON(): DagTabJSON {
         return {
             "name": this._name,
             "id": this._id,
             "key": this._key,
-            "dag": null
+            "dag": this._dagGraph.serialize()
         }
     }
 
@@ -91,5 +82,13 @@ class DagTab{
     public saveTab(): void {
         let json: object = this.getJSON();
         this._kvStore.put(JSON.stringify(json), true, true);
+    }
+
+    /** 
+     * gets the DagGraph for this tab
+     * @returns {DagGraph}
+     */
+    public getGraph(): DagGraph {
+        return this._dagGraph;
     }
 }

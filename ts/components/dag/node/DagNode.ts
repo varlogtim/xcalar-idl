@@ -268,6 +268,9 @@ class DagNode {
         if (this._canHaveMultiParents()) {
             this.parents.splice(pos, 1);
         } else {
+            // We use delete in order to preserve left/right parent for a Join node.
+            // The undefined shows up in serialization, but it is not connected to
+            // upon deserialization.
             delete this.parents[pos];
         }
 
@@ -291,26 +294,28 @@ class DagNode {
         throw new Error("Dag " + childNode.getId() + " is not child of " + this.getId());
     }
 
-    // XXX TODO - generates string that gets saved in kv store
+    /**
+     * Generates string representing this node, for use in serializing a dagGraph.
+     * @returns {string}
+     */
     public serialize(): string {
-        // console.warn("to be implemented!");
-        // const parents = this.parents.map(function(parent) {
-        //     return parent.getId()
-        // });
-        // const children = this.children.map(function(child) {
-        //     return child.getId()
-        // });
 
-        // return JSON.stringify({
-        //     parents: parents,
-        //     children: children,
-        //     type: this.type,
-        //     comment: this.comment,
-        //     input: this.input,
-        //     id: this.id
-        // });
-
-        return "";
+        const parents = this.parents.map(function(parent) {
+            return parent.getId();
+        });
+        
+        // TODO Custom dagNodes will have their own serialize/deserialize for 
+        // Their dagGraphs
+        return JSON.stringify({
+            parents: parents,
+            type: this.type,
+            table: this.table,
+            display: this.display,
+            comment: this.comment,
+            input: this.input,
+            id: this.id,
+            state: this.state
+        });
     }
 
     public isAllowAggNode(): boolean {
