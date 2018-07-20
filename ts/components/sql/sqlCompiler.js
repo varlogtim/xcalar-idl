@@ -183,9 +183,9 @@
         "expressions.aggregate.Corr": null,
         "expressions.aggregate.CountMinSketchAgg": null,
         "expressions.aggregate.Covariance": null,
-        "expressions.aggregate.First": null,
+        "expressions.aggregate.First": "first", // Only used in aggregate
         "expressions.aggregate.HyperLogLogPlusPlus": null,
-        "expressions.aggregate.Last": null,
+        "expressions.aggregate.Last": "last", // Only used in aggregate
         "expressions.aggregate.Percentile": null,
         "expressions.aggregate.PivotFirst": null,
         "expressions.aggregate.AggregateExpression": null,
@@ -744,9 +744,6 @@
                                         .indexOf("expressions.aggregate.") > 0,
                            SQLErrTStr.AggregateFirstChildClass +
                            node.children[0].value.class);
-                    assert(node.children[0].children.length === 1,
-                            SQLErrTStr.AggregateChildrenLength +
-                            node.children[0].children.length);
                     // We need to cut the tree at this node, and instead of
                     // having a child, remove the child and assign it as an
                     // aggregateTree
@@ -1906,6 +1903,7 @@
                 var rs = extractAndReplace(aggEvalStrArray[i]);
                 assert(rs, SQLErrTStr.GroupByNoReplacement);
                 gbMapCol.operator = rs.firstOp;
+                gbMapCol.arguments = rs.arguments;
                 if (aggEvalStrArray[i].numOps > 1) {
                     var newColName = "XC_GB_COL_" +
                                      Authentication.getHashId().substring(1);
@@ -1919,6 +1917,13 @@
                 gArray.push(gbMapCol);
                 aggVarNames.push(aggEvalStrArray[i].aggVarName);
             }
+
+            // Step 3.5
+            // Extract first/last in gArray and replace with max
+            // Moved into promise
+            var windowTempCols = [];
+            var windowStruct = {first: [{newCols: [], aggCols: [], ignoreNulls: []}],
+                                last: [{newCols: [], aggCols: [], ignoreNulls: []}]};
 
             // Step 4
             // Special cases
@@ -1988,6 +1993,110 @@
                     cli += ret.cli;
                     newTableName = ret.newTableName;
                 }
+                for (var i = 0; i < aggVarNames.length; i++) {
+                    node.xcCols.push({colName: aggVarNames[i]});
+                }
+                for (var i = 0; i < firstMapColNames.length; i++) {
+                    // Avoid adding the "col + 1" in
+                    // select col+1 from t1 group by col + 1
+                    // It belongs to usrCols
+                    if (aggColNames.indexOf(firstMapColNames[i]) === -1) {
+                        node.xcCols.push({colName: firstMapColNames[i]});
+                    }
+                }
+                var colNames = new Set();
+                node.usrCols.concat(node.xcCols).concat(node.sparkCols).map(function (col) {
+                    colNames.add(__getCurrentName(col));
+                })
+                for (var i = 0; i < gArray.length; i++) {
+                    if (gArray[i].operator === "first" || gArray[i].operator === "last") {
+                        node.usrCols.concat(node.xcCols).forEach(function(col) {
+                            if (__getCurrentName(col) === gArray[i].aggColName) {
+                                var index = windowStruct[gArray[i].operator][0]
+                                                        .aggCols.indexOf(col);
+                                if (index != -1) {
+                                    gArray[i].aggColName = windowStruct[gArray[i]
+                                            .operator][0].newCols[index].colName;
+                                } else {
+                                    var tempColName = "XC_WINDOWAGG_" +
+                                                    Authentication.getHashId().substring(1);
+                                    while (colNames.has(tempColName)) {
+                                        tempColName = "XC_WINDOWAGG_" +
+                                                    Authentication.getHashId().substring(1);
+                                    }
+                                    colNames.add(tempColName);
+                                    windowStruct[gArray[i].operator][0].newCols.push({
+                                                        colName: tempColName});
+                                    windowStruct[gArray[i].operator][0].aggCols.push(col);
+                                    windowStruct[gArray[i].operator][0].ignoreNulls
+                                                    .push(gArray[i].arguments[0]);
+                                    gArray[i].aggColName = tempColName;
+                                    windowTempCols.push(tempColName);
+                                }
+                                return false;
+                            }
+                        })
+                        gArray[i].operator = "max";
+                    }
+                }
+                if (windowTempCols.length > 0) {
+                    var innerDeferred = PromiseHelper.deferred();
+                    var loopStruct = {cli: "", node: node, self: self};
+                    var sortList = [];
+                    var windowCli = "";
+                    var curPromise;
+                    gbColNames.forEach(function(name) {
+                        sortList.push({name: name, type: "DfUnknown",
+                        ordering: XcalarOrderingT.XcalarOrderingAscending});
+                    })
+                    loopStruct.groupByCols = gbCols;
+                    loopStruct.sortColsAndOrder = [];
+                    if (sortList.length > 0) {
+                        curPromise = self.sqlObj.sort(sortList, newTableName);
+                    } else {
+                        curPromise = PromiseHelper.resolve({cli: "", newTableName: newTableName});
+                    }
+                    var tableId = xcHelper.getTableId(newTableName);
+                    loopStruct.indexColStruct = {colName: "XC_ROW_COL_" + tableId};
+                    node.xcCols.push(loopStruct.indexColStruct);
+                    curPromise = curPromise.then(function(ret) {
+                        windowCli += ret.cli;
+                        return self.sqlObj.genRowNum(ret.newTableName,
+                                        __getCurrentName(loopStruct.indexColStruct));
+                    });
+                    if (windowStruct["first"][0].newCols.length != 0) {
+                        curPromise = __windowExpressionHelper(loopStruct,
+                                            curPromise, "first", windowStruct["first"][0]);
+                    }
+                    if (windowStruct["last"][0].newCols.length != 0) {
+                        curPromise = __windowExpressionHelper(loopStruct,
+                                            curPromise, "last", windowStruct["last"][0]);
+                    }
+                    curPromise = curPromise.then(function(ret) {
+                        windowCli += loopStruct.cli;
+                        cli += windowCli;
+                        // move columns to xcCols
+                        windowTempCols.forEach(function(name) {
+                            for (var i = 0; i < node.usrCols.length; i++) {
+                                if (node.usrCols[i].colName === name) {
+                                    node.usrCols.splice(i,1);
+                                    node.xcCols.push({colName: name});
+                                    break;
+                                }
+                            }
+                        })
+                        innerDeferred.resolve(ret);
+                    });
+                    return innerDeferred.promise();
+                } else {
+                    return PromiseHelper.resolve({newTableName: newTableName, cli: ""});
+                }
+            })
+            .then(function(ret) {
+                if (ret) {
+                    cli += ret.cli;
+                    newTableName = ret.newTableName;
+                }
                 if (node.expand) {
                     return __handleMultiDimAgg(self, gbColNames, gbStrColNames,
                                             gArray, newTableName, node.expand);
@@ -2004,6 +2113,9 @@
                         node.xcCols.push({colName: ret.tempCols[i]});
                     }
                 }
+                if (tempCol) {
+                    node.xcCols.push({colName: tempCol});
+                }
                 return secondMapPromise();
             })
             .then(function(ret) {
@@ -2011,51 +2123,37 @@
                     cli += ret.cli;
                     newTableName = ret.newTableName;
                 }
+                // XXX This is a workaround for the prefix issue. Need to revist
+                // when taking good care of index & prefix related issues.
+                for (var i = 0; i < columns.length; i++) {
+                    if (columns[i].rename) {
+                        columns[i].rename = cleanseColName(columns[i].rename, true);
+                    } else {
+                        columns[i].colName = cleanseColName(columns[i].colName, true);
+                    }
+                }
+                // Also track xcCols
+                for (var i = 0; i < secondMapColNames.length; i++) {
+                    if (aggColNames.indexOf(secondMapColNames[i]) === -1) {
+                        node.xcCols.push({colName: secondMapColNames[i]});
+                    }
+                }
+                node.usrCols = columns;
+                for (var i = 0; i < gbColNames.length; i++) {
+                    // If gbCol is a map str, it should exist in firstMapColNames
+                    // Avoid adding it twice.
+                    if (firstMapColNames.indexOf(gbColNames[i]) === -1 &&
+                        aggColNames.indexOf(gbColNames[i]) === -1) {
+                        node.xcCols.push({colName: gbColNames[i]});
+                    }
+                }
+                assertCheckCollision(node.xcCols);
                 deferred.resolve({newTableName: newTableName,
                                   cli: cli});
             })
             .fail(deferred.reject);
             // End of Step 6
 
-            // XXX This is a workaround for the prefix issue. Need to revist
-            // when taking good care of index & prefix related issues.
-            for (var i = 0; i < columns.length; i++) {
-                if (columns[i].rename) {
-                    columns[i].rename = cleanseColName(columns[i].rename, true);
-                } else {
-                    columns[i].colName = cleanseColName(columns[i].colName, true);
-                }
-            }
-            node.usrCols = columns;
-            // Also track xcCols
-            for (var i = 0; i < secondMapColNames.length; i++) {
-                if (aggColNames.indexOf(secondMapColNames[i]) === -1) {
-                    node.xcCols.push({colName: secondMapColNames[i]});
-                }
-            }
-            for (var i = 0; i < firstMapColNames.length; i++) {
-                // Avoid adding the "col + 1" in
-                // select col+1 from t1 group by col + 1
-                // It belongs to usrCols
-                if (aggColNames.indexOf(firstMapColNames[i]) === -1) {
-                    node.xcCols.push({colName: firstMapColNames[i]});
-                }
-            }
-            for (var i = 0; i < gbColNames.length; i++) {
-                // If gbCol is a map str, it should exist in firstMapColNames
-                // Avoid adding it twice.
-                if (firstMapColNames.indexOf(gbColNames[i]) === -1 &&
-                    aggColNames.indexOf(gbColNames[i]) === -1) {
-                    node.xcCols.push({colName: gbColNames[i]});
-                }
-            }
-            if (tempCol) {
-                node.xcCols.push({colName: tempCol});
-            }
-            for (var i = 0; i < aggVarNames.length; i++) {
-                node.xcCols.push({colName: aggVarNames[i]});
-            }
-            assertCheckCollision(node.xcCols);
 
             return deferred.promise();
         },
@@ -3722,7 +3820,7 @@
                 break;
             case ("first"):
             case ("last"):
-                assert(sortColsAndOrder.length > 0, SQLErrTStr.NoSortFirst);
+                // assert(sortColsAndOrder.length > 0, SQLErrTStr.NoSortFirst);
                 var windowStruct;
                 // Generate a temp table only contain the
                 // first/last row of each partition by getting
@@ -4448,6 +4546,11 @@
                             hasLeftPar = true;
                         } else {
                             acc.operator = opLookup[opName];
+                            if (opLookup[opName] === "first" ||
+                                opLookup[opName] === "last") {
+                                acc.arguments = [condTree.children[1].value.value];
+                                condTree.value["num-children"] = 1;
+                            }
                             if (options.xcAggregate) {
                                 outStr += opLookup[opName] + "(";
                                 hasLeftPar = true;
@@ -4579,6 +4682,7 @@
 
                 if (options && options.operator) {
                     retStruct.operator = acc.operator;
+                    retStruct.arguments = acc.arguments;
                 }
                 if (evalList[i].length === 2 && (!options || !options.groupby)) {
                     // This is a special alias case
@@ -4678,6 +4782,7 @@
         return deferred.promise();
     }
 
+    // XXX replace is never used
     function extractAndReplace(aggEvalObj, replace) {
         if (aggEvalObj.numOps === 0) {
             return;
@@ -4686,9 +4791,17 @@
         var leftBracketIndex = evalStr.indexOf("(");
         var rightBracketIndex = evalStr.lastIndexOf(")");
         var firstOp = evalStr.substring(0, leftBracketIndex);
-        var inside = evalStr.substring(leftBracketIndex + 1,
-                                          rightBracketIndex);
+        var inside;
         var retStruct = {};
+        if (firstOp === "first" || firstOp === "last") {
+            inside = evalStr.substring(leftBracketIndex + 1,
+                                            evalStr.lastIndexOf(","));
+            retStruct.arguments = [evalStr.substring(evalStr.lastIndexOf(",")
+                                        + 1, rightBracketIndex)];
+        } else {
+            inside = evalStr.substring(leftBracketIndex + 1,
+                                            rightBracketIndex);
+        }
         if (replace) {
             retStruct.replaced = firstOp + "(" + replace + ")";
         }
