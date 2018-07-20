@@ -586,6 +586,9 @@ namespace IMDPanel {
 
         $imdPanel.find(".activeTablesList").on("mousedown", ".tableTimePanel", function(event) {
             const $clickedElement: JQuery = $(this);
+            if ($(event.target).hasClass("loadMore")) {
+                return;
+            }
             const tableName: string = $clickedElement.data("name");
 
             const clickedTime: number = ((((event.pageX - $clickedElement.closest(".tableListHist").offset().left) + ruler.visibleLeft) * ruler.pixelToTime) + ruler.minTS);
@@ -691,6 +694,11 @@ namespace IMDPanel {
 
         $imdPanel.on("click", ".deleteInactiveTable", function() {
             deleteTables(iCheckedTables, $(this), false);
+        });
+
+        $imdPanel.on("click", ".loadMore", function() {
+            const tableName = $(this).closest(".tableListItem").attr("data-name");
+            loadMoreUpdates(tableName);
         });
 
         $imdPanel.on("click", ".checkAllActive", function() {
@@ -1302,7 +1310,10 @@ namespace IMDPanel {
                 table.updates.forEach((update, i) => {
                     const timeDiff: number = update.startTS - ruler.minTS;
                     const tStampPx: number = parseFloat(<any>timeDiff) / parseFloat(<any>ruler.pixelToTime);
-                    if (lowestBatch > update.batchId) {
+                    if (lowestBatch == -1) {
+                        lowestBatch = update.batchId;
+                        lowestBatchPos = tStampPx;
+                    } else if (lowestBatch > update.batchId) {
                         lowestBatch = update.batchId;
                         lowestBatchPos = tStampPx;
                     }
@@ -1329,6 +1340,7 @@ namespace IMDPanel {
                 });
                 if (table.updates.length >= maxUpdates && lowestBatch !== 0) {
                     let pos: string = null;
+                    table["lowestBatch"] = lowestBatch;
                     if (lowestBatchPos > ruler.visibleLeft && lowestBatchPos < ruler.visibleRight) {
                         pos = String(lowestBatchPos - ruler.visibleLeft) + "px";
                     } else if (lowestBatchPos > ruler.visibleRight) {
@@ -1337,7 +1349,13 @@ namespace IMDPanel {
 
                     if (pos) {
                         updateHtml = updateHtml + '<div class="unavailableSection" style="width:'+ pos +';" ' +
-                        xcTooltip.Attrs + ' data-original-title="' + IMDTStr.DataUnavailable + '"></div>';
+                        xcTooltip.Attrs + ' data-original-title="' + IMDTStr.DataUnavailable + '">';
+
+                        if (lowestBatchPos - ruler.visibleLeft >= 140) {
+                            updateHtml += '<span class="loadMore">Load More Updates</span></div>';
+                        } else {
+                            updateHtml += '</div>';
+                        }
                     }
                 }
 
@@ -2148,6 +2166,29 @@ namespace IMDPanel {
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    function loadMoreUpdates(tableName) {
+        let loadTable;
+        pTables.forEach(function(table) {
+            if(table.name === tableName) {
+                loadTable = table;
+            }
+        });
+        let updateNumber = loadTable["lowestBatch"] - 127;
+        if(updateNumber < 0) {
+            updateNumber = 0;
+        }
+        XcalarListPublishedTables(tableName, true, true, updateNumber)
+        .then(function(result) {
+            const moreUpdates = result.tables[0].updates;
+            moreUpdates.forEach(function(update) {
+                if (update.batchId < loadTable["lowestUpdate"]) {
+                    loadTable.push(update);
+                }
+            });
+            updateHistory();
+        });
     }
 
     /* Unit Test Only */
