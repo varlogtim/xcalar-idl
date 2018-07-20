@@ -95,6 +95,14 @@ var XDEE_REQ_JS_FILES = [
     'assets/js/xpe/xpeSharedContextUtils.js',
     'assets/js/xpe/xpeCommon.js',
 ];
+// list of partial html files used by xdee,
+// will copy in to bld but remove once bld completes
+var XDEE_REQ_HTML_FILES = [
+    'site/xpe/eulaPart.html',
+    'site/xpe/xpeCommonHeadTags.html',
+    'site/xpe/xpeCommonScriptImports.html',
+    'site/xpe/progressBarSetup.html'
+];
 
 var INITIAL_GRUNT_PROCESS_TASKLIST = 'taskflag4context';
 var TOPLEVEL_GRUNT_PROCESS = false; // will get set true if we detect this is parent process
@@ -178,7 +186,7 @@ var WATCH_FILETYPES = {
 // remove: files / dirs to skip copy. UNIX, not Grunt, style globbing patterns
 //         can be used.
 // exclude: files / dirs to copy, but skip build
-// required: files / dires to copy, build, and delete on completion
+// required: files / dirs to copy, use during build, and delete on completion
 
 var constructorMapping = {
     src: 'assets/js/constructor/xcalar-idl/xd/',
@@ -200,7 +208,7 @@ var htmlMapping = {
     dest: '',
     exclude: [],
     remove: ['dashboard.html', 'userManagement.html'],
-    required: ['site/partials/', 'site/util/']};
+    required: ['site/partials/', 'site/util/'].concat(XDEE_REQ_HTML_FILES)};
 var jsMapping = {
     src: 'assets/js/',
     files: '**/*.js',
@@ -258,39 +266,31 @@ var LIVE_RELOAD_BY_TYPE = {};
 /**
     ==================================================
 
-    IF YOU ARE A GUI DEVELOPER ADDING IN A NEW HTML FILE FOR TEMPLATING::::
+    IF YOU ARE ADDING A NEW HTML FILE TO THE PROJECT::::
 
-    add in a new key/value pair in to the following hash, for your new file
+    1. make sure your new HTML file is stored in <project source>/site/
 
-    - key should be JUST the filename itself, regardless where the file is nested in your project source.
-    (because all the src html files will be taken and flattened in to a staging dir,
-    and the keys here are paths rel the staging dir.  Note - src html files are considered
-    those files in <project source>/site/)
+    2. Add entry in the following hash specifying where in the build to map the file
 
-    - value should be a list, with one entry for each path you want the templated file to be mapped
-    to in the final build.  (Note that if you are running 'grunt dev' and not specifying any custom
-    --buildroot option, then these paths, in the final build, will be relative your project source itself,
-    because the build output itself is rooted at the project source.)
+       - key should be path to source file (rel <proj source>/site)
+       - value should be list, with entry for each path you want the templated
+         file to be mapped to in the build (rel <build root>)
 
-    If you have adding in the new key/value pair but are NOT seeing your HTML file build::
+       (If you don't add a key/value pair, the file will still appear in build,
+        templated in to a single file at the build's root, but put in for good
+        measure as there are some Grunt plugins relying on this hash)
 
-        1. make sure your new HTML file is stored in <project source>/site/
-        --> this is where src html will be taken from, to be transfered in to the staging dir
+    3. Any auxiliary files for the new HTML file (partial files, etc.) that you
+       don't want included in final build, add to 'required' attr of htmlMapping
+       (rel <project source>)
 
-        2. check if you have $XLRGUIDIR env variable set.
-            If this variable is set, Grunt will use it's value as the <project source>
-            (To override this behavior, you can supply --srcroot=<project source you want to build from>)
-
-        3. if still problems, contact jolsen@xcalar.com, ill help you
-        ==========================================================
-
-    mapping such that:
-    (key): path to unprocessed file in staging dir I
-    (val): path(s) you want in final bld of the processed, templated file
-    [some are two, because those files are files that when you template, you save in to 2 sep files]
+    =================================================
 */
+
+// (key): path to unprocessed file in staging dir I
+// (val): path(s) you want in final bld of the processed, templated file
+// [files mapping to mult. dests save in to 2 sep files during templating]
 var htmlTemplateMapping = {
-    "dashboard.html": ["dashboard.html"],
     "datastoreTut1.html": ["assets/htmlFiles/walk/datastoreTut1.html"],
     "datastoreTut2.html": ["assets/htmlFiles/walk/datastoreTut2.html"],
     "dologout.html": ["assets/htmlFiles/dologout.html"],
@@ -303,12 +303,12 @@ var htmlTemplateMapping = {
     "undoredoTest.html": ["undoredoTest.html"],
     "unitTest.html": ["unitTest.html"],
     "unitTestInstaller.html": ["unitTestInstaller.html"],
-    "userManagement.html": ["assets/htmlFiles/userManagement.html"],
     "workbookTut.html": ["assets/htmlFiles/walk/workbookTut.html"],
     "datasetPanelTutA1.html": ["assets/htmlFiles/walk/datasetPanelTutA1.html"],
     "importDatasourceTutA2.html": ["assets/htmlFiles/walk/importDatasourceTutA2.html"],
     "browseDatasourceTutA3.html": ["assets/htmlFiles/walk/browseDatasourceTutA3.html"],
-    "browseDatasource2TutA4.html": ["assets/htmlFiles/walk/browseDatasource2TutA4.html"]
+    "browseDatasource2TutA4.html": ["assets/htmlFiles/walk/browseDatasource2TutA4.html"],
+    "xpe/xpeInstaller.html": ["xpe/xpeInstaller.html"]
 };
 
 /**
@@ -773,31 +773,43 @@ var END_OF_BUILD_WARNINGS = []; // some warnings that might be bugs we collect o
 
                             /** BLACKLISTS */
 
-    // dont do HTML prettification on these (obj so key lookup for filter rather than iter. list for every single html file to check)
-var DONT_PRETTIFY = ["datastoreTut1.html", "datastoreTut2.html", "workbookTut.html", "datasetPanelTutA1.html", "importDatasourceTutA2.html", "browseDatasourceTutA3.html", "browseDatasource2TutA4"],
-    // a list of files and/or directories, not to template (for dirs, won't template any files within those dirs)
-    DONT_TEMPLATE_HTML = htmlMapping.required, // MAKE THESE REL PATHS to src/bld
-    /**
-        list of files and/or dirs, not to minify
-        Make dirs REL BLD. wont minify any file within that dir
-        For files, just put the filename.  Won't minify any file with that name.
-        (want to be able to debug these in the field regularly
-         and if you minify them putting breakpointst becomes really difficult)
-    */
-    DONT_MINIFY = ['3rd', 'assets/js/unused', 'config.js'],
-    // at end of bld will chmod everything to 777.  dont chmod what's in here (it fails on symlinks which is why im adding this)
-    DONT_CHMOD = ['xu.css', UNIT_TEST_FOLDER],
-    /** project src files and dirs to explicitally exclude from bld.
-        Anything specified here will be EXCLUDED during initial rsync of src code in to build root
-        Paths should be relative to SRC ROOT.
+var DONT_PRETTIFY = [
+    "datastoreTut1.html", "datastoreTut2.html",
+    "workbookTut.html", "datasetPanelTutA1.html",
+    "importDatasourceTutA2.html", "browseDatasourceTutA3.html",
+    "browseDatasource2TutA4"];
 
-        Be aware - if your ROOT and DEST are same (you're blding in to root), then initially those bld dirs will get made
-        and then you will do rsync.  And so need to add in at that time, to exclude that dir from the rsync otherwise you'll
-        fall in to a recursive loop (since it is rsyncing the dir as it's filling up...) however, might not know dest dir name
-        until after user params, so can not add it in here yet...
-    */
-    DONT_VALIDATE = [INITIAL_GRUNT_PROCESS_TASKLIST], // dont do param validation on these grunt.options values
-    DONT_RSYNC = [
+// don't template these html files (if dir won't template any files within the dir)
+// should be rel <project source>
+var DONT_TEMPLATE_HTML = htmlMapping.required;
+DONT_TEMPLATE_HTML = DONT_TEMPLATE_HTML.concat([ // xpeInstaller included files
+    'site/xpe/eulaPart.html',
+    'site/xpe/xpeCommonHeadTags.html',
+    'site/xpe/xpeCommonScriptImports.html',
+    'site/xpe/progressBarSetup.html'
+]);
+
+/**
+ list of files and/or dirs, not to minify
+ Make dirs REL BLD. wont minify any file within that dir
+ For files, just put the filename.  Won't minify any file with that name.
+ (want to be able to debug these in the field regularly
+ and if you minify them putting breakpointst becomes really difficult)
+*/
+var DONT_MINIFY = ['3rd', 'assets/js/unused', 'assets/js/worker', 'config.js'];
+// at end of bld will chmod everything to 777.  dont chmod what's in here (it fails on symlinks which is why im adding this)
+var DONT_CHMOD = ['xu.css', UNIT_TEST_FOLDER];
+/** project src files and dirs to explicitally exclude from bld.
+    Anything specified here will be EXCLUDED during initial rsync of src code in to build root
+    Paths should be relative to SRC ROOT.
+
+    Be aware - if your ROOT and DEST are same (you're blding in to root), then initially those bld dirs will get made
+    and then you will do rsync.  And so need to add in at that time, to exclude that dir from the rsync otherwise you'll
+    fall in to a recursive loop (since it is rsyncing the dir as it's filling up...) however, might not know dest dir name
+    until after user params, so can not add it in here yet...
+*/
+var DONT_VALIDATE = [INITIAL_GRUNT_PROCESS_TASKLIST]; // dont do param validation on these grunt.options values
+var DONT_RSYNC = [
         '*.git*',
         "'/internal'",
         "'/Gruntfile.js'", // if you don't add as '/<stuff>', will exclude any file called <stuff> anywhere rel to rsync cmd
@@ -1045,7 +1057,7 @@ module.exports = function(grunt) {
                 expand: true,
                 dest: HTML_STAGING_I_ABS,
                 filter: function (filepath) {
-                    // Construct the destination file path.
+                    // Construct the destination filepath.
                     ccwd = grunt.config('copy.stageHTML.cwd');
                     cdest = grunt.config('copy.stageHTML.dest');
                     relportion = path.relative(ccwd, filepath);
@@ -2616,8 +2628,7 @@ module.exports = function(grunt) {
             + " if any remain "
             + " (they might have been written over during bld process, "
             + " or, if watch task, might have been copied in directly to the staging area\n").bold);
-        var filepath;
-        for ( filepath of htmlWaste ) {
+        for (var filepath of htmlWaste) {
             // these filepaths get collected when generating html, making best guess at what would be their real location in the bld..
             // but if you are watching,
             // then the files needed were copied in directly to the staging area. so they woin't exist here. so check if file exists to avoid confusing warnings
@@ -2635,7 +2646,6 @@ module.exports = function(grunt) {
         */
         grunt.log.writeln(("\nDelete dirs and files designated only for build purpose that were within src, if any\n").bold);
         removeContent(htmlMapping.required);
-
     });
 
     // return list of extra tags to add in to index.html
@@ -2775,7 +2785,8 @@ module.exports = function(grunt) {
 
             1. render if/else logic within the src HTML
             2. internationalization
-            3. Product name strings normalized (they all say 'xcalar design' atow; for XI, change it to 'xcalar insight'
+            3. Product name strings normalized (they all say 'xcalar design';
+                for XI, change it to 'xcalar insight')
 
         Once file has been templated, delete the original file so you don't end up
         with stale HTML.
@@ -2784,33 +2795,33 @@ module.exports = function(grunt) {
     grunt.task.registerTask(TEMPLATE_HTML, function() {
 
         /**
-            get filespaths, rel to staging Dir, of all the html
-            files to do templating on, and map in to STAGING II, retaining dir struc.
-            - grunt.file.expand will return filepaths, relative to 'cwd' option,
-                that match patterns
-            - if main bld task, youw ill want to get all the html files sans exclusions,
-                 but if watch task might only want to template a single file, so look
-                to template string for src for html processing tasks
+            get filespaths, rel STAGING I, of all the html files to template
+            [if main bld task, want to template all html src files (sans exclusions)
+            but if watch task might only want to template a single file,
+            so look to template string to determine what's desired]
         */
 
-        var htmlFilepaths = [],
-            matchPatterns = [],
-            templatingSrc = grunt.config(STAGE_HTML_TEMPLATE_KEY); // dont just get all html but what template string specifies, in case watch task
+        var htmlFilepaths = []; // list of filespaths to template, rel STAGING I
+        var matchPatterns = [];
+        var templatingSrc = grunt.config(STAGE_HTML_TEMPLATE_KEY); // vals are rel proj src
 
         if (grunt.file.isFile(templatingSrc)) {
-            // do not do a grunt file expand - just use this single htmlfilepath
-            grunt.log.debug("in if");
+            // only want to template a single file
             htmlFilepaths = [HTML_STAGING_I_ABS + templatingSrc];
         } else {
-            grunt.log.debug("get a glob");
-            var mainGlob = HTML_STAGING_I_ABS + templatingSrc; // if just one file, or a current glob, this will be sufficient
-            if (grunt.file.isDir(templatingSrc)) { // if its a dir, get all html files nested within
+            // template string is either glob or dir; need to get all filepaths
+            // that apply (match glob or nested in the dir); can create a glob
+            // and grunt.file.expand it to get the filepaths
+            var mainGlob = HTML_STAGING_I_ABS + templatingSrc;
+            if (grunt.file.isDir(templatingSrc)) {
+                // create a glob to get filepaths of all html files nested in the dir
                 mainGlob = mainGlob + "**/*.html";
             }
             matchPatterns.push(mainGlob);
-            // if this a main bld task... also take care of the exclusion patterns...
+            // if this a main bld task... additional globs to handle build exclusions
+            // (files to completely ignore from source)
             if (!IS_WATCH_TASK) {
-                for ( exclude of htmlMapping.exclude ) {
+                for (exclude of htmlMapping.exclude) {
                     if (grunt.file.isDir(exclude)) {
                         grunt.log.debug("Add match pattern for Exclusiun dir: " + exclude);
                         matchPatterns.push("!" + HTML_STAGING_I_ABS + exclude + "**");    // excludes this dir and everything within it
@@ -2822,42 +2833,44 @@ module.exports = function(grunt) {
             }
             htmlFilepaths = grunt.file.expand(matchPatterns);
         }
-        grunt.log.debug("# files to template: " + htmlFilepaths.length
+        grunt.log.debug("# HTML files eligible to template: " + htmlFilepaths.length
                 + "staging dir @: " + HTML_STAGING_I_ABS
                 + "match patterns: " + matchPatterns);
-        grunt.log.debug("html filepaths: " + htmlFilepaths);
 
         var filepath;
         var skipfile = false;
-        for ( filepath of htmlFilepaths ) {
-            grunt.log.debug(("`== Template HTML from templated file @ "['yellow'] + filepath + " ==`"['yellow']).bold);
-            // genHTML will generate and write a new HTML file, from the templated file at filepath.
+        grunt.log.debug("Go through each eligible HTML file and template " +
+            " unless its blacklisted");
+        for (filepath of htmlFilepaths) {
             if (grunt.file.doesPathContain(HTML_STAGING_I_ABS, filepath)) {
                 skipfile = false;
                 /**
-                    There are some html files don't want to template.  For example, partials and utils.
-                    Files not to template are in the global DONT_TEMPLATE_HTML at top of script.
-                    If you don't filter those out now, then
-                    if you try to template the entire html src, you will end up with
-                    entire dir of templated files in the 2nd staging dir, such as partials and utils.
-                    Then, as the final step in the html bld process,
-                    all of these will be transferred in to the final bld.
-                    If for example src and bld output are same, you'll end up putting these uneeded
-                    dirs in the user's src which will then show up in their git status
+                    dont want to template some html files, like included files
+                    in /partials and /utils.
+                    These are specified in global DONT_TEMPLATE_HTML
+                    (this is different than build exclusions handled above)
+                    Filter them out now, else they'll get templated in to
+                    STAGING II and transferred in to final build.
+                    (If src and bld output are same, will end up mapping the uneeded
+                    dirs/files in user's src which will then show up in their git status
                 */
-                var dontTemplate;
-                for ( dontTemplate of DONT_TEMPLATE_HTML ) {
-                    // remem everything in the 1st staging area is rel. to the html src
-                    if ((grunt.file.isDir(dontTemplate) && grunt.file.doesPathContain(HTML_STAGING_I_ABS + path.relative(htmlMapping.src, dontTemplate), filepath)) ||
-                         (grunt.file.isFile(dontTemplate) && HTML_STAGING_I_ABS + path.relative(htmlMapping.src, dontTemplate) == filepath) ) {
+                for (var dontTemplate of DONT_TEMPLATE_HTML) {
+                    var exclusionPathRelHtmlSrc = path.relative(htmlMapping.src, dontTemplate);
+                    // everything in STAGING I is rel. html src
+                    if ((grunt.file.isDir(dontTemplate) && grunt.file.doesPathContain(HTML_STAGING_I_ABS + exclusionPathRelHtmlSrc, filepath)) ||
+                         (grunt.file.isFile(dontTemplate) && filepath === HTML_STAGING_I_ABS + exclusionPathRelHtmlSrc)) {
                             // the requireds are rel. to the type src
-                            grunt.log.debug("\tWon't template " + filepath + " - it's designated as a file to skip, or in a dir to skip");
+                            grunt.log.debug(("== HTML file @ " + filepath +
+                                " is blacklisted from HTML templating; skip").bold);
                             skipfile = true;
                             break;
                     }
                 }
                 if (!skipfile) {
+                    grunt.log.debug((("== template HTML file @ ").yellow +
+                        filepath + (" ==").yellow).bold);
                     pathRelToHtmlSrcWithinBld = path.relative(HTML_STAGING_I_ABS, filepath);
+                    // genHTML will generate and write a new HTML file, from the templated file at filepath.
                     genHTML(filepath, getTemplatingOutputFilepaths(pathRelToHtmlSrcWithinBld));
                 }
             } else {
@@ -2872,26 +2885,26 @@ module.exports = function(grunt) {
     });
 
     /**
-
-        Takes an HTML file with templating code, and resolves this and generates
-        a fully HTML from that.
+        Template an HTML file with templating code
 
         htmlFilepath: (required, string)
             filepath of HTML file with template code you want to resolve.
-            If ABS path - tries to get file at abs path.
-            If REL path - tries to get file relative to 'templatedRoot'
+            If ABS path - gets file at that path.
+            If REL path - looks for file rel to 'srcRoot' arg
 
         output: (optional, List)
-            A list of all the destinations the templated file should be written to.
-            If not supplied, same as htmlFilepath (rel srcRoot), and writes that to destRoot
+            A list of all the filepaths the templated file should be written to.
+            For each filepath in the list -
+                If ABS path - writes to that path
+                If REL path - writes to that path rel 'destRoot' arg
+            If not supplied, takes 'htmlFilepath' (rel srcRoot), and writes to that
+            location in destRoot
 
         srcRoot: (optional, string)
             Dir to get filepath relative to, if it is a rel. filepath
-            Defaults to STAGING_DIR_I
 
         destRoot: (optional, string)
             Dir to write templated output file(s) relative to, if they rel filepaths
-            Defaults to STAGING_DIR_II
 
         EX 1:
             filepath = "A/test.html"
@@ -2915,7 +2928,7 @@ module.exports = function(grunt) {
                     overwriting the untemplated file
 
     */
-    function genHTML(htmlFilepath, outputFiles, srcRoot, destRoot) {
+    function genHTML(htmlFilepath, outputFiles, srcRoot=HTML_STAGING_I_ABS, destRoot=HTML_STAGING_II_ABS) {
         lang = "en";
         landCode = (lang === "en") ? "en-US" : "zh-CN";
         dicts = require(SRCROOT + 'assets/lang/' + lang + '/htmlTStr.js');
@@ -2928,13 +2941,6 @@ module.exports = function(grunt) {
             "browseDatasourceTutA3.html": "browseDatasourceTutA3",
             "browseDatasource2TutA4.html": "browseDatasource2TutA4"
         };
-
-        if (!srcRoot) {
-            srcRoot = HTML_STAGING_I_ABS;
-        }
-        if (!destRoot) {
-            destRoot = HTML_STAGING_II_ABS;
-        }
 
         /**
             htmlFilepath, if abs., should be within staging dir.
@@ -2956,7 +2962,6 @@ module.exports = function(grunt) {
                 + htmlFilepath
                 + "\nLogic error, please contact jolsen@xcalar.com");
         }
-        grunt.log.debug("html filepath: "+ htmlFilepath + " rel: " + relPart);
         unprocessedFileBldPath = BLDROOT + htmlMapping.src + relPart;
         // make sure it exists.. to be on the safe side... since assuming where it is based on current workflow...
         //  h owever, during watch task - it is likely this won't exist, since the watched file might have been
@@ -2986,10 +2991,10 @@ module.exports = function(grunt) {
             }
         } else {
             // wasn't defined
-            grunt.log.debug("output wasn't defined");
+            grunt.log.debug("\toutput not specified for file to template; use same filename");
             outputFiles = [relPart];
         }
-        for ( var i = 0; i < outputFiles.length; i++ ) {
+        for (var i = 0; i < outputFiles.length; i++) {
             if (!grunt.file.isPathAbsolute(outputFiles[i])) {
                 outputFiles[i] = destRoot + outputFiles[i];
             }
@@ -3018,7 +3023,7 @@ module.exports = function(grunt) {
             }
 
             if (tutorMap.hasOwnProperty(filename)) {
-                grunt.log.debug("tutor map");
+                grunt.log.debug("\ttutor map");
                 dicts.isTutor = true;
                 // it should be found in html_en's tutor obj
                 var tutorName = tutorMap[filename];
@@ -3089,7 +3094,6 @@ module.exports = function(grunt) {
         function templateWrite(destpath) {
 
             // generate HTML string from templating
-            grunt.log.debug("\tTemplate file..." + dicts);
             var parsedHTML = template(dicts);
 
             // if this is an XI build, replace product 'xcalar diesng' names
@@ -3111,12 +3115,8 @@ module.exports = function(grunt) {
     }
 
     /**
-
-        Given filepath to a file, within the src of html within bld,
-        return a list which contains the rel filepaths within the bld,
+        Given filepath to a file (rel src), return a list of all filepaths (rel bld),
         of all the files it should template to.
-        If filepath is abs: will try to get portion rel to either src or bld.
-        If it is rel, will use as is.
         (For now to make this work until genHTML optimized - return String or list)
     */
     function getTemplatingOutputFilepaths(filepath) {
