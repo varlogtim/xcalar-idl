@@ -440,7 +440,7 @@
         }
     }
 
-    .mainSvg {
+    .mainSvg, .secondarySvg {
         .size(100%, 100%);
         overflow: visible;
 
@@ -463,11 +463,24 @@
 
             &:hover, &.selected {
                 .visibleLine {
-                    stroke: black;
+                    stroke: #222222;
                     stroke-width: 2px;
                 }
             }
+
+            &.tempEdge {
+                opacity: 0.5;
+                .visibleLine {
+                    stroke-dasharray: 5, 5;
+                }
+            }
         }
+    }
+
+    .secondarySvg {
+        // used and removed during connector drag
+        .position(absolute, 0, 0);
+        z-index: 1;
     }
 }
 

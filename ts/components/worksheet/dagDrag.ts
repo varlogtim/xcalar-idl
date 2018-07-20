@@ -3,13 +3,15 @@ interface DragHelperOptions {
     $dropTarget: JQuery,
     $element: JQuery,
     $elements?: JQuery,
-    onDragStart?: Function
+    onDragStart?: Function,
+    onDrag?: Function,
     onDragEnd: Function,
     onDragFail: Function,
     copy?: boolean,
     move?: boolean,
     event: JQueryEventObject
-    offset?: Coordinate
+    offset?: Coordinate,
+    noCursor?: boolean
 }
 
 interface DragHelperCoordinate {
@@ -28,6 +30,7 @@ class DragHelper {
     protected $container: JQuery;
     protected $dropTarget: JQuery;
     protected onDragStartCallback: Function;
+    protected onDragCallback: Function;
     protected onDragEndCallback: Function;
     protected onDragFailCallback: Function;
     protected $el: JQuery;
@@ -44,6 +47,7 @@ class DragHelper {
     protected currentDragCoor: DragHelperCoordinate;
     protected customOffset: Coordinate;
     protected dragContainerPositions: Coordinate[];
+    protected noCursor: boolean;
 
     public constructor(options: DragHelperOptions) {
         this.$container = options.$container;
@@ -55,6 +59,7 @@ class DragHelper {
             this.$els = this.$el;
         }
         this.onDragStartCallback = options.onDragStart;
+        this.onDragCallback = options.onDrag;
         this.onDragEndCallback = options.onDragEnd;
         this.onDragFailCallback = options.onDragFail;
         this.copying = options.copy || false;
@@ -67,6 +72,7 @@ class DragHelper {
         this.isDragging = false;
         this.customOffset = options.offset || {x: 0, y: 0};
         this.dragContainerPositions = [];
+        this.noCursor = options.noCursor || false;
 
         const self = this;
         this.mouseDownCoors = {
@@ -98,6 +104,9 @@ class DragHelper {
 
         const cursorStyle = '<div id="moveCursor"></div>';
         $("body").addClass("tooltipOff").append(cursorStyle);
+        if (this.noCursor) {
+            $("#moveCursor").addClass("arrowOnly");
+        }
 
         this.$els.each(function() {
             const elRect: DOMRect = this.getBoundingClientRect();
@@ -117,12 +126,18 @@ class DragHelper {
             self.onDrag(event);
         });
         if (this.onDragStartCallback) {
-            this.onDragStartCallback(this.$els);
+            this.onDragStartCallback(this.$els, event);
         }
     }
 
     private onDrag(event: JQueryEventObject): void {
         this.positionDraggingEl(event);
+        if (this.onDragCallback) {
+            this.onDragCallback({
+                x: this.currentDragCoor.left,
+                y: this.currentDragCoor.top
+            });
+        }
     }
 
     private adjustScrollBar(): void {
@@ -285,12 +300,5 @@ class DragHelper {
         if (coors.length) {
             this.onDragEndCallback(this.$draggingEls, event, {coors: coors});
         }
-    }
-}
-
-class DragLineHelper extends DragHelper {
-    public constructor(options) {
-        super(options);
-        $("#moveCursor").addClass("arrowOnly");
     }
 }

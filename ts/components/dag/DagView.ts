@@ -431,7 +431,10 @@ namespace DagView {
             const parentNodeId: DagNodeId = $parentNode.data("nodeid");
             const $dfArea = $dfWrap.find(".dataflowArea.active");
             let $candidates: JQuery;
-            new DragLineHelper({
+            let path;
+            let parentCoors;
+
+            new DragHelper({
                 event: event,
                 $element: $parentConnector,
                 $container: $dagView,
@@ -440,7 +443,8 @@ namespace DagView {
                     x: 0,
                     y: -2
                 },
-                onDragStart: function() {
+                noCursor: true,
+                onDragStart: function(_$el: JQuery, _e: JQueryEventObject) {
                     const $operators: JQuery = $dfArea.find(".operator");
                     $candidates = $operators.filter(function() {
                         const childNodeId = $(this).data("nodeid");
@@ -455,12 +459,35 @@ namespace DagView {
                         }
                     });
                     $operators.addClass("noDrop");
-
                     $candidates.removeClass("noDrop").addClass("dropAvailable");
+                    const offset = _getDFAreaOffset();
+                    const rect = $parentConnector[0].getBoundingClientRect();
+                    parentCoors = {
+                        x: rect.right + offset.left - 1,
+                        y: rect.top + offset.top + 5
+                    };
+                    $dfArea.append('<svg class="secondarySvg"></svg>');
+                    const svg = d3.select("#dagView .dataflowArea.active .secondarySvg");
+
+                    const edge = svg.append("g")
+                                    .attr("class", "edge tempEdge");
+
+                    path = edge.append("path");
+                    path.attr("class", "visibleLine");
+                },
+                onDrag: function(coors) {
+                    const offset = _getDFAreaOffset();
+                    const childCoors = {
+                        x: coors.x + offset.left,
+                        y: coors.y + offset.top + 5
+                    };
+                    path.attr("d", lineFunction([parentCoors, childCoors]));
                 },
                 onDragEnd: function(_$el, event) {
                     let $childNode: JQuery;
                     $candidates.removeClass("dropAvailable noDrop");
+
+                    $dfArea.find(".secondarySvg").remove();
                     // check if location of drop matches position of a valid
                     // $operator
                     $candidates.not($parentNode).each(function() {
@@ -499,6 +526,7 @@ namespace DagView {
             });
         });
 
+        // drag select multiple nodes
         let $dfArea;
         let $operators;
         $dfWrap.on("mousedown", ".dataflowArea", function(event) {
@@ -544,15 +572,17 @@ namespace DagView {
         }
         function _endDrawRect(): void {
             $dfArea.removeClass("drawing");
-            const $operators = $dfArea.find(".operator.selecting");
-            if ($operators.length === 0) {
+            const $ops = $dfArea.find(".operator.selecting");
+            if ($ops.length === 0) {
                 $dfArea.find(".operator.selected").removeClass("selected");
             } else {
-                $operators.each(function() {
+                $ops.each(function() {
                     $(this).removeClass("selecting")
                            .addClass("selected");
                 });
             }
+            $dfArea = null;
+            $operators = null;
         }
     }
 
@@ -572,27 +602,34 @@ namespace DagView {
     .y(function(d) {return d.y;})
     .interpolate("cardinal");
 
-    function _drawLineBetweenNodes($parentConnector, $childConnector,
-        parentNodeId, childNodeId, connectorIndex, svg, offset) {
+    function _drawLineBetweenNodes(
+        $parentConnector: JQuery,
+        $childConnector: JQuery,
+        parentNodeId: DagNodeId,
+        childNodeId: DagNodeId,
+        connectorIndex: number,
+        svg: d3,
+        offset
+    ): void {
 
         const parentRect = $parentConnector[0].getBoundingClientRect();
         const parentCoors = {
-        x: parentRect.right + offset.left - 1,
-        y: parentRect.top + offset.top + 5
+            x: parentRect.right + offset.left - 1,
+            y: parentRect.top + offset.top + 5
         };
 
         let offsetTop = $childConnector.height() / 2;
         const childRect = $childConnector[0].getBoundingClientRect();
         const childCoors = {
-        x: childRect.left + offset.left,
-        y: childRect.top + offset.top + offsetTop
+            x: childRect.left + offset.left + 1,
+            y: childRect.top + offset.top + offsetTop
         };
 
         const edge = svg.append("g")
         .attr("class", "edge")
         .attr("data-childnodeid", childNodeId)
         .attr("data-parentnodeid", parentNodeId)
-        .attr("data-connectorindex", connectorIndex);
+        .attr("data-connectorindex", connectorIndex.toString());
 
         edge.append("path")
         .attr("class", "visibleLine")
