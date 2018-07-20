@@ -103,7 +103,7 @@
         height: 48%;
     }
     .upperTableHeader {
-        height: 50px;
+        height: 65px;
     }
 
     .checkbox {
@@ -128,6 +128,7 @@
         .text {
             float: left;
             font-size: 16px;
+            margin-left: 9px;
         }
         .iconSection {
             float: right;
@@ -162,6 +163,7 @@
             line-height: 20px;
             height: 20px;
             width: 100%;
+            margin-top: 7px;
 
             .tableOperationMessage {
                 display: block;
@@ -208,7 +210,7 @@
     }
 
     .mainTableSection {
-        height: ~"calc(100% - 50px)";
+        height: ~"calc(100% - 65px)";
         background: @color-bg-marine;
         &::-webkit-scrollbar-thumb {
             background-color: rgba(55, 140, 179, 0.9) !important;
@@ -232,6 +234,9 @@
         .tableName {
             width: 100%;
         }
+        .dragIcon {
+            visibility: hidden;
+        }
 
         &:hover {
             background-color: #092d3e;
@@ -241,6 +246,9 @@
 
             .tableName {
                 max-width: 184px;
+            }
+            .dragIcon {
+                visibility: visible;
             }
         }
 
@@ -793,7 +801,7 @@
     }
 
     .dateTipLine, .dateTipLineSelect {
-        height: 50px;
+        height: 65px;
         width: 2px;
         background: @color-bg-select-blue;
         margin-left: -1px;
