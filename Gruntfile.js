@@ -308,7 +308,8 @@ var htmlTemplateMapping = {
     "importDatasourceTutA2.html": ["assets/htmlFiles/walk/importDatasourceTutA2.html"],
     "browseDatasourceTutA3.html": ["assets/htmlFiles/walk/browseDatasourceTutA3.html"],
     "browseDatasource2TutA4.html": ["assets/htmlFiles/walk/browseDatasource2TutA4.html"],
-    "xpe/xpeInstaller.html": ["xpe/xpeInstaller.html"]
+    "xpe/xpeInstaller.html": ["xpe/xpeInstaller.html"],
+    "xpe/xpeUninstaller.html": ["xpe/xpeUninstaller.html"]
 };
 
 /**
