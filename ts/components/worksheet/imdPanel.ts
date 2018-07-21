@@ -40,7 +40,8 @@ namespace IMDPanel {
         dstTableName: string,
         minBatch: number,
         maxBatch: number,
-        columns: TableCol[]
+        columns: TableCol[],
+        colStruct: XcalarApiColumnT[]
     }
 
     interface RestoreError {
@@ -67,6 +68,7 @@ namespace IMDPanel {
     let pCheckedTables: PublishTable[]; //tables the user has checked to perform operations
     let iCheckedTables: PublishTable[]; // inactive tables checked
     let $updatePrompt: JQuery;
+    let $updatePromptOptions: JQuery;
     const leftPanelWidth: number = 280;
     //ruler object
     let ruler: Ruler = {
@@ -94,6 +96,7 @@ namespace IMDPanel {
     const intervalTime: number = 60000;
     let imdCycle: number;
     let detailTableName: string;
+    let isLatest: boolean;
 
     let pListOrder: number; //holds 1 if list is sorted ascending, -1 if sorted desc, 0/null if unsorted
     let iListOrder: number; //holds 1 if list is sorted ascending, -1 if sorted desc, 0/null if unsorted
@@ -105,6 +108,7 @@ namespace IMDPanel {
         $imdPanel = $("#imdView");
         $canvas = $("#imdTimeCanvas");
         $updatePrompt = $imdPanel.find(".update-prompt");
+        $updatePromptOptions = $imdPanel.find(".update-prompt-options");
         $scrollDiv = $imdPanel.find(".scrollDiv");
         $tableDetail = $(".tableDetailSection");
         $activeCount = $imdPanel.find(".activeTableCount");
@@ -395,6 +399,8 @@ namespace IMDPanel {
         isUnavailable?: boolean
     ): void {
         $updatePrompt.removeClass("xc-hidden");
+        $updatePrompt.removeClass("advanced");
+        $updatePromptOptions.removeClass("xc-hidden");
         const promptWidth: number = $updatePrompt.outerWidth();
         let left: number = x - promptWidth / 2;
         if (left + promptWidth > $imdPanel.width()) {
@@ -433,6 +439,10 @@ namespace IMDPanel {
     function hideUpdatePrompt(): void {
         $updatePrompt.addClass("xc-hidden");
         $updatePrompt.removeClass("advanced");
+        $updatePrompt.removeClass("group");
+        $updatePrompt.find(".dropdown").attr("data-toggle", "");
+        $updatePrompt.find("input").val("");
+        $updatePromptOptions.addClass("xc-hidden");
         selectedCells = {};
         $imdPanel.find(".tableListItem").removeClass("selected");
         $imdPanel.find(".dateTipLineSelect").remove();
@@ -667,7 +677,8 @@ namespace IMDPanel {
                 }
                 selectedCells[tableName] = closestUpdate;
             });
-
+            $updatePrompt.addClass("group");
+            $updatePrompt.find(".dropdown").attr("data-toggle", "tooltip");
             showUpdatePrompt(left, $canvas.height() + 10, true, true, isUnavailable);
         });
 
@@ -907,19 +918,52 @@ namespace IMDPanel {
             hideUpdatePrompt();
         });
 
-        $updatePrompt.find(".moreOptions").click(function() {
-            $updatePrompt.toggleClass("advanced");
-        });
-
-        $updatePrompt.find(".btn.pointInTime").click(function() {
-            if ($(this).hasClass("unavailable")) {
+        $updatePrompt.find(".btn.pointInTime").click(function(event) {
+            if ($(this).hasClass("unavailable") || $(event.target).hasClass("dropdown")) {
                 return;
             }
             submitRefreshTables();
         });
 
-        $updatePrompt.find(".btn.latest").click(function() {
+        $updatePrompt.find(".btn.pointInTime").find(".dropdown").click(function() {
+            if ($(this).closest(".btn").hasClass("unavailable") || $updatePrompt.hasClass("group")) {
+                return;
+            }
+            isLatest = false;
+            $updatePrompt.toggleClass("advanced");
+            $tableDetail.addClass("columnsMode");
+            $updatePrompt.find(".advancedButton").text("Point in Time");
+        });
+
+        $updatePrompt.find(".btn.latest").find(".dropdown").click(function() {
+            if ($updatePrompt.hasClass("group")) {
+                return;
+            }
+            isLatest = true;
+            $updatePrompt.toggleClass("advanced");
+            $tableDetail.addClass("columnsMode");
+            $updatePrompt.find(".advancedButton").text("Latest");
+        });
+
+        $updatePrompt.find(".btn.latest").click(function(event) {
+            if ($(event.target).hasClass("dropdown")) {
+                return;
+            }
             submitRefreshTables(true);
+        });
+
+        $updatePrompt.find(".btn.advancedButton").click(function() {
+            const filterString: string = $updatePrompt.find(".filterString").val();
+            let colStr: string = $updatePrompt.find(".columns").val();
+            let columns: string[];
+            if (colStr) {
+                columns = colStr.split(",");
+                columns.forEach(function(colName) {
+                    colName = colName.trim();
+                });
+            }
+
+            submitRefreshTables(isLatest, filterString, columns);
         });
 
         $imdPanel.find(".icon.coalesce").click(function() {
@@ -1220,11 +1264,14 @@ namespace IMDPanel {
         }
     }
 
-    function submitRefreshTables(latest?: boolean): XDPromise<void> {
+    function submitRefreshTables(latest?: boolean, filterString?: string, columns?: string[]): XDPromise<void> {
         const tables: RefreshTableInfos[] = [];
+        let columnsStruct: XcalarApiColumnT[];
+        let pTable: PublishTable;
 
+        console.log(columns);
         for (let tableName in selectedCells) {
-            let pTable: PublishTable = pTables.filter((table) => {
+            pTable = pTables.filter((table) => {
                 return (table.name === tableName);
             })[0];
 
@@ -1234,19 +1281,39 @@ namespace IMDPanel {
             } else {
                 maxBatch = selectedCells[tableName];
             }
+            let tableCols: TableCol[] = [];
+            if (columns) {
+                columnsStruct = [];
+                pTable.values.forEach(function(column) {
+                    if (columns.includes(column.name)) {
+                    let colStruct = new XcalarApiColumnT({
+                        columnType: column.type,
+                        sourceColumn: column.name,
+                        destColumn: column.name
+                    });
+                    columnsStruct.push(colStruct);
+                        tableCols.push(column);
+                }
+            });
+            } else {
+                tableCols = pTable.values;
+            }
             tables.push({
                 pubTableName: tableName,
                 dstTableName: tableName,
                 minBatch: -1, // defaults to oldest
                 maxBatch: maxBatch,
-                columns: pTable.values
+                columns: tableCols,
+                colStruct: columnsStruct
             });
         }
+
+        console.log(tables);
 
         hideUpdatePrompt();
 
         if (tables.length) {
-            return refreshTablesToWorksheet(tables);
+            return refreshTablesToWorksheet(tables, filterString);
         } else {
             return PromiseHelper.reject();
         }
@@ -1731,7 +1798,7 @@ namespace IMDPanel {
     }
 
     // creates a new worksheet and puts tables there
-    function refreshTablesToWorksheet(tableInfos: RefreshTableInfos[]): XDPromise<void> {
+    function refreshTablesToWorksheet(tableInfos: RefreshTableInfos[], filterString?: string): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let wsId: string;
         const numTables: number = tableInfos.length;
@@ -1754,7 +1821,8 @@ namespace IMDPanel {
         });
         const wsName: string = "imd";
 
-        refreshTables(tableInfos, txId)
+
+        refreshTables(tableInfos, txId, filterString)
         .then(function() {
             wsId = WSManager.addWS(null, wsName);
             const promises: XDPromise<void>[] = [];
@@ -1806,7 +1874,7 @@ namespace IMDPanel {
 
     function refreshTables(
         tableInfos: RefreshTableInfos[],
-        txId: number
+        txId: number, filterString: string
     ): XDPromise<void> {
         let promises = [];
         tableInfos.forEach((tableInfo) => {
@@ -1814,7 +1882,7 @@ namespace IMDPanel {
                 tableInfo.dstTableName,
                 tableInfo.minBatch,
                 tableInfo.maxBatch,
-                txId));
+                txId, filterString, tableInfo.colStruct));
         });
 
         return PromiseHelper.when.apply(this, promises);

@@ -139,7 +139,7 @@
             font-size: 16px;
             height: 100%;
             cursor: pointer;
-            
+
             &.activate {
                 color: @color-bg-apple-green;
             }
@@ -404,6 +404,10 @@
 
         .viewTables, .columnsList {
             display: none;
+        }
+
+        .columnsList {
+            overflow: auto;
         }
 
         .subHeading {
@@ -771,14 +775,8 @@
         .btn {
             width: 100%;
             margin-top: 10px;
+            padding-right: 0px;
         }
-
-        .moreOptions {
-            font-size: 11px;
-            text-decoration: underline;
-            padding-top: 2px;
-        }
-
         .advancedOptions {
             display:none;
         }
@@ -788,6 +786,19 @@
             }
             .basicOptions {
                 display: none;
+            }
+        }
+        .dropdown {
+            float: right;
+            height: 100%;
+            width: 20px;
+            background-color: @color-bg-dusk-blue;
+            line-height: 36px;
+        }
+
+        &.group {
+            .dropdown {
+                opacity: 0.5;
             }
         }
     }

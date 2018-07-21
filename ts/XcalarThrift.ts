@@ -5496,7 +5496,9 @@ XcalarRefreshTable = function(
     dstTableName: string,
     minBatch: number,
     maxBatch: number,
-    txId: number
+    txId: number,
+    filterString: string,
+    columns: XcalarApiColumnT[]
 ): XDPromise<XcalarApiNewTableOutputT> {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);

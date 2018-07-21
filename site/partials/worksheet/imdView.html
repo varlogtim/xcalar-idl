@@ -99,9 +99,22 @@
     <div class="basicOptions">
        <div class="heading"><%= dicts.IMDPanel.RefreshTables %>:</div>
         <div class="buttonWrap">
-            <button type="button" class="btn pointInTime">Point in time</button>
-            <button type="button" class="btn latest">Latest</button>
+            <button type="button" class="btn pointInTime">Point in time
+                <i class="dropdown icon xi-ellipsis-v" title="Not available for group operations" data-toggle="tooltip"
+                data-placement="top" data-container="body"></i>
+            </button>
+            <button type="button" class="btn latest">Latest
+                <i class="dropdown icon xi-ellipsis-v" title="Not available for group operations" data-toggle="tooltip"
+                data-placement="top" data-container="body"></i>
+            </button>
         </div>
+    </div>
+    <div class="advancedOptions">
+        <div>Filter String</div>
+        <input class="xc-input textOverflow filterString">
+        <div>Columns (comma separated)</div>
+        <input class="xc-input textOverflow columns">
+        <button type="button" class="btn advancedButton">Latest</button>
     </div>
 </div>
 <div class="dateTipLine"></div>
