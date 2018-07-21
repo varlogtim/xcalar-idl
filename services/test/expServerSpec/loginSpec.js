@@ -8,8 +8,6 @@ describe('ExpServer Login Test', function() {
     var expServer = require(__dirname + '/../../expServer/expServer.js');
     this.timeout(5000);
 
-    require('jquery');
-
     var login = require(__dirname + '/../../expServer/route/login.js');
     var support = require(__dirname + '/../../expServer/expServerSupport.js');
     var expServer = require(__dirname + '/../../expServer/expServer.js');

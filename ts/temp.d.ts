@@ -138,6 +138,10 @@ interface WkbkKVKeySet {
     gIMDKey: string;
     gDagManagerKey: string;
     gDagListKey: string;
+    gSQLTablesKey: string;
+    gSQLQueryKey: string;
+    gSQLEditorKey: string;
+    gSQLEditorQueryKey: string;
 }
 
 interface UDFInfo {
@@ -324,6 +328,7 @@ declare var gBuildNumber: number;
 declare var gGitVersion: number;
 declare var XcalarApisTStr: object;
 declare var StatusTStr: { [key: string]: string };
+declare var SQLErrTStr: { [key: string]: string };
 declare var currentVersion: number;
 declare var xcLocalStorage: XcStorage;
 declare var xcSessionStorage: XcStorage;
@@ -774,6 +779,8 @@ declare namespace AlertTStr {
     export var UnexpectInit: string;
     export var UnexpectInitMsg: string;
     export var Error: string;
+    export var queryHistorySQLErrorTitle: string;
+    export var queryHistoryReadErrorTitle: string;
 }
 
 declare namespace ThriftTStr {
@@ -904,6 +911,13 @@ declare namespace SQLTStr {
     export var DisconnectOperation: string;
     export var ConnectOperations: string;
     export var MoveOperations: string;
+    export var queryHistStatusRun: string;
+    export var queryHistStatusDone: string;
+    export var queryHistStatusFail: string;
+    export var queryHistStatusCancel: string;
+    export var queryHistStatusCompile: string;
+    export var queryHistStatusNone: string;
+    export var queryFailMessage: string;
 }
 
 declare namespace DagTStr {

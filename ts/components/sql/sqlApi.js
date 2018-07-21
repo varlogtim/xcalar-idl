@@ -4,11 +4,17 @@
     var root = this;
 
     function SQLApi() {
-        // status: -2: canceled, -1: error, 0: finished, 1: created-idle, 2: compile, 3: run, 4: post-run
-        this.status = 1;
+        // status: Compiling, Running, Done, Failed, Cancelled
+        this.status;
         this.runTxId = -1;
         this.sqlMode = false;
         this.queryName;
+        this.queryId;
+        this.errorMsg;
+        this.startTime;
+        this.endTime;
+        this.queryString;
+        this.newTableName;
         return this;
     }
 
@@ -183,6 +189,7 @@
             self._getQueryTableCols(tableName, allCols)
             .then(function(tableCols) {
                 var worksheet = WSManager.getActiveWS();
+                // XXX Consider making "focusWorkspace" an option
                 return TblManager.refreshTable([tableName], tableCols,
                                             null, worksheet, txId, {
                                                 "focusWorkspace": true
@@ -293,17 +300,21 @@
                 "track": true
             });
             self.runTxId = txId;
-            if (self.status === -2) {
-                Transaction.cancel(txId);
-                return PromiseHelper.reject(SQLErrTStr.Cancel);
-            }
-            self.status = 3;
+            // if (self.status === SQLStatus.Cancelled) {
+            //     Transaction.cancel(txId);
+            //     return PromiseHelper.reject(SQLErrTStr.Cancel);
+            // }
             XIApi.query(txId, queryName, query, jdbcCheckTime)
             .then(function() {
-                self.status = 4;
                 if (!self.sqlMode) {
                     DagFunction.commentDagNodes([tableName], sqlQueryString);
                     return self._refreshTable(txId, tableName, allCols);
+                } else {
+                    // jdbc will resolve with cancel status here
+                    if (arguments &&
+                        arguments[0].queryState === QueryStateT.qrCancelled) {
+                        return PromiseHelper.reject(SQLErrTStr.Cancel);
+                    }
                 }
             })
             .then(function() {
@@ -321,9 +332,6 @@
                 deferred.resolve(tableName, allCols);
             })
             .fail(function(error) {
-                if (error === SQLErrTStr.Cancel) {
-                    self.status = -2;
-                }
                 if (!self.sqlMode) {
                     Transaction.fail(txId, {
                         "failMsg": "Execute SQL failed",
@@ -632,16 +640,29 @@
             return this.status;
         },
 
-        setStatus: function(st) {
-            if (st === -2 && this.status === 3) {
-                QueryManager.cancelQuery(this.runTxId);
-                // $queryList.find(".query.active .cancelIcon").click();
-                this.status = -2;
-            } else if (st === -2 && this.status === 4) {
-                console.error("operation is done, cannot cancel");
-            } else if (this.status > 0) {
-                this.status = st;
+        setStatus: function(status) {
+            if (this.status === SQLStatus.Done ||
+                this.status === SQLStatus.Cancelled ||
+                this.status === SQLStatus.Failed) {
+                return PromiseHelper.resolve();
             }
+            if (status === SQLStatus.Cancelled && this.status === SQLStatus.Running) {
+                this.status = status;
+                if (!this.sqlMode) {
+                    return QueryManager.cancelQuery(this.runTxId);
+                } else {
+                    return XcalarQueryCancel(this.queryName);
+                }
+            }
+            if (!this.status && status === SQLStatus.Compiling) {
+                this.startTime = new Date();
+            } else if (status === SQLStatus.Done ||
+                status === SQLStatus.Cancelled ||
+                status === SQLStatus.Failed) {
+                this.endTime = new Date();
+            }
+            this.status = status;
+            return PromiseHelper.resolve();
         },
 
         setSqlMode: function() {
@@ -654,6 +675,38 @@
 
         setQueryName: function(queryName) {
             this.queryName = queryName;
+        },
+
+        getQueryId: function() {
+            return this.queryId;
+        },
+
+        setQueryId: function(queryId) {
+            this.queryId = queryId;
+        },
+
+        getError: function() {
+            return this.errorMsg;
+        },
+
+        setError: function(errorMsg) {
+            this.errorMsg = errorMsg;
+        },
+
+        getQueryString: function() {
+            return this.queryString;
+        },
+
+        setQueryString: function(queryString) {
+            this.queryString = queryString;
+        },
+
+        getNewTableName: function() {
+            return this.newTableName;
+        },
+
+        setNewTableName: function(newTableName) {
+            this.newTableName = newTableName;
         }
 
         // dstAggName is optional and can be left blank (will autogenerate)

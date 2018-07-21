@@ -98,6 +98,12 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     $menu.find(".menuSection.setup").removeClass("xc-hidden");
                     title += MonitorTStr.Setup;
                     break;
+                case ("queryHistButton"):
+                    SqlQueryHistoryPanel.Card.getInstance().show();
+                    $("#monitor-query-history").addClass("active");
+                    $menu.find(".menuSection.queryHist").removeClass("xc-hidden");
+                    title = MonitorTStr.SQLPanelTitle;
+                    break;
                 case ("settingsButton"):
                     $("#monitor-settings").addClass("active");
                     $menu.find(".menuSection.settings").removeClass("xc-hidden");

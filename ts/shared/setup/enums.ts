@@ -371,6 +371,15 @@ enum SetupStatus {
     Setup = "Setup"
 }
 
+enum SQLStatus {
+    Compiling = "Compiling",
+    Running = "Running",
+    Done = "Done",
+    Cancelled = "Cancelled",
+    Failed = "Failed",
+    None = "None"
+}
+
 if (typeof global !== 'undefined') {
     global.RowDirection = RowDirection;
     global.WSTableType = WSTableType;
@@ -402,4 +411,5 @@ if (typeof global !== 'undefined') {
     global.JoinCompoundOperator = JoinCompoundOperator;
     global.JoinCompoundOperatorTStr = JoinCompoundOperatorTStr;
     global.SetupStatus = SetupStatus;
+    global.SQLStatus = SQLStatus;
 }

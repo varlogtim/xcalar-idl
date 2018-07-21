@@ -6254,3 +6254,17 @@ html.microsoft {
         min-height: 56px;
     }
 }
+
+#sqlQueryHistModal {
+    @headerHeight: 36px;
+
+    .size(@width: 600px, @height: 400px);
+
+    .content {
+        padding: 30px;
+        .font(@weight: normal, @family: @font-code);
+        .size(@height: ~"calc(100% - @{headerHeight})");
+        overflow: auto;
+        user-select: text;
+    }
+}

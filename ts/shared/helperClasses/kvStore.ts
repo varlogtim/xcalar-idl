@@ -547,3 +547,6 @@ class KVStore {
     }
     /* ============ End of Instance Properties and Methods ========== */
 }
+if (typeof exports !== "undefined") {
+    exports.KVStore = KVStore;
+}

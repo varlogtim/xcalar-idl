@@ -210,6 +210,7 @@
             if (!message) {
                 message = "Compilation Error";
             }
+            // Don't need this if we catch in deferred.resolve() in sendPost
             // SQLEditor.throwError(message);
             throw "Assertion Failure: " + message;
         }
@@ -1015,7 +1016,7 @@
         node.visited = true;
         return node;
     }
-    function sendPost(struct) {
+    function sendPost(self, struct) {
         var deferred = PromiseHelper.deferred();
         jQuery.ajax({
             type: 'POST',
@@ -1038,6 +1039,9 @@
                     if (typeof SQLEditor !== "undefined") {
                         SQLEditor.throwError(e);
                     }
+                    self.setStatus(SQLStatus.Failed);
+                    self.setError(e);
+                    self.updateQueryHistory(jdbcOption);
                 }
             },
             error: function(error) {
@@ -1158,7 +1162,7 @@
             //     })
             // }
 
-            if (self.sqlObj.getStatus() === -2) {
+            if (self.sqlObj.getStatus() === SQLStatus.Cancelled) {
                 return PromiseHelper.reject(SQLErrTStr.Cancel);
             }
             var deferred = PromiseHelper.deferred();
@@ -1248,11 +1252,27 @@
         }
     }
     SQLCompiler.prototype = {
+        // XXX need to move mutator functions from sqlApi to sqlCompiler
+        updateQueryHistory(jdbcOption) {
+            var queryObj = this.sqlObj;
+            if (jdbcOption) {
+                var jdbcSession = jdbcOption.prefix.substring(3, jdbcOption.prefix.length - 2);
+                queryObj.jdbcSession = jdbcSession;
+                return SqlQueryHistory.getInstance().upsertQuery(queryObj);
+            }
+            return SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
+        },
         getStatus: function() {
             return this.sqlObj.getStatus();
         },
         setStatus: function(st) {
-            this.sqlObj.setStatus(st);
+            return this.sqlObj.setStatus(st);
+        },
+        getError: function() {
+            return this.sqlObj.getError();
+        },
+        setError: function(err) {
+            this.sqlObj.setError(err);
         },
         compile: function(queryName, sqlQueryString, isJsonPlan, jdbcOption) {
             // XXX PLEASE DO NOT DO THIS. THIS IS CRAP
@@ -1265,8 +1285,17 @@
             }
             var outDeferred = PromiseHelper.deferred();
             var self = this;
+
             var name = queryName || xcHelper.randName("sql");
             self.sqlObj.setQueryName(name);
+            self.sqlObj.setQueryId(name);
+            if (jdbcOption && jdbcOption.queryString) {
+                self.sqlObj.setQueryString(jdbcOption.queryString);
+            } else {
+                self.sqlObj.setQueryString(sqlQueryString);
+            }
+            self.setStatus(SQLStatus.Compiling);
+
             var cached;
             if (typeof SQLCache !== "undefined") {
                 cached = SQLCache.getCached(sqlQueryString);
@@ -1275,18 +1304,24 @@
                 self.sqlObj.setSqlMode();
             }
 
-            var promise;
+            var promise = self.updateQueryHistory(jdbcOption);
+            var callback;
             if (isJsonPlan) {
-                promise = PromiseHelper.resolve(sqlQueryString);
+                callback = PromiseHelper.resolve(sqlQueryString);
             // } else if (cached) {
             //     promise = PromiseHelper.resolve(cached, true);
             } else {
-                promise = sendPost({"sqlQuery": sqlQueryString});
+                callback = sendPost(self, {"sqlQuery": sqlQueryString})
             }
 
             var toCache;
 
             promise
+            .then(function () {
+                return callback;
+            }, function() {
+                return callback;
+            })
             .then(function(jsonArray, hasPlan) {
                 var deferred = PromiseHelper.deferred();
                 if (hasPlan) {
@@ -1306,7 +1341,7 @@
                         });
                     }
                 } else {
-                    if (self.sqlObj.getStatus() === -2) {
+                    if (self.sqlObj.getStatus() === SQLStatus.Cancelled) {
                         return PromiseHelper.reject(SQLErrTStr.Cancel);
                     }
                     var allTableNames = getAllTableNames(jsonArray);
@@ -1372,7 +1407,18 @@
             .then(function(queryString, newTableName, newCols) {
                 outDeferred.resolve(queryString, newTableName, newCols, toCache);
             })
-            .fail(outDeferred.reject)
+            .fail(function(err) {
+                var errorMessage = "";
+                if (err === SQLErrTStr.Cancel) {
+                    self.setStatus(SQLStatus.Cancelled);
+                } else {
+                    errorMsg = parseError(err);
+                    self.setStatus(SQLStatus.Failed);
+                    self.setError(errorMsg);
+                }
+                self.updateQueryHistory(jdbcOption);
+                outDeferred.reject(errorMsg);
+            })
             .always(function () {
                 if (typeof KVStore !== "undefined" && oldKVcommit) {
                     // Restore the old KVcommit code
@@ -1383,22 +1429,49 @@
             return outDeferred.promise();
         },
         execute: function(queryString, newTableName, newCols, sqlQueryString,
-            toCache, checkTime) {
+            toCache, jdbcOption) {
             var self = this;
+            if (self.getStatus() === SQLStatus.Cancelled){
+                return PromiseHelper.reject(SQLErrTStr.Cancel);
+            }
+
+            self.setStatus(SQLStatus.Running);
+
             var deferred = jQuery.Deferred();
             if (typeof SQLEditor !== "undefined") {
                 SQLEditor.startExecution();
             }
-            checkTime = checkTime ? checkTime : 200;
-            self.sqlObj.run(queryString, newTableName, newCols,
-                sqlQueryString, checkTime)
+            var checkTime = jdbcOption ? jdbcOption.checkTime : 200;
+            // update query history
+            var promise = self.updateQueryHistory(jdbcOption);
+            var callback = self.sqlObj.run(queryString, newTableName, newCols,
+                                           sqlQueryString, checkTime);
+            promise
+            .then(function () {
+                return callback;
+            }, function() {
+                return callback;
+            })
             .then(function(newTableName, cols) {
                 if (typeof SQLCache !== "undefined" && toCache) {
                     SQLCache.cacheQuery(sqlQueryString, toCache);
                 }
+                self.setStatus(SQLStatus.Done);
+                self.sqlObj.setNewTableName(newTableName);
+                self.updateQueryHistory(jdbcOption);
                 deferred.resolve(newTableName, cols);
             })
-            .fail(deferred.reject);
+            .fail(function(err) {
+                if (err === SQLErrTStr.Cancel) {
+                    self.setStatus(SQLStatus.Cancelled);
+                } else {
+                    self.setStatus(SQLStatus.Failed);
+                    self.setError(JSON.stringify(err));
+                }
+                // Update as "done"
+                self.updateQueryHistory(jdbcOption);
+                deferred.reject(err);
+            });
             return deferred.promise();
         },
         _pushDownIgnore: function(node) {
@@ -2294,6 +2367,11 @@
                     "org.apache.spark.sql.catalyst.plans.ExistenceJoin");
             }
 
+            function isNaturalJoin(n) {
+                return (n.children[0].value.class ===
+                "org.apache.spark.sql.catalyst.expressions.AttributeReference" &&
+                n.children[0].value.name.indexOf(tablePrefix) > -1);
+            }
 
 
             // Special case for Anti Semi Joins
@@ -2382,7 +2460,8 @@
             } else if (condTree && (condTree.value.class ===
                 "org.apache.spark.sql.catalyst.expressions.EqualTo" ||
                 condTree.value.class ===
-                "org.apache.spark.sql.catalyst.expressions.EqualNullSafe")) {
+                "org.apache.spark.sql.catalyst.expressions.EqualNullSafe") &&
+                !isNaturalJoin(condTree)) {
                 eqSubtrees.push(condTree);
             } else {
                 // No optimization
@@ -2413,6 +2492,9 @@
                         "org.apache.spark.sql.catalyst.expressions.EqualTo" ||
                                andTree.children[i].value.class ===
                         "org.apache.spark.sql.catalyst.expressions.EqualNullSafe") {
+                        if (isNaturalJoin(andTree.children[i])) {
+                            continue;
+                        }
                         eqSubtrees.push(andTree.children[i]);
                     } else {
                         filterSubtrees.push(andTree.children[i]);
@@ -5586,7 +5668,38 @@
                 }
             }
         }
-    };
+    }
+    function parseError() {
+        var errorMsg;
+        if (arguments.length === 1) {
+            if (typeof(arguments[0]) === "string") {
+                errorMsg = arguments[0];
+                if (errorMsg.indexOf("exceptionMsg") > -1 &&
+                    errorMsg.indexOf("exceptionName") > -1) {
+                    var errorObj = JSON.parse(errorMsg);
+                    errorMsg = errorObj.exceptionName.substring(
+                               errorObj.exceptionName
+                                         .lastIndexOf(".") + 1) + "\n" +
+                               errorObj.exceptionMsg;
+                }
+            } else {
+                var errorObj = arguments[0];
+                // XXX Error parsing is bad. Needs to be fixed
+                if (errorObj && errorObj.responseJSON) {
+                    var exceptionMsg = errorObj.responseJSON
+                                               .exceptionMsg;
+                    errorMsg = exceptionMsg;
+                } else if (errorObj && errorObj.status === 0) {
+                    errorMsg = SQLErrTStr.FailToConnectPlanner;
+                } else if (errorObj && errorObj.error) {
+                    errorMsg = errorObj.error;
+                }
+            }
+        } else {
+            errorMsg = JSON.stringify(arguments);
+        }
+        return errorMsg;
+    }
 
     if (typeof exports !== "undefined") {
         exports.SQLCompiler = SQLCompiler;

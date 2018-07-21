@@ -1872,7 +1872,11 @@ class InputDropdownHint {
         const $input: JQuery = $dropdown.find("> input");
         const $lists: JQuery = $dropdown.find("> .list");
         // this is to prevent the trigger of blur on mosuedown of li
-        $lists.on("mousedown", "li", function() {
+        $lists.on("mousedown", "li", function(e) {
+            if ($(e.target).is("li input, li .icon, li[name='addNew']")) {
+                gMouseEvents.setMouseDownTarget($(e.target));
+                return;
+            }
             return false;
         });
 
@@ -1893,6 +1897,9 @@ class InputDropdownHint {
         });
 
         $input.on("blur", function() {
+            if (gMouseEvents.getLastMouseDownTarget().is("li input, li .icon, li[name='addNew']")) {
+                return;
+            }
             const text: string = $input.val().trim();
             const oldVal: string = $input.data("val");
             if (!options.preventClearOnBlur && oldVal !== text) {

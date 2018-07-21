@@ -1,0 +1,162 @@
+.flexTable {
+    @border-style: solid @color-border-pinkish-grey2 1px;
+    @cell-padding: 10px;
+    @scrollbar-width: 11px;
+    @tableHeaderHeight: 40px;
+
+    .size(@height: 100%);
+
+    .row {
+        .size(@height:30px);
+        .flex-container();
+        .flex-flow(nowrap);
+        .align-items(center);
+        .font(@weight: normal);
+        border-bottom: @border-style;
+
+        // First column
+        & > .col {
+            border-left: @border-style;
+        }
+
+        // The rest columns
+        & > .col ~ .col {
+            border-left: none;
+        }
+    }
+
+    .row-header {
+        .size(@height: @tableHeaderHeight);
+        .font(@weight: 600);
+        border-top: @border-style;
+        background-color: @color-bg-white-seven;
+
+        // Scroll bar hack
+        .col-table {
+            padding-right: @cell-padding + @scrollbar-width;
+            .flex-basis(@width: 90px + @scrollbar-width);
+        }
+
+    }
+
+    .body {
+        .size(@height: ~"calc(100% - @{tableHeaderHeight})");
+        overflow-y: scroll;
+    }
+
+    .scrollbar-wrap {
+        .size(@height: auto);
+        overflow: hidden;
+    }
+
+    .col {
+        .flex(1);
+        .size(@height: 100%);
+        .flex-container();
+        .align-items(center);
+        padding-left: @cell-padding;
+        padding-right: @cell-padding;
+        border-right: @border-style;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .gen-columns(@n; @i:1) when (@i <= @n) {
+        .col-@{i} {
+            .flex(@i);
+        }
+        .gen-columns(@n; (@i + 1));
+    }
+    .gen-columns(12);
+
+    .link {
+        cursor: pointer;
+        &:hover {
+            color: @color-font-softBlue;
+        }
+    }
+
+    .sort {
+        .flex-container();
+        .justify-content(flex-end);
+        .size(@width: 100%);
+        padding-left: @cell-padding;
+    }
+
+    .col-sort {
+        cursor: pointer;
+        &:hover {
+            opacity: 0.8;
+        }
+    }
+
+    .col-status {
+        .col-1();
+        .flex-basis(@width: 110px);
+    }
+
+    .col-query {
+        .col-5();
+        .flex-basis(@width: 70px);
+    }
+
+    .col-time {
+        .col-2();
+        .flex-basis(@width: 175px);
+    }
+
+    .col-duration {
+        .col-2();
+        .flex-basis(@width: 80px);
+    }
+
+    .col-table {
+        .col-2();
+        .flex-basis(@width: 90px);
+    }
+
+    .elps-text {
+        overflow: hidden;
+        display: inline-block;
+        text-overflow: ellipsis;
+    }
+
+}
+
+.sqlQueryHist {
+    @cardHeaderHeight: 36px;
+    .size(@min-width: 650px, @height: ~"calc(100% - 5px)");
+    .cardMain {
+        padding: 0;
+        .size(@height: ~"calc(100% - @{cardHeaderHeight})");
+    }
+
+    .icon-run, .icon-done, .icon-cancel, .icon-fail, .icon-compile {
+        font-size: 13px;
+        margin-right: 9px;
+    }
+
+    .icon-run {
+        color: #ffd345;
+    }
+
+    .icon-done {
+        color: #34c187;
+    }
+
+    .icon-cancel {
+        color: #bbc7d1;
+    }
+
+    .icon-fail {
+        color: #f15840;
+    }
+
+    .icon-compile {
+        color: #6eb9db;
+    }
+
+    .text-query {
+        .font(@family: @font-code);
+    }
+}

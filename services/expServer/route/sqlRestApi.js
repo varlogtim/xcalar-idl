@@ -14,6 +14,9 @@ var router = express.Router();
 var idNum = 0;
 var sqlHelpers;
 var support = require("../expServerSupport.js");
+var KVStore;
+var SqlQueryHistory;
+var httpStatus;
 
 // Antlr4 SQL Parser
 var SqlBaseListener;
@@ -22,6 +25,9 @@ var SqlBaseLexer;
 var SqlBaseVisitor;
 var TableVisitor;
 var antlr4;
+var Admin;
+
+var sqlCompilerObjects = {};
 
 require("jsdom/lib/old-api").env("", function(err, window) {
     console.log("initting jQuery");
@@ -62,8 +68,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
                                  require("../sqlHelpers/xcHelper.js").xcHelper;
     global.xcGlobal = xcGlobal = sqlHelpers ? sqlHelpers.xcGlobal :
                                  require("../sqlHelpers/xcGlobal.js").xcGlobal;
-    global.xcConsole = xcConsole = sqlHelpers ? sqlHelpers.xcConsole :
-        require("../expServerXcConsole.js").xcConsole;
+    global.xcConsole = xcConsole = require("../expServerXcConsole.js").xcConsole;
     xcGlobal.setup();
     require("../../../assets/js/thrift/XcalarApiService.js");
     require("../../../assets/js/thrift/XcalarApiVersionSignature_types.js");
@@ -87,6 +92,12 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     require("../../../assets/lang/en/jsTStr.js");
 
     antlr4 = require('antlr4/index');
+    global.KVStore = KVStore = sqlHelpers ? sqlHelpers.KVStore :
+                               require("../sqlHelpers/kvStore.js").KVStore;
+    global.SqlQueryHistory = SqlQueryHistory = sqlHelpers ? sqlHelpers.SqlQueryHistory :
+                             require("../sqlHelpers/sqlQueryHistory.js").SqlQueryHistory;
+    global.httpStatus = httpStatus = require("../../../assets/js/httpStatus.js").httpStatus;
+
     SqlBaseListener = require("../sqlParser/SqlBaseListener.js").SqlBaseListener;
     SqlBaseParser = require("../sqlParser/SqlBaseParser.js").SqlBaseParser;
     SqlBaseLexer = require("../sqlParser/SqlBaseLexer.js").SqlBaseLexer;
@@ -103,6 +114,16 @@ function generateJDBCId(userName, wkbkName) {
 }
 
 function hackFunction() {
+    var CurrentUser = {
+        commitCheck: function() {
+            return PromiseHelper.resolve();
+        }
+    };
+
+    global.XcUser = {
+        CurrentUser: CurrentUser
+    };
+
     global.TblManager = {
         setOrphanTableMeta: function() {}
     };
@@ -154,10 +175,67 @@ function hackFunction() {
     };
 
     global.Log = Log = {
-        errorLog: function() { xcConsole.log.apply(this, arguments); }
+        errorLog: function() { xcConsole.log(arguments); }
     };
     global.DagEdit = {
         isEditMode: function() { return false; }
+    };
+    global.Admin = Admin = {
+        addNewUser: function(username) {
+            var self = this;
+            var deferred = PromiseHelper.deferred();
+            var kvStore = new KVStore("gUserListKey", gKVScope.GLOB);
+
+            kvStore.get()
+            .then(function(value) {
+                if (value == null) {
+                    xcConsole.log("Adding user to admin panel: " + username);
+                    return self.storeUsername(kvStore, username);
+                } else {
+                    var userList = self.parseStrIntoUserList(value);
+                    // usernames are case sensitive
+                    if (userList.indexOf(username) === -1) {
+                        xcConsole.log("Adding user to admin panel: " + username);
+                        return self.storeUsername(kvStore, username, true);
+                    } else {
+                        xcConsole.log("User exists in admin panel: " + username);
+                        return PromiseHelper.resolve();
+                    }
+                }
+            })
+            .then(deferred.resolve)
+            .fail(function(err) {
+                xcConsole.log(err);
+                deferred.reject(err);
+            });
+
+            return deferred.promise();
+        },
+        storeUsername: function (kvStore, username, append) {
+            var deferred = PromiseHelper.deferred();
+            var entry = JSON.stringify(username) + ",";
+            if (append) {
+                return kvStore.append(entry, true, true);
+            } else {
+                return kvStore.put(entry, true, true);
+            }
+        },
+        parseStrIntoUserList: function (value) {
+            var len = value.length;
+            if (value.charAt(len - 1) === ",") {
+                value = value.substring(0, len - 1);
+            }
+            var arrayStr = "[" + value + "]";
+            var userList;
+            try {
+                userList = JSON.parse(arrayStr);
+            } catch (err) {
+                userList = [];
+                xcConsole.log("Parsing user list failed! ", err);
+            }
+            userList.sort(xcHelper.sortVals);
+            return userList;
+        }
     };
 }
 
@@ -367,6 +445,7 @@ function connect(hostname, username, id) {
     if (valid) {
         if (getTHandle() == null) {
             setupThrift(hostname);
+            Admin.addNewUser(username);
         }
         return XcalarGetVersion();
     } else {
@@ -583,7 +662,7 @@ function getSchema(tableName, orderedColumns) {
             });
             deferred.resolve({schema: schema, renameMap: renameMap});
         } catch (e) {
-            console.error("parse error", e);
+            xcConsole.error("parse error", e);
             deferred.reject(e);
         }
     })
@@ -651,9 +730,15 @@ function getListOfPublishedTablesFromQueryViaParser(sqlStatement,
     var upperCaseListOfPubTables = listOfPubTables.map(function(v) {
         return v.toUpperCase();
     });
+    var backtickedListOfPubTables = upperCaseListOfPubTables.map(function(v) {
+        return "`" + v + "`";
+    });
     visitor.tableIdentifiers.forEach(function(identifier) {
         if (visitor.namedQueries.indexOf(identifier) === -1) {
             var idx = upperCaseListOfPubTables.indexOf(identifier);
+            if (idx === -1) {
+                idx = backtickedListOfPubTables.indexOf(identifier);
+            }
             if (idx > -1) {
                 tableIdentifiers.push(listOfPubTables[idx]);
             } else {
@@ -868,16 +953,19 @@ function selectUsedPublishedTables(queryStr, tablePrefix) {
 }
 
 function executeSqlWithExtQuery(execid, queryStr, rowsToFetch, sessionPrefix,
-                                checkTime) {
+                                checkTime, queryName) {
     var deferred = PromiseHelper.deferred();
-    if (rowsToFetch == null) {
-        rowsToFetch = 10; // default to be 10
-    }
     var finalTable;
     var orderedColumns;
     var tables;
     var allSchemas = [];
     var allPublishArgs = [];
+    var option = {
+        prefix: sessionPrefix,
+        checkTime: checkTime,
+        sqlMode: true,
+        queryString: queryStr
+    };
 
     var selectQuery = "";
     selectUsedPublishedTables(queryStr, sessionPrefix)
@@ -900,7 +988,7 @@ function executeSqlWithExtQuery(execid, queryStr, rowsToFetch, sessionPrefix,
         return sendToPlanner(undefined, queryStr);
     })
     .then(function(planStr) {
-        return setupAndCompile(planStr, sessionPrefix, checkTime)
+        return setupAndCompile(queryName, planStr, option)
     })
     .then(function(compilerObject, xcQueryString, newTableName, colNames) {
         xcConsole.log("Compilation finished");
@@ -909,7 +997,7 @@ function executeSqlWithExtQuery(execid, queryStr, rowsToFetch, sessionPrefix,
         var xcQueryWithSelect = JSON.stringify(selectQuery.concat(
             JSON.parse(xcQueryString)));
         return compilerObject.execute(xcQueryWithSelect, newTableName, colNames,
-            queryStr, undefined, checkTime);
+            queryStr, undefined, option);
     })
     .then(function() {
         xcConsole.log("Execution finished!");
@@ -917,27 +1005,39 @@ function executeSqlWithExtQuery(execid, queryStr, rowsToFetch, sessionPrefix,
             sessionPrefix, execid);
     })
     .then(deferred.resolve)
-    .fail(deferred.reject);
+    .fail(function(err) {
+        var retObj = {error: err};
+        if (err === SQLErrTStr.Cancel) {
+            retObj.isCancelled = true;
+        }
+        deferred.reject(retObj);
+    });
 
     return deferred.promise();
 };
 
 function executeSqlWithExtPlan(execid, planStr, rowsToFetch, sessionPrefix,
-                            checkTime) {
+                            checkTime, queryName) {
     var deferred = PromiseHelper.deferred();
     if (rowsToFetch == null) {
         rowsToFetch = 10; // default to be 10
     }
     var finalTable;
     var orderedColumns;
+    var option = {
+        prefix: sessionPrefix,
+        checkTime: checkTime,
+        sqlMode: true,
+        queryString: ""
+    };
 
-    setupAndCompile(planStr, sessionPrefix, checkTime)
+    setupAndCompile(queryName, planStr, option)
     .then(function(compilerObject, xcQueryString, newTableName, colNames) {
         xcConsole.log("Compilation finished!");
         finalTable = newTableName;
         orderedColumns = colNames;
         return compilerObject.execute(xcQueryString, finalTable, orderedColumns,
-            "", undefined, checkTime);
+            "", undefined, option);
     })
     .then(function() {
         xcConsole.log("Execution finished!");
@@ -945,7 +1045,13 @@ function executeSqlWithExtPlan(execid, planStr, rowsToFetch, sessionPrefix,
             sessionPrefix);
     })
     .then(deferred.resolve)
-    .fail(deferred.reject);
+    .fail(function(err) {
+        var retObj = {error: err};
+        if (err === SQLErrTStr.Cancel) {
+            retObj.isCancelled = true;
+        }
+        deferred.reject(retObj);
+    });
     
     return deferred.promise();
 };
@@ -955,17 +1061,22 @@ function executeSqlWithQueryInteractive(userIdName, userIdUnique, wkbkName,
     var deferred = PromiseHelper.deferred();
     var finalTable;
     var orderedColumns;
+    var option = {
+        prefix: queryTablePrefix,
+        checkTime: checkTime,
+        sqlMode: true,
+        queryString: queryString
+    };
     getSqlPlan(userIdName, wkbkName, queryString)
     .then(function(planStr) {
-        return setupAndCompile(planStr, queryTablePrefix, undefined, userIdName,
-            userIdUnique);
+        return setupAndCompile(undefined, planStr, option, userIdName, userIdUnique);
     })
     .then(function(compilerObject, xcQueryString, newTableName, colNames) {
         xcConsole.log("Compilation finished!");
         finalTable = newTableName;
         orderedColumns = colNames;
         return compilerObject.execute(xcQueryString, finalTable, orderedColumns,
-            queryString);
+            queryString, undefined, option);
     })
     .then(function() {
         xcConsole.log("Execution finished!");
@@ -979,8 +1090,7 @@ function executeSqlWithQueryInteractive(userIdName, userIdUnique, wkbkName,
     return deferred.promise();
 };
 
-function setupAndCompile(plan, sessionPrefix, checkTime, userIdName,
-                         userIdUnique, wkbkName) {
+function setupAndCompile(queryName, plan, option, userIdName, userIdUnique, wkbkName) {
     var deferred = jQuery.Deferred();
     var compilerObject;
     connect("localhost", userIdName, userIdUnique)
@@ -989,14 +1099,11 @@ function setupAndCompile(plan, sessionPrefix, checkTime, userIdName,
         return goToSqlWkbk(wkbkName);
     })
     .then(function() {
-        xcConsole.log(sessionPrefix, " started compiling.");
-        var option = {
-            prefix: sessionPrefix,
-            jdbcCheckTime: checkTime,
-            sqlMode: true
-        };
+        xcConsole.log(option.prefix, " started compiling.");
         compilerObject = new SQLCompiler();
-        return compilerObject.compile(undefined, plan, true, option);
+        var name = queryName || xcHelper.randName("sql");
+        sqlCompilerObjects[name] = compilerObject;
+        return compilerObject.compile(name, plan, true, option);
     })
     .then(function(xcQueryString, newTableName, colNames, toCache) {
         // TODO integrate toCache in the future
@@ -1164,6 +1271,7 @@ router.post("/xcsql/query", [support.checkAuth], function(req, res) {
 router.post("/xcsql/queryWithPublishedTables", [support.checkAuth],
     function(req, res) {
     var execid = req.body.execid;
+    var queryName = req.body.queryName;
     var queryString = req.body.queryString;
     var limit = req.body.limit;
     var sessionPrefix = req.body.sessionId;
@@ -1171,7 +1279,7 @@ router.post("/xcsql/queryWithPublishedTables", [support.checkAuth],
     var checkTime = parseInt(req.body.checkTime);
     checkTime = isNaN(checkTime) ? undefined : checkTime;
     sessionPrefix = "sql" + sessionPrefix.replace(/-/g, "") + "_";
-    executeSqlWithExtQuery(execid, queryString, limit, sessionPrefix, checkTime)
+    executeSqlWithExtQuery(execid, queryString, limit, sessionPrefix, checkTime, queryName)
     .then(function(output) {
         xcConsole.log("sql query finishes");
         res.send(output);
@@ -1184,13 +1292,14 @@ router.post("/xcsql/queryWithPublishedTables", [support.checkAuth],
 
 router.post("/xdh/query", [support.checkAuth], function(req, res) {
     var execid = req.body.execid;
+    var queryName = req.body.queryName;
     var plan = req.body.plan;
     var limit = req.body.limit;
     var sessionPrefix = req.body.sessionId;
     var checkTime = parseInt(req.body.checkTime);
     checkTime = isNaN(checkTime) ? undefined : checkTime;
     sessionPrefix = "sql" + sessionPrefix.replace(/-/g, "") + "_";
-    executeSqlWithExtPlan(execid, plan, limit, sessionPrefix, checkTime)
+    executeSqlWithExtPlan(execid, plan, limit, sessionPrefix, checkTime, queryName)
     .then(function (output) {
         xcConsole.log("sql query finishes");
         res.send(output);
@@ -1221,6 +1330,28 @@ router.post("/xcsql/list", [support.checkAuth], function(req, res) {
     .fail(function(error) {
         xcConsole.log("get published tables error: ", error);
         res.status(500).send(error);
+    });
+});
+
+function cancelQuery(queryName) {
+    var compilerObject = sqlCompilerObjects[queryName];
+    if (compilerObject) {
+        return compilerObject.setStatus(SQLStatus.Cancelled);
+    } else {
+        return PromiseHelper.reject({error: "Query doesn't exist"});
+    }
+}
+
+router.post("/xcsql/cancel", [support.checkAuth], function(req, res) {
+    var queryName = req.body.queryName;
+    cancelQuery(queryName)
+    .then(function() {
+        xcConsole.log("query cancelled");
+        res.send({log: "query cancel issued: " + queryName});
+    })
+    .fail(function(error) {
+        xcConsole.log("cancel query error: ", error);
+        res.send(error);
     });
 });
 

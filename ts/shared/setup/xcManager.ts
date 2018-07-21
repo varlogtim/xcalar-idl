@@ -106,6 +106,7 @@ namespace xcManager {
             DataflowPanel.initialize(); // async if has df
             setupDagList();
             setupDagTabManager();
+            SqlQueryHistoryPanel.Card.getInstance().setup();
             if (typeof SQLEditor !== "undefined") {
                 SQLEditor.initialize();
             }

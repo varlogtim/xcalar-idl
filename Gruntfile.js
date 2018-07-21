@@ -1377,7 +1377,9 @@ module.exports = function(grunt) {
                       BLDROOT + "services/expServer/sqlHelpers/transaction.js",
                       BLDROOT + "services/expServer/sqlHelpers/xcGlobal.js",
                       BLDROOT + "services/expServer/sqlHelpers/xcHelper.js",
-                      BLDROOT + "services/expServer/sqlHelpers/xiApi.js"],
+                      BLDROOT + "services/expServer/sqlHelpers/xiApi.js",
+                      BLDROOT + "services/expServer/sqlHelpers/sqlQueryHistory.js",
+                      BLDROOT + "services/expServer/sqlHelpers/kvStore.js"],
                 dest: BLDROOT + "services/expServer/sqlHelpers/sqlHelpers.js",
                 options: {
                     compress: {
@@ -2558,7 +2560,9 @@ module.exports = function(grunt) {
             "shared/helperClasses/transaction.ts",
             "shared/api/xiApi.ts",
             "components/sql/sqlApi.js",
-            "components/sql/sqlCompiler.js"];
+            "components/sql/sqlCompiler.js",
+            "components/sql/sqlQueryHistory.ts",
+            "shared/helperClasses/kvStore.ts"];
         var expServerJSDestDir = "services/expServer/sqlHelpers";
         var EXTRA_TS_WATCH_STAGING = BLDROOT + EXTRA_TS_FOLDER_NAME;
         if (grunt.file.exists(EXTRA_TS_WATCH_STAGING)) {

@@ -509,9 +509,13 @@ SQLErrTStr = {
     "InvalidXcalarQuery": "Invalid Xcalar Query String",
     "InvalidPageInfo": "Invalid Xcalar result set page",
     "InvalidSQLTable": "Invalid SQL table from KvStore",
+    "InvalidSQLQuery": "Invalid SQL queries from KvStore",
+    "InvalidEditorMeta": "Invalid SQL editor meta info from KvStore",
     "FinalizingFailed": "Finalizing failed",
     "FailToConnectPlanner": "Failed to connect to SQL Planner",
-    "InvalidColTypeForFinalize": "Column with unsupported type found: "
+    "InvalidColTypeForFinalize": "Column with unsupported type found: ",
+    "EditorNameExists": "Editor name already exists.",
+    "NoEditor": "Could not find the editor"
 };
 
 SQLInfoTStr = {
@@ -672,7 +676,9 @@ AlertTStr = {
     "SendSchemaDateDetectedTitle": "Date column detected",
     "SendSchemaDateDetectedMsg": "Do you want to send schema of column(s) below as date type?",
     "UnsupportedBrowser": "Unsupported Browser",
-    "BrowserVersions": "You are running an unsupported browser. Please use one of the following browsers:<br>Chrome (version 65+)<br>Firefox (version 59+)<br>Safari (version 11.1+)"
+    "BrowserVersions": "You are running an unsupported browser. Please use one of the following browsers:<br>Chrome (version 65+)<br>Firefox (version 59+)<br>Safari (version 11.1+)",
+    "queryHistorySQLErrorTitle": "SQL Error",
+    "queryHistoryReadErrorTitle": "Read query history failed",
 };
 
 ErrorMessageTStr = {
@@ -925,6 +931,7 @@ MonitorTStr = {
     'RestartNodes': 'Restart Cluster',
     'SavingSettingsFailed': 'Saving Settings Failed',
     'Settings': 'Settings',
+    'SQLPanelTitle': 'SQL',
     'Setup': 'Administration',
     'StartNodeFailed': 'Start cluster failed',
     'StartNodes': 'Start Cluster',
@@ -1499,7 +1506,15 @@ SQLTStr = {
     "RemoveOperations": "Remove Operations",
     "AddOperation": "Add Operation",
     "CopyOperations": "Copy Operations",
-    "MoveOperations": "Move Operations"
+    "MoveOperations": "Move Operations",
+    "queryHistStatusRun": "Running",
+    "queryHistStatusDone": "Done",
+    "queryHistStatusFail": "Failed",
+    "queryHistStatusCancel": "Cancel",
+    "queryHistStatusCompile": "Compiling",
+    "queryHistStatusNone": "Unknown",
+    "queryFailMessage": "The SQL query failed for",
+    "EnterEditorName": "Enter editor name"
 };
 
 LoginConfigTStr = {

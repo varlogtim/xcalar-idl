@@ -151,6 +151,20 @@
         <h2>SQL</h2>
       </header>
       <div class="menuContent">
+        <div class="topSection">
+          <div id="sqlEditorsList" class="dropDownList">
+            <input class="text" spellcheck="false" placeholder="<%= dicts.SQL.SelectTemplate %>" data-toggle="tooltip" data-container="body" data-placement="top">
+            <div class="iconWrapper">
+              <i class="icon xi-arrow-down"></i>
+            </div>
+            <div id="sqlEditorMenu" class="list">
+              <ul>
+                <li name="addNew"><i class="icon xi-plus"></i><%= dicts.SQL.AddNew %></li>
+              </ul>
+              include "../../util/menuScrollArea.html"
+            </div>
+          </div>
+        </div>
         <div class="editSection">
           <div class="editArea">
             <textarea id="sqlEditor"></textarea>

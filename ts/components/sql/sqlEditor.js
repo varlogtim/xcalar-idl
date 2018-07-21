@@ -6,9 +6,10 @@ window.SQLEditor = (function(SQLEditor, $) {
     var $searchColumn = $("#sqlColumnSearch");
     var $sqlTableList = $("#sqlTableList");
     var $sqlColumnList = $("#sqlColumnList");
+    var $sqlEditorDropdown = $("#sqlEditorsList");
     var sqlTables = {};
-    var sqlKvStore;
-    var sqlQueryKvStore;
+    var sqlTableKvStore;
+    var editorQueryKvStore;
     var sqlComs = [];
     var keywordsToRemove = ["alter", "begin", "create", "delete", "drop",
                             "insert", "into", "set", "table", "update", "values"];
@@ -16,10 +17,16 @@ window.SQLEditor = (function(SQLEditor, $) {
                          "left", "right", "outer", "natural", "semi", "anti",
                          "rollup", "cube", "grouping", "sets", "limit", "sum",
                          "avg", "max", "min"];
+    var defaultEditor = "Default Editor";
+    var allEditors = {};
+    var curEditor = defaultEditor;
+    var dropdownHint;
 
     SQLEditor.setup = function() {
         setupEditor();
+        setupEditorsList();
         addEventListeners();
+        addDropdownEventListeners();
     };
 
     SQLEditor.getEditor = function() {
@@ -32,15 +39,17 @@ window.SQLEditor = (function(SQLEditor, $) {
 
     SQLEditor.initialize = function() {
         var tablesKey = KVStore.getKey("gSQLTables");
-        var queryKey = KVStore.getKey("gSQLQuery");
-        sqlKvStore = new KVStore(tablesKey, gKVScope.WKBK);
-        sqlQueryKvStore = new KVStore(queryKey, gKVScope.WKBK);
+        var editorQueryKey = KVStore.getKey("gSQLEditorQuery");
+        var editorKey = KVStore.getKey("gSQLEditor");
+        sqlTableKvStore = new KVStore(tablesKey, gKVScope.WKBK);
+        editorQueryKvStore = new KVStore(editorQueryKey, gKVScope.WKBK);
+        sqlEditorKvStore = new KVStore(editorKey, gKVScope.WKBK);
         setupSchemas();
         restoreSQLQuery();
     }
 
     function setupSchemas() {
-        sqlKvStore.get()
+        sqlTableKvStore.get()
         .then(function(ret) {
             try {
                 sqlTables = ret ? JSON.parse(ret) : {};
@@ -56,19 +65,73 @@ window.SQLEditor = (function(SQLEditor, $) {
     }
 
     function restoreSQLQuery() {
-        sqlQueryKvStore.get()
+        editorQueryKvStore.get()
         .then(function(ret) {
-            if (ret) {
-                editor.setValue(ret);
+            try {
+                if (ret) {
+                    allEditors = JSON.parse(ret);
+                }
+            } catch (e) {
+                Alert.show({
+                    title: "SQLEditor Error",
+                    msg: SQLErrTStr.InvalidSQLQuery,
+                    isAlert: true
+                });
             }
+            return sqlEditorKvStore.get();
+        })
+        .then(function(ret) {
+            var lastEditor = defaultEditor;
+            var editorsOrder = [];
+            try {
+                if (ret) {
+                    var editorMeta = JSON.parse(ret);
+                    lastEditor = editorMeta.lastEditor;
+                    editorsOrder = editorMeta.editorsOrder;
+                }
+            } catch(e) {
+                Alert.show({
+                    title: "SQLEditor Error",
+                    msg: SQLErrTStr.InvalidEditorMeta,
+                    isAlert: true
+                });
+            }
+
+            if (allEditors.hasOwnProperty(lastEditor)) {
+                curEditor = lastEditor;
+            } else {
+                addDefaultEditorIfNotExist();
+            }
+            loadEditors(editorsOrder, curEditor);
+            selectEditorByName(curEditor);
+        })
+        .fail(function() {
+            addDefaultEditorIfNotExist();
+            selectEditorByName(defaultEditor);
         });
     }
 
     SQLEditor.storeQuery = function() {
-        if (!sqlQueryKvStore) {
+        if (!editorQueryKvStore || !sqlEditorKvStore) {
             return PromiseHelper.resolve();
         }
-        return sqlQueryKvStore.put(editor.getValue(), true);
+        allEditors[curEditor] = editor.getValue();
+        return editorQueryKvStore.put(JSON.stringify(allEditors), true);
+    }
+    function updateEditorKVStore() {
+        var deferred = PromiseHelper.deferred();
+        editorQueryKvStore.put(JSON.stringify(allEditors), true)
+        .then(function() {
+            var editorsOrder = [];
+            $sqlEditorDropdown.find("li[data-name]").each(function() {
+                editorsOrder.push($(this).attr("data-name"));
+            });
+            var editorMeta = {lastEditor: curEditor, editorsOrder: editorsOrder};
+            return sqlEditorKvStore.put(JSON.stringify(editorMeta), true);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     // SQLEditor.setCurId = function(txId) {
@@ -77,7 +140,7 @@ window.SQLEditor = (function(SQLEditor, $) {
 
     SQLEditor.fakeCompile = function(numSteps) {
         var deferred = PromiseHelper.deferred();
-        $sqlButton.addClass("btn-disabled");
+        SQLEditor.lockProgress();
         $sqlButton.find(".text").html("Compiling... 0/" + numSteps);
 
         var numMilSeconds = 1500;
@@ -108,7 +171,7 @@ window.SQLEditor = (function(SQLEditor, $) {
     };
 
     SQLEditor.startCompile = function(numSteps) {
-        $sqlButton.addClass("btn-disabled");
+        SQLEditor.lockProgress();
         $sqlButton.find(".text").html("Compiling... 0/" + numSteps);
     };
 
@@ -128,7 +191,13 @@ window.SQLEditor = (function(SQLEditor, $) {
     SQLEditor.resetProgress = function() {
         $sqlButton.removeClass("btn-disabled");
         $sqlButton.find(".text").html("EXECUTE SQL"); // XXX Change to variable
+        $sqlEditorDropdown.removeClass("xc-disabled");
     };
+
+    SQLEditor.lockProgress = function() {
+        $sqlButton.addClass("btn-disabled");
+        $sqlEditorDropdown.addClass("xc-disabled");
+    }
 
     SQLEditor.updateSchema = function(struct, tableId) {
         // Update KVStore & UI table list
@@ -272,15 +341,13 @@ window.SQLEditor = (function(SQLEditor, $) {
 
     function executeTrigger(cm) {
         // TODO: execute selection
-        SQLEditor.executeSQL();
+        $("#sqlExecute").click();
     }
 
     function cancelExec(cm) {
         console.error("SQL cancel triggered!");
         sqlComs.forEach(function(sqlCom) {
-            if (sqlCom.getStatus() > 0) {
-                sqlCom.setStatus(-2);
-            }
+            sqlCom.setStatus(SQLStatus.Cancelled);
         })
     }
 
@@ -448,7 +515,20 @@ window.SQLEditor = (function(SQLEditor, $) {
     function addEventListeners() {
         var timer;
         $("#sqlExecute").click(function() {
-            SQLEditor.executeSQL();
+            var promiseArray = [];
+            var sql = editor.getSelection();
+            if (sql === "") {
+                sql = editor.getValue();
+            }
+            var allQueries = sql.split(";");
+            for (var query of allQueries) {
+                query = query.trim();
+                if (query !== "") {
+                    var promise = SQLEditor.executeSQL(query);
+                    promiseArray.push(promise);
+                }
+            }
+            PromiseHelper.when.apply(window, promiseArray);
         });
         $searchTable.on("input", "input", function(event) {
             event.stopPropagation();
@@ -558,6 +638,221 @@ window.SQLEditor = (function(SQLEditor, $) {
         });
     }
 
+    function toggleEditAndDeleteIcons($self) {
+        $sqlEditorDropdown.find("li[data-name]").each(function() {
+            var $li = $(this);
+            if (!$li.is($self)) {
+                if ($li.find(".icon").hasClass("xc-disabled")) {
+                    $li.find(".icon").removeClass("xc-disabled");
+                } else {
+                    $li.find(".icon").addClass("xc-disabled");
+                }
+            }
+        });
+    };
+
+    function addDropdownEventListeners() {
+        $sqlEditorDropdown.on("mouseup", ".xi-edit", function(event) {
+            event.stopPropagation();
+            var $li = $(this).closest("li");
+            var editorName = $li.text();
+            var html = '<input class="text" spellcheck="false" ' +
+                       'placeholder="' + SQLTStr.EnterEditorName + '" data-toggle="tooltip" ' +
+                       'data-container="body" data-placement="top">' +
+                       '<i class="icon xi-edit"></i>' +
+                       '<i class="icon xi-trash"></i>';
+            $li.html(html);
+            var $input = $li.find("input");
+            $input.trigger("focus");
+            $input.val(editorName);
+            toggleEditAndDeleteIcons($li);
+        });
+        $sqlEditorDropdown.on("mouseup", ".xi-trash", function(event) {
+            event.stopPropagation();
+            var $li = $(this).closest("li");
+            deleteEditor($li);
+        });
+        $sqlEditorDropdown.on("mouseenter", ".xi-edit, .xi-trash", function(event) {
+            $(this).addClass("hover");
+        });
+        $sqlEditorDropdown.on("mouseleave", ".xi-edit, .xi-trash", function(event) {
+            $(this).removeClass("hover");
+        });
+        $sqlEditorDropdown.on({
+            "blur": function() {
+                var $li = $(this).closest("li");
+                var editorName = $li.attr("data-name");
+                if (!editorName) {
+                    // new editor must be given a name, otherwise remove it
+                    $li.remove();
+                }
+                var html = editorName + '<i class="icon xi-edit"></i><i class="icon xi-trash"></i>';
+                $li.html(html);
+                toggleEditAndDeleteIcons($li);
+            },
+            "keyup": function(e) {
+                var $li = $(this).closest("li");
+                var keyCode = e.which;
+                if (keyCode === 13) {
+                    updateEditor($li);
+                }
+            },
+            "mouseup": function(event) {
+                event.stopPropagation();
+            }
+        }, "li input");
+    }
+
+    function loadEditors(editorsOrder, curEditor) {
+        // allEditors
+        // only populate dropdown
+        var $ul = $sqlEditorDropdown.find("ul");
+        for (var editorName of editorsOrder) {
+            var html = '<li data-name="' + editorName + '">' + editorName +
+                       '<i class="icon xi-edit"></i>' +
+                       '<i class="icon xi-trash"></i></li>';
+            $(html).appendTo($ul);
+        }
+        editor.setValue(allEditors[curEditor]);
+    }
+
+    function updateEditor($li) {
+        var newName = $li.find("input").val();
+        var oldName = $li.attr("data-name");
+        if (oldName !== newName && allEditors.hasOwnProperty(newName)) {
+            // handle collision
+            StatusBox.show(SQLErrTStr.EditorNameExists, $li.find("input"));
+            return;
+        }
+
+        var html = newName + '<i class="icon xi-edit"></i><i class="icon xi-trash"></i>';
+        $li.attr("data-name", newName);
+        $li.html(html);
+
+        if (!oldName) {
+            // adding new editor
+            $li.removeClass("addNew");
+            allEditors[newName] = "";
+            selectEditor($li);
+        } else if (oldName === newName) {
+            return;
+        } else {
+            // updating old editor
+            allEditors[newName] = allEditors[oldName];
+
+            delete allEditors[oldName];
+            if (oldName === curEditor) {
+                var $editorListInput = $sqlEditorDropdown.find("input").eq(0);
+                dropdownHint.setInput(newName);
+                xcTooltip.changeText($editorListInput, newName);
+            }
+            curEditor = newName;
+            updateEditorKVStore();
+        }
+    }
+
+    function addEditor() {
+        var $ul = $sqlEditorDropdown.find("ul");
+        var html = '<li class="addNew"><input class="text" spellcheck="false" '+
+                       'placeholder="' + SQLTStr.EnterEditorName + '" data-toggle="tooltip" ' +
+                       'data-container="body" data-placement="top">' +
+                       '<i class="icon xi-trash"></i></li>';
+        var $li = $(html);
+        $li.insertAfter($ul.find("li[name='addNew']"));
+        toggleEditAndDeleteIcons($li);
+        return $li;
+    }
+
+    function addDefaultEditorIfNotExist() {
+        var $ul = $sqlEditorDropdown.find("ul");
+
+        if ($ul.find("li[data-name='" + defaultEditor + "']").length !== 0) {
+            return;
+        }
+        var html = '<li data-name="' + defaultEditor + '">' + defaultEditor +
+                       '<i class="icon xi-edit"></i>' +
+                       '<i class="icon xi-trash"></i></li>';
+        $(html).insertAfter($ul.find("li[name='addNew']"));
+        allEditors[defaultEditor] = "";
+    }
+
+    function deleteEditor($li) {
+        var editorName = $li.text();
+        delete allEditors[editorName];
+        $li.remove();
+        if ($sqlEditorDropdown.find("li").not("[name='addNew']").length === 0) {
+            // add default editor
+            addDefaultEditorIfNotExist();
+            selectEditorByName(defaultEditor);
+        } else if (curEditor === editorName) {
+            var selectName = $li.next().attr("data-name") ||
+                           $li.prev().attr("data-name") || defaultEditor;
+            selectEditorByName(selectName);
+        } else {
+            updateEditorKVStore();
+        }
+    }
+
+    function selectEditor($li) {
+        if ($li.attr("name") === "addNew") {
+            var $li = addEditor();
+            $li.find("input").trigger("focus");
+        }
+        if(!$li.attr("data-name") || $li.find("input").length > 0) {
+            return true;
+        }
+        $li.parent().find("li").removeClass("selected");
+        $li.addClass("selected");
+
+        var $editorListInput = $sqlEditorDropdown.find("input").eq(0);
+        var editorName = $li.text();
+
+        StatusBox.forceHide();
+        dropdownHint.setInput(editorName);
+
+        xcTooltip.changeText($editorListInput, editorName);
+
+        if (allEditors.hasOwnProperty(curEditor)) {
+            allEditors[curEditor] = editor.getValue();
+        }
+        curEditor = editorName;
+
+        if (!allEditors.hasOwnProperty(editorName)) {
+            selectEditorByName(defaultEditor);
+        } else {
+            editor.setValue(allEditors[editorName]);
+            updateEditorKVStore();
+            // XXX Should set focus to code mirror
+        }
+    }
+
+    function setupEditorsList() {
+        var menuHelper = new MenuHelper($sqlEditorDropdown, {
+            "onSelect": selectEditor,
+            "container": "#sqlSection",
+            "bounds": "#sqlSection",
+            "bottomPadding": 2
+        });
+
+        dropdownHint = new InputDropdownHint($sqlEditorDropdown, {
+            "menuHelper": menuHelper,
+            "onEnter": selectEditorByName
+        });
+    }
+
+    function selectEditorByName(editorName) {
+        var $li = $("#sqlEditorMenu").find("li").filter(function() {
+            return $(this).text() === editorName;
+        });
+        if ($li.length === 0) {
+            StatusBox.show(SQLErrTStr.NoEditor, $sqlEditorDropdown);
+            return true;
+        } else {
+            selectEditor($li);
+            return false;
+        }
+    }
+
     function focusOnTableColumn($listCol, tableId) {
         var colNum = $listCol.index();
         var tableCols = gTables[tableId].getAllCols();
@@ -583,7 +878,7 @@ window.SQLEditor = (function(SQLEditor, $) {
         var newHeight;
         if ($icon.hasClass("xi-arrow-down")) {
             // Minimize
-            newHeight = contentHeight - 80;
+            newHeight = contentHeight - 140;
             $sqlSection.find(".CodeMirror-gutters")
                        .height(newHeight);
             $editorSection.animate({height: newHeight},
@@ -593,7 +888,7 @@ window.SQLEditor = (function(SQLEditor, $) {
                                    });
         } else {
             // Maximize
-            newHeight = contentHeight * 0.55 - 60;
+            newHeight = contentHeight * 0.55 - 120;
             $editorSection.animate({height: newHeight},
                                    200,
                                    function() {
@@ -622,7 +917,7 @@ window.SQLEditor = (function(SQLEditor, $) {
         PromiseHelper.when.apply(window, promiseArray)
         // updatePlanServer(allSchemas)
         .then(function() {
-            return SQLEditor.executeSQL(query);
+            return SQLEditor.executeSQL(query, true);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -804,14 +1099,14 @@ window.SQLEditor = (function(SQLEditor, $) {
     }
 
     function updateKVStore(value, persist) {
-        return sqlKvStore.put(value, persist);
+        return sqlTableKvStore.put(value, persist);
     }
 
     SQLEditor.getPrevQueries = function() {
         return sqlComs;
     }
 
-    SQLEditor.executeSQL = function(query) {
+    SQLEditor.executeSQL = function(query, retry) {
         var deferred = PromiseHelper.deferred();
         var sql = query || editor.getSelection().replace(/;+$/, "") ||
                            editor.getValue().replace(/;+$/, "");
@@ -820,79 +1115,44 @@ window.SQLEditor = (function(SQLEditor, $) {
         sqlComs.push(sqlCom);
         var republish = false;
         try {
-            $("#sqlExecute").addClass("btn-disabled");
-            if (sqlCom.getStatus === -2) {
-                return PromiseHelper.reject();
-            }
-            sqlCom.setStatus(2);
+            SQLEditor.lockProgress();
             sqlCom.compile(queryName, sql)
             .then(function(queryString, newTableName, cols, cacheStruct) {
                 return sqlCom.execute(queryString, newTableName, cols, sql,
-                    cacheStruct);
+                                      cacheStruct);
             })
-            .done(function() {
-                sqlCom.setStatus(0);
+            .then(function() {
                 deferred.resolve();
             })
-            .fail(function() {
-                if (sqlCom.getStatus() > 0) {
-                    sqlCom.setStatus(-1);
-                }
-                var errorMsg = "";
-                var table;
-                if (arguments.length === 1) {
-                    if (typeof(arguments[0]) === "string") {
-                        errorMsg = arguments[0];
-                        if (errorMsg.indexOf("exceptionMsg") > -1 &&
-                            errorMsg.indexOf("exceptionName") > -1) {
-                            var errorObj = JSON.parse(errorMsg);
-                            errorMsg = errorObj.exceptionName.substring(
-                                       errorObj.exceptionName
-                                                 .lastIndexOf(".") + 1) + "\n" +
-                                       errorObj.exceptionMsg;
-                        }
-                    } else {
-                        var errorObj = arguments[0];
-                        // XXX Error parsing is bad. Needs to be fixed
-                        if (errorObj && errorObj.responseJSON) {
-                            var exceptionMsg = errorObj.responseJSON
-                                                       .exceptionMsg;
-                            if (exceptionMsg.indexOf(SQLErrTStr.NoKey) > -1 &&
-                                Object.keys(sqlTables).length > 0) {
-                                republish = true;
-                            } else {
-                                var errorIdx = exceptionMsg.indexOf(
-                                                            SQLErrTStr.NoTable);
-                                if (errorIdx > -1) {
-                                    table = exceptionMsg.substring(
-                                              exceptionMsg.lastIndexOf(":") + 1,
-                                              exceptionMsg.lastIndexOf(";"))
-                                              .trim().toUpperCase();
-                                    if (sqlTables.hasOwnProperty(table)) {
-                                        republish = true;
-                                    }
-                                }
-                            }
-                            errorMsg = exceptionMsg;
-                        } else if (errorObj && errorObj.status === 0) {
-                            errorMsg = SQLErrTStr.FailToConnectPlanner;
+            .fail(function(errorMsg) {
+                if (errorMsg.indexOf(SQLErrTStr.NoKey) > -1 &&
+                    Object.keys(sqlTables).length > 0) {
+                    republish = true;
+                } else {
+                    var errorIdx = errorMsg.indexOf(
+                                                SQLErrTStr.NoTable);
+                    if (errorIdx > -1) {
+                        var table = errorMsg.substring(
+                                  errorMsg.lastIndexOf(":") + 1,
+                                  errorMsg.lastIndexOf(";"))
+                                  .trim().toUpperCase();
+                        if (sqlTables.hasOwnProperty(table)) {
+                            republish = true;
                         }
                     }
-                } else {
-                    errorMsg = JSON.stringify(arguments);
                 }
-                if (!query && republish) {
+                if (!retry && republish) {
                     // Try to republish
                     republishSchemas(sql);
                 } else if (errorMsg.indexOf(SQLErrTStr.Cancel) === -1) {
-                        Alert.show({
-                            title: SQLErrTStr.Err,
-                            msg: errorMsg,
-                            isAlert: true,
-                            align: "left",
-                            preSpace: true,
-                            sizeToText: true
-                        });
+                    Alert.show({
+                        title: SQLErrTStr.Err,
+                        msg: errorMsg,
+                        isAlert: true,
+                        align: "left",
+                        preSpace: true,
+                        sizeToText: true
+                    });
                 }
                 deferred.reject();
             })
@@ -906,7 +1166,9 @@ window.SQLEditor = (function(SQLEditor, $) {
         } catch (e) {
             // XXX need to change this line once we decide the new sql status panel design
             sqlComs.splice(sqlComs.indexOf(sqlCom, 1));
-            sqlCom.setStatus(-1);
+            sqlCom.setStatus(SQLStatus.Failed);
+            sqlCom.setError(e.message || JSON.stringify(e));
+            sqlCom.updateQueryHistory();
             SQLEditor.resetProgress();
             Alert.show({
                 title: "Compilation Error",
@@ -925,6 +1187,32 @@ window.SQLEditor = (function(SQLEditor, $) {
             isAlert: true
         });
     }
+
+    // function updateSQLQuery(sqlQuery) {
+    //     var deferred = PromiseHelper.deferred();
+    //     var queryId = sqlQuery.queryId;
+    //     var queryKey = KVStore.getKey("gSQLQuery");
+
+    //     sqlQueryKvStore = new KVStore(queryKey, gKVScope.WKBK);
+    //     sqlQueryKvStore.get()
+    //     .then(function(ret) {
+    //         var allQueries;
+    //         try {
+    //             allQueries = JSON.parse(ret);
+    //         } catch (e) {
+    //             Alert.show({
+    //                 title: "SQLEditor Error",
+    //                 msg: SQLErrTStr.InvliadSQLQuery,
+    //                 isAlert: true
+    //             });
+    //         }
+    //         SqlQueryHistory.Card.getInstance().show(allQueries);
+    //         deferred.resolve();
+    //     })
+    //     .fail(deferred.reject);
+    //     return deferred.promise();
+    // }
+
 
     /* Unit Test Only */
     if (window.unitTestMode) {

@@ -894,9 +894,11 @@ namespace WorkbookManager {
         const gAuthKey: string = generateKey("authentication", version);
         const gIMDKey: string = generateKey("gIMDKey", version);
         const gSQLTablesKey: string = generateKey("gSQLTables", version);
-        const gSQLQueryKey: string = generateKey("SQLQuery", version);
         const gDagManagerKey: string = generateKey("gDagManagerKey", version);
         const gDagListKey: string = generateKey("gDagListKey", version);
+        const gSQLQueryKey: string = generateKey("gSQLQuery", version);
+        const gSQLEditorKey: string = generateKey("gSQLEditor", version);
+        const gSQLEditorQuery: string = generateKey("gSQLEditorQuery", version);
 
         return {
             "gStorageKey": gStorageKey,
@@ -909,7 +911,9 @@ namespace WorkbookManager {
             "gSQLTables": gSQLTablesKey,
             "gSQLQuery": gSQLQueryKey,
             "gDagManagerKey": gDagManagerKey,
-            "gDagListKey": gDagListKey
+            "gDagListKey": gDagListKey,
+            "gSQLEditor": gSQLEditorKey,
+            "gSQLEditorQuery": gSQLEditorQuery
         };
     }
 

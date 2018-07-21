@@ -418,7 +418,19 @@ module.exports = {
         "EXECUTE": "EXECUTE SQL",
         "Schema": "Tables and Schemas available to SQL",
         "SchemaInst": "Select and click a table to view columns.",
-        "ColumnInst": "Select and click a table in order to view and select columns."
+        "ColumnInst": "Select and click a table in order to view and select columns.",
+        "AddNew": "Add New",
+        "DefaultEditor": "Default Editor",
+        "SelectTemplate": "Select Editor",
+        "queryHistMenuTitle": "SQL",
+        "queryHistCardTitle": "Query History",
+        "queryHistColStatus": "Status",
+        "queryHistColQuery": "Query",
+        "queryHistColStartTime": "Start Time",
+        "queryHistColDuration": "Duration",
+        "queryHistColTable": "View Results",
+        "queryHistMenuInstr": "You can review your SQL queries in the Query History table to the right.",
+        "queryHistSQLModalTitle": "SQL Query",
     },
 
     "bottomMenu": {
@@ -545,6 +557,7 @@ module.exports = {
         "SelectTicket": "Select Ticket ID",
         "SETTINGS": "SETTINGS",
         "Settings": "Settings",
+        "QueryHistory": "SQL Query History",
         "SettingsInstr": "You can customize your environment using the options to the right. Any changes made will be applied across all workbooks.",
         "SETUP": "ADMINISTRATION",
         "Setup": "Administration",

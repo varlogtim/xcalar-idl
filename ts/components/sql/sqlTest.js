@@ -2,7 +2,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
     var test;
     var TestCaseEnabled = true;
     var TestCaseDisabled = false;
-    var defaultTimeout = 1800000; // 30min
+    var defaultTimeout = 7200000; // 120min
     var sqlTestCases = {
         "filterWithAggregates": "select n_nationkey, n_name from nation where  " +
             "n_nationkey > avg(n_nationkey) - avg(n_regionkey) /10 order by n_nationkey",
@@ -685,7 +685,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                 .fail(function() {
                     var prevQueries = SQLEditor.getPrevQueries();
                     var lastQuery = prevQueries[prevQueries.length - 1];
-                    if (lastQuery.getStatus() === -2) {
+                    if (lastQuery.getStatus() === SQLStatus.Cancelled) {
                         test.pass(deferred, testName, currentTestNumber);
                     } else {
                         test.fail(deferred, testName, currentTestNumber, "Unable to cancel query");
