@@ -50,7 +50,7 @@ function getMSALConfig(hostname) {
         "url": hostname + "/app/login/msalConfig/get",
         "success": function (data) {
             if (data.hasOwnProperty("error")) {
-                console.log("Failed to retrieve msalConfig: " + data.error);
+                console.log("Failed to retrieve msalConfig");
                 deferred.reject(data.error);
                 return;
             }

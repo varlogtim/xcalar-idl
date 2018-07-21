@@ -1530,6 +1530,7 @@ namespace xcManager {
 
     let logoutRedirect: Function = function(): void {
         xcSessionStorage.removeItem("xcalar-username");
+        removeCookies();
         let msalUser: string = null;
         let msalAgentApplication: Msal.UserAgentApplication = null;
         const config: any = getMsalConfigFromLocalStorage();
@@ -1569,6 +1570,15 @@ namespace xcManager {
         } else {
             window["location"]["href"] = paths.dologout;
         }
+    }
+
+    function removeCookies(): void {
+        // to remove the cookies
+        HTTPService.Instance.ajax({
+            "type": "POST",
+            "contentType": "application/json",
+            "url": xcHelper.getAppUrl() + "/logout"
+        });
     }
 
     function isRetinaDevice(): boolean {

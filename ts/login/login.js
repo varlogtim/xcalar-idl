@@ -111,7 +111,7 @@ $(document).ready(function() {
         if (gLoginEnabled) {
             isSubmitDisabled = true;
 /** END DEBUG ONLY **/
-            $.ajax({
+            HTTPService.Instance.ajax({
                 "type": "POST",
                 "data": JSON.stringify(str),
                 "contentType": "application/json",

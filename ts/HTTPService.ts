@@ -8,6 +8,14 @@ class HTTPService {
     private constructor() {}
 
     public ajax(options: any): XDPromise<any> {
+        let extraOptions = null;
+        if (window.location.hostname === "localhost" &&
+            typeof gLoginEnabled !== "undefined" &&
+            gLoginEnabled === true
+        ) {
+            extraOptions = {xhrFields: {withCredentials: true}};
+        }
+        options = $.extend(options, extraOptions);
         return jQuery.ajax(options)
                 .fail((error) => this._errorHandler(error));
     }
