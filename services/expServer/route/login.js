@@ -870,6 +870,7 @@ router.post('/login/msalConfig/get', function(req, res) {
     xcConsole.log("Getting msal config");
     getMsalConfig()
     .always(function(message) {
+        xcConsole.log("Get msal config: " + JSON.stringify(message));
         res.status(message.status).send(message);
     });
 });
@@ -879,6 +880,7 @@ router.post('/login/msalConfig/set', function(req, res) {
     var credArray = req.body;
     setMsalConfig(credArray)
     .always(function(message) {
+        xcConsole.log("Set msal config: " + JSON.stringify(message));
         res.status(message.status).send(message);
     });
 });

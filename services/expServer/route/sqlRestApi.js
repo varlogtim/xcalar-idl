@@ -1863,7 +1863,8 @@ function loadPublishedTables(args, checkTime) {
         }
         queryArray.push(query);
     }
-    return XIApi.query(1, "JDBC Select", JSON.stringify(queryArray), checkTime);
+    return XIApi.query(1, "JDBC Select" + Math.ceil(Math.random() * 100000),
+        JSON.stringify(queryArray), checkTime);
     // return XIApi.query(1, "JDBCSelect" + generateJDBCId(userName, wkbkName), JSON.stringify(queryArray), checkTime);
 }
 
