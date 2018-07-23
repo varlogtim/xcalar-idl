@@ -10,6 +10,13 @@
         box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.3);
     }
 
+    .innerModalContainer {
+        .flex-display;
+        .flex-direction(column);
+        height: 100%;
+        overflow: hidden;
+    }
+
     .modalHeader {
         background-color: @color-bg-dusk-blue;
         color: @color-white;
@@ -3026,13 +3033,6 @@ html.microsoft {
 
     &.locked {
         pointer-events: none;
-    }
-
-    .innerModalContainer {
-        .flex-display;
-        .flex-direction(column);
-        height: 100%;
-        overflow: hidden;
     }
 
     .simpleView, .advancedView {
@@ -6187,5 +6187,50 @@ html.microsoft {
         height: 100%;
         overflow: auto; // allow vert scrollbar
         .text-selection;
+    }
+}
+
+#dagDatasetModal {
+    .size(@width: 500px, @height: 500px, @min-width: 500px, @min-height: 500px);
+    .modalMain {
+        .flex(1 1 auto);
+        .flex-display;
+        .flex-direction(column);
+        overflow: hidden;
+        font-size: 13px;
+    }
+
+    .mainRow {
+        border-bottom: 1px solid @color-bg-pinkish-grey2;
+        padding: 20px 40px;
+        flex: 1 1 auto;
+        overflow: auto;
+
+        .title {
+            font-weight: bold;
+            padding-bottom: 10px;
+        }
+    }
+
+    .configs {
+        white-space: pre;
+    }
+
+    .path {
+        cursor: pointer;
+        color: @color-bg-select-blue;
+        .textOverflowOneLine;
+
+        .suffix {
+            padding-left: 4px;
+        }
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    .modalBottom {
+        min-height: 56px;
     }
 }

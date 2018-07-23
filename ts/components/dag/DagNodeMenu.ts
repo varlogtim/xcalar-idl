@@ -64,14 +64,14 @@ namespace DagNodeMenu {
             const nodeId: DagNodeId = $operator.data("nodeid");
             $menu.data("nodeid", nodeId);
             $menu.data("nodeids", nodeIds);
-    
+
             let classes: string = " operatorMenu ";
             if (nodeIds.length > 1) {
                 classes += " multiple ";
             } else {
                 classes += " single ";
             }
-    
+
             xcHelper.dropdownOpen($clickedEl, $menu, {
                 mouseCoors: {x: event.pageX, y: event.pageY},
                 floating: true,
@@ -92,7 +92,7 @@ namespace DagNodeMenu {
             }
             const nodeId = $menu.data("nodeid"); // clicked node
             const nodeIds = $menu.data("nodeids"); // all selected nodes
-            
+
             const parentNodeId = $menu.data("parentnodeid");
             const connectorIndex = $menu.data("connectorindex");
 
@@ -109,12 +109,9 @@ namespace DagNodeMenu {
                 case ("executeNode"):
                     break;
                 case ("configureNode"):
-                    const dagGraph = DagView.getActiveDag();
-                    const node = dagGraph.getNode(nodeId);
-                    if (node.getType() === DagNodeType.Project) {
-                        console.log("open project form");
-                        // ProjectOpPanel.show(node);
-                    }
+                    const dagGraph: DagGraph = DagView.getActiveDag();
+                    const node: DagNode = dagGraph.getNode(nodeId);
+                    configureNode(node);
                     break;
                 case ("comment"):
                     break;
@@ -122,5 +119,21 @@ namespace DagNodeMenu {
                     break;
             }
         });
+    }
+
+    function configureNode(node: DagNode) {
+        const type: DagNodeType = node.getType();
+        switch (type) {
+            case (DagNodeType.Dataset):
+                DagDatasetModal.show(<DagNodeDataset>node);
+                break;
+            case (DagNodeType.Project):
+                console.log("open project form");
+                // ProjectOpPanel.show(node);
+                break;
+            default:
+                break;
+        }
+
     }
 }

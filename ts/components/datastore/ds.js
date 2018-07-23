@@ -459,6 +459,44 @@ window.DS = (function ($, DS) {
         return sortKey;
     };
 
+    // returns an array of all visible datasets
+    // {
+    //    path,
+    //    suffix (userName if shared),
+    //    id
+    // }
+    DS.listDatasets = function() {
+        var list = [];
+        var path = [];
+        populate(homeFolder, path);
+
+        function populate(el, path) {
+            if (el.isFolder) {
+                var name = el.name;
+                if (el.name === ".") {
+                    name = "";
+                }
+                path.push(name);
+                el.eles.forEach(function(el) {
+                    populate(el, path);
+                });
+                path.pop();
+            } else {
+                var suffix = "";
+                if (path[1] === DSObjTerm.SharedFolder) {
+                    suffix = el.user;
+                }
+                var listObj = {
+                    path: path.join("/") + "/" + el.name,
+                    suffix: suffix,
+                    id: el.id
+                }
+                list.push(listObj);
+            }
+        }
+        return list;
+    };
+
     // Clear dataset/folder in gridView area
     DS.clear = function() {
         $gridView.find(".grid-unit").remove();

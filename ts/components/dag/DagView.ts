@@ -19,6 +19,7 @@ namespace DagView {
         DagTopBar.Instance.setup();
         DagCategoryBar.Instance.setup();
         DagNodeMenu.setup();
+        DagDatasetModal.setup();
     }
 
     // XXX test function
@@ -530,6 +531,9 @@ namespace DagView {
         let $dfArea;
         let $operators;
         $dfWrap.on("mousedown", ".dataflowArea", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
             let $target = $(event.target);
             $dfArea = $(this);
             if ($target.is(".dataflowArea") || $target.is(".mainSvg")) {

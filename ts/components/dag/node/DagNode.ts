@@ -300,7 +300,7 @@ class DagNode {
         // const children = this.children.map(function(child) {
         //     return child.getId()
         // });
-        
+
         // return JSON.stringify({
         //     parents: parents,
         //     children: children,
