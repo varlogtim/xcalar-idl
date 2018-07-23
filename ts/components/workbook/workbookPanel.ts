@@ -84,6 +84,13 @@ namespace WorkbookPanel {
                 WorkbookPanel.show();
             }
         });
+
+        // this is to fix the issue when scroll, status box will be off position
+        $workbookPanel.find(".mainContent").on("scroll", function() {
+            if ($workbookPanel.is(":visible")) {
+                StatusBox.forceHide();
+            }
+        });
     };
 
     /**
