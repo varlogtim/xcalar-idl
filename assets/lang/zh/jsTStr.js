@@ -847,6 +847,11 @@ DFTStr = {
 "AdvDatastoreInstructions": "To convert this operation into a parameterized operation, please wrap parameter names between left and right angle brackets as follows: /root/<paramName>.csv. Only the targetName, path, and fileNamePattern values can be parameterized. To return to basic mode, all values must be valid.",
 "AdvExportInstructions": "To convert this operation into a parameterized operation, please wrap parameter names between left and right angle brackets as follows: <paramName>.csv. Only the fileName and targetName values can be parameterized. To return to basic mode, all values must be valid.",
 "SynthInstructions": "To convert this operation into a parameterized operation, please wrap parameter names between left and right angle brackets as follows: <paramName>.csv. Only the source value can be parameterized. To return to basic mode, all values must be valid.",
+"Name": "Name",
+"PreviousValue": "Previous Value",
+"CurrentValue": "Current Value",
+"ParametersModified": "Parameters Modified",
+"ParametersModifiedInstr": "The following parameters have been recently modified by another user.",
 // with replace
 "EditOpDirectly": "Please edit the <op> operation directly",
 "CancelAlertMsg": "Batch dataflow \'<name>\' was canceled.",

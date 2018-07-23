@@ -226,8 +226,8 @@ describe("xcSocket Test", function() {
         it("refreshDataflow event should work", function() {
             const oldFunc = DataflowPanel.refresh;
             let testName = null;
-            DataflowPanel.refresh = (dfName) => {
-                testName = dfName;
+            DataflowPanel.refresh = (info) => {
+                testName = info.dfName;
             };
 
             // case 1;

@@ -179,11 +179,11 @@ class XcSocket {
 
     private _addSocketEvents(): void {
         const socket = this._socket;
-        socket.on('refreshDataflow', (dfName) => {
+        socket.on('refreshDataflow', (updateInfo) => {
             if (!this._isRegistered) {
                 return;
             }
-            DataflowPanel.refresh(dfName);
+            DataflowPanel.refresh(updateInfo);
             UDF.refreshWithoutClearing(false);
         });
 

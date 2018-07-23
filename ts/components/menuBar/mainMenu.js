@@ -391,18 +391,9 @@ window.MainMenu = (function($, MainMenu) {
                 $("#dataflowPanel").addClass("active");
                 if ($curTab.hasClass("firstTouch")) {
                     $curTab.removeClass("firstTouch");
-                    var $dfList = $("#dfMenu .dfList");
-                    $dfList.addClass("disabled");
-                    DSExport.refresh(true);
-                    DSTargetManager.refreshTargets(true);
-
-                    var promise = DF.initialize();
-                    xcHelper.showRefreshIcon($dfList, false, promise);
-
-                    promise
-                    .always(function() {
-                        $dfList.removeClass("disabled");
-                    });
+                    DataflowPanel.showFirstTime();
+                } else {
+                    DataflowPanel.show();
                 }
                 break;
             case ("jupyterTab"):

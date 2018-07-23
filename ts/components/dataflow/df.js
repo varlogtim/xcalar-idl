@@ -120,6 +120,7 @@ window.DF = (function($, DF) {
                 DFCard.refreshDFList(true);
             }
 
+            // if not first time, then check for params in existing dataflows
             initParamMap(retMeta.params, !firstTime);
             deferred.resolve();
         })
@@ -131,11 +132,14 @@ window.DF = (function($, DF) {
         return deferred.promise();
     }
 
-    DF.commitAndBroadCast = function(modifiedDataflow) {
+    DF.commitAndBroadCast = function(modifiedDataflow, isUpdateParams) {
         KVStore.commit()
         .always(function() {
             var xcSocket = XcSocket.Instance;
-            xcSocket.sendMessage("refreshDataflow", modifiedDataflow);
+            xcSocket.sendMessage("refreshDataflow", {
+                dfName: modifiedDataflow,
+                isUpdateParams: isUpdateParams
+            });
         });
     };
 
@@ -384,8 +388,9 @@ window.DF = (function($, DF) {
         return deferred.promise();
     };
 
-    function initParamMap(params, checkDataflows) {
-        if ($.isEmptyObject(params)) {
+    function initParamMap(newParams, checkDataflows) {
+        var modifiedList = [];
+        if ($.isEmptyObject(newParams)) {
             for (var i in dataflows) {
                 var df = dataflows[i];
                 for (var j in df.paramMap) {
@@ -400,7 +405,16 @@ window.DF = (function($, DF) {
                 }
             }
         } else {
-            parameters = params;
+            for (var i in newParams) {
+                if (parameters[i] && newParams[i].value !== parameters[i].value) {
+                    modifiedList.push({
+                        name: i,
+                        before: parameters[i].value,
+                        after: newParams[i].value
+                    });
+                }
+            }
+            parameters = newParams;
         }
 
         // check each dataflow for params that are not in the kvstore
@@ -409,6 +423,15 @@ window.DF = (function($, DF) {
                 var df = dataflows[i];
                 DF.checkForAddedParams(df);
             }
+        }
+
+
+
+        if (modifiedList.length) {
+            DataflowPanel.showAlert({
+                type: "modifiedParams",
+                modifiedList: modifiedList
+            });
         }
         $("#dfViz").find(".retTabSection").removeClass("hidden");
     }
@@ -419,7 +442,7 @@ window.DF = (function($, DF) {
 
     DF.updateParamMap = function(params) {
         parameters = params;
-        DF.commitAndBroadCast();
+        DF.commitAndBroadCast(null, true);
     };
 
     DF.getParameters = function(df) {
@@ -437,15 +460,15 @@ window.DF = (function($, DF) {
     DF.checkForAddedParams = function(df) {
         var hasNewParam = false;
         var paramsInDataflow = DF.getParameters(df);
-        for (var j = 0; j < paramsInDataflow.length; j++) {
-            if (!parameters[paramsInDataflow[j]]) {
+        paramsInDataflow.forEach(function(paramName) {
+            if (!parameters[paramName]) {
                 hasNewParam = true;
-                parameters[paramsInDataflow[j]] = {
+                parameters[paramName] = {
                     value: "",
                     isEmpty: true
                 };
             }
-        }
+        });
         return hasNewParam;
     }
 
@@ -465,6 +488,7 @@ window.DF = (function($, DF) {
         return deferred.promise();
     };
 
+    // loops through node args and finds params in <> brackets
     function getParametersHelper(value) {
         var paramMap = {};
         getParamHelper(value);

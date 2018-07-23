@@ -23,7 +23,7 @@ describe("Dataflow Panel Test", function() {
             expect($("#scheduleDetail").is(":visible")).to.be.true;
             expect($("#dfViz .retTab").hasClass("active")).to.be.true;
             expect($("#dfParamModal").is(":visible")).to.be.true;
-            DataflowPanel.refresh("unitTestDF");
+            DataflowPanel.refresh({dfName: "unitTestDF"});
             expect($("#scheduleDetail").is(":visible")).to.be.false;
             expect($("#dfViz .retTab").hasClass("active")).to.be.false;
             expect($("#dfParamModal").is(":visible")).to.be.false;
@@ -44,7 +44,7 @@ describe("Dataflow Panel Test", function() {
             expect($("#scheduleDetail").is(":visible")).to.be.true;
             expect($("#dfViz .retTab").hasClass("active")).to.be.true;
             expect($("#dfParamModal").is(":visible")).to.be.true;
-            DataflowPanel.refresh("unitTestDF1");
+            DataflowPanel.refresh({dfName: "unitTestDF1"});
             expect($("#scheduleDetail").is(":visible")).to.be.true;
             expect($("#dfViz .retTab").hasClass("active")).to.be.true;
             expect($("#dfParamModal").is(":visible")).to.be.true;
@@ -67,7 +67,7 @@ describe("Dataflow Panel Test", function() {
             expect($("#dfViz .retTab").hasClass("active")).to.be.false;
             expect($("#dfParamModal").is(":visible")).to.be.false;
 
-            DataflowPanel.refresh("unitTestDF");
+            DataflowPanel.refresh({dfName: "unitTestDF"});
             expect($("#scheduleDetail").is(":visible")).to.be.false;
             expect($("#dfViz .retTab").hasClass("active")).to.be.false;
             expect($("#dfParamModal").is(":visible")).to.be.false;

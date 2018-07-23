@@ -1615,14 +1615,14 @@ html.microsoft {
 /* End Of Alert Modal */
 
 /* Special Case In Alert Modal */
-#invalidColAlert, #invalidDSColTable, #duplicateDSColTable {
+#invalidColAlert, #invalidDSColTable, #duplicateDSColTable, #conflictingParamsTable {
     white-space: pre;
     .highlight {
         background-color: @color-bg-gold;
     }
 }
 
-#invalidDSColTable, #duplicateDSColTable {
+#invalidDSColTable, #duplicateDSColTable, #conflictingParamsTable {
     text-align: left;
     .flex-display;
     .flex-direction(column);
@@ -1659,6 +1659,16 @@ html.microsoft {
     .colNums {
         width: 40%;
         display: inline-block;
+    }
+}
+
+#conflictingParamsTable {
+    .row > span {
+        width: 33%;
+        min-width: 150px;
+        .textOverflowOneLine;
+        display: inline-block;
+        padding-right: 4px;
     }
 }
 
