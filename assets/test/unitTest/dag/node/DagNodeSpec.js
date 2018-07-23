@@ -1,4 +1,4 @@
-describe("Dag Node Test", () => {
+describe("Dag Node Basic Test", () => {
     it("should get id", () => {
         const node = new DagNode({id: "test"});
         expect(node.getId()).to.be.equal("test");
@@ -75,10 +75,19 @@ describe("Dag Node Test", () => {
         expect(node.getState()).to.equal(DagNodeState.Unused);
     });
 
-    it("should set state", () => {
+    it("should change state", () => {
         const node = new DagNode();
-        node.setState(DagNodeState.Complete);
+        node.beConnectedState();
+        expect(node.getState()).to.equal(DagNodeState.Connected);
+
+        node.beCompleteState();
         expect(node.getState()).to.equal(DagNodeState.Complete);
+
+        node.beErrorState();
+        expect(node.getState()).to.equal(DagNodeState.Error);
+
+        node.beUnusedState();
+        expect(node.getState()).to.equal(DagNodeState.Unused);
     });
 
     it("should get table", () => {

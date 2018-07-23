@@ -12,16 +12,16 @@ class DagExecute {
      */
     public run(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        this.node.setState(DagNodeState.Running);
+        this.node.beRunningState();
 
         this._apiAdapter()
         .then((destTable) => {
             this.node.setTable(destTable);
-            this.node.setState(DagNodeState.Complete);
+            this.node.beCompleteState();
             deferred.resolve();
         })
         .fail((error) => {
-            this.node.setState(DagNodeState.Error);
+            this.node.beErrorState();
             deferred.reject(error);
         });
         return deferred.promise();

@@ -2,6 +2,8 @@ class DagGraph {
     private nodesMap: Map<DagNodeId, DagNode>;
     private removedNodesMap: Map<DagNodeId,{}>;
     private display;
+    private innerEvents: object;
+    public events: { on: Function, trigger: Function}; // example: dagGraph.events.on(DagNodeEvents.StateChange, console.log)
 
     public constructor() {
         this.nodesMap = new Map();
@@ -10,7 +12,8 @@ class DagGraph {
             width: -1,
             height: -1
         };
-    }
+        this._setupEvents();
+    } 
 
     // XXX TODO
     public deserialize(seralizedGraph: string): boolean {
@@ -205,6 +208,9 @@ class DagGraph {
      */
     public addNode(dagNode: DagNode): void {
         this.nodesMap.set(dagNode.getId(), dagNode);
+        dagNode.registerEvents(DagNodeEvents.StateChange, (changeInfo) => {
+            this.events.trigger(DagNodeEvents.StateChange, changeInfo);
+        });
     }
 
     /**
@@ -362,6 +368,18 @@ class DagGraph {
             width: this.display.width,
             height: this.display.height
         }
+    }
+
+    private _setupEvents(): void {
+        this.innerEvents = {};
+        this.events = {
+            on: (event, callback) => { this.innerEvents[event] = callback },
+            trigger: (event, ...args) => {
+                if (typeof this.innerEvents[event] === 'function') {
+                    this.innerEvents[event].apply(this, args)
+                }
+            }
+        };
     }
 
     // XXX TODO, Idea is to do a topological sort first, then get the

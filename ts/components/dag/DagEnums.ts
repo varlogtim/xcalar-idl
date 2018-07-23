@@ -20,6 +20,10 @@ enum DagNodeState {
     Error = "Error"
 }
 
+enum DagNodeEvents {
+    StateChange = "dag_node_state_change",
+}
+
 enum DagCategoryType {
     Favorites = "favorites",
     In = "in",

@@ -12,6 +12,7 @@ class DagNode {
     private state: DagNodeState;
     private display: Coordinate;
     private numParent: number; // non-persisent
+    private events: {_events: object, trigger: Function}; // non-persistent;
 
     protected type: DagNodeType;
     protected input: object; // will be overridden by subClasses
@@ -45,6 +46,16 @@ class DagNode {
         this.maxParents = 1;
         this.maxChildren = -1;
         this.allowAggNode = false;
+        this._setupEvents();
+    }
+
+    /**
+     * add events to the dag node
+     * @param event {string} event name
+     * @param callback {Function} call back of the event
+     */
+    public registerEvents(event, callback): void {
+        this.events._events[event] = callback;
     }
 
     /**
@@ -147,13 +158,39 @@ class DagNode {
     }
 
     /**
-     *
-     * @param state set state of the node
+     * Change node to unused state
      */
-    public setState(state: DagNodeState): void {
-        this.state = state;
+    public beUnusedState(): void {
+        this._setState(DagNodeState.Unused);
     }
 
+    /**
+     * Change node to connected state
+     */
+    public beConnectedState(): void {
+        this._setState(DagNodeState.Connected);
+    }
+
+    /**
+     * Change node to running state
+     */
+    public beRunningState(): void {
+        this._setState(DagNodeState.Running)
+    }
+
+    /**
+     * Change node to complete state
+     */
+    public beCompleteState(): void {
+        this._setState(DagNodeState.Complete);
+    }
+
+    /**
+     * Change to error state
+     */
+    public beErrorState(): void {
+        this._setState(DagNodeState.Error);
+    }
 
     public getParam(): object {
         return this.input;
@@ -302,6 +339,25 @@ class DagNode {
 
     private _canHaveMultiParents() {
         return this.maxParents === -1;
+    }
+
+    private _setState(state: DagNodeState): void {
+        this.state = state;
+        this.events.trigger(DagNodeEvents.StateChange, {
+            id: this.getId(),
+            state: state
+        });
+    }
+
+    private _setupEvents(): void {
+        this.events = {
+            _events: {},
+            trigger: (event, ...args) => {
+                if (typeof this.events._events[event] === 'function') {
+                    this.events._events[event].apply(this, args);
+                }
+            }
+        };
     }
 
     // XXX TODO
