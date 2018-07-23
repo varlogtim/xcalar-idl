@@ -1995,7 +1995,7 @@ describe("Dataset-DSPreview Test", function() {
             expect(res).to.be.an("object");
             expect(res.format).to.equal("DATABASE");
             expect(res.udfModule).to.equal("/globaludf/default");
-            expect(res.udfFunc).to.equal("ingestFromDB");
+            expect(res.udfFunc).to.equal("ingestFromDatabase");
             expect(res.udfQuery).to.be.an("object");
             expect(res.udfQuery.query).to.equal("test_sql");
             // restore

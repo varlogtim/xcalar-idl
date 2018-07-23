@@ -41,7 +41,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
 
     DSTargetManager.isDatabaseTarget = function(targetName) {
         const target = DSTargetManager.getTarget(targetName);
-        if (target && target.type_id === "dsntarget") {
+        if (target && target.type_id === "dsn") {
             return true;
         } else {
             return false;

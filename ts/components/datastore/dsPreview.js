@@ -89,7 +89,7 @@ window.DSPreview = (function($, DSPreview) {
         $headerCheckBox = $("#promoteHeaderCheckbox");
         componentDBFormat = createDatabaseFormat({
             udfModule: defaultModule,
-            udfFunction: 'ingestFromDB',
+            udfFunction: 'ingestFromDatabase',
             sqlID: 'dsForm-dbSQL',
             containerID: 'importDataForm-content',
         });
