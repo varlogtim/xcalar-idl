@@ -85,7 +85,8 @@ namespace XVM {
         kvVersion = new KVVersion(versionInfo);
         if (kvVersion.stripEmail) {
             // need to redo the username setup
-            XcUser.setCurrentUser(true);
+            XcUser.CurrentUser.setName(true);
+            XcUser.setUserSession(XcUser.CurrentUser);
         }
     }
 

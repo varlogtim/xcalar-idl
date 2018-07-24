@@ -37,7 +37,7 @@ window.Admin = (function($, Admin) {
 
     Admin.isAdmin = function() {
         try {
-            return isAdmin();
+            return XcUser.CurrentUser.isAdmin();
         } catch (error) {
             console.error(error);
             return false;
@@ -86,13 +86,16 @@ window.Admin = (function($, Admin) {
         }
     };
 
+    // NOTE: Current way it works is using the admin cookies but use
+    // the other user's info for thrift call
     Admin.switchUser = function(username) {
         if (!Admin.isAdmin()) {
             return;
         }
-        xcSessionStorage.setItem("xcalar-username", username);
-        if (xcSessionStorage.getItem("usingAs") !== "true") {
-            xcSessionStorage.setItem("usingAs", true);
+        if (xcSessionStorage.getItem("usingAs") == null &&
+            username !== XcUser.getCurrentUserName()
+        ) {
+            xcSessionStorage.setItem("usingAs", username);
             xcSessionStorage.setItem("adminName", XcUser.getCurrentUserName());
         }
 
@@ -104,9 +107,7 @@ window.Admin = (function($, Admin) {
             return;
         }
         xcSessionStorage.removeItem("usingAs");
-        var adminName = xcSessionStorage.getItem("adminName");
-        xcSessionStorage.setItem("xcalar-username", adminName);
-
+        xcSessionStorage.removeItem("adminName");
         xcManager.unload(false, true);
     };
 
@@ -680,14 +681,15 @@ window.Admin = (function($, Admin) {
     }
 
     function isPostAsUser() {
-        return xcSessionStorage.getItem("usingAs") === "true" &&
-            xcSessionStorage.getItem("adminName") !== XcUser.getCurrentUserName();
+        return xcSessionStorage.getItem("usingAs") != null;
     }
 
     function setupAdminStatusBar(posingAsUser) {
         var $adminBar = $('#adminStatusBar');
 
         if (posingAsUser) {
+            var user = new XcUser(xcSessionStorage.getItem("usingAs"));
+            XcUser.setUserSession(user);
             $('#container').addClass('posingAsUser');
             $adminBar.find('.username').text(XcUser.getCurrentUserName());
             var width = $adminBar.outerWidth() + 1;
@@ -969,7 +971,7 @@ window.Admin = (function($, Admin) {
         });
     }
 
-      /* Unit Test Only */
+    /* Unit Test Only */
     if (window.unitTestMode) {
         Admin.__testOnly__ = {};
         Admin.__testOnly__.setPosingAs = function() {

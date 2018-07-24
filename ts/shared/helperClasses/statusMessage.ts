@@ -1,6 +1,7 @@
 // displays load message and animated waiting icon near CLI button
 namespace StatusMessage {
     let statusMessage: StatusMsg;
+    let hasSetup: boolean = false;
 
     interface Msg {
         $span: JQuery,
@@ -770,6 +771,10 @@ namespace StatusMessage {
      * StatusMessage.setup
      */
     export function setup(): void {
+        if (hasSetup) {
+            return;
+        }
+        hasSetup = true;
         statusMessage = new StatusMsg();
     }
 

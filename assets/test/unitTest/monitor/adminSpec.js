@@ -11,53 +11,45 @@ describe("Admin Test", function() {
         oldIsAdmin = Admin.isAdmin;
         Admin.isAdmin = () => true;
 
-        function hashFnv32a(str, asString, seed) {
-            /*jshint bitwise:false */
-            var i, l,
-                hval = (seed === undefined) ? 0x811c9dc5 : seed;
+        // function hashFnv32a(str, asString, seed) {
+        //     /*jshint bitwise:false */
+        //     var i, l,
+        //         hval = (seed === undefined) ? 0x811c9dc5 : seed;
 
-            for (i = 0, l = str.length; i < l; i++) {
-                hval ^= str.charCodeAt(i);
-                hval += (hval << 1) + (hval << 4) + (hval << 7) + (hval << 8) +
-                        (hval << 24);
-            }
-            if (asString) {
-                // Convert to 8 digit hex string
-                return ("0000000" + (hval >>> 0).toString(16)).substr(-8);
-            }
-            return hval >>> 0;
-        }
+        //     for (i = 0, l = str.length; i < l; i++) {
+        //         hval ^= str.charCodeAt(i);
+        //         hval += (hval << 1) + (hval << 4) + (hval << 7) + (hval << 8) +
+        //                 (hval << 24);
+        //     }
+        //     if (asString) {
+        //         // Convert to 8 digit hex string
+        //         return ("0000000" + (hval >>> 0).toString(16)).substr(-8);
+        //     }
+        //     return hval >>> 0;
+        // }
 
         function isAdmin() {
-            var un = xcSessionStorage.getItem("xcalar-username");
-            return (xcLocalStorage.getItem("admin" +
-                                      hashFnv32a(un, true, 0xdeadbeef)) === "true");
+            return XcUser.CurrentUser.isAdmin();
         }
 
-        function setAdmin(userId) {
-            var key = hashFnv32a(userId, true, 0xdeadbeef);
-            xcLocalStorage.setItem("admin" + key, "true");
-        }
+        // function setAdmin(userId) {
+        //     var key = hashFnv32a(userId, true, 0xdeadbeef);
+        //     xcLocalStorage.setItem("admin" + key, "true");
+        // }
 
-        function clearAdmin() {
-            var userId = xcSessionStorage.getItem("xcalar-username");
-            var key = hashFnv32a(userId, true, 0xdeadbeef);
-            xcLocalStorage.removeItem("admin" + key);
-        }
+        // function clearAdmin() {
+        //     var userId = xcSessionStorage.getItem("xcalar-username");
+        //     var key = hashFnv32a(userId, true, 0xdeadbeef);
+        //     xcLocalStorage.removeItem("admin" + key);
+        // }
 
         var wasAdmin = isAdmin();
 
-        xcLocalStorage.getItem = function(item) {
-            if (item.indexOf("admin") === 0) {
-                return "true";
-            } else {
-                return "false";
-            }
-        };
-
-        Admin.__testOnly__.setPosingAs();
+        xcSessionStorage.setItem("usingAs", XcUser.getCurrentUserName());
         if (!wasAdmin) {
             Admin.initialize();
+        } else {
+            Admin.__testOnly__.setPosingAs();
         }
         $("#monitorTab").click();
         $("#setupButton").click();
@@ -166,30 +158,32 @@ describe("Admin Test", function() {
             var cachedunload = xcManager.unload;
             xcManager.unload = function() { return null; };
             var ownName = XcUser.getCurrentUserName();
+            var oldGetCurrent = XcUser.getCurrentUserName;
+            var fakeCurrentUser = xcHelper.randName(ownName);
+            XcUser.getCurrentUserName = () => fakeCurrentUser;
             var $ownLi = $userList.find(".userLi").filter(function() {
                 return $(this).find(".text").text() === ownName;
             });
-
             $ownLi.find(".useAs").click();
             expect(xcSessionStorage.getItem("usingAs")).to.not.equal("true");
-
-            expect($("#alertModal").is(":visible")).to.be.false;
             expect($ownLi.hasClass("self")).to.be.true;
             $ownLi.removeClass("self");
             $ownLi.find(".useAs").click();
 
             UnitTest.hasAlertWithTitle(MonitorTStr.UseXcalarAs, {confirm: true});
-            expect(xcSessionStorage.getItem("usingAs")).to.equal("true");
-            expect(xcSessionStorage.getItem("adminName")).to.equal(ownName);
+            expect(xcSessionStorage.getItem("usingAs")).to.equal(ownName);
+            expect(xcSessionStorage.getItem("adminName")).to.equal(fakeCurrentUser);
 
-            xcSessionStorage.setItem("adminName", xcHelper.randName('test'));
+            // switch back
             $("#adminStatusBar").find(".xi-close").click();
-            expect(xcSessionStorage.getItem("usingAs")).to.not.equal("true");
+            expect(xcSessionStorage.getItem("usingAs")).to.be.undefined;
+            expect(xcSessionStorage.getItem("adminName")).to.be.undefined;
             xcManager.unload = cachedunload;
             $ownLi.addClass("self");
             xcSessionStorage.setItem = oldSet;
             xcSessionStorage.getItem = oldGet;
             xcSessionStorage.removeItem = oldRemove;
+            XcUser.getCurrentUserName = oldGetCurrent;
         });
 
         it("get memory should work", function(done) {
@@ -537,6 +531,7 @@ describe("Admin Test", function() {
             Admin.isAdmin = function() {
                 return false;
             };
+            xcSessionStorage.removeItem("usingAs");
         });
 
         it("get user list should be blank", function() {
@@ -545,12 +540,12 @@ describe("Admin Test", function() {
 
         it("switch user should not be allowed", function() {
             Admin.switchUser();
-            expect(xcSessionStorage.getItem("usingAs")).to.not.equal("true");
+            expect(xcSessionStorage.getItem("usingAs")).to.be.null;
         });
 
         it("usertoadmin should not be allowed", function() {
             Admin.userToAdmin();
-            expect(xcSessionStorage.getItem("usingAs")).to.not.equal("true");
+            expect(xcSessionStorage.getItem("usingAs")).to.be.null;
         });
 
         it("admin.updateloggedinUsers should not be allowed", function() {
@@ -570,6 +565,7 @@ describe("Admin Test", function() {
     after(function() {
         xcLocalStorage.getItem = cachedGetItem;
         $("#container").removeClass("admin posingAsUser");
+        xcSessionStorage.removeItem("usingAs");
         UnitTest.offMinMode();
         XcSocket.prototype.sendMessage = oldSend;
         Admin.isAdmin = oldIsAdmin;

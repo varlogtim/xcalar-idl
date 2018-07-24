@@ -20,6 +20,17 @@ describe('XcUser Test', () => {
         expect(userIdName).to.equal(XcUser.getCurrentUserName());
     });
 
+    it('set user session should throw error', (done) => {
+        try {
+            let user = new XcUser(null);
+            XcUser.setUserSession(user);
+            done('fail');
+        } catch (e) {
+            expect(e).to.equal('Invalid User');
+            done();
+        }
+    });
+
     it('should create a user', () => {
         let user = new XcUser('test');
         expect(user).to.be.instanceof(XcUser);
@@ -30,21 +41,55 @@ describe('XcUser Test', () => {
         expect(user.getFullName()).to.be.null;
     });
 
-    it('should get name', () => {
+    it('should get and set name', () => {
         let user = new XcUser('test/a@test.com');
         expect(user.getName()).to.equal('test/a@test.com');
         // case 2
-        user = new XcUser('test/a@test.com', true);
+        user = new XcUser('test/a@test.com');
+        user.setName(true);
         expect(user.getName()).to.equal('test/a');
         // case 3
-        user = new XcUser('test/a@test.com', true, true);
+        user = new XcUser('test/a@test.com');
+        user.setName(true, true);
         expect(user.getName()).to.equal('test');
     });
 
     it('should get full name', () => {
-        let user = new XcUser('test/a@test.com', true, true);
+        let user = new XcUser('test/a@test.com');
+        user.setName(true, true);
         expect(user.getName()).to.equal('test');
         expect(user.getFullName()).to.equal('test/a@test.com');
+    });
+
+    it("should get is admin or not", () => {
+        let user = new XcUser('test');
+        expect(user.isAdmin()).to.be.false;
+        // case 2
+        user = new XcUser('test', true);
+        expect(user.isAdmin()).to.be.true;
+    });
+
+    it('should logout', () => {
+        const oldUnlod = xcManager.unload;
+        const oldAjax = HTTPService.Instance.ajax;
+        let test = false;
+        xcManager.unload = () => {};
+        HTTPService.Instance.ajax = () => { test = true; };
+        XcUser.CurrentUser.logout();
+        expect(test).to.be.true;
+        xcManager.unload = oldUnlod;
+        HTTPService.Instance.ajax = oldAjax;
+    });
+
+    it('should throw error of invalid logout', (done) => {
+        try {
+            let user = new XcUser('test');
+            user.logout();
+            done('fail');
+        } catch (e) {
+            expect(e).to.equal('Invalid User');
+            done();
+        }
     });
 
     it('should get memory usage', (done) => {

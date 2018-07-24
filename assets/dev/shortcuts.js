@@ -48,20 +48,15 @@ window.Shortcuts = (function($, Shortcuts) {
     }
 
     function isAdmin() {
-        var un = xcSessionStorage.getItem("xcalar-username");
-        return (xcLocalStorage.getItem("admin" +
-                                  hashFnv32a(un, true, 0xdeadbeef)) === "true");
+        return xcSessionStorage.getItem("xcalar-admin") === "true";
     }
 
-    function setAdmin(userId) {
-        var key = hashFnv32a(userId, true, 0xdeadbeef);
-        xcLocalStorage.setItem("admin" + key, "true");
+    function setAdmin() {
+        xcSessionStorage.setItem("xcalar-admin", "true");
     }
 
     function clearAdmin() {
-        var userId = xcSessionStorage.getItem("xcalar-username");
-        var key = hashFnv32a(userId, true, 0xdeadbeef);
-        xcLocalStorage.removeItem("admin" + key);
+        xcSessionStorage.removeItem("xcalar-admin");
     }
 
     var shortcutsOn = false;
@@ -161,11 +156,10 @@ window.Shortcuts = (function($, Shortcuts) {
             }
 
             $('#shortcutMenuIcon').css('margin-right', 20);
-            setAdmin(xcSessionStorage.getItem("xcalar-username"));
+            setAdmin();
         } else {
             $('#shortcutSubMenu').find('.adminOff').hide();
             $('#shortcutSubMenu').find('.adminOn').show();
-            $('#container').removeClass('admin');
             $('#shortcutMenuIcon').css('margin-right', 0);
             clearAdmin();
         }

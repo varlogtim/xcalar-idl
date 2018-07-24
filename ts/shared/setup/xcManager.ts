@@ -23,8 +23,9 @@ namespace xcManager {
 
         hotPatch()
         .then(function() {
-            // XcUser.setCurrentUser() get username, so need to be at very early time
-            XcUser.setCurrentUser(false);
+            return XcUser.setCurrentUser();
+        })
+        .then(function() {
             XVM.setup();
 
             setupUserArea();
@@ -170,6 +171,9 @@ namespace xcManager {
     };
 
     function handleSetupFail(error: string|object, firstTimeUser: boolean): void {
+        // in case it's not setup yet
+        Alert.setup();
+        StatusMessage.setup();
         let locationText: string = StatusMessageTStr.Error;
         const isNotNullObj: boolean = error && (typeof error === "object");
         if (error === WKBKTStr.NoWkbk){
@@ -302,7 +306,6 @@ namespace xcManager {
      * @param doNotLogout - if user should not be logged out durring unload
      */
     export function unload(isAsync: boolean = false, doNotLogout: boolean = false): void {
-
         if (isAsync) {
             // async unload should only be called in beforeload
             // this time, no commit, only free result set
@@ -759,7 +762,7 @@ namespace xcManager {
             if (event.which !== 1) {
                 return;
             }
-            xcManager.unload();
+            XcUser.CurrentUser.logout();
         });
     }
 
@@ -1529,8 +1532,6 @@ namespace xcManager {
     }
 
     let logoutRedirect: Function = function(): void {
-        xcSessionStorage.removeItem("xcalar-username");
-        removeCookies();
         let msalUser: string = null;
         let msalAgentApplication: Msal.UserAgentApplication = null;
         const config: any = getMsalConfigFromLocalStorage();
@@ -1570,15 +1571,6 @@ namespace xcManager {
         } else {
             window["location"]["href"] = paths.dologout;
         }
-    }
-
-    function removeCookies(): void {
-        // to remove the cookies
-        HTTPService.Instance.ajax({
-            "type": "POST",
-            "contentType": "application/json",
-            "url": xcHelper.getAppUrl() + "/logout"
-        });
     }
 
     function isRetinaDevice(): boolean {

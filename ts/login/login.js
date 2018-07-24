@@ -16,7 +16,7 @@ $(document).ready(function() {
     var isSSOTokenResolved = false;
     var splashMissedHiding = false;
     setupHostName();
-    xcSessionStorage.removeItem("xcalar-username");
+    checkLoginStatus();
 
     function canShowSplashScreen() {
         return (isMsalResolved && isSSOTokenResolved);
@@ -108,7 +108,7 @@ $(document).ready(function() {
         var pass = $('#loginPasswordBox').val().trim();
         var str = {"xipassword": pass, "xiusername": username};
 /** START DEBUG ONLY **/
-        if (gLoginEnabled) {
+        if (typeof gLoginEnabled !== "undefined" && gLoginEnabled === true) {
             isSubmitDisabled = true;
 /** END DEBUG ONLY **/
             HTTPService.Instance.ajax({
@@ -119,12 +119,6 @@ $(document).ready(function() {
                 "success": function(data) {
                     if (data.isValid) {
                         console.log('success');
-                        // XXX this is a temp hack, should not using it later
-                        if (data.isAdmin) {
-                            setAdmin(username);
-                        } else {
-                            clearAdmin(username);
-                        }
                         submit();
                     } else {
                         alert('Incorrect username or password. ' +
@@ -144,16 +138,15 @@ $(document).ready(function() {
             });
 /** START DEBUG ONLY **/
         } else {
+            xcSessionStorage.setItem("xcalar-username", username);
             submit();
             toggleBtnInProgress($("#loginButton"));
         }
 /** END DEBUG ONLY **/
         function submit() {
             isSubmitDisabled = false;
-            xcSessionStorage.setItem("xcalar-username", username);
             xcLocalStorage.setItem("lastUsername", username);
-            // XXX this redirect is only for temporary use
-            window.location = paths.indexAbsolute;
+            redirect();
         }
     });
 
@@ -188,6 +181,30 @@ $(document).ready(function() {
             }, 1000);
         });
     });
+
+    function redirect() {
+        window.location = paths.indexAbsolute;
+    }
+
+    function checkLoginStatus() {
+        HTTPService.Instance.ajax({
+            "type": "GET",
+            "contentType": "application/json",
+            "url": hostname + "/app/auth/sessionStatus",
+            "success": function(data) {
+                try {
+                    if (data.loggedIn === true) {
+                        redirect();
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            },
+            "error": function(e) {
+                console.error(e);
+            }
+        });
+    }
 
     function msalSetup() {
         var configStr = xcLocalStorage.getItem("msalConfig");

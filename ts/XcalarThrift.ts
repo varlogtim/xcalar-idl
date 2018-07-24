@@ -208,8 +208,8 @@ function thriftLog(
         } else if (status === StatusT.StatusOk || httpStatus === 0) {
             XcSupport.checkConnection();
             return thriftError;
-        } else if (httpStatus === oldHttpStatus.Unauthorized ) {
-            xcManager.forceLogout();
+        } else if (httpStatus === oldHttpStatus.Unauthorized) {
+            HTTPService.Instance.error(httpStatus);
             return thriftError;
         } else {
             // XXX We might need to include connection status 502 (Proxy error)

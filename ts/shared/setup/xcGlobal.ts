@@ -22,8 +22,6 @@ namespace xcGlobal {
         gNewCellWidth = 125;
         gMouseStatus = null;
         gPrefixLimit = 31;
-        // gLoginEnabled = true;
-
         if (!has_require) {
             if (typeof MouseEvents !== 'undefined') {
                 gMouseEvents = new MouseEvents();

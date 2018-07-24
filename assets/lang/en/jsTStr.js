@@ -859,6 +859,7 @@ WKBKTStr = {
     'NoOldWKBKMsg': 'Please use new workbook or log out and try again!',
     'Expire': 'Please Log out',
     'ExpireMsg': 'You are logged in somewhere else!',
+    'Hold': "Workbook Hold Error",
     'HoldMsg': 'You opened the workbook somewhere else. Continuing to open this workbook might cause you to lose unsaved work.',
     'Release': 'Open workbook',
     'WKBKnotExists': 'No workbooks exist',

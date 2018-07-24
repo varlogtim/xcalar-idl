@@ -1,5 +1,6 @@
 namespace Alert {
     let modalHelper: ModalHelper;
+    let hasSetup: boolean = false;
 
     interface AlertButton {
         name: string; // name of the button
@@ -43,6 +44,10 @@ namespace Alert {
      * Alert.setup
      */
     export function setup(): void {
+        if (hasSetup) {
+            return;
+        }
+        hasSetup = true;
         const $modal: JQuery = getModal();
         modalHelper = new ModalHelper($modal, {
             "center": {"verticalQuartile": true},

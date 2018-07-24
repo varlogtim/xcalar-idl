@@ -6,19 +6,77 @@ class XcUser {
         return this._currentUser;
     }
 
+    /**
+     * Xcuser.getCurrentUserName
+     */
     public static getCurrentUserName(): string {
         return this._currentUser.getName();
     }
 
     /**
-     * XcUser.setCurrentUser
-     * @param stripEmail
+     * Xcuser.setCurrentUser
      */
-    public static setCurrentUser(stripEmail: boolean): void {
-        const username: string = xcSessionStorage.getItem("xcalar-username");
-        const user: XcUser = new this(username, stripEmail, gCollab);
-        this._currentUser = user;
-        this.setUserSession(user);
+    public static setCurrentUser(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let setCurrentUserHelper: Function = (username, isAdmin) => {
+            const user: XcUser = new this(username, isAdmin);
+            this._currentUser = user;
+            XcUser.setUserSession(user);
+        };
+
+/** START DEBUG ONLY **/
+        if (typeof gLoginEnabled !== "undefined" && gLoginEnabled === false) {
+            const username = xcSessionStorage.getItem("xcalar-username");
+            if (username != null) {
+                const isAdmin = xcSessionStorage.getItem("xcalar-admin") === "true";
+                setCurrentUserHelper(username, isAdmin);
+                deferred.resolve();
+                return deferred.promise();
+            } else {
+                xcManager.forceLogout();
+            }
+        }
+/** END DEBUG ONLY **/
+        XcUser.checkCurrentUser()
+        .then((data) => {
+            setCurrentUserHelper(data.emailAddress, data.admin);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    /**
+     * XcUser.checkCurrentUser
+     */
+    public static checkCurrentUser(): XDPromise<{emailAddress: string, admin: boolean}> {
+        const deferred: XDDeferred<{emailAddress: string, admin: boolean}> = PromiseHelper.deferred();
+
+        HTTPService.Instance.ajax({
+            "type": "GET",
+            "contentType": "application/json",
+            "url": xcHelper.getAppUrl() + "/auth/sessionStatus",
+            "success": function(data) {
+                try {
+                    if (data.loggedIn === true) {
+                        deferred.resolve(data);
+                    } else  {
+                        xcManager.forceLogout();
+                        deferred.reject("Authentication Fails");
+                    }
+                } catch (e) {
+                    console.error(e);
+                    deferred.reject("Authentication Fails");
+                }
+            },
+            "error": function(e) {
+                console.error(e);
+                deferred.reject("Authentication Error");
+            }
+        });
+
+        return deferred.promise();
     }
 
     /**
@@ -26,6 +84,9 @@ class XcUser {
      * @param user
      */
     public static setUserSession(user: XcUser): void {
+        if (user._username == null) {
+            throw "Invalid User";
+        }
         userIdName = user._username;
         userIdUnique = user._userIdUnique;
     }
@@ -39,23 +100,17 @@ class XcUser {
 
     private _username: string;
     private _fullUsername: string;
+    private _isAdmin: boolean;
     private _userIdUnique: number;
 
     private _commitFlag: string;
     private _defaultCommitFlag: string = "commit-default";
 
-    public constructor(username: string, stripEmail: boolean = false, collab: boolean = false) {
+    public constructor(username: string, isAdmin = false) {
         try {
             this._fullUsername = username;
-
-            if (stripEmail) {
-                username = this.stripCharFromUserName(username, "@");
-            }
-            if (collab) {
-                username = this.stripCharFromUserName(username, "/");
-            }
-            this._username = username;
-            this._userIdUnique = this.getUserIdUnique(username);
+            this._isAdmin = isAdmin;
+            this.setName();
         } catch (error) {
             console.error(error);
         }
@@ -71,6 +126,48 @@ class XcUser {
 
     public getMemoryUsage(): XDPromise<any> {
         return XcalarGetMemoryUsage(this._username, this._userIdUnique);
+    }
+    
+    /**
+     * 
+     * @param stripEmail {boolean} strip email address or not
+     * @param collab {boolean} is in collobation mode or not
+     */
+    public setName(stripEmail: boolean = false, collab: boolean = false) {
+        try {
+            let username: string = this._fullUsername;
+            if (stripEmail) {
+                username = this.stripCharFromUserName(this._username, "@");
+            }
+            if (collab) {
+                username = this.stripCharFromUserName(username, "/");
+            }
+            this._username = username;
+            this._userIdUnique = this.getUserIdUnique(username);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    /**
+     * @returns {boolean} true if the user is an admin, false otherwise
+     */
+    public isAdmin(): boolean {
+        return this._isAdmin;
+    }
+
+    /**
+     * logout current user
+     */
+    public logout(): void {
+        if (this !== XcUser.CurrentUser) {
+            throw "Invalid User";
+        }
+        XcSocket.Instance.sendMessage("logout", {
+            user: this.getName()
+        });
+        this._removeCookies();
+        xcManager.unload();
     }
 
     public holdSession(
@@ -189,8 +286,6 @@ class XcUser {
         // hide all modal
         $(".modalContainer:not(.locked)").hide();
         // user should force to logout
-        xcSessionStorage.removeItem("xcalar-username");
-
         Alert.show({
             title: WKBKTStr.Expire,
             msg: WKBKTStr.ExpireMsg,
@@ -276,5 +371,14 @@ class XcUser {
     private getCommitKeyKVStore(): KVStore {
         const key: string = this.getCommitKey();
         return new KVStore(key, gKVScope.WKBK);
+    }
+
+    private _removeCookies(): void {
+        // to remove the cookies
+        HTTPService.Instance.ajax({
+            "type": "POST",
+            "contentType": "application/json",
+            "url": xcHelper.getAppUrl() + "/logout"
+        });
     }
 }

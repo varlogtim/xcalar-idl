@@ -166,6 +166,17 @@ describe("xcSocket Test", function() {
             WorkbookManager.gotoWorkbook = oldFunc;
         });
 
+        it("logout event should work", () => {
+            const oldFunc = XcUser.checkCurrentUser;
+            let test = false;
+            XcUser.checkCurrentUser = () => { test = true };
+            xcSocket._socket.trigger('logout', {
+                user: XcUser.getCurrentUserName()
+            });
+            expect(test).to.be.true;
+            XcUser.checkCurrentUser = oldFunc;
+        });
+
         it("system-allUsers event should work", function() {
             const oldCheckMaxUsers = XVM.checkMaxUsers;
             const oldUpdate = Admin.updateLoggedInUsers;
@@ -232,12 +243,16 @@ describe("xcSocket Test", function() {
 
             // case 1;
             xcSocket._isRegistered = false;
-            xcSocket._socket.trigger('refreshDataflow', 'df');
+            xcSocket._socket.trigger('refreshDataflow', {
+                dfName: 'df'
+            });
             expect(testName).to.be.null;
 
             // case 2
             xcSocket._isRegistered = true;
-            xcSocket._socket.trigger('refreshDataflow', 'df');
+            xcSocket._socket.trigger('refreshDataflow', {
+                dfName: 'df'
+            });
             expect(testName).to.equal('df');
 
             DataflowPanel.refresh = oldFunc;

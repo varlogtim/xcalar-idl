@@ -5,23 +5,6 @@
     <title>Xcalar</title>
     <link id="favicon" rel="icon" type="image/png">
     include "partials/link.html"
-    <script type="text/javascript">
-      var redirectToLogin = false;
-      (function() {
-          var username = sessionStorage.getItem("xcalar-username");
-          if (username == null || username === "") {
-              redirectToLogin = true;
-              var loginPath;
-              if (window.paths != null) {
-                loginPath = paths.login;
-              } else {
-                // XXX in case paths is not load at that time
-                loginPath = "assets/htmlFiles/login.html";
-              }
-              window.location = loginPath;
-          }
-      })();
-    </script>
   </head>
   <% if (dicts.product == "XI") { %>
   <body class="bodyXI">

@@ -14,9 +14,11 @@ window.FnBar = (function(FnBar, $) {
     var lastFocusedCol;
     var isAlertOpen = false;
     var initialTableId;//used to track table that was initially active
+    var setup = false;
     // when user started searching
 
     FnBar.setup = function() {
+        setup = true;
         $functionArea = $("#functionArea");
 
         editor = CodeMirror.fromTextArea($('#fnBar')[0], {
@@ -390,7 +392,7 @@ window.FnBar = (function(FnBar, $) {
     };
 
     FnBar.clear = function() {
-        if (isAlertOpen) {
+        if (isAlertOpen || !setup) {
             return;
         }
         lastFocusedCol = undefined;

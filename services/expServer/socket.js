@@ -87,8 +87,12 @@ module.exports = function(server) {
             }
         });
 
-        socket.on("refreshDataflow", function(dfName) {
-            socket.broadcast.emit("refreshDataflow", dfName);
+        socket.on("logout", function(userOption) {
+            socket.broadcast.emit("logout", userOption);
+        });
+
+        socket.on("refreshDataflow", function(dfInfo) {
+            socket.broadcast.emit("refreshDataflow", dfInfo);
         });
 
         socket.on("refreshUDFWithoutClear", function(overwriteUDF) {

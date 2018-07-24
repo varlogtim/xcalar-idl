@@ -638,6 +638,7 @@ WKBKTStr = {
 'Expire': '请注销',
 'ExpireMsg': '您已经在其他地方登录了！',
 'Hold': '登录警告',
+'Hold': "Workbook Hold Error",
 'HoldMsg': '您已经在其他地方登录了。继续登录可能会导致您丢失未保存的工作。',
 'Release': '继续登录',
 'WKBKnotExists': '没有工作簿存在',

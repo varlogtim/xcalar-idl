@@ -686,7 +686,11 @@ var htmlWaste = []; // collects stale HTML files during bld process (files with 
 // remove debug comments from these files only.  paths rel to source root
 var REMOVE_DEBUG_COMMENTS_FROM_THESE_FILES = {
     "html": [htmlMapping.src + 'index.html'],
-    "js": [jsMapping.src + 'login/login.js'],
+    "js": [jsMapping.src + 'login/login.js',
+            jsMapping.src + 'shared/helperClasses/xcUser.js',
+            jsMapping.src + 'HTTPService.js',
+            jsMapping.src + 'globalEnums.js'
+        ],
 };
 
 var HTML_BUILD_FILES = []; // a final list of all the bld files, rel. to bld dest (need this for final prettification after minification in installer blds since we're mapping bld html to bld root)

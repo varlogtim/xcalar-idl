@@ -175,6 +175,14 @@ class XcSocket {
                 isAlert: true
             });
         });
+
+        socket.on('logout', (userOption) => {
+            if (userOption.user === XcUser.getCurrentUserName()) {
+                // check if the tab still hold valid cookie
+                XcUser.checkCurrentUser();
+            }
+        });
+
     }
 
     private _addSocketEvents(): void {
