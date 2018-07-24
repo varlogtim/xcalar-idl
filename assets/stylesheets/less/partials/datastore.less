@@ -3906,6 +3906,13 @@ table.datasetTable {
         }
     }
 
+    &.loading {
+        .preview, .share, .lockDS {
+            opacity: @opacity-disabled;
+            pointer-events: none;
+        }
+    }
+
     &.sharedDir {
         .share {
             display: none;

@@ -2372,6 +2372,10 @@ window.DS = (function ($, DS) {
                         }
                     }
 
+                    if ($grid.hasClass("loading")) {
+                        classes += " loading";
+                    }
+
                     if (isInSharedFolder(curDirId)) {
                         classes += " sharedDir";
                         if (curDirId === DSObjTerm.SharedFolderId) {
