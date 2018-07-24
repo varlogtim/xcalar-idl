@@ -1481,6 +1481,7 @@ declare namespace ProjectView {
 
 declare namespace DFParamModal {
     export function setup(): void;
+    export function updateDraggableInputs(): void;
 }
 
 declare namespace SmartCastView {

@@ -3071,6 +3071,40 @@ html.microsoft {
 
         .instrSection {
             .flex-display;
+            width: ~"calc(100% - 150px)";
+            float: left;
+            border-right: 1px solid  @color-bg-pinkish-grey2;
+            padding-right: 10px;
+        }
+
+        .tabWrap {
+            float: right;
+            .size(@width: 130px, @height: 30px);
+            line-height: 30px;
+            cursor: pointer;
+            display: block;
+            padding: 0px;
+
+            .retTitle {
+                .size(@width: ~"calc(100% - 20px)");
+                display: inline-block;
+                .font(@weight: bold, @size: 14px);
+                float: left;
+                background: transparent;
+                text-align: left;
+                padding-left: 10px;
+                color: @color-white;
+                cursor: pointer;
+            }
+
+            .icon {
+                display: inline-block;
+                .size(@width: 20px, @height: 30px);
+                cursor: pointer;
+                color: @color-white;
+                opacity: @opacity-unhover;
+                font-size: 10px;
+            }
         }
     }
 
@@ -3802,6 +3836,11 @@ html.microsoft {
             }
         }
         &.type-noParams {
+            .instrSection {
+                width: 100%;
+                border-right: none;
+                padding-right: 0px;
+            }
             .toggleParamMenu {
                 display: none;
             }
@@ -3842,54 +3881,6 @@ html.microsoft {
             }
         }
 
-        .tabWrap {
-            float: right;
-            .size(@width: 130px, @height: 30px);
-            line-height: 30px;
-            cursor: pointer;
-            display: block;
-            padding: 0px;
-
-            .retTitle {
-                .size(@width: ~"calc(100% - 20px)");
-                display: inline-block;
-                .font(@weight: bold, @size: 14px);
-                float: left;
-                background: transparent;
-                text-align: left;
-                padding-left: 10px;
-                color: @color-white;
-                cursor: pointer;
-            }
-
-            .icon {
-                display: inline-block;
-                .size(@width: 20px, @height: 30px);
-                cursor: pointer;
-                color: @color-white;
-                opacity: @opacity-unhover;
-            }
-        }
-
-        .paramMenu {
-            li {
-                position: relative;
-                .icon {
-                    display: none;
-                    position: absolute;
-                    right: 4px;
-                    top: 0px;
-                    line-height: 30px;
-                }
-                &:hover {
-                    padding-right: 26px;
-                    .icon {
-                        display: block;
-                    }
-                }
-            }
-        }
-
         .CodeMirror-scrollbar-filler {
             display: none !important;
         }
@@ -3915,7 +3906,6 @@ html.microsoft {
     }
 
     .toggleView {
-        // float: right;
         float: left;
         margin-left: 15px;
         cursor: pointer;
@@ -3928,6 +3918,23 @@ html.microsoft {
             margin-left: 6px;
             .slider {
                 box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.5);
+            }
+        }
+    }
+
+    #retPopUp {
+        top: 78px;
+        right: 10px;
+
+        .tableContainer {
+            .paramNameWrap {
+                cursor: pointer;
+                &:hover {
+                    padding-right: 26px;
+                    .icon {
+                        display: block;
+                    }
+                }
             }
         }
     }

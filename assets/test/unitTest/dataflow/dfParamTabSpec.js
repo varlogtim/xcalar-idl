@@ -33,15 +33,15 @@ describe("DFParamTab Test", function() {
             };
 
             $("#dfViz .retTab").click();
-            expect($("#dfViz .retTab").hasClass("active")).to.be.true;
+            expect($("#retPopUp").hasClass("active")).to.be.true;
             expect(called).to.be.true;
         });
 
         it("should close if clicking on tab", function() {
             $("#dfViz .retTab").click();
-            expect($("#dfViz .retTab").hasClass("active")).to.be.false;
+            expect($("#retPopUp").hasClass("active")).to.be.false;
             $("#dfViz .retTab").click();
-            expect($("#dfViz .retTab").hasClass("active")).to.be.true;
+            expect($("#retPopUp").hasClass("active")).to.be.true;
         })
 
         it("ret popup should have correct rows", function() {
@@ -54,28 +54,28 @@ describe("DFParamTab Test", function() {
 
     describe("new param test", function() {
         it("duplicate should be caught", function() {
-            $("#dfViz .newParam").val("test");
-            $("#dfViz .submitNewParam").click();
+            $("#retPopUp .newParam").val("test");
+            $("#retPopUp .submitNewParam").click();
             UnitTest.hasStatusBoxWithError(xcHelper.replaceMsg(ErrWRepTStr.ParamConflict, {
                 "name": "test"
             }));
         });
         it("empty name should be caught", function() {
-            $("#dfViz .newParam").val("");
-            $("#dfViz .submitNewParam").click();
+            $("#retPopUp .newParam").val("");
+            $("#retPopUp .submitNewParam").click();
             UnitTest.hasStatusBoxWithError("Please fill out this field.");
         });
         it("valid name should work", function() {
-            $("#dfViz .newParam").val("test2");
+            $("#retPopUp .newParam").val("test2");
             expect($("#retLists").find(".row.unfilled").length).to.equal(4);
-            $("#dfViz .submitNewParam").click();
+            $("#retPopUp .submitNewParam").click();
             expect($("#retLists").find(".row.unfilled").length).to.equal(3);
             expect($("#retLists .checkbox").eq(1).hasClass("checked")).to.be.true;
         });
         it("filling list should be handled", function() {
             $("#retLists").find(".row.unfilled").addClass("temp").removeClass("unfilled");
-            $("#dfViz .newParam").val("test3");
-            $("#dfViz .submitNewParam").click();
+            $("#retPopUp .newParam").val("test3");
+            $("#retPopUp .submitNewParam").click();
             expect($("#retLists").find(".row").length).to.equal(6);
             $("#retLists").find(".row").last().remove();
             $("#retLists").find(".row.temp").addClass("unfilled").removeClass("temp");
@@ -118,7 +118,7 @@ describe("DFParamTab Test", function() {
                 called = true;
             };
 
-            $("#dfViz .paramDelete").eq(0).click();
+            $("#retPopUp .paramDelete").eq(0).click();
             expect($("#retLists").find(".row").length).to.equal(5);
             expect($("#retLists").find(".row.unfilled").length).to.equal(4);
             expect(called).to.be.false;
@@ -135,9 +135,9 @@ describe("DFParamTab Test", function() {
                 called = true;
             };
 
-            expect($("#dfViz .retTab").hasClass("active")).to.be.true;
+            expect($("#retPopUp").hasClass("active")).to.be.true;
             $("#container").trigger(fakeEvent.mousedown);
-            expect($("#dfViz .retTab").hasClass("active")).to.be.false;
+            expect($("#retPopUp").hasClass("active")).to.be.false;
             expect(called).to.be.true;
         });
     });

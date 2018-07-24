@@ -50,23 +50,6 @@
             <span class="retTitle">Parameters</span>
             <i class="icon fa-10 xi-arrow-down"></i>
           </button>
-          <!-- retPopUp -->
-          <div class="retPopUp retinaParameter">
-            <div class="inputSection">
-              <input class="xc-input newParam" placeholder="Input New Parameter">
-              <btn class="btn submitNewParam">CREATE NEW PARAMETER</btn>
-            </div>
-            <div class="tableHeader">
-              <div class="cell paramNameWrap"><%= dicts.dataflow.param %></div>
-              <div class="cell paramValWrap"><%= dicts.dataflow.val %></div>
-              <div class="cell paramNoValueWrap"><%= dicts.dataflow.noValue %></div>
-              <div class="cell paramActionWrap"><%= dicts.dataflow.action %></div>
-            </div>
-            <div class="tableContainer">
-              <div id="retLists" class="tableWrapper"></div>
-            </div>
-          </div>
-          <!-- End of retPopUp -->
         </div>
       </div>
       <!-- End Of Retina Tab Section -->
@@ -114,6 +97,22 @@
       <ul></ul>
     </div>
   </div>
-
-
+   <!-- retPopUp -->
+  <div id="retPopUp" class="retinaParameter">
+    <div class="inputSection">
+      <input class="xc-input newParam" placeholder="Input New Parameter">
+      <btn class="btn submitNewParam">CREATE NEW PARAMETER</btn>
+    </div>
+    <div class="tableHeader">
+      <div class="cell paramNameWrap"><%= dicts.dataflow.param %></div>
+      <div class="cell paramValWrap"><%= dicts.dataflow.val %></div>
+      <div class="cell paramNoValueWrap"><%= dicts.dataflow.noValue %></div>
+      <div class="cell paramActionWrap"><%= dicts.dataflow.action %></div>
+    </div>
+    <div class="tableContainer">
+      <div id="retLists" class="tableWrapper"></div>
+    </div>
+  </div>
+  <!-- End of retPopUp -->
 </div>
+

@@ -119,9 +119,10 @@ window.DataflowPanel = (function($, DataflowPanel) {
     }
 
     function refreshRetTab() {
-        var $retTab = $("#dfViz .retTab");
+        var $retTab = $("#retPopUp");
         if ($retTab.hasClass("active")) {
             $retTab.removeClass("active");
+            $("#container").trigger("mousedown");
             return true;
         } else {
             return false;

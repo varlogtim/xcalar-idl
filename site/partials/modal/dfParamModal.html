@@ -18,7 +18,13 @@
         <i class="icon xi-info-circle"></i>
         <div class="text"><%= dicts.dfParam.instr %></div>
       </div>
-      <div class="bottomSection">
+      <button class="tabWrap retTab btn toggleParamMenu">
+        <span class="retTitle">Parameters</span>
+        <i class="icon fa-10 xi-arrow-down"></i>
+      </button>
+      <div class="menu paramMenu">
+        <ul></ul>
+        include "../../util/menuScrollArea.html"
       </div>
     </div>
     <div class="simpleView">
@@ -84,14 +90,6 @@
           <div class="restoreAdvancedOriginal restoreOption">
               <span class="text">Restore to original</span>
               <i class="icon xi-restore xc-action"></i>
-          </div>
-          <button class="tabWrap btn toggleParamMenu">
-            <span class="retTitle">Parameters</span>
-            <i class="icon fa-10 xi-arrow-down"></i>
-          </button>
-          <div class="menu paramMenu">
-            <ul></ul>
-            include "../../util/menuScrollArea.html"
           </div>
         </div>
         <div class="editSection">

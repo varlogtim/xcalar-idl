@@ -6,9 +6,11 @@ namespace DFParamTab {
         private hasChange: boolean;
         private retinaTr: string;
         private retinaTrLen: number;
+        private $retPopup: JQuery;
 
         constructor() {
             this.$dfCard = $("#dfViz");
+            this.$retPopup = $("#retPopUp");
             this.$retTabSection = this.$dfCard.find(".retTabSection");
             this.$retLists = $("#retLists");
             this.hasChange = false;
@@ -37,46 +39,20 @@ namespace DFParamTab {
 
         private setupListeners() {
             const self = this;
-            // Remove focus when click other places other than retinaArea
-            // add new retina
-            self.$retTabSection.on("click", ".retPopUp", function(event) {
-                event.stopPropagation();
+
+            $("#dfParamModal").on("click", ".retTab", function() {
+                self.retTabClick();
+                return false;
             });
 
             // toggle open retina pop up
             self.$retTabSection.on("click", ".retTab", function() {
-                if (XVM.getLicenseMode() === XcalarMode.Mod) {
-                    xcTooltip.add($(this), {"title": TooltipTStr.OnlyInOpMode});
-                    xcTooltip.refresh($(this));
-                }
-
-                xcMenu.close();
-                StatusBox.forceHide();
-                const $dagWrap: JQuery = self.$dfCard.find('.cardMain').find(".dagWrap:visible");
-                if (!$dagWrap.length || $dagWrap.hasClass("deleting")) {
-                    return;
-                }
-                const $tab: JQuery = $(this);
-
-                if (!$tab.hasClass("active")) {
-                    self.initializeList();
-                    $tab.addClass("active");
-                    $("#container").on("mousedown.retTab", function(event) {
-                        const $target: JQuery = $(event.target);
-                        if (self.$retTabSection.find(".retTab").hasClass("active") &&
-                            !$target.closest(".retTab").length) {
-                            self.closeRetTab();
-                            return false;
-                        }
-                    });
-                } else {
-                    self.closeRetTab();// open tab
-                }
+                self.retTabClick();
                 return false;
             });
 
             // delete retina para
-            self.$retTabSection.on("click", ".paramDelete", function(event) {
+            self.$retPopup.on("click", ".paramDelete", function(event) {
                 event.stopPropagation();
                 var $row: JQuery = $(this).closest(".row");
                 var name: string = $row.find(".paramName").text();
@@ -89,23 +65,23 @@ namespace DFParamTab {
                 self.deleteParamFromRetina($row);
             });
 
-            self.$retTabSection.on("keypress", ".newParam", function(event) {
+            self.$retPopup.on("keypress", ".newParam", function(event) {
                 if (event.which === keyCode.Enter) {
                     self.submitNewParam();
                 }
             });
 
-            self.$retTabSection.on("click", ".submitNewParam", function() {
+            self.$retPopup.on("click", ".submitNewParam", function() {
                 self.submitNewParam();
             });
 
-            self.$retTabSection.on("keypress", ".paramVal", function(event) {
+            self.$retPopup.on("keypress", ".paramVal", function(event) {
                 if (event.which === keyCode.Enter) {
                     $(this).blur();
                 }
             });
 
-            self.$retTabSection.on("input", ".paramVal", function() {
+            self.$retPopup.on("input", ".paramVal", function() {
                 if ($(this).val().trim() !== "") {
                     $(this).closest(".row").find(".paramNoValueWrap .checkbox")
                                            .removeClass("checked")
@@ -117,10 +93,46 @@ namespace DFParamTab {
                 self.hasChange = true;
             });
 
-            self.$retTabSection.on("click", ".checkbox", function() {
+            self.$retPopup.on("click", ".checkbox", function() {
                 $(this).toggleClass("checked");
             });
 
+            self.$retPopup.on("mouseup", ".paramNameWrap", function() {
+                if ($(this).closest("#dfParamModal").length) {
+                    xcHelper.copyToClipboard("<" + $(this).text() + ">");
+                }
+            });
+        }
+
+        private retTabClick() {
+            const self = this;
+            if (XVM.getLicenseMode() === XcalarMode.Mod) {
+                xcTooltip.add($(this), {"title": TooltipTStr.OnlyInOpMode});
+                xcTooltip.refresh($(this));
+            }
+
+            xcMenu.close();
+            StatusBox.forceHide();
+            const $dagWrap: JQuery = self.$dfCard.find('.cardMain').find(".dagWrap:visible");
+            if (!$dagWrap.length || $dagWrap.hasClass("deleting")) {
+                return;
+            }
+
+            if (!self.$retPopup.hasClass("active")) {
+                self.initializeList();
+                self.$retPopup.addClass("active");
+                $("#container").on("mousedown.retTab", function(event) {
+                    const $target: JQuery = $(event.target);
+                    if (self.$retPopup.hasClass("active") &&
+                        !$target.closest(".retTab").length &&
+                        !$target.closest("#retPopUp").length) {
+                        self.closeRetTab();
+                        return false;
+                    }
+                });
+            } else {
+                self.closeRetTab();
+            }
         }
 
         private initializeList(): void {
@@ -138,7 +150,7 @@ namespace DFParamTab {
         }
 
         private submitNewParam(): void {
-            let $input: JQuery = this.$retTabSection.find(".newParam");
+            let $input: JQuery = this.$retPopup.find(".newParam");
             let val: string = $input.val().trim();
             if (!this.validateParamName($input, val)) {
                 return;
@@ -194,7 +206,7 @@ namespace DFParamTab {
             return true;
         }
 
-        private closeRetTab() {
+        public closeRetTab() {
             var self = this;
             let invalidFound: boolean = false;
             this.$retLists.find(".row:not(.unfilled)").each(function() {
@@ -213,9 +225,11 @@ namespace DFParamTab {
             if (this.hasChange) {
                 this.hasChange = false;
                 DF.updateParamMap(this.getParamsFromList());
+                DFParamModal.updateDraggableInputs();
             }
 
             this.$retTabSection.find(".retTab").removeClass("active");
+            this.$retPopup.removeClass("active");
             StatusBox.forceHide();
             $("#container").off("mousedown.retTab");
         }
@@ -235,6 +249,7 @@ namespace DFParamTab {
             }
 
             $row.find(".paramName").text(name);
+            $row.find(".paramName").append('<i class="icon xi-copy-clipboard"></i>');
             if (val != null) {
                 $row.find(".paramVal").val(val);
                 if (val.trim() === "" && isEmpty) {

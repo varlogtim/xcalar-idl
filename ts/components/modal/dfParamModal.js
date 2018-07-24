@@ -183,18 +183,6 @@ window.DFParamModal = (function($, DFParamModal){
 
         xcMenu.add($modal.find(".paramMenu"));
 
-        $modal.find(".toggleParamMenu").click(function(event) {
-            xcHelper.dropdownOpen($(this), $modal.find(".paramMenu"), {
-                toggle: true,
-                offsetX: -45,
-                offsetY: 1
-            });
-        });
-
-        $modal.find(".paramMenu").on("mouseup", "li", function() {
-            xcHelper.copyToClipboard("<" + $(this).text() + ">");
-        });
-
         editor = CodeMirror.fromTextArea($("#dfParamsCodeArea")[0], {
             "mode": {
                 "name": "application/json"
@@ -285,6 +273,7 @@ window.DFParamModal = (function($, DFParamModal){
 
         updateInstructions();
         initAdvancedForm();
+        setupParamTab();
         deferred.resolve();
 
         return deferred.promise();
@@ -413,6 +402,23 @@ window.DFParamModal = (function($, DFParamModal){
         } else {
             switchAdvancedToBasicMode();
         }
+    };
+
+    DFParamModal.updateDraggableInputs = function() {
+        var draggableInputs = "";
+        var params = DF.getParamMap();
+        for (paramName in params) {
+            if (!(systemParams.hasOwnProperty(paramName) && isNaN(Number(paramName)))) {
+                draggableInputs += generateDraggableParams(paramName);
+            }
+        }
+
+        $modal.find('.draggableParams.currParams')
+              .html(draggableInputs);
+    };
+
+    function setupParamTab() {
+        $modal.append($("#retPopUp"));
     }
 
     function initBasicForm(providedStruct) {
@@ -424,19 +430,10 @@ window.DFParamModal = (function($, DFParamModal){
         $("#dfParamModal .editableRow .defaultParam").each(function() {
             setParamDivToDefault($(this).siblings("input"));
         });
-        var draggableInputs = "";
-        var params = DF.getParamMap();
-        for (paramName in params) {
-            if (!(systemParams.hasOwnProperty(paramName) && isNaN(Number(paramName)))) {
-                draggableInputs += generateDraggableParams(paramName);
-            }
-        }
-
-        $modal.find('.draggableParams.currParams')
-              .html(draggableInputs);
+        DFParamModal.updateDraggableInputs();
 
         // right section for system parameters
-        draggableInputs = "";
+        var draggableInputs = "";
         for (var key in systemParams) {
             if (isNaN(Number(key))) {
                 draggableInputs += generateDraggableParams(key);
@@ -864,23 +861,6 @@ window.DFParamModal = (function($, DFParamModal){
         editor.setValue(structText);
         editor.clearHistory();
         editor.refresh(); // to fix codemirror alignment issues
-
-        // param menu
-        var params = DF.getParamMap();
-        var paramArray = [];
-        for (paramName in params) {
-            if (!(systemParams.hasOwnProperty(paramName) && isNaN(Number(paramName)))) {
-                paramArray.push(paramName);
-            }
-        }
-        paramArray.sort();
-        var html = "";
-        for (var i = 0; i < paramArray.length; i++) {
-            html += '<li>' + paramArray[i] +
-                        '<i class="icon xi-copy-clipboard"></i>' +
-                    '</li>';
-        }
-        $modal.find(".paramMenu ul").html(html);
     }
 
     function setUpExportSettingTable(options) {
@@ -1961,6 +1941,7 @@ window.DFParamModal = (function($, DFParamModal){
         isOpen = false;
         $modal.removeClass("type-dataStore type-filter type-export type-synthesize " +
                             "type-advancedOnly type-noParams multiExport");
+        $("#retPopUp").appendTo($("#dataflowView"));
     }
 
     function updateInstructions() {

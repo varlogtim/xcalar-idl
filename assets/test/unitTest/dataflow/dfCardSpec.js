@@ -350,9 +350,9 @@ describe("DFCard Test", function() {
             Scheduler.show = cache1;
             DF.getDataflow = cache2;
             UnitTest.hasAlertWithTitle(DFTStr.AddValues);
-            expect($dfCard.find('.retPopUp:visible').length).to.equal(1);
+            expect($('#retPopUp:visible').length).to.equal(1);
             $("#container").trigger(fakeEvent.mousedown);
-            expect($dfCard.find('.retPopUp:visible').length).to.equal(0);
+            expect($('#retPopUp:visible').length).to.equal(0);
         });
 
         // XXX Need to figure out why not working
@@ -601,9 +601,9 @@ describe("DFCard Test", function() {
 
         it("popup should not close when clicking inside of it", function() {
             $tab.click();
-            expect($tab.find(".retPopUp").is(":visible")).to.be.true;
+            expect($("#retPopUp").is(":visible")).to.be.true;
             $tab.click();
-            expect($tab.find(".retPopUp").is(":visible")).to.be.false;
+            expect($("#retPopUp").is(":visible")).to.be.false;
         });
 
         // it("popup should close when clicking on dfcard", function() {
