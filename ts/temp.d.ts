@@ -19,6 +19,11 @@ interface Coordinate {
     y: number;
 }
 
+interface Dimensions {
+    width: number,
+    height: number
+}
+
 interface PrefixColInfo {
     prefix: string;
     name: string;
@@ -237,6 +242,12 @@ interface OpStatsDetails {
 }
 interface OpStatsOutput {
     opDetails: OpStatsDetails;
+}
+
+interface ListDSInfo {
+    path: string,
+    suffix: string,
+    id: string
 }
 
 declare namespace Base64 {
@@ -1287,11 +1298,15 @@ declare namespace DS {
     export function getDSObj(dsId: number | string): DSObj | null;
     export function goToDir(foldderId: string): void;
     export function focusOn($grid: JQuery): XDPromise<any>;
+    export function listDatasets(): ListDSInfo[];
 
     interface DSObj {
-        parentId: string
+        parentId: string,
+        getFullName: Function,
+        getName: Function
     }
 }
+
 
 declare namespace DSCart {
     export function restore(oldMeat: object): void;

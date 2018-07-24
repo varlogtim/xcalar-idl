@@ -48,6 +48,9 @@ class DragHelper {
     protected customOffset: Coordinate;
     protected dragContainerPositions: Coordinate[];
     protected noCursor: boolean;
+    protected lastY: number;
+    protected currY: number;
+    protected scrollUpCounter: number;
 
     public constructor(options: DragHelperOptions) {
         this.$container = options.$container;
@@ -73,12 +76,15 @@ class DragHelper {
         this.customOffset = options.offset || {x: 0, y: 0};
         this.dragContainerPositions = [];
         this.noCursor = options.noCursor || false;
+        this.scrollCounter = 0;
 
         const self = this;
         this.mouseDownCoors = {
             x: options.event.pageX,
             y: options.event.pageY
         };
+        this.lastY = this.mouseDownCoors.y;
+        this.currY = this.lastY;
 
         $(document).on("mousemove.checkDrag", function(event: JQueryEventObject) {
             self.checkDrag(event);
@@ -131,6 +137,7 @@ class DragHelper {
     }
 
     private onDrag(event: JQueryEventObject): void {
+        this.currY = event.pageY;
         this.positionDraggingEl(event);
         if (this.onDragCallback) {
             this.onDragCallback({
@@ -147,6 +154,13 @@ class DragHelper {
         const self = this;
         const pxToIncrement = 20;
         const horzPxToIncrement = 40;
+        const deltaY = this.currY - this.lastY;
+        const timer = 40;
+        if (deltaY < 1) {
+            this.scrollUpCounter++;
+        } else {
+            this.scrollUpCounter = 0;
+        }
 
         if (this.currentDragCoor.left < this.targetRect.left) {
             const curScrollLeft: number = this.$dropTarget.parent().scrollLeft();
@@ -156,18 +170,22 @@ class DragHelper {
                 this.$draggingEl.addClass("isOffScreen");
             }
         } else if (this.currentDragCoor.top < this.targetRect.top) {
-            const curScrollTop: number = this.$dropTarget.parent().scrollTop();
-            this.$dropTarget.parent().scrollTop(curScrollTop - pxToIncrement);
+            // only scroll up if staying still or mouse is moving up
+            if (this.scrollUpCounter * timer > 400) {
+                const curScrollTop: number = this.$dropTarget.parent().scrollTop();
+                this.$dropTarget.parent().scrollTop(curScrollTop - pxToIncrement);
+            }
+
             if (!this.isOffScreen) {
                 this.isOffScreen = true;
                 this.$draggingEl.addClass("isOffScreen");
             }
         } else if ((this.currentDragCoor.top + this.currentDragCoor.height) > this.targetRect.bottom) {
-
             const curScrollTop: number = this.$dropTarget.parent().scrollTop();
             if (this.$dropTarget.parent()[0].scrollHeight - curScrollTop -
             this.$dropTarget.parent().outerHeight() <= 1) {
-                this.$dropTarget.height("+=10");
+                const height: number = this.$dropTarget.height();
+                this.$dropTarget.css("min-height", height + 10);
             }
             this.$dropTarget.parent().scrollTop(curScrollTop + pxToIncrement);
 
@@ -175,9 +193,9 @@ class DragHelper {
             const curScrollLeft: number = this.$dropTarget.parent().scrollLeft();
             if (this.$dropTarget.parent()[0].scrollWidth - curScrollLeft -
             this.$dropTarget.parent().outerWidth() <= 1) {
-                this.$dropTarget.find(".sizer").width("+=20");
-                const width = this.$dropTarget.find(".sizer").width();
-                this.$dropTarget.width(width);
+                const width: number = this.$dropTarget.find(".sizer").width();
+                this.$dropTarget.find(".sizer").css("min-width", width + 20);
+                this.$dropTarget.css("min-width", width + 20);
             }
             this.$dropTarget.parent().scrollLeft(curScrollLeft + horzPxToIncrement);
 
@@ -186,9 +204,11 @@ class DragHelper {
             this.$draggingEl.removeClass("isOffScreen");
         }
 
+        this.lastY = this.currY;
+
         setTimeout(function() {
             self.adjustScrollBar();
-        }, 40);
+        }, timer);
     }
 
     private createClone(): void {

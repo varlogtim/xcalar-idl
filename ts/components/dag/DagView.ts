@@ -34,6 +34,36 @@ namespace DagView {
         });
     }
 
+
+
+    /**
+     * DagView.redraw
+     *
+     *  // restore dataflow dimensions and nodes,
+        // add connections separately after so all node elements already exist
+     */
+    export function redraw(): void {
+        const $dfArea = $dfWrap.find(".dataflowArea.active");
+        const dimensions = activeDag.getDimensions();
+        if (dimensions.width > -1) {
+            $dfArea.css("min-height", dimensions.height);
+            $dfArea.find(".sizer").css("min-width", dimensions.width);
+            $dfArea.css("min-width", dimensions.width);
+        }
+
+        const nodes: Map<DagNodeId, DagNode> = activeDag.getAllNodes();
+
+        nodes.forEach((node: DagNode) => {
+            _drawNode(node, $dfArea);
+        });
+        nodes.forEach((node: DagNode, nodeId: DagNodeId) => {
+            node.getParents().forEach((parentNode, index) => {
+                const parentId: DagNodeId = parentNode.getId();
+                _drawConnection(parentId, nodeId, index);
+            });
+        });
+    }
+
     /**
      * DagView.addBackNodes
      * @param _dagId
@@ -41,20 +71,12 @@ namespace DagView {
      * used for undoing/redoing operations
      */
     export function addBackNodes(_dagId, nodeIds) {
+        const $dfArea: JQuery = $dfWrap.find(".dataflowArea.active")
         // need to add back nodes in the reverse order they were deleted
         for (let i = nodeIds.length - 1; i >= 0; i--) {
             const nodeId = nodeIds[i];
             const node = activeDag.addBackNode(nodeId);
-            const type = node.getType();
-            const $node = $operatorBar.find('.operator[data-type="' + type + '"]').clone();
-            const pos = node.getPosition();
-            $node.css({
-                left: pos.x,
-                top: pos.y
-            });
-            // use .attr instead of .data so we can grab by selector
-            $node.attr("data-nodeid", nodeId);
-            $node.appendTo($dfWrap.find(".dataflowArea.active"));
+            _drawNode(node, $dfArea);
 
             node.getParents().forEach((parentNode, index) => {
                 _drawConnection(parentNode.getId(), nodeId, index);
@@ -68,6 +90,7 @@ namespace DagView {
                 });
             });
         }
+        _checkAndSetDimensions();
     }
 
     /**
@@ -76,20 +99,14 @@ namespace DagView {
      * @param nodeInfo
      */
     export function addNode(dagId, nodeInfo: DagNodeInfo): void {
-        const node = activeDag.newNode(nodeInfo);
-        const type = nodeInfo.type;
         $dfWrap.find(".operator").removeClass("selected");
-        const $node = $operatorBar.find('.operator[data-type="' + type + '"]').clone();
+        const $dfArea = $dfWrap.find(".dataflowArea.active");
 
-        $node.css({
-            left: nodeInfo.display.x,
-            top: nodeInfo.display.y
-        });
+        const node = activeDag.newNode(nodeInfo);
         const nodeId = node.getId();
-        // use .attr instead of .data so we can grab by selector
-        $node.attr("data-nodeid", nodeId);
+        const $node = _drawNode(node, $dfArea);
         $node.addClass("selected");
-        $node.appendTo($dfWrap.find(".dataflowArea.active"));
+        _checkAndSetDimensions();
 
         Log.add(SQLTStr.AddOperation, {
             "operation": SQLOps.AddOperation,
@@ -167,14 +184,8 @@ namespace DagView {
             const newNodeId = newNode.getId();
             newNodeIds.push(newNodeId);
             activeDag.moveNode(newNodeId, newPosition);
-            const type = newNode.getType();
-            const $newEl = $operatorBar.find('.operator[data-type="' + type + '"]').clone();
-            $newEl.css({
-                left: newPosition.x,
-                top: newPosition.y
-            });
-            $dfArea.append($newEl);
-            $newEl.attr("data-nodeid", newNodeId);
+
+            _drawNode(newNode, $dfArea);
         });
 
         Log.add(SQLTStr.CopyOperations, {
@@ -295,32 +306,7 @@ namespace DagView {
             });
         });
 
-        let dimensionsAltered = false;
-        const $dfArea = $dagView.find(".dataflowArea.active");
-        let dfAreaHeight = $dfArea.outerHeight();
-        const dfWrapHeight = $dfWrap.height();
-        const heightDiff = dfAreaHeight - dfWrapHeight;
-
-        let dfAreaWidth = $dfArea.find(".sizer").outerWidth();
-        const dfWrapWidth = $dfWrap.width();
-        const widthDiff = dfAreaWidth - dfWrapWidth;
-        if (heightDiff > 0) {
-            if (heightDiff < 40) {
-                dfAreaHeight = dfAreaHeight + 40;
-            }
-            $dfArea.outerHeight(dfAreaHeight);
-            dimensionsAltered = true;
-        }
-        if (widthDiff > 0) {
-            if (widthDiff < 40) {
-                dfAreaWidth = dfAreaWidth + 40;
-            }
-            $dfArea.outerWidth(dfAreaWidth);
-            dimensionsAltered = true;
-        }
-        if (dimensionsAltered) {
-            activeDag.setDimensions(dfAreaWidth, dfAreaHeight);
-        }
+        _checkAndSetDimensions();
 
         Log.add(SQLTStr.MoveOperations, {
             "operation": SQLOps.MoveOperations,
@@ -615,7 +601,6 @@ namespace DagView {
         svg: d3,
         offset
     ): void {
-
         const parentRect = $parentConnector[0].getBoundingClientRect();
         const parentCoors = {
             x: parentRect.right + offset.left - 1,
@@ -674,5 +659,52 @@ namespace DagView {
         _drawLineBetweenNodes($parentConnector, $childConnector,
                             parentNodeId, childNodeId,
                             connectorIndex, svg, offset);
+    }
+
+    function _checkAndSetDimensions() {
+        let dimensionsAltered = false;
+        const $dfArea = $dagView.find(".dataflowArea.active");
+        let dfAreaHeight = $dfArea.outerHeight();
+        let dfAreaWidth = $dfArea.find(".sizer").outerWidth();
+
+        const dfWrapHeight = $dfWrap.height();
+        const dfWrapWidth = $dfWrap.width();
+
+        const heightDiff = dfAreaHeight - dfWrapHeight;
+        const widthDiff = dfAreaWidth - dfWrapWidth;
+        if (heightDiff > 0) {
+            if (heightDiff < 40) {
+                dfAreaHeight = dfAreaHeight + 40;
+            }
+            $dfArea.css("min-height", dfAreaHeight);
+            dimensionsAltered = true;
+        }
+        if (widthDiff > 0) {
+            if (widthDiff < 40) {
+                dfAreaWidth = dfAreaWidth + 40;
+            }
+            $dfArea.css("min-width", dfAreaWidth);
+            dimensionsAltered = true;
+        }
+        if (dimensionsAltered) {
+            activeDag.setDimensions(dfAreaWidth, dfAreaHeight);
+        }
+    }
+
+    function _drawNode(node: DagNode, $dfArea: JQuery): JQuery {
+        const pos = node.getPosition();
+        const type = node.getType();
+        const nodeId = node.getId();
+        const $node = $operatorBar.find('.operator[data-type="' + type + '"]').clone();
+
+        $node.css({
+            left: pos.x,
+            top: pos.y
+        });
+
+        // use .attr instead of .data so we can grab by selector
+        $node.attr("data-nodeid", nodeId);
+        $node.appendTo($dfArea);
+        return $node;
     }
 }

@@ -30,7 +30,7 @@ class DagTabManager{
         let key = KVStore.getKey("gDagManagerKey");
         self._dagKVStore = new KVStore(key, gKVScope.WKBK);
         self._activeUserDags = [];
-        
+
 
         self._$dagTabArea.on("click", ".after", function(event) {
             event.stopPropagation();
@@ -43,7 +43,7 @@ class DagTabManager{
             self._switchTabs($tab);
         });
 
-        // Adding a new tab creates a new tab and adds 
+        // Adding a new tab creates a new tab and adds
         // The html for a dataflowArea.
         $("#tabButton").on("click", function(){
             self._newTab();
@@ -116,7 +116,7 @@ class DagTabManager{
                         self.reset();
                         innerDeferred.resolve();
                         return;
-                    } 
+                    }
                     const tabJSON: TagJSON = tab.getJSON();
                     if (tabJSON.name == null) {
                         innerDeferred.resolve();
@@ -130,7 +130,7 @@ class DagTabManager{
                 });
                 return innerDeferred.promise();
             }).bind(this);
-            promises.push(promise);                
+            promises.push(promise);
         }
         //Use a chain to ensure all are run sequentially.
         PromiseHelper.chain(promises);
@@ -195,7 +195,8 @@ class DagTabManager{
      * @param name Name of the tab we want to add
      */
     private _addTabHTML(name: string): void {
-        let html = '<li class="dagTab"><div class="name">' + name + '</div><div class="after">x</div></li>';
+        let html = '<li class="dagTab"><div class="name">' + name +
+                    '</div><div class="after"><i class="icon xi-close-no-circle"></i></div></li>';
         this._$dagTabArea.append(html);
         this._$dagTabs = $("#dagTabSectionTabs .dagTab");
         $(".dataflowWrap").append(

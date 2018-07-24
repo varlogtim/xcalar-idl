@@ -28,7 +28,7 @@ namespace DagDatasetModal {
     }
 
     function _displayPathList(): void {
-        const paths: {}[] = DS.listDatasets();
+        const paths: ListDSInfo[] = DS.listDatasets();
         let html: HTML = "";
         paths.forEach(function(pathInfo) {
             let path = pathInfo.path;

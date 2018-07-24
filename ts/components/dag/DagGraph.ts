@@ -1,7 +1,7 @@
 class DagGraph {
     private nodesMap: Map<DagNodeId, DagNode>;
     private removedNodesMap: Map<DagNodeId,{}>;
-    private display;
+    private display: Dimensions;
     private innerEvents: object;
     public events: { on: Function, trigger: Function}; // example: dagGraph.events.on(DagNodeEvents.StateChange, console.log)
 
@@ -13,7 +13,7 @@ class DagGraph {
             height: -1
         };
         this._setupEvents();
-    } 
+    }
 
     // XXX TODO
     public deserialize(seralizedGraph: string): boolean {
@@ -363,11 +363,15 @@ class DagGraph {
         this.display.height = height;
     }
 
-    public getDimensions(): object {
+    public getDimensions(): Dimensions {
         return {
             width: this.display.width,
             height: this.display.height
         }
+    }
+
+    public getAllNodes(): Map<DagNodeId, DagNode> {
+        return this.nodesMap;
     }
 
     private _setupEvents(): void {
