@@ -697,69 +697,43 @@ var HTML_BUILD_FILES = []; // a final list of all the bld files, rel. to bld des
 
 //var DONT_CHMOD = ['assets/stylesheets/css/xu.css'];
 
-/** Following variables determine how js minification will be done
-    (where it begins and at what depth to begin concatenating entire dirs)
+            /** JS MINIFICATION VARIABLES */
 
-        JSMINIFICATION_DIV_DIR:
-            dir in bld you want to start minifying files from
-            (will minify all js starting at, and contained within this dir)
-        JSMINIFICATION_CONCAT_DEPTH:
-            how many dir levels to start concatenation at?
-            (Explaination: for brevity, call this arg 'd', and the divergeAt dir as 'START'.
-            For each <dir> nested EXACTLY d levels down from START,
-            all js files at or nested within <dir> will get concatenated together and become
-            a single minified file - <dir>.min.js.
-            Alternatively, each <jsFile> that is nested in a dir which is < d levels from START,
-            will get minified by itself, as <jsFile>.min.js.)
+// files in the following list will have their <script> tags parsed;
+// js files included by those script tags will be minified
+//   'path': path to the file to be minified
+//   'rel': directory within bld where file should end up (in case it's partial
+//         being included at a different level).  If not supplied assumes bld root
+var PARSE_FILES_FOR_MINIFICATION = [
+    {'path': 'site/partials/loginPart.html','rel': "assets/htmlFiles/"},
+    {'path': 'site/partials/script.html'},
+];
+var MINIFY_FILE_EXT = ".js"; // extenion minified files will have
+var JS_MINIFICATION_START_DIR = jsMapping.src; // dir to start doing minification from
+// dir level below JS_MINIFICATION_START_DIR at which point js files should be
+// concatted together in to a single file named after the dir.
+// Files in dirs above this level get minified one by one to file by same name.
+// Count starts at 1; depth of 0 means all js files from start minified into one file
+// (example: if minifcation starts at /assets/js and depth is 2,
+// assets/js/A.js and assets/js/B.js minified in to their own file,
+// but all files at or nested below dir assets/js/C/ get be concatted at minified
+// in to a single file called C.js
+var JS_MINIFICATION_CONCAT_DEPTH = 2;
 
+// There are tasks run post-js-minification: updating <script> tags in html
+// files to the minified paths, and removing the unminified files from the build
+// Add uglify targets that should be excluded from these tasks
+var EXCLUDE_UGLIFY_TARGETS_FROM_POST_MINIFICATION_TASKS = [];
+// todo: (only excluded from script tag updating because src/dest attrs
+// for these targets won't get added to filepath mapping,
+// but clean iterates target by target and excludes targets, revisit
+// to make this better)
 
-            example:
+        // End minification vars //
 
-            /assets/jsRt/
-                        1.js
-                        2.js
-                        A/
-                            A1.js
-                            A2.js
-                        B/
-                            B1/   (further nesting)
-                            B2/   ("" "")
-                            Bf.js
-
-            (EX1) divergeAt = '/assets/jsRt/', and concatenateStartDepth = 1
-            Would result in following minified files:
-                - A.min.js (will contain all js files at or nested within /assets/jsRt/A/)
-                - B.min.js ("" "" ""/B/)
-                - 1.min.js (contains only 1.js)
-                - 2.min.js
-
-            (EX2) divergeAt = '/assets/jsRt/', and concatenateStartDepth = 0,
-            Then you'll end up with 1 minified file: jsRt.min.js (contains all js files
-            at and nested within /assets/jsRt/)
-
-            (EX3) divergeAt = '/assets/jsRt/', and concatenateStartDepth = 2, files would be named as:
-                - 1.min.js
-                - 2.min.js
-                - A1.min.js
-                - A2.min.js
-                - B1.min.js
-                - B2.min.js
-                - Bf.min.js
-
-            @TODO:
-            [If there are any naming conflicts (a dir to be minified, of same name as file to be
-            minified), will resolve by appending _contents to the dir/.  BUt havvent done yet]
-
-*/
-
-    // file to parse, to get script tags from for js minification (you need to know whicho files to minify, in the order they appear)
-var JS_MINIFICATION_PARSE_FILE = "site/partials/script.html",
-    MINIFY_FILE_EXT = ".js", // extenion you want ominified files to have
-    /** a key for grunt config, to hold a mapping of:
-        js filepaths that appear in html script tags --> target filepath to get minified in to.
-        gets configured during uglify configuration and consumed in update of script tags
-    */
-    JS_MINIFICATION_SCRIPT_TAG_FILEPATH_MAPPING_CONFIG_KEY = 'jsFilepathMapping';
+// a key in grunt config to hold mapping of unminified --> minified file paths
+// (for updating script tags after minification)
+var MINIFICATION_FILEPATH_MAPPING = 'jsFilepathMapping';
 
 // config filepath
 var CONFIG_FILE_PATH_REL_BLD = 'assets/js/config.js'; // path rel. to build root
@@ -808,7 +782,7 @@ var DONT_PRETTIFY = ["datastoreTut1.html", "datastoreTut2.html", "workbookTut.ht
         (want to be able to debug these in the field regularly
          and if you minify them putting breakpointst becomes really difficult)
     */
-    DONT_MINIFY = ['3rd', 'assets/js/unused', 'assets/js/worker', 'config.js'],
+    DONT_MINIFY = ['3rd', 'assets/js/unused', 'config.js'],
     // at end of bld will chmod everything to 777.  dont chmod what's in here (it fails on symlinks which is why im adding this)
     DONT_CHMOD = ['xu.css', UNIT_TEST_FOLDER],
     /** project src files and dirs to explicitally exclude from bld.
@@ -1375,9 +1349,26 @@ module.exports = function(grunt) {
             grunt-contrib-uglify-es to minify (collapse and mangle) javascript files for the build output
         */
         uglify: {
+
             /**
-                configuration for this plugin will be dynamically generated based on current src dirs
-                see function 'configureUglify'
+                static uglify targets need the following format for
+                post-minification tasks to work:
+
+            mytarget: {
+                src: [BLDROOT + '3rd/adal.js', BLDROOT + "3rd/chai.js"], // src files are abs filepaths (no dir or glob)
+                dest: BLDROOT + 'myfile.js' // dest is abs path
+                // (no restrictions on other attrs/options)
+            },
+
+            you can skip these restrcitions by adding the target
+            name to 'EXCLUDE_UGLIFY_TARGETS_FROM_POST_MINIFICATION_TASKS'
+            but script tags will not be updated in HTML post-minification
+
+            */
+
+            /**
+                configure for remaining targets of this plugin done dynamically
+                during build, see function configureDynamicUglifyTargets
             */
             sqlHelpers: {
                 src: [BLDROOT + "services/expServer/sqlHelpers/enums.js",
@@ -1568,6 +1559,12 @@ module.exports = function(grunt) {
         configureWatchTasksBasedOnUserParams();
     }
 
+    /**
+        keep mapping of unminified-->minified filepaths
+        in grunt config so script tags can be updated after js minification
+    */
+    grunt.config(MINIFICATION_FILEPATH_MAPPING, {});
+
                                             /** END MAIN INITIALIZATION **/
 
     /**
@@ -1705,15 +1702,12 @@ module.exports = function(grunt) {
 
         grunt.task.run(NEW_CONFIG_FILE); // clear developer configuration details
 
-        /**
-            js minification must come AFTER the above build task!!
-            this is because js files must be concatenated for minification in a particular order.
-            This order will be obtained by parsing index.html.
-            however, index.html must be built and processed first to do this
-            (initial src does not have includes resolved, and resides in diff dir)
-            Also - the config file will be minified, and so make sure you have set the
-            new config file before minification!
-        */
+        // minify AFTER above tasks
+        // At end of MINIFY_JS, script tags in HTML are updated to reflect the
+        // new minified paths. includes will need to be resolved in the HTML
+        // files being updated for the updated script tags to have correct
+        // rel paths.  Also, if config file minified want to make sure
+        // correct config file is set prior to minification
         grunt.task.run(MINIFY_JS);
 
         grunt.task.run(FINALIZE);
@@ -3242,19 +3236,21 @@ module.exports = function(grunt) {
     });
 
     /**
-        This task drives javascript minification and associated clean up tasks.
-
-        1. Configures and executes minification of build javascript,
-        2. updates <script> tags in bld HTML to reflect minified filepaths
-        3. prettifies the HTML to get rid of blank lines left from 2.
-        4. clears out unminified js files and dirs, and files used only for minification process.
+        1. Setup and run 'uglify' plugin (main minification plugin)
+        2. update <script> tags in bld HTML to reflect new minified filepaths
+        3. prettify HTML to remove blank lines left from 2.
+        4. delete unminified js files, and files used only for minification process.
     */
     grunt.task.registerTask(MINIFY_JS, 'Minify the Javascript', function() {
 
-        configureUglify(); // configure ethe uglify plugin to determine filepath mappings for minification
-
-        grunt.task.run('uglify'); // do minification on all but excluded js files
-        grunt.task.run(UPDATE_SCRIPT_TAGS); // update the build HTML to reflect new js filepaths
+        // in case static uglify targets get added, add their mappings
+        // to the unminified --> minified filepaths so script tags can be updated
+        addStaticUglifyTargetsToFilepathMapping();
+        // create uglify targets dynamically, else would need to hardcode
+        // targets in initConfig for every minified file wanted
+        configureDynamicUglifyTargets();
+        grunt.task.run('uglify'); // run all uglify targets
+        grunt.task.run(UPDATE_SCRIPT_TAGS); // update the build HTML to reflect minified filepaths
         grunt.task.run('prettify:cheerio'); // using cheerio to remove script tags causes empty whitespaces; prettify again
 
         // rid bld of the original js files no longer needed, unless running with option to keep full src
@@ -3349,24 +3345,37 @@ module.exports = function(grunt) {
         if (!uglifyConfig) {
             grunt.fail.fatal("There is no config data for the 'uglify' plugin!");
         }
-        var uglifyTarget, srcFile, relPart;
-        for ( uglifyTarget of Object.keys(uglifyConfig) ) {
-            // get all the src files  - they are full file paths.
-            grunt.log.writeln("Src files from minified target: " + uglifyTarget);
-            for ( srcFile of uglifyConfig[uglifyTarget].src ) {
-                relPart = path.relative(BLDROOT + jsMapping.dest, srcFile);
-                if (!grunt.file.isPathAbsolute(srcFile)) {
-                    grunt.fail.fatal("warning - you have change the configuration of the uglify path so src files are partial - you need to update the cleanJsSrc method as a result!");
-                }
-                // make sure it's not the name one of theo minified files or you'll end up deleting a minified file
-                if (!uglifyConfig.hasOwnProperty(relPart)) {
-                    grunt.log.write(("\t>>").green + " Unminified file : " + srcFile + " ... delete ...");
-                    grunt.file.delete(srcFile);
-                    grunt.log.ok();
-                } else {
-                    grunt.log.writeln(("\t>>").red + " Unminified file : "+ srcFile
-                        + " should have been overwritten by one of the new minified files already..."
-                        + (" Don't delete this file").red);
+        for (var uglifyTargetName of Object.keys(uglifyConfig)) {
+            // will only work if didn't use globs/dirs in the src attrs...
+            if (EXCLUDE_UGLIFY_TARGETS_FROM_POST_MINIFICATION_TASKS.indexOf(uglifyTargetName) !== -1) {
+                grunt.log.writeln(("Don't clean up from target " + uglifyTargetName).bold);
+                continue;
+            //if (!uglifyTarget.hasOwnProperty('dynamicallyGenerated')) {
+            //    continue;
+            } else {
+                var uglifyTarget = uglifyConfig[uglifyTargetName];
+                // delete all src files that got minified in to this target,
+                // unless it got overwritten by a minified file
+                for (var srcFile of uglifyTarget.src) {
+                    if (grunt.file.isPathAbsolute(srcFile)) {
+                        var relPart = path.relative(BLDROOT, srcFile);
+                        // don't delete if path got assigned to a minified file
+                        if (uglifyConfig.hasOwnProperty(relPart)) {
+                            grunt.log.writeln(("\t>>").red + " Unminified file " +
+                                srcFile + " should have been overwritten by " +
+                                " a minified file..." +
+                                (" Don't delete this file").red);
+                        } else {
+                            grunt.log.write(("\t>>").green +
+                                " Delete unminified file : " + srcFile);
+                            grunt.file.delete(srcFile);
+                            grunt.log.ok();
+                        }
+                    } else {
+                        grunt.fail.fatal("warning - some 'src' values in uglify " +
+                            " target are not abs paths; CLEAN_JS_SRC_POST_MINIFICATION" +
+                            " will need to be updated to handle this!");
+                    }
                 }
             }
         }
@@ -3400,133 +3409,411 @@ module.exports = function(grunt) {
     });
 
     /**
-        Update src attributes of <script> tags in the bld html,
-        to point to minified files that have been generated,
-        rather than original unminified srces.
+        For all HTML files in the build, scan <script> tags,
+        and any which reference js that has been minified, update to the
+        minified filepath
     */
     grunt.task.registerTask(UPDATE_SCRIPT_TAGS, function() {
-
         // get all the html files in the bld dir
         var htmlBldAbsPath = BLDROOT + htmlMapping.dest;
         //var htmlFilepaths = grunt.file.expand(htmlBldAbsPath + "**/*.html");
         var htmlFilepaths = HTML_BUILD_FILES;
 
-        // update each html file using the js filepath mapping set during configureUglify
+        // update each html file using the js filepath mapping set during configureDynamicUglifyTargets
         grunt.log.writeln(("\nJS Minification Clean-up section: ").yellow.bold
                 + (" For each html file in "
                 + htmlBldAbsPath
                 + ", update any <script> tags to use new minified filenames").yellow);
-        var filepath;
-        for ( filepath of htmlFilepaths ) {
+
+        for (var filepath of htmlFilepaths) {
             updateJsScriptTags(filepath);
         }
     });
 
-    /**
-        Given an absolute path to an html file,
-        Update <script> tags in the html file, such that for all <script> tags in the doc,
-        if the <script> tag's 'src' attribute appears as a key in the hashmap,
-        that 'src' attribute will be updated to the key's value in the hashmap.
+    // adds unminified --> minified paths from static 'uglify' targets in to
+    // MINIFICATION_FILEPATH_MAPPING so those script tags will also get updated
+    // post minification
+    function addStaticUglifyTargetsToFilepathMapping() {
+        var filepathMappings = grunt.config(MINIFICATION_FILEPATH_MAPPING);
+        var uglifyConfig = grunt.config('uglify');
+        var commonMsg = "\nTo skip this check, add this uglify target to the " +
+            "EXCLUDE_UGLIFY_TARGETS_FROM_POST_MINIFICATION_TASKS var." +
+            "\n(But js files minified from this target will be excluded from " +
+            " the post-minification tasks: updating <script> tags in " +
+            "HTML and deleting the unminified files from the build.)";
 
-        If multiple <script> tags have 'src' that map to the same destination filepath,
-        they will be replaced with a single <script> tag having that destination filepath.
+        if (uglifyConfig) {
+            for (var uglifyTargetName of Object.keys(uglifyConfig)) {
+                if (EXCLUDE_UGLIFY_TARGETS_FROM_POST_MINIFICATION_TASKS.indexOf(uglifyTargetName) !== -1) {
+                    continue;
+                }
 
-        This is to be done after js minification, so you can update to minified filenames
+                var uglifyTarget = uglifyConfig[uglifyTargetName];
+                var destFile = uglifyTarget.dest;
+                if (grunt.file.isPathAbsolute(destFile)) {
+                    var destFileRelBld = path.relative(BLDROOT, destFile);
+                    var srcAttr = uglifyTarget.src;
+                    var srcFiles = [];
+                    if (typeof srcAttr === 'string') {
+                        srcFiles.push(srcAttr);
+                    } else if (Array.isArray(srcAttr)) {
+                        srcFiles = srcAttr;
+                    } else {
+                        grunt.fail.fatal("'src' attr of uglify target " +
+                            uglifyTargetName +
+                            " is not a string or an array" +
+                            commonMsg);
+                    }
 
-        This will consume a global variable called jsFilepathMapping, which is populated during
-        'configureUglify', when js filenames are discovered and their corresponding min filepaths
-        are constructed.
-
-        @Example:
-
-        jsFilepathMapping:  // if this is how it was set up in configureUglify
-
-            {
-            '/assets/js/dashboard/db.js':'/assets/js/dashboard.min.js',
-            '/assets/js/dashboard/db2.js':'/assets/js/dashboard.min.js'
-            '/assets/js/utils/util.js':'/assets/js/utils.min.js'
+                    for (var srcFile of srcFiles) {
+                        if (grunt.file.isFile(srcFile)) {
+                            if (grunt.file.isPathAbsolute(srcFile)) {
+                                var srcFileRelBld = path.relative(BLDROOT, srcFile);
+                                // add in to the mapping
+                                filepathMappings[srcFileRelBld] = destFileRelBld;
+                            } else {
+                                grunt.fail.fatal("One of the 'src' values in " +
+                                    "uglify target " +
+                                    uglifyTargetName +
+                                    " is not an abs path: (" + srcFile + ")" +
+                                    "\nPrepend this path with BLDROOT " +
+                                    commonMsg);
+                            }
+                        } else {
+                            grunt.fail.fatal("One of the 'src' values in " +
+                                "uglify target " +
+                                uglifyTargetName +
+                                " is not a file (" + srcFile + ")" +
+                                " (dirs and globbing patterns are NOT yet" +
+                                " supported for updating script tags) " +
+                                commonMsg);
+                        }
+                    }
+                } else {
+                    grunt.fail.fatal("Dest file in uglify target " +
+                        uglifyTarget + " is NOT an aboslute path; " +
+                        " prepend this path with BLDROOT" +
+                        commonMsg);
+                }
             }
+            grunt.config(MINIFICATION_FILEPATH_MAPPING, filepathMappings);
+        } else {
+            grunt.log.writeln(("No static uglify tasks to get filepath mappings for").green);
+        }
+    }
 
-        So in this case, if an html file has the following script tags:
+    /**
+     * Dynamically configure targets for 'uglify' plugin (js minification task).
+     * - determine which files should be minified, and to what filepaths,
+     *   and create an uglify target for each such desired minified file.
+     * At the same time, keep track of mapping between unminified --> minified
+     * filepaths, for updating script tags in html and cleaning js bld post-minification
+     */
+    function configureDynamicUglifyTargets() {
 
-        <script src='/assets/js/dashboard/db.js'>
-        <script src='/assets/js/dashboard/db2.js'>
-        <script src='/assets/js/utils/util.js'>
-        <script src='/assets/js/3rd/a.js'>
+        grunt.log.writeln(("\nJS Minification Set-up section: ").bold +
+            (" Generate targets for javascript minification " +
+            " by parsing script tags").grey.bold);
 
-        It will have the following script tags after this function:
+        // configure uglify to minify javascript being imported by script tags
+        // of certain source files.
+        // setTargetsByParsingScriptTags directly modifies uglify config and the filepath mapping
+        for (var minificationObj of PARSE_FILES_FOR_MINIFICATION) {
+            var parseFile = minificationObj.path;
+            var dirWithinBld = "";
+            if (minificationObj.hasOwnProperty("rel")) {
+                dirWithinBld = minificationObj.rel;
+            }
+            setTargetsByParsingScriptTags(BLDROOT + parseFile, BLDROOT + dirWithinBld);
+        }
 
-        <script src='/assets/js/dashboard.min.js'>
-        <script src='/assets/js/utils.min.js'>
-        <script src='/assets/js/3rd/a.js'>
-    */
+        // now that all targets generated, check for any name collisions
+        // (generated minified filepaths which are existing src filepaths
+        // for files which aren't being minified - they would get overwritten)
+        var uglifyConfig = grunt.config('uglify');
+        var filepathMappings = grunt.config(MINIFICATION_FILEPATH_MAPPING);
+        grunt.log.write(("\nStep: ").bold + (" Check for naming collisions...")[STEPCOLOR]);
+        var collisions = checkForNameCollisions(uglifyConfig, filepathMappings);
+        if (collisions.length > 0) {
+            grunt.fail.fatal("Grunt trying to create minified files:" +
+                collisions +
+                "\nbut these files exist, and are not set to be minified," +
+                " so they would get overwritten." +
+                "\nMost likely, you have a file and dir by the same name, " +
+                " are trying to minify all the files in that dir." +
+                "\n\nSolutions: " +
+                "\t1. Rename the file/dir to avoid this naming collision" +
+                " (This resolves the problem without changing any Grunt code)." +
+                "\n\t2. Include the source file in script.html or loginPart.html" +
+                " (This will ensure it too gets minified.)" +
+                "\n\t3. Another solution is to use a unique extension for minified "+
+                " files (i.e. .min.js); this would require change to Grunt");
+        }
+        grunt.log.ok();
+    }
+
+    /**
+     * check for conditions where a script tag should be ignored, and that js
+     * file not minified
+     * @srcPathFull: full filepath to the js the 'src' attr refers to
+     * @srcPathRelBld: filepath rel bld to the js the 'src' attr refers to
+     * @startMinificationAt: dir (rel bld) where minification should start at
+     * @displayAs: string to display in logs
+     */
+    function ignoreScriptTag(srcPathFull, srcPathRelBld, startMinificationAt, displayAs) {
+
+        // skip this tag if its for a file nested lower than dir to start
+        // minification at (probably 3rd party)
+        if (!srcPathRelBld.startsWith(startMinificationAt)) {
+            grunt.log.writeln(("\t" + displayAs +
+                (" not in path we want to minify files in... " +
+                "(probably 3rd party)... skip").bold).blue);
+                return true;
+        }
+
+        // file doesn't exist
+        /** important:
+            suppose file is for a file not generated until later in the bld
+            process (Ex: config.js).  if you don't skip, will create an uglify
+            target for it, this target will fail when uglify run, but grunt will
+            continue with no way to remove the entry.
+            Later, when cleaning JS, 'src' files for uglify targets (unminified
+            files) will be removed; if the file was generated by this time,
+            it will end up getting deleted!
+        */
+        if (!grunt.file.exists(srcPathFull)) {
+            grunt.log.writeln(("\t" + displayAs +
+                (" Can NOT resolve src path- do NOT put in uglify " +
+                "config!").bold).blue);
+                return true;
+        }
+
+        // blacklisted dirs/files
+        var ignore = false;
+        for (var exclude of DONT_MINIFY) {
+            if (
+                srcPathRelBld.startsWith(exclude) ||
+                path.basename(srcPathRelBld) == exclude
+            ) {
+                grunt.log.writeln(("\t" + displayAs +
+                    (" blacklisted from minification... skip...").bold).blue);
+                    ignore = true;
+                       break;
+            }
+            if (ignore) {return true;}
+        }
+
+        return false;
+    }
+
+    /**
+     * parse javascript <script> tags in a file, and determine what
+     * files to minify them to.  For each such minified file, create an uglify
+     * target.  (If the target already exists, just add to its src)
+     * @filepathForScriptTagParsing: abs path to file to parse script tags in
+     * @tagsFinalLocation: abs path to dir the script tags are rel to.
+     *    if not supplied, assumes they are rel parent dir of filepathForScriptTagParsing.
+     *     (some partial files intended to be included at diff depth, and script
+     *     tags are written for that intended depth, not file's depth)
+     */
+    function setTargetsByParsingScriptTags(filepathForScriptTagParsing, dirTagsAreRelTo) {
+
+        grunt.log.writeln(("\nStep: ").bold + (" Parse <script> tags in " +
+            filepathForScriptTagParsing + " and add those files in to 'uglify'" +
+            " to be minified")[STEPCOLOR]);
+
+        // script tag src will be rel the final file the file being parsed is included in
+        //  will need to construct the abs filepaths
+        if (typeof dirTagsAreRelTo === 'undefined') {
+            dirTagsAreRelTo = path.dirname(filepathForScriptTagParsing);
+        }
+
+        var $ = cheerio.load(fs.readFileSync(filepathForScriptTagParsing, "utf8")); // get a DOM for this file using cheerio
+
+        // GO through each script tag, determine minified file it should map to
+        var startMinificationAt = JS_MINIFICATION_START_DIR;
+        var scriptTags = {}; // to check for duplicate script tags
+        $('script').each(function(i, elem) {
+
+            var scriptTagSrcAttr = $(this).attr('src');
+            // Will be empty string if its defining a real function
+            if (scriptTagSrcAttr) {
+
+                // skip and create build warning if its a duplicate script tag
+                if (scriptTags.hasOwnProperty(scriptTagSrcAttr)) {
+                    END_OF_BUILD_WARNINGS.push(filepathForScriptTagParsing +
+                        " : Duplicate <script> tag w src attr '"
+                        + scriptTagSrcAttr + "'");
+                    return;
+                }
+                scriptTags[scriptTagSrcAttr] = true;
+
+                // src tags are rel to final bld file they're included in; need full path
+                var srcFileAbsPath = path.resolve(dirTagsAreRelTo, scriptTagSrcAttr);
+                var srcFileRelBld = path.relative(BLDROOT, srcFileAbsPath);
+
+                // check for conditions that would want to ignore tag
+                if (ignoreScriptTag(srcFileAbsPath, srcFileRelBld, startMinificationAt, scriptTagSrcAttr)) {
+                    return;
+                }
+
+                // file should be minified.  Get path of file it should be minified in to
+                var minifileRelMinificationStart = getMinifiedFilepath(
+                    srcFileRelBld, startMinificationAt);
+                if (typeof minifileRelMinificationStart === 'undefined') {
+                    grunt.log.warn("Could NOT determine file to minify to " +
+                        " for " + scriptTagSrcAttr);
+                    return;
+                }
+                var minifileRelBld = startMinificationAt + minifileRelMinificationStart;
+                var minifileAbsPath = BLDROOT + minifileRelBld;
+
+                grunt.log.writeln(("\t" + scriptTagSrcAttr + (" --> will minify INTO ")['red'] + minifileRelBld));
+
+                // update 'uglify' plugin and js filepath mapping for this file
+                addFileToBeMinified(srcFileAbsPath, srcFileRelBld, minifileAbsPath, minifileRelBld);
+            }
+        });
+    }
+
+    /**
+     * adds a file to be minified by uglify, and updates global
+     * filepath mapping used for updating script tags
+     * creates the uglify target if it does not exist yet.
+     */
+    function addFileToBeMinified(fileToMinifyAbsPath, fileToMinifyRelBld, minifiedFileAbsPath, minifiedFileRelBld) {
+
+        var uglifyTargetName = minifiedFileRelBld;
+
+        var currUglifyConfig = grunt.config('uglify');
+        var currJsMapping = grunt.config(MINIFICATION_FILEPATH_MAPPING);
+
+        // check if there's already a target for this minified file
+        // in the uglify config (multiple files can minify in to same file).
+        // If not, create new target for it.
+        // [store targets by the filepath, not filename, in case multiple
+        // minified files w same name i.e., A/B/C.js and A/D/C.js]
+        if (!currUglifyConfig.hasOwnProperty(uglifyTargetName)) {
+            currUglifyConfig[uglifyTargetName] = generateUglifyTarget(minifiedFileAbsPath);
+        }
+
+        // check if src file already in target's src attr
+        // (the target's src attr is a list of all the src files that will
+        // get minified in to the .dest for the target.
+        // (could happen if parsing script tags of multiple html files,
+        // and they have a common script tag)
+        var foundSrc = false;
+        for (var srcFile of currUglifyConfig[uglifyTargetName].src) {
+            if (srcFile === fileToMinifyAbsPath) {
+                foundSrc = true;
+                break;
+            }
+        }
+        if (!foundSrc) {
+            currUglifyConfig[uglifyTargetName].src.push(fileToMinifyAbsPath);
+            grunt.config('uglify', currUglifyConfig);
+            // add to inverted hash for post-minification tasks
+            // VALUES NEED TO BE REL BLD!
+            currJsMapping[fileToMinifyRelBld] = minifiedFileRelBld; // for checking name collisions
+            grunt.config(MINIFICATION_FILEPATH_MAPPING, currJsMapping);
+        }
+    }
+
+    /**
+     * Updates <script> tags in an html file to point to minified js.
+      * js files minifying in to the same file are collapsed to a single tag.
+     *
+     * (Mapping done by relying on global var jsFilepathMapping, which is
+     * populated during 'configureDynamicUglifyTargets'.
+     * Each js file that's minified has an entry in this object,
+     * where key is path to the unminified file (rel bld), and value is
+     * path to the file its minified in to (rel bld))
+     *
+     * @htmlFilepath: path (abs or rel bld) of html file to update
+     *
+     * @Example:
+     *     Suppose html file has following script tags:
+     *    <script src='/A.js'>
+     *    <script src='/B.js'>
+     *    <script src='/C/C1.js'>
+     *    <script src='/C/C2.js'>
+     *  And jsFilepathMapping has followin entries:
+     *    {
+     *       '/A.js':'/A.min.js'
+     *       '/C/C1.js':'/C.min.js',
+     *       '/C/C2.js':'/C.min.js'
+     *     }
+     *  Script tags after would be:
+     *    <script src='/A.min.js'>
+     *    <script src='/B.js'>
+     *    <script src='/C.min.js'>
+     */
     function updateJsScriptTags(htmlFilepath) {
 
-        // if rel make abs (need for resolving the rel filepaths in tags)
-        var htmlFilepathRelBld, htmlFilepathAbs;
-        if (!grunt.file.isPathAbsolute(htmlFilepath)) {
-            htmlFilepathAbs = BLDROOT + htmlFilepath;
-        }
-        htmlFilepathRelBld = path.relative(BLDROOT, htmlFilepathAbs);
+        grunt.log.debug("Scan " + htmlFilepath +
+            " to find any <script> tags for js files that have been minified");
 
-        grunt.log.debug("Scan " + htmlFilepath + " to find <script> tags for js files that might have been minified");
-        var $ = cheerio.load(fs.readFileSync(htmlFilepathAbs, "utf8")); // get a DOM for this file using cheerio
-        var mappingFilepaths = {}; // keep track of what 'src' attributes have been update to so far, so no dupes in final
-        // retrieve the minification filepath maapping for script tags
-        var jsFilepathMapping = grunt.config.get(JS_MINIFICATION_SCRIPT_TAG_FILEPATH_MAPPING_CONFIG_KEY);
+        // get mapping of src files --> minified files, for updating script tags
+        var jsFilepathMapping = grunt.config.get(MINIFICATION_FILEPATH_MAPPING);
         if (!jsFilepathMapping) {
             grunt.fail.fatal("The grunt config key "
-                + JS_MINIFICATION_SCRIPT_TAG_FILEPATH_MAPPING_CONFIG_KEY
+                + MINIFICATION_FILEPATH_MAPPING
                 + " has not been set in grunt config.\n"
                 + "This key should hold a mapping of src attrs of js <script> tags in html files,"
                 + " and src attr the tags should be converted to after js minification\n"
                 + "js minification process has changed!");
         }
-        var modified = false;
-        var filedir = path.dirname(htmlFilepathAbs); // will need to resolve filepaths so need the files dir
-        var src, srcResolved, srcRelBld;
+
+        // get abs path to html file for resolving the rel filepaths in tags
+        var htmlFilepathAbs;
+        var htmlFilepathRelBld;
+        if (grunt.file.isPathAbsolute(htmlFilepath)) {
+            htmlFilepathAbs = htmlFilepath;
+        } else {
+            htmlFilepathAbs = BLDROOT + htmlFilepath;
+        }
+        htmlFilepathRelBld = path.relative(BLDROOT, htmlFilepathAbs);
+        var htmlFileParentDir = path.dirname(htmlFilepathAbs);
         grunt.log.write(("\t" + htmlFilepathRelBld + "... ").blue);
+
+        var mappingFilepaths = {}; // keep track of what src attrs update to so no dupes in final
+        var modified = false;
+        var $ = cheerio.load(fs.readFileSync(htmlFilepathAbs, "utf8")); // DOM obj for the file
         $('script').each(function(i, elem) { // go through each script tag
 
-            src = $(this).attr('src'); // get ' src' attr of current script tag
-
+            var src = $(this).attr('src'); // get ' src' attr of current script tag
             if (src) { // make sure there was an 'src' attrihbute
 
-                /**
-                    entries in jsFilepathMapping are rel bld
-                    src attr will be rel. to location of the file...
-                    (i.e., if in assets/htmlFiles/walk/somefile.html
-        i            script src will be ../../js/myfile.js)
-                    so first resolve to abs path, then get rel portion within bld
-                */
-                srcResolved = path.resolve(filedir, src); // filedir is abs, so would flatten ex above to <pathtobld>/assets/js/myfile.js
-                srcRelBld = path.relative(BLDROOT, srcResolved); // --> assets/js/myfile.ejs
-                grunt.log.debug("File: " + htmlFilepath + "| script tag Orig: " + src + " | resolved: " + srcResolved + " | rel bld: " + srcRelBld);
+                // will search for this src attr in jsFilepathMapping
+                // entries in jsFilepathMapping are rel bld,
+                // src attr will be rel. location of htmlFilepath
+                // so first resolve to abs path, then get rel portion within bld
+                var srcResolved = path.resolve(htmlFileParentDir, src); // htmlFileParentDir is abs path
+                var srcRelBld = path.relative(BLDROOT, srcResolved);
 
-                // see if the src is one the filepaths that has a new mapping
                 if (jsFilepathMapping.hasOwnProperty(srcRelBld)) {
 
-                    equivSrcRelBld = jsFilepathMapping[srcRelBld];
+                    // path (rel bld) of minified file it maps in to
+                    var minifiedFileVersionRelBld = jsFilepathMapping[srcRelBld];
 
-                    /**
-                         ok it is present.  Now, its dest. already been mapping in a previous script tag?
-                        (Ex: if an html file had script tags, one for each js file in a dir.
-                        But now all those js files in the dir got minified in to a single file.
-                        You want to essentially condense all those in to a single script tag for the mini file
-                    */
-                    if (mappingFilepaths.hasOwnProperty(equivSrcRelBld)) {
-                        // delete this <script tag entirely
+                    // check if another script tag updates to the minified file
+                    // (mult. files can minify into same file); if so, can remove this tag
+                    if (mappingFilepaths.hasOwnProperty(minifiedFileVersionRelBld)) {
+                        // delete this <script> tag entirely
                         $(this).remove();
+                        modified = true;
                     } else {
-                        // need to undo so rel to same loc.
-                        equivSrcResolved = path.relative(filedir, BLDROOT + equivSrcRelBld);
-                        grunt.log.debug("\tFound resolved in the hash... update to: " + equivSrcResolved);
+                        // minified filepath is rel bld root;
+                        // need rel html file's location within bld
+                        equivSrcResolved = path.relative(htmlFileParentDir, BLDROOT + minifiedFileVersionRelBld);
 
-                        // update the 'src' attribuate to the new value and add to mappingFilepaths
-                        $(this).attr('src', equivSrcResolved);
-                        mappingFilepaths[equivSrcRelBld] = true;
+                        // some js files minified to file of the same name
+                        if (equivSrcResolved !== src) {
+                            $(this).attr('src', equivSrcResolved);
+                            modified = true;
+                        }
+                        mappingFilepaths[minifiedFileVersionRelBld] = true;
                     }
-                    modified = true;
                 }
             }
         });
@@ -3544,280 +3831,93 @@ module.exports = function(grunt) {
     }
 
     /**
-        Dynamically configure the 'uglify' (js minification task).
-        - determine which files should be minified, and to what filepaths,
-          and create an uglify target for each such desired minified file.
-        At the same time, keep track of following:
-        - if running script without option to save source,
-          also keep tab on which js files are getting mapped, so they
-         can be removed after the minification.
-    */
-    function configureUglify() {
+     * Checks for bug-inducing naming collisions
+     * Example...
+     * Suppose js dir like this
+     *   assets/js/stuff.js  (this file does not appear in script.html!)
+     *   assets/js/stuff/A.js --> minified in to stuff.js
+     *   assets/js/stuff/B.js --> minified in to stuff.js
+     *   assets/js/C.js --> minified in to C.js
+     *    Here A.js and B.js would get concatenated and minified into assets/js/stuff.js,
+     *  overwriting that current, unminified file.
+     *  And since assets/js/stuff.js (unminified) not in script.html,
+     *    its not getting minified itself and gets lost.
+     * -- Since we are using the same extensions, can't just check for file
+     *   existence before writing a new minified file, because it's expected and
+     *   desired to overwrite current files (Ex, assets/js/C.js unminified, should
+     *   be minified and overwrite)
+     *    So instead --> for each new minified filepath
+     *  ('dest' attr of key/target in uglifyConfig)
+     *  Check if that path exists already
+     *  If it does,
+     *  Check to make sure that unminified file is ALSO getting minified
+     * (its path rel bld would be a key in jsFilepathMapping then)
+     *  If its NOT, that means it is going to be being overwritten and not minified itself
+     * (Need to do this after you've built up both hashes, not during, because one
+     * could came after the other)
+     */
+    function checkForNameCollisions(uglifyTargets, jsFilepathMappings) {
 
-        grunt.log.writeln(("\nJS Minification Set-up section: ").bold + (" Configure grunt's uglify (js minification) task").grey.bold);
-
-        /**
-            dictionary to set as 'uglify' plugin configuration
-            keys will be uglify 'targets', as the new minified filename.
-            Value will be, the target data (just like what you'd have in initConfig with src, dest, cwd attrs)
-        */
-        var uglifyConfig = {};
-
-        /**
-            Hash with key/value as <unminified filepath rel bld>: <minified filepath it will be mapped in to, rel bld>
-
-            Context:
-            Once js has been minified, will need to update script tags in HTML files (UPDATE_SCRIPT_TAGS task),
-            to swap out 'src' attrs having unminified filepaths, with their corresponding minified filepaths
-            So as we're setting up for uglification
-            also build up a hash that has <unminified file> --> <corresponding minified file>
-            and make this globally accessible in the grunt.config param, so it can be used llater during script tag updating.
-
-            (Keeping own hash rather than relying on uglifyConfig,
-            because would have to search through entire    uglify config
-            for every single script tag in every single html file!)
-
-            ** THESE KEY VALUES (unminified filenames) ARE EXPECTED TO BE REL BLD
-            ** IF THEY AREN'T, UPDATING SCRIPT TAGS WILL FAIL
-            --> this because: the final js files, could be nested elsewhere in bl d.
-                And when you want to update their script tags, those script tags will be rel. to where that file is
-                (i.e., might be ../../../js/somefile.js)
-                So in the function that updates script tags, going to normalize all script src attrs, to be path rel bld,
-                and that's what we'll check for in this hash
-        */
-        var jsFilepathMapping = {};
-
-        /** STEP 1: CONFIGURE THE 'uglify' TASK SO THAT GRUNT KNOWS WHAT FILES TO MINIFY ANOD HOW */
-
-        /**
-
-            ORDERING DURING MINIFICATION
-
-            Due to code dependencies, the order files are concatenated together during minification is important.
-            (some of the scripts call functions in other scripts, and so when they are imported in the HTML,
-            we need those parent functions to be imported first).
-            The ordering is set in the script.html file (you can observe this in your workspace);
-            other html files get their script tags auto-generated based on the ordering in this script.
-            An efficient way to get the ordering, will be to parse an HTML file and traverse the DOM,
-            but we can not do this from script.html since it is not an actual html file.
-            So instead, use index.html, which is an actual HTML file we can parse using cheerio.
-        */
-
-        // step 1: parse approrpiate HTML file to get list of all js script tags
-        var filepathForScriptTagParsing = BLDROOT + JS_MINIFICATION_PARSE_FILE;
-        //filepathForScriptTagParsing = "/home/jolsen/xcalar-gui/index.html";
-
-        grunt.log.writeln(("\nStep 1:").bold
-            + (" Parse <script> tags in " + filepathForScriptTagParsing
-            + " to determine which js files should be minified, "
-            + "\nand order they should be concatenated together during minification")[STEPCOLOR]);
-
-        var $ = cheerio.load(fs.readFileSync(filepathForScriptTagParsing, "utf8")); // get a DOM for this file using cheerio
-
-        // GO through each script tag, categorize what minified file it should map to
-        var scriptTagSrcAttr, srcFilepathAbs, exclude, ignore, minipathRelDivergeAt, minifileBldDest, minifileBldDestAbs;
-        var minificationDivergeAt = jsMapping.src;
-        var scriptTags = {}; // check for any script tags in script.html being duplicated, is bug will issue warning
-        $('script').each(function(i, elem) {
-
-            scriptTagSrcAttr = $(this).attr('src'); // get ' src'
-
-            // some validation
-            if (scriptTagSrcAttr) {
-
-                // since written to be included in to index.html which is at root of bld,
-                // the src attrs should be rel bld root
-                srcFilepathAbs = BLDROOT + scriptTagSrcAttr;
-
-                // check 1: check if already found a script tag for this entry (bug in script.html)
-                if (scriptTags.hasOwnProperty(scriptTagSrcAttr)) {
-                    END_OF_BUILD_WARNINGS.push(filepathForScriptTagParsing + " : Duplicate <script> tag w src attr '" + scriptTagSrcAttr + "'");
-                    return; // jquery version of 'continue'
-                }
-                scriptTags[scriptTagSrcAttr] = true;
-
-                // check 2: if its not part of where we want to start minifying from, skip , probably 3 rd party
-                if (!scriptTagSrcAttr.startsWith(minificationDivergeAt)) {
-                    grunt.log.writeln(("\t" + scriptTagSrcAttr + (" not in path we want to minify files in... (probably 3rd party)... skip").bold).blue);
-                    return; // jquery version of contionue;
-                }
-
-                /**
-                    check 3: if you can NOT find script being referenced - continue!!
-                    Consider this scenario :
-                    The file at that src is a real bld file (rather than http address, etc.),
-                    its just not generated until later in the bld process (Ex: config.js)
-                    In such case, if you don't skip over here, it's going to get set in the uglify config
-                    (1) uglify will run, and that target will fail, (but grunt will continue,
-                    and unfortunately no way to remove this entry from the config due to the failure).
-                    later on, when cleaning up JS after updating the script tags
-                    (2) will remove all src files in the uglify config.
-                    So if the file gets generated sometime between (1) and (2), the file
-                    will end up getting deleted at (2) since it's still in here, and just didn't get minified
-                */
-                if (!grunt.file.exists(srcFilepathAbs)) {
-                    grunt.log.writeln(("\t" + scriptTagSrcAttr + (" Can NOT resolve src path- do NOT put in uglify config!").bold).blue);
-                    return;  // 'continue' in jquery...
-                }
-
-                // check 4: in one of dirs or files not to minify
-                ignore = false;
-                for ( exclude of DONT_MINIFY ) {
-                    if (
-                        scriptTagSrcAttr.startsWith(exclude) ||
-                        path.basename(scriptTagSrcAttr) == exclude
-                    ) {
-                        grunt.log.writeln(("\t" + scriptTagSrcAttr + (" blacklisted from minification... skip...").bold).blue);
-                        ignore = true;
-                        break;
-                    }
-                }
-                if (ignore) { return; }
-
-            } else {
-                /**
-                    if src attr "", then its tag for an actual function in the HTML
-                    rather than something being included externally; continue
-                    (Keep this check in... That way in case you ever switch
-                    divergeAt variable (the path at whiich you want to start)
-                    js minification at) to an empty string (start from anywhere )
-                    you won't get problems because this would then match..
-                */
-                grunt.log.writeln((("\tUndefined or empty entry on script tag... ").bold + scriptTagSrcAttr + (" skip: ").bold).blue);
-                return; // a loop 'continue' in jquery
-            }
-
-            /**
-                get minified filename for this file.
-                (returns filepath relative to the divergence dir (2nd arg) to function)
-                so if you send
-                getMinifiedFilepath('/home/jolsen/xcalar-gui/assets/js/A/B/C/e.js', 'assets/js', 2);
-                returns 'A/B/C.js'
-                if undefined, could not determine a filepath, warn; could indicate bug
-            */
-            minipathRelDivergeAt = getMinifiedFilepath(scriptTagSrcAttr, minificationDivergeAt, JS_MINIFICATION_CONCAT_DEPTH);
-            if (minipathRelDivergeAt == undefined) {
-                grunt.log.warn("Could NOT determine minification filepath for file " + scriptTagSrcAttr);
-                return;
-            }
-            minifileBldDest = minificationDivergeAt + minipathRelDivergeAt;
-            minifileBldDestAbs = BLDROOT + minifileBldDest;
-            // Jerene wants an extra check, that if file and dir having the same name, alert developers..
-            // quickest to catch this right now I think, is  if the minifiedFilepath that comes back, is same as an existing file,
-            // but the file getting minified is NOT that existing file
-            // i.e., if you had assets/js/stuff/A.js minifying in to --> assets/js/stuff.js, and there's also an assets/js/stuff.js regular file
-            // but, not a problem if assets/js/stuff.js --> minifies in to itself at assets/js/stuff.js
-            if (grunt.file.exists(minifileBldDestAbs) && minifileBldDestAbs !== srcFilepathAbs) {
-                END_OF_BUILD_WARNINGS.push("File " + srcFilepathAbs + " set to minify in to "
-                    + minifileBldDestAbs
-                    + ", and a file by this name already exists.  But, it is NOT "
-                    + " this file getting minified!"
-                    + "\nMost likely, you have a file and dir in the js portion of the bld, by the same name."
-                    + "\n(Doesn't mean the bld will fail, if this is the case but all are represented in script.html,"
-                    + " they will all get minified in to the same file.  If there is a problem bld should fail."
-                    + "\nHowever, this naming convention is not ideal; please address it");
-            }
-
-            /**
-                Store in the config dictionary for the 'uglify' multi-task
-                Make each minified file an individual target for the task
-
-                target should look like this (the ex. in grunt-contrb-uglify's main documentation  follows a different documetation,
-                but this is the official grunt syntax, and pattern using in rest of this script
-
-                <target name> : {
-                                    'dest': <path to destination minified file>,
-                                    'src': [<js1Path>, <js2Path>, ..], // list of filepaths for files to be concatenated together in final minified js
-                                    'options': {}, // any special options you might like. not using anyo currently
-                                },
-            */
-
-            grunt.log.writeln(("\t" + scriptTagSrcAttr + (" --> will minify INTO ")['red'] + minifileBldDest));
-            // if first instance of this minified filepath encoutnered, initialize the new target - i.e.,. a key in the config hash
-            // store by the minipath, not filename, in case two same
-            // i.e., A/B/C.js and A/D/C.js
-            if (!uglifyConfig.hasOwnProperty(minipathRelDivergeAt)) {
-                uglifyConfig[minipathRelDivergeAt] = {
-                    'src':[],
-                    'dest':minifileBldDestAbs,
-                    'options':{
-                        'compress': {
-                            'inline': false
-                        }
-                    }
-                };
-            }
-            uglifyConfig[minipathRelDivergeAt].src.push(srcFilepathAbs); // add in as src for proper target
-            // add to the jsFilepathMapping hash for updating script tags later in bld process.
-            // THESE NEED TO BE REL BLD!
-            jsFilepathMapping[scriptTagSrcAttr] = minifileBldDest;
-        });
-
-        /**
-            == Check for bug-inducing naming collisions before you queue minification! ==
-
-            Example...
-            Suppose js dir like this
-            assets/js/stuff.js  (this file does not appear in script.html!)
-            assets/js/stuff/A.js --> minified in to stuff.js
-            assets/js/stuff/B.js --> minified in to stuff.js
-            assets/js/C.js --> minified in to C.js
-
-            What would happen in this case, is A.js and B.js would get concatenated
-            and minified in to assets/js/stuff.js, overwriting that current, unminified file.
-            And since assets/js/stuff.js (unminified) not in script.html,
-            its not getting minified itself and gets lost.
-
-            -- Since we are using the same extensions, can't just check for file
-            existence before writing a new minified file, because it's expected and
-            desired to overwrite current files (Ex, assets/js/C.js unminified, should
-            be minified and overwrite)
-
-            So instead --> for each new minified filepath
-                ('dest' attr of key/target in uglifyConfig)
-            Check if that path exists already
-            If it does,
-            Check to make sure that unminified file is ALSO getting minified
-            (its path rel bld would be a key in jsFilepathMapping then)
-            If its NOT, that means it is going to be being overwritten and not minified itself
-            (Need to do this after you've built up both hashes, not during, because one
-            could came after the other)
-        */
-        var newmini, unminirelbld;
-        for ( newmini of Object.keys(uglifyConfig) ) {
-            // keys/targets in the uglifyConfig are just filenames, hash value has 'dest' attr that holds abs path
-            newmini = uglifyConfig[newmini].dest;
+        var collisions = [];
+        // uglifyTarget is the 'uglify' plugin config; keys are target names,
+        // values are targets
+        for (var minificationTarget of Object.keys(uglifyTargets)) {
+            // value is obj; has 'dest' attr that holds abs path for the minified file
+            var minificationFilepath = uglifyTargets[minificationTarget].dest;
             // check if files exists
-            if (grunt.file.exists(newmini)) {
-                // could be just overwriting no problem... just make su re file that exists is getting minified too
-                unminirelbld = path.relative(BLDROOT, newmini);
-                if (!jsFilepathMapping.hasOwnProperty(unminirelbld)) {
-                    grunt.fail.fatal("Grunt is set to create a minified file at path"
-                        + newmini
-                        + "\nHowever, a file by this name already exists,"
-                        + " and that file is not itself set to be minified in to another file"
-                        + " -- it would just get overwritten!"
-                        + "\nMost likely, you have a file and dir by the same name,"
-                        + " and only one of those is appearing in 'script.html'"
-                        + "\n\n-- One solution, is if you want to minified ALL the js files in the project,"
-                        + "not just the ones appearing in script.html. (This requires change in Grunt code)"
-                        + "\n\n-- Quicker solution: rename the file/dir to avoid this naming collision"
-                        + " (This resolves the problem without changing any Grunt code)");
-                }
+            if (grunt.file.exists(minificationFilepath)) {
+                // ensure file that exists is getting minified too
+                // jsFilepathMappings: each js file being minified has a key/value pair
+                // key is path to the js files (rel bld) that will be minified
+                // and value is the path to file itll be minified in to (Rel bld)
+                var matchingFileRelBld = path.relative(BLDROOT, minificationFilepath);
+                if (jsFilepathMappings.hasOwnProperty(matchingFileRelBld)) {
+                    // Requested by Jerene: if minified filepath exists, but its
+                    // not the minified file's source, even if that file is getting
+                    // minified (and so won't get overwritten), alert devs as this
+                    // probably indicates file and dir have same name in the bld
+                    // i.e., assets/js/stuff.js minifies to itself (this OK)
+                    // but assets/js/stuff/A.js minifies to assets/js/stuff.js
+                    // and there's already a src file assets/js/stuff.js (a dir and filename are same)
+                    var matchingFilesMinifyTarget = jsFilepathMappings[matchingFileRelBld];
+                    if (matchingFilesMinifyTarget !== minificationTarget) {
+                        END_OF_BUILD_WARNINGS.push("A minified file will get " +
+                            " generated in bld called " + minificationTarget +
+                            " but a file by this same name exists, " +
+                            " and the existing file is not the source of " +
+                            "the minified file.  Most likely, you have a js " +
+                            "file and dir with the same name." +
+                            "\nSince " + matchingFileRelBld + " is also " +
+                            "being minified (in to " +
+                            matchingFilesMinifyTarget + "), the build won't " +
+                            "fail, however, this naming convention lead to other " +
+                            " issues; please address it)");
+                    }
+                } else {
+                    collisions.push(matchingFileRelBld);
+               }
             }
         }
-
-        // everythings kosher... configure uglify task with these details
-        grunt.log.write(("\nStep 2: ").bold + (" Configure grunt's uglify task with gathered mapping... ")[STEPCOLOR]);
-        uglifyConfig = Object.assign(grunt.config('uglify'), uglifyConfig);
-        grunt.config('uglify', uglifyConfig);
-        grunt.log.ok();
-        // set the jsFilepathMapping hash for updating script tags, in to grunt config property, for access in other tasks
-        grunt.config(JS_MINIFICATION_SCRIPT_TAG_FILEPATH_MAPPING_CONFIG_KEY, jsFilepathMapping);
-
+        return collisions;
     }
 
-                                                                // -------------- MISC. BUILD TASKS -----------------//
+    /**
+     * creates a base target for 'ugliy' w/ empty src
+     */
+    function generateUglifyTarget(targetDest, targetSrc=[]) {
+        var baseTarget = {
+            'src': targetSrc,
+            'dest': targetDest,
+            'options':{
+                'compress': {
+                    'inline': false
+                },
+               },
+            'dynamicallyGenerated': true // custom attr; will be used during js cleanup
+        };
+        return baseTarget;
+    }
+                                                               // -------------- MISC. BUILD TASKS -----------------//
 
     /**
         Searches build directory for files containing 'xcalar design' Strings (minus exclusions)
@@ -4359,81 +4459,43 @@ module.exports = function(grunt) {
     }
 
     /**
-        given a <filepath> to a js file, a <dir> within that <filepath>
-        at which you'd want to start minifying within, and a <depth>
-        you want to minification to extend to,
-        return a filepath (rel. to <dir>) of a minified file if should map in to in the final bld
-        (minification doesn't occur here; only determining the filepath.
-        Intended use: you can go through all regular js files in the bld,
-        and call this method, and configure that mapping in to to grunt's uglify plugin.
-        Then all the files which return a same value from this function,
-        would get concatted together by uglify and minified in to that file)
+        takes a path to a javascript src file, and returns filepath for the file
+        it should be minified in to.
+        returns undefined if can't determine
 
-        i.e.,
-            <filepath>: '/home/jolsen/xcalar-gui/assets/js/A/B/C/D.js'
-            <dir>: '/assets/js/', <depth>: 2,
-            returns: 'A/B.js'
-
-        If not js file or name can't be determined, returns undefined
-
-        @args:
-
-        @scriptPath: (required): Path to script to find minification filepath of
-            It does NOT need to be abs or rel, but should have the 'divergeAt' in its path
-        @divergeAt: (optional, defaults to a global default value set at top of script)
-            dir you want to start minifying from
-            (set name assuming that you would minify all js starting at,
-            AND contained within this dir)
-            -- It does not need to match beginning of path, but just some occurance.
-            (ex.:, if filepath is /A/B/C/D/, and divergeAt is B/C/, that is fine.
+        @scriptPath: Path to script to find minification filepath of; can be
+            rel or abs but should have 'dirStart' in its path
+        @dirStart: dir to start minifying from
+            -- does not need to match beginning of path, but some occurance.
+            (ex.:, if filepath is /A/B/C/D/, and dirStart is B/C/, that is fine.
             -- If appears more than once in the path,
             will consider first occurance.
-            Ex: /E/R/A/B/C/D/A/B/E, if divergeAt supplied as /A/B,
+            Ex: /E/R/A/B/C/D/A/B/E, if dirStart supplied as /A/B,
             will start depth count beginning at dir /A/B.
             If you instead wanted to start at that second occurance,
             then you'd want to supply A/B/C/D/A/B (or /R/A/B/C/D/A/B/, etc.)
-        @concatenateStartDepth (int value n >= 0.  Optional, defaults to a global def at top of script)
-            The depth, beginning from @divergeAt, at which file concatenation in to
+        @concatenateStartDepth: the depth from @dirStart, at which file concatenation in to
             a single minified js file would begin.
-            (Explaination: for brevity, call this arg 'd', and the divergeAt dir as 'START'.
-            For each <dir> nested EXACTLY d levels down from START,
-            any js files descendent of <dir> would return filename:
-                 <path from 'd' to <dir>>/<dir>.<minify fileextension>
-            Alternatively, any js file, <file>.js, contained in a <dir> which is < d levels from START,
-               would return path <path from d do <dir>>/<file>.<minify fileextension>
 
         @examples:
-            Ex1. getMinifiedFilepath('/home/jolsen/xcalar-gui/assets/js/A/B/C/e.js', '/assets/js', 2)
+            getMinifiedFilepath('/home/jolsen/xcalar-gui/assets/js/A/B/C/e.js', '/assets/js', 2)
                 RETURNS: 'A/B.min.js'
-            Ex2. getMinifiedFilepath('/home/jolsen/assets/js/h.js', '/assets/js/', 2);
+            getMinifiedFilepath('/home/jolsen/assets/js/h.js', '/assets/js/', 2);
                 RETURNS: 'h.min.js'
-            Ex3. getMinifiedFilepath('/home/jolsen/assets/js/A/B/r.js', '/assets/js/', 2);
+            getMinifiedFilepath('/home/jolsen/assets/js/A/B/r.js', '/assets/js/', 2);
                 RETURNS: 'A/B.min.js'
-            Ex4. getMinifiedFilepath('/home/jolsen/assets/js/A/B/C/e.js', '/assets/js', 3);
+            getMinifiedFilepath('/home/jolsen/assets/js/A/B/C/e.js', '/assets/js', 3);
                 RETURNS: 'A/B/C.js'
-            Ex4. getMinifiedFilepath('/home/jolsen/assets/js/A/B/C/e.js', '/assets/js', 0);
+            getMinifiedFilepath('/home/jolsen/assets/js/A/B/C/e.js', '/assets/js', 0);
                 RETURNS: 'js.js'
-            Ex5. getMinifiedFilepath('/home/jolsen/assets/js/A/B/E.js', '/home/jolsen/assets/, 1);
+            getMinifiedFilepath('/home/jolsen/assets/js/A/B/E.js', '/home/jolsen/assets/, 1);
                 RETURNS: '/home/jolsen/assets/js.js'
-            Ex6. getMinifiedFilepath('/home/jolsen/assets/js/A/B/E.js', '/home/jolsen/assets/, 0);
+            getMinifiedFilepath('/home/jolsen/assets/js/A/B/E.js', '/home/jolsen/assets/, 0);
                 RETURNS: '/home/jolsen/assets.js'
 
-        (Reason doing it like this... because it seems a bit convoluted...
-        This function existing so that we can parse <script> tags in html files,
-        and for those 'src' attributes (js files in the bld), dfetermine what
-        minified file the that file should get concatenated in to.
-        The 'src' attributes, are rel. the build root, and so contain the
-        <js bld root> in their path - currently, which is /assets/js/.
-        1. Only want to minify  such files.  So having the @divergeAt gives a way to
-            check that this is one of the files we'd want to minify.
-        2. Currently we are minifying so that files at <js bld root> get minified individually,
-        and dirs in <js bld root>, all the contents of the dirs get concatenated together
-        and minified in to a single file.  (A depth of 1)
-        But in fuiture, want to change it so everything gets minified in to a single file.
-        So having depth, means we can change this easily (just switchii to a depth of 0)
-
     */
-    function getMinifiedFilepath(scriptPath, divergeAt, concatDepth) {
+    function getMinifiedFilepath(scriptPath, dirStart=JS_MINIFICATION_START_DIR,
+        concatDepth=JS_MINIFICATION_CONCAT_DEPTH) {
 
         var divergedScriptPath, divergeAfterDirs, depthCount, currDir, bldPath, filestep;
         /** note : using the 'path' methods in this function (join, basename, etc.)
@@ -4442,15 +4504,8 @@ module.exports = function(grunt) {
 
         grunt.log.debug(">> File: " + scriptPath
             + ", get minified filepath from "
-            + divergeAt
+            + dirStart
             + ", depth " + concatDepth);
-
-        if (typeof divergeAt == 'undefined') {
-            divergeAt = JS_MINIFICATION_DIV_DIR;
-        }
-        if (typeof concatDepth == 'undefined') {
-            concatDepth = JS_MINIFICATION_CONCAT_DEPTH;
-        }
 
         // validate
         if (concatDepth < 0) {
@@ -4467,7 +4522,7 @@ module.exports = function(grunt) {
             special case of depth starting at 0.
 
             If 0, concatenation should begin exactly in the dir to start
-            minification in (divergeAt argument)
+            minification in (dirStart argument)
             Since no filename or dir to base on, pick a special name these should map to
         */
         if (concatDepth == 0) {
@@ -4476,7 +4531,7 @@ module.exports = function(grunt) {
         }
 
         // split on the divergence directory where you want minification to begin; return undefined if don't find it in the path
-        divergedScriptPath = scriptPath.split(divergeAt);
+        divergedScriptPath = scriptPath.split(dirStart);
         if (divergedScriptPath.length == 1) { // (even if String begins with delim, will return 2 elemenets, first being "")
             grunt.log.warn("can't determine minified filename for " + scriptPath+ "; doesn't come from diverance path");
             return undefined;
@@ -4486,9 +4541,9 @@ module.exports = function(grunt) {
         /**
             2 cases:
                 a. file exists in dir at or deeper than where concatenation begins
-                    (i.e., '/assets/js/A/B/C.js', divergeAt '/assets/js/', depth 1)
+                    (i.e., '/assets/js/A/B/C.js', dirStart '/assets/js/', depth 1)
                 b. file exists in dir more shallow than where concatenation begins
-                    (i.e., '/assets/js/A/B/C.js', divergeAt '/assets/js/', depth 4)
+                    (i.e., '/assets/js/A/B/C.js', dirStart '/assets/js/', depth 4)
 
                 Starting from front of path, collect n path elements where n is the concatDepth
                 (i.e., '/assets/js/A/B/C/D.js', depth of 3, take pieces 'assets', 'js', 'A')
@@ -5375,7 +5430,7 @@ module.exports = function(grunt) {
 
         // BLD_OP_JS_MINIFICATION_CONCAT_DEPTH how many levels to keep
         // Defaults to 2: ts/folderName. To minify everything, use 0(untested).
-        JS_MINIFICATION_CONCAT_DEPTH = grunt.option(BLD_OP_JS_MINIFICATION_CONCAT_DEPTH) || process.env[BLD_OP_JS_MINIFICATION_CONCAT_DEPTH] || 2;
+        JS_MINIFICATION_CONCAT_DEPTH = grunt.option(BLD_OP_JS_MINIFICATION_CONCAT_DEPTH) || process.env[BLD_OP_JS_MINIFICATION_CONCAT_DEPTH] || JS_MINIFICATION_CONCAT_DEPTH;
         if (isNaN(JS_MINIFICATION_CONCAT_DEPTH)) {
             grunt.fail.fatal("JS minification depth needs to be a number.");
         }
