@@ -2159,8 +2159,18 @@ window.DagDraw = (function($, DagDraw) {
                 joinText = joinType[0].toUpperCase() + joinType.slice(1);
             }
         }
+        joinText += " Join";
 
-        info.tooltip = joinText + " Join between table \"" +
+        // use the operation name stoerd in comment.meta if possible
+        try {
+            if (node.value.comment.meta.operation) {
+                joinText = node.value.comment.meta.operation;
+            }
+        } catch(e) {
+            // just ignore and use original joinText;
+        }
+
+        info.tooltip = joinText + " between table \"" +
                        parentNames[0] + "\" and table \"" +
                        parentNames[1] + "\"";
         var invalidColFound = false;
@@ -2189,7 +2199,7 @@ window.DagDraw = (function($, DagDraw) {
 
 
         if (invalidColFound) {
-            info.tooltip = joinText + " Join between table \"" +
+            info.tooltip = joinText + " between table \"" +
                        parentNames[0] + "\" and table \"" +
                        parentNames[1] + "\"";
         }

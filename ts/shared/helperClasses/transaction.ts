@@ -466,8 +466,12 @@ namespace Transaction {
     /**
      * Transaction.getCache
      */
-    export function getCache(): object {
-        return txCache;
+    export function getCache(id?: number): object {
+        if (id == null) {
+            return txCache;
+        } else {
+            return txCache[id];
+        }
     };
 
     function isValidTX(txId: number): boolean {

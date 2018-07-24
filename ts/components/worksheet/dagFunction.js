@@ -557,6 +557,11 @@ window.DagFunction = (function($, DagFunction) {
         }
 
         var tagName = QueryManager.getQuery(txId).getName();
+        var comment = "";
+        var tx =  Transaction.getCache(txId)
+        if (tx && tagName === SQLOps.Join) {
+            comment = tx.sql.joinStr;
+        }
         var tId;
         if (finalTableId != null) {
             tId = finalTableId;
@@ -566,10 +571,18 @@ window.DagFunction = (function($, DagFunction) {
         if (tId) {
             tagName += "#" + tId;
         }
+
         tagName = tagName.replace(/ /g, "");
         retagIndexedTables(txId, tagName)
         .then(function() {
             return XcalarTagDagNodes(tagName, tables);
+        })
+        .then(function() {
+            if (comment) {
+                return DagFunction.commentDagNodes([tables[0]], null, {operation: comment});
+            } else {
+                return PromiseHelper.resolve();
+            }
         })
         .then(function() {
             deferred.resolve({
