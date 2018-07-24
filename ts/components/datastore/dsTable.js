@@ -271,16 +271,18 @@ window.DSTable = (function($, DSTable) {
         $("#dsInfo-format").text(format);
         var $dsInfoUdf = $("#dsInfo-udf");
         if (dsObj.moduleName && dsObj.moduleName.trim() !== "") {
-            $dsInfoUdf.text(dsObj.moduleName + ":" + dsObj.funcName);
-            xcTooltip.add($dsInfoUdf, {title: JSON.stringify(dsObj.udfQuery)});
+            var titleJSON = {
+                "UDF Module": dsObj.moduleName,
+                "UDF Function": dsObj.funcName
+            };
+            if (dsObj.udfQuery) {
+                titleJSON["UDF Query"] = dsObj.udfQuery;
+            }
+            xcTooltip.add($dsInfoUdf, {title: JSON.stringify(titleJSON)});
             $dsInfoUdf.removeClass("xc-hidden");
-            $dsInfoUdf.prev("span").removeClass("xc-hidden")
-                      .prev("span").removeClass("xc-hidden");
         } else {
             xcTooltip.remove($dsInfoUdf);
             $dsInfoUdf.addClass("xc-hidden");
-            $dsInfoUdf.prev("span").addClass("xc-hidden")
-                      .prev("span").addClass("xc-hidden");
         }
         // TODO tooltip with query
         if (typeof numEntries === "number") {
