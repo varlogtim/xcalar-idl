@@ -682,7 +682,7 @@ namespace DagView {
         let newHeight: number = Math.max(elCoors.y + vertPadding,
                                          dimensions.height);
 
-        activeDag.setGraphDimensions(newWidth, newHeight);
+        activeDag.setDimensions(newWidth, newHeight);
         $dfArea.css("min-width", newWidth);
         $dfArea.css("min-height", newHeight);
     }
