@@ -1383,5 +1383,7 @@ IMDTStr = {
 };
 
 DagTStr = {
-    "CycleConnection": "Connection cannot be made as this would create a cycle."
+    "CycleConnection": "Connection cannot be made as this would create a cycle.",
+    "RemoveAllOperators": "Remove All Operations",
+    "RemoveAllMsg": "Are you sure you want to remove all operations?"
 };

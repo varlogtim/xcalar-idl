@@ -41,11 +41,16 @@ namespace DagView {
         activeDag = dagTab.getGraph();
     }
 
-    export function selectNodes(nodeIds: DagNodeId[]) {
-        nodeIds.forEach((nodeId) => {
-            const $node: JQuery = DagView.getNode(nodeId);
-            $node.addClass("selected");
-        });
+    export function selectNodes(nodeIds?: DagNodeId[]) {
+        if (!nodeIds) {
+            $dfWrap.find(".dataflowArea.active").find(".operator")
+                                            .addClass("selected");
+        } else {
+            nodeIds.forEach((nodeId) => {
+                const $node: JQuery = DagView.getNode(nodeId);
+                $node.addClass("selected");
+            });
+        }
     }
 
 
@@ -549,16 +554,17 @@ namespace DagView {
         // drag select multiple nodes
         let $dfArea;
         let $operators;
-        $dfWrap.on("mousedown", ".dataflowArea", function(event) {
+        $dfWrap.on("mousedown", function(event) {
             if (event.which !== 1) {
                 return;
             }
             let $target = $(event.target);
-            $dfArea = $(this);
-            if ($target.is(".dataflowArea") || $target.is(".mainSvg")) {
+            $dfArea = $dfWrap.find(".dataflowArea.active");
+            if ($target.is(".dataflowArea") || $target.is(".dataflowWrap") ||
+                 $target.is(".mainSvg")) {
                 new RectSelction(event.pageX, event.pageY, {
                     "id": "dataflow-rectSelection",
-                    "$container": $dfArea,
+                    "$container": $dfWrap,
                     "onStart": function() {
                         $dfArea.addClass("drawing");
                         $operators = $dfArea.find(".operator");

@@ -1,6 +1,6 @@
 <div id="dagView">
     <div class="topBar">
-        <header class="title">UNDER CONSTRUCTION</header>
+        <header class="title">CREATING DATAFLOWS</header>
         <div class="topButtons">
             <div class="topButton run">
                 <i class="icon xi-play-circle"></i>
@@ -25,7 +25,12 @@
         </div>
     </div>
     <div class="categoryBar">
-        <div class="searchArea"></div>
+        <div class="searchArea">
+            <div class="searchBox">
+                <input type="text" class="searchInput xc-input" placeholder="search">
+                <i class="icon searchIcon xi-search"></i>
+            </div>
+        </div>
         <div class="categoryWrap">
             <div class="categories"></div>
         </div>
@@ -45,22 +50,40 @@
     <div id="dagNodeMenu" class="menu">
         <ul>
             <li class="configureNode" data-action="configureNode">
-                <%= dicts.dag.configure %>
+                <i class="icon xi-setup"></i>
+                <span class="label"><%= dicts.dag.configure %></span>
             </li>
             <li class="executeNode" data-action="executeNode">
-                <%= dicts.dag.execute %>
+                <i class="icon xi-play-circle"></i>
+                <span class="label"><%= dicts.dag.execute %></span>
             </li>
-            <li class="removeNode" data-action="removeNode">
-              <%= dicts.dag.removeNode %>
+            <li class="executeAllNodes" data-action="executeAllNodes">
+                <i class="icon xi-play-circle"></i>
+                <span class="label"><%= dicts.dag.executeAll %></span>
+            </li>
+            <li class="selectAllNodes" data-action="selectAllNodes">
+                <i class="icon xi-select-mode"></i>
+                <span class="label"><%= dicts.dag.selectAll %></span>
             </li>
             <li class="cloneNode" data-action="cloneNode">
-                <%= dicts.dag.cloneNode %>
+                <i class="icon xi-duplicate"></i>
+                <span class="label"><%= dicts.dag.cloneNode %></span>
             </li>
             <li class="comment" data-action="comment">
-                <%= dicts.dag.comment %>
+                <i class="icon xi-edit"></i>
+                <span class="label"><%= dicts.dag.comment %></span>
+            </li>
+            <li class="removeNode" data-action="removeNode">
+                <i class="icon xi-close-no-circle"></i>
+                <span class="label"><%= dicts.dag.removeNode %></span>
+            </li>
+            <li class="removeAllNodes" data-action="removeAllNodes">
+                <i class="icon xi-close-no-circle"></i>
+                <span class="label"><%= dicts.dag.removeAllNodes %></span>
             </li>
             <li class="removeInConnection" data-action="removeInConnection">
-                <%= dicts.dag.removeConnection %>
+                <i class="icon xi-close-no-circle"></i>
+                <span class="label"><%= dicts.dag.removeConnection %></span>
             </li>
         </ul>
         include "../../util/menuScrollArea.html"

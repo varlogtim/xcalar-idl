@@ -1307,10 +1307,13 @@ module.exports = {
 
     "dag": {
         "removeNode": "Remove",
+        "removeAllNodes": "Remove All",
+        "selectAll": "Select All",
         "cloneNode": "Duplicate",
         "removeConnection": "Remove Connection",
         "configure": "Configure",
         "comment": "Comment",
-        "execute": "Execute"
+        "execute": "Execute",
+        "executeAll": "Execute All"
     }
 };

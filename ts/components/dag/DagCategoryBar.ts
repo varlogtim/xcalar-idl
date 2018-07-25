@@ -108,6 +108,7 @@ class DagCategoryBar {
                                 xcHelper.capitalize(operatorName) +
                             '</div>' +
                         '</div>' +
+                        '<div class="statusIcon"></div>' +
                         '<div class="connectorArea out">' +
                             ('<div class="connector out"></div>').repeat(numChildren) +
                         '</div>' +

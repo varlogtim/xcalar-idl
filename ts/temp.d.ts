@@ -900,6 +900,8 @@ declare namespace SQLTStr {
 
 declare namespace DagTStr {
     export var CycleConnection: string;
+    export var RemoveAllOperators: string;
+    export var RemoveAllMsg: string;
 }
 // declare namespace WSTStr {
 //     export var Ws:

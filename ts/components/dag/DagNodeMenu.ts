@@ -1,16 +1,17 @@
 namespace DagNodeMenu {
     let $dagView: JQuery;
     let $dfWrap: JQuery;
+    let $menu: JQuery;
 
     export function setup() {
         $dagView = $("#dagView");
         $dfWrap = $dagView.find(".dataflowWrap");
-        setupNodeMenu();
-        setupNodeMenuActions();
+        $menu = $("#dagNodeMenu");
+        _setupNodeMenu();
+        _setupNodeMenuActions();
     }
 
-    function setupNodeMenu(): void {
-        const $menu: JQuery = $("#dagNodeMenu");
+    function _setupNodeMenu(): void {
         xcMenu.add($menu);
 
         $dfWrap.on("contextmenu", ".operator .main", function(event: JQueryEventObject) {
@@ -32,55 +33,13 @@ namespace DagNodeMenu {
             return false;
         });
 
-        function _showEdgeMenu($edge: JQuery, event: JQueryEventObject): void {
-            let classes: string = " edgeMenu ";
-            xcHelper.dropdownOpen($edge, $menu, {
-                mouseCoors: {x: event.pageX, y: event.pageY},
-                floating: true,
-                classes: classes
-            });
-
-            // toggle selected class when menu is open
-            $edge.attr("class", "edge selected");
-            $(document).on("mousedown.menuClose", function() {
-                $edge.attr("class", "edge");
-                $(document).off("mousedown.menuClose");
-            });
-            const nodeId: DagNodeId = $edge.attr("data-childnodeid");
-            const parentNodeId: DagNodeId = $edge.attr("data-parentnodeid");
-            $menu.data("nodeid", nodeId);
-            $menu.data("parentnodeid", parentNodeId);
-            $menu.data("connectorindex", $edge.attr("data-connectorindex"));
-        }
-
-        function _showNodeMenu($clickedEl: JQuery, event: JQueryEventObject): void {
-            const $operator: JQuery = $clickedEl.closest(".operator");
-            // $operator.addClass("selected");
-            let nodeIds = [];
-            let $operators: JQuery = $operator.add($dfWrap.find(".operator.selected"));
-            $operators.each(function() {
-                nodeIds.push($(this).data("nodeid"));
-            });
-            const nodeId: DagNodeId = $operator.data("nodeid");
-            $menu.data("nodeid", nodeId);
-            $menu.data("nodeids", nodeIds);
-
-            let classes: string = " operatorMenu ";
-            if (nodeIds.length > 1) {
-                classes += " multiple ";
-            } else {
-                classes += " single ";
-            }
-
-            xcHelper.dropdownOpen($clickedEl, $menu, {
-                mouseCoors: {x: event.pageX, y: event.pageY},
-                floating: true,
-                classes: classes
-            });
-        }
+        $dfWrap.on("contextmenu", function(event: JQueryEventObject) {
+            _showBackgroundMenu(event);
+            return false;
+        });
     }
 
-    function setupNodeMenuActions(): void {
+    function _setupNodeMenuActions(): void {
         const $menu: JQuery = $("#dagNodeMenu");
         $menu.on("mouseup", "li", function(event) {
             if (event.which !== 1) {
@@ -99,6 +58,23 @@ namespace DagNodeMenu {
             switch (action) {
                 case ("removeNode"):
                     DagView.removeNodes(0, nodeIds);
+                    break;
+                case ("removeAllNodes"):
+                    Alert.show({
+                        title: DagTStr.RemoveAllOperators,
+                        msg: DagTStr.RemoveAllMsg,
+                        onConfirm: function() {
+                            const nodes: Map<DagNodeId, DagNode> = DagView.getActiveDag().getAllNodes();
+                            let nodeIdsToRemove: DagNodeId[] = [];
+                            nodes.forEach((_node: DagNode, nodeId: DagNodeId) => {
+                                nodeIdsToRemove.push(nodeId);
+                            });
+                            DagView.removeNodes(0, nodeIdsToRemove);
+                        }
+                    });
+                    break;
+                case ("selectAllNodes"):
+                    DagView.selectNodes();
                     break;
                 case ("removeInConnection"):
                     DagView.disconnectNodes(parentNodeId, nodeId, connectorIndex);
@@ -135,5 +111,64 @@ namespace DagNodeMenu {
                 break;
         }
 
+    }
+
+    function _showEdgeMenu($edge: JQuery, event: JQueryEventObject): void {
+        let classes: string = " edgeMenu ";
+        xcHelper.dropdownOpen($edge, $menu, {
+            mouseCoors: {x: event.pageX, y: event.pageY},
+            offsetY: 8,
+            floating: true,
+            classes: classes
+        });
+
+        // toggle selected class when menu is open
+        $edge.attr("class", "edge selected");
+        $(document).on("mousedown.menuClose", function() {
+            $edge.attr("class", "edge");
+            $(document).off("mousedown.menuClose");
+        });
+        const nodeId: DagNodeId = $edge.attr("data-childnodeid");
+        const parentNodeId: DagNodeId = $edge.attr("data-parentnodeid");
+        $menu.data("nodeid", nodeId);
+        $menu.data("parentnodeid", parentNodeId);
+        $menu.data("connectorindex", $edge.attr("data-connectorindex"));
+    }
+
+    function _showNodeMenu($clickedEl: JQuery, event: JQueryEventObject): void {
+        const $operator: JQuery = $clickedEl.closest(".operator");
+        // $operator.addClass("selected");
+        let nodeIds = [];
+        let $operators: JQuery = $operator.add($dfWrap.find(".operator.selected"));
+        $operators.each(function() {
+            nodeIds.push($(this).data("nodeid"));
+        });
+        const nodeId: DagNodeId = $operator.data("nodeid");
+        $menu.data("nodeid", nodeId);
+        $menu.data("nodeids", nodeIds);
+
+        let classes: string = " operatorMenu ";
+        if (nodeIds.length > 1) {
+            classes += " multiple ";
+        } else {
+            classes += " single ";
+        }
+
+        xcHelper.dropdownOpen($clickedEl, $menu, {
+            mouseCoors: {x: event.pageX, y: event.pageY},
+            offsetY: 8,
+            floating: true,
+            classes: classes
+        });
+    }
+
+    function _showBackgroundMenu(event: JQueryEventObject) {
+        let classes: string = " backgroundMenu ";
+        xcHelper.dropdownOpen($(event.target), $menu, {
+            mouseCoors: {x: event.pageX, y: event.pageY},
+            offsetY: 8,
+            floating: true,
+            classes: classes
+        });
     }
 }
