@@ -18,6 +18,17 @@ var XpeSharedContextUtils = (function(XpeSharedContextUtils) {
     var httpStatus = (typeof window.httpStatus === 'undefined' && typeof require !== 'undefined') ? require('./../httpStatus.js').dockerStatusStates : window.httpStatus;
 
     /**
+     * close all windows and quit the nwjs processes.
+     * (nwjs has a 'quit' api for this, but it has a bug where
+     * it fails to work if there are no windows open.
+     * workaround is to open a hidden window before giving quit.)
+     */
+    XpeSharedContextUtils.quitNwjs = function() {
+        nw.Window.open('', { show: false });
+        nw.App.quit();
+    };
+
+    /**
         'global' vars used in this script are set up in nwjs
         entrypoint starter.js
     */
@@ -88,32 +99,32 @@ var XpeSharedContextUtils = (function(XpeSharedContextUtils) {
                 return false;
             }
         }
-    }
+    };
 
     XpeSharedContextUtils.openGrafana = function() {
         return launch(global.grafanaURL, global.grafanaWindowConfig,
             false, false, false, false);
-    }
+    };
 
     XpeSharedContextUtils.openInstaller = function(viaRestart=false, suppressWarning=false, closeCurr=false) {
         return launch(global.installerURL, global.xpeWindowConfig,
             closeCurr, false, viaRestart, suppressWarning);
-    }
+    };
 
     XpeSharedContextUtils.openUninstaller = function(viaRestart=false, suppressWarning=false, closeCurr=false) {
         return launch(global.uninstallerURL, global.xpeWindowConfig,
             closeCurr, false, viaRestart, suppressWarning);
-    }
+    };
 
     XpeSharedContextUtils.openReverter = function(viaRestart=false, suppressWarning=false, closeCurr=false) {
         return launch(global.revertURL, global.revertWindowConfig,
             closeCurr, false, viaRestart, suppressWarning);
-    }
+    };
 
     XpeSharedContextUtils.openXD = function(viaRestart=false, suppressWarning=false, closeCurr=false) {
         return launch(global.xdURL, global.xdWindowConfig,
             closeCurr, true, viaRestart, suppressWarning);
-    }
+    };
 
     XpeSharedContextUtils.launchInitialWindow = function(
         url, windowOptions, closeOpened, useDockerAssistGui,
@@ -133,24 +144,24 @@ var XpeSharedContextUtils = (function(XpeSharedContextUtils) {
         if (!force) {
             switch (url) {
                 case (global.xdURL):
-                    XpeSharedContextUtils.openXD();
+                    return XpeSharedContextUtils.openXD();
                     break;
                 case (global.installerURL):
-                    XpeSharedContextUtils.openInstaller();
+                    return XpeSharedContextUtils.openInstaller();
                     break;
                 case (global.uninstallerURL):
-                    XpeSharedContextUtils.openUninstaller();
+                    return XpeSharedContextUtils.openUninstaller();
                     break;
                 case (global.revertURL):
-                    XpeSharedContextUtils.openReverter();
+                    return XpeSharedContextUtils.openReverter();
                     break;
                 default:
                     console.log("can not determine a config for " + url + "; open default");
-                    launch(url, windowOptions, closeOpened, useDockerAssistGui, openViaRestart, restartConfirmation);
+                    return launch(url, windowOptions, closeOpened, useDockerAssistGui, openViaRestart, restartConfirmation);
                     break;
             }
         }
-    }
+    };
 
     function openWindow(url, config, closeOpened=false) {
         var deferred = jQuery.Deferred();
@@ -195,7 +206,7 @@ var XpeSharedContextUtils = (function(XpeSharedContextUtils) {
     function restartWithUrl(url) {
         XpeSharedContextUtils.sendViaHttp("POST", xpeServerUrl + "/launchMark", JSON.stringify({"url": url}))
         .then(function () {
-            nw.App.quit(); // in case multiple windows open
+            XpeSharedContextUtils.quitNwjs(); // nwjs processes killed; app will quit
         });
     }
 
@@ -217,6 +228,7 @@ var XpeSharedContextUtils = (function(XpeSharedContextUtils) {
         useDockerAssistGui=false, openViaRestart=false, noConfirmationMsg=false) {
 
         var deferred = jQuery.Deferred();
+
         // if requested url already opened, just focus it
         // do here instead of detecting at window open time, to avoid restart in this case
         if (url && global.nwWindows.hasOwnProperty(url)) {
