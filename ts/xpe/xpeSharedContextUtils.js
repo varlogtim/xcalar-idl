@@ -286,7 +286,9 @@ var XpeSharedContextUtils = (function(XpeSharedContextUtils) {
             }
         } else {
             if (useDockerAssistGui) {
-                console.log("Use docker gui");
+                // open blank window in bg in case user closes Docker start GUI
+                // before Docker starts up (else app would terminate due to last
+                // window closing).  Will close the bg window once next window opens
                 nw.Window.open("blank.html", {"show": false}, function(bgWin) {
                     XpeSharedContextUtils.dockerStatus()
                     .then(function(res) {
@@ -312,7 +314,7 @@ var XpeSharedContextUtils = (function(XpeSharedContextUtils) {
                         }
                     })
                     .then(function(res) {
-                        openWindow(url, windowOptions, closeOpened); // open the new Window before closing the silent one in always
+                        openWindow(url, windowOptions, closeOpened); // open the new Window before closing the bg one in always
                     })
                     .then(function(res) {
                         deferred.resolve("ok");
@@ -340,19 +342,20 @@ var XpeSharedContextUtils = (function(XpeSharedContextUtils) {
 
     XpeSharedContextUtils.dockerGuiRunner = function() {
         var deferred = jQuery.Deferred();
+        // the Docker GUI window will call API to start Docker, and close
+        // automatically once Docker has started
         nw.Window.open("xpe/xpeDockerStarter.html", global.dockerStarterWindowConfig, function(win) {
             win.on("close", function() {
                 console.log("close event");
                 /**
-                    hide window
-                    If user clicks 'close' button, since we're listening for the close
+                    this close event will get triggered only if the user has
+                    clicked the close button, or if Docker has successfully started.
+                    since we're listening for the close
                     event, it will prevent the window from actually closing.
-                    Will be giving a force close at end of this method, only after Docker
-                    status verified.  but if the startWaitDocker
-                    api has been called, that can take a minute to finish and Docker status
-                    API won't fire until then.
-                    And so it will take a minute to get to the actual 'close' and will seem
-                    like the app is not working.  So go ahead and hide window.
+                    Once Docker is up will give a force close to close the window.
+                    but if Docker is in the progress of coming up, it could take
+                    a minute or so to get to that force close and the app will
+                    seem like its stuck; so hide the window until the force close
                 */
                 win.hide();
                 // wait for Docker to be running - in case they close the window
@@ -375,7 +378,12 @@ var XpeSharedContextUtils = (function(XpeSharedContextUtils) {
             });
 
             win.on("closed", function() {
-                deferred.reject("Docker must have failed to come up");
+                // this should fire on a force close of the Window which should
+                // not be happening (if Docker fails to come up,
+                // Docker starter should gracefully terminate nwjs)
+                deferred.reject("Docker starter Window was force closed; " +
+                    " this should not happen and indicates docker starter js " +
+                    " has changed - logic might need to be updated.");
             });
         });
         return deferred.promise();

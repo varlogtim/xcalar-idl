@@ -44,7 +44,6 @@ var XpeCommonUtils = (function(XpeCommonUtils) {
      * @successMsg: msg to update progressMsgDomIt on final step success
      * @failMsg: msg to update progressMsgDomId on failure
      * @displayWaitDots: if true display animated ... beside progress messages
-     * @countDownDomId: (optional) set interval counter for each step
      *
      * If you call this method and do not supply the div ids,
      *   handleDockerStatusWrapper(<containers>);
@@ -53,7 +52,7 @@ var XpeCommonUtils = (function(XpeCommonUtils) {
      */
     XpeCommonUtils.handleDockerStatusWrapper = function(containers=false,
         timeout=XpeSharedContextUtils.DOCKER_TIMEOUT, progressMsgDomId, displayWaitDots,
-        successMsg="", failMsg="", countDownDomId) {
+        successMsg="", failMsg="") {
 
         var deferred = jQuery.Deferred();
 
@@ -65,7 +64,7 @@ var XpeCommonUtils = (function(XpeCommonUtils) {
                 return deferred.promise();
             } else if (res === dockerStatusStates.DOWN) {
                 return XpeCommonUtils.handleDocker(containers, timeout,
-                    progressMsgDomId, displayWaitDots, successMsg, failMsg, countDownDomId);
+                    progressMsgDomId, displayWaitDots, successMsg, failMsg);
             } else {
                 deferred.reject("Could not determine Docker status. " +
                     "\nStatus returned: " +
@@ -110,9 +109,7 @@ var XpeCommonUtils = (function(XpeCommonUtils) {
      * need to check first and can just call this method.)
      */
     XpeCommonUtils.handleDocker = function(containers=false, timeout=XpeSharedContextUtils.DOCKER_TIMEOUT,
-        progressMsgDomId, displayWaitDots, successMsg="", failMsg="", countDownDomId) {
-
-        var countDownIntervalId;
+        progressMsgDomId, displayWaitDots, successMsg="", failMsg="") {
 
         var $progressInfo;
         if (progressMsgDomId) {
@@ -124,11 +121,6 @@ var XpeCommonUtils = (function(XpeCommonUtils) {
             }
         }
 
-        // start countdown and display initial wait msg before starting daemon
-        if (countDownDomId) {
-            countDownIntervalId = XpeCommonUtils.countDown(
-                timeout, 1, countDownDomId);
-        }
         updateWaitMsg(
             progressMsgDomId, "Starting Docker.  Please wait", displayWaitDots);
 
@@ -137,10 +129,6 @@ var XpeCommonUtils = (function(XpeCommonUtils) {
         .then(function() {
             // cancel the docker count down and start bringing up containers
             if (containers) {
-                if (countDownDomId) {
-                    countDownIntervalId = XpeCommonUtils.countDown(
-                        15, 1, countDownDomId, countDownIntervalId);
-                }
                 updateWaitMsg(progressMsgDomId,
                         "Bringing up the Xcalar containers", displayWaitDots);
                 return XpeCommonUtils.bringUpContainers();
@@ -159,12 +147,6 @@ var XpeCommonUtils = (function(XpeCommonUtils) {
             }
             updateWaitMsg(progressMsgDomId, failMsg, false);
             deferred.reject(errMsg);
-        })
-        .always(function() {
-            // cancel active countdown, if any
-            if (countDownIntervalId) {
-                clearInterval(countDownIntervalId);
-            }
         });
         return deferred.promise();
     };
@@ -179,76 +161,6 @@ var XpeCommonUtils = (function(XpeCommonUtils) {
 
     XpeCommonUtils.bringUpContainers = function() {
         return XpeSharedContextUtils.sendViaHttp("POST", xpeServerUrl + "/bringupcontainers");
-    };
-
-    /**
-     * Start a countdown interval and update dom as countdown progresses.
-     * Values should be supplied in seconds, but a format method will be
-     * called so that any values displayed will be in hr/min/sec format
-     * @start: req. int. value to start the countdown at, in seconds
-     * @intervalUpdate: how often to update the interval, in seconds
-     * @domId: id of dom object where to display the countdown
-     * @prevIntervalId: String; existing countdown interval id to clear before
-     *     starting new one
-     */
-    XpeCommonUtils.countDown = function(start, intervalUpdate=3, domId, prevIntervalId) {
-        var $countDownDisplay = $("#" + domId);
-        if ($countDownDisplay.length === 0) {
-            console.log("ERROR: Couldn't get dom element for countdown " +
-                " from dom id " + domId);
-        } else {
-            if (prevIntervalId) {
-                clearInterval(prevIntervalId);
-            }
-            $countDownDisplay.val(start);
-            $countDownDisplay.html(XpeCommonUtils.formatTime(start));
-            var intervalId = setInterval(function() {
-                var currVal = $countDownDisplay.val();
-                var nextVal = currVal - intervalUpdate;
-                if (nextVal <= 0) {
-                    clearInterval(intervalId);
-                    nextVal = 0;
-                }
-                $countDownDisplay.val(nextVal);
-                $countDownDisplay.html(XpeCommonUtils.formatTime(nextVal));
-            }, intervalUpdate * 1000);
-            return intervalId;
-        }
-    };
-
-    /**
-        @seconds: int - a number of seconds
-        @returns: A string converted to
-            x hrs, y mins, z secs
-    */
-    XpeCommonUtils.formatTime = function(seconds) {
-        // Hours, minutes and seconds
-        var hrs = Math.floor(seconds / 3600);
-        var mins = Math.floor((seconds % 3600) / 60);
-        var secs = seconds % 60;
-
-        var ret = "";
-
-        var hourStr = " hour";
-        if (hrs > 0) {
-            if (hrs > 1) {
-                hourStr += "s";
-            }
-            ret += hrs + hourStr + ", ";
-        }
-        var minStr = " minute";
-        if (mins > 0) {
-            if (mins > 1) {
-                minStr += "s";
-            }
-            ret += mins + minStr + ", ";
-        }
-        var secStr = " second";
-        if (secs > 1 || secs == 0) {
-            secStr += "s";
-        }
-        ret += secs + secStr;
-        return ret;
     };
 
     /**

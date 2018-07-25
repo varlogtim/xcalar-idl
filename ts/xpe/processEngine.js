@@ -32,10 +32,13 @@ var ProcessEngineUtil = (function(ProcessEngineUtil) {
      * @forceTotalSteps: uses as total num steps regardless how many steps there are
      *    (each 'doStep' updates $progressDescription w/ <step #>/<total # steps>)
      *    in case need to call doProcess more than once, but look like one process
+     * @longStep: if provided, will display <longStep> <stepNum>/<total Steps> when
+     *    updating the step description
+     * @displayWaitDots: display animated ... after step descriptions
      */
     ProcessEngineUtil.doProcess = function(steps, $progressBar, $progressBarSection,
         $progressDescription, $stepPercent, $totalPercent, fillEachStep=false,
-        startStepCountAt=1, forceTotalSteps) {
+        startStepCountAt=1, forceTotalSteps, longStep="Step ", displayWaitDots=false) {
 
         // time est is first element in each step array
         var totalTimeEst = 0;
@@ -60,9 +63,9 @@ var ProcessEngineUtil = (function(ProcessEngineUtil) {
             var stepDesc = currStep[1];
             var stepFunction = currStep[2];
             chainFunctions.push(doStep.bind(this, stepFunction, stepDesc,
-                stepTimeEst, totalTimeEst, stepNum, numSteps, $progressBar,
-                $progressBarSection, $progressDescription, $stepPercent,
-                $totalPercent, fillEachStep));
+                stepTimeEst, totalTimeEst, stepNum, numSteps, longStep,
+                $progressBar, $progressBarSection, $progressDescription,
+                $stepPercent, $totalPercent, fillEachStep, displayWaitDots));
         }
         return PromiseHelper.chain(chainFunctions);
     };
@@ -116,23 +119,26 @@ var ProcessEngineUtil = (function(ProcessEngineUtil) {
      * @updatePercent: float (10, 95, etc., not .1, .9)
      *  (if not supplied will clear html and value for the object)
      */
-    function updatePercentObj($percent, updatePercent) {
-        var valAttr = updatePercent;
-        var htmlValue;
-        if (typeof updatePercent === 'undefined') {
-            htmlValue = "";
+    function updatePercentObj($percent, updatePercent="") {
+        if (typeof $percent === 'undefined') {
+            console.log("Won't update percent; percent object undefined");
         } else {
-            var argType = typeof updatePercent;
-            if (argType === 'number') {
-                htmlValue = updatePercent.toFixed(2) + "%";
+            if ($percent.length) {
+                var htmlValue = "";
+                var argType = typeof updatePercent;
+                if (argType === 'number') {
+                    htmlValue = updatePercent.toFixed(2) + "%";
+                } else {
+                    console.log("WARNING: updatePercent in updatePercentObj is NaN " +
+                        " (it is " + argType + "); html will update to empty string");
+                }
+                $percent.html(htmlValue);
+                $percent.attr("value", updatePercent);
             } else {
-                console.log("WARNING: updatePercentObj pass value to update to " +
-                    updatePercent +
-                    " but this value is not a NaN (it is " + argType + ")");
+                console.log("Won't update percent; jQuery $percent obj has " +
+                    " no matches");
             }
         }
-        $percent.html(htmlValue);
-        $percent.attr("value", valAttr);
     }
 
     /**
@@ -178,21 +184,28 @@ var ProcessEngineUtil = (function(ProcessEngineUtil) {
      * @stepTimeEst: int - estimated time (in ms) step will run for
      * @totalTimeEst: int - estimated time (in ms) entire process runs
      * @stepNum: (optional) int - what num this step is in the process
+     *    (if supplied with @totalNumSteps, will display <step>/<total> in desc.)
      * @totalNumSteps: (optional) int - total num steps in the process
-     *   (if they are supplied will add 'Step <step>/<total>' to description)
+     *  (if supplied with @stepNum, will display  <step>/<total> in step desc.)
+     * @prependToStepDescription: an optional string to prepend to the step desc.
+     *  if supplied with @stepNum and @totalNumSteps, will prepend to <step>/<total>
+     *  i.e., @prependToStepDescription="Step #" results in
+     *  (Step # <step>/<total>):) in the step description html
      * @progressBar: jQquery object for the progress bar
      * @progressbarSection: jQuery object for progress bar's section wrapper
      *    (determines progress bar type, completed, processing, failed, etc.)
      * @progressDescription: jQuery object for displaying step description/info
      * @stepPercent: jQuery object for displaying % of step completed
      * @totalPercent: jQuery object for displaying % of total process completed
-     * fillProgressBarEachStep: fill progress bar entirely for each step, instead
+     * @fillProgressBarEachStep: fill progress bar entirely for each step, instead
      *    of % of total process
+     * @displayWaitDots: display animated ... after step descriptions and clear when
+     *    step ends (success or failure)
      */
     function doStep(stepFunction, description, stepTimeEst, totalTimeEst,
-            stepNum, totalNumSteps, $progressBar, $progressBarSection,
-            $progressDescription, $stepPercent, $totalPercent,
-            fillProgressBarEachStep=false) {
+            stepNum, totalNumSteps, prependToStepDescription,
+            $progressBar, $progressBarSection, $progressDescription,
+            $stepPercent, $totalPercent, fillProgressBarEachStep, displayWaitDots) {
 
         console.log("\n## doStep:\n\t" + stepNum + "/" + totalNumSteps +
             "\n\tdescription: " + description + "\n\t step time est (ms): " +
@@ -202,7 +215,7 @@ var ProcessEngineUtil = (function(ProcessEngineUtil) {
         var deferred = PromiseHelper.deferred();
 
         // reset from previous step
-        resetStep($progressBar, $stepPercent, $totalPercent, $progressDescription, fillProgressBarEachStep);
+        resetStep($progressBar, $stepPercent, $totalPercent, fillProgressBarEachStep);
         // what % should progreess bar/total process % go to when step is complete?
         var totalPercentStepEnd = 100;
         if (!fillProgressBarEachStep) {
@@ -219,11 +232,15 @@ var ProcessEngineUtil = (function(ProcessEngineUtil) {
         // if we know how many steps, add this in to the description
         var stepDescription = description;
         if (typeof stepNum !== 'undefined' && typeof totalNumSteps !== 'undefined') {
-            stepDescription = "(Step " + stepNum + " of " + totalNumSteps + "): " + description;
+            var prependDescription = stepNum + "/" + totalNumSteps + ": ";
+            if (typeof prependToStepDescription !== 'undefined') {
+                prependDescription = prependToStepDescription + prependDescription;
+            }
+            stepDescription = prependDescription + stepDescription;
         }
 
         var [stepPromise, stepPercentIntervalId, totalPercentIntervalId] = startStep(
-            stepFunction, stepDescription, stepTimeEst, totalPercentStepEnd,
+            stepFunction, stepDescription, displayWaitDots, stepTimeEst, totalPercentStepEnd,
             $progressBar, $progressDescription, $stepPercent, $totalPercent);
 
         // wait for the step process to resolve
@@ -233,6 +250,10 @@ var ProcessEngineUtil = (function(ProcessEngineUtil) {
             clearInterval(stepPercentIntervalId);
             clearInterval(totalPercentIntervalId);
             return finishStep($progressBar, $stepPercent, $totalPercent, totalPercentStepEnd);
+        })
+        .always(function(res) {
+            // set step descr as just description text, to clear any wait dots
+            $progressDescription.html(stepDescription);
         })
         .then(function(res) {
             deferred.resolve("done");
@@ -255,18 +276,23 @@ var ProcessEngineUtil = (function(ProcessEngineUtil) {
      * @stepFunction: an async function that returns a promise, representing the actual
      *        step logic for this step (see 'doProcess')
      * @desc: String; a description of the step
+     * @displayWaitDots: (boolean) display animated ... after step description
      * @stepTimeEst: time (in milliseconds) step is estimated to take
      * @totalPercentStepEnd: float - % progress bar should be filled to when step ends
      * @progressDescription, $stepPercent, $totalPercent - jQuery objs for progress
      *      description, total percent display and step percent display
      */
-    function startStep(stepFunction, desc, stepTimeEst, totalPercentStepEnd,
+    function startStep(stepFunction, desc, displayWaitDots, stepTimeEst, totalPercentStepEnd,
         $progressBar, $progressDescription, $stepPercent, $totalPercent) {
 
         // start the step itself
         var stepPromise = stepFunction();
 
+        // update html w/ step description and add wait dots if requested
         $progressDescription.html(desc);
+        if (displayWaitDots) {
+            addWaitDots($progressDescription);
+        }
 
         // kick of animation of the progress bar and percent updates
         updateProgressBarPercent($progressBar, totalPercentStepEnd, stepTimeEst);
@@ -289,7 +315,17 @@ var ProcessEngineUtil = (function(ProcessEngineUtil) {
         updateProgressBarPercent($progressBar, totalPercentStepEnd, 200)
         .then(function(res) {
             updatePercentObj($stepPercent, 100);
-            updatePercentObj($totalPercent, totalPercentStepEnd);
+            // progress bar might not have gotten updated to exact percent
+            // requested, and might have been rounded down slightly.  So update
+            // total % to what progress bar actually is right now - not totalPercentStepEnd,
+            // else, total % could get set to totalPercentStepEnd here, and then
+            // end up decreasing on the first update of the next step (total %
+            // gets updated during steps based on progress bar's curr %, not any
+            // static value, and the progress bar's % would actually be lower
+            // than totalPercentStepEnd when the first update is done.)
+            // this will not happen on 100% so no issue of not displaying 100%
+            //updatePercentObj($totalPercent, totalPercentStepEnd);
+            updatePercentObj($totalPercent, getProgressBarPercent($progressBar));
             deferred.resolve("ok");
         });
         return deferred.promise();
@@ -299,7 +335,7 @@ var ProcessEngineUtil = (function(ProcessEngineUtil) {
      * reset for next step; step % back to 0, and total % and progress bar back to 0
      * if process is set to iterate through progress bar each step
      */
-    function resetStep($progressBar, $stepPercent, $totalPercent, $progressDescription, resetTotal) {
+    function resetStep($progressBar, $stepPercent, $totalPercent, resetTotal) {
         updatePercentObj($stepPercent, 0);
         if (resetTotal) {
             updatePercentObj($totalPercent, 0);
@@ -353,6 +389,27 @@ var ProcessEngineUtil = (function(ProcessEngineUtil) {
             }
         }, updateInterval);
         return interval;
+    }
+
+    /**
+     * adds wait dots to a dom object and returns the curr html in the dom obj.
+     * (clear the waitDots by setting the html back to that returned value)
+     */
+    function addWaitDots($domObj) {
+        var currHtml = $domObj.html();
+        var dotHtml = "<div class='animatedEllipsisWrapper'>" +
+                "<div class='text'>" +
+                currHtml +
+                "</div>" +
+                "<div class='animatedEllipsis'>" +
+                // following 3 divs req newlines between for styling to work
+                "<div>.</div>\n" +
+                "<div>.</div>\n" +
+                "<div>.</div>\n" +
+                "</div>" +
+                "</div>";
+        $domObj.html(dotHtml);
+        return currHtml
     }
 
     // sets progress bar to various states by changing class in

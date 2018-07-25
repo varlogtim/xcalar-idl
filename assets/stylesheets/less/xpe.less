@@ -280,17 +280,47 @@ body {
 #coresSlider {
     margin-top: 25px;
 }
-// for the docker starter alert
-.dockerStartingMain {
-    background-color: @color-xpe-installer-light-blue;
-    .font(@weight: bold, @color: white, @size: 15px);
-    width: 100%;
+
+// Docker starter GUI
+.dockerStarterMain {
     height: 100%;
+    background-color: @color-xpe-docker-starter-bg;
 }
-.dockerStartingInner {
-    .font(@size: 20px);
-    text-align: left;
-    padding: 85px 0px 0px 60px;
+.dockerStarterInner {
+    padding: 20px 10px 20px 10px;
+
+    // Docker start GUI customizes a thinner/rounder progress bar
+    .xpeProcessProgressDisplays {
+        margin-top: 0px;
+    }
+    .progressBarDisplay {
+        width: 85%;
+    }
+    .progressBarContainer {
+        border-radius: 20px;
+        background-color: lightgray;
+        height: 70%;
+        overflow: hidden;
+    }
+    #progressBar {
+        border-radius: 20px;
+    }
+    .totalPercent {
+        font-size: 11px;
+    }
+    .totalPercentDisplay {
+        line-height: inherit;
+    }
+    .xpeProcessStepDisplays {
+        margin-top: 0px;
+    }
+    .processStepDescription {
+        float: left;
+        font-size: 12px;
+    }
+    .stepPercent {
+        float: right;
+    }
 }
 
 // image management tool
