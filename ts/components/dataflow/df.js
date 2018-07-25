@@ -395,10 +395,12 @@ window.DF = (function($, DF) {
                 var df = dataflows[i];
                 for (var j in df.paramMap) {
                     if (!parameters.hasOwnProperty(j)) {
-                        parameters[j] = {
-                            value: df.paramMap[j],
-                            isEmpty: !df.paramMap[j] || (df.paramMap[j].length === 0)
-                        };
+                        if(!(systemParams.hasOwnProperty(j) && isNaN(Number(j)))) {
+                            parameters[j] = {
+                                value: df.paramMap[j],
+                                isEmpty: !df.paramMap[j] || (df.paramMap[j].length === 0)
+                            };
+                        }
                     } else {
                         console.error("duplicate param", j, df.paramMap[j]);
                     }
@@ -424,8 +426,6 @@ window.DF = (function($, DF) {
                 DF.checkForAddedParams(df);
             }
         }
-
-
 
         if (modifiedList.length) {
             DataflowPanel.showAlert({
@@ -461,7 +461,8 @@ window.DF = (function($, DF) {
         var hasNewParam = false;
         var paramsInDataflow = DF.getParameters(df);
         paramsInDataflow.forEach(function(paramName) {
-            if (!parameters[paramName]) {
+            if (!parameters[paramName] && !(systemParams.hasOwnProperty(paramName) &&
+            isNaN(Number(paramName)))) {
                 hasNewParam = true;
                 parameters[paramName] = {
                     value: "",
@@ -627,18 +628,22 @@ window.DF = (function($, DF) {
     function getSubstitutions(dataflowName, forceAddN) {
         var paramsArray = [];
         var dfObj = DF.getDataflow(dataflowName);
-        var paramMap = dfObj.paramMap;
-        var paramMapInUsed = dfObj.paramMapInUsed;
+        var paramsInDataflow = DF.getParameters(dfObj);
 
-        for (var name in paramMap) {
+        paramsInDataflow.forEach(function(name) {
             var p = new XcalarApiParameterT();
-            if (paramMapInUsed[name]) {
-                p.paramName = name;
-                p.paramValue = paramMap[name];
-                paramsArray.push(p);
+            p.paramName = name;
+            if (parameters[name]) {
+                p.paramValue = parameters[name].value;
+            } else if (name === "N") {
+                p.paramValue = 0;
+            } else {
+                p.paramValue = "";
             }
-        }
-        if (forceAddN && !paramMap.hasOwnProperty("N")) {
+            paramsArray.push(p);
+        });
+
+        if (forceAddN && paramsInDataflow.indexOf("N") === -1) {
             p = new XcalarApiParameterT();
             p.paramName = "N";
             p.paramValue = 0;

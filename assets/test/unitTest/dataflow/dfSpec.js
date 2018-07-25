@@ -230,13 +230,18 @@ describe("DF Test", function() {
 
     describe("other functions", function() {
         it("getsubstitions should work", function() {
+            var oldParams = DF.getParamMap();
+            DF.updateParamMap({
+                "a": {value: "b"},
+                "b": {value: "z"}
+            });
             var df = {
                 schedule: {},
-                paramMap: {
-                    "a": "b"
-                },
-                paramMapInUsed: {
-                    "a": true
+                retinaNodes: {
+                    "node1": {
+                        operation: "XcalarApiExport",
+                        args: {"something": "hi<a>ho"}
+                    }
                 }
             };
             var cache1 = DF.getDataflow;
@@ -250,7 +255,7 @@ describe("DF Test", function() {
             expect(paramsArray[0].paramValue).to.equal("b");
             expect(paramsArray[1].paramName).to.equal("N");
             expect(paramsArray[1].paramValue).to.equal(0);
-
+            DF.updateParamMap(oldParams);
             DF.getDataflow = cache1;
         });
     });
