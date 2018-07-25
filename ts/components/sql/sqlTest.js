@@ -95,9 +95,13 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         "find": "SELECT instr(N_NAME, 'AN') a, locate('ol', N_COMMENT) b FROM NATION WHERE N_REGIONKEY > (SELECT min(N_REGIONKEY) from NATION) OR N_REGIONKEY < (SELECT N_REGIONKEY FROM NATION ORDER BY N_NATIONKEY limit 1) ORDER BY N_NATIONKEY limit 15",
         "projectRename": "SELECT N_NATIONKEY N_NAME, N_REGIONKEY N_NAME, N_NAME from NATION order BY N_NATIONKEY",
         "dateUDFs1": "SELECT dayofweek(O_ORDERDATE) a, dayofyear(O_ORDERDATE) b, weekofyear(O_ORDERDATE) c, to_date(o_orderdate, 'YYYY-MM-dd') d, to_unix_timestamp(o_orderdate, '%Y-%m-%d') e, unix_timestamp(o_orderdate) f from (select O_ORDERKEY, O_ORDERDATE from ORDERS order by O_ORDERKEY limit 30) order by O_ORDERKEY",
-        // The following two don't have answer set because the results are nondeterministic
+        // The following several don't have answer set because the results are nondeterministic
         "fitstAgg": "select first(N_NATIONKEY) a, last(n_nationkey+1) b, first(n_nationkey) + 1 c, cos(last(n_nationkey % 3)) d from NATION group by n_regionkey",
         "fitstAggNoGB": "select first(N_NATIONKEY) a, last(n_nationkey+1) b, first(n_nationkey) + 1 c, cos(last(n_nationkey % 3)) d from NATION",
+        "windowMapSimple": "select rank(r_name) a, dense_rank(r_regionkey) b, percent_rank() c, ntile(3) d, row_number() e, cume_dist() f, lead(r_regionkey,2) g, lag(r_name, 1, r_comment) h from region",
+        "windowMapNested": "select R_REGIONKEY, lead(1+lead(1+lead(1+lead(1+lead(percent_rank(r_name, 1 ,'anythking') + 1,1, lag(R_REGIONKEY, 10, 9)),1,1),1,1),1,1),1,1)+1 a from region",
+        "windowMapAgg": "select lead(max(rank(R_REGIONKEY)),1,-1)+1 a from REGION",
+        "leadInSort": "select R_REGIONKEY, lead(R_REGIONKEY,1,999) a from REGION order by lead(R_REGIONKEY,1,999)",
         "cancelQuery": "select * from orders o1, orders o2"
     };
     var sqlTestAnswers = {

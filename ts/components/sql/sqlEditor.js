@@ -381,7 +381,6 @@ window.SQLEditor = (function(SQLEditor, $) {
         extraKeys["Shift-" + cButton + "-U"] = convertTextCase.bind(window, true);
         extraKeys["Shift-" + cButton + "-L"] = convertTextCase.bind(window, false);
         extraKeys["Shift-" + cButton + "-K"] = "deleteLine";
-        extraKeys["Shift-" + cButton + "-Delete"] = deleteAll;
         extraKeys[cButton + "-Up"] = scrollLine.bind(window, true);
         extraKeys[cButton + "-Down"] = scrollLine.bind(window, false);
         extraKeys[cButton + "-Enter"] = insertLine.bind(window, true);

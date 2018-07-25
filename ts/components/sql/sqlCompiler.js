@@ -186,6 +186,14 @@
         "expressions.aggregate.First": "first", // Only used in aggregate
         "expressions.aggregate.HyperLogLogPlusPlus": null,
         "expressions.aggregate.Last": "last", // Only used in aggregate
+        "expressions.Rank": "*rank", // These eight are for window functions in map
+        "expressions.PercentRank": "*percentRank",
+        "expressions.DenseRank": "*denseRank",
+        "expressions.NTile": "*nTile",
+        "expressions.CumeDist": "*cumeDist",
+        "expressions.RowNumber": "*rowNumber",
+        "expressions.Lead": "*lead",
+        "expressions.Lag": "*lag",
         "expressions.aggregate.Percentile": null,
         "expressions.aggregate.PivotFirst": null,
         "expressions.aggregate.AggregateExpression": null,
@@ -955,6 +963,12 @@
                 intNode.children = [dupNode];
                 node = intNode;
                 break;
+            case ("expressions.Rank"):
+            case ("expressions.PercentRank"):
+            case ("expressions.DenseRank"):
+                node.children = [];
+                node.value["num-children"] = 0;
+                break;
             default:
                 break;
         }
@@ -1426,25 +1440,22 @@
                 assert(find, SQLErrTStr.ProjectMismatch +
                              JSON.stringify(node.orderCols[i]));
             }
-            node.xcCols = newXcCols;
-            node.sparkCols = [];
 
             // Change node.usrCols & node.renamedCols
-            node.usrCols = columns;
-            node.renamedCols = {};
+            newRenamedCols = {};
             // Extract colNames from column structs
             // and check if it has renamed columns
             for (var i = 0; i < columns.length; i++) {
                 if (columns[i].rename) {
-                    node.renamedCols[columns[i].colId] = columns[i].rename;
+                    newRenamedCols[columns[i].colId] = columns[i].rename;
                 }
             }
 
-            var newRenames = __resolveCollision(node.xcCols, node.usrCols, [],
+            var newRenames = __resolveCollision(newXcCols, columns, [],
                                                 [], "", tableName);
-            node.renamedCols = __combineRenameMaps([node.renamedCols,
+            newRenamedCols = __combineRenameMaps([newRenamedCols,
                                          newRenames]);
-            node.usrCols.concat(node.xcCols).forEach(function(col) {
+            columns.concat(newXcCols).forEach(function(col) {
                 colNames.push(__getCurrentName(col));
             });
             for (var id in newRenames) {
@@ -1494,14 +1505,23 @@
                 produceSubqueryCli(self, subqueryArray)
                 .then(function(cli) {
                     cliStatements += cli;
-                    return self.sqlObj.map(mapStrs, tableName, newColNames,
-                                           newTableName);
+                    var colNameSet = new Set();
+                    node.usrCols.concat(node.xcCols).concat(node.sparkCols)
+                    .map(function (col) {
+                        colNameSet.add(__getCurrentName(col));
+                    });
+                    return __windowMapHelper(self, node, mapStrs, tableName,
+                                        newColNames, newTableName, colNameSet);
                 })
                 .then(function(ret) {
                     cliStatements += ret.cli;
                     return self.sqlObj.project(colNames, ret.newTableName);
                 })
                 .then(function(ret) {
+                    node.usrCols = columns;
+                    node.xcCols = newXcCols;
+                    node.sparkCols = [];
+                    node.renamedCols = newRenamedCols;
                     deferred.resolve({newTableName: ret.newTableName,
                                       cli: cliStatements + ret.cli});
                 })
@@ -1513,6 +1533,10 @@
                     return self.sqlObj.project(colNames, tableName);
                 })
                 .then(function(ret) {
+                    node.usrCols = columns;
+                    node.xcCols = newXcCols;
+                    node.sparkCols = [];
+                    node.renamedCols = newRenamedCols;
                     deferred.resolve({newTableName: ret.newTableName,
                                         cli: cliStatements + ret.cli});
                 })
@@ -1644,10 +1668,11 @@
                            tableName: node.children[0].newTableName};
             var sortColsAndOrder = __genSortStruct(node.value.order, options);
             var tableName = node.children[0].newTableName;
+            var mapCols = [];
             node.orderCols = [];
             options.maps.forEach(function(tempColInfo) {
                 var tempColStruct = {colName: tempColInfo.colName};
-                node.xcCols.push(tempColStruct);
+                mapCols.push(tempColStruct);
                 node.orderCols.push(tempColStruct);
             });
             sortColsAndOrder.forEach(function(col) {
@@ -1658,13 +1683,14 @@
                     }
                 }
             });
-            __handleSortMap(self, options.maps, tableName)
+            __handleSortMap(self, node, options.maps, tableName)
             .then(function(ret) {
                 sortCli += ret.cli;
                 return self.sqlObj.sort(sortColsAndOrder, ret.newTableName);
             })
             .then(function(ret) {
                 ret.cli = sortCli + ret.cli;
+                node.xcCols = node.xcCols.concat(mapCols);
                 deferred.resolve(ret);
             })
             return deferred.promise();
@@ -1968,8 +1994,13 @@
                     var srcTableName = newTableName;
                     newTableName = xcHelper.getTableName(newTableName) +
                                     Authentication.getHashId();
-                    return self.sqlObj.map(firstMapArray, srcTableName,
-                                           firstMapColNames, newTableName);
+                    var colNameSet = new Set();
+                    node.usrCols.concat(node.xcCols).concat(node.sparkCols)
+                    .map(function (col) {
+                        colNameSet.add(__getCurrentName(col));
+                    });
+                    return __windowMapHelper(self, node, firstMapArray, srcTableName,
+                                    firstMapColNames, newTableName, colNameSet);
                 } else {
                     return PromiseHelper.resolve();
                 }
@@ -1980,8 +2011,13 @@
                     var srcTableName = newTableName;
                     newTableName = xcHelper.getTableName(newTableName) +
                                     Authentication.getHashId();
-                    return self.sqlObj.map(secondMapArray, srcTableName,
-                                           secondMapColNames, newTableName);
+                    var colNameSet = new Set();
+                    node.usrCols.concat(node.xcCols).concat(node.sparkCols)
+                    .map(function (col) {
+                        colNameSet.add(__getCurrentName(col));
+                    });
+                    return __windowMapHelper(self, node, secondMapArray, srcTableName,
+                                    secondMapColNames, newTableName, colNameSet);
                 } else {
                     return PromiseHelper.resolve();
                 }
@@ -2007,7 +2043,7 @@
                 var colNames = new Set();
                 node.usrCols.concat(node.xcCols).concat(node.sparkCols).map(function (col) {
                     colNames.add(__getCurrentName(col));
-                })
+                });
                 for (var i = 0; i < gArray.length; i++) {
                     if (gArray[i].operator === "first" || gArray[i].operator === "last") {
                         node.usrCols.concat(node.xcCols).forEach(function(col) {
@@ -2598,23 +2634,23 @@
             // Use groupAll instead
 
             // Traverse windowExps, generate desired rows
-            var testStruct = __categoryWindowOps(node.value.windowExpressions);
-            for (item in testStruct) {
+            var windowStruct = __categoryWindowOps(node.value.windowExpressions);
+            for (item in windowStruct) {
                 if (item === "lead") {
-                    if (!jQuery.isEmptyObject(testStruct[item])) {
-                        for (offset in testStruct[item]) {
+                    if (!jQuery.isEmptyObject(windowStruct[item])) {
+                        for (offset in windowStruct[item]) {
                             curPromise = __windowExpressionHelper(loopStruct,
-                                curPromise, item, testStruct[item][offset]);
+                                curPromise, item, windowStruct[item][offset]);
                         }
                     }
                 } else if (item === "agg" || item === "first" || item === "last") {
-                    testStruct[item].forEach(function (obj) {
+                    windowStruct[item].forEach(function (obj) {
                         curPromise = __windowExpressionHelper(loopStruct,
                                                     curPromise, item, obj);
                     })
-                } else if (testStruct[item].newCols.length != 0) {
+                } else if (windowStruct[item].newCols.length != 0) {
                     curPromise = __windowExpressionHelper(loopStruct,
-                                        curPromise, item, testStruct[item]);
+                                        curPromise, item, windowStruct[item]);
                 }
             }
 
@@ -3327,19 +3363,25 @@
         return sortColsAndOrder;
     }
 
-    function __handleSortMap(self, maps, tableName) {
+    function __handleSortMap(self, node, maps, tableName) {
         var deferred = PromiseHelper.deferred();
         if (maps.length === 0) {
             deferred.resolve({newTableName: tableName, cli: ""});
         } else {
-            self.sqlObj.map(maps.map(function(item) {
+            var newTableName = xcHelper.getTableName(tableName) +
+                            Authentication.getHashId();
+            var colNameSet = new Set();
+            node.usrCols.concat(node.xcCols).concat(node.sparkCols)
+            .map(function (col) {
+                colNameSet.add(__getCurrentName(col));
+            });
+            __windowMapHelper(self, node, maps.map(function(item) {
                                     return item.mapStr;
                                 }), tableName, maps.map(function(item) {
                                     return item.colName;
-                                }))
-            .then(function(ret) {
-                deferred.resolve({newTableName: ret.newTableName, cli: ret.cli});
-            });
+                                }), newTableName, colNameSet)
+            .then(deferred.resolve)
+            .fail(deferred.reject);
         }
         return deferred.promise();
     }
@@ -3785,6 +3827,7 @@
         var groupByCols = loopStruct.groupByCols;
         var sortColsAndOrder = loopStruct.sortColsAndOrder;
         var indexColStruct = loopStruct.indexColStruct;
+        var noUsrCol = loopStruct.noUsrCol;
         var newColStructs = opStruct.newCols;
         curPromise = curPromise.then(function(ret) {
             var newRenames = __resolveCollision(node.usrCols.concat(node.xcCols)
@@ -3892,10 +3935,14 @@
                 var keyColIds = opStruct.keyCols.map(function(item) {
                     return item.colId;
                 })
+                var keyColNames = opStruct.keyCols.map(function(item) {
+                    return __getCurrentName(item);
+                })
                 windowStruct.node = node;
                 var leftJoinCols = [];
                 var rightJoinCols = [];
                 var newIndexColName;
+                var newIndexColStruct;
                 // Map on index column with offset
                 curPromise = curPromise.then(function(ret) {
                     windowStruct.leftTableName = ret.newTableName;
@@ -3914,7 +3961,8 @@
                         }
                     });
                     windowStruct.rightColInfo.forEach(function(item) {
-                        if (keyColIds.indexOf(item.colId) != -1) {
+                        if (item.colId && keyColIds.indexOf(item.colId) != -1
+                        || keyColNames.indexOf(__getCurrentName(item)) != -1) {
                             rightKeyColStructs.push(item);
                         }
                         for (var i = 0; i < groupByCols.length; i++) {
@@ -3926,8 +3974,9 @@
                         delete item.colId;
                     });
                     newIndexColName = __getCurrentName(indexColStruct) + "_right";
+                    newIndexColStruct = {colName: newIndexColName};
                     windowStruct.rightColInfo
-                                    .push({colName: newIndexColName});
+                                    .push(newIndexColStruct);
                     var mapStr;
                     mapStr = "int(sub(" + __getCurrentName(indexColStruct)
                                  + ", " + opStruct.offset + "))";
@@ -3939,7 +3988,7 @@
                     return __joinTempTable(self.sqlObj, ret,
                             JoinOperatorT.LeftOuterJoin,
                             [{colName: __getCurrentName(indexColStruct)}],
-                            [{colName: newIndexColName}], windowStruct);
+                            [newIndexColStruct], windowStruct);
                 });
                 // Map again to set default value
                 curPromise = curPromise.then(function(ret) {
@@ -3951,7 +4000,9 @@
                     }
                     cli += windowStruct.cli;
                     cli += ret.cli;
-                    node.usrCols = node.usrCols.concat(newColStructs);
+                    if (!noUsrCol) {
+                        node.usrCols = node.usrCols.concat(newColStructs);
+                    }
                     var mapStrs = [];
                     for (var i = 0; i < rightKeyColStructs.length; i++) {
                         var mapStr = "if(";
@@ -3972,8 +4023,8 @@
                                 + __getCurrentName(rightJoinCols[i]) + "),";
                         }
                         if (groupByCols.length === 0) {
-                            mapStr += "exists(" + newIndexColName + "), "
-                                    + __getCurrentName(rightKeyColStructs[i])
+                            mapStr += "exists(" + __getCurrentName(newIndexColStruct)
+                                    + "), " + __getCurrentName(rightKeyColStructs[i])
                                     + ", " + defaultValue + ")";
                         } else {
                             mapStr += "eq("
@@ -4013,7 +4064,9 @@
                     curPromise = curPromise.then(function(ret) {
                         cli += windowStruct.cli;
                         cli += ret.cli;
-                        node.usrCols = node.usrCols.concat(newColStructs);
+                        if (!noUsrCol) {
+                            node.usrCols = node.usrCols.concat(newColStructs);
+                        }
                         var mapStr = "add(sub(" + __getCurrentName(indexColStruct)
                                      + ", " + windowStruct.tempGBCols[0] + "), 1)";
                         var mapStrs = Array(newColStructs.length).fill(mapStr);
@@ -4041,7 +4094,9 @@
                     .then(function(ret) {
                         cli += windowStruct.cli;
                         cli += ret.cli;
-                        node.usrCols = node.usrCols.concat(newColStructs);
+                        if (!noUsrCol) {
+                            node.usrCols = node.usrCols.concat(newColStructs);
+                        }
                         var mapStrs = [];
                         for (var i = 0; i < newColStructs.length; i++) {
                             var groupNum = groupNums[i];
@@ -4109,7 +4164,9 @@
                         cli += windowStruct.cli;
                         cli += ret.cli;
                         psGbColName = windowStruct.tempGBCols[0];
-                        node.usrCols = node.usrCols.concat(newColStructs);
+                        if (!noUsrCol) {
+                            node.usrCols = node.usrCols.concat(newColStructs);
+                        }
                         var mapStr = "add(sub(" + psGbColName + ", "
                                      + partitionMinColName + "), 1)";
                         var mapStrs = Array(newColStructs.length).fill(mapStr);
@@ -4139,7 +4196,9 @@
                         cli += windowStruct.cli;
                         cli += ret.cli;
                         tempCountColName = windowStruct.tempGBCols[0];
-                        node.usrCols = node.usrCols.concat(newColStructs);
+                        if (!noUsrCol) {
+                            node.usrCols = node.usrCols.concat(newColStructs);
+                        }
                         var mapStr;
                         if (opName === "percentRank") {
                             mapStr = "div(sub(" + psGbColName + ", "
@@ -4259,7 +4318,9 @@
                                         }));
                     }
                     cli += windowStruct.cli;
-                    node.usrCols = node.usrCols.concat(newColStructs);
+                    if (!noUsrCol) {
+                        node.usrCols = node.usrCols.concat(newColStructs);
+                    }
                     for (var i = 0; i < newColStructs.length; i++) {
                         node.xcCols.splice(node.xcCols
                                    .indexOf(newColStructs[i]),1);
@@ -4401,6 +4462,286 @@
         });
 
         return deferred.promise();
+    }
+    
+    function __windowMapHelper(self, node, mapStrs, tableName, newColNames,
+                                    newTableName, colNames, outerLoopStruct) {
+        var deferred = PromiseHelper.deferred();
+        var cli = "";
+        var hasWindow = false;
+        var hasMainMap = false;
+        var nestMapStrs = [];
+        var nestMapNames = [];
+        var windowColStructs = [];
+        // Check & form next level mapStrs
+        var windowStruct = {lead: {},
+                            nTile: {newCols: [], groupNums: []},
+                            rowNumber: {newCols: []},
+                            rank: {newCols: []},
+                            percentRank: {newCols: []},
+                            cumeDist: {newCols: []},
+                            denseRank: {newCols: []}};
+        for (var i = 0; i < mapStrs.length; i++) {
+            var ret = __analyzeMapStr(mapStrs[i], windowStruct, newColNames[i], colNames);
+            if (!ret.noMap) {
+                hasMainMap = true;
+            }
+            if (!ret.noWindow) {
+                hasWindow = true;
+                mapStrs[i] = ret.mainMapStr;
+                nestMapStrs = nestMapStrs.concat(ret.nestMapStrs);
+                nestMapNames = nestMapNames.concat(ret.nestMapNames);
+                windowColStructs = windowColStructs.concat(ret.windowColStructs);
+            }
+        }
+        if (!hasWindow) {
+            return self.sqlObj.map(mapStrs, tableName, newColNames, newTableName);
+        } else {
+            var curPromise;
+            var curIndexColStruct;
+            var loopStruct = {cli: "", node: node, self: self};
+            loopStruct.groupByCols = [];
+            if (outerLoopStruct) {
+                loopStruct.indexColStruct = outerLoopStruct.indexColStruct;
+                loopStruct.sortColsAndOrder = outerLoopStruct.sortColsAndOrder;
+                curPromise = PromiseHelper.resolve({cli: "", newTableName: tableName});
+            } else {
+                var tableId = xcHelper.getTableId(tableName);
+                loopStruct.indexColStruct = {colName: "XC_ROW_COL_" + tableId};
+                loopStruct.sortColsAndOrder = [{name: "XC_ROW_COL_" + tableId,
+                                                type: "float",
+                            ordering: XcalarOrderingT.XcalarOrderingAscending}];
+                node.xcCols.push(loopStruct.indexColStruct);
+                curPromise = self.sqlObj.genRowNum(tableName,
+                                __getCurrentName(loopStruct.indexColStruct));
+            }
+            // First do lower level map & windows
+            if (nestMapNames.length != 0) {
+                var nestTableName = xcHelper.getTableName(newTableName) +
+                                                Authentication.getHashId();
+                curPromise = curPromise.then(function(ret) {
+                    cli += ret.cli;
+                    var nestMapNamesCopy = jQuery.extend(true, [], nestMapNames);
+                    return __windowMapHelper(self, node, nestMapStrs, ret.newTableName,
+                                nestMapNamesCopy, nestTableName, colNames, loopStruct);
+                });
+            }
+            // Execute window
+            curPromise = curPromise.then(function (ret) {
+                nestMapNames.forEach(function(colName) {
+                    node.xcCols.push({colName: colName});
+                })
+                return ret;
+            })
+            .then(function(ret) {
+                var innerPromise = PromiseHelper.resolve(ret);
+                for (item in windowStruct) {
+                    if (item === "lead") {
+                        if (!jQuery.isEmptyObject(windowStruct[item])) {
+                            for (offset in windowStruct[item]) {
+                                innerPromise = __windowExpressionHelper(loopStruct,
+                                    innerPromise, item, windowStruct[item][offset]);
+                            }
+                        }
+                    } else if (item === "first" || item === "last") {
+                        windowStruct[item].forEach(function (obj) {
+                            innerPromise = __windowExpressionHelper(loopStruct,
+                                            innerPromise, item, obj);
+                        })
+                    } else if (windowStruct[item].newCols.length != 0) {
+                        innerPromise = __windowExpressionHelper(loopStruct,
+                                        innerPromise, item, windowStruct[item]);
+                    }
+                }
+                return innerPromise.promise();
+            })
+            // Execute map
+            if (hasMainMap) {
+                curPromise = curPromise.then(function(ret) {
+                    cli += loopStruct.cli;
+                    cli += ret.cli;
+                    windowColStructs.forEach(function(col) {
+                        if (node.usrCols.indexOf(col) != -1) {
+                            node.usrCols.splice(node.usrCols.indexOf(col), 1);
+                        }
+                    })
+                    for (var i = 0; i < node.usrCols.length;) {
+                        if (newColNames.indexOf(__getCurrentName(node.usrCols[i])) != -1) {
+                            node.usrCols.splice(i, 1);
+                        } else {
+                            i++;
+                        }
+                    }
+                    node.xcCols = node.xcCols.concat(windowColStructs);
+                    while (mapStrs.indexOf("") != -1) {
+                        newColNames.splice(mapStrs.indexOf(""), 1);
+                        mapStrs.splice(mapStrs.indexOf(""), 1);
+                    }
+                    return self.sqlObj.map(mapStrs, ret.newTableName, newColNames, newTableName);
+                })
+                .then(function(ret) {
+                    cli += ret.cli;
+                    deferred.resolve({cli: cli, newTableName: ret.newTableName});
+                });
+            } else {
+                curPromise = curPromise.then(function(ret) {
+                    cli += loopStruct.cli;
+                    cli += ret.cli;
+                    windowColStructs.forEach(function(col) {
+                        if (node.usrCols.indexOf(col) != -1) {
+                            node.usrCols.splice(node.usrCols.indexOf(col), 1);
+                        }
+                    })
+                    for (var i = 0; i < node.usrCols.length;) {
+                        if (newColNames.indexOf(__getCurrentName(node.usrCols[i])) != -1) {
+                            node.usrCols.splice(i, 1);
+                        } else {
+                            i++;
+                        }
+                    }
+                    deferred.resolve({cli: cli, newTableName: ret.newTableName});
+                });
+            }
+        }
+        return deferred.promise();
+    }
+
+    function __analyzeMapStr(str, windowStruct, finalColName, colNames) {
+        var retStruct = {};
+        var findStar = function(str) {
+            var find = false;
+            var inPar = false;
+            var i = 0;
+            for (; i < str.length; i++) {
+                if (str[i] === "*" && !inPar) {
+                    find = true;
+                    break;
+                } else if (str[i] === '"') {
+                    inPar = !inPar;
+                }
+            }
+            if (!find) {
+                return -1;
+            } else {
+                return i;
+            }
+        }
+        if (findStar(str) === -1) {
+            retStruct.mainMapStr = str;
+            retStruct.noWindow = true;
+        } else {
+            retStruct.nestMapStrs = [];
+            retStruct.nestMapNames = [];
+            retStruct.windowColStructs = [];
+            while (findStar(str) != -1) {
+                var leftIndex = findStar(str);
+                var rightIndex = str.substring(leftIndex).indexOf("(") + leftIndex;
+                var opName = str.substring(leftIndex + 1, rightIndex);
+                var tempColName;
+                var tempColStruct;
+                if (findStar(str) === 0) {
+                    tempColName = finalColName;
+                    retStruct.noMap = true;
+                    tempColStruct = {colName: tempColName};
+                } else {
+                    tempColName = "XC_WINDOWMAP_" +
+                                        Authentication.getHashId().substring(1);
+                    while (colNames.has(tempColName)) {
+                        tempColName = "XC_WINDOWMAP_" +
+                                        Authentication.getHashId().substring(1);
+                    }
+                    colNames.add(tempColName);
+                    tempColStruct = {colName: tempColName};
+                    retStruct.windowColStructs.push(tempColStruct);
+                }
+                if (opName === "nTile") {
+                    var innerLeft = rightIndex + 1;
+                    rightIndex = str.substring(innerLeft).indexOf(")") + innerLeft;
+                    windowStruct[opName].newCols.push(tempColStruct);
+                    windowStruct[opName].groupNums
+                                .push(str.substring(innerLeft, rightIndex));
+                } else if (opName === "lead" || opName === "lag") {
+                    rightIndex++;
+                    var innerLeft = rightIndex;
+                    var args = [];
+                    var defaultType = "value";
+                    var inQuote = false;
+                    var hasQuote = false;
+                    var isFunc = false;
+                    var parCount = 1;
+                    while (parCount != 0) {
+                        var curChar = str[rightIndex];
+                        rightIndex++;
+                        if (curChar === '"') {
+                            inQuote = !inQuote;
+                            hasQuote = true;
+                        } else if (inQuote) {
+                            continue;
+                        } else if (curChar === "(") {
+                            parCount++;
+                            isFunc = true;
+                        } else if (curChar === ")") {
+                            parCount--;
+                        }
+                        if (curChar === "," && parCount === 1 || parCount === 0) {
+                            var curArg = str.substring(innerLeft, rightIndex - 1);
+                            defaultType = "value";
+                            if (isFunc) {
+                                var innerTempColName = "XC_WINDOWMAP_" +
+                                        Authentication.getHashId().substring(1);
+                                while (colNames.has(innerTempColName)) {
+                                    innerTempColName = "XC_WINDOWMAP_" +
+                                        Authentication.getHashId().substring(1);
+                                }
+                                colNames.add(innerTempColName);
+                                args.push(innerTempColName);
+                                retStruct.nestMapStrs.push(curArg);
+                                retStruct.nestMapNames.push(innerTempColName);
+                                defaultType = "function";
+                            } else {
+                                args.push(curArg);
+                                if (hasQuote) {
+                                    defaultType = "string";
+                                }
+                            }
+                            innerLeft = rightIndex;
+                            isFunc = false;
+                        }
+                    }
+                    assert(args.length === 3);
+                    if (opName === "lag") {
+                        args[1] = args[1] * -1;
+                    }
+                    if (windowStruct.lead[args[1]]) {
+                        windowStruct.lead[args[1]].newCols.push(tempColStruct);
+                        windowStruct.lead[args[1]].keyCols.push({colName: args[0]});
+                        windowStruct.lead[args[1]].defaults.push(args[2]);
+                        windowStruct.lead[args[1]].types.push(defaultType);
+                    } else {
+                        windowStruct.lead[args[1]] =
+                                {newCols: [tempColStruct],
+                                 keyCols: [{colName: args[0]}],
+                                 defaults: [args[2]],
+                                 types: [defaultType],
+                                 offset: args[1]};
+                    }
+                    rightIndex--;
+                } else {
+                    // Other functions should take no argument: 'opName()'
+                    rightIndex++;
+                    assert(str[rightIndex] === ")");
+                    windowStruct[opName].newCols.push(tempColStruct);
+                }
+                if (retStruct.noMap) {
+                    str = "";
+                } else {
+                    str = str.substring(0, leftIndex) + tempColName
+                                        + str.substring(rightIndex + 1);
+                }
+            }
+            retStruct.mainMapStr = str;
+        }
+        return retStruct;
     }
 
     function extractCols(node) {
@@ -4684,7 +5025,11 @@
                     retStruct.operator = acc.operator;
                     retStruct.arguments = acc.arguments;
                 }
-                if (evalList[i].length === 2 && (!options || !options.groupby)) {
+                if (evalList[i].length === 2 && (!options || !options.groupby)
+                    && (evalList[i][1].class ===
+                    "org.apache.spark.sql.catalyst.expressions.AttributeReference"
+                    || evalList[i][1].class ===
+                    "org.apache.spark.sql.catalyst.expressions.Literal")) {
                     // This is a special alias case
                     assert(evalList[i][1].dataType, SQLErrTStr.NoDataType);
                     var dataType = convertSparkTypeToXcalarType(
