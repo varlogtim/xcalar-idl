@@ -73,9 +73,12 @@ namespace DagView {
     export function addBackNodes(_dagId, nodeIds) {
         const $dfArea: JQuery = $dfWrap.find(".dataflowArea.active")
         // need to add back nodes in the reverse order they were deleted
+
+        let maxXCoor: number = 0;
+        let maxYCoor: number = 0;
         for (let i = nodeIds.length - 1; i >= 0; i--) {
-            const nodeId = nodeIds[i];
-            const node = activeDag.addBackNode(nodeId);
+            const nodeId: DagNodeId = nodeIds[i];
+            const node: DagNode = activeDag.addBackNode(nodeId);
             _drawNode(node, $dfArea);
 
             node.getParents().forEach((parentNode, index) => {
@@ -89,8 +92,11 @@ namespace DagView {
                     }
                 });
             });
+            const coors = node.getPosition();
+            maxXCoor = Math.max(coors.x, maxXCoor);
+            maxYCoor = Math.max(coors.y, maxYCoor);
         }
-        _checkAndSetDimensions();
+        _setGraphDimensions({x: maxXCoor, y: maxYCoor});
     }
 
     /**
@@ -106,7 +112,7 @@ namespace DagView {
         const nodeId = node.getId();
         const $node = _drawNode(node, $dfArea);
         $node.addClass("selected");
-        _checkAndSetDimensions();
+        _setGraphDimensions(nodeInfo.display);
 
         Log.add(SQLTStr.AddOperation, {
             "operation": SQLOps.AddOperation,
@@ -258,6 +264,8 @@ namespace DagView {
         const offset = _getDFAreaOffset();
         let svg = d3.select("#dagView .dataflowArea.active .mainSvg");
         let oldPositions = [];
+        let maxXCoor: number = 0;
+        let maxYCoor: number = 0;
 
         nodeIds.forEach((nodeId, i) => {
             const $el = DagView.getNode(nodeId);
@@ -272,6 +280,9 @@ namespace DagView {
                 left: positions[i].x,
                 top: positions[i].y
             });
+
+            maxXCoor = Math.max(positions[i].x, maxXCoor);
+            maxYCoor = Math.max(positions[i].y, maxYCoor);
 
             // positions this element in front
             $el.appendTo($dfWrap.find(".dataflowArea.active"));
@@ -306,7 +317,7 @@ namespace DagView {
             });
         });
 
-        _checkAndSetDimensions();
+        _setGraphDimensions({x: maxXCoor, y: maxYCoor});
 
         Log.add(SQLTStr.MoveOperations, {
             "operation": SQLOps.MoveOperations,
@@ -661,34 +672,19 @@ namespace DagView {
                             connectorIndex, svg, offset);
     }
 
-    function _checkAndSetDimensions() {
-        let dimensionsAltered = false;
+    function _setGraphDimensions(elCoors: Coordinate) {
         const $dfArea = $dagView.find(".dataflowArea.active");
-        let dfAreaHeight = $dfArea.outerHeight();
-        let dfAreaWidth = $dfArea.find(".sizer").outerWidth();
+        const dimensions: Dimensions = activeDag.getDimensions();
+        const horzPadding = 200;
+        const vertPadding = 100;
+        let newWidth: number = Math.max(elCoors.x + horzPadding,
+                                        dimensions.width);
+        let newHeight: number = Math.max(elCoors.y + vertPadding,
+                                         dimensions.height);
 
-        const dfWrapHeight = $dfWrap.height();
-        const dfWrapWidth = $dfWrap.width();
-
-        const heightDiff = dfAreaHeight - dfWrapHeight;
-        const widthDiff = dfAreaWidth - dfWrapWidth;
-        if (heightDiff > 0) {
-            if (heightDiff < 40) {
-                dfAreaHeight = dfAreaHeight + 40;
-            }
-            $dfArea.css("min-height", dfAreaHeight);
-            dimensionsAltered = true;
-        }
-        if (widthDiff > 0) {
-            if (widthDiff < 40) {
-                dfAreaWidth = dfAreaWidth + 40;
-            }
-            $dfArea.css("min-width", dfAreaWidth);
-            dimensionsAltered = true;
-        }
-        if (dimensionsAltered) {
-            activeDag.setDimensions(dfAreaWidth, dfAreaHeight);
-        }
+        activeDag.setGraphDimensions(newWidth, newHeight);
+        $dfArea.css("min-width", newWidth);
+        $dfArea.css("min-height", newHeight);
     }
 
     function _drawNode(node: DagNode, $dfArea: JQuery): JQuery {

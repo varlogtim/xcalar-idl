@@ -76,7 +76,7 @@ class DragHelper {
         this.customOffset = options.offset || {x: 0, y: 0};
         this.dragContainerPositions = [];
         this.noCursor = options.noCursor || false;
-        this.scrollCounter = 0;
+        this.scrollUpCounter = 0;
 
         const self = this;
         this.mouseDownCoors = {
