@@ -280,6 +280,25 @@
               <button id="dsForm-applyUDF" class="btn btn-transparent"><%= dicts.dsForm.APPLYUDF %></button>
               <button id="dsForm-writeUDF" class="btn btn-transparent"><%= dicts.dsForm.WRITEPARSER %></button>
             </div>
+            <!-- parquet file secition -->
+            <div class="row format parquetfile">
+                <i class="qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.dsForm.ParquetParserTooltip %>" data-placement="top"></i>
+              <label><%= dicts.dsForm.ParquetParser %>:</label>
+              <div id="dsForm-parquetParser" class="dropDownList">
+                <input class="text inputable" type="text" spellcheck="false" autocomplete="off" disabled>
+                <div class="iconWrapper">
+                  <i class="icon xi-arrow-down"></i>
+                </div>
+                <!-- dropdown menu -->
+                <div class="list">
+                  <ul>
+                    <li name="pyArrow">PyArrow</li>
+                    <li name="parquetTools">ParquetTools</li>
+                  </ul>
+                  include "../../util/menuScrollArea.html"
+                </div>
+              </div>
+            </div>
             <!-- xml section -->
             <div class="row format xml">
                 <!-- XPath section template -->

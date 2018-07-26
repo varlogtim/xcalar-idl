@@ -1425,6 +1425,12 @@ describe("Dataset-DSPreview Test", function() {
             XcalarAppExecute = oldFunc;
         });
 
+        it("Format should be PARQUETFILE", function() {
+            assert.isFalse($("#dsForm-parquetParser").is(":visible"), "should not see parquet parser dropdown");
+            DSPreview.__testOnly__.toggleFormat("PARQUETFILE");
+            assert.isTrue($("#dsForm-parquetParser").is(":visible"), "should see parquet parser dropdown");
+        });
+
         it("Format Should be DATABASE", function() {
             DSPreview.__testOnly__.toggleFormat("DATABASE");
             expect($formatText.data("format")).to.equal("DATABASE");
@@ -1526,6 +1532,21 @@ describe("Dataset-DSPreview Test", function() {
 
         after(function() {
             DSPreview.__testOnly__.resetForm();
+        });
+    });
+
+    describe('Parquet File Test', () => {
+        it("shoiuld select parquet option", () => {
+            const $dropdownList = $("#dsForm-parquetParser");
+
+            $dropdownList.find("li").each(function() {
+                const $li = $(this);
+                $li.trigger(fakeEvent.mouseup);
+                const $input = $dropdownList.find("input.text");
+                expect($input.val()).to.equal($li.text());
+                expect($input.data("name")).not.to.be.undefined;
+                expect($input.data("name")).to.equal($li.attr("name"));
+            });
         });
     });
 
@@ -2044,11 +2065,15 @@ describe("Dataset-DSPreview Test", function() {
 
         it("should validte PARQUETFILE case", function() {
             loadArgs.set({format: "PARQUETFILE"});
+            $("#dsForm-parquetParser").find("li").eq(0).trigger(fakeEvent.mouseup);
             var res = validateForm();
             expect(res).to.be.an("object");
             expect(res.format).to.equal("PARQUETFILE");
             expect(res.udfModule).to.equal("/globaludf/default");
             expect(res.udfFunc).to.equal("parseParquet");
+            expect(res.udfQuery).to.deep.equal({
+                parquetParser: "pyArrow"
+            });
         });
 
         it("should validate invalid col name in advanced section", function(done) {
@@ -2362,6 +2387,23 @@ describe("Dataset-DSPreview Test", function() {
 
             UnitTest.hasAlertWithTitle("Error Parsing Parquet Dataset");
             XcalarAppExecute = oldFunc;
+        });
+
+        it("should restore PARQUETFILE", function() {
+            var $input = $("#dsForm-parquetParser").find("input.text");
+            $input.removeData("name");
+            var parser = "parquetTools";
+            resetForm({
+                dsName: "test",
+                format: "PARQUETFILE",
+                udfQuery: {
+                    parquetParser: parser
+                }
+            });
+
+            expect(loadArgs.getFormat()).to.equal("PARQUETFILE");
+            expect($input.data("name"))
+            .to.equal(parser);
         });
 
         after(function() {

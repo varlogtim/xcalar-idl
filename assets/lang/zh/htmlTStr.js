@@ -501,7 +501,9 @@ module.exports = {
         "SelectedColumns": "Selected Columns",
         "AvailableColumns": "Available Columns",
         "RemoveAll": "Remove All",
-        "AddAll": "Add All"
+        "AddAll": "Add All",
+        "ParquetParser": "Parquet Parser",
+        "ParquetParserTooltip": "Xcalar will use the selected parser to parse parquet files",
     },
     "dsFormat": {
         "CSV": "分隔值(CSV, TSV...)",

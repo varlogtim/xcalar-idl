@@ -229,7 +229,7 @@ class XcUser {
     }
 
     /**
-    * XcSupport.commitCheck
+    * XcUser.CurrentUser.commitCheck
     * @param isFromHeatbeatCheck
     */
     public commitCheck(isFromHeatbeatCheck: boolean = false): XDPromise<void> {
