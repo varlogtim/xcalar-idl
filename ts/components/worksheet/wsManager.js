@@ -1069,6 +1069,9 @@ window.WSManager = (function($, WSManager) {
             $("#workspaceMenu").find(".menuSection.worksheets")
                             .addClass("xc-hidden")
                             .end()
+                            .find("#dagList")
+                            .addClass("xc-hidden")
+                            .end()
                             .find(".menuSection.tables")
                             .removeClass("xc-hidden");
         });
@@ -1081,6 +1084,29 @@ window.WSManager = (function($, WSManager) {
                             .find(".menuSection.worksheets")
                             .removeClass("xc-hidden");
         });
+
+        $("#worksheetButton").click(function () {
+            $("#workspaceMenu").find(".menuSection.worksheets")
+                            .addClass("xc-hidden")
+                            .end()
+                            .find("#dagList")
+                            .addClass("xc-hidden")
+                            .end()
+                            .find(".menuSection.tables")
+                            .removeClass("xc-hidden");
+        })
+
+        $("#dagButton").click(function () {
+            $("#workspaceMenu").find(".menuSection.worksheets")
+                            .addClass("xc-hidden")
+                            .end()
+                            .find(".menuSection.tables")
+                            .addClass("xc-hidden")
+                            .end()
+                            .find("#dagList")
+                            .removeClass("xc-hidden");
+        })
+
 
         // click to add new worksheet
         $("#addWorksheet").click(function() {

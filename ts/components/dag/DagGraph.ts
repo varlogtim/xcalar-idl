@@ -353,7 +353,7 @@ class DagGraph {
     public restoreConnections(connections: NodeConnection[]): void {
         connections.forEach((edge: NodeConnection) => {
             if (edge.parentId != null && edge.childId != null) {
-               this.connect(edge.parentId, edge.childId, edge.pos)
+                this.connect(edge.parentId, edge.childId, edge.pos)
             }
         });
     }

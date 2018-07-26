@@ -21,6 +21,7 @@ class DagTabManager{
         const self: DagTabManager = this;
         self._$dagTabArea = $("#dagTabSectionTabs").find("ul");;
         self._$dataFlowAreas = $("#dagView .dataflowArea");
+        self._$dagTabs = null;
         self._keys = [];
         let key = KVStore.getKey("gDagManagerKey");
         self._dagKVStore = new KVStore(key, gKVScope.WKBK);
@@ -50,17 +51,27 @@ class DagTabManager{
             let $tab_name = $(this);
             self._editingName = $tab_name.text();
             $tab_name.text("");
-            $("<input type='text'>").appendTo($tab_name).focus();
+            let inputArea: string = 
+                "<span contentEditable='true' class='xc-input'></span>";
+            $(inputArea).appendTo($tab_name);
+            let $input = $tab_name.find('.xc-input');
+            $input.text(self._editingName);
+            $input.focus();
+            document.execCommand('selectAll', false, null);
         });
 
-        self._$dagTabArea.on("focusout", "input", function() {
+        self._$dagTabArea.on("focusout", ".xc-input", function() {
             let $tab_input = $(this);
             let $tab_name = $(this).parent();
-            $tab_name.text($tab_input.val() || self._editingName);
-
-            let $tab = $tab_name.parent();
-            let index = self._$dagTabs.index($tab);
-            self._activeUserDags[index].setName($tab_name.text());
+            let newName = $tab_input.text() || self._editingName;
+            $tab_name.text(newName);
+            if (newName != self._editingName) {
+                let $tab = $tab_name.parent();
+                let index = self._$dagTabs.index($tab);
+                self._activeUserDags[index].setName($tab_name.text());
+                const dagList: DagList = DagList.Instance;
+                dagList.changeName(newName, self._keys[index]);
+            }
             $tab_input.remove();
         });
 
@@ -80,8 +91,7 @@ class DagTabManager{
         this._dagKVStore.getAndParse()
         .then(function(ManagerData) {
             if (ManagerData == null) {
-                self._unique_id = 1;
-                self._keys = [];
+                self.reset();
                 return;
             }
             self._unique_id = ManagerData.id;
@@ -89,8 +99,7 @@ class DagTabManager{
             self._loadDagTabs(ManagerData.dagKeys);
         })
         .fail(function() {
-            self._unique_id = 1;
-            self._keys = [];
+            self.reset();
             return;
         });
     }
@@ -135,6 +144,8 @@ class DagTabManager{
         .then(() => {
             if (this._$dagTabs != null && this._$dagTabs.length > 0) {
                 this._switchTabs($(this._$dagTabs[0]));
+            } else {
+                this.reset();
             }
         });
     }
@@ -153,17 +164,19 @@ class DagTabManager{
 
     // Deletes the tab represented by $tab
     private _deleteTab($tab: JQuery): void {
+        if (this._$dagTabs.length == 1) {
+            return;
+        }
         let index = this._$dagTabs.index($tab);
         if ($tab.hasClass("active")) {
             this._$dagTabs.removeClass("active");
             this._$dataFlowAreas.removeClass("active");
             if (index > 0) {
                 this._switchTabs($(this._$dagTabs[index-1]));
-            } else if (this._$dagTabs.length > 0) {
+            } else if (this._$dagTabs.length > 1) {
                 this._switchTabs($(this._$dagTabs[index+1]));
             }
         }
-        this._activeUserDags[index].delete();
         this._activeUserDags.splice(index, 1);
         this._keys.splice(index,1);
         let json = this._getJSON();
@@ -172,21 +185,25 @@ class DagTabManager{
         this._$dagTabs = $("#dagTabSectionTabs .dagTab");
         $(this._$dataFlowAreas.get(index)).remove();
         this._$dataFlowAreas = $("#dagView .dataflowArea");
+        if (this._$dagTabs.length == 1) {
+            $("#dagTabSectionTabs .dagTab .after").addClass("xc-hidden")
+        }
     }
 
-    // Creates a new Tab.
+    // Creates a new Tab and dataflow.
     private _newTab(): void {
         let uid = this._unique_id;
         let key = KVStore.getKey("gDagManagerKey") + "-DF-" + uid;
+        let name = "Dataflow " + uid;
         this._unique_id++;
         this._keys.push(key);
-        // obviously this isn't a unique ID. Unique ID's coming with storage.
-        let newTab = new DagTab("Dataflow " + uid, uid, key, new DagGraph());
+        let newTab = new DagTab(name, uid, key, new DagGraph());
         this._activeUserDags.push(newTab);
         let json = this._getJSON();
         this._dagKVStore.put(JSON.stringify(json), true, true);
-        // TODO: Store actual dagGraph once serialize is done.
         newTab.saveTab();
+        const dagList: DagList = DagList.Instance;
+        dagList.addDag(name, key);
         this._addTabHTML('Dataflow ' + uid );
         let $tab = this._$dagTabs.last();
         this._switchTabs($tab);
@@ -206,6 +223,7 @@ class DagTabManager{
      * @param name Name of the tab we want to add
      */
     private _addTabHTML(name: string): void {
+        name = xcHelper.escapeHTMLSpecialChar(name);
         let html = '<li class="dagTab"><div class="name">' + name +
                     '</div><div class="after"><i class="icon xi-close-no-circle"></i></div></li>';
         this._$dagTabArea.append(html);
@@ -217,6 +235,64 @@ class DagTabManager{
             </div>'
         );
         this._$dataFlowAreas = $("#dagView .dataflowArea");
+        if (this._$dagTabs.length > 1) {
+            $("#dagTabSectionTabs .dagTab .after").removeClass("xc-hidden")
+        } else {
+            $("#dagTabSectionTabs .dagTab .after").addClass("xc-hidden")
+        }
+    }
+
+    /**
+     * Removes the tab representing the dag with "key"
+     * @param key The kvstore key for the dagTab.
+     * @returns {boolean}
+     */
+    public removeTab(key: string): boolean {
+        const index: number = this._keys.indexOf(key);
+        if (index == -1) {
+            // Dag not in active tabs, so it's fine to delete it.
+            return true;
+        } else if (this._keys.length == 1) {
+            return false;
+        }
+        this._deleteTab($(this._$dagTabs.get(index)));
+        return true;
+    }
+
+    /**
+     * Either loads up a new tab or switches to an existing one.
+     * @param key Key for the dagTab we want to load
+     */
+    public loadTab(key: string): void {
+        // Check if we already have the tab
+        const index: number = this._keys.indexOf(key);
+        if (index != -1) {
+            this._switchTabs($(this._$dagTabs.get(index)));
+            return;
+        }
+        let newTab: DagTab = new DagTab(null, null, null, null);
+        newTab.initializeTab(key)
+        .then((tab: DagTab)=> {
+            if (tab == null) {
+                // Error
+                // TODO: Either retry, or delete that dag from the dagList.
+                console.error("Invalid DagTabKey");
+                return;
+            }
+            const tabJSON: DagTabJSON = tab.getJSON();
+            if (tabJSON.name == null) {
+                return;
+            } else {
+                // Success Case
+                this._addDagTab(tab);
+                this._addTabHTML(tabJSON.name);
+                this._switchTabs(this._$dagTabs.last());
+                DagView.redraw();
+                this._keys.push(key);
+                let json: DagTabManagerJSON = this._getJSON();
+                this._dagKVStore.put(JSON.stringify(json), true, true);
+            }
+        });
     }
 
     /**
@@ -225,6 +301,7 @@ class DagTabManager{
     public reset(): void {
         this._unique_id = 1;
         this._keys = [];
+        this._newTab();
     }
 
     // Used for testing/simple setup.

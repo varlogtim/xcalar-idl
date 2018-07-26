@@ -61,6 +61,8 @@ namespace WorkspacePanel {
                     $workspacePanel.find(".mainContent").scrollTop(0);
                     $("#worksheetView").addClass("active");
                     $("#workspaceBar").removeClass("xc-hidden");
+                    $("#dagView").removeClass("active");
+                    $("#dagViewBar").addClass("xc-hidden");
                     $("#imdBar").addClass("xc-hidden");
                     $("#statusBar").addClass("worksheetMode");
                     WSManager.focusOnWorksheet();
@@ -73,6 +75,8 @@ namespace WorkspacePanel {
                     $("#worksheetView").removeClass("active");
                     $("#imdView").addClass("active");
                     $("#workspaceBar").addClass("xc-hidden");
+                    $("#dagView").removeClass("active");
+                    $("#dagViewBar").addClass("xc-hidden");
                     $("#imdBar").removeClass("xc-hidden");
                     $("#statusBar").removeClass("worksheetMode");
                     var firstTouch = $button.hasClass("firstTouch");
@@ -86,7 +90,6 @@ namespace WorkspacePanel {
                     wasWorkspaceMenuOpen = $menu.hasClass("active");
                     TblFunc.hideOffScreenTables();
                     // XXX temp
-                    $("#workspacePanel").children(".mainContent").hide();
                     $("#userBox").addClass("dagMode");
 
 
@@ -97,6 +100,7 @@ namespace WorkspacePanel {
                     $("#imdBar").addClass("xc-hidden");
                     $("#statusBar").removeClass("worksheetMode");
                     $("#dagView").addClass("active");
+                    $("#dagViewBar").removeClass("xc-hidden");
                     break;
                 default:
                     break;

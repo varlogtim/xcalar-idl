@@ -370,6 +370,7 @@ module.exports = {
     },
     "dataflow": {
         "DataflowTitle": "批量数据流",
+        "dataflows": "Dataflows",
         "action": "操作",
         "noValue": "空值",
         "create": "创建",

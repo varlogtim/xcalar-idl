@@ -57,13 +57,6 @@ class DagTab{
     }
 
     /**
-     * Deletes this tab from the kvStore
-     */
-    public delete(): void {
-        this._kvStore.delete();
-    }
-
-    /**
      * Returns the JSON representing this tab.
      * @returns {DagTabJSON}
      */

@@ -61,7 +61,7 @@ interface DagNodeSetInput {
 
 /* ==== End of Dag Node Input Intereface ==== */
 
-/* ==== Interfaces related to DagManager and DagTabs ==== */
+/* ==== Interfaces related to DagList and DagTabs ==== */
 
 interface NodeConnection {
     parentId: DagNodeId,
@@ -91,4 +91,10 @@ interface DagTabJSON {
     dag: string
 }
 
-/* ==== End of interfaces related to DagManager and DagTabs ==== */
+interface StoredDags {
+    name: string,
+    key: string
+}
+
+/* ==== End of interfaces related to DagList and DagTabs ==== */
+

@@ -42,8 +42,8 @@ window.Log = (function($, Log) {
         $textarea = $("#log-TextArea");
         $machineTextarea = $("#log-MachineTextArea");
 
-        $undo = $("#undo, #dagView .undo");
-        $redo = $("#redo, #dagView .redo");
+        $undo = $("#undo, #dagViewBar .undo");
+        $redo = $("#redo, #dagViewBar .redo");
 
         initialize();
         addEvents();

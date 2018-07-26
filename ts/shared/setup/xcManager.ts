@@ -103,7 +103,8 @@ namespace xcManager {
             BottomMenu.initialize(); // async
             WorkbookPanel.initialize();
             DataflowPanel.initialize(); // async if has df
-            setupDagTabs();
+            setupDagList();
+            setupDagTabManager();
             if (typeof SQLEditor !== "undefined") {
                 SQLEditor.initialize();
             }
@@ -783,7 +784,12 @@ namespace xcManager {
         return xcSocket;
     }
 
-    function setupDagTabs(): void {
+    function setupDagList(): void {
+        const dagList: DagList = DagList.Instance;
+        dagList.setup();
+    }
+
+    function setupDagTabManager(): void {
         const dagTabManager: DagTabManager = DagTabManager.Instance;
         dagTabManager.setup();
     }

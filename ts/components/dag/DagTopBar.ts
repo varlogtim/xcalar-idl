@@ -10,7 +10,7 @@ class DagTopBar {
 
     public setup(): void {
         this.$dagView = $("#dagView");
-        this.$topBar = this.$dagView.find(".topBar");
+        this.$topBar = $("#dagViewBar");
         this._addEventListeners();
     }
 
