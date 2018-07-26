@@ -1941,7 +1941,7 @@ window.DFParamModal = (function($, DFParamModal){
         isOpen = false;
         $modal.removeClass("type-dataStore type-filter type-export type-synthesize " +
                             "type-advancedOnly type-noParams multiExport");
-        $("#retPopUp").appendTo($("#dataflowView"));
+        $("#retPopUp").appendTo($("#dfViz .retTab"));
     }
 
     function updateInstructions() {
