@@ -456,12 +456,22 @@ namespace Compatible {
             window["isBrowserSafari"] = true;
             $('html').addClass('safari');
         }
+
+        var version = getBrowser().version;
+
         if (window["isBrowserSafari"] ||
             window["isBrowserChrome"] ||
             window["isBrowserFirefox"] ||
             window["isBrowserEdge"]) {
+            if ((window["isBrowserSafari"] && version < 10) ||
+                (window["isBrowserChrome"] && version < 50) ||
+                (window["isBrowserFirefox"] && version < 40)) {
+                window["isBrowserSupported"] = false;
+            } else {
+                // any version of Edge is ok
                 window["isBrowserSupported"] = true;
-        } else {
+            }
+        } else { // IE or opera or anything else is bad
             window["isBrowserSupported"] = false;
         }
     }
@@ -470,6 +480,24 @@ namespace Compatible {
         if (/MAC/i.test(navigator.platform)) {
             window["isSystemMac"] = true;
         }
+    }
+
+    function getBrowser() {
+        var ua=navigator.userAgent,tem,M=ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+        if(/trident/i.test(M[1])){
+            tem=/\brv[ :]+(\d+)/g.exec(ua) || [];
+            return {name:'IE',version:(tem[1]||'')};
+            }
+        if(M[1]==='Chrome'){
+            tem=ua.match(/\bOPR|Edge\/(\d+)/)
+            if(tem!=null)   {return {name:'Opera', version:tem[1]};}
+            }
+        M=M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+        if((tem=ua.match(/version\/(\d+)/i))!=null) {M.splice(1,1,tem[1]);}
+        return {
+          name: M[0],
+          version: parseFloat(M[1])
+        };
     }
 
     function featureCheck() {
