@@ -349,7 +349,7 @@ module.exports = {
         "RawDSCSVPromote": "Use first row as column header row",
         "RawDSRecordDelim": "Specify no record delimiter or a 1-character record delimiter. Select an option from the drop-down list or type the character.",
         "RawDSFieldDelim": "Select a string from the drop-down list or type a string as a field delimiter. Length can be 0 to 255.",
-        "RawDSQuote": "Character used as a quote mark. Delimiter characters between quote marks are interpreted literally, not as delimiters. Leave this field empty if you want to treat delimiter characters as delimiters regardless of where these characters appear.",
+        "RawDSQuote": "Character used as a quote mark. A pair of quote marks surround an entire field's content. Delimiter characters between quote marks are interpreted literally, not as delimiters. The import process omits quote marks from imported field content. To treat all delimiter characters identically, leave the Quoting Character field empty.",
         "RawDSSkipRows": "Skip the first specified number of rows in each file.",
         "RawDSExcelIndex": "Index of the worksheet in the Excel workbook. Indexing starts at 0 (first worksheet).",
         "RawDSUDFModule": "Select an existing import UDF module or 'Write Parser Using Jupyter' to create a module.",
