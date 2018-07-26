@@ -470,7 +470,7 @@ getUnsortedTableName = function(
                     } else {
                         return PromiseHelper.resolve(null);
                     }
-                    console.log("Using unsorted table instead:", srcTableName);
+                    // console.log("Using unsorted table instead:", srcTableName);
                 }
             } else if (nodeArray.node[0].api === XcalarApisT.XcalarApiExecuteRetina) {
                 // if this is a sorted retina node, then it doesn't have
@@ -3085,7 +3085,7 @@ XcalarArchiveTable = function(
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
-    const workItem = xcalarArchiveTablesWorkItem(srcTableNames, true); // TODO: unused?
+    // const workItem = xcalarArchiveTablesWorkItem(srcTableNames, true); // TODO: unused?
     xcalarArchiveTables(tHandle, srcTableNames)
     .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
@@ -5503,14 +5503,14 @@ XcalarRefreshTable = function(
     }
 
     const deferred: XDDeferred<XcalarApiNewTableOutputT> = jQuery.Deferred();
-    const workItem = xcalarApiSelectWorkItem(pubTableName, dstTableName,
-                                           minBatch, maxBatch);
-    const query = XcalarGetQuery(workItem);
-    Transaction.startSubQuery(txId, SQLOps.RefreshTables, dstTableName, query);
-
     // FIXME TODO new parameters for predicate pushdown
     var filterString;
     var columns;
+
+    const workItem = xcalarApiSelectWorkItem(pubTableName, dstTableName,
+                                        minBatch, maxBatch, filterString, columns);
+    const query = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, SQLOps.RefreshTables, dstTableName, query);
 
     // Note max and min places are switched because the API is a little strange
     xcalarApiSelect(tHandle, pubTableName, dstTableName, maxBatch, minBatch,

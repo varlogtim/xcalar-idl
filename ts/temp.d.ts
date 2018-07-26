@@ -1280,13 +1280,6 @@ declare namespace DataStore {
     export function setup(): void;
 }
 
-declare namespace xcMenu {
-    export function add($menu: JQuery): void
-    export function removeKeyboardNavigation(): void;
-    export function close($menu?: JQuery): void;
-    export function addKeyboardNavigation($menu: JQuery, $subMenu: JQuery, options: object): void;
-}
-
 declare namespace DS {
     export function getGrid(dsId: string): JQuery;
     export function updateDSInfo(arg: object): void;

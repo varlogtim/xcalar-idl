@@ -754,9 +754,9 @@ declare function xcalarTargetTypeList(
 declare function xcalarListPublishedTables(
     thriftHandle: ThriftHandler,
     patternMatch: string,
-    getSelects: boolean,
     getUpdates: boolean,
-    updateStartBatchId: number
+    updateStartBatchId: number,
+    getSelects: boolean
 ): XDPromise<XcalarApiListTablesOutputT>;
 
 declare function xcalarUnpublish(
@@ -783,7 +783,9 @@ declare function xcalarApiSelectWorkItem(
     srcTableName: string,
     dstTableName: string,
     batchIdMax: number,
-    batchIdMin: number
+    batchIdMin: number,
+    filterString: string,
+    columns: string[]
 ): WorkItem;
 
 declare function xcalarApiSelect(
@@ -791,7 +793,9 @@ declare function xcalarApiSelect(
     srcTableName: string,
     dstTableName: string,
     batchIdMax: number,
-    batchIdMin: number
+    batchIdMin: number,
+    filterString: string,
+    columns: string[]
 ): XDPromise<XcalarApiNewTableOutputT>;
 
 declare function xcalarRestoreTable(

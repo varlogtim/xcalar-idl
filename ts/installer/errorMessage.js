@@ -155,6 +155,14 @@ window.ErrorMessage = (function(ErrorMessage, $){
 
     function appendLog(installationLogs) {
         var $content = $("#errorMessageModal .logWrap .logArea");
+        try {
+            installationLogs = installationLogs.split('\n').reverse().join('\n');
+            if (installationLogs[0] === '\n') {
+                installationLogs = installationLogs.substring(1);
+            }
+        } catch (e) {
+            // skip
+        }
         // $content.html(splitLogByHost(installationLogs));
         $content.html("<div class='msgRow'>" + installationLogs + "</div>");
     }
