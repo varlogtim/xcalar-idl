@@ -108,7 +108,7 @@ describe('IMD Test', function() {
                 expect($imdPanel.find(".tableListItem .tableListLeft").eq(0).text().trim()).to.equal("test1");
                 expect($imdPanel.find(".tableListItem .tableListHist").eq(0).text().trim().slice(-2)).to.equal("10");
                 expect($imdPanel.find(".inactiveTablesList .tableListItem").length).to.equal(1);
-                expect($imdPanel.find(".tableDetailSection .tableName").text().trim()).to.equal("test1:");
+                expect($imdPanel.find(".tableDetailSection .tableName").text().trim()).to.equal("test1");
                 expect($imdPanel.find(".tableDetailSection").hasClass("active")).to.be.true;
                 expect($imdPanel.find(".tableDetailSection .tableDetailContent .tableDetailRow").length).to.equal(3);
                 XcalarListPublishedTables = fnCache;
@@ -679,7 +679,7 @@ describe('IMD Test', function() {
 
             var called = false;
             XcalarUnpublishTable = function(tableName) {
-                
+
                 tables.pTables.forEach(function(table) {
                     if(table.name === tableName) {
                         table.active = false;
@@ -719,7 +719,7 @@ describe('IMD Test', function() {
 
             var called = false;
             XcalarRestoreTable = function(tableName) {
-                
+
                 tables.iTables.forEach(function(table) {
                     if(table.name === tableName) {
                         table.active = true;

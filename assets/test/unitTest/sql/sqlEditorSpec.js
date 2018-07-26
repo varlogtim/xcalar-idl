@@ -424,7 +424,7 @@ describe("SQLEditor Test", function() {
                 return SQLEditor.deleteSchemas(undefined, [-1]);
             })
             .then(function(ret) {
-                expect(ret).to.equal("No tables to delete");
+                expect(ret).to.equal("No schemas to delete");
                 done();
             })
             .fail(function() {
