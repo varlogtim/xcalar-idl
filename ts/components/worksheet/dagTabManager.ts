@@ -25,6 +25,7 @@ class DagTabManager{
         let key = KVStore.getKey("gDagManagerKey");
         self._dagKVStore = new KVStore(key, gKVScope.WKBK);
         self._activeUserDags = [];
+        this._$dagTabs = null;
 
 
         self._$dagTabArea.on("click", ".after", function(event) {
@@ -132,7 +133,7 @@ class DagTabManager{
         //Use a chain to ensure all are run sequentially.
         PromiseHelper.chain(promises)
         .then(() => {
-            if (this._$dagTabs.length > 0) {
+            if (this._$dagTabs != null && this._$dagTabs.length > 0) {
                 this._switchTabs($(this._$dagTabs[0]));
             }
         });
