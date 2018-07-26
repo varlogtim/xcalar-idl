@@ -79,7 +79,7 @@ module.exports = function(server) {
                             delete userInfos[user].workbooks[userOption.id];
                         }
                     }
-                    xcConsole.log(user, "has logout");
+                    xcConsole.log(user, "has logged out");
                     io.sockets.emit("system-allUsers", userInfos);
                 }
             } catch (e) {

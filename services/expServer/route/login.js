@@ -735,7 +735,8 @@ function loginAuthentication(credArray) {
             return jQuery.Deferred().reject().promise();
         }
 
-        var hmac = crypto.createHmac("sha256", "xcalar-salt").update(credArray.xipassword).digest("hex");
+        var hmac = crypto.createHmac("sha256", "xcalar-salt")
+            .update(credArray.xipassword).digest("hex");
 
         if (credArray.xiusername === defaultAdminConfig.username &&
             hmac === defaultAdminConfig.password) {
@@ -773,6 +774,7 @@ function loginAuthentication(credArray) {
         // We've authenticated successfully with either ldap or default admin
         userInfo.status = message.status;
         userInfo.xiusername = credArray.xiusername;
+        xcConsole.log(userInfo.xiusername, "successfully logged in.");
         deferred.resolve(userInfo)
     })
     .fail(function(errorMsg) {
