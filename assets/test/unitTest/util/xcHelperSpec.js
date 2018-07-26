@@ -1422,7 +1422,20 @@ describe("xcHelper Test", function() {
             "action": "check",
             "name": "ab*9c",
             "expect": false
-        }];
+        },
+        {
+            "category": "export",
+            "action": "check",
+            "name": "ab*9c",
+            "expect": false
+        },
+        {
+            "category": "export",
+            "action": "check",
+            "name": "ab/9c",
+            "expect": true
+        }
+    ];
 
         testCases.forEach(function(test) {
             var res = xcHelper.checkNamePattern(test.category, test.action,

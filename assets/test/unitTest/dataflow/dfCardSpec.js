@@ -585,7 +585,7 @@ describe("DFCard Test", function() {
     describe("parameter popup", function() {
         var $tab;
         before(function() {
-            $tab = $(".retTabSection").find(".retTab");
+            $tab = $(".retTabSection").find(".tabWrap");
         });
 
         // it("popup should open and close", function() {

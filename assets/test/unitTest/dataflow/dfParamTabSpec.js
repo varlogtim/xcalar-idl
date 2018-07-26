@@ -2,6 +2,7 @@ describe("DFParamTab Test", function() {
     var getParamMapCache;
     var getParamMap;
     var updateParamMapCache;
+    var $tab = $("#dfViz .tabWrap");
     before(function(done) {
         getParamMapCache = DF.getParamMapCache;
         getParamMap = DF.getParamMap;
@@ -23,7 +24,7 @@ describe("DFParamTab Test", function() {
 
     describe("opening", function() {
         it("ret popup should be inactive", function() {
-            expect($("#dfViz .retTab").hasClass("active")).to.be.false;
+            expect($("#retPopUp").hasClass("active")).to.be.false;
         });
         it("ret popup should open", function() {
             var called = false;
@@ -32,15 +33,15 @@ describe("DFParamTab Test", function() {
                 return {test: {value: "test1", isEmpty: false}};
             };
 
-            $("#dfViz .retTab").click();
+            $tab.click();
             expect($("#retPopUp").hasClass("active")).to.be.true;
             expect(called).to.be.true;
         });
 
         it("should close if clicking on tab", function() {
-            $("#dfViz .retTab").click();
+            $tab.click();
             expect($("#retPopUp").hasClass("active")).to.be.false;
-            $("#dfViz .retTab").click();
+            $tab.click();
             expect($("#retPopUp").hasClass("active")).to.be.true;
         })
 
@@ -154,8 +155,8 @@ describe("DFParamTab Test", function() {
             xcTooltip.refresh = function() {
                 called = true;
             }
-            $("#dfViz .retTab").click();
-            $("#dfViz .retTab").click();
+            $tab.click();
+            $tab.click();
 
             XVM.getLicenseMode = cache;
             xcTooltip.refresh = cache2;

@@ -264,7 +264,7 @@ window.DFCard = (function($, DFCard) {
                     "msg": DFTStr.ParamNoValue,
                     "isAlert": true,
                     "onCancel": function() {
-                        $dfCard.find('.retTabSection .retTab').trigger('click');
+                        $dfCard.find('.retTabSection .tabWrap').trigger('click');
                     }
                 });
             }
@@ -339,7 +339,7 @@ window.DFCard = (function($, DFCard) {
                            DFTStr.ParamNoValue,
                     "isAlert": true,
                     "onCancel": function() {
-                        $dfCard.find('.retTabSection .retTab').trigger('mousedown');
+                        $dfCard.find('.retTabSection .tabWrap').trigger('mousedown');
                     }
                 });
             }
@@ -1432,9 +1432,7 @@ window.DFCard = (function($, DFCard) {
     function checkExistingFileName(fileName, targetName, targetType) {
         var deferred = PromiseHelper.deferred();
         var extensionDotIndex = fileName.lastIndexOf(".");
-        if (fileName.includes("/")) {
-            return PromiseHelper.reject(DFTStr.InvalidExportPath);
-        } else if (extensionDotIndex > 0) {
+        if (extensionDotIndex > 0) {
             fileName = fileName.slice(0, extensionDotIndex);
         } else {
             return PromiseHelper.reject(DFTStr.NoFileExt);

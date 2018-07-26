@@ -1450,7 +1450,7 @@ window.DFParamModal = (function($, DFParamModal){
         });
 
         if (!isValid && !ignoreError) {
-            return false;
+            return {error: "invalidNamePattern"};
         }
 
         // check for empty param values
@@ -1465,12 +1465,9 @@ window.DFParamModal = (function($, DFParamModal){
         });
 
         if (!isValid && !ignoreError) {
-            return false;
+            return {error: "emptyParam"};
         }
 
-        if (!ignoreError && hasInvalidExportPath()) {
-            return false;
-        }
         return params;
     }
 
@@ -1494,9 +1491,6 @@ window.DFParamModal = (function($, DFParamModal){
             }
         }
 
-        if (hasInvalidExportPath(params)) {
-            return {error: true};
-        }
         return params;
     }
 
@@ -1679,7 +1673,6 @@ window.DFParamModal = (function($, DFParamModal){
                             errMsg += " in " + trace.join("");
                         }
                         return {error: errMsg};
-                        break;
                     } else if (typeof expectedValue[key] === "object" && expectedValue[key] != null) {
                         trace.length ? trace.push("[\"" + key + "\"]") : trace.push(key);
                         var res = checkStructHasRequiredFields(
@@ -1784,23 +1777,6 @@ window.DFParamModal = (function($, DFParamModal){
             paramTargetName = paramTargetName.replace(rgx, val);
         }
         return paramTargetName;
-    }
-
-    function hasInvalidExportPath() {
-        if (type !== "export") {
-            return false;
-        }
-
-        var $input = $modal.find(".editableTable")
-                                .find("input.editableParamDiv").eq(0);
-        var val =  $input.val();
-
-        if (val.includes("/")) {
-            StatusBox.show(DFTStr.InvalidExportPath, $input);
-            return true;
-        } else {
-            return false;
-        }
     }
 
     function getParameterInputHTML(inputNum, extraClass, options) {

@@ -40,13 +40,13 @@ namespace DFParamTab {
         private setupListeners() {
             const self = this;
 
-            $("#dfParamModal").on("click", ".retTab", function() {
+            $("#dfParamModal").on("click", ".tabWrap", function() {
                 self.retTabClick();
                 return false;
             });
 
             // toggle open retina pop up
-            self.$retTabSection.on("click", ".retTab", function() {
+            self.$retTabSection.on("click", ".tabWrap", function() {
                 self.retTabClick();
                 return false;
             });
@@ -124,7 +124,7 @@ namespace DFParamTab {
                 $("#container").on("mousedown.retTab", function(event) {
                     const $target: JQuery = $(event.target);
                     if (self.$retPopup.hasClass("active") &&
-                        !$target.closest(".retTab").length &&
+                        !$target.closest(".tabWrap").length &&
                         !$target.closest("#retPopUp").length) {
                         self.closeRetTab();
                         return false;
@@ -228,7 +228,6 @@ namespace DFParamTab {
                 DFParamModal.updateDraggableInputs();
             }
 
-            this.$retTabSection.find(".retTab").removeClass("active");
             this.$retPopup.removeClass("active");
             StatusBox.forceHide();
             $("#container").off("mousedown.retTab");
