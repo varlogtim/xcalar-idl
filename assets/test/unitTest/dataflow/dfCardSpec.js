@@ -340,8 +340,12 @@ describe("DFCard Test", function() {
             var cache2 = DF.getDataflow;
             DF.getDataflow = function() {
                 return {
-                    allUsedParamsWithValues: function(){return false;}
+
                 };
+            };
+            var cache3 = DF.getParameters;
+            DF.getParameters = function() {
+                return ["unique" + Date.now()];
             };
 
             expect($("#dfViz .addScheduleToDataflow:visible").length).to.equal(1);
@@ -349,6 +353,7 @@ describe("DFCard Test", function() {
             expect(schedCalled).to.be.false;
             Scheduler.show = cache1;
             DF.getDataflow = cache2;
+            DF.getParameters = cache3;
             UnitTest.hasAlertWithTitle(DFTStr.AddValues);
             expect($('#retPopUp:visible').length).to.equal(1);
             $("#container").trigger(fakeEvent.mousedown);

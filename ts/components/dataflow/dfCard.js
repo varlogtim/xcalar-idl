@@ -255,13 +255,25 @@ window.DFCard = (function($, DFCard) {
             // doesn't have schedule, show schedule
             var dfName = $listSection.find(".selected .groupName").text();
             var df = DF.getDataflow(dfName);
-            if (df.allUsedParamsWithValues()) {
+            var paramsInDataflow = DF.getParameters(df);
+            var params = DF.getParamMap();
+            var missingParams = [];
+            for (var i = 0; i < paramsInDataflow.length; i++) {
+                var name = paramsInDataflow[i];
+                if (!(systemParams.hasOwnProperty(name) &&
+                    isNaN(Number(name))) && !params[name]) {
+                    missingParams.push(name);
+                }
+            }
+            if (!missingParams.length) {
                 xcTooltip.hideAll();
                 Scheduler.show(dfName);
             } else {
                 Alert.show({
                     "title": DFTStr.AddValues,
-                    "msg": DFTStr.ParamNoValue,
+                    "msg": xcHelper.replaceMsg(DFTStr.ParamNoValueList, {
+                        "params": missingParams.join(", ")
+                    }),
                     "isAlert": true,
                     "onCancel": function() {
                         $dfCard.find('.retTabSection .tabWrap').trigger('click');
