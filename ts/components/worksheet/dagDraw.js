@@ -1819,8 +1819,12 @@ window.DagDraw = (function($, DagDraw) {
                     info.subType = "groupBy" + type;
                     info.tooltip = xcHelper.escapeHTMLSpecialChar(evalStr) +
                                    " Grouped by " + groupedOn + sampleStr;
-                    info.opText = evalStr.slice(evalStr.indexOf('(') + 1,
+                    if (groupedOn === "All") {
+                        info.opText = groupedOn;
+                    } else {
+                        info.opText = evalStr.slice(evalStr.indexOf('(') + 1,
                                                 evalStr.lastIndexOf(')'));
+                    }
                     break;
                 case ('indexInput'):
                     var keyNames = struct.key.map(function(key) {
@@ -2035,10 +2039,16 @@ window.DagDraw = (function($, DagDraw) {
                 tooltip = xcHelper.escapeHTMLSpecialChar(tooltip.slice(0, -2));
                 tooltip += "<br>Grouped by: ";
                 var tooltipPart2 = "";
-                for (var col in gbOnCols) {
-                    tooltipPart2 += col + ", ";
-                    info.opText += col + ", ";
+                if (struct.groupAll) {
+                    tooltipPart2 += "All  ";
+                    info.opText += "All  ";
+                } else {
+                    for (var col in gbOnCols) {
+                        tooltipPart2 += col + ", ";
+                        info.opText += col + ", ";
+                    }
                 }
+
                 info.text = "Group by";
                 info.opText = info.opText.slice(0, -2);
                 tooltip += xcHelper.escapeHTMLSpecialChar(tooltipPart2.slice(0, -2)) + "<br>" + sampleStr;
@@ -2410,6 +2420,9 @@ window.DagDraw = (function($, DagDraw) {
     }
 
     function getGroupedOnText(node) {
+        if (node.value.struct.groupAll) {
+            return "All";
+        }
         var text = "";
         var numParents = node.value.numParents;
         if (numParents === 1 &&

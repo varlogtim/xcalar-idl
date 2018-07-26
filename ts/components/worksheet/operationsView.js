@@ -569,6 +569,20 @@ window.OperationsView = (function($, OperationsView) {
             $checkbox.toggleClass("checked");
         });
 
+        $operationsView.on("click", ".groupByAll", function() {
+            var $checkbox = $(this).find(".checkbox");
+            $checkbox.toggleClass("checked");
+            if ($checkbox.hasClass("checked")) {
+                $operationsView.find(".gbOnRow").hide();
+                $operationsView.find(".addGroupArg").hide();
+            } else {
+                $operationsView.find(".gbOnRow").show();
+                $operationsView.find(".addGroupArg").show();
+            }
+            formHelper.refreshTabbing();
+            checkIfStringReplaceNeeded();
+        });
+
         // empty options checkboxes
         $operationsView.on('click', '.emptyOptions .checkboxWrap', function() {
             var $checkboxWrap = $(this);
@@ -1134,6 +1148,10 @@ window.OperationsView = (function($, OperationsView) {
         }
         if (options.prefill.includeSample) {
             $activeOpSection.find(".incSample .checkbox").addClass("checked");
+        }
+
+        if(options.prefill.groupAll) {
+            $activeOpSection.find(".groupByAll .checkbox").click();
         }
 
         function formatArg(arg) {
@@ -2405,18 +2423,24 @@ window.OperationsView = (function($, OperationsView) {
 
             var gbColOldText = $description.find(".groupByCols").text();
             var gbColNewText = "";
-            var $args = $activeOpSection.find('.groupOnSection').find('.arg');
-            $args.each(function() {
-                if ($(this).val().trim() !== "") {
-                    gbColNewText += ", " + $(this).val().trim();
+            var isGroupByAll = $activeOpSection.find(".groupByAll").find(".checkbox").hasClass("checked");
+            if (isGroupByAll) {
+                gbColNewText = "All";
+            } else {
+                var $args = $activeOpSection.find('.groupOnSection').find('.arg');
+                $args.each(function() {
+                    if ($(this).val().trim() !== "") {
+                        gbColNewText += ", " + $(this).val().trim();
+                    }
+                });
+                if (gbColNewText) {
+                    gbColNewText = gbColNewText.slice(2);
                 }
-            });
-            if (gbColNewText) {
-                gbColNewText = gbColNewText.slice(2);
+
+                gbColNewText = parseAggPrefixes(gbColNewText);
+                gbColNewText = parseColPrefixes(gbColNewText);
             }
 
-            gbColNewText = parseAggPrefixes(gbColNewText);
-            gbColNewText = parseColPrefixes(gbColNewText);
 
             if (noHighlight) {
                 var html = "";
@@ -2980,6 +3004,12 @@ window.OperationsView = (function($, OperationsView) {
         var invalidNonColumnType = false; // when an input does not have a
         // a column name but still has an invalid type
         var $group = $activeOpSection.find('.group').eq(groupNum);
+
+
+        if ($activeOpSection.find(".groupByAll .checkbox").hasClass("checked")) {
+            args.push(undefined);
+        }
+
         $group.find('.arg:visible').each(function(inputNum) {
             var $input = $(this);
             // Edge case. GUI-1929
@@ -3437,21 +3467,25 @@ window.OperationsView = (function($, OperationsView) {
         var groupByCols = [];
         var gbCol;
         var colTypeInfo;
-        for (var i = 0; i < args[0].length - 2; i++) {
-            gbCol = args[0][i].trim();
-            if (groupByCols.indexOf(gbCol) === -1) {
-                groupByCols.push({
-                    colName: gbCol,
-                    cast: null
+        var isGroupByAll = $activeOpSection.find(".groupByAll .checkbox")
+                                           .hasClass("checked");
+        if (!isGroupByAll) {
+            for (var i = 0; i < args[0].length - 2; i++) {
+                gbCol = args[0][i].trim();
+                if (groupByCols.indexOf(gbCol) === -1) {
+                    groupByCols.push({
+                        colName: gbCol,
+                        cast: null
+                    });
+                }
+                colTypeInfo = colTypeInfos[0] || [];
+                colTypeInfo.forEach(function(colInfo) {
+                    if (colInfo.argNum === i) {
+                        groupByCols[i].cast = colInfo.type;
+                        return false;
+                    }
                 });
             }
-            colTypeInfo = colTypeInfos[0] || [];
-            colTypeInfo.forEach(function(colInfo) {
-                if (colInfo.argNum === i) {
-                    groupByCols[i].cast = colInfo.type;
-                    return false;
-                }
-            });
         }
 
         var $groups = $activeOpSection.find('.group');
@@ -3497,6 +3531,7 @@ window.OperationsView = (function($, OperationsView) {
 
         var isKeepOriginal = $activeOpSection.find(".keepTable .checkbox")
                                              .hasClass("checked");
+
         var colsToKeep = [];
 
         if (isIncSample) {
@@ -3519,7 +3554,8 @@ window.OperationsView = (function($, OperationsView) {
             "isKeepOriginal": isKeepOriginal,
             "formOpenTime": formHelper.getOpenTime(),
             "dstTableName": dstTableName,
-            "columnsToKeep": colsToKeep
+            "columnsToKeep": colsToKeep,
+            "groupAll": isGroupByAll
         };
         if (options.isIncSample && options.isJoin) {
             console.warn('shouldnt be able to select incSample and join');
@@ -3547,7 +3583,8 @@ window.OperationsView = (function($, OperationsView) {
                     "eval": evals,
                     "icv": icvMode,
                     "includeSample": isIncSample,
-                    "newKeyField": ""
+                    "newKeyField": "",
+                    "groupAll": isGroupByAll
                 },
                 indexFields: groupByCols.map(function(colInfo) {
                     return colInfo.colName;
@@ -3595,18 +3632,21 @@ window.OperationsView = (function($, OperationsView) {
                 var indexedColNames;
                 var $input;
                 var areIndexedColNamesValid = false;
-                for (var i = 0; i < numArgs - 2; i++) {
-                    indexedColNames = args[groupNum][i];
-                    $input = $activeOpSection.find('.gbOnArg').eq(i);
-                    areIndexedColNamesValid = checkValidColNames($input,
-                                                            indexedColNames);
-                    if (!areIndexedColNamesValid) {
-                        break;
+                var isGroupByAll = $activeOpSection.find(".groupByAll").find(".checkbox").hasClass("checked");
+                if (!isGroupByAll) {
+                    for (var i = 0; i < numArgs - 2; i++) {
+                        indexedColNames = args[groupNum][i];
+                        $input = $activeOpSection.find('.gbOnArg').eq(i);
+                        areIndexedColNamesValid = checkValidColNames($input,
+                                                                indexedColNames);
+                        if (!areIndexedColNamesValid) {
+                            break;
+                        }
                     }
-                }
-                if (!areIndexedColNamesValid) {
-                    isValid = false;
-                    return false;
+                    if (!areIndexedColNamesValid) {
+                        isValid = false;
+                        return false;
+                    }
                 }
             }
         });
@@ -4524,6 +4564,9 @@ window.OperationsView = (function($, OperationsView) {
                                                 .removeClass('expanded');
 
         $operationsView.find(".andOrToggle").hide();
+        $operationsView.find(".gbOnRow").show();
+        $operationsView.find(".addGroupArg").show();
+        $operationsView.find(".groupByAll").find(".checkbox").removeClass("checked");
 
         fillTableList();
         if (operatorName === "group by") {

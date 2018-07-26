@@ -722,7 +722,7 @@ describe('OperationsView Test', function() {
             });
 
             it('empty option checkboxes should work', function() {
-                var $checkboxWrap = $operationsView.find(".checkboxWrap").eq(1);
+                var $checkboxWrap = $operationsView.find(".checkboxWrap").eq(2);
                 var $checkbox = $checkboxWrap.find(".checkbox");
                 var $row = $checkboxWrap.closest('.row');
                 var $input = $row.find(".arg");

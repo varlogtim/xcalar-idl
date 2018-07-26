@@ -1052,7 +1052,9 @@ module.exports = {
         "incSampleTip": "After the groupby is done, a random sample is picked for each group. For the columns that are not part of the columns that are grouped on, their values are populated via the random sample record for that group.",
         "keepTable": "Keep original table",
         "keepTableHint": "Keep the original table and append the new table to the current worksheet",
-        "cast": "Cast"
+        "cast": "Cast",
+        "groupAll": "Group all",
+        "groupAllHint": "Select to treat the entire table as one group"
     },
 
     "dfParam": {

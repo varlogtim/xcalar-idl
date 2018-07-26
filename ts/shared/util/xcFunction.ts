@@ -63,6 +63,7 @@ namespace xcFunction {
         icvMode: boolean;
         columnsToKeep: number[];
         dstTableName: string;
+        groupAll?: boolean
     }
 
     interface XcFuncMapOptions extends XcFuncOptions, xcHelper.MapColOption {
@@ -716,7 +717,7 @@ namespace xcFunction {
     ): XDPromise<string> {
         // Validation
         if (tableId == null ||
-            groupByCols.length < 1 ||
+            (groupByCols.length < 1 && !options.groupAll) ||
             aggregateArgs.length < 1 ||
             aggregateArgs[0].aggColName.length < 1
         ) {
@@ -814,7 +815,8 @@ namespace xcFunction {
                     newTableName: dstTableName,
                     isIncSample: isIncSample,
                     sampleCols: options.columnsToKeep,
-                    icvMode: options.icvMode
+                    icvMode: options.icvMode,
+                    groupAll: options.groupAll
                 };
                 return XIApi.groupBy(txId, aggArgs, groupByColNames,
                     castTableName, groupByOpts);

@@ -853,7 +853,9 @@ module.exports = {
         "or": "or",
         "keepTable": "Keep original table",
         "keepTableHint": "Keep the original table and append the new table to the current worksheet",
-        "cast": "Cast"
+        "cast": "Cast",
+        "groupAll": "Group all",
+        "groupAllHint": "Select to group all"
     },
     "paths": {
         "helpUserDocs": "assets/help/user/Content/Home.htm",

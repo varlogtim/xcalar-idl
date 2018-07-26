@@ -264,7 +264,8 @@ window.DagEdit = (function($, DagEdit) {
         var indexNodes = [];
         var joinColumns;
 
-        if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiGroupBy) {
+        if (curEdit.editingNode.value.api === XcalarApisT.XcalarApiGroupBy &&
+            !info.args.groupAll) {
             checkIndexNodes(info.indexFields, indexNodes, 0);
         }
 
@@ -449,10 +450,10 @@ window.DagEdit = (function($, DagEdit) {
         });
     };
 
-    DagEdit.storeGroupby = function(tableId, aggregateArgs, groupByCols, options) {
-        options.simulate = true;
-        options.dstTableName
-    };
+    // DagEdit.storeGroupby = function(tableId, aggregateArgs, groupByCols, options) {
+    //     options.simulate = true;
+    //     options.dstTableName
+    // };
 
     DagEdit.undoEdit = function(node) {
         var linkedNodes = curEdit.linkedNodes[node.value.name];
@@ -678,7 +679,8 @@ window.DagEdit = (function($, DagEdit) {
                     "indexedFields": indexedFields,
                     "icv": struct.icv,
                     "includeSample": struct.includeSample,
-                    "isDroppedTable": isDroppedTable[0]
+                    "isDroppedTable": isDroppedTable[0],
+                    "groupAll": !struct.groupAll
                 };
 
                 OperationsView.show(tableId, [], "group by", {
