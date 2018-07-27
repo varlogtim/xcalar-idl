@@ -1653,7 +1653,7 @@ namespace IMDPanel {
     function listAndCheckActive(): XDPromise<PublishTable[]> {
         const deferred: XDDeferred<PublishTable[]> = PromiseHelper.deferred();
 
-        XcalarListPublishedTables("*")
+        XcalarListPublishedTables("*", false, true)
         .then((result) => {
             progressState.canceled = false;
 
@@ -1772,7 +1772,7 @@ namespace IMDPanel {
 
     function listTables(): XDPromise<any> {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
-        XcalarListPublishedTables("*")
+        XcalarListPublishedTables("*", false, true)
         .then(function (result) {
             deferred.resolve(result.tables);
         })
@@ -2261,7 +2261,7 @@ namespace IMDPanel {
         if(updateNumber < 0) {
             updateNumber = 0;
         }
-        XcalarListPublishedTables(tableName, true, true, updateNumber)
+        XcalarListPublishedTables(tableName, false, true, updateNumber)
         .then(function(result) {
             const moreUpdates = result.tables[0].updates;
             moreUpdates.forEach(function(update: UpdateInfo) {
