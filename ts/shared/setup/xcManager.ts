@@ -172,8 +172,13 @@ namespace xcManager {
 
     function handleSetupFail(error: string|object, firstTimeUser: boolean): void {
         // in case it's not setup yet
+        MainMenu.setup();
+        QueryManager.setup();
+        SupTicketModal.setup();
         Alert.setup();
         StatusMessage.setup();
+        StatusBox.setup();
+        xcTooltip.setup();
         let locationText: string = StatusMessageTStr.Error;
         const isNotNullObj: boolean = error && (typeof error === "object");
         if (error === WKBKTStr.NoWkbk){

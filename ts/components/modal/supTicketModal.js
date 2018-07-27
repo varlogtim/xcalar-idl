@@ -9,12 +9,17 @@ window.SupTicketModal = (function($, SupTicketModal) {
     var $ticketIdInput;
     var tickets = [];
     var firstTouch = true;
+    var hasSetup = false;
     var subjectLimit = 100;
     var descLimit = 10000;
     var updatedTickets = {}; // holds recently submitted/updated tickets that
     // may not show up when all tickets are fetched
 
     SupTicketModal.setup = function() {
+        if (hasSetup) {
+            return;
+        }
+        hasSetup = true;
         $modal = $("#supTicketModal");
         $issueList = $modal.find('.issueList');
         $severityList = $modal.find('.severityList');

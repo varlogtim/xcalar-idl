@@ -14,7 +14,13 @@ window.MainMenu = (function($, MainMenu) {
     // triggered by the clicking of a mainMenu tab, we do not want to restore
     // the pre-form state of the menu so we turn the flag on temporarily
     var clickable = true;
+    var hasSetUp = false;
+
     MainMenu.setup = function() {
+        if (hasSetUp) {
+            return;
+        }
+        hasSetUp = true;
         $menuBar = $("#menuBar");
         $mainMenu = $("#mainMenu");
         setupTabbing();

@@ -20,6 +20,7 @@ namespace QueryManager {
     // constant
     const checkInterval: number = 2000; // check query every 2s
     let infList: InfList;
+    let hasSetup = false;
 
     export interface AddQueryOptions {
         numSteps?: number,
@@ -61,6 +62,10 @@ namespace QueryManager {
      * QueryManager.setup
      */
     export function setup(): void {
+        if (hasSetup) {
+            return;
+        }
+        hasSetup = true;
         $queryList = $("#monitor-queryList");
         $queryDetail = $("#monitor-queryDetail");
         infList = new InfList($queryList, {numInitial: 30});

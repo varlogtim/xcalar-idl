@@ -1,4 +1,6 @@
 namespace xcTooltip {
+    let hasSetup = false;
+
     export interface TooltipOptions {
         title: string;
         container?: string;
@@ -23,6 +25,10 @@ namespace xcTooltip {
      * xcTooltip.setup
      */
     export function setup(): void {
+        if (hasSetup) {
+            return;
+        }
+        hasSetup = true;
         $("body").tooltip(<any>{
             "selector": '[data-toggle="tooltip"]',
             "html": true,

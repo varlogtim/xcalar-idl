@@ -14,12 +14,17 @@ namespace WorkbookPanel {
 
     let downloadingWKBKs: string[];
     let duplicatingWKBKs: string[];
+    let hasSetup = false;
     
     /**
     * WorkbookPanel.setup
     * initial set up variables and event listeners
     */
     export function setup(): void {
+        if (hasSetup) {
+            return;
+        }
+        hasSetup = true;
         $workbookPanel = $("#workbookPanel");
         $workbookTopbar = $workbookPanel.find(".topSection");
         $workbookSection = $workbookPanel.find(".bottomSection");
@@ -134,7 +139,7 @@ namespace WorkbookPanel {
     * @param immediate - boolean, if true no transition animation is shown
     */
     export function hide(immediate: boolean = false): void {
-        if ($workbookPanel.hasClass("hidden")) {
+        if (!hasSetup || $workbookPanel.hasClass("hidden")) {
             return;
         }
         $workbookPanel.addClass("hidden");

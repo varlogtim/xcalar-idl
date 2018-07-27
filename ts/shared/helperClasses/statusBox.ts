@@ -1,6 +1,7 @@
 // StatusBox Modal
 namespace StatusBox {
     let statusDisplayer: StatusDisplayer;
+    let hasSetup: boolean = false;
 
      /*
      * options:
@@ -255,6 +256,10 @@ namespace StatusBox {
      * StatusBox.setup
      */
     export function setup(): void {
+        if (hasSetup) {
+            return;
+        }
+        hasSetup = true;
         statusDisplayer = new StatusDisplayer();
     }
 
