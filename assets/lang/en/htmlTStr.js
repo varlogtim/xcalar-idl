@@ -579,6 +579,7 @@ module.exports = {
         "FreeXcalarMem": "Xcalar Managed Memory",
         "OtherUsers": "Other Users' Tables",
         "YourTables": "Your Tables",
+        "PubTables": "Published Tables",
         "Datasets": "Shared Datasets",
         "AmountUsed": "Amount Used"
     },

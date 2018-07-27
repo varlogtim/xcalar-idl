@@ -10,7 +10,7 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
     var numDonuts = 3;
     var ramData = [];
     var ramTotal = 0;
-    var numMemItems = 5;
+    var numMemItems = 6;
     // var sortOrder = "name"; // by "name" or "size"
 
     MonitorDonuts.setup = function() {
@@ -141,7 +141,7 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
             drawPath(svg, pie, arc);
         }
 
-        function makeSvg (selector, diam, rad, className) {
+        function makeSvg(selector, diam, rad, className) {
             var svg = d3.select(selector).append("svg")
                         .attr("width", diam)
                         .attr("height", diam)
@@ -155,7 +155,7 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
         function drawPath(svg, pie, arc2, index) {
             var data;
             if (index === memIndex) {
-                data = [0, 0, 0, 0, 100];
+                data = [0, 0, 0, 0, 0, 100];
                 ramData = data;
             } else {
                 data = [0, 100];
@@ -183,8 +183,9 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
         var pie = d3.layout.pie().sort(null);
         var data;
         if (index === memIndex) {
-            data = [stats.datasetUsage, stats.userTableUsage,
-                    stats.otherTableUsage, stats.xdbFree, stats.free];
+            data = [stats.datasetUsage, stats.pubTableUsage,
+                stats.userTableUsage, stats.otherTableUsage,
+                stats.xdbFree, stats.free];
             ramData = data;
             ramTotal = stats.total;
         } else {
@@ -206,9 +207,9 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
 
 
         if (index === memIndex) {
-            var tooltips = [MonitorTStr.Datasets, MonitorTStr.YourTables,
-                            MonitorTStr.OtherUsers, MonitorTStr.FreeXcalarMem,
-                            MonitorTStr.FreeRAM];
+            var tooltips = [MonitorTStr.Datasets, MonitorTStr.PubTables,
+                            MonitorTStr.YourTables, MonitorTStr.OtherUsers,
+                            MonitorTStr.FreeXcalarMem, MonitorTStr.FreeRAM];
             $("#donut" + memIndex).find("svg").first().find("path").each(function(i) {
                 xcTooltip.add($(this), {
                     title: tooltips[i] + "<br/>" +

@@ -25,6 +25,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
     var failCount = 0;
     var curIteration = 0;
     var tableUsage = 0;
+    var pubTableUsage = 0;
     var hasTableUsageChange = true;
     var lastTableUsageTime = 0; // when greater than 10s, ok to fetch new data
 
@@ -113,7 +114,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         });
     }
 
-    // ajustTime is the time to subtract from the interval time due to the
+    // adjustTime is the time to subtract from the interval time due to the
     // length of time it takes for the backend call to return
     function cycle(adjustTime) {
         var prevIteration = curIteration;
@@ -153,12 +154,17 @@ window.MonitorGraph = (function($, MonitorGraph) {
         var promise;
 
         if (needsTableUsageCall()) {
+            // updates published table memory if table usage call needed
+            // getPubTableUsage();
             promise = getMemUsage();
         } else {
             promise = PromiseHelper.resolve();
         }
 
         promise
+        .then(function() {
+            return getPubTableUsage();
+        })
         .then(function() {
             return XcalarApiTop();
         })
@@ -172,7 +178,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
             if (!numNodes) {
                 return deferred.reject();
             }
-            var allStats = processNodeStats(apiTopResult, tableUsage, numNodes);
+            var allStats = processNodeStats(apiTopResult, tableUsage, pubTableUsage, numNodes);
             updateGraph(allStats, numNodes);
             MonitorDonuts.update(allStats);
             failCount = 0;
@@ -183,7 +189,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         .fail(function(error) {
             console.error("get status fails", error);
             failCount++;
-            // if it fails 2 times in a row, we show error screen
+            // if it fails twice in a row, we show error screen
             if (failCount === 2) {
                 console.error("failed to get stats twice in a row");
                 toggleErrorScreen(true, error);
@@ -200,6 +206,25 @@ window.MonitorGraph = (function($, MonitorGraph) {
             svgWrap.attr("height", height + rand);
         }, 150);
 
+        return deferred.promise();
+    }
+
+    // will always resolve
+    function getPubTableUsage() {
+        var deferred = PromiseHelper.deferred();
+        XcalarListPublishedTables("*", false, false)
+        .then(function({numTables, tables}) {
+            var bytes = 0;
+            for (var i = 0; i < numTables; i++) {
+                bytes += tables[i].sizeTotal;
+            }
+            pubTableUsage = bytes;
+            deferred.resolve();
+        })
+        .fail(function() {
+            pubTableUsage = 0;
+            deferred.resolve();
+        });
         return deferred.promise();
     }
 
@@ -242,7 +267,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         return bytes;
     }
 
-    function processNodeStats(apiTopResult, tableUsage, numNodes) {
+    function processNodeStats(apiTopResult, tableUsage, pubTableUsage, numNodes) {
         var StatsObj = function() {
             this.used = 0;
             this.total = 0;
@@ -318,13 +343,15 @@ window.MonitorGraph = (function($, MonitorGraph) {
         usrCpu.used /= numNodes;
         usrCpu.total /= numNodes;
         mem.userTableUsage = tableUsage;
-        mem.otherTableUsage = Math.max(0, mem.xdbUsed - mem.userTableUsage - mem.datasetUsage);
+        mem.pubTableUsage = pubTableUsage;
+        mem.otherTableUsage = Math.max(0, mem.xdbUsed - mem.userTableUsage
+             - mem.datasetUsage - mem.pubTableUsage);
         mem.xdbFree = mem.xdbTotal - mem.xdbUsed;
         mem.free = mem.total - mem.ramUsed;
 
         var allStats = [mem, swap, usrCpu, network];
 
-        // make sure no values exceed total
+        // Make sure no values exceed total
         for (var i = 0; i < allStats.length; i++) {
             if (i === cpuIndex) {
                 // cpu percentage may be over 100%

@@ -182,14 +182,14 @@ describe("Monitor Graph Test", function() {
         });
 
         it("mouseenter on Xcalar Managed Memory path should work", function() {
-            var ramData = [1 * KB, 2 * MB, 3 * GB, 4 * TB, 5 * PB];
+            var ramData = [1 * KB, 2 * MB, 3 * GB, 4 * TB, 5 * TB, 6 * PB];
             var cacheData = MonitorDonuts.__testOnly__setRamData(ramData);
             var $donut = $monitorPanel.find(".ramDonut");
             $donut.find(".thick path").eq(3).trigger("mouseenter");
-            expect($donut.find(".legend li").eq(1).hasClass("hover")).to.be.true;
+            expect($donut.find(".legend li").eq(2).hasClass("hover")).to.be.true;
             expect($donut.find(".donutLegendInfo .unitSize").text().replace(/[\n\r]+|[\s]{2,}/g, '').trim()).to.equal("4.00TiB")
             $donut.find(".thick path").eq(3).trigger("mouseleave");
-            expect($donut.find(".legend li").eq(1).hasClass("hover")).to.be.false;
+            expect($donut.find(".legend li").eq(2).hasClass("hover")).to.be.false;
             MonitorDonuts.__testOnly__setRamData(cacheData);
         });
     });

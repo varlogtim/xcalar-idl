@@ -947,6 +947,7 @@ MonitorTStr = {
     "FreeXcalarMem": "Xcalar Managed Memory",
     "OtherUsers": "Other Users' Tables",
     "YourTables": "Your Tables",
+    "PubTables": "Published Tables",
     "Datasets": "Shared Datasets",
     "TicketSuccess": "Your ticket was submitted successfully.",
     "TicketId": "Ticket ID",

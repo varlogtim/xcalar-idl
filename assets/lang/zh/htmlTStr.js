@@ -818,7 +818,8 @@ module.exports = {
         "FreeRAM": "未使用的内存",
         "FreeXcalarMem": "未使用的Xcalar内存",
         "OtherUsers": "其他用户",
-        "YourTables": "表",
+        "YourTables": "您的表",
+        "PubTables": "发布的表",
         "Datasets": "数据集",
         "AmountUsed": "使用"
     },
