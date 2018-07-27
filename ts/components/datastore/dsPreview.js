@@ -5249,7 +5249,11 @@ window.DSPreview = (function($, DSPreview) {
                     state.xPaths[xpathIndex].extraKeys[extrakeyIndex].name;
                 if (keyName.length === 0) {
                     // auto-fill the key name field
-                    $elemName.val(event.target.value);
+                    const keyValue = event.target.value.trim();
+                    $elemName.val(keyValue.length > 0
+                        ? xcHelper.stripColName(keyValue, false, true).trim()
+                        : keyValue
+                    );
                 }
             };
         }
@@ -5389,8 +5393,8 @@ window.DSPreview = (function($, DSPreview) {
             $elementName.on('keydown', onInputKeydown)
             addValidateOption({
                 $element: $elementName,
-                errorMessage: libs.ErrTStr.NoEmpty,
-                checkFunc: () => CheckFunctions.isInputEmpty($elementName)
+                errorMessage: libs.ErrTStr.InvalidColName,
+                checkFunc: () => CheckFunctions.isInvalidColName($elementName)
             });
             // Setup ExtrakeyValue input
             const $elementValue = findXCElement($dom, 'xtrakey.value');
@@ -5460,6 +5464,13 @@ window.DSPreview = (function($, DSPreview) {
 
         const CheckFunctions = {
             isInputEmpty: ($element) => ($element.val().trim().length === 0),
+            isInvalidColName: ($element) => {
+                const colName = $element.val().trim();
+                if (colName.length === 0) {
+                    return true;
+                }
+                return xcHelper.validateColName(colName, false, true) != null;
+            },
         };
 
         // Cleanup data model

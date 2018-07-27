@@ -1552,11 +1552,23 @@ describe("xcHelper Test", function() {
                 "str": "ab}c",
                 "res": true
             },
+            {
+                "str": "ab::c",
+                "options": [false, true],
+                "res": true
+            },
+            {
+                "str": "ab:c",
+                "options": [false, true],
+                "res": false
+            },
         ];
 
         testCases.forEach(function(test) {
-            var res = xcHelper.hasInvalidCharInCol(test.str);
-            expect(res).to.equal(test.res);
+            var res = (test.options == null)
+                ? xcHelper.hasInvalidCharInCol(test.str)
+                : xcHelper.hasInvalidCharInCol(test.str, ...test.options);
+            expect(res, JSON.stringify(test)).to.equal(test.res);
         });
     });
 
@@ -1748,6 +1760,10 @@ describe("xcHelper Test", function() {
         // don't strip ::
         res = xcHelper.stripColName("a::b");
         expect(res).to.equal("a::b");
+
+        // strip ::
+        res = xcHelper.stripColName("a::b", false, true);
+        expect(res).to.equal("a_b");
     });
 
     it("xcHelper.scrollToBottom should work", function() {

@@ -2947,16 +2947,21 @@ namespace xcHelper {
      * xcHelper.hasInvalidCharInCol
      * @param str
      * @param noSpace
+     * @param noDoubleColon true: "::" is invalid, ":" is valid; false: "::" is valid, ":" is invalid
      */
     export function hasInvalidCharInCol(
         str: string,
-        noSpace: boolean
+        noSpace: boolean,
+        noDoubleColon: boolean = false
     ): boolean {
-        if (noSpace) {
-            return /^ | $|[\^,\(\)\[\]{}'"\.\\ ]|:/.test(str);
-        } else {
-            return /^ | $|[\^,\(\)\[\]{}'"\.\\]|:/.test(str);
+        const rules = {
+            '00': /^ | $|[\^,\(\)\[\]{}'"\.\\]|:/, // space: valid; single colon: invalid; double colon: valid
+            '10': /^ | $|[\^,\(\)\[\]{}'"\.\\ ]|:/, // space: invalid; single colon: invalid; double colon: valid
+            '01': /^ | $|[\^,\(\)\[\]{}'"\.\\]|::/, // space: valid; single colon: valid; double colon: invalid
+            '11': /^ | $|[\^,\(\)\[\]{}'"\.\\ ]|::/, // space: invalid; single colon: valid; double colon: invalid
         }
+        const ruleKey = `${noSpace? '1': '0'}${noDoubleColon? '1': '0'}`;
+        return rules[ruleKey].test(str);
     }
 
     /**
@@ -3012,10 +3017,12 @@ namespace xcHelper {
      * is good
      * @param colName
      * @param noSpace
+     * @param noDoubleColon true: "::" is invalid, ":" is valid; false: "::" is valid, ":" is invalid
      */
     export function validateColName(
         colName: string,
-        noSpace: boolean
+        noSpace: boolean,
+        noDoubleColon: boolean = false
     ): string | null {
         if (!colName || colName.trim().length === 0) {
             return ErrTStr.NoEmpty;
@@ -3028,7 +3035,7 @@ namespace xcHelper {
                     XcalarApisConstantsT.XcalarApiMaxFieldNameLen
         ) {
             error = ColTStr.LongName;
-        } else if (xcHelper.hasInvalidCharInCol(colName, noSpace)) {
+        } else if (xcHelper.hasInvalidCharInCol(colName, noSpace, noDoubleColon)) {
             if (noSpace) {
                 error = ColTStr.ColNameInvalidCharSpace;
             } else {
@@ -3140,15 +3147,22 @@ namespace xcHelper {
      * xcHelper.stripColName
      * @param colName
      * @param stripSpace
+     * @param stripDoubleColon set true to strip "::"
      */
     export function stripColName(
         colName: string,
-        stripSpace: boolean = false
+        stripSpace: boolean = false,
+        stripDoubleColon: boolean = false
     ): string {
         colName = xcHelper.escapeNonPrintableChar(colName, "");
-        const pattern = stripSpace ?
-                        /[\^,{}'"()\[\]\.\\ ]/g :
-                        /[\^,{}'"()\[\]\.\\]/g;
+        const rules = {
+            '00': /[\^,{}'"()\[\]\.\\]/g, // NOT stripSpace, NOT stripDoubleColon
+            '10': /[\^,{}'"()\[\]\.\\ ]/g, // stripSpace, NOT stripDoubleColon
+            '01': /[\^,{}'"()\[\]\.\\]|::/g, // NOT stripSpace, stripDoubleColon
+            '11': /[\^,{}'"()\[\]\.\\ ]|::/g, // stripSpace, stripDoubleColon
+        }
+        const ruleKey = `${stripSpace? '1': '0'}${stripDoubleColon? '1': '0'}`;
+        const pattern = rules[ruleKey];
         // if column name starts with a valid character but not one that it
         // should start with, then prepend underscore
         if (!pattern.test(colName[0]) &&
