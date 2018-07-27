@@ -6,7 +6,7 @@ var XCPatch;
     var patchVersionDict = {
         "1.3.0": 1,
         "1.3.1": 1,
-        "1.4.0": 2
+        "1.4.0": 3
     };
 
     // Insert patch code here. Remembmer that all js files will be minified and
