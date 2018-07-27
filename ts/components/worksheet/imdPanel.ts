@@ -228,10 +228,6 @@ namespace IMDPanel {
         updateViewportForDateRange(min, max);
     }
 
-    function updateScale(): void {
-
-    }
-
     function timeString(timeStamp: number): string {
         let formatHash = [
             {limit: 10, format: "h:mm:ss a"},
@@ -1956,7 +1952,7 @@ namespace IMDPanel {
         updateTableCount();
     }
 
-    function deleteTables(checkedTables: PublishTable[], iconElelment: JQuery, isActiveList: boolean) {
+    function deleteTables(checkedTables: PublishTable[], _iconElelment: JQuery, isActiveList: boolean) {
         if (checkedTables.length === 0) {
             return; //XXX pop up alert here
         }
@@ -2012,7 +2008,7 @@ namespace IMDPanel {
      * IMDPanel.updateInfo
      * @param info
      */
-    export function updateInfo(info?: any): void {
+    export function updateInfo(_info?: any): void {
         refreshTableList();
     }
 
@@ -2102,7 +2098,19 @@ namespace IMDPanel {
             $imdPanel.find(".inactiveTablesListItems").html(html);
             checkDateChange();
             if (pTables.length) {
-                updateTableDetailSection(pTables[0].name);
+                if ($tableDetail.data("tablename")) {
+                    const tName: string = $tableDetail.data("tablename");
+                    const table: PublishTable = xcHelper.deepCopy(pTables.filter((table) => {
+                        return (table.name == tName);
+                    })[0]);
+                    if (table) {
+                        updateTableDetailSection(tName);
+                    } else {
+                        updateTableDetailSection(pTables[0].name);
+                    }
+                } else {
+                    updateTableDetailSection(pTables[0].name);
+                }
             } else {
                 updateTableDetailSection();
             }
@@ -2245,13 +2253,10 @@ namespace IMDPanel {
         return deferred.promise();
     }
 
-    function loadMoreUpdates(tableName) {
-        let loadTable;
-        pTables.forEach(function(table) {
-            if(table.name === tableName) {
-                loadTable = table;
-            }
-        });
+    function loadMoreUpdates(tableName: string) {
+        let loadTable: PublishTable = pTables.filter(function(table: PublishTable) {
+            return (table.name === tableName);
+        })[0];
         let updateNumber = loadTable["lowestBatch"] - 127;
         if(updateNumber < 0) {
             updateNumber = 0;
@@ -2259,12 +2264,14 @@ namespace IMDPanel {
         XcalarListPublishedTables(tableName, true, true, updateNumber)
         .then(function(result) {
             const moreUpdates = result.tables[0].updates;
-            moreUpdates.forEach(function(update) {
-                if (update.batchId < loadTable["lowestUpdate"]) {
-                    loadTable.push(update);
+            moreUpdates.forEach(function(update: UpdateInfo) {
+                if (update.batchId < loadTable["lowestBatch"]) {
+                    loadTable.updates.push(update);
                 }
             });
             updateHistory();
+
+            updateTableDetailSection(loadTable.name);
         });
     }
 
