@@ -28,7 +28,9 @@ window.UDF = (function($, UDF) {
     };
 
     UDF.initialize = function() {
-        var deferred = PromiseHelper.deferred();
+        var deferred = PromiseHelper.deferred()
+        var $section = $("#udf-fnSection");
+        $section.addClass("xc-disabled");
 
         initializeUDFList(true)
         .then(function(listXdfsObj) {
@@ -39,7 +41,10 @@ window.UDF = (function($, UDF) {
             DSTargetManager.updateUDF(listXdfsObj);
             deferred.resolve();
         })
-        .fail(deferred.reject);
+        .fail(deferred.reject)
+        .always(function() {
+            $section.removeClass("xc-disabled");
+        });
 
         return deferred.promise();
     };

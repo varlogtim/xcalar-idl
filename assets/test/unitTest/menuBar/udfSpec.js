@@ -2,7 +2,7 @@ describe("UDF Test", function() {
     var waitTime = 200;
     var defaultModule = 'default';
     var defaultModulePath = defaultUDFPath;
-    var syntaxErrror = "error: 'invalid syntax' at line 12 column 5";
+    var syntaxErrror = 'Error: File "xcalar-udf-bd6bdef94f7eab4", line 14\ntest="a"\n    ^\nSyntaxError: invalid character in identifier';
     var $udfSection;
     var $udfManager;
 
@@ -32,6 +32,21 @@ describe("UDF Test", function() {
         } else {
             done();
         }
+    });
+
+    describe("UDF Setup check", () => {
+        it("should initialize", (done) => {
+            UnitTest.testFinish(() => {
+                return !$("#udf-fnSection").hasClass("xc-disabled");
+            })
+            .then(() => {
+                expect(UDF.getUDFs().hasOwnProperty(defaultUDFPath));
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            });
+        });
     });
 
     describe("Basic Function Test", function() {
@@ -210,7 +225,7 @@ describe("UDF Test", function() {
             .fail(function() {
                 expect($udfSection.find(".lint-error").length)
                 .to.above(0);
-                UnitTest.hasAlertWithTitle(SideBarTStr.SyntaxError);
+                UnitTest.hasAlertWithTitle(SideBarTStr.UploadError);
                 done();
             });
         });
@@ -222,7 +237,7 @@ describe("UDF Test", function() {
 
     describe("UDF Public API Test", function() {
         it('UDF.getDefaultUDFPath should work', function() {
-            expect(UDF.getDefaultUDFPath()).to.equal("/globaludf/default");
+            expect(UDF.getDefaultUDFPath()).to.equal(defaultUDFPath);
         });
 
         it("UDF.getEditor should work", function() {
