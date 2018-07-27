@@ -1496,6 +1496,7 @@ class MenuHelper {
 
         $(document).off("mousedown.closeDropDown" + self.id);
         $(document).off("keydown.closeDropDown" + self.id);
+        $(document).off('keydown.listNavigation' + self.id);
     }
 
     public openList(): void {
@@ -1577,9 +1578,51 @@ class MenuHelper {
             self.showOrHideScrollers();
             $('.selectedCell').removeClass('selectedCell');
             FnBar.clear();
+            self._addKeyboardNavigation($lists);
         }
         xcTooltip.hideAll();
     }
+
+    private _addKeyboardNavigation($menu: JQuery) {
+        var self = this;
+        const $lis: JQuery = $menu.find('li:visible:not(.unavailable)');
+        if (!$lis.length) {
+            return;
+        }
+        var $ul = $menu.find("ul");
+        if (!$ul.length) {
+            return;
+        }
+
+        const liHeight = $lis.eq(0).outerHeight();
+        const ulHeight: number = $ul.height();
+        const ulScrollHeight: number = $ul[0].scrollHeight;
+        if (ulScrollHeight <= ulHeight) {
+            return;
+        }
+        $(document).on('keydown.listNavigation' + self.id, listNavigation);
+
+        function listNavigation(event: JQueryEventObject): void {
+            let keyCodeNum: number = event.which;
+            let scrollTop: number = $ul.scrollTop();
+            if ($(event.target).is("input")) {
+                return;
+            }
+            if (keyCodeNum === keyCode.Up) {
+                if (scrollTop > 0) {
+                    $ul.scrollTop(scrollTop - liHeight);
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            } else if (keyCodeNum === keyCode.Down) {
+                if (scrollTop + ulHeight < ulScrollHeight) {
+                    $ul.scrollTop(scrollTop + liHeight);
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            }
+        }
+    };
 
     public setupListScroller(): void {
         if (this.numScrollAreas === 0) {
