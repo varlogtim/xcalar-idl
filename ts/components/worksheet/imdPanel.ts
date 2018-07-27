@@ -806,10 +806,19 @@ namespace IMDPanel {
             restoreTables(iCheckedTables)
             .then(function() {
                 iCheckedTables.forEach(function (table:PublishTable) {
-                    if (!table.updates.length) {
+                    let failed = false;
+                    restoreErrors.forEach((errorTableInfo) => {
+                        if (errorTableInfo.tableName === table.name) {
+                            failed = true;
+                            return false;
+                        }
+                    });
+                    if (!failed && !table.updates.length) {
                         requery = true;
                     }
-                    showTable(table.name);
+                    if (!failed) {
+                        showTable(table.name);
+                    }
                 });
                 resetInactiveChecked();
                 updateHistory();
