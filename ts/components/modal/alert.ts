@@ -31,7 +31,6 @@ namespace Alert {
         instr?: string; // instruction information
         instrTemplate?: string; // instead of change instr text, change it's html
         msg?: string; // alert content
-        msgTemplate?: string; // instead of change alert text, change its html
         detail?: string; // detail of the error/message
         isAlert?: boolean; // if it is an alert or a confirm
         isCheckBox?: boolean; // if checkbox is enabled or disabled
@@ -112,14 +111,14 @@ namespace Alert {
         let msg: string;
         let log: string = null;
 
-        if (typeof error === "object") {
+        if (error != null && typeof error === "object") {
             const e: any = <any>error;
             // if it's an try/catch error, code will also goes here
             msg = (e.error && typeof e.error === "string") ?
             e.error : AlertTStr.ErrorMsg;
             log = e.log;
         } else {
-            msg = error;
+            msg = <string>error;
         }
 
         if (msg === undefined) {

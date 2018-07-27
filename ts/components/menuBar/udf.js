@@ -698,14 +698,14 @@ window.UDF = (function($, UDF) {
                 // XXX might not actually be a syntax error
                 var syntaxErr = parseSyntaxError(error);
                 if (syntaxErr != null) {
-                    var errMsg = xcHelper.replaceMsg(SideBarTStr.UDFError, syntaxErr);
-                    Alert.error(SideBarTStr.SyntaxError, errMsg);
                     updateHints(syntaxErr);
-                } else {
-                    // when cannot parse the error
-                    Alert.error(SideBarTStr.UploadError, error);
                 }
-
+                var errorMsg = error && typeof error === "object" && error.error ?
+                error.error : error;
+                Alert.error(SideBarTStr.UploadError, null, {
+                    msgTemplate: '<pre>' + errorMsg + '</pre>',
+                    align: "left"
+                });
                 deferred.reject(error);
             })
             .always(function() {
@@ -727,13 +727,22 @@ window.UDF = (function($, UDF) {
         }
 
         try {
+            var reason;
+            var line;
             var splits = error.error.match(/^.*: '(.*)' at line (.*) column (.*)/);
             if (!splits || splits.length < 3) {
-                console.error("cannot parse error", error);
-                return null;
+                // try another format of error
+                splits = error.error.match(/^.*line (.*)/);
+                line = Number(splits[1].trim());
+                var syntexErrorIndex = error.error.indexOf("SyntaxError:");
+                reason = (syntexErrorIndex > -1) ?
+                        error.error.substring(syntexErrorIndex).trim() :
+                        error.error.trim();
+            } else {
+                reason = splits[1].trim();
+                line = Number(splits[2].trim());
             }
-            var reason = splits[1].trim();
-            var line = Number(splits[2].trim());
+
             if (!Number.isInteger(line)) {
                 console.error("cannot parse error", error);
                 return null;

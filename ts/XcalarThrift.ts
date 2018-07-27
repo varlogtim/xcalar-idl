@@ -20,12 +20,12 @@ namespace TypeCheck {
     }
     export function isXcalarApiError(value: any): value is XcalarApiError {
         return (
-            value != null && (
+            value != null && typeof value === "object" && (
                 value.xcalarStatus !== 'undefined' ||
                 value.httpStatus !== 'undefined' ||
                 value.status !== 'undefined' ||
                 value.output !== 'undefined' ||
-                value.log !== 'undefinedß'
+                value.log !== 'undefined'
             )
         );
     }
