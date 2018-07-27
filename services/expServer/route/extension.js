@@ -29,7 +29,7 @@ function writeTarGz(targz, name, version) {
     xcConsole.log("Adding extension to " + zipPath);
     fs.writeFile(zipPath, zipFile, function(error) {
         if (error) {
-            deferred.reject(error);
+            deferred.reject("Adding Extension failed with error: " + error);
         }
         xcConsole.log("untar", zipPath);
         var out = exec("tar -zxf " + zipPath + " -C " + basePath +
@@ -38,7 +38,7 @@ function writeTarGz(targz, name, version) {
             // Code is either 0, which means success, or 1, which means error.
             if (code) {
                 xcConsole.log("Failure: Untar failed");
-                deferred.reject("Unable to untar");
+                deferred.reject("Adding Extension failed with error: Unable to untar the extension");
             } else {
                 xcConsole.log("Success: Untar finishes");
                 deferred.resolve("writeTarGz succeeds");
@@ -78,8 +78,9 @@ function downloadExtension(extName, version) {
     };
     s3.getObject(params, function(err, data) {
         if (err) {
-            xcConsole.error('download extension', error);
-            deferred.reject(err);
+            var error = "Download extension failed with error: " + err;
+            xcConsole.error(error);
+            deferred.reject(error);
         } else {
             var ret = {
                 status: Status.Ok,
@@ -97,8 +98,9 @@ function getExtensionFiles(extName, type) {
     fs.readdir(basePath + "ext-" + type + "/", function(err, files) {
         var extFiles = [];
         if (err) {
-            xcConsole.error("get extension files error" + err);
-            deferred.reject(err);
+            var error = "Getting extension files failed with error: " + err;
+            xcConsole.error(error);
+            deferred.reject(error);
         }
         for (var i = 0; i < files.length; i++) {
             if (extName === "") {
@@ -138,8 +140,9 @@ function enableExtension(extName) {
             }
         }
         if (filesRemaining.length === 0) {
-            xcConsole.log('extension', extName, 'already enabled');
-            deferred.reject("Extension already enabled");
+            var error = "Extension " + extName + " already enabled";
+            xcConsole.error(error);
+            deferred.reject(error);
             return;
         }
         // Create symlinks in the ext-enabled folder
@@ -152,8 +155,10 @@ function enableExtension(extName) {
         out.on('close', function(code) {
             // Code is either 0, which means success, or 1, which means error.
             if (code) {
-                xcConsole.error('Creating link fails');
-                deferred.reject("Creating link fails");
+                var error = "Enable extension " + extName +
+                " failed when creating link";
+                xcConsole.error(error);
+                deferred.reject(error);
             } else {
                 xcConsole.log('enable Extension succeeds');
                 deferred.resolve("enableExtension succeeds");
@@ -177,8 +182,9 @@ function disableExtension(extName) {
             }
         }
         if (toRemove.length === 0) {
-            xcConsole.log("Extension", extName, "was not enabled");
-            return deferred.reject("Extension was not enabled");
+            var error = "Extension " + extName +  " was not enabled";
+            xcConsole.error(error);
+            return deferred.reject(error);
         }
         xcConsole.log('disable', toRemove);
         var str = "";
@@ -188,8 +194,10 @@ function disableExtension(extName) {
         var out = exec(str);
         out.on('close', function(code) {
             if (code) {
-                xcConsole.error('disable extension', extName, 'failed');
-                deferred.reject(code);
+                var error = 'Disable extension ' + extName +
+                ' failed with code: ' + code;
+                xcConsole.error(error);
+                deferred.reject(error);
             } else {
                 xcConsole.log('disable extension', extName, 'succeed');
                 deferred.resolve("disableExtension succeeds");
@@ -205,16 +213,18 @@ function removeExtension(extName) {
     getExtensionFiles(extName, "enabled")
     .then(function(files) {
         if (files.length > 0) {
-            xcConsole.error('Extension', extName, 'must be disabled first');
-            return jQuery.Deferred().reject("Must disable extension first");
+            var error = "Extension " + extName + " must be disabled first";
+            xcConsole.error(error);
+            return jQuery.Deferred().reject(error);
         } else {
             return getExtensionFiles(extName, "available");
         }
     })
     .then(function(files) {
         if (files.length === 0) {
-            xcConsole.error('Extension', extName, 'does not exist');
-            return deferred.reject("Extension does not exist");
+            var error = "Extension " + extName + " does not exist";
+            xcConsole.error(error);
+            return deferred.reject(error);
         }
         // Remove all the files (symlinks are removed during disable)
         var str = "";
@@ -224,8 +234,10 @@ function removeExtension(extName) {
         var out = exec(str);
         out.on("close", function(code) {
             if (code) {
-                xcConsole.error('remove extension', extName, 'fails');
-                deferred.reject(code);
+                var error = "Remove extension " + extName +
+                " failed with error code: " + code;
+                xcConsole.error(error);
+                deferred.reject(error);
             } else {
                 xcConsole.log('remove extension', extName, 'succeeds');
                 deferred.resolve("removeExtension succeeds");
@@ -326,7 +338,7 @@ router.post("/extension/upload", function(req, res) {
         res.jsonp({status: Status.Ok});
     })
     .fail(function(err) {
-        xcConsole.error("Upload Extension Failure: " + err);
+        xcConsole.error("Upload extension failed", err);
         res.jsonp({
             status: Status.Error,
             error: err
@@ -351,11 +363,11 @@ router.post("/extension/download", function(req, res) {
     .then(function() {
         res.jsonp({status: Status.Ok});
     })
-    .fail(function() {
-        xcConsole.error("Download Extension Failure: " + JSON.stringify(arguments));
+    .fail(function(err) {
+        xcConsole.error("download extension failed", err);
         res.jsonp({
             status: Status.Error,
-            error: JSON.stringify(arguments)
+            error: err
         });
     });
 });
@@ -369,7 +381,7 @@ router.delete("/extension/remove", function(req, res) {
         res.jsonp({status: Status.Ok});
     })
     .fail(function(err) {
-        xcConsole.log("remove extension failed with error: " + err);
+        xcConsole.error("remove extension failed", err);
         res.jsonp({
             status: Status.Error,
             error: err
@@ -401,7 +413,7 @@ router.post("/extension/disable", function(req, res) {
         res.jsonp({status: Status.Ok});
     })
     .fail(function(err) {
-        xcConsole.log("Error: " + err);
+        xcConsole.error("disable extenion failed", err);
         res.jsonp({
             status: Status.Error,
             error: err
