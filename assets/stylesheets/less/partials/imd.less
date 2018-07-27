@@ -133,6 +133,11 @@
         .iconSection {
             float: right;
             height: 100%;
+
+            .sortActive {
+                position: relative;
+                top: -1px;
+            }
         }
         .icon {
             padding: 0 5px;
@@ -182,6 +187,7 @@
                 line-height: 20px;
                 float: left;
                 margin-left: 5px;
+                padding-top: 2px;
             }
             .sortActive{
                 line-height: 20px;
@@ -348,10 +354,6 @@
             float: none;
             line-height:  @listHeaderHeight;
 
-            .text {
-                padding-left: 5px;
-            }
-
             .iconSection {
                 display: none;
 
@@ -406,10 +408,6 @@
             display: none;
         }
 
-        .columnsList {
-            overflow: auto;
-        }
-
         .subHeading {
             display: none;
             height: 48px;
@@ -429,6 +427,7 @@
                 float: left;
                 display: block;
                 .textOverflowOneLine;
+                padding-right: 5px;
             }
             .viewColumns, .viewTables {
                 float: right;
@@ -564,6 +563,10 @@
             .emptyText {
                 display: none;
             }
+        }
+
+        .columnsList {
+            overflow: auto;
         }
 
         .columnRow {

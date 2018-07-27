@@ -58,8 +58,8 @@ namespace IMDPanel {
     const tickColor: string = "#777777";
     const tickWidth: number = 1;
     const tickSpacing: number = 6;
-    const tickHeight: number = 12;
-    const tickHeightLarge: number = 20;
+    const tickHeight: number = 18;
+    const tickHeightLarge: number = 30;
     const largeTickInterval: number = 5;
     const tickTextInterval: number = 20;
     const maxUpdates: number = 127; //maximum number of table updates that can be fetched from the back end.
@@ -289,7 +289,7 @@ namespace IMDPanel {
             let textPos: number = Math.floor(curTime / delta) * delta;
             if (lastDateStringPosition !== textPos && (numTicks % largeTickInterval === 0) ) {
                 if (lastDateStringPosition !== -1) {
-                    ctx.fillText(timeString(curTime), i, 12);
+                    ctx.fillText(timeString(curTime), i, 20);
                 }
                 lastDateStringPosition = textPos;
             }
