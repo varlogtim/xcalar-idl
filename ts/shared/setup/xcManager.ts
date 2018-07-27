@@ -260,6 +260,7 @@ namespace xcManager {
                     errorStruct = {"lockScreen": true, "expired": true};
                 } else if (error["error"].includes("Update required")) {
                     title = ThriftTStr.UpdateErr;
+                    error = ErrTStr.Update;
                 } else if (error["error"].includes("Connection")) {
                     title = ThriftTStr.CCNBEErr;
                     errorStruct["noLogout"] = true;

@@ -726,6 +726,7 @@ declare namespace ErrTStr {
     export var Unknown: string;
     export var RefreshBrowser: string;
     export var RefreshBrowserDesc: string;
+    export var Update: string;
 }
 
 declare namespace ErrWRepTStr {

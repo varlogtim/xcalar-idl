@@ -180,7 +180,7 @@ namespace XVM {
     }
 
     /**
-     * XVM.getBuildNumber
+     * XVM.getBackBuildNumber
      * @return(string): the backend cached build numbe
      */
     export function getBackBuildNumber(): string {
@@ -341,6 +341,9 @@ namespace XVM {
         return deferred.promise();
     }
 
+    /**
+     * XVM.checkBuildNumber
+     */
     export function checkBuildNumber(): boolean {
         const frontBuildNumber: string = XVM.getFrontBuildNumber();
         if (frontBuildNumber === "git") {

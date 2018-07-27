@@ -362,7 +362,7 @@ ErrTStr = {
     'MultipleWKBKErr': 'More than one workbook with same name found',
     'NoWKBKErr': 'No workbook found',
     "DuplicateFound": "Duplicate found.",
-
+    "Update": "If you have updated Xcalar Design, empty the browser cache and reload the page to ensure that the browser is running the updated version.",
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +

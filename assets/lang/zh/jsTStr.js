@@ -337,7 +337,8 @@ ErrTStr = {
 'InvalidUDFFunction': 'Invalid function name',
 'MultipleWKBKErr': 'More than one workbook with same name found',
 'NoWKBKErr': 'No workbook found',
-"DuplicateFound": "Duplicate found."
+"DuplicateFound": "Duplicate found.",
+"Update": "If you have updated Xcalar Design, empty the browser cache and reload the page to ensure that the browser is running the updated version.",
 };
 ErrWRepTStr = {
 'FolderConflict': '具有相同名称的文件夹<name>已经存在，请选取其他名称。',
