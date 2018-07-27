@@ -1304,7 +1304,7 @@ interface MenuHelperOptions {
     bounds?: string;
     bottomPadding?: number;
     exclude?: boolean;
-    container?: JQuery;
+    container?: string;
     onlyClickIcon?: boolean;
     beforeOpenAsync?: Function;
     onSelect?: Function;

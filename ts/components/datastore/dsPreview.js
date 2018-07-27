@@ -25,6 +25,7 @@ window.DSPreview = (function($, DSPreview) {
     var componentDBFormat;
     var componentJsonFormat;
     var componentXmlFormat;
+    var componentParquetFileFormat;
 
     var tableName = null;
     var rawData = null;
@@ -661,9 +662,11 @@ window.DSPreview = (function($, DSPreview) {
 
         setupUDFSection();
         setupXMLSection();
-        setupParquetFileSection();
         setupAdvanceSection();
         setupParquetSection();
+
+        componentParquetFileFormat = ParquetFileForm.Instance;
+        componentParquetFileFormat.setup();
     }
 
     function setupUDFSection() {
@@ -714,54 +717,6 @@ window.DSPreview = (function($, DSPreview) {
             $(this).find(".checkbox").toggleClass("checked");
         });
     }
-
-    /** Parquet File Section */
-    function setupParquetFileSection() {
-        var $dropdownList = $("#dsForm-parquetParser");
-        // set default value
-        new MenuHelper($dropdownList, {
-            "onSelect": function($li) {
-                setParserValue($li);
-            },
-            "container": "#importDataForm-content",
-            "bounds": "#importDataForm-content"
-        }).setupListeners();
-    }
-
-    function resetParquetFileSection() {
-        var $dropdownList = $("#dsForm-parquetParser");
-        setParserValue($dropdownList.find("li").eq(0));
-    }
-
-    function restoreParquetFile(udfQuery) {
-        var $dropdownList = $("#dsForm-parquetParser");
-        var $li;
-        try {
-            $li = $dropdownList.find("li").filter(function() {
-                return $(this).attr("name") === udfQuery.parquetParser;
-            });
-        } catch (e) {
-            console.error(e);
-        }
-        if ($li.length === 0) {
-            resetParquetFileSection();
-        } else {
-            setParserValue($li);
-        }
-    }
-
-    function setParserValue($li) {
-        var $dropdownList = $("#dsForm-parquetParser");
-        var $input = $dropdownList.find("input.text");
-        $input.val($li.text());
-        $input.data("name", $li.attr("name"));
-    }
-
-    function getParserValue() {
-        var $dropdownList = $("#dsForm-parquetParser");
-        return $dropdownList.find("input.text").data("name");
-    }
-    /** End of Parquet File Section */
 
     function setupAdvanceSection() {
         // advance section
@@ -1208,6 +1163,7 @@ window.DSPreview = (function($, DSPreview) {
         $("#dsForm-excelIndex").val("0");
         componentXmlFormat.resetState();
         componentJsonFormat.reset();
+        componentParquetFileFormat.reset();
         $form.find(".checkbox.checked").removeClass("checked");
         $form.find(".collapse").removeClass("collapse");
         $previewWrap.find(".inputWaitingBG").remove();
@@ -1228,7 +1184,6 @@ window.DSPreview = (function($, DSPreview) {
             "quote": "\""
         };
         resetUdfSection();
-        resetParquetFileSection();
         toggleFormat();
         // enable submit
         xcHelper.enableSubmit($form.find(".confirm"));
@@ -1277,7 +1232,7 @@ window.DSPreview = (function($, DSPreview) {
         } else if (format === formatMap.XML) {
             componentXmlFormat.restore({ udfQuery: options.udfQuery });
         } else if (format === formatMap.PARQUETFILE) {
-            restoreParquetFile(options.udfQuery);
+            componentParquetFileFormat.restore(options.udfQuery);
         } else if (format === formatMap.PARQUET) {
             // Restore partitions based on the url
             var partitions = options.files[0].path.split("?")[1].split("&");
@@ -2137,7 +2092,7 @@ window.DSPreview = (function($, DSPreview) {
         } else if (format === formatMap.PARQUETFILE) {
             udfModule = parquetModule;
             udfFunc = parquetFunc;
-            udfQuery = {parquetParser: getParserValue()};
+            udfQuery = componentParquetFileFormat.getParser();
         } else if (format == formatMap.XML) {
             const xmlArgs = componentXmlFormat.validateValues({
                 isShowError: !isChangeFormat,
@@ -2264,7 +2219,7 @@ window.DSPreview = (function($, DSPreview) {
         } else if (format === formatMap.PARQUETFILE) {
             udfModule = parquetModule;
             udfFunc = parquetFunc;
-            udfQuery = {parquetParser: getParserValue()};
+            udfQuery = componentParquetFileFormat.getParser();
         } else if (format === formatMap.DATABASE) {
             const dbArgs = componentDBFormat.validateValues();
             if (dbArgs == null) {
