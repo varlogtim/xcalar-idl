@@ -73,7 +73,7 @@ router.post("/service/restart",
 });
 
 router.get("/service/status",
-           [support.checkAuthAdmin], function(req, res) {
+           function(req, res) {
     xcConsole.log("Getting Xcalar status as Master");
     var rawCookie = support.rawSessionCookie(req);
     // req.query for Ajax, req.body for sennRequest
