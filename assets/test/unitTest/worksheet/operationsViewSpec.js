@@ -243,7 +243,7 @@ describe('OperationsView Test', function() {
 
                 expect(fn("5")).to.equal(null);
                 expect(fn("0")).to.equal(null);
-                expect(fn("2.5")).to.equal(null);
+                expect(fn("2.5").currentType).to.equal("float");
             });
 
             it("test when only strings and booleans are valid", function() {
@@ -264,7 +264,7 @@ describe('OperationsView Test', function() {
                 expect(fn("test").currentType).to.equal("string");
                 expect(fn("test").validType).to.deep.equal(["integer"]);
 
-                expect(fn("true").currentType).to.equal("string/boolean/integer/float");
+                expect(fn("true").currentType).to.equal("string/boolean/integer");
                 expect(fn("true").validType).to.deep.equal(["integer"]);
 
                 expect(fn("5")).to.equal(null);
@@ -282,7 +282,7 @@ describe('OperationsView Test', function() {
                 expect(fn("test").currentType).to.equal("string");
                 expect(fn("test").validType).to.deep.equal(["float"]);
 
-                expect(fn("true").currentType).to.equal("string/boolean/integer/float");
+                expect(fn("true").currentType).to.equal("string/boolean/integer");
                 expect(fn("true").validType).to.deep.equal(["float"]);
 
                 expect(fn("5")).to.equal(null);
@@ -299,11 +299,30 @@ describe('OperationsView Test', function() {
                 expect(fn("test").currentType).to.equal("string");
                 expect(fn("test").validType).to.deep.equal(["float", "integer"]);
 
-                expect(fn("true").currentType).to.equal("string/boolean/integer/float");
+                expect(fn("true").currentType).to.equal("string/boolean/integer");
                 expect(fn("true").validType).to.deep.equal(["float", "integer"]);
 
                 expect(fn("5")).to.equal(null);
                 expect(fn("5.5")).to.equal(null);
+                expect(fn("0")).to.equal(null);
+                expect(fn("-1")).to.equal(null);
+            });
+
+            it("test when only booleans and ints are valid", function() {
+                OperationsView.__testOnly__.changeParseTypeFn(function() {
+                    return ["boolean", "integer"];
+                });
+
+                expect(fn("test").currentType).to.equal("string");
+                expect(fn("test").validType).to.deep.equal(["boolean", "integer"]);
+
+                expect(fn("true")).to.equal(null);
+
+                expect(fn("5")).to.equal(null);
+
+                expect(fn("5.5").currentType).to.equal("float");
+                expect(fn("5.5").validType).to.deep.equal(["boolean", "integer"]);
+
                 expect(fn("0")).to.equal(null);
                 expect(fn("-1")).to.equal(null);
             });
@@ -332,16 +351,16 @@ describe('OperationsView Test', function() {
                 expect(fn("test").currentType).to.equal("string");
                 expect(fn("test").validType).to.deep.equal(["undefined"]);
 
-                expect(fn("true").currentType).to.equal("string/boolean/integer/float");
+                expect(fn("true").currentType).to.equal("string/boolean/integer");
                 expect(fn("true").validType).to.deep.equal(["undefined"]);
 
-                expect(fn("5").currentType).to.equal("string/boolean/integer/float");
+                expect(fn("5").currentType).to.equal("string/boolean/integer");
                 expect(fn("5").validType).to.deep.equal(["undefined"]);
 
-                expect(fn("5.5").currentType).to.equal("string/boolean/integer/float");
+                expect(fn("5.5").currentType).to.equal("float");
                 expect(fn("5.5").validType).to.deep.equal(["undefined"]);
 
-                expect(fn("-1").currentType).to.equal("string/boolean/integer/float");
+                expect(fn("-1").currentType).to.equal("string/boolean/integer");
                 expect(fn("-1").validType).to.deep.equal(["undefined"]);
             });
 
@@ -353,7 +372,7 @@ describe('OperationsView Test', function() {
                 expect(fn("test").currentType).to.equal("string");
                 expect(fn("test").validType).to.deep.equal(["newType"]);
 
-                expect(fn("true").currentType).to.equal("string/boolean/integer/float");
+                expect(fn("true").currentType).to.equal("string/boolean/integer");
                 expect(fn("true").validType).to.deep.equal(["newType"]);
 
                 expect(fn("5")).to.equal(null);

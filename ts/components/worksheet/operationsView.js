@@ -4044,14 +4044,24 @@ window.OperationsView = (function($, OperationsView) {
 
         var tmpArg = arg.toLowerCase();
         var isNumber = !isNaN(Number(arg));
+        var isFloat = false;
+        if (isNumber) {
+            if (Number(tmpArg) % 1 !== 0 || tmpArg.indexOf(".") > -1) {
+                isFloat = true;
+                argType = ColumnType.float;
+            }
+        }
+        if (isFloat && types.includes(ColumnType.float)) {
+            return null;
+        }
         var canBeBooleanOrNumber = false;
 
         // boolean is a subclass of number
         if (tmpArg === "true" || tmpArg === "false" ||
-            tmpArg === "t" || tmpArg === "f" || isNumber)
+            tmpArg === "t" || tmpArg === "f" || (isNumber && !isFloat))
         {
             canBeBooleanOrNumber = true;
-            argType = "string/boolean/integer/float";
+            argType = "string/boolean/integer";
         }
 
         if (types.indexOf(ColumnType.boolean) > -1) {
@@ -4068,7 +4078,6 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         // the remaining case is float and integer, both is number
-        tmpArg = Number(arg);
 
         if (!isNumber) {
             return {
@@ -4077,13 +4086,13 @@ window.OperationsView = (function($, OperationsView) {
             };
         }
 
-        if (types.indexOf(ColumnType.float) > -1) {
+        if (types.includes(ColumnType.float)) {
             // if arg is integer, it could be a float
             return null;
         }
 
-        if (types.indexOf(ColumnType.integer) > -1) {
-            if (tmpArg % 1 !== 0) {
+        if (types.includes(ColumnType.integer)) {
+            if (isFloat) {
                 return {
                     "validType": types,
                     "currentType": ColumnType.float
@@ -4093,7 +4102,7 @@ window.OperationsView = (function($, OperationsView) {
             }
         }
 
-        if (types.length === 1 && types[0] === ColumnType.undefined) {
+        if (types.length === 1 && types.includes(ColumnType.undefined)) {
             return {
                 "validType": types,
                 "currentType": argType
