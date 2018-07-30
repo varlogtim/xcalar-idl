@@ -89,6 +89,12 @@ class DagList {
             "dags": this._userDags
         };
         this._kvStore.put(JSON.stringify(json), true, true);
+        const activeWKBKId = WorkbookManager.getActiveWKBK();
+        if (activeWKBKId != null) {
+            const workbook = WorkbookManager.getWorkbooks()[activeWKBKId];
+            workbook.update();
+        }
+        KVStore.logSave(true);
     }
 
     private _disableDelete(): void {
@@ -107,7 +113,7 @@ class DagList {
             let name = xcHelper.escapeHTMLSpecialChar(names[i]);
             html +=
             '<li class="dagListDetail">' +
-                '<span class="name">' + name + '</span>' +
+                '<span class="name textOverflowOneLine">' + name + '</span>' +
                 '<i class="icon xi-trash deleteDataflow">' +
                 '</i>' +
                 '<i class="icon xi-download downloadDataflow">' +
@@ -172,5 +178,17 @@ class DagList {
         this._saveDagList();
         let $list: JQuery = this._$dagListSection.find(".dagListDetail .name");
         $($list.get(index)).text(newName);
+    }
+
+    /**
+     * Returns if the user has used this name for a dag graph or not.
+     * @param name The name we want to check
+     * @returns {string}
+     */
+    public isUniqueName(name: string): boolean {
+        let index: number = this._userDags.findIndex((dag) => {
+            return dag.name == name;
+        });
+        return (index == -1);
     }
 }

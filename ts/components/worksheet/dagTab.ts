@@ -2,12 +2,12 @@
 class DagTab{
 
     private _name: string;
-    private _id: number;
+    private _id: string;
     private _key: string;
     private _kvStore: KVStore;
     private _dagGraph: DagGraph;
 
-    constructor(name: string, id: number, key: string, dagGraph: DagGraph) {
+    constructor(name: string, id: string, key: string, dagGraph: DagGraph) {
         this._name = name;
         this._id = id;
         this._key = key;
@@ -75,6 +75,12 @@ class DagTab{
     public saveTab(): void {
         let json: object = this.getJSON();
         this._kvStore.put(JSON.stringify(json), true, true);
+        const activeWKBKId = WorkbookManager.getActiveWKBK();
+        if (activeWKBKId != null) {
+            const workbook = WorkbookManager.getWorkbooks()[activeWKBKId];
+            workbook.update();
+        }
+        KVStore.logSave(true);
     }
 
     /** 
@@ -83,5 +89,13 @@ class DagTab{
      */
     public getGraph(): DagGraph {
         return this._dagGraph;
+    }
+
+    /**
+     * Gets the ID for this tab
+     * @returns {string}
+     */
+    public getId(): string {
+        return this._id;
     }
 }

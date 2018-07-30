@@ -64,14 +64,17 @@ class DagTabManager{
             let $tab_input = $(this);
             let $tab_name = $(this).parent();
             let newName = $tab_input.text() || self._editingName;
-            $tab_name.text(newName);
-            if (newName != self._editingName) {
+            if (newName != self._editingName && self._validateName(newName)) {
                 let $tab = $tab_name.parent();
                 let index = self._$dagTabs.index($tab);
                 self._activeUserDags[index].setName($tab_name.text());
                 const dagList: DagList = DagList.Instance;
                 dagList.changeName(newName, self._keys[index]);
+            } else {
+                // Reset name if it already exists
+                newName = self._editingName;
             }
+            $tab_name.text(newName);
             $tab_input.remove();
         });
 
@@ -80,7 +83,6 @@ class DagTabManager{
 
     private _getJSON(): DagTabManagerJSON {
         return {
-            "id": this._unique_id,
             "dagKeys": this._keys
         }
     }
@@ -192,9 +194,16 @@ class DagTabManager{
 
     // Creates a new Tab and dataflow.
     private _newTab(): void {
-        let uid = this._unique_id;
+        const activeWKBNK: string = WorkbookManager.getActiveWKBK();
+        const workbook: WKBK = WorkbookManager.getWorkbook(activeWKBNK);
+        const prefix: string = workbook.sessionId + Date.now();
+        let uid = prefix + this._unique_id;
         let key = KVStore.getKey("gDagManagerKey") + "-DF-" + uid;
-        let name = "Dataflow " + uid;
+        let name = "Dataflow " + this._unique_id;
+        while (!this._validateName(name)) {
+            // Ensure a new valid name is made
+            name += " (2)";
+        }
         this._unique_id++;
         this._keys.push(key);
         let newTab = new DagTab(name, uid, key, new DagGraph());
@@ -204,7 +213,7 @@ class DagTabManager{
         newTab.saveTab();
         const dagList: DagList = DagList.Instance;
         dagList.addDag(name, key);
-        this._addTabHTML('Dataflow ' + uid );
+        this._addTabHTML(name);
         let $tab = this._$dagTabs.last();
         this._switchTabs($tab);
     }
@@ -240,6 +249,11 @@ class DagTabManager{
         } else {
             $("#dagTabSectionTabs .dagTab .after").addClass("xc-hidden")
         }
+    }
+
+    private _validateName(name: string): boolean {
+        const dagList: DagList = DagList.Instance;
+        return dagList.isUniqueName(name);
     }
 
     /**
@@ -293,6 +307,21 @@ class DagTabManager{
                 this._dagKVStore.put(JSON.stringify(json), true, true);
             }
         });
+    }
+
+    /**
+     * Given the id of a tab, switch to it.
+     * @param id The id of a dagTab.
+     */
+    public switchTabId(id: string): boolean {
+        const index: number = this._activeUserDags.findIndex((dag) => {
+            return (dag.getId() == id);
+        });
+        if (index == -1) {
+            return false;
+        }
+        this._switchTabs(this._$dagTabs.eq(index));
+        return true;
     }
 
     /**

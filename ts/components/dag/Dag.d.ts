@@ -80,13 +80,12 @@ interface DeserializedNode {
 }
 
 interface DagTabManagerJSON {
-    id: number,
     dagKeys: string[]
 }
 
 interface DagTabJSON {
     name: string,
-    id: number,
+    id: string,
     key: string,
     dag: string
 }
