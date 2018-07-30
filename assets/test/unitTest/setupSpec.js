@@ -40,6 +40,7 @@ describe("Mocha Setup Test", function() {
         } else {
             xcManager.setup()
             .then(function() {
+                XcUser.CurrentUser.disableIdleCheck();
                 window.onbeforeunload = function() {
                     return;
                 };

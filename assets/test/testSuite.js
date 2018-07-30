@@ -84,6 +84,7 @@ window.TestSuite = (function($, TestSuite) {
         },
 
         run: function(hasAnimation, toClean, noPopup, withUndo, timeDilation) {
+            XcUser.CurrentUser.disableIdleCheck();
             var self = this;
             self.noPopup = noPopup;
             console.info("If you are on VPN / slow internet,",

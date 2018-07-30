@@ -117,6 +117,7 @@ window.Log = (function($, Log) {
 
     Log.add = function(title, options, cli, willCommit) {
         options = options || {};
+
         if ($.isEmptyObject(options)) {
             console.warn("Options for", title, "is empty!");
             return;

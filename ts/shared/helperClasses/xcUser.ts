@@ -22,6 +22,7 @@ class XcUser {
             const user: XcUser = new this(username, isAdmin);
             this._currentUser = user;
             XcUser.setUserSession(user);
+            XcUser.CurrentUser.idleCheck();
         };
 
 /** START DEBUG ONLY **/
@@ -102,18 +103,16 @@ class XcUser {
     private _fullUsername: string;
     private _isAdmin: boolean;
     private _userIdUnique: number;
+    private _isIdle: boolean;
+    private _idleChckTimer: number;
 
     private _commitFlag: string;
     private _defaultCommitFlag: string = "commit-default";
 
     public constructor(username: string, isAdmin = false) {
-        try {
-            this._fullUsername = username;
-            this._isAdmin = isAdmin;
-            this.setName();
-        } catch (error) {
-            console.error(error);
-        }
+        this._fullUsername = username;
+        this._isAdmin = isAdmin;
+        this.setName();
     }
 
     public getName(): string {
@@ -278,6 +277,46 @@ class XcUser {
             });
 
         return deferred.promise();
+    }
+
+    /**
+     * Check if use has idle for 25 minutes or not,
+     * if yes, logout the user, otherwise, extend the cookies
+     * Note that cookies will expire in 30 minutes, so here we
+     * check every 25 minutes to ensure it can be extended
+     */
+    public idleCheck(): void {
+        if (this !== XcUser.CurrentUser) {
+            throw "Invalid User";
+        }
+
+        this._isIdle = true;
+        $(document).on("mousemove.idleCheck", () => {
+            // as long as there is mouse move action, mark as not idle
+            this._isIdle = false;
+            $(document).off("mousemove.idleCheck");
+        });
+        this._idleChecker();
+    }
+
+    public disableIdleCheck(): void {
+        console.info("idle check is disabled!");
+        clearTimeout(this._idleChckTimer);
+    }
+
+    private _idleChecker(): void {
+        const checkTime: number = 25 * 60 * 1000; // 25 minutes
+        clearTimeout(this._idleChckTimer);
+        this._idleChckTimer = window.setTimeout(() => {
+            if ($("#container").hasClass("locked")) {
+                return; // if it's error, skip the check
+            } else if (this._isIdle) {
+                this.logout();
+            } else {
+                XcUser.checkCurrentUser(); // extend cookies
+                this.idleCheck(); // reset the check
+            }
+        }, checkTime);
     }
 
     private commitMismatchHandler(): void {
