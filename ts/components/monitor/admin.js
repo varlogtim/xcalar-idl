@@ -688,8 +688,6 @@ window.Admin = (function($, Admin) {
         var $adminBar = $('#adminStatusBar');
 
         if (posingAsUser) {
-            var user = new XcUser(xcSessionStorage.getItem("usingAs"));
-            XcUser.setUserSession(user);
             $('#container').addClass('posingAsUser');
             $adminBar.find('.username').text(XcUser.getCurrentUserName());
             var width = $adminBar.outerWidth() + 1;

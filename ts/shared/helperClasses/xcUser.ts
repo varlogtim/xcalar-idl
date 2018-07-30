@@ -14,11 +14,20 @@ class XcUser {
     }
 
     /**
-     * Xcuser.setCurrentUser
+     * Xcuser.setCurrentUser, this function call only be called once
      */
     public static setCurrentUser(): XDPromise<void> {
+        if (this._currentUser != null) {
+            // when already set, skip
+            return PromiseHelper.reject("Current user already exists");
+        }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let setCurrentUserHelper: Function = (username, isAdmin) => {
+            const posingUser: string = xcSessionStorage.getItem("usingAs");
+            if (posingUser != null) {
+                username = posingUser;
+                isAdmin = false;
+            }
             const user: XcUser = new this(username, isAdmin);
             this._currentUser = user;
             XcUser.setUserSession(user);

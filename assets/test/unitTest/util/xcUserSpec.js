@@ -242,6 +242,17 @@ describe('XcUser Test', () => {
             });
     });
 
+    it("XcUser.setCurrentUser should fail when already set", (done) => {
+        XcUser.setCurrentUser()
+        .then(() => {
+            done("fail");
+        })
+        .fail((error) => {
+            expect(error).to.equal("Current user already exists");
+            done();
+        });
+    });
+
     describe('Commit Check Test', () => {
         let oldStopHeartbeat;
         let oldLookup;
