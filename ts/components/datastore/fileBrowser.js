@@ -1262,6 +1262,7 @@ window.FileBrowser = (function($, FileBrowser) {
             if (!cancelSearch) {
                 $("#fileBrowserSearch input").removeClass("xc-disabled");
                 $innerContainer.show();
+                refreshEllipsis();
                 if ($searchSection.hasClass("open")) {
                     searchDropdownMenu.toggleList($searchSection);
                 }

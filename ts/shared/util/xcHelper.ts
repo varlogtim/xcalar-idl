@@ -965,11 +965,15 @@ namespace xcHelper {
         const strLen: number = str.length;
         // if strLen is 22 and ellpsisLen is 21
         // then the finalText may be longer if no this check
-        if (strLen - 3 > 0 && ellpsisLen > strLen - 3) {
+        let res: string = str;
+        if (strLen <= 3) {
+            return res;
+        }
+
+        if (ellpsisLen > strLen - 3) {
             ellpsisLen = strLen - 3;
         }
-        const res: string = str.slice(0, ellpsisLen - 3) + "..." +
-            str.slice(str.length - 3);
+        res = str.slice(0, ellpsisLen - 3) + "..." + str.slice(str.length - 3);
         return res;
     }
 
