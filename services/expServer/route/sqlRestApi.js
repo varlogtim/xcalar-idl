@@ -13,6 +13,7 @@ var fs = require('fs');
 var router = express.Router();
 var idNum = 0;
 var sqlHelpers;
+var support = require("../expServerSupport.js");
 
 // Antlr4 SQL Parser
 var SqlBaseListener;
@@ -1139,7 +1140,7 @@ function getColType(typeId) {
     }
 }
 
-router.post("/xcsql/query", function(req, res) {
+router.post("/xcsql/query", [support.checkAuth], function(req, res) {
     var userIdName = req.body.userIdName;
     var userIdUnique = req.body.userIdUnique;
     var wkbkName = req.body.wkbkName;
@@ -1160,7 +1161,8 @@ router.post("/xcsql/query", function(req, res) {
 // XXX Some parameters need to be renamed
 // apply similar code to /sql/query, or even simply merge them into one router 
 // Only difference is they take different parameters
-router.post("/xcsql/queryWithPublishedTables", function(req, res) {
+router.post("/xcsql/queryWithPublishedTables", [support.checkAuth],
+    function(req, res) {
     var execid = req.body.execid;
     var queryString = req.body.queryString;
     var limit = req.body.limit;
@@ -1180,7 +1182,7 @@ router.post("/xcsql/queryWithPublishedTables", function(req, res) {
     });
 });
 
-router.post("/xdh/query", function(req, res) {
+router.post("/xdh/query", [support.checkAuth], function(req, res) {
     var execid = req.body.execid;
     var plan = req.body.plan;
     var limit = req.body.limit;
@@ -1199,12 +1201,12 @@ router.post("/xdh/query", function(req, res) {
     });
 });
 
-router.post("/xcsql/list", function(req, res) {
+router.post("/xcsql/list", [support.checkAuth], function(req, res) {
     var pattern = req.body.pattern;
     listPublishedTables(pattern)
     .then(function(tables, results) {
         var retStruct = [];
-        
+
         for (var pubTable of tables) {
             var pubTableMeta = {};
             pubTableMeta["tableName"] = pubTable;
@@ -1222,7 +1224,7 @@ router.post("/xcsql/list", function(req, res) {
     });
 });
 
-router.post("/deprecated/clean", function(req, res) {
+router.post("/deprecated/clean", [support.checkAuth], function(req, res) {
     var sessionPrefix = req.body.sessionId;
     var type = req.body.type;
     var checkTime = parseInt(req.body.checkTime);
