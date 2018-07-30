@@ -310,7 +310,8 @@ var htmlTemplateMapping = {
     "browseDatasource2TutA4.html": ["assets/htmlFiles/walk/browseDatasource2TutA4.html"],
     "xpe/xpeInstaller.html": ["xpe/xpeInstaller.html"],
     "xpe/xpeUninstaller.html": ["xpe/xpeUninstaller.html"],
-    "xpe/xpeDockerStarter.html": ["xpe/xpeDockerStarter.html"]
+    "xpe/xpeDockerStarter.html": ["xpe/xpeDockerStarter.html"],
+    "xpe/xpeImageManagementTool.html": ["xpe/xpeImageManagementTool.html"]
 };
 
 /**

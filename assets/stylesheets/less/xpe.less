@@ -335,6 +335,7 @@ body {
 }
 
 .imtParent .mainContainer {
+    display: block;
     height: 80vh;
 }
 
@@ -396,6 +397,9 @@ body {
 .wrapperPending {
     background-color: @color-xpe-border-gray;
 }
+.imtParent #innerFileBrowserContainer {
+    height: auto;
+}
 .imtParent .titleSection {
     border: solid @color-xpe-border-gray 1px;
 }
@@ -422,6 +426,11 @@ body {
 .imtParent #selectAllBox {
     margin-top: 4px;
 }
+
+.imageTableFailureMsg {
+    .font(@color: @color-xpe-image-table-failure-msg, @weight: 600);
+}
+
 // add this to a div, to 'disable' it and its children
 .divDisabler {
     pointer-events: none;
