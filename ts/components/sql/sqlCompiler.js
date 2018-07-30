@@ -260,7 +260,8 @@
                     continue;
                 } else {
                     var col = {colName: evalStr,
-                               colId: rdds[i][0].exprId.id};
+                               colId: rdds[i][0].exprId.id,
+                               colType: convertSparkTypeToXcalarType(rdds[i][0].dataType)};
                     this.usrCols.push(col);
                 }
             }
@@ -278,7 +279,8 @@
             return new TreeNode({
                 "class": "org.apache.spark.sql.catalyst.expressions.Literal",
                 "num-children": 0,
-                "value": "null"
+                "value": "null",
+                "dataType": "null"
             })
         }
         function literalNumberNode(num) {
@@ -345,8 +347,7 @@
         }
         function stringReplaceNode() {
             return new TreeNode({
-                "class": "org.apache.spark.sql.catalyst.expressions." +
-                          "StringReplace",
+                "class": "org.apache.spark.sql.catalyst.expressions.StringReplace",
                 "num-children": 3,
                 "left": 0,
                 "right": 1
@@ -769,9 +770,9 @@
                 // Will be fixed soon.
                 if (node.value.plan[0].class ===
                        "org.apache.spark.sql.catalyst.plans.logical.Aggregate") {
-                node.value.plan[0].class =
+                    node.value.plan[0].class =
                       "org.apache.spark.sql.catalyst.plans.logical.XcAggregate";
-                var subqueryTree = SQLCompiler.genTree(undefined,
+                    var subqueryTree = SQLCompiler.genTree(undefined,
                                                        node.value.plan);
                 node.subqueryTree = subqueryTree;
                 } else {
@@ -980,11 +981,36 @@
             node.children[i] = secondTraverse(node.children[i], options);
         }
 
+        var curOpName = node.value.class.substring(
+                        node.value.class.indexOf("expressions."));
         if (node.aggTree) {
             // aggTree's root node is expressions.aggregate.*
             // so it won't hit any of the cases in second traverse
             // however, its grandchildren might be substring, etc.
             node.aggTree = secondTraverse(node.aggTree, options, true);
+            node.colType = getColType(node.aggTree);
+        } else if (node.subqueryTree) {
+            node.colType = node.subqueryTree;
+        } else if (curOpName === "expressions.AttributeReference" ||
+                   curOpName === "expressions.Literal") {
+            node.colType = convertSparkTypeToXcalarType(node.value.dataType);
+        } else if (curOpName === "expressions.If") {
+            if (getColType(node.children[1]) === "null") {
+                node.colType = getColType(node.children[2]);
+            } else {
+                node.colType = getColType(node.children[1]);
+            }
+        } else if (opLookup[curOpName] && opLookup[curOpName].indexOf("*") != -1) {
+            if (curOpName === "expressions.Lead" || curOpName === "expressions.Lag") {
+                node.colType = getColType(node.children[0]);
+            } else if (curOpName === "expressions.PercentRank"
+                            || curOpName === "expressions.CumeDist") {
+                node.colType = "float";
+            } else {
+                node.colType = "int";
+            }
+        } else {
+            node.colType = opOutTypeLookup[opLookup[curOpName]] || getColType(node.children[0]);
         }
         node.visited = true;
         return node;
@@ -1124,6 +1150,14 @@
             }
         }
         function pushDown(treeNode) {
+            // XXX Remove after type change completed
+            // if (treeNode.usrCols) {
+            //     treeNode.usrCols.forEach(function(col) {
+            //         assert(col.colType, "Column have no type!");
+            //         assert(col.colType != "DfUnknown", "Column with unknown type: " + __getCurrentName(col));
+            //     })
+            // }
+
             if (self.sqlObj.getStatus() === -2) {
                 return PromiseHelper.reject(SQLErrTStr.Cancel);
             }
@@ -1471,7 +1505,7 @@
                     for (var i = 0; i < columns.length; i++) {
                         if (columns[i].colId === Number(id)) {
                             evalStrArray.push({newColName: newRenames[id],
-                                evalStr: columns[i].colType + "("
+                                evalStr: getColType(columns[i]) + "("
                                 + columns[i].colName + ")"});
                             find = true;
                             break;
@@ -1481,9 +1515,6 @@
                 assert(find, SQLErrTStr.ProjectRenameMistmatch +
                              JSON.stringify(newRenames));
             }
-            columns.forEach(function(col) {
-                delete col.colType;
-            });
             // XXX Currently we rename new columns, but if we have
             // column type in the future, can switch to renaming old columns
             // for (var i = 0; i < node.xcCols.length; i++) {
@@ -1582,6 +1613,7 @@
             .then(function(ret) {
                 var newTableName = ret.newTableName;
                 cli += ret.cli;
+                node.xcCols.push({colName, colName, colType: "int"});
                 var filterString = "le(" + colName + "," + limit + ")";
                 return self.sqlObj.filter(filterString, newTableName);
             })
@@ -1671,7 +1703,8 @@
             var mapCols = [];
             node.orderCols = [];
             options.maps.forEach(function(tempColInfo) {
-                var tempColStruct = {colName: tempColInfo.colName};
+                var tempColStruct = {colName: tempColInfo.colName,
+                                     colType: getColType(tempColInfo)};
                 mapCols.push(tempColStruct);
                 node.orderCols.push(tempColStruct);
             });
@@ -1726,11 +1759,13 @@
                 if (!acc.operator) {
                     evalStr = "max(" + evalStr + ")";
                 }
+                node.colType = getColType(treeNode);
             } else {
                 assert(node.usrCols.length === 1,
                        SQLErrTStr.SubqueryOneColumn + node.usrCols.length);
                 var colName = __getCurrentName(node.usrCols[0]);
                 var evalStr = "max(" + colName + ")";
+                node.colType = getColType(node.usrCols[0]);
             }
             return self.sqlObj.aggregateWithEvalStr(evalStr,
                                                     tableName,
@@ -1808,9 +1843,11 @@
             }
             // Extract colNames from column structs
             var gbColNames = [];
-            var gbStrColNames = []
+            var gbStrColNames = [];
+            var gbColTypes = [];
             for (var i = 0; i < gbCols.length; i++) {
                 gbColNames.push(__getCurrentName(gbCols[i]));
+                gbColTypes.push(getColType(gbCols[i]));
                 // Extract colNames of string type columns for creating nulls
                 if (node.expand) {
                     for (var j = 0; j < node.expand.groupingCols.length; j++) {
@@ -1879,6 +1916,7 @@
             // Step 2
             var firstMapArray = [];
             var firstMapColNames = [];
+            var firstMapColTypes = [];
 
             // Push the group by eval string into firstMapArray
             for (var i = 0; i < gbEvalStrArray.length; i++) {
@@ -1891,6 +1929,7 @@
                     if (gbEvalStrArray[i].evalStr === fArray[j].evalStr) {
                         var newGbColName = fArray[j].newColName;
                         firstMapColNames.push(newGbColName);
+                        firstMapColTypes.push(getColType(fArray[j]));
                         gbColNames[gbColNames.indexOf(origGbColName)] = newGbColName;
                         if (gbStrColNames.indexOf(origGbColName) != -1) {
                             gbStrColNames[gbStrColNames.indexOf(origGbColName)]
@@ -1904,6 +1943,7 @@
                 }
                 if (!inAgg) {
                     firstMapColNames.push(gbEvalStrArray[i].newColName);
+                    firstMapColTypes.push(getColType(gbEvalStrArray[i]));
                 }
                 firstMapArray.push(gbEvalStrArray[i].evalStr);
             }
@@ -1916,13 +1956,18 @@
                     var newColName = "XC_GB_COL_" +
                                      Authentication.getHashId().substring(1);
                     firstMapColNames.push(newColName);
+                    if (gArray[i].operator === "count") {
+                        firstMapColTypes.push(gArray[i].countType);
+                    } else {
+                        firstMapColTypes.push(getColType(gArray[i]));
+                    }
                     gArray[i].aggColName = newColName;
                 }
-
             }
 
             // Step 3
             var aggVarNames = [];
+            var aggVarTypes = [];
             // aggVarNames will be pushed into node.xcCols
             for (var i = 0; i < aggEvalStrArray.length; i++) {
                 var gbMapCol = {};
@@ -1934,6 +1979,11 @@
                     var newColName = "XC_GB_COL_" +
                                      Authentication.getHashId().substring(1);
                     firstMapColNames.push(newColName);
+                    if (rs.firstOp === "count") {
+                        firstMapColTypes.push(aggEvalStrArray[i].countType);
+                    } else {
+                        firstMapColTypes.push(getColType(aggEvalStrArray[i]));
+                    }
                     firstMapArray.push(rs.inside);
                     gbMapCol.aggColName = newColName;
                 } else {
@@ -1942,6 +1992,7 @@
                 gbMapCol.newColName = aggEvalStrArray[i].aggVarName;
                 gArray.push(gbMapCol);
                 aggVarNames.push(aggEvalStrArray[i].aggVarName);
+                aggVarTypes.push(getColType(aggEvalStrArray[i]));
             }
 
             // Step 3.5
@@ -1976,10 +2027,12 @@
             // Step 5
             var secondMapArray = [];
             var secondMapColNames = [];
+            var secondMapColTypes = [];
             for (var i = 0; i < fArray.length; i++) {
                 if (fArray[i].numOps > 0 && !fArray[i].groupby) {
                     secondMapArray.push(fArray[i].evalStr);
                     secondMapColNames.push(fArray[i].newColName);
+                    secondMapColTypes.push(getColType(fArray[i]));
                 }
                 // This if is necessary because of the case where
                 // select col1
@@ -2029,15 +2082,13 @@
                     cli += ret.cli;
                     newTableName = ret.newTableName;
                 }
-                for (var i = 0; i < aggVarNames.length; i++) {
-                    node.xcCols.push({colName: aggVarNames[i]});
-                }
                 for (var i = 0; i < firstMapColNames.length; i++) {
                     // Avoid adding the "col + 1" in
                     // select col+1 from t1 group by col + 1
                     // It belongs to usrCols
                     if (aggColNames.indexOf(firstMapColNames[i]) === -1) {
-                        node.xcCols.push({colName: firstMapColNames[i]});
+                        node.xcCols.push({colName: firstMapColNames[i],
+                                          colType: firstMapColTypes[i]});
                     }
                 }
                 var colNames = new Set();
@@ -2062,7 +2113,8 @@
                                     }
                                     colNames.add(tempColName);
                                     windowStruct[gArray[i].operator][0].newCols.push({
-                                                        colName: tempColName});
+                                                        colName: tempColName,
+                                                        colType: getColType(gArray[i])});
                                     windowStruct[gArray[i].operator][0].aggCols.push(col);
                                     windowStruct[gArray[i].operator][0].ignoreNulls
                                                     .push(gArray[i].arguments[0]);
@@ -2144,13 +2196,18 @@
                 assert(ret, SQLErrTStr.GroupByFailure);
                 newTableName = ret.newTableName;
                 cli += ret.cli;
+                for (var i = 0; i < aggVarNames.length; i++) {
+                    node.xcCols.push({colName: aggVarNames[i],
+                                      colType: aggVarTypes[i]});
+                }
                 if (ret.tempCols) {
                     for (var i = 0; i < ret.tempCols.length; i++) {
-                        node.xcCols.push({colName: ret.tempCols[i]});
+                        node.xcCols.push({colName: ret.tempCols[i],
+                                          colType: "DfUnknown"}); // XXX tempCols from xiApi don't have type
                     }
                 }
                 if (tempCol) {
-                    node.xcCols.push({colName: tempCol});
+                    node.xcCols.push({colName: tempCol, colType: "int"});
                 }
                 return secondMapPromise();
             })
@@ -2171,7 +2228,8 @@
                 // Also track xcCols
                 for (var i = 0; i < secondMapColNames.length; i++) {
                     if (aggColNames.indexOf(secondMapColNames[i]) === -1) {
-                        node.xcCols.push({colName: secondMapColNames[i]});
+                        node.xcCols.push({colName: secondMapColNames[i],
+                                          colType: secondMapColTypes[i]});
                     }
                 }
                 node.usrCols = columns;
@@ -2180,7 +2238,8 @@
                     // Avoid adding it twice.
                     if (firstMapColNames.indexOf(gbColNames[i]) === -1 &&
                         aggColNames.indexOf(gbColNames[i]) === -1) {
-                        node.xcCols.push({colName: gbColNames[i]});
+                        node.xcCols.push({colName: gbColNames[i],
+                                          colType: gbColTypes[i]});
                     }
                 }
                 assertCheckCollision(node.xcCols);
@@ -2189,7 +2248,6 @@
             })
             .fail(deferred.reject);
             // End of Step 6
-
 
             return deferred.promise();
         },
@@ -2369,7 +2427,8 @@
                 retStruct.existenceCol = {
                     colName: existColName,
                     colId: existColId,
-                    rename: existColName + "_E" + existColId
+                    rename: existColName + "_E" + existColId,
+                    colType: "bool"
                 }
             }
 
@@ -2622,7 +2681,8 @@
             // Generate row number after sort, may check if needed
             // to reduce operation number
             var tableId = xcHelper.getTableId(tableName);
-            loopStruct.indexColStruct = {colName: "XC_ROW_COL_" + tableId};
+            loopStruct.indexColStruct = {colName: "XC_ROW_COL_" + tableId,
+                                         colType: "int"};
             node.xcCols.push(loopStruct.indexColStruct);
             curPromise = curPromise.then(function(ret) {
                 cli += ret.cli;
@@ -2701,7 +2761,7 @@
         var leftTableId = xcHelper.getTableId(joinNode.children[0]
                                                       .newTableName);
         var rnColName = "XC_LROWNUM_COL_" + leftTableId;
-        joinNode.xcCols.push({colName: rnColName});
+        joinNode.xcCols.push({colName: rnColName, colType: "int"});
         self.genRowNum(globalStruct.leftTableName, rnColName)
         .then(function(ret) {
             globalStruct.cli += ret.cli;
@@ -2739,7 +2799,8 @@
                 }
                 newColNames.push(tempCol);
                 // Record temp cols
-                joinNode.xcCols.push({colName: tempCol});
+                joinNode.xcCols.push({colName: tempCol,
+                                      colType: getColType(mapStrArray[i])});
             }
             var newTableName = xcHelper.getTableName(origTableName) +
                                Authentication.getHashId();
@@ -2950,7 +3011,7 @@
         var tempCountCol = "XC_COUNT_" +
                            xcHelper.getTableId(globalStruct.newTableName);
         // Record groupBy column
-        joinNode.xcCols.push({colName: tempCountCol});
+        joinNode.xcCols.push({colName: tempCountCol, colType: "int"});
 
         self.groupBy([globalStruct.leftRowNumCol],
                      [{operator: "count", aggColName: "1",
@@ -2962,7 +3023,8 @@
             // Record tempCols created from groupBy
             if (ret.tempCols) {
                 for (var i = 0; i < ret.tempCols.length; i++) {
-                    joinNode.xcCols.push({colName: ret.tempCols[i]});
+                    joinNode.xcCols.push({colName: ret.tempCols[i],
+                                          colType: "DfUnknown"}); // XXX xiApi temp column
                 }
             }
             deferred.resolve();
@@ -2996,7 +3058,7 @@
         var newRowNumColName = "XC_ROWNUM_" +
                                xcHelper.getTableId(globalStruct.newTableName);
         // Record the renamed column
-        joinNode.xcCols.push({colName: newRowNumColName});
+        joinNode.xcCols.push({colName: newRowNumColName, colType: "int"});
         var rTableInfo = {
             tableName: globalStruct.newTableName,
             columns: [globalStruct.leftRowNumCol],
@@ -3054,7 +3116,7 @@
         var newRowNumColName = "XC_ROWNUM_" +
                                xcHelper.getTableId(globalStruct.newTableName);
         // Record the renamed column
-        joinNode.xcCols.push({colName: newRowNumColName});
+        joinNode.xcCols.push({colName: newRowNumColName, colType: "int"});
         var rTableInfo = {
             tableName: globalStruct.newTableName,
             columns: [globalStruct.leftRowNumCol],
@@ -3347,9 +3409,9 @@
                         + xcHelper.getTableId(options.tableName);
                 var orderNode = SQLCompiler.genExpressionTree(undefined,
                                                         orderArray[i].slice(1));
-                type = "DfUnknown";
+                type = getColType(orderNode);
                 var mapStr = genEvalStringRecur(orderNode, undefined, options);
-                options.maps.push({colName: colName, mapStr: mapStr});
+                options.maps.push({colName: colName, mapStr: mapStr, colType: type});
             }
 
             if (!colNameSet.has(colName)) {
@@ -3437,7 +3499,7 @@
         retStruct.colName = cleanseColName(value.name);
         retStruct.colId = value.exprId.id;
         if (value.dataType) {
-            retStruct.type = convertSparkTypeToXcalarType(value.dataType);
+            retStruct.colType = convertSparkTypeToXcalarType(value.dataType);
         }
         return retStruct;
     }
@@ -3449,7 +3511,8 @@
     function __deleteIdFromColInfo(cols) {
         var retList = [];
         for (var i = 0; i < cols.length; i++) {
-            retList.push({colName: __getCurrentName(cols[i])});
+            retList.push({colName: __getCurrentName(cols[i]),
+                          colType: getColType(cols[i])});
         }
         return retList;
     }
@@ -3520,6 +3583,8 @@
         } else {
             frameInfo.upper = undefined;
         }
+        curNode = secondTraverse(weNode.children[weNode.value.windowFunction], {}, true);
+        newCol.colType = getColType(curNode);
         return {newColStruct: newCol, opName: opName, args: args,
                 argTypes: argTypes, frameInfo: frameInfo};
     }
@@ -3652,7 +3717,7 @@
             windowStruct.gbColInfo = __deleteIdFromColInfo(groupByCols);
         } else {
             windowStruct.gbColInfo = windowStruct.tempGBCols.map(function(colName) {
-                                         return {colName: colName};
+                                         return {colName: colName, colType: "DfUnknown"};
                                      }).concat(__deleteIdFromColInfo(groupByCols));
         }
         var gbArgs = [];
@@ -3782,7 +3847,7 @@
             if (ret.tempCols) {
                 windowStruct.gbColInfo = windowStruct.gbColInfo
                     .concat(ret.tempCols.map(function(colName) {
-                        return {colName: colName};
+                        return {colName: colName, colType: "DfUnknown"}; // XXX xiApi temp columns
                     }));
             }
             windowStruct.leftTableName = windowStruct.origTableName;
@@ -3794,7 +3859,8 @@
                 assert(windowStruct.tempGBCols.length === 1);
                 return __joinTempTable(sqlObj, ret, joinType,
                             [windowStruct.indexColStruct],
-                            [{colName: windowStruct.tempGBCols[0]}], windowStruct);
+                            [{colName: windowStruct.tempGBCols[0],
+                              colType: "DfUnknown"}], windowStruct);
             }
             return __joinTempTable(sqlObj, ret, joinType, groupByCols,
                                                     groupByCols, windowStruct);
@@ -3804,12 +3870,14 @@
                 if (windowStruct.node) {
                     node.xcCols = node.xcCols.concat(ret.tempCols
                                         .map(function(colName) {
-                                            return {colName: colName};
+                                            return {colName: colName,
+                                                    colType: "DfUnknown"}; // XXX xiApi temp columns
                                         }));
                 } else {
                     windowStruct.leftColInfo = windowStruct.leftColInfo
                         .concat(ret.tempCols.map(function(colName) {
-                            return {colName: colName};
+                            return {colName: colName,
+                                    colType: "DfUnknown"}; // XXX xiApi temp columns
                         }));
                 }
             }
@@ -3922,7 +3990,8 @@
                     if (ret.tempCols) { // This needed or not depends on behavior of innerjoin
                         node.xcCols = node.xcCols.concat(ret.tempCols
                                         .map(function(colName) {
-                                            return {colName: colName};
+                                            return {colName: colName,
+                                                    colType: "DfUnknown"}; // XXX xiApi temp columns
                                         }));
                     }
                     cli += windowStruct.cli;
@@ -3974,7 +4043,7 @@
                         delete item.colId;
                     });
                     newIndexColName = __getCurrentName(indexColStruct) + "_right";
-                    newIndexColStruct = {colName: newIndexColName};
+                    newIndexColStruct = {colName: newIndexColName, colType: "int"};
                     windowStruct.rightColInfo
                                     .push(newIndexColStruct);
                     var mapStr;
@@ -3987,7 +4056,8 @@
                 .then(function(ret) {
                     return __joinTempTable(self.sqlObj, ret,
                             JoinOperatorT.LeftOuterJoin,
-                            [{colName: __getCurrentName(indexColStruct)}],
+                            [{colName: __getCurrentName(indexColStruct),
+                              colType: "int"}],
                             [newIndexColStruct], windowStruct);
                 });
                 // Map again to set default value
@@ -3995,7 +4065,8 @@
                     if (ret.tempCols) { // This needed or not depends on behavior of leftouterjoin
                         node.xcCols = node.xcCols.concat(ret.tempCols
                                         .map(function(colName) {
-                                            return {colName: colName};
+                                            return {colName: colName,
+                                                    colType: "DfUnknown"}; // XXX xiApi temp columns
                                         }));
                     }
                     cli += windowStruct.cli;
@@ -4154,6 +4225,7 @@
                             __concatColInfoForSort(groupByCols,
                             sortColsAndOrder).map(function(col) {
                                 col.colName = col.name;
+                                col.colType = col.type;
                                 return col;
                             }), [__getCurrentName(indexColStruct)],
                             JoinOperatorT.InnerJoin, windowStruct);
@@ -4230,6 +4302,7 @@
                             __concatColInfoForSort(groupByCols,
                                 sortColsAndOrder).map(function(col) {
                                     col.colName = col.name;
+                                    col.colType = col.type;
                                     return col;
                                 }), [__getCurrentName(indexColStruct)], windowStruct);
                 })
@@ -4242,15 +4315,16 @@
                     cli += ret.cli;
                     origTableName = windowStruct.origTableName;
                     windowStruct.leftColInfo =
-                        [{colName: windowStruct.tempGBCols[0]}]
+                        [{colName: windowStruct.tempGBCols[0], colType: "DfUnknown"}]
                         .concat(__deleteIdFromColInfo(groupByCols))
                         .concat(sortColsAndOrder.map(function(col) {
-                            return {colName: col.name};
+                            return {colName: col.name, colType: col.type};
                         }));
                     if (ret.tempCols) {
                         windowStruct.leftColInfo = windowStruct.leftColInfo
                             .concat(ret.tempCols.map(function(colName) {
-                                return {colName: colName};
+                                return {colName: colName,
+                                        colType: "DfUnknown"}; // XXX xiApi temp columns
                             }));
                     }
                     delete windowStruct.tempGBCols;
@@ -4266,7 +4340,7 @@
                     drIndexColName = "XC_ROW_COL_"
                                 + xcHelper.getTableId(ret.newTableName);
                     windowStruct.leftColInfo
-                                .push({colName: drIndexColName});
+                                .push({colName: drIndexColName, colType: "int"});
                     return self.sqlObj.genRowNum(ret.newTableName,
                                                  drIndexColName);
                 })
@@ -4300,11 +4374,13 @@
                             __concatColInfoForSort(groupByCols,
                                 sortColsAndOrder).map(function(col) {
                                     col.colName = col.name;
+                                    col.colType = col.type;
                                     return col;
                                 }),
                             __concatColInfoForSort(groupByCols,
                                 sortColsAndOrder).map(function(col) {
                                     col.colName = col.name;
+                                    col.colType = col.type;
                                     return col;
                                 }), windowStruct);
                 })
@@ -4314,7 +4390,8 @@
                     if (ret.tempCols) { // This needed or not depends on behavior of innerjoin
                         node.xcCols = node.xcCols.concat(ret.tempCols
                                         .map(function(colName) {
-                                            return {colName: colName};
+                                            return {colName: colName,
+                                                    colType: "DfUnknown"}; // XXX xiApi temp columns
                                         }));
                     }
                     cli += windowStruct.cli;
@@ -4359,8 +4436,6 @@
         var deferred = PromiseHelper.deferred();
         assert(gbColNames[gbColNames.length - 1] === "SPARK_GROUPING_ID",
                 SQLErrTStr.BadGBCol + gbColNames[gbColNames.length - 1]);
-        // Currently expand is not used here
-        //var groupingIds = expand.groupingIds;
         var gIdColName = __getCurrentName(expand.groupingColStruct);
         var curIndex = expand.groupingIds[0];
         var curI = 0;
@@ -4368,7 +4443,7 @@
         // This column is used to create nulls
         var gbTempColName = "XC_GB_COL_" + Authentication.getHashId()
                                                          .substring(1);
-        var tempCols = [{colName: gbTempColName}];
+        var tempCols = [{colName: gbTempColName, colType: "string"}];
         var curPromise = self.sqlObj.map(["string(1)"], tableName, [gbTempColName])
                                     .then(function(ret) {
                                         tableName = ret.newTableName;
@@ -4381,7 +4456,8 @@
                 curIndex = expand.groupingIds[curI];
                 if (ret.tempCols) {
                     for (var i = 0; i < ret.tempCols.length; i++) {
-                        tempCols.push({colName: ret.tempCols[i]});
+                        tempCols.push({colName: ret.tempCols[i],
+                                       colType: "DfUnknown"}); // XXX xiApi temp columns
                     }
                 }
                 var tempGBColNames = [gbTempColName];
@@ -4507,7 +4583,8 @@
                 curPromise = PromiseHelper.resolve({cli: "", newTableName: tableName});
             } else {
                 var tableId = xcHelper.getTableId(tableName);
-                loopStruct.indexColStruct = {colName: "XC_ROW_COL_" + tableId};
+                loopStruct.indexColStruct = {colName: "XC_ROW_COL_" + tableId,
+                                             colType: "int"};
                 loopStruct.sortColsAndOrder = [{name: "XC_ROW_COL_" + tableId,
                                                 type: "float",
                             ordering: XcalarOrderingT.XcalarOrderingAscending}];
@@ -4529,7 +4606,7 @@
             // Execute window
             curPromise = curPromise.then(function (ret) {
                 nestMapNames.forEach(function(colName) {
-                    node.xcCols.push({colName: colName});
+                    node.xcCols.push({colName: colName, colType: "DfUnknown"});
                 })
                 return ret;
             })
@@ -4642,7 +4719,7 @@
                 if (findStar(str) === 0) {
                     tempColName = finalColName;
                     retStruct.noMap = true;
-                    tempColStruct = {colName: tempColName};
+                    tempColStruct = {colName: tempColName, colType: "DfUnknown"};
                 } else {
                     tempColName = "XC_WINDOWMAP_" +
                                         Authentication.getHashId().substring(1);
@@ -4651,7 +4728,7 @@
                                         Authentication.getHashId().substring(1);
                     }
                     colNames.add(tempColName);
-                    tempColStruct = {colName: tempColName};
+                    tempColStruct = {colName: tempColName, colType: "DfUnknown"};
                     retStruct.windowColStructs.push(tempColStruct);
                 }
                 if (opName === "nTile") {
@@ -4714,13 +4791,14 @@
                     }
                     if (windowStruct.lead[args[1]]) {
                         windowStruct.lead[args[1]].newCols.push(tempColStruct);
-                        windowStruct.lead[args[1]].keyCols.push({colName: args[0]});
+                        windowStruct.lead[args[1]].keyCols.push({colName: args[0],
+                                                                 colType: "DfUnknown"});
                         windowStruct.lead[args[1]].defaults.push(args[2]);
                         windowStruct.lead[args[1]].types.push(defaultType);
                     } else {
                         windowStruct.lead[args[1]] =
                                 {newCols: [tempColStruct],
-                                 keyCols: [{colName: args[0]}],
+                                 keyCols: [{colName: args[0], colType: "DfUnknown"}],
                                  defaults: [args[2]],
                                  types: [defaultType],
                                  offset: args[1]};
@@ -4863,15 +4941,20 @@
                         // string. Otherwise it will assign it to
                         // acc.operator
                         var aggAcc = {numOps: 0, noAssignOp: true};
-                        var aggEvalStr =
-                                       genEvalStringRecur(condTree.aggTree,
-                                        aggAcc, options);
+                        var aggEvalStr = genEvalStringRecur(condTree.aggTree,
+                                            aggAcc, options);
                         var aggVarName = "XC_AGG_" +
                                     Authentication.getHashId().substring(1);
-
+                        var countType;
+                        if (condTree.aggTree.value.class ===
+                        "org.apache.spark.sql.catalyst.expressions.aggregate.Count") {
+                            countType = getColType(condTree.aggTree.children[0]);
+                        }
                         acc.aggEvalStrArray.push({aggEvalStr: aggEvalStr,
                                                   aggVarName: aggVarName,
-                                                  numOps: aggAcc.numOps});
+                                                  numOps: aggAcc.numOps,
+                                                  countType: countType,
+                                    colType: getColType(condTree.aggTree)});
                         if (options && options.xcAggregate) {
                             outStr += "^";
                         }
@@ -4997,6 +5080,13 @@
                     var treeNode = SQLCompiler.genExpressionTree(undefined,
                         evalList[i].slice(1), genTreeOpts);
                 }
+                var countType = undefined;
+                if (treeNode.value.class ===
+                    "org.apache.spark.sql.catalyst.expressions.aggregate.AggregateExpression" &&
+                treeNode.children[0].value.class ===
+                    "org.apache.spark.sql.catalyst.expressions.aggregate.Count") {
+                    countType = getColType(treeNode.children[0].children[0]);
+                }
                 var acc = {aggEvalStrArray: aggEvalStrArray,
                            numOps: 0,
                            udfs: [],
@@ -5012,10 +5102,13 @@
                 // XCEPASSTHROUGH -> UDF_NAME
                 newColName = replaceUDFName(newColName, acc.udfs);
                 colStruct.colName = newColName;
+                colStruct.colType = getColType(treeNode);
                 var retStruct = {newColName: newColName,
                                  evalStr: evalStr,
                                  numOps: acc.numOps,
-                                 colId: colStruct.colId};
+                                 colId: colStruct.colId,
+                                 countType: countType,
+                                 colType: getColType(treeNode)};
 
                 if (acc.isDistinct) {
                     retStruct.isDistinct = true;
@@ -5049,7 +5142,7 @@
                 }
                 colStruct.colName = cleanseColName(curColStruct.name);
                 colStruct.colId = curColStruct.exprId.id;
-                colStruct.colType = curColStruct.dataType;
+                colStruct.colType = convertSparkTypeToXcalarType(curColStruct.dataType);
                 if (options && options.renamedCols &&
                     options.renamedCols[colStruct.colId]) {
                     colStruct.rename = options.renamedCols[colStruct.colId];
@@ -5228,6 +5321,8 @@
             case ("string"):
             case ("date"):
                 return "string";
+            case ("null"):
+                return "null";
             default:
                 assert(0, SQLErrTStr.UnsupportedColType + dataType);
                 return "string";
@@ -5252,6 +5347,148 @@
             }
             return udfs[i++];
         });
+    }
+
+    function getColType(item) {
+        try {
+            if (!item.colType) {
+                return;
+            } else {
+                if (item.colType instanceof Object && getColType(item.colType)) {
+                    item.colType = getColType(item.colType);
+                }
+                return item.colType;
+            }
+        } catch (e) {
+            return "DfUnknown";
+        }
+    }
+
+    var opOutTypeLookup = {
+        "abs": "float",
+        "absInt": "int",
+        "add": "float",
+        "ceil": "float",
+        "div": "float",
+        "exp": "float",
+        "floatCompare": "int",
+        "floor": "float",
+        "log": "float",
+        "log10": "float",
+        "log2": "float",
+        "mod": "int",
+        "mult": "float",
+        "pow": "float",
+        "round": "float",
+        "sqrt": "float",
+        "sub": "float",
+        "bitand": "int",
+        "bitLength": "int",
+        "bitlshift": "int",
+        "bitor": "int",
+        "bitrshift": "int",
+        "bitxor": "int",
+        "octetLength": "int",
+        "and": "bool",
+        "between": "bool",
+        "contains": "bool",
+        "endsWith": "bool",
+        "eq": "bool",
+        "exists": "bool",
+        "ge": "bool",
+        "gt": "bool",
+        "isBoolean": "bool",
+        "isFloat": "bool",
+        "isInf": "bool",
+        "isInteger": "bool",
+        "isNull": "bool",
+        "isString": "bool",
+        "le": "bool",
+        "like": "bool",
+        "lt": "bool",
+        "neq": "bool",
+        "not": "bool",
+        "or": "bool",
+        "regex": "bool",
+        "startsWith": "bool",
+        "convertDate": "string",
+        "convertFromUnixTS": "String",
+        "convertToUnixTS": "int",
+        "dateAddDay": "string",
+        "dateAddInterval": "string",
+        "dateAddMonth": "string",
+        "dateAddYear": "string",
+        "dateDiffday": "int",
+        "ipAddrToInt": "int",
+        "macAddrToInt": "int",
+        "dhtHash": "int",
+        "genRandom": "int",
+        "genUnique": "int",
+        "ifInt": "int",
+        "ifStr": "string",
+        "xdbHash": "int",
+        "ascii": "int",
+        "chr": "string",
+        "concat": "string",
+        "countChar": "int",
+        "cut": "string",
+        "explodeString": "string",
+        "find": "int",
+        "findInSet": "int",
+        "formatNumber": "string",
+        "initCap": "string",
+        "len": "int",
+        "lower": "string",
+        "repeat": "string",
+        "replace": "string",
+        "rfind": "int",
+        "soundEx": "string",
+        "stringLPad": "string",
+        "stringRPad": "string",
+        "stringReverse": "string",
+        "strip": "string",
+        "stripLeft": "string",
+        "stripRight": "string",
+        "substring": "string",
+        "upper": "string",
+        "wordCount": "int",
+        "acos": "float",
+        "acosh": "float",
+        "asin": "float",
+        "asinh": "float",
+        "atan": "float",
+        "atan2": "float",
+        "atanh": "float",
+        "cos": "float",
+        "cosh": "float",
+        "degrees": "float",
+        "pi": "float",
+        "radians": "float",
+        "sin": "float",
+        "sinh": "float",
+        "tan": "float",
+        "tanh": "float",
+        "bool": "bool",
+        "float": "float",
+        "int": "int",
+        "string": "string",
+        "default:dayOfWeek": "string",
+        "default:dayOfYear": "string",
+        "default:weekOfYear": "string",
+        "default:timeAdd": "string",
+        "default:timeSub": "string",
+        "default:toDate": "string",
+        "default:convertToUnixTS": "string",
+        "default:toUTCTimestamp": "string",
+        "default:convertFormats": "string",
+        "default:convertFromUnixTS": "string",
+        "sum": "float",
+        "count": "int",
+        "avg": "float",
+        "stdevp": "float",
+        "stdev": "float",
+        "varp": "float",
+        "var": "float"
     }
 
     // Not used currently
