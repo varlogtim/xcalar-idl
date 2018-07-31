@@ -197,6 +197,10 @@ class XcUser {
         const promise: XDPromise<boolean> = (alreadyStarted === true)
             ? PromiseHelper.resolve(false)
             : xcSocket.checkUserSessionExists(workbookId);
+        const hasHeartbeatCheck: boolean = XcSupport.hasHeartbeatCheck();
+        if (hasHeartbeatCheck) {
+            XcSupport.stopHeartbeatCheck();
+        }
 
         promise
             .then(this.sessionHoldAlert)
@@ -210,7 +214,12 @@ class XcUser {
                 return this.setCommitFlag(this._commitFlag);
             })
             .then(deferred.resolve)
-            .fail(deferred.reject);
+            .fail(deferred.reject)
+            .always(() => {
+                if (hasHeartbeatCheck) {
+                    XcSupport.restartHeartbeatCheck();
+                }
+            });
 
         return deferred.promise();
     }
@@ -226,6 +235,7 @@ class XcUser {
         const promise: XDPromise<void> = xcManager.isStatusFail()
             ? PromiseHelper.resolve()
             : KVStore.commit();
+        XcSupport.stopHeartbeatCheck();
         promise
             .then(() => {
                 return this.setCommitFlag(this._defaultCommitFlag);
