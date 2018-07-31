@@ -59,6 +59,9 @@ window.DFParamModal = (function($, DFParamModal){
             ".editableTable .defaultParam, .exportSettingTable .defaultParam",
         function() {
             setParamDivToDefault($(this).siblings("input"));
+            if ($(this).closest(".target").length) {
+                updateTargetType();
+            }
         });
 
         $modal.find(".restoreAdvanced").click(function() {
@@ -94,6 +97,10 @@ window.DFParamModal = (function($, DFParamModal){
             }
 
             clearTimeout(checkInputTimeout);
+        });
+
+        $modal.on("change", ".editableTable .target input", function() {
+            updateTargetType();
         });
 
         $modal.on('click', function(event) {
@@ -375,6 +382,7 @@ window.DFParamModal = (function($, DFParamModal){
         var newVal = firstPart + $draggableParam.text() + secondPart;
         $dropTargParent.text(newVal);
         $dropTargParent.parent().siblings('input').val(newVal);
+        updateTargetType();
     };
 
     DFParamModal.paramDropSpace = function(event) {
@@ -390,6 +398,7 @@ window.DFParamModal = (function($, DFParamModal){
         $dropTargParent.text(newVal);
 
         $dropTargParent.parent().siblings('input').val(newVal);
+        updateTargetType();
     };
 
     DFParamModal.allowParamDrop = function(event) {
@@ -568,6 +577,7 @@ window.DFParamModal = (function($, DFParamModal){
                     }
                     $input.val(func);
                     handleExportValueChange($input);
+                    updateTargetType();
                 },
                 "onOpen": function() {
                     var $lis = $list.find('li')
@@ -869,6 +879,7 @@ window.DFParamModal = (function($, DFParamModal){
         var fieldDelim = options.fieldDelim;
         var recordDelim = options.recordDelim;
         var headerType = options.headerType;
+        var targetType = options.targetType;
         var sorted = options.sorted;
         var splitRule = options.splitRule;
         // numFiles is not implemented, only maxSize matters
@@ -892,6 +903,10 @@ window.DFParamModal = (function($, DFParamModal){
             "every": "Every File",
             "separate": "Separate File"
         };
+        var targetTypeOptions = {
+            "file": "File",
+            "udf": "UDF"
+        };
         var sortedOptions = {
             "true": "True",
             "false": "False"
@@ -901,13 +916,14 @@ window.DFParamModal = (function($, DFParamModal){
             "single": "One File"
         };
 
-        settingText += getExportSettingInput(2, 'Overwrite', 'createRule', createRule, true, createRuleOptions, true) +
-                        getExportSettingInput(3, 'Record Delimiter', 'recordDelim', recordDelim, false) +
-                        getExportSettingInput(4, 'Field Delimiter', 'fieldDelim', fieldDelim, false) +
-                        getExportSettingInput(5, 'Quote Character', 'quoteDelim', quoteDelim, false) +
-                        getExportSettingInput(6, 'Header', 'headerType', headerType, true, headerTypeOptions, true) +
-                        getExportSettingInput(7, 'Preserve Order', 'sorted', sorted, true, sortedOptions, true) +
-                        getExportSettingInput(8, 'File', 'splitRule', splitRule, true, splitRuleOptions, true);
+        settingText += getExportSettingInput(2, 'Target Type', 'targetType', targetType, true, targetTypeOptions, true) +
+                        getExportSettingInput(3, 'Overwrite', 'createRule', createRule, true, createRuleOptions, true) +
+                        getExportSettingInput(4, 'Record Delimiter', 'recordDelim', recordDelim, false) +
+                        getExportSettingInput(5, 'Field Delimiter', 'fieldDelim', fieldDelim, false) +
+                        getExportSettingInput(6, 'Quote Character', 'quoteDelim', quoteDelim, false) +
+                        getExportSettingInput(7, 'Header', 'headerType', headerType, true, headerTypeOptions, true) +
+                        getExportSettingInput(8, 'Preserve Order', 'sorted', sorted, true, sortedOptions, true) +
+                        getExportSettingInput(9, 'File', 'splitRule', splitRule, true, splitRuleOptions, true);
                         // getExportSettingInput(9, 'Max Size', ((splitRule === 'single')? 'maxSize xc-hidden':'maxSize'), maxSize, false);
 
         $modal.find(".exportSettingTable .settingRow").html(settingText);
@@ -978,6 +994,7 @@ window.DFParamModal = (function($, DFParamModal){
         var fieldDelim = options.fieldDelim;
         var recordDelim = options.recordDelim;
         var headerType = options.headerType;
+        var targetType = options.targetType;
         var sorted = options.sorted;
         var splitRule = options.splitRule;
         // numFiles is not implemented, only maxSize matters
@@ -996,6 +1013,7 @@ window.DFParamModal = (function($, DFParamModal){
                         '</div>' +
                         '<div class="templateTable">' +
                         '<div class="template flexContainer">' +
+                        getExportSettingDefault('Overwrite', targetType) +
                         getExportSettingDefault('Overwrite', createRule) +
                         getExportSettingDefault('Record Delimiter', recordDelim) +
                         getExportSettingDefault('Field Delimiter', fieldDelim) +
@@ -1067,11 +1085,16 @@ window.DFParamModal = (function($, DFParamModal){
                 return "True";
             case false:
                 return "False";
+            case "file":
+                return "File";
+            case "udf":
+                return "UDF";
             default:
                 return input;
         }
     }
 
+    // XXX this is a really unreliable way to do this, need to fix
     function strToSpecialChar(input) {
         switch (input) {
             case "\\t":
@@ -1102,8 +1125,24 @@ window.DFParamModal = (function($, DFParamModal){
                 return true;
             case "False":
                 return false;
+            case "UDF":
+                return "udf";
+            case "File":
+                return "file";
             default:
                 return input;
+        }
+    }
+
+    function updateTargetType() {
+        var targetName = $modal.find(".editableTable .target").find("input").val();
+        var paramTargetName = getTargetName(targetName);
+        var target = DSExport.getTarget(paramTargetName);
+
+        if (target) {
+            var targetType = ExTargetTypeTStr[target.type];
+            targetType = specialCharToStr(targetType);
+            $modal.find(".exportSettingTable .targetType").find("input").val(targetType);
         }
     }
 
@@ -1529,19 +1568,6 @@ window.DFParamModal = (function($, DFParamModal){
 
                 partialStruct.fileName = fileName;
                 partialStruct.targetName = targetName;
-                var paramTargetName = getTargetName(targetName);
-                // // XXX Fix this when exportTargets become real targets
-                var target = DSExport.getTarget(paramTargetName);
-                if (target) {
-                    partialStruct.targetType = ExTargetTypeTStr[target.type];
-                    struct = $.extend(struct, partialStruct);
-                } else if (ignoreError) {
-                    partialStruct.targetType = ExTargetTypeTStr[0]; // "unknown"
-                    struct = $.extend(struct, partialStruct);
-                } else {
-                    struct = $.extend(struct, partialStruct);
-                    //  error: target not found;
-                }
                 var expOptions = getExportOptions();
                 struct = $.extend(struct, expOptions);
                 break;
@@ -1953,6 +1979,8 @@ window.DFParamModal = (function($, DFParamModal){
         var exportOptions = {};
         var prefix = ".exportSettingTable .innerEditableRow";
         var inputSuffix = ' input';
+        var targetType = $modal
+                            .find(prefix + ".targetType" + inputSuffix).val();
         var createRule = $modal
                           .find(prefix + ".createRule" + inputSuffix).val();
         var recordDelim = $modal
@@ -1975,6 +2003,7 @@ window.DFParamModal = (function($, DFParamModal){
         exportOptions.headerType = strToSpecialChar(headerType);
         exportOptions.sorted = strToSpecialChar(sorted);
         exportOptions.splitRule = strToSpecialChar(splitRule);
+        exportOptions.targetType = strToSpecialChar(targetType);
         return exportOptions;
     }
 
