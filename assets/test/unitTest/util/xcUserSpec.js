@@ -170,13 +170,14 @@ describe('XcUser Test', () => {
         const user = XcUser.CurrentUser;
         const oldCommit = KVStore.commit;
         const oldSet = user.setCommitFlag;
-        let test = false;
+        const oldStopHeartbeat = XcSupport.stopHeartbeatCheck;
 
         KVStore.commit = () => PromiseHelper.resolve();
         user.setCommitFlag = () => {
             test = true;
             return PromiseHelper.resolve();
         };
+        XcSupport.stopHeartbeatCheck = () => {};
 
         XcUser.CurrentUser.releaseSession()
             .then(() => {
@@ -189,6 +190,7 @@ describe('XcUser Test', () => {
             .always(() => {
                 KVStore.commit = oldCommit;
                 user.setCommitFlag = oldSet;
+                XcSupport.stopHeartbeatCheck = oldStopHeartbeat
             });
     });
 

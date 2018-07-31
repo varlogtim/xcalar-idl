@@ -1164,6 +1164,7 @@ window.SQLEditor = (function(SQLEditor, $) {
                 }
             });
         } catch (e) {
+            console.error(e);
             // XXX need to change this line once we decide the new sql status panel design
             sqlComs.splice(sqlComs.indexOf(sqlCom, 1));
             sqlCom.setStatus(SQLStatus.Failed);

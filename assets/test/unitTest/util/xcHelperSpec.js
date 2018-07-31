@@ -311,12 +311,9 @@ describe("xcHelper Test", function() {
     it("xcHelper.wrapDSName should work", function() {
         var res = xcHelper.wrapDSName("test");
         var nameParts = res.split(".");
-        var userName = nameParts[0];
-        var randId = nameParts[1];
-        nameParts.splice(0, 2);
-        var actualName = nameParts.join(".");
-        var expected = XcUser.getCurrentUserName() + "." + "test";
-        expect(userName + "." + actualName).to.equal(expected);
+        var randId = nameParts[nameParts.length - 2];
+        var expected = XcUser.getCurrentUserName() + "." + randId + ".test";
+        expect(res).to.equal(expected);
         expect(("" + randId).length).to.equal(5);
     });
 

@@ -71,7 +71,7 @@ describe("Mocha Setup Test", function() {
         expect(DSCart.__testOnly__.filterCarts).to.be.a("function");
     });
 
-     it("duplicate element IDs should not exist", function() {
+    it("duplicate element IDs should not exist", function() {
          var map = {};
          $('[id]').each(function(){
              var id = $(this).attr('id');
@@ -82,7 +82,7 @@ describe("Mocha Setup Test", function() {
                  map[id] = true;
              }
          });
-     });
+    });
 
     after(function() {
         UnitTest.offMinMode();
