@@ -27,6 +27,7 @@ class DagTabManager{
         self._dagKVStore = new KVStore(key, gKVScope.WKBK);
         self._activeUserDags = [];
         this._$dagTabs = null;
+        this._unique_id = 0;
 
 
         self._$dagTabArea.on("click", ".after", function(event) {
@@ -95,7 +96,6 @@ class DagTabManager{
                 self.reset();
                 return;
             }
-            self._unique_id = ManagerData.id;
             self._keys = ManagerData.dagKeys;
             self._loadDagTabs(ManagerData.dagKeys);
         })
@@ -196,23 +196,30 @@ class DagTabManager{
         const activeWKBNK: string = WorkbookManager.getActiveWKBK();
         const workbook: WKBK = WorkbookManager.getWorkbook(activeWKBNK);
         const prefix: string = workbook.sessionId + Date.now();
-        let uid = prefix + this._unique_id;
-        let key = KVStore.getKey("gDagManagerKey") + "-DF-" + uid;
-        let name = "Dataflow " + this._unique_id;
+        if (this._unique_id == 0) {
+            this._unique_id = this._keys.length + 1;
+        }
+        const uid: string = prefix + this._unique_id;
+        const key: string = KVStore.getKey("gDagManagerKey") + "-DF-" + uid;
+        let name: string = "Dataflow " + this._unique_id;
+        let validatedName: string = name;
+        let repCount: number = 2;
         while (!this._validateName(name)) {
             // Ensure a new valid name is made
-            name += " (2)";
+            name = validatedName + " (" + repCount + ")";
+            repCount++;
         }
+        validatedName = name;
         this._unique_id++;
         this._keys.push(key);
-        let newTab = new DagTab(name, uid, key, new DagGraph());
+        let newTab = new DagTab(validatedName, uid, key, new DagGraph());
         this._activeUserDags.push(newTab);
         let json = this._getJSON();
         this._dagKVStore.put(JSON.stringify(json), true, true);
         newTab.saveTab();
         const dagList: DagList = DagList.Instance;
-        dagList.addDag(name, key);
-        this._addTabHTML(name);
+        dagList.addDag(validatedName, key);
+        this._addTabHTML(validatedName);
         let $tab = this._$dagTabs.last();
         this._switchTabs($tab);
         DagView.newGraph();
