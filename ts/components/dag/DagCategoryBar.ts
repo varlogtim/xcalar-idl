@@ -12,7 +12,6 @@ class DagCategoryBar {
         this.$dagView = $("#dagView");
         this.$operatorBar = this.$dagView.find(".operatorWrap");
         this._setupCategoryBar();
-        this._setupOperatorBar();
         this._setupDragDrop();
     }
 
@@ -36,12 +35,8 @@ class DagCategoryBar {
         categories.forEach((category: DagCategory) => {
             let classes = "";
 
-            const categoryName: string = category.getName();
+            const categoryName: DagCategoryType = category.getName();
             let icon = iconMap[categoryName];
-            if (categoryName === DagCategoryType.In) {
-                classes += "active";
-            }
-
             html += `<div class="category category-${categoryName} ${classes}"
             data-category="${categoryName}">
             <i class="icon categoryIcon ${icon}"></i>
@@ -58,9 +53,11 @@ class DagCategoryBar {
             self.$operatorBar.find(".category").removeClass("active");
             self.$operatorBar.find(".category.category-" + type).addClass("active");
         });
+
+        this._setupOperatorBar(categories);
     }
 
-    private _setupOperatorBar(): void {
+    private _setupOperatorBar(categories: DagCategory[]): void {
         // const iconMap = {};
         const iconMap = {};
         iconMap[DagNodeType.Dataset] = "xi_data";
@@ -73,14 +70,16 @@ class DagCategoryBar {
         iconMap[DagNodeType.GroupBy] = "xi-groupby";
         iconMap[DagNodeType.Project] = "xi-delete-column";
 
-        const categories: DagCategory[] = new DagCategories().getCategories();
         let html: HTML = "";
         categories.forEach(function(category: DagCategory) {
             const categoryName: string = category.getName();
-            const operators: DagNode[] = category.getOperators();
+            const operators: DagCategoryNode[] = category.getOperators();
             html += `<div class="category category-${categoryName}">`;
 
-            operators.forEach(function(operator: DagNode) {
+            operators.forEach(function(categoryNode: DagCategoryNode) {
+                console.log(categoryNode);
+                const categoryName: DagCategoryType = categoryNode.getCategoryType();
+                const operator: DagNode = categoryNode.getNode();
                 let numParents: number = operator.getMaxParents();
                 let numChildren: number = operator.getMaxChildren();
                 const operatorName: string = operator.getType();
@@ -118,7 +117,8 @@ class DagCategoryBar {
         });
 
         this.$operatorBar.html(html);
-        this.$dagView.find(".categories .category-" + DagCategoryType.In).click();
+        // Activate the favorites category by default
+        this.$dagView.find(".categories .category-" + DagCategoryType.Favorites).click();
     }
 
     private _setupDragDrop(): void {
