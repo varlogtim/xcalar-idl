@@ -215,32 +215,38 @@ window.Redo = (function($, Redo) {
     /* Dag operations */
 
     redoFuncs[SQLOps.DisconnectOperation] = function(options) {
+        DagTabManager.Instance.switchTabId(options.dataflowId);
         DagView.disconnectNodes(options.parentNodeId, options.childNodeId, options.connectorIndex);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.ConnectOperations] = function(options) {
+        DagTabManager.Instance.switchTabId(options.dataflowId);
         DagView.connectNodes(options.parentNodeId, options.childNodeId, options.connectorIndex);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.RemoveOperations] = function(options) {
-        DagView.removeNodes(options.dataflowId, options.nodeIds);
+        DagTabManager.Instance.switchTabId(options.dataflowId);
+        DagView.removeNodes(options.nodeIds);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.AddOperation] = function(options) {
-        DagView.addBackNodes(options.dataflowId, [options.nodeId]);
+        DagTabManager.Instance.switchTabId(options.dataflowId);
+        DagView.addBackNodes([options.nodeId]);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.CopyOperations] = function(options) {
-        DagView.addBackNodes(options.dataflowId, options.nodeIds);
+        DagTabManager.Instance.switchTabId(options.dataflowId);
+        DagView.addBackNodes(options.nodeIds);
         return PromiseHelper.resolve(null);
     };
 
     redoFuncs[SQLOps.MoveOperations] = function(options) {
-        DagView.moveNodes(options.dataflowId, options.nodeIds, options.newPositions);
+        DagTabManager.Instance.switchTabId(options.dataflowId);
+        DagView.moveNodes(options.nodeIds, options.newPositions);
         return PromiseHelper.resolve(null);
     };
 

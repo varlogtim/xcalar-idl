@@ -510,32 +510,38 @@ window.Undo = (function($, Undo) {
     /* Dataflow operations */
 
     undoFuncs[SQLOps.DisconnectOperation] = function(options) {
+        DagTabManager.Instance.switchTabId(options.dataflowId);
         DagView.connectNodes(options.parentNodeId, options.childNodeId, options.connectorIndex);
         return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.ConnectOperations] = function(options) {
+        DagTabManager.Instance.switchTabId(options.dataflowId);
         DagView.disconnectNodes(options.parentNodeId, options.childNodeId, options.connectorIndex);
         return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.RemoveOperations] = function(options) {
-        DagView.addBackNodes(options.dataflowId, options.nodeIds);
+        DagTabManager.Instance.switchTabId(options.dataflowId);
+        DagView.addBackNodes(options.nodeIds);
         return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.AddOperation] = function(options) {
-        DagView.removeNodes(options.dataflowId, [options.nodeId])
+        DagTabManager.Instance.switchTabId(options.dataflowId);
+        DagView.removeNodes([options.nodeId])
         return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.CopyOperations] = function(options) {
-        DagView.removeNodes(options.dataflowId, options.nodeIds);
+        DagTabManager.Instance.switchTabId(options.dataflowId);
+        DagView.removeNodes(options.nodeIds);
         return PromiseHelper.resolve(null);
     };
 
     undoFuncs[SQLOps.MoveOperations] = function(options) {
-        DagView.moveNodes(options.dataflowId, options.nodeIds, options.oldPositions);
+        DagTabManager.Instance.switchTabId(options.dataflowId);
+        DagView.moveNodes(options.nodeIds, options.oldPositions);
         return PromiseHelper.resolve(null);
     };
 
