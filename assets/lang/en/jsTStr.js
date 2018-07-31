@@ -161,7 +161,7 @@ TooltipTStr = {
     'NoUndo': 'Last operation is "<op>", cannot undo',
     'Redo': 'Redo: <op>',
     'LowMemInTable': 'Warning! Cluster is low on memory for tables. Click this button to drop tables.',
-    'LowMemInDS': 'Warning! Cluster is low on memory for datasets. Please delete unused datasets.',
+    'LowMemInDS': 'Warning! Cluster is low on memory for datasets/published tables. Please delete unused datasets/publised tables.',
     'LowMemByOthers': 'Current memory utilization by other cluster users is high. Work with an admin to free memory for your modeling.'
 };
 
