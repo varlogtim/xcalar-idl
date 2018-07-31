@@ -172,7 +172,15 @@ window.SQLEditor = (function(SQLEditor, $) {
 
     SQLEditor.startCompile = function(numSteps) {
         SQLEditor.lockProgress();
-        $sqlButton.find(".text").html("Compiling... 0/" + numSteps);
+        if (numSteps === 0) {
+            $sqlButton.find(".text").html("Compiling...");
+        } else {
+            var buttonText = $sqlButton.find(".text").html();
+            if (buttonText === "Compiling...") {
+                return;
+            }
+            $sqlButton.find(".text").html("Compiling... 0/" + numSteps);
+        }
     };
 
     SQLEditor.startExecution = function() {
@@ -181,6 +189,9 @@ window.SQLEditor = (function(SQLEditor, $) {
 
     SQLEditor.updateProgress = function() {
         var buttonText = $sqlButton.find(".text").html();
+        if (buttonText.indexOf("/") === -1) {
+            return;
+        }
         var numCurSteps = parseInt(buttonText.substring(13,
                                                       buttonText.indexOf("/")));
         var backPart = buttonText.substring(buttonText.indexOf("/"));
@@ -521,12 +532,18 @@ window.SQLEditor = (function(SQLEditor, $) {
                 sql = editor.getValue();
             }
             var allQueries = sql.split(";");
+            if (allQueries.length > 1) {
+                SQLEditor.startCompile(0);
+            }
             for (var query of allQueries) {
                 query = query.trim();
                 if (query !== "") {
                     var promise = SQLEditor.executeSQL(query);
                     promiseArray.push(promise);
                 }
+            }
+            if (promiseArray.length === 0) {
+                SQLEditor.resetProgress();
             }
             PromiseHelper.when.apply(window, promiseArray);
         });
@@ -686,7 +703,8 @@ window.SQLEditor = (function(SQLEditor, $) {
                     // new editor must be given a name, otherwise remove it
                     $li.remove();
                 }
-                var html = editorName + '<i class="icon xi-edit"></i><i class="icon xi-trash"></i>';
+                var html = '<span>' + editorName + '</span>' +
+                           '<i class="icon xi-edit"></i><i class="icon xi-trash"></i>';
                 $li.html(html);
                 toggleEditAndDeleteIcons($li);
             },
@@ -708,8 +726,8 @@ window.SQLEditor = (function(SQLEditor, $) {
         // only populate dropdown
         var $ul = $sqlEditorDropdown.find("ul");
         for (var editorName of editorsOrder) {
-            var html = '<li data-name="' + editorName + '">' + editorName +
-                       '<i class="icon xi-edit"></i>' +
+            var html = '<li data-name="' + editorName + '"><span>' +
+                       editorName + '</span><i class="icon xi-edit"></i>' +
                        '<i class="icon xi-trash"></i></li>';
             $(html).appendTo($ul);
         }
@@ -725,7 +743,8 @@ window.SQLEditor = (function(SQLEditor, $) {
             return;
         }
 
-        var html = newName + '<i class="icon xi-edit"></i><i class="icon xi-trash"></i>';
+        var html = '<span>' + newName + '</span>' +
+                   '<i class="icon xi-edit"></i><i class="icon xi-trash"></i>';
         $li.attr("data-name", newName);
         $li.html(html);
 
@@ -769,9 +788,9 @@ window.SQLEditor = (function(SQLEditor, $) {
         if ($ul.find("li[data-name='" + defaultEditor + "']").length !== 0) {
             return;
         }
-        var html = '<li data-name="' + defaultEditor + '">' + defaultEditor +
-                       '<i class="icon xi-edit"></i>' +
-                       '<i class="icon xi-trash"></i></li>';
+        var html = '<li data-name="' + defaultEditor + '"><span>' +
+                    defaultEditor + '</span><i class="icon xi-edit"></i>' +
+                    '<i class="icon xi-trash"></i></li>';
         $(html).insertAfter($ul.find("li[name='addNew']"));
         allEditors[defaultEditor] = "";
     }
@@ -836,7 +855,8 @@ window.SQLEditor = (function(SQLEditor, $) {
 
         dropdownHint = new InputDropdownHint($sqlEditorDropdown, {
             "menuHelper": menuHelper,
-            "onEnter": selectEditorByName
+            "onEnter": selectEditorByName,
+            "noBold": true
         });
     }
 
@@ -1125,34 +1145,36 @@ window.SQLEditor = (function(SQLEditor, $) {
                 deferred.resolve();
             })
             .fail(function(errorMsg) {
-                if (errorMsg.indexOf(SQLErrTStr.NoKey) > -1 &&
-                    Object.keys(sqlTables).length > 0) {
-                    republish = true;
-                } else {
-                    var errorIdx = errorMsg.indexOf(
-                                                SQLErrTStr.NoTable);
-                    if (errorIdx > -1) {
-                        var table = errorMsg.substring(
-                                  errorMsg.lastIndexOf(":") + 1,
-                                  errorMsg.lastIndexOf(";"))
-                                  .trim().toUpperCase();
-                        if (sqlTables.hasOwnProperty(table)) {
-                            republish = true;
+                if (typeof errorMsg === "string") {
+                    if (errorMsg.indexOf(SQLErrTStr.NoKey) > -1 &&
+                        Object.keys(sqlTables).length > 0) {
+                        republish = true;
+                    } else {
+                        var errorIdx = errorMsg.indexOf(
+                                                    SQLErrTStr.NoTable);
+                        if (errorIdx > -1) {
+                            var table = errorMsg.substring(
+                                      errorMsg.lastIndexOf(":") + 1,
+                                      errorMsg.lastIndexOf(";"))
+                                      .trim().toUpperCase();
+                            if (sqlTables.hasOwnProperty(table)) {
+                                republish = true;
+                            }
                         }
                     }
-                }
-                if (!retry && republish) {
-                    // Try to republish
-                    republishSchemas(sql);
-                } else if (errorMsg.indexOf(SQLErrTStr.Cancel) === -1) {
-                    Alert.show({
-                        title: SQLErrTStr.Err,
-                        msg: errorMsg,
-                        isAlert: true,
-                        align: "left",
-                        preSpace: true,
-                        sizeToText: true
-                    });
+                    if (!retry && republish) {
+                        // Try to republish
+                        republishSchemas(sql);
+                    } else if (errorMsg.indexOf(SQLErrTStr.Cancel) === -1) {
+                        Alert.show({
+                            title: SQLErrTStr.Err,
+                            msg: errorMsg,
+                            isAlert: true,
+                            align: "left",
+                            preSpace: true,
+                            sizeToText: true
+                        });
+                    }
                 }
                 deferred.reject();
             })
@@ -1187,7 +1209,10 @@ window.SQLEditor = (function(SQLEditor, $) {
             msg: "Error details: " + errStr,
             isAlert: true
         });
-    }
+    };
+    SQLEditor.isOnHistPanel = function() {
+        return $("#monitor-query-history").hasClass("active");
+    };
 
     // function updateSQLQuery(sqlQuery) {
     //     var deferred = PromiseHelper.deferred();

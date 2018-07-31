@@ -1109,7 +1109,7 @@ namespace QueryManager {
                     .removeClass(QueryStatus.RM)
                     .addClass(state + "");
         if (state === QueryStatus.Run) {
-            QueryManager.check(true);
+            // QueryManager.check(true);
             // we need to update the extraProgressBar even if we don't
             // have status data otherwise we'll have the progressBar of the
             // previous query

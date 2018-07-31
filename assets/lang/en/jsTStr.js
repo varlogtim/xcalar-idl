@@ -515,7 +515,8 @@ SQLErrTStr = {
     "FailToConnectPlanner": "Failed to connect to SQL Planner",
     "InvalidColTypeForFinalize": "Column with unsupported type found: ",
     "EditorNameExists": "Editor name already exists.",
-    "NoEditor": "Could not find the editor"
+    "NoEditor": "Could not find the editor",
+    "TableDropped": "Table has been dropped. Rerun query to regenerate the table."
 };
 
 SQLInfoTStr = {

@@ -269,7 +269,14 @@ namespace SqlQueryHistoryPanel {
         private _onClickTable(tableId: string): () => void {
             return () => {
                 // Show the table
-                TblManager.findAndFocusTable(`#${tableId}`);
+                TblManager.findAndFocusTable(`#${tableId}`)
+                .fail(function() {
+                    Alert.show({
+                        title: SQLErrTStr.Err,
+                        msg: SQLErrTStr.TableDropped,
+                        isAlert: true
+                    });
+                });
             };
         }
 

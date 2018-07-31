@@ -189,10 +189,10 @@
             self._getQueryTableCols(tableName, allCols)
             .then(function(tableCols) {
                 var worksheet = WSManager.getActiveWS();
-                // XXX Consider making "focusWorkspace" an option
+                var focus = !SQLEditor.isOnHistPanel();
                 return TblManager.refreshTable([tableName], tableCols,
                                             null, worksheet, txId, {
-                                                "focusWorkspace": true
+                                                "focusWorkspace": focus
                                             });
             })
             .then(function() {

@@ -210,8 +210,9 @@
             if (!message) {
                 message = "Compilation Error";
             }
-            // Don't need this if we catch in deferred.resolve() in sendPost
-            // SQLEditor.throwError(message);
+            if (typeof SQLEditor !== "undefined") {
+                SQLEditor.throwError(message);
+            }
             throw "Assertion Failure: " + message;
         }
     }
@@ -1016,7 +1017,7 @@
         node.visited = true;
         return node;
     }
-    function sendPost(self, struct) {
+    function sendPost(self, struct, jdbcOption) {
         var deferred = PromiseHelper.deferred();
         jQuery.ajax({
             type: 'POST',
@@ -1311,7 +1312,7 @@
             // } else if (cached) {
             //     promise = PromiseHelper.resolve(cached, true);
             } else {
-                callback = sendPost(self, {"sqlQuery": sqlQueryString})
+                callback = sendPost(self, {"sqlQuery": sqlQueryString}, jdbcOption)
             }
 
             var toCache;

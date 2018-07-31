@@ -1843,14 +1843,16 @@ class InputSuggest {
 
 interface InputDropdownHintOptions {
     menuHelper?: MenuHelper,
-    preventClearOnBlur?: Function
+    preventClearOnBlur?: Function,
     onEnter?: Function,
-    order?: boolean
+    order?: boolean,
+    noBold?: boolean
 }
 // options:
 // menuHelper: (required) instance of MenuHelper
 // preventClearOnBlur: boolean, if true will not reset the input on blur
 // order: boolean, if true will place "starts with" matches first
+// noBold: boolean, if true will not have bold text for searching
 class InputDropdownHint {
     private options: InputDropdownHintOptions;
     private $dropdown: JQuery;
@@ -1952,11 +1954,14 @@ class InputDropdownHint {
         searchKey = searchKey.toLowerCase();
 
         let count: number = 0;
+        const noBold = this.options.noBold;
         $lis.each(function() {
             let $li: JQuery = $(this);
             if ($li.text().toLowerCase().includes(searchKey)) {
                 $li.removeClass("xc-hidden");
-                xcHelper.boldSuggestedText($li, searchKey);
+                if (!noBold) {
+                    xcHelper.boldSuggestedText($li, searchKey);
+                }
                 count++;
             } else {
                 $li.addClass("xc-hidden");
