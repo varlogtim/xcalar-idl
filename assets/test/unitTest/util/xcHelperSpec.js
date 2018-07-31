@@ -3131,6 +3131,45 @@ describe("xcHelper Test", function() {
         });
     });
 
+    describe("boldSuggest test", function() {
+        it("should bold simple text correctly", function() {
+            var htmlstr = "<li>Cats and Dogs</li>";
+            var $html = $(htmlstr);
+            xcHelper.boldSuggestedText($html, "and");
+            expect($html.text()).to.equal("Cats and Dogs");
+            expect($html.html()).to.equal("Cats <strong>and</strong> Dogs");
+            $html.remove();
+        });
+
+        it("should not bold unmatching text", function() {
+            var htmlstr = "<li>Cats and Dogs</li>";
+            var $html = $(htmlstr);
+            xcHelper.boldSuggestedText($html, "you");
+            expect($html.text()).to.equal("Cats and Dogs");
+            expect($html.html()).to.equal("Cats and Dogs");
+            $html.remove();
+        });
+
+        it("should bold text without removing other tags", function() {
+            var htmlstr = "<li><i></i>Cats and Dogs<i></i></li>";
+            var $html = $(htmlstr);
+            xcHelper.boldSuggestedText($html, "and");
+            expect($html.text()).to.equal("Cats and Dogs");
+            expect($html.html()).to.equal("<i></i>Cats <strong>and</strong> Dogs<i></i>");
+            $html.remove();
+        });
+
+        it("should bold text without modifying other tags", function() {
+            var htmlstr = "<li><i></i>newImd<i></i></li>";
+            var $html = $(htmlstr);
+            xcHelper.boldSuggestedText($html, "i");
+            expect($html.text()).to.equal("newImd");
+            expect($html.html()).to.equal("<i></i>new<strong>I</strong>md<i></i>");
+            $html.remove();
+        });
+
+    });
+
     it("xcHelper.roundToSignificantFigure should work", function() {
         expect(xcHelper.roundToSignificantFigure(1234, 5, 100, 1))
         .to.equal(1000);

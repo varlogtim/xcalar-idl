@@ -5831,11 +5831,13 @@ namespace xcHelper {
      * @param searchKey The searchKey we want to bold
      */
     export function boldSuggestedText($suggestion: JQuery, searchKey: string): void {
-        const pattern: RegExp = new RegExp(searchKey,'i');
+        // The following pattern looks for "searchkey" exclusively outside of a <>.
+        // This prevents it from replacing values within a tag, and replacing the tags themselves.
+        const pattern: RegExp = new RegExp('((^|>)[^<]*)(' + searchKey + ')', 'gi');
         // Remove old strong tabs
-        $suggestion.html($suggestion.text());
+        let innerCleanHtml: string = $suggestion.html().replace('<strong>','').replace('</strong>','');
         $suggestion.html(
-            $suggestion.html().replace(pattern,'<strong>$&</strong>')
+            innerCleanHtml.replace(pattern,'$1<strong>$3</strong>')
         );
     }
 

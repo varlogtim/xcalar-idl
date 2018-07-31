@@ -1957,11 +1957,11 @@ class InputDropdownHint {
         const noBold = this.options.noBold;
         $lis.each(function() {
             let $li: JQuery = $(this);
+            if (!noBold) {
+                xcHelper.boldSuggestedText($li, searchKey);
+            }
             if ($li.text().toLowerCase().includes(searchKey)) {
                 $li.removeClass("xc-hidden");
-                if (!noBold) {
-                    xcHelper.boldSuggestedText($li, searchKey);
-                }
                 count++;
             } else {
                 $li.addClass("xc-hidden");
