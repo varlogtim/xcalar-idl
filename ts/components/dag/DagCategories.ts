@@ -72,9 +72,30 @@ class DagCategories {
             }))
         ]);
 
-        this.categories = [favoritesCategory, inCategory, outCategory,
-                        valueCategory, operationsCategory, columnCategory,
-                        joinCategory, setCategory];
+        const sqlCategory = new DagCategory(DagCategoryType.SQL, [
+            new DagCategoryNodeSQL(DagNodeFactory.create({
+                type: DagNodeType.SQL
+            }))
+        ]);
+
+        const extensionCategory = new DagCategory(DagCategoryType.Extensions, [
+            new DagCategoryNodeExtensions(DagNodeFactory.create({
+                type: DagNodeType.Extension
+            }))
+        ]);
+
+        this.categories = [
+            favoritesCategory,
+            inCategory,
+            outCategory,
+            valueCategory,
+            operationsCategory,
+            columnCategory,
+            joinCategory,
+            setCategory,
+            sqlCategory,
+            extensionCategory
+        ];
     }
 
     public getCategories(): DagCategory[] {
@@ -103,18 +124,3 @@ class DagCategory {
         return this.operators;
     }
 }
-
-// class DagCategoryOperations {
-//     private category: DagCategoryType;
-//     private type: DagNodeType;
-//     private node;
-//     public constructor(node: DagNode) {
-//         this.category = DagCategoryType.Operations;
-//         this.type = node.getType();
-//         this.node = node;
-//     }
-
-//     public getType(): DagNodeType {
-//         return this.type;
-//     }
-// }

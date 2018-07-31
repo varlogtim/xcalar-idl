@@ -60,6 +60,14 @@ interface DagNodeSetInput {
     dedup: boolean;
 }
 
+interface DagNodeSQLInput {
+    evalString: string;
+}
+
+interface DagNodeExtensionInput {
+    evalString: string;
+}
+
 /* ==== End of Dag Node Input Intereface ==== */
 
 /* ==== Interfaces related to DagList and DagTabs ==== */

@@ -1800,7 +1800,7 @@ namespace xcHelper {
                 if (str == null) {
                     continue;
                 }
-    
+
                 txt = txt.replace(new RegExp(key, flag), str);
             }
         } catch(e) {
@@ -4441,6 +4441,7 @@ namespace xcHelper {
             $('.dfScrollBar').addClass('xc-hidden');
             DFCard.adjustScrollBarPositionAndSize();
             IMDPanel.redraw();
+            DagCategoryBar.Instance.showOrHideArrows();
         });
     }
 

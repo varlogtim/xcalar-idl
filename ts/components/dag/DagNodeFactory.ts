@@ -19,6 +19,10 @@ class DagNodeFactory {
                 return new DagNodeProject(options);
             case DagNodeType.Set:
                 return new DagNodeSet(options);
+            case DagNodeType.SQL:
+                return new DagNodeSQL(options);
+            case DagNodeType.Extension:
+                return new DagNodeExtension(options);
             default:
                 throw new Error("node type " + options.type + " not supported");
         }

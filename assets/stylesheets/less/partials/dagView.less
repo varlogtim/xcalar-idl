@@ -249,6 +249,16 @@
                     background-color: @color-operator-set;
                 }
             }
+            &.category-SQL {
+                .icon {
+                    background-color: @color-operator-SQL;
+                }
+            }
+            &.category-extensions {
+                .icon {
+                    background-color: @color-operator-extensions;
+                }
+            }
         }
 
         .spacer {
@@ -326,7 +336,6 @@
                 .textOverflowOneLine;
                 .size(@width: @operator-width - @iconArea-width - 6px, @height: 100%);
                 float: left;
-
             }
         }
 
@@ -388,6 +397,19 @@
         &.category-set {
             .iconArea {
                 background-color: @color-operator-set;
+            }
+        }
+        &.category-SQL {
+            .iconArea {
+                background-color: @color-operator-SQL;
+            }
+            .nameArea {
+                text-transform: uppercase;
+            }
+        }
+        &.category-extensions {
+            .iconArea {
+                background-color: @color-operator-extensions;
             }
         }
     }
@@ -646,6 +668,12 @@
                 font-size: 10px;
             }
         }
+    }
+
+    #tabButton {
+        .font(@size: 11px, @align: center, @line-height: @tabHeight);
+        .size(@height: @tabHeight, @width: @tabHeight + 2);
+        cursor: pointer;
     }
 }
 

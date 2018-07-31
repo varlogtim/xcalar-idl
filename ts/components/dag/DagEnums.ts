@@ -9,7 +9,9 @@ enum DagNodeType {
     Aggregate = "aggregate",
     Map = "map",
     GroupBy = "groupBy",
-    Project = "project"
+    Project = "project",
+    SQL = "sql",
+    Extension = "extension"
 }
 
 enum DagNodeState {
@@ -35,5 +37,5 @@ enum DagCategoryType {
     Join = "join",
     Set = "set",
     Extensions = "extensions",
-    SQL = "SQL"
+    SQL = "SQL",
 }

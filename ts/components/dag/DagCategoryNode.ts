@@ -76,3 +76,19 @@ class DagCategoryNodeSet extends DagCategoryNode {
         this.categoryType = DagCategoryType.Set;
     }
 }
+
+class DagCategoryNodeExtensions extends DagCategoryNode {
+    protected categoryType: DagCategoryType;
+    public constructor(node: DagNode) {
+        super(node);
+        this.categoryType = DagCategoryType.Extensions;
+    }
+}
+
+class DagCategoryNodeSQL extends DagCategoryNode {
+    protected categoryType: DagCategoryType;
+    public constructor(node: DagNode) {
+        super(node);
+        this.categoryType = DagCategoryType.SQL;
+    }
+}
