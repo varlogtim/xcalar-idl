@@ -166,13 +166,14 @@ describe("Datastore-DSTargetManger Test", function() {
         it("should delete target", function(done) {
             $("#dsTarget-delete").click();
             var numTargets = getNumTargets();
+
             UnitTest.hasAlertWithTitle(DSTargetTStr.DEL, {
                 confirm: true
             });
 
             var testFunc = function() {
                 var currentNumTargets = getNumTargets();
-                return (currentNumTargets - numTargets) <= 1;
+                return (currentNumTargets - numTargets) < 0;
             };
 
             UnitTest.testFinish(testFunc)
