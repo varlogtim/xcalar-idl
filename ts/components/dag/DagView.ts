@@ -767,7 +767,7 @@ namespace DagView {
 
     function _setupGraphEvents(): void {
         activeDag.events.on(DagNodeEvents.StateChange, function(info) {
-            console.log("state change");
+
             const $node: JQuery = DagView.getNode(info.id);
             let stateClasses = "";
             for (var i in DagNodeState) {

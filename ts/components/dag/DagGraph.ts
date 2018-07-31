@@ -533,6 +533,10 @@ class DagGraph {
             }
         });
 
+        // go through all the children and remove completed state
+        // XXX we might want to change to error state instead of configured
+        this._traverseChildren(node, removeCompleteState);
+
         const childIndices = {};
         children.forEach((child) => {
             const childId = child.getId();
@@ -548,11 +552,18 @@ class DagGraph {
         });
 
         node.removeTable();
+        removeCompleteState(node);
         this.removedNodesMap.set(node.getId(), {
             childIndices: childIndices,
             node: node
         });
         this.nodesMap.delete(node.getId());
+
+        function removeCompleteState(node: DagNode) {
+            if (node.getState() === DagNodeState.Complete) {
+                node.beConfiguredState();
+            }
+        }
     }
 
     private _getNodeFromId(nodeId: DagNodeId): DagNode {
@@ -598,6 +609,27 @@ class DagGraph {
             }
             stack.pop();
             return false;
+        }
+    }
+
+    // traverses children and applies callback function to each node
+    private _traverseChildren(node: DagNode, callback: Function) {
+        let seen = {};
+        recursiveTraverse(node);
+
+        function recursiveTraverse(node) {
+            const children: DagNode[] = node.getChildren();
+            children.forEach((child: DagNode) => {
+                const nodeId: DagNodeId = child.getId();
+                if (seen[nodeId]) {
+                    return;
+                } else {
+                    seen[nodeId] = true;
+                }
+
+                callback(child);
+                recursiveTraverse(child);
+            });
         }
     }
 }
