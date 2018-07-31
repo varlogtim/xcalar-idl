@@ -145,7 +145,7 @@ namespace DagNodeMenu {
         const $operator: JQuery = $clickedEl.closest(".operator");
         // $operator.addClass("selected");
         let nodeIds = [];
-        let $operators: JQuery = $operator.add($dfWrap.find(".operator.selected"));
+        let $operators: JQuery = $operator.add($dfWrap.find(".dataflowArea.active .operator.selected"));
         $operators.each(function() {
             nodeIds.push($(this).data("nodeid"));
         });

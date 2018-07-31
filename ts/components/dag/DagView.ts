@@ -692,7 +692,8 @@ namespace DagView {
         const pos = node.getPosition();
         const type = node.getType();
         const nodeId = node.getId();
-        const $node = $operatorBar.find('.operator[data-type="' + type + '"]').clone();
+        const $node = $operatorBar.find('.operator[data-type="' + type + '"]')
+                                  .first().clone();
 
         $node.css({
             left: pos.x,
