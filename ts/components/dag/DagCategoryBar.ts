@@ -13,6 +13,16 @@ class DagCategoryBar {
         this.$operatorBar = this.$dagView.find(".operatorWrap");
         this._setupCategoryBar();
         this._setupDragDrop();
+        this._setupScrolling();
+    }
+
+    public showOrHideArrows(): void {
+        const $catWrap: JQuery = this.$dagView.find(".categoryWrap");
+        if ($catWrap.width() < $catWrap[0].scrollWidth) {
+            this.$dagView.find(".categoryBar").addClass("scrollable");
+        } else {
+            this.$dagView.find(".categoryBar").removeClass("scrollable");
+        }
     }
 
     private _setupCategoryBar(): void {
@@ -43,6 +53,7 @@ class DagCategoryBar {
             <span class="text">${xcHelper.capitalize(categoryName)}</span>
             </div>`;
         });
+        html += '<div class="spacer"></div>'; // adds right padding
         this.$dagView.find(".categories").html(html);
 
         this.$dagView.find(".categories").on("click", ".category", function() {
@@ -77,7 +88,6 @@ class DagCategoryBar {
             html += `<div class="category category-${categoryName}">`;
 
             operators.forEach(function(categoryNode: DagCategoryNode) {
-                console.log(categoryNode);
                 const categoryName: DagCategoryType = categoryNode.getCategoryType();
                 const operator: DagNode = categoryNode.getNode();
                 let numParents: number = operator.getMaxParents();
@@ -143,12 +153,38 @@ class DagCategoryBar {
                                     y: data.coors[0].y
                                 }
                     };
-                    DagView.addNode(0, newNodeInfo);
+                    DagView.addNode(newNodeInfo);
                 },
                 onDragFail: function() {
 
                 },
                 copy: true
+            });
+        });
+    }
+
+    private _setupScrolling(): void {
+        const self = this;
+        this.$dagView.find(".categoryScroll .arrow").mousedown(function() {
+            let scrollAmount;
+            if ($(this).hasClass("left")) {
+                scrollAmount = -10;
+            } else {
+                scrollAmount = 10;
+            }
+            let timer;
+            scroll();
+            function scroll() {
+                timer = setTimeout(function() {
+                    var scrollLeft = self.$dagView.find(".categoryWrap").scrollLeft();
+                    self.$dagView.find(".categoryWrap").scrollLeft(scrollLeft + scrollAmount);
+                    scroll();
+                }, 30);
+            }
+
+            $(document).on("mouseup.catScroll", function() {
+                clearTimeout(timer);
+                $(document).off("mouseup.catScroll");
             });
         });
     }

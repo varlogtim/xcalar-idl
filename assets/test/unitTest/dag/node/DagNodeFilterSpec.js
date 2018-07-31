@@ -1,6 +1,6 @@
 describe("Filter Dag Node Test", () => {
     let node;
-    
+
     before(() => {
         node = new DagNodeFilter({});
     });

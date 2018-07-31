@@ -28,7 +28,7 @@ html.firefox {
     @standardFontSize: 12px;
     @commonMargin: 10px; // margin left used on text and input padding
 
-    .input-box (100%, @listHeight);
+    .input-box(100%, @listHeight);
 
     > header {
         background-color: @color-bg-marine;
@@ -2615,6 +2615,328 @@ html.firefox {
                     .size(@width: ~"calc(100% - 22px)");
                 }
             }
+        }
+    }
+}
+#operationsView2 {
+    @title-height: 40px;
+    @listHeight: 26px;
+    @standardFontSize: 12px;
+    @commonMargin: 10px;
+    @functionsListZindex: 10;
+
+    .dropDownList {
+        .textNoCap {
+            text-transform: none !important;
+        }
+
+        &.tableList  {
+            .text, li {
+                text-transform: none;
+            }
+        }
+
+        .text {
+            .size(@width: 100%, @height: @listHeight);
+            padding-right: 26px;
+            padding-left: @commonMargin;
+            .input-placeholder(@color-text-placeholder);
+            text-transform: capitalize;
+            background-color: @color-white;
+            font-size: @standardFontSize;
+        }
+
+        .list {
+            text-transform: capitalize;
+
+            &.genFunctionMenu {
+                .size (@width: ~"calc(100% - @{listHeight})");
+            }
+
+            &.hint {
+                .size (@width: 100%);
+                position: absolute;
+                top: @listHeight !important;
+                left: 0px !important;
+                text-transform: none;
+            }
+            li {
+                // display: none;
+                font-size: @standardFontSize;
+                &:hover {
+                    background-color: transparent;
+                }
+                &.highlighted {
+                    background-color: @color-selectedCell-light;
+                }
+
+            }
+        }
+
+        .iconWrapper {
+            .position(absolute, @top: 0px, @right: 0);
+            .size(@height: 26px);
+        }
+
+        &.functionsList {
+            float: none;
+            input {
+                position: relative;
+                z-index: @functionsListZindex;
+                text-transform: none;
+            }
+            .dropdown {
+                z-index: @functionsListZindex + 1;
+            }
+            .list {
+                z-index: @functionsListZindex + 1;
+            }
+        }
+    }
+
+    .tableListSection {
+        .tableList {
+            z-index: 12;
+        }
+        .iconWrap {
+            float: right;
+            width: @listHeight;
+            line-height: @listHeight + 10px;
+            cursor: pointer;
+        }
+        .xi-show {
+            font-size: 14px;
+            color: @color-font-darkGray;
+        }
+        .selected {
+            color: @color-font-select-blue;
+        }
+    }
+
+    .tempDisabled {
+        opacity: @opacity-disabled !important;
+    }
+
+    .groupby {
+        .catFuncHeadings {
+            position: relative;
+            .xi-close { // for closing group
+                .position(absolute, @top: 0px, @right: 0px);
+                .size(24px, 20px);
+                text-align: center;
+                line-height: 20px;
+                margin-right: 0px;
+            }
+        }
+        .groupbyFnTitle {
+            width: 100%;
+        }
+        .group + .group {
+            padding-top: 6px;
+            margin-top: 10px;
+        }
+        .argsSection {
+            .resultantColNameRow:nth-child(4), .resultantColNameRow:nth-child(5) {
+                .description {
+                    display: none;
+                }
+                .checkboxSection {
+                    width: auto !important;
+                    float: right;
+
+                    .arg {
+                        width: 26px;
+                        float: right;
+                    }
+                }
+            }
+            .row.checkboxWrap {
+                float: none;
+                margin-top: 0px;
+
+                &.groupByAll {
+                    margin-top: 4px;
+                    margin-bottom: -10px;
+                }
+
+                .text {
+                    float: left;
+                    margin-left: 10px;
+                    font-weight: 600;
+                    line-height: 23px;
+                    font-size: 11px;
+                }
+                .checkbox {
+                    margin-top: 6px;
+                }
+            }
+        }
+        .addArgWrapSmall {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        .newTableNameRow {
+            margin-top: 6px;
+
+            .description {
+                padding: 6px;
+                padding-left: 10px;
+                padding-bottom: 4px;
+                line-height: 14px;
+                font-weight: 700;
+            }
+
+            &.inactive {
+                display: none;
+            }
+        }
+        .icvContainer {
+            height: 26px;
+            .checkboxSection {
+                height: auto;
+            }
+        }
+        .gbCheckboxes, .keepTablesCBWrap {
+            height: auto;
+            .checkboxSection {
+                height: @listHeight;
+            }
+            &.inactive {
+                display: none;
+            }
+        }
+
+        .selectAllWrap {
+            margin-bottom: 8px;
+            float: right;
+
+            .clearfix;
+            .text {
+                float: right;
+                cursor: pointer;
+            }
+            .checkbox {
+                top: 2px;
+                margin-left: 5px;
+                margin-right: 5px;
+            }
+        }
+
+        .extraArg .xi-cancel {
+            z-index: 0 !important;
+        }
+    }
+
+    .groupby, .map {
+        .addArgWrapLarge {
+            padding-left: 0px;
+            margin-top: 15px;
+
+            .addArg {
+                width: 260px;
+                height:  36px;
+                display: block;
+                margin: 0 auto;
+                .text {
+                    font-size: 14px;
+                }
+            }
+        }
+
+        .colNameSection {
+            .iconWrapper {
+                left: 0px;
+                background-color: @color-bg-pinkish-grey;
+                .icon {
+                    font-size: 16px;
+                    opacity: 1;
+                    position: static;
+                    .transform(none);
+                    .size(@width: @listHeight, @height: @listHeight);
+                    line-height: @listHeight - 2px;
+                    text-align: center;
+                    cursor: initial;
+                }
+            }
+
+            .arg {
+                .size(@width: ~"calc(100% - @{listHeight})");
+                margin-left: @listHeight;
+            }
+        }
+
+
+        .extraArg {
+            position: relative;
+
+           &.inputWrap { // for map
+                margin-top: 10px;
+            }
+
+            &.row { // for group by
+                margin-top: 10px;
+                .dropDownList ul {
+                    z-index: @functionsListZindex + 1;
+                }
+            }
+
+            .xi-cancel {
+                position: absolute;
+                left: 4px;
+                top: 7px;
+                color: @color-font-warm-grey-two;
+                font-size: 14px;
+                opacity: @opacity-unhover;
+                cursor: pointer;
+                z-index: 100; // place in front of dropdown list which has index 99
+
+                &:hover {
+                    opacity: @opacity-hover;
+                }
+            }
+
+            .arg {
+                padding-left: 22px;
+            }
+        }
+    }
+
+    .map {
+        .filterMapFuncArea {
+            position: relative;
+            .clear {
+                display: none;
+                .size(@width: 20px, @height: @listHeight);
+                .position(absolute, @top: 14px, @right: 20px);
+
+                .icon {
+                    color: @color-font-greyish-brown;
+                    line-height: @listHeight;
+                }
+            }
+            &:hover {
+                .clear {
+                    display: block;
+                }
+            }
+        }
+        #mapFilter2 {
+            width: ~"calc(100% - 30px)";
+            margin-left: 10px;
+            margin-top: 14px;
+            padding-right: 20px;
+
+            &:focus {
+                ~ .clear {
+                    display: block;
+                }
+            }
+        }
+        .catFuncHeadings {
+            margin-top: 4px;
+        }
+        .icvContainer {
+            margin-top: 10px;
         }
     }
 }

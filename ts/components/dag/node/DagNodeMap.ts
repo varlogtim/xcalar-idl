@@ -12,7 +12,8 @@ class DagNodeMap extends DagNode {
      */
     public getParam(): DagNodeMapInput {
         return {
-            eval: this.input.eval || [{evalString: "", newFieldName: ""}]
+            eval: this.input.eval || [{evalString: "", newField: ""}],
+            icv: this.input.icv || false
         };
     }
 
@@ -23,7 +24,9 @@ class DagNodeMap extends DagNode {
      */
     public setParam(input: DagNodeMapInput = <DagNodeMapInput>{}) {
         this.input = {
-            eval: input.eval
+            eval: input.eval,
+            icv: input.icv
         }
+        this.beConfiguredState();
     }
 }

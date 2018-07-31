@@ -14,8 +14,8 @@ class DagTab{
         this._kvStore = new KVStore(key, gKVScope.WKBK);
         this._dagGraph = dagGraph;
     }
-    
-    
+
+
     /**
      * initializeTab is used to load up the kvstore and
      * dataflow
@@ -83,7 +83,7 @@ class DagTab{
         KVStore.logSave(true);
     }
 
-    /** 
+    /**
      * gets the DagGraph for this tab
      * @returns {DagGraph}
      */

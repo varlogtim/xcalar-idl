@@ -171,6 +171,13 @@ class DagNode {
         this._setState(DagNodeState.Connected);
     }
 
+     /**
+     * Change node to configured state
+     */
+    public beConfiguredState(): void {
+        this._setState(DagNodeState.Configured);
+    }
+
     /**
      * Change node to running state
      */
@@ -303,8 +310,8 @@ class DagNode {
         const parents = this.parents.map(function(parent) {
             return parent.getId();
         });
-        
-        // TODO Custom dagNodes will have their own serialize/deserialize for 
+
+        // TODO Custom dagNodes will have their own serialize/deserialize for
         // Their dagGraphs
         return JSON.stringify({
             parents: parents,

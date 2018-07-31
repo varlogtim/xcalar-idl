@@ -15,6 +15,7 @@ enum DagNodeType {
 enum DagNodeState {
     Unused = "unused",
     Connected = "Connected",
+    Configured = "Configured",
     Running = "running",
     Complete = "Complete",
     Error = "Error"

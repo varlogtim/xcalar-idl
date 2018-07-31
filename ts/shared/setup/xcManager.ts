@@ -94,6 +94,7 @@ namespace xcManager {
             UnionView.setup();
             AggModal.setup();
             OperationsView.setup();
+            OperationsView2.setup();
             DFCreateView.setup();
             ProjectView.setup();
             ProjectOpPanel.Instance.setup();

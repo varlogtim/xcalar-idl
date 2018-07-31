@@ -5,7 +5,6 @@ class DagNodeDataset extends DagNode {
         super(options);
         this.type = DagNodeType.Dataset;
         this.maxParents = 0;
-        this.setParam(this.input);
     }
 
     /**
@@ -29,5 +28,6 @@ class DagNodeDataset extends DagNode {
             source: input.source,
             prefix: input.prefix
         }
+        this.beConfiguredState();
     }
 }

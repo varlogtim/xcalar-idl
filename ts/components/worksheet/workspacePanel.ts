@@ -18,6 +18,8 @@ namespace WorkspacePanel {
                 xcTooltip.changeText($("#dfPanelSwitch"),
                                      TooltipTStr.CloseQG);
             }
+        } else if ($("#dagButton").hasClass("active")) {
+            DagView.show();
         } else {
             BottomMenu.unsetMenuCache();
             IMDPanel.active(false);
@@ -28,6 +30,7 @@ namespace WorkspacePanel {
         xcTooltip.changeText($("#dfPanelSwitch"), TooltipTStr.OpenQG);
         $("#statusBar").removeClass("worksheetMode");
         IMDPanel.inActive();
+        DagView.hide();
         if ($("#worksheetButton").hasClass("active")) {
                 // hide off screen tables so that the next time we return to the
             // workspace panel, the switch is quicker because we have less html
@@ -92,8 +95,6 @@ namespace WorkspacePanel {
                     // XXX temp
                     $("#userBox").addClass("dagMode");
 
-
-
                     $("#worksheetView").removeClass("active");
                     $("#workspaceBar").addClass("xc-hidden");
                     $("#imdView").removeClass("active");
@@ -101,6 +102,7 @@ namespace WorkspacePanel {
                     $("#statusBar").removeClass("worksheetMode");
                     $("#dagView").addClass("active");
                     $("#dagViewBar").removeClass("xc-hidden");
+                    DagView.show();
                     break;
                 default:
                     break;

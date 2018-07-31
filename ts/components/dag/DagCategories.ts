@@ -103,3 +103,18 @@ class DagCategory {
         return this.operators;
     }
 }
+
+// class DagCategoryOperations {
+//     private category: DagCategoryType;
+//     private type: DagNodeType;
+//     private node;
+//     public constructor(node: DagNode) {
+//         this.category = DagCategoryType.Operations;
+//         this.type = node.getType();
+//         this.node = node;
+//     }
+
+//     public getType(): DagNodeType {
+//         return this.type;
+//     }
+// }

@@ -100,6 +100,7 @@
     .categoryBar {
         @category-height: 40px;
         @icon-height: 22px;
+        @search-width: 140px;
 
         .size(@min-height: @category-height);
         background-color: @color-bg-white-eight;
@@ -107,12 +108,25 @@
         line-height: @category-height;
         .flex-display;
 
+        &.scrollable {
+            .searchArea {
+                box-shadow: 3px 0px 2px -2px rgba(0, 0, 0, 0.1);
+            }
+            .categoryScroll {
+               .flex-display;
+            }
+        }
+
         .searchArea {
             padding: 7px 4px 0px 10px;
 
+            .searchBox {
+                min-width: @search-width;
+            }
+
             .searchInput {
                 float: left;
-                .size(@height: 25px, @width: 115px);
+                .size(@height: 25px, @width: @search-width - 25px);
                 font-size: 13px;
                 border-color: @color-border-white-five;
                 background-color: @color-white;
@@ -131,17 +145,41 @@
             }
         }
 
+        .categoryScroll {
+            display: none;
+            min-width: 50px;
+            .position(absolute, @right: 0px);
+            box-shadow: -3px 0 2px -2px rgba(0, 0, 0, 0.1);
+            .icon {
+                width: 50%;
+                font-size: 14px;
+                line-height: @category-height;
+                text-align: center;
+                color: #627483;
+                cursor: pointer;
+            }
+        }
+
+        .categoryWrap {
+            overflow: hidden;
+            margin-bottom: -1px;
+            margin-right: 50px;
+        }
+
+        .categories {
+            .flex-display;
+        }
+
         .category {
             padding: 4px 10px;
             margin: 4px 5px 0px;
-            float: left;
-            height: @category-height - 4px;
+            .flex-display;
+            height: 30px;;
             line-height: 22px;
             font-size: 13px;
             position: relative;
             top: 1px;
             cursor: pointer;
-            height: 30px;
             border-radius: 5px;
 
             &:hover {
@@ -161,14 +199,9 @@
                 }
             }
 
-            .text {
-                float: left;
-            }
-
             .categoryIcon {
                 .size(@icon-height,@icon-height);
                 border-radius: 100%;
-                float: left;
                 margin-right: 8px;
                 color: @color-white;
                 font-size: 12px;
@@ -216,6 +249,12 @@
                     background-color: @color-operator-set;
                 }
             }
+        }
+
+        .spacer {
+            // padding right or margin right doesn't work within flexbox
+            // so using an actual div to create space
+            min-width: 10px;
         }
     }
     .operatorBar {
@@ -365,7 +404,7 @@
         .justify-content(space-evenly);
 
         &.in {
-            left: 0px;
+            left: 1px;
         }
         &.out {
             right: 0px;
@@ -413,6 +452,25 @@
         border: 1px solid @color-border-operator;
         .position(absolute, @right: 10px, @bottom: -5px);
         z-index: 1;
+    }
+
+    .operator {
+        &.state-unused {
+            .statusIcon {
+                background-color: @color-white;
+            }
+        }
+        &.state-Configured {
+            .statusIcon {
+                background-color: #fff78d;
+            }
+
+        }
+        &.state-Complete {
+            .statusIcon {
+                background-color: #6ef2a6;
+            }
+        }
     }
 
     .tabBar {
@@ -503,7 +561,7 @@
 
             &:hover, &.selected {
                 .visibleLine {
-                    stroke: #222222;
+                    stroke: #555555;
                     stroke-width: 2px;
                 }
             }
@@ -610,6 +668,13 @@
         &.selected {
             background-color: @color-selectedCell-light;
         }
+        &.unavailable {
+            opacity: 1;
+            .icon, .label {
+                .xc-unavailable;
+            }
+        }
+
         .icon, .label {
             float: left;
         }
@@ -627,7 +692,8 @@
         }
     }
     &.operatorMenu {
-        .removeNode, .cloneNode, .executeNode, .comment, .configureNode {
+        .removeNode, .cloneNode, .executeNode, .comment, .configureNode,
+        .previewTable {
             display: list-item;
         }
     }

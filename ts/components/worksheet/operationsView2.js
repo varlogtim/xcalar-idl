@@ -1,4 +1,4 @@
-window.OperationsView = (function($, OperationsView) {
+window.OperationsView2 = (function($, OperationsView) {
     // handles map, filter, group by, and aggregate forms
 
     var $operationsView; // $('#operationsView');
@@ -33,6 +33,8 @@ window.OperationsView = (function($, OperationsView) {
     var focusedColListNum = null; // to track shift-clicking columns
     var isEditMode = false;
     var table;
+    var dagNode;
+    var $mapFilter;
 
     // shows valid cast types
     var castMap = {
@@ -56,7 +58,8 @@ window.OperationsView = (function($, OperationsView) {
     };
 
     OperationsView.setup = function() {
-        $operationsView = $('#operationsView');
+        $operationsView = $('#operationsView2');
+        $mapFilter = $("#mapFilter2");
         $genFunctionsMenu = $operationsView.find('.genFunctionsMenu');
         $functionsUl = $genFunctionsMenu.find('ul');
 
@@ -106,7 +109,7 @@ window.OperationsView = (function($, OperationsView) {
 
         // for map
 
-        $('#mapFilter').on('input', function() {
+        $mapFilter.on('input', function() {
             var val = $(this).val();
             var valTrimmed = val.trim();
             if (valTrimmed.length || val.length === 0) {
@@ -116,7 +119,7 @@ window.OperationsView = (function($, OperationsView) {
             }
         });
 
-        $('#mapFilter').on('keydown', function(event) {
+        $mapFilter.on('keydown', function(event) {
             if (event.which === keyCode.Down ||
                 event.which === keyCode.Up) {
                 event.preventDefault();
@@ -156,8 +159,8 @@ window.OperationsView = (function($, OperationsView) {
 
         $operationsView.find('.filterMapFuncArea .clear').mousedown(
         function(event) {
-            if ($('#mapFilter').val() !== "") {
-                $('#mapFilter').val("").trigger("input").focus();
+            if ($mapFilter.val() !== "") {
+                $mapFilter.val("").trigger("input").focus();
                 event.preventDefault(); // prevent input from blurring
             }
         });
@@ -569,20 +572,6 @@ window.OperationsView = (function($, OperationsView) {
             $checkbox.toggleClass("checked");
         });
 
-        $operationsView.on("click", ".groupByAll", function() {
-            var $checkbox = $(this).find(".checkbox");
-            $checkbox.toggleClass("checked");
-            if ($checkbox.hasClass("checked")) {
-                $operationsView.find(".gbOnRow").hide();
-                $operationsView.find(".addGroupArg").hide();
-            } else {
-                $operationsView.find(".gbOnRow").show();
-                $operationsView.find(".addGroupArg").show();
-            }
-            formHelper.refreshTabbing();
-            checkIfStringReplaceNeeded();
-        });
-
         // empty options checkboxes
         $operationsView.on('click', '.emptyOptions .checkboxWrap', function() {
             var $checkboxWrap = $(this);
@@ -639,49 +628,12 @@ window.OperationsView = (function($, OperationsView) {
             xcHelper.centerFocusedTable(tableId, true);
         });
 
-        var $aggList = $('.aggregate .functionsList');
+        var $aggList = $operationsView.find('.aggregate .functionsList');
         aggFunctionsListScroller = new MenuHelper($aggList, {
-            bounds: '#operationsView',
+            bounds: '#operationsView2',
             bottomPadding: 5
         });
 
-        $operationsView.find('.tableList').each(function() {
-            var $list = $(this);
-            var tableListScroller = new MenuHelper($list, {
-                "onOpen": function() {
-                    fillTableList(true);
-                },
-                "onSelect": function($li) {
-                    var tableName = $li.text();
-                    var $textBox = $list.find(".text");
-                    var originalText = $textBox.text();
-
-                    if (originalText !== tableName) {
-                        $textBox.text(tableName);
-                        $li.siblings().removeClass('selected');
-                        $li.addClass('selected');
-                        tableId = $li.data('id');
-                        // xx should we focus on the table that was selected?
-                        if (!gTables[tableId]) {
-                            return;
-                        }
-                        table = gTables[tableId];
-                        xcHelper.centerFocusedTable(tableId, true);
-                        updateColNamesCache();
-                        if (operatorName === "group by") {
-                            var listHtml = getTableColList();
-                            $activeOpSection.find(".cols").html(listHtml);
-                            $activeOpSection.find(".selectAllCols")
-                                            .removeClass('checked');
-                            focusedColListNum = null;
-                        }
-                    } else {
-                        return;
-                    }
-                }
-            });
-            tableListScroller.setupListeners();
-        });
 
         // for group by advanced options
         $operationsView.find('.advancedTitle').click(function() {
@@ -765,8 +717,10 @@ window.OperationsView = (function($, OperationsView) {
     // restoreTime: time when previous operation took place
     // triggerColNum: colNum that triggered the opmodal
     // prefill: object, used to prefill the form
-    OperationsView.show = function(currTableId, currColNums, operator,
-                                   options) {
+    // OperationsView.show = function(currTableId, currColNums, operator,
+    //                                options) {
+    OperationsView.show = function(node, options) {
+        dagNode = node;
         if (formHelper.isOpen()) {
             return PromiseHelper.reject();
         }
@@ -780,58 +734,38 @@ window.OperationsView = (function($, OperationsView) {
         }
         var deferred = PromiseHelper.deferred();
         if (!options.restore) {
-            operatorName = operator.toLowerCase().trim();
+            operatorName = dagNode.getType().toLowerCase().trim();
         }
 
         formHelper.showView(operatorName);
 
-        isEditMode = DagEdit.isEditMode();
-        var hasPrefill = options.prefill ? true : false;
-        if (options.prefill && options.prefill.isDroppedTable) {
-            table = gDroppedTables[currTableId];
-        } else if (currTableId != null) {
-            table = gTables[currTableId];
-        }
+        isEditMode = true
+        // XXX need reference to table or dag node
 
         if (options.restore) {
             $activeOpSection.removeClass('xc-hidden');
         } else {
-            tableId = currTableId;
             // changes mainMenu and assigns activeOpSection
             showOpSection();
             resetForm();
-            if (options.triggerColNum != null) {
-                colNum = options.triggerColNum;
-            } else if (currColNums && currColNums.length) {
-                colNum = currColNums[0];
-            }
-            if (table.getCol(colNum)) {
-                triggerColName = table.getCol(colNum).getBackColName();
-            }
-
-            if (currColNums && currColNums.length) {
-                currentCol = table.getCol(colNum);
-                colName = currentCol.getFrontColName(true);
-                isNewCol = currentCol.isNewCol;
-            } else if (hasPrefill) {
-                if (options.prefill.args[0] &&
-                    options.prefill.args[0][0] &&
-                    options.prefill.args[0][0].indexOf("(") === -1) {
-                    colName = options.prefill.args[0][0];
-                } else {
-                    colName = "";
-                }
-                isNewCol = false;
-            }
         }
+        table = dagNode.getTable();
+        table = {
+            hasColWithBackName: function() {return true;},
+            getColByFrontName: function(name) {
+                return ColManager.newCol({
+                    "backName": name,
+                    "name": name,
+                    "isNewCol": false,
+                    "sizedTo": "header",
+                    "width": xcHelper.getDefaultColWidth(name),
+                    "userStr": '"' + name + '" = pull(' + name + ')'
+                });
+            }
+        };
+        var tableId = 0; // XXX tableid
+
         updateFormTitles();
-
-        // highlight active column
-        if (currColNums && currColNums.length === 1) {
-            $('#xcTable-' + tableId).find('.col' + colNum)
-                                    .addClass('modalHighlighted');
-        }
-
         operationsViewShowListeners(options.restore);
 
         // used for css class
@@ -874,7 +808,7 @@ window.OperationsView = (function($, OperationsView) {
             .then(function(listXdfsObj) {
                 var fns = xcHelper.filterUDFs(listXdfsObj.fnDescs);
                 udfUpdateOperatorsMap(fns);
-                operationsViewShowHelper(options.restore, null, options);
+                operationsViewShowHelper(options.restore);
                 deferred.resolve();
             })
             .fail(function(error) {
@@ -882,7 +816,7 @@ window.OperationsView = (function($, OperationsView) {
                 deferred.reject();
             });
         } else {
-            operationsViewShowHelper(options.restore, currColNums, options);
+            operationsViewShowHelper(options.restore);
             deferred.resolve();
         }
         return (deferred.promise());
@@ -918,16 +852,8 @@ window.OperationsView = (function($, OperationsView) {
     };
 
     function updateFormTitles() {
-        var titleName = operatorName;
-        var submitText;
-        if (isEditMode) {
-            titleName = "EDIT " + titleName;
-            submitText = "SAVE";
-        } else {
-            submitText = operatorName.toUpperCase();
-        }
-        $operationsView.find('.title').text(titleName);
-        $operationsView.find('.submit').text(submitText);
+        $operationsView.find('.title').text(operatorName);
+        $operationsView.find('.submit').text("Save");
     }
 
 
@@ -1010,7 +936,7 @@ window.OperationsView = (function($, OperationsView) {
                 $list = $operationsView.find('.groupby .functionsList');
             }
             var functionsListScroller = new MenuHelper($list, {
-                bounds: '#operationsView',
+                bounds: '#operationsView2',
                 bottomPadding: 5
             });
 
@@ -1019,7 +945,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     // functions that get called after list udfs is called during op view show
-    function operationsViewShowHelper(restore, colNums, options) {
+    function operationsViewShowHelper(restore) {
         var aggs = Aggregates.getNamedAggs();
         aggNames = [];
         for (var i in aggs) {
@@ -1037,9 +963,9 @@ window.OperationsView = (function($, OperationsView) {
             fillInputPlaceholder(0);
 
             if (operatorName === "map") {
-                $('#mapFilter').focus();
+                $mapFilter.focus();
             } else if (operatorName === "group by") {
-                populateGroupOnFields(colNums);
+                populateGroupOnFields([]);
             } else {
                 $activeOpSection.find('.functionsInput').focus();
             }
@@ -1049,13 +975,13 @@ window.OperationsView = (function($, OperationsView) {
             $(document).on('mousedown.mapCategoryListener', function(e) {
                 var $target = $(e.target);
                 if (!$target.closest('.catFuncMenus').length &&
-                    !$target.is('#mapFilter') &&
+                    !$target.is($mapFilter) &&
                     !$target.hasClass('ui-resizable-handle'))
                 {
                     if ($categoryList.find('li.active').length &&
                         $functionsList.find('li.active').length === 0)
                     {
-                        var val = $('#mapFilter').val();
+                        var val = $mapFilter.val();
                         var valTrimmed = val.trim();
                         if (valTrimmed.length || val.length === 0) {
                             filterTheMapFunctions(valTrimmed);
@@ -1070,41 +996,45 @@ window.OperationsView = (function($, OperationsView) {
         formHelper.removeWaitingBG();
         formHelper.refreshTabbing();
 
-        if (!options.prefill) {
+        var opInfo;
+        var ops;
+        var args;
+        var params = dagNode.getParam();
+        var newFields;
+        var icv;
+
+        if (operatorName === "filter") {
+            opInfo = xcHelper.extractOpAndArgs(params.evalString);
+            ops = [opInfo.op];
+            args = [opInfo.args];
+        } else if (operatorName === "map") {
+            opInfo = xcHelper.extractOpAndArgs(params.eval[0].evalString);
+            ops = [opInfo.op];
+            args = [opInfo.args];
+            newFields = params.eval.map(function(item) {
+                return item.newField;
+            });
+            icv = params.icv;
+        } else {
             return;
         }
 
         $activeOpSection.find('.group').find(".argsSection").last().empty();
 
-        if (operatorName === "group by") {
-            for (var i = 0; i < options.prefill.indexedFields.length; i++) {
-                if (i > 0) {
-                    addGroupOnArg(0);
-                }
-                var name = options.prefill.indexedFields[i];
-                $activeOpSection.find('.gbOnArg').last().val(gColPrefix + name);
-                checkHighlightTableCols($activeOpSection.find('.gbOnArg').last());
-            }
-            $activeOpSection.find('.gbOnArg').last().blur();
-        }
-
-        for (var i = 0; i < options.prefill.ops.length; i++) {
+        for (var i = 0; i < ops.length; i++) {
             var $group;
             if (operatorName === "map") {
-                $("#mapFilter").val(options.prefill.ops[i]).trigger("input");
+                $mapFilter.val(ops[i]).trigger("input");
                 $activeOpSection.find(".functionsMenu").find("li").filter(function() {
-                    return $(this).text() === options.prefill.ops[i];
+                    return $(this).text() === ops[i];
                 }).click(); // triggers listing of argument inputs
                 $group = $activeOpSection.find('.group').eq(i);
             } else {
-                if (operatorName === "group by" && i > 0) {
-                    addGroupbyGroup();
-                }
                 $group = $activeOpSection.find('.group').eq(i);
-                $group.find(".functionsInput").val(options.prefill.ops[i]).change();
+                $group.find(".functionsInput").val(ops[i]).change();
             }
 
-            var params = options.prefill.args[i];
+            var params = args[i];
             var $args = $group.find(".arg:visible:not(.gbOnArg)").filter(function() {
                 return $(this).closest(".colNameSection").length === 0;
             });
@@ -1133,26 +1063,22 @@ window.OperationsView = (function($, OperationsView) {
                     }
                 }
             }
-            if (options.prefill.newFields) {
+            if (newFields) {
                 $group.find(".resultantColNameRow .arg:visible")
-                      .val(options.prefill.newFields[i]);
+                      .val(newFields[i]);
             }
         }
 
-        if (options.prefill.dest) {
-            $activeOpSection.find(".newTableName:visible").val(options.prefill.dest);
-        }
+        // if (options.prefill.dest) {
+        //     $activeOpSection.find(".newTableName:visible").val(options.prefill.dest);
+        // }
 
-        if (options.prefill.icv) {
+        if (icv) {
             $activeOpSection.find(".icvMode .checkbox").addClass("checked");
         }
-        if (options.prefill.includeSample) {
-            $activeOpSection.find(".incSample .checkbox").addClass("checked");
-        }
-
-        if(options.prefill.groupAll) {
-            $activeOpSection.find(".groupByAll .checkbox").click();
-        }
+        // if (options.prefill.includeSample) {
+        //     $activeOpSection.find(".incSample .checkbox").addClass("checked");
+        // }
 
         function formatArg(arg) {
             if (arg.indexOf("'") !== 0 && arg.indexOf('"') !== 0) {
@@ -1240,7 +1166,7 @@ window.OperationsView = (function($, OperationsView) {
                 StatusBox.forceHide();
                 updateStrPreview();
             },
-            "container": "#operationsView"
+            "container": "#operationsView2"
         });
         castList.setupListeners();
     }
@@ -1681,7 +1607,7 @@ window.OperationsView = (function($, OperationsView) {
             var $li = $categoryList.find('.active');
             var categoryNum = $li.data('category');
             opsMap = {};
-            if ($('#mapFilter').val().trim() !== "") {
+            if ($mapFilter.val().trim() !== "") {
                 opsMap[categoryNum] = filteredOperatorsMap[categoryNum];
             } else {
                 opsMap[categoryNum] = functionsMap[categoryNum];
@@ -1689,7 +1615,7 @@ window.OperationsView = (function($, OperationsView) {
         } else {
             opsMap = filteredOperatorsMap;
         }
-        var filterVal = $('#mapFilter').val().trim();
+        var filterVal = $mapFilter.val().trim();
         var startsWith = "";
         var includes = "";
         var i;
@@ -1741,25 +1667,6 @@ window.OperationsView = (function($, OperationsView) {
         $operationsView.find('.icvMode').addClass('inactive');
         $activeOpSection.find('.descriptionText').empty();
         $operationsView.find('.strPreview').empty();
-    }
-
-    function fillTableList(refresh) {
-        var tableLis = WSManager.getTableList();
-        var $tableListSection = $activeOpSection.find('.tableListSection');
-        $tableListSection.find('ul').html(tableLis);
-        var tableName;
-        // select li and fill left table name dropdown
-        if (refresh) {
-            tableName = $tableListSection.find('.dropDownList .text').text();
-        } else {
-            tableName = table.getName();
-            $tableListSection.find('.dropDownList .text').text(tableName);
-            updateColNamesCache();
-        }
-
-        $tableListSection.find('li').filter(function() {
-            return ($(this).text() === tableName);
-        }).addClass('selected');
     }
 
     // $li = map's function menu li
@@ -1858,10 +1765,7 @@ window.OperationsView = (function($, OperationsView) {
 
         var despText = operObj.fnDesc || "N/A";
         var descriptionHtml = '<b>' + OpFormTStr.Descript + ':</b> ' + despText;
-        if (DagEdit.isEditMode()) {
-            descriptionHtml += '<br><span class="editDescWarning">' +
-                                DFTStr.NoColumnTypeCheck + '</span>';
-        }
+
         $argsGroup.find('.descriptionText').html(descriptionHtml);
         if (operatorName === "group by") {
             var $strPreview = $operationsView.find('.strPreview');
@@ -1887,7 +1791,7 @@ window.OperationsView = (function($, OperationsView) {
         if (($activeOpSection.find('.group').length - 1) === groupIndex) {
             if (operatorName !== "group by") {
                 // xx not working well with group by
-                var noAnim = (isEditMode && firstTime && groupIndex === 0);
+                var noAnim = (firstTime && groupIndex === 0);
                 scrollToBottom(noAnim);
             }
         }
@@ -1908,7 +1812,7 @@ window.OperationsView = (function($, OperationsView) {
         }
         $activeOpSection.find('.list.hint.new').each(function() {
             var scroller = new MenuHelper($(this), {
-                bounds: '#operationsView',
+                bounds: '#operationsView2',
                 bottomPadding: 5
             });
             suggestLists[groupIndex].push(scroller);
@@ -2001,10 +1905,10 @@ window.OperationsView = (function($, OperationsView) {
         var tempName = xcHelper.parsePrefixColName(colName).name;
         var autoGenColName;
         var $rows = $activeOpSection.find('.row');
-        if (colName === "" && !isEditMode) {
-            tempName = "mapped";
-        }
-        if (isNewCol && colName !== "" && currentCol) {
+
+        if (isEditMode && !colName) {
+            autoGenColName = "";
+        } else if (isNewCol && colName !== "" && currentCol) {
             autoGenColName = currentCol.getFrontColName();
             autoGenColName = xcHelper.stripColName(autoGenColName);
         } else {
@@ -2015,9 +1919,6 @@ window.OperationsView = (function($, OperationsView) {
             }
             autoGenColName = xcHelper.stripColName(autoGenColName);
             autoGenColName = getAutoGenColName(autoGenColName);
-        }
-        if (isEditMode && !colName) {
-            autoGenColName = "";
         }
 
         var $row = $rows.eq(numArgs).addClass('resultantColNameRow');
@@ -2110,12 +2011,7 @@ window.OperationsView = (function($, OperationsView) {
     }
 
     function aggArgumentsSetup(numArgs, operObj, $rows) {
-        var description;
-        if (isEditMode) {
-            description = OpModalTStr.AggNameReq;
-        } else {
-            description = OpModalTStr.AggNameDesc;
-        }
+        var description = OpModalTStr.AggNameReq;
 
         $rows.eq(numArgs).addClass('resultantColNameRow')
                         .find('.dropDownList')
@@ -2423,24 +2319,18 @@ window.OperationsView = (function($, OperationsView) {
 
             var gbColOldText = $description.find(".groupByCols").text();
             var gbColNewText = "";
-            var isGroupByAll = $activeOpSection.find(".groupByAll").find(".checkbox").hasClass("checked");
-            if (isGroupByAll) {
-                gbColNewText = "All";
-            } else {
-                var $args = $activeOpSection.find('.groupOnSection').find('.arg');
-                $args.each(function() {
-                    if ($(this).val().trim() !== "") {
-                        gbColNewText += ", " + $(this).val().trim();
-                    }
-                });
-                if (gbColNewText) {
-                    gbColNewText = gbColNewText.slice(2);
+            var $args = $activeOpSection.find('.groupOnSection').find('.arg');
+            $args.each(function() {
+                if ($(this).val().trim() !== "") {
+                    gbColNewText += ", " + $(this).val().trim();
                 }
-
-                gbColNewText = parseAggPrefixes(gbColNewText);
-                gbColNewText = parseColPrefixes(gbColNewText);
+            });
+            if (gbColNewText) {
+                gbColNewText = gbColNewText.slice(2);
             }
 
+            gbColNewText = parseAggPrefixes(gbColNewText);
+            gbColNewText = parseColPrefixes(gbColNewText);
 
             if (noHighlight) {
                 var html = "";
@@ -2692,16 +2582,6 @@ window.OperationsView = (function($, OperationsView) {
         var deferred = PromiseHelper.deferred();
         var isPassing = true;
 
-        if (!gTables[tableId] && !isEditMode) {
-            statusBoxShowHelper(ErrTStr.TableNotExists,
-                            $activeOpSection.find('.tableList'));
-            return PromiseHelper.reject();
-        }
-        if (!isEditMode && !gTables[tableId].isActive()) {
-            statusBoxShowHelper(TblTStr.NotActive,
-                            $activeOpSection.find('.tableList'));
-            return PromiseHelper.reject();
-        }
         var $groups = $activeOpSection.find('.group');
 
         // check if function name is valid (not checking arguments)
@@ -2869,6 +2749,9 @@ window.OperationsView = (function($, OperationsView) {
 
         switch (operatorName) {
             case ('map'):
+                deferred.resolve(); // XXX skipping name checks
+                break;
+
                 $nameInput = $activeOpSection.find('.arg:visible').last();
                 if (isNewCol && colName !== "" &&
                     ($nameInput.val().trim() === colName)) {
@@ -2899,14 +2782,14 @@ window.OperationsView = (function($, OperationsView) {
 
                     isPassing = !ColManager.checkColName($nameInput, tableId,
                                                         null, checkOpts);
-                    if (isPassing && !$activeOpSection.find('.joinBack .checkbox')
-                                    .hasClass('checked')) {
-                        if (!isEditMode) {
-                            isPassing = xcHelper.tableNameInputChecker(
-                                        $activeOpSection.find('.newTableName'));
-                        }
+                    // if (isPassing && !$activeOpSection.find('.joinBack .checkbox')
+                    //                 .hasClass('checked')) {
+                    //     if (!isEditMode) {
+                    //         isPassing = xcHelper.tableNameInputChecker(
+                    //                     $activeOpSection.find('.newTableName'));
+                    //     }
 
-                    }
+                    // }
                     if (!isPassing) {
                         return false;
                     } else if (checkColNameUsedInInputs($nameInput.val(), $nameInput)) {
@@ -3004,12 +2887,6 @@ window.OperationsView = (function($, OperationsView) {
         var invalidNonColumnType = false; // when an input does not have a
         // a column name but still has an invalid type
         var $group = $activeOpSection.find('.group').eq(groupNum);
-
-
-        if ($activeOpSection.find(".groupByAll .checkbox").hasClass("checked")) {
-            args.push(undefined);
-        }
-
         $group.find('.arg:visible').each(function(inputNum) {
             var $input = $(this);
             // Edge case. GUI-1929
@@ -3405,47 +3282,19 @@ window.OperationsView = (function($, OperationsView) {
 
     function filter(operator, args, colTypeInfos, hasMultipleSets, andOr) {
         var deferred = PromiseHelper.deferred();
-        var filterColNum;
-        var firstArg;
-        if (hasMultipleSets) {
-            firstArg = args[0][0];
-        } else {
-            firstArg = args[0];
-        }
-
-        if (!hasFuncFormat(firstArg)) {
-            filterColNum = getColNum(firstArg);
-        } else {
-            filterColNum = getColNum(triggerColName);
-        }
-        if (filterColNum == null || filterColNum < 0) {
-            filterColNum = getColNum(triggerColName);
-        }
 
         var filterString = formulateMapFilterString(operator, args,
                                                     colTypeInfos,
                                                     hasMultipleSets, andOr);
 
-        var startTime = Date.now();
+        // var startTime = Date.now();
 
-        if (isEditMode) {
-            DagEdit.store({
-                args: {
-                    "eval": [{"evalString": filterString, "newField": ""}]
-                }
-            });
-            deferred.resolve();
-        } else {
-            xcFunction.filter(filterColNum, tableId, {
-                filterString: filterString,
-                formOpenTime: formHelper.getOpenTime()
-            })
-            .then(deferred.resolve)
-            .fail(function(error) {
-                submissionFailHandler(startTime, error);
-                deferred.reject();
-            });
-        }
+
+        dagNode.setParam({
+            evalString: filterString
+        });
+
+        deferred.resolve();
 
 
         return deferred.promise();
@@ -3467,25 +3316,21 @@ window.OperationsView = (function($, OperationsView) {
         var groupByCols = [];
         var gbCol;
         var colTypeInfo;
-        var isGroupByAll = $activeOpSection.find(".groupByAll .checkbox")
-                                           .hasClass("checked");
-        if (!isGroupByAll) {
-            for (var i = 0; i < args[0].length - 2; i++) {
-                gbCol = args[0][i].trim();
-                if (groupByCols.indexOf(gbCol) === -1) {
-                    groupByCols.push({
-                        colName: gbCol,
-                        cast: null
-                    });
-                }
-                colTypeInfo = colTypeInfos[0] || [];
-                colTypeInfo.forEach(function(colInfo) {
-                    if (colInfo.argNum === i) {
-                        groupByCols[i].cast = colInfo.type;
-                        return false;
-                    }
+        for (var i = 0; i < args[0].length - 2; i++) {
+            gbCol = args[0][i].trim();
+            if (groupByCols.indexOf(gbCol) === -1) {
+                groupByCols.push({
+                    colName: gbCol,
+                    cast: null
                 });
             }
+            colTypeInfo = colTypeInfos[0] || [];
+            colTypeInfo.forEach(function(colInfo) {
+                if (colInfo.argNum === i) {
+                    groupByCols[i].cast = colInfo.type;
+                    return false;
+                }
+            });
         }
 
         var $groups = $activeOpSection.find('.group');
@@ -3531,7 +3376,6 @@ window.OperationsView = (function($, OperationsView) {
 
         var isKeepOriginal = $activeOpSection.find(".keepTable .checkbox")
                                              .hasClass("checked");
-
         var colsToKeep = [];
 
         if (isIncSample) {
@@ -3554,8 +3398,7 @@ window.OperationsView = (function($, OperationsView) {
             "isKeepOriginal": isKeepOriginal,
             "formOpenTime": formHelper.getOpenTime(),
             "dstTableName": dstTableName,
-            "columnsToKeep": colsToKeep,
-            "groupAll": isGroupByAll
+            "columnsToKeep": colsToKeep
         };
         if (options.isIncSample && options.isJoin) {
             console.warn('shouldnt be able to select incSample and join');
@@ -3583,8 +3426,7 @@ window.OperationsView = (function($, OperationsView) {
                     "eval": evals,
                     "icv": icvMode,
                     "includeSample": isIncSample,
-                    "newKeyField": "",
-                    "groupAll": isGroupByAll
+                    "newKeyField": ""
                 },
                 indexFields: groupByCols.map(function(colInfo) {
                     return colInfo.colName;
@@ -3632,21 +3474,18 @@ window.OperationsView = (function($, OperationsView) {
                 var indexedColNames;
                 var $input;
                 var areIndexedColNamesValid = false;
-                var isGroupByAll = $activeOpSection.find(".groupByAll").find(".checkbox").hasClass("checked");
-                if (!isGroupByAll) {
-                    for (var i = 0; i < numArgs - 2; i++) {
-                        indexedColNames = args[groupNum][i];
-                        $input = $activeOpSection.find('.gbOnArg').eq(i);
-                        areIndexedColNamesValid = checkValidColNames($input,
-                                                                indexedColNames);
-                        if (!areIndexedColNamesValid) {
-                            break;
-                        }
-                    }
+                for (var i = 0; i < numArgs - 2; i++) {
+                    indexedColNames = args[groupNum][i];
+                    $input = $activeOpSection.find('.gbOnArg').eq(i);
+                    areIndexedColNamesValid = checkValidColNames($input,
+                                                            indexedColNames);
                     if (!areIndexedColNamesValid) {
-                        isValid = false;
-                        return false;
+                        break;
                     }
+                }
+                if (!areIndexedColNamesValid) {
+                    isValid = false;
+                    return false;
                 }
             }
         });
@@ -3672,22 +3511,21 @@ window.OperationsView = (function($, OperationsView) {
 
         var startTime = Date.now();
 
-        var icvMode = $("#operationsView .map .icvMode .checkbox")
+        var icvMode = $("#operationsView2 .map .icvMode .checkbox")
                         .hasClass("checked");
 
         var hasWeirdQuotes = (mapStr.indexOf("“") > -1 ||
                               mapStr.indexOf("”") > -1);
 
-        var colNum = getColNum(triggerColName);
+
         if (isEditMode) {
-            DagEdit.store({
-                args: {
-                    "eval": [{"evalString": mapStr, "newField": newColName}],
-                    "icv": icvMode
-                }
+            dagNode.setParam({
+                "eval": [{"evalString": mapStr, "newField": newColName}],
+                "icv": icvMode
             });
             deferred.resolve();
         } else {
+            var colNum = getColNum(triggerColName);
             xcFunction.map(colNum, tableId, newColName, mapStr, mapOptions, icvMode)
             .then(deferred.resolve)
             .fail(function(error) {
@@ -4044,24 +3882,14 @@ window.OperationsView = (function($, OperationsView) {
 
         var tmpArg = arg.toLowerCase();
         var isNumber = !isNaN(Number(arg));
-        var isFloat = false;
-        if (isNumber) {
-            if (Number(tmpArg) % 1 !== 0 || tmpArg.indexOf(".") > -1) {
-                isFloat = true;
-                argType = ColumnType.float;
-            }
-        }
-        if (isFloat && types.includes(ColumnType.float)) {
-            return null;
-        }
         var canBeBooleanOrNumber = false;
 
         // boolean is a subclass of number
         if (tmpArg === "true" || tmpArg === "false" ||
-            tmpArg === "t" || tmpArg === "f" || (isNumber && !isFloat))
+            tmpArg === "t" || tmpArg === "f" || isNumber)
         {
             canBeBooleanOrNumber = true;
-            argType = "string/boolean/integer";
+            argType = "string/boolean/integer/float";
         }
 
         if (types.indexOf(ColumnType.boolean) > -1) {
@@ -4078,6 +3906,7 @@ window.OperationsView = (function($, OperationsView) {
         }
 
         // the remaining case is float and integer, both is number
+        tmpArg = Number(arg);
 
         if (!isNumber) {
             return {
@@ -4086,13 +3915,13 @@ window.OperationsView = (function($, OperationsView) {
             };
         }
 
-        if (types.includes(ColumnType.float)) {
+        if (types.indexOf(ColumnType.float) > -1) {
             // if arg is integer, it could be a float
             return null;
         }
 
-        if (types.includes(ColumnType.integer)) {
-            if (isFloat) {
+        if (types.indexOf(ColumnType.integer) > -1) {
+            if (tmpArg % 1 !== 0) {
                 return {
                     "validType": types,
                     "currentType": ColumnType.float
@@ -4102,7 +3931,7 @@ window.OperationsView = (function($, OperationsView) {
             }
         }
 
-        if (types.length === 1 && types.includes(ColumnType.undefined)) {
+        if (types.length === 1 && types[0] === ColumnType.undefined) {
             return {
                 "validType": types,
                 "currentType": argType
@@ -4530,7 +4359,7 @@ window.OperationsView = (function($, OperationsView) {
 
     function resetForm() {
         // clear filter map function input
-        $('#mapFilter').val("");
+        $mapFilter.val("");
 
         // clear function list input
         $operationsView.find('.functionsInput').attr('placeholder', "")
@@ -4573,11 +4402,8 @@ window.OperationsView = (function($, OperationsView) {
                                                 .removeClass('expanded');
 
         $operationsView.find(".andOrToggle").hide();
-        $operationsView.find(".gbOnRow").show();
-        $operationsView.find(".addGroupArg").show();
-        $operationsView.find(".groupByAll").find(".checkbox").removeClass("checked");
 
-        fillTableList();
+
         if (operatorName === "group by") {
             var listHtml = getTableColList();
             $activeOpSection.find(".cols").html(listHtml);
@@ -4676,7 +4502,7 @@ window.OperationsView = (function($, OperationsView) {
         var functionsListScroller = new MenuHelper(
             $operationsView.find('.functionsList[data-fnlistnum="' + newGroupIndex + '"]'),
             {
-                bounds: '#operationsView',
+                bounds: '#operationsView2',
                 bottomPadding: 5
             }
         );
@@ -4741,7 +4567,7 @@ window.OperationsView = (function($, OperationsView) {
         var functionsListScroller = new MenuHelper(
             $operationsView.find('.functionsList[data-fnlistnum="' + newGroupIndex + '"]'),
             {
-                bounds: '#operationsView',
+                bounds: '#operationsView2',
                 bottomPadding: 5
             }
         );
@@ -4776,7 +4602,7 @@ window.OperationsView = (function($, OperationsView) {
         var argIndex = $ul.closest('.group').find('.list.hint').index($ul);
 
         var scroller = new MenuHelper($ul, {
-            bounds: '#operationsView',
+            bounds: '#operationsView2',
             bottomPadding: 5
         });
 

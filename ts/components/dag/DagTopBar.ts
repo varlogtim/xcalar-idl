@@ -16,13 +16,11 @@ class DagTopBar {
 
     private _addEventListeners(): void {
         this.$topBar.find(".run").click(function() {
-            const dagId = 0;
-            DagView.run(dagId);
+            DagView.run();
         });
 
         this.$topBar.find(".stop").click(function() {
-            const dagId = 0;
-            DagView.cancel(dagId);
+            DagView.cancel();
         });
 
         this.$topBar.find(".undo").click(function() {
@@ -41,5 +39,5 @@ class DagTopBar {
             // Log.redo();
         });
     }
-  
+
 }

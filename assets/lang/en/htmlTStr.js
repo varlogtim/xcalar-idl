@@ -1333,6 +1333,7 @@ module.exports = {
         "configure": "Configure",
         "comment": "Comment",
         "execute": "Execute",
-        "executeAll": "Execute All"
+        "executeAll": "Execute All",
+        "previewTable": "Preview Table"
     }
 };

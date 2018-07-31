@@ -57,7 +57,7 @@ namespace DagNodeMenu {
 
             switch (action) {
                 case ("removeNode"):
-                    DagView.removeNodes(0, nodeIds);
+                    DagView.removeNodes(nodeIds);
                     break;
                 case ("removeAllNodes"):
                     Alert.show({
@@ -69,7 +69,7 @@ namespace DagNodeMenu {
                             nodes.forEach((_node: DagNode, nodeId: DagNodeId) => {
                                 nodeIdsToRemove.push(nodeId);
                             });
-                            DagView.removeNodes(0, nodeIdsToRemove);
+                            DagView.removeNodes(nodeIdsToRemove);
                         }
                     });
                     break;
@@ -80,9 +80,12 @@ namespace DagNodeMenu {
                     DagView.disconnectNodes(parentNodeId, nodeId, connectorIndex);
                     break;
                 case ("cloneNode"):
-                    DagView.cloneNodes(0, nodeIds);
+                    DagView.cloneNodes(nodeIds);
                     break;
                 case ("executeNode"):
+                    break;
+                case ("executeAllNodes"):
+                    DagView.run();
                     break;
                 case ("configureNode"):
                     const dagGraph: DagGraph = DagView.getActiveDag();
@@ -107,6 +110,9 @@ namespace DagNodeMenu {
                 console.log("open project form");
                 ProjectOpPanel.Instance.show(node);
                 break;
+            case (DagNodeType.Filter):
+            case (DagNodeType.Map):
+                OperationsView2.show(node);
             default:
                 break;
         }

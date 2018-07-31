@@ -46,12 +46,11 @@ class DagTabManager{
             self._newTab();
         });
 
-
         self._$dagTabArea.on("dblclick", ".name", function() {
             let $tab_name = $(this);
             self._editingName = $tab_name.text();
             $tab_name.text("");
-            let inputArea: string = 
+            let inputArea: string =
                 "<span contentEditable='true' class='xc-input'></span>";
             $(inputArea).appendTo($tab_name);
             let $input = $tab_name.find('.xc-input');
@@ -123,7 +122,7 @@ class DagTabManager{
                         self.reset();
                         innerDeferred.resolve();
                         return;
-                    } 
+                    }
                     const tabJSON: DagTabJSON = tab.getJSON();
                     if (tabJSON.name == null) {
                         innerDeferred.resolve();
@@ -133,7 +132,7 @@ class DagTabManager{
                         self._addDagTab(tab);
                         self._addTabHTML(tabJSON.name);
                         this._switchTabs(this._$dagTabs.last());
-                        DagView.redraw();
+                        DagView.reactivate();
                         innerDeferred.resolve();
                     }
                 });
@@ -216,6 +215,7 @@ class DagTabManager{
         this._addTabHTML(name);
         let $tab = this._$dagTabs.last();
         this._switchTabs($tab);
+        DagView.newGraph();
     }
 
     /**
@@ -301,7 +301,7 @@ class DagTabManager{
                 this._addDagTab(tab);
                 this._addTabHTML(tabJSON.name);
                 this._switchTabs(this._$dagTabs.last());
-                DagView.redraw();
+                DagView.reactivate();
                 this._keys.push(key);
                 let json: DagTabManagerJSON = this._getJSON();
                 this._dagKVStore.put(JSON.stringify(json), true, true);

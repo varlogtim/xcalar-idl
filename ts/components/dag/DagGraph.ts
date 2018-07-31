@@ -458,6 +458,10 @@ class DagGraph {
         });
 
         PromiseHelper.chain(promises)
+        .then((finalTableName: string) => {
+            return TblManager.refreshTable([finalTableName], null,
+                [], WSManager.getActiveWS(), txId, {});
+        })
         .then(() => {
             console.log("finish running", orderedNodes)
             Transaction.done(txId, {});
