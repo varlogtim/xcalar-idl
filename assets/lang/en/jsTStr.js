@@ -1566,7 +1566,8 @@ IMDTStr = {
     "DeactivateTablesMsg": "Note: activating and deactivating published tables may be slow.\nAre you sure you want to deactivate the following tables : \"<tableName>\"?",
     "DeactivateTable": "Deactivate Published Tables",
     "Coalesce": "Coalesce",
-    "CoalesceTip": "Conserve memory by combining updated tables into one. This operation cannot be undone."
+    "CoalesceTip": "Conserve memory by combining updated tables into one. This operation cannot be undone.",
+    "GenerateTable": "Generate Table",
 };
 
 DagTStr = {

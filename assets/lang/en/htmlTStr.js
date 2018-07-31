@@ -389,7 +389,7 @@ module.exports = {
 
     "IMDPanel": {
         "emptyDetails": "Select a table from the published tables list to view details.",
-        "RefreshTables": "Refresh Tables(s)",
+        "RefreshTables": "Generate Tables(s)",
         "more": "more",
         "back": "back",
         "Coalesce": "Coalesce",

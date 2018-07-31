@@ -412,9 +412,9 @@ namespace IMDPanel {
             top: y + 10 // for arrow piece
         });
         if (multiple && pTables.length > 1) {
-            $updatePrompt.find(".basicOptions .heading").text("Refresh Tables:");
+            $updatePrompt.find(".basicOptions .heading").text(IMDTStr.GenerateTable + "s:");
         } else {
-            $updatePrompt.find(".basicOptions .heading").text("Refresh Table:");
+            $updatePrompt.find(".basicOptions .heading").text(IMDTStr.GenerateTable + ":");
         }
 
         if (hasPointInTime && !isUnavailable) {
@@ -1858,7 +1858,7 @@ namespace IMDPanel {
             sql['worksheet'] = wsId;
             Transaction.done(txId, {
                 "msgTable": xcHelper.getTableId(tableInfos[numTables - 1].dstTableName),
-                "title": "Refresh Tables",
+                "title": "Generate Tables",
                 "sql": sql
             });
             deferred.resolve();
