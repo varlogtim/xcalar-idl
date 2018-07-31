@@ -110,6 +110,7 @@ $(document).ready(function() {
 /** START DEBUG ONLY **/
         if (typeof gLoginEnabled !== "undefined" && gLoginEnabled === true) {
             isSubmitDisabled = true;
+            xcSessionStorage.removeItem("gLoginEnabled");
 /** END DEBUG ONLY **/
             HTTPService.Instance.ajax({
                 "type": "POST",
@@ -138,6 +139,7 @@ $(document).ready(function() {
             });
 /** START DEBUG ONLY **/
         } else {
+            xcSessionStorage.setItem("gLoginEnabled", "false");
             xcSessionStorage.setItem("xcalar-username", username);
             submit();
             toggleBtnInProgress($("#loginButton"));

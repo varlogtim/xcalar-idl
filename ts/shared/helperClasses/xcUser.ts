@@ -35,7 +35,8 @@ class XcUser {
         };
 
 /** START DEBUG ONLY **/
-        if (typeof gLoginEnabled !== "undefined" && gLoginEnabled === false) {
+        if (typeof gLoginEnabled !== "undefined" && gLoginEnabled === false ||
+            xcSessionStorage.getItem("gLoginEnabled") === "false") {
             const username = xcSessionStorage.getItem("xcalar-username");
             if (username != null) {
                 const isAdmin = xcSessionStorage.getItem("xcalar-admin") === "true";

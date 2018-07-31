@@ -2034,7 +2034,11 @@ namespace xcHelper {
                 $btn = $(html);
                 $btn.click(function() {
                     $(this).blur();
-                    XcUser.CurrentUser.logout();
+                    if (XcUser.CurrentUser != null) {
+                        XcUser.CurrentUser.logout();
+                    } else {
+                        xcManager.unload();
+                    }
                 });
                 break;
         }
