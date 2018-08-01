@@ -62,7 +62,14 @@ class XcUser {
      * XcUser.checkCurrentUser
      */
     public static checkCurrentUser(): XDPromise<{emailAddress: string, admin: boolean}> {
-        const deferred: XDDeferred<{emailAddress: string, admin: boolean}> = PromiseHelper.deferred();
+/** START DEBUG ONLY **/
+        if (typeof gLoginEnabled !== "undefined" && gLoginEnabled === false ||
+            xcSessionStorage.getItem("gLoginEnabled") === "false") {
+                // skip check in this case
+                return PromiseHelper.resolve();
+        }
+/** END DEBUG ONLY **/
+    const deferred: XDDeferred<{emailAddress: string, admin: boolean}> = PromiseHelper.deferred();
 
         HTTPService.Instance.ajax({
             "type": "GET",
