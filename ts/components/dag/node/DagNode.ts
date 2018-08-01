@@ -281,8 +281,7 @@ class DagNode {
             delete this.parents[pos];
         }
 
-        // XXX Rudy - I think it should retain params
-        this._removeParam(pos);
+        this._clearConnectionMeta(pos);
         this.numParent--;
     }
 
@@ -343,6 +342,10 @@ class DagNode {
             }
         }
         return -1;
+    }
+
+    protected _clearConnectionMeta(): void {
+        this.setTable("");
     }
 
     private _getNonAggParents(): DagNode[] {

@@ -16,7 +16,9 @@ class DagExecute {
 
         this._apiAdapter()
         .then((destTable) => {
-            this.node.setTable(destTable);
+            if (destTable != null) {
+                this.node.setTable(destTable);
+            }
             this.node.beCompleteState();
             deferred.resolve(destTable);
         })
@@ -30,6 +32,8 @@ class DagExecute {
     private _apiAdapter(): XDPromise<string> {
         const type: DagNodeType = this.node.getType();
         switch (type) {
+            case DagNodeType.Aggregate:
+                return this._aggregate();
             case DagNodeType.Dataset:
                 return this._loadDataset();
             case DagNodeType.Filter:
@@ -39,6 +43,23 @@ class DagExecute {
             default:
                 throw new Error(type + " not supported!");
         }
+    }
+
+    private _aggregate(): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        const node: DagNodeAggregate = <DagNodeAggregate>this.node;
+        const params: DagNodeAggregateInput = node.getParam();
+        const evalStr: string = params.evalString;
+        const tableName: string = this._getParentNodeTable(0);
+        const dstAggName: string = params.dest;
+
+        XIApi.aggregateWithEvalStr(this.txId, evalStr, tableName, dstAggName)
+        .then((aggRes) => {
+            node.setAggVal(aggRes);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     private _loadDataset(): XDPromise<string> {
@@ -54,26 +75,31 @@ class DagExecute {
         const node: DagNodeFilter = <DagNodeFilter>this.node;
         const params: DagNodeFilterInput = node.getParam();
         const fltStr: string = params.evalString;
-        const parentNode = this.node.getParents()[0];
-        const srcTable = parentNode.getTable();
-        const desTable = this._generateTableName();
+        const srcTable: string = this._getParentNodeTable(0);
+        const desTable: string = this._generateTableName();
         return XIApi.filter(this.txId, fltStr, srcTable, desTable);
     }
 
     private _map(): XDPromise<string> {
         const node: DagNodeMap = <DagNodeMap>this.node;
         const params: DagNodeMapInput = node.getParam();
-        const mapStrs: string[] = params.eval.map((item) => {
-            return item.evalString;
+        const mapStrs: string[] = [];
+        const newFields: string[] = [];
+
+        params.eval.forEach((item) => {
+            mapStrs.push(item.evalString);
+            newFields.push(item.newField);
         });
-        const newFields: string[] = params.eval.map((item) => {
-            return item.newField;
-        });
-        const parentNode = this.node.getParents()[0];
-        const srcTable = parentNode.getTable();
-        const desTable = this._generateTableName();
-        const isIcv = params.icv;
+
+        const srcTable: string = this._getParentNodeTable(0);
+        const desTable: string = this._generateTableName();
+        const isIcv: boolean = params.icv;
         return XIApi.map(this.txId, mapStrs, srcTable, newFields, desTable, isIcv);
+    }
+
+    private _getParentNodeTable(pos: number): string {
+        const parentNode: DagNode = this.node.getParents()[pos];
+        return parentNode.getTable();
     }
 
     // XXX TODO
