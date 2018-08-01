@@ -514,9 +514,10 @@ SQLErrTStr = {
     "FinalizingFailed": "Finalizing failed",
     "FailToConnectPlanner": "Failed to connect to SQL Planner",
     "InvalidColTypeForFinalize": "Column with unsupported type found: ",
-    "EditorNameExists": "Editor name already exists.",
+    "EditorNameExists": "Snippet name already exists.",
     "NoEditor": "Could not find the editor",
-    "TableDropped": "Table has been dropped. Rerun query to regenerate the table."
+    "TableDropped": "Table has been dropped. Rerun query to regenerate the table.",
+    "InvalidEditorName": "Snippet name must contain only alphanumeric, -, _ and space characters and can't be empty."
 };
 
 SQLInfoTStr = {
@@ -1515,7 +1516,7 @@ SQLTStr = {
     "queryHistStatusCompile": "Compiling",
     "queryHistStatusNone": "Unknown",
     "queryFailMessage": "The SQL query failed for",
-    "EnterEditorName": "Enter editor name"
+    "EnterEditorName": "Enter snippet name"
 };
 
 LoginConfigTStr = {

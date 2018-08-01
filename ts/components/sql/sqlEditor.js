@@ -17,7 +17,7 @@ window.SQLEditor = (function(SQLEditor, $) {
                          "left", "right", "outer", "natural", "semi", "anti",
                          "rollup", "cube", "grouping", "sets", "limit", "sum",
                          "avg", "max", "min"];
-    var defaultEditor = "Default Editor";
+    var defaultEditor = "Default Snippet";
     var allEditors = {};
     var curEditor = defaultEditor;
     var dropdownHint;
@@ -676,7 +676,6 @@ window.SQLEditor = (function(SQLEditor, $) {
             var html = '<input class="text" spellcheck="false" ' +
                        'placeholder="' + SQLTStr.EnterEditorName + '" data-toggle="tooltip" ' +
                        'data-container="body" data-placement="top">' +
-                       '<i class="icon xi-edit"></i>' +
                        '<i class="icon xi-trash"></i>';
             $li.html(html);
             var $input = $li.find("input");
@@ -736,6 +735,12 @@ window.SQLEditor = (function(SQLEditor, $) {
 
     function updateEditor($li) {
         var newName = $li.find("input").val();
+        if (!newName || !xcHelper.checkNamePattern(PatternCategory.SQLEditor,
+                                                   PatternAction.Check,
+                                                   newName)) {
+            StatusBox.show(SQLErrTStr.InvalidEditorName, $li.find("input"));
+            return;
+        }
         var oldName = $li.attr("data-name");
         if (oldName !== newName && allEditors.hasOwnProperty(newName)) {
             // handle collision

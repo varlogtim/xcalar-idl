@@ -211,7 +211,8 @@ enum PatternCategory {
     UDF = "udf",
     UDFFn = "udfFn",
     Workbook = "workbook",
-    Target = "target"
+    Target = "target",
+    SQLEditor = "sqlEditor"
 }
 
 enum PatternAction {
