@@ -368,13 +368,16 @@ namespace WorkbookManager {
     function switchWorkBookHelper(wkbkName: string): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const queryName: string = XcUser.getCurrentUserName() + ":" + wkbkName;
-        progressCycle(queryName, checkInterval);
+
         $("#initialLoadScreen").data("curquery", queryName);
         $("#container").addClass("switchingWkbk");
 
-        restoreInactivePublishedTable(wkbkName)
+        cleanProgressCycle(queryName)
+        .then(() => {
+            progressCycle(queryName, checkInterval);
+            return restoreInactivePublishedTable(wkbkName);
+        })
         .then(function() {
-            const queryName: string = XcUser.getCurrentUserName() + ":" + wkbkName;
             progressCycle(queryName, checkInterval);
             $("#initialLoadScreen").data("curquery", queryName);
             $("#container").addClass("switchingWkbk");
@@ -1273,15 +1276,20 @@ namespace WorkbookManager {
         return deferred.promise();
     }
 
+    // Note: due to bug 12614, we need to delete the queryName first
+    function cleanProgressCycle(queryName: string): XDPromise<void> {
+        return PromiseHelper.alwaysResolve(XcalarQueryDelete(queryName));
+    }
+
     function progressCycle(queryName: string, adjustTime?: number, retry: boolean = false): void {
         let intTime: number = checkInterval;
         if (adjustTime) {
             intTime = Math.max(200, checkInterval - adjustTime);
         }
+
         progressTimeout = <any>setTimeout(function() {
             const timeoutNum: number = progressTimeout;
             const startTime: number = Date.now();
-
             getProgress(queryName)
             .then(function(progress) {
                 if (timeoutNum !== progressTimeout || progress.numTotal < 1) {
