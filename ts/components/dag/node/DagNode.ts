@@ -17,6 +17,7 @@ class DagNode {
     protected type: DagNodeType;
     protected lineage: DagLineage; // XXX persist or not TBD
     protected input: object; // will be overridden by subClasses
+    protected minParents: number; // non-persistent
     protected maxParents: number; // non-persistent
     protected maxChildren: number; // non-persistent
     protected allowAggNode: boolean; // non-persistent
@@ -81,6 +82,14 @@ class DagNode {
      */
     public getMaxParents(): number {
         return this.maxParents;
+    }
+
+    /**
+     *
+     * @returns {number} return the minimum number of parents the node is required to have
+     */
+    public getMinParents(): number {
+        return this.minParents;
     }
 
     /**

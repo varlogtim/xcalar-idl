@@ -5,6 +5,7 @@ class DagNodeMap extends DagNode {
         super(options);
         this.type = DagNodeType.Map;
         this.allowAggNode = true;
+        this.minParents = 1;
     }
 
     /**

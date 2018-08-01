@@ -5,6 +5,7 @@ class DagNodeExport extends DagNode {
         super(options);
         this.type = DagNodeType.Export;
         this.maxChildren = 0;
+        this.minParents = 1;
     }
 
     /**

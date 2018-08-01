@@ -5,6 +5,7 @@ class DagNodeJoin extends DagNode {
         super(options);
         this.type = DagNodeType.Join;
         this.maxParents = 2;
+        this.minParents = 2;
     }
 
     /**

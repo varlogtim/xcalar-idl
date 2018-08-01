@@ -5,6 +5,7 @@ class DagNodeFilter extends DagNode {
         super(options);
         this.type = DagNodeType.Filter;
         this.allowAggNode = true;
+        this.minParents = 1;
     }
 
     /**

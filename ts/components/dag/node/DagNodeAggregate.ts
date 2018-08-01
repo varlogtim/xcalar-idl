@@ -7,6 +7,7 @@ class DagNodeAggregate extends DagNode {
         this.type = DagNodeType.Aggregate;
         this.allowAggNode = true;
         this.aggVal = null;
+        this.minParents = 1;
     }
 
     /**
@@ -32,7 +33,7 @@ class DagNodeAggregate extends DagNode {
     }
 
     /**
-     * 
+     *
      * @param aggVal {string | number} Set the aggregate result
      */
     public setAggVal(aggVal: string | number): void {

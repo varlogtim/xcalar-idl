@@ -106,7 +106,6 @@ window.DagDraw = (function($, DagDraw) {
                     positionMultiExportNodes(trees, yCoors, sets,
                                              exportsPositioned, condenseSeen);
 
-
                     curY = yCoors.length + initialY;
                 }
 

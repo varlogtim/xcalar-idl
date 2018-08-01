@@ -380,12 +380,30 @@ namespace DagView {
         activeDagTab.saveTab();
     }
 
+    export function autoAlign() {
+        const nodes: DagNode[] = activeDag.getSortedNodes();
+        console.log(nodes);
+    }
+
     /**
      * DagView.run
      * // run the entire dag
      */
     export function run() {
-        activeDag.executeAll();
+        const currTabId: string = activeDagTab.getId();
+
+        activeDag.executeAll()
+        .then(function() {
+
+        })
+        .fail(function(error) {
+            if (error.hasError) {
+                const nodeId: DagNodeId = error.node.getId();
+                const $node: JQuery = DagView.getNode(nodeId)
+                DagTabManager.Instance.switchTabId(currTabId);
+                StatusBox.show(error.type, $node);
+            }
+        });
     }
 
     /**

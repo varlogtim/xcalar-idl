@@ -1,3 +1,4 @@
+// XXX this has not been implemented and is simply a clone of Filter
 class DagNodeExtension extends DagNode {
     protected input: DagNodeExtensionInput;
 
@@ -5,6 +6,7 @@ class DagNodeExtension extends DagNode {
         super(options);
         this.type = DagNodeType.Extension;
         this.allowAggNode = true;
+        this.minParents = 1;
     }
 
     /**

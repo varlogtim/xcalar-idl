@@ -23,6 +23,11 @@ enum DagNodeState {
     Error = "Error"
 }
 
+enum DagNodeErrorType {
+    Unconfigured  = "Unconfigured",
+    MissingSource = "MissingSource"
+}
+
 enum DagNodeEvents {
     StateChange = "dag_node_state_change",
 }

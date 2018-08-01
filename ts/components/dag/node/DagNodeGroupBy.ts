@@ -4,6 +4,7 @@ class DagNodeGroupBy extends DagNode {
     public constructor(options: DagNodeInfo) {
         super(options);
         this.type = DagNodeType.GroupBy;
+        this.minParents = 1;
     }
 
     /**

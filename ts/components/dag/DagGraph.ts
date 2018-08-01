@@ -430,6 +430,14 @@ class DagGraph {
         return this.nodesMap;
     }
 
+    /**
+     * returns a topologically sorted array of dag nodes
+     * @returns {DagNode[]}
+     */
+    public getSortedNodes(): DagNode[] {
+        return this._topologicalSort();
+    }
+
     private _setupEvents(): void {
         this.innerEvents = {};
         this.events = {
@@ -447,6 +455,12 @@ class DagGraph {
     private _executeGraph(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const orderedNodes: DagNode[] = this._topologicalSort();
+
+        const checkResult = this._checkCanExecuteAll(orderedNodes);
+        if (checkResult["hasError"]) {
+            return PromiseHelper.reject(checkResult);
+        }
+
         const txId = Transaction.start({});
 
         const promises: XDPromise<void>[] = [];
@@ -458,12 +472,8 @@ class DagGraph {
         });
 
         PromiseHelper.chain(promises)
-        .then((finalTableName: string) => {
-            return TblManager.refreshTable([finalTableName], null,
-                [], WSManager.getActiveWS(), txId, {});
-        })
         .then(() => {
-            console.log("finish running", orderedNodes)
+            console.log("finish running", orderedNodes);
             Transaction.done(txId, {});
             deferred.resolve();
         })
@@ -473,6 +483,35 @@ class DagGraph {
         });
 
         return deferred.promise();
+    }
+
+    private _checkCanExecuteAll(orderedNodes: DagNode[]): object {
+        let errorResult = {
+            hasError: false
+        };
+
+        for (let i = 0; i < orderedNodes.length; i++) {
+            let node: DagNode = orderedNodes[i];
+            if (node.getState() !== DagNodeState.Configured &&
+                node.getState() !== DagNodeState.Complete) {
+                errorResult["hasError"] = true;
+                errorResult["type"] = DagNodeErrorType.Unconfigured;
+                errorResult["node"] = node;
+                break;
+            } else if (node.getNumParent() < node.getMinParents()) {
+                // check if nodes do not have enough parents
+                errorResult["hasError"] = true;
+                errorResult["type"] = DagNodeErrorType.MissingSource;
+                errorResult["node"] = node;
+                break;
+            }
+        }
+
+        if (errorResult.hasError) {
+            return errorResult;
+        }
+
+        return errorResult;
     }
 
     private _backTraverseNodes(nodeIds: DagNodeId[]) {

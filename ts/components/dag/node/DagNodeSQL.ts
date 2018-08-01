@@ -1,3 +1,4 @@
+// XXX this has not been implemented and is simply a clone of Filter
 class DagNodeSQL extends DagNode {
     protected input: DagNodeSQLInput;
 
@@ -5,6 +6,7 @@ class DagNodeSQL extends DagNode {
         super(options);
         this.type = DagNodeType.SQL;
         this.allowAggNode = true;
+        this.minParents = 1;
     }
 
     /**
