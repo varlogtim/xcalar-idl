@@ -21,7 +21,7 @@ class DagGraph {
     public serialize(): string {
         let nodes: string[] = [];
         // Assemble node list
-        this.nodesMap.forEach((value: DagNode, key: DagNodeId) => {
+        this.nodesMap.forEach((value: DagNode, _key: DagNodeId) => {
             nodes.push(value.serialize());
         });
         return JSON.stringify({

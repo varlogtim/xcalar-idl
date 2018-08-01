@@ -5498,16 +5498,13 @@ XcalarRefreshTable = function(
     maxBatch: number,
     txId: number,
     filterString: string,
-    columns: XcalarApiColumnT[]
+    columns: string[]
 ): XDPromise<XcalarApiNewTableOutputT> {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
 
     const deferred: XDDeferred<XcalarApiNewTableOutputT> = jQuery.Deferred();
-    // FIXME TODO new parameters for predicate pushdown
-    var filterString;
-    var columns;
 
     const workItem = xcalarApiSelectWorkItem(pubTableName, dstTableName,
                                         minBatch, maxBatch, filterString, columns);

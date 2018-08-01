@@ -821,6 +821,7 @@ declare namespace IMDTStr {
     export var DeactivateTablesMsg: string;
     export var Coalesce: string;
     export var CoalesceTip: string;
+    export var GenerateTable: string;
 }
 
 declare namespace WKBKTStr {
