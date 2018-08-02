@@ -1558,7 +1558,7 @@ namespace WorkbookManager {
                     return;
                 }
                 canceled = true;
-                XcalarQueryCancel("Xc.tmp.updateRetina." + currTable);
+                XcalarUnpublishTable(currTable, true);
             });
         }
     }

@@ -1061,7 +1061,7 @@ namespace IMDPanel {
             }
 
             progressState.canceled = true;
-            XcalarQueryCancel("Xc.tmp.updateRetina." + progressState.currentTable);
+            XcalarUnpublishTable(progressState.currentTable, true);
         });
 
         $imdPanel.find(".tableList").on("mouseenter", ".tableName", function() {
