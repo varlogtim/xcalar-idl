@@ -529,7 +529,7 @@ window.Undo = (function($, Undo) {
 
     /* Dataflow operations */
 
-    undoFuncs[SQLOps.DisconnectOperation] = function(options) {
+    undoFuncs[SQLOps.DisconnectOperations] = function(options) {
         DagTabManager.Instance.switchTabId(options.dataflowId);
         DagView.connectNodes(options.parentNodeId, options.childNodeId, options.connectorIndex);
         return PromiseHelper.resolve(null);

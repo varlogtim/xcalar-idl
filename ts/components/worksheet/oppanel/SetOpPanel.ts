@@ -178,7 +178,7 @@ class SetOpPanel extends BaseOpPanel {
         let nodeListHTML: string = '<div class="lists newTable"></div>';
         let resultHTML: string = this._getResultList(model.result);
         let candidateHTML: string = '<div class="lists newTable">' +
-                                UnionTStr.CandidateHint2 +
+                                UnionTStr.CandidateHint +
                             '</div>';
 
         model.selected.forEach((selectedCols, index) => {

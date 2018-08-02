@@ -632,7 +632,7 @@ window.Log = (function($, Log) {
                 // XXX temporary hack to prevent undoing on a dataflow 2.0
                 // action
                 var dataflow2Ops = [
-                    SQLOps.DisconnectOperation,
+                    SQLOps.DisconnectOperations, 
                     SQLOps.ConnectOperations,
                     SQLOps.RemoveOperations,
                     SQLOps.AddOperation,
@@ -1314,7 +1314,7 @@ window.Log = (function($, Log) {
             case (SQLOps.ChangeFormat):
             case (SQLOps.MarkPrefix):
             case (SQLOps.ConnectOperations):
-            case (SQLOps.DisconnectOperation):
+            case (SQLOps.DisconnectOperations):
             case (SQLOps.RemoveOperations):
             case (SQLOps.AddOperation):
             case (SQLOps.CopyOperations):

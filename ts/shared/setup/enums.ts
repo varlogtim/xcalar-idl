@@ -303,7 +303,7 @@ enum SQLOps {
     DFRerun = "Dataflow Rerun",
     ExecSQL = "Execute SQL",
     RefreshTables = "refreshTables",
-    DisconnectOperation = "disconnectOperation",
+    DisconnectOperations = "disconnectOperations",
     ConnectOperations = "connectOperations",
     RemoveOperations = "removeOperations",
     AddOperation = "addOperation",

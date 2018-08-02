@@ -1031,7 +1031,7 @@ declare namespace SQLTStr {
     export var AddOperation: string;
     export var RemoveOperations: string;
     export var CopyOperations: string;
-    export var DisconnectOperation: string;
+    export var DisconnectOperations: string;
     export var ConnectOperations: string;
     export var MoveOperations: string;
     export var queryHistStatusRun: string;
@@ -1060,7 +1060,7 @@ declare namespace DagTStr {
 }
 
 declare namespace UnionTStr {
-    export var CandidateHint2;
+    export var CandidateHint;
     export var NewColName;
     export var ChooseType;
     export var AddCol;

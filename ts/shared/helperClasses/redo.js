@@ -220,7 +220,7 @@ window.Redo = (function($, Redo) {
 
     /* Dag operations */
 
-    redoFuncs[SQLOps.DisconnectOperation] = function(options) {
+    redoFuncs[SQLOps.DisconnectOperations] = function(options) {
         DagTabManager.Instance.switchTabId(options.dataflowId);
         DagView.disconnectNodes(options.parentNodeId, options.childNodeId, options.connectorIndex);
         return PromiseHelper.resolve(null);

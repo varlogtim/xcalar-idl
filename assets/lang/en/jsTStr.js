@@ -511,16 +511,16 @@ SQLErrTStr = {
     "InvalidLogicalPlan": "Invalid logical plan",
     "InvalidXcalarQuery": "Invalid Xcalar Query String",
     "InvalidPageInfo": "Invalid Xcalar result set page",
-    "InvalidSQLTable": "Invalid SQL table from KvStore",
-    "InvalidSQLQuery": "Invalid SQL queries from KvStore",
-    "InvalidEditorMeta": "Invalid SQL editor meta info from KvStore",
+    "InvalidSQLTable": "Invalid SQL table from persisted store",
+    "InvalidSQLQuery": "Invalid SQL queries from persisted store",
+    "InvalidEditorMeta": "Invalid SQL editor metadata from persisted store",
     "FinalizingFailed": "Finalizing failed",
     "FailToConnectPlanner": "Failed to connect to SQL Planner",
     "InvalidColTypeForFinalize": "Column with unsupported type found: ",
     "EditorNameExists": "Snippet name already exists.",
     "NoEditor": "Could not find the editor",
     "TableDropped": "Table has been dropped. Rerun query to regenerate the table.",
-    "InvalidEditorName": "Snippet name must contain only alphanumeric, -, _ and space characters and can't be empty."
+    "InvalidEditorName": "Snippet name must contain only alphanumeric, -, _ or space characters, and must not be empty."
 };
 
 SQLInfoTStr = {
@@ -821,8 +821,7 @@ UnionTStr = {
     "UnionTable": "Results Table",
     "NewTableName": "New Table Name",
     "NewColName": "New Column Name",
-    "CandidateHint": "Columns in this section will not be added to the results table. Click column name to add the column to the results table.",
-    "CandidateHint2": "Columns in this section will not be added to the results. Click column name to add the column to the results.",
+    "CandidateHint": "Columns in this section will not be in the results table. Click column name to add the column to the results table.",
     "EmptyList": "Empty List",
     "SearchCol": "Find column name",
     "SelectCol": "Please select columns for the set operation",
@@ -830,8 +829,8 @@ UnionTStr = {
     "TypeMismatch": "Columns for the set operation have different types. Select columns of the same type.",
     "header": "SET OPERATION", // sync with htmlTStr
     "UsedFor": "Used for <col>",
-    "MixType": "Mixed type columns must cast first. Please select a type for the resultant column.",
-    "FillDestCol": "destColumn attribute cannot be empty"
+    "FillDestCol": "Destination column name must not be empty",
+    "MixType": "Cast mixed columns to a data type first."
 };
 
 ExportTStr = {
@@ -1119,13 +1118,13 @@ DFTStr = {
     "PreviousValue": "Previous Value",
     "CurrentValue": "Current Value",
     "ParametersModified": "Parameters Modified",
-    "ParametersModifiedInstr": "The following parameters have been recently modified by another user.",
+    "ParametersModifiedInstr": "The following parameters have been modified by another user.",
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
     'CancelAlertMsg': 'Batch dataflow \'<name>\' was canceled.',
     "ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized.",
     "CustomizeTitle": "Customize <op> Operation",
-    "ParamNoValueList": "Please assign values to all the parameters being used in the current dataflow. Missing parameters: <params>",
+    "ParamNoValueList": "Please assign values to all the parameters being used in the current dataflow. Parameters without values: <params>",
 };
 
 DSTStr = {
@@ -1189,7 +1188,7 @@ DSTStr = {
     "FileError": "File error",
     "ContainsRecordError": "Your dataset contains 1 record error.<br/>Click to view.",
     "ContainsFileError": "Your dataset contains 1 file error.<br/>Click to view.",
-    "DBNoSQL": "Please type in the SQL query to preview the data.",
+    "DBNoSQL": "Please type the SQL query to preview the data.",
 
     // With replace
     'DelDSConfirm': 'Are you sure you want to delete dataset <ds>?',
@@ -1265,7 +1264,7 @@ DSTargetTStr = {
     // with replace
     "DelConfirmMsg": "Are you sure you want to delete <target>?",
     "TargetExists": "Data target <target> already exists",
-    "MountpointNoExists": "Mountpoint <mountpoint> does not exist, please choose a valid mountpoint",
+    "MountpointNoExists": "Mount point <mountpoint> does not exist. Please choose a valid mount point",
 };
 
 DSExportTStr = {
@@ -1525,7 +1524,7 @@ SQLTStr = {
     "SortTableCols": "Sort Table Columns",
     "TextAlign": "Text Align",
     "UnHideWS": "Unhide Worksheet",
-    "DisconnectOperation": "Disconnect Operation",
+    "DisconnectOperations": "Disconnect Operations",
     "ConnectOperations": "Connect Operations",
     "RemoveOperations": "Remove Operations",
     "AddOperation": "Add Operation",
@@ -1587,7 +1586,7 @@ UploadTStr = {
 IMDTStr = {
     "DelTable": "Delete Published Table",
     "DataUnavailable":  "Only showing last 128 updates.",
-    "DelTableMsg": "Are you sure you want to permanently delete the following tables : \"<tableName>\"? This action cannot be undone.",
+    "DelTableMsg": "Are you sure you want to permanently drop the following tables : \"<tableName>\"? This action cannot be undone.",
     "Activating": "Activating Tables",
     "DeactivateTablesMsg": "Note: activating and deactivating published tables may be slow.\nAre you sure you want to deactivate the following tables : \"<tableName>\"?",
     "DeactivateTable": "Deactivate Published Tables",

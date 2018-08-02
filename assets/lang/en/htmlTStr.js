@@ -356,10 +356,10 @@ module.exports = {
         "RawDSQuote": "Character used as a quote mark. A pair of quote marks surround an entire field's content. Delimiter characters between quote marks are interpreted literally, not as delimiters. The import process omits quote marks from imported field content. To treat all delimiter characters identically, leave the Quoting Character field empty.",
         "RawDSSkipRows": "Skip the first specified number of rows in each file.",
         "RawDSExcelIndex": "Index of the worksheet in the Excel workbook. Indexing starts at 0 (first worksheet).",
-        "RawDSUDFModule": "Select an existing import UDF module or 'Write Parser Using Jupyter' to create a module.",
+        "RawDSUDFModule": "Select an existing import UDF module or 'WRITE PARSER USING JUPYTER' to create a module.",
         "RawDSUDFFunction": "Select import function from import module to apply to the dataset. Click 'Apply UDF' button to apply the import function to the dataset.",
-        "RawDSXMLXPath": "XPath that will become record. For information about XPath, search for XML in online help.",
-        "RawDSXMLXPathName": "What the column will be called. Leave empty to take the default name.",
+        "RawDSXMLXPathName": "Name of column created from the XPath. Leave empty for default name.",
+        "RawDSXMLXPath": "XPath that will become a record. For information about XPath, search for XML in online help.",
         "RawDSXMLExtraKeyValue": "The XPath relative to the element.",
         "RawDSXMLExtraKeyName": "What the column will be called.",
         "RawDSXMLMatched": "Add a field containing the matched XPath name to each record.",
@@ -1073,7 +1073,7 @@ module.exports = {
     },
 
     "opsView": {
-        "mapInstr": "Select a category (e.g Arithmetic Functions). Then select a specific function, e.g. add. Finally, enter in any arguments if applicable. Column names should be prefixed by a $ sign, e.g. $column1.",
+        "mapInstr": "Select a category (e.g Arithmetic Functions). Then select a function, e.g. add. Finally, enter any arguments if applicable. Column names must be prefixed by a $ sign, e.g. $column1.",
         "filterInstr": "Select a function, e.g. isBoolean. Then, enter in any arguments if applicable. To add additional conditions, select \"Additional Conditions.\" Column names should be prefixed by a $ sign, e.g. $column1.",
         "groupbyInstr": "Summarizes table based on a formula. Add one or more columns to summarize. Then, select a function and enter arguments to create the summary formula. Column names should be prefixed by a $ sign, e.g. $column1.",
         "aggInstr": "Select a function, e.g. sum. Then, enter in any arguments if applicable. Column names should be prefixed by a $ sign, e.g. $column1. Optional resultant aggregate names should be prefixed by a ^ sign.",

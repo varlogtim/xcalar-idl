@@ -458,8 +458,8 @@ namespace DagView {
                                             connectorIndex + '"]');
         activeDag.disconnect(parentNodeId, childNodeId, connectorIndex);
         _removeConnection($edge, childNodeId);
-        Log.add(SQLTStr.DisconnectOperation, {
-            "operation": SQLOps.DisconnectOperation,
+        Log.add(SQLTStr.DisconnectOperations, {
+            "operation": SQLOps.DisconnectOperations,
             "dataflowId": activeDagTab.getId(),
             "parentNodeId": parentNodeId,
             "childNodeId": childNodeId,
