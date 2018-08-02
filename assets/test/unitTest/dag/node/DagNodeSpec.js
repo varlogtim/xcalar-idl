@@ -246,4 +246,8 @@ describe("Dag Node Basic Test", () => {
         );
     });
 
+    it("should get lineage", () => {
+        const node = new DagNode();
+        expect(node.getLineage()).to.be.instanceof(DagLineage);
+    });
 });

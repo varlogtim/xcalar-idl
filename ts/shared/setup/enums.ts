@@ -366,6 +366,12 @@ enum UnionTypeTStr {
     "Intersect",
     "Except"
 }
+
+enum UnionType {
+    Union = "Union",
+    Intersect = "Intersect",
+    Except = "Except"
+}
 enum SetupStatus {
     Success = "Success",
     Fail = "Fail",

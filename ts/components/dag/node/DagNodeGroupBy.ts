@@ -11,9 +11,11 @@ class DagNodeGroupBy extends DagNode {
      */
     public getParam(): DagNodeGroupByInput {
         return {
-            keys: this.input.keys || [""],
-            eval: this.input.eval || [{evalString: "", newField: ""}],
-            includeSample: this.input.includeSample || false
+            groupBy: this.input.groupBy || [""],
+            aggregate: this.input.aggregate || [{operator: "", sourceColumn: "", destColumn: "", distinct: false}],
+            includeSample: this.input.includeSample || false,
+            icv: this.input.icv || false,
+            groupAll: this.input.groupAll || false,
         };
     }
 
@@ -26,9 +28,11 @@ class DagNodeGroupBy extends DagNode {
      */
     public setParam(input: DagNodeGroupByInput = <DagNodeGroupByInput>{}) {
         this.input = {
-            keys: input.keys,
-            eval: input.eval,
-            includeSample: input.includeSample
+            groupBy: input.groupBy,
+            aggregate: input.aggregate,
+            includeSample: input.includeSample,
+            icv: input.icv,
+            groupAll: input.groupAll
         }
     }
 }

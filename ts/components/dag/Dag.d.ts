@@ -34,14 +34,22 @@ interface DagNodeFilterInput {
 }
 
 interface DagNodeGroupByInput {
-    keys: string[];
-    eval: [{evalString: string, newField: string}];
+    groupBy: string[];
+    aggregate: [{operator: string, sourceColumn: string, destColumn: string, distinct: boolean}];
     includeSample: boolean;
+    icv: boolean;
+    groupAll: boolean;
 }
 
+declare type DagNodeJoinTableInput = {
+    columns: string[],
+    casts: XcCast[],
+    rename: [{sourceColumn: string, destColumn: string, prefix: boolean}]
+}
 interface DagNodeJoinInput {
     joinType: string;
-    columns: [[{sourceColumn: string, destColumn: string, columnType: string}]];
+    left: DagNodeJoinTableInput
+    right: DagNodeJoinTableInput
     evalString?: string;
 }
 
@@ -56,7 +64,7 @@ interface DagNodeProjectInput {
 
 interface DagNodeSetInput {
     unionType: string;
-    columns: [[{sourceColumn: string, destColumn: string, columnType: string}]];
+    columns: [[{sourceColumn: string, destColumn: string, columnType: ColumnType, cast: boolean}]];
     dedup: boolean;
 }
 

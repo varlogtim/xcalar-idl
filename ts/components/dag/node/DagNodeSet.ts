@@ -12,8 +12,13 @@ class DagNodeSet extends DagNode {
      */
     public getParam(): DagNodeSetInput {
         return {
-            unionType: this.input.unionType || UnionOperatorTStr[UnionOperatorT.UnionStandard],
-            columns: this.input.columns || [[{sourceColumn: "", destColumn: "", columnType: ""}]],
+            unionType: this.input.unionType || UnionType.Union,
+            columns: this.input.columns || [[{
+                sourceColumn: "",
+                destColumn: "",
+                columnType: ColumnType.string,
+                cast: false}
+            ]],
             dedup: this.input.dedup || false
         };
     }

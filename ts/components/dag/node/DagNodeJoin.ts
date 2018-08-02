@@ -13,7 +13,8 @@ class DagNodeJoin extends DagNode {
     public getParam(): DagNodeJoinInput {
         return {
             joinType: this.input.joinType || JoinOperatorTStr[JoinOperatorT.InnerJoin],
-            columns: this.input.columns || [[{sourceColumn: "", destColumn: "", columnType: ""}]],
+            left: this.input.left || this._getDefaultTableInfo(),
+            right: this.input.right || this._getDefaultTableInfo(),
             evalString: this.input.evalString || ""
         };
     }
@@ -28,8 +29,17 @@ class DagNodeJoin extends DagNode {
     public setParam(input: DagNodeJoinInput = <DagNodeJoinInput>{}) {
         this.input = {
             joinType: input.joinType,
-            columns: input.columns,
+            left: input.left,
+            right: input.right,
             evalString: input.evalString
+        }
+    }
+
+    private _getDefaultTableInfo(): DagNodeJoinTableInput {
+        return {
+            columns: [""],
+            casts: [null],
+            rename: [{sourceColumn: "", destColumn: "", prefix: false}]
         }
     }
 }

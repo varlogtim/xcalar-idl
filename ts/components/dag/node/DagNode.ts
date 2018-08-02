@@ -15,6 +15,7 @@ class DagNode {
     private events: {_events: object, trigger: Function}; // non-persistent;
 
     protected type: DagNodeType;
+    protected lineage: DagLineage; // XXX persist or not TBD
     protected input: object; // will be overridden by subClasses
     protected maxParents: number; // non-persistent
     protected maxChildren: number; // non-persistent
@@ -46,6 +47,7 @@ class DagNode {
         this.maxParents = 1;
         this.maxChildren = -1;
         this.allowAggNode = false;
+        this.lineage = new DagLineage();
         this._setupEvents();
     }
 
@@ -281,7 +283,7 @@ class DagNode {
             delete this.parents[pos];
         }
 
-        this._clearConnectionMeta(pos);
+        this._clearConnectionMeta();
         this.numParent--;
     }
 
@@ -342,6 +344,13 @@ class DagNode {
             }
         }
         return -1;
+    }
+
+    /**
+     * @returns {DagLineage} return dag lineage information
+     */
+    public getLineage(): DagLineage {
+        return this.lineage;
     }
 
     protected _clearConnectionMeta(): void {

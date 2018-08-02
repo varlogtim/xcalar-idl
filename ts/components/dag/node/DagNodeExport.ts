@@ -12,12 +12,12 @@ class DagNodeExport extends DagNode {
      */
     public getParam(): DagNodeExportInput {
         const options: ExportTableOptions = this.input.options || {
-            splitType: null,
-            headerType: null,
-            format: null,
-            createRule: null,
+            splitType: 2,
+            headerType: 1,
+            format: 2,
+            createRule: 1,
             handleName: "",
-            csvArgs: {fieldDelim: "", recordDelim: ""}
+            csvArgs: {fieldDelim: "\t", recordDelim: "\n"}
         };
         return {
             exportName: this.input.exportName || "",
