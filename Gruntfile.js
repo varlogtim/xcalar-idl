@@ -5264,7 +5264,8 @@ module.exports = function(grunt) {
         WATCH_FILETYPES[WATCH_TARGET_LESS] = [SRCROOT + cssMapping.src + '**/*.less'];
         WATCH_FILETYPES[WATCH_TARGET_TYPESCRIPT] = [SRCROOT + typescriptMapping.src + '**/*.ts', SRCROOT + typescriptMapping.src + 'tsconfig.json'];
         WATCH_FILETYPES[WATCH_TARGET_CSS] = [BLDROOT + cssMapping.dest + '**/*.css'];
-        WATCH_FILETYPES[WATCH_TARGET_JS] = [SRCROOT + jsMapping.src + '**/*.js', SRCROOT + typescriptMapping.src + "/**/*.js", SRCROOT + "assets/lang/" + "**/*.js"];
+        WATCH_FILETYPES[WATCH_TARGET_JS] = [SRCROOT + jsMapping.src + '**/*.js',
+            SRCROOT + typescriptMapping.src + "/**/*.js", SRCROOT + "assets/lang/" + "**/*.js"];
         WATCH_FILETYPES[WATCH_TARGET_CTOR] = [SRCROOT + 'site/render/template/constructor.template.js'];
     }
 

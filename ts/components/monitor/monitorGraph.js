@@ -162,12 +162,8 @@ window.MonitorGraph = (function($, MonitorGraph) {
         }
 
         promise
-        .then(function() {
-            return getPubTableUsage();
-        })
-        .then(function() {
-            return XcalarApiTop();
-        })
+        .then(getPubTableUsage)
+        .then(XcalarApiTop)
         .then(function(apiTopResult) {
             $("#upTime").text(xcHelper.timeStampConvertSeconds(
                 apiTopResult.topOutputPerNode[0].uptimeInSeconds, true));
