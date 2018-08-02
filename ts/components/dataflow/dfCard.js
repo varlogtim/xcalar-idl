@@ -1556,8 +1556,8 @@ window.DFCard = (function($, DFCard) {
         var html;
         var $dagWrap = getDagWrap(dataflowName);
 
-        if (!$dagWrap.length && (!df.nodes || $.isEmptyObject(df.nodes)) ||
-            $.isEmptyObject(df.retinaNodes)) {
+        if (!$dagWrap.length && (!df || !df.nodes || $.isEmptyObject(df.nodes)) ||
+            df && $.isEmptyObject(df.retinaNodes)) {
             promise = DF.updateDF(dataflowName);
             html = '<div class="dagWrap clearfix" ' +
                        'data-dataflowName="' + dataflowName + '"></div>';
@@ -1587,7 +1587,7 @@ window.DFCard = (function($, DFCard) {
         promise
         .then(function() {
             var $dagWrap = getDagWrap(dataflowName);
-            if ($.isEmptyObject(df.retinaNodes) ||
+            if (!df || $.isEmptyObject(df.retinaNodes) ||
                 ($.isEmptyObject(df.nodes) && !$dagWrap.length) ||
                 !$dagWrap.length ||
                 $dagWrap.hasClass("error")) {
@@ -1624,7 +1624,7 @@ window.DFCard = (function($, DFCard) {
         })
         .always(function() {
             var $dagWrap = getDagWrap(dataflowName);
-            if ($.isEmptyObject(df.parameterizedNodes) &&
+            if (df && $.isEmptyObject(df.parameterizedNodes) &&
                 !$dagWrap.hasClass("error") && $dagWrap.length) {
                 restoreParameterizedNodes(dataflowName);
             }
