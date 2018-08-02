@@ -2425,7 +2425,7 @@ window.OperationsView = (function($, OperationsView) {
             var gbColNewText = "";
             var isGroupByAll = $activeOpSection.find(".groupByAll").find(".checkbox").hasClass("checked");
             if (isGroupByAll) {
-                gbColNewText = "All";
+                gbColNewText = "";
             } else {
                 var $args = $activeOpSection.find('.groupOnSection').find('.arg');
                 $args.each(function() {
@@ -4156,7 +4156,8 @@ window.OperationsView = (function($, OperationsView) {
         var hasEmptyOption = !$input.closest('.colNameSection').length &&
                              !$input.closest('.gbOnRow').length &&
                              (!$input.closest(".required").length ||
-                              $input.closest(".row").find(".emptyStr").length);
+                              $input.closest(".row").find(".emptyStr").length) ||
+                              $input.closest('.gbOnRow').length;
         var errorMsg;
         if (hasEmptyOption) {
             showEmptyOptions($input);

@@ -1067,8 +1067,8 @@ module.exports = {
         "keepTable": "Keep original table",
         "keepTableHint": "Keep the original table and append the new table to the current worksheet",
         "cast": "Cast",
-        "groupAll": "Group all",
-        "groupAllHint": "Select to treat the entire table as one group"
+        "groupAll": "None",
+        "groupAllHint": "Select to create a one-row table with aggregate values"
     },
 
     "dfParam": {
