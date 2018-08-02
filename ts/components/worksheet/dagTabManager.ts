@@ -9,31 +9,37 @@ class DagTabManager{
     }
 
     private _$dagTabArea: JQuery; // $("#dagTabSectionTabs");
-    private _$dagTabs: JQuery; // $("#dagTabSectionTabs .dagTab")
-    private _$dataFlowAreas: JQuery; // $("#dagView .dataflowArea")
     private _activeUserDags: DagTab[];
     private _dagKVStore: KVStore;
     private _unique_id: number;
     private _keys: string[];
     private _editingName: string;
+    private _disableLog: boolean;
 
     public setup(): void {
         const self: DagTabManager = this;
         self._$dagTabArea = $("#dagTabSectionTabs").find("ul");;
-        self._$dataFlowAreas = $("#dagView .dataflowArea");
-        self._$dagTabs = null;
         self._keys = [];
-        let key = KVStore.getKey("gDagManagerKey");
+        let key: string = KVStore.getKey("gDagManagerKey");
         self._dagKVStore = new KVStore(key, gKVScope.WKBK);
         self._activeUserDags = [];
-        this._$dagTabs = null;
-        this._unique_id = 0;
+        self._unique_id = 0;
+        self._disableLog = false;
 
 
         self._$dagTabArea.on("click", ".after", function(event) {
             event.stopPropagation();
-            var $tab = $(this).parent();
+            var $tab: JQuery = $(this).parent();
+            let index: number = self.getDagTabIndex($tab);
+            let key: string = self._keys[index];
+            let name: string = $tab.find(".name").text();
             self._deleteTab($tab);
+            Log.add(DagTStr.RemoveTab, {
+                "operation": SQLOps.RemoveDagTab,
+                "key": key,
+                "index": index,
+                "name": name
+            });
         });
 
         self._$dagTabArea.on("click", ".dagTab", function() {
@@ -44,29 +50,29 @@ class DagTabManager{
         // Adding a new tab creates a new tab and adds
         // The html for a dataflowArea.
         $("#tabButton").on("click", function(){
-            self._newTab();
+            self.newTab();
         });
 
         self._$dagTabArea.on("dblclick", ".name", function() {
-            let $tab_name = $(this);
+            let $tab_name: JQuery = $(this);
             self._editingName = $tab_name.text();
             $tab_name.text("");
             let inputArea: string =
                 "<span contentEditable='true' class='xc-input'></span>";
             $(inputArea).appendTo($tab_name);
-            let $input = $tab_name.find('.xc-input');
+            let $input: JQuery = $tab_name.find('.xc-input');
             $input.text(self._editingName);
             $input.focus();
             document.execCommand('selectAll', false, null);
         });
 
         self._$dagTabArea.on("focusout", ".xc-input", function() {
-            let $tab_input = $(this);
-            let $tab_name = $(this).parent();
-            let newName = $tab_input.text() || self._editingName;
+            let $tab_input: JQuery = $(this);
+            let $tab_name: JQuery = $(this).parent();
+            let newName: string = $tab_input.text() || self._editingName;
             if (newName != self._editingName && self._validateName(newName)) {
-                let $tab = $tab_name.parent();
-                let index = self._$dagTabs.index($tab);
+                let $tab: JQuery = $tab_name.parent();
+                let index: number = self.getDagTabIndex($tab);
                 self._activeUserDags[index].setName($tab_name.text());
                 const dagList: DagList = DagList.Instance;
                 dagList.changeName(newName, self._keys[index]);
@@ -131,7 +137,7 @@ class DagTabManager{
                         // Success Case
                         self._addDagTab(tab);
                         self._addTabHTML(tabJSON.name);
-                        this._switchTabs(this._$dagTabs.last());
+                        self._switchTabs($("#dagTabSectionTabs .dagTab").last());
                         DagView.reactivate();
                         innerDeferred.resolve();
                     }
@@ -143,8 +149,8 @@ class DagTabManager{
         //Use a chain to ensure all are run sequentially.
         PromiseHelper.chain(promises)
         .then(() => {
-            if (this._$dagTabs != null && this._$dagTabs.length > 0) {
-                this._switchTabs($(this._$dagTabs[0]));
+            if ($("#dagTabSectionTabs .dagTab") != null && this._keys.length > 0) {
+                this._switchTabs(this.getDagTab(0));
             } else {
                 this.reset();
             }
@@ -154,45 +160,47 @@ class DagTabManager{
     // Clicking a tab activates the dataflow connected
     // to the tab.
     private _switchTabs($tab: JQuery): void {
-        this._$dagTabs.removeClass("active");
-        this._$dataFlowAreas.removeClass("active");
+        $("#dagTabSectionTabs .dagTab").removeClass("active");
+        $("#dagView .dataflowArea").removeClass("active");
         $tab.addClass("active");
-        let index = this._$dagTabs.index($tab);
-        let dataflowArea = this._$dataFlowAreas.get(index);
-        $(dataflowArea).addClass("active");
+        let index: number = this.getDagTabIndex($tab);
+        let $dataflowArea: JQuery = this.getDataflowArea(index);
+        $dataflowArea.addClass("active");
         DagView.switchActiveDagTab(this._activeUserDags[index]);
     }
 
     // Deletes the tab represented by $tab
     private _deleteTab($tab: JQuery): void {
-        if (this._$dagTabs.length == 1) {
+        if (this._keys.length == 1) {
             return;
         }
-        let index = this._$dagTabs.index($tab);
+        let index: number = this.getDagTabIndex($tab);
         if ($tab.hasClass("active")) {
-            this._$dagTabs.removeClass("active");
-            this._$dataFlowAreas.removeClass("active");
+            $tab.removeClass("active");
+            $("#dagView .dataflowArea").removeClass("active");
             if (index > 0) {
-                this._switchTabs($(this._$dagTabs[index-1]));
-            } else if (this._$dagTabs.length > 1) {
-                this._switchTabs($(this._$dagTabs[index+1]));
+                this._switchTabs(this.getDagTab(index-1));
+            } else if (this._keys.length > 1) {
+                this._switchTabs(this.getDagTab(index+1));
             }
         }
         this._activeUserDags.splice(index, 1);
         this._keys.splice(index,1);
-        let json = this._getJSON();
+        let json: DagTabManagerJSON = this._getJSON();
         this._dagKVStore.put(JSON.stringify(json),true,true);
         $tab.remove();
-        this._$dagTabs = $("#dagTabSectionTabs .dagTab");
-        $(this._$dataFlowAreas.get(index)).remove();
-        this._$dataFlowAreas = $("#dagView .dataflowArea");
-        if (this._$dagTabs.length == 1) {
+        this.getDataflowArea(index).remove();
+        if (this._keys.length == 1) {
             $("#dagTabSectionTabs .dagTab .after").addClass("xc-hidden")
         }
     }
 
-    // Creates a new Tab and dataflow.
-    private _newTab(): void {
+    /**
+     *  Creates a new Tab and dataflow.
+     *  @param {string} [restoreKey] optional Key for redoing a newTab
+     *  @param {string} [restoreName] optional param for what the name should be.
+     */
+    public newTab(restoreKey?: string): void {
         const activeWKBNK: string = WorkbookManager.getActiveWKBK();
         const workbook: WKBK = WorkbookManager.getWorkbook(activeWKBNK);
         const prefix: string = workbook.sessionId + Date.now();
@@ -200,7 +208,7 @@ class DagTabManager{
             this._unique_id = this._keys.length + 1;
         }
         const uid: string = prefix + this._unique_id;
-        const key: string = KVStore.getKey("gDagManagerKey") + "-DF-" + uid;
+        const key: string = restoreKey || (KVStore.getKey("gDagManagerKey") + "-DF-" + uid);
         let name: string = "Dataflow " + this._unique_id;
         let validatedName: string = name;
         let repCount: number = 2;
@@ -212,15 +220,22 @@ class DagTabManager{
         validatedName = name;
         this._unique_id++;
         this._keys.push(key);
-        let newTab = new DagTab(validatedName, uid, key, new DagGraph());
+        let newTab: DagTab = new DagTab(validatedName, uid, key, new DagGraph());
         this._activeUserDags.push(newTab);
-        let json = this._getJSON();
+        let json: DagTabManagerJSON = this._getJSON();
         this._dagKVStore.put(JSON.stringify(json), true, true);
         newTab.saveTab();
         const dagList: DagList = DagList.Instance;
         dagList.addDag(validatedName, key);
         this._addTabHTML(validatedName);
-        let $tab = this._$dagTabs.last();
+        let $tab: JQuery = this.getDagTab(this._keys.length - 1);
+        if (!this._disableLog) {
+            Log.add(DagTStr.NewTab, {
+                "operation": SQLOps.NewDagTab,
+                "dataflowId": uid,
+                "key": key
+            });
+        }
         this._switchTabs($tab);
         DagView.newGraph();
     }
@@ -237,24 +252,30 @@ class DagTabManager{
     /**
      * handles the jquery logic of adding a tab and its dataflow area
      * @param name Name of the tab we want to add
+     * @param {number} [tabIndex] Optional tab index
      */
-    private _addTabHTML(name: string): void {
+    private _addTabHTML(name: string, tabIndex?: number): void {
         name = xcHelper.escapeHTMLSpecialChar(name);
         let html = '<li class="dagTab"><div class="name">' + name +
                     '</div><div class="after"><i class="icon xi-close-no-circle"></i></div></li>';
         this._$dagTabArea.append(html);
-        this._$dagTabs = $("#dagTabSectionTabs .dagTab");
         $(".dataflowWrap").append(
             '<div class="dataflowArea">\
             <div class="sizer"></div>\
             <svg class="mainSvg"></svg>\
             </div>'
         );
-        this._$dataFlowAreas = $("#dagView .dataflowArea");
-        if (this._$dagTabs.length > 1) {
+        if (this._keys.length > 1) {
             $("#dagTabSectionTabs .dagTab .after").removeClass("xc-hidden")
         } else {
             $("#dagTabSectionTabs .dagTab .after").addClass("xc-hidden")
+        }
+        if (tabIndex != null) {
+            // Put the tab and area where they should be
+            let newTab: JQuery = this.getDagTab(this._keys.length - 1);
+            let newTabArea: JQuery = this.getDataflowArea(this._keys.length);
+            newTab.insertBefore(this.getDagTab(tabIndex));
+            newTabArea.insertBefore(this.getDataflowArea(tabIndex));
         }
     }
 
@@ -276,19 +297,20 @@ class DagTabManager{
         } else if (this._keys.length == 1) {
             return false;
         }
-        this._deleteTab($(this._$dagTabs.get(index)));
+        this._deleteTab(this.getDagTab(index));
         return true;
     }
 
     /**
      * Either loads up a new tab or switches to an existing one.
      * @param key Key for the dagTab we want to load
+     * @param {number} [tabIndex] optional index for where the tab should go
      */
-    public loadTab(key: string): void {
+    public loadTab(key: string, tabIndex?: number): void {
         // Check if we already have the tab
         const index: number = this._keys.indexOf(key);
         if (index != -1) {
-            this._switchTabs($(this._$dagTabs.get(index)));
+            this._switchTabs(this.getDagTab(index));
             return;
         }
         let newTab: DagTab = new DagTab(null, null, null, null);
@@ -306,10 +328,12 @@ class DagTabManager{
             } else {
                 // Success Case
                 this._addDagTab(tab);
-                this._addTabHTML(tabJSON.name);
-                this._switchTabs(this._$dagTabs.last());
+                let index: number = tabIndex || this._keys.length;
+                this._keys.splice(index, 0, key);
+                this._addTabHTML(tabJSON.name, tabIndex);
+                tabIndex = tabIndex || this._keys.length - 1;
+                this._switchTabs(this.getDagTab(tabIndex));
                 DagView.reactivate();
-                this._keys.push(key);
                 let json: DagTabManagerJSON = this._getJSON();
                 this._dagKVStore.put(JSON.stringify(json), true, true);
             }
@@ -327,22 +351,63 @@ class DagTabManager{
         if (index == -1) {
             return false;
         }
-        this._switchTabs(this._$dagTabs.eq(index));
+        this._switchTabs(this.getDagTab(index));
         return true;
+    }
+
+    /**
+     * Finds the index of the dagTab passed in.
+     * @param $tab DagTab element we want to find the index of
+     * @return {number}
+     */
+    public getDagTabIndex($tab: JQuery): number {
+        return $("#dagTabSectionTabs .dagTab").index($tab);
+    }
+
+    /**
+     * Finds the dagTab at the index passed in.
+     * @param index Index of the dagTab element we want to get
+     * @return {JQuery}
+     */
+    public getDagTab(index: number): JQuery {
+        return $("#dagTabSectionTabs .dagTab").eq(index);
+    }
+
+    /**
+     * Finds the dataflowArea at the index passed in.
+     * @param index Index of the ddataflowArea element we want to get
+     * @return {JQuery}
+     */
+    public getDataflowArea(index: number): JQuery {
+        return $("#dagView .dataflowArea").eq(index);
+    }
+
+    /**
+     * Decrements the tab manager unique id by one, unless it's zero.
+     * Should only be used by undo newTab
+     */
+    public decrementUID() {
+        if (this._unique_id != 0) {
+            this._unique_id--;
+        }
     }
 
     /**
      * Resets keys and tabs in the case of error.
      */
     public reset(): void {
+        $("#dagView .dataflowArea").remove();
+        $("#dagTabSectionTabs .dagTab").remove();
         this._unique_id = 1;
         this._keys = [];
-        this._newTab();
+        this._disableLog = true;
+        this.newTab();
+        this._disableLog = false;
     }
 
     // Used for testing/simple setup.
     public demoTabs(): void {
-        this._newTab();
-        this._newTab();
+        this.newTab();
+        this.newTab();
     }
 }

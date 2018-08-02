@@ -10,6 +10,7 @@ describe('DagTab Test', function() {
     before(function(done) {
         UnitTest.onMinMode();
         var dagTabManager = DagTabManager.Instance;
+        dagTabManager.setup();
         dagTabManager.demoTabs();
         $dagTabArea = $("#dagTabSectionTabs");
         $dagTabs = $(".dagTab");
@@ -74,6 +75,7 @@ describe('DagTab Test', function() {
     });
 
     after(function(done) {
+        DagList.Instance.reset();
         done();
     });
 });

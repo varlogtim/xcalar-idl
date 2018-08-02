@@ -925,6 +925,8 @@ declare namespace DagTStr {
     export var CycleConnection: string;
     export var RemoveAllOperators: string;
     export var RemoveAllMsg: string;
+    export var NewTab: string;
+    export var RemoveTab: string;
 }
 // declare namespace WSTStr {
 //     export var Ws:

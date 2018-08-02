@@ -1575,5 +1575,7 @@ IMDTStr = {
 DagTStr = {
     "CycleConnection": "Connection cannot be made as this would create a cycle.",
     "RemoveAllOperators": "Remove All Operations",
-    "RemoveAllMsg": "Are you sure you want to remove all operations?"
+    "RemoveAllMsg": "Are you sure you want to remove all operations?",
+    "NewTab": "Add a new dataflow tab.",
+    "RemoveTab": "Remove a dataflow tab."
 };

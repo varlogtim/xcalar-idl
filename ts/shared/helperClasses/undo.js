@@ -545,6 +545,24 @@ window.Undo = (function($, Undo) {
         return PromiseHelper.resolve(null);
     };
 
+    undoFuncs[SQLOps.NewDagTab] = function(options) {
+        var deferred = PromiseHelper.deferred();
+        DagList.Instance.deleteDataflow($("#dagListSection .dagListDetail").last())
+        .then(() => {
+            DagTabManager.Instance.decrementUID();
+            return deferred.resolve();
+        })
+        .fail((error) => {
+            return deferred.reject();
+        });
+        return deferred.promise();
+    };
+
+    undoFuncs[SQLOps.RemoveDagTab] = function(options) {
+        DagTabManager.Instance.loadTab(options.key, options.index);
+        return PromiseHelper.resolve(null);
+    };
+
     /* USER STYLING/FORMATING OPERATIONS */
 
     undoFuncs[SQLOps.MinimizeCols] = function(options) {

@@ -637,7 +637,9 @@ window.Log = (function($, Log) {
                     SQLOps.RemoveOperations,
                     SQLOps.AddOperation,
                     SQLOps.CopyOperations,
-                    SQLOps.MoveOperations
+                    SQLOps.MoveOperations,
+                    SQLOps.RemoveDagTab,
+                    SQLOps.NewDagTab
                 ];
                 for (var i = 0; i <= oldLogCursor; i++) {
                     if (dataflow2Ops.indexOf(oldLogs[i].options.operation) > 0) {
@@ -1317,6 +1319,8 @@ window.Log = (function($, Log) {
             case (SQLOps.AddOperation):
             case (SQLOps.CopyOperations):
             case (SQLOps.MoveOperations):
+            case (SQLOps.NewDagTab):
+            case (SQLOps.RemoveDagTab):
                 return false;
             // thrift operation
             case (SQLOps.DestroyDS):

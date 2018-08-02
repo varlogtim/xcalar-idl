@@ -63,20 +63,7 @@ class DagList {
                 return;
             }
             let $dagListItem: JQuery = $(this).parent();
-            let index: number = $("#dagListSection .dagListDetail").index($dagListItem);
-            let key: string = self._userDags[index].key;
-            let kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
-            const dagtabManager: DagTabManager = DagTabManager.Instance;
-            if (!dagtabManager.removeTab(key)) {
-                return;
-            }
-            kvStore.delete();
-            $dagListItem.remove();
-            self._userDags.splice(index, 1);
-            self._saveDagList();
-            if (self._userDags.length == 1) {
-                self._disableDelete();
-            }
+            self.deleteDataflow($dagListItem);
         })
     }
 
@@ -132,7 +119,7 @@ class DagList {
         let $list = this._$dagListSection.find(".dagListDetails");
         let html: string =
             '<li class="dagListDetail">' +
-                '<span class="name">' + name + '</span>' +
+                '<span class="name textOverflowOneLine">' + name + '</span>' +
                 '<i class="icon xi-trash deleteDataflow">' +
                 '</i>' +
                 '<i class="icon xi-download downloadDataflow">' +
@@ -190,5 +177,56 @@ class DagList {
             return dag.name == name;
         });
         return (index == -1);
+    }
+
+    /**
+     * Deletes the dataflow represented by dagListItem from the dagList
+     * Also removes from dagTabs if it is active.
+     * @param $dagListItem Dataflow we want to delete.
+     * @returns {JQueryPromise<{}>}
+     */
+    public deleteDataflow($dagListItem: JQuery): JQueryPromise<{}> {
+        // TODO: Add confirm delete UX
+        var deferred: JQueryDeferred<{}> = PromiseHelper.deferred();
+        let index: number = $("#dagListSection .dagListDetail").index($dagListItem);
+        if (index == -1) {
+            return deferred.reject();
+        }
+        let key: string = this._userDags[index].key;
+        let kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
+        const dagtabManager: DagTabManager = DagTabManager.Instance;
+        if (!dagtabManager.removeTab(key)) {
+            return deferred.reject();
+        }
+        this._disableDelete();
+        kvStore.delete()
+        .then(() => {
+            $dagListItem.remove();
+            this._userDags.splice(index, 1);
+            this._saveDagList();
+            if (this._userDags.length != 1) {
+                this._enableDelete();
+            }
+            deferred.resolve();
+        })
+        .fail((err) => {
+            console.error("Could not delete tab:" + err);
+            this._enableDelete();
+            deferred.reject(err);
+        });
+
+        return deferred.promise();
+    }
+
+    /**
+     * Resets keys and tabs in the case of error.
+     * Also used for testing.
+     */
+    public reset(): void {
+        this._userDags = [];
+        this._disableDelete();
+        $("#dagListSection .dagListDetails").empty();
+        DagTabManager.Instance.reset();
+        this._saveDagList();
     }
 }
