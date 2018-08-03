@@ -351,7 +351,6 @@ window.SQLEditor = (function(SQLEditor, $) {
     }
 
     function executeTrigger(cm) {
-        // TODO: execute selection
         $("#sqlExecute").click();
     }
 
@@ -1285,6 +1284,10 @@ window.SQLEditor = (function(SQLEditor, $) {
         SQLEditor.__testOnly__.insertLine = insertLine;
         SQLEditor.__testOnly__.setSqlComs = function(comList) {
             sqlComs = comList;
+        }
+        SQLEditor.__testOnly__.updatePlanServer = updatePlanServer;
+        SQLEditor.__testOnly__.getEditorQueryKvStore = function() {
+            return editorQueryKvStore;
         }
     }
     /* End Of Unit Test Only */

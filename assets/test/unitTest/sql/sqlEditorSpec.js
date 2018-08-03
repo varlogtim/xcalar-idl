@@ -5,11 +5,14 @@ describe("SQLEditor Test", function() {
     var $searchColumn = $("#sqlColumnSearch");
     var $sqlTableList = $("#sqlTableList");
     var $sqlColumnList = $("#sqlColumnList");
+    var $sqlEditorsList = $("#sqlEditorsList");
+    var $sqlEditorMenu = $("#sqlEditorMenu");
     var testStruct1;
     var testStruct2;
     var oldGTables;
     var oldUpdateKVStore;
     var oldKVStoreCommit;
+    var oldRefreshOrphanList;
     var editor;
     var queryText;
     before(function(){
@@ -30,6 +33,10 @@ describe("SQLEditor Test", function() {
         KVStore.commit = function() {
             return PromiseHelper.resolve();
         };
+        oldRefreshOrphanList = TableList.refreshOrphanList;
+        TableList.refreshOrphanList = function() {
+            return PromiseHelper.resolve();
+        }
         gTables = {
             "test1": {
                 "tableName": "testTable1",
@@ -115,6 +122,29 @@ describe("SQLEditor Test", function() {
             "tableName": "testSqlTable4LongName",
             "tableColumns": null
         };
+        SQLCompilerTemplate = function() {
+            this.compile = function() {
+                return PromiseHelper.resolve();
+            }
+            this.execute = function() {
+                return PromiseHelper.resolve();
+            }
+            this.setStatus = function() {
+                return;
+            }
+            this.getStatus = function() {
+                return SQLStatus.Compiling;
+            }
+            this.getError = function() {
+                return;
+            }
+            this.setError = function() {
+                return;
+            }
+            this.updateQueryHistory = function() {
+                return;
+            }
+        };
     });
 
     describe("SQL Behavior Test", function() {
@@ -123,85 +153,80 @@ describe("SQLEditor Test", function() {
             expect(editor instanceof CodeMirror).to.be.true;
         });
 
-        it("should click to execute sql", function() {
+        it("should click to execute sql", function(done) {
             var oldCompiler = SQLCompiler;
             var test = false;
+            var test2 = false;
             SQLCompiler = function() {
+                SQLCompilerTemplate.call(this);
                 this.compile = function() {
                     test = true;
                     return PromiseHelper.resolve();
                 }
-                this.setStatus = function() {
-                    return;
-                }
-                this.getStatus = function() {
-                    return 2;
+                this.execute = function() {
+                    test2 = true;
+                    return PromiseHelper.resolve();
                 }
             };
+            SQLEditor.getEditor().setValue("unitTest");
             $("#sqlExecute").click();
-            expect(test).to.be.true;
-            SQLCompiler = oldCompiler;
+            setTimeout(function() {
+                expect(test).to.be.true;
+                expect(test2).to.be.true;
+                SQLCompiler = oldCompiler;
+                done();
+            }, 1000);
         });
 
-        it("should show error message", function() {
+        it("should show error message", function(done) {
             var oldCompiler = SQLCompiler;
             SQLCompiler = function() {
+                SQLCompilerTemplate.call(this);
                 this.compile = function() {
-                    return PromiseHelper.reject(JSON.parse('{"readyState":4,' +
-                    '"responseText":"","responseJSON":{"exceptionName":"org' +
-                    '.apache.spark.sql.AnalysisException","exceptionMsg":"Ta' +
-                    'ble or view not found: k; line 1 pos 14"},"status":500,' +
-                    '"statusText":"Internal Server Error"}'));
-                }
-                this.setStatus = function() {
-                    return;
-                }
-                this.getStatus = function() {
-                    return 2;
+                    return PromiseHelper.reject('Table or view not found: k; line 1 pos 14');
                 }
             };
             $("#sqlExecute").click();
-            expect($("#alertHeader").find(".text").text()).to.equal(SQLErrTStr.Err);
-            SQLCompiler = oldCompiler;
-            $("#alertModal").find(".cancel").click();
+            setTimeout(function() {
+                expect($("#alertHeader").find(".text").text()).to.equal(SQLErrTStr.Err);
+                SQLCompiler = oldCompiler;
+                $("#alertModal").find(".cancel").click();
+                done();
+            }, 1000);
         });
 
-        it("should show exception message", function() {
+        it("should show exception message", function(done) {
             var oldCompiler = SQLCompiler;
             SQLCompiler = function() {
+                SQLCompilerTemplate.call(this);
                 this.compile = function() {
                     throw "Error";
                 }
-                this.setStatus = function() {
-                    return;
-                }
-                this.getStatus = function() {
-                    return 2;
-                }
             };
             $("#sqlExecute").click();
-            expect($("#alertHeader").find(".text").text()).to.equal("Compilation Error");
-            SQLCompiler = oldCompiler;
-            $("#alertModal").find(".cancel").click();
+            setTimeout(function() {
+                expect($("#alertHeader").find(".text").text()).to.equal("Compilation Error");
+                SQLCompiler = oldCompiler;
+                $("#alertModal").find(".cancel").click();
+                done();
+            }, 1000);
         });
 
-        it("should show stringify message", function() {
+        it("should show stringify message", function(done) {
             var oldCompiler = SQLCompiler;
             SQLCompiler = function() {
+                SQLCompilerTemplate.call(this);
                 this.compile = function() {
                     return PromiseHelper.reject("test1", "test2");
                 }
-                this.setStatus = function() {
-                    return;
-                }
-                this.getStatus = function() {
-                    return 2;
-                }
             };
             $("#sqlExecute").click();
-            expect($("#alertContent").find(".text").text()).to.equal('{"0":"test1","1":"test2"}');
-            SQLCompiler = oldCompiler;
-            $("#alertModal").find(".cancel").click();
+            setTimeout(function() {
+                expect($("#alertContent").find(".text").text()).to.equal('test1');
+                SQLCompiler = oldCompiler;
+                $("#alertModal").find(".cancel").click();
+                done();
+            }, 1000);
         });
     });
 
@@ -302,15 +327,7 @@ describe("SQLEditor Test", function() {
             var error = "Table or view not found: TESTSQLTABLE1;";
             var oldCompiler = SQLCompiler;
             SQLCompiler = function() {
-                this.compile = function() {
-                    return PromiseHelper.resolve();
-                }
-                this.setStatus = function() {
-                    return;
-                }
-                this.getStatus = function() {
-                    return 2;
-                }
+                SQLCompilerTemplate.call(this);
             };
             SQLEditor.__testOnly__.setSQLTables({"TESTSQLTABLE1": "test1",
                                                  "testSqlTable2": "test2",
@@ -330,14 +347,9 @@ describe("SQLEditor Test", function() {
         it("Should republishSchema if session not found", function(done) {
             var oldCompiler = SQLCompiler;
             SQLCompiler = function() {
+                SQLCompilerTemplate.call(this);
                 this.compile = function() {
-                    return PromiseHelper.reject({"readyState":4,"responseText":"{\"exceptionName\":\"java.util.NoSuchElementException\",\"exceptionMsg\":\"key not found: jiyuan1-wkbk-New%20Workbook\"}","responseJSON":{"exceptionName":"java.util.NoSuchElementException","exceptionMsg":"key not found: jiyuan1-wkbk-New%20Workbook"},"status":500,"statusText":"error"});
-                }
-                this.setStatus = function() {
-                    return;
-                }
-                this.getStatus = function() {
-                    return 2;
+                    return PromiseHelper.reject("key not found: jiyuan1-wkbk-NewWorkbook");
                 }
             };
             var oldRepublishSchemas = SQLEditor.__testOnly__.republishSchemas;
@@ -363,14 +375,9 @@ describe("SQLEditor Test", function() {
         it("Should republishSchema if table not found", function(done) {
             var oldCompiler = SQLCompiler;
             SQLCompiler = function() {
+                SQLCompilerTemplate.call(this);
                 this.compile = function() {
                     return PromiseHelper.reject({"readyState":4,"responseText":"{\"exceptionName\":\"org.apache.spark.sql.AnalysisException\",\"exceptionMsg\":\"Table or view not found: testsqltable1; line 1 pos 14\"}","responseJSON":{"exceptionName":"org.apache.spark.sql.AnalysisException","exceptionMsg":"Table or view not found: testsqltable1; line 1 pos 14"},"status":500,"statusText":"Internal Server Error"});
-                }
-                this.setStatus = function() {
-                    return;
-                }
-                this.getStatus = function() {
-                    return 2;
                 }
             };
             var oldRepublishSchemas = SQLEditor.__testOnly__.republishSchemas;
@@ -461,6 +468,58 @@ describe("SQLEditor Test", function() {
             WSManager.getWSFromTable = oldGWFT;
             xcHelper.centerFocusedColumn = oldCFC;
             TblManager.findAndFocusTable = oldTAFT;
+        });
+
+        it("Should show alert on throwError", function() {
+            SQLEditor.throwError("test");
+            expect($("#alertContent").find(".text").text()).to.equal("Error details: test");
+            $("#alertModal").find(".cancel").click();
+        });
+
+        it("Should update plan server", function(done) {
+            var oldAjax = jQuery.ajax;
+            var oldGAWKBK = WorkbookManager.getActiveWKBK;
+            var action = undefined;
+            var url = undefined;
+            var count = 0;
+            jQuery.ajax = function(struct) {
+                action = struct.type;
+                url = struct.url;
+                struct.success();
+            }
+            WorkbookManager.getActiveWKBK = function() {
+                return "test";
+            }
+
+            SQLEditor.__testOnly__.updatePlanServer({}, "update", "sName", "tName")
+            .then(function() {
+                expect(action).to.equal("PUT");
+                expect(url.indexOf("/schemaupdate/test")).to.not.equal(-1);
+                count++;
+                return SQLEditor.__testOnly__.updatePlanServer({}, "delete", "sName", "tName");
+            })
+            .then(function() {
+                expect(action).to.equal("DELETE");
+                expect(url.indexOf("/schemadrop/test/tName")).to.not.equal(-1);
+                count++;
+                return SQLEditor.__testOnly__.updatePlanServer({}, "drop", "sName", "tName");
+            })
+            .then(function() {
+                expect(action).to.equal("DELETE");
+                expect(url.indexOf("/schemadrop/sName")).to.not.equal(-1);
+                count++;
+                return SQLEditor.__testOnly__.updatePlanServer({}, "error", "sName", "tName");
+            })
+            .then(function() {
+                done("fail");
+            })
+            .fail(function() {
+                expect(count).to.equal(3);
+                done();
+            })
+
+            jQuery.ajax = oldAjax;
+            WorkbookManager.getActiveWKBK = oldGAWKBK;
         });
     });
 
@@ -613,18 +672,83 @@ describe("SQLEditor Test", function() {
                     .to.equal(0);
             $("#alertModal").find(".confirm").click();
         });
+
+        it("Should open dropdown list", function() {
+            expect(!$sqlEditorsList.hasClass("open"));
+            $sqlEditorsList.find(".iconWrapper").click();
+            expect($sqlEditorsList.hasClass("open"));
+        });
+
+        it("Should add new editor if valid name", function() {
+            var editorNum = $sqlEditorMenu.find("li").length;
+            var e = jQuery.Event("mouseup", {which: 1});
+            SQLEditor.getEditor().setValue("Default");
+            $sqlEditorMenu.find("[name='addNew']").trigger(e);
+            expect($sqlEditorMenu.find("li").length).to.equal(editorNum + 1);
+            $sqlEditorMenu.find(".addNew input").val("unitTest1");
+            $sqlEditorMenu.find(".addNew input").trigger(jQuery.Event("keyup", {which: 13, keyCode: 13}));
+            expect($sqlEditorMenu.find("li").eq(1).data("name")).to.equal("unitTest1");
+            $sqlEditorMenu.find("[name='addNew']").trigger(e);
+            console.log($(':focus'));
+            expect($sqlEditorMenu.find("li").length).to.equal(editorNum + 2);
+            $sqlEditorMenu.find(".addNew input").val("unitTest1");
+            $sqlEditorMenu.find(".addNew input").trigger(jQuery.Event("keyup", {which: 13, keyCode: 13}));
+            expect($('#statusBox').hasClass("active")).to.be.true;
+            expect($('#statusBox').hasClass("error")).to.be.true;
+            expect($sqlEditorMenu.find("li").eq(1).hasClass("addNew")).to.equal(true);
+            $("#statusBoxClose").mousedown();
+            $sqlEditorMenu.find("li").eq(1).find(".xi-trash").mouseup();
+            $sqlEditorMenu.find("[name='addNew']").trigger(e);
+            $sqlEditorMenu.find(".addNew input").val("!#");
+            $sqlEditorMenu.find(".addNew input").trigger(jQuery.Event("keyup", {which: 13, keyCode: 13}));
+            expect($('#statusBox').hasClass("active")).to.be.true;
+            expect($('#statusBox').hasClass("error")).to.be.true;
+            expect($sqlEditorMenu.find("li").eq(1).hasClass("addNew")).to.equal(true);
+            expect($("#statusBox").find(".message").text()).to.equal(SQLErrTStr.InvalidEditorName);
+            $("#statusBoxClose").mousedown();
+            $sqlEditorMenu.find("li").eq(1).find(".xi-trash").mouseup();
+        });
+
+        it("Should rename editor if no collision", function() {
+            var e = jQuery.Event("mouseup", {which: 1});
+            $sqlEditorMenu.find("[name='addNew']").trigger(e);
+            $sqlEditorMenu.find(".addNew input").val("unitTest2");
+            $sqlEditorMenu.find(".addNew input").trigger(jQuery.Event("keyup", {which: 13, keyCode: 13}));
+            $sqlEditorMenu.find("li").eq(1).find(".xi-edit").mouseup();
+            $sqlEditorMenu.find("li").eq(1).find("input").val("unitTest1");
+            $sqlEditorMenu.find("li").eq(1).find("input").trigger(jQuery.Event("keyup", {which: 13, keyCode: 13}));
+            expect($('#statusBox').hasClass("active")).to.be.true;
+            expect($('#statusBox').hasClass("error")).to.be.true;
+            $("#statusBoxClose").mousedown();
+            $sqlEditorMenu.find("li").eq(1).find("input").val("unitTest3");
+            $sqlEditorMenu.find("li").eq(1).find("input").trigger(jQuery.Event("keyup", {which: 13, keyCode: 13}));
+        });
+
+        it("Should switch editor", function() {
+            var e = jQuery.Event("mouseup", {which: 1});
+            $sqlEditorMenu.find("li").eq(3).trigger(e);
+            expect(SQLEditor.getEditor().getValue()).to.eq("Default");
+            $sqlEditorMenu.find("li").eq(1).find(".xi-trash").removeClass("xc-disabled").mouseup();
+            $sqlEditorMenu.find("li").eq(1).find(".xi-trash").removeClass("xc-disabled").mouseup();
+            $sqlEditorMenu.find("li").eq(1).find(".xi-trash").removeClass("xc-disabled").mouseup();
+        });
     });
 
     describe("SQL Hotkey Function Test", function() {
-        it("Should execute when executeTrigger", function() {
+        it("Should execute when executeTrigger", function(done) {
             var test = false;
             var oldexec = SQLEditor.executeSQL;
             SQLEditor.executeSQL = function() {
                 test = true;
+                return PromiseHelper.resolve();
             }
+            SQLEditor.getEditor().setValue("unitTest");
             SQLEditor.__testOnly__.executeTrigger();
-            expect(test).to.be.true;
-            SQLEditor.executeSQL = oldexec;
+            setTimeout(function() {
+                expect(test).to.be.true;
+                SQLEditor.executeSQL = oldexec;
+                done();
+            }, 1000);
         });
 
         it("CancelExec should stop execute", function() {
@@ -638,7 +762,7 @@ describe("SQLEditor Test", function() {
             }
             SQLEditor.__testOnly__.setSqlComs([testCom]);
             SQLEditor.__testOnly__.cancelExec();
-            expect(status).to.equal(-2);
+            expect(status).to.equal(SQLStatus.Cancelled);
         });
 
         it("Should convertTextCase", function() {
@@ -706,5 +830,6 @@ describe("SQLEditor Test", function() {
         KVStore.commit = oldKVStoreCommit;
         SQLEditor.__testOnly__.setSQLTables(oldSQLTables);
         SQLEditor.getEditor().setValue(queryText);
+        TableList.refreshOrphanList = oldRefreshOrphanList;
     });
 });
