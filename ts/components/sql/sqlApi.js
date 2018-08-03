@@ -648,6 +648,7 @@
             }
             if (status === SQLStatus.Cancelled && this.status === SQLStatus.Running) {
                 this.status = status;
+                this.endTime = new Date();
                 if (!this.sqlMode) {
                     return QueryManager.cancelQuery(this.runTxId);
                 } else {

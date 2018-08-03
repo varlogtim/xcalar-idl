@@ -632,7 +632,7 @@ window.SQLEditor = (function(SQLEditor, $) {
                 $scrollDown.removeClass("xc-hidden");
             }
         });
-        $sqlSection.find(".scrollArea").on({
+        $sqlSection.find(".schemaSection .scrollArea").on({
             "mouseenter": function() {
                 clearInterval(timer);
                 var $scroll = $(this);
@@ -803,14 +803,14 @@ window.SQLEditor = (function(SQLEditor, $) {
     function deleteEditor($li) {
         var editorName = $li.text();
         delete allEditors[editorName];
+        var selectName = $li.next().attr("data-name") ||
+                       $li.prev().attr("data-name") || defaultEditor;
         $li.remove();
         if ($sqlEditorDropdown.find("li").not("[name='addNew']").length === 0) {
             // add default editor
             addDefaultEditorIfNotExist();
             selectEditorByName(defaultEditor);
         } else if (curEditor === editorName) {
-            var selectName = $li.next().attr("data-name") ||
-                           $li.prev().attr("data-name") || defaultEditor;
             selectEditorByName(selectName);
         } else {
             updateEditorKVStore();

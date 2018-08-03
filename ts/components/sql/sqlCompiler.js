@@ -1287,7 +1287,7 @@
             var outDeferred = PromiseHelper.deferred();
             var self = this;
 
-            var name = queryName || xcHelper.randName("sql");
+            var name = queryName || xcHelper.randName("sql", 8);
             self.sqlObj.setQueryName(name);
             self.sqlObj.setQueryId(name);
             if (jdbcOption && jdbcOption.queryString) {
@@ -1409,9 +1409,10 @@
                 outDeferred.resolve(queryString, newTableName, newCols, toCache);
             })
             .fail(function(err) {
-                var errorMessage = "";
+                var errorMsg = "";
                 if (err === SQLErrTStr.Cancel) {
                     self.setStatus(SQLStatus.Cancelled);
+                    errorMsg = err;
                 } else {
                     errorMsg = parseError(err);
                     self.setStatus(SQLStatus.Failed);
