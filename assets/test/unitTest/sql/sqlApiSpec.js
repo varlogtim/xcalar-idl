@@ -74,22 +74,22 @@ describe("SQLApi Test", function() {
                 test = true;
             };
 
-            expect(sqlApi.status).to.equal(1);
-            sqlApi.status = 2;
-            expect(sqlApi.getStatus()).to.equal(2);
-            sqlApi.setStatus(-2);
-            expect(sqlApi.getStatus()).to.equal(-2);
-            sqlApi.setStatus(4);
-            expect(sqlApi.getStatus()).to.equal(-2);
-            sqlApi.status = 4;
-            sqlApi.setStatus(-2);
-            expect(sqlApi.getStatus()).to.equal(4);
+            expect(sqlApi.status).to.equal(undefined);
+            sqlApi.status = SQLStatus.Compiling;
+            expect(sqlApi.getStatus()).to.equal(SQLStatus.Compiling);
+            sqlApi.setStatus(SQLStatus.Cancelled);
+            expect(sqlApi.getStatus()).to.equal(SQLStatus.Cancelled);
+            sqlApi.setStatus(SQLStatus.Done);
+            expect(sqlApi.getStatus()).to.equal(SQLStatus.Cancelled);
+            sqlApi.status = SQLStatus.Done;
+            sqlApi.setStatus(SQLStatus.Cancelled);
+            expect(sqlApi.getStatus()).to.equal(SQLStatus.Done);
             QueryManager.cancelQuery(this.runTxId);
-            sqlApi.status = 3;
-            sqlApi.setStatus(-2);
+            sqlApi.status = SQLStatus.Running;
+            sqlApi.setStatus(SQLStatus.Cancelled);
             expect(test).to.be.true;
 
-            sqlApi.status = 1;
+            sqlApi.status = undefined;
             QueryManager.cancelQuery = oldCancel;
         });
 
@@ -163,19 +163,27 @@ describe("SQLApi Test", function() {
                     {
                         name: "test2",
                         type: DfFieldTypeT.DfMixed
+                    },
+                    {
+                        name: "test3",
+                        type: DfFieldTypeT.DfMixed
                     }]
                 });
             };
 
             sqlApi._getQueryTableCols("testTable", [{colName: "test"},
-                                                {colName: "testTable::test2"}])
+                                        {colName: "testTable::test2"},
+                                        {colName: "test", rename: "test3"}])
             .then(function(res) {
                 expect(res).to.be.an("array");
-                expect(res.length).to.equal(3);
+                expect(res.length).to.equal(4);
                 expect(res[0].getBackColName()).to.equal("test");
                 expect(res[0].getType()).to.equal(ColumnType.mixed);
                 expect(res[1].getBackColName()).to.equal("test2");
                 expect(res[1].getType()).to.equal(ColumnType.mixed);
+                expect(res[2].getBackColName()).to.equal("test3");
+                expect(res[2].getFrontColName()).to.equal("test_1");
+                expect(res[2].getType()).to.equal(ColumnType.mixed);
                 done();
             })
             .fail(function() {
@@ -401,13 +409,6 @@ describe("SQLApi Test", function() {
                 expect(test).to.be.true;
                 expect(testQuery).to.equal("testQuery");
                 expect(testTable).to.equal("testTable");
-                sqlApi.status = -2;
-                return sqlApi.run("testQuery2", "testTable2");
-            })
-            .fail(function() {
-                expect(test).to.be.false;
-                expect(testQuery).to.equal("testQuery");
-                expect(testTable).to.equal("testTable");
                 done();
             })
             .always(function() {
@@ -416,7 +417,7 @@ describe("SQLApi Test", function() {
                 TblManager.refreshTable = oldRefresh;
                 XcalarGetDag = oldGetDag;
                 Transaction.cancel = oldCancel;
-                sqlApi.status = 1;
+                sqlApi.status = undefined;
             });
         });
 
@@ -437,25 +438,12 @@ describe("SQLApi Test", function() {
             .fail(function(error) {
                 expect(test).to.be.true;
                 expect(error).to.equal("test error");
-                XIApi.query = function() {
-                    return PromiseHelper.reject(SQLErrTStr.Cancel);
-                };
-                test = false;
-                sqlApi.run("testQuery", "testTable")
-                .then(function() {
-                    done("fail");
-                })
-                .fail(function(error) {
-                    expect(test).to.be.true;
-                    expect(error).to.equal(SQLErrTStr.Cancel);
-                    expect(sqlApi.status).to.equal(-2);
-                    done();
-                })
+                done();
             })
             .always(function() {
                 XIApi.query = oldQuery;
                 Transaction.fail = oldFail;
-                sqlApi.status = 1;
+                sqlApi.status = undefined;
             });
         });
 
@@ -721,6 +709,22 @@ describe("SQLApi Test", function() {
             .always(function() {
                 XIApi.deleteTable = oldDeleteTable;
             });
+        });
+
+        it("get/set should work", function() {
+            expect(sqlApi.sqlMode).to.equal(false);
+            sqlApi.setSqlMode();
+            expect(sqlApi.sqlMode).to.equal(true);
+            sqlApi.setQueryName("testQuery");
+            expect(sqlApi.getQueryName()).to.equal("testQuery");
+            sqlApi.setQueryId("someId");
+            expect(sqlApi.getQueryId()).to.equal("someId");
+            sqlApi.setError("error message");
+            expect(sqlApi.getError()).to.equal("error message");
+            sqlApi.setQueryString("queryStr");
+            expect(sqlApi.getQueryString()).to.equal("queryStr");
+            sqlApi.setNewTableName("tbl#-1");
+            expect(sqlApi.getNewTableName()).to.equal("tbl#-1");
         });
 
         after(function() {
