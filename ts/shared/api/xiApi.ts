@@ -1979,11 +1979,12 @@ namespace XIApi {
      * lTableInfo = {
      *  "tableName": "test#ab123",
      *  "columns": ["test::colA", "test::colB"],
+     *  "casts": ["string", null],
      *  "pulledColumns": ["test::colA", "test::colB"],
      *  "rename": [{
      *      "new": "test2",
      *      "orig": "test",
-     *      "type": DfFieldTypeT.DfFatptr
+     *      "type": DfFieldTypeT.DfFatptr or DfFieldTypeT.DfUnknown
      *  }],
      *  "allImmediates": ["a", "b", "c"]
      * }
