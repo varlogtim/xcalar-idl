@@ -122,6 +122,7 @@ var BUILD_JS = "buildJs";
 var TYPESCRIPT = "typescriptJsGeneration";
 var BUILD_EXTRA_TS = "buildExtraTs";
 var EXTRA_TS_FOLDER_NAME = "extraTsStaging";
+var BUILD_PARSER = "buildParser";
 var WEBPACK = "webpack";
 var MINIFY_JS = "minifyJs";
 var REMOVE_DEBUG_COMMENTS = 'removeDebugComments';
@@ -590,7 +591,7 @@ var VALID_TASKS = {
                 "\n\t\tSets up your cwd by running 'npm install', and installing"
                 + "\n\t\tlocal patches to grunt plugins."
                 + "\n\t\t(Run only once when you first set up your workspace!)"
-        },
+        }
 /**
         [BUILD_CSS]: {
             [BLD_TASK_KEY]:true,
@@ -1870,6 +1871,8 @@ module.exports = function(grunt) {
             }
             grunt.task.run(HELP_CONTENTS);
             grunt.task.run(BUILD_CSS);
+            // XXX It won't work until antlr4 is correctly packaged
+            // grunt.task.run(BUILD_PARSER);
             grunt.task.run(BUILD_JS); // build js before html (built html will search for some js files to autogen script tags for, that only get generated here)
             grunt.task.run(BUILD_HTML);
             grunt.task.run(CONSTRUCTOR_FILES);
@@ -2588,7 +2591,6 @@ module.exports = function(grunt) {
         grunt.task.run('concat:thrift');
     });
 
-
     grunt.task.registerTask(CLEAN_BUILD_SECTIONS, function() {
 
         // clean HTML src of uneeded files/dirs
@@ -3132,6 +3134,14 @@ module.exports = function(grunt) {
         return templatedFilepathList;
     }
 
+    grunt.task.registerTask(BUILD_PARSER, 'Build Parser from dev src',
+        function() {
+        var G4_FILES = BLDROOT + "3rd/antlr/*.g4";
+        var parserJSDestDir = BLDROOT + "assets/js/parser/base";
+        runShellCmd('mkdir -p ' + parserJSDestDir);
+        runShellCmd('antlr4 -Dlanguage=JavaScript ' + G4_FILES +
+                    ' -o ' + parserJSDestDir + ' -visitor -no-listener');
+    });
 
                                                                 // ======== JS SECTION ======= //
 

@@ -532,19 +532,13 @@ window.SQLEditor = (function(SQLEditor, $) {
             if (sql === "") {
                 sql = editor.getValue();
             }
-            var allQueries = sql.split(";");
+            var allQueries = XDParser.SqlParser.getMultipleQueriesViaParser(sql);
             if (allQueries.length > 1) {
                 SQLEditor.startCompile(0);
             }
             for (var query of allQueries) {
-                query = query.trim();
-                if (query !== "") {
-                    var promise = SQLEditor.executeSQL(query);
-                    promiseArray.push(promise);
-                }
-            }
-            if (promiseArray.length === 0) {
-                SQLEditor.resetProgress();
+                var promise = SQLEditor.executeSQL(query);
+                promiseArray.push(promise);
             }
             PromiseHelper.when.apply(window, promiseArray);
         });
@@ -1224,32 +1218,6 @@ window.SQLEditor = (function(SQLEditor, $) {
     SQLEditor.isOnHistPanel = function() {
         return $("#monitor-query-history").hasClass("active");
     };
-
-    // function updateSQLQuery(sqlQuery) {
-    //     var deferred = PromiseHelper.deferred();
-    //     var queryId = sqlQuery.queryId;
-    //     var queryKey = KVStore.getKey("gSQLQuery");
-
-    //     sqlQueryKvStore = new KVStore(queryKey, gKVScope.WKBK);
-    //     sqlQueryKvStore.get()
-    //     .then(function(ret) {
-    //         var allQueries;
-    //         try {
-    //             allQueries = JSON.parse(ret);
-    //         } catch (e) {
-    //             Alert.show({
-    //                 title: "SQLEditor Error",
-    //                 msg: SQLErrTStr.InvliadSQLQuery,
-    //                 isAlert: true
-    //             });
-    //         }
-    //         SqlQueryHistory.Card.getInstance().show(allQueries);
-    //         deferred.resolve();
-    //     })
-    //     .fail(deferred.reject);
-    //     return deferred.promise();
-    // }
-
 
     /* Unit Test Only */
     if (window.unitTestMode) {

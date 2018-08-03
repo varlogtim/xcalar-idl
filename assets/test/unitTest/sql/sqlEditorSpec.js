@@ -854,6 +854,15 @@ describe("SQLEditor Test", function() {
         });
     });
 
+    describe("SQL Parser Test", function() {
+        it("Should get multiple queries", function() {
+            var sql = "select * from t1; select col1 + ';' from t2;   ;;"
+            var allQueries = XDParser.SqlParser.getMultipleQueriesViaParser(sql);
+            var expectedRes = ["SELECT * FROM T1", "SELECT COL1 + ';' FROM T2"];
+            expect(allQueries).to.deep.equal(expectedRes);
+        });
+    });
+
     after(function() {
         UnitTest.offMinMode();
         gTables = oldGTables;
