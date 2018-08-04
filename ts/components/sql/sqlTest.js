@@ -4,6 +4,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
     var TestCaseDisabled = false;
     var defaultTimeout = 7200000; // 120min
     var sqlTestCases = {
+        "onlyLRDD": "select * from REGION",
         "filterWithAggregates": "select n_nationkey, n_name from nation where  " +
             "n_nationkey > avg(n_nationkey) - avg(n_regionkey) /10 order by n_nationkey",
         "complexGroupBy": "select avg(n_regionkey * 3 + n_nationkey * 1000000) a from " +
@@ -105,6 +106,8 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         "cancelQuery": "select * from orders o1, orders o2"
     };
     var sqlTestAnswers = {
+        "onlyLRDD": {"row0": [0, "AFRICA"],
+                     "numOfRows": "5"},
         "filterWithAggregates": {"row0": ["12", "JAPAN"],
                                  "row3": ["15", "MOROCCO"],
                                  "numOfRows": "13"},
@@ -678,23 +681,27 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             }
             SQLEditor.getEditor().setValue(sqlString);
             if (testName === "cancelQuery") {
-                SQLEditor.executeSQL()
+                var queryName = xcHelper.randName("sql");
+                var sqlCom = new SQLCompiler();
+                sqlCom.compile(queryName, sqlString)
+                .then(function(queryString, newTableName, cols, cacheStruct) {
+                    // XXX FIXME please if you can find a better way other than setTimeout
+                    setTimeout(function() {
+                        $("#monitor-queryList .query .cancelIcon").last().click();
+                    }, 2000);
+                    return sqlCom.execute(queryString, newTableName, cols,
+                                                    sqlString, cacheStruct);
+                })
                 .then(function() {
-                    test.fail(deferred, testName, currentTestNumber, "Unable to cancel query");
+                    test.fail(deferred, testName, currentTestNumber, "Unable to cancel query, query resolved");
                 })
                 .fail(function() {
-                    var prevQueries = SQLEditor.getPrevQueries();
-                    var lastQuery = prevQueries[prevQueries.length - 1];
-                    if (lastQuery.getStatus() === SQLStatus.Cancelled) {
+                    if (sqlCom.getStatus() === SQLStatus.Cancelled) {
                         test.pass(deferred, testName, currentTestNumber);
                     } else {
-                        test.fail(deferred, testName, currentTestNumber, "Unable to cancel query");
+                        test.fail(deferred, testName, currentTestNumber, "Unable to cancel query, status is: " + sqlCom.getStatus());
                     }
                 });
-                // XXX FIXME please if you can find a better way other than setTimeout
-                setTimeout(function() {
-                    $("#monitor-queryList .query .cancelIcon").last().click();
-                }, 1000);
             } else {
                 SQLEditor.executeSQL()
                 .then(function() {
