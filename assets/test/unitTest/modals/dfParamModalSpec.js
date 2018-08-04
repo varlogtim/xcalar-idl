@@ -1,4 +1,4 @@
-describe.skip("DFParamModal Test", function() {
+describe("DFParamModal Test", function() {
     var $modal; // $("#dfParamModal")
     var testDfName;
     var tableName;

@@ -1569,7 +1569,7 @@ window.DFParamModal = (function($, DFParamModal){
                 partialStruct.fileName = fileName;
                 partialStruct.targetName = targetName;
                 var expOptions = getExportOptions();
-                struct = $.extend(struct, expOptions);
+                struct = $.extend(struct, partialStruct, expOptions);
                 break;
             default:
                 error = "currently not supported";
@@ -2004,6 +2004,10 @@ window.DFParamModal = (function($, DFParamModal){
         exportOptions.sorted = strToSpecialChar(sorted);
         exportOptions.splitRule = strToSpecialChar(splitRule);
         exportOptions.targetType = strToSpecialChar(targetType);
+        if (!exportOptions.splitRule) {
+            // need a default value
+            exportOptions.splitRule = ExSFFileSplitTypeTStr[ExSFFileSplitTypeT.ExSFFileSplitNone];
+        }
         return exportOptions;
     }
 
