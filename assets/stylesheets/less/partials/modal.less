@@ -3557,9 +3557,10 @@ html.microsoft {
     .toggleGroupRow {
         margin: 10px 0px 10px -10px;
         padding: 10px 0px 10px 10px;
-        cursor: pointer;
+        cursor: default;
 
         &.expanded {
+
             + .paramGroup {
                 display: block;
             }
@@ -3568,6 +3569,7 @@ html.microsoft {
             }
             .xi-minus, .xi-close {
                 float: right;
+                cursor: pointer;
             }
             .xi-close {
                 font-size: 14px;
@@ -3575,6 +3577,7 @@ html.microsoft {
         }
 
         &.collapsed {
+            cursor: pointer;
             margin-top: 20px;
             background: @color-bg-white-three;
             + .paramGroup {
