@@ -166,6 +166,7 @@ class DagTabManager{
         let index: number = this.getDagTabIndex($tab);
         let $dataflowArea: JQuery = this.getDataflowArea(index);
         $dataflowArea.addClass("active");
+        DagList.Instance.switchActiveDag(this._keys[index]);
         DagView.switchActiveDagTab(this._activeUserDags[index]);
     }
 

@@ -219,6 +219,18 @@ class DagList {
     }
 
     /**
+     * Switches the active dagList dag to the one with key.
+     * @param key Dag key we want to note as active
+     */
+    public switchActiveDag(key: string): void {
+        $("#dagListSection .dagListDetail").removeClass("active");
+        let index: number = this._userDags.findIndex((dag) => {
+            return dag.key == key;
+        });
+        $("#dagListSection .dagListDetail").eq(index).addClass("active");
+    }
+
+    /**
      * Resets keys and tabs in the case of error.
      * Also used for testing.
      */

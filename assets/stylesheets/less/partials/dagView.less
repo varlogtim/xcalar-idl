@@ -774,12 +774,17 @@
             opacity: @opacity-unhover;
             padding: 0 5px 0 15px;
 
+            &.active {
+                background-color: @color-bg-light-navy;
+            }
+
             &:hover {
                 background-color: rgba(0, 0, 0, 0.3);
                 .listBox, .subList li {
                     opacity: @opacity-hover;
                 }
             }
+
 
             white-space: nowrap;
             overflow: hidden;
