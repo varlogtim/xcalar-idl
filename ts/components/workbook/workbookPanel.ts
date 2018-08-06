@@ -55,6 +55,7 @@ namespace WorkbookPanel {
                 if (!$workbookPanel.is(":visible")) {
                     // on monitor view or something else
                     $container.removeClass("monitorMode setupMode");
+                    $container.addClass("wkbkViewOpen");
                     if (!wasMonitorActive) {
                         MonitorPanel.inActive();
                     }
