@@ -1077,7 +1077,7 @@ module.exports = {
         "query": "Original Operation",
         "currParamList": "Current Parameter List",
         "systemParamList": "System Parameter List",
-        "editParam": "Parameterized Operation",
+        "editParam": "Customized Operation",
         "exportSetting": "Advanced Export Settings",
         "param": "Parameter",
         "val": "Value",
