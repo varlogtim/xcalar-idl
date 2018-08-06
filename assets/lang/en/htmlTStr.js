@@ -280,7 +280,7 @@ module.exports = {
         "SortDesc": "Z-A",
         "SplitCol": "Split column",
         "SplitColDelim": "Split column by delimiter",
-        "SplitColNum": "Number of splits",
+        "SplitColNum": "Number of fields",
         "SplitColNames": "Column names",
         "TxtAlign": "Text align",
         "TxtAlignCenter": "Center align",
