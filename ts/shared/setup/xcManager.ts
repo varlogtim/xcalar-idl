@@ -105,10 +105,7 @@ namespace xcManager {
             BottomMenu.initialize(); // async
             WorkbookPanel.initialize();
             DataflowPanel.initialize(); // async if has df
-            if (gDionysus) {
-                setupDagList();
-                setupDagTabManager();
-            }
+
             SqlQueryHistoryPanel.Card.getInstance().setup();
             if (typeof SQLEditor !== "undefined") {
                 SQLEditor.initialize();
@@ -121,6 +118,12 @@ namespace xcManager {
             WSManager.focusOnWorksheet();
             // This adds a new failure mode to setup.
             return extPromise;
+        })
+        .then(() => {
+            if (gDionysus) {
+                return setupDagList();
+            }
+            return PromiseHelper.resolve();
         })
         .then(function() {
             if (Authentication.getInfo()["idCount"] === 1) {
@@ -789,9 +792,20 @@ namespace xcManager {
         return xcSocket;
     }
 
-    function setupDagList(): void {
+    function setupDagList(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const dagList: DagList = DagList.Instance;
-        dagList.setup();
+        dagList.setup()
+        .then(() => {
+            setupDagTabManager();
+            deferred.resolve();
+        })
+        .fail((err) => {
+            // TODO: Display error suggesting refresh
+            console.error("DagList Initialize Fail", err);
+            deferred.reject(err);
+        });
+        return deferred;
     }
 
     function setupDagTabManager(): void {

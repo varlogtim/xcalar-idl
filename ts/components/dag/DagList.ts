@@ -23,22 +23,32 @@ class DagList {
         this._initialized = false;
     }
 
-    public setup(): void {
+    /**
+     * Sets up the DagList
+     * @returns {JQueryPromise<{}>}
+     */
+    public setup(): JQueryPromise<{}> {
+        var deferred: JQueryDeferred<{}> = PromiseHelper.deferred();
         this._kvStore.getAndParse()
         .then((dagListJSON: {dags: StoredDags[]}) => {
             if (dagListJSON == null) {
                 dagListJSON = {dags: []};
             }
             this._userDags = this._userDags.concat(dagListJSON.dags);
-            this._initialized = true;
             this._initializeDagList();
             this._registerHandlers();
+            this._initialized = true;
             if(this._userDags.length > 1) {
                 this._enableDelete();
             } else {
                 this._disableDelete();
             }
+            deferred.resolve();
+        })
+        .fail((err) => {
+            deferred.reject(err);
         });
+        return deferred.promise();
     }
 
     private _initializeDagList(): void {
@@ -134,16 +144,16 @@ class DagList {
      * @param key The key of the new dataflow
      */
     public addDag(name: string, key: string): void {
+        if (!this._initialized) {
+            return;
+        }
         let newDag: StoredDags = {
             "name": name,
             "key": key
         }
         this._userDags.push(newDag);
         this.addDagListHtml(name);
-        if (this._initialized) {
-            // Ensure that the userDags were loaded up already, to prevent overwriting.
-            this._saveDagList();
-        }
+        this._saveDagList();
         if (!this._deleteEnabled && this._userDags.length != 1) {
             this._enableDelete();
         } else if (!this._deleteEnabled && this._userDags.length == 1) {
