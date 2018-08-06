@@ -1612,7 +1612,7 @@ html.firefox {
 }
 
 
-#exportView, #dfCreateView, #projectView, #projectOpPanel {
+#exportView, #dfCreateView, #projectView {
     @listHeight: 26px;
     @standardFontSize: 12px;
     @commonMargin: 10px;
@@ -1965,7 +1965,7 @@ html.firefox {
     }
 }
 
-#projectView, #projectOpPanel {
+#projectView {
     .prefixedSection, .derivedSection {
         margin-bottom: 10px;
         .subHeading {
@@ -2602,71 +2602,5 @@ html.firefox {
 
     .confirm {
         text-transform: uppercase;
-    }
-}
-
-#projectOpPanel {
-    .columnsWrap {
-        &.flexWrap {
-            li {
-                padding-right: 0;
-                .text {
-                    .size(@width: ~"calc(100% - 22px)");
-                }
-            }
-        }
-    }
-}
-
-// XXX fix this duplicate
-.joinOpPanel {
-    @listHeight: 26px;
-
-    .clauseContainer .mainTable .clauseArea .joinClause .clauseRow .dropDownList {
-        .size(@width: 50%);
-
-        .clause {
-            .size(@width: ~"calc(100% - 26px)");
-        }
-    }
-
-    .joinClause {
-        .removeIcon {
-            .size(@width: 25px, @height: @listHeight);
-            float: left;
-            cursor: pointer;
-            .horizontal-align(absolute);
-            z-index: 1;
-
-            .iconWrapper {
-                .size(14px, 14px);
-                border-radius: 100%;
-                background-color: @color-white;
-                .center-align;
-                top: 13px;
-                margin-left: 1px;
-            }
-
-            .icon {
-                color: @color-font-select-blue;
-            }
-
-            &:hover .icon {
-                .transform(rotate(45deg));
-                &::before {
-                     content: "\e9b2"; // plus circle
-                }
-            }
-        }
-
-        .removeIcon-nodel {
-            pointer-events: none;
-            &:hover .icon {
-                .transform(rotate(0deg));
-                &::before {
-                    content: "\e9b0"; // equal circle
-                }
-            }
-        }
     }
 }

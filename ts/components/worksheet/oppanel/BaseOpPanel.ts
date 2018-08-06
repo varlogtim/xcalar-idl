@@ -1,10 +1,58 @@
-interface IOpPanel {
-    setup(): void;
-    show(dagNode: DagNode): void;
-    close(): void;
-}
-
+/**
+ * Base class of the Operation Panels.
+ * It is a singleton.
+ */
 class BaseOpPanel {
+    /**
+     * Create DOM element from a string
+     * @param htmlStr HTML string
+     * @returns DOM element
+     */
+    public static createElementFromString(htmlStr: string): JQuery {
+        return $($.trim(htmlStr));
+    }
+
+    /**
+     * Creat DOM element specified by tagName
+     * @param tagName HTML tag
+     * @returns JQuery element
+     * @description
+     * Trying to create a element by using document.creatElement()
+     * If the browser doesn't support document.createElement(), fallback to JQuery's way
+     * Performance: document.createElement(tagName) is much faster than $(tagName)
+     */
+    public static createElement(tagName: string): JQuery {
+        if (document && document.createElement) {
+            return $(document.createElement(tagName));
+        } else {
+            return $(tagName);
+        }
+    }
+
+    /**
+     * Find a element in DOM by attribute data-xcid
+     * @param $container The container element
+     * @param xcid Value of data-xcid
+     * @description The HTML looks like: <div data-xcid="yourXcID">...</div>
+     */
+    public static findXCElement(container: JQuery, xcid: string): JQuery {
+        return container.find(`[data-xcid="${xcid}"]`);
+    }
+
+    /**
+     * Read template content from a DOM element
+     * @param container A ancestor element of the template
+     * @param xcid Value of data-xcid
+     */
+    public static readTemplate(container: JQuery, xcid: string): string {
+        return this.findXCElement(container, xcid).html();
+    }
+
+    public static get Instance() {
+        return  this._instance || (this._instance = new this());
+    }
+
+
     private static _instance = null;
     private $panel: JQuery;
     private advancedMode: boolean;
@@ -12,10 +60,6 @@ class BaseOpPanel {
     protected _editor: CodeMirror.EditorFromTextArea;
 
     protected constructor() {}
-
-    public static get Instance() {
-        return  this._instance || (this._instance = new this());
-    }
 
     protected setup($panel: JQuery, options?: FormHelperOptions): void {
         this.$panel = $panel;
@@ -122,70 +166,5 @@ class BaseOpPanel {
             // "search": true,
             "gutters": ["CodeMirror-lint-markers"]
         });
-    }
-}
-
-namespace BaseOpPanel {
-    /**
-     * Helper class to implement the SelectAll behavior in a group of checkboxes
-     */
-    export class CheckboxGroup {
-        private _checkboxList: { check: Function, uncheck: Function }[] = [];
-        private _checkAll: { check?: Function, uncheck?: Function } = {};
-
-        public clear() {
-            this._checkboxList = [];
-        }
-
-        public setCheckAll(
-            {check, uncheck}: {
-                check: Function,
-                uncheck?: Function
-            }
-        ): void {
-            this._checkAll.check = check;
-            this._checkAll.uncheck = uncheck;
-        }
-
-        public addCheckbox(
-            {check, uncheck}: {
-                check: Function,
-                uncheck: Function
-            }
-        ): void {
-            this._checkboxList.push({ check: check, uncheck: uncheck });
-        }
-
-        /**
-         * Select all checkboxes in the list
-         */
-        public checkList() {
-            for (const {check} of this._checkboxList) {
-                check();
-            }
-        }
-
-        /**
-         * Unselect all checkboxes in the list
-         */
-        public unCheckList() {
-            for (const {uncheck} of this._checkboxList) {
-                uncheck();
-            }
-        }
-
-        /**
-         * Select SelectAll checkbox
-         */
-        public checkAll() {
-            this._checkAll.check();
-        }
-
-        /**
-         * Unselect SelectAll checkbox
-         */
-        public unCheckAll() {
-            this._checkAll.uncheck();
-        }
     }
 }

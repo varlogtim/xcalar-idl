@@ -121,6 +121,7 @@ namespace xcManager {
                 MapOpPanel.Instance.setup();
                 AggOpPanel.Instance.setup();
                 GroupByOpPanel.Instance.setup();
+                JoinOpPanel.Instance.setup();
             }
             // restore user settings
             OperationsView.restore();

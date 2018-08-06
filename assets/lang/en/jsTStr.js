@@ -785,14 +785,28 @@ JoinTStr = {
     "ColSelectInstr": "Please select pairs of columns: one column from the " +
                       "left table and one column from the right table, " +
                       "to be joined together.",
+    "DagColSelectInstr": "Please select pairs of columns: one column from the " +
+                      "left table and one column from the right table, " +
+                      "to be joined together.",
     "ColSelectInstrCross": "Cross join does not require join keys since it is " +
+                           "joining every record on the left table with " +
+                           "every record on the right table",
+    "DagColSelectInstrCross": "Cross join does not require join keys since it is " +
                            "joining every record on the left table with " +
                            "every record on the right table",
 
     //with replace
     'NoJoin': 'Cannot join <type>',
     'MismatchDetail': 'Cannot join column of type <type1> with column of type ' +
-                     '<type2>'
+                     '<type2>',
+    'joinTypeInner': 'Inner Join',
+    'joinTypeLeft': 'Left Outer Join',
+    'joinTypeRight': 'Right Outer Join',
+    'joinTypeFull': 'Full Outer Join',
+    'joinTypeLeftSemi': 'Left Semi Join',
+    'joinTypeLeftAnti': 'Left Anti Semi Join',
+    'joinTypeCross': 'Cross Join',
+    'joinTypeSepAdv': 'Advanced',
 };
 
 UnionTStr = {

@@ -1,0 +1,183 @@
+<section id="joinOpPanel" class="xc-hidden opPanel joinOpPanel">
+    <header>
+      <div class="title"><%= dicts.joinView.header %></div>
+      <i class="close icon xi-close"></i>
+    </header>
+    <div class="mainContent">
+      <div class="join opSection">
+        <p class="instructions"><%= dicts.joinView.instr %></p>
+        <section data-xcid="joinFirstStep" class="firstStep">
+            include "joinOpPanelTemplate.html"
+            <section class="topDropdowns clearfix">
+              <div class="subHeading clearfix">
+                <div><%= dicts.joinView.JoinType %>:
+                  <div class="hint csHelp" data-topic="joinTables" title="" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.TooltipTStr.CSHelp %>">
+                    <i class="icon xi-help fa-12"></i>
+                  </div>
+                </div>
+              </div>
+              <div data-xcid="joinType" class="dropDownList">
+                <div data-xcid="text" class="text"><%= dicts.joinView.InnerJoin %></div>
+                <div class="iconWrapper">
+                  <i class="icon xi-arrow-down"></i>
+                </div>
+                <ul data-xcid="menuItems" class="list"></ul>
+            </div>
+          </section>
+          <!-- Join Main Section -->
+          <section data-xcid="mainJoin" class="clearfix">
+            <div class="clauseContainer">
+              <div class="subHeading clearfix">
+                <div><%= dicts.joinView.colSelectTitle %></div>
+              </div>
+              <p data-xcid="colInstruction" class="colSelectInstr"></p>
+              <!-- <div class="smartSuggestSection">
+                <button class="smartSuggest btn" title="<%= dicts.joinView.SuggRightHint %>" data-toggle="tooltip" data-placement="top" data-container="body"><%= dicts.joinView.SmartSuggBtn %></button>
+                <span class="suggError">e</span>
+              </div> -->
+              <div class="subHeading clearfix">
+                <div><%= dicts.joinView.LeftCols %></div>
+                <div><%= dicts.joinView.RightCols %></div>
+              </div>
+              <div class="mainTable">
+                <div class="clauseArea">
+                  <div data-xcid="clauseContainer"></div>
+                  <div class="addClause placeholder">
+                    <button data-xcid="addClauseBtn" class="btn"><i class="icon xi-plus fa-14"></i><%= dicts.joinView.ADDCLAUSE %></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <section class="crossJoinFilter">
+              <div class="subHeading clearfix">
+                <div class="text"><%= dicts.joinView.FilterEval %></div>
+              </div>
+              <p class="crossJoinFilterInstr"><%= dicts.joinView.FilterInstr %></p>
+              <input class="arg" type="text" spellcheck="false">
+            </section>
+            <section class="joinPreviewArea">
+              <div class="subHeading clearfix">
+                <div class="text"><%= dicts.joinView.Preview %></div>
+              </div>
+              <p class="joinPreview"></p>
+            </section>
+          </section>
+          <section class="bottomSection">
+            <button class="btn next btn-disabled" type="button"><%= dicts.common.NEXT %></button>
+          </section>
+        </section>
+        <!-- end of first step -->
+        <!-- start of second step -->
+        <section data-xcid="joinSecondStep" class="secondStep">
+          <div class="colsToKeepSection noSelection">
+            <div class="subHeading clearfix">
+              <div><%= dicts.joinView.colKeepTitle %></div>
+            </div>
+            <p><%= dicts.joinView.colKeepInstr %></p>
+            <div class="subHeading clearfix">
+              <div class="leftColHeading"><%= dicts.joinView.LeftCols %>
+                <div class="checkbox checked selectAll">
+                  <i class="icon xi-ckbox-empty fa-13"></i>
+                  <i class="icon xi-ckbox-selected fa-13"></i>
+                </div>
+              </div>
+              <div class="rightColHeading"><%= dicts.joinView.RightCols %>
+                <div class="checkbox checked selectAll">
+                  <i class="icon xi-ckbox-empty fa-13"></i>
+                  <i class="icon xi-ckbox-selected fa-13"></i>
+                </div>
+              </div>
+            </div>
+            <div class="columnsWrap clearfix">
+              <ul class="leftCols cols"></ul>
+              <ul class="rightCols cols"></ul>
+            </div>
+          </div>
+          <div class="checkboxWrap keepTablesCBWrap clearfix">
+            <div class="keepTableCheckbox">
+              <div class="text"><%= dicts.joinView.keepTables %></div>
+              <div class="checkbox">
+                <i class="icon xi-ckbox-empty fa-13"></i>
+                <i class="icon xi-ckbox-selected fa-13"></i>
+              </div>
+            </div>
+            <i class="hint qMark icon xi-unknown" data-container="body" data-toggle="tooltip" title="<%= dicts.joinView.keepTablesHint %>"></i>
+          </div>
+          <div class="renameSection">
+            <div class="subHeading clearfix">
+              <div><%= dicts.common.ColRenames %></div>
+            </div>
+            <p><%= dicts.common.ColRenameInstr %></p>
+            <div data-xcid = "prefixHeader" class="subHeading clearfix">
+              <div class="subSubHeading light">
+                <%= dicts.joinView.PrefixHeader %>
+              </div>
+            </div>
+            <div data-xcid="lFatPtrRenames" class="tableRenames">
+              <div class="subSubHeading clearfix">
+                <div><%= dicts.joinView.LeftTablePrefix %></div>
+                include "joinRenameOption.html"
+                <div class="newNameLabel"><%= dicts.joinView.NewName %></div>
+              </div>
+              <div data-xcid="lFatPtrPlaceholder"></div>
+            </div>
+            <div data-xcid="rFatPtrRenames" class="tableRenames">
+              <div class="subSubHeading clearfix">
+                <div><%= dicts.joinView.RightTablePrefix %></div>
+                include "joinRenameOption.html"
+                <div class="newNameLabel"><%= dicts.joinView.NewName %></div>
+              </div>
+              <div data-xcid="rFatPtrPlaceholder"></div>
+            </div>
+            <div data-xcid="derivedHeader" class="subHeading clearfix">
+              <div class="subSubHeading light">
+                <%= dicts.joinView.DerivedHeader %>
+              </div>
+            </div>
+            <div data-xcid="leftTableRenames" class="tableRenames">
+              <div class="subSubHeading clearfix">
+                <div><%= dicts.joinView.LeftTableNames %></div>
+                include "joinRenameOption.html"
+                <div class="newNameLabel"><%= dicts.joinView.NewName %></div>
+              </div>
+              <div data-xcid="leftRenamePlaceholder"></div>
+            </div>
+            <div data-xcid="rightTableRenames" class="tableRenames">
+              <div class="subSubHeading clearfix">
+                <div><%= dicts.joinView.RightTableName %></div>
+                include "joinRenameOption.html"
+                <div class="newNameLabel"><%= dicts.joinView.NewName %></div>
+              </div>
+              <div data-xcid="rightRenamePlaceholder"></div>
+            </div>
+          </div>
+          <div>
+            <div class="subHeading">
+              <div class="text"><%= dicts.joinView.NewTableName %>:</div>
+            </div>
+            <input data-xcid="joinTableNameInput" type="text" required spellcheck="false" autofocus>
+          </div>
+          <div class="estimatorWrap">
+            <div class="subHeading clearfix" data-container="body" data-toggle="tooltip" title="<%= dicts.joinView.EstimateTooltip %>">
+              <div class="title"><%= dicts.joinView.Estimate %>
+              </div>
+              <div class="checkbox estimateCheckbox">
+                <i class="icon xi-ckbox-empty fa-13"></i>
+                <i class="icon xi-ckbox-selected fa-13"></i>
+              </div>
+            </div>
+            <div class="stats">
+              <div class="min"><%= dicts.statistics.Min %>: <div class="value"></div></div>
+              <div class="med"><%= dicts.statistics.Med %>: <div class="value"></div></div>
+              <div class="max"><%= dicts.statistics.Max %>: <div class="value"></div></div>
+            </div>
+          </div>
+          <section data-xcid="joinActions" class="bottomSection flexWrap">
+            <button data-xcid="joinTables" class="btn confirm" type="button"><%= dicts.joinView.CONFIRM %></button>
+            <button class="btn btn-cancel back" type="button"><%= dicts.common.BACK %></button>
+          </section>
+        </section>
+      </div>
+    </div>
+  </section>
+  

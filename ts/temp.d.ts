@@ -606,6 +606,14 @@ declare namespace DSTStr {
 declare namespace JoinTStr {
     export var DagColSelectInstr: string;
     export var DagColSelectInstrCross: string;
+    export var joinTypeInner: string;
+    export var joinTypeLeft: string;
+    export var joinTypeRight: string;
+    export var joinTypeFull: string;
+    export var joinTypeLeftSemi: string;
+    export var joinTypeLeftAnti: string;
+    export var joinTypeSepAdv: string;
+    export var joinTypeCross: string;
 }
 
 declare namespace OpFormTStr {
