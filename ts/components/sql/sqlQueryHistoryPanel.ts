@@ -513,13 +513,6 @@ namespace SqlQueryHistoryPanel {
             }
         }
 
-        private _clearTimer() {
-            if (this._refreshTimer != null) {
-                clearInterval(this._refreshTimer);
-                this._refreshTimer = null;
-            }
-        }
-
         private _getStatusCSSClass(status: SQLStatus): string {
             return this._statusMapping[status];
         } 
