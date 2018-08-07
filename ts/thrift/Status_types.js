@@ -656,7 +656,8 @@ StatusT = {
   'StatusPubTableInactive' : 647,
   'StatusPubTableRestoring' : 648,
   'StatusSelfSelectRequired' : 649,
-  'StatusSessionNameMissing' : 650
+  'StatusSessionNameMissing' : 650,
+  'StatusXpuConnAborted' : 651
 };
 StatusTStr = {
   0 : 'Success',
@@ -1309,7 +1310,8 @@ StatusTStr = {
   647 : 'Publish table is inactive',
   648 : 'Publish table is restoring',
   649 : 'Update requires a self select',
-  650 : 'Required session name is missing'
+  650 : 'Required session name is missing',
+  651 : 'XPU connection aborted due to internal error, try again later'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -1962,5 +1964,6 @@ StatusTFromStr = {
   'Publish table is inactive' : 647,
   'Publish table is restoring' : 648,
   'Update requires a self select' : 649,
-  'Required session name is missing' : 650
+  'Required session name is missing' : 650,
+  'XPU connection aborted due to internal error, try again later' : 651
 };
