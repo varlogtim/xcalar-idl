@@ -28,6 +28,6 @@ class DagNodeMap extends DagNode {
             eval: input.eval,
             icv: input.icv
         }
-        this.beConfiguredState();
+        super.setParam();
     }
 }

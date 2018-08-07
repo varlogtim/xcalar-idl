@@ -48,7 +48,7 @@ class DagNode {
         this.maxParents = 1;
         this.maxChildren = -1;
         this.allowAggNode = false;
-        this.lineage = new DagLineage();
+        this.lineage = new DagLineage(this);
         this._setupEvents();
     }
 
@@ -294,6 +294,7 @@ class DagNode {
 
         this._clearConnectionMeta();
         this.numParent--;
+        this.lineage.reset();
     }
 
     /**
@@ -360,6 +361,11 @@ class DagNode {
      */
     public getLineage(): DagLineage {
         return this.lineage;
+    }
+
+    protected setParam(): void {
+        this.beConfiguredState();
+        this.lineage.reset(); // lineage will change
     }
 
     protected _clearConnectionMeta(): void {

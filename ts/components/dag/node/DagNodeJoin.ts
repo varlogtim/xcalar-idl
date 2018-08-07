@@ -34,6 +34,7 @@ class DagNodeJoin extends DagNode {
             right: input.right,
             evalString: input.evalString
         }
+        super.setParam();
     }
 
     private _getDefaultTableInfo(): DagNodeJoinTableInput {

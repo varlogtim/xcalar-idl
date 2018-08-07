@@ -37,5 +37,6 @@ class DagNodeSet extends DagNode {
             columns: input.columns,
             dedup: input.dedup
         }
+        super.setParam();
     }
 }

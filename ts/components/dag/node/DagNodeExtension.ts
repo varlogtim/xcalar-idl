@@ -27,6 +27,6 @@ class DagNodeExtension extends DagNode {
         this.input = {
             evalString: input.evalString
         }
-        this.beConfiguredState();
+        super.setParam();
     }
 }

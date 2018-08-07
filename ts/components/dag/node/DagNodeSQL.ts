@@ -27,6 +27,6 @@ class DagNodeSQL extends DagNode {
         this.input = {
             evalString: input.evalString
         }
-        this.beConfiguredState();
+        super.setParam();
     }
 }

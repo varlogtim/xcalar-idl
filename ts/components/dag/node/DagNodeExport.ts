@@ -46,5 +46,6 @@ class DagNodeExport extends DagNode {
             keepOrder: input.keepOrder,
             options: input.options
         }
+        super.setParam();
     }
 }

@@ -35,5 +35,6 @@ class DagNodeGroupBy extends DagNode {
             icv: input.icv,
             groupAll: input.groupAll
         }
+        super.setParam();
     }
 }

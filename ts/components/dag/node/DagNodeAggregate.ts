@@ -30,6 +30,7 @@ class DagNodeAggregate extends DagNode {
             evalString: input.evalString,
             dest: input.dest
         }
+        super.setParam();
     }
 
     /**

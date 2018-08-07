@@ -25,5 +25,6 @@ class DagNodeProject extends DagNode {
         this.input = {
             columns: input.columns
         }
+        super.setParam();
     }
 }

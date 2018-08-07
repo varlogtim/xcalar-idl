@@ -1307,6 +1307,7 @@ declare namespace DataStore {
 
 declare namespace DS {
     export function getGrid(dsId: string): JQuery;
+    export function getGridByName(dsName: string): JQuery;
     export function updateDSInfo(arg: object): void;
     export function upgrade(oldDS: object): object;
     export function cancel($grid: JQuery): XDPromise<any>;
@@ -1316,14 +1317,15 @@ declare namespace DS {
     export function goToDir(foldderId: string): void;
     export function focusOn($grid: JQuery): XDPromise<any>;
     export function listDatasets(): ListDSInfo[];
-
-    interface DSObj {
-        parentId: string,
-        getFullName: Function,
-        getName: Function
-    }
 }
 
+
+declare class DSObj {
+    public parentId: string;
+    public getFullName(): string;
+    public getName(): string;
+    public fetch(startRow: number, rowsToFetch: number): XDPromise<any>
+}
 
 declare namespace DSCart {
     export function restore(oldMeat: object): void;

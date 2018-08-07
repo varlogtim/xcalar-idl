@@ -24,11 +24,35 @@ class DagNodeDataset extends DagNode {
      * @param input.source {string} Dataset source path
      * @param intpu.prefix {string} Prefix for the created table
      */
-    public setParam(input: DagNodeDatasetInput = <DagNodeDatasetInput>{}) {
+    public setParam(input: DagNodeDatasetInput = <DagNodeDatasetInput>{}): XDPromise<void> {
         this.input = {
             source: input.source,
             prefix: input.prefix
         }
-        this.beConfiguredState();
+        super.setParam();
+        return this._getSourceColumns();
+    }
+
+    private _getSourceColumns(): XDPromise<void> {
+        // XXXX this is a wrong implementation
+        // wait for https://bugs.int.xcalar.com/show_bug.cgi?id=12870
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const $ds: JQuery = DS.getGridByName(this.input.source);
+        const dsId: string = $ds.data("dsid");
+        const ds: DSObj = DS.getDSObj(dsId);
+        const lineage: DagLineage = this.lineage;
+        const prefix: string = this.input.prefix;
+        ds.fetch(0, 50)
+            .then((_json, jsonKeys) => {
+                const columns: ProgCol[] = jsonKeys.map((key) => {
+                    const colName: string = xcHelper.getPrefixColName(prefix, key);
+                    return ColManager.newPullCol(colName);
+                });
+                lineage.setColumns(columns);
+                deferred.resolve();
+            })
+            .fail(deferred.reject);
+        
+        return deferred.promise();
     }
 }
