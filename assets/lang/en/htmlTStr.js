@@ -281,7 +281,7 @@ module.exports = {
         "SortDesc": "Z-A",
         "SplitCol": "Split column",
         "SplitColDelim": "Split column by delimiter",
-        "SplitColNum": "Number of fields",
+        "SplitColNum": "Number of columns",
         "SplitColNames": "Column names",
         "TxtAlign": "Text align",
         "TxtAlignCenter": "Center align",
