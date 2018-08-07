@@ -3470,7 +3470,7 @@ window.DSPreview = (function($, DSPreview) {
             } else {
                 // update preview
                 addRowsToPreview(rowsToAdd);
-                getPreviewTable();
+                getPreviewTable(false, (tableName != null));
                 $previewTable.closest(".datasetTbodyWrap").scrollTop(scrollPos);
             }
         })
