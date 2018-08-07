@@ -89,20 +89,30 @@ namespace SqlQueryHistoryPanel {
                 this._$cardContainer,
                 { isAutoRefresh: isAutoRefresh }
             );
+
+            // Refresh
+            const $refreshicon = $("#refreshQueryHist");
+            $refreshicon.on('click', () => {
+                    this.show(true);
+                }
+            );
             SqlQueryHistModal.getInstance().setup();
         }
 
         /**
          * Show the history table
+         * @param refresh if this is a manual refresh triggered by click on icon
          * @description
          * If the queryMap is not null, the table is shown with existing data
          */
-        public show(): XDPromise<any> {
-            if (SqlQueryHistory.getInstance().isLoaded()) {
+        public show(
+            refresh: boolean
+        ): XDPromise<any> {
+            if (SqlQueryHistory.getInstance().isLoaded() && !refresh) {
                 return PromiseHelper.resolve();
             } else {
                 const deferred: XDDeferred<void> = PromiseHelper.deferred();
-                SqlQueryHistory.getInstance().readStore()
+                SqlQueryHistory.getInstance().readStore(refresh)
                 .then( () => {
                     const sortIndex = this._getSortIndex(
                         SortOrder.DESC,
@@ -398,9 +408,14 @@ namespace SqlQueryHistoryPanel {
             onClickError: ({title, errorMsg}: {title: string, errorMsg: string}) => any
         ): JQuery {
             // Create DOM from template
-            const duration = (queryInfo.endTime != null)
-                ? queryInfo.endTime - queryInfo.startTime
-                : Date.now() - queryInfo.startTime;
+            let duration;
+            if (queryInfo.endTime != null) {
+                duration = queryInfo.endTime - queryInfo.startTime;
+            } else if (queryInfo.status === SQLStatus.Cancelled) {
+                duration = "N/A";
+            } else {
+                duration = Date.now() - queryInfo.startTime
+            }
             const rowHTML = this._templateRow
             .replace('{{status}}', SQLStatusString[queryInfo.status])
             .replace('{{query}}', queryInfo.queryString)
@@ -410,6 +425,7 @@ namespace SqlQueryHistoryPanel {
             )
             .replace(
                 '{{duration}}',
+                duration === "N/A" ? duration :
                 xcHelper.getElapsedTimeStr(duration, (queryInfo.endTime == null))
             )
             .replace(
@@ -441,7 +457,7 @@ namespace SqlQueryHistoryPanel {
     
             // Register change duration handler
             delete this._changeDurationHandlers[queryInfo.queryId];
-            if (queryInfo.endTime == null) {
+            if (queryInfo.endTime == null && queryInfo.status !== SQLStatus.Cancelled) {
                 // Only queries w/o endTime, aka still running/compiling, need to show realtime duration
                 const $elemDuration = findXCElement($rowElement, 'duration');
                 this._changeDurationHandlers[queryInfo.queryId] =

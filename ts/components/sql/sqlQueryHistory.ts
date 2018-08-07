@@ -53,9 +53,10 @@ class SqlQueryHistory {
 
     /**
      * Read query map from KV Store, and cache in the class
+     * @param refresh if this is a manual refresh triggered by click on icon
      * @returns The copy of queryMap
      */
-    public readStore(): XDPromise<void> {
+    public readStore(refresh: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._sqlQueryKvStore.get()
         .then( (ret) => {
@@ -64,10 +65,19 @@ class SqlQueryHistory {
                 for (const queryId of ret.split(",")) {
                     if (queryId) {
                         let kvStore = new KVStore(queryId, gKVScope.WKBK);
+                        let queryInfo;
                         let promise = kvStore.get()
                             .then( (ret) => {
                                 try {
-                                    let queryInfo = JSON.parse(ret);
+                                    queryInfo = JSON.parse(ret);
+                                    if (!refresh &&
+                                        (queryInfo.status === SQLStatus.Compiling ||
+                                         queryInfo.status === SQLStatus.Running)
+                                        ) {
+                                        queryInfo.status = SQLStatus.Cancelled;
+                                        this._queryMap[queryId] = queryInfo;
+                                        return kvStore.put(JSON.stringify(queryInfo), true);
+                                    }
                                     this._queryMap[queryId] = queryInfo;
                                 } catch(e) {
                                     deferred.reject();
@@ -117,19 +127,19 @@ class SqlQueryHistory {
     ): XDPromise<{isNew: boolean, queryInfo: SqlQueryHistory.QueryInfo}> {
         let queryInfo = this.getQuery(updateInfo.queryId);
         const isNewQuery = (queryInfo == null);
-        let promise;
         if (isNewQuery) {
             queryInfo = new SqlQueryHistory.QueryInfo();
-            promise = this._sqlQueryKvStore.append(updateInfo.queryId + ",", true);
-        } else {
-            promise = PromiseHelper.resolve();
         }
         SqlQueryHistory.mergeQuery(queryInfo, updateInfo);
         this.setQuery(queryInfo);
 
         // update KVStore
-        return promise
-        .then( () => this.writeQueryStore(queryInfo.queryId, queryInfo) )
+        return this.writeQueryStore(queryInfo.queryId, queryInfo)
+        .then( () => {
+            if (isNewQuery) {
+                return this._sqlQueryKvStore.append(queryInfo.queryId + ",", true);
+            }
+        })
         .then( () => ({
             isNew: isNewQuery,
             queryInfo: queryInfo

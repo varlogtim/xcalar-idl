@@ -126,6 +126,20 @@
 .sqlQueryHist {
     @cardHeaderHeight: 36px;
     .size(@min-width: 650px, @height: ~"calc(100% - 5px)");
+    .cardHeader {
+        display: flex;
+        #refreshQueryHist {
+            color: white;
+            opacity: 0.7;
+            cursor: pointer;
+            align-self: center;
+            margin-left: auto;
+            margin-right: 10px;
+            &:hover {
+                opacity: 1;
+            }
+        }
+    }
     .cardMain {
         padding: 0;
         .size(@height: ~"calc(100% - @{cardHeaderHeight})");
