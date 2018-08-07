@@ -757,7 +757,7 @@ namespace IMDPanel {
                     $inactiveSection.find(".checkAllInactive").addClass("checked");
                 }
             } else {
-                const index = iCheckedTables.indexOf(table);
+                const index = iCheckedTables.findIndex(tab => tab.name === table.name)
                 iCheckedTables.splice(index, 1);
                 $imdPanel.find(".checkAllInactive").removeClass("checked");
                 if (iCheckedTables.length === 0) {
@@ -781,7 +781,7 @@ namespace IMDPanel {
                     $imdPanel.find(".checkAllActive").addClass("checked");
                 }
             } else {
-                const index = pCheckedTables.indexOf(table);
+                const index = pCheckedTables.findIndex(tab => tab.name === table.name)
                 pCheckedTables.splice(index, 1);
                 $imdPanel.find(".checkAllActive").removeClass("checked");
                 if (pCheckedTables.length === 0) {
