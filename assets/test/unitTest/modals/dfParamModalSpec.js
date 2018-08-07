@@ -99,16 +99,17 @@ describe("DFParamModal Test", function() {
             });
 
             it("inputs should be correct", function() {
-                expect($modal.find(".template .boxed").length).to.equal(9);
+                expect($modal.find(".template .boxed").length).to.equal(10);
                 expect($modal.find(".template .boxed").eq(0).text()).to.equal("export-" + tableName);
                 expect($modal.find(".template .boxed").eq(1).text()).to.equal("Default");
-                expect($modal.find(".template .boxed").eq(2).text()).to.equal("Do Not Overwrite");
-                expect($modal.find(".template .boxed").eq(3).text()).to.equal("\\n");
-                expect($modal.find(".template .boxed").eq(4).text()).to.equal("\\t");
-                expect($modal.find(".template .boxed").eq(5).text()).to.equal("\"");
-                expect($modal.find(".template .boxed").eq(6).text()).to.equal("Every File");
-                expect($modal.find(".template .boxed").eq(7).text()).to.equal("True");
-                expect($modal.find(".template .boxed").eq(8).text()).to.equal("Multiple Files");
+                expect($modal.find(".template .boxed").eq(2).text()).to.equal("File");
+                expect($modal.find(".template .boxed").eq(3).text()).to.equal("Do Not Overwrite");
+                expect($modal.find(".template .boxed").eq(4).text()).to.equal("\\n");
+                expect($modal.find(".template .boxed").eq(5).text()).to.equal("\\t");
+                expect($modal.find(".template .boxed").eq(6).text()).to.equal("\"");
+                expect($modal.find(".template .boxed").eq(7).text()).to.equal("Every File");
+                expect($modal.find(".template .boxed").eq(8).text()).to.equal("True");
+                expect($modal.find(".template .boxed").eq(9).text()).to.equal("Multiple Files");
             });
 
             it("str to special char should work", function() {
@@ -270,7 +271,9 @@ describe("DFParamModal Test", function() {
         it("inputs should be correct", function() {
             expect($modal.find(".template .boxed").length).to.equal(1);
             expect($modal.find(".template").text()).to.equal("Filter Operation:gt(" + colName + ", 3)");
-            var $inputs = $modal.find("input");
+            var $inputs = $modal.find("input").filter(function() {
+                return $(this).closest("#retPopUp").length === 0;
+            });
             expect($inputs.length).to.equal(1);
         });
 
@@ -659,19 +662,20 @@ describe("DFParamModal Test", function() {
             });
 
             it("param dropdown should work", function() {
+                var called = false;
                 var cache = xcHelper.copyToClipboard;
                 xcHelper.copyToClipboard = function() {
                     called = true;
                 };
 
-                expect($modal.find(".paramMenu").is(":visible")).to.be.false;
-                $modal.find(".toggleParamMenu").click();
-                expect($modal.find(".paramMenu").is(":visible")).to.be.true;
-                expect($modal.find(".paramMenu").text().indexOf("testParam")).to.be.gt(-1);
-                $modal.find(".paramMenu li").trigger("mouseup");
+                expect($modal.find("#retPopUp").is(":visible")).to.be.false;
+                $modal.find(".retTab").click();
+                expect($modal.find("#retPopUp").is(":visible")).to.be.true;
+                expect($modal.find("#retPopUp").text().indexOf("testParam")).to.be.gt(-1);
+                $modal.find("#retPopUp .paramNameWrap").eq(0).trigger("mouseup");
                 expect(called).to.be.true;
                 $("#container").mousedown().click();
-                expect($modal.find(".paramMenu").is(":visible")).to.be.false;
+                expect($modal.find("#retPopUp").is(":visible")).to.be.false;
                 xcHelper.copyToClipboard = cache;
             });
 
