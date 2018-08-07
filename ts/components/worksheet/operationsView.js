@@ -779,112 +779,123 @@ window.OperationsView = (function($, OperationsView) {
             return PromiseHelper.reject();
         }
         var deferred = PromiseHelper.deferred();
-        if (!options.restore) {
-            operatorName = operator.toLowerCase().trim();
-        }
-
-        formHelper.showView(operatorName);
-
-        isEditMode = DagEdit.isEditMode();
-        var hasPrefill = options.prefill ? true : false;
-        if (options.prefill && options.prefill.isDroppedTable) {
-            table = gDroppedTables[currTableId];
-        } else if (currTableId != null) {
-            table = gTables[currTableId];
-        }
-
-        if (options.restore) {
-            $activeOpSection.removeClass('xc-hidden');
-        } else {
-            tableId = currTableId;
-            // changes mainMenu and assigns activeOpSection
-            showOpSection();
-            resetForm();
-            if (options.triggerColNum != null) {
-                colNum = options.triggerColNum;
-            } else if (currColNums && currColNums.length) {
-                colNum = currColNums[0];
-            }
-            if (table.getCol(colNum)) {
-                triggerColName = table.getCol(colNum).getBackColName();
+        try {
+            if (!options.restore) {
+                operatorName = operator.toLowerCase().trim();
             }
 
-            if (currColNums && currColNums.length) {
-                currentCol = table.getCol(colNum);
-                colName = currentCol.getFrontColName(true);
-                isNewCol = currentCol.isNewCol;
-            } else if (hasPrefill) {
-                if (options.prefill.args[0] &&
-                    options.prefill.args[0][0] &&
-                    options.prefill.args[0][0].indexOf("(") === -1) {
-                    colName = options.prefill.args[0][0];
-                } else {
-                    colName = "";
-                }
-                isNewCol = false;
+            formHelper.showView(operatorName);
+
+            isEditMode = DagEdit.isEditMode();
+            var hasPrefill = options.prefill ? true : false;
+            if (options.prefill && options.prefill.isDroppedTable) {
+                table = gDroppedTables[currTableId];
+            } else if (currTableId != null) {
+                table = gTables[currTableId];
             }
-        }
-        updateFormTitles();
 
-        // highlight active column
-        if (currColNums && currColNums.length === 1) {
-            $('#xcTable-' + tableId).find('.col' + colNum)
-                                    .addClass('modalHighlighted');
-        }
-
-        operationsViewShowListeners(options.restore);
-
-        // used for css class
-        var opNameNoSpace = operatorName.replace(/ /g, "");
-        var columnPicker = {
-            "state": opNameNoSpace + "State",
-            "colCallback": function($target) {
-                var options = {};
-                var $focusedEl = $(document.activeElement);
-                if (($focusedEl.is("input") &&
-                    !$focusedEl.is($lastInputFocused)) ||
-                    $lastInputFocused.closest(".semiHidden").length) {
-                    return;
+            if (options.restore) {
+                $activeOpSection.removeClass('xc-hidden');
+            } else {
+                tableId = currTableId;
+                // changes mainMenu and assigns activeOpSection
+                showOpSection();
+                resetForm();
+                if (options.triggerColNum != null) {
+                    colNum = options.triggerColNum;
+                } else if (currColNums && currColNums.length) {
+                    colNum = currColNums[0];
                 }
-                if ($lastInputFocused.closest(".row")
-                                     .siblings(".addArgWrap").length
-                    || $lastInputFocused.hasClass("variableArgs")) {
-                    options.append = true;
+                if (table.getCol(colNum)) {
+                    triggerColName = table.getCol(colNum).getBackColName();
                 }
-                xcHelper.fillInputFromCell($target, $lastInputFocused,
-                                            gColPrefix, options);
-                checkHighlightTableCols($lastInputFocused);
-                if ($lastInputFocused.hasClass("gbAgg")) {
-                    autoGenNewGroubyName($lastInputFocused);
+
+                if (currColNums && currColNums.length) {
+                    currentCol = table.getCol(colNum);
+                    colName = currentCol.getFrontColName(true);
+                    isNewCol = currentCol.isNewCol;
+                } else if (hasPrefill) {
+                    if (options.prefill.args[0] &&
+                        options.prefill.args[0][0] &&
+                        options.prefill.args[0][0].indexOf("(") === -1) {
+                        colName = options.prefill.args[0][0];
+                    } else {
+                        colName = "";
+                    }
+                    isNewCol = false;
                 }
             }
-        };
-        formHelper.setup({"columnPicker": columnPicker});
+            updateFormTitles();
 
-        toggleOperationsViewDisplay(false);
+            // highlight active column
+            if (currColNums && currColNums.length === 1) {
+                $('#xcTable-' + tableId).find('.col' + colNum)
+                                        .addClass('modalHighlighted');
+            }
 
-        // load updated UDFs if operator is map
-        if (operatorName === "map") {
-            formHelper.addWaitingBG({
-                heightAdjust: 20,
-                transparent: true
-            });
-            disableInputs();
-            UDF.list()
-            .then(function(listXdfsObj) {
-                var fns = xcHelper.filterUDFs(listXdfsObj.fnDescs);
-                udfUpdateOperatorsMap(fns);
-                operationsViewShowHelper(options.restore, null, options);
+            operationsViewShowListeners(options.restore);
+
+            // used for css class
+            var opNameNoSpace = operatorName.replace(/ /g, "");
+            var columnPicker = {
+                "state": opNameNoSpace + "State",
+                "colCallback": function($target) {
+                    var options = {};
+                    var $focusedEl = $(document.activeElement);
+                    if (($focusedEl.is("input") &&
+                        !$focusedEl.is($lastInputFocused)) ||
+                        $lastInputFocused.closest(".semiHidden").length) {
+                        return;
+                    }
+                    if ($lastInputFocused.closest(".row")
+                                         .siblings(".addArgWrap").length
+                        || $lastInputFocused.hasClass("variableArgs")) {
+                        options.append = true;
+                    }
+                    xcHelper.fillInputFromCell($target, $lastInputFocused,
+                                                gColPrefix, options);
+                    checkHighlightTableCols($lastInputFocused);
+                    if ($lastInputFocused.hasClass("gbAgg")) {
+                        autoGenNewGroubyName($lastInputFocused);
+                    }
+                }
+            };
+            formHelper.setup({"columnPicker": columnPicker});
+
+            toggleOperationsViewDisplay(false);
+
+            // load updated UDFs if operator is map
+            if (operatorName === "map") {
+                formHelper.addWaitingBG({
+                    heightAdjust: 20,
+                    transparent: true
+                });
+                disableInputs();
+                UDF.list()
+                .then(function(listXdfsObj) {
+                    var fns = xcHelper.filterUDFs(listXdfsObj.fnDescs);
+                    udfUpdateOperatorsMap(fns);
+                    operationsViewShowHelper(options.restore, null, options);
+                    deferred.resolve();
+                })
+                .fail(function(error) {
+                    Alert.error("Listing of UDFs failed", error.error);
+                    deferred.reject();
+                });
+            } else {
+                operationsViewShowHelper(options.restore, currColNums, options);
                 deferred.resolve();
-            })
-            .fail(function(error) {
-                Alert.error("Listing of UDFs failed", error.error);
-                deferred.reject();
+            }
+        } catch (e) {
+            console.error(e);
+            Alert.error(ErrTStr.Error, ErrTStr.OpenForm, {
+                onCancel: function() {
+                    OperationsView.close();
+                }
             });
-        } else {
-            operationsViewShowHelper(options.restore, currColNums, options);
-            deferred.resolve();
+            deferred.reject();
         }
+
         return (deferred.promise());
     };
 
