@@ -5,6 +5,7 @@ window.UserSettings = (function($, UserSettings) {
     var cachedPrefs = {};
     var monIntervalSlider;
     var commitIntervalSlider;
+    var logOutIntervalSlider;
     var genSettings;
     var revertedToDefault = false;
 
@@ -193,7 +194,7 @@ window.UserSettings = (function($, UserSettings) {
         userPrefs = new UserPref();
         hasDSChange = false;
         addEventListeners();
-        if (!Admin.isAdmin()) {
+        if (!Admin.isAdmin()) { // remove admin only settings
             $("#monitorGenSettingsCard .optionSet.admin").remove();
         }
     }
@@ -320,6 +321,17 @@ window.UserSettings = (function($, UserSettings) {
             }
         });
 
+        logOutIntervalSlider = new RangeSlider($('#logOutIntervalSlider'),
+        'logOutInterval', {
+            minVal: 10,
+            maxVal: 120,
+            onChangeEnd: function(val) {
+                // here update the logout timeout value
+                XcUser.CurrentUser.updateLogOutInterval(val * 60 * 1000);
+                UserSettings.logChange();
+            }
+        });
+
         $("#userSettingsSave").click(function() {
             $("#autoSaveBtn").click();
         });
@@ -351,6 +363,7 @@ window.UserSettings = (function($, UserSettings) {
         var enableCreateTable = UserSettings.getPref("enableCreateTable");
         var hideSysOps = UserSettings.getPref("hideSysOps");
         var disableDSShare = UserSettings.getPref("disableDSShare");
+        var logOutInterval = UserSettings.getPref("logOutInterval");
 
         if (!hideDataCol) {
             $("#showDataColBox").addClass("checked");
@@ -372,6 +385,7 @@ window.UserSettings = (function($, UserSettings) {
         DS.toggleSharing(disableDSShare);
         monIntervalSlider.setSliderValue(graphInterval);
         commitIntervalSlider.setSliderValue(commitInterval);
+        logOutIntervalSlider.setSliderValue(logOutInterval || 25);
         setEnableCreateTable(enableCreateTable);
     }
 

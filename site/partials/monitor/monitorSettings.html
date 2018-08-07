@@ -53,6 +53,19 @@
         </div>
       </div>
     </div>
+    <div class="optionSet admin">
+      <div class="label"><%= dicts.monitor.logOutInterval %></div>
+      <div id="logOutIntervalSlider" class="optionSelector rangeSliderWrap">
+        <div class="rangeSlider">
+          <div class="leftArea">
+            <div class="slider"></div>
+          </div>
+          <div class="rightArea"></div>
+        </div>
+        <input class="value" value="25" type="number" min="10" max="120">
+        <span><%= dicts.common.minutes %></span>
+      </div>
+    </div>
 	</div>
   <div class="cardBottom">
     <button class="btn" id="userSettingsSave"><%= dicts.common.CONFIRMSAVE %></button>

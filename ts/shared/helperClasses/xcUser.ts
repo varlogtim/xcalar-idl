@@ -31,6 +31,7 @@ class XcUser {
             const user: XcUser = new this(username, isAdmin);
             this._currentUser = user;
             XcUser.setUserSession(user);
+            XcUser.CurrentUser.extendCookies();
             XcUser.CurrentUser.idleCheck();
         };
 
@@ -122,6 +123,9 @@ class XcUser {
     private _userIdUnique: number;
     private _isIdle: boolean;
     private _idleChckTimer: number;
+    private _checkTime: number = (UserSettings
+        .getPref('logOutInterval') * 60 * 1000)
+    || 25 * 60 * 1000; // 25 minutes default
 
     private _commitFlag: string;
     private _defaultCommitFlag: string = "commit-default";
@@ -143,9 +147,9 @@ class XcUser {
     public getMemoryUsage(): XDPromise<any> {
         return XcalarGetMemoryUsage(this._username, this._userIdUnique);
     }
-    
+
     /**
-     * 
+     *
      * @param stripEmail {boolean} strip email address or not
      * @param collab {boolean} is in collobation mode or not
      */
@@ -307,16 +311,15 @@ class XcUser {
     }
 
     /**
-     * Check if use has idle for 25 minutes or not,
-     * if yes, logout the user, otherwise, extend the cookies
-     * Note that cookies will expire in 30 minutes, so here we
-     * check every 25 minutes to ensure it can be extended
+     * Check if user has been idle, (default = 25 minutes)
+     * if yes, log out the user, otherwise, extend the cookies
+     * Note that cookies will expire at 30th minute, so here we
+     * check every 10 to 29 minutes to ensure they can be extended
      */
     public idleCheck(): void {
         if (this !== XcUser.CurrentUser) {
             throw "Invalid User";
         }
-
         this._isIdle = true;
         $(document).on("mousemove.idleCheck", () => {
             // as long as there is mouse move action, mark as not idle
@@ -326,13 +329,40 @@ class XcUser {
         this._idleChecker();
     }
 
+    public getLogOutTimeoutVal(): number {
+        return this._checkTime;
+    }
+
+    public updateLogOutInterval(value: number): void {
+        this._checkTime = value;
+        this.idleCheck();
+    }
+
     public disableIdleCheck(): void {
         console.info("idle check is disabled!");
         clearTimeout(this._idleChckTimer);
     }
 
+    public extendCookies(): void {
+        // This timer is used to update the cookies every 25 mins,
+        // which are to expire if not called within 30 minutes
+        const cookiesUpdateTime: number = 25 * 60 * 1000;
+        if (this !== XcUser.CurrentUser) {
+            throw "Invalid User";
+        }
+        window.setTimeout(() => {
+            if ($("#container").hasClass("locked")) {
+                return; // if it's error, skip the check
+            } else {
+                XcUser.checkCurrentUser(); // extend cookies
+                this.extendCookies() // reset extendCookies()
+            }
+        }, cookiesUpdateTime);
+    }
+
     private _idleChecker(): void {
-        const checkTime: number = 25 * 60 * 1000; // 25 minutes
+        // This timer is used to check if user has been idle
+        // for '_checkTime' minutes
         clearTimeout(this._idleChckTimer);
         this._idleChckTimer = window.setTimeout(() => {
             if ($("#container").hasClass("locked")) {
@@ -340,10 +370,9 @@ class XcUser {
             } else if (this._isIdle) {
                 this.logout();
             } else {
-                XcUser.checkCurrentUser(); // extend cookies
                 this.idleCheck(); // reset the check
             }
-        }, checkTime);
+        }, this._checkTime);
     }
 
     private commitMismatchHandler(): void {
