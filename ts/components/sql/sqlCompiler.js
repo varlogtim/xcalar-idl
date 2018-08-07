@@ -2005,15 +2005,22 @@
                         var newGbColName = fArray[j].newColName;
                         firstMapColNames.push(newGbColName);
                         firstMapColTypes.push(getColType(fArray[j]));
-                        gbColNames[gbColNames.indexOf(origGbColName)] = newGbColName;
-                        if (gbStrColNames.indexOf(origGbColName) != -1) {
-                            gbStrColNames[gbStrColNames.indexOf(origGbColName)]
-                                                                = newGbColName;
+                        if (inAgg) {
+                            gbColNames.push(newGbColName);
+                            firstMapArray.push(fArray[j].evalStr);
+                            if (getColType(fArray[j]) === "string") {
+                                gbStrColNames.push(newGbColName);
+                            }
+                        } else {
+                            gbColNames[gbColNames.indexOf(origGbColName)] = newGbColName;
+                            if (gbStrColNames.indexOf(origGbColName) != -1) {
+                                gbStrColNames[gbStrColNames.indexOf(origGbColName)]
+                                                                    = newGbColName;
+                            }
+                            inAgg = true;
                         }
-                        inAgg = true;
                         // Mark fArray[i] as "used in group by"
                         fArray[j].groupby = true;
-                        break;
                     }
                 }
                 if (!inAgg) {
@@ -3545,7 +3552,7 @@
             }
             idSet.add(cols[i][0].exprId.id);
             colInfoArray.push({colName: cleanseColName(cols[i][0].name),
-                               type: cols[i][0].dataType,
+                               type: convertSparkTypeToXcalarType(cols[i][0].dataType),
                                colId: cols[i][0].exprId.id
                             });
         }
