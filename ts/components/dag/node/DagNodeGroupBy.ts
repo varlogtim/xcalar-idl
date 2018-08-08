@@ -13,10 +13,10 @@ class DagNodeGroupBy extends DagNode {
     public getParam(): DagNodeGroupByInput {
         return {
             groupBy: this.input.groupBy || [""],
-            aggregate: this.input.aggregate || [{operator: "", sourceColumn: "", destColumn: "", distinct: false}],
+            aggregate: this.input.aggregate || [{operator: "", sourceColumn: "", destColumn: "", distinct: false, cast: null}],
             includeSample: this.input.includeSample || false,
             icv: this.input.icv || false,
-            groupAll: this.input.groupAll || false,
+            groupAll: this.input.groupAll || false
         };
     }
 

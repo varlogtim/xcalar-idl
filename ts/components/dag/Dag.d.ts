@@ -35,7 +35,7 @@ interface DagNodeFilterInput {
 
 interface DagNodeGroupByInput {
     groupBy: string[];
-    aggregate: {operator: string, sourceColumn: string, destColumn: string, distinct: boolean}[];
+    aggregate: {operator: string, sourceColumn: string, destColumn: string, distinct: boolean, cast: string}[];
     includeSample: boolean;
     icv: boolean;
     groupAll: boolean;

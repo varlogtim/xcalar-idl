@@ -44,13 +44,13 @@ class DagNodeDataset extends DagNode {
             .then((_json, jsonKeys) => {
                 const columns: ProgCol[] = jsonKeys.map((key) => {
                     const colName: string = xcHelper.getPrefixColName(prefix, key);
-                    return ColManager.newPullCol(colName);
+                    return ColManager.newPullCol(colName, null, ColumnType.string);
                 });
                 lineage.setColumns(columns);
                 deferred.resolve();
             })
             .fail(deferred.reject);
-        
+
         return deferred.promise();
     }
 }

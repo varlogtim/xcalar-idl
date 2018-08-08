@@ -117,7 +117,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
             '.close, .cancel',
             () => { this.close() }
         );
-        
+
         // Submit button
         this._$elemPanel.on(
             `click.submit.${ProjectOpPanel._eventNamespace}`,
@@ -312,7 +312,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
                 uncheck: this._checkColumn.bind(this, $elemCheckbox, colIndex, false)
             });
         }
-        
+
         return $dom;
     }
 

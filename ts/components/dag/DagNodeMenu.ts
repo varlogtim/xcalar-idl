@@ -110,15 +110,23 @@ namespace DagNodeMenu {
                 DatasetOpPanel.Instance.show(<DagNodeDataset>node);
                 break;
             case (DagNodeType.Project):
-                console.log("open project form");
                 ProjectOpPanel.Instance.show(node);
                 break;
             case (DagNodeType.Set):
                 SetOpPanel.Instance.show(node);
                 break;
             case (DagNodeType.Filter):
+                FilterOpPanel.Instance.show(node);
+                break;
+            case (DagNodeType.Aggregate):
+                AggOpPanel.Instance.show(node);
+                break;
             case (DagNodeType.Map):
-                OperationsView2.show(node);
+                MapOpPanel.Instance.show(node);
+                break;
+            case (DagNodeType.GroupBy):
+                GroupByOpPanel.Instance.show(node);
+                break;
             default:
                 break;
         }

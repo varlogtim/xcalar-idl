@@ -1,0 +1,63 @@
+<section id="filterOpPanel" class="xc-hidden opPanel generalOpPanel">
+<header>
+    <div class="title"><%= dicts.opsView.filter %></div>
+    <i class="close icon xi-close"></i>
+</header>
+<div class="mainContent">
+    <div class="opSection">
+        <p class="instructions instrText"><%= dicts.opsView.filterInstr %></p>
+        <div class="group filterGroup firstGroup">
+            <div class="catFuncHeadings clearfix subHeading">
+            <div class="filterFnTitle"><%= dicts.opsView.filterFunc %>:</div>
+            <div class="altFnTitle"><%= dicts.opsView.noFunc %></div>
+            <i class="icon xi-minus minGroup"></i>
+            </div>
+            <div class="dropDownList firstList functionsList" data-fnlistnum="0">
+                <input class="text inputable autocomplete functionsInput" data-fninputnum="0" tabindex="10" spellcheck="false">
+                <div class="iconWrapper dropdown">
+                    <i class="icon xi-arrow-down"></i>
+                </div>
+                <div class="list genFunctionsMenu">
+                    <ul data-fnmenunum="0"></ul>
+                    include "../../util/menuScrollArea.html"
+                </div>
+            </div>
+            <div class="descriptionText"></div>
+            <div class="argsSection inactive"></div>
+        </div>
+        <!-- end filter group -->
+        <div class="andOrToggle">
+            <div class="instr">
+            <%= dicts.opsView.andOrFilter %>
+            <div class="hint csHelp" data-topic="filterMultiple" title="<%= dicts.TooltipTStr.CSHelp %>" data-toggle="tooltip" data-container="body">
+                <i class="icon xi-help fa-12"></i>
+            </div>
+            </div>
+            <div class="switchWrap">
+            <div class="switchLabel">
+                <%= dicts.opsView.or %>
+            </div>
+            <div class="xc-switch switch alwaysBlue on">
+                <div class="slider"></div>
+            </div>
+            <div class="switchLabel">
+                <%= dicts.opsView.and %>
+            </div>
+            </div>
+        </div>
+        <div class="addArgWrap">
+            <button class="btn btn-small btn-rounded addArg addFilterArg">
+            <i class="icon xi-plus"></i>
+            </button>
+            <span class="text"><%= dicts.opsView.additional %></span>
+        </div>
+    </div>
+
+    <div class="strPreview"></div> <!-- this gets filled by JS -->
+    <div class="btnWrap">
+        <button class="btn btn-submit btn-rounded submit">
+            <%= dicts.common.Save %>
+        </button>
+    </div>
+</div>
+</section>

@@ -78,6 +78,13 @@ namespace xcManager {
             return PromiseHelper.alwaysResolve(DSTargetManager.refreshTargets(true));
         })
         .then(function() {
+            if (gDionysus) {
+                return XDFManager.Instance.setup();
+            } else {
+                return PromiseHelper.resolve();
+            }
+        })
+        .then(function() {
             StatusMessage.updateLocation(true,
                                         StatusMessageTStr.SettingExtensions);
             // Extensions need to be moved to after version check because
@@ -111,7 +118,10 @@ namespace xcManager {
             if (gDionysus) {
                 ProjectOpPanel.Instance.setup();
                 DatasetOpPanel.Instance.setup();
-                OperationsView2.setup();
+                FilterOpPanel.Instance.setup();
+                MapOpPanel.Instance.setup();
+                AggOpPanel.Instance.setup();
+                GroupByOpPanel.Instance.setup();
             }
             // restore user settings
             OperationsView.restore();

@@ -947,9 +947,10 @@ class FormHelper {
         xcHelper.enableSubmit(this.$form.find(".confirm"));
     }
 
-    public clear(extraOptions: FormHelperOptions): XDPromise<void> {
+    public clear(extraOptions?: FormHelperOptions): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const self: FormHelper = this;
+        extraOptions = extraOptions || {};
         const options: FormHelperOptions = $.extend(self.options, extraOptions) || {};
         const $form: JQuery = self.$form;
 
@@ -1133,7 +1134,7 @@ class FormHelper {
     public listHighlight(
         $input: JQuery,
         event: JQueryEventObject,
-        isArgInput: boolean
+        isArgInput?: boolean
     ): boolean {
         return xcHelper.listHighlight($input, event, isArgInput);
     }

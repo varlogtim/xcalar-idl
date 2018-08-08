@@ -2217,8 +2217,8 @@ window.OperationsView = (function($, OperationsView) {
                 } else if (!$input.closest(".dropDownList")
                             .hasClass("colNameSection") &&
                             !xcHelper.hasValidColPrefix(arg) &&
-                            arg[0] !== gAggVarPrefix &&
-                            parsedType.indexOf("string") > -1 &&
+                            arg.charAt(0) !== gAggVarPrefix &&
+                            parsedType.includes("string") &&
                             ($input.data("nofunc") || !hasFuncFormat(arg))) {
                     // one of the valid types is string
 

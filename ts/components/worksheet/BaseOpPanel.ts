@@ -17,18 +17,18 @@ class BaseOpPanel {
         return  this._instance || (this._instance = new this());
     }
 
-    protected setup($panel: JQuery): void {
+    protected setup($panel: JQuery, options?: FormHelperOptions): void {
         this.$panel = $panel;
-        this._formHelper = new FormHelper($panel);
+        this._formHelper = new FormHelper($panel, options);
         this._setupEditor($panel);
         this._setupModeSwitch($panel);
     }
 
-    protected showPanel(): boolean {
+    protected showPanel(formName?: string): boolean {
         if (this._formHelper.isOpen()) {
             return false;
         }
-        this._formHelper.showView(null);
+        this._formHelper.showView(formName);
         this._reset();
         return true;
     }
@@ -37,7 +37,9 @@ class BaseOpPanel {
         if (!this._formHelper.isOpen()) {
             return;
         }
+        this._formHelper.removeWaitingBG();
         this._formHelper.hideView();
+        this._formHelper.clear();
     }
 
     protected toggleCheckbox($checkbox: JQuery, isCheck: boolean = true): void {
@@ -185,5 +187,5 @@ namespace BaseOpPanel {
         public unCheckAll() {
             this._checkAll.uncheck();
         }
-    }    
+    }
 }

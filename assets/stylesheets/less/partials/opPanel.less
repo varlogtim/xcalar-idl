@@ -429,7 +429,6 @@
                 margin-top: 20px;
             }
 
-
             .catFuncHeadings {
                 display: block;
                 margin-top: 0px;
@@ -472,6 +471,7 @@
                 float: left;
                 width: 100%;
                 margin-bottom: 0px;
+                padding: 0px 10px;
             }
 
             .row {
@@ -484,13 +484,26 @@
                     text-align: center;
                     text-overflow: ellipsis;
                 }
-                &:first-child {
-                    .arg {
-                        border-left-width: 0px;
-                    }
-                }
+
                 .emptyOptions {
                     display: none;
+                }
+
+                .cast {
+                    .label {
+                        display: none;
+                    }
+                    .dropdown {
+                        display: none;
+                    }
+                    .text {
+                        padding-right: 10px;
+                        text-align: center;
+                        border: none;
+                    }
+                    .dropDownList {
+                        width: 100% !important;
+                    }
                 }
             }
 
@@ -515,6 +528,10 @@
                 }
             }
 
+            .inputWrap {
+                padding: 0px;
+            }
+
             &[data-numargs="0"] {
                 .argsSection {
                     display: none;
@@ -523,22 +540,22 @@
 
             &[data-numargs="1"] {
                 .row {
-                    width: 100%
+                    width: 100%;
                 }
             }
             &[data-numargs="2"] {
                 .row {
-                    width: 50%
+                    width: 50%;
                 }
             }
             &[data-numargs="3"] {
                 .row {
-                    width: 33.3%
+                    width: 33.3%;
                 }
             }
             &[data-numargs="4"] {
                 .row {
-                    width: 25%
+                    width: 25%;
                 }
             }
         }
@@ -586,7 +603,7 @@
                 font-weight: 700;
                 margin-left: @commonMargin;
                 float: left;
-                display: inline-block;
+                display: block;
                 width: 40px;
                 height: 36px;
                 line-height: 26px;
@@ -599,7 +616,7 @@
             }
 
             .dropDownList {
-                width: ~"calc(100% - 50px)" !important;
+                width: ~"calc(100% - 60px)" !important;
 
                 &.hidden {
                     display: none;
@@ -669,9 +686,9 @@
         }
 
         .checkboxWrap {
-             float: left;
+            float: left;
             .size(@height: @listHeight);
-            display: inline-block;
+            display: block;
             line-height: @listHeight;
             cursor: pointer;
             .noSelection;
@@ -835,12 +852,236 @@
         }
     }
 }
-#operationsView2 {
+
+.generalOpPanel {
     @title-height: 40px;
     @listHeight: 26px;
     @standardFontSize: 12px;
     @commonMargin: 10px;
     @functionsListZindex: 10;
+
+    &#groupByOpPanel {
+        .catFuncHeadings {
+            position: relative;
+            .xi-close { // for closing group
+                .position(absolute, @top: 0px, @right: 0px);
+                .size(24px, 20px);
+                text-align: center;
+                line-height: 20px;
+                margin-right: 0px;
+            }
+        }
+        .groupbyFnTitle {
+            width: 100%;
+        }
+        .group + .group {
+            padding-top: 6px;
+            margin-top: 10px;
+        }
+        .argsSection {
+            .resultantColNameRow:nth-child(4), .resultantColNameRow:nth-child(5) {
+                .description {
+                    display: none;
+                }
+                .checkboxSection {
+                    width: auto !important;
+                    float: right;
+
+                    .arg {
+                        width: 26px;
+                        float: right;
+                    }
+                }
+            }
+            .row.checkboxWrap {
+                float: none;
+                margin-top: 0px;
+
+                &.groupByAll {
+                    margin-top: 4px;
+                    margin-bottom: -10px;
+                }
+
+                .text {
+                    float: left;
+                    margin-left: 10px;
+                    font-weight: 600;
+                    line-height: 23px;
+                    font-size: 11px;
+                }
+                .checkbox {
+                    margin-top: 6px;
+                }
+            }
+        }
+        .addArgWrapSmall {
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        .newTableNameRow {
+            margin-top: 6px;
+
+            .description {
+                padding: 6px;
+                padding-left: 10px;
+                padding-bottom: 4px;
+                line-height: 14px;
+                font-weight: 700;
+            }
+
+            &.inactive {
+                display: none;
+            }
+        }
+        .icvContainer {
+            height: 26px;
+            .checkboxSection {
+                height: auto;
+            }
+        }
+        .gbCheckboxes, .keepTablesCBWrap {
+            height: auto;
+            .checkboxSection {
+                height: @listHeight;
+            }
+            &.inactive {
+                display: none;
+            }
+        }
+
+        .selectAllWrap {
+            margin-bottom: 8px;
+            float: right;
+
+            .clearfix;
+            .text {
+                float: right;
+                cursor: pointer;
+            }
+            .checkbox {
+                top: 2px;
+                margin-left: 5px;
+                margin-right: 5px;
+            }
+        }
+
+        .extraArg .xi-cancel {
+            z-index: 0 !important;
+        }
+    }
+
+    &#groupByOpPanel, &#mapOpPanel {
+        .addArgWrapLarge {
+            padding-left: 0px;
+            margin-top: 15px;
+
+            .addArg {
+                width: 260px;
+                height:  36px;
+                display: block;
+                margin: 0 auto;
+                .text {
+                    font-size: 14px;
+                }
+            }
+        }
+
+        .colNameSection {
+            .iconWrapper {
+                left: 0px;
+                background-color: @color-bg-pinkish-grey;
+                .icon {
+                    font-size: 16px;
+                    opacity: 1;
+                    position: static;
+                    .transform(none);
+                    .size(@width: @listHeight, @height: @listHeight);
+                    line-height: @listHeight - 2px;
+                    text-align: center;
+                    cursor: initial;
+                }
+            }
+
+            .arg {
+                .size(@width: ~"calc(100% - @{listHeight})");
+                margin-left: @listHeight;
+            }
+        }
+
+
+        .extraArg {
+            position: relative;
+
+           &.inputWrap { // for map
+                margin-top: 10px;
+            }
+
+            &.row { // for group by
+                margin-top: 10px;
+                .dropDownList ul {
+                    z-index: @functionsListZindex + 1;
+                }
+            }
+
+            .xi-cancel {
+                position: absolute;
+                left: 14px;
+                top: 7px;
+                color: @color-font-warm-grey-two;
+                font-size: 14px;
+                opacity: @opacity-unhover;
+                cursor: pointer;
+                z-index: 100; // place in front of dropdown list which has index 99
+
+                &:hover {
+                    opacity: @opacity-hover;
+                }
+            }
+
+            .arg {
+                padding-left: 22px;
+            }
+        }
+    }
+
+    &#mapOpPanel {
+        .filterMapFuncArea {
+            position: relative;
+            .clear {
+                display: none;
+                .size(@width: 20px, @height: @listHeight);
+                .position(absolute, @top: 14px, @right: 20px);
+
+                .icon {
+                    color: @color-font-greyish-brown;
+                    line-height: @listHeight;
+                }
+            }
+            &:hover {
+                .clear {
+                    display: block;
+                }
+            }
+        }
+        #mapFilter2, #mapFilter {
+            width: ~"calc(100% - 30px)";
+            margin-left: 10px;
+            margin-top: 14px;
+            padding-right: 20px;
+
+            &:focus {
+                ~ .clear {
+                    display: block;
+                }
+            }
+        }
+        .catFuncHeadings {
+            margin-top: 4px;
+        }
+        .icvContainer {
+            margin-top: 10px;
+        }
+    }
 
     .dropDownList {
         .textNoCap {
@@ -898,6 +1139,8 @@
 
         &.functionsList {
             float: none;
+            margin: 0 10px;
+            width: ~"calc(100% - 20px)";
             input {
                 position: relative;
                 z-index: @functionsListZindex;
@@ -1576,5 +1819,10 @@
                 margin-left: 10%;
             }
         }
+    }
+}
+#filterOpPanel {
+    .argsSection {
+        margin-bottom: 20px;
     }
 }

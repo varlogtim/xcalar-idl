@@ -7,10 +7,11 @@ namespace xcTooltip {
         placement?: string;
         trigger?: string;
         animation?: boolean;
+        template?: string;
     }
 
     // xcTooltip.Template
-    export const Template: object = {
+    export const Template: any = {
         'Error': '<div class="tooltip error" role="tooltip">' +
                     '<div class="tooltip-arrow"></div>' +
                     '<div class="tooltip-inner"></div>' +
@@ -43,7 +44,7 @@ namespace xcTooltip {
             xcTooltip.hideAll();
         });
     }
-    
+
     /**
      * xcTooltip.add, can accept multiple elements as $element
      * @param $element

@@ -527,7 +527,9 @@ declare enum StatusT {
 }
 
 declare enum FunctionCategoryT {
-    FunctionCategoryAggregate
+    FunctionCategoryAggregate,
+    FunctionCategoryCondition,
+    FunctionCategoryUdf
 }
 
 declare enum FunctionCategoryTStr {}
@@ -599,6 +601,34 @@ declare namespace DSTStr {
     export var LoadErr: string;
     export var LoadErrFile: string;
     export var PointErr: string;
+}
+
+declare namespace JoinTStr {
+    export var DagColSelectInstr: string;
+    export var DagColSelectInstrCross: string;
+}
+
+declare namespace OpFormTStr {
+    export var Descript: string;
+    export var CMD: string;
+    export var NewColName: string;
+}
+
+declare namespace XcalarEvalArgTypeT {
+    export var OptionalArg: number;
+    export var VariableArg: number;
+}
+
+declare namespace OpModalTStr {
+    export var NoArg: string;
+    export var EmptyHint: string;
+    export var NoneHint: string;
+    export var NoneArg: string;
+    export var EmptyStringHint: string;
+    export var EmptyString: string;
+    export var ColNameDesc: string;
+    export var AggNameDesc: string;
+    export var AggNameReq: string;
 }
 
 declare namespace CommonTxtTstr {
@@ -703,6 +733,7 @@ declare namespace TooltipTStr {
     export var FocusColumn: string;
     export var CancelSearch: string;
     export var UnionSearch: string;
+    export var Distinct: string;
 }
 
 declare namespace SuccessTStr{
@@ -750,6 +781,13 @@ declare namespace ErrTStr {
     export var RefreshBrowserDesc: string;
     export var Update: string;
     export var NoColumns: string;
+    export var NoSupportOp: string;
+    export var InvalidOpNewColumn: string;
+    export var InvalidColName: string;
+    export var InvalidFunction: string;
+    export var InvalidOpsType: string;
+    export var NoEmptyOrCheck: string;
+    export var InvalidAggName: string;
 }
 
 declare namespace ErrWRepTStr {
@@ -758,6 +796,11 @@ declare namespace ErrWRepTStr {
     export var OutputNotFound: string;
     export var OutputNotExists: string;
     export var LargeFileUpload: string;
+    export var InvalidCol: string;
+    export var InvalidOpsType: string;
+    export var InvalidAggName: string;
+    export var InvalidAggLength: string;
+    export var AggConflict: string;
 }
 
 declare namespace ColTStr {
@@ -1155,6 +1198,7 @@ declare namespace ColManager {
     export function newCol(colInfo: object): ProgCol;
     export function newDATACol(): ProgCol;
     export function newPullCol(frontName: string, backName?: string, type?: ColumnType): ProgCol;
+    export function checkColName($nameInput: JQuery, tableId: TableId, colNum: number, options?: any): boolean;
 }
 
 declare namespace Admin {
@@ -1276,6 +1320,7 @@ declare namespace Aggregates {
     export function restore(oldMeat: object): void;
     export function getAgg(tableId: TableId, backColName: string, aggrOp: string): any
     export function addAgg(aggRes: object, isTemp: boolean): void;
+    export function getNamedAggs(): any[];
 }
 
 declare namespace MainMenu {
@@ -1361,7 +1406,7 @@ declare namespace DataStore {
 
 declare namespace DS {
     export function getGrid(dsId: string): JQuery;
-    export function getGridByName(dsName: string): JQuery;
+    export function getGridByName(dsName: string, user?: string): JQuery;
     export function updateDSInfo(arg: object): void;
     export function upgrade(oldDS: object): object;
     export function cancel($grid: JQuery): XDPromise<any>;
@@ -1437,6 +1482,7 @@ declare namespace UDF {
     export function refresh(): XDPromise<void>;
     export function getDefaultUDFPath(): string;
     export function getUDFs(): any;
+    export function list(): any;
 }
 
 declare namespace DSExport {
@@ -1490,6 +1536,7 @@ declare namespace SortView {
 }
 declare namespace FnBar {
     export function clear(): void;
+    export function updateOperationsMap(fns: UDFInfo[]): void;
 }
 
 declare namespace d3 {

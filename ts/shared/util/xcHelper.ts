@@ -812,6 +812,12 @@ namespace xcHelper {
         return userStr.substring(index).trim();
     }
 
+
+    export interface OpAndArgsObject {
+        op: string;
+        args: string[];
+    }
+
     /**
      * xcHelper.extractOpAndArgs
      * extract op and arguments from a string delimited by delimiter
@@ -822,7 +828,16 @@ namespace xcHelper {
      * @param str
      * @param delim [,] - Optional and will default to ,
      */
-    export function extractOpAndArgs(str: string, delim: string = ','): object {
+    export function extractOpAndArgs(
+        str: string,
+        delim: string = ','
+    ): OpAndArgsObject {
+        if (str === "") {
+            return {
+                op: "",
+                args: []
+            };
+        }
         const leftParenIndex: number = str.indexOf('(');
         const rightParenIndex: number = str.lastIndexOf(')');
         const op: string = str.slice(0, leftParenIndex).trim();
@@ -3318,7 +3333,7 @@ namespace xcHelper {
     export function castStrHelper(
         colName: string,
         colType: string | null | void,
-        handleNull: boolean
+        handleNull?: boolean
     ): string {
         // here for float/int, null will become 0,
         // if we want null become FNF, need to use int(string(XXX))
@@ -3500,7 +3515,7 @@ namespace xcHelper {
      * xcHelper.checkMatchingBrackets
      * @param val
      */
-    export function checkMatchingBrackets(val: string): object {
+    export function checkMatchingBrackets(val: string): BracketMatchRet {
         let numOpens: number = 0;
         let inQuotes: boolean = false;
         let singleQuote: boolean = false; // ' is true, " is false
@@ -4755,9 +4770,14 @@ namespace xcHelper {
         // is always the first chracter in the colname input
         // and is only visible when focused or changed
         $aggInput.on('focus.aggPrefix', function() {
-            const $input: JQuery = $(this);
+            // XXX FIX me, JQuery has no caret so has to use any
+            const $input: any = $(this);
             if ($input.val().trim() === "") {
                 $input.val(gAggVarPrefix);
+                if ($input.caret() === 0 &&
+                    ($input[0]).selectionEnd === 0) {
+                    $input.caret(1);
+                }
             }
         });
 
@@ -5876,6 +5896,63 @@ namespace xcHelper {
         $suggestion.html(
             innerCleanHtml.replace(pattern,'$1<strong>$3</strong>')
         );
+    }
+
+    // groups = [{
+    //     operator: "eq",
+    //     args: [value: "colname", cast: "blah"]
+    // }]
+    export function formulateMapFilterString(
+        groups: OpPanelFunctionGroup[],
+        andOr: string
+    ): string {
+        let str = "";
+        groups.forEach((group, i: number) => {
+            const funcName: string = group.operator;
+            const args = group.args;
+            if (i > 0) {
+                str += ", ";
+            }
+
+            if (i < groups.length - 1) {
+                if (!andOr) {
+                    andOr = "and";
+                }
+                str += andOr + "(";
+            }
+            str += funcName + "(";
+
+            let hasValue = false;
+            // loop through arguments within a group
+            args.forEach((arg) => {
+                let colNames: string[] = arg.formattedValue.split(",");
+                let colStr: string = "";
+                colNames.forEach((colName, k) => {
+                    if (k > 0) {
+                        colStr += ", ";
+                    }
+                    if (arg.cast) {
+                        colStr += xcHelper.castStrHelper(colName, arg.cast);
+                    } else {
+                        colStr += colName;
+                    }
+                });
+
+                if (arg.formattedValue !== "") {
+                    str += colStr + ", ";
+                    hasValue = true;
+                }
+            });
+            if (hasValue) {
+                str = str.slice(0, -2);
+            }
+            str += ")";
+        });
+
+        for (let i = 0; i < groups.length - 1; i++) {
+            str += ")";
+        }
+        return (str);
     }
 
     export let __testOnly__: any = {};
