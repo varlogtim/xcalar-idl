@@ -370,7 +370,7 @@ module.exports = {
         "RawDSAdvTermAllow": "Stop processing records within a file only when parser completes or cannot continue, and continue to the next file. Report all errors.",
         "RawDSAdvTermStopFile": "Stop importing data as soon as the first file level error is encountered. Record level errors are logged.",
         "RawDSAdvTermStopRecord": "Stop importing data from current file when first error is encountered, and continue to the next file. Report encountered errors.",
-        "RawDSJsonJmespath": "JSON query string. For information about Jmespath, search Jmespath online.",
+        "RawDSJsonJmespath": "JSON query string. For information about JMESPath, search JMESPath online.",
         "RawDSPreviewRefresh": "Click to refresh the preview",
     },
 
@@ -719,7 +719,7 @@ module.exports = {
         "ElementXPath": "Element XPath",
         "DatabaseDSN": "DSN",
         "DatabaseQuery": "SQL",
-        "Jmespath": "Jmespath",
+        "Jmespath": "JMESPath",
         "SelectFile": "Select a file to preview from the dropdown.",
         "PartitionsAdvanced": "Partitions (Advanced)",
         "SelectedColumns": "Selected Columns",
