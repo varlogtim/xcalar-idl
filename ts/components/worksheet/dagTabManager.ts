@@ -15,6 +15,7 @@ class DagTabManager{
     private _keys: string[];
     private _editingName: string;
     private _disableLog: boolean;
+    private _tabListScroller: ListScroller;
 
     public setup(): void {
         const self: DagTabManager = this;
@@ -26,6 +27,10 @@ class DagTabManager{
         self._unique_id = 0;
         self._disableLog = false;
 
+        this._tabListScroller = new ListScroller($('#dagTabSectionTabs'),
+            $('#dagTabSectionTabs'), false, {
+            bounds: '#DagTabView'
+        });
 
         self._$dagTabArea.on("click", ".after", function(event) {
             event.stopPropagation();
@@ -34,6 +39,7 @@ class DagTabManager{
             let key: string = self._keys[index];
             let name: string = $tab.find(".name").text();
             self._deleteTab($tab);
+            self._tabListScroller.showOrHideScrollers();
             Log.add(DagTStr.RemoveTab, {
                 "operation": SQLOps.RemoveDagTab,
                 "key": key,
@@ -51,6 +57,7 @@ class DagTabManager{
         // The html for a dataflowArea.
         $("#tabButton").on("click", function(){
             self.newTab();
+            self._tabListScroller.showOrHideScrollers();
         });
 
         self._$dagTabArea.on("dblclick", ".name", function() {
@@ -82,6 +89,7 @@ class DagTabManager{
             }
             $tab_name.text(newName);
             $tab_input.remove();
+            self._tabListScroller.showOrHideScrollers();
         });
 
         this._getManagerDataAsync();
