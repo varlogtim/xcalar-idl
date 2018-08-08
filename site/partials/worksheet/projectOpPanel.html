@@ -1,5 +1,5 @@
 <!-- Project Operation Panel -->
-<div id="projectOpPanel" class="xc-hidden opView">
+<div id="projectOpPanel" class="xc-hidden opPanel">
     <!-- Derived Column List Template -->
     <div id="xdtemp_projop_column_derive" style="display:none">
       <li data-xcid="col">
@@ -10,14 +10,14 @@
         </div>
       </li>
     </div>
-  
+
     <!-- Fixed Column List Template -->
     <div id="xdtemp_projop_column_fix" style="display:none">
       <li data-colnum="{{colNum}}">
         <span class="text tooltipOverflow" data-original-title="{{origTitle}}" data-toggle="tooltip" data-placement="top" data-container="body">{{colName}}</span>
       </li>
     </div>
-  
+
     <!-- Prefixed Column List Template -->
     <div id="xdtemp_projop_prefixed" style="display:none">
       <div class="prefixGroup columnGroup">
@@ -42,7 +42,7 @@
     </header>
     <div class="mainContent">
       <div class="project opSection">
-        <p class="instructions"><%= dicts.project.instr %></p>
+        <p class="instructions instrText"><%= dicts.project.instr %></p>
         <!-- Project View Top Section-->
         <section class="modalTopMain">
           <!-- <div class="tableListSection clearfix formRow">
@@ -68,7 +68,7 @@
             <div class="subHeading clearfix">
               <div class="label"><%= dicts.project.colsToProject %>:</div>
             </div>
-            <p><%= dicts.project.colInstr %></p>
+            <p class="instrText"><%= dicts.project.colInstr %></p>
             <div class="derivedSection columnGroup">
               <div class="subHeading"><%= dicts.project.derived %></div>
               <div class="checkboxWrap selectAllWrap" data-xcid="selAllDerive">
@@ -93,11 +93,10 @@
         </section>
         <!-- Button Section -->
         <section class="bottomSection flexWrap">
-          <button type="button" class="btn confirm"><%= dicts.project.project %></button>
-          <button type="button" class="btn btn-cancel cancel"><%= dicts.common.CANCEL %></button>
+          <button type="button" class="btn btn-submit btn-rounded confirm"><%= dicts.project.project %></button>
+          <button type="button" class="btn btn-rounded btn-cancel cancel"><%= dicts.common.CANCEL %></button>
         </section>
       </div>
     </div>
   </div>
   <!-- End of Project View -->
-  

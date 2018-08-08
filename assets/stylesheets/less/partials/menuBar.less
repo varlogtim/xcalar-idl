@@ -238,12 +238,17 @@
     .commonSection {
         display: none;
         .size(100%, 100%);
-        padding: 10px 0px;
+        padding: 0px;
         color: @color-white;
 
         &.active {
             display: block;
         }
+    }
+
+    // TODO: set padding to zero and fix each menu's styling
+    #datastoreMenu, #monitorMenu, #dfMenu {
+        padding: 10px 0px;
     }
 
     .menuSection {
@@ -371,6 +376,11 @@
 }
 
 #workspaceMenu {
+    .menuSection {
+        // TODO remove this padding and fix panel styling accordingly
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
     &.imdMode {
         .menuSection {
             display: none;
@@ -1197,7 +1207,7 @@ ul.CodeMirror-hints {
             input {
                 width: ~"calc(100% - 30px)";
             }
-            
+
             .dropDownList {
                 .styleDropDownList(~"calc(100% - 50px)", 30px);
 

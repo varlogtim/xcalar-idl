@@ -326,6 +326,20 @@
     }
 }
 
+.btn-rounded {
+    border-radius: 4px;
+    &:focus {
+        outline: none;
+    }
+}
+
+.btn-submit {
+    background-color: fadeout(@color-bg-green-submit, 20%);
+    &:hover, &:focus {
+        background-color: @color-bg-green-submit;
+    }
+}
+
 .btn-transparent {
     background-color: transparent;
     opacity: @opacity-unhover;

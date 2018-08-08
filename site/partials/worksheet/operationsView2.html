@@ -1,11 +1,11 @@
-<section id="operationsView2" class="xc-hidden opView">
+<section id="operationsView2" class="xc-hidden opPanel">
     <header>
       <div class="title"><%= dicts.opsView.map %></div>
       <i class="close icon xi-close"></i>
     </header>
     <div class="mainContent">
       <div class="map opSection xc-hidden">
-        <p class="instructions"><%= dicts.opsView.mapInstr %></p>
+        <p class="instructions instrText"><%= dicts.opsView.mapInstr %></p>
         <div class="group mapGroup firstGroup">
           <div class="filterMapFuncArea">
             <input type="text" id="mapFilter2" placeholder="<%= dicts.opsView.mapFilter %>...">
@@ -39,7 +39,7 @@
       </div>
       <!-- end map op section -->
       <div class="filter opSection xc-hidden">
-        <p class="instructions"><%= dicts.opsView.filterInstr %></p>
+        <p class="instructions instrText"><%= dicts.opsView.filterInstr %></p>
         <div class="group filterGroup firstGroup">
           <div class="catFuncHeadings clearfix subHeading">
             <div class="filterFnTitle"><%= dicts.opsView.filterFunc %>:</div>
@@ -80,7 +80,7 @@
           </div>
         </div>
         <div class="addArgWrap">
-          <button class="btn btn-small addArg addFilterArg">
+          <button class="btn btn-small btn-rounded addArg addFilterArg">
             <i class="icon xi-plus"></i>
           </button>
           <span class="text"><%= dicts.opsView.additional %></span>
@@ -89,7 +89,7 @@
       <!-- END FILTER OPSECTION -->
       <!-- START GROUP BY OPSECTION -->
       <div class="groupby opSection xc-hidden">
-        <p class="instructions"><%= dicts.opsView.groupbyInstr %></p>
+        <p class="instructions instrText"><%= dicts.opsView.groupbyInstr %></p>
         <div class="group groupbyGroup firstGroup">
           <div class="argsSection groupOnSection">
             <div class="description"><%= dicts.opsView.fieldsToGroup %>:</div>
@@ -126,7 +126,7 @@
             </div>
             <div class="btnWrap">
               <div class="addArgWrap addArgWrapLarge">
-                <button class="btn addArg addGroupArg">
+                <button class="btn btn-rounded addArg addGroupArg">
                   <i class="icon xi-plus"></i>
                   <span class="text"><%= dicts.opsView.AddAnotherColumn %></span>
                </button>
@@ -153,7 +153,7 @@
           <div class="argsSection inactive"></div>
         </div>
         <div class="addArgWrap addArgWrapSmall">
-          <button class="btn btn-small addArg addGBGroup">
+          <button class="btn btn-small btn-rounded addArg addGBGroup">
             <i class="icon xi-plus"></i>
           </button>
           <span class="text"><%= dicts.opsView.additionalGB %></span>
@@ -233,7 +233,7 @@
       <!-- END GROUP BY OP SECTION -->
       <!-- START AGGREGATE SECTION -->
       <div class="aggregate opSection xc-hidden">
-        <p class="instructions"><%= dicts.opsView.aggInstr %></p>
+        <p class="instructions instrText"><%= dicts.opsView.aggInstr %></p>
         <div class="group aggregateGroup firstGroup">
           <div class="catFuncHeadings clearfix subHeading">
             <div class="filterFnTitle"><%= dicts.opsView.aggFunc %>:</div>
@@ -256,7 +256,7 @@
       <!-- end aggregate op section -->
       <div class="strPreview"></div> <!-- this gets filled by JS -->
       <div class="btnWrap">
-        <button class="btn submit"></button> <!-- this gets filled by JS -->
+        <button class="btn btn-submit btn-rounded submit"></button> <!-- this gets filled by JS -->
       </div>
     </div>
   </section>

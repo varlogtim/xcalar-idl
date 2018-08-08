@@ -1764,7 +1764,8 @@ window.OperationsView2 = (function($, OperationsView) {
         $rows.show().filter(":gt(" + (numArgs - 1) + ")").hide();
 
         var despText = operObj.fnDesc || "N/A";
-        var descriptionHtml = '<b>' + OpFormTStr.Descript + ':</b> ' + despText;
+        var descriptionHtml = '<b>' + OpFormTStr.Descript + ':</b> ' +
+                    '<span class="instrText">' + despText + '</span>';
 
         $argsGroup.find('.descriptionText').html(descriptionHtml);
         if (operatorName === "group by") {
@@ -1882,7 +1883,7 @@ window.OperationsView2 = (function($, OperationsView) {
                 $input.addClass("variableArgs");
                 $row.after(
                     '<div class="addArgWrap addArgWrapLarge">' +
-                        '<button class="btn addArg addMapArg" data-typeid="' +
+                        '<button class="btn btn-rounded addArg addMapArg" data-typeid="' +
                             typeId + '">' +
                           '<i class="icon xi-plus"></i>' +
                           '<span class="text">ADD ANOTHER ARGUMENT</span>' +
