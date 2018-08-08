@@ -72,15 +72,18 @@ class DagTab{
     /**
      * Saves this Tab in the kvStore
      */
-    public saveTab(): void {
+    public saveTab(): XDPromise<void> {
         let json: object = this.getJSON();
-        this._kvStore.put(JSON.stringify(json), true, true);
+        const promise: XDPromise<void> = this._kvStore.put(
+                                            JSON.stringify(json), true, true);
+
         const activeWKBKId = WorkbookManager.getActiveWKBK();
         if (activeWKBKId != null) {
             const workbook = WorkbookManager.getWorkbooks()[activeWKBKId];
             workbook.update();
         }
         KVStore.logSave(true);
+        return promise;
     }
 
     /**
