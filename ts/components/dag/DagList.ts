@@ -73,7 +73,15 @@ class DagList {
                 return;
             }
             let $dagListItem: JQuery = $(this).parent();
-            self.deleteDataflow($dagListItem);
+            Alert.show({
+                'title': DFTStr.DelDF,
+                'msg': xcHelper.replaceMsg(DFTStr.DelDFMsg, {
+                    "dfName": $dagListItem.text()
+                }),
+                'onConfirm': function() {
+                    self.deleteDataflow($dagListItem);
+                }
+            });
         })
     }
 

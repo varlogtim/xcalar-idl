@@ -806,6 +806,8 @@ declare namespace DFTStr {
     export var BatchDF: string;
     export var DownloadErr: string;
     export var DFDrawError: string;
+    export var DelDF: string;
+    export var DelDFMsg: string;
 }
 
 declare namespace JupyterTStr {
