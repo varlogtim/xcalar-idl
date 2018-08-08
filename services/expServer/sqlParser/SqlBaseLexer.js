@@ -1977,7 +1977,7 @@ SqlBaseLexer.prototype.grammarFileName = "SqlBase.g4";
    * which is not a digit or letter or underscore.
    */
   function isValidDecimal() {
-    var nextChar = _input.LA(1);
+    var nextChar = this._input.LA(1);
     if (nextChar >= 'A' && nextChar <= 'Z' || nextChar >= '0' && nextChar <= '9' ||
       nextChar == '_') {
       return false;
@@ -2003,7 +2003,7 @@ SqlBaseLexer.prototype.sempred = function(localctx, ruleIndex, predIndex) {
 SqlBaseLexer.prototype.DECIMAL_VALUE_sempred = function(localctx, predIndex) {
 	switch(predIndex) {
 		case 0:
-			return isValidDecimal();
+			return isValidDecimal.apply(this);
 		default:
 			throw "No predicate with index:" + predIndex;
 	}
@@ -2012,7 +2012,7 @@ SqlBaseLexer.prototype.DECIMAL_VALUE_sempred = function(localctx, predIndex) {
 SqlBaseLexer.prototype.DOUBLE_LITERAL_sempred = function(localctx, predIndex) {
 	switch(predIndex) {
 		case 1:
-			return isValidDecimal();
+			return isValidDecimal.apply(this);
 		default:
 			throw "No predicate with index:" + predIndex;
 	}
@@ -2021,7 +2021,7 @@ SqlBaseLexer.prototype.DOUBLE_LITERAL_sempred = function(localctx, predIndex) {
 SqlBaseLexer.prototype.BIGDECIMAL_LITERAL_sempred = function(localctx, predIndex) {
 	switch(predIndex) {
 		case 2:
-			return isValidDecimal();
+			return isValidDecimal.apply(this);
 		default:
 			throw "No predicate with index:" + predIndex;
 	}
