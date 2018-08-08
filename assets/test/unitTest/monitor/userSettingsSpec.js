@@ -80,9 +80,7 @@ describe("User Setting Test", function() {
             UserSettings.logChange();
 
             var oldFunc = Admin.isAdmin;
-            Admin.isAdmin = function() {
-                return false;
-            };
+            Admin.isAdmin = () => false;
             UserSettings.commit(true)
             .then(function() {
                 expect(testKey).to.equal(KVStore.getKey("gUserKey"));
@@ -175,7 +173,7 @@ describe("User Setting Test", function() {
             })
             .always(function() {
                 gXcSupport = oldCache;
-               // do not change list view back until other test are done
+               // do not change list view back until other tests are done
             });
         });
 
@@ -183,9 +181,7 @@ describe("User Setting Test", function() {
             UserSettings.logChange();
 
             var oldFunc = Admin.isAdmin;
-            Admin.isAdmin = function() {
-                return true;
-            };
+            Admin.isAdmin = () => true;
 
             UserSettings.commit()
             .then(function() {
@@ -206,9 +202,7 @@ describe("User Setting Test", function() {
             $("#dataViewBtn").toggleClass("listView");
 
             var oldFunc = Admin.isAdmin;
-            Admin.isAdmin = function() {
-                return true;
-            };
+            Admin.isAdmin = () => true;
 
             UserSettings.commit()
             .then(function() {
@@ -265,6 +259,31 @@ describe("User Setting Test", function() {
             // case 2
             $btn.click();
             expect(UserSettings.getPref("hideSysOps")).to.equal(hideSysOps);
+        });
+
+        it("should reveal the right value on the slider", function() {
+            var $bar = $("#commitIntervalSlider").find(".ui-resizable-e").eq(0);
+            var pageX = $bar.offset().left;
+            var pageY = $bar.offset().top;
+
+            $bar.trigger("mouseover");
+            $bar.trigger({ type: "mousedown", which: 1, pageX: pageX, pageY: pageY});
+            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX + 300, pageY: pageY});
+            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX + 300, pageY: pageY});
+
+            expect($("#commitIntervalSlider").find(".value").val()).to.equal("600");
+
+            $bar.trigger("mouseover");
+            $bar.trigger({ type: "mousedown", which: 1, pageX: pageX + 300, pageY: pageY});
+            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX - 500, pageY: pageY});
+            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX - 500, pageY: pageY});
+
+            expect($("#commitIntervalSlider").find(".value").val()).to.equal("10");
+
+            $bar.trigger("mouseover");
+            $bar.trigger({ type: "mousedown", which: 1, pageX: pageX - 500, pageY: pageY});
+            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX, pageY: pageY});
+            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX, pageY: pageY});
         });
 
         it("should click save button to save", function() {

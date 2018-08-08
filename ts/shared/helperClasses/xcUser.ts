@@ -334,8 +334,11 @@ class XcUser {
     }
 
     public updateLogOutInterval(value: number): void {
+        if (this !== XcUser.CurrentUser) {
+            throw "Invalid User";
+        }
         this._checkTime = value;
-        this.idleCheck();
+        this._idleChecker();
     }
 
     public disableIdleCheck(): void {

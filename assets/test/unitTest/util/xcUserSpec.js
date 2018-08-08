@@ -15,7 +15,7 @@ describe('XcUser Test', () => {
         XcUser.setUserSession(user);
         expect(userIdName).not.to.equal(XcUser.getCurrentUserName());
 
-        // resst
+        // reset
         XcUser.resetUserSession();
         expect(userIdName).to.equal(XcUser.getCurrentUserName());
     });
@@ -444,6 +444,37 @@ describe('XcUser Test', () => {
             XcSupport.stopHeartbeatCheck = oldStopHeartbeat;
             xcSessionStorage.removeItem = oldRemoveItem;
             Alert.show = oldAlert;
+        });
+    });
+
+    describe('XcUser IdleCheck and Cookies Test', () => {
+        it('should throw error when extending cookies', (done) => {
+            try {
+                let user = new XcUser('test');
+                user.extendCookies();
+                done('fail');
+            } catch (e) {
+                expect(e).to.equal('Invalid User');
+                done();
+            }
+        });
+        it('should throw error when updating checkTime', (done) => {
+            try {
+                let user = new XcUser('test');
+                user.updateLogOutInterval(10 * 60 * 1000);
+                done('fail');
+            } catch (e) {
+                expect(e).to.equal('Invalid User');
+                done();
+            }
+        });
+        it('should update checkTime with an integer', () => {
+            XcUser.CurrentUser
+            .updateLogOutInterval(10 * 60 * 1000);
+            expect(XcUser.CurrentUser.getLogOutTimeoutVal())
+            .to.be.a("number");
+            expect(XcUser.CurrentUser.getLogOutTimeoutVal())
+            .to.equal(10 * 60 * 1000);
         });
     });
 });

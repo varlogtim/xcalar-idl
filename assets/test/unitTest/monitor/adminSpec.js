@@ -338,6 +338,64 @@ describe("Admin Test", function() {
         });
     });
 
+    describe("admin only settings test", function() {
+        before(function() {
+            var $settings = $("#settingsButton");
+            if (!$settings.hasClass("active")) {
+                $("#monitorTab").click();
+                $settings.click();
+            };
+        });
+        it("should toggle disableDSShare", function() {
+
+            UserSettings.setPref("disableDSShare", false, true);
+            var disableDSShare = UserSettings.getPref("disableDSShare");
+            var $btn = $("#disableDSShare");
+
+            // case 1
+            $btn.click();
+            expect(UserSettings.getPref("disableDSShare"))
+            .to.equal(!disableDSShare);
+            // case 2
+            $btn.click();
+            expect(UserSettings.getPref("disableDSShare"))
+            .to.equal(disableDSShare);
+        });
+
+        it("should reveal the right value on the slider and update in XcUser", function() {
+            var $bar = $("#logOutIntervalSlider").find(".ui-resizable-e").eq(0);
+            var pageX = $bar.offset().left;
+            var pageY = $bar.offset().top;
+
+            $bar.trigger("mouseover");
+            $bar.trigger({ type: "mousedown", which: 1, pageX: pageX, pageY: pageY});
+            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX + 300, pageY: pageY});
+            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX + 300, pageY: pageY});
+
+            expect($("#logOutIntervalSlider").find(".value").val()).to.equal("120");
+            expect(XcUser.CurrentUser.getLogOutTimeoutVal())
+            .to.equal(120 * 60 * 1000);
+
+            $bar.trigger("mouseover");
+            $bar.trigger({ type: "mousedown", which: 1, pageX: pageX + 300, pageY: pageY});
+            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX - 500, pageY: pageY});
+            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX - 500, pageY: pageY});
+
+            expect($("#logOutIntervalSlider").find(".value").val()).to.equal("10");
+            expect(XcUser.CurrentUser.getLogOutTimeoutVal())
+            .to.equal(10 * 60 * 1000);
+
+            $bar.trigger("mouseover");
+            $bar.trigger({ type: "mousedown", which: 1, pageX: pageX - 500, pageY: pageY});
+            $bar.trigger({ type: "mousemove", which: 1, pageX: pageX, pageY: pageY});
+            $bar.trigger({ type: "mouseup", which: 1, pageX: pageX, pageY: pageY});
+        });
+        after(function() {
+            $("#monitorTab").click();
+            $("#setupButton").click();
+        });
+    });
+
     describe("admin functions", function() {
         it("admin.showSupport should work", function() {
             $("#workspaceTab").click();
