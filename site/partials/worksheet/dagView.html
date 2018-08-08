@@ -22,7 +22,23 @@
     <div class="tabBar">
         include "tabView.html"
     </div>
-    <div class="tableArea"></div>
+    <div id="dagViewTableArea" class="tableArea xc-hidden xc-viewMode">
+        <div class="tableBar">
+            <div class="searchbarArea">
+                <input type="text">
+                <i class="icon xi-search"></i>
+            </div>
+            <div class="close xc-action">
+                <i class="icon xi-close-no-circle"></i>
+            </div>
+            <div class="rowInputArea">
+                <input type="number" min="0" step="1" spellcheck="false">
+                <label class="numPages"></label>
+            </div>
+        </div>
+        <div class="errorSection xc-errorView"></div>
+        <div class="loadingSection xc-loadView"></div>
+    </div>
     <div class="dataflowWrap">
     </div>
 

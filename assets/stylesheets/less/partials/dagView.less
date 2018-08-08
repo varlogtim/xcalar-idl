@@ -499,9 +499,7 @@
         .size(@min-height: 24px);
         background-color: @color-bg-white-eight;
     }
-    .tableArea {
-        display: none;
-    }
+
     .dataflowWrap {
         .flex(1 1 auto);
         .flex-display;
@@ -601,6 +599,110 @@
         // used and removed during connector drag
         .position(absolute, 0, 0);
         z-index: 1;
+    }
+}
+
+/* ========== Dag Table Viewer Tabs ========== */
+#dagViewTableArea {
+    .flex(0 0 30%);
+    .size(@height: 30%);
+    @tableBar-h: 30px;
+    @div-h: 20px;
+
+    &.error {
+        .tabaleBar {
+            display: none
+        }
+
+        .errorSection {
+            display: block;
+        }
+    }
+
+    &.error, &.loading {
+        .searchbarArea, .rowInputArea {
+            pointer-events: none;
+            opacity: @opacity-disabled;
+        }
+    }
+
+    &.dataset {
+        .rowInputArea {
+            display: none;
+        }
+    }
+
+    .errorSection {
+        .size(100%, 100%);
+        display: none;
+    }
+
+    .tableBar {
+        .size(@height: @tableBar-h);
+        background-color: @color-bg-white-seven;
+        padding: 5px 15px 5px 18px;
+
+        .searchbarArea {
+            .size(@height: @div-h, @max-width: 244px, @min-width: 20%);
+            float: left;
+
+            input {
+                .size(@height: @div-h);
+                padding-left: 20px;
+            }
+
+            .icon {
+                .font(@size: 10px);
+                .position(absolute, @top: 6px, @left: 5px);
+            }
+        }
+
+        .rowInputArea {
+            .size(@min-width: 60px, @width: 60px, @height: @div-h);
+            float: right;
+            margin-top: 0;
+            margin-right: 10px;
+            border: none;
+            padding: 0;
+
+            input {
+                background-color: @color-white;
+                .size(@height: @div-h);
+            }
+        }
+
+        .close {
+            .size(@div-h, @div-h);
+            float: right;
+            background-color: @color-bg-body-gray;
+            .rounded(3px);
+
+            .icon {
+                .size(@div-h, @div-h);
+                display: block;
+                .font(@size: 8px);
+
+                &:before {
+                    .size(8px, 8px);
+                    display: block;
+                    .center-align;
+                }
+            }
+        }
+    }
+
+    .viewWrap {
+        .size(@height: ~"calc(100% - @{tableBar-h})", @width: 100%);
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+
+    .xcTbodyWrap {
+        .size(@max-height: 100%);
+    }
+
+    .xcTable .header {
+        .position(@top: 0px);
     }
 }
 

@@ -589,6 +589,7 @@ declare namespace DSTStr {
     export var DS: string;
     export var LoadErr: string;
     export var LoadErrFile: string;
+    export var PointErr: string;
 }
 
 declare namespace CommonTxtTstr {
@@ -879,6 +880,7 @@ declare namespace NewUserTStr {
 declare namespace TblTStr {
     export var ActiveStatus: string;
     export var TempStatus: string;
+    export var Truncate: string;
 }
 
 declare namespace UDFTStr {
@@ -943,7 +945,7 @@ declare class ProgCol {
     public type: string;
     public name: string;
     public backName: string;
-    public width: number;
+    public width: number | string;
     public sizedTo: string;
     public immediate: boolean;
     public prefix: string;
@@ -956,6 +958,7 @@ declare class ProgCol {
     public getFormat(): string;
     public getType(): ColumnType;
     public getBackColName(): string;
+    public hasMinimized(): boolean;
 }
 
 declare class TableMeta {
@@ -964,6 +967,8 @@ declare class TableMeta {
     public backTableMeta: any;
     public status: string;
     public highlightedCells: object;
+    public currentRowNumber: number;
+    public resultSetCount: number;
     public getAllCols(onlyValid?: boolean): ProgCol[]
     public getCol(colNum: number): ProgCol;
     public hasCol(colName: string, prefix: string): boolean;
@@ -980,6 +985,8 @@ declare class TableMeta {
     public getId(): string;
     public beOrphaned(): void;
     public getName(): string;
+    public freeResultset(): XDPromise<void>;
+    public getMetaAndResultSet(): XDPromise<void>;
 }
 
 declare class XcStorage {
@@ -1179,6 +1186,8 @@ declare namespace TblFunc {
     export function moveTableDropdownBoxes(): void;
     export function moveFirstColumn($targetTable?: JQuery, noScrollBar?: boolean): void;
     export function isTableScrollable(tableId): boolean;
+    export function autosizeCol($el: JQuery, options: object): void;
+    export function getWidestTdWidth($el: JQuery, options: object): number;
 }
 
 declare namespace TableList {
@@ -1206,6 +1215,19 @@ declare namespace TblManager {
     export function parallelConstruct(tableId: string, tableToReplace: string, options: object): XDPromise<void>;
     export function setOrphanedList(tableMap: any): void;
     export function adjustRowFetchQuantity(): void;
+    export function generateTheadTbody(tableId: TableId): string;
+    export function pullRowsBulk(tableId: TableId, jsonData: string[], startIndex: number, direction?: RowDirection, rowToPrependTo?): void;
+    export function addColListeners($table: JQuery, tableId: TableId): void;
+}
+
+declare namespace TblAnim {
+    export function startRowResize($el: JQuery, event: JQueryMouseEventObject): void;
+    export function startColResize($el: JQuery, event: JQueryMouseEventObject, options: object): void;
+}
+
+declare namespace RowManager {
+    export function getFirstPage(tableId: TableId): XDPromise<string[]>;
+    export function addRows(currentRowNumber: number, numRowsStillNeeded: number, direction: RowDirection, info: object): XDPromise<void>;
 }
 
 declare namespace TblMenu{
@@ -1325,6 +1347,9 @@ declare class DSObj {
     public getFullName(): string;
     public getName(): string;
     public fetch(startRow: number, rowsToFetch: number): XDPromise<any>
+    public getError(): string;
+    public getId(): string;
+    public getNumEntries(): number;
 }
 
 declare namespace DSCart {
@@ -1592,7 +1617,8 @@ declare namespace RowScroller {
     export function setup(): void;
     export function resize(): void;
     export function genFirstVisibleRowNum(): void;
-    export function getLastVisibleRowNum(tableId: string): number;
+    export function getLastVisibleRowNum(tableId: TableId): number;
+    export function add(tableId: TableId): void;
 }
 
 declare namespace FnBar {

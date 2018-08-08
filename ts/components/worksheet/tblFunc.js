@@ -495,8 +495,10 @@ window.TblFunc = (function(TblFunc, $) {
             var scrollLeft;
 
             if (datasetPreview) {
+                var $container = $targetTable.closest("#dsTableContainer").length
+                                ? $('#dsTableContainer') : $targetTable.closest(".datasetTableWrap");
                 scrollLeft = -($targetTable.offset().left -
-                                  $('#dsTableContainer').offset().left);
+                                $container.offset().left);
             } else {
                 scrollLeft = mainMenuOffset - $targetTable.offset().left;
             }
