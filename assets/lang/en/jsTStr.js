@@ -358,7 +358,7 @@ ErrTStr = {
     'DuplicateColNames': 'Duplicate column names were detected',
     'ColumnLimitExceeded': "Column Limit Exceeded",
     'ParquetMustSelectNonPartitionCol': 'Must select at least one column that is not part of the partition keys',
-    'CancelSearch': "Search is cancelled",
+    'CancelSearch': "Search is canceled",
     'MultipleWKBKErr': 'More than one workbook with same name found',
     'NoWKBKErr': 'No workbook found',
     "DuplicateFound": "Duplicate found.",
@@ -1513,9 +1513,10 @@ SQLTStr = {
     "queryHistStatusRun": "Running",
     "queryHistStatusDone": "Done",
     "queryHistStatusFail": "Failed",
-    "queryHistStatusCancel": "Cancel",
+    "queryHistStatusCancel": "Canceled",
     "queryHistStatusCompile": "Compiling",
     "queryHistStatusNone": "Unknown",
+    "queryHistStatusInterrupt": "Interrupted",
     "queryFailMessage": "The SQL query failed for",
     "EnterEditorName": "Enter snippet name"
 };

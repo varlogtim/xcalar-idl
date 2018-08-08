@@ -437,9 +437,6 @@ window.SQLEditor = (function(SQLEditor, $) {
 
         var extraKeys = {"F5": executeTrigger,
                          "Alt-X": executeTrigger,
-                         "F6": cancelExec,
-                         "F3": "findNext",
-                         "Shift-F3": "findPrev",
                          "Ctrl-Space": "autocomplete", // Need to write autocomplete code
                          "Ctrl--": toggleComment};
 
@@ -447,14 +444,21 @@ window.SQLEditor = (function(SQLEditor, $) {
         if (isSystemMac) {
             cButton = "Cmd";
             extraKeys[cButton + "-Alt-F"] = "replace";
+            extraKeys["Shift-" + cButton + "-Backspace"] = "delWordAfter";
+            extraKeys["F6"] = cancelExec;
+            extraKeys["F3"] = "findNext";
+            extraKeys["Shift-F3"] = "findPrev";
         } else {
             extraKeys[cButton + "-H"] = "replace";
+            extraKeys[cButton + "-Delete"] = "delWordAfter";
+            extraKeys["Ctrl-Alt-C"] = cancelExec;
+            extraKeys["Ctrl-Alt-G"] = "findNext";
+            extraKeys["Shift-Ctrl-Alt-G"] = "findPrev";
         }
         extraKeys[cButton + "-E"] = executeTrigger;
         extraKeys[cButton + "-Left"] = "goWordLeft";
         extraKeys[cButton + "-Right"] = "goWordRight";
         extraKeys[cButton + "-Backspace"] = "delWordBefore";
-        extraKeys[cButton + "-Delete"] = "delWordAfter";
         extraKeys["Shift-" + cButton + "-U"] = convertTextCase.bind(window, true);
         extraKeys["Shift-" + cButton + "-L"] = convertTextCase.bind(window, false);
         extraKeys["Shift-" + cButton + "-K"] = "deleteLine";

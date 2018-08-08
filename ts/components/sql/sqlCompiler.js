@@ -776,7 +776,8 @@
                       "org.apache.spark.sql.catalyst.plans.logical.XcAggregate";
                     var subqueryTree = SQLCompiler.genTree(undefined,
                                                        node.value.plan);
-                node.subqueryTree = subqueryTree;
+                    prepareUsedColIds(subqueryTree);
+                    node.subqueryTree = subqueryTree;
                 } else {
                     var xcAggNode = xcAggregateNode();
                     var subqueryTree = SQLCompiler.genTree(xcAggNode,

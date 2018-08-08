@@ -922,6 +922,7 @@ declare namespace SQLTStr {
     export var queryHistStatusCancel: string;
     export var queryHistStatusCompile: string;
     export var queryHistStatusNone: string;
+    export var queryHistStatusInterrupt: string;
     export var queryFailMessage: string;
 }
 

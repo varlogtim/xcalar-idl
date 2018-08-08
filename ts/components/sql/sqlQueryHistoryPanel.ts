@@ -16,6 +16,7 @@ namespace SqlQueryHistoryPanel {
     SQLStatusString[SQLStatus.Cancelled] = SQLTStr.queryHistStatusCancel;
     SQLStatusString[SQLStatus.Compiling] = SQLTStr.queryHistStatusCompile;
     SQLStatusString[SQLStatus.None] = SQLTStr.queryHistStatusNone;
+    SQLStatusString[SQLStatus.Interrupted] = SQLTStr.queryHistStatusInterrupt;
 
     export interface CardOptions {
         isShowAll?: boolean,
@@ -315,6 +316,7 @@ namespace SqlQueryHistoryPanel {
             this._statusMapping[SQLStatus.Done] = 'icon-done';
             this._statusMapping[SQLStatus.Failed] = 'icon-fail';
             this._statusMapping[SQLStatus.Running] = 'icon-run';
+            this._statusMapping[SQLStatus.Interrupted] = 'icon-cancel';
             // Setup refresh timer
             if (options.isAutoRefresh) {
                 this._setupTimer();
@@ -411,7 +413,7 @@ namespace SqlQueryHistoryPanel {
             let duration;
             if (queryInfo.endTime != null) {
                 duration = queryInfo.endTime - queryInfo.startTime;
-            } else if (queryInfo.status === SQLStatus.Cancelled) {
+            } else if (queryInfo.status === SQLStatus.Interrupted) {
                 duration = "N/A";
             } else {
                 duration = Date.now() - queryInfo.startTime
@@ -457,7 +459,7 @@ namespace SqlQueryHistoryPanel {
     
             // Register change duration handler
             delete this._changeDurationHandlers[queryInfo.queryId];
-            if (queryInfo.endTime == null && queryInfo.status !== SQLStatus.Cancelled) {
+            if (queryInfo.endTime == null && queryInfo.status !== SQLStatus.Interrupted) {
                 // Only queries w/o endTime, aka still running/compiling, need to show realtime duration
                 const $elemDuration = findXCElement($rowElement, 'duration');
                 this._changeDurationHandlers[queryInfo.queryId] =

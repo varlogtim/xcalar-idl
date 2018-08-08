@@ -74,7 +74,7 @@ class SqlQueryHistory {
                                         (queryInfo.status === SQLStatus.Compiling ||
                                          queryInfo.status === SQLStatus.Running)
                                         ) {
-                                        queryInfo.status = SQLStatus.Cancelled;
+                                        queryInfo.status = SQLStatus.Interrupted;
                                         this._queryMap[queryId] = queryInfo;
                                         return kvStore.put(JSON.stringify(queryInfo), true);
                                     }

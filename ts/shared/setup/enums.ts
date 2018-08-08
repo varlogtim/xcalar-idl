@@ -386,7 +386,8 @@ enum SQLStatus {
     Done = "Done",
     Cancelled = "Cancelled",
     Failed = "Failed",
-    None = "None"
+    None = "None",
+    Interrupted = "Interrupted"
 }
 
 if (typeof global !== 'undefined') {
