@@ -33,14 +33,6 @@ describe("ExpServer Socket Test", function() {
                 done();
             });
         });
-        function dummyCheckIoSocketAuth(authSocket) {
-            return false;
-        }
-        function dummyCheckIoSocketAuthAdmin(authSocket) {
-            return false;
-        }
-        expServerSocket.fakeCheckIoSocketAuth(dummyCheckIoSocketAuth);
-        expServerSocket.fakeCheckIoSocketAuthAdmin(dummyCheckIoSocketAuthAdmin);
     });
 
 

