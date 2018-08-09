@@ -496,7 +496,7 @@ describe('ExportView Test', function() {
             xcHelper.convertFrontColNamesToBack = function(colNames, tId, validTypes) {
                 expect(colNames.length).to.equal(7);
                 expect(tId).to.equal(tableId);
-                expect(validTypes.length).to.equal(5);
+                expect(validTypes.length).to.equal(7);
 
                 fnCalled = true;
                 return {invalid: true, reason: 'notFound', name: 'badColumn'};
@@ -524,7 +524,7 @@ describe('ExportView Test', function() {
             xcHelper.convertFrontColNamesToBack = function(colNames, tId, validTypes) {
                 expect(colNames.length).to.equal(7);
                 expect(tId).to.equal(tableId);
-                expect(validTypes.length).to.equal(5);
+                expect(validTypes.length).to.equal(7);
 
                 fnCalled = true;
                 return {invalid: true, reason: 'tableNotFound'};
@@ -551,7 +551,7 @@ describe('ExportView Test', function() {
             xcHelper.convertFrontColNamesToBack = function(colNames, tId, validTypes) {
                 expect(colNames.length).to.equal(7);
                 expect(tId).to.equal(tableId);
-                expect(validTypes.length).to.equal(5);
+                expect(validTypes.length).to.equal(7);
 
                 fnCalled = true;
                 return {

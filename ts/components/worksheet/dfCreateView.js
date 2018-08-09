@@ -9,7 +9,7 @@ window.DFCreateView = (function($, DFCreateView) {
     var exportHelper;
 
     // constant
-    var validTypes = ['string', 'integer', 'float', 'boolean', 'mixed'];
+    var validTypes;
     var isOpen = false; // tracks if form is open
     var saveFinished = true; // tracks if last submit ended
     var dfTablesCache = []; // holds all the table names from the dataflow
@@ -18,6 +18,9 @@ window.DFCreateView = (function($, DFCreateView) {
     var $curDagWrap;
 
     DFCreateView.setup = function() {
+         // constant
+        validTypes = [ColumnType.string, ColumnType.integer, ColumnType.float,
+            ColumnType.boolean, ColumnType.mixed, ColumnType.undefined, ColumnType.unknown];
         $dfView = $('#dfCreateView');
         $newNameInput = $('#newDFNameInput');
 
@@ -119,7 +122,10 @@ window.DFCreateView = (function($, DFCreateView) {
                 var html = "";
                 for (var i = numCols; i < allCols.length; i++) {
                     var progCol = allCols[i];
-                    if (validTypes.indexOf(progCol.getType()) > -1) {
+                    if (progCol.isEmptyCol() || progCol.isDATACol()) {
+                        continue;
+                    }
+                    if (gExportNoCheck || validTypes.includes(progCol.getType())) {
                         var colName = progCol.getFrontColName(true);
                         var colNum = (i + 1);
                         html +=
@@ -212,7 +218,9 @@ window.DFCreateView = (function($, DFCreateView) {
         var allCols = gTables[tableId].tableCols;
         var $xcTable = $('#xcTable-' + tableId);
         for (var i = 0; i < allCols.length; i++) {
-            if (validTypes.indexOf(allCols[i].type) > -1) {
+            if (allCols[i].isEmptyCol() || allCols[i].isDATACol()) {
+                continue;
+            } else if (gExportNoCheck || validTypes.includes(allCols[i].type)) {
                 $xcTable.find('.col' + (i + 1)).addClass('modalHighlighted');
             }
         }
@@ -293,8 +301,12 @@ window.DFCreateView = (function($, DFCreateView) {
         if (!gTables[tableId]) {
             return;
         }
-        var colType = gTables[tableId].getCol(colNum).getType();
-        if (validTypes.indexOf(colType) === -1) {
+        var progCol = gTables[tableId].getCol(colNum);
+        if (progCol.isEmptyCol() || progCol.isDATACol()) {
+            return;
+        }
+        var colType = progCol.getType();
+        if (!gExportNoCheck && !validTypes.includes(colType)) {
             return;
         }
         $('#xcTable-' + tableId).find('.col' + colNum)

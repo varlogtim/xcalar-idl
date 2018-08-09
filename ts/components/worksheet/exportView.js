@@ -15,11 +15,12 @@ window.ExportView = (function($, ExportView) {
     var formHelper;
     var exportHelper;
     var isOpen = false; // tracks if form is open
-
-    // constant
-    var validTypes = ['string', 'integer', 'float', 'boolean', 'mixed'];
+    var validTypes;
 
     ExportView.setup = function() {
+        // constant
+        validTypes = [ColumnType.string, ColumnType.integer, ColumnType.float,
+            ColumnType.boolean, ColumnType.mixed, ColumnType.undefined, ColumnType.unknown];
         $exportView = $("#exportView");
         $exportName = $("#exportName");
         $exportPath = $("#exportPath");
@@ -643,12 +644,9 @@ window.ExportView = (function($, ExportView) {
 
             var progCol = table.getCol(colNum);
 
-            if (gExportNoCheck) {
-                if (progCol.isEmptyCol() ||
-                    progCol.isDATACol()) {
-                    return;
-                }
-            } else if (!validTypes.includes(progCol.getType())) {
+            if (progCol.isEmptyCol() || progCol.isDATACol()) {
+                return;
+            } else if (!gExportNoCheck &&!validTypes.includes(progCol.getType())) {
                 return;
             }
             var toHighlight = !$th.hasClass("modalHighlighted");
@@ -753,7 +751,7 @@ window.ExportView = (function($, ExportView) {
             return;
         }
         var colType = gTables[tableId].getCol(colNum).getType();
-        if (!validTypes.includes(colType)) {
+        if (!gExportNoCheck && !validTypes.includes(colType)) {
             return;
         }
         $table.find('.col' + colNum).addClass('modalHighlighted');
@@ -816,16 +814,11 @@ window.ExportView = (function($, ExportView) {
             }
 
             var progCol = table.getCol(colNum);
-
-            if (gExportNoCheck) {
-                if (progCol.isEmptyCol() ||
-                    progCol.isDATACol()) {
-                    return false;
-                }
-                return true;
+            if (progCol.isEmptyCol() || progCol.isDATACol()) {
+                return false;
             }
 
-            return validTypes.includes(progCol.getType());
+            return gExportNoCheck || validTypes.includes(progCol.getType());
         });
         $selectableThs.each(function() {
             var colNum = xcHelper.parseColNum($(this));

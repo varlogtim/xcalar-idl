@@ -594,7 +594,9 @@ class ExportHelper {
         const allCols: ProgCol[] = gTables[tableId].getAllCols();
 
         allCols.forEach(function(progCol: ProgCol, index: number) {
-            if (validTypes.indexOf(progCol.getType()) > -1) {
+            if (progCol.isEmptyCol() || progCol.isDATACol()) {
+                return true;
+            } else if (gExportNoCheck || validTypes.indexOf(progCol.getType()) > -1) {
                 const colName: string = xcHelper.escapeHTMLSpecialChar(
                                     progCol.getFrontColName(true));
                 const colNum: number = (index + 1);
