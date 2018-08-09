@@ -762,6 +762,14 @@ describe("xcSuggest", function() {
                 "data": ["CVX", "CVX", "BRK-A", "GOOG", "CSCO", "AAPL", "INTC", "INTC", "INTC", "DIS", "GE", "GE", "GE", "UTX", "UTX", "T", "WFC", "WFC"],
                 "type": ColumnType.string,
                 "expect": ColumnType.string
+            }, {
+                "datas": ["1", "0X123"],
+                "type": ColumnType.string,
+                "expect": ColumnType.string
+            }, {
+                "datas": ["1", "1e23"],
+                "type": ColumnType.string,
+                "expect": ColumnType.string
             }];
 
             tests.forEach(function(test) {

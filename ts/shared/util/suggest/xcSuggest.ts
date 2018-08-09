@@ -1076,7 +1076,7 @@ namespace xcSuggest { // = (function($, xcSuggest) {
         let validData: number = 0;
         let numHit: number = 0;
         let booleanHit: number = 0;
-
+        const letterRex: RegExp = /[a-z]/i;
         for (let i = 0, len = datas.length; i < len; i++) {
             let data: string = datas[i];
             if (data == null) {
@@ -1092,7 +1092,9 @@ namespace xcSuggest { // = (function($, xcSuggest) {
 
             validData++;
             let num: number = Number(data);
-            if (!isNaN(num)) {
+            // edge case like "0X123", "1e12" can be parse as number
+            // but it's string
+            if (!isNaN(num) && !letterRex.test(data)) {
                 numHit++;
 
                 if (!isFloat && !Number.isInteger(num)) {
