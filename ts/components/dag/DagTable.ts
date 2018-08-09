@@ -55,9 +55,11 @@ class DagTable {
         this.viewer.render(this._getContainer())
         .then(() => {
             $container.removeClass("loading");
+            deferred.resolve();
         })
         .fail((error) => {
             this._error(error);
+            deferred.reject(error);
         });
 
         return deferred.promise();
@@ -87,12 +89,17 @@ class DagTable {
             this.viewer.clear();
             this.viewer = null;
         }
+
+        const $container: JQuery = this._getContainer();
+        $container.removeClass("loading").removeClass("error");
+        $container.find(".errorSection").empty();
     }
 
     // XXX TODO
     private _error(error: any): void {
         const $container: JQuery = this._getContainer();
         $container.removeClass("loading").addClass("error");
-        $container.find(".errorSection").text(JSON.stringify(error));
+        const errStr: string = typeof error === "string" ? error : JSON.stringify(error);
+        $container.find(".errorSection").text(errStr);
     }
 }
