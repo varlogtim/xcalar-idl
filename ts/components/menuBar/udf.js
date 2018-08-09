@@ -116,9 +116,12 @@ window.UDF = (function($, UDF) {
 
 
     UDF.getCurrWorkbookPath = function() {
+        var workbook = WorkbookManager.getWorkbook(WorkbookManager.getActiveWKBK());
+        if (workbook == null) {
+            return null;
+        }
         return ("/workbook/" + XcUser.getCurrentUserName() + "/" +
-                WorkbookManager.getWorkbook(
-                WorkbookManager.getActiveWKBK()).sessionId + "/udf/");
+                workbook.sessionId + "/udf/");
     };
 
     UDF.edit = function(modulePath) {

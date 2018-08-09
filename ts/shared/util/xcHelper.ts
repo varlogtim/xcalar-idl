@@ -3032,6 +3032,9 @@ namespace xcHelper {
     export function filterUDFs(fns: UDFInfo[]): UDFInfo[] {
         const filteredArray: UDFInfo[] = [];
         const wkbkPrefix: string = UDF.getCurrWorkbookPath();
+        if (wkbkPrefix == null) {
+            return filteredArray;
+        }
         const globalPathPrefix: string = UDF.getDefaultUDFPath() + ":";
         for (let i = 0; i < fns.length; i++) {
             const op: UDFInfo = fns[i];
