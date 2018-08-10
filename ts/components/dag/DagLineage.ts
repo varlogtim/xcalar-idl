@@ -1,13 +1,22 @@
 class DagLineage {
     private columns: ProgCol[];
     // depned on how we define the change, it may needed or not
+    /**
+     * Example:
+     * Add New column: {event: LineageEvent.Add, from: null, to: "newCol", type: ColumnType.string}
+     * Remove prefix: {event: LineageEvent.Remove, from: "prefix::", to: null}
+     * Remove derived column: {event: LineageEvent.Remove, from: "derived", to: null}
+     * Remname prefix: {event: LineageEvent.Rename, from: "prefix::", to: "newPrefix::"}
+     * Rename derived column: {event: LineageEvent.Rename, from: "derived", to: "newDerived"}
+     * Rename column and change type: {event: LineageEvent.Rename, from: "prefix:col", to: "newCol", type: ColumnType.integer}
+     */
     private LineageEvent = {
-        "Add": "add",    // {LineageEvent.Add, null, "newCol"}
-        "Remove": "remove", // {LineageEvent.Remove, "prefix::", null}, {LineageEvent.Remove, "derived", null}
-        "Rename": "rename" // // {LineageEvent.Rename, "prefix::", "newPrefix::"}, {LineageEvent.Rename, "derived", "newDerived"}
+        "Add": "add",
+        "Remove": "remove",
+        "Rename": "rename"
     }
     // depned on how we define the change, it may needed or not
-    private change: {event: string, from: string, to: string}[];
+    private change: {event: string, from: string, to: string, type?: ColumnType}[];
     private node: DagNode;
     /* possible use: stop the delta change of parents
      * like add a column, remove a column, ect.

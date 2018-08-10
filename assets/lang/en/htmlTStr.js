@@ -1003,6 +1003,21 @@ module.exports = {
         "No": "No"
     },
 
+    "SetOpPanel": {
+        "header": "SET OPERATION", // Sync with JSTStr
+        "ColumnTitle": "Columns after Set operation",
+        "Instr": "Select the set operation (except / intersect / union) and select columns from node.",
+        "CandidateTitle": "To Be Dropped",
+        "confirm": "Union",
+        "Mode": "Operation",
+        "IncludeAll": "Include Duplicate Rows",
+        "Union": "Union (Combine)",
+        "Except": "Except (Minus)",
+        "Intersect": "Intersect",
+        "Yes": "Yes",
+        "No": "No"
+    },
+
     "jsonModal": {
         "header": "Data Browser"
     },

@@ -1,0 +1,83 @@
+<!-- Set Op Panel -->
+<section id="setOpPanel" class="xc-hidden opPanel">
+  <!-- Header -->
+  <header class="headerSection">
+    <div class="title"><%= dicts.SetOpPanel.header %></div>
+    <i class="close icon xi-close"></i>
+  </header>
+  <!-- content -->
+  <div class="mainContent">
+    <div class="union opSection">
+      <p class="instructions instrText"><%= dicts.SetOpPanel.Instr %></p>
+      <!-- topSection -->
+      <section class="topSection">
+        <div class="operationSection">
+          <div class="header"><%= dicts.SetOpPanel.Mode %>:</div>
+          <div class="dropDownList modeList">
+            <div class="text"><%= dicts.SetOpPanel.UnionAll %></div>
+            <div class=iconWrapper>
+              <i class="icon xi-arrow-down"></i>
+            </div>
+            <div class="list">
+              <ul>
+                  <li name="except">
+                    <%= dicts.SetOpPanel.Except %>
+                  </li>
+                  <li name="intersect">
+                    <%= dicts.SetOpPanel.Intersect %>
+                  </li>
+                  <li name="union">
+                    <%= dicts.SetOpPanel.Union %>
+                  </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="dedupSection radioButtonGroup">
+          <div class="header"><%= dicts.SetOpPanel.IncludeAll %>:</div>
+          <div class="radioButton xc-action active yes" data-option="yes">
+            <div class="radio">
+              <i class="icon xi-radio-selected"></i>
+              <i class="icon xi-radio-empty"></i>
+            </div>
+            <span>Yes</span>
+          </div>
+          <div class="radioButton xc-action no" data-option="no">
+            <div class="radio">
+              <i class="icon xi-radio-selected"></i>
+              <i class="icon xi-radio-empty"></i>
+            </div>
+            <span>No</span>
+          </div>
+        </div>
+        <div class="divider"></div>
+         <!-- list part -->
+         <div class="tableSection">
+            <div class="header clearfix">
+              <span class="text"><%= dicts.SetOpPanel.ColumnTitle %>:</span>
+            </div>
+          <div class="listSection"></div>
+        </div>
+      </section>
+      <section class="middleSection">
+        <!-- result part -->
+        <div class="resultSection">
+          <div class="listSection"></div>
+        </div>
+        <!-- drop part -->
+        <div class="candidateSection">
+          <div class="subHeading clearfix">
+            <span class="text"><%= dicts.SetOpPanel.CandidateTitle %>:</span>
+          </div>
+          <div class="listSection">
+            <div class="lists"></div>
+          </div>
+        </div>
+      </section>
+      <section class="bottomSection">
+        <button type="button" class="btn btn-submit btn-rounded center confirm"><%= dicts.SetOpPanel.UnionAll %></button>
+      </section>
+    </div>
+  </div>
+</section>
+<!-- End Of Set Op Panel -->

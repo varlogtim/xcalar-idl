@@ -12,7 +12,6 @@ type TableId = string | number;
 type XcCast = ColumnType | null;
 type JoinType = JoinCompoundOperatorTStr | JoinOperatorT;
 type HTML = string;
-
 /* ============== INTERFACE ======================== */
 interface Coordinate {
     x: number;
@@ -693,6 +692,7 @@ declare namespace TooltipTStr {
     export var RemoveQuery: string;
     export var FocusColumn: string;
     export var CancelSearch: string;
+    export var UnionSearch: string;
 }
 
 declare namespace SuccessTStr{
@@ -933,6 +933,22 @@ declare namespace DagTStr {
     export var NewTab: string;
     export var RemoveTab: string;
 }
+
+declare namespace UnionTStr {
+    export var CandidateHint2;
+    export var NewColName;
+    export var ChooseType;
+    export var AddCol;
+    export var SearchCol;
+    export var EmptyList;
+    export var NoMatch;
+    export var UsedFor;
+    export var OneTableToUnion2;
+    export var SelectCol;
+    export var MixType;
+    export var Cast;
+}
+
 // declare namespace WSTStr {
 //     export var Ws:
 // }
@@ -962,6 +978,7 @@ declare class ProgCol {
     public getType(): ColumnType;
     public getBackColName(): string;
     public hasMinimized(): boolean;
+    public setBackColName(name: string): void;
 }
 
 declare class TableMeta {

@@ -12,14 +12,20 @@ class DagNodeSet extends DagNode {
      * @returns {DagNodeSetInput} Set(union/except/intersect) node parameters
      */
     public getParam(): DagNodeSetInput {
+        let columns = this.input.columns;
+        if (columns == null) {
+            columns = this.getParents().map(() => {
+                return [{
+                    sourceColumn: "",
+                    destColumn: "",
+                    columnType: ColumnType.string,
+                    cast: false
+                }]
+            });
+        }
         return {
             unionType: this.input.unionType || UnionType.Union,
-            columns: this.input.columns || [[{
-                sourceColumn: "",
-                destColumn: "",
-                columnType: ColumnType.string,
-                cast: false}
-            ]],
+            columns: this.input.columns || columns,
             dedup: this.input.dedup || false
         };
     }

@@ -798,6 +798,7 @@ JoinTStr = {
 UnionTStr = {
     "ChooseType": "Select column type",
     "OneTableToUnion": "Need at least two tables for the operation.",
+    "OneTableToUnion2": "Need at least two parent nodes for the operation.",
     "Cast": "Columns for the set operation have different types. Please select a type for the resultant column.",
     "AddCol": "Click to add",
     "Table": "Table",
@@ -805,6 +806,7 @@ UnionTStr = {
     "NewTableName": "New Table Name",
     "NewColName": "New Column Name",
     "CandidateHint": "Columns in this section will not be added to the results table. Click column name to add the column to the results table.",
+    "CandidateHint2": "Columns in this section will not be added to the results. Click column name to add the column to the results.",
     "EmptyList": "Empty List",
     "SearchCol": "Find column name",
     "SelectCol": "Please select columns for the set operation",

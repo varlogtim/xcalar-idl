@@ -24,7 +24,7 @@ interface DagNodeDatasetInput {
 interface DagNodeExportInput {
     exportName: string;
     targetName: string;
-    columns: [{sourceColumn: string, destColumn: string}];
+    columns: {sourceColumn: string, destColumn: string}[];
     keepOrder: boolean;
     options: ExportTableOptions
 }
@@ -35,7 +35,7 @@ interface DagNodeFilterInput {
 
 interface DagNodeGroupByInput {
     groupBy: string[];
-    aggregate: [{operator: string, sourceColumn: string, destColumn: string, distinct: boolean}];
+    aggregate: {operator: string, sourceColumn: string, destColumn: string, distinct: boolean}[];
     includeSample: boolean;
     icv: boolean;
     groupAll: boolean;
@@ -44,7 +44,7 @@ interface DagNodeGroupByInput {
 declare type DagNodeJoinTableInput = {
     columns: string[],
     casts: XcCast[],
-    rename: [{sourceColumn: string, destColumn: string, prefix: boolean}]
+    rename: {sourceColumn: string, destColumn: string, prefix: boolean}[]
 }
 interface DagNodeJoinInput {
     joinType: string;
@@ -54,7 +54,7 @@ interface DagNodeJoinInput {
 }
 
 interface DagNodeMapInput {
-    eval: [{evalString: string, newField: string}];
+    eval: {evalString: string, newField: string}[];
     icv: boolean
 }
 
@@ -63,8 +63,8 @@ interface DagNodeProjectInput {
 }
 
 interface DagNodeSetInput {
-    unionType: string;
-    columns: [[{sourceColumn: string, destColumn: string, columnType: ColumnType, cast: boolean}]];
+    unionType: UnionType;
+    columns: {sourceColumn: string, destColumn: string, columnType: ColumnType, cast: boolean}[][];
     dedup: boolean;
 }
 
