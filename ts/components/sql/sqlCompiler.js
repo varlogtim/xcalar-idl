@@ -248,6 +248,7 @@
             this.sparkCols = [];
             this.renamedCols = {};
             this.orderCols = [];
+            this.dupCols = {};
             var rdds = value.output;
             for (var i = 0; i < rdds.length; i++) {
                 var acc = {numOps: 0};
@@ -1113,6 +1114,11 @@
                                                       node.renamedCols);
             node.parent.orderCols = jQuery.extend(true, [], node.orderCols);
         }
+        if (node.parent && node.parent.dupCols) {
+            jQuery.extend(true, node.parent.dupCols, node.dupCols);
+        } else if (node.parent) {
+            node.parent.dupCols = jQuery.extend(true, {}, node.dupCols);
+        }
     }
     SQLCompiler.genTree = function(parent, array) {
         var newNode = new TreeNode(array.shift());
@@ -1366,6 +1372,7 @@
 
                     prepareUsedColIds(tree);
                     var promiseArray = traverseAndPushDown(self, tree, true);
+                    promiseArray.push(self._handleDupCols.bind(self, tree));
                     PromiseHelper.chain(promiseArray)
                     .then(function() {
                         // Tree has been augmented with xccli
@@ -1505,8 +1512,9 @@
             var aggEvalStrArray = [];
             var subqueryArray = [];
             var options = {renamedCols: node.renamedCols};
-            genMapArray(node.value.projectList, columns, evalStrArray,
-                        aggEvalStrArray, options, subqueryArray);
+            genMapArray(node.value.projectList, columns,
+                        evalStrArray, aggEvalStrArray, options, subqueryArray);
+            node.dupCols = options.dupCols;
             // I don't think the below is possible with SQL...
             assert(aggEvalStrArray.length === 0,
                    SQLErrTStr.ProjectAggAgg + JSON.stringify(aggEvalStrArray));
@@ -1943,8 +1951,9 @@
             var aggEvalStrArray = [];
             options.operator = true;
             options.groupby = false;
-            genMapArray(node.value.aggregateExpressions, columns, evalStrArray,
-                        aggEvalStrArray, options);
+            genMapArray(node.value.aggregateExpressions, columns,
+                                    evalStrArray, aggEvalStrArray, options);
+            node.dupCols = options.dupCols;
             node.renamedCols = {};
             // Extract colNames from column structs
             var aggColNames = [];
@@ -2836,6 +2845,55 @@
                 node.usrCols.push(__genColStruct(array[0]));
             })
             return PromiseHelper.resolve();
+        },
+
+        _handleDupCols: function(node) {
+            if (Object.keys(node.dupCols).length === 0) {
+                return PromiseHelper.resolve();
+            }
+            var self = this;
+            var deferred = PromiseHelper.deferred();
+            var mapStrs = [];
+            var newColNames = [];
+            var newColStructs = [];
+            var colNameSet = new Set();
+            var tableId = xcHelper.getTableId(node.newTableName);
+            node.usrCols.concat(node.xcCols).concat(node.sparkCols).forEach(function(col) {
+                colNameSet.add(__getCurrentName(col));
+            })
+            for (colId in node.dupCols) {
+                var dupNum = node.dupCols[colId];
+                var colName;
+                var origName;
+                var colType;
+                node.usrCols.forEach(function(col) {
+                    if (col.colId === Number(colId)) {
+                        colName = col.colName;
+                        origName = __getCurrentName(col);
+                        colType = col.colType;
+                        return false;
+                    }
+                })
+                for (var i = 0; i < dupNum; i++) {
+                    var newName = origName + "_" + (i + 1);
+                    while (colNameSet.has(newName)) {
+                        newName = newName + "_" + tableId;
+                    }
+                    colNameSet.add(newName);
+                    mapStrs.push(colType + "(" + origName + ")");
+                    newColNames.push(newName);
+                    newColStructs.push({colName: colName, colId: colId, rename: newName});
+                }
+            }
+            self.sqlObj.map(mapStrs, node.newTableName, newColNames)
+            .then(function(ret) {
+                node.newTableName = ret.newTableName;
+                node.xccli += ret.cli;
+                node.usrCols = node.usrCols.concat(newColStructs);
+                deferred.resolve();
+            })
+            .fail(deferred.reject);
+            return deferred.promise();
         }
     };
 
@@ -5154,6 +5212,9 @@
 
     function genMapArray(evalList, columns, evalStrArray, aggEvalStrArray,
                          options, subqueryArray) {
+        // A map to check if there is duplicate column pull out
+        var dupCols = {};
+
         // Note: Only top level agg functions are not extracted
         // (idx !== undefined check). The rest of the
         // agg functions will be extracted and pushed into the aggArray
@@ -5240,8 +5301,21 @@
                     colStruct.rename = options.renamedCols[colStruct.colId];
                 }
             }
-            columns.push(colStruct);
+            if (dupCols[colStruct.colId] && dupCols[colStruct.colId] > 0) {
+                dupCols[colStruct.colId]++;
+            } else {
+                dupCols[colStruct.colId] = 1;
+                columns.push(colStruct);
+            }
         }
+        for (colId in dupCols) {
+            if (dupCols[colId] === 1) {
+                delete dupCols[colId];
+            } else {
+                dupCols[colId]--;
+            }
+        }
+        options.dupCols = dupCols;
     }
 
     function produceSubqueryCli(self, subqueryArray) {
