@@ -123,10 +123,8 @@ class XcUser {
     private _userIdUnique: number;
     private _isIdle: boolean;
     private _idleChckTimer: number;
-    private _checkTime: number = (UserSettings
-        .getPref('logOutInterval') * 60 * 1000)
-    || 25 * 60 * 1000; // 25 minutes default
-
+    static readonly _defaultTimeout: number = 25 * 60 * 1000;
+    private _checkTime: number = XcUser._defaultTimeout; // 25 minutes default
     private _commitFlag: string;
     private _defaultCommitFlag: string = "commit-default";
 
@@ -329,15 +327,30 @@ class XcUser {
         this._idleChecker();
     }
 
+    /**
+     * default to 25 minutes, otherwise should return
+     * a value specified in genSettings
+     */
     public getLogOutTimeoutVal(): number {
         return this._checkTime;
     }
 
-    public updateLogOutInterval(value: number): void {
+    /**
+     * XcUser.CurrentUser.updateLogOutInterval(value)
+     * @param value a call to 'UserSettings.getPref('logOutInterval')'
+        it can take on three types of values
+        null: means the call is made before UserSettings was defined
+        undefined: means the user is on default value
+        [a number in minutes]:
+        means a user defined number is stored in genSettings
+     */
+    public updateLogOutInterval(value: number | null | undefined): void {
+
+        var val = (value * 60 * 1000) || XcUser._defaultTimeout;
         if (this !== XcUser.CurrentUser) {
             throw "Invalid User";
         }
-        this._checkTime = value;
+        this._checkTime = val;
         this._idleChecker();
     }
 

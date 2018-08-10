@@ -383,9 +383,11 @@ window.UserSettings = (function($, UserSettings) {
             $("#disableDSShare").removeClass("checked");
         }
         DS.toggleSharing(disableDSShare);
+        XcUser.CurrentUser.updateLogOutInterval(logOutInterval);
         monIntervalSlider.setSliderValue(graphInterval);
         commitIntervalSlider.setSliderValue(commitInterval);
-        logOutIntervalSlider.setSliderValue(logOutInterval || 25);
+        logOutIntervalSlider.setSliderValue(XcUser
+            .CurrentUser.getLogOutTimeoutVal() / (1000 * 60));
         setEnableCreateTable(enableCreateTable);
     }
 

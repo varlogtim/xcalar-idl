@@ -461,20 +461,42 @@ describe('XcUser Test', () => {
         it('should throw error when updating checkTime', (done) => {
             try {
                 let user = new XcUser('test');
-                user.updateLogOutInterval(10 * 60 * 1000);
+                user.updateLogOutInterval(10);
                 done('fail');
             } catch (e) {
                 expect(e).to.equal('Invalid User');
                 done();
             }
         });
+        it('should be equal for default timeout settings' +
+        'for values in both xcUser and UserSettings', () => {
+            var logOutInterval = UserSettings.getPref("logOutInterval");
+            expect(logOutInterval).to.be.an('undefined');
+            var defaultVal = 25 * 60 * 1000;
+            XcUser.CurrentUser.updateLogOutInterval(logOutInterval);
+            expect(XcUser.CurrentUser.getLogOutTimeoutVal())
+            .to.equal(defaultVal);
+        })
+        it('should be equal for remembered timeout settings' +
+        'for values in both xcUser and UserSettings', () => {
+            UserSettings.setPref("logOutInterval", 120, true);
+            var logOutInterval = UserSettings.getPref("logOutInterval");
+            expect(logOutInterval).to.be.a('number');
+            XcUser.CurrentUser.updateLogOutInterval(logOutInterval);
+            expect(XcUser.CurrentUser.getLogOutTimeoutVal())
+            .to.equal(logOutInterval * 60 * 1000);
+
+        })
         it('should update checkTime with an integer', () => {
-            XcUser.CurrentUser
-            .updateLogOutInterval(10 * 60 * 1000);
+            XcUser.CurrentUser.updateLogOutInterval(10);
             expect(XcUser.CurrentUser.getLogOutTimeoutVal())
             .to.be.a("number");
             expect(XcUser.CurrentUser.getLogOutTimeoutVal())
             .to.equal(10 * 60 * 1000);
+
+        });
+        after(() => {
+            UserSettings.revertDefault();
         });
     });
 });
