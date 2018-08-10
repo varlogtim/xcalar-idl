@@ -178,7 +178,7 @@ class XcSocket {
 
         socket.on('logout', (userOption) => {
             if (userOption.user === XcUser.getCurrentUserName()) {
-                // check if the tab still hold valid cookie
+                // check if the tab still holds valid cookies
                 XcUser.checkCurrentUser();
             }
         });
@@ -199,7 +199,7 @@ class XcSocket {
             if (!this._isRegistered) {
                 return;
             }
-            // In the event that there's new UDF added or overwrite old UDF
+            // In the event that there's new UDF added or overwritten old UDF
             UDF.refreshWithoutClearing(overwriteUDF);
         });
 

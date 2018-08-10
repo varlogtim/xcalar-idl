@@ -1,6 +1,7 @@
 var socketio = require("socket.io");
 var xcConsole = require('./expServerXcConsole.js').xcConsole;
 var sharedsession = require("express-socket.io-session");
+var userInfos = {}; // declared here for passing the info to a router
 
 function checkIoSocketAuth(authSocket) {
     if (! authSocket.handshake.hasOwnProperty('session') ||
@@ -36,10 +37,17 @@ function fakeCheckIoSocketAuthAdmin(func) {
     checkIoSocketAuthAdmin = func;
 }
 
+function getUserInfos() {
+    xcConsole.log("accessed active user list");
+    if (Object.keys(userInfos).length === 0) {
+        xcConsole.log("no registered users");
+        return {"no registered users": ""};
+    }
+    return userInfos;
+}
+
 function socketIoServer(server, session, cookieParser) {
     var io = socketio(server);
-    var userInfos = {};
-
     io.use(sharedsession(session, cookieParser, { autoSave: true }));
 
     io.sockets.on("connection", function(socket) {
@@ -51,7 +59,6 @@ function socketIoServer(server, session, cookieParser) {
         if (checkIoSocketAuth(socket)) {
             return;
         }
-
 
         socket.on("registerUserSession", function(userOption, callback) {
             xcConsole.log('register user');
@@ -236,7 +243,7 @@ function socketIoServer(server, session, cookieParser) {
                 return;
             }
 
-            switch ( arg.event) {
+            switch (arg.event) {
                 case "updateVersionId":
                     xcConsole.log('dataset: sync');
                     updateVersionId(versionId);
@@ -291,5 +298,6 @@ function socketIoServer(server, session, cookieParser) {
 module.exports = {
     socketIoServer: socketIoServer,
     fakeCheckIoSocketAuth: fakeCheckIoSocketAuth,
-    fakeCheckIoSocketAuthAdmin: fakeCheckIoSocketAuthAdmin
+    fakeCheckIoSocketAuthAdmin: fakeCheckIoSocketAuthAdmin,
+    getUserInfos: getUserInfos
 };

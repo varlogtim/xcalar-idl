@@ -9,6 +9,7 @@ var guiDir = (process.env.XCE_HTTP_ROOT ?
 var basePath = guiDir + "/assets/extensions/";
 var upload = require('../upload.js');
 var support = require('../expServerSupport.js');
+var socketUtils = require('../socket.js');
 
 try {
     var aws = require("aws-sdk");
@@ -518,6 +519,28 @@ router.post("/extension/publish", function(req, res) {
     });
 });
 // End of marketplace calls
+
+router.get('/extension/activeUsers',
+        [support.checkAuth], function(req, res) {
+    var activeUserInfos = {};
+    var msg;
+    var activeUserList = {};
+    try {
+        activeUserInfos = socketUtils.getUserInfos();
+        msg = Status.Ok;
+        if ("no registered users" in activeUserInfos) {
+            activeUserList = ["no registered users"];
+            msg = Status.Error;
+        }
+        activeUserList = Object.keys(activeUserInfos);
+    } catch (error) {
+        activeUserList = ["activeUserList not found", error];
+        msg = Status.Error;
+    };
+
+    res.jsonp({status: msg,
+               data: activeUserList});
+});
 
 // Below part is only for Unit Test
 function fakeWriteTarGz(func) {

@@ -525,5 +525,14 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         return html;
     }
 
+    function getActiveUsers() {
+        var url = xcHelper.getAppUrl();
+        return ExtensionPanel.request({
+            "type": "GET",
+            "dataType": "JSON",
+            "url": url + "/extension/activeUsers"
+        });
+    }
+
     return (ExtensionPanel);
 }({}, jQuery));

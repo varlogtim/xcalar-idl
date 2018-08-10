@@ -400,6 +400,16 @@ describe('ExpServer Extension Test', function() {
         });
     });
 
+    it("GetActiveUsers Router should work", function(done) {
+        var data = {
+            url: 'http://localhost:12125/extension/activeUsers'
+        }
+        request.get(data, function (err, res, body){
+            expect(JSON.parse(res.body).status).to.equal(1);
+            done();
+        });
+    });
+
     after(function() {
         extension.fakeGetObject(oldGetObject);
     });
