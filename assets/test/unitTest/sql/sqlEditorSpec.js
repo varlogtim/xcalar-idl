@@ -494,19 +494,19 @@ describe("SQLEditor Test", function() {
             SQLEditor.__testOnly__.updatePlanServer({}, "update", "sName", "tName")
             .then(function() {
                 expect(action).to.equal("PUT");
-                expect(url.indexOf("/schemaupdate/test")).to.not.equal(-1);
-                count++;
-                return SQLEditor.__testOnly__.updatePlanServer({}, "delete", "sName", "tName");
-            })
-            .then(function() {
-                expect(action).to.equal("DELETE");
-                expect(url.indexOf("/schemadrop/test/tName")).to.not.equal(-1);
+                expect(url.indexOf("/schemasupdate/test")).to.not.equal(-1);
                 count++;
                 return SQLEditor.__testOnly__.updatePlanServer({}, "drop", "sName", "tName");
             })
             .then(function() {
                 expect(action).to.equal("DELETE");
                 expect(url.indexOf("/schemadrop/sName")).to.not.equal(-1);
+                count++;
+                return SQLEditor.__testOnly__.updatePlanServer({}, "delete", "sName", ["tName"]);
+            })
+            .then(function() {
+                expect(action).to.equal("DELETE");
+                expect(url.indexOf("/schemasdrop/test")).to.not.equal(-1);
                 count++;
                 return SQLEditor.__testOnly__.updatePlanServer({}, "error", "sName", "tName");
             })

@@ -276,7 +276,7 @@ window.SQLEditor = (function(SQLEditor, $) {
         if ((!tableIds || tableIds.legnth === 0) && !sqlTables[tableName]) {
             return PromiseHelper.resolve("Table doesn't exist");
         }
-        var promiseArray = [];
+        var allTables = [];
         // Create a copy for aysnc call
         var sqlTablesCopy = $.extend(true, {}, sqlTables);
         if (tableIds) {
@@ -287,8 +287,7 @@ window.SQLEditor = (function(SQLEditor, $) {
                 for (var key in sqlTablesCopy) {
                     if (tableIds.indexOf(sqlTablesCopy[key]) > -1) {
                         found = true;
-                        promiseArray.push(updatePlanServer(undefined, "delete",
-                                                           undefined, key));
+                        allTables.push(key);
                         delete sqlTablesCopy[key];
                     }
                 }
@@ -303,13 +302,12 @@ window.SQLEditor = (function(SQLEditor, $) {
                 return PromiseHelper.resolve("No schemas to delete");
             }
         } else {
-            promiseArray.push(updatePlanServer(undefined, "delete", undefined,
-                                                                    tableName));
+            allTables.push(tableName);
             delete sqlTablesCopy[tableName];
         }
         var deferred = PromiseHelper.deferred();
 
-        PromiseHelper.when.apply(window, promiseArray)
+        updatePlanServer(undefined, "delete", undefined, allTables)
         .then(undefined, function(error) {
             if (error && error.responseText &&
                         (error.responseText.indexOf(SQLErrTStr.NoKey) > -1 ||
@@ -928,10 +926,8 @@ window.SQLEditor = (function(SQLEditor, $) {
     }
 
     function republishSchemas(query) {
-        // XXX Wait for plan server change, then we can just pass one array
         var deferred = PromiseHelper.deferred();
-        var promiseArray = [];
-        // var allSchemas = [];
+        var allSchemas = [];
         Object.keys(sqlTables).forEach(function(tableName) {
             var tableId = sqlTables[tableName];
             var srcTableName = tableName
@@ -939,11 +935,9 @@ window.SQLEditor = (function(SQLEditor, $) {
             var structToSend = {};
             structToSend.tableName = tableName.toUpperCase();
             structToSend.tableColumns = schema;
-            // allSchemas = structToSend;
-            promiseArray.push(updatePlanServer(structToSend, "update"));
+            allSchemas.push(structToSend);
         });
-        PromiseHelper.when.apply(window, promiseArray)
-        // updatePlanServer(allSchemas)
+        updatePlanServer(allSchemas, "update")
         .then(function() {
             return SQLEditor.executeSQL(query, true);
         })
@@ -977,14 +971,14 @@ window.SQLEditor = (function(SQLEditor, $) {
         var session = WorkbookManager.getActiveWKBK();
         switch (type) {
             case ("update"):
-                url = planServer + "/schemaupdate/" +
+                url = planServer + "/schemasupdate/" +
                       encodeURIComponent(encodeURIComponent(session));
                 action = "PUT";
                 break;
             case ("delete"):
-                url = planServer + "/schemadrop/" +
-                      encodeURIComponent(encodeURIComponent(session)) +
-                      "/" + tableName;
+                struct = tableName;
+                url = planServer + "/schemasdrop/" +
+                    encodeURIComponent(encodeURIComponent(session));
                 action = "DELETE";
                 break;
             case ("drop"):
