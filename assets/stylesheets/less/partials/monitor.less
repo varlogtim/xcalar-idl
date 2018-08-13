@@ -821,7 +821,7 @@
                             fill: @color-arc-8;
                         }
                         &:nth-child(2) {
-                            fill: @color-arc-6;
+                            fill: @color-arc-12;
                         }
                         &:nth-child(3) {
                             fill: @color-arc-2;
@@ -863,7 +863,8 @@
                 font-size: 10px;
                 line-height: 16px;
                 .position(absolute, @top: 26px, @left: ~"calc(50% + 70px)");
-                // margin-left: 100px;
+                margin-left: -3px; // This margin is used to make sure
+                // the legend never covers the neighboring donuts
                 .key {
                     .size(9px, 9px);
                     float: left;
@@ -891,7 +892,7 @@
                         background-color: @color-arc-2;
                     }
                     &:nth-child(5) .key {
-                        background-color: @color-arc-6;
+                        background-color: @color-arc-12;
                     }
                     &:nth-child(6) .key {
                         background-color: @color-arc-8;
