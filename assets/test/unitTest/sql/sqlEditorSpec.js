@@ -267,6 +267,38 @@ describe("SQLEditor Test", function() {
             });
         });
 
+        it("Should redoSendSchema", function(done) {
+            var id1;
+            var id2;
+            var struct;
+            var oldUpdate  = SQLEditor.updateSchema;
+            SQLEditor.updateSchema = function(structToSend, tableId) {
+                struct = structToSend;
+                id2 = tableId;
+                return PromiseHelper.resolve();
+            }
+            var oldGet = SQLEditor.__testOnly__.getSchema;
+            SQLEditor.__testOnly__.setGetSchema(function(tableId) {
+                id1 = tableId;
+                return "testSchema";
+            })
+            SQLEditor.redoSendSchema("someTable#1", "testName1")
+            .then(function() {
+                expect(id1).to.equal(1);
+                expect(id2).to.equal(1);
+                expect(struct.tableName).to.equal("TESTNAME1");
+                expect(struct.tableColumns).to.equal("testSchema");
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                SQLEditor.updateSchema = oldUpdate;
+                SQLEditor.__testOnly__.setGetSchema(oldGet);
+            });
+        });
+
         it("Should gen tables HTML", function() {
             SQLEditor.__testOnly__.genTablesHTML();
             expect($sqlTableList.find(".unit").length).to.be.at.least(4);

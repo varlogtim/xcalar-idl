@@ -498,9 +498,11 @@ window.Undo = (function($, Undo) {
                     "restoreTime": extOptions.formOpenTime
                 });
             }
-
-            deferred.resolve();
+            if (options.func === "sendSchema") {
+                return SQLEditor.deleteSchemas(options.args.sqlTableName.toUpperCase());
+            }
         })
+        .then(deferred.resolve)
         .fail(deferred.reject);
 
         return deferred.promise();

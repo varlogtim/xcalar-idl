@@ -946,6 +946,15 @@ window.SQLEditor = (function(SQLEditor, $) {
         return deferred.promise();
     }
 
+    SQLEditor.redoSendSchema = function(xcTableName, sqlTableName) {
+        var tableId = xcHelper.getTableId(xcTableName);
+        var schema = getSchema(tableId);
+        var structToSend = {};
+        structToSend.tableName = sqlTableName.toUpperCase();
+        structToSend.tableColumns = schema;
+        return SQLEditor.updateSchema(structToSend, tableId);
+    }
+
     function getSchema(tableId) {
         var srcTableName = gTables[tableId].tableName;
         var tableMetaCol = {};
@@ -1250,6 +1259,9 @@ window.SQLEditor = (function(SQLEditor, $) {
             updateKVStore = func;
         };
         SQLEditor.__testOnly__.getSchema = getSchema;
+        SQLEditor.__testOnly__.setGetSchema = function(func) {
+            getSchema = func;
+        }
         SQLEditor.__testOnly__.updatePlanServer = updatePlanServer;
         SQLEditor.__testOnly__.setUpdatePlanServer = function(func) {
             updatePlanServer = func;
