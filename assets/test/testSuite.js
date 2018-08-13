@@ -307,6 +307,15 @@ window.TestSuite = (function($, TestSuite) {
             self.checkExists(check)
             .then(function() {
                 $("#importDataForm").find(".dsName").eq(0).val(dsName);
+                const finalVal = -4;
+
+                if (dsName.substring(0, 2) === "a1") { // manually force data type. Temporary solution
+                    for (var i = -1; i >= finalVal; i--) {
+                        $("#previewTable th:eq(" + i + ")").find(".flex-left").click();
+                        $("#dsForm-preview").find(".castDropdown").find("li")
+                        .eq(1).trigger(fakeEvent.mouseup); // change Type to Integer
+                    };
+                };
                 // auto detect should fill in the form
                 var empties = $("#previewTable .editableHead[value='']");
                 var rand = Math.floor(Math.random() * 10000);
@@ -359,6 +368,10 @@ window.TestSuite = (function($, TestSuite) {
                 } else if (dsName.indexOf("airport") > -1) {
                     return self.checkExists(".selectedTable li:eq(6)");
                 } else if (dsName.indexOf("schedule") > -1) {
+                    return self.checkExists(".selectedTable li:eq(5)");
+                } else if (dsName.indexOf("a0") > -1) {
+                    return self.checkExists(".selectedTable li:eq(5)");
+                } else if (dsName.indexOf("a1") > -1) {
                     return self.checkExists(".selectedTable li:eq(5)");
                 } else {
                     // TODO for each new table, should add a test case here
