@@ -5395,6 +5395,9 @@
     }
 
     function convertSparkTypeToXcalarType(dataType) {
+        if (typeof dataType !== "string") {
+            assert(0, SQLErrTStr.UnsupportedColType + JSON.stringify(dataType));
+        }
         if (dataType.indexOf("decimal(") != -1) {
             return "float";
         }
