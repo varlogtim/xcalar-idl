@@ -94,7 +94,6 @@ namespace xcManager {
             UnionView.setup();
             AggModal.setup();
             OperationsView.setup();
-            OperationsView2.setup();
             DFCreateView.setup();
             ProjectView.setup();
             ProjectOpPanel.Instance.setup();
@@ -109,6 +108,9 @@ namespace xcManager {
             SqlQueryHistoryPanel.Card.getInstance().setup();
             if (typeof SQLEditor !== "undefined") {
                 SQLEditor.initialize();
+            }
+            if (gDionysus) {
+                OperationsView2.setup();
             }
             // restore user settings
             OperationsView.restore();
