@@ -989,7 +989,7 @@ module.exports = {
         "header": "SET OPERATION", // Sync with JSTStr
         "AddTables": "ADD TABLES",
         "TableTitle": "Tables",
-        "ColumnTitle": "Columns In Result Table",
+        "ColumnTitle": "Columns In Results Table",
         "Instr": "Select tables you would like to except / intersect / union and select columns from each table.",
         "CandidateTitle": "To Be Dropped",
         "AddTable": "Add Table To Operation",
