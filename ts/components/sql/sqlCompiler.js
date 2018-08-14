@@ -477,6 +477,12 @@
         var opName = node.value.class.substring(
             node.value.class.indexOf("expressions."));
         switch (opName) {
+            case ("expressions.UnaryMinus"):
+                var subNode = subtractNode();
+                var zeroNode = literalNumberNode(0);
+                subNode.children = [zeroNode, node.children[0]];
+                node = subNode;
+                break;
             case ("expressions.Remainder"):
                 var intNodeL = castNode("int");
                 var intNodeR = castNode("int");
@@ -1049,6 +1055,12 @@
             node.colType = opOutTypeLookup[opLookup[curOpName]] || getColType(node.children[0]);
         }
         node.visited = true;
+        if (opName === "expressions.UnaryMinus" && node.children[1].colType === "int") {
+            var intNode = castNode("int");
+            intNode.children = [node];
+            node = intNode;
+            node.visited = true;
+        }
         return node;
     }
     function sendPost(self, struct) {
