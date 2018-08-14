@@ -2139,20 +2139,17 @@ namespace IMDPanel {
         $inactiveCount.text("(" + iTables.length + ")");
     }
 
+    let $waitingBg;
     function showWaitScreen(): void {
         $("#modalWaitingBG").remove();
-        const $waitingBg: JQuery = $('<div id="modalWaitingBG">' +
-                            '<div class="waitingIcon"></div>' +
-                        '</div>');
-        $imdPanel.append($waitingBg);
-        setTimeout(() => {
-            $waitingBg.find('.waitingIcon').fadeIn();
-        }, 200);
+        $waitingBg = xcHelper.disableScreen($imdPanel, {
+            id: "modalWaitingBG"
+        });
     }
 
     function removeWaitScreen(): void {
-        $('#modalWaitingBG').fadeOut(200, function() {
-            $(this).remove();
+        xcHelper.enableScreen($waitingBg)
+        .then(function() {
             progressState.canceled = false;
         });
     }

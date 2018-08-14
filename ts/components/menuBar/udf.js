@@ -30,7 +30,10 @@ window.UDF = (function($, UDF) {
     UDF.initialize = function() {
         var deferred = PromiseHelper.deferred()
         var $section = $("#udf-fnSection");
-        $section.addClass("xc-disabled");
+        var $waitingBg = xcHelper.disableScreen($("#udfSection " +
+                                                ".mainSectionContainer"), {
+                                                    classes: "dark"
+                                                });
 
         initializeUDFList(true)
         .then(function(listXdfsObj) {
@@ -43,7 +46,7 @@ window.UDF = (function($, UDF) {
         })
         .fail(deferred.reject)
         .always(function() {
-            $section.removeClass("xc-disabled");
+            xcHelper.enableScreen($waitingBg);
         });
 
         return deferred.promise();
@@ -157,6 +160,7 @@ window.UDF = (function($, UDF) {
                 delete storedUDF[key];
             }
             updateUDF(doNotClear);
+
             deferred.resolve(xcHelper.deepCopy(listXdfsObj));
         })
         .fail(function(error) {

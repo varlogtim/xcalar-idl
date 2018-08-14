@@ -2438,6 +2438,40 @@ namespace xcHelper {
         }
     }
 
+    /**
+     * xcHelper.disableScreen
+     * @param $area
+     */
+    export function disableScreen($area: JQuery, options?): JQuery {
+        options = options || {};
+        let classes = options.classes || "";
+        const $waitingBg: JQuery = $('<div class="xc-waitingBG ' +  classes +
+            '">' +
+            '<div class="waitingIcon"></div>' +
+        '</div>');
+        if (options.id) {
+            $waitingBg.attr("id", options.id);
+        }
+        $area.append($waitingBg);
+        setTimeout(() => {
+            $waitingBg.find(".waitingIcon").fadeIn();
+        }, 200);
+        return $waitingBg;
+    }
+
+    /**
+     * xcHelper.enableScreen
+     * @param $waitingBg
+     */
+    export function enableScreen($waitingBg: JQuery): XDPromise<any> {
+        const deferred = PromiseHelper.deferred();
+        $waitingBg.fadeOut(200, function() {
+            $(this).remove();
+            deferred.resolve();
+        });
+        return deferred.promise();
+    }
+
     // inserts text into an input field and adds commas
     // detects where the current cursor is and if some text is already selected
 
