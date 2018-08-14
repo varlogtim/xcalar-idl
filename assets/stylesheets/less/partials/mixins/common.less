@@ -1071,6 +1071,12 @@
 .xc-disabled {
     opacity: @opacity-disabled !important;
     pointer-events: none;
+    &.half-visible {
+        opacity: @opacity-hint !important;
+    }
+    &.visible {
+        opacity: 1 !important;
+    }
 }
 
 .xc-action {

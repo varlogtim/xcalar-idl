@@ -3,6 +3,7 @@ class DagGraph {
     private removedNodesMap: Map<DagNodeId,{}>;
     private display: Dimensions;
     private innerEvents: object;
+    private lock: boolean;
     public events: { on: Function, trigger: Function}; // example: dagGraph.events.on(DagNodeEvents.StateChange, console.log)
 
     public constructor() {
@@ -12,6 +13,7 @@ class DagGraph {
             width: -1,
             height: -1
         };
+        this.lock = false;
         this._setupEvents();
     }
 
@@ -115,7 +117,7 @@ class DagGraph {
 
         this.nodesMap.set(node.getId(), node);
         this.removedNodesMap.delete(node.getId());
-        this._traverseSwtichState(node);
+        this._traverseSwitchState(node);
         return node;
     }
 
@@ -143,8 +145,7 @@ class DagGraph {
         })
         .registerEvents(DagNodeEvents.ParamChange, (changeInfo) => {
             const node = this.getNode(changeInfo.id);
-            this._traverseSwtichState(node);
-            this.events.trigger(DagNodeEvents.ParamChange, changeInfo);
+            this._traverseSwitchState(node);
         });
     }
 
@@ -230,7 +231,7 @@ class DagGraph {
                 throw new Error("has cycle in the dataflow");
             }
             if (switchState) {
-                this._traverseSwtichState(toNode);
+                this._traverseSwitchState(toNode);
             }
         } catch (e) {
             if (connectedToParent) {
@@ -270,7 +271,7 @@ class DagGraph {
         toNode.disconnectFromParent(fromNode, toPos);
         fromNode.disconnectFromChild(toNode);
         if (switchState) {
-            this._traverseSwtichState(toNode);
+            this._traverseSwitchState(toNode);
         }
     }
 
@@ -335,6 +336,35 @@ class DagGraph {
         };
     }
 
+    /**
+     * Locks the graph from modification.
+     * Used primarily in execution.
+     */
+    public lockGraph(): void {
+        $("#dagView .operatorBar").addClass("xc-disabled half-visible");
+        $("#dagView .dataflowWrap").addClass("xc-disabled visible");
+        $("#dagView #dagNodeMenu").addClass("xc-disabled visible");
+        this.lock = true;
+    }
+
+    /**
+     * Unlocks the graph for modification.
+     */
+    public unlockGraph(): void {
+        $("#dagView .operatorBar").removeClass("xc-disabled half-visible");
+        $("#dagView .dataflowWrap").removeClass("xc-disabled visible");
+        $("#dagView #dagNodeMenu").removeClass("xc-disabled visible");
+        this.lock = false;
+    }
+
+    /**
+     * Returns if this graph is currently locked.
+     * @returns {boolean}
+     */
+    public isLocked(): boolean {
+        return this.lock;
+    }
+
     // XXX TODO, Idea is to do a topological sort first, then get the
     // ordere, then get the query, and run it one by one.
     private _executeGraph(nodesMap?: Map<DagNodeId, DagNode>): XDPromise<void> {
@@ -356,14 +386,17 @@ class DagGraph {
             }
         });
 
+        this.lockGraph();
         PromiseHelper.chain(promises)
         .then(() => {
             // console.log("finish running", orderedNodes);
             Transaction.done(txId, {});
+            this.unlockGraph();
             deferred.resolve();
         })
         .fail((error) => {
             Transaction.fail(txId);
+            this.unlockGraph();
             deferred.reject(error);
         });
 
@@ -474,7 +507,7 @@ class DagGraph {
                 }
             });
             if (switchState) {
-                this._traverseSwtichState(child);
+                this._traverseSwitchState(child);
             }
         });
 
@@ -534,7 +567,7 @@ class DagGraph {
         }
     }
 
-    private _traverseSwtichState(node: DagNode): void {
+    private _traverseSwitchState(node: DagNode): void {
         node.switchState();
         this._traverseChildren(node, (node: DagNode) => {
             node.switchState();

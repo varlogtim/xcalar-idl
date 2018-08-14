@@ -24,7 +24,7 @@ class DagTopBar {
         });
 
         this.$topBar.find(".undo").click(function() {
-            if ($(this).hasClass("disabled")) {
+            if ($(this).hasClass("disabled") || DagView.getActiveDag().isLocked()) {
                 return;
             }
             // XXX need to remove original undo buttons first
@@ -32,7 +32,7 @@ class DagTopBar {
         });
 
         this.$topBar.find(".redo").click(function() {
-            if ($(this).hasClass("disabled")) {
+            if ($(this).hasClass("disabled") || DagView.getActiveDag().isLocked()) {
                 return;
             }
 
