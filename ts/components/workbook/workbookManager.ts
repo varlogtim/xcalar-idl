@@ -660,7 +660,7 @@ namespace WorkbookManager {
         const isCurrentWKBK: boolean = (srcWKBKId === activeWKBKId);
         const srcWKBK: WKBK = wkbkSet.get(srcWKBKId);
 
-        // should follow theses order:
+        // should follow following order:
         // 1. stop heart beat check (in case key is changed)
         // 2. copy meta to new wkbkb,
         // 3. rename wkbk
@@ -1042,13 +1042,9 @@ namespace WorkbookManager {
     * @param info - info from socket containing operation, workbook id and new value
     */
     export function updateWorkbooks(info: any): void {
-        if (XcUser.getCurrentUserName() !== info.user) {
-            // XXX socket should only send messages to relevant users
-            return;
-        }
         const activeWkbk: string = WorkbookManager.getActiveWKBK();
         if (info.action === "deactivate" &&
-            activeWkbk && activeWkbk === info.triggerWkbk) {
+            activeWkbk) {
             XcSupport.stopHeartbeatCheck();
             const wkbk: WKBK = wkbkSet.get(activeWkbk);
             wkbk.setResource(false);

@@ -51,7 +51,7 @@ describe("ExpServer Socket Test", function() {
             if (first) {
                 expect(users).to.deep.equal(expectedRes);
                 first = false;
-                client.emit("registerUserSession", testUserOption, function() {});
+                peerClient.emit("registerUserSession", testUserOption, function() {});
             } else {
                 expectedRes.testUser.count += 1;
                 expectedRes.testUser.workbooks.testId += 1;

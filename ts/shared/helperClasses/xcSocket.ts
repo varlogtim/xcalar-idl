@@ -105,6 +105,8 @@ class XcSocket {
     }
 
     private _getExpServerUrl(host: string): string {
+        // check if expHost is defined or not at a global level
+        // and if expHost is either undefined or null
         if (typeof expHost !== 'undefined' && expHost != null) {
             return expHost;
         }
@@ -115,7 +117,6 @@ class XcSocket {
     private _addWorkbookEvents(): void {
         const socket = this._socket;
         socket.on("refreshWorkbook", (info) => {
-            // XXX socket should only send messages to relevant users
             WorkbookManager.updateWorkbooks(info);
         });
     }
@@ -151,8 +152,7 @@ class XcSocket {
                 return;
             }
             console.log(userOption, 'exists');
-            if (userOption.user === XcUser.getCurrentUserName() &&
-                userOption.id === WorkbookManager.getActiveWKBK()) {
+            if (userOption.id === WorkbookManager.getActiveWKBK()) {
                 WorkbookManager.gotoWorkbook(null, true);
             }
         });
@@ -177,10 +177,8 @@ class XcSocket {
         });
 
         socket.on('logout', (userOption) => {
-            if (userOption.user === XcUser.getCurrentUserName()) {
-                // check if the tab still holds valid cookies
-                XcUser.checkCurrentUser();
-            }
+            // check if the tab still holds valid cookies
+            XcUser.checkCurrentUser();
         });
 
     }

