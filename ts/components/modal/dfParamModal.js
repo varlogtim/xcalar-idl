@@ -382,7 +382,9 @@ window.DFParamModal = (function($, DFParamModal){
         var newVal = firstPart + $draggableParam.text() + secondPart;
         $dropTargParent.text(newVal);
         $dropTargParent.parent().siblings('input').val(newVal);
-        updateTargetType();
+        if (type === "export") {
+            updateTargetType();
+        }
     };
 
     DFParamModal.paramDropSpace = function(event) {
@@ -398,7 +400,9 @@ window.DFParamModal = (function($, DFParamModal){
         $dropTargParent.text(newVal);
 
         $dropTargParent.parent().siblings('input').val(newVal);
-        updateTargetType();
+        if (type === "export") {
+            updateTargetType();
+        }
     };
 
     DFParamModal.allowParamDrop = function(event) {
