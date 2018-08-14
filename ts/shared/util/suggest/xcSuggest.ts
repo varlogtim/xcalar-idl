@@ -1092,9 +1092,9 @@ namespace xcSuggest { // = (function($, xcSuggest) {
 
             validData++;
             let num: number = Number(data);
-            // edge case like "0X123", "1e12" can be parse as number
-            // but it's string
-            if (!isNaN(num) && !letterRex.test(data)) {
+            // edge case1: "0X123", "1e12" can be parse as number but it's string
+            // edge case2: 012345 should not be a number, otherwise it's cast to 12345
+            if (!isNaN(num) && !letterRex.test(data) && !(num + "" !== data)) {
                 numHit++;
 
                 if (!isFloat && !Number.isInteger(num)) {

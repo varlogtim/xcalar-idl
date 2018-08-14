@@ -30,6 +30,7 @@ describe("xcSuggest", function() {
                 "sig2": 0,
                 "vals": []
             };
+
             // ContextCheck takes requiredInfo, uses RI.type and RI.data
             var emptyArrayIntRI = {
                 "type": ColumnType.integer,
@@ -768,6 +769,10 @@ describe("xcSuggest", function() {
                 "expect": ColumnType.string
             }, {
                 "datas": ["1", "1e23"],
+                "type": ColumnType.string,
+                "expect": ColumnType.string
+            }, {
+                "datas": ["0123", "123"],
                 "type": ColumnType.string,
                 "expect": ColumnType.string
             }];
