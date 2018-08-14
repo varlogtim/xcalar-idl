@@ -92,6 +92,9 @@ namespace DagNodeMenu {
                     const node: DagNode = dagGraph.getNode(nodeId);
                     configureNode(node);
                     break;
+                case ("previewTable"):
+                    DagView.previewTable(nodeId);
+                    break;
                 case ("comment"):
                     break;
                 default:
@@ -154,10 +157,20 @@ namespace DagNodeMenu {
         $menu.data("nodeids", nodeIds);
 
         let classes: string = " operatorMenu ";
+        const dagGraph: DagGraph = DagView.getActiveDag();
         if (nodeIds.length > 1) {
             classes += " multiple ";
         } else {
             classes += " single ";
+            const dagNode: DagNode = dagGraph.getNode(nodeId);
+            if (dagNode != null &&
+                dagNode.getState() === DagNodeState.Complete &&
+                dagNode.getTable() != null
+            ) {
+                $menu.find(".previewTable").removeClass("unavailable");
+            } else {
+                $menu.find(".previewTable").addClass("unavailable");
+            }
         }
 
         xcHelper.dropdownOpen($clickedEl, $menu, {

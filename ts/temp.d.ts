@@ -1007,6 +1007,7 @@ declare class TableMeta {
     public getName(): string;
     public freeResultset(): XDPromise<void>;
     public getMetaAndResultSet(): XDPromise<void>;
+    public constructor(options: object);
 }
 
 declare class XcStorage {

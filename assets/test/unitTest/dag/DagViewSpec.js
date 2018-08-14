@@ -2,6 +2,7 @@ describe("DagView Test", () => {
     let $dagView;
     let $dfWrap;
     before(function(done) {
+        UnitTest.onMinMode();
         $dagView = $("#dagView");
         $dfWrap = $dagView.find(".dataflowWrap");
         if (!gDionysus) {
@@ -13,8 +14,8 @@ describe("DagView Test", () => {
             return $dagView.find(".dataflowArea").length > 0;
         })
         .then(function() {
-             MainMenu.openPanel("workspacePanel", "dagButton");
-             done();
+            MainMenu.openPanel("workspacePanel", "dagButton");
+            done();
         });
     });
     describe("initial state", function() {
@@ -289,7 +290,71 @@ describe("DagView Test", () => {
         });
     });
 
+    describe("preview table", () => {
+        let graph;
+        let node;
+        let table;
+        let oldShow;
+
+        before(() => {
+            graph = DagView.getActiveDag();
+            node = DagNodeFactory.create({type: DagNodeType.Dataset});
+            graph.addNode(node);
+            table = xcHelper.randName("test#abc")
+            node.setTable(table);
+            oldShow = DagTable.Instance.show;
+        });
+
+        it("should show table", (done) => {
+            let test = false;
+            DagTable.Instance.show = () => {
+                test = true;
+                return PromiseHelper.resolve();
+            }
+            DagView.previewTable(node.getId())
+            .then(() => {
+                expect(test).to.be.true;
+                done();
+            })
+            .fail(() => {
+                done("fail");
+            });
+        });
+
+        it("should show alert in error case", (done) => {
+            DagTable.Instance.show = () => {
+                return PromiseHelper.reject("test");
+            }
+            DagView.previewTable(node.getId())
+            .then(() => {
+                done("fail");
+            })
+            .fail(() => {
+                UnitTest.hasAlertWithText("test");
+                done();
+            });
+        });
+
+        it("should show alert in error code", (done) => {
+            node.setTable("");
+            DagView.previewTable(node.getId())
+            .then(() => {
+                done("fail");
+            })
+            .fail(() => {
+                UnitTest.hasAlertWithText(ErrTStr.Unknown);
+                done();
+            });
+        });
+
+        after(() => {
+            graph.removeNode(node.getId());
+            DagTable.Instance.show = oldShow
+        });
+    });
+
     after(function(done) {
+        UnitTest.offMinMode();
         const dag = DagView.getActiveDag();
         const nodes = dag.getAllNodes();
         let nodeIds = [];

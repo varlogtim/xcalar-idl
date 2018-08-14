@@ -6,25 +6,6 @@ class DagTable {
         return this._instance || (this._instance = new this());
     }
 
-    // XXX test only, this code should be triggered when click the dag preview button
-    public static testTable(tableId) {
-        const dagNode: DagNode = DagNodeFactory.create({type: DagNodeType.Filter});
-        dagNode.setTable(tableId);
-        const table: TableMeta = gTables[tableId];
-        const columns: ProgCol[] = dagNode.getLineage().getColumns();
-        if (columns != null && columns.length > 0) {
-            table.tableCols = columns.concat(ColManager.newDATACol());
-        }
-        const viewer: XcTableViewer = new XcTableViewer(table);
-        return DagTable.Instance.show(viewer);
-    }
-
-    // XXX TODO as next setp
-    public static testDataset(dsName) {
-        const viewer: XcDatasetViewer = new XcDatasetViewer(DS.getDSObj(dsName));
-        return DagTable.Instance.show(viewer);
-    }
-
     private viewer: XcViewer;
 
     private constructor() {

@@ -393,9 +393,40 @@ namespace DagView {
         console.log(nodes);
     }
 
-    export function autoAlign() {
-        const nodes: DagNode[] = activeDag.getSortedNodes();
-        console.log(nodes);
+    export function previewTable(dagNodeId: string): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        try {
+            const dagNode: DagNode = activeDag.getNode(dagNodeId);
+            const tableName: string = dagNode.getTable();
+            // XXX this code should be change after refine the table meta structure
+            const tableId: TableId = xcHelper.getTableId(tableName);
+            let table: TableMeta = gTables[tableId];
+            if (!table) {
+                table = new TableMeta({
+                    tableName: tableName,
+                    tableId: tableId,
+                    tableCols: [ColManager.newDATACol()]
+                });
+                gTables[tableId] = table;
+            }
+            const columns: ProgCol[] = dagNode.getLineage().getColumns();
+            if (columns != null && columns.length > 0) {
+                table.tableCols = columns.concat(ColManager.newDATACol());
+            }
+            const viewer: XcTableViewer = new XcTableViewer(table);
+            DagTable.Instance.show(viewer)
+            .then(deferred.resolve)
+            .fail((error) => {
+                Alert.error(AlertTStr.Error, error);
+                deferred.reject(error);
+            })
+        } catch (e) {
+            console.error(e);
+            Alert.error(AlertTStr.Error, ErrTStr.Unknown);
+            deferred.reject(e);
+        }
+
+        return deferred.promise();
     }
 
     /**
