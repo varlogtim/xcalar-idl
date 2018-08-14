@@ -985,6 +985,16 @@ module.exports = {
         "prefixTip": "Prefixed columns act as a unit and can only be selected in their entirety"
     },
 
+    "datasetOp": {
+        "dataset": "DATASET",
+        "datasetInstr": "Create a table using the source dataset, with columns prefixed by prefix",
+        "source": "Source",
+        "sourceInstr": "Select Dataset to use in this dataflow.",
+        "prefix": "Prefix",
+        "prefixInstr": "Table Prefix",
+        "save": "Save"
+    },
+
     "unionView": {
         "header": "SET OPERATION", // Sync with JSTStr
         "AddTables": "ADD TABLES",

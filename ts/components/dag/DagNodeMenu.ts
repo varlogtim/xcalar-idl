@@ -107,7 +107,7 @@ namespace DagNodeMenu {
         const type: DagNodeType = node.getType();
         switch (type) {
             case (DagNodeType.Dataset):
-                DagDatasetModal.show(<DagNodeDataset>node);
+                DatasetOpPanel.Instance.show(<DagNodeDataset>node);
                 break;
             case (DagNodeType.Project):
                 console.log("open project form");

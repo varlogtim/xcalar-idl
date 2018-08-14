@@ -248,6 +248,16 @@ interface OpStatsOutput {
     opDetails: OpStatsDetails;
 }
 
+interface DatasetBrowseItem {
+    name: string;
+    id: string;
+}
+
+interface DatasetBrowseFolder{
+    folders: {}; // to contain multitudes of folders
+    datasets: DatasetBrowseItem[];
+}
+
 interface ListDSInfo {
     path: string,
     suffix: string,

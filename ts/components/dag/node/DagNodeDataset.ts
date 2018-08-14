@@ -37,9 +37,7 @@ class DagNodeDataset extends DagNode {
         // XXXX this is a wrong implementation
         // wait for https://bugs.int.xcalar.com/show_bug.cgi?id=12870
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const $ds: JQuery = DS.getGridByName(this.input.source);
-        const dsId: string = $ds.data("dsid");
-        const ds: DSObj = DS.getDSObj(dsId);
+        const ds: DSObj = DS.getDSObj(this.input.source);
         const lineage: DagLineage = this.lineage;
         const prefix: string = this.input.prefix;
         ds.fetch(0, 50)

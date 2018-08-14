@@ -96,7 +96,6 @@ namespace xcManager {
             OperationsView.setup();
             DFCreateView.setup();
             ProjectView.setup();
-            ProjectOpPanel.Instance.setup();
             DFParamModal.setup();
             SmartCastView.setup();
             SortView.setup();
@@ -110,6 +109,8 @@ namespace xcManager {
                 SQLEditor.initialize();
             }
             if (gDionysus) {
+                ProjectOpPanel.Instance.setup();
+                DatasetOpPanel.Instance.setup();
                 OperationsView2.setup();
             }
             // restore user settings
