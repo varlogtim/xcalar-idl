@@ -203,6 +203,12 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                             test.assert(0);
                             return false;
                         }
+                    } else if (answers[i] === null) {
+                        if (res !== "FNF") {
+                            console.log(row + ": expect FNF, get " + res);
+                            test.assert(0);
+                            return false;
+                        }
                     } else {
                         if (answers[i] !== res) {
                             console.log(row + ": expect " + answers[i]

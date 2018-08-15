@@ -3,6 +3,7 @@
 
     function SQLCompiler() {
         this.sqlObj = new SQLApi();
+        this.jdbcOption;
         return this;
     }
     var opLookup = {
@@ -429,7 +430,8 @@
             return new TreeNode({
                 "class": "org.apache.spark.sql.catalyst.expressions.XcType."
                           + xcType,
-                "num-children": 1
+                "num-children": 1,
+                "colType": xcType
             });
         }
         function existNode() {
@@ -592,6 +594,11 @@
                     var ifNodeI = ifNode();
                     var gtNodeI = greaterThanNode();
                     var subNode = subtractNode();
+
+                    var intNodeS = castNode("int");
+                    intNodeS.children = [node.children[1]];
+                    node.children[1] = intNodeS;
+
                     subNode.children.push(node.children[1],
                                           literalNumberNode(1));
                     var addN = addNode();
@@ -1019,7 +1026,7 @@
         node.visited = true;
         return node;
     }
-    function sendPost(self, struct, jdbcOption) {
+    function sendPost(self, struct) {
         var deferred = PromiseHelper.deferred();
         jQuery.ajax({
             type: 'POST',
@@ -1044,7 +1051,7 @@
                     }
                     self.setStatus(SQLStatus.Failed);
                     self.setError(e);
-                    self.updateQueryHistory(jdbcOption);
+                    self.updateQueryHistory();
                 }
             },
             error: function(error) {
@@ -1109,11 +1116,13 @@
             node.parent.usrCols = jQuery.extend(true, [], node.usrCols);
             node.parent.xcCols = jQuery.extend(true, [], node.xcCols);
             node.parent.sparkCols = jQuery.extend(true, [], node.sparkCols);
-            // This is an array of renamed column IDs
+            // This is a map of renamed column ids and new names
             node.parent.renamedCols = jQuery.extend(true, {},
                                                       node.renamedCols);
+            // A list of columns used to sort in case later operators reorder table
             node.parent.orderCols = jQuery.extend(true, [], node.orderCols);
         }
+        // Duplicate columns pulled out in sql. Map {id -> duplicate times}
         if (node.parent && node.parent.dupCols) {
             jQuery.extend(true, node.parent.dupCols, node.dupCols);
         } else if (node.parent) {
@@ -1261,8 +1270,9 @@
     }
     SQLCompiler.prototype = {
         // XXX need to move mutator functions from sqlApi to sqlCompiler
-        updateQueryHistory(jdbcOption) {
+        updateQueryHistory() {
             var queryObj = this.sqlObj;
+            var jdbcOption = this.getJdbcOption();
             if (jdbcOption) {
                 var jdbcSession = jdbcOption.prefix.substring(3, jdbcOption.prefix.length - 2);
                 queryObj.jdbcSession = jdbcSession;
@@ -1282,6 +1292,12 @@
         setError: function(err) {
             this.sqlObj.setError(err);
         },
+        setJdbcOption: function(jdbcOption) {
+            this.jdbcOption = jdbcOption;
+        },
+        getJdbcOption: function() {
+            return this.jdbcOption;
+        },
         compile: function(queryName, sqlQueryString, isJsonPlan, jdbcOption) {
             // XXX PLEASE DO NOT DO THIS. THIS IS CRAP
             var oldKVcommit;
@@ -1297,6 +1313,7 @@
             var name = queryName || xcHelper.randName("sql", 8);
             self.sqlObj.setQueryName(name);
             self.sqlObj.setQueryId(name);
+            self.setJdbcOption(jdbcOption);
             if (jdbcOption && jdbcOption.queryString) {
                 self.sqlObj.setQueryString(jdbcOption.queryString);
             } else {
@@ -1312,14 +1329,14 @@
                 self.sqlObj.setSqlMode();
             }
 
-            var promise = self.updateQueryHistory(jdbcOption);
+            var promise = self.updateQueryHistory();
             var callback;
             if (isJsonPlan) {
                 callback = PromiseHelper.resolve(sqlQueryString);
             // } else if (cached) {
             //     promise = PromiseHelper.resolve(cached, true);
             } else {
-                callback = sendPost(self, {"sqlQuery": sqlQueryString}, jdbcOption)
+                callback = sendPost(self, {"sqlQuery": sqlQueryString})
             }
 
             var toCache;
@@ -1394,8 +1411,6 @@
                                 return PromiseHelper.reject(
                                     SQLErrTStr.InvalidXcalarQuery);
                             }
-                            addPrefix(plan, allTableNames, tree.newTableName,
-                                      jdbcOption.prefix);
                             queryString = JSON.stringify(plan);
                         }
 
@@ -1426,7 +1441,7 @@
                     self.setStatus(SQLStatus.Failed);
                     self.setError(errorMsg);
                 }
-                self.updateQueryHistory(jdbcOption);
+                self.updateQueryHistory();
                 outDeferred.reject(errorMsg);
             })
             .always(function () {
@@ -1446,14 +1461,13 @@
             }
 
             self.setStatus(SQLStatus.Running);
-
             var deferred = jQuery.Deferred();
             if (typeof SQLEditor !== "undefined") {
                 SQLEditor.startExecution();
             }
             var checkTime = jdbcOption ? jdbcOption.checkTime : 200;
             // update query history
-            var promise = self.updateQueryHistory(jdbcOption);
+            var promise = self.updateQueryHistory();
             var callback = self.sqlObj.run(queryString, newTableName, newCols,
                                            sqlQueryString, checkTime);
             promise
@@ -1468,7 +1482,7 @@
                 }
                 self.setStatus(SQLStatus.Done);
                 self.sqlObj.setNewTableName(newTableName);
-                self.updateQueryHistory(jdbcOption);
+                self.updateQueryHistory();
                 deferred.resolve(newTableName, cols);
             })
             .fail(function(err) {
@@ -1479,7 +1493,7 @@
                     self.setError(JSON.stringify(err));
                 }
                 // Update as "done"
-                self.updateQueryHistory(jdbcOption);
+                self.updateQueryHistory();
                 deferred.reject(err);
             });
             return deferred.promise();
@@ -1512,6 +1526,10 @@
             var aggEvalStrArray = [];
             var subqueryArray = [];
             var options = {renamedCols: node.renamedCols};
+            var jdbcOption = self.getJdbcOption();
+            if (jdbcOption && jdbcOption.prefix) {
+                options.prefix = jdbcOption.prefix;
+            }
             genMapArray(node.value.projectList, columns,
                         evalStrArray, aggEvalStrArray, options, subqueryArray);
             node.dupCols = options.dupCols;
@@ -1747,6 +1765,10 @@
             var aggEvalStrArray = [];
             var subqueryArray = [];
             var options = {renamedCols: node.renamedCols, xcAggregate: true};
+            var jdbcOption = self.getJdbcOption();
+            if (jdbcOption && jdbcOption.prefix) {
+                options.prefix = jdbcOption.prefix;
+            }
             var filterString = genEvalStringRecur(treeNode,
                                             {aggEvalStrArray: aggEvalStrArray,
                                              subqueryArray: subqueryArray},
@@ -1838,6 +1860,10 @@
                 var treeNode = SQLCompiler.genExpressionTree(undefined,
                                node.value.aggregateExpressions[0].slice(index));
                 var options = {renamedCols: node.renamedCols, xcAggregate: true};
+                var jdbcOption = self.getJdbcOption();
+                if (jdbcOption && jdbcOption.prefix) {
+                    options.prefix = jdbcOption.prefix;
+                }
                 var acc = {};
                 var evalStr = genEvalStringRecur(treeNode, acc, options);
                 if (!acc.operator) {
@@ -3689,7 +3715,8 @@
     "org.apache.spark.sql.catalyst.expressions.aggregate.AggregateExpression") {
             curNode = curNode.children[0];
             assert(curNode.value.class.indexOf(
-                "org.apache.spark.sql.catalyst.expressions.aggregate.") != -1);
+                "org.apache.spark.sql.catalyst.expressions.aggregate.") != -1,
+                "Child of AggregateExpression node should be Aggregate");
             opName = curNode.value.class.substring(
                 "org.apache.spark.sql.catalyst.expressions.aggregate.".length);
         } else {
@@ -3702,9 +3729,16 @@
             "org.apache.spark.sql.catalyst.expressions.AttributeReference") {
                 args.push(__genColStruct(argNode.value));
                 argTypes.push(undefined);
+            } else if (argNode.value.class ===
+                "org.apache.spark.sql.catalyst.expressions.Cast") {
+                // Happen when applying sum/../avg on int columns. Ignore it
+                argNode = argNode.children[0];
+                args.push(__genColStruct(argNode.value));
+                argTypes.push(undefined);
             } else {
                 assert(argNode.value.class ===
-                    "org.apache.spark.sql.catalyst.expressions.Literal");
+                    "org.apache.spark.sql.catalyst.expressions.Literal",
+                    "Arg should be literal if not AR or Cast");
                 args.push(argNode.value.value);
                 argTypes.push(convertSparkTypeToXcalarType(argNode.value.dataType));
             }
@@ -4006,7 +4040,7 @@
         })
         .then(function(ret) {
             if (windowStruct.joinBackByIndex) {
-                assert(windowStruct.tempGBCols.length === 1);
+                assert(windowStruct.tempGBCols.length === 1, "TempGBCols should have length 1");
                 return __joinTempTable(sqlObj, ret, joinType,
                             [windowStruct.indexColStruct],
                             [{colName: windowStruct.tempGBCols[0],
@@ -4935,7 +4969,7 @@
                             isFunc = false;
                         }
                     }
-                    assert(args.length === 3);
+                    assert(args.length === 3, "Lead/lag should have three arguments");
                     if (opName === "lag") {
                         args[1] = args[1] * -1;
                     }
@@ -4957,7 +4991,7 @@
                 } else {
                     // Other functions should take no argument: 'opName()'
                     rightIndex++;
-                    assert(str[rightIndex] === ")");
+                    assert(str[rightIndex] === ")", "Last char should be )");
                     windowStruct[opName].newCols.push(tempColStruct);
                 }
                 if (retStruct.noMap) {
@@ -5093,7 +5127,8 @@
                         var aggAcc = {numOps: 0, noAssignOp: true};
                         var aggEvalStr = genEvalStringRecur(condTree.aggTree,
                                             aggAcc, options);
-                        var aggVarName = "XC_AGG_" +
+                        var prefix = options.prefix || "";
+                        var aggVarName = prefix + "XC_AGG_" +
                                     Authentication.getHashId().substring(1);
                         var countType;
                         if (condTree.aggTree.value.class ===
@@ -5140,7 +5175,8 @@
                 assert(condTree.children.length === 0, SQLErrTStr.SubqueryNoChild);
                 assert(condTree.subqueryTree, SQLErrTStr.SubqueryTree);
                 assert(acc.subqueryArray, SQLErrTStr.AccSubqueryArray);
-                var subqVarName = "XC_SUBQ_" +
+                var prefix = options.prefix || "";
+                var subqVarName = prefix + "XC_SUBQ_" +
                                     Authentication.getHashId().substring(1);
                 condTree.subqueryTree.subqVarName = subqVarName;
                 acc.subqueryArray.push({subqueryTree: condTree.subqueryTree});
@@ -5724,38 +5760,6 @@
     //         return false;
     //     }
     // }
-    function addPrefix(plan, startingTables, finalTable, prefix) {
-        for (var i = 0; i < plan.length; i++) {
-            var operation = plan[i];
-            var source = operation.args.source;
-            var dest = operation.args.dest;
-            if (typeof(source) === "string") {
-                source = [source];
-            }
-            var newName;
-            for (var j = 0; j < source.length; j++) {
-                if (source[j] in startingTables) {
-                    continue;
-                }
-                if (source[j].startsWith("src") || source[j].startsWith("sql")) {
-                    source[j] = source[j].substring(source[j].indexOf("_") + 1);
-                }
-                if (source.length === 1) {
-                    operation.args.source = prefix + source[j];
-                } else {
-                    operation.args.source[j] = prefix + source[j];
-                }
-            }
-            if (!(dest in startingTables)) {
-                if (dest.startsWith("src") || dest.startsWith("sql")) {
-                    dest = dest.substring(dest.indexOf("_") + 1);
-                }
-                if (operation.args.dest !== finalTable) {
-                    operation.args.dest = prefix + dest;
-                }
-            }
-        }
-    }
     function parseError() {
         var errorMsg;
         if (arguments.length === 1) {
