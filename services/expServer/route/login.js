@@ -448,11 +448,10 @@ function getMsalConfig() {
         var valid = validate(msalConfig);
         if (!valid) {
             message.error = JSON.stringify(validate.errors);
-            deferred.reject(message);
-        } else {
-            message.data = msalConfig;
-            deferred.resolve(message);
+            return deferred.reject(message);
         }
+
+        message.data = msalConfig;
 
         enableB2C(msalConfig.msal.b2cEnabled);
 
@@ -603,29 +602,29 @@ function setupLdapConfigs(forceSetup) {
         .then(function(ldapConfigMsg) {
             // ldapConfig is a global
             ldapConfig = ldapConfigMsg.data;
-            isLdapConfigSetup = true;
             gotLdapConfig = true;
 
             if (!ldapConfig.ldapConfigEnabled) {
                 var errMsg = "LDAP authentication is disabled";
                 xcConsole.log(errMsg);
-                deferred.reject(errMsg);
+                return deferred.reject(errMsg);
             }
 
             if (!ldapConfig.serverKeyFile ||
                 ldapConfig.serverKeyFile === "") {
                 var errMsg = "server key file not set";
                 xcConsole.log(errMsg);
-                deferred.reject(errMsg);
+                return deferred.reject(errMsg);
             }
 
             if (!fs.existsSync(ldapConfig.serverKeyFile)) {
                 var errMsg = "server key file does not exist";
                 xcConsole.log(errMsg);
-                deferred.reject(errMsg);
+                return deferred.reject(errMsg);
             }
 
             trustedCerts = [fs.readFileSync(ldapConfig.serverKeyFile)];
+            isLdapConfigSetup = true;
             deferred.resolve('setupLdapConfigs succeeds');
         })
         .fail(function(message) {
