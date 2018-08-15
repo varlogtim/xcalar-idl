@@ -5,7 +5,7 @@
             %> grunt watch [options] // watch tool
             %> grunt <build-type> watch [options] // build and then watch
 
-    <build-type>:
+    valid <build-type>:
         dev: Debug build, but keeps config file
         debug: Debug build, gets rid of config file
         installer: Prod build
@@ -649,7 +649,7 @@ var STEPCOLOR = 'cyan';
 var STEPCOLOR2 = 'magenta';
 
 /** TRUNK BLD VAR */
-var BACKEND_JS_SRC = 'bin/legacyJsClient/jsPackage/', // src root (rel BACKEND PROJ ROOT) of thrift scripts to copy in to the gui bld
+var BACKEND_JS_SRC = 'bin/jsPackage/', // src root (rel BACKEND PROJ ROOT) of thrift scripts to copy in to the gui bld
     GUIPROJ_THRIFT_DEST = 'assets/js/thrift/', // root (rel GUI BLD) where the thrift scripts should be copied
     /* files of the gui bld you want to keep when syncing with thrfit (keys are the files you want to keep, rel bld root)
      (its a hash so can keep track of where the files are temporarily during the copy process) */
