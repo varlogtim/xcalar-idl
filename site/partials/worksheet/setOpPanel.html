@@ -7,7 +7,7 @@
   </header>
   <!-- content -->
   <div class="mainContent">
-    <div class="union opSection">
+    <div class="opSection">
       <p class="instructions instrText"><%= dicts.SetOpPanel.Instr %></p>
       <!-- topSection -->
       <section class="topSection">
@@ -74,8 +74,12 @@
           </div>
         </div>
       </section>
+      <section class="advancedEditor">
+        <textarea></textarea>
+      </section>
       <section class="bottomSection">
         <button type="button" class="btn btn-submit btn-rounded center confirm"><%= dicts.SetOpPanel.UnionAll %></button>
+        include "../util/switcher.html"
       </section>
     </div>
   </div>

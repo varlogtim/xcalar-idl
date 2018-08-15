@@ -814,7 +814,8 @@ UnionTStr = {
     "TypeMismatch": "Columns for the set operation have different types. Select columns of the same type.",
     "header": "SET OPERATION", // sync with htmlTStr
     "UsedFor": "Used for <col>",
-    "MixType": "Mixed type columns must cast first. Please select a type for the resultant column."
+    "MixType": "Mixed type columns must cast first. Please select a type for the resultant column.",
+    "FillDestCol": "destColumn attribute cannot be empty"
 };
 
 ExportTStr = {

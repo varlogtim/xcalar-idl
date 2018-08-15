@@ -95,6 +95,7 @@ module.exports = {
         "Size": "Size",
         "SortBy": "Sort by",
         "START": "START",
+        "Standard": "Standard",
         "Supports": "Support",
         "Table": "Table",
         "TableName": "Table name",

@@ -11,11 +11,8 @@ class SetOpPanelModel {
     public constructor(dagNode: DagNodeSet, event: Function) {
         this.dagNode = dagNode;
         this.event = event;
-        this.resultCols = [];
-        this.selectedColsList = [];
-        this.candidateColsList = [];
-        this.allColsList = [];
-        this._initialize();
+        const params: DagNodeSetInput = this.dagNode.getParam();
+        this._initialize(params);
     }
 
     /**
@@ -145,6 +142,12 @@ class SetOpPanelModel {
         this._update();
     }
 
+    /**
+     * Set result column's name or type
+     * @param colIndex {number} column index
+     * @param name {string} name to set
+     * @param type {ColumnType} column type to set
+     */
     public setResult(colIndex: number, name: string, type: ColumnType): void {
         const resultCol: ProgCol = this.resultCols[colIndex];
         if (name != null) {
@@ -157,14 +160,14 @@ class SetOpPanelModel {
 
     /**
      * Validate if the num of parent is valid,
-     * @return {string} Return error string if invalid
+     * @return {error: string} Return error string if invalid
      */
-    public validateNodes(): string {
+    public validateNodes(): {error: string} {
         if (this.allColsList.length <= 1 &&
             this.unionType === UnionType.Union &&
             this.dedup === true
         ) {
-            return UnionTStr.OneTableToUnion2
+            return {error: UnionTStr.OneTableToUnion2};
         } else {
             return null;
         }
@@ -173,7 +176,7 @@ class SetOpPanelModel {
     /**
      * @return {object} Return error when no result col or col name is invalid
      */
-    public validateResult(): {index: number, error: string} {
+    public validateResult(advancedMode: boolean = false): {index: number, error: string} {
         if (this.resultCols.length === 0) {
             return {index: null, error: UnionTStr.SelectCol};
         }
@@ -182,7 +185,7 @@ class SetOpPanelModel {
             let error: string;
             const colName: string = this.resultCols[i].getBackColName();
             if (colName.length === 0) {
-                error = ErrTStr.NoEmpty;
+                error = advancedMode ? UnionTStr.FillDestCol : ErrTStr.NoEmpty;
             } else {
                 error = xcHelper.validateColName(colName, false);
             }
@@ -227,6 +230,17 @@ class SetOpPanelModel {
                 }
             }
         }
+        return null;
+    }
+
+    public validateAdvancedMode(paramStr: string): {error: string} {
+        try {
+            const param: DagNodeSetInput = <DagNodeSetInput>JSON.parse(paramStr);
+            this._initialize(param);
+            return this.validateNodes() || this.validateResult(true) || this.validateCast();
+        } catch (e) {
+            return e;
+        }
     }
 
     /**
@@ -237,8 +251,31 @@ class SetOpPanelModel {
         this.dagNode.setParam(param);
     }
 
-    private _initialize() {
-        const params: DagNodeSetInput = this.dagNode.getParam();
+    public switchMode(
+        toAdvancedMode: boolean,
+        editor: CodeMirror.EditorFromTextArea
+    ): {error: string} {
+        if (toAdvancedMode) {
+            const param: DagNodeSetInput = this._getParam();
+            editor.setValue(JSON.stringify(param, null, 4));
+        } else {
+            try {
+                const param: DagNodeSetInput = <DagNodeSetInput>JSON.parse(editor.getValue());
+                this._initialize(param);
+                this._update();
+            } catch (e) {
+                return {error: e};
+            }
+        }
+        return null;
+    }
+
+    private _initialize(params: DagNodeSetInput) {
+        this.resultCols = [];
+        this.selectedColsList = [];
+        this.candidateColsList = [];
+        this.allColsList = [];
+        
         this.dedup = params.dedup;
         this.unionType = params.unionType;
 

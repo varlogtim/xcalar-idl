@@ -957,6 +957,7 @@ declare namespace UnionTStr {
     export var SelectCol;
     export var MixType;
     export var Cast;
+    export var FillDestCol;
 }
 
 // declare namespace WSTStr {

@@ -113,6 +113,9 @@ namespace DagNodeMenu {
                 console.log("open project form");
                 ProjectOpPanel.Instance.show(node);
                 break;
+            case (DagNodeType.Set):
+                SetOpPanel.Instance.show(node);
+                break;
             case (DagNodeType.Filter):
             case (DagNodeType.Map):
                 OperationsView2.show(node);

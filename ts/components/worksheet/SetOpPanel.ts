@@ -3,41 +3,10 @@ class SetOpPanel extends BaseOpPanel {
     private setOpData: SetOpPanelModel;
     public static d;
 
-    public static test() {
-        if (this.d == null) {
-            SetOpPanel.Instance.setup();
-            const p1 = DagNodeFactory.create({type: DagNodeType.Dataset});
-            const p2 = DagNodeFactory.create({type: DagNodeType.Dataset});
-            const p1Cols = ["a", "b", "c"].map((c) => {
-                return ColManager.newPullCol(c, c, ColumnType.string);
-            });
-            const p2Cols = ["e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o"].map((c) => {
-                return ColManager.newPullCol(c, c, ColumnType.integer);
-            });
-            p1.getLineage().setColumns(p1Cols);
-            p2.getLineage().setColumns(p2Cols);
-
-            const d = <DagNodeSet>DagNodeFactory.create({type: DagNodeType.Set});
-            d.connectToParent(p1, 0);
-            d.connectToParent(p2, 1);
-            p1.connectToChild(d);
-            p2.connectToChild(d);
-            d.setParam({unionType: UnionType.Except, dedup: true, columns: null})
-            this.d = d;
-        }
-
-        SetOpPanel.Instance.show(this.d);
+    public constructor() {
+        super();
+        this._setup();
     }
-
-    public setup(): void {
-        [ColumnType.string, ColumnType.integer, ColumnType.float,
-            ColumnType.boolean, ColumnType.mixed].forEach((type) => {
-                this.validTypes.push(type);
-            });
-        super.setup(this._getPanel());
-        this._addEventListeners();
-    }
-
     /**
      *
      * @param dagNode {DagNodeSet} show the view based on the set type node
@@ -73,7 +42,17 @@ class SetOpPanel extends BaseOpPanel {
         this._autoResizeView(true);
     }
 
-    private _reset(): void {
+    private _setup(): void {
+        [ColumnType.string, ColumnType.integer, ColumnType.float,
+            ColumnType.boolean, ColumnType.mixed].forEach((type) => {
+                this.validTypes.push(type);
+            });
+        super.setup($("#setOpPanel"));
+        this._addEventListeners();
+    }
+
+    protected _reset(): void {
+        super._reset();
         const $panel = this._getPanel();
         $panel.find(".listSection").empty();
         $panel.find(".searchArea input").val("");
@@ -86,10 +65,6 @@ class SetOpPanel extends BaseOpPanel {
         const model = this.setOpData.getModel();
         this._selectDedup(model.dedup);
         this._selectType(model.unionType);
-    }
-
-    private _getPanel(): JQuery {
-        return $("#setOpPanel");
     }
 
     private _getDedupSection(): JQuery {
@@ -523,10 +498,18 @@ class SetOpPanel extends BaseOpPanel {
 
     private _validate(): boolean {
         const $panel: JQuery = this._getPanel();
+        if (this._isAdvancedMode()) {
+            const advancedErr: {error: string} = this.setOpData.validateAdvancedMode(this._editor.getValue());
+            if (advancedErr != null) {
+                StatusBox.show(advancedErr.error, $panel.find(".advancedEditor"));
+                return false;
+            }
+        }
         // validate more than one parent nodes
-        const numNodeError: string = this.setOpData.validateNodes();
-        if (numNodeError != null) {
-            StatusBox.show(numNodeError, $panel.find(".tableSection"));
+        const numNodeErr: {error: string} = this.setOpData.validateNodes();
+        if (numNodeErr != null) {
+            StatusBox.show(numNodeErr.error, $panel.find(".tableSection"));
+            return false;
         }
 
         // validate result column
@@ -562,5 +545,9 @@ class SetOpPanel extends BaseOpPanel {
         }
 
         return true;
+    }
+
+    protected _switchMode(toAdvancedMode: boolean): {error: string} {
+        return this.setOpData.switchMode(toAdvancedMode, this._editor);
     }
 }

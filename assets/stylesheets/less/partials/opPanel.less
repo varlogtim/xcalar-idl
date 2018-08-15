@@ -765,6 +765,75 @@
             margin-right: 9px;
         }
     }
+
+    .advancedEditor {
+        display: none;
+        margin: 15px;
+        border: 1px solid @color-border-softGray;
+        
+        .CodeMirror {
+            height: 100%;
+        }
+    }
+
+    .bottomSection {
+        .switcher {
+            .size(@height: 18px);
+            margin-left: 15px;
+            margin-top: 19px;
+
+            > div {
+                float: left;
+                margin-right: 10px;
+            }
+
+            .text {
+                .font(@color: #849cb0);
+            }
+
+            .switch {
+                .size(@width: 24px, @height: 14px);
+                .rounded(10px);
+                border: 1px solid #849cb0;
+                top: 2px;
+
+                .slider {
+                    border: 1px solid #849cb0;
+                    .size(14px, 14px);
+                }
+            }
+
+            .advanced {
+                display: block !important;
+                opacity: 0.5;
+            }
+        }
+    }
+
+    &.advanced {
+        .opSection {
+            > section, > div {
+                display: none !important;
+            }
+
+            .advancedEditor, .bottomSection, .instructions {
+                display: block !important;
+            }
+        }
+
+        .bottomSection {
+            .switcher {
+                .standard {
+                    display: block !important;
+                    opacity: 0.5;
+                }
+
+                .advanced {
+                    opacity: 1;
+                }
+            }
+        }
+    }
 }
 #operationsView2 {
     @title-height: 40px;
@@ -1074,7 +1143,7 @@
 #setOpPanel {
     @instr-h: 36px;
     @top-h: 140px;
-    @bottom-h: 66px;
+    @bottom-h: 96px;
     @rest-h: (@instr-h + @top-h + @bottom-h);
 
     .header {
@@ -1166,13 +1235,18 @@
         }
     }
 
+    .advancedEditor {
+        @other-h: @instr-h + @bottom-h + 30;
+        .size(@height: ~"calc(100% - @{other-h})");
+    }
+
     .bottomSection {
         padding: 15px 0;
         .size(@height: @bottom-h);
     }
 
     .newTable {
-        margin-right: 4px !important;
+        margin-right: 3px !important;
     }
 
     .tableSection, .resultSection, .candidateSection {
@@ -1198,8 +1272,8 @@
                 margin-right: -1px;
 
                 > div, > input {
-                    .size(@height: 26px);
-                    line-height: 25px;
+                    .size(@height: 28px);
+                    line-height: 26px;
                     .position(relative);
                 }
 
@@ -1240,8 +1314,9 @@
     .resultSection {
         .resultCol {
             border: 1px solid @color-table-hoverBg-gray;
+            margin-top: -1px;
             &.cast {
-                height: 55px !important;
+                height: 58px !important;
 
                 .typeList {
                     display: block;
@@ -1257,6 +1332,10 @@
                     .size(@width: ~"calc(100% + 4px)");
                     .position(@left: -2px);
                     padding-left: 11px;
+
+                    ~ .dropDownList {
+                        .position(relative, @top: -2px);
+                    }
                 }
             }
 
@@ -1327,9 +1406,10 @@
 
         .inputCol {
             border: 1px solid @color-table-hoverBg-gray;
+            margin-top: -1px;
 
             &.cast {
-                margin-bottom: 29px;
+                margin-bottom: 30px;
             }
 
             .text {
@@ -1383,6 +1463,7 @@
 
         .inputCol {
             border: 1px solid @color-table-hoverBg-gray;
+            margin-top: -1px;
             cursor: pointer;
 
             .focusCol {
