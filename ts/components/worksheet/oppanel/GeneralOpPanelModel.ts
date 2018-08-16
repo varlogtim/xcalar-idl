@@ -1,36 +1,22 @@
-// TODO: make into a class
-interface OpPanelArg {
-    value: string;
-    formattedValue: string;
-    cast: XcCast;
-    typeid: number;
-    isValid: boolean;
-    isNone?: boolean;
-    isEmptyString?: boolean;
-    isRegex?: boolean;
-    type?: string; // ("value" | "column" | "function" | "regex")
-    error?: string;
-}
-
-interface OpPanelFunctionGroup {
-    operator: string;
-    args: OpPanelArg[]
-}
-
 class GeneralOpPanelModel {
     protected dagNode: DagNodeFilter;
     protected tableColumns: ProgCol[];
     protected event: Function;
     protected groups: OpPanelFunctionGroup[]; // TODO fix
     protected andOrOperator: string;
+    protected _opCategories: number[];
 
     public constructor(dagNode: DagNodeFilter, event: Function) {
         this.dagNode = dagNode;
         this.event = event;
         this.groups = [];
         this.andOrOperator = "and";
-        this.tableColumns = [];
-        this._initialize();
+        this.tableColumns = this.dagNode.getParents().map((parentNode) => {
+            return parentNode.getLineage().getColumns();
+        })[0] || [];
+        this._opCategories = [];
+        const params: DagNodeFilterInput = this.dagNode.getParam();
+        this._initialize(params);
     }
 
     /**
@@ -71,20 +57,18 @@ class GeneralOpPanelModel {
 
     public enterFunction(value: string, opInfo, index: number): void {
         this.groups[index].operator = value;
+        if (!opInfo) {
+            this.groups[index].args = [];
+            this._update();
+            return;
+        }
         const numArgs = Math.max(Math.abs(opInfo.numArgs),
                                 opInfo.argDescs.length);
         this.groups[index].args = Array(numArgs).fill("").map((_o, i) => {
-                                        return {
-                                            value: "",
-                                            formattedValue: "",
-                                            cast: null,
-                                            typeid: opInfo.argDescs[i].typesAccepted,
-                                            isValid: false,
-                                            error: "No value",
-                                            type: "value"
-                                        }});
+                                        return new OpPanelArg("", opInfo.argDescs[i].typesAccepted);
+                                    });
         if (value === "regex" && numArgs === 2) {
-            this.groups[index].args[1].isRegex = true;
+            this.groups[index].args[1].setRegex(true);
         }
         this._update();
     }
@@ -98,32 +82,26 @@ class GeneralOpPanelModel {
         options = options || {};
         const group = this.groups[groupIndex];
         while (group.args.length <= argIndex) {
-            group.args.push({
-                value: "",
-                formattedValue: "",
-                cast: null,
-                typeid: -1,
-                isValid: false
-            });
+            group.args.push(new OpPanelArg("", -1));
         }
         // no arg if boolean is not true
         if ((options.boolean && value === "") || options.isEmptyArg) {
             group.args.splice(argIndex, 1);
         } else {
             const arg: OpPanelArg = group.args[argIndex];
-            arg.value = value;
+            arg.setValue(value);
             if (options.typeid != null) {
-                arg.typeid = options.typeid;
+                arg.setTypeid(options.typeid);
             }
             if (options.isNone) {
-                arg.isNone = true;
+                arg.setIsNone(true);
             } else if (arg.hasOwnProperty("isNone")) {
-                arg.isNone = false;
+                arg.setIsNone(false);
             }
             if (options.isEmptyString) {
-                arg.isEmptyString = true;
+                arg.setIsEmptyString(true);
             } else if (arg.hasOwnProperty("isEmptyString")) {
-                arg.isEmptyString = false;
+                arg.setIsEmptyString(false);
             }
             this._formatArg(arg);
             this._validateArg(arg);
@@ -139,13 +117,8 @@ class GeneralOpPanelModel {
         argIndex: number
     ): void {
         const arg: OpPanelArg = this.groups[groupIndex].args[argIndex];
-        arg.cast = type;
+        arg.setCast(type);
         this._validateArg(arg);
-    }
-
-    public toggleAndOr(wasAnd) {
-        this.andOrOperator = wasAnd ? "or" : "and";
-        this._update();
     }
 
     /**
@@ -156,9 +129,8 @@ class GeneralOpPanelModel {
         this.dagNode.setParam(param);
     }
 
-    protected _initialize() {
+    protected _initialize(paramsRaw) {
         const self = this;
-        const paramsRaw: DagNodeFilterInput = this.dagNode.getParam();
         const params: xcHelper.OpAndArgsObject = xcHelper.extractOpAndArgs(
                                                         paramsRaw.evalString);
         // initialize all columns
@@ -173,20 +145,14 @@ class GeneralOpPanelModel {
         });
 
         const args = params.args.map((arg, i) => {
-            const argInfo: OpPanelArg = {
-                                value: arg,
-                                formattedValue: arg,
-                                cast: null,
-                                typeid: opInfo.argDescs[i].typesAccepted,
-                                isValid: true
-                            };
+            const argInfo: OpPanelArg = new OpPanelArg(arg, opInfo.argDescs[i].typesAccepted, true);
             return argInfo;
         });
         args.forEach((arg) => {
-            const value = formatArgToUI(arg.value);
-            arg.value = value;
+            const value = formatArgToUI(arg.getValue());
+            arg.setValue(value);
             if (func === "regex" && args.length === 2) {
-                arg.isRegex = true;
+                arg.setRegex(true);
             }
             self._formatArg(arg);
             self._validateArg(arg);
@@ -214,79 +180,64 @@ class GeneralOpPanelModel {
         }
     }
 
-    protected _update(): void {
+    protected _update(all?: boolean): void {
         // console.log(JSON.stringify(this.tableColumns), JSON.stringify(this.getModel(), null, 2));
         if (this.event != null) {
-            this.event();
+            this.event(all);
         }
     }
 
     protected _getParam(): DagNodeFilterInput {
-        const self = this;
-        this.groups.forEach(group => {
-            group.args.forEach(arg => {
-                self._formatArg(arg);
-            });
-        });
-        const evalString = xcHelper.formulateMapFilterString(this.groups,
-                                                             this.andOrOperator);
-        return {
-            evalString: evalString
-        }
+        return this.dagNode.getParam();
     }
 
     // TODO: instead of storing formattedValue, calculate when needed based on
     // type
     protected _formatArg(arg: OpPanelArg): void {
         const self = this;
-        let val: string = arg.value;
-        const trimmedVal: string = arg.value.trim();
+        let val: string = arg.getValue();
+        const trimmedVal: string = val.trim();
+        let formattedValue: string;
 
         if (trimmedVal === "") {
-            if (arg.isNone) {
-                arg.formattedValue = "None";
-            } else if (arg.isEmptyString) {
-                arg.formattedValue = '""';
+            if (arg.hasNoneChecked()) {
+                formattedValue = "None";
+            } else if (arg.checkIsEmptyString()) {
+                formattedValue = "\"\"";
             } else {
-                arg.formattedValue = arg.value;
+                formattedValue = val;
             }
-            arg.type = "value";
-        } else if (arg.isRegex) {
-            arg.formattedValue = arg.value;
-            arg.type = "regex";
+            arg.setType("value");
+        } else if (arg.checkIsRegex()) {
+            formattedValue = val;
+            arg.setType("regex");
         } else if (this._hasFuncFormat(trimmedVal)) {
-            arg.formattedValue = self._parseColPrefixes(trimmedVal);
-            arg.type = "function";
+            formattedValue = self._parseColPrefixes(trimmedVal);
+            arg.setType("function");
         } else if (xcHelper.hasValidColPrefix(trimmedVal)) {
-            arg.formattedValue = self._parseColPrefixes(trimmedVal);
-            arg.type = "column";
+            formattedValue = self._parseColPrefixes(trimmedVal);
+            arg.setType("column");
         } else {
-
-            // check correct type
-            // const argTypeCheckRes = self._checkArgTypes(trimmedVal, arg.typeid);
-            arg.formattedValue = self._formatArgumentInput(val, arg.typeid, {}).value;
-            arg.type = "value";
+            formattedValue = self._formatArgumentInput(val, arg.getTypeid(), {}).value
+            arg.setType("value");
         }
-        arg.formattedValue = arg.formattedValue.toString();
+        arg.setFormattedValue(formattedValue.toString());
     }
-// ("value" | "column" | "function" | "regex")
+
     protected _validateArg(arg: OpPanelArg) {
         const self = this;
-        let val: string = arg.formattedValue;
+        let val: string = arg.getFormattedValue();
         let trimmedVal: string = val.trim();
-        arg.isValid = true;
-        arg.error = null;
+        arg.clearError();
 
         if (val === "") {
-            arg.isValid = false;
-            arg.error = "No value";
+            arg.setError("No value");
             return;
         }
 
-        if (arg.type === "column") {
+        if (arg.getType() === "column") {
             if (val.includes(",")) {
-                arg.isValid = false;
-                arg.error = "Multiple columns";
+                arg.setError("Multiple columns");
                 return;
             }
             let colName = val;
@@ -305,26 +256,23 @@ class GeneralOpPanelModel {
                     // so for integer, we mark it
                     colType = ColumnType.number;
                 }
-                if (!arg.cast) {
+                if (!arg.isCast()) {
                     if (colType == null) {
                         console.error("colType is null/col not " +
                             "pulled!");
-                        // XXX handle this
-                        arg.isValid = false;
-                        arg.error = "No type";
+                        arg.setError("No type");
                     } else {
-                        const validTypes = self._parseType(arg.typeid);
+                        const validTypes = self._parseType(arg.getTypeid());
                         let errorText = self._validateColInputType(validTypes, colType);
                         if (errorText != null) {
-                            arg.isValid = false;
-                            arg.error = errorText;
+                            arg.setError(errorText);
                             return;
                         }
                     }
                 }
             }
-        } else if (arg.type === "value") {
-            const checkRes = self._checkArgTypes(trimmedVal, arg.typeid);
+        } else if (arg.getType() === "value") {
+            const checkRes = self._checkArgTypes(trimmedVal, arg.getTypeid());
             if (checkRes != null) {
                 let error;
                 if (checkRes.currentType === "string" &&
@@ -339,8 +287,7 @@ class GeneralOpPanelModel {
                     });
                 }
 
-                arg.error = error;
-                arg.isValid = false;
+                arg.setError(error);
             }
         }
     }
@@ -399,7 +346,11 @@ class GeneralOpPanelModel {
     public getColumnTypeFromArg(value): string {
         const self = this;
         let colType: string;
-
+        value = value.split(",")[0];
+        const valSpacesRemoved: string = jQuery.trim(value);
+        if (valSpacesRemoved.length > 0) {
+            value = valSpacesRemoved;
+        }
 
         const progCol: ProgCol = self.tableColumns.find((progCol) => {
             return progCol.getBackColName() === value;
@@ -417,6 +368,27 @@ class GeneralOpPanelModel {
             colType = ColumnType.number;
         }
         return colType;
+    }
+
+    public switchMode(
+        toAdvancedMode: boolean,
+        editor: CodeMirror.EditorFromTextArea
+    ): {error: string} {
+        if (toAdvancedMode) {
+            const param: DagNodeFilterInput = this._getParam();
+            editor.setValue(JSON.stringify(param, null, 4));
+        } else {
+            const error = this.validateAdvancedMode(editor.getValue());
+            if (error) {
+                return error;
+            }
+            this._update();
+        }
+        return null;
+    }
+
+    public validateAdvancedMode(_paramStr: string): {error: string} {
+        return null;
     }
 
     protected _hasFuncFormat(val: string): boolean {
@@ -730,5 +702,33 @@ class GeneralOpPanelModel {
                 arg.indexOf("(") === -1 &&
                 arg !== "true" && arg !== "false" &&
                 arg !== "t" && arg !== "f" && arg !== "None");
+    }
+
+    protected _isOperationValid(groupNum): boolean {
+        const groups = this.groups;
+        const operator = groups[groupNum].operator;
+        return this._getOperatorObj(operator) != null;
+    }
+
+    protected _getOperatorObj(operatorName: string): any {
+        const opsLists = this._getOperatorsLists();
+        for (let i = 0; i < opsLists.length; i++) {
+            const op = opsLists[i].find((op) => {
+                return op.displayName === operatorName;
+            });
+            if (op) {
+                return op;
+            }
+        }
+        return null;
+    }
+
+    protected _getOperatorsLists(): any[][] {
+        const opLists: any[][] = [];
+        this._opCategories.forEach(categoryNum => {
+            let ops = XDFManager.Instance.getOperatorsMap()[categoryNum];
+            opLists.push(ops);
+        });
+        return opLists;
     }
 }

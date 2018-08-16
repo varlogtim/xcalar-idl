@@ -84,7 +84,7 @@ class BaseOpPanel {
         return this.advancedMode;
     }
 
-    protected _switchMode(toAdvancedMode: boolean): {error: string} {
+    protected _switchMode(_toAdvancedMode: boolean): {error: string} {
         return null;
     }
 

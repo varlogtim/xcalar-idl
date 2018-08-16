@@ -24,6 +24,7 @@ class GeneralOpPanel extends BaseOpPanel {
     // protected _dagNode: DagNodeGroupBy | DagNodeAggregate | DagNodeMap | DagNodeFilter;
     protected _dagNode: DagNode;
     protected dataModel;
+    protected _opCategories: number[];
 
      // shows valid cast types
     protected static castMap = {
@@ -156,7 +157,7 @@ class GeneralOpPanel extends BaseOpPanel {
             $input.val(val);
             const $group = $input.closest(".group")
             const groupIndex = self._$panel.find(".group").index($group);
-            const argIndex = $group.find(".arg:visible").index($input);
+            const argIndex = $group.find(".arg").index($input);
             self.dataModel.updateArg(val, groupIndex, argIndex, {
                 boolean: true,
                 typeid: $input.data("typeid")
@@ -237,19 +238,13 @@ class GeneralOpPanel extends BaseOpPanel {
             return PromiseHelper.reject();
         }
 
-        if (!options.restore) {
-            this._operatorName = this._dagNode.getType().toLowerCase().trim();
-        }
+        this._operatorName = this._dagNode.getType().toLowerCase().trim();
 
         this._showPanel(this._operatorName);
 
-
         // XXX need reference to table or dag node
 
-        if (!options.restore) {
-            // changes mainMenu and assigns activeOpSection
-            this._resetForm();
-        }
+        this._resetForm();
         this._table = this._dagNode.getTable();
         this._table = {
             hasColWithBackName: function() {return true;},
@@ -482,7 +477,7 @@ class GeneralOpPanel extends BaseOpPanel {
                 const $group = $input.closest(".group");
                 const groupIndex = self._$panel.find(".group").index($group);
                 const $argInput = $input.closest(".row").find(".arg");
-                const argIndex = $group.find(".arg:visible").index($argInput);
+                const argIndex = $group.find(".arg").index($argInput);
 
                 let castType: string = type;
                 if (castType === "default") {
@@ -567,8 +562,13 @@ class GeneralOpPanel extends BaseOpPanel {
         if (menu != null) {
             menu.hideDropdowns();
         }
-        $list.siblings(".arg").val(val);
+        const $input = $list.siblings(".arg")
+        $input.val(val);
         this._checkIfStringReplaceNeeded();
+        const $group = $input.closest(".group")
+        const groupIndex = this._$panel.find(".group").index($group);
+        const argIndex = $group.find(".arg").index($input);
+        this.dataModel.updateArg(val, groupIndex, argIndex);
     }
 
     protected _updateColNamesCache(): void {
@@ -662,12 +662,12 @@ class GeneralOpPanel extends BaseOpPanel {
     }
 
     // index is the argument group numbers
-    protected _enterFunctionsInput(_index: number): void {}
+    protected _enterFunctionsInput(_index: number, _onChange?: boolean): void {}
 
     protected _focusNextInput(groupIndex: number):void {
         let $nextInput: JQuery;
         let $inputs: JQuery = this._$panel.find('.group').eq(groupIndex)
-                                      .find('.arg:visible');
+                                      .find('.arg');
 
         $inputs.each(function() {
             if ($(this).val().trim().length === 0) {
@@ -774,7 +774,7 @@ class GeneralOpPanel extends BaseOpPanel {
 
         this._$panel.find('.group').each(function(i) {
             // const typeIds = [];
-            const $inputs: JQuery = $(this).find('.arg:visible');
+            const $inputs: JQuery = $(this).find('.arg');
             const existingTypes: any = self._getExistingTypes(i);
 
             $inputs.each(function() {
@@ -1012,16 +1012,35 @@ class GeneralOpPanel extends BaseOpPanel {
 
     protected _submitForm(): void {}
 
-    protected _isOperationValid(index: number): boolean {
-        const func: string = $.trim(this._$panel.find('.group').eq(index)
-                                        .find('.functionsInput').val());
-
-        const $matches: JQuery = this._$functionsUl.find('li').filter(function() {
-            return ($(this).text() === func);
-        });
-
-        return ($matches.length > 0);
+    protected _isOperationValid(groupNum): boolean {
+        const groups = this.dataModel.getModel().groups;
+        const operator = groups[groupNum].operator;
+        return this._getOperatorObj(operator) != null;
     }
+
+    protected _getOperatorObj(operatorName: string): any {
+        const opsLists = this._getOperatorsLists();
+        for (let i = 0; i < opsLists.length; i++) {
+            const op = opsLists[i].find((op) => {
+                return op.displayName === operatorName;
+            });
+            if (op) {
+                return op;
+            }
+        }
+        return null;
+    }
+
+    // protected _isOperationValid(index: number): boolean {
+    //     const func: string = $.trim(this._$panel.find('.group').eq(index)
+    //                                     .find('.functionsInput').val());
+
+    //     const $matches: JQuery = this._$functionsUl.find('li').filter(function() {
+    //         return ($(this).text() === func);
+    //     });
+
+    //     return ($matches.length > 0);
+    // }
 
     // returns an array of objects that include the new type and argument number
     protected _getCastInfo(args: string[], groupNum: number): any {
@@ -1030,7 +1049,7 @@ class GeneralOpPanel extends BaseOpPanel {
 
         // set up colTypeInfos, filter out any that shouldn't be casted
         const $group: JQuery = this._$panel.find('.group').eq(groupNum);
-        $group.find('.arg:visible').each(function(i) {
+        $group.find('.arg').each(function(i) {
             const $input: JQuery = $(this);
             const hasEmpty: boolean = $input.closest('.row')
                                     .find('.emptyOptions .checked').length > 0;
@@ -1222,7 +1241,7 @@ class GeneralOpPanel extends BaseOpPanel {
 
     protected _checkIfBlanksAreValid(invalidInputs: JQuery[]): boolean {
         let hasValidBlanks: boolean = true;
-        this._$panel.find('.arg:visible').each(function() {
+        this._$panel.find('.arg').each(function() {
             const $input: JQuery = $(this);
             let val: string = $input.val().trim();
             let untrimmedVal: string = $input.val();
@@ -1277,14 +1296,19 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _getColumnTypeFromArg(value: string): string {
         // if value = "col1, col2", it only check col1
         value = value.split(",")[0];
-        const spaces: string = jQuery.trim(value);
-        if (spaces.length > 0) {
-            value = spaces;
+        const valSpacesRemoved: string = jQuery.trim(value);
+        if (valSpacesRemoved.length > 0) {
+            value = valSpacesRemoved;
         }
         let colType: string = null;
         const progCol: ProgCol = this._table.getColByFrontName(value);
         if (progCol != null) {
             colType = progCol.getType();
+            if (colType === ColumnType.integer && !progCol.isKnownType()) {
+                // for fat potiner, we cannot tell float or integer
+                // so for integer, we mark it
+                colType = ColumnType.number;
+            }
         }
 
         return colType;
@@ -1835,7 +1859,7 @@ class GeneralOpPanel extends BaseOpPanel {
                 if ($group.hasClass('minimized')) {
                     return;
                 }
-                const numArgs: number = $group.find('.arg:visible').length;
+                const numArgs: number = $group.find('.arg').length;
                 $group.attr('data-numargs', numArgs);
                 $group.addClass('minimized');
                 if ($group.find('.functionsInput').val().trim() === "") {
@@ -1843,7 +1867,7 @@ class GeneralOpPanel extends BaseOpPanel {
                 }
             });
         } else {
-            const numArgs: number = $group.find('.arg:visible').length;
+            const numArgs: number = $group.find('.arg').length;
             $group.attr('data-numargs', numArgs);
             $group.addClass('minimized');
             if ($group.find('.functionsInput').val().trim() === "") {
@@ -1879,4 +1903,14 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _populateInitialCategoryField(): void {}
 
     protected _render(): void {}
+
+    protected _getOperatorsLists(): any[][] {
+        const self = this;
+        const opLists: any[][] = [];
+        this._opCategories.forEach(categoryNum => {
+            let ops = self._operatorsMap[categoryNum];
+            opLists.push(ops);
+        });
+        return opLists;
+    }
 }

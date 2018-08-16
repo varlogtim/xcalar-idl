@@ -359,8 +359,8 @@
     .strPreview {
         overflow: hidden;
         text-overflow: ellipsis;
-        margin-bottom: -10px;
         padding-top: 20px;
+        padding-bottom: 20px;
         user-select: text;
 
         .strPreviewGroup {
@@ -765,7 +765,7 @@
 
     .submit {
         display: block;
-        margin: 30px auto 50px;
+        margin: 0px auto;
         // using left: 50%; translate -50% doesn't work well in IE
     }
     .bottomSection.flexWrap {
@@ -787,13 +787,15 @@
         display: none;
         margin: 15px;
         border: 1px solid @color-border-softGray;
-        
+
         .CodeMirror {
             height: 100%;
         }
     }
 
     .bottomSection {
+        padding: 15px 0;
+
         .switcher {
             .size(@height: 18px);
             margin-left: 15px;
@@ -836,6 +838,10 @@
             .advancedEditor, .bottomSection, .instructions {
                 display: block !important;
             }
+        }
+
+        .advancedEditor {
+            display: block !important;
         }
 
         .bottomSection {
@@ -1381,6 +1387,25 @@
             margin-top: 10px;
         }
     }
+
+    .mainContent {
+        .flex-display;
+        .flex-direction(column);
+    }
+    .opSection {
+        .flex(1 1 auto);
+    }
+    .advancedEditor {
+        .flex(1 1 auto);
+        overflow: hidden;
+        height: 100%;
+        .CodeMirror {
+            height: 100%;
+        }
+    }
+    .bottomSection {
+        .flex(0 0 auto);
+    }
 }
 
 #setOpPanel {
@@ -1484,7 +1509,6 @@
     }
 
     .bottomSection {
-        padding: 15px 0;
         .size(@height: @bottom-h);
     }
 

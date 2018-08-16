@@ -7,40 +7,47 @@
         <div class="opSection">
             <p class="instructions instrText"><%= dicts.opsView.mapInstr %></p>
             <div class="group mapGroup firstGroup">
-            <div class="filterMapFuncArea">
-            <input type="text" id="mapFilter2" placeholder="<%= dicts.opsView.mapFilter %>...">
-            <div class="hint csHelp" data-topic="mapFunctions" title="" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.TooltipTStr.CSHelp %>">
-                <i class="icon xi-help fa-12"></i>
-            </div>
-            <div class="clear">
-                <i class="icon fa-11 xi-close xc-action"></i>
-            </div>
-            </div>
-            <div class="catFuncHeadings clearfix subHeading">
-            <div><%= dicts.opsView.category %></div>
-            <div><%= dicts.opsView.function %></div>
-            </div>
-            <div class="catFuncMenus clearfix">
-            <ul class="categoryMenu"></ul>
-            <ul class="functionsMenu"></ul>
-            </div>
-            <div class="descriptionText"></div>
-            <div class="argsSection inactive"></div>
-            <div class="icvContainer">
-            <div class="icvMode checkboxSection inactive">
-                <div class="text"><%= dicts.opsView.erroneousRows %></div>
-                <div class="checkbox">
-                <i class="icon xi-ckbox-empty fa-11"></i>
-                <i class="icon xi-ckbox-selected fa-11"></i>
+                <div class="filterMapFuncArea">
+                    <input type="text" id="mapFilter2" placeholder="<%= dicts.opsView.mapFilter %>...">
+                    <div class="hint csHelp" data-topic="mapFunctions" title="" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.TooltipTStr.CSHelp %>">
+                        <i class="icon xi-help fa-12"></i>
+                    </div>
+                    <div class="clear">
+                        <i class="icon fa-11 xi-close xc-action"></i>
+                    </div>
                 </div>
-            </div>
+                <div class="catFuncHeadings clearfix subHeading">
+                    <div><%= dicts.opsView.category %></div>
+                    <div><%= dicts.opsView.function %></div>
+                </div>
+                <div class="catFuncMenus clearfix">
+                    <ul class="categoryMenu"></ul>
+                    <ul class="functionsMenu"></ul>
+                </div>
+                <div class="descriptionText"></div>
+                <div class="argsSection inactive"></div>
+                <div class="icvContainer">
+                    <div class="icvMode checkboxSection inactive">
+                        <div class="text"><%= dicts.opsView.erroneousRows %></div>
+                        <div class="checkbox">
+                        <i class="icon xi-ckbox-empty fa-11"></i>
+                        <i class="icon xi-ckbox-selected fa-11"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="strPreview"></div> <!-- this gets filled by JS -->
             </div>
         </div>
-        <div class="strPreview"></div> <!-- this gets filled by JS -->
-        <div class="btnWrap">
-            <button class="btn btn-submit btn-rounded submit">
-                <%= dicts.common.Save %>
-            </button>
-        </div>
+        <section class="advancedEditor">
+            <textarea></textarea>
+        </section>
+        <section class="bottomSection">
+            <div class="btnWrap">
+                <button class="btn btn-submit btn-rounded submit">
+                    <%= dicts.common.Save %>
+                </button>
+            </div>
+            include "../util/switcher.html"
+        </section>
     </div>
 </section>

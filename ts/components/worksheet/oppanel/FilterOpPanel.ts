@@ -1,6 +1,7 @@
 class FilterOpPanel extends GeneralOpPanel {
     protected _dagNode: DagNodeFilter;
-    private filterData;
+    private filterData: FilterOpPanelModel;
+    protected _opCategories: number[] = [FunctionCategoryT.FunctionCategoryCondition];
 
     public constructor() {
         super();
@@ -43,7 +44,7 @@ class FilterOpPanel extends GeneralOpPanel {
             }
 
             clearTimeout(argumentTimer);
-            argumentTimer = setTimeout(function() {
+            argumentTimer = setTimeout(() => {
                 if (options && options.insertText) {
                     return;
                 }
@@ -69,12 +70,12 @@ class FilterOpPanel extends GeneralOpPanel {
             const val = $input.val();
             const $group = $input.closest(".group")
             const groupIndex = self._$panel.find(".group").index($group);
-            const argIndex = $group.find(".arg:visible").index($input);
+            const argIndex = $group.find(".arg").index($input);
             self.filterData.updateArg(val, groupIndex, argIndex);
         }
 
         // toggle filter and/or
-        this._$panel.find(".switch").click(function() {
+        this._$panel.find(".andOrSwitch").click(function() {
             const wasAnd = $(this).hasClass("on");
             self.filterData.toggleAndOr(wasAnd);
             self._updateStrPreview(false, true);
@@ -124,19 +125,21 @@ class FilterOpPanel extends GeneralOpPanel {
             if (!operator) {
                 continue;
             }
+
             const $funcInput: JQuery = $group.find(".functionsInput");
             $funcInput.val(operator);
             $funcInput.data("value", operator.trim().toLowerCase());
-            if (operator !== "") {
+
+            if (this._isOperationValid(i)) {
                 self._updateArgumentSection(i);
             }
 
-            const $args = $group.find(".arg:visible").filter(function() {
+            const $args = $group.find(".arg").filter(function() {
                 return $(this).closest(".colNameSection").length === 0;
             });
 
             for (let j = 0; j < model.groups[i].args.length; j++) {
-                let arg = model.groups[i].args[j].value;
+                let arg = model.groups[i].args[j].getValue();
 
                 $args.eq(j).val(arg);
                 if ($args.eq(j).closest(".row").hasClass("boolOption")) {
@@ -152,9 +155,9 @@ class FilterOpPanel extends GeneralOpPanel {
         if (model.groups.length > 1) {
             self._$panel.find(".andOrToggle").show();
             if (model.andOrOperator === "or") {
-                self._$panel.find(".andOrToggle .switch").removeClass("on");
+                self._$panel.find(".andOrSwitch").removeClass("on");
             } else {
-                self._$panel.find(".andOrToggle .switch").addClass("on");
+                self._$panel.find(".andOrSwitch").addClass("on");
             }
         } else {
             self._$panel.find(".andOrToggle").hide();
@@ -243,15 +246,9 @@ class FilterOpPanel extends GeneralOpPanel {
 
             // if change caused by submit btn, don't clear the input and
             // enterFunctionsInput() will do a check for validity
-            if (!$changeTarg.closest('.submit').length &&
-                !self._isOperationValid($input.data('fninputnum'))) {
-                self._clearFunctionsInput($input.data('fninputnum'), true);
-                return;
-            }
+            const onChange = !$changeTarg.closest('.submit').length;
 
-            if ($input.val() !== "") {
-                self._enterFunctionsInput($input.data('fninputnum'));
-            }
+            self._enterFunctionsInput($input.data('fninputnum'), onChange);
         });
 
         // click icon to toggle functions list
@@ -304,27 +301,18 @@ class FilterOpPanel extends GeneralOpPanel {
     }
 
     protected _populateInitialCategoryField() {
-        this._functionsMap = {};
-        this._categoryNames = [];
-        let categoryName;
-        const categoryIndex = FunctionCategoryT.FunctionCategoryCondition;
-
-        categoryName = FunctionCategoryTStr[categoryIndex].toLowerCase();
-        this._categoryNames.push(categoryName);
-        const ops = this._operatorsMap[categoryIndex];
-        this._functionsMap[0] = ops;
-
         this._populateFunctionsListUl(0);
     }
 
     // map should not call this function
-    protected _populateFunctionsListUl(groupIndex): void {
-        const categoryIndex: number = FunctionCategoryT.FunctionCategoryCondition;
-        const ops = this._operatorsMap[categoryIndex];
+    protected _populateFunctionsListUl(groupIndex: number): void {
+        const operatorsLists = this._getOperatorsLists();
         let html: HTML = "";
-        for (let i = 0, numOps = ops.length; i < numOps; i++) {
-            html += '<li class="textNoCap">' + ops[i].displayName + '</li>';
-        }
+        operatorsLists.forEach((category: any[]) => {
+            category.forEach((op) => {
+                html += '<li class="textNoCap">' + op.displayName + '</li>';
+            })
+        });
         this._$panel.find('.genFunctionsMenu ul[data-fnmenunum="' +
                                 groupIndex + '"]')
                         .html(html);
@@ -366,38 +354,36 @@ class FilterOpPanel extends GeneralOpPanel {
     }
 
     // index is the argument group numbers
-    protected _enterFunctionsInput(index) {
-        index = index || 0;
-        if (!this._isOperationValid(index)) {
-            this._showFunctionsInputErrorMsg(index);
-            this._clearFunctionsInput(index);
-            return;
+    protected _enterFunctionsInput(index: number, onChange?: boolean) {
+        const func = $.trim(this._$panel.find('.group').eq(index)
+                                      .find('.functionsInput').val());
+        const operObj = this._getOperatorObj(func);
+        if (!operObj) {
+            if (!onChange) {
+                this._showFunctionsInputErrorMsg(index);
+            }
+            this._clearFunctionsInput(index, onChange);
+        } else {
+            this.filterData.enterFunction(func, operObj, index);
+            this._focusNextInput(index);
         }
-
-        // this._updateArgumentSection(index);
-        const func = this._$panel.find(".group").eq(index).find('.functionsInput').val().trim();
-        const categoryNum = FunctionCategoryT.FunctionCategoryCondition;
-        const ops = this._operatorsMap[categoryNum];
-        const operObj = ops.find((op) => {
-            return op.displayName === func;
-        });
-        this.filterData.enterFunction(func, operObj, index);
-        this._focusNextInput(index);
     }
 
     protected _clearFunctionsInput(groupNum: number, keep?: boolean) {
-        const $argsGroup = this._$panel.find('.group').eq(groupNum);
+        const $group = this._$panel.find('.group').eq(groupNum);
+        const $input = $group.find(".functionsInput")
         if (!keep) {
-            $argsGroup.find('.functionsInput')
-                        .val("").attr('placeholder', "");
+            $input.val("").attr('placeholder', "");
         }
+        const val = $input.val().trim();
 
-        $argsGroup.find('.genFunctionsMenu').data('category', 'null');
-        $argsGroup.find('.argsSection').last().addClass('inactive');
-        $argsGroup.find('.descriptionText').empty();
-        $argsGroup.find('.functionsInput').data("value", "");
+        $group.find('.genFunctionsMenu').data('category', 'null');
+        $group.find('.argsSection').last().addClass('inactive');
+        $group.find(".argsSection").empty();
+        $group.find('.descriptionText').empty();
+        $group.find('.functionsInput').data("value", "");
         this._hideDropdowns();
-        this.filterData.clearFunction(groupNum);
+        this.filterData.enterFunction(val, null, groupNum);
         this._checkIfStringReplaceNeeded(true);
     }
 
@@ -430,9 +416,10 @@ class FilterOpPanel extends GeneralOpPanel {
         });
 
         const $argsSection = $argsGroup.find('.argsSection').last();
-        const firstTime = $argsSection.html() === "";
-        $argsSection.removeClass('inactive');
+        const firstTime = !$argsSection.hasClass("touched");
         $argsSection.empty();
+        $argsSection.addClass("touched");
+        $argsSection.removeClass('inactive');
         $argsSection.data("fnname", operObj.displayName);
 
         let defaultValue = ""; // to autofill first arg
@@ -454,9 +441,7 @@ class FilterOpPanel extends GeneralOpPanel {
         const numArgs = Math.max(Math.abs(operObj.numArgs),
                                 operObj.argDescs.length);
 
-        const numInputsNeeded = numArgs;
-
-        this._addArgRows(numInputsNeeded, $argsGroup, groupIndex);
+        this._addArgRows(numArgs, $argsGroup, groupIndex);
         // get rows now that more were added
         const $rows = $argsSection.find('.row');
 
@@ -469,7 +454,7 @@ class FilterOpPanel extends GeneralOpPanel {
         const strPreview = this._filterArgumentsSetup(operObj);
 
         // hide any args that aren't being used
-        $rows.show().filter(":gt(" + (numArgs - 1) + ")").hide();
+        $rows.show().filter(":gt(" + (numArgs - 1) + ")").remove();
 
         const despText = operObj.fnDesc || "N/A";
         const descriptionHtml = '<b>' + OpFormTStr.Descript + ':</b> ' +
@@ -484,12 +469,10 @@ class FilterOpPanel extends GeneralOpPanel {
 
         this._formHelper.refreshTabbing();
 
-        const noHighlight = true;
-        this._checkIfStringReplaceNeeded(noHighlight);
+        this._checkIfStringReplaceNeeded(true);
         if ((this._$panel.find('.group').length - 1) === groupIndex) {
             const noAnim = (firstTime && groupIndex === 0);
             this._scrollToBottom(noAnim);
-
         }
     }
 
@@ -607,7 +590,7 @@ class FilterOpPanel extends GeneralOpPanel {
     protected _updateStrPreview(noHighlight?: boolean, andOrSwitch?: boolean) {
         const self = this;
         const $description = this._$panel.find(".strPreview");
-        let $inputs = this._$panel.find('.arg:visible');
+        let $inputs = this._$panel.find(".arg");
         let tempText;
         let newText = "";
         const andOrIndices = [];
@@ -632,14 +615,14 @@ class FilterOpPanel extends GeneralOpPanel {
                 if (andOrSwitch) {
                     andOrIndices.push(newText.length);
                 }
-                if (self._$panel.find(".switch").hasClass("on")) {
+                if (self._$panel.find(".andOrSwitch").hasClass("on")) {
                     newText += "and(";
                 } else {
                     newText += "or(";
                 }
             }
             newText += funcName + "(";
-            $inputs = $(this).find('.arg:visible');
+            $inputs = $(this).find(".arg");
 
             let numNonBlankArgs = 0;
             $inputs.each(function() {
@@ -810,7 +793,7 @@ class FilterOpPanel extends GeneralOpPanel {
             return existingTypes;
         }
 
-        $group.find('.arg:visible').each(function() {
+        $group.find(".arg").each(function() {
             $input = $(this);
             arg = $input.val().trim();
             type = null;
@@ -841,130 +824,67 @@ class FilterOpPanel extends GeneralOpPanel {
         return (existingTypes);
     }
 
-    protected _submitForm() {
-        const deferred = PromiseHelper.deferred();
-        let isPassing = true;
+    protected _validate(): boolean {
         const self = this;
-
-        const $groups = this._$panel.find('.group');
-
-        // check if function name is valid (not checking arguments)
-        $groups.each(function(groupNum) {
-            if (!self._isOperationValid(groupNum)) {
-                self._showFunctionsInputErrorMsg(groupNum);
-                isPassing = false;
+        if (this._isAdvancedMode()) {
+            const advancedErr: {error: string} = this.filterData.validateAdvancedMode(this._editor.getValue());
+            if (advancedErr != null) {
+                StatusBox.show(advancedErr.error, this._$panel.find(".advancedEditor"));
                 return false;
             }
-        });
-        const model = this.filterData.getModel();
-        for (let i = 0; i < model.groups.length; i++) {
-            const group = model.groups[i];
-            for (let j = 0; j < group.args.length; j++) {
-                const arg = group.args[j];
-                if (!arg.isValid && arg.error === "No value") {
-                    const $input =  $groups.eq(i).find(".arg:visible").eq(j);
+        } else {
+            const error = this.filterData.validateGroups();
+            if (error) {
+                const model = this.filterData.getModel();
+                const groups = model.groups;
+                const $input = this._$panel.find(".group").eq(error.group).find(".arg").eq(error.arg);
+
+                if (error.type === "function") {
+                    self._showFunctionsInputErrorMsg(error.group);
+                } else if (error.type === "blank") {
                     self._handleInvalidBlanks([$input]);
-                    isPassing = false;
-                    break;
-                }
-            }
-            if (!isPassing) {
-                break;
-            }
-        }
-
-
-        if (!isPassing) {
-            return PromiseHelper.reject();
-        }
-
-
-        for (let i = 0; i < model.groups.length; i++) {
-            const group = model.groups[i];
-            for (let j = 0; j < group.args.length; j++) {
-                const arg = group.args[j];
-                if (!arg.isValid && !arg.error.includes(ErrWRepTStr.InvalidOpsType.substring(0, 20))) {
-                    const $input =  $groups.eq(i).find(".arg:visible").eq(j);
-                    self._statusBoxShowHelper(arg.error, $input);
-                    isPassing = false;
-                    break;
-                }
-            }
-            if (!isPassing) {
-                break;
-            }
-        }
-
-        if (!isPassing) {
-            return PromiseHelper.reject();
-        }
-
-
-        for (let i = 0; i < model.groups.length; i++) {
-            const group = model.groups[i];
-            for (let j = 0; j < group.args.length; j++) {
-                const arg = group.args[j];
-                if (!arg.isValid && arg.type === "column" && arg.error.includes(ErrWRepTStr.InvalidOpsType.substring(0, 20))) {
-                    const $input =  $groups.eq(i).find(".arg:visible").eq(j);
+                } else if (error.type === "other") {
+                    self._statusBoxShowHelper(error.error, $input);
+                } else if (error.type === "columnType") {
                     let allColTypes = [];
                     let inputNums = [];
-                    for (var k = 0; k < group.args.length; k++) {
-                        let arg = group.args[k];
-                        if (arg.type === "column") {
-                            let colType = self.filterData.getColumnTypeFromArg(arg.formattedValue);
-                            let requiredTypes = self._parseType(arg.typeid);
+                    const group = groups[error.group];
+                    for (var i = 0; i < group.args.length; i++) {
+                        let arg = group.args[i];
+                        if (arg.getType() === "column") {
+                            let colType = self.filterData.getColumnTypeFromArg(arg.getFormattedValue());
+                            let requiredTypes = self._parseType(arg.getTypeid());
                             allColTypes.push({
                                 inputTypes: [colType],
                                 requiredTypes: requiredTypes,
-                                inputNum: k
+                                inputNum: i
                             });
-                            if (!arg.isValid && arg.error.includes(ErrWRepTStr.InvalidOpsType.substring(0, 20))) {
-                                inputNums.push(k);
+                            if (!arg.checkIsValid() && arg.getError().includes(ErrWRepTStr.InvalidOpsType.substring(0, 20))) {
+                                inputNums.push(i);
                             }
                         }
                     }
-                    self._handleInvalidArgs(true, $input, arg.error, i, allColTypes, inputNums);
-                    // all col types, inputs to cast
-                    isPassing = false;
-                    break;
+                    self._handleInvalidArgs(true, $input, error.error, error.arg, allColTypes, inputNums);
+                } else if (error.type === "valueType") {
+                    self._handleInvalidArgs(false, $input, error.error);
+                } else {
+                    console.warn("unhandled error found", error);
                 }
-            }
-            if (!isPassing) {
-                break;
+                return false;
             }
         }
 
-        if (!isPassing) {
-            return PromiseHelper.reject();
-        }
+        return true;
+    }
 
-
-        for (let i = 0; i < model.groups.length; i++) {
-            const group = model.groups[i];
-            for (let j = 0; j < group.args.length; j++) {
-                const arg = group.args[j];
-                if (!arg.isValid && arg.error.includes(ErrWRepTStr.InvalidOpsType.substring(0, 20))) {
-                    const $input =  $groups.eq(i).find(".arg:visible").eq(j);
-                    self._handleInvalidArgs(false, $input, arg.error);
-                    isPassing = false;
-                    break;
-                }
-            }
-            if (!isPassing) {
-                break;
-            }
-        }
-
-
-        if (!isPassing) {
-            return PromiseHelper.reject();
+    protected _submitForm() {
+        if (!this._validate()) {
+            return false;
         }
 
         this.dataModel.submit();
         this._closeOpSection();
-        deferred.resolve();
-
-        return deferred.promise();
+        return true;
     }
 
 
@@ -984,7 +904,7 @@ class FilterOpPanel extends GeneralOpPanel {
         let invalidNonColumnType = false; // when an input does not have a
         // a column name but still has an invalid type
         const $group = this._$panel.find('.group').eq(groupNum);
-        $group.find('.arg:visible').each(function(inputNum) {
+        $group.find(".arg").each(function(inputNum) {
             const $input = $(this);
             // Edge case. GUI-1929
 
@@ -1146,7 +1066,7 @@ class FilterOpPanel extends GeneralOpPanel {
             if (inputsToCast.length) {
                 errorText = castText;
                 isInvalidColType = true;
-                $errorInput = $group.find(".arg:visible").eq(inputsToCast[0]);
+                $errorInput = $group.find(".arg").eq(inputsToCast[0]);
             } else {
                 isInvalidColType = false;
             }
@@ -1156,26 +1076,6 @@ class FilterOpPanel extends GeneralOpPanel {
 
         return ({args: args, isPassing: isPassing, allColTypes: allColTypes});
     }
-
-    // protected _save(args, colTypeInfos, hasMultipleSets) {
-    //     let andOr;
-    //     if (hasMultipleSets) {
-    //         if (this._$panel.find(".switch").hasClass("on")) {
-    //             andOr = "and";
-    //         } else {
-    //             andOr = "or";
-    //         }
-    //     }
-    //     const filterString = this._formulateFilterString(args,
-    //                                                 colTypeInfos,
-    //                                                 hasMultipleSets, andOr);
-
-    //     // const startTime = Date.now();
-
-    //     this._dagNode.setParam({
-    //         evalString: filterString
-    //     });
-    // }
 
     // hasMultipleSets: boolean, true if there are multiple groups of arguments
     // such as gt(a, 2) && lt(a, 5)
@@ -1318,5 +1218,9 @@ class FilterOpPanel extends GeneralOpPanel {
                         '</div>' +
                     '</div>';
         return (html);
+    }
+
+    protected _switchMode(toAdvancedMode: boolean): {error: string} {
+        return this.filterData.switchMode(toAdvancedMode, this._editor);
     }
 }

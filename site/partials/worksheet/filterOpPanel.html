@@ -37,7 +37,7 @@
             <div class="switchLabel">
                 <%= dicts.opsView.or %>
             </div>
-            <div class="xc-switch switch alwaysBlue on">
+            <div class="xc-switch switch andOrSwitch alwaysBlue on">
                 <div class="slider"></div>
             </div>
             <div class="switchLabel">
@@ -51,13 +51,18 @@
             </button>
             <span class="text"><%= dicts.opsView.additional %></span>
         </div>
+        <div class="strPreview"></div> <!-- this gets filled by JS -->
     </div>
-
-    <div class="strPreview"></div> <!-- this gets filled by JS -->
-    <div class="btnWrap">
-        <button class="btn btn-submit btn-rounded submit">
-            <%= dicts.common.Save %>
-        </button>
-    </div>
+    <section class="advancedEditor">
+        <textarea></textarea>
+    </section>
+    <section class="bottomSection">
+        <div class="btnWrap">
+            <button class="btn btn-submit btn-rounded submit">
+                <%= dicts.common.Save %>
+            </button>
+        </div>
+        include "../util/switcher.html"
+    </section>
 </div>
 </section>

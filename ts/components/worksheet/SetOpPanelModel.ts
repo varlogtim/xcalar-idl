@@ -274,7 +274,7 @@ class SetOpPanelModel {
         this.selectedColsList = [];
         this.candidateColsList = [];
         this.allColsList = [];
-        
+
         this.dedup = params.dedup;
         this.unionType = params.unionType;
 
@@ -391,7 +391,7 @@ class SetOpPanelModel {
         this.allColsList.forEach((_col, listIndex) => {
             this.candidateColsList[listIndex] = this._getCandidateCols(listIndex);
         });
-        
+
         if (this.event != null) {
             this.event();
         }

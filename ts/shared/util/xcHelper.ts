@@ -5925,20 +5925,20 @@ namespace xcHelper {
             let hasValue = false;
             // loop through arguments within a group
             args.forEach((arg) => {
-                let colNames: string[] = arg.formattedValue.split(",");
+                let colNames: string[] = arg.getFormattedValue().split(",");
                 let colStr: string = "";
                 colNames.forEach((colName, k) => {
                     if (k > 0) {
                         colStr += ", ";
                     }
-                    if (arg.cast) {
-                        colStr += xcHelper.castStrHelper(colName, arg.cast);
+                    if (arg.isCast()) {
+                        colStr += xcHelper.castStrHelper(colName, arg.getCast());
                     } else {
                         colStr += colName;
                     }
                 });
 
-                if (arg.formattedValue !== "") {
+                if (arg.getFormattedValue() !== "") {
                     str += colStr + ", ";
                     hasValue = true;
                 }
@@ -5953,6 +5953,28 @@ namespace xcHelper {
             str += ")";
         }
         return (str);
+    }
+
+    export function parseJSONError(e): string {
+        // handling json parse/syntax error
+        var searchText= "at position ";
+        var errorPosition = e.message.indexOf(searchText);
+        var position = "";
+        if (errorPosition > -1) {
+            for (let i = errorPosition + searchText.length + 1; i < e.message.length; i++) {
+                if (e.message[i] >= 0 && e.message[i] <= 9) {
+                    position += e.message[i];
+                } else {
+                    break;
+                }
+            }
+        }
+        if (position.length) {
+             // XXX split into lines by searching for \n not in quotes or escaped
+             // so that we can show the error in the correct line number
+        }
+        return xcHelper.camelCaseToRegular(e.name) + ": " +
+               e.message;
     }
 
     export let __testOnly__: any = {};

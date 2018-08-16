@@ -848,6 +848,7 @@ namespace DagView {
             }
             $node.removeClass(stateClasses);
             $node.addClass("state-" + info.state);
+
             activeDagTab.saveTab();
         });
 

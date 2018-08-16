@@ -170,6 +170,7 @@ class MapOpPanel extends GeneralOpPanel {
     public show(node: DagNodeMap, options: any): XDPromise<any> {
         const self = this;
         options = options || {};
+
         super.show(node, options);
         const deferred = PromiseHelper.deferred();
 
