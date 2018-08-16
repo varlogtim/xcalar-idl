@@ -7,6 +7,10 @@
 // ========================== Document Ready ==================================
 function documentReadyIndexFunction(): void {
     $(document).ready(function() {
+        if ($(".logo .icon").hasClass("xi_logo")) {
+            // XI
+            $(".xd-only").hide();
+        }
         xcManager.setup();
     });
 }

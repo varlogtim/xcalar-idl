@@ -61,7 +61,7 @@
     </div>
 
     <!-- jupyter Tab -->
-    <div id="jupyterTab" class="topMenuBarTab mainMenuOpen noLeftPanel">
+    <div id="jupyterTab" class="topMenuBarTab mainMenuOpen noLeftPanel xd-only">
       <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Jupyter Notebook">
         <i class="icon xi-menu-cli fa-20"></i>
       </div>
@@ -170,7 +170,7 @@
     <% } %>
 
     <!-- dataflow Tab -->
-    <div id="dataflowTab" class="topMenuBarTab mainMenuOpen firstTouch" <%= (dicts.tutor.name == 'workbookTut') ? 'data-introstep="w1-df"' : '' %> >
+    <div id="dataflowTab" class="topMenuBarTab mainMenuOpen firstTouch xd-only" <%= (dicts.tutor.name == 'workbookTut') ? 'data-introstep="w1-df"' : '' %> >
       <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.dataflow.dfs %>">
         <i class="icon xi-dataflowgroup fa-20"></i>
       </div>
@@ -240,14 +240,14 @@
     </div>
 
     <!-- udf -->
-    <div id="udfTab" class="sliderBtn bottomMenuBarTab" data-toggle="tooltip" data-placement="right" data-container="body" title="UDF">
+    <div id="udfTab" class="sliderBtn bottomMenuBarTab xd-only" data-toggle="tooltip" data-placement="right" data-container="body" title="UDF">
       <div class="mainTab">
         <i class="icon xi-menu-udf fa-25"></i>
       </div>
     </div>
 
     <!-- sql -->
-    <div id="sqlTab" class="sliderBtn bottomMenuBarTab" data-toggle="tooltip" data-placement="right" data-container="body" title="SQL">
+    <div id="sqlTab" class="sliderBtn bottomMenuBarTab xd-only" data-toggle="tooltip" data-placement="right" data-container="body" title="SQL">
       <div class="mainTab">
         <i class="icon xi-menu-sql2 fa-25"></i>
       </div>
