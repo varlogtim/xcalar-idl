@@ -33,15 +33,16 @@ class DagTable {
             $container.removeClass("dataset");
         }
 
-        this.viewer.render(this._getContainer())
-        .then(() => {
-            $container.removeClass("loading");
-            deferred.resolve();
-        })
-        .fail((error) => {
-            this._error(error);
-            deferred.reject(error);
-        });
+        xcHelper.showRefreshIcon($("#dagViewTableArea"), true, 
+            this.viewer.render(this._getContainer())
+            .then(() => {
+                $container.removeClass("loading");
+                deferred.resolve();
+            })
+            .fail((error) => {
+                this._error(error);
+                deferred.reject(error);
+        }));
 
         return deferred.promise();
     }
