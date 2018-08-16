@@ -71,121 +71,6 @@ class DagGraph {
         return true;
     }
 
-    private fakeDag(): object[] {
-        // XXX Only Sample Code
-        // ds1 -> filter1 -> join -> export1
-        // ds2 -> filter2 /
-        //          |
-        //          -> export2
-        //
-        // ds3 -> filter3 -> export3
-
-        const ds1: DagNode = DagNodeFactory.create({
-            type: DagNodeType.Dataset,
-        });
-        this.addNode(ds1);
-        const ds1Id: DagNodeId = ds1.getId();
-
-        const ds2: DagNode = DagNodeFactory.create({
-            type: DagNodeType.Dataset,
-        });
-        this.addNode(ds2);
-        const ds2Id: DagNodeId = ds2.getId();
-
-        const ds3: DagNode = DagNodeFactory.create({
-            type: DagNodeType.Dataset
-        });
-        this.addNode(ds3);
-        const ds3Id: DagNodeId = ds3.getId();
-
-        const filter1: DagNode = DagNodeFactory.create({
-            type: DagNodeType.Filter
-        });
-        this.addNode(filter1);
-        const filter1Id: DagNodeId = filter1.getId();
-
-        const filter2: DagNode = DagNodeFactory.create({
-            type: DagNodeType.Filter
-        });
-        this.addNode(filter2);
-        const filter2Id: DagNodeId = filter2.getId();
-
-        const filter3: DagNode = DagNodeFactory.create({
-            type: DagNodeType.Filter
-        });
-        this.addNode(filter3);
-        const filter3Id: DagNodeId = filter3.getId();
-
-        const join: DagNode = DagNodeFactory.create({
-            type: DagNodeType.Join
-        });
-        this.addNode(join);
-        const joinId: DagNodeId = join.getId();
-
-        this.connect(ds1Id, filter1Id);
-        this.connect(ds2Id, filter2Id);
-        this.connect(ds3Id, filter3Id);
-        this.connect(filter1Id, joinId, 0);
-        this.connect(filter2Id, joinId, 1);
-
-
-        const exportNode1: DagNode = new DagNode({
-            type: DagNodeType.Export
-        });
-        this.addNode(exportNode1)
-        const exportNode2: DagNode = new DagNode({
-            type: DagNodeType.Export
-        });
-        this.addNode(exportNode2);
-        const exportNode3: DagNode = new DagNode({
-            type: DagNodeType.Export
-        });
-        this.addNode(exportNode3);
-
-        this.connect(joinId, exportNode1.getId());
-        this.connect(filter2Id, exportNode2.getId());
-        this.connect(filter3Id, exportNode3.getId());
-        return [{endPoints: [exportNode1, exportNode2]}, {endPoints: [exportNode3]}];
-    }
-
-    // example: new DagGraph().fakeExecute("cheng.25132.gdelt", "prefix")
-    public fakeExecute(dsName, prefix) {
-        // XXX Only Sample Code
-        // ds1 -> filter1
-
-        const ds1: DagNodeDataset = <DagNodeDataset>DagNodeFactory.create({
-            type: DagNodeType.Dataset,
-        });
-        this.addNode(ds1);
-        const ds1Id: DagNodeId = ds1.getId();
-
-        const filter1: DagNodeFilter = <DagNodeFilter>DagNodeFactory.create({
-            type: DagNodeType.Filter
-        });
-        this.addNode(filter1);
-        const filter1Id: DagNodeId = filter1.getId();
-
-        this.connect(ds1Id, filter1Id);
-
-        ds1.setParam({
-            source: dsName,
-            prefix: prefix
-        });
-
-
-        filter1.setParam({
-            evalString: `eq(${prefix}::column0, 254487263)`
-        });
-
-        return this.executeNodes([filter1Id]);
-    }
-
-    // XXX TODO
-    public construct(): object[] {
-        console.warn("to be implemented!");
-        return this.fakeDag();
-    }
-
     /**
      * get node from id
      * @param nodeId node's id
@@ -230,6 +115,7 @@ class DagGraph {
 
         this.nodesMap.set(node.getId(), node);
         this.removedNodesMap.delete(node.getId());
+        this._traverseSwtichState(node);
         return node;
     }
 
@@ -254,6 +140,10 @@ class DagGraph {
         this.nodesMap.set(dagNode.getId(), dagNode);
         dagNode.registerEvents(DagNodeEvents.StateChange, (changeInfo) => {
             this.events.trigger(DagNodeEvents.StateChange, changeInfo);
+        })
+        .registerEvents(DagNodeEvents.ParamChange, (changeInfo) => {
+            const node = this.getNode(changeInfo.id);
+            this._traverseSwtichState(node);
         });
     }
 
@@ -299,12 +189,12 @@ class DagGraph {
     ): boolean {
         let canConnect: boolean = true;
         try {
-            this.connect(fromNodeId, toNodeId, toPos, allowCyclic);
+            this.connect(fromNodeId, toNodeId, toPos, allowCyclic, false);
         } catch (e) {
             canConnect = false;
         }
         if (canConnect) {
-            this.disconnect(fromNodeId, toNodeId, toPos);
+            this.disconnect(fromNodeId, toNodeId, toPos, false);
         }
 
         return canConnect;
@@ -320,7 +210,8 @@ class DagGraph {
         fromNodeId: DagNodeId,
         toNodeId: DagNodeId,
         toPos: number = 0,
-        allowCyclic?: boolean
+        allowCyclic: boolean = false,
+        switchState: boolean = true
     ): void {
         let connectedToParent = false;
         let fromNode: DagNode;
@@ -336,6 +227,9 @@ class DagGraph {
                 fromNode.disconnectFromChild(toNode);
                 toNode.disconnectFromParent(fromNode, toPos);
                 throw new Error("has cycle in the dataflow");
+            }
+            if (switchState) {
+                this._traverseSwtichState(toNode);
             }
         } catch (e) {
             if (connectedToParent) {
@@ -353,7 +247,7 @@ class DagGraph {
     public restoreConnections(connections: NodeConnection[]): void {
         connections.forEach((edge: NodeConnection) => {
             if (edge.parentId != null && edge.childId != null) {
-                this.connect(edge.parentId, edge.childId, edge.pos)
+                this.connect(edge.parentId, edge.childId, edge.pos, false ,false);
             }
         });
     }
@@ -367,22 +261,16 @@ class DagGraph {
     public disconnect(
         fromNodeId: DagNodeId,
         toNodeId: DagNodeId,
-        toPos: number = 0
+        toPos: number = 0,
+        switchState: boolean = true
     ): void {
         const fromNode: DagNode = this._getNodeFromId(fromNodeId);
         const toNode: DagNode = this._getNodeFromId(toNodeId);
         toNode.disconnectFromParent(fromNode, toPos);
         fromNode.disconnectFromChild(toNode);
-    }
-
-    // XXX TODO
-    public getSubGraph(nodeIds: DagNodeId[]): DagGraph {
-        return new DagGraph();
-    }
-
-    // XXX TODO
-    public addSubGraph(seralizedGraph: string): boolean {
-        return true;
+        if (switchState) {
+            this._traverseSwtichState(toNode);
+        }
     }
 
    /**
@@ -391,27 +279,23 @@ class DagGraph {
     public remove(): void {
         const values: IterableIterator<DagNode> = this.nodesMap.values();
         for (let dagNode of values) {
-            this._removeNode(dagNode);
+            this._removeNode(dagNode, false);
         }
     }
 
     /**
-     * exectue some nodes in graph
-     * @param nodeIds nodes that need to execute
+     * execute the whole graph or some nodes in graph
+     *  @param nodeIds nodes that need to execute
      * @returns {JQueryDeferred}
      */
-    public executeNodes(nodeIds: DagNodeId[]): XDPromise<void> {
-        // get subGraph from nodes and execute
-        const subGraph: DagGraph = this._backTraverseNodes(nodeIds);
-        return subGraph._executeGraph();
-    }
-
-    /**
-     * execute the whole graph
-     * @returns {JQueryDeferred}
-     */
-    public executeAll(): XDPromise<void> {
-        return this._executeGraph();
+    public execute(nodeIds?: DagNodeId[]): XDPromise<void> {
+        if (nodeIds == null) {
+            return this._executeGraph();
+        } else {
+            // get subGraph from nodes and execute
+            const nodesMap:  Map<DagNodeId, DagNode> = this._backTraverseNodes(nodeIds);
+            return this._executeGraph(nodesMap);
+        }
     }
 
     public setDimensions(width: number, height: number): void  {
@@ -452,12 +336,12 @@ class DagGraph {
 
     // XXX TODO, Idea is to do a topological sort first, then get the
     // ordere, then get the query, and run it one by one.
-    private _executeGraph(): XDPromise<void> {
+    private _executeGraph(nodesMap?: Map<DagNodeId, DagNode>): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const orderedNodes: DagNode[] = this._topologicalSort();
+        const orderedNodes: DagNode[] = this._topologicalSort(nodesMap);
 
         const checkResult = this._checkCanExecuteAll(orderedNodes);
-        if (checkResult["hasError"]) {
+        if (checkResult.hasError) {
             return PromiseHelper.reject(checkResult);
         }
 
@@ -473,7 +357,7 @@ class DagGraph {
 
         PromiseHelper.chain(promises)
         .then(() => {
-            console.log("finish running", orderedNodes);
+            // console.log("finish running", orderedNodes);
             Transaction.done(txId, {});
             deferred.resolve();
         })
@@ -485,7 +369,11 @@ class DagGraph {
         return deferred.promise();
     }
 
-    private _checkCanExecuteAll(orderedNodes: DagNode[]): object {
+    private _checkCanExecuteAll(orderedNodes: DagNode[]): {
+        hasError: boolean,
+        type?: DagNodeErrorType,
+        node?: DagNode
+    } {
         let errorResult = {
             hasError: false
         };
@@ -507,33 +395,30 @@ class DagGraph {
             }
         }
 
-        if (errorResult.hasError) {
-            return errorResult;
-        }
-
         return errorResult;
     }
 
     private _backTraverseNodes(nodeIds: DagNodeId[]) {
-        const subGraph: DagGraph = new DagGraph();
+        const nodesMap: Map<DagNodeId, DagNode> = new Map();
         let nodeStack: DagNode[] = nodeIds.map((nodeId) => this._getNodeFromId(nodeId));
         while (nodeStack.length > 0) {
             const node: DagNode = nodeStack.pop();
-            if (node != null && !subGraph.hasNode(node.getId())) {
-                subGraph.addNode(node);
+            if (node != null && !nodesMap.has(node.getId())) {
+                nodesMap.set(node.getId(), node);
                 const parents: any = node.getParents();
                 nodeStack = nodeStack.concat(parents);
             }
         }
-        return subGraph;
+        return nodesMap;
     }
 
-    private _topologicalSort(): DagNode[] {
+    private _topologicalSort(nodesMap?: Map<DagNodeId, DagNode>): DagNode[] {
         const orderedNodes: DagNode[] = [];
         const zeroInputNodes: DagNode[] = [];
         const nodeInputMap: Map<DagNodeId, number> = new Map();
 
-        for (let [nodeId, node] of this.nodesMap) {
+        nodesMap = nodesMap || this.nodesMap;
+        for (let [nodeId, node] of nodesMap) {
             const numParent = node.getNumParent();
             nodeInputMap.set(nodeId, numParent);
             if (numParent === 0) {
@@ -547,10 +432,13 @@ class DagGraph {
             node.getChildren().forEach((childNode) => {
                 if (childNode != null) {
                     const childId: DagNodeId = childNode.getId();
-                    const numParent = nodeInputMap.get(childId) - 1;
-                    nodeInputMap.set(childId, numParent);
-                    if (numParent === 0) {
-                        zeroInputNodes.push(childNode);
+                    if (nodeInputMap.has(childId)) {
+                        // if it's a subGraph, child may not in it
+                        const numParent = nodeInputMap.get(childId) - 1;
+                        nodeInputMap.set(childId, numParent);
+                        if (numParent === 0) {
+                            zeroInputNodes.push(childNode);
+                        }
                     }
                 }
             });
@@ -562,7 +450,7 @@ class DagGraph {
         return orderedNodes;
     }
 
-    private _removeNode(node: DagNode): void {
+    private _removeNode(node: DagNode, switchState: boolean = true): void {
         const parents: DagNode[] = node.getParents();
         const children: DagNode[] = node.getChildren();
 
@@ -571,10 +459,6 @@ class DagGraph {
                 parent.disconnectFromChild(node);
             }
         });
-
-        // go through all the children and remove completed state
-        // XXX we might want to change to error state instead of configured
-        this._traverseChildren(node, removeCompleteState);
 
         const childIndices = {};
         children.forEach((child) => {
@@ -588,21 +472,19 @@ class DagGraph {
                     child.disconnectFromParent(node, index);
                 }
             });
+            if (switchState) {
+                this._traverseSwtichState(child);
+            }
         });
 
-        node.removeTable();
-        removeCompleteState(node);
+        if (node.getState() === DagNodeState.Complete) {
+            node.beConfiguredState();
+        }
         this.removedNodesMap.set(node.getId(), {
             childIndices: childIndices,
             node: node
         });
         this.nodesMap.delete(node.getId());
-
-        function removeCompleteState(node: DagNode) {
-            if (node.getState() === DagNodeState.Complete) {
-                node.beConfiguredState();
-            }
-        }
     }
 
     private _getNodeFromId(nodeId: DagNodeId): DagNode {
@@ -651,24 +533,34 @@ class DagGraph {
         }
     }
 
-    // traverses children and applies callback function to each node
-    private _traverseChildren(node: DagNode, callback: Function) {
-        let seen = {};
-        recursiveTraverse(node);
+    private _traverseSwtichState(node: DagNode): void {
+        node.switchState();
+        this._traverseChildren(node, (node: DagNode) => {
+            node.switchState();
+        });
+    }
 
-        function recursiveTraverse(node) {
+    /**
+     * traverses children and applies callback function to each node
+     * @param callback Function to call for each child
+     */
+    private _traverseChildren(node: DagNode, callback: Function) {
+        const seen: Set<string> = new Set();
+        const recursiveTraverse = (node: DagNode): void => {
             const children: DagNode[] = node.getChildren();
             children.forEach((child: DagNode) => {
                 const nodeId: DagNodeId = child.getId();
-                if (seen[nodeId]) {
+                if (seen.has(nodeId)) {
                     return;
                 } else {
-                    seen[nodeId] = true;
+                    seen.add(nodeId);
                 }
 
                 callback(child);
                 recursiveTraverse(child);
             });
-        }
+        };
+
+        recursiveTraverse(node);
     }
 }

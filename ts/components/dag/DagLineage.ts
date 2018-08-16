@@ -23,18 +23,6 @@ class DagLineage {
      */
     // private changes: object[];
 
-    // XXX TODO REMOVE IT
-    private static test(dsName) {
-        const a: DagNodeDataset = DagNodeFactory.create({type: DagNodeType.Dataset});
-        const b = DagNodeFactory.create({type: DagNodeType.Filter});
-        a.connectToChild(b);
-        b.connectToParent(a);
-        a.setParam({source: dsName, prefix: "test"})
-        .then(() => {
-            console.log(b.getLineage().getColumns());
-        });
-    }
-
     // XXX persist or not TBD
     public constructor(node: DagNode) {
         this.node = node;
@@ -73,11 +61,6 @@ class DagLineage {
      */
     public reset(): void {
         this.columns = undefined;
-        if (!this._isAgg()) {
-            this.node.getChildren().forEach((childNode) => {
-                childNode.getLineage().reset();
-            });
-        }
     }
 
     public getColumns(): ProgCol[] {

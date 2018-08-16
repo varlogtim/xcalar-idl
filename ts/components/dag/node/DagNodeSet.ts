@@ -5,7 +5,7 @@ class DagNodeSet extends DagNode {
         super(options);
         this.type = DagNodeType.Set;
         this.maxParents = -1;
-        this.minParents = 2;
+        this.minParents = 1;
     }
 
     /**

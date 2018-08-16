@@ -77,8 +77,6 @@ describe("Dag Node Basic Test", () => {
 
     it("should change state", () => {
         const node = new DagNode();
-        node.beConnectedState();
-        expect(node.getState()).to.equal(DagNodeState.Connected);
 
         node.beCompleteState();
         expect(node.getState()).to.equal(DagNodeState.Complete);

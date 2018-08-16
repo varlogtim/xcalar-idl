@@ -235,11 +235,10 @@ class SetOpPanelModel {
 
     public validateAdvancedMode(paramStr: string): {error: string} {
         try {
-            const param: DagNodeSetInput = <DagNodeSetInput>JSON.parse(paramStr);
-            this._initialize(param);
-            return this.validateNodes() || this.validateResult(true) || this.validateCast();
+            return null;
         } catch (e) {
-            return e;
+            console.error(e);
+            return {error: "invalid configuration"};
         }
     }
 
@@ -302,12 +301,14 @@ class SetOpPanelModel {
         }
 
         // intialize result list
-        this.resultCols = params.columns[0].map((col, colIndex) => {
-            return new ProgCol({
-                backName: col.destColumn,
-                type: hasCast[colIndex] ? col.columnType : null
+        if (params.columns[0] != null) {
+            this.resultCols = params.columns[0].map((col, colIndex) => {
+                return new ProgCol({
+                    backName: col.destColumn,
+                    type: hasCast[colIndex] ? col.columnType : null
+                });
             });
-        });
+        }
 
         // initialize candidate list
         this.allColsList.forEach((_col, listIndex) => {
@@ -331,6 +332,9 @@ class SetOpPanelModel {
 
     private _getNameMap(progCols: ProgCol[]): Map<string, ProgCol> {
         const progColMap: Map<string, ProgCol> = new Map();
+        if (progCols == null) {
+            return progColMap;
+        }
         progCols.forEach((progCol) => {
             if (progCol != null) {
                 progColMap.set(progCol.getBackColName(), progCol);

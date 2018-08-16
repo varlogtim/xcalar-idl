@@ -8,6 +8,11 @@ interface DagNodeInfo {
     table?: string;
     state?: DagNodeState;
     display? : Coordinate;
+    error?: string;
+}
+
+interface DagNodeDatasetInfo extends DagNodeInfo {
+    columns?: {name: string, type: ColumnType}[]
 }
 
 /* ==== Dag Node Input Intereface ==== */

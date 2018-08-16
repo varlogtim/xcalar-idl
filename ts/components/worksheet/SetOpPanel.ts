@@ -503,6 +503,8 @@ class SetOpPanel extends BaseOpPanel {
             if (advancedErr != null) {
                 StatusBox.show(advancedErr.error, $panel.find(".advancedEditor"));
                 return false;
+            } else {
+                return true;
             }
         }
         // validate more than one parent nodes

@@ -83,6 +83,8 @@ namespace DagNodeMenu {
                     DagView.cloneNodes(nodeIds);
                     break;
                 case ("executeNode"):
+                    const executedIds: DagNodeId[] = (nodeId != null) ? [nodeId] : nodeIds;
+                    DagView.run(executedIds);
                     break;
                 case ("executeAllNodes"):
                     DagView.run();

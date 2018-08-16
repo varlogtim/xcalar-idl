@@ -16,7 +16,6 @@ enum DagNodeType {
 
 enum DagNodeState {
     Unused = "unused",
-    Connected = "Connected",
     Configured = "Configured",
     Running = "running",
     Complete = "Complete",
@@ -29,7 +28,8 @@ enum DagNodeErrorType {
 }
 
 enum DagNodeEvents {
-    StateChange = "dag_node_state_change",
+    StateChange = "DagNodeStateChange",
+    ParamChange = "DagNodeParamChange"
 }
 
 enum DagCategoryType {

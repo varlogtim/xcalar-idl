@@ -11,6 +11,7 @@ class DagNode {
     private table: string;
     private state: DagNodeState;
     private display: Coordinate;
+    private error: string;
     private numParent: number; // non-persisent
     private events: {_events: object, trigger: Function}; // non-persistent;
 
@@ -43,6 +44,7 @@ class DagNode {
         this.state = options.state || DagNodeState.Unused;
         this.display = options.display || {x: -1, y: -1};
         this.input = options.input || {};
+        this.error = options.error;
 
         this.numParent = 0;
         this.maxParents = 1;
@@ -57,8 +59,9 @@ class DagNode {
      * @param event {string} event name
      * @param callback {Function} call back of the event
      */
-    public registerEvents(event, callback): void {
+    public registerEvents(event, callback): DagNode {
         this.events._events[event] = callback;
+        return this;
     }
 
     /**
@@ -161,6 +164,13 @@ class DagNode {
     }
 
     /**
+     * @return {string} get error string
+     */
+    public getError(): string {
+        return this.error
+    }
+
+    /**
      *
      * @returns {DagNodeState} return the state of the node
      */
@@ -169,17 +179,23 @@ class DagNode {
     }
 
     /**
-     * Change node to unused state
+     * switch from configured/complete/error state to other configured/error state
      */
-    public beUnusedState(): void {
-        this._setState(DagNodeState.Unused);
-    }
-
-    /**
-     * Change node to connected state
-     */
-    public beConnectedState(): void {
-        this._setState(DagNodeState.Connected);
+    public switchState(): void {
+        console.log("switch")
+        if (Object.keys(this.input).length === 0) {
+            // it's in unsed state
+            return;
+        }
+        const error: {error: string} = this._validateParents();
+        if (error != null) {
+            // when it's not source node but no parents, it's in error state
+            this.beErrorState(error.error);
+        } else if (this._validateParam() == null) {
+            this.beConfiguredState();
+        } else {
+            this.beErrorState("Invalid Configuration");
+        }
     }
 
      /**
@@ -187,13 +203,15 @@ class DagNode {
      */
     public beConfiguredState(): void {
         this._setState(DagNodeState.Configured);
+        this._clearConnectionMeta();
     }
 
     /**
      * Change node to running state
      */
     public beRunningState(): void {
-        this._setState(DagNodeState.Running)
+        this._setState(DagNodeState.Running);
+        this._removeTable();
     }
 
     /**
@@ -206,10 +224,15 @@ class DagNode {
     /**
      * Change to error state
      */
-    public beErrorState(): void {
+    public beErrorState(error?: string): void {
+        this.error = error || this.error;
         this._setState(DagNodeState.Error);
+        this._clearConnectionMeta();
     }
-
+    
+    /**
+     * Get Param
+     */
     public getParam(): object {
         return this.input;
     }
@@ -227,13 +250,6 @@ class DagNode {
      */
     public setTable(tableName: string) {
         this.table = tableName;
-    }
-
-    /**
-     * deattach table from the node
-     */
-    public removeTable(): void {
-        delete this.table;
     }
 
     /**
@@ -292,9 +308,7 @@ class DagNode {
             delete this.parents[pos];
         }
 
-        this._clearConnectionMeta();
         this.numParent--;
-        this.lineage.reset();
     }
 
     /**
@@ -317,23 +331,10 @@ class DagNode {
      * @returns {string}
      */
     public serialize(): string {
-
-        const parents = this.parents.map(function(parent) {
-            return parent.getId();
-        });
-
-        // TODO Custom dagNodes will have their own serialize/deserialize for
-        // Their dagGraphs
-        return JSON.stringify({
-            parents: parents,
-            type: this.type,
-            table: this.table,
-            display: this.display,
-            comment: this.comment,
-            input: this.input,
-            id: this.id,
-            state: this.state
-        });
+        const parents: DagNodeId[] = this.parents.map((parent) => parent.getId());
+        const seriazliedInfo = this._getSerializeInfo();
+        seriazliedInfo["parents"] = parents;
+        return JSON.stringify(seriazliedInfo);
     }
 
     public isAllowAggNode(): boolean {
@@ -364,12 +365,33 @@ class DagNode {
     }
 
     protected setParam(): void {
-        this.beConfiguredState();
-        this.lineage.reset(); // lineage will change
+        this.events.trigger(DagNodeEvents.ParamChange, {
+            id: this.getId()
+        });
     }
 
     protected _clearConnectionMeta(): void {
-        this.setTable("");
+        this._removeTable();
+        this.lineage.reset(); // lineage will change
+    }
+
+    // Custom dagNodes will have their own serialize/deserialize for
+    // Their dagGraphs
+    protected _getSerializeInfo(): DagNodeInfo {
+        return {
+            type: this.type,
+            table: this.table,
+            display: this.display,
+            comment: this.comment,
+            input: this.input,
+            id: this.id,
+            state: this.state,
+            error: this.error
+        }
+    }
+
+    protected _validateParam(): {error: string} {
+        return null;
     }
 
     private _getNonAggParents(): DagNode[] {
@@ -399,18 +421,24 @@ class DagNode {
         };
     }
 
-    // XXX TODO
-    private _removeParam(pos: number): void {
-        // const multiNode = this._canHaveMultiParents();
+    private _removeTable(): void {
+        delete this.table;
+    }
 
-        // for (let key in this.input) {
-        //     if (this.input[key] instanceof Array) {
-        //         if (multiNode) {
-        //             delete this.input[key][pos];
-        //         } else {
-        //             this.input[key].splice(pos);
-        //         }
-        //     }
-        // }
+
+    private _validateParents(): {error: string} {
+        const maxParents = this.getMaxParents();
+        const numParent = this.getNumParent();
+        if (maxParents === -1) {
+            const minParents = this.getMinParents();
+            if (numParent < minParents) {
+                let error: string = "Require at least " + minParents + " parents";
+                return {error: error};
+            }
+        } else if (numParent !== this.getMaxParents()) {
+            let error: string = "Require " + numParent + " parents";
+            return {error: error};
+        }
+        return null;
     }
 }

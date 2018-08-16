@@ -433,12 +433,13 @@ namespace DagView {
      * DagView.run
      * // run the entire dag
      */
-    export function run() {
+    export function run(nodeIds?: DagNodeId[]): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const currTabId: string = activeDagTab.getId();
 
-        activeDag.executeAll()
+        activeDag.execute(nodeIds)
         .then(function() {
-
+            deferred.resolve();
         })
         .fail(function(error) {
             if (error.hasError) {
@@ -447,7 +448,10 @@ namespace DagView {
                 DagTabManager.Instance.switchTabId(currTabId);
                 StatusBox.show(error.type, $node);
             }
+            deferred.reject(error);
         });
+
+        return deferred.promise();
     }
 
     /**
