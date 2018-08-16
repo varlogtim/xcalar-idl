@@ -769,6 +769,10 @@ namespace DagView {
             top: pos.y
         });
 
+        xcTooltip.add($node, {
+            title: JSON.stringify(node.getParam(), null, 2)
+        });
+
         // use .attr instead of .data so we can grab by selector
         $node.attr("data-nodeid", nodeId);
         $node.addClass("state-" + node.getState());
@@ -844,6 +848,15 @@ namespace DagView {
             }
             $node.removeClass(stateClasses);
             $node.addClass("state-" + info.state);
+            activeDagTab.saveTab();
+        });
+
+        activeDag.events.on(DagNodeEvents.ParamChange, function(info) {
+            const $node: JQuery = DagView.getNode(info.id);
+
+            xcTooltip.add($node, {
+                title: JSON.stringify(info.params, null, 2)
+            });
             activeDagTab.saveTab();
         });
     }

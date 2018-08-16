@@ -229,7 +229,7 @@ class DagNode {
         this._setState(DagNodeState.Error);
         this._clearConnectionMeta();
     }
-    
+
     /**
      * Get Param
      */
@@ -366,7 +366,8 @@ class DagNode {
 
     protected setParam(): void {
         this.events.trigger(DagNodeEvents.ParamChange, {
-            id: this.getId()
+            id: this.getId(),
+            params: this.getParam()
         });
     }
 

@@ -144,6 +144,7 @@ class DagGraph {
         .registerEvents(DagNodeEvents.ParamChange, (changeInfo) => {
             const node = this.getNode(changeInfo.id);
             this._traverseSwtichState(node);
+            this.events.trigger(DagNodeEvents.ParamChange, changeInfo);
         });
     }
 
