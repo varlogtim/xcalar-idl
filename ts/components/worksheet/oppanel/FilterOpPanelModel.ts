@@ -152,9 +152,9 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
 
     protected _initialize(paramsRaw) {
         const self = this;
-        const params: xcHelper.OpAndArgsObject = xcHelper.extractOpAndArgs(
+        const params: xcHelper.ParsedEval = xcHelper.parseEvalString(
                                                         paramsRaw.evalString);
-        const operator = params.op;
+        const operator = params.fnName;
         if (!this._opCategories.length) {
             this._opCategories = [FunctionCategoryT.FunctionCategoryCondition];
         }
@@ -167,16 +167,21 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
             } else {
                 throw({error: "Function not selected."});
             }
-
         }
+
         if (params.args.length &&
-            (!opInfo || (params.args.length > opInfo.argDescs.length)) {
+            (!opInfo || (params.args.length > opInfo.argDescs.length))) {
             throw ({error: "\"" + operator + "\" only accepts " + opInfo.argDescs.length + " arguments."})
         }
-        const args = params.args.map((arg, i) => {
+        let args = [];
+        for (var i = 0; i < params.args.length; i++) {
+            let arg = params.args[i];
+            if (typeof arg === "object") {
+                arg = xcHelper.stringifyEval(arg);
+            }
             const argInfo: OpPanelArg = new OpPanelArg(arg, opInfo.argDescs[i].typesAccepted, true);
-            return argInfo;
-        });
+            args.push(argInfo);
+        }
         args.forEach((arg) => {
             const value = formatArgToUI(arg.getValue());
             arg.setValue(value);
@@ -187,7 +192,7 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
             self._validateArg(arg);
         });
 
-        this.groups = [{operator: params.op, args: args}];
+        this.groups = [{operator: params.fnName, args: args}];
         this.andOrOperator = "and";
 
         function formatArgToUI(arg) {

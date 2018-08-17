@@ -1009,6 +1009,7 @@ declare namespace UnionTStr {
 
 /* ============== CLASSES ====================== */
 declare class ColFunc {
+    constructor(obj);
     public name: string;
     public args: any[];
 }

@@ -64,6 +64,7 @@ namespace xcHelper {
     export interface BracketMatchRet {
         char: string;
         index: number;
+        hasParen: boolean;
     }
 
     export interface FillInputFormCellOptions {
@@ -121,6 +122,12 @@ namespace xcHelper {
         allowSelection?: boolean;
         prefix?: string;
         color?: string;
+    }
+
+    export interface ParsedEval {
+        fnName: string,
+        args: string[] | ParsedEval [],
+        error?: string
     }
 
     interface UDFListModule {
@@ -3521,7 +3528,8 @@ namespace xcHelper {
         let singleQuote: boolean = false; // ' is true, " is false
         let ret: BracketMatchRet = {
             char: '',
-            index: -1 // returns -1 if no mismatch found
+            index: -1 ,// returns -1 if no mismatch found
+            hasParen: false
         };
         for (let i = 0; i < val.length; i++) {
             if (inQuotes) {
@@ -3543,6 +3551,7 @@ namespace xcHelper {
                 i++; // ignore next character
             } else if (val[i] === '(') {
                 numOpens++;
+                ret.hasParen = true;
             } else if (val[i] === ')') {
                 numOpens--;
                 if (numOpens < 0) {
@@ -5070,10 +5079,13 @@ namespace xcHelper {
         return timeString;
     }
 
-    function parseFunc(func: ColFunc): string {
+    function parseFunc(func: ColFunc, funcNameIdentifier?: string): string {
+        if (!funcNameIdentifier) {
+            funcNameIdentifier = "name";
+        }
         let str: string = "";
         if (func.name) {
-            str += func.name;
+            str += func[name];
             str += "(";
         }
 
@@ -5089,7 +5101,7 @@ namespace xcHelper {
                 str += args[i];
             }
         }
-        if (func.name) {
+        if (func[name]) {
             str += ")";
         }
         return str;
@@ -5100,8 +5112,44 @@ namespace xcHelper {
      * assumes valid func structure of {args:[], name:""};
      * @param func
      */
-    export function stringifyFunc(func: ColFunc): string {
-        return parseFunc(func);
+    export function stringifyFunc(func: ColFunc, funcNameIdentifier?: string): string {
+        return parseFunc(func, funcNameIdentifier);
+    }
+
+
+
+    /**
+     * xcHelper.stringifyFunc
+     * assumes valid func structure of {args:[], name:""};
+     * @param func
+     */
+    export function stringifyEval(func: ParsedEval): string {
+        return stringifyEvalHelper(func);
+    }
+
+    function stringifyEvalHelper(func: ParsedEval): string {
+        let str: string = "";
+        if (func.fnName) {
+            str += func.fnName;
+            str += "(";
+        }
+
+        const args: any[] = func.args;
+        for (let i = 0; i < args.length; i++) {
+            if (i > 0) {
+                str += ",";
+            }
+
+            if (typeof args[i] === "object") {
+                str += stringifyEvalHelper(args[i]);
+            } else {
+                str += args[i];
+            }
+        }
+        if (func.fnName) {
+            str += ")";
+        }
+        return str;
     }
 
     export function getNamesFromFunc(
@@ -5955,6 +6003,10 @@ namespace xcHelper {
         return (str);
     }
 
+    /**
+     * returns a string that includes the position and character of the error
+     * @param e javascript error
+     */
     export function parseJSONError(e): string {
         // handling json parse/syntax error
         var searchText= "at position ";
@@ -5975,6 +6027,110 @@ namespace xcHelper {
         }
         return xcHelper.camelCaseToRegular(e.name) + ": " +
                e.message;
+    }
+
+    /**
+     * returns a struct that contains fnName, parameters, and error(string)
+     * @param evalStr
+     */
+    export function parseEvalString(evalStr): ParsedEval {
+        let func: ParsedEval = {
+            fnName: "",
+            args: [],
+            error: null
+        };
+        if (typeof evalStr !== "string") {
+            func.error = "Invalid";
+            return func;
+        }
+        const trimmedEvalStr = $.trim(evalStr);
+        const bracketRes: BracketMatchRet = checkMatchingBrackets(evalStr);
+        if (bracketRes.index > -1) {
+            func.error = "Mismatched parenthesis";
+        } else if (!bracketRes.hasParen) {
+            func.error = "No Parameters"
+        }
+        if (func.error) {
+            return func;
+        }
+
+        // should be valid, now parse
+        parseString(evalStr, func);
+        func = <ParsedEval>func.args[0];
+        if (func.fnName === "") {
+            func.error = "No function name";
+        } else if (trimmedEvalStr.charAt(trimmedEvalStr.length - 1) !== ")") {
+            func.error = "Trailing character";
+        }
+
+        function parseString(funcString, func) {
+            let tempString: string = "";
+            let newFunc: ParsedEval;
+            var inQuotes = false;
+            var singleQuote = false;
+            var hasComma = false;
+            var isEscaped = false;
+
+            for (var i = 0; i < funcString.length; i++) {
+                let char = funcString.charAt(i);
+                if (isEscaped) {
+                    tempString += char;
+                    isEscaped = false;
+                    continue;
+                }
+
+                if (inQuotes) {
+                    if ((char === "\"" && !singleQuote) ||
+                        (char === "'" && singleQuote)) {
+                        inQuotes = false;
+                    }
+                } else {
+                    if (char === "\"") {
+                        inQuotes = true;
+                        singleQuote = false;
+                    } else if (char === "'") {
+                        inQuotes = true;
+                        singleQuote = true;
+                    }
+                }
+
+                if (char === "\\") {
+                    isEscaped = true;
+                    tempString += char;
+                } else if (inQuotes) {
+                    tempString += char;
+                } else if (char === "(") {
+                    newFunc = {
+                        fnName: tempString.trim(),
+                        args: []
+                    };
+                    func.args.push(newFunc);
+                    tempString = "";
+                    i += parseString(funcString.substring(i + 1), newFunc);
+                } else if (char === "," || char === ")") {
+                    // tempString could be blank if funcString[i] is a comma
+                    // after a )
+                    if (tempString !== "") {
+                        tempString = tempString.trim();
+
+                        if (char !== ")" || hasComma || tempString !== "") {
+                            func.args.push(tempString);
+                        }
+                        tempString = "";
+                    }
+                    if (char === ")") {
+                        break;
+                    } else {
+                        hasComma = true;
+                    }
+                } else {
+                    tempString += char;
+                }
+            }
+            return (i + 1);
+        }
+
+        return func;
     }
 
     export let __testOnly__: any = {};
