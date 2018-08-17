@@ -158,7 +158,7 @@ describe("Monitor Graph Test", function() {
             expect($donut.find("svg").first().find("path").first()
                                         .attr("class")).to.be.equal("");
         });
-
+        // following test needs update
         it("mouseenter on free memory portion of legend should work", function() {
             var $donut = $monitorPanel.find(".ramDonut");
             expect($donut.find(".donutLegendInfo").is(":visible")).to.be.false;
@@ -182,13 +182,13 @@ describe("Monitor Graph Test", function() {
         });
 
         it("mouseenter on Xcalar Managed Memory path should work", function() {
-            var ramData = [1 * KB, 2 * MB, 3 * GB, 4 * TB, 5 * TB, 6 * PB];
+            var ramData = [2 * GB, 1 * KB, 2 * MB, 3 * GB, 4 * TB, 5 * TB, 6 * TB];
             var cacheData = MonitorDonuts.__testOnly__setRamData(ramData);
             var $donut = $monitorPanel.find(".ramDonut");
-            $donut.find(".thick path").eq(3).trigger("mouseenter");
+            $donut.find(".thick path").eq(4).trigger("mouseenter");
             expect($donut.find(".legend li").eq(2).hasClass("hover")).to.be.true;
             expect($donut.find(".donutLegendInfo .unitSize").text().replace(/[\n\r]+|[\s]{2,}/g, '').trim()).to.equal("4.00TiB")
-            $donut.find(".thick path").eq(3).trigger("mouseleave");
+            $donut.find(".thick path").eq(4).trigger("mouseleave");
             expect($donut.find(".legend li").eq(2).hasClass("hover")).to.be.false;
             MonitorDonuts.__testOnly__setRamData(cacheData);
         });

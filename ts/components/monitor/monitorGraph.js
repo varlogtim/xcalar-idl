@@ -275,11 +275,11 @@ window.MonitorGraph = (function($, MonitorGraph) {
         var mem = new StatsObj();
         var swap = new StatsObj();
         var usrCpu = new StatsObj();
-        var network = new StatsObj();// For network, send is used, recv is tot
+        var network = new StatsObj();// For network, send is used, recv is total
         mem.datasetUsage = 0;
         mem.xdbUsed = 0;
         mem.xdbTotal = 0;
-        mem.ramUsed = 0;
+        mem.sysMemUsed = 0;
 
         for (var i = 0; i < numNodes; i++) {
             var node = apiTopResult.topOutputPerNode[i];
@@ -295,14 +295,17 @@ window.MonitorGraph = (function($, MonitorGraph) {
                 total: 100
             });
 
-            // xdb memory - outer, primary donut
-            var ramUsed = Math.round(node.totalAvailableMemInBytes *
-                                    (node.memUsageInPercent / 100));
+            // Formula #0: totalAvailableMemInBytes = xdbTotalBytes +
+            // sysMemUsedInBytes + sysMemFree
+            // Formula #1: (totalAvailableMemInBytes
+            //    * memUsageInPercent / 100) = sysMemUsedInBytes + xdbTotalBytes
+            // Formula #2: memUsedInBytes = xdbTotalBytes + sysMemUsedInBytes
+            // Formula #3: xdbUsedBytes = 4 other categories on the chart
 
+            mem.sysMemUsed += (node.memUsedInBytes - node.xdbTotalBytes);
             mem.datasetUsage += node.datasetUsedBytes;
             mem.xdbUsed += node.xdbUsedBytes;
             mem.xdbTotal += node.xdbTotalBytes;
-            mem.ramUsed += ramUsed;
             mem.used += node.xdbUsedBytes;
             mem.total += node.totalAvailableMemInBytes;
 
@@ -310,7 +313,6 @@ window.MonitorGraph = (function($, MonitorGraph) {
                 node: i,
                 xdbUsed: node.xdbUsedBytes,
                 xdbTotal: node.xdbTotalBytes,
-                ramUsed: ramUsed,
                 used: node.xdbUsedBytes,
                 total: node.totalAvailableMemInBytes
             });
@@ -326,13 +328,13 @@ window.MonitorGraph = (function($, MonitorGraph) {
 
             // network
             var networkUsed = node.networkSendInBytesPerSec;
-            var networkTot = node.networkRecvInBytesPerSec;
+            var networkTotal = node.networkRecvInBytesPerSec;
             network.used += networkUsed;
-            network.total += networkTot;
+            network.total += networkTotal;
             network.nodes.push({
                 node: i,
                 used: networkUsed,
-                total: networkTot
+                total: networkTotal
             });
         }
 
@@ -343,7 +345,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         mem.otherTableUsage = Math.max(0, mem.xdbUsed - mem.userTableUsage
              - mem.datasetUsage - mem.pubTableUsage);
         mem.xdbFree = mem.xdbTotal - mem.xdbUsed;
-        mem.free = mem.total - mem.ramUsed;
+        mem.sysMemFree = Math.max(0, mem.total - mem.xdbTotal - mem.sysMemUsed);
 
         var allStats = [mem, swap, usrCpu, network];
 
@@ -358,6 +360,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
                         allStats[i][attr] = Math.min(allStats[i][attr],
                                                      allStats[i].total);
                     }
+
                 }
             }
         }

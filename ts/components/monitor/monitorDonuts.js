@@ -10,7 +10,7 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
     var numDonuts = 3;
     var ramData = [];
     var ramTotal = 0;
-    var numMemItems = 6;
+    var numMemItems = 7;
     // var sortOrder = "name"; // by "name" or "size"
 
     MonitorDonuts.setup = function() {
@@ -155,7 +155,7 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
         function drawPath(svg, pie, arc2, index) {
             var data;
             if (index === memIndex) {
-                data = [0, 0, 0, 0, 0, 100];
+                data = [5, 5, 5, 5, 50, 30, 10];
                 ramData = data;
             } else {
                 data = [0, 100];
@@ -185,7 +185,7 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
         if (index === memIndex) {
             data = [stats.datasetUsage, stats.pubTableUsage,
                 stats.userTableUsage, stats.otherTableUsage,
-                stats.xdbFree, stats.free];
+                stats.xdbFree, stats.sysMemUsed, stats.sysMemFree];
             ramData = data;
             ramTotal = stats.total;
         } else {
@@ -209,7 +209,8 @@ window.MonitorDonuts = (function($, MonitorDonuts) {
         if (index === memIndex) {
             var tooltips = [MonitorTStr.Datasets, MonitorTStr.PubTables,
                             MonitorTStr.YourTables, MonitorTStr.OtherUsers,
-                            MonitorTStr.FreeXcalarMem, MonitorTStr.FreeRAM];
+                            MonitorTStr.FreeXcalarMem, MonitorTStr.UsedSysMem,
+                            MonitorTStr.FreeSysMem];
             $("#donut" + memIndex).find("svg").first().find("path").each(function(i) {
                 xcTooltip.add($(this), {
                     title: tooltips[i] + "<br/>" +

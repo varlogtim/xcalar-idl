@@ -818,21 +818,24 @@
                 svg:first-of-type {
                     path {
                         &:first-child {
-                            fill: @color-arc-8;
+                            fill: @color-arc-shareddata;
                         }
                         &:nth-child(2) {
-                            fill: @color-arc-12;
+                            fill: @color-arc-pubtables;
                         }
                         &:nth-child(3) {
-                            fill: @color-arc-2;
+                            fill: @color-arc-yourtables;
                         }
                         &:nth-child(4) {
-                            fill: @color-arc-1;
+                            fill: @color-arc-otherusers;
                         }
                         &:nth-child(5) {
-                            fill: @color-bg-pinkish-grey2;
+                            fill: @color-arc-xdbfree;
                         }
                         &:nth-child(6) {
+                            fill: @color-arc-sysused;
+                        }
+                        &:nth-child(7) {
                             fill: transparent;
                         }
                     }
@@ -880,22 +883,25 @@
                         font-weight: bold;
                     }
                     &:nth-child(1) .key {
-                        background-color: @color-bg-graph-gray;
+                        background-color: @color-arc-sysfree;
                     }
                     &:nth-child(2) .key {
-                        background-color: @color-bg-pinkish-grey2;
+                        background-color: @color-arc-sysused;
                     }
                     &:nth-child(3) .key {
-                        background-color: @color-arc-3;
+                        background-color: @color-arc-xdbfree;
                     }
                     &:nth-child(4) .key {
-                        background-color: @color-arc-2;
+                        background-color: @color-arc-otherusers;
                     }
                     &:nth-child(5) .key {
-                        background-color: @color-arc-12;
+                        background-color: @color-arc-yourtables;
                     }
                     &:nth-child(6) .key {
-                        background-color: @color-arc-8;
+                        background-color: @color-arc-pubtables;
+                    }
+                    &:nth-child(7) .key {
+                        background-color: @color-arc-shareddata;
                     }
                 }
             }
