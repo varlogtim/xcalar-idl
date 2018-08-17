@@ -91,17 +91,7 @@ namespace XVM {
     }
 
     function firstUserCheck(): XDPromise<void> {
-        const isFreeTrail: boolean = false;
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const promise: XDPromise<void> = isFreeTrail ?
-            EULAModal.show() : PromiseHelper.resolve();
-
-        promise
-            .then(XVM.commitKVVersion)
-            .then(deferred.resolve)
-            .fail(deferred.reject);
-
-        return deferred.promise();
+        return XVM.commitKVVersion();
     }
     /* ==================== End of Helper Function ========================== */
 

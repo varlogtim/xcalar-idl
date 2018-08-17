@@ -58,7 +58,6 @@ namespace xcManager {
             } catch (error){
                 console.log("mixpanel is not loaded");
             }
-
             return XVM.checkVersionAndLicense();
         })
         .then(function() {

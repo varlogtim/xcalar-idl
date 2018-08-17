@@ -1244,10 +1244,6 @@ declare namespace SupTicketModal {
     export function show(): void;
 }
 
-declare namespace EULAModal {
-    export function show(): XDPromise<void>;
-}
-
 declare namespace MonitorGraph {
     export function stop(): void;
     export function tableUsageChange(): void;
