@@ -33,6 +33,7 @@ window.OperationsView = (function($, OperationsView) {
     var focusedColListNum = null; // to track shift-clicking columns
     var isEditMode = false;
     var table;
+    var pendingFnUpdate = null;
 
     // shows valid cast types
     var castMap = {
@@ -752,6 +753,16 @@ window.OperationsView = (function($, OperationsView) {
         });
     };
 
+    OperationsView.updateOperationsMap = function(listXdfsObj) {
+        var fns = xcHelper.filterUDFs(listXdfsObj.fnDescs);
+        pendingFnUpdate = fns;
+        if (formHelper.isOpen()) {
+            // only update once form is closed
+            return;
+        }
+        udfUpdateOperatorsMap();
+    };
+
     OperationsView.restore = function() {
         // restore user saved preferences
         var keepOriginalTable = UserSettings.getPref('keepGBTable');
@@ -871,17 +882,9 @@ window.OperationsView = (function($, OperationsView) {
                     transparent: true
                 });
                 disableInputs();
-                UDF.list()
-                .then(function(listXdfsObj) {
-                    var fns = xcHelper.filterUDFs(listXdfsObj.fnDescs);
-                    udfUpdateOperatorsMap(fns);
-                    operationsViewShowHelper(options.restore, null, options);
-                    deferred.resolve();
-                })
-                .fail(function(error) {
-                    Alert.error("Listing of UDFs failed", error.error);
-                    deferred.reject();
-                });
+                operationsViewShowHelper(options.restore, null, options);
+                deferred.resolve();
+
             } else {
                 operationsViewShowHelper(options.restore, currColNums, options);
                 deferred.resolve();
@@ -1349,7 +1352,8 @@ window.OperationsView = (function($, OperationsView) {
         }
     }
 
-    function udfUpdateOperatorsMap(opArray) {
+    function udfUpdateOperatorsMap() {
+        var opArray = pendingFnUpdate;
         var arrayLen = opArray.length;
         var udfCategoryNum = FunctionCategoryT.FunctionCategoryUdf;
         if (opArray.length === 0) {
@@ -1367,6 +1371,7 @@ window.OperationsView = (function($, OperationsView) {
         for (var i = 0; i < opArray.length; i++) {
             operatorsMap[udfCategoryNum].push(opArray[i]);
         }
+        pendingFnUpdate = null;
     }
 
     function sortHTML(a, b){
@@ -4538,6 +4543,9 @@ window.OperationsView = (function($, OperationsView) {
         $(document).off('click.OpSection');
         $(document).off("keydown.OpSection");
         $(document).off('mousedown.mapCategoryListener');
+        if (pendingFnUpdate) {
+            udfUpdateOperatorsMap();
+        }
     }
 
     function resetForm() {

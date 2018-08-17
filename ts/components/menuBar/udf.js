@@ -405,6 +405,7 @@ window.UDF = (function($, UDF) {
             DSPreview.update(listXdfsObj);
             DSTargetManager.updateUDF(listXdfsObj);
             FnBar.updateOperationsMap(listXdfsObj.fnDescs, true);
+            OperationsView.updateOperationsMap(listXdfsObj)
             DSExport.refreshUDF(listXdfsObj);
             deferred.resolve();
         })
