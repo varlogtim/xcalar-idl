@@ -309,13 +309,6 @@ window.TestSuite = (function($, TestSuite) {
                 $("#importDataForm").find(".dsName").eq(0).val(dsName);
                 const finalVal = -4;
 
-                if (dsName.substring(0, 2) === "a1") { // manually force data type. Temporary solution
-                    for (var i = -1; i >= finalVal; i--) {
-                        $("#previewTable th:eq(" + i + ")").find(".flex-left").click();
-                        $("#dsForm-preview").find(".castDropdown").find("li")
-                        .eq(1).trigger(fakeEvent.mouseup); // change Type to Integer
-                    };
-                };
                 // auto detect should fill in the form
                 var empties = $("#previewTable .editableHead[value='']");
                 var rand = Math.floor(Math.random() * 10000);

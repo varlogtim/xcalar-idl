@@ -554,12 +554,29 @@ window.FlightTest = (function(FlightTest, $) {
             var a1Name = "a1-" + randInt();
             var a1check = "#previewTable td:eq(1):contains(Receipt0000)";
             var a1url = testDataLoc + "imd/" + test.mode + "a-1.txt";
-
+            var wsId = WSManager.getWSByIndex(2);
+            var ws = WSManager.getWSById(wsId);
+            var tableId = null;
             test.loadDS(a1Name, a1url, a1check)
             .then(function() {
                 errMsg = "send a-1 to worksheet";
                 console.log("doing IMDPanelTest", errMsg);
                 return test.createTable(a1Name);
+            })
+            .then(function() {
+                errMsg = "change column type 1";
+                tableId = ws.tables[1];
+                return changeTypeToInteger(tableId, "Cost");
+            })
+            .then(function() {
+                errMsg = "change column type 2";
+                tableId = ws.tables[1];
+                return changeTypeToInteger(tableId, "Color");
+            })
+            .then(function() {
+                errMsg = "change column type 3";
+                tableId = ws.tables[1];
+                return changeTypeToInteger(tableId, "Quantity");
             })
             .then(function() {
                 errMsg = "open IMD extension";
