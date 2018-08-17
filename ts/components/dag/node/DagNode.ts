@@ -423,6 +423,9 @@ class DagNode {
     }
 
     private _removeTable(): void {
+        this.events.trigger(DagNodeEvents.TableRemove, {
+            table: this.table
+        });
         delete this.table;
     }
 

@@ -45,8 +45,9 @@ namespace DagNodeMenu {
             if (event.which !== 1) {
                 return;
             }
-            const action: string = $(this).data('action');
-            if (!action) {
+            const $li: JQuery = $(this);
+            const action: string = $li.data('action');
+            if ($li.hasClass("unavailable") || !action) {
                 return;
             }
             const nodeId = $menu.data("nodeid"); // clicked node

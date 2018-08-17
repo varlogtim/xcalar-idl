@@ -29,7 +29,8 @@ enum DagNodeErrorType {
 
 enum DagNodeEvents {
     StateChange = "DagNodeStateChange",
-    ParamChange = "DagNodeParamChange"
+    ParamChange = "DagNodeParamChange",
+    TableRemove = "TableRemove"
 }
 
 enum DagCategoryType {

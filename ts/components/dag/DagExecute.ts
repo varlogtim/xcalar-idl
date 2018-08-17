@@ -216,13 +216,13 @@ class DagExecute {
         return XIApi.union(this.txId, tableInfos, params.dedup, desTable, unionType);
     }
 
-    private _getUnionType(unionType: string): UnionOperatorT {
-        switch (unionType.toLowerCase()) {
-            case (UnionType.Except.toLowerCase()):
+    private _getUnionType(unionType: UnionType): UnionOperatorT {
+        switch (unionType) {
+            case (UnionType.Except):
                 return UnionOperatorT.UnionExcept;
-            case (UnionType.Intersect.toLowerCase()):
+            case (UnionType.Intersect):
                 return UnionOperatorT.UnionIntersect;
-            case (UnionType.Union.toLowerCase()):
+            case (UnionType.Union):
                 return UnionOperatorT.UnionStandard;
             default:
                 throw new Error("Union Type " + unionType + " not supported");

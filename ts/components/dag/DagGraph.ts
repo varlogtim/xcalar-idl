@@ -140,12 +140,16 @@ class DagGraph {
      */
     public addNode(dagNode: DagNode): void {
         this.nodesMap.set(dagNode.getId(), dagNode);
-        dagNode.registerEvents(DagNodeEvents.StateChange, (changeInfo) => {
-            this.events.trigger(DagNodeEvents.StateChange, changeInfo);
+        dagNode.registerEvents(DagNodeEvents.StateChange, (info) => {
+            this.events.trigger(DagNodeEvents.StateChange, info);
         })
-        .registerEvents(DagNodeEvents.ParamChange, (changeInfo) => {
-            const node = this.getNode(changeInfo.id);
+        .registerEvents(DagNodeEvents.ParamChange, (info) => {
+            const node = this.getNode(info.id);
             this._traverseSwitchState(node);
+            this.events.trigger(DagNodeEvents.ParamChange, info);
+        })
+        .registerEvents(DagNodeEvents.TableRemove, (info) => {
+            this.events.trigger(DagNodeEvents.TableRemove, info);
         });
     }
 

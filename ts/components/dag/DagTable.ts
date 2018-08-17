@@ -46,6 +46,10 @@ class DagTable {
         return deferred.promise();
     }
 
+    public getTable(): string {
+        return this.viewer ? this.viewer.getId() : null;
+    }
+
     /**
      * close the preview
      */

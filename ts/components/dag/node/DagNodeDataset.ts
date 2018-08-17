@@ -9,7 +9,8 @@ class DagNodeDataset extends DagNode {
         this.minParents = 0;
         if (options && options.columns) {
             this.columns = options.columns.map((column) => {
-                return ColManager.newPullCol(column.name, column.name, column.type);
+                const name: string = xcHelper.parsePrefixColName(column.name).name;
+                return ColManager.newPullCol(name, column.name, column.type);
             });
             this.lineage.setColumns(this.columns);
         }
@@ -69,7 +70,7 @@ class DagNodeDataset extends DagNode {
 
                 this.columns = jsonKeys.map((key, index) => {
                     const colName: string = xcHelper.getPrefixColName(prefix, key);
-                    return ColManager.newPullCol(colName, colName, colTypes[index]);
+                    return ColManager.newPullCol(key, colName, colTypes[index]);
                 });
                 this.lineage.setColumns(this.columns);
                 deferred.resolve();

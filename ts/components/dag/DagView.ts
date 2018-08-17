@@ -840,7 +840,6 @@ namespace DagView {
 
     function _setupGraphEvents(): void {
         activeDag.events.on(DagNodeEvents.StateChange, function(info) {
-
             const $node: JQuery = DagView.getNode(info.id);
             let stateClasses = "";
             for (var i in DagNodeState) {
@@ -859,6 +858,12 @@ namespace DagView {
                 title: JSON.stringify(info.params, null, 2)
             });
             activeDagTab.saveTab();
+        });
+
+        activeDag.events.on(DagNodeEvents.TableRemove, function(info) {
+            if (DagTable.Instance.getTable() === info.table) {
+                DagTable.Instance.close();
+            }
         });
     }
 }
