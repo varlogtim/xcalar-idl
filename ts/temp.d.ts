@@ -344,6 +344,7 @@ declare var xcSessionStorage: XcStorage;
 declare var global: any;
 declare var expHost: string;
 declare var sqlMode: boolean;
+declare var gPatchVersion: string;
 
 declare var skRFPredictor: any;
 

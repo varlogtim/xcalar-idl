@@ -33,9 +33,7 @@ window.AboutModal = (function($, AboutModal) {
         var frontVersion = XVM.getVersion();
         var frontVers = frontVersion.substring(0,
                              frontVersion.lastIndexOf("-")) + "-" + gGitVersion;
-        var buildNumber = XVM.getBuildNumber();
-        buildNumber += (window.gPatchVersion == null)
-                        ? "" : "P" + window.gPatchVersion;
+        var buildNumber = XVM.getBuildNumber() + XVM.getPatchVersion();
         var expiration = XVM.getLicenseExipreInfo();
         var licensee = XVM.getLicensee();
         var capitalize = xcHelper.capitalize(XVM.getLicenseMode());

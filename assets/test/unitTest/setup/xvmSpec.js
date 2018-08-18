@@ -47,6 +47,15 @@ describe('XVM Test', () => {
             expect(/\d.\d.\d-.*/.test(version)).to.be.true;
         });
 
+        it('XVM.getVersion with patch version inculde should work', () => {
+            const temp = gPatchVersion;
+            gPatchVersion = 1;
+            const version = XVM.getVersion(true);
+            // format is like 1.3.1-git
+            expect(/\d.\d.\d-.*P1/.test(version)).to.be.true;
+            gPatchVersion = temp;
+        });
+
         it('XVM.getSHA should work', () => {
             const sha = XcalarApiVersionTStr[XcalarApiVersionT.XcalarApiVersionSignature];
             expect(XVM.getSHA()).to.equal(sha);
@@ -136,6 +145,14 @@ describe('XVM Test', () => {
         it('XVM.getBuildNumber should work', () => {
             const res = XVM.getBuildNumber();
             expect(res).to.be.a("string");
+        });
+
+        it('XVM.getPatchVersion should work', () => {
+            expect(XVM.getPatchVersion()).to.be.a("string");
+            const temp = gPatchVersion;
+            gPatchVersion = 1;
+            expect(XVM.getPatchVersion()).to.equal("P1");
+            gPatchVersion = temp;
         });
     });
 

@@ -106,9 +106,13 @@ namespace XVM {
     /**
      * XVM.getVersion
      */
-    export function getVersion(): string {
+    export function getVersion(includePatchVersion: boolean = false): string {
         const frontBuildNumber: string = XVM.getFrontBuildNumber();
-        return `${majorVersion}.${minorVersion}.${revisionVersion}-${frontBuildNumber}`;;
+        let version: string = `${majorVersion}.${minorVersion}.${revisionVersion}-${frontBuildNumber}`;
+        if (includePatchVersion) {
+            version += XVM.getPatchVersion();
+        }
+        return version;
     }
 
     /**
@@ -189,6 +193,14 @@ namespace XVM {
     export function getBuildNumber(): string {
         const frontBuildNumber: string = XVM.getFrontBuildNumber();
         return (frontBuildNumber === "git") ? XVM.getBackBuildNumber() : frontBuildNumber;
+    }
+
+    /**
+     * Get Patch Version
+     */
+    export function getPatchVersion(): string {
+        return (typeof gPatchVersion == 'undefined' || gPatchVersion == null)
+        ? "" : "P" + gPatchVersion;
     }
 
     /**

@@ -223,7 +223,7 @@ window.Log = (function($, Log) {
             return {"logs": logs,
                     "errors": getCondensedErrors(),
                     "overwrittenLogs": overwrittenLogs,
-                    "version": XVM.getVersion()};
+                    "version": XVM.getVersion(true)};
         } else {
             return logCache;
         }
@@ -493,7 +493,7 @@ window.Log = (function($, Log) {
             "logs": [],
             "errors": [],
             "overwrittenLogs": [],
-            "version": XVM.getVersion()
+            "version": XVM.getVersion(true)
         };
 
         // a quick reference
