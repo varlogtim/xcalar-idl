@@ -512,8 +512,7 @@ window.FlightTest = (function(FlightTest, $) {
             var deferred = PromiseHelper.deferred();
             console.log("doing IMDPanelTest", "find a-0 publishing history");
             var $imdPanel = $("#imdView");
-            $("#workspaceTab").click();
-            $("#imdButton").click();
+            $("#imdTab").click();
             test.checkExists("#imdView", null, {notExist: false})
             .then(function() {
                 $imdPanel.find(".refreshList").click();
@@ -608,8 +607,7 @@ window.FlightTest = (function(FlightTest, $) {
             var $imdPanel = $("#imdView");
             var errMsg = "generate the latest table";
             console.log("doing IMDPanelTest", errMsg);
-            $("#workspaceTab").click();
-            $("#imdButton").click();
+            $("#imdTab").click();
             var $section = $("#imdView .activeTablesList.tableList");
             // $section.find(".checkbox"); used to click checkbox
 

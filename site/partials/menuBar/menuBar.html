@@ -38,9 +38,6 @@
         <div id="worksheetButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ws.WorksheetPanel %>">
           <i class="icon xi_table"></i>
         </div>
-        <div id="imdButton" class="subTab noLeftPanel firstTouch" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ws.IMDPanel %>">
-          <i class="icon xi-changingclock"></i>
-        </div>
         <div id="dagButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Dataflow Panel">
           <i class="icon xi-dfg2"></i>
         </div>
@@ -173,6 +170,12 @@
     <div id="dataflowTab" class="topMenuBarTab mainMenuOpen firstTouch" <%= (dicts.tutor.name == 'workbookTut') ? 'data-introstep="w1-df"' : '' %> >
       <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.dataflow.dfs %>">
         <i class="icon xi-dataflowgroup fa-20"></i>
+      </div>
+    </div>
+
+    <div id="imdTab" class="topMenuBarTab mainMenuOpen noLeftPanel firstTouch">
+      <div id="imdButton" class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ws.IMDPanel %>">
+        <i class="icon xi-changingclock fa-20"></i>
       </div>
     </div>
 

@@ -78,6 +78,8 @@ window.MainMenu = (function($, MainMenu) {
             case ("jupyterPanel"):
                 $tab = $("#jupyterTab");
                 break;
+            case ("imdPanel"):
+                $tab = $("#imdTab");
             default:
                 break;
         }
@@ -407,6 +409,15 @@ window.MainMenu = (function($, MainMenu) {
                 $("#jupyterPanel").addClass("active");
                 JupyterPanel.sendInit(); // used to validate session if first
                 // time viewing a notebook
+                break;
+            case ("imdTab"):
+                $("#imdPanel").addClass("active");
+                if ($curTab.hasClass("firstTouch")) {
+                    $curTab.removeClass("firstTouch");
+                    IMDPanel.active(true);
+                } else {
+                    IMDPanel.active(false);
+                }
                 break;
             default:
                 $(".underConstruction").addClass("active");

@@ -22,14 +22,12 @@ namespace WorkspacePanel {
             DagView.show();
         } else {
             BottomMenu.unsetMenuCache();
-            IMDPanel.active(false);
         }
     }
 
     export function inActive() {
         xcTooltip.changeText($("#dfPanelSwitch"), TooltipTStr.OpenQG);
         $("#statusBar").removeClass("worksheetMode");
-        IMDPanel.inActive();
         DagView.hide();
         if ($("#worksheetButton").hasClass("active")) {
                 // hide off screen tables so that the next time we return to the
@@ -60,34 +58,13 @@ namespace WorkspacePanel {
                         MainMenu.open(true);
                     }
                     $menu.removeClass("imdMode");
-                    $("#imdView").removeClass("active");
                     $workspacePanel.find(".mainContent").scrollTop(0);
                     $("#worksheetView").addClass("active");
                     $("#workspaceBar").removeClass("xc-hidden");
                     $("#dagView").removeClass("active");
                     $("#dagViewBar").addClass("xc-hidden");
-                    $("#imdBar").addClass("xc-hidden");
                     $("#statusBar").addClass("worksheetMode");
                     WSManager.focusOnWorksheet();
-                    IMDPanel.inActive();
-                    break;
-                case ("imdButton"):
-                    wasWorkspaceMenuOpen = $menu.hasClass("active");
-                    $menu.addClass("imdMode");
-                    TblFunc.hideOffScreenTables();
-                    $("#worksheetView").removeClass("active");
-                    $("#imdView").addClass("active");
-                    $("#workspaceBar").addClass("xc-hidden");
-                    $("#dagView").removeClass("active");
-                    $("#dagViewBar").addClass("xc-hidden");
-                    $("#imdBar").removeClass("xc-hidden");
-                    $("#statusBar").removeClass("worksheetMode");
-                    var firstTouch = $button.hasClass("firstTouch");
-                    if (firstTouch) {
-                        $button.removeClass("firstTouch");
-                    }
-                    BottomMenu.unsetMenuCache();
-                    IMDPanel.active(firstTouch);
                     break;
                 case ("dagButton"):
                     wasWorkspaceMenuOpen = $menu.hasClass("active");
@@ -97,8 +74,6 @@ namespace WorkspacePanel {
 
                     $("#worksheetView").removeClass("active");
                     $("#workspaceBar").addClass("xc-hidden");
-                    $("#imdView").removeClass("active");
-                    $("#imdBar").addClass("xc-hidden");
                     $("#statusBar").removeClass("worksheetMode");
                     $("#dagView").addClass("active");
                     $("#dagViewBar").removeClass("xc-hidden");

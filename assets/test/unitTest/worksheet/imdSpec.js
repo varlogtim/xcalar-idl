@@ -9,7 +9,7 @@ describe('IMD Test', function() {
         startTime = Math.round(Date.now() / 1000);
         cacheActive = IMDPanel.active;
         IMDPanel.active = function(){};
-        MainMenu.openPanel("workspacePanel", "imdButton");
+        MainMenu.openPanel("imdPanel");
         cacheKV = XcalarKeyLookup;
         XcalarKeyLookup = function(key) {
             var testKey = KVStore.getKey("gIMDKey");
