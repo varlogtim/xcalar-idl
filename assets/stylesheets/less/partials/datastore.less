@@ -3119,6 +3119,7 @@ table.datasetTable {
             @qmark-width: 22px;
             @keycol-space: 20px;
             @xpath-label-space: 10px;
+            @newkey-width: 170px;
 
             > label, > div {
                 float: none;
@@ -3147,7 +3148,7 @@ table.datasetTable {
                 display: flex;
                 flex-flow: row nowrap;
                 align-items: flex-end;
-                margin-top: 10px;
+                margin-top: 8px;
             }
 
             .xpath_section {
@@ -3161,15 +3162,20 @@ table.datasetTable {
                 .size(@height: 30px);
                 float: none;
                 position: relative;
-                margin-left: 20px;
+                margin-left: 0;
                 line-height: 30px;
+            }
+
+            .newKey_wrap {
+                .size(@width: @newkey-width);
+                padding-left: 20px;
             }
 
             .divider {
                 margin: 0;
             }
             .xpath_divider {
-                margin-bottom: 15px;
+                margin-bottom: 0px;
             }
             .section_divider {
                 margin-top: 15px;
@@ -3181,31 +3187,44 @@ table.datasetTable {
                 padding-left: 0;
             }
 
+            .xml_row-xpath {
+                background-color: @color-bg-white-seven;
+                padding-top: 8px;
+                padding-bottom: 8px;
+                height: auto;
+            }
+
+            .test-xpath {
+                background-color: @color-white;
+            }
+
             .xpathLabel {
                 .size(@width: @row-width - @close-width);
                 margin-right: @xpath-label-space;
             }
 
-            .key_col {
+            .key_col, .xpath_col {
                 margin: 0;
                 .size(@width: ~"calc((100% - @{close-width} - @{keycol-space})/2)");
                 .row {
                     padding: 0;
                 }
-                .keyInputWrap {
+                .keyInputWrap, .xpathInputWrap {
                     .size(@width: ~"calc(100% - @{qmark-width})");
                     .input-box(@w: 100%, @h: 30px);
                     margin: 0;
                 }
-            }
-            .key_col-left {
-                margin-right: @keycol-space;
+                .xpathInputWrap input {
+                    background-color: @color-white;
+                }
             }
 
-            .xpathInputWrap {
-                .size(@width: ~"calc(100% - @{row-width} + @{xpath-label-space} - @{close-width} - @{qmark-width})");
-                .input-box(@w: 100%, @h: 30px);
-                margin: 0;
+            .xpath_col {
+                .size(@width: ~"calc((100% - @{close-width} - @{keycol-space} - @{newkey-width})/2)");
+            }
+
+            .key_col-left, .xpath_col-left {
+                margin-right: @keycol-space;
             }
 
             .xi-cancel-grey {

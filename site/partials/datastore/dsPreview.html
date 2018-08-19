@@ -304,19 +304,33 @@
                         <div class="divider xpath_divider"></div>
                         <div class="xpath_info">
                             <!-- XPath -->
-                            <div class="row xml_row">
+                            <div class="row xml_row xml_row-xpath">
                               <i class="col icon xi-cancel xi-cancel-grey" data-placement="top" data-xcid="xpath.close"></i>
-                              <i class="col qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLXPath %>" data-placement="top"></i>
-                              <label class="col xpathLabel"><%= dicts.dsForm.xPath %>:</label>
-                              <div class="col xpathInputWrap">
-                                <input class="text" type="text" spellcheck="false" data-xcid="xpath.xpath">
+                              <div class="col xpath_col xpath_col-left">
+                                <div class="row">
+                                  <i class="col qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLXPath %>" data-placement="top"></i>
+                                  <!-- <label class="col xpathLabel"><%= dicts.dsForm.xPath %>:</label> -->
+                                  <div class="col xpathInputWrap">
+                                    <input class="text text-xpath" type="text" spellcheck="false" data-xcid="xpath.xpath" placeholder="<%= dicts.dsForm.xPath %>">
+                                  </div>
+                                </div>
+                              </div>
+                              <div class="col xpath_col">
+                                <div class="row">
+                                  <i class="col qMark icon xi-unknown" data-toggle="tooltip" data-container="body" data-title="<%= dicts.TooltipTStr.RawDSXMLXPathName %>" data-placement="top"></i>
+                                  <div class="col xpathInputWrap">
+                                    <input class="text text-xpath" type="text" spellcheck="false" data-xcid="xpath.name" placeholder="<%= dicts.dsForm.xPathName %>">
+                                  </div>
+                                </div>
                               </div>
                             </div>
                             <!-- XtraKeys -->
                             <div class="extrakey">
                                 <div class="extrakey_list xc-hidden" data-xcid="xpath.extrakeyList"></div>
                                 <!-- New Key button -->
-                                <button class="btn btn-transparent xml_newkey" data-xcid="xpath.newKey"><%= dicts.dsForm.NEWEXTRAKEY %></button>
+                                <div class="newKey_wrap">
+                                  <button class="btn btn-transparent xml_newkey" data-xcid="xpath.newKey"><%= dicts.dsForm.NEWEXTRAKEY %></button>
+                                </div>
                             </div>
                         </div>
                     </div>

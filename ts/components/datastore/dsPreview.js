@@ -5197,7 +5197,20 @@ window.DSPreview = (function($, DSPreview) {
                 try {
                     const newXPathValue = event.target.value;
                     const newState = libs.xcHelper.deepCopy(state);
-                    newState.xPaths[xpathIndex].xPath = newXPathValue.trim();
+                    newState.xPaths[xpathIndex].xPath.value = newXPathValue.trim();
+                    setStateInternal(newState, true);
+                } catch(e) {
+                    console.error(e);
+                }
+            };
+        }
+
+        function onXPathNameChange(xpathIndex) {
+            return (event) => {
+                try {
+                    const newXPathName = event.target.value;
+                    const newState = libs.xcHelper.deepCopy(state);
+                    newState.xPaths[xpathIndex].xPath.name = newXPathName.trim();
                     setStateInternal(newState, true);
                 } catch(e) {
                     console.error(e);
@@ -5359,7 +5372,7 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         function getDefaultXPath() {
-            return { xPath: '', extraKeys: [] };
+            return { xPath: { name: '', value: '' }, extraKeys: [] };
         }
 
         function getDefaultState() {
@@ -5471,6 +5484,13 @@ window.DSPreview = (function($, DSPreview) {
                 }
                 return xcHelper.validateColName(colName, false, true) != null;
             },
+            isNotEmptyInvalidColName: ($element) => {
+                const colName = $element.val().trim();
+                if (colName.length === 0) {
+                    return false;
+                }
+                return xcHelper.validateColName(colName, false, true) != null;
+            },
         };
 
         // Cleanup data model
@@ -5481,8 +5501,9 @@ window.DSPreview = (function($, DSPreview) {
             let hasEmpty = false;
             const xPaths = state.xPaths.reduce( (resXPath, xPath) => {
                 const result = getDefaultXPath();
-                result.xPath = xPath.xPath.trim();
-                const isXPathEmpty = (result.xPath.length === 0);
+                result.xPath.value = xPath.xPath.value.trim();
+                result.xPath.name = xPath.xPath.name.trim();
+                const isXPathEmpty = (result.xPath.value.length === 0);
 
                 let hasEmptyKey = false;
                 result.extraKeys = xPath.extraKeys.reduce( (resKey, key) => {
@@ -5551,15 +5572,25 @@ window.DSPreview = (function($, DSPreview) {
                     // This is the only xpath, and it cannot be deleted
                     $elementClose.css('visibility', 'hidden');
                 }
-                // Setup xPath input
+                // Setup xPath value input
                 const $elementXPath = findXCElement($dom, 'xpath.xpath');
                 $elementXPath.on('change', onXPathChange(xPathIndex));
                 $elementXPath.on('keydown', onInputKeydown());
-                $elementXPath.val(xPath.xPath);
+                $elementXPath.val(xPath.xPath.value);
                 addValidateOption({
                     $element: $elementXPath,
                     errorMessage: libs.ErrTStr.NoEmpty,
                     checkFunc: () => CheckFunctions.isInputEmpty($elementXPath)
+                });
+                // Setup xPath name input
+                const $elementXPathName = findXCElement($dom, 'xpath.name');
+                $elementXPathName.on('change', onXPathNameChange(xPathIndex));
+                $elementXPathName.on('keydown', onInputKeydown());
+                $elementXPathName.val(xPath.xPath.name);
+                addValidateOption({
+                    $element: $elementXPathName,
+                    errorMessage: libs.ErrTStr.InvalidColName,
+                    checkFunc: () => CheckFunctions.isNotEmptyInvalidColName($elementXPathName)
                 });
                 // Setup new key button
                 const $elementNewKey = findXCElement($dom, 'xpath.newKey');
@@ -5622,7 +5653,8 @@ window.DSPreview = (function($, DSPreview) {
                 if (udfQuery.allPaths != null && udfQuery.allPaths.length > 0) {
                     newState.xPaths = udfQuery.allPaths.map( (xPath) => {
                         const res = getDefaultXPath();
-                        res.xPath = xPath.xPath;
+                        res.xPath.name = xPath.xPath.name;
+                        res.xPath.value = xPath.xPath.value;
                         res.extraKeys = Object.keys(xPath.extraKeys).map(
                             (keyName) => ({
                                 name: keyName,
@@ -5665,7 +5697,10 @@ window.DSPreview = (function($, DSPreview) {
                 // Convert data model to udf query format
                 const xPaths = state.xPaths.reduce( (resXPath, xPath) => {
                     const result = getDefaultXPath();
-                    result.xPath = xPath.xPath;
+                    result.xPath = {
+                        name: xPath.xPath.name,
+                        value: xPath.xPath.value
+                    };
 
                     result.extraKeys = xPath.extraKeys.reduce( (resKey, key) => {
                         const name = key.name.trim();
@@ -5676,8 +5711,8 @@ window.DSPreview = (function($, DSPreview) {
                         return resKey;
                     }, {});
 
-                    if (result.xPath.length > 0) {
-                        resXPath.push(result);
+                    if (result.xPath.value.length > 0) {
+                            resXPath.push(result);
                     }
                     return resXPath;
                 }, []);

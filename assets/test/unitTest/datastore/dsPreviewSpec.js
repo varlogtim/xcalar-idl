@@ -1925,14 +1925,14 @@ describe("Dataset-DSPreview Test", function() {
             testHelper.setState({
                 xPaths: [
                     {
-                        xPath: 'test_xPath1',
+                        xPath: { name: 'test_xPath1_name', value: 'test_xPath1' },
                         extraKeys: [
                             { name: 'extName11', value: 'extValue11' },
                             { name: 'extName12', value: 'extValue12' }
                         ]
                     },
                     {
-                        xPath: 'test_xPath2',
+                        xPath: { name: 'test_xPath2_name', value: 'test_xPath2' },
                         extraKeys: [
                             { name: 'extName21', value: 'extValue21' },
                             { name: 'extName22', value: 'extValue22' }
@@ -1952,7 +1952,8 @@ describe("Dataset-DSPreview Test", function() {
                 expect(res.udfQuery.allPaths.length).to.equal(2);
 
                 expect(res.udfQuery.allPaths[0]).to.have.property("xPath");
-                expect(res.udfQuery.allPaths[0].xPath).to.equal("test_xPath1");
+                expect(res.udfQuery.allPaths[0].xPath.name).to.equal("test_xPath1_name");
+                expect(res.udfQuery.allPaths[0].xPath.value).to.equal("test_xPath1");
                 expect(res.udfQuery.allPaths[0].extraKeys).to.be.an("object");
                 expect(res.udfQuery.allPaths[0].extraKeys).to.have.property("extName11");
                 expect(res.udfQuery.allPaths[0].extraKeys.extName11).to.equal("extValue11");
@@ -1960,7 +1961,8 @@ describe("Dataset-DSPreview Test", function() {
                 expect(res.udfQuery.allPaths[0].extraKeys.extName12).to.equal("extValue12");
 
                 expect(res.udfQuery.allPaths[1]).to.have.property("xPath");
-                expect(res.udfQuery.allPaths[1].xPath).to.equal("test_xPath2");
+                expect(res.udfQuery.allPaths[1].xPath.name).to.equal("test_xPath2_name");
+                expect(res.udfQuery.allPaths[1].xPath.value).to.equal("test_xPath2");
                 expect(res.udfQuery.allPaths[1].extraKeys).to.be.an("object");
                 expect(res.udfQuery.allPaths[1].extraKeys).to.have.property("extName21");
                 expect(res.udfQuery.allPaths[1].extraKeys.extName21).to.equal("extValue21");
@@ -2280,7 +2282,7 @@ describe("Dataset-DSPreview Test", function() {
                 format: "XML",
                 udfQuery: {
                     allPaths: [{
-                        xPath: 'test_xPath',
+                        xPath: { name: 'test_xPath_name', value: 'test_xPath' },
                         extraKeys: { extName1: 'extValue1' }
                     }],
                     withPath: true,
@@ -2298,7 +2300,8 @@ describe("Dataset-DSPreview Test", function() {
             expect(state.xPaths.length).to.equal(1);
             expect(state.xPaths[0]).to.be.an('object');
             expect(state.xPaths[0]).to.have.property('xPath');
-            expect(state.xPaths[0].xPath).to.equal('test_xPath');
+            expect(state.xPaths[0].xPath.name).to.equal('test_xPath_name');
+            expect(state.xPaths[0].xPath.value).to.equal('test_xPath');
             expect(state.xPaths[0]).to.have.property('extraKeys');
             expect(state.xPaths[0].extraKeys).to.be.an('array');
             expect(state.xPaths[0].extraKeys.length).to.equal(1);
