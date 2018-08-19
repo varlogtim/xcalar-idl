@@ -143,9 +143,25 @@ namespace DFParamTab {
                 html += self.retinaTr;
             }
             self.$retLists.html(html);
+            let paramArray: any[] = [];
 
-            for (var i in params) {
-                self.addParamToList(i, params[i].value, params[i].isEmpty, false);
+            for (let i in params) {
+                paramArray.push({
+                    name: i,
+                    value: params[i].value,
+                    isEmpty: params[i].isEmpty
+                });
+            }
+            paramArray = paramArray.sort(sortParams);
+            for (let i = 0; i < paramArray.length; i++) {
+                self.addParamToList(paramArray[i].name,
+                                    paramArray[i].value,
+                                    paramArray[i].isEmpty,
+                                    false);
+            }
+
+            function sortParams(a, b) {
+                return xcHelper.sortVals(a.name, b.name);
             }
         }
 
