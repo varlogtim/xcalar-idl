@@ -52,7 +52,8 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
             const numArgs = Math.max(Math.abs(opInfo.numArgs),
                                 opInfo.argDescs.length);
             this.groups[index].args = Array(numArgs).fill("").map((_o, i) => {
-                                            return new OpPanelArg("", opInfo.argDescs[i].typesAccepted);
+                                            return new OpPanelArg("",
+                                            opInfo.argDescs[i].typesAccepted);
                                         });
             if (value === "regex" && numArgs === 2) {
                 this.groups[index].args[1].setRegex(true);
@@ -150,49 +151,83 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
         this.dagNode.setParam(param);
     }
 
-    protected _initialize(paramsRaw) {
+    protected _initialize(paramsRaw, strictCheck?: boolean) {
         const self = this;
-        const params: xcHelper.ParsedEval = xcHelper.parseEvalString(
-                                                        paramsRaw.evalString);
-        const operator = params.fnName;
         if (!this._opCategories.length) {
             this._opCategories = [FunctionCategoryT.FunctionCategoryCondition];
         }
+        const params: xcHelper.ParsedEval = xcHelper.parseEvalString(
+                                                    paramsRaw.evalString);
+        if (strictCheck && params.error) {
+            throw({error: params.error});
+        }
+        let groups = [];
+        let argGroups = [];
 
-        const opInfo = this._getOperatorObj(operator);
-        if (!opInfo && params.args.length) {
-            // XXX send to advanced mode
-            if (operator.length) {
-                throw({error: "\"" + operator + "\" is not a valid filter function."});
+        if (self._isValidAndOr(params, "and")) {
+            detectAndOr(params, "and");
+        } else {
+            detectAndOr(params, "or");
+        }
+        if (self._isValidAndOr(params, "or")) {
+            this.andOrOperator = "or";
+        } else {
+            this.andOrOperator = "and";
+        }
+
+        function detectAndOr(func, operator) {
+            let split = self._isValidAndOr(func, operator);
+            // argGroups.push(func.args);
+            if (split) {
+                detectAndOr(func.args[0], operator);
+                detectAndOr(func.args[1], operator);
             } else {
-                throw({error: "Function not selected."});
+                argGroups.push(func);
             }
         }
 
-        if (params.args.length &&
-            (!opInfo || (params.args.length > opInfo.argDescs.length))) {
-            throw ({error: "\"" + operator + "\" only accepts " + opInfo.argDescs.length + " arguments."})
-        }
-        let args = [];
-        for (var i = 0; i < params.args.length; i++) {
-            let arg = params.args[i];
-            if (typeof arg === "object") {
-                arg = xcHelper.stringifyEval(arg);
+        for (let i = 0; i < argGroups.length; i++) {
+            let argGroup = argGroups[i];
+            let args = [];
+            const opInfo = this._getOperatorObj(argGroup.fnName);
+            if (!opInfo && argGroup.args.length) {
+                // XXX send to advanced mode
+                if (argGroup.fnName.length) {
+                    throw({error: "\"" + argGroup.fnName + "\" is not a" +
+                            " valid filter function."});
+                } else {
+                    throw({error: "Function not selected."});
+                }
             }
-            const argInfo: OpPanelArg = new OpPanelArg(arg, opInfo.argDescs[i].typesAccepted, true);
-            args.push(argInfo);
-        }
-        args.forEach((arg) => {
-            const value = formatArgToUI(arg.getValue());
-            arg.setValue(value);
-            if (operator === "regex" && args.length === 2) {
-                arg.setRegex(true);
+            if (argGroup.args.length &&
+                (!opInfo || (argGroup.args.length > opInfo.argDescs.length))) {
+                throw ({error: "\"" + argGroup.fnName + "\" only accepts " +
+                        opInfo.argDescs.length + " arguments."})
             }
-            self._formatArg(arg);
-            self._validateArg(arg);
-        });
+            for (var j = 0; j < argGroup.args.length; j++) {
+                let arg = argGroup.args[j];
+                if (typeof arg === "object") {
+                    arg = xcHelper.stringifyEval(arg);
+                }
 
-        this.groups = [{operator: params.fnName, args: args}];
+                const argInfo: OpPanelArg = new OpPanelArg(arg,
+                                        opInfo.argDescs[j].typesAccepted, true);
+                args.push(argInfo);
+            }
+            args.forEach((arg) => {
+                const value = formatArgToUI(arg.getValue());
+                arg.setValue(value);
+                if (argGroup.fnName === "regex" && args.length === 2) {
+                    arg.setRegex(true);
+                }
+                self._formatArg(arg);
+                self._validateArg(arg);
+            });
+
+            groups.push({operator: argGroup.fnName, args: args});
+        }
+
+        this.groups = groups;
         this.andOrOperator = "and";
 
         function formatArgToUI(arg) {
@@ -215,7 +250,6 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
     }
 
     protected _update(all?: boolean): void {
-        // console.log(JSON.stringify(this.tableColumns), JSON.stringify(this.getModel(), null, 2));
         if (this.event != null) {
             this.event(all);
         }
@@ -240,8 +274,13 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
         try {
             const param: DagNodeFilterInput = <DagNodeFilterInput>JSON.parse(paramStr);
             jsonError = false;
-            this._initialize(param);
-            return this.validateGroups();
+            this._initialize(param, true);
+            let error = this.validateGroups();
+            if (error == null) {
+                return null;
+            } else {
+                return this._translateAdvancedErrorMessage(error);
+            }
         } catch (e) {
             if (jsonError) {
                 return {error: xcHelper.parseJSONError(e)};
@@ -258,7 +297,10 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
         // function name error
         for (let i = 0; i < groups.length; i++) {
             if (!self._isOperationValid(i)) {
-                return {error: ErrTStr.NoSupportOp, group: i, arg: -1, type: "function"};
+                return {error: ErrTStr.NoSupportOp,
+                        group: i,
+                        arg: -1,
+                        type: "function"};
             }
         }
 
@@ -268,7 +310,10 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
             for (let j = 0; j < group.args.length; j++) {
                 const arg = group.args[j];
                 if (!arg.checkIsValid() && arg.getError() === "No value") {
-                    return {error: arg.getError(), group: i, arg: j, type: "blank"};
+                    return {error: arg.getError(),
+                            group: i,
+                            arg: j,
+                            type: "blank"};
                 }
             }
         }
@@ -278,8 +323,13 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
             const group = groups[i];
             for (let j = 0; j < group.args.length; j++) {
                 const arg = group.args[j];
-                if (!arg.checkIsValid() && !arg.getError().includes(ErrWRepTStr.InvalidOpsType.substring(0, 20))) {
-                    return {error: arg.getError(), group: i, arg: j, type: "other"};
+                if (!arg.checkIsValid() &&
+                    !arg.getError().includes(ErrWRepTStr.InvalidOpsType
+                                                        .substring(0, 20))) {
+                    return {error: arg.getError(),
+                            group: i,
+                            arg: j,
+                            type: "other"};
                 }
             }
         }
@@ -289,8 +339,13 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
             const group = groups[i];
             for (let j = 0; j < group.args.length; j++) {
                 const arg = group.args[j];
-                if (!arg.checkIsValid() && arg.getType() === "column" && arg.getError().includes(ErrWRepTStr.InvalidOpsType.substring(0, 20))) {
-                    return {error: arg.getError(), group: i, arg: j, type: "columnType"};
+                if (!arg.checkIsValid() && arg.getType() === "column" &&
+                    arg.getError().includes(ErrWRepTStr.InvalidOpsType
+                                                       .substring(0, 20))) {
+                    return {error: arg.getError(),
+                            group: i,
+                            arg: j,
+                            type: "columnType"};
                 }
             }
         }
@@ -300,12 +355,56 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
             const group = groups[i];
             for (let j = 0; j < group.args.length; j++) {
                 const arg = group.args[j];
-                if (!arg.checkIsValid() && arg.getError().includes(ErrWRepTStr.InvalidOpsType.substring(0, 20))) {
-                    return {error: arg.getError(), group: i, arg: j, type: "valueType"};
+                if (!arg.checkIsValid() &&
+                    arg.getError().includes(ErrWRepTStr.InvalidOpsType
+                                                       .substring(0, 20))) {
+                    return {error: arg.getError(),
+                            group: i,
+                            arg: j,
+                            type: "valueType"};
                 }
             }
         }
 
         return null;
+    }
+
+    private _isValidAndOr(func, operator) {
+        return (func.fnName === operator &&
+                func.args.length === 2 &&
+                typeof func.args[0] === "object" &&
+                typeof func.args[1] === "object");
+    }
+
+    private _translateAdvancedErrorMessage(error) {
+        let groups = this.groups;
+        let text: string= "";
+        const operator = groups[error.group].operator;
+        switch (error.type) {
+            case ("function"):
+                if (!operator) {
+                    text = ErrTStr.NoEmpty;
+                } else {
+                    text = "\"" + operator + "\" is not a supported function."
+                }
+                break;
+            case ("blank"):
+                text = ErrTStr.NoEmpty;
+                text = "Argument " + (error.arg + 1) + " in " + operator +
+                       " function is empty.";
+                break;
+            case ("other"):
+                text = error.error + ": " + groups[error.group].args[error.arg];
+                break;
+            case ("columnType"):
+            case ("valueType"):
+                const arg = groups[error.group].args[error.arg];
+                text = "Value: " + arg + ". " + error.error;
+                break;
+            default:
+                console.warn("unhandled error found", error);
+                break;
+        }
+        return {error: text};
     }
 }

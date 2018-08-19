@@ -3581,6 +3581,8 @@ namespace xcHelper {
         let inQuotes: boolean = false;
         let singleQuote: boolean = false;
         let isEscaped: boolean = false;
+        let spaces = "";
+        const specialChars = ["(", ")", ","];
         for (let i = 0; i < str.length; i++) {
             if (isEscaped) {
                 resStr += str[i];
@@ -3609,8 +3611,19 @@ namespace xcHelper {
             } else if (inQuotes) {
                 resStr += str[i];
             } else {
+                let lastChar = resStr[resStr.length - 1];
                 if (str[i] !== ' ') {
+                    if (!specialChars.includes(str[i])) {
+                        resStr += spaces;
+                    }
+                    spaces = "";
                     resStr += str[i];
+                } else {
+                    if (resStr.length > 0 && !specialChars.includes(lastChar)) {
+                        spaces += str[i];
+                    } else {
+                        spaces = "";
+                    }
                 }
             }
         }
@@ -5079,13 +5092,10 @@ namespace xcHelper {
         return timeString;
     }
 
-    function parseFunc(func: ColFunc, funcNameIdentifier?: string): string {
-        if (!funcNameIdentifier) {
-            funcNameIdentifier = "name";
-        }
+    function parseFunc(func: ColFunc): string {
         let str: string = "";
         if (func.name) {
-            str += func[name];
+            str += func.name;
             str += "(";
         }
 
@@ -5101,7 +5111,7 @@ namespace xcHelper {
                 str += args[i];
             }
         }
-        if (func[name]) {
+        if (func.name) {
             str += ")";
         }
         return str;
@@ -6030,7 +6040,7 @@ namespace xcHelper {
     }
 
     /**
-     * returns a struct that contains fnName, parameters, and error(string)
+     * returns {fnName: string, args: array, error: string}
      * @param evalStr
      */
     export function parseEvalString(evalStr): ParsedEval {
@@ -6043,7 +6053,7 @@ namespace xcHelper {
             func.error = "Invalid";
             return func;
         }
-        const trimmedEvalStr = $.trim(evalStr);
+
         const bracketRes: BracketMatchRet = checkMatchingBrackets(evalStr);
         if (bracketRes.index > -1) {
             func.error = "Mismatched parenthesis";
@@ -6053,26 +6063,28 @@ namespace xcHelper {
         if (func.error) {
             return func;
         }
-
+        evalStr = xcHelper.removeNonQuotedSpaces(evalStr);
         // should be valid, now parse
-        parseString(evalStr, func);
-        func = <ParsedEval>func.args[0];
+        func = parse(evalStr);
         if (func.fnName === "") {
             func.error = "No function name";
-        } else if (trimmedEvalStr.charAt(trimmedEvalStr.length - 1) !== ")") {
+        } else if (evalStr.charAt(evalStr.length - 1) !== ")") {
             func.error = "Trailing character";
         }
+        return func;
 
-        function parseString(funcString, func) {
+        function parse(evalStr) {
             let tempString: string = "";
             let newFunc: ParsedEval;
             var inQuotes = false;
             var singleQuote = false;
-            var hasComma = false;
             var isEscaped = false;
+            let stack = [];
+            let hasComma = false;
+            let followingComma = false;
 
-            for (var i = 0; i < funcString.length; i++) {
-                let char = funcString.charAt(i);
+            for (let i = 0; i < evalStr.length; i++) {
+                let char = evalStr.charAt(i);
                 if (isEscaped) {
                     tempString += char;
                     isEscaped = false;
@@ -6093,6 +6105,10 @@ namespace xcHelper {
                         singleQuote = true;
                     }
                 }
+                if (hasComma) {
+                    followingComma = true;
+                    hasComma = false;
+                }
 
                 if (char === "\\") {
                     isEscaped = true;
@@ -6104,34 +6120,40 @@ namespace xcHelper {
                         fnName: tempString.trim(),
                         args: []
                     };
-                    func.args.push(newFunc);
+                    stack.push(newFunc);
+                    stack.push("(");
                     tempString = "";
-                    i += parseString(funcString.substring(i + 1), newFunc);
-                } else if (char === "," || char === ")") {
-                    // tempString could be blank if funcString[i] is a comma
-                    // after a )
-                    if (tempString !== "") {
-                        tempString = tempString.trim();
-
-                        if (char !== ")" || hasComma || tempString !== "") {
-                            func.args.push(tempString);
-                        }
-                        tempString = "";
+                } else if (char === ",") {
+                    stack.push(tempString.trim());
+                    tempString = "";
+                    hasComma = true;
+                } else if (char === ")") {
+                    if (tempString !== "" || followingComma) {
+                        stack.push(tempString.trim());
                     }
-                    if (char === ")") {
-                        break;
-                    } else {
-                        hasComma = true;
+
+                    tempString = "";
+
+                    let args = [];
+                    while (stack[stack.length - 1] !== "(") {
+                        args.unshift(stack.pop());
+                    }
+
+                    stack.pop(); // pop "("
+
+                    stack[stack.length - 1].args = args;
+                    if (evalStr[i + 1] === ",") {
+                        i++;
                     }
                 } else {
                     tempString += char;
                 }
+                followingComma = false;
             }
-            return (i + 1);
+            return stack.pop();
         }
-
-        return func;
     }
+
 
     export let __testOnly__: any = {};
 

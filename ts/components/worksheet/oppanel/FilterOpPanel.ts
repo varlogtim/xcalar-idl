@@ -393,6 +393,7 @@ class FilterOpPanel extends GeneralOpPanel {
         groupNum = groupNum || 0;
         $target = this._$panel.find('.group').eq(groupNum)
                               .find(".functionsInput");
+
         if ($.trim($target.val()) === "") {
             text = ErrTStr.NoEmpty;
         }
@@ -827,9 +828,9 @@ class FilterOpPanel extends GeneralOpPanel {
     protected _validate(): boolean {
         const self = this;
         if (this._isAdvancedMode()) {
-            const advancedErr: {error: string} = this.filterData.validateAdvancedMode(this._editor.getValue());
-            if (advancedErr != null) {
-                StatusBox.show(advancedErr.error, this._$panel.find(".advancedEditor"));
+            const error: {error: string} = this.filterData.validateAdvancedMode(this._editor.getValue());
+            if (error != null) {
+                StatusBox.show(error.error, this._$panel.find(".advancedEditor"));
                 return false;
             }
         } else {
@@ -838,37 +839,43 @@ class FilterOpPanel extends GeneralOpPanel {
                 const model = this.filterData.getModel();
                 const groups = model.groups;
                 const $input = this._$panel.find(".group").eq(error.group).find(".arg").eq(error.arg);
-
-                if (error.type === "function") {
-                    self._showFunctionsInputErrorMsg(error.group);
-                } else if (error.type === "blank") {
-                    self._handleInvalidBlanks([$input]);
-                } else if (error.type === "other") {
-                    self._statusBoxShowHelper(error.error, $input);
-                } else if (error.type === "columnType") {
-                    let allColTypes = [];
-                    let inputNums = [];
-                    const group = groups[error.group];
-                    for (var i = 0; i < group.args.length; i++) {
-                        let arg = group.args[i];
-                        if (arg.getType() === "column") {
-                            let colType = self.filterData.getColumnTypeFromArg(arg.getFormattedValue());
-                            let requiredTypes = self._parseType(arg.getTypeid());
-                            allColTypes.push({
-                                inputTypes: [colType],
-                                requiredTypes: requiredTypes,
-                                inputNum: i
-                            });
-                            if (!arg.checkIsValid() && arg.getError().includes(ErrWRepTStr.InvalidOpsType.substring(0, 20))) {
-                                inputNums.push(i);
+                switch (error.type) {
+                    case ("function"):
+                        self._showFunctionsInputErrorMsg(error.group);
+                        break;
+                    case ("blank"):
+                        self._handleInvalidBlanks([$input]);
+                        break;
+                    case ("other"):
+                        self._statusBoxShowHelper(error.error, $input);
+                        break;
+                    case ("columnType"):
+                        let allColTypes = [];
+                        let inputNums = [];
+                        const group = groups[error.group];
+                        for (var i = 0; i < group.args.length; i++) {
+                            let arg = group.args[i];
+                            if (arg.getType() === "column") {
+                                let colType = self.filterData.getColumnTypeFromArg(arg.getFormattedValue());
+                                let requiredTypes = self._parseType(arg.getTypeid());
+                                allColTypes.push({
+                                    inputTypes: [colType],
+                                    requiredTypes: requiredTypes,
+                                    inputNum: i
+                                });
+                                if (!arg.checkIsValid() && arg.getError().includes(ErrWRepTStr.InvalidOpsType.substring(0, 20))) {
+                                    inputNums.push(i);
+                                }
                             }
                         }
-                    }
-                    self._handleInvalidArgs(true, $input, error.error, error.arg, allColTypes, inputNums);
-                } else if (error.type === "valueType") {
-                    self._handleInvalidArgs(false, $input, error.error);
-                } else {
-                    console.warn("unhandled error found", error);
+                        self._handleInvalidArgs(true, $input, error.error, error.arg, allColTypes, inputNums);
+                        break;
+                    case ("valueType"):
+                        self._handleInvalidArgs(false, $input, error.error);
+                        break;
+                    default:
+                        console.warn("unhandled error found", error);
+                        break;
                 }
                 return false;
             }
