@@ -375,10 +375,6 @@ namespace WorkbookManager {
         cleanProgressCycle(queryName)
         .then(() => {
             progressCycle(queryName, checkInterval);
-            return restoreInactivePublishedTable(wkbkName);
-        })
-        .then(function() {
-            progressCycle(queryName, checkInterval);
             $("#initialLoadScreen").data("curquery", queryName);
             $("#container").addClass("switchingWkbk");
             return XcalarActivateWorkbook(wkbkName);
@@ -1416,149 +1412,6 @@ namespace WorkbookManager {
         return deferred.promise();
     }
 
-    // always resolves
-    function restoreInactivePublishedTable(wkbkName: string): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let progressCircle: ProgressCircle;
-        let canceled: boolean = false;
-        let currTable: string;
-        let successTables: string[] = [];
-        let failedTables: string[] = [];
-
-        checkHasSessionTables(wkbkName)
-        .then(function(hasTables) {
-            if (hasTables) {
-                return XcalarListPublishedTables("*")
-            } else {
-                return PromiseHelper.resolve({tables: []});
-            }
-        })
-        .then(function(result) {
-            let inactiveTables: string[] = [];
-            result.tables.forEach(function(table) {
-                if (!table.active) {
-                    inactiveTables.push(table.name);
-                }
-            });
-
-            if (inactiveTables.length) {
-                showRestoreProgress(inactiveTables.length);
-                return restoreAllPublishedTables(inactiveTables);
-            } else {
-                return PromiseHelper.resolve();
-            }
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject)
-        .always(function() {
-            const $waitSection: JQuery = $("#initialLoadScreen").find(".publishSection");
-            $waitSection.empty();
-            $waitSection.removeClass("hasProgress");
-            $waitSection.parent().removeClass("pubTable");
-        });
-
-        return deferred.promise();
-
-        function checkHasSessionTables(wkbkName: string): XDPromise<boolean> {
-            const innerDeferred: XDDeferred<boolean> = PromiseHelper.deferred();
-            const currentSession: string = sessionName;
-            setSessionName(wkbkName);
-
-            XcalarGetTables("*")
-            .then(function(res) {
-                innerDeferred.resolve(res.numNodes > 0)
-            })
-            .fail(function() {
-                innerDeferred.resolve(false);
-            });
-
-            setSessionName(currentSession);
-            return innerDeferred.promise();
-        }
-
-        function restoreAllPublishedTables(inactiveTables): XDPromise<any> {
-            const innerDeferred: XDDeferred<void> = PromiseHelper.deferred();
-            let promises: Function[] = [];
-
-            successTables = [];
-            failedTables = [];
-
-            inactiveTables.forEach(function(tableName) {
-                promises.push(function() {
-                    if (canceled) {
-                        return PromiseHelper.reject({canceled: true});
-                    } else {
-                        return restorePublishedTable(tableName);
-                    }
-                });
-            });
-            PromiseHelper.chain(promises)
-            .then(function() {
-                if (successTables.length === inactiveTables.length) {
-                    innerDeferred.resolve();
-                } else {
-                    if (!successTables.length) {
-                        innerDeferred.reject.apply(this, arguments);
-                    } else {
-                        restoreAllPublishedTables(failedTables)
-                        .then(innerDeferred.resolve)
-                        .fail(innerDeferred.reject);
-                    }
-                }
-            })
-            .fail(function() { // only fails if canceled
-                innerDeferred.reject.apply(this, arguments);
-            });
-
-            return innerDeferred.promise();
-        }
-
-        // loop through all tables, do as many as possible
-
-        function restorePublishedTable(tableName: string): XDPromise<any> {
-            const deferred: XDDeferred<any> = PromiseHelper.deferred();
-            currTable = tableName;
-            XcalarRestoreTable(tableName)
-            .then(function () {
-                successTables.push(tableName);
-                progressCircle.increment();
-                deferred.resolve();
-            })
-            .fail(function(err) {
-                if (err && err.status === StatusT.StatusCanceled) {
-                    deferred.reject({canceled: true});
-                } else {
-                    failedTables.push(tableName);
-                    deferred.resolve.apply(this, arguments);
-                }
-            });
-
-            return deferred.promise();
-        }
-
-        function showRestoreProgress(numSteps: number): void {
-            const $waitSection: JQuery = $("#initialLoadScreen").find(".publishSection");
-            $waitSection.addClass("hasProgress");
-            $waitSection.parent().addClass("pubTable");
-            const progressAreaHtml: string = xcHelper.getLockIconHtml("pubTablesWorksheet", 0, true, true);
-            $waitSection.html(progressAreaHtml);
-            $waitSection.find(".stepText").addClass("extra").append(
-                '<span class="extraText">' + IMDTStr.Activating + '</span>')
-            progressCircle = new ProgressCircle("pubTablesWorksheet", 0, true, {steps: numSteps});
-            $waitSection.find(".cancelLoad").data("progresscircle",
-                                                    progressCircle);
-            progressCircle.update(0, 1000);
-
-            $waitSection.find(".progressCircle .xi-close").click(function() {
-                if (canceled) {
-                    return;
-                }
-                canceled = true;
-                XcalarUnpublishTable(currTable, true);
-            });
-        }
-    }
-
     /* Unit Test Only */
     if (window["unitTestMode"]) {
         let cacheActiveWKBKId: string = undefined;
@@ -1586,8 +1439,7 @@ namespace WorkbookManager {
             progressCycle: progressCycle,
             endProgressCycle: endProgressCycle,
             countdown: countdown,
-            setupWorkbooks: setupWorkbooks,
-            restoreInactivePublishedTable: restoreInactivePublishedTable
+            setupWorkbooks: setupWorkbooks
         }
     }
     /* End Of Unit Test Only */
