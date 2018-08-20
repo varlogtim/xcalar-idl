@@ -2102,7 +2102,8 @@ window.DSPreview = (function($, DSPreview) {
                 const udfDef = componentXmlFormat.getUDFDefinition({
                     xPaths: xmlArgs.xPaths,
                     isWithPath: xmlArgs.isWithPath,
-                    isMatchedPath: xmlArgs.isMatchedPath
+                    isMatchedPath: xmlArgs.isMatchedPath,
+                    delimiter: xmlArgs.delimiter
                 });
                 udfModule = udfDef.udfModule;
                 udfFunc = udfDef.udfFunc;
@@ -2202,7 +2203,8 @@ window.DSPreview = (function($, DSPreview) {
             const udfDef = componentXmlFormat.getUDFDefinition({
                 xPaths: xmlArgs.xPaths,
                 isWithPath: xmlArgs.isWithPath,
-                isMatchedPath: xmlArgs.isMatchedPath
+                isMatchedPath: xmlArgs.isMatchedPath,
+                delimiter: xmlArgs.delimiter
             });
 
             udfModule = udfDef.udfModule;
@@ -5171,6 +5173,7 @@ window.DSPreview = (function($, DSPreview) {
         const XCID_NEWXPATH = 'xml.newXPath';
         const XCID_MATCHEDPATH = 'xml.matchedPath';
         const XCID_WITHPATH = 'xml.withPath';
+        const XCID_DELIMITER = 'xml.delimiter';
 
         // private variables
         let xPathTemplate = '';
@@ -5348,6 +5351,18 @@ window.DSPreview = (function($, DSPreview) {
             }
         }
 
+        function onDelimiterChange() {
+            return (event) => {
+                try {
+                    const newState = libs.xcHelper.deepCopy(state);
+                    newState.delimiter = event.target.value;
+                    setStateInternal(newState, true);
+                } catch(e) {
+                    console.error(e);
+                }
+            }
+        }
+
         // private methods
         function init() {
             xPathTemplate = $container.find(`.${XPATH_TEMPLATE_CLASS}`).html();
@@ -5365,6 +5380,10 @@ window.DSPreview = (function($, DSPreview) {
             const $elementWithPath = findXCElement($container, XCID_WITHPATH);
             $elementWithPath.off('click.xml');
             $elementWithPath.on('click.xml', onWithPathClick());
+            // Setup delimiter inputBox
+            const $elementDelimiter = findXCElement($container, XCID_DELIMITER);
+            $elementDelimiter.off();
+            $elementDelimiter.on('change', onDelimiterChange());
         }
 
         function getDefaultExtrakey() {
@@ -5376,7 +5395,7 @@ window.DSPreview = (function($, DSPreview) {
         }
 
         function getDefaultState() {
-            return { xPaths: [ getDefaultXPath() ], isWithPath: false, isMatchedPath: false};
+            return { xPaths: [ getDefaultXPath() ], isWithPath: false, isMatchedPath: false, delimiter: '|' };
         }
 
         function htmlToElement(htmlStr) {
@@ -5539,6 +5558,7 @@ window.DSPreview = (function($, DSPreview) {
             }
             newState.isMatchedPath = state.isMatchedPath;
             newState.isWithPath = state.isWithPath;
+            newState.delimiter = state.delimiter;
 
             return { state: newState, hasEmpty: hasEmpty };
         }
@@ -5557,6 +5577,8 @@ window.DSPreview = (function($, DSPreview) {
             state.isWithPath ?
                 $elementWithPath.addClass('checked') :
                 $elementWithPath.removeClass('checked');
+            const $elementDelimiter = findXCElement($container, XCID_DELIMITER);
+            $elementDelimiter.val(state.delimiter);
 
             // Dynamic sections (xPath list /w extraKey list)
             // Update UI & setup event handlers
@@ -5650,6 +5672,7 @@ window.DSPreview = (function($, DSPreview) {
                 const newState = getDefaultState();
                 newState.isWithPath = udfQuery.withPath;
                 newState.isMatchedPath = udfQuery.matchedPath;
+                newState.delimiter = udfQuery.delimiter;
                 if (udfQuery.allPaths != null && udfQuery.allPaths.length > 0) {
                     newState.xPaths = udfQuery.allPaths.map( (xPath) => {
                         const res = getDefaultXPath();
@@ -5665,14 +5688,15 @@ window.DSPreview = (function($, DSPreview) {
                 }
                 setStateInternal(newState);
             },
-            getUDFDefinition: function({isWithPath, isMatchedPath, xPaths}) {
+            getUDFDefinition: function({isWithPath, isMatchedPath, delimiter, xPaths}) {
                 return {
                     udfModule: udfModule,
                     udfFunc: udfFunction,
                     udfQuery: {
                         allPaths: xPaths,
                         withPath: isWithPath,
-                        matchedPath: isMatchedPath
+                        matchedPath: isMatchedPath,
+                        delimiter: delimiter
                     }
                 };
             },
@@ -5720,6 +5744,7 @@ window.DSPreview = (function($, DSPreview) {
                 return xPaths.length === 0 ? null : {
                     isWithPath: state.isWithPath,
                     isMatchedPath: state.isMatchedPath,
+                    delimiter: state.delimiter,
                     xPaths: xPaths
                 };
             }

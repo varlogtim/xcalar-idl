@@ -1410,6 +1410,7 @@ describe("Dataset-DSPreview Test", function() {
             assert.isTrue($form.find(".format.xml").is(":visible"), "has xml paths");
             assert.isTrue($form.find(".matchedXPath").is(":visible"), "has xml paths");
             assert.isTrue($form.find(".elementXPath").is(":visible"), "has xml paths");
+            assert.isTrue($form.find(".xmlDelimiter").is(":visible"), "has xml delimiter");
         });
 
         it("Format should be PARQUET", function() {
@@ -1940,7 +1941,8 @@ describe("Dataset-DSPreview Test", function() {
                     },
                 ],
                 isWithPath: true,
-                isMatchedPath: true
+                isMatchedPath: true,
+                delimiter: 'delim',
             }).then( () => {
                 const res = validateForm();
                 expect(res).to.be.an("object");
@@ -1973,6 +1975,8 @@ describe("Dataset-DSPreview Test", function() {
                 expect(res.udfQuery.matchedPath).to.equal(true);
                 expect(res.udfQuery).to.have.property("withPath");
                 expect(res.udfQuery.withPath).to.equal(true);
+                expect(res.udfQuery).to.have.property("delimiter");
+                expect(res.udfQuery.delimiter).to.equal("delim");
 
                 done();
             }).fail( () => {
@@ -2286,7 +2290,8 @@ describe("Dataset-DSPreview Test", function() {
                         extraKeys: { extName1: 'extValue1' }
                     }],
                     withPath: true,
-                    matchedPath: true
+                    matchedPath: true,
+                    delimiter: 'delim',
                 }
             });
 
@@ -2295,6 +2300,7 @@ describe("Dataset-DSPreview Test", function() {
             expect(loadArgs.getFormat()).to.equal("XML");
             expect($form.find('[data-xcid="xml.matchedPath"]').hasClass("checked"));
             expect($form.find('[data-xcid="xml.xml.withPath"]').hasClass("checked"));
+            expect($form.find('[data-xcid="xml.delimiter"]').val()).to.equal('delim');
 
             expect(state.xPaths).to.be.an('array');
             expect(state.xPaths.length).to.equal(1);
