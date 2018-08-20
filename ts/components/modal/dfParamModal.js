@@ -469,6 +469,9 @@ window.DFParamModal = (function($, DFParamModal){
     }
 
     function switchBasicToAdvancedMode() {
+        if (type === "dataStore" && getBasicModeParams().error) {
+            return;
+        }
         isAdvancedMode = true;
         $modal.addClass("advancedMode");
         $modal.find(".toggleView").find(".switch").addClass("on");
