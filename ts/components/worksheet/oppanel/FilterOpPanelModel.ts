@@ -23,29 +23,6 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
         }
     }
 
-    public getColumns() {
-        return this.tableColumns;
-    }
-
-    public addGroup(): void {
-        this.groups.push({
-            operator: "",
-            args: []
-        });
-        this._update();
-    }
-
-    public removeGroup(index: number): void {
-        this.groups.splice(index, 1);
-        this._update();
-    }
-
-    public clearFunction(index: number): void {
-        this.groups[index].operator = "";
-        this.groups[index].args = [];
-        this._update();
-    }
-
     public enterFunction(value: string, opInfo, index: number): void {
         this.groups[index].operator = value;
         if (opInfo) {
@@ -66,7 +43,6 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
 
         this._update();
     }
-
 
     public updateArg(
         value: string,
@@ -101,19 +77,6 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
             this._formatArg(arg);
             this._validateArg(arg);
         }
-
-        // console.log(JSON.stringify(this.groups, null, 2));
-        // this._update(); // causes focus/blur issues
-    }
-
-    public updateCast(
-        type: ColumnType,
-        groupIndex: number,
-        argIndex: number
-    ): void {
-        const arg: OpPanelArg = this.groups[groupIndex].args[argIndex];
-        arg.setCast(type);
-        this._validateArg(arg);
     }
 
     public toggleAndOr(wasAnd) {
@@ -133,7 +96,6 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
             return;
         }
 
-        // const backName = progCol.getBackColName();
         colType = progCol.getType();
         if (colType === ColumnType.integer && !progCol.isKnownType()) {
             // for fat potiner, we cannot tell float or integer
@@ -177,7 +139,6 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
 
         function detectAndOr(func, operator) {
             let split = self._isValidAndOr(func, operator);
-            // argGroups.push(func.args);
             if (split) {
                 detectAndOr(func.args[0], operator);
                 detectAndOr(func.args[1], operator);
@@ -249,6 +210,13 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
         }
     }
 
+    private _isValidAndOr(func, operator) {
+        return (func.fnName === operator &&
+                func.args.length === 2 &&
+                typeof func.args[0] === "object" &&
+                typeof func.args[1] === "object");
+    }
+
     protected _update(all?: boolean): void {
         if (this.event != null) {
             this.event(all);
@@ -288,123 +256,5 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
                 return e;
             }
         }
-    }
-
-    public validateGroups() {
-        const self = this;
-        const groups = this.groups;
-
-        // function name error
-        for (let i = 0; i < groups.length; i++) {
-            if (!self._isOperationValid(i)) {
-                return {error: ErrTStr.NoSupportOp,
-                        group: i,
-                        arg: -1,
-                        type: "function"};
-            }
-        }
-
-        // blank inputs
-        for (let i = 0; i < groups.length; i++) {
-            const group = groups[i];
-            for (let j = 0; j < group.args.length; j++) {
-                const arg = group.args[j];
-                if (!arg.checkIsValid() && arg.getError() === "No value") {
-                    return {error: arg.getError(),
-                            group: i,
-                            arg: j,
-                            type: "blank"};
-                }
-            }
-        }
-
-        // other errors aside from wrong type
-        for (let i = 0; i < groups.length; i++) {
-            const group = groups[i];
-            for (let j = 0; j < group.args.length; j++) {
-                const arg = group.args[j];
-                if (!arg.checkIsValid() &&
-                    !arg.getError().includes(ErrWRepTStr.InvalidOpsType
-                                                        .substring(0, 20))) {
-                    return {error: arg.getError(),
-                            group: i,
-                            arg: j,
-                            type: "other"};
-                }
-            }
-        }
-
-        // wrong type on column
-        for (let i = 0; i < groups.length; i++) {
-            const group = groups[i];
-            for (let j = 0; j < group.args.length; j++) {
-                const arg = group.args[j];
-                if (!arg.checkIsValid() && arg.getType() === "column" &&
-                    arg.getError().includes(ErrWRepTStr.InvalidOpsType
-                                                       .substring(0, 20))) {
-                    return {error: arg.getError(),
-                            group: i,
-                            arg: j,
-                            type: "columnType"};
-                }
-            }
-        }
-
-        // wrong type on value
-        for (let i = 0; i < groups.length; i++) {
-            const group = groups[i];
-            for (let j = 0; j < group.args.length; j++) {
-                const arg = group.args[j];
-                if (!arg.checkIsValid() &&
-                    arg.getError().includes(ErrWRepTStr.InvalidOpsType
-                                                       .substring(0, 20))) {
-                    return {error: arg.getError(),
-                            group: i,
-                            arg: j,
-                            type: "valueType"};
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private _isValidAndOr(func, operator) {
-        return (func.fnName === operator &&
-                func.args.length === 2 &&
-                typeof func.args[0] === "object" &&
-                typeof func.args[1] === "object");
-    }
-
-    private _translateAdvancedErrorMessage(error) {
-        let groups = this.groups;
-        let text: string= "";
-        const operator = groups[error.group].operator;
-        switch (error.type) {
-            case ("function"):
-                if (!operator) {
-                    text = ErrTStr.NoEmpty;
-                } else {
-                    text = "\"" + operator + "\" is not a supported function."
-                }
-                break;
-            case ("blank"):
-                text = ErrTStr.NoEmpty;
-                text = "Argument " + (error.arg + 1) + " in " + operator +
-                       " function is empty.";
-                break;
-            case ("other"):
-                text = error.error + ": " + groups[error.group].args[error.arg];
-                break;
-            case ("columnType"):
-            case ("valueType"):
-                const arg = groups[error.group].args[error.arg];
-                text = "Value: " + arg + ". " + error.error;
-                break;
-            default:
-                console.warn("unhandled error found", error);
-                break;
-        }
-        return {error: text};
     }
 }

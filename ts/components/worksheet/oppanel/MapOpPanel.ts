@@ -7,24 +7,220 @@ class MapOpPanel extends GeneralOpPanel {
     private _$mapFilter;
     private _currentCol: any;
     protected _dagNode: DagNodeMap;
-    protected mapData: MapOpPanelModel;
+    protected model: MapOpPanelModel;
+    protected _opCategories: number[] = [];
+    private _pendingFnUpdate: any = null;
 
     public constructor() {
         super();
         this._operatorName = "map";
+
     }
 
     public setup(): void {
         const self = this;
         super.setupPanel("#mapOpPanel");
         this._$mapFilter = $("#mapFilter2");
-
         this._$categoryList = this._$panel.find('.categoryMenu');
         this._$functionsList = this._$panel.find('.functionsMenu');
 
+        for (let i in this._operatorsMap) {
+            if (parseInt(i) !== FunctionCategoryT.FunctionCategoryAggregate) {
+                this._opCategories.push(parseInt(i));
+            }
+        }
+
         this._$panel.on('click', '.closeGroup', function() {
-            self._removeGroup($(this).closest('.group'));
+            const $group = $(this).closest('.group');
+            const index = self._$panel.find(".group").index($group);
+            self.model.removeGroup(index);
         });
+
+        this._functionsInputEvents();
+
+        let argumentTimer: number;
+        // .arg (argument input)
+        this._$panel.on("input", ".arg", function(_event, options) {
+            // Suggest column name
+            const $input = $(this);
+            if ($input.closest(".dropDownList")
+                        .hasClass("colNameSection")) {
+                // for new column name, do not suggest anything
+                return;
+            }
+
+            if ($input.val() !== "" &&
+                $input.closest('.inputWrap').siblings('.inputWrap')
+                                            .length === 0) {
+                // hide empty options if input is dirty, but only if
+                // there are no sibling inputs from extra arguments
+                self._hideEmptyOptions($input);
+            }
+
+            clearTimeout(argumentTimer);
+            argumentTimer = <any>setTimeout(function() {
+                // XXX the first arg's list scroller won't be set up until
+                // 2nd part of form is filled, need to fix
+                if (options && options.insertText) {
+                    return;
+                }
+
+                self._argSuggest($input);
+                self._checkIfStringReplaceNeeded();
+            }, 200);
+
+            self._updateStrPreview();
+            if (options && options.insertText) {
+                self._checkIfStringReplaceNeeded();
+            }
+        });
+
+        this._$panel.on("change", ".arg", argChange);
+
+        function argChange() {
+            const $input = $(this);
+            const val = $input.val();
+            const $group = $input.closest(".group")
+            const groupIndex = self._$panel.find(".group").index($group);
+            const argIndex = $group.find(".arg").index($input);
+            if ($input.closest(".colNameSection").length) {
+                self.model.updateNewFieldName(val, groupIndex);
+            } else {
+                self.model.updateArg(val, groupIndex, argIndex);
+            }
+        }
+
+
+        // dynamic button - ex. default:multiJoin
+        this._$panel.on('click', '.addMapArg', function() {
+            self._addMapArg($(this));
+        });
+
+        this._$panel.on('click', '.extraArg .xi-cancel', function() {
+            self._removeExtraArg($(this).closest('.extraArg'));
+        });
+
+        this._$panel.on('click', '.checkboxSection', function() {
+            const $checkbox = $(this).find('.checkbox');
+            $checkbox.toggleClass("checked");
+            if ($(this).hasClass("icvMode")) {
+                self.model.toggleICV($checkbox.hasClass("checked"));
+            }
+            self._checkIfStringReplaceNeeded();
+        });
+    };
+
+    // options
+    // restore: boolean, if true, will not clear the form from it's last state
+    // restoreTime: time when previous operation took place
+    // triggerColNum: colNum that triggered the opmodal
+    // prefill: object, used to prefill the form
+    // public show = function(currTableId, currColNums, operator,
+    //                                options) {
+    public show(node: DagNodeMap) {
+        const self = this;
+        if (super.show(node)) {
+            this.model = new MapOpPanelModel(this._dagNode, () => {
+                this._render();
+            });
+            super._panelShowHelper(this.model);
+            this._formHelper.refreshTabbing();
+            this._render();
+
+            $(document).on('mousedown.mapCategoryListener', function(e) {
+                const $target = $(e.target);
+                if (!$target.closest('.catFuncMenus').length &&
+                    !$target.is(self._$mapFilter) &&
+                    !$target.hasClass('ui-resizable-handle'))
+                {
+                    if (self._$categoryList.find('li.active').length &&
+                        self._$functionsList.find('li.active').length === 0)
+                    {
+                        const val = self._$mapFilter.val();
+                        const valTrimmed = val.trim();
+                        if (valTrimmed.length || val.length === 0) {
+                            self._filterTheMapFunctions(valTrimmed);
+                        }
+                    }
+                }
+            });
+        }
+    };
+
+    // functions that get called after list udfs is called during op view show
+    protected _render() {
+        const self = this;
+        const model = this.model.getModel();
+
+        this._$mapFilter.focus();
+
+        this._resetForm();
+
+        const $groups = this._$panel.find('.group')
+        for (let i = 0; i < model.groups.length; i++) {
+            let $group = $groups.eq(i);
+            const operator: string = model.groups[i].operator;
+            if (!operator) {
+                continue;
+            }
+
+            const operObj = self._getOperatorObj(operator);
+            if (!operObj) {
+                return;
+            }
+
+            // self._$mapFilter.val(operator).trigger("input");
+            $group.find(".categoryMenu").find("li").filter(function() {
+                return $(this).data("category") === operObj.category;
+            }).removeClass("active").click();
+
+            let $li = $group.find(".functionsMenu").find("li").filter(function() {
+                return $(this).text() === operator;
+            });
+            $li.siblings().removeClass("active");
+            $li.addClass("active");
+            self._updateArgumentSection(i, operObj);
+
+            const $args = $group.find(".arg").filter(function() {
+                return $(this).closest(".colNameSection").length === 0;
+            });
+
+            for (let j = 0; j < model.groups[i].args.length; j++) {
+                let arg = model.groups[i].args[j].getValue();
+                if ($args.eq(j).length) {
+                    $args.eq(j).val(arg);
+                    if ($args.eq(j).closest(".row").hasClass("boolOption")) {
+                        if (arg === "true") {
+                            $args.eq(j).closest(".row")
+                                    .find(".boolArgWrap .checkbox")
+                                    .addClass("checked");
+                        }
+                    }
+                } else {
+                    if ($group.find(".addArgWrap").length) {
+                        $group.find(".addArg").last().click(); // change this
+                        $group.find(".arg").filter(function() {
+                            return $(this).closest(".colNameSection")
+                                        .length === 0;
+                        }).last().val(arg);
+                    } else {
+                        break;
+                    }
+                }
+            }
+            $group.find(".resultantColNameRow .arg")
+                  .val(model.groups[i].newFieldName);
+        }
+
+        if (model.icv) {
+            this._$panel.find(".icvMode .checkbox").addClass("checked");
+        }
+
+        self._checkIfStringReplaceNeeded(true);
+    }
+
+    private _functionsInputEvents(): void {
+        const self = this;
 
         this._$mapFilter.on('input', function() {
             const val = $(this).val();
@@ -78,6 +274,7 @@ class MapOpPanel extends GeneralOpPanel {
             if (self._$mapFilter.val() !== "") {
                 self._$mapFilter.val("").trigger("input").focus();
                 event.preventDefault(); // prevent input from blurring
+                self.model.clearFunction(0);
             }
         });
 
@@ -98,217 +295,27 @@ class MapOpPanel extends GeneralOpPanel {
             const $li = $(this);
             $li.siblings().removeClass('active');
             $li.addClass('active');
-            self._updateArgumentSection($li, 0);
+            const func = $li.text().trim();
+
+            const operObj = self._getOperatorObj(func);
+            self.model.enterFunction(func, operObj, 0);
             self._focusNextInput(0);
         });
 
         this._$functionsList.scroll(function() {
             xcTooltip.hideAll();
         });
-
-        let argumentTimer: number;
-        // .arg (argument input)
-        this._$panel.on("input", ".arg", function(_event, options) {
-            // Suggest column name
-            const $input = $(this);
-            if ($input.closest(".dropDownList")
-                        .hasClass("colNameSection")) {
-                // for new column name, do not suggest anything
-                return;
-            }
-
-            if ($input.val() !== "" &&
-                $input.closest('.inputWrap').siblings('.inputWrap')
-                                            .length === 0) {
-                // hide empty options if input is dirty, but only if
-                // there are no sibling inputs from extra arguments
-                self._hideEmptyOptions($input);
-            }
-
-            clearTimeout(argumentTimer);
-            argumentTimer = <any>setTimeout(function() {
-                // XXX the first arg's list scroller won't be set up until
-                // 2nd part of form is filled, need to fix
-                if (options && options.insertText) {
-                    return;
-                }
-
-                self._argSuggest($input);
-                self._checkIfStringReplaceNeeded();
-            }, 200);
-
-            self._updateStrPreview();
-            if (options && options.insertText) {
-                self._checkIfStringReplaceNeeded();
-            }
-        });
-
-
-        // dynamic button - ex. default:multiJoin
-        this._$panel.on('click', '.addMapArg', function() {
-            self._addMapArg($(this));
-        });
-
-        this._$panel.on('click', '.extraArg .xi-cancel', function() {
-            self._removeExtraArg($(this).closest('.extraArg'));
-        });
-
-        this._$panel.on('click', '.checkboxSection', function() {
-            const $checkbox = $(this).find('.checkbox');
-            $checkbox.toggleClass("checked");
-            self._checkIfStringReplaceNeeded();
-        });
-    };
-
-    // options
-    // restore: boolean, if true, will not clear the form from it's last state
-    // restoreTime: time when previous operation took place
-    // triggerColNum: colNum that triggered the opmodal
-    // prefill: object, used to prefill the form
-    // public show = function(currTableId, currColNums, operator,
-    //                                options) {
-    public show(node: DagNodeMap, options: any): XDPromise<any> {
-        const self = this;
-        options = options || {};
-
-        super.show(node, options);
-        const deferred = PromiseHelper.deferred();
-
-        this._formHelper.addWaitingBG({
-            heightAdjust: 20,
-            transparent: true
-        });
-        this._disableInputs();
-        UDF.list()
-        .then(function(listXdfsObj) {
-            const fns = xcHelper.filterUDFs(listXdfsObj.fnDescs);
-            self._udfUpdateOperatorsMap(fns);
-            self._panelShowHelper();
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            Alert.error("Listing of UDFs failed", error.error);
-            deferred.reject();
-        });
-
-        return (deferred.promise());
-    };
-
-    // functions that get called after list udfs is called during op view show
-    protected _panelShowHelper() {
-        const self = this;
-        self.mapData = new MapOpPanelModel(this._dagNode, () => {
-            self._render();
-        });
-        super._panelShowHelper(self.mapData);
-
-        this._$mapFilter.focus();
-        this._enableInputs();
-        this._formHelper.removeWaitingBG();
-        this._formHelper.refreshTabbing();
-
-        $(document).on('mousedown.mapCategoryListener', function(e) {
-            const $target = $(e.target);
-            if (!$target.closest('.catFuncMenus').length &&
-                !$target.is(self._$mapFilter) &&
-                !$target.hasClass('ui-resizable-handle'))
-            {
-                if (self._$categoryList.find('li.active').length &&
-                    self._$functionsList.find('li.active').length === 0)
-                {
-                    const val = self._$mapFilter.val();
-                    const valTrimmed = val.trim();
-                    if (valTrimmed.length || val.length === 0) {
-                        self._filterTheMapFunctions(valTrimmed);
-                    }
-                }
-            }
-        });
-
-        let opInfo;
-        let ops;
-        let args;
-        const params: DagNodeMapInput = this._dagNode.getParam();
-        let newFields;
-        let icv;
-
-        opInfo = xcHelper.extractOpAndArgs(params.eval[0].evalString);
-        ops = [opInfo.op];
-        args = [opInfo.args];
-        newFields = params.eval.map(function(item) {
-            return item.newField;
-        });
-        icv = params.icv;
-
-        this._$panel.find('.group').find(".argsSection").last().empty();
-
-        for (let i = 0; i < ops.length; i++) {
-            let $group: JQuery;
-
-            self._$mapFilter.val(ops[i]).trigger("input");
-            this._$panel.find(".functionsMenu").find("li").filter(function() {
-                return $(this).text() === ops[i];
-            }).click(); // triggers listing of argument inputs
-            $group = this._$panel.find('.group').eq(i);
-
-            const paramArgs = args[i];
-            const $args = $group.find(".arg:visible").filter(function() {
-                return $(this).closest(".colNameSection").length === 0;
-            });
-            for (let j = 0; j < paramArgs.length; j++) {
-                const arg = formatArg(paramArgs[j]);
-
-                if ($args.eq(j).length) {
-                    $args.eq(j).val(arg);
-                    if ($args.eq(j).closest(".row").hasClass("boolOption")) {
-                        if (arg === "true") {
-                            $args.eq(j).closest(".row")
-                                .find(".boolArgWrap .checkbox")
-                                .addClass("checked");
-                        }
-                    }
-                } else { // check if has variable arguments
-                    if ($group.find(".addArgWrap").length) {
-                        $group.find(".addArg").last().click();
-                        $group.find(".arg").filter(function() {
-                            return $(this).closest(".colNameSection")
-                                        .length === 0;
-                        }).last().val(arg);
-                    } else {
-                        break;
-                    }
-                }
-            }
-
-            $group.find(".resultantColNameRow .arg:visible")
-                .val(newFields[i]);
-
-        }
-
-        if (icv) {
-            this._$panel.find(".icvMode .checkbox").addClass("checked");
-        }
-
-        function formatArg(arg) {
-            if (arg.indexOf("'") !== 0 && arg.indexOf('"') !== 0) {
-                if (self._isArgAColumn(arg)) {
-                    // it's a column
-                    if (arg[0] !== gAggVarPrefix) {
-                        // do not prepend colprefix if has aggprefix
-                        arg = gColPrefix + arg;
-                    }
-                }
-            } else {
-                const quote = arg[0];
-                if (arg.lastIndexOf(quote) === arg.length - 1) {
-                    arg = arg.slice(1, -1);
-                }
-            }
-            return arg;
-        }
-
-        self._checkIfStringReplaceNeeded(true);
     }
+
+    public updateOperationsMap(listXdfsObj) {
+        var fns = xcHelper.filterUDFs(listXdfsObj.fnDescs);
+        this._pendingFnUpdate = fns;
+        if (this._formHelper.isOpen()) {
+            // only update once form is closed
+            return;
+        }
+        this._udfUpdateOperatorsMap();
+    };
 
 
     // empty array means the first argument will always be the column name
@@ -345,7 +352,8 @@ class MapOpPanel extends GeneralOpPanel {
         this._$categoryList.html($list);
     }
 
-    private _udfUpdateOperatorsMap(opArray) {
+    private _udfUpdateOperatorsMap() {
+        const opArray = this._pendingFnUpdate;
         const udfCategoryNum = FunctionCategoryT.FunctionCategoryUdf;
         if (opArray.length === 0) {
             delete this._operatorsMap[udfCategoryNum];
@@ -359,34 +367,25 @@ class MapOpPanel extends GeneralOpPanel {
         }
 
         this._operatorsMap[udfCategoryNum] = [];
-        for (let i = 0; i < opArray.length; i++) {
+        for (var i = 0; i < opArray.length; i++) {
             this._operatorsMap[udfCategoryNum].push(opArray[i]);
         }
+        this._pendingFnUpdate = null;
     }
 
     protected _updateColNamesCache() {
         // this.colNamesCache = xcHelper.getColNameMap(tableId);
     }
 
-    protected _isOperationValid() {
-        return this._$functionsList.find('li.active').length > 0;
+    protected _isOperationValid(groupIndex) {
+        return this._$panel.find(".group").eq(groupIndex)
+                           .find(".functionsMenu")
+                           .find('li.active').length > 0;
     }
 
-    protected _showFunctionsInputErrorMsg(inputNum, groupNum) {
-        let text = ErrTStr.NoSupportOp;
-        let $target;
-        if (inputNum === 0) {
-            $target = this._$functionsList.parent();
-            text = ErrTStr.NoEmpty;
-        } else {
-            inputNum = inputNum || 0;
-            groupNum = groupNum || 0;
-            $target = this._$panel.find('.group').eq(groupNum)
-                                    .find('input').eq(inputNum);
-            if ($.trim($target.val()) === "") {
-                text = ErrTStr.NoEmpty;
-            }
-        }
+    protected _showFunctionsInputErrorMsg(_groupNum) {
+        let $target = this._$functionsList.parent();
+        let text = ErrTStr.NoEmpty;
 
         StatusBox.show(text, $target, false, {"offsetX": -5,
                                             preventImmediateHide: true});
@@ -464,39 +463,19 @@ class MapOpPanel extends GeneralOpPanel {
 
     // $li = map's function menu li
     // groupIndex, the index of a group of arguments (multi filter)
-    protected _updateArgumentSection($li, groupIndex) {
-        let category;
-        let categoryNum;
-        let func;
+    protected _updateArgumentSection(groupIndex, operObj) {
         const $argsGroup = this._$panel.find('.group').eq(groupIndex);
-
-        if ($li) {
-            categoryNum = $li.data('category');
-            category = this._categoryNames[categoryNum];
-            func = $li.text().trim();
-        } else {
-            categoryNum = 0;
-            category = this._categoryNames[categoryNum];
-            func = $argsGroup.find('.functionsInput').val().trim();
-        }
-
-
-        const ops = this._functionsMap[categoryNum];
-        let operObj = null;
-
-        for (let i = 0, numOps = ops.length; i < numOps; i++) {
-            if (func === ops[i].displayName) {
-                operObj = ops[i];
-                break;
-            }
-        }
+        let categoryNum = operObj.category;
+        let category = this._categoryNames[categoryNum];
+        let func = operObj.fnName;
 
         const $argsSection = $argsGroup.find('.argsSection').last();
-        const firstTime = $argsSection.html() === "";
-        $argsSection.removeClass('inactive');
+        const firstTime = !$argsSection.hasClass("touched");
         $argsSection.empty();
+        $argsSection.addClass("touched");
+        $argsSection.removeClass('inactive');
         $argsSection.data("fnname", operObj.displayName);
-        this._$panel.find('.icvMode').removeClass('inactive');
+        this._$panel.find(".icvMode").removeClass('inactive');
 
 
         let defaultValue = ""; // to autofill first arg
@@ -549,8 +528,7 @@ class MapOpPanel extends GeneralOpPanel {
 
         this._formHelper.refreshTabbing();
 
-        const noHighlight = true;
-        this._checkIfStringReplaceNeeded(noHighlight);
+        this._checkIfStringReplaceNeeded(true);
         if ((this._$panel.find('.group').length - 1) === groupIndex) {
             const noAnim = (firstTime && groupIndex === 0);
             this._scrollToBottom(noAnim);
@@ -741,7 +719,7 @@ class MapOpPanel extends GeneralOpPanel {
     protected _updateStrPreview(noHighlight?: boolean) {
         const self = this;
         const $description = this._$panel.find(".strPreview");
-        let $inputs = this._$panel.find('.arg:visible');
+        let $inputs = this._$panel.find('.arg');
         let tempText;
         let newText = "";
         let $groups;
@@ -768,7 +746,7 @@ class MapOpPanel extends GeneralOpPanel {
                 }
             }
             newText += funcName + "(";
-            $inputs = $(this).find('.arg:visible').not(":last");
+            $inputs = $(this).find('.arg').not(":last");
 
             let numNonBlankArgs = 0;
             $inputs.each(function() {
@@ -863,7 +841,7 @@ class MapOpPanel extends GeneralOpPanel {
             return existingTypes;
         }
 
-        $group.find('.arg:visible').each(function() {
+        $group.find('.arg').each(function() {
             $input = $(this);
             arg = $input.val().trim();
             type = null;
@@ -894,426 +872,86 @@ class MapOpPanel extends GeneralOpPanel {
         return (existingTypes);
     }
 
-
-    protected _submitForm() {
+    protected _validate(): boolean {
         const self = this;
-        const deferred = PromiseHelper.deferred();
-        let isPassing = true;
-
-        const $groups = this._$panel.find('.group');
-
-        // check if function name is valid (not checking arguments)
-        $groups.each(function(groupNum) {
-            if (!self._isOperationValid()) {
-                const inputNum = 0;
-                self._showFunctionsInputErrorMsg(inputNum, groupNum);
-                isPassing = false;
+        if (this._isAdvancedMode()) {
+            const error: {error: string} = this.model.validateAdvancedMode(this._editor.getValue());
+            if (error != null) {
+                StatusBox.show(error.error, this._$panel.find(".advancedEditor"));
                 return false;
             }
-        });
-
-        if (!isPassing) {
-            return PromiseHelper.reject();
-        }
-
-        const invalidInputs = [];
-
-        if (!self._checkIfBlanksAreValid(invalidInputs)) {
-            self._handleInvalidBlanks(invalidInputs);
-            return PromiseHelper.reject();
-        }
-
-        const multipleArgSets = [];
-        let args = [];
-        // get colType first
-        $groups.each(function(i) {
-            if ($(this).find('.argsSection.inactive').length) {
-                return (true);
-            }
-            const existingTypes = self._getExistingTypes(i);
-            const argFormatHelper = self._argumentFormatHelper(existingTypes, i);
-            isPassing = argFormatHelper.isPassing;
-
-            if (!isPassing) {
-                return false;
-            }
-            args = argFormatHelper.args;
-            multipleArgSets.push(args);
-        });
-
-        if (!isPassing) {
-            return PromiseHelper.reject();
-        }
-
-        this._formHelper.disableSubmit();
-
-        // new column name duplication & validity check
-        this._newColNameCheck()
-        .then(function() {
-            let hasMultipleSets = false;
-            if (multipleArgSets.length > 1){
-                args = multipleArgSets;
-                hasMultipleSets = true;
-            }
-            return self._submitFinalForm(args, hasMultipleSets);
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject)
-        .always(function() {
-            self._formHelper.enableSubmit();
-        });
-
-        return deferred.promise();
-    }
-
-    private _submitFinalForm(args, hasMultipleSets) {
-        const self = this;
-        const deferred = PromiseHelper.deferred();
-        const func = self._$functionsList.find('.active').text().trim();
-        const funcLower = func;
-
-        let colTypeInfos;
-        if (hasMultipleSets) {
-            colTypeInfos = [];
-            for (let i = 0; i < args.length; i++) {
-                colTypeInfos.push(self._getCastInfo(args[i], i));
-            }
         } else {
-            colTypeInfos = self._getCastInfo(args, 0);
-        }
-
-        this._save(funcLower, args, colTypeInfos);
-        this._closeOpSection();
-
-        return deferred.promise();
-    }
-
-    // new column name duplication & validity check
-    private _newColNameCheck() {
-        const deferred = PromiseHelper.deferred();
-        let $nameInput;
-        let isPassing;
-
-        return PromiseHelper.resolve();// XXX skipping name checks
-
-        $nameInput = this._$panel.find('.arg:visible').last();
-        if (this._isNewCol && this._colName !== "" &&
-            ($nameInput.val().trim() === this._colName)) {
-            isPassing = true; // input name matches new column name
-            // which is ok
-        } else {
-
-            // TODO: check name
-            isPassing = true;
-            // const checkOpts = {stripColPrefix: true,
-            //     ignoreNewCol: this.isEditMode};
-            // isPassing = !ColManager.checkColName($nameInput, this.tableId,
-            //                                     null, checkOpts);
-        }
-        if (isPassing) {
-            deferred.resolve();
-        } else {
-            deferred.reject();
-        }
-
-        return deferred.promise();
-    }
-
-
-    // returns an object that contains an array of formated arguments,
-    // an object of each argument's column type
-    // and a flag of whether all arguments are valid or not
-    private _argumentFormatHelper(existingTypes, groupNum) {
-        const self = this;
-        const args = [];
-        let isPassing = true;
-        let colTypes;
-        const allColTypes = [];
-        let errorText;
-        let $errorInput;
-        const inputsToCast = [];
-        let castText;
-        let invalidNonColumnType = false; // when an input does not have a
-        // a column name but still has an invalid type
-        const $group = this._$panel.find('.group').eq(groupNum);
-        $group.find('.arg:visible').each(function(inputNum) {
-            const $input = $(this);
-            // Edge case. GUI-1929
-
-            const $row = $input.closest('.row');
-            const noArgsChecked = $row.find('.noArg.checked').length > 0 ||
-                                ($row.hasClass("boolOption") &&
-                                !$row.find(".boolArg").hasClass("checked"));
-            const emptyStrChecked = $row.find('.emptyStr.checked').length > 0;
-
-            let arg = $input.val();
-            let trimmedArg = arg.trim();
-            // empty field and empty field is allowed
-            if (trimmedArg === "") {
-                if (noArgsChecked) {
-                    if (self._isNoneInInput($input)) {
-                        trimmedArg = "None";
-                    }
-                    args.push(trimmedArg);
-                    return;
-                } else if (emptyStrChecked) {
-                    args.push('"' + arg + '"');
-                    return;
-                }
-            }
-
-            const typeid = $input.data('typeid');
-
-            // col name field, do not add quote
-            if ($input.closest(".dropDownList").hasClass("colNameSection") ||
-                (!$input.data("nofunc") && self._hasFuncFormat(trimmedArg))) {
-                arg = self._parseColPrefixes(trimmedArg);
-            } else if (trimmedArg[0] === gAggVarPrefix) {
-                arg = trimmedArg;
-                // leave it
-            } else if (xcHelper.hasValidColPrefix(trimmedArg)) {
-                arg = self._parseColPrefixes(trimmedArg);
-                if (!self._isEditMode) {
-                    // if it contains a column name
-                    // note that field like pythonExc can have more than one $col
-                    // containsColumn = true;
-                    const frontColName = arg;
-                    const tempColNames = arg.split(",");
-                    let backColNames = "";
-
-                    for (let i = 0; i < tempColNames.length; i++) {
-                        if (i > 0) {
-                            backColNames += ",";
-                        }
-                        const backColName = self._getBackColName(tempColNames[i].trim());
-                        if (!backColName) {
-                            errorText = ErrTStr.InvalidOpNewColumn;
-                            isPassing = false;
-                            $errorInput = $input;
-                            args.push(arg);
-                            return;
-                        }
-                        backColNames += backColName;
-                    }
-
-                    arg = backColNames;
-
-                    // Since there is currently no way for users to specify what
-                    // col types they are expecting in the python functions, we will
-                    // skip this type check if the function category is user defined
-                    // function.
-                    if (!self._isUDF()) {
-                        let types;
-                        if (tempColNames.length > 1 &&
-                            !$input.hasClass("variableArgs") &&
-                            !$input.closest(".extraArg").length &&
-                            !$input.closest(".row")
-                                   .siblings(".addArgWrap").length) {
-                            // non group by fields cannot have multiple column
-                            //  names;
-                            allColTypes.push({});
-                            errorText = ErrTStr.InvalidColName;
-                            $errorInput = $input;
-                            isPassing = false;
-                        } else {
-                            colTypes = self._getAllColumnTypesFromArg(frontColName);
-                            types = self._parseType(typeid);
-                            if (colTypes.length) {
+            const error = this.model.validateGroups();
+            if (error) {
+                const model = this.model.getModel();
+                const groups = model.groups;
+                const $input = this._$panel.find(".group").eq(error.group).find(".arg").eq(error.arg);
+                switch (error.type) {
+                    case ("function"):
+                        self._showFunctionsInputErrorMsg(error.group);
+                        break;
+                    case ("blank"):
+                        self._handleInvalidBlanks([$input]);
+                        break;
+                    case ("other"):
+                        self._statusBoxShowHelper(error.error, $input);
+                        break;
+                    case ("columnType"):
+                        let allColTypes = [];
+                        let inputNums = [];
+                        const group = groups[error.group];
+                        for (var i = 0; i < group.args.length; i++) {
+                            let arg = group.args[i];
+                            if (arg.getType() === "column") {
+                                let colType = self.model.getColumnTypeFromArg(arg.getFormattedValue());
+                                let requiredTypes = self._parseType(arg.getTypeid());
                                 allColTypes.push({
-                                    "inputTypes": colTypes,
-                                    "requiredTypes": types,
-                                    "inputNum": inputNum
+                                    inputTypes: [colType],
+                                    requiredTypes: requiredTypes,
+                                    inputNum: i
                                 });
-                            } else {
-                                allColTypes.push({});
-                                errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
-                                    "name": frontColName
-                                });
-                                $errorInput = $input;
-                                isPassing = false;
-                            }
-                        }
-
-                        if (isPassing || inputsToCast.length) {
-                            const isCasted = $input.data('casted');
-                            if (!isCasted) {
-                                const numTypes = colTypes.length;
-
-                                for (let i = 0; i < numTypes; i++) {
-                                    if (colTypes[i] == null) {
-                                        console.error("colType is null/col not " +
-                                            "pulled!");
-                                        continue;
-                                    }
-
-                                    errorText = self._validateColInputType(types,
-                                                            colTypes[i], $input);
-                                    if (errorText != null) {
-                                        isPassing = false;
-                                        $errorInput = $input;
-                                        inputsToCast.push(inputNum);
-                                        if (!castText) {
-                                            castText = errorText;
-                                        }
-                                        break;
-                                    }
+                                if (!arg.checkIsValid() && arg.getError().includes(ErrWRepTStr.InvalidOpsType.substring(0, 20))) {
+                                    inputNums.push(i);
                                 }
                             }
                         }
-                    } else {
-                        allColTypes.push({});
-                    }
+                        self._handleInvalidArgs(true, $input, error.error, error.arg, allColTypes, inputNums);
+                        break;
+                    case ("valueType"):
+                        self._handleInvalidArgs(false, $input, error.error);
+                        break;
+                    case ("newField"):
+                        StatusBox.show(error.error, this._$panel.find(".group").find(".colNameSection .arg"));
+                        break;
+                    default:
+                        console.warn("unhandled error found", error);
+                        break;
                 }
-            } else if (!isPassing) {
-                arg = trimmedArg;
-                // leave it
-            } else {
-                // checking non column name args such as "hey" or 3, not $col1
-                const checkRes = self._checkArgTypes(trimmedArg, typeid);
-
-                if (checkRes != null && !invalidNonColumnType) {
-                    isPassing = false;
-                    invalidNonColumnType = true;
-                    if (checkRes.currentType === "string" &&
-                        self._hasUnescapedParens($input.val())) {
-                        // function-like string found but invalid format
-                        errorText = ErrTStr.InvalidFunction;
-                    } else {
-                        errorText = ErrWRepTStr.InvalidOpsType;
-                        errorText = xcHelper.replaceMsg(errorText, {
-                            "type1": checkRes.validType.join("/"),
-                            "type2": checkRes.currentType
-                        });
-                    }
-
-                    $errorInput = $input;
-                } else {
-                    const formatArgumentResults = self._formatArgumentInput(arg,
-                                                        typeid,
-                                                        existingTypes);
-                    arg = formatArgumentResults.value;
-                }
+                return false;
             }
-
-            args.push(arg);
-        });
-
-        if (!isPassing) {
-            let isInvalidColType;
-            if (inputsToCast.length) {
-                errorText = castText;
-                isInvalidColType = true;
-                $errorInput = $group.find(".arg:visible").eq(inputsToCast[0]);
-            } else {
-                isInvalidColType = false;
-            }
-            self._handleInvalidArgs(isInvalidColType, $errorInput, errorText, groupNum,
-                              allColTypes, inputsToCast);
         }
 
-        return ({args: args, isPassing: isPassing, allColTypes: allColTypes});
+        return true;
     }
 
-    private _save(operator, args, colTypeInfos) {
-        const numArgs = args.length;
-        const newColName = args.splice(numArgs - 1, 1)[0];
-        const mapStr = this._formulateMapString(operator, args, colTypeInfos);
-        const mapOptions = {
-            formOpenTime: this._formHelper.getOpenTime()
-        };
-        if (this._isNewCol) {
-            mapOptions["replaceColumn"] = true;
-            if (this._colName === "") {
-                const width = xcHelper.getTextWidth(null, newColName);
-                mapOptions["width"] = width;
-            }
+    protected _submitForm() {
+        if (!this._validate()) {
+            return false;
         }
 
-        const icvMode = this._$panel.find(".icvMode .checkbox")
-                        .hasClass("checked");
-
-        // XXX handle map options - replace column
-        this._dagNode.setParam({
-            "eval": [{"evalString": mapStr, "newField": newColName}],
-            "icv": icvMode
-        });
+        this.dataModel.submit();
+        this._closeOpSection();
+        return true;
     }
 
-
-
-
-
-    // hasMultipleSets: boolean, true if there are multiple groups of arguments
-    // such as gt(a, 2) && lt(a, 5)
-    private _formulateMapString(operator, args, colTypeInfos) {
-        let str = "";
-        let argNum;
-        const argGroups = [];
-        const colTypeGroups = [];
-
-        argGroups.push(args);
-        colTypeGroups.push(colTypeInfos);
-
-        for (let i = 0; i < colTypeGroups.length; i++) {
-            for (let j = 0; j < colTypeGroups[i].length; j++) {
-                argNum = colTypeGroups[i][j].argNum;
-                const colNames = argGroups[i][argNum].split(",");
-                let colStr: string = "";
-                for (let k = 0; k < colNames.length; k++) {
-                    if (k > 0) {
-                        colStr += ", ";
-                    }
-                    colStr += xcHelper.castStrHelper(colNames[k],
-                                                colTypeGroups[i][j].type);
-                }
-                argGroups[i][argNum] = colStr;
-            }
-        }
-
-        // loop through groups
-        for (let i = 0; i < argGroups.length; i++) {
-            const fName = operator;
-
-            if (i > 0) {
-                str += ", ";
-            }
-
-            str += fName + "(";
-
-            let numNonBlankArgs = 0;
-            // loop through arguments within a group
-            for (let j = 0; j < argGroups[i].length; j++) {
-                if (argGroups[i][j] !== "") {
-                    str += argGroups[i][j] + ", ";
-                    numNonBlankArgs++;
-                }
-            }
-            if (numNonBlankArgs > 0) {
-                str = str.slice(0, -2);
-            }
-            str += ")";
-        }
-
-        for (let i = 0; i < argGroups.length - 1; i++) {
-            str += ")";
-        }
-        return (str);
-    }
-
-    protected _resetForm() {
+    protected _resetForm(keepFilter?: boolean) {
         super._resetForm();
-        this._$mapFilter.val("");
+        if (!keepFilter) {
+            this._$mapFilter.val("");
+        }
+
         this._$functionsList.empty();
         this._$panel.find('.icvMode').addClass('inactive');
-    }
-
-      // used to disable inputs while UDFS load
-    private _disableInputs() {
-        this._$panel.find('.strPreview, .submit, .opSection')
-                        .addClass('tempDisabled');
-    }
-    private _enableInputs() {
-        this._$panel.find('.tempDisabled').removeClass('tempDisabled');
     }
 
     private _filterTheMapFunctions(val) {
@@ -1357,6 +995,7 @@ class MapOpPanel extends GeneralOpPanel {
             this._$functionsList.find('li').addClass('filteredOut');
             this._$panel.find('.argsSection')
                     .addClass('inactive');
+            this._$panel.find('.argsSection').empty();
             this._$panel.find('.icvMode').addClass('inactive');
             this._$panel.find('.descriptionText').empty();
             this._$panel.find('.strPreview').empty();
@@ -1393,7 +1032,6 @@ class MapOpPanel extends GeneralOpPanel {
         this._suggestLists[groupIndex].splice(argIndex, 0, scroller);
         $ul.removeClass('new');
     }
-
 
     private _getArgInputHtml(typeId) {
         if (typeId == null) {
@@ -1451,5 +1089,12 @@ class MapOpPanel extends GeneralOpPanel {
     protected _closeOpSection() {
         super._closeOpSection();
         $(document).off('mousedown.mapCategoryListener');
+        if (this._pendingFnUpdate) {
+            this._udfUpdateOperatorsMap();
+        }
+    }
+
+    protected _switchMode(toAdvancedMode: boolean): {error: string} {
+        return this.model.switchMode(toAdvancedMode, this._editor);
     }
 }

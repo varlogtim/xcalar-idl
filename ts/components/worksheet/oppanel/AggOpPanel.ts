@@ -1,6 +1,7 @@
 class AggOpPanel extends GeneralOpPanel {
     protected _dagNode: DagNodeAggregate;
-    protected aggData: AggOpPanelModel;
+    protected model: AggOpPanelModel;
+    protected _opCategories: number[] = [FunctionCategoryT.FunctionCategoryAggregate];
 
     public constructor() {
         super();
@@ -18,8 +19,7 @@ class AggOpPanel extends GeneralOpPanel {
         this._$panel.on("input", ".arg", function(_event, options) {
             // Suggest column name
             const $input = $(this);
-            if ($input.closest(".dropDownList")
-                        .hasClass("colNameSection")) {
+            if ($input.closest("colNameSection").length) {
                 // for new column name, do not suggest anything
                 return;
             }
@@ -49,11 +49,20 @@ class AggOpPanel extends GeneralOpPanel {
             }
         });
 
-        this._$panel.on('click', '.checkboxSection', function() {
-            const $checkbox = $(this).find('.checkbox');
-            $checkbox.toggleClass("checked");
-            self._checkIfStringReplaceNeeded();
-        });
+        this._$panel.on("change", ".arg", argChange);
+
+        function argChange() {
+            const $input = $(this);
+            const val = $input.val();
+            const $group = $input.closest(".group")
+            const groupIndex = self._$panel.find(".group").index($group);
+            const argIndex = $group.find(".arg").index($input);
+            if ($input.closest(".colNameSection").length) {
+                self.model.updateAggName(val);
+            } else {
+                self.model.updateArg(val, groupIndex, argIndex);
+            }
+        }
     };
 
     // options
@@ -63,82 +72,59 @@ class AggOpPanel extends GeneralOpPanel {
     // prefill: object, used to prefill the form
     // public show = function(currTableId, currColNums, operator,
     //                                options) {
-    public show(node: DagNodeAggregate, options) {
-        options = options || {};
-        super.show(node, options);
-        this._panelShowHelper();
-        return PromiseHelper.resolve();
+    public show(node: DagNodeAggregate) {
+        if (super.show(node)) {
+            this.model = new AggOpPanelModel(this._dagNode, () => {
+                this._render();
+            });
+            super._panelShowHelper(this.model);
+            this._$panel.find('.functionsInput').focus();
+            this._render();
+            this._formHelper.refreshTabbing();
+        }
     };
 
   // functions that get called after list udfs is called during op view show
-    protected _panelShowHelper() {
+    protected _render(): void {
         const self = this;
-        self.aggData = new AggOpPanelModel(this._dagNode, () => {
-            self._render();
-        });
-        super._panelShowHelper(this.aggData);
-        this._$panel.find('.functionsInput').focus();
+        const model = this.model.getModel();
 
-        this._formHelper.refreshTabbing();
+        this._resetForm();
+        const $groups = this._$panel.find('.group')
+        for (let i = 0; i < model.groups.length; i++) {
+            let $group = $groups.eq(i);
+            const operator: string = model.groups[i].operator;
+            if (!operator) {
+                continue;
+            }
 
-        const params: DagNodeAggregateInput = this._dagNode.getParam();
-        const ops = [];
-        const args = [];
-        let opInfo = xcHelper.extractOpAndArgs(params.evalString);
-        ops.push(opInfo.op);
-        args.push(opInfo.args);
+            const $funcInput: JQuery = $group.find(".functionsInput");
+            $funcInput.val(operator);
+            $funcInput.data("value", operator.trim().toLowerCase());
 
-        for (let i = 0; i < ops.length; i++) {
-            let $group = this._$panel.find('.group').eq(i);
-            $group.find(".functionsInput").val(ops[i]).change();
+            if (this._isOperationValid(i)) {
+                self._updateArgumentSection(i);
+            }
 
-            const paramArgs = args[i];
-            const $args = $group.find(".arg:visible").filter(function() {
+            const $args = $group.find(".arg").filter(function() {
                 return $(this).closest(".colNameSection").length === 0;
             });
-            for (let j = 0; j < paramArgs.length; j++) {
-                let arg = formatArg(paramArgs[j]);
 
-                if ($args.eq(j).length) {
-                    $args.eq(j).val(arg);
-                    if ($args.eq(j).closest(".row").hasClass("boolOption")) {
-                        if (arg === "true") {
-                            $args.eq(j).closest(".row")
+            for (let j = 0; j < model.groups[i].args.length; j++) {
+                let arg = model.groups[i].args[j].getValue();
+
+                $args.eq(j).val(arg);
+                if ($args.eq(j).closest(".row").hasClass("boolOption")) {
+                    if (arg === "true") {
+                        $args.eq(j).closest(".row")
                                 .find(".boolArgWrap .checkbox")
                                 .addClass("checked");
-                        }
-                    }
-                } else { // check if has variable arguments
-                    if ($group.find(".addArgWrap").length) {
-                        $group.find(".addArg").last().click();
-                        $group.find(".arg").filter(function() {
-                            return $(this).closest(".colNameSection")
-                                        .length === 0;
-                        }).last().val(arg);
-                    } else {
-                        break;
                     }
                 }
             }
         }
 
-        function formatArg(arg) {
-            if (arg.indexOf("'") !== 0 && arg.indexOf('"') !== 0) {
-                if (self._isArgAColumn(arg)) {
-                    // it's a column
-                    if (arg[0] !== gAggVarPrefix) {
-                        // do not prepend colprefix if has aggprefix
-                        arg = gColPrefix + arg;
-                    }
-                }
-            } else {
-                const quote = arg[0];
-                if (arg.lastIndexOf(quote) === arg.length - 1) {
-                    arg = arg.slice(1, -1);
-                }
-            }
-            return arg;
-        }
+        this._$panel.find(".colNameSection .arg").val(model.dest);
 
         self._checkIfStringReplaceNeeded(true);
     }
@@ -224,15 +210,9 @@ class AggOpPanel extends GeneralOpPanel {
 
             // if change caused by submit btn, don't clear the input and
             // enterFunctionsInput() will do a check for validity
-            if (!$changeTarg.closest('.submit').length &&
-                !self._isOperationValid($input.data('fninputnum'))) {
-                self._clearFunctionsInput($input.data('fninputnum'), true);
-                return;
-            }
+            const onChange = !$changeTarg.closest('.submit').length;
 
-            if ($input.val() !== "") {
-                self._enterFunctionsInput($input.data('fninputnum'));
-            }
+            self._enterFunctionsInput($input.data('fninputnum'), onChange);
         });
 
         // click icon to toggle functions list
@@ -285,43 +265,32 @@ class AggOpPanel extends GeneralOpPanel {
     }
 
     protected _populateInitialCategoryField() {
-        this._functionsMap = {};
-        this._categoryNames = [];
-        const categoryIndex = FunctionCategoryT.FunctionCategoryAggregate;
-
-        const categoryName = FunctionCategoryTStr[categoryIndex].toLowerCase();
-        this._categoryNames.push(categoryName);
-        const ops = this._operatorsMap[categoryIndex];
-        this._functionsMap[0] = ops;
-
         this._populateFunctionsListUl(0);
     }
 
     protected _populateFunctionsListUl(groupIndex) {
-        const categoryIndex = FunctionCategoryT.FunctionCategoryAggregate;
-        const ops = this._operatorsMap[categoryIndex];
+        const operatorsLists = this._getOperatorsLists();
         let html: HTML = "";
-        for (let i = 0, numOps = ops.length; i < numOps; i++) {
-            html += '<li class="textNoCap">' + ops[i].displayName + '</li>';
-        }
+        operatorsLists.forEach((category: any[]) => {
+            category.forEach((op) => {
+                html += '<li class="textNoCap">' + op.displayName + '</li>';
+            })
+        });
         this._$panel.find('.genFunctionsMenu ul[data-fnmenunum="' +
                                 groupIndex + '"]')
                         .html(html);
     }
-    protected _updateColNamesCache() {
-        // this.colNamesCache = xcHelper.getColNameMap(tableId);
-    }
 
-    //suggest value for .functionsInput
-    protected _suggest($input) {
-        const value = $input.val().trim().toLowerCase();
-        const $list = $input.siblings('.list');
+    // suggest value for .functionsInput
+    protected _suggest($input): void {
+        const value: string = $input.val().trim().toLowerCase();
+        const $list: JQuery = $input.siblings('.list');
 
         this._$panel.find('li.highlighted').removeClass('highlighted');
 
         $list.show().find('li').hide();
 
-        const $visibleLis = $list.find('li').filter(function() {
+        const $visibleLis: JQuery = $list.find('li').filter(function() {
             return (value === "" ||
                     $(this).text().toLowerCase().indexOf(value) !== -1);
         }).show();
@@ -348,49 +317,45 @@ class AggOpPanel extends GeneralOpPanel {
     }
 
     // index is the argument group numbers
-    protected _enterFunctionsInput(index) {
-        index = index || 0;
-        if (!this._isOperationValid(index)) {
-            const $fnInput = this._$panel.find(".group").eq(index)
-                                            .find(".functionsInput");
-            let inputNum = this._$panel.find(".group").eq(index)
-                            .find("input").index($fnInput);
-            if (inputNum < 1) {
-                inputNum = 0;
+    protected _enterFunctionsInput(index: number, onChange?: boolean) {
+        const func = $.trim(this._$panel.find('.group').eq(index)
+                                      .find('.functionsInput').val());
+        const operObj = this._getOperatorObj(func);
+        if (!operObj) {
+            if (!onChange) {
+                this._showFunctionsInputErrorMsg(index);
             }
-
-            this._showFunctionsInputErrorMsg(inputNum, index);
-            this._clearFunctionsInput(index);
-            return;
+            this._clearFunctionsInput(index, onChange);
+        } else {
+            this.model.enterFunction(func, operObj, index);
+            this._focusNextInput(index);
         }
-
-        this._updateArgumentSection(index);
-        this._focusNextInput(index);
     }
 
     protected _clearFunctionsInput(groupNum, keep?: boolean) {
-        const $argsGroup = this._$panel.find('.group').eq(groupNum);
+        const $group = this._$panel.find('.group').eq(groupNum);
+        const $input = $group.find(".functionsInput");
         if (!keep) {
-            $argsGroup.find('.functionsInput')
-                      .val("").attr('placeholder', "");
+            $input.val("").attr('placeholder', "");
         }
-
-        $argsGroup.find('.genFunctionsMenu').data('category', 'null');
-        $argsGroup.find('.argsSection').last().addClass('inactive');
-        $argsGroup.find('.descriptionText').empty();
-        $argsGroup.find('.functionsInput').data("value", "");
+        const val = $input.val().trim();
+        $group.find('.genFunctionsMenu').data('category', 'null');
+        $group.find('.argsSection').last().addClass('inactive');
+        $group.find(".argsSection").empty();
+        $group.find('.descriptionText').empty();
+        $group.find('.functionsInput').data("value", "");
         this._hideDropdowns();
+        this.model.enterFunction(val, null, groupNum);
         this._checkIfStringReplaceNeeded(true);
     }
 
-    protected _showFunctionsInputErrorMsg(inputNum, groupNum) {
+    protected _showFunctionsInputErrorMsg(groupNum) {
         let text = ErrTStr.NoSupportOp;
         let $target;
-
-        inputNum = inputNum || 0;
         groupNum = groupNum || 0;
         $target = this._$panel.find('.group').eq(groupNum)
-                                    .find('input').eq(inputNum);
+                              .find(".functionsInput");
+
         if ($.trim($target.val()) === "") {
             text = ErrTStr.NoEmpty;
         }
@@ -403,35 +368,26 @@ class AggOpPanel extends GeneralOpPanel {
     // $li = map's function menu li
     // groupIndex, the index of a group of arguments (multi filter)
     protected _updateArgumentSection(groupIndex) {
-        let categoryNum;
-        let func;
         const $argsGroup = this._$panel.find('.group').eq(groupIndex);
+        const categoryNum = FunctionCategoryT.FunctionCategoryAggregate;
+        const func = $argsGroup.find('.functionsInput').val().trim();
+        const ops = this._operatorsMap[categoryNum];
 
-        categoryNum = 0;
-        func = $argsGroup.find('.functionsInput').val().trim();
-
-        const ops = this._functionsMap[categoryNum];
-        let operObj = null;
-
-        for (let i = 0, numOps = ops.length; i < numOps; i++) {
-            if (func === ops[i].displayName) {
-                operObj = ops[i];
-                break;
-            }
-        }
+        const operObj = ops.find((op) => {
+            return op.displayName === func;
+        });
 
         const $argsSection = $argsGroup.find('.argsSection').last();
-        const firstTime = $argsSection.html() === "";
-        $argsSection.removeClass('inactive');
+        const firstTime = !$argsSection.hasClass("touched");
         $argsSection.empty();
+        $argsSection.addClass("touched");
+        $argsSection.removeClass('inactive');
         $argsSection.data("fnname", operObj.displayName);
 
         let numArgs = Math.max(Math.abs(operObj.numArgs),
                                 operObj.argDescs.length);
 
-        const numInputsNeeded = numArgs + 1;
-
-        this._addArgRows(numInputsNeeded, $argsGroup, groupIndex);
+        this._addArgRows(numArgs + 1, $argsGroup, groupIndex);
         // get rows now that more were added
         const $rows = $argsSection.find('.row');
 
@@ -445,7 +401,7 @@ class AggOpPanel extends GeneralOpPanel {
         numArgs++;
 
         // hide any args that aren't being used
-        $rows.show().filter(":gt(" + (numArgs - 1) + ")").hide();
+        $rows.show().filter(":gt(" + (numArgs - 1) + ")").remove();
 
         const despText = operObj.fnDesc || "N/A";
         const descriptionHtml = '<b>' + OpFormTStr.Descript + ':</b> ' +
@@ -454,8 +410,8 @@ class AggOpPanel extends GeneralOpPanel {
         $argsGroup.find('.descriptionText').html(descriptionHtml);
 
         this._formHelper.refreshTabbing();
-        const noHighlight = true;
-        this._checkIfStringReplaceNeeded(noHighlight);
+
+        this._checkIfStringReplaceNeeded(true);
         if ((this._$panel.find('.group').length - 1) === groupIndex) {
             const noAnim = (firstTime && groupIndex === 0);
             this._scrollToBottom(noAnim);
@@ -464,7 +420,7 @@ class AggOpPanel extends GeneralOpPanel {
 
     protected _addArgRows(numInputsNeeded, $argsGroup, groupIndex) {
         const self = this;
-        const $argsSection = $argsGroup.find('.argsSection').last();
+        const $argsSection: JQuery = $argsGroup.find('.argsSection').last();
         let argsHtml: HTML = "";
         for (let i = 0; i < numInputsNeeded; i++) {
             argsHtml += this._getArgHtml();
@@ -583,442 +539,102 @@ class AggOpPanel extends GeneralOpPanel {
         return {};
     }
 
-    protected _submitForm() {
+    protected _validate(): boolean {
         const self = this;
-        const deferred = PromiseHelper.deferred();
-        let isPassing = true;
-
-        const $groups = this._$panel.find('.group');
-
-        // check if function name is valid (not checking arguments)
-        $groups.each(function(groupNum) {
-            if (!self._isOperationValid(groupNum)) {
-                const inputNum = 0;
-                self._showFunctionsInputErrorMsg(inputNum, groupNum);
-                isPassing = false;
+        if (this._isAdvancedMode()) {
+            const error: {error: string} = this.model.validateAdvancedMode(this._editor.getValue());
+            if (error != null) {
+                StatusBox.show(error.error, this._$panel.find(".advancedEditor"));
                 return false;
             }
-        });
-
-        if (!isPassing) {
-            return PromiseHelper.reject();
-        }
-
-        const invalidInputs = [];
-
-        if (!self._checkIfBlanksAreValid(invalidInputs)) {
-            self._handleInvalidBlanks(invalidInputs);
-            return PromiseHelper.reject();
-        }
-
-        const multipleArgSets = [];
-        let args = [];
-        // get colType first
-        $groups.each(function(i) {
-            if ($(this).find('.argsSection.inactive').length) {
-                return (true);
-            }
-            const argFormatHelper = self._argumentFormatHelper({}, i);
-            isPassing = argFormatHelper.isPassing;
-
-            if (!isPassing) {
-                return false;
-            }
-            args = argFormatHelper.args;
-            multipleArgSets.push(args);
-        });
-
-        if (!isPassing) {
-            return PromiseHelper.reject();
-        }
-
-        this._formHelper.disableSubmit();
-
-        // new column name duplication & validity check
-        this._newColNameCheck()
-        .then(function() {
-            let hasMultipleSets = false;
-            if (multipleArgSets.length > 1){
-                args = multipleArgSets;
-                hasMultipleSets = true;
-            }
-            self._submitFinalForm(args, hasMultipleSets);
-            deferred.resolve.apply(arguments);
-        })
-        .fail(deferred.reject)
-        .always(function() {
-            self._formHelper.enableSubmit();
-        });
-
-        return deferred.promise();
-    }
-
-    private _submitFinalForm(args, hasMultipleSets) {
-        const self = this;
-        const func = self._$panel.find('.functionsInput').val().trim();
-        const funcLower = func;
-
-        if (!this._aggregateCheck(args)) {
-            return PromiseHelper.reject();
-        }
-
-        let colTypeInfos;
-        if (hasMultipleSets) {
-            colTypeInfos = [];
-            for (let i = 0; i < args.length; i++) {
-                colTypeInfos.push(self._getCastInfo(args[i], i));
-            }
         } else {
-            colTypeInfos = self._getCastInfo(args, 0);
-        }
-
-        this._save(funcLower, args, colTypeInfos);
-        this._closeOpSection();
-    }
-
-    // new column name duplication & validity check
-    private _newColNameCheck() {
-        const self = this;
-        const deferred = PromiseHelper.deferred();
-
-        return PromiseHelper.resolve();// XXX skipping name checks
-
-        // Name input is always the 2nd input
-        const $input = this._$panel.find('.arg').eq(1);
-        let val = $input.val().trim();
-        let errorTitle;
-        let invalid = false;
-        if (val.charAt(0) !== gAggVarPrefix) {
-            errorTitle = xcHelper.replaceMsg(ErrWRepTStr.InvalidAggName, {
-                "aggPrefix": gAggVarPrefix
-            });
-            invalid = true;
-        } else if (!xcHelper.isValidTableName(val.substring(1))) {
-            // test the value after gAggVarPrefix
-            errorTitle = ErrTStr.InvalidAggName;
-            invalid = true;
-        } else if (val.length < 2) {
-            errorTitle = xcHelper.replaceMsg(ErrWRepTStr.InvalidAggLength, {
-                "aggPrefix": gAggVarPrefix
-            });
-            invalid = true;
-        }
-
-        if (invalid) {
-            this._showInvalidAggregateName($input, errorTitle);
-            deferred.reject();
-        } else {
-            // check duplicates
-            val = val.slice(1); // remove prefix
-            XcalarGetConstants(val)
-            .then(function(ret) {
-                if (ret.length) {
-                    errorTitle = xcHelper.replaceMsg(ErrWRepTStr.AggConflict, {
-                        "name": val,
-                        "aggPrefix": gAggVarPrefix
-                    });
-                    self._showInvalidAggregateName($input, errorTitle);
-                    deferred.reject();
-                } else {
-                    deferred.resolve();
-                }
-            })
-            .fail(function() {
-                deferred.resolve();
-            });
-        }
-        return deferred.promise();
-    }
-
-    // returns an object that contains an array of formated arguments,
-    // an object of each argument's column type
-    // and a flag of whether all arguments are valid or not
-    private _argumentFormatHelper(existingTypes, groupNum) {
-        const self = this;
-        const args = [];
-        let isPassing = true;
-        let colTypes;
-        const allColTypes = [];
-        let errorText;
-        let $errorInput;
-        const inputsToCast = [];
-        let castText;
-        let invalidNonColumnType = false; // when an input does not have a
-        // a column name but still has an invalid type
-        const $group = this._$panel.find('.group').eq(groupNum);
-        $group.find('.arg:visible').each(function(inputNum) {
-            const $input = $(this);
-            // Edge case. GUI-1929
-
-            const $row = $input.closest('.row');
-            const noArgsChecked = $row.find('.noArg.checked').length > 0 ||
-                                ($row.hasClass("boolOption") &&
-                                !$row.find(".boolArg").hasClass("checked"));
-            const emptyStrChecked = $row.find('.emptyStr.checked').length > 0;
-
-            let arg = $input.val();
-            let trimmedArg = arg.trim();
-            // empty field and empty field is allowed
-            if (trimmedArg === "") {
-                if (noArgsChecked) {
-                    if (self._isNoneInInput($input)) {
-                        trimmedArg = "None";
-                    }
-                    args.push(trimmedArg);
-                    return;
-                } else if (emptyStrChecked) {
-                    args.push('"' + arg + '"');
-                    return;
-                }
-            }
-
-            const typeid = $input.data('typeid');
-
-            // col name field, do not add quote
-            if ($input.closest(".dropDownList").hasClass("colNameSection") ||
-                (!$input.data("nofunc") && self._hasFuncFormat(trimmedArg))) {
-                arg = self._parseColPrefixes(trimmedArg);
-            } else if (trimmedArg[0] === gAggVarPrefix) {
-                arg = trimmedArg;
-                // leave it
-            } else if (xcHelper.hasValidColPrefix(trimmedArg)) {
-                arg = self._parseColPrefixes(trimmedArg);
-                if (!self._isEditMode) {
-                    // if it contains a column name
-                    // note that field like pythonExc can have more than one $col
-                    // containsColumn = true;
-                    const frontColName = arg;
-                    const tempColNames = arg.split(",");
-                    let backColNames = "";
-
-                    for (let i = 0; i < tempColNames.length; i++) {
-                        if (i > 0) {
-                            backColNames += ",";
-                        }
-                        const backColName = self._getBackColName(tempColNames[i].trim());
-                        if (!backColName) {
-                            errorText = ErrTStr.InvalidOpNewColumn;
-                            isPassing = false;
-                            $errorInput = $input;
-                            args.push(arg);
-                            return;
-                        }
-                        backColNames += backColName;
-                    }
-
-                    arg = backColNames;
-
-                    // Since there is currently no way for users to specify what
-                    // col types they are expecting in the python functions, we will
-                    // skip this type check if the function category is user defined
-                    // function.
-
-                        let types;
-                        if (tempColNames.length > 1 &&
-                            !$input.hasClass("variableArgs") &&
-                            !$input.closest(".extraArg").length &&
-                            !$input.closest(".row")
-                                   .siblings(".addArgWrap").length) {
-                            // non group by fields cannot have multiple column
-                            //  names;
-                            allColTypes.push({});
-                            errorText = ErrTStr.InvalidColName;
-                            $errorInput = $input;
-                            isPassing = false;
-                        } else {
-                            colTypes = self._getAllColumnTypesFromArg(frontColName);
-                            types = self._parseType(typeid);
-                            if (colTypes.length) {
+            const error = this.model.validateGroups();
+            if (error) {
+                const model = this.model.getModel();
+                const groups = model.groups;
+                const $input = this._$panel.find(".group").eq(error.group).find(".arg").eq(error.arg);
+                switch (error.type) {
+                    case ("function"):
+                        self._showFunctionsInputErrorMsg(error.group);
+                        break;
+                    case ("blank"):
+                        self._handleInvalidBlanks([$input]);
+                        break;
+                    case ("other"):
+                        self._statusBoxShowHelper(error.error, $input);
+                        break;
+                    case ("columnType"):
+                        let allColTypes = [];
+                        let inputNums = [];
+                        const group = groups[error.group];
+                        for (var i = 0; i < group.args.length; i++) {
+                            let arg = group.args[i];
+                            if (arg.getType() === "column") {
+                                let colType = self.model.getColumnTypeFromArg(arg.getFormattedValue());
+                                let requiredTypes = self._parseType(arg.getTypeid());
                                 allColTypes.push({
-                                    "inputTypes": colTypes,
-                                    "requiredTypes": types,
-                                    "inputNum": inputNum
+                                    inputTypes: [colType],
+                                    requiredTypes: requiredTypes,
+                                    inputNum: i
                                 });
-                            } else {
-                                allColTypes.push({});
-                                errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
-                                    "name": frontColName
-                                });
-                                $errorInput = $input;
-                                isPassing = false;
-                            }
-                        }
-
-                        if (isPassing || inputsToCast.length) {
-                            const isCasted = $input.data('casted');
-                            if (!isCasted) {
-                                const numTypes = colTypes.length;
-
-                                for (let i = 0; i < numTypes; i++) {
-                                    if (colTypes[i] == null) {
-                                        console.error("colType is null/col not " +
-                                            "pulled!");
-                                        continue;
-                                    }
-
-                                    errorText = self._validateColInputType(types,
-                                                            colTypes[i], $input);
-                                    if (errorText != null) {
-                                        isPassing = false;
-                                        $errorInput = $input;
-                                        inputsToCast.push(inputNum);
-                                        if (!castText) {
-                                            castText = errorText;
-                                        }
-                                        break;
-                                    }
+                                if (!arg.checkIsValid() && arg.getError().includes(ErrWRepTStr.InvalidOpsType.substring(0, 20))) {
+                                    inputNums.push(i);
                                 }
                             }
                         }
-
+                        self._handleInvalidArgs(true, $input, error.error, error.arg, allColTypes, inputNums);
+                        break;
+                    case ("valueType"):
+                        self._handleInvalidArgs(false, $input, error.error);
+                        break;
+                    default:
+                        console.warn("unhandled error found", error);
+                        break;
                 }
-            } else if (!isPassing) {
-                arg = trimmedArg;
-                // leave it
-            } else {
-                // checking non column name args such as "hey" or 3, not $col1
-                const checkRes = self._checkArgTypes(trimmedArg, typeid);
-
-                if (checkRes != null && !invalidNonColumnType) {
-                    isPassing = false;
-                    invalidNonColumnType = true;
-                    if (checkRes.currentType === "string" &&
-                        self._hasUnescapedParens($input.val())) {
-                        // function-like string found but invalid format
-                        errorText = ErrTStr.InvalidFunction;
-                    } else {
-                        errorText = ErrWRepTStr.InvalidOpsType;
-                        errorText = xcHelper.replaceMsg(errorText, {
-                            "type1": checkRes.validType.join("/"),
-                            "type2": checkRes.currentType
-                        });
-                    }
-
-                    $errorInput = $input;
-                } else {
-                    const formatArgumentResults = self._formatArgumentInput(arg,
-                                                        typeid,
-                                                        existingTypes);
-                    arg = formatArgumentResults.value;
-                }
-            }
-
-            args.push(arg);
-        });
-
-        if (!isPassing) {
-            let isInvalidColType;
-            if (inputsToCast.length) {
-                errorText = castText;
-                isInvalidColType = true;
-                $errorInput = $group.find(".arg:visible").eq(inputsToCast[0]);
-            } else {
-                isInvalidColType = false;
-            }
-            self._handleInvalidArgs(isInvalidColType, $errorInput, errorText, groupNum,
-                              allColTypes, inputsToCast);
-        }
-
-        return ({args: args, isPassing: isPassing, allColTypes: allColTypes});
-    }
-
-    private _getColNum(_backColName) {
-        return 1;
-        // return this._table.getColNumByBackName(backColName);
-    }
-
-    private _aggregateCheck(args) {
-        if (!this._hasFuncFormat(args[0])) {
-            const aggColNum = this._getColNum(args[0]);
-            if (aggColNum < 1) {
-                this._statusBoxShowHelper(ErrTStr.InvalidColName,
-                                this._$panel.find('.arg').eq(0));
                 return false;
-            } else {
-                return true;
             }
-        } else {
-            return true;
+
+            const aggNameError = this.model.validateAggName();
+            if (aggNameError) {
+                StatusBox.show(error.error, this._$panel.find(".group").find(".colNameSection .arg"));
+            }
         }
+
+        return true;
     }
 
-    private _save(aggrOp, args, colTypeInfos) {
-        let argStr = args[0];
-        const destName = args[1];
-        if (colTypeInfos.length) {
-            argStr = xcHelper.castStrHelper(args[0], colTypeInfos[0].type);
+    protected _submitForm() {
+        if (!this._validate()) {
+            return false;
         }
-        // XXX keep prefix and store
-        this._dagNode.setParam({
-            "evalString": aggrOp + "(" + argStr + ")",
-            "dest": destName.slice(gAggVarPrefix.length)
-        });
+
+        this.dataModel.submit();
+        this._closeOpSection();
+        return true;
     }
 
-    private _showInvalidAggregateName($input, errorTitle) {
-        const $toolTipTarget = $input.parent();
-
-        xcTooltip.transient($toolTipTarget, {
-            "title": errorTitle,
-            "placement": "right",
-            "template": xcTooltip.Template.Error
-        }, 4000);
-
-        $input.click(hideTooltip);
-
-        function hideTooltip() {
-            $toolTipTarget.tooltip('destroy');
-            $input.off('click', hideTooltip);
-        }
-    }
-
-     // used for args with column names provided like $col1, and not "hey" or 3
-    protected _validateColInputType(requiredTypes, inputType, $input) {
-        if (inputType === "newColumn") {
-            return ErrTStr.InvalidOpNewColumn;
-        } else if (inputType === ColumnType.mixed) {
-            return null;
-        } else if (requiredTypes.includes(inputType)) {
-            return null;
-        } else if (inputType === ColumnType.number &&
-                    (requiredTypes.includes(ColumnType.float) ||
-                     requiredTypes.includes(ColumnType.integer))) {
-            return null;
-        } else if (inputType === ColumnType.string &&
-                    this._hasUnescapedParens($input.val())) {
-            // function-like string found but invalid format
-            return ErrTStr.InvalidFunction;
-        } else {
-            return xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
-                "type1": requiredTypes.join("/"),
-                "type2": inputType
-            });
-        }
-    }
-
-    // private _getColNumFromFunc(str) {
-    //     // assume we're passing in a valid func
-    //     const parenIndex = str.indexOf("(");
-    //     str = str.slice(parenIndex + 1);
-    //     const colName = "";
-    //     const colNum = null;
-    //     for (let i = 0; i < str.length; i++) {
-    //         if (str[i] === "," || str[i] === " " || str[i] === ")") {
-    //             break;
+    // private _aggregateCheck(args) {
+    //     if (!this._hasFuncFormat(args[0])) {
+    //         const aggColNum = this._getColNum(args[0]);
+    //         if (aggColNum < 1) {
+    //             this._statusBoxShowHelper(ErrTStr.InvalidColName,
+    //                             this._$panel.find('.arg').eq(0));
+    //             return false;
     //         } else {
-    //             colName += str[i];
+    //             return true;
     //         }
+    //     } else {
+    //         return true;
     //     }
-    //     if (colName.length) {
-    //         colNum = this._getColNum(colName);
-    //         if (colNum === -1) {
-    //             colNum = null;
-    //         }
-    //     }
-    //     return (colNum);
     // }
+
+
 
     protected _resetForm() {
         super._resetForm();
+    }
+
+    protected _switchMode(toAdvancedMode: boolean): {error: string} {
+        return this.model.switchMode(toAdvancedMode, this._editor);
     }
 }

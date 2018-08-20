@@ -5122,11 +5122,9 @@ namespace xcHelper {
      * assumes valid func structure of {args:[], name:""};
      * @param func
      */
-    export function stringifyFunc(func: ColFunc, funcNameIdentifier?: string): string {
-        return parseFunc(func, funcNameIdentifier);
+    export function stringifyFunc(func: ColFunc): string {
+        return parseFunc(func);
     }
-
-
 
     /**
      * xcHelper.stringifyFunc
@@ -5962,7 +5960,7 @@ namespace xcHelper {
     // }]
     export function formulateMapFilterString(
         groups: OpPanelFunctionGroup[],
-        andOr: string
+        andOr?: string
     ): string {
         let str = "";
         groups.forEach((group, i: number) => {

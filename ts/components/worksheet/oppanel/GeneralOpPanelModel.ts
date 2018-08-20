@@ -120,7 +120,6 @@ class GeneralOpPanelModel {
         arg.setCast(type);
         this._validateArg(arg);
     }
-
     /**
      * Submit the settings of Set op node params
      */
@@ -730,5 +729,119 @@ class GeneralOpPanelModel {
             opLists.push(ops);
         });
         return opLists;
+    }
+
+
+    public validateGroups() {
+        const self = this;
+        const groups = this.groups;
+
+        // function name error
+        for (let i = 0; i < groups.length; i++) {
+            if (!self._isOperationValid(i)) {
+                return {error: ErrTStr.NoSupportOp,
+                        group: i,
+                        arg: -1,
+                        type: "function"};
+            }
+        }
+
+        // blank inputs
+        for (let i = 0; i < groups.length; i++) {
+            const group = groups[i];
+            for (let j = 0; j < group.args.length; j++) {
+                const arg = group.args[j];
+                if (!arg.checkIsValid() && arg.getError() === "No value") {
+                    return {error: arg.getError(),
+                            group: i,
+                            arg: j,
+                            type: "blank"};
+                }
+            }
+        }
+
+        // other errors aside from wrong type
+        for (let i = 0; i < groups.length; i++) {
+            const group = groups[i];
+            for (let j = 0; j < group.args.length; j++) {
+                const arg = group.args[j];
+                if (!arg.checkIsValid() &&
+                    !arg.getError().includes(ErrWRepTStr.InvalidOpsType
+                                                        .substring(0, 20))) {
+                    return {error: arg.getError(),
+                            group: i,
+                            arg: j,
+                            type: "other"};
+                }
+            }
+        }
+
+        // wrong type on column
+        for (let i = 0; i < groups.length; i++) {
+            const group = groups[i];
+            for (let j = 0; j < group.args.length; j++) {
+                const arg = group.args[j];
+                if (!arg.checkIsValid() && arg.getType() === "column" &&
+                    arg.getError().includes(ErrWRepTStr.InvalidOpsType
+                                                       .substring(0, 20))) {
+                    return {error: arg.getError(),
+                            group: i,
+                            arg: j,
+                            type: "columnType"};
+                }
+            }
+        }
+
+        // wrong type on value
+        for (let i = 0; i < groups.length; i++) {
+            const group = groups[i];
+            for (let j = 0; j < group.args.length; j++) {
+                const arg = group.args[j];
+                if (!arg.checkIsValid() &&
+                    arg.getError().includes(ErrWRepTStr.InvalidOpsType
+                                                       .substring(0, 20))) {
+                    return {error: arg.getError(),
+                            group: i,
+                            arg: j,
+                            type: "valueType"};
+                }
+            }
+        }
+        return null;
+    }
+
+    protected _translateAdvancedErrorMessage(error) {
+        let groups = this.groups;
+        let text: string= "";
+        let operator: string = "";
+        if (groups[error.group]) {
+            operator = groups[error.group].operator;
+        }
+        switch (error.type) {
+            case ("function"):
+                if (!operator) {
+                    text = ErrTStr.NoEmpty;
+                } else {
+                    text = "\"" + operator + "\" is not a supported function."
+                }
+                break;
+            case ("blank"):
+                text = ErrTStr.NoEmpty;
+                text = "Argument " + (error.arg + 1) + " in " + operator +
+                       " function is empty.";
+                break;
+            case ("other"):
+                text = error.error + ": " + groups[error.group].args[error.arg].getValue();
+                break;
+            case ("columnType"):
+            case ("valueType"):
+                const arg = groups[error.group].args[error.arg].getValue();
+                text = "Value: " + arg + ". " + error.error;
+                break;
+            default:
+                text = error.error;
+                break;
+        }
+        return {error: text};
     }
 }

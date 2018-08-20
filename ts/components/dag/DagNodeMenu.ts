@@ -118,9 +118,6 @@ namespace DagNodeMenu {
             case (DagNodeType.Filter):
                 FilterOpPanel.Instance.show(node);
                 break;
-            case (DagNodeType.GroupBy):
-                GroupByOpPanel.Instance.show(node);
-                break;
             case (DagNodeType.Join):
                 JoinOpPanel.Instance.show(node);
                 break;
@@ -129,6 +126,8 @@ namespace DagNodeMenu {
                 break;
             case (DagNodeType.Project):
                 ProjectOpPanel.Instance.show(node);
+            case (DagNodeType.GroupBy):
+                // GroupByOpPanel.Instance.show(node); // in progress
                 break;
             case (DagNodeType.Set):
                 SetOpPanel.Instance.show(node);

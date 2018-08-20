@@ -13,15 +13,12 @@ class FilterOpPanel extends GeneralOpPanel {
         super.setupPanel("#filterOpPanel");
 
         this._$panel.find('.addFilterArg').click(function() {
-            // self._addFilterGroup();
-            // self._$panel.find(".andOrToggle").show();
             self.filterData.addGroup();
         });
 
         this._$panel.on('click', '.closeGroup', function() {
             const $group = $(this).closest('.group');
             const index = self._$panel.find(".group").index($group);
-            // self._removeGroup($group);
             self.filterData.removeGroup(index);
         });
 
@@ -86,27 +83,17 @@ class FilterOpPanel extends GeneralOpPanel {
     // restore: boolean, if true, will not clear the form from it's last state
     // restoreTime: time when previous operation took place
     // triggerColNum: colNum that triggered the opmodal
-    public show(node: DagNodeFilter, options) {
-        const self = this;
-        options = options || {};
-        let deferred = PromiseHelper.deferred();
-
-        super.show(node, options)
-        .then(() => {
-            self.filterData = new FilterOpPanelModel(node, () => {
-                self._render();
+    public show(node: DagNodeFilter) {
+        if(super.show(node)) {
+            this.filterData = new FilterOpPanelModel(node, () => {
+                this._render();
             });
-            super._panelShowHelper(self.filterData);
-            self._$panel.find('.functionsInput').focus();
+            super._panelShowHelper(this.filterData);
+            this._$panel.find('.functionsInput').focus();
 
-            self._formHelper.refreshTabbing();
-            self._render();
-
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
+            this._formHelper.refreshTabbing();
+            this._render();
+        }
     }
 
     protected _render(): void {
@@ -371,7 +358,7 @@ class FilterOpPanel extends GeneralOpPanel {
 
     protected _clearFunctionsInput(groupNum: number, keep?: boolean) {
         const $group = this._$panel.find('.group').eq(groupNum);
-        const $input = $group.find(".functionsInput")
+        const $input = $group.find(".functionsInput");
         if (!keep) {
             $input.val("").attr('placeholder', "");
         }
@@ -479,8 +466,8 @@ class FilterOpPanel extends GeneralOpPanel {
 
     protected _addArgRows(numInputsNeeded, $argsGroup, groupIndex) {
         const self = this;
-        const $argsSection = $argsGroup.find('.argsSection').last();
-        let argsHtml = "";
+        const $argsSection: JQuery = $argsGroup.find('.argsSection').last();
+        let argsHtml: HTML = "";
         for (let i = 0; i < numInputsNeeded; i++) {
             argsHtml += this._getArgHtml();
         }
@@ -892,196 +879,6 @@ class FilterOpPanel extends GeneralOpPanel {
         this.dataModel.submit();
         this._closeOpSection();
         return true;
-    }
-
-
-    // returns an object that contains an array of formated arguments,
-    // an object of each argument's column type
-    // and a flag of whether all arguments are valid or not
-    protected _argumentFormatHelper(existingTypes, groupNum) {
-        const self = this;
-        const args = [];
-        let isPassing = true;
-        let colTypes;
-        const allColTypes = [];
-        let errorText;
-        let $errorInput;
-        const inputsToCast = [];
-        let castText;
-        let invalidNonColumnType = false; // when an input does not have a
-        // a column name but still has an invalid type
-        const $group = this._$panel.find('.group').eq(groupNum);
-        $group.find(".arg").each(function(inputNum) {
-            const $input = $(this);
-            // Edge case. GUI-1929
-
-            const $row = $input.closest('.row');
-            const noArgsChecked = $row.find('.noArg.checked').length > 0 ||
-                                ($row.hasClass("boolOption") &&
-                                !$row.find(".boolArg").hasClass("checked"));
-            const emptyStrChecked = $row.find('.emptyStr.checked').length > 0;
-
-            let arg = $input.val();
-            let trimmedArg = arg.trim();
-            // empty field and empty field is allowed
-            if (trimmedArg === "") {
-                if (noArgsChecked) {
-                    if (self._isNoneInInput($input)) {
-                        trimmedArg = "None";
-                    }
-                    args.push(trimmedArg);
-                    return;
-                } else if (emptyStrChecked) {
-                    args.push('"' + arg + '"');
-                    return;
-                }
-            }
-
-            const typeid = $input.data('typeid');
-
-            // col name field, do not add quote
-            if ($input.closest(".dropDownList").hasClass("colNameSection") ||
-                (!$input.data("nofunc") && self._hasFuncFormat(trimmedArg))) {
-                arg = self._parseColPrefixes(trimmedArg);
-            } else if (trimmedArg[0] === gAggVarPrefix) {
-                arg = trimmedArg;
-                // leave it
-            } else if (xcHelper.hasValidColPrefix(trimmedArg)) {
-                arg = self._parseColPrefixes(trimmedArg);
-                if (!self._isEditMode) {
-                    // if it contains a column name
-                    // note that field like pythonExc can have more than one $col
-                    // containsColumn = true;
-                    const frontColName = arg;
-                    const tempColNames = arg.split(",");
-                    let backColNames = "";
-
-                    for (let i = 0; i < tempColNames.length; i++) {
-                        if (i > 0) {
-                            backColNames += ",";
-                        }
-                        const backColName = self._getBackColName(tempColNames[i].trim());
-                        if (!backColName) {
-                            errorText = ErrTStr.InvalidOpNewColumn;
-                            isPassing = false;
-                            $errorInput = $input;
-                            args.push(arg);
-                            return;
-                        }
-                        backColNames += backColName;
-                    }
-
-                    arg = backColNames;
-
-                    // Since there is currently no way for users to specify what
-                    // col types they are expecting in the python functions, we will
-                    // skip this type check if the function category is user defined
-                    // function.
-
-                    let types;
-                    if (tempColNames.length > 1 &&
-                        !$input.hasClass("variableArgs") &&
-                        !$input.closest(".extraArg").length &&
-                        !$input.closest(".row")
-                                .siblings(".addArgWrap").length) {
-                        // non group by fields cannot have multiple column
-                        //  names;
-                        allColTypes.push({});
-                        errorText = ErrTStr.InvalidColName;
-                        $errorInput = $input;
-                        isPassing = false;
-                    } else {
-                        colTypes = self._getAllColumnTypesFromArg(frontColName);
-                        types = self._parseType(typeid);
-                        if (colTypes.length) {
-                            allColTypes.push({
-                                "inputTypes": colTypes,
-                                "requiredTypes": types,
-                                "inputNum": inputNum
-                            });
-                        } else {
-                            allColTypes.push({});
-                            errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
-                                "name": frontColName
-                            });
-                            $errorInput = $input;
-                            isPassing = false;
-                        }
-                    }
-
-                    if (isPassing || inputsToCast.length) {
-                        const isCasted = $input.data('casted');
-                        if (!isCasted) {
-                            const numTypes = colTypes.length;
-
-                            for (let i = 0; i < numTypes; i++) {
-                                if (colTypes[i] == null) {
-                                    console.error("colType is null/col not " +
-                                        "pulled!");
-                                    continue;
-                                }
-
-                                errorText = self._validateColInputType(types,
-                                                        colTypes[i], $input);
-                                if (errorText != null) {
-                                    isPassing = false;
-                                    $errorInput = $input;
-                                    inputsToCast.push(inputNum);
-                                    if (!castText) {
-                                        castText = errorText;
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                }
-            } else if (!isPassing) {
-                arg = trimmedArg;
-                // leave it
-            } else {
-                // checking non column name args such as "hey" or 3, not $col1
-                const checkRes = self._checkArgTypes(trimmedArg, typeid);
-
-                if (checkRes != null && !invalidNonColumnType) {
-                    isPassing = false;
-                    invalidNonColumnType = true;
-                    if (checkRes.currentType === "string" &&
-                        self._hasUnescapedParens($input.val())) {
-                        // function-like string found but invalid format
-                        errorText = ErrTStr.InvalidFunction;
-                    } else {
-                        errorText = ErrWRepTStr.InvalidOpsType;
-                        errorText = xcHelper.replaceMsg(errorText, {
-                            "type1": checkRes.validType.join("/"),
-                            "type2": checkRes.currentType
-                        });
-                    }
-
-                    $errorInput = $input;
-                } else {
-                    arg = self._formatArgumentInput(arg,typeid, existingTypes).value;
-                }
-            }
-
-            args.push(arg);
-        });
-
-        if (!isPassing) {
-            let isInvalidColType;
-            if (inputsToCast.length) {
-                errorText = castText;
-                isInvalidColType = true;
-                $errorInput = $group.find(".arg").eq(inputsToCast[0]);
-            } else {
-                isInvalidColType = false;
-            }
-            self._handleInvalidArgs(isInvalidColType, $errorInput, errorText, groupNum,
-                                allColTypes, inputsToCast);
-        }
-
-        return ({args: args, isPassing: isPassing, allColTypes: allColTypes});
     }
 
     // hasMultipleSets: boolean, true if there are multiple groups of arguments

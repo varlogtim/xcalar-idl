@@ -223,19 +223,11 @@ class GeneralOpPanel extends BaseOpPanel {
         this._operatorsMap = XDFManager.Instance.getOperatorsMap();
     }
 
-    public show(node: DagNode, options: any): XDPromise<any> {
+    public show(node: DagNode): boolean {
         const self = this;
         this._dagNode = node;
         if (this._formHelper.isOpen()) {
-            return PromiseHelper.reject();
-        }
-        options = options || {};
-        if (options.restoreTime &&
-            options.restoreTime !== self._formHelper.getOpenTime()) {
-            // if restoreTime and formOpenTime do not match, it means we're
-            // trying to restore a form to a state that's already been
-            // overwritten
-            return PromiseHelper.reject();
+            return false;
         }
 
         this._operatorName = this._dagNode.getType().toLowerCase().trim();
@@ -260,7 +252,7 @@ class GeneralOpPanel extends BaseOpPanel {
             }
         };
 
-        this._operationsViewShowListeners(options.restore);
+        this._operationsViewShowListeners();
 
         // used for css class
         const opNameNoSpace: string = this._operatorName.replace(/ /g, "");
@@ -287,7 +279,7 @@ class GeneralOpPanel extends BaseOpPanel {
         this._formHelper.setup({"columnPicker": columnPickerOptions});
 
         this._toggleOpPanelDisplay(false);
-        return PromiseHelper.resolve();
+        return true;
     }
 
     public updateColumns(): void {
@@ -337,7 +329,7 @@ class GeneralOpPanel extends BaseOpPanel {
     }
 
     // listeners added whenever operation view opens
-    protected _operationsViewShowListeners(_restoring: boolean) {
+    protected _operationsViewShowListeners() {
         const self = this;
         $("#mainFrame").on("mousedown.keepInputFocused", ".xcTable .header, " +
                         ".xcTable td.clickable", self._keepInputFocused.bind(self));

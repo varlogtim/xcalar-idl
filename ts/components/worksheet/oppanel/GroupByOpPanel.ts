@@ -2,7 +2,8 @@ class GroupByOpPanel extends GeneralOpPanel {
     private _focusedColListNum: number;
     private _tableId: TableId;
     protected _dagNode: DagNodeGroupBy;
-    private groupByData: GroupByOpPanelModel;
+    private model: GroupByOpPanelModel;
+    protected _opCategories: number[] = [FunctionCategoryT.FunctionCategoryAggregate];
 
     public constructor() {
         super();
@@ -13,8 +14,21 @@ class GroupByOpPanel extends GeneralOpPanel {
         const self = this;
         super.setupPanel("#groupByOpPanel");
 
+        // adds field to group on input
+         this._$panel.on("click", ".addGroupArg", function() {
+            self.model.addGroupOnArg();
+        });
+
+        this._$panel.on('click', '.extraArg .xi-cancel', function() {
+            const $row: JQuery = $(this).closest(".gbOnRow");
+            const index: number = this._$panel.find(".gbOnRow").index($row);
+            self.model.removeGroupOnArg(index);
+        });
+
         this._$panel.on('click', '.closeGroup', function() {
-            self._removeGroup($(this).closest('.group'));
+            const $group = $(this).closest('.group');
+            const index = self._$panel.find(".group").index($group);
+            self.model.removeGroup(index);
         });
 
         this._functionsInputEvents();
@@ -58,21 +72,29 @@ class GroupByOpPanel extends GeneralOpPanel {
             }
         });
 
-        // adds field to group on input
-        this._$panel.on("click", ".addGroupArg", function() {
-            const $allGroups = self._$panel.find(".group");
-            const $group = $(this).closest(".group");
-            const groupIndex = $allGroups.index($group);
-            self._addGroupOnArg(groupIndex);
-        });
+        this._$panel.on("change", ".arg", argChange);
+
+        function argChange() {
+            const $input = $(this);
+
+            const val = $input.val();
+            const $group = $input.closest(".group")
+            const groupIndex = self._$panel.find(".group").index($group);
+
+            if ($input.closest(".colNameSection").length) {
+                self.model.updateNewFieldName(val, groupIndex);
+            } else if ($input.closest(".gbOnArg").length) {
+                const argIndex = $group.find(".groupOnSection .arg").index($input);
+                self.model.updateGroupOnArg(val, argIndex);
+            } else {
+                const argIndex = $group.find(".argsSection:not(.groupOnSection) .arg").index($input);
+                self.model.updateArg(val, groupIndex, argIndex);
+            }
+        }
 
         // add filter arguments button
         this._$panel.find('.addGBGroup').click(function() {
-            self._addGroupbyGroup();
-        });
-
-        this._$panel.on('click', '.extraArg .xi-cancel', function() {
-            self._removeExtraArg($(this).closest('.extraArg'));
+            self.model.addGroup();
         });
 
         this._$panel.on('click', '.checkboxSection', function() {
@@ -184,49 +206,26 @@ class GroupByOpPanel extends GeneralOpPanel {
     // prefill: object, used to prefill the form
     // public show = function(currTableId, currColNums, operator,
     //                                options) {
-    public show(node: DagNodeGroupBy, options): XDPromise<void> {
+    public show(node: DagNodeGroupBy, options): boolean {
+        if (this._formHelper.isOpen()) {
+            return false;
+        }
+
         const self = this;
         options = options || {};
         this._dagNode = node;
-        if (this._formHelper.isOpen()) {
-            return PromiseHelper.reject();
-        }
-        if (options.restoreTime &&
-            options.restoreTime !== self._formHelper.getOpenTime()) {
-            // if restoreTime and formOpenTime do not match, it means we're
-            // trying to restore a form to a state that's already been
-            // overwritten
-            return PromiseHelper.reject();
-        }
 
-        if (!options.restore) {
-            this._operatorName = this._dagNode.getType().toLowerCase().trim();
-        }
+
+        this._operatorName = this._dagNode.getType().toLowerCase().trim();
+
 
         this._showPanel(this._operatorName);
 
         // XXX need reference to table or dag node
 
-        if (!options.restore) {
-            // changes mainMenu and assigns activeOpSection
-            this._resetForm();
-        }
-        this._table = this._dagNode.getTable();
-        this._table = {
-            hasColWithBackName: function() {return true;},
-            getColByFrontName: function(name) {
-                return ColManager.newCol({
-                    "backName": name,
-                    "name": name,
-                    "isNewCol": false,
-                    "sizedTo": "header",
-                    "width": xcHelper.getDefaultColWidth(name),
-                    "userStr": '"' + name + '" = pull(' + name + ')'
-                });
-            }
-        };
+        this._resetForm();
 
-        this._operationsViewShowListeners(options.restore);
+        this._operationsViewShowListeners();
 
         // used for css class
         const opNameNoSpace = this._operatorName.replace(/ /g, "");
@@ -256,7 +255,14 @@ class GroupByOpPanel extends GeneralOpPanel {
         this._formHelper.setup({"columnPicker": columnPicker});
 
         this._toggleOpPanelDisplay(false);
-        this._panelShowHelper();
+        this.model = new GroupByOpPanelModel(this._dagNode, () => {
+            this._render();
+        });
+
+        super._panelShowHelper(this.model);
+        this._populateGroupOnFields([]);
+        this._formHelper.refreshTabbing();
+        this._render();
     };
 
     public updateColumns() {
@@ -284,53 +290,84 @@ class GroupByOpPanel extends GeneralOpPanel {
     }
 
     // functions that get called after list udfs is called during op view show
-    protected _panelShowHelper() {
+    protected _render() {
         const self = this;
-        self.groupByData = new GroupByOpPanelModel(this._dagNode, () => {
-            self._render();
-        });
-        super._panelShowHelper(this.groupByData);
-        this._populateGroupOnFields([]);
-        this._formHelper.refreshTabbing();
+        const model = this.model.getModel();
+        //{
+        // groupOnCols: string[],
+        // groups: OpPanelFunctionGroup[],
+        // includeSample: boolean,
+        // icv: boolean,
+        // groupAll: boolean,
+        // }
+        this._resetForm();
 
-        const params = this._dagNode.getParam();
-        const ops = [];
-        const args = [];
-        const newFields = [];
-        const icv = params.icv;
-        const includeSample = params.includeSample;
-        const groupAll = params.groupAll;
+        const icv = model.icv;
+        const includeSample = model.includeSample;
+        const groupAll = model.groupAll;
 
-        params.aggregate.forEach((aggInfo) => {
-            ops.push(aggInfo.operator);
-            args.push(aggInfo.sourceColumn);
-            newFields.push(aggInfo.destColumn);
-        });
-
-        for (let i = 0; i < params.groupBy.length; i++) {
+        for (let i = 0; i < model.groupOnCols.length; i++) {
             if (i > 0) {
                 this._addGroupOnArg(0);
             }
-            const name = params.groupBy[i];
+            const name = model.groupOnCols[i];
             this._$panel.find('.gbOnArg').last().val(gColPrefix + name);
             this._checkHighlightTableCols(this._$panel.find('.gbOnArg').last());
         }
         this._$panel.find('.gbOnArg').last().blur();
 
-        for (let i = 0; i < params.aggregate.length; i++) {
+        for (let i = 0; i < model.groups.length; i++) {
             if (i > 0) {
                 this._addGroupbyGroup();
             }
-            const aggInfo = params.aggregate[i];
-            const arg = formatArg(aggInfo.sourceColumn);
             const $group = this._$panel.find('.group').eq(i);
-            $group.find(".functionsInput").val(aggInfo.operator).change();
-            const $arg = $group.find(".arg:visible:not(.gbOnArg)").filter(function() {
+            const operator: string = model.groups[i].operator;
+            if (!operator) {
+                continue;
+            }
+
+            const operObj = self._getOperatorObj(operator);
+            if (!operObj) {
+                return;
+            }
+
+            const $funcInput: JQuery = $group.find(".functionsInput");
+            $funcInput.val(operator);
+            $funcInput.data("value", operator.trim().toLowerCase());
+
+            if (this._isOperationValid(i)) {
+                self._updateArgumentSection(i);
+            }
+
+            const $args = $group.find(".argsSection:not(.groupOnSection) .arg").filter(function() {
                 return $(this).closest(".colNameSection").length === 0;
             });
-            $arg.val(arg);
-            $group.find(".resultantColNameRow .arg:visible")
-                .val(aggInfo.destColumn);
+
+            for (let j = 0; j < model.groups[i].args.length; j++) {
+                let arg = model.groups[i].args[j].getValue();
+                if ($args.eq(j).length) {
+                    $args.eq(j).val(arg);
+                    if ($args.eq(j).closest(".row").hasClass("boolOption")) {
+                        if (arg === "true") {
+                            $args.eq(j).closest(".row")
+                                    .find(".boolArgWrap .checkbox")
+                                    .addClass("checked");
+                        }
+                    }
+                } else {
+                    if ($group.find(".addArgWrap").length) {
+                        $group.find(".addArg").last().click(); // change this
+                        $group.find(".arg").filter(function() {
+                            return $(this).closest(".colNameSection")
+                                        .length === 0;
+                        }).last().val(arg);
+                    } else {
+                        break;
+                    }
+                }
+            }
+            $group.find(".resultantColNameRow .arg")
+                  .val(model.groups[i].newFieldName);
         }
 
         if (icv) {
@@ -343,24 +380,6 @@ class GroupByOpPanel extends GeneralOpPanel {
 
         if (groupAll) {
             this._$panel.find(".groupByAll .checkbox").click();
-        }
-
-        function formatArg(arg) {
-            if (arg.indexOf("'") !== 0 && arg.indexOf('"') !== 0) {
-                if (self._isArgAColumn(arg)) {
-                    // it's a column
-                    if (arg[0] !== gAggVarPrefix) {
-                        // do not prepend colprefix if has aggprefix
-                        arg = gColPrefix + arg;
-                    }
-                }
-            } else {
-                const quote = arg[0];
-                if (arg.lastIndexOf(quote) === arg.length - 1) {
-                    arg = arg.slice(1, -1);
-                }
-            }
-            return arg;
         }
 
         self._checkIfStringReplaceNeeded(true);
@@ -447,15 +466,9 @@ class GroupByOpPanel extends GeneralOpPanel {
 
             // if change caused by submit btn, don't clear the input and
             // enterFunctionsInput() will do a check for validity
-            if (!$changeTarg.closest('.submit').length &&
-                !self._isOperationValid($input.data('fninputnum'))) {
-                self._clearFunctionsInput($input.data('fninputnum'), true);
-                return;
-            }
+            const onChange = !$changeTarg.closest('.submit').length;
 
-            if ($input.val() !== "") {
-                self._enterFunctionsInput($input.data('fninputnum'));
-            }
+            self._enterFunctionsInput($input.data('fninputnum'), onChange);
         });
 
         // click icon to toggle functions list
@@ -523,16 +536,6 @@ class GroupByOpPanel extends GeneralOpPanel {
     }
 
     protected _populateInitialCategoryField() {
-        this._functionsMap = {};
-        this._categoryNames = [];
-        let categoryName;
-        const categoryIndex = FunctionCategoryT.FunctionCategoryAggregate;
-
-        categoryName = FunctionCategoryTStr[categoryIndex].toLowerCase();
-        this._categoryNames.push(categoryName);
-        const ops = this._operatorsMap[categoryIndex];
-        this._functionsMap[0] = ops;
-
         this._populateFunctionsListUl(0);
     }
 
@@ -588,52 +591,50 @@ class GroupByOpPanel extends GeneralOpPanel {
     }
 
     // index is the argument group numbers
-    protected _enterFunctionsInput(index) {
-        index = index || 0;
-        if (!this._isOperationValid(index)) {
-            const $fnInput = this._$panel.find(".group").eq(index)
-                                            .find(".functionsInput");
-            let inputNum = this._$panel.find(".group").eq(index)
-                            .find("input").index($fnInput);
-            if (inputNum < 1) {
-                inputNum = 0;
+    protected _enterFunctionsInput(index: number, onChange?: boolean) {
+        const func = $.trim(this._$panel.find('.group').eq(index)
+                                      .find('.functionsInput').val());
+        const operObj = this._getOperatorObj(func);
+        if (!operObj) {
+            if (!onChange) {
+                this._showFunctionsInputErrorMsg(index);
             }
-
-            this._showFunctionsInputErrorMsg(inputNum, index);
-            this._clearFunctionsInput(index);
-            return;
+            this._clearFunctionsInput(index, onChange);
+        } else {
+            this.model.enterFunction(func, operObj, index);
+            this._focusNextInput(index);
         }
-
-        this._updateArgumentSection(index);
-        this._focusNextInput(index);
     }
 
     protected _clearFunctionsInput(groupNum, keep?: boolean) {
         const $argsGroup = this._$panel.find('.group').eq(groupNum);
+        const $input = $argGroup.find(".functionsInput");
         if (!keep) {
             $argsGroup.find('.functionsInput')
                       .val("").attr('placeholder', "");
         }
+        const val = $input.val().trim();
 
         $argsGroup.find('.genFunctionsMenu').data('category', 'null');
         $argsGroup.find('.argsSection').last().addClass('inactive');
+        $argsGroup.find('.argsSection').last().empty();
         this._$panel.find('.gbCheckboxes').addClass('inactive');
         this._$panel.find('.icvMode').addClass('inactive');
         this._$panel.find(".advancedSection").addClass("inactive");
         $argsGroup.find('.descriptionText').empty();
         $argsGroup.find('.functionsInput').data("value", "");
         this._hideDropdowns();
+        this.model.enterFunction(val, null, groupNum);
         this._checkIfStringReplaceNeeded(true);
     }
 
-    protected _showFunctionsInputErrorMsg(inputNum, groupNum) {
+    protected _showFunctionsInputErrorMsg(groupNum) {
         let text = ErrTStr.NoSupportOp;
         let $target;
-
-        inputNum = inputNum || 0;
         groupNum = groupNum || 0;
         $target = this._$panel.find('.group').eq(groupNum)
-                                    .find('input').eq(inputNum);
+                              .find(".functionsInput");
+
         if ($.trim($target.val()) === "") {
             text = ErrTStr.NoEmpty;
         }
@@ -646,26 +647,19 @@ class GroupByOpPanel extends GeneralOpPanel {
     // $li = map's function menu li
     // groupIndex, the index of a group of arguments (multi filter)
     protected _updateArgumentSection(groupIndex) {
-        let categoryNum;
-        let func;
         const $argsGroup = this._$panel.find('.group').eq(groupIndex);
+        const categoryNum = FunctionCategoryT.FunctionCategoryAggregate;
+        const func = $argsGroup.find('.functionsInput').val().trim();
+        const ops = this._operatorsMap[categoryNum];
 
-        categoryNum = 0;
-        func = $argsGroup.find('.functionsInput').val().trim();
-
-        const ops = this._functionsMap[categoryNum];
-        let operObj = null;
-
-        for (let i = 0, numOps = ops.length; i < numOps; i++) {
-            if (func === ops[i].displayName) {
-                operObj = ops[i];
-                break;
-            }
-        }
+        const operObj = ops.find((op) => {
+            return op.displayName === func;
+        });
 
         const $argsSection = $argsGroup.find('.argsSection').last();
-        $argsSection.removeClass('inactive');
         $argsSection.empty();
+        $argsSection.addClass("touched");
+        $argsSection.removeClass('inactive');
         $argsSection.data("fnname", operObj.displayName);
 
         this._$panel.find(".advancedSection").removeClass("inactive");
@@ -879,7 +873,7 @@ class GroupByOpPanel extends GeneralOpPanel {
 
     private _checkArgsHasCol(colName) {
         let found = false;
-        this._$panel.find(".arg:visible").each(function() {
+        this._$panel.find(".arg").each(function() {
             const $arg = $(this);
             if ($arg.data("colname") === colName) {
                 found = true;
@@ -1027,112 +1021,77 @@ class GroupByOpPanel extends GeneralOpPanel {
     }
 
     protected _submitForm() {
-        const self = this;
-        const deferred = PromiseHelper.deferred();
-        let isPassing = true;
-
-        const $groups = this._$panel.find('.group');
-
-        // check if function name is valid (not checking arguments)
-        $groups.each(function(groupNum) {
-            if (!self._isOperationValid(groupNum)) {
-                const $group = self._$panel.find(".group").eq(groupNum);
-                const $fnInput = $group.find('.functionsInput');
-                const inputNum = $group.find('input').index($fnInput);
-                self._showFunctionsInputErrorMsg(inputNum, groupNum);
-                isPassing = false;
-                return false;
-            }
-        });
-
-        if (!isPassing) {
-            return PromiseHelper.reject();
+        if (!this._validate()) {
+            return false;
         }
 
-        const invalidInputs = [];
-
-        if (!self._checkIfBlanksAreValid(invalidInputs)) {
-            self._handleInvalidBlanks(invalidInputs);
-            return PromiseHelper.reject();
-        }
-
-        const multipleArgSets = [];
-        let args = [];
-        // get colType first
-        $groups.each(function(i) {
-            if ($(this).find('.argsSection.inactive').length) {
-                return (true);
-            }
-            const existingTypes = self._getExistingTypes(i);
-            const argFormatHelper = self._argumentFormatHelper(existingTypes, i);
-            isPassing = argFormatHelper.isPassing;
-
-            if (!isPassing) {
-                return false;
-            }
-            args = argFormatHelper.args;
-            multipleArgSets.push(args);
-        });
-
-        if (!isPassing) {
-            return PromiseHelper.reject();
-        }
-
-        this._formHelper.disableSubmit();
-
-        // new column name duplication & validity check
-        this._newColNameCheck()
-        .then(function() {
-            let hasMultipleSets = false;
-            if (multipleArgSets.length > 1){
-                args = multipleArgSets;
-                hasMultipleSets = true;
-            }
-            return self._submitFinalForm(args, hasMultipleSets);
-        })
-        .then(deferred.resolve)
-        .fail(deferred.reject)
-        .always(function() {
-            self._formHelper.enableSubmit();
-        });
-
-        return deferred.promise();
+        this.model.submit();
+        this._closeOpSection();
+        return true;
     }
 
-    private _submitFinalForm(args, hasMultipleSets) {
+    protected _validate(): boolean {
         const self = this;
-        const deferred = PromiseHelper.deferred();
-
-        if (!this._groupByCheck(args, hasMultipleSets)) {
-            return PromiseHelper.reject();
-        }
-
-        let colTypeInfos;
-        if (hasMultipleSets) {
-            colTypeInfos = [];
-            for (let i = 0; i < args.length; i++) {
-                colTypeInfos.push(self._getCastInfo(args[i], i));
+        if (this._isAdvancedMode()) {
+            const error: {error: string} = this.model.validateAdvancedMode(this._editor.getValue());
+            if (error != null) {
+                StatusBox.show(error.error, this._$panel.find(".advancedEditor"));
+                return false;
             }
         } else {
-            args = [args];
-            colTypeInfos = [self._getCastInfo(args, 0)];
+            const error = this.model.validateGroups();
+            if (error) {
+                const model = this.model.getModel();
+                const groups = model.groups;
+                const $input = this._$panel.find(".group").eq(error.group).find(".arg").eq(error.arg);
+                switch (error.type) {
+                    case ("function"):
+                        self._showFunctionsInputErrorMsg(error.group);
+                        break;
+                    case ("blank"):
+                        self._handleInvalidBlanks([$input]);
+                        break;
+                    case ("other"):
+                        self._statusBoxShowHelper(error.error, $input);
+                        break;
+                    case ("columnType"):
+                        let allColTypes = [];
+                        let inputNums = [];
+                        const group = groups[error.group];
+                        for (var i = 0; i < group.args.length; i++) {
+                            let arg = group.args[i];
+                            if (arg.getType() === "column") {
+                                let colType = self.model.getColumnTypeFromArg(arg.getFormattedValue());
+                                let requiredTypes = self._parseType(arg.getTypeid());
+                                allColTypes.push({
+                                    inputTypes: [colType],
+                                    requiredTypes: requiredTypes,
+                                    inputNum: i
+                                });
+                                if (!arg.checkIsValid() && arg.getError().includes(ErrWRepTStr.InvalidOpsType.substring(0, 20))) {
+                                    inputNums.push(i);
+                                }
+                            }
+                        }
+                        self._handleInvalidArgs(true, $input, error.error, error.arg, allColTypes, inputNums);
+                        break;
+                    case ("valueType"):
+                        self._handleInvalidArgs(false, $input, error.error);
+                        break;
+                    case ("newField"):
+                        StatusBox.show(error.error, this._$panel.find(".group").find(".colNameSection .arg"));
+                        break;
+                    default:
+                        console.warn("unhandled error found", error);
+                        break;
+                }
+                return false;
+            }
         }
 
-        const funcs = [];
-        this._$panel.find(".group").each(function() {
-            const fName = $(this).find(".argsSection").last()
-                                                .data("fnname");
-            funcs.push(fName);
-        });
-
-        this._save(funcs, args, colTypeInfos)
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
-        this._closeOpSection();
-
-        return deferred.promise();
+        return true;
     }
+
 
     // new column name duplication & validity check
     private _newColNameCheck() {
@@ -1145,8 +1104,8 @@ class GroupByOpPanel extends GeneralOpPanel {
 
         this._$panel.find(".group").each(function() {
             const $group = $(this);
-            const numArgs = $group.find('.arg:visible').length;
-            $nameInput = $group.find('.arg:visible').eq(numArgs - 1);
+            const numArgs = $group.find('.arg').length;
+            $nameInput = $group.find('.arg').eq(numArgs - 1);
             const checkOpts = {
                 strictDuplicates: true,
                 stripColPrefix: true
@@ -1202,7 +1161,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         if (this._$panel.find(".groupByAll .checkbox").hasClass("checked")) {
             args.push(undefined);
         }
-        $group.find('.arg:visible').each(function(inputNum) {
+        $group.find('.arg').each(function(inputNum) {
             const $input = $(this);
             // Edge case. GUI-1929
 
@@ -1362,7 +1321,7 @@ class GroupByOpPanel extends GeneralOpPanel {
             if (inputsToCast.length) {
                 errorText = castText;
                 isInvalidColType = true;
-                $errorInput = $group.find(".arg:visible").eq(inputsToCast[0]);
+                $errorInput = $group.find(".arg").eq(inputsToCast[0]);
             } else {
                 isInvalidColType = false;
             }
@@ -1691,19 +1650,6 @@ class GroupByOpPanel extends GeneralOpPanel {
         return html;
     }
 
-    private _removeExtraArg($inputWrap) {
-        const $allGroups = this._$panel.find('.group');
-        const groupIndex = $allGroups.index($inputWrap.closest('.group'));
-        const $ul = $inputWrap.find(".list");
-        const argIndex = $ul.closest('.group').find('.list.hint').index($ul);
-
-        this._suggestLists[groupIndex].splice(argIndex, 1);
-        const $input = $inputWrap.find(".arg");
-        $input.val("");
-        $inputWrap.remove();
-        this._checkIfStringReplaceNeeded();
-    }
-
     private _getGroupbyGroupHtml(index) {
         const html =
         '<div class="group groupbyGroup">' +
@@ -1850,5 +1796,9 @@ class GroupByOpPanel extends GeneralOpPanel {
             this._$panel.find('.selectAllWrap').find('.checkbox')
                                               .addClass('checked');
         }
+    }
+
+    protected _switchMode(toAdvancedMode: boolean): {error: string} {
+        return this.model.switchMode(toAdvancedMode, this._editor);
     }
 }
