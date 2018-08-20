@@ -199,11 +199,15 @@ class DagExecute {
         const desTable: string = this._generateTableName();
         const tableInfos: UnionTableInfo[] = params.columns.map((colInfo, index) => {
             const columns: UnionColInfo[] = colInfo.map((col) => {
+                const name: string = col.sourceColumn;
+                const prefix = xcHelper.parsePrefixColName(name).prefix;
+                // prefix column must cast
+                const cast: boolean = col.cast || (prefix ? true : false);
                 return {
-                    name: col.sourceColumn,
+                    name: name,
                     rename: col.destColumn,
                     type: col.columnType,
-                    cast: col.cast
+                    cast: cast
                 }
             });
 

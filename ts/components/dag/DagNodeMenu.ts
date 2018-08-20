@@ -110,7 +110,22 @@ namespace DagNodeMenu {
         const type: DagNodeType = node.getType();
         switch (type) {
             case (DagNodeType.Dataset):
-                DatasetOpPanel.Instance.show(<DagNodeDataset>node);
+                DatasetOpPanel.Instance.show(node);
+                break;
+            case (DagNodeType.Aggregate):
+                AggOpPanel.Instance.show(node);
+                break;
+            case (DagNodeType.Filter):
+                FilterOpPanel.Instance.show(node);
+                break;
+            case (DagNodeType.GroupBy):
+                GroupByOpPanel.Instance.show(node);
+                break;
+            case (DagNodeType.Join):
+                JoinOpPanel.Instance.show(node);
+                break;
+            case (DagNodeType.Map):
+                MapOpPanel.Instance.show(node);
                 break;
             case (DagNodeType.Project):
                 ProjectOpPanel.Instance.show(node);
@@ -118,22 +133,12 @@ namespace DagNodeMenu {
             case (DagNodeType.Set):
                 SetOpPanel.Instance.show(node);
                 break;
-            case (DagNodeType.Filter):
-                FilterOpPanel.Instance.show(node);
-                break;
-            case (DagNodeType.Aggregate):
-                AggOpPanel.Instance.show(node);
-                break;
-            case (DagNodeType.Map):
-                MapOpPanel.Instance.show(node);
-                break;
-            case (DagNodeType.GroupBy):
-                GroupByOpPanel.Instance.show(node);
+            case (DagNodeType.Export):
+                console.warn("not implement yet");
                 break;
             default:
-                break;
+                throw new Error("Unsupported type");
         }
-
     }
 
     function _showEdgeMenu($edge: JQuery, event: JQueryEventObject): void {
