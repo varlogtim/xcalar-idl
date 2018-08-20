@@ -8,6 +8,8 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
     protected includeSample: boolean;
     protected groupAll: boolean;
     protected groupOnCols: string[];
+    protected columnsToInclude: string[];
+    protected columnsSelection: {name: string, selected: boolean}[];
 
     public constructor(dagNode: DagNodeGroupBy, event: Function) {
         super(dagNode, event,);
@@ -22,13 +24,15 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
         includeSample: boolean,
         icv: boolean,
         groupAll: boolean,
+        columnsSelection: {name: string, selected: boolean}[]
     } {
         return {
             groupOnCols: this.groupOnCols,
             groups: this.groups,
             includeSample: this.includeSample,
             icv: this.icv,
-            groupAll: this.groupAll
+            groupAll: this.groupAll,
+            columnsSelection: this.columnsSelection
         }
     }
 
@@ -43,6 +47,9 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
     }
 
     public updateGroupOnArg(value: string, index: number): void {
+        if (value[0] === gColPrefix) {
+            value = value.slice(1);
+        }
         this.groupOnCols[index] = value;
     }
 
@@ -128,6 +135,38 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
         this.icv = isICV;
     }
 
+    public toggleIncludeSample(isIncludeSample: boolean): void {
+        this.includeSample = isIncludeSample;
+    }
+
+    public toggleDistinct(distinct: boolean, groupIndex: number): void {
+        this.groups[groupIndex].distinct = distinct;
+    }
+
+    public toggleGroupAll(groupAll: boolean): void {
+        this.groupAll = groupAll;
+    }
+
+    public selectCol(colNum: number): void {
+        this.columnsSelection[colNum].selected = true;
+    }
+
+    public deselectCol(colNum: number): void {
+        this.columnsSelection[colNum].selected = false;
+    }
+
+    public selectAllCols(): void {
+        this.columnsSelection.map((col) => {
+            col.selected = true;
+        });
+    }
+
+    public deselectAllCols(): void {
+        this.columnsSelection.map((col) => {
+            col.selected = false;
+        });
+    }
+
     /**
      * Submit the settings of Set op node params
      */
@@ -162,12 +201,25 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
     // private type: string; // ("value" | "column" | "function" | "regex")
     // private error: string;
 
-    protected _initialize(paramsRaw, strictCheck?: boolean) {
+    protected _initialize(paramsRaw, _strictCheck?: boolean) {
         const self = this;
+
+        // set up selected columns
+        this.columnsSelection = [];
+        this.tableColumns.forEach((col) => {
+            const name = col.getBackColName();
+            const colSelection = {
+                name: name,
+                selected: paramsRaw.columnsToInclude.includes(name)
+            };
+            self.columnsSelection.push(colSelection);
+        });
+
         if (!this._opCategories.length) {
             this._opCategories = [FunctionCategoryT.FunctionCategoryAggregate];
         }
         let argGroups = [];
+        // XXX check for all properties
 
         for (let i = 0; i < paramsRaw.aggregate.length; i++) {
             argGroups.push(paramsRaw.aggregate[i]);
@@ -188,10 +240,10 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
                     throw({error: "Function not selected."});
                 }
             } else if (opInfo) {
-                // XXX handle cast
                 const argInfo: OpPanelArg = new OpPanelArg(argGroup.sourceColumn,
                                         opInfo.argDescs[0].typesAccepted, true);
 
+                argInfo.setCast(argGroup.cast);
                 args.push(argInfo);
             }
 
@@ -248,16 +300,38 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             group.args.forEach(arg => {
                 self._formatArg(arg);
             });
-
+            let sourceColumn: string;
+            let cast: string;
+            if (group.args[0]) {
+                sourceColumn = group.args[0].getFormattedValue();
+                cast = group.args[0].getCast();
+            } else {
+                sourceColumn = "";
+                cast = null;
+            }
 
             aggregates.push({
                 operator: group.operator,
-                sourceColumn: group.args[0].getFormattedValue(),
+                sourceColumn: sourceColumn,
                 destColumn: group.newFieldName,
                 distinct: group.distinct,
-                cast: group.args[0].getCast()
+                cast: cast
             })
 
+        });
+
+        this.groupOnCols.map((colName) => {
+            if (colName[0] === gColPrefix) {
+                return colName.slice(1);
+            } else {
+                return colName;
+            }
+        });
+
+        this.columnsToInclude = this.columnsSelection.filter((col) => {
+            return col.selected;
+        }).map((col) => {
+            return col.name;
         });
 
         return {
@@ -265,7 +339,8 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             aggregate: aggregates,
             icv: this.icv,
             groupAll: this.groupAll,
-            includeSample: this.includeSample
+            includeSample: this.includeSample,
+            columnsToInclude: this.columnsToInclude
         }
     }
 
@@ -281,6 +356,12 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             }
             if (!error) {
                 error = this._validateICV();
+            }
+            if (!error) {
+                error = this._validateGroupAll();
+            }
+            if (!error) {
+                error = this._validateIncludeSample();
             }
             if (error == null) {
                 return null;
@@ -324,6 +405,30 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
         if (this.icv !== true && this.icv !== false) {
             return {
                 error: "ICV only accepts booleans.",
+                group: -1,
+                arg: -1,
+                type: "icv"
+            };
+        } else {
+            return null;
+        }
+    }
+    private _validateIncludeSample() {
+        if (this.includeSample !== true && this.includeSample !== false) {
+            return {
+                error: "Include sample only accepts booleans.",
+                group: -1,
+                arg: -1,
+                type: "icv"
+            };
+        } else {
+            return null;
+        }
+    }
+    private _validateGroupAll() {
+        if (this.groupAll !== true && this.groupAll !== false) {
+            return {
+                error: "Group all only accepts booleans.",
                 group: -1,
                 arg: -1,
                 type: "icv"

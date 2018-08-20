@@ -381,7 +381,7 @@ class GeneralOpPanelModel {
             if (error) {
                 return error;
             }
-            this._update();
+            this._update(true);
         }
         return null;
     }

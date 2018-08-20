@@ -44,6 +44,7 @@ interface DagNodeGroupByInput {
     includeSample: boolean;
     icv: boolean;
     groupAll: boolean;
+    columnsToInclude: string[];
 }
 
 declare type DagNodeJoinTableInput = {

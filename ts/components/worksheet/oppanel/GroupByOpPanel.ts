@@ -21,7 +21,7 @@ class GroupByOpPanel extends GeneralOpPanel {
 
         this._$panel.on('click', '.extraArg .xi-cancel', function() {
             const $row: JQuery = $(this).closest(".gbOnRow");
-            const index: number = this._$panel.find(".gbOnRow").index($row);
+            const index: number = self._$panel.find(".gbOnRow").index($row);
             self.model.removeGroupOnArg(index);
         });
 
@@ -78,7 +78,7 @@ class GroupByOpPanel extends GeneralOpPanel {
             const $input = $(this);
 
             const val = $input.val();
-            const $group = $input.closest(".group")
+            const $group = $input.closest(".group");
             const groupIndex = self._$panel.find(".group").index($group);
 
             if ($input.closest(".colNameSection").length) {
@@ -87,7 +87,7 @@ class GroupByOpPanel extends GeneralOpPanel {
                 const argIndex = $group.find(".groupOnSection .arg").index($input);
                 self.model.updateGroupOnArg(val, argIndex);
             } else {
-                const argIndex = $group.find(".argsSection:not(.groupOnSection) .arg").index($input);
+                const argIndex = $group.find(".argsSection").last().find(".arg").index($input);
                 self.model.updateArg(val, groupIndex, argIndex);
             }
         }
@@ -97,28 +97,28 @@ class GroupByOpPanel extends GeneralOpPanel {
             self.model.addGroup();
         });
 
+        // icv, includeSample, joinback
         this._$panel.on('click', '.checkboxSection', function() {
-            const $checkbox = $(this).find('.checkbox');
+            const $section = $(this);
+            const $checkbox = $section.find('.checkbox');
             $checkbox.toggleClass("checked");
+            const checked = $checkbox.hasClass("checked");
 
-             // incSample and keepInTable toggling
-            if ($checkbox.closest('.gbCheckboxes').length) {
-
-                if ($checkbox.hasClass('checked')) {
-                    $checkbox.closest('.checkboxSection').siblings()
-                            .find('.checkbox').removeClass('checked');
-                }
-
-                const isIncSample = self._$panel.find('.incSample .checkbox')
-                                                  .hasClass('checked');
-                if (isIncSample) {
+            if ($section.hasClass("incSample")) {
+                self.model.toggleIncludeSample(checked);
+                if (checked) {
                     self._$panel.find(".groupByColumnsSection")
-                                   .removeClass("xc-hidden");
+                                    .removeClass("xc-hidden");
                 } else {
                     self._$panel.find(".groupByColumnsSection")
-                                   .addClass("xc-hidden");
+                                    .addClass("xc-hidden");
                 }
+            } else if ($section.hasClass("icvMode")) {
+                self.model.toggleICV(checked);
+            } else {
+                // XXX not handling join
             }
+
             self._checkIfStringReplaceNeeded();
         });
 
@@ -135,20 +135,15 @@ class GroupByOpPanel extends GeneralOpPanel {
         this._$panel.on("click", ".distinct", function() {
             const $checkbox = $(this).find(".checkbox");
             $checkbox.toggleClass("checked");
+            const $group = $checkbox.closest(".group");
+            const groupIndex = self._$panel.find(".group").index($group);
+            self.model.toggleDistinct($checkbox.hasClass("checked"), groupIndex);
         });
 
         this._$panel.on("click", ".groupByAll", function() {
             const $checkbox = $(this).find(".checkbox");
-            $checkbox.toggleClass("checked");
-            if ($checkbox.hasClass("checked")) {
-                self._$panel.find(".gbOnRow").hide();
-                self._$panel.find(".addGroupArg").hide();
-            } else {
-                self._$panel.find(".gbOnRow").show();
-                self._$panel.find(".addGroupArg").show();
-            }
-            self._formHelper.refreshTabbing();
-            self._checkIfStringReplaceNeeded();
+            self._toggleGroupAll($checkbox);
+            self.model.toggleGroupAll($checkbox.hasClass("checked"));
         });
 
         // used only for groupby columns to keep
@@ -190,10 +185,12 @@ class GroupByOpPanel extends GeneralOpPanel {
                 $checkbox.removeClass('checked');
                 $cols.find('li').removeClass('checked')
                      .find('.checkbox').removeClass('checked');
+                self.model.deselectAllCols();
             } else {
                 $checkbox.addClass('checked');
                 $cols.find('li').addClass('checked')
                       .find('.checkbox').addClass('checked');
+                self.model.selectAllCols();
             }
             self._focusedColListNum = null;
         });
@@ -255,42 +252,40 @@ class GroupByOpPanel extends GeneralOpPanel {
         this._formHelper.setup({"columnPicker": columnPicker});
 
         this._toggleOpPanelDisplay(false);
-        this.model = new GroupByOpPanelModel(this._dagNode, () => {
-            this._render();
+        this.model = new GroupByOpPanelModel(this._dagNode, (all) => {
+            this._render(all);
         });
 
         super._panelShowHelper(this.model);
-        this._populateGroupOnFields([]);
-        this._formHelper.refreshTabbing();
-        this._render();
+        this._render(true);
     };
 
-    public updateColumns() {
-        super.updateColumns();
-        if (!this._formHelper.isOpen()) {
-            return;
-        }
+    // public updateColumns() {
+    //     super.updateColumns();
+    //     if (!this._formHelper.isOpen()) {
+    //         return;
+    //     }
 
-        const self = this;
-        this._focusedColListNum = null;
-        this._updateColNamesCache();
+    //     // const self = this;
+    //     // this._focusedColListNum = null;
+    //     // this._updateColNamesCache();
 
 
-        const colsToKeep = [];
-        this._$panel.find('.cols li.checked').each(function() {
-            colsToKeep.push($(this).text());
-        });
-        const listHtml = this._getTableColList();
-        this._$panel.find(".cols").html(listHtml);
-        this._$panel.find(".selectAllCols").removeClass('checked');
-        colsToKeep.forEach(function(colName) {
-            const colNum = self._getColNum(colName);
-            self._selectCol(colNum - 1);
-        });
-    }
+    //     // const colsToKeep = [];
+    //     // this._$panel.find('.cols li.checked').each(function() {
+    //     //     colsToKeep.push($(this).text());
+    //     // });
+    //     // const listHtml = this._getTableColList();
+    //     // this._$panel.find(".cols").html(listHtml);
+    //     // this._$panel.find(".selectAllCols").removeClass('checked');
+    //     // colsToKeep.forEach(function(colName) {
+    //     //     const colNum = self._getColNum(colName);
+    //     //     self._selectCol(colNum - 1);
+    //     // });
+    // }
 
     // functions that get called after list udfs is called during op view show
-    protected _render() {
+    protected _render(updateAll?: boolean) {
         const self = this;
         const model = this.model.getModel();
         //{
@@ -310,8 +305,11 @@ class GroupByOpPanel extends GeneralOpPanel {
             if (i > 0) {
                 this._addGroupOnArg(0);
             }
-            const name = model.groupOnCols[i];
-            this._$panel.find('.gbOnArg').last().val(gColPrefix + name);
+            let name = model.groupOnCols[i];
+            if (name) {
+                name = gColPrefix + name
+            }
+            this._$panel.find('.gbOnArg').last().val(name);
             this._checkHighlightTableCols(this._$panel.find('.gbOnArg').last());
         }
         this._$panel.find('.gbOnArg').last().blur();
@@ -339,13 +337,16 @@ class GroupByOpPanel extends GeneralOpPanel {
                 self._updateArgumentSection(i);
             }
 
-            const $args = $group.find(".argsSection:not(.groupOnSection) .arg").filter(function() {
+            const $args = $group.find(".argsSection").last().find(".arg").filter(function() {
                 return $(this).closest(".colNameSection").length === 0;
             });
 
             for (let j = 0; j < model.groups[i].args.length; j++) {
-                let arg = model.groups[i].args[j].getValue();
+                let arg: string = model.groups[i].args[j].getValue();
                 if ($args.eq(j).length) {
+                    if (updateAll && model.groups[i].args[j].getCast()) {
+                        arg = xcHelper.castStrHelper(arg, model.groups[i].args[j].getCast());
+                    }
                     $args.eq(j).val(arg);
                     if ($args.eq(j).closest(".row").hasClass("boolOption")) {
                         if (arg === "true") {
@@ -354,33 +355,35 @@ class GroupByOpPanel extends GeneralOpPanel {
                                     .addClass("checked");
                         }
                     }
-                } else {
-                    if ($group.find(".addArgWrap").length) {
-                        $group.find(".addArg").last().click(); // change this
-                        $group.find(".arg").filter(function() {
-                            return $(this).closest(".colNameSection")
-                                        .length === 0;
-                        }).last().val(arg);
-                    } else {
-                        break;
-                    }
                 }
             }
             $group.find(".resultantColNameRow .arg")
                   .val(model.groups[i].newFieldName);
+            if (model.groups[i].distinct) {
+                $group.find(".distinct .checkbox").addClass("checked");
+            }
         }
 
         if (icv) {
             this._$panel.find(".icvMode .checkbox").addClass("checked");
         }
 
-        if (includeSample) {
-            this._$panel.find(".incSample .checkbox").addClass("checked");
+        if (groupAll) {
+            this._toggleGroupAll(this._$panel.find(".groupByAll .checkbox"));
         }
 
-        if (groupAll) {
-            this._$panel.find(".groupByAll .checkbox").click();
+        if (updateAll) {
+            this._$panel.find(".cols").html(this._getTableColList());
         }
+
+        if (includeSample) {
+            this._$panel.find(".incSample .checkbox").addClass("checked");
+            this._$panel.find(".groupByColumnsSection")
+                        .removeClass("xc-hidden");
+            this._checkToggleSelectAllBox();
+        }
+
+        this._formHelper.refreshTabbing();
 
         self._checkIfStringReplaceNeeded(true);
     }
@@ -520,21 +523,6 @@ class GroupByOpPanel extends GeneralOpPanel {
         this._functionsListScrollers = [functionsListScroller];
     }
 
-    private _populateGroupOnFields(colNums) {
-        for (let i = 0; i < colNums.length; i++) {
-            const progCol = this._table.getCol(colNums[i]);
-            if (!progCol.isNewCol) {
-                if (i > 0) {
-                    this._addGroupOnArg(0);
-                }
-                const name = progCol.getFrontColName(true);
-                this._$panel.find('.gbOnArg').last().val(gColPrefix + name);
-                this._checkHighlightTableCols(this._$panel.find('.gbOnArg').last());
-            }
-        }
-        this._$panel.find('.gbOnArg').last().blur();
-    }
-
     protected _populateInitialCategoryField() {
         this._populateFunctionsListUl(0);
     }
@@ -549,9 +537,6 @@ class GroupByOpPanel extends GeneralOpPanel {
         this._$panel.find('.genFunctionsMenu ul[data-fnmenunum="' +
                                 groupIndex + '"]')
                         .html(html);
-    }
-    protected _updateColNamesCache() {
-        // this.colNamesCache = xcHelper.getColNameMap(tableId);
     }
 
     //suggest value for .functionsInput
@@ -608,7 +593,7 @@ class GroupByOpPanel extends GeneralOpPanel {
 
     protected _clearFunctionsInput(groupNum, keep?: boolean) {
         const $argsGroup = this._$panel.find('.group').eq(groupNum);
-        const $input = $argGroup.find(".functionsInput");
+        const $input = $argsGroup.find(".functionsInput");
         if (!keep) {
             $argsGroup.find('.functionsInput')
                       .val("").attr('placeholder', "");
@@ -703,10 +688,6 @@ class GroupByOpPanel extends GeneralOpPanel {
             $strPreview.html(initialText);
         }
         $strPreview.find(".aggColSection").append(strPreview);
-
-        this._formHelper.refreshTabbing();
-        const noHighlight = true;
-        this._checkIfStringReplaceNeeded(noHighlight);
     }
 
     protected _addArgRows(numInputsNeeded, $argsGroup, groupIndex) {
@@ -1039,11 +1020,17 @@ class GroupByOpPanel extends GeneralOpPanel {
                 return false;
             }
         } else {
+            // XXX need to validate grouponcols
             const error = this.model.validateGroups();
             if (error) {
                 const model = this.model.getModel();
                 const groups = model.groups;
-                const $input = this._$panel.find(".group").eq(error.group).find(".arg").eq(error.arg);
+                const $input = this._$panel.find(".group").eq(error.group)
+                    .find(".argsSection").last().find(".arg").eq(error.arg);
+                let inputNumAdjustment = 0;
+                if (error.group === 0) {
+                    inputNumAdjustment = model.groupOnCols.length;
+                }
                 switch (error.type) {
                     case ("function"):
                         self._showFunctionsInputErrorMsg(error.group);
@@ -1058,6 +1045,7 @@ class GroupByOpPanel extends GeneralOpPanel {
                         let allColTypes = [];
                         let inputNums = [];
                         const group = groups[error.group];
+
                         for (var i = 0; i < group.args.length; i++) {
                             let arg = group.args[i];
                             if (arg.getType() === "column") {
@@ -1066,10 +1054,10 @@ class GroupByOpPanel extends GeneralOpPanel {
                                 allColTypes.push({
                                     inputTypes: [colType],
                                     requiredTypes: requiredTypes,
-                                    inputNum: i
+                                    inputNum: i + inputNumAdjustment
                                 });
                                 if (!arg.checkIsValid() && arg.getError().includes(ErrWRepTStr.InvalidOpsType.substring(0, 20))) {
-                                    inputNums.push(i);
+                                    inputNums.push(i + inputNumAdjustment);
                                 }
                             }
                         }
@@ -1093,454 +1081,155 @@ class GroupByOpPanel extends GeneralOpPanel {
     }
 
 
-    // new column name duplication & validity check
-    private _newColNameCheck() {
-        const deferred = PromiseHelper.deferred();
-        let $nameInput;
-        let isPassing;
-        const self = this;
+    // // new column name duplication & validity check
+    // private _newColNameCheck() {
+    //     const deferred = PromiseHelper.deferred();
+    //     let $nameInput;
+    //     let isPassing;
+    //     const self = this;
 
-        return PromiseHelper.resolve();// XXX skipping name checks
+    //     return PromiseHelper.resolve();// XXX skipping name checks
 
-        this._$panel.find(".group").each(function() {
-            const $group = $(this);
-            const numArgs = $group.find('.arg').length;
-            $nameInput = $group.find('.arg').eq(numArgs - 1);
-            const checkOpts = {
-                strictDuplicates: true,
-                stripColPrefix: true
-            };
+    //     this._$panel.find(".group").each(function() {
+    //         const $group = $(this);
+    //         const numArgs = $group.find('.arg').length;
+    //         $nameInput = $group.find('.arg').eq(numArgs - 1);
+    //         const checkOpts = {
+    //             strictDuplicates: true,
+    //             stripColPrefix: true
+    //         };
 
-            isPassing = !ColManager.checkColName($nameInput, self._tableId,
-                                                null, checkOpts);
-            // if (isPassing && !$activeOpSection.find('.joinBack .checkbox')
-            //                 .hasClass('checked')) {
-            //     if (!isEditMode) {
-            //         isPassing = xcHelper.tableNameInputChecker(
-            //                     $activeOpSection.find('.newTableName'));
-            //     }
+    //         isPassing = !ColManager.checkColName($nameInput, self._tableId,
+    //                                             null, checkOpts);
+    //         // if (isPassing && !$activeOpSection.find('.joinBack .checkbox')
+    //         //                 .hasClass('checked')) {
+    //         //     if (!isEditMode) {
+    //         //         isPassing = xcHelper.tableNameInputChecker(
+    //         //                     $activeOpSection.find('.newTableName'));
+    //         //     }
 
-            // }
-            if (!isPassing) {
-                return false;
-            } else if (self._checkColNameUsedInInputs($nameInput.val(), $nameInput)) {
-                isPassing = false;
-                const text = ErrTStr.NameInUse;
-                self._statusBoxShowHelper(text, $nameInput);
-                return false;
-            }
-        });
+    //         // }
+    //         if (!isPassing) {
+    //             return false;
+    //         } else if (self._checkColNameUsedInInputs($nameInput.val(), $nameInput)) {
+    //             isPassing = false;
+    //             const text = ErrTStr.NameInUse;
+    //             self._statusBoxShowHelper(text, $nameInput);
+    //             return false;
+    //         }
+    //     });
 
-            // check new table name if join option is not checked
+    //         // check new table name if join option is not checked
 
-        if (isPassing) {
-            deferred.resolve();
-        } else {
-            deferred.reject();
-        }
-        return deferred.promise();
-    }
+    //     if (isPassing) {
+    //         deferred.resolve();
+    //     } else {
+    //         deferred.reject();
+    //     }
+    //     return deferred.promise();
+    // }
 
-
-    // returns an object that contains an array of formated arguments,
-    // an object of each argument's column type
-    // and a flag of whether all arguments are valid or not
-    private _argumentFormatHelper(existingTypes, groupNum) {
-        const self = this;
-        const args = [];
-        let isPassing = true;
-        let colTypes;
-        const allColTypes = [];
-        let errorText;
-        let $errorInput;
-        const inputsToCast = [];
-        let castText;
-        let invalidNonColumnType = false; // when an input does not have a
-        // a column name but still has an invalid type
-        const $group = this._$panel.find('.group').eq(groupNum);
-        if (this._$panel.find(".groupByAll .checkbox").hasClass("checked")) {
-            args.push(undefined);
-        }
-        $group.find('.arg').each(function(inputNum) {
-            const $input = $(this);
-            // Edge case. GUI-1929
-
-            const $row = $input.closest('.row');
-            const noArgsChecked = $row.find('.noArg.checked').length > 0 ||
-                                ($row.hasClass("boolOption") &&
-                                !$row.find(".boolArg").hasClass("checked"));
-            const emptyStrChecked = $row.find('.emptyStr.checked').length > 0;
-
-            let arg = $input.val();
-            let trimmedArg = arg.trim();
-            // empty field and empty field is allowed
-            if (trimmedArg === "") {
-                if (noArgsChecked) {
-                    if (self._isNoneInInput($input)) {
-                        trimmedArg = "None";
-                    }
-                    args.push(trimmedArg);
-                    return;
-                } else if (emptyStrChecked) {
-                    args.push('"' + arg + '"');
-                    return;
-                }
-            }
-
-            const typeid = $input.data('typeid');
-
-            // col name field, do not add quote
-            if ($input.closest(".dropDownList").hasClass("colNameSection") ||
-                (!$input.data("nofunc") && self._hasFuncFormat(trimmedArg))) {
-                arg = self._parseColPrefixes(trimmedArg);
-            } else if (trimmedArg[0] === gAggVarPrefix) {
-                arg = trimmedArg;
-                // leave it
-            } else if (xcHelper.hasValidColPrefix(trimmedArg)) {
-                arg = self._parseColPrefixes(trimmedArg);
-                if (!self._isEditMode) {
-                    // if it contains a column name
-                    // note that field like pythonExc can have more than one $col
-                    // containsColumn = true;
-                    const frontColName = arg;
-                    const tempColNames = arg.split(",");
-                    let backColNames = "";
-
-                    for (let i = 0; i < tempColNames.length; i++) {
-                        if (i > 0) {
-                            backColNames += ",";
-                        }
-                        const backColName = self._getBackColName(tempColNames[i].trim());
-                        if (!backColName) {
-                            errorText = ErrTStr.InvalidOpNewColumn;
-                            isPassing = false;
-                            $errorInput = $input;
-                            args.push(arg);
-                            return;
-                        }
-                        backColNames += backColName;
-                    }
-
-                    arg = backColNames;
-
-                    let types;
-                    if (tempColNames.length > 1 &&
-                        !$input.hasClass("variableArgs") &&
-                        !$input.closest(".extraArg").length &&
-                        !$input.closest(".row")
-                                .siblings(".addArgWrap").length) {
-                        // non group by fields cannot have multiple column
-                        //  names;
-                        allColTypes.push({});
-                        errorText = ErrTStr.InvalidColName;
-                        $errorInput = $input;
-                        isPassing = false;
-                    } else {
-                        colTypes = self._getAllColumnTypesFromArg(frontColName);
-                        types = self._parseType(typeid);
-                        if (colTypes.length) {
-                            allColTypes.push({
-                                "inputTypes": colTypes,
-                                "requiredTypes": types,
-                                "inputNum": inputNum
-                            });
-                        } else {
-                            allColTypes.push({});
-                            errorText = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
-                                "name": frontColName
-                            });
-                            $errorInput = $input;
-                            isPassing = false;
-                        }
-                    }
-
-                    if (isPassing || inputsToCast.length) {
-                        const isCasted = $input.data('casted');
-                        if (!isCasted) {
-                            const numTypes = colTypes.length;
-
-                            for (let i = 0; i < numTypes; i++) {
-                                if (colTypes[i] == null) {
-                                    console.error("colType is null/col not " +
-                                        "pulled!");
-                                    continue;
-                                }
-
-                                errorText = self._validateColInputType(types,
-                                                        colTypes[i], $input);
-                                if (errorText != null) {
-                                    isPassing = false;
-                                    $errorInput = $input;
-                                    inputsToCast.push(inputNum);
-                                    if (!castText) {
-                                        castText = errorText;
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                }
-            } else if (!isPassing) {
-                arg = trimmedArg;
-                // leave it
-            } else {
-                // checking non column name args such as "hey" or 3, not $col1
-                const checkRes = self._checkArgTypes(trimmedArg, typeid);
-
-                if (checkRes != null && !invalidNonColumnType) {
-                    isPassing = false;
-                    invalidNonColumnType = true;
-                    if (checkRes.currentType === "string" &&
-                        self._hasUnescapedParens($input.val())) {
-                        // function-like string found but invalid format
-                        errorText = ErrTStr.InvalidFunction;
-                    } else {
-                        errorText = ErrWRepTStr.InvalidOpsType;
-                        errorText = xcHelper.replaceMsg(errorText, {
-                            "type1": checkRes.validType.join("/"),
-                            "type2": checkRes.currentType
-                        });
-                    }
-
-                    $errorInput = $input;
-                } else {
-                    const formatArgumentResults = self._formatArgumentInput(arg,
-                                                        typeid,
-                                                        existingTypes);
-                    arg = formatArgumentResults.value;
-                }
-            }
-
-            args.push(arg);
-        });
-
-        if (!isPassing) {
-            let isInvalidColType;
-            if (inputsToCast.length) {
-                errorText = castText;
-                isInvalidColType = true;
-                $errorInput = $group.find(".arg").eq(inputsToCast[0]);
-            } else {
-                isInvalidColType = false;
-            }
-            self._handleInvalidArgs(isInvalidColType, $errorInput, errorText, groupNum,
-                              allColTypes, inputsToCast);
-        }
-
-        return ({args: args, isPassing: isPassing, allColTypes: allColTypes});
-    }
 
     private _getColNum(backColName) {
         return this._table.getColNumByBackName(backColName);
     }
 
+    // private _groupByCheck(args, hasMultipleGroups) {
+    //     const self = this;
+    //     if (!hasMultipleGroups) {
+    //         args = [args];
+    //     }
+    //     let isValid = true;
+    //     this._$panel.find(".group").each(function(groupNum) {
+    //         const numArgs = args[groupNum].length;
+    //         const groupbyColName = args[groupNum][numArgs - 2];
+    //         const singleArg = true;
 
-    private _save(operators, args, colTypeInfos) {
-        // Current groupBy args has at least 3 arguments:
-        // 1. agg col
-        // 2. grouby col(cols)
-        // 3. new col name
+    //         const $groupByInput = self._$panel.find(".group").eq(groupNum)
+    //                                             .find('.argsSection').last()
+    //                                             .find('.arg').eq(0);
+    //         let isGroupbyColNameValid;
+    //         if (!self._hasFuncFormat(groupbyColName)) {
+    //             isGroupbyColNameValid = self._checkValidColNames($groupByInput,
+    //                                                     groupbyColName, singleArg);
+    //         } else {
+    //             isGroupbyColNameValid = true;
+    //         }
 
-        const deferred = PromiseHelper.deferred();
-        colTypeInfos = colTypeInfos || [];
-        const gbArgs = [];
-        const groupByCols = [];
-        let gbCol;
-        let colTypeInfo;
-        const isGroupAll: boolean = this._$panel.find(".groupByAll .checkbox")
-                                           .hasClass("checked");
-        for (let i = 0; i < args[0].length - 2; i++) {
-            gbCol = args[0][i].trim();
-            if (groupByCols.indexOf(gbCol) === -1) {
-                groupByCols.push({
-                    colName: gbCol,
-                    cast: null
-                });
-            }
-            colTypeInfo = colTypeInfos[0] || [];
-            colTypeInfo.forEach(function(colInfo) {
-                if (colInfo.argNum === i) {
-                    groupByCols[i].cast = colInfo.type;
-                    return false;
-                }
-            });
-        }
+    //         if (!isGroupbyColNameValid) {
+    //             isValid = false;
+    //             return false;
+    //         } else if (groupNum === 0) {
+    //             let indexedColNames;
+    //             let $input;
+    //             let areIndexedColNamesValid = false;
+    //             for (let i = 0; i < numArgs - 2; i++) {
+    //                 indexedColNames = args[groupNum][i];
+    //                 $input = self._$panel.find('.gbOnArg').eq(i);
+    //                 areIndexedColNamesValid = self._checkValidColNames($input,
+    //                                                         indexedColNames);
+    //                 if (!areIndexedColNamesValid) {
+    //                     break;
+    //                 }
+    //             }
+    //             if (!areIndexedColNamesValid) {
+    //                 isValid = false;
+    //                 return false;
+    //             }
+    //         }
+    //     });
 
-        const $groups = this._$panel.find('.group');
-        const operatorsFound = {};
-        for (let i = 0; i < args.length; i++) {
-            const numArgs = args[i].length;
-            const aggColIndex = numArgs - 2;
-            const aggCol = args[i][aggColIndex];
-
-            // avoid duplicate operator-aggCol pairs
-            // using # as delimiter
-            if (operatorsFound[operators[i] + "#" + aggCol]) {
-                continue;
-            }
-            operatorsFound[operators[i] + "#" + aggCol] = true;
-
-            gbArgs.push({
-                operator: operators[i],
-                sourceColumn: aggCol,
-                destColumn: args[i][numArgs - 1],
-                cast: null,
-                isDistinct: $groups.eq(i).find(".distinct .checkbox")
-                                        .hasClass("checked")
-            });
-
-            colTypeInfo = colTypeInfos[i] || [];
-
-            colTypeInfo.forEach(function(colInfo) {
-                if (colInfo.argNum === aggColIndex) {
-                    gbArgs[i].cast = colInfo.type;
-                    // stop looping
-                    return false;
-                }
-            });
-        }
-
-        const isIncSample: boolean = this._$panel.find('.incSample .checkbox')
-                                    .hasClass('checked');
-        const icvMode: boolean = this._$panel.find(".icvMode .checkbox")
-                                    .hasClass("checked");
-        // const isJoin = this._$panel.find('.joinBack .checkbox')
-        //                             .hasClass('checked');
-        const colsToKeep = [];
-
-        if (isIncSample) {
-            this._$panel.find('.cols li.checked').each(function() {
-                colsToKeep.push($(this).data("colnum"));
-            });
-        }
-
-        const evals = [];
-
-        for (let i = 0; i < gbArgs.length; i++) {
-            let op = gbArgs[i].operator;
-            op = op.slice(0, 1).toLowerCase() + op.slice(1);
-            const evalStr = op + "(" + gbArgs[i].aggColName + ")";
-            evals.push({
-                "evalString": evalStr,
-                "newField": gbArgs[i].newColName
-            });
-        }
-        // XXX handle distinct and groupall
-        this._dagNode.setParam({
-            groupBy: groupByCols.map(function(colInfo) {
-                return colInfo.colName;
-            }),
-            aggregate: <DagNodeGroupByInput["aggregate"]>gbArgs,
-            includeSample: isIncSample,
-            icv: icvMode,
-            groupAll: isGroupAll
-        });
-
-
-        deferred.resolve();
-
-
-        return deferred.promise();
-    }
-
-    private _groupByCheck(args, hasMultipleGroups) {
-        const self = this;
-        if (!hasMultipleGroups) {
-            args = [args];
-        }
-        let isValid = true;
-        this._$panel.find(".group").each(function(groupNum) {
-            const numArgs = args[groupNum].length;
-            const groupbyColName = args[groupNum][numArgs - 2];
-            const singleArg = true;
-
-            const $groupByInput = self._$panel.find(".group").eq(groupNum)
-                                                .find('.argsSection').last()
-                                                .find('.arg').eq(0);
-            let isGroupbyColNameValid;
-            if (!self._hasFuncFormat(groupbyColName)) {
-                isGroupbyColNameValid = self._checkValidColNames($groupByInput,
-                                                        groupbyColName, singleArg);
-            } else {
-                isGroupbyColNameValid = true;
-            }
-
-            if (!isGroupbyColNameValid) {
-                isValid = false;
-                return false;
-            } else if (groupNum === 0) {
-                let indexedColNames;
-                let $input;
-                let areIndexedColNamesValid = false;
-                for (let i = 0; i < numArgs - 2; i++) {
-                    indexedColNames = args[groupNum][i];
-                    $input = self._$panel.find('.gbOnArg').eq(i);
-                    areIndexedColNamesValid = self._checkValidColNames($input,
-                                                            indexedColNames);
-                    if (!areIndexedColNamesValid) {
-                        break;
-                    }
-                }
-                if (!areIndexedColNamesValid) {
-                    isValid = false;
-                    return false;
-                }
-            }
-        });
-
-        return isValid;
-    }
+    //     return isValid;
+    // }
 
 
 
     // used in groupby to check if inputs have column names that match any
     // that are found in gTables.tableCols
-    private _checkValidColNames($input, colNames, single?: boolean) {
-        let text;
+    // private _checkValidColNames($input, colNames, single?: boolean) {
+    //     let text;
 
-        if (typeof colNames !== "string") {
-            text = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
-                "name": colNames
-            });
-            this._statusBoxShowHelper(text, $input);
-            return (false);
-        }
-        const values = colNames.split(",");
-        const numValues = values.length;
-        if (single && numValues > 1) {
-            text = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
-                "name": colNames
-            });
-            this._statusBoxShowHelper(text, $input);
-            return (false);
-        }
+    //     if (typeof colNames !== "string") {
+    //         text = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
+    //             "name": colNames
+    //         });
+    //         this._statusBoxShowHelper(text, $input);
+    //         return (false);
+    //     }
+    //     const values = colNames.split(",");
+    //     const numValues = values.length;
+    //     if (single && numValues > 1) {
+    //         text = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
+    //             "name": colNames
+    //         });
+    //         this._statusBoxShowHelper(text, $input);
+    //         return (false);
+    //     }
 
-        let value;
-        let trimmedVal;
-        for (let i = 0; i < numValues; i++) {
-            value = values[i];
-            trimmedVal = value.trim();
-            if (trimmedVal.length > 0) {
-                value = trimmedVal;
-            }
+    //     let value;
+    //     let trimmedVal;
+    //     for (let i = 0; i < numValues; i++) {
+    //         value = values[i];
+    //         trimmedVal = value.trim();
+    //         if (trimmedVal.length > 0) {
+    //             value = trimmedVal;
+    //         }
 
-            if (!this._table.hasColWithBackName(value)) {
-                if (value.length === 2 && value.indexOf('""') === 0) {
-                    text = ErrTStr.NoEmpty;
-                } else {
-                    text = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
-                        "name": value.replace(/\"/g, '')
-                    });
-                }
+    //         if (!this._table.hasColWithBackName(value)) {
+    //             if (value.length === 2 && value.indexOf('""') === 0) {
+    //                 text = ErrTStr.NoEmpty;
+    //             } else {
+    //                 text = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
+    //                     "name": value.replace(/\"/g, '')
+    //                 });
+    //             }
 
-                this._statusBoxShowHelper(text, $input);
-                return (false);
-            }
-        }
-        return (true);
-    }
+    //             this._statusBoxShowHelper(text, $input);
+    //             return (false);
+    //         }
+    //     }
+    //     return (true);
+    // }
 
 
     // used for args with column names provided like $col1, and not "hey" or 3
@@ -1599,8 +1288,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         this._$panel.find('.gbCheckboxes').addClass('inactive');
         this._$panel.find(".advancedSection").addClass("inactive");
         this._$panel.find(".groupByColumnsSection").addClass("xc-hidden");
-        const listHtml = this._getTableColList();
-        this._$panel.find(".cols").html(listHtml);
+
         this._$panel.find(".selectAllCols")
                         .removeClass('checked');
         this._focusedColListNum = null;
@@ -1701,8 +1389,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         this._functionsListScrollers.push(functionsListScroller);
         this._suggestLists.push([]);// array of groups, groups has array of inputs
         this._scrollToBottom();
-        // $activeOpSection.find('.group').last().find('.functionsInput').focus();
-        this._formHelper.refreshTabbing();
+
         if (this._$panel.find(".strPreview .aggColSection").length) {
             this._$panel.find(".strPreview .aggColSection").append('<span class="aggColStrWrap"></span>');
         } else {
@@ -1715,7 +1402,6 @@ class GroupByOpPanel extends GeneralOpPanel {
         const $group = this._$panel.find(".group").eq(index);
         $group.find('.gbOnRow').last().after(html);
         $group.find('.gbOnArg').last().focus();
-        this._formHelper.refreshTabbing();
 
         const $ul = $group.find('.gbOnArg').last().siblings(".list");
         this._addSuggestListForExtraArg($ul);
@@ -1726,24 +1412,22 @@ class GroupByOpPanel extends GeneralOpPanel {
         let html: HTML = "";
         const numBlanks = 10; // to take up flexbox space
         // const allCols = this._table.tableCols;
-        const allCols = [];
+        const model = this.model.getModel();
+        const allCols = model.columnsSelection;
         for (let i = 0; i < allCols.length; i++) {
-            const progCol = allCols[i];
-            if (progCol.isEmptyCol() || progCol.isDATACol()) {
-                continue;
-            }
+            const col = allCols[i];
+            let checkedClass = col.selected ? "checked" : "";
 
-            html += '<li data-colnum="' + i + '">' +
+            html += '<li data-colnum="' + i + '" class="' + checkedClass + '">' +
                         '<span class="text tooltipOverflow" ' +
                         'data-toggle="tooltip" data-container="body" ' +
                         'data-original-title="' +
                             xcHelper.escapeHTMLSpecialChar(
-                                xcHelper.escapeHTMLSpecialChar(
-                                progCol.getFrontColName(true))) + '">' +
-                            xcHelper.escapeHTMLSpecialChar(
-                                progCol.getFrontColName(true)) +
+                                xcHelper.escapeHTMLSpecialChar(col.name)) +
+                            '">' +
+                            xcHelper.escapeHTMLSpecialChar(col.name) +
                         '</span>' +
-                        '<div class="checkbox">' +
+                        '<div class="checkbox ' + checkedClass + '">' +
                             '<i class="icon xi-ckbox-empty fa-13"></i>' +
                             '<i class="icon xi-ckbox-selected fa-13"></i>' +
                         '</div>' +
@@ -1774,6 +1458,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         $colList.find('li[data-colnum="' + colNum + '"]')
                 .addClass('checked')
                 .find('.checkbox').addClass('checked');
+        this.model.selectCol(colNum);
         this._checkToggleSelectAllBox();
     }
 
@@ -1782,6 +1467,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         $colList.find('li[data-colnum="' + colNum + '"]')
                 .removeClass('checked')
                 .find('.checkbox').removeClass('checked');
+        this.model.deselectCol(colNum);
         this._checkToggleSelectAllBox();
     }
 
@@ -1795,6 +1481,17 @@ class GroupByOpPanel extends GeneralOpPanel {
         } else if (selectedCols === totalCols) {
             this._$panel.find('.selectAllWrap').find('.checkbox')
                                               .addClass('checked');
+        }
+    }
+
+    private _toggleGroupAll($checkbox: JQuery): void {
+        $checkbox.toggleClass("checked");
+        if ($checkbox.hasClass("checked")) {
+            this._$panel.find(".gbOnRow").hide();
+            this._$panel.find(".addGroupArg").hide();
+        } else {
+            this._$panel.find(".gbOnRow").show();
+            this._$panel.find(".addGroupArg").show();
         }
     }
 

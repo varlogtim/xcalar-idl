@@ -157,7 +157,7 @@ class GeneralOpPanel extends BaseOpPanel {
             $input.val(val);
             const $group = $input.closest(".group")
             const groupIndex = self._$panel.find(".group").index($group);
-            const argIndex = $group.find(".arg").index($input);
+            const argIndex = $group.find(".argsSection").last().find(".arg").index($input);
             self.dataModel.updateArg(val, groupIndex, argIndex, {
                 boolean: true,
                 typeid: $input.data("typeid")
@@ -469,7 +469,7 @@ class GeneralOpPanel extends BaseOpPanel {
                 const $group = $input.closest(".group");
                 const groupIndex = self._$panel.find(".group").index($group);
                 const $argInput = $input.closest(".row").find(".arg");
-                const argIndex = $group.find(".arg").index($argInput);
+                const argIndex = $group.find(".argsSection").last().find(".arg").index($argInput);
 
                 let castType: string = type;
                 if (castType === "default") {
@@ -559,7 +559,7 @@ class GeneralOpPanel extends BaseOpPanel {
         this._checkIfStringReplaceNeeded();
         const $group = $input.closest(".group")
         const groupIndex = this._$panel.find(".group").index($group);
-        const argIndex = $group.find(".arg").index($input);
+        const argIndex = $group.find(".argsSection").last().find(".arg").index($input);
         this.dataModel.updateArg(val, groupIndex, argIndex);
     }
 

@@ -16,7 +16,8 @@ class DagNodeGroupBy extends DagNode {
             aggregate: this.input.aggregate || [{operator: "", sourceColumn: "", destColumn: "", distinct: false, cast: null}],
             includeSample: this.input.includeSample || false,
             icv: this.input.icv || false,
-            groupAll: this.input.groupAll || false
+            groupAll: this.input.groupAll || false,
+            columnsToInclude: this.input.columnsToInclude || []
         };
     }
 
@@ -34,6 +35,7 @@ class DagNodeGroupBy extends DagNode {
             includeSample: input.includeSample,
             icv: input.icv,
             groupAll: input.groupAll
+            columnsToInclude: input.columnsToInclude
         }
         super.setParam();
     }

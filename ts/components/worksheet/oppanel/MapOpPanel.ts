@@ -373,10 +373,6 @@ class MapOpPanel extends GeneralOpPanel {
         this._pendingFnUpdate = null;
     }
 
-    protected _updateColNamesCache() {
-        // this.colNamesCache = xcHelper.getColNameMap(tableId);
-    }
-
     protected _isOperationValid(groupIndex) {
         return this._$panel.find(".group").eq(groupIndex)
                            .find(".functionsMenu")

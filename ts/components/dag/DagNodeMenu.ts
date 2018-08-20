@@ -124,10 +124,11 @@ namespace DagNodeMenu {
             case (DagNodeType.Map):
                 MapOpPanel.Instance.show(node);
                 break;
+            case (DagNodeType.GroupBy):
+                GroupByOpPanel.Instance.show(node);
+                break;
             case (DagNodeType.Project):
                 ProjectOpPanel.Instance.show(node);
-            case (DagNodeType.GroupBy):
-                // GroupByOpPanel.Instance.show(node); // in progress
                 break;
             case (DagNodeType.Set):
                 SetOpPanel.Instance.show(node);
