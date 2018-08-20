@@ -38,9 +38,6 @@
         <div id="worksheetButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ws.WorksheetPanel %>">
           <i class="icon xi_table"></i>
         </div>
-        <div id="dagButton" class="subTab" style="display: none;" data-toggle="tooltip" data-placement="right" data-container="body" title="Dataflow Panel">
-          <i class="icon xi-dfg2"></i>
-        </div>
       </div>
     </div>
     <% } else if (dicts.tutor.name == "workbookTut") { %>
@@ -56,6 +53,12 @@
       </div>
     </div>
     <% } %>
+
+    <div id="modelingDataflowTab" class="topMenuBarTab mainMenuOpen firstTouch">
+        <div id="dagButton" style="display: none;"  class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Dataflow Panel">
+            <i class="icon xi-dfg2"></i>
+        </div>
+    </div>
 
     <!-- jupyter Tab -->
     <div id="jupyterTab" class="topMenuBarTab mainMenuOpen noLeftPanel">

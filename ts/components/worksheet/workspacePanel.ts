@@ -18,8 +18,6 @@ namespace WorkspacePanel {
                 xcTooltip.changeText($("#dfPanelSwitch"),
                                      TooltipTStr.CloseQG);
             }
-        } else if ($("#dagButton").hasClass("active")) {
-            DagView.show();
         } else {
             BottomMenu.unsetMenuCache();
         }
@@ -28,7 +26,6 @@ namespace WorkspacePanel {
     export function inActive() {
         xcTooltip.changeText($("#dfPanelSwitch"), TooltipTStr.OpenQG);
         $("#statusBar").removeClass("worksheetMode");
-        DagView.hide();
         if ($("#worksheetButton").hasClass("active")) {
                 // hide off screen tables so that the next time we return to the
             // workspace panel, the switch is quicker because we have less html
@@ -47,7 +44,6 @@ namespace WorkspacePanel {
                 return;
             }
             let $menu: JQuery = $("#workspaceMenu");
-            $("#dagView").removeClass("active");
             // XXX temp
             $("#workspacePanel").children(".mainContent").show();
             $("#userBox").removeClass("dagMode");
@@ -61,23 +57,8 @@ namespace WorkspacePanel {
                     $workspacePanel.find(".mainContent").scrollTop(0);
                     $("#worksheetView").addClass("active");
                     $("#workspaceBar").removeClass("xc-hidden");
-                    $("#dagView").removeClass("active");
-                    $("#dagViewBar").addClass("xc-hidden");
                     $("#statusBar").addClass("worksheetMode");
                     WSManager.focusOnWorksheet();
-                    break;
-                case ("dagButton"):
-                    wasWorkspaceMenuOpen = $menu.hasClass("active");
-                    TblFunc.hideOffScreenTables();
-                    // XXX temp
-                    $("#userBox").addClass("dagMode");
-
-                    $("#worksheetView").removeClass("active");
-                    $("#workspaceBar").addClass("xc-hidden");
-                    $("#statusBar").removeClass("worksheetMode");
-                    $("#dagView").addClass("active");
-                    $("#dagViewBar").removeClass("xc-hidden");
-                    DagView.show();
                     break;
                 default:
                     break;

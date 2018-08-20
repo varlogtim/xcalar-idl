@@ -14,7 +14,7 @@ describe("DagView Test", () => {
             return $dagView.find(".dataflowArea").length > 0;
         })
         .then(function() {
-            MainMenu.openPanel("workspacePanel", "dagButton");
+            MainMenu.openPanel("dagPanel", null);
             done();
         });
     });

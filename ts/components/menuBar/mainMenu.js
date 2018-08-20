@@ -80,6 +80,10 @@ window.MainMenu = (function($, MainMenu) {
                 break;
             case ("imdPanel"):
                 $tab = $("#imdTab");
+                break;
+            case ("dagPanel"):
+                $tab = $("#modelingDataflowTab");
+                break;
             default:
                 break;
         }
@@ -429,6 +433,10 @@ window.MainMenu = (function($, MainMenu) {
                     IMDPanel.active(false);
                 }
                 break;
+            case ("modelingDataflowTab"):
+                $("#modelingDagPanel").addClass("active");
+                DagView.show();
+                break;
             default:
                 $(".underConstruction").addClass("active");
         }
@@ -442,6 +450,10 @@ window.MainMenu = (function($, MainMenu) {
             $("#dagPanelContainer").addClass("noAnim");
         }
         var id = $curTab.attr("id");
+        if (id == "modelingDataflowTab") {
+            id = "workspaceTab";
+            $("#workspaceMenu").removeClass("imdMode");
+        }
         $mainMenu.find(".commonSection").removeClass("active").filter(function() {
             return $(this).data("tab") === id;
         }).addClass("active");

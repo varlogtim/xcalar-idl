@@ -4,12 +4,18 @@ describe('DagList Test', function() {
 
     var dagList;
 
-    before(function() {
+    before(function(done) {
         UnitTest.onMinMode();
-        var dagTabManager = DagTabManager.Instance;
-        dagTabManager.setup();
-        dagList = DagList.Instance;
-        dagList.setup();
+        if (!gDionysus) {
+            dagList = DagList.Instance;
+            dagList.setup()
+            .then(() => {
+                if (DagTabManager.Instance._unique_id == null) {
+                    DagTabManager.Instance.setup();
+                }
+                done();
+            });
+        }
     });
 
     describe('Dag List Test', function() {
