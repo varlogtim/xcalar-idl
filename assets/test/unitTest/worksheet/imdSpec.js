@@ -122,8 +122,35 @@ describe('IMD Test', function() {
 
         it("listAndCheckActive fail should work", function(done) {
             var cache1 = XcalarListPublishedTables;
+            var table2 =  {
+                active: false,
+                name: "test2",
+                keys: [],
+                updates: [
+                    {batchId: 1, numRows:12, source:"source1b", startTS: startTime},
+                    {batchId: 0, numRows:12, source:"source0b", startTS: startTime - 7200}
+                ],
+                values: [{name: "testCol", type: 0}],
+                oldestBatchId: 0
+            };
             XcalarListPublishedTables = function() {
-                return PromiseHelper.resolve({tables: [{active: false, name: "one"}]});
+                return PromiseHelper.resolve({
+                    tables: [
+                        {
+                            active: true,
+                            name: "test1",
+                            keys: [],
+                            updates: [
+                                {batchId: 2, numRows:12, source:"source2a", startTS: startTime},
+                                {batchId: 1, numRows:12, source:"source1a", startTS: startTime - 3600},
+                                {batchId: 0, numRows:12, source:"source0a", startTS: startTime - 7200}
+                            ],
+                            oldestBatchId: 0,
+                            values: [{name: "testCol", type: 0}]
+                        },
+                        table2
+                    ]
+                });
             };
             var cache2 = XcalarRestoreTable;
             XcalarRestoreTable = function() {

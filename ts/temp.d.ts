@@ -159,7 +159,8 @@ interface SQLInfo {
 }
 
 interface XCThriftError {
-    error: string
+    error: string,
+    log: string
 }
 
 interface DFProgressData {

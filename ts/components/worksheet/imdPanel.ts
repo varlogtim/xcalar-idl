@@ -46,7 +46,8 @@ namespace IMDPanel {
 
     interface RestoreError {
         error: string,
-        tableName: string
+        tableName: string,
+        dependency: string
     }
 
     let $imdPanel: JQuery;
@@ -1274,7 +1275,6 @@ namespace IMDPanel {
         let columnsStruct: XcalarApiColumnT[];
         let pTable: PublishTable;
 
-        console.log(columns);
         for (let tableName in selectedCells) {
             pTable = pTables.filter((table) => {
                 return (table.name === tableName);
@@ -1652,11 +1652,11 @@ namespace IMDPanel {
     // list tables and separate which list they go in
     function listAndCheckActive(): XDPromise<PublishTable[]> {
         const deferred: XDDeferred<PublishTable[]> = PromiseHelper.deferred();
-
         XcalarListPublishedTables("*", false, true)
         .then((result) => {
+            iTables = [];
+            pTables = [];
             progressState.canceled = false;
-
             result.tables.forEach(function(table) {
                 if (!table.active) {
                     iTables.push(table);
@@ -1741,9 +1741,11 @@ namespace IMDPanel {
                 return;
             }
             if (res && res.error) {
+                const dep: string = res.log.split('"')[1];
                 const ret: RestoreError = {
                     error: res.error,
-                    tableName: tableName
+                    tableName: tableName,
+                    dependency: tableName + ":" + dep
                 };
                 restoreErrors.push(ret);
             }
@@ -1759,12 +1761,16 @@ namespace IMDPanel {
 
     function showRestoreError() {
         let erroredTableNames: string[] = [];
+        let dependencyTableNames: string[] = [];
         for (let i = 0; i < restoreErrors.length; i++) {
             erroredTableNames.push(restoreErrors[i].tableName);
+            dependencyTableNames.push(restoreErrors[i].dependency);
         }
 
         let msg = restoreErrors[0].error + "<br>" +
-                "Tables: " + xcHelper.listToEnglish(erroredTableNames);
+                "Failed Tables: " + xcHelper.listToEnglish(erroredTableNames) +
+                "<br>" + "Dependencies: " +
+                xcHelper.listToEnglish(dependencyTableNames);
         Alert.error("Some tables could not be activated", msg, {
             msgTemplate: msg
         });
@@ -2137,6 +2143,11 @@ namespace IMDPanel {
     function updateTableCount() {
         $activeCount.text("(" + pTables.length + ")");
         $inactiveCount.text("(" + iTables.length + ")");
+        if (iTables.length > 9) {
+            $("#imdView .inactiveTablesList .inactiveHeader").text("Inactive ... ");
+        } else {
+            $("#imdView .inactiveTablesList .inactiveHeader").text("Inactive Tables ");
+        }
     }
 
     let $waitingBg;
