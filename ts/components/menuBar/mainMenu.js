@@ -186,6 +186,16 @@ window.MainMenu = (function($, MainMenu) {
             SortView.close();
             ProjectView.close();
 
+            if (gDionysus) {
+                MapOpPanel.Instance.close();
+                GroupByOpPanel.Instance.close();
+                FilterOpPanel.Instance.close();
+                AggOpPanel.Instance.close();
+                ProjectOpPanel.Instance.close();
+                JoinOpPanel.Instance.close();
+                SetOpPanel.Instance.close();
+            }
+
             ignoreRestoreState = false;
         }
     };

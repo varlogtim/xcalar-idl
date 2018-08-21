@@ -145,7 +145,15 @@ class MapOpPanel extends GeneralOpPanel {
                 }
             });
         }
-    };
+    }
+
+    public close() {
+        super.close();
+        $(document).off('mousedown.mapCategoryListener');
+        if (this._pendingFnUpdate) {
+            this._udfUpdateOperatorsMap();
+        }
+    }
 
     // functions that get called after list udfs is called during op view show
     protected _render() {
@@ -930,16 +938,6 @@ class MapOpPanel extends GeneralOpPanel {
         return true;
     }
 
-    protected _submitForm() {
-        if (!this._validate()) {
-            return false;
-        }
-
-        this.dataModel.submit();
-        this._closeOpSection();
-        return true;
-    }
-
     protected _resetForm(keepFilter?: boolean) {
         super._resetForm();
         if (!keepFilter) {
@@ -1080,14 +1078,6 @@ class MapOpPanel extends GeneralOpPanel {
         $input.val("");
         $inputWrap.remove();
         this._checkIfStringReplaceNeeded();
-    }
-
-    protected _closeOpSection() {
-        super._closeOpSection();
-        $(document).off('mousedown.mapCategoryListener');
-        if (this._pendingFnUpdate) {
-            this._udfUpdateOperatorsMap();
-        }
     }
 
     protected _switchMode(toAdvancedMode: boolean): {error: string} {

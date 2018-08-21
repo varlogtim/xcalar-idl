@@ -871,16 +871,6 @@ class FilterOpPanel extends GeneralOpPanel {
         return true;
     }
 
-    protected _submitForm() {
-        if (!this._validate()) {
-            return false;
-        }
-
-        this.dataModel.submit();
-        this._closeOpSection();
-        return true;
-    }
-
     // hasMultipleSets: boolean, true if there are multiple groups of arguments
     // such as gt(a, 2) && lt(a, 5)
     protected _formulateFilterString(args, colTypeInfos,

@@ -902,6 +902,9 @@ class FormHelper {
         DagPanel.updateExitMenu(name);
         TblMenu.updateExitOptions("#tableMenu", name);
         TblMenu.updateExitOptions("#colMenu", name);
+        if (gDionysus) {
+            DagNodeMenu.updateExitOptions(name);
+        }
         return wasMenuOpen;
     }
 
@@ -919,6 +922,7 @@ class FormHelper {
         DagPanel.updateExitMenu();
         TblMenu.updateExitOptions("#tableMenu");
         TblMenu.updateExitOptions("#colMenu");
+
         if (this.mainMenuState != null) {
             MainMenu.restoreState(this.mainMenuState, ignoreClose);
             if (!this.mainMenuState["isTopOpen"]) {

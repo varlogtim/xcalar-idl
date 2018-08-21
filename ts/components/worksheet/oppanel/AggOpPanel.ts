@@ -603,16 +603,6 @@ class AggOpPanel extends GeneralOpPanel {
         return true;
     }
 
-    protected _submitForm() {
-        if (!this._validate()) {
-            return false;
-        }
-
-        this.dataModel.submit();
-        this._closeOpSection();
-        return true;
-    }
-
     // private _aggregateCheck(args) {
     //     if (!this._hasFuncFormat(args[0])) {
     //         const aggColNum = this._getColNum(args[0]);

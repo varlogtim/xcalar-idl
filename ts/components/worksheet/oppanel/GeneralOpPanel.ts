@@ -282,6 +282,20 @@ class GeneralOpPanel extends BaseOpPanel {
         return true;
     }
 
+    public close(): void {
+        if (!this._formHelper.isOpen()) {
+            return;
+        }
+        // highlighted column sticks out if we don't close it early
+        this._toggleOpPanelDisplay(true);
+        this._colNamesCache = {};
+        $(".xcTable").find('.modalHighlighted').removeClass('modalHighlighted');
+        super.hidePanel();
+        $(document).off('click.OpSection');
+        $(document).off("keydown.OpSection");
+        // super.close();
+    }
+
     public updateColumns(): void {
         if (!this._formHelper.isOpen()) {
             return;
@@ -307,7 +321,7 @@ class GeneralOpPanel extends BaseOpPanel {
         });
 
         this._$panel.find('.cancel, .close').on('click', function() {
-            self._closeOpSection();
+            self.close();
         });
 
         this._$panel.find('.submit').on('click', self._submitForm.bind(this));
@@ -364,7 +378,7 @@ class GeneralOpPanel extends BaseOpPanel {
                 if (this._$panel.find(".hint.list:visible").length) {
                     self._hideDropdowns();
                 } else if (!this._$panel.find(".list:visible").length) {
-                    self._closeOpSection();
+                    self.close();
                 }
             }
         });
@@ -1002,7 +1016,17 @@ class GeneralOpPanel extends BaseOpPanel {
         }
     }
 
-    protected _submitForm(): void {}
+    protected _submitForm() {
+        if (!this._validate()) {
+            return false;
+        }
+
+        this.dataModel.submit();
+        this.close();
+        return true;
+    }
+
+    protected _validate() {}
 
     protected _isOperationValid(groupNum): boolean {
         const groups = this.dataModel.getModel().groups;
@@ -1727,20 +1751,6 @@ class GeneralOpPanel extends BaseOpPanel {
             }
         }
         return (true);
-    }
-
-    protected _closeOpSection(): void {
-        if (!this._formHelper.isOpen()) {
-            return;
-        }
-        // highlighted column sticks out if we don't close it early
-        this._toggleOpPanelDisplay(true);
-        this._colNamesCache = {};
-        $(".xcTable").find('.modalHighlighted').removeClass('modalHighlighted');
-        super.hidePanel();
-        $(document).off('click.OpSection');
-        $(document).off("keydown.OpSection");
-        // super.close();
     }
 
     protected _resetForm(): void {

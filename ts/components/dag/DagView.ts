@@ -7,7 +7,7 @@ namespace DagView {
 
     export function setup(): void {
         if (gDionysus) {
-            $("#dagButton").show();
+            $("#dagButton").attr("style", "");
         }
         $dagView = $("#dagView");
         $dfWrap = $dagView.find(".dataflowWrap");

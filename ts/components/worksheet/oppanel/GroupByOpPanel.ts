@@ -1001,16 +1001,6 @@ class GroupByOpPanel extends GeneralOpPanel {
         return {};
     }
 
-    protected _submitForm() {
-        if (!this._validate()) {
-            return false;
-        }
-
-        this.model.submit();
-        this._closeOpSection();
-        return true;
-    }
-
     protected _validate(): boolean {
         const self = this;
         if (this._isAdvancedMode()) {

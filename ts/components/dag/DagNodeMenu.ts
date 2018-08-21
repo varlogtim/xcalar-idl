@@ -11,6 +11,23 @@ namespace DagNodeMenu {
         _setupNodeMenuActions();
     }
 
+    export function updateExitOptions(name) {
+        var $li = $menu.find(".exitOp");
+        $li.attr("class", "exitOp");
+
+        var nameUpper = xcHelper.capitalize(name);
+        var label = nameUpper;
+        switch (name) {
+            case ('groupby'):
+                label = 'Group By';
+                break;
+            default:
+                break;
+        }
+        $li.html('<span class="label">Exit ' + label + '</span>');
+        $li.addClass('exit' + nameUpper.replace(/ /g,''));
+    }
+
     function _setupNodeMenu(): void {
         xcMenu.add($menu);
 
@@ -99,6 +116,9 @@ namespace DagNodeMenu {
                     DagView.previewTable(nodeId);
                     break;
                 case ("comment"):
+                    break;
+                case ("exitOpPanel"):
+                    MainMenu.closeForms();
                     break;
                 default:
                     break;
