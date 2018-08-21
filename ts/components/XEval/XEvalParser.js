@@ -4,9 +4,6 @@ var antlr4 = require('antlr4/index');
 var XEvalListener = require('./XEvalListener').XEvalListener;
 var XEvalVisitor = require('./XEvalVisitor').XEvalVisitor;
 
-
-import re as regex
-
 var grammarFileName = "XEval.g4";
 
 var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
@@ -657,8 +654,8 @@ XEvalParser.prototype.moduleName = function() {
         this.enterOuterAlt(localctx, 1);
         this.state = 58;
         localctx._IDENTIFIER = this.match(XEvalParser.IDENTIFIER);
-        if not regex.fullmatch('[a-z_][a-zA-Z0-9_-]*', (localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text)):
-            raise SyntaxError('Invalid module name: ' + (localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text))
+        if ((localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text).match(/^[a-z_][a-zA-Z0-9_-]*$/) == null) {
+            throw SyntaxError('Invalid module name: ' + (localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text));}
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
 	        localctx.exception = re;
@@ -727,8 +724,8 @@ XEvalParser.prototype.fnName = function() {
         this.enterOuterAlt(localctx, 1);
         this.state = 61;
         localctx._IDENTIFIER = this.match(XEvalParser.IDENTIFIER);
-        if not regex.fullmatch('[a-z_][a-zA-Z0-9_]*', (localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text)):
-            raise SyntaxError('Invalid udf name: ' + (localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text))
+        if ((localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text).match(/^[a-z_][a-zA-Z0-9_]*$/) == null) {
+            throw SyntaxError('Invalid udf name: ' + (localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text));}
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
 	        localctx.exception = re;
@@ -890,8 +887,8 @@ XEvalParser.prototype.prefix = function() {
         this.enterOuterAlt(localctx, 1);
         this.state = 71;
         localctx._IDENTIFIER = this.match(XEvalParser.IDENTIFIER);
-        if not regex.fullmatch('[a-zA-Z0-9_-]{1,31}', (localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text)):
-            raise SyntaxError('Invalid prefix name: ' + (localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text))
+        if ((localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text).match(/^[a-zA-Z0-9_-]{1,31}$/) == null) {
+            throw SyntaxError('Invalid prefix name: ' + (localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text));}
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
 	        localctx.exception = re;
@@ -960,8 +957,8 @@ XEvalParser.prototype.colName = function() {
         this.enterOuterAlt(localctx, 1);
         this.state = 74;
         localctx._IDENTIFIER = this.match(XEvalParser.IDENTIFIER);
-        if not regex.fullmatch('(?!--.*)([a-zA-Z_^-](((?!--)[a-zA-Z0-9_^ -])*[a-zA-Z0-9_^-])?)', (localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text)):
-            raise SyntaxError('Invalid column name: ' + (localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text))
+        if ((localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text).match(/^(?!--.*)([a-zA-Z_^-](((?!--)[a-zA-Z0-9_^ -])*[a-zA-Z0-9_^-])?)$/) == null) {
+            throw SyntaxError('Invalid column name: ' + (localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text));}
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
 	        localctx.exception = re;

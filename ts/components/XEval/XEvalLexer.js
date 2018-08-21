@@ -3,9 +3,6 @@
 var antlr4 = require('antlr4/index');
 
 
-import re as regex
-
-
 var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
     "\u0002\u000f\u00e2\b\u0001\u0004\u0002\t\u0002\u0004\u0003\t\u0003\u0004",
     "\u0004\t\u0004\u0004\u0005\t\u0005\u0004\u0006\t\u0006\u0004\u0007\t",
