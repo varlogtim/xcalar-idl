@@ -775,6 +775,14 @@ describe("xcSuggest", function() {
                 "datas": ["0123", "123"],
                 "type": ColumnType.string,
                 "expect": ColumnType.string
+            }, {
+                "datas": ["0.1", "1.0"],
+                "type": ColumnType.string,
+                "expect": ColumnType.float
+            }, {
+                "datas": ["-0.1", "-1.0"],
+                "type": ColumnType.string,
+                "expect": ColumnType.float
             }];
 
             tests.forEach(function(test) {
