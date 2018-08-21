@@ -29,4 +29,12 @@ class DagNodeSQL extends DagNode {
         }
         super.setParam();
     }
+
+    // XXX TODO
+    public lineageChange(columns: ProgCol[]): DagLineageChange {
+        return {
+            columns: [],
+            changes: []
+        };
+    }
 }

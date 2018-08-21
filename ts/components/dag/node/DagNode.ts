@@ -1,6 +1,6 @@
 // Warning, this class should only be used in the DagGraph.
 // To interact with DagNode, use the public API in DagGraph.
-class DagNode {
+abstract class DagNode {
     private static idCount: number = 0;
     private static idPrefix: string;
 
@@ -53,6 +53,12 @@ class DagNode {
         this.lineage = new DagLineage(this);
         this._setupEvents();
     }
+
+    /**
+     * Get the columns after apply the node's operation
+     * @param columns {ProgCol[]} parent columns
+     */
+    abstract lineageChange(columns: ProgCol[]): DagLineageChange;
 
     /**
      * add events to the dag node
@@ -182,7 +188,6 @@ class DagNode {
      * switch from configured/complete/error state to other configured/error state
      */
     public switchState(): void {
-        console.log("switch")
         if (Object.keys(this.input).length === 0) {
             // it's in unsed state
             return;
@@ -337,11 +342,25 @@ class DagNode {
         return JSON.stringify(seriazliedInfo);
     }
 
+    /**
+     * @returns {boolean} return true if allow connect aggregate node,
+     * return false otherwise
+     */
     public isAllowAggNode(): boolean {
         return this.allowAggNode;
     }
 
-    // finds the first parent index that is empty
+    /**
+     * @returns {boolean} return true if it's a source node (datasets/IMD)
+     * return false otherwise
+     */
+    public isSourceNode(): boolean {
+        return this.numParent === 0;
+    }
+
+    /**
+     * @return {number} finds the first parent index that is empty
+     */
     public getNextOpenConnectionIndex(): number {
         let limit;
         if (this.allowAggNode || this._canHaveMultiParents()) {

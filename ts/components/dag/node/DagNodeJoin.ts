@@ -37,11 +37,90 @@ class DagNodeJoin extends DagNode {
         super.setParam();
     }
 
+    // XXX TODO: verify it's correctness
+    public lineageChange(_columns: ProgCol[]): DagLineageChange {
+        const chanages: {from: ProgCol, to: ProgCol}[] = [];
+        const parents: DagNode[] = this.getParents();
+        const lCols: ProgCol[] = parents[0].getLineage().getColumns();
+        const rCols: ProgCol[] = parents[1].getLineage().getColumns();
+        const lNewCols: ProgCol[] = this._getColAfterJoin(lCols, this.input.left, chanages);
+        const rNewCols: ProgCol[] = this._getColAfterJoin(rCols, this.input.right, chanages);
+        return lNewCols.concat(rNewCols);    
+    }
+
     private _getDefaultTableInfo(): DagNodeJoinTableInput {
         return {
             columns: [""],
             casts: [null],
             rename: [{sourceColumn: "", destColumn: "", prefix: false}]
         }
+    }
+
+    private _getColAfterJoin(
+        columns: ProgCol[],
+        joinInput: DagNodeJoinTableInput
+    ): DagLineageChange {
+        const changes: {from: ProgCol, to: ProgCol}[] = [];
+        const colMap: Map<string, ProgCol> = new Map();
+        const joinedColSet: Set<string> = new Set();
+
+        columns.forEach((progCol) => {
+            colMap.set(progCol.getBackColName(), progCol);
+        });
+
+        // 1. Get join cols
+        const joinedCols: ProgCol[] = joinInput.columns.map((colName, index) => {
+            joinedColSet.add(colName);
+            const colType: ColumnType = joinInput.casts[index] || colMap.get(colName).getType();
+            const frontName: string = xcHelper.parsePrefixColName(colName).name;
+            return ColManager.newPullCol(frontName, colName, colType);
+        });
+
+        // 2, Get other cols
+        const otherCols: ProgCol[] = columns.filter((progCol) => {
+            return !joinedColSet.has(progCol.getBackColName());
+        });
+
+        // 3. combine joined cols and other cols
+        let finalCols: ProgCol[] = joinedCols.concat(otherCols);
+
+        // 4. rename columns
+        for (let i = 0; i < finalCols.length; i++) {
+            const progCol: ProgCol = finalCols[i];
+            const parsed: PrefixColInfo = xcHelper.parsePrefixColName(progCol.getBackColName());
+            for (let j = 0; j < joinInput.rename.length; j++) {
+                const renameInfo = joinInput.rename[j];
+                if (renameInfo.prefix) {
+                    if (parsed.prefix === renameInfo.sourceColumn) {
+                        const newName: string = xcHelper.getPrefixColName(renameInfo.destColumn, parsed.name);
+                        const oldProgCol: ProgCol = finalCols[i];
+                        const newProgCol: ProgCol = ColManager.newPullCol(parsed.name, newName, progCol.getType());
+                        finalCols[i] = newProgCol;
+                        changes.push({
+                            from: oldProgCol,
+                            to: newProgCol
+                        });
+                        break; // stop second-level loop
+                    }
+                } else {
+                    if (!parsed.prefix && parsed.name === renameInfo.sourceColumn) {
+                        const newName: string = renameInfo.destColumn;
+                        const oldProgCol: ProgCol = finalCols[i];
+                        const newProgCol: ProgCol = ColManager.newPullCol(newName, newName, progCol.getType());
+                        finalCols[i] = newProgCol;
+                        changes.push({
+                            from: oldProgCol,
+                            to: newProgCol
+                        });
+                        break; // stop second-level loop
+                    }
+                }
+            }
+        }
+
+        return {
+            columns: finalCols,
+            changes: changes
+        };
     }
 }

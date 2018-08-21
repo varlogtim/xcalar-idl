@@ -12,7 +12,8 @@ class DagNodeDataset extends DagNode {
                 const name: string = xcHelper.parsePrefixColName(column.name).name;
                 return ColManager.newPullCol(name, column.name, column.type);
             });
-            this.lineage.setColumns(this.columns);
+        } else {
+            this.columns = [];
         }
     }
 
@@ -72,7 +73,6 @@ class DagNodeDataset extends DagNode {
                     const colName: string = xcHelper.getPrefixColName(prefix, key);
                     return ColManager.newPullCol(key, colName, colTypes[index]);
                 });
-                this.lineage.setColumns(this.columns);
                 deferred.resolve();
             })
             .fail(deferred.reject);
@@ -81,5 +81,12 @@ class DagNodeDataset extends DagNode {
         }
 
         return deferred.promise();
+    }
+
+    public lineageChange(_columns: ProgCol[]): DagLineageChange {
+        return {
+            columns: this.columns,
+            changes: []
+        };
     }
 }

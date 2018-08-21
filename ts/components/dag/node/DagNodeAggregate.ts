@@ -48,6 +48,13 @@ class DagNodeAggregate extends DagNode {
         return this.aggVal;
     }
 
+    public lineageChange(_columns: ProgCol[]): DagLineageChange {
+        return {
+            columns: [],
+            changes: []
+        };
+    }
+
     protected _clearConnectionMeta(): void {
         super._clearConnectionMeta();
         this.setAggVal(null);

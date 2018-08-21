@@ -1,32 +1,16 @@
 class DagLineage {
-    private columns: ProgCol[];
-    // depned on how we define the change, it may needed or not
     /**
      * Example:
-     * Add New column: {event: LineageEvent.Add, from: null, to: "newCol", type: ColumnType.string}
-     * Remove prefix: {event: LineageEvent.Remove, from: "prefix::", to: null}
-     * Remove derived column: {event: LineageEvent.Remove, from: "derived", to: null}
-     * Remname prefix: {event: LineageEvent.Rename, from: "prefix::", to: "newPrefix::"}
-     * Rename derived column: {event: LineageEvent.Rename, from: "derived", to: "newDerived"}
-     * Rename column and change type: {event: LineageEvent.Rename, from: "prefix:col", to: "newCol", type: ColumnType.integer}
+     * Add New column: {, from: null, to: progCol}
+     * Remove columns: {from: progCol, to: null}
+     * Change of columns(name/type): {from: oldProgCol, to: newProgCol}
      */
-    private LineageEvent = {
-        "Add": "add",
-        "Remove": "remove",
-        "Rename": "rename"
-    }
-    // depned on how we define the change, it may needed or not
-    private change: {event: string, from: string, to: string, type?: ColumnType}[];
+    private changes: {from: ProgCol, to: ProgCol}[];
     private node: DagNode;
-    /* possible use: stop the delta change of parents
-     * like add a column, remove a column, ect.
-     */
-    // private changes: object[];
+    private columns: ProgCol[];
 
-    // XXX persist or not TBD
     public constructor(node: DagNode) {
         this.node = node;
-        this._defineChange();
         this.columns = undefined;
     }
 
@@ -40,21 +24,6 @@ class DagLineage {
         this.columns = columns;
     }
 
-    public update(): void {
-        if (this._isSource()) {
-            // source node
-            this.columns = this.columns || [];
-        } else if (this._isAgg()) {
-            this.columns = []; // aggregate has no columns. just a value
-        } else {
-            this.columns = [];
-            this.node.getParents().forEach((parentNode) => {
-                this.columns = this.columns.concat(parentNode.getLineage().getColumns());
-            });
-            this._applyChange();
-        }
-    }
-
     /**
      * Reset when disconnect from parent, update params
      * or column meta from table is dropped
@@ -63,52 +32,54 @@ class DagLineage {
         this.columns = undefined;
     }
 
+    /**
+     * @return {ProgCol[]} get a list of columns
+     */
     public getColumns(): ProgCol[] {
         if (this.columns == null) {
-            this.update();
+            this._update();
         }
         return this.columns;
     }
 
-    // XXX TODO
+    /**
+     * @return {string[]} Get A list of devired columns names
+     */
     public getDerivedColumns(): string[] {
-        return [];
+        const derivedColumns: string[] = [];
+        this.columns.forEach((progCol) => {
+            const colName: string = progCol.getBackColName();
+            const parsed: PrefixColInfo = xcHelper.parsePrefixColName(colName);
+            if (!parsed.prefix) {
+                derivedColumns.push(parsed.name);
+            }
+        });
+        return derivedColumns;
     }
 
-    /** XXX TODO
-     * Define change option 1, each subClass of DagNode define how the change
-     * of columns should be
-     * @param changeFunc
-     */
-    public defineChange(changeFunc: Function) {
-
-    }
-
-    /** XXX TODO
-     * Define change option 2: all type of nodes define how it should change here
-     */
-    private _defineChange(): void {
-        if (this._isSource()) {
-            // souce is the starting point
-            return;
+    private _update(): void {
+        if (this.node.isSourceNode()) {
+            // source node
+            this._applyChanges();
+        } else if (this.node.getType() === DagNodeType.Aggregate) {
+            this.columns = []; // aggregate has no columns. just a value
+        } else {
+            this.columns = [];
+            this.node.getParents().forEach((parentNode) => {
+                this.columns = this.columns.concat(parentNode.getLineage().getColumns());
+            });
+            this._applyChanges();
         }
+    }
 
-        switch (this.node.getType()) {
-            default:
-                break;
+    private _applyChanges(): void {
+        try {
+            const lineageChange: DagLineageChange = this.node.lineageChange(this.columns);
+            console.log("change", lineageChange)
+            this.columns = lineageChange.columns;
+            this.changes = lineageChange.changes;
+        } catch (e) {
+            console.error(e);
         }
-    }
-
-    // XXX TODO, this will change the column based on how the node define the chagne
-    private _applyChange(): void {
-
-    }
-
-    private _isSource(): boolean {
-        return this.node.getNumParent() === 0;
-    }
-
-    private _isAgg(): boolean {
-        return this.node.getType() === DagNodeType.Aggregate;
     }
 }

@@ -191,7 +191,7 @@ class DagExecute {
         const destTable: string = this._generateTableName();
         return XIApi.project(this.txId, params.columns, srcTable, destTable);
     }
-    
+
     private _set(): XDPromise<string> {
         const node: DagNodeSet = <DagNodeSet>this.node;
         const params: DagNodeSetInput = node.getParam();
@@ -200,9 +200,12 @@ class DagExecute {
         const tableInfos: UnionTableInfo[] = params.columns.map((colInfo, index) => {
             const columns: UnionColInfo[] = colInfo.map((col) => {
                 const name: string = col.sourceColumn;
-                const prefix = xcHelper.parsePrefixColName(name).prefix;
-                // prefix column must cast
-                const cast: boolean = col.cast || (prefix ? true : false);
+                let cast: boolean = col.cast;
+                if (!cast && name != null) {
+                    const prefix = xcHelper.parsePrefixColName(name).prefix;
+                    // prefix column must cast
+                    cast = (prefix ? true : false);
+                }
                 return {
                     name: name,
                     rename: col.destColumn,

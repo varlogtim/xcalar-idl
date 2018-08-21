@@ -480,7 +480,7 @@ namespace DagView {
                     $curEdge.attr("data-connectorindex", index - 1);
                 }
             })
-        } else if (activeDag.getNode(childNodeId).getNumParent() === 0) {
+        } else if (activeDag.getNode(childNodeId).isSourceNode()) {
              $childConnector.removeClass("hasConnection")
                             .addClass("noConnection");
         }

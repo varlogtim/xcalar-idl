@@ -28,4 +28,11 @@ class DagNodeFilter extends DagNode {
         }
         super.setParam();
     }
+
+    public lineageChange(columns: ProgCol[]): DagLineageChange {
+        return {
+            columns: columns,
+            changes: []
+        };
+    }
 }

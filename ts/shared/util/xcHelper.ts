@@ -1676,10 +1676,10 @@ namespace xcHelper {
     }
 
      /**
-     * xcHelper.getColTypeIcon
+     * xcHelper.getDFFieldTypeToString
      * @param type
      */
-    export function getDFFieldTypeToString(type: DfFieldTypeT): string {
+    export function getDFFieldTypeToString(type: DfFieldTypeT): ColumnType {
         switch (type) {
             case (DfFieldTypeT.DfInt32):
             case (DfFieldTypeT.DfInt64):

@@ -48,4 +48,11 @@ class DagNodeExport extends DagNode {
         }
         super.setParam();
     }
+
+    public lineageChange(_columns: ProgCol[]): DagLineageChange {
+        return {
+            columns: [], // export node no need to know lineage
+            changes: []
+        }
+    }
 }

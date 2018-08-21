@@ -15,6 +15,11 @@ interface DagNodeDatasetInfo extends DagNodeInfo {
     columns?: {name: string, type: ColumnType}[]
 }
 
+interface DagLineageChange {
+    columns: ProgCol[];
+    changes: {from: ProgCol, to: ProgCol}[]
+}
+
 /* ==== Dag Node Input Intereface ==== */
 interface DagNodeAggregateInput {
     evalString: string;
