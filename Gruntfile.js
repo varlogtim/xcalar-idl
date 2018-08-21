@@ -3398,7 +3398,7 @@ module.exports = function(grunt) {
         // file you want to replace in : file to map it to (if same will just update curr file w new version)
         var jsFilesToUpdate = {
             "assets/lang/en/jsTStr.js": "assets/lang/en/jsTStrXI.js",
-            "assets/lang/zh/jsTStr.js": "assets/lang/zh/jsTStrXI.js",
+            // "assets/lang/zh/jsTStr.js": "assets/lang/zh/jsTStrXI.js",
             "assets/jupyter/ipython/nbextensions/xcalar.js": "assets/jupyter/ipython/nbextensions/xcalar.js",
         }
         var jsFile, jsFileFullSrc, jsFileFullDest;
