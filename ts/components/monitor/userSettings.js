@@ -327,7 +327,7 @@ window.UserSettings = (function($, UserSettings) {
             maxVal: 120,
             onChangeEnd: function(val) {
                 // here update the logout timeout value
-                XcUser.CurrentUser.updateLogOutInterval(val * 60 * 1000);
+                XcUser.CurrentUser.updateLogOutInterval(val);
                 UserSettings.logChange();
             }
         });
