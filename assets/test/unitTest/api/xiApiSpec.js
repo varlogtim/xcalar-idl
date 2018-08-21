@@ -2931,6 +2931,41 @@ describe('XIApi Test', () => {
                     });
             });
 
+            it('XIApi.deleteTables with no transaction id should work', (done) => {
+                const oldFunc = XcalarQueryWithCheck;
+                XcalarQueryWithCheck = () => {
+                    return PromiseHelper.resolve({
+                        queryGraph: {
+                            node: [{
+                                input: {
+                                    deleteDagNodeInput: {
+                                        namePattern: 'a'
+                                    }
+                                },
+                                state: DgDagStateT.DgDagStateDropped
+                            }]
+                        }
+                    });
+                };
+
+                const arrayOfQueries = [{
+                    args: {
+                        namePattern: 'a'
+                    }
+                }];
+
+                XIApi.deleteTables(null, arrayOfQueries)
+                    .then((result) => {
+                        expect(result).to.equal(null);
+                        done();
+                    })
+                    .fail(() => {
+                        done('fail');
+                    })
+                    .always(() => {
+                        XcalarQueryWithCheck = oldFunc;
+                    });
+            });
 
             it('XIApi.deleteTables should fail when delete fail', (done) => {
                 const oldFunc = XcalarQueryWithCheck;

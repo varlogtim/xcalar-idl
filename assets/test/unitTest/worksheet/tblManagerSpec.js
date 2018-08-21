@@ -481,7 +481,7 @@ describe("TableManager Test", function() {
             table.beUndone();
             expect(table.getType()).to.equal(TableType.Undone);
 
-            TblManager.deleteTables(tableId, TableType.Undone)
+            TblManager.deleteTables(tableId, TableType.Undone, true, true)
             .then(function() {
                 expect(gTables).not.to.ownProperty(tableId);
                 done();
@@ -649,7 +649,7 @@ describe("TableManager Test", function() {
                 done("fail");
             });
         });
-        
+
         it("TblManager.focusOnTable for active table should work.", function() {
             TblManager.findAndFocusTable(tableName, true);
             expect($xcTableWrap = $("#xcTableWrap-" + tableId).find(".tableTitle").hasClass("tblTitleSelected")).to.be.true;
@@ -1195,7 +1195,7 @@ describe("TableManager Test", function() {
                 var $td2 = $tbody.find(".row3 td.col1");
 
                 $td.click();
-                
+
                 var e = jQuery.Event("mousedown", {
                     "which": 1,
                     "shiftKey": true
@@ -1206,7 +1206,7 @@ describe("TableManager Test", function() {
 
                 TblManager.rehighlightCells(tableId);
                 assert.isTrue($td.hasClass("highlightedCell") && $td2.hasClass("highlightedCell"));
-    
+
             });
 
             it("mousedown on td should highlight and store info", function() {

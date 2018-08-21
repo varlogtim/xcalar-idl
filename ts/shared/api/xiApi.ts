@@ -2656,7 +2656,8 @@ namespace XIApi {
         arrayOfQueries: object[],
         jdbcCheckTime: number
     ): XDPromise<any> {
-        if (txId == null || arrayOfQueries == null) {
+        if (arrayOfQueries == null) {
+            // txID not needed if deleting undone tables
             return PromiseHelper.reject('Invalid args in delete table');
         }
 
