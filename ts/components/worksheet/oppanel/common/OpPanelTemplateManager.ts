@@ -4,6 +4,10 @@
 class OpPanelTemplateManager {
     private _nodeDefMap: { [key: string]: NodeDef[] } = {};
 
+    public static setElementForceUpdate(element: HTMLElement) {
+        OpPanelNodeRenderFactory.setNodeForceUpdate(element as NodeDefDOMElement);
+    }
+
     /**
      * Load HTML template from DOM, then create and cache virtual DOM definition
      * @param container ancestor of the template
@@ -31,6 +35,7 @@ class OpPanelTemplateManager {
     public createElements(templateId: string, replaces?: { [key: string]: any }) {
         const nodeDef = this._nodeDefMap[templateId];
         if (nodeDef == null) {
+            console.error(`TemplateManager.createElements: template not loaded(${templateId})`);
             return [];
         }
 

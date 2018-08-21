@@ -1,5 +1,5 @@
 enum NodeDefType {
-    element, text
+    element, text, component
 }
 
 /**
@@ -78,12 +78,23 @@ class OpPanelNodeDefFactory {
         return text.replace('\\{', '{').replace('\\}', '}');
     }
 
+    private static _getComponentName(tagName: string): string {
+        return (tagName.indexOf('APP-') === 0) ? tagName : null;
+    }
+
     private static _createElementNodeDef(domNode: NodeDefDOMElement) {
         try {
             if (domNode == null) {
                 return null;
             }
-    
+
+            // This is a component
+            const compName = this._getComponentName(domNode.nodeName);
+            if (compName != null) {
+                return { type: NodeDefType.component, name: compName } as NodeDefComponent;
+            }
+
+            // This is a HTML element
             const nodeDef: NodeDefElement = { type: NodeDefType.element, tag: domNode.nodeName };
         
             const attrNames = this._getAttributeNames(domNode);

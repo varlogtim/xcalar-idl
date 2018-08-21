@@ -1,0 +1,28 @@
+<div data-xcid="templateRename" style="display:none">
+    <div class="row row-subheading">
+        <div class="col col-left">{{oldColTitle}}</div>
+        <div class="col col-right">{{newColTitle}}</div>
+    </div>
+    <!-- <div class="subSubHeading clearfix">
+        <div><%= dicts.joinView.LeftTablePrefix %></div>
+        include "joinRenameOption.html"
+        <div class="newNameLabel"><%= dicts.joinView.NewName %></div>
+    </div> -->
+    <APP-RENAME_TABLE />
+</div>
+
+<div data-xcid="templateRenameRow" style="display:none">
+    <div class="row row-rename">
+        <div class="col col-left"><input type="text" spellcheck="false" disabled value="{{oldName}}"/></div>
+        <div class="renameIcon" (click)="onClickRename">
+            <div class="iconWrapper"><i class="icon xi-play-circle fa-14"></i></div>
+        </div>
+        <div class="col col-right"><input type="text" spellcheck="false" value="{{newName}}" (change)="onNameChange"/></div>
+    </div>
+</div>
+
+<div data-xcid="templateRenameSection" style="display:none">
+    <div class="subHeading clearfix"><div class="subSubHeading light">{{renameHeader}}</div></div>
+    <div><APP-LEFTRENAME /></div>
+    <div><APP-RIGHTRENAME /></div>
+</div>

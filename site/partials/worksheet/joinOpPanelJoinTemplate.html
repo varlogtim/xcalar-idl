@@ -1,0 +1,50 @@
+<!-- HTML template for clause, should always be hidden -->
+<div data-xcid="templateClause" style="display:none">
+    <div class="joinClause">
+        <div data-xcid="castRow" class="row"></div>
+        <div class="row">
+            <div class="col col-left">
+                <div data-xcid="leftColDropdown" class="dropDownList dropdownList-join">
+                    <div data-xcid="menuInput" class="text"></div>
+                    <!-- <input data-xcid="menuInput" class="text nonEditable" type="text" spellcheck="false" disabled /> -->
+                    <div class="iconWrapper dropdown"><i class="icon xi-arrow-down"></i></div>
+                    <ul data-xcid="menuItems" class="list"></ul>
+                </div>
+            </div>
+            <div class="removeIcon {{delCss}}" (click)="onDelClick">
+                <div class="iconWrapper">
+                    <i class="icon xi-equal-circle fa-14"></i>
+                </div>
+            </div>
+            <div class="col col-right">
+                <div data-xcid="rightColDropdown" class="dropDownList dropdownList-join">
+                    <div data-xcid="menuInput" class="text"></div>
+                    <!-- <input data-xcid="menuInput" class="text nonEditable" type="text" spellcheck="false" disabled /> -->
+                    <div class="iconWrapper dropdown">
+                        <i class="icon xi-arrow-down"></i>
+                    </div>
+                    <ul data-xcid="menuItems" class="list"></ul>
+                </div>
+            </div>
+        </div>
+    </div>  
+</div>
+
+<div data-xcid="templateCast" style="display: none">
+    <div class="col col-left">
+        <div data-xcid="leftCastDropdown" class="dropDownList dropdownList-cast">
+            <div data-xcid="menuInput" class="text"></div>
+            <!-- <input data-xcid="menuInput" class="text nonEditable" value="default" disabled /> -->
+            <div class="iconWrapper dropdown"><i class="icon xi-arrow-down"></i></div>
+            <ul data-xcid="menuItems" class="list"></ul>
+        </div>            
+    </div>
+    <div class="col col-right">
+        <div data-xcid="rightCastDropdown" class="dropDownList dropdownList-cast">
+            <div data-xcid="menuInput" class="text"></div>
+            <!-- <input data-xcid="menuInput" class="text nonEditable" value="default" disabled /> -->
+            <div class="iconWrapper dropdown"><i class="icon xi-arrow-down"></i></div>
+            <ul data-xcid="menuItems" class="list"></ul>
+        </div>
+    </div>
+</div>

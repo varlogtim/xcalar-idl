@@ -2089,6 +2089,9 @@
 .joinOpPanel {
     @listHeight: 26px;
     @standardFontSize: 12px;
+    @middleIconWidth: 26px;
+    @headingHeight: 30px;
+    @commonMargin: 10px;
 
     .renameSection {
         .rename {
@@ -2119,112 +2122,129 @@
         }
     }
 
-    .middleIcon {
-        .size(@width: 25px, @height: @listHeight);
-        float: left;
+    .row {
+        .size(@height: 100%);
+        .flex-container();
+        .flex-flow(nowrap);
+        .align-items(center);
+        position: relative;
+    }
+
+    .col {
+        .flex(1);
+        .size(@height: 100%);
+        .flex-container();
+        .align-items(center);
+        white-space: nowrap;
+    }
+
+    .gen-columns(@n; @i:1) when (@i <= @n) {
+        .col-@{i} {
+            .flex(@i);
+        }
+        .gen-columns(@n; (@i + 1));
+    }
+    .gen-columns(12);
+
+    .col-left {
+        .col-6();
+        margin-right: @middleIconWidth;
+        min-width: 134px;
+    }
+
+    .col-right {
+        .col-6();
+        min-width: 134px;
+    }
+
+    .row-subheading {
+        .col {
+            height: @headingHeight;
+            line-height: @headingHeight + 4;
+            padding-left: @commonMargin;
+            font-weight: 700;
+        }
+    }
+
+    .row-rename {
+        margin-top: -1px;
+    }
+
+    .dropdownList-join, .dropdownList-cast {
+        float: none;
+        .size(@height: @listHeight + 2px);
+        line-height: @listHeight;
+        border: 1px solid #dedede;
+
+        .list {
+            .size(@width: 100%);
+            border-top: 1px solid #dedede;
+        }
+        .text {
+            border: none;
+        }
+        .iconWrapper {
+            background-color: transparent;
+        }
+        .iconWrapper .icon {
+            color: @color-font-warm-grey-two;
+        }
+    }
+
+    .dropdownList-cast {
+        border-bottom: none;
+    }
+
+    .removeIcon, .renameIcon {
+        .size(@width: @middleIconWidth, @height: @listHeight);
         cursor: pointer;
-        .horizontal-align(absolute);
+        .position(absolute, @left: ~"calc(50% - @{middleIconWidth}/2)");
         z-index: 1;
 
         .iconWrapper {
             .size(14px, 14px);
+            .center-align;
             border-radius: 100%;
             background-color: @color-white;
-            .center-align;
-            top: 13px;
-            margin-left: 1px;
+            top: @listHeight/2;
         }
 
         .icon {
             color: @color-font-select-blue;
-            .clauseContainer .mainTable .clauseArea .joinClause .clauseRow .dropDownList {
-                .size(@width: 50%);
+        }
+    }
 
-                .clause {
-                    .size(@width: ~"calc(100% - 26px)");
-                }
+    .removeIcon {
+        &:hover .icon {
+            .transform(rotate(45deg));
+            &::before {
+                    content: "\e9b2"; // plus circle
+            }
+        }
+    }
+
+    .removeIcon-nodel {
+        pointer-events: none;
+        &:hover .icon {
+            .transform(rotate(0deg));
+            &::before {
+                content: "\e9b0"; // equal circle
             }
         }
     }
 
     .joinClause {
-        .castRow {
-            height: 0px;
-            overflow: hidden;
-            .transition(all 0.3s);
+        padding-bottom: 2px;
+    }
 
-            &.showing {
-                height: 26px;
-                margin-top: 6px;
-                div.text {
-                    padding-left: 12px;
-                }
-            }
-            &.overflowVisible {
-                overflow: visible;
-            }
-        }
+    .addClause {
+        padding-top: 15px;
+        .flex-display;
+        .flex-wrap(wrap);
+        .justify-content(center);
 
-        .cast {
-            float: left;
-            width: ~"calc(50% - 1px)";
-            text-transform: capitalize;
-            &:first-child {
-                width: ~"calc(50% + 1px)";
-            }
-            input {
-                text-transform: capitalize;
-                &[data-casted=true] {
-                    color: @color-font-select-blue;
-                }
-            }
-
-            li {
-                color: @color-font-select-blue;
-            }
-
-            li.default {
-                font-style: italic;
-                color: @color-font-gray36;
-            }
-        }
-
-        .removeIcon {
-            .size(@width: 25px, @height: @listHeight);
-            float: left;
-            cursor: pointer;
-            .horizontal-align(absolute);
-            z-index: 1;
-
-            .iconWrapper {
-                .size(14px, 14px);
-                border-radius: 100%;
-                background-color: @color-white;
-                .center-align;
-                top: 13px;
-                margin-left: 1px;
-            }
-
-            .icon {
-                color: @color-font-select-blue;
-            }
-
-            &:hover .icon {
-                .transform(rotate(45deg));
-                &::before {
-                        content: "\e9b2"; // plus circle
-                }
-            }
-        }
-
-        .removeIcon-nodel {
-            pointer-events: none;
-            &:hover .icon {
-                .transform(rotate(0deg));
-                &::before {
-                    content: "\e9b0"; // equal circle
-                }
-            }
+        .btn {
+            width: 200px;
         }
     }
 }

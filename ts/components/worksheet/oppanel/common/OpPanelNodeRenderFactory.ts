@@ -4,6 +4,9 @@
  */
 class OpPanelNodeRenderFactory {
 
+    private static _boolProps = ['disabled', 'readonly', 'checked', 'editable'];
+    private static _boolPropsMap = { 'disabled': true, 'readonly': true, 'checked': true, 'editable': true };
+
     /**
      * Create VDOM trees from VDOM definitions
      * @param nodeDefList VDOM definition list
@@ -30,6 +33,13 @@ class OpPanelNodeRenderFactory {
                     if (node != null) {
                         nodeList.push(node as any);
                     }
+                } else if (this._isNodeTypeComponent(nodeDef)) {
+                    const nodes = this._createComponentNode(nodeDef, args);
+                    if (nodes != null) {
+                        for (const node of nodes) {
+                            nodeList.push(node);
+                        }
+                    }
                 }
             }
             return nodeList;
@@ -51,17 +61,23 @@ class OpPanelNodeRenderFactory {
         try {
             if (container.hasChildNodes()) {
                 const oldNodeList = container.childNodes;
+                const removeList = [];
                 let oldIndex;
                 for (oldIndex = 0; oldIndex < oldNodeList.length; oldIndex ++) {
                     const oldNode = oldNodeList[oldIndex] as NodeDefDOMElement;
                     if (oldIndex < newNodeList.length) {
                         const newNode = newNodeList[oldIndex];
-                        if (this._compareNode(oldNode, newNode) != null) {
-                            // Node is updated, replace the whole subtree
+                        if (this._isNodeForceUpdate(oldNode)) {
+                            container.replaceChild(newNode, oldNode);
+                            // console.log(`Node replace(force): ${oldNode.nodeName}`);
+                        } else if (!this._isSameNodeType(oldNode, newNode)) {
+                            // Different node type, replace the whole subtree
                             container.replaceChild(newNode, oldNode);
                             // console.log(`Node replace: ${newNode.nodeName}`);
                         } else {
-                            // No change of this node, keep checking the subtree
+                            // Same node type, update attributes/states
+                            this._updateNode(oldNode, newNode);
+                            // Continue checking child elements
                             const childNodes = [];
                             if (newNode.hasChildNodes()) {
                                 for (const child of newNode.childNodes) {
@@ -72,9 +88,12 @@ class OpPanelNodeRenderFactory {
                         }
                     } else {
                         // More old children, delete them
-                        container.removeChild(oldNode);
-                        // console.log(`Node remove: ${oldNode.nodeName}`);
+                        removeList.push(oldNode);
                     }
+                }
+                for (const removeNode of removeList) {
+                    container.removeChild(removeNode);
+                    // console.log(`Node remove: ${removeNode.nodeName}`);
                 }
     
                 if (oldIndex < newNodeList.length) {
@@ -96,82 +115,164 @@ class OpPanelNodeRenderFactory {
         }
     }
 
-    private static _compareNode(
+    public static setNodeForceUpdate(node: NodeDefDOMElement) {
+        if (node == null) {
+            return;
+        }
+        this._writeXcData(node, { isForceUpdate: true });
+    }
+
+    private static _isNodeForceUpdate(node: NodeDefDOMElement): boolean {
+        const xcdata = this._readXcData(node);
+        if (xcdata == null) {
+            return false;
+        }
+        return xcdata.isForceUpdate;
+    }
+
+    private static _getDefaultXcData(): NodeDefXcData {
+        return {
+            isForceUpdate: false,
+            events: {}
+        };
+    }
+
+    private static _writeXcData(
+        node: NodeDefDOMElement,
+        xcdata: NodeDefXcData
+    ) {
+        if (node == null || xcdata == null) {
+            return;
+        }
+        const nodeData = node.xcdata || this._getDefaultXcData();
+        if (xcdata.isForceUpdate != null) {
+            nodeData.isForceUpdate = xcdata.isForceUpdate;
+        }
+        if (xcdata.events != null) {
+            nodeData.events = Object.assign({}, xcdata.events);
+        }
+        node.xcdata = nodeData;
+    }
+
+    private static _readXcData(node: NodeDefDOMElement): NodeDefXcData {
+        const xcdata = node.xcdata;
+        if (xcdata == null) {
+            return null;
+        }
+        return {
+            isForceUpdate: xcdata.isForceUpdate,
+            events: Object.assign({}, xcdata.events)
+        };
+    }
+
+    private static _isSameNodeType(
+        oldNode: NodeDefDOMElement,
+        newNode: NodeDefDOMElement,
+    ): boolean {
+        if (oldNode == null || newNode == null) {
+            return false;
+        }
+        if (oldNode.nodeType !== newNode.nodeType) {
+            return false;
+        }
+        return oldNode.nodeName === newNode.nodeName;
+    }
+
+    private static _updateNode(
         oldNode: NodeDefDOMElement,
         newNode: NodeDefDOMElement,
     ) {
         try {
-            const oldNodeType = oldNode.nodeType;
-            const newNodeType = newNode.nodeType;
-            if (oldNodeType !== newNodeType) {
-                return newNode;
-            }
-            if (newNodeType === Node.TEXT_NODE) {
-                return this._compareTextNode(oldNode, newNode);
-            } else {
-                return this._compareElementNode(oldNode, newNode);
-            }
-        } catch(e) {
-            console.error('NodeRender._compareNode', e);
-            return null;
-        }
-    }
-
-    private static _compareTextNode(oldNode: NodeDefDOMElement, newNode: NodeDefDOMElement) {
-        try {
-            if (newNode.textContent !== oldNode.textContent) {
-                return newNode;
-            }
-            return null;
-        } catch(e) {
-            console.error('NodeRender._compareTextNode', e);
-            return null;
-        }
-    }
-
-    private static _compareElementNode(oldNode: NodeDefDOMElement, newNode: NodeDefDOMElement) {
-        try {
             if (oldNode == null || newNode == null) {
-                return null;
+                return;
             }
     
-            // Compare node type
-            if (oldNode.nodeType !== newNode.nodeType) {
-                return newNode;
-            }
-            // Compare node tag
-            if (oldNode.nodeName !== newNode.nodeName) {
-                return newNode;
-            }
-            // Compare attributes
-            const attrsNew = newNode.attributes;
-            const attrsOld = oldNode.attributes;
-    
-            const copyAttrs = ['aria-describedby'];
-            for (const key of copyAttrs) {
-                const oldValue = attrsOld[key];
-                if (oldValue != null) {
-                    newNode.setAttribute(key, oldValue.value);
+            if (oldNode.nodeType === Node.TEXT_NODE) {
+                // Text node, only update textContent
+                if (oldNode.textContent !== newNode.textContent) {
+                    oldNode.textContent = newNode.textContent;
+                }
+            } else {
+                const attrsNew = newNode.attributes;
+                const attrsOld = oldNode.attributes;
+                // Regular attributes/states
+                for (let i = 0; i < attrsNew.length; i ++) {
+                    const {name: newName, value: newValue} = attrsNew[i];
+                    if (this._boolPropsMap[newName]) {
+                        // We will check all boolean attributes later
+                        continue;
+                    }
+                    const stateOld = oldNode[newName];
+                    const attrOld = attrsOld[newName];
+                    const oldValue = (stateOld != null)? stateOld: (attrOld == null? null: attrOld.value);
+                    if (oldValue !== newValue) {
+                        this._updateAttribute(oldNode, newName, newValue);
+                        // console.log(`Attr update: ${newName},${oldValue},${newValue}`);
+                    }
+                }
+                // Boolean states
+                for (const newName of this._boolProps) {
+                    const newValue = newNode[newName];
+                    const oldValue = oldNode[newName];
+                    if (newValue != null && oldValue != null && newValue !== oldValue) {
+                        this._updateAttribute(oldNode, newName, newValue);
+                        // console.log(`Attr update2: ${newName}`);
+                    }
+                }
+                // Event listeners
+                const oldXcdata = this._readXcData(oldNode);
+                if (oldXcdata != null) {
+                    const events = oldXcdata.events;
+                    for (const eName of Object.keys(events)) {
+                        oldNode.removeEventListener(eName, events[eName]);
+                        // console.log(`Remove event: ${eName}`);
+                    }
+                    this._writeXcData(oldNode, {events: {}});
+                }
+                const newXcdata = this._readXcData(newNode);
+                if (newXcdata != null) {
+                    const events = newXcdata.events;
+                    for (const eName of Object.keys(events)) {
+                        oldNode.addEventListener(eName, events[eName]);
+                        this._writeXcData(oldNode, {events: events});
+                        // console.log(`Add event: ${eName}`);
+                    }
                 }
             }
-    
-            if (attrsNew.length !== attrsOld.length) {
-                return newNode;
-            }
-            for (let i = 0; i < attrsNew.length; i ++) {
-                const {name: newName, value: newValue} = attrsNew[i];
-                const attrOld = attrsOld[newName];
-                if (attrOld == null) {
-                    return newNode;
-                }
-                if (attrOld.value != newValue) {
-                    return newNode;
-                }
-            }
-            return null;
         } catch(e) {
-            console.error('NodeRender._compareElementNode', e);
-            return null;
+            console.error('NodeRender._updateNode', e);
+        }
+    }
+
+    private static _setAttribute(
+        node: HTMLElement, attrName, attrValue
+    ) {
+        try {
+            if (this._boolPropsMap[attrName]) {
+                node[attrName] = attrValue? true: false;
+            } else {
+                node.setAttribute(attrName, attrValue);
+            }
+        } catch(e) {
+            console.error('NodeRender._updateAttribute', e);
+        }
+    }
+
+    private static _updateAttribute(
+        node: HTMLElement, attrName, attrValue
+    ) {
+        try {
+            if (this._boolPropsMap[attrName]) {
+                node[attrName] = attrValue? true: false;
+            } else {
+                if (attrName == 'value') {
+                    node[attrName] = attrValue;
+                } else {
+                    node.setAttribute(attrName, attrValue);
+                }
+            }
+        } catch(e) {
+            console.error('NodeRender._updateAttribute', e);
         }
     }
 
@@ -223,11 +324,33 @@ class OpPanelNodeRenderFactory {
         }
     }
 
+    private static _createComponentNode(
+        nodeDef: NodeDefComponent, args: { [key: string]: any }
+    ): NodeDefDOMElement[] {
+        try {
+            if (args != null) {
+                const comp = args[nodeDef.name];
+                if (Array.isArray(comp)) {
+                    return comp;
+                } else {
+                    return [comp];
+                }
+            } else {
+                console.error('NodeRender._createComponentNode: args not defined');
+                return null;
+            }
+        } catch(e) {
+            console.error('NodeRender._createComponentNode', e);
+            return null;
+        }
+    }
+
     private static _createElementNodeNoChildren(
         nodeDef: NodeDefElement, args: { [key: string]: any }
     ): NodeDefDOMElement {
         try {
             const node = document.createElement(nodeDef.tag) as NodeDefDOMElement;
+            node.xcdata = {events:{}};
             if (nodeDef.class != null) {
                 let className = '';
                 for (const cls of nodeDef.class) {
@@ -250,10 +373,12 @@ class OpPanelNodeRenderFactory {
                 for (const key of Object.keys(nodeDef.attr)) {
                     const value = nodeDef.attr[key];
                     if (!this._isTypePlaceholder(value)) {
-                        node.setAttribute(key, `${value}`);
+                        this._setAttribute(node, key, value);
+                        // node.setAttribute(key, `${value}`);
                     } else {
                         if (args != null) {
-                            node.setAttribute(key, `${args[value.name]}`);
+                            this._setAttribute(node, key, args[value.name]);
+                            // node.setAttribute(key, `${args[value.name]}`);
                         } else {
                             console.error('NodeRender.createElementNode(attr): args not defined');
                         }
@@ -265,6 +390,7 @@ class OpPanelNodeRenderFactory {
                     if (args != null) {
                         const func = args[nodeDef.event[eventName]];
                         node.addEventListener(eventName, func);
+                        node.xcdata.events[eventName] = func;
                     } else {
                         console.error('NodeRender.createElementNode(event): args not defined');
                     }
@@ -289,5 +415,9 @@ class OpPanelNodeRenderFactory {
 
     private static _isNodeTypeText(nodeDef: NodeDef): nodeDef is NodeDefText {
         return nodeDef.type === NodeDefType.text;
-    }    
+    }
+
+    private static _isNodeTypeComponent(nodeDef: NodeDef): nodeDef is NodeDefComponent {
+        return nodeDef.type === NodeDefType.component;
+    }
 }

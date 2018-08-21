@@ -5,7 +5,6 @@
  */
 class OpPanelDropdown {
     private _$elem: JQuery = null;
-    private _repo: OpPanelDataRepo;
     private _inputId: string = '';
     private _ulId: string = '';
     private _cssSelected = '';
@@ -25,10 +24,10 @@ class OpPanelDropdown {
         inputXcId: string,
         ulXcId: string,
         cssSelected?: string,
+        isForceUpdate?: boolean,
         setTitleFunc?: ($elemTitle: JQuery, text: string) => void
     }) {
-        const {container, inputXcId, ulXcId, cssSelected = 'selected', setTitleFunc} = props;
-        this._repo = new OpPanelDataRepo();
+        const {container, inputXcId, ulXcId, cssSelected = 'selected', isForceUpdate = true, setTitleFunc} = props;
         this._$elem = container;
         this._inputId = inputXcId;
         this._ulId = ulXcId;
@@ -37,6 +36,9 @@ class OpPanelDropdown {
             this._setTitleFunc = setTitleFunc;
         } else {
             this._setTitleFunc = OpPanelDropdown._defaultSetTitleFunc;
+        }
+        if (isForceUpdate) {
+            OpPanelTemplateManager.setElementForceUpdate(this._$elem[0]);
         }
     }
 
@@ -51,10 +53,6 @@ class OpPanelDropdown {
         menuItems?: OpPanelDropdownMenuItem[],
         onSelectCallback?: OpPanelDropdownMenuSelectCallback
     }): void {
-        if (this._repo.push(props)) {
-            // console.log(`no change: ${props.menuItems[0].text}`);
-            return;
-        }
 
         const { menuItems = [], onSelectCallback = null } = (props || {});
         // Create <li> elements

@@ -30,10 +30,15 @@ declare type OpPanelDropdownMenuSelectCallback = (value: any) => void
 
 // declare enum NodeDefType { element, text }
 declare type NodeDefPlaceholder = { name: string }
-declare type NodeDef = NodeDefText | NodeDefElement
+declare type NodeDef = NodeDefText | NodeDefElement | NodeDefComponent
 declare type NodeDefDOMNodeList = (Node & ChildNode)[];
 declare interface NodeDefDOMElement extends HTMLElement {
     getAttributeNames(): string[];
+    xcdata: NodeDefXcData;
+}
+declare type NodeDefXcData = {
+    isForceUpdate?: boolean,
+    events?: { [eventName: string]: (args:any)=>any }
 }
 declare type NodeDefText = {
     type: NodeDefType,
@@ -47,6 +52,10 @@ declare type NodeDefElement = {
     attr?: { [key: string]: (string | NodeDefPlaceholder) },
     event?: { [key: string]: string },
     children?: NodeDef[]
+}
+declare type NodeDefComponent = {
+    type: NodeDefType,
+    name: string
 }
 
 // *******************
