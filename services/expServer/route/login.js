@@ -1141,7 +1141,7 @@ router.post('/login/verifyToken', function(req, res) {
 });
 
 router.post('/login/msalConfig/get',
-            [support.checkAuth], function(req, res) {
+            function(req, res) {
     xcConsole.log("Getting msal config");
     getMsalConfig()
     .then(function(message) {

@@ -27,6 +27,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     var sessionOpts = {
         saveUninitialized: false,
         resave: false,
+        rolling: true,
         store: new FileStore(fileStoreOptions),
         secret: fileStoreOptions.secret,
         cookie: { maxAge: 1800000 }
