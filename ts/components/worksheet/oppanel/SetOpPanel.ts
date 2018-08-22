@@ -92,7 +92,6 @@ class SetOpPanel extends BaseOpPanel {
             onSelect: ($li) => {
                 const mode: string = $li.text();
                 $modeList.find(".text").text(mode);
-                this._updateSubmitButton(mode);
                 this.setOpData.setType($li.attr("name"));
             },
             container: id,
@@ -143,14 +142,6 @@ class SetOpPanel extends BaseOpPanel {
         const type: string = unionType.toLocaleLowerCase();
         this._getPanel().find(".modeList").find('li[name="' + type + '"]')
         .trigger(fakeEvent.mouseup);
-    }
-
-    private _updateSubmitButton(mode: string): void {
-        let termIdx: number = mode.indexOf(" (");
-        if (termIdx === -1) {
-            termIdx = mode.length;
-        }
-        this._getPanel().find(".confirm").text(mode.substring(0, termIdx).trim());
     }
 
     private _autoResizeView(reset: boolean) {
