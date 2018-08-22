@@ -3953,6 +3953,11 @@ module.exports = function(grunt) {
         for ( excludeFile of excludeFiles ) {
             grepCmd = grepCmd + " --exclude " + excludeFile;
         }
+
+        // Grep command for OSX has different syntax
+        if (process.platform === "darwin") {
+            grepCmd += " *";
+        }
         grunt.log.write("Checking for relevant files with XD strings using grep cmd:\n\t" + grepCmd + "\n... ");
 
         grunt.file.setBase(BLDROOT); // switches grunt to the bld output
