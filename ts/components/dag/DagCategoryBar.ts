@@ -145,6 +145,7 @@ class DagCategoryBar {
                 $element: $operator,
                 $container: self.$dagView,
                 $dropTarget: self.$dagView.find(".dataflowArea.active"),
+                round: 20,
                 onDragEnd: function(_$newNode, _event, data) {
                     const newNodeInfo: DagNodeInfo = {
                         type: $operator.data("type"),

@@ -516,6 +516,7 @@ namespace DagView {
                 $elements: $operator.add($dfArea.find(".operator.selected")),
                 $container: $dagView,
                 $dropTarget: $dfArea,
+                round: 20,
                 onDragStart: function(_$els) {
                 },
                 onDragEnd: function($els, _event, data) {

@@ -11,7 +11,8 @@ interface DragHelperOptions {
     move?: boolean,
     event: JQueryEventObject
     offset?: Coordinate,
-    noCursor?: boolean
+    noCursor?: boolean,
+    round?: number
 }
 
 interface DragHelperCoordinate {
@@ -51,6 +52,9 @@ class DragHelper {
     protected lastY: number;
     protected currY: number;
     protected scrollUpCounter: number;
+    protected scrollTop: number;
+    protected scrollLeft: number;
+    protected round: number;
 
     public constructor(options: DragHelperOptions) {
         this.$container = options.$container;
@@ -77,6 +81,10 @@ class DragHelper {
         this.dragContainerPositions = [];
         this.noCursor = options.noCursor || false;
         this.scrollUpCounter = 0;
+        this.scrollLeft = this.$dropTarget.parent().scrollLeft();
+        this.scrollTop = this.$dropTarget.parent().scrollTop();
+        this.round = window["gDragRound"] || options.round ||  0;
+        // gDragRound is temporarily used for testing
 
         const self = this;
         this.mouseDownCoors = {
@@ -125,7 +133,7 @@ class DragHelper {
         this.targetRect = this.$dropTarget.parent()[0].getBoundingClientRect();
 
         this.createClone();
-        this.positionDraggingEl(event);
+        this.positionDraggingEl(event, true);
         this.adjustScrollBar();
 
         $(document).on("mousemove.onDrag", function(event) {
@@ -163,8 +171,10 @@ class DragHelper {
         }
 
         if (this.currentDragCoor.left < this.targetRect.left) {
-            const curScrollLeft: number = this.$dropTarget.parent().scrollLeft();
-            this.$dropTarget.parent().scrollLeft(curScrollLeft - pxToIncrement);
+            this.scrollLeft = this.$dropTarget.parent().scrollLeft();
+            this.scrollLeft -= pxToIncrement;
+            this.scrollLeft = Math.max(0, this.scrollLeft);
+            this.$dropTarget.parent().scrollLeft(this.scrollLeft);
             if (!this.isOffScreen) {
                 this.isOffScreen = true;
                 this.$draggingEl.addClass("isOffScreen");
@@ -172,8 +182,10 @@ class DragHelper {
         } else if (this.currentDragCoor.top < this.targetRect.top) {
             // only scroll up if staying still or mouse is moving up
             if (this.scrollUpCounter * timer > 400) {
-                const curScrollTop: number = this.$dropTarget.parent().scrollTop();
-                this.$dropTarget.parent().scrollTop(curScrollTop - pxToIncrement);
+                this.scrollTop = this.$dropTarget.parent().scrollTop();
+                this.scrollTop -= pxToIncrement;
+                this.scrollTop = Math.max(0, this.scrollTop);
+                this.$dropTarget.parent().scrollTop(this.scrollTop);
             }
 
             if (!this.isOffScreen) {
@@ -181,23 +193,26 @@ class DragHelper {
                 this.$draggingEl.addClass("isOffScreen");
             }
         } else if ((this.currentDragCoor.top + this.currentDragCoor.height) > this.targetRect.bottom) {
-            const curScrollTop: number = this.$dropTarget.parent().scrollTop();
-            if (this.$dropTarget.parent()[0].scrollHeight - curScrollTop -
+            this.scrollTop = this.$dropTarget.parent().scrollTop();
+            if (this.$dropTarget.parent()[0].scrollHeight - this.scrollTop -
             this.$dropTarget.parent().outerHeight() <= 1) {
                 const height: number = this.$dropTarget.height();
                 this.$dropTarget.css("min-height", height + 10);
             }
-            this.$dropTarget.parent().scrollTop(curScrollTop + pxToIncrement);
-
+            this.scrollTop += pxToIncrement;
+            this.scrollTop = Math.max(0, this.scrollTop);
+            this.$dropTarget.parent().scrollTop(this.scrollTop);
         } else if ((this.currentDragCoor.left + this.currentDragCoor.width) > this.targetRect.right) {
-            const curScrollLeft: number = this.$dropTarget.parent().scrollLeft();
-            if (this.$dropTarget.parent()[0].scrollWidth - curScrollLeft -
+            this.scrollLeft = this.$dropTarget.parent().scrollLeft();
+            if (this.$dropTarget.parent()[0].scrollWidth - this.scrollLeft -
             this.$dropTarget.parent().outerWidth() <= 1) {
                 const width: number = this.$dropTarget.find(".sizer").width();
                 this.$dropTarget.find(".sizer").css("min-width", width + 20);
                 this.$dropTarget.css("min-width", width + 20);
             }
-            this.$dropTarget.parent().scrollLeft(curScrollLeft + horzPxToIncrement);
+            this.scrollLeft += horzPxToIncrement;
+            this.scrollLeft = Math.max(0, this.scrollLeft);
+            this.$dropTarget.parent().scrollLeft(this.scrollLeft);
 
         } else if (this.isOffScreen) {
             this.isOffScreen = false;
@@ -274,10 +289,22 @@ class DragHelper {
         }
     }
 
-    private positionDraggingEl(event) {
-        this.currentDragCoor.left = event.pageX + this.offset.x,
-        this.currentDragCoor.top = event.pageY + this.offset.y
+    private positionDraggingEl(
+        event: JQueryEventObject
+    ): void {
+        this.currentDragCoor.left = event.pageX + this.offset.x;
+        this.currentDragCoor.top = event.pageY + this.offset.y;
+        if (this.round) {
+            const curOffsetLeft = this.currentDragCoor.left - this.targetRect.left - this.scrollLeft;
+            const leftRounded = Math.round(curOffsetLeft / this.round) * this.round;
+            const leftDiff = leftRounded - curOffsetLeft;
+            this.currentDragCoor.left += leftDiff;
 
+            const curOffsetTop = this.currentDragCoor.top - this.targetRect.top - this.scrollTop;
+            const topRounded = Math.round(curOffsetTop / this.round) * this.round;
+            const topDiff = topRounded - curOffsetTop;
+            this.currentDragCoor.top += topDiff;
+        }
         this.$draggingEl.css({
             left: this.currentDragCoor.left,
             top: this.currentDragCoor.top
@@ -300,12 +327,12 @@ class DragHelper {
         this.isDragging = false;
         this.$draggingEl.removeClass("dragging clone");
 
-        let deltaX: number = self.currentDragCoor.left - self.targetRect.left + self.$dropTarget.parent().scrollLeft();
-        let deltaY: number = self.currentDragCoor.top - self.targetRect.top + self.$dropTarget.parent().scrollTop();
+        let deltaX: number = self.currentDragCoor.left - self.targetRect.left + this.scrollLeft;
+        let deltaY: number = self.currentDragCoor.top - self.targetRect.top + this.scrollTop;
         let coors: Coordinate[] = [];
 
         // check if item was dropped within left and top boundaries of drop target
-        if (deltaX >= 0 && deltaY > 0) {
+        if (deltaX >= 0 && deltaY >= 0) {
             this.dragContainerPositions.forEach(function(pos) {
                 coors.push({
                     x: deltaX + pos.x,
