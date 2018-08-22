@@ -23,6 +23,15 @@ class MapOpPanelModel extends GeneralOpPanelModel {
         }
     }
 
+    public addGroup(): void {
+        this.groups.push({
+            operator: "",
+            args: [],
+            newFieldName: ""
+        });
+        this._update();
+    }
+
     public enterFunction(value: string, opInfo, index: number): void {
         this.groups[index].operator = value;
         if (opInfo) {
@@ -32,8 +41,9 @@ class MapOpPanelModel extends GeneralOpPanelModel {
                                             return new OpPanelArg("",
                                             opInfo.argDescs[i].typesAccepted);
                                         });
-            this._update();
-            return;
+            if (value === "regex" && numArgs === 2) {
+                this.groups[index].args[1].setRegex(true);
+            }
         } else {
             this.groups[index].args = [];
         }
@@ -207,11 +217,11 @@ class MapOpPanelModel extends GeneralOpPanelModel {
             group.args.forEach(arg => {
                 self._formatArg(arg);
             });
-            const evalString: string = xcHelper.formulateMapFilterString(this.groups);
+            const evalString: string = xcHelper.formulateMapFilterString([group]);
             evals.push({
                 evalString: evalString,
                 newField: group.newFieldName
-            })
+            });
         });
 
         return {
@@ -249,6 +259,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
 
     private _validateNewFieldName() {
         const groups = this.groups;
+        const nameMap = {};
         // new field name
         for (let i = 0; i < groups.length; i++) {
             const name = this.groups[i].newFieldName;
@@ -259,7 +270,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
             const match = this.tableColumns.find((col) => {
                 return col.getBackColName() === name;
             });
-            if (match != null) {
+            if (match != null || nameMap[name]) {
                 return {
                     error: "Duplicate field name",
                     group: i,
@@ -267,6 +278,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
                     type: "newField"
                 };
             }
+            nameMap[name] = true;
         }
     }
 

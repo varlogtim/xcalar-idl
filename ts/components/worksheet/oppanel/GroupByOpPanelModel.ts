@@ -379,6 +379,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
 
     private _validateNewFieldNames() {
         const groups = this.groups;
+        const nameMap = {};
         // new field name
         for (let i = 0; i < groups.length; i++) {
             const name = this.groups[i].newFieldName;
@@ -389,7 +390,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             const match = this.tableColumns.find((col) => {
                 return col.getBackColName() === name;
             });
-            if (match != null) {
+            if (match != null || nameMap[name]) {
                 return {
                     error: "Duplicate field name",
                     group: i,
@@ -397,6 +398,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
                     type: "newField"
                 };
             }
+            nameMap[name] = true;
         }
         return  null;
     }

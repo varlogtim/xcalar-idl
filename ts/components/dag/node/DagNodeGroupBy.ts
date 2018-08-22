@@ -34,7 +34,7 @@ class DagNodeGroupBy extends DagNode {
             aggregate: input.aggregate,
             includeSample: input.includeSample,
             icv: input.icv,
-            groupAll: input.groupAll
+            groupAll: input.groupAll,
             columnsToInclude: input.columnsToInclude
         }
         super.setParam();

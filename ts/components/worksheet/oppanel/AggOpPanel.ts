@@ -582,7 +582,7 @@ class AggOpPanel extends GeneralOpPanel {
                                 }
                             }
                         }
-                        self._handleInvalidArgs(true, $input, error.error, error.arg, allColTypes, inputNums);
+                        self._handleInvalidArgs(true, $input, error.error, error.group, allColTypes, inputNums);
                         break;
                     case ("valueType"):
                         self._handleInvalidArgs(false, $input, error.error);

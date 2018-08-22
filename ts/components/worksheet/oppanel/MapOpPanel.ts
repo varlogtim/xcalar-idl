@@ -1,10 +1,11 @@
 class MapOpPanel extends GeneralOpPanel {
     // handles map, filter, group by, and aggregate forms
 
-    private _filteredOperatorsMap = {};
-    private _$categoryList;
-    private _$functionsList: JQuery;
-    private _$mapFilter;
+    private _filteredOperatorsMap = [];
+    protected _functionsMap = [];
+    // private _$categoryList;
+    // private _$functionsList: JQuery;
+    // private _$mapFilter;
     private _currentCol: any;
     protected _dagNode: DagNodeMap;
     protected model: MapOpPanelModel;
@@ -14,27 +15,21 @@ class MapOpPanel extends GeneralOpPanel {
     public constructor() {
         super();
         this._operatorName = "map";
-
     }
 
     public setup(): void {
         const self = this;
         super.setupPanel("#mapOpPanel");
-        this._$mapFilter = $("#mapFilter2");
-        this._$categoryList = this._$panel.find('.categoryMenu');
-        this._$functionsList = this._$panel.find('.functionsMenu');
+        // this._$categoryList = this._$panel.find('.categoryMenu');
+        // this._$functionsList = this._$panel.find('.functionsMenu');
+        // $group.find(".categoryMenu")
+        // $group.find(".functionsMenu")
 
         for (let i in this._operatorsMap) {
             if (parseInt(i) !== FunctionCategoryT.FunctionCategoryAggregate) {
                 this._opCategories.push(parseInt(i));
             }
         }
-
-        this._$panel.on('click', '.closeGroup', function() {
-            const $group = $(this).closest('.group');
-            const index = self._$panel.find(".group").index($group);
-            self.model.removeGroup(index);
-        });
 
         this._functionsInputEvents();
 
@@ -90,10 +85,20 @@ class MapOpPanel extends GeneralOpPanel {
             }
         }
 
-
         // dynamic button - ex. default:multiJoin
         this._$panel.on('click', '.addMapArg', function() {
             self._addMapArg($(this));
+        });
+
+        // adds field to group on input
+        this._$panel.on("click", ".addGroup", function() {
+            self.model.addGroup();
+        });
+
+        this._$panel.on('click', '.closeGroup', function() {
+            const $group = $(this).closest('.group');
+            const index = self._$panel.find(".group").index($group);
+            self.model.removeGroup(index);
         });
 
         this._$panel.on('click', '.extraArg .xi-cancel', function() {
@@ -124,24 +129,28 @@ class MapOpPanel extends GeneralOpPanel {
                 this._render();
             });
             super._panelShowHelper(this.model);
-            this._formHelper.refreshTabbing();
             this._render();
 
             $(document).on('mousedown.mapCategoryListener', function(e) {
                 const $target = $(e.target);
                 if (!$target.closest('.catFuncMenus').length &&
-                    !$target.is(self._$mapFilter) &&
+                    !$target.is(".mapFilter") &&
                     !$target.hasClass('ui-resizable-handle'))
                 {
-                    if (self._$categoryList.find('li.active').length &&
-                        self._$functionsList.find('li.active').length === 0)
-                    {
-                        const val = self._$mapFilter.val();
-                        const valTrimmed = val.trim();
-                        if (valTrimmed.length || val.length === 0) {
-                            self._filterTheMapFunctions(valTrimmed);
+                    self._$panel.find(".group").each(function() {
+                        const $group = $(this);
+                        const index = self._$panel.find(".group").index($group);
+                        if ($group.find(".categoryMenu").find('li.active').length &&
+                            $group.find(".functionsMenu").find('li.active').length === 0)
+                        {
+                            const val =  $group.find(".mapFilter").val();
+                            const valTrimmed = val.trim();
+                            if (valTrimmed.length || val.length === 0) {
+                                self._filterTheMapFunctions(valTrimmed, index);
+                            }
                         }
-                    }
+                    });
+
                 }
             });
         }
@@ -160,13 +169,15 @@ class MapOpPanel extends GeneralOpPanel {
         const self = this;
         const model = this.model.getModel();
 
-        this._$mapFilter.focus();
-
         this._resetForm();
 
-        const $groups = this._$panel.find('.group')
         for (let i = 0; i < model.groups.length; i++) {
-            let $group = $groups.eq(i);
+            if (i > 0) {
+                this._addGroup();
+            } else {
+                this._populateInitialCategoryField(i);
+            }
+            const $group: JQuery = this._$panel.find('.group').eq(i);
             const operator: string = model.groups[i].operator;
             if (!operator) {
                 continue;
@@ -224,93 +235,101 @@ class MapOpPanel extends GeneralOpPanel {
             this._$panel.find(".icvMode .checkbox").addClass("checked");
         }
 
+        this._formHelper.refreshTabbing();
         self._checkIfStringReplaceNeeded(true);
     }
 
     private _functionsInputEvents(): void {
         const self = this;
 
-        this._$mapFilter.on('input', function() {
+        this._$panel.on("input", ".mapFilter", function() {
             const val = $(this).val();
             const valTrimmed = val.trim();
             if (valTrimmed.length || val.length === 0) {
-                self._filterTheMapFunctions(valTrimmed);
+                const $group = $(this).closest(".group");
+                const index = self._$panel.find(".group").index($group);
+                self._filterTheMapFunctions(valTrimmed, index);
             } else {
                 // blank but with spaces, do nothing
             }
         });
 
-        this._$mapFilter.on('keydown', function(event) {
+        this._$panel.on("keydown", ".mapFilter", function(event) {
+            const $group = $(this).closest(".group");
             if (event.which === keyCode.Down ||
                 event.which === keyCode.Up) {
                 event.preventDefault();
-                if (self._$categoryList.find('li.active').length === 0) {
-                    self._$categoryList.find('li:visible').eq(0).click();
+                if ($group.find(".categoryMenu").find('li.active').length === 0) {
+                    $group.find(".categoryMenu").find('li:visible').eq(0).click();
                     return;
                 }
             }
             if (event.which === keyCode.Down) {
-                self._$categoryList.find('li.active').nextAll('li:visible')
+                $group.find(".categoryMenu").find('li.active').nextAll('li:visible')
                                             .eq(0).click();
             } else if (event.which === keyCode.Up) {
-                self._$categoryList.find('li.active').prevAll('li:visible')
+                $group.find(".categoryMenu").find('li.active').prevAll('li:visible')
                                             .eq(0).click();
             }
 
             if (event.which === keyCode.Enter) {
-                if (self._$functionsList.find('li').length === 1) {
-                    self._$functionsList.find('li:visible').eq(0).click();
+                if ($group.find("'.functionsMenu").find('li').length === 1) {
+                    $group.find(".functionsMenu").find('li:visible').eq(0).click();
                     event.preventDefault();
                 }
             }
 
             // position the scrollbar
-            const $activeLi = self._$categoryList.find('li.active');
+            const $activeLi = $group.find(".categoryMenu").find('li.active');
             if (!$activeLi.length) {
                 return;
             }
             const liTop = $activeLi.position().top;
             const liBottom = liTop + $activeLi.height();
-            const categoryHeight = self._$categoryList.height();
+            const categoryHeight = $group.find(".categoryMenu").height();
             if (liBottom > (categoryHeight + 5) || liTop < -5) {
-                const position = liTop + self._$categoryList.scrollTop();
-                self._$categoryList.scrollTop(position - (categoryHeight / 2));
+                const position = liTop + $group.find(".categoryMenu").scrollTop();
+                $group.find(".categoryMenu").scrollTop(position - (categoryHeight / 2));
             }
         });
 
         this._$panel.find('.filterMapFuncArea .clear').mousedown(function(event) {
-            if (self._$mapFilter.val() !== "") {
-                self._$mapFilter.val("").trigger("input").focus();
+            const $group = $(this).closest(".group");
+            if ($group.find(".functionsMenu").val() !== "") {
+                $group.find(".mapFilter").val("").trigger("input").focus();
                 event.preventDefault(); // prevent input from blurring
                 self.model.clearFunction(0);
             }
         });
 
-        this._$categoryList.on('click', 'li', function() {
+        this._$panel.on('click', '.categoryMenu li', function() {
+            const $group = $(this).closest(".group");
+            const groupIndex = self._$panel.find(".group").index($group);
             const $li = $(this);
             if ($li.hasClass('active')) {
                 return; // do not update functions list if clicking on same li
             }
             $li.siblings().removeClass('active');
             $li.addClass('active');
-            self._updateMapFunctionsList();
+            self._updateMapFunctionsList(groupIndex);
         });
 
-        this._$functionsList.on('click', 'li', function() {
+        this._$panel.on('click', '.functionsMenu li', function() {
             if ($(this).hasClass('active')) {
                 return; // do not update functions list if clicking on same li
             }
+            const $group = $(this).closest(".group");
+            const groupIndex = self._$panel.find(".group").index($group);
             const $li = $(this);
             $li.siblings().removeClass('active');
             $li.addClass('active');
             const func = $li.text().trim();
 
             const operObj = self._getOperatorObj(func);
-            self.model.enterFunction(func, operObj, 0);
-            self._focusNextInput(0);
+            self.model.enterFunction(func, operObj, groupIndex);
         });
-
-        this._$functionsList.scroll(function() {
+        // XXX need to add listeners to each new functions list
+        this._$panel.find(".functionsMenu").scroll(function() {
             xcTooltip.hideAll();
         });
     }
@@ -329,8 +348,9 @@ class MapOpPanel extends GeneralOpPanel {
     // empty array means the first argument will always be the column name
     // any function names in the array will not have column name as 1st argument
 
-    protected _populateInitialCategoryField() {
-        this._functionsMap = {};
+    protected _populateInitialCategoryField(groupIndex?: number) {
+        groupIndex = groupIndex || 0;
+        this._functionsMap[groupIndex] = [];
         this._categoryNames = [];
         let html = "";
         let categoryName;
@@ -350,14 +370,14 @@ class MapOpPanel extends GeneralOpPanel {
                                         categoryNameLen - searchStr.length);
             }
             this._categoryNames.push(categoryName);
-            this._functionsMap[i] = this._operatorsMap[i];
+            this._functionsMap[groupIndex][i] = this._operatorsMap[i];
             html += '<li data-category="' + i + '">' +
                         categoryName +
                     '</li>';
         }
         const $list = $(html);
         $list.sort(this._sortHTML.bind(this));
-        this._$categoryList.html($list);
+        this._$panel.find(".group").eq(groupIndex).find(".categoryMenu").html($list);
     }
 
     private _udfUpdateOperatorsMap() {
@@ -387,8 +407,9 @@ class MapOpPanel extends GeneralOpPanel {
                            .find('li.active').length > 0;
     }
 
-    protected _showFunctionsInputErrorMsg(_groupNum) {
-        let $target = this._$functionsList.parent();
+    protected _showFunctionsInputErrorMsg(groupNum) {
+
+        let $target = this._$panel.find(".group").eq(groupNum).find(".functionsMenu").parent();
         let text = ErrTStr.NoEmpty;
 
         StatusBox.show(text, $target, false, {"offsetX": -5,
@@ -396,21 +417,25 @@ class MapOpPanel extends GeneralOpPanel {
     }
 
     // // for map
-    private _updateMapFunctionsList(filtered?: boolean) {
+    private _updateMapFunctionsList(groupIndex, filtered?: boolean) {
+        const $group = this._$panel.find(".group").eq(groupIndex);
+        const $categoryList = $group.find(".categoryMenu");
+        const $functionsList = $group.find(".functionsMenu");
+        const $mapFilter = $group.find(".mapFilter");
         let opsMap;
         if (!filtered) {
-            const $li = this._$categoryList.find('.active');
+            const $li = $categoryList.find('.active');
             const categoryNum = $li.data('category');
             opsMap = {};
-            if (this._$mapFilter.val().trim() !== "") {
-                opsMap[categoryNum] = this._filteredOperatorsMap[categoryNum];
+            if ($mapFilter.val().trim() !== "") {
+                opsMap[categoryNum] = this._filteredOperatorsMap[groupIndex][categoryNum];
             } else {
-                opsMap[categoryNum] = this._functionsMap[categoryNum];
+                opsMap[categoryNum] = this._functionsMap[groupIndex][categoryNum];
             }
         } else {
-            opsMap = this._filteredOperatorsMap;
+            opsMap = this._filteredOperatorsMap[groupIndex];
         }
-        const filterVal = this._$mapFilter.val().trim();
+        const filterVal = $mapFilter.val().trim();
         let startsWith = "";
         let includes = "";
         let i;
@@ -455,11 +480,11 @@ class MapOpPanel extends GeneralOpPanel {
         $startsWith.sort(this._sortHTML.bind(this));
         $includes.sort(this._sortHTML.bind(this));
 
-        this._$functionsList.empty();
-        this._$functionsList.append($startsWith);
-        this._$functionsList.append($includes);
+        $functionsList.empty();
+        $functionsList.append($startsWith);
+        $functionsList.append($includes);
 
-        this._$panel.find('.argsSection').addClass('inactive');
+        $group.find('.argsSection').addClass('inactive');
         this._$panel.find('.icvMode').addClass('inactive');
         this._$panel.find('.descriptionText').empty();
         this._$panel.find('.strPreview').empty();
@@ -513,7 +538,7 @@ class MapOpPanel extends GeneralOpPanel {
         // as new column name input
         this._setupBasicArgInputsAndDescs(numArgs, operObj, $rows, defaultValue);
 
-        const strPreview = this._mapArgumentsSetup(numArgs, categoryNum, func, operObj);
+        const strPreview = this._mapArgumentsSetup(groupIndex, numArgs, categoryNum, func, operObj);
         numArgs++;
 
         // hide any args that aren't being used
@@ -530,9 +555,6 @@ class MapOpPanel extends GeneralOpPanel {
                                 strPreview);
 
 
-        this._formHelper.refreshTabbing();
-
-        this._checkIfStringReplaceNeeded(true);
         if ((this._$panel.find('.group').length - 1) === groupIndex) {
             const noAnim = (firstTime && groupIndex === 0);
             this._scrollToBottom(noAnim);
@@ -561,13 +583,13 @@ class MapOpPanel extends GeneralOpPanel {
         });
     }
 
-
    // sets up the args generated by backend, not front end arguments
     protected _setupBasicArgInputsAndDescs(numArgs, operObj, $rows, defaultValue)
     {
         let description;
         let typeId;
         let types;
+        const groupIndex = this._$panel.find(".group").index($rows.closest(".group"));
         for (let i = 0; i < numArgs; i++) {
             if (operObj.argDescs[i]) {
                 description = operObj.argDescs[i].argDesc;
@@ -609,7 +631,7 @@ class MapOpPanel extends GeneralOpPanel {
                 } else {
                     this._showEmptyOptions($input);
                 }
-            } else if (!this._isUDF()) {
+            } else if (!this._isUDF(groupIndex)) {
                 $row.addClass("required").find(".noArgWrap").remove();
             }
 
@@ -642,11 +664,11 @@ class MapOpPanel extends GeneralOpPanel {
     }
 
 //  // sets up the last argument for map
-    private _mapArgumentsSetup(numArgs, categoryNum, func, operObj) {
+    private _mapArgumentsSetup(groupIndex, numArgs, categoryNum, func, operObj) {
         const description = OpModalTStr.ColNameDesc + ":";
         const tempName = xcHelper.parsePrefixColName(this._colName).name;
         let autoGenColName;
-        const $rows = this._$panel.find('.row');
+        const $rows = this._$panel.find(".group").eq(groupIndex).find('.row');
 
         if (this._isEditMode && !this._colName) {
             autoGenColName = "";
@@ -734,7 +756,7 @@ class MapOpPanel extends GeneralOpPanel {
         const numGroups = $groups.length;
         let inputCount = 0;
         $groups.each(function(groupNum) {
-            let funcName = self._$functionsList.find('.active').text().trim();
+            let funcName = $(this).find(".functionsMenu").find('.active').text().trim();
             if ($(this).find('.argsSection.inactive').length) {
                 return;
             }
@@ -742,13 +764,7 @@ class MapOpPanel extends GeneralOpPanel {
             if (groupNum > 0) {
                 newText += ", ";
             }
-            if (groupNum < numGroups - 1) {
-                if (this._$panel.find(".switch").hasClass("on")) {
-                    newText += "and(";
-                } else {
-                    newText += "or(";
-                }
-            }
+
             newText += funcName + "(";
             $inputs = $(this).find('.arg').not(":last");
 
@@ -826,8 +842,9 @@ class MapOpPanel extends GeneralOpPanel {
         return (tempText);
     }
 
-    private _isUDF() {
-        return this._$functionsList.find(".active").data("category") ===
+    private _isUDF(groupIndex) {
+        return this._$panel.find(".group").eq(groupIndex).find(".functionsMenu")
+                            .find(".active").data("category") ===
                                     FunctionCategoryT.FunctionCategoryUdf;
     }
 
@@ -839,7 +856,8 @@ class MapOpPanel extends GeneralOpPanel {
         let $input;
         let type;
         const $group = this._$panel.find('.group').eq(groupNum);
-        const funcName = this._$functionsList.find('.active').text().trim();
+        const funcName = this._$panel.find(".group").eq(groupNum)
+                        .find(".functionsMenu").find('.active').text().trim();
 
         if (funcName !== "eq" && funcName !== "neq") {
             return existingTypes;
@@ -919,7 +937,7 @@ class MapOpPanel extends GeneralOpPanel {
                                 }
                             }
                         }
-                        self._handleInvalidArgs(true, $input, error.error, error.arg, allColTypes, inputNums);
+                        self._handleInvalidArgs(true, $input, error.error, error.group, allColTypes, inputNums, error.group);
                         break;
                     case ("valueType"):
                         self._handleInvalidArgs(false, $input, error.error);
@@ -939,18 +957,25 @@ class MapOpPanel extends GeneralOpPanel {
     }
 
     protected _resetForm(keepFilter?: boolean) {
+        const self = this;
         super._resetForm();
         if (!keepFilter) {
-            this._$mapFilter.val("");
+            this._$panel.find(".mapFilter").val("");
         }
-
-        this._$functionsList.empty();
+        this._$panel.find(".functionsMenu").empty();
         this._$panel.find('.icvMode').addClass('inactive');
+        this._filteredOperatorsMap = [];
+        this._functionsMap = [];
+        this._$panel.find('.group').each(function(i) {
+            if (i !== 0) {
+                self._removeGroup($(this), true);
+            }
+        });
     }
 
-    private _filterTheMapFunctions(val) {
+    private _filterTheMapFunctions(val, groupIndex) {
         let categorySet;
-        this._filteredOperatorsMap = {};
+        this._filteredOperatorsMap[groupIndex] = {}; // XXX need per group
         const categoryNums = {};
         let fn;
         let firstCategoryNumFound;
@@ -964,29 +989,32 @@ class MapOpPanel extends GeneralOpPanel {
             for (let j = 0; j < categorySet.length; j++) {
                 fn = categorySet[j];
                 if (fn.displayName.toLowerCase().indexOf(val) > -1) {
-                    if (!this._filteredOperatorsMap[fn.category]) {
-                        this._filteredOperatorsMap[fn.category] = [];
+                    if (!this._filteredOperatorsMap[groupIndex][fn.category]) {
+                        this._filteredOperatorsMap[groupIndex][fn.category] = [];
                     }
                     categoryNums[fn.category] = true;
-                    this._filteredOperatorsMap[fn.category].push(fn);
+                    this._filteredOperatorsMap[groupIndex][fn.category].push(fn);
                     if (firstCategoryNumFound == null) {
                         firstCategoryNumFound = fn.category;
                     }
                 }
             }
         }
+        const $group = this._$panel.find(".group").eq(groupIndex);
+        const $categoryList = $group.find(".categoryMenu");
+        const $functionsList = $group.find(".functionsMenu");
 
         if (firstCategoryNumFound != null) {
-            this._$categoryList.find('li').addClass('filteredOut');
+            $categoryList.find('li').addClass('filteredOut');
             for (const catId in categoryNums) {
-                this._$categoryList.find('li[data-category="' + catId + '"]')
+                $categoryList.find('li[data-category="' + catId + '"]')
                             .removeClass('filteredOut');
             }
 
-            this._updateMapFunctionsList(true);
+            this._updateMapFunctionsList(groupIndex, true);
         } else {
-            this._$categoryList.find('li').addClass('filteredOut');
-            this._$functionsList.find('li').addClass('filteredOut');
+            $categoryList.find('li').addClass('filteredOut');
+            $functionsList.find('li').addClass('filteredOut');
             this._$panel.find('.argsSection')
                     .addClass('inactive');
             this._$panel.find('.argsSection').empty();
@@ -994,9 +1022,9 @@ class MapOpPanel extends GeneralOpPanel {
             this._$panel.find('.descriptionText').empty();
             this._$panel.find('.strPreview').empty();
         }
-        this._$categoryList.find('li').removeClass('active');
+        $categoryList.find('li').removeClass('active');
         if (Object.keys(categoryNums).length === 1) {
-            this._$categoryList.find('li:visible').eq(0).addClass('active');
+            $categoryList.find('li:visible').eq(0).addClass('active');
         }
     }
 
@@ -1078,6 +1106,71 @@ class MapOpPanel extends GeneralOpPanel {
         $input.val("");
         $inputWrap.remove();
         this._checkIfStringReplaceNeeded();
+    }
+
+    private _addGroup() {
+        this._minimizeGroups();
+        const newGroupIndex = this._$panel.find('.group').length;
+        this._$panel.find('.group').last()
+                        .after(this._getGroupHtml());
+        this._populateInitialCategoryField(newGroupIndex);
+        this._$panel.find(".functionsMenu").last().scroll(function() {
+            xcTooltip.hideAll();
+        });
+        this._scrollToBottom();
+    }
+
+    protected _minimizeGroups($group?: JQuery) {
+        if (!$group) {
+            this._$panel.find('.group').each(function () {
+                const $group = $(this);
+                if ($group.hasClass('minimized')) {
+                    return;
+                }
+                const numArgs = $group.find('.arg').length - 1;
+                $group.attr('data-numargs', numArgs);
+                $group.addClass('minimized');
+                if (!$group.find('.functionsMenu .active').length) {
+                    $group.addClass('fnInputEmpty');
+                }
+            });
+        }
+        else {
+            const numArgs = $group.find('.arg').length - 1;
+            $group.attr('data-numargs', numArgs);
+            $group.addClass('minimized');
+            if (!$group.find('.functionsMenu .active').length) {
+                $group.addClass('fnInputEmpty');
+            }
+        }
+    }
+
+    private _getGroupHtml(): HTML {
+        const html: HTML = '<div class="group mapGroup extraGroup">' +
+                '<i class="icon xi-close closeGroup"></i>' +
+                '<i class="icon xi-minus minGroup"></i>' +
+                '<div class="altFnTitle">No Function Chosen</div>' +
+                '<div class="filterMapFuncArea">' +
+                    '<input type="text" class="mapFilter" placeholder="Search map functions...">' +
+                    '<div class="hint csHelp" data-topic="mapFunctions" title="" data-toggle="tooltip" data-container="body" data-original-title="">' +
+                        '<i class="icon xi-help fa-12"></i>' +
+                    '</div>' +
+                    '<div class="clear">' +
+                        '<i class="icon fa-11 xi-close xc-action"></i>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="catFuncHeadings clearfix subHeading">' +
+                    '<div>Category</div>' +
+                    '<div>Function</div>' +
+                '</div>' +
+                '<div class="catFuncMenus clearfix">' +
+                    '<ul class="categoryMenu"></ul>' +
+                    '<ul class="functionsMenu"></ul>' +
+                '</div>' +
+                '<div class="descriptionText"></div>' +
+                '<div class="argsSection inactive"></div>' +
+            '</div>';
+        return html;
     }
 
     protected _switchMode(toAdvancedMode: boolean): {error: string} {

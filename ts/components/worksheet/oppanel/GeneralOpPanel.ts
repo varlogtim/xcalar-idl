@@ -10,7 +10,7 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _operatorName: string = ""; // group by, map, filter, aggregate, etc..
     protected _operatorsMap = {};
     protected _categoryNames: string[] = [];
-    protected _functionsMap = {};
+
     protected _$lastInputFocused: JQuery;
     protected _quotesNeeded: boolean[] = [];
     protected _aggNames: string[] = [];
@@ -18,7 +18,7 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _allowInputChange: boolean = true;
     protected _functionsListScrollers: MenuHelper[] = [];
     protected _formHelper: FormHelper;
-    protected _listMax: number = 30; // max length for hint list
+    protected _listMax:   number = 30; // max length for hint list
     protected _isEditMode: boolean = true;
     protected _table;
     // protected _dagNode: DagNodeGroupBy | DagNodeAggregate | DagNodeMap | DagNodeFilter;
@@ -67,7 +67,11 @@ class GeneralOpPanel extends BaseOpPanel {
 
         this._$panel.on('focus', '.arg', function() {
             self._$lastInputFocused = $(this);
+            if ($(this).closest(".mapGroup").length) {
+                self._minimizeGroups();
+            }
             $(this).closest('.group').removeClass('minimized fnInputEmpty');
+
         });
 
         this._$panel.on('mouseup', '.group', function() {
@@ -1095,7 +1099,6 @@ class GeneralOpPanel extends BaseOpPanel {
         return colTypeInfos;
     }
 
-
     protected _handleInvalidArgs(
         isInvalidColType: boolean,
         $errorInput: JQuery,
@@ -1892,7 +1895,6 @@ class GeneralOpPanel extends BaseOpPanel {
         this._functionsListScrollers.splice(index, 1);
         this._suggestLists.splice(index, 1);
         this._$panel.find(".aggColStrWrap").last().remove();
-        this._checkIfStringReplaceNeeded();
     }
 
     protected _isArgAColumn(arg: string) {

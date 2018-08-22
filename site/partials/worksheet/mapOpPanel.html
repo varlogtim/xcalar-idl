@@ -7,9 +7,10 @@
         <div class="opSection">
             <p class="instructions instrText"><%= dicts.opsView.mapInstr %></p>
             <div class="group mapGroup firstGroup">
+                <i class="icon xi-minus minGroup"></i>
+                <div class="altFnTitle">No Function Chosen</div>
                 <div class="filterMapFuncArea">
-                    <input type="text" id="mapFilter2" placeholder="<%= dicts.opsView.mapFilter %>...">
-                    <div class="hint csHelp" data-topic="mapFunctions" title="" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.TooltipTStr.CSHelp %>">
+                    <input type="text" class="mapFilter" placeholder="<%= dicts.opsView.mapFilter %>..."><div class="hint csHelp" data-topic="mapFunctions" title="" data-toggle="tooltip" data-container="body" data-original-title="<%= dicts.TooltipTStr.CSHelp %>">
                         <i class="icon xi-help fa-12"></i>
                     </div>
                     <div class="clear">
@@ -26,17 +27,23 @@
                 </div>
                 <div class="descriptionText"></div>
                 <div class="argsSection inactive"></div>
-                <div class="icvContainer">
-                    <div class="icvMode checkboxSection inactive">
-                        <div class="text"><%= dicts.opsView.erroneousRows %></div>
-                        <div class="checkbox">
-                        <i class="icon xi-ckbox-empty fa-11"></i>
-                        <i class="icon xi-ckbox-selected fa-11"></i>
-                        </div>
+            </div>
+            <div class="addArgWrap addArgWrapSmall addGroup">
+                <button class="btn btn-small btn-rounded addArg addMapGroup">
+                    <i class="icon xi-plus"></i>
+                </button>
+                <span class="text"><%= dicts.opsView.additionalFunc %></span>
+            </div>
+            <div class="icvContainer">
+                <div class="icvMode checkboxSection inactive">
+                    <div class="text"><%= dicts.opsView.erroneousRows %></div>
+                    <div class="checkbox">
+                    <i class="icon xi-ckbox-empty fa-11"></i>
+                    <i class="icon xi-ckbox-selected fa-11"></i>
                     </div>
                 </div>
-                <div class="strPreview"></div> <!-- this gets filled by JS -->
             </div>
+            <div class="strPreview"></div> <!-- this gets filled by JS -->
         </div>
         <section class="advancedEditor">
             <textarea></textarea>

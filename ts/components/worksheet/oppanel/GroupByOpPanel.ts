@@ -15,7 +15,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         super.setupPanel("#groupByOpPanel");
 
         // adds field to group on input
-         this._$panel.on("click", ".addGroupArg", function() {
+        this._$panel.on("click", ".addGroupArg", function() {
             self.model.addGroupOnArg();
         });
 
@@ -23,6 +23,10 @@ class GroupByOpPanel extends GeneralOpPanel {
             const $row: JQuery = $(this).closest(".gbOnRow");
             const index: number = self._$panel.find(".gbOnRow").index($row);
             self.model.removeGroupOnArg(index);
+        });
+
+        this._$panel.find('.addGroup').click(function() {
+            self.model.addGroup();
         });
 
         this._$panel.on('click', '.closeGroup', function() {
@@ -91,11 +95,6 @@ class GroupByOpPanel extends GeneralOpPanel {
                 self.model.updateArg(val, groupIndex, argIndex);
             }
         }
-
-        // add filter arguments button
-        this._$panel.find('.addGBGroup').click(function() {
-            self.model.addGroup();
-        });
 
         // icv, includeSample, joinback
         this._$panel.on('click', '.checkboxSection', function() {
@@ -1051,7 +1050,7 @@ class GroupByOpPanel extends GeneralOpPanel {
                                 }
                             }
                         }
-                        self._handleInvalidArgs(true, $input, error.error, error.arg, allColTypes, inputNums);
+                        self._handleInvalidArgs(true, $input, error.error, error.group, allColTypes, inputNums);
                         break;
                     case ("valueType"):
                         self._handleInvalidArgs(false, $input, error.error);
