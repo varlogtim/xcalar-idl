@@ -3336,6 +3336,11 @@ module.exports = function(grunt) {
                 grunt.log.ok();
             }
         }
+        // Clean up temp parser files
+        var tempParserPath = BLDROOT + "assets/js/parser";
+        grunt.log.write("Delete file/dir " + tempParserPath + " ... ");
+        grunt.file.delete(tempParserPath);
+        grunt.log.ok();
     });
 
     /**

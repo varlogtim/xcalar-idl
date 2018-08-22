@@ -1,10 +1,9 @@
-// Generated from XEval.g4 by ANTLR 4.7.1
+// Generated from XEvalBase.g4 by ANTLR 4.7.1
 // jshint ignore: start
 var antlr4 = require('antlr4/index');
-var XEvalListener = require('./XEvalListener').XEvalListener;
-var XEvalVisitor = require('./XEvalVisitor').XEvalVisitor;
+var XEvalBaseVisitor = require('./XEvalBaseVisitor').XEvalBaseVisitor;
 
-var grammarFileName = "XEval.g4";
+var grammarFileName = "XEvalBase.g4";
 
 var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
     "\u0003\u000fR\u0004\u0002\t\u0002\u0004\u0003\t\u0003\u0004\u0004\t",
@@ -68,7 +67,7 @@ var symbolicNames = [ null, "TRUE", "FALSE", "COLON", "DOUBLECOLON", "COMMA",
 var ruleNames =  [ "query", "expr", "fnArgs", "value", "fn", "moduleName", 
                    "fnName", "varName", "prefix", "colName", "booleanValue" ];
 
-function XEvalParser (input) {
+function XEvalBaseParser (input) {
 	antlr4.Parser.call(this, input);
     this._interp = new antlr4.atn.ParserATNSimulator(this, atn, decisionsToDFA, sharedContextCache);
     this.ruleNames = ruleNames;
@@ -77,41 +76,41 @@ function XEvalParser (input) {
     return this;
 }
 
-XEvalParser.prototype = Object.create(antlr4.Parser.prototype);
-XEvalParser.prototype.constructor = XEvalParser;
+XEvalBaseParser.prototype = Object.create(antlr4.Parser.prototype);
+XEvalBaseParser.prototype.constructor = XEvalBaseParser;
 
-Object.defineProperty(XEvalParser.prototype, "atn", {
+Object.defineProperty(XEvalBaseParser.prototype, "atn", {
 	get : function() {
 		return atn;
 	}
 });
 
-XEvalParser.EOF = antlr4.Token.EOF;
-XEvalParser.TRUE = 1;
-XEvalParser.FALSE = 2;
-XEvalParser.COLON = 3;
-XEvalParser.DOUBLECOLON = 4;
-XEvalParser.COMMA = 5;
-XEvalParser.LPARENS = 6;
-XEvalParser.RPARENS = 7;
-XEvalParser.DECIMAL = 8;
-XEvalParser.INTEGER = 9;
-XEvalParser.STRING = 10;
-XEvalParser.IDENTIFIER = 11;
-XEvalParser.WS = 12;
-XEvalParser.UNRECOGNIZED = 13;
+XEvalBaseParser.EOF = antlr4.Token.EOF;
+XEvalBaseParser.TRUE = 1;
+XEvalBaseParser.FALSE = 2;
+XEvalBaseParser.COLON = 3;
+XEvalBaseParser.DOUBLECOLON = 4;
+XEvalBaseParser.COMMA = 5;
+XEvalBaseParser.LPARENS = 6;
+XEvalBaseParser.RPARENS = 7;
+XEvalBaseParser.DECIMAL = 8;
+XEvalBaseParser.INTEGER = 9;
+XEvalBaseParser.STRING = 10;
+XEvalBaseParser.IDENTIFIER = 11;
+XEvalBaseParser.WS = 12;
+XEvalBaseParser.UNRECOGNIZED = 13;
 
-XEvalParser.RULE_query = 0;
-XEvalParser.RULE_expr = 1;
-XEvalParser.RULE_fnArgs = 2;
-XEvalParser.RULE_value = 3;
-XEvalParser.RULE_fn = 4;
-XEvalParser.RULE_moduleName = 5;
-XEvalParser.RULE_fnName = 6;
-XEvalParser.RULE_varName = 7;
-XEvalParser.RULE_prefix = 8;
-XEvalParser.RULE_colName = 9;
-XEvalParser.RULE_booleanValue = 10;
+XEvalBaseParser.RULE_query = 0;
+XEvalBaseParser.RULE_expr = 1;
+XEvalBaseParser.RULE_fnArgs = 2;
+XEvalBaseParser.RULE_value = 3;
+XEvalBaseParser.RULE_fn = 4;
+XEvalBaseParser.RULE_moduleName = 5;
+XEvalBaseParser.RULE_fnName = 6;
+XEvalBaseParser.RULE_varName = 7;
+XEvalBaseParser.RULE_prefix = 8;
+XEvalBaseParser.RULE_colName = 9;
+XEvalBaseParser.RULE_booleanValue = 10;
 
 function QueryContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -122,7 +121,7 @@ function QueryContext(parser, parent, invokingState) {
 	}
 	antlr4.ParserRuleContext.call(this, parent, invokingState);
     this.parser = parser;
-    this.ruleIndex = XEvalParser.RULE_query;
+    this.ruleIndex = XEvalBaseParser.RULE_query;
     return this;
 }
 
@@ -134,23 +133,11 @@ QueryContext.prototype.expr = function() {
 };
 
 QueryContext.prototype.EOF = function() {
-    return this.getToken(XEvalParser.EOF, 0);
-};
-
-QueryContext.prototype.enterRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.enterQuery(this);
-	}
-};
-
-QueryContext.prototype.exitRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.exitQuery(this);
-	}
+    return this.getToken(XEvalBaseParser.EOF, 0);
 };
 
 QueryContext.prototype.accept = function(visitor) {
-    if ( visitor instanceof XEvalVisitor ) {
+    if ( visitor instanceof XEvalBaseVisitor ) {
         return visitor.visitQuery(this);
     } else {
         return visitor.visitChildren(this);
@@ -160,18 +147,18 @@ QueryContext.prototype.accept = function(visitor) {
 
 
 
-XEvalParser.QueryContext = QueryContext;
+XEvalBaseParser.QueryContext = QueryContext;
 
-XEvalParser.prototype.query = function() {
+XEvalBaseParser.prototype.query = function() {
 
     var localctx = new QueryContext(this, this._ctx, this.state);
-    this.enterRule(localctx, 0, XEvalParser.RULE_query);
+    this.enterRule(localctx, 0, XEvalBaseParser.RULE_query);
     try {
         this.enterOuterAlt(localctx, 1);
         this.state = 22;
         this.expr();
         this.state = 23;
-        this.match(XEvalParser.EOF);
+        this.match(XEvalBaseParser.EOF);
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
 	        localctx.exception = re;
@@ -195,7 +182,7 @@ function ExprContext(parser, parent, invokingState) {
 	}
 	antlr4.ParserRuleContext.call(this, parent, invokingState);
     this.parser = parser;
-    this.ruleIndex = XEvalParser.RULE_expr;
+    this.ruleIndex = XEvalBaseParser.RULE_expr;
     return this;
 }
 
@@ -207,7 +194,7 @@ ExprContext.prototype.fn = function() {
 };
 
 ExprContext.prototype.LPARENS = function() {
-    return this.getToken(XEvalParser.LPARENS, 0);
+    return this.getToken(XEvalBaseParser.LPARENS, 0);
 };
 
 ExprContext.prototype.fnArgs = function() {
@@ -215,23 +202,11 @@ ExprContext.prototype.fnArgs = function() {
 };
 
 ExprContext.prototype.RPARENS = function() {
-    return this.getToken(XEvalParser.RPARENS, 0);
-};
-
-ExprContext.prototype.enterRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.enterExpr(this);
-	}
-};
-
-ExprContext.prototype.exitRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.exitExpr(this);
-	}
+    return this.getToken(XEvalBaseParser.RPARENS, 0);
 };
 
 ExprContext.prototype.accept = function(visitor) {
-    if ( visitor instanceof XEvalVisitor ) {
+    if ( visitor instanceof XEvalBaseVisitor ) {
         return visitor.visitExpr(this);
     } else {
         return visitor.visitChildren(this);
@@ -241,12 +216,12 @@ ExprContext.prototype.accept = function(visitor) {
 
 
 
-XEvalParser.ExprContext = ExprContext;
+XEvalBaseParser.ExprContext = ExprContext;
 
-XEvalParser.prototype.expr = function() {
+XEvalBaseParser.prototype.expr = function() {
 
     var localctx = new ExprContext(this, this._ctx, this.state);
-    this.enterRule(localctx, 2, XEvalParser.RULE_expr);
+    this.enterRule(localctx, 2, XEvalBaseParser.RULE_expr);
     try {
         this.state = 34;
         this._errHandler.sync(this);
@@ -257,11 +232,11 @@ XEvalParser.prototype.expr = function() {
             this.state = 25;
             this.fn();
             this.state = 26;
-            this.match(XEvalParser.LPARENS);
+            this.match(XEvalBaseParser.LPARENS);
             this.state = 27;
             this.fnArgs();
             this.state = 28;
-            this.match(XEvalParser.RPARENS);
+            this.match(XEvalBaseParser.RPARENS);
             break;
 
         case 2:
@@ -269,9 +244,9 @@ XEvalParser.prototype.expr = function() {
             this.state = 30;
             this.fn();
             this.state = 31;
-            this.match(XEvalParser.LPARENS);
+            this.match(XEvalBaseParser.LPARENS);
             this.state = 32;
-            this.match(XEvalParser.RPARENS);
+            this.match(XEvalBaseParser.RPARENS);
             break;
 
         }
@@ -298,7 +273,7 @@ function FnArgsContext(parser, parent, invokingState) {
 	}
 	antlr4.ParserRuleContext.call(this, parent, invokingState);
     this.parser = parser;
-    this.ruleIndex = XEvalParser.RULE_fnArgs;
+    this.ruleIndex = XEvalBaseParser.RULE_fnArgs;
     return this;
 }
 
@@ -310,27 +285,15 @@ FnArgsContext.prototype.value = function() {
 };
 
 FnArgsContext.prototype.COMMA = function() {
-    return this.getToken(XEvalParser.COMMA, 0);
+    return this.getToken(XEvalBaseParser.COMMA, 0);
 };
 
 FnArgsContext.prototype.fnArgs = function() {
     return this.getTypedRuleContext(FnArgsContext,0);
 };
 
-FnArgsContext.prototype.enterRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.enterFnArgs(this);
-	}
-};
-
-FnArgsContext.prototype.exitRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.exitFnArgs(this);
-	}
-};
-
 FnArgsContext.prototype.accept = function(visitor) {
-    if ( visitor instanceof XEvalVisitor ) {
+    if ( visitor instanceof XEvalBaseVisitor ) {
         return visitor.visitFnArgs(this);
     } else {
         return visitor.visitChildren(this);
@@ -340,12 +303,12 @@ FnArgsContext.prototype.accept = function(visitor) {
 
 
 
-XEvalParser.FnArgsContext = FnArgsContext;
+XEvalBaseParser.FnArgsContext = FnArgsContext;
 
-XEvalParser.prototype.fnArgs = function() {
+XEvalBaseParser.prototype.fnArgs = function() {
 
     var localctx = new FnArgsContext(this, this._ctx, this.state);
-    this.enterRule(localctx, 4, XEvalParser.RULE_fnArgs);
+    this.enterRule(localctx, 4, XEvalBaseParser.RULE_fnArgs);
     try {
         this.state = 41;
         this._errHandler.sync(this);
@@ -356,7 +319,7 @@ XEvalParser.prototype.fnArgs = function() {
             this.state = 36;
             this.value();
             this.state = 37;
-            this.match(XEvalParser.COMMA);
+            this.match(XEvalBaseParser.COMMA);
             this.state = 38;
             this.fnArgs();
             break;
@@ -391,7 +354,7 @@ function ValueContext(parser, parent, invokingState) {
 	}
 	antlr4.ParserRuleContext.call(this, parent, invokingState);
     this.parser = parser;
-    this.ruleIndex = XEvalParser.RULE_value;
+    this.ruleIndex = XEvalBaseParser.RULE_value;
     return this;
 }
 
@@ -403,11 +366,11 @@ ValueContext.prototype.expr = function() {
 };
 
 ValueContext.prototype.INTEGER = function() {
-    return this.getToken(XEvalParser.INTEGER, 0);
+    return this.getToken(XEvalBaseParser.INTEGER, 0);
 };
 
 ValueContext.prototype.DECIMAL = function() {
-    return this.getToken(XEvalParser.DECIMAL, 0);
+    return this.getToken(XEvalBaseParser.DECIMAL, 0);
 };
 
 ValueContext.prototype.booleanValue = function() {
@@ -415,27 +378,15 @@ ValueContext.prototype.booleanValue = function() {
 };
 
 ValueContext.prototype.STRING = function() {
-    return this.getToken(XEvalParser.STRING, 0);
+    return this.getToken(XEvalBaseParser.STRING, 0);
 };
 
 ValueContext.prototype.varName = function() {
     return this.getTypedRuleContext(VarNameContext,0);
 };
 
-ValueContext.prototype.enterRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.enterValue(this);
-	}
-};
-
-ValueContext.prototype.exitRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.exitValue(this);
-	}
-};
-
 ValueContext.prototype.accept = function(visitor) {
-    if ( visitor instanceof XEvalVisitor ) {
+    if ( visitor instanceof XEvalBaseVisitor ) {
         return visitor.visitValue(this);
     } else {
         return visitor.visitChildren(this);
@@ -445,12 +396,12 @@ ValueContext.prototype.accept = function(visitor) {
 
 
 
-XEvalParser.ValueContext = ValueContext;
+XEvalBaseParser.ValueContext = ValueContext;
 
-XEvalParser.prototype.value = function() {
+XEvalBaseParser.prototype.value = function() {
 
     var localctx = new ValueContext(this, this._ctx, this.state);
-    this.enterRule(localctx, 6, XEvalParser.RULE_value);
+    this.enterRule(localctx, 6, XEvalBaseParser.RULE_value);
     try {
         this.state = 49;
         this._errHandler.sync(this);
@@ -465,13 +416,13 @@ XEvalParser.prototype.value = function() {
         case 2:
             this.enterOuterAlt(localctx, 2);
             this.state = 44;
-            this.match(XEvalParser.INTEGER);
+            this.match(XEvalBaseParser.INTEGER);
             break;
 
         case 3:
             this.enterOuterAlt(localctx, 3);
             this.state = 45;
-            this.match(XEvalParser.DECIMAL);
+            this.match(XEvalBaseParser.DECIMAL);
             break;
 
         case 4:
@@ -483,7 +434,7 @@ XEvalParser.prototype.value = function() {
         case 5:
             this.enterOuterAlt(localctx, 5);
             this.state = 47;
-            this.match(XEvalParser.STRING);
+            this.match(XEvalBaseParser.STRING);
             break;
 
         case 6:
@@ -516,7 +467,7 @@ function FnContext(parser, parent, invokingState) {
 	}
 	antlr4.ParserRuleContext.call(this, parent, invokingState);
     this.parser = parser;
-    this.ruleIndex = XEvalParser.RULE_fn;
+    this.ruleIndex = XEvalBaseParser.RULE_fn;
     return this;
 }
 
@@ -528,27 +479,15 @@ FnContext.prototype.moduleName = function() {
 };
 
 FnContext.prototype.COLON = function() {
-    return this.getToken(XEvalParser.COLON, 0);
+    return this.getToken(XEvalBaseParser.COLON, 0);
 };
 
 FnContext.prototype.fnName = function() {
     return this.getTypedRuleContext(FnNameContext,0);
 };
 
-FnContext.prototype.enterRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.enterFn(this);
-	}
-};
-
-FnContext.prototype.exitRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.exitFn(this);
-	}
-};
-
 FnContext.prototype.accept = function(visitor) {
-    if ( visitor instanceof XEvalVisitor ) {
+    if ( visitor instanceof XEvalBaseVisitor ) {
         return visitor.visitFn(this);
     } else {
         return visitor.visitChildren(this);
@@ -558,12 +497,12 @@ FnContext.prototype.accept = function(visitor) {
 
 
 
-XEvalParser.FnContext = FnContext;
+XEvalBaseParser.FnContext = FnContext;
 
-XEvalParser.prototype.fn = function() {
+XEvalBaseParser.prototype.fn = function() {
 
     var localctx = new FnContext(this, this._ctx, this.state);
-    this.enterRule(localctx, 8, XEvalParser.RULE_fn);
+    this.enterRule(localctx, 8, XEvalBaseParser.RULE_fn);
     try {
         this.state = 56;
         this._errHandler.sync(this);
@@ -574,7 +513,7 @@ XEvalParser.prototype.fn = function() {
             this.state = 51;
             this.moduleName();
             this.state = 52;
-            this.match(XEvalParser.COLON);
+            this.match(XEvalBaseParser.COLON);
             this.state = 53;
             this.fnName();
             break;
@@ -609,7 +548,7 @@ function ModuleNameContext(parser, parent, invokingState) {
 	}
 	antlr4.ParserRuleContext.call(this, parent, invokingState);
     this.parser = parser;
-    this.ruleIndex = XEvalParser.RULE_moduleName;
+    this.ruleIndex = XEvalBaseParser.RULE_moduleName;
     this._IDENTIFIER = null; // Token
     return this;
 }
@@ -618,23 +557,11 @@ ModuleNameContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 ModuleNameContext.prototype.constructor = ModuleNameContext;
 
 ModuleNameContext.prototype.IDENTIFIER = function() {
-    return this.getToken(XEvalParser.IDENTIFIER, 0);
-};
-
-ModuleNameContext.prototype.enterRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.enterModuleName(this);
-	}
-};
-
-ModuleNameContext.prototype.exitRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.exitModuleName(this);
-	}
+    return this.getToken(XEvalBaseParser.IDENTIFIER, 0);
 };
 
 ModuleNameContext.prototype.accept = function(visitor) {
-    if ( visitor instanceof XEvalVisitor ) {
+    if ( visitor instanceof XEvalBaseVisitor ) {
         return visitor.visitModuleName(this);
     } else {
         return visitor.visitChildren(this);
@@ -644,16 +571,16 @@ ModuleNameContext.prototype.accept = function(visitor) {
 
 
 
-XEvalParser.ModuleNameContext = ModuleNameContext;
+XEvalBaseParser.ModuleNameContext = ModuleNameContext;
 
-XEvalParser.prototype.moduleName = function() {
+XEvalBaseParser.prototype.moduleName = function() {
 
     var localctx = new ModuleNameContext(this, this._ctx, this.state);
-    this.enterRule(localctx, 10, XEvalParser.RULE_moduleName);
+    this.enterRule(localctx, 10, XEvalBaseParser.RULE_moduleName);
     try {
         this.enterOuterAlt(localctx, 1);
         this.state = 58;
-        localctx._IDENTIFIER = this.match(XEvalParser.IDENTIFIER);
+        localctx._IDENTIFIER = this.match(XEvalBaseParser.IDENTIFIER);
         if ((localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text).match(/^[a-z_][a-zA-Z0-9_-]*$/) == null) {
             throw SyntaxError('Invalid module name: ' + (localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text));}
     } catch (re) {
@@ -679,7 +606,7 @@ function FnNameContext(parser, parent, invokingState) {
 	}
 	antlr4.ParserRuleContext.call(this, parent, invokingState);
     this.parser = parser;
-    this.ruleIndex = XEvalParser.RULE_fnName;
+    this.ruleIndex = XEvalBaseParser.RULE_fnName;
     this._IDENTIFIER = null; // Token
     return this;
 }
@@ -688,23 +615,11 @@ FnNameContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 FnNameContext.prototype.constructor = FnNameContext;
 
 FnNameContext.prototype.IDENTIFIER = function() {
-    return this.getToken(XEvalParser.IDENTIFIER, 0);
-};
-
-FnNameContext.prototype.enterRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.enterFnName(this);
-	}
-};
-
-FnNameContext.prototype.exitRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.exitFnName(this);
-	}
+    return this.getToken(XEvalBaseParser.IDENTIFIER, 0);
 };
 
 FnNameContext.prototype.accept = function(visitor) {
-    if ( visitor instanceof XEvalVisitor ) {
+    if ( visitor instanceof XEvalBaseVisitor ) {
         return visitor.visitFnName(this);
     } else {
         return visitor.visitChildren(this);
@@ -714,16 +629,16 @@ FnNameContext.prototype.accept = function(visitor) {
 
 
 
-XEvalParser.FnNameContext = FnNameContext;
+XEvalBaseParser.FnNameContext = FnNameContext;
 
-XEvalParser.prototype.fnName = function() {
+XEvalBaseParser.prototype.fnName = function() {
 
     var localctx = new FnNameContext(this, this._ctx, this.state);
-    this.enterRule(localctx, 12, XEvalParser.RULE_fnName);
+    this.enterRule(localctx, 12, XEvalBaseParser.RULE_fnName);
     try {
         this.enterOuterAlt(localctx, 1);
         this.state = 61;
-        localctx._IDENTIFIER = this.match(XEvalParser.IDENTIFIER);
+        localctx._IDENTIFIER = this.match(XEvalBaseParser.IDENTIFIER);
         if ((localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text).match(/^[a-z_][a-zA-Z0-9_]*$/) == null) {
             throw SyntaxError('Invalid udf name: ' + (localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text));}
     } catch (re) {
@@ -749,7 +664,7 @@ function VarNameContext(parser, parent, invokingState) {
 	}
 	antlr4.ParserRuleContext.call(this, parent, invokingState);
     this.parser = parser;
-    this.ruleIndex = XEvalParser.RULE_varName;
+    this.ruleIndex = XEvalBaseParser.RULE_varName;
     return this;
 }
 
@@ -761,27 +676,15 @@ VarNameContext.prototype.prefix = function() {
 };
 
 VarNameContext.prototype.DOUBLECOLON = function() {
-    return this.getToken(XEvalParser.DOUBLECOLON, 0);
+    return this.getToken(XEvalBaseParser.DOUBLECOLON, 0);
 };
 
 VarNameContext.prototype.colName = function() {
     return this.getTypedRuleContext(ColNameContext,0);
 };
 
-VarNameContext.prototype.enterRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.enterVarName(this);
-	}
-};
-
-VarNameContext.prototype.exitRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.exitVarName(this);
-	}
-};
-
 VarNameContext.prototype.accept = function(visitor) {
-    if ( visitor instanceof XEvalVisitor ) {
+    if ( visitor instanceof XEvalBaseVisitor ) {
         return visitor.visitVarName(this);
     } else {
         return visitor.visitChildren(this);
@@ -791,12 +694,12 @@ VarNameContext.prototype.accept = function(visitor) {
 
 
 
-XEvalParser.VarNameContext = VarNameContext;
+XEvalBaseParser.VarNameContext = VarNameContext;
 
-XEvalParser.prototype.varName = function() {
+XEvalBaseParser.prototype.varName = function() {
 
     var localctx = new VarNameContext(this, this._ctx, this.state);
-    this.enterRule(localctx, 14, XEvalParser.RULE_varName);
+    this.enterRule(localctx, 14, XEvalBaseParser.RULE_varName);
     try {
         this.state = 69;
         this._errHandler.sync(this);
@@ -807,7 +710,7 @@ XEvalParser.prototype.varName = function() {
             this.state = 64;
             this.prefix();
             this.state = 65;
-            this.match(XEvalParser.DOUBLECOLON);
+            this.match(XEvalBaseParser.DOUBLECOLON);
             this.state = 66;
             this.colName();
             break;
@@ -842,7 +745,7 @@ function PrefixContext(parser, parent, invokingState) {
 	}
 	antlr4.ParserRuleContext.call(this, parent, invokingState);
     this.parser = parser;
-    this.ruleIndex = XEvalParser.RULE_prefix;
+    this.ruleIndex = XEvalBaseParser.RULE_prefix;
     this._IDENTIFIER = null; // Token
     return this;
 }
@@ -851,23 +754,11 @@ PrefixContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 PrefixContext.prototype.constructor = PrefixContext;
 
 PrefixContext.prototype.IDENTIFIER = function() {
-    return this.getToken(XEvalParser.IDENTIFIER, 0);
-};
-
-PrefixContext.prototype.enterRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.enterPrefix(this);
-	}
-};
-
-PrefixContext.prototype.exitRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.exitPrefix(this);
-	}
+    return this.getToken(XEvalBaseParser.IDENTIFIER, 0);
 };
 
 PrefixContext.prototype.accept = function(visitor) {
-    if ( visitor instanceof XEvalVisitor ) {
+    if ( visitor instanceof XEvalBaseVisitor ) {
         return visitor.visitPrefix(this);
     } else {
         return visitor.visitChildren(this);
@@ -877,16 +768,16 @@ PrefixContext.prototype.accept = function(visitor) {
 
 
 
-XEvalParser.PrefixContext = PrefixContext;
+XEvalBaseParser.PrefixContext = PrefixContext;
 
-XEvalParser.prototype.prefix = function() {
+XEvalBaseParser.prototype.prefix = function() {
 
     var localctx = new PrefixContext(this, this._ctx, this.state);
-    this.enterRule(localctx, 16, XEvalParser.RULE_prefix);
+    this.enterRule(localctx, 16, XEvalBaseParser.RULE_prefix);
     try {
         this.enterOuterAlt(localctx, 1);
         this.state = 71;
-        localctx._IDENTIFIER = this.match(XEvalParser.IDENTIFIER);
+        localctx._IDENTIFIER = this.match(XEvalBaseParser.IDENTIFIER);
         if ((localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text).match(/^[a-zA-Z0-9_-]{1,31}$/) == null) {
             throw SyntaxError('Invalid prefix name: ' + (localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text));}
     } catch (re) {
@@ -912,7 +803,7 @@ function ColNameContext(parser, parent, invokingState) {
 	}
 	antlr4.ParserRuleContext.call(this, parent, invokingState);
     this.parser = parser;
-    this.ruleIndex = XEvalParser.RULE_colName;
+    this.ruleIndex = XEvalBaseParser.RULE_colName;
     this._IDENTIFIER = null; // Token
     return this;
 }
@@ -921,23 +812,11 @@ ColNameContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
 ColNameContext.prototype.constructor = ColNameContext;
 
 ColNameContext.prototype.IDENTIFIER = function() {
-    return this.getToken(XEvalParser.IDENTIFIER, 0);
-};
-
-ColNameContext.prototype.enterRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.enterColName(this);
-	}
-};
-
-ColNameContext.prototype.exitRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.exitColName(this);
-	}
+    return this.getToken(XEvalBaseParser.IDENTIFIER, 0);
 };
 
 ColNameContext.prototype.accept = function(visitor) {
-    if ( visitor instanceof XEvalVisitor ) {
+    if ( visitor instanceof XEvalBaseVisitor ) {
         return visitor.visitColName(this);
     } else {
         return visitor.visitChildren(this);
@@ -947,16 +826,16 @@ ColNameContext.prototype.accept = function(visitor) {
 
 
 
-XEvalParser.ColNameContext = ColNameContext;
+XEvalBaseParser.ColNameContext = ColNameContext;
 
-XEvalParser.prototype.colName = function() {
+XEvalBaseParser.prototype.colName = function() {
 
     var localctx = new ColNameContext(this, this._ctx, this.state);
-    this.enterRule(localctx, 18, XEvalParser.RULE_colName);
+    this.enterRule(localctx, 18, XEvalBaseParser.RULE_colName);
     try {
         this.enterOuterAlt(localctx, 1);
         this.state = 74;
-        localctx._IDENTIFIER = this.match(XEvalParser.IDENTIFIER);
+        localctx._IDENTIFIER = this.match(XEvalBaseParser.IDENTIFIER);
         if ((localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text).match(/^(?!--.*)([a-zA-Z_^-](((?!--)[a-zA-Z0-9_^ -])*[a-zA-Z0-9_^-])?)$/) == null) {
             throw SyntaxError('Invalid column name: ' + (localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text));}
     } catch (re) {
@@ -982,7 +861,7 @@ function BooleanValueContext(parser, parent, invokingState) {
 	}
 	antlr4.ParserRuleContext.call(this, parent, invokingState);
     this.parser = parser;
-    this.ruleIndex = XEvalParser.RULE_booleanValue;
+    this.ruleIndex = XEvalBaseParser.RULE_booleanValue;
     return this;
 }
 
@@ -990,27 +869,15 @@ BooleanValueContext.prototype = Object.create(antlr4.ParserRuleContext.prototype
 BooleanValueContext.prototype.constructor = BooleanValueContext;
 
 BooleanValueContext.prototype.TRUE = function() {
-    return this.getToken(XEvalParser.TRUE, 0);
+    return this.getToken(XEvalBaseParser.TRUE, 0);
 };
 
 BooleanValueContext.prototype.FALSE = function() {
-    return this.getToken(XEvalParser.FALSE, 0);
-};
-
-BooleanValueContext.prototype.enterRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.enterBooleanValue(this);
-	}
-};
-
-BooleanValueContext.prototype.exitRule = function(listener) {
-    if(listener instanceof XEvalListener ) {
-        listener.exitBooleanValue(this);
-	}
+    return this.getToken(XEvalBaseParser.FALSE, 0);
 };
 
 BooleanValueContext.prototype.accept = function(visitor) {
-    if ( visitor instanceof XEvalVisitor ) {
+    if ( visitor instanceof XEvalBaseVisitor ) {
         return visitor.visitBooleanValue(this);
     } else {
         return visitor.visitChildren(this);
@@ -1020,18 +887,18 @@ BooleanValueContext.prototype.accept = function(visitor) {
 
 
 
-XEvalParser.BooleanValueContext = BooleanValueContext;
+XEvalBaseParser.BooleanValueContext = BooleanValueContext;
 
-XEvalParser.prototype.booleanValue = function() {
+XEvalBaseParser.prototype.booleanValue = function() {
 
     var localctx = new BooleanValueContext(this, this._ctx, this.state);
-    this.enterRule(localctx, 20, XEvalParser.RULE_booleanValue);
+    this.enterRule(localctx, 20, XEvalBaseParser.RULE_booleanValue);
     var _la = 0; // Token type
     try {
         this.enterOuterAlt(localctx, 1);
         this.state = 77;
         _la = this._input.LA(1);
-        if(!(_la===XEvalParser.TRUE || _la===XEvalParser.FALSE)) {
+        if(!(_la===XEvalBaseParser.TRUE || _la===XEvalBaseParser.FALSE)) {
         this._errHandler.recoverInline(this);
         }
         else {
@@ -1053,4 +920,4 @@ XEvalParser.prototype.booleanValue = function() {
 };
 
 
-exports.XEvalParser = XEvalParser;
+exports.XEvalBaseParser = XEvalBaseParser;

@@ -1,4 +1,4 @@
-// Generated from XEval.g4 by ANTLR 4.7.1
+// Generated from XEvalBase.g4 by ANTLR 4.7.1
 // jshint ignore: start
 var antlr4 = require('antlr4/index');
 
@@ -146,60 +146,61 @@ var atn = new antlr4.atn.ATNDeserializer().deserialize(serializedATN);
 
 var decisionsToDFA = atn.decisionToState.map( function(ds, index) { return new antlr4.dfa.DFA(ds, index); });
 
-function XEvalLexer(input) {
+function XEvalBaseLexer(input) {
 	antlr4.Lexer.call(this, input);
     this._interp = new antlr4.atn.LexerATNSimulator(this, atn, decisionsToDFA, new antlr4.PredictionContextCache());
     return this;
 }
 
-XEvalLexer.prototype = Object.create(antlr4.Lexer.prototype);
-XEvalLexer.prototype.constructor = XEvalLexer;
+XEvalBaseLexer.prototype = Object.create(antlr4.Lexer.prototype);
+XEvalBaseLexer.prototype.constructor = XEvalBaseLexer;
 
-Object.defineProperty(XEvalLexer.prototype, "atn", {
+Object.defineProperty(XEvalBaseLexer.prototype, "atn", {
         get : function() {
                 return atn;
         }
 });
 
-XEvalLexer.EOF = antlr4.Token.EOF;
-XEvalLexer.TRUE = 1;
-XEvalLexer.FALSE = 2;
-XEvalLexer.COLON = 3;
-XEvalLexer.DOUBLECOLON = 4;
-XEvalLexer.COMMA = 5;
-XEvalLexer.LPARENS = 6;
-XEvalLexer.RPARENS = 7;
-XEvalLexer.DECIMAL = 8;
-XEvalLexer.INTEGER = 9;
-XEvalLexer.STRING = 10;
-XEvalLexer.IDENTIFIER = 11;
-XEvalLexer.WS = 12;
-XEvalLexer.UNRECOGNIZED = 13;
+XEvalBaseLexer.EOF = antlr4.Token.EOF;
+XEvalBaseLexer.TRUE = 1;
+XEvalBaseLexer.FALSE = 2;
+XEvalBaseLexer.COLON = 3;
+XEvalBaseLexer.DOUBLECOLON = 4;
+XEvalBaseLexer.COMMA = 5;
+XEvalBaseLexer.LPARENS = 6;
+XEvalBaseLexer.RPARENS = 7;
+XEvalBaseLexer.DECIMAL = 8;
+XEvalBaseLexer.INTEGER = 9;
+XEvalBaseLexer.STRING = 10;
+XEvalBaseLexer.IDENTIFIER = 11;
+XEvalBaseLexer.WS = 12;
+XEvalBaseLexer.UNRECOGNIZED = 13;
 
-XEvalLexer.prototype.channelNames = [ "DEFAULT_TOKEN_CHANNEL", "HIDDEN" ];
+XEvalBaseLexer.prototype.channelNames = [ "DEFAULT_TOKEN_CHANNEL", "HIDDEN" ];
 
-XEvalLexer.prototype.modeNames = [ "DEFAULT_MODE" ];
+XEvalBaseLexer.prototype.modeNames = [ "DEFAULT_MODE" ];
 
-XEvalLexer.prototype.literalNames = [ null, null, null, "':'", "'::'", "','", 
-                                      "'('", "')'" ];
+XEvalBaseLexer.prototype.literalNames = [ null, null, null, "':'", "'::'", 
+                                          "','", "'('", "')'" ];
 
-XEvalLexer.prototype.symbolicNames = [ null, "TRUE", "FALSE", "COLON", "DOUBLECOLON", 
+XEvalBaseLexer.prototype.symbolicNames = [ null, "TRUE", "FALSE", "COLON", 
+                                           "DOUBLECOLON", "COMMA", "LPARENS", 
+                                           "RPARENS", "DECIMAL", "INTEGER", 
+                                           "STRING", "IDENTIFIER", "WS", 
+                                           "UNRECOGNIZED" ];
+
+XEvalBaseLexer.prototype.ruleNames = [ "TRUE", "FALSE", "COLON", "DOUBLECOLON", 
                                        "COMMA", "LPARENS", "RPARENS", "DECIMAL", 
                                        "INTEGER", "STRING", "IDENTIFIER", 
-                                       "WS", "UNRECOGNIZED" ];
+                                       "A", "B", "C", "D", "E", "F", "G", 
+                                       "H", "I", "J", "K", "L", "M", "N", 
+                                       "O", "P", "Q", "R", "S", "T", "U", 
+                                       "V", "W", "X", "Y", "Z", "DIGIT", 
+                                       "ALPHAS", "ALPHANUMS", "WS", "UNRECOGNIZED" ];
 
-XEvalLexer.prototype.ruleNames = [ "TRUE", "FALSE", "COLON", "DOUBLECOLON", 
-                                   "COMMA", "LPARENS", "RPARENS", "DECIMAL", 
-                                   "INTEGER", "STRING", "IDENTIFIER", "A", 
-                                   "B", "C", "D", "E", "F", "G", "H", "I", 
-                                   "J", "K", "L", "M", "N", "O", "P", "Q", 
-                                   "R", "S", "T", "U", "V", "W", "X", "Y", 
-                                   "Z", "DIGIT", "ALPHAS", "ALPHANUMS", 
-                                   "WS", "UNRECOGNIZED" ];
-
-XEvalLexer.prototype.grammarFileName = "XEval.g4";
+XEvalBaseLexer.prototype.grammarFileName = "XEvalBase.g4";
 
 
 
-exports.XEvalLexer = XEvalLexer;
+exports.XEvalBaseLexer = XEvalBaseLexer;
 
