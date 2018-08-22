@@ -377,19 +377,24 @@ window.DSTargetManager = (function($, DSTargetManager) {
         } else {
             var paramHtml = paramKeys.map(function(paramName) {
                 var paramVal = target.params[paramName];
+                var classes = "text";
                 if (typeof paramVal !== "string") {
                     paramVal = JSON.stringify(paramVal);
                 }
+                if (isSecrectParam(target.type_id, paramName)) {
+                    classes += " secret";
+                }
                 return '<div class="formRow">' +
                             '<label>' + paramName + ':</label>' +
-                            '<span class="text">' +
+                            '<span class="' + classes + '">' +
                                 paramVal +
                             '</span>' +
                         '</div>';
             }).join("");
-
+            var $rows = $(paramHtml);
+            encryptionSecretField($rows);
             $paramSection.removeClass("xc-hidden")
-                         .find(".formContent").html(paramHtml);
+                         .find(".formContent").html($rows);
         }
 
         var $deletBtn = $("#dsTarget-delete");
@@ -398,6 +403,19 @@ window.DSTargetManager = (function($, DSTargetManager) {
         } else {
             $deletBtn.removeClass("xc-disabled");
         }
+    }
+
+    function encryptionSecretField($rows) {
+        $rows.each(function() {
+            var $text = $(this).find(".text");
+            if ($text.hasClass("secret")) {
+                // const val = $text.text();
+                const encryptedVal = "*".repeat(6);
+                $text.text(encryptedVal);
+                // Note: can add code here to display/hide password
+                // if we need this use case
+            }
+        });
     }
 
     function selectUDFModule(module) {
@@ -664,6 +682,21 @@ window.DSTargetManager = (function($, DSTargetManager) {
         var udfObj = xcHelper.getUDFList(listXdfsObj);
         udfModuleListItems = udfObj.moduleLis;
         udfFuncListItems = udfObj.fnLis;
+    }
+
+    function isSecrectParam(typeId, paramName) {
+        try {
+            var targetType = typeSet[typeId];
+            for (var i = 0; i < targetType.parameters.length; i++) {
+                var param = targetType.parameters[i];
+                if (param.name === paramName) {
+                    return param.secret;
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        }
+        return false;
     }
 
     function getTargetTypeParamOptions(params) {
