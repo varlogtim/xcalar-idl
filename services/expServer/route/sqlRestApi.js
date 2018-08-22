@@ -514,7 +514,7 @@ function activateWkbk(activeSessionNames, wkbkName) {
     }
 }
 
-function selectPublishedTables(args, allSchemas) {
+function selectPublishedTables(args, allSchemas, batchIdMap) {
     var queryArray = [];
     for (var i = 0; i < args.length; i++) {
         var renameMap = [];
@@ -543,7 +543,7 @@ function selectPublishedTables(args, allSchemas) {
                 "source": args[i].publishName,
                 "dest": args[i].importTable,
                 "minBatchId": -1,
-                "maxBatchId": -1,
+                "maxBatchId": batchIdMap ? batchIdMap[args[i].publishName] : -1,
                 "columns": renameMap
             }
         }
@@ -934,6 +934,7 @@ function selectUsedPublishedTables(queryStr, tablePrefix) {
     var allSelects = {};
     var deferred = jQuery.Deferred();
     var error = false;
+    var batchIdMap = {};
 
     listPublishedTables("*")
     .then(function(allPubTableNames, res) {
@@ -948,6 +949,7 @@ function selectUsedPublishedTables(queryStr, tablePrefix) {
             // schema must exist because getListOfPublishedTables ensures
             // that it exists
             allSchemas[usedTable] = tableStruct.schema;
+            batchIdMap[usedTable] = tableStruct.nextBatchId - 1;
             var candidateSelectTable = findValidLastSelect(tableStruct.selects,
                 tableStruct.nextBatchId);
             allSelects[usedTable] = candidateSelectTable;
@@ -969,7 +971,7 @@ function selectUsedPublishedTables(queryStr, tablePrefix) {
         var toSelect = [];
         for (var pubTable in allSelects) {
             if (!allSelects[pubTable]) {
-                var xcalarTableName = xcHelper.randName("selectPubTable") +
+                var xcalarTableName = xcHelper.randName(tablePrefix) +
                     Authentication.getHashId();
                 toSelect.push({
                     importTable: xcalarTableName,
@@ -978,8 +980,8 @@ function selectUsedPublishedTables(queryStr, tablePrefix) {
                 allSelects[pubTable] = xcalarTableName;
             }
         }
-        deferred.resolve(selectPublishedTables(toSelect, allSchemas), allSchemas,
-            allSelects);
+        deferred.resolve(selectPublishedTables(toSelect, allSchemas, batchIdMap),
+                         allSchemas, allSelects);
     })
     .fail(deferred.reject);
     return deferred.promise();
@@ -1026,14 +1028,15 @@ function executeSqlWithExtQuery(execid, queryStr, rowsToFetch, sessionPrefix,
     })
     .then(function(compilerObject, xcQueryString, newTableName, colNames) {
         xcConsole.log("Compilation finished");
-        finalTable = newTableName;
         orderedColumns = colNames;
-        var xcQueryWithSelect = addPrefix(
+        var prefixStruct = addPrefix(
             selectQuery.concat(JSON.parse(xcQueryString)),
             allSelects,
-            finalTable,
+            newTableName,
             sessionPrefix);
-        return compilerObject.execute(xcQueryWithSelect, newTableName, colNames,
+        var xcQueryWithSelect = prefixStruct.query;
+        finalTable = prefixStruct.tableName || newTableName;
+        return compilerObject.execute(xcQueryWithSelect, finalTable, colNames,
             queryStr, undefined, option);
     })
     .then(function() {
@@ -1062,6 +1065,7 @@ function executeSqlWithExtQuery(execid, queryStr, rowsToFetch, sessionPrefix,
 };
 
 function addPrefix(plan, selectTables, finalTable, prefix) {
+    var retStruct = {};
     for (var i = 0; i < plan.length; i++) {
         var operation = plan[i];
         var source = operation.args.source;
@@ -1074,23 +1078,24 @@ function addPrefix(plan, selectTables, finalTable, prefix) {
             if (source[j] in selectTables) {
                 continue;
             }
-            if (source[j].startsWith("sql")) {
-                source[j] = source[j].substring(source[j].indexOf("_") + 1);
-            }
-            if (source.length === 1) {
-                operation.args.source = prefix + source[j];
-            } else {
-                operation.args.source[j] = prefix + source[j];
+            if (!source[j].startsWith(prefix)) {
+                if (source.length === 1) {
+                    operation.args.source = prefix + source[j];
+                } else {
+                    operation.args.source[j] = prefix + source[j];
+                }
             }
         }
-        if (dest.startsWith("sql")) {
-            dest = dest.substring(dest.indexOf("_") + 1);
-        }
-        if (operation.args.dest !== finalTable) {
-            operation.args.dest = prefix + dest;
+        if (!dest.startsWith(prefix)) {
+            var newTableName = prefix + dest;
+            if (dest === finalTable) {
+                retStruct.tableName = newTableName;
+            }
+            operation.args.dest = newTableName;
         }
     }
-    return JSON.stringify(plan);
+    retStruct.query = JSON.stringify(plan);
+    return retStruct;
 }
 
 function executeSqlWithExtPlan(execid, planStr, rowsToFetch, sessionPrefix,
