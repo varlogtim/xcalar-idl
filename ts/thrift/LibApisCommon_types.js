@@ -10302,6 +10302,7 @@ XcalarApiTopOutputPerNodeT = function(args) {
   this.uptimeInSeconds = null;
   this.datasetUsedBytes = null;
   this.sysMemUsedInBytes = null;
+  this.publishedTableUsedBytes = null;
   if (args) {
     if (args.nodeId !== undefined && args.nodeId !== null) {
       this.nodeId = args.nodeId;
@@ -10353,6 +10354,9 @@ XcalarApiTopOutputPerNodeT = function(args) {
     }
     if (args.sysMemUsedInBytes !== undefined && args.sysMemUsedInBytes !== null) {
       this.sysMemUsedInBytes = args.sysMemUsedInBytes;
+    }
+    if (args.publishedTableUsedBytes !== undefined && args.publishedTableUsedBytes !== null) {
+      this.publishedTableUsedBytes = args.publishedTableUsedBytes;
     }
   }
 };
@@ -10489,6 +10493,13 @@ XcalarApiTopOutputPerNodeT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 18:
+      if (ftype == Thrift.Type.I64) {
+        this.publishedTableUsedBytes = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -10583,6 +10594,11 @@ XcalarApiTopOutputPerNodeT.prototype.write = function(output) {
   if (this.sysMemUsedInBytes !== null && this.sysMemUsedInBytes !== undefined) {
     output.writeFieldBegin('sysMemUsedInBytes', Thrift.Type.I64, 17);
     output.writeI64(this.sysMemUsedInBytes);
+    output.writeFieldEnd();
+  }
+  if (this.publishedTableUsedBytes !== null && this.publishedTableUsedBytes !== undefined) {
+    output.writeFieldBegin('publishedTableUsedBytes', Thrift.Type.I64, 18);
+    output.writeI64(this.publishedTableUsedBytes);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -20285,6 +20301,8 @@ XcalarApiTableInfoT = function(args) {
   this.sizeTotal = null;
   this.numRowsTotal = null;
   this.restoring = null;
+  this.userIdName = null;
+  this.sessionName = null;
   if (args) {
     if (args.name !== undefined && args.name !== null) {
       this.name = args.name;
@@ -20324,6 +20342,12 @@ XcalarApiTableInfoT = function(args) {
     }
     if (args.restoring !== undefined && args.restoring !== null) {
       this.restoring = args.restoring;
+    }
+    if (args.userIdName !== undefined && args.userIdName !== null) {
+      this.userIdName = args.userIdName;
+    }
+    if (args.sessionName !== undefined && args.sessionName !== null) {
+      this.sessionName = args.sessionName;
     }
   }
 };
@@ -20489,6 +20513,20 @@ XcalarApiTableInfoT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 14:
+      if (ftype == Thrift.Type.STRING) {
+        this.userIdName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 15:
+      if (ftype == Thrift.Type.STRING) {
+        this.sessionName = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -20599,6 +20637,16 @@ XcalarApiTableInfoT.prototype.write = function(output) {
   if (this.restoring !== null && this.restoring !== undefined) {
     output.writeFieldBegin('restoring', Thrift.Type.BOOL, 13);
     output.writeBool(this.restoring);
+    output.writeFieldEnd();
+  }
+  if (this.userIdName !== null && this.userIdName !== undefined) {
+    output.writeFieldBegin('userIdName', Thrift.Type.STRING, 14);
+    output.writeString(this.userIdName);
+    output.writeFieldEnd();
+  }
+  if (this.sessionName !== null && this.sessionName !== undefined) {
+    output.writeFieldBegin('sessionName', Thrift.Type.STRING, 15);
+    output.writeString(this.sessionName);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
