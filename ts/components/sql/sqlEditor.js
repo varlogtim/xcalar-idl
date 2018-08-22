@@ -274,7 +274,8 @@ window.SQLEditor = (function(SQLEditor, $) {
     SQLEditor.deleteSchemas = function(tableName, tableIds) {
         // Remove from KVStore & UI table list
         if ((!tableIds || tableIds.legnth === 0) && !sqlTables[tableName]) {
-            return PromiseHelper.resolve("Table doesn't exist");
+            $sqlTableList.find('li .unit[data-name="' + tableName + '"]').remove();
+            return updatePlanServer(undefined, "delete", undefined, [tableName]);
         }
         var allTables = [];
         // Create a copy for aysnc call

@@ -11,6 +11,9 @@ window.UExtIMD = (function(UExtIMD) {
             "type": "string",
             "name": "Published Table Name",
             "fieldClass": "pubTableName",
+            "typeCheck": {
+                "newTableName": true
+            }
         },
         {
             "type": "column",
@@ -34,6 +37,9 @@ window.UExtIMD = (function(UExtIMD) {
             "type": "string",
             "name": "Published Table Name",
             "fieldClass": "updateTable",
+            "typeCheck": {
+                "newTableName": true
+            }
         },
         {
             "type": "column",

@@ -8,7 +8,10 @@ window.UExtSQL = (function(UExtSQL) {
         "arrayOfFields": [{
             "type": "string",
             "name": "Table Name",
-            "fieldClass": "sqlTableName"
+            "fieldClass": "sqlTableName",
+            "typeCheck": {
+                "newTableName": true
+            }
         }]
     // },{
     //     "buttonText": "Finalize Table",

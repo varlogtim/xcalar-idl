@@ -13,6 +13,9 @@ window.UExtJdbcIMD = (function(UExtJdbcIMD) {
             "type": "string",
             "name": "Published Table Name",
             "fieldClass": "pubTableName",
+            "typeCheck": {
+                "newTableName": true
+            }
         },
         {
             "type": "column",
@@ -39,6 +42,9 @@ window.UExtJdbcIMD = (function(UExtJdbcIMD) {
             "type": "string",
             "name": "Published Table Name",
             "fieldClass": "updateTable",
+            "typeCheck": {
+                "newTableName": true
+            }
         },
         {
             "type": "column",
