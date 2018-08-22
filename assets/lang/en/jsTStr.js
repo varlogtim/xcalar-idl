@@ -356,7 +356,7 @@ ErrTStr = {
     'InUsedNoDelete': 'This parameter is currently in use. Delete is not supported.',
     'NoFolderPreview': 'Cannot preview directory. Please select a file.',
     'DuplicateColNames': 'Duplicate column names were detected',
-    'ColumnLimitExceeded': "Column Limit Exceeded",
+    'ColumnLimitExceeded': "Fields in data source exceed limit",
     'ParquetMustSelectNonPartitionCol': 'Must select at least one column that is not part of the partition keys',
     'CancelSearch': "Search is canceled",
     'MultipleWKBKErr': 'More than one workbook with same name found',

@@ -4817,8 +4817,8 @@ window.DSPreview = (function($, DSPreview) {
 
         if ($previewTable.find(".editableHead").length > gMaxDSColsSpec) {
             $previewTable.find("th").addClass("nonEditable");
-            var msg = "There are over " + gMaxDSColsSpec + " columns in " +
-                    "this dataset. Modifications of column names and types are not allowed.";
+            var msg = "Data source has more than " + gMaxDSColsSpec +
+            " fields. You can import data source but cannot change column names or cast data types during the import.";
 
             Alert.show({
                 title: ErrTStr.ColumnLimitExceeded,
