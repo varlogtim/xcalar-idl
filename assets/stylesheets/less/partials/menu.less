@@ -1,9 +1,24 @@
 #colMenu {
     overflow: hidden;
+
+    &.mode-modeling {
+        .addColumn, .splitCol, .changeDataType, .roundToFixed,
+        .project, .aggregate, .filter, .groupby, .map, .join, .union, .extensions, .divider {
+            display: none;
+        }
+    }
 }
 
 #colSubMenu {
     max-height: none;
+
+    &.mode-modeling {
+        .textAlign, .sort, .changeFormat, .typeList, .resize {
+            .xi-tick {
+                line-height: @height-modeling-col-menu;
+            }
+        }
+    }
 
     > ul {
         display: none;
@@ -673,6 +688,47 @@
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+.menu {
+    &.style-white {
+        background-color: @color-white;
+
+        @liHeight: @height-modeling-col-menu;
+        li {
+            background-color: @color-white;
+            border-bottom: 1px solid @color-border-softGray;
+            height: @liHeight;
+            .font(@color: @color-font-edge, @size: 10px, @line-height: @liHeight);
+            padding-top: 0px;
+            padding-bottom: 0px;
+            &.selected {
+                background-color: @color-selectedCell-light;
+            }
+            &.unavailable {
+                opacity: 1;
+                .icon, .label {
+                    .xc-unavailable;
+                }
+            }
+    
+            .icon, .label {
+                float: left;
+            }
+            .icon {
+                .font(@size: 10px, @line-height: @liHeight);
+                margin-right: 6px;
+                display: inline-block;
+                width: 10px;
+            }
+        }
+
+        .parentMenu {
+            &:after {
+                border-right-color: @color-font-edge;
             }
         }
     }

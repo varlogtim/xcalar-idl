@@ -1300,7 +1300,7 @@ declare namespace TblManager {
     export function adjustRowFetchQuantity(): void;
     export function generateTheadTbody(tableId: TableId): string;
     export function pullRowsBulk(tableId: TableId, jsonData: string[], startIndex: number, direction?: RowDirection, rowToPrependTo?): void;
-    export function addColListeners($table: JQuery, tableId: TableId): void;
+    export function addColListeners($table: JQuery, tableId: TableId, options: object): void;
 }
 
 declare namespace TblAnim {

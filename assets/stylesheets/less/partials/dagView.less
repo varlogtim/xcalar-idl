@@ -89,7 +89,6 @@
     @color-border-bar: #D4DCE3;
     @color-border-operator: #849CB0;
     @color-connector: #BBC7D1;
-    @color-edge: #627483;
     @operator-height: 28px;
     @operator-width: 90px;
 
@@ -151,7 +150,7 @@
                 font-size: 14px;
                 line-height: @category-height;
                 text-align: center;
-                color: #627483;
+                color: @color-font-edge;
                 cursor: pointer;
             }
         }
@@ -569,7 +568,7 @@
             cursor: pointer;
 
             .visibleLine {
-                stroke: @color-edge;
+                stroke: @color-font-edge;
                 stroke-width: 1px;
                 fill: none;
                 stroke-linecap: round;
@@ -858,7 +857,7 @@
         background-color: @color-white;
         border-bottom: 1px solid @color-border-softGray;
         height: @liHeight;
-        .font(@color: #627483, @size: 10px, @line-height: @liHeight);
+        .font(@color: @color-font-edge, @size: 10px, @line-height: @liHeight);
         padding-top: 0px;
         padding-bottom: 0px;
         &.selected {

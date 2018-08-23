@@ -305,6 +305,9 @@ window.TblFunc = (function(TblFunc, $) {
 
         var $table = $('#xcTableWrap-' + tableId);
         var $thead = $table.find('.xcTheadWrap');
+        if ($thead.length <= 0) {
+            return;
+        }
         var rect = $thead[0].getBoundingClientRect();
         var right = rect.right - widthChange;
         var mainFrameWidth = $('#mainFrame').width();

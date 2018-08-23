@@ -1561,6 +1561,10 @@ window.TblManager = (function($, TblManager) {
     }
 
     TblManager.updateHeaderAndListInfo = function(tableId) {
+        // XXX TODO, fix this hack
+        if ($("#xcTheadWrap-" + tableId).length <= 0) {
+            return;
+        }
         updateTableHeader(tableId);
         TableList.updateTableInfo(tableId);
         var $table = $('#xcTable-' + tableId);
@@ -2425,7 +2429,8 @@ window.TblManager = (function($, TblManager) {
         }
     }
 
-    TblManager.addColListeners = function($table, tableId) {
+    TblManager.addColListeners = function($table, tableId, extraOptions) {
+        extraOptions = extraOptions || {};
         var $thead = $table.find('thead tr');
         var $tbody = $table.find("tbody");
         var lastSelectedCell;
@@ -2616,6 +2621,9 @@ window.TblManager = (function($, TblManager) {
 
             options.colNum = colNum;
             options.classes = $el.closest('.header').attr('class');
+            if (extraOptions.modelingMode) {
+                options.classes += " style-white mode-modeling";
+            }
 
             if ($th.hasClass('indexedColumn')) {
                 options.classes += " type-indexed";

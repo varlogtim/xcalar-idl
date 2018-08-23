@@ -168,7 +168,7 @@ class XcTableViewer extends XcViewer {
 
         TblManager.pullRowsBulk(tableId, jsonData, 0);
         this._addTableListeners(tableId);
-        TblManager.addColListeners($table, tableId);
+        TblManager.addColListeners($table, tableId, {modelingMode: true});
 
         if (numRows === 0) {
             $table.find('.idSpan').text("");
