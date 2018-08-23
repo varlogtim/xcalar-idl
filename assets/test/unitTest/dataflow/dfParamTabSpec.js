@@ -2,11 +2,14 @@ describe("DFParamTab Test", function() {
     var getParamMapCache;
     var getParamMap;
     var updateParamMapCache;
+    var getDataflowCache;
     var $tab = $("#dfViz .tabWrap");
     before(function(done) {
         getParamMapCache = DF.getParamMapCache;
         getParamMap = DF.getParamMap;
         updateParamMapCache = DF.updateParamMap;
+        getDataflowCache = DF.getDataflow;
+
         DF.getParamMapCache = function() {};
         DF.getParamMap = function() {return {}};
 
@@ -33,9 +36,11 @@ describe("DFParamTab Test", function() {
                 return {test: {value: "test1", isEmpty: false}};
             };
 
+            $("#dfViz .cardMain").append("<div class='dagWrap test'></div>");
             $tab.click();
             expect($("#retPopUp").hasClass("active")).to.be.true;
             expect(called).to.be.true;
+            $("#dfViz .cardMain").remove(".test");
         });
 
         it("should close if clicking on tab", function() {
@@ -118,6 +123,17 @@ describe("DFParamTab Test", function() {
             DF.updateParamMap = function() {
                 called = true;
             };
+            DF.getDataflow = function(dag) {
+                return {
+                    checkParamInUse : function (dag) {
+                        return false;
+                    },
+                    paramMapInUsed : {
+                        "test": false,
+                        "test2": false
+                    }
+                }
+            }
 
             $("#retPopUp .paramDelete").eq(0).click();
             expect($("#retLists").find(".row").length).to.equal(5);
@@ -168,5 +184,6 @@ describe("DFParamTab Test", function() {
         DF.getParamMapCache = getParamMapCache;
         DF.getParamMap = getParamMap;
         DF.updateParamMap = updateParamMapCache;
+        DF.getDataflow = getDataflowCache;
     });
 });
