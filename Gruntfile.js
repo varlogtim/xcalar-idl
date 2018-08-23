@@ -1874,6 +1874,8 @@ module.exports = function(grunt) {
             // XXX It won't work until antlr4 is correctly packaged
             // grunt.task.run(BUILD_PARSER);
             grunt.task.run(BUILD_JS); // build js before html (built html will search for some js files to autogen script tags for, that only get generated here)
+            grunt.task.run(WEBPACK); // keep after build js because it builds from js files;
+                // not relying on any xd js files yet but in case this happens in future
             grunt.task.run(BUILD_HTML);
             grunt.task.run(CONSTRUCTOR_FILES);
             grunt.task.run(BUILD_EXTRA_TS);
@@ -3151,8 +3153,6 @@ module.exports = function(grunt) {
         // do before remove debug because the files might not exist until we run this
         grunt.task.run(TYPESCRIPT + ":" + buildFrom);
 
-        grunt.task.run(WEBPACK);
-
         // if bld flag given for rc option, remove debug comments first, before js minification
         if (grunt.option(BLD_FLAG_RC_SHORT) || grunt.option(BLD_FLAG_RC_LONG)) {
             grunt.task.run(REMOVE_DEBUG_COMMENTS + ':js');
@@ -3191,13 +3191,29 @@ module.exports = function(grunt) {
     }
 
     grunt.task.registerTask(WEBPACK, function() {
+        run_webpack_binary();
+        clean_webpack(); // keep clean sep from running webpack in case
+            // all clean functionality shifted to end of build
+    });
+
+    function run_webpack_binary() {
         var oldFatal = shelljs.config.fatal;
         shelljs.config.fatal = true;
         var webpackBin = SRCROOT + "node_modules/.bin/webpack";
         var webpackCmd = webpackBin + " --env.production" + " --env.buildroot=" + BLDROOT;
         shelljs.exec(webpackCmd, {cwd:SRCROOT});
         shelljs.config.fatal = oldFatal;
-    });
+    }
+
+    function clean_webpack() {
+        var webpack_paths_to_clean = ["assets/js/parser/"];
+        for (var webpack_req of webpack_paths_to_clean) {
+            var fullPath = BLDROOT + webpack_req;
+            grunt.log.writeln("Delete webpack file/dir " + fullPath + " ... ");
+            grunt.file.delete(fullPath);
+            grunt.log.ok();
+        }
+    }
 
     // @filepathRelBld - bld only single ts file (should be rel bldroot)
     grunt.task.registerTask(TYPESCRIPT, 'Build TS portion of build', function(executeFrom, buildTo) {
@@ -3346,11 +3362,6 @@ module.exports = function(grunt) {
                 grunt.log.ok();
             }
         }
-        // Clean up temp parser files
-        var tempParserPath = BLDROOT + "assets/js/parser";
-        grunt.log.write("Delete file/dir " + tempParserPath + " ... ");
-        grunt.file.delete(tempParserPath);
-        grunt.log.ok();
     });
 
     /**
