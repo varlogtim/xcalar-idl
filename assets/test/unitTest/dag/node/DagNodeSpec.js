@@ -84,8 +84,8 @@ describe("Dag Node Basic Test", () => {
         node.beErrorState();
         expect(node.getState()).to.equal(DagNodeState.Error);
 
-        node.beUnusedState();
-        expect(node.getState()).to.equal(DagNodeState.Unused);
+        node.beRunningState();
+        expect(node.getState()).to.equal(DagNodeState.Running);
     });
 
     it("should get table", () => {
@@ -99,10 +99,10 @@ describe("Dag Node Basic Test", () => {
         expect(node.getTable()).to.equal("testName");
     });
 
-    it("should remove table", () => {
+    it("should remove table when running", () => {
         const node = new DagNode();
         node.setTable("testName");
-        node.removeTable();
+        node.beRunningState();
         expect(node.getTable()).to.be.undefined;
     });
 
@@ -238,9 +238,9 @@ describe("Dag Node Basic Test", () => {
         childNode.connectToParent(secondParentNode, 1);
         const serializedChild = childNode.serialize();
         expect(serializedChild).to.equal(
-            '{"parents":["' + node.getId() + '","' + secondParentNode.getId() +
-            '"],"type":"join","display":{"x":-1,"y":-1},"input":{},"id":"'
-            + childNode.getId() + '","state":"unused"}'
+            '{"type":"join","display":{"x":-1,"y":-1},"input":{},"id":"' +
+            childNode.getId() + '","state":"unused","parents":["' + node.getId() + 
+            '","' + secondParentNode.getId() +'"]}'
         );
     });
 
@@ -248,4 +248,5 @@ describe("Dag Node Basic Test", () => {
         const node = new DagNode();
         expect(node.getLineage()).to.be.instanceof(DagLineage);
     });
+
 });

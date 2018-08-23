@@ -17,12 +17,12 @@ describe("Export Dag Node Test", () => {
             columns: [{sourceColumn: "", destColumn: ""}],
             keepOrder: false,
             options: {
-                splitType: null,
-                headerType: null,
-                format: null,
-                createRule: null,
+                splitType: 2,
+                headerType: 1,
+                format: 2,
+                createRule: 1,
                 handleName: "",
-                csvArgs: {fieldDelim: "", recordDelim: ""}
+                csvArgs: {fieldDelim: "\t", recordDelim: "\n"}
             }
         });
     });

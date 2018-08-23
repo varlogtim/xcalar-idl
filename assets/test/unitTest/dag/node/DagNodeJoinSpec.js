@@ -13,7 +13,16 @@ describe("Join Dag Node Test", () => {
         const param = node.getParam();
         expect(param).to.deep.equal({
             joinType: "innerJoin",
-            columns: [[{sourceColumn: "", destColumn: "", columnType: ""}]],
+            left: {
+                casts: [null],
+                columns: [""],
+                rename: [{sourceColumn: "", destColumn: "", prefix: false}]
+            },
+            right: {
+                casts: [null],
+                columns: [""],
+                rename: [{sourceColumn: "", destColumn: "", prefix: false}]
+            },
             evalString: ""
         });
     });
@@ -21,7 +30,16 @@ describe("Join Dag Node Test", () => {
     it("should set parameter", () => {
         const testParam = {
             joinType: "innerJoin",
-            columns: [[{sourceColumn: "col", destColumn: "col_rename", columnType: "string"}]],
+            left: {
+                casts: [null],
+                columns: [""],
+                rename: [{sourceColumn: "col", destColumn: "col_rename", prefix: false}]
+            },
+            right: {
+                casts: [null],
+                columns: [""],
+                rename: [{sourceColumn: "col2", destColumn: "col_rename2", prefix: false}]
+            },
             evalString: ""
         };
         node.setParam(testParam);

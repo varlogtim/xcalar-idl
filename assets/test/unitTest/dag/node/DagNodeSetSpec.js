@@ -12,18 +12,18 @@ describe("Set Dag Node Test", () => {
     it("should get parameter", () => {
         const param = node.getParam();
         expect(param).to.deep.equal({
-            unionType: "unionStandard",
-            columns: [[{sourceColumn: "", destColumn: "", columnType: ""}]],
+            unionType: "union",
+            columns: [],
             dedup: false
         });
     });
 
     it("should set parameter", () => {
         const testParam = {
-            unionType: "unionStandard",
+            unionType: "union",
             columns: [
-                [{sourceColumn: "co1", destColumn: "union1", columnType: "string"}],
-                [{sourceColumn: "co1", destColumn: "union1", columnType: "string"}],
+                {sourceColumn: "co1", destColumn: "union1", columnType: "string"},
+                {sourceColumn: "co1", destColumn: "union1", columnType: "string"},
             ],
             dedup: true
         };

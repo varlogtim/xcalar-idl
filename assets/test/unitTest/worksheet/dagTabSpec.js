@@ -10,13 +10,22 @@ describe('DagTab Test', function() {
     before(function(done) {
         UnitTest.onMinMode();
         var dagTabManager = DagTabManager.Instance;
-        dagTabManager.setup();
-        dagTabManager.demoTabs();
-        $dagTabArea = $("#dagTabSectionTabs");
-        $dagTabs = $(".dagTab");
-        $newTabButton = $("#tabButton");
-        done();
-    });
+        if (!gDionysus) {
+            if (DagTabManager.Instance._unique_id == null) {
+                DagTabManager.Instance.setup();
+            }
+        }
+        UnitTest.testFinish(function() {
+            return $("#dagTabSectionTabs .dagTab").length > 0;
+        })
+        .then(() => {
+            dagTabManager.demoTabs();
+            $dagTabArea = $("#dagTabSectionTabs");
+            $newTabButton = $("#tabButton");
+            $dagTabs = $("#dagTabSectionTabs .dagTab")
+            done();
+        });
+});
 
     describe('Dag Tabs Test', function() {
 
