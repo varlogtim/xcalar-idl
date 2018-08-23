@@ -743,31 +743,9 @@ function getDerivedCol(txId, tableName, schema, dstTable) {
     return deferred.promise();
 }
 
-function upperQuery(query) {
-    var start = 0;
-    for (var i = 0; i < query.length;) {
-        if (query[i] === "\"" || query[i] === "'") {
-            var delimiter = query[i];
-            for (var j = i + 1; j < query.length; j++) {
-                if (query[j] === delimiter && query[j - 1] != "\\") {
-                    query = query.substring(0, start) + query.substring(start, i)
-                                        .toUpperCase() + query.substring(i);
-                    break;
-                }
-            }
-            i = j + 1;
-            start = j + 1;
-        } else {
-            i++;
-        }
-    }
-    query = query.substring(0, start) + query.substring(start).toUpperCase();
-    return query;
-}
-
 function getListOfPublishedTablesFromQueryViaParser(sqlStatement,
-    listOfPubTables, tablePrefix) {
-    var chars = new antlr4.InputStream(upperQuery(sqlStatement));
+    listOfPubTables) {
+    var chars = new antlr4.InputStream(sqlStatement.toUpperCase());
     var lexer = new SqlBaseLexer(chars);
     var tokens  = new antlr4.CommonTokenStream(lexer);
     var parser = new SqlBaseParser(tokens);
@@ -776,7 +754,6 @@ function getListOfPublishedTablesFromQueryViaParser(sqlStatement,
 
     var visitor = new TableVisitor();
     visitor.visitTables(tree);
-    var newQuery = visitor.getNewQuery(tree, tablePrefix);
 
     var tableIdentifiers = [];
     var errorTables = [];
@@ -804,11 +781,11 @@ function getListOfPublishedTablesFromQueryViaParser(sqlStatement,
         return "Please publish these tables first: " +
             JSON.stringify(errorTables);
     }
-    return {usedTables: tableIdentifiers, newQuery: newQuery};
+    return tableIdentifiers;
 }
 
 
-function sendToPlanner(allSchemas, queryStr, tableNames, username, wkbkName) {
+function sendToPlanner(sessionPrefix, allSchemas, queryStr, tableNames, username, wkbkName) {
     var type;
     var requestStruct;
     var method = "get";
@@ -834,11 +811,11 @@ function sendToPlanner(allSchemas, queryStr, tableNames, username, wkbkName) {
     var deferred = PromiseHelper.deferred();
     var url = "http://localhost:27000/xcesql/" + type + "/";
     if (type !== "sqlquery") {
-        url += encodeURIComponent(encodeURIComponent(username + "-wkbk-" +
-            wkbkName));
+        url += encodeURIComponent(encodeURIComponent(sessionPrefix + username +
+            "-wkbk-" + wkbkName));
     } else {
-        url += encodeURIComponent(encodeURIComponent(username + "-wkbk-" +
-            wkbkName)) + "/true/true";
+        url += encodeURIComponent(encodeURIComponent(sessionPrefix + username +
+            "-wkbk-" + wkbkName)) + "/true/true";
     }
 
     request({
@@ -958,14 +935,11 @@ function selectUsedPublishedTables(queryStr, tablePrefix) {
     var allSelects = {};
     var deferred = jQuery.Deferred();
     var error = false;
-    var newQuery;
 
     listPublishedTables("*")
     .then(function(allPubTableNames, res) {
-        var retStruct = getListOfPublishedTablesFromQueryViaParser(queryStr,
-            allPubTableNames, tablePrefix);
-        var usedTables = retStruct.usedTables;
-        newQuery = retStruct.newQuery;
+        var usedTables = getListOfPublishedTablesFromQueryViaParser(queryStr,
+                                                            allPubTableNames);
         if (typeof(usedTables) !== "object") {
             return PromiseHelper.reject("Cannot find all published tables");
         }
@@ -1006,7 +980,7 @@ function selectUsedPublishedTables(queryStr, tablePrefix) {
             }
         }
         deferred.resolve(selectPublishedTables(toSelect, allSchemas), allSchemas,
-            allSelects, newQuery);
+            allSelects);
     })
     .fail(deferred.reject);
     return deferred.promise();
@@ -1029,25 +1003,24 @@ function executeSqlWithExtQuery(execid, queryStr, rowsToFetch, sessionPrefix,
 
     var selectQuery = "";
     selectUsedPublishedTables(queryStr, sessionPrefix)
-    .then(function(selQuery, schemas, selects, newSqlQuery) {
+    .then(function(selQuery, schemas, selects) {
         allSelects = selects;
         selectQuery = selQuery;
-        queryStr = newSqlQuery;
         var schemasToSendToSqlDf = [];
         for (var pubTable in schemas) {
             var tableNameCol = {};
             tableNameCol["XC_TABLENAME_" + selects[pubTable]] = "string";
             schemas[pubTable].push(tableNameCol);
             schemasToSendToSqlDf.push({
-                tableName: sessionPrefix + pubTable,
+                tableName: pubTable,
                 tableColumns: schemas[pubTable]
             });
         }
-        return sendToPlanner(schemasToSendToSqlDf);
+        return sendToPlanner(sessionPrefix, schemasToSendToSqlDf);
     })
     .then(function () {
         // get logical plan
-        return sendToPlanner(undefined, queryStr);
+        return sendToPlanner(sessionPrefix, undefined, queryStr);
     })
     .then(function(planStr) {
         return setupAndCompile(queryName, planStr, option)
@@ -1069,9 +1042,9 @@ function executeSqlWithExtQuery(execid, queryStr, rowsToFetch, sessionPrefix,
         // Drop schema on planner
         var tableNames = [];
         for (var pubTable in allSelects) {
-            tableNames.push(sessionPrefix + pubTable);
+            tableNames.push(pubTable);
         }
-        sendToPlanner(undefined, undefined, tableNames);
+        sendToPlanner(sessionPrefix, undefined, undefined, tableNames);
         return getRowsAndCleanup(finalTable, orderedColumns, rowsToFetch,
             sessionPrefix, execid);
     })
@@ -1351,8 +1324,6 @@ function getColType(typeId) {
             return ColumnType.mixed;
         case DfFieldTypeT.DfFatptr:
             return null;
-        case DfFieldTypeT.DfScalarObj:
-            return ColumnType.integer;
         default:
             return null;
     }
