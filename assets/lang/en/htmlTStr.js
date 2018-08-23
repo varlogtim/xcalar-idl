@@ -1369,6 +1369,7 @@ module.exports = {
         "comment": "Comment",
         "execute": "Execute",
         "executeAll": "Execute All",
-        "previewTable": "Preview Table"
+        "previewTable": "Preview Table",
+        "autoAlign": "Auto Align"
     }
 };

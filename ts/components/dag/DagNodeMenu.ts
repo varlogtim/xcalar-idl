@@ -117,6 +117,9 @@ namespace DagNodeMenu {
                     break;
                 case ("comment"):
                     break;
+                case ("autoAlign"):
+                    DagView.autoAlign();
+                    break;
                 case ("exitOpPanel"):
                     MainMenu.closeForms();
                     break;

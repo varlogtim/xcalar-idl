@@ -334,6 +334,12 @@
             }
         }
 
+        .nodeid {
+            font-size: 8px;
+            text-align: center;
+            width: 100px;
+        }
+
         // &.selected, &.dragSelected {
         &.selected , &.selecting {
             .main, .iconArea, .statusIcon {
@@ -510,6 +516,7 @@
         .dataflowArea {
             min-height: 100%;
             min-width: 100%;
+            width: 100%;
             position: relative;
             display: none;
             background: transparent url("../../images/dagIcons/dag-backgroundA.png") repeat left top;
@@ -898,7 +905,7 @@
         }
     }
     &.backgroundMenu {
-        .removeAllNodes, .executeAllNodes, .selectAllNodes {
+        .removeAllNodes, .executeAllNodes, .selectAllNodes, .autoAlign {
             display: list-item;
         }
     }

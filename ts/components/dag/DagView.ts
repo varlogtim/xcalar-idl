@@ -4,6 +4,10 @@ namespace DagView {
     let $operatorBar: JQuery;
     let activeDag: DagGraph;
     let activeDagTab: DagTab;
+    const horzSpacing = 140; // spacing between nodes when auto-aligning
+    const vertSpacing = 60;
+    const horzPadding = 200;
+    const vertPadding = 100;
 
     export function setup(): void {
         if (gDionysus) {
@@ -319,7 +323,7 @@ namespace DagView {
      * @param dagId
      * @param nodeIds
      */
-    export function moveNodes(nodeIds: DagNodeId[], positions): XDPromise<void> {
+    export function moveNodes(nodeIds: DagNodeId[], positions: Coordinate[], graphDimensions?: Coordinate): XDPromise<void> {
         const offset = _getDFAreaOffset();
         let svg = d3.select("#dagView .dataflowArea.active .mainSvg");
         let oldPositions = [];
@@ -375,8 +379,12 @@ namespace DagView {
                      svg, offset);
             });
         });
+        if (graphDimensions) {
+            _setGraphDimensions(graphDimensions, true);
+        } else {
+            _setGraphDimensions({x: maxXCoor, y: maxYCoor});
+        }
 
-        _setGraphDimensions({x: maxXCoor, y: maxYCoor});
 
         Log.add(SQLTStr.MoveOperations, {
             "operation": SQLOps.MoveOperations,
@@ -390,7 +398,56 @@ namespace DagView {
 
     export function autoAlign() {
         const nodes: DagNode[] = activeDag.getSortedNodes();
-        console.log(nodes);
+        let treeGroups = {};
+        let seen = {};
+        for (let i = nodes.length - 1; i >= 0; i--) {
+            if (nodes[i].getChildren().length === 0) {
+                // group nodes into trees
+                splitIntoTrees(nodes[i], seen, treeGroups, i);
+            }
+        }
+
+        let startingWidth: number = 0;
+        const allNodeIds: DagNodeId[] = [];
+        const allCoors: Coordinate[] = [];
+        let overallMaxDepth = 0;
+
+        for (let i in treeGroups) {
+            const group = treeGroups[i];
+            const nodes = {};
+            alignNodes(group[0], nodes, startingWidth);
+            for (let j = 0; j < group.length; j++) {
+                if (group[j].getParents().length === 0) {
+                    // adjust positions of nodes so that children will never be
+                    // to the left of their parents
+                    adjustPositions(group[j], nodes, {});
+                }
+            }
+            let maxDepth = 0;
+            let maxWidth = 0;
+            let minDepth = 0;
+            for (let j in nodes) {
+                maxDepth = Math.max(nodes[j].depth, maxDepth);
+                minDepth = Math.min(nodes[j].depth, minDepth);
+                maxWidth = Math.max(nodes[j].width, maxWidth);
+            }
+            overallMaxDepth = Math.max(maxDepth - minDepth, overallMaxDepth);
+
+            for (let j in nodes) {
+                allNodeIds.push(j);
+                allCoors.push({
+                    x: ((maxDepth - nodes[j].depth) * horzSpacing) + 20,
+                    y: (nodes[j].width * vertSpacing) + 20
+                });
+            }
+            startingWidth = (maxWidth + 1);
+        }
+        const graphHeight = vertSpacing * (startingWidth - 1) + vertPadding;
+        const graphWidth = horzSpacing * overallMaxDepth  + horzPadding;
+        DagView.moveNodes(allNodeIds, allCoors, {
+            x: graphWidth,
+            y: graphHeight
+        });
     }
 
     export function previewTable(dagNodeId: string): XDPromise<void> {
@@ -743,19 +800,25 @@ namespace DagView {
         return $childConnector;
     }
 
-    function _setGraphDimensions(elCoors: Coordinate) {
+    function _setGraphDimensions(elCoors: Coordinate, force) {
         const $dfArea = $dagView.find(".dataflowArea.active");
-        const dimensions: Dimensions = activeDag.getDimensions();
-        const horzPadding = 200;
-        const vertPadding = 100;
-        let newWidth: number = Math.max(elCoors.x + horzPadding,
-                                        dimensions.width);
-        let newHeight: number = Math.max(elCoors.y + vertPadding,
-                                         dimensions.height);
+        if (force) {
+            activeDag.setDimensions(elCoors.x, elCoors.y);
+            $dfArea.css("min-width", elCoors.x);
+            $dfArea.css("min-height", elCoors.y);
+            $dfArea.find(".sizer").css("min-width", elCoors.x);
+        } else {
+            const dimensions: Dimensions = activeDag.getDimensions();
 
-        activeDag.setDimensions(newWidth, newHeight);
-        $dfArea.css("min-width", newWidth);
-        $dfArea.css("min-height", newHeight);
+            let newWidth: number = Math.max(elCoors.x + horzPadding,
+                                            dimensions.width);
+            let newHeight: number = Math.max(elCoors.y + vertPadding,
+                                            dimensions.height);
+
+            activeDag.setDimensions(newWidth, newHeight);
+            $dfArea.css("min-width", newWidth);
+            $dfArea.css("min-height", newHeight);
+        }
     }
 
     function _drawNode(node: DagNode, $dfArea: JQuery): JQuery {
@@ -773,6 +836,12 @@ namespace DagView {
         xcTooltip.add($node, {
             title: JSON.stringify(node.getParam(), null, 2)
         });
+
+        let abbrId = nodeId.slice(nodeId.indexOf(".") + 1);
+        abbrId = abbrId.slice(abbrId.indexOf(".") + 1);
+
+        // show id next to node
+        // $node.append('<div class="nodeid">' + abbrId + '</div>');
 
         // use .attr instead of .data so we can grab by selector
         $node.attr("data-nodeid", nodeId);
@@ -817,7 +886,7 @@ namespace DagView {
             y: parentRect.top + offset.top + 6
         };
 
-        let offsetTop = $childConnector.height() / 2;
+        let offsetTop = $childConnector.height() / 2 + 1;
         const childRect = $childConnector[0].getBoundingClientRect();
         const childCoors = {
             x: childRect.left + offset.left + 2,
@@ -866,5 +935,123 @@ namespace DagView {
                 DagTable.Instance.close();
             }
         });
+    }
+
+      // groups individual nodes into trees and joins branches with main tree
+    function splitIntoTrees(node, seen, treeGroups, groupId) {
+        const treeGroup = {};
+        formTreesHelper(node);
+        function formTreesHelper(node) {
+            const id = node.getId();
+            if (treeGroup[id]) { // already done
+                return;
+            }
+
+            if (seen[id] != null) { // we've encountered this node and it's
+            // part of another group so lets join its children to that group
+                const mainGroupId  = seen[id];
+                if (groupId === mainGroupId) {
+                    // already part of the same tree
+                    return;
+                }
+                for (var i in treeGroup) {
+                    seen[i] = mainGroupId; // reassigning nodes from current
+                    // group to the main group that has the id of "mainGroupId"
+                    let mainGroup = treeGroups[mainGroupId];
+                    mainGroup.push(treeGroup[i]);
+                }
+                delete treeGroups[groupId];
+                groupId = mainGroupId;
+                return;
+            }
+            treeGroup[id] = node;
+            seen[id] = groupId;
+            if (!treeGroups[groupId]) {
+                treeGroups[groupId] = [];
+            }
+            treeGroups[groupId].push(node);
+
+            const parents = node.getParents();
+            for (let i = 0; i < parents.length; i++) {
+                if (parents[i] != null) {
+                    formTreesHelper(parents[i]);
+                }
+            }
+        }
+    }
+    // sets endpoint to have depth:0, width:0. If endpoint is a join,
+    // then left parent will have depth:1, width:0 and right parent will have
+    // depth: 1, width: 1 and so on.
+    function alignNodes(node, seen, width) {
+        let greatestWidth = width;
+        alignHelper(node, 0, width);
+
+        function alignHelper(node, depth, width) {
+            const nodeId = node.getId();
+            if (seen[nodeId] != null) {
+                return;
+            }
+            seen[nodeId] = {
+                depth: depth,
+                width: width
+            };
+
+            greatestWidth = Math.max(width, greatestWidth);
+            const parents = node.getParents();
+
+            for (let i = 0; i < parents.length; i++) {
+                if (parents[i] != null &&
+                    seen[parents[i].getId()] == null) {
+                    let newWidth;
+                    if (i === 0) {
+                        newWidth = width;
+                    } else {
+                        newWidth = greatestWidth + 1;
+                    }
+                    alignHelper(parents[i], depth + 1, newWidth);
+                }
+            }
+            const children = node.getChildren();
+
+            let numChildrenDrawn = 0;
+            for (let i = 0; i < children.length; i++) {
+                if (seen[children[i].getId()] != null) {
+                    numChildrenDrawn++;
+                }
+            }
+
+            for (let i = 0; i < children.length; i++) {
+                if (seen[children[i].getId()] == null) {
+                    let newWidth;
+                    if (numChildrenDrawn === 0) {
+                        newWidth = width;
+                    } else {
+                        newWidth = greatestWidth + 1;
+                    }
+                    alignHelper(children[i], depth - 1,
+                                    newWidth);
+                    numChildrenDrawn++;
+                }
+            }
+        }
+    }
+
+    // adjust positions of nodes so that children will never be
+    // to the left of their parents
+    function adjustPositions(node, nodes, seen) {
+        seen[node.getId()] = true;
+        const children = node.getChildren();
+        for (let i = 0; i < children.length; i++) {
+            let diff = nodes[node.getId()].depth - nodes[children[i].getId()].depth;
+            let adjustmentNeeded = false;
+            if (diff <= 0) {
+                let adjustment = diff - 1;
+                nodes[children[i].getId()].depth += adjustment;
+                adjustmentNeeded = true;
+            }
+            if (adjustmentNeeded || seen[children[i].getId()] == null) {
+                adjustPositions(children[i], nodes, seen);
+            }
+        }
     }
 }
