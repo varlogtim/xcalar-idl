@@ -186,7 +186,7 @@ window.BottomMenu = (function($, BottomMenu) {
             if (!clickable) {
                 return;
             }
-            toggleSection($(this).index());
+            toggleSection($(this).index("#bottomMenuBarTabs .sliderBtn"));
         });
     }
 
@@ -203,7 +203,7 @@ window.BottomMenu = (function($, BottomMenu) {
         isMenuOpen = false;
         // recenter table titles if on workspace panel
         $("#bottomMenuBarTabs .sliderBtn.active").removeClass("active");
-        if (topMenuOpening && !isPoppedOut) {
+        if ((topMenuOpening && !isPoppedOut) ||  $("#container").hasClass("noWorkbookMenuBar")){
             noAnim();
         } else if ($("#workspacePanel").hasClass("active") && !isPoppedOut) {
             // do not need to adjust tables if closing menu when it's popped out
@@ -232,7 +232,7 @@ window.BottomMenu = (function($, BottomMenu) {
                 // disable closing if popped out
                 return;
             } else {
-                if (needsMainMenuBackOpen) {
+                if (needsMainMenuBackOpen || $("#container").hasClass("noWorkbookMenuBar")) {
                     hasAnim = false;
                 }
                 closeMenu();
@@ -281,6 +281,9 @@ window.BottomMenu = (function($, BottomMenu) {
             MainMenu.close(isBottomMenuOpening);
             noAnim();
             hasAnim = false;
+        }
+        if ($("#container").hasClass("noWorkbookMenuBar")) {
+            isBottomMenuOpening = true;
         }
 
         $menuPanel.addClass("open");

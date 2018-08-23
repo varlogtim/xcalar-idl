@@ -28,92 +28,6 @@
 <div id="menuBar" class="clearfix no-selection">
   <!-- maiu menu-->
   <div id="topMenuBarTabs" class="clearfix" <%= (dicts.tutor.name == 'workbookTut') ? 'data-introstep="w1-topMenu"' : '' %> >
-    <!-- workspace tab -->
-    <% if (!dicts.isTutor) { %>
-    <div id="workspaceTab" class="topMenuBarTab active">
-      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.ws %>">
-        <i class="icon xi-menu-worksheet fa-25"></i>
-      </div>
-      <div class="subTabs">
-        <div id="worksheetButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ws.WorksheetPanel %>">
-          <i class="icon xi_table"></i>
-        </div>
-      </div>
-    </div>
-    <% } else if (dicts.tutor.name == "workbookTut") { %>
-    <div id="workspaceTab" class="topMenuBarTab active mainMenuOpen" data-introstep="w1-workspaceBut">
-      <div class="mainTab">
-        <i class="icon xi-menu-worksheet fa-25"></i>
-      </div>
-    </div>
-    <% } else { %>
-    <div id="workspaceTab" class="topMenuBarTab mainMenuOpen">
-      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.ws %>">
-        <i class="icon xi-menu-worksheet fa-25"></i>
-      </div>
-    </div>
-    <% } %>
-
-    <div id="modelingDataflowTab" class="topMenuBarTab mainMenuOpen firstTouch">
-        <div id="dagButton" style="display: none;"  class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Dataflow Panel">
-            <i class="icon xi-dfg2"></i>
-        </div>
-    </div>
-
-    <!-- jupyter Tab -->
-    <div id="jupyterTab" class="topMenuBarTab mainMenuOpen noLeftPanel xd-only">
-      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Jupyter Notebook">
-        <i class="icon xi-menu-cli fa-20"></i>
-      </div>
-    </div>
-
-    <!-- datasets tab -->
-    <% if (!dicts.isTutor) { %>
-    <div id="dataStoresTab" class="topMenuBarTab firstTouch mainMenuOpen">
-      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.ds %>">
-        <i class="icon xi-menu-datastore fa-25"></i>
-      </div>
-      <div class="subTabs">
-        <div id="inButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ds.Import %>">
-          <i class="icon xi-import-dataset-double"></i>
-        </div>
-        <div id="targetButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ds.Targets %>">
-          <i class="icon xi-data-in"></i>
-        </div>
-        <div id="outButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.dsExport.Targets %>">
-          <i class="icon xi-data-out"></i>
-        </div>
-      </div>
-    </div>
-    <% } else if (dicts.tutor.name == "workbookTut") { %>
-    <div id="dataStoresTab" class="topMenuBarTab mainMenuOpen" data-introstep="w1-datastoresBut">
-      <div class="mainTab">
-        <i class="icon xi-menu-datastore fa-25"></i>
-      </div>
-      <div class="subTabs">
-        <div id="inButton" class="subTab active">
-          <i class="icon xi-import-dataset-double"></i>
-        </div>
-        <div id="outButton" class="subTab">
-          <i class="icon xi-data-out"></i>
-        </div>
-      </div>
-    </div>
-    <% } else { %>
-    <div id="dataStoresTab" class="topMenuBarTab active mainMenuOpen">
-      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.ds %>">
-        <i class="icon xi-menu-datastore fa-25"></i>
-      </div>
-      <div class="subTabs">
-        <div id="inButton" class="subTab active">
-          <i class="icon xi-import-dataset-double"></i>
-        </div>
-        <div id="outButton" class="subTab">
-          <i class="icon xi-data-out"></i>
-        </div>
-      </div>
-    </div>
-    <% } %>
 
     <!-- monitor tab -->
     <% if (dicts.tutor.name == "workbookTut") { %>
@@ -169,12 +83,54 @@
     </div>
     <% } %>
 
-    <!-- dataflow Tab -->
-    <div id="dataflowTab" class="topMenuBarTab mainMenuOpen firstTouch xd-only" <%= (dicts.tutor.name == 'workbookTut') ? 'data-introstep="w1-df"' : '' %> >
-      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.dataflow.dfs %>">
-        <i class="icon xi-dataflowgroup fa-20"></i>
+        <!-- datasets tab -->
+    <!--  TODO: Currently Datasets/etc don't work if no workbook is activated. This will come later. -->
+    <% if (!dicts.isTutor) { %>
+    <div id="dataStoresTab" class="topMenuBarTab firstTouch mainMenuOpen">
+      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.ds %>">
+        <i class="icon xi-menu-datastore fa-25"></i>
+      </div>
+      <div class="subTabs">
+        <div id="inButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ds.Import %>">
+          <i class="icon xi-import-dataset-double"></i>
+        </div>
+        <div id="targetButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ds.Targets %>">
+          <i class="icon xi-data-in"></i>
+        </div>
+        <div id="outButton" class="subTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.dsExport.Targets %>">
+          <i class="icon xi-data-out"></i>
+        </div>
       </div>
     </div>
+    <% } else if (dicts.tutor.name == "workbookTut") { %>
+    <div id="dataStoresTab" class="topMenuBarTab mainMenuOpen" data-introstep="w1-datastoresBut">
+      <div class="mainTab">
+        <i class="icon xi-menu-datastore fa-25"></i>
+      </div>
+      <div class="subTabs">
+        <div id="inButton" class="subTab active">
+          <i class="icon xi-import-dataset-double"></i>
+        </div>
+        <div id="outButton" class="subTab">
+          <i class="icon xi-data-out"></i>
+        </div>
+      </div>
+    </div>
+    <% } else { %>
+    <div id="dataStoresTab" class="topMenuBarTab active mainMenuOpen">
+      <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.ds %>">
+        <i class="icon xi-menu-datastore fa-25"></i>
+      </div>
+      <div class="subTabs">
+        <div id="inButton" class="subTab active">
+          <i class="icon xi-import-dataset-double"></i>
+        </div>
+        <div id="outButton" class="subTab">
+          <i class="icon xi-data-out"></i>
+        </div>
+      </div>
+    </div>
+    <% } %>
 
     <div id="imdTab" class="topMenuBarTab mainMenuOpen noLeftPanel firstTouch">
       <div id="imdButton" class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ws.IMDPanel %>">
@@ -182,23 +138,80 @@
       </div>
     </div>
 
+    <div id="topWkbkMenuBarTabs" class="clearfix" <%= (dicts.tutor.name == 'workbookTut') ? 'data-introstep="w1-topMenu"' : '' %> >
+      <!-- workspace tab -->
+      <% if (!dicts.isTutor) { %>
+      <div id="workspaceTab" class="topMenuBarTab active">
+        <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.ws %>">
+          <i class="icon xi-menu-worksheet fa-25"></i>
+        </div>
+        <div class="subTabs">
+          <div id="worksheetButton" class="subTab active" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.ws.WorksheetPanel %>">
+            <i class="icon xi_table"></i>
+          </div>
+        </div>
+      </div>
+      <% } else if (dicts.tutor.name == "workbookTut") { %>
+      <div id="workspaceTab" class="topMenuBarTab active mainMenuOpen" data-introstep="w1-workspaceBut">
+        <div class="mainTab">
+          <i class="icon xi-menu-worksheet fa-25"></i>
+        </div>
+      </div>
+      <% } else { %>
+      <div id="workspaceTab" class="topMenuBarTab mainMenuOpen">
+        <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.ws %>">
+          <i class="icon xi-menu-worksheet fa-25"></i>
+        </div>
+      </div>
+      <% } %>
+
+      <div id="modelingDataflowTab" class="topMenuBarTab mainMenuOpen firstTouch">
+          <div id="dagButton" style="display: none;"  class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Dataflow Panel">
+              <i class="icon xi-dfg2"></i>
+          </div>
+      </div>
+
+      <!-- jupyter Tab -->
+      <div id="jupyterTab" class="topMenuBarTab mainMenuOpen noLeftPanel">
+          <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="Jupyter Notebook">
+            <i class="icon xi-menu-cli fa-20"></i>
+          </div>
+      </div>
+
+      <!-- dataflow Tab -->
+      <div id="dataflowTab" class="topMenuBarTab mainMenuOpen firstTouch xd-only" <%= (dicts.tutor.name == 'workbookTut') ? 'data-introstep="w1-df"' : '' %> >
+        <div class="mainTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.dataflow.dfs %>">
+          <i class="icon xi-dataflowgroup fa-20"></i>
+        </div>
+      </div>
+
+    </div>
   </div>
   <!-- end main menu -->
 
   <!-- start bottom menu -->
   <% if (dicts.tutor.name == "workbookTut") { %>
   <div id="bottomMenuBarTabs" class="bottomButtonsArea no-selection clearfix" data-introstep="w1-bottomMenu">
-    <!-- extension tab -->
-    <div id="extensionTab" class="sliderBtn bottomMenuBarTab" data-introstep="w1-extensions">
-      <div class="mainTab">
-        <i class="icon xi-menu-extension fa-25"></i>
+    <div class="bottomWkbkMenuBarTabs">
+      <!-- extension tab -->
+      <div id="extensionTab" class="sliderBtn bottomMenuBarTab" data-introstep="w1-extensions">
+        <div class="mainTab">
+          <i class="icon xi-menu-extension fa-25"></i>
+        </div>
       </div>
-    </div>
 
-    <!-- log -->
-    <div id="logTab" class="sliderBtn bottomMenuBarTab" data-introstep="w1-log">
-      <div class="mainTab">
-        <i class="icon xi-menu-log fa-25"></i>
+      <!-- log -->
+      <div id="logTab" class="sliderBtn bottomMenuBarTab" data-introstep="w1-log">
+        <div class="mainTab">
+          <i class="icon xi-menu-log fa-25"></i>
+        </div>
+      </div>
+
+      <!-- sql -->
+      <div id="sqlTab" class="sliderBtn bottomMenuBarTab" data-toggle="tooltip" data-placement="right" data-container="body" title="SQL">
+          <div class="mainTab">
+            <i class="icon xi-menu-sql2 fa-25"></i>
+          </div>
       </div>
     </div>
 
@@ -206,13 +219,6 @@
     <div id="udfTab" class="sliderBtn bottomMenuBarTab" data-introstep="w1-udf">
       <div class="mainTab">
         <i class="icon xi-menu-udf fa-25"></i>
-      </div>
-    </div>
-
-    <!-- sql -->
-    <div id="sqlTab" class="sliderBtn bottomMenuBarTab" data-toggle="tooltip" data-placement="right" data-container="body" title="SQL">
-      <div class="mainTab">
-        <i class="icon xi-menu-sql2 fa-25"></i>
       </div>
     </div>
 
@@ -225,17 +231,26 @@
   </div>
   <% } else { %>
   <div id="bottomMenuBarTabs" class="bottomButtonsArea no-selection clearfix">
-    <!-- extension tab -->
-    <div id="extensionTab" class="sliderBtn bottomMenuBarTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.exts %>">
-      <div class="mainTab">
-        <i class="icon xi-menu-extension fa-25"></i>
+    <div class="bottomWkbkMenuBarTabs">
+      <!-- extension tab -->
+      <div id="extensionTab" class="sliderBtn bottomMenuBarTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.exts %>">
+        <div class="mainTab">
+          <i class="icon xi-menu-extension fa-25"></i>
+        </div>
       </div>
-    </div>
 
-    <!-- log -->
-    <div id="logTab" class="sliderBtn bottomMenuBarTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.Logs %>">
-      <div class="mainTab">
-        <i class="icon xi-menu-log fa-25"></i>
+      <!-- log -->
+      <div id="logTab" class="sliderBtn bottomMenuBarTab" data-toggle="tooltip" data-placement="right" data-container="body" title="<%= dicts.menuBar.Logs %>">
+        <div class="mainTab">
+          <i class="icon xi-menu-log fa-25"></i>
+        </div>
+      </div>
+
+      <!-- sql -->
+      <div id="sqlTab" class="sliderBtn bottomMenuBarTab xd-only" data-toggle="tooltip" data-placement="right" data-container="body" title="SQL">
+        <div class="mainTab">
+          <i class="icon xi-menu-sql2 fa-25"></i>
+        </div>
       </div>
     </div>
 
@@ -243,13 +258,6 @@
     <div id="udfTab" class="sliderBtn bottomMenuBarTab xd-only" data-toggle="tooltip" data-placement="right" data-container="body" title="UDF">
       <div class="mainTab">
         <i class="icon xi-menu-udf fa-25"></i>
-      </div>
-    </div>
-
-    <!-- sql -->
-    <div id="sqlTab" class="sliderBtn bottomMenuBarTab xd-only" data-toggle="tooltip" data-placement="right" data-container="body" title="SQL">
-      <div class="mainTab">
-        <i class="icon xi-menu-sql2 fa-25"></i>
       </div>
     </div>
 

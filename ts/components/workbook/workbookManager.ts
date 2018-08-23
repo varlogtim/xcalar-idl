@@ -1049,7 +1049,7 @@ namespace WorkbookManager {
             WorkbookPanel.show();
             const xcSocket: XcSocket = XcSocket.Instance;
             xcSocket.unregisterUserSession(activeWkbk);
-            $("#container").addClass("noWorkbook noMenuBar");
+            $("#container").addClass("noWorkbook noWorkbookMenuBar");
 
             return;
         }

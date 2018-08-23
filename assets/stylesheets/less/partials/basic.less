@@ -74,47 +74,20 @@ body {
 }
 
 #container {
-    // &.noMenuBar:not(.wkbkViewOpen):not(.workbookMode) {
-    &.noMenuBar {
-        @menuWidth: @width-bottomMenu - @width-sideMenuMinimized;
-        #menuBar {
+    &.noWorkbookMenuBar {
+        #topWkbkMenuBarTabs, .bottomWkbkMenuBarTabs {
             display: none;
         }
-        #mainMenu {
-            left: 0px;
-        }
-        #monitorMenu {
-            .minimizeBtn {
-                display: none;
-            }
-
-            .menuSection {
-                display: none;
-            }
-        }
-        .mainPanel {
-            width: 100%;
-            > .mainContent {
-                margin-left: @menuWidth + 10px;
-                background-color: @color-bg-body-gray;
-                .transition(0s all);
-            }
-            > .topBar {
-                padding-left: 68px;
-            }
-        }
     }
+    
     &.noWorkbook {
         #statusBar {
             margin-left: 0px;
             padding-left: 60px;
             width: 100%;
         }
-        .mainPanel {
-            display: none;
-        }
         #workspacePanel {
-            display: block;
+            display: none;
             #dagPanelContainer, .xcTableWrap, #rowInputArea {
                 display: none !important;
             }

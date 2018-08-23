@@ -2028,9 +2028,6 @@ body.xc-setup .workspaceArea {
   overflow: hidden;
   display: none;
 }
-#container.noMenuBar #menuBar {
-  display: none;
-}
 #container.noMenuBar #mainMenu {
   left: 0px;
 }

@@ -72,79 +72,6 @@
         include "../../util/menuScrollArea.html"
       </div>
     </section>
-
-    <!-- UDF Section -->
-    <section id="udfSection" class="menuSection no-selection">
-      <!-- Heading -->
-      <header class="heading draggable">
-        <h2><%= dicts.UDF.Header %></h2>
-      </header>
-      <!-- Content -->
-      <div class="menuContent">
-        <!-- Section to switch between editor and manager section -->
-        <section class="tabSection">
-          <!-- option for editor section -->
-          <div class="tab active" data-tab="udf-fnSection"><%= dicts.UDF.Editor %></div>
-          <!-- option manager section -->
-          <div class="tab" data-tab="udf-manager"><%= dicts.UDF.Manager %></div>
-        </section>
-
-        <!-- Main Content -->
-        <section class="mainSectionContainer">
-          <!-- Section to write function -->
-          <section id="udf-fnSection" class="mainSection">
-            <!-- topSection -->
-            <div class="topSection">
-              <button id="udf-upload-browse" class="btn action iconBtn" type="button">
-                <i class="icon xi-browse fa-15"></i>
-                <%= dicts.UDF.Browse %>
-              </button>
-              <input id="udf-upload-fileBrowser"  spellcheck="false" type="file" style="display: none;">
-              <div class="template">
-                <div class="title"><%= dicts.UDF.Template %>:</div>
-                <div id="udf-fnList" class="dropDownList">
-                  <input class="text" spellcheck="false" placeholder="<%= dicts.UDF.SelectTemplate %>" data-toggle="tooltip" data-container="body" data-placement="top">
-                  <div class="iconWrapper">
-                    <i class="icon xi-arrow-down"></i>
-                  </div>
-                  <div id="udf-fnMenu" class="list">
-                    <ul>
-                      <li name="blank"><%= dicts.UDF.BlankFunc %></li>
-                    </ul>
-                    include "../../util/menuScrollArea.html"
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- editSection -->
-            <div class="editSection">
-              <div class="editArea">
-                <textarea id="udf-codeArea"></textarea>
-              </div>
-            </div>
-            <!-- bottom section -->
-            <div class="bottomSection">
-              <input id="udf-fnName" class="action" type="text" spellcheck="false" placeholder="<%= dicts.UDF.NameHint %>">
-              <button id="udf-fnUpload" class="btn upload iconBtn action" type="button">
-                <i class="icon xi-add-udf fa-15"></i>
-                <span class="text"><%= dicts.UDF.ADD %></span>
-              </button>
-            </div>
-          </section>
-          <!-- Section to manager udfs -->
-          <section id="udf-manager" class="mainSection xc-hidden">
-            <div class="titleSection">
-              <header><%= dicts.UDF.Udfs %> (<span class="numUDF">0</span>)</header>
-              <i title="<%= dicts.common.Refresh %>" data-toggle="tooltip" data-container="body" class="refresh icon xi-refresh fa-17 xc-action"></i>
-            </div>
-            <div class="udfListSection"></div>
-          </section>
-          <!-- End of manager Section -->
-        </section>
-        <!-- End of Main Section -->
-      </div>
-    </section>
-    <!-- end of UDF Section -->
     <!-- SQL Section -->
     <section id="sqlSection" class="menuSection no-selection">
       <header class="heading draggable">
@@ -227,6 +154,80 @@
       </div>
     </section>
     <!-- end of SQL Section -->
+
+
+    <!-- UDF Section -->
+    <section id="udfSection" class="menuSection no-selection">
+      <!-- Heading -->
+      <header class="heading draggable">
+        <h2><%= dicts.UDF.Header %></h2>
+      </header>
+      <!-- Content -->
+      <div class="menuContent">
+        <!-- Section to switch between editor and manager section -->
+        <section class="tabSection">
+          <!-- option for editor section -->
+          <div class="tab active" data-tab="udf-fnSection"><%= dicts.UDF.Editor %></div>
+          <!-- option manager section -->
+          <div class="tab" data-tab="udf-manager"><%= dicts.UDF.Manager %></div>
+        </section>
+
+        <!-- Main Content -->
+        <section class="mainSectionContainer">
+          <!-- Section to write function -->
+          <section id="udf-fnSection" class="mainSection">
+            <!-- topSection -->
+            <div class="topSection">
+              <button id="udf-upload-browse" class="btn action iconBtn" type="button">
+                <i class="icon xi-browse fa-15"></i>
+                <%= dicts.UDF.Browse %>
+              </button>
+              <input id="udf-upload-fileBrowser"  spellcheck="false" type="file" style="display: none;">
+              <div class="template">
+                <div class="title"><%= dicts.UDF.Template %>:</div>
+                <div id="udf-fnList" class="dropDownList">
+                  <input class="text" spellcheck="false" placeholder="<%= dicts.UDF.SelectTemplate %>" data-toggle="tooltip" data-container="body" data-placement="top">
+                  <div class="iconWrapper">
+                    <i class="icon xi-arrow-down"></i>
+                  </div>
+                  <div id="udf-fnMenu" class="list">
+                    <ul>
+                      <li name="blank"><%= dicts.UDF.BlankFunc %></li>
+                    </ul>
+                    include "../../util/menuScrollArea.html"
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- editSection -->
+            <div class="editSection">
+              <div class="editArea">
+                <textarea id="udf-codeArea"></textarea>
+              </div>
+            </div>
+            <!-- bottom section -->
+            <div class="bottomSection">
+              <input id="udf-fnName" class="action" type="text" spellcheck="false" placeholder="<%= dicts.UDF.NameHint %>">
+              <button id="udf-fnUpload" class="btn upload iconBtn action" type="button">
+                <i class="icon xi-add-udf fa-15"></i>
+                <span class="text"><%= dicts.UDF.ADD %></span>
+              </button>
+            </div>
+          </section>
+          <!-- Section to manager udfs -->
+          <section id="udf-manager" class="mainSection xc-hidden">
+            <div class="titleSection">
+              <header><%= dicts.UDF.Udfs %> (<span class="numUDF">0</span>)</header>
+              <i title="<%= dicts.common.Refresh %>" data-toggle="tooltip" data-container="body" class="refresh icon xi-refresh fa-17 xc-action"></i>
+            </div>
+            <div class="udfListSection"></div>
+          </section>
+          <!-- End of manager Section -->
+        </section>
+        <!-- End of Main Section -->
+      </div>
+    </section>
+    <!-- end of UDF Section -->
 
     <!-- Help Section -->
     <section id="helpSection" class="menuSection no-selection">

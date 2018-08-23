@@ -47,6 +47,10 @@ namespace WorkbookPanel {
             $(this).blur();
             const $container: JQuery = $("#container");
             const $dialogWrap: JQuery = $("#dialogWrap");
+            if ($("#mainMenu").hasClass("open")) {
+                $("#mainMenu").removeClass("open");
+                $("#mainMenu").addClass("closed wasOpen");
+            }
 
             //remove the dataset hint
             $("#showDatasetHint").remove();
@@ -84,7 +88,11 @@ namespace WorkbookPanel {
                 } else {
                     // default, exit the workbook
                     WorkbookPanel.hide();
-                    $container.removeClass("monitorMode setupMode");
+                    $container.removeClass("monitorMode setupMode noWorkbookMenuBar");
+                    if ($("#mainMenu").hasClass("wasOpen")) {
+                        $("#mainMenu").addClass("open");
+                        $("#mainMenu").removeClass("closed wasOpen");
+                    }
                 }
             } else {
                 WorkbookPanel.show();
@@ -118,12 +126,12 @@ namespace WorkbookPanel {
     */
     export function show(isForceShow: boolean = false): void {
         $workbookPanel.show();
-        $("#container").addClass("workbookMode");
+        $("#container").addClass("workbookMode noWorkbookMenuBar");
 
         if (isForceShow) {
             getWorkbookInfo(isForceShow);
             $workbookPanel.removeClass("hidden"); // no animation if force show
-            $("#container").addClass("wkbkViewOpen noMenuBar");
+            $("#container").addClass("wkbkViewOpen");
         } else {
             setTimeout(function() {
                 $workbookPanel.removeClass("hidden");
@@ -149,11 +157,11 @@ namespace WorkbookPanel {
 
         if (immediate) {
             $workbookPanel.hide();
-            $("#container").removeClass("workbookMode noMenuBar");
+            $("#container").removeClass("workbookMode");
         } else {
             setTimeout(function() {
                 $workbookPanel.hide();
-                $("#container").removeClass("workbookMode noMenuBar");
+                $("#container").removeClass("workbookMode");
             }, 400);
         }
 
@@ -167,7 +175,7 @@ namespace WorkbookPanel {
     */
     export function forceShow(): void {
         // When it's forceShow, no older workbooks are displayed
-        $("#container").addClass("noWorkbook noMenuBar");
+        $("#container").addClass("noWorkbook noWorkbookMenuBar");
         $("#container").removeClass("wkbkViewOpen");
         WorkbookPanel.show(true);
     };
@@ -178,7 +186,7 @@ namespace WorkbookPanel {
     */
     export function goToMonitor(): void {
         $("#container").removeClass("setupMode wkbkViewOpen");
-        $("#container").addClass("monitorMode noMenuBar");
+        $("#container").addClass("monitorMode noWorkbookMenuBar");
         MainMenu.tempNoAnim();
 
         if (!MonitorPanel.isGraphActive()) {
@@ -195,7 +203,7 @@ namespace WorkbookPanel {
     */
     export function goToSetup(): void {
         $("#container").removeClass("monitorMode");
-        $("#container").addClass("setupMode noMenuBar");
+        $("#container").addClass("setupMode noWorkbookMenuBar");
         MainMenu.tempNoAnim();
         if ($("#monitor-setup").hasClass("firstTouch")) {
             $("#monitor-setup").removeClass("firstTouch");
@@ -701,6 +709,11 @@ namespace WorkbookPanel {
         if (!newTab) {
             if (activeWKBKId === workbookId) {
                 WorkbookPanel.hide();
+                if ($("#mainMenu").hasClass("wasOpen")) {
+                    $("#mainMenu").addClass("open");
+                    $("#mainMenu").removeClass("closed wasOpen");
+                }
+                $("#container").removeClass("noWorkbookMenuBar");
             } else {
                 alertActivate(workbookId, activeWKBKId)
                 .then(function() {
@@ -853,7 +866,7 @@ namespace WorkbookPanel {
         .then(function() {
             updateWorkbookInfoWithReplace($workbookBox, workbookId);
             if (isActiveWkbk) {
-                $("#container").addClass("noWorkbook noMenuBar");
+                $("#container").addClass("noWorkbook noWorkbookMenuBar");
             }
         })
         .fail(function(error) {
