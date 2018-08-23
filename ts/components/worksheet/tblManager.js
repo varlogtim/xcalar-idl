@@ -2622,7 +2622,7 @@ window.TblManager = (function($, TblManager) {
             options.colNum = colNum;
             options.classes = $el.closest('.header').attr('class');
             if (extraOptions.modelingMode) {
-                options.classes += " style-white mode-modeling";
+                options.modelingMode = true;
             }
 
             if ($th.hasClass('indexedColumn')) {

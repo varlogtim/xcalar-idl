@@ -64,6 +64,16 @@ class DagTable {
         $container.on("click", ".close", () => {
             this.close();
         });
+
+        const $tableBar = $container.find(".tableBar");
+        $tableBar.on("click", ".tableMenu", (event) => {
+            const options: xcHelper.DropdownOptions = {
+                classes: "tableMenu",
+                modelingMode: true
+            };
+
+            xcHelper.dropdownOpen($(event.target), $("#tableMenu"), options);
+        });
     }
 
     private _getContainer(): JQuery {

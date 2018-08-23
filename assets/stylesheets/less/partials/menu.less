@@ -1,24 +1,33 @@
-#colMenu {
-    overflow: hidden;
-
-    &.mode-modeling {
+.mode-modeling {
+    &#colMenu {
         .addColumn, .splitCol, .changeDataType, .roundToFixed,
         .project, .aggregate, .filter, .groupby, .map, .join, .union, .extensions, .divider {
             display: none;
         }
     }
-}
 
-#colSubMenu {
-    max-height: none;
-
-    &.mode-modeling {
+    &#colSubMenu {
         .textAlign, .sort, .changeFormat, .typeList, .resize {
             .xi-tick {
                 line-height: @height-modeling-col-menu;
             }
         }
     }
+
+    &#tableMenu {
+        .copyTableName, .makeTempTable, .deleteTable, .exportTable, .multiCast,
+        .moveTable, .divider, .exitOp {
+            display: none;
+        }
+    }
+}
+
+#colMenu {
+    overflow: hidden;
+}
+
+#colSubMenu {
+    max-height: none;
 
     > ul {
         display: none;

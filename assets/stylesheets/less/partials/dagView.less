@@ -673,6 +673,20 @@
             }
         }
 
+        .menuArea {
+            .size(@height: @div-h);
+            float: left;
+            margin-left: 10px;
+
+            .option {
+                .size(@width: 80px, @height: @div-h);
+                float: left;
+                background-color: @color-bg-white-two;
+                .font(@size: 12px, @line-height: @div-h);
+                text-align: center;
+            }
+        }
+
         .rowInputArea {
             .size(@min-width: 60px, @width: 60px, @height: @div-h);
             float: right;

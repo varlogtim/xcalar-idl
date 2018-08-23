@@ -122,6 +122,7 @@ namespace xcHelper {
         allowSelection?: boolean;
         prefix?: string;
         color?: string;
+        modelingMode?: boolean;
     }
 
     export interface ParsedEval {
@@ -5759,7 +5760,11 @@ namespace xcHelper {
         if (menuId === "tableMenu" || menuId === "colMenu" ||
             menuId === "cellMenu" || menuId === "prefixColorMenu"
         ) {
-            tableId = xcHelper.parseTableId($dropdownIcon.closest(".xcTableWrap"));
+            if (menuId === "tableMenu" && options.modelingMode) {
+                tableId = xcHelper.getTableId((DagTable.Instance.getTable());
+            } else {
+                tableId = xcHelper.parseTableId($dropdownIcon.closest(".xcTableWrap"));
+            }
         }
 
         $('.menu .selected').removeClass('selected');
@@ -5808,9 +5813,13 @@ namespace xcHelper {
             $menu.data("rowNum", options.rowNum);
         }
 
-        if (options.classes != null) {
+        let classes: string = options.classes;
+        if (classes != null) {
+            if (options.modelingMode) {
+                classes += " style-white mode-modeling";
+            }
             const showingHotKeys: boolean = $menu.hasClass("showingHotKeys");
-            const className: string = options.classes.replace("header", "");
+            const className: string = classes.replace("header", "");
             $menu.attr("class", "menu " + className);
             if ($subMenu) {
                 $subMenu.attr("class", "menu subMenu " + className);
