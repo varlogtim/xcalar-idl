@@ -8,16 +8,15 @@ expr
     | fn LPARENS RPARENS
     ;
 fnArgs
-    : value COMMA fnArgs
-    | value
+    : arg (COMMA arg)*
     ;
-value
+arg
     : expr
-    | INTEGER
-    | DECIMAL
-    | booleanValue
-    | STRING
-    | varName
+    | integerLiteral
+    | decimalLiteral
+    | booleanLiteral
+    | stringLiteral
+    | columnArg
     ;
 fn
     : moduleName COLON fnName
@@ -25,29 +24,49 @@ fn
     ;
 moduleName
     : IDENTIFIER
-    {if ($IDENTIFIER.text.match(/^[a-z_][a-zA-Z0-9_-]*$/) == null) {
+    {if (!xcHelper.checkNamePattern(PatternCategory.UDF, PatternAction.Check, $IDENTIFIER.text)) {
     throw SyntaxError('Invalid module name: ' + $IDENTIFIER.text);}}
     ;
 fnName
     : IDENTIFIER
-    {if ($IDENTIFIER.text.match(/^[a-z_][a-zA-Z0-9_]*$/) == null) {
+    {if (!xcHelper.checkNamePattern(PatternCategory.UDFFn, PatternAction.Check, $IDENTIFIER.text)) {
     throw SyntaxError('Invalid udf name: ' + $IDENTIFIER.text);}}
     ;
-varName
-    : prefix DOUBLECOLON colName
-    | colName
+columnArg
+    : prefix DOUBLECOLON colElement
+    | colElement
     ;
 prefix
     : IDENTIFIER
-    {if ($IDENTIFIER.text.match(/^[a-zA-Z0-9_-]{1,31}$/) == null) {
-    throw SyntaxError('Invalid prefix name: ' + $IDENTIFIER.text);}}
+    {if (xcHelper.validatePrefixName($IDENTIFIER.text, false, true)) {
+    throw SyntaxError(xcHelper.validatePrefixName($IDENTIFIER.text, false, true));
+    }}
+    ;
+colElement
+    : colName (DOT propertyName)*
     ;
 colName
     : IDENTIFIER
-    {if ($IDENTIFIER.text.match(/^(?!--.*)([a-zA-Z_^-](((?!--)[a-zA-Z0-9_^ -])*[a-zA-Z0-9_^-])?)$/) == null) {
-    throw SyntaxError('Invalid column name: ' + $IDENTIFIER.text);}}
+    {if ($IDENTIFIER.text.toUpperCase() != "NONE" && xcHelper.validateColName($IDENTIFIER.text, false, true)) {
+    throw SyntaxError(xcHelper.validateColName($IDENTIFIER.text, false, true));
+    }}
     ;
-booleanValue
+propertyName
+    : IDENTIFIER
+    {if (xcHelper.validateColName($IDENTIFIER.text, false, true)) {
+    throw SyntaxError(xcHelper.validateColName($IDENTIFIER.text, false, true));
+    }}
+    ;
+integerLiteral
+    : INTEGER
+    ;
+decimalLiteral
+    : DECIMAL
+    ;
+stringLiteral
+    : STRING
+    ;
+booleanLiteral
     : TRUE | FALSE
     ;
 // Lexer rules
@@ -55,6 +74,7 @@ TRUE: T R U E;
 FALSE: F A L S E;
 COLON: ':';
 DOUBLECOLON: '::';
+DOT: '.';
 COMMA: ',';
 LPARENS: '(';
 RPARENS: ')';

@@ -30,8 +30,8 @@ XEvalBaseVisitor.prototype.visitFnArgs = function(ctx) {
 };
 
 
-// Visit a parse tree produced by XEvalBaseParser#value.
-XEvalBaseVisitor.prototype.visitValue = function(ctx) {
+// Visit a parse tree produced by XEvalBaseParser#arg.
+XEvalBaseVisitor.prototype.visitArg = function(ctx) {
   return this.visitChildren(ctx);
 };
 
@@ -54,8 +54,8 @@ XEvalBaseVisitor.prototype.visitFnName = function(ctx) {
 };
 
 
-// Visit a parse tree produced by XEvalBaseParser#varName.
-XEvalBaseVisitor.prototype.visitVarName = function(ctx) {
+// Visit a parse tree produced by XEvalBaseParser#columnArg.
+XEvalBaseVisitor.prototype.visitColumnArg = function(ctx) {
   return this.visitChildren(ctx);
 };
 
@@ -66,14 +66,44 @@ XEvalBaseVisitor.prototype.visitPrefix = function(ctx) {
 };
 
 
+// Visit a parse tree produced by XEvalBaseParser#colElement.
+XEvalBaseVisitor.prototype.visitColElement = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 // Visit a parse tree produced by XEvalBaseParser#colName.
 XEvalBaseVisitor.prototype.visitColName = function(ctx) {
   return this.visitChildren(ctx);
 };
 
 
-// Visit a parse tree produced by XEvalBaseParser#booleanValue.
-XEvalBaseVisitor.prototype.visitBooleanValue = function(ctx) {
+// Visit a parse tree produced by XEvalBaseParser#propertyName.
+XEvalBaseVisitor.prototype.visitPropertyName = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by XEvalBaseParser#integerLiteral.
+XEvalBaseVisitor.prototype.visitIntegerLiteral = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by XEvalBaseParser#decimalLiteral.
+XEvalBaseVisitor.prototype.visitDecimalLiteral = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by XEvalBaseParser#stringLiteral.
+XEvalBaseVisitor.prototype.visitStringLiteral = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
+// Visit a parse tree produced by XEvalBaseParser#booleanLiteral.
+XEvalBaseVisitor.prototype.visitBooleanLiteral = function(ctx) {
   return this.visitChildren(ctx);
 };
 
