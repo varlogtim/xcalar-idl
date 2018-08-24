@@ -24,28 +24,28 @@ describe("TableManager Test", function() {
             });
         });
 
-        it("TableManager.refreshTable should handle set meta error", function(done) {
-            var oldFunc = XcalarMakeResultSetFromTable;
-            XcalarMakeResultSetFromTable = function() {
-                return PromiseHelper.reject({"error": "test"});
-            };
+        // it("TableManager.refreshTable should handle set meta error", function(done) {
+        //     var oldFunc = XcalarMakeResultSetFromTable;
+        //     XcalarMakeResultSetFromTable = function() {
+        //         return PromiseHelper.reject({"error": "test"});
+        //     };
 
-            var tableName = xcHelper.randName("test_orphan#ab");
-            var tableId = xcHelper.getTableId(tableName);
+        //     var tableName = xcHelper.randName("test_orphan#ab");
+        //     var tableId = xcHelper.getTableId(tableName);
 
-            TblManager.refreshTable([tableName])
-            .then(function() {
-                done("fail");
-            })
-            .fail(function(error) {
-                expect(error).to.exist;
-                expect(gTables).not.to.ownProperty(tableId);
-                done();
-            })
-            .always(function() {
-                XcalarMakeResultSetFromTable = oldFunc;
-            });
-        });
+        //     TblManager.refreshTable([tableName])
+        //     .then(function() {
+        //         done("fail");
+        //     })
+        //     .fail(function(error) {
+        //         expect(error).to.exist;
+        //         expect(gTables).not.to.ownProperty(tableId);
+        //         done();
+        //     })
+        //     .always(function() {
+        //         XcalarMakeResultSetFromTable = oldFunc;
+        //     });
+        // });
 
         it("TblManager.setOrphanedList should work", function() {
             var cache = gOrphanTables;

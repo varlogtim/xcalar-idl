@@ -829,24 +829,19 @@ namespace xcManager {
     function restoreActiveTable(tableId: string, worksheetId: string, failures: any[]): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let table: any = gTables[tableId];
-        let passedUpdate: boolean = false;
 
         table.beActive();
 
-        table.getMetaAndResultSet()
-        .then(function() {
-            passedUpdate = true;
-            const options: object = {
-                wsId: worksheetId,
-                atStartUp: true
-            };
-            return TblManager.parallelConstruct(tableId, null, options);
-        })
+        const options: object = {
+            wsId: worksheetId,
+            atStartUp: true
+        };
+        TblManager.parallelConstruct(tableId, null, options)
         .then(deferred.resolve)
         .fail(function(error) {
             failures.push("Add table " + table.getName() +
                         "fails: " + error.error);
-            if (!passedUpdate) {
+            if ($("#xcTable-" + tableId).length <= 0) {
                 table.beOrphaned();
                 WSManager.removeTable(tableId);
             }

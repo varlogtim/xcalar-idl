@@ -220,7 +220,7 @@ window.TblManager = (function($, TblManager) {
     TblManager.parallelConstruct = function(tableId, tableToReplace, options) {
         options = options || {};
         var deferred  = PromiseHelper.deferred();
-        var deferred1 = startBuildTable(tableId, tableToReplace, options);
+        var deferred1 = new XcTableInWSViewer(gTables[tableId], tableToReplace, options).render();
         var deferred2 = createDag(tableId, tableToReplace, options);
         var table = gTables[tableId];
 
@@ -230,7 +230,6 @@ window.TblManager = (function($, TblManager) {
             RowScroller.resize();
             $xcTableWrap.removeClass("building");
             $("#dagWrap-" + tableId).removeClass("building");
-            afterBuild(tableId, options);
             if ($('#mainFrame').hasClass('empty')) {
                 // first time to create table
                 $('#mainFrame').removeClass('empty');
@@ -1571,6 +1570,14 @@ window.TblManager = (function($, TblManager) {
         TblFunc.matchHeaderSizes($table);
     };
 
+    TblManager.updateTableHeader = function(tableId) {
+        return updateTableHeader(tableId);
+    };
+
+    TblManager.updateTableNameWidth = function($tableName) {
+        return updateTableNameWidth($tableName);
+    };
+
     // $tableWrap is optional
     TblManager.alignTableEls = function($tableWrap) {
         TblFunc.moveTableTitles($tableWrap);
@@ -1950,13 +1957,13 @@ window.TblManager = (function($, TblManager) {
             table = gTables[tableId];
         }
 
-        table.getMetaAndResultSet()
-        .then(function() {
+        // table.getMetaAndResultSet()
+        // .then(function() {
             // this is for the tableId not in gTables case
             gTables[tableId] = table;
             deferred.resolve();
-        })
-        .fail(deferred.reject);
+        // })
+        // .fail(deferred.reject);
 
         return deferred.promise();
     }
@@ -2017,324 +2024,6 @@ window.TblManager = (function($, TblManager) {
         return deferred.promise();
     }
 
-
-    /*
-        Start the process of building table
-        Possible Options:
-        selectCol: number or array of numbers. column to be highlighted when
-                    table is ready
-        wsId
-    */
-    function startBuildTable(tableId, tableToReplace, options) {
-        var deferred = PromiseHelper.deferred();
-        var table = gTables[tableId];
-        var $table;
-        options = options || {};
-        var initialTableBuilt = false;
-
-        RowManager.getFirstPage(tableId)
-        .then(function(jsonData) {
-            // var oldId = xcHelper.getTableId(tableToReplace);
-            table.currentRowNumber = jsonData.length;
-            if (table.resultSetCount === 0) {
-                options.isEmpty = true;
-            }
-
-            generateTableShell(tableId, tableToReplace, options);
-            buildInitialTable(tableId, jsonData, options);
-            initialTableBuilt = true;
-
-            $table = $('#xcTable-' + tableId);
-            var requiredNumRows = Math.min(gMaxEntriesPerPage,
-                                              table.resultSetCount);
-            var numRowsStillNeeded = requiredNumRows -
-                                     $table.find('tbody tr').length;
-            if (numRowsStillNeeded > 0) {
-                var $firstRow = $table.find('tbody tr:first');
-                var topRowNum;
-                if (!$firstRow.length) {
-                    // if no rows were built on initial fetch
-                    topRowNum = 0;
-                } else {
-                    xcHelper.parseRowNum($firstRow);
-                }
-                var targetRow = table.currentRowNumber + numRowsStillNeeded;
-                var info = {
-                    "targetRow": targetRow,
-                    "lastRowToDisplay": targetRow,
-                    "bulk": false,
-                    "dontRemoveRows": true,
-                    "tableId": tableId,
-                    "currentFirstRow": topRowNum,
-                };
-
-                return RowManager.addRows(table.currentRowNumber,
-                                            numRowsStillNeeded,
-                                            RowDirection.Bottom, info);
-            } else {
-                return PromiseHelper.resolve();
-            }
-        })
-        .then(deferred.resolve)
-        .fail(function(error) {
-            if (!initialTableBuilt) {
-                console.error("startBuildTable fails!", error);
-                deferred.reject(error);
-            } else {
-                deferred.resolve();
-            }
-        })
-        .always(function() {
-            TblManager.removeWaitingCursor(tableId);
-        });
-        return deferred.promise();
-    }
-
-    function afterBuild(tableId, options) {
-        var $table = $('#xcTable-' + tableId);
-        var table = gTables[tableId];
-        var $lastRow = $table.find('tr:last');
-        var lastRowNum = xcHelper.parseRowNum($lastRow);
-        table.currentRowNumber = lastRowNum + 1;
-        if (options.selectCol != null &&
-            $('.xcTableWrap:not(.tableToRemove) th.selectedCell').length === 0)
-        {
-            if (typeof options.selectCol === "object") {
-                $table.find('th.col' + options.selectCol[0] +
-                            ' .flexContainer').mousedown();
-                for (var i = 0; i < options.selectCol.length; i++) {
-                    var $th = $table.find('th.col' + options.selectCol[i]);
-                    TblManager.highlightColumn($th, true);
-                }
-            } else {
-                $table.find('th.col' + options.selectCol +
-                        ' .flexContainer').mousedown();
-            }
-        } else if (tableId === gActiveTableId) {
-            if (table.resultSetCount === 0) {
-                $('#rowInput').val(0).data('val', 0);
-            } else {
-                RowScroller.genFirstVisibleRowNum();
-            }
-        }
-
-        autoSizeDataCol(tableId);
-        // position sticky row column on visible tables
-        TblFunc.matchHeaderSizes($table);
-    }
-
-
-    /*
-        Possible Options:
-        selectCol: number or array of numbers. column to be highlighted when
-                    table is ready
-    */
-    function buildInitialTable(tableId, jsonData, options) {
-        var numRows = jsonData.length;
-        var startIndex = 0;
-        var $table = $('#xcTable-' + tableId);
-        RowScroller.add(tableId);
-        options = options || {};
-
-        if (options.isEmpty && numRows === 0) {
-            console.log('no rows found, ERROR???');
-            $table.addClass('emptyTable');
-            jsonData = [""];
-        }
-
-        TblManager.pullRowsBulk(tableId, jsonData, startIndex);
-        addTableListeners(tableId);
-        createTableHeader(tableId);
-        TblManager.addColListeners($table, tableId);
-
-        var activeWS = WSManager.getActiveWS();
-        var tableWS = WSManager.getWSFromTable(tableId);
-        if ((activeWS === tableWS) &&
-            $('.xcTableWrap.worksheet-' + activeWS).length &&
-            $('.xcTableWrap.worksheet-' + activeWS).find('.tblTitleSelected')
-                                                   .length === 0) {
-            // if active worksheet and no other table is selected;
-            TblFunc.focusTable(tableId, true);
-        }
-
-        // highlights new cell if no other cell is selected
-        if (options.selectCol != null) {
-            if ($('.xcTable th.selectedCell').length === 0) {
-                var mousedown = fakeEvent.mousedown;
-                mousedown.bypassModal = true;
-                if (typeof options.selectCol === "object") {
-                    $table.find('th.col' + options.selectCol[0] +
-                            ' .flexContainer').trigger(mousedown);
-                    for (var i = 0; i < options.selectCol.length; i++) {
-                        var $th = $table
-                        .find('th.col' + options.selectCol[i]);
-                        TblManager.highlightColumn($th, true);
-                    }
-                } else {
-                    $table.find('th.col' + (options.selectCol) +
-                                ' .flexContainer').trigger(mousedown);
-                }
-            }
-        }
-
-        if (numRows === 0) {
-            $table.find('.idSpan').text("");
-        }
-    }
-
-    function createTableHeader(tableId) {
-        var $xcTheadWrap = $('<div id="xcTheadWrap-' + tableId +
-                             '" class="xcTheadWrap dataTable" ' +
-                             'data-id="' + tableId + '" ' +
-                             'style="top:0px;"></div>');
-        var lockIcon = "";
-        if (gTables[tableId].isNoDelete()) {
-            lockIcon = '<i class="lockIcon icon xi-lockwithkeyhole">' +
-                        '</i>';
-        }
-
-        $('#xcTableWrap-' + tableId).prepend($xcTheadWrap);
-        var tableTitleClass = "";
-        if (!$('.xcTable:visible').length) {
-            tableTitleClass = " tblTitleSelected";
-            $('.dagWrap.selected').removeClass('selected').addClass('notSelected');
-            $('#dagWrap-' + tableId).removeClass('notSelected')
-                                    .addClass('selected');
-        }
-
-        var html = '<div class="tableTitle ' + tableTitleClass + '">' +
-                        '<div class="tableGrab"></div>' +
-                        '<div class="labelWrap">' +
-                            '<label class="text" ></label>' +
-                        '</div>' +
-                        '<div class="dropdownBox" ' +
-                            'data-toggle="tooltip" ' +
-                            'data-placement="bottom" ' +
-                            'data-container="body" ' +
-                            'title="' + TooltipTStr.ViewTableOptions +
-                            '" >' +
-                            '<span class="innerBox"></span>' +
-                        '</div>' +
-                        lockIcon +
-                    '</div>';
-
-        $xcTheadWrap.prepend(html);
-
-        //  title's Format is tablename  [cols]
-        updateTableHeader(tableId);
-
-        // Event Listener for table title
-        $xcTheadWrap.on({
-            // must use keypress to prevent contenteditable behavior
-            "keypress": function(event) {
-                if (event.which === keyCode.Enter) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    renameTableHelper($(this));
-                }
-            },
-            "keydown": function(event) {
-                if (event.which === keyCode.Space) {
-                    // XXX temporary do not allow space
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-            }
-        }, ".tableTitle .text");
-
-        $xcTheadWrap.on({
-            "focus": function() {
-                var $tableName = $(this);
-                updateTableNameWidth($tableName);
-                TblFunc.moveTableTitles();
-            },
-            "blur": function() {
-                var tableId = $xcTheadWrap.data("id");
-                updateTableHeader(tableId);
-                TblFunc.moveTableTitles();
-            },
-            "input": function() {
-                var $tableName = $(this);
-                updateTableNameWidth($tableName);
-                TblFunc.moveTableTitles($tableName.closest('.xcTableWrap'));
-            }
-        }, ".tableTitle .tableName");
-
-        // trigger open table menu on .dropdownBox click
-        $xcTheadWrap.on('click', '.dropdownBox', function(event) {
-            var classes = "tableMenu";
-            var $dropdown = $(this);
-            var $tableWrap = $dropdown.closest('.xcTableWrap');
-
-
-            if ($tableWrap.hasClass('tableLocked')) {
-                classes += " locked";
-            }
-
-            if ($tableWrap.hasClass('tableHidden')) {
-                classes += " tableHidden";
-            }
-
-            var options = {"classes": classes};
-
-            if (event.rightClick) {
-                options.mouseCoors = {
-                    "x": event.pageX,
-                    "y": $tableWrap.offset().top + 30
-                };
-            }
-
-            xcHelper.dropdownOpen($dropdown, $('#tableMenu'), options);
-        });
-
-        // trigger open table menu on .dropdownBox right-click
-        $xcTheadWrap.on('contextmenu', '.dropdownBox', function(event) {
-            $(event.target).trigger('click');
-            event.preventDefault(); // prevent default browser's rightclick menu
-        });
-
-        $xcTheadWrap.on("click", ".lockIcon", function() {
-            Dag.removeNoDelete(tableId);
-            TblManager.removeTableNoDelete(tableId);
-            xcTooltip.hideAll();
-        });
-
-        // trigger open table menu on .tableGrab click
-        $xcTheadWrap.on('click', '.tableGrab', function(event) {
-            var $target = $(this);
-            // .noDropdown gets added during table drag
-            if (!$target.hasClass('noDropdown') &&
-                !$target.closest('.columnPicker').length) {
-                var click = $.Event("click");
-                click.rightClick = true;
-                click.pageX = event.pageX;
-                $target.siblings('.dropdownBox').trigger(click);
-                event.preventDefault();
-            }
-        });
-
-        // trigger open table menu on .tableGrab right-click
-        $xcTheadWrap.on('contextmenu', '.tableGrab, label.text, .lockIcon', function(event) {
-            var click = $.Event("click");
-            click.rightClick = true;
-            click.pageX = event.pageX;
-            $xcTheadWrap.find(".dropdownBox").trigger(click);
-            event.preventDefault();
-        });
-
-        // Change from $xcTheadWrap.find('.tableGrab').mousedown...
-        $xcTheadWrap.on('mousedown', '.tableGrab', function(event) {
-            // Not Mouse down
-            if (event.which !== 1) {
-                return;
-            }
-            TblAnim.startTableDrag($(this).parent(), event);
-        });
-
-        var $table = $('#xcTable-' + tableId);
-        $table.width(0);
-    }
-
     function updateTableHeader(tableId) {
         var table = gTables[tableId];
         var fullTableName = table.getName();
@@ -2367,46 +2056,6 @@ window.TblManager = (function($, TblManager) {
     function updateTableNameWidth($tableName) {
         var width = xcHelper.getTextWidth($tableName, $tableName.val());
         $tableName.width(width + 1);
-    }
-
-    function addTableListeners(tableId) {
-        var $xcTableWrap = $("#xcTableWrap-" + tableId);
-        var oldId = gActiveTableId;
-        $xcTableWrap.on("mousedown", ".lockedTableIcon", function() {
-            // handlers fire in the order that it's bound in.
-            // So we are going to handle this, which removes the background
-            // And the handler below will move the focus onto this table
-            var txId = $(this).data("txid");
-            if (txId == null) {
-                return;
-            }
-            xcTooltip.refresh($(".lockedTableIcon .iconPart"), 100);
-            QueryManager.cancelQuery(txId);
-            xcTooltip.hideAll();
-        });
-
-        $xcTableWrap.mousedown(function() {
-            if (gActiveTableId === tableId ||
-                $xcTableWrap.hasClass("tableLocked")) {
-                return;
-            } else {
-                var focusDag;
-                if (oldId !== tableId) {
-                    focusDag = true;
-                }
-                TblFunc.focusTable(tableId, focusDag);
-            }
-        }).scroll(function() {
-            $(this).scrollLeft(0); // prevent scrolling when colmenu is open
-            $(this).scrollTop(0); // prevent scrolling when colmenu is open
-        });
-
-        var $rowGrab = $("#xcTbodyWrap-" + tableId).find(".rowGrab.last");
-        $rowGrab.mousedown(function(event) {
-            if (event.which === 1) {
-                TblAnim.startRowResize($(this), event);
-            }
-        });
     }
 
     function addRowListeners($trs) {
@@ -3117,70 +2766,6 @@ window.TblManager = (function($, TblManager) {
         }
     };
 
-    // creates thead and cells but not the body of the table
-    function generateTableShell(tableId, tableToReplace, options) {
-        options = options || {};
-        var oldTableId = xcHelper.getTableId(tableToReplace);
-        // var isTableInActiveWS = WSManager.isTableInActiveWS(tableId);
-        var isTableInActiveWS = false;
-        var targetWS;
-        if (options.wsId) {
-            targetWS = options.wsId;
-        } else if (oldTableId != null) {
-            targetWS = WSManager.getWSFromTable(oldTableId);
-        } else {
-            targetWS = WSManager.getActiveWS();
-        }
-
-        if (WSManager.getActiveWS() === targetWS) {
-            isTableInActiveWS = true;
-        }
-
-        var tableClasses = isTableInActiveWS ? "" : "inActive";
-        tableClasses += " worksheet-" + targetWS;
-        var xcTableWrap =
-            '<div id="xcTableWrap-' + tableId + '"' +
-                ' class="xcTableWrap tableWrap building ' + tableClasses + '" ' +
-                'data-id="' + tableId + '">' +
-                '<div id="xcTbodyWrap-' + tableId + '" class="xcTbodyWrap" ' +
-                'data-id="' + tableId + '"></div>' +
-                '<div class="tableScrollBar">' +
-                    '<div class="sizer"></div>' +
-                '</div>' +
-            '</div>';
-        // creates a new table, completed thead, and empty tbody
-        if (options.atStartUp) {
-            $("#mainFrame").append(xcTableWrap);
-        } else if (oldTableId != null) {
-            var $oldTable =  $("#xcTableWrap-" + oldTableId);
-            $oldTable.after(xcTableWrap);
-        } else {
-            var position = xcHelper.getTableIndex(targetWS, options.position,
-                                         '.xcTableWrap');
-            if (position === 0) {
-                $("#mainFrame").prepend(xcTableWrap);
-            } else {
-                var $prevTable = $(".xcTableWrap:not(.building)")
-                                                .eq(position - 1);
-                if ($prevTable.length) {
-                    $prevTable.after(xcTableWrap);
-                } else {
-                    $("#mainFrame").append(xcTableWrap); // shouldn't happen
-                }
-            }
-        }
-
-        var tableShell = TblManager.generateTheadTbody(tableId);
-        var tableHtml =
-            '<table id="xcTable-' + tableId + '" class="xcTable dataTable" ' +
-            'style="width:0px;" data-id="' + tableId + '">' +
-                tableShell +
-            '</table>' +
-            '<div class="rowGrab last"></div>';
-
-        $('#xcTbodyWrap-' + tableId).append(tableHtml);
-    }
-
     function resetColMenuInputs($el) {
         var tableId = xcHelper.parseTableId($el.closest('.xcTableWrap'));
         var $menu = $('#colMenu-' + tableId);
@@ -3262,31 +2847,6 @@ window.TblManager = (function($, TblManager) {
             '</th>';
 
         return (newTable);
-    }
-
-    function renameTableHelper($div) {
-        var $tableName = $div.find(".tableName");
-        var newName = $tableName.val().trim();
-        var $th = $div.closest('.xcTheadWrap');
-        var tableId = xcHelper.parseTableId($th);
-        var newTableName = newName + "#" + tableId;
-        var oldTableName = gTables[tableId].getName();
-
-        if (newTableName === oldTableName) {
-            $div.blur();
-            return;
-        }
-
-        var isValid = xcHelper.tableNameInputChecker($tableName);
-        if (isValid) {
-            xcFunction.rename(tableId, newTableName)
-            .then(function() {
-                $div.blur();
-            })
-            .fail(function(error) {
-                StatusBox.show(error, $div, false);
-            });
-        }
     }
 
     // returns arrays of deletable and non-deletable tables
@@ -3498,42 +3058,6 @@ window.TblManager = (function($, TblManager) {
         }
         table.beDropped();
         gDroppedTables[table.tableId] = table;
-    }
-
-    function autoSizeDataCol(tableId) {
-        var progCols = gTables[tableId].tableCols;
-        var numCols = progCols.length;
-        var dataCol;
-        var dataColIndex;
-        for (var i = 0; i < numCols; i++) {
-            if (progCols[i].isDATACol()) {
-                dataCol = progCols[i];
-                dataColIndex = i + 1;
-                break;
-            }
-        }
-        if (dataCol.width === "auto") {
-            var winWidth = $(window).width();
-            var maxWidth = 200;
-            var minWidth = 150;
-            if (winWidth > 1400) {
-                maxWidth = 300;
-            } else if (winWidth > 1100) {
-                maxWidth = 250;
-            }
-            if (dataCol.hasMinimized()) {
-                dataCol.width = minWidth;
-                return;
-            } else {
-                dataCol.width = minWidth;
-            }
-            var $th = $('#xcTable-' + tableId).find('th.col' + dataColIndex);
-            TblFunc.autosizeCol($th, {
-                "fitAll": true,
-                "minWidth": minWidth,
-                "maxWidth": maxWidth
-            });
-        }
     }
 
     function isMultiColumn() {

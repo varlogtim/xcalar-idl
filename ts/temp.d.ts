@@ -744,6 +744,7 @@ declare namespace TooltipTStr {
     export var CancelSearch: string;
     export var UnionSearch: string;
     export var Distinct: string;
+    export var ViewTableOptions: string;
 }
 
 declare namespace SuccessTStr{
@@ -1260,7 +1261,7 @@ declare namespace MonitorGraph {
 }
 
 declare namespace TblFunc {
-    export function moveTableTitles(): void;
+    export function moveTableTitles(tableWraps? :JQuery): void;
     export function focusTable(tableId: TableId): void;
     export function hideOffScreenTables(options: object): void;
     export function moveTableTitles($tableWraps: JQuery | null, options: object): void;
@@ -1271,6 +1272,8 @@ declare namespace TblFunc {
     export function isTableScrollable(tableId): boolean;
     export function autosizeCol($el: JQuery, options: object): void;
     export function getWidestTdWidth($el: JQuery, options: object): number;
+    export function focusTable(tableId: TableId, focusDag: boolean);
+    export function matchHeaderSizes($table: JQuery): void;
 }
 
 declare namespace TableList {
@@ -1301,11 +1304,17 @@ declare namespace TblManager {
     export function generateTheadTbody(tableId: TableId): string;
     export function pullRowsBulk(tableId: TableId, jsonData: string[], startIndex: number, direction?: RowDirection, rowToPrependTo?): void;
     export function addColListeners($table: JQuery, tableId: TableId, options: object): void;
+    export function highlightColumn($th: JQuery, keepOthersSelected: boolean);
+    export function updateTableHeader(tableId: TableId): void;
+    export function updateTableNameWidth($tableName: JQuery): void;
+    export function removeTableNoDelete(tableId: TableId): void;
+    export function removeWaitingCursor(tableId: TableId);
 }
 
 declare namespace TblAnim {
     export function startRowResize($el: JQuery, event: JQueryMouseEventObject): void;
     export function startColResize($el: JQuery, event: JQueryMouseEventObject, options: object): void;
+    export function startTableDrag($el: JQuery, event: JQueryMouseEventObject): void
 }
 
 declare namespace RowManager {
@@ -1379,6 +1388,8 @@ declare namespace WSManager {
 
 declare namespace Dag {
     export function addEventListeners($dagWrap: JQuery): void;
+    export function removeNoDelete(tableId: TableId): void;
+
 }
 
 declare namespace DagDraw {

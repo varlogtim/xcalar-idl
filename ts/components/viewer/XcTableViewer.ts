@@ -1,10 +1,12 @@
 class XcTableViewer extends XcViewer {
-    private table: TableMeta;
+    protected table: TableMeta;
+    protected modelingMode: boolean;
 
     public constructor(table: TableMeta) {
         const id: string = table.getName(); // use table name as unique id
         super(id);
         this.table = table;
+        this.modelingMode = true;
         this._addEventListeners();
     }
 
@@ -35,6 +37,9 @@ class XcTableViewer extends XcViewer {
 
         return deferred.promise();
     }
+
+    protected _afterGenerateTableShell(): void {};
+    protected _afterBuildInitialTable(_tableId: TableId): void {};
 
     private _addEventListeners(): void {
         // XXX this is still buggy, need update!
@@ -84,21 +89,20 @@ class XcTableViewer extends XcViewer {
             initialTableBuilt = true;
 
             const $table: JQuery = $('#xcTable-' + tableId);
-            var requiredNumRows = Math.min(gMaxEntriesPerPage,
+            const requiredNumRows: number = Math.min(gMaxEntriesPerPage,
                                               table.resultSetCount);
-            var numRowsStillNeeded = requiredNumRows -
-                                     $table.find('tbody tr').length;
+            const numRowsStillNeeded: number = requiredNumRows - $table.find('tbody tr').length;
             if (numRowsStillNeeded > 0) {
-                var $firstRow = $table.find('tbody tr:first');
-                var topRowNum;
+                const $firstRow: JQuery = $table.find('tbody tr:first');
+                let topRowNum: number;
                 if (!$firstRow.length) {
                     // if no rows were built on initial fetch
                     topRowNum = 0;
                 } else {
                     xcHelper.parseRowNum($firstRow);
                 }
-                var targetRow = table.currentRowNumber + numRowsStillNeeded;
-                var info = {
+                const targetRow: number = table.currentRowNumber + numRowsStillNeeded;
+                const info: object = {
                     "targetRow": targetRow,
                     "lastRowToDisplay": targetRow,
                     "bulk": false,
@@ -115,7 +119,7 @@ class XcTableViewer extends XcViewer {
             }
         })
         .then(deferred.resolve)
-        .fail(function(error) {
+        .fail((error) => {
             if (!initialTableBuilt) {
                 console.error("startBuildTable fails!", error);
                 deferred.reject(error);
@@ -148,7 +152,8 @@ class XcTableViewer extends XcViewer {
             '</table>' +
             '<div class="rowGrab last"></div>';
 
-        $('#xcTbodyWrap-' + tableId).append(tableHtml);
+        this.getView().find(".xcTbodyWrap").append(tableHtml);
+        this._afterGenerateTableShell();
     }
 
     private _buildInitialTable(
@@ -168,14 +173,17 @@ class XcTableViewer extends XcViewer {
 
         TblManager.pullRowsBulk(tableId, jsonData, 0);
         this._addTableListeners(tableId);
-        TblManager.addColListeners($table, tableId, {modelingMode: true});
+        TblManager.addColListeners($table, tableId, {
+            modelingMode: this.modelingMode
+        });
 
         if (numRows === 0) {
             $table.find('.idSpan').text("");
         }
+        this._afterBuildInitialTable(tableId);
     }
 
-    private _afterBuild(): void {
+    protected _afterBuild(): void {
         const tableId: TableId = this.table.getId();
         const $table: JQuery = $('#xcTable-' + tableId);
         const table: TableMeta = this.table;
@@ -224,7 +232,7 @@ class XcTableViewer extends XcViewer {
         }
     }
 
-    private _addTableListeners(tableId: TableId): void {
+    protected _addTableListeners(tableId: TableId): void {
         const $xcTableWrap: JQuery = $("#xcTableWrap-" + tableId);
         $xcTableWrap.scroll(function() {
             $(this).scrollLeft(0); // prevent scrolling when colmenu is open
