@@ -1023,7 +1023,7 @@ namespace WorkbookPanel {
         });
     }
 
-    function wbDuplicateName(wbName: string, workbooks: object, n: number): string {
+    export function wbDuplicateName(wbName: string, workbooks: object, n: number): string {
         if (n >= 10) {
             console.log("Too many attempts to find unique name.");
             return xcHelper.randName(wbName);

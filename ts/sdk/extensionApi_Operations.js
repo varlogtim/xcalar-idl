@@ -434,11 +434,15 @@ window.XcSDK.Extension.prototype = (function() {
             return XIApi.createDataTarget(targetType, targetName, targetParams);
         },
         deleteDataTarget: function(targetName) {
-            // Currently licenseMgr is the only extension that invokes this. We
+            // Currently licenseMgr and tutorialsSetup are the only
+            // extension that invokes this. We
             // restrict the name to avoid unintentionally deleting other targets
             if (targetName.startsWith("licenseMgr_")) {
                 return XIApi.deleteDataTarget(targetName);
-            } else {
+            } else if (targetName.startsWith("XcalarSample")) {
+                return XIApi.deleteDataTarget(targetName);
+            }
+            else {
                 var deferred = PromiseHelper.deferred();
                 deferred.reject("Delete target operation is not supported yet");
                 return deferred.promise();

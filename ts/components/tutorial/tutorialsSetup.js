@@ -1,4 +1,5 @@
 window.TutorialsSetup = (function($, TutorialsSetup) {
+
     TutorialsSetup.setup = function() {
         Intro.setOptions({
             onComplete: function() {
@@ -67,6 +68,62 @@ window.TutorialsSetup = (function($, TutorialsSetup) {
             // };
 
             introHelper('workbookTut', WalkThroughTStr.w1, options);
+        });
+
+        $('#sampleWorkbook').click(function() {
+            // var targetName = "Sample Workbook Generator";
+            // var targetType = "memory"; // corresponds to 'Generated'
+            var targetName = "XcalarSampleWorkbookAzure";
+            var targetType = "azblobfullaccount"; // corresponds to 'Azure"
+            var targetParams = {"account_name": "xcdatasetswestus2",
+                                "sas_token":
+            "?sv=2017-11-09&ss=bfqt&srt=sco&sp=rwdlacup&se=2018-10-01T04:44:34Z&st=2018-08-23T20:44:34Z&spr=https&sig=v1SoHWE3wWq6DgmWKHunJaQsAw%2FrDARVVzQPBLyP%2BWY%3D"
+            };
+
+            var wbName = "SampleWorkbook";
+            var description = "This workbook holds the solutions and explanations" +
+                " to Xcalar Adventure - Data Prep. It not only contains the whole dataflow" + 
+                " It not only contains the whole dataflow from importing the data to the" +
+                " last question of the Xcalar Adventure, but also provides the flexibility" +
+                " to revert back to any intermediate table, allowing maximum flexibility" +
+                " for the inquisitive minds to get the hang of Xcalar Design."
+            // Add target
+            XcalarTargetList()
+            .then(function(targetList) {
+
+                for (var ii = 0; ii < targetList.length; ii++) {
+                    if (targetList[ii].name === targetName) {
+                        return XIApi.deleteDataTarget(targetName);
+                    }
+                }
+                return PromiseHelper.resolve();
+            })
+            .then(function() {
+                return XIApi.createDataTarget(targetType, targetName, targetParams);
+            })
+            .then(function() {
+                // upload workbook
+                var wkbkBlob = "tutorialWkbk/SampleWorkbook.tar.gz";
+                var wkbkContainer = "netstore";
+                // example url: https://myaccount.blob.core.windows.net/mycontainer/myblob
+                const blobUri = 'https://' + targetParams.account_name + '.blob.core.windows.net';
+                // const blobService = AzureStorage.Blob
+                // .createBlobServiceWithSas(blobUri, targetParams.sas_token);
+                var downloadLink = blobUri + '/' + wkbkContainer
+                + '/' + wkbkBlob + targetParams.sas_token;
+                const workbooks = WorkbookManager.getWorkbooks();
+                wbName = WorkbookPanel.wbDuplicateName("SampleWorkbook", workbooks, 0);
+                var req = new Request(downloadLink);
+                fetch(req)
+                .then(function(response) { return response.blob(); })
+                .then(function(myBlob) {
+                    return WorkbookPanel.createNewWorkbook(wbName, description, myBlob);
+                })
+                .catch(function(error) {
+                    handleError(error);
+                })
+            })
+
         });
 
         $('#datastoreWT1').click(function() {
@@ -220,6 +277,6 @@ window.TutorialsSetup = (function($, TutorialsSetup) {
             }
         );
     }
-   
+
     return (TutorialsSetup);
 }(jQuery, {}));
