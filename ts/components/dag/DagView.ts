@@ -8,6 +8,8 @@ namespace DagView {
     const vertSpacing = 60;
     const horzPadding = 200;
     const vertPadding = 100;
+    const nodeHeight = 28;
+    const nodeWidth = 102;
 
     export function setup(): void {
         if (gDionysus) {
@@ -18,7 +20,7 @@ namespace DagView {
         $operatorBar = $dagView.find(".operatorWrap");
 
         // XXX used for testing
-        activeDag = new DagGraph();
+        activeDag = null;
         activeDagTab = null;
 
         _setupSelectingAndDragDrop();
@@ -324,7 +326,6 @@ namespace DagView {
      * @param nodeIds
      */
     export function moveNodes(nodeIds: DagNodeId[], positions: Coordinate[], graphDimensions?: Coordinate): XDPromise<void> {
-        const offset = _getDFAreaOffset();
         let svg = d3.select("#dagView .dataflowArea.active .mainSvg");
         let oldPositions = [];
         let maxXCoor: number = 0;
@@ -356,12 +357,7 @@ namespace DagView {
                 let connectorIndex: number = parseInt($(this).attr("data-connectorindex"));
                 $(this).remove();
 
-                const $childNode = DagView.getNode(childNodeId);
-                const $childConnector = _getChildConnector($childNode, connectorIndex);
-                const $parentConnector = $el.find(".connector.out");
-
-                _drawLineBetweenNodes($parentConnector, $childConnector,
-                    nodeId, childNodeId, connectorIndex, svg, offset);
+                _drawLineBetweenNodes(nodeId, childNodeId, connectorIndex, svg);
             });
 
             // redraw all paths that lead into this node
@@ -370,13 +366,7 @@ namespace DagView {
                 let connectorIndex = parseInt($(this).attr("data-connectorindex"));
                 $(this).remove();
 
-                const $childConnector = _getChildConnector($el, connectorIndex);
-                const $parentConnector =  DagView.getNode(parentNodeId)
-                                                 .find(".connector.out");
-
-                _drawLineBetweenNodes($parentConnector, $childConnector,
-                     parentNodeId, nodeId, connectorIndex,
-                     svg, offset);
+                _drawLineBetweenNodes(parentNodeId, nodeId, connectorIndex, svg);
             });
         });
         if (graphDimensions) {
@@ -800,7 +790,7 @@ namespace DagView {
         return $childConnector;
     }
 
-    function _setGraphDimensions(elCoors: Coordinate, force) {
+    function _setGraphDimensions(elCoors: Coordinate, force?: boolean) {
         const $dfArea = $dagView.find(".dataflowArea.active");
         if (force) {
             activeDag.setDimensions(elCoors.x, elCoors.y);
@@ -851,46 +841,44 @@ namespace DagView {
     }
 
     function _drawConnection(parentNodeId, childNodeId, connectorIndex) {
-        const $childNode = DagView.getNode(childNodeId);
+        const $childNode: JQuery = DagView.getNode(childNodeId);
         const $childConnector: JQuery = _getChildConnector($childNode, connectorIndex);
-        const $parentConnector = DagView.getNode(parentNodeId).find(".connector.out");
-
         $childConnector.removeClass("noConnection")
                        .addClass("hasConnection");
 
-        const offset = _getDFAreaOffset();
-        const svg = d3.select("#dagView .dataflowArea.active .mainSvg");
+        const svg: d3 = d3.select("#dagView .dataflowArea.active .mainSvg");
 
-        _drawLineBetweenNodes($parentConnector, $childConnector,
-                            parentNodeId, childNodeId,
-                            connectorIndex, svg, offset);
+        _drawLineBetweenNodes(parentNodeId, childNodeId, connectorIndex, svg);
     }
 
-    const lineFunction = d3.svg.line()
-    .x(function(d) {return d.x;})
-    .y(function(d) {return d.y;})
-    .interpolate("cardinal");
+    const lineFunction: Function = d3.svg.line()
+                                        .x(function(d) {return d.x;})
+                                        .y(function(d) {return d.y;})
+                                        .interpolate("cardinal");
 
     function _drawLineBetweenNodes(
-        $parentConnector: JQuery,
-        $childConnector: JQuery,
         parentNodeId: DagNodeId,
         childNodeId: DagNodeId,
         connectorIndex: number,
-        svg: d3,
-        offset
+        svg: d3
     ): void {
-        const parentRect = $parentConnector[0].getBoundingClientRect();
-        const parentCoors = {
-            x: parentRect.right + offset.left - 1,
-            y: parentRect.top + offset.top + 6
+        const parentNode: DagNode = activeDag.getNode(parentNodeId);
+        const childNode: DagNode = activeDag.getNode(childNodeId);
+        let numParents = childNode.getMaxParents();
+        if (numParents === -1) {
+            numParents = 1;
+        }
+
+        const parentCoors: Coordinate = {
+            x: parentNode.getPosition().x + nodeWidth,
+            y: parentNode.getPosition().y + (nodeHeight / 2)
         };
 
-        let offsetTop = $childConnector.height() / 2 + 1;
-        const childRect = $childConnector[0].getBoundingClientRect();
-        const childCoors = {
-            x: childRect.left + offset.left + 2,
-            y: childRect.top + offset.top + offsetTop
+        const childCoors: Coordinate = {
+            x: childNode.getPosition().x,
+            y: childNode.getPosition().y +
+                (nodeHeight / (numParents + 1) * (1 + connectorIndex))
+
         };
 
         const edge = svg.append("g")
