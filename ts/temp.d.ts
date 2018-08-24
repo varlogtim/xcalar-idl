@@ -634,6 +634,7 @@ declare namespace JoinTStr {
     export var joinTypeLeftAnti: string;
     export var joinTypeSepAdv: string;
     export var joinTypeCross: string;
+    export var MismatchDetail: string;
 }
 
 declare namespace OpFormTStr {

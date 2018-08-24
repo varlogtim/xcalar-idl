@@ -3,6 +3,7 @@ class JoinOpPanelStep1 {
     private _$elem: JQuery = null;
     private static readonly _templateIdClasue = 'templateClause';
     private static readonly _templateIdCast = 'templateCast';
+    private static readonly _templateIdCastMsg = 'templateCastMessage';
     private _$elemInstr: JQuery = null;
     private _componentJoinTypeDropdown: OpPanelDropdown = null;
     private _goNextStepFunc = () => { };
@@ -39,6 +40,7 @@ class JoinOpPanelStep1 {
         this._templateMgr.loadTemplate(JoinOpPanelStep1._templateIdClasue, this._$elem);
         this._templateMgr.loadTemplate(JoinOpPanelStep1._templateIdCast, this._$elem);
     }
+
     public updateUI(props: {
         modelRef: JoinOpPanelModel;
     }): void {
@@ -46,6 +48,7 @@ class JoinOpPanelStep1 {
         this._modelRef = modelRef;
         this._updateUI();
     }
+
     private _updateUI(): void {
         const joinType = this._modelRef.joinType;
         if (this._modelRef.currentStep !== 1) {
@@ -123,6 +126,7 @@ class JoinOpPanelStep1 {
             }
         }
     }
+
     private _createTypeCastDropdown(props: {
         container: JQuery;
         dropdownId: string;
@@ -156,6 +160,7 @@ class JoinOpPanelStep1 {
         });
         return componentDropdown;
     }
+
     private _updateJoinClauseUI() {
         const columnPairs = this._modelRef.joinColumnPairs;
         const columnMeta = this._modelRef.columnMeta;
@@ -180,7 +185,14 @@ class JoinOpPanelStep1 {
             // Type cast row
             if (isCastNeed) {
                 const $castContainer = BaseOpPanel.findXCElement($clauseSection, 'castRow');
-                const castRow = this._templateMgr.createElements(JoinOpPanelStep1._templateIdCast, {});
+                const castMsg = this._createCastMessage({
+                    type1: columnMeta.left[leftColIndex].type,
+                    type2: columnMeta.right[rightColIndex].type
+                })
+                const castRow = this._templateMgr.createElements(
+                    JoinOpPanelStep1._templateIdCast,
+                    { 'APP-ERRORMSG': castMsg }
+                );
                 for (const row of castRow) {
                     $castContainer.append(row);
                 }
@@ -226,6 +238,19 @@ class JoinOpPanelStep1 {
         const $clauseContainer = BaseOpPanel.findXCElement(this._$elem, 'clauseContainer');
         this._templateMgr.updateDOM($clauseContainer[0], nodeList);
     }
+
+    private _createCastMessage(props: {
+        type1: string, type2: string
+    }) {
+        const { type1, type2 } = props;
+        const content = xcHelper.replaceMsg(
+            JoinTStr.MismatchDetail,
+            { type1: `<b>${type1}</b>`, type2: `<b>${type2}</b>` }
+        );
+        const $element = BaseOpPanel.createElementFromString(`<span>${content}</span>`);
+        return $element[0];
+    }
+
     private _createColumnDropdown(props: {
         container: JQuery;
         dropdownId: string;
