@@ -295,12 +295,12 @@ class DragHelper {
         this.currentDragCoor.left = event.pageX + this.offset.x;
         this.currentDragCoor.top = event.pageY + this.offset.y;
         if (this.round) {
-            const curOffsetLeft = this.currentDragCoor.left - this.targetRect.left - this.scrollLeft;
+            const curOffsetLeft = this.currentDragCoor.left - (this.targetRect.left - this.scrollLeft);
             const leftRounded = Math.round(curOffsetLeft / this.round) * this.round;
             const leftDiff = leftRounded - curOffsetLeft;
             this.currentDragCoor.left += leftDiff;
 
-            const curOffsetTop = this.currentDragCoor.top - this.targetRect.top - this.scrollTop;
+            const curOffsetTop = this.currentDragCoor.top - (this.targetRect.top - this.scrollTop);
             const topRounded = Math.round(curOffsetTop / this.round) * this.round;
             const topDiff = topRounded - curOffsetTop;
             this.currentDragCoor.top += topDiff;
