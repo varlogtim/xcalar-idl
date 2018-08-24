@@ -211,7 +211,7 @@ namespace DagView {
         const $dfArea: JQuery = $dagView.find(".dataflowArea.active");
         const spacing: number = 20;
         let newLeft: number = origRect.left;
-        let topDelta: number = origRect.height + spacing;
+        let topDelta: number = 60;
         let positionConflict: boolean = true;
         let newNodeIds: DagNodeId[] = [];
 
@@ -226,12 +226,13 @@ namespace DagView {
                 const rect = this.getBoundingClientRect();
                 if (rect.left === newLeft && rect.top === origRect.top + topDelta) {
                     positionConflict = true;
-                    topDelta += 10;
+                    topDelta += spacing;
                     return false;
                 }
             });
         }
-
+        let maxXCoor: number = 0;
+        let maxYCoor: number = 0;
         nodeIds.forEach((nodeId) => {
             const $node: JQuery = DagView.getNode(nodeId);
             const rect: ClientRect = $node[0].getBoundingClientRect();
@@ -244,9 +245,12 @@ namespace DagView {
             const newNodeId: DagNodeId = newNode.getId();
             newNodeIds.push(newNodeId);
             activeDag.moveNode(newNodeId, newPosition);
-
+            maxXCoor = Math.max(newPosition.x, maxXCoor);
+            maxYCoor = Math.max(newPosition.y, maxYCoor);
             _drawNode(newNode, $dfArea);
         });
+
+        _setGraphDimensions({x: maxXCoor, y: maxYCoor});
 
         Log.add(SQLTStr.CopyOperations, {
             "operation": SQLOps.CopyOperations,
@@ -581,7 +585,7 @@ namespace DagView {
                         $operator.addClass("selected");
                     }
                     // if no drag, treat as right click and open menu
-                    var contextMenuEvent = $.Event("contextmenu", {
+                    let contextMenuEvent = $.Event("contextmenu", {
                         pageX: event.pageX,
                         pageY: event.pageY
                     });
@@ -591,7 +595,7 @@ namespace DagView {
             });
         });
 
-        // connecting 2 nodes
+        // connecting 2 nodes dragging the parent's connector
         $dfWrap.on("mousedown", ".operator .connector.out", function(event) {
             if (event.which !== 1) {
                 return;
@@ -634,7 +638,7 @@ namespace DagView {
                     const rect = $parentConnector[0].getBoundingClientRect();
                     parentCoors = {
                         x: rect.right + offset.left - 1,
-                        y: rect.top + offset.top + 5
+                        y: rect.top + offset.top + 6
                     };
                     // setup svg for temporary line
                     $dfArea.append('<svg class="secondarySvg"></svg>');
@@ -697,6 +701,112 @@ namespace DagView {
             });
         });
 
+        // connecting 2 nodes dragging the child's connector
+        $dfWrap.on("mousedown", ".operator .connector.in", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+
+            const $childConnector = $(this);
+            if ($childConnector.hasClass("hasConnection") &&
+                !$childConnector.hasClass("multi")) {
+                return;
+            }
+            const $childNode = $childConnector.closest(".operator");
+            const childNodeId: DagNodeId = $childNode.data("nodeid");
+            const $dfArea = $dfWrap.find(".dataflowArea.active");
+            let $candidates: JQuery;
+            let path;
+            let childCoors;
+            let connectorIndex = activeDag.getNode(childNodeId).getNextOpenConnectionIndex();
+
+            new DragHelper({
+                event: event,
+                $element: $childConnector,
+                $container: $dagView,
+                $dropTarget: $dfArea,
+                offset: {
+                    x: 0,
+                    y: -2
+                },
+                noCursor: true,
+                onDragStart: function(_$el: JQuery, _e: JQueryEventObject) {
+                    const $operators: JQuery = $dfArea.find(".operator");
+                    $candidates = $operators.filter(function() {
+                        const parentNodeId = $(this).data("nodeid");
+                        if (childNodeId === parentNodeId) {
+                            return false;
+                        }
+
+                        return activeDag.canConnect(parentNodeId, childNodeId, connectorIndex, true);
+                    });
+                    $operators.addClass("noDrop");
+                    $candidates.removeClass("noDrop").addClass("dropAvailable");
+                    const offset = _getDFAreaOffset();
+                    const rect = $childConnector[0].getBoundingClientRect();
+                    childCoors = {
+                        x: rect.right + offset.left - 1,
+                        y: rect.top + offset.top + 6
+                    };
+                    // setup svg for temporary line
+                    $dfArea.append('<svg class="secondarySvg"></svg>');
+                    const svg = d3.select("#dagView .dataflowArea.active .secondarySvg");
+
+                    const edge = svg.append("g")
+                                    .attr("class", "edge tempEdge");
+
+                    path = edge.append("path");
+                    path.attr("class", "visibleLine");
+                },
+                onDrag: function(coors) {
+                    const offset = _getDFAreaOffset();
+                    const parentCoors = {
+                        x: coors.x + offset.left,
+                        y: coors.y + offset.top + 5
+                    };
+                    path.attr("d", lineFunction([childCoors, parentCoors]));
+                },
+                onDragEnd: function(_$el, event) {
+                    let $parentNode: JQuery;
+                    $candidates.removeClass("dropAvailable noDrop");
+
+                    $dfArea.find(".secondarySvg").remove();
+                    // check if location of drop matches position of a valid
+                    // $operator
+                    $candidates.each(function() {
+                        const rect: DOMRect = this.getBoundingClientRect();
+                        const left: number = rect.left;
+                        const right: number = rect.right;
+                        const top: number = rect.top;
+                        const bottom: number = rect.bottom;
+                        if (event.pageX >= left && event.pageX <= right &&
+                            event.pageY >= top && event.pageY <= bottom) {
+                            $parentNode = $(this);
+                            return false;
+                        }
+                    });
+
+                    if (!$parentNode) {
+                        console.log("invalid connection");
+                        return;
+                    }
+
+                    const parentNodeId: DagNodeId = $parentNode.data("nodeid");
+
+                    if (!activeDag.canConnect(parentNodeId, childNodeId, connectorIndex)) {
+                        StatusBox.show(DagTStr.CycleConnection, $childNode)
+                        return;
+                    }
+
+                    DagView.connectNodes(parentNodeId, childNodeId, connectorIndex);
+                },
+                onDragFail: function() {
+
+                },
+                copy: true
+            });
+        });
+
         // drag select multiple nodes
         let $dfArea;
         let $operators;
@@ -747,7 +857,7 @@ namespace DagView {
                 }
             });
         }
-        function _endDrawRect(): void {
+        function _endDrawRect(event: JQueryEventObject): void {
             $dfArea.removeClass("drawing");
             const $ops = $dfArea.find(".operator.selecting");
             if ($ops.length === 0) {
@@ -757,6 +867,11 @@ namespace DagView {
                     $(this).removeClass("selecting")
                            .addClass("selected");
                 });
+                let contextMenuEvent = $.Event("contextmenu", {
+                        pageX: event.pageX,
+                        pageY: event.pageY
+                    });
+                    $ops.find(".main").first().trigger(contextMenuEvent);
             }
             $dfArea = null;
             $operators = null;
@@ -878,7 +993,6 @@ namespace DagView {
             x: childNode.getPosition().x,
             y: childNode.getPosition().y +
                 (nodeHeight / (numParents + 1) * (1 + connectorIndex))
-
         };
 
         const edge = svg.append("g")
@@ -900,7 +1014,7 @@ namespace DagView {
         activeDag.events.on(DagNodeEvents.StateChange, function(info) {
             const $node: JQuery = DagView.getNode(info.id);
             let stateClasses = "";
-            for (var i in DagNodeState) {
+            for (let i in DagNodeState) {
                 stateClasses += "state-" + DagNodeState[i] + " ";
             }
             $node.removeClass(stateClasses);
@@ -942,7 +1056,7 @@ namespace DagView {
                     // already part of the same tree
                     return;
                 }
-                for (var i in treeGroup) {
+                for (let i in treeGroup) {
                     seen[i] = mainGroupId; // reassigning nodes from current
                     // group to the main group that has the id of "mainGroupId"
                     let mainGroup = treeGroups[mainGroupId];

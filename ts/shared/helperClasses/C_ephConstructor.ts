@@ -2292,8 +2292,8 @@ class RectSelction {
             self.checkMovement(event.pageX, event.pageY);
         });
 
-        $(document).on("mouseup.selectRect", function() {
-            self.end();
+        $(document).on("mouseup.selectRect", function(event: JQueryEventObject) {
+            self.end(event);
             $(document).off(".selectRect");
             $(document).off("mousemove.checkMovement");
             if (typeof self.onMouseup === "function") {
@@ -2363,11 +2363,11 @@ class RectSelction {
         }
     }
 
-    public end(): void {
+    public end(event): void {
         const self: RectSelction = this;
         self.__getRect().remove();
         if (typeof self.onEnd === "function") {
-            self.onEnd();
+            self.onEnd(event);
         }
     }
 }
