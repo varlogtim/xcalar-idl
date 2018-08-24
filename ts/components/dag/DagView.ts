@@ -938,7 +938,7 @@ namespace DagView {
             top: pos.y
         });
 
-        xcTooltip.add($node, {
+        xcTooltip.add($node.find(".main"), {
             title: JSON.stringify(node.getParam(), null, 2)
         });
 
@@ -980,8 +980,10 @@ namespace DagView {
         const parentNode: DagNode = activeDag.getNode(parentNodeId);
         const childNode: DagNode = activeDag.getNode(childNodeId);
         let numParents = childNode.getMaxParents();
+        let numConnections = connectorIndex;
         if (numParents === -1) {
             numParents = 1;
+            numConnections = 0;
         }
 
         const parentCoors: Coordinate = {
@@ -992,7 +994,7 @@ namespace DagView {
         const childCoors: Coordinate = {
             x: childNode.getPosition().x,
             y: childNode.getPosition().y +
-                (nodeHeight / (numParents + 1) * (1 + connectorIndex))
+                (nodeHeight / (numParents + 1) * (1 + numConnections))
         };
 
         const edge = svg.append("g")
@@ -1026,7 +1028,7 @@ namespace DagView {
         activeDag.events.on(DagNodeEvents.ParamChange, function(info) {
             const $node: JQuery = DagView.getNode(info.id);
 
-            xcTooltip.add($node, {
+            xcTooltip.add($node.find(".main"), {
                 title: JSON.stringify(info.params, null, 2)
             });
             activeDagTab.saveTab();

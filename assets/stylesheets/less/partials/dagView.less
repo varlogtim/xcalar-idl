@@ -329,7 +329,7 @@
             .nameArea {
                 text-align: center;
                 .textOverflowOneLine;
-                .size(@width: @operator-width - @iconArea-width - 6px, @height: 100%);
+                .size(@width: @operator-width - @iconArea-width - 8px, @height: 100%);
                 float: left;
             }
         }
@@ -441,9 +441,28 @@
             background-color: @color-connector;
             border-radius: 1px;
             border: 1px solid @color-border-operator;
+            cursor: pointer;
 
             &.multi {
                 height: 80%;
+            }
+            &.hasConnection {
+                cursor: default;
+                &.multi {
+                    cursor: pointer;
+                }
+            }
+            &:hover {
+                background-color: @color-border-operator;
+                &.hasConnection {
+                    cursor: default;
+                    background-color: @color-connector;
+
+                    &.multi {
+                        cursor: pointer;
+                        background-color: @color-border-operator;
+                    }
+                }
             }
         }
         &.out {
@@ -454,6 +473,7 @@
             border-top: @outConnectorSize solid transparent;
             border-bottom: @outConnectorSize solid transparent;
             border-left: @inConnectorSize solid @color-border-operator;
+            cursor: pointer;
 
             &:after {
                 content: " ";
@@ -465,6 +485,12 @@
                 border-top: (@outConnectorSize - 2px) solid transparent;
                 border-bottom: (@outConnectorSize - 2px) solid transparent;
                 border-left:(@inConnectorSize - 2px) solid @color-connector;
+            }
+
+            &:hover {
+                &:after {
+                    border-left:(@inConnectorSize - 2px) solid @color-border-operator;
+                }
             }
         }
     }
@@ -895,8 +921,8 @@
             float: left;
         }
         .icon {
-            .font(@size: 10px, @line-height: @liHeight);
-            margin-right: 6px;
+            .font(@size: 10px, @line-height: @liHeight + 2);
+            margin-right: 8px;
             display: inline-block;
             width: 10px;
             &.xi-duplicate, &.xi-play-circle {
@@ -904,6 +930,10 @@
             }
             &.xi-select-mode {
                 font-size: 12px;
+            }
+            &.xi-close-no-circle {
+                font-size: 8px;
+                color: @color-background-error;
             }
         }
     }
