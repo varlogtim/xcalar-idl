@@ -25,7 +25,6 @@ window.MonitorGraph = (function($, MonitorGraph) {
     var failCount = 0;
     var curIteration = 0;
     var tableUsage = 0;
-    var pubTableUsage = 0;
     var hasTableUsageChange = true;
     var lastTableUsageTime = 0; // when greater than 10s, ok to fetch new data
 
@@ -162,7 +161,6 @@ window.MonitorGraph = (function($, MonitorGraph) {
         }
 
         promise
-        .then(getPubTableUsage)
         .then(XcalarApiTop)
         .then(function(apiTopResult) {
             $("#upTime").text(xcHelper.timeStampConvertSeconds(
@@ -174,7 +172,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
             if (!numNodes) {
                 return deferred.reject();
             }
-            var allStats = processNodeStats(apiTopResult, tableUsage, pubTableUsage, numNodes);
+            var allStats = processNodeStats(apiTopResult, tableUsage, numNodes);
             updateGraph(allStats, numNodes);
             MonitorDonuts.update(allStats);
             failCount = 0;
@@ -205,24 +203,26 @@ window.MonitorGraph = (function($, MonitorGraph) {
         return deferred.promise();
     }
 
+    // function no longer called as pubTableUsage is part of the
+    // top api now
     // will always resolve
-    function getPubTableUsage() {
-        var deferred = PromiseHelper.deferred();
-        XcalarListPublishedTables("*", false, false)
-        .then(function({numTables, tables}) {
-            var bytes = 0;
-            for (var i = 0; i < numTables; i++) {
-                bytes += tables[i].sizeTotal;
-            }
-            pubTableUsage = bytes;
-            deferred.resolve();
-        })
-        .fail(function() {
-            pubTableUsage = 0;
-            deferred.resolve();
-        });
-        return deferred.promise();
-    }
+    // function getPubTableUsage() {
+    //     var deferred = PromiseHelper.deferred();
+    //     XcalarListPublishedTables("*", false, false)
+    //     .then(function({numTables, tables}) {
+    //         var bytes = 0;
+    //         for (var i = 0; i < numTables; i++) {
+    //             bytes += tables[i].sizeTotal;
+    //         }
+    //         pubTableUsage = bytes;
+    //         deferred.resolve();
+    //     })
+    //     .fail(function() {
+    //         pubTableUsage = 0;
+    //         deferred.resolve();
+    //     });
+    //     return deferred.promise();
+    // }
 
     // will always resolve
     function getMemUsage() {
@@ -263,7 +263,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         return bytes;
     }
 
-    function processNodeStats(apiTopResult, tableUsage, pubTableUsage, numNodes) {
+    function processNodeStats(apiTopResult, tableUsage, numNodes) {
         var StatsObj = function() {
             this.used = 0;
             this.total = 0;
@@ -280,6 +280,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
         mem.xdbUsed = 0;
         mem.xdbTotal = 0;
         mem.sysMemUsed = 0;
+        mem.pubTableUsage = 0;
 
         for (var i = 0; i < numNodes; i++) {
             var node = apiTopResult.topOutputPerNode[i];
@@ -304,6 +305,7 @@ window.MonitorGraph = (function($, MonitorGraph) {
 
             mem.sysMemUsed += (node.memUsedInBytes - node.xdbTotalBytes);
             mem.datasetUsage += node.datasetUsedBytes;
+            mem.pubTableUsage += node.publishedTableUsedBytes;
             mem.xdbUsed += node.xdbUsedBytes;
             mem.xdbTotal += node.xdbTotalBytes;
             mem.used += node.xdbUsedBytes;
@@ -341,7 +343,6 @@ window.MonitorGraph = (function($, MonitorGraph) {
         usrCpu.used /= numNodes;
         usrCpu.total /= numNodes;
         mem.userTableUsage = tableUsage;
-        mem.pubTableUsage = pubTableUsage;
         mem.otherTableUsage = Math.max(0, mem.xdbUsed - mem.userTableUsage
              - mem.datasetUsage - mem.pubTableUsage);
         mem.xdbFree = mem.xdbTotal - mem.xdbUsed;
