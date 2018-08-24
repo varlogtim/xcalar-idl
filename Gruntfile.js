@@ -4058,13 +4058,31 @@ module.exports = function(grunt) {
                 grunt.task.run(CHECK_FOR_XD_STRINGS);
             }
 
-            // put a sym link to the unit tests of the project source, in dev blds
-            // (gets triggered from the bld dest, and if you properly include it,
-            // they would need to re-build every time they make
-            // a change the any of the unit tests they want reflected)
+            // sym link from bld to src unit test dir
+            // (tests are run from the bld dest;
+            // would need to re-build every time change make to a unit
+            // test that you want reflected)
             if (BLDTYPE == DEV || BLDTYPE == DEBUG) {
-                grunt.log.debug("Sym link " + BLDROOT + " --> " + SRCROOT + UNIT_TEST_FOLDER + " in bld");
-                fs.symlinkSync(SRCROOT + UNIT_TEST_FOLDER, BLDROOT + UNIT_TEST_FOLDER);
+                var symlinkTo = SRCROOT + UNIT_TEST_FOLDER;
+                var symlinkPath = BLDROOT + UNIT_TEST_FOLDER;
+                // need to check if the symlink already exists;
+                // if you try to create the symlink when it already exists, a
+                // warning is issued.  in watch event, the warning will prevent
+                // watch from getting to completeWatch cleanup; this will effect
+                // subsequent watch events as a result. its possible the symlink
+                // exists if this is a watch event and there's alredy a bld)
+                if (grunt.file.exists(symlinkTo) && !grunt.file.exists(symlinkPath)) {
+                    grunt.log.debug("Put symlink in bld to src unit tests; " +
+                        symlinkPath + " --> " + symlinkTo);
+                    fs.symlinkSync(symlinkTo, symlinkPath);
+                } else if (!IS_WATCH_TASK) {
+                    // the symlink should only be present in watch case
+                    grunt.log.writeln(("Warning: either " + symlinkTo +
+                        " does not exist in your proj src, or bld already " +
+                        " has symlink to it.  This should not occur in " +
+                        " a normal build; your project source may be " +
+                        " corrupted.").red);
+                }
             }
 
             grunt.task.run('chmod:finalBuild');
