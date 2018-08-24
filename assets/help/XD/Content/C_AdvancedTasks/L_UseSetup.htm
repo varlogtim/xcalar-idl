@@ -6,7 +6,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Using Setup (Xcalar admin only)</title>
+        <meta name="author" content="" /><title>Using Administration (Xcalar admin only)</title>
         <link href="../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -18,10 +18,6 @@
         <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
         <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
         <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
-        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
         <style>/*&lt;meta /&gt;*/
 
 .button.previous-topic-button
@@ -185,8 +181,8 @@
                                             </div>
                                         </div>
                                         <div class="bodyProxyNarrow">
-                                            <h1>Using Setup (<span class="GeneralProductName3">Xcalar</span> admin only)</h1>
-                                            <p>As a <span class="GeneralProductName3">Xcalar</span> administrator, you can perform all functions described in <a href="K_Monitor.htm" class="MCXref xref">Using the Monitor</a>, by clicking the Monitor icon (<img src="../Resources/Images/XD_assets/xd-monitor.png" />) in the sidebar. In addition, you can click the <span class="UIelement" style="font-weight: bold;">Administration</span> icon (<img src="../Resources/Images/XD_assets/xd-monitor-setup.png" />) to perform the following tasks:</p>
+                                            <h1>Using Administration (<span class="GeneralProductName3">Xcalar</span> admin only)</h1>
+                                            <p>As a <span class="GeneralProductName3">Xcalar</span> administrator, you can perform all functions described in <a href="K_Monitor.htm" class="MCXref xref">Using the Monitor</a>, by clicking the Monitor icon (<img src="../Resources/Images/XD_assets/xd-monitor.png" />) in the sidebar. In addition, you can click the <span class="UIelement">Administration</span> icon (<img src="../Resources/Images/XD_assets/xd-monitor-setup.png" />) to perform the following tasks:</p>
                                             <ul>
                                                 <li value="1">Configuring <span class="GeneralProductName2">Xcalar Compute Engine</span> parameters.</li>
                                                 <li value="2">Managing the cluster, which includes the following tasks:<ul><li value="1">starting a cluster.</li><li value="2">stopping a cluster.</li><li value="3">restarting a cluster.</li><li value="4">checking the cluster status.</li><li value="5">updating the cluster license.</li></ul></li>
@@ -218,7 +214,8 @@
                                                         <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">Sets the maximum amount of source data that can be imported to create a dataset for modeling. The default is 10 GB, and the possible value can range from 1 MB to 1 TB. Both the current value and the new value are displayed in bytes. This parameter does not limit the amount of data imported when you run a batch dataflow.</td>
                                                     </tr>
                                                     <tr class="TableStyle-SimpleTable-Body-Body2">
-                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">XdbSerDesMode</td>
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2"><span class="UIelement">XdbSerDesMode</span>
+                                                        </td>
                                                         <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
                                                             <p>(Only for <span class="GeneralProductOperationalizing">Xcalar in operational mode</span>) Determines whether <span class="GeneralProductName3">Xcalar</span> serializes data to a lower tier of the memory hierarchy when the cluster is under memory pressure. The following list describes the meaning of its setting:</p>
                                                             <ul>
@@ -232,7 +229,7 @@
                                                         </td>
                                                         <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
                                                             <p>(Only for <span class="GeneralProductOperationalizing">Xcalar in operational mode</span>) Full path to which <span class="GeneralProductName3">Xcalar</span> serializes data. By default, data is serialized to the <var>node_id</var>/ directory under the <span class="GeneralProductName3">Xcalar</span> root directory. For example, if the <span class="GeneralProductName3">Xcalar</span> root directory is /var/opt/xcalar and node 0 is under memory pressure, data is serialized to /var/opt/xcalar/0/.</p>
-                                                            <div class="Note"><span class="label">Recommended</span>:&#160;To maximize performance, make sure that the path specified by this parameter is backed by SSDs (solid state drives.</div>
+                                                            <div class="Note"><span class="label">Recommended</span>:&#160;To maximize performance, make sure that the path specified by this parameter is backed by SSDs (solid state drives).</div>
                                                         </td>
                                                     </tr>
                                                     <tr class="TableStyle-SimpleTable-Body-Body2">
@@ -281,17 +278,17 @@
                                                 <li value="2"> If the cluster is running or if some nodes are running, and you want to start the cluster again, click <span class="UIelement">Restart cluster</span>.</li>
                                             </ul>
                                             <h2>Updating the license</h2>
-                                            <p>From the Administration panel, you can click Cluster Status to display a modal window with status information.&#160;Report the information to <span class="GeneralCompanyNameShort">Xcalar</span> technical support if needed.</p>
+                                            <p>From the <span class="UIelement">Administration</span> panel, you can click Cluster Status to display a modal window with status information.&#160;Report the information to <span class="GeneralCompanyNameShort">Xcalar</span> technical support if needed.</p>
                                             <p>To update a license, click <span class="UIelement">Update License</span>. Paste the license key given to you by <span class="GeneralProductName3">Xcalar</span> in the <b>License Key</b> field and then click <span class="UIelement">CONFIRM</span>.</p>
                                             <h2>Sending a message to all users</h2>
                                             <p>Follow these steps to  send an alert message to all users who are using <span class="GeneralGUIName1">Xcalar Design</span>:</p>
                                             <ol>
-                                                <li value="1"> From the Administration panel, click <span class="UIelement">Admin Alert</span>.</li>
+                                                <li value="1"> From the <span class="UIelement">Administration</span> panel, click <span class="UIelement">Admin Alert</span>.</li>
                                                 <li value="2">In the <span class="UIelement">Admin Alert</span> text field, enter your message.</li>
                                                 <li value="3">Click <span class="UIelement">SEND</span>.The message is displayed in each user's  <span class="GeneralGUIName1">Xcalar Design</span> window.</li>
                                             </ol>
                                             <h2>Managing users</h2>
-                                            <p>From the Administration panel, you can expand the <span class="UIelement">Users</span> list to display a list of users that have logged in to the cluster. The user names are listed regardless of whether the users are currently logged in or whether the users have any workbooks.</p>
+                                            <p>From the <span class="UIelement">Administration</span> panel, you can expand the <span class="UIelement">Users</span> list to display a list of users that have logged in to the cluster. The user names are listed regardless of whether the users are currently logged in or whether the users have any workbooks.</p>
                                             <p>You cannot edit the user list. You can, however, perform the following tasks:</p>
                                             <ul>
                                                 <li value="1">Sorting user names alphabetically by memory usage.</li>
@@ -300,7 +297,7 @@
                                                 <li value="4">Logging in as another user.</li>
                                             </ul>
                                             <p>The following partial screenshot shows the <span class="UIelement">Administration</span> panel containing the <b>Users</b> list:</p>
-                                            <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/users-in-setup-panel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="696" data-mc-height="672" src="../Resources/Images/XD_screenshots/users-in-setup-panel_thumb_0_150.png" tabindex="" /></a>
+                                            <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/users-in-setup-panel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="652" data-mc-height="636" src="../Resources/Images/XD_screenshots/users-in-setup-panel_thumb_0_150.png" tabindex="" /></a>
                                             </p>
                                             <p>The following screenshot shows the modal window that displays the memory used by the user's workbook. It includes a breakdown of memory consumed by the tables. The information helps you determine which tables to delete for the purpose of releasing memory.</p>
                                             <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/user-memory-consumption.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="984" data-mc-height="641" src="../Resources/Images/XD_screenshots/user-memory-consumption_thumb_0_150.png" tabindex="" /></a>
@@ -312,7 +309,7 @@
                                             <p>Follow these steps to use <span class="GeneralGUIName1">Xcalar Design</span> as another user:</p>
                                             <ol>
                                                 <li value="1">
-                                                    <p>From the <span class="UIelement">Administration</span> panel, expand the <b>Users</b> list and click the <span class="UIelement">Use Xcalar as this user</span> icon by the side of another user's account, as shown in the following partial screenshot:</p>
+                                                    <p>From the <span class="UIelement">Administration</span> panel, expand the <span class="UIelement">Users</span> list and click the <span class="UIelement">Use Xcalar as this user</span> icon by the side of another user's account, as shown in the following partial screenshot:</p>
                                                     <p>
                                                         <img src="../Resources/Images/XD_screenshots/user-login-as-another.png" />
                                                     </p>
@@ -339,13 +336,13 @@
                                             <h2>Specifying the nodes from which you retrieve the logs</h2>
                                             <p>You can view messages from all nodes or from particular nodes. Follow these steps if you want <span class="GeneralProductName3">Xcalar</span> to retrieve the logs from particular nodes:</p>
                                             <ol>
-                                                <li value="1">Display the <span class="UIelement" style="font-weight: bold;">Administration</span> panel in the Monitor. The <span class="UIelement">Logs</span> window is displayed below the <span class="UIelement">Configure Parameter</span> window. </li>
+                                                <li value="1">Display the <span class="UIelement">Administration</span> panel in the Monitor. The <span class="UIelement">Logs</span> window is displayed below the <span class="UIelement">Configure Parameter</span> window. </li>
                                                 <li value="2">In the <span class="UIelement">Host Name Pattern</span> field, enter a regular expression. If a node has a host name that matches the regular expression, its log will be displayed. If you leave this field blank, logs from all nodes will be displayed.</li>
                                             </ol>
                                             <h2>Viewing recent log messages</h2>
                                             <p>Follow these steps to view recent log messages:</p>
                                             <ol>
-                                                <li value="1">Display the <b>Administration</b> panel in the Monitor. The <span class="UIelement">Logs</span> window is displayed below the <span class="UIelement">Configure Parameter</span> window. </li>
+                                                <li value="1">Display the <span class="UIelement">Administration</span> panel in the Monitor. The <span class="UIelement">Logs</span> window is displayed below the <span class="UIelement">Configure Parameter</span> window. </li>
                                                 <li value="2">
                                                     <p>In the <span class="UIelement">Logs</span> window, type the log file name. To display messages for all nodes, you can type the following:</p>
                                                     <p class="userInput">node.*.log</p>
@@ -356,7 +353,7 @@
                                             <h2>Streaming log messages</h2>
                                             <p>Follow these steps to view log messages as they are generated:</p>
                                             <ol>
-                                                <li value="1">Display the <b>Administration</b> panel in the Monitor. The <span class="UIelement">Logs</span> window is displayed below the <span class="UIelement">Configure Parameter</span> window. </li>
+                                                <li value="1">Display the <span class="UIelement">Administration</span> panel in the Monitor. The <span class="UIelement">Logs</span> window is displayed below the <span class="UIelement">Configure Parameter</span> window. </li>
                                                 <li value="2">
                                                     <p>In the <span class="UIelement">Logs</span> window, type the log file name. To display messages for all nodes, you can type the following:</p>
                                                     <p class="userInput">node.*.log</p>

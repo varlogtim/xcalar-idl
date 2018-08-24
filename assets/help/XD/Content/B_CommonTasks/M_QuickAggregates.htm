@@ -18,10 +18,6 @@
         <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
         <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
         <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
-        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
         <style>/*&lt;meta /&gt;*/
 
 .button.previous-topic-button
@@ -192,6 +188,8 @@
                                                 <li value="2">Calculate aggregate values for a selected column.</li>
                                             </ul>
                                             <p>This section explains how to determine aggregate values from numeric values. One aggregate function, listAgg, is a string function. For more information about listAgg, see <a href="J_GroupBy.htm#Understa" class="MCXref xref" xrefformat="{para}">Understanding the listAgg (list aggregate) function</a>.</p>
+                                            <h2>Understanding the min and max functions</h2>
+                                            <p>The min and max functions return the aggregate values appropriate to the column's data type.&#160;For example, for a string column, the max function returns the same value as the maxString function; for an integer column, the min function returns the same value as the minInteger function. The min and max functions are shortcuts for the data type-specific functions. However, the data type-specific functions provide better performance. </p>
                                             <h2>Calculating aggregate values for multiple columns</h2>
                                             <p>Follow these steps to calculate aggregate values for all numeric columns in a table:</p>
                                             <ol>
@@ -227,7 +225,7 @@
                                                             <p>For typing an operand value:</p>
                                                             <ul>
                                                                 <li value="1">In most cases, do not surround the value with quote marks, even if it is a string with a space. In cases where the function can evaluate the value as a string or numeric value, use the quote marks.&#160;You can check the syntax displayed in the panel.&#160;The syntax displays the quote marks for an operand if the operand is to be interpreted as a string.</li>
-                                                                <li value="2">If the string contains a special character, such as the backslash (\) or double quote mark ("), escape the special character with a backslash (\). Without using the backslash as the escape character, you will see an error message, indicating that the input string is a malformed evaluation string.</li>
+                                                                <li value="2">If the string contains  the backslash (\) or double quote mark ("), escape the character with a backslash (\). Not doing so causes an error message, indicating that the input string is a malformed evaluation string.</li>
                                                                 <li value="3">The $ character has special meaning in <span class="GeneralGUIName1">Xcalar Design</span>: It denotes a column name. If your input string starts with $, escape it with a backslash (\).</li>
                                                                 <li value="4">The caret (^) has  special meaning in <span class="GeneralGUIName1">Xcalar Design</span>:&#160;It denotes a named aggregate value. If your input string starts with a caret, escape it with a backslash (\).</li>
                                                             </ul>
@@ -260,7 +258,8 @@
                                                 <li value="2">In the <span class="UIelement">Worksheets</span> pane, click  <img src="../Resources/Images/XD_assets/xd-tables-list.png" /> to display a list of tables.</li>
                                                 <li value="3">Click <span class="UIelement">Aggregates</span>&#160;to display a list of saved aggregate values. In the following example, the aggregate named minArrivalTime is displayed with its value (1). <p><img src="../Resources/Images/XD_screenshots/table-list-aggregates.png" /></p></li>
                                             </ol>
-                                            <p>&#160;</p>
+                                            <h2>Displaying aggregate values in a table</h2>
+                                            <p>Instead of saving an aggregate value under a name, you can store an aggregate value in a table. In the <span class="UIelement">Group By</span> panel, you can select columns on which you calculate aggregate values. These values are saved in the resultant table. For more information about saving aggregate values in a table, see <a href="J_GroupBy.htm#Creating" class="MCXref xref" xrefformat="{para}">Creating a table for listing aggregate values</a>.</p>
                                         </div>
                                         <p><a href="#Top">Go to top</a>
                                         </p>

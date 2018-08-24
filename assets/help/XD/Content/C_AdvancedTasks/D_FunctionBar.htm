@@ -18,10 +18,6 @@
         <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
         <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
         <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
-        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
         <style>/*&lt;meta /&gt;*/
 
 .button.previous-topic-button
@@ -204,7 +200,7 @@
                                                 </li>
                                                 <li value="3">You can use an aggregate value that you saved earlier. You must precede the aggregate value name with a caret (^). For example, if the average value for the salary column is  average_salary, enter <span class="UIelement">^average_salary</span> if you want to use it as an argument  in the function bar.</li>
                                                 <li value="4">
-                                                    <p>The arguments entered are combined to form an evaluation string for the function, which must not exceed 4,096 characters. An error message is displayed if you try to pass an evaluation string that exceeds the limit. To keep the evaluation string below the limit, you might need to execute multiple functions instead of one.</p>
+                                                    <p>The arguments entered are combined to form an evaluation string for the function, which must not exceed 32,768 characters. An error message is displayed if you try to pass an evaluation string that exceeds the limit. To keep the evaluation string below the limit, you might need to execute multiple functions instead of one.</p>
                                                 </li>
                                             </ul>
                                             <h3>Pull operation</h3>
@@ -228,7 +224,9 @@
                                                     <p>Enter the following Map operation:</p>
                                                     <p class="userInput">map(mult(mult(mult(div(sub(AskPrice_float, BidPrice_float), AskPrice_float),100), div(add(BidSize_float,AskSize_float),2)),100000))</p>
                                                     <p>This Map operation is equivalent to the following formula:</p>
-                                                    <p />
+                                                    <p>
+                                                        <img src="../GeneratedImages/Equations/Equation1.svg" alt="" class="_MCEquation_0 mcReset" />
+                                                    </p>
                                                     <p>This operation has nested arithmetic functions such as Add, Sub (subtract), mult (multiply), and div (divide). When you type an opening bracket, <span class="GeneralGUIName1">Xcalar Design</span> automatically adds the closing bracket. If there are mismatched brackets, an error message is displayed when <span class="GeneralGUIName1">Xcalar Design</span> tries to execute the operation.</p>
                                                     <p>The resultant values of the Map operation are stored in the column created in Step 1.</p>
                                                 </li>

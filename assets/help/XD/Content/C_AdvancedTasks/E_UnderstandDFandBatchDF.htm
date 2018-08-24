@@ -18,10 +18,6 @@
         <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
         <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
         <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
-        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
         <style>/*&lt;meta /&gt;*/
 
 .button.previous-topic-button
@@ -218,9 +214,9 @@
                                             <p>When you create a batch dataflow, you have the option of saving multiple dataflows under one batch dataflow name. Typically, you want to include multiple dataflows in one batch dataflow for the following reasons:</p>
                                             <ul>
                                                 <li value="1">Having one batch dataflow ensures that data from related dataflows is generated and exported to various locations at the same time. You do not have to run individual dataflows one by one.</li>
-                                                <li value="2">You can parameterize the operations in each dataflow in the batch dataflow. Values assigned to the parameters are applied uniformly to all the dataflows. Assuming that you intend to  use the same parameter values across all dataflows, this approach helps you avoid using inconsistent parameter values. For information about parameterization, see <a href="H_Parameterization.htm" class="MCXref xref" xrefformat="{para}">Parameterizing operations</a>.</li>
+                                                <li value="2">You can customize the operations in each dataflow in the batch dataflow. Values assigned to the parameters are applied uniformly to all the dataflows. Assuming that you intend to  use the same parameter values across all dataflows, this approach helps you avoid using inconsistent parameter values. For information about customization, see <a href="H_Parameterization.htm" class="MCXref xref" xrefformat="{para}">Customization of dataflow operations</a>.</li>
                                             </ul>
-                                            <p>In the following example, you can create a batch dataflow named airlines3Data to contain three dataflows: one from the active table (airlines3#uW162) and two from the temporary tables (airlines3#uW160 and airlines3#uW161). You can parameterize the export operation for each dataflow. When you start airlines3Data, all dataflows are run, and the results of the dataflows are saved to your specified locations, which must be a folder, not a table.</p>
+                                            <p>In the following example, you can create a batch dataflow named airlines3Data to contain three dataflows: one from the active table (airlines3#uW162) and two from the temporary tables (airlines3#uW160 and airlines3#uW161). You can customize the export operation for each dataflow. When you start airlines3Data, all dataflows are run, and the results of the dataflows are saved to your specified locations, which must be a folder, not a table.</p>
                                             <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/batch-dataflow-containing-multiple.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="1016" data-mc-height="443" src="../Resources/Images/XD_screenshots/batch-dataflow-containing-multiple_thumb_0_150.png" tabindex="" /></a>
                                             </p>
                                             <p>For information about tasks associated with batch dataflows, see <a href="F_UseBatchDataflow.htm" class="MCXref xref" xrefformat="{para}">Using batch dataflows</a>.</p>

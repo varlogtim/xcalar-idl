@@ -18,10 +18,6 @@
         <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
         <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
         <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
-        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
         <style>/*&lt;meta /&gt;*/
 
 .button.previous-topic-button
@@ -246,9 +242,9 @@
                                             </ol>
                                             <h2>Batch dataflow scheduler</h2>
                                             <p>Batch dataflow does not run even after a schedule has been successfully added. </p>
-                                            <p>This problem might have been caused by the lack of parameterization of the export file name. <span class="GeneralGUIName1">Xcalar Design</span> cannot export the result of the batch dataflow if you have not parameterized the export file.</p>
+                                            <p>This problem might have been caused by the lack of customization of the export file name. <span class="GeneralGUIName1">Xcalar Design</span> cannot export the result of the batch dataflow if you have not customized the export file.</p>
                                             <h4>Solution</h4>
-                                            <p>Create a parameterized operation from the last icon in the batch dataflow graph. Then parameterize the export file name before re-running the schedule.</p>
+                                            <p>Create a customized operation from the last icon in the batch dataflow graph. Then customize the export file name before re-running the schedule.</p>
                                             <h2>Out of memory</h2>
                                             <p>When you try to export a table or execute an operation, the following error appears:</p>
                                             <p class="CLIoutput">Out of resources(XdbPages)</p>
@@ -282,7 +278,7 @@
                                             <h2>Evaluation string</h2>
                                             <p>When you try to execute an operation such as filtering multiple values in a column, the following error message appears:</p>
                                             <p class="CLIoutput">Eval string too long</p>
-                                            <p>This error happens when the evaluation string created by the operation exceeds the  4,096-character limit. (The evaluation string is the same as the one that you would enter in the function bar to run the operation.&#160;The total number of characters entered in the function bar must be under this limit.)</p>
+                                            <p>This error happens when the evaluation string created by the operation exceeds the  32,768-character limit. (The evaluation string is the same as the one that you would enter in the function bar to run the operation.&#160;The total number of characters entered in the function bar must be under this limit.)</p>
                                             <h4>Solution</h4>
                                             <p>To shorten the evaluation string, split the operation into several operations. For example, you can filter one set of values first. Then in the resultant table, filter another set of values.</p>
                                             <h2>Dataset</h2>

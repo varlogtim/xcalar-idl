@@ -18,10 +18,6 @@
         <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
         <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
         <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
-        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
         <style>/*&lt;meta /&gt;*/
 
 .button.previous-topic-button
@@ -199,7 +195,9 @@
                                             <p>For each field, the value is also displayed. For example, in the following screen, the <span class="UIelement">Data Browser</span> for row 1 is displayed.</p>
                                             <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/data-browser.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="932" data-mc-height="692" src="../Resources/Images/XD_screenshots/data-browser_thumb_0_150.png" tabindex="" /></a>
                                             </p>
-                                            <div class="Note"><span class="label">NOTE</span>:&#160;If the key for a field does not exist, <span class="GeneralGUIName1">Xcalar Design</span> displays <em>FNF</em> in the table cell, and the field does not appear in the <span class="UIelement">Data Browser</span>. </div>
+                                            <p>In addition to prefixed and derived fields, the browser displays information about fields that do not exist. For example, suppose  the  Carrier field, which is an integer, does not exist in the current row, the data browser displays the following information:</p>
+                                            <p class="CLIoutput">Fields not present in current row</p>
+                                            <p class="CLIoutput">"Carrier": integer</p>
                                             <h2>Searching  in the Data Browser</h2>
                                             <p>If the Data Browser contains a long list of fields, you can easily locate a particular field by searching for it. Click the Search icon to display the search field. Then type the name of the field, as shown in the following screenshot. The search is not case-sensitive.</p>
                                             <p>

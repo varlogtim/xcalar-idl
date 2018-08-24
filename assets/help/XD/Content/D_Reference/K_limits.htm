@@ -6,7 +6,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Naming conventions in Xcalar Design</title>
+        <meta name="author" content="" /><title>Xcalar limits</title>
         <link href="../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -18,10 +18,6 @@
         <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
         <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
         <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
-        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
         <style>/*&lt;meta /&gt;*/
 
 .button.previous-topic-button
@@ -60,6 +56,7 @@
 }
 
 </style>
+        <link href="../Resources/TableStyles/SimpleTable.css" rel="stylesheet" />
         <script src="../../Resources/Scripts/custom.modernizr.js">
         </script>
         <script src="../../Resources/Scripts/jquery.min.js">
@@ -184,132 +181,113 @@
                                             </div>
                                         </div>
                                         <div class="bodyProxyNarrow">
-                                            <h1>Naming conventions in <span class="GeneralGUIName1">Xcalar Design</span></h1>
-                                            <p>This topic lists the naming conventions for all entities that you can name in <span class="GeneralGUIName1">Xcalar Design</span>.</p>
-                                            <h2>Batch dataflow, dataset folder, export target, export file</h2>
-                                            <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
-                                                <div class="MCDropDownBody dropDownBody">
-                                                    <ul>
-                                                        <li value="1">The name is case sensitive. </li>
-                                                        <li value="2">Length must not exceed 255 characters.</li>
-                                                        <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), or underscore (_).</li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <h2>Column</h2>
-                                            <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
-                                                <div class="MCDropDownBody dropDownBody">
-                                                    <ul>
-                                                        <li value="1">The name is case sensitive.</li>
-                                                        <li value="2">
-                                                            <p>The name must consist of alphanumeric characters, spaces, and special characters except the following characters:</p>
+                                            <h1><span class="GeneralProductName3">Xcalar</span> limits</h1>
+                                            <p>The following table lists the <span class="GeneralProductName3">Xcalar</span> limits.</p>
+                                            <table style="margin-left: 0;margin-right: auto;caption-side: top;mc-table-style: url('../Resources/TableStyles/SimpleTable.css');" class="TableStyle-SimpleTable" cellspacing="0">
+                                                <col class="TableStyle-SimpleTable-Column-Column1" />
+                                                <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                <thead>
+                                                    <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">
+                                                            <p>Description</p>
+                                                        </th>
+                                                        <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">
+                                                            <p>Limit</p>
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>Eval string. </p>
+                                                            <p>To view an eval string for an operation, use <span class="UIelement">Monitor</span> &gt; <span class="UIelement">Operations</span>. The following partial <span class="UIelement">Monitor</span> &gt; <span class="UIelement">Operations</span> screenshot shows an  eval string example.</p>
+                                                            <p>
+                                                                <img src="../Resources/Images/XD_screenshots/eval-string-for-operation.png" />
+                                                            </p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">32768 bytes</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Number of parameters in a batch dataflow.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">1024</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>Number of tables&#160;that can be exported from a batch dataflow.</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                            <p>128</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">UDF module name.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">1023 characters</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">UDF function name.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">255 characters</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">UDF module.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">10485760 characters</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Table name.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">255 characters</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>Entire query, as represented by the JSON string  displayed in <span class="UIelement">Monitor</span> &gt; <span class="UIelement">Operations</span>. </p>
+                                                            <p>The following partial <span class="UIelement">Monitor</span> &gt; <span class="UIelement">Operations</span> screenshot shows  a JSON&#160;string example.</p>
+                                                            <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/json-string-for-operation.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="563" data-mc-height="750" src="../Resources/Images/XD_screenshots/json-string-for-operation_thumb_0_150.png" tabindex="" /></a>
+                                                            </p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">98304 characters</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">File name for a file generated by <span class="GeneralProductName3">Xcalar</span> (for example, the name of a batch dataflow file  downloaded to your computer, the name of an export file, and so on). The file name does not include the directory name.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">255 characters</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Column name.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">255 characters</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">Comment  in a dataflow graph.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">2048 characters</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Entire path in the export URL, including the directory structure.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">1023 characters</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>Token in the eval string. A token is one of the following:</p>
                                                             <ul>
-                                                                <li value="1">caret (^)</li>
-                                                                <li value="2">single quote mark (')</li>
-                                                                <li value="3">double quote mark (")</li>
-                                                                <li value="4">left or right parenthesis (( ))</li>
-                                                                <li value="5">left or right square bracket ([ ])</li>
-                                                                <li value="6">left or right brace ({ })</li>
-                                                                <li value="7">backslash (\)</li>
-                                                                <li value="8">colons (:)</li>
-                                                                <li value="9">comma (,)</li>
-                                                                <li value="10">period (.)</li>
+                                                                <li value="1">an argument</li>
+                                                                <li value="2">a function name</li>
+                                                                <li value="3">a constant value</li>
                                                             </ul>
-                                                        </li>
-                                                        <li value="3">The name must not begin or end with a space.</li>
-                                                        <li value="4">The name must not begin with a number.</li>
-                                                        <li value="5">Length must not exceed 255 characters.</li>
-                                                        <li value="6">
-                                                            <p>The name must not be <span class="UIelement">DATA</span>, but the same string capitalized differently, such as <span class="UIelement">data</span> or <span class="UIelement">Data</span>, are acceptable.</p>
-                                                        </li>
-                                                        <li value="7">The name must not be one of the following strings, regardless of capitalization: <ul><li value="1"><span class="UIelement">None</span></li><li value="2"><span class="UIelement">False</span></li><li value="3"><span class="UIelement">True</span></li></ul></li>
-                                                        <li value="8">The name must not contain two consecutive hyphens (--).</li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <h2>Column prefix</h2>
-                                            <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
-                                                <div class="MCDropDownBody dropDownBody">
-                                                    <ul>
-                                                        <li value="1">The name is case sensitive. </li>
-                                                        <li value="2">Length must not exceed 31 characters.</li>
-                                                        <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), or underscore (_).</li>
-                                                        <li value="4">First character must be a letter.</li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <h2>Dataset</h2>
-                                            <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the  naming conventions:</a></span>
-                                                <div class="MCDropDownBody dropDownBody">
-                                                    <ul>
-                                                        <li value="1">The name is case-sensitive. </li>
-                                                        <li value="2">Length must not exceed 255 characters.</li>
-                                                        <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), or underscore (_).</li>
-                                                        <li value="4">First character must be a letter.</li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <h2>Parameter</h2>
-                                            <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
-                                                <div class="MCDropDownBody dropDownBody">
-                                                    <ul>
-                                                        <li value="1">The name is case sensitive. </li>
-                                                        <li value="2">Length must not exceed 255 characters.</li>
-                                                        <li value="3"> Characters must be A-Z, a-z, or 0-9.</li>
-                                                        <li value="4">No special characters are permitted (for example, underscore, parenthesis, hyphen, or space).</li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <h2>Table</h2>
-                                            <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
-                                                <div class="MCDropDownBody dropDownBody">
-                                                    <ul>
-                                                        <li value="1">The name is case sensitive. </li>
-                                                        <li value="2"> Characters must be A-Z, a-z, 0-9, hyphen (-), underscore (_), or space.</li>
-                                                        <li value="3">First character must be a letter.</li>
-                                                        <li value="4">Length must not exceed 255 characters.</li>
-                                                        <li value="5">The name must not be a duplicate of an existing table name in the same workbook.</li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <h2>UDF</h2>
-                                            <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
-                                                <div class="MCDropDownBody dropDownBody">
-                                                    <ul>
-                                                        <li value="1">Characters must be a-z, 0-9, hyphen (-), or underscore (_).</li>
-                                                        <li value="2">Letters must be lowercase.</li>
-                                                        <li value="3">First character must be a letter or an underscore.</li>
-                                                        <li value="4">The module name <span style="font-style: italic;">default</span> is reserved by <span class="GeneralProductName3">Xcalar</span>.</li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <h2>Usernames</h2>
-                                            <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the conventions for user names:</a></span>
-                                                <div class="MCDropDownBody dropDownBody">
-                                                    <ul>
-                                                        <li value="1">The name is case sensitive.</li>
-                                                        <li value="2">Characters must be A-Z, a-z, 0-9, period (.), hyphen (-), or underscore (_).</li>
-                                                        <li value="3">The first character must be a letter.</li>
-                                                        <li value="4">The last character must be a letter or number.</li>
-                                                        <li value="5">Minimum length is 3 characters.</li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <h2>Workbook</h2>
-                                            <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the  naming conventions:</a></span>
-                                                <div class="MCDropDownBody dropDownBody">
-                                                    <ul>
-                                                        <li value="1">The name is case-sensitive. </li>
-                                                        <li value="2">Length must not exceed 255 characters.</li>
-                                                        <li value="3"> Characters must be A-Z, a-z, 0-9, hyphen (-), underscore (_), or space.</li>
-                                                        <li value="4">First character must be a letter.</li>
-                                                        <li value="5">The name must not be one of the following strings:<ul><li value="1">udf</li><li value="2">udfs</li></ul></li>
-                                                        <li value="6">For the admin user, the name must not be PreUpgrade.</li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <h2>Worksheet</h2>
-                                            <p>Worksheet names are case-sensitive. There are no restrictions on the characters, but <span class="GeneralGUIName1">Xcalar Design</span> removes the space if you type it as the first character.</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">1023 bytes</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">Number of arguments accepted by a function (either defined by <span class="GeneralProductName3">Xcalar</span> or by a UDF). An argument can be a column name or a constant. For example, for the concat function, you can enter up to 1,024 strings to be concatenated.</td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">1024</td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">
+                                                            <p>The smallest unit of data for memory management in <span class="GeneralProductName3">Xcalar</span> is a memory page. Because a table row cannot span multiple memory pages, the size of a row must not exceed the maximum size of a memory page. There are two types of memory pages that affect the maximum row size:&#160;Xcalar Data Platform page and Xcalar transport page. These pages have different maximum values. The following list explains how the maximum  memory page size limits the row size in different scenarios:</p>
+                                                            <ul>
+                                                                <li value="1">When data is not sent across the network among cluster nodes, a row must not exceed the maximum size of a Xcalar Data Platform page (65536 bytes). </li>
+                                                                <li value="2">When <span class="GeneralProductName3">Xcalar</span> resolves prefixed fields  to derived fields during an operation, it  packs the prefixed fields in a transport page, sends the page to the respective cluster node, and processes the returned derived fields. When a transport page is being sent, the cumulative size of all the fields  to be resolved  in a row must not exceed the maximum size of a transport page (131072 bytes). </li>
+                                                            </ul>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">65536 or 131072 bytes</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <p>.</p>
                                         </div>
                                         <p><a href="#Top">Go to top</a>
                                         </p>

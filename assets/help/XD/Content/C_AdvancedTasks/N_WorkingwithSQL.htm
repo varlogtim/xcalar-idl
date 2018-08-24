@@ -18,10 +18,6 @@
         <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
         <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
         <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
-        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
         <style>/*&lt;meta /&gt;*/
 
 .button.previous-topic-button
@@ -60,6 +56,7 @@
 }
 
 </style>
+        <link href="../Resources/TableStyles/SimpleTable.css" rel="stylesheet" />
         <script src="../../Resources/Scripts/custom.modernizr.js">
         </script>
         <script src="../../Resources/Scripts/jquery.min.js">
@@ -185,120 +182,286 @@
                                         </div>
                                         <div class="bodyProxyNarrow">
                                             <h1>Working with   SQL in <span class="GeneralGUIName1">Xcalar Design</span></h1>
-                                            <p>This section describes how to use  SQL in <span class="GeneralGUIName1">Xcalar Design</span> for manipulating your data for analysis. </p>
+                                            <p>This section describes using <span class="GeneralProductName3">Xcalar</span> SQL in <span class="GeneralGUIName1">Xcalar Design</span> to manipulate  data for analysis. </p>
                                             <h2 class="noPageBreak">Understanding <span class="GeneralProductName3">Xcalar</span> SQL</h2>
-                                            <p> <span class="GeneralProductName3">Xcalar</span> SQL  enables you to run relational database query type processing on your data in <span class="GeneralGUIName1">Xcalar Design</span>. The <span class="GeneralProductName3">Xcalar</span> SQL is based on the traditional SQL ANSI standard and T-SQL. </p>
-                                            <p>The <span class="GeneralGUIName1">Xcalar Design</span> table publishing abstraction <b>SQL</b> extension  creates a schema based alias  from your <span class="GeneralProductName3">Xcalar</span> table. It publishes the alias (SQL Table Alias) into the SQL namespace providing support for  SQL query statements and operations on structured and semi-structured data. You can also combine <span class="GeneralGUIName1">Xcalar Design</span>’s extensive operations with your  SQL query statement operations.</p>
-                                            <p>The SQL Table Aliases are listed in the <b>Tables and Schemas available to SQL</b> section of the <span class="GeneralGUIName1">Xcalar Design</span> SQL panel, which provides an easy way to manage your SQL Table aliases and their schemas.</p>
-                                            <p>From the SQL code editor in the <span class="GeneralGUIName1">Xcalar Design</span> SQL panel, you enter and run a SQL query statement using the SQL  Table Alias name as the table name, which compiles your query, runs the relevant operation, and returns your results in a resultant <span class="GeneralProductName3">Xcalar</span> table.</p>
-                                            <p>The dataflow graph of your resultant <span class="GeneralProductName3">Xcalar</span> table enables you to view the operations that were executed, including the SQL query statements that were applied to your data. For more information, see <a href="#Viewing" class="MCXref xref" xrefformat="{para}">Viewing SQL  operations from the dataflow graph</a>.</p>
+                                            <p><span class="GeneralProductName3">Xcalar</span> SQL  enables you to run relational database query type processing on your data in <span class="GeneralGUIName1">Xcalar Design</span>. The <span class="GeneralProductName3">Xcalar</span> SQL is based on the traditional SQL ANSI standard. </p>
+                                            <p>The <span class="GeneralGUIName1">Xcalar Design</span> table publishing abstraction <span class="UIelement">SQL</span> extension  creates a schema-based alias  from your active <span class="GeneralProductName3">Xcalar</span> table. It  provides support for  SQL query statements and operations on structured and semi-structured data by publishing the alias (SQL Table Alias) into the SQL namespace. You can also combine <span class="GeneralGUIName1">Xcalar Design</span>’s extensive operations with your  SQL query statement operations.</p>
+                                            <p>The SQL Table Aliases are listed in the <span class="UIelement">Tables and Schemas available to SQL</span> section of the <span class="GeneralGUIName1">Xcalar Design</span> SQL panel, which provides an easy way to manage your SQL Table Aliases and their schemas.</p>
+                                            <p>The SQL code editor of the <span class="GeneralGUIName1">Xcalar Design</span> SQL panel contains features that simplify the creation and storage of your SQL query statements. You also run your query statements from the code editor, which applies each query simultaneously to the SQL Table Alias, compiles each query, runs the relevant operation, and returns your results in a <span class="GeneralProductName3">Xcalar</span> table.</p>
+                                            <p>The dataflow graph of your resultant <span class="GeneralProductName3">Xcalar</span> table displays all the operations that were executed, including the SQL queries. The SQL Query History  displays each SQL query statement applied to your data in more detail. For more information, see <a href="#Viewing" class="MCXref xref">Viewing SQL  operations from the dataflow graph</a> and <a href="#Understa" class="MCXref xref">Understanding the SQL Query History panel</a>.</p>
                                             <h2 class="noPageBreak">Relationship between a <span class="GeneralProductName3">Xcalar</span> table and a SQL  Table Alias</h2>
-                                            <p>The SQL Table Alias is an alias created for a <span class="GeneralProductName3">Xcalar</span> table that enables you to use SQL query statements that are case-insensitive on a <span class="GeneralProductName3">Xcalar</span> table which uses case-sensitive naming conventions. The alias is associated with a schema that contains the column names and  data types, such as integer or string, of the originating  <span class="GeneralProductName3">Xcalar</span> table. </p>
-                                            <div class="Note"><span class="label">TIP: </span>When a SQL Table Alias has been created from a <span class="GeneralProductName3">Xcalar</span> table, the new resultant <span class="GeneralProductName3">Xcalar</span> table displays the table name and column names in all capital letters. </div>
+                                            <p>The SQL Table Alias is an alias created for a <span class="GeneralProductName3">Xcalar</span> table that enables you to use SQL query statements that are case-insensitive on a <span class="GeneralProductName3">Xcalar</span> table, which uses case-sensitive naming conventions. The alias is associated with a schema that contains the column names and  data types, such as integer or string, of the originating  <span class="GeneralProductName3">Xcalar</span> table. </p>
+                                            <div class="Note"><span class="label">TIP: </span>When a SQL Table Alias is created the resultant <span class="GeneralProductName3">Xcalar</span> table displays the table name and column names in all capital letters. </div>
                                             <h2 class="noPageBreak"><a name="Creating"></a>Creating a SQL  Table Alias</h2>
-                                            <p>You can only create a SQL Table Alias on an active <span class="GeneralProductName3">Xcalar</span> table.</p>
+                                            <p>You can only create a SQL Table Alias from an <span class="UIelement">active</span> <span class="GeneralProductName3">Xcalar</span> table.</p>
                                             <p>To create a SQL Table Alias:</p>
                                             <ol>
-                                                <li value="1">Create a <span class="GeneralProductName3">Xcalar</span> table by doing one of the following:</li>
+                                                <li value="1">
+              Verify that the <span class="GeneralProductName3">Xcalar</span> table that contains the data for applying your SQL queries is active.
+            </li>
+                                                <li value="2">From the sidebar, click the <span class="UIelement">Extensions</span> <img src="../Resources/Images/XD_assets/xd-extensions.png" /> icon.</li>
+                                                <p>The <span class="UIelement">My Extensions</span> panel opens.</p>
+                                                <li value="3">Locate the <span class="UIelement">SQL</span> extension and then select <span class="UIelement">Create SQL Table Alias</span>.</li>
+                                                <p>The <span class="UIelement">SQL:Create SQL Table Alias</span> section opens.</p>
+                                                <li value="4">From the <span class="UIelement">Table</span> list, select the <span class="GeneralProductName3">Xcalar</span> table that contains the data for applying your SQL queries. </li>
+                                                <div class="Note"><span class="label">TIP</span>: If your table does not appear in the <span class="UIelement">Table</span> list, verify that your <span class="GeneralProductName3">Xcalar</span> table is active and is in the worksheet in which you are currently working. </div>
+                                                <li value="5">In the <span class="UIelement">Table Name</span> field, enter a name for the SQL  Table Alias.</li>
+                                                <div class="Note"><span class="label">NOTE:</span> <span class="GeneralProductName3">Xcalar</span> recommends using a name that relates to the originating  <span class="GeneralProductName3">Xcalar</span> table. For example, use the original <span class="GeneralProductName3">Xcalar</span> table name plus sql, such as <i>tablename_sql</i>. For more information on SQL Table Alias naming conventions, see <a href="#SQL2" class="MCXref xref">SQL Table Alias table naming conventions</a>.</div>
+                                                <li value="6">Before proceeding, verify that the name you entered in the <span class="UIelement">Table Name</span> field is original.</li>
+                                                <div class="Note"><span class="label">IMPORTANT:</span>  A SQL Table Alias can be overwritten  if you enter the exact same name of an existing SQL Table Alias. No  warning message appears after you click <span class="UIelement">APPLY</span> and the existing SQL Table Alias will no longer be available.</div>
+                                                <li value="7">Click <span class="UIelement">APPLY</span>, which does the following:</li>
                                                 <ul style="list-style-type: circle;">
-                                                    <li value="1">From your source data, create a dataset and then created a table from this dataset.</li>
-                                                    <li value="2">From an existing dataset, create a table.</li>
+                                                    <li value="1">Creates a new SQL  Table Alias, which appears in the SQL panel’s <span class="UIelement">Tables and Schemas available to SQL</span> section. </li>
+                                                    <li value="2">Creates  a  resultant  <span class="GeneralProductName3">Xcalar</span> table whose table name and column names are capitalized.</li>
+                                                    <li value="3">Replaces  the originating <span class="GeneralProductName3">Xcalar</span> table that you selected from the <span class="UIelement">Table</span> list with the resultant <span class="GeneralProductName3">Xcalar</span> table in your active worksheet.</li>
+                                                    <li value="4">Moves the originating <span class="GeneralProductName3">Xcalar</span> table that you selected from the Table list to the <span class="UIelement">Temporary Tables</span> list.</li>
+                                                    <li value="5">Locks the resultant <span class="GeneralProductName3">Xcalar</span> table and displays a lock icon in the top left corner.</li>
+                                                    <div class="Note"><span class="label">IMPORTANT: </span>Whereas, unlocking the resultant <span class="GeneralProductName3">Xcalar</span> table by clicking the lock icon does not prevent you from referring to the  alias, dropping (removing) the originating <span class="GeneralProductName3">Xcalar</span> table also drops the SQL Table Alias. <span class="GeneralProductName3">Xcalar</span> recommends that you do not unlock this table since this prevents the table from being dropped accidentally.</div>
                                                 </ul>
-                                                <p>Alternatively, use an existing active <span class="GeneralProductName3">Xcalar</span> table.</p>
-                                                <li value="2">From the sidebar, select the <b>Extensions</b> icon <img src="../Resources/Images/XD_assets/xd-extensions.png" />.</li>
-                                                <p>The My Extensions panel opens.</p>
-                                                <li value="3">Locate the <b>SQL</b> extension and then select <b>Create SQL Table Alias</b>.</li>
-                                                <p>The <b>SQL:Create SQL Table Alias</b> section opens.</p>
-                                                <li value="4">From the <b>Table</b> list, select the <span class="GeneralProductName3">Xcalar</span> table that contains the data for applying your SQL queries.</li>
-                                                <li value="5">In the <b>Table Name</b> field, enter a name for the SQL  Table Alias.</li>
-                                                <div class="Note"><span class="label">NOTE:</span> <span class="GeneralProductName3">Xcalar</span> recommends using a name that relates to the originating  <span class="GeneralProductName3">Xcalar</span> table. For example, use the original <span class="GeneralProductName3">Xcalar</span> table name plus sql, such as <i>tablename_sql</i>.</div>
-                                                <li value="6">Click <b>APPLY</b>, which does the following:</li>
-                                                <ul style="list-style-type: circle;">
-                                                    <li value="1">Creates a new SQL  Table Alias , which appears in the SQL panel’s <b>Tables and Schemas available to SQL</b> section. </li>
-                                                    <li value="2">Creates  a resultant  <span class="GeneralProductName3">Xcalar</span> table who’s table name and column name are in all capital letters.</li>
-                                                    <li value="3">Replaces  the originating <span class="GeneralProductName3">Xcalar</span> table that you selected from the <b>Table</b> list, with the new  resultant <span class="GeneralProductName3">Xcalar</span> table in your active worksheet.</li>
-                                                    <li value="4">Locks the resultant <span class="GeneralProductName3">Xcalar</span> table by displaying a lock icon in the top left corner of the resultant <span class="GeneralProductName3">Xcalar</span> table.</li>
-                                                    <div class="Note"><span class="label">IMPORTANT: </span>Unlocking the resultant <span class="GeneralProductName3">Xcalar</span> table by clicking the lock icon, removes your ability to refer to the alias for this <span class="GeneralProductName3">Xcalar</span> table in an SQL query.</div>
-                                                </ul>
-                                                <li value="7">(Optional) For each <span class="GeneralProductName3">Xcalar</span> table that is part or your SQL statement, such as tables for SQL join clauses, stay in the My Extensions panel and repeat steps 3 to 6. </li>
+                                                <li value="8">(Optional) For each <span class="GeneralProductName3">Xcalar</span> table that is part of your SQL statement, such as tables required for SQL join clauses, stay in the <span class="UIelement">My Extensions</span> panel and repeat steps 2 to 7. </li>
+                                                <div class="Note"><span class="label">NOTE:</span> If you need to revert to the originating <span class="GeneralProductName3">Xcalar</span> table, for instance you selected the wrong  table from the <span class="UIelement">Table</span> list, use one of the options described in <a href="../B_CommonTasks/F_UndoRedo.htm#top" class="MCXref xref">Undoing, redoing, and repeating an operation</a>. </div>
+                                                <div class="Note"><span class="label">IMPORTANT:</span> When you undo the <span class="UIelement">Create SQL Table Alias</span> operation, the SQL Table Alias is not removed. It is  listed in the SQL panel’s <span class="UIelement">Tables and Schemas available to SQL</span> section and is available as a table alias for SQL queries. The resultant <span class="GeneralProductName3">Xcalar</span> table created from the <span class="UIelement">Create SQL Table Alias</span> operation is also not removed but is moved to the <span class="UIelement">Temporary Tables</span> list. </div>
                                             </ol>
-                                            <p>If for any reason you need to revert back to the original <span class="GeneralProductName3">Xcalar</span> table, such as you selected the wrong  table from the <b>Table</b> list, use one of the options described in <a href="../B_CommonTasks/F_UndoRedo.htm#top" class="MCXref xref" xrefformat="{para}">Undoing, redoing, and repeating an operation</a>.</p>
                                             <h2 class="noPageBreak">Displaying the <span class="GeneralGUIName1">Xcalar Design</span> SQL panel </h2>
-                                            <p>Clicking the SQL&#160;icon <img src="../Resources/Images/XD_assets/xd-sql-icon.png" />, displays the SQL panel, as shown below: </p>
-                                            <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/sql_panel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="470" data-mc-height="1070" src="../Resources/Images/XD_screenshots/sql_panel_thumb_0_150.png" tabindex="" /></a>
+                                            <p>To display the <span class="UIelement">SQL </span>panel, click the <span class="UIelement">SQL&#160;</span> <img src="../Resources/Images/XD_assets/xd-sql-icon.png" /> icon. </p>
+                                            <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/sql_panel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="522" data-mc-height="621" src="../Resources/Images/XD_screenshots/sql_panel_thumb_0_150.png" tabindex="" /></a>
                                             </p>
                                             <h2 class="noPageBreak">Understanding the SQL panel</h2>
                                             <p>The <span class="GeneralGUIName1">Xcalar Design</span> SQL panel contains the following sections for applying SQL query statements on your data and managing your SQL Table Aliases:</p>
                                             <ul>
-                                                <li value="1"><span class="GeneralGUIName1">Xcalar Design</span> SQL&#160;code editor. For more information, see <a href="#SQL" class="MCXref xref" xrefformat="{para}">Working with SQL query statements in Xcalar tables</a>.</li>
-                                                <li value="2">Tables and Schemas available to SQL. For more information, see <a href="#All" class="MCXref xref" xrefformat="{para}">Working with your SQL Table Aliases</a>.</li>
+                                                <li value="1"><span class="GeneralGUIName1">Xcalar Design</span> SQL&#160;code editor. For more information, see <a href="#SQL" class="MCXref xref">Working with SQL query statements in Xcalar tables</a>.</li>
+                                                <li value="2">Tables and Schemas available to SQL. For more information, see <a href="#All" class="MCXref xref">Working with your SQL Table Aliases</a>.</li>
                                             </ul>
-                                            <h3><a name="SQL"></a>Working with SQL query statements in <span class="GeneralProductName3">Xcalar</span> tables</h3>
+                                            <h2 class="noPageBreak"><a name="SQL"></a>Working with SQL query statements in <span class="GeneralProductName3">Xcalar</span> tables</h2>
                                             <p>The <span class="GeneralGUIName1">Xcalar Design</span> SQL code editor is located at the top of the <span class="GeneralGUIName1">Xcalar Design</span> SQL panel and contains the following features:</p>
                                             <ul>
                                                 <li value="1">Syntax highlighting for most of the  SQL query statement keywords.</li>
-                                                <li value="2">Terminating your&#160;SQL statement with a semicolon is optional. </li>
-                                                <li value="3">The  SQL query statement keywords are NOT case-sensitive, for example, <b>SELECT</b> is the same as <b>select</b> and <b>FROM</b>&#160;is the same as <b>from</b>.</li>
-                                                <li value="4">SQL  verification. <span class="GeneralGUIName1">Xcalar Design</span> checks your SQL&#160;query statements before executing the SQL query. When errors are encountered, such as incorrect SQL syntax or an incorrect table name, an error message appears.</li>
-                                                <div class="Note"><span class="label">TIP:</span> The most common error is applying SQL on a <span class="GeneralProductName3">Xcalar</span> table that does not have a SQL Table Alias.</div>
+                                                <li value="2">Autocomplete suggestion and insertion assistance. </li>
+                                                <p>When entering your query statement in the <span class="GeneralProductName3">Xcalar</span> SQL code editor, autocomplete  suggestions appear, such as SQL keywords and SQL Table Alias names and column names. Select and accept the correct suggestion by pressing the <span class="UIelement">tab</span> or <span class="UIelement">enter</span> key. </p>
+                                                <li value="3">Case-insensitive keywords. </li>
+                                                <p>The <span class="GeneralProductName3">Xcalar</span> SQL query statement keywords are <span class="UIelement">not </span>case-sensitive. For example, <span class="UIelement">SELECT</span> is the same as <span class="UIelement">select</span> and <span class="UIelement">FROM</span>&#160;is the same as <span class="UIelement">from</span>.</p>
+                                                <li value="4">SQL keyboard shortcuts.</li>
+                                                <p><span class="GeneralProductName3">Xcalar</span> provides SQL keyboard shortcuts. For example, you can either manually add the double-hyphen (<span class="UIelement">--</span>) comment delimiter before a line comment  , such as <code>--example comment</code>, or depending on your operating system, use the <span class="GeneralProductName3">Xcalar</span> SQL Keyboard shortcut <span class="UIelement">Ctrl+ - </span>or <span class="UIelement">control+ -</span>. For more information on the <span class="GeneralProductName3">Xcalar</span> SQL Keyboard shortcuts, see <a href="../D_Reference/N_SQL_keyboardShortcuts.htm" class="MCXref xref">Xcalar SQL keyboard shortcuts</a>.</p>
+                                                <li value="5">Optional semicolon termination for a single SQL statement.</li>
+                                                <p>When applying a single SQL query statement, terminating the SQL query statement with a semicolon is optional. </p>
+                                                <div class="Note"><span class="label">TIP: </span>For code snippets containing multiple SQL statements that are not terminated with a semicolon, as they are intended to be  separately applied, you must highlight the single statement that is to be applied before clicking <span class="UIelement">EXECUTE SQL</span>. If you do not highlight the single statement, all queries are handled as one single SQL query statement. </div>
+                                                <li value="6">Multiple SQL query statement execution.</li>
+                                                <p>You can run multiple SQL queries simultaneously with one <span class="UIelement">EXECUTE SQL</span> click. For a multiple SQL query statement execution, you <span class="UIelement">must</span> end each SQL&#160;query statement with a semicolon. </p>
+                                                <li value="7">Stores multiple SQL&#160;queries in a code snippet. </li>
+                                                <p>For more information, see <a href="#Saving" class="MCXref xref">Storing SQL query statements in a code snippet</a>.</p>
+                                                <li value="8">Automatically saves query entries.</li>
+                                                <p>You can enter one or multiple SQL query statements in the <span class="GeneralGUIName1">Xcalar Design</span> SQL code editor, which remain until you remove them, even after you log out of <span class="GeneralGUIName1">Xcalar Design</span></p>
+                                                <li value="9">SQL verification. </li>
+                                                <p><span class="GeneralGUIName1">Xcalar Design</span> verifies your SQL&#160;query statements. When errors are encountered, such as incorrect SQL syntax or an incorrect table name, an error message appears. Error messages are saved and viewable from the <span class="UIelement">SQL History</span> panel. For more information, see <a href="#Understa" class="MCXref xref">Understanding the SQL Query History panel</a>.</p>
+                                                <div class="Note"><span class="label">TIP:</span> The most common error is trying to apply SQL on a <span class="GeneralProductName3">Xcalar</span> table that does not have a SQL Table Alias.</div>
                                             </ul>
                                             <h3>Applying SQL</h3>
-                                            <div class="Note"><span class="label">IMPORTANT:</span> All references to the name of the TABLE in your SQL query statement must use the alias name of the <span class="GeneralProductName3">Xcalar</span> table. For example, if your <span class="GeneralProductName3">Xcalar</span> table name is <b>transaction</b> and its SQL Table Alias name is <b>transaction_sql</b>, use <b>transaction_sql</b>, such as:<code><br />FROM&#160;transaction_sq</code>l</div>
-                                            <p>To apply SQL query statements on your data with the <span class="GeneralGUIName1">Xcalar Design</span> SQL&#160;code editor:</p>
+                                            <div class="Note"><span class="label">IMPORTANT:</span> All table names in your SQL query statement must use the alias name of the active <span class="GeneralProductName3">Xcalar</span> table. For example, if your active <span class="GeneralProductName3">Xcalar</span> table name is <span class="UIelement">transaction</span> and its SQL Table Alias name is <span class="UIelement">transaction_sql</span>, use <span class="UIelement">transaction_sql</span> in the SQL statement, as shown in the following example:<br /><br /><code>SELECT&#160;* FROM&#160;transaction_sql</code></div>
+                                            <p>To apply SQL:</p>
                                             <ol>
-                                                <li value="1">Verify that a SQL Table Alias was created from the active <span class="GeneralProductName3">Xcalar</span> table on which you are working.</li>
-                                                <li value="2">In the <span class="GeneralGUIName1">Xcalar Design</span> SQL&#160;code editor, enter the  SQL query statement.</li>
-                                                <li value="3">Click <b>EXECUTE SQL</b>.</li>
-                                                <li value="4">
-                (Optional) During the <b>EXECUTE SQL</b> action you can track your SQL query processing operation from the Operations panel. For more information, see <a href="#Tracking" class="MCXref xref" xrefformat="{para}">Tracking the SQL operation details</a>.</li>
+                                                <li value="1">Verify that a SQL Table Alias was created from the active <span class="GeneralProductName3">Xcalar</span> table in which you are working.</li>
+                                                <li value="2">(Optional) From the code snippet list, create a new code snippet to store your SQL queries. For more information, see <a href="#Saving" class="MCXref xref">Storing SQL query statements in a code snippet</a>. </li>
+                                                <li value="3">In the <span class="GeneralGUIName1">Xcalar Design</span> SQL&#160;code editor, do one of the following options:</li>
+                                                <ul style="list-style-type: circle;">
+                                                    <li value="1">To apply multiple SQL query statements simultaneously to your SQL Table Alias, enter each SQL query statement followed by a semicolon. </li>
+                                                    <li value="2">To apply a single SQL query statement to your SQL Table alias, enter one or more SQL query statements with or without a semicolon.</li>
+                                                    <div class="Note"><span class="label">NOTE: </span>This option requires that you highlight the single SQL query before clicking <span class="UIelement">EXECUTE SQL</span>.</div>
+                                                </ul>
+                                                <li value="4">Click <span class="UIelement">EXECUTE SQL</span>, which does the following:</li>
+                                                <ul style="list-style-type: circle;">
+                                                    <li value="1">Creates a resultant <span class="GeneralProductName3">Xcalar</span> table in the active worksheet. To apply SQL on this resultant <span class="GeneralProductName3">Xcalar</span> table, you must create a new SQL Table Alias from this resultant <span class="GeneralProductName3">Xcalar</span> table.</li>
+                                                    <li value="2">Keeps the active <span class="GeneralProductName3">Xcalar</span> table in the <span class="UIelement">Active</span> table list and worksheet. You can continue to apply SQL on this active <span class="GeneralProductName3">Xcalar</span> table using its SQL Table Alias.</li>
+                                                    <li value="3">Creates a temporary table for each SQL query operation.</li>
+                                                </ul>
+                                                <li value="5">
+                (Optional) Track your SQL query processing operations from the <span class="UIelement">Operations</span> panel. For more information, see <a href="#Tracking" class="MCXref xref">Tracking the SQL operation details</a>.</li>
+                                                <li value="6">(Optional) View and verify your SQL query history from the <span class="UIelement">SQL Query History</span> panel. For more information, see <a href="#Understa" class="MCXref xref">Understanding the SQL Query History panel</a>.</li>
                                             </ol>
-                                            <p>A resultant <span class="GeneralProductName3">Xcalar</span> table is created and added to your active worksheet. </p>
+                                            <h3><a name="Saving"></a>Storing SQL query statements in a code snippet</h3>
+                                            <p>The SQL code editor automatically saves your SQL query statements, even after you log out of <span class="GeneralGUIName1">Xcalar Design</span>. </p>
+                                            <p>You can also store SQL query statements for reuse in a  code snippet.</p>
+                                            <p>To store SQL query statements in a code snippet:</p>
+                                            <ol>
+                                                <li value="1">At the top of the SQL code editor, in the code snippet search field, click the down arrow.</li>
+                                                <p>The code snippet list appears.</p>
+                                                <li value="2">Select <span class="UIelement">New Snippet</span>.</li>
+                                                <li value="3">In the <span class="UIelement">Enter snippet name</span> field, enter a name for the snippet. </li>
+                                                <p>The new snippet appears in the code snippet search field.</p>
+                                                <li value="4">In the SQL code editor, enter your SQL query or queries.</li>
+                                            </ol>
+                                            <h3><a name="Managing"></a>Managing SQL code snippets</h3>
+                                            <p>The following management tasks can be performed from the SQL code snippet list:</p>
+                                            <ul>
+                                                <li value="1">Creating a new code snippet. </li>
+                                                <p>For more information, see <a href="#Saving" class="MCXref xref">Storing SQL query statements in a code snippet</a>.</p>
+                                                <li value="2">Renaming a code snippet. </li>
+                                                <ol style="list-style-type: lower-alpha;">
+                                                    <li value="1">At the top of the SQL code editor, in the code snippet search field, click the down arrow.</li>
+                                                    <p>The code snippet list appears.</p>
+                                                    <li value="2">From the code snippet list, click the pencil icon at the side of the code snippet's name that is to be renamed.</li>
+                                                    <li value="3">In the <span class="UIelement">code snippet's name</span> field, replace the code snippet's name with a new snippet name.</li>
+                                                    <li value="4">Press <span class="UIelement">Enter</span>.</li>
+                                                </ol>
+                                                <li value="3">Deleting a code snippet. </li>
+                                                <ol style="list-style-type: lower-alpha;">
+                                                    <li value="1">At the top of the SQL code editor, in the code snippet search field, click the down arrow.</li>
+                                                    <p>The code snippet list appears.</p>
+                                                    <li value="2">From the code snippet list, click the trash can icon at the side of the code snippet's name that is to be deleted.</li>
+                                                </ol>
+                                                <div class="Note"><span class="label">IMPORTANT:</span> No confirmation message appears when you delete a code snippet. Once deleted you cannot undo the delete action by clicking the <span class="UIelement">undo</span> icon or any other undo action.</div>
+                                            </ul>
+                                            <h3>Understanding the Default Snippet</h3>
+                                            <p>The <span class="UIelement">Default Snippet</span> enables you to quickly apply SQL queries on your SQL Table aliases. The SQL code editor automatically saves any SQL code that you enter in the <span class="UIelement">Default Snippet</span>, even after you log out of <span class="GeneralGUIName1">Xcalar Design</span>. </p>
+                                            <p>You can change the name of the <span class="UIelement">Default Snippet</span> by entering a new name in the code snippet search field and pressing <span class="UIelement">Enter</span>. </p>
+                                            <div class="Note"><span class="label">RECOMMENDATION:</span> The <span class="UIelement">Default Snippet</span> name is permanently changed to the new snippet name and the <span class="UIelement">Default Snippet</span> no longer appears in the code snippet list. To retain the <span class="UIelement">Default Snippet</span>, copy the SQL code that you have entered in the <span class="UIelement">Default Snippet</span> to a new code snippet. </div>
+                                            <div class="Note"><span class="label">NOTE:</span> To ensure that there is always a code snippet available for you to create new SQL queries, the <span class="UIelement">Default Snippet</span> will reappear in the code snippet list if all the code snippets are deleted. </div>
                                             <h3><a name="Tracking"></a>Tracking the SQL operation details</h3>
-                                            <p>You can track the SQL statement's processing details on the <span class="GeneralGUIName1">Xcalar Design</span> table from the Operations panel.</p>
+                                            <p>You can track the processing details of your SQL query statement from the <span class="GeneralGUIName1">Xcalar Design</span> <span class="UIelement">Operations</span> panel.</p>
                                             <p>To track the SQL operation details:</p>
                                             <ol>
-                                                <li value="1">From the sidebar, click the <b>Monitor</b> icon, and then click the <b>Operations</b> icon.</li>
-                                                <li value="2"> In the Operations panel, click the <b>Show all operations</b> button.</li>
-                                                <li value="3">From the <b>Show all operations</b> list, select <b>Execute SQL</b>.</li>
-                                                <p>The Operations Details page opens displaying the progress and the processing details of your SQL operation.</p>
+                                                <li value="1">From the sidebar, click the <span class="UIelement">Monitor</span> icon, and then click the <span class="UIelement">Operations</span> icon.</li>
+                                                <li value="2"> In the Operations panel, click the <span class="UIelement">Show all operations</span> button.</li>
+                                                <p>The <span class="UIelement">Show all operations</span> list opens to the last operation entry at the bottom of the list. </p>
+                                                <li value="3">From the <span class="UIelement">Show all operations</span> list, select <span class="UIelement">Execute SQL</span>.</li>
+                                                <p>The <span class="UIelement">Operations Details</span> page opens, displaying the progress and the processing details of your SQL query. </p>
+                                                <li value="4">(Optional) To view the resultant <span class="GeneralProductName3">Xcalar</span> table, click <span class="UIelement">VIEW&#160;OUTPUT</span>.</li>
                                             </ol>
-                                            <h3><a name="All"></a>Working with your SQL Table Aliases</h3>
-                                            <p>All SQL  Table Aliases for your workbook are listed in the SQL panel’s <b>Tables and Schemas available to SQL</b> section.</p>
-                                            <p>Each SQL  Table Alias is associated with a schema that contains the column names and  data types, such as integer or string, of the originating <span class="GeneralProductName3">Xcalar</span> table. You can view the SQL Table Alias's schema by clicking on the name of the SQL Table Alias from the SQL Table Alias list. This action not only displays the column names and data types, it also displays the name of the <span class="GeneralProductName3">Xcalar</span> table, and turns the SQL Table Alias name blue. </p>
-                                            <p>The <b>Tables and Schemas available to SQL</b> section contains the following functions for working with and managing your SQL Table Aliases:</p>
+                                            <div class="Note"><span class="label">NOTE:</span> When applying multiple SQL queries, multiple <span class="UIelement">Execute SQL</span> operations will appear in the <span class="UIelement">Show all operations</span> list. </div>
+                                            <h3><a name="Understa"></a>Understanding the SQL Query History panel</h3>
+                                            <p>The SQL Query History  panel displays in detail the SQL query statements that were applied to your data.</p>
+                                            <p>To open the SQL Query History panel:</p>
+                                            <ol>
+                                                <li value="1">From the sidebar, click the  <span class="UIelement">Monitor</span> <img src="../Resources/Images/XD_assets/xd-monitor.png" /> icon.</li>
+                                                <li value="2">From the <span class="UIelement">Monitor</span> icon's sublist, click the <span class="UIelement">SQL Query History</span> <img src="../Resources/Images/XD_assets/xd_sql_query_history_icon.png" /> icon.</li>
+                                            </ol>
+                                            <div class="Note"><span class="label">TIP:</span> The Query History page lists your queries from the most recent operation, which is based on the <span class="UIelement">Start Time </span>column values. You can also sort the Query History  from the <span class="UIelement">Duration</span> and <span class="UIelement">Status</span> column values, by clicking in their column heading. Where the down and up arrows indicate the sort order.</div>
+                                            <p>The following table describes the entry fields of the <span class="UIelement">Query History</span> page:</p>
+                                            <table style="width: 100%;mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;mc-caption-repeat: true;" class="TableStyle-SimpleTable" cellspacing="0">
+                                                <col class="TableStyle-SimpleTable-Column-Column1" style="width: 239px;" />
+                                                <col class="TableStyle-SimpleTable-Column-Column2" />
+                                                <thead>
+                                                    <tr class="TableStyle-SimpleTable-Head-Header1">
+                                                        <th class="TableStyle-SimpleTable-HeadE-Column1-Header1">
+                                                            <p>Field</p>
+                                                        </th>
+                                                        <th class="TableStyle-SimpleTable-HeadD-Column2-Header1">
+                                                            <p>Description</p>
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>Status</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                            <p>Lists the final processing execution state of the query statement:</p>
+                                                            <ul>
+                                                                <li value="1"><span class="UIelement">Canceled</span> - the query operation did not complete because the query was deliberately stopped by the user. For example, the user pressed the <span class="UIelement">cancel</span> shortcut key.</li>
+                                                                <li value="2"><span class="UIelement">Compiling</span> - the query operation is being compiled.</li>
+                                                                <li value="3"><span class="UIelement">Done</span> - the query  operation successfully completed processing.</li>
+                                                                <li value="4"><span class="UIelement">Failed</span> - the query  operation did not complete due to incorrect or incomplete SQL syntax. For more details, open the <span class="UIelement">SQL ERROR</span>&#160;window from the <span class="UIelement">View Results</span> column.</li>
+                                                                <li value="5"><span class="UIelement">Interrupted</span> - the query  operation did not complete due to either a network failure or user interference. For example, the user refreshed the browser window.</li>
+                                                                <li value="6"><span class="UIelement">Running</span> - the query operation is processing the query on the data. </li>
+                                                            </ul>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>Query</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                            <p>Displays the query that was applied to the data. </p>
+                                                            <p>To fully display the query value, in the <span class="UIelement">Query </span>field, click on the query, which opens a <span class="UIelement">SQL Query </span>window.</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body1">
+                                                            <p>Start Time</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
+                                                            <p>Displays the exact time the query was run using the <code>mm-dd-yyyy hr:mins:secs</code> date format. For example, <code>7-31-2018 3:35:44</code>.</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body2">
+                                                        <td class="TableStyle-SimpleTable-BodyE-Column1-Body2">
+                                                            <p>Duration</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
+                                                            <p>Displays how long the query took to complete its run.</p>
+                                                            <p>If the query was interrupted or canceled, N/A is displayed, which represents not applicable.</p>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="TableStyle-SimpleTable-Body-Body1">
+                                                        <td class="TableStyle-SimpleTable-BodyB-Column1-Body1">
+                                                            <p>View Results</p>
+                                                        </td>
+                                                        <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">
+                                                            <p>Displays the results of the query:</p>
+                                                            <ul>
+                                                                <li value="1">If successful, the field is populated with a link to the resultant <span class="GeneralProductName3">Xcalar</span> table. </li>
+                                                                <li value="2">If unsuccessful, the field is populated with a link to the SQL&#160;error message. </li>
+                                                                <li value="3">If the <span class="GeneralProductName3">Xcalar</span> table is dropped, the field is populated with an error message that states the table has been dropped and therefore the link to the table no longer exists.</li>
+                                                            </ul>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <h2 class="noPageBreak"><a name="All"></a>Working with your SQL Table Aliases</h2>
+                                            <p>All SQL  Table Aliases for your workbook are listed in the SQL panel’s <span class="UIelement">Tables and Schemas available to SQL</span> section.</p>
+                                            <p>Each SQL  Table Alias is associated with a schema that contains the column names and  data types, such as integer or string, of the originating <span class="GeneralProductName3">Xcalar</span> table. You can view the schema of a SQL Table Alias by clicking on the name of the SQL Table Alias from the SQL Table Alias list. This action not only displays the column names and data types, it also turns the SQL Table Alias name blue, displays the name of the <span class="GeneralProductName3">Xcalar</span> table, and brings the <span class="GeneralProductName3">Xcalar</span> table into focus. </p>
+                                            <p>The <span class="UIelement">Tables and Schemas available to SQL</span> section contains the following functions for working with and managing your SQL Table Aliases:</p>
                                             <ul>
                                                 <li value="1">SQL Table Alias list, which lists the available SQL&#160;Table Aliases for this worksheet.</li>
-                                                <li value="2"><b>Table in workbook</b> field, which displays the name of the <span class="GeneralProductName3">Xcalar</span> table that was used to create the SQL&#160;Table Alias when the SQL Table Alias is selected in the SQL Table Alias list.</li>
-                                                <li value="3"><b>Tables</b> search tool, which enables you to filter the SQL Table Alias list for alias names specified in the search string.</li>
-                                                <li value="4"><b>Columns</b> search tool, which enables you to filter the schema list for column names specified in the search string. </li>
-                                                <li value="5">Column name action, which focuses on the column in your worksheet when you click on column name in the schema.</li>
-                                                <li value="6">Trash can icon <img src="../Resources/Images/XD_assets/xd-trashcan.png" />, which is displayed by each SQL  Table Alias name and is used to remove an SQL Table Alias from your workbook.</li>
+                                                <li value="2"><span class="UIelement">Table in workbook</span> field, which displays the name of the <span class="GeneralProductName3">Xcalar</span> table that was used to create the SQL&#160;Table Alias.</li>
+                                                <li value="3"><span class="UIelement">Tables</span> search tool, which enables you to filter the SQL Table Alias list for alias names specified in the search string. Results automatically appear as you type.</li>
+                                                <li value="4"><span class="UIelement">Columns</span> search tool, which enables you to filter the schema list for column names specified in the search string. Results automatically appear as you type.</li>
+                                                <li value="5">Column name action, which focuses on the column in your worksheet when you click on a column name in the schema.</li>
+                                                <li value="6">Trash can <img src="../Resources/Images/XD_assets/xd-trashcan.png" /> icon, which is displayed by each SQL  Table Alias name and is used to remove an SQL Table Alias.</li>
                                             </ul>
                                             <h3>Removing a SQL Table Alias</h3>
-                                            <p> To remove (drop) a SQL  Table Alias from the <b>Tables and Schemas available to SQL</b> section, click the trash can icon&#160;<img src="../Resources/Images/XD_assets/xd-trashcan.png" /> .</p>
-                                            <div class="Note"><span class="label">IMPORTANT:</span> No  confirmation action message appears when you drop a SQL&#160;Table Alias. Once removed you cannot undo the drop action by using the undo arrow or any other undo action.  </div>
-                                            <div class="Note"><span class="label">NOTE:</span> Though you may have removed a SQL  Table Alias from the SQL&#160;panel, all the SQL query operations that you applied to the resultant <span class="GeneralProductName3">Xcalar</span> table are still part of your modeling dataflow. If you still require the SQL Table Alias you must recreate the alias as described in <a href="#Creating" class="MCXref xref" xrefformat="{para}">Creating a SQL  Table Alias</a>.</div>
+                                            <p> To remove (drop) a SQL  Table Alias from the <span class="UIelement">Tables and Schemas available to SQL</span> section, click the trash can&#160;<img src="../Resources/Images/XD_assets/xd-trashcan.png" /> icon.</p>
+                                            <div class="Note"><span class="label">IMPORTANT:</span> No  confirmation message appears when you drop a SQL&#160;Table Alias. Once removed you cannot undo the drop action by using the <span class="UIelement">undo</span> icon or any other undo action.  </div>
+                                            <div class="Note"><span class="label">NOTE:</span> After you have removed a SQL  Table Alias from the SQL&#160;panel, all the SQL query operations that you applied to the resultant <span class="GeneralProductName3">Xcalar</span> table remain in the table's dataflow. If you still require the SQL Table Alias you must recreate the alias as described in <a href="#Creating" class="MCXref xref">Creating a SQL  Table Alias</a>.</div>
                                             <h2 class="noPageBreak"><a name="Viewing"></a>Viewing SQL  operations from the dataflow graph</h2>
                                             <p>You can view the SQL&#160;query statement and the operations that were applied to your <span class="GeneralProductName3">Xcalar</span> table as a result of executing the SQL query statement, from the dataflow graph of your analytics pipeline, as shown in the following image.</p>
                                             <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/sql_dataflowgraph.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="781" data-mc-height="319" src="../Resources/Images/XD_screenshots/sql_dataflowgraph_thumb_0_150.png" tabindex="" /></a>
                                             </p>
+                                            <h2 class="noPageBreak"><a name="SQL2"></a>SQL Table Alias table naming conventions</h2>
+                                            <div class="MCDropDown MCDropDown_Open dropDown"><span class="MCDropDownHead dropDownHead"><a href="javascript:void(0);" class="MCDropDownHotSpot dropDownHotspot MCDropDownHotSpot_ MCHotSpotImage"><img class="MCDropDown_Image_Icon" src="../../Skins/Default/Stylesheets/Images/transparent.gif" height="16" width="17" alt="Closed" data-mc-alt2="Open" />The following list describes the naming conventions:</a></span>
+                                                <div class="MCDropDownBody dropDownBody">
+                                                    <ul>
+                                                        <li value="1"> Characters must be A-Z, a-z, 0-9, hyphen (-), underscore (_), or space. </li>
+                                                        <li value="2">First character must be a letter.</li>
+                                                        <li value="3">Length must not exceed 255 characters.</li>
+                                                    </ul>
+                                                    <p>When the SQL Table Alias is generated from the <span class="GeneralProductName3">Xcalar</span> table, its name is automatically processed into uppercase by <span class="GeneralProductName3">Xcalar</span> and made case-insensitive.</p>
+                                                </div>
+                                            </div>
+                                            <div class="Note"><span class="label">IMPORTANT:</span> A SQL Table Alias can be overwritten. No  warning message appears when you create a SQL&#160;Table Alias that uses the exact same name as an existing SQL Table Alias. Because the existing alias is overwritten, it is no longer part of its original <span class="GeneralProductName3">Xcalar</span> table. </div>
                                             <h2 class="noPageBreak"><span class="GeneralProductName3">Xcalar</span> SQL Limitations</h2>
                                             <p>The following operations are not supported:</p>
                                             <ul>
                                                 <li value="1">A standard deviation on data when applied with other aggregate functions.</li>
-                                                <li value="2">
-                                                    <p>A frame clause for the following window functions:</p>
-                                                </li>
-                                                <ul style="list-style-type: circle;">
-                                                    <li value="1">RANGE UNBOUNDED PRECEDING</li>
-                                                    <li value="2">RANGE BETWEEN CURRENT ROW AND CURRENT ROW</li>
-                                                    <li value="3">[RANGE | ROWS] BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</li>
-                                                    <li value="4">[RANGE | ROWS] BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING</li>
-                                                </ul>
-                                                <li value="3">GROUPING SETS and CUBE queries</li>
-                                                <li value="4">SQL queries that run on less than one table. </li>
-                                                <li value="5">Multiple SQL query statements for one execution action. </li>
-                                                <div class="Note"><span class="label">NOTE: </span>If you require multiple SQL statements, separate and run each SQL query statement, one after the other.</div>
+                                                <li value="2">SQL queries that run on less than one table.</li>
+                                            </ul>
+                                            <h3>Window function restrictions:</h3>
+                                            <p>The following window functions are supported without the OVER clause:<ul style="list-style-type: square;"><li value="1">Values - FIRST_VALUE(), LAST_VALUE(), LAG(), LEAD()</li><li value="2">Ranking - CUME_DIST(), DENSE_RANK(), PERCENT_RANK(), ROW_NUMBER()</li></ul></p>
+                                            <div class="Note"><span class="label">IMPORTANT:</span> Ranking functions depend on sort ordering specified by the ORDER BY clause, which is part of the OVER clause. If you do not include the OVER clause when using ORDER BY,&#160;the results are non-deterministic. </div>
+                                            <h3>Frame clause restrictions:</h3>
+                                            <p>In the frame clause of a window function, you must specify where the frame starts and  ends.</p>
+                                            <p>The <span class="GeneralProductName3">Xcalar</span> SQL default frame clause includes all the values from the start of the partition through to the last row of the partition:</p>
+                                            <p>[RANGE | ROWS] BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING</p>
+                                            <p>Where:</p>
+                                            <ul>
+                                                <li value="1">UNBOUNDED PRECEDING is where the frame starts with the first row of the partition.</li>
+                                                <li value="2">UNBOUNDED FOLLOWING is where the frame ends with the last row of the partition.</li>
+                                            </ul>
+                                            <p>The following frame clauses are not supported:</p>
+                                            <ul>
+                                                <li value="1">RANGE UNBOUNDED PRECEDING</li>
+                                                <li value="2">[RANGE | ROWS] BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</li>
+                                                <li value="3">RANGE BETWEEN CURRENT ROW AND CURRENT ROW</li>
                                             </ul>
                                         </div>
                                         <p><a href="#Top">Go to top</a>

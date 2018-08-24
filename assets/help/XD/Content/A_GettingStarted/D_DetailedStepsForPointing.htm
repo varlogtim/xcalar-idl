@@ -18,10 +18,6 @@
         <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
         <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
         <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
-        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
         <style>/*&lt;meta /&gt;*/
 
 .button.previous-topic-button
@@ -201,7 +197,7 @@
                                             <p>The following list describes two methods to select the data source:</p>
                                             <ul>
                                                 <li value="1">Display the file browser and then navigate to the data source. Use this method if any of these conditions are true:<ul><li value="1">You do not know the exact location of the file or folder to be used as the data source.</li><li value="2">You need to preview the raw data in the data source file before the import.</li><li value="3">You need to recursively import data from a data source folder.</li><li value="4">You want to create multiple datasets at one time, based on one specified path.</li></ul></li>
-                                                <li value="2">Type the data source path to select it immediately. Use this method if all of the following conditions are true:<ul><li value="1">You know the exact location of the file or folder to be used as the data source.</li><li value="2">You posess authoritative knowledge about  the format and contents of the data source.</li><li value="3">You are creating one dataset based on the file or folder.</li></ul></li>
+                                                <li value="2">Type the data source path to select it immediately. Use this method if all of the following conditions are true:<ul><li value="1">You know the exact location of the file or folder to be used as the data source.</li><li value="2">You know   the format and contents of the data source.</li><li value="3">You are creating one dataset based on the file or folder.</li></ul></li>
                                             </ul>
                                             <h2>Selecting the data target</h2>
                                             <p>Follow these steps to select the data target:</p>
@@ -290,7 +286,7 @@
                                             <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/file-browser-top-sections.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="762" data-mc-height="548" src="../Resources/Images/XD_screenshots/file-browser-top-sections_thumb_0_150.png" tabindex="" /></a>
                                             </p>
                                             <h4>Searching for items in the file browser</h4>
-                                            <p> If the folder contains a large number of files or subfolders, use the <span class="UIelement">Search</span> field  to find relevant files.  </p>
+                                            <p> If the folder contains a large number of files or sub-folders, use the <span class="UIelement">Search</span> field  to find relevant files.  </p>
                                             <p>Typing or clicking in the <span class="UIelement">Search</span> field displays a drop-down list showing different search methods. If you do not select a search method, the search is a plain text search. </p>
                                             <p>Regardless of the method, the search is case sensitive. Also, the search is recursive.</p>
                                             <p>The following table explains the different kinds of search. </p>
@@ -314,7 +310,7 @@
                                                             </p>
                                                         </td>
                                                         <td class="TableStyle-SimpleTable-BodyD-Column2-Body1">
-                                                            <p>A pathname relative to the current folder is an exact match for the regular expression. For example, if the current folder is /home/datasets, which contains myfiles/file1.txt and myfiles/file2.txt, the regular expression is compared to myfiles/file1.txt and myfiles/file2.txt to determine if there is an exact match.</p>
+                                                            <p>A path name relative to the current folder is an exact match for the regular expression. For example, if the current folder is /home/datasets, which contains myfiles/file1.txt and myfiles/file2.txt, the regular expression is compared to myfiles/file1.txt and myfiles/file2.txt to determine if there is an exact match.</p>
                                                         </td>
                                                     </tr>
                                                     <tr class="TableStyle-SimpleTable-Body-Body2">
@@ -323,7 +319,7 @@
                                                             </p>
                                                         </td>
                                                         <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
-                                                            <p>A pathname relative to the current folder contains the regular expression. For example, if the current folder is /home/datasets, which contains myfiles/file1.txt and myfiles/file2.txt, the regular expression is compared to myfiles/file1.txt and myfiles/file2.txt to determine if the relative pathname contains the regular expression.</p>
+                                                            <p>A path name relative to the current folder contains the regular expression. For example, if the current folder is /home/datasets, which contains myfiles/file1.txt and myfiles/file2.txt, the regular expression is compared to myfiles/file1.txt and myfiles/file2.txt to determine if the relative path name contains the regular expression.</p>
                                                         </td>
                                                     </tr>
                                                     <tr class="TableStyle-SimpleTable-Body-Body1">
@@ -341,7 +337,7 @@
                                                             </p>
                                                         </td>
                                                         <td class="TableStyle-SimpleTable-BodyD-Column2-Body2">
-                                                            <p>The  file name contains the glob pattern. For example, if the current folder is /home/datasets, which contains myfiles/file1.txt and myfiles/file2.txt, the glob pattern is compared to file1.txt and file2.txt to determine if the file name contains the glob pattern..</p>
+                                                            <p>The  file name contains the glob pattern. For example, if the current folder is /home/datasets, which contains myfiles/file1.txt and myfiles/file2.txt, the glob pattern is compared to file1.txt and file2.txt to determine if the file name contains the glob pattern.</p>
                                                         </td>
                                                     </tr>
                                                     <tr class="TableStyle-SimpleTable-Body-Body1">
@@ -350,7 +346,7 @@
                                                             </p>
                                                         </td>
                                                         <td class="TableStyle-SimpleTable-BodyA-Column2-Body1">
-                                                            <p>A pathname relative to the current folder contains the search string. For example, if the current folder is /home/datasets, which contains myfiles/file1.txt and myfiles/file2.txt, the search string is compared to myfiles/file1.txt and myfiles/file2.txt to determine if the pathname contains the search string..</p>
+                                                            <p>A path name relative to the current folder contains the search string For example, if the current folder is /home/datasets, which contains myfiles/file1.txt and myfiles/file2.txt, the search string is compared to myfiles/file1.txt and myfiles/file2.txt to determine if the path name contains the search string.</p>
                                                         </td>
                                                     </tr>
                                                 </tbody>
@@ -447,7 +443,7 @@
                                                     <p>
                                                         <img src="../Resources/Images/XD_screenshots/file-browser-recusive.png" />
                                                     </p>
-                                                    <div class="Note"><span class="label">NOTE</span>:&#160;If the folder contains only subfolders but no files, you must select <span class="UIelement">Recursive</span>. Otherwise, the folder cannot be used as a data source, and an error message is displayed. </div>
+                                                    <div class="Note"><span class="label">NOTE</span>:&#160;If the folder contains only sub-folders but no files, you must select <span class="UIelement">Recursive</span>. Otherwise, the folder cannot be used as a data source, and an error message is displayed. </div>
                                                 </li>
                                                 <li value="5">
                                                     <p>If the list of selected files and folders contains multiple items, use the&#160;<span class="UIelement">One Dataset/Multiple&#160;Datasets</span> selector to  instruct <span class="GeneralProductName3">Xcalar</span> to create one dataset for all items or one dataset per item.</p>
@@ -459,15 +455,15 @@
                                             <p>Follow these steps to specify all files matching a regular expression as data sources:</p>
                                             <ol>
                                                 <li value="1">Use the Browse Data Source window to select the lowest-level folder containing all data source files.</li>
-                                                <li value="2">In the search field, type a regular expression to select all appropriate data source files in the current folder, and optionally, its subdirectories.</li>
+                                                <li value="2">In the search field, type a regular expression to select all appropriate data source files in the current folder, and optionally, its sub-directories.</li>
                                                 <li value="3">Select <span style="font-style: italic;">regex(match)</span> from the search pull down menu.</li>
                                                 <li value="4">Modify the regular expression until you confirm that only  appropriate data source files display in the file browser. </li>
                                                 <li value="5">In the <span style="font-weight: bold;">Selected Files / Folders list</span>, click the <span style="font-weight: bold;">Click to Add Regex</span> link. An item is added to the list containing the current folder followed by an editable regular expression, <span> <i>.*$</i></span>. </li>
                                                 <li value="6">Copy the regular expression from the search field, and paste it to replace the <span> <i>.*$</i></span> in the Selected Files / Folders list.</li>
-                                                <li value="7">To apply the regex to all subdirectories, click the <span style="font-weight: bold;">Recursive</span> checkbox next to your expression.</li>
+                                                <li value="7">To apply the regex to all sub-directories, click the <span style="font-weight: bold;">Recursive</span> checkbox next to your expression.</li>
                                                 <li value="8">Click <span style="font-weight: bold;">NEXT</span>.</li>
                                             </ol>
-                                            <div class="Note"><span style="font-weight: bold;">NOTE</span>:&#160;The search field performs a recursive search, by default. If some data source files are in subdirectories, then your results will only be identical if you click the <span style="font-weight: bold;">Recursive</span> checkbox. </div>
+                                            <div class="Note"><span style="font-weight: bold;">NOTE</span>:&#160;The search field performs a recursive search, by default. If some data source files are in sub-directories, then your results will only be identical if you click the <span style="font-weight: bold;">Recursive</span> checkbox. </div>
                                             <div class="Note"><span style="font-weight: bold;">NOTE</span>:&#160;This topic assumes you are familiar with writing regular expressions (regex). For more information about writing regexes, see <a href="https://docs.python.org/3/howto/regex.html#regex-howto">https://docs.python.org/3/howto/regex.html#regex-howto</a>.</div>
                                             <h3><a name="Viewing"></a>Viewing raw data</h3>
                                             <p>This section is applicable if you want to select a file as a data source and you want to examine the raw data in the file. </p>

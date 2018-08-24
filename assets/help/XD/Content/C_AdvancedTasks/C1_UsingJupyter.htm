@@ -18,10 +18,6 @@
         <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
         <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
         <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
-        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
         <style>/*&lt;meta /&gt;*/
 
 .button.previous-topic-button
@@ -215,7 +211,7 @@
                                                 <li value="1">The Jupyter Notebook dashboard with a file tree, which lists the notebooks created for all workbooks. You can manage your notebooks by opening a notebook for editing or uploading a notebook.</li>
                                                 <li value="2">
                                                     <p>The notebook editor with the contents of the open notebook. You can edit the contents as you normally would in Jupyter Notebook.</p>
-                                                    <div class="Note"><span class="label">IMPORTANT</span>:&#160;Do not edit the <span class="GeneralProductName3">Xcalar</span>connection code snippet, which is necessary for <span class="GeneralGUIName1">Xcalar Design</span> to work with  the notebook. The code is in the first cell of the notebook. If you accidentally change the code, you can restore the code by following the instructions in <a href="#Connecti" class="MCXref xref" xrefformat="{para}">Connecting a notebook to the active workbook</a>.</div>
+                                                    <div class="Note"><span class="label">IMPORTANT</span>:&#160;Do not edit the <span class="GeneralProductName3">Xcalar</span> connection code snippet, which is necessary for <span class="GeneralGUIName1">Xcalar Design</span> to work with  the notebook. The code is in the first cell of the notebook. If you accidentally change the code, you can restore the code by following the instructions in <a href="#Connecti" class="MCXref xref" xrefformat="{para}">Connecting a notebook to the active workbook</a>.</div>
                                                     <p>The following screenshot shows an example of the connection code snippet:</p>
                                                 </li>
                                             </ul>
@@ -239,16 +235,16 @@
                                                 <li value="1">At the top of the <span class="UIelement">JUPYTER&#160;NOTEBOOK</span>&#160;window, click <span class="UIelement">CODE&#160;SNIPPETS</span>, which displays a drop-down menu.</li>
                                                 <li value="2">
                                                     <p>Select <span class="UIelement">Connect to <span class="GeneralProductName3">Xcalar</span> Workbook</span>, which creates a new cell beneath the current cell in the notebook. The new cell contains the snippet to connect the notebook to the current workbook.</p>
-                                                    <div class="Note"><span class="label">IMPORTANT</span>:&#160;If the notebook has another cell with the connection code snippet for a workbook other than the current workbook, best practice is to to delete that cell. A notebook with connections to multiple workbooks causes errors. </div>
+                                                    <div class="Note"><span class="label">IMPORTANT</span>:&#160;If the notebook has another cell with the connection code snippet for a workbook other than the current workbook, best practice is to  delete that cell. A notebook with connections to multiple workbooks causes errors. </div>
                                                 </li>
                                                 <li value="3">Move the new connection snippet cell to the top of your workbook. </li>
                                             </ol>
-                                            <h2>Creating a UDF with a <span class="GeneralProductName3">Xcalar</span> UDF&#160;template</h2>
-                                            <p><span class="GeneralGUIName1">Xcalar Design</span>
-             provides you with the following UDF&#160;templates: </p>
+                                            <h2><a name="CreateUDF"></a>Creating a UDF with a <span class="GeneralProductName3">Xcalar</span> UDF&#160;template</h2>
+                                            <p><span class="GeneralGUIName1">Xcalar Design</span>'s integrated Jupyter Notebook
+             provides you with the following UDF&#160;templates in the code snippets list: </p>
                                             <ul>
-                                                <li value="1">A Map UDF, which is a function for running the Map operator.</li>
-                                                <li value="2">An Import UDF, which is a function for importing a custom  data source format.</li>
+                                                <li value="1">Create Map UDF, which contains a function definition to modify and instructions on writing and testing a map UDF.</li>
+                                                <li value="2">Create Import UDF, which contains a function definition to modify and instructions on writing and testing an import UDF&#160;for importing a file with custom  data source format.</li>
                                             </ul>
                                             <p>The following section describes how to  display a UDF template and modify the code. </p>
                                             <div class="Note"><span class="label">NOTE</span>:&#160;If you want to create an import UDF, start Jupyter Notebook from the <span class="UIelement">Import Data Source</span> window.</div>

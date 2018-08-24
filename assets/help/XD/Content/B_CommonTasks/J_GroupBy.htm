@@ -18,10 +18,6 @@
         <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
         <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
         <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
-        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
         <style>/*&lt;meta /&gt;*/
 
 .button.previous-topic-button
@@ -193,21 +189,27 @@
                                             <h2>Aggregate functions supported</h2>
                                             <p>The following aggregate functions are supported:</p>
                                             <ul>
-                                                <li value="1">Average</li>
+                                                <li value="1">Average (avg)</li>
                                                 <li value="2">Count</li>
-                                                <li value="3">List aggregate</li>
-                                                <li value="4">Maximum</li>
-                                                <li value="5">Maximum integer</li>
-                                                <li value="6">Minimum</li>
-                                                <li value="7">Minimum integer</li>
-                                                <li value="8">Sum</li>
-                                                <li value="9">Sum integer</li>
+                                                <li value="3">List aggregate (listAgg)</li>
+                                                <li value="4">Maximum (max)</li>
+                                                <li value="5">Maximum float (maxFloat)</li>
+                                                <li value="6">Maximum integer (maxInteger)</li>
+                                                <li value="7">Maximum string (maxString)</li>
+                                                <li value="8">Minimum (min)</li>
+                                                <li value="9">Minimum float (minFloat)</li>
+                                                <li value="10">Minimum integer (minInteger)</li>
+                                                <li value="11">Minimum string (minString)</li>
+                                                <li value="12">Sum</li>
+                                                <li value="13">Sum integer (sumInteger)</li>
                                             </ul>
+                                            <h2>Using aggregate functions on mixed columns</h2>
+                                            <p>If a column's data type is mixed, the result of an aggregate function is undefined.&#160;Cast a mixed column to the desired data type before you run an aggregate function on it.</p>
                                             <h3><a name="Understa"></a>Understanding the listAgg (list aggregate) function</h3>
                                             <p>The listAgg function is a string function. It concatenates all strings in a column. The maximum number of characters in a result is 16,000. If the result exceeds this limit, the following error message is displayed:</p>
                                             <p class="CLIoutput">Error: Value too large for defined data type</p>
                                             <p>This function ignores null strings. For example, if a null string is concatenated with the string ABC, the result is ABC. </p>
-                                            <h2>Grouping data by columns</h2>
+                                            <h2><a name="Grouping"></a>Grouping data by columns</h2>
                                             <p>Follow these steps to group data by one or multiple columns:</p>
                                             <ol>
                                                 <li value="1">
@@ -231,7 +233,7 @@
                                                             <p>For typing an operand value:</p>
                                                             <ul>
                                                                 <li value="1">In most cases, do not surround the value with quote marks, even if it is a string with a space. In cases where the function can evaluate the value as a string or numeric value, use the quote marks.&#160;You can check the syntax displayed in the panel.&#160;The syntax displays the quote marks for an operand if the operand is to be interpreted as a string.</li>
-                                                                <li value="2">If the string contains a special character, such as the backslash (\) or double quote mark ("), escape the special character with a backslash (\). Without using the backslash as the escape character, you will see an error message, indicating that the input string is a malformed evaluation string.</li>
+                                                                <li value="2">If the string contains  the backslash (\) or double quote mark ("), escape the character with a backslash (\). Not doing so causes an error message, indicating that the input string is a malformed evaluation string.</li>
                                                                 <li value="3">The $ character has special meaning in <span class="GeneralGUIName1">Xcalar Design</span>: It denotes a column name. If your input string starts with $, escape it with a backslash (\).</li>
                                                                 <li value="4">The caret (^) has  special meaning in <span class="GeneralGUIName1">Xcalar Design</span>:&#160;It denotes a named aggregate value. If your input string starts with a caret, escape it with a backslash (\).</li>
                                                             </ul>
@@ -239,9 +241,13 @@
                                                         </div>
                                                     </div>
                                                 </li>
-                                                <li value="2">(Optional) In the <span class="UIelement">GROUP&#160;BY</span> panel, click <span class="UIelement">ADD&#160;ANOTHER&#160;COLUMN</span>&#160;to group on an additional column. For example, in the table about airlines, you can start the Group By function from the <span class="UIelement">Carrier</span> column and add the <span class="UIelement">DayOfWeek</span> column as a second column to group with. In the resultant table, data is grouped by both the <span class="UIelement">Carrier</span> and <span class="UIelement">DayOfWeek</span> columns.</li>
-                                                <li value="3">
-                                                    <p>In the <span class="UIelement">GROUP&#160;BY</span> panel, follow these steps to select the function to perform for the Group By operation:</p>
+                                                <li value="2">
+                                                    <p>If the column displayed for <span class="UIelement">Fields to group on</span> is not the desired column, select another column.</p>
+                                                    <div class="Note"><span class="label">NOTE</span>:&#160;You can leave <span class="UIelement">Fields to group on</span> empty and click the <span class="UIelement">None</span> check box instead. The purpose of not grouping on a specified field is to create a table with aggregate values, as described in <a href="#Creating" class="MCXref xref">Creating a table for listing aggregate values</a>.</div>
+                                                </li>
+                                                <li value="3">(Optional) In the <span class="UIelement">GROUP&#160;BY</span> panel, click <span class="UIelement">ADD&#160;ANOTHER&#160;COLUMN</span>&#160;to group on an additional column. For example, in the table for airlines, you can start the Group By operation from the <span class="UIelement">Carrier</span> column and add the <span class="UIelement">DayOfWeek</span> column as a second column to group with. In the resultant table, data is grouped by both the <span class="UIelement">Carrier</span> and <span class="UIelement">DayOfWeek</span> columns.</li>
+                                                <li value="4">
+                                                    <p>In the <span class="UIelement">GROUP&#160;BY</span> panel, follow these steps to create a column based on the selected aggregate function:</p>
                                                     <ol style="list-style-type: lower-alpha;">
                                                         <li value="1">
                                                             <p>Select the aggregate function.</p>
@@ -261,11 +267,15 @@
                                                                 </div>
                                                             </div>
                                                         </li>
-                                                        <li value="2">Enter the field name to which the function applies. For example, in the table for airlines information, you can specify the avg function be applied to the <span class="UIelement">Distance</span> field. This function calculates the average distance for the column being grouped on.</li>
+                                                        <li value="2">
+                                                            <p>(Optional)&#160;If you want to apply the aggregate function to distinct values only, click the <span class="UIelement">Distinct</span> check box. The operation will eliminate duplicate values in the column when calculating the aggregate value. </p>
+                                                            <div class="Example"><span class="label">EXAMPLE</span>:&#160;With <span class="UIelement">Distinct</span> selected, if you apply the sum function to a column with two rows, each containing the number 3. The result is 3 because only one occurrence of 3 is used when the sum is calculated.</div>
+                                                        </li>
+                                                        <li value="3">Enter the field name to which the function applies. For example, in the table for airlines information, specify the <span class="UIelement">Distance</span> field to which you apply the avg function. This function calculates the average distance.</li>
                                                     </ol>
                                                 </li>
-                                                <li value="4">Accept the default name for the new column or enter a new name.</li>
-                                                <li value="5">
+                                                <li value="5">Accept the default name for the new column or enter a new name.</li>
+                                                <li value="6">
                                                     <p>(Optional)&#160;If you want to apply another aggregate function to the Group By operation, follow these steps:</p>
                                                     <ol style="list-style-type: lower-alpha;">
                                                         <li value="1">Click <img src="../Resources/Images/XD_assets/xd-plus-in-square.png" /> that precedes <span class="UIelement">Apply Additional Functions</span>.</li>
@@ -274,8 +284,8 @@
                                                     </ol>
                                                     <p>Repeat this step for each additional function.</p>
                                                 </li>
-                                                <li value="6">In the <span class="UIelement">New table name</span> field, enter the name of the resultant table.</li>
-                                                <li class="has-children" value="7">
+                                                <li value="7">In the <span class="UIelement">New table name</span> field, enter the name of the resultant table.</li>
+                                                <li class="has-children" value="8">
                                                     <p>(Optional) Click <span class="UIelement">Advanced Options</span> to further customize the result of the Group By operation. The following table describes the options:</p>
                                                     <table class="TableStyle-SimpleTable" style="mc-table-style: url('../Resources/TableStyles/SimpleTable.css');margin-left: 0;margin-right: auto;" cellspacing="0">
                                                         <col class="TableStyle-SimpleTable-Column-Column1" />
@@ -310,12 +320,23 @@
                                                         </tbody>
                                                     </table>
                                                 </li>
-                                                <li value="8">Click <span class="UIelement">GROUP&#160;BY</span>.</li>
+                                                <li value="9">Click <span class="UIelement">GROUP&#160;BY</span>.</li>
                                             </ol>
                                             <p>The following screenshot shows an example of a table created by a multi-column, multi-function Group By operation, without joining back to the original table. </p>
                                             <p>
                                                 <img src="../Resources/Images/XD_screenshots/group-by-result-example.png" />
                                             </p>
+                                            <h2><a name="Creating"></a>Creating a table for listing aggregate values</h2>
+                                            <p>You can use the <span class="UIelement">GROUP&#160;BY</span>&#160;panel to create a table listing aggregate values. For example, from a table containing airlines data, you might want to create another table listing the average air time, the maximum departure delay, and the count of unique carriers. To create a table containing aggregate values calculated on selected columns, follow the procedure described in <a href="#Grouping" class="MCXref xref">Grouping data by columns</a>. Instead of specifying a field to group on, click the None check box in the  <span class="UIelement">GROUP&#160;BY</span>&#160;pane. </p>
+                                            <p>The following partial screenshot of the <span class="UIelement">GROUP&#160;BY</span>&#160;panel illustrates how to create a table with aggregate values. </p>
+                                            <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/group-by-none.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="502" data-mc-height="927" src="../Resources/Images/XD_screenshots/group-by-none_thumb_0_150.png" tabindex="" /></a>
+                                            </p>
+                                            <p>The following screenshot shows the resultant table, which  contains two columns and one row. The AirTime_avg column contains the average air time, and the DepDelay_maxInteger column contains the maximum departure delay value. </p>
+                                            <p>
+                                                <img src="../Resources/Images/XD_screenshots/group-by-table-with-agg-values.png" />
+                                            </p>
+                                            <h2>Improving multi-column group by performance</h2>
+                                            <p>If a table's skew value is high, you might experience performance degradation when running an operation, especially one that uses multiple keys, such as group by, join, or sort. You can improve performance by selecting the column with the most evenly distributed values as the first key. To see how values are distributed within a column, use <span class="UIelement">Profile...</span> in the column drop-down menu.</p>
                                         </div>
                                         <p><a href="#Top">Go to top</a>
                                         </p>

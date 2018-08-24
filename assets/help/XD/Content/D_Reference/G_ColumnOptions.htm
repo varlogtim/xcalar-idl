@@ -18,10 +18,6 @@
         <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
         <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
         <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
-        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
         <style>/*&lt;meta /&gt;*/
 
 .button.previous-topic-button
@@ -199,7 +195,7 @@
                                                 </li>
                                                 <li value="5"><a href="../B_CommonTasks/I_JoinTables.htm" class="MCXref xref" xrefformat="{para}">Joining tables</a>
                                                 </li>
-                                                <li value="6"><a href="../B_CommonTasks/I1_UnionTables.htm" class="MCXref xref" xrefformat="{para}">Creating a union of multiple tables</a>
+                                                <li value="6"><a href="../B_CommonTasks/I1_UnionTables.htm" class="MCXref xref" xrefformat="{para}">Performing a set operation on multiple tables</a>
                                                 </li>
                                                 <li value="7"><a href="../B_CommonTasks/E_CountOccurrencesOfValues.htm" class="MCXref xref" xrefformat="{para}">Counting occurrences of unique values in a column</a>
                                                 </li>
@@ -237,11 +233,9 @@
                                                                     </ul>
                                                                 </li>
                                                                 <li value="3">The name must not begin or end with a space.</li>
-                                                                <li value="4">The name must not begin with a number.</li>
+                                                                <li value="4">The name must begin with an underscore or a letter.</li>
                                                                 <li value="5">Length must not exceed 255 characters.</li>
-                                                                <li value="6">
-                                                                    <p>The name must not be <span class="UIelement">DATA</span>, but the same string capitalized differently, such as <span class="UIelement">data</span> or <span class="UIelement">Data</span>, are acceptable.</p>
-                                                                </li>
+                                                                <li value="6">The name must not be <span class="UIelement">DATA</span>, but the same string capitalized differently, such as <span class="UIelement">data</span> or <span class="UIelement">Data</span>, are acceptable.</li>
                                                                 <li value="7">The name must not be one of the following strings, regardless of capitalization: <ul><li value="1"><span class="UIelement">None</span></li><li value="2"><span class="UIelement">False</span></li><li value="3"><span class="UIelement">True</span></li></ul></li>
                                                                 <li value="8">The name must not contain two consecutive hyphens (--).</li>
                                                             </ul>
@@ -291,17 +285,18 @@
                                             <p>If a column has been formatted, you can click <span class="UIelement">Back to original</span> to restore its original format.</p>
                                             <h2>Round</h2>
                                             <p>You can round the values in a column by specifying the number of decimal places. This option is available only if the data type of the column is Float.</p>
-                                            <div class="Note"><span class="label">NOTE</span>:&#160;This option does not create a derived column. It only affects how the values in the column are displayed. For example, if you round the value to 1 decimal place, the value 2.21 is displayed as 2.2, but the actual value in the field remains as 2.21. If you subsequently use the add function to increment the value by 1, the value  becomes 3.21, not 3.2.</div>
                                             <h2>Split column</h2>
                                             <p>You can split a column if it contains strings. You cannot split a numeric column. New columns are created as a result of the split, and the original column remains in the table.</p>
                                             <p>Follow these steps to split a column:</p>
                                             <ol>
                                                 <li value="1">In the column drop-down menu, select <span class="UIelement">Split column</span>. A pop-up is displayed for you to specify how to split the column.</li>
-                                                <li value="2">
-                                                    <p>Type the delimiter in the <span class="UIelement">Split column by delimiter</span> field. The delimiter can be a single character or a string. Optionally, type in the <span class="UIelement">Number of splits</span> field the number of columns created by splitting the column. </p>
-                                                    <div class="Example"><span class="label">EXAMPLE:</span>&#160;If the <span class="UIelement">Date</span> column contains dates in the mm/dd/yy format, you can enter the slash (/) as the delimiter and 2 as the number of splits. Two columns are created, one with the mm field and the other with the dd/yy field.</div>
+                                                <li value="2">Type the delimiter in the <span class="UIelement">Split column by delimiter</span> field. The delimiter can be a single character or a string. </li>
+                                                <li value="3">
+                                                    <p>(Optional) To limit the number of new columns created from the split, enter the number  in the <span class="UIelement">Number of columns</span> field. </p>
+                                                    <div class="Example"><span class="label">EXAMPLE:</span>&#160;If the <span class="UIelement">Date</span> column contains dates in the <span class="UIelement">mm/dd/yy</span> format, you can enter the slash (<span class="UIelement">/</span>) as the delimiter and <span class="UIelement">2</span> as the number of splits. Two columns are created, one with the <span class="UIelement">mm</span> field and the other with the <span class="UIelement">dd</span> field. </div>
                                                 </li>
-                                                <li value="3">Click the check mark  to submit your information.</li>
+                                                <li value="4">(Optional) To customize the name of columns created, enter a comma-separated list of names for new columns in the <span class="UIelement">Column names</span> field.</li>
+                                                <li value="5">Click the check mark  to submit your information.</li>
                                             </ol>
                                             <h2>Sort</h2>
                                             <p>You can sort values in a column so that values are displayed in ascending or descending order. Rows containing FNF in the sorted column are not included in the resultant table. Therefore, it is possible for the resultant table to contain fewer rows than before the sort. </p>

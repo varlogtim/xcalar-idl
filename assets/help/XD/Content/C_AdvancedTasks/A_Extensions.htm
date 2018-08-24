@@ -18,10 +18,6 @@
         <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
         <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
         <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
-        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
         <style>/*&lt;meta /&gt;*/
 
 .button.previous-topic-button
@@ -252,7 +248,7 @@
                                                         <p>For typing an operand value:</p>
                                                         <ul>
                                                             <li value="1">In most cases, do not surround the value with quote marks, even if it is a string with a space. In cases where the function can evaluate the value as a string or numeric value, use the quote marks.&#160;You can check the syntax displayed in the panel.&#160;The syntax displays the quote marks for an operand if the operand is to be interpreted as a string.</li>
-                                                            <li value="2">If the string contains a special character, such as the backslash (\) or double quote mark ("), escape the special character with a backslash (\). Without using the backslash as the escape character, you will see an error message, indicating that the input string is a malformed evaluation string.</li>
+                                                            <li value="2">If the string contains  the backslash (\) or double quote mark ("), escape the character with a backslash (\). Not doing so causes an error message, indicating that the input string is a malformed evaluation string.</li>
                                                             <li value="3">The $ character has special meaning in <span class="GeneralGUIName1">Xcalar Design</span>: It denotes a column name. If your input string starts with $, escape it with a backslash (\).</li>
                                                             <li value="4">The caret (^) has  special meaning in <span class="GeneralGUIName1">Xcalar Design</span>:&#160;It denotes a named aggregate value. If your input string starts with a caret, escape it with a backslash (\).</li>
                                                         </ul>

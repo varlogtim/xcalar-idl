@@ -6,7 +6,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <meta charset="utf-8" />
         <meta name="description" content="" />
-        <meta name="author" content="" /><title>Creating a union of multiple tables</title>
+        <meta name="author" content="" /><title>Performing a set operation on multiple tables</title>
         <link href="../../Skins/Default/Stylesheets/Slideshow.css" rel="stylesheet" />
         <link href="../../Skins/Default/Stylesheets/TextEffects.css" rel="stylesheet" />
         <link href="../../Skins/Default/Stylesheets/Topic.css" rel="stylesheet" />
@@ -18,10 +18,6 @@
         <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
         <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
         <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
-        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
         <style>/*&lt;meta /&gt;*/
 
 .button.previous-topic-button
@@ -184,61 +180,58 @@
                                             </div>
                                         </div>
                                         <div class="bodyProxyNarrow">
-                                            <h1>Creating a union of multiple tables</h1>
-                                            <p>You can create a union of two or more tables in a similar way as you use the UNION&#160;operator in SQL. You can create a union of multiple tables in one of two modes:</p>
+                                            <h1>Performing a set operation on multiple tables</h1>
+                                            <p>You can perform a set operation—union,  intersect, or except—of two or more tables in a similar way as you use the set operators, UNION, INTERSECT, or EXCEPT in SQL. The union operation combines all rows in the specified tables. The intersect operation provides only those rows that exist in all tables. The except operation provides only those rows in one table that are not in one or more of the specified tables. You can create a union,  intersect, or except of multiple tables, which either includes all rows or includes distinct rows.</p>
+                                            <h2>Before you start a set operation</h2>
+                                            <p>Understand and follow these guidelines when you enter the specifications for a set operation:</p>
                                             <ul>
-                                                <li value="1">Union all, which combines all rows in the specified tables, including  duplicates.</li>
-                                                <li value="2">Union, which combines all rows in the specified tables but eliminates the duplicates.</li>
-                                            </ul>
-                                            <h2>Before you start the union operation</h2>
-                                            <p>Understand and follow these guidelines when you enter the specifications for the union operation:</p>
-                                            <ul>
-                                                <li value="1">You can union as many tables as desired.</li>
+                                                <li value="1">You can union,  intersect, or except as many tables as desired.</li>
                                                 <li value="2">The input tables can have a different number of columns. For example, you can union Table 1, which has 2 columns, and Table 2, which has 5 columns.</li>
                                                 <li value="3">You can specify which column from an input table will make up a resultant column in the output. For example, suppose you union Table 1 and Table 2, each containing columns named Date2016 and Date2017. For the union output, the resultant column  named Date can comprise data from Date2016 of Table 1 and Date2017 of Table2.</li>
                                                 <li value="4">If the columns of the input tables do not have matching data types, you must specify the data type of the resultant column.&#160;For example, if Table 1 has an integer column named Date and Table 2 has a string column named Date, you must specify the data type of the resultant Date column in the output. Suppose you specify Integer as the data type, <span class="GeneralProductName3">Xcalar</span> casts the Date column of Table 2 to Integer before the union.</li>
                                                 <li value="5">You can specify the columns to be excluded in the output. For example, if Table 1 and Table 2 have 3 columns named Date, Distance, and Duration, you can specify that the Date column be dropped from the resultant table.</li>
                                             </ul>
-                                            <h2>Understanding the output</h2>
-                                            <p>The following list describes the characteristics of the union output:</p>
+                                            <h2>Understanding set operation output</h2>
+                                            <p>The following list describes the characteristics of set operation output:</p>
                                             <ul>
                                                 <li value="1">All columns in the output table are derived columns.</li>
-                                                <li value="2">The input tables become temporary tables. The output of the union is the active table.</li>
+                                                <li value="2">The input tables become temporary tables. The output of a set operation becomes the new active table.</li>
                                                 <li value="3">As in SQL, creating a union in <span class="GeneralProductName3">Xcalar</span> does not preserve the row order. For example, if  Table 1 and Table 2 are the input tables for the union, the resultant table might display some rows from Table 1, followed by some rows from&#160;Table 2 and then more rows from Table 1.</li>
                                                 <li value="4">These columns are excluded from the output:<ul><li value="1">Array or object columns.</li><li value="2">Blank, unpopulated columns.</li></ul></li>
                                             </ul>
-                                            <h2>Starting the union operation</h2>
-                                            <p>Follow these steps to create a union table from two or more tables:</p>
+                                            <h2>Applying a set operation</h2>
+                                            <p>Follow these steps to create a union, intersect, or except table from two or more tables:</p>
                                             <ol>
-                                                <li value="1">From a table that you want to add to a union, click the header of a column that you want to include in the union output. The column drop-down menu is displayed.</li>
+                                                <li value="1">From a table that you want to add to a union, intersect, or except operation, click the header of a column that you want to include in the union output. The column drop-down menu is displayed.</li>
                                                 <li value="2">
-                                                    <p>Select <span class="UIelement">Union…</span> to display the <span class="UIelement">UNION</span>&#160;panel, as shown in the following screenshot:</p>
-                                                    <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/union-panel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="781" data-mc-height="580" src="../Resources/Images/XD_screenshots/union-panel_thumb_0_150.png" tabindex="" /></a>
+                                                    <p>Select <span class="UIelement">Set Operation…</span> to display the <span class="UIelement">SET&#160;OPERATION</span>&#160;panel, as shown in the following screenshot:</p>
+                                                    <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/union-panel.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="776" data-mc-height="638" src="../Resources/Images/XD_screenshots/union-panel_thumb_0_150.png" tabindex="" /></a>
                                                     </p>
                                                 </li>
-                                                <li value="3">In the <span class="UIelement">Mode</span> field, specify whether you want to use Union All or Union.</li>
-                                                <li value="4">Specify the resultant table name in the <span class="UIelement">Union Table</span> field.</li>
-                                                <li value="5">Select Table 2 (the second table in the union).</li>
-                                                <li value="6">(Optional) Click <span class="UIelement">Add&#160;Table</span> to include another table in the union. Repeat this step for each additional table.</li>
-                                                <li value="7">(Optional)&#160;Change the resultant column's name. By default, the resultant column's name is the same as the name of the column in the first input table.</li>
-                                                <li value="8">
-                                                    <p>The <span class="UIelement">To be Dropped</span> section provides a  list for each input table. The list shows the columns that can potentially be in the union table.  Select the columns that will make up the resultant column by following these guidelines:</p>
+                                                <li value="3">In the <span class="UIelement">Operation</span> field, specify which set operation you want to use—Except (minus), Intersect, or Union (combine).</li>
+                                                <li value="4">To remove duplicate rows from the results table, click <span class="UIelement">No</span> in the <span class="UIelement">Include Duplicate Rows</span> field.</li>
+                                                <li value="5">In the <span class="UIelement">Results Table</span> field, enter a name for the  new table.</li>
+                                                <li value="6">Select the second table in the union, intersect, or except operation from the <span class="UIelement">Table 2</span> list.</li>
+                                                <li value="7">(Optional) Click <span class="UIelement">Add&#160;Table</span> to include another table in the operation, and select the table from the table list. Repeat this step for each additional table.</li>
+                                                <li value="8">(Optional)&#160;Change the resultant column's name. By default, the resultant column's name is the same as the name of the column in the first input table.</li>
+                                                <li value="9">
+                                                    <p>The <span class="UIelement">To Be Dropped</span> section provides a  list for each input table. The list shows the columns that can be added to the resultant table.  Select the columns that will make up the resultant table by following these guidelines:</p>
                                                     <ul>
                                                         <li value="1">The column from which you display the panel is automatically selected as an input column from Table 1 (the first table in the union). You can, however, replace it with another column. </li>
                                                         <li value="2">
-                                                            <p>In the <span class="UIelement">To be Dropped</span> section, click a column name or the Plus icon preceding the name to create a resultant column that will contain the clicked column.</p>
-                                                            <div class="Note"><span class="label">TIP</span>:&#160;To make sure that the selected column is the intended column, move the cursor over the column name in the list in the <span class="UIelement">To be Dropped</span> section. Click the focus icon to locate the column  in the worksheet. This enables you to verify that the column is the appropriate one.</div>
+                                                            <p>In the <span class="UIelement">To Be Dropped</span> section, click a column name or the Plus icon preceding the name to create a resultant column that will contain the clicked column.</p>
+                                                            <div class="Note"><span class="label">TIP</span>:&#160;To make sure that the selected column is the intended column, mouse over the column name in the list in the <span class="UIelement">To Be Dropped</span> section. Click the focus icon to locate the column  in the worksheet. This enables you to verify that the column is the appropriate one.</div>
                                                         </li>
-                                                        <li value="3">You can create a column in the union table that consists of fewer columns than input tables. For example, in the union table, a column named DayOfWeek can be made of the  DayOfWeek column in Table1 and no column from Table 2. The rows from Table 2 in the DayOfWeek column of the union table will show&#160;FNF.</li>
+                                                        <li value="3">A column in the results table does not need to contain data from all similar input table columns. For example, in a union results table, a column named DayOfWeek can be made from the  DayOfWeek column in Table1 and no column from Table 2. The rows from Table 2 in the DayOfWeek column of the union table will show&#160;FNF.</li>
                                                     </ul>
                                                 </li>
-                                                <li value="9">
-                                                    <p>The <span class="UIelement">Columns in Union Table</span> section shows the columns that already exist in the union table. In this section, you can select a column from each input table that will make up the column in the union table.</p>
+                                                <li value="10">
+                                                    <p>The <span class="UIelement">Columns in Result Table</span> section shows the columns that already exist in the result table. In this section, you can select a column from each input table that will make up the column in the results.</p>
                                                     <p>For each input table, click a column name or the Down arrow next to it to display a drop-down list. From this list, select a column that will make up the resultant column.</p>
                                                     <div class="Note"><span class="label">TIP</span>:&#160;To make sure that the selected column is the intended column, move the cursor over the column name in the drop-down list. Click the focus icon to locate the column  in the worksheet. This enables you to verify that the column is the appropriate one.</div>
                                                     <p>Repeat this step for each column in the union table.</p>
                                                 </li>
-                                                <li value="10">Click <span class="UIelement">UNION&#160;ALL</span>&#160;or <span class="UIelement">UNION</span>. If a resultant column consists of columns of mismatched types, an error message is displayed. You must specify the data type of the resultant column, and then click <span class="UIelement">UNION&#160;ALL</span>&#160;or <span class="UIelement">UNION</span> again.</li>
+                                                <li value="11">Click  the <span class="UIelement">EXCEPT</span>, <span class="UIelement">INTERSECT</span>, or <span class="UIelement">UNION</span> button to complete the operation. If a resultant column consists of columns of mismatched types, an error message is displayed. You must specify the data type of the resultant column, and then click the operation's  button again.</li>
                                             </ol>
                                         </div>
                                         <p><a href="#Top">Go to top</a>

@@ -18,10 +18,6 @@
         <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
         <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
         <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
-        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
         <style>/*&lt;meta /&gt;*/
 
 .button.previous-topic-button
@@ -192,12 +188,12 @@
                                             <ul>
                                                 <li value="1">Type the code directly in the <span style="font-weight: bold;"> Editor</span> tab of the <span class="UIelement">User Defined Function</span> panel.</li>
                                                 <li value="2">Upload from your computer to the <span style="font-weight: bold;">Editor</span>. </li>
-                                                <li value="3">Use the <span class="UIelement">JUPYTER&#160;NOTEBOOK</span>&#160;window to display a UDF&#160;template and then use the&#160;Jupyter notebook editor to modify the code in the template. For more information about using the Jupyter Notebook, see <a href="../B_CommonTasks/R_UsingJupyter.htm" class="MCXref xref">Using Xcalar Design with Jupyter Notebook</a>.</li>
+                                                <li value="3">Use the <span class="UIelement">JUPYTER&#160;NOTEBOOK</span>&#160;window to display a UDF&#160;template and then use the&#160;Jupyter notebook editor to modify the code in the template. For more information about using the Jupyter Notebook, see <a href="C1_UsingJupyter.htm" class="MCXref xref">Using Xcalar Design with Jupyter Notebook</a>.</li>
                                             </ul>
                                             <p>&#160;</p>
                                             <h3>Displaying the UDF&#160;panel</h3>
                                             <p>Click  <img src="../Resources/Images/XD_assets/xd-udf-icon.png" /> to display the <span class="UIelement">User Defined Function</span> panel.&#160;The following screenshot shows the location of the UDF icon.</p>
-                                            <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/udf-icon-location.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="532" data-mc-height="648" src="../Resources/Images/XD_screenshots/udf-icon-location_thumb_0_150.png" tabindex="" /></a>
+                                            <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/udf-icon-location.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="648" data-mc-height="658" src="../Resources/Images/XD_screenshots/udf-icon-location_thumb_0_150.png" tabindex="" /></a>
                                             </p>
                                             <p>The following screenshot shows  the <span class="UIelement">User Defined Function</span> panel. </p>
                                             <p>
@@ -250,7 +246,7 @@
                                             <h3><a name="Effect"></a>Effect of changing a UDF on workbook re-activation</h3>
                                             <p>When you re-activate a workbook, <span class="GeneralProductName3">Xcalar</span> must re-create each table in the workbook  according to the information contained in the table's dataflow. If a dataflow contains a UDF that has been changed since the table was created, the table displayed in the re-activated workbook might contain values different from the original ones.</p>
                                             <h3>Effects of changing a UDF on a batch dataflow</h3>
-                                            <p>When you create a  batch dataflow, it receives a current local copy of all relevant UDFs. Even if the UDF&#160;is changed after  batch dataflow creation, during execution<span class="GeneralProductName3">Xcalar</span> will use the current version as-of  when the batch dataflow was created. </p>
+                                            <p>When you create a  batch dataflow, it receives a current local copy of all relevant UDFs. Even if the UDF&#160;is changed after  batch dataflow creation, during execution <span class="GeneralProductName3">Xcalar</span> will use the current version as-of  when the batch dataflow was created. </p>
                                             <p>&#160;</p>
                                             <h2>Deleting a module</h2>
                                             <div class="Note"><span class="label">IMPORTANT</span>:&#160;Be sure you understand the effects of removing a UDF&#160;from your UDF&#160;module or deleting a UDF&#160;module before you proceed.&#160;You cannot undo UDF module deletion. For more information, see <a href="#Effects" class="MCXref xref">Effects of UDF deletion on workbooks and batch dataflows</a>. </div>
@@ -290,7 +286,7 @@
                                                 <li value="4">Decompress and extract the <span style="font-style: italic; font-weight: bold;">workbookName</span><span style="font-style: italic; text-decoration: none;">.tar.gz</span>workbook archive:<ul><li value="1">If using MacOS, double-click on the  file. </li><li value="2">If using Linux, open a shell to your downloads directory and execute the command:<br /><span style="font-style: italic;">tar -xvzf </span><span style="font-style: italic; font-weight: bold;">workbookName</span><span style="font-style: italic; text-decoration: none;">.tar.gz</span><br /></li><li value="3">If using Windows, choose and use an appropriate archiving and compression tool to extract the workbook.</li></ul><p>A folder named <span style="font-style: italic;">workbook</span> is extracted.</p></li>
                                                 <li value="5">Move the original <span style="font-style: italic; font-weight: bold;">workbookName</span><span style="font-style: italic; text-decoration: none;">.tar.gz</span> to another directory for safe keeping.</li>
                                                 <li value="6">Copy your new version of the UDF&#160;module to the <span style="font-style: italic;">/workbook/udfs</span> directory. </li>
-                                                <li value="7">Create a new workbook archive file.<ol style="list-style-type: lower-alpha;"><li value="1">If using MacOS or Linux, open a shell to the directory containing the <span style="font-style: italic;">workbook</span> directory and enter the following command:<br /><span style="font-style: italic;">tar cvf </span><span style="font-style: italic; font-weight: bold;">workbookName</span><span style="font-style: italic; text-decoration: none;">.tar.gz ./workbook/</span></li><li value="2">If using Windows, apply third party software or use Windows10's Windows Linux Subsystem to use the above <span style="font-style: italic;">tar</span> command to create a new <span style="font-style: italic; font-weight: bold;">workbookName</span><span style="font-style: italic;">tar.gz</span>archive file. </li></ol></li>
+                                                <li value="7">Create a new workbook archive file.<ol style="list-style-type: lower-alpha;"><li value="1">If using MacOS or Linux, open a shell to the directory containing the <span style="font-style: italic;">workbook</span> directory and enter the following command:<br /><span style="font-style: italic;">tar cvf </span><span style="font-style: italic; font-weight: bold;">workbookName</span><span style="font-style: italic; text-decoration: none;">.tar.gz ./workbook/</span></li><li value="2">If using Windows, apply third party software or use Windows 10's Windows Linux Subsystem to use the above <span style="font-style: italic;">tar</span> command to create a new <span style="font-style: italic; font-weight: bold;">workbookName</span><span style="font-style: italic;">tar.gz</span>archive file. </li></ol></li>
                                                 <li value="8">Upload the new workbook to the cluster by clicking the <span style="font-weight: bold;">BROWSE</span> button under <span style="font-weight: bold;">Upload Workbook</span> in the Workbook Browser.</li>
                                             </ol>
                                         </div>

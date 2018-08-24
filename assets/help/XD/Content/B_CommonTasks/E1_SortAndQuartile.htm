@@ -18,10 +18,6 @@
         <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
         <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
         <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
-        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
         <style>/*&lt;meta /&gt;*/
 
 .button.previous-topic-button
@@ -233,6 +229,8 @@
                                                 <img src="../Resources/Images/XD_screenshots/sort-key-number-in-col-header.png" />
                                             </p>
                                             <div class="Note"><span class="label">NOTE</span>:&#160;The column you sort on most recently becomes the primary sort key. For example, after sorting on the DayOfWeek and AirTime columns, if you sort on the Distance column, <span class="GeneralProductName3">Xcalar</span> updates the numbers in the column headers: The sort key number for Distance is 1, the sort key number for DayOfWeek is 2, and the sort key number for AirTime is 3. </div>
+                                            <h2>Improving multi-column sort performance</h2>
+                                            <p>If a table's skew value is high, you might experience performance degradation when running an operation, especially one that uses multiple keys, such as group by, join, or sort. You can improve performance by selecting the column with the most evenly distributed values as the first key. To see how values are distributed within a column, use <span class="UIelement">Profile...</span> in the column drop-down menu.</p>
                                             <h2>Using a single sort key again after sorting with multiple keys</h2>
                                             <p>Suppose your table is currently sorted on two column. If you want to sort the table only on one of these columns instead, sort the column again in the same direction as you did. </p>
                                             <div class="Example"><span class="label">EXAMPLE</span>: if the table is currently sorted on the DayOfWeek and AirTime columns, but you want to change the table such that it is sorted on DayOfWeek only, you can sort DayOfWeek in the same direction (for example, in ascending order) as before. Doing so keeps the DayOfWeek column sorted but removes AirTime as a sort key.&#160;The values in AirTime are no longer unsorted.</div>

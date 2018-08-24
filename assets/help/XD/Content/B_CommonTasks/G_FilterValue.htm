@@ -18,10 +18,6 @@
         <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
         <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
         <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
-        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
         <style>/*&lt;meta /&gt;*/
 
 .button.previous-topic-button
@@ -208,6 +204,7 @@
                                             </p>
                                             <h2><a name="Filterin"></a>Filtering based on a condition</h2>
                                             <p>You can filter based on a condition. For example, for a selected column, you can filter depending on whether the string contains a particular substring. If the result of the filter function is true, the value is kept in the column. If the result of the filter function is false, the value is excluded from the column.</p>
+                                            <div class="Note"><span class="label">NOTE:</span>&#160;If you select a filter function not applicable to the data type of the column, an error message is displayed. Use the <span class="UIelement">Cast</span> field to change the type so that the function can run.&#160;This data type change is temporary.&#160;The column retains the original data type after the filter function.</div>
                                             <p>You can also filter based on multiple conditions. For information about filtering on multiple conditions, see <a href="#filterMultiple" class="MCXref xref" xrefformat="{para}">Filtering based on multiple conditions</a>. </p>
                                             <p> To filter based on a condition, follow these steps:</p>
                                             <ol>
@@ -233,7 +230,7 @@
                                                             <p>For typing an operand value:</p>
                                                             <ul>
                                                                 <li value="1">In most cases, do not surround the value with quote marks, even if it is a string with a space. In cases where the function can evaluate the value as a string or numeric value, use the quote marks.&#160;You can check the syntax displayed in the panel.&#160;The syntax displays the quote marks for an operand if the operand is to be interpreted as a string.</li>
-                                                                <li value="2">If the string contains a special character, such as the backslash (\) or double quote mark ("), escape the special character with a backslash (\). Without using the backslash as the escape character, you will see an error message, indicating that the input string is a malformed evaluation string.</li>
+                                                                <li value="2">If the string contains  the backslash (\) or double quote mark ("), escape the character with a backslash (\). Not doing so causes an error message, indicating that the input string is a malformed evaluation string.</li>
                                                                 <li value="3">The $ character has special meaning in <span class="GeneralGUIName1">Xcalar Design</span>: It denotes a column name. If your input string starts with $, escape it with a backslash (\).</li>
                                                                 <li value="4">The caret (^) has  special meaning in <span class="GeneralGUIName1">Xcalar Design</span>:&#160;It denotes a named aggregate value. If your input string starts with a caret, escape it with a backslash (\).</li>
                                                             </ul>
@@ -271,7 +268,6 @@
                                                             </ul>
                                                         </div>
                                                     </div>
-                                                    <div class="Note"><span class="label">NOTE:</span>&#160;If you select a filter function not applicable to the data type of the column, an error message is displayed. For example, the data type of the Distance column is String, and you use the between function to filter values that lie between two integers. A message is displayed, indicating that the string type must be changed to a numeric type. Use the <span class="UIelement">Cast</span> field to change the type to either Integer or Float to enable the function to run.&#160;This data type change is temporary.&#160;The column (the Distance column) remains as a String column. </div>
                                                 </li>
                                                 <li value="4">
                                                     <p>Based on the description of the function, fill out the fields. </p>
@@ -325,6 +321,8 @@
                                             <p>The following partial screenshot illustrates the resultant table, which includes only rows that meet one of the specified conditions.</p>
                                             <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/filter-result-multiple-conditions-with-OR.png"><img class="MCPopupThumbnail img imgBigImage" data-mc-width="438" data-mc-height="526" src="../Resources/Images/XD_screenshots/filter-result-multiple-conditions-with-OR_thumb_0_150.png" tabindex="" /></a>
                                             </p>
+                                            <h2>Data types supported by the between function</h2>
+                                            <p>The eq, le, lt, ge, and gt functions are applicable to numbers and strings. However, the between function is applicable only to numbers. For example, in a string column named Date, which contains dates, you cannot use the between function to filter values. If you want  to keep only dates in a particular range, filter the column using multiple conditions. First, use the gt (or ge) function to filter values greater than the first date of the range. Then use the lt (or le) function to filter values less than the last date of the range.</p>
                                         </div>
                                         <p><a href="#Top">Go to top</a>
                                         </p>

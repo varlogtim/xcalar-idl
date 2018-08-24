@@ -18,10 +18,6 @@
         <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
         <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
         <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
-        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
         <style>/*&lt;meta /&gt;*/
 
 .button.previous-topic-button
@@ -225,11 +221,13 @@
                                                 <li value="6">UDFs cannot be used for aggregate operations.</li>
                                             </ul>
                                             <div class="Note"><span class="label">NOTE</span>: UDFs have the same read and write privileges as the user that starts <span class="GeneralProductName3">Xcalar</span>. UDFs do not need to have read or write access to the file system including the data source from which <span class="GeneralProductName3">Xcalar</span> imports data.</div>
-                                            <div class="Note"><span class="label">NOTE</span>:&#160;After you add a module to the cluster, you might see a function named <span class="UIelement">getreader</span> listed as one of the functions in the module. Do not use this function. Use only the functions that you defined in the UDF&#160;module.</div>
                                             <h2>About importing Python libraries</h2>
                                             <p>Python libraries imported in the UDF must be installed on every node before you can upload the UDF. For example, if your UDF imports the PDFminer package, the package must be installed on every node of the cluster. Otherwise, your attempt to apply the UDF results in a significant number of FNFs (Field Not Found) in the results column, indicating that there is no module named PDFminer.</p>
                                             <h2>About standard output in UDFs</h2>
-                                            <p>All functions and statements that involve writing to standard output (stdout) are ignored by the Python interpreter. Do not use the print statement or the sys.stdout.write function to print debugging information in your UDF. If collecting debugging information is important to you,   <span class="GeneralCompanyNameShort">Xcalar</span> recommends that you use the Python logging facility, which is a standard Python library module. See your Python documentation for information about the Python logging facility.</p>
+                                            <p>All functions and statements that involve writing to standard output (stdout) are ignored by the Python interpreter. Do not use the print statement or the sys.stdout.write function to print debugging information in your UDF. If collecting debugging information is important to you,   <span class="GeneralCompanyNameShort">Xcalar</span> recommends that you use the Python logging facility, which is a standard Python library module. </p>
+                                            <p>To add log entries to <span class="GeneralProductName3">Xcalar</span>'s xpu.out log files, use the logger named <span style="font-style: italic;">xcalar</span>, as follows:</p>
+                                            <div class="Code">import logging<br />import sys<br /><br />logger = logging.getLogger("xcalar")<br />logger.setLevel(logging.INFO)<br /><br />logHandler = logging.StreamHandler(sys.stderr)<br />logger.addHandler(logHandler)<br /><br />logger.info("insert-log-entry-here")</div>
+                                            <p>See your Python documentation for information about the Python logging facility.</p>
                                             <h2>Invoking modules or functions in a module</h2>
                                             <p>You can invoke third-party Python modules in UDFs, but they must be installed at a location accessible to the Python interpreter. That is, they must be on the Python search path.</p>
                                             <h2>How to enter input for a UDF</h2>
@@ -253,7 +251,7 @@
                                                     <p>For typing an operand value:</p>
                                                     <ul>
                                                         <li value="1">In most cases, do not surround the value with quote marks, even if it is a string with a space. In cases where the function can evaluate the value as a string or numeric value, use the quote marks.&#160;You can check the syntax displayed in the panel.&#160;The syntax displays the quote marks for an operand if the operand is to be interpreted as a string.</li>
-                                                        <li value="2">If the string contains a special character, such as the backslash (\) or double quote mark ("), escape the special character with a backslash (\). Without using the backslash as the escape character, you will see an error message, indicating that the input string is a malformed evaluation string.</li>
+                                                        <li value="2">If the string contains  the backslash (\) or double quote mark ("), escape the character with a backslash (\). Not doing so causes an error message, indicating that the input string is a malformed evaluation string.</li>
                                                         <li value="3">The $ character has special meaning in <span class="GeneralGUIName1">Xcalar Design</span>: It denotes a column name. If your input string starts with $, escape it with a backslash (\).</li>
                                                         <li value="4">The caret (^) has  special meaning in <span class="GeneralGUIName1">Xcalar Design</span>:&#160;It denotes a named aggregate value. If your input string starts with a caret, escape it with a backslash (\).</li>
                                                     </ul>

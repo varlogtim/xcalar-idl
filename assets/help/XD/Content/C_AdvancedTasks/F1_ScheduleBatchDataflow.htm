@@ -18,10 +18,6 @@
         <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
         <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
         <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
-        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
         <style>/*&lt;meta /&gt;*/
 
 .button.previous-topic-button
@@ -190,23 +186,23 @@
                                             <div class="Note"><span class="label">NOTE</span>:&#160; When you manually run a batch dataflow, the result can be an exported target or table. However, running a batch dataflow automatically based on a schedule  can only result in an exported target; it cannot create a table in the active worksheet.</div>
                                             <p>Preparing a batch dataflow to run on schedule involves two steps:</p>
                                             <ol>
-                                                <li value="1">Parameterize the export operation.</li>
+                                                <li value="1">Customizing the export operation.</li>
                                                 <li value="2">Create a schedule for the batch dataflow.</li>
                                             </ol>
-                                            <h2><a name="Paramete"></a>Parameterizing the export operation</h2>
-                                            <p>If <span class="GeneralProductName3">Xcalar</span> detects that an export file of the same name already exists, the batch dataflow fails to run.  Therefore, you must parameterize the export operation so that repeated runs of the batch dataflow can create export files under new names.</p>
-                                            <p>Follow these steps to parameterize the export operation:</p>
+                                            <h2><a name="Paramete"></a>Customizing the export operation</h2>
+                                            <p>If <span class="GeneralProductName3">Xcalar</span> detects that an export file of the same name already exists, the batch dataflow fails to run.  Therefore, you must customize the export operation so that repeated runs of the batch dataflow can create export files under new names.</p>
+                                            <p>Follow these steps to customize the export operation:</p>
                                             <ol>
                                                 <li value="1">In the dataflow list, click the name of the batch dataflow to display it.</li>
                                                 <li value="2">Right click the last icon of the batch dataflow to display a pop-up menu. This icon represents the result of the batch dataflow.</li>
-                                                <li value="3">Click <span class="UIelement">Create Parameterized Operation</span> in the pop-up menu.</li>
+                                                <li value="3">Click <span class="UIelement">Customize Operation</span> in the pop-up menu.</li>
                                                 <li value="4">
                                                     <p>If the <span class="UIelement">Export As</span> field is not filled in, click the <span class="UIelement">Default value</span> button to automatically add the default export file name in the field, as shown in the following screenshot. Alternatively, you can copy and paste the original folder name.</p>
                                                     <p><a class="MCPopupThumbnailLink MCPopupThumbnailPopup" href="../Resources/Images/XD_screenshots/export-file-name-copy.png" data-mc-popup-alt=""><img class="MCPopupThumbnail img imgBigImage" data-mc-width="903" data-mc-height="688" src="../Resources/Images/XD_screenshots/export-file-name-copy_thumb_0_150.png" alt="" title="" tabindex="" /></a>
                                                     </p>
                                                 </li>
                                                 <li value="5">
-                                                    <p>In the <span class="UIelement">Parameterize Operation</span> window, click and drag the <span class="UIelement">N</span> parameter to the file name shown in the <span class="UIelement">Export As</span> field. This parameter is a system parameter. Its initial value is 0 and is incremented by 1 each time the operation is run.</p>
+                                                    <p>In the <span class="UIelement">Customize Export Operation</span> window, click and drag the <span class="UIelement">N</span> parameter to the file name shown in the <span class="UIelement">Export As</span> field. This parameter is a system parameter. Its initial value is 0 and is incremented by 1 each time the operation is run.</p>
                                                     <div class="Example"><span class="label">EXAMPLE</span>: If the export file name is export-airlines#XS366.csv, you can drag the <span class="state">N</span> parameter to the name so that the name becomes export-airlines&lt;N&gt;#XS366.csv. Running the batch dataflow the first time creates a file named export-airlines0#XS366.csv, running the batch dataflow the second time creates a file named export-airlines1#XS366.csv, and so on.</div>
                                                 </li>
                                                 <li value="6">
@@ -214,7 +210,7 @@
                                                 </li>
                                                 <li value="7">Click <span class="UIelement">SAVE</span>.</li>
                                             </ol>
-                                            <p>For more information about parameterization, see <a href="H_Parameterization.htm" class="MCXref xref" xrefformat="{para}">Parameterizing operations</a>.</p>
+                                            <p>For more information about parameterization, see <a href="H_Parameterization.htm" class="MCXref xref" xrefformat="{para}">Customization of dataflow operations</a>.</p>
                                             <h2><a name="Specifying" class="ForCSH"></a>Specifying a schedule</h2>
                                             <p>Follow these steps to create a schedule for a batch dataflow:</p>
                                             <ol>
@@ -245,7 +241,7 @@
                                                 <li value="4">Click <span class="UIelement">SAVE</span>. The <span class="UIelement">Schedule Detail</span> window is displayed. This schedule is now associated with the batch dataflow, and it takes effect immediately. The schedule is persistent across cluster restarts, but is not retained when you download the batch dataflow.</li>
                                             </ol>
                                             <div class="Note"><span class="label">NOTE</span>:&#160;After you create a schedule, you cannot modify it. If you want to apply a different schedule to the batch dataflow, delete the schedule and create a new one.</div>
-                                            <div class="Note"><span class="label">IMPORTANT</span>:&#160;The batch dataflow can run only if the export file name is parameterized. If you have not parameterized the name already, follow the instructions in <a href="#Paramete" class="MCXref xref" xrefformat="{para}">Parameterizing the export operation</a>.</div>
+                                            <div class="Note"><span class="label">IMPORTANT</span>:&#160;The batch dataflow can run only if the export file name is parameterized. If you have not parameterized the name already, follow the instructions in <a href="#Paramete" class="MCXref xref" xrefformat="{para}">Customizing the export operation</a>.</div>
                                             <h2>Pausing a batch dataflow schedule</h2>
                                             <p>After you create a batch dataflow schedule, you can click <span class="UIelement">PAUSE</span> in the Schedule Detail window to suspend the schedule. If you click <span class="UIelement">RESUME</span> after the schedule is paused, the schedule takes effect again.</p>
                                             <h2>Deleting a batch dataflow schedule</h2>

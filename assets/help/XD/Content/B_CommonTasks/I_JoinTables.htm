@@ -18,10 +18,6 @@
         <link href="../../Skins/Fluid/Stylesheets/Tablet.css" rel="stylesheet" />
         <link href="../../Skins/Fluid/Stylesheets/Mobile.css" rel="stylesheet" />
         <link href="../Resources/Stylesheets/MainStyles.css" rel="stylesheet" />
-        <link href="../Fonts/open-sans.regular.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Semibold.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Light.ttf" rel="stylesheet" />
-        <link href="../Fonts/OpenSans-Bold.ttf" rel="stylesheet" />
         <style>/*&lt;meta /&gt;*/
 
 .button.previous-topic-button
@@ -233,6 +229,8 @@
                                                     <div class="Note"><span class="label">NOTE:</span>&#160;If there are duplicate column names in the resultant table, you are prompted to rename the columns before the Join operation takes place. </div>
                                                 </li>
                                             </ol>
+                                            <h2>Improving multi-column join performance</h2>
+                                            <p>If a table's skew value is high, you might experience performance degradation when running an operation, especially one that uses multiple keys, such as group by, join, or sort. You can improve performance by selecting the column with the most evenly distributed values as the first key. To see how values are distributed within a column, use <span class="UIelement">Profile...</span> in the column drop-down menu.</p>
                                             <h2>Renaming columns to avoid column name duplication</h2>
                                             <p>Because columns in a table created by a Join operation come from two tables, it is possible for these columns to have the same name and hence cause confusion.&#160;To eliminate duplicate column names, the <span class="UIelement">JOIN</span>&#160;panel allows you to rename columns by filling out the <span class="UIelement">New Name</span> field.</p>
                                             <div class="Note"><span class="label">IMPORTANT:</span>&#160;Even if you do not rename a column, you must copy the original name to the <span class="UIelement">New Name</span> field. Do not leave the <span class="UIelement">New Name</span> field blank.</div>
@@ -281,11 +279,9 @@
                                                             </ul>
                                                         </li>
                                                         <li value="3">The name must not begin or end with a space.</li>
-                                                        <li value="4">The name must not begin with a number.</li>
+                                                        <li value="4">The name must begin with an underscore or a letter.</li>
                                                         <li value="5">Length must not exceed 255 characters.</li>
-                                                        <li value="6">
-                                                            <p>The name must not be <span class="UIelement">DATA</span>, but the same string capitalized differently, such as <span class="UIelement">data</span> or <span class="UIelement">Data</span>, are acceptable.</p>
-                                                        </li>
+                                                        <li value="6">The name must not be <span class="UIelement">DATA</span>, but the same string capitalized differently, such as <span class="UIelement">data</span> or <span class="UIelement">Data</span>, are acceptable.</li>
                                                         <li value="7">The name must not be one of the following strings, regardless of capitalization: <ul><li value="1"><span class="UIelement">None</span></li><li value="2"><span class="UIelement">False</span></li><li value="3"><span class="UIelement">True</span></li></ul></li>
                                                         <li value="8">The name must not contain two consecutive hyphens (--).</li>
                                                     </ul>
