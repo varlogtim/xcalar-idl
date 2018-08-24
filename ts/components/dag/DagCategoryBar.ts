@@ -80,6 +80,8 @@ class DagCategoryBar {
         iconMap[DagNodeType.Map] = "xi-data-update";
         iconMap[DagNodeType.GroupBy] = "xi-groupby";
         iconMap[DagNodeType.Project] = "xi-delete-column";
+        iconMap[DagNodeType.Extension] = "xi-menu-extension";
+        iconMap[DagNodeType.SQL] = "xi-menu-sql";
 
         let html: HTML = "";
         categories.forEach(function(category: DagCategory) {
