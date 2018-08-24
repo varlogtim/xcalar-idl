@@ -686,5 +686,99 @@ window.TblFunc = (function(TblFunc, $) {
         }
     };
 
+    TblFunc.sortColumn = function(colNums, tableId, order) {
+        var colInfo = [];
+        for (var i = 0; i < colNums.length; i++) {
+            colInfo.push({
+                colNum: colNums[i],
+                ordering: order,
+                typeToCast: null
+            });
+        }
+
+        if (colNums.length > 1) {
+            return xcFunction.sort(tableId, colInfo);
+        }
+        var colNum = colNums[0];
+        var table = gTables[tableId];
+        var progCol = table.getCol(colNum);
+        var colName = progCol.getBackColName();
+        var keys = table.backTableMeta.keyAttr;
+        var keyNames = table.getKeyName();
+        var keyIndex = keyNames.indexOf(colName);
+        if (keyIndex === -1 ||
+            order !== XcalarOrderingTFromStr[keys[keyIndex].ordering]) {
+            for (var i = 0; i < keys.length; i++) {
+                // do not readd current column and
+                // do not include columns that are not sroted ascending or
+                // descending
+                if (keys[i].name === colName ||
+                    keys[i].name === "xcalarRecordNum" ||
+                    (keys[i].ordering !==
+                        XcalarOrderingTStr[XcalarOrderingTFromStr.Ascending] &&
+                    keys[i].ordering !==
+                        XcalarOrderingTStr[XcalarOrderingTFromStr.Descending])) {
+                    continue;
+                }
+                colInfo.push({
+                    name: keys[i].name,
+                    ordering: XcalarOrderingTFromStr[keys[i].ordering],
+                    typeToCast: null
+                });
+            }
+        }
+
+        var type = progCol.getType();
+
+        if (type !== "string") {
+            return xcFunction.sort(tableId, colInfo);
+        }
+
+        var $tds = $("#xcTable-" + tableId).find("tbody td.col" + colNum);
+        var datas = [];
+        var val;
+
+        $tds.each(function() {
+            val = $(this).find('.originalData').text();
+            datas.push(val);
+        });
+
+        var suggType = xcSuggest.suggestType(datas, type, 0.9);
+        if (suggType === "integer" || suggType === "float") {
+            var deferred = PromiseHelper.deferred();
+            var instr = xcHelper.replaceMsg(IndexTStr.SuggInstr, {
+                "type": suggType
+            });
+
+            Alert.show({
+                "title": IndexTStr.SuggTitle,
+                "instr": instr,
+                "msg": IndexTStr.SuggMsg,
+                "onCancel": deferred.reject,
+                "buttons": [{
+                    "name": IndexTStr.NoCast,
+                    "func": function() {
+                        xcFunction.sort(tableId, colInfo)
+                        .then(deferred.resolve)
+                        .fail(deferred.reject);
+                    }
+                },
+                {
+                    "name": IndexTStr.CastToNum,
+                    "func": function() {
+                        colInfo[0].typeToCast = suggType;
+                        xcFunction.sort(tableId, colInfo)
+                        .then(deferred.resolve)
+                        .fail(deferred.reject);
+                    }
+                }
+                ]
+            });
+            return deferred.promise();
+        } else {
+            return xcFunction.sort(tableId, colInfo);
+        }
+    };
+
     return (TblFunc);
 }({}, jQuery));

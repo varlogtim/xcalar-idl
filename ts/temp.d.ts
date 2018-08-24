@@ -745,6 +745,13 @@ declare namespace TooltipTStr {
     export var UnionSearch: string;
     export var Distinct: string;
     export var ViewTableOptions: string;
+    export var AlreadyIcv: string;
+    export var IcvGenerating: string;
+    export var IcvSourceDropped: string;
+    export var IcvRestriction: string;
+    export var generatingComplement: string;
+    export var ComplementSourceDropped: string;
+    export var ComplementRestriction: string;
 }
 
 declare namespace SuccessTStr{
@@ -799,6 +806,11 @@ declare namespace ErrTStr {
     export var InvalidOpsType: string;
     export var NoEmptyOrCheck: string;
     export var InvalidAggName: string;
+    export var InvalidWSInList: string;
+    export var OnlyNumber: string;
+    export var OnlyPositiveNumber: string;
+    export var ColumnConflict: string;
+
 }
 
 declare namespace ErrWRepTStr {
@@ -812,6 +824,7 @@ declare namespace ErrWRepTStr {
     export var InvalidAggName: string;
     export var InvalidAggLength: string;
     export var AggConflict: string;
+    export var InvalidRange: string;
 }
 
 declare namespace ColTStr {
@@ -823,6 +836,7 @@ declare namespace ColTStr {
     export var NoOperateArray: string;
     export var NoOperateObject: string;
     export var NoOperateGeneral: string;
+    export var ImmediateClash: string;
 }
 
 declare namespace AlertTStr {
@@ -877,6 +891,7 @@ declare namespace DFTStr {
 declare namespace JupyterTStr {
     export var JupNotebook: string;
     export var NoSnippetOtherWkbk: string;
+    export var SampleNumError: string;
 }
 
 declare namespace IMDTStr {
@@ -947,6 +962,8 @@ declare namespace TblTStr {
     export var ActiveStatus: string;
     export var TempStatus: string;
     export var Truncate: string;
+    export var Del: string;
+    export var DelMsg: string;
 }
 
 declare namespace UDFTStr {
@@ -1045,6 +1062,7 @@ declare class ProgCol {
     public getBackColName(): string;
     public hasMinimized(): boolean;
     public setBackColName(name: string): void;
+    public isNumberCol(): boolean;
 }
 
 declare class TableMeta {
@@ -1073,6 +1091,7 @@ declare class TableMeta {
     public getName(): string;
     public freeResultset(): XDPromise<void>;
     public getMetaAndResultSet(): XDPromise<void>;
+    public getImmediateNames(): string[];
     public constructor(options: object);
 }
 
@@ -1211,6 +1230,17 @@ declare namespace ColManager {
     export function newDATACol(): ProgCol;
     export function newPullCol(frontName: string, backName?: string, type?: ColumnType): ProgCol;
     export function checkColName($nameInput: JQuery, tableId: TableId, colNum: number, options?: any): boolean;
+    export function addNewCol(colNum: number, tableId: TableId, direction: ColDir): void;
+    export function hideCol(colNums: number[], tableId: TableId): void;
+    export function renameCol(colNum: number, tableId: TableId, colName: string): void;
+    export function format(colNums: number[], tableId: TableId, formats: string[]): void;
+    export function round(colNums: number[], tableId: TableId, decimal: number);
+    export function splitCol(colNum: number, tableId: TableId, delim: string, numColToGet: number, colNames: string[], isAlertOn: boolean): XDPromise<void>;
+    export function minimizeCols(colNums: number[], tableId: TableId): void;
+    export function maximizeCols(colNums: number[], tableId: TableId): void;
+    export function textAlign(colNums: number[], tableId: TableId, classes: string): void;
+    export function changeType(colTypeInfos: object, tableId: TableId): XDPromise<void>;
+    export function unnest(tableId: TableId, colNum: number, rowNum: number): void;
 }
 
 declare namespace Admin {
@@ -1274,6 +1304,8 @@ declare namespace TblFunc {
     export function getWidestTdWidth($el: JQuery, options: object): number;
     export function focusTable(tableId: TableId, focusDag: boolean);
     export function matchHeaderSizes($table: JQuery): void;
+    export function reorderAfterTableDrop(tableId: TableId, fromIndex: number, toIndex: number, options: object): void;
+    export function sortColumn(colNums: number[], tableId: TableId, order: XcalarOrderingT);
 }
 
 declare namespace TableList {
@@ -1293,7 +1325,7 @@ declare namespace TblManager {
     export function setOrphanTableMeta(tableName: string, tableCols: ProgCol[]): void;
     export function refreshTable(newTableNames: string[], tableCols: ProgCol[], oldTableNames: string[], worksheet: string, txId: number, options: object): XDPromise<void>;
     export function updateHeaderAndListInfo(tableId: TableId): void;
-    export function deleteTables(tables: TableId[], tableType: string, noAlert?: boolean, noLog?: boolean, options?: object);
+    export function deleteTables(tables: TableId[] | TableId, tableType: string, noAlert?: boolean, noLog?: boolean, options?: object);
     export function findAndFocusTable(tableName: string, noAnimate?: boolean): XDPromise<any>;
     export function freeAllResultSetsSync(): XDPromise<void>;
     export function highlightColumn($match: JQuery): void;
@@ -1309,6 +1341,12 @@ declare namespace TblManager {
     export function updateTableNameWidth($tableName: JQuery): void;
     export function removeTableNoDelete(tableId: TableId): void;
     export function removeWaitingCursor(tableId: TableId);
+    export function hideTable(tableId: TableId): void;
+    export function unHideTable(tableId: TableId): void;
+    export function sendTableToTempList(ids: TableId[]): void;
+    export function sortColumns(tableId: TableId, sortKey: string, direction: string): void;
+    export function resizeColumns(tableId: TableId, resizeTo: string, colNums?: number[]): void;
+    export function makeTableNoDelete(tableName: string): void;
 }
 
 declare namespace TblAnim {
@@ -1322,14 +1360,9 @@ declare namespace RowManager {
     export function addRows(currentRowNumber: number, numRowsStillNeeded: number, direction: RowDirection, info: object): XDPromise<void>;
 }
 
-declare namespace TblMenu{
-    export function setup(): void;
-    export function showDagAndTableOptions($menu: JQuery, tableId: string | number): void;
-    export function updateExitOptions(id: string, name?: string): void;
-}
-
 declare namespace TPrefix {
     export function restore(oldMeat: object): void;
+    export function setup(): void;
 }
 
 declare namespace Aggregates {
@@ -1358,7 +1391,7 @@ declare namespace BottomMenu {
     export function setup(): void;
     export function initialize(): void;
     export function unsetMenuCache(): void;
-    export function close(something: boolean): void;
+    export function close(something?: boolean): void;
 }
 
 declare namespace WSManager {
@@ -1385,20 +1418,21 @@ declare namespace WSManager {
     export function dropUndoneTables(): XDPromise<void>;
     export function getWSById(worksheetId: string): object;
     export function getHiddenWSList(): string[];
+    export function moveTable(tableId: TableId, wsId: string);
 }
 
 declare namespace Dag {
     export function addEventListeners($dagWrap: JQuery): void;
     export function removeNoDelete(tableId: TableId): void;
-
+    export function renameAllOccurrences(oldTableName: string, newTableName: string): void;
+    export function makeTableNoDelete(tableName: string): void;
+    export function generateIcvTable(tableId: TableId, tableName: string): void;
+    export function generateComplementTable(tableName: string): void
+    export function getTableInfo(tableId: TableId, $dagTable: JQuery): {isIcv: boolean, generatingIcv: boolean, canBeIcv: boolean, hasDroppedParent: boolean, generatingComplement: boolean};
 }
 
 declare namespace DagDraw {
     export function createDagImage(node: any, $dagWrap: JQuery): void;
-}
-
-declare namespace Dag {
-    export function renameAllOccurrences(oldTableName: string, newTableName: string): void;
 }
 
 declare namespace DagPanel {
@@ -1411,6 +1445,7 @@ declare namespace DagPanel {
 declare namespace DagEdit {
     export function isEditMode(): boolean;
     export function exitForm(): void;
+    export function off(): void;
 }
 
 declare namespace DataflowPanel {
@@ -1459,6 +1494,7 @@ declare namespace Profile {
     export function setup(): void;
     export function restore(oldMeat: object): void;
     export function copy(tableId: TableId, newTableId: TableId): void;
+    export function show(tableId: TableId, colNum: number): void;
 }
 
 declare namespace DF {
@@ -1490,6 +1526,7 @@ declare namespace JupyterPanel {
     export function updateFolderName(newFoldername: string): void;
     export function copyWorkbook(oldJupyterFolder: string, newJupyterFolder: string): void;
     export function initialize(noRestore?: boolean): void;
+    export function publishTable(tableName: string, numRows?: number): void;
 }
 
 declare namespace UDF {
@@ -1529,33 +1566,45 @@ declare namespace MonitorConfig {
     export function refreshParams(firstTouch: boolean): XDPromise<{}>;
 }
 
-declare namespace DFCreateView {
-    export function updateTables(tableId: TableId, something: boolean);
-}
 declare namespace ProjectView {
     export function updateColumns(): void;
+    export function setup(): void;
+    export function show(tableId: TableId, colNums: number[]): void;
 }
 declare namespace OperationsView {
     export function updateColumns(): void;
+    export function setup(): void;
+    export function restore(): void;
+    export function show(tableId: TableId, colNums: number[], func: string, options: object): void;
 }
 declare namespace JoinView {
     export function updateColumns(): void;
+    export function setup(): void;
+    export function restore(): void;
+    export function show(tableId: TableId, colNums: number[]): void
 }
 declare namespace ExportView {
     export function updateColumns(): void;
+    export function show(tableId: TableId): void;
 }
 declare namespace SmartCastView {
     export function updateColumns(tableId: TableId): void;
+    export function show(tableId: TableId): void;
 }
 declare namespace UnionView {
     export function updateColumns(tableId: TableId): void;
+    export function setup(): void;
+    export function show(tableId: TableId, colNums: number[]): void;
 }
 declare namespace SortView {
     export function updateColumns(tableId: TableId): void;
+    export function setup(): void;
+    export function show(colNums: number[], tableId: TableId): void;
 }
 declare namespace FnBar {
     export function clear(): void;
     export function updateOperationsMap(fns: UDFInfo[]): void;
+    export function unlock(): void;
 }
 
 declare namespace d3 {
@@ -1604,36 +1653,22 @@ declare namespace DSTargetManager {
 
 declare namespace JSONModal {
     export function setup(): void;
+    export function show($td: JQuery, options: object): void
 }
 
 declare namespace ExportView {
     export function setup(): void;
 }
 
-declare namespace JoinView {
-    export function setup(): void;
-    export function restore(): void;
-}
-
-declare namespace UnionView {
-    export function setup(): void;
-}
-
 declare namespace AggModal {
     export function setup(): void;
-}
-
-declare namespace OperationsView {
-    export function setup(): void;
-    export function restore(): void;
+    export function corrAgg(tableId: TableId, vertColNums?: number[], horColNums?: number[]): void;
 }
 
 declare namespace DFCreateView {
     export function setup(): void;
-}
-
-declare namespace ProjectView {
-    export function setup(): void;
+    export function updateTables(tableId: TableId, something: boolean);
+    export function show($dagWrap: JQuery): void
 }
 
 declare namespace DFParamModal {
@@ -1645,16 +1680,13 @@ declare namespace SmartCastView {
     export function setup(): void;
 }
 
-declare namespace SortView {
-    export function setup(): void;
-}
-
 declare namespace FileBrowser {
     export function restore(): void;
 }
 
 declare namespace ExtensionManager {
     export function setup(): XDPromise<void>;
+    export function openView(colNum: number, tableId: TableId): void;
 }
 
 declare namespace ExtensionPanel {
@@ -1683,6 +1715,7 @@ declare namespace DSInfoModal {
 
 declare namespace SkewInfoModal {
     export function setup(): void;
+    export function show(tableId: TableId): void;
 }
 
 declare namespace LoginConfigModal {

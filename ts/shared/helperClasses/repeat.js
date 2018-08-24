@@ -93,7 +93,7 @@ window.Repeat = (function($, Repeat) {
             }
         }
         // XXX return if columns have different orders
-        return TblMenu.sortColumn(colNums, tableId, order);
+        return TblFunc.sortColumn(colNums, tableId, order);
     };
 
     // repeatFuncs[SQLOps.Filter] = function(options) {

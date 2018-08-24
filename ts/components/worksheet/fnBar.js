@@ -186,8 +186,8 @@ window.FnBar = (function(FnBar, $) {
             $("#container").addClass("columnPicker");
             $("#container").addClass("formOpen");
             DagPanel.updateExitMenu("Function Bar");
-            TblMenu.updateExitOptions("#tableMenu", "Function Bar");
-            TblMenu.updateExitOptions("#colMenu", "Function Bar");
+            TableManager.getMenu().updateExitOptions("#tableMenu", "Function Bar");
+            TableManager.getMenu().updateExitOptions("#colMenu", "Function Bar");
 
             const selector = ".xcTable .header, .xcTable td.clickable";
             $("#mainFrame").on("mousedown.columnPicker", selector, function(event) {
@@ -242,8 +242,8 @@ window.FnBar = (function(FnBar, $) {
             $("#container").removeClass("columnPicker");
             $("#container").removeClass("formOpen");
             $functionArea.removeClass("fnBarLocked");
-            TblMenu.updateExitOptions("#tableMenu");
-            TblMenu.updateExitOptions("#colMenu");
+            TableManager.getMenu().updateExitOptions("#tableMenu");
+            TableManager.getMenu().updateExitOptions("#colMenu");
             DagPanel.updateExitMenu();
             $("#mainFrame").off(".columnPicker");
         }

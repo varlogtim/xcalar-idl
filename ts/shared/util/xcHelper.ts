@@ -3118,7 +3118,7 @@ namespace xcHelper {
      */
     export function validateColName(
         colName: string,
-        noSpace: boolean,
+        noSpace: boolean = false,
         noDoubleColon: boolean = false
     ): string | null {
         if (!colName || colName.trim().length === 0) {
@@ -5582,7 +5582,7 @@ namespace xcHelper {
                     $subMenu.find(".removeNoDelete").hide();
                     $subMenu.find(".addNoDelete").show();
                 }
-                TblMenu.showDagAndTableOptions($subMenu, tableId);
+                TableManager.getMenu().showDagAndTableOptions($subMenu, tableId, null);
                 TblManager.unHighlightCells();
                 break;
             case ('colMenu'):

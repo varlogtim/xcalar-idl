@@ -2,6 +2,10 @@
 window.TPrefix = (function(TPrefix, $) {
     var colorMpas = {};
 
+    TPrefix.setup = function() {
+        addMenuActions();
+    };
+
     TPrefix.getCache = function() {
         return colorMpas;
     };
@@ -51,6 +55,23 @@ window.TPrefix = (function(TPrefix, $) {
 
     function addColor(prefix, color) {
         colorMpas[prefix] = color;
+    }
+
+    function addMenuActions() {
+        var $prefixColorMenu = $("#prefixColorMenu");
+        $prefixColorMenu.on("mouseup", ".wrap", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+
+            var $wrap = $(this);
+            var prefix = $prefixColorMenu.data("prefix");
+            var color = $(this).data("color");
+
+            $wrap.addClass("selected").siblings().removeClass("selected");
+            TPrefix.markColor(prefix, color);
+            xcMenu.close($prefixColorMenu);
+        });
     }
 
     return (TPrefix);

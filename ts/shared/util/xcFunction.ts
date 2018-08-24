@@ -1,6 +1,6 @@
 namespace xcFunction {
     interface XcFuncOptions {
-        formOpenTime: number;
+        formOpenTime?: number;
     }
 
     interface XcFuncFilterOptions extends XcFuncOptions {
