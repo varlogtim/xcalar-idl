@@ -5761,7 +5761,7 @@ namespace xcHelper {
             menuId === "cellMenu" || menuId === "prefixColorMenu"
         ) {
             if (menuId === "tableMenu" && options.modelingMode) {
-                tableId = xcHelper.getTableId((DagTable.Instance.getTable());
+                tableId = xcHelper.getTableId(DagTable.Instance.getTable());
             } else {
                 tableId = xcHelper.parseTableId($dropdownIcon.closest(".xcTableWrap"));
             }
