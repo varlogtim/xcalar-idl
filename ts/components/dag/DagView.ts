@@ -4,12 +4,14 @@ namespace DagView {
     let $operatorBar: JQuery;
     let activeDag: DagGraph;
     let activeDagTab: DagTab;
-    const horzSpacing = 140; // spacing between nodes when auto-aligning
-    const vertSpacing = 60;
+    const autoHorzSpacing = 140; // spacing between nodes when auto-aligning
+    const autoVertSpacing = 60;
     const horzPadding = 200;
     const vertPadding = 100;
     const nodeHeight = 28;
     const nodeWidth = 102;
+    const gridSpacing = 20;
+    let clipboard = null;
 
     export function setup(): void {
         if (gDionysus) {
@@ -28,6 +30,8 @@ namespace DagView {
         DagCategoryBar.Instance.setup();
         DagNodeMenu.setup();
         DagDatasetModal.setup();
+
+
     }
 
     /**
@@ -35,8 +39,31 @@ namespace DagView {
      */
     export function show(): void {
         DagCategoryBar.Instance.showOrHideArrows();
+
         $(window).on("resize.dagViewResize", function() {
             DagCategoryBar.Instance.showOrHideArrows();
+        });
+
+        $(document).on("copy.dataflowPanel", function(e) {
+            if (window.getSelection().toString().length) {
+                // if an actual target is selected,
+                // then let the natural event occur
+                clipboard = null;
+                return;
+            }
+
+            e.preventDefault(); // default behaviour is to copy any selected text
+            DagView.copyNodes(DagView.getSelectedNodeIds());
+        });
+
+         $(document).on("paste.dataflowPanel", function(e){
+            if (clipboard === null || $(e.target).is("input") ||
+                $(e.target).is("textarea")) {
+                return; // use default paste event
+            }
+            if (clipboard.type === "dagNodes") {
+                DagView.pasteNodes();
+            }
         });
     }
 
@@ -45,6 +72,7 @@ namespace DagView {
      */
     export function hide(): void {
         $(window).off(".dagViewResize");
+        $(document).off(".dataflowPanel");
     }
 
     /**
@@ -200,64 +228,113 @@ namespace DagView {
     }
 
     /**
-     * DagView.cloneNode
-     * @param nodeId
-     * finds new position for cloned node, adds to dagGraph and UI
+     * DagView.copyNodes
+     * @param nodeIds
      */
-    export function cloneNodes(nodeIds: DagNodeId[]): XDPromise<void> {
-        const offset = _getDFAreaOffset();
-        const $originalNode: JQuery = DagView.getNode(nodeIds[0]);
-        const origRect: ClientRect = $originalNode[0].getBoundingClientRect();
-        const $dfArea: JQuery = $dagView.find(".dataflowArea.active");
-        const spacing: number = 20;
-        let newLeft: number = origRect.left;
-        let topDelta: number = 60;
-        let positionConflict: boolean = true;
-        let newNodeIds: DagNodeId[] = [];
-
-        // we use the first node in the jquery array and make sure it doesn't
-        // conflict in positions with another node. The other nodes in the
-        // array may have a problem however
-
-        // XXX improve detection of other node positions
-        while (positionConflict) {
-            positionConflict = false;
-            $dfArea.find(".operator").each(function() {
-                const rect = this.getBoundingClientRect();
-                if (rect.left === newLeft && rect.top === origRect.top + topDelta) {
-                    positionConflict = true;
-                    topDelta += spacing;
-                    return false;
-                }
-            });
-        }
-        let maxXCoor: number = 0;
-        let maxYCoor: number = 0;
+    export function copyNodes(nodeIds: DagNodeId[]): void {
+        xcHelper.copyToClipboard(" "); // need to have content to overwrite current clipboard
+        let nodeInfos = [];
         nodeIds.forEach((nodeId) => {
-            const $node: JQuery = DagView.getNode(nodeId);
-            const rect: ClientRect = $node[0].getBoundingClientRect();
-            const newPosition: Coordinate = {
-                x: rect.left + offset.left,
-                y: rect.top + offset.top + topDelta
+            const node: DagNode = activeDag.getNode(nodeId);
+            const nodeInfo = {
+                type: node.getType(),
+                input: xcHelper.deepCopy(node.getParam()),
+                comment: node.getComment(),
+                display: xcHelper.deepCopy(node.getPosition())
             };
-
-            const newNode: DagNode = activeDag.cloneNode(nodeId);
-            const newNodeId: DagNodeId = newNode.getId();
-            newNodeIds.push(newNodeId);
-            activeDag.moveNode(newNodeId, newPosition);
-            maxXCoor = Math.max(newPosition.x, maxXCoor);
-            maxYCoor = Math.max(newPosition.y, maxYCoor);
-            _drawNode(newNode, $dfArea);
+            nodeInfos.push(nodeInfo);
         });
 
-        _setGraphDimensions({x: maxXCoor, y: maxYCoor});
+        clipboard = {
+            type: "dagNodes",
+            nodeInfos: nodeInfos
+        };
+    }
 
-        Log.add(SQLTStr.CopyOperations, {
-            "operation": SQLOps.CopyOperations,
-            "dataflowId": activeDagTab.getId(),
-            "nodeIds": newNodeIds
-        });
-        return activeDagTab.saveTab();
+    /**
+     * DagView.pasteNodes
+     *  finds new position for cloned nodes, adds to        dagGraph and UI
+     */
+    export function pasteNodes(): XDPromise<void> {
+        if (!clipboard) {
+            return;
+        }
+        if (clipboard.type === "dagNodes") {
+            const $dfArea: JQuery = $dagView.find(".dataflowArea.active");
+            const $operators = $dfArea.find(".operator");
+            $operators.removeClass("selected");
+
+            let positions = {};
+            let minXCoor: number = $dfArea.width();
+            let minYCoor: number = $dfArea.height();
+            let maxXCoor: number = 0;
+            let maxYCoor: number = 0;
+
+            $operators.each(function() {
+                const nodeId: DagNodeId = $(this).data("nodeid");
+                const pos: Coordinate = activeDag.getNode(nodeId).getPosition();
+                if (!positions[pos.x]) {
+                    positions[pos.x] = {};
+                }
+                positions[pos.x][pos.y] = true;
+            });
+
+            clipboard.nodeInfos.forEach((nodeInfo) => {
+                minYCoor = Math.min(nodeInfo.display.y, minYCoor);
+                if (nodeInfo.display.y === minYCoor) {
+                    minXCoor = Math.min(nodeInfo.display.x, minXCoor);
+                }
+                maxXCoor = Math.max(nodeInfo.display.x, maxXCoor);
+                maxYCoor = Math.max(nodeInfo.display.y, maxYCoor);
+            });
+
+            let origMinXCoor = minXCoor;
+            let origMinYCoor = minYCoor;
+            minXCoor += (gridSpacing * 5);
+            minYCoor += (gridSpacing * 2);
+
+            let positionConflict = true;
+            while (positionConflict) {
+                positionConflict = false;
+                if (positions[minXCoor] && positions[minXCoor][minYCoor]) {
+                    positionConflict = true;
+                    minYCoor += gridSpacing;
+                    minXCoor += gridSpacing;
+                }
+            }
+
+            let xDelta = minXCoor - origMinXCoor;
+            let yDelta = minYCoor - origMinYCoor;
+            maxXCoor += xDelta;
+            maxYCoor += yDelta;
+
+            const newNodeIds: DagNodeId[] = [];
+            clipboard.nodeInfos.forEach((nodeInfo) => {
+                nodeInfo = xcHelper.deepCopy(nodeInfo);
+                nodeInfo.display.x += xDelta;
+                nodeInfo.display.y += yDelta;
+                const newNode: DagNode = activeDag.newNode(nodeInfo);
+
+                const newNodeId: DagNodeId = newNode.getId();
+                newNodeIds.push(newNodeId);
+                _drawNode(newNode, $dfArea, true);
+            });
+
+            // XXX scroll to selection if off screen
+
+            _setGraphDimensions({x: maxXCoor, y: maxYCoor});
+
+            Log.add(SQLTStr.CopyOperations, {
+                "operation": SQLOps.CopyOperations,
+                "dataflowId": activeDagTab.getId(),
+                "nodeIds": newNodeIds
+            });
+            return activeDagTab.saveTab();
+        }
+    }
+
+    export function hasClipboard() {
+        return clipboard !== null;
     }
 
     /**
@@ -430,18 +507,31 @@ namespace DagView {
             for (let j in nodes) {
                 allNodeIds.push(j);
                 allCoors.push({
-                    x: ((maxDepth - nodes[j].depth) * horzSpacing) + 20,
-                    y: (nodes[j].width * vertSpacing) + 20
+                    x: ((maxDepth - nodes[j].depth) * autoHorzSpacing) + gridSpacing,
+                    y: (nodes[j].width * autoVertSpacing) + gridSpacing
                 });
             }
             startingWidth = (maxWidth + 1);
         }
-        const graphHeight = vertSpacing * (startingWidth - 1) + vertPadding;
-        const graphWidth = horzSpacing * overallMaxDepth  + horzPadding;
+        const graphHeight = autoVertSpacing * (startingWidth - 1) + vertPadding;
+        const graphWidth = autoHorzSpacing * overallMaxDepth  + horzPadding;
         DagView.moveNodes(allNodeIds, allCoors, {
             x: graphWidth,
             y: graphHeight
         });
+    }
+
+    export function getSelectedNodes(): JQuery {
+        return $dfWrap.find(".dataflowArea.active .operator.selected");
+    }
+
+    export function getSelectedNodeIds(): DagNodeId[] {
+        const $nodes: JQuery = DagView.getSelectedNodes();
+        const nodeIds = [];
+        $nodes.each(function() {
+            nodeIds.push($(this).data("nodeid"));
+        });
+        return nodeIds;
     }
 
     export function previewTable(dagNodeId: string): XDPromise<void> {
@@ -567,7 +657,7 @@ namespace DagView {
                 $elements: $operator.add($dfArea.find(".operator.selected")),
                 $container: $dagView,
                 $dropTarget: $dfArea,
-                round: 20,
+                round: gridSpacing,
                 onDragStart: function(_$els) {
                 },
                 onDragEnd: function($els, _event, data) {
@@ -857,7 +947,7 @@ namespace DagView {
                 }
             });
         }
-        function _endDrawRect(event: JQueryEventObject): void {
+        function _endDrawRect(_event: JQueryEventObject): void {
             $dfArea.removeClass("drawing");
             const $ops = $dfArea.find(".operator.selecting");
             if ($ops.length === 0) {
@@ -867,11 +957,6 @@ namespace DagView {
                     $(this).removeClass("selecting")
                            .addClass("selected");
                 });
-                let contextMenuEvent = $.Event("contextmenu", {
-                        pageX: event.pageX,
-                        pageY: event.pageY
-                    });
-                    $ops.find(".main").first().trigger(contextMenuEvent);
             }
             $dfArea = null;
             $operators = null;
@@ -926,7 +1011,7 @@ namespace DagView {
         }
     }
 
-    function _drawNode(node: DagNode, $dfArea: JQuery): JQuery {
+    function _drawNode(node: DagNode, $dfArea: JQuery, select?: boolean): JQuery {
         const pos = node.getPosition();
         const type = node.getType();
         const nodeId = node.getId();
@@ -951,6 +1036,9 @@ namespace DagView {
         // use .attr instead of .data so we can grab by selector
         $node.attr("data-nodeid", nodeId);
         $node.addClass("state-" + node.getState());
+        if (select) {
+            $node.addClass("selected");
+        }
         $node.appendTo($dfArea);
         return $node;
     }

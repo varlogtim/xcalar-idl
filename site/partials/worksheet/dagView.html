@@ -67,9 +67,13 @@
                 <i class="icon xi-select-mode"></i>
                 <span class="label"><%= dicts.dag.selectAll %></span>
             </li>
-            <li class="cloneNode" data-action="cloneNode">
+            <li class="copyNodes" data-action="copyNodes">
                 <i class="icon xi-duplicate"></i>
-                <span class="label"><%= dicts.dag.cloneNode %></span>
+                <span class="label"><%= dicts.dag.copy %></span>
+            </li>
+            <li class="pasteNodes" data-action="pasteNodes">
+                <i class="icon xi-copy-clipboard"></i>
+                <span class="label"><%= dicts.dag.paste %></span>
             </li>
             <li class="comment unavailable" data-action="comment">
                 <i class="icon xi-edit"></i>

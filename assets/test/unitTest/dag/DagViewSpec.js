@@ -40,8 +40,8 @@ describe("DagView Test", () => {
             const newNodeInfo = {
                 type: "dataset",
                 display: {
-                    x: 5,
-                    y: 6
+                    x: 20,
+                    y: 40
                 }
             };
             DagView.addNode(newNodeInfo)
@@ -49,16 +49,16 @@ describe("DagView Test", () => {
                 expect($dagView.find(".dataflowArea.active").children().length).to.equal(3);
                 expect($dagView.find(".dataflowArea .operator").length).to.equal(1);
                 const $operator = $dagView.find(".dataflowArea .operator");
-                expect($operator.css("left")).to.equal("5px");
-                expect($operator.css("top")).to.equal("6px");
+                expect($operator.css("left")).to.equal("20px");
+                expect($operator.css("top")).to.equal("40px");
                 expect($operator.hasClass("dataset")).to.be.true;
                 const dag = DagView.getActiveDag();
 
                 const nodeId = $operator.data("nodeid");
                 expect(DagView.getNode(nodeId).length).to.equal(1);
                 const position = dag.getNode(nodeId).getPosition();
-                expect(position.x).to.equal(5);
-                expect(position.y).to.equal(6);
+                expect(position.x).to.equal(20);
+                expect(position.y).to.equal(40);
                 done();
             });
         });
@@ -74,8 +74,8 @@ describe("DagView Test", () => {
             DagView.moveNodes = function(ids, coors) {
                 expect(ids.length).to.equal(1);
                 expect(ids[0]).to.equal($operator.data("nodeid"));
-                expect(coors[0].x).to.equal(left + 2);
-                expect(coors[0].y).to.equal(top + 1);
+                expect(coors[0].x).to.equal(left + 40);
+                expect(coors[0].y).to.equal(top + 20);
                 called = true;
             };
             $operator = $dfWrap.find(".dataflowArea.active .operator").eq(0);
@@ -87,15 +87,15 @@ describe("DagView Test", () => {
             $operator.find(".main").trigger(e);
 
             expect($(".dragContainer").length).to.equal(0);
-            var e = $.Event('mousemove', {pageX: 102, pageY: 101});
+            var e = $.Event('mousemove', {pageX: 140, pageY: 120});
             $(document).trigger(e);
 
             expect($(".dragContainer").length).to.equal(1);
 
-            var e = $.Event('mousemove', {pageX: 102, pageY: 101});
+            var e = $.Event('mousemove', {pageX: 140, pageY: 120});
             $(document).trigger(e);
 
-            var e = $.Event('mouseup', {pageX: 102, pageY: 101});
+            var e = $.Event('mouseup', {pageX: 140, pageY: 120});
             $(document).trigger(e);
             expect($(".dragContainer").length).to.equal(0);
 
@@ -107,13 +107,13 @@ describe("DagView Test", () => {
             const $operator = $dfWrap.find(".dataflowArea.active .operator").eq(0);
             const nodeId = $operator.data("nodeid");
 
-            DagView.moveNodes([nodeId], [{x: 20, y: 30}])
+            DagView.moveNodes([nodeId], [{x: 220, y: 240}])
             .always(function() {
                 const dag = DagView.getActiveDag();
-                expect(dag.getNode(nodeId).getPosition().x).to.equal(20);
-                expect(dag.getNode(nodeId).getPosition().y).to.equal(30);
-                expect($operator.css("left")).to.equal("20px");
-                expect($operator.css("top")).to.equal("30px");
+                expect(dag.getNode(nodeId).getPosition().x).to.equal(220);
+                expect(dag.getNode(nodeId).getPosition().y).to.equal(240);
+                expect($operator.css("left")).to.equal("220px");
+                expect($operator.css("top")).to.equal("240px");
                 done();
             });
         });
@@ -250,34 +250,10 @@ describe("DagView Test", () => {
         });
     });
 
-    describe("clone nodes", function() {
-        it("dataset node should clone", function(done) {
-            let $operator = $dfWrap.find(".dataflowArea.active .operator").eq(0);
-            let nodeId = $operator.data("nodeid");
-            DagView.cloneNodes([nodeId])
-            .always(function() {
-                let $clone = $dfWrap.find(".dataflowArea.active .operator").last();
-                expect($clone.hasClass("dataset"));
-                expect($dfWrap.find(".dataflowArea.active .operator").length).to.equal(3);
-                const dag = DagView.getActiveDag();
-                let nodes = dag.getAllNodes();
-                let nodeIds = [];
-                nodes.forEach((node) => {
-                    nodeIds.push(node.getId());
-                });
-                expect(nodeIds.length).to.equal(3);
-                DagView.removeNodes([$clone.data("nodeid")])
-                .always(function() {
-                    done();
-                });
-            });
-        });
-    });
-
     describe("drag select", function() {
         it("drag select should select all nodes", function() {
             expect($dfWrap.find(".operator.selected").length).to.equal(0);
-            let e = $.Event('mousedown', {pageX: 500, pageY: 500, which: 1,
+            let e = $.Event('mousedown', {pageX: 800, pageY: 500, which: 1,
                         target: $dfWrap.find(".dataflowArea.active")});
             $dfWrap.trigger(e);
             e = $.Event('mousemove', {pageX: 0, pageY: 0});

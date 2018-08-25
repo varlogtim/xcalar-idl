@@ -925,7 +925,7 @@
             margin-right: 8px;
             display: inline-block;
             width: 10px;
-            &.xi-duplicate, &.xi-play-circle {
+            &.xi-duplicate, &.xi-play-circle, &.xi-copy-clipboard {
                 font-size: 11px;
             }
             &.xi-select-mode {
@@ -938,7 +938,7 @@
         }
     }
     &.operatorMenu {
-        .removeNode, .cloneNode, .executeNode, .comment, .configureNode,
+        .removeNode, .copyNodes, .pasteNodes, .executeNode, .comment, .configureNode,
         .previewTable {
             display: list-item;
         }
@@ -949,7 +949,8 @@
         }
     }
     &.backgroundMenu {
-        .removeAllNodes, .executeAllNodes, .selectAllNodes, .autoAlign {
+        .removeAllNodes, .pasteNodes, .executeAllNodes, .selectAllNodes, .autoAlign,
+        {
             display: list-item;
         }
     }

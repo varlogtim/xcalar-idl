@@ -122,19 +122,6 @@ class DagGraph {
     }
 
     /**
-     * copy a node, type, comment, and input get copied but child/parents do not
-     * @param nodeId
-     */
-    public cloneNode(nodeId: DagNodeId): DagNode {
-        const node: DagNode = this._getNodeFromId(nodeId);
-        return this.newNode({
-            type: node.getType(),
-            input: xcHelper.deepCopy(node.getParam()),
-            comment: node.getComment(), // XXX DO we want to clone comment or not?
-        });
-    }
-
-    /**
      * add a new node
      * @param dagNode node to add
      */

@@ -21,6 +21,7 @@ namespace WorkspacePanel {
         } else {
             BottomMenu.unsetMenuCache();
         }
+
     }
 
     export function inActive() {

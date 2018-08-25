@@ -1364,13 +1364,14 @@ module.exports = {
         "removeNode": "Remove",
         "removeAllNodes": "Remove All",
         "selectAll": "Select All",
-        "cloneNode": "Duplicate",
         "removeConnection": "Remove Connection",
         "configure": "Configure",
         "comment": "Comment",
         "execute": "Execute",
         "executeAll": "Execute All",
         "previewTable": "Preview Table",
-        "autoAlign": "Auto Align"
+        "autoAlign": "Auto Align",
+        "copy": "Copy",
+        "paste": "Paste"
     }
 };

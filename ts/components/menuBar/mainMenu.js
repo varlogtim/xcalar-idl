@@ -377,6 +377,8 @@ window.MainMenu = (function($, MainMenu) {
             DSCart.checkQueries();
         } else if (lastTabId === "workspaceTab") {
             WorkspacePanel.inActive();
+        } else if (lastTabId === "modelingDataflowTab") {
+            DagView.hide();
         }
         $(".mainPanel").removeClass("active");
         $("#container").removeClass("monitorViewOpen");

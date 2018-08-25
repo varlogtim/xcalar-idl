@@ -97,8 +97,11 @@ namespace DagNodeMenu {
                 case ("removeInConnection"):
                     DagView.disconnectNodes(parentNodeId, nodeId, connectorIndex);
                     break;
-                case ("cloneNode"):
-                    DagView.cloneNodes(nodeIds);
+                case ("copyNodes"):
+                    DagView.copyNodes(nodeIds);
+                    break;
+                case ("pasteNodes"):
+                    DagView.pasteNodes();
                     break;
                 case ("executeNode"):
                     const executedIds: DagNodeId[] = (nodeId != null) ? [nodeId] : nodeIds;
@@ -190,7 +193,7 @@ namespace DagNodeMenu {
         const $operator: JQuery = $clickedEl.closest(".operator");
         // $operator.addClass("selected");
         let nodeIds = [];
-        let $operators: JQuery = $operator.add($dfWrap.find(".dataflowArea.active .operator.selected"));
+        let $operators: JQuery = $operator.add(DagView.getSelectedNodes());
         $operators.each(function() {
             nodeIds.push($(this).data("nodeid"));
         });
@@ -214,6 +217,11 @@ namespace DagNodeMenu {
                 $menu.find(".previewTable").addClass("unavailable");
             }
         }
+        if (DagView.hasClipboard()) {
+            $menu.find(".pasteNodes").removeClass("unavailable");
+        } else {
+            $menu.find(".pasteNodes").addClass("unavailable");
+        }
 
         xcHelper.dropdownOpen($clickedEl, $menu, {
             mouseCoors: {x: event.pageX, y: event.pageY},
@@ -224,6 +232,19 @@ namespace DagNodeMenu {
     }
 
     function _showBackgroundMenu(event: JQueryEventObject) {
+        let nodeIds = [];
+        let $operators: JQuery = DagView.getSelectedNodes();
+        $operators.each(function() {
+            nodeIds.push($(this).data("nodeid"));
+        });
+
+        if (DagView.hasClipboard()) {
+            $menu.find(".pasteNodes").removeClass("unavailable");
+        } else {
+            $menu.find(".pasteNodes").addClass("unavailable");
+        }
+
+        $menu.data("nodeids", nodeIds);
         let classes: string = " backgroundMenu ";
         xcHelper.dropdownOpen($(event.target), $menu, {
             mouseCoors: {x: event.pageX, y: event.pageY},
