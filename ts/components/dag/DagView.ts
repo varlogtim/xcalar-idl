@@ -30,12 +30,11 @@ namespace DagView {
         DagCategoryBar.Instance.setup();
         DagNodeMenu.setup();
         DagDatasetModal.setup();
-
-
     }
 
     /**
-     * Called when dag panel becomes visible
+     * Called when dag panel becomes visible, listeners that are removed when
+     * panel closes.
      */
     export function show(): void {
         DagCategoryBar.Instance.showOrHideArrows();
@@ -45,7 +44,12 @@ namespace DagView {
         });
 
         $(document).on("copy.dataflowPanel", function(e) {
-            if (window.getSelection().toString().length) {
+            if ($(e.target).is("body")) {
+                // proceed
+            } if ($(e.target).is(".xcClipboardArea")) {
+                return;
+            } else if (window.getSelection().toString().length &&
+                window.getSelection().toString() !== " ") {
                 // if an actual target is selected,
                 // then let the natural event occur
                 clipboard = null;
@@ -53,16 +57,31 @@ namespace DagView {
             }
 
             e.preventDefault(); // default behaviour is to copy any selected text
-            DagView.copyNodes(DagView.getSelectedNodeIds());
+            DagView.copyNodes(DagView.getSelectedNodeIds(true));
         });
 
-         $(document).on("paste.dataflowPanel", function(e){
+         $(document).on("paste.dataflowPanel", function(e: JQueryEventObject){
             if (clipboard === null || $(e.target).is("input") ||
                 $(e.target).is("textarea")) {
                 return; // use default paste event
             }
             if (clipboard.type === "dagNodes") {
                 DagView.pasteNodes();
+            }
+        });
+
+        $(document).on("keydown.dataflowPanel", function(e: JQueryEventObject) {
+            if (activeDag.isLocked() || $("#container").hasClass("formOpen") ||
+                $("input:focus").length || $("textarea:focus").length) {
+                return;
+            }
+            switch (e.which) {
+                case (keyCode.Backspace):
+                case (keyCode.Delete):
+                    DagView.removeNodes(DagView.getSelectedNodeIds(true));
+                    break;
+                default:
+                    break;
             }
         });
     }
@@ -209,6 +228,9 @@ namespace DagView {
      * connector classes
      */
     export function removeNodes(nodeIds: DagNodeId[]): XDPromise<void> {
+        if (!nodeIds.length) {
+            return PromiseHelper.reject();
+        }
         nodeIds.forEach(function(nodeId) {
             activeDag.removeNode(nodeId);
             DagView.getNode(nodeId).remove();
@@ -253,13 +275,16 @@ namespace DagView {
 
     /**
      * DagView.pasteNodes
-     *  finds new position for cloned nodes, adds to        dagGraph and UI
+     *  finds new position for cloned nodes, adds to dagGraph and UI
      */
     export function pasteNodes(): XDPromise<void> {
         if (!clipboard) {
-            return;
+            return PromiseHelper.reject();;
         }
         if (clipboard.type === "dagNodes") {
+            if (!clipboard.nodeInfos.length) {
+                return PromiseHelper.reject();
+            }
             const $dfArea: JQuery = $dagView.find(".dataflowArea.active");
             const $operators = $dfArea.find(".operator");
             $operators.removeClass("selected");
@@ -331,9 +356,13 @@ namespace DagView {
             });
             return activeDagTab.saveTab();
         }
+        return PromiseHelper.reject();
     }
 
-    export function hasClipboard() {
+    /**
+     * DagView.hasClipboard
+     */
+    export function hasClipboard(): boolean {
         return clipboard !== null;
     }
 
@@ -521,12 +550,20 @@ namespace DagView {
         });
     }
 
-    export function getSelectedNodes(): JQuery {
-        return $dfWrap.find(".dataflowArea.active .operator.selected");
+    export function getAllNodes(): JQuery {
+        return $dfWrap.find(".dataflowArea.active .operator");
     }
 
-    export function getSelectedNodeIds(): DagNodeId[] {
-        const $nodes: JQuery = DagView.getSelectedNodes();
+    export function getSelectedNodes(includeSelecting?: boolean): JQuery {
+        let selector = ".operator.selected";
+        if (includeSelecting) {
+            selector += ", .operator.selecting";
+        }
+        return $dfWrap.find(".dataflowArea.active").find(selector);
+    }
+
+    export function getSelectedNodeIds(includeSelecting?: boolean): DagNodeId[] {
+        const $nodes: JQuery = DagView.getSelectedNodes(includeSelecting);
         const nodeIds = [];
         $nodes.each(function() {
             nodeIds.push($(this).data("nodeid"));

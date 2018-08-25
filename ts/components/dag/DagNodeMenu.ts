@@ -104,8 +104,7 @@ namespace DagNodeMenu {
                     DagView.pasteNodes();
                     break;
                 case ("executeNode"):
-                    const executedIds: DagNodeId[] = (nodeId != null) ? [nodeId] : nodeIds;
-                    DagView.run(executedIds);
+                    DagView.run(nodeIds);
                     break;
                 case ("executeAllNodes"):
                     DagView.run();
@@ -191,7 +190,6 @@ namespace DagNodeMenu {
 
     function _showNodeMenu($clickedEl: JQuery, event: JQueryEventObject): void {
         const $operator: JQuery = $clickedEl.closest(".operator");
-        // $operator.addClass("selected");
         let nodeIds = [];
         let $operators: JQuery = $operator.add(DagView.getSelectedNodes());
         $operators.each(function() {
@@ -202,24 +200,15 @@ namespace DagNodeMenu {
         $menu.data("nodeids", nodeIds);
 
         let classes: string = " operatorMenu ";
-        const dagGraph: DagGraph = DagView.getActiveDag();
-        if (nodeIds.length > 1) {
-            classes += " multiple ";
-        } else {
+        $menu.find("li").removeClass("unavailable");
+
+        if (nodeIds.length === 1) {
             classes += " single ";
-            const dagNode: DagNode = dagGraph.getNode(nodeId);
-            if (dagNode != null &&
-                dagNode.getState() === DagNodeState.Complete &&
-                dagNode.getTable() != null
-            ) {
-                $menu.find(".previewTable").removeClass("unavailable");
-            } else {
-                $menu.find(".previewTable").addClass("unavailable");
-            }
+            adjustMenuForSingleNode(nodeIds[0]);
+        }  else {
+            classes += " multiple ";
         }
-        if (DagView.hasClipboard()) {
-            $menu.find(".pasteNodes").removeClass("unavailable");
-        } else {
+        if (!DagView.hasClipboard()) {
             $menu.find(".pasteNodes").addClass("unavailable");
         }
 
@@ -232,25 +221,54 @@ namespace DagNodeMenu {
     }
 
     function _showBackgroundMenu(event: JQueryEventObject) {
+        let classes: string = "";
         let nodeIds = [];
         let $operators: JQuery = DagView.getSelectedNodes();
         $operators.each(function() {
             nodeIds.push($(this).data("nodeid"));
         });
-
-        if (DagView.hasClipboard()) {
-            $menu.find(".pasteNodes").removeClass("unavailable");
-        } else {
-            $menu.find(".pasteNodes").addClass("unavailable");
+        $menu.find("li").removeClass("unavailable");
+        if (!DagView.getAllNodes().length) {
+            classes += " none ";
+            $menu.find(".removeAllNodes, .executeAllNodes, .selectAllNodes, .autoAlign")
+            .addClass("unavailable");
         }
 
         $menu.data("nodeids", nodeIds);
-        let classes: string = " backgroundMenu ";
+
+        if (nodeIds.length) {
+            classes += " operatorMenu "
+            if (nodeIds.length === 1) {
+                classes += " single ";
+                adjustMenuForSingleNode(nodeIds[0]);
+            } else {
+                classes += " multiple ";
+            }
+        } else {
+            classes += " backgroundMenu ";
+        }
+        if (!DagView.hasClipboard()) {
+            $menu.find(".pasteNodes").addClass("unavailable");
+        }
+
         xcHelper.dropdownOpen($(event.target), $menu, {
             mouseCoors: {x: event.pageX, y: event.pageY},
             offsetY: 8,
             floating: true,
             classes: classes
         });
+    }
+
+    function adjustMenuForSingleNode(nodeId) {
+        const dagGraph: DagGraph = DagView.getActiveDag();
+        const dagNode: DagNode = dagGraph.getNode(nodeId);
+        if (dagNode != null &&
+            dagNode.getState() === DagNodeState.Complete &&
+            dagNode.getTable() != null
+        ) {
+            $menu.find(".previewTable").removeClass("unavailable");
+        } else {
+            $menu.find(".previewTable").addClass("unavailable");
+        }
     }
 }

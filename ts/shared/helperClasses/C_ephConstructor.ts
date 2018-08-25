@@ -2283,6 +2283,7 @@ class RectSelction {
         self.__getRect().remove();
         self.$container.append(html);
         self.__addSelectRectEvent();
+        xcHelper.removeSelectionRange();
     }
 
     public __addSelectRectEvent() {

@@ -938,9 +938,14 @@
         }
     }
     &.operatorMenu {
-        .removeNode, .copyNodes, .pasteNodes, .executeNode, .comment, .configureNode,
-        .previewTable {
+        .removeNode, .copyNodes, .pasteNodes, .executeNode, .comment,
+        .configureNode, .previewTable {
             display: list-item;
+        }
+        &.multiple {
+            .comment, .configureNode, .previewTable {
+                display: none;
+            }
         }
     }
     &.connectorMenu, &.edgeMenu {
@@ -949,8 +954,8 @@
         }
     }
     &.backgroundMenu {
-        .removeAllNodes, .pasteNodes, .executeAllNodes, .selectAllNodes, .autoAlign,
-        {
+        .removeAllNodes, .pasteNodes, .executeAllNodes, .selectAllNodes,
+        .autoAlign {
             display: list-item;
         }
     }

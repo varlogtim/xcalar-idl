@@ -2075,7 +2075,7 @@ namespace xcHelper {
      */
     export function copyToClipboard(text: string): void {
         //use textarea to preserve new line characters
-        const $hiddenInput: JQuery = $('<textarea></textarea>');
+        const $hiddenInput: JQuery = $('<textarea class="xcClipboardArea"></textarea>');
         $('body').append($hiddenInput);
         $hiddenInput.val(text).select();
         document.execCommand('copy');
