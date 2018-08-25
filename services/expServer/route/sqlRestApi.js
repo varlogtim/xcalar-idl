@@ -839,7 +839,7 @@ function sendToPlanner(sessionPrefix, allSchemas, queryStr, tableNames, username
     return deferred.promise();
 }
 
-function getRowsAndCleanup(finalTable, orderedColumns, rowsToFetch, tablePrefix, execid) {
+function getResults(finalTable, orderedColumns, rowsToFetch, execid) {
     var deferred = jQuery.Deferred();
     var schema;
     var renameMap;
@@ -852,7 +852,6 @@ function getRowsAndCleanup(finalTable, orderedColumns, rowsToFetch, tablePrefix,
     .then(function(data) {
         var result = parseRows(data, schema, renameMap);
         xcConsole.log("Final table schema: " + JSON.stringify(schema));
-        XIApi.deleteTable(1, tablePrefix + "*");
         var res = {
             execid: execid,
             schema: schema,
@@ -1045,8 +1044,7 @@ function executeSqlWithExtQuery(execid, queryStr, rowsToFetch, sessionPrefix,
             tableNames.push(pubTable);
         }
         sendToPlanner(sessionPrefix, undefined, undefined, tableNames);
-        return getRowsAndCleanup(finalTable, orderedColumns, rowsToFetch,
-            sessionPrefix, execid);
+        return getResults(finalTable, orderedColumns, rowsToFetch, execid);
     })
     .then(deferred.resolve)
     .fail(function(err) {
@@ -1055,6 +1053,9 @@ function executeSqlWithExtQuery(execid, queryStr, rowsToFetch, sessionPrefix,
             retObj.isCancelled = true;
         }
         deferred.reject(retObj);
+    })
+    .always(function() {
+        XIApi.deleteTable(1, sessionPrefix + "*");
     });
 
     return deferred.promise();
@@ -1117,8 +1118,7 @@ function executeSqlWithExtPlan(execid, planStr, rowsToFetch, sessionPrefix,
     })
     .then(function() {
         xcConsole.log("Execution finished!");
-        return getRowsAndCleanup(finalTable, orderedColumns, rowsToFetch,
-            sessionPrefix);
+        return getResults(finalTable, orderedColumns, rowsToFetch);
     })
     .then(deferred.resolve)
     .fail(function(err) {
@@ -1127,6 +1127,9 @@ function executeSqlWithExtPlan(execid, planStr, rowsToFetch, sessionPrefix,
             retObj.isCancelled = true;
         }
         deferred.reject(retObj);
+    })
+    .always(function() {
+        XIApi.deleteTable(1, sessionPrefix + "*");
     });
     
     return deferred.promise();
@@ -1162,7 +1165,10 @@ function executeSqlWithQueryInteractive(userIdName, userIdUnique, wkbkName,
         }
         deferred.resolve(result);
     })
-    .fail(deferred.reject);
+    .fail(deferred.reject)
+    .always(function() {
+        XIApi.deleteTable(1, queryTablePrefix + "*");
+    });
     return deferred.promise();
 };
 
