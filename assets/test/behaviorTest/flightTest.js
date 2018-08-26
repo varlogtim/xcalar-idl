@@ -227,22 +227,20 @@ window.FlightTest = (function(FlightTest, $) {
             $("#udfSection .tab[data-tab='udf-fnSection']").click();
             test.checkExists(".editArea:visible")
             .then(function() {
-                var editor = UDF.getEditor();
-                editor.setValue('def ymd(year, month, day):\n' +
-                                '    if int(month) < 10:\n' +
-                                '        month = "0" + str(month)\n' +
-                                '    if int(day) < 10:\n' +
-                                '        day = "0" + str(day)\n' +
-                                '    return str(year) + str(month) + str(day)');
-                $("#udf-fnName").val("ymd");
-                $("#udf-fnUpload").click();
-
-                return test.checkExists("#alertHeader:visible " +
-                                       ".text:contains('Duplicate Module'), " +
-                                       "#alertContent:visible .text:contains" +
-                                       "('already exists')",
-                                       null, {optional: true,
-                                              noDilute: true});
+                if (!$("#udf-manager .text:contains(CURRENT WORKBOOK)")
+                    .parent().parent().find(".text:contains(ymd)").length) {
+                    var editor = UDF.getEditor();
+                    editor.setValue('def ymd(year, month, day):\n' +
+                        '    if int(month) < 10:\n' +
+                        '        month = "0" + str(month)\n' +
+                        '    if int(day) < 10:\n' +
+                        '        day = "0" + str(day)\n' +
+                        '    return str(year) + str(month) + str(day)');
+                    $("#udf-fnName").val("ymd");
+                    $("#udf-fnUpload").click();
+                    return test.checkExists("#successMessageWrap:visible " +
+                        ".textBox:contains('UDF Successfully Uploaded!')");
+                }
             })
             .then(function(found) {
                 if (found) {
@@ -253,7 +251,8 @@ window.FlightTest = (function(FlightTest, $) {
                     }
                     $("#alertActions .confirm").click();
                 }
-                return test.checkExists("#udf-manager .udf .text:contains(ymd)");
+                return test
+                    .checkExists("#udf-manager .udf .text:contains(ymd)");
             })
             .then(function() {
                 flightTestPart6();
@@ -888,7 +887,7 @@ window.FlightTest = (function(FlightTest, $) {
             var rightTableId = ws.tables[0];
             return changeTypeToInteger(rightTableId, "DayOfWeek");
         })
-        .then(function(){
+        .then(function() {
             console.log("multi join with flight-airport table");
             var tableId = ws.tables[2];
             return test.trigOpModal(tableId, "class_id", "join", "join");
