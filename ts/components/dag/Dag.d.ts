@@ -3,6 +3,7 @@ type CommentNodeId = string;
 
 interface DagNodeInfo {
     type: DagNodeType;
+    subType?: DagNodeSubType;
     id?: string;
     input? : object;
     description?: string;

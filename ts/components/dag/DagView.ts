@@ -1416,8 +1416,10 @@ namespace DagView {
     function _drawNode(node: DagNode, $dfArea: JQuery, select?: boolean): JQuery {
         const pos = node.getPosition();
         const type = node.getType();
+        const subType = node.getSubType() || "";
         const nodeId = node.getId();
-        const $node = $operatorBar.find('.operator[data-type="' + type + '"]')
+        const $node = $operatorBar.find('.operator[data-type="' + type + '"]' +
+                                        '[data-subtype="' + subType + '"]')
                                   .first().clone();
 
         $node.attr("transform", "translate(" + pos.x + "," + pos.y + ")");

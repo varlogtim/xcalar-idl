@@ -24,12 +24,12 @@ class ColAssignmentView {
             destColumn: string,
             columnType: ColumnType,
             cast: boolean
-        }[][],
-
+        }[][]
     ): ColAssignmentModel {
         this._reset();
         const event: Function = () => { this._render() };
-        this.modelData = new ColAssignmentModel(allColSets, selectedColSets, event);
+        this.modelData = new ColAssignmentModel(allColSets, selectedColSets,
+            event, this.options);
         this._render();
         return this.modelData;
     }
@@ -121,16 +121,20 @@ class ColAssignmentView {
         const $nodeList: JQuery = $view.find(".tableSection .listSection");
         const $result: JQuery = $view.find(".resultSection .listSection");
         const $candidate: JQuery = $view.find(".candidateSection .listSection");
+        const candidateHint = this.options.candidateText || UnionTStr.CandidateHint;
         const model = this.modelData.getModel();
         let result = model.result;
         let selected = model.selected;
         let candidates = model.candidate;
 
-        let nodeListHTML: string = '<div class="lists newTable"></div>';
-        let resultHTML: string = this._getResultList(result);
-        let candidateHTML: string = '<div class="lists newTable">' +
-                                UnionTStr.CandidateHint +
-                            '</div>';
+        let nodeListHTML: string = "";
+        let resultHTML: string = "";
+        let candidateHTML: string = "";
+        let nodeListHeader: string = '<div class="lists newTable"></div>';
+        let resultCol: string = this._getResultList(result, selected);
+        let candidateTextCol: string = '<div class="lists newTable">' +
+                                            candidateHint +
+                                        '</div>';
 
         // model.selected.forEach((selectedCols, index) => {
         selected.forEach((selectedCols, index) => {
@@ -139,13 +143,23 @@ class ColAssignmentView {
             candidateHTML += this._getCandidateList(candidates[index], index);
         });
 
+        if (this.options.resultColPosition === -1) {
+            nodeListHTML += nodeListHeader;
+            resultHTML += resultCol;
+            candidateHTML += candidateTextCol;
+        } else {
+            nodeListHTML = nodeListHeader + nodeListHTML;
+            resultHTML = resultCol + resultHTML;
+            candidateHTML = candidateTextCol + candidateHTML;
+        }
+
         $nodeList.html(nodeListHTML);
         $result.html(resultHTML);
         $candidate.html(candidateHTML);
         this._setupDropdownList();
 
         result.forEach((col, index) => {
-            if (col.type != null) {
+            if (this.options.showCast || col.type != null) {
                 this._showCast(index);
             }
         });
@@ -163,22 +177,27 @@ class ColAssignmentView {
                 '</div>');
     }
 
-    private _getResultList(resultCols: ProgCol[]): string {
+    private _getResultList(resultCols: ProgCol[], selectedCols): string {
         let resultColHTML: string = "";
 
         resultCols.forEach((resultCol, listIndex) => {
             let colName: string = resultCol.getBackColName();
             colName = xcHelper.escapeHTMLSpecialChar(colName);
             const cast: string = resultCol.type || "";
+            const selectedCol = selectedCols[0][listIndex];
+            let listClasses = "";
+            if (selectedCol && selectedCol.getType() === resultCol.type) {
+                listClasses += " originalType";
+            }
             resultColHTML +=
                 '<div class="resultCol"' +
                 ' data-index="' + listIndex + '">' +
                     '<input class="resultInput" type="text"' +
                     ' value="' + colName + '"' +
-                    ' placeholder="' + UnionTStr.NewColName + '">' +
+                    ' placeholder="' + UnionTStr.NewColName + '" spellcheck="false">' +
                     '<i class="removeColInRow icon xi-close-no-circle' +
                     ' xc-action fa-10"></i>' +
-                    '<div class="dropDownList typeList">' +
+                    '<div class="dropDownList typeList' + listClasses + '">' +
                         '<input class="text" value="' + cast + '"' +
                         ' placeholder="' + UnionTStr.ChooseType + '" disabled>' +
                         '<div class="iconWrapper">' +
@@ -321,12 +340,30 @@ class ColAssignmentView {
         $section.find(".typeList").each(function() {
             const $dropDownList: JQuery = $(this);
             new MenuHelper($dropDownList, {
+                onOpen: function() {
+                    const colIndex: number = self._getColIndex($dropDownList.closest(".resultCol"));
+                    const selectedCol = self.modelData.getModel().selected[0][colIndex];
+                    $dropDownList.find("li").removeClass("originalType");
+                    if (selectedCol && selectedCol.getType()) {
+                        const colType = selectedCol.getType();
+                        $dropDownList.find("li").filter(function() {
+                            return $(this).text() === colType;
+                        }).addClass("originalType");
+                    }
+                },
                 onSelect: function($li) {
                     const type: ColumnType = $li.text();
                     const colIndex: number = self._getColIndex($dropDownList.closest(".resultCol"));
                     $dropDownList.find(".text").val(type);
                     self.modelData.setResult(colIndex, null, type);
                     xcTooltip.hideAll();
+                    const selectedCol = self.modelData.getModel().selected[0][colIndex];
+
+                    if (selectedCol && selectedCol.getType() === type) {
+                        $dropDownList.addClass("originalType");
+                    } else {
+                        $dropDownList.removeClass("originalType");
+                    }
                 },
                 container: container,
                 bounds: container

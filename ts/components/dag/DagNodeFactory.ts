@@ -1,5 +1,7 @@
 class DagNodeFactory {
-    public static create(options: DagNodeInfo = <DagNodeInfo>{}): DagNode {
+    public static create(
+        options: DagNodeInfo = <DagNodeInfo>{}
+    ): DagNode {
         switch (options.type) {
             case DagNodeType.Aggregate:
                 return new DagNodeAggregate(options);

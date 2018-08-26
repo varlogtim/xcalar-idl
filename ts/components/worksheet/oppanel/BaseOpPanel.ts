@@ -61,7 +61,7 @@ class BaseOpPanel {
     }
 
     private static _instance = null;
-    private $panel: JQuery;
+    protected $panel: JQuery;
     private advancedMode: boolean;
     protected _formHelper: FormHelper = null;
     protected _editor: CodeMirror.EditorFromTextArea;

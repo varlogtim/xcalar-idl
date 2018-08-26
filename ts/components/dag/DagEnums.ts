@@ -14,6 +14,10 @@ enum DagNodeType {
     Extension = "extension"
 }
 
+enum DagNodeSubType {
+    Cast = "cast",
+}
+
 enum DagNodeState {
     Unused = "unused",
     Configured = "Configured",

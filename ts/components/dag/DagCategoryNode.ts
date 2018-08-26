@@ -1,11 +1,13 @@
 class DagCategoryNode {
     protected categoryType: DagCategoryType;
     protected nodeType: DagNodeType;
-    private node;
+    protected nodeSubType: string | null;
+    protected node;
     public constructor(node: DagNode) {
         this.categoryType = DagCategoryType.In;
         this.node = node;
         this.nodeType = node.getType();
+        this.nodeSubType = node.getSubType();
     }
 
     public getCategoryType(): DagCategoryType {
@@ -18,6 +20,10 @@ class DagCategoryNode {
 
     public getNodeType(): DagNodeType {
         return this.nodeType;
+    }
+
+    public getNodeSubType(): string | null {
+        return this.nodeSubType;
     }
 }
 

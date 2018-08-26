@@ -16,6 +16,7 @@ abstract class DagNode {
     private events: {_events: object, trigger: Function}; // non-persistent;
 
     protected type: DagNodeType;
+    protected subType: DagNodeType;
     protected lineage: DagLineage; // XXX persist or not TBD
     protected input: object; // will be overridden by subClasses
     protected minParents: number; // non-persistent
@@ -35,6 +36,7 @@ abstract class DagNode {
     public constructor(options: DagNodeInfo = <DagNodeInfo>{}) {
         this.id = options.id || DagNode.generateId();
         this.type = options.type;
+        this.subType = options.subType || null;
 
         this.parents = [];
         this.children = [];
@@ -83,6 +85,13 @@ abstract class DagNode {
      */
     public getType(): DagNodeType {
         return this.type;
+    }
+
+    /**
+     * @returns {DagNodeSubType} node's subtype
+     */
+    public getSubType(): DagNodeSubType {
+        return this.subType;
     }
 
     /**
@@ -401,6 +410,7 @@ abstract class DagNode {
     protected _getSerializeInfo(): DagNodeInfo {
         return {
             type: this.type,
+            subType: this.subType,
             table: this.table,
             display: this.display,
             description: this.description,

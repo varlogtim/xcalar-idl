@@ -116,6 +116,9 @@ class DagCategoryBar {
                 let numChildren: number = operator.getMaxChildren();
                 const operatorName: string = operator.getType();
                 let opDisplayName = xcHelper.capitalize(operatorName);
+                let subType = operator.getSubType() || "";
+                let subTypeDisplayName = xcHelper.capitalize(subType);
+
                 if (opDisplayName === "Sql") {
                     opDisplayName = "SQL";
                 }
@@ -145,11 +148,23 @@ class DagCategoryBar {
                                 'rx="1" width="7" height="7" />';
                     }
                 }
+
+                let subTypeHTML = "";
+                let opTitleY = 17;
+                if (subType) {
+                    subTypeHTML = '<text class="opSubTypeTitle" x="59" y="25" ' +
+                    'text-anchor="middle" font-family="Open Sans" ' +
+                    'font-size="9" fill="#44515c">' + subTypeDisplayName +
+                    '</text>';
+                    opTitleY = 14;
+                }
+
                 html +=  '<g class="operator ' + operatorName + ' ' +
                     'category-' + categoryName + '" ' +
                         'data-category="' + categoryName + '" ' +
-                        'data-type="' + operatorName +
-                        '" transform="translate(' + (10 + i * 123) + ', 11)" >' +
+                        'data-type="' + operatorName + '" ' +
+                        'data-subtype="' + subType + '" ' +
+                        'transform="translate(' + (10 + i * 123) + ', 11)" >' +
                         inConnector +
                         ('<polygon class="connector out" ' +
                         'points="95,8 103,14 95,20" fill="#BBC7D1" ' +
@@ -165,13 +180,14 @@ class DagCategoryBar {
                     '<text class="icon" x="11" y="19" font-family="icomoon" ' +
                         'font-size="12" fill="white" >' +
                          iconMap[operatorName] + '</text>' +
-                    '<text class="opTitle" x="59" y="17" ' +
+                    '<text class="opTitle" x="59" y="' + opTitleY + '" ' +
                         'text-anchor="middle" font-family="Open Sans" ' +
                         'font-size="11" fill="#44515c">' + opDisplayName +
                         '</text>' +
                     '<circle class="statusIcon" cx="88" cy="27" r="5" ' +
                         'stroke="#849CB0" stroke-width="1" fill="white" />' +
-                '</g>';
+                        subTypeHTML +
+                    '</g>';
             });
             html += `</svg>`;
         });
@@ -199,6 +215,7 @@ class DagCategoryBar {
                 onDragEnd: function(_$newNode, _event, data) {
                     const newNodeInfo: DagNodeInfo = {
                         type: $operator.data("type"),
+                        subType: $operator.data("subtype"),
                         display: {
                                     x: data.coors[0].x,
                                     y: data.coors[0].y

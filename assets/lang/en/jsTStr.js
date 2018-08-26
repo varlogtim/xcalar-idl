@@ -725,7 +725,7 @@ OpFormTStr = {
     'NewColumns': 'New Columns',
     'SelectColRename': 'Select columns to rename',
     'NotRenamed': 'Not being renamed',
-
+    'NotCasted': 'Not being casted',
 };
 
 AggTStr = {

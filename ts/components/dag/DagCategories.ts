@@ -57,6 +57,10 @@ class DagCategories {
         const columnCategory = new DagCategory(DagCategoryType.Column, [
             new DagCategoryNodeColumn(DagNodeFactory.create({
                 type: DagNodeType.Map
+            })),
+            new DagCategoryNodeColumn(DagNodeFactory.create({
+                type: DagNodeType.Map,
+                subType: DagNodeSubType.Cast
             }))
         ]);
 

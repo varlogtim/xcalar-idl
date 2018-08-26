@@ -27,7 +27,9 @@ window.MainMenu = (function($, MainMenu) {
         setupTabbing();
         setupBtns();
         setupResizable();
-        formPanels = [MapOpPanel.Instance,
+        formPanels = [
+            MapOpPanel.Instance,
+            CastOpPanel.Instance,
             GroupByOpPanel.Instance,
             FilterOpPanel.Instance,
             AggOpPanel.Instance,

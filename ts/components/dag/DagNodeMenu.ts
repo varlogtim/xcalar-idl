@@ -172,6 +172,7 @@ namespace DagNodeMenu {
 
     function configureNode(node: DagNode) {
         const type: DagNodeType = node.getType();
+        const subType: DagNodeSubType = node.getSubType();
         switch (type) {
             case (DagNodeType.Dataset):
                 DatasetOpPanel.Instance.show(node);
@@ -186,7 +187,11 @@ namespace DagNodeMenu {
                 JoinOpPanel.Instance.show(node);
                 break;
             case (DagNodeType.Map):
-                MapOpPanel.Instance.show(node);
+                if (subType === DagNodeSubType.Cast) {
+                    CastOpPanel.Instance.show(node);
+                } else {
+                    MapOpPanel.Instance.show(node);
+                }
                 break;
             case (DagNodeType.GroupBy):
                 GroupByOpPanel.Instance.show(node);

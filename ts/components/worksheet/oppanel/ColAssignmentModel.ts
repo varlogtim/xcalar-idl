@@ -5,6 +5,8 @@ class ColAssignmentModel {
     protected candidateColsList: ProgCol[][];
     protected allColsList: ProgCol[][];
     protected event: Function;
+    protected options;
+    private readonly validTypes: ColumnType[] = [];
 
     public constructor(
         allColSets: ProgCol[][],
@@ -14,10 +16,16 @@ class ColAssignmentModel {
             columnType: ColumnType,
             cast: boolean
         }[][],
-        event: Function
+        event: Function,
+        options?
     ) {
+        [ColumnType.string, ColumnType.integer, ColumnType.float,
+        ColumnType.boolean, ColumnType.mixed].forEach((type) => {
+            this.validTypes.push(type);
+        });
         this.event = event;
         this.initialize(allColSets, selectedColSets);
+        this.options = options || {};
     }
 
     /**
@@ -48,6 +56,9 @@ class ColAssignmentModel {
             name: this._normalizeColName(progCol.getBackColName()),
             type: null
         }));
+        if (this.options.showCast && this.selectedColsList.length === 1) {
+            this.resultCols[this.resultCols.length - 1].type = progCol.getType();
+        }
         this.selectedColsList.forEach((selectedCols, index) => {
             if (index === listIndex) {
                 selectedCols.push(progCol);
@@ -114,6 +125,16 @@ class ColAssignmentModel {
         this.selectedColsList[listIndex][colIndex] = colToSelect;
         this.resultCols[colIndex].type = null; // when select, reset result type to null
         // same column is used in other col, remove that
+
+        if (!this.resultCols[colIndex].getBackColName()) {
+            const normalizedName = this._normalizeColName(colName);
+            this.resultCols[colIndex].setBackColName(normalizedName)
+            this.resultCols[colIndex].name = normalizedName;
+        }
+        if (this.options.showCast && this.selectedColsList.length === 1) {
+            this.resultCols[colIndex].type = colToSelect.getType();
+        }
+
         if (usedIndex != null) {
             this.removeColumn(listIndex, usedIndex);
         }
@@ -155,6 +176,7 @@ class ColAssignmentModel {
         if (this.resultCols.length === 0) {
             return {index: null, error: UnionTStr.SelectCol};
         }
+        const nameMap = {};
 
         for (let i = 0; i < this.resultCols.length; i++) {
             let error: string;
@@ -164,6 +186,9 @@ class ColAssignmentModel {
             } else {
                 error = xcHelper.validateColName(colName, false);
             }
+            if (error == null && nameMap[colName]) {
+                error = ErrTStr.DuplicateColNames;
+            }
 
             if (error != null) {
                 return {
@@ -171,6 +196,7 @@ class ColAssignmentModel {
                     error: error
                 }
             }
+            nameMap[colName] = true;
         }
         return null;
     }
@@ -315,7 +341,9 @@ class ColAssignmentModel {
     private _getCandidateCols(listIndex: number): ProgCol[] {
         const map: Map<string, ProgCol> = this._getNameMap(this.selectedColsList[listIndex]);
         return this.allColsList[listIndex].filter((col) => {
-            return !map.has(col.getBackColName());
+            const colType = col.getType();
+            return (!map.has(col.getBackColName()) &&
+                    this.validTypes.includes(colType));
         });
     }
 

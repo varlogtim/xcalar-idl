@@ -1067,6 +1067,7 @@
 
         .candidateSection {
             padding-top: 15px;
+            min-height: 120px; // for cast dropdowns
 
             .subHeading {
                 .text {
@@ -2454,6 +2455,119 @@
                 input {
                     text-align: left;
                 }
+            }
+        }
+    }
+}
+
+#castOpPanel {
+    .opSection {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .instructions, .bottomSection {
+        flex: 0 0 auto;
+    }
+
+    .columnAssignmentSection {
+        flex: 1 1 auto;
+        overflow-x: auto;
+        overflow-y: auto;
+        display: block;
+    }
+    .lists {
+        max-width: none;
+        &:first-child {
+            .flex(1 1 33%);
+        }
+        &:last-child {
+            .flex(1 1 67%);
+            min-width: 280px;
+        }
+    }
+
+    .tableSection {
+        height: 30px;
+        min-width: 420px;
+        .header {
+            display: none;
+        }
+        .lists:first-child {
+            display: block;
+            width: 33%;
+            float: left;
+        }
+        .listSection {
+            display: block;
+
+            .newTable {
+                display: block;
+                width: 33%;
+                float: right;
+                min-width: auto;
+                &:after {
+                    content: "New Type";
+                }
+            }
+        }
+    }
+
+    .resultInput, .typeList {
+        width: 50%;
+        float: left;
+    }
+    .inputCol {
+        margin-bottom: 0px;
+    }
+    .searchArea.placeholder {
+        width: 50%;
+        text-align: center;
+        &:after {
+            content: "New Name";
+            top: -35px;
+            color: @color-font-form-gray;
+            position: relative;
+            padding-left: 0px;
+        }
+    }
+    .resultCol {
+        .clearfix();
+        margin-bottom: -1px;
+        ::after {
+            content: " ";
+        }
+        .removeColInRow {
+            right: ~"calc(50% + 5px)";
+        }
+        &.cast {
+            height: auto !important;
+        }
+        .resultInput {
+            &:focus {
+                top: 0px;
+                left: 0px;
+                padding-left: 10px;
+                border: none;
+                height: 26px;
+                outline-offset: -1px;
+            }
+        }
+        .typeList {
+            border-left: 1px solid @color-table-hoverBg-gray;
+            top: -1px !important;
+            &.originalType {
+                .text {
+                    color: @color-font-greyish-brown;
+                }
+            }
+
+            .text {
+                color: @color-font-select-blue;
+            }
+            li.originalType {
+                color: @color-font-greyish-brown;
             }
         }
     }

@@ -3383,6 +3383,21 @@ namespace xcHelper {
         return mapStr;
     }
 
+    export function getCastTypeToColType(str: string): ColumnType {
+        switch (str) {
+            case ("bool"):
+                return ColumnType.boolean;
+            case ("float"):
+                return ColumnType.float;
+            case ("int"):
+                return ColumnType.integer;
+            case ("string"):
+                return ColumnType.string;
+            default:
+                return null;
+        }
+    }
+
     /**
      * xcHelper.isCharEscaped
      * if string is somet\"thing then str is somet\"thing
