@@ -364,10 +364,14 @@ namespace DagView {
                 _drawNode(newNode, $dfArea, true);
             });
 
+            // restore connection to parents
             newNodeIds.forEach((newNodeId, i) => {
                 clipboard.nodeInfos[i].parentIds.forEach((parentId, j) => {
+                    if (parentId == null) {
+                        return; // skip empty parent slots
+                    }
                     const newParentId = oldNodeIdMap[parentId];
-                    activeDag.connect(newParentId, newNodeId), j;
+                    activeDag.connect(newParentId, newNodeId, j);
                     _drawConnection(newParentId, newNodeId, j);
                 });
             });
@@ -1323,7 +1327,10 @@ namespace DagView {
             if (numParents === -1) {
                 isMulti = true;
             }
-            node.getParents().forEach((parent) => {
+            let parents = node.getParents();
+            // for each loop skips over empty parents
+            for (let i = 0; i < parents.length; i++) {
+                const parent = parents[i];
                 if (parent) {
                     const parentId: DagNodeId = parent.getId();
 
@@ -1340,7 +1347,7 @@ namespace DagView {
                         parentIds.push(null);
                     }
                 }
-            });
+            }
 
             const nodeInfo = {
                 type: node.getType(),
