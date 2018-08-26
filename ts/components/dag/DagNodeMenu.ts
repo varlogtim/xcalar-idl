@@ -100,6 +100,9 @@ namespace DagNodeMenu {
                 case ("copyNodes"):
                     DagView.copyNodes(nodeIds);
                     break;
+                case ("cutNodes"):
+                    DagView.cutNodes(nodeIds);
+                    break;
                 case ("pasteNodes"):
                     DagView.pasteNodes();
                     break;
@@ -110,8 +113,7 @@ namespace DagNodeMenu {
                     DagView.run();
                     break;
                 case ("configureNode"):
-                    const dagGraph: DagGraph = DagView.getActiveDag();
-                    const node: DagNode = dagGraph.getNode(nodeId);
+                    const node: DagNode = DagView.getActiveDag().getNode(nodeId);
                     configureNode(node);
                     break;
                 case ("previewTable"):

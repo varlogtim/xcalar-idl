@@ -1351,6 +1351,7 @@ declare namespace MainMenu {
     export function open(noAnim?: boolean): void;
     export function getState(): object;
     export function restoreState(state: object, ignoreClose?: boolean): void;
+    export function closeForms(): void;
 }
 
 declare namespace BottomMenu {

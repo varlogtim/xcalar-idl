@@ -245,6 +245,7 @@ describe("DagView Test", () => {
                     nodeIds.push(node.getId());
                 });
                 expect(nodeIds.length).to.equal(2);
+                expect($dfWrap.find(".operator.selected").length).to.equal(2);
                 done();
             });
         });
@@ -252,6 +253,7 @@ describe("DagView Test", () => {
 
     describe("drag select", function() {
         it("drag select should select all nodes", function() {
+            $dfWrap.find(".operator").removeClass("selected");
             expect($dfWrap.find(".operator.selected").length).to.equal(0);
             let e = $.Event('mousedown', {pageX: 800, pageY: 500, which: 1,
                         target: $dfWrap.find(".dataflowArea.active")});

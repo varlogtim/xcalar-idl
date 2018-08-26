@@ -60,6 +60,23 @@ namespace DagView {
             DagView.copyNodes(DagView.getSelectedNodeIds(true));
         });
 
+        $(document).on("cut.dataflowPanel", function(e) {
+            if ($(e.target).is("body")) {
+                // proceed
+            } if ($(e.target).is(".xcClipboardArea")) {
+                return;
+            } else if (window.getSelection().toString().length &&
+                window.getSelection().toString() !== " ") {
+                // if an actual target is selected,
+                // then let the natural event occur
+                clipboard = null;
+                return;
+            }
+
+            e.preventDefault(); // default behaviour is to copy any selected text
+            DagView.cutNodes(DagView.getSelectedNodeIds(true));
+        });
+
          $(document).on("paste.dataflowPanel", function(e: JQueryEventObject){
             if (clipboard === null || $(e.target).is("input") ||
                 $(e.target).is("textarea")) {
@@ -171,7 +188,7 @@ namespace DagView {
     export function addBackNodes(nodeIds: DagNodeId[]): XDPromise<void>  {
         const $dfArea: JQuery = $dfWrap.find(".dataflowArea.active")
         // need to add back nodes in the reverse order they were deleted
-
+        $dfArea.find(".operator").removeClass("selected");
         let maxXCoor: number = 0;
         let maxYCoor: number = 0;
         for (let i = nodeIds.length - 1; i >= 0; i--) {
@@ -193,6 +210,7 @@ namespace DagView {
             const coors = node.getPosition();
             maxXCoor = Math.max(coors.x, maxXCoor);
             maxYCoor = Math.max(coors.y, maxYCoor);
+            DagView.getNode(nodeId).addClass("selected");
         }
         _setGraphDimensions({x: maxXCoor, y: maxYCoor});
         return activeDagTab.saveTab();
@@ -254,23 +272,19 @@ namespace DagView {
      * @param nodeIds
      */
     export function copyNodes(nodeIds: DagNodeId[]): void {
-        xcHelper.copyToClipboard(" "); // need to have content to overwrite current clipboard
-        let nodeInfos = [];
-        nodeIds.forEach((nodeId) => {
-            const node: DagNode = activeDag.getNode(nodeId);
-            const nodeInfo = {
-                type: node.getType(),
-                input: xcHelper.deepCopy(node.getParam()),
-                comment: node.getComment(),
-                display: xcHelper.deepCopy(node.getPosition())
-            };
-            nodeInfos.push(nodeInfo);
-        });
+        if (!nodeIds.length) {
+            return;
+        }
+        cutOrCopyNodesHelper(nodeIds);
+    }
 
-        clipboard = {
-            type: "dagNodes",
-            nodeInfos: nodeInfos
-        };
+    export function cutNodes(nodeIds: DagNodeId[]): void {
+        if (!nodeIds.length) {
+            return;
+        }
+        cutOrCopyNodesHelper(nodeIds);
+
+        DagView.removeNodes(nodeIds);
     }
 
     /**
@@ -334,15 +348,28 @@ namespace DagView {
             maxYCoor += yDelta;
 
             const newNodeIds: DagNodeId[] = [];
+            const newNodes: DagNode[] = [];
+            const oldNodeIdMap = {};
             clipboard.nodeInfos.forEach((nodeInfo) => {
                 nodeInfo = xcHelper.deepCopy(nodeInfo);
                 nodeInfo.display.x += xDelta;
                 nodeInfo.display.y += yDelta;
                 const newNode: DagNode = activeDag.newNode(nodeInfo);
+                newNodes.push(newNode);
+
 
                 const newNodeId: DagNodeId = newNode.getId();
+                oldNodeIdMap[nodeInfo.nodeId] = newNodeId;
                 newNodeIds.push(newNodeId);
                 _drawNode(newNode, $dfArea, true);
+            });
+
+            newNodeIds.forEach((newNodeId, i) => {
+                clipboard.nodeInfos[i].parentIds.forEach((parentId, j) => {
+                    const newParentId = oldNodeIdMap[parentId];
+                    activeDag.connect(newParentId, newNodeId), j;
+                    _drawConnection(newParentId, newNodeId, j);
+                });
             });
 
             // XXX scroll to selection if off screen
@@ -1208,6 +1235,7 @@ namespace DagView {
             }
         }
     }
+
     // sets endpoint to have depth:0, width:0. If endpoint is a join,
     // then left parent will have depth:1, width:0 and right parent will have
     // depth: 1, width: 1 and so on.
@@ -1282,5 +1310,52 @@ namespace DagView {
                 adjustPositions(children[i], nodes, seen);
             }
         }
+    }
+
+    function cutOrCopyNodesHelper(nodeIds: DagNodeId[]): void {
+        xcHelper.copyToClipboard(" "); // need to have content to overwrite current clipboard
+        let nodeInfos = [];
+        nodeIds.forEach((nodeId) => {
+            const node: DagNode = activeDag.getNode(nodeId);
+            let parentIds: DagNodeId[] = [];
+            let numParents: number = node.getMaxParents();
+            let isMulti = false;
+            if (numParents === -1) {
+                isMulti = true;
+            }
+            node.getParents().forEach((parent) => {
+                if (parent) {
+                    const parentId: DagNodeId = parent.getId();
+
+                    if (nodeIds.indexOf(parentId) === -1) {
+                        // XXX check if this affects order of union input
+                        if (numParents > 1 && !isMulti) {
+                            parentIds.push(null);
+                        }
+                    } else {
+                        parentIds.push(parentId);
+                    }
+                } else {
+                    if (numParents > 1 && !isMulti) {
+                        parentIds.push(null);
+                    }
+                }
+            });
+
+            const nodeInfo = {
+                type: node.getType(),
+                input: xcHelper.deepCopy(node.getParam()),
+                comment: node.getComment(),
+                display: xcHelper.deepCopy(node.getPosition()),
+                nodeId: nodeId,
+                parentIds: parentIds
+            };
+            nodeInfos.push(nodeInfo);
+        });
+
+        clipboard = {
+            type: "dagNodes",
+            nodeInfos: nodeInfos
+        };
     }
 }

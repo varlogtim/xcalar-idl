@@ -1372,6 +1372,7 @@ module.exports = {
         "previewTable": "Preview Table",
         "autoAlign": "Auto Align",
         "copy": "Copy",
+        "cut": "Cut",
         "paste": "Paste"
     }
 };
