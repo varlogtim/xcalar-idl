@@ -37,7 +37,6 @@ namespace xcManager {
             StatusMessage.setup();
             BottomMenu.setup();
             DataStore.setup();
-            TPrefix.setup();
             TableManager.setup();
             WSManager.setup();
             MonitorPanel.setup();

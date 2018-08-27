@@ -1021,7 +1021,7 @@ window.TblManager = (function($, TblManager) {
             prefix = CommonTxtTstr.Immediates;
             prefixClass += " immediate";
         } else {
-            prefixColor = TPrefix.getColor(prefix);
+            prefixColor = TableManager.getPrefixManager().getColor(prefix);
         }
 
         var th =

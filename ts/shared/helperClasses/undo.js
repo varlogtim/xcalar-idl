@@ -628,7 +628,7 @@ window.Undo = (function($, Undo) {
                     .find('.iconHelper').attr('title', '')
                     .end()
                     .find('.prefix').addClass('immediate');
-                TPrefix.updateColor(options.tableId, options.colNum);
+                TableManager.getPrefixManager().updateColor(options.tableId, options.colNum);
                 return PromiseHelper.resolve(null);
             } else {
                 return (ColManager.execCol("pull", options.origUsrStr,
@@ -805,7 +805,7 @@ window.Undo = (function($, Undo) {
     };
 
     undoFuncs[SQLOps.MarkPrefix] = function(options) {
-        TPrefix.markColor(options.prefix, options.oldColor);
+        TableManager.getPrefixManager().markColor(options.prefix, options.oldColor);
         return PromiseHelper.resolve(null);
     };
     /* End of Table Operations */

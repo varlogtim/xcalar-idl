@@ -211,7 +211,7 @@ window.Repeat = (function($, Repeat) {
             var progCol = gTables[tableId].getCol(colNums[0]);
             var prefix = progCol.getPrefix();
             if (prefix) {
-                TPrefix.markColor(prefix, options.newColor);
+                TableManager.getPrefixManager().markColor(prefix, options.newColor);
             }
         }
         return PromiseHelper.resolve(null);

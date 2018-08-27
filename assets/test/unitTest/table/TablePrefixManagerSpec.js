@@ -1,25 +1,25 @@
-describe('TPrefix Test', function() {
+describe('TablePrefixManager Test', function() {
     describe("Basic API Test", function() {
         var oldRes;
 
         before(function() {
-            oldRes = TPrefix.getCache();
+            oldRes = TableManager.getPrefixManager().getCache();
         });
 
         it("Should get cache", function() {
-            var res = TPrefix.getCache();
+            var res = TableManager.getPrefixManager().getCache();
             expect(res).to.be.an('object');
         });
 
         it("Should restore", function() {
-            TPrefix.restore({"test": "val"});
-            var res = TPrefix.getCache();
+            TableManager.getPrefixManager().restore({"test": "val"});
+            var res = TableManager.getPrefixManager().getCache();
             expect(res.test).to.equal("val");
         });
 
         it("Should get color", function() {
-            TPrefix.restore({"t": "white"});
-            var res = TPrefix.getColor("t");
+            TableManager.getPrefixManager().restore({"t": "white"});
+            var res = TableManager.getPrefixManager().getColor("t");
             expect(res).to.equal("white");
         });
 
@@ -30,14 +30,14 @@ describe('TPrefix Test', function() {
                         '</div>' +
                     '</div>';
             var $h = $(html).appendTo($('body'));
-            TPrefix.markColor("test-mark", "yellow");
-            expect(TPrefix.getColor("test-mark")).to.equal("yellow");
+            TableManager.getPrefixManager().markColor("test-mark", "yellow");
+            expect(TableManager.getPrefixManager().getColor("test-mark")).to.equal("yellow");
             expect($h.find(".topHeader").data("color")).to.equal("yellow");
             $h.remove();
         });
 
         it("Should update color", function() {
-            TPrefix.restore({"test-mark2": "blue"});
+            TableManager.getPrefixManager().restore({"test-mark2": "blue"});
 
             var progCol1 = new ProgCol({
                 "name": "testCol",
@@ -80,11 +80,11 @@ describe('TPrefix Test', function() {
                         '</div>';
             var $h = $(html).appendTo($("body"));
 
-            TPrefix.updateColor("unit-test-tPrefix", 1);
+            TableManager.getPrefixManager().updateColor("unit-test-tPrefix", 1);
             expect($h.find(".prefix").eq(0).text()).to.equal("test-mark2");
             expect($h.find(".topHeader").eq(0).data("color")).to.equal("blue");
             // test 2
-            TPrefix.updateColor("unit-test-tPrefix", 2);
+            TableManager.getPrefixManager().updateColor("unit-test-tPrefix", 2);
             expect($h.find(".prefix").eq(1).text())
             .to.equal(CommonTxtTstr.Immediates);
             expect($h.find(".topHeader").eq(1).data("color"))
@@ -94,7 +94,7 @@ describe('TPrefix Test', function() {
         });
 
         after(function() {
-            TPrefix.restore(oldRes);
+            TableManager.getPrefixManager().restore(oldRes);
         });
     });
 });

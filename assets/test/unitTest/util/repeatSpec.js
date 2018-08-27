@@ -461,7 +461,7 @@ describe("Repeat Test", function() {
         });
 
         it("mark prefix should work", function(done) {
-            TPrefix.markColor(prefix, "green");
+            TableManager.getPrefixManager().markColor(prefix, "green");
             TblManager.highlightColumn($table2.find("th.col1"));
             Log.repeat()
             .then(function() {

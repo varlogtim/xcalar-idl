@@ -459,7 +459,7 @@ window.Redo = (function($, Redo) {
     };
 
     redoFuncs[SQLOps.MarkPrefix] = function(options) {
-        TPrefix.markColor(options.prefix, options.newColor);
+        TableManager.getPrefixManager().markColor(options.prefix, options.newColor);
         return PromiseHelper.resolve(null);
     };
     /* End of Table Operations */

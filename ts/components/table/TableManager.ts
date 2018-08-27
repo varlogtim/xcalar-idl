@@ -1,5 +1,6 @@
 class TableManager {
     private static menuManager: TableMenuManager;
+    private static prefixManager: TablePrefixManager;
 
     /**
      * Setup the Table Manager
@@ -7,6 +8,7 @@ class TableManager {
     public static setup(): void {
         try {
             TableManager.menuManager = TableMenuManager.Instance;
+            TableManager.prefixManager = TablePrefixManager.Instance;
         } catch (e) {
             console.error(e);
         }
@@ -17,5 +19,12 @@ class TableManager {
      */
     public static getMenu(): TableMenuManager {
         return TableManager.menuManager;
+    }
+
+    /**
+     * @returns {TablePrefixManager} return prefix manager
+     */
+    public static getPrefixManager(): TablePrefixManager {
+        return TableManager.prefixManager;
     }
 }

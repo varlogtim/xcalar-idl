@@ -1663,9 +1663,9 @@ describe('TableMenu Test', function() {
 
         it('prefix menu should work', function() {
             var $prefixColorMenu = $("#prefixColorMenu");
-            var cachedFunc = TPrefix.markColor;
+            var cachedFunc = TableManager.getPrefixManager().markColor;
             var called = false;
-            TPrefix.markColor = function(pfix, color) {
+            TableManager.getPrefixManager().markColor = function(pfix, color) {
                 expect(pfix).to.equal(prefix);
                 expect(color).to.equal("indigo");
                 called = true;
@@ -1677,7 +1677,7 @@ describe('TableMenu Test', function() {
             $prefixColorMenu.find('.wrap').eq(0).trigger(fakeEvent.mouseup);
             expect(called).to.be.true;
 
-            TPrefix.markColor = cachedFunc;
+            TableManager.getPrefixManager().markColor = cachedFunc;
         });
     });
 

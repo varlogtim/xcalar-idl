@@ -1005,6 +1005,7 @@ declare namespace SQLTStr {
     export var queryHistStatusNone: string;
     export var queryHistStatusInterrupt: string;
     export var queryFailMessage: string;
+    export var MarkPrefix: string;
 }
 
 declare namespace DagTStr {
@@ -1063,6 +1064,7 @@ declare class ProgCol {
     public hasMinimized(): boolean;
     public setBackColName(name: string): void;
     public isNumberCol(): boolean;
+    public getPrefix(): string;
 }
 
 declare class TableMeta {
