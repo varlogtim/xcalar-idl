@@ -43,7 +43,7 @@ prefix
     }}
     ;
 colElement
-    : colName (DOT propertyName)*
+    : colName (DOT propertyName)* (LBRACKET integerLiteral RBRACKET)?
     ;
 colName
     : IDENTIFIER
@@ -78,6 +78,8 @@ DOT: '.';
 COMMA: ',';
 LPARENS: '(';
 RPARENS: ')';
+LBRACKET: '[';
+RBRACKET: ']';
 DECIMAL: '-'? DIGIT+ '.' DIGIT+;
 INTEGER: '-'? DIGIT+;
 STRING: '"' ( ~('"'|'\\') | ('\\' .) )* '"';

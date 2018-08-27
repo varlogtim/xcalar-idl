@@ -6,7 +6,7 @@ var XEvalBaseVisitor = require('./XEvalBaseVisitor').XEvalBaseVisitor;
 var grammarFileName = "XEvalBase.g4";
 
 var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
-    "\u0003\u0010n\u0004\u0002\t\u0002\u0004\u0003\t\u0003\u0004\u0004\t",
+    "\u0003\u0012t\u0004\u0002\t\u0002\u0004\u0003\t\u0003\u0004\u0004\t",
     "\u0004\u0004\u0005\t\u0005\u0004\u0006\t\u0006\u0004\u0007\t\u0007\u0004",
     "\b\t\b\u0004\t\t\t\u0004\n\t\n\u0004\u000b\t\u000b\u0004\f\t\f\u0004",
     "\r\t\r\u0004\u000e\t\u000e\u0004\u000f\t\u000f\u0004\u0010\t\u0010\u0004",
@@ -19,18 +19,19 @@ var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
     "\u0005\u0006F\n\u0006\u0003\u0007\u0003\u0007\u0003\u0007\u0003\b\u0003",
     "\b\u0003\b\u0003\t\u0003\t\u0003\t\u0003\t\u0003\t\u0005\tS\n\t\u0003",
     "\n\u0003\n\u0003\n\u0003\u000b\u0003\u000b\u0003\u000b\u0007\u000b[",
-    "\n\u000b\f\u000b\u000e\u000b^\u000b\u000b\u0003\f\u0003\f\u0003\f\u0003",
+    "\n\u000b\f\u000b\u000e\u000b^\u000b\u000b\u0003\u000b\u0003\u000b\u0003",
+    "\u000b\u0003\u000b\u0005\u000bd\n\u000b\u0003\f\u0003\f\u0003\f\u0003",
     "\r\u0003\r\u0003\r\u0003\u000e\u0003\u000e\u0003\u000f\u0003\u000f\u0003",
     "\u0010\u0003\u0010\u0003\u0011\u0003\u0011\u0003\u0011\u0002\u0002\u0012",
     "\u0002\u0004\u0006\b\n\f\u000e\u0010\u0012\u0014\u0016\u0018\u001a\u001c",
-    "\u001e \u0002\u0003\u0003\u0002\u0003\u0004\u0002g\u0002\"\u0003\u0002",
+    "\u001e \u0002\u0003\u0003\u0002\u0003\u0004\u0002n\u0002\"\u0003\u0002",
     "\u0002\u0002\u0004.\u0003\u0002\u0002\u0002\u00060\u0003\u0002\u0002",
     "\u0002\b>\u0003\u0002\u0002\u0002\nE\u0003\u0002\u0002\u0002\fG\u0003",
     "\u0002\u0002\u0002\u000eJ\u0003\u0002\u0002\u0002\u0010R\u0003\u0002",
     "\u0002\u0002\u0012T\u0003\u0002\u0002\u0002\u0014W\u0003\u0002\u0002",
-    "\u0002\u0016_\u0003\u0002\u0002\u0002\u0018b\u0003\u0002\u0002\u0002",
-    "\u001ae\u0003\u0002\u0002\u0002\u001cg\u0003\u0002\u0002\u0002\u001e",
-    "i\u0003\u0002\u0002\u0002 k\u0003\u0002\u0002\u0002\"#\u0005\u0004\u0003",
+    "\u0002\u0016e\u0003\u0002\u0002\u0002\u0018h\u0003\u0002\u0002\u0002",
+    "\u001ak\u0003\u0002\u0002\u0002\u001cm\u0003\u0002\u0002\u0002\u001e",
+    "o\u0003\u0002\u0002\u0002 q\u0003\u0002\u0002\u0002\"#\u0005\u0004\u0003",
     "\u0002#$\u0007\u0002\u0002\u0003$\u0003\u0003\u0002\u0002\u0002%&\u0005",
     "\n\u0006\u0002&\'\u0007\t\u0002\u0002\'(\u0005\u0006\u0004\u0002()\u0007",
     "\n\u0002\u0002)/\u0003\u0002\u0002\u0002*+\u0005\n\u0006\u0002+,\u0007",
@@ -47,21 +48,24 @@ var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
     "@A\u0005\f\u0007\u0002AB\u0007\u0005\u0002\u0002BC\u0005\u000e\b\u0002",
     "CF\u0003\u0002\u0002\u0002DF\u0005\u000e\b\u0002E@\u0003\u0002\u0002",
     "\u0002ED\u0003\u0002\u0002\u0002F\u000b\u0003\u0002\u0002\u0002GH\u0007",
-    "\u000e\u0002\u0002HI\b\u0007\u0001\u0002I\r\u0003\u0002\u0002\u0002",
-    "JK\u0007\u000e\u0002\u0002KL\b\b\u0001\u0002L\u000f\u0003\u0002\u0002",
+    "\u0010\u0002\u0002HI\b\u0007\u0001\u0002I\r\u0003\u0002\u0002\u0002",
+    "JK\u0007\u0010\u0002\u0002KL\b\b\u0001\u0002L\u000f\u0003\u0002\u0002",
     "\u0002MN\u0005\u0012\n\u0002NO\u0007\u0006\u0002\u0002OP\u0005\u0014",
     "\u000b\u0002PS\u0003\u0002\u0002\u0002QS\u0005\u0014\u000b\u0002RM\u0003",
     "\u0002\u0002\u0002RQ\u0003\u0002\u0002\u0002S\u0011\u0003\u0002\u0002",
-    "\u0002TU\u0007\u000e\u0002\u0002UV\b\n\u0001\u0002V\u0013\u0003\u0002",
+    "\u0002TU\u0007\u0010\u0002\u0002UV\b\n\u0001\u0002V\u0013\u0003\u0002",
     "\u0002\u0002W\\\u0005\u0016\f\u0002XY\u0007\u0007\u0002\u0002Y[\u0005",
     "\u0018\r\u0002ZX\u0003\u0002\u0002\u0002[^\u0003\u0002\u0002\u0002\\",
-    "Z\u0003\u0002\u0002\u0002\\]\u0003\u0002\u0002\u0002]\u0015\u0003\u0002",
-    "\u0002\u0002^\\\u0003\u0002\u0002\u0002_`\u0007\u000e\u0002\u0002`a",
-    "\b\f\u0001\u0002a\u0017\u0003\u0002\u0002\u0002bc\u0007\u000e\u0002",
-    "\u0002cd\b\r\u0001\u0002d\u0019\u0003\u0002\u0002\u0002ef\u0007\f\u0002",
-    "\u0002f\u001b\u0003\u0002\u0002\u0002gh\u0007\u000b\u0002\u0002h\u001d",
-    "\u0003\u0002\u0002\u0002ij\u0007\r\u0002\u0002j\u001f\u0003\u0002\u0002",
-    "\u0002kl\t\u0002\u0002\u0002l!\u0003\u0002\u0002\u0002\b.5>ER\\"].join("");
+    "Z\u0003\u0002\u0002\u0002\\]\u0003\u0002\u0002\u0002]c\u0003\u0002\u0002",
+    "\u0002^\\\u0003\u0002\u0002\u0002_`\u0007\u000b\u0002\u0002`a\u0005",
+    "\u001a\u000e\u0002ab\u0007\f\u0002\u0002bd\u0003\u0002\u0002\u0002c",
+    "_\u0003\u0002\u0002\u0002cd\u0003\u0002\u0002\u0002d\u0015\u0003\u0002",
+    "\u0002\u0002ef\u0007\u0010\u0002\u0002fg\b\f\u0001\u0002g\u0017\u0003",
+    "\u0002\u0002\u0002hi\u0007\u0010\u0002\u0002ij\b\r\u0001\u0002j\u0019",
+    "\u0003\u0002\u0002\u0002kl\u0007\u000e\u0002\u0002l\u001b\u0003\u0002",
+    "\u0002\u0002mn\u0007\r\u0002\u0002n\u001d\u0003\u0002\u0002\u0002op",
+    "\u0007\u000f\u0002\u0002p\u001f\u0003\u0002\u0002\u0002qr\t\u0002\u0002",
+    "\u0002r!\u0003\u0002\u0002\u0002\t.5>ER\\c"].join("");
 
 
 var atn = new antlr4.atn.ATNDeserializer().deserialize(serializedATN);
@@ -71,11 +75,12 @@ var decisionsToDFA = atn.decisionToState.map( function(ds, index) { return new a
 var sharedContextCache = new antlr4.PredictionContextCache();
 
 var literalNames = [ null, null, null, "':'", "'::'", "'.'", "','", "'('", 
-                     "')'" ];
+                     "')'", "'['", "']'" ];
 
 var symbolicNames = [ null, "TRUE", "FALSE", "COLON", "DOUBLECOLON", "DOT", 
-                      "COMMA", "LPARENS", "RPARENS", "DECIMAL", "INTEGER", 
-                      "STRING", "IDENTIFIER", "WS", "UNRECOGNIZED" ];
+                      "COMMA", "LPARENS", "RPARENS", "LBRACKET", "RBRACKET", 
+                      "DECIMAL", "INTEGER", "STRING", "IDENTIFIER", "WS", 
+                      "UNRECOGNIZED" ];
 
 var ruleNames =  [ "query", "expr", "fnArgs", "arg", "fn", "moduleName", 
                    "fnName", "columnArg", "prefix", "colElement", "colName", 
@@ -109,12 +114,14 @@ XEvalBaseParser.DOT = 5;
 XEvalBaseParser.COMMA = 6;
 XEvalBaseParser.LPARENS = 7;
 XEvalBaseParser.RPARENS = 8;
-XEvalBaseParser.DECIMAL = 9;
-XEvalBaseParser.INTEGER = 10;
-XEvalBaseParser.STRING = 11;
-XEvalBaseParser.IDENTIFIER = 12;
-XEvalBaseParser.WS = 13;
-XEvalBaseParser.UNRECOGNIZED = 14;
+XEvalBaseParser.LBRACKET = 9;
+XEvalBaseParser.RBRACKET = 10;
+XEvalBaseParser.DECIMAL = 11;
+XEvalBaseParser.INTEGER = 12;
+XEvalBaseParser.STRING = 13;
+XEvalBaseParser.IDENTIFIER = 14;
+XEvalBaseParser.WS = 15;
+XEvalBaseParser.UNRECOGNIZED = 16;
 
 XEvalBaseParser.RULE_query = 0;
 XEvalBaseParser.RULE_expr = 1;
@@ -865,6 +872,18 @@ ColElementContext.prototype.propertyName = function(i) {
     }
 };
 
+ColElementContext.prototype.LBRACKET = function() {
+    return this.getToken(XEvalBaseParser.LBRACKET, 0);
+};
+
+ColElementContext.prototype.integerLiteral = function() {
+    return this.getTypedRuleContext(IntegerLiteralContext,0);
+};
+
+ColElementContext.prototype.RBRACKET = function() {
+    return this.getToken(XEvalBaseParser.RBRACKET, 0);
+};
+
 ColElementContext.prototype.accept = function(visitor) {
     if ( visitor instanceof XEvalBaseVisitor ) {
         return visitor.visitColElement(this);
@@ -899,6 +918,18 @@ XEvalBaseParser.prototype.colElement = function() {
             this._errHandler.sync(this);
             _la = this._input.LA(1);
         }
+        this.state = 97;
+        this._errHandler.sync(this);
+        _la = this._input.LA(1);
+        if(_la===XEvalBaseParser.LBRACKET) {
+            this.state = 93;
+            this.match(XEvalBaseParser.LBRACKET);
+            this.state = 94;
+            this.integerLiteral();
+            this.state = 95;
+            this.match(XEvalBaseParser.RBRACKET);
+        }
+
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
 	        localctx.exception = re;
@@ -953,7 +984,7 @@ XEvalBaseParser.prototype.colName = function() {
     this.enterRule(localctx, 20, XEvalBaseParser.RULE_colName);
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 93;
+        this.state = 99;
         localctx._IDENTIFIER = this.match(XEvalBaseParser.IDENTIFIER);
         if ((localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text).toUpperCase() != "NONE" && xcHelper.validateColName((localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text), false, true)) {
             throw SyntaxError(xcHelper.validateColName((localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text), false, true));
@@ -1012,7 +1043,7 @@ XEvalBaseParser.prototype.propertyName = function() {
     this.enterRule(localctx, 22, XEvalBaseParser.RULE_propertyName);
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 96;
+        this.state = 102;
         localctx._IDENTIFIER = this.match(XEvalBaseParser.IDENTIFIER);
         if (xcHelper.validateColName((localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text), false, true)) {
             throw SyntaxError(xcHelper.validateColName((localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text), false, true));
@@ -1070,7 +1101,7 @@ XEvalBaseParser.prototype.integerLiteral = function() {
     this.enterRule(localctx, 24, XEvalBaseParser.RULE_integerLiteral);
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 99;
+        this.state = 105;
         this.match(XEvalBaseParser.INTEGER);
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
@@ -1125,7 +1156,7 @@ XEvalBaseParser.prototype.decimalLiteral = function() {
     this.enterRule(localctx, 26, XEvalBaseParser.RULE_decimalLiteral);
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 101;
+        this.state = 107;
         this.match(XEvalBaseParser.DECIMAL);
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
@@ -1180,7 +1211,7 @@ XEvalBaseParser.prototype.stringLiteral = function() {
     this.enterRule(localctx, 28, XEvalBaseParser.RULE_stringLiteral);
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 103;
+        this.state = 109;
         this.match(XEvalBaseParser.STRING);
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
@@ -1240,7 +1271,7 @@ XEvalBaseParser.prototype.booleanLiteral = function() {
     var _la = 0; // Token type
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 105;
+        this.state = 111;
         _la = this._input.LA(1);
         if(!(_la===XEvalBaseParser.TRUE || _la===XEvalBaseParser.FALSE)) {
         this._errHandler.recoverInline(this);

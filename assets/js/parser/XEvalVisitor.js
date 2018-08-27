@@ -54,8 +54,8 @@ class XEvalVisitor extends XEvalBaseVisitor{
                     // ["prefix::colName"]
                     value = func.args.pop().value + value;
                     value = func.args.pop().value + value;
-                } else if (type === "propertyName" && numArgs > 1) {
-                     // we want to change ["a", ".", "b"] into
+                } else if ((type === "propertyName" || value === "]" && type != "stringLiteral") && numArgs > 1) {
+                    // we want to change ["a", ".", "b"] into
                     // ["a.b"]
                     while (func.args.length && func.args[func.args.length - 1].type !== "colName") {
                         value = func.args.pop().value + value;
