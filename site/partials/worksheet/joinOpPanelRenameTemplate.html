@@ -11,11 +11,11 @@
 
 <div data-xcid="templateRenameRow" style="display:none">
     <div class="row row-rename">
-        <div class="col col-left"><input type="text" spellcheck="false" disabled value="{{oldName}}"/></div>
+        <div class="col col-left"><input class="{{colErrCss}}" type="text" spellcheck="false" disabled value="{{oldName}}"/></div>
         <div class="renameIcon" (click)="onClickRename">
             <div class="iconWrapper"><i class="icon xi-play-circle fa-14"></i></div>
         </div>
-        <div class="col col-right"><input type="text" spellcheck="false" value="{{newName}}" (change)="onNameChange"/></div>
+        <div class="col col-right"><input type="text" spellcheck="false" value="{{newName}}" (input)="onNameChange"/></div>
     </div>
 </div>
 

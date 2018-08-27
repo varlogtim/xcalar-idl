@@ -31,7 +31,7 @@ class JoinOpPanelStep2 {
     }
 
     private _updateUI() {
-        if (this._modelRef.currentStep !== 2) {
+        if (this._modelRef.getCurrentStep() !== 2) {
             this._$elem.hide();
             return;
         }
@@ -41,8 +41,12 @@ class JoinOpPanelStep2 {
 
         // Prefixed columns rename
         const elemPrefixContainer = findXCElement(this._$elem, 'prefixRename')[0];
-        const prefixLeftList = this._modelRef.columnRename.left.filter( (v) => (v.isPrefix));
-        const prefixRightList = this._modelRef.columnRename.right.filter( (v) => (v.isPrefix));
+        const prefixLeftList = this._modelRef.getRenames({
+            isPrefix: true, isLeft: true
+        });
+        const prefixRightList = this._modelRef.getRenames({
+            isPrefix: true, isLeft: false
+        });
         let prefixSection = [];
         if (prefixLeftList.length > 0 || prefixRightList.length > 0) {
             prefixSection = this._templateMgr.createElements(
@@ -50,11 +54,11 @@ class JoinOpPanelStep2 {
                 {
                     'renameHeader': 'Prefixes',
                     'APP-LEFTRENAME': this._createRenameTable({
-                        isLeft: true,
+                        isLeft: true, isPrefix: true,
                         renameInfoList: prefixLeftList
                     }),
                     'APP-RIGHTRENAME': this._createRenameTable({
-                        isLeft: false,
+                        isLeft: false, isPrefix: true,
                         renameInfoList: prefixRightList
                     })
                 }
@@ -64,8 +68,12 @@ class JoinOpPanelStep2 {
 
         // Derived columns rename
         const elemDerivedContainer = findXCElement(this._$elem, 'derivedRename')[0];
-        const derivedLeftList = this._modelRef.columnRename.left.filter( (v) => (!v.isPrefix) );
-        const derivedRightList = this._modelRef.columnRename.right.filter( (v) => (!v.isPrefix));
+        const derivedLeftList = this._modelRef.getRenames({
+            isLeft: true, isPrefix: false
+        });
+        const derivedRightList = this._modelRef.getRenames({
+            isLeft: false, isPrefix: false
+        });
         let derivedSection = [];
         if (derivedLeftList.length > 0 || derivedRightList.length > 0) {
             derivedSection = this._templateMgr.createElements(
@@ -73,11 +81,11 @@ class JoinOpPanelStep2 {
                 {
                     'renameHeader': 'Derived Fields',
                     'APP-LEFTRENAME': this._createRenameTable({
-                        isLeft: true,
+                        isLeft: true, isPrefix: false,
                         renameInfoList: derivedLeftList
                     }),
                     'APP-RIGHTRENAME': this._createRenameTable({
-                        isLeft: false,
+                        isLeft: false, isPrefix: false,
                         renameInfoList: derivedRightList
                     })
                 }
@@ -147,34 +155,40 @@ class JoinOpPanelStep2 {
     }
 
     private _createRenameTable(props: {
-        isLeft: boolean
+        isLeft: boolean,
+        isPrefix: boolean,
         renameInfoList: JoinOpRenameInfo[] // !!! Items in list are references !!!
     }) {
-        const { isLeft, renameInfoList } = props;
+        const { isLeft, renameInfoList, isPrefix } = props;
 
         if (renameInfoList == null || renameInfoList.length === 0) {
             return [];
         }
-        const isPrefix = renameInfoList[0].isPrefix;
 
         // Create rename rows
         const nodeRowList: NodeDefDOMElement[] = [];
         for (const renameInfo of renameInfoList) {
-            const renameRow = this._createRenameRow({
-                oldName: this._modelRef.getRenameMetaName({
-                    renameInfo: renameInfo,
-                    isLeft: isLeft
-                }),
-                newName: renameInfo.dest,
-                onClickRename: (name) => {
-                    this._autoRenameColumn(renameInfo, name, isLeft);
-                    this._updateUI();
-                },
-                onNameChange: (newName) => {
-                    this._renameColumn(renameInfo, newName.trim());
-                    this._updateUI();
+            const isDetached = isPrefix
+                ? (this._modelRef.isPrefixDetached(renameInfo.source, isLeft))
+                : (this._modelRef.isColumnDetached(renameInfo.source, isLeft));
+
+                const renameRow = this._templateMgr.createElements(
+                JoinOpPanelStep2._templateIdRenameRow,
+                {
+                    oldName: renameInfo.source,
+                    newName: renameInfo.dest,
+                    colErrCss: isDetached ? 'text-detach' : '',
+                    onClickRename: () => {
+                        this._autoRenameColumn(renameInfo, renameInfo.source, isLeft);
+                        this._updateUI();
+                    },
+                    onNameChange: (e) => {
+                        this._renameColumn(renameInfo, e.target.value.trim());
+                        this._updateUI();
+                    }
                 }
-            });
+            );
+
             for (const row of renameRow) {
                 nodeRowList.push(row);
             }
@@ -195,71 +209,52 @@ class JoinOpPanelStep2 {
         return nodeTable;
     }
 
-    private _createRenameRow(props: {
-        oldName: string,
-        newName: string,
-        onClickRename: (name: string) => void,
-        onNameChange: (name: string) => void,
-    }) {
-        const { oldName, newName, onClickRename, onNameChange } = props;
-
-        return this._templateMgr.createElements(
-            JoinOpPanelStep2._templateIdRenameRow,
-            {
-                oldName: oldName,
-                newName: newName,
-                onClickRename: () => {
-                    onClickRename(oldName);
-                },
-                onNameChange: (e) => {
-                    onNameChange(e.target.value.trim());
-                }
-            }
-        );
-    }
-
+    // Data model manipulation === start
     private _renameColumn(renameInfo: JoinOpRenameInfo, newName: string) {
         renameInfo.dest = newName;
     }
 
     private _validateData(): boolean {
+        const {
+            column: columnCollision, prefix: prefixCollision
+        } = this._modelRef.getCollisionNames();
+
+        if (columnCollision.size > 0 || prefixCollision.size > 0) {
+            return false;
+        }
+
         return true;
     }
 
     private _autoRenameColumn(
         renameInfo: JoinOpRenameInfo, orignName: string, isLeft: boolean
     ) {
-        const {
-            leftColumns, leftPrefixes, rightColumns, rightPrefixes
-        } = this._modelRef.getResolvedNames();
 
         const nameMap = {};
-        if (renameInfo.isPrefix) {
-            if (isLeft) {
-                leftPrefixes.splice(renameInfo.source, 1);
-            } else {
-                rightPrefixes.splice(renameInfo.source, 1);
-            }
-            const prefixList = leftPrefixes.concat(rightPrefixes);
-            for (const prefix of prefixList) {
-                nameMap[prefix] = true;
-            }
+        const {
+            left: leftNames, right: rightNames
+        } = this._modelRef.getResolvedNames(renameInfo.isPrefix);
+        if (isLeft) {
+            removeName(leftNames, orignName);
         } else {
-            if (isLeft) {
-                leftColumns.splice(renameInfo.source, 1);
-            } else {
-                rightColumns.splice(renameInfo.source, 1);
-            }
-            const columnList = leftColumns.concat(rightColumns);
-            for (const col of columnList) {
-                if (!col.isPrefix) {
-                    nameMap[col.name] = true;
-                }
-            }
+            removeName(rightNames, orignName);
+        }
+        const nameList = leftNames.concat(rightNames);
+        for (const name of nameList) {
+            nameMap[name.dest] = true;
         }
 
         const newName = xcHelper.autoName(orignName, nameMap, Object.keys(nameMap).length);
         renameInfo.dest = newName;
+
+        function removeName(list, name) {
+            for (let i = 0; i < list.length; i ++) {
+                if (list[i].source === name) {
+                    list.splice(i, 1);
+                    return;
+                }
+            }
+        }
     }
 
     private _batchRename(options: {
@@ -272,4 +267,5 @@ class JoinOpPanelStep2 {
             suffix: suffix
         });
     }
+    // Data model manipulation === end
 }

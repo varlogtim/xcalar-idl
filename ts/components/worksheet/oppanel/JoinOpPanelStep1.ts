@@ -3,7 +3,6 @@ class JoinOpPanelStep1 {
     private _$elem: JQuery = null;
     private static readonly _templateIdClasue = 'templateClause';
     private static readonly _templateIdCast = 'templateCast';
-    private static readonly _templateIdCastMsg = 'templateCastMessage';
     private _$elemInstr: JQuery = null;
     private _$elemPreview: JQuery = null;
     private _componentJoinTypeDropdown: OpPanelDropdown = null;
@@ -52,8 +51,8 @@ class JoinOpPanelStep1 {
     }
 
     private _updateUI(): void {
-        const joinType = this._modelRef.joinType;
-        if (this._modelRef.currentStep !== 1) {
+        const joinType = this._modelRef.getJoinType();
+        if (this._modelRef.getCurrentStep() !== 1) {
             this._$elem.hide();
             return;
         }
@@ -90,10 +89,10 @@ class JoinOpPanelStep1 {
             $elemCrossJoinFilter.show();
             // Setup crossJoinFilter section
             const $elemEvalString = BaseOpPanel.findXCElement($elemCrossJoinFilter, 'evalStr');
-            $elemEvalString.val(this._modelRef.evalString);
+            $elemEvalString.val(this._modelRef.getEvalString());
             $elemEvalString.off();
             $elemEvalString.on('input', (e) => {
-                this._modelRef.evalString = $(e.target).val().trim();
+                this._modelRef.setEvalString($(e.target).val().trim());
                 this._updateUI();
             });
             if (!this._isValidEvalString()) {
@@ -109,14 +108,21 @@ class JoinOpPanelStep1 {
         // Add clause button
         const $elemAddClause = BaseOpPanel.findXCElement(this._$elem, 'addClauseBtn');
         $elemAddClause.off();
-        $elemAddClause.on('click', () => {
-            this._addColumnPair();
-            this._updateUI();
-        });
+        if (this._isEnableAddClause()) {
+            $elemAddClause.on('click', () => {
+                this._addColumnPair();
+                this._updateUI();
+            });
+            $elemAddClause.removeClass('btn-disabled');
+        } else {
+            if (!$elemAddClause.hasClass('btn-disabled')) {
+                $elemAddClause.addClass('btn-disabled');
+            }
+        }
         // Next step button
         const $elemNextStep = BaseOpPanel.findXCElement(this._$elem, 'btnNextStep');
         $elemNextStep.off();
-        if (this._validateData()) {
+        if (this._isEnableNext()) {
             $elemNextStep.removeClass('btn-disabled');
             $elemNextStep.on('click', () => {
                 this._goNextStepFunc();
@@ -133,25 +139,26 @@ class JoinOpPanelStep1 {
 
     private _updatePreview() {
         let html;
-        const htmlJoinType = `<span class="joinType keyword">${getJoinType(this._modelRef.joinType)}</span>`;
+        const htmlJoinType = `<span class="joinType keyword">${this._getJoinTypeText(this._modelRef.getJoinType())}</span>`;
         const htmlTables = ' <span class="highlighted">table1</span>,<span class="highlighted">table2</span>';
 
-        if (this._modelRef.joinType === JoinOperatorTStr[JoinOperatorT.CrossJoin]) {
+        if (this._isCrossJoin()) {
             const htmlWhere = '<br/><span class="keyword">WHERE </span>';
-            const htmlClause = xcHelper.escapeHTMLSpecialChar(this._modelRef.evalString);
+            const htmlClause = xcHelper.escapeHTMLSpecialChar(this._modelRef.getEvalString());
             html = `${htmlJoinType}${htmlTables}${htmlWhere}${htmlClause}`;
         } else {
             const emptyColumn = '""';
             const htmlOn = '<br/><span class="keyword">ON </span>';
-            const htmlClause = this._modelRef.joinColumnPairs.reduce( (res, pair, i) => {
-                const { left, right } = this._modelRef.getColumnPairMeta(pair);
-                const col1 = xcHelper.escapeHTMLSpecialChar(left == null
-                    ? emptyColumn
-                    : left.name
+            const htmlClause = this._modelRef.getColumnPairs().reduce( (res, pair, i) => {
+                const col1 = xcHelper.escapeHTMLSpecialChar(
+                    pair.leftName.length == 0
+                        ? emptyColumn
+                        : pair.leftName
                 );
-                const col2 = xcHelper.escapeHTMLSpecialChar(right == null
-                    ? emptyColumn
-                    : right.name
+                const col2 = xcHelper.escapeHTMLSpecialChar(
+                    pair.rightName.length == 0
+                        ? emptyColumn
+                        : pair.rightName
                 );
                 const pre = (i > 0) ? '<span class="keyword"><br/>AND </span>' : '';
                 const cols = `<span class="highlighted">${col1}</span> = 
@@ -162,24 +169,110 @@ class JoinOpPanelStep1 {
         }
 
         this._$elemPreview.html(html);
+    }
 
-        function getJoinType(type: string) {
-            switch(type) {
-                case JoinOperatorTStr[JoinOperatorT.InnerJoin]:
-                    return JoinTStr.joinTypeInner;
-                case JoinOperatorTStr[JoinOperatorT.LeftOuterJoin]:
-                    return JoinTStr.joinTypeLeft;
-                case JoinOperatorTStr[JoinOperatorT.RightOuterJoin]:
-                    return JoinTStr.joinTypeRight;
-                case JoinCompoundOperatorTStr.LeftSemiJoin:
-                    return JoinTStr.joinTypeLeftSemi;
-                case JoinCompoundOperatorTStr.LeftAntiSemiJoin:
-                    return JoinTStr.joinTypeLeftAnti;
-                case JoinOperatorTStr[JoinOperatorT.CrossJoin]:
-                    return JoinTStr.joinTypeCross;
-                default:
-                    return '';
+    private _updateJoinClauseUI() {
+        const columnPairs = this._modelRef.getColumnPairs();
+        const nodeList = [];
+        for (let i = 0; i < columnPairs.length; i++) {
+            const columnPair = columnPairs[i];
+            const { leftName, leftCast, rightName, rightCast } = columnPair;
+            const isLeftDetached = this._modelRef.isColumnDetached(leftName, true);
+            const isRightDetached = this._modelRef.isColumnDetached(rightName, false);
+            const clauseSection = this._templateMgr.createElements(JoinOpPanelStep1._templateIdClasue, {
+                'onDelClick': columnPairs.length > 1
+                    ? () => {
+                        this._removeColumnPair(i);
+                        this._updateUI();
+                    }
+                    : () => {},
+                'delCss': columnPairs.length > 1 ? '' : 'removeIcon-nodel',
+                'leftColErrCss': (isLeftDetached ? 'dropdown-detach' : ''),
+                'rightColErrCss': (isRightDetached ? 'dropdown-detach' : '')
+            });
+            if (clauseSection == null || clauseSection.length > 1) {
+                // This should never happend. Possibly caused by invalid template.
+                console.error('JoinOpPanelStep1.updateUI: template error');
+                continue;
             }
+            const $clauseSection = $(clauseSection[0]);
+            // Type cast row
+            if (this._modelRef.isCastNeed(columnPair)) {
+                const $castContainer = BaseOpPanel.findXCElement($clauseSection, 'castRow');
+                const castMsg = this._createCastMessage({
+                    type1: leftCast,
+                    type2: rightCast
+                })
+                const castRow = this._templateMgr.createElements(
+                    JoinOpPanelStep1._templateIdCast,
+                    { 'APP-ERRORMSG': castMsg }
+                );
+                for (const row of castRow) {
+                    $castContainer.append(row);
+                }
+                // Left column type dropdown
+                this._createTypeCastDropdown({
+                    container: $castContainer,
+                    dropdownId: 'leftCastDropdown',
+                    typeValues: JoinOpPanelStep1._typeCastMenuValues.map((type) => type),
+                    typeSelected: leftCast,
+                    pairIndex: i,
+                    isLeft: true,
+                });
+                // Right column type dropdown
+                this._createTypeCastDropdown({
+                    container: $castContainer,
+                    dropdownId: 'rightCastDropdown',
+                    typeValues: JoinOpPanelStep1._typeCastMenuValues.map((type) => type),
+                    typeSelected: rightCast,
+                    pairIndex: i,
+                    isLeft: false,
+                });
+            }
+            // left column dropdown
+            const leftCols = isLeftDetached
+                ? [] : this._modelRef.getColumnMetaLeft().map((meta) => (meta.name));
+            this._createColumnDropdown({
+                container: $clauseSection,
+                dropdownId: 'leftColDropdown',
+                colNames: leftCols,
+                colSelected: leftName,
+                pairIndex: i,
+                isLeft: true,
+            });
+            // right column dropdown
+            const rightCols = isRightDetached
+                ? [] : this._modelRef.getColumnMetaRight().map((meta) => (meta.name));
+            this._createColumnDropdown({
+                container: $clauseSection,
+                dropdownId: 'rightColDropdown',
+                colNames: rightCols,
+                colSelected: rightName,
+                pairIndex: i,
+                isLeft: false,
+            });
+            nodeList.push($clauseSection[0]);
+        }
+        const $clauseContainer = BaseOpPanel.findXCElement(this._$elem, 'clauseContainer');
+        this._templateMgr.updateDOM($clauseContainer[0], nodeList);
+    }
+
+    private _getJoinTypeText(type: string) {
+        switch(type) {
+            case JoinOperatorTStr[JoinOperatorT.InnerJoin]:
+                return JoinTStr.joinTypeInner;
+            case JoinOperatorTStr[JoinOperatorT.LeftOuterJoin]:
+                return JoinTStr.joinTypeLeft;
+            case JoinOperatorTStr[JoinOperatorT.RightOuterJoin]:
+                return JoinTStr.joinTypeRight;
+            case JoinCompoundOperatorTStr.LeftSemiJoin:
+                return JoinTStr.joinTypeLeftSemi;
+            case JoinCompoundOperatorTStr.LeftAntiSemiJoin:
+                return JoinTStr.joinTypeLeftAnti;
+            case JoinOperatorTStr[JoinOperatorT.CrossJoin]:
+                return JoinTStr.joinTypeCross;
+            default:
+                return '';
         }
     }
 
@@ -217,84 +310,6 @@ class JoinOpPanelStep1 {
         return componentDropdown;
     }
 
-    private _updateJoinClauseUI() {
-        const columnPairs = this._modelRef.joinColumnPairs;
-        const columnMeta = this._modelRef.columnMeta;
-        const nodeList = [];
-        for (let i = 0; i < columnPairs.length; i++) {
-            const { left: leftColIndex, right: rightColIndex, isCastNeed } = columnPairs[i];
-            const clauseSection = this._templateMgr.createElements(JoinOpPanelStep1._templateIdClasue, {
-                'onDelClick': columnPairs.length > 1
-                    ? () => {
-                        this._removeColumnPair(i);
-                        this._updateUI();
-                    }
-                    : () => { },
-                'delCss': columnPairs.length > 1 ? '' : 'removeIcon-nodel'
-            });
-            if (clauseSection == null || clauseSection.length > 1) {
-                // This should never happend. Possibly caused by invalid template.
-                console.error('JoinOpPanelStep1.updateUI: template error');
-                continue;
-            }
-            const $clauseSection = $(clauseSection[0]);
-            // Type cast row
-            if (isCastNeed) {
-                const $castContainer = BaseOpPanel.findXCElement($clauseSection, 'castRow');
-                const castMsg = this._createCastMessage({
-                    type1: columnMeta.left[leftColIndex].type,
-                    type2: columnMeta.right[rightColIndex].type
-                })
-                const castRow = this._templateMgr.createElements(
-                    JoinOpPanelStep1._templateIdCast,
-                    { 'APP-ERRORMSG': castMsg }
-                );
-                for (const row of castRow) {
-                    $castContainer.append(row);
-                }
-                // Left column type dropdown
-                this._createTypeCastDropdown({
-                    container: $castContainer,
-                    dropdownId: 'leftCastDropdown',
-                    typeValues: JoinOpPanelStep1._typeCastMenuValues.map((type) => type),
-                    typeSelected: columnMeta.left[leftColIndex].type,
-                    pairIndex: i,
-                    isLeft: true,
-                });
-                // Right column type dropdown
-                this._createTypeCastDropdown({
-                    container: $castContainer,
-                    dropdownId: 'rightCastDropdown',
-                    typeValues: JoinOpPanelStep1._typeCastMenuValues.map((type) => type),
-                    typeSelected: columnMeta.right[rightColIndex].type,
-                    pairIndex: i,
-                    isLeft: false,
-                });
-            }
-            // left column dropdown
-            this._createColumnDropdown({
-                container: $clauseSection,
-                dropdownId: 'leftColDropdown',
-                colNames: columnMeta.left.map((meta) => (meta.name)),
-                colSelected: leftColIndex,
-                pairIndex: i,
-                isLeft: true,
-            });
-            // right column dropdown
-            this._createColumnDropdown({
-                container: $clauseSection,
-                dropdownId: 'rightColDropdown',
-                colNames: columnMeta.right.map((meta) => (meta.name)),
-                colSelected: rightColIndex,
-                pairIndex: i,
-                isLeft: false,
-            });
-            nodeList.push($clauseSection[0]);
-        }
-        const $clauseContainer = BaseOpPanel.findXCElement(this._$elem, 'clauseContainer');
-        this._templateMgr.updateDOM($clauseContainer[0], nodeList);
-    }
-
     private _createCastMessage(props: {
         type1: string, type2: string
     }) {
@@ -311,17 +326,17 @@ class JoinOpPanelStep1 {
         container: JQuery;
         dropdownId: string;
         colNames: string[];
-        colSelected: number;
+        colSelected: string;
         pairIndex: number;
         isLeft: boolean;
     }): OpPanelDropdown {
         const { container, dropdownId, colNames, colSelected, pairIndex, isLeft } = props;
         const $elemDropdown = BaseOpPanel.findXCElement(container, dropdownId);
-        const menuItems: OpPanelDropdownMenuItem[] = colNames.map((colName, index) => {
+        const menuItems: OpPanelDropdownMenuItem[] = colNames.map((colName) => {
             const menuItem: OpPanelDropdownMenuItem = {
                 text: colName,
-                value: { pairIndex: pairIndex, colIndex: index },
-                isSelected: (index === colSelected)
+                value: { pairIndex: pairIndex, colName: colName },
+                isSelected: (colName === colSelected)
             };
             return menuItem;
         });
@@ -333,13 +348,24 @@ class JoinOpPanelStep1 {
         });
         componentDropdown.updateUI({
             menuItems: menuItems,
-            onSelectCallback: ({ pairIndex, colIndex }) => {
-                this._modifyColumnPair(isLeft, pairIndex, colIndex);
+            defaultText: colSelected,
+            onSelectCallback: ({ pairIndex, colName }) => {
+                this._modifyColumnPair(isLeft, pairIndex, colName);
                 this._updateUI();
             }
         });
         return componentDropdown;
     }
+
+    private _isEnableNext(): boolean {
+        return this._validateData();
+    }
+
+    private _isEnableAddClause(): boolean {
+        return this._modelRef.getColumnMetaLeft().length > 0
+            && this._modelRef.getColumnMetaRight().length > 0;
+    }
+
     // Data model manipulation === start
     private _validateData() {
         if (this._isCrossJoin()) {
@@ -347,14 +373,20 @@ class JoinOpPanelStep1 {
                 return false;
             }
         } else {
-            if (this._modelRef.joinColumnPairs.length === 0) {
+            if (this._modelRef.getColumnPairsLength() === 0) {
                 return false;
             }
-            for (const pair of this._modelRef.joinColumnPairs) {
-                if (pair.isCastNeed) {
+            for (const pair of this._modelRef.getColumnPairs()) {
+                // if (this._modelRef.isColumnDetached(pair.leftName, true)) {
+                //     return false;
+                // }
+                // if (this._modelRef.isColumnDetached(pair.rightName, false)) {
+                //     return false;
+                // }
+                if (this._modelRef.isCastNeed(pair)) {
                     return false;
                 }
-                if (pair.left < 0 || pair.right < 0) {
+                if (pair.leftName.length === 0 || pair.rightName.length === 0) {
                     return false;
                 }
             }
@@ -364,37 +396,38 @@ class JoinOpPanelStep1 {
     }
 
     private _isCrossJoin() {
-        return this._modelRef.joinType === JoinOperatorTStr[JoinOperatorT.CrossJoin];
+        return this._modelRef.getJoinType() === JoinOperatorTStr[JoinOperatorT.CrossJoin];
     }
 
     private _isValidEvalString() {
-        const evalStr = this._modelRef.evalString;
+        const evalStr = this._modelRef.getEvalString();
         return evalStr.length > 0
             && evalStr.indexOf("(") >= 0
             && evalStr.indexOf(")") > 0;
     }
 
     private _changeJoinType(typeId: string): void {
-        this._modelRef.joinType = typeId;
+        this._modelRef.setJoinType(typeId);
     }
     private _removeColumnPair(pairIndex: number): void {
         this._modelRef.removeColumnPair(pairIndex);
     }
-    private _modifyColumnPair(isLeft: boolean, pairIndex: number, colIndex: number): void {
+    private _modifyColumnPair(isLeft: boolean, pairIndex: number, colName: string): void {
         const pairInfo = {
-            left: isLeft ? colIndex : null,
-            right: isLeft ? null : colIndex
+            left: isLeft ? colName : null,
+            right: isLeft ? null : colName
         };
-        this._modelRef.modifyColumnPair(pairIndex, pairInfo);
+        this._modelRef.modifyColumnPairName(pairIndex, pairInfo);
     }
     private _modifyColumnType(isLeft: boolean, pairIndex: number, type: ColumnType): void {
         const typeInfo = {
-            left: (isLeft ? type : null) as ColumnType,
+            left: isLeft ? type : null,
             right: isLeft ? null : type
         };
-        this._modelRef.modifyColumnTypeByPair(pairIndex, typeInfo);
+        this._modelRef.modifyColumnPairCast(pairIndex, typeInfo);
     }
     private _addColumnPair() {
         this._modelRef.addColumnPair();
     }
+    // Data model manipulation === end
 }

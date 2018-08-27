@@ -51,10 +51,11 @@ class OpPanelDropdown {
      */
     public updateUI(props: {
         menuItems?: OpPanelDropdownMenuItem[],
-        onSelectCallback?: OpPanelDropdownMenuSelectCallback
+        onSelectCallback?: OpPanelDropdownMenuSelectCallback,
+        defaultText?: string
     }): void {
 
-        const { menuItems = [], onSelectCallback = null } = (props || {});
+        const { menuItems = [], onSelectCallback = null, defaultText = '' } = (props || {});
         // Create <li> elements
         const $input = BaseOpPanel.findXCElement(this._$elem, this._inputId);
         const $liList = this._createMenuItems({
@@ -67,6 +68,8 @@ class OpPanelDropdown {
         $ul.empty();
         if ($liList.length > 0) {
             $ul.append($liList);
+        } else {
+            this._setTitleFunc($input, defaultText);
         }
 
         // Setup event listener

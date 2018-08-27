@@ -10,14 +10,14 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         this._componentFirstStep = new JoinOpPanelStep1({
             container: this._$elemPanel,
             goNextStepFunc: () => {
-                this._dataModel.currentStep = 2;
+                this._dataModel.setCurrentStep(2);
                 this._updateUI();
             }
         });
         this._componentSecondStep = new JoinOpPanelStep2({
             container: this._$elemPanel,
             goPrevStepFunc: () => {
-                this._dataModel.currentStep = 1;
+                this._dataModel.setCurrentStep(1);
                 this._updateUI();
             },
             submitDataFunc: () => {
@@ -37,10 +37,10 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         this._dagNode = dagNode;
         // Setup data model
         this._dataModel = JoinOpPanelModel.fromDag(dagNode);
-        if (this._dataModel.joinColumnPairs.length === 0) {
+        if (this._dataModel.getColumnPairsLength() === 0) {
             this._dataModel.addColumnPair();
         }
-        this._dataModel.currentStep = 1;
+        this._dataModel.setCurrentStep(1);
 
         // Update UI according to the data model
         this._updateUI();
