@@ -18,7 +18,8 @@ namespace StatusMessage {
     interface ShowDoneNotificationOptions {
         indexNotification?: boolean,
         newDataSet?: boolean,
-        dataSetId?: string
+        dataSetId?: string,
+        title?: string
     }
 
     interface DoneNotificationListenersOptions {
@@ -448,7 +449,12 @@ namespace StatusMessage {
             srcTableId: TableId,
             options: ShowDoneNotificationOptions = {}
         ): void {
-            const operation: string = this.msgObjs[msgId].operation;
+            let operation: string;
+            if (options.title) {
+                operation = options.title;
+            } else {
+                operation = this.msgObjs[msgId].operation;
+            }
             if (operation === SQLOps.IndexDS && !options.indexNotification) {
                 return; // no notification when table made directly from datastore
             }

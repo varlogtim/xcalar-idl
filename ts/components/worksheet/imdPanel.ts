@@ -1824,7 +1824,7 @@ namespace IMDPanel {
             })
         };
         const txId: number = Transaction.start({
-            "msg": "Refreshing tables",
+            "msg": "Generating tables",
             "operation": SQLOps.RefreshTables,
             "sql": sql,
             "steps": numTables,
@@ -1865,13 +1865,14 @@ namespace IMDPanel {
             Transaction.done(txId, {
                 "msgTable": xcHelper.getTableId(tableInfos[numTables - 1].dstTableName),
                 "title": "Generate Tables",
-                "sql": sql
+                "sql": sql,
+                "msgOptions": {"title": "Generating Tables"}
             });
             deferred.resolve();
         })
         .fail(function(error) {
             Transaction.fail(txId, {
-                "failMsg": "Table refresh failed",
+                "failMsg": "Generating tables failed",
                 "error": error,
                 "noAlert": true,
                 "title": "Table refresh"
