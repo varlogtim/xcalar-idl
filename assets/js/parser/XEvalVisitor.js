@@ -34,63 +34,29 @@ class XEvalVisitor extends XEvalBaseVisitor{
                         break;
                     }
                 }
-            }
-            if (ctx.children) {
-                for (var i = 0; i < ctx.children.length; i++) {
-                    parseEvalStrHelper(ctx.children[i], func);
-                }
-            } else if (!(ctx.parentCtx instanceof XEvalBaseParser.FnArgsContext ||
-                ctx.parentCtx instanceof XEvalBaseParser.ExprContext ||
-                ctx.parentCtx instanceof XEvalBaseParser.FnNameContext)) {
-                let value = ctx.getText();
-                let type = getArgType(ctx);
-                const numArgs = func.args.length;
-                if (type === "colName" &&
-                    numArgs > 1 &&
-                    func.args[numArgs - 1].type === "columnArg" &&
-                    func.args[numArgs - 1].value === "::" &&
-                    func.args[numArgs - 2].type === "prefix") {
-                    // we want to change ["prefix", "::", "colName"] into
-                    // ["prefix::colName"]
-                    value = func.args.pop().value + value;
-                    value = func.args.pop().value + value;
-                } else if ((type === "propertyName" || value === "]" && type != "stringLiteral") && numArgs > 1) {
-                    // we want to change ["a", ".", "b"] into
-                    // ["a.b"]
-                    while (func.args.length && func.args[func.args.length - 1].type !== "colName") {
-                        value = func.args.pop().value + value;
-                    }
-                    if (func.args.length && func.args[func.args.length - 1].type === "colName") {
-                        value = func.args.pop().value + value;
-                    }
-                    type = "colName";
+            } else if (ctx instanceof XEvalBaseParser.ArgContext &&
+                !(ctx.children[0] instanceof XEvalBaseParser.ExprContext)) {
+
+                const child = ctx.children[0];
+                let value = child.getText();
+                let type = child.parser.ruleNames[child.ruleIndex];
+                if (type === "columnArg" && value.toUpperCase() === "NONE") {
+                    type = "None";
                 }
                 func.args.push({
                     value: value,
                     type: type
                 });
+                return;
             }
-            return func;
-        }
-        function getArgType(ctx) {
-                let argType = ctx.parentCtx.parser.ruleNames[ctx.parentCtx.ruleIndex];
-                const value = ctx.getText();
-                if (argType === "arg") {
-                    if (value.length > 1 && ((value.charAt(0) === "\"" &&
-                    value.charAt(value.length - 1) === "\"") || (value.charAt(0) === "'" &&
-                    value.charAt(value.length - 1) === "'"))) {
-                        argType = "string";
-                    } else {
-                        if (value.indexOf(".") > -1) {
-                            argType = "float";
-                        } else {
-                            argType = "integer";
-                        }
-                    }
-                } else if (argType === "colName" && value === "None") {
-                    argType = "None";
+
+            if (ctx.children) {
+                for (var i = 0; i < ctx.children.length; i++) {
+                    parseEvalStrHelper(ctx.children[i], func);
                 }
-            return argType;
+            }
+
+            return func;
         }
     };
 
