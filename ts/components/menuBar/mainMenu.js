@@ -15,6 +15,7 @@ window.MainMenu = (function($, MainMenu) {
     // the pre-form state of the menu so we turn the flag on temporarily
     var clickable = true;
     var hasSetUp = false;
+    var formPanels = [];
 
     MainMenu.setup = function() {
         if (hasSetUp) {
@@ -26,6 +27,15 @@ window.MainMenu = (function($, MainMenu) {
         setupTabbing();
         setupBtns();
         setupResizable();
+        formPanels = [MapOpPanel.Instance,
+            GroupByOpPanel.Instance,
+            FilterOpPanel.Instance,
+            AggOpPanel.Instance,
+            ProjectOpPanel.Instance,
+            JoinOpPanel.Instance,
+            SetOpPanel.Instance
+        ];
+
     };
 
     MainMenu.close = function(noAnim, makeInactive) {
@@ -191,13 +201,9 @@ window.MainMenu = (function($, MainMenu) {
             ProjectView.close();
 
             if (gDionysus) {
-                MapOpPanel.Instance.close();
-                GroupByOpPanel.Instance.close();
-                FilterOpPanel.Instance.close();
-                AggOpPanel.Instance.close();
-                ProjectOpPanel.Instance.close();
-                JoinOpPanel.Instance.close();
-                SetOpPanel.Instance.close();
+                formPanels.forEach(function(panel) {
+                    panel.close();
+                });
             }
 
             ignoreRestoreState = false;
@@ -239,6 +245,12 @@ window.MainMenu = (function($, MainMenu) {
                     isSmall = false;
                 }
                 currWidth = newWidth;
+                // let codemirror know it's area was resized
+                formPanels.forEach(function(panel) {
+                    if (panel.isOpen()) {
+                        panel.getEditor().refresh();
+                    }
+                });
             },
             "resize": function(event, ui) {
                 if (!isSmall && ui.size.width < minWidth) {

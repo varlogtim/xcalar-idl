@@ -52,6 +52,13 @@ class BaseOpPanel {
         return  this._instance || (this._instance = new this());
     }
 
+    public getEditor(): CodeMirror.EditorFromTextArea {
+        return this._editor;
+    }
+
+    public isOpen(): boolean {
+        return this._formHelper.isOpen();
+    }
 
     private static _instance = null;
     private $panel: JQuery;
