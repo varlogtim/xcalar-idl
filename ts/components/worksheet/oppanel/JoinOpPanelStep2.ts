@@ -107,6 +107,45 @@ class JoinOpPanelStep2 {
         }
     }
 
+    private _setupBatchRename($container: JQuery, isLeft: boolean, isPrefix: boolean): void {
+        $container.find(".menu").each(function() {
+            xcMenu.add($(this), {"keepOpen": true});
+        });
+
+        $container.off('click', '.option');
+        $container.on("click", ".option", function(event) {
+            var $target = $(event.target);
+            var $menu = $target.closest(".optionWrap").find(".menu");
+            $menu.find("input").val("");
+
+            xcHelper.dropdownOpen($target, $menu, {
+                "mouseCoors": {"x": 0, "y": -71},
+                "floating": true
+            });
+            return false;
+        });
+        $container.on("click", ".copyAll", (event) => {
+            if (event.which !== 1) {
+                return;
+            }
+            this._batchRename({ isLeft: isLeft, isPrefix: isPrefix });
+            this._updateUI();
+        });
+
+        $container.on("click", ".copyAppend", function(event) {
+            if (event.which !== 1) {
+                return;
+            }
+            $(this).find("input").focus();
+        });
+
+        $container.on("input", ".copyAppend input", (event) => {
+            const suffix = $(event.target).val();
+            this._batchRename({ isLeft: isLeft, isPrefix: isPrefix, suffix: suffix});
+            this._updateUI();
+        });
+    }
+
     private _createRenameTable(props: {
         isLeft: boolean
         renameInfoList: JoinOpRenameInfo[] // !!! Items in list are references !!!
@@ -116,6 +155,7 @@ class JoinOpPanelStep2 {
         if (renameInfoList == null || renameInfoList.length === 0) {
             return [];
         }
+        const isPrefix = renameInfoList[0].isPrefix;
 
         // Create rename rows
         const nodeRowList: NodeDefDOMElement[] = [];
@@ -127,7 +167,8 @@ class JoinOpPanelStep2 {
                 }),
                 newName: renameInfo.dest,
                 onClickRename: (name) => {
-                    console.log(`Auto-rename: ${name}`);
+                    this._autoRenameColumn(renameInfo, name, isLeft);
+                    this._updateUI();
                 },
                 onNameChange: (newName) => {
                     this._renameColumn(renameInfo, newName.trim());
@@ -149,6 +190,8 @@ class JoinOpPanelStep2 {
             }
         )
 
+        // Setup batch rename
+        this._setupBatchRename($(nodeTable[0]), isLeft, isPrefix);
         return nodeTable;
     }
 
@@ -181,5 +224,52 @@ class JoinOpPanelStep2 {
 
     private _validateData(): boolean {
         return true;
+    }
+
+    private _autoRenameColumn(
+        renameInfo: JoinOpRenameInfo, orignName: string, isLeft: boolean
+    ) {
+        const {
+            leftColumns, leftPrefixes, rightColumns, rightPrefixes
+        } = this._modelRef.getResolvedNames();
+
+        const nameMap = {};
+        if (renameInfo.isPrefix) {
+            if (isLeft) {
+                leftPrefixes.splice(renameInfo.source, 1);
+            } else {
+                rightPrefixes.splice(renameInfo.source, 1);
+            }
+            const prefixList = leftPrefixes.concat(rightPrefixes);
+            for (const prefix of prefixList) {
+                nameMap[prefix] = true;
+            }
+        } else {
+            if (isLeft) {
+                leftColumns.splice(renameInfo.source, 1);
+            } else {
+                rightColumns.splice(renameInfo.source, 1);
+            }
+            const columnList = leftColumns.concat(rightColumns);
+            for (const col of columnList) {
+                if (!col.isPrefix) {
+                    nameMap[col.name] = true;
+                }
+            }
+        }
+
+        const newName = xcHelper.autoName(orignName, nameMap, Object.keys(nameMap).length);
+        renameInfo.dest = newName;
+    }
+
+    private _batchRename(options: {
+        isLeft: boolean, isPrefix: boolean, suffix?: string
+    }) {
+        const { isLeft, isPrefix, suffix } = options;
+        this._modelRef.batchRename({
+            isLeft: isLeft,
+            isPrefix: isPrefix,
+            suffix: suffix
+        });
     }
 }

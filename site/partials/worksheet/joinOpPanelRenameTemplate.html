@@ -1,13 +1,11 @@
 <div data-xcid="templateRename" style="display:none">
     <div class="row row-subheading">
         <div class="col col-left">{{oldColTitle}}</div>
+        <div class="bulkIcon">
+            include "joinRenameOption.html"
+        </div>
         <div class="col col-right">{{newColTitle}}</div>
     </div>
-    <!-- <div class="subSubHeading clearfix">
-        <div><%= dicts.joinView.LeftTablePrefix %></div>
-        include "joinRenameOption.html"
-        <div class="newNameLabel"><%= dicts.joinView.NewName %></div>
-    </div> -->
     <APP-RENAME_TABLE />
 </div>
 

@@ -265,6 +265,63 @@ class JoinOpPanelModel {
         return { left: -1, right: -1, isCastNeed: false };
     }
 
+    public getResolvedNames() {
+        // Left columns & prefixes
+        const leftColumns = this.columnMeta.left.map( (col) =>
+            ({
+                name: col.name,
+                type: col.type,
+                isPrefix: col.isPrefix
+            })
+        );
+        const leftPrefixes = this.prefixMeta.left.map( (prefix) => (prefix) );
+        for (const rename of this.columnRename.left) {
+            if (rename.isPrefix) {
+                leftPrefixes[rename.source] = rename.dest;
+            } else {
+                leftColumns[rename.source].name = rename.dest;
+            }
+        }
+        // Right columns & prefixes
+        const rightColumns = this.columnMeta.right.map( (col) =>
+            ({
+                name: col.name,
+                type: col.type,
+                isPrefix: col.isPrefix
+            })
+        );
+        const rightPrefixes = this.prefixMeta.right.map( (prefix) => (prefix) );
+        for (const rename of this.columnRename.right) {
+            if (rename.isPrefix) {
+                rightPrefixes[rename.source] = rename.dest;
+            } else {
+                rightColumns[rename.source].name = rename.dest;
+            }
+        }
+
+        return {
+            leftColumns: leftColumns, leftPrefixes: leftPrefixes,
+            rightColumns: rightColumns, rightPrefixes: rightPrefixes
+        };
+    }
+
+    public batchRename(options: {
+        isLeft: boolean, isPrefix: boolean, suffix?: string
+    }) {
+        const { isLeft, isPrefix, suffix = '' } = options;
+        const renameList = isLeft ? this.columnRename.left : this.columnRename.right;
+        for (const renameInfo of renameList) {
+            if (renameInfo.isPrefix !== isPrefix) {
+                continue;
+            }
+            const orignName = this.getRenameMetaName({
+                renameInfo: renameInfo,
+                isLeft: isLeft
+            });
+            renameInfo.dest = `${orignName}${suffix}`;
+        }
+    }
+
     public getColumnPairMeta(
         colPair: JoinOpColumnPair
     ): {left: JoinOpColumnInfo, right: JoinOpColumnInfo} {
