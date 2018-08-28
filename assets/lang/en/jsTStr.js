@@ -1056,7 +1056,7 @@ DFTStr = {
     "ViewTable": "VIEW TABLE",
     'AddParamHint': 'Please create parameters in the Dataflow Panel first.',
     'AddSched': 'Add schedule to dataflow',
-    "UpdateSelect": "Update Select nodes to latest batch",
+    "UpdateSelect": "Customize all Published tables in the batch dataflow to incorporate all data changes",
     'Cancel': 'Cancel batch dataflow',
     'Canceled': 'Batch dataflow canceled',
     'CancelSuccessMsg': 'Cancellation of batch dataflow was successful.',
