@@ -929,8 +929,10 @@ namespace xcHelper {
      * xcHelper.getTableKeyInfoFromMeta
      * @param tableMeta
      */
-    export function getTableKeyInfoFromMeta(tableMeta: any) {
-        const keys: object[] = [];
+    export function getTableKeyInfoFromMeta(
+        tableMeta: any
+    ): {name: string, ordering: string}[] {
+        const keys: {name: string, ordering: string}[] = [];
         tableMeta.keyAttr.forEach((keyAttr) => {
             if (keyAttr.valueArrayIndex >= 0) {
                 keys.push({

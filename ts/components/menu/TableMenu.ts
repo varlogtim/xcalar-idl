@@ -52,7 +52,7 @@ class TableMenu extends AbstractMenu {
             }
 
             const tableId: TableId = $tableMenu.data('tableId');
-            TblManager.sendTableToTempList([tableId]);
+            TblManager.sendTableToTempList([tableId], null, null);
         });
 
         $tableMenu.on('mouseup', '.deleteTable', (event) => {
@@ -68,7 +68,7 @@ class TableMenu extends AbstractMenu {
                 "title": TblTStr.Del,
                 "msg": msg,
                 "onConfirm": () => {
-                    TblManager.deleteTables(tableId, TableType.Active)
+                    TblManager.deleteTables([tableId], TableType.Active, false, false)
                     .then(() => {
                         MemoryAlert.Instance.check(true);
                     });

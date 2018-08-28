@@ -124,7 +124,9 @@ namespace xcFunction {
                 const worksheet: string = fltOptions.worksheet ?
                     fltOptions.worksheet : curWorksheet;
                 return TblManager.refreshTable([finalTableName], table.tableCols,
-                    oldTables, worksheet, txId, { selectCol: colNum });
+                    oldTables, worksheet, txId, {
+                        selectCol: colNum
+                    });
             })
             .then(() => {
                 xcHelper.unlockTable(tableId);

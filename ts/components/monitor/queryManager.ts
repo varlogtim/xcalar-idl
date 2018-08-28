@@ -1698,7 +1698,7 @@ namespace QueryManager {
                 return;
             }
 
-            TblManager.findAndFocusTable(tableName)
+            TblManager.findAndFocusTable(tableName, false)
             .fail(function(res) {
                 if (res && typeof res === "object") {
                     focusOutputErrorHandler('table', mainQuery, res.tableType);

@@ -504,7 +504,7 @@ namespace Transaction {
             TableList.refreshOrphanList(false)
             .then(function() {
                 console.info("drop", gOrphanTables);
-                return TblManager.deleteTables(gOrphanTables, TableType.Orphan, true);
+                return TblManager.deleteTables(gOrphanTables, TableType.Orphan, true, false);
             })
             .fail(function(error) {
                 console.error("drop table failed", error);

@@ -5,6 +5,71 @@ class ColMenu extends AbstractMenu {
         super(menuId, subMenuId);
     }
 
+    /**
+     *
+     * @param colType
+     * @param isNewCol
+     */
+    public setUnavailableClassesAndTips(
+        colType: ColumnType,
+        isNewCol: boolean
+    ): void {
+        const $menu: JQuery = this._getMenu();
+        let $lis: JQuery = $menu.find(".groupby, .sort, .aggregate, .filter, " +
+                ".join, .map, .operations, .profile, .corrAgg, " +
+                ".extensions, .changeDataType, .format, .roundToFixed, " +
+                ".project, .union");
+        $lis.removeClass("unavailable");
+        xcTooltip.remove($lis);
+        if (colType === ColumnType.object || colType === ColumnType.array) {
+            $lis = $menu.find(".groupby, .sort, .aggregate, .filter, .join, " +
+                ".map, .operations, .profile, .corrAgg, .extensions, " +
+                ".changeDataType, .format, .roundToFixed, .union");
+            $lis.addClass("unavailable");
+            if (colType === ColumnType.object) {
+                xcTooltip.add($lis, {
+                    title: ColTStr.NoOperateObject
+                });
+            } else if (colType === ColumnType.array) {
+                xcTooltip.add($lis, {
+                    title: ColTStr.NoOperateArray
+                });
+            }
+        } else if (isNewCol) {
+            $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
+                ".join, .operations, .profile, .corrAgg, .extensions, " +
+                ".changeDataType, .format, .roundToFixed, .project, .union");
+            $lis.addClass("unavailable");
+            xcTooltip.add($lis, {
+                title: ErrTStr.InvalidOpNewColumn
+            });
+        } else if (colType === ColumnType.mixed) {
+            $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
+                ".join, .operations, .profile, .corrAgg, " +
+                ".roundToFixed");
+            $lis.addClass("unavailable");
+            xcTooltip.add($lis, {
+                title: ColTStr.NoOperateGeneral
+            });
+        }  else if (colType === ColumnType.undefined) {
+            $lis = $menu.find(".groupby, .sort, .aggregate, .filter, " +
+                    ".join, .operations, .profile, .corrAgg, " +
+                    ".extensions, .format, .roundToFixed, " +
+                    ".project, .union");
+            $lis.addClass("unavailable");
+            xcTooltip.add($lis, {
+                title: ColTStr.NoOperateGeneral
+            });
+        } else if ([ColumnType.integer, ColumnType.float, ColumnType.string,
+                    ColumnType.boolean, ColumnType.number]
+                    .indexOf(colType) === -1) {
+            $lis.addClass("unavailable");
+            xcTooltip.add($lis, {
+                title: ColTStr.NoOperateGeneral
+            });
+        }
+    }
+
     protected _getHotKeyEntries(): ReadonlyArray<[string, string]> {
         return [
             ["a", "aggregate"],

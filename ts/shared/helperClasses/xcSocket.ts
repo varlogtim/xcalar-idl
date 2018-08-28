@@ -176,7 +176,7 @@ class XcSocket {
             });
         });
 
-        socket.on('logout', (userOption) => {
+        socket.on('logout', (_userOption) => {
             // check if the tab still holds valid cookies
             XcUser.checkCurrentUser();
         });

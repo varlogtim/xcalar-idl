@@ -832,18 +832,21 @@ namespace xcManager {
 
         table.beActive();
 
-        const options: object = {
+        TblManager.parallelConstruct(tableId, null, {
             wsId: worksheetId,
-            atStartUp: true
-        };
-        TblManager.parallelConstruct(tableId, null, options)
+            afterStartup: false,
+            selectCol: null,
+            noTag: false,
+            position: null,
+            txId: null
+        })
         .then(deferred.resolve)
         .fail(function(error) {
             failures.push("Add table " + table.getName() +
                         "fails: " + error.error);
             if ($("#xcTable-" + tableId).length <= 0) {
                 table.beOrphaned();
-                WSManager.removeTable(tableId);
+                WSManager.removeTable(tableId, false);
             }
             // still resolve but push error failures
             deferred.resolve();
@@ -902,7 +905,7 @@ namespace xcManager {
                 const tableName: string = gTables[tableId].getName();
                 if (!backTableSet.hasOwnProperty(tableName)) {
                     console.warn(tableName, "is not in backend");
-                    WSManager.removeTable(tableId);
+                    WSManager.removeTable(tableId, false);
                     delete gTables[tableId];
                 }
             }
@@ -983,7 +986,7 @@ namespace xcManager {
         function cleanNoMetaTables(): void {
             noMetaTables.forEach(function(tableId) {
                 console.info("not find table", tableId);
-                WSManager.removeTable(tableId);
+                WSManager.removeTable(tableId, false);
             });
         }
     }
@@ -1629,7 +1632,6 @@ namespace xcManager {
     /* Unit Test Only */
     if (window["unitTestMode"]) {
         let oldLogoutRedirect: Function;
-        let oldTableScroll: Function;
         xcManager["__testOnly__"] = {
             handleSetupFail: handleSetupFail,
             reImplementMouseWheel: reImplementMouseWheel,

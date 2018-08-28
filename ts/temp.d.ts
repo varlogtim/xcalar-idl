@@ -155,7 +155,8 @@ interface SQLInfo {
     tableName?: string,
     tableNames?: string[],
     lTableName?: string,
-    rTableName?: string
+    rTableName?: string,
+    operation?: string
 }
 
 interface XCThriftError {
@@ -291,6 +292,7 @@ interface Window {
     xcSessionStorage: any;
 }
 
+declare var unitTestMode: boolean;
 declare var isBrowserIE: boolean;
 declare var isBrowserChrome: boolean;
 declare var KB: number
@@ -330,7 +332,7 @@ declare var gColPrefix: string;
 declare var gPrefixSign: string;
 declare var gRetSign: string;
 declare var gDSPrefix: string;
-declare var gHiddenColumnWidth: number;
+declare var gHiddenColumnWidth: number | string;
 declare var gTurnOnPrefix: boolean;
 declare var gUploadChunkSize: number;
 declare var gDefaultSharedRoot: string;
@@ -613,6 +615,8 @@ declare enum QueryStateT{
 declare enum QueryStateTStr {
 
 }
+
+declare var XcalarOrderingTFromStr: any;
 /* ============= JSTSTR ==================== */
 declare namespace DSTStr {
     export var UnknownUser: string;
@@ -681,6 +685,7 @@ declare namespace CommonTxtTstr {
     export var LogoutWarn: string;
     export var LeaveWarn: string;
     export var SelectAll: string;
+    export var NumCol: string;
 }
 
 declare namespace ProjectTStr {
@@ -734,6 +739,8 @@ declare namespace StatusMessageTStr {
     export var CompReplay: string;
     export var SettingExtensions: string;
     export var ImportTables: string;
+    export var PartialDeleteTableFail;
+    export var DeleteTableFailed: string;
 }
 
 declare namespace ExportTStr {
@@ -771,6 +778,11 @@ declare namespace TooltipTStr {
     export var generatingComplement: string;
     export var ComplementSourceDropped: string;
     export var ComplementRestriction: string;
+    export var UnlockTable: string;
+    export var ClickToSortAsc: string;
+    export var ClickToSortDesc: string;
+    export var ViewColumnOptions: string;
+    export var SelectAllColumns: string;
 }
 
 declare namespace SuccessTStr{
@@ -829,7 +841,9 @@ declare namespace ErrTStr {
     export var OnlyNumber: string;
     export var OnlyPositiveNumber: string;
     export var ColumnConflict: string;
-
+    export var CannotDropLocked: string;
+    export var TablesNotDeleted: string;
+    export var NoTablesDeleted: string;
 }
 
 declare namespace ErrWRepTStr {
@@ -844,6 +858,7 @@ declare namespace ErrWRepTStr {
     export var InvalidAggLength: string;
     export var AggConflict: string;
     export var InvalidRange: string;
+    export var TableNotDeleted: string;
 }
 
 declare namespace ColTStr {
@@ -1026,6 +1041,11 @@ declare namespace SQLTStr {
     export var queryFailMessage: string;
     export var MarkPrefix: string;
     export var ReorderTable: string;
+    export var MakeTemp: string;
+    export var MinimizeTable: string;
+    export var MaximizeTable: string;
+    export var SortTableCols: string;
+    export var ResizeCols: string;
 }
 
 declare namespace DagTStr {
@@ -1074,6 +1094,8 @@ declare class ProgCol {
     public prefix: string;
     public userStr: string;
     public func: ColFunc;
+    public format: string;
+    public textAlign: string;
     public isDATACol(): boolean;
     public isEmptyCol(): boolean;
     public getFrontColName(includePrefix: boolean): string;
@@ -1085,10 +1107,15 @@ declare class ProgCol {
     public setBackColName(name: string): void;
     public isNumberCol(): boolean;
     public getPrefix(): string;
+    public getFrontColName(): string;
+    public getWidth(): number;
+    public maximize(): void;
+    public minimize(): void;
 }
 
 declare class TableMeta {
     public tableName: string;
+    public tableId: TableId;
     public tableCols: ProgCol[];
     public backTableMeta: any;
     public status: string;
@@ -1100,7 +1127,11 @@ declare class TableMeta {
     public getCol(colNum: number): ProgCol;
     public hasCol(colName: string, prefix: string): boolean;
     public hasColWithBackName(colName: string): boolean;
-    public getKeys(): object[];
+    public removeCol(colNum: number): ProgCol;
+    public getNumCols(): number;
+    public sortCols(sortKey: string, order: ColumnSortOrder): void;
+    public addCol(colNum: number, progCol: ProgCol);
+    public getKeys(): {name: string, ordering: string}[];
     public getOrdering(): number;
     public getIndexTable(colNames: string[]): TableIndexCache;
     public removeIndexTable(colNames: string[]): void;
@@ -1108,13 +1139,23 @@ declare class TableMeta {
     public getColNumByBackName(name: string): number;
     public getName(): string;
     public hasLock(): boolean;
+    public unlock(): void;
     public isActive(): boolean;
+    public isDropped(): boolean;
+    public beDropped(): void;
     public getId(): string;
+    public getType(): TableType;
     public beOrphaned(): void;
     public getName(): string;
     public freeResultset(): XDPromise<void>;
     public getMetaAndResultSet(): XDPromise<void>;
     public getImmediateNames(): string[];
+    public beUndone(): void;
+    public updateTimeStamp(): void;
+    public addNoDelete(): void;
+    public removeNoDelete(): void;
+    public showIndexStyle(): void;
+    public getKeyName(): string[];
     public constructor(options: object);
 }
 
@@ -1165,7 +1206,7 @@ declare class METAConstructor {
     public getWSMeta(): WSMETA;
     public getTpfxMeta(): object;
     public getAggMeta(): object;
-    public getTableMeta(): object;
+    public getTableMeta(): TableMeta[];
     public getCartMeta(): object;
     public getStatsMeta(): object;
     public getLogCMeta(): number;
@@ -1269,6 +1310,8 @@ declare namespace ColManager {
     export function changeType(colTypeInfos: object, tableId: TableId): XDPromise<void>;
     export function unnest(tableId: TableId, colNum: number, rowNum: number): void;
     export function sortColumn(colNums: number[], tableId: TableId, order: XcalarOrderingT): XDPromise<void>;
+    export function pullAllCols(startIndex: number, jsonData: string[], tableId: TableId, direction: RowDirection, rowToPrependTo: number): JQuery;
+    export function getCellType($td: JQuery, tableId: TableId): ColumnType;
 }
 
 declare namespace Admin {
@@ -1332,43 +1375,19 @@ declare namespace TableList {
     export function addToCanceledList(tableName: string): void;
     export function removeFromCanceledList(tableName: string): void;
     export function reorderTable(tableId: TableId): void;
-}
-
-declare namespace TblManager {
-    export function alignTableEls($tableWrap?: JQuery): void;
-    export function unHighlightCells(tableId?: TableId): void;
-    export function restoreTableMeta(oldMeat: object): void;
-    export function setOrphanTableMeta(tableName: string, tableCols: ProgCol[]): void;
-    export function refreshTable(newTableNames: string[], tableCols: ProgCol[], oldTableNames: string[], worksheet: string, txId: number, options: object): XDPromise<void>;
-    export function updateHeaderAndListInfo(tableId: TableId): void;
-    export function deleteTables(tables: TableId[] | TableId, tableType: string, noAlert?: boolean, noLog?: boolean, options?: object);
-    export function findAndFocusTable(tableName: string, noAnimate?: boolean): XDPromise<any>;
-    export function freeAllResultSetsSync(): XDPromise<void>;
-    export function highlightColumn($match: JQuery): void;
-    export function freeAllResultSets(): void;
-    export function parallelConstruct(tableId: string, tableToReplace: string, options: object): XDPromise<void>;
-    export function setOrphanedList(tableMap: any): void;
-    export function adjustRowFetchQuantity(): void;
-    export function generateTheadTbody(tableId: TableId): string;
-    export function pullRowsBulk(tableId: TableId, jsonData: string[], startIndex: number, direction?: RowDirection, rowToPrependTo?): void;
-    export function addColListeners($table: JQuery, tableId: TableId, options: object): void;
-    export function highlightColumn($th: JQuery, keepOthersSelected: boolean);
-    export function updateTableHeader(tableId: TableId): void;
-    export function updateTableNameWidth($tableName: JQuery): void;
+    export function updatePendingState(flag: boolean): void;
+    export function addTables(tables: TableMeta[], flag: boolean): void;
+    export function addToOrphanList(tableName: string): void;
+    export function makeTableNoDelete(tableId: TableId);
     export function removeTableNoDelete(tableId: TableId): void;
-    export function removeWaitingCursor(tableId: TableId);
-    export function hideTable(tableId: TableId): void;
-    export function unHideTable(tableId: TableId): void;
-    export function sendTableToTempList(ids: TableId[]): void;
-    export function sortColumns(tableId: TableId, sortKey: string, direction: string): void;
-    export function resizeColumns(tableId: TableId, resizeTo: string, colNums?: number[]): void;
-    export function makeTableNoDelete(tableName: string): void;
+    export function updateTableInfo(tableId: TableId): void;
 }
 
 declare namespace TblAnim {
     export function startRowResize($el: JQuery, event: JQueryMouseEventObject): void;
     export function startColResize($el: JQuery, event: JQueryMouseEventObject, options: object): void;
     export function startTableDrag($el: JQuery, event: JQueryMouseEventObject): void
+    export function startColDrag($headCol: JQuery, event: JQueryEventObject): void;
 }
 
 declare namespace RowManager {
@@ -1427,16 +1446,20 @@ declare namespace WSManager {
     export function getWSLists(isAll: boolean): string;
     export function getWSName(ws: string): string;
     export function restore(oldMeat: object): void;
-    export function focusOnWorksheet(ws?: string, something?: boolean): void;
+    export function focusOnWorksheet(ws?: string, something?: boolean, tableId?: TableId): void;
     export function addWS(wsId: string, wsName: string, wsIndex?: number): string;
     export function getAllMeta(): WSMETA;
-    export function removeTable(tableId: string): void;
+    export function removeTable(tableId: TableId, flag: boolean): void;
     export function dropUndoneTables(): XDPromise<void>;
-    export function getWSById(worksheetId: string): object;
+    export function getWSById(worksheetId: string): any;
     export function getHiddenWSList(): string[];
     export function moveTable(tableId: TableId, wsId: string);
     export function reorderTable(tableId: TableId, srcIndex: number, desIndex: number): void;
     export function getTablePosition(tableId: TableId): number;
+    export function addTable(newTableId: TableId, worksheet: string);
+    export function removePending(tableId: TableId, worksheet: string): void;
+    export function moveTemporaryTable(tableId: TableId, wsId: string, tableType: string, flag: boolean, noAnim: boolean): XDPromise<void>;
+    export function replaceTable(newTableId: TableId, oldId?: TableId, tablesToRemove?: TableId[], options?: object): void;
 }
 
 declare namespace Dag {
@@ -1448,6 +1471,9 @@ declare namespace Dag {
     export function generateComplementTable(tableName: string): void
     export function getTableInfo(tableId: TableId, $dagTable: JQuery): {isIcv: boolean, generatingIcv: boolean, canBeIcv: boolean, hasDroppedParent: boolean, generatingComplement: boolean, type: string};
     export function focusDagForActiveTable(tableId: TableId, tableFocused: boolean);
+    export function construct(tableId: TableId, tableToReplace: string, options: object): XDPromise<void>;
+    export function destruct(tableId: TableId): void;
+    export function makeInactive(tableIdOrName: string | TableId, nameProvided: boolean): void;
 }
 
 declare namespace DagDraw {
@@ -1514,6 +1540,7 @@ declare namespace Profile {
     export function restore(oldMeat: object): void;
     export function copy(tableId: TableId, newTableId: TableId): void;
     export function show(tableId: TableId, colNum: number): void;
+    export function deleteCache(tableId: TableId): void;
 }
 
 declare namespace DF {
@@ -1621,9 +1648,12 @@ declare namespace SortView {
     export function show(colNums: number[], tableId: TableId): void;
 }
 declare namespace FnBar {
-    export function clear(): void;
     export function updateOperationsMap(fns: UDFInfo[]): void;
     export function unlock(): void;
+    export function setup(): void;
+    export function clear(): void;
+    export function updateColNameCache(): void;
+    export function focusOnCol($head: JQuery, tableId: TableId, colNum: number): void;
 }
 
 declare namespace d3 {
@@ -1656,6 +1686,7 @@ declare namespace DagFunction {
     }
 
     export function construct(nodes: XcalarApiDagNodeT[], tableId?: string): LineageStruct;
+    export function tagNodes(txId: number): XDPromise<void>;
 }
 
 declare namespace TutorialsSetup {
@@ -1770,11 +1801,7 @@ declare namespace RowScroller {
     export function getLastVisibleRowNum(tableId: TableId): number;
     export function add(tableId: TableId): void;
     export function update(tableId: TableId): void;
-}
-
-declare namespace FnBar {
-    export function setup(): void;
-    export function clear(): void;
+    export function empty(): void
 }
 
 declare namespace MonitorLog {
@@ -1785,6 +1812,7 @@ declare namespace SQLEditor {
     export function initialize(): void;
     export function storeQuery(): void;
     export function dropAllSchemas(wkbkId: string): void;
+    export function deleteSchemas(tableName: string, tableIds: TableId[]): XDPromise<void>;
 }
 
 declare namespace Msal {

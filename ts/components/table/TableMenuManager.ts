@@ -5,10 +5,19 @@ class TableMenuManager {
         return this._instance || (this._instance = new this());
     }
 
+    private colMenu: ColMenu;
+
     public constructor() {
         new TableMenu();
-        new ColMenu();
+        this.colMenu = new ColMenu();
         new CellMenu();
+    }
+
+    /**
+     * Get TableManuManger Instance
+     */
+    public getColMenu(): ColMenu {
+        return this.colMenu;
     }
 
     /**

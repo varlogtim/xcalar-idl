@@ -248,12 +248,12 @@ class XcTableInWSViewer extends XcTableViewer {
             "focus": function() {
                 const $tableName: JQuery = $(this);
                 TblManager.updateTableNameWidth($tableName);
-                TblFunc.moveTableTitles();
+                TblFunc.moveTableTitles(null);
             },
             "blur": function() {
                 const tableId: TableId = $xcTheadWrap.data("id");
                 TblManager.updateTableHeader(tableId);
-                TblFunc.moveTableTitles();
+                TblFunc.moveTableTitles(null);
             },
             "input": function() {
                 const $tableName: JQuery = $(this);
