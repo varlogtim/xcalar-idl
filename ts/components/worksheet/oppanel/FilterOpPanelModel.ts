@@ -118,20 +118,25 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
         if (!this._opCategories.length) {
             this._opCategories = [FunctionCategoryT.FunctionCategoryCondition];
         }
-        const params: xcHelper.ParsedEval = xcHelper.parseEvalString(
+        let parsedEval: ParsedEval = XDParser.XEvalParser.parseEvalStr(
                                                     paramsRaw.evalString);
-        if (strictCheck && params.error) {
-            throw({error: params.error});
+        if (parsedEval["error"]) {
+            if (strictCheck) {
+                throw(parsedEval);
+            } else {
+                parsedEval = {fnName:"", args: [], type: "fn"};
+            }
         }
+
         let groups = [];
         let argGroups = [];
 
-        if (self._isValidAndOr(params, "and")) {
-            detectAndOr(params, "and");
+        if (self._isValidAndOr(parsedEval, "and")) {
+            detectAndOr(parsedEval, "and");
         } else {
-            detectAndOr(params, "or");
+            detectAndOr(parsedEval, "or");
         }
-        if (self._isValidAndOr(params, "or")) {
+        if (self._isValidAndOr(parsedEval, "or")) {
             this.andOrOperator = "or";
         } else {
             this.andOrOperator = "and";
@@ -165,10 +170,10 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
                 throw ({error: "\"" + argGroup.fnName + "\" only accepts " +
                         opInfo.argDescs.length + " arguments."})
             }
-            for (var j = 0; j < argGroup.args.length; j++) {
-                let arg = argGroup.args[j];
-                if (typeof arg === "object") {
-                    arg = xcHelper.stringifyEval(arg);
+            for (let j = 0; j < argGroup.args.length; j++) {
+                let arg = argGroup.args[j].value;
+                if (argGroup.args[j].type === "fn") {
+                    arg = xcHelper.stringifyEval(argGroup.args[j]);
                 }
 
                 const argInfo: OpPanelArg = new OpPanelArg(arg,
@@ -213,8 +218,8 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
     private _isValidAndOr(func, operator) {
         return (func.fnName === operator &&
                 func.args.length === 2 &&
-                typeof func.args[0] === "object" &&
-                typeof func.args[1] === "object");
+                typeof func.args[0].value === "object" &&
+                typeof func.args[1].value === "object");
     }
 
     protected _update(all?: boolean): void {

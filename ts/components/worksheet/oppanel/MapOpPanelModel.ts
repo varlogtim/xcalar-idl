@@ -126,12 +126,17 @@ class MapOpPanelModel extends GeneralOpPanelModel {
         let argGroups = [];
         let newFieldNames = [];
         for (let i = 0; i < paramsRaw.eval.length; i++) {
-            const params: xcHelper.ParsedEval = xcHelper.parseEvalString(
-                                                    paramsRaw.eval[i].evalString);
-            if (strictCheck && params.error) {
-                throw({error: params.error});
+            let parsedEval: ParsedEval = XDParser.XEvalParser.parseEvalStr(
+                paramsRaw.eval[i].evalString);
+
+            if (parsedEval["error"]) {
+                if (strictCheck) {
+                    throw(parsedEval);
+                } else {
+                    parsedEval = {fnName:"", args: [], type: "fn"};
+                }
             }
-            argGroups.push(params);
+            argGroups.push(parsedEval);
             newFieldNames.push(paramsRaw.eval[i].newField);
         }
 
@@ -156,9 +161,9 @@ class MapOpPanelModel extends GeneralOpPanelModel {
                         opInfo.argDescs.length + " arguments."})
             }
             for (var j = 0; j < argGroup.args.length; j++) {
-                let arg = argGroup.args[j];
-                if (typeof arg === "object") {
-                    arg = xcHelper.stringifyEval(arg);
+                let arg = argGroup.args[j].value;
+                if (argGroup.args[j].type === "fn") {
+                    arg = xcHelper.stringifyEval(argGroup.args[j]);
                 }
 
                 const argInfo: OpPanelArg = new OpPanelArg(arg,

@@ -104,13 +104,17 @@ class AggOpPanelModel extends GeneralOpPanelModel {
         if (!this._opCategories.length) {
             this._opCategories = [FunctionCategoryT.FunctionCategoryAggregate];
         }
-        const params: xcHelper.ParsedEval = xcHelper.parseEvalString(
-                                                    paramsRaw.evalString);
-        if (strictCheck && params.error) {
-            throw({error: params.error});
+        let parsedEval: ParsedEval = XDParser.XEvalParser.parseEvalStr(
+                                                        paramsRaw.evalString);
+        if (parsedEval["error"]) {
+            if (strictCheck) {
+                throw(parsedEval);
+            } else {
+                parsedEval = {fnName:"", args: [], type: "fn"};
+            }
         }
         let groups = [];
-        let argGroups = [params];
+        let argGroups = [parsedEval];
 
         for (let i = 0; i < argGroups.length; i++) {
             let argGroup = argGroups[i];
@@ -131,9 +135,9 @@ class AggOpPanelModel extends GeneralOpPanelModel {
                         opInfo.argDescs.length + " arguments."})
             }
             for (var j = 0; j < argGroup.args.length; j++) {
-                let arg = argGroup.args[j];
-                if (typeof arg === "object") {
-                    arg = xcHelper.stringifyEval(arg);
+                let arg = argGroup.args[j].value;
+                if (argGroup.args[j].type === "fn") {
+                    arg = xcHelper.stringifyEval(argGroup.args[j]);
                 }
 
                 const argInfo: OpPanelArg = new OpPanelArg(arg,

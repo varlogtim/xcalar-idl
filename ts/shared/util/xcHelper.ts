@@ -5149,10 +5149,10 @@ namespace xcHelper {
                 str += ",";
             }
 
-            if (typeof args[i] === "object") {
+            if (args[i].type === "fn") {
                 str += stringifyEvalHelper(args[i]);
             } else {
-                str += args[i];
+                str += args[i].value;
             }
         }
         if (func.fnName) {

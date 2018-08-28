@@ -7,8 +7,8 @@ var SqlVisitor = require('./SqlVisitor.js').SqlVisitor;
 // For XEval
 var XEvalBaseLexer = require('./base/XEvalBaseLexer.js').XEvalBaseLexer;
 var XEvalBaseParser = require('./base/XEvalBaseParser.js').XEvalBaseParser;
-// Create the visitor file here if you want to have your own, e.g.:
 var XEvalVisitor = require('./XEvalVisitor.js').XEvalVisitor;
+var XcErrorListener = require('./XcErrorListener').XcErrorListener;
 
 class SqlParser {
     static getMultipleQueriesViaParser(sqlStatement) {
@@ -30,14 +30,23 @@ exports.SqlParser = SqlParser;
 
 class XEvalParser {
     static parseEvalStr(evalStr) {
+        if (typeof evalStr !== "string" || evalStr.length === 0) {
+            return {error: "Eval string not provided"};
+        }
+        var errorListener = new XcErrorListener();
         var chars = new antlr4.InputStream(evalStr);
         var lexer = new XEvalBaseLexer(chars);
         var tokens  = new antlr4.CommonTokenStream(lexer);
         var parser = new XEvalBaseParser(tokens);
+        parser.addErrorListener(errorListener);
         parser.buildParseTrees = true;
-        var tree = parser.expr();
-        var visitor = new XEvalVisitor();
-        return visitor.parseEvalStr(tree);
+        try {
+            var tree = parser.expr();
+            var visitor = new XEvalVisitor();
+            return visitor.parseEvalStr(tree);
+        } catch (e) {
+            return e;
+        }
     }
 }
 exports.XEvalParser = XEvalParser;

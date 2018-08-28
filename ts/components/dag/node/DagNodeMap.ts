@@ -54,8 +54,8 @@ class DagNodeMap extends DagNode {
     }
 
     private _getOpType(evalStr: string): ColumnType {
-        // XXX TODO, use g4 to parse it
-        const operator: string = evalStr.substring(0, evalStr.indexOf("("));
+        const func = XDParser.XEvalParser.parseEvalStr(evalStr);
+        const operator: string = func.fnName;
         let colType: ColumnType = null;
         const opsMap = XDFManager.Instance.getOperatorsMap();
         for (let category in opsMap) {

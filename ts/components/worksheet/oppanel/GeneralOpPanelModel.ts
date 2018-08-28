@@ -288,8 +288,121 @@ class GeneralOpPanelModel {
 
                 arg.setError(error);
             }
+        } else if (arg.getType() === "function") {
+            const error = this.validateEval(trimmedVal, arg.getTypeid(),
+                                            this.tableColumns);
+            if (error) {
+                arg.setError(error);
+            }
         }
     }
+
+    protected validateEval(val, typeid, columns) {
+        const self = this;
+        const func = XDParser.XEvalParser.parseEvalStr(val);
+        const errorObj = {error: null};
+        validateEvalHelper(func, typeid, errorObj);
+        return errorObj.error;
+
+        function validateEvalHelper(func, typeid: number, errorObj) {
+
+            const opInfo = validateFnName(func.fnName, typeid, errorObj);
+
+            for (let i = 0; i < func.args.length; i++) {
+                if (errorObj.error) {
+                    return errorObj;
+                }
+                if (func.args[i].type === "fn") {
+                    validateEvalHelper(func.args[i], opInfo.argDescs[i].typesAccepted,
+                                        errorObj);
+                } else {
+                    if (!opInfo.argDescs[i]) {
+                        // XXX handle variable arguments
+                        break;
+                    }
+                    const typeCheck = checkInvalidTypes(func.args[i].type,
+                                            opInfo.argDescs[i].typesAccepted,
+                                        func.args[i].value);
+                    if (typeCheck) {
+                        errorObj.error = typeCheck;
+                    }
+                }
+            }
+        }
+
+        function validateFnName(operator, typeid, errorObj) {
+            const opsMap = XDFManager.Instance.getOperatorsMap();
+            let outputType: ColumnType = null;
+            let operatorInfo = null;
+            for (let category in opsMap) {
+                const ops = opsMap[category];
+                ops.forEach((opInfo) => {
+                    if (opInfo.fnName === operator) {
+                        operatorInfo = opInfo;
+                        outputType = xcHelper.getDFFieldTypeToString(opInfo.outputType);
+                        return false; // stop second-level loop
+                    }
+                });
+
+                if (outputType != null) {
+                    break; // stop first-level loop
+                }
+            }
+            if (outputType == null) {
+                errorObj.error = "Function not found";
+            } else {
+                const typeCheck = checkInvalidTypes(outputType, typeid);
+                if (typeCheck) {
+                    errorObj.error = typeCheck;
+                }
+            }
+            return operatorInfo;
+        }
+
+        function checkInvalidTypes(outputType, typeid, value?) {
+            const types: string[] = self._parseType(typeid);
+            if (outputType.endsWith("Literal")) {
+                outputType = outputType.slice(0, outputType.lastIndexOf("Literal"));
+            }
+            if (outputType === "decimal") {
+                outputType = ColumnType.float;
+            }
+            if (outputType === "columnArg") {
+                outputType = getColumnType(value);
+            }
+            if (outputType == null) {
+                return false; // XXX column was not found, we just pass for now
+            } else if (outputType === ColumnType.number && (types.indexOf(ColumnType.float) > -1 ||
+                types.indexOf(ColumnType.integer) > -1)) {
+                return false;
+            } else if (types.indexOf(outputType) > -1) {
+                return false;
+            } else {
+                return xcHelper.replaceMsg(ErrWRepTStr.InvalidOpsType, {
+                    "type1": types.join("/"),
+                    "type2": outputType
+                });
+            }
+        }
+
+        function getColumnType(colName) {
+            let colType = null;
+            const progCol: ProgCol = columns.find((progCol) => {
+                return progCol.getBackColName() === colName;
+            });
+            if (progCol != null) { // if cannot find column, pass
+                let colType: string = progCol.getType();
+                if (colType === ColumnType.integer && !progCol.isKnownType()) {
+                    // for fat potiner, we cannot tell float or integer
+                    // so for integer, we mark it
+                    colType = ColumnType.number;
+                }
+            }
+            return colType;
+        }
+    }
+
+
 
      // checks to see if value has at least one parentheses that's not escaped
     // or inside quotes

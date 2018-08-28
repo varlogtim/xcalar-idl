@@ -205,10 +205,21 @@ interface LocalStorage {
 }
 
 interface JQueryEventObject {
-     keyTriggered: boolean;
- }
+    keyTriggered: boolean;
+}
 
- declare class d3 {
+interface ParsedEval {
+    fnName: string,
+    args: ParsedEvalArg[] | ParsedEval[],
+    type: string
+}
+
+interface ParsedEvalArg {
+    value: string,
+    type: string
+}
+
+declare class d3 {
     public select(selector: string): d3;
     public selectAll(selector: string): d3;
     public data(callback: Function);
@@ -1227,6 +1238,10 @@ declare class XcLog {
     public options: XcLogOptions;
     public cli: string;
 }
+declare class XEvalParser {
+    public parseEvalStr(evlStr: string): ParsedEval;
+}
+
 /* ============== NAMESPACE ====================== */
 declare namespace UserSettings {
     export function getPref(prop: string): any;
@@ -1780,4 +1795,9 @@ declare namespace Msal {
     export class Logger{
         public constructor(callback: Function, options: object);
     }
+}
+
+declare namespace XDParser {
+    export var SQLParser: any;
+    export var XEvalParser: XEvalParser;
 }
