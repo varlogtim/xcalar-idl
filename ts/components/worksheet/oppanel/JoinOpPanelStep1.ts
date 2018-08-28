@@ -220,7 +220,11 @@ class JoinOpPanelStep1 {
                 left: leftColsToShow,
                 right: rightColsToShow
             } = this._getColumnsToShow(i);
-                // left column dropdown
+            const {
+                left: leftTableName,
+                right: rightTableName
+            } = this._modelRef.getPreviewTableNames();
+            // left column dropdown
             const leftCols = isLeftDetached ? [] : leftColsToShow;
             this._createColumnDropdown({
                 container: $clauseSection,
@@ -229,6 +233,11 @@ class JoinOpPanelStep1 {
                 colSelected: leftName,
                 pairIndex: i,
                 isLeft: true,
+                smartSuggestParam: {
+                    srcColumnName: rightName,
+                    srcTableName: rightTableName,
+                    suggestTableName: leftTableName
+                }
             });
             // right column dropdown
             const rightCols = isRightDetached ? [] : rightColsToShow;
@@ -239,6 +248,11 @@ class JoinOpPanelStep1 {
                 colSelected: rightName,
                 pairIndex: i,
                 isLeft: false,
+                smartSuggestParam: {
+                    srcColumnName: leftName,
+                    srcTableName: leftTableName,
+                    suggestTableName: rightTableName
+                }
             });
             nodeList.push($clauseSection[0]);
         }
@@ -312,14 +326,21 @@ class JoinOpPanelStep1 {
     }
 
     private _createColumnDropdown(props: {
-        container: JQuery;
-        dropdownId: string;
-        colNames: string[];
-        colSelected: string;
-        pairIndex: number;
-        isLeft: boolean;
+        container: JQuery,
+        dropdownId: string,
+        colNames: string[],
+        colSelected: string,
+        pairIndex: number,
+        isLeft: boolean,
+        smartSuggestParam: {
+            srcColumnName: string, srcTableName: string, suggestTableName: string
+        }
     }): OpPanelDropdown {
-        const { container, dropdownId, colNames, colSelected, pairIndex, isLeft } = props;
+        const {
+            container, dropdownId, colNames, colSelected,
+            pairIndex, isLeft, smartSuggestParam
+        } = props;
+        const { srcColumnName, srcTableName, suggestTableName } = smartSuggestParam;
         const $elemDropdown = BaseOpPanel.findXCElement(container, dropdownId);
         const menuItems: OpPanelDropdownMenuItem[] = colNames.map((colName) => {
             const menuItem: OpPanelDropdownMenuItem = {
@@ -329,6 +350,16 @@ class JoinOpPanelStep1 {
             };
             return menuItem;
         });
+        if ( srcColumnName != null && srcColumnName.length > 0
+            && srcTableName != null && srcTableName.length > 0
+            && suggestTableName != null && suggestTableName.length > 0
+            && this._isTalbeExist(srcTableName) && this._isTalbeExist(suggestTableName)
+        ) {
+            menuItems.unshift({
+                text: 'Smart Suggest',
+                value: { pairIndex: pairIndex, isSmartSugg: true },
+            });
+        }
         const componentDropdown = new OpPanelDropdown({
             container: $elemDropdown,
             inputXcId: 'menuInput',
@@ -338,9 +369,24 @@ class JoinOpPanelStep1 {
         componentDropdown.updateUI({
             menuItems: menuItems,
             defaultText: colSelected,
-            onSelectCallback: ({ pairIndex, colName }) => {
-                this._modifyColumnPair(isLeft, pairIndex, colName);
-                this._onDataChange();
+            onSelectCallback: ({ pairIndex, colName, isSmartSugg }) => {
+                if (isSmartSugg) {
+                    const suggestInput = this._getSmartSuggestInput({
+                        srcColumnName: srcColumnName,
+                        srcTableName: srcTableName,
+                        suggestTableName: suggestTableName,
+                        candidateColumnNames: colNames
+                    });
+                    if (suggestInput != null) {
+                        const suggestion = xcSuggest.suggestJoinKey(suggestInput);
+                        if (suggestion != null && suggestion.colToSugg != null) {
+                            this._modifyColumnPair(isLeft, pairIndex, suggestion.colToSugg);
+                        }
+                    }
+                } else {
+                    this._modifyColumnPair(isLeft, pairIndex, colName);
+                }
+                this._updateUI();
             }
         });
         return componentDropdown;
@@ -349,6 +395,64 @@ class JoinOpPanelStep1 {
     private _isEnableAddClause(): boolean {
         return this._modelRef.getColumnMetaLeft().length > 0
             && this._modelRef.getColumnMetaRight().length > 0;
+    }
+
+    private _isTalbeExist(tableName: string) {
+        return gTables[xcHelper.getTableId(tableName)] != null;
+    }
+
+    private _getSmartSuggestInput(props: {
+        srcColumnName: string,
+        srcTableName: string,
+        suggestTableName: string,
+        candidateColumnNames: string[]
+    }): xcSuggest.ColInput {
+        try {
+            const {
+                srcColumnName, srcTableName, suggestTableName, candidateColumnNames
+            } = props;
+            const candidateMap = {};
+            for (const name of candidateColumnNames) {
+                candidateMap[name] = true;
+            }
+            // Source info
+            const srcTable = getTable(srcTableName);
+            const srcInfo = getColumnInfo(srcTable, srcColumnName);
+            // Suggest(Dest) Info
+            const destInfo = [];
+            const suggTable = getTable(suggestTableName);
+            for (const col of suggTable.getAllCols()) {
+                const colName = col.getBackColName();
+                if (!col.isDATACol() && candidateMap[colName] != null) {
+                    destInfo.push(getColumnInfo(suggTable, col.getBackColName()));
+                }
+            }
+            
+            return {
+                srcColInfo: srcInfo,
+                destColsInfo: destInfo
+            };
+        } catch {
+            return null;
+        }
+
+        function getTable(tableName) {
+            return gTables[xcHelper.getTableId(tableName)];
+        }
+
+        function getColumnInfo(table, columnName): xcSuggest.ColInfo {
+            const colInfo = table.getColByBackName(columnName);
+            const colId = table.getColNumByBackName(columnName);
+            const colData = table.getColContents(colId);
+            return {
+                type: colInfo.getType(),
+                length: colData.length,
+                name: colInfo.getFrontColName(),
+                data: colData,
+                uniqueIdentifier: columnName,
+                tableId: table.getId()
+            };
+        }
     }
 
     // Data model manipulation === start

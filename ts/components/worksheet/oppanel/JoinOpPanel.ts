@@ -208,7 +208,13 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
             left: leftCols,
             right: rightCols
         } = JoinOpPanelModel.getColumnsFromDag(this._dagNode);
-        return JoinOpPanelModel.fromDagInput(leftCols, rightCols, dagInput);
+        const {
+            left: leftTableName,
+            right: rightTableName
+        } = JoinOpPanelModel.getPreviewTableNamesFromDag(this._dagNode);
+        return JoinOpPanelModel.fromDagInput(
+            leftCols, rightCols, dagInput, leftTableName, rightTableName
+        );
     }
 
     /**

@@ -20,11 +20,20 @@ class JoinOpPanelModel {
         right: JoinOpRenameInfo[]
     } = { left: [], right: [] };
     private _evalString = '';
+    private _previewTableNames: {
+        left: string, right: string
+    } = { left: null, right: null };
 
     public static fromDag(dagNode: DagNodeJoin): JoinOpPanelModel {
         try {
-            const {left, right} = this.getColumnsFromDag(dagNode);
-            return this.fromDagInput(left, right, dagNode.getParam());
+            const {left: leftCols, right: rightCols} = this.getColumnsFromDag(dagNode);
+            const {
+                left: leftTableName, right: rightTableName
+            } = this.getPreviewTableNamesFromDag(dagNode);
+            return this.fromDagInput(
+                leftCols,rightCols, dagNode.getParam(),
+                leftTableName, rightTableName
+            );
         } catch(e) {
             console.error(e);
             return new JoinOpPanelModel();
@@ -41,6 +50,16 @@ class JoinOpPanelModel {
         };
     }
 
+    public static getPreviewTableNamesFromDag(
+        dagNode: DagNodeJoin
+    ): { left: string, right: string } {
+        const [leftParent, rightParent] = dagNode.getParents();
+        return {
+            left: this._getPreviewTableNameFromDagNode(leftParent),
+            right: this._getPreviewTableNameFromDagNode(rightParent)
+        };
+    }
+
     /**
      * Create JoinOpPanelModel instance from DagNode configuration and column meta
      * @param leftColList Could be null/empty
@@ -51,7 +70,9 @@ class JoinOpPanelModel {
     public static fromDagInput(
         leftColList: ProgCol[],
         rightColList: ProgCol[],
-        config: DagNodeJoinInput
+        config: DagNodeJoinInput,
+        leftPreviewTableName: string,
+        rightPreviewTableName: string
     ) {
         const model = new JoinOpPanelModel();
         if (config == null) {
@@ -154,6 +175,8 @@ class JoinOpPanelModel {
             prefixDestRight: renamePrefixMapRight
         });
 
+        model._previewTableNames.left = leftPreviewTableName;
+        model._previewTableNames.right = rightPreviewTableName;
         return model;
     }
 
@@ -343,6 +366,13 @@ class JoinOpPanelModel {
             && evalStr.indexOf(")") > 0;
     }
 
+    public getPreviewTableNames() {
+        return {
+            left: this._previewTableNames.left,
+            right: this._previewTableNames.right
+        };
+    }
+
     public getCurrentStep() {
         return this._currentStep;
     }
@@ -527,6 +557,14 @@ class JoinOpPanelModel {
             return colList;
         } catch(e) {
             return colList;
+        }
+    }
+
+    private static _getPreviewTableNameFromDagNode(dagNode: DagNode) {
+        try {
+            return dagNode.getTable();
+        } catch {
+            return null;
         }
     }
 
