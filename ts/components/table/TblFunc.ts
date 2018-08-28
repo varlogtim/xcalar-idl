@@ -1,4 +1,4 @@
-window.TblFunc = (function(TblFunc, $) {
+class TblFunc {
     /* Possible Options:
         includeHeader: boolean, default is false. If set, column head will be
                         included when determining column width
@@ -15,35 +15,60 @@ window.TblFunc = (function(TblFunc, $) {
         multipleCols: boolean, default is false. Set to true if this is one of many cols
         being resized so we don't call matchHeaders() multiple times
     */
-    TblFunc.autosizeCol = function($th, options) {
-        options = options || {};
-        var colNum = $th.index();
-        var $table = $th.closest(".dataTable");
-        var table = null;
 
-        var includeHeader = options.includeHeader || false;
-        var fitAll = options.fitAll || false;
-        var minWidth = options.minWidth || (gRescol.cellMinWidth - 5);
-        var maxWidth = options.maxWidth || 700;
-        var datastore = options.datastore || false;
+   /**
+    * TblFunc.autosizeCol 
+    * @param $th th element to resize
+    * @param options option for resizing
+    * includeHeader: If set, column head will be included when determining column width.
+    * fitAll: If set, both column head and cell widths will be included in determining column width.
+    * minWidth: Minimum width a column can be.
+    * maxWidth: Maximum width a column can be.
+    * unlimitedWidth: Set to true if you don't want to limit the width of a column.
+    * dataStore: Set to true if measuring columns located in the datastore panel.
+    * dblClick: Set to true when resizing using a double click.
+    * multipleCols: Set to true if this is one of many cols being resized so we
+    *               don't call matchHeaders() multiple times.
+    */
+    public static autosizeCol(
+        $th: JQuery,
+        options: {
+            includeHeader: boolean,
+            fitAll: boolean,
+            minWidth: number,
+            maxWidth: number,
+            datastore: boolean
+            dblClick: boolean,
+            unlimitedWidth: boolean
+            multipleCols: boolean
+        }
+    ): number {
+        const colNum: number = $th.index();
+        const $table: JQuery = $th.closest(".dataTable");
 
+        const includeHeader: boolean = options.includeHeader || false;
+        const fitAll: boolean = options.fitAll || false;
+        const minWidth: number = options.minWidth || (gRescol.cellMinWidth - 5);
+        const maxWidth: number = options.maxWidth || 700;
+        const datastore: boolean = options.datastore || false;
+
+        let table: TableMeta = null;
         if (!datastore) {
-            var tableId = xcHelper.parseTableId($table);
+            const tableId: TableId = xcHelper.parseTableId($table);
             table = gTables[tableId];
         }
 
-        var widestTdWidth = TblFunc.getWidestTdWidth($th, {
+        const widestTdWidth: number = TblFunc.getWidestTdWidth($th, {
             "includeHeader": includeHeader,
             "fitAll": fitAll,
             "datastore": datastore
         });
-        var newWidth = Math.max(widestTdWidth, minWidth);
+        let newWidth: number = Math.max(widestTdWidth, minWidth);
         // dblClick is autoSized to a fixed width
         if (!options.dblClick) {
-            var originalWidth = minWidth;
-
+            let originalWidth: number = minWidth;
             if (table != null) {
-                originalWidth = table.tableCols[colNum - 1].width;
+                originalWidth = <number>table.getCol(colNum).width;
             }
 
             newWidth = Math.max(newWidth, originalWidth);
@@ -63,35 +88,33 @@ window.TblFunc = (function(TblFunc, $) {
             TblFunc.matchHeaderSizes($table);
         }
         return newWidth;
-    };
+    }
 
-    /*
-     * options:
-     *  includeHeader,
-     *  fitAll,
-     *  datastore: if it's datastore table
+    /**
+     * TblFunc.getWidestTdWidth
+     * @param $el a data cell element
+     * @param options
      */
-    TblFunc.getWidestTdWidth = function($el, options) {
-        options = options || {};
-
-        var includeHeader = options.includeHeader || false;
-        var fitAll = options.fitAll || false;
-        var colNum = $el.index();
-        var $table = $el.closest('.dataTable');
-        var largestWidth = 0;
-        var longestText = 0;
-        var textLength;
-        var padding = 10;
-        var $largestTd = $table.find('tbody tr:first td:eq(' + colNum + ')');
-        var headerWidth = 0;
-        var prefixWidth = 0;
+    public static getWidestTdWidth(
+        $el: JQuery,
+        options: {
+            includeHeader: boolean,
+            fitAll: boolean,
+            datastore: boolean
+        }
+    ) {
+        const includeHeader: boolean = options.includeHeader || false;
+        const fitAll: boolean = options.fitAll || false;
+        const colNum: number = $el.index();
+        const $table: JQuery = $el.closest('.dataTable');
+        let headerWidth: number = 0;
 
         if (fitAll || includeHeader) {
-            var extraPadding = 48;
+            let extraPadding: number = 48;
             if (options.datastore) {
                 extraPadding += 4;
             }
-            var $th;
+            let $th: JQuery;
             if ($table.find('.col' + colNum + ' .dataCol').length === 1) {
                 $th = $table.find('.col' + colNum + ' .dataCol');
             } else {
@@ -105,20 +128,23 @@ window.TblFunc = (function(TblFunc, $) {
             headerWidth = xcHelper.getTextWidth($th) + extraPadding;
             // include prefix width
             if ($th.closest('.xcTable').length) {
-                var prefixText = $th.closest('.header').find('.prefix').text();
-                prefixWidth = xcHelper.getTextWidth(null, prefixText);
+                const prefixText: string = $th.closest('.header').find('.prefix').text();
+                const prefixWidth: number = xcHelper.getTextWidth(null, prefixText);
                 headerWidth = Math.max(headerWidth, prefixWidth);
             }
 
             if (!fitAll) {
-                return (headerWidth);
+                return headerWidth;
             }
         }
 
         // we're going to take advantage of monospaced font
         //and assume text length has an exact correlation to text width
+        let $largestTd: JQuery = $table.find('tbody tr:first td:eq(' + colNum + ')');
+        let longestText: number = 0;
         $table.find('tbody tr').each(function() {
-            var $td = $(this).children(':eq(' + colNum + ')');
+            const $td: JQuery = $(this).children(':eq(' + colNum + ')');
+            let textLength: number;
             if (options.datastore) {
                 textLength = $.trim($td.text()).length;
             } else {
@@ -130,34 +156,40 @@ window.TblFunc = (function(TblFunc, $) {
             }
         });
 
-        largestWidth = xcHelper.getTextWidth($largestTd) + padding;
-
+        const padding: number = 10;
+        let largestWidth: number = xcHelper.getTextWidth($largestTd) + padding;
         if (fitAll) {
             largestWidth = Math.max(headerWidth, largestWidth);
         }
 
-        return (largestWidth);
-    };
+        return largestWidth;
+    }
 
-    TblFunc.matchHeaderSizes = function($table) {
+    /**
+     * TblFunc.matchHeaderSizes
+     * @param $table table element
+     */
+    public static matchHeaderSizes($table: JQuery): void {
         // concurrent build table may make some $table be []
         if ($table.length === 0) {
             return;
         }
 
-        var tableWidth = $table.width();
-
+        const tableWidth: number = $table.width();
         TblFunc.moveTableDropdownBoxes();
-        TblFunc.moveTableTitles();
+        TblFunc.moveTableTitles(null);
         // for scrollbar
-        TblFunc.moveFirstColumn();
+        TblFunc.moveFirstColumn(null);
         $table.find('.rowGrab').width(tableWidth);
         $table.siblings('.rowGrab').width(tableWidth);
-    };
+    }
 
-    TblFunc.moveTableDropdownBoxes = function() {
-        var $startingTableHead;
-        var mainFrameOffsetLeft = MainMenu.getOffset();
+    /**
+     * TblFunc.moveTableDropdownBoxes
+     */
+    public static moveTableDropdownBoxes(): void {
+        let $startingTableHead: JQuery;
+        const mainFrameOffsetLeft: number = MainMenu.getOffset();
 
         $('.xcTableWrap:not(".inActive")').each(function() {
             if ($(this)[0].getBoundingClientRect().right > mainFrameOffsetLeft) {
@@ -166,23 +198,22 @@ window.TblFunc = (function(TblFunc, $) {
             }
         });
 
-        var tablesAreVisible;
+        let tablesAreVisible: boolean;
         if ($startingTableHead && $startingTableHead.length > 0) {
             tablesAreVisible = true;
         } else {
             tablesAreVisible = false;
         }
 
-        var windowWidth = $(window).width();
-
+        const windowWidth: number = $(window).width();
         while (tablesAreVisible) {
-            var rect = $startingTableHead[0].getBoundingClientRect();
-            var tableLeft = rect.left;
-            var tableRight = rect.right;
-            var iconPosition;
+            const rect: ClientRect = $startingTableHead[0].getBoundingClientRect();
+            const tableLeft: number = rect.left;
+            const tableRight: number = rect.right;
+            let iconPosition: number;
 
             if (tableRight > windowWidth) { // right side of table is offscreen to the right
-                var position = tableRight - windowWidth + 3;
+                const position: number = tableRight - windowWidth + 3;
                 $startingTableHead.find('.dropdownBox')
                                     .css('right', position + 'px');
                 iconPosition = mainFrameOffsetLeft - tableLeft;
@@ -206,30 +237,41 @@ window.TblFunc = (function(TblFunc, $) {
                 }
             }
         }
-    };
+    }
 
-    // options used to animate table titles when main menu opening or closing
-    TblFunc.moveTableTitles = function($tableWraps, options) {
+    /**
+     * TblFunc.moveTableTitles
+     * @param $tableWraps 
+     * @param options used to animate table titles when main menu opening or closing
+     */
+    public static moveTableTitles(
+        $tableWraps: JQuery,
+        options: {
+            offset: number,
+            menuAnimating: boolean
+            animSpeed?: number
+        } = {
+            offset: 0,
+            menuAnimating: false
+        }
+    ): void {
         if (isBrowserMicrosoft || isBrowserSafari) {
             return;
         }
-        options = options || {};
-        var modifiedOffset = options.offset || 0;
-        var menuAnimating = options.menuAnimating;
-        var animSpeed = options.animSpeed;
+        const modifiedOffset: number = options.offset || 0;
+        const menuAnimating: boolean = options.menuAnimating || false;
+        const animSpeed: number = options.animSpeed;
 
         $tableWraps = $tableWraps ||
                   $('.xcTableWrap:not(.inActive):not(.tableHidden):not(.hollowed)');
 
-        var mainFrameWidth = $('#mainFrame').width() - modifiedOffset;
-        var mainFrameOffsetLeft = MainMenu.getOffset();
-
-
-        var viewWidth = mainFrameWidth + mainFrameOffsetLeft;
+        const mainFrameWidth: number = $('#mainFrame').width() - modifiedOffset;
+        const mainFrameOffsetLeft: number = MainMenu.getOffset();
+        const viewWidth: number = mainFrameWidth + mainFrameOffsetLeft;
 
         $tableWraps.each(function() {
-            var $table = $(this);
-            var $thead = $table.find('.xcTheadWrap');
+            const $table: JQuery = $(this);
+            const $thead: JQuery = $table.find('.xcTheadWrap');
             if ($thead.length === 0) {
                 return null;
             }
@@ -237,17 +279,17 @@ window.TblFunc = (function(TblFunc, $) {
                 return null;
             }
 
-            var rect = $thead[0].getBoundingClientRect();
-            var rectRight = rect.right + modifiedOffset;
-            var rectLeft = rect.left + modifiedOffset;
+            const rect: ClientRect = $thead[0].getBoundingClientRect();
+            const rectRight: number = rect.right + modifiedOffset;
+            const rectLeft: number = rect.left + modifiedOffset;
             // if right side of table is to the right of left edge of screen
             if (rectRight > mainFrameOffsetLeft) {
                 // if left side of table isn't offscreen to the right
                 if (rectLeft < viewWidth) {
-                    var $tableTitle = $table.find('.tableTitle .text');
-                    var titleWidth = $tableTitle.outerWidth();
-                    var tableWidth = $thead.width();
-                    var center;
+                    const $tableTitle: JQuery = $table.find('.tableTitle .text');
+                    const titleWidth: number = $tableTitle.outerWidth();
+                    const tableWidth: number = $thead.width();
+                    let center: number;
                     if (rectLeft < mainFrameOffsetLeft) {
                         // left side of table is offscreen to the left
                         if (rectRight > viewWidth) { // table spans the whole screen
@@ -289,44 +331,52 @@ window.TblFunc = (function(TblFunc, $) {
                     $table.find('.lockedTableIcon')
                           .css('left', center + titleWidth / 2 + 5);
                 } else {
-                    return false;
+                    return false; // stop loop
                 }
             }
         });
-    };
+    }
 
-    TblFunc.moveTableTitlesAnimated = function(tableId, oldWidth, widthChange, speed) {
+    /**
+     * TblFunc.moveTableTitlesAnimated
+     * @param tableId
+     * @param oldWidth
+     * @param widthChange
+     * @param speed
+     */
+    public static moveTableTitlesAnimated(
+        tableId: TableId,
+        oldWidth: number,
+        widthChange: number,
+        speed: number = 250
+    ): void {
         if (isBrowserMicrosoft || isBrowserSafari) {
             return;
         }
-        if (speed == null) { // lets speed 0 be 0
-            speed = 250;
-        }
 
-        var $table = $('#xcTableWrap-' + tableId);
-        var $thead = $table.find('.xcTheadWrap');
+        const $table: JQuery = $('#xcTableWrap-' + tableId);
+        const $thead: JQuery = $table.find('.xcTheadWrap');
         if ($thead.length <= 0) {
             return;
         }
-        var rect = $thead[0].getBoundingClientRect();
-        var right = rect.right - widthChange;
-        var mainFrameWidth = $('#mainFrame').width();
-        var mainFrameOffsetLeft = MainMenu.getOffset();
-
-        var viewWidth = $('#mainFrame').width() + mainFrameOffsetLeft;
+        const rect: ClientRect = $thead[0].getBoundingClientRect();
+        const right: number = rect.right - widthChange;
+        const mainFrameWidth: number = $('#mainFrame').width();
+        const mainFrameOffsetLeft: number = MainMenu.getOffset();
+        const viewWidth: number = $('#mainFrame').width() + mainFrameOffsetLeft;
 
         if (right > mainFrameOffsetLeft && rect.left < viewWidth) {
-            var $tableTitle = $table.find('.tableTitle .text');
-            var $input = $tableTitle.find('input');
-            var inputTextWidth = xcHelper.getTextWidth($input, $input.val()) + 1;
-            var titleWidth = $tableTitle.outerWidth();
-            var inputWidth = $input.width();
-            var inputWidthChange = inputTextWidth - inputWidth;
-            var expectedTitleWidth;
+            const $tableTitle: JQuery = $table.find('.tableTitle .text');
+            const $input: JQuery = $tableTitle.find('input');
+            const inputTextWidth: number = xcHelper.getTextWidth($input, $input.val()) + 1;
+            let titleWidth: number = $tableTitle.outerWidth();
+            const inputWidth: number = $input.width();
+            const inputWidthChange: number = inputTextWidth - inputWidth;
+            let expectedTitleWidth: number;
             // because the final input width is variable we need to figure out
             // how much it's going to change and what the expected title width is
             if (widthChange > 0) {
-                var extraSpace = $thead.width() - titleWidth - 2;
+                const extraSpace: number = $thead.width() - titleWidth - 2;
                 expectedTitleWidth = titleWidth -
                                      Math.max(0, (widthChange - extraSpace));
             } else {
@@ -335,8 +385,8 @@ window.TblFunc = (function(TblFunc, $) {
             }
 
             titleWidth = expectedTitleWidth;
-            var tableWidth = oldWidth - widthChange - 5;
-            var center;
+            const tableWidth: number = oldWidth - widthChange - 5;
+            let center: number;
             if (rect.left < mainFrameOffsetLeft) {
                 // left side of table is offscreen to the left
                 if (right > viewWidth) { // table spans the whole screen
@@ -362,16 +412,23 @@ window.TblFunc = (function(TblFunc, $) {
                 $thead.find(".lockIcon").removeClass("xc-hidden");
                 TblFunc.moveTableDropdownBoxes();
                 // for tableScrollBar
-                TblFunc.moveFirstColumn();
+                TblFunc.moveFirstColumn(null);
             });
         }
-    };
-
-    TblFunc.focusTable = function(tableId, focusDag) {
+    }
+    
+    /**
+     * TblFunc.focusTable
+     * @param tableId
+     * @param focusDag
+     */
+    public static focusTable(tableId: TableId, focusDag: boolean = false): void {
         if (WSManager.getWSFromTable(tableId) !== WSManager.getActiveWS()) {
-            if ((Log.isRedo() || Log.isUndo()) && Log.viewLastAction() !== "Join") {
-                var wsToFocus = WSManager.getWSFromTable(tableId);
-                var activeWS = WSManager.getActiveWS();
+            if ((Log.isRedo() || Log.isUndo()) &&
+                Log.viewLastAction() !== "Join"
+            ) {
+                const wsToFocus: string = WSManager.getWSFromTable(tableId);
+                const activeWS: string = WSManager.getActiveWS();
                 if (wsToFocus !== activeWS) {
                     $("#worksheetTab-" + wsToFocus).trigger(fakeEvent.mousedown);
                 }
@@ -385,17 +442,17 @@ window.TblFunc = (function(TblFunc, $) {
             return;
         }
 
-        var alreadyFocused = gActiveTableId === tableId;
+        const alreadyFocused: boolean = (gActiveTableId === tableId);
         if (!alreadyFocused && gActiveTableId) {
             TblManager.unHighlightCells(gActiveTableId);
             if (!$("#xcTable-" + tableId).find(".selectedCell").length) {
                 FnBar.clear();
             }
         }
-        var wsNum = WSManager.getActiveWS();
+        const wsNum: string = WSManager.getActiveWS();
         $('.xcTableWrap.worksheet-' + wsNum).find('.tableTitle')
                                             .removeClass('tblTitleSelected');
-        var $xcTheadWrap = $('#xcTheadWrap-' + tableId);
+        const $xcTheadWrap: JQuery = $('#xcTheadWrap-' + tableId);
         $xcTheadWrap.find('.tableTitle').addClass('tblTitleSelected');
         // unhighlight any selected columns from all other tables
         $('.xcTable:not(#xcTable-' + tableId + ')').find('.selectedCell')
@@ -403,59 +460,70 @@ window.TblFunc = (function(TblFunc, $) {
         gActiveTableId = tableId;
         RowScroller.update(tableId);
 
-        if (gTables[tableId].resultSetCount === 0) {
+        const table: TableMeta = gTables[tableId];
+        if (table != null && table.resultSetCount === 0) {
             $('#rowInput').val(0).data('val', 0);
         } else {
             RowScroller.genFirstVisibleRowNum();
         }
         if (focusDag) {
-            var tableFocused = true;
-            Dag.focusDagForActiveTable(null, tableFocused);
+            Dag.focusDagForActiveTable(null, true);
         } else {
             DagPanel.setScrollBarId($(window).height());
             DagPanel.adjustScrollBarPositionAndSize();
         }
         $('.dagWrap').addClass('notSelected').removeClass('selected');
         $('#dagWrap-' + tableId).addClass('selected').removeClass('notSelected');
-    };
+    }
 
-    TblFunc.isTableScrollable = function(tableId) {
-        var $firstRow = $('#xcTable-' + tableId).find('tbody tr:first');
-        var topRowNum = xcHelper.parseRowNum($firstRow);
-        var tHeadHeight = $('#xcTheadWrap-' + tableId).height();
-        var tBodyHeight = $('#xcTable-' + tableId).height();
-        var tableWrapHeight = $('#xcTableWrap-' + tableId).height();
+    /**
+     * TblFunc.isTableScrollable
+     * @param tableId
+     */
+    public static isTableScrollable(tableId: TableId): boolean {
+        const $firstRow: JQuery = $('#xcTable-' + tableId).find('tbody tr:first');
+        const topRowNum: number = xcHelper.parseRowNum($firstRow);
+        const tHeadHeight: number = $('#xcTheadWrap-' + tableId).height();
+        const tBodyHeight: number = $('#xcTable-' + tableId).height();
+        const tableWrapHeight: number = $('#xcTableWrap-' + tableId).height();
         if ((tHeadHeight + tBodyHeight) >= (tableWrapHeight)) {
-            return (true);
+            return true;
         }
+        const table: TableMeta = gTables[tableId];
         if (topRowNum === 0 &&
-            gTables[tableId].currentRowNumber === gTables[tableId].resultSetMax) {
-            return (false);
+            table != null &&
+            table.currentRowNumber === table.resultSetMax) {
+            return false;
         } else {
-            return (true);
+            return true;
         }
-    };
+    }
 
-    TblFunc.checkTableDraggable = function() {
+    /**
+     * TblFunc.checkTableDraggable
+     */
+    public static checkTableDraggable(): void {
         // disallow dragging if only 1 table in worksheet
-        var activeWS = WSManager.getActiveWS();
-        var $tables = $('#mainFrame').find('.xcTableWrap.worksheet-' +
-                                            activeWS);
+        const activeWS: string = WSManager.getActiveWS();
+        const $tables: JQuery = $('#mainFrame').find('.xcTableWrap.worksheet-' + activeWS);
         if ($tables.length === 1) {
             $tables.addClass('noDrag');
         } else {
             $tables.removeClass('noDrag');
         }
-    };
+    }
 
-    TblFunc.moveFirstColumn = function($targetTable, noScrollBar) {
-        var rightOffset;
-        var datasetPreview;
-        var mainMenuOffset;
-        var windowWidth;
-        var $rightTable;
-        var moveScrollBar = !noScrollBar;
-        var $allTables;
+    /**
+     * TblFunc.moveFirstColumn
+     * @param $targetTable
+     * @param noScrollBar
+     */
+    public static moveFirstColumn(
+        $targetTable: JQuery,
+        noScrollBar: boolean = false
+    ): void {
+        const moveScrollBar: boolean = !noScrollBar;
+        let $allTables: JQuery;
         if (DagEdit.isEditMode()) {
             $allTables = $(".xcTableWrap:visible");
         } else {
@@ -465,7 +533,13 @@ window.TblFunc = (function(TblFunc, $) {
             return;
         }
 
-        if (!$targetTable) {
+        let rightOffset: number;
+        let datasetPreview: boolean;
+        let mainMenuOffset: number;
+        let windowWidth: number;
+        let $rightTable: JQuery;
+
+        if ($targetTable == null) {
             datasetPreview = false;
             mainMenuOffset = MainMenu.getOffset();
             windowWidth = $(window).width() - 5;
@@ -482,7 +556,7 @@ window.TblFunc = (function(TblFunc, $) {
                 }
                 if (moveScrollBar && (rightOffset > windowWidth)) {
                     $rightTable = $(this);
-                    return false;
+                    return false; // stop loop
                 }
             });
 
@@ -493,12 +567,12 @@ window.TblFunc = (function(TblFunc, $) {
 
         if (!(isBrowserMicrosoft || isBrowserSafari) &&
             $targetTable && $targetTable.length > 0) {
-            var $idCol =  $targetTable.find('.idSpan');
-            var cellWidth = $idCol.outerWidth();
-            var scrollLeft;
+            const $idCol: JQuery = $targetTable.find('.idSpan');
+            const cellWidth: number = $idCol.outerWidth();
+            let scrollLeft: number;
 
             if (datasetPreview) {
-                var $container = $targetTable.closest("#dsTableContainer").length
+                const $container: JQuery = $targetTable.closest("#dsTableContainer").length
                                 ? $('#dsTableContainer') : $targetTable.closest(".datasetTableWrap");
                 scrollLeft = -($targetTable.offset().left -
                                 $container.offset().left);
@@ -506,8 +580,7 @@ window.TblFunc = (function(TblFunc, $) {
                 scrollLeft = mainMenuOffset - $targetTable.offset().left;
             }
 
-            var rightDiff = rightOffset - (cellWidth + 5);
-
+            const rightDiff: number = rightOffset - (cellWidth + 5);
             if (rightDiff < mainMenuOffset) {
                 scrollLeft += rightDiff - mainMenuOffset;
             }
@@ -517,7 +590,7 @@ window.TblFunc = (function(TblFunc, $) {
             $idCol.css('left', scrollLeft);
             $targetTable.find('th.rowNumHead > div').css('left', scrollLeft);
             if (!datasetPreview) {
-                var adjustNext = true;
+                let adjustNext: boolean = true;
                 while (adjustNext) {
                     $targetTable = $targetTable.next();
                     if ($targetTable.length === 0) {
@@ -547,7 +620,7 @@ window.TblFunc = (function(TblFunc, $) {
             var right = Math.max(5, rightOffset - windowWidth);
             $rightTable.find(".tableScrollBar").css("right", right);
 
-            adjustNext = true;
+            let adjustNext: boolean = true;
             while (adjustNext) {
                 $rightTable = $rightTable.prev();
                 if ($rightTable.length === 0) {
@@ -561,23 +634,34 @@ window.TblFunc = (function(TblFunc, $) {
                 $rightTable.find(".tableScrollBar").css("right", 5);
             }
         }
+    }
 
-    };
-
-    //options:
-    // moveHtml: boolean, if true we replace html (for undo/redo or
-    // through table menu)
-    TblFunc.reorderAfterTableDrop = function(tableId, srcIndex, desIndex, options) {
+    /**
+     * TblFunc.reorderAfterTableDrop
+     * @param tableId
+     * @param srcIndex
+     * @param desIndex
+     * @param options - moveHtml: boolean, if true we replace html
+     *                  (for undo/redo or through table menu)
+     */
+    public static reorderAfterTableDrop(
+        tableId: TableId,
+        srcIndex: number,
+        desIndex: number,
+        options: {
+            moveHtml: boolean
+        } = {
+            moveHtml: false
+        }
+    ): void {
         WSManager.reorderTable(tableId, srcIndex, desIndex);
-        options = options || {};
-        var moveHtml = options.moveHtml;
+        const moveHtml: boolean = options.moveHtml || false;
+        const newIndex: number = WSManager.getTablePosition(tableId);
 
-        var newIndex = WSManager.getTablePosition(tableId);
-
-        var $dagWrap = $('#dagWrap-' + tableId);
-        var $dagWraps = $('.dagWrap:not(.tableToRemove)');
-        var $tableWrap;
-        var $tableWraps;
+        const $dagWrap: JQuery = $('#dagWrap-' + tableId);
+        const $dagWraps: JQuery = $('.dagWrap:not(.tableToRemove)');
+        let $tableWrap: JQuery;
+        let $tableWraps: JQuery;
         if (moveHtml) {
             $tableWraps = $('.xcTableWrap:not(.tableToRemove)');
             $tableWrap = $('#xcTableWrap-' + tableId);
@@ -603,7 +687,7 @@ window.TblFunc = (function(TblFunc, $) {
         TableList.reorderTable(tableId);
 
         if (moveHtml) {
-            xcHelper.centerFocusedTable(tableId);
+            xcHelper.centerFocusedTable(tableId, false);
             TblManager.alignTableEls($tableWrap);
         }
 
@@ -614,69 +698,80 @@ window.TblFunc = (function(TblFunc, $) {
             "srcIndex": srcIndex,
             "desIndex": desIndex
         });
-    };
+    }
 
-    // For performance, during animations, we set display none on tables
-    // that are not currently in the viewport but are active.
-    // Tables will maintain their widths;
-    TblFunc.hideOffScreenTables = function(options) {
-        options = options || {};
-        var leftLimit = -options.marginLeft || 0;
-        var marginRight = options.marginRight || 0;
-        var $tableWraps = $('.xcTableWrap:not(.inActive)');
-        var mainFrameRect = $('#mainFrame')[0].getBoundingClientRect();
-        var viewWidth =  mainFrameRect.right + marginRight;
+    /**
+     * TblFunc.hideOffScreenTables
+     * For performance, during animations, we set display none on tables
+     * that are not currently in the viewport but are active.
+     * ables will maintain their widths;
+     * @param options 
+     */
+    public static hideOffScreenTables(
+        options: {
+            marginLeft?: number,
+            marginRight?: number
+        } = {}
+    ): void {
+        let leftLimit: number = -options.marginLeft || 0;
+        const marginRight: number = options.marginRight || 0;
+        const $tableWraps: JQuery = $('.xcTableWrap:not(.inActive)');
+        const mainFrameRect: ClientRect = $('#mainFrame')[0].getBoundingClientRect();
+        const viewWidth: number =  mainFrameRect.right + marginRight;
         leftLimit += mainFrameRect.left;
 
         $tableWraps.each(function() {
-            var $table = $(this);
-            var $thead = $table.find('.xcTheadWrap');
+            const $table: JQuery = $(this);
+            const $thead: JQuery = $table.find('.xcTheadWrap');
             if (!$thead.length) {
                 return null;
             }
 
-            var rect = $thead[0].getBoundingClientRect();
+            const rect: ClientRect = $thead[0].getBoundingClientRect();
             if (rect.right > leftLimit) {
                 if (rect.left < viewWidth) {
                     $table.addClass('inViewPort');
                 } else {
-                    return false;
+                    return false; // stop loop
                 }
             }
         });
 
         $tableWraps.not('.inViewPort').each(function() {
-            var $table = $(this);
+            const $table: JQuery = $(this);
             $table.width($table.width()).addClass('hollowed');
         });
-    };
+    }
 
-    TblFunc.unhideOffScreenTables = function() {
-        var mainFrameScroll;
-        var cachedMouseStatus = gMouseStatus;
-        if (!window.isBrowserChrome) {
+    /**
+     * TblFunc.unhideOffScreenTables
+     */
+    public static unhideOffScreenTables(): void {
+        let mainFrameScroll: number;
+        const cachedMouseStatus: string = gMouseStatus;
+        if (!isBrowserChrome) {
             // to reset scrollposition in case it gets changed
             mainFrameScroll = $('#mainFrame').scrollLeft();
             gMouseStatus = "movingTable";
         }
-        var $tableWraps = $('.xcTableWrap:not(.inActive)');
+        const $tableWraps: JQuery = $('.xcTableWrap:not(.inActive)');
         $tableWraps.width('auto');
         $tableWraps.removeClass('inViewPort hollowed');
          //vertically align any locked table icons
-        var mainFrameHeight = $('#mainFrame').height();
+        const mainFrameHeight: number = $('#mainFrame').height();
         $('.tableLocked:visible').each(function() {
-            var $tableWrap = $(this);
-            var tbodyHeight = $tableWrap.find('tbody').height() + 1;
-            var tableWrapHeight = $tableWrap.find('.xcTbodyWrap').height();
-            var $lockedIcon = $tableWrap.find('.lockedTableIcon');
-            var iconHeight = $lockedIcon.height();
-            var topPos = 50 * ((tableWrapHeight - (iconHeight / 2)) /
+            const $tableWrap: JQuery = $(this);
+            const tbodyHeight: number = $tableWrap.find('tbody').height() + 1;
+            const tableWrapHeight: number = $tableWrap.find('.xcTbodyWrap').height();
+            const $lockedIcon: JQuery = $tableWrap.find('.lockedTableIcon');
+            const iconHeight: number = $lockedIcon.height();
+            let topPos: number = 50 * ((tableWrapHeight - (iconHeight / 2)) /
                                 mainFrameHeight);
             topPos = Math.min(topPos, 40);
             $lockedIcon.css('top', topPos + '%');
             $tableWrap.find('.tableCover').height(tbodyHeight);
         });
-        if (!window.isBrowserChrome) {
+        if (!isBrowserChrome) {
             // to reset scrollposition in case it gets changed
             $('#mainFrame').scrollLeft(mainFrameScroll);
             // firefox and IE will trigger a delayed scroll
@@ -684,101 +779,146 @@ window.TblFunc = (function(TblFunc, $) {
                 gMouseStatus = cachedMouseStatus;
             }, 0);
         }
-    };
+    }
 
-    TblFunc.sortColumn = function(colNums, tableId, order) {
-        var colInfo = [];
-        for (var i = 0; i < colNums.length; i++) {
-            colInfo.push({
-                colNum: colNums[i],
-                ordering: order,
-                typeToCast: null
-            });
+    /**
+     * TblFunc.scrollTable
+     * @param tableId
+     * @param scrollType
+     * @param isUp
+     */
+    public static scrollTable(
+        tableId: TableId,
+        scrollType: string,
+        isUp: boolean): boolean {
+        if (!$("#workspaceTab").hasClass("active") ||
+            !$("#worksheetButton").hasClass("active") ||
+            tableId == null)
+        {
+            return false;
         }
 
-        if (colNums.length > 1) {
-            return xcFunction.sort(tableId, colInfo);
-        }
-        var colNum = colNums[0];
-        var table = gTables[tableId];
-        var progCol = table.getCol(colNum);
-        var colName = progCol.getBackColName();
-        var keys = table.backTableMeta.keyAttr;
-        var keyNames = table.getKeyName();
-        var keyIndex = keyNames.indexOf(colName);
-        if (keyIndex === -1 ||
-            order !== XcalarOrderingTFromStr[keys[keyIndex].ordering]) {
-            for (var i = 0; i < keys.length; i++) {
-                // do not readd current column and
-                // do not include columns that are not sroted ascending or
-                // descending
-                if (keys[i].name === colName ||
-                    keys[i].name === "xcalarRecordNum" ||
-                    (keys[i].ordering !==
-                        XcalarOrderingTStr[XcalarOrderingTFromStr.Ascending] &&
-                    keys[i].ordering !==
-                        XcalarOrderingTStr[XcalarOrderingTFromStr.Descending])) {
-                    continue;
-                }
-                colInfo.push({
-                    name: keys[i].name,
-                    ordering: XcalarOrderingTFromStr[keys[i].ordering],
-                    typeToCast: null
-                });
+        const $visibleMenu: JQuery = $('.menu:visible');
+        if ($visibleMenu.length !== 0) {
+            // if the menu is only .tdMenu, allow scroll
+            if ($visibleMenu.length > 1 || !$visibleMenu.hasClass("tdMenu")) {
+                return false;
             }
         }
 
-        var type = progCol.getType();
-
-        if (type !== "string") {
-            return xcFunction.sort(tableId, colInfo);
+        if ($("#functionArea .CodeMirror").hasClass("CodeMirror-focused") ||
+            $(document.activeElement).is("input")) {
+            return false;
         }
 
-        var $tds = $("#xcTable-" + tableId).find("tbody td.col" + colNum);
-        var datas = [];
-        var val;
+        const $rowInput: JQuery = $("#rowInput");
+        const $lastTarget: JQuery = gMouseEvents.getLastMouseDownTarget();
+        const isInMainFrame: boolean = !$lastTarget.context ||
+                            ($lastTarget.closest("#mainFrame").length > 0 &&
+                            !$lastTarget.is("input"));
 
-        $tds.each(function() {
-            val = $(this).find('.originalData').text();
-            datas.push(val);
-        });
+        if (isInMainFrame && xcHelper.isTableInScreen(tableId)) {
+            if (gIsTableScrolling ||
+                $("#modalBackground").is(":visible") ||
+                !TblFunc.isTableScrollable(tableId)) {
+                // not trigger table scroll, but should return true
+                // to prevent table's natural scroll
+                return true;
+            }
 
-        var suggType = xcSuggest.suggestType(datas, type, 0.9);
-        if (suggType === "integer" || suggType === "float") {
-            var deferred = PromiseHelper.deferred();
-            var instr = xcHelper.replaceMsg(IndexTStr.SuggInstr, {
-                "type": suggType
-            });
+            const maxRow: number = gTables[tableId].resultSetCount;
+            const curRow: number = $rowInput.data("val");
+            const lastRowNum: number = RowScroller.getLastVisibleRowNum(tableId);
+            let rowToGo: number;
 
-            Alert.show({
-                "title": IndexTStr.SuggTitle,
-                "instr": instr,
-                "msg": IndexTStr.SuggMsg,
-                "onCancel": deferred.reject,
-                "buttons": [{
-                    "name": IndexTStr.NoCast,
-                    "func": function() {
-                        xcFunction.sort(tableId, colInfo)
-                        .then(deferred.resolve)
-                        .fail(deferred.reject);
+            // validation check
+            xcAssert((lastRowNum != null), "Error Case!");
+
+            if (scrollType === "homeEnd") {
+                // isUp === true for home button, false for end button
+                rowToGo = isUp ? 1 : maxRow;
+            } else {
+                let rowToSkip: number;
+                if (scrollType === "updown") {
+                    const $xcTbodyWrap: JQuery = $("#xcTbodyWrap-" + tableId);
+                    const scrollTop: number = $xcTbodyWrap.scrollTop();
+                    const $trs: JQuery = $("#xcTable-" + tableId + " tbody tr");
+                    const trHeight: number = $trs.height();
+                    let rowNum: number;
+
+                    if (!isUp) {
+                        rowNum = xcHelper.parseRowNum($trs.eq($trs.length - 1)) + 1;
+                        if (rowNum - lastRowNum > 5) {
+                            // when have more then 5 buffer on bottom
+                            $xcTbodyWrap.scrollTop(scrollTop + trHeight);
+                            return true;
+                        }
+                    } else {
+                        rowNum = xcHelper.parseRowNum($trs.eq(0)) + 1;
+                        if (curRow - rowNum > 5) {
+                            // when have more then 5 buffer on top
+                            $xcTbodyWrap.scrollTop(scrollTop - trHeight);
+                            return true;
+                        }
                     }
-                },
-                {
-                    "name": IndexTStr.CastToNum,
-                    "func": function() {
-                        colInfo[0].typeToCast = suggType;
-                        xcFunction.sort(tableId, colInfo)
-                        .then(deferred.resolve)
-                        .fail(deferred.reject);
-                    }
+
+                    rowToSkip = 1;
+                } else if (scrollType === "pageUpdown") {
+                    // this is one page's row
+                    rowToSkip = lastRowNum - curRow;
+                } else {
+                    // error case
+                    console.error("Invalid case!");
+                    return false;
                 }
-                ]
-            });
-            return deferred.promise();
-        } else {
-            return xcFunction.sort(tableId, colInfo);
-        }
-    };
 
-    return (TblFunc);
-}({}, jQuery));
+                rowToGo = isUp ? Math.max(1, curRow - rowToSkip) :
+                                Math.min(maxRow, curRow + rowToSkip);
+            }
+
+            if (isUp && curRow === 1 || !isUp && lastRowNum === maxRow) {
+                // no need for backend call
+                return true;
+            }
+
+            xcMenu.close();
+            gMouseEvents.setMouseDownTarget(null);
+            $rowInput.val(rowToGo).trigger(fakeEvent.enter);
+
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * TblFunc.keyEvent
+     * @param event
+     */
+    public static keyEvent(event: JQueryEventObject): void {
+        // only being used for ctrl+o to open column dropdown
+        if (!(isSystemMac && event.metaKey) &&
+            !(!isSystemMac && event.ctrlKey))
+        {
+            return;
+        }
+        if (letterCode[event.which] !== "o") {
+            return;
+        }
+
+        if ($('#workspacePanel').hasClass('active') &&
+            !$('#modalBackground').is(":visible") &&
+            !$('textarea:focus').length &&
+            !$('input:focus').length) {
+
+            const $th: JQuery = $(".xcTable th.selectedCell");
+            if ($th.length > 0) {
+                event.preventDefault();
+            }
+            if ($th.length !== 1) {
+                return;
+            }
+
+            $th.find(".dropdownBox").trigger(fakeEvent.click);
+        }
+    }
+}

@@ -477,13 +477,15 @@ describe("xcManager Test", function() {
 
     describe("Global Keydown Event Test", function() {
         var key, flag;
+        var oldTableScroll;
 
         before(function() {
-            xcManager.__testOnly__.fakeTableScroll(function(arg1, arg2) {
+            oldTableScroll = TblFunc.scrollTable;
+            TblFunc.scrollTable = function(_id, arg1, arg2) {
                 key = arg1;
                 flag = arg2;
                 return true;
-            });
+            };
         });
 
         beforeEach(function() {
@@ -540,7 +542,7 @@ describe("xcManager Test", function() {
         });
 
         after(function() {
-            xcManager.__testOnly__.resetFakeScroll();
+            TblFunc.scrollTable = oldTableScroll;
         });
     });
 

@@ -366,7 +366,7 @@ class ColMenu extends AbstractMenu {
             }
             const colNums: number[] = $colMenu.data("colNums");
             const tableId: TableId = $colMenu.data('tableId');
-            TblFunc.sortColumn(colNums, tableId, XcalarOrderingT.XcalarOrderingAscending);
+            ColManager.sortColumn(colNums, tableId, XcalarOrderingT.XcalarOrderingAscending);
         });
 
         $subMenu.on('mouseup', 'li.revSort', (event) => {
@@ -375,7 +375,7 @@ class ColMenu extends AbstractMenu {
             }
             const colNums: number[] = $colMenu.data("colNums");
             const tableId: TableId = $colMenu.data('tableId');
-            TblFunc.sortColumn(colNums, tableId, XcalarOrderingT.XcalarOrderingDescending);
+            ColManager.sortColumn(colNums, tableId, XcalarOrderingT.XcalarOrderingDescending);
         });
 
         $subMenu.on('mouseup', '.sortView', (event) => {

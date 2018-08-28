@@ -2310,7 +2310,7 @@ namespace xcHelper {
             $('#dagWrap-' + tableId).addClass('locked notSelected')
                                     .removeClass('selected');
 
-            TblFunc.moveTableTitles();
+            TblFunc.moveTableTitles(null);
 
             // prevent vertical scrolling on the table
             const $tbody: JQuery = $tableWrap.find('.xcTbodyWrap');

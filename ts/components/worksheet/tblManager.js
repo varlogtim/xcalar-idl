@@ -2224,7 +2224,7 @@ window.TblManager = (function($, TblManager) {
             } else if ($(event.target).closest(".sortDesc").length) {
                 order = XcalarOrderingT.XcalarOrderingDescending;
             }
-            TblFunc.sortColumn([colNum], tableId, order);
+            ColManager.sortColumn([colNum], tableId, order);
         });
 
         $thead.find(".rowNumHead").mousedown(function() {

@@ -994,30 +994,30 @@ namespace xcManager {
 
             switch (event.which) {
                 case keyCode.PageUp:
-                    isPreventEvent = tableScroll("pageUpdown", true);
+                    isPreventEvent = TblFunc.scrollTable(gActiveTableId, "pageUpdown", true);
                     break;
                 case keyCode.Space:
                 case keyCode.PageDown:
-                    isPreventEvent = tableScroll("pageUpdown", false);
+                    isPreventEvent = TblFunc.scrollTable(gActiveTableId, "pageUpdown", false);
                     break;
                 case keyCode.Up:
-                    isPreventEvent = tableScroll("updown", true);
+                    isPreventEvent = TblFunc.scrollTable(gActiveTableId, "updown", true);
                     break;
                 case keyCode.Down:
-                    isPreventEvent = tableScroll("updown", false);
+                    isPreventEvent = TblFunc.scrollTable(gActiveTableId, "updown", false);
                     break;
                 case keyCode.Home:
-                    isPreventEvent = tableScroll("homeEnd", true);
+                    isPreventEvent = TblFunc.scrollTable(gActiveTableId, "homeEnd", true);
                     break;
                 case keyCode.End:
-                    isPreventEvent = tableScroll("homeEnd", false);
+                    isPreventEvent = TblFunc.scrollTable(gActiveTableId, "homeEnd", false);
                     break;
                 case keyCode.Y:
                 case keyCode.Z:
                     checkUndoRedo(event);
                     break;
                 default:
-                    tableKeyEvents(event);
+                    TblFunc.keyEvent(event);
                     break;
             }
 
@@ -1082,7 +1082,7 @@ namespace xcManager {
                 otherResize = true;
             } else {
                 otherResize = false;
-                TblFunc.moveTableTitles();
+                TblFunc.moveTableTitles(null);
             }
 
             DSCart.resize();
@@ -1100,7 +1100,7 @@ namespace xcManager {
                 }
                 TblFunc.moveTableDropdownBoxes();
                 // for tableScrollBar
-                TblFunc.moveFirstColumn();
+                TblFunc.moveFirstColumn(null);
                 TblManager.adjustRowFetchQuantity();
                 DagPanel.setScrollBarId($(window).height());
                 DagPanel.adjustScrollBarPositionAndSize();
@@ -1152,7 +1152,7 @@ namespace xcManager {
             mainFrameScrollTimer = <any>setTimeout(mainFrameScrollingStop, 300);
             if (!scrollPrevented) {
                 TblFunc.moveFirstColumn(null, true);
-                TblFunc.moveTableTitles();
+                TblFunc.moveTableTitles(null);
             }
         });
 
@@ -1161,7 +1161,7 @@ namespace xcManager {
                              .removeClass('dropdownBoxHidden');
             $(".xcTheadWrap").find(".lockIcon").removeClass("xc-hidden");
             $('.tableScrollBar').show();
-            TblFunc.moveFirstColumn();
+            TblFunc.moveFirstColumn(null);
             TblFunc.moveTableDropdownBoxes();
             mainFrameScrolling = false;
             scrollPrevented = false;
@@ -1440,136 +1440,6 @@ namespace xcManager {
         }
     }
 
-    let tableScroll: Function = function(scrollType: string, isUp: boolean): boolean {
-        if (!$("#workspaceTab").hasClass("active") ||
-            !$("#worksheetButton").hasClass("active") ||
-            gActiveTableId == null)
-        {
-            return false;
-        }
-
-        const $visibleMenu: JQuery = $('.menu:visible');
-        if ($visibleMenu.length !== 0) {
-            // if the menu is only .tdMenu, allow scroll
-            if ($visibleMenu.length > 1 || !$visibleMenu.hasClass("tdMenu")) {
-                return false;
-            }
-        }
-
-        if ($("#functionArea .CodeMirror").hasClass("CodeMirror-focused") ||
-            $(document.activeElement).is("input")) {
-            return false;
-        }
-
-        const $rowInput: JQuery = $("#rowInput");
-        const tableId: string = <string>gActiveTableId;
-        const $lastTarget: JQuery = gMouseEvents.getLastMouseDownTarget();
-        const isInMainFrame: boolean = !$lastTarget.context ||
-                            ($lastTarget.closest("#mainFrame").length > 0 &&
-                            !$lastTarget.is("input"));
-
-        if (isInMainFrame && xcHelper.isTableInScreen(tableId)) {
-            if (gIsTableScrolling ||
-                $("#modalBackground").is(":visible") ||
-                !TblFunc.isTableScrollable(tableId)) {
-                // not trigger table scroll, but should return true
-                // to prevent table's natural scroll
-                return true;
-            }
-
-            const maxRow: number = gTables[tableId].resultSetCount;
-            const curRow: number = $rowInput.data("val");
-            const lastRowNum: number = RowScroller.getLastVisibleRowNum(tableId);
-            let rowToGo: number;
-
-            // validation check
-            xcAssert((lastRowNum != null), "Error Case!");
-
-            if (scrollType === "homeEnd") {
-                // isUp === true for home button, false for end button
-                rowToGo = isUp ? 1 : maxRow;
-            } else {
-                let rowToSkip: number;
-                if (scrollType === "updown") {
-                    const $xcTbodyWrap: JQuery = $("#xcTbodyWrap-" + tableId);
-                    const scrollTop: number = $xcTbodyWrap.scrollTop();
-                    const $trs: JQuery = $("#xcTable-" + tableId + " tbody tr");
-                    const trHeight: number = $trs.height();
-                    let rowNum: number;
-
-                    if (!isUp) {
-                        rowNum = xcHelper.parseRowNum($trs.eq($trs.length - 1)) + 1;
-                        if (rowNum - lastRowNum > 5) {
-                            // when have more then 5 buffer on bottom
-                            $xcTbodyWrap.scrollTop(scrollTop + trHeight);
-                            return true;
-                        }
-                    } else {
-                        rowNum = xcHelper.parseRowNum($trs.eq(0)) + 1;
-                        if (curRow - rowNum > 5) {
-                            // when have more then 5 buffer on top
-                            $xcTbodyWrap.scrollTop(scrollTop - trHeight);
-                            return true;
-                        }
-                    }
-
-                    rowToSkip = 1;
-                } else if (scrollType === "pageUpdown") {
-                    // this is one page's row
-                    rowToSkip = lastRowNum - curRow;
-                } else {
-                    // error case
-                    console.error("Invalid case!");
-                    return false;
-                }
-
-                rowToGo = isUp ? Math.max(1, curRow - rowToSkip) :
-                                Math.min(maxRow, curRow + rowToSkip);
-            }
-
-            if (isUp && curRow === 1 || !isUp && lastRowNum === maxRow) {
-                // no need for backend call
-                return true;
-            }
-
-            xcMenu.close();
-            gMouseEvents.setMouseDownTarget(null);
-            $rowInput.val(rowToGo).trigger(fakeEvent.enter);
-
-            return true;
-        }
-
-        return false;
-    }
-
-    function tableKeyEvents(event: JQueryEventObject): void {
-        // only being used for ctrl+o to open column dropdown
-        if (!(isSystemMac && event.metaKey) &&
-            !(!isSystemMac && event.ctrlKey))
-        {
-            return;
-        }
-        if (letterCode[event.which] !== "o") {
-            return;
-        }
-
-        if ($('#workspacePanel').hasClass('active') &&
-            !$('#modalBackground').is(":visible") &&
-            !$('textarea:focus').length &&
-            !$('input:focus').length) {
-
-            const $th: JQuery = $(".xcTable th.selectedCell");
-            if ($th.length > 0) {
-                event.preventDefault();
-            }
-            if ($th.length !== 1) {
-                return;
-            }
-
-            $th.find(".dropdownBox").trigger(fakeEvent.click);
-        }
-    }
-
     let logoutRedirect: Function = function(): void {
         let msalUser: string = null;
         let msalAgentApplication: Msal.UserAgentApplication = null;
@@ -1771,13 +1641,6 @@ namespace xcManager {
             },
             resetLogoutRedirect: function() {
                 logoutRedirect = oldLogoutRedirect;
-            },
-            fakeTableScroll: function(func) {
-                oldTableScroll = tableScroll;
-                tableScroll = func;
-            },
-            resetFakeScroll: function() {
-                tableScroll = oldTableScroll;
             }
         };
     }

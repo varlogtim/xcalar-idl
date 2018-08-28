@@ -225,9 +225,14 @@ class XcTableViewer extends XcViewer {
             }
             const $th: JQuery = $('#xcTable-' + tableId).find('th.col' + dataColIndex);
             TblFunc.autosizeCol($th, {
-                "fitAll": true,
-                "minWidth": minWidth,
-                "maxWidth": maxWidth
+                fitAll: true,
+                minWidth: minWidth,
+                maxWidth: maxWidth,
+                datastore: false,
+                dblClick: false,
+                unlimitedWidth: false,
+                multipleCols: false,
+                includeHeader: false
             });
         }
     }
