@@ -900,8 +900,9 @@ class FormHelper {
         }
         name = $.trim(name);
         DagPanel.updateExitMenu(name);
-        TableManager.getMenu().updateExitOptions("#tableMenu", name);
-        TableManager.getMenu().updateExitOptions("#colMenu", name);
+        const tblMenu: TableMenuManager = TableComponent.getMenu();
+        tblMenu.updateExitOptions("#tableMenu", name);
+        tblMenu.updateExitOptions("#colMenu", name);
         if (gDionysus) {
             DagNodeMenu.updateExitOptions(name);
         }
@@ -920,8 +921,9 @@ class FormHelper {
         $("#container").removeClass("formOpen");
         DagEdit.exitForm();
         DagPanel.updateExitMenu();
-        TableManager.getMenu().updateExitOptions("#tableMenu");
-        TableManager.getMenu().updateExitOptions("#colMenu");
+        const tblMenu: TableMenuManager = TableComponent.getMenu();
+        tblMenu.updateExitOptions("#tableMenu");
+        tblMenu.updateExitOptions("#colMenu");
 
         if (this.mainMenuState != null) {
             MainMenu.restoreState(this.mainMenuState, ignoreClose);

@@ -57,7 +57,7 @@
                 this[METAKeys.CART] = DSCart.getCarts();
                 this[METAKeys.STATS] = Profile.getCache();
                 this[METAKeys.LOGC] = Log.getCursor();
-                this[METAKeys.TPFX] = TableManager.getPrefixManager().getCache();
+                this[METAKeys.TPFX] = TableComponent.getPrefixManager().getCache();
                 this[METAKeys.QUERY] = QueryManager.getCache();
                 return this;
 

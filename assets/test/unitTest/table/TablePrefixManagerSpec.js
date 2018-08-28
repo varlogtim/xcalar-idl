@@ -1,25 +1,31 @@
 describe('TablePrefixManager Test', function() {
+    var prefixManager;
+
+    before(function() {
+        prefixManager = TableComponent.getPrefixManager();
+    });
+
     describe("Basic API Test", function() {
         var oldRes;
 
         before(function() {
-            oldRes = TableManager.getPrefixManager().getCache();
+            oldRes = prefixManager.getCache();
         });
 
         it("Should get cache", function() {
-            var res = TableManager.getPrefixManager().getCache();
+            var res = prefixManager.getCache();
             expect(res).to.be.an('object');
         });
 
         it("Should restore", function() {
-            TableManager.getPrefixManager().restore({"test": "val"});
-            var res = TableManager.getPrefixManager().getCache();
+            prefixManager.restore({"test": "val"});
+            var res = prefixManager.getCache();
             expect(res.test).to.equal("val");
         });
 
         it("Should get color", function() {
-            TableManager.getPrefixManager().restore({"t": "white"});
-            var res = TableManager.getPrefixManager().getColor("t");
+            prefixManager.restore({"t": "white"});
+            var res = prefixManager.getColor("t");
             expect(res).to.equal("white");
         });
 
@@ -30,14 +36,14 @@ describe('TablePrefixManager Test', function() {
                         '</div>' +
                     '</div>';
             var $h = $(html).appendTo($('body'));
-            TableManager.getPrefixManager().markColor("test-mark", "yellow");
-            expect(TableManager.getPrefixManager().getColor("test-mark")).to.equal("yellow");
+            prefixManager.markColor("test-mark", "yellow");
+            expect(prefixManager.getColor("test-mark")).to.equal("yellow");
             expect($h.find(".topHeader").data("color")).to.equal("yellow");
             $h.remove();
         });
 
         it("Should update color", function() {
-            TableManager.getPrefixManager().restore({"test-mark2": "blue"});
+            prefixManager.restore({"test-mark2": "blue"});
 
             var progCol1 = new ProgCol({
                 "name": "testCol",
@@ -80,11 +86,11 @@ describe('TablePrefixManager Test', function() {
                         '</div>';
             var $h = $(html).appendTo($("body"));
 
-            TableManager.getPrefixManager().updateColor("unit-test-tPrefix", 1);
+            prefixManager.updateColor("unit-test-tPrefix", 1);
             expect($h.find(".prefix").eq(0).text()).to.equal("test-mark2");
             expect($h.find(".topHeader").eq(0).data("color")).to.equal("blue");
             // test 2
-            TableManager.getPrefixManager().updateColor("unit-test-tPrefix", 2);
+            prefixManager.updateColor("unit-test-tPrefix", 2);
             expect($h.find(".prefix").eq(1).text())
             .to.equal(CommonTxtTstr.Immediates);
             expect($h.find(".topHeader").eq(1).data("color"))
@@ -94,7 +100,7 @@ describe('TablePrefixManager Test', function() {
         });
 
         after(function() {
-            TableManager.getPrefixManager().restore(oldRes);
+            prefixManager.restore(oldRes);
         });
     });
 });

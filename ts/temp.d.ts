@@ -1445,7 +1445,7 @@ declare namespace Dag {
     export function makeTableNoDelete(tableName: string): void;
     export function generateIcvTable(tableId: TableId, tableName: string): void;
     export function generateComplementTable(tableName: string): void
-    export function getTableInfo(tableId: TableId, $dagTable: JQuery): {isIcv: boolean, generatingIcv: boolean, canBeIcv: boolean, hasDroppedParent: boolean, generatingComplement: boolean};
+    export function getTableInfo(tableId: TableId, $dagTable: JQuery): {isIcv: boolean, generatingIcv: boolean, canBeIcv: boolean, hasDroppedParent: boolean, generatingComplement: boolean, type: string};
     export function focusDagForActiveTable(tableId: TableId, tableFocused: boolean);
 }
 

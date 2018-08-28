@@ -5582,7 +5582,7 @@ namespace xcHelper {
                     $subMenu.find(".removeNoDelete").hide();
                     $subMenu.find(".addNoDelete").show();
                 }
-                TableManager.getMenu().showDagAndTableOptions($subMenu, tableId, null);
+                TableComponent.getMenu().showDagAndTableOptions($subMenu, tableId, null);
                 TblManager.unHighlightCells();
                 break;
             case ('colMenu'):

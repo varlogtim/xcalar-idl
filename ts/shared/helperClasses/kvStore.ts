@@ -271,7 +271,7 @@ class KVStore {
                 KVStore.ephMetaInfos = new EMetaConstructor({});
 
                 WSManager.restore(KVStore.metaInfos.getWSMeta());
-                TableManager.getPrefixManager().restore(KVStore.metaInfos.getTpfxMeta());
+                TableComponent.getPrefixManager().restore(KVStore.metaInfos.getTpfxMeta());
                 Aggregates.restore(KVStore.metaInfos.getAggMeta());
                 TblManager.restoreTableMeta(KVStore.metaInfos.getTableMeta());
                 DSCart.restore(KVStore.metaInfos.getCartMeta());

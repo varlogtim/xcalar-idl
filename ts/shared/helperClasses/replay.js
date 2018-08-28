@@ -1340,7 +1340,7 @@ window.Replay = (function($, Replay) {
 
     replayFuncs[SQLOps.MarkPrefix] = function(options) {
         var args = getArgs(options);
-        TableManager.getPrefixManager().markColor.apply(window, args);
+        TableComponent.getPrefixManager().markColor.apply(window, args);
         return PromiseHelper.resolve(null);
     };
 

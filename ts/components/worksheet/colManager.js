@@ -934,7 +934,7 @@ window.ColManager = (function($, ColManager) {
 
                 table.tableCols[colNum - 1] = progCol;
                 pullColHelper(colNum, tableId);
-                TableManager.getPrefixManager().updateColor(tableId, colNum);
+                TableComponent.getPrefixManager().updateColor(tableId, colNum);
 
                 if (!args || !args.noLog) {
                     var sqlOptions = {

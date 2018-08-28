@@ -592,7 +592,7 @@ window.DagPanel = (function($, DagPanel) {
             }
 
             xcHelper.enableMenuItem($menu.find("li"));
-            TableManager.getMenu().showDagAndTableOptions($menu, null, $dagTable);
+            TableComponent.getMenu().showDagAndTableOptions($menu, null, $dagTable);
 
             if (tableNoDelete) {
                 $menu.find('.removeNoDelete').removeClass("hidden");
