@@ -58,6 +58,17 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     app.use(serverCookieParser);
     app.use(serverSession);
 
+    // these header modifications must come before the
+    // thrift proxy because a filter failure sends a
+    // a completed response that can't be modified
+    app.all('/*', function(req, res, next) {
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+        res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, OPTIONS");
+        res.header("Access-Control-Allow-Credentials", "true");
+        next();
+    });
+
     // proxy thrift requests to mgmtd
     // must be after the serverSession so the proxy
     // can filter using the session data
@@ -78,14 +89,6 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     // parses the thrift if it is not
     app.use(bodyParser.urlencoded({extended: false, limit: '20mb'}));
     app.use(bodyParser.json({limit: '20mb'}));
-
-    app.all('/*', function(req, res, next) {
-        res.header("Access-Control-Allow-Origin", "*");
-        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-        res.header("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, OPTIONS");
-        res.header("Access-Control-Allow-Credentials", "true");
-        next();
-    });
     // End of generic setup stuff
 
     // Invoke the Installer router

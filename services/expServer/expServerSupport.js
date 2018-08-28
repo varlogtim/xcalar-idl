@@ -1033,6 +1033,7 @@ function checkProxyAuth(req, res) {
 function checkProxyAuthImpl(req, res) {
     if (! req.session.hasOwnProperty('loggedIn') ||
         ! req.session.loggedIn ) {
+        res.status(httpStatus.Unauthorized).send('Unauthorized thrift request');
         return false;
     }
 
