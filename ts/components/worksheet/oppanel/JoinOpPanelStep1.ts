@@ -73,15 +73,27 @@ class JoinOpPanelStep1 {
         });
         // Setup instruction section
         let text = JoinTStr.DagColSelectInstr;
-        if (joinType === JoinOperatorTStr[JoinOperatorT.CrossJoin]) {
+        if (this._isCrossJoin()) {
             text = JoinTStr.DagColSelectInstrCross;
         }
         this._$elemInstr.text(text);
+        // Setup main section
         const $elemClauseArea = BaseOpPanel.findXCElement(this._$elem, 'clauseArea');
         const $elemCrossJoinFilter = BaseOpPanel.findXCElement(this._$elem, 'crossJoinFilter');
-        if (joinType === JoinOperatorTStr[JoinOperatorT.CrossJoin]) {
+        if (this._isCrossJoin()) {
             $elemClauseArea.hide();
             $elemCrossJoinFilter.show();
+            // Setup crossJoinFilter section
+            const $elemEvalString = BaseOpPanel.findXCElement($elemCrossJoinFilter, 'evalStr');
+            $elemEvalString.val(this._modelRef.evalString);
+            $elemEvalString.off();
+            $elemEvalString.on('input', (e) => {
+                this._modelRef.evalString = $(e.target).val().trim();
+                this._updateUI();
+            });
+            if (!this._isValidEvalString()) {
+                // TODO: Show error message
+            }
         }
         else {
             $elemClauseArea.show();
@@ -249,19 +261,38 @@ class JoinOpPanelStep1 {
     }
     // Data model manipulation === start
     private _validateData() {
-        if (this._modelRef.joinColumnPairs.length === 0) {
-            return false;
-        }
-        for (const pair of this._modelRef.joinColumnPairs) {
-            if (pair.isCastNeed) {
+        if (this._isCrossJoin()) {
+            if (!this._isValidEvalString()) {
                 return false;
             }
-            if (pair.left < 0 || pair.right < 0) {
+        } else {
+            if (this._modelRef.joinColumnPairs.length === 0) {
                 return false;
             }
+            for (const pair of this._modelRef.joinColumnPairs) {
+                if (pair.isCastNeed) {
+                    return false;
+                }
+                if (pair.left < 0 || pair.right < 0) {
+                    return false;
+                }
+            }
         }
+
         return true;
     }
+
+    private _isCrossJoin() {
+        return this._modelRef.joinType === JoinOperatorTStr[JoinOperatorT.CrossJoin];
+    }
+
+    private _isValidEvalString() {
+        const evalStr = this._modelRef.evalString;
+        return evalStr.length > 0
+            && evalStr.indexOf("(") >= 0
+            && evalStr.indexOf(")") > 0;
+    }
+
     private _changeJoinType(typeId: string): void {
         this._modelRef.joinType = typeId;
     }

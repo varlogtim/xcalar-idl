@@ -46,6 +46,9 @@ class JoinOpPanelModel {
         // Join Type
         model.joinType = joinData.joinType;
         
+        // Eval String
+        model.evalString = joinData.evalString;
+
         // Candidate columns & prefixes
         const leftPrefixMap = {};
         for (const [colName, colInfo] of leftColMap) {
