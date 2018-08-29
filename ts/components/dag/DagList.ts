@@ -60,6 +60,10 @@ class DagList {
 
     private _registerHandlers(): void {
         const self = this;
+        $('#dagList .uploadBtn').click(function() {
+            UploadDataflowCard.show();
+        })
+
         $("#dagListSection").on("click", ".name", function() {
             let $dagListItem: JQuery = $(this).parent();
             let index: number = $("#dagListSection .dagListDetail").index($dagListItem);
@@ -82,6 +86,32 @@ class DagList {
                     self.deleteDataflow($dagListItem);
                 }
             });
+        })
+
+        $("#dagListSection").on("click", ".downloadDataflow", function() {
+            let $dagListItem: JQuery = $(this).parent();
+            let index: number = $("#dagListSection .dagListDetail").index($dagListItem);
+            let key: string = self._userDags[index].key;
+            const dagtabManager: DagTabManager = DagTabManager.Instance;
+            const keyIndex = dagtabManager.getKeyIndex(key);
+            let graphString = "";
+            if (keyIndex == -1) {
+                let kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
+                kvStore.getAndParse()
+                    .then((dagTab) => {
+                        graphString = dagTab.dag;
+                        xcHelper.downloadAsFile($dagListItem.find(".name").text() + '.json', graphString, true);
+                    })
+                    .fail((error) => {
+                        StatusBox.show(DFTStr.DownloadErr, $dagListItem,
+                            false, {'side': 'right'});
+                        return;
+                    });
+            } else {
+                let graph: DagGraph = dagtabManager.getGraphByIndex(keyIndex);
+                graphString = graph.serialize();
+                xcHelper.downloadAsFile($dagListItem.find(".name").text() + '.json', graphString, true);
+            }
         })
     }
 
@@ -246,6 +276,50 @@ class DagList {
             return dag.key == key;
         });
         $("#dagListSection .dagListDetail").eq(index).addClass("active");
+    }
+
+    /**
+     * Upload a dag that is represented by a string.
+     * @param name Name of the dataflow
+     * @param dag The string representing a dag
+     */
+    public uploadDag(name: string, dag: DagGraph): void {
+        const activeWKBNK: string = WorkbookManager.getActiveWKBK();
+        const workbook: WKBK = WorkbookManager.getWorkbook(activeWKBNK);
+        const prefix: string = workbook.sessionId + Date.now();
+        const key: string = (KVStore.getKey("gDagManagerKey") + "-DF-" + prefix);
+        let newTab: DagTab = new DagTab(name, prefix, key, dag);
+        dag.resetRunningStates();
+        this.addDag(name, key);
+        newTab.saveTab()
+        .then(() => {
+            DagTabManager.Instance.loadTab(key);
+        })
+        .fail((error) => {
+            this._disableDelete();
+            const index: number = this._userDags.findIndex((dag) => {
+                return dag.key == key;
+            });
+            this._userDags.splice(index, 1);
+            $("#dagListSection .dagListDetail").eq(index).remove();
+            StatusBox.show(DFTStr.DFDrawError, $("#retinaPath"));
+            this._enableDelete();
+        });
+        
+
+    }
+
+    /**
+     * Returns the key from the dag at index.
+     * Primarily used for testing.
+     * @param index 
+     * @returns {string}
+     */
+    public getKeyFromIndex(index: number): string {
+        if (index < 0 || index >= this._userDags.length) {
+            return "";
+        } 
+        return this._userDags[index].key;
     }
 
     /**

@@ -356,6 +356,17 @@ class DagGraph {
         return this.lock;
     }
 
+    /**
+     * Resets ran nodes to go back to configured.
+     */
+    public resetRunningStates() {
+        this.nodesMap.forEach((node, key) => {
+            if (node.getState() == DagNodeState.Complete || node.getState() == DagNodeState.Error) {
+                node.beConfiguredState();
+            }
+        });
+    }
+
     // XXX TODO, Idea is to do a topological sort first, then get the
     // ordere, then get the query, and run it one by one.
     private _executeGraph(nodesMap?: Map<DagNodeId, DagNode>): XDPromise<void> {

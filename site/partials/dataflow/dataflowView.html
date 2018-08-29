@@ -1,40 +1,4 @@
 <div id="dataflowView" class="subPanel">
-  <!-- Retina Uploader -->
-  <div id="uploadDataflowCard" class="cardContainer">
-    <div class="cardLocked"></div>
-    <!-- RetinaUploader  Header -->
-    <header class="cardHeader">
-      <span class="title"><%= dicts.dataflow.uploadHeader %></span>
-      <div class="close"><i class="icon xi-close"></i></div>
-    </header>
-    <!-- RetinaUploader Instruction -->
-    <section class="cardInstruction">
-      <i class="icon xi-warning"></i>
-      <div class="text">
-        <span><%= dicts.dataflow.uploadInstr %></span>
-      </div>
-    </section>
-    <!-- RetinaUploader Main Section -->
-    <section class="cardMain">
-      <div class="retinaUploader">
-        <span class="text"><%= dicts.common.Location %>:</span>
-        <input id="retinaPath" type="text" readonly>
-        <input id="dataflow-browse" spellcheck="false" type="file" style="display: none" accept=".gz">
-        <button id="dataflow-fakeBrowse" class="btn"><%= dicts.common.BROWSE %></button>
-      </div>
-      <div class="retinaName">
-        <span class="text"><%= dicts.dataflow.dfName %>:</span>
-        <input id="dfName" type="text">
-      </div>
-    </section>
-    <!-- Button Section -->
-    <section class="cardBottom">
-      <div class="buttonTooltipWrap" data-toggle="tooltip" data-container="body" data-placement="top" data-original-title="<%= dicts.TooltipTStr.SelectFile %>">
-        <button type="button" class="btn confirm btn-disabled"><%= dicts.dataflow.upload %></button>
-      </div>
-      <button type="button" class="btn btn-cancel cancel"><%= dicts.common.CANCEL %></button>
-    </section>
-  </div>
   include "scheduleView.html"
   <!-- Dataflow -->
   <div id="dfViz" class="cardContainer">

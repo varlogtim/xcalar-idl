@@ -845,7 +845,7 @@ module.exports = {
         "dfs": "Batch Dataflows",
         "dataflows": "Dataflows",
         "instr": "Create a batch dataflow based on your selected table. After you create a batch dataflow, you will be able to parameterize it and run it on demand with different data sources.",
-        "dfName": "Batch Dataflow Name",
+        "dfName": "Dataflow Name",
         "exportHeader": "Columns to Export",
         "exportInstr": "Select the columns that you want to export at the end of your batch dataflow. These are the only columns that you will see in your exported result after running the dataflow. The time your batch dataflow runs is affected by the number of columns you select here.",
         "create": "CREATE",
@@ -868,7 +868,7 @@ module.exports = {
         // For uploader
         "upload": "UPLOAD",
         "uploadHeader": "Upload dataflow",
-        "uploadInstr": "Upload a previously downloaded dataflow into Xcalar. Your file should be of the format .tar.gz",
+        "uploadInstr": "Upload a previously downloaded dataflow into Xcalar. Your file should be of the format .txt",
         "overwriteUdf": "Overwrite UDFs of the same module name with those inside this dataflow"
     },
 

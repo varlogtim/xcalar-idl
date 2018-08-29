@@ -161,7 +161,7 @@ class DagTabManager{
         PromiseHelper.chain(promises)
         .then(() => {
             if ($("#dagTabSectionTabs .dagTab") != null && this._keys.length > 0) {
-                this._switchTabs(this.getDagTab(0));
+                this._switchTabs(this.getDagTabElement(0));
             } else {
                 this.reset();
             }
@@ -191,9 +191,9 @@ class DagTabManager{
             $tab.removeClass("active");
             $("#dagView .dataflowArea").removeClass("active");
             if (index > 0) {
-                this._switchTabs(this.getDagTab(index-1));
+                this._switchTabs(this.getDagTabElement(index-1));
             } else if (this._keys.length > 1) {
-                this._switchTabs(this.getDagTab(index+1));
+                this._switchTabs(this.getDagTabElement(index+1));
             }
         }
         this._activeUserDags.splice(index, 1);
@@ -240,7 +240,7 @@ class DagTabManager{
         const dagList: DagList = DagList.Instance;
         dagList.addDag(validatedName, key);
         this._addTabHTML(validatedName);
-        let $tab: JQuery = this.getDagTab(this._keys.length - 1);
+        let $tab: JQuery = this.getDagTabElement(this._keys.length - 1);
         if (!this._disableLog) {
             Log.add(DagTStr.NewTab, {
                 "operation": SQLOps.NewDagTab,
@@ -285,9 +285,9 @@ class DagTabManager{
         }
         if (tabIndex != null) {
             // Put the tab and area where they should be
-            let newTab: JQuery = this.getDagTab(this._keys.length - 1);
+            let newTab: JQuery = this.getDagTabElement(this._keys.length - 1);
             let newTabArea: JQuery = this.getDataflowArea(this._keys.length);
-            newTab.insertBefore(this.getDagTab(tabIndex));
+            newTab.insertBefore(this.getDagTabElement(tabIndex));
             newTabArea.insertBefore(this.getDataflowArea(tabIndex));
         }
     }
@@ -311,8 +311,16 @@ class DagTabManager{
             || (this._activeUserDags[index].getGraph().isLocked())) {
             return false;
         }
-        this._deleteTab(this.getDagTab(index));
+        this._deleteTab(this.getDagTabElement(index));
         return true;
+    }
+
+    /**
+     * Tells us the index of key within our list of private keys
+     * @param key The key we're looking for.
+     */
+    public getKeyIndex(key: string) {
+        return this._keys.indexOf(key)
     }
 
     /**
@@ -322,9 +330,9 @@ class DagTabManager{
      */
     public loadTab(key: string, tabIndex?: number): void {
         // Check if we already have the tab
-        const index: number = this._keys.indexOf(key);
+        const index: number = this.getKeyIndex(key);
         if (index != -1) {
-            this._switchTabs(this.getDagTab(index));
+            this._switchTabs(this.getDagTabElement(index));
             return;
         }
         let newTab: DagTab = new DagTab(null, null, null, null);
@@ -346,7 +354,7 @@ class DagTabManager{
                 this._keys.splice(index, 0, key);
                 this._addTabHTML(tabJSON.name, tabIndex);
                 tabIndex = tabIndex || this._keys.length - 1;
-                this._switchTabs(this.getDagTab(tabIndex));
+                this._switchTabs(this.getDagTabElement(tabIndex));
                 DagView.reactivate();
                 let json: DagTabManagerJSON = this._getJSON();
                 this._dagKVStore.put(JSON.stringify(json), true, true);
@@ -365,7 +373,7 @@ class DagTabManager{
         if (index == -1) {
             return false;
         }
-        this._switchTabs(this.getDagTab(index));
+        this._switchTabs(this.getDagTabElement(index));
         return true;
     }
 
@@ -383,7 +391,7 @@ class DagTabManager{
      * @param index Index of the dagTab element we want to get
      * @return {JQuery}
      */
-    public getDagTab(index: number): JQuery {
+    public getDagTabElement(index: number): JQuery {
         return $("#dagTabSectionTabs .dagTab").eq(index);
     }
 
@@ -394,6 +402,18 @@ class DagTabManager{
      */
     public getDataflowArea(index: number): JQuery {
         return $("#dagView .dataflowArea").eq(index);
+    }
+
+    /**
+     * Returns the DagGraph according to the tab at index "index"
+     * @param index The index we want.
+     * @returns {DagGraph} DagGraph at the index
+     */
+    public getGraphByIndex(index: number): DagGraph {
+        if (index < 0 || index >= this._activeUserDags.length) {
+            return null;
+        }
+        return this._activeUserDags[index].getGraph();
     }
 
     /**
