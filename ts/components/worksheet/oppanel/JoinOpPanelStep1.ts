@@ -5,6 +5,7 @@ class JoinOpPanelStep1 {
     private static readonly _templateIdCast = 'templateCast';
     private static readonly _templateIdCastMsg = 'templateCastMessage';
     private _$elemInstr: JQuery = null;
+    private _$elemPreview: JQuery = null;
     private _componentJoinTypeDropdown: OpPanelDropdown = null;
     private _goNextStepFunc = () => { };
     private _modelRef: JoinOpPanelModel = null;
@@ -31,6 +32,7 @@ class JoinOpPanelStep1 {
         this._goNextStepFunc = goNextStepFunc;
         this._$elem = BaseOpPanel.findXCElement(container, 'joinFirstStep');
         this._$elemInstr = BaseOpPanel.findXCElement(this._$elem, 'colInstruction');
+        this._$elemPreview = BaseOpPanel.findXCElement(this._$elem, 'joinPreview');
         this._componentJoinTypeDropdown = new OpPanelDropdown({
             container: BaseOpPanel.findXCElement(this._$elem, 'joinType'),
             inputXcId: 'text',
@@ -123,6 +125,60 @@ class JoinOpPanelStep1 {
         else {
             if (!$elemNextStep.hasClass('btn-disabled')) {
                 $elemNextStep.addClass('btn-disabled');
+            }
+        }
+        // Command Preview section
+        this._updatePreview();
+    }
+
+    private _updatePreview() {
+        let html;
+        const htmlJoinType = `<span class="joinType keyword">${getJoinType(this._modelRef.joinType)}</span>`;
+        const htmlTables = ' <span class="highlighted">table1</span>,<span class="highlighted">table2</span>';
+
+        if (this._modelRef.joinType === JoinOperatorTStr[JoinOperatorT.CrossJoin]) {
+            const htmlWhere = '<br/><span class="keyword">WHERE </span>';
+            const htmlClause = xcHelper.escapeHTMLSpecialChar(this._modelRef.evalString);
+            html = `${htmlJoinType}${htmlTables}${htmlWhere}${htmlClause}`;
+        } else {
+            const emptyColumn = '""';
+            const htmlOn = '<br/><span class="keyword">ON </span>';
+            const htmlClause = this._modelRef.joinColumnPairs.reduce( (res, pair, i) => {
+                const { left, right } = this._modelRef.getColumnPairMeta(pair);
+                const col1 = xcHelper.escapeHTMLSpecialChar(left == null
+                    ? emptyColumn
+                    : left.name
+                );
+                const col2 = xcHelper.escapeHTMLSpecialChar(right == null
+                    ? emptyColumn
+                    : right.name
+                );
+                const pre = (i > 0) ? '<span class="keyword"><br/>AND </span>' : '';
+                const cols = `<span class="highlighted">${col1}</span> = 
+                    <span class="highlighted">${col2}</span>`;
+                return `${res}${pre}${cols}`;
+            }, '');
+            html = `${htmlJoinType}${htmlTables}${htmlOn}${htmlClause}`;
+        }
+
+        this._$elemPreview.html(html);
+
+        function getJoinType(type: string) {
+            switch(type) {
+                case JoinOperatorTStr[JoinOperatorT.InnerJoin]:
+                    return JoinTStr.joinTypeInner;
+                case JoinOperatorTStr[JoinOperatorT.LeftOuterJoin]:
+                    return JoinTStr.joinTypeLeft;
+                case JoinOperatorTStr[JoinOperatorT.RightOuterJoin]:
+                    return JoinTStr.joinTypeRight;
+                case JoinCompoundOperatorTStr.LeftSemiJoin:
+                    return JoinTStr.joinTypeLeftSemi;
+                case JoinCompoundOperatorTStr.LeftAntiSemiJoin:
+                    return JoinTStr.joinTypeLeftAnti;
+                case JoinOperatorTStr[JoinOperatorT.CrossJoin]:
+                    return JoinTStr.joinTypeCross;
+                default:
+                    return '';
             }
         }
     }

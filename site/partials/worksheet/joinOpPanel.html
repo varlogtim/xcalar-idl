@@ -57,11 +57,16 @@
               <div class="subHeading clearfix">
                 <div class="text"><%= dicts.joinView.Preview %></div>
               </div>
-              <p class="joinPreview"></p>
+              <p class="joinPreview" data-xcid="joinPreview">
+                <span class="joinType keyword">Inner Join</span>
+                <span class="highlighted">table1</span>,<span class="highlighted">table2</span>
+                <br/><span class="keyword">ON </span>
+                <span class="highlighted">col1</span> = <span class="highlighted">col2</span>
+              </p>
             </section>
           </section>
           <section class="bottomSection flexWrap">
-            <button data-xcid="btnNextStep" class="btn btn-rounded btn-cancel btn-disabled" type="button"><%= dicts.common.NEXT %></button>
+            <button data-xcid="btnNextStep" class="btn btn-rounded btn-submit btn-disabled" type="button"><%= dicts.common.Next %></button>
           </section>
         </section>
         <!-- end of first step -->
@@ -132,8 +137,8 @@
             </div>
           </div> -->
           <section class="bottomSection flexWrap">
-            <button data-xcid="joinTables" class="btn btn-submit btn-rounded" type="button"><%= dicts.joinView.CONFIRM %></button>
-            <button data-xcid="goBack" class="btn btn-cancel btn-rounded" type="button"><%= dicts.common.BACK %></button>
+            <button data-xcid="joinTables" class="btn btn-submit btn-rounded" type="button"><%= dicts.common.Save %></button>
+            <button data-xcid="goBack" class="btn btn-cancel btn-rounded" type="button"><%= dicts.common.Back %></button>
           </section>
         </section>
       </div>
