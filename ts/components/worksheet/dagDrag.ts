@@ -133,7 +133,7 @@ class DragHelper {
         this.targetRect = this.$dropTarget.parent()[0].getBoundingClientRect();
 
         this.createClone();
-        this.positionDraggingEl(event, true);
+        this.positionDraggingEl(event);
         this.adjustScrollBar();
 
         $(document).on("mousemove.onDrag", function(event) {

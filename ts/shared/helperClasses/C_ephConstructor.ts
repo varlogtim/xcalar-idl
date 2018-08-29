@@ -2245,6 +2245,7 @@ interface RectSelectionOptions {
     onDraw?: Function;
     onEnd?: Function;
     onMouseup?: Function;
+    $scrollContainer?: JQuery;
 }
 
 class RectSelction {
@@ -2252,11 +2253,17 @@ class RectSelction {
     private y: number;
     private id: string;
     private $container: JQuery;
+    private $scrollContainer: JQuery;
     private bound: ClientRect;
+    private scrollBound: ClientRect;
     private onStart: Function;
     private onDraw: Function;
     private onEnd: Function;
     private onMouseup: Function;
+    private isDragging: boolean;
+    private mouseCoors: Coordinate;
+    private initialX: number
+    private initialY: number
 
     public constructor(x: number, y: number, options?: RectSelectionOptions) {
         options = options || {};
@@ -2273,9 +2280,17 @@ class RectSelction {
         self.onDraw = options.onDraw;
         self.onEnd = options.onEnd;
         self.onMouseup = options.onMouseup;
+        self.$scrollContainer = options.$scrollContainer || self.$container;
+        self.scrollBound = self.$scrollContainer.get(0).getBoundingClientRect();
+        self.isDragging = false;
+        self.mouseCoors = {x:0, y:0};
+
         const bound: ClientRect = self.bound;
         const left: number = self.x - bound.left;
         const top: number = self.y - bound.top;
+
+        self.initialX = left;
+        self.initialY = top;
 
         const html: HTML = '<div id="' + self.id + '" class="rectSelection" style="' +
                     'pointer-events: none; left:' + left +
@@ -2288,6 +2303,7 @@ class RectSelction {
 
     public __addSelectRectEvent() {
         const self: RectSelction = this;
+        self.isDragging = true;
         $(document).on("mousemove.checkMovement", function(event) {
             // check for mousemovement before actually calling draw
             self.checkMovement(event.pageX, event.pageY);
@@ -2316,46 +2332,53 @@ class RectSelction {
 
             $(document).off('mousemove.checkMovement');
             $(document).on("mousemove.selectRect", function(event) {
+                self.mouseCoors.x = event.pageX;
+                self.mouseCoors.y = event.pageY;
                 self.draw(event.pageX, event.pageY);
             });
+            self.mouseCoors.x = x;
+            self.mouseCoors.y = y;
+
+            self.adjustScrollBar();
         }
     }
 
     public draw(x: number, y: number): void {
         const self: RectSelction = this;
+
+        self.bound = self.$container.get(0).getBoundingClientRect();
         const bound: ClientRect = self.bound;
+
         // x should be within bound.left and bound.right
-        x = Math.max(bound.left, Math.min(bound.right, x));
+        x = Math.max(0, Math.min(x - bound.left, bound.width));
         // y should be within boud.top and bound.bottom
-        y = Math.max(bound.top, Math.min(bound.bottom, y));
+        y = Math.max(0, Math.min(y - bound.top, bound.height));
 
         // update rect's position
         let left: number;
         let top: number;
-        let w: number = x - self.x;
-        let h: number = y - self.y;
+        let w: number = x - self.initialX;;
+        let h: number = y - self.initialY;;
         const $rect: JQuery = self.__getRect();
 
         if (w >= 0) {
-            left = self.x - bound.left;
+            left = self.initialX;
         } else {
-            left = x - bound.left;
+            left = self.initialX + w;
             w = -w;
         }
 
         if (h >= 0) {
-            top = self.y - bound.top;
+            top = self.initialY;
         } else {
-            top = y - bound.top;
+            top = self.initialY + h;
             h = -h;
         }
 
         const bottom: number = top + h;
         const right: number = left + w;
-        // the $rect is absolute to the $container
-        // so if $container has scrollTop, the top need to consider it
         $rect.css("left", left)
-            .css("top", top + self.$container.scrollTop())
+            .css("top", top)
             .width(w)
             .height(h);
 
@@ -2370,6 +2393,41 @@ class RectSelction {
         if (typeof self.onEnd === "function") {
             self.onEnd(event);
         }
+        self.isDragging = false;
+    }
+
+    private adjustScrollBar(): void {
+        if (!this.isDragging) {
+            return;
+        }
+        const self = this;
+        const pxToIncrement = 20;
+        const horzPxToIncrement = 40;
+        const timer = 40;
+        let scrollLeft;
+        let scrollTop;
+
+        if (this.mouseCoors.x < this.scrollBound.left) {
+            scrollLeft = this.$scrollContainer.scrollLeft();
+            scrollLeft -= pxToIncrement;
+            this.$scrollContainer.scrollLeft(scrollLeft);
+        } else if (this.mouseCoors.y < this.scrollBound.top) {
+            scrollTop = this.$scrollContainer.scrollTop();
+            scrollTop -= pxToIncrement;
+            this.$scrollContainer.scrollTop(scrollTop);
+        } else if (this.mouseCoors.y  > this.scrollBound.bottom) {
+            scrollTop = this.$scrollContainer.scrollTop();
+            scrollTop += pxToIncrement;
+            this.$scrollContainer.scrollTop(scrollTop);
+        } else if (this.mouseCoors.x > this.scrollBound.right) {
+            scrollLeft = this.$scrollContainer.scrollLeft();
+            scrollLeft += horzPxToIncrement;
+            this.$scrollContainer.scrollLeft(scrollLeft);
+        }
+
+        setTimeout(function() {
+            self.adjustScrollBar();
+        }, timer);
     }
 }
 

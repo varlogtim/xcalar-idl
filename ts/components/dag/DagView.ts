@@ -980,7 +980,8 @@ namespace DagView {
 
                 new RectSelction(event.pageX, event.pageY, {
                     "id": "dataflow-rectSelection",
-                    "$container": $dfWrap,
+                    "$container": $dfArea,
+                    "$scrollContainer": $dfWrap,
                     "onStart": function() {
                         $dfArea.addClass("drawing");
                         $operators = $dfArea.find(".operator");
