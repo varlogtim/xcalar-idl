@@ -197,21 +197,29 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
      * @returns true: success; false: failed validation
      */
     private _submitForm(dagNode: DagNodeProject): boolean {
-        let isValid: boolean = true;
-
-        // Validate: At least one column should be selected
-        const selectedCounts = this._dataModel.getSelectedCount();
-        isValid = xcHelper.validate([
-            {
-                "$ele": this._$elemPanel.find(".cols:visible").last(),
-                "error": ErrTStr.NoColumns,
-                "check": () => (
-                    selectedCounts.derived + selectedCounts.prefixed === 0
-                )
+        if (this._isAdvancedMode) {
+            const $elemEditor = this._$elemPanel.find(".advancedEditor");
+            try {
+                this._dataModel = this._convertAdvConfigToModel();
+                const selectedCounts = this._dataModel.getSelectedCount();
+                if (selectedCounts.derived + selectedCounts.prefixed === 0) {
+                    StatusBox.show(ErrTStr.NoColumns, $elemEditor);
+                    return false;
+                }
+            } catch(e) {
+                StatusBox.show(e, $elemEditor);
+                return false;
             }
-        ]);
-        if (!isValid) {
-            return false;
+        } else {
+            // Validate: At least one column should be selected
+            const selectedCounts = this._dataModel.getSelectedCount();
+            if (selectedCounts.derived + selectedCounts.prefixed === 0) {
+                StatusBox.show(
+                    ErrTStr.NoColumns,
+                    this._$elemPanel.find(".cols:visible").last()
+                );
+                return false;
+            }
         }
 
         // save data
@@ -286,6 +294,31 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
             this._dataModel.prefixedList[prefixIndex].isSelected = isSelected;
             this._updateUI();
         }
+    }
+
+    /**
+     * @override BaseOpPanel._switchMode
+     * @param toAdvancedMode 
+     */
+    protected _switchMode(toAdvancedMode: boolean): {error: string} {
+        if (toAdvancedMode) {
+            const param: DagNodeProjectInput = this._dataModel.toDag();
+            this._editor.setValue(JSON.stringify(param, null, 4));
+        } else {
+            try {
+                this._dataModel = this._convertAdvConfigToModel();
+                this._updateUI();
+            } catch (e) {
+                return {error: e};
+            }
+        }
+        return null;
+    }
+
+    private _convertAdvConfigToModel() {
+        const dagInput: DagNodeProjectInput = <DagNodeProjectInput>JSON.parse(this._editor.getValue());
+        const colMap = this._dataModel.columnMap
+        return ProjectOpPanelModel.fromDagInput(colMap, dagInput);
     }
 
     public static test() {

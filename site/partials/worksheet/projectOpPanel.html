@@ -7,6 +7,7 @@
       <i class="close icon xi-close"></i>
     </header>
     <div class="mainContent">
+      <!-- Basic form -->
       <div class="project opSection">
         <p class="instructions instrText"><%= dicts.project.instr %></p>
         <!-- Project View Top Section-->
@@ -38,12 +39,18 @@
               </div>
           </div>
         </section>
-        <!-- Button Section -->
-        <section class="bottomSection flexWrap">
-          <button type="button" class="btn btn-submit btn-rounded confirm"><%= dicts.project.project %></button>
-          <button type="button" class="btn btn-rounded btn-cancel cancel"><%= dicts.common.CANCEL %></button>
-        </section>
       </div>
+      <!-- Advanced form -->
+      <section class="advancedEditor">
+        <textarea></textarea>
+      </section>
+      <!-- Save button, mode switch -->
+      <section class="bottomSection">
+        <div class="btnWrap">
+          <button type="button" class="btn btn-submit btn-rounded confirm submit"><%= dicts.common.Save %></button>
+        </div>
+        include "../util/switcher.html"
+      </section>
     </div>
   </div>
   <!-- End of Project View -->

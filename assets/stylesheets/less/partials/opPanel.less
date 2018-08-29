@@ -2006,6 +2006,24 @@
 }
 
 .projectOpPanel {
+    .mainContent {
+        .flex-display;
+        .flex-direction(column);
+    }
+    .opSection {
+        .flex(1 1 auto);
+    }
+    .advancedEditor {
+        .flex(1 1 auto);
+        overflow: hidden;
+        height: 100%;
+        .CodeMirror {
+            height: 100%;
+        }
+    }
+    .bottomSection {
+        .flex(0 0 auto);
+    }
     .prefixedSection, .derivedSection {
         margin-bottom: 10px;
         .subHeading {

@@ -1,27 +1,41 @@
 class ProjectOpPanelModel {
     public derivedList: ProjectOpPanelModelColumnInfo[] = [];
     public prefixedList: ProjectOpPanelModelPrefixColumn[] = [];
+    public columnMap: Map<string, ProgCol> = new Map();
 
     public static fromDag(dagNode: DagNodeProject) {
-        const model = new ProjectOpPanelModel();
+        try {
+            const allColsList = dagNode.getParents().map((parentNode) => {
+                return parentNode.getLineage().getColumns();
+            });
+            const allColMap: Map<string, ProgCol> = new Map();
+            for (const cols of allColsList) {
+                for (const col of cols) {
+                    allColMap.set(col.getBackColName(), col);
+                }
+            }
+    
+            return this.fromDagInput(allColMap, dagNode.getParam());
+        } catch(e) {
+            console.error(e);
+            return null;
+        }
+    }
 
-        const projectedColumns = dagNode.getParam().columns.reduce( (res, col) => {
+    public static fromDagInput(
+        colMap: Map<string, ProgCol>,
+        dagInput: DagNodeProjectInput
+    ) {
+        const model = new ProjectOpPanelModel();
+        model.columnMap = colMap;
+
+        const projectedColumns = dagInput.columns.reduce( (res, col) => {
             res[col] = true;
             return res;
         }, {});
 
-        const allColsList = dagNode.getParents().map((parentNode) => {
-            return parentNode.getLineage().getColumns();
-        });
-        const allColMap: Map<string, ProgCol> = new Map();
-        for (const cols of allColsList) {
-            for (const col of cols) {
-                allColMap.set(col.getBackColName(), col);
-            }
-        }
-
         const prefixLookupMap = {};
-        for (const [colName, colInfo] of allColMap.entries()) {
+        for (const [colName, colInfo] of colMap.entries()) {
             const isSelected = projectedColumns[colName] ? true : false;
             if (colInfo.prefix == null || colInfo.prefix.length === 0) {
                 // Derived column
