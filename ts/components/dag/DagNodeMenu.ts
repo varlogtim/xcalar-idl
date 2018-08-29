@@ -113,11 +113,11 @@ namespace DagNodeMenu {
                     DagView.run();
                     break;
                 case ("configureNode"):
-                    const node: DagNode = DagView.getActiveDag().getNode(nodeId);
+                    const node: DagNode = DagView.getActiveDag().getNode(nodeIds[0]);
                     configureNode(node);
                     break;
                 case ("previewTable"):
-                    DagView.previewTable(nodeId);
+                    DagView.previewTable(nodeIds[0]);
                     break;
                 case ("comment"):
                     break;
