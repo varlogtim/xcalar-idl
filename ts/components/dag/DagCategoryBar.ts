@@ -60,6 +60,7 @@ class DagCategoryBar {
             const $category = $(this);
             const type = $category.data("category");
             self.$dagView.find(".categories .category").removeClass("active");
+
             $category.addClass("active");
             self.$operatorBar.find(".category").removeClass("active");
             self.$operatorBar.find(".category.category-" + type).addClass("active");
@@ -71,61 +72,107 @@ class DagCategoryBar {
     private _setupOperatorBar(categories: DagCategory[]): void {
         // const iconMap = {};
         const iconMap = {};
-        iconMap[DagNodeType.Dataset] = "xi_data";
-        iconMap[DagNodeType.Filter] = "xi-filter";
-        iconMap[DagNodeType.Join] = "xi-join-inner";
-        iconMap[DagNodeType.Set] = "xi-union";
-        iconMap[DagNodeType.Export] = "xi-data-out";
-        iconMap[DagNodeType.Aggregate] = "xi-aggregate";
-        iconMap[DagNodeType.Map] = "xi-data-update";
-        iconMap[DagNodeType.GroupBy] = "xi-groupby";
-        iconMap[DagNodeType.Project] = "xi-delete-column";
-        iconMap[DagNodeType.Extension] = "xi-menu-extension";
-        iconMap[DagNodeType.SQL] = "xi-menu-sql";
+        iconMap[DagNodeType.Dataset] = "&#xe90f";
+        iconMap[DagNodeType.Filter] = "&#xe938;";
+        iconMap[DagNodeType.Join] = "&#xe93e;";
+        iconMap[DagNodeType.Set] = "&#xea2d;";
+        iconMap[DagNodeType.Export] = "&#xe955;";
+        iconMap[DagNodeType.Aggregate] = "&#xe939;";
+        iconMap[DagNodeType.Map] = "&#xe9da;";
+        iconMap[DagNodeType.GroupBy] = "&#xe937;";
+        iconMap[DagNodeType.Project] = "&#xe9d7;";
+        iconMap[DagNodeType.Extension] = "&#xe96d;";
+        iconMap[DagNodeType.SQL] = "&#xe957;";
+
+        const categoryColorMap = {};
+        categoryColorMap[DagCategoryType.Favorites] = "#BBC7D1";
+        categoryColorMap[DagCategoryType.In] = "#E7DC98";
+        categoryColorMap[DagCategoryType.Out] = "#F4B48A";
+        categoryColorMap[DagCategoryType.Value] = "#AACE8F";
+        categoryColorMap[DagCategoryType.Operations] = "#7FD4B5";
+        categoryColorMap[DagCategoryType.Column] = "#89D0E0";
+        categoryColorMap[DagCategoryType.Join] = "#92B1DA";
+        categoryColorMap[DagCategoryType.Set] = "#CCAADD";
+        categoryColorMap[DagCategoryType.Extensions] = "#F896A9";
+        categoryColorMap[DagCategoryType.SQL] = "#EAABD3";
 
         let html: HTML = "";
+        html += '<svg height="0" width="0" style="position:absolute">' +
+                '<defs>' +
+                    '<clipPath id="cut-off-right">' +
+                        '<rect width="90" height="27" ry="90" rx="11" stroke="black" stroke-width="1" fill="red" x="6.5" y="0.5" />' +
+                    '</clipPath>' +
+                '</defs>' +
+                '</svg>';
         categories.forEach(function(category: DagCategory) {
             const categoryName: string = category.getName();
             const operators: DagCategoryNode[] = category.getOperators();
-            html += `<div class="category category-${categoryName}">`;
+            html += `<svg version="1.1" height="100%" width="100%" class="category category-${categoryName}">`;
 
-            operators.forEach(function(categoryNode: DagCategoryNode) {
+            operators.forEach(function(categoryNode: DagCategoryNode, i) {
                 const categoryName: DagCategoryType = categoryNode.getCategoryType();
                 const operator: DagNode = categoryNode.getNode();
                 let numParents: number = operator.getMaxParents();
                 let numChildren: number = operator.getMaxChildren();
                 const operatorName: string = operator.getType();
-                let inConnectorClass = "";
-                if (numParents === -1) {
-                    numParents = 1;
-                    inConnectorClass += " multi "
+                let opDisplayName = xcHelper.capitalize(operatorName);
+                if (opDisplayName === "Sql") {
+                    opDisplayName = "SQL";
                 }
+
                 if (numChildren === -1) {
                     numChildren = 1;
                 }
-                html += '<div class="operator ' + operatorName + ' ' +
-                        'category-' + categoryName + '" ' +
-                            'data-category="' + categoryName + '" ' +
-                            'data-type="' + operatorName + '">' +
-                        '<div class="connectorArea in">' +
-                            ('<div class="connector in noConnection' +
-                            inConnectorClass + '"></div>').repeat(numParents) +
-                        '</div>' +
-                        '<div class="main">' +
-                            '<div class="iconArea">' +
-                             '<i class="icon ' + iconMap[operatorName] + '"></i>' +
-                            '</div>' +
-                            '<div class="nameArea">' +
-                                xcHelper.capitalize(operatorName) +
-                            '</div>' +
-                        '</div>' +
-                        '<div class="statusIcon"></div>' +
-                        '<div class="connectorArea out">' +
-                            ('<div class="connector out"></div>').repeat(numChildren) +
-                        '</div>' +
-                    '</div>';
+                let inConnector = "";
+                if (numParents === 0) {
+                    // if no connector, still needs something that gives width
+                    // for positioning when dragging
+                    inConnector = '<rect class="connectorSpace" ' +
+                                    'x="0" y="11" fill="none" ' +
+                                    'stroke="none" width="7" height="7" />';
+                } else if (numParents === -1) {
+                    inConnector = '<rect class="connector in noConnection multi"' +
+                                'x="0" y="5" fill="#BBC7D1" ' +
+                                'stroke="#849CB0" stroke-width="1" ' +
+                                'ry="1" rx="1" width="7" height="18" />';
+                } else {
+                    for (var j = 0; j < numParents; j++) {
+                        let y  = 28 / (numParents + 1) * (1 + j) - 3;
+                        inConnector += '<rect class="connector in noConnection"' +
+                                'x="0" y="' + y + '" fill="#BBC7D1" ' +
+                                'stroke="#849CB0" stroke-width="1" ry="1" ' +
+                                'rx="1" width="7" height="7" />';
+                    }
+                }
+                html +=  '<g class="operator ' + operatorName + ' ' +
+                    'category-' + categoryName + '" ' +
+                        'data-category="' + categoryName + '" ' +
+                        'data-type="' + operatorName +
+                        '" transform="translate(' + (10 + i * 123) + ', 11)" >' +
+                        inConnector +
+                        ('<polygon class="connector out" ' +
+                        'points="95,8 103,14 95,20" fill="#BBC7D1" ' +
+                        'stroke="#849CB0" stroke-width="1" ry="1" rx="1" />')
+                        .repeat(numChildren) +
+                    '<rect class="main" x="6" y="0" width="90" height="28" ' +
+                        'fill="white" stroke="#849CB0" stroke-width="1" ' +
+                        'ry="28" rx="12"/>'+
+                    '<rect class="iconArea" clip-path="url(#cut-off-right)" ' +
+                        'x="0" y="0" width="26" height="28" stroke="#849CB0" ' +
+                        'stroke-width="1" fill="' +
+                        categoryColorMap[categoryName] + '" />'+
+                    '<text class="icon" x="11" y="19" font-family="icomoon" ' +
+                        'font-size="12" fill="white" >' +
+                         iconMap[operatorName] + '</text>' +
+                    '<text class="opTitle" x="59" y="17" ' +
+                        'text-anchor="middle" font-family="Open Sans" ' +
+                        'font-size="11" fill="#44515c">' + opDisplayName +
+                        '</text>' +
+                    '<circle class="statusIcon" cx="88" cy="27" r="5" ' +
+                        'stroke="#849CB0" stroke-width="1" fill="white" />' +
+                '</g>';
             });
-            html += `</div>`;
+            html += `</svg>`;
         });
 
         this.$operatorBar.html(html);

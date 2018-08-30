@@ -28,14 +28,14 @@ describe("DagView Test", () => {
             expect($dagView.find(".dataflowArea .operator").length).to.equal(0);
         });
         it("correct elements should be present", function() {
-            expect($dagView.find(".dataflowArea.active").children().length).to.equal(2);
+            expect($dagView.find(".dataflowArea.active").children().length).to.equal(3);
             expect($dagView.find(".dataflowArea.active .sizer").length).to.equal(1);
-            expect($dagView.find(".dataflowArea.active .mainSvg").length).to.equal(1);
+            expect($dagView.find(".dataflowArea.active .operatorSvg").length).to.equal(1);
         });
     });
     describe("adding node", function() {
         it("add node should work", function(done) {
-            expect($dagView.find(".dataflowArea.active").children().length).to.equal(2);
+            expect($dagView.find(".dataflowArea.active .operatorSvg").children().length).to.equal(0);
 
             const newNodeInfo = {
                 type: "dataset",
@@ -46,11 +46,10 @@ describe("DagView Test", () => {
             };
             DagView.addNode(newNodeInfo)
             .always(function() {
-                expect($dagView.find(".dataflowArea.active").children().length).to.equal(3);
+                expect($dagView.find(".dataflowArea.active .operatorSvg").children().length).to.equal(1);
                 expect($dagView.find(".dataflowArea .operator").length).to.equal(1);
                 const $operator = $dagView.find(".dataflowArea .operator");
-                expect($operator.css("left")).to.equal("20px");
-                expect($operator.css("top")).to.equal("40px");
+                expect($operator.attr("transform")).to.equal("translate(20,40)");
                 expect($operator.hasClass("dataset")).to.be.true;
                 const dag = DagView.getActiveDag();
 
@@ -79,8 +78,10 @@ describe("DagView Test", () => {
                 called = true;
             };
             $operator = $dfWrap.find(".dataflowArea.active .operator").eq(0);
-            left = parseInt($operator.css("left"));
-            top = parseInt($operator.css("top"));
+            var parts  = /translate\(\s*([^\s,)]+)[ ,]([^\s,)]+)/.exec($operator.attr("transform"));
+
+            left = parseInt(parts[1]);
+            top = parseInt(parts[2]);
             var e = $.Event('mousedown', {pageX: 100, pageY: 100, which: 1});
 
 
@@ -112,8 +113,7 @@ describe("DagView Test", () => {
                 const dag = DagView.getActiveDag();
                 expect(dag.getNode(nodeId).getPosition().x).to.equal(220);
                 expect(dag.getNode(nodeId).getPosition().y).to.equal(240);
-                expect($operator.css("left")).to.equal("220px");
-                expect($operator.css("top")).to.equal("240px");
+                expect($operator.attr("transform")).to.equal("translate(220,240)");
                 done();
             });
         });
@@ -183,7 +183,7 @@ describe("DagView Test", () => {
                 expect(dag.getNode(parentId).parents.length).to.equal(0);
                 expect(dag.getNode(childId).parents.length).to.equal(1);
                 expect(dag.getNode(childId).children.length).to.equal(0);
-                expect($dfWrap.find(".mainSvg .edge").length).to.equal(1);
+                expect($dfWrap.find(".edgeSvg .edge").length).to.equal(1);
                 done();
             });
         });
@@ -198,7 +198,7 @@ describe("DagView Test", () => {
                 expect(dag.getNode(parentId).children.length).to.equal(0);
                 expect(dag.getNode(childId).parents.length).to.equal(1);
                 expect(dag.getNode(childId).parents[0]).to.equal(undefined);
-                expect($dfWrap.find(".mainSvg .edge").length).to.equal(0);
+                expect($dfWrap.find(".edgeSvg .edge").length).to.equal(0);
                 done();
             });
         });

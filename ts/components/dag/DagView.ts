@@ -350,6 +350,7 @@ namespace DagView {
             const newNodeIds: DagNodeId[] = [];
             const newNodes: DagNode[] = [];
             const oldNodeIdMap = {};
+
             clipboard.nodeInfos.forEach((nodeInfo) => {
                 nodeInfo = xcHelper.deepCopy(nodeInfo);
                 nodeInfo.display.x += xDelta;
@@ -467,7 +468,7 @@ namespace DagView {
      * @param nodeIds
      */
     export function moveNodes(nodeIds: DagNodeId[], positions: Coordinate[], graphDimensions?: Coordinate): XDPromise<void> {
-        let svg = d3.select("#dagView .dataflowArea.active .mainSvg");
+        let svg = d3.select("#dagView .dataflowArea.active .edgeSvg");
         let oldPositions = [];
         let maxXCoor: number = 0;
         let maxYCoor: number = 0;
@@ -481,16 +482,15 @@ namespace DagView {
                 y: positions[i].y
             });
 
-            $el.css({
-                left: positions[i].x,
-                top: positions[i].y
-            });
+
+            $el.attr("transform", "translate(" + positions[i].x + "," +
+                                            positions[i].y + ")");
 
             maxXCoor = Math.max(positions[i].x, maxXCoor);
             maxYCoor = Math.max(positions[i].y, maxYCoor);
 
             // positions this element in front
-            $el.appendTo($dfWrap.find(".dataflowArea.active"));
+            $el.appendTo($dfWrap.find(".dataflowArea.active .operatorSvg"));
 
             // redraw all paths that go out from this node
             $dagView.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function() {
@@ -903,8 +903,8 @@ namespace DagView {
                     const offset = _getDFAreaOffset();
                     const rect = $childConnector[0].getBoundingClientRect();
                     childCoors = {
-                        x: rect.right + offset.left - 1,
-                        y: rect.top + offset.top + 6
+                        x: rect.left + offset.left - 1,
+                        y: rect.top + offset.top + 4
                     };
                     // setup svg for temporary line
                     $dfArea.append('<svg class="secondarySvg"></svg>');
@@ -919,8 +919,8 @@ namespace DagView {
                 onDrag: function(coors) {
                     const offset = _getDFAreaOffset();
                     const parentCoors = {
-                        x: coors.x + offset.left,
-                        y: coors.y + offset.top + 5
+                        x: coors.x + offset.left + 2,
+                        y: coors.y + offset.top + 4
                     };
                     path.attr("d", lineFunction([childCoors, parentCoors]));
                 },
@@ -976,7 +976,7 @@ namespace DagView {
             $dfArea = $dfWrap.find(".dataflowArea.active");
 
             if ($target.is(".dataflowArea") || $target.is(".dataflowWrap") ||
-                 $target.is(".mainSvg")) {
+                 $target.is(".edgeSvg") || $target.is(".operatorSvg")) {
 
                 new RectSelction(event.pageX, event.pageY, {
                     "id": "dataflow-rectSelection",
@@ -1087,10 +1087,7 @@ namespace DagView {
         const $node = $operatorBar.find('.operator[data-type="' + type + '"]')
                                   .first().clone();
 
-        $node.css({
-            left: pos.x,
-            top: pos.y
-        });
+        $node.attr("transform", "translate(" + pos.x + "," + pos.y + ")");
 
         xcTooltip.add($node.find(".main"), {
             title: JSON.stringify(node.getParam(), null, 2)
@@ -1108,7 +1105,7 @@ namespace DagView {
         if (select) {
             $node.addClass("selected");
         }
-        $node.appendTo($dfArea);
+        $node.appendTo($dfArea.find(".operatorSvg"));
         return $node;
     }
 
@@ -1118,7 +1115,7 @@ namespace DagView {
         $childConnector.removeClass("noConnection")
                        .addClass("hasConnection");
 
-        const svg: d3 = d3.select("#dagView .dataflowArea.active .mainSvg");
+        const svg: d3 = d3.select("#dagView .dataflowArea.active .edgeSvg");
 
         _drawLineBetweenNodes(parentNodeId, childNodeId, connectorIndex, svg);
     }

@@ -255,7 +255,10 @@ class DragHelper {
 
         this.$draggingEl = $('<div class="dragContainer" style="width:' +
                             width + 'px;height:' + height + 'px;left:' + left +
-                            'px;top:' + top + 'px;"></div>');
+                            'px;top:' + top + 'px;">' +
+                            '<svg version="1.1" class="dragSvg" ' +
+                            'width="100%" height="100%"></svg>' +
+                            '</div>');
         this.currentDragCoor = {
             left: left,
             top: top,
@@ -264,15 +267,24 @@ class DragHelper {
         };
 
         const $clones: JQuery = this.$els.clone();
-        this.$draggingEl.append($clones);
+        this.$draggingEl.find(".dragSvg").append($clones);
 
         $clones.each(function(i: number) {
            let cloneLeft = self.origPositions[i].x - left;
            let cloneTop = self.origPositions[i].y - top;
-            $(this).css({
-                left: cloneLeft,
-                top: cloneTop
-            });
+           if ($(this).is("g")) {
+                $(this).attr("transform", "translate(" + cloneLeft + ", " +
+                                                     cloneTop + ")");
+           } else if ($(this).is("rect") || $(this).is("polygon")){
+                $(this).attr("x", cloneLeft)
+                      .attr("y", cloneTop);
+           } else {
+                $(this).css({
+                    left: cloneLeft,
+                    top: cloneTop
+                });
+           }
+
             self.dragContainerPositions.push({
                 x: cloneLeft,
                 y: cloneTop

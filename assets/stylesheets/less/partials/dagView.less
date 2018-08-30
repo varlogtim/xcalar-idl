@@ -263,7 +263,7 @@
         }
     }
     .operatorBar {
-        .size(@min-height: 50px);
+        .size(@height: 50px, @min-height: 50px);
         background: @color-white;
         border-bottom: 1px solid @color-border-bar;
 
@@ -306,32 +306,10 @@
             position: relative; // places main section in front of connectors
             z-index: 1;
             background-color: @color-white;
+        }
 
-            .iconArea {
-                float: left;
-                .size(@width: @iconArea-width, @height: 100%);
-                border-right: 1px solid  @color-border-operator;
-
-                .icon {
-                    font-size: 12px;
-                    text-align: center;
-                    padding-left: 1px;
-                    width: 100%;
-                    line-height: @operator-height - @border-width;
-                    color: @color-white;
-
-                    &.xi-aggregate {
-                        font-size: 11px;
-                    }
-                }
-            }
-
-            .nameArea {
-                text-align: center;
-                .textOverflowOneLine;
-                .size(@width: @operator-width - @iconArea-width - 8px, @height: 100%);
-                float: left;
-            }
+        .opTitle, .iconArea, .icon {
+            pointer-events: none;
         }
 
         .nodeid {
@@ -342,16 +320,15 @@
 
         // &.selected, &.dragSelected {
         &.selected , &.selecting {
-            .main, .iconArea, .statusIcon {
-                border-color: #55c4de;
-                color: @color-font-darkGray;
-                box-shadow: 0px 0px 0px 1px #55c4de;
+            .main, .iconArea, .statusIcon{
+                stroke: #55c4de;
+                stroke-width: 2;
             }
         }
 
         &.selecting {
             .main {
-                background-color: #F8f8f8;
+                fill: #F8f8f8;
             }
         }
 
@@ -364,88 +341,18 @@
         &.noDrag {
 
         }
-
-        &.category-in {
-            .iconArea {
-                background-color: @color-operator-in;
-            }
-        }
-        &.category-out {
-            .iconArea {
-                background-color: @color-operator-out;
-            }
-        }
-        &.category-value {
-            .iconArea {
-                background-color: @color-operator-value;
-            }
-        }
-        &.category-operations {
-            .iconArea {
-                background-color: @color-operator-operations;
-            }
-        }
-        &.category-column {
-            .iconArea {
-                background-color: @color-operator-column;
-            }
-        }
-        &.category-join {
-            .iconArea {
-                background-color: @color-operator-join;
-            }
-        }
-        &.category-set {
-            .iconArea {
-                background-color: @color-operator-set;
-            }
-        }
-        &.category-SQL {
-            .iconArea {
-                background-color: @color-operator-SQL;
-            }
-            .nameArea {
-                text-transform: uppercase;
-            }
-        }
-        &.category-extensions {
-            .iconArea {
-                background-color: @color-operator-extensions;
-            }
-        }
     }
 
     @inConnectorSize: 8px;
     @outConnectorSize: 6px;
 
-    .connectorArea {
-        position: absolute;
-        top: 2px;
-        height: @operator-height - 4px;
-        .flex-display;
-        .flex-direction(column);
-        .justify-content(space-evenly);
-
-        &.in {
-            left: 0px;
-        }
-        &.out {
-            right: 0px;
-        }
-    }
-
     .connector {
         &.in {
-            width: @inConnectorSize;
-            height: @inConnectorSize;
             background-color: @color-connector;
             border-radius: 1px;
             border: 1px solid @color-border-operator;
             cursor: pointer;
 
-            &.multi {
-                height: 80%;
-            }
             &.hasConnection {
                 cursor: default;
                 &.multi {
@@ -453,76 +360,48 @@
                 }
             }
             &:hover {
-                background-color: @color-border-operator;
+                fill: @color-border-operator;
                 &.hasConnection {
                     cursor: default;
-                    background-color: @color-connector;
+                    fill: @color-connector;
 
                     &.multi {
                         cursor: pointer;
-                        background-color: @color-border-operator;
+                        fill: @color-border-operator;
                     }
                 }
             }
         }
         &.out {
             position: relative;
-            right: -1px;
-            width: 0;
-            height: 12px;
-            border-top: @outConnectorSize solid transparent;
-            border-bottom: @outConnectorSize solid transparent;
-            border-left: @inConnectorSize solid @color-border-operator;
             cursor: pointer;
 
-            &:after {
-                content: " ";
-                position: absolute;
-                right: 1px;
-                top: -4px;
-                width: 0;
-                height: 0;
-                border-top: (@outConnectorSize - 2px) solid transparent;
-                border-bottom: (@outConnectorSize - 2px) solid transparent;
-                border-left:(@inConnectorSize - 2px) solid @color-connector;
-            }
-
             &:hover {
-                &:after {
-                    border-left:(@inConnectorSize - 2px) solid @color-border-operator;
-                }
+                fill: @color-border-operator;
             }
         }
-    }
-    .statusIcon {
-        .size(11px, 11px);
-        background-color: @color-white;
-        border-radius: 100%;
-        border: 1px solid @color-border-operator;
-        .position(absolute, @right: 10px, @bottom: -5px);
-        z-index: 1;
     }
 
     .operator {
         &.state-unused {
             .statusIcon {
-                background-color: @color-white;
+                fill: @color-white;
             }
         }
         &.state-Configured {
             .statusIcon {
-                background-color: #fff78d;
+                fill: #fff78d;
             }
 
         }
         &.state-Complete {
             .statusIcon {
-                background-color: #6ef2a6;
+                fill: #6ef2a6;
             }
         }
         &.state-Error {
             .statusIcon {
-                background-color: @color-background-error;
+                fill: @color-background-error;
             }
         }
     }
@@ -571,6 +450,17 @@
         z-index: 2;
         pointer-events: none;
 
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            overflow: visible;
+        }
+
+        svg > .connector.out {
+            transform: translate(-95px, -8px);
+        }
+
         .operator {
             position: absolute;
         }
@@ -592,7 +482,14 @@
         }
     }
 
-    .mainSvg, .secondarySvg {
+    .operatorSvg {
+        pointer-events: none;
+        .operator {
+            pointer-events: auto;
+        }
+    }
+
+    .operatorSvg, .edgeSvg, .secondarySvg {
         .size(100%, 100%);
         overflow: visible;
         .position(absolute, 0px, 0px);
