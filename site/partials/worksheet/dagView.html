@@ -44,66 +44,44 @@
     </div>
     <div class="dataflowWrap">
     </div>
+    include "dagNodeMenu.html"
 
-    <div id="dagNodeMenu" class="menu">
-        <ul>
-            <li class="configureNode" data-action="configureNode">
-                <i class="icon xi-setup"></i>
-                <span class="label"><%= dicts.dag.configure %></span>
-            </li>
-            <li class="executeNode" data-action="executeNode">
-                <i class="icon xi-play-circle"></i>
-                <span class="label"><%= dicts.dag.execute %></span>
-            </li>
-            <li class="executeAllNodes" data-action="executeAllNodes">
-                <i class="icon xi-play-circle"></i>
-                <span class="label"><%= dicts.dag.executeAll %></span>
-            </li>
-            <li class="previewTable unavailable" data-action="previewTable">
-                <i class="icon xi-show"></i>
-                <span class="label"><%= dicts.dag.previewTable %></span>
-            </li>
-            <li class="selectAllNodes" data-action="selectAllNodes">
-                <i class="icon xi-select-mode"></i>
-                <span class="label"><%= dicts.dag.selectAll %></span>
-            </li>
-            <li class="copyNodes" data-action="copyNodes">
-                <i class="icon xi-duplicate"></i>
-                <span class="label"><%= dicts.dag.copy %></span>
-            </li>
-            <li class="cutNodes" data-action="cutNodes">
-                <i class="icon xi-select-none"></i>
-                <span class="label"><%= dicts.dag.cut %></span>
-            </li>
-            <li class="pasteNodes" data-action="pasteNodes">
-                <i class="icon xi-copy-clipboard"></i>
-                <span class="label"><%= dicts.dag.paste %></span>
-            </li>
-            <!-- <li class="comment" data-action="comment">
-                <i class="icon xi-edit"></i>
-                <span class="label"><%= dicts.dag.comment %></span>
-            </li> -->
-            <li class="autoAlign" data-action="autoAlign">
-                <i class="icon xi_swap_horiz"></i>
-                <span class="label"><%= dicts.dag.autoAlign %></span>
-            </li>
-            <li class="removeNode" data-action="removeNode">
-                <i class="icon xi-close-no-circle"></i>
-                <span class="label"><%= dicts.dag.removeNode %></span>
-            </li>
-            <li class="removeAllNodes" data-action="removeAllNodes">
-                <i class="icon xi-close-no-circle"></i>
-                <span class="label"><%= dicts.dag.removeAllNodes %></span>
-            </li>
-            <li class="removeInConnection" data-action="removeInConnection">
-                <i class="icon xi-close-no-circle"></i>
-                <span class="label"><%= dicts.dag.removeConnection %></span>
-            </li>
-            <li class="exitOp" data-action="exitOpPanel">
-                <i class="icon xi-close-no-circle"></i>
-                <span class="label"></span>
-            </li>
-        </ul>
-        include "../../util/menuScrollArea.html"
+    <div id="dagSchemaPopup" class="schemaPopup">
+        <div id="dagSchemaPopupTitle" class="title">
+          <div class="titleContentWrap">
+            <span class="tableName"></span>
+            <span class="numCols" title=""></span>
+          </div>
+          <div class="close" data-container="body"
+             data-toggle="tooltip" title="" data-original-title="<%= dicts.common.Close %>">
+            <i class="icon xi-close"></i>
+          </div>
+        </div>
+        <span class="background"></span>
+        <!-- <div class="rowCount subHeader">
+          <div class="text"><%= dicts.queryGraph.numRows %></div>
+          <div class="value"></div>
+          <i class="icon xi-error error" data-toggle="tooltip" data-placement="right" data-container="body" data-original-title="<%= dicts.dataflow.heavySkew %>" data-tipclasses="zIndex10000"></i>
+          <i class="icon xi-warning error" data-toggle="tooltip" data-placement="right" data-container="body" data-original-title="<%= dicts.dataflow.slightSkew %>" data-tipclasses="zIndex10000"></i>
+          <i class="icon xi-arrow-down expand xc-action"></i>
+        </div> -->
+        <div class="nodeInfoHeader subHeader">
+          <div class="text active">
+            <%= dicts.queryGraph.node %>
+            <i class="icon xi-sort sort"></i>
+          </div>
+          <div class="value">
+            <span class="innerText">
+              <%= dicts.queryGraph.numRowsPct %>
+            </span>
+            <i class="icon xi-sort sort"></i>
+          </div>
+        </div>
+        <div class="nodeInfoContent"></div>
+        <div class="heading">
+            <div class="type"><%= dicts.queryGraph.type %></div>
+            <div class="field"><%= dicts.queryGraph.field %></div>
+        </div>
+        <div class="content"></div>
       </div>
 </div>

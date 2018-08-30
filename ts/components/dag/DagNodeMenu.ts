@@ -124,6 +124,9 @@ namespace DagNodeMenu {
                 case ("autoAlign"):
                     DagView.autoAlign();
                     break;
+                case ("viewSchema"):
+                    DagSchemaPopup.Instance.show(nodeIds[0]);
+                    break;
                 case ("exitOpPanel"):
                     MainMenu.closeForms();
                     break;

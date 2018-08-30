@@ -1376,6 +1376,7 @@ module.exports = {
         "autoAlign": "Auto Align",
         "copy": "Copy",
         "cut": "Cut",
-        "paste": "Paste"
+        "paste": "Paste",
+        "viewSchema": "View Schema"
     }
 };

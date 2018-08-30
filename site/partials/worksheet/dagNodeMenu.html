@@ -1,0 +1,65 @@
+<div id="dagNodeMenu" class="menu">
+    <ul>
+        <li class="configureNode" data-action="configureNode">
+            <i class="icon xi-setup"></i>
+            <span class="label"><%= dicts.dag.configure %></span>
+        </li>
+        <li class="executeNode" data-action="executeNode">
+            <i class="icon xi-play-circle"></i>
+            <span class="label"><%= dicts.dag.execute %></span>
+        </li>
+        <li class="executeAllNodes" data-action="executeAllNodes">
+            <i class="icon xi-play-circle"></i>
+            <span class="label"><%= dicts.dag.executeAll %></span>
+        </li>
+        <li class="previewTable unavailable" data-action="previewTable">
+            <i class="icon xi-preview"></i>
+            <span class="label"><%= dicts.dag.previewTable %></span>
+        </li>
+        <li class="selectAllNodes" data-action="selectAllNodes">
+            <i class="icon xi-select-mode"></i>
+            <span class="label"><%= dicts.dag.selectAll %></span>
+        </li>
+        <li class="copyNodes" data-action="copyNodes">
+            <i class="icon xi-duplicate"></i>
+            <span class="label"><%= dicts.dag.copy %></span>
+        </li>
+        <li class="cutNodes" data-action="cutNodes">
+            <i class="icon xi-select-none"></i>
+            <span class="label"><%= dicts.dag.cut %></span>
+        </li>
+        <li class="pasteNodes" data-action="pasteNodes">
+            <i class="icon xi-copy-clipboard"></i>
+            <span class="label"><%= dicts.dag.paste %></span>
+        </li>
+        <!-- <li class="comment" data-action="comment">
+            <i class="icon xi-edit"></i>
+            <span class="label"><%= dicts.dag.comment %></span>
+        </li> -->
+        <li class="autoAlign" data-action="autoAlign">
+            <i class="icon xi_swap_horiz"></i>
+            <span class="label"><%= dicts.dag.autoAlign %></span>
+        </li>
+        <li class="viewSchema" data-action="viewSchema">
+            <i class="icon xi-show"></i>
+            <span class="label"><%= dicts.dag.viewSchema %></span>
+        </li>
+        <li class="removeNode" data-action="removeNode">
+            <i class="icon xi-close-no-circle"></i>
+            <span class="label"><%= dicts.dag.removeNode %></span>
+        </li>
+        <li class="removeAllNodes" data-action="removeAllNodes">
+            <i class="icon xi-close-no-circle"></i>
+            <span class="label"><%= dicts.dag.removeAllNodes %></span>
+        </li>
+        <li class="removeInConnection" data-action="removeInConnection">
+            <i class="icon xi-close-no-circle"></i>
+            <span class="label"><%= dicts.dag.removeConnection %></span>
+        </li>
+        <li class="exitOp" data-action="exitOpPanel">
+            <i class="icon xi-close-no-circle"></i>
+            <span class="label"></span>
+        </li>
+    </ul>
+    include "../../util/menuScrollArea.html"
+</div>
