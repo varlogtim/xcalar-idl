@@ -189,7 +189,8 @@ abstract class DagNode {
      */
     public switchState(): void {
         if (Object.keys(this.input).length === 0) {
-            // it's in unsed state
+            // it's in unsed state, but it may still has caches of lineage
+            this._clearConnectionMeta();
             return;
         }
         const error: {error: string} = this._validateParents();
