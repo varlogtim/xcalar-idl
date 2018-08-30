@@ -147,8 +147,8 @@ window.DSTable = (function($, DSTable) {
             progressAreaHtml = xcHelper.getLockIconHtml(txId, 0, withText);
             $dsTableContainer.find(".loadSection").append(progressAreaHtml);
             var progressCircle = new ProgressCircle(txId, 0, withText);
-            $dsTableContainer.find(".cancelLoad").data("progresscircle",
-                                                       progressCircle);
+            $dsTableContainer.find('.cancelLoad[data-txid="' + txId + '"]')
+                            .data("progresscircle", progressCircle);
         }
     }
 
