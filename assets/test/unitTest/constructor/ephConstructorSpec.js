@@ -1936,17 +1936,18 @@ describe("Ephemeral Constructor Test", function() {
             test = null;
         });
 
-        it("RectSelction should have 8 attributes", function() {
+        it("RectSelction should have 15 attributes", function() {
             rect = new RectSelction(100, 200, {
                 "id": "test-selection",
                 "$container": $("#container"),
+                "$scrollContainer": $("#container"),
                 onStart: function() { test = "start"; },
                 onDraw: function() { test = "draw"; },
                 onEnd: function() { test = "end"; }
             });
 
             expect(rect).to.be.instanceof(RectSelction);
-            expect(Object.keys(rect).length).to.equal(9);
+            expect(Object.keys(rect).length).to.equal(15);
 
             expect(rect.x).to.equal(101);
             expect(rect.y).to.equal(200);
@@ -1957,6 +1958,12 @@ describe("Ephemeral Constructor Test", function() {
             expect(rect.onDraw).to.be.a("function");
             expect(rect.onEnd).to.be.a("function");
             expect(rect.onMouseup).to.be.undefined;
+            expect(rect.$scrollContainer.attr("id")).to.equal("container");
+            expect(rect.scrollBound).to.exists;
+            expect(rect.isDragging).to.be.true;
+            expect(rect.mouseCoors).to.exist;
+            expect(rect.initialX).to.be.a.number;
+            expect(rect.initialY).to.be.a.number;
         });
 
         it("should get rect", function() {
