@@ -671,6 +671,40 @@ namespace DagView {
 
     }
 
+    export function highlightLineage(nodeId: DagNodeId, childNodeId?: DagNodeId, type?: string): void {
+        const $node = DagView.getNode(nodeId);
+        $node.addClass("lineageSelected");
+        if (childNodeId) {
+            const $edge: JQuery = $dagView.find('.edge[data-parentnodeid="' +
+            nodeId +
+            '"][data-childnodeid="' +
+            childNodeId +
+            '"]');
+            $edge.addClass("lineageSelected");
+        }
+        const node = activeDag.getNode(nodeId);
+        let tipText = "";
+        if (type === "rename") {
+            tipText = CommonTxtTstr.Renamed;
+        } else if (type === "add" || node.getNumParent() === 0) {
+            tipText =  CommonTxtTstr.Created;
+        }
+        if (tipText) {
+            const pos = node.getPosition();
+            const x = pos.x + 31;
+            const y = Math.max(0, pos.y - 26);
+            let tip: HTML = _dagLineageTipTemplate(x, y, tipText);
+            $dfWrap.find(".dataflowArea.active").append(tip);
+        }
+    }
+
+    function _dagLineageTipTemplate(x, y, text): HTML {
+        return '<div class="dagTableTip lineageTip" ' +
+                'style="left:' + x + 'px;top:' + y + 'px;">' +
+                '<div>' + text + '</div>' +
+            '</div>';
+    }
+
     function _removeConnection($edge, childNodeId) {
         const connectorIndex: number = parseInt($edge.attr('data-connectorindex'));
         $edge.remove();
@@ -1097,7 +1131,12 @@ namespace DagView {
         abbrId = abbrId.slice(abbrId.indexOf(".") + 1);
 
         // show id next to node
-        // $node.append('<div class="nodeid">' + abbrId + '</div>');
+        // d3.select($node.get(0)).append("text")
+        //    .attr("fill", "black")
+        //    .attr("font-size", 8)
+        //    .attr("x", 10)
+        //    .attr("y", 38)
+        //    .text(abbrId);
 
         // use .attr instead of .data so we can grab by selector
         $node.attr("data-nodeid", nodeId);
