@@ -768,126 +768,126 @@ nonReserved
     | BOTH | LEADING | TRAILING
     ;
 
-SELECT: 'SELECT';
-FROM: 'FROM';
-ADD: 'ADD';
-AS: 'AS';
-ALL: 'ALL';
-ANY: 'ANY';
-DISTINCT: 'DISTINCT';
-WHERE: 'WHERE';
-GROUP: 'GROUP';
-BY: 'BY';
-GROUPING: 'GROUPING';
-SETS: 'SETS';
-CUBE: 'CUBE';
-ROLLUP: 'ROLLUP';
-ORDER: 'ORDER';
-HAVING: 'HAVING';
-LIMIT: 'LIMIT';
-AT: 'AT';
-OR: 'OR';
-AND: 'AND';
-IN: 'IN';
-NOT: 'NOT' | '!';
-NO: 'NO';
-EXISTS: 'EXISTS';
-BETWEEN: 'BETWEEN';
-LIKE: 'LIKE';
-RLIKE: 'RLIKE' | 'REGEXP';
-IS: 'IS';
-NULL: 'NULL';
-TRUE: 'TRUE';
-FALSE: 'FALSE';
-NULLS: 'NULLS';
-ASC: 'ASC';
-DESC: 'DESC';
-FOR: 'FOR';
-INTERVAL: 'INTERVAL';
-CASE: 'CASE';
-WHEN: 'WHEN';
-THEN: 'THEN';
-ELSE: 'ELSE';
-END: 'END';
-JOIN: 'JOIN';
-CROSS: 'CROSS';
-OUTER: 'OUTER';
-INNER: 'INNER';
-LEFT: 'LEFT';
-SEMI: 'SEMI';
-RIGHT: 'RIGHT';
-FULL: 'FULL';
-NATURAL: 'NATURAL';
-ON: 'ON';
-PIVOT: 'PIVOT';
-LATERAL: 'LATERAL';
-WINDOW: 'WINDOW';
-OVER: 'OVER';
-PARTITION: 'PARTITION';
-RANGE: 'RANGE';
-ROWS: 'ROWS';
-UNBOUNDED: 'UNBOUNDED';
-PRECEDING: 'PRECEDING';
-FOLLOWING: 'FOLLOWING';
-CURRENT: 'CURRENT';
-FIRST: 'FIRST';
-AFTER: 'AFTER';
-LAST: 'LAST';
-ROW: 'ROW';
-WITH: 'WITH';
-VALUES: 'VALUES';
-CREATE: 'CREATE';
-TABLE: 'TABLE';
-DIRECTORY: 'DIRECTORY';
-VIEW: 'VIEW';
-REPLACE: 'REPLACE';
-INSERT: 'INSERT';
-DELETE: 'DELETE';
-INTO: 'INTO';
-DESCRIBE: 'DESCRIBE';
-EXPLAIN: 'EXPLAIN';
-FORMAT: 'FORMAT';
-LOGICAL: 'LOGICAL';
-CODEGEN: 'CODEGEN';
-COST: 'COST';
-CAST: 'CAST';
-SHOW: 'SHOW';
-TABLES: 'TABLES';
-COLUMNS: 'COLUMNS';
-COLUMN: 'COLUMN';
-USE: 'USE';
-PARTITIONS: 'PARTITIONS';
-FUNCTIONS: 'FUNCTIONS';
-DROP: 'DROP';
-UNION: 'UNION';
-EXCEPT: 'EXCEPT';
-SETMINUS: 'MINUS';
-INTERSECT: 'INTERSECT';
-TO: 'TO';
-TABLESAMPLE: 'TABLESAMPLE';
-STRATIFY: 'STRATIFY';
-ALTER: 'ALTER';
-RENAME: 'RENAME';
-ARRAY: 'ARRAY';
-MAP: 'MAP';
-STRUCT: 'STRUCT';
-COMMENT: 'COMMENT';
-SET: 'SET';
-RESET: 'RESET';
-DATA: 'DATA';
-START: 'START';
-TRANSACTION: 'TRANSACTION';
-COMMIT: 'COMMIT';
-ROLLBACK: 'ROLLBACK';
-MACRO: 'MACRO';
-IGNORE: 'IGNORE';
-BOTH: 'BOTH';
-LEADING: 'LEADING';
-TRAILING: 'TRAILING';
+SELECT: [sS] [eE] [lL] [eE] [cC] [tT];
+FROM: [fF] [rR] [oO] [mM];
+ADD: [aA] [dD] [dD];
+AS: [aA] [sS];
+ALL: [aA] [lL] [lL];
+ANY: [aA] [nN] [yY];
+DISTINCT: [dD] [iI] [sS] [tT] [iI] [nN] [cC] [tT];
+WHERE: [wW] [hH] [eE] [rR] [eE];
+GROUP: [gG] [rR] [oO] [uU] [pP];
+BY: [bB] [yY];
+GROUPING: [gG] [rR] [oO] [uU] [pP] [iI] [nN] [gG];
+SETS: [sS] [eE] [tT] [sS];
+CUBE: [cC] [uU] [bB] [eE];
+ROLLUP: [rR] [oO] [lL] [lL] [uU] [pP];
+ORDER: [oO] [rR] [dD] [eE] [rR];
+HAVING: [hH] [aA] [vV] [iI] [nN] [gG];
+LIMIT: [lL] [iI] [mM] [iI] [tT];
+AT: [aA] [tT];
+OR: [oO] [rR];
+AND: [aA] [nN] [dD];
+IN: [iI] [nN];
+NOT: [nN] [oO] [tT] | '!';
+NO: [nN] [oO];
+EXISTS: [eE] [xX] [iI] [sS] [tT] [sS];
+BETWEEN: [bB] [eE] [tT] [wW] [eE] [eE] [nN];
+LIKE: [lL] [iI] [kK] [eE];
+RLIKE: [rR] [lL] [iI] [kK] [eE] | [rR] [eE] [gG] [eE] [xX] [pP];
+IS: [iI] [sS];
+NULL: [nN] [uU] [lL] [lL];
+TRUE: [tT] [rR] [uU] [eE];
+FALSE: [fF] [aA] [lL] [sS] [eE];
+NULLS: [nN] [uU] [lL] [lL] [sS];
+ASC: [aA] [sS] [cC];
+DESC: [dD] [eE] [sS] [cC];
+FOR: [fF] [oO] [rR];
+INTERVAL: [iI] [nN] [tT] [eE] [rR] [vV] [aA] [lL];
+CASE: [cC] [aA] [sS] [eE];
+WHEN: [wW] [hH] [eE] [nN];
+THEN: [tT] [hH] [eE] [nN];
+ELSE: [eE] [lL] [sS] [eE];
+END: [eE] [nN] [dD];
+JOIN: [jJ] [oO] [iI] [nN];
+CROSS: [cC] [rR] [oO] [sS] [sS];
+OUTER: [oO] [uU] [tT] [eE] [rR];
+INNER: [iI] [nN] [nN] [eE] [rR];
+LEFT: [lL] [eE] [fF] [tT];
+SEMI: [sS] [eE] [mM] [iI];
+RIGHT: [rR] [iI] [gG] [hH] [tT];
+FULL: [fF] [uU] [lL] [lL];
+NATURAL: [nN] [aA] [tT] [uU] [rR] [aA] [lL];
+ON: [oO] [nN];
+PIVOT: [pP] [iI] [vV] [oO] [tT];
+LATERAL: [lL] [aA] [tT] [eE] [rR] [aA] [lL];
+WINDOW: [wW] [iI] [nN] [dD] [oO] [wW];
+OVER: [oO] [vV] [eE] [rR];
+PARTITION: [pP] [aA] [rR] [tT] [iI] [tT] [iI] [oO] [nN];
+RANGE: [rR] [aA] [nN] [gG] [eE];
+ROWS: [rR] [oO] [wW] [sS];
+UNBOUNDED: [uU] [nN] [bB] [oO] [uU] [nN] [dD] [eE] [dD];
+PRECEDING: [pP] [rR] [eE] [cC] [eE] [dD] [iI] [nN] [gG];
+FOLLOWING: [fF] [oO] [lL] [lL] [oO] [wW] [iI] [nN] [gG];
+CURRENT: [cC] [uU] [rR] [rR] [eE] [nN] [tT];
+FIRST: [fF] [iI] [rR] [sS] [tT];
+AFTER: [aA] [fF] [tT] [eE] [rR];
+LAST: [lL] [aA] [sS] [tT];
+ROW: [rR] [oO] [wW];
+WITH: [wW] [iI] [tT] [hH];
+VALUES: [vV] [aA] [lL] [uU] [eE] [sS];
+CREATE: [cC] [rR] [eE] [aA] [tT] [eE];
+TABLE: [tT] [aA] [bB] [lL] [eE];
+DIRECTORY: [dD] [iI] [rR] [eE] [cC] [tT] [oO] [rR] [yY];
+VIEW: [vV] [iI] [eE] [wW];
+REPLACE: [rR] [eE] [pP] [lL] [aA] [cC] [eE];
+INSERT: [iI] [nN] [sS] [eE] [rR] [tT];
+DELETE: [dD] [eE] [lL] [eE] [tT] [eE];
+INTO: [iI] [nN] [tT] [oO];
+DESCRIBE: [dD] [eE] [sS] [cC] [rR] [iI] [bB] [eE];
+EXPLAIN: [eE] [xX] [pP] [lL] [aA] [iI] [nN];
+FORMAT: [fF] [oO] [rR] [mM] [aA] [tT];
+LOGICAL: [lL] [oO] [gG] [iI] [cC] [aA] [lL];
+CODEGEN: [cC] [oO] [dD] [eE] [gG] [eE] [nN];
+COST: [cC] [oO] [sS] [tT];
+CAST: [cC] [aA] [sS] [tT];
+SHOW: [sS] [hH] [oO] [wW];
+TABLES: [tT] [aA] [bB] [lL] [eE] [sS];
+COLUMNS: [cC] [oO] [lL] [uU] [mM] [nN] [sS];
+COLUMN: [cC] [oO] [lL] [uU] [mM] [nN];
+USE: [uU] [sS] [eE];
+PARTITIONS: [pP] [aA] [rR] [tT] [iI] [tT] [iI] [oO] [nN] [sS];
+FUNCTIONS: [fF] [uU] [nN] [cC] [tT] [iI] [oO] [nN] [sS];
+DROP: [dD] [rR] [oO] [pP];
+UNION: [uU] [nN] [iI] [oO] [nN];
+EXCEPT: [eE] [xX] [cC] [eE] [pP] [tT];
+SETMINUS: [mM] [iI] [nN] [uU] [sS];
+INTERSECT: [iI] [nN] [tT] [eE] [rR] [sS] [eE] [cC] [tT];
+TO: [tT] [oO];
+TABLESAMPLE: [tT] [aA] [bB] [lL] [eE] [sS] [aA] [mM] [pP] [lL] [eE];
+STRATIFY: [sS] [tT] [rR] [aA] [tT] [iI] [fF] [yY];
+ALTER: [aA] [lL] [tT] [eE] [rR];
+RENAME: [rR] [eE] [nN] [aA] [mM] [eE];
+ARRAY: [aA] [rR] [rR] [aA] [yY];
+MAP: [mM] [aA] [pP];
+STRUCT: [sS] [tT] [rR] [uU] [cC] [tT];
+COMMENT: [cC] [oO] [mM] [mM] [eE] [nN] [tT];
+SET: [sS] [eE] [tT];
+RESET: [rR] [eE] [sS] [eE] [tT];
+DATA: [dD] [aA] [tT] [aA];
+START: [sS] [tT] [aA] [rR] [tT];
+TRANSACTION: [tT] [rR] [aA] [nN] [sS] [aA] [cC] [tT] [iI] [oO] [nN];
+COMMIT: [cC] [oO] [mM] [mM] [iI] [tT];
+ROLLBACK: [rR] [oO] [lL] [lL] [bB] [aA] [cC] [kK];
+MACRO: [mM] [aA] [cC] [rR] [oO];
+IGNORE: [iI] [gG] [nN] [oO] [rR] [eE];
+BOTH: [bB] [oO] [tT] [hH];
+LEADING: [lL] [eE] [aA] [dD] [iI] [nN] [gG];
+TRAILING: [tT] [rR] [aA] [iI] [lL] [iI] [nN] [gG];
 
-IF: 'IF';
-POSITION: 'POSITION';
-EXTRACT: 'EXTRACT';
+IF: [iI] [fF];
+POSITION: [pP] [oO] [sS] [iI] [tT] [iI] [oO] [nN];
+EXTRACT: [eE] [xX] [tT] [rR] [aA] [cC] [tT];
 
 EQ  : '=' | '==';
 NSEQ: '<=>';
@@ -903,105 +903,105 @@ MINUS: '-';
 ASTERISK: '*';
 SLASH: '/';
 PERCENT: '%';
-DIV: 'DIV';
+DIV: [dD] [iI] [vV];
 TILDE: '~';
 AMPERSAND: '&';
 PIPE: '|';
 CONCAT_PIPE: '||';
 HAT: '^';
 
-PERCENTLIT: 'PERCENT';
-BUCKET: 'BUCKET';
-OUT: 'OUT';
-OF: 'OF';
+PERCENTLIT: [pP] [eE] [rR] [cC] [eE] [nN] [tT];
+BUCKET: [bB] [uU] [cC] [kK] [eE] [tT];
+OUT: [oO] [uU] [tT];
+OF: [oO] [fF];
 
-SORT: 'SORT';
-CLUSTER: 'CLUSTER';
-DISTRIBUTE: 'DISTRIBUTE';
-OVERWRITE: 'OVERWRITE';
-TRANSFORM: 'TRANSFORM';
-REDUCE: 'REDUCE';
-USING: 'USING';
-SERDE: 'SERDE';
-SERDEPROPERTIES: 'SERDEPROPERTIES';
-RECORDREADER: 'RECORDREADER';
-RECORDWRITER: 'RECORDWRITER';
-DELIMITED: 'DELIMITED';
-FIELDS: 'FIELDS';
-TERMINATED: 'TERMINATED';
-COLLECTION: 'COLLECTION';
-ITEMS: 'ITEMS';
-KEYS: 'KEYS';
-ESCAPED: 'ESCAPED';
-LINES: 'LINES';
-SEPARATED: 'SEPARATED';
-SQLFUNCTION: 'SQLFUNCTION';
-EXTENDED: 'EXTENDED';
-REFRESH: 'REFRESH';
-CLEAR: 'CLEAR';
-CACHE: 'CACHE';
-UNCACHE: 'UNCACHE';
-LAZY: 'LAZY';
-FORMATTED: 'FORMATTED';
-GLOBAL: 'GLOBAL';
-TEMPORARY: 'TEMPORARY' | 'TEMP';
-OPTIONS: 'OPTIONS';
-UNSET: 'UNSET';
-TBLPROPERTIES: 'TBLPROPERTIES';
-DBPROPERTIES: 'DBPROPERTIES';
-BUCKETS: 'BUCKETS';
-SKEWED: 'SKEWED';
-STORED: 'STORED';
-DIRECTORIES: 'DIRECTORIES';
-LOCATION: 'LOCATION';
-EXCHANGE: 'EXCHANGE';
-ARCHIVE: 'ARCHIVE';
-UNARCHIVE: 'UNARCHIVE';
-FILEFORMAT: 'FILEFORMAT';
-TOUCH: 'TOUCH';
-COMPACT: 'COMPACT';
-CONCATENATE: 'CONCATENATE';
-CHANGE: 'CHANGE';
-CASCADE: 'CASCADE';
-RESTRICT: 'RESTRICT';
-CLUSTERED: 'CLUSTERED';
-SORTED: 'SORTED';
-PURGE: 'PURGE';
-INPUTFORMAT: 'INPUTFORMAT';
-OUTPUTFORMAT: 'OUTPUTFORMAT';
-DATABASE: 'DATABASE' | 'SCHEMA';
-DATABASES: 'DATABASES' | 'SCHEMAS';
-DFS: 'DFS';
-TRUNCATE: 'TRUNCATE';
-ANALYZE: 'ANALYZE';
-COMPUTE: 'COMPUTE';
-LIST: 'LIST';
-STATISTICS: 'STATISTICS';
-PARTITIONED: 'PARTITIONED';
-EXTERNAL: 'EXTERNAL';
-DEFINED: 'DEFINED';
-REVOKE: 'REVOKE';
-GRANT: 'GRANT';
-LOCK: 'LOCK';
-UNLOCK: 'UNLOCK';
-MSCK: 'MSCK';
-REPAIR: 'REPAIR';
-RECOVER: 'RECOVER';
-EXPORT: 'EXPORT';
-IMPORT: 'IMPORT';
-LOAD: 'LOAD';
-ROLE: 'ROLE';
-ROLES: 'ROLES';
-COMPACTIONS: 'COMPACTIONS';
-PRINCIPALS: 'PRINCIPALS';
-TRANSACTIONS: 'TRANSACTIONS';
-INDEX: 'INDEX';
-INDEXES: 'INDEXES';
-LOCKS: 'LOCKS';
-OPTION: 'OPTION';
-ANTI: 'ANTI';
-LOCAL: 'LOCAL';
-INPATH: 'INPATH';
+SORT: [sS] [oO] [rR] [tT];
+CLUSTER: [cC] [lL] [uU] [sS] [tT] [eE] [rR];
+DISTRIBUTE: [dD] [iI] [sS] [tT] [rR] [iI] [bB] [uU] [tT] [eE];
+OVERWRITE: [oO] [vV] [eE] [rR] [wW] [rR] [iI] [tT] [eE];
+TRANSFORM: [tT] [rR] [aA] [nN] [sS] [fF] [oO] [rR] [mM];
+REDUCE: [rR] [eE] [dD] [uU] [cC] [eE];
+USING: [uU] [sS] [iI] [nN] [gG];
+SERDE: [sS] [eE] [rR] [dD] [eE];
+SERDEPROPERTIES: [sS] [eE] [rR] [dD] [eE] [pP] [rR] [oO] [pP] [eE] [rR] [tT] [iI] [eE] [sS];
+RECORDREADER: [rR] [eE] [cC] [oO] [rR] [dD] [rR] [eE] [aA] [dD] [eE] [rR];
+RECORDWRITER: [rR] [eE] [cC] [oO] [rR] [dD] [wW] [rR] [iI] [tT] [eE] [rR];
+DELIMITED: [dD] [eE] [lL] [iI] [mM] [iI] [tT] [eE] [dD];
+FIELDS: [fF] [iI] [eE] [lL] [dD] [sS];
+TERMINATED: [tT] [eE] [rR] [mM] [iI] [nN] [aA] [tT] [eE] [dD];
+COLLECTION: [cC] [oO] [lL] [lL] [eE] [cC] [tT] [iI] [oO] [nN];
+ITEMS: [iI] [tT] [eE] [mM] [sS];
+KEYS: [kK] [eE] [yY] [sS];
+ESCAPED: [eE] [sS] [cC] [aA] [pP] [eE] [dD];
+LINES: [lL] [iI] [nN] [eE] [sS];
+SEPARATED: [sS] [eE] [pP] [aA] [rR] [aA] [tT] [eE] [dD];
+SQLFUNCTION: [sS] [qQ] [lL] [fF] [uU] [nN] [cC] [tT] [iI] [oO] [nN];
+EXTENDED: [eE] [xX] [tT] [eE] [nN] [dD] [eE] [dD];
+REFRESH: [rR] [eE] [fF] [rR] [eE] [sS] [hH];
+CLEAR: [cC] [lL] [eE] [aA] [rR];
+CACHE: [cC] [aA] [cC] [hH] [eE];
+UNCACHE: [uU] [nN] [cC] [aA] [cC] [hH] [eE];
+LAZY: [lL] [aA] [zZ] [yY];
+FORMATTED: [fF] [oO] [rR] [mM] [aA] [tT] [tT] [eE] [dD];
+GLOBAL: [gG] [lL] [oO] [bB] [aA] [lL];
+TEMPORARY: [tT] [eE] [mM] [pP] [oO] [rR] [aA] [rR] [yY] | [tT] [eE] [mM] [pP];
+OPTIONS: [oO] [pP] [tT] [iI] [oO] [nN] [sS];
+UNSET: [uU] [nN] [sS] [eE] [tT];
+TBLPROPERTIES: [tT] [bB] [lL] [pP] [rR] [oO] [pP] [eE] [rR] [tT] [iI] [eE] [sS];
+DBPROPERTIES: [dD] [bB] [pP] [rR] [oO] [pP] [eE] [rR] [tT] [iI] [eE] [sS];
+BUCKETS: [bB] [uU] [cC] [kK] [eE] [tT] [sS];
+SKEWED: [sS] [kK] [eE] [wW] [eE] [dD];
+STORED: [sS] [tT] [oO] [rR] [eE] [dD];
+DIRECTORIES: [dD] [iI] [rR] [eE] [cC] [tT] [oO] [rR] [iI] [eE] [sS];
+LOCATION: [lL] [oO] [cC] [aA] [tT] [iI] [oO] [nN];
+EXCHANGE: [eE] [xX] [cC] [hH] [aA] [nN] [gG] [eE];
+ARCHIVE: [aA] [rR] [cC] [hH] [iI] [vV] [eE];
+UNARCHIVE: [uU] [nN] [aA] [rR] [cC] [hH] [iI] [vV] [eE];
+FILEFORMAT: [fF] [iI] [lL] [eE] [fF] [oO] [rR] [mM] [aA] [tT];
+TOUCH: [tT] [oO] [uU] [cC] [hH];
+COMPACT: [cC] [oO] [mM] [pP] [aA] [cC] [tT];
+CONCATENATE: [cC] [oO] [nN] [cC] [aA] [tT] [eE] [nN] [aA] [tT] [eE];
+CHANGE: [cC] [hH] [aA] [nN] [gG] [eE];
+CASCADE: [cC] [aA] [sS] [cC] [aA] [dD] [eE];
+RESTRICT: [rR] [eE] [sS] [tT] [rR] [iI] [cC] [tT];
+CLUSTERED: [cC] [lL] [uU] [sS] [tT] [eE] [rR] [eE] [dD];
+SORTED: [sS] [oO] [rR] [tT] [eE] [dD];
+PURGE: [pP] [uU] [rR] [gG] [eE];
+INPUTFORMAT: [iI] [nN] [pP] [uU] [tT] [fF] [oO] [rR] [mM] [aA] [tT];
+OUTPUTFORMAT: [oO] [uU] [tT] [pP] [uU] [tT] [fF] [oO] [rR] [mM] [aA] [tT];
+DATABASE: [dD] [aA] [tT] [aA] [bB] [aA] [sS] [eE] | [sS] [cC] [hH] [eE] [mM] [aA];
+DATABASES: [dD] [aA] [tT] [aA] [bB] [aA] [sS] [eE] [sS] | [sS] [cC] [hH] [eE] [mM] [aA] [sS];
+DFS: [dD] [fF] [sS];
+TRUNCATE: [tT] [rR] [uU] [nN] [cC] [aA] [tT] [eE];
+ANALYZE: [aA] [nN] [aA] [lL] [yY] [zZ] [eE];
+COMPUTE: [cC] [oO] [mM] [pP] [uU] [tT] [eE];
+LIST: [lL] [iI] [sS] [tT];
+STATISTICS: [sS] [tT] [aA] [tT] [iI] [sS] [tT] [iI] [cC] [sS];
+PARTITIONED: [pP] [aA] [rR] [tT] [iI] [tT] [iI] [oO] [nN] [eE] [dD];
+EXTERNAL: [eE] [xX] [tT] [eE] [rR] [nN] [aA] [lL];
+DEFINED: [dD] [eE] [fF] [iI] [nN] [eE] [dD];
+REVOKE: [rR] [eE] [vV] [oO] [kK] [eE];
+GRANT: [gG] [rR] [aA] [nN] [tT];
+LOCK: [lL] [oO] [cC] [kK];
+UNLOCK: [uU] [nN] [lL] [oO] [cC] [kK];
+MSCK: [mM] [sS] [cC] [kK];
+REPAIR: [rR] [eE] [pP] [aA] [iI] [rR];
+RECOVER: [rR] [eE] [cC] [oO] [vV] [eE] [rR];
+EXPORT: [eE] [xX] [pP] [oO] [rR] [tT];
+IMPORT: [iI] [mM] [pP] [oO] [rR] [tT];
+LOAD: [lL] [oO] [aA] [dD];
+ROLE: [rR] [oO] [lL] [eE];
+ROLES: [rR] [oO] [lL] [eE] [sS];
+COMPACTIONS: [cC] [oO] [mM] [pP] [aA] [cC] [tT] [iI] [oO] [nN] [sS];
+PRINCIPALS: [pP] [rR] [iI] [nN] [cC] [iI] [pP] [aA] [lL] [sS];
+TRANSACTIONS: [tT] [rR] [aA] [nN] [sS] [aA] [cC] [tT] [iI] [oO] [nN] [sS];
+INDEX: [iI] [nN] [dD] [eE] [xX];
+INDEXES: [iI] [nN] [dD] [eE] [xX] [eE] [sS];
+LOCKS: [lL] [oO] [cC] [kK] [sS];
+OPTION: [oO] [pP] [tT] [iI] [oO] [nN];
+ANTI: [aA] [nN] [tT] [iI];
+LOCAL: [lL] [oO] [cC] [aA] [lL];
+INPATH: [iI] [nN] [pP] [aA] [tT] [hH];
 
 STRING
     : '\'' ( ~('\''|'\\') | ('\\' .) )* '\''
@@ -1009,15 +1009,15 @@ STRING
     ;
 
 BIGINT_LITERAL
-    : DIGIT+ 'L'
+    : DIGIT+ [lL]
     ;
 
 SMALLINT_LITERAL
-    : DIGIT+ 'S'
+    : DIGIT+ [sS]
     ;
 
 TINYINT_LITERAL
-    : DIGIT+ 'Y'
+    : DIGIT+ [yY]
     ;
 
 INTEGER_VALUE
@@ -1030,13 +1030,13 @@ DECIMAL_VALUE
     ;
 
 DOUBLE_LITERAL
-    : DIGIT+ EXPONENT? 'D'
-    | DECIMAL_DIGITS EXPONENT? 'D' {isValidDecimal.apply(this)}?
+    : DIGIT+ EXPONENT? [dD]
+    | DECIMAL_DIGITS EXPONENT? [dD] {isValidDecimal.apply(this)}?
     ;
 
 BIGDECIMAL_LITERAL
-    : DIGIT+ EXPONENT? 'BD'
-    | DECIMAL_DIGITS EXPONENT? 'BD' {isValidDecimal.apply(this)}?
+    : DIGIT+ EXPONENT? [bB] [dD]
+    | DECIMAL_DIGITS EXPONENT? [bB] [dD] {isValidDecimal.apply(this)}?
     ;
 
 IDENTIFIER
@@ -1053,7 +1053,7 @@ fragment DECIMAL_DIGITS
     ;
 
 fragment EXPONENT
-    : 'E' [+-]? DIGIT+
+    : [eE] [+-]? DIGIT+
     ;
 
 fragment DIGIT
@@ -1061,7 +1061,7 @@ fragment DIGIT
     ;
 
 fragment LETTER
-    : [A-Z]
+    : [A-Za-z]
     ;
 
 SIMPLE_COMMENT

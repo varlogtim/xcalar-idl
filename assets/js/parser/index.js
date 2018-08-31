@@ -12,7 +12,7 @@ var XcErrorListener = require('./XcErrorListener').XcErrorListener;
 
 class SqlParser {
     static getMultipleQueriesViaParser(sqlStatement) {
-        var chars = new antlr4.InputStream(sqlStatement.toUpperCase());
+        var chars = new antlr4.InputStream(sqlStatement);
         var lexer = new SqlBaseLexer(chars);
         var tokens  = new antlr4.CommonTokenStream(lexer);
         var parser = new SqlBaseParser(tokens);
