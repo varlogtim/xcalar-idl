@@ -73,41 +73,90 @@ class DagSchemaPopup {
     }
 
     private _fillColumns(): void {
-        this._tableColumns = this._dagNode.getLineage().getColumns() || [];
-
-        const numCols = this._tableColumns.length;
+        const lineage = this._dagNode.getLineage()
+        this._tableColumns = lineage.getColumns() || [];
+        const changes = lineage.getChanges();
+        let numCols = changes.length;
         let html: HTML = "<ul>";
-        for (var i = 0; i < numCols; i++) {
-            var progCol = this._tableColumns[i];
+        let adds = {html: ""};
+        let removes = {html: ""};
+        let replaces = {html: ""};
+        let changeIcon;
+        let seenColumns = {};
 
-            var type = progCol.getType();
-            var name = xcHelper.escapeHTMLSpecialChar(
-                                                progCol.getFrontColName(true));
-            var backName = xcHelper.escapeHTMLSpecialChar(
-                                                progCol.getBackColName());
-            html += '<li>' +
-                        '<div>' +
-                            '<span class="iconWrap">' +
-                                '<i class="icon fa-13 xi-' + type + '"></i>' +
-                            '</span>' +
-                            '<span class="text">' + type + '</span>' +
-                        '</div>' +
-                        '<div title="' + xcHelper.escapeDblQuoteForHTML(name) +
-                        '" class="name" ' +
-                        'data-backname="' + backName + '">' +
-                            name +
-                        '</div>' +
-                        // '<div>' +
-                        // // XX SAMPLE DATA GOES HERE
-                        // '</div>' +
-                    '</li>';
+        for (let i = 0; i < changes.length; i++) {
+            const change = changes[i];
+            let changeType;
+            let progCol;
+            let otherProgCol;
+            let htmlType;
+            if (change.to) {
+                seenColumns[change.to.getBackColName()] = true;
+                if (change.from) {
+                    progCol = change.to;
+                    otherProgCol = change.from;
+                    changeType = "replace";
+                    htmlType = replaces;
+                    changeIcon = "+";
+                } else {
+                    progCol = change.to;
+                    changeType = "add";
+                    htmlType = adds;
+                    changeIcon = "+";
+                }
+            } else if (change.from) {
+                progCol = change.from;
+                changeType = "remove";
+                htmlType = removes;
+                changeIcon = "-";
+            }
+
+            if (changeType === "replace") {
+                htmlType.html += '<ul class="replaceSection">';
+                let liClass = 'changeType-' + changeType + ' changeType-remove';
+                htmlType.html += this._liTemplate(otherProgCol, changeIcon,
+                                                  liClass);
+            }
+
+            let liClass = 'changeType-' + changeType;
+            htmlType.html += this._liTemplate(progCol, changeIcon,
+                                             liClass);
+            if (changeType === "replace") {
+                htmlType.html += '<div class="arrow">&darr;</div>';
+                htmlType.html += '</ul>';
+            }
         }
+
+        html += removes.html;
+        html += adds.html;
+        html += replaces.html;
+
+        numCols += this._tableColumns.length;
+
+        let noChange = !html.length;
+
+        for (let i = 0; i < this._tableColumns.length; i++) {
+            const progCol = this._tableColumns[i];
+            const backName = xcHelper.escapeHTMLSpecialChar(
+                                                progCol.getBackColName());
+            if (seenColumns[backName]) {
+                continue;
+            }
+
+            html += this._liTemplate(progCol, "", "");
+        }
+
         if (!numCols) {
             html += '<span class="noFields">' + DFTStr.NoFields + '</span>';
         }
         html += "</ul>";
 
         this._$popup.find(".content").html(html);
+        if (noChange) {
+            this._$popup.addClass("noChange");
+        } else {
+            this._$popup.removeClass("noChange");
+        }
     }
 
     private _positionPopup(): void {
@@ -152,6 +201,37 @@ class DagSchemaPopup {
         this._dagNode = null;
         this._nodeId = null;
         this._clearLineage();
+    }
+
+    private _liTemplate(
+        progCol: ProgCol,
+        changeIcon: string,
+        liClass: string
+    ): HTML {
+        let type = progCol.getType();
+        let name = xcHelper.escapeHTMLSpecialChar(
+                                            progCol.getFrontColName(true));
+        let backName = xcHelper.escapeHTMLSpecialChar(
+                                            progCol.getBackColName());
+        let html: HTML =
+            '<li class="' + liClass + '">' +
+                '<div>' +
+                    '<span class="changeWrap">' + changeIcon + '</span>' +
+                    '<span class="iconWrap">' +
+                        '<i class="icon fa-13 xi-' + type + '"></i>' +
+                    '</span>' +
+                    '<span class="text">' + type + '</span>' +
+                '</div>' +
+                '<div title="' + xcHelper.escapeDblQuoteForHTML(name) +
+                '" class="name" ' +
+                'data-backname="' + backName + '">' +
+                    name +
+                '</div>' +
+                // '<div>' +
+                // // XX SAMPLE DATA GOES HERE
+                // '</div>' +
+            '</li>';
+        return html;
     }
 
     private _clearLineage() {

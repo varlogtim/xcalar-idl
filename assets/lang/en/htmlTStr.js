@@ -1377,6 +1377,7 @@ module.exports = {
         "copy": "Copy",
         "cut": "Cut",
         "paste": "Paste",
-        "viewSchema": "View Schema"
+        "viewSchema": "View Schema",
+        "schema": "Schema"
     }
 };

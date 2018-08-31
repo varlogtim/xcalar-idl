@@ -994,6 +994,80 @@
     }
 }
 
+#dagSchemaPopup {
+    .replaceSection {
+        border-top: 1px solid @color-border-monitor-label;
+        border-bottom: 1px solid @color-border-monitor-label;
+        margin-top: -1px;
+        position: relative;
+        .changeWrap {
+            visibility: hidden;
+        }
+    }
+    .changeType-add {
+        color: @color-bg-apple-green;
+        > div:first-child, .icon {
+            color: @color-bg-apple-green;
+        }
+    }
+    .changeType-remove {
+        color: @color-error-border;
+        > div:first-child, .icon {
+            color: @color-error-border;
+        }
+    }
+    .changeType-replace {
+        color:  @color-bg-apple-green;
+        > div:first-child, .icon {
+            color: @color-bg-apple-green;
+        }
+        &.changeType-remove {
+            color: @color-error-border;
+            > div:first-child, .icon {
+                color: @color-error-border;
+            }
+        }
+    }
+    li > div:first-child {
+        width: 82px;
+    }
+    .changeWrap {
+        width: 7px;
+        min-height: 10px; // if no height, changeWrap with no content will not
+        // take up width
+        text-align: center;
+        float: left;
+    }
+    .iconWrap {
+        float: left;
+    }
+    .name {
+        padding-right: 0px;
+        width: ~"calc(100% - 92px)";
+    }
+
+    .arrow {
+        position: absolute;
+        left: 2px;
+        top: 7px;
+        color: #64B053;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    &.noChange {
+        li > div:first-child {
+            width: 75px;
+        }
+        .changeWrap {
+            display: none;
+        }
+        .name {
+            width: ~"calc(100% - 85px)";
+        }
+    }
+}
+
 
 
 /* ========== End of Dataflow List ========== */

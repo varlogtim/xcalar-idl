@@ -45,6 +45,17 @@ class DagLineage {
     }
 
     /**
+     * @returns {{from: ProgCol, to: ProgCol}[]}
+     */
+    public getChanges(): {from: ProgCol, to: ProgCol}[] {
+        // if no columns, then no changes, so update
+        if (this.columns == null) {
+            this._update();
+        }
+        return this.changes;
+    }
+
+    /**
      * @return {string[]} Get A list of devired columns names
      */
     public getDerivedColumns(): string[] {

@@ -687,12 +687,14 @@ namespace DagView {
         if (type === "rename") {
             tipText = CommonTxtTstr.Renamed;
         } else if (type === "add" || node.getNumParent() === 0) {
-            tipText =  CommonTxtTstr.Created;
+            tipText = CommonTxtTstr.Created;
+        } else if (type === "remove") {
+            tipText = CommonTxtTstr.Removed;
         }
         if (tipText) {
             const pos = node.getPosition();
             const x = pos.x + 31;
-            const y = Math.max(0, pos.y - 26);
+            const y = Math.max(1, pos.y - 25);
             let tip: HTML = _dagLineageTipTemplate(x, y, tipText);
             $dfWrap.find(".dataflowArea.active").append(tip);
         }

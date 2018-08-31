@@ -179,6 +179,7 @@ CommonTxtTstr = {
     'Create': 'Create',
     'Created': 'Created',
     'Renamed': 'Renamed',
+    'Removed': 'Removed',
     'Default': 'default',
     'DefaultVal': 'Default value',
     'deleting': 'deleting',
