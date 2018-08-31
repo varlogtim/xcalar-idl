@@ -5959,6 +5959,7 @@ namespace xcHelper {
      * @param searchKey The searchKey we want to bold
      */
     export function boldSuggestedText($suggestion: JQuery, searchKey: string): void {
+        searchKey = searchKey.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
         // The following pattern looks for "searchkey" exclusively outside of a <>.
         // This prevents it from replacing values within a tag, and replacing the tags themselves.
         const pattern: RegExp = new RegExp('((^|>)[^<]*)(' + searchKey + ')', 'gi');

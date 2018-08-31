@@ -3313,6 +3313,15 @@ describe("xcHelper Test", function() {
             $html.remove();
         });
 
+        it("should handle input text with erroneous characters", function() {
+            var htmlstr = "<li><i></i>newImd<i></i></li>";
+            var $html = $(htmlstr);
+            xcHelper.boldSuggestedText($html, "/////)(i////\\");
+            expect($html.text()).to.equal("newImd");
+            expect($html.html()).to.equal("<i></i>new<strong>I</strong>md<i></i>");
+            $html.remove();
+        });
+
     });
 
     it("xcHelper.roundToSignificantFigure should work", function() {
