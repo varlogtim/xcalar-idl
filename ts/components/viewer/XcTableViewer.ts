@@ -1,12 +1,14 @@
 class XcTableViewer extends XcViewer {
     protected table: TableMeta;
     protected modelingMode: boolean;
+    private rowManger: RowManager;
 
     public constructor(table: TableMeta) {
         const id: string = table.getName(); // use table name as unique id
         super(id);
         this.table = table;
         this.modelingMode = true;
+        this.rowManger = new RowManager(table, this.getView());
         this._addEventListeners();
     }
 
@@ -76,7 +78,7 @@ class XcTableViewer extends XcViewer {
         const tableId: string = table.getId();
         let initialTableBuilt: boolean = false;
 
-        RowManager.getFirstPage(tableId)
+        this.rowManger.getFirstPage()
         .then((jsonData) => {
             let isEmpty: boolean = false;
             table.currentRowNumber = jsonData.length;
@@ -93,25 +95,17 @@ class XcTableViewer extends XcViewer {
                                               table.resultSetCount);
             const numRowsStillNeeded: number = requiredNumRows - $table.find('tbody tr').length;
             if (numRowsStillNeeded > 0) {
-                const $firstRow: JQuery = $table.find('tbody tr:first');
-                let topRowNum: number;
-                if (!$firstRow.length) {
-                    // if no rows were built on initial fetch
-                    topRowNum = 0;
-                } else {
-                    xcHelper.parseRowNum($firstRow);
-                }
                 const targetRow: number = table.currentRowNumber + numRowsStillNeeded;
-                const info: object = {
+                const info = {
                     "targetRow": targetRow,
-                    "lastRowToDisplay": targetRow,
                     "bulk": false,
                     "dontRemoveRows": true,
-                    "tableId": tableId,
-                    "currentFirstRow": topRowNum,
+                    "numRowsAdded": null,
+                    "numRowsToAdd": null,
+                    "missingRows": []
                 };
 
-                return RowManager.addRows(table.currentRowNumber,
+                return this.rowManger.addRows(table.currentRowNumber,
                                             numRowsStillNeeded,
                                             RowDirection.Bottom, info);
             } else {
@@ -132,17 +126,27 @@ class XcTableViewer extends XcViewer {
 
     // creates thead and cells but not the body of the table
     private _generateTableShell(tableId: TableId): void {
-        const xcTableWrap: string =
-            '<div id="xcTableWrap-' + tableId + '"' +
-                ' class="xcTableWrap tableWrap building" ' +
-                'data-id="' + tableId + '">' +
+        const xcTableShell: string =
                 '<div id="xcTbodyWrap-' + tableId + '" class="xcTbodyWrap" ' +
                 'data-id="' + tableId + '"></div>' +
                 '<div class="tableScrollBar">' +
                     '<div class="sizer"></div>' +
-                '</div>' +
+                '</div>';
+        const $view: JQuery = this.getView();
+        if (this instanceof XcTableInWSViewer) {
+            $view.attr("id", "xcTableWrap-" + tableId)
+             .attr("data-id", tableId)
+             .addClass("xcTableWrap tableWrap building");
+            $view.html(xcTableShell);
+        } else {
+            const xcTableWrap: string =
+            '<div id="xcTableWrap-' + tableId + '"' +
+                ' class="xcTableWrap tableWrap building" ' +
+                'data-id="' + tableId + '">' +
+                xcTableShell +
             '</div>';
-        this.getView().html(xcTableWrap);
+            $view.html(xcTableWrap);
+        }
 
         const tableShell: string = TblManager.generateTheadTbody(tableId);
         const tableHtml: string =

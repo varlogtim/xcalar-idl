@@ -545,7 +545,9 @@ declare enum StatusT {
     StatusKvStoreNotFound,
     StatusUdfModuleAlreadyExists,
     StatusUdfModuleEmpty,
-    StatusQrQueryAlreadyExists
+    StatusQrQueryAlreadyExists,
+    StatusInvalidResultSetId,
+    StatusNoBufs
 }
 
 declare enum FunctionCategoryT {
@@ -844,6 +846,7 @@ declare namespace ErrTStr {
     export var CannotDropLocked: string;
     export var TablesNotDeleted: string;
     export var NoTablesDeleted: string;
+    export var NotDisplayRows: string;
 }
 
 declare namespace ErrWRepTStr {
@@ -1123,6 +1126,8 @@ declare class TableMeta {
     public currentRowNumber: number;
     public resultSetCount: number;
     public resultSetMax: number;
+    public resultSetId: number;
+    public scrollMeta: {isTableScrolling: boolean, base: number};
     public getAllCols(onlyValid?: boolean): ProgCol[]
     public getCol(colNum: number): ProgCol;
     public hasCol(colName: string, prefix: string): boolean;
@@ -1156,6 +1161,7 @@ declare class TableMeta {
     public removeNoDelete(): void;
     public showIndexStyle(): void;
     public getKeyName(): string[];
+    public updateResultset(): XDPromise<void>;
     public constructor(options: object);
 }
 
@@ -1388,11 +1394,6 @@ declare namespace TblAnim {
     export function startColResize($el: JQuery, event: JQueryMouseEventObject, options: object): void;
     export function startTableDrag($el: JQuery, event: JQueryMouseEventObject): void
     export function startColDrag($headCol: JQuery, event: JQueryEventObject): void;
-}
-
-declare namespace RowManager {
-    export function getFirstPage(tableId: TableId): XDPromise<string[]>;
-    export function addRows(currentRowNumber: number, numRowsStillNeeded: number, direction: RowDirection, info: object): XDPromise<void>;
 }
 
 declare namespace TPrefix {
@@ -1802,6 +1803,7 @@ declare namespace RowScroller {
     export function add(tableId: TableId): void;
     export function update(tableId: TableId): void;
     export function empty(): void
+    export function getRowsAboveHeight(tableId: TableId, numRows: number): number;
 }
 
 declare namespace MonitorLog {

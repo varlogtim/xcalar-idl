@@ -51,28 +51,28 @@ class XcTableInWSViewer extends XcTableViewer {
         let tableClasses: string = isTableInActiveWS ? "" : "inActive";
         tableClasses += " worksheet-" + targetWS;
 
-        const $xcTableWrap: JQuery = this.getView().find(".xcTableWrap");
-        $xcTableWrap.addClass(tableClasses);
+        const $view: JQuery = this.getView();
+        $view.addClass(tableClasses);
 
         // creates a new table, completed thead, and empty tbody
         if (this.options.atStartUp) {
-            $("#mainFrame").append($xcTableWrap);
+            $("#mainFrame").append($view);
         } else if (oldTableId != null) {
             var $oldTable =  $("#xcTableWrap-" + oldTableId);
-            $oldTable.after($xcTableWrap);
+            $oldTable.after($view);
         } else {
-            const position: number = xcHelper.getTableIndex(targetWS, 
+            const position: number = xcHelper.getTableIndex(targetWS,
                                                     this.options.position,
                                                     ".xcTableWrap");
             if (position === 0) {
-                $("#mainFrame").prepend($xcTableWrap);
+                $("#mainFrame").prepend($view);
             } else {
                 const $prevTable: JQuery = $(".xcTableWrap:not(.building)")
                                                 .eq(position - 1);
                 if ($prevTable.length) {
-                    $prevTable.after($xcTableWrap);
+                    $prevTable.after($view);
                 } else {
-                    $("#mainFrame").append($xcTableWrap); // shouldn't happen
+                    $("#mainFrame").append($view); // shouldn't happen
                 }
             }
         }

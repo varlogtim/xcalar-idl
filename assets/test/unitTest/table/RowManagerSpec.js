@@ -4,6 +4,7 @@ describe('RowManager Test', function() {
     var tableId;
     var oldTableName;
     var $table;
+    var rowManager
 
     before(function(done) {
         console.clear();
@@ -28,6 +29,7 @@ describe('RowManager Test', function() {
             return ColManager.hideCol([1,2,3,4,5,6,7,8,9,10,11,12], tableId);
         })
         .then(function() {
+            rowManager = new RowManager(gTables[tableId],  $("#xcTableWrap-" + tableId));
             done();
         })
         .fail(function() {
@@ -35,16 +37,12 @@ describe('RowManager Test', function() {
         });
     });
 
-    describe('RowManager.addRows', function() {
+    describe('rowManager.addRows', function() {
         it('scrolling down 20 rows should work', function(done) {
             var info = {
-                "targetRow": 80,
-                "lastRowToDisplay": 80,
-                "bulk": false,
-                "tableId": tableId,
-                "currentFirstRow": 0
+                "bulk": false
             };
-            RowManager.addRows(60, 20, RowDirection.Bottom, info)
+            rowManager.addRows(60, 20, RowDirection.Bottom, info)
             .then(function(info) {
                 expect($table.find('tbody tr').first().hasClass('row20')).to.be.true;
                 expect($table.find('tbody tr').last().hasClass('row79')).to.be.true;
@@ -62,13 +60,9 @@ describe('RowManager Test', function() {
 
         it('scrolling up 20 rows should work', function(done) {
             var info = {
-                "targetRow": 0,
-                "lastRowToDisplay": 60,
                 "bulk": false,
-                "tableId": tableId,
-                "currentFirstRow": 20
             };
-            RowManager.addRows(0, 20, RowDirection.Top, info)
+            rowManager.addRows(0, 20, RowDirection.Top, info)
             .then(function(info) {
                 expect($table.find('tbody tr').first().hasClass('row0')).to.be.true;
                 expect($table.find('tbody tr').last().hasClass('row59')).to.be.true;
@@ -109,14 +103,10 @@ describe('RowManager Test', function() {
                 }
             };
             var info = {
-                "targetRow": 65,
-                "lastRowToDisplay": 65,
                 "bulk": false,
-                "tableId": tableId,
-                "currentFirstRow": 0
             };
 
-            RowManager.addRows(60, 5, RowDirection.Bottom, info)
+            rowManager.addRows(60, 5, RowDirection.Bottom, info)
             .then(function(info) {
                 expect($table.find('tbody tr').first().hasClass('row5')).to.be.true;
                 expect($table.find(".row60").hasClass("empty")).to.be.true;
@@ -145,13 +135,9 @@ describe('RowManager Test', function() {
 
         it('skipping to first row should work', function(done) {
             var info = {
-                "lastRowToDisplay": 60,
-                "targetRow": 1,
                 "bulk": true,
-                "tableId": tableId,
-                "currentFirstRow": 0
             };
-            RowManager.addRows(0, 60, RowDirection.Bottom, info)
+            rowManager.addRows(0, 60, RowDirection.Bottom, info)
             .then(function(info) {
                 expect($table.find('tbody tr').first().hasClass('row0')).to.be.true;
                 expect($table.find('tbody tr').last().hasClass('row59')).to.be.true;
@@ -193,14 +179,10 @@ describe('RowManager Test', function() {
                 }
             };
             var info = {
-                "targetRow": 65,
-                "lastRowToDisplay": 65,
-                "bulk": false,
-                "tableId": tableId,
-                "currentFirstRow": 0
+                "bulk": false
             };
 
-            RowManager.addRows(60, 5, RowDirection.Bottom, info)
+            rowManager.addRows(60, 5, RowDirection.Bottom, info)
             .then(function(info) {
                 expect($table.find('tbody tr').first().hasClass('row5')).to.be.true;
                 expect($table.find('tbody tr').last().hasClass('row64')).to.be.true;
@@ -250,14 +232,10 @@ describe('RowManager Test', function() {
                 }
             };
             var info = {
-                "targetRow": 1,
-                "lastRowToDisplay": 56,
-                "bulk": false,
-                "tableId": tableId,
-                "currentFirstRow": 5
+                "bulk": false
             };
 
-            RowManager.addRows(1, 4, RowDirection.Top, info)
+            rowManager.addRows(1, 4, RowDirection.Top, info)
             .then(function(info) {
                 expect($table.find('tbody tr').first().hasClass('row1')).to.be.true;
                 expect($table.find('tbody tr').last().hasClass('row60')).to.be.true;
@@ -308,13 +286,9 @@ describe('RowManager Test', function() {
             };
             var info = {
                 bulk: true,
-                currentFirstRow: 940,
-                lastRowToDisplay: 1000,
-                tableId: tableId,
-                targetRow: 1000
             };
 
-            RowManager.addRows(940, 60, RowDirection.Bottom, info)
+            rowManager.addRows(940, 60, RowDirection.Bottom, info)
             .then(function() {
                 expect($table.find('tbody tr').first().hasClass('row940')).to.be.true;
                 expect($table.find('tbody tr').last().hasClass('row999')).to.be.true;
@@ -353,13 +327,9 @@ describe('RowManager Test', function() {
 
             var info = {
                 bulk: true,
-                currentFirstRow: 0,
-                lastRowToDisplay: 60,
-                tableId: tableId,
-                targetRow: 1
             };
 
-            RowManager.addRows(0, 60, RowDirection.Bottom, info)
+            rowManager.addRows(0, 60, RowDirection.Bottom, info)
             .then(function() {
                 expect(true).to.be.false;
             })
@@ -383,13 +353,9 @@ describe('RowManager Test', function() {
 
             var info = {
                 bulk: true,
-                currentFirstRow: 0,
-                lastRowToDisplay: 60,
-                tableId: tableId,
-                targetRow: 1
             };
 
-            RowManager.addRows(0, 60, RowDirection.Bottom, info)
+            rowManager.addRows(0, 60, RowDirection.Bottom, info)
             .then(function() {
                 expect(true).to.be.false;
             })

@@ -71,14 +71,10 @@ window.RowScroller = (function($, RowScroller) {
 
             var numRowsToAdd = Math.min(gMaxEntriesPerPage, table.resultSetMax);
             var info = {
-                "lastRowToDisplay": backRow + numRowsToAdd,
-                "targetRow": targetRow,
-                "bulk": true,
-                "tableId": tableId,
-                "currentFirstRow": backRow
+                "bulk": true
             };
-
-            RowManager.addRows(backRow, numRowsToAdd, RowDirection.Bottom, info)
+            var rowManger = new RowManager(gTables[tableId], $("#xcTableWrap-" + tableId));
+            rowManger.addRows(backRow, numRowsToAdd, RowDirection.Bottom, info)
             .always(function() {
                 TblManager.removeWaitingCursor(tableId);
                 var rowToScrollTo = Math.min(targetRow, table.resultSetMax);
@@ -301,8 +297,9 @@ window.RowScroller = (function($, RowScroller) {
             var info;
             var numRowsToAdd;
             var fetched = false;
+            var rowManager = new RowManager(table, $("#xcTableWrap-" + tableId));
 
-            // gets this class from RowManager.addRows
+            // gets this class from rowManager.addRows
             if ($table.hasClass("scrolling") || firstRow.length === 0) {
                 deferred.resolve();
             } else if (scrollTop === 0 && !firstRow.hasClass('row0')) {
@@ -312,19 +309,12 @@ window.RowScroller = (function($, RowScroller) {
 
                 var rowNumber = topRowNum - numRowsToAdd;
                 if (rowNumber < table.resultSetMax) {
-                    var lastRowToDisplay = table.currentRowNumber -
-                                           numRowsToAdd;
-
                     info = {
-                        "targetRow": rowNumber,
-                        "lastRowToDisplay": lastRowToDisplay,
-                        "bulk": false,
-                        "tableId": tableId,
-                        "currentFirstRow": topRowNum
+                        "bulk": false
                     };
 
                     fetched = true;
-                    RowManager.addRows(rowNumber, numRowsToAdd,
+                    rowManager.addRows(rowNumber, numRowsToAdd,
                                         RowDirection.Top, info)
                     .then(deferred.resolve)
                     .fail(deferred.reject);
@@ -338,14 +328,11 @@ window.RowScroller = (function($, RowScroller) {
                                     table.resultSetMax -
                                     table.currentRowNumber);
                     info = {
-                        "targetRow": table.currentRowNumber + numRowsToAdd,
-                        "lastRowToDisplay": table.currentRowNumber + numRowsToAdd,
                         "bulk": false,
-                        "tableId": tableId,
-                        "currentFirstRow": topRowNum
+                        "tableId": tableId
                     };
                     fetched = true;
-                    RowManager.addRows(table.currentRowNumber, numRowsToAdd,
+                    rowManager.addRows(table.currentRowNumber, numRowsToAdd,
                              RowDirection.Bottom, info)
                     .then(deferred.resolve)
                     .fail(deferred.reject);
@@ -425,7 +412,7 @@ window.RowScroller = (function($, RowScroller) {
             return;
         }
         var table = gTables[gActiveTableId];
-        var resultSetCount   = table.resultSetCount;
+        var resultSetCount = table.resultSetCount;
         var resultTextLength = ("" + resultSetCount).length;
 
         if (resultTextLength > $rowInput.attr('size')) {

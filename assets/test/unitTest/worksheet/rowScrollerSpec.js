@@ -16,7 +16,6 @@ describe("RowScroller Test", function() {
             tableName = tName;
             tableId = xcHelper.getTableId(tableName);
             $table = $('#xcTable-' + tableId);
-
             done();
         })
         .fail(function() {
@@ -27,12 +26,12 @@ describe("RowScroller Test", function() {
     describe("row input", function() {
         var cachedAddRows;
         before(function() {
-            cachedAddRows = RowManager.addRows;
+            cachedAddRows = RowManager.prototype.addRows;
         });
 
         it("enter should not work if table is locked", function() {
             var addRowsCalled = false;
-            RowManager.addRows = function() {
+            RowManager.prototype.addRows = function() {
                 addRowsCalled = true;
             };
             gTables[tableId].lock();
@@ -43,7 +42,7 @@ describe("RowScroller Test", function() {
 
         it("enter should not work if table is in scroll", function() {
             var addRowsCalled = false;
-            RowManager.addRows = function() {
+            RowManager.prototype.addRows = function() {
                 addRowsCalled = true;
             };
             $table.addClass("scrolling");
@@ -60,7 +59,7 @@ describe("RowScroller Test", function() {
                 return false;
             };
             var addRowsCalled = false;
-            RowManager.addRows = function() {
+            RowManager.prototype.addRows = function() {
                 addRowsCalled = true;
             };
 
@@ -75,7 +74,7 @@ describe("RowScroller Test", function() {
 
         it("invalid input should not work", function() {
             var addRowsCalled = false;
-            RowManager.addRows = function() {
+            RowManager.prototype.addRows = function() {
                 addRowsCalled = true;
             };
 
@@ -90,14 +89,10 @@ describe("RowScroller Test", function() {
         // to row 100
         it("valid input should work", function(done) {
             var addRowsCalled = false;
-            RowManager.addRows = function(backRow, numRowsToAdd, dir, info) {
+            RowManager.prototype.addRows = function(backRow, numRowsToAdd, dir, info) {
                 expect(backRow).to.be.lt(100);
                 expect(numRowsToAdd).to.equal(60);
                 expect(dir).to.equal(RowDirection.Bottom);
-                expect(info.currentFirstRow).to.equal(backRow);
-                expect(info.lastRowToDisplay).to.equal(backRow + numRowsToAdd);
-                expect(info.targetRow).to.equal(100);
-                expect(info.tableId).to.equal(tableId);
                 expect(info.bulk).to.be.true;
                 addRowsCalled = true;
                 return PromiseHelper.resolve();
@@ -117,14 +112,10 @@ describe("RowScroller Test", function() {
         // to row 0
         it("valid input should work", function(done) {
             var addRowsCalled = false;
-            RowManager.addRows = function(backRow, numRowsToAdd, dir, info) {
+            RowManager.prototype.addRows = function(backRow, numRowsToAdd, dir, info) {
                 expect(backRow).to.equal(0);
                 expect(numRowsToAdd).to.equal(60);
                 expect(dir).to.equal(RowDirection.Bottom);
-                expect(info.currentFirstRow).to.equal(backRow);
-                expect(info.lastRowToDisplay).to.equal(60);
-                expect(info.targetRow).to.equal(1);
-                expect(info.tableId).to.equal(tableId);
                 expect(info.bulk).to.be.true;
                 addRowsCalled = true;
                 return PromiseHelper.resolve();
@@ -153,7 +144,7 @@ describe("RowScroller Test", function() {
         });
 
         after(function() {
-            RowManager.addRows = cachedAddRows;
+            RowManager.prototype.addRows = cachedAddRows;
         });
     });
 
@@ -185,7 +176,7 @@ describe("RowScroller Test", function() {
             $scrollBar = $("#xcTableWrap-" + tableId).find(".tableScrollBar");
             $tbodyWrap = $("#xcTbodyWrap-" + tableId);
             table = gTables[tableId];
-            cachedAddRows = RowManager.addRows;
+            cachedAddRows = RowManager.prototype.addRows;
             $scrollBar.on("scroll.unitTest", function() {
                 scrollTriggered = true;
             });
@@ -221,7 +212,7 @@ describe("RowScroller Test", function() {
 
         it("dragging scrollbar should work", function(done) {
             var addRowsCalled = false;
-            RowManager.addRows = function() {
+            RowManager.prototype.addRows = function() {
                 addRowsCalled = true;
                 return PromiseHelper.resolve();
             };
@@ -266,7 +257,7 @@ describe("RowScroller Test", function() {
         });
 
         after(function() {
-            RowManager.addRows = cachedAddRows;
+            RowManager.prototype.addRows = cachedAddRows;
             $scrollBar.off("scroll.unitTest");
         });
     });
@@ -280,19 +271,15 @@ describe("RowScroller Test", function() {
             $scrollBar = $("#xcTableWrap-" + tableId).find(".tableScrollBar");
             $tbodyWrap = $("#xcTbodyWrap-" + tableId);
             $table.removeClass('autoScroll');
-            cachedAddRows = RowManager.addRows;
+            cachedAddRows = RowManager.prototype.addRows;
         });
 
         it("scrolling down should work", function(done) {
             var addRowsCalled = false;
-            RowManager.addRows = function(backRow, numRowsToAdd, dir, info) {
+            RowManager.prototype.addRows = function(backRow, numRowsToAdd, dir, info) {
                 expect(backRow).to.equal(60);
                 expect(numRowsToAdd).to.equal(20);
                 expect(dir).to.equal(RowDirection.Bottom);
-                expect(info.currentFirstRow).to.equal(0);
-                expect(info.lastRowToDisplay).to.equal(80);
-                expect(info.targetRow).to.equal(80);
-                expect(info.tableId).to.equal(tableId);
                 expect(info.bulk).to.be.false;
                 addRowsCalled = true;
                 return PromiseHelper.resolve();
@@ -325,13 +312,10 @@ describe("RowScroller Test", function() {
             $table.find(".row0").removeClass("row0").addClass("tempRow0");
 
             var addRowsCalled = false;
-            RowManager.addRows = function(backRow, numRowsToAdd, dir, info) {
+            RowManager.prototype.addRows = function(backRow, numRowsToAdd, dir, info) {
                 expect(backRow).to.equal(0);
                 expect(numRowsToAdd).to.equal(0);
                 expect(dir).to.equal(RowDirection.Top);
-                expect(info.lastRowToDisplay).to.equal(60);
-                expect(info.targetRow).to.equal(0);
-                expect(info.tableId).to.equal(tableId);
                 expect(info.bulk).to.be.false;
                 addRowsCalled = true;
                 return PromiseHelper.resolve();
@@ -358,7 +342,7 @@ describe("RowScroller Test", function() {
         });
 
         after(function() {
-            RowManager.addRows = cachedAddRows;
+            RowManager.prototype.addRows = cachedAddRows;
         });
     });
 
