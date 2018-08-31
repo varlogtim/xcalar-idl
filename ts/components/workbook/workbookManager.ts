@@ -1040,7 +1040,7 @@ namespace WorkbookManager {
     export function updateWorkbooks(info: any): void {
         const activeWkbk: string = WorkbookManager.getActiveWKBK();
         if (info.action === "deactivate" &&
-            activeWkbk) {
+            activeWkbk && activeWkbk === info.triggerWkbk) {
             XcSupport.stopHeartbeatCheck();
             const wkbk: WKBK = wkbkSet.get(activeWkbk);
             wkbk.setResource(false);

@@ -88,9 +88,11 @@ function socketIoServer(server, session, cookieParser) {
                 userInfos[user].count++;
 
                 var id = userOption.id;
-                socket.join(user);
+                socket.join(user, function() {
+                    console.log(user, "joins room", socket.rooms);
+                });
                 if (userInfos[user].workbooks.hasOwnProperty(id)) {
-                    socket.to(user).emit("useSessionExisted", userOption);
+                    socket.broadcast.to(user).emit("useSessionExisted", userOption);
                     userInfos[user].workbooks[id]++;
                 } else {
                     userInfos[user].workbooks[id] = 1;
@@ -108,7 +110,7 @@ function socketIoServer(server, session, cookieParser) {
             try {
                 var user = userOption.user;
                 var id = userOption.id;
-                console.log(userInfos, userOption);
+                xcConsole.log(userInfos);
                 if (userInfos[user].workbooks.hasOwnProperty(id)) {
                     userInfos[user].workbooks[id]--;
                 }
@@ -161,7 +163,7 @@ function socketIoServer(server, session, cookieParser) {
 
         socket.on("logout", function(userOption) {
             var user = getSocketUser(socket);
-            socket.to(user).emit("logout", userOption);
+            socket.broadcast.to(user).emit("logout", userOption);
             // note: no need to socket.leave(user) here
         });
 
@@ -197,7 +199,8 @@ function socketIoServer(server, session, cookieParser) {
             }
 
             var user = getSocketUser(socket);
-            socket.to(user).emit("refreshWorkbook", wkbkInfo);
+            xcConsole.log(user + "refreshWorkbook");
+            socket.broadcast.to(user).emit("refreshWorkbook", wkbkInfo);
         });
 
         socket.on("refreshUserSettings", function() {
@@ -205,7 +208,8 @@ function socketIoServer(server, session, cookieParser) {
                 return;
             }
             var user = getSocketUser(socket);
-            socket.to(user).emit("refreshUserSettings");
+            xcConsole.log(user + "refreshUserSettings");
+            socket.broadcast.to(user).emit("refreshUserSettings");
         });
 
         socket.on("refreshIMD", function(imdInfo) {
