@@ -1715,7 +1715,7 @@
             .then(function(ret) {
                 var newTableName = ret.newTableName;
                 cli += ret.cli;
-                node.xcCols.push({colName, colName, colType: "int"});
+                node.xcCols.push({colName: colName, colType: "int"});
                 var filterString = "le(" + colName + "," + limit + ")";
                 return self.sqlObj.filter(filterString, newTableName);
             })

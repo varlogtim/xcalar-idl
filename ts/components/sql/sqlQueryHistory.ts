@@ -70,7 +70,8 @@ class SqlQueryHistory {
                             .then( (ret) => {
                                 try {
                                     queryInfo = JSON.parse(ret);
-                                    if (!refresh &&
+                                    if (!this._queryMap.hasOwnProperty(queryId) &&
+                                        !refresh &&
                                         (queryInfo.status === SQLStatus.Compiling ||
                                          queryInfo.status === SQLStatus.Running)
                                         ) {
