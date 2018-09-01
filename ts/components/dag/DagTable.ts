@@ -1,7 +1,7 @@
 class DagTable {
     private static _instance: DagTable;
     private readonly container: string = "dagViewTableArea";
-
+    
     public static get Instance() {
         return this._instance || (this._instance = new this());
     }
@@ -95,7 +95,8 @@ class DagTable {
     private _error(error: any): void {
         const $container: JQuery = this._getContainer();
         $container.removeClass("loading").addClass("error");
-        const errStr: string = typeof error === "string" ? error : JSON.stringify(error);
+        const errStr: string = (typeof error === "string") ?
+        error : JSON.stringify(error);
         $container.find(".errorSection").text(errStr);
     }
 }

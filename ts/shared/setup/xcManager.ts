@@ -181,11 +181,11 @@ namespace xcManager {
             if (!gMinModeOn) {
                 $("#initialLoadScreen").fadeOut(200, function() {
                     $("#initialLoadScreen").hide();
-                    RowScroller.genFirstVisibleRowNum();
+                    TableComponent.update();
                 });
             } else {
                 $("#initialLoadScreen").hide();
-                RowScroller.genFirstVisibleRowNum();
+                TableComponent.update();
             }
         });
 
@@ -796,7 +796,6 @@ namespace xcManager {
     }
 
     function setupWorkspaceBar(): void {
-        RowScroller.setup();
         FnBar.setup();
     }
 
@@ -881,7 +880,7 @@ namespace xcManager {
         })
         .then(function() {
             if (hasTable) {
-                RowScroller.resize();
+                TableComponent.update();
             } else {
                 $("#mainFrame").addClass("empty");
             }
@@ -1100,7 +1099,7 @@ namespace xcManager {
             } else {
                 const table: TableMeta = gTables[gActiveTableId];
                 if (table && table["resultSetCount"] !== 0) {
-                    RowScroller.genFirstVisibleRowNum();
+                    TableComponent.update();
                 }
                 TblFunc.moveTableDropdownBoxes();
                 // for tableScrollBar

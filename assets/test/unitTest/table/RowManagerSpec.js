@@ -372,6 +372,19 @@ describe('RowManager Test', function() {
         });
     });
 
+    describe("getRowsAboveHeight", function() {
+        it("get rows above height should  work", function() {
+            // rowheight change at row 2,4, and 43
+            var fakeTable = {rowHeights: {0: {2: 100, 4: 200}, 2: {43: 400}}};
+            var fakeRowManager = new RowManager(fakeTable, $());
+            expect(fakeRowManager.getRowsAboveHeight(200)).to.equal((200 * 25) + (75 + 175 + 375));
+            expect(fakeRowManager.getRowsAboveHeight(40)).to.equal((40 * 25) + (75 + 175));
+            expect(fakeRowManager.getRowsAboveHeight(42)).to.equal((42 * 25) + (75 + 175));
+            expect(fakeRowManager.getRowsAboveHeight(43)).to.equal((43 * 25) + (75 + 175 + 375));
+            expect(fakeRowManager.getRowsAboveHeight(44)).to.equal((44 * 25) + (75 + 175 + 375));
+        });
+    });
+
     after(function(done) {
         setTimeout(function() {
             UnitTest.deleteTable(oldTableName, TableType.Orphan)

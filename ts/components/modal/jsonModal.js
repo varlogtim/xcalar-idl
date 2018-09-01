@@ -231,7 +231,8 @@ window.JSONModal = (function($, JSONModal) {
             if (!rowExists) {
                 // the table is scrolled past the selected row, so we just
                 // take the jsonData from the first visibile row
-                rowNum = RowScroller.getFirstVisibleRowNum() - 1;
+                var rowManager = new RowManager(gTables[tableId], $("#xcTableWrap-" + tableId));
+                rowNum = rowManager.getFirstVisibleRowNum() - 1;
             }
 
             closeModal(modes.single);
@@ -1848,7 +1849,8 @@ window.JSONModal = (function($, JSONModal) {
         if (!rowExists) {
             // the table is scrolled past the selected row, so we just
             // take the jsonData from the first visibile row
-            rowNum = RowScroller.getFirstVisibleRowNum() - 1;
+            var rowManager = new RowManager(gTables[tableId], $("#xcTableWrap-" + tableId));
+            rowNum = rowManager.getFirstVisibleRowNum() - 1;
         }
         var colNames = [];
         for (var i = 0; i < selectedCols[index].length; i++) {

@@ -1,4 +1,4 @@
-describe("RowScroller Test", function() {
+describe("RowInput Test", function() {
     var testDs;
     var tableName;
     var tableId;
@@ -7,7 +7,6 @@ describe("RowScroller Test", function() {
 
     before(function(done) {
         console.clear();
-        $input = $("#rowInput");
         UnitTest.onMinMode();
         var testDSObj = testDatasets.fakeYelp;
         UnitTest.addAll(testDSObj, "unitTestFakeYelp")
@@ -16,6 +15,7 @@ describe("RowScroller Test", function() {
             tableName = tName;
             tableId = xcHelper.getTableId(tableName);
             $table = $('#xcTable-' + tableId);
+            $input = $("#rowInputArea input");
             done();
         })
         .fail(function() {
@@ -61,6 +61,7 @@ describe("RowScroller Test", function() {
             var addRowsCalled = false;
             RowManager.prototype.addRows = function() {
                 addRowsCalled = true;
+                return PromiseHelper.resolve();
             };
 
             $input.val(100).trigger(fakeEvent.enter);
@@ -76,6 +77,7 @@ describe("RowScroller Test", function() {
             var addRowsCalled = false;
             RowManager.prototype.addRows = function() {
                 addRowsCalled = true;
+                return PromiseHelper.resolve();
             };
 
             $input.val("five");
@@ -132,36 +134,19 @@ describe("RowScroller Test", function() {
             });
         });
 
-        it('clicking on rowinput area should focus on table', function() {
-            var cached = xcHelper.centerFocusedTable;
-            var centerCalled = false;
-            xcHelper.centerFocusedTable = function() {
-                centerCalled = true;
-            };
-            $("#rowInputArea").mousedown();
-            expect(centerCalled).to.be.true;
-            xcHelper.centerFocusedTable = cached;
-        });
+        // it('clicking on rowinput area should focus on table', function() {
+        //     var cached = xcHelper.centerFocusedTable;
+        //     var centerCalled = false;
+        //     xcHelper.centerFocusedTable = function() {
+        //         centerCalled = true;
+        //     };
+        //     $("#rowInputArea").mousedown();
+        //     expect(centerCalled).to.be.true;
+        //     xcHelper.centerFocusedTable = cached;
+        // });
 
         after(function() {
             RowManager.prototype.addRows = cachedAddRows;
-        });
-    });
-
-    describe("RowScroller.getRowsAboveHeight", function() {
-        it("get rows above height should  work", function() {
-            var fn = RowScroller.getRowsAboveHeight;
-            // rowheight change at row 2,4, and 43
-            var fakeTable = {rowHeights: {0: {2: 100, 4: 200}, 2: {43: 400}}};
-
-            gTables["fakeTable"] = fakeTable;
-            expect(fn("fakeTable", 200)).to.equal((200 * 25) + (75 + 175 + 375));
-            expect(fn("fakeTable", 40)).to.equal((40 * 25) + (75 + 175));
-            expect(fn("fakeTable", 42)).to.equal((42 * 25) + (75 + 175));
-            expect(fn("fakeTable", 43)).to.equal((43 * 25) + (75 + 175 + 375));
-            expect(fn("fakeTable", 44)).to.equal((44 * 25) + (75 + 175 + 375));
-
-            delete gTables["fakeTable"];
         });
     });
 

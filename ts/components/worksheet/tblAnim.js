@@ -456,7 +456,7 @@ window.TblAnim = (function($, TblAnim) {
         $table.find('tr').removeClass('notDragging dragging');
 
         if (gTables[gActiveTableId].resultSetCount !== 0) {
-            RowScroller.genFirstVisibleRowNum();
+            TableComponent.update();
         }
 
         if (newRowHeight !== gRescol.minCellHeight) {
@@ -477,7 +477,9 @@ window.TblAnim = (function($, TblAnim) {
             rowInfo.targetTd.parent().find('.jsonElement >  div')
                                      .css('max-height', 16);
         }
-        RowScroller.setSizerHeight(rowInfo.tableId);
+
+        var rowManger = new RowManager(gTables[rowInfo.tableId], $("#xcTableWrap-" + rowInfo.tableId));
+        rowManger.setSizerHeight();
 
         // settimeout because unhiding is slow
         setTimeout(function() {

@@ -170,7 +170,7 @@ class FnBar {
                                    .removeClass('tblTitleSelected');
                     $('.dagWrap.selected').removeClass('selected')
                                           .addClass('notSelected');
-                    RowScroller.empty();
+                    TableComponent.empty();
                 } else if ($match.is('.tableTitle')) {
                     var tableId = $match.closest('.xcTableWrap').data('id');
                     TblFunc.focusTable(tableId, true);

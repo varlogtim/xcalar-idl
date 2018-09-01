@@ -841,7 +841,7 @@ window.WSManager = (function($, WSManager) {
         // refresh table and scrollbar
         if (notfocusTable || $curActiveTables.length === 0) {
             // no table to focus
-            RowScroller.empty();
+            TableComponent.empty();
             $('#dagScrollBarWrap').hide();
             if ($curActiveTables.length > 0) {
                 $curActiveTables.find('.xcTable:visible').each(function() {

@@ -396,7 +396,7 @@ class TblManager {
         Dag.destruct(tableId);
         if (gActiveTableId === tableId) {
             gActiveTableId = null;
-            RowScroller.empty();
+            TableComponent.update();
         }
     }
 
@@ -512,10 +512,7 @@ class TblManager {
 
     private static _scrollAndFocusTable(tableName: string): void {
         const tableId: TableId = xcHelper.getTableId(tableName);
-        xcHelper.centerFocusedTable(tableId, true)
-        .then(() => {
-            RowScroller.genFirstVisibleRowNum();
-        });
+        xcHelper.centerFocusedTable(tableId, true);
     }
 
     /**
@@ -544,14 +541,16 @@ class TblManager {
         }
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const promise1: XDPromise<void> = new XcTableInWSViewer(gTables[tableId], tableToReplace, options).render();
+        const viewer: XcTableInWSViewer = new XcTableInWSViewer(gTables[tableId], tableToReplace, options);
+        TableComponent.addViewer(tableId, viewer);
+        const promise1: XDPromise<void> = viewer.render();
         const promise2: XDPromise<void> = TblManager._createDag(tableId, tableToReplace, options);
 
         PromiseHelper.when(promise1, promise2)
         .then(() => {
             const table: TableMeta = gTables[tableId];
             const $xcTableWrap: JQuery = $('#xcTableWrap-' + tableId);
-            RowScroller.resize();
+            TableComponent.update();
             $xcTableWrap.removeClass("building");
             $("#dagWrap-" + tableId).removeClass("building");
             if ($('#mainFrame').hasClass('empty')) {
@@ -734,12 +733,11 @@ class TblManager {
         table.updateTimeStamp();
 
         if (gActiveTableId === tableId) {
-            gActiveTableId = null;
-            RowScroller.empty();
+            TableComponent.empty();
         }
 
         if ($('.xcTableWrap:not(.inActive)').length === 0) {
-            RowScroller.empty();
+            TableComponent.empty();
         }
 
         if (!options.noFocusWS) {
@@ -1254,7 +1252,7 @@ class TblManager {
                 gActiveTableId = null;
             }
             if ($('.xcTableWrap:not(.inActive)').length === 0) {
-                RowScroller.empty();
+                TableComponent.empty();
             }
             TblManager._removeTableMeta(tableName);
             xcHelper.unlockTable(tableId);

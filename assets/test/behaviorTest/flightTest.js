@@ -668,7 +668,7 @@ window.FlightTest = (function(FlightTest, $) {
                 console.log("doing IMDPanelTest", errMsg);
                 test.assert($("#activeTablesList").find(".tableName").text()
                     .indexOf(prevPubName) > -1);
-                test.assert($("#numPages").text().indexOf("998") > -1);
+                test.assert($("#rowInputArea .totalRows").text() === "998");
                 test.pass(deferred, testName, currentTestNumber);
             })
             .fail(function(error) {
@@ -912,7 +912,7 @@ window.FlightTest = (function(FlightTest, $) {
                                     {notExist: true});
         })
         .then(function() {
-            test.assert($("#numPages").text().indexOf("1,953") > -1);
+            test.assert($("#rowInputArea .totalRows").text() === "1,953");
             test.pass(deferred, testName, currentTestNumber);
         })
         .fail(function(error) {

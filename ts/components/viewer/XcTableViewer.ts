@@ -1,14 +1,16 @@
 class XcTableViewer extends XcViewer {
     protected table: TableMeta;
     protected modelingMode: boolean;
-    private rowManger: RowManager;
+    protected rowInput: RowInput;
+    private rowManager: RowManager;
 
     public constructor(table: TableMeta) {
         const id: string = table.getName(); // use table name as unique id
         super(id);
         this.table = table;
         this.modelingMode = true;
-        this.rowManger = new RowManager(table, this.getView());
+        this.rowManager = new RowManager(table, this.getView());
+        this.rowInput = new RowInput(this.rowManager);
         this._addEventListeners();
     }
 
@@ -17,6 +19,7 @@ class XcTableViewer extends XcViewer {
      */
     public clear(): XDPromise<void> {
         super.clear();
+        this.rowInput.clear();
         return this.table.freeResultset();
     }
 
@@ -25,10 +28,12 @@ class XcTableViewer extends XcViewer {
      */
     public render($container: JQuery): XDPromise<void> {
         super.render($container);
+        this._renderRowInput($container);
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this.table.getMetaAndResultSet()
         .then(() => {
+            this.rowInput.updateTotalRows(this.table.resultSetMax);
             return this._startBuildTable();
         })
         .then(() => {
@@ -39,6 +44,12 @@ class XcTableViewer extends XcViewer {
 
         return deferred.promise();
     }
+    /**
+     * Return the rowManager instacne
+     */
+    public getRowManager(): RowManager {
+        return this.rowManager;
+    }
 
     protected _afterGenerateTableShell(): void {};
     protected _afterBuildInitialTable(_tableId: TableId): void {};
@@ -46,29 +57,8 @@ class XcTableViewer extends XcViewer {
     private _addEventListeners(): void {
         // XXX this is still buggy, need update!
         this.$view.scroll((event) => {
-            // if (!mainFrameScrolling) {
-            //     mainFrameScrolling = true;
-            //     // apply the following actions only once per scroll session
-            //     if ($(this).hasClass('scrollLocked')) {
-            //         scrollPrevented = true;
-            //     }
-            //     else {
-            //         xcMenu.close();
-            //     }
-            //     xcMenu.removeKeyboardNavigation();
-            //     // table head's dropdown has position issue if not hide
-            //     $('.xcTheadWrap').find('.dropdownBox')
-            //         .addClass('dropdownBoxHidden');
-            //     $(".xcTheadWrap").find(".lockIcon").addClass("xc-hidden");
-            //     xcTooltip.hideAll();
-            //     $('.tableScrollBar').hide();
-            // }
             $(event.target).scrollTop(0);
-            // clearTimeout(mainFrameScrollTimer);
-            // mainFrameScrollTimer = setTimeout(mainFrameScrollingStop, 300);
-            // if (!scrollPrevented) {
             TblFunc.moveFirstColumn(null, true);
-            // }
         });
     }
 
@@ -78,7 +68,7 @@ class XcTableViewer extends XcViewer {
         const tableId: string = table.getId();
         let initialTableBuilt: boolean = false;
 
-        this.rowManger.getFirstPage()
+        this.rowManager.getFirstPage()
         .then((jsonData) => {
             let isEmpty: boolean = false;
             table.currentRowNumber = jsonData.length;
@@ -95,9 +85,7 @@ class XcTableViewer extends XcViewer {
                                               table.resultSetCount);
             const numRowsStillNeeded: number = requiredNumRows - $table.find('tbody tr').length;
             if (numRowsStillNeeded > 0) {
-                const targetRow: number = table.currentRowNumber + numRowsStillNeeded;
                 const info = {
-                    "targetRow": targetRow,
                     "bulk": false,
                     "dontRemoveRows": true,
                     "numRowsAdded": null,
@@ -105,7 +93,7 @@ class XcTableViewer extends XcViewer {
                     "missingRows": []
                 };
 
-                return this.rowManger.addRows(table.currentRowNumber,
+                return this.rowManager.addRows(table.currentRowNumber,
                                             numRowsStillNeeded,
                                             RowDirection.Bottom, info);
             } else {
@@ -167,7 +155,7 @@ class XcTableViewer extends XcViewer {
     ): void {
         const numRows: number = jsonData.length;
         const $table: JQuery = $("#xcTable-" + tableId);
-        RowScroller.add(tableId);
+        this._addScrollbar();
 
         if (isEmpty && numRows === 0) {
             console.log('no rows found, ERROR???');
@@ -196,9 +184,15 @@ class XcTableViewer extends XcViewer {
         table.currentRowNumber = lastRowNum + 1;
 
         const $xcTableWrap: JQuery = $('#xcTableWrap-' + tableId);
-        RowScroller.resize();
         $xcTableWrap.removeClass("building");
         this._autoSizeDataCol(tableId);
+
+        this.rowInput.updateTotalRows(table.resultSetCount);
+        if (table.resultSetCount === 0) {
+            this.rowInput.setRowNum(0);
+        } else {
+            this.rowInput.genFirstVisibleRowNum();
+        }
     }
 
     private _autoSizeDataCol(tableId: TableId): void {
@@ -254,5 +248,249 @@ class XcTableViewer extends XcViewer {
                 TblAnim.startRowResize($(this), event);
             }
         });
+    }
+
+    private _addScrollbar(): void {
+        this._setupScrollMeta();
+        this._setupScrollbar();
+        this._infScrolling();
+    }
+
+    // TODO XXX move this into the table constructor
+    private _setupScrollMeta() {
+        this.table.scrollMeta = {
+            isTableScrolling: false,
+            isBarScrolling: false,
+            base: 0,
+            scale: null
+        };
+    }
+
+    private _setupScrollbar(): void {
+        const $view: JQuery = this.getView();
+        const $table = $view.find(".xcTable");
+
+        this.rowManager.setSizerHeight();
+
+        const $scrollBar: JQuery = $view.find(".tableScrollBar");
+        $scrollBar.width(gScrollbarWidth + 1);
+
+        let isMouseDown: boolean = false;
+        const visibleRows: number = this._getVisibleRows();
+        $scrollBar.scroll(() => {
+            if (isMouseDown) {
+                return;
+            }
+            const table = this.table;
+            const scrollMeta = table.scrollMeta;
+            if (scrollMeta.isTableScrolling) {
+                scrollMeta.isTableScrolling = false;
+            } else {
+                scrollMeta.isBarScrolling = true;
+                let top: number = $scrollBar.scrollTop() + scrollMeta.base;
+                const numRowsAbove: number = table.currentRowNumber - visibleRows;
+                const rowsAboveHeight: number = this.rowManager.getRowsAboveHeight(numRowsAbove);
+                top -= rowsAboveHeight;
+                this.getView().find(".xcTbodyWrap").scrollTop(top);
+            }
+        });
+
+        $scrollBar.on("mousedown", (event) => {
+            if (event.which !== 1) {
+                return;
+            }
+            isMouseDown = true;
+            $(document).on("mouseup.tableScrollBar", () => {
+                isMouseDown = false;
+                $(document).off("mouseup.tableScrollBar");
+
+                if ($table.hasClass("scrolling")) {
+                    return;
+                }
+
+                const table: TableMeta = this.table;
+                const scrollMeta = table.scrollMeta;
+                const scrollTop: number = $scrollBar.scrollTop();
+                const outerHeight: number = $scrollBar.outerHeight();
+                let top: number = scrollTop * scrollMeta.scale;
+
+                // if scrollbar is all the way at the bottom
+                if (scrollMeta.scale > 1 && ($scrollBar[0].scrollHeight -
+                    scrollTop - outerHeight <= 1)) {
+                    top += outerHeight * scrollMeta.scale;
+                }
+
+                let rowNum: number = Math.ceil((top / gRescol.minCellHeight));
+                const defaultRowNum: number = rowNum;
+
+                let numPages: number = Math.ceil(rowNum / gNumEntriesPerPage);
+                let extraHeight: number = 0;
+                for (let pageNumStr in table.rowHeights) {
+                    const pageNum: number = Number(pageNumStr);
+                    if (pageNum < numPages) {
+                        const page = table.rowHeights[pageNum];
+                        for (let row in page) {
+                            if (Number(row) <= rowNum) {
+                                const height: number = page[row] - gRescol.minCellHeight;
+                                extraHeight += height;
+                                rowNum = Math.ceil(defaultRowNum -
+                                    (extraHeight / gRescol.minCellHeight));
+
+                                numPages = Math.ceil(rowNum /
+                                                     gNumEntriesPerPage);
+                                if (pageNum >= numPages) {
+                                    extraHeight -= height;
+                                    rowNum = Math.ceil(defaultRowNum -
+                                        (extraHeight / gRescol.minCellHeight));
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                rowNum += 1;
+                rowNum = Math.round(rowNum);
+                scrollMeta.base = top - (top / scrollMeta.scale);
+                this.rowInput.skipTo(rowNum);
+            });
+        });
+    }
+
+    private _infScrolling(): void {
+        const table: TableMeta = this.table;
+        if (table.resultSetCount <= 0) {
+            return;
+        }
+        const $xcTbodyWrap: JQuery = this.getView().find(".xcTbodyWrap");
+        const visibleRows: number = this._getVisibleRows();
+        let needsFocusing: boolean = true;
+        let focusTimer: number;
+        $xcTbodyWrap.scroll(() => {
+            if (gMouseStatus === "movingTable") {
+                return;
+            }
+
+            const $table: JQuery = this.getView().find(".xcTable");
+
+            if ($table.hasClass('autoScroll')) {
+                $table.removeClass('autoScroll');
+                return;
+            }
+
+            const deferred: XDDeferred<void> = PromiseHelper.deferred();
+            const tableId: TableId = this.table.getId();
+            if (needsFocusing) {
+                needsFocusing = false;
+                TblFunc.focusTable(tableId, false);
+                clearElements();
+            }
+
+            clearTimeout(focusTimer);
+            focusTimer = window.setTimeout(scrollingEnd, 200);
+
+            this.rowInput.genFirstVisibleRowNum();
+
+            const scrollTop: number = $xcTbodyWrap.scrollTop();
+            const scrollMeta = table.scrollMeta;
+            if (scrollMeta.isBarScrolling) {
+                scrollMeta.isBarScrolling = false;
+            } else {
+                scrollMeta.isTableScrolling = true;
+                const numRowsAbove: number = table.currentRowNumber - visibleRows;
+                const rowsAboveHeight: number = this.rowManager.getRowsAboveHeight(numRowsAbove);
+                let scrollBarTop: number = scrollTop + rowsAboveHeight;
+                scrollBarTop -= scrollMeta.base;
+                $xcTbodyWrap.siblings(".tableScrollBar")
+                            .scrollTop(scrollBarTop);
+            }
+
+            const $firstRow: JQuery = $table.find('tbody tr:first');
+            const topRowNum: number = xcHelper.parseRowNum($firstRow);
+            let fetched: boolean = false;
+
+            // gets this class from rowManager.addRows
+            if ($table.hasClass("scrolling") || $firstRow.length === 0) {
+                deferred.resolve();
+            } else if (scrollTop === 0 && !$firstRow.hasClass('row0')) {
+                // scrolling to top
+                const numRowsToAdd: number = Math.min(gNumEntriesPerPage, topRowNum,
+                                        table.resultSetMax);
+
+                const rowNumber: number = topRowNum - numRowsToAdd;
+                if (rowNumber < table.resultSetMax) {
+                    fetched = true;
+                    this.rowManager.addRows(rowNumber, numRowsToAdd, RowDirection.Top, {
+                        bulk: false,
+                        numRowsToAdd: null,
+                        numRowsAdded: null,
+                        dontRemoveRows: false,
+                        missingRows: null
+                    })
+                    .then(deferred.resolve)
+                    .fail(deferred.reject);
+                } else {
+                    deferred.resolve();
+                }
+            } else if (isScrollBarAtBottom()) {
+                // scrolling to bottom
+                if (table.currentRowNumber < table.resultSetMax) {
+                    const numRowsToAdd: number = Math.min(gNumEntriesPerPage,
+                                    table.resultSetMax -
+                                    table.currentRowNumber);
+                    fetched = true;
+                    this.rowManager.addRows(table.currentRowNumber, numRowsToAdd, RowDirection.Bottom, {
+                        bulk: false,
+                        numRowsToAdd: null,
+                        numRowsAdded: null,
+                        dontRemoveRows: false,
+                        missingRows: null
+                    })
+                    .then(deferred.resolve)
+                    .fail(deferred.reject);
+                } else {
+                    deferred.resolve();
+                }
+            } else {
+                deferred.resolve();
+            }
+
+            deferred
+            .always(() => {
+                if (fetched) {
+                    if ($table.find('.jsonElement.modalHighlighted').length) {
+                        JSONModal.rehighlightTds($table);
+                    }
+                    if (!$.isEmptyObject(table.highlightedCells)) {
+                        TblManager.rehighlightCells(tableId);
+                    }
+                }
+
+                this.rowInput.genFirstVisibleRowNum();
+            });
+        });
+
+        function scrollingEnd() {
+            needsFocusing = true;
+        }
+
+        function isScrollBarAtBottom() {
+            return ($xcTbodyWrap[0].scrollHeight - $xcTbodyWrap.scrollTop() -
+                       $xcTbodyWrap.outerHeight() <= 1);
+        }
+
+        function clearElements() {
+            $(".menu:visible").hide();
+            xcMenu.removeKeyboardNavigation();
+        }
+    }
+
+    private _getVisibleRows(): number {
+        return Math.min(gMaxEntriesPerPage, this.table.resultSetCount);
+    }
+
+    private _renderRowInput($container: JQuery): void {
+        const $rowInputArea = $container.find(".rowInputArea");
+        this.rowInput.render($rowInputArea);
     }
 }

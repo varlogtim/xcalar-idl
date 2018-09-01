@@ -664,7 +664,7 @@ window.JoinView = (function($, JoinView) {
                     if (formHelper.checkBtnFocus()) {
                         return;
                     }
-                    if ($(event.target).is("#rowInput")) {
+                    if ($(event.target).is("#rowInputArea input")) {
                         return;
                     }
                     if (!$joinView.is(":visible")) {
@@ -2281,7 +2281,8 @@ window.JoinView = (function($, JoinView) {
 
         function projectSelect(tableId) {
             focusOnTable(tableId);
-            var rowNum = RowScroller.getFirstVisibleRowNum(tableId);
+            var rowManager = new RowManager(gTables[tableId], $("#xcTableWrap-" + tableId));
+            var rowNum = rowManager.getFirstVisibleRowNum(tableId);
             var $td = $("#xcTable-" + tableId)
                         .find(".row" + (rowNum - 1))
                         .find('.jsonElement');

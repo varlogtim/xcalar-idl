@@ -458,14 +458,8 @@ class TblFunc {
         $('.xcTable:not(#xcTable-' + tableId + ')').find('.selectedCell')
                                                    .removeClass('selectedCell');
         gActiveTableId = tableId;
-        RowScroller.update(tableId);
+        TableComponent.update();
 
-        const table: TableMeta = gTables[tableId];
-        if (table != null && table.resultSetCount === 0) {
-            $('#rowInput').val(0).data('val', 0);
-        } else {
-            RowScroller.genFirstVisibleRowNum();
-        }
         if (focusDag) {
             Dag.focusDagForActiveTable(null, true);
         } else {
@@ -790,7 +784,8 @@ class TblFunc {
     public static scrollTable(
         tableId: TableId,
         scrollType: string,
-        isUp: boolean): boolean {
+        isUp: boolean
+    ): boolean {
         if (!$("#workspaceTab").hasClass("active") ||
             !$("#worksheetButton").hasClass("active") ||
             tableId == null)
@@ -811,7 +806,8 @@ class TblFunc {
             return false;
         }
 
-        const $rowInput: JQuery = $("#rowInput");
+        // XXX TODO: fix it with rowInput
+        const $rowInput: JQuery = $("#rowInputArea input");
         const $lastTarget: JQuery = gMouseEvents.getLastMouseDownTarget();
         const isInMainFrame: boolean = !$lastTarget.context ||
                             ($lastTarget.closest("#mainFrame").length > 0 &&
@@ -826,9 +822,11 @@ class TblFunc {
                 return true;
             }
 
-            const maxRow: number = gTables[tableId].resultSetCount;
+            const table: TableMeta = gTables[tableId];
+            const maxRow: number = table.resultSetCount;
             const curRow: number = $rowInput.data("val");
-            const lastRowNum: number = RowScroller.getLastVisibleRowNum(tableId);
+            const rowManager: RowManager = new RowManager(table, $("#xcTableWrap-" + tableId));
+            const lastRowNum: number = rowManager.getLastVisibleRowNum();
             let rowToGo: number;
 
             // validation check

@@ -300,6 +300,8 @@ declare var MB: number;
 declare var GB: number;
 declare var TB: number;
 declare var PB: number;
+declare var gScrollbarWidth: number;
+declare var gMaxDivHeight: number;
 declare var gNumEntriesPerPage: number;
 declare var gMaxEntriesPerPage: number;
 declare var gMinRowsPerScreen: number;
@@ -1133,7 +1135,8 @@ declare class TableMeta {
     public resultSetCount: number;
     public resultSetMax: number;
     public resultSetId: number;
-    public scrollMeta: {isTableScrolling: boolean, base: number};
+    public rowHeights: any;
+    public scrollMeta: {isTableScrolling: boolean, isBarScrolling: boolean, base: number, scale: number};
     public getAllCols(onlyValid?: boolean): ProgCol[]
     public getCol(colNum: number): ProgCol;
     public hasCol(colName: string, prefix: string): boolean;
@@ -1167,6 +1170,7 @@ declare class TableMeta {
     public removeNoDelete(): void;
     public showIndexStyle(): void;
     public getKeyName(): string[];
+    public getSkewness(): number;
     public updateResultset(): XDPromise<void>;
     public constructor(options: object);
 }
@@ -1711,6 +1715,7 @@ declare namespace DSTargetManager {
 declare namespace JSONModal {
     export function setup(): void;
     export function show($td: JQuery, options: object): void
+    export function rehighlightTds($table: JQuery): void;
 }
 
 declare namespace ExportView {
@@ -1799,17 +1804,6 @@ declare namespace FileListModal {
 
 declare namespace DSImportErrorModal {
     export function setup(): void;
-}
-
-declare namespace RowScroller {
-    export function setup(): void;
-    export function resize(): void;
-    export function genFirstVisibleRowNum(): void;
-    export function getLastVisibleRowNum(tableId: TableId): number;
-    export function add(tableId: TableId): void;
-    export function update(tableId: TableId): void;
-    export function empty(): void
-    export function getRowsAboveHeight(tableId: TableId, numRows: number): number;
 }
 
 declare namespace MonitorLog {

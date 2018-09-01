@@ -2282,7 +2282,7 @@ window.ColManager = (function($, ColManager) {
                 if (initialTableId && initialTableId === gActiveTableId) {
                     TblFunc.focusTable(initialTableId, true);
                 } else {
-                    RowScroller.empty();
+                    TableComponent.empty();
                 }
             });
             $functionArea.find('.position').hide();
@@ -2321,7 +2321,7 @@ window.ColManager = (function($, ColManager) {
         $('.dagWrap.selected').removeClass('selected')
                               .addClass('notSelected');
 
-        RowScroller.empty();
+        TableComponent.empty();
         if (numMatches !== 0) {
             searchBar.scrollMatchIntoView($matches.eq(0));
             searchBar.highlightSelected($matches.eq(0));

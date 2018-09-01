@@ -1,13 +1,15 @@
 describe('xcTooltip Test', function() {
     var $ele = $('<div id="unitTest-tooltipTest"></div>');
+    var $input = $('<input id="unitTest-tooltipTestInput">');
 
     before(function() {
-        $("#rowInput").after($ele);
+        $("body").append($input);
+        $input.after($ele);
     });
 
     it('Should add tooltip', function() {
         xcTooltip.add($ele, {
-            "container": "#rowInput",
+            "container": "#unitTest-tooltipTestInput",
             "placement": "bottom"
         });
 
@@ -15,7 +17,7 @@ describe('xcTooltip Test', function() {
         expect($ele.attr("title")).to.equal("");
         expect($ele.attr("data-original-title")).to.equal("");
         expect($ele.attr("data-toggle")).to.equal("tooltip");
-        expect($ele.attr("data-container")).to.equal("#rowInput");
+        expect($ele.attr("data-container")).to.equal("#unitTest-tooltipTestInput");
         expect($ele.attr("data-placement")).to.equal("bottom");
 
         // test 2
@@ -150,6 +152,7 @@ describe('xcTooltip Test', function() {
     });
 
     after(function() {
+        $input.remove();
         $ele.remove();
     });
 });

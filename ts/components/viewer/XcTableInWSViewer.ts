@@ -25,6 +25,10 @@ class XcTableInWSViewer extends XcTableViewer {
         this.modelingMode = false;
     }
 
+    public getRowInput(): RowInput {
+        return this.rowInput;
+    }
+
     public render(): XDPromise<void> {
         return super.render(this.$container)
                 .always(() => {
@@ -144,19 +148,12 @@ class XcTableInWSViewer extends XcTableViewer {
     protected _afterBuild(): void {
         super._afterBuild();
         const table: TableMeta = this.table;
-        const tableId: TableId = table.getId();
         const $table: JQuery = $('#xcTable-' + table.getId());
         if (this.options.selectCol != null &&
             $('.xcTableWrap:not(.tableToRemove) th.selectedCell').length === 0
         ) {
 
             this._selecCol($table, false);
-        } else if (tableId === gActiveTableId) {
-            if (table.resultSetCount === 0) {
-                $('#rowInput').val(0).data('val', 0);
-            } else {
-                RowScroller.genFirstVisibleRowNum();
-            }
         }
 
         // position sticky row column on visible tables

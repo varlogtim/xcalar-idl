@@ -646,9 +646,9 @@ window.FnBar = (function(FnBar, $) {
                 var cursorPos = cm.getCursor().ch;
                 var valLen = cm.getValue().length;
                 if (valLen <= cursorPos) {
-                    $('#rowInput').focus();
+                    $('#rowInputArea input').focus();
                     return false; // prevent tabbing so that pressing tab skips
-                    //to the next input on the page, in this case the "#rowInput"
+                    //to the next input on the page
                 } else {
                     cm.setCursor(0, valLen);
                 }
@@ -685,7 +685,7 @@ window.FnBar = (function(FnBar, $) {
                                    .removeClass('tblTitleSelected');
                     $('.dagWrap.selected').removeClass('selected')
                                           .addClass('notSelected');
-                    RowScroller.empty();
+                    TableComponent.empty();
                 } else if ($match.is('.tableTitle')) {
                     var tableId = $match.closest('.xcTableWrap').data('id');
                     TblFunc.focusTable(tableId, true);

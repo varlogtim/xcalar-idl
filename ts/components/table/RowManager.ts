@@ -72,6 +72,197 @@ class RowManager {
         return deferred.promise();
     }
 
+    public canScroll(): boolean {
+        const table: TableMeta = this.table;
+        const $table: JQuery = this.$view.find(".xcTable");
+
+        if (!table || table.hasLock()) {
+            return false;
+        }
+
+        if ($table.hasClass('scrolling')) {
+            return false;
+        }
+        return true;
+    }
+
+    public normalizeRowNum(targetRow: number): [number, boolean] {
+        if (isNaN(targetRow) || targetRow % 1 !== 0) {
+            return [null, false];
+        }
+
+        const table: TableMeta = this.table;
+        // note that resultSetCount is the total num of rows
+        // resultSetMax is the max row that can fetch
+        const tableId: TableId = table.getId();
+        const maxRow: number = table.resultSetMax;
+        const maxCount: number = table.resultSetCount;
+
+        if (!TblFunc.isTableScrollable(tableId)) {
+            if (maxRow === 0) {
+                // when table has no rows
+                return [0, false];
+            } else {
+                return [1, false];
+            }
+        }
+
+        targetRow = Math.max(1, targetRow);
+        targetRow = Math.min(targetRow, maxCount);
+        return [targetRow, true];
+    }
+
+    public skipToRow(
+        backRow: number,
+        targetRow: number,
+        rowOnScreen: number,
+        noScrollBar: boolean
+    ): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const table: TableMeta = this.table;
+        const tableId: TableId = table.getId();
+        const maxCount: number = table.resultSetCount;
+
+        const $table: JQuery = this.$view.find(".xcTable");
+        if (isNaN(rowOnScreen)) {
+            rowOnScreen = xcHelper.parseRowNum($table.find('tr:last'));
+        }
+        // divide evenly on both top and bottom buffer
+        const rowToBuffer: number = Math.floor((gMaxEntriesPerPage - rowOnScreen) / 2);
+
+        targetRow = Math.max(1, targetRow);
+        targetRow = Math.min(targetRow, maxCount);
+
+        backRow = Math.min(table.resultSetMax - gMaxEntriesPerPage,
+                            targetRow - rowToBuffer);
+        backRow = Math.max(backRow, 0);
+
+        const numRowsToAdd: number = Math.min(gMaxEntriesPerPage, table.resultSetMax);
+        const info = {
+            "bulk": true,
+            "dontRemoveRows": false,
+            "numRowsAdded": null,
+            "numRowsToAdd": null,
+            "missingRows": []
+        };
+        this.addRows(backRow, numRowsToAdd, RowDirection.Bottom, info)
+        .always(() => {
+            TblManager.removeWaitingCursor(tableId);
+            const rowToScrollTo: number = Math.min(targetRow, table.resultSetMax);
+            this._positionScrollbar(rowToScrollTo, tableId, !noScrollBar);
+        });
+
+        return deferred.promise();
+    }
+
+
+    /**
+     * calculates the height of all the top rows that are not visible
+     * @param numRowsAbove
+     */
+    public getRowsAboveHeight(numRowsAbove: number): number {
+        const table: TableMeta = this.table;
+        const numPages: number = Math.ceil(numRowsAbove / gNumEntriesPerPage);
+        let height: number = numRowsAbove * gRescol.minCellHeight;
+        for (let pageNumStr in table.rowHeights) {
+            const pageNum: number = parseInt(pageNumStr);
+            if (pageNum < numPages) {
+                const page = table.rowHeights[pageNum];
+                if (pageNum === numPages - 1) {
+                    for (let rowStr in page) {
+                        const row: number = parseInt(rowStr);
+                        if (row <= numRowsAbove) {
+                            height += (page[row] - gRescol.minCellHeight);
+                        }
+                    }
+                } else {
+                    for (let row in page) {
+                        height += (page[row] - gRescol.minCellHeight);
+                    }
+                }
+            }
+        }
+        return height;
+    }
+
+    /**
+     * Set Table's sizer's height
+     */
+    public setSizerHeight(): void {
+        let sizerHeight: number = this._getSizerHeight();
+        let scale: number = 1;
+        if (sizerHeight > gMaxDivHeight) {
+            scale = sizerHeight / gMaxDivHeight;
+            sizerHeight = gMaxDivHeight;
+        }
+        this.table.scrollMeta.scale = scale;
+        this.$view.find(".sizer").height(sizerHeight); 
+    }
+
+    /**
+     * Get the firt visible row in the table
+     */
+    public getFirstVisibleRowNum(): number {
+        if (!document.elementFromPoint) {
+            return 0;
+        }
+
+        const $table: JQuery = this.$view.find(".xcTable");
+        if ($table.length === 0) {
+            return 0;
+        }
+        const tableLeft: number = $table.offset().left + 10;
+        const tdXCoor: number = Math.max(0, tableLeft);
+        const rect: ClientRect = $table.find("th.col0 input")[0].getBoundingClientRect();
+        const tdYCoor: number = rect.top + rect.height + 15;
+        // var tdYCoor = 160; //top rows's distance from top of window
+        const firstEl: Element = document.elementFromPoint(tdXCoor, tdYCoor);
+        const firstId: string = $(firstEl).closest('tr').attr('class');
+
+        if (firstId && firstId.length > 0) {
+            const firstRowNum: number = parseInt(firstId.substring(3)) + 1;
+            if (!isNaN(firstRowNum)) {
+                return firstRowNum;
+            } else {
+                return (this.table.resultSetCount === 0) ? 0 : 1;
+            }
+        } else {
+            const $trs: JQuery = $table.find('tbody tr');
+            let rowNum: number = (this.table.resultSetCount === 0) ? 0 : 1;;
+            $trs.each((_index, el) => {
+                const $tr: JQuery = $(el);
+                if ($tr[0].getBoundingClientRect().bottom > tdYCoor) {
+                    rowNum = xcHelper.parseRowNum($tr) + 1;
+                    return false; // stop loop
+                }
+            });
+            return rowNum;
+        }
+    }
+
+    public getLastVisibleRowNum(): number {
+        const $view: JQuery = this.$view;
+        let $tableWrap: JQuery = $view.hasClass("xcTableWrap") ?
+        $view : $view.find(".xcTableWrap");
+        if ($tableWrap.length === 0) {
+            return null;
+        }
+        const tableWrapTop: number = $tableWrap.offset().top;
+        let tableBottom: number = $tableWrap.offset().top + $tableWrap.height();
+        const minTableBottom: number = tableWrapTop + gFirstRowPositionTop +
+                             gRescol.minCellHeight;
+        tableBottom = Math.max(tableBottom, minTableBottom);
+        const $trs: JQuery = $tableWrap.find(".xcTable tbody tr");
+        for (let i = $trs.length - 1; i >= 0; i--) {
+            const $tr: JQuery = $trs.eq(i);
+            if ($tr.offset().top < tableBottom) {
+                const rowNum: number = xcHelper.parseRowNum($tr) + 1;
+                return rowNum;
+            }
+        }
+        return null;
+    }
+
     private _getTable(): JQuery {
         return this.$view.find(".xcTable");
     }
@@ -463,8 +654,7 @@ class RowManager {
             const visibleRows: number = Math.min(gMaxEntriesPerPage,
                                        table.resultSetCount);
             const numRowsAbove: number = table.currentRowNumber - visibleRows;
-            const rowsAboveHeight: number = RowScroller.getRowsAboveHeight(tableId,
-                                                                numRowsAbove);
+            const rowsAboveHeight: number = this.getRowsAboveHeight(numRowsAbove);
             const scrollBarTop: number = scrollTop + rowsAboveHeight -
                                table.scrollMeta.base;
             const curTop: number = $xcTbodyWrap.siblings(".tableScrollBar").scrollTop();
@@ -480,4 +670,61 @@ class RowManager {
         gIsTableScrolling = false;
     }
 
+    private _getSizerHeight(): number {
+        const table: TableMeta = this.table;
+        let sizerHeight: number = table.resultSetCount * gRescol.minCellHeight;
+        for (let pageNum in table.rowHeights) {
+            const page = table.rowHeights[pageNum];
+            for (let row in page) {
+                sizerHeight += (page[row] - gRescol.minCellHeight);
+            }
+        }
+        return sizerHeight;
+    }
+
+    private _positionScrollbar(row, tableId, adjustTableScroller) {
+        let canScroll: boolean = true;
+        const $view: JQuery = this.$view;
+        const $table: JQuery = $view.find(".xcTable");
+        const theadHeight: number = $table.find('thead').height();
+        const positionScrollToRow = () => {
+            if (!$table.find('.row' + (row - 1)).length) {
+                return;
+            }
+            const $tableWrap: JQuery = $view.find('.xcTableWrap');
+            const $tbodyWrap: JQuery = $view.find('.xcTbodyWrap');
+
+            const tdTop: number = $table.find('.row' + (row - 1))[0].offsetTop;
+            const scrollPos: number = Math.max((tdTop - theadHeight), 1);
+            if (canScroll && scrollPos >
+                ($table.height() - $tableWrap.height())
+            ) {
+                canScroll = false;
+            }
+            $table.addClass('autoScroll');
+            $tbodyWrap.scrollTop(scrollPos);
+
+            if (adjustTableScroller) {
+                // adjust tableScrollBar;
+                const table: TableMeta = this.table;
+                const scrollMeta = table.scrollMeta;
+                scrollMeta.isTableScrolling = true;
+                const numRowsAbove: number = table.currentRowNumber -
+                        Math.min(gMaxEntriesPerPage, table.resultSetCount);
+                const rowsAboveHeight: number = this.getRowsAboveHeight(numRowsAbove);
+                const scrollBarTop: number = scrollPos + rowsAboveHeight;
+                const newTop: number = scrollBarTop / scrollMeta.scale;
+                $tbodyWrap.siblings(".tableScrollBar").scrollTop(newTop);
+                scrollMeta.base = scrollBarTop - (scrollBarTop / scrollMeta.scale);
+            }
+        };
+
+        positionScrollToRow();
+        if (!canScroll) {
+            // this means we can't scroll to page without moving scrollbar all the
+            // way to the bottom, which triggers another getpage and thus we must
+            // try to position the scrollbar to the proper row again
+            setTimeout(positionScrollToRow, 1);
+        }
+    }
 }
