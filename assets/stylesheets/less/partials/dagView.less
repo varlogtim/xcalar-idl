@@ -318,6 +318,10 @@
             width: 100px;
         }
 
+        .descriptionIcon {
+            cursor: pointer;
+        }
+
         // &.selected, &.dragSelected {
         &.selected , &.selecting {
             .main, .iconArea, .statusIcon{
@@ -894,12 +898,12 @@
         }
     }
     &.operatorMenu {
-        .removeNode, .copyNodes, .cutNodes, .pasteNodes, .executeNode, .comment,
-        .configureNode, .previewTable, .viewSchema, .autoAlign {
+        .removeNode, .copyNodes, .cutNodes, .pasteNodes, .executeNode,
+        .description, .configureNode, .previewTable, .viewSchema, .autoAlign {
             display: list-item;
         }
         &.multiple {
-            .comment, .configureNode, .previewTable, .viewSchema {
+            .description, .configureNode, .previewTable, .viewSchema {
                 display: none;
             }
         }

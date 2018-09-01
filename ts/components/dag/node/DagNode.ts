@@ -7,7 +7,7 @@ abstract class DagNode {
     private id: DagNodeId;
     private parents: DagNode[];
     private children: DagNode[];
-    private comment: string;
+    private description: string;
     private table: string;
     private state: DagNodeState;
     private display: Coordinate;
@@ -39,7 +39,7 @@ abstract class DagNode {
         this.parents = [];
         this.children = [];
 
-        this.comment = options.comment;
+        this.description = options.description || "";
         this.table = options.table;
         this.state = options.state || DagNodeState.Unused;
         this.display = options.display || {x: -1, y: -1};
@@ -148,25 +148,25 @@ abstract class DagNode {
 
     /**
      *
-     * @returns {string} return user's comment
+     * @returns {string} return user's description
      */
-    public getComment(): string {
-        return this.comment;
+    public getDescription(): string {
+        return this.description;
     }
 
     /**
      *
-     * @param comment user comment for the node
+     * @param description user description for the node
      */
-    public setComment(comment: string): void {
-        this.comment = comment;
+    public setDescription(description: string): void {
+        this.description = description;
     }
 
     /**
-     * remove comment
+     * remove description
      */
-    public removeComment(): void {
-        delete this.comment;
+    public removeDescription(): void {
+        delete this.description;
     }
 
     /**
@@ -402,7 +402,7 @@ abstract class DagNode {
             type: this.type,
             table: this.table,
             display: this.display,
-            comment: this.comment,
+            description: this.description,
             input: this.input,
             id: this.id,
             state: this.state,

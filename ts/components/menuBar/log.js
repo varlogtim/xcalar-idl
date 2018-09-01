@@ -632,7 +632,7 @@ window.Log = (function($, Log) {
                 // XXX temporary hack to prevent undoing on a dataflow 2.0
                 // action
                 var dataflow2Ops = [
-                    SQLOps.DisconnectOperation, 
+                    SQLOps.DisconnectOperation,
                     SQLOps.ConnectOperations,
                     SQLOps.RemoveOperations,
                     SQLOps.AddOperation,
@@ -648,8 +648,8 @@ window.Log = (function($, Log) {
                     }
                     logs.push(new XcLog(oldLogs[i]));
                 }
-            
-              
+
+
                 addLog(logs, true);
                 infList.restore(".logContentWrap");
                 infListMachine.restore(".cliWrap");
@@ -1321,6 +1321,7 @@ window.Log = (function($, Log) {
             case (SQLOps.MoveOperations):
             case (SQLOps.NewDagTab):
             case (SQLOps.RemoveDagTab):
+            case (SQLOps.EditDescription):
                 return false;
             // thrift operation
             case (SQLOps.DestroyDS):

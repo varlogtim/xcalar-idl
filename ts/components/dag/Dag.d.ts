@@ -4,7 +4,7 @@ interface DagNodeInfo {
     type: DagNodeType;
     id?: string;
     input? : object;
-    comment?: string;
+    description?: string;
     table?: string;
     state?: DagNodeState;
     display? : Coordinate;

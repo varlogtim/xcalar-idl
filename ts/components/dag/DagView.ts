@@ -25,7 +25,8 @@ namespace DagView {
         activeDag = null;
         activeDagTab = null;
 
-        _setupSelectingAndDragDrop();
+        _addEventListeners();
+
         DagTopBar.Instance.setup();
         DagCategoryBar.Instance.setup();
         DagNodeMenu.setup();
@@ -664,6 +665,39 @@ namespace DagView {
     }
 
     /**
+     *
+     * @param $node
+     * @param text
+     */
+    export function editDescription(
+        nodeId: DagNodeId,
+        text: string
+    ): XDPromise<void> {
+        const node = activeDag.getNode(nodeId);
+        const oldText = node.getDescription();
+        const $node = DagView.getNode(nodeId);
+
+        node.setDescription(text);
+
+        $node.find(".descriptionIcon").remove();
+
+        if (text.length) {
+            addDescriptionIcon($node, text);
+        } else {
+            $node.removeClass("hasDescription");
+        }
+
+        Log.add(SQLTStr.EditDescription, {
+            "operation": SQLOps.EditDescription,
+            "dataflowId": activeDagTab.getId(),
+            "oldDescription": oldText,
+            "newDescription": text,
+            "nodeId": nodeId
+        });
+        return activeDagTab.saveTab();
+    }
+
+    /**
      * DagView.cancel
      * // cancel entire run or execution
      */
@@ -733,7 +767,7 @@ namespace DagView {
     }
 
 
-    function _setupSelectingAndDragDrop(): void {
+    function _addEventListeners(): void {
 
         // moving node in dataflow area to another position
         $dfWrap.on("mousedown", ".operator .main", function(event) {
@@ -1029,6 +1063,12 @@ namespace DagView {
             }
         });
 
+        $dfWrap.on("click", ".descriptionIcon", function() {
+            const nodeId: DagNodeId = $(this).closest(".operator")
+                                             .data("nodeid");
+            DagDescriptionModal.Instance.show(nodeId);
+        });
+
         function _drawRect(
             bound: DOMRect,
             selectTop: number,
@@ -1128,6 +1168,10 @@ namespace DagView {
         xcTooltip.add($node.find(".main"), {
             title: JSON.stringify(node.getParam(), null, 2)
         });
+        const description = node.getDescription();
+        if (description) {
+            addDescriptionIcon($node, description);
+        }
 
         let abbrId = nodeId.slice(nodeId.indexOf(".") + 1);
         abbrId = abbrId.slice(abbrId.indexOf(".") + 1);
@@ -1391,7 +1435,7 @@ namespace DagView {
             const nodeInfo = {
                 type: node.getType(),
                 input: xcHelper.deepCopy(node.getParam()),
-                comment: node.getComment(),
+                description: node.getDescription(),
                 display: xcHelper.deepCopy(node.getPosition()),
                 nodeId: nodeId,
                 parentIds: parentIds
@@ -1404,4 +1448,28 @@ namespace DagView {
             nodeInfos: nodeInfos
         };
     }
+
+    function addDescriptionIcon($node: JQuery, text:string): void {
+        $node.addClass("hasDescription");
+        const g = d3.select($node.get(0)).append("g")
+                    .attr("class", "descriptionIcon")
+                    .attr("transform", "translate(84, 1)");
+        g.append("circle")
+            .attr("cx", 5)
+            .attr("cy", 0)
+            .attr("r", 5)
+            .style("fill", "#378CB3");
+        g.append("text")
+            .attr("font-family", "icomoon")
+            .attr("font-size", 6)
+            .attr("fill", "white")
+            .attr("x", 2)
+            .attr("y", 2.5)
+            .text(function(_d) {return "\ue966"});
+
+        xcTooltip.add($node.find(".descriptionIcon"), {
+            title:  xcHelper.escapeDblQuoteForHTML(text)
+        });
+    }
+
 }

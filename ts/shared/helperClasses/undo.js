@@ -583,6 +583,12 @@ window.Undo = (function($, Undo) {
         return PromiseHelper.resolve(null);
     };
 
+    undoFuncs[SQLOps.EditDescription] = function(options) {
+        DagTabManager.Instance.switchTabId(options.dataflowId);
+        DagView.editDescription(options.nodeId, options.oldDescription);
+        return PromiseHelper.resolve(null);
+    };
+
     /* USER STYLING/FORMATING OPERATIONS */
 
     undoFuncs[SQLOps.MinimizeCols] = function(options) {

@@ -1538,7 +1538,8 @@ SQLTStr = {
     "queryHistStatusNone": "Unknown",
     "queryHistStatusInterrupt": "Interrupted",
     "queryFailMessage": "The SQL query failed for",
-    "EnterEditorName": "Enter snippet name"
+    "EnterEditorName": "Enter snippet name",
+    "EditDescription": "Edit Description"
 };
 
 LoginConfigTStr = {
@@ -1599,5 +1600,7 @@ DagTStr = {
     "RemoveAllOperators": "Remove All Operations",
     "RemoveAllMsg": "Are you sure you want to remove all operations?",
     "NewTab": "Add a new dataflow tab.",
-    "RemoveTab": "Remove a dataflow tab."
+    "RemoveTab": "Remove a dataflow tab.",
+    "AddDescription": "Add Description",
+    "EditDescription": "Edit Description",
 };

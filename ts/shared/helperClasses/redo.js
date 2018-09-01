@@ -266,6 +266,12 @@ window.Redo = (function($, Redo) {
         return PromiseHelper.resolve(null);
     };
 
+    redoFuncs[SQLOps.EditDescription] = function(options) {
+        DagTabManager.Instance.switchTabId(options.dataflowId);
+        DagView.editDescription(options.nodeId, options.newDescription);
+        return PromiseHelper.resolve(null);
+    };
+
     /* USER STYLING/FORMATING OPERATIONS */
 
     redoFuncs[SQLOps.MinimizeCols] = function(options) {

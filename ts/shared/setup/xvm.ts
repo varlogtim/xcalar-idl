@@ -1,4 +1,3 @@
-
 // XVM = Xcalar Version Manager
 namespace XVM {
     const majorVersion: string = '1';

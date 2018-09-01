@@ -52,22 +52,22 @@ describe("Dag Node Basic Test", () => {
         expect(coor).to.deep.equal({x: 1, y: 2});
     });
 
-    it("should get comment", () => {
+    it("should get description", () => {
         const node = new DagNode();
-        expect(node.getComment()).to.be.undefined;
+        expect(node.getDescription()).to.be.undefined;
     });
 
-    it("should set comment", () => {
+    it("should set description", () => {
         const node = new DagNode();
-        node.setComment("test");
-        expect(node.getComment()).to.equal("test");
+        node.setDescription("test");
+        expect(node.getDescription()).to.equal("test");
     });
 
-    it("should remove comment", () => {
+    it("should remove description", () => {
         const node = new DagNode();
-        node.setComment("test");
-        node.removeComment();
-        expect(node.getComment()).to.be.undefined;
+        node.setDescription("test");
+        node.removeDescription();
+        expect(node.getDescription()).to.be.undefined;
     });
 
     it("should get state", () => {
@@ -239,7 +239,7 @@ describe("Dag Node Basic Test", () => {
         const serializedChild = childNode.serialize();
         expect(serializedChild).to.equal(
             '{"type":"join","display":{"x":-1,"y":-1},"input":{},"id":"' +
-            childNode.getId() + '","state":"unused","parents":["' + node.getId() + 
+            childNode.getId() + '","state":"unused","parents":["' + node.getId() +
             '","' + secondParentNode.getId() +'"]}'
         );
     });

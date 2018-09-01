@@ -119,7 +119,8 @@ namespace DagNodeMenu {
                 case ("previewTable"):
                     DagView.previewTable(nodeIds[0]);
                     break;
-                case ("comment"):
+                case ("description"):
+                    DagDescriptionModal.Instance.show(nodeIds[0]);
                     break;
                 case ("autoAlign"):
                     DagView.autoAlign();
@@ -274,6 +275,11 @@ namespace DagNodeMenu {
             $menu.find(".previewTable").removeClass("unavailable");
         } else {
             $menu.find(".previewTable").addClass("unavailable");
+        }
+        if (dagNode.getDescription()) {
+            $menu.find(".description .label").text(DagTStr.EditDescription);
+        } else {
+            $menu.find(".description .label").text(DagTStr.AddDescription);
         }
     }
 }
