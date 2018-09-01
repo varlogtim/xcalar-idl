@@ -268,6 +268,34 @@ describe("DagView Test", () => {
         });
     });
 
+    describe("node description", function() {
+        it("editDescription should work", function() {
+            const $operator = $dfWrap.find(".operator").eq(0);
+            expect($operator.hasClass("hasDescription")).to.be.false;
+            expect($operator.find(".descriptionIcon").length).to.equal(0);
+
+            const nodeId = $operator.data('nodeid');
+            DagView.editDescription(nodeId, "test");
+            const node = DagView.getActiveDag().getNode(nodeId);
+            expect(node.getDescription()).to.equal("test");
+            expect($operator.hasClass("hasDescription")).to.be.true;
+            expect($operator.find(".descriptionIcon").length).to.equal(1);
+        });
+
+        it("editDescription with no value should work", function() {
+            const $operator = $dfWrap.find(".operator").eq(0);
+            expect($operator.hasClass("hasDescription")).to.be.true;
+            expect($operator.find(".descriptionIcon").length).to.equal(1);
+
+            const nodeId = $operator.data('nodeid');
+            DagView.editDescription(nodeId, "");
+            const node = DagView.getActiveDag().getNode(nodeId);
+            expect(node.getDescription()).to.equal("");
+            expect($operator.hasClass("hasDescription")).to.be.false;
+            expect($operator.find(".descriptionIcon").length).to.equal(0);
+        });
+    });
+
     describe("preview table", () => {
         let graph;
         let node;
