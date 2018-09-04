@@ -5,9 +5,10 @@
     </header>
     <div class="mainContent">
       <div class="join opSection">
-        <p class="instructions"><%= dicts.joinView.instr %></p>
+        <!-- first step -->
         <section data-xcid="joinFirstStep" class="firstStep">
             include "joinOpPanelJoinTemplate.html"
+            <p class="instructions"><%= dicts.joinView.instr %></p>
             <section class="topDropdowns clearfix">
               <div class="subHeading clearfix">
                 <div><%= dicts.joinView.JoinType %>:
@@ -65,14 +66,11 @@
               </p>
             </section>
           </section>
-          <section class="bottomSection flexWrap">
-            <button data-xcid="btnNextStep" class="btn btn-rounded btn-submit btn-disabled" type="button"><%= dicts.common.Next %></button>
-          </section>
         </section>
-        <!-- end of first step -->
-        <!-- start of second step -->
+        <!-- second step -->
         <section data-xcid="joinSecondStep" class="secondStep">
           include "joinOpPanelRenameTemplate.html"
+          <p class="instructions"><%= dicts.joinView.instr %></p>
           <!-- <div class="colsToKeepSection noSelection">
             <div class="subHeading clearfix">
               <div><%= dicts.joinView.colKeepTitle %></div>
@@ -136,12 +134,26 @@
               <div class="max"><%= dicts.statistics.Max %>: <div class="value"></div></div>
             </div>
           </div> -->
-          <section class="bottomSection flexWrap">
-            <button data-xcid="joinTables" class="btn btn-submit btn-rounded" type="button"><%= dicts.common.Save %></button>
-            <button data-xcid="goBack" class="btn btn-cancel btn-rounded" type="button"><%= dicts.common.Back %></button>
-          </section>
         </section>
       </div>
+      <!-- Advanced form -->
+      <section class="advancedEditor">
+        <textarea></textarea>
+      </section>
+      <!-- Buttons -->
+      <section data-xcid="bottomSection" class="bottomSection">
+        <div data-xcid="step1" class="btnWrap">
+          <button data-xcid="btnNextStep" class="btn btn-rounded btn-submit submit" type="button"><%= dicts.common.Next %></button>
+        </div>
+        <div data-xcid="step2" class="btnWrap">
+          <button data-xcid="joinTables" class="btn btn-submit btn-rounded submit" type="button"><%= dicts.common.Save %></button>
+          <button data-xcid="goBack" class="btn btn-cancel btn-rounded submit" type="button"><%= dicts.common.Back %></button>
+        </div>
+        <div data-xcid="adv" class="btnWrap">
+            <button data-xcid="saveAdv" class="btn btn-submit btn-rounded submit" type="button"><%= dicts.common.Save %></button>
+        </div>
+        include "../util/switcher.html"
+      </section>
     </div>
   </section>
   

@@ -1,12 +1,12 @@
 class JoinOpPanelStep1 {
     private _templateMgr = new OpPanelTemplateManager();
     private _$elem: JQuery = null;
+    private _onDataChange = () => {};
     private static readonly _templateIdClasue = 'templateClause';
     private static readonly _templateIdCast = 'templateCast';
     private _$elemInstr: JQuery = null;
     private _$elemPreview: JQuery = null;
     private _componentJoinTypeDropdown: OpPanelDropdown = null;
-    private _goNextStepFunc = () => { };
     private _modelRef: JoinOpPanelModel = null;
     private static readonly _joinTypeMenuItems: OpPanelDropdownMenuItem[] = [
         { text: JoinTStr.joinTypeInner, value: JoinOperatorTStr[JoinOperatorT.InnerJoin] },
@@ -24,11 +24,9 @@ class JoinOpPanelStep1 {
         ColumnType.string
     ];
     public constructor(props: {
-        container: JQuery;
-        goNextStepFunc: () => void;
+        container: JQuery
     }) {
-        const { container, goNextStepFunc } = props;
-        this._goNextStepFunc = goNextStepFunc;
+        const { container } = props;
         this._$elem = BaseOpPanel.findXCElement(container, 'joinFirstStep');
         this._$elemInstr = BaseOpPanel.findXCElement(this._$elem, 'colInstruction');
         this._$elemPreview = BaseOpPanel.findXCElement(this._$elem, 'joinPreview');
@@ -43,16 +41,18 @@ class JoinOpPanelStep1 {
     }
 
     public updateUI(props: {
-        modelRef: JoinOpPanelModel;
+        modelRef: JoinOpPanelModel,
+        onDataChange: () => void
     }): void {
-        const { modelRef } = props;
+        const { modelRef, onDataChange } = props;
         this._modelRef = modelRef;
+        this._onDataChange = onDataChange;
         this._updateUI();
     }
 
     private _updateUI(): void {
         const joinType = this._modelRef.getJoinType();
-        if (this._modelRef.getCurrentStep() !== 1) {
+        if (this._modelRef.getCurrentStep() !== 1 || this._modelRef.isAdvMode()) {
             this._$elem.hide();
             return;
         }
@@ -72,19 +72,19 @@ class JoinOpPanelStep1 {
             menuItems: joinTypeMenuItems,
             onSelectCallback: (typeId: string) => {
                 this._changeJoinType(typeId);
-                this._updateUI();
+                this._onDataChange();
             }
         });
         // Setup instruction section
         let text = JoinTStr.DagColSelectInstr;
-        if (this._isCrossJoin()) {
+        if (this._modelRef.isCrossJoin()) {
             text = JoinTStr.DagColSelectInstrCross;
         }
         this._$elemInstr.text(text);
         // Setup main section
         const $elemClauseArea = BaseOpPanel.findXCElement(this._$elem, 'clauseArea');
         const $elemCrossJoinFilter = BaseOpPanel.findXCElement(this._$elem, 'crossJoinFilter');
-        if (this._isCrossJoin()) {
+        if (this._modelRef.isCrossJoin()) {
             $elemClauseArea.hide();
             $elemCrossJoinFilter.show();
             // Setup crossJoinFilter section
@@ -93,9 +93,9 @@ class JoinOpPanelStep1 {
             $elemEvalString.off();
             $elemEvalString.on('input', (e) => {
                 this._modelRef.setEvalString($(e.target).val().trim());
-                this._updateUI();
+                this._onDataChange();
             });
-            if (!this._isValidEvalString()) {
+            if (!this._modelRef.isValidEvalString()) {
                 // TODO: Show error message
             }
         }
@@ -111,26 +111,12 @@ class JoinOpPanelStep1 {
         if (this._isEnableAddClause()) {
             $elemAddClause.on('click', () => {
                 this._addColumnPair();
-                this._updateUI();
+                this._onDataChange();
             });
             $elemAddClause.removeClass('btn-disabled');
         } else {
             if (!$elemAddClause.hasClass('btn-disabled')) {
                 $elemAddClause.addClass('btn-disabled');
-            }
-        }
-        // Next step button
-        const $elemNextStep = BaseOpPanel.findXCElement(this._$elem, 'btnNextStep');
-        $elemNextStep.off();
-        if (this._isEnableNext()) {
-            $elemNextStep.removeClass('btn-disabled');
-            $elemNextStep.on('click', () => {
-                this._goNextStepFunc();
-            });
-        }
-        else {
-            if (!$elemNextStep.hasClass('btn-disabled')) {
-                $elemNextStep.addClass('btn-disabled');
             }
         }
         // Command Preview section
@@ -142,7 +128,7 @@ class JoinOpPanelStep1 {
         const htmlJoinType = `<span class="joinType keyword">${this._getJoinTypeText(this._modelRef.getJoinType())}</span>`;
         const htmlTables = ' <span class="highlighted">table1</span>,<span class="highlighted">table2</span>';
 
-        if (this._isCrossJoin()) {
+        if (this._modelRef.isCrossJoin()) {
             const htmlWhere = '<br/><span class="keyword">WHERE </span>';
             const htmlClause = xcHelper.escapeHTMLSpecialChar(this._modelRef.getEvalString());
             html = `${htmlJoinType}${htmlTables}${htmlWhere}${htmlClause}`;
@@ -183,7 +169,7 @@ class JoinOpPanelStep1 {
                 'onDelClick': columnPairs.length > 1
                     ? () => {
                         this._removeColumnPair(i);
-                        this._updateUI();
+                        this._onDataChange();
                     }
                     : () => {},
                 'delCss': columnPairs.length > 1 ? '' : 'removeIcon-nodel',
@@ -304,7 +290,7 @@ class JoinOpPanelStep1 {
             menuItems: menuItems,
             onSelectCallback: ({ pairIndex, type }) => {
                 this._modifyColumnType(isLeft, pairIndex, type);
-                this._updateUI();
+                this._onDataChange();
             }
         });
         return componentDropdown;
@@ -351,14 +337,10 @@ class JoinOpPanelStep1 {
             defaultText: colSelected,
             onSelectCallback: ({ pairIndex, colName }) => {
                 this._modifyColumnPair(isLeft, pairIndex, colName);
-                this._updateUI();
+                this._onDataChange();
             }
         });
         return componentDropdown;
-    }
-
-    private _isEnableNext(): boolean {
-        return this._validateData();
     }
 
     private _isEnableAddClause(): boolean {
@@ -367,45 +349,6 @@ class JoinOpPanelStep1 {
     }
 
     // Data model manipulation === start
-    private _validateData() {
-        if (this._isCrossJoin()) {
-            if (!this._isValidEvalString()) {
-                return false;
-            }
-        } else {
-            if (this._modelRef.getColumnPairsLength() === 0) {
-                return false;
-            }
-            for (const pair of this._modelRef.getColumnPairs()) {
-                // if (this._modelRef.isColumnDetached(pair.leftName, true)) {
-                //     return false;
-                // }
-                // if (this._modelRef.isColumnDetached(pair.rightName, false)) {
-                //     return false;
-                // }
-                if (this._modelRef.isCastNeed(pair)) {
-                    return false;
-                }
-                if (pair.leftName.length === 0 || pair.rightName.length === 0) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    private _isCrossJoin() {
-        return this._modelRef.getJoinType() === JoinOperatorTStr[JoinOperatorT.CrossJoin];
-    }
-
-    private _isValidEvalString() {
-        const evalStr = this._modelRef.getEvalString();
-        return evalStr.length > 0
-            && evalStr.indexOf("(") >= 0
-            && evalStr.indexOf(")") > 0;
-    }
-
     private _changeJoinType(typeId: string): void {
         this._modelRef.setJoinType(typeId);
     }

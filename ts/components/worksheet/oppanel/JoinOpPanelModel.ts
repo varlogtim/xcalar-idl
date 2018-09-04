@@ -1,5 +1,6 @@
 class JoinOpPanelModel {
     private _currentStep: number = 1;
+    private _isAdvMode: boolean = false;
     private _columnMeta: {
         left: JoinOpColumnInfo[],
         leftMap: Map<string, JoinOpColumnInfo>,
@@ -22,16 +23,22 @@ class JoinOpPanelModel {
 
     public static fromDag(dagNode: DagNodeJoin): JoinOpPanelModel {
         try {
-            const [leftParent, rightParent] = dagNode.getParents();
-            return this.fromDagInput(
-                this._getColumnsFromDagNode(leftParent),
-                this._getColumnsFromDagNode(rightParent),
-                dagNode.getParam()
-            );
+            const {left, right} = this.getColumnsFromDag(dagNode);
+            return this.fromDagInput(left, right, dagNode.getParam());
         } catch(e) {
             console.error(e);
             return new JoinOpPanelModel();
         }
+    }
+
+    public static getColumnsFromDag(
+        dagNode: DagNodeJoin
+    ): { left: ProgCol[], right: ProgCol[] } {
+        const [leftParent, rightParent] = dagNode.getParents();
+        return {
+            left: this._getColumnsFromDagNode(leftParent),
+            right: this._getColumnsFromDagNode(rightParent)
+        };
     }
 
     /**
@@ -325,12 +332,31 @@ class JoinOpPanelModel {
         })
     }
 
+    public isCrossJoin() {
+        return this.getJoinType() === JoinOperatorTStr[JoinOperatorT.CrossJoin];
+    }
+
+    public isValidEvalString() {
+        const evalStr = this.getEvalString();
+        return evalStr.length > 0
+            && evalStr.indexOf("(") >= 0
+            && evalStr.indexOf(")") > 0;
+    }
+
     public getCurrentStep() {
         return this._currentStep;
     }
 
     public setCurrentStep(step: number) {
         this._currentStep = step;
+    }
+
+    public isAdvMode() {
+        return this._isAdvMode;
+    }
+
+    public setAdvMode(advMode: boolean) {
+        this._isAdvMode = advMode;
     }
 
     public getJoinType() {
@@ -763,5 +789,9 @@ class JoinOpPanelModel {
 
 enum JoinOpError {
     ColumnTypeLenMismatch = 'ColumnTypeLenMismatch',
-
+    InvalidEvalString = 'InvalidEvalString',
+    NeedTypeCast = 'NeedTypeCast',
+    InvalidJoinClause = 'InvalidJoinClause',
+    ColumnNameConflict = 'ConlumnNameConflict',
+    PrefixConflict = 'PrefixConflict'
 }

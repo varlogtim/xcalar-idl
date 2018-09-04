@@ -1,22 +1,17 @@
 class JoinOpPanelStep2 {
     private _$elem: JQuery = null;
     private _modelRef: JoinOpPanelModel = null;
-    private _goPrevStep: () => void = () => {};
-    private _submitDataFunc: () => void;
     private _templateMgr = new OpPanelTemplateManager();
+    private _onDataChange = () => {};
     private static readonly _templateIdRenameRow = 'templateRenameRow';
     private static readonly _templateIdRenameTable = 'templateRename';
     private static readonly _templateIdRenameSection = 'templateRenameSection';
 
     public constructor(props: {
-        container: JQuery,
-        goPrevStepFunc: () => void,
-        submitDataFunc: () => void
+        container: JQuery
     }) {
-        const { container, goPrevStepFunc = ()=>{}, submitDataFunc = ()=>{} } = props;
+        const { container } = props;
         this._$elem = BaseOpPanel.findXCElement(container, 'joinSecondStep');
-        this._goPrevStep = goPrevStepFunc;
-        this._submitDataFunc = submitDataFunc;
         this._templateMgr.loadTemplate(JoinOpPanelStep2._templateIdRenameTable, this._$elem);
         this._templateMgr.loadTemplate(JoinOpPanelStep2._templateIdRenameRow, this._$elem);
         this._templateMgr.loadTemplate(JoinOpPanelStep2._templateIdRenameSection, this._$elem);
@@ -24,14 +19,16 @@ class JoinOpPanelStep2 {
 
     public updateUI(props: {
         modelRef: JoinOpPanelModel,
+        onDataChange: () => void
     }): void {
-        const { modelRef } = props;
+        const { modelRef, onDataChange } = props;
         this._modelRef = modelRef;
+        this._onDataChange = onDataChange;
         this._updateUI();
     }
 
     private _updateUI() {
-        if (this._modelRef.getCurrentStep() !== 2) {
+        if (this._modelRef.getCurrentStep() !== 2 || this._modelRef.isAdvMode()) {
             this._$elem.hide();
             return;
         }
@@ -92,27 +89,6 @@ class JoinOpPanelStep2 {
             )
         }
         this._templateMgr.updateDOM(elemDerivedContainer, derivedSection);
-
-        // Go back button
-        const $elemBackBtn = findXCElement(this._$elem, 'goBack');
-        $elemBackBtn.off();
-        $elemBackBtn.on('click', () => {
-            this._goPrevStep();
-        })
-
-        // Submit(Join Table) button
-        const $elemJoinBtn = findXCElement(this._$elem, 'joinTables');
-        $elemJoinBtn.off();
-        if (this._validateData()) {
-            $elemJoinBtn.removeClass('btn-disabled');
-            $elemJoinBtn.on('click', () => {
-                this._submitDataFunc();
-            });
-        } else {
-            if (!$elemJoinBtn.hasClass('btn-disabled')) {
-                $elemJoinBtn.addClass('btn-disabled');
-            }
-        }
     }
 
     private _setupBatchRename($container: JQuery, isLeft: boolean, isPrefix: boolean): void {
@@ -137,7 +113,7 @@ class JoinOpPanelStep2 {
                 return;
             }
             this._batchRename({ isLeft: isLeft, isPrefix: isPrefix });
-            this._updateUI();
+            this._onDataChange();
         });
 
         $container.on("click", ".copyAppend", function(event) {
@@ -150,7 +126,7 @@ class JoinOpPanelStep2 {
         $container.on("input", ".copyAppend input", (event) => {
             const suffix = $(event.target).val();
             this._batchRename({ isLeft: isLeft, isPrefix: isPrefix, suffix: suffix});
-            this._updateUI();
+            this._onDataChange();
         });
     }
 
@@ -180,11 +156,11 @@ class JoinOpPanelStep2 {
                     colErrCss: isDetached ? 'text-detach' : '',
                     onClickRename: () => {
                         this._autoRenameColumn(renameInfo, renameInfo.source, isLeft);
-                        this._updateUI();
+                        this._onDataChange();
                     },
                     onNameChange: (e) => {
                         this._renameColumn(renameInfo, e.target.value.trim());
-                        this._updateUI();
+                        this._onDataChange();
                     }
                 }
             );
@@ -212,18 +188,6 @@ class JoinOpPanelStep2 {
     // Data model manipulation === start
     private _renameColumn(renameInfo: JoinOpRenameInfo, newName: string) {
         renameInfo.dest = newName;
-    }
-
-    private _validateData(): boolean {
-        const {
-            column: columnCollision, prefix: prefixCollision
-        } = this._modelRef.getCollisionNames();
-
-        if (columnCollision.size > 0 || prefixCollision.size > 0) {
-            return false;
-        }
-
-        return true;
     }
 
     private _autoRenameColumn(

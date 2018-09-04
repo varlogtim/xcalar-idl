@@ -2111,6 +2111,34 @@
     @headingHeight: 30px;
     @commonMargin: 10px;
 
+    .mainContent {
+        .flex-display;
+        .flex-direction(column);
+    }
+
+    .opSection {
+        .flex(1 1 auto);
+    }
+
+    .advancedEditor {
+        .flex(1 1 auto);
+        overflow: hidden;
+        height: 100%;
+        .CodeMirror {
+            height: 100%;
+        }
+    }
+
+    .bottomSection {
+        .flex(0 0 auto);
+    }
+
+    .btnWrap {
+        .btn {
+            margin-top: 10px;
+        }
+    }
+
     .renameSection {
         .rename {
             .position(relative);
