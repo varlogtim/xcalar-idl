@@ -416,6 +416,59 @@ window.TestSuite = (function($, TestSuite) {
             return deferred.promise();
         },
 
+        createNode: function(type) {
+            var node = DagView.addNode({
+                type: type,
+                display: {
+                    x: 0,
+                    y: 0
+                }
+            });
+            var $node = $('#dagView .operatorSvg [data-nodeid="' + node.getId() + '"]');
+            this.assert($node.length === 1);
+            return $node;
+        },
+    
+        nodeMenuAction($node, action) {
+            $node.find(".main").trigger("contextmenu");
+            $("#dagNodeMenu").find("." + action).trigger(fakeEvent.mouseup);
+        },
+
+        hasNodeWithState(nodeId, state) {
+            var stateClass = ".state-" + state;
+            var idSelector = '[data-nodeid="' + nodeId + '"]';
+            return this.checkExists('#dagView .operatorSvg ' + stateClass + idSelector);
+        },
+
+        createDatasetNode: function(dsName, prefix) {
+            var self = this;
+            var deferred = PromiseHelper.deferred();
+            var nodeId = self.createNodeAndOpenPanel(null, DagNodeType.Dataset);
+            var $panel = $("#datasetOpPanel");
+            self.assert($panel.hasClass("xc-hidden") === false);
+
+            $panel.find(".refresh").click();
+            var selector = '#datasetOpPanel .datasetName :contains(' + dsName + ')';
+            
+            self.checkExists(selector)
+            .then(function() {
+                var $grid = $(selector).closest(".datasetName");
+                $grid.click();
+                $panel.find(".datasetPrefix input").val(prefix);
+                $panel.find(".bottomSection button").click();
+                return self.hasNodeWithState(nodeId, DagNodeState.Configured);
+            })
+            .then(function() {
+                deferred.resolve(nodeId);
+            })
+            .fail(function() {
+                console.error("could not create dataset node");
+                deferred.reject.apply(this, arguments);
+            });
+
+            return deferred.promise();
+        },
+
         // elemSelectors
         /**
          * checkExists
@@ -538,6 +591,24 @@ window.TestSuite = (function($, TestSuite) {
                 return self.checkExists(["#operationsView:not(.xc-hidden)",
                             '#operationsView .opSection:not(.tempDisabled)']);
             }
+        },
+
+        createNodeAndOpenPanel(parentNodeIds, nodeType) {
+            var self = this;
+            var $node = self.createNode(nodeType);
+            var nodeId = $node.data("nodeid");
+
+            if (parentNodeIds != null) {
+                parentNodeIds = (parentNodeIds instanceof Array) ?
+                parentNodeIds : [parentNodeIds];
+
+                parentNodeIds.forEach((parentNodeId, index) => {
+                    DagView.connectNodes(parentNodeId, nodeId, index);
+                });
+            }
+            DagView.autoAlign();
+            self.nodeMenuAction($node, "configureNode");
+            return nodeId;
         }
     };
 

@@ -80,10 +80,12 @@ class DagGraph {
         // restore edges
         this.restoreConnections(connections);
 
-        graphJSON.comments.forEach((comment) => {
-            const commentNode = CommentNode.deserialize(comment);
-            this.commentsMap.set(commentNode.getId(), commentNode);
-        });
+        if (graphJSON.comments) {
+            graphJSON.comments.forEach((comment) => {
+                const commentNode = CommentNode.deserialize(comment);
+                this.commentsMap.set(commentNode.getId(), commentNode);
+            });
+        }
         return true;
     }
 

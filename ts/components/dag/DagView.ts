@@ -237,7 +237,7 @@ namespace DagView {
      * @param dagId
      * @param nodeInfo
      */
-    export function addNode(nodeInfo: DagNodeInfo): XDPromise<void> {
+    export function addNode(nodeInfo: DagNodeInfo): DagNode {
         $dfWrap.find(".selected").removeClass("selected");
         const $dfArea = $dfWrap.find(".dataflowArea.active");
 
@@ -252,7 +252,8 @@ namespace DagView {
             "dataflowId": activeDagTab.getId(),
             "nodeId": nodeId
         });
-        return activeDagTab.saveTab();
+        activeDagTab.saveTab();
+        return node;
     }
 
     export function newComment(
