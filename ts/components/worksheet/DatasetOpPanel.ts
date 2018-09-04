@@ -240,33 +240,36 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this._$elemPanel.on(
             `click.close.${DatasetOpPanel._eventNamespace}`,
             '.close, .cancel',
-            () => { this.close() }
+            () => { this.close(); }
         );
 
         // Submit button
         this._$elemPanel.on(
             `click.submit.${DatasetOpPanel._eventNamespace}`,
             '.confirm',
-            () => {
-                let prefix: string = $("#datasetOpPanel .datasetPrefix input").val();
-                let id: string = $("#dsOpListSection .li.datasetName.active").data('id');
-                if (!this._checkOpArgs(prefix,id)) {
-                    return;
-                }
-                $("#initialLoadScreen").show();
-                dagNode.setParam({
-                    source: id,
-                    prefix: prefix
-                }).then(() => {
-                    $("#initialLoadScreen").hide();
-                    this.close();
-                }).fail((error) => {
-                    $("#initialLoadScreen").hide();
-                    console.error(error);
-                    StatusBox.show(error, $("#datasetOpPanel .btn-submit"),
-                        false, {"side": "top"});
-                })
-            }
+            () => { this._submitForm(dagNode); }
         );
+    }
+
+    private _submitForm(dagNode: DagNodeDataset): void {
+        const prefix: string = this._$elemPanel.find(".datasetPrefix input").val();
+        let id: string = this._$datasetList.find(".li.datasetName.active").data('id');
+        if (!this._checkOpArgs(prefix, id)) {
+            return;
+        }
+        const $bg: JQuery = $("#initialLoadScreen");
+        $bg.show();
+        dagNode.setParam({
+            source: id,
+            prefix: prefix
+        }).then(() => {
+            $bg.hide();
+            this.close();
+        }).fail((error) => {
+            $bg.hide();
+            console.error(error);
+            StatusBox.show(JSON.stringify(error), this._$elemPanel.find(".btn-submit"),
+                false, {"side": "top"});
+        });
     }
 }

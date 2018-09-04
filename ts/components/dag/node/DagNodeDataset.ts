@@ -34,12 +34,21 @@ class DagNodeDataset extends DagNode {
      * @param intpu.prefix {string} Prefix for the created table
      */
     public setParam(input: DagNodeDatasetInput = <DagNodeDatasetInput>{}): XDPromise<void> {
-        this.input = {
-            source: input.source,
-            prefix: input.prefix
-        }
-        super.setParam();
-        return this._getSourceColumns();
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const source: string = input.source;
+        const prefix: string = input.prefix;
+        this._getSourceColumns(source, prefix)
+        .then(() => {
+            this.input = {
+                source: source,
+                prefix: prefix
+            }
+            super.setParam();
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     protected _getSerializeInfo():DagNodeDatasetInfo {
@@ -53,10 +62,12 @@ class DagNodeDataset extends DagNode {
         return serializedInfo;
     }
 
-    private _getSourceColumns(): XDPromise<void> {
+    private _getSourceColumns(
+        source: string,
+        prefix: string
+    ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const ds: DSObj = DS.getDSObj(this.input.source);
-        const prefix: string = this.input.prefix;
+        const ds: DSObj = DS.getDSObj(source);
         if (ds != null && prefix != null) {
             // XXXX this is a wrong implementation
             // wait for https://bugs.int.xcalar.com/show_bug.cgi?id=12870

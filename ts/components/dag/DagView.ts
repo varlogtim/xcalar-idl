@@ -1254,13 +1254,10 @@ namespace DagView {
     function _setupGraphEvents(): void {
         activeDag.events.on(DagNodeEvents.StateChange, function(info) {
             const $node: JQuery = DagView.getNode(info.id);
-            let stateClasses = "";
             for (let i in DagNodeState) {
-                stateClasses += "state-" + DagNodeState[i] + " ";
+                $node.removeClass("state-" + DagNodeState[i]);
             }
-            $node.removeClass(stateClasses);
             $node.addClass("state-" + info.state);
-
             activeDagTab.saveTab();
         });
 
