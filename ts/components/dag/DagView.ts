@@ -404,13 +404,26 @@ namespace DagView {
      * @param parentNodeId
      * @param childNodeId
      * @param connectorIndex
+     * @param isReconnect
      * connects 2 nodes and draws line
      */
     export function connectNodes(
-        parentNodeId,
-        childNodeId,
-        connectorIndex
+        parentNodeId: DagNodeId,
+        childNodeId: DagNodeId,
+        connectorIndex: number,
+        isReconnect: boolean
     ): XDPromise<void> {
+        let prevParentId = null;
+        if (isReconnect) {
+            const $curEdge = $dagView.find('.edge[data-childnodeid="' +
+                                            childNodeId +
+                                            '"][data-connectorindex="' +
+                                            connectorIndex + '"]');
+            prevParentId = $curEdge.data("parentnodeid");
+            activeDag.disconnect(prevParentId, childNodeId, connectorIndex);
+            _removeConnection($curEdge, childNodeId);
+        }
+
         activeDag.connect(parentNodeId, childNodeId, connectorIndex);
 
         _drawConnection(parentNodeId, childNodeId, connectorIndex);
@@ -420,7 +433,8 @@ namespace DagView {
             "dataflowId": activeDagTab.getId(),
             "parentNodeId": parentNodeId,
             "childNodeId": childNodeId,
-            "connectorIndex": connectorIndex
+            "connectorIndex": connectorIndex,
+            "prevParentNodeId": prevParentId
         });
         return activeDagTab.saveTab();
     }
@@ -936,18 +950,23 @@ namespace DagView {
             }
 
             const $childConnector = $(this);
-            if ($childConnector.hasClass("hasConnection") &&
-                !$childConnector.hasClass("multi")) {
-                return;
-            }
             const $childNode = $childConnector.closest(".operator");
             const childNodeId: DagNodeId = $childNode.data("nodeid");
             const $dfArea = $dfWrap.find(".dataflowArea.active");
             let $candidates: JQuery;
             let path;
             let childCoors;
-            let connectorIndex = activeDag.getNode(childNodeId).getNextOpenConnectionIndex();
+            let connectorIndex: number = activeDag.getNode(childNodeId)
+                                                .getNextOpenConnectionIndex();
+            let isReconnecting = false;
+            let otherParentId;
 
+            // if child connector is in use, when drag finishes we will remove
+            // this connection and replace with a new one
+            if (connectorIndex === -1) {
+                isReconnecting = true;
+                connectorIndex = parseInt($childConnector.data("index"));
+            }
             new DragHelper({
                 event: event,
                 $element: $childConnector,
@@ -959,6 +978,18 @@ namespace DagView {
                 },
                 noCursor: true,
                 onDragStart: function(_$el: JQuery, _e: JQueryEventObject) {
+                    if (isReconnecting) {
+                        // connection already taken, temporarily remove connection
+                        // and create a new one when drop finishes or add it back
+                        // if drop fails
+                        const $curEdge = $dagView.find('.edge[data-childnodeid="' +
+                                            childNodeId +
+                                            '"][data-connectorindex="' +
+                                            connectorIndex + '"]');
+                        otherParentId = $curEdge.data("parentnodeid");
+                        activeDag.disconnect(otherParentId ,childNodeId,
+                                            connectorIndex);
+                    }
                     const $operators: JQuery = $dfArea.find(".operator");
                     $candidates = $operators.filter(function() {
                         const parentNodeId = $(this).data("nodeid");
@@ -966,8 +997,10 @@ namespace DagView {
                             return false;
                         }
 
-                        return activeDag.canConnect(parentNodeId, childNodeId, connectorIndex, true);
+                        return activeDag.canConnect(parentNodeId, childNodeId,
+                                                    connectorIndex, true);
                     });
+
                     $operators.addClass("noDrop");
                     $candidates.removeClass("noDrop").addClass("dropAvailable");
                     const offset = _getDFAreaOffset();
@@ -1016,20 +1049,37 @@ namespace DagView {
 
                     if (!$parentNode) {
                         console.log("invalid connection");
+                        if (isReconnecting) {
+                            activeDag.connect(otherParentId ,childNodeId,
+                                              connectorIndex, true, false);
+                        }
                         return;
                     }
 
                     const parentNodeId: DagNodeId = $parentNode.data("nodeid");
 
-                    if (!activeDag.canConnect(parentNodeId, childNodeId, connectorIndex)) {
-                        StatusBox.show(DagTStr.CycleConnection, $childNode)
+                    if (!activeDag.canConnect(parentNodeId, childNodeId,
+                                              connectorIndex)) {
+                        StatusBox.show(DagTStr.CycleConnection, $childNode);
+                        if (isReconnecting) {
+                            activeDag.connect(otherParentId ,childNodeId,
+                                              connectorIndex, true, false);
+                        }
                         return;
                     }
+                    if (isReconnecting) {
+                        activeDag.connect(otherParentId ,childNodeId,
+                                          connectorIndex, true, false);
+                    }
 
-                    DagView.connectNodes(parentNodeId, childNodeId, connectorIndex);
+                    DagView.connectNodes(parentNodeId, childNodeId,
+                                         connectorIndex, isReconnecting);
                 },
                 onDragFail: function() {
-
+                    if (isReconnecting) {
+                        activeDag.connect(otherParentId ,childNodeId,
+                                            connectorIndex, true, false);
+                    }
                 },
                 copy: true
             });

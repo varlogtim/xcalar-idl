@@ -364,23 +364,8 @@
             border: 1px solid @color-border-operator;
             cursor: pointer;
 
-            &.hasConnection {
-                cursor: default;
-                &.multi {
-                    cursor: pointer;
-                }
-            }
             &:hover {
                 fill: @color-border-operator;
-                &.hasConnection {
-                    cursor: default;
-                    fill: @color-connector;
-
-                    &.multi {
-                        cursor: pointer;
-                        fill: @color-border-operator;
-                    }
-                }
             }
         }
         &.out {

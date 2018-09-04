@@ -228,7 +228,9 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.ConnectOperations] = function(options) {
         DagTabManager.Instance.switchTabId(options.dataflowId);
-        DagView.connectNodes(options.parentNodeId, options.childNodeId, options.connectorIndex);
+        var isReconnect = options.prevParentNodeId != null;
+        DagView.connectNodes(options.parentNodeId, options.childNodeId,
+                            options.connectorIndex, isReconnect);
         return PromiseHelper.resolve(null);
     };
 

@@ -538,6 +538,10 @@ window.Undo = (function($, Undo) {
     undoFuncs[SQLOps.ConnectOperations] = function(options) {
         DagTabManager.Instance.switchTabId(options.dataflowId);
         DagView.disconnectNodes(options.parentNodeId, options.childNodeId, options.connectorIndex);
+        if (options.prevParentNodeId) {
+            DagView.connectNodes(options.prevParentNodeId, options.childNodeId,
+                                 options.connectorIndex);
+        }
         return PromiseHelper.resolve(null);
     };
 

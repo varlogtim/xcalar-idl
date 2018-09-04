@@ -132,14 +132,15 @@ class DagCategoryBar {
                                     'stroke="none" width="7" height="7" />';
                 } else if (numParents === -1) {
                     inConnector = '<rect class="connector in noConnection multi"' +
-                                'x="0" y="5" fill="#BBC7D1" ' +
+                                'data-index="0" x="0" y="5" fill="#BBC7D1" ' +
                                 'stroke="#849CB0" stroke-width="1" ' +
                                 'ry="1" rx="1" width="7" height="18" />';
                 } else {
                     for (var j = 0; j < numParents; j++) {
                         let y  = 28 / (numParents + 1) * (1 + j) - 3;
                         inConnector += '<rect class="connector in noConnection"' +
-                                'x="0" y="' + y + '" fill="#BBC7D1" ' +
+                                'data-index="' + j + ' " x="0" y="' + y +
+                                '" fill="#BBC7D1" ' +
                                 'stroke="#849CB0" stroke-width="1" ry="1" ' +
                                 'rx="1" width="7" height="7" />';
                     }
