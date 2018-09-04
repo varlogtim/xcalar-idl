@@ -69,14 +69,17 @@ class OpPanelNodeRenderFactory {
                         const newNode = newNodeList[oldIndex];
                         if (this._isNodeForceUpdate(oldNode)) {
                             container.replaceChild(newNode, oldNode);
+                            this._runInitFunc(newNode, true);
                             // console.log(`Node replace(force): ${oldNode.nodeName}`);
                         } else if (!this._isSameNodeType(oldNode, newNode)) {
                             // Different node type, replace the whole subtree
                             container.replaceChild(newNode, oldNode);
+                            this._runInitFunc(newNode, true);
                             // console.log(`Node replace: ${newNode.nodeName}`);
                         } else {
                             // Same node type, update attributes/states
                             this._updateNode(oldNode, newNode);
+                            this._runInitFunc(newNode, false);
                             // Continue checking child elements
                             const childNodes = [];
                             if (newNode.hasChildNodes()) {
@@ -99,7 +102,9 @@ class OpPanelNodeRenderFactory {
                 if (oldIndex < newNodeList.length) {
                     // More new children, add them
                     for (let i = oldIndex; i < newNodeList.length; i ++) {
-                        container.appendChild(newNodeList[i]);
+                        const child = newNodeList[i];
+                        container.appendChild(child);
+                        this._runInitFunc(child, true);
                         // console.log(`Node add1: ${newNodeList[i].nodeName}`);
                     }
                 }
@@ -107,11 +112,25 @@ class OpPanelNodeRenderFactory {
                 // Empty tree, add new children
                 for (const child of newNodeList) {
                     container.appendChild(child);
+                    this._runInitFunc(child, true);
                     // console.log(`Node add2: ${child.nodeName}`);
                 }
             }
+            this._runInitFunc(container as NodeDefDOMElement, false);
         } catch(e) {
             console.error('NodeRender.updateDOM', e);
+        }
+    }
+
+    private static _runInitFunc(node: NodeDefDOMElement, isRecursive: boolean) {
+        const initFunc = this._getInitFunc(node);
+        if (initFunc != null) {
+            setTimeout(initFunc, 0);
+        }
+        if (isRecursive && node.hasChildNodes()) {
+            for (const child of node.childNodes) {
+                this._runInitFunc(child as NodeDefDOMElement, isRecursive);
+            }
         }
     }
 
@@ -130,10 +149,26 @@ class OpPanelNodeRenderFactory {
         return xcdata.isForceUpdate;
     }
 
+    public static setNodeInitFunc(node: NodeDefDOMElement, initFunc: () => void) {
+        if (node == null) {
+            return;
+        }
+        this._writeXcData(node, { initFunc: initFunc });
+    }
+
+    private static _getInitFunc(node: NodeDefDOMElement): () => void {
+        const xcdata = this._readXcData(node);
+        if (xcdata == null) {
+            return null;
+        }
+        return xcdata.initFunc;
+    }
+
     private static _getDefaultXcData(): NodeDefXcData {
         return {
             isForceUpdate: false,
-            events: {}
+            events: {},
+            initFunc: null
         };
     }
 
@@ -151,6 +186,9 @@ class OpPanelNodeRenderFactory {
         if (xcdata.events != null) {
             nodeData.events = Object.assign({}, xcdata.events);
         }
+        if (xcdata.initFunc != null) {
+            nodeData.initFunc = xcdata.initFunc;
+        }
         node.xcdata = nodeData;
     }
 
@@ -161,7 +199,8 @@ class OpPanelNodeRenderFactory {
         }
         return {
             isForceUpdate: xcdata.isForceUpdate,
-            events: Object.assign({}, xcdata.events)
+            events: Object.assign({}, xcdata.events),
+            initFunc: xcdata.initFunc
         };
     }
 

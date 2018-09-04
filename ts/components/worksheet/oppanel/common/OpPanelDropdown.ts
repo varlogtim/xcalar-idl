@@ -10,6 +10,7 @@ class OpPanelDropdown {
     private _cssSelected = '';
     private static _fieldNameValue = 'xcval';
     private _setTitleFunc: ($elemTitle: JQuery, text: string) => void = null;
+    private _isDelayInit: boolean = true;
 
     /**
      * Class Constructuor
@@ -18,6 +19,8 @@ class OpPanelDropdown {
      * @param props.ulXcId The data-xcid value of the UL tag
      * @param props.cssSelected OPTIONAL. CSS class name which will be set on the selected menu item
      * @param props.setTitleFunc OPTIONAL. The function to set the input/div text
+     * @param props.isForceUpdate OPTIONAL. Set to true, if work with template engine. Default is true.
+     * @param props.isDelayInit OPTIONAL. Set to true, if work with template engine. Default is true.
      */
     constructor(props: {
         container: JQuery,
@@ -25,9 +28,13 @@ class OpPanelDropdown {
         ulXcId: string,
         cssSelected?: string,
         isForceUpdate?: boolean,
+        isDelayInit?: boolean
         setTitleFunc?: ($elemTitle: JQuery, text: string) => void
     }) {
-        const {container, inputXcId, ulXcId, cssSelected = 'selected', isForceUpdate = true, setTitleFunc} = props;
+        const {
+            container, inputXcId, ulXcId, cssSelected = 'selected',
+            isForceUpdate = true, isDelayInit = true, setTitleFunc
+        } = props;
         this._$elem = container;
         this._inputId = inputXcId;
         this._ulId = ulXcId;
@@ -40,6 +47,7 @@ class OpPanelDropdown {
         if (isForceUpdate) {
             OpPanelTemplateManager.setElementForceUpdate(this._$elem[0]);
         }
+        this._isDelayInit = isDelayInit;
     }
 
     /**
@@ -73,13 +81,20 @@ class OpPanelDropdown {
         }
 
         // Setup event listener
-        this._$elem.off();
-        const menuList = new MenuHelper( this._$elem, {
-            onSelect: this._onMenuItemSelect({
-                onSelectCallback: onSelectCallback
-            })
-        });
-        menuList.setupListeners();
+        const initFunc = () => {
+            this._$elem.off();
+            const menuList = new MenuHelper( this._$elem, {
+                onSelect: this._onMenuItemSelect({
+                    onSelectCallback: onSelectCallback
+                })
+            });
+            menuList.setupListeners();
+        };
+        if (this._isDelayInit) {
+            OpPanelTemplateManager.setElementInitFunc(this._$elem[0], initFunc);
+        } else {
+            initFunc();
+        }
     }
 
     private static _defaultSetTitleFunc($elemTitle: JQuery, text: string) {

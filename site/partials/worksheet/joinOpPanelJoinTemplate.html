@@ -6,9 +6,11 @@
             <div class="col col-left">
                 <div data-xcid="leftColDropdown" class="dropDownList dropdownList-join {{leftColErrCss}}">
                     <div data-xcid="menuInput" class="text"></div>
-                    <!-- <input data-xcid="menuInput" class="text nonEditable" type="text" spellcheck="false" disabled /> -->
                     <div class="iconWrapper dropdown"><i class="icon xi-arrow-down"></i></div>
-                    <ul data-xcid="menuItems" class="list"></ul>
+                    <div class="list">
+                        <ul data-xcid="menuItems"></ul>
+                        include "../../util/menuScrollArea.html"
+                    </div>
                 </div>
             </div>
             <div class="removeIcon {{delCss}}" (click)="onDelClick">
@@ -19,11 +21,13 @@
             <div class="col col-right">
                 <div data-xcid="rightColDropdown" class="dropDownList dropdownList-join {{rightColErrCss}}">
                     <div data-xcid="menuInput" class="text"></div>
-                    <!-- <input data-xcid="menuInput" class="text nonEditable" type="text" spellcheck="false" disabled /> -->
                     <div class="iconWrapper dropdown">
                         <i class="icon xi-arrow-down"></i>
                     </div>
-                    <ul data-xcid="menuItems" class="list"></ul>
+                    <div class="list">
+                        <ul data-xcid="menuItems"></ul>
+                        include "../../util/menuScrollArea.html"
+                    </div>
                 </div>
             </div>
         </div>
@@ -41,7 +45,10 @@
                 <div data-xcid="menuInput" class="text"></div>
                 <!-- <input data-xcid="menuInput" class="text nonEditable" value="default" disabled /> -->
                 <div class="iconWrapper dropdown"><i class="icon xi-arrow-down"></i></div>
-                <ul data-xcid="menuItems" class="list"></ul>
+                <div class="list">
+                    <ul data-xcid="menuItems"></ul>
+                    include "../../util/menuScrollArea.html"
+                </div>
             </div>            
         </div>
         <div class="col col-right">
@@ -49,7 +56,10 @@
                 <div data-xcid="menuInput" class="text"></div>
                 <!-- <input data-xcid="menuInput" class="text nonEditable" value="default" disabled /> -->
                 <div class="iconWrapper dropdown"><i class="icon xi-arrow-down"></i></div>
-                <ul data-xcid="menuItems" class="list"></ul>
+                <div class="list">
+                    <ul data-xcid="menuItems"></ul>
+                    include "../../util/menuScrollArea.html"
+                </div>
             </div>
         </div>
     </div>

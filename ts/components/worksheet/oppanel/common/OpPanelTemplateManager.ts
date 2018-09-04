@@ -8,6 +8,10 @@ class OpPanelTemplateManager {
         OpPanelNodeRenderFactory.setNodeForceUpdate(element as NodeDefDOMElement);
     }
 
+    public static setElementInitFunc(element: HTMLElement, initFunc: () => void) {
+        OpPanelNodeRenderFactory.setNodeInitFunc(element as NodeDefDOMElement, initFunc);
+    }
+    
     /**
      * Load HTML template from DOM, then create and cache virtual DOM definition
      * @param container ancestor of the template

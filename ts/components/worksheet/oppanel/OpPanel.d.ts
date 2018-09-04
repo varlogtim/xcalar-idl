@@ -38,7 +38,8 @@ declare interface NodeDefDOMElement extends HTMLElement {
 }
 declare type NodeDefXcData = {
     isForceUpdate?: boolean,
-    events?: { [eventName: string]: (args:any)=>any }
+    events?: { [eventName: string]: (args:any)=>any },
+    initFunc?: () => void
 }
 declare type NodeDefText = {
     type: NodeDefType,
