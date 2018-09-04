@@ -227,8 +227,9 @@ window.FlightTest = (function(FlightTest, $) {
             $("#udfSection .tab[data-tab='udf-fnSection']").click();
             test.checkExists(".editArea:visible")
             .then(function() {
-                if (!$("#udf-manager .text:contains(CURRENT WORKBOOK)")
-                    .parent().parent().find(".text:contains(ymd)").length) {
+                var udfPath = UDF.getCurrWorkbookPath() + "ymd";
+                var selector = '#udf-manager .text[data-udf-path="' + udfPath + '"]';
+                if (!$(selector).length) {
                     var editor = UDF.getEditor();
                     editor.setValue('def ymd(year, month, day):\n' +
                         '    if int(month) < 10:\n' +
@@ -238,21 +239,8 @@ window.FlightTest = (function(FlightTest, $) {
                         '    return str(year) + str(month) + str(day)');
                     $("#udf-fnName").val("ymd");
                     $("#udf-fnUpload").click();
-                    return test.checkExists("#successMessageWrap:visible " +
-                        ".textBox:contains('UDF Successfully Uploaded!')");
+                    return test.checkExists(selector);
                 }
-            })
-            .then(function(found) {
-                if (found) {
-                    if (!$("#alertContent:visible .text:contains" +
-                        "('UDF module currently in use')").length) {
-                        // remove to make sure the check is after upload is done
-                        $("#udf-manager .udf .text:contains(ymd)").remove();
-                    }
-                    $("#alertActions .confirm").click();
-                }
-                return test
-                    .checkExists("#udf-manager .udf .text:contains(ymd)");
             })
             .then(function() {
                 flightTestPart6();
