@@ -215,9 +215,13 @@ class JoinOpPanelStep1 {
                     isLeft: false,
                 });
             }
-            // left column dropdown
-            const leftCols = isLeftDetached
-                ? [] : this._modelRef.getColumnMetaLeft().map((meta) => (meta.name));
+
+            const {
+                left: leftColsToShow,
+                right: rightColsToShow
+            } = this._getColumnsToShow(i);
+                // left column dropdown
+            const leftCols = isLeftDetached ? [] : leftColsToShow;
             this._createColumnDropdown({
                 container: $clauseSection,
                 dropdownId: 'leftColDropdown',
@@ -227,8 +231,7 @@ class JoinOpPanelStep1 {
                 isLeft: true,
             });
             // right column dropdown
-            const rightCols = isRightDetached
-                ? [] : this._modelRef.getColumnMetaRight().map((meta) => (meta.name));
+            const rightCols = isRightDetached ? [] : rightColsToShow;
             this._createColumnDropdown({
                 container: $clauseSection,
                 dropdownId: 'rightColDropdown',
@@ -371,6 +374,36 @@ class JoinOpPanelStep1 {
     }
     private _addColumnPair() {
         this._modelRef.addColumnPair();
+    }
+
+    private _getColumnsToShow(currentPairIndex: number) {
+        const pairs = this._modelRef.getColumnPairs();
+        pairs.splice(currentPairIndex, 1);
+        const leftExclude = {};
+        const rightExclude = {};
+        for (const {leftName, rightName} of pairs) {
+            leftExclude[leftName] = true;
+            rightExclude[rightName] = true;
+        }
+
+        const leftCols: string[] = [];
+        for (const col of this._modelRef.getColumnMetaLeft()) {
+            const name = col.name;
+            if (!leftExclude[name]) {
+                leftCols.push(name);
+            }
+        }
+        const rightCols: string[] = [];
+        for (const col of this._modelRef.getColumnMetaRight()) {
+            const name = col.name;
+            if (!rightExclude[name]) {
+                rightCols.push(name);
+            }
+        }
+
+        return {
+            left: leftCols, right: rightCols
+        };
     }
     // Data model manipulation === end
 }
