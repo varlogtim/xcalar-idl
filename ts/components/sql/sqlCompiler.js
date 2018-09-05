@@ -4052,7 +4052,7 @@
         .then(function(ret) {
             if (ret.tempCols) {
                 if (windowStruct.node) {
-                    node.xcCols = node.xcCols.concat(ret.tempCols
+                    windowStruct.node.xcCols = windowStruct.node.xcCols.concat(ret.tempCols
                                         .map(function(colName) {
                                             return {colName: colName,
                                                     colType: "DfUnknown"}; // XXX xiApi temp columns

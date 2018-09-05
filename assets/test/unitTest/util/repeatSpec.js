@@ -34,14 +34,12 @@ describe("Repeat Test", function() {
 
     describe("Column operations", function() {
         it("sort should work", function(done) {
-            var cachedIndexFn = XcalarIndexFromTable;
+            var cachedIndexFn = XIApi.sort;
             var cachedRefreshFn = TblManager.refreshTable;
             var indexCalled = false;
-            XcalarIndexFromTable = function() {
+            XIApi.sort = function() {
                 indexCalled = true;
-                return PromiseHelper.resolve({
-                    newKeys: []
-                });
+                return PromiseHelper.resolve(null, []);
             };
             TblManager.refreshTable = function() {
                 return PromiseHelper.resolve();
@@ -64,7 +62,7 @@ describe("Repeat Test", function() {
                 done("failed");
             })
             .always(function() {
-                XcalarIndexFromTable = cachedIndexFn;
+                XIApi.sort = cachedIndexFn;
                 TblManager.refreshTable = cachedRefreshFn;
             });
         });

@@ -935,8 +935,8 @@ namespace xcHelper {
      */
     export function getTableKeyInfoFromMeta(
         tableMeta: any
-    ): {name: string, ordering: string}[] {
-        const keys: {name: string, ordering: string}[] = [];
+    ): {name: string, ordering: XcalarOrderingT}[] {
+        const keys: {name: string, ordering: XcalarOrderingT}[] = [];
         tableMeta.keyAttr.forEach((keyAttr) => {
             if (keyAttr.valueArrayIndex >= 0) {
                 keys.push({
@@ -4979,17 +4979,20 @@ namespace xcHelper {
      * @param tableName
      */
     export function getKeyInfos(
-        keys: any[] | any,
+        keys: {
+            name: string,
+            type: ColumnType,
+            keyFieldName: string,
+            ordering: XcalarOrderingT
+        }[],
         tableName: string
     ): XDPromise<object[]> {
-        const keyArray: any[] = (keys instanceof Array) ? keys : [keys];
         const deferred: XDDeferred<object[]> = PromiseHelper.deferred();
 
         getColMetaHelper(tableName)
         .then(function (colMeta, hasTableMeta) {
-            const res: object[] = keyArray.map((key) => {
+            const res: object[] = keys.map((key) => {
                 const name: string = key.name;
-                const ordering: string = key.ordering;
                 const parsedName: PrefixColInfo = xcHelper.parsePrefixColName(name);
                 let type: number = DfFieldTypeT.DfUnknown;
                 let keyFieldName: string = null;
@@ -5002,21 +5005,22 @@ namespace xcHelper {
                         type = colMeta[name];
                     }
                 } else {
-                    // // if no tableMeta, let backend handle it
                     // if no tableMeta, just overwrite keyFieldName with key.name
-                    keyFieldName = name;
+                    keyFieldName = parsedName.name;
                 }
                 if (!colMeta.hasOwnProperty(keyFieldName)) {
                     // add to map so we can check against it when creating
                     // other new key field names
                     colMeta[keyFieldName] = DfFieldTypeT.DfUnknown;
                 }
-
+                if (key.type != null) {
+                    type = xcHelper.convertColTypeToFieldType(key.type);
+                }
                 return {
                     name: name,
                     type: type,
-                    keyFieldName: keyFieldName || "",
-                    ordering: ordering
+                    keyFieldName: key.keyFieldName || keyFieldName || "",
+                    ordering: key.ordering
                 };
             });
 

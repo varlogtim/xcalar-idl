@@ -744,8 +744,8 @@ describe("Dataset-DSObj Test", function() {
 
     describe("New Dataset Test", function() {
         it("should handle DS.import error", function(done) {
-            var oldFunc = XcalarLoad;
-            XcalarLoad = function() {
+            var oldFunc = XIApi.loadDataset;
+            XIApi.loadDataset = function() {
                 return PromiseHelper.reject("test");
             };
 
@@ -762,7 +762,7 @@ describe("Dataset-DSObj Test", function() {
                 done();
             })
             .always(function() {
-                XcalarLoad = oldFunc;
+                XIApi.loadDataset = oldFunc;
             });
         });
 
@@ -1686,52 +1686,6 @@ describe("Dataset-DSObj Test", function() {
             })
             .fail(function() {
                 done("fail");
-            });
-        });
-    });
-
-    describe("XcalarLoad test", function() {
-        it("should return an object if fails with 502 error", function(done) {
-            var cachedLoadFn = xcalarLoad;
-            var cachedGetQueryFn = XcalarGetQuery;
-            var cachedGetDatasetsFn = XcalarGetDatasets;
-            var getDatasetsCalled = false;
-            xcalarLoad = function() {
-                return PromiseHelper.reject({httpStatus: 502});
-            };
-            XcalarGetQuery = function() {
-                return "someString";
-            };
-            XcalarGetDatasets = function() {
-                getDatasetsCalled = true;
-                return PromiseHelper.resolve({
-                    datasets: [{
-                        name: "testDS",
-                        loadIsComplete: true
-                    }]
-                });
-            };
-
-            var options = {
-                sources: [{
-                    tagetName: gDefaultSharedRoot,
-                    path: "/test",
-                }],
-                format: "JSON"
-            };
-            XcalarLoad("testDS", options, 1)
-            .then(function(ret) {
-                expect(getDatasetsCalled).to.be.true;
-                expect(ret).to.be.an("object");
-                done();
-            })
-            .fail(function() {
-                done("failed");
-            })
-            .always(function() {
-                xcalarLoad = cachedLoadFn;
-                XcalarGetQuery = cachedGetQueryFn;
-                XcalarGetDatasets = cachedGetDatasetsFn;
             });
         });
     });

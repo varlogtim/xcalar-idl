@@ -32,11 +32,8 @@ window.ProfileEngine = (function(ProfileEngine) {
         var deferred = PromiseHelper.deferred();
 
         var tableName = table.getName();
-        var groupbyTable;
         var finalTable;
         var colName = profileInfo.colName;
-        var rename = xcHelper.parsePrefixColName(colName).name;
-        rename = xcHelper.stripColName(rename);
         var tablesToDelete = {};
 
         profileInfo.groupByInfo.isComplete = "running";
@@ -59,14 +56,16 @@ window.ProfileEngine = (function(ProfileEngine) {
 
         // filter out fnf
         var fltStr = "exists(" + colName + ")";
+        var srcTable;
         XIApi.filter(txId, fltStr, tableName)
         .then(function(tableAfterFilter) {
+            srcTable = tableAfterFilter;
             tablesToDelete[tableAfterFilter] = true;
-            return XIApi.index(txId, colName, tableAfterFilter);
+            return XIApi.index(txId, [colName], tableAfterFilter);
         })
-        .then(function(indexedTableName, indexArgs) {
+        .then(function(indexedTableName, isCache) {
             var innerDeferred = PromiseHelper.deferred();
-            if (!indexArgs.isCache) {
+            if (!isCache) {
                 tablesToDelete[indexedTableName] = true;
             }
 
@@ -87,26 +86,25 @@ window.ProfileEngine = (function(ProfileEngine) {
             if (allNull) {
                 profileInfo.groupByInfo.allNull = true;
             }
-
-            // here user old table name to generate table name
-            groupbyTable = getNewName(tableName, ".profile.GB", true);
-
-            var operator = AggrOp.Count;
-            var newColName = statsColName;
             var isIncSample = false;
-
-            return XcalarGroupBy(operator, newColName, colName,
-                                indexedTableName, groupbyTable,
-                                isIncSample, false, rename, false, txId);
+            var aggArgs = {
+                operator: AggrOp.Count,
+                aggColName: colName,
+                newColName: statsColName
+            };
+            var options = {
+                newTableName: getNewName(srcTable, ".profile.GB", true),
+            };
+            return XIApi.groupBy(txId, [aggArgs], [colName], srcTable, options);
         })
-        .then(function() {
+        .then(function(groupbyTable, finalCols, renameCols, tempCols, newKeyFieldName) {
             if (profileInfo.groupByInfo.allNull) {
                 finalTable = groupbyTable;
                 return PromiseHelper.resolve(0, 0);
             }
 
             finalTable = getNewName(tableName, ".profile.final", true);
-            colName = rename;
+            colName = newKeyFieldName;
             return sortGroupby(txId, colName, groupbyTable, finalTable);
         })
         .then(function(maxVal, sumVal) {
@@ -354,7 +352,7 @@ window.ProfileEngine = (function(ProfileEngine) {
             "track": true
         });
 
-        XIApi.sortAscending(txId, colName, tableName)
+        XIApi.sortAscending(txId, [colName], tableName)
         .then(function(tableAfterSort, newKeys) {
             sortTable = tableAfterSort;
             profileInfo.statsInfo.unsorted = false;
@@ -428,11 +426,7 @@ window.ProfileEngine = (function(ProfileEngine) {
 
     function sortGroupby(txId, sortCol, srcTable, finalTable) {
         var deferred = PromiseHelper.deferred();
-        var keyInfo = {
-            name: sortCol,
-            ordering: XcalarOrderingT.XcalarOrderingAscending
-        };
-        XcalarIndexFromTable(srcTable, keyInfo, finalTable, txId)
+        XIApi.sortAscending(txId, [sortCol], srcTable, finalTable)
         .then(function() {
             return aggInGroupby(txId, statsColName, finalTable);
         })
@@ -528,7 +522,7 @@ window.ProfileEngine = (function(ProfileEngine) {
         var deferred = PromiseHelper.deferred();
         var isNum = (profileInfo.type === "integer" ||
                      profileInfo.type === "float");
-        XIApi.checkOrder(tableName)
+        xcFunction.checkOrder(tableName)
         .then(getStats)
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -701,11 +695,11 @@ window.ProfileEngine = (function(ProfileEngine) {
         } else {
             colName = (bucketNum === 0) ? statsColName : bucketColName;
         }
-        var keyInfo = {
+        var keyInfos = [{
             name: colName,
             ordering: xcOrder
-        };
-        XcalarIndexFromTable(tableName, keyInfo, newTableName, txId)
+        }];
+        XIApi.sort(txId, keyInfos, tableName, newTableName)
         .then(function() {
             tableInfo[tableKey] = newTableName;
             deferred.resolve();
@@ -817,7 +811,6 @@ window.ProfileEngine = (function(ProfileEngine) {
         // bucket based on original groupby table
         var tableName = buckets[0].table;
         var mapTable = getNewName(tableName, ".bucket");
-        var indexTable;
         var groupbyTable;
         var finalTable;
 
@@ -841,31 +834,21 @@ window.ProfileEngine = (function(ProfileEngine) {
 
         XIApi.map(txId, mapString, tableName, mapCol, mapTable)
         .then(function() {
-            indexTable = getNewName(mapTable, ".index", true);
-            var keyInfo = {
-                name: mapCol,
-                ordering: XcalarOrderingT.XcalarOrderingUnordered
-            };
-            return XcalarIndexFromTable(mapTable, keyInfo, indexTable, txId);
-        })
-        .then(function() {
-            var operator = AggrOp.Sum;
-            var newColName = bucketColName;
-            var isIncSample = false;
-
             groupbyTable = getNewName(mapTable, ".groupby", true);
-
-            return XcalarGroupBy(operator, newColName, statsColName,
-                                    indexTable, groupbyTable,
-                                    isIncSample, false, mapCol, false, txId);
+            const aggArg = {
+                operator: AggrOp.Sum,
+                aggColName: statsColName,
+                newColName: bucketColName
+            };
+            const options = {
+                newTableName: groupbyTable,
+                clean: true
+            };
+            return XIApi.groupBy(txId, [aggArg], [mapCol], mapTable, options)
         })
         .then(function() {
             finalTable = getNewName(mapTable, ".final", true);
-            var keyInfo = {
-                name: mapCol,
-                ordering: XcalarOrderingT.XcalarOrderingAscending
-            };
-            return XcalarIndexFromTable(groupbyTable, keyInfo, finalTable, txId);
+            return XIApi.sortAscending(txId, [mapCol], groupbyTable, finalTable);
         })
         .then(function() {
             return aggInGroupby(txId, bucketColName, finalTable);
@@ -879,17 +862,12 @@ window.ProfileEngine = (function(ProfileEngine) {
                 "bucketSize": bucketNum
             });
             // delete intermediate table
-            var def1 = XIApi.deleteTable(txId, mapTable);
-            var def2 = XIApi.deleteTable(txId, indexTable);
-
             // Note that grouby table can not delete because when
             // sort bucket table it looks for the unsorted table,
             // which is this one
-            PromiseHelper.when(def1, def2)
-            .always(function() {
-                deferred.resolve();
-            });
+            return PromiseHelper.alwaysResolve(XIApi.deleteTable(txId, mapTable));
         })
+        .then(deferred.resolve)
         .fail(deferred.reject);
 
         return deferred.promise();

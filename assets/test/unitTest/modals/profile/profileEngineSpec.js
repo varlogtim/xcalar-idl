@@ -35,21 +35,17 @@ describe("Profile-Profile Engins Test", function() {
             return PromiseHelper.resolve(100);
         };
 
-        oldGroupBy = XcalarGroupBy;
-        XcalarGroupBy = function() {
-            return PromiseHelper.resolve();
-        };
+        oldGroupBy = XIApi.groupBy;
+        XIApi.groupBy = () => PromiseHelper.resolve();
 
         oldDelete = XIApi.deleteTable;
         XIApi.deleteTable = function() {
             return PromiseHelper.resolve();
         };
 
-        oldSort = XcalarIndexFromTable;
-        XcalarIndexFromTable = function() {
-            return PromiseHelper.resolve({
-                newKeys: []
-            });
+        oldSort = XIApi.sort;
+        XIApi.sort = function() {
+            return PromiseHelper.resolve(null, []);
         };
 
         oldAgg = XIApi.aggregateWithEvalStr;
@@ -364,8 +360,8 @@ describe("Profile-Profile Engins Test", function() {
     });
 
     it("should resolve for unsorted case in ProfileEngine.genStats test 2", function(done) {
-        var oldCheckOrder = XIApi.checkOrder;
-        XIApi.checkOrder = function() {
+        var oldCheckOrder = xcFunction.checkOrder;
+        xcFunction.checkOrder = function() {
             return PromiseHelper.resolve(XcalarOrderingT.XcalarOrderingUnordered);
         };
 
@@ -380,18 +376,18 @@ describe("Profile-Profile Engins Test", function() {
         .then(function() {
             expect(profileInfo.statsInfo.zeroQuartile).to.be.null;
 
-            XIApi.checkOrder = oldCheckOrder;
+            xcFunction.checkOrder = oldCheckOrder;
             done();
         })
         .fail(function() {
-            XIApi.checkOrder = oldCheckOrder;
+            xcFunction.checkOrder = oldCheckOrder;
             done("fail");
         });
     });
 
     it("ProfileEngine.genStats should work", function(done) {
-        var oldCheckOrder = XIApi.checkOrder;
-        XIApi.checkOrder = function() {
+        var oldCheckOrder = xcFunction.checkOrder;
+        xcFunction.checkOrder = function() {
             return PromiseHelper.resolve(XcalarOrderingT.XcalarOrderingAscending,
                                         [{name: "sortCol"}]);
         };
@@ -413,12 +409,12 @@ describe("Profile-Profile Engins Test", function() {
             expect(profileInfo.statsInfo.zeroQuartile).not.to.be.null;
 
             XIApi.sortAscending = oldSortAsc;
-            XIApi.checkOrder = oldCheckOrder;
+            xcFunction.checkOrder = oldCheckOrder;
             done();
         })
         .fail(function() {
             XIApi.sortAscending = oldSortAsc;
-            XIApi.checkOrder = oldCheckOrder;
+            xcFunction.checkOrder = oldCheckOrder;
             done("fail");
         });
     });
@@ -482,8 +478,8 @@ describe("Profile-Profile Engins Test", function() {
     after(function() {
         XIApi.index = oldIndex;
         XIApi.getNumRows = oldGetNumRows;
-        XcalarGroupBy = oldGroupBy;
-        XcalarIndexFromTable = oldSort;
+        XIApi.groupBy = oldGroupBy;
+        XIApi.sort = oldSort;
         XIApi.deleteTable = oldDelete;
         XIApi.aggregateWithEvalStr = oldAgg;
         XcalarGetTables = oldGetTables;

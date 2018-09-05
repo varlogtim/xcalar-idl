@@ -123,11 +123,11 @@ declare class ExInitExportSpecificInputT {
 	});
 }
 declare class ExColumnNameT {
-	name: string;
-	headerAlias: string;
+	columnName: string;
+	headerName: string;
 	constructor(args?: {
-		name?: string,
-		headerAlias?: string,
+		columnName?: string,
+		headerName?: string,
 	});
 }
 declare class ExExportMetaT {

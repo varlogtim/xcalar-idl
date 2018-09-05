@@ -645,7 +645,7 @@ xcalarPreview = runEntity.xcalarPreview = function(thriftHandle, sourceArgs, num
     return (deferred.promise());
 };
 
-xcalarLoadWorkItem = runEntity.xcalarLoadWorkItem = function(name, sourceArgsList, parseArgs, maxSize) {
+xcalarLoadWorkItem = runEntity.xcalarLoadWorkItem = function(name, sourceArgsList, parseArgs, size) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.loadInput = new XcalarApiBulkLoadInputT();
@@ -656,22 +656,22 @@ xcalarLoadWorkItem = runEntity.xcalarLoadWorkItem = function(name, sourceArgsLis
     workItem.input.loadInput.loadArgs.sourceArgsList = sourceArgsList;
     workItem.input.loadInput.loadArgs.parseArgs = parseArgs;
 
-    workItem.input.loadInput.loadArgs.maxSize = maxSize;
+    workItem.input.loadInput.loadArgs.size = size;
 
     return (workItem);
 };
 
 // The caller may pass in whatever values they want
-xcalarLoad = runEntity.xcalarLoad = function(thriftHandle, name, sourceArgsList, parseArgs, maxSize) {
+xcalarLoad = runEntity.xcalarLoad = function(thriftHandle, name, sourceArgsList, parseArgs, size) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
         console.log("xcalarLoad(sourceArgsList = " + JSON.stringify(sourceArgsList) +
                     ", parseArgs = " + JSON.stringify(parseArgs) +
-                    ", maxSize = " + maxSize + ")");
+                    ", size = " + size + ")");
     }
 
-    var workItem = xcalarLoadWorkItem(name, sourceArgsList, parseArgs, maxSize);
+    var workItem = xcalarLoadWorkItem(name, sourceArgsList, parseArgs, size);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -3263,6 +3263,9 @@ xcalarExportWorkItem = runEntity.xcalarExportWorkItem = function(tableName, targ
                 sfInput.splitRule.spec.maxSize;
             workItem.input.exportInput.splitNumFiles =
                 sfInput.splitRule.spec.numFiles;
+        } else {
+            workItem.input.exportInput.splitSize = 0;
+            workItem.input.exportInput.splitNumFiles = 0;
         }
 
         workItem.input.exportInput.headerType = ExSFHeaderTypeTStr[sfInput.headerType];

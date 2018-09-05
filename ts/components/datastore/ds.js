@@ -900,7 +900,7 @@ window.DS = (function ($, DS) {
         .then(function() {
             datasetName = dsObj.getFullName();
             var options = dsObj.getImportOptions();
-            return XcalarLoad(datasetName, options, txId);
+            return XIApi.loadDataset(txId, datasetName, options);
         })
         .then(function() {
             // unlock ds by default

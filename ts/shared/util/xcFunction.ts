@@ -322,7 +322,7 @@ namespace xcFunction {
             const typesToCast: ColumnType[] = [];
             const mapStrs: string[] = [];
             const mapColNames: string[] = [];
-            const newColInfos: SortColInfo[] = [];
+            const newColInfos: {name: string, ordering: XcalarOrderingT, type?: ColumnType}[] = [];
             let newTableCols: ProgCol[] = tableCols;
 
             colInfos.forEach((colInfo, i) => {
@@ -364,7 +364,6 @@ namespace xcFunction {
                 } else {
                     newColInfos.push({
                         name: backColName,
-                        colNum: colNums[i],
                         ordering: colInfo.ordering,
                         type: null
                     });
@@ -430,6 +429,23 @@ namespace xcFunction {
         typeCastHelper()
             .then((tableToSort, newColInfos, newTableCols) => {
                 finalTableCols = newTableCols;
+
+                newColInfos.forEach((colInfo) => {
+                    if (colInfo.type == null) {
+                        const table: TableMeta = gTables[tableId];
+                        if (table != null) {
+                            const progCol: ProgCol = table.getCol(colInfo.colNum);
+                            if (progCol != null) {
+                                colInfo.name = progCol.getBackColName();
+                                colInfo.type = progCol.getType();
+                                if (colInfo.type === ColumnType.number) {
+                                    colInfo.type = ColumnType.float;
+                                }
+                            }
+                        }
+                    }
+                });
+
                 return XIApi.sort(txId, newColInfos, tableToSort);
             })
             .then((sortTableName) => {
@@ -1365,5 +1381,22 @@ namespace xcFunction {
             });
 
         return deferred.promise();
+    }
+
+    /**
+     * xcFunction.checkOrder
+     * @param tableName
+     */
+    export function checkOrder(tableName: string): XDPromise<number> {
+        const tableId: TableId = xcHelper.getTableId(tableName);
+        const table: TableMeta = gTables[tableId];
+        if (table != null) {
+            const keys: object[] = table.getKeys();
+            const order: number = table.getOrdering();
+            if (keys != null && XcalarOrderingTStr.hasOwnProperty(order)) {
+                return PromiseHelper.resolve(order, keys);
+            }
+        }
+        return XIApi.checkOrder(tableName);
     }
 }

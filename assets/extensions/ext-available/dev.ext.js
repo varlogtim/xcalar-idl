@@ -173,7 +173,7 @@ window.UExtDev = (function(UExtDev) {
             })
             .then(function(count) {
                 leftCount = count;
-                return ext.sortDescending(leftGBColName, leftGBTableName,
+                return ext.sortDescending([leftGBColName], leftGBTableName,
                                            ext.createTempTableName());
             })
             .then(function(leftSortedTable) {
@@ -204,7 +204,7 @@ window.UExtDev = (function(UExtDev) {
             })
             .then(function(count) {
                 rightCount = count;
-                return ext.sortDescending(rightGBColName, rightGBTableName,
+                return ext.sortDescending([rightGBColName], rightGBTableName,
                                            ext.createTempTableName());
             })
             .then(function(rightSortedTable) {

@@ -19,8 +19,6 @@ describe("Dataset-DSPreview Test", function() {
     var $skipInput;
     var $quoteInput;
 
-    var $statusBox;
-
     var loadArgs;
 
     var $mainTabCache;
@@ -42,8 +40,6 @@ describe("Dataset-DSPreview Test", function() {
 
         $skipInput = $("#dsForm-skipRows");
         $quoteInput = $("#dsForm-quote");
-
-        $statusBox = $("#statusBox");
         loadArgs = DSPreview.__testOnly__.get().loadArgs;
 
         $mainTabCache = $(".topMenuBarTab.active");
@@ -654,8 +650,8 @@ describe("Dataset-DSPreview Test", function() {
             });
 
             it('should handle excel case', (done) => {
-                const oldLoad = XcalarLoad;
-                XcalarLoad = () => PromiseHelper.reject('test');
+                const oldLoad = XIApi.loadDataset;
+                XIApi.loadDataset = () => PromiseHelper.reject('test');
 
                 loadArgs.setPreviewingSource(1, 'test.xlsx');
                 loadArgs.setFormat('Excel')
@@ -673,7 +669,7 @@ describe("Dataset-DSPreview Test", function() {
                     done();
                 })
                 .always(() => {
-                    XcalarLoad = oldLoad;
+                    XIApi.loadDataset = oldLoad;
                 });
             });
 
@@ -968,14 +964,14 @@ describe("Dataset-DSPreview Test", function() {
         var oldSetFree;
 
         before(function() {
-            oldLoad = XcalarLoad;
+            oldLoad = XIApi.loadDataset;
             oldMakeResultSet = XcalarMakeResultSetFromDataset;
             oldSetFree = XcalarSetFree;
             oldFetch = XcalarFetchData;
         });
 
         it("should loadDataWithUDF handle error case", function(done) {
-            XcalarLoad = function() {
+            XIApi.loadDataset = function() {
                 return PromiseHelper.reject("test");
             };
 
@@ -994,7 +990,7 @@ describe("Dataset-DSPreview Test", function() {
 
         it("should loadDataWithUDF handle parse error", function(done) {
             loadArgs.set({"path": "test"});
-            XcalarLoad = function() {
+            XIApi.loadDataset = function() {
                 return PromiseHelper.resolve();
             };
 
@@ -1025,7 +1021,7 @@ describe("Dataset-DSPreview Test", function() {
         it("should loadDataWithUDF", function(done) {
             loadArgs.set({"path": "test"});
 
-            XcalarLoad = function() {
+            XIApi.loadDataset = function() {
                 return PromiseHelper.resolve();
             };
 
@@ -1111,7 +1107,7 @@ describe("Dataset-DSPreview Test", function() {
         });
 
         after(function() {
-            XcalarLoad = oldLoad;
+            XIApi.loadDataset = oldLoad;
             XcalarSetFree = oldSetFree;
             XcalarMakeResultSetFromDataset = oldMakeResultSet;
             XcalarFetchData = oldFetch;

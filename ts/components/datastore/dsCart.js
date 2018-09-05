@@ -255,7 +255,7 @@ window.DSCart = (function($, DSCart) {
             "track": true
         });
 
-        XcalarIndexFromDataset(dsName, gXcalarRecordNum, startTableName, prefix, txId)
+        XIApi.indexFromDataset(txId, dsName, startTableName, prefix)
         .then(function() {
             var options = {"focusWorkspace": !noFocus};
             return TblManager.refreshTable([endTableName], newTableCols,

@@ -168,6 +168,8 @@ window.UnitTest = (function(UnitTest, $) {
                 "hasHeader": false,
                 "moduleName": "",
                 "funcName": "",
+                "quoteChar": "",
+                "skipRows": 0,
                 "pointCheck": ".datasetTbodyWrap:not(.hidden) #previewTable td:contains(20041101)"
             },
 

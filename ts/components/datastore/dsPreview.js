@@ -3434,7 +3434,7 @@ window.DSPreview = (function($, DSPreview) {
         var tempDSName = getPreviewTableName(dsName);
         tableName = tempDSName;
 
-        XcalarLoad(tempDSName, options, txId)
+        XIApi.loadDataset(txId, tempDSName, options)
         .then(function() {
             return getDataFromLoadUDF(tempDSName, 1, rowsToFetch);
         })

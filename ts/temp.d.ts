@@ -33,22 +33,6 @@ interface TableIndexCache {
     keys: string[];
 }
 
-
-interface TableIndexResult {
-    indexTable: string;
-    indexKeys: string[];
-    tempTables: string[];
-    hasIndexed: boolean;
-    isCache?: boolean;
-}
-
-interface SortColInfo {
-    type?: ColumnType;
-    colNum?: number;
-    name: string;
-    ordering: number;
-}
-
 interface ColRenameInfo {
     orig: string;
     new: string;

@@ -745,6 +745,45 @@ describe("xcFunction Test", function () {
             });
     });
 
+    it("xcFunction.checkOrder should work", (done) => {
+        const oldFunc = XIApi.checkOrder;
+
+        XIApi.checkOrder = () => PromiseHelper.resolve('checkOrder');
+        xcFunction.checkOrder("abcd")
+            .then((res) => {
+                expect(res).to.equal('checkOrder');
+                done();
+            })
+            .fail(() => {
+                done('fail');
+            })
+            .always(() => {
+                XIApi.checkOrder = oldFunc;
+            });
+    });
+
+    it('xcFunction.checkOrder should use table caches', (done) => {
+        const table = gTables[tableId];
+        const oldKeys = table.keys;
+        const oldOrdering = table.ordering;
+        table.keys = ["a"];
+        table.ordering = 3; // ascending
+        xcFunction.checkOrder(table.getName())
+            .then((order, keys) => {
+                expect(order).to.equal(3);
+                expect(keys.length).to.equal(1);
+                expect(keys[0]).to.equal("a");
+                done();
+            })
+            .fail(() => {
+                done('fail');
+            })
+            .always(() => {
+                table.keys = oldKeys;
+                table.ordering = oldOrdering;
+            });
+    });
+
     after(() => {
         TblManager.refreshTable = oldRefreshTable;
         TblManager.setOrphanTableMeta = oldSetMeta;

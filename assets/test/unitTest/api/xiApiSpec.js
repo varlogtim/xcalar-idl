@@ -137,341 +137,6 @@ describe('XIApi Test', () => {
             expect(isSameKey(['a'], ['a', 'b'])).to.be.false;
             expect(isSameKey(['a'], ['a'])).to.be.true;
         });
-
-        describe('checkIfNeedIndex Test', () => {
-            let checkIfNeedIndex;
-            const tableName = "testTable";
-            const parentTable = "testParentTable";
-            let ASC;
-            const txId = 1;
-            let oldGetUnsortedTableName;
-            let oldCheckOrder;
-            let oldIndex;
-
-            before(() => {
-                ASC = XcalarOrderingT.XcalarOrderingAscending;
-                checkIfNeedIndex = XIApi.__testOnly__.checkIfNeedIndex;
-                oldGetUnsortedTableName = getUnsortedTableName;
-                oldCheckOrder = XIApi.checkOrder;
-                oldIndex = XcalarIndexFromTable;
-                Authentication.getHashId = () => '#12';
-                getUnsortedTableName = () => PromiseHelper.resolve(tableName);
-                XcalarIndexFromTable = () => PromiseHelper.resolve();
-            });
-
-            it('should resolve true when no cols to index', (done) => {
-                checkIfNeedIndex([], tableName, [{ name: 'key' }], ASC, txId)
-                    .then((shdoulIndex, tName, tempTables) => {
-                        expect(shdoulIndex).to.be.false;
-                        expect(tName).to.equal(tableName);
-                        expect(tempTables.length).to.equal(0);
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    });
-            });
-
-            it('should resolve true when table is sorted but on different keys', (done) => {
-                checkIfNeedIndex(['key'], tableName, [{ name: 'key2' }], ASC, txId)
-                    .then((shdoulIndex, tName, tempTables) => {
-                        expect(shdoulIndex).to.be.true;
-                        expect(tName).to.equal(tableName);
-                        expect(tempTables.length).to.equal(0);
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    });
-            });
-
-            it("should resolve true when it's invalid order", (done) => {
-                const order = XcalarOrderingT.XcalarOrderingInvalid;
-                checkIfNeedIndex(['key'], tableName, [{ name: 'key' }], order, txId)
-                    .then((shdoulIndex, tName, tempTables) => {
-                        expect(shdoulIndex).to.be.true;
-                        expect(tName).to.equal(tableName);
-                        expect(tempTables.length).to.equal(0);
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    });
-            });
-
-            it("should resolve false when it's the same key", (done) => {
-                checkIfNeedIndex(['key'], tableName, [{ name: 'key' }], ASC, txId)
-                    .then((shdoulIndex, tName, tempTables) => {
-                        expect(shdoulIndex).to.be.false;
-                        expect(tName).to.equal(tableName);
-                        expect(tempTables.length).to.equal(0);
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    });
-            });
-
-            it('should resolve false when parent table has the same key as col to index', (done) => {
-                getUnsortedTableName = () => PromiseHelper.resolve(parentTable);
-                XIApi.checkOrder = () => PromiseHelper.resolve(ASC, [{ name: 'col' }]);
-
-                checkIfNeedIndex(['col'], tableName, [{ name: 'key' }], ASC, txId)
-                    .then((shdoulIndex, tName, tempTables) => {
-                        expect(shdoulIndex).to.be.false;
-                        expect(tName).to.equal(parentTable);
-                        expect(tempTables.length).to.equal(0);
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    });
-            });
-
-            it('should resolve true when parent table has the same key as table keys', (done) => {
-                getUnsortedTableName = () => PromiseHelper.resolve(parentTable);
-                XIApi.checkOrder = () => PromiseHelper.resolve(ASC, [{ name: 'key' }]);
-
-                checkIfNeedIndex(['col'], tableName, [{ name: 'key' }], ASC, txId)
-                    .then((shdoulIndex, tName, tempTables) => {
-                        expect(shdoulIndex).to.be.true;
-                        expect(tName).to.equal(parentTable);
-                        expect(tempTables.length).to.equal(0);
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    });
-            });
-
-            it('should resolve false when parent table has different key but col to index is equal to table key', (done) => {
-                getUnsortedTableName = () => PromiseHelper.resolve(parentTable);
-                XIApi.checkOrder = () => PromiseHelper.resolve(ASC, [{ name: 'col' }]);
-
-                checkIfNeedIndex(['key'], tableName, [{ name: 'key' }], ASC, txId)
-                    .then((shdoulIndex, tName, tempTables) => {
-                        expect(shdoulIndex).to.be.false;
-                        expect(tName).to.not.equal(parentTable);
-                        expect(tName).to.not.equal(tableName);
-                        expect(tempTables.length).to.equal(1);
-                        expect(tempTables[0]).to.equal(tName);
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    });
-            });
-
-            it('should resolve true when parent table has different key and col to index is different from table key', (done) => {
-                getUnsortedTableName = () => PromiseHelper.resolve(parentTable);
-                XIApi.checkOrder = () => PromiseHelper.resolve(ASC, [{ name: 'col2' }]);
-
-                checkIfNeedIndex(['col'], tableName, [{ name: 'key' }], ASC, txId)
-                    .then((shdoulIndex, tName, tempTables) => {
-                        expect(shdoulIndex).to.be.true;
-                        expect(tName).to.not.equal(parentTable);
-                        expect(tName).to.not.equal(tableName);
-                        expect(tempTables.length).to.equal(1);
-                        expect(tempTables[0]).to.equal(tName);
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    });
-            });
-
-            after(() => {
-                getUnsortedTableName = oldGetUnsortedTableName;
-                XIApi.checkOrder = oldCheckOrder;
-                XcalarIndexFromTable = oldIndex;
-            });
-        });
-
-        describe('checkTableIndex Test', () => {
-            let checkTableIndex;
-            const txId = 0;
-            let oldGetUnsortedTableName;
-            let oldCheckOrder;
-            let oldIndex;
-            let ASC;
-            const tableName = 'testTable';
-
-            before(() => {
-                checkTableIndex = XIApi.__testOnly__.checkTableIndex;
-
-                oldGetUnsortedTableName = getUnsortedTableName;
-                oldCheckOrder = XIApi.checkOrder;
-                oldIndex = XcalarIndexFromTable;
-                ASC = XcalarOrderingT.XcalarOrderingAscending;
-
-                Authentication.getHashId = () => '#12';
-                getUnsortedTableName = () => PromiseHelper.resolve(tableName);
-                XcalarIndexFromTable = () => PromiseHelper.resolve({ newKeys: ['newKey'] });
-                XIApi.checkOrder = () => PromiseHelper.resolve(ASC, [{ name: 'col' }]);
-            });
-
-            it('should return result when there is SQL cache', (done) => {
-                const isSimulate = Transaction.isSimulate;
-                const isEdit = Transaction.isEdit;
-                const getIndexTable = SQLApi.getIndexTable;
-
-                Transaction.isSimulate = () => true;
-                Transaction.isEdit = () => false;
-                SQLApi.getIndexTable = () => {
-                    return { tableName: 'indexTable', keys: ['key'] }
-                };
-
-                checkTableIndex(txId, ['col'], 'testTable#abc', false)
-                    .then((res) => {
-                        expect(res).to.be.an('object');
-                        expect(res.indexTable).to.equal('indexTable');
-                        expect(res.indexKeys[0]).to.equal('key');
-                        expect(res.tempTables.length).to.equal(0);
-                        expect(res.hasIndexed).to.be.true;
-                        expect(res.isCache).to.be.true;
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    })
-                    .always(() => {
-                        Transaction.isEdit = isEdit;
-                        Transaction.isSimulate = isSimulate;
-                        SQLApi.getIndexTable = getIndexTable;
-                    });
-            });
-
-            it('should return result when there is gTables cache', (done) => {
-                const tableId = 'abc';
-                const table = new TableMeta({
-                    tableId: tableId,
-                    tableName: 'testTable#' + tableId
-                });
-                const indexTableId = 'efg';
-                const indexTable = new TableMeta({
-                    tableId: indexTableId,
-                    tableName: 'testTable#' + indexTableId
-                });
-                gTables[tableId] = table;
-                gTables[indexTableId] = indexTable;
-                table.setIndexTable(['col'], indexTable.getName(), ['key']);
-
-                let oldAddIndex = QueryManager.addIndexTable;
-                let test = false;
-                QueryManager.addIndexTable = () => { test = true };
-
-                checkTableIndex(txId, ['col'], table.getName(), false)
-                    .then((res) => {
-                        expect(test).to.equal(true);
-                        expect(res).to.be.an('object');
-                        expect(res.indexTable).to.equal(indexTable.getName());
-                        expect(res.indexKeys[0]).to.equal('key');
-                        expect(res.tempTables.length).to.equal(0);
-                        expect(res.hasIndexed).to.be.true;
-                        expect(res.isCache).to.be.true;
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    })
-                    .always(() => {
-                        delete gTables[tableId];
-                        delete gTables[indexTableId];
-                        QueryManager.addIndexTable = oldAddIndex;
-                    });
-            });
-
-            it("should resolve when index correctly", (done) => {
-                checkTableIndex(txId, ['col'], tableName, false)
-                    .then((res) => {
-                        expect(res).to.be.an('object');
-                        expect(res.indexTable).to.equal(tableName);
-                        expect(res.indexKeys[0]).to.equal('col');
-                        expect(res.tempTables.length).to.equal(0);
-                        expect(res.hasIndexed).to.be.false;
-                        expect(res.isCache).to.be.false;
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    });
-            });
-
-            it("should resolve and index", (done) => {
-                const oldFunc = TblManager.setOrphanTableMeta;
-                let test = false;
-                TblManager.setOrphanTableMeta = () => { test = true };
-
-                checkTableIndex(txId, ['key'], tableName, false)
-                    .then((res) => {
-                        expect(test).to.be.true;
-                        expect(res).to.be.an('object');
-                        expect(res.indexTable).not.to.equal(tableName);
-                        expect(res.indexKeys[0]).to.equal('newKey');
-                        expect(res.tempTables.length).to.equal(1);
-                        expect(res.hasIndexed).to.be.true;
-                        expect(res.isCache).to.be.false;
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    })
-                    .always(() => {
-                        TblManager.setOrphanTableMeta = oldFunc;
-                    });
-            });
-
-            it("should resolve when already indexed", (done) => {
-                const oldFunc = XcalarIndexFromTable;
-                XcalarIndexFromTable = () => PromiseHelper.reject({
-                    code: StatusT.StatusAlreadyIndexed
-                });
-
-                checkTableIndex(txId, ['key'], tableName, false)
-                    .then((res) => {
-                        expect(res).to.be.an('object');
-                        expect(res.indexTable).to.equal(tableName);
-                        expect(res.indexKeys[0]).to.equal('key');
-                        expect(res.tempTables.length).to.equal(0);
-                        expect(res.hasIndexed).to.be.false;
-                        expect(res.isCache).to.be.false;
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    })
-                    .always(() => {
-                        XcalarIndexFromTable = oldFunc;
-                    });
-            });
-
-            it("should fail when index call fails", (done) => {
-                const oldFunc = XcalarIndexFromTable;
-                let test = false;
-                XcalarIndexFromTable = () => {
-                    test = true;
-                    return PromiseHelper.reject({});
-                };
-
-                checkTableIndex(txId, ['key'], tableName, false)
-                    .then(() => {
-                        done('fail');
-                    })
-                    .fail(() => {
-                        expect(test).to.be.true;
-                        done();
-                    })
-                    .always(() => {
-                        XcalarIndexFromTable = oldFunc;
-                    });
-            });
-
-            after(() => {
-                getUnsortedTableName = oldGetUnsortedTableName;
-                XIApi.checkOrder = oldCheckOrder;
-                XcalarIndexFromTable = oldIndex;
-            });
-        });
     });
 
     describe('Cast Helper Test', () => {
@@ -827,9 +492,9 @@ describe('XIApi Test', () => {
             });
 
             it('should handle self join case', (done) => {
-                const oldFilter = XcalarFilter;
+                const oldFilter = XIApi.filter;
                 let test = false;
-                XcalarFilter = () => {
+                XIApi.filter = () => {
                     test = true;
                     return PromiseHelper.resolve();
                 };
@@ -859,14 +524,14 @@ describe('XIApi Test', () => {
                         done('fail');
                     })
                     .always(() => {
-                        XcalarFilter = oldFilter;
+                        XIApi.filter = oldFilter;
                     });
             });
 
             it('should handle self join fail case', (done) => {
                 const oldIsSimulate = Transaction.isSimulate;
-                const oldCheckOrder = XIApi.checkOrder;
-                XIApi.checkOrder = () => PromiseHelper.reject({ error: 'test' });
+                const oldIndex = XIApi.index;
+                XIApi.index= () => PromiseHelper.reject({ error: 'test' });
                 Transaction.isSimulate = () => false;
 
                 joinIndex(txId, {
@@ -884,7 +549,7 @@ describe('XIApi Test', () => {
                         done();
                     })
                     .always(() => {
-                        XIApi.checkOrder = oldCheckOrder;
+                        XIApi.index = oldIndex;
                         Transaction.isSimulate = oldIsSimulate;
                     });
             });
@@ -951,22 +616,17 @@ describe('XIApi Test', () => {
 
         describe('semiJoinHelper Test', () => {
             const txId = 0;
-            let oldGroupBy;
+            let oldQuery;
             let oldJoin;
-            let oldFilter;
-            let oldMap;
-            let testJoinTableName;
-            let testJoinType;
-
             let semiJoinHelper;
 
             before(() => {
-                oldGroupBy = XcalarGroupByWithEvalStrings;
+                oldQuery = XIApi.query;
                 oldJoin = XcalarJoin;
 
-                XcalarGroupByWithEvalStrings = () => PromiseHelper.resolve();
+                XIApi.query = () => PromiseHelper.resolve();
 
-                XcalarJoin = (lTable, rTable, newTableName, joinType) => {
+                XcalarJoin = (_lTable, _rTable, newTableName, joinType) => {
                     testJoinTableName = newTableName;
                     testJoinType = joinType;
                     return PromiseHelper.resolve();
@@ -981,56 +641,56 @@ describe('XIApi Test', () => {
             });
 
             it("should work for anti semi join", (done) => {
-                const oldFunc = XcalarFilter;
+                const oldFunc = XIApi.filter;
                 const joinType = JoinCompoundOperatorTStr.LeftAntiSemiJoin;
                 const tempTables = [];
 
                 let test = false;
-                XcalarFilter = () => {
+                XIApi.filter = () => {
                     test = true;
                     return PromiseHelper.resolve();
                 };
 
                 semiJoinHelper(txId, 'l#a', 'r#b', ['col'], 'new#c', joinType,
                     [], [], tempTables, null)
-                    .then((res) => {
+                    .then((tempCols) => {
                         expect(test).to.be.true;
                         expect(tempTables.length).to.equal(1);
-                        expect(res.tempCols[0]).to.contains("XC_GB_COL");
+                        expect(tempCols[0]).to.contains("XC_GB_COL");
                         done();
                     })
                     .fail(() => {
                         done('fail');
                     })
                     .always(() => {
-                        XcalarFilter = oldFunc;
+                        XIApi.filter = oldFunc;
                     });
             });
 
             it("should work for existence join", (done) => {
-                const oldFunc = XcalarMap;
+                const oldFunc = XIApi.map;
                 const joinType = JoinCompoundOperatorTStr.ExistenceJoin;
                 const tempTables = [];
 
                 let test = false;
-                XcalarMap = () => {
+                XIApi.map = () => {
                     test = true;
                     return PromiseHelper.resolve();
                 };
 
                 semiJoinHelper(txId, 'l#a', 'r#b', ['col'], 'new#c', joinType,
                     [], [], tempTables, 'existenceCol')
-                    .then((res) => {
+                    .then((tempCols) => {
                         expect(test).to.be.true;
                         expect(tempTables.length).to.equal(1);
-                        expect(res.tempCols[0]).to.contains("XC_GB_COL");
+                        expect(tempCols[0]).to.contains("XC_GB_COL");
                         done();
                     })
                     .fail(() => {
                         done('fail');
                     })
                     .always(() => {
-                        XcalarMap = oldFunc;
+                        XIApi.map = oldFunc;
                     });
             });
 
@@ -1040,9 +700,9 @@ describe('XIApi Test', () => {
 
                 semiJoinHelper(txId, 'l#a', 'r#b', ['col'], 'new#c', joinType,
                     [], [], tempTables, null)
-                    .then((res) => {
+                    .then((tempCols) => {
                         expect(tempTables.length).to.equal(0);
-                        expect(res.tempCols[0]).to.contains("XC_GB_COL");
+                        expect(tempCols[0]).to.contains("XC_GB_COL");
                         done();
                     })
                     .fail(() => {
@@ -1051,7 +711,7 @@ describe('XIApi Test', () => {
             });
 
             after(() => {
-                XcalarGroupByWithEvalStrings = oldGroupBy;
+                XIApi.query = oldQuery;
                 XcalarJoin = oldJoin;
             });
         });
@@ -1168,7 +828,7 @@ describe('XIApi Test', () => {
                 const groupByCols = ['groupByCol'];
                 const aggArgs = [{ newColName: 'aggCol' }];
                 getFinalGroupByCols(txId, 'test#c', finalTableName,
-                    groupByCols, aggArgs, false, [])
+                groupByCols, aggArgs, false, [])
                     .then((newProgCols, renamedGroupByCols) => {
                         expect(newProgCols.length).to.equal(3);
                         expect(newProgCols[0].backName).to.equal('aggCol');
@@ -1290,7 +950,6 @@ describe('XIApi Test', () => {
             let oldIsSimulate;
             let oldIsEdit;
             let oldGetIndexCache;
-            let oldGroupBy;
             let oldCacheIndexCache;
 
             before(() => {
@@ -1299,7 +958,6 @@ describe('XIApi Test', () => {
                 oldIsSimulate = Transaction.isSimulate;
                 oldIsEdit = Transaction.isEdit;
                 oldGetIndexCache = SQLApi.getIndexTable;
-                oldGroupBy = XcalarGroupByWithEvalStrings;
                 oldCacheIndexCache = SQLApi.cacheIndexTable;
 
                 Transaction.isSimulate = () => true;
@@ -1337,11 +995,11 @@ describe('XIApi Test', () => {
                 const distinctGbTables = [];
                 const tempTables = [];
                 const tempCols = [];
-                const oldFunc = XcalarIndexFromTable;
+                const oldFunc = XIApi.index;
                 let test = false;
-                XcalarIndexFromTable = () => {
+                XIApi.index = () => {
                     test = true;
-                    return PromiseHelper.resolve({ newKeys: 'newKey' });
+                    return PromiseHelper.resolve(null, false, ["newKey"]);
                 };
 
                 computeDistinctGroupby(txId, tableName, groupOnCols, distinctCol,
@@ -1357,7 +1015,7 @@ describe('XIApi Test', () => {
                         done('fail');
                     })
                     .always(() => {
-                        XcalarIndexFromTable = oldFunc;
+                        XIApi.index = oldFunc;
                     });
             });
 
@@ -1365,7 +1023,6 @@ describe('XIApi Test', () => {
                 Transaction.isSimulate = oldIsSimulate;
                 Transaction.isEdit = oldIsEdit;
                 SQLApi.getIndexTable = oldGetIndexCache;
-                XcalarGroupByWithEvalStrings = oldGroupBy;
                 SQLApi.cacheIndexTable = oldCacheIndexCache;
             });
         });
@@ -1374,14 +1031,14 @@ describe('XIApi Test', () => {
             let cascadingJoins;
             const txId = 0;
             const tableName = 'test#a';
-            let oldJoin = XcalarJoin;
+            let oldJoin;
             let testJoinType;
 
             before(() => {
                 cascadingJoins = XIApi.__testOnly__.cascadingJoins;
                 oldJoin = XcalarJoin;
 
-                XcalarJoin = (lTable, rTable, newTable, joinType, ...rest) => {
+                XcalarJoin = (_lTable, _rTable, _newTable, joinType, ..._rest) => {
                     testJoinType = joinType
                     return PromiseHelper.resolve();
                 };
@@ -1462,10 +1119,8 @@ describe('XIApi Test', () => {
             const oldIsSimulate = Transaction.isSimulate;
             const oldIsEdit = Transaction.isEdit;
             const oldGetIndexCache = SQLApi.getIndexTable;
-            const oldGroupBy = XcalarGroupByWithEvalStrings;
             const oldCacheIndexCache = SQLApi.cacheIndexTable;
-            const oldJoin = XcalarJoin;
-            const oldIndex = XcalarIndexFromTable;
+            const oldQuery = XIApi.query;
 
             Transaction.isSimulate = () => true;
             Transaction.isEdit = () => false;
@@ -1473,8 +1128,7 @@ describe('XIApi Test', () => {
                 return { tableName: tableName, keys: ['key'] };
             };
             SQLApi.cacheIndexTable = () => { };
-            XcalarJoin = () => PromiseHelper.resolve();
-            XcalarIndexFromTable = () => PromiseHelper.resolve({ newKeys: 'newKey' });
+            XIApi.query = () => PromiseHelper.resolve();
 
             const distinctGroupby = XIApi.__testOnly__.distinctGroupby;
             const txId = 0;
@@ -1506,10 +1160,8 @@ describe('XIApi Test', () => {
                     Transaction.isSimulate = oldIsSimulate;
                     Transaction.isEdit = oldIsEdit;
                     SQLApi.getIndexTable = oldGetIndexCache;
-                    XcalarGroupByWithEvalStrings = oldGroupBy;
                     SQLApi.cacheIndexTable = oldCacheIndexCache;
-                    XcalarJoin = oldJoin;
-                    XcalarIndexFromTable = oldIndex;
+                    XIApi.query = oldQuery;
                 });
         });
     });
@@ -1637,8 +1289,8 @@ describe('XIApi Test', () => {
         });
 
         it('XIApi.filter should work', (done) => {
-            const oldFunc = XcalarFilter;
-            XcalarFilter = () => PromiseHelper.resolve();
+            const oldFunc = XIApi.query;
+            XIApi.query = () => PromiseHelper.resolve();
 
             XIApi.filter(1, 'eq(a, 1)', 'test#1')
                 .then((newTableName) => {
@@ -1649,7 +1301,7 @@ describe('XIApi Test', () => {
                     done('fail');
                 })
                 .always(() => {
-                    XcalarFilter = oldFunc;
+                    XIApi.query = oldFunc;
                 });
         });
 
@@ -1699,15 +1351,20 @@ describe('XIApi Test', () => {
         });
 
         it('XIApi.aggregateWithEvalStr should work', (done) => {
-            const oldAgg = XcalarAggregate;
+            const oldQuery = XIApi.query;
             const oldDelete = XIApi.deleteTable;
+            const oldFetch = XIApi.fetchData;
 
-            XcalarAggregate = function () {
-                return PromiseHelper.resolve({ 'Value': 1 });
+            XIApi.query = function() {
+                return PromiseHelper.resolve();
             };
 
-            XIApi.deleteTable = function () {
+            XIApi.deleteTable = function() {
                 return PromiseHelper.resolve();
+            };
+
+            XIApi.fetchData = function() {
+                return PromiseHelper.resolve(["{\"constant\":1}"]);
             };
 
             XIApi.aggregateWithEvalStr(1, 'count(a)', 'a#1')
@@ -1720,8 +1377,9 @@ describe('XIApi Test', () => {
                     done('fail');
                 })
                 .always(() => {
-                    XcalarAggregate = oldAgg;
+                    XIApi.query = oldQuery;
                     XIApi.deleteTable = oldDelete;
+                    XIApi.fetchData = oldFetch;
                 });
         });
 
@@ -1803,48 +1461,6 @@ describe('XIApi Test', () => {
                 });
         });
 
-        it('XIApi.checkOrder should use gTable caches', (done) => {
-            const tableId = 'test12';
-            const table = new TableMeta({
-                tableName: 'test#' + tableId,
-                tableId: tableId
-            });
-            table.keys = [];
-            table.ordering = 3;
-            gTables[tableId] = table;
-
-            XIApi.checkOrder(table.getName())
-                .then((ordering, keys) => {
-                    expect(ordering).to.be.equal(3);
-                    expect(keys.length).to.equal(0);
-                    done();
-                })
-                .fail(() => {
-                    done('fail');
-                })
-                .always(() => {
-                    delete gTables[tableId];
-                });
-        });
-
-        it('XIApi.checkOrder should skip simulate case', (done) => {
-            const oldFunc = Transaction.isSimulate;
-            Transaction.isSimulate = () => true;
-
-            XIApi.checkOrder('test#abc', 1)
-                .then((ordering, keys) => {
-                    expect(ordering).to.be.null;
-                    expect(keys.length).to.equal(0);
-                    done();
-                })
-                .fail(() => {
-                    done('fail');
-                })
-                .always(() => {
-                    Transaction.isSimulate = oldFunc;
-                });
-        });
-
         it('XIApi.checkOrder should reject invalid case', (done) => {
             XIApi.checkOrder()
                 .then(() => {
@@ -1857,9 +1473,9 @@ describe('XIApi Test', () => {
         });
 
         it('XIApi.load should work', (done) => {
-            const oldFunc = XcalarLoad;
+            const oldFunc = XIApi.query;
             let test = false
-            XcalarLoad = () => {
+            XIApi.query = () => {
                 test = true;
                 return PromiseHelper.resolve();
             };
@@ -1873,7 +1489,7 @@ describe('XIApi Test', () => {
                     done('fail');
                 })
                 .always(() => {
-                    XcalarLoad = oldFunc;
+                    XIApi.query = oldFunc;
                 });
         });
 
@@ -1889,8 +1505,8 @@ describe('XIApi Test', () => {
         });
 
         it('XIApi.indexFromDataset should work', (done) => {
-            const oldFunc = XcalarIndexFromDataset;
-            XcalarIndexFromDataset = () => PromiseHelper.resolve();
+            const oldFunc = XIApi.query;
+            XIApi.query = () => PromiseHelper.resolve();
 
             XIApi.indexFromDataset(0, 'dsName', 'test', 'prefix')
                 .then((newTableName, prefix) => {
@@ -1902,7 +1518,7 @@ describe('XIApi Test', () => {
                     done('fail');
                 })
                 .always(() => {
-                    XcalarIndexFromDataset = oldFunc;
+                    XIApi.query = oldFunc;
                 });
         });
 
@@ -1917,6 +1533,20 @@ describe('XIApi Test', () => {
                 });
         });
 
+        it('XIApi.index should resolve empty column case', (done) => {
+            const tableName = 'test#a';
+            XIApi.index(1, [], tableName)
+            .then((indexTable, isCached, newKeys) => {
+                expect(indexTable).to.equal(tableName);
+                expect(isCached).to.be.false;
+                expect(newKeys.length).to.equal(0);
+                done();
+            })
+            .fail(() => {
+                done('fail');
+            });
+        });
+
         it('XIApi.index should work', (done) => {
             const isSimulate = Transaction.isSimulate;
             const isEdit = Transaction.isEdit;
@@ -1928,10 +1558,11 @@ describe('XIApi Test', () => {
                 return { tableName: 'indexTable', keys: ['key'] }
             };
 
-            const tableName = 'test#a';
             XIApi.index(1, ['col'], 'test#a')
-                .then((indexTable) => {
+                .then((indexTable, isCached, newKeys) => {
                     expect(indexTable).to.equal('indexTable');
+                    expect(isCached).to.be.true;
+                    expect(newKeys.length).to.equal(1);
                     done();
                 })
                 .fail(() => {
@@ -1966,17 +1597,11 @@ describe('XIApi Test', () => {
             });
             gTables[tableId] = table;
 
-            const oldCheckOrder = XIApi.checkOrder;
-            const oldIndex = XcalarIndexFromTable;
-
-            XIApi.checkOrder = () => PromiseHelper.resolve(0, [{
-                name: 'diffCol',
-                ordering: "Ascending"
-            }]);
-            XcalarIndexFromTable = () => PromiseHelper.resolve({ newKeys: ['newKey'] });
+            const oldIndex = XIApi.index;
+            XcalarIndexFromTable = () => PromiseHelper.resolve({newKeys: ['newKey']});
 
             const colInfo = {
-                colNum: 1,
+                colName: "col",
                 ordering: XcalarOrderingT.XcalarOrderingAscending
             };
             XIApi.sort(1, [colInfo], tableName)
@@ -1990,46 +1615,7 @@ describe('XIApi Test', () => {
                 })
                 .always(() => {
                     delete gTables[tableId];
-                    XIApi.checkOrder = oldCheckOrder;
                     XcalarIndexFromTable = oldIndex;
-                });
-        });
-
-        it('XIApi.sort should reject when already sorted', (done) => {
-            const tableId = 'a';
-            const tableName = 'test#' + tableId;
-            const progCol = ColManager.newPullCol('col', 'col', ColumnType.number);
-            const table = new TableMeta({
-                tableId: tableId,
-                tableName: tableName,
-                tableCols: [progCol, ColManager.newDATACol()]
-            });
-            gTables[tableId] = table;
-
-            const oldCheckOrder = XIApi.checkOrder;
-            const oldIndex = XcalarIndexFromTable;
-
-            XIApi.checkOrder = () => PromiseHelper.resolve(0, [{
-                name: 'col',
-                ordering: "Ascending"
-            }]);
-
-            const colInfo = {
-                colNum: 1,
-                ordering: XcalarOrderingT.XcalarOrderingAscending
-            };
-            XIApi.sort(1, [colInfo], tableName)
-                .then(() => {
-                    done('fail');
-                })
-                .fail((error, flag) => {
-                    expect(error).to.be.null;
-                    expect(flag).to.be.true;
-                    done();
-                })
-                .always(() => {
-                    delete gTables[tableId];
-                    XIApi.checkOrder = oldCheckOrder;
                 });
         });
 
@@ -2052,7 +1638,7 @@ describe('XIApi Test', () => {
                 return PromiseHelper.resolve();
             };
 
-            XIApi.sortAscending(1, 'testCol', 'table')
+            XIApi.sortAscending(1, ['testCol'], 'table')
                 .then(() => {
                     expect(testInfos).to.be.an('array');
                     expect(testInfos.length).to.equal(1);
@@ -2076,7 +1662,7 @@ describe('XIApi Test', () => {
                 return PromiseHelper.resolve();
             };
 
-            XIApi.sortDescending(1, 'testCol', 'table')
+            XIApi.sortDescending(1, ['testCol'], 'table')
                 .then(() => {
                     expect(testInfos).to.be.an('array');
                     expect(testInfos.length).to.equal(1);
@@ -2093,8 +1679,8 @@ describe('XIApi Test', () => {
         });
 
         it('XIApi.map should work', (done) => {
-            const oldFunc = XcalarMap;
-            XcalarMap = () => PromiseHelper.resolve();
+            const oldFunc = XIApi.query;
+            XIApi.query = () => PromiseHelper.resolve();
 
             XIApi.map(1, ['concat(a)'], 'table', 'newCol')
                 .then((newTableName) => {
@@ -2105,7 +1691,7 @@ describe('XIApi Test', () => {
                     done('fail');
                 })
                 .always(() => {
-                    XcalarMap = oldFunc;
+                    XIApi.query = oldFunc;
                 });
         });
 
@@ -2121,8 +1707,8 @@ describe('XIApi Test', () => {
         });
 
         it('XIApi.map should reject normal fail', (done) => {
-            const oldMap = XcalarMap;
-            XcalarMap = () => PromiseHelper.reject('test');
+            const oldMap = XIApi.query;
+            XIApi.query = () => PromiseHelper.reject('test');
 
             XIApi.map(1, ['concat(a)'], 'table', 'newCol')
                 .then(() => {
@@ -2133,26 +1719,26 @@ describe('XIApi Test', () => {
                     done();
                 })
                 .always(() => {
-                    XcalarMap = oldMap;
+                    XIApi.query = oldMap;
                 });
         });
 
         describe('XIApi.join Test', () => {
             let oldMap;
-            let oldJoin;
+            let oldQuery;
             let isSimulate;
             let isEdit;
             let getIndexTable;
 
             before(() => {
                 oldMap = XIApi.map;
-                oldJoin = XcalarJoin;
+                oldQuery = XIApi.query;
                 isSimulate = Transaction.isSimulate;
                 isEdit = Transaction.isEdit;
                 getIndexTable = SQLApi.getIndexTable;
 
                 XIApi.map = () => PromiseHelper.resolve();
-                XcalarJoin = () => PromiseHelper.resolve({ tempCols: ['temp'] });
+                XIApi.query = () => PromiseHelper.resolve();
                 Transaction.isSimulate = () => true;
                 Transaction.isEdit = () => false;
                 SQLApi.getIndexTable = () => {
@@ -2207,7 +1793,7 @@ describe('XIApi Test', () => {
                     .then((newTableName, joinedCols, tempCols) => {
                         expect(newTableName).to.equal('l-r#12');
                         expect(joinedCols.length).to.equal(1);
-                        expect(tempCols.length).to.equal(1);
+                        expect(tempCols.length).to.equal(0);
                         done();
                     })
                     .fail(() => {
@@ -2262,8 +1848,6 @@ describe('XIApi Test', () => {
                     columns: ['b'],
                     casts: ColumnType.integer
                 };
-                const oldGroupBy = XcalarGroupByWithEvalStrings;
-                XcalarGroupByWithEvalStrings = () => PromiseHelper.resolve();
 
                 XIApi.join(1, joinType, lTableInfo, rTableInfo)
                     .then((newTableName, joinedCols, tempCols) => {
@@ -2274,15 +1858,12 @@ describe('XIApi Test', () => {
                     })
                     .fail(() => {
                         done('fail');
-                    })
-                    .always(() => {
-                        XcalarGroupByWithEvalStrings = oldGroupBy;
                     });
             });
 
             after(() => {
                 XIApi.map = oldMap;
-                XcalarJoin = oldJoin;
+                XIApi.query = oldQuery;
                 Transaction.isSimulate = isSimulate;
                 Transaction.isEdit = isEdit;
                 SQLApi.getIndexTable = getIndexTable;
@@ -2291,18 +1872,18 @@ describe('XIApi Test', () => {
 
 
         describe('XIApi.groupBy Test', function () {
-            let oldGroupBy;
+            let oldQuery;
             let isSimulate;
             let isEdit;
             let getIndexTable;
 
             before(() => {
-                oldGroupBy = XcalarGroupByWithEvalStrings;
+                oldQuery = XIApi.query;
                 isSimulate = Transaction.isSimulate;
                 isEdit = Transaction.isEdit;
                 getIndexTable = SQLApi.getIndexTable;
 
-                XcalarGroupByWithEvalStrings = () => PromiseHelper.resolve({ tempCols: ['temp'] });
+                XIApi.query = () => PromiseHelper.resolve();
                 Transaction.isSimulate = () => true;
                 Transaction.isEdit = () => false;
                 SQLApi.getIndexTable = () => {
@@ -2364,7 +1945,7 @@ describe('XIApi Test', () => {
                 };
 
                 XIApi.groupBy(1, aggArgs, groupByCols, tableName, options)
-                    .then((finalTable, finalCols, renamedGroupByCols, tempCols) => {
+                    .then(() => {
                         expect(test).to.equal(true);
                         done();
                     })
@@ -2385,13 +1966,9 @@ describe('XIApi Test', () => {
                 }];
                 const groupByCols = 'groupByCol';
                 const tableName = 'test#a';
-                const oldIndex = XcalarIndexFromTable;
                 const cacheIndexTable = SQLApi.cacheIndexTable;
-                const oldJoin = XcalarJoin;
 
-                XcalarIndexFromTable = () => PromiseHelper.resolve({ newKeys: ['newKey'] });
                 SQLApi.cacheIndexTable = () => { };
-                XcalarJoin = () => PromiseHelper.resolve();
 
                 XIApi.groupBy(1, aggArgs, groupByCols, tableName)
                     .then((finalTable, finalCols, renamedGroupByCols, tempCols) => {
@@ -2407,14 +1984,12 @@ describe('XIApi Test', () => {
                         done('fail');
                     })
                     .always(() => {
-                        XcalarIndexFromTable = oldIndex;
                         SQLApi.cacheIndexTable = cacheIndexTable;
-                        XcalarJoin = oldJoin;
                     })
             });
 
             after(() => {
-                XcalarGroupByWithEvalStrings = oldGroupBy;
+                XIApi.query = oldQuery;
                 Transaction.isSimulate = isSimulate;
                 Transaction.isEdit = isEdit;
                 SQLApi.getIndexTable = getIndexTable;
@@ -2422,11 +1997,11 @@ describe('XIApi Test', () => {
         });
 
         describe('XIAPi.union Test', () => {
-            let oldUnion;
+            let oldFunc;
 
             before(() => {
-                oldUnion = XcalarUnion;
-                XcalarUnion = () => PromiseHelper.resolve();
+                oldFunc = XIApi.query;
+                XIApi.query = () => PromiseHelper.resolve();
             });
 
             it('should reject invalid case', (done) => {
@@ -2491,7 +2066,7 @@ describe('XIApi Test', () => {
             });
 
             after(() => {
-                XcalarUnion = oldUnion;
+                oldFunc = XIApi.query;
             });
         });
 
@@ -2507,8 +2082,8 @@ describe('XIApi Test', () => {
         });
 
         it('XIApi.project should work', (done) => {
-            const oldFunc = XcalarProject;
-            XcalarProject = () => PromiseHelper.resolve();
+            const oldFunc = XIApi.query;
+            XIApi.query = () => PromiseHelper.resolve();
 
             XIApi.project(1, ['col'], 'table')
                 .then((newTableName) => {
@@ -2519,7 +2094,7 @@ describe('XIApi Test', () => {
                     done('fail');
                 })
                 .always(() => {
-                    XcalarProject = oldFunc;
+                    XIApi.query = oldFunc;
                 });
         });
 
@@ -2535,8 +2110,8 @@ describe('XIApi Test', () => {
         });
 
         it('XIApi.synthesize should work', (done) => {
-            const oldFunc = XcalarSynthesize;
-            XcalarSynthesize = () => PromiseHelper.resolve();
+            const oldFunc = XIApi.query;
+            XIApi.query = () => PromiseHelper.resolve();
 
             XIApi.synthesize(1, [{}], 'table')
                 .then((newTableName) => {
@@ -2547,7 +2122,7 @@ describe('XIApi Test', () => {
                     done('fail');
                 })
                 .always(() => {
-                    XcalarSynthesize = oldFunc;
+                    XIApi.query = oldFunc;
                 });
         });
 

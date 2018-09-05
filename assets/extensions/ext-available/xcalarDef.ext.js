@@ -714,7 +714,7 @@ window.UExtXcalarDef = (function(UExtXcalarDef) {
             // Step 2. Sort on desc on groupby table by groupByCol
             // this way, the partitionCol that has most count comes first
             var sortTable = ext.createTempTableName("GB-Sort.");
-            return ext.sortDescending(groupByCol, tableAfterGroupby, sortTable);
+            return ext.sortDescending([groupByCol], tableAfterGroupby, sortTable);
         })
         .then(function(tableAfterSort) {
             var fetchCol = partitionCol.getParsedName();

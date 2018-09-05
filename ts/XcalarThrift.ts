@@ -325,12 +325,7 @@ function indexKeyMap(keyInfo: KeyInfo): XcalarApiKeyT {
     });
 }
 
-class XcalarColInfo {
-    orig?: string;
-    new?: string;
-    type?: DfFieldTypeT;
-}
-function colInfoMap(colInfo: XcalarColInfo) {
+function colInfoMap(colInfo: ColRenameInfo) {
     var map = new XcalarApiColumnT();
     map.sourceColumn = colInfo.orig;
     map.destColumn = colInfo.new;
@@ -856,20 +851,19 @@ XcalarLoad = function(
         const sourceArgs: DataSourceArgsT = new DataSourceArgsT();
         sourceArgs.targetName = source.targetName;
         sourceArgs.path = source.path;
-        sourceArgs.fileNamePattern = source.fileNamePattern;
-        sourceArgs.recursive = source.recursive;
+        sourceArgs.fileNamePattern = source.fileNamePattern || "";
+        sourceArgs.recursive = source.recursive || false;
         return sourceArgs;
     });
 
     const parseArgs: ParseArgsT = new ParseArgsT();
     parseArgs.parserFnName = parserFnName;
     parseArgs.parserArgJson = JSON.stringify(parserArgJson);
-    if (options.advancedArgs) {
-        parseArgs.allowRecordErrors = options.advancedArgs['allowRecordErrors'];
-        parseArgs.allowFileErrors = options.advancedArgs['allowFileErrors'];
-        parseArgs.fileNameFieldName = options.advancedArgs['fileName'];
-        parseArgs.recordNumFieldName = options.advancedArgs['rowNumName'];
-    }
+    const advancedArgs = options.advancedArgs || {};
+    parseArgs.allowRecordErrors = advancedArgs['allowRecordErrors'] || false;
+    parseArgs.allowFileErrors = advancedArgs['allowFileErrors'] || false;
+    parseArgs.fileNameFieldName = advancedArgs['fileName'] || "";
+    parseArgs.recordNumFieldName = advancedArgs['rowNumName'] || "";
     parseArgs.schema = typedColumns;
 
     const maxSampleSize: number = gMaxSampleSize;
@@ -1240,8 +1234,8 @@ XcalarExport = function(
         const columns: ExColumnNameT[] = [];
         for (let i = 0; i < backColName.length; i++) {
             const colNameObj = new ExColumnNameT();
-            colNameObj.name = backColName[i];
-            colNameObj.headerAlias = frontColName[i];
+            colNameObj.columnName = backColName[i];
+            colNameObj.headerName = frontColName[i];
             columns.push(colNameObj);
         }
 
@@ -1467,7 +1461,12 @@ XcalarIndexFromDataset = function(
 // [{name: "review_count", ordering: XcalarOrderingT.XcalarOrderingAscending}]
 XcalarIndexFromTable = function(
     srcTablename: string,
-    keys: any,
+    keys: {
+        name: string,
+        type: DfFieldTypeT,
+        keyFieldName: string,
+        ordering: XcalarOrderingT
+    }[],
     dstTableName: string,
     txId: number,
     unsorted?: boolean
@@ -1495,13 +1494,14 @@ XcalarIndexFromTable = function(
     }
 
     promise
-    .then(function(unsortedTablename) {
+    .then(function(resTable : string) {
         if (Transaction.checkCanceled(txId)) {
             return (deferred.reject(StatusTStr[StatusT.StatusCanceled])
                             .promise());
         }
-        unsortedSrcTablename = (unsortedTablename as any);
-        return xcHelper.getKeyInfos(keys, (unsortedTablename as string));
+        unsortedSrcTablename = resTable;
+        // XXX TODO, remove the dependencise of xcHelper
+        return xcHelper.getKeyInfos(keys, unsortedSrcTablename);
     })
     .then(function(keyInfos: KeyInfo[]) {
         const keyArray = keyInfos.map(function(keyInfo) {
@@ -2669,9 +2669,9 @@ XcalarJoin = function(
     right: string,
     dst: string,
     joinType: JoinOperatorT,
-    leftColInfos: XcalarColInfo[],
-    rightColInfos: XcalarColInfo[],
-    options: any,
+    leftColInfos: ColRenameInfo[],
+    rightColInfos: ColRenameInfo[],
+    options: {evalString: string},
     txId: number
 ): XDPromise<any> {
     if (tHandle == null) {
@@ -2950,11 +2950,11 @@ XcalarProject = function(
 // operation and not union
 // unionType is unionStandard, unionIntersect, unionExcept
 XcalarUnion = function(
-    tableNames: string[] | string,
+    tableNames: string[],
     newTableName: string,
-    colInfos: XcalarColInfo[][] | XcalarColInfo[],
-    dedup: boolean,
-    unionType: UnionOperatorT,
+    colInfos: ColRenameInfo[][],
+    dedup: boolean = false,
+    unionType: UnionOperatorT = UnionOperatorT.UnionStandard,
     txId: number
 ): XDPromise<any> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
@@ -2965,11 +2965,6 @@ XcalarUnion = function(
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
-
-    tableNames = (tableNames instanceof Array) ? tableNames : [tableNames];
-    colInfos = (colInfos instanceof Array) ? colInfos : [colInfos];
-    dedup = dedup || false;
-    unionType = unionType || UnionOperatorT.UnionStandard;
 
     let query: string;
     const getUnsortedTablesInUnion = function(): XDPromise<string[]> {
@@ -3001,7 +2996,7 @@ XcalarUnion = function(
         }
 
         const columns: XcalarApiColumnT[][] =
-            (colInfos as XcalarColInfo[][]).map(
+            (colInfos as ColRenameInfo[][]).map(
                 function(renameListForOneTable) {
                     return renameListForOneTable.map(colInfoMap);
                 }
@@ -3540,7 +3535,7 @@ XcalarListFiles = function(
 XcalarSynthesize = function(
     srcTableName: string,
     dstTableName: string,
-    colInfos: XcalarColInfo[],
+    colInfos: ColRenameInfo[],
     txId: number
 ): XDPromise<any> {
     if ([null, undefined].indexOf(tHandle) !== -1) {

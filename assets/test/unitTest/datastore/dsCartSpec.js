@@ -652,9 +652,9 @@ describe("Dataset-DSCart Test", function() {
 
         it("shhould handle create table fail case", function(done) {
             var oldRemove = DSCart.removeCart;
-            var oldIndex = XcalarIndexFromDataset;
+            var oldIndex = XIApi.indexFromDataset;
             DSCart.removeCart = function() {};
-            XcalarIndexFromDataset = function() {
+            XIApi.indexFromDataset = function() {
                 return PromiseHelper.reject("test");
             };
 
@@ -670,7 +670,7 @@ describe("Dataset-DSCart Test", function() {
             })
             .always(function() {
                 DSCart.removeCart = oldRemove;
-                XcalarIndexFromDataset = oldIndex;
+                XIApi.indexFromDataset = oldIndex;
             });
         });
 

@@ -121,12 +121,12 @@ window.XcSDK.Extension.prototype = (function() {
             return deferred.promise();
         },
 
-        sortAscending: function(colName, tableName, newTableName) {
+        sortAscending: function(colNames, tableName, newTableName) {
             var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self.txId;
 
-            XIApi.sortAscending(txId, colName, tableName, newTableName)
+            XIApi.sortAscending(txId, colNames, tableName, newTableName)
             .then(function(dstTable) {
                 self._addMeta(tableName, dstTable);
                 deferred.resolve(dstTable);
@@ -136,12 +136,12 @@ window.XcSDK.Extension.prototype = (function() {
             return deferred.promise();
         },
 
-        sortDescending: function(colName, tableName, newTableName) {
+        sortDescending: function(colNames, tableName, newTableName) {
             var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self.txId;
 
-            XIApi.sortDescending(txId, colName, tableName, newTableName)
+            XIApi.sortDescending(txId, colNames, tableName, newTableName)
             .then(function(dstTable) {
                 self._addMeta(tableName, dstTable);
                 deferred.resolve(dstTable);
