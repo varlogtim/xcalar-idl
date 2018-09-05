@@ -246,11 +246,13 @@ window.MainMenu = (function($, MainMenu) {
                 }
                 currWidth = newWidth;
                 // let codemirror know it's area was resized
-                formPanels.forEach(function(panel) {
-                    if (panel.isOpen()) {
-                        panel.getEditor().refresh();
-                    }
-                });
+                if (gDionysus) {
+                    formPanels.forEach(function(panel) {
+                        if (panel.isOpen()) {
+                            panel.getEditor().refresh();
+                        }
+                    });
+                }
             },
             "resize": function(event, ui) {
                 if (!isSmall && ui.size.width < minWidth) {
