@@ -72,8 +72,8 @@ class AggOpPanel extends GeneralOpPanel {
     // prefill: object, used to prefill the form
     // public show = function(currTableId, currColNums, operator,
     //                                options) {
-    public show(node: DagNodeAggregate) {
-        if (super.show(node)) {
+    public show(node: DagNodeAggregate): boolean {
+        if (super.show(<DagNode>node)) {
             this.model = new AggOpPanelModel(this._dagNode, () => {
                 this._render();
             });
@@ -82,7 +82,8 @@ class AggOpPanel extends GeneralOpPanel {
             this._render();
             this._formHelper.refreshTabbing();
         }
-    };
+        return true;
+    }
 
   // functions that get called after list udfs is called during op view show
     protected _render(): void {
@@ -596,7 +597,7 @@ class AggOpPanel extends GeneralOpPanel {
 
             const aggNameError = this.model.validateAggName();
             if (aggNameError) {
-                StatusBox.show(error.error, this._$panel.find(".group").find(".colNameSection .arg"));
+                StatusBox.show(aggNameError.error, this._$panel.find(".group").find(".colNameSection .arg"));
             }
         }
 

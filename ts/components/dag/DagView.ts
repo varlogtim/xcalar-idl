@@ -746,6 +746,29 @@ namespace DagView {
         return deferred.promise();
     }
 
+    export function previewAgg(dagNodeId: string): void {
+        try {
+            const dagNode: DagNodeAggregate = <DagNodeAggregate>activeDag.getNode(dagNodeId);
+            const aggVal: string | number = dagNode.getAggVal();
+            const evalStr: string = dagNode.getParam().evalString;
+            const op: string = evalStr.substring(0, evalStr.indexOf("("));
+            const title: string = xcHelper.replaceMsg(AggTStr.AggTitle, {
+                op: op
+            });
+            const msg: string = xcHelper.replaceMsg(AggTStr.AggMsg, {
+                val: xcHelper.numToStr(<number>aggVal)
+            });
+            Alert.show({
+                title: title,
+                msg: msg,
+                isAlert: true
+            });
+        } catch (e) {
+            console.error(e);
+            Alert.error(AlertTStr.Error, ErrTStr.Unknown);
+        }
+    }
+
     /**
      * DagView.run
      * // run the entire dag

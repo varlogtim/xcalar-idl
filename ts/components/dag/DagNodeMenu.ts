@@ -132,6 +132,9 @@ namespace DagNodeMenu {
                 case ("previewTable"):
                     DagView.previewTable(operatorIds[0]);
                     break;
+                case ("previewAgg"):
+                    DagView.previewAgg(nodeIds[0]);
+                    break;
                 case ("description"):
                     DagDescriptionModal.Instance.show(operatorIds[0]);
                     break;
@@ -231,7 +234,8 @@ namespace DagNodeMenu {
 
         if (nodeIds.length === 1) {
             classes += " single ";
-            adjustMenuForSingleNode(nodeIds[0]);
+            const extraClasses: string = adjustMenuForSingleNode(nodeIds[0]);
+            classes += extraClasses + " ";
         }  else {
             classes += " multiple ";
         }
@@ -290,7 +294,8 @@ namespace DagNodeMenu {
             classes += " operatorMenu "
             if (operatorIds.length === 1) {
                 classes += " single ";
-                adjustMenuForSingleNode(operatorIds[0]);
+                const extraClasses: string = adjustMenuForSingleNode(operatorIds[0]);
+                classes += extraClasses + " ";
             } else {
                 classes += " multiple ";
             }
@@ -314,9 +319,10 @@ namespace DagNodeMenu {
         });
     }
 
-    function adjustMenuForSingleNode(nodeId) {
+    function adjustMenuForSingleNode(nodeId): string {
         const dagGraph: DagGraph = DagView.getActiveDag();
         const dagNode: DagNode = dagGraph.getNode(nodeId);
+        let classes = "";
         if (dagNode != null &&
             dagNode.getState() === DagNodeState.Complete &&
             dagNode.getTable() != null
@@ -325,10 +331,22 @@ namespace DagNodeMenu {
         } else {
             $menu.find(".previewTable").addClass("unavailable");
         }
-        if (dagNode.getDescription()) {
+        if (dagNode != null && dagNode.getDescription()) {
             $menu.find(".description .label").text(DagTStr.EditDescription);
         } else {
             $menu.find(".description .label").text(DagTStr.AddDescription);
         }
+        if (dagNode != null && dagNode.getType() === DagNodeType.Aggregate) {
+            const aggNode = <DagNodeAggregate>dagNode;
+            classes = "agg";
+            if (aggNode.getState() === DagNodeState.Complete &&
+                aggNode.getAggVal() != null
+            ) {
+                $menu.find(".previewAgg").removeClass("unavailable");
+            } else {
+                $menu.find(".previewAgg").addClass("unavailable");
+            }
+        }
+        return classes;
     }
 }

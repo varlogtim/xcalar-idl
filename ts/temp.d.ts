@@ -688,6 +688,9 @@ declare namespace CommonTxtTstr {
     export var LeaveWarn: string;
     export var SelectAll: string;
     export var NumCol: string;
+    export var Renamed: string;
+    export var Created: string;
+    export var Removed: string;
 }
 
 declare namespace ProjectTStr {
@@ -1049,6 +1052,7 @@ declare namespace SQLTStr {
     export var MaximizeTable: string;
     export var SortTableCols: string;
     export var ResizeCols: string;
+    export var EditDescription: string;
 }
 
 declare namespace DagTStr {
@@ -1057,6 +1061,8 @@ declare namespace DagTStr {
     export var RemoveAllMsg: string;
     export var NewTab: string;
     export var RemoveTab: string;
+    export var EditDescription: string;
+    export var AddDescription: string;
 }
 
 declare namespace UnionTStr {

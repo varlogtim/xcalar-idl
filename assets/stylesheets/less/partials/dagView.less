@@ -955,8 +955,19 @@
         .description, .configureNode, .previewTable, .viewSchema, .autoAlign {
             display: list-item;
         }
+        .previewAgg {
+            display: none;
+        }
         &.multiple {
             .description, .configureNode, .previewTable, .viewSchema {
+                display: none;
+            }
+        }
+        &.agg {
+            .previewAgg {
+                display: list-item;
+            }
+            .previewTable {
                 display: none;
             }
         }

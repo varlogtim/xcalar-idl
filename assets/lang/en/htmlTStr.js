@@ -1374,6 +1374,7 @@ module.exports = {
         "execute": "Execute",
         "executeAll": "Execute All",
         "previewTable": "Preview Table",
+        "previewResults": "Preview Table",
         "autoAlign": "Auto Align",
         "copy": "Copy",
         "cut": "Cut",

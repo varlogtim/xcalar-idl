@@ -2,11 +2,11 @@ class DagNodeAggregate extends DagNode {
     protected input: DagNodeAggregateInput;
     private aggVal: string | number; // non-persistent
 
-    public constructor(options: DagNodeInfo) {
+    public constructor(options: DagNodeAggregateInfo) {
         super(options);
         this.type = DagNodeType.Aggregate;
         this.allowAggNode = true;
-        this.aggVal = null;
+        this.aggVal = options.aggVal || null;
         this.minParents = 1;
     }
 
@@ -58,5 +58,13 @@ class DagNodeAggregate extends DagNode {
     protected _clearConnectionMeta(): void {
         super._clearConnectionMeta();
         this.setAggVal(null);
+    }
+
+    protected _getSerializeInfo():DagNodeAggregateInfo {
+        const serializedInfo: DagNodeAggregateInfo = <DagNodeAggregateInfo>super._getSerializeInfo();
+        if (this.aggVal != null) {
+            serializedInfo.aggVal = this.aggVal;
+        }
+        return serializedInfo;
     }
 }

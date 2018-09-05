@@ -81,8 +81,10 @@ class DagExecute {
         const params: DagNodeAggregateInput = node.getParam();
         const evalStr: string = params.evalString;
         const tableName: string = this._getParentNodeTable(0);
-        const dstAggName: string = params.dest;
-
+        let dstAggName: string = params.dest;
+        if (dstAggName.startsWith(gAggVarPrefix)) {
+            dstAggName = dstAggName.substring(1);
+        }
         XIApi.aggregateWithEvalStr(this.txId, evalStr, tableName, dstAggName)
         .then((aggRes) => {
             node.setAggVal(aggRes);
