@@ -941,15 +941,20 @@
             margin-right: 8px;
             display: inline-block;
             width: 10px;
-            &.xi-duplicate, &.xi-play-circle, &.xi-copy-clipboard {
+            &.xi-duplicate, &.xi-play-circle, &.xi-copy, &.xi-copy-clipboard {
                 font-size: 11px;
             }
-            &.xi-select-mode {
+            &.xi-select-mode, &.xi-cut {
                 font-size: 12px;
             }
             &.xi-close-no-circle {
                 font-size: 8px;
                 color: @color-background-error;
+            }
+            &.xi-rearrange {
+                font-size: 13px;
+                margin-left: -2px;
+                margin-right: 10px;
             }
         }
     }
