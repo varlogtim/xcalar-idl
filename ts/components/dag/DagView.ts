@@ -662,14 +662,21 @@ namespace DagView {
             }
             startingWidth = (maxWidth + 1);
         }
-        const graphHeight = autoVertSpacing * (startingWidth - 1) + vertPadding;
-        const graphWidth = autoHorzSpacing * overallMaxDepth  + horzPadding;
-        // DagView.moveNodes(allNodeInfos, {
-        //     x: graphWidth,
-        //     y: graphHeight
-        // });
-        // XXX TODO size graph according to comments and dag node positions
-        DagView.moveNodes(allNodeInfos);
+        const graphHeight = autoVertSpacing * (startingWidth - 1);
+        const graphWidth = autoHorzSpacing * overallMaxDepth;
+        let maxX = graphWidth;
+        let maxY = graphHeight;
+        const comments = activeDag.getAllComments();
+        comments.forEach((comment) => {
+            const pos = comment.getPosition();
+            const dimensions = comment.getDimensions();
+            maxX = Math.max(maxX, pos.x + dimensions.width);
+            maxY = Math.max(maxY, pos.y + dimensions.height);
+        });
+        DagView.moveNodes(allNodeInfos, {
+            x: maxX + horzPadding,
+            y: maxY + vertPadding
+        });
     }
 
     export function getAllNodes(includeComments?: boolean): JQuery {
