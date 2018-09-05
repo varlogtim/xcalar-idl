@@ -954,7 +954,7 @@ window.JSONModal = (function($, JSONModal) {
             try {
                 jsonObj = JSON.parse(text);
             } catch (error) {
-                var rowNum = xcHelper.parseRowNum($jsonTd);
+                var rowNum = xcHelper.parseRowNum($jsonTd.closest('tr')) + 1;
                 var msg = xcHelper.replaceMsg(JsonModalTStr.SyntaxErrorDesc, {
                     row: rowNum
                 });

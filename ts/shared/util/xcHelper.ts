@@ -278,7 +278,11 @@ namespace xcHelper {
      * @param value
      * @param fnf
      */
-    export function parseJsonValue(value: any, fnf?: boolean): string {
+    export function parseJsonValue(
+        value: any,
+        fnf?: boolean,
+        escapeTab?: boolean
+    ): string {
         if (fnf) {
             value = '<span class="undefined" data-toggle="tooltip" ' +
                     'data-placement="bottom" ' +
@@ -305,7 +309,7 @@ namespace xcHelper {
             }
             // escape < & > so external html doesn't get injected
             if (typeof value === 'string') {
-                value = xcHelper.escapeHTMLSpecialChar(value);
+                value = xcHelper.escapeHTMLSpecialChar(value, escapeTab);
             }
         }
         return value;

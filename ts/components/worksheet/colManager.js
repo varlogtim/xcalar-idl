@@ -1681,7 +1681,7 @@ window.ColManager = (function($, ColManager) {
         }
 
         // formatting
-        var parsedVal = xcHelper.parseJsonValue(tdValue, knf);
+        var parsedVal = xcHelper.parseJsonValue(tdValue, knf, true);
         var formatVal = parsedVal;
         var format = progCol.getFormat();
 
