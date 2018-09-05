@@ -117,7 +117,7 @@ class KVStore {
             if (DF.wasRestored()) {
                 KVStore.ephMetaInfos.update();
                 const ephStore = new KVStore(KVStore.getKey("gEphStorageKey"), gKVScope.GLOB);
-                return ephStore.put(JSON.stringify(KVStore.ephMetaInfos), false);
+                return ephStore.put(JSON.stringify(KVStore.ephMetaInfos), true);
             } else {
                 // if df wasn't restored yet, we don't want to commit empty
                 // ephMetaInfos
