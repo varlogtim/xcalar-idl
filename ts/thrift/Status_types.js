@@ -660,7 +660,13 @@ StatusT = {
   'StatusXpuConnAborted' : 651,
   'StatusPTUpdatePermDenied' : 652,
   'StatusPTCoalescePermDenied' : 653,
-  'StatusPTOwnerNodeMismatch' : 654
+  'StatusPTOwnerNodeMismatch' : 654,
+  'StatusNsRefToObjectDenied' : 655,
+  'StatusChecksumNotFound' : 656,
+  'StatusChecksumMismatch' : 657,
+  'StatusChecksumNotAdded' : 658,
+  'StatusRuntimeSetParamInvalid' : 659,
+  'StatusRuntimeSetParamNotSupported' : 660
 };
 StatusTStr = {
   0 : 'Success',
@@ -1310,14 +1316,20 @@ StatusTStr = {
   644 : 'Deserialization encountered an unknown IDL SHA',
   645 : 'Deserialization encountered wrong IDL version',
   646 : 'Incomplete session list (failed to read some sessions)',
-  647 : 'Publish table is inactive',
+  647 : 'Table being activated is dependant on inactive table',
   648 : 'Publish table is restoring',
   649 : 'Update requires a self select',
   650 : 'Required session name is missing',
   651 : 'XPU connection aborted due to internal error, try again later',
   652 : 'Publish table permission denied, since update is being attempted by non-owner Session',
   653 : 'Publish table permission denied, since coalesce is being attempted by non-owner Session',
-  654 : 'Publish table owner node does not match the expected node'
+  654 : 'Publish table owner node does not match the expected node',
+  655 : 'Denied reference to Namespace object',
+  656 : 'Checksum not found',
+  657 : 'Checksum mismatch',
+  658 : 'Checksum not added',
+  659 : 'Invalid parameter for setting Runtime configuration',
+  660 : 'Setting Runtime configuration not supported'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -1967,12 +1979,18 @@ StatusTFromStr = {
   'Deserialization encountered an unknown IDL SHA' : 644,
   'Deserialization encountered wrong IDL version' : 645,
   'Incomplete session list (failed to read some sessions)' : 646,
-  'Publish table is inactive' : 647,
+  'Table being activated is dependant on inactive table' : 647,
   'Publish table is restoring' : 648,
   'Update requires a self select' : 649,
   'Required session name is missing' : 650,
   'XPU connection aborted due to internal error, try again later' : 651,
   'Publish table permission denied, since update is being attempted by non-owner Session' : 652,
   'Publish table permission denied, since coalesce is being attempted by non-owner Session' : 653,
-  'Publish table owner node does not match the expected node' : 654
+  'Publish table owner node does not match the expected node' : 654,
+  'Denied reference to Namespace object' : 655,
+  'Checksum not found' : 656,
+  'Checksum mismatch' : 657,
+  'Checksum not added' : 658,
+  'Invalid parameter for setting Runtime configuration' : 659,
+  'Setting Runtime configuration not supported' : 660
 };

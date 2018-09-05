@@ -10,6 +10,12 @@ XcalarEvalArgTypeT = {
   'RequiredArg' : 1,
   'VariableArg' : 2
 };
+AccumulatorTypeT = {
+  'AccumulatorMax' : 0,
+  'AccumulatorMin' : 1,
+  'AccumulatorSum' : 2,
+  'AccumulatorCount' : 3
+};
 XcalarEvalArgTypeTStr = {
   0 : 'optional',
   1 : 'required',
@@ -19,4 +25,16 @@ XcalarEvalArgTypeTFromStr = {
   'optional' : 0,
   'required' : 1,
   'variable' : 2
+};
+AccumulatorTypeTStr = {
+  0 : 'max',
+  1 : 'min',
+  2 : 'sum',
+  3 : 'count'
+};
+AccumulatorTypeTFromStr = {
+  'max' : 0,
+  'min' : 1,
+  'sum' : 2,
+  'count' : 3
 };

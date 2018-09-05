@@ -141,7 +141,22 @@ declare function xcalarExport(
     numColumns: number,
     columns: any[],
     exportName: string
-): XDPromise<{ statue: StatusT }>;
+): XDPromise<{ status: StatusT }>;
+
+declare function xcalarDriverCreate(
+    thriftHandle: ThriftHandler,
+    driverName: string,
+    driverSource: string
+): XDPromise<any>;
+
+declare function xcalarDriverDelete(
+    thriftHandle: ThriftHandler,
+    driverName: string
+): XDPromise<any>;
+
+declare function xcalarDriverList(
+    thriftHandle: ThriftHandler
+): XDPromise<any>;
 
 declare function xcalarDeleteDagNodes(
     thriftHandle: ThriftHandler,
@@ -264,6 +279,15 @@ declare function xcalarSetConfigParam(
     thriftHandle: ThriftHandler,
     paramName: string,
     paramValue: string
+): XDPromise<any>;
+
+declare function xcalarRuntimeGetParam(
+    thriftHandle: ThriftHandler
+): XDPromise<any>;
+
+declare function xcalarRuntimeSetParam(
+    thriftHandle: ThriftHandler,
+    schedParams: XcalarApiSchedParamT[]
 ): XDPromise<any>;
 
 declare function xcalarListDatasetUsers(
@@ -806,6 +830,13 @@ declare function xcalarRestoreTable(
 declare function xcalarCoalesce(
     thriftHandle: ThriftHandler,
     tableName: string
+): XDPromise<StatusT>;
+
+declare function xcalarPtChangeOwner(
+    thriftHandle: ThriftHandler,
+    publishTableName: string,
+    userIdName: string,
+    sessionName: string
 ): XDPromise<StatusT>;
 
 declare function setSessionName(

@@ -107,11 +107,13 @@ setupHostName = function(): void {
     }
     (window as any).hostname = hostname;
 
-    if ((window as any).planServer == null || (window as any).planServer === "") {
+    if ((window as any).planServer == null ||
+        (window as any).planServer === "") {
         (window as any).planServer = hostname + "/sql";
     }
 
-    if ((window as any).jupyterNotebooksPath == null || (window as any).jupyterNotebooksPath === "") {
+    if ((window as any).jupyterNotebooksPath == null ||
+        (window as any).jupyterNotebooksPath === "") {
         // window.jupyterNotebooksPath = "var/opt/xcalar/jupyterNotebooks/";
         (window as any).jupyterNotebooksPath = "jupyterNotebooks/";
     }
@@ -140,9 +142,12 @@ function thriftLog(
             continue;
         }
         let error: string = null;
-        let status: StatusT | number = null;      // Error from other thriftLog output or caused by Xcalar operation fails
-        let log: string = null;        // Exist with xcalarStatus
-        let httpStatus: number = null;  // Error caused by http connection fails
+        // Error from other thriftLog output or caused by Xcalar operation fails
+        let status: StatusT | number = null;
+        // Exist with xcalarStatus
+        let log: string = null;
+        // Error caused by http connection fails
+        let httpStatus: number = null;
         var output: any = null;
 
         if (TypeCheck.isNumber(errRes)) {
@@ -1278,6 +1283,80 @@ XcalarExport = function(
     return deferred.promise();
 };
 
+/** Creates a driver for a target. Similar to uploadUdf call.
+ * @param driverName Name of the driver
+ * @param driverSource Source code (python) of the driver
+ */
+XcalarDriverCreate = function(
+    driverName: string,
+    driverSource: string
+): XDPromise<any> {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarDriverCreate(tHandle, driverName, driverSource)
+    .then(deferred.resolve)
+    .fail(function (error) {
+        var thriftError = thriftLog("XcalarDriverCreate", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+/** Deletes a driver for a target.
+ * @param driverName Name of the driver
+ */
+XcalarDriverDelete = function(
+    driverName: string
+): XDPromise<any> {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarDriverDelete(tHandle, driverName)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarDriverDelete", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+/** Lists all drivers for targets.
+ */
+XcalarDriverList = function(): XDPromise<any> {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarDriverList(tHandle)
+    .then(deferred.resolve)
+    .fail(function(error) {
+        var thriftError = thriftLog("XcalarDriverList", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
 XcalarLockDataset = function(dsName: string): XDPromise<any> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -1857,6 +1936,61 @@ XcalarSetConfigParams = function(
     });
 
     return (deferred.promise());
+};
+
+/** Sets parameters for the runtime schedulers.
+ * Example:
+ * let latScheduler = new XcalarApiSchedParamT({schedName: "LatencyScheduler",
+ *                      cpusReservedInPercent: 70})
+ * let thScheduler = new XcalarApiSchedParamT({schedName: "ThroughputScheduler",
+ *                      cpusReservedInPercent: 30})
+ * XcalarRunTimeSetParam([latScheduler, thScheduler])
+ * 
+ * Note that you can only set these if you have more than 32 CPUs.
+ * @param schedParams Array of XcalarApiSchedParam, one for each scheduler.
+ */
+XcalarRuntimeSetParam = function(
+    schedParams: XcalarApiSchedParamT[]
+): XDPromise<any> {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarRuntimeSetParam(tHandle, schedParams)
+    .then(deferred.resolve)
+    .fail(function (error) {
+        var thriftError = thriftLog("XcalarRuntimeSetParam", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
+
+/** Gets parameters for the runtime schedulers.
+ */
+XcalarRuntimeGetParam = function(): XDPromise<any> {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+
+    xcalarRuntimeGetParam(tHandle)
+    .then(deferred.resolve)
+    .fail(function (error) {
+        var thriftError = thriftLog("XcalarRuntimeGetParam", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
 };
 
 // XXX NOT TESTED
@@ -5552,6 +5686,38 @@ XcalarCoalesce = function(pubTableName: string): XDPromise<StatusT> {
 
     return deferred.promise();
 }
+
+/** Changes the ownership for a Published table. This happens becauses today
+ * published tables have owners and only the owners are allowed to perform
+ * certain actions on the table. Only one user can perform this action at any
+ * time. Hence in order for another user to perform the action, the ownership
+ * has to be reassigned.
+ * @param publishTableName Name of the Published table
+ * @param userIdName User id of the user to assign to
+ * @param sessionName Session of the user to assign the ownership to
+ */
+XcalarPublishTableChangeOwner = function(
+    publishTableName: string,
+    userIdName: string,
+    sessionName: string
+): XDPromise<any> {
+    if ([null, undefined].indexOf(tHandle) !== -1) {
+        return PromiseHelper.resolve(null);
+    }
+
+    const deferred: XDDeferred<any> = PromiseHelper.deferred();
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
+    }
+    xcalarPtChangeOwner(tHandle, publishTableName, userIdName, sessionName)
+    .then(deferred.resolve)
+    .fail(function (error) {
+        var thriftError = thriftLog("xcalarPtChangeOwner", error);
+        deferred.reject(thriftError);
+    });
+
+    return deferred.promise();
+};
 
 if (typeof exports !== "undefined") {
     exports.TypeCheck = TypeCheck;

@@ -184,6 +184,81 @@ xcalarGetLicense = runEntity.xcalarGetLicense = function(thriftHandle) {
     return (deferred.promise());
 };
 
+xcalarRuntimeGetParamWorkItem = runEntity.xcalarRuntimeGetParamWorkItem = function() {
+    var workItem = new WorkItem();
+    workItem.api = XcalarApisT.XcalarApiRuntimeGetParam;
+    return (workItem);
+};
+
+xcalarRuntimeGetParam = runEntity.xcalarRuntimeGetParam = function(thriftHandle) {
+    var deferred = jQuery.Deferred();
+
+    if (verbose) {
+        console.log("xcalarRuntimeGetParam()");
+    }
+    var workItem = xcalarRuntimeGetParamWorkItem();
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+        var runtimeGetParamOutput = result.output.outputResult.runtimeGetParamOutput;
+        var log = result.output.hdr.log;
+        // No status
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(runtimeGetParamOutput);
+        }
+    })
+    .fail(function(error) {
+        console.log("xcalarRuntimeGetParam() caught exception:", error);
+        deferred.reject(handleRejection(error));
+    });
+
+    return (deferred.promise());
+};
+
+xcalarRuntimeSetParamWorkItem = runEntity.xcalarRuntimeSetParamWorkItem = function(schedParams) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+
+    workItem.api = XcalarApisT.XcalarApiRuntimeSetParam;
+    workItem.input.runtimeSetParamInput = new XcalarApiRuntimeSetParamInputT();
+    workItem.input.runtimeSetParamInput.schedParams = schedParams;
+    return (workItem);
+};
+
+xcalarRuntimeSetParam = runEntity.xcalarRuntimeSetParam = function(thriftHandle, schedParams) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarRuntimeSetParam() = " + JSON.stringify(schedParams) + ")");
+    }
+    var workItem = xcalarRuntimeSetParamWorkItem(schedParams);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(result);
+        }
+    })
+    .fail(function(error) {
+        console.log("xcalarRuntimeSetParam() caught exception:", error);
+        deferred.reject(handleRejection(error));
+    });
+
+    return (deferred.promise());
+};
+
 xcalarGetConfigParamsWorkItem = runEntity.xcalarGetConfigParamsWorkItem = function() {
     var workItem = new WorkItem();
     workItem.api = XcalarApisT.XcalarApiGetConfigParams;
@@ -577,6 +652,128 @@ xcalarTargetTypeList = runEntity.xcalarTargetTypeList = function(thriftHandle) {
     })
     .fail(function(jqXHR) {
         console.log("xcalarTargetTypeList() caught exception:", jqXHR);
+        deferred.reject({httpStatus: jqXHR.status});
+    });
+
+    return (deferred.promise());
+};
+
+xcalarDriverWorkItem = runEntity.xcalarDriverWorkItem = function(inJson) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+
+    workItem.api = XcalarApisT.XcalarApiDriver;
+    workItem.input.driverInput = new XcalarApiDriverInputT();
+    workItem.input.driverInput.inputJson = inJson;
+    return (workItem);
+};
+
+xcalarDriverCreate = runEntity.xcalarDriverCreate = function(thriftHandle, driverName, driverSource) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarDriverCreate(driverName = " + driverName + ")");
+    }
+
+    var inputObj = {
+        "func": "addDriver",
+        "driverName": driverName,
+        "driverSource": driverSource};
+
+    var workItem = xcalarDriverWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var driverOutput = result.output.outputResult.driverOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            return deferred.reject({xcalarStatus: status, log: log});
+        }
+
+        // driverOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        driverOutput = JSON.parse(driverOutput.outputJson);
+        driverOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+        deferred.resolve(driverOutput);
+    })
+    .fail(function(jqXHR) {
+        console.log("xcalarDriverCreate() caught exception:", jqXHR);
+        deferred.reject({httpStatus: jqXHR.status});
+    });
+
+    return (deferred.promise());
+};
+
+xcalarDriverDelete = runEntity.xcalarDriverDelete = function(thriftHandle, driverName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarDriverDelete(driverName = " + driverName + ")");
+    }
+
+    var inputObj = {
+        "func": "deleteDriver",
+        "driverName": driverName};
+
+    var workItem = xcalarDriverWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var driverOutput = result.output.outputResult.driverOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            return deferred.reject({xcalarStatus: status, log: log});
+        }
+
+        // driverOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        driverOutput = JSON.parse(driverOutput.outputJson);
+        driverOutput.timeElapsed = result.output.hdr.elapsed.milliseconds;
+        deferred.resolve(driverOutput);
+    })
+    .fail(function(jqXHR) {
+        console.log("xcalarDriverDelete() caught exception:", jqXHR);
+        deferred.reject({httpStatus: jqXHR.status});
+    });
+
+    return (deferred.promise());
+};
+
+xcalarDriverList = runEntity.xcalarDriverList = function(thriftHandle) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarDriverList()");
+    }
+
+    var inputObj = {"func": "listDrivers"};
+
+    var workItem = xcalarDriverWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var driverOutput = result.output.outputResult.driverOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            return deferred.reject({xcalarStatus: status, log: log});
+        }
+
+        // driverOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        driverOutput = JSON.parse(driverOutput.outputJson);
+        deferred.resolve(driverOutput);
+    })
+    .fail(function(jqXHR) {
+        console.log("xcalarDriverList() caught exception:", jqXHR);
         deferred.reject({httpStatus: jqXHR.status});
     });
 
@@ -2507,6 +2704,49 @@ xcalarRestoreTable = runEntity.xcalarRestoreTable = function(thriftHandle, table
     })
     .fail(function(error) {
         console.log("xcalarRestoreTable() caught exception:", error);
+        deferred.reject(handleRejection(error));
+    });
+
+    return (deferred.promise());
+};
+
+xcalarPtChangeOwnerWorkItem = runEntity.xcalarPtChangeOwnerWorkItem = function(publishTableName, userIdName, sessionName) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+    workItem.apiVersion = 0;
+    workItem.api = XcalarApisT.XcalarApiPtChangeOwner;
+    workItem.input.ptChangeOwnerInput = new XcalarApiPtChangeOwnerInputT();
+    workItem.input.ptChangeOwnerInput.publishTableName = publishTableName;
+    workItem.input.ptChangeOwnerInput.userIdName = userIdName;
+    workItem.input.ptChangeOwnerInput.sessionName = sessionName;
+
+    return (workItem);
+};
+
+xcalarPtChangeOwner = runEntity.xcalarPtChangeOwner = function(thriftHandle, publishTableName, userIdName, sessionName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarPtChangeOwner(publishTableName = " + publishTableName +
+                    ", userIdName = " + userIdName +
+                    ", sessionName = " + sessionName + ")");
+    }
+    var workItem = xcalarPtChangeOwnerWorkItem(publishTableName, userIdName, sessionName);
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            deferred.reject({xcalarStatus: status, log: log});
+        } else {
+            deferred.resolve(status);
+        }
+    })
+    .fail(function(error) {
+        console.log("xcalarPtChangeOwner() caught exception:", error);
         deferred.reject(handleRejection(error));
     });
 

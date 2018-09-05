@@ -103,7 +103,9 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             })
             .fail(function(error) {
                 console.error(error, " failed");
-                test.fail(deferred, testName, currentTestNumber, error);
+                setTimeout(function() {
+                    test.fail(deferred, testName, currentTestNumber, error);
+                }, 1000*60*60*60);
             });
         }
     }

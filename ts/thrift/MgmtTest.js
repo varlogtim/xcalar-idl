@@ -641,6 +641,40 @@ window.Function.prototype.bind = function() {
         });
     }
 
+    function testDriver(test) {
+        var driverName = "mgmtdtest driver";
+        var driverSource = "import xcalar.container.driver.base as driver\n" +
+            "@driver.register_export_driver(name=\"mgmtdtest driver\")\n" +
+            "@driver.param(name=\"param 1\", desc=\"test driver param2\", optional=True)\n" +
+            "def driver(): return";
+        // Add driver
+        xcalarDriverCreate(thriftHandle, driverName, driverSource)
+        .then(function() {
+            // Get list of keys using this keyname as a regex
+            return xcalarDriverList(thriftHandle);
+        })
+        .then(function(driverList) {
+            var driverFound = false;
+            for (var ii = 0; ii < driverList.length; ii++) {
+                if (driverList[ii].name === driverName) {
+                    // Spot check the driver
+                    test.assert(driverList[ii].params[0].name == "param 1");
+                    driverFound = true;
+                    break;
+                }
+            }
+            test.assert(driverFound);
+            return xcalarDriverDelete(thriftHandle, driverName);
+        })
+        .done(function(status) {
+            printResult(status);
+            test.pass();
+        })
+        .fail(function(result) {
+            test.fail(StatusTStr[result["xcalarStatus"]]);
+        });
+    }
+
     function testLoad(test) {
         var sourceArgs = new DataSourceArgsT();
         sourceArgs.targetName = targetName;
@@ -4226,6 +4260,7 @@ window.Function.prototype.bind = function() {
     addTestCase(testFuncDriverRun, "runFuncTests", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testTarget, "test target operations", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testListTargetTypes, "test target types", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testDriver, "test driver operations", defaultTimeout, TestCaseEnabled, "");
 
     addTestCase(testTxnLog, "Test Txn logging", defaultTimeout, TestCaseEnabled, "10624");
 

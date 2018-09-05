@@ -142,7 +142,11 @@ XcalarApisT = {
   'XcalarApiCoalesce' : 133,
   'XcalarApiUserDetach' : 134,
   'XcalarApiSessionActivate' : 135,
-  'XcalarApiFunctionInvalid' : 136
+  'XcalarApiPtChangeOwner' : 136,
+  'XcalarApiDriver' : 137,
+  'XcalarApiRuntimeSetParam' : 138,
+  'XcalarApiRuntimeGetParam' : 139,
+  'XcalarApiFunctionInvalid' : 140
 };
 XcalarApisTStr = {
   0 : 'XcalarApiUnknown',
@@ -281,7 +285,11 @@ XcalarApisTStr = {
   133 : 'XcalarApiCoalesce',
   134 : 'XcalarApiUserDetach',
   135 : 'XcalarApiSessionActivate',
-  136 : 'XcalarApiFunctionInvalid'
+  136 : 'XcalarApiPtChangeOwner',
+  137 : 'XcalarApiDriver',
+  138 : 'XcalarApiRuntimeSetParam',
+  139 : 'XcalarApiRuntimeGetParam',
+  140 : 'XcalarApiFunctionInvalid'
 };
 XcalarApisTFromStr = {
   'XcalarApiUnknown' : 0,
@@ -420,5 +428,9 @@ XcalarApisTFromStr = {
   'XcalarApiCoalesce' : 133,
   'XcalarApiUserDetach' : 134,
   'XcalarApiSessionActivate' : 135,
-  'XcalarApiFunctionInvalid' : 136
+  'XcalarApiPtChangeOwner' : 136,
+  'XcalarApiDriver' : 137,
+  'XcalarApiRuntimeSetParam' : 138,
+  'XcalarApiRuntimeGetParam' : 139,
+  'XcalarApiFunctionInvalid' : 140
 };
