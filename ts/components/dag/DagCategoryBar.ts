@@ -86,8 +86,8 @@ class DagCategoryBar {
 
         const categoryColorMap = {};
         categoryColorMap[DagCategoryType.Favorites] = "#BBC7D1";
-        categoryColorMap[DagCategoryType.In] = "#E7DC98";
-        categoryColorMap[DagCategoryType.Out] = "#F4B48A";
+        categoryColorMap[DagCategoryType.In] = "#F4B48A";
+        categoryColorMap[DagCategoryType.Out] = "#E7DC98";
         categoryColorMap[DagCategoryType.Value] = "#AACE8F";
         categoryColorMap[DagCategoryType.Operations] = "#7FD4B5";
         categoryColorMap[DagCategoryType.Column] = "#89D0E0";

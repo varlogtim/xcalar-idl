@@ -39,6 +39,7 @@ namespace DagView {
      * panel closes.
      */
     export function show(): void {
+        $("#container").addClass("activePanel-modelingDagPanel");
         DagCategoryBar.Instance.showOrHideArrows();
 
         $(window).on("resize.dagViewResize", function() {
@@ -111,6 +112,7 @@ namespace DagView {
     export function hide(): void {
         $(window).off(".dagViewResize");
         $(document).off(".dataflowPanel");
+        $("#container").removeClass("activePanel-modelingDagPanel");
     }
 
     /**

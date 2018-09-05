@@ -1,18 +1,26 @@
+#dagViewContent {
+    padding: 0 0 0 0;
+}
+
 #dagViewBar {
     .flex-direction(row);
     color: #44515c;
 
     // TODO: move to constants.less when colors are finalized
-    @color-border-bar: #D4DCE3;
+    @color-title: #849CB0;
+    @color-border-bar: #849CB0;
     @color-connector: #BBC7D1;
     @color-play: #49DAA0;
     @color-stop: #FF6E57;
-    box-shadow: none;
-    border-bottom: 1px solid @color-border-bar;
+    background-color: @color-bg-topBarGray2;
+    box-shadow: 0px 0.25px 0px @color-border-bar;
     z-index: 0;
     min-height: @height-topBar;
     max-height: 50px;
-    padding-right: 45px;
+
+    #dagViewTitle {
+        color: @color-title;
+    }
 
     .topButtons {
         float: right;
@@ -27,7 +35,7 @@
         .icon {
             .vertical-align;
             opacity: @opacity-unhover;
-            color: @color-connector;
+            color: @color-border-bar;
             font-size: 18px;
         }
 
@@ -47,6 +55,23 @@
                 color: @color-stop;
             }
         }
+        &.undo, &.redo {
+            &.disabled {
+                cursor: not-allowed;
+                .icon {
+                    color: @color-connector;
+                }
+            }
+            &.repeatable {
+                cursor: pointer;
+            }
+            &.locked {
+                cursor: not-allowed;
+                .icon {
+                    color: @color-connector;
+                }
+            }
+        }
     }
 
     .divider {
@@ -55,27 +80,6 @@
         margin: 0px 5px;
         .vertical-align;
         background-color: @color-border-bar;
-    }
-
-    .undo, .redo {
-        &.disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-        &.repeatable {
-            cursor: pointer;
-            opacity: 0.6;
-            &:hover {
-                opacity: 0.8;
-            }
-        }
-        &.locked {
-            opacity: 0.3;
-            cursor: not-allowed;
-            &:hover {
-                opacity: 0.3;
-            }
-        }
     }
 }
 
@@ -98,8 +102,8 @@
         @search-width: 140px;
 
         .size(@min-height: @category-height);
-        background-color: @color-bg-white-eight;
-        border-bottom: 1px solid @color-border-bar;
+        background-color: @color-bg-topBarGray2;
+        box-shadow: 0px 0.25px 0px @color-border-operator;
         line-height: @category-height;
         .flex-display;
 
@@ -123,7 +127,8 @@
                 float: left;
                 .size(@height: 25px, @width: @search-width - 25px);
                 font-size: 13px;
-                border-color: @color-border-white-five;
+                color: #44515c;
+                border-color: @color-border-softGray;
                 background-color: @color-white;
                 padding: 0 6px;
             }
@@ -133,7 +138,7 @@
                 font-size: 14px;
                 line-height: 25px;
                 box-sizing: border-box;
-                border: 1px solid @color-border-white-five;
+                border: 1px solid @color-border-softGray;
                 border-left: none;
                 text-align: center;
                 background-color: @color-white;
@@ -265,7 +270,13 @@
     .operatorBar {
         .size(@height: 50px, @min-height: 50px);
         background: @color-white;
-        border-bottom: 1px solid @color-border-bar;
+        box-shadow: 0px 0.25px 0px @color-border-operator;
+        z-index: 2;
+
+        .operatorWrap {
+            height: 50px;
+            overflow: hidden;
+        }
 
         .category {
             display: none;
@@ -791,13 +802,15 @@
     overflow-y: hidden;
     white-space:nowrap;
     z-index: 1;
+    background-color: @color-bg-topBarGray2;
 
     .scrollArea {
         position: absolute;
-        width: 10px;
-        background-color: rgba(0,0,0,0.1);
+        width: @tabHeight;
+        background-color: @color-bg-topBarGray2;
         opacity: 0;
         z-index: 1;
+        margin-top: 1px; // to not interfer with categoryBar box shadow
         .transition(opacity 0.4s ease-in-out 0s);
 
         &.active {
@@ -817,7 +830,10 @@
         }
 
         &.top {
-            z-index: 100;
+            z-index: 2;
+            .arrow {
+                width: @tabHeight - 2px;
+            }
         }
 
         &.bottom {
@@ -826,12 +842,12 @@
 
         .arrow {
             width: 100%;
-            height: 20px;
+            height: @tabHeight - 1;
+            line-height: @tabHeight - 1;
             font-size: 12px;
             text-align: center;
             pointer-events: initial;
-            opacity: @opacity-unhover;
-            color: @color-white;
+            color: @color-font-edge;
         }
     }
 
@@ -840,12 +856,11 @@
         flex: 0 0 auto;
         .size(@height: 100%);
         .font(@size: 12px,
-            @color: #849CB0,
+            @color: #627483,
             @line-height: @tabHeight,
             @align: center);
-        border-right: 1px solid @color-mercury;
-        border-top: 1px solid @color-mercury;
-        background-color: @color-iron;
+        border-right: 1px solid @color-bg-topBarGray2;
+        background-color: #DBE1E6;
         padding: 0px 12px;
         .noSelection;
         .textOverflow;
@@ -868,6 +883,7 @@
 
         .name {
             float:left;
+            letter-spacing: 0.2px;
 
             .xc-input {
                 height: 17px;
@@ -880,10 +896,10 @@
 
         .after {
             display: inline-block;
-            padding-left: 6px;
-            margin-right: -7px;
+            padding-left: 10px;
+            margin-right: 0px;
             .icon {
-                font-size: 10px;
+                font-size: 8px;
             }
         }
     }
@@ -896,16 +912,25 @@
     }
 }
 
-#container.formOpen {
-    #dagNodeMenu {
-        li {
-            display: none;
+#container {
+    &.formOpen {
+        #dagNodeMenu {
+            li {
+                display: none;
+            }
+            .exitOp {
+                display: list-item;
+            }
         }
-        .exitOp {
-            display: list-item;
+    }
+    &.activePanel-modelingDagPanel {
+        #userBox {
+            background-color: transparent;
         }
     }
 }
+
+
 
 #dagNodeMenu {
     background-color: @color-white;
