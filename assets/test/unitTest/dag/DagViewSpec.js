@@ -28,7 +28,7 @@ describe("DagView Test", () => {
             expect($dagView.find(".dataflowArea .operator").length).to.equal(0);
         });
         it("correct elements should be present", function() {
-            expect($dagView.find(".dataflowArea.active").children().length).to.equal(3);
+            expect($dagView.find(".dataflowArea.active").children().length).to.equal(4);
             expect($dagView.find(".dataflowArea.active .sizer").length).to.equal(1);
             expect($dagView.find(".dataflowArea.active .operatorSvg").length).to.equal(1);
         });
@@ -70,11 +70,11 @@ describe("DagView Test", () => {
             let top;
             const cacheFn = DagView.moveNodes;
             let called = false;
-            DagView.moveNodes = function(ids, coors) {
-                expect(ids.length).to.equal(1);
-                expect(ids[0]).to.equal($operator.data("nodeid"));
-                expect(coors[0].x).to.equal(left + 40);
-                expect(coors[0].y).to.equal(top + 20);
+            DagView.moveNodes = function(nodeInfos) {
+                expect(nodeInfos.length).to.equal(1);
+                expect(nodeInfos[0].id).to.equal($operator.data("nodeid"));
+                expect(nodeInfos[0].position.x).to.equal(left + 40);
+                expect(nodeInfos[0].position.y).to.equal(top + 20);
                 called = true;
             };
             $operator = $dfWrap.find(".dataflowArea.active .operator").eq(0);
@@ -83,7 +83,6 @@ describe("DagView Test", () => {
             left = parseInt(parts[1]);
             top = parseInt(parts[2]);
             var e = $.Event('mousedown', {pageX: 100, pageY: 100, which: 1});
-
 
             $operator.find(".main").trigger(e);
 
@@ -107,8 +106,7 @@ describe("DagView Test", () => {
         it("DagView.moveNode should work", function(done) {
             const $operator = $dfWrap.find(".dataflowArea.active .operator").eq(0);
             const nodeId = $operator.data("nodeid");
-
-            DagView.moveNodes([nodeId], [{x: 220, y: 240}])
+            DagView.moveNodes([{type: "dagNode", id: nodeId, position: {x: 220, y: 240}}])
             .always(function() {
                 const dag = DagView.getActiveDag();
                 expect(dag.getNode(nodeId).getPosition().x).to.equal(220);

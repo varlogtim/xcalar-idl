@@ -1,4 +1,5 @@
 type DagNodeId = string;
+type CommentNodeId = string;
 
 interface DagNodeInfo {
     type: DagNodeType;
@@ -125,3 +126,9 @@ interface StoredDags {
 
 /* ==== End of interfaces related to DagList and DagTabs ==== */
 
+interface CommentInfo {
+    id?: string;
+    text?: string;
+    position : Coordinate;
+    dimensions?: Dimensions;
+}

@@ -1,6 +1,8 @@
 class DagGraph {
     private nodesMap: Map<DagNodeId, DagNode>;
     private removedNodesMap: Map<DagNodeId,{}>;
+    private commentsMap: Map<CommentNodeId, CommentNode>;
+    private removedCommentsMap: Map<CommentNodeId, CommentNode>;
     private display: Dimensions;
     private innerEvents: object;
     private lock: boolean;
@@ -9,6 +11,8 @@ class DagGraph {
     public constructor() {
         this.nodesMap = new Map();
         this.removedNodesMap = new Map();
+        this.commentsMap = new Map();
+        this.removedCommentsMap = new Map();
         this.display = {
             width: -1,
             height: -1
@@ -26,8 +30,13 @@ class DagGraph {
         this.nodesMap.forEach((value: DagNode, _key: DagNodeId) => {
             nodes.push(value.serialize());
         });
+        let comments: string[] = [];
+        this.commentsMap.forEach((comment) => {
+            comments.push(comment.serialize());
+        });
         return JSON.stringify({
             nodes: nodes,
+            comments: comments,
             display: this.display
         });
     }
@@ -42,7 +51,7 @@ class DagGraph {
         if (serializedGraph == null) {
             return false;
         }
-        let graphJSON: {nodes:string[], display: Dimensions} = null;
+        let graphJSON: {nodes:string[], comments:string[], display: Dimensions} = null;
         try {
             graphJSON = JSON.parse(serializedGraph);
         } catch(error) {
@@ -70,6 +79,11 @@ class DagGraph {
         });
         // restore edges
         this.restoreConnections(connections);
+
+        graphJSON.comments.forEach((comment) => {
+            const commentNode = CommentNode.deserialize(comment);
+            this.commentsMap.set(commentNode.getId(), commentNode);
+        });
         return true;
     }
 
@@ -119,6 +133,17 @@ class DagGraph {
         this.removedNodesMap.delete(node.getId());
         this._traverseSwitchState(node);
         return node;
+    }
+
+    /**
+     * @returns {CommentNode}
+     * @param commentId
+     */
+    public addBackComment(commentId): CommentNode {
+        const comment = this.removedCommentsMap.get(commentId);
+        this.commentsMap.set(commentId, comment);
+        this.removedCommentsMap.delete(commentId);
+        return comment;
     }
 
     /**
@@ -308,6 +333,13 @@ class DagGraph {
     }
 
     /**
+     * @returns {Map<CommentNodeId, CommentNode>}
+     */
+    public getAllComments(): Map<CommentNodeId, CommentNode> {
+        return this.commentsMap;
+    }
+
+    /**
      * returns a topologically sorted array of dag nodes
      * @returns {DagNode[]}
      */
@@ -365,6 +397,35 @@ class DagGraph {
                 node.beConfiguredState();
             }
         });
+    }
+
+     /**
+     * create a new comment
+     * @param commentInfo
+     * @returns {CommentNode} dag node created
+     */
+    public newComment(commentInfo: CommentInfo): CommentNode {
+        const commentNode: CommentNode = new CommentNode(commentInfo);
+        this.commentsMap.set(commentNode.getId(), commentNode);
+        return commentNode;
+    }
+
+    /**
+     * @returns {CommentNode}
+     * @param commentId
+     */
+    public getComment(commentId) {
+        return this.commentsMap.get(commentId);
+    }
+
+    /**
+     *
+     * @param commentId
+     */
+    public removeComment(commentId) {
+        const comment = this.commentsMap.get(commentId);
+        this.removedCommentsMap.set(commentId, comment);
+        this.nodesMap.delete(commentId);
     }
 
     // XXX TODO, Idea is to do a topological sort first, then get the

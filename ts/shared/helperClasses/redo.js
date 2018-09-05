@@ -254,7 +254,7 @@ window.Redo = (function($, Redo) {
 
     redoFuncs[SQLOps.MoveOperations] = function(options) {
         DagTabManager.Instance.switchTabId(options.dataflowId);
-        DagView.moveNodes(options.nodeIds, options.newPositions);
+        DagView.moveNodes(options.nodeInfos);
         return PromiseHelper.resolve(null);
     };
 

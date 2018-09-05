@@ -10,8 +10,8 @@ namespace DagView {
     const vertPadding = 100;
     const nodeHeight = 28;
     const nodeWidth = 102;
-    const gridSpacing = 20;
     let clipboard = null;
+    export const gridSpacing = 20;
 
     export function setup(): void {
         if (gDionysus) {
@@ -31,6 +31,7 @@ namespace DagView {
         DagCategoryBar.Instance.setup();
         DagNodeMenu.setup();
         DagDatasetModal.setup();
+        DagComment.Instance.setup();
     }
 
     /**
@@ -58,7 +59,7 @@ namespace DagView {
             }
 
             e.preventDefault(); // default behaviour is to copy any selected text
-            DagView.copyNodes(DagView.getSelectedNodeIds(true));
+            DagView.copyNodes(DagView.getSelectedNodeIds(true, true));
         });
 
         $(document).on("cut.dataflowPanel", function(e) {
@@ -75,7 +76,7 @@ namespace DagView {
             }
 
             e.preventDefault(); // default behaviour is to copy any selected text
-            DagView.cutNodes(DagView.getSelectedNodeIds(true));
+            DagView.cutNodes(DagView.getSelectedNodeIds(true, true));
         });
 
          $(document).on("paste.dataflowPanel", function(e: JQueryEventObject){
@@ -96,7 +97,7 @@ namespace DagView {
             switch (e.which) {
                 case (keyCode.Backspace):
                 case (keyCode.Delete):
-                    DagView.removeNodes(DagView.getSelectedNodeIds(true));
+                    DagView.removeNodes(DagView.getSelectedNodeIds(true, true));
                     break;
                 default:
                     break;
@@ -173,6 +174,12 @@ namespace DagView {
             });
         });
 
+        const comments: Map<CommentNodeId, CommentNode> = activeDag.getAllComments();
+
+        comments.forEach((commentNode: CommentNode) => {
+            DagComment.Instance.drawComment(commentNode, $dfArea);
+        });
+
         _setupGraphEvents();
     }
 
@@ -189,29 +196,37 @@ namespace DagView {
     export function addBackNodes(nodeIds: DagNodeId[]): XDPromise<void>  {
         const $dfArea: JQuery = $dfWrap.find(".dataflowArea.active")
         // need to add back nodes in the reverse order they were deleted
-        $dfArea.find(".operator").removeClass("selected");
+        $dfArea.find(".selected").removeClass("selected");
         let maxXCoor: number = 0;
         let maxYCoor: number = 0;
         for (let i = nodeIds.length - 1; i >= 0; i--) {
             const nodeId: DagNodeId = nodeIds[i];
-            const node: DagNode = activeDag.addBackNode(nodeId);
-            _drawNode(node, $dfArea);
+            if (nodeId.startsWith("dag")) {
+                const node: DagNode = activeDag.addBackNode(nodeId);
+                _drawNode(node, $dfArea, true);
 
-            node.getParents().forEach((parentNode, index) => {
-                _drawConnection(parentNode.getId(), nodeId, index);
-            });
-
-            node.getChildren().forEach((childNode) => {
-                childNode.getParents().forEach((parent, index) => {
-                    if (parent === node) {
-                        _drawConnection(nodeId, childNode.getId(), index);
-                    }
+                node.getParents().forEach((parentNode, index) => {
+                    _drawConnection(parentNode.getId(), nodeId, index);
                 });
-            });
-            const coors = node.getPosition();
-            maxXCoor = Math.max(coors.x, maxXCoor);
-            maxYCoor = Math.max(coors.y, maxYCoor);
-            DagView.getNode(nodeId).addClass("selected");
+
+                node.getChildren().forEach((childNode) => {
+                    childNode.getParents().forEach((parent, index) => {
+                        if (parent === node) {
+                            _drawConnection(nodeId, childNode.getId(), index);
+                        }
+                    });
+                });
+                const coors = node.getPosition();
+                maxXCoor = Math.max(coors.x, maxXCoor);
+                maxYCoor = Math.max(coors.y, maxYCoor);
+            } else if (nodeId.startsWith("comment")) {
+                const comment = activeDag.addBackComment(nodeId);
+                DagComment.Instance.drawComment(comment, $dfArea, true);
+                const coors = comment.getPosition();
+                const dimensions = comment.getDimensions();
+                maxXCoor = Math.max(coors.x + dimensions.width, maxXCoor);
+                maxYCoor = Math.max(coors.y + dimensions.height, maxYCoor);
+            }
         }
         _setGraphDimensions({x: maxXCoor, y: maxYCoor});
         return activeDagTab.saveTab();
@@ -223,7 +238,7 @@ namespace DagView {
      * @param nodeInfo
      */
     export function addNode(nodeInfo: DagNodeInfo): XDPromise<void> {
-        $dfWrap.find(".operator").removeClass("selected");
+        $dfWrap.find(".selected").removeClass("selected");
         const $dfArea = $dfWrap.find(".dataflowArea.active");
 
         const node = activeDag.newNode(nodeInfo);
@@ -240,6 +255,20 @@ namespace DagView {
         return activeDagTab.saveTab();
     }
 
+    export function newComment(commentInfo: CommentInfo): XDPromise<void> {
+        commentInfo.position.x = Math.round(commentInfo.position.x / gridSpacing) * gridSpacing;
+        commentInfo.position.y = Math.round(commentInfo.position.y / gridSpacing) * gridSpacing;
+        const commentNode = activeDag.newComment(commentInfo);
+        const $dfArea = $dfWrap.find(".dataflowArea.active");
+        DagComment.Instance.drawComment(commentNode, $dfArea);
+        const dimensions = {
+            x: commentNode.getPosition().x + commentNode.getDimensions().width,
+            y: commentNode.getPosition().y + commentNode.getDimensions().height
+        };
+        _setGraphDimensions(dimensions);
+        return activeDagTab.saveTab();
+    }
+
     /**
      * DagView.removeNode
      * @param nodeId
@@ -251,13 +280,18 @@ namespace DagView {
             return PromiseHelper.reject();
         }
         nodeIds.forEach(function(nodeId) {
-            activeDag.removeNode(nodeId);
-            DagView.getNode(nodeId).remove();
-            $dagView.find('.edge[data-childnodeid="' + nodeId + '"]').remove();
-            $dagView.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function() {
-                const childNodeId = $(this).attr("data-childnodeid");
-                _removeConnection($(this), childNodeId);
-            });
+            if (nodeId.startsWith("dag")) {
+                activeDag.removeNode(nodeId);
+                DagView.getNode(nodeId).remove();
+                $dagView.find('.edge[data-childnodeid="' + nodeId + '"]').remove();
+                $dagView.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function() {
+                    const childNodeId = $(this).attr("data-childnodeid");
+                    _removeConnection($(this), childNodeId);
+                });
+            } else if (nodeId.startsWith("comment")) {
+                activeDag.removeComment(nodeId);
+                DagComment.Instance.removeComment(nodeId);
+            }
         });
 
         Log.add(SQLTStr.RemoveOperations, {
@@ -302,7 +336,7 @@ namespace DagView {
             }
             const $dfArea: JQuery = $dagView.find(".dataflowArea.active");
             const $operators = $dfArea.find(".operator");
-            $operators.removeClass("selected");
+            $dfArea.find(".selected").removeClass("selected");
 
             let positions = {};
             let minXCoor: number = $dfArea.width();
@@ -324,8 +358,14 @@ namespace DagView {
                 if (nodeInfo.display.y === minYCoor) {
                     minXCoor = Math.min(nodeInfo.display.x, minXCoor);
                 }
-                maxXCoor = Math.max(nodeInfo.display.x, maxXCoor);
-                maxYCoor = Math.max(nodeInfo.display.y, maxYCoor);
+                if (nodeInfo.dimensions) {
+                    const dimensions = nodeInfo.dimensions;
+                    maxXCoor = Math.max(nodeInfo.display.x + dimensions.width, maxXCoor);
+                    maxYCoor = Math.max(nodeInfo.display.y + dimensions.height, maxYCoor);
+                } else {
+                    maxXCoor = Math.max(nodeInfo.display.x, maxXCoor);
+                    maxYCoor = Math.max(nodeInfo.display.y, maxYCoor);
+                }
             });
 
             let origMinXCoor = minXCoor;
@@ -349,33 +389,44 @@ namespace DagView {
             maxYCoor += yDelta;
 
             const newNodeIds: DagNodeId[] = [];
-            const newNodes: DagNode[] = [];
+            const allNewNodeIds: DagNodeId[] = [];
             const oldNodeIdMap = {};
 
             clipboard.nodeInfos.forEach((nodeInfo) => {
                 nodeInfo = xcHelper.deepCopy(nodeInfo);
                 nodeInfo.display.x += xDelta;
                 nodeInfo.display.y += yDelta;
-                const newNode: DagNode = activeDag.newNode(nodeInfo);
-                newNodes.push(newNode);
-
-
-                const newNodeId: DagNodeId = newNode.getId();
-                oldNodeIdMap[nodeInfo.nodeId] = newNodeId;
-                newNodeIds.push(newNodeId);
-                _drawNode(newNode, $dfArea, true);
+                if (nodeInfo.nodeId.startsWith("dag")) {
+                    const newNode: DagNode = activeDag.newNode(nodeInfo);
+                    const newNodeId: DagNodeId = newNode.getId();
+                    oldNodeIdMap[nodeInfo.nodeId] = newNodeId;
+                    newNodeIds.push(newNodeId);
+                    allNewNodeIds.push(newNodeId);
+                    _drawNode(newNode, $dfArea, true);
+                } else if (nodeInfo.nodeId.startsWith("comment")) {
+                    const commentInfo = {
+                        text: nodeInfo.text,
+                        position: nodeInfo.display,
+                        dimensions: nodeInfo.dimensions
+                    };
+                    const commentNode = activeDag.newComment(commentInfo);
+                    allNewNodeIds.push(commentNode.getId());
+                    DagComment.Instance.drawComment(commentNode, $dfArea, true);
+                }
             });
 
             // restore connection to parents
             newNodeIds.forEach((newNodeId, i) => {
-                clipboard.nodeInfos[i].parentIds.forEach((parentId, j) => {
-                    if (parentId == null) {
-                        return; // skip empty parent slots
-                    }
-                    const newParentId = oldNodeIdMap[parentId];
-                    activeDag.connect(newParentId, newNodeId, j);
-                    _drawConnection(newParentId, newNodeId, j);
-                });
+                if (clipboard.nodeInfos[i].parentIds) {
+                    clipboard.nodeInfos[i].parentIds.forEach((parentId, j) => {
+                        if (parentId == null) {
+                            return; // skip empty parent slots
+                        }
+                        const newParentId = oldNodeIdMap[parentId];
+                        activeDag.connect(newParentId, newNodeId, j);
+                        _drawConnection(newParentId, newNodeId, j);
+                    });
+                }
             });
 
             // XXX scroll to selection if off screen
@@ -385,7 +436,7 @@ namespace DagView {
             Log.add(SQLTStr.CopyOperations, {
                 "operation": SQLOps.CopyOperations,
                 "dataflowId": activeDagTab.getId(),
-                "nodeIds": newNodeIds
+                "nodeIds": allNewNodeIds
             });
             return activeDagTab.saveTab();
         }
@@ -411,7 +462,7 @@ namespace DagView {
         parentNodeId: DagNodeId,
         childNodeId: DagNodeId,
         connectorIndex: number,
-        isReconnect: boolean
+        isReconnect?: boolean
     ): XDPromise<void> {
         let prevParentId = null;
         if (isReconnect) {
@@ -482,62 +533,83 @@ namespace DagView {
      * @param dagId
      * @param nodeIds
      */
-    export function moveNodes(nodeIds: DagNodeId[], positions: Coordinate[], graphDimensions?: Coordinate): XDPromise<void> {
+    export function moveNodes(
+        nodeInfos,
+        graphDimensions?: Coordinate
+    ): XDPromise<void> {
         let svg = d3.select("#dagView .dataflowArea.active .edgeSvg");
-        let oldPositions = [];
         let maxXCoor: number = 0;
         let maxYCoor: number = 0;
+        const $operatorArea = $dfWrap.find(".dataflowArea.active .operatorSvg");
+        const $commentArea: JQuery = $("#dagView .dataflowArea.active .commentArea");
 
-        nodeIds.forEach((nodeId, i) => {
-            const $el = DagView.getNode(nodeId);
-            oldPositions.push(xcHelper.deepCopy(activeDag.getNode(nodeId)
-                                                         .getPosition()));
-            activeDag.moveNode(nodeId, {
-                x: positions[i].x,
-                y: positions[i].y
-            });
+        nodeInfos.forEach((nodeInfo, i) => {
+            if (nodeInfo.type === "dagNode") {
+                const nodeId = nodeInfo.id;
+                const $el = DagView.getNode(nodeId);
 
+                nodeInfos[i].oldPosition = xcHelper.deepCopy(activeDag.getNode(nodeId)
+                                                            .getPosition())
+                activeDag.moveNode(nodeId, {
+                    x: nodeInfo.position.x,
+                    y: nodeInfo.position.y,
+                });
 
-            $el.attr("transform", "translate(" + positions[i].x + "," +
-                                            positions[i].y + ")");
+                $el.attr("transform", "translate(" + nodeInfo.position.x + "," +
+                                                    nodeInfo.position.y + ")");
 
-            maxXCoor = Math.max(positions[i].x, maxXCoor);
-            maxYCoor = Math.max(positions[i].y, maxYCoor);
+                maxXCoor = Math.max(nodeInfo.position.x, maxXCoor);
+                maxYCoor = Math.max(nodeInfo.position.y, maxYCoor);
 
-            // positions this element in front
-            $el.appendTo($dfWrap.find(".dataflowArea.active .operatorSvg"));
+                // positions this element in front
+                $el.appendTo($operatorArea);
 
-            // redraw all paths that go out from this node
-            $dagView.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function() {
-                const childNodeId: DagNodeId = $(this).attr("data-childnodeid");
-                let connectorIndex: number = parseInt($(this).attr("data-connectorindex"));
-                $(this).remove();
+                // redraw all paths that go out from this node
+                $dagView.find('.edge[data-parentnodeid="' + nodeId + '"]').each(function() {
+                    const childNodeId: DagNodeId = $(this).attr("data-childnodeid");
+                    let connectorIndex: number = parseInt($(this).attr("data-connectorindex"));
+                    $(this).remove();
 
-                _drawLineBetweenNodes(nodeId, childNodeId, connectorIndex, svg);
-            });
+                    _drawLineBetweenNodes(nodeId, childNodeId, connectorIndex, svg);
+                });
 
-            // redraw all paths that lead into this node
-            $dagView.find('.edge[data-childnodeid="' + nodeId + '"]').each(function() {
-                const parentNodeId = $(this).attr("data-parentnodeid");
-                let connectorIndex = parseInt($(this).attr("data-connectorindex"));
-                $(this).remove();
+                // redraw all paths that lead into this node
+                $dagView.find('.edge[data-childnodeid="' + nodeId + '"]').each(function() {
+                    const parentNodeId = $(this).attr("data-parentnodeid");
+                    let connectorIndex = parseInt($(this).attr("data-connectorindex"));
+                    $(this).remove();
 
-                _drawLineBetweenNodes(parentNodeId, nodeId, connectorIndex, svg);
-            });
+                    _drawLineBetweenNodes(parentNodeId, nodeId, connectorIndex, svg);
+                });
+            } else {
+                // comment node
+                const id = nodeInfo.id;
+                const comment = activeDag.getComment(id);
+                nodeInfos[i].oldPosition = xcHelper.deepCopy(comment.getPosition());
+                comment.setPosition(nodeInfo.position);
+                const $el = $("#dagView").find('.comment[data-nodeid="' + id + '"]');
+                $el.css({
+                    left: nodeInfo.position.x,
+                    top: nodeInfo.position.y
+                });
+                const dimensions = comment.getDimensions();
+                maxXCoor = Math.max(nodeInfo.position.x + dimensions.width, maxXCoor);
+                maxYCoor = Math.max(nodeInfo.position.y + dimensions.height, maxYCoor);
+
+                $el.appendTo($commentArea);
+            }
         });
+
         if (graphDimensions) {
             _setGraphDimensions(graphDimensions, true);
         } else {
             _setGraphDimensions({x: maxXCoor, y: maxYCoor});
         }
 
-
         Log.add(SQLTStr.MoveOperations, {
             "operation": SQLOps.MoveOperations,
             "dataflowId": activeDagTab.getId(),
-            "nodeIds": nodeIds,
-            "oldPositions": oldPositions,
-            "newPositions": positions
+            "nodeInfos": nodeInfos
         });
         return activeDagTab.saveTab();
     }
@@ -554,8 +626,7 @@ namespace DagView {
         }
 
         let startingWidth: number = 0;
-        const allNodeIds: DagNodeId[] = [];
-        const allCoors: Coordinate[] = [];
+        const allNodeInfos = [];
         let overallMaxDepth = 0;
 
         for (let i in treeGroups) {
@@ -580,36 +651,58 @@ namespace DagView {
             overallMaxDepth = Math.max(maxDepth - minDepth, overallMaxDepth);
 
             for (let j in nodes) {
-                allNodeIds.push(j);
-                allCoors.push({
-                    x: ((maxDepth - nodes[j].depth) * autoHorzSpacing) + gridSpacing,
-                    y: (nodes[j].width * autoVertSpacing) + gridSpacing
+                allNodeInfos.push({
+                    type: "dagNode",
+                    id: j,
+                    position: {
+                        x: ((maxDepth - nodes[j].depth) * autoHorzSpacing) + gridSpacing,
+                        y: (nodes[j].width * autoVertSpacing) + gridSpacing
+                    }
                 });
             }
             startingWidth = (maxWidth + 1);
         }
         const graphHeight = autoVertSpacing * (startingWidth - 1) + vertPadding;
         const graphWidth = autoHorzSpacing * overallMaxDepth  + horzPadding;
-        DagView.moveNodes(allNodeIds, allCoors, {
-            x: graphWidth,
-            y: graphHeight
-        });
+        // DagView.moveNodes(allNodeInfos, {
+        //     x: graphWidth,
+        //     y: graphHeight
+        // });
+        // XXX TODO size graph according to comments and dag node positions
+        DagView.moveNodes(allNodeInfos);
     }
 
-    export function getAllNodes(): JQuery {
-        return $dfWrap.find(".dataflowArea.active .operator");
+    export function getAllNodes(includeComments?: boolean): JQuery {
+        let $nodes = $dfWrap.find(".dataflowArea.active .operator");
+        if (includeComments) {
+            $nodes = $nodes.add($dfWrap.find(".dataflowArea.active .comment"));
+        }
+        return $nodes;
     }
 
-    export function getSelectedNodes(includeSelecting?: boolean): JQuery {
+    export function getSelectedNodes(
+        includeSelecting?: boolean,
+        includeComments?: boolean
+    ): JQuery {
         let selector = ".operator.selected";
         if (includeSelecting) {
             selector += ", .operator.selecting";
         }
+        if (includeComments) {
+            selector += ", .comment.selected";
+            if (includeSelecting) {
+                selector += ", .comment.selecting";
+            }
+        }
         return $dfWrap.find(".dataflowArea.active").find(selector);
     }
 
-    export function getSelectedNodeIds(includeSelecting?: boolean): DagNodeId[] {
-        const $nodes: JQuery = DagView.getSelectedNodes(includeSelecting);
+    export function getSelectedNodeIds(
+        includeSelecting?: boolean,
+        includeComments?: boolean
+    ): DagNodeId[] {
+        const $nodes: JQuery = DagView.getSelectedNodes(includeSelecting,
+                                                        includeComments);
         const nodeIds = [];
         $nodes.each(function() {
             nodeIds.push($(this).data("nodeid"));
@@ -784,9 +877,12 @@ namespace DagView {
     function _addEventListeners(): void {
 
         // moving node in dataflow area to another position
-        $dfWrap.on("mousedown", ".operator .main", function(event) {
+        $dfWrap.on("mousedown", ".operator .main, .comment", function(event) {
             const $opMain = $(this);
-            const $operator = $opMain.closest(".operator");
+            let $operator = $opMain.closest(".operator");
+            if (!$operator.length) {
+                $operator = $opMain;
+            }
 
             // if not shift clicking, deselect other nodes
             // if shift clicking, and this is selected, then deselect it
@@ -801,37 +897,60 @@ namespace DagView {
             if (event.which !== 1) {
                 return;
             }
+            if ($(event.target).closest(".ui-resizable-handle").length ||
+                $(event.target).is("textarea")) {
+                if (!event.shiftKey) {
+                    $dfWrap.find(".selected").removeClass("selected");
+                    $operator.addClass("selected");
+                }
+                return;
+            }
             const $dfArea = $dfWrap.find(".dataflowArea.active");
 
             new DragHelper({
                 event: event,
                 $element: $operator,
-                $elements: $operator.add($dfArea.find(".operator.selected")),
+                $elements: $operator.add($dfArea.find(".selected")),
                 $container: $dagView,
                 $dropTarget: $dfArea,
                 round: gridSpacing,
                 onDragStart: function(_$els) {
                 },
                 onDragEnd: function($els, _event, data) {
-                    let nodeIds: DagNodeId[] = [];
-                    $els.each(function() {
-                        const nodeId = $(this).data("nodeid");
-                        nodeIds.push(nodeId);
+                    let nodeInfos = [];
+                    $els.each(function(i) {
+                        const id = $(this).data("nodeid");
+                        if ($(this).hasClass("operator")) {
+                            nodeInfos.push({
+                                type: "dagNode",
+                                id: id,
+                                position: data.coors[i]
+                            });
+                        } else if ($(this).hasClass("comment")) {
+                            nodeInfos.push({
+                                type: "comment",
+                                id: id,
+                                position: data.coors[i]
+                            });
+                        }
                     });
-                    DagView.moveNodes(nodeIds, data.coors);
+                    DagView.moveNodes(nodeInfos);
                 },
                 onDragFail: function() {
                     // did not drag
                     if (!event.shiftKey) {
-                        $dfWrap.find(".operator").removeClass("selected");
+                        $dfWrap.find(".selected").removeClass("selected");
                         $operator.addClass("selected");
                     }
                     // if no drag, treat as right click and open menu
-                    let contextMenuEvent = $.Event("contextmenu", {
-                        pageX: event.pageX,
-                        pageY: event.pageY
-                    });
-                    $opMain.trigger(contextMenuEvent);
+
+                    if (!$opMain.hasClass("comment") && !event.shiftKey) {
+                        let contextMenuEvent = $.Event("contextmenu", {
+                            pageX: event.pageX,
+                            pageY: event.pageY
+                        });
+                        $opMain.trigger(contextMenuEvent);
+                    }
                 },
                 move: true
             });
@@ -1087,7 +1206,7 @@ namespace DagView {
 
         // drag select multiple nodes
         let $dfArea;
-        let $operators;
+        let $els;
         $dfWrap.on("mousedown", function(event) {
             if (event.which !== 1) {
                 return;
@@ -1096,7 +1215,8 @@ namespace DagView {
             $dfArea = $dfWrap.find(".dataflowArea.active");
 
             if ($target.is(".dataflowArea") || $target.is(".dataflowWrap") ||
-                 $target.is(".edgeSvg") || $target.is(".operatorSvg")) {
+                $target.is(".edgeSvg") || $target.is(".operatorSvg") ||
+                $target.is(".commentArea")) {
 
                 new RectSelction(event.pageX, event.pageY, {
                     "id": "dataflow-rectSelection",
@@ -1104,8 +1224,9 @@ namespace DagView {
                     "$scrollContainer": $dfWrap,
                     "onStart": function() {
                         $dfArea.addClass("drawing");
-                        $operators = $dfArea.find(".operator");
-                        $operators.removeClass("selected");
+                        $els = $dfArea.find(".operator");
+                        $els = $els.add($dfArea.find(".comment"));
+                        $els.removeClass("selected");
                     },
                     "onDraw": _drawRect,
                     "onEnd": _endDrawRect
@@ -1126,8 +1247,8 @@ namespace DagView {
             selectBottom: number,
             selectLeft: number
         ): void {
-            $operators.each(function() {
-                const $operator = $(this);
+            $els.each(function() {
+                const $el = $(this);
                 const opRect = this.getBoundingClientRect();
                 const opTop = opRect.top - bound.top;
                 const opLeft = opRect.left - bound.left;
@@ -1136,25 +1257,25 @@ namespace DagView {
                 if (opTop > selectBottom || opLeft > selectRight ||
                     opRight < selectLeft || opBottom < selectTop)
                 {
-                    $operator.removeClass("selecting");
+                    $el.removeClass("selecting");
                 } else {
-                    $operator.addClass("selecting");
+                    $el.addClass("selecting");
                 }
             });
         }
         function _endDrawRect(_event: JQueryEventObject): void {
             $dfArea.removeClass("drawing");
-            const $ops = $dfArea.find(".operator.selecting");
-            if ($ops.length === 0) {
-                $dfArea.find(".operator.selected").removeClass("selected");
+            const $selectedEls = $dfArea.find(".selecting");
+            if ($selectedEls.length === 0) {
+                $dfArea.find(".selected").removeClass("selected");
             } else {
-                $ops.each(function() {
+                $selectedEls.each(function() {
                     $(this).removeClass("selecting")
                            .addClass("selected");
                 });
             }
             $dfArea = null;
-            $operators = null;
+            $els = null;
         }
     }
 
@@ -1243,6 +1364,8 @@ namespace DagView {
         $node.appendTo($dfArea.find(".operatorSvg"));
         return $node;
     }
+
+
 
     function _drawConnection(parentNodeId, childNodeId, connectorIndex) {
         const $childNode: JQuery = DagView.getNode(childNodeId);
@@ -1450,44 +1573,54 @@ namespace DagView {
         xcHelper.copyToClipboard(" "); // need to have content to overwrite current clipboard
         let nodeInfos = [];
         nodeIds.forEach((nodeId) => {
-            const node: DagNode = activeDag.getNode(nodeId);
-            let parentIds: DagNodeId[] = [];
-            let numParents: number = node.getMaxParents();
-            let isMulti = false;
-            if (numParents === -1) {
-                isMulti = true;
-            }
-            let parents = node.getParents();
-            // for each loop skips over empty parents
-            for (let i = 0; i < parents.length; i++) {
-                const parent = parents[i];
-                if (parent) {
-                    const parentId: DagNodeId = parent.getId();
+            if (nodeId.startsWith("dag")) {
+                const node: DagNode = activeDag.getNode(nodeId);
+                let parentIds: DagNodeId[] = [];
+                let numParents: number = node.getMaxParents();
+                let isMulti = false;
+                if (numParents === -1) {
+                    isMulti = true;
+                }
+                let parents = node.getParents();
+                // for each loop skips over empty parents
+                for (let i = 0; i < parents.length; i++) {
+                    const parent = parents[i];
+                    if (parent) {
+                        const parentId: DagNodeId = parent.getId();
 
-                    if (nodeIds.indexOf(parentId) === -1) {
-                        // XXX check if this affects order of union input
+                        if (nodeIds.indexOf(parentId) === -1) {
+                            // XXX check if this affects order of union input
+                            if (numParents > 1 && !isMulti) {
+                                parentIds.push(null);
+                            }
+                        } else {
+                            parentIds.push(parentId);
+                        }
+                    } else {
                         if (numParents > 1 && !isMulti) {
                             parentIds.push(null);
                         }
-                    } else {
-                        parentIds.push(parentId);
-                    }
-                } else {
-                    if (numParents > 1 && !isMulti) {
-                        parentIds.push(null);
                     }
                 }
-            }
 
-            const nodeInfo = {
-                type: node.getType(),
-                input: xcHelper.deepCopy(node.getParam()),
-                description: node.getDescription(),
-                display: xcHelper.deepCopy(node.getPosition()),
-                nodeId: nodeId,
-                parentIds: parentIds
-            };
-            nodeInfos.push(nodeInfo);
+                const nodeInfo = {
+                    type: node.getType(),
+                    input: xcHelper.deepCopy(node.getParam()),
+                    description: node.getDescription(),
+                    display: xcHelper.deepCopy(node.getPosition()),
+                    nodeId: nodeId,
+                    parentIds: parentIds
+                };
+                nodeInfos.push(nodeInfo);
+            } else if (nodeId.startsWith("comment")) {
+                const comment: CommentNode = activeDag.getComment(nodeId);
+                nodeInfos.push({
+                    nodeId: nodeId,
+                    display: xcHelper.deepCopy(comment.getPosition()),
+                    dimensions: comment.getDimensions(),
+                    text: comment.getText()
+                });
+            }
         });
 
         clipboard = {

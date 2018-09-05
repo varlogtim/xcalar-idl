@@ -273,9 +273,10 @@ class DagTabManager{
         this._$dagTabArea.append(html);
         $(".dataflowWrap").append(
             '<div class="dataflowArea">\
-            <div class="sizer"></div>\
-            <svg class="edgeSvg"></svg>\
-            <svg class="operatorSvg"></svg>\
+                <div class="sizer"></div>\
+                <div class="commentArea"></div>\
+                <svg class="edgeSvg"></svg>\
+                <svg class="operatorSvg"></svg>\
             </div>'
         );
         if (this._keys.length > 1) {

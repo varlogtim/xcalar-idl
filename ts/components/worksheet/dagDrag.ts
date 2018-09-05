@@ -83,7 +83,8 @@ class DragHelper {
         this.scrollUpCounter = 0;
         this.scrollLeft = this.$dropTarget.parent().scrollLeft();
         this.scrollTop = this.$dropTarget.parent().scrollTop();
-        this.round = window["gDragRound"] || options.round ||  0;
+        this.round = window["gDragRound"] || options.round || 0;
+
         // gDragRound is temporarily used for testing
 
         const self = this;
@@ -252,13 +253,14 @@ class DragHelper {
             x: left - this.mouseDownCoors.x + this.customOffset.x,
             y: top - this.mouseDownCoors.y + this.customOffset.y
         };
-
-        this.$draggingEl = $('<div class="dragContainer" style="width:' +
-                            width + 'px;height:' + height + 'px;left:' + left +
-                            'px;top:' + top + 'px;">' +
-                            '<svg version="1.1" class="dragSvg" ' +
-                            'width="100%" height="100%"></svg>' +
-                            '</div>');
+        let html = '<div class="dragContainer" style="width:' +
+                        width + 'px;height:' + height + 'px;left:' + left +
+                        'px;top:' + top + 'px;">' +
+                        '<div class="innerDragContainer"></div>' +
+                        '<svg version="1.1" class="dragSvg" ' +
+                        'width="100%" height="100%"></svg>' +
+                    '</div>';
+        this.$draggingEl = $(html);
         this.currentDragCoor = {
             left: left,
             top: top,
@@ -267,7 +269,13 @@ class DragHelper {
         };
 
         const $clones: JQuery = this.$els.clone();
-        this.$draggingEl.find(".dragSvg").append($clones);
+        $clones.each(function() {
+            if ($(this).is("g") || $(this).is("rect") || $(this).is("polygon")){
+                self.$draggingEl.find(".dragSvg").append($(this));
+            } else {
+                self.$draggingEl.find(".innerDragContainer").append($clones);
+            }
+        });
 
         $clones.each(function(i: number) {
            let cloneLeft = self.origPositions[i].x - left;

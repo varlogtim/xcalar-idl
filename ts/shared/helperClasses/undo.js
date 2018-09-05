@@ -565,7 +565,15 @@ window.Undo = (function($, Undo) {
 
     undoFuncs[SQLOps.MoveOperations] = function(options) {
         DagTabManager.Instance.switchTabId(options.dataflowId);
-        DagView.moveNodes(options.nodeIds, options.oldPositions);
+        const nodeInfos = [];
+        options.nodeInfos.forEach(function(nodeInfo) {
+            nodeInfos.push({
+                type: nodeInfo.type,
+                position: nodeInfo.oldPosition,
+                id: nodeInfo.id
+            });
+        })
+        DagView.moveNodes(nodeInfos);
         return PromiseHelper.resolve(null);
     };
 

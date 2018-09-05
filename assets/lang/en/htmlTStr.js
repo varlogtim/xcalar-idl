@@ -1370,6 +1370,7 @@ module.exports = {
         "removeConnection": "Remove Connection",
         "configure": "Configure",
         "description": "Add Description",
+        "comment": "New Comment",
         "execute": "Execute",
         "executeAll": "Execute All",
         "previewTable": "Preview Table",

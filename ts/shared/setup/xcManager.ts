@@ -571,6 +571,7 @@ namespace xcManager {
         // in case no session Id
         const idPrefix: string = workbook.sessionId || xcHelper.randName("dag");
         DagNode.setIdPrefix(idPrefix);
+        CommentNode.setIdPrefix(idPrefix);
     }
 
     function setupSession(): XDPromise<void> {

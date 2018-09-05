@@ -2,6 +2,7 @@ namespace DagNodeMenu {
     let $dagView: JQuery;
     let $dfWrap: JQuery;
     let $menu: JQuery;
+    let position: Coordinate;
 
     export function setup() {
         $dagView = $("#dagView");
@@ -29,6 +30,7 @@ namespace DagNodeMenu {
     }
 
     function _setupNodeMenu(): void {
+        position = {x: 0, y: 0};
         xcMenu.add($menu);
 
         $dfWrap.on("contextmenu", ".operator .main", function(event: JQueryEventObject) {
@@ -50,6 +52,11 @@ namespace DagNodeMenu {
             return false;
         });
 
+        $dfWrap.on("contextmenu", ".comment", function(event: JQueryEventObject) {
+            _showCommentMenu($(this), event);
+            return false; // prevent default browser's rightclick menu
+        });
+
         $dfWrap.on("contextmenu", function(event: JQueryEventObject) {
             _showBackgroundMenu(event);
             return false;
@@ -68,7 +75,9 @@ namespace DagNodeMenu {
                 return;
             }
             const nodeId = $menu.data("nodeid"); // clicked node
-            const nodeIds = $menu.data("nodeids"); // all selected nodes
+            const nodeIds = DagView.getSelectedNodeIds(true, true);
+            const operatorIds = DagView.getSelectedNodeIds(true);
+            // all selected nodes && comments
 
             const parentNodeId = $menu.data("parentnodeid");
             const connectorIndex = $menu.data("connectorindex");
@@ -85,6 +94,10 @@ namespace DagNodeMenu {
                             const nodes: Map<DagNodeId, DagNode> = DagView.getActiveDag().getAllNodes();
                             let nodeIdsToRemove: DagNodeId[] = [];
                             nodes.forEach((_node: DagNode, nodeId: DagNodeId) => {
+                                nodeIdsToRemove.push(nodeId);
+                            });
+                            const comments: Map<CommentNodeId, CommentNode> = DagView.getActiveDag().getAllComments();
+                            comments.forEach((_node: CommentNode, nodeId: CommentNodeId) => {
                                 nodeIdsToRemove.push(nodeId);
                             });
                             DagView.removeNodes(nodeIdsToRemove);
@@ -107,20 +120,28 @@ namespace DagNodeMenu {
                     DagView.pasteNodes();
                     break;
                 case ("executeNode"):
-                    DagView.run(nodeIds);
+                    DagView.run(operatorIds);
                     break;
                 case ("executeAllNodes"):
                     DagView.run();
                     break;
                 case ("configureNode"):
-                    const node: DagNode = DagView.getActiveDag().getNode(nodeIds[0]);
+                    const node: DagNode = DagView.getActiveDag().getNode(operatorIds[0]);
                     configureNode(node);
                     break;
                 case ("previewTable"):
-                    DagView.previewTable(nodeIds[0]);
+                    DagView.previewTable(operatorIds[0]);
                     break;
                 case ("description"):
-                    DagDescriptionModal.Instance.show(nodeIds[0]);
+                    DagDescriptionModal.Instance.show(operatorIds[0]);
+                    break;
+                case ("newComment"):
+                    const rect = $dfWrap.find(".dataflowArea.active")[0].getBoundingClientRect();
+                    const x = position.x - rect.left;
+                    const y = position.y - rect.top;
+                    DagView.newComment({
+                        position: {x: x, y: y}
+                    });
                     break;
                 case ("autoAlign"):
                     DagView.autoAlign();
@@ -217,6 +238,30 @@ namespace DagNodeMenu {
         if (!DagView.hasClipboard()) {
             $menu.find(".pasteNodes").addClass("unavailable");
         }
+        if ($("#dagView .dataflowArea.active .comment.selected").length) {
+            classes += " commentMenu ";
+        }
+
+        xcHelper.dropdownOpen($clickedEl, $menu, {
+            mouseCoors: {x: event.pageX, y: event.pageY},
+            offsetY: 8,
+            floating: true,
+            classes: classes
+        });
+    }
+
+    function _showCommentMenu($clickedEl: JQuery, event: JQueryEventObject): void {
+        let nodeIds = DagView.getSelectedNodeIds();
+        const nodeId: DagNodeId = $(this).data("nodeid");
+        $menu.data("nodeid", nodeId);
+        $menu.data("nodeids", nodeIds);
+
+        let classes: string = " commentMenu ";
+        $menu.find("li").removeClass("unavailable");
+
+        if (!DagView.hasClipboard()) {
+            $menu.find(".pasteNodes").addClass("unavailable");
+        }
 
         xcHelper.dropdownOpen($clickedEl, $menu, {
             mouseCoors: {x: event.pageX, y: event.pageY},
@@ -228,25 +273,24 @@ namespace DagNodeMenu {
 
     function _showBackgroundMenu(event: JQueryEventObject) {
         let classes: string = "";
-        let nodeIds = [];
-        let $operators: JQuery = DagView.getSelectedNodes();
-        $operators.each(function() {
-            nodeIds.push($(this).data("nodeid"));
-        });
+        let operatorIds = DagView.getSelectedNodeIds();
         $menu.find("li").removeClass("unavailable");
         if (!DagView.getAllNodes().length) {
             classes += " none ";
             $menu.find(".removeAllNodes, .executeAllNodes, .selectAllNodes, .autoAlign")
             .addClass("unavailable");
         }
+        if ($("#dagView .dataflowArea.active .comment").length) {
+            $menu.find(".removeAllNodes").removeClass("unavailable");
+        }
 
-        $menu.data("nodeids", nodeIds);
+        $menu.data("nodeids", operatorIds);
 
-        if (nodeIds.length) {
+        if (operatorIds.length) {
             classes += " operatorMenu "
-            if (nodeIds.length === 1) {
+            if (operatorIds.length === 1) {
                 classes += " single ";
-                adjustMenuForSingleNode(nodeIds[0]);
+                adjustMenuForSingleNode(operatorIds[0]);
             } else {
                 classes += " multiple ";
             }
@@ -256,6 +300,11 @@ namespace DagNodeMenu {
         if (!DagView.hasClipboard()) {
             $menu.find(".pasteNodes").addClass("unavailable");
         }
+        if ($("#dagView .dataflowArea.active .comment.selected").length) {
+            classes += " commentMenu ";
+        }
+
+        position = {x: event.pageX, y: event.pageY};
 
         xcHelper.dropdownOpen($(event.target), $menu, {
             mouseCoors: {x: event.pageX, y: event.pageY},

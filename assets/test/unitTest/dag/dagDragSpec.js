@@ -1,4 +1,4 @@
-describe.skip("Dag Drag Test", function() {
+describe.skip("DagDrag Test", function() {
     // XXX need to have active tab first
     var $dagView;
     var $dfWrap;
