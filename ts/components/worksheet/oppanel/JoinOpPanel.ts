@@ -17,16 +17,20 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         super.setup(this._$elemPanel);
     }
 
-    public show(dagNode: DagNodeJoin): void {
+    public show(dagNode: DagNodeJoin, options: { isNoCast: boolean }): void {
+        const { isNoCast = true } = (options || {});
+
         this._reset();
         this._dagNode = dagNode;
         // Setup data model
-        this._dataModel = JoinOpPanelModel.fromDag(dagNode);
+        this._dataModel = JoinOpPanelModel.fromDag(dagNode, {
+            currentStep: 1,
+            isAdvMode: this._isAdvancedMode(),
+            isNoCast: isNoCast
+        });
         if (this._dataModel.getColumnPairsLength() === 0) {
             this._dataModel.addColumnPair();
         }
-        this._dataModel.setCurrentStep(1);
-        this._dataModel.setAdvMode(this._isAdvancedMode());
 
         // Update UI according to the data model
         this._updateUI();
@@ -37,6 +41,8 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
 
     public close(): void {
         super.hidePanel();
+        this._dagNode = null;
+        this._dataModel = null;
     }
 
     private _updateUI() {
@@ -87,7 +93,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
             $bottomAdv.on('click', () => {
                 const $elemEditor = this._$elemPanel.find(".advancedEditor");
                 try {
-                    const model = this._convertAdvConfigToModel();
+                    const model = this._convertAdvConfigToModel(this._dataModel);
                     this._validateStep1(model);
                     this._validateStep2(model);
                     this._submitForm(model);
@@ -180,16 +186,14 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
      * @param toAdvancedMode 
      */
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
+        this._dataModel.setAdvMode(toAdvancedMode);
         if (toAdvancedMode) {
             const param: DagNodeJoinInput = this._dataModel.toDag();
             this._editor.setValue(JSON.stringify(param, null, 4));
-            this._dataModel.setAdvMode(true);
             this._updateUI();
         } else {
             try {
-                const newModel = this._convertAdvConfigToModel();
-                newModel.setCurrentStep(this._dataModel.getCurrentStep());
-                newModel.setAdvMode(false);
+                const newModel = this._convertAdvConfigToModel(this._dataModel);
                 this._dataModel = newModel;
                 this._updateUI();
             } catch (e) {
@@ -202,7 +206,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
     /**
      * Convert config string to data model, throw JoinOpError/JS exception if any errors
      */
-    private _convertAdvConfigToModel() {
+    private _convertAdvConfigToModel(oldModel: JoinOpPanelModel) {
         const dagInput: DagNodeJoinInput = <DagNodeJoinInput>JSON.parse(this._editor.getValue());
         const {
             left: leftCols,
@@ -213,7 +217,12 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
             right: rightTableName
         } = JoinOpPanelModel.getPreviewTableNamesFromDag(this._dagNode);
         return JoinOpPanelModel.fromDagInput(
-            leftCols, rightCols, dagInput, leftTableName, rightTableName
+            leftCols, rightCols, dagInput, leftTableName, rightTableName,
+            {
+                currentStep: oldModel.getCurrentStep(),
+                isAdvMode: oldModel.isAdvMode(),
+                isNoCast: oldModel.isNoCast()
+            }
         );
     }
 

@@ -11,7 +11,7 @@ interface OpPanelFunctionGroup {
 // *******************
 interface IOpPanel {
     setup(): void;
-    show(dagNode: DagNode): void;
+    show(dagNode: DagNode, options?: any): void;
     close(): void;
 }
 

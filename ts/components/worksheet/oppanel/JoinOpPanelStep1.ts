@@ -393,8 +393,12 @@ class JoinOpPanelStep1 {
     }
 
     private _isEnableAddClause(): boolean {
-        return this._modelRef.getColumnMetaLeft().length > 0
-            && this._modelRef.getColumnMetaRight().length > 0;
+        const joinClauseLen = this._modelRef.getColumnPairs().length;
+        const colLen = Math.min(
+            this._modelRef.getColumnMetaLeft().length,
+            this._modelRef.getColumnMetaRight().length
+        );
+        return joinClauseLen < colLen;
     }
 
     private _isTalbeExist(tableName: string) {

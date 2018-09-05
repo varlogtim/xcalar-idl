@@ -1,6 +1,9 @@
 class JoinOpPanelModel {
+    // UI states
     private _currentStep: number = 1;
     private _isAdvMode: boolean = false;
+    private _isNoCast: boolean = true;
+    // Lineage data
     private _columnMeta: {
         left: JoinOpColumnInfo[],
         leftMap: Map<string, JoinOpColumnInfo>,
@@ -13,6 +16,7 @@ class JoinOpPanelModel {
         right: string[],
         rightMap: Map<string, string>
     } = { left: [], leftMap: new Map(), right: [], rightMap: new Map() };
+    // DagNode configurations
     private _joinType: string = JoinOperatorTStr[JoinOperatorT.InnerJoin];
     private _joinColumnPairs: JoinOpColumnPair[] = [];
     private _columnRename: {
@@ -24,7 +28,14 @@ class JoinOpPanelModel {
         left: string, right: string
     } = { left: null, right: null };
 
-    public static fromDag(dagNode: DagNodeJoin): JoinOpPanelModel {
+    public static fromDag(
+        dagNode: DagNodeJoin,
+        uiOptions: {
+            currentStep: number,
+            isAdvMode: boolean,
+            isNoCast: boolean
+        }
+    ): JoinOpPanelModel {
         try {
             const {left: leftCols, right: rightCols} = this.getColumnsFromDag(dagNode);
             const {
@@ -32,7 +43,12 @@ class JoinOpPanelModel {
             } = this.getPreviewTableNamesFromDag(dagNode);
             return this.fromDagInput(
                 leftCols,rightCols, dagNode.getParam(),
-                leftTableName, rightTableName
+                leftTableName, rightTableName,
+                {
+                    currentStep: uiOptions.currentStep,
+                    isAdvMode: uiOptions.isAdvMode,
+                    isNoCast: uiOptions.isNoCast
+                }
             );
         } catch(e) {
             console.error(e);
@@ -72,7 +88,12 @@ class JoinOpPanelModel {
         rightColList: ProgCol[],
         config: DagNodeJoinInput,
         leftPreviewTableName: string,
-        rightPreviewTableName: string
+        rightPreviewTableName: string,
+        uiOptions: {
+            currentStep: number,
+            isAdvMode: boolean,
+            isNoCast: boolean
+        }
     ) {
         const model = new JoinOpPanelModel();
         if (config == null) {
@@ -92,6 +113,11 @@ class JoinOpPanelModel {
         ) {
             throw new Error(JoinOpError.ColumnTypeLenMismatch);
         }
+
+        // === UI States ====
+        model.setCurrentStep(uiOptions.currentStep);
+        model.setAdvMode(uiOptions.isAdvMode);
+        model.setNoCast(uiOptions.isNoCast);
 
         // === DagLineage ===
         // Candidate columns & prefixes
@@ -381,6 +407,14 @@ class JoinOpPanelModel {
         this._currentStep = step;
     }
 
+    public isNoCast() {
+        return this._isNoCast;
+    }
+
+    public setNoCast(noCast: boolean) {
+        this._isNoCast = noCast;
+    }
+
     public isAdvMode() {
         return this._isAdvMode;
     }
@@ -406,6 +440,9 @@ class JoinOpPanelModel {
     }
 
     public isCastNeed(colPair: JoinOpColumnPair) {
+        if (this.isNoCast()) {
+            return false;
+        }
         if (colPair.leftName.length === 0 || colPair.rightName.length === 0) {
             return false;
         }
