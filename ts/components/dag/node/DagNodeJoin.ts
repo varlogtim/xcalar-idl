@@ -39,13 +39,15 @@ class DagNodeJoin extends DagNode {
 
     // XXX TODO: verify it's correctness
     public lineageChange(_columns: ProgCol[]): DagLineageChange {
-        const chanages: {from: ProgCol, to: ProgCol}[] = [];
         const parents: DagNode[] = this.getParents();
         const lCols: ProgCol[] = parents[0].getLineage().getColumns();
         const rCols: ProgCol[] = parents[1].getLineage().getColumns();
-        const lNewCols: ProgCol[] = this._getColAfterJoin(lCols, this.input.left, chanages);
-        const rNewCols: ProgCol[] = this._getColAfterJoin(rCols, this.input.right, chanages);
-        return lNewCols.concat(rNewCols);    
+        const lChanges: DagLineageChange = this._getColAfterJoin(lCols, this.input.left);
+        const rChanges: DagLineageChange = this._getColAfterJoin(rCols, this.input.right);
+        return {
+            columns: lChanges.columns.concat(rChanges.columns),
+            changes: lChanges.changes.concat(rChanges.changes)
+        };
     }
 
     private _getDefaultTableInfo(): DagNodeJoinTableInput {
