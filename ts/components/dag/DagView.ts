@@ -882,10 +882,15 @@ namespace DagView {
             // if removing an edge from a multichildnode then decrement all
             // the edges that have a greater index than the removed one
             // due to splice action on children array
+            const svg: d3 = d3.select("#dagView .dataflowArea.active .edgeSvg");
             $dagView.find('.edge[data-childnodeid="' + childNodeId + '"]').each(function() {
                 const $curEdge: JQuery = $(this);
                 const index: number = parseInt($curEdge.attr('data-connectorindex'));
                 if (index > connectorIndex) {
+                    const parentNodeId = $curEdge.attr("data-parentnodeid");
+                    $curEdge.remove();
+                    _drawLineBetweenNodes(parentNodeId, childNodeId, index - 1, svg);
+                    // _drawLineBetweenNodes(parentNodeId, childNodeId, connectorIndex, svg);
                     $curEdge.attr("data-connectorindex", index - 1);
                 }
             })
@@ -1416,9 +1421,11 @@ namespace DagView {
         const childNode: DagNode = activeDag.getNode(childNodeId);
         let numParents = childNode.getMaxParents();
         let numConnections = connectorIndex;
+        let isMulti = false;
         if (numParents === -1) {
             numParents = 1;
             numConnections = 0;
+            isMulti = true;
         }
 
         const parentCoors: Coordinate = {
@@ -1445,6 +1452,21 @@ namespace DagView {
         edge.append("path")
         .attr("class", "invisibleLine")
         .attr("d", lineFunction([parentCoors, childCoors]));
+        if (isMulti) {
+            // stagger the numbers
+            const midX = ((3 * parentCoors.x + ((connectorIndex + 1) *
+                            childCoors.x)) / (4 + connectorIndex));
+            const midY = (2 * parentCoors.y + ((connectorIndex * .5 + 1) *
+                          childCoors.y)) / (3 + (connectorIndex * .5));
+            edge.append("text")
+            .attr("class", "connectorIndex")
+            .attr("fill", "#627483")
+            .attr("font-size", "12px")
+            .attr("letter-spacing", "-2")
+            .attr("x", midX + "px")
+            .attr("y", (midY - 2) + "px")
+            .text("#" + (connectorIndex + 1))
+        }
     }
 
     function _setupGraphEvents(): void {
