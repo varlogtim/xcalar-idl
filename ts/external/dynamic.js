@@ -6,7 +6,8 @@ var XCPatch;
     var patchVersionDict = {
         "1.3.0": 1,
         "1.3.1": 1,
-        "1.4.0": 7
+        "1.4.0": 7,
+        "1.4.0.1": 1
     };
 
     // Insert patch code here. Remembmer that all js files will be minified and
@@ -57,6 +58,8 @@ var XCPatch;
                 var patchVersion;
                 if (exactVersion(version, "1.4.0")) {
                     patchVersion = "1.4.0";
+                } else if (exactVersion(version, "1.4.0.1")) {
+                    patchVersion = "1.4.0.1";
                 }
 
                 // if (exactVersion(version, "1.4.1")) {
