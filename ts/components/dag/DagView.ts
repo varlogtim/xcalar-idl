@@ -255,17 +255,31 @@ namespace DagView {
         return activeDagTab.saveTab();
     }
 
-    export function newComment(commentInfo: CommentInfo): XDPromise<void> {
-        commentInfo.position.x = Math.round(commentInfo.position.x / gridSpacing) * gridSpacing;
-        commentInfo.position.y = Math.round(commentInfo.position.y / gridSpacing) * gridSpacing;
+    export function newComment(
+        commentInfo: CommentInfo,
+        isFocus?: boolean
+    ): XDPromise<void> {
+        commentInfo.position.x = Math.max(0,
+                Math.round(commentInfo.position.x / gridSpacing) * gridSpacing);
+        commentInfo.position.y = Math.max(0,
+                Math.round(commentInfo.position.y / gridSpacing) * gridSpacing);
         const commentNode = activeDag.newComment(commentInfo);
         const $dfArea = $dfWrap.find(".dataflowArea.active");
-        DagComment.Instance.drawComment(commentNode, $dfArea);
+        let isSelect = false;
+        if (isFocus) {
+            isSelect = true;
+        }
+        DagComment.Instance.drawComment(commentNode, $dfArea, isSelect, isFocus);
         const dimensions = {
             x: commentNode.getPosition().x + commentNode.getDimensions().width,
             y: commentNode.getPosition().y + commentNode.getDimensions().height
         };
         _setGraphDimensions(dimensions);
+        Log.add(SQLTStr.NewComment, {
+            "operation": SQLOps.NewComment,
+            "dataflowId": activeDagTab.getId(),
+            "commentId": commentNode.getId()
+        });
         return activeDagTab.saveTab();
     }
 

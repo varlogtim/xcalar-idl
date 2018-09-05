@@ -20,7 +20,7 @@ class CommentNode {
         this.id = options.id || CommentNode.generateId();
         this.text = options.text || "";
         this.position = options.position || {x: -1, y: -1};
-        this.dimensions = options.dimensions || {width: 200, height: 100};
+        this.dimensions = options.dimensions || {width: 180, height: 80};
     }
 
     public getId(): string {

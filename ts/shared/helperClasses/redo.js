@@ -274,6 +274,18 @@ window.Redo = (function($, Redo) {
         return PromiseHelper.resolve(null);
     };
 
+    redoFuncs[SQLOps.NewComment] = function(options) {
+        DagTabManager.Instance.switchTabId(options.dataflowId);
+        DagView.addBackNodes([options.commentId]);
+        return PromiseHelper.resolve(null);
+    };
+
+    redoFuncs[SQLOps.EditComment] = function(options) {
+        DagTabManager.Instance.switchTabId(options.dataflowId);
+        DagComment.Instance.updateText(options.commentId, options.newComment);
+        return PromiseHelper.resolve(null);
+    };
+
     /* USER STYLING/FORMATING OPERATIONS */
 
     redoFuncs[SQLOps.MinimizeCols] = function(options) {

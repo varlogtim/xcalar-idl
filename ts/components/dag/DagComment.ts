@@ -28,14 +28,15 @@ class DagComment {
         $dfWrap.on("change", ".comment textarea", function() {
             const id = $(this).closest(".comment").data("nodeid");
             const text = $(this).val();
-            self._updateText(id, text);
+            self.updateText(id, text);
         });
     }
 
     public drawComment(
         commentNode: CommentNode,
         $dfArea: JQuery,
-        isSelect?: boolean
+        isSelect?: boolean,
+        isFocus?: boolean
     ): void {
         const self = this;
         const pos = commentNode.getPosition();
@@ -57,6 +58,10 @@ class DagComment {
         $dfArea.find(".commentArea").append($comment);
         if (isSelect) {
             $comment.addClass("selected");
+        }
+        if (isFocus) {
+            $comment.addClass("focused");
+            $comment.find("textarea").prop("readonly", false).focus();
         }
         $comment.resizable({
             "minWidth": DagView.gridSpacing,
@@ -81,8 +86,24 @@ class DagComment {
         return DagView.getActiveTab().saveTab();
     }
 
-    private _updateText(id: CommentNodeId, text: string): XDPromise<void> {
-        DagView.getActiveDag().getComment(id).setText(text);
+    /**
+     *
+     * @param id
+     * @param text
+     */
+    public updateText(id: CommentNodeId, text: string): XDPromise<void> {
+        $("#dagView").find('.comment[data-nodeid="' + id + '"]')
+                     .find("textarea").val(text);
+        const comment: CommentNode = DagView.getActiveDag().getComment(id);
+        const oldText = comment.getText();
+        comment.setText(text);
+        Log.add(SQLTStr.EditComment, {
+            "operation": SQLOps.EditComment,
+            "dataflowId": DagView.getActiveTab().getId(),
+            "commentId": id,
+            "newComment": text,
+            "oldComment": oldText
+        });
         return DagView.getActiveTab().saveTab();
     }
 }

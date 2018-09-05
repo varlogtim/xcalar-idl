@@ -632,14 +632,17 @@ window.Log = (function($, Log) {
                 // XXX temporary hack to prevent undoing on a dataflow 2.0
                 // action
                 var dataflow2Ops = [
-                    SQLOps.DisconnectOperations, 
+                    SQLOps.DisconnectOperations,
                     SQLOps.ConnectOperations,
                     SQLOps.RemoveOperations,
                     SQLOps.AddOperation,
                     SQLOps.CopyOperations,
                     SQLOps.MoveOperations,
                     SQLOps.RemoveDagTab,
-                    SQLOps.NewDagTab
+                    SQLOps.NewDagTab,
+                    SQLOps.EditDescription,
+                    SQLOps.NewComment,
+                    SQLOps.EditComment
                 ];
                 for (var i = 0; i <= oldLogCursor; i++) {
                     if (dataflow2Ops.indexOf(oldLogs[i].options.operation) > 0) {
@@ -1322,6 +1325,8 @@ window.Log = (function($, Log) {
             case (SQLOps.NewDagTab):
             case (SQLOps.RemoveDagTab):
             case (SQLOps.EditDescription):
+            case (SQLOps.NewComment):
+            case (SQLOps.EditComment):
                 return false;
             // thrift operation
             case (SQLOps.DestroyDS):

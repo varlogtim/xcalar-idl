@@ -601,6 +601,18 @@ window.Undo = (function($, Undo) {
         return PromiseHelper.resolve(null);
     };
 
+    undoFuncs[SQLOps.NewComment] = function(options) {
+        DagTabManager.Instance.switchTabId(options.dataflowId);
+        DagView.removeNodes([options.commentId]);
+        return PromiseHelper.resolve(null);
+    };
+
+    undoFuncs[SQLOps.EditComment] = function(options) {
+        DagTabManager.Instance.switchTabId(options.dataflowId);
+        DagComment.Instance.updateText(options.commentId, options.oldComment);
+        return PromiseHelper.resolve(null);
+    };
+
     /* USER STYLING/FORMATING OPERATIONS */
 
     undoFuncs[SQLOps.MinimizeCols] = function(options) {

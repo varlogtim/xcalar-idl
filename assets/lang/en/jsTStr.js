@@ -1539,7 +1539,9 @@ SQLTStr = {
     "queryHistStatusInterrupt": "Interrupted",
     "queryFailMessage": "The SQL query failed for",
     "EnterEditorName": "Enter snippet name",
-    "EditDescription": "Edit Description"
+    "EditDescription": "Edit Description",
+    "NewComment": "New Comment",
+    "EditComment": "Edit Comment"
 };
 
 LoginConfigTStr = {

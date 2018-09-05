@@ -311,7 +311,9 @@ enum SQLOps {
     MoveOperations = "moveOperations",
     NewDagTab = "newDagTab",
     RemoveDagTab = "removeDagTab",
-    EditDescription = "editDescription"
+    EditDescription = "editDescription",
+    NewComment = "newComment",
+    EditComment = "editComment",
 }
 
 enum XcalarMode {

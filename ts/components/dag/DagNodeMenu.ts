@@ -140,11 +140,11 @@ namespace DagNodeMenu {
                     break;
                 case ("newComment"):
                     const rect = $dfWrap.find(".dataflowArea.active")[0].getBoundingClientRect();
-                    const x = position.x - rect.left;
-                    const y = position.y - rect.top;
+                    const x = position.x - rect.left - DagView.gridSpacing;
+                    const y = position.y - rect.top - DagView.gridSpacing;
                     DagView.newComment({
                         position: {x: x, y: y}
-                    });
+                    }, true);
                     break;
                 case ("autoAlign"):
                     DagView.autoAlign();

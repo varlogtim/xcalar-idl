@@ -425,7 +425,7 @@ class DagGraph {
     public removeComment(commentId) {
         const comment = this.commentsMap.get(commentId);
         this.removedCommentsMap.set(commentId, comment);
-        this.nodesMap.delete(commentId);
+        this.commentsMap.delete(commentId);
     }
 
     // XXX TODO, Idea is to do a topological sort first, then get the
