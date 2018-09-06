@@ -629,6 +629,7 @@ declare namespace DSTStr {
     export var LoadErr: string;
     export var LoadErrFile: string;
     export var PointErr: string;
+    export var InvalidPriorDataset: string;
 }
 
 declare namespace JoinTStr {

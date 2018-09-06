@@ -136,9 +136,6 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             }
         });
 
-        $('#datasetOpPanel .refreshBtn').click(function() {
-            self._refresh();
-        });
     }
 
     private _resetCurrentPath() {
@@ -146,13 +143,6 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this._futurePath = [];
         $('#datasetOpPanel .backFolderBtn').addClass('xc-disabled');
         $('#datasetOpPanel .forwardFolderBtn').addClass('xc-disabled');
-    }
-
-    private _refresh(): void {
-        this._dsObject = { folders: {}, datasets: [] };
-        this._resetCurrentPath(); 
-        this._setupDatasetList();
-        this._renderList();
     }
 
     private _restorePanel(dagNode: DagNodeDataset): void {
@@ -166,10 +156,18 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             this._renderList();
             $("#datasetOpPanel .datasetPrefix input").val("");
         } else {
-            $("#datasetOpPanel .datasetPrefix input").val(input.prefix);
             const ds: ListDSInfo = this._dsList.find((obj) => {
                 return obj.id == input.source;
             })
+            if (ds == null) {
+                StatusBox.show(DSTStr.InvalidPriorDataset + input.source, this._$datasetList,
+                    false, {'side': 'right'});
+                this._resetCurrentPath(); 
+                this._renderList();
+                dagNode.beErrorState(DSTStr.InvalidPriorDataset + input.source);
+                return;
+            }
+            $("#datasetOpPanel .datasetPrefix input").val(input.prefix);
             const path: string = ds.path;
             this._currentPath = [];
             this._futurePath = [];
@@ -190,12 +188,14 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
      * @param dagNode DagNode object
      */
     public show(dagNode: DagNodeDataset): void {
-        this._resetCurrentPath(); 
-        this._restorePanel(dagNode);
         // Show panel
         if (!super.showPanel()) {
             return;
         }
+        this._resetCurrentPath(); 
+        this._dsObject = { folders: {}, datasets: [] };
+        this._setupDatasetList();
+        this._restorePanel(dagNode);
         // Setup event listeners
         this._setupEventListener(dagNode);
     }
