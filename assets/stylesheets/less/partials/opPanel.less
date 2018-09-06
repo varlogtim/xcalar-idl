@@ -1917,92 +1917,116 @@
 }
 
 #datasetOpPanel {
-    background-color: @color-white;
-    #datasetOpBrowser {
-        .iconSection {
-            width: 100%;
-            .icon {
-                width: 24px;
-                height: 24px;
-                &.backFolderBtn, &.forwardFolderBtn {
-                    margin-left: 10px;
-                    margin-top: 2px;
-                    float: left;
-                }
-                &:hover {
-                    opacity: @opacity-unhover;
-                }
-                &.refreshBtn {
-                    margin-right: 10px;
-                    float: right;
-                    font-size: 15px;
-                }
-            }
-        }
+    overflow: auto;
 
-        .pathSection {
-            margin-left: 10px;
-            margin-bottom: 5px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            width: 90%;
-        }
-
-
-        #dsOpListSection {
-            height: 60%;
-            width: 100%;
-            display: table;
-            -webkit-user-select: none;
-            cursor: pointer;
-            border-top: 1px solid rgba(0, 0, 0, 0.2);
-            .li {
-                height: 35px;
-                width: 100%;
-                line-height: 35px;
-                box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
-                width: 100%;
-                font-size: 13px;
-                font-weight: normal;
-                float: left;
-                position: relative;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                padding: 0 10px;
-
-                .name {
-                    margin-bottom: 5px;
-                    float: left;
-                }
-
-                .icon {
-                    margin-right: 10px;
-                    margin-top: 10px;
-                    font-size: 15px;
-                    float: left;
-
-                    &.viewTable {
-                        float: right;
-                    }
-                }
-
-                &.active {
-                    font-weight: bold;
-                    background-color: @color-table-indexed-blue;
-                }
-
-                &:hover {
-                    background-color: @color-bg-body-gray;
-                }
-            }
-        }
+    .bottomSection {
+        height: 10%;
     }
 
-    .datasetPrefix {
-        .inputWrap {
-            .arg {
-                width: 80%;
-                margin-left: 10%;
+    .opSection {
+        height: 90%;
+        background-color: @color-white;
+        .modalTopMain{
+            height: ~"calc(100% - 70px)"; // 100% - instructions size
+        }
+        .dataSource {
+            height: 100%;
+        }
+        #datasetOpBrowser {
+            height: ~"calc(100% - 30px - 25px - 81px)"; // 100% - subheading - instrText - datasetPrefix
+            .iconSection {
+                width: 100%;
+                .icon {
+                    width: 24px;
+                    height: 24px;
+                    &.backFolderBtn, &.forwardFolderBtn {
+                        margin-left: 10px;
+                        margin-top: 2px;
+                        float: left;
+                    }
+                    &:hover {
+                        opacity: @opacity-unhover;
+                    }
+                    &.refreshBtn {
+                        margin-right: 10px;
+                        float: right;
+                        font-size: 15px;
+                    }
+                }
+            }
+
+            .pathSection {
+                margin-left: 10px;
+                margin-bottom: 5px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                width: 90%;
+            }
+
+            .datasetListDiv {
+                height: ~"calc(100% - 24px - 17px)"; // 100% - iconSection height - pathSection height
+                overflow-y: auto;
+                &::-webkit-scrollbar-track {
+                    background: rgba(0, 0, 0, 0);
+                }
+                #dsOpListSection {
+                    width: 100%;
+                    display: block;
+                    -webkit-user-select: none;
+                    border-top: 1px solid rgba(0, 0, 0, 0.2);
+                    .li {
+                        height: 35px;
+                        width: 100%;
+                        line-height: 35px;
+                        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
+                        width: 100%;
+                        font-size: 13px;
+                        font-weight: normal;
+                        float: left;
+                        position: relative;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        padding: 0 10px;
+                        cursor: pointer;
+
+                        .name {
+                            width: ~"calc(100% - 10px - 30px - 20px)"; // 100% - padding - icon widths - icon margins
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            margin-bottom: 5px;
+                            float: left;
+                        }
+
+                        .icon {
+                            margin-right: 10px;
+                            margin-top: 10px;
+                            font-size: 15px;
+                            float: left;
+
+                            &.viewTable {
+                                float: right;
+                            }
+                        }
+
+                        &.active {
+                            font-weight: bold;
+                            background-color: @color-table-indexed-blue;
+                        }
+
+                        &:hover {
+                            background-color: @color-bg-body-gray;
+                        }
+                    }
+                }
+            }
+        }
+
+        .datasetPrefix {
+            .inputWrap {
+                .arg {
+                    width: 80%;
+                    margin-left: 10%;
+                }
             }
         }
     }

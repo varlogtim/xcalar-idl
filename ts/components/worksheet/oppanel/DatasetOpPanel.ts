@@ -198,6 +198,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this._restorePanel(dagNode);
         // Setup event listeners
         this._setupEventListener(dagNode);
+        MainMenu.setFormOpen();
     }
 
     /**
@@ -205,6 +206,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
      */
     public close(): void {
         super.hidePanel();
+        MainMenu.setFormClose();
     }
 
     private _checkOpArgs(prefix: string, id: string): boolean {

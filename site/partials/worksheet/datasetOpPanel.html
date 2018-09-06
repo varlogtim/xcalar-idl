@@ -1,5 +1,5 @@
 <!-- Dataset Operation Panel -->
-<div id="datasetOpPanel" class="xc-hidden opPanel">
+<div id="datasetOpPanel" class="xc-hidden opPanel generalOpPanel">
   <!-- Project Header -->
   <header class="headerSection">
     <div class="title"><%= dicts.datasetOp.dataset %></div>
@@ -29,8 +29,10 @@
               </div>
               <!-- path -->
               <div class="pathSection"></div>
-            <ul id="dsOpListSection">
-            </ul>
+            <div class="datasetListDiv">
+              <ul id="dsOpListSection">
+              </ul>
+            </div>
           </div>
         <div class="datasetPrefix formRow">
             <div class="subHeading clearfix">
@@ -44,11 +46,13 @@
             </div>
           </div>
       </section>
-      <!-- Button Section -->
-      <section class="bottomSection flexWrap">
-        <button type="button" class="btn btn-submit btn-rounded confirm"><%= dicts.datasetOp.save %></button>
-      </section>
     </div>
+    <!-- Button Section -->
+    <section class="bottomSection">
+      <div class="btnWrap">
+        <button type="button" class="btn btn-submit submit btn-rounded confirm"><%= dicts.datasetOp.save %></button>
+      </div>
+    </section>
   </div>
 </div>
 <!-- End of Dataset View -->

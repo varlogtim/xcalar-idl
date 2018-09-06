@@ -22,6 +22,9 @@ namespace DagNodeMenu {
             case ('groupby'):
                 label = 'Group By';
                 break;
+            case ('datasetoppanel'):
+                label = 'Dataset';
+                break;
             default:
                 break;
         }

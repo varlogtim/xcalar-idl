@@ -33,7 +33,8 @@ window.MainMenu = (function($, MainMenu) {
             AggOpPanel.Instance,
             ProjectOpPanel.Instance,
             JoinOpPanel.Instance,
-            SetOpPanel.Instance
+            SetOpPanel.Instance,
+            DatasetOpPanel.Instance
         ];
 
     };
