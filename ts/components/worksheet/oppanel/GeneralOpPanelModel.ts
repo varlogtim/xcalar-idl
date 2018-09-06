@@ -951,6 +951,9 @@ class GeneralOpPanelModel {
                 const arg = groups[error.group].args[error.arg].getValue();
                 text = "Value: " + arg + ". " + error.error;
                 break;
+            case ("newField"):
+                text = "New field name is invalid: " + error.error;
+                break;
             default:
                 text = error.error;
                 break;

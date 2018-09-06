@@ -903,7 +903,10 @@ class MapOpPanel extends GeneralOpPanel {
                 return false;
             }
         } else {
-            const error = this.model.validateGroups();
+            let error = this.model.validateGroups();
+            if (!error) {
+                error = this.model.validateNewFieldNames();
+            }
             if (error) {
                 const model = this.model.getModel();
                 const groups = model.groups;
@@ -937,7 +940,7 @@ class MapOpPanel extends GeneralOpPanel {
                                 }
                             }
                         }
-                        self._handleInvalidArgs(true, $input, error.error, error.group, allColTypes, inputNums, error.group);
+                        self._handleInvalidArgs(true, $input, error.error, error.group, allColTypes, inputNums);
                         break;
                     case ("valueType"):
                         self._handleInvalidArgs(false, $input, error.error);

@@ -243,7 +243,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
             this._initialize(param, true);
             let error = this.validateGroups();
             if (!error) {
-                error = this._validateNewFieldName();
+                error = this.validateNewFieldNames();
             }
             if (!error) {
                 error = this._validateICV();
@@ -262,7 +262,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
         }
     }
 
-    private _validateNewFieldName() {
+    public validateNewFieldNames() {
         const groups = this.groups;
         const nameMap = {};
         // new field name

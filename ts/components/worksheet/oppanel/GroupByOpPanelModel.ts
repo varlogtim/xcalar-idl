@@ -175,32 +175,6 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
         this.dagNode.setParam(param);
     }
 
-    // return {
-    //     groupBy: this.input.groupBy || [""],
-    //     aggregate: this.input.aggregate || [{operator: "", sourceColumn: "", destColumn: "", distinct: false, cast: null}],
-    //     includeSample: this.input.includeSample || false,
-    //     icv: this.input.icv || false,
-    //     groupAll: this.input.groupAll || false
-    // }
-
-    // interface OpPanelFunctionGroup {
-    //     operator: string;
-    //     args: OpPanelArg[];
-    //     newFieldName?: string;
-    // }
-
-    // oppanelarg
-    // private value: string;
-    // private formattedValue: string;
-    // private cast: XcCast;
-    // private typeid: number;
-    // private isValid: boolean;
-    // private isNone: boolean = false;
-    // private isEmptyString: boolean = false;
-    // private isRegex: boolean = false;
-    // private type: string; // ("value" | "column" | "function" | "regex")
-    // private error: string;
-
     protected _initialize(paramsRaw, _strictCheck?: boolean) {
         const self = this;
 
@@ -316,8 +290,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
                 destColumn: group.newFieldName,
                 distinct: group.distinct,
                 cast: cast
-            })
-
+            });
         });
 
         this.groupOnCols.map((colName) => {
@@ -350,9 +323,12 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             const param: DagNodeMapInput = <DagNodeMapInput>JSON.parse(paramStr);
             jsonError = false;
             this._initialize(param, true);
-            let error = this.validateGroups();
+            let error = this.validateGroupOnCols();
             if (!error) {
-                error = this._validateNewFieldNames();
+                error = this.validateGroups();
+            }
+            if (!error) {
+                error = this.validateNewFieldNames();
             }
             if (!error) {
                 error = this._validateICV();
@@ -377,7 +353,47 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
         }
     }
 
-    private _validateNewFieldNames() {
+    public validateGroupOnCols() {
+        if (!this.groupOnCols.length) {
+            return {
+                error: "Please provide one or more fields to group by",
+                group: 0,
+                arg: 0,
+                type: "groupOnCol"
+            };
+        }
+        for (let i = 0; i < this.groupOnCols.length; i++) {
+            const name = this.groupOnCols[i];
+            if (name.indexOf(",") > -1) {
+                return {
+                    error: xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
+                                    "name": name
+                            }),
+                    group: 0,
+                    arg: i,
+                    type: "groupOnCol"
+                };
+            } else if (!name.trim().length) {
+                return {
+                    error: "Field to group by is empty",
+                    group: 0,
+                    arg: i,
+                    type: "groupOnCol"
+                };
+            } else {
+                const match = this.tableColumns.find((progCol) => {
+                    return progCol.getBackColName() === name;
+                });
+                if (!match) {
+                    // XXX if not found, let pass
+                    console.log(name, "column not found");
+                }
+            }
+        }
+
+    }
+
+    public validateNewFieldNames() {
         const groups = this.groups;
         const nameMap = {};
         // new field name
@@ -421,7 +437,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
                 error: "Include sample only accepts booleans.",
                 group: -1,
                 arg: -1,
-                type: "icv"
+                type: "includeSample"
             };
         } else {
             return null;
@@ -433,7 +449,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
                 error: "Group all only accepts booleans.",
                 group: -1,
                 arg: -1,
-                type: "icv"
+                type: "groupAll"
             };
         } else {
             return null;

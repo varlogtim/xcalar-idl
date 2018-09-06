@@ -64,9 +64,7 @@ class GroupByOpPanel extends GeneralOpPanel {
                     return;
                 }
 
-                if (!$input.hasClass('gbOnArg')) {
-                    self._argSuggest($input);
-                }
+                self._argSuggest($input);
                 self._checkIfStringReplaceNeeded();
             }, 200);
 
@@ -287,19 +285,13 @@ class GroupByOpPanel extends GeneralOpPanel {
     protected _render(updateAll?: boolean) {
         const self = this;
         const model = this.model.getModel();
-        //{
-        // groupOnCols: string[],
-        // groups: OpPanelFunctionGroup[],
-        // includeSample: boolean,
-        // icv: boolean,
-        // groupAll: boolean,
-        // }
         this._resetForm();
 
         const icv = model.icv;
         const includeSample = model.includeSample;
         const groupAll = model.groupAll;
-
+        const $ul = this._$panel.find('.gbOnArg').first().siblings(".list");
+        this._addSuggestListForGroupOnArg($ul);
         for (let i = 0; i < model.groupOnCols.length; i++) {
             if (i > 0) {
                 this._addGroupOnArg(0);
@@ -699,9 +691,8 @@ class GroupByOpPanel extends GeneralOpPanel {
 
         $argsSection.append(argsHtml);
         this._addCastDropDownListener();
-        this._suggestLists[groupIndex] = [];
-        if (groupIndex === 0) {
-            this._$panel.find('.hint').addClass('new');
+        if (groupIndex > 0) {
+            this._suggestLists[groupIndex] = [];
         }
 
         this._$panel.find('.list.hint.new').each(function() {
@@ -1009,18 +1000,29 @@ class GroupByOpPanel extends GeneralOpPanel {
                 return false;
             }
         } else {
-            // XXX need to validate grouponcols
-            const error = this.model.validateGroups();
+            let error = this.model.validateGroupOnCols();
+            if (!error) {
+                error = this.model.validateGroups();
+            }
+            if (!error) {
+                error = this.model.validateNewFieldNames();
+            }
             if (error) {
                 const model = this.model.getModel();
                 const groups = model.groups;
-                const $input = this._$panel.find(".group").eq(error.group)
+                let $input = this._$panel.find(".group").eq(error.group)
                     .find(".argsSection").last().find(".arg").eq(error.arg);
                 let inputNumAdjustment = 0;
                 if (error.group === 0) {
                     inputNumAdjustment = model.groupOnCols.length;
                 }
                 switch (error.type) {
+                    case ("groupOnCol"):
+                        $input = this._$panel.find(".group").eq(0)
+                                            .find(".argsSection").first()
+                                            .find(".arg").eq(error.arg);
+                        self._statusBoxShowHelper(error.error, $input);
+                        break;
                     case ("function"):
                         self._showFunctionsInputErrorMsg(error.group);
                         break;
@@ -1122,104 +1124,6 @@ class GroupByOpPanel extends GeneralOpPanel {
     private _getColNum(backColName) {
         return this._table.getColNumByBackName(backColName);
     }
-
-    // private _groupByCheck(args, hasMultipleGroups) {
-    //     const self = this;
-    //     if (!hasMultipleGroups) {
-    //         args = [args];
-    //     }
-    //     let isValid = true;
-    //     this._$panel.find(".group").each(function(groupNum) {
-    //         const numArgs = args[groupNum].length;
-    //         const groupbyColName = args[groupNum][numArgs - 2];
-    //         const singleArg = true;
-
-    //         const $groupByInput = self._$panel.find(".group").eq(groupNum)
-    //                                             .find('.argsSection').last()
-    //                                             .find('.arg').eq(0);
-    //         let isGroupbyColNameValid;
-    //         if (!self._hasFuncFormat(groupbyColName)) {
-    //             isGroupbyColNameValid = self._checkValidColNames($groupByInput,
-    //                                                     groupbyColName, singleArg);
-    //         } else {
-    //             isGroupbyColNameValid = true;
-    //         }
-
-    //         if (!isGroupbyColNameValid) {
-    //             isValid = false;
-    //             return false;
-    //         } else if (groupNum === 0) {
-    //             let indexedColNames;
-    //             let $input;
-    //             let areIndexedColNamesValid = false;
-    //             for (let i = 0; i < numArgs - 2; i++) {
-    //                 indexedColNames = args[groupNum][i];
-    //                 $input = self._$panel.find('.gbOnArg').eq(i);
-    //                 areIndexedColNamesValid = self._checkValidColNames($input,
-    //                                                         indexedColNames);
-    //                 if (!areIndexedColNamesValid) {
-    //                     break;
-    //                 }
-    //             }
-    //             if (!areIndexedColNamesValid) {
-    //                 isValid = false;
-    //                 return false;
-    //             }
-    //         }
-    //     });
-
-    //     return isValid;
-    // }
-
-
-
-    // used in groupby to check if inputs have column names that match any
-    // that are found in gTables.tableCols
-    // private _checkValidColNames($input, colNames, single?: boolean) {
-    //     let text;
-
-    //     if (typeof colNames !== "string") {
-    //         text = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
-    //             "name": colNames
-    //         });
-    //         this._statusBoxShowHelper(text, $input);
-    //         return (false);
-    //     }
-    //     const values = colNames.split(",");
-    //     const numValues = values.length;
-    //     if (single && numValues > 1) {
-    //         text = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
-    //             "name": colNames
-    //         });
-    //         this._statusBoxShowHelper(text, $input);
-    //         return (false);
-    //     }
-
-    //     let value;
-    //     let trimmedVal;
-    //     for (let i = 0; i < numValues; i++) {
-    //         value = values[i];
-    //         trimmedVal = value.trim();
-    //         if (trimmedVal.length > 0) {
-    //             value = trimmedVal;
-    //         }
-
-    //         if (!this._table.hasColWithBackName(value)) {
-    //             if (value.length === 2 && value.indexOf('""') === 0) {
-    //                 text = ErrTStr.NoEmpty;
-    //             } else {
-    //                 text = xcHelper.replaceMsg(ErrWRepTStr.InvalidCol, {
-    //                     "name": value.replace(/\"/g, '')
-    //                 });
-    //             }
-
-    //             this._statusBoxShowHelper(text, $input);
-    //             return (false);
-    //         }
-    //     }
-    //     return (true);
-    // }
-
 
     // used for args with column names provided like $col1, and not "hey" or 3
     protected _validateColInputType(requiredTypes, inputType, $input) {
@@ -1393,7 +1297,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         $group.find('.gbOnArg').last().focus();
 
         const $ul = $group.find('.gbOnArg').last().siblings(".list");
-        this._addSuggestListForExtraArg($ul);
+        this._addSuggestListForGroupOnArg($ul);
         this._addCastDropDownListener();
     }
 
@@ -1428,7 +1332,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         return (html);
     }
 
-    private _addSuggestListForExtraArg($ul) {
+    private _addSuggestListForGroupOnArg($ul) {
         const $allGroups = this._$panel.find('.group');
         const groupIndex = $allGroups.index($ul.closest('.group'));
         const argIndex = $ul.closest('.group').find('.list.hint').index($ul);
@@ -1437,6 +1341,9 @@ class GroupByOpPanel extends GeneralOpPanel {
             bounds: this._panelSelector,
             bottomPadding: 5
         });
+        if (!this._suggestLists[groupIndex]) {
+            this._suggestLists[groupIndex] = [];
+        }
 
         this._suggestLists[groupIndex].splice(argIndex, 0, scroller);
         $ul.removeClass('new');
@@ -1481,6 +1388,26 @@ class GroupByOpPanel extends GeneralOpPanel {
         } else {
             this._$panel.find(".gbOnRow").show();
             this._$panel.find(".addGroupArg").show();
+        }
+    }
+
+    protected _applyArgSuggest($li, val) {
+        const $list = $li.closest(".list");
+        const menu = this._getArgSuggestMenu($list);
+        if (menu != null) {
+            menu.hideDropdowns();
+        }
+        const $input = $list.siblings(".arg");
+        $input.val(val);
+        this._checkIfStringReplaceNeeded();
+        const $group = $input.closest(".group");
+        const groupIndex = this._$panel.find(".group").index($group);
+        if ($input.closest(".gbOnArg").length) {
+            const argIndex = $group.find(".groupOnSection .arg").index($input);
+            this.model.updateGroupOnArg(val, argIndex);
+        } else {
+            const argIndex = $group.find(".argsSection").last().find(".arg").index($input);
+            this.dataModel.updateArg(val, groupIndex, argIndex);
         }
     }
 
