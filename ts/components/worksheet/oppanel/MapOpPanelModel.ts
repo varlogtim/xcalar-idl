@@ -51,31 +51,6 @@ class MapOpPanelModel extends GeneralOpPanelModel {
         this._update();
     }
 
-    public updateArg(
-        value: string,
-        groupIndex: number,
-        argIndex: number,
-        options?: any
-    ): void {
-        options = options || {};
-        const group = this.groups[groupIndex];
-        while (group.args.length <= argIndex) {
-            group.args.push(new OpPanelArg("", -1));
-        }
-        // no arg if boolean is not true
-        if ((options.boolean && value === "") || options.isEmptyArg) {
-            group.args.splice(argIndex, 1);
-        } else {
-            const arg: OpPanelArg = group.args[argIndex];
-            arg.setValue(value);
-            if (options.typeid != null) {
-                arg.setTypeid(options.typeid);
-            }
-            this._formatArg(arg);
-            this._validateArg(arg);
-        }
-    }
-
     public getColumnTypeFromArg(value): string {
         const self = this;
         let colType: string;
@@ -144,38 +119,62 @@ class MapOpPanelModel extends GeneralOpPanelModel {
 
         for (let i = 0; i < argGroups.length; i++) {
             let argGroup = argGroups[i];
-            let args = [];
+            let args: OpPanelArg[] = [];
             const opInfo = this._getOperatorObj(argGroup.fnName);
-            if (!opInfo && argGroup.args.length) {
-                // XXX send to advanced mode
-                if (argGroup.fnName.length) {
-                    throw({error: "\"" + argGroup.fnName + "\" is not a" +
-                            " valid map function."});
-                } else {
-                    throw({error: "Function not selected."});
+            let lastArg;
+            let hasVariableArg = false;
+            if (argGroup.args.length) {
+                if (!opInfo) {
+                    // XXX send to advanced mode
+                    if (argGroup.fnName.length) {
+                        throw({error: "\"" + argGroup.fnName + "\" is not a" +
+                                " valid map function."});
+                    } else {
+                        throw({error: "Function not selected."});
+                    }
+                } else if (argGroup.args.length > opInfo.argDescs.length) {
+                    lastArg = opInfo.argDescs[opInfo.argDescs.length - 1];
+                    if (lastArg.argType === XcalarEvalArgTypeT.VariableArg ||
+                        (lastArg.argDesc.indexOf("*") === 0 &&
+                        lastArg.argDesc.indexOf("**") === -1)) {
+                        hasVariableArg = true;
+                    } else {
+                        throw ({error: "\"" + argGroup.fnName + "\" only accepts " +
+                            opInfo.argDescs.length + " arguments."});
+                    }
                 }
             }
-            if (argGroup.args.length &&
-                (!opInfo || (argGroup.args.length > opInfo.argDescs.length))) {
-                throw ({error: "\"" + argGroup.fnName + "\" only accepts " +
-                        opInfo.argDescs.length + " arguments."})
-            }
+
             for (var j = 0; j < argGroup.args.length; j++) {
                 let arg = argGroup.args[j].value;
                 if (argGroup.args[j].type === "fn") {
                     arg = xcHelper.stringifyEval(argGroup.args[j]);
                 }
-
-                const argInfo: OpPanelArg = new OpPanelArg(arg,
-                                        opInfo.argDescs[j].typesAccepted, true);
+                let typesAccepted;
+                if (hasVariableArg) {
+                    typesAccepted = lastArg.typesAccepted
+                } else {
+                    typesAccepted = opInfo.argDescs[j].typesAccepted;
+                }
+                const argInfo: OpPanelArg = new OpPanelArg(arg, typesAccepted,
+                                                           true);
                 args.push(argInfo);
             }
-            args.forEach((arg) => {
-                const value = formatArgToUI(arg.getValue());
-                arg.setValue(value);
-                if (argGroup.fnName === "regex" && args.length === 2) {
+            args.forEach((arg, index) => {
+                const rawValue = arg.getValue();
+                let value = formatArgToUI(rawValue);
+                if (argGroup.fnName === "regex" && args.length === 2 &&
+                    index === 1) {
                     arg.setRegex(true);
                 }
+                if (rawValue === "\"\"") {
+                    arg.setIsEmptyString(true);
+                }
+                if (rawValue === "None") {
+                    value = "";
+                    arg.setIsNone(true);
+                }
+                arg.setValue(value);
                 self._formatArg(arg);
                 self._validateArg(arg);
             });

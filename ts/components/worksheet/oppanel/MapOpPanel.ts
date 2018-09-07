@@ -3,9 +3,6 @@ class MapOpPanel extends GeneralOpPanel {
 
     private _filteredOperatorsMap = [];
     protected _functionsMap = [];
-    // private _$categoryList;
-    // private _$functionsList: JQuery;
-    // private _$mapFilter;
     private _currentCol: any;
     protected _dagNode: DagNodeMap;
     protected model: MapOpPanelModel;
@@ -20,10 +17,6 @@ class MapOpPanel extends GeneralOpPanel {
     public setup(): void {
         const self = this;
         super.setupPanel("#mapOpPanel");
-        // this._$categoryList = this._$panel.find('.categoryMenu');
-        // this._$functionsList = this._$panel.find('.functionsMenu');
-        // $group.find(".categoryMenu")
-        // $group.find(".functionsMenu")
 
         for (let i in this._operatorsMap) {
             if (parseInt(i) !== FunctionCategoryT.FunctionCategoryAggregate) {
@@ -32,43 +25,6 @@ class MapOpPanel extends GeneralOpPanel {
         }
 
         this._functionsInputEvents();
-
-        let argumentTimer: number;
-        // .arg (argument input)
-        this._$panel.on("input", ".arg", function(_event, options) {
-            // Suggest column name
-            const $input = $(this);
-            if ($input.closest(".dropDownList")
-                        .hasClass("colNameSection")) {
-                // for new column name, do not suggest anything
-                return;
-            }
-
-            if ($input.val() !== "" &&
-                $input.closest('.inputWrap').siblings('.inputWrap')
-                                            .length === 0) {
-                // hide empty options if input is dirty, but only if
-                // there are no sibling inputs from extra arguments
-                self._hideEmptyOptions($input);
-            }
-
-            clearTimeout(argumentTimer);
-            argumentTimer = <any>setTimeout(function() {
-                // XXX the first arg's list scroller won't be set up until
-                // 2nd part of form is filled, need to fix
-                if (options && options.insertText) {
-                    return;
-                }
-
-                self._argSuggest($input);
-                self._checkIfStringReplaceNeeded();
-            }, 200);
-
-            self._updateStrPreview();
-            if (options && options.insertText) {
-                self._checkIfStringReplaceNeeded();
-            }
-        });
 
         this._$panel.on("change", ".arg", argChange);
 
@@ -93,6 +49,7 @@ class MapOpPanel extends GeneralOpPanel {
         // adds field to group on input
         this._$panel.on("click", ".addGroup", function() {
             self.model.addGroup();
+            self._$panel.find(".mapFilter").last().focus();
         });
 
         this._$panel.on('click', '.closeGroup', function() {
@@ -150,7 +107,6 @@ class MapOpPanel extends GeneralOpPanel {
                             }
                         }
                     });
-
                 }
             });
         }
@@ -188,7 +144,6 @@ class MapOpPanel extends GeneralOpPanel {
                 return;
             }
 
-            // self._$mapFilter.val(operator).trigger("input");
             $group.find(".categoryMenu").find("li").filter(function() {
                 return $(this).data("category") === operObj.category;
             }).removeClass("active").click();
@@ -200,31 +155,36 @@ class MapOpPanel extends GeneralOpPanel {
             $li.addClass("active");
             self._updateArgumentSection(i, operObj);
 
-            const $args = $group.find(".arg").filter(function() {
+            let $args = $group.find(".arg").filter(function() {
                 return $(this).closest(".colNameSection").length === 0;
             });
 
             for (let j = 0; j < model.groups[i].args.length; j++) {
                 let arg = model.groups[i].args[j].getValue();
-                if ($args.eq(j).length) {
-                    $args.eq(j).val(arg);
-                    if ($args.eq(j).closest(".row").hasClass("boolOption")) {
-                        if (arg === "true") {
-                            $args.eq(j).closest(".row")
-                                    .find(".boolArgWrap .checkbox")
-                                    .addClass("checked");
-                        }
-                    }
-                } else {
+                if (!$args.eq(j).length) {
                     if ($group.find(".addArgWrap").length) {
                         $group.find(".addArg").last().click(); // change this
-                        $group.find(".arg").filter(function() {
-                            return $(this).closest(".colNameSection")
-                                        .length === 0;
-                        }).last().val(arg);
+                        $args = $group.find(".arg").filter(function() {
+                            return $(this).closest(".colNameSection").length === 0;
+                        });
                     } else {
                         break;
                     }
+                }
+
+                $args.eq(j).val(arg);
+                if ($args.eq(j).closest(".row").hasClass("boolOption")) {
+                    if (arg === "true") {
+                        $args.eq(j).closest(".row")
+                                .find(".boolArgWrap .checkbox")
+                                .addClass("checked");
+                    }
+                } else if (model.groups[i].args[j].checkIsEmptyString()) {
+                    this._showEmptyOptions($args.eq(j));
+                    $args.eq(j).closest(".row").find(".emptyStrWrap").click();
+                } else if (model.groups[i].args[j].hasNoneChecked()) {
+                    this._showEmptyOptions($args.eq(j));
+                    $args.eq(j).closest(".row").find(".noArgWrap").click();
                 }
             }
             $group.find(".resultantColNameRow .arg")
@@ -327,6 +287,8 @@ class MapOpPanel extends GeneralOpPanel {
 
             const operObj = self._getOperatorObj(func);
             self.model.enterFunction(func, operObj, groupIndex);
+
+            self._focusNextInput(groupIndex);
         });
         // XXX need to add listeners to each new functions list
         this._$panel.find(".functionsMenu").scroll(function() {
@@ -370,7 +332,13 @@ class MapOpPanel extends GeneralOpPanel {
                                         categoryNameLen - searchStr.length);
             }
             this._categoryNames.push(categoryName);
-            this._functionsMap[groupIndex][i] = this._operatorsMap[i];
+            const opsArray = [];
+            for (let j in this._operatorsMap[i]) {
+                opsArray.push(this._operatorsMap[i][j]);
+            }
+            opsArray.sort(sortFn);
+            this._functionsMap[groupIndex][i] = opsArray;
+
             html += '<li data-category="' + i + '">' +
                         categoryName +
                     '</li>';
@@ -378,6 +346,10 @@ class MapOpPanel extends GeneralOpPanel {
         const $list = $(html);
         $list.sort(this._sortHTML.bind(this));
         this._$panel.find(".group").eq(groupIndex).find(".categoryMenu").html($list);
+
+        function sortFn(a, b){
+            return (a.displayName) > (b.displayName) ? 1 : -1;
+        }
     }
 
     private _udfUpdateOperatorsMap() {
@@ -394,9 +366,9 @@ class MapOpPanel extends GeneralOpPanel {
             return (a.displayName) > (b.displayName) ? 1 : -1;
         }
 
-        this._operatorsMap[udfCategoryNum] = [];
+        this._operatorsMap[udfCategoryNum] = {};
         for (var i = 0; i < opArray.length; i++) {
-            this._operatorsMap[udfCategoryNum].push(opArray[i]);
+            this._operatorsMap[udfCategoryNum][opArray[i].displayName] = opArray[i];
         }
         this._pendingFnUpdate = null;
     }
@@ -640,6 +612,7 @@ class MapOpPanel extends GeneralOpPanel {
             }
 
             // add "addArg" button if *arg is found in the description
+            // udf default:multiJoin has *
             if (operObj.argDescs[i].argType === XcalarEvalArgTypeT.VariableArg ||
                 (description.indexOf("*") === 0 &&
                 description.indexOf("**") === -1)) {
@@ -989,7 +962,7 @@ class MapOpPanel extends GeneralOpPanel {
                 continue;
             }
             categorySet = this._operatorsMap[i];
-            for (let j = 0; j < categorySet.length; j++) {
+            for (let j in categorySet) {
                 fn = categorySet[j];
                 if (fn.displayName.toLowerCase().indexOf(val) > -1) {
                     if (!this._filteredOperatorsMap[groupIndex][fn.category]) {
@@ -1062,13 +1035,12 @@ class MapOpPanel extends GeneralOpPanel {
         if (typeId == null) {
             typeId = -1;
         }
-        const inputClass = "mapExtraArg";
 
         const html =
-            '<div class="row gbOnRow extraArg clearfix">' +
+            '<div class="row extraArg clearfix">' +
                 '<div class="inputWrap">' +
                     '<div class="dropDownList">' +
-                      '<input class="arg ' + inputClass +
+                      '<input class="arg mapExtraArg' +
                       '" type="text" tabindex="10" ' +
                         'spellcheck="false" data-typeid="' + typeId + '">' +
                       '<div class="list hint new">' +
@@ -1109,6 +1081,7 @@ class MapOpPanel extends GeneralOpPanel {
         $input.val("");
         $inputWrap.remove();
         this._checkIfStringReplaceNeeded();
+        this.model.removeArg(groupIndex, argIndex);
     }
 
     private _addGroup() {

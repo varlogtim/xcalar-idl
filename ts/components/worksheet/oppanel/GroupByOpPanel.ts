@@ -17,62 +17,29 @@ class GroupByOpPanel extends GeneralOpPanel {
         // adds field to group on input
         this._$panel.on("click", ".addGroupArg", function() {
             self.model.addGroupOnArg();
+            self._focusNextInput(0);
         });
 
         this._$panel.on('click', '.extraArg .xi-cancel', function() {
             const $row: JQuery = $(this).closest(".gbOnRow");
             const index: number = self._$panel.find(".gbOnRow").index($row);
             self.model.removeGroupOnArg(index);
+            self._$panel.find("input").blur();
         });
 
         this._$panel.find('.addGroup').click(function() {
             self.model.addGroup();
+            self._$panel.find('.group').last().find('.functionsInput').focus();
         });
 
         this._$panel.on('click', '.closeGroup', function() {
             const $group = $(this).closest('.group');
             const index = self._$panel.find(".group").index($group);
             self.model.removeGroup(index);
+            self._$panel.find("input").blur();
         });
 
         this._functionsInputEvents();
-
-        let argumentTimer;
-        // .arg (argument input)
-        this._$panel.on("input", ".arg", function(_event, options) {
-            // Suggest column name
-            const $input = $(this);
-            if ($input.closest(".dropDownList")
-                        .hasClass("colNameSection")) {
-                // for new column name, do not suggest anything
-                return;
-            }
-
-            if ($input.val() !== "" &&
-                $input.closest('.inputWrap').siblings('.inputWrap')
-                                            .length === 0) {
-                // hide empty options if input is dirty, but only if
-                // there are no sibling inputs from extra arguments
-                self._hideEmptyOptions($input);
-            }
-
-            clearTimeout(argumentTimer);
-            argumentTimer = setTimeout(function() {
-                // XXX the first arg's list scroller won't be set up until
-                // 2nd part of form is filled, need to fix
-                if (options && options.insertText) {
-                    return;
-                }
-
-                self._argSuggest($input);
-                self._checkIfStringReplaceNeeded();
-            }, 200);
-
-            self._updateStrPreview();
-            if (options && options.insertText) {
-                self._checkIfStringReplaceNeeded();
-            }
-        });
 
         this._$panel.on("change", ".arg", argChange);
 
@@ -519,12 +486,15 @@ class GroupByOpPanel extends GeneralOpPanel {
     }
 
     protected _populateFunctionsListUl(groupIndex) {
-        const categoryIndex = FunctionCategoryT.FunctionCategoryAggregate;
-        const ops = this._operatorsMap[categoryIndex];
+        const ops = this._getOperatorsLists();
         let html: HTML = "";
-        for (let i = 0, numOps = ops.length; i < numOps; i++) {
-            html += '<li class="textNoCap">' + ops[i].displayName + '</li>';
+        for (let i = 0; i < ops.length; i++) {
+            const opsArray = ops[i];
+            for (let j = 0, numOps = opsArray.length; j < numOps; j++) {
+                html += '<li class="textNoCap">' + opsArray[j].displayName + '</li>';
+            }
         }
+
         this._$panel.find('.genFunctionsMenu ul[data-fnmenunum="' +
                                 groupIndex + '"]')
                         .html(html);
@@ -628,10 +598,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         const func = $argsGroup.find('.functionsInput').val().trim();
         const ops = this._operatorsMap[categoryNum];
 
-        const operObj = ops.find((op) => {
-            return op.displayName === func;
-        });
-
+        const operObj = ops[func];
         const $argsSection = $argsGroup.find('.argsSection').last();
         $argsSection.empty();
         $argsSection.addClass("touched");
@@ -1196,12 +1163,12 @@ class GroupByOpPanel extends GeneralOpPanel {
         if (typeId == null) {
             typeId = -1;
         }
-        const inputClass = "gbOnArg";
+
         const html =
             '<div class="row gbOnRow extraArg clearfix">' +
                 '<div class="inputWrap">' +
                     '<div class="dropDownList">' +
-                      '<input class="arg ' + inputClass +
+                      '<input class="arg gbOnArg' +
                       '" type="text" tabindex="10" ' +
                         'spellcheck="false" data-typeid="' + typeId + '">' +
                       '<div class="list hint new">' +

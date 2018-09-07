@@ -1,7 +1,7 @@
 class XDFManager {
     private static _instance = null;
-    private _operatorsMap = {}; //stores all xdfs sorted by category
-
+    private _operatorsMap = {}; //stores all xdfs sorted by category, each
+    // category is a map
     public constructor() {}
 
     public static get Instance() {
@@ -26,27 +26,18 @@ class XDFManager {
         return deferred.promise();
     }
 
-    public getOperatorsMap() {
-        return this._operatorsMap;
-    }
-
     private _setupOperatorsMap(opArray) {
         const self = this;
         this._operatorsMap = {};
         opArray.forEach(function(op) {
             if (!self._operatorsMap[op.category]) {
-                self._operatorsMap[op.category] = [];
+                self._operatorsMap[op.category] = {};
             }
-            self._operatorsMap[op.category].push(op);
+            self._operatorsMap[op.category][op.displayName] = op;
         });
+    }
 
-        // sort each set of operators by name
-        for (let i in this._operatorsMap) {
-            this._operatorsMap[i].sort(sortFn);
-        }
-
-        function sortFn(a, b){
-            return (a.displayName) > (b.displayName) ? 1 : -1;
-        }
+    public getOperatorsMap() {
+        return this._operatorsMap;
     }
 }

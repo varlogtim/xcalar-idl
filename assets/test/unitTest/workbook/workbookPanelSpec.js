@@ -421,7 +421,7 @@ describe("Workbook-Workbook Panel Test", function() {
             $input.blur();
 
             var checkFunc = function() {
-                return !$box.hasClass(".loading");
+                return !$box.hasClass("loading");
             };
 
             UnitTest.testFinish(checkFunc)

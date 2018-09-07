@@ -60,15 +60,10 @@ class DagNodeMap extends DagNode {
         const opsMap = XDFManager.Instance.getOperatorsMap();
         for (let category in opsMap) {
             const ops = opsMap[category];
-            ops.forEach((opInfo) => {
-                if (opInfo.fnName === operator) {
-                    colType = xcHelper.getDFFieldTypeToString(opInfo.outputType);
-                    return false; // stop second-level loop
-                }
-            });
-
-            if (colType != null) {
-                break; // stop first-level loop
+            const opInfo = ops[operator];
+            if (opInfo) {
+                colType = xcHelper.getDFFieldTypeToString(opInfo.outputType);
+                break;
             }
         }
         return colType;

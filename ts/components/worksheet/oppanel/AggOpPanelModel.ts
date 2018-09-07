@@ -41,31 +41,6 @@ class AggOpPanelModel extends GeneralOpPanelModel {
         this._update();
     }
 
-    public updateArg(
-        value: string,
-        groupIndex: number,
-        argIndex: number,
-        options?: any
-    ): void {
-        options = options || {};
-        const group = this.groups[groupIndex];
-        while (group.args.length <= argIndex) {
-            group.args.push(new OpPanelArg("", -1));
-        }
-        // no arg if boolean is not true
-        if ((options.boolean && value === "") || options.isEmptyArg) {
-            group.args.splice(argIndex, 1);
-        } else {
-            const arg: OpPanelArg = group.args[argIndex];
-            arg.setValue(value);
-            if (options.typeid != null) {
-                arg.setTypeid(options.typeid);
-            }
-            this._formatArg(arg);
-            this._validateArg(arg);
-        }
-    }
-
     public getColumnTypeFromArg(value): string {
         const self = this;
         let colType: string;
@@ -120,19 +95,22 @@ class AggOpPanelModel extends GeneralOpPanelModel {
             let argGroup = argGroups[i];
             let args = [];
             const opInfo = this._getOperatorObj(argGroup.fnName);
-            if (!opInfo && argGroup.args.length) {
-                // XXX send to advanced mode
-                if (argGroup.fnName.length) {
-                    throw({error: "\"" + argGroup.fnName + "\" is not a" +
-                            " valid aggregate function."});
-                } else {
-                    throw({error: "Function not selected."});
+            if (argGroup.args.length) {
+                if (!opInfo) {
+                    // XXX send to advanced mode
+                    if (argGroup.fnName.length) {
+                        throw({error: "\"" + argGroup.fnName + "\" is not a" +
+                                " valid aggregate function."});
+                    } else {
+                        throw({error: "Function not selected."});
+                    }
+                } else if (argGroup.args.length > opInfo.argDescs.length) {
+                    const lastArg = opInfo.argDescs[opInfo.argDescs.length - 1];
+                    if (lastArg.argType !== XcalarEvalArgTypeT.VariableArg) {
+                        throw ({error: "\"" + argGroup.fnName + "\" only accepts " +
+                            opInfo.argDescs.length + " arguments."})
+                    }
                 }
-            }
-            if (argGroup.args.length &&
-                (!opInfo || (argGroup.args.length > opInfo.argDescs.length))) {
-                throw ({error: "\"" + argGroup.fnName + "\" only accepts " +
-                        opInfo.argDescs.length + " arguments."})
             }
             for (var j = 0; j < argGroup.args.length; j++) {
                 let arg = argGroup.args[j].value;

@@ -120,17 +120,15 @@ class DagNodeGroupBy extends DagNode {
 
         return xcHelper.randName(name);
     }
-    
+
     private _getAggColType(operator: string): ColumnType {
         let colType: ColumnType = null;
         const opsMap = XDFManager.Instance.getOperatorsMap();
         const ops = opsMap[FunctionCategoryT.FunctionCategoryAggregate];
-        ops.forEach((opInfo) => {
-            if (opInfo.fnName === operator) {
-                colType = xcHelper.getDFFieldTypeToString(opInfo.outputType);
-                return false; // stop loop
-            }
-        });
+        const opInfo = ops[operator];
+        if (opInfo) {
+            colType = xcHelper.getDFFieldTypeToString(opInfo.outputType);
+        }
         return colType;
     }
 }

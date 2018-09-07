@@ -1345,7 +1345,7 @@ namespace DagView {
     function _getChildConnector($childNode: JQuery, index: number): JQuery {
         let $childConnector: JQuery;
         let $childConnectors = $childNode.find(".connector.in");
-        if ($childConnectors.hasClass(".multi")) {
+        if ($childConnectors.hasClass("multi")) {
             $childConnector = $childConnectors.eq(0);
         } else {
             $childConnector = $childConnectors.eq(index);

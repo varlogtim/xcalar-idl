@@ -42,7 +42,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
     }
 
     public removeGroupOnArg(index: number): void {
-        this.groupOnCols.slice(index, 1);
+        this.groupOnCols.splice(index, 1);
         this._update();
     }
 
@@ -79,31 +79,6 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
         }
 
         this._update();
-    }
-
-    public updateArg(
-        value: string,
-        groupIndex: number,
-        argIndex: number,
-        options?: any
-    ): void {
-        options = options || {};
-        const group = this.groups[groupIndex];
-        while (group.args.length <= argIndex) {
-            group.args.push(new OpPanelArg("", -1));
-        }
-        // no arg if boolean is not true
-        if ((options.boolean && value === "") || options.isEmptyArg) {
-            group.args.splice(argIndex, 1);
-        } else {
-            const arg: OpPanelArg = group.args[argIndex];
-            arg.setValue(value);
-            if (options.typeid != null) {
-                arg.setTypeid(options.typeid);
-            }
-            this._formatArg(arg);
-            this._validateArg(arg);
-        }
     }
 
     public getColumnTypeFromArg(value): string {
@@ -354,6 +329,9 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
     }
 
     public validateGroupOnCols() {
+        if (this.groupAll) {
+            return;
+        }
         if (!this.groupOnCols.length) {
             return {
                 error: "Please provide one or more fields to group by",

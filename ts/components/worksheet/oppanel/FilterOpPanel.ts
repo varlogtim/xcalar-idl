@@ -24,42 +24,6 @@ class FilterOpPanel extends GeneralOpPanel {
 
         this._functionsInputEvents();
 
-        let argumentTimer;
-        // .arg (argument input)
-        this._$panel.on("input", ".arg", function(_event, options) {
-            // Suggest column name
-            const $input = $(this);
-            const val = $input.val();
-            // let inputSelf = this;
-
-            if (val !== "" &&
-                $input.closest('.inputWrap').siblings('.inputWrap')
-                                            .length === 0) {
-                // hide empty options if input is dirty, but only if
-                // there are no sibling inputs from extra arguments
-                self._hideEmptyOptions($input);
-            }
-
-            clearTimeout(argumentTimer);
-            argumentTimer = setTimeout(() => {
-                if (options && options.insertText) {
-                    return;
-                }
-
-                self._argSuggest($input);
-                self._checkIfStringReplaceNeeded();
-                // argChange.bind(inputSelf)();
-            }, 200);
-
-
-            if (options && options.insertText) {
-                argChange.bind(this)();
-                self._checkIfStringReplaceNeeded();
-            } else {
-                self._updateStrPreview();
-            }
-        });
-
         this._$panel.on("change", ".arg", argChange);
 
         function argChange() {
@@ -135,6 +99,9 @@ class FilterOpPanel extends GeneralOpPanel {
                                 .find(".boolArgWrap .checkbox")
                                 .addClass("checked");
                     }
+                } else if (model.groups[i].args[j].checkIsEmptyString()) {
+                    this._showEmptyOptions($args.eq(j));
+                    $args.eq(j).closest(".row").find(".emptyStrWrap").click();
                 }
             }
         }
@@ -398,10 +365,7 @@ class FilterOpPanel extends GeneralOpPanel {
         // const category = this._categoryNames[categoryNum];
         const func = $argsGroup.find('.functionsInput').val().trim();
         const ops = this._operatorsMap[categoryNum];
-
-        const operObj = ops.find((op) => {
-            return op.displayName === func;
-        });
+        const operObj = ops[func];
 
         const $argsSection = $argsGroup.find('.argsSection').last();
         const firstTime = !$argsSection.hasClass("touched");

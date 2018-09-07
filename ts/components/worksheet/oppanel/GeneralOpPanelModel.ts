@@ -106,9 +106,11 @@ class GeneralOpPanelModel {
             this._formatArg(arg);
             this._validateArg(arg);
         }
+    }
 
-        // console.log(JSON.stringify(this.groups, null, 2));
-        // this._update(); // causes focus/blur issues
+    public removeArg(groupIndex: number, argIndex: number): void {
+        const group = this.groups[groupIndex];
+        group.args.splice(argIndex, 1);
     }
 
     public updateCast(
@@ -128,56 +130,7 @@ class GeneralOpPanelModel {
         this.dagNode.setParam(param);
     }
 
-    protected _initialize(paramsRaw) {
-        const self = this;
-        const params: xcHelper.OpAndArgsObject = xcHelper.extractOpAndArgs(
-                                                        paramsRaw.evalString);
-        // initialize all columns
-        this.tableColumns = this.dagNode.getParents().map((parentNode) => {
-            return parentNode.getLineage().getColumns();
-        })[0];
-        const func = params.op;
-        const categoryNum = FunctionCategoryT.FunctionCategoryCondition;
-        const ops = XDFManager.Instance.getOperatorsMap()[categoryNum];
-        const opInfo = ops.find((op) => {
-            return op.displayName === func;
-        });
-
-        const args = params.args.map((arg, i) => {
-            const argInfo: OpPanelArg = new OpPanelArg(arg, opInfo.argDescs[i].typesAccepted, true);
-            return argInfo;
-        });
-        args.forEach((arg) => {
-            const value = formatArgToUI(arg.getValue());
-            arg.setValue(value);
-            if (func === "regex" && args.length === 2) {
-                arg.setRegex(true);
-            }
-            self._formatArg(arg);
-            self._validateArg(arg);
-        });
-
-        this.groups = [{operator: params.op, args: args}];
-        this.andOrOperator = "and";
-
-        function formatArgToUI(arg) {
-            if (arg.charAt(0) !== ("'") && arg.charAt(0) !== ('"')) {
-                if (self._isArgAColumn(arg)) {
-                    // it's a column
-                    if (arg.charAt(0) !== gAggVarPrefix) {
-                        // do not prepend colprefix if has aggprefix
-                        arg = gColPrefix + arg;
-                    }
-                }
-            } else {
-                const quote = arg.charAt(0);
-                if (arg.lastIndexOf(quote) === arg.length - 1) {
-                    arg = arg.slice(1, -1); // remove surrounding quotes
-                }
-            }
-            return arg;
-        }
-    }
+    protected _initialize(_paramsRaw) {}
 
     protected _update(all?: boolean): void {
         // console.log(JSON.stringify(this.tableColumns), JSON.stringify(this.getModel(), null, 2));
@@ -208,7 +161,7 @@ class GeneralOpPanelModel {
             }
             arg.setType("value");
         } else if (arg.checkIsRegex()) {
-            formattedValue = val;
+            formattedValue = "\"" + val + "\"";
             arg.setType("regex");
         } else if (this._hasFuncFormat(trimmedVal)) {
             formattedValue = self._parseColPrefixes(trimmedVal);
@@ -336,16 +289,10 @@ class GeneralOpPanelModel {
             let operatorInfo = null;
             for (let category in opsMap) {
                 const ops = opsMap[category];
-                ops.forEach((opInfo) => {
-                    if (opInfo.fnName === operator) {
-                        operatorInfo = opInfo;
-                        outputType = xcHelper.getDFFieldTypeToString(opInfo.outputType);
-                        return false; // stop second-level loop
-                    }
-                });
-
-                if (outputType != null) {
-                    break; // stop first-level loop
+                if (ops[operator]) {
+                    operatorInfo = ops[operator];
+                    outputType = xcHelper.getDFFieldTypeToString(operatorInfo.outputType);
+                    break;
                 }
             }
             if (outputType == null) {
@@ -823,27 +770,15 @@ class GeneralOpPanelModel {
     }
 
     protected _getOperatorObj(operatorName: string): any {
-        const opsLists = this._getOperatorsLists();
-        for (let i = 0; i < opsLists.length; i++) {
-            const op = opsLists[i].find((op) => {
-                return op.displayName === operatorName;
-            });
+        for (let i = 0; i < this._opCategories.length; i++) {
+            let ops = XDFManager.Instance.getOperatorsMap()[this._opCategories[i]];
+            const op = ops[operatorName];
             if (op) {
                 return op;
             }
         }
         return null;
     }
-
-    protected _getOperatorsLists(): any[][] {
-        const opLists: any[][] = [];
-        this._opCategories.forEach(categoryNum => {
-            let ops = XDFManager.Instance.getOperatorsMap()[categoryNum];
-            opLists.push(ops);
-        });
-        return opLists;
-    }
-
 
     public validateGroups() {
         const self = this;
@@ -856,6 +791,22 @@ class GeneralOpPanelModel {
                         group: i,
                         arg: -1,
                         type: "function"};
+            }
+        }
+        // correct number of operators
+        for (let i = 0; i < groups.length; i++) {
+            const group = groups[i];
+            const opInfo = this._getOperatorObj(group.operator);
+            if (group.args.length < opInfo.argDescs.length) {
+                const lastArg = opInfo.argDescs[opInfo.argDescs.length - 1];
+                if (lastArg.argDesc.indexOf("*") !== 0 ||
+                        lastArg.argDesc.indexOf("**") !== -1) {
+                    return {error: "\"" + group.operator + "\" expects " +
+                                    opInfo.argDescs.length + " arguments.",
+                        group: i,
+                        arg: -1,
+                        type: "missingFields"};
+                }
             }
         }
 

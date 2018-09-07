@@ -129,6 +129,41 @@ class GeneralOpPanel extends BaseOpPanel {
             }
         });
 
+        let argumentTimer;
+        // .arg (argument input)
+        this._$panel.on("input", ".arg", function(_event, options) {
+            // Suggest column name
+            const $input = $(this);
+            if ($input.closest(".dropDownList")
+                        .hasClass("colNameSection")) {
+                // for new column name, do not suggest anything
+                return;
+            }
+
+            if ($input.val() !== "" &&
+                $input.closest('.inputWrap').siblings('.inputWrap')
+                                            .length === 0) {
+                // hide empty options if input is dirty, but only if
+                // there are no sibling inputs from extra arguments
+                self._hideEmptyOptions($input);
+            }
+
+            clearTimeout(argumentTimer);
+            argumentTimer = setTimeout(function() {
+                if (options && options.insertText) {
+                    return;
+                }
+
+                self._argSuggest($input);
+                self._checkIfStringReplaceNeeded();
+            }, 200);
+
+            self._updateStrPreview();
+            if (options && options.insertText) {
+                self._checkIfStringReplaceNeeded();
+            }
+        });
+
         this._$panel.on("focus", ".arg", function() {
             self._hideDropdowns();
         });
@@ -218,7 +253,7 @@ class GeneralOpPanel extends BaseOpPanel {
 
             self.dataModel.updateArg($arg.val(), groupIndex, index, {
                 isEmptyArg: isChecked && isEmptyArgsBox,
-                isNone: isChecked && !isEmptyArgsBox && $checkbox.hasClass(".noArg"),
+                isNone: isChecked && !isEmptyArgsBox && $checkbox.hasClass("noArg"),
                 isEmptyString: isChecked && $checkbox.hasClass("emptyStr")
             });
             self._checkIfStringReplaceNeeded();
@@ -644,10 +679,10 @@ class GeneralOpPanel extends BaseOpPanel {
         }
         let sortFn;
         if (showingAll) {
-             sortFn = xcHelper.sortVals;
+            sortFn = xcHelper.sortVals;
         } else {
             sortFn = (a, b) => {
-                return a - b.length;
+                return a.length - b.length;
             };
         }
 
@@ -1039,11 +1074,9 @@ class GeneralOpPanel extends BaseOpPanel {
     }
 
     protected _getOperatorObj(operatorName: string): any {
-        const opsLists = this._getOperatorsLists();
-        for (let i = 0; i < opsLists.length; i++) {
-            const op = opsLists[i].find((op) => {
-                return op.displayName === operatorName;
-            });
+        for (let i = 0; i < this._opCategories.length; i++) {
+            let ops = XDFManager.Instance.getOperatorsMap()[this._opCategories[i]];
+            const op = ops[operatorName];
             if (op) {
                 return op;
             }
@@ -1912,9 +1945,18 @@ class GeneralOpPanel extends BaseOpPanel {
         const self = this;
         const opLists: any[][] = [];
         this._opCategories.forEach(categoryNum => {
-            let ops = self._operatorsMap[categoryNum];
-            opLists.push(ops);
+            const ops = self._operatorsMap[categoryNum];
+            const opsArray = [];
+            for (let i in ops) {
+                opsArray.push(ops[i]);
+            }
+
+            opsArray.sort(sortFn);
+            opLists.push(opsArray);
         });
+        function sortFn(a, b){
+            return (a.displayName) > (b.displayName) ? 1 : -1;
+        }
         return opLists;
     }
 }

@@ -14,41 +14,6 @@ class AggOpPanel extends GeneralOpPanel {
 
         this._functionsInputEvents();
 
-        let argumentTimer;
-        // .arg (argument input)
-        this._$panel.on("input", ".arg", function(_event, options) {
-            // Suggest column name
-            const $input = $(this);
-            if ($input.closest("colNameSection").length) {
-                // for new column name, do not suggest anything
-                return;
-            }
-
-            if ($input.val() !== "" &&
-                $input.closest('.inputWrap').siblings('.inputWrap')
-                                            .length === 0) {
-                // hide empty options if input is dirty, but only if
-                // there are no sibling inputs from extra arguments
-                self._hideEmptyOptions($input);
-            }
-
-            clearTimeout(argumentTimer);
-            argumentTimer = setTimeout(function() {
-                // XXX the first arg's list scroller won't be set up until
-                // 2nd part of form is filled, need to fix
-                if (options && options.insertText) {
-                    return;
-                }
-
-                self._argSuggest($input);
-                self._checkIfStringReplaceNeeded();
-            }, 200);
-
-            if (options && options.insertText) {
-                self._checkIfStringReplaceNeeded();
-            }
-        });
-
         this._$panel.on("change", ".arg", argChange);
 
         function argChange() {
@@ -373,10 +338,7 @@ class AggOpPanel extends GeneralOpPanel {
         const categoryNum = FunctionCategoryT.FunctionCategoryAggregate;
         const func = $argsGroup.find('.functionsInput').val().trim();
         const ops = this._operatorsMap[categoryNum];
-
-        const operObj = ops.find((op) => {
-            return op.displayName === func;
-        });
+        const operObj = ops[func];
 
         const $argsSection = $argsGroup.find('.argsSection').last();
         const firstTime = !$argsSection.hasClass("touched");
