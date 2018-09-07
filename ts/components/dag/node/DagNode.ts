@@ -188,7 +188,7 @@ abstract class DagNode {
      * switch from configured/complete/error state to other configured/error state
      */
     public switchState(): void {
-        if (Object.keys(this.input).length === 0) {
+        if (!this.isConfigured()) {
             // it's in unsed state, but it may still has caches of lineage
             this._clearConnectionMeta();
             return;
@@ -466,4 +466,35 @@ abstract class DagNode {
         return null;
     }
 
+    public isConfigured(): boolean {
+        return Object.keys(this.input).length > 0;
+    }
+
+    public applyColumnMapping(_map, _index: number): void {
+        if (this.isConfigured()) {
+            return;
+        }
+        this.setParam();
+    }
+
+    protected _replaceColumnInEvalStr(evalStr: string, columnMap): string {
+        const parsedEval: ParsedEval = XDParser.XEvalParser.parseEvalStr(evalStr);
+        if (parsedEval.error) {
+            return evalStr;
+        }
+        recursiveTraverse(parsedEval);
+        return xcHelper.stringifyEval(parsedEval);
+
+        function recursiveTraverse(evalStruct) {
+            evalStruct.args.forEach((arg: ParsedEvalArg) => {
+                if (arg.type === "columnArg") {
+                    if (columnMap[arg.value]) {
+                        arg.value = columnMap[arg.value];
+                    }
+                } else if (arg.type === "fn") {
+                    recursiveTraverse(arg);
+                }
+            });
+        }
+    }
 }

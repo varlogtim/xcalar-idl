@@ -136,8 +136,8 @@ class DagLineage {
             }
             const parentLineage = parentNode.getLineage();
             if (numParents > 1) {
-                // if it's join or union, we only want to traverse the parent
-                // that contains the column, searching for the column won't work
+                // If it's join or union, we only want to traverse the parent
+                // that contains the column. Searching for the column won't work
                 // if it's renamed in the parent so search the renames first
                 for (let j = 0; j < parentLineage.changes.length; j++) {
                     const change = parentLineage.changes[j];

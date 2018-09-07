@@ -55,6 +55,16 @@ class DagNodeAggregate extends DagNode {
         };
     }
 
+    public applyColumnMapping(renameMap): void {
+        try {
+            this.input.evalString = this._replaceColumnInEvalStr(this.input.evalString,
+                                                            renameMap.columns);
+        } catch(err) {
+            console.error(err);
+        }
+        super.setParam();
+    }
+
     protected _clearConnectionMeta(): void {
         super._clearConnectionMeta();
         this.setAggVal(null);

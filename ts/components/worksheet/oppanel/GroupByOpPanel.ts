@@ -159,6 +159,7 @@ class GroupByOpPanel extends GeneralOpPanel {
 
         super._panelShowHelper(this.model);
         this._render(true);
+        return true;
     };
 
     // functions that get called after list udfs is called during op view show

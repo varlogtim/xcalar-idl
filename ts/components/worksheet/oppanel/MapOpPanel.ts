@@ -79,7 +79,7 @@ class MapOpPanel extends GeneralOpPanel {
     // prefill: object, used to prefill the form
     // public show = function(currTableId, currColNums, operator,
     //                                options) {
-    public show(node: DagNodeMap) {
+    public show(node: DagNodeMap): boolean {
         const self = this;
         if (super.show(node)) {
             this.model = new MapOpPanelModel(this._dagNode, () => {
@@ -109,7 +109,9 @@ class MapOpPanel extends GeneralOpPanel {
                     });
                 }
             });
+            return true;
         }
+        return false;
     }
 
     public close() {

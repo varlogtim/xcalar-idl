@@ -719,7 +719,12 @@ OpFormTStr = {
     'CMD': 'Command Preview',
     'Descript': 'Description',
     'FieldToGroup': 'Fields to group on',
-    'ResultColName': 'Resultant column'
+    'ResultColName': 'Resultant column',
+    'PreviousColumns': 'Previous Columns',
+    'NewColumns': 'New Columns',
+    'SelectColRename': 'Select columns to rename',
+    'NotRenamed': 'Not being renamed',
+
 };
 
 AggTStr = {

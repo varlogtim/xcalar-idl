@@ -7,6 +7,9 @@ interface OpPanelFunctionGroup {
     distinct?: boolean;
 }
 
+interface GroupByOpPanelFunctionGroup extends OpPanelFunctionGroup {
+    distinct: boolean;
+}
 // *******************
 // BaseOpPanel
 // *******************

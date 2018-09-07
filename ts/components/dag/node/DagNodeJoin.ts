@@ -50,6 +50,62 @@ class DagNodeJoin extends DagNode {
         };
     }
 
+    public applyColumnMapping(renameMap, index: number): {} {
+        const newRenameMap = xcHelper.deepCopy(renameMap);
+        try {
+            let side: string;
+            if (index === 0) {
+                side = "left";
+            } else {
+                side = "right";
+            }
+            this.input.evalString = this._replaceColumnInEvalStr(this.input.evalString, renameMap.columns);
+            this.input[side].columns.forEach((columnName, i) => {
+                if (renameMap.columns[columnName]) {
+                    this.input[side].columns[i] = renameMap.columns[columnName];
+                }
+            });
+            this.input[side].rename.forEach((renameInfo) => {
+                if (renameInfo.prefix) {
+                    const originalPrefix = renameInfo.sourceColumn;
+                    if (renameMap.prefixes[originalPrefix]) {
+                        delete newRenameMap.prefixes[renameInfo.sourceColumn];
+                        renameInfo.sourceColumn = renameMap.prefixes[originalPrefix];
+                        const originalRenamedPrefix = renameInfo.destColumn;
+
+                        // mapping: a::classid -> x::teacherId
+                        // join renamed prefix "a" to "b"
+                        // new mapping: b::classId -> b::teacherId
+
+                        // go through each column that matches same prefix
+                        // and updated the new renameMap with the
+                        // renamed prefix
+                        for (let oldColName in newRenameMap.columns) {
+                            const oldParsedColName = xcHelper.parsePrefixColName(oldColName);
+                            if (oldParsedColName.prefix === originalPrefix) {
+                                const newParsedColName = xcHelper.parsePrefixColName(newRenameMap.columns[oldColName]);
+                                const prevColName = xcHelper.getPrefixColName(originalRenamedPrefix, oldParsedColName.name);// "b::classId"
+                                const newDestColName = xcHelper.getPrefixColName(originalRenamedPrefix, newParsedColName.name);// "b::teacherId"
+                                delete newRenameMap.columns[oldColName];
+                                newRenameMap.columns[prevColName] = newDestColName;
+                            }
+                        }
+                    }
+                } else {
+                    if (renameMap.columns[renameInfo.sourceColumn]) {
+                        const prevColName = renameInfo.sourceColumn;
+                        renameInfo.sourceColumn = renameMap.columns[prevColName];
+                        delete newRenameMap.columns[prevColName];
+                    }
+                }
+            });
+        } catch(err) {
+            console.error(err);
+        }
+        super.setParam();
+        return newRenameMap;
+    }
+
     private _getDefaultTableInfo(): DagNodeJoinTableInput {
         return {
             columns: [""],

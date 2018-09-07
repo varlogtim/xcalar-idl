@@ -105,7 +105,6 @@ class DagNodeGroupBy extends DagNode {
     private _updateNewKeys(): void {
         const takenNames: Set<string> = new Set();
         const oldNewKeys = this.input.newKeys || [];
-
         oldNewKeys.forEach((key) => {
             takenNames.add(key);
         });
@@ -119,7 +118,7 @@ class DagNodeGroupBy extends DagNode {
                 takenNames.add(parsedCol.name);
             }
         });
-        
+
         const newKeys: string[] = parsedGroupByCols.map((parsedCol, index) => {
             if (oldNewKeys[index]) {
                 return oldNewKeys[index];
@@ -142,6 +141,36 @@ class DagNodeGroupBy extends DagNode {
             }
         });
         this.input.newKeys = newKeys;
+    }
+
+    public applyColumnMapping(renameMap): void {
+        const newRenameMap = xcHelper.deepCopy(renameMap);
+        try {
+            this.input.groupBy.forEach((val, i) => {
+                if (renameMap.columns[val]) {
+                    this.input.groupBy[i] = renameMap.columns[val];
+                    delete newRenameMap.columns[val];
+                    // this column gets renamed so we don't need to map it
+                    // anymore
+                    // XXX decide if we want to rename the newKey as well
+                } else {
+                    this.input.groupBy[i] = this._replaceColumnInEvalStr(val,
+                                                renameMap.columns);
+                }
+            });
+            this.input.aggregate.forEach((agg, i) => {
+                if (renameMap.columns[agg.sourceColumn]) {
+                    this.input.aggregate[i].sourceColumn = renameMap.columns[agg.sourceColumn];
+                } else {
+                    this.input.aggregate[i].sourceColumn = this._replaceColumnInEvalStr(agg.sourceColumn,
+                                                renameMap.columns);
+                }
+            });
+        } catch(err) {
+            console.error(err);
+        }
+        super.setParam();
+        return newRenameMap;
     }
 
     private _getAggColType(operator: string): ColumnType {

@@ -3171,6 +3171,7 @@ window.DSPreview = (function($, DSPreview) {
             if (!url.endsWith("/")) {
                 url += "/";
             }
+
             files.forEach(function(file) {
                 // XXX temporary skip folder, later may enable it
                 if (!file.attr.isDirectory) {
@@ -3200,7 +3201,6 @@ window.DSPreview = (function($, DSPreview) {
                         '</div>' +
                     '</li>';
             }
-
             if (!html) {
                 // when no path
                 html = '<li class="hint">' +

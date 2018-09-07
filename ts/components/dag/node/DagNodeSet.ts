@@ -89,4 +89,22 @@ class DagNodeSet extends DagNode {
             changes: changes
         };
     }
+
+    public applyColumnMapping(renameMap, index): void {
+        const newRenameMap = xcHelper.deepCopy(renameMap);
+        try {
+            this.input.columns[index].forEach((columnInfo, i) => {
+                if (renameMap.columns[columnInfo.sourceColumn]) {
+                    const prevColName = columnInfo.sourceColumn
+                    this.input.columns[index][i].sourceColumn =
+                                renameMap.columns[prevColName];
+                    delete newRenameMap.columns[prevColName];
+                }
+            });
+        } catch(err) {
+            console.error(err);
+        }
+        super.setParam();
+        return newRenameMap;
+    }
 }

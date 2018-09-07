@@ -35,4 +35,14 @@ class DagNodeFilter extends DagNode {
             changes: []
         };
     }
+
+    public applyColumnMapping(renameMap): void {
+        try {
+            this.input.evalString = this._replaceColumnInEvalStr(this.input.evalString,
+                                                            renameMap.columns);
+        } catch(err) {
+            console.error(err);
+        }
+        super.setParam();
+    }
 }

@@ -51,29 +51,9 @@
           </div>
         </div>
         <div class="divider"></div>
-         <!-- list part -->
-         <div class="tableSection">
-            <div class="header clearfix">
-              <span class="text"><%= dicts.SetOpPanel.ColumnTitle %>:</span>
-            </div>
-          <div class="listSection"></div>
-        </div>
+
       </section>
-      <section class="middleSection">
-        <!-- result part -->
-        <div class="resultSection">
-          <div class="listSection"></div>
-        </div>
-        <!-- drop part -->
-        <div class="candidateSection">
-          <div class="subHeading clearfix">
-            <span class="text"><%= dicts.SetOpPanel.CandidateTitle %>:</span>
-          </div>
-          <div class="listSection">
-            <div class="lists"></div>
-          </div>
-        </div>
-      </section>
+      include "colAssignmentView.html"
       <section class="advancedEditor">
         <textarea></textarea>
       </section>

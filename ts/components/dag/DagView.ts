@@ -30,7 +30,6 @@ namespace DagView {
         DagTopBar.Instance.setup();
         DagCategoryBar.Instance.setup();
         DagNodeMenu.setup();
-        DagDatasetModal.setup();
         DagComment.Instance.setup();
     }
 

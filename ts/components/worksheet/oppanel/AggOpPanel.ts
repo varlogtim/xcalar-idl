@@ -46,8 +46,9 @@ class AggOpPanel extends GeneralOpPanel {
             this._$panel.find('.functionsInput').focus();
             this._render();
             this._formHelper.refreshTabbing();
+            return true;
         }
-        return true;
+        return false;
     }
 
   // functions that get called after list udfs is called during op view show

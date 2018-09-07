@@ -654,12 +654,51 @@ class DagGraph {
                 } else {
                     seen.add(nodeId);
                 }
-
                 callback(child);
                 recursiveTraverse(child);
             });
         };
 
         recursiveTraverse(node);
+    }
+
+    public applyColumnMapping(nodeId: DagNodeId, renameMap) {
+        const dagNode: DagNode = this.getNode(nodeId);
+        recursiveTraverse(dagNode, renameMap);
+
+        function recursiveTraverse(node: DagNode, renameMap): void {
+            const children: DagNode[] = node.getChildren();
+            const parentNodeId = node.getId();
+            const nodeChildMap = {};
+            children.forEach((child: DagNode) => {
+                const nodeId: DagNodeId = child.getId();
+                const parents = child.getParents();
+                let index;
+                for (let i = 0; i < parents.length; i++) {
+                    if (parents[i].getId() === parentNodeId) {
+                        // find the correct child index in relation to the parent
+                        // example: if self-join, determines if looking at
+                        // the left table (index == 0) or right table (index == 1)
+                        if (!nodeChildMap.hasOwnProperty(nodeId)) {
+                            nodeChildMap[nodeId] = 0;
+                        } else {
+                            nodeChildMap[nodeId]++;
+                        }
+                        index = i + nodeChildMap[nodeId];
+                        break;
+                    }
+                }
+                let newRenameMap;
+                if (child.isConfigured()) {
+                    // TODO terminate early if no column matches
+                    newRenameMap = child.applyColumnMapping(renameMap, index);
+                }
+                if (!newRenameMap) {
+                    newRenameMap = renameMap;
+                }
+
+                recursiveTraverse(child, newRenameMap);
+            });
+        };
     }
 }

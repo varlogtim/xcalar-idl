@@ -125,12 +125,6 @@ namespace xcHelper {
         modelingMode?: boolean;
     }
 
-    export interface ParsedEval {
-        fnName: string,
-        args: string[] | ParsedEval [],
-        error?: string
-    }
-
     interface UDFListModule {
         name: string,
         displayName: string,
@@ -5153,16 +5147,17 @@ namespace xcHelper {
             str += "(";
         }
 
-        const args: any[] = func.args;
+        const args: ParsedEval[] | ParsedEvalArg[] = func.args;
         for (let i = 0; i < args.length; i++) {
             if (i > 0) {
                 str += ",";
             }
 
             if (args[i].type === "fn") {
-                str += stringifyEvalHelper(args[i]);
+                str += stringifyEvalHelper(<ParsedEval>args[i]);
             } else {
-                str += args[i].value;
+                const arg = <ParsedEvalArg>args[i];
+                str += arg.value;
             }
         }
         if (func.fnName) {
@@ -6056,122 +6051,6 @@ namespace xcHelper {
         return xcHelper.camelCaseToRegular(e.name) + ": " +
                e.message;
     }
-
-    /**
-     * returns {fnName: string, args: array, error: string}
-     * @param evalStr
-     */
-    export function parseEvalString(evalStr): ParsedEval {
-        let func: ParsedEval = {
-            fnName: "",
-            args: [],
-            error: null
-        };
-        if (typeof evalStr !== "string") {
-            func.error = "Invalid";
-            return func;
-        }
-
-        const bracketRes: BracketMatchRet = checkMatchingBrackets(evalStr);
-        if (bracketRes.index > -1) {
-            func.error = "Mismatched parenthesis";
-        } else if (!bracketRes.hasParen) {
-            func.error = "No Parameters"
-        }
-        if (func.error) {
-            return func;
-        }
-        evalStr = xcHelper.removeNonQuotedSpaces(evalStr);
-        // should be valid, now parse
-        func = parse(evalStr);
-        if (func.fnName === "") {
-            func.error = "No function name";
-        } else if (evalStr.charAt(evalStr.length - 1) !== ")") {
-            func.error = "Trailing character";
-        }
-        return func;
-
-        function parse(evalStr) {
-            let tempString: string = "";
-            let newFunc: ParsedEval;
-            var inQuotes = false;
-            var singleQuote = false;
-            var isEscaped = false;
-            let stack = [];
-            let hasComma = false;
-            let followingComma = false;
-
-            for (let i = 0; i < evalStr.length; i++) {
-                let char = evalStr.charAt(i);
-                if (isEscaped) {
-                    tempString += char;
-                    isEscaped = false;
-                    continue;
-                }
-
-                if (inQuotes) {
-                    if ((char === "\"" && !singleQuote) ||
-                        (char === "'" && singleQuote)) {
-                        inQuotes = false;
-                    }
-                } else {
-                    if (char === "\"") {
-                        inQuotes = true;
-                        singleQuote = false;
-                    } else if (char === "'") {
-                        inQuotes = true;
-                        singleQuote = true;
-                    }
-                }
-                if (hasComma) {
-                    followingComma = true;
-                    hasComma = false;
-                }
-
-                if (char === "\\") {
-                    isEscaped = true;
-                    tempString += char;
-                } else if (inQuotes) {
-                    tempString += char;
-                } else if (char === "(") {
-                    newFunc = {
-                        fnName: tempString.trim(),
-                        args: []
-                    };
-                    stack.push(newFunc);
-                    stack.push("(");
-                    tempString = "";
-                } else if (char === ",") {
-                    stack.push(tempString.trim());
-                    tempString = "";
-                    hasComma = true;
-                } else if (char === ")") {
-                    if (tempString !== "" || followingComma) {
-                        stack.push(tempString.trim());
-                    }
-
-                    tempString = "";
-
-                    let args = [];
-                    while (stack[stack.length - 1] !== "(") {
-                        args.unshift(stack.pop());
-                    }
-
-                    stack.pop(); // pop "("
-
-                    stack[stack.length - 1].args = args;
-                    if (evalStr[i + 1] === ",") {
-                        i++;
-                    }
-                } else {
-                    tempString += char;
-                }
-                followingComma = false;
-            }
-            return stack.pop();
-        }
-    }
-
 
     /* For join, deep copy of right table and left table columns */
     export  function createJoinedColumns(

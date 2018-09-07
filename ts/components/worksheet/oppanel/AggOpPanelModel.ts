@@ -66,14 +66,6 @@ class AggOpPanelModel extends GeneralOpPanelModel {
         this.dest = newAggName;
     }
 
-    /**
-     * Submit the settings of Set op node params
-     */
-    public submit(): void {
-        const param: DagNodeAggregateInput = this._getParam();
-        this.dagNode.setParam(param);
-    }
-
     protected _initialize(paramsRaw, strictCheck?: boolean) {
         const self = this;
         if (!this._opCategories.length) {
@@ -115,7 +107,7 @@ class AggOpPanelModel extends GeneralOpPanelModel {
             for (var j = 0; j < argGroup.args.length; j++) {
                 let arg = argGroup.args[j].value;
                 if (argGroup.args[j].type === "fn") {
-                    arg = xcHelper.stringifyEval(argGroup.args[j]);
+                    arg = xcHelper.stringifyEval(<ParsedEval>argGroup.args[j]);
                 }
 
                 const argInfo: OpPanelArg = new OpPanelArg(arg,

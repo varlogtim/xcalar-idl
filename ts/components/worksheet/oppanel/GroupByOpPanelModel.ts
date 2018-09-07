@@ -3,7 +3,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
     protected dagNode: DagNodeGroupBy;
     protected tableColumns: ProgCol[];
     protected event: Function;
-    protected groups: OpPanelFunctionGroup[];
+    protected groups: GroupByOpPanelFunctionGroup[];
     protected icv: boolean;
     protected includeSample: boolean;
     protected groupAll: boolean;
@@ -18,7 +18,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
      */
     public getModel(): {
         groupOnCols: string[],
-        groups: OpPanelFunctionGroup[],
+        groups: GroupByOpPanelFunctionGroup[],
         includeSample: boolean,
         icv: boolean,
         groupAll: boolean,

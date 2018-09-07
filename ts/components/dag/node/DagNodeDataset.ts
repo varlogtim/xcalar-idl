@@ -37,8 +37,9 @@ class DagNodeDataset extends DagNode {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const source: string = input.source;
         const prefix: string = input.prefix;
-        this._getSourceColumns(source, prefix)
-        .then(() => {
+        this.getSourceColumns(source, prefix)
+        .then((columns: ProgCol[]) => {
+            this.columns = columns;
             this.input = {
                 source: source,
                 prefix: prefix
@@ -62,11 +63,11 @@ class DagNodeDataset extends DagNode {
         return serializedInfo;
     }
 
-    private _getSourceColumns(
+    public getSourceColumns(
         source: string,
         prefix: string
-    ): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+    ): XDPromise<ProgCol[]> {
+        const deferred: XDDeferred<ProgCol[]> = PromiseHelper.deferred();
         const ds: DSObj = DS.getDSObj(source);
         if (ds != null && prefix != null) {
             // XXXX this is a wrong implementation
@@ -80,11 +81,11 @@ class DagNodeDataset extends DagNode {
                     });
                 });
 
-                this.columns = jsonKeys.map((key, index) => {
+                const columns = jsonKeys.map((key, index) => {
                     const colName: string = xcHelper.getPrefixColName(prefix, key);
                     return ColManager.newPullCol(key, colName, colTypes[index]);
                 });
-                deferred.resolve();
+                deferred.resolve(columns);
             })
             .fail(deferred.reject);
         } else {

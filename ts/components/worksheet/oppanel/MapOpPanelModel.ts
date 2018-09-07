@@ -80,14 +80,6 @@ class MapOpPanelModel extends GeneralOpPanelModel {
         this.icv = isICV;
     }
 
-    /**
-     * Submit the settings of Set op node params
-     */
-    public submit(): void {
-        const param: DagNodeMapInput = this._getParam();
-        this.dagNode.setParam(param);
-    }
-
     protected _initialize(paramsRaw, strictCheck?: boolean) {
         const self = this;
         if (!this._opCategories.length) {

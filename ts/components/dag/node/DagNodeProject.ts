@@ -63,4 +63,17 @@ class DagNodeProject extends DagNode {
             changes: changes
         }
     }
+
+    public applyColumnMapping(renameMap): void {
+        try {
+            this.input.columns.forEach((columnName, i) => {
+                if (renameMap.columns[columnName]) {
+                    this.input.columns[i] = renameMap.columns[columnName];
+                }
+            });
+        } catch(err) {
+            console.error(err);
+        }
+        super.setParam();
+    }
 }

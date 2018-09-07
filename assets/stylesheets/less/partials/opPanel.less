@@ -386,8 +386,6 @@
         border-top: 1px solid @color-border-white-five;
         padding-top: 10px;
 
-
-
         &.firstGroup {
             border-width: 0px;
             padding-top: 0px;
@@ -853,6 +851,246 @@
 
                 .advanced {
                     opacity: 1;
+                }
+            }
+        }
+    }
+
+    .columnAssignmentSection {
+        .size(@width: 100%);
+        padding-top: 10px;
+        overflow-x: auto;
+        overflow-y: scroll;
+        .flex-display;
+        .flex-direction(column);
+        .header {
+            padding-left: 15px;
+            padding-bottom: 10px;
+        }
+        &:last-child {
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .searchArea .icon, .down .icon, .addCol, .editCol, .removeColInRow {
+            .font(@color: @color-bg-unselect-gray);
+        }
+
+        .tableSection, .resultSection, .candidateSection {
+            .addCol, .down {
+                .size(@width: 20px, @height: 100%);
+                .font(@size: 8px);
+                position: absolute;
+
+                &:before {
+                    .size(8px, 8px);
+                    display: block;
+                    .center-align;
+                }
+            }
+
+            .listSection {
+                .flex-display;
+                .size(@width: ~"calc(100% - 5px)");
+
+                .lists {
+                    .size(@min-width: 140px, @max-width: 50%);
+                    .flex(1 1 200px);
+                    margin-right: -1px;
+
+                    > div, > input {
+                        .size(@height: 28px);
+                        line-height: 26px;
+                        .position(relative);
+                    }
+
+                    .text {
+                        background-color: @color-white;
+                    }
+
+                    .inputCol {
+                        .position(relative);
+
+                        .text, .list {
+                            .size(@width: 100%);
+                        }
+
+                        .text.highlight {
+                            color: @color-text-macaroniAndCheese;
+                        }
+                    }
+                }
+            }
+        }
+
+        .tableSection {
+            .size(@height: 60px);
+            margin-top: 10px;
+            padding-right: 10px;
+
+            .header {
+                margin-left: 15px;
+                margin-bottom: 5px;
+                padding-left: 0px;
+                padding-bottom: 0px;
+            }
+
+            .lists {
+                text-align: center;
+            }
+        }
+
+        .resultSection {
+            .resultCol {
+                border: 1px solid @color-table-hoverBg-gray;
+                margin-top: -1px;
+                &.cast {
+                    height: 55px !important;
+                    margin-bottom: 3px;
+
+                    .typeList {
+                        display: block;
+                    }
+                }
+
+                .resultInput {
+                    padding-left: 10px;
+                    padding-right: 20px;
+
+
+                    &:focus {
+                        .size(@width: ~"calc(100% + 4px)");
+                        .position(@left: -2px);
+                        padding-left: 11px;
+
+                        ~ .dropDownList {
+                            .position(relative, @top: -2px);
+                        }
+                    }
+                }
+
+                .typeList {
+                    display: none;
+                    border-top: 1px solid @color-table-hoverBg-gray;
+
+                    .text {
+                        padding-left: 15px;
+                    }
+
+                    li {
+                        color: @color-bg-select-blue;
+                        padding-left: 15px;
+                    }
+                }
+
+                .removeColInRow {
+                    .position(absolute, @top: 9px, @right: 8px);
+                }
+            }
+
+            .columnList {
+                .hint {
+                    text-align: center;
+                }
+
+                .iconWrapper {
+                    background-color: transparent;
+                }
+
+                ul {
+                    border-top: 1px solid @color-table-hoverBg-gray;
+
+                    li {
+                        .position(relative);
+
+                        &.used .colName, &.removeCol {
+                            color: @color-font-greyish-brown;
+                            opacity: 0.7;
+                        }
+
+                        .icon {
+                            display: none;
+                            .position(absolute, @top: 4px, @right: 3px);
+                        }
+                    }
+                }
+            }
+
+            input {
+               border: none;
+
+                &:focus {
+                    outline: 1px solid @color-bg-softBlue;
+                    border: 1px solid @color-bg-white-five;
+                    .size(@width: ~"calc(100% + 2px)", @height: 28px);
+                    .position(relative, @top: -2px, @left: -1px);
+                }
+            }
+
+            .inputCol {
+                border: 1px solid @color-table-hoverBg-gray;
+                margin-top: -1px;
+
+                &.cast {
+                    margin-bottom: 30px;
+                }
+
+                .text {
+                    padding-right: 20px;
+                    border: none;
+                }
+
+                .down {
+                    right: 0;
+                }
+            }
+
+            .searchArea {
+                border: 1px solid @color-table-hoverBg-gray;
+                &.placeholder {
+                    border-color: transparent;
+                    &::after {
+                        content: "New Column Name";
+                        padding-left: 15px;
+                        color: @color-font-darkGray;
+                    }
+                }
+
+                .icon {
+                    .position(absolute, @top: 7px, @right: 5px);
+                }
+            }
+        }
+
+        .candidateSection {
+            padding-top: 15px;
+
+            .subHeading {
+                .text {
+                    .size(@width: 100%);
+                }
+            }
+
+            .lists {
+                .size(@height: 100%);
+
+                &.newTable {
+                    padding-left: 10px;
+                    opacity: 0.6;
+                }
+
+                .text {
+                    padding-left: 20px;
+                }
+            }
+
+            .inputCol {
+                border: 1px solid @color-table-hoverBg-gray;
+                margin-top: -1px;
+                cursor: pointer;
+
+                .focusCol {
+                    display: none;
                 }
             }
         }
@@ -1571,7 +1809,7 @@
 
 #setOpPanel {
     @instr-h: 36px;
-    @top-h: 140px;
+    @top-h: 80px;
     @bottom-h: 96px;
     @rest-h: (@instr-h + @top-h + @bottom-h);
 
@@ -1647,21 +1885,8 @@
         }
     }
 
-    .middleSection {
+    .columnAssignmentSection {
         .size(@width: 100%, @height: ~"calc(100% - @{rest-h})");
-        padding-top: 10px;
-        overflow-x: auto;
-        overflow-y: scroll;
-        .flex-display;
-        .flex-direction(column);
-        .header {
-            padding-left: 15px;
-            padding-bottom: 10px;
-        }
-        &:last-child {
-            padding-bottom: 0;
-            border-bottom: none;
-        }
     }
 
     .advancedEditor {
@@ -1675,240 +1900,6 @@
 
     .newTable {
         margin-right: 3px !important;
-    }
-
-    .tableSection, .resultSection, .candidateSection {
-        .addCol, .down {
-            .size(@width: 20px, @height: 100%);
-            .font(@size: 8px);
-            position: absolute;
-
-            &:before {
-                .size(8px, 8px);
-                display: block;
-                .center-align;
-            }
-        }
-
-        .listSection {
-            .flex-display;
-            .size(@width: ~"calc(100% - 5px)");
-
-            .lists {
-                .size(@min-width: 140px, @max-width: 50%);
-                .flex(1 1 200px);
-                margin-right: -1px;
-
-                > div, > input {
-                    .size(@height: 28px);
-                    line-height: 26px;
-                    .position(relative);
-                }
-
-                .text {
-                    background-color: @color-white;
-                }
-
-                .inputCol {
-                    .position(relative);
-
-                    .text, .list {
-                        .size(@width: 100%);
-                    }
-
-                    .text.highlight {
-                        color: @color-text-macaroniAndCheese;
-                    }
-                }
-            }
-        }
-    }
-
-    .tableSection {
-        .size(@height: 60px);
-        margin-top: 10px;
-        padding-right: 10px;
-
-        .header {
-            margin-left: 15px;
-            margin-bottom: 5px;
-        }
-
-        .lists {
-            text-align: center;
-        }
-    }
-
-    .resultSection {
-        .resultCol {
-            border: 1px solid @color-table-hoverBg-gray;
-            margin-top: -1px;
-            &.cast {
-                height: 55px !important;
-                margin-bottom: 3px;
-
-                .typeList {
-                    display: block;
-                }
-            }
-
-            .resultInput {
-                padding-left: 10px;
-                padding-right: 20px;
-
-
-                &:focus {
-                    .size(@width: ~"calc(100% + 4px)");
-                    .position(@left: -2px);
-                    padding-left: 11px;
-
-                    ~ .dropDownList {
-                        .position(relative, @top: -2px);
-                    }
-                }
-            }
-
-            .typeList {
-                display: none;
-                border-top: 1px solid @color-table-hoverBg-gray;
-
-                .text {
-                    padding-left: 15px;
-                }
-
-                li {
-                    color: @color-bg-select-blue;
-                    padding-left: 15px;
-                }
-            }
-
-            .removeColInRow {
-                .position(absolute, @top: 9px, @right: 8px);
-            }
-        }
-
-        .columnList {
-            .hint {
-                text-align: center;
-            }
-
-            .iconWrapper {
-                background-color: transparent;
-            }
-
-            ul {
-                border-top: 1px solid @color-table-hoverBg-gray;
-
-                li {
-                    .position(relative);
-                    &:hover {
-                        padding-right: 20px;
-                        .icon {
-                            display: inline-block;
-                        }
-                    }
-
-                    &.used .colName, &.removeCol {
-                        color: @color-font-greyish-brown;
-                        opacity: 0.8;
-                    }
-
-                    .icon {
-                        display: none;
-                        .position(absolute, @top: 4px, @right: 3px);
-                    }
-                }
-            }
-        }
-
-        input {
-           border: none;
-
-            &:focus {
-                outline: 1px solid @color-bg-softBlue;
-                border: 1px solid @color-bg-white-five;
-                .size(@width: ~"calc(100% + 2px)", @height: 28px);
-                .position(relative, @top: -2px, @left: -1px);
-            }
-        }
-
-        .inputCol {
-            border: 1px solid @color-table-hoverBg-gray;
-            margin-top: -1px;
-
-            &.cast {
-                margin-bottom: 30px;
-            }
-
-            .text {
-                padding-right: 20px;
-                border: none;
-            }
-
-            .down {
-                right: 0;
-            }
-        }
-
-        .searchArea {
-            border: 1px solid @color-table-hoverBg-gray;
-            &.placeholder {
-                border-color: transparent;
-                &::after {
-                    content: "New Column Name";
-                    padding-left: 15px;
-                    color: @color-font-darkGray;
-                }
-            }
-
-            .icon {
-                .position(absolute, @top: 7px, @right: 5px);
-            }
-        }
-    }
-
-    .candidateSection {
-        padding-top: 15px;
-
-        .subHeading {
-            .text {
-                .size(@width: 100%);
-            }
-        }
-
-        .lists {
-            .size(@height: 100%);
-
-            &.newTable {
-                padding-left: 10px;
-                opacity: 0.6;
-            }
-
-            .text {
-                padding-left: 20px;
-            }
-        }
-
-        .inputCol {
-            border: 1px solid @color-table-hoverBg-gray;
-            margin-top: -1px;
-            cursor: pointer;
-
-            .focusCol {
-                display: none;
-            }
-
-            &:hover {
-                .focusCol {
-                    display: inline-block;
-                    .position(absolute, @top: 4px, @right: 3px);
-                }
-
-                .text {
-                    padding-right: 20px;
-                }
-            }
-        }
     }
 
     .confirm {
@@ -2027,6 +2018,59 @@
                     width: 80%;
                     margin-left: 10%;
                 }
+            }
+        }
+    }
+}
+
+#datasetOpColumnAssignment {
+    height: 100%;
+    overflow: hidden;
+
+    .dropDownList {
+        .text, li {
+            text-transform: initial;
+        }
+        li {
+            &:hover, &.hover {
+                background-color: @color-selectedCell-light;
+            }
+        }
+    }
+
+    .columnAssignmentSection {
+        display: block;
+        height: ~"calc(100% - 128px)";
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+    .tableSection {
+        .header {
+            margin-bottom: 15px;
+        }
+        .listSection {
+            font-weight: bold;
+        }
+    }
+    .newTable {
+        display: none;
+    }
+    .resultSection {
+        .lists:last-child {
+            .text {
+                padding-right: 10px;
+            }
+            .iconWrapper, .list {
+                display: none !important;
+            }
+        }
+    }
+    .candidateSection {
+        .inputCol {
+            cursor: initial;
+            border: none;
+            .icon {
+                display: none;
             }
         }
     }

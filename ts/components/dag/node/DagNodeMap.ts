@@ -53,6 +53,17 @@ class DagNodeMap extends DagNode {
         };
     }
 
+    public applyColumnMapping(renameMap): void {
+        try {
+            this.input.eval.forEach(evalObj => {
+                evalObj.evalString = this._replaceColumnInEvalStr(evalObj.evalString, renameMap.columns);
+            });
+        } catch(err) {
+            console.error(err);
+        }
+        super.setParam();
+    }
+
     private _getOpType(evalStr: string): ColumnType {
         const func = XDParser.XEvalParser.parseEvalStr(evalStr);
         const operator: string = func.fnName;

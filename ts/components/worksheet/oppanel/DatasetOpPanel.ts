@@ -152,7 +152,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         }
         const input: DagNodeDatasetInput = dagNode.getParam();
         if (input == null || input.source == "") {
-            this._resetCurrentPath(); 
+            this._resetCurrentPath();
             this._renderList();
             $("#datasetOpPanel .datasetPrefix input").val("");
         } else {
@@ -162,7 +162,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             if (ds == null) {
                 StatusBox.show(DSTStr.InvalidPriorDataset + input.source, this._$datasetList,
                     false, {'side': 'right'});
-                this._resetCurrentPath(); 
+                this._resetCurrentPath();
                 this._renderList();
                 dagNode.beErrorState(DSTStr.InvalidPriorDataset + input.source);
                 return;
@@ -192,7 +192,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         if (!super.showPanel()) {
             return;
         }
-        this._resetCurrentPath(); 
+        this._resetCurrentPath();
         this._dsObject = { folders: {}, datasets: [] };
         this._setupDatasetList();
         this._restorePanel(dagNode);
@@ -207,6 +207,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     public close(): void {
         super.hidePanel();
         MainMenu.setFormClose();
+        DatasetColRenamePanel.Instance.close();
     }
 
     private _checkOpArgs(prefix: string, id: string): boolean {
@@ -259,14 +260,52 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         if (!this._checkOpArgs(prefix, id)) {
             return;
         }
+
+        const oldParam: DagNodeDatasetInput = dagNode.getParam();
+        if (oldParam.source === id && oldParam.prefix === prefix) {
+            // no change
+            this.close();
+            return;
+        }
+
+        const oldColumns: ProgCol[] = dagNode.getLineage().getColumns();
         const $bg: JQuery = $("#initialLoadScreen");
         $bg.show();
+
         dagNode.setParam({
             source: id,
             prefix: prefix
-        }).then(() => {
+        })
+        .then(() => {
             $bg.hide();
-            this.close();
+
+            if (oldParam.source === id) {
+                // only the prefix changed so we automatically do the map
+                // without prompting the user
+                const renameMap = {
+                    columns: {},
+                    prefixes: {}
+                }
+                oldColumns.forEach((col) => {
+                    renameMap.columns[col.getBackColName()] =
+                       xcHelper.getPrefixColName(prefix, col.getFrontColName());
+
+                });
+                renameMap.prefixes[oldParam.prefix] = prefix;
+                const dagGraph = DagView.getActiveDag();
+                dagGraph.applyColumnMapping(dagNode.getId(), renameMap);
+                this.close();
+            } else if (oldColumns.length) {
+                this._$elemPanel.find(".opSection, .mainContent > .bottomSection").hide();
+                DatasetColRenamePanel.Instance.show(dagNode, oldColumns, {
+                    onClose: () => {
+                        this.close();
+                        this._$elemPanel.find(".opSection, .mainContent > .bottomSection").show();
+                    }
+                });
+            } else {
+                this.close();
+            }
         }).fail((error) => {
             $bg.hide();
             console.error(error);
