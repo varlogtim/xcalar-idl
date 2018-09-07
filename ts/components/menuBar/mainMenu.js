@@ -248,7 +248,8 @@ window.MainMenu = (function($, MainMenu) {
                 // let codemirror know it's area was resized
                 if (gDionysus) {
                     formPanels.forEach(function(panel) {
-                        if (panel.isOpen()) {
+                        if (panel.isOpen() && panel.getEditor &&
+                            panel.getEditor()) {
                             panel.getEditor().refresh();
                         }
                     });
