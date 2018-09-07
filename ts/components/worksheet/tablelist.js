@@ -1593,6 +1593,7 @@ window.TableList = (function($, TableList) {
                             '<i class="icon xi-tick fa-11"></i>' +
                         '</span>' +
                         '<span class="constName textOverflowOneLine" ' +
+                            ' data-container="body"' +
                             'data-original-title="' + name + '">' +
                             name +
                         '</span>' +
