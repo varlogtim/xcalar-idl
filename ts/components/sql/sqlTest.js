@@ -7,17 +7,23 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
     var sqlTestAnswers;
     var tpchCases;
     var tpchAnswers;
+    var tableauCases;
+    var tableauAnswers;
     var customTables;
     var tpchTables;
     var tpcdsTables;
+    var tableauTables;
     $.getJSON("assets/test/json/SQLTest.json", undefined, function(data) {
         sqlTestCases = data.xcTest.testCases;
         sqlTestAnswers = data.xcTest.answers;
         tpchCases = data.tpchTest.testCases;
         tpchAnswers = data.tpchTest.answers;
+        tableauCases = data.tableauTest.testCases;
+        tableauAnswers = data.tableauTest.answers;
         customTables = data.xcTest.tables;
         tpchTables = data.tpchTest.tables;
         tpcdsTables = data.tpcdsTest.tables;
+        tableauTables = data.tableauTest.tables;
     });
 
     SqlTestSuite.runSqlTests = function(testName, hasAnimation, toClean,
@@ -56,6 +62,11 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             tableNames = tpcdsTables.tableNames;
             // XXX TO-DO create TPC-DS test cases
             // queries = tpcdsCases;
+        } else if (testType.toLowerCase() === "tableau") {
+            dataSource = tableauTables.dataSource;
+            tableNames = tableauTables.tableNames;
+            queries = tableauCases;
+            isTPCH = true;
         } else {
             var error = "Test case doesn't exist";
             console.error(error);
@@ -97,12 +108,14 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         }
     }
     // All helper functions
-    function runAllQueries(queries, testName) {
+    function runAllQueries(queries, testType) {
         var answerSet;
-        if (!testName) {
+        if (!testType) {
             answerSet = sqlTestAnswers;
-        } else if (testName === "tpch") {
+        } else if (testType === "tpch") {
             answerSet = tpchAnswers;
+        } else if (testType === "tableau") {
+            answerSet = tableauAnswers;
         }
 
         function runQuery(deferred, testName, currentTestNumber) {
@@ -110,11 +123,38 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             var sqlString = queries[testName];
             console.log(sqlString);
             // Create a new worksheet after each 5 tables have been loaded
-            if (currentTestNumber % 5 === 1) {
+            if (currentTestNumber % 5 === 1 || testType === "tableau") {
                 WSManager.addWS();
             }
-            SQLEditor.getEditor().setValue(sqlString);
-            if (testName === "cancelQuery") {
+            if (testType === "tableau") {
+                var curPromise = PromiseHelper.resolve();
+                var index = 0;
+                for (var i = 0; i < sqlString.length; i++) {
+                    curPromise = curPromise.then(function() {
+                        var query = sqlString[index];
+                        console.log("Tableau subquery " + (index + 1) + ": " + query);
+                        SQLEditor.getEditor().setValue(query);
+                        return SQLEditor.executeSQL();
+                    })
+                    .then(function() {
+                        index++;
+                        return dropTempTables();
+                    });
+                }
+                curPromise = curPromise.then(function() {
+                    if (checkResult(answerSet, testName)) {
+                        test.pass(deferred, testName, currentTestNumber);
+                    } else {
+                        test.fail(deferred, testName, currentTestNumber, "WrongAnswer");
+                    }
+                    // XXX need to drop result tables to free memory
+                })
+                .fail(function(error) {
+                    console.error(error, "runQuery");
+                    test.fail(deferred, testName, currentTestNumber, error);
+                });
+            } else if (testName === "cancelQuery") {
+                SQLEditor.getEditor().setValue(sqlString);
                 var queryName = xcHelper.randName("sql");
                 var sqlCom = new SQLCompiler();
                 sqlCom.compile(queryName, sqlString)
@@ -137,6 +177,7 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
                     }
                 });
             } else {
+                SQLEditor.getEditor().setValue(sqlString);
                 SQLEditor.executeSQL()
                 .then(function() {
                     return dropTempTables();

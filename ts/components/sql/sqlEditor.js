@@ -533,7 +533,12 @@ window.SQLEditor = (function(SQLEditor, $) {
             if (sql === "") {
                 sql = editor.getValue();
             }
-            var allQueries = XDParser.SqlParser.getMultipleQueriesViaParser(sql);
+            var allQueries;
+            if (sql.indexOf(";") === -1) {
+                allQueries = [sql];
+            } else {
+                allQueries = XDParser.SqlParser.getMultipleQueriesViaParser(sql);
+            }
             if (allQueries.length > 1) {
                 SQLEditor.startCompile(0);
             }
