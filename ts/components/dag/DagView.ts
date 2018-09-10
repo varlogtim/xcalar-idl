@@ -100,10 +100,32 @@ namespace DagView {
                 case (keyCode.Delete):
                     DagView.removeNodes(DagView.getSelectedNodeIds(true, true));
                     break;
+                case (keyCode.Y):
+                case (keyCode.Z):
+                    checkUndoRedo(e);
+                    break;
                 default:
                     break;
             }
         });
+
+        function checkUndoRedo(event: JQueryEventObject): void {
+            if (!(isSystemMac && event.metaKey) &&
+                !(!isSystemMac && event.ctrlKey))
+            {
+                return;
+            }
+            event.preventDefault();
+            if (event.which === keyCode.Z) {
+                $('#undo').click();
+            } else if (event.which === keyCode.Y) {
+                if ($("#redo").hasClass("disabled")) {
+                    Log.repeat();
+                } else {
+                    $('#redo').click();
+                }
+            }
+        }
     }
 
     /**
