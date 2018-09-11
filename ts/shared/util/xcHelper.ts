@@ -6173,6 +6173,183 @@ namespace xcHelper {
     }
 
 
+    /* For join, deep copy of right table and left table columns */
+    export  function createJoinedColumns(
+        lTableName: string,
+        rTableName: string,
+        pulledLColNames: string[],
+        pulledRColNames: string[],
+        lRenames: ColRenameInfo[],
+        rRenames: ColRenameInfo[]
+    ): ProgCol[] {
+        // Combine the columns from the 2 current tables
+        // Note that we have to create deep copies!!
+        var lCols = getPulledColsAfterJoin(lTableName, pulledLColNames, lRenames);
+        var rCols = getPulledColsAfterJoin(rTableName, pulledRColNames, rRenames);
+        const excludeDataCol = (col) => col.name !== "DATA";
+
+        const lNewCols: ProgCol[] = lCols.filter(excludeDataCol);
+        const rNewCols: ProgCol[] = rCols.filter(excludeDataCol);
+        const newTableCols: ProgCol[] = lNewCols.concat(rNewCols);
+        newTableCols.push(ColManager.newDATACol());
+        return newTableCols;
+    }
+
+    function getPulledColsAfterJoin(
+        tableName: string,
+        pulledColNames: string[],
+        renameInfos: ColRenameInfo[]
+    ): ProgCol[] {
+        const pulledCols: ProgCol[] = [];
+        const tableId: TableId = xcHelper.getTableId(tableName);
+        if (tableId == null || gTables[tableId] == null ||
+            gTables[tableId].tableCols == null) {
+            return pulledCols;
+        }
+
+        const table: TableMeta = gTables[tableId];
+        const cols: ProgCol[] = xcHelper.deepCopy(table.tableCols);
+        if (!pulledColNames) {
+            return cols;
+        }
+
+        for (let i = 0; i < pulledColNames.length; i++) {
+            const colIndex: number = table.getColNumByBackName(pulledColNames[i]) - 1;
+            const col: ProgCol = cols[colIndex];
+            if (renameInfos && renameInfos.length > 0) {
+                replaceImmediate(col, renameInfos);
+                replacePrefix(col, renameInfos);
+            }
+            pulledCols.push(col);
+        }
+
+        return pulledCols;
+    }
+
+    function replaceImmediate(col: ProgCol, renameInfos: ColRenameInfo[]): void {
+        renameInfos.forEach((renameInfo) => {
+            // when backName === srcColName, it's a derived field
+            if (renameInfo.type !== DfFieldTypeT.DfFatptr &&
+                renameInfo.orig === col.backName
+            ) {
+                const newName: string = renameInfo.new;
+                col.backName = newName;
+                col.name = newName;
+                if (col.sizedTo === "header") {
+                    col.width = xcHelper.getDefaultColWidth(newName);
+                }
+                return false; // stop loop
+            }
+        });
+    }
+
+    // for each fat ptr rename, find whether a column has this fat ptr as
+    // a prefix. If so, fix up all fields in colStruct that pertains to the prefix
+    function replacePrefix(col: ProgCol, renameInfos: ColRenameInfo[]): void {
+        renameInfos.forEach((renameInfo) => {
+            if (renameInfo.type === DfFieldTypeT.DfFatptr &&
+                !col.immediate &&
+                col.prefix === renameInfo.orig
+            ) {
+                // the replace will only repalce the first occurrence, so is fine
+                col.backName = col.backName.replace(renameInfo.orig, renameInfo.new);
+                col.func.args[0] = col.func.args[0].replace(renameInfo.orig, renameInfo.new);
+                col.prefix = col.prefix.replace(renameInfo.orig, renameInfo.new);
+                col.userStr = '"' + col.name + '" = pull(' + col.backName + ')';
+                if (col.sizedTo === "header") {
+                    col.width = xcHelper.getDefaultColWidth(col.name, col.prefix);
+                }
+                return false; // stop loop
+            }
+        });
+    }
+
+    export function createGroupByColumns(
+        tableName: string,
+        groupByCols: string[],
+        aggArgs: AggColInfo[],
+        sampleCols: number[],
+        newKeys: string[]
+    ): [ProgCol[], string[]] {
+        const dataCol: ProgCol = ColManager.newDATACol();
+        const renamedGroupByCols: string[] = groupByCols.map((colName) => colName);
+
+        let newProgCols: ProgCol[] = [];
+        const usedNameSet: Set<string> = new Set();
+        aggArgs.forEach((aggArg) => {
+            const name: string = aggArg.newColName;
+            usedNameSet.add(name);
+            newProgCols.push(ColManager.newPullCol(name, name));
+        });
+
+        const tableId: TableId = xcHelper.getTableId(tableName);
+        if (tableId == null || !gTables.hasOwnProperty(tableId)) {
+            // We really should clean up this function to remove the requirement
+            // of gTables
+            groupByCols.forEach((name) => {
+                if (!usedNameSet.has[name]) {
+                    usedNameSet.add(name);
+                    newProgCols.push(ColManager.newPullCol(name, name));
+                }
+            });
+            console.warn("Cannot find table. Not handling sampleCols");
+            newProgCols.push(dataCol);
+        } else if (sampleCols != null) {
+            newProgCols = getIncSampleGroupByCols(tableId, sampleCols, groupByCols, newProgCols);
+            newProgCols.push(dataCol);
+        } else {
+            newKeys.forEach((key, index) => {
+                newProgCols.push(ColManager.newPullCol(key));
+                renamedGroupByCols[index] = key;
+            });
+            newProgCols.push(dataCol);
+        }
+        return [newProgCols, renamedGroupByCols];
+    }
+
+    function getIncSampleGroupByCols(
+        tableId: TableId,
+        sampleCols: number[],
+        groupByCols: string[],
+        aggProgCols: ProgCol[]
+    ): ProgCol[] {
+        const table: TableMeta = gTables[tableId];
+        const tableCols: ProgCol[] = table.tableCols;
+        const newCols: ProgCol[] = [];
+        const numGroupByCols: number = groupByCols.length;
+        let newProgColPosFound: boolean = false;
+
+        // find the first col that is in groupByCols
+        // and insert aggCols
+        sampleCols.forEach((colIndex) => {
+            const curCol = tableCols[colIndex];
+            const colName: string = curCol.getBackColName();
+            if (!newProgColPosFound) {
+                for (let i = 0; i < numGroupByCols; i++) {
+                    if (colName === groupByCols[i]) {
+                        newProgColPosFound = true;
+                        aggProgCols.forEach((progCol) => {
+                            newCols.push(progCol);
+                        });
+                        break;
+                    }
+                }
+            }
+
+            newCols.push(curCol);
+        });
+
+        if (!newProgColPosFound) {
+            aggProgCols.forEach((progCol) => {
+                newCols.unshift(progCol);
+            });
+        }
+        // Note that if include sample,
+        // a.b should not be escaped to a\.b
+        const finalCols: ProgCol[] = newCols.map((col) => new ProgCol(col));
+        return finalCols;
+    }
+
     export let __testOnly__: any = {};
 
     if (typeof window !== 'undefined' && window['unitTestMode']) {

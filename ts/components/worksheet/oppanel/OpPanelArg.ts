@@ -1,7 +1,7 @@
 class OpPanelArg {
     private value: string;
     private formattedValue: string;
-    private cast: XcCast;
+    private cast: ColumnType;
     private typeid: number;
     private isValid: boolean;
     private isNone: boolean = false;

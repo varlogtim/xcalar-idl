@@ -486,11 +486,10 @@
             var txId = self._start();
 
             XIApi.join(txId, joinType, lTableInfo, rTableInfo, options)
-            .then(function(dstTable, dstCols, tempCols) {
+            .then(function(dstTable, tempCols, lRename, rRename) {
                 var cli = self._end(txId);
                 deferred.resolve({
                     "newTableName": dstTable,
-                    "newColumns": dstCols,
                     "tempCols": tempCols,
                     "cli": cli
                 });
@@ -543,8 +542,6 @@
          * options:
          *  isIncSample: true/false, include sample or not,
          *               not specified is equal to false
-         *  sampleCols: array of colNums, sampleColumns to keep,
-         *              only used when isIncSample is true
          *  icvMode: true/false, icv mode or not
          *  newTableName: string, dst table name, optional
          *  clean: true/false, if set true, will remove intermediate tables
@@ -561,13 +558,10 @@
             }
 
             XIApi.groupBy(txId, gbArgs, groupByCols, tableName, options)
-            .then(function(finalTable, finalCols, renamedGroupByCols,
-                           tempCols) {
+            .then(function(finalTable, tempCols, newKeyFieldName, newKeys) {
                 var cli = self._end(txId);
                 deferred.resolve({
                     "newTableName": finalTable,
-                    "newColumns": finalCols,
-                    "renamedColumns": renamedGroupByCols,
                     "tempCols": tempCols,
                     "cli": cli
                 });

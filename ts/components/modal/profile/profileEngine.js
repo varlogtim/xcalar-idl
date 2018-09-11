@@ -69,7 +69,7 @@ window.ProfileEngine = (function(ProfileEngine) {
                 tablesToDelete[indexedTableName] = true;
             }
 
-            XIApi.getNumRows(indexedTableName)
+            xcFunction.getNumRows(indexedTableName)
             .then(function(val) {
                 // the table.resultSetCount should eqaul to the
                 // totalCount after right index, if not, a way to resolve
@@ -97,7 +97,7 @@ window.ProfileEngine = (function(ProfileEngine) {
             };
             return XIApi.groupBy(txId, [aggArgs], [colName], srcTable, options);
         })
-        .then(function(groupbyTable, finalCols, renameCols, tempCols, newKeyFieldName) {
+        .then(function(groupbyTable, tempCols, newKeyFieldName, newKeys) {
             if (profileInfo.groupByInfo.allNull) {
                 finalTable = groupbyTable;
                 return PromiseHelper.resolve(0, 0);

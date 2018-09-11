@@ -400,7 +400,6 @@ window.DagEdit = (function($, DagEdit) {
             "tableName": lTableName,
             "columns": lColNames,
             "casts": lJoinInfo.casts,
-            "pulledColumns": lJoinInfo.pulledColumns,
             "rename": lJoinInfo.rename
         };
 
@@ -408,7 +407,6 @@ window.DagEdit = (function($, DagEdit) {
             "tableName": rTableName,
             "columns": rColNames,
             "casts": rJoinInfo.casts,
-            "pulledColumns": rJoinInfo.pulledColumns,
             "rename": rJoinInfo.rename
         };
 
@@ -421,8 +419,10 @@ window.DagEdit = (function($, DagEdit) {
         }
 
         XIApi.join(txId, joinType, lTableInfo, rTableInfo, joinOpts)
-        .then(function(nTableName, nTableCols) {
-
+        .then(function(nTableName, lRename, rRename) {
+            var nTableCols = xcHelper.createJoinedColumns(lTableInfo.tableName,
+                rTableInfo.tableName, lJoinInfo.pulledColumns,
+                rJoinInfo.pulledColumns, lRename, rRename);
             var query = Transaction.done(txId, {
                 "noNotification": true,
                 "noSql": true

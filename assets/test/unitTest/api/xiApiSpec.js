@@ -148,7 +148,7 @@ describe('XIApi Test', () => {
             });
 
             it('should cast when has cast type', () => {
-                const res = getCastInfo('test#abc', ['prefix::col'], [ColumnType.integer], {
+                const res = getCastInfo(['prefix::col'], [ColumnType.integer], {
                     overWrite: true
                 });
                 expect(res).to.be.an('object');
@@ -162,64 +162,15 @@ describe('XIApi Test', () => {
                 expect(res.newTypes[0]).to.equal(ColumnType.integer);
             });
 
-            it('should cast on fatPtr when no meta', () => {
-                const res = getCastInfo('test#abc', ['prefix::col'], [null], {
-                    overWrite: true,
-                    castPrefix: true
-                });
-                expect(res).to.be.an('object');
-                expect(res.mapStrs.length).to.equal(1);
-                expect(res.mapStrs[0]).to.equal('string(prefix::col)');
-                expect(res.newFields.length).to.equal(1);
-                expect(res.newFields[0]).to.equal('col');
-                expect(res.newColNames.length).to.equal(1);
-                expect(res.newColNames[0]).to.equal('col');
-                expect(res.newTypes.length).to.equal(1);
-                expect(res.newTypes[0]).to.equal(ColumnType.string);
-            });
-
-            it('should cast on fatPtr with gTables meta', () => {
-                const col = 'prefix::col';
-                const progCol = ColManager.newPullCol(col, col, ColumnType.integer);
-                const tableId = 'abc';
-                const table = new TableMeta({
-                    tableId: tableId,
-                    tableName: 'test#abc',
-                    tableCols: [progCol]
-                });
-                gTables[tableId] = table;
-                const res = getCastInfo(table.getName(), [col], [null], {
-                    castPrefix: true
-                });
-                const newName = xcHelper.convertPrefixName('prefix', 'col');
-                expect(res).to.be.an('object');
-                expect(res.mapStrs.length).to.equal(1);
-                expect(res.mapStrs[0]).to.equal('int(prefix::col, 10)');
-                expect(res.newFields.length).to.equal(1);
-                expect(res.newFields[0]).not.to.equal(newName);
-                expect(res.newFields[0]).to.contains(newName);
-                expect(res.newColNames.length).to.equal(1);
-                expect(res.newColNames[0]).to.contains(newName);
-                expect(res.newTypes.length).to.equal(1);
-                expect(res.newTypes[0]).to.equal(ColumnType.integer);
-
-                delete gTables[tableId];
-            });
-
-            it('should handle name confilct', () => {
-                const res = getCastInfo('test#abc', ['prefix::col', 'col'], [null, ColumnType.integer], {
-                    overWrite: true,
-                    castPrefix: true
-                });
-                expect(res).to.be.an('object');
-                expect(res.mapStrs.length).to.equal(2);
-                expect(res.mapStrs[0]).to.equal('string(prefix::col)');
-                expect(res.newFields.length).to.equal(2);
-                expect(res.newFields[0]).not.to.equal('col');
-                expect(res.newColNames.length).to.equal(2);
-                expect(res.newColNames[0]).not.to.equal('col');
-                expect(res.newTypes.length).to.equal(2);
-                expect(res.newTypes[0]).to.equal(ColumnType.string);
+            it('should throw error when cast on fatPtr', () => {
+                try {
+                    getCastInfo(['prefix::col'], [null], {
+                        overWrite: true,
+                        castPrefix: true
+                    });
+                } catch (e) {
+                    expect(e).not.to.be.null
+                }
             });
         });
 
@@ -253,10 +204,7 @@ describe('XIApi Test', () => {
 
             it('should cast', (done) => {
                 const oldMap = XIApi.map;
-                const oldSetMeta = TblManager.setOrphanTableMeta;
-
                 XIApi.map = () => PromiseHelper.resolve();
-                TblManager.setOrphanTableMeta = () => { };
 
                 castColumns(txId, tableName, ['col'], [ColumnType.integer], { overWrite: true })
                     .then((res) => {
@@ -274,7 +222,6 @@ describe('XIApi Test', () => {
                     })
                     .always(() => {
                         XIApi.map = oldMap;
-                        TblManager.setOrphanTableMeta = oldSetMeta;
                     });
             });
         });
@@ -308,10 +255,7 @@ describe('XIApi Test', () => {
 
             it('should synthesize', (done) => {
                 const oldSynthesize = XIApi.synthesize;
-                const oldSetMeta = TblManager.setOrphanTableMeta;
-
                 XIApi.synthesize = () => PromiseHelper.resolve();
-                TblManager.setOrphanTableMeta = () => { };
 
                 synthesizeColumns(txId, tableName, ['col'], [ColumnType.integer])
                     .then((res) => {
@@ -329,7 +273,6 @@ describe('XIApi Test', () => {
                     })
                     .always(() => {
                         XIApi.synthesize = oldSynthesize;
-                        TblManager.setOrphanTableMeta = oldSetMeta;
                     });
             });
         });
@@ -370,10 +313,7 @@ describe('XIApi Test', () => {
 
             it('should resolve with cast result', (done) => {
                 const oldMap = XIApi.map;
-                const oldSetMeta = TblManager.setOrphanTableMeta;
-
                 XIApi.map = () => PromiseHelper.resolve();
-                TblManager.setOrphanTableMeta = () => { };
 
                 const lInfo = {
                     tableName: 'l#abc',
@@ -402,7 +342,6 @@ describe('XIApi Test', () => {
                     })
                     .always(() => {
                         XIApi.map = oldMap;
-                        TblManager.setOrphanTableMeta = oldSetMeta;
                     });
             });
 
@@ -715,65 +654,6 @@ describe('XIApi Test', () => {
                 XcalarJoin = oldJoin;
             });
         });
-
-        describe('createJoinedColumns Test', () => {
-            let createJoinedColumns;
-            const tableId = 'a';
-            const tableName = 'testTable#' + tableId;
-
-            before(() => {
-                createJoinedColumns = XIApi.__testOnly__.createJoinedColumns;
-
-                const progCols = []
-                progCols.push(ColManager.newPullCol('a'));
-                progCols.push(ColManager.newPullCol('prefix::b'));
-                progCols.push(ColManager.newDATACol());
-                let table = new TableMeta({
-                    tableId: tableId,
-                    tableName: tableName,
-                    tableCols: progCols
-                });
-
-                gTables[tableId] = table;
-            });
-
-            it('should return DATA col only when no table meta', () => {
-                const cols = createJoinedColumns('a', 'b', [], [], [], []);
-                expect(cols.length).to.equal(1);
-                expect(cols[0].backName).to.equal("DATA");
-            });
-
-            it('should return all cols when no pulled cols specified', () => {
-                const cols = createJoinedColumns(tableName, 'b', null, [], [], []);
-                expect(cols.length).to.equal(3);
-                expect(cols[0].backName).to.equal("a");
-                expect(cols[1].backName).to.equal("prefix::b");
-                expect(cols[2].backName).to.equal("DATA");
-            });
-
-            it('should return cols and replace name', () => {
-                const lPulledColNames = ['a', 'prefix::b'];
-                const lRenames = [{
-                    type: ColumnType.integer,
-                    orig: 'a',
-                    new: 'newA'
-                }, {
-                    type: DfFieldTypeT.DfFatptr,
-                    orig: 'prefix',
-                    new: 'newPrefix'
-                }];
-                const cols = createJoinedColumns(tableName, 'b',
-                    lPulledColNames, [], lRenames, []);
-                expect(cols.length).to.equal(3);
-                expect(cols[0].backName).to.equal("newA");
-                expect(cols[1].backName).to.equal("newPrefix::b");
-                expect(cols[2].backName).to.equal("DATA");
-            });
-
-            after(() => {
-                delete gTables[tableId];
-            });
-        });
     });
 
     describe('groupBy Helper Test', () => {
@@ -803,143 +683,6 @@ describe('XIApi Test', () => {
                     operator: test.op
                 });
                 expect(evalStr).to.equal(test.expect);
-            });
-        });
-
-        describe('getFinalGroupByCols Test', () => {
-            const txId = 0;
-            const tableId = 'a'
-            const tableName = 'testTable#' + tableId;
-            const finalTableName = 'final#b';
-            let getFinalGroupByCols;
-
-            before(() => {
-                getFinalGroupByCols = XIApi.__testOnly__.getFinalGroupByCols;
-
-                const table = new TableMeta({
-                    tableId: tableId,
-                    tableName: tableName,
-                    tableCols: [ColManager.newPullCol('colA'), ColManager.newDATACol()]
-                });
-                gTables[tableId] = table;
-            });
-
-            it('should handle no table meta case', (done) => {
-                const groupByCols = ['groupByCol'];
-                const aggArgs = [{ newColName: 'aggCol' }];
-                getFinalGroupByCols(txId, 'test#c', finalTableName,
-                groupByCols, aggArgs, false, [])
-                    .then((newProgCols, renamedGroupByCols) => {
-                        expect(newProgCols.length).to.equal(3);
-                        expect(newProgCols[0].backName).to.equal('aggCol');
-                        expect(newProgCols[1].backName).to.equal('groupByCol');
-                        expect(newProgCols[2].backName).to.equal('DATA');
-                        expect(renamedGroupByCols.length).to.equal(1);
-                        expect(renamedGroupByCols[0]).to.equal('groupByCol');
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    });
-            });
-
-            it('should handle include sample case', (done) => {
-                const groupByCols = ['colA'];
-                const aggArgs = [{ newColName: 'aggCol' }];
-                getFinalGroupByCols(txId, tableName, finalTableName,
-                    groupByCols, aggArgs, true, [0])
-                    .then((newProgCols, renamedGroupByCols) => {
-                        expect(newProgCols.length).to.equal(3);
-                        expect(newProgCols[0].backName).to.equal('aggCol');
-                        expect(newProgCols[1].backName).to.equal('colA');
-                        expect(newProgCols[2].backName).to.equal('DATA');
-                        expect(renamedGroupByCols.length).to.equal(1);
-                        expect(renamedGroupByCols[0]).to.equal('colA');
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    });
-            });
-
-            it('should handle no table keys case', (done) => {
-                const oldCheckOrder = XIApi.checkOrder;
-                const groupByCols = ['groupByCol'];
-                const aggArgs = [{ newColName: 'aggCol' }];
-
-                XIApi.checkOrder = () => PromiseHelper.resolve(null, []);
-
-                getFinalGroupByCols(txId, tableName, finalTableName,
-                    groupByCols, aggArgs, false)
-                    .then((newProgCols, renamedGroupByCols) => {
-                        expect(newProgCols.length).to.equal(2);
-                        expect(newProgCols[0].backName).to.equal('aggCol');
-                        expect(newProgCols[1].backName).to.equal('DATA');
-                        expect(renamedGroupByCols.length).to.equal(1);
-                        expect(renamedGroupByCols[0]).to.equal('groupByCol');
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    })
-                    .always(() => {
-                        XIApi.checkOrder = oldCheckOrder;
-                    });
-            });
-
-            it('should handle has table keys case', (done) => {
-                const oldCheckOrder = XIApi.checkOrder;
-                const groupByCols = ['groupByCol'];
-                const aggArgs = [{ newColName: 'aggCol' }];
-
-                XIApi.checkOrder = () => PromiseHelper.resolve(null, [{ name: 'key' }]);
-
-                getFinalGroupByCols(txId, tableName, finalTableName,
-                    groupByCols, aggArgs, false)
-                    .then((newProgCols, renamedGroupByCols) => {
-                        expect(newProgCols.length).to.equal(3);
-                        expect(newProgCols[0].backName).to.equal('aggCol');
-                        expect(newProgCols[1].backName).to.equal('key');
-                        expect(newProgCols[2].backName).to.equal('DATA');
-                        expect(renamedGroupByCols.length).to.equal(1);
-                        expect(renamedGroupByCols[0]).to.equal('key');
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    })
-                    .always(() => {
-                        XIApi.checkOrder = oldCheckOrder;
-                    });
-            });
-
-            it('should handle fail case', (done) => {
-                const oldCheckOrder = XIApi.checkOrder;
-                const groupByCols = ['groupByCol'];
-                const aggArgs = [{ newColName: 'aggCol' }];
-
-                XIApi.checkOrder = () => PromiseHelper.reject();
-
-                getFinalGroupByCols(txId, tableName, finalTableName,
-                    groupByCols, aggArgs, false)
-                    .then((newProgCols, renamedGroupByCols) => {
-                        expect(newProgCols.length).to.equal(2);
-                        expect(newProgCols[0].backName).to.equal('aggCol');
-                        expect(newProgCols[1].backName).to.equal('DATA');
-                        expect(renamedGroupByCols.length).to.equal(1);
-                        expect(renamedGroupByCols[0]).to.equal('groupByCol');
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    })
-                    .always(() => {
-                        XIApi.checkOrder = oldCheckOrder;
-                    });
-            });
-
-            after(() => {
-                delete gTables[tableId];
             });
         });
 
@@ -1205,9 +948,7 @@ describe('XIApi Test', () => {
         it('unionCast should work', (done) => {
             const unionCast = XIApi.__testOnly__.unionCast;
             const oldSynthesize = XIApi.synthesize;
-            const oldSetMeta = TblManager.setOrphanTableMeta;
             XIApi.synthesize = () => PromiseHelper.resolve();
-            TblManager.setOrphanTableMeta = () => { };
 
             const txId = 0;
             const tableName = 'test#a';
@@ -1238,7 +979,6 @@ describe('XIApi Test', () => {
                 })
                 .always(() => {
                     XIApi.synthesize = oldSynthesize;
-                    TblManager.setOrphanTableMeta = oldSetMeta;
                 });
         });
 
@@ -1790,15 +1530,16 @@ describe('XIApi Test', () => {
                     rename: [{ orig: 'old', new: 'new', type: 4 }]
                 };
                 XIApi.join(1, joinType, lTableInfo, rTableInfo)
-                    .then((newTableName, joinedCols, tempCols) => {
-                        expect(newTableName).to.equal('l-r#12');
-                        expect(joinedCols.length).to.equal(1);
-                        expect(tempCols.length).to.equal(0);
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    });
+                .then((newTableName, tempCols, lRename, rRename) => {
+                    expect(newTableName).to.equal('l-r#12');
+                    expect(tempCols.length).to.equal(0);
+                    expect(lRename.length).to.equal(1);
+                    expect(rRename.length).to.equal(2);
+                    done();
+                })
+                .fail(() => {
+                    done('fail');
+                });
             });
 
             it('should handle delete tempTables if set clean', (done) => {
@@ -1812,9 +1553,9 @@ describe('XIApi Test', () => {
                     columns: ['b'],
                     rename: [{ orig: 'old', new: 'new', type: 4 }]
                 };
-                const oldDelete = XIApi.deleteTableAndMetaInBulk;
+                const oldDelete = XIApi.deleteTableInBulk;
                 let test = false;
-                XIApi.deleteTableAndMetaInBulk = () => {
+                XIApi.deleteTableInBulk = () => {
                     test = true;
                     return PromiseHelper.resolve();
                 };
@@ -1832,7 +1573,7 @@ describe('XIApi Test', () => {
                         done('fail');
                     })
                     .always(() => {
-                        XIApi.deleteTableAndMetaInBulk = oldDelete;
+                        XIApi.deleteTableInBulk = oldDelete;
                     });
             });
 
@@ -1850,10 +1591,11 @@ describe('XIApi Test', () => {
                 };
 
                 XIApi.join(1, joinType, lTableInfo, rTableInfo)
-                    .then((newTableName, joinedCols, tempCols) => {
+                    .then((newTableName, tempCols, lRename, rRename) => {
                         expect(newTableName).to.equal('l-r#12');
-                        expect(joinedCols.length).to.equal(1);
                         expect(tempCols.length).to.equal(1);
+                        expect(lRename.length).to.equal(1);
+                        expect(rRename.length).to.equal(1);
                         done();
                     })
                     .fail(() => {
@@ -1912,13 +1654,12 @@ describe('XIApi Test', () => {
                 const tableName = 'test#a';
 
                 XIApi.groupBy(1, aggArgs, groupByCols, tableName)
-                    .then((finalTable, finalCols, renamedGroupByCols, tempCols) => {
+                    .then((finalTable, tempCols, newKeyFieldName, newKeys) => {
                         expect(finalTable).to.equal('test-GB#12');
-                        expect(finalCols.length).to.equal(3);
-                        expect(finalCols[0].backName).to.equal('newAggCol');
-                        expect(finalCols[1].backName).to.equal('groupByCol');
-                        expect(renamedGroupByCols.length).to.equal(1);
                         expect(tempCols.length).to.equal(0);
+                        expect(newKeyFieldName).to.equal("key");
+                        expect(newKeys.length).to.equal(1);
+                        expect(newKeys[0]).to.equal("key");
                         done();
                     })
                     .fail(() => {
@@ -1934,9 +1675,9 @@ describe('XIApi Test', () => {
                 }];
                 const groupByCols = ['groupByCol'];
                 const tableName = 'test#a';
-                const oldDelete = XIApi.deleteTableAndMetaInBulk;
+                const oldDelete = XIApi.deleteTableInBulk;
                 let test = false;
-                XIApi.deleteTableAndMetaInBulk = () => {
+                XIApi.deleteTableInBulk = () => {
                     test = true;
                     return PromiseHelper.resolve();
                 };
@@ -1953,7 +1694,7 @@ describe('XIApi Test', () => {
                         done('fail');
                     })
                     .always(() => {
-                        XIApi.deleteTableAndMetaInBulk = oldDelete;
+                        XIApi.deleteTableInBulk = oldDelete;
                     });
             });
 
@@ -1971,13 +1712,12 @@ describe('XIApi Test', () => {
                 SQLApi.cacheIndexTable = () => { };
 
                 XIApi.groupBy(1, aggArgs, groupByCols, tableName)
-                    .then((finalTable, finalCols, renamedGroupByCols, tempCols) => {
+                    .then((finalTable, tempCols, newKeyFieldName, newKeys) => {
                         expect(finalTable).to.equal('test-GB#12');
-                        expect(finalCols.length).to.equal(3);
-                        expect(finalCols[0].backName).to.equal('newAggCol');
-                        expect(finalCols[1].backName).to.equal('groupByCol');
-                        expect(renamedGroupByCols.length).to.equal(1);
                         expect(tempCols.length).to.equal(3);
+                        expect(newKeyFieldName).to.equal("key");
+                        expect(newKeys.length).to.equal(1);
+                        expect(newKeys[0]).to.equal("key");
                         done();
                     })
                     .fail(() => {
@@ -2066,7 +1806,7 @@ describe('XIApi Test', () => {
             });
 
             after(() => {
-                oldFunc = XIApi.query;
+                XIApi.query = oldFunc;
             });
         });
 
@@ -2273,29 +2013,6 @@ describe('XIApi Test', () => {
                     })
                     .always(() => {
                         XcalarGetTableCount = oldFunc;
-                    });
-            });
-
-            it('XIApi.getNumRows should work in cache case', (done) => {
-                const tableId = 'a';
-                const tableName = 'test#' + tableId;
-                const table = new TableMeta({
-                    tableId: tableId,
-                    tableName: tableName
-                });
-                table.resultSetCount = 3;
-                gTables[tableId] = table;
-
-                XIApi.getNumRows(tableName)
-                    .then((res) => {
-                        expect(res).to.be.equal(3);
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    })
-                    .always(() => {
-                        delete gTables[tableId];
                     });
             });
         });
@@ -2657,50 +2374,25 @@ describe('XIApi Test', () => {
                     });
             });
 
-            it('XIAPi.deleteTableAndMeta should work', (done) => {
-                const tableId = 'a';
-                const tableName = 'test#' + tableId;
-                const table = new TableMeta({
-                    tableId: tableId,
-                    tableName, tableName
-                });
-                gTables[tableId] = table;
-
+            it('XIAPi.deleteTableInBulk should work', (done) => {
                 const oldFunc = XIApi.deleteTable;
-                XIApi.deleteTable = () => PromiseHelper.resolve();
-
-                XIApi.deleteTableAndMeta(1, tableName)
-                    .then(() => {
-                        expect(gTables.hasOwnProperty(tableId)).to.be.false;
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    })
-                    .always(() => {
-                        XIApi.deleteTable = oldFunc;
-                    });
-            });
-
-            it('XIAPi.deleteTableAndMetaInBulk should work', (done) => {
-                const oldFunc = XIApi.deleteTableAndMeta;
                 let test = false
-                XIApi.deleteTableAndMeta = () => {
+                XIApi.deleteTable = () => {
                     test = true;
                     return PromiseHelper.resolve();
                 }
 
-                XIApi.deleteTableAndMetaInBulk(1, ['a'])
-                    .then(() => {
-                        expect(test).to.be.true;
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    })
-                    .always(() => {
-                        XIApi.deleteTableAndMeta = oldFunc;
-                    });
+                XIApi.deleteTable(1, ['a'])
+                .then(() => {
+                    expect(test).to.be.true;
+                    done();
+                })
+                .fail(() => {
+                    done('fail');
+                })
+                .always(() => {
+                    XIApi.deleteTable = oldFunc;
+                });
             });
         });
 

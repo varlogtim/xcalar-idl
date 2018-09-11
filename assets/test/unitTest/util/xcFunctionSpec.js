@@ -784,6 +784,35 @@ describe("xcFunction Test", function () {
             });
     });
 
+    it("xcFunction.getNumRows should work in cache case", (done) => {
+        gTables[tableId].resultSetCount = 3;
+        xcFunction.getNumRows(tableName)
+        .then((res) => {
+            expect(res).to.be.equal(3);
+            done();
+        })
+        .fail(() => {
+            done('fail');
+        });
+    });
+
+    it('xcFunction.getNumRows should work in normal case', (done) => {
+        const oldFunc = XIApi.getNumRows;
+        XIApi.getNumRows = () => PromiseHelper.resolve(2);
+
+        xcFunction.getNumRows('table#abc')
+        .then((res) => {
+            expect(res).to.be.equal(2);
+            done();
+        })
+        .fail(() => {
+            done('fail');
+        })
+        .always(() => {
+            XIApi.getNumRows = oldFunc;
+        });
+    });
+
     after(() => {
         TblManager.refreshTable = oldRefreshTable;
         TblManager.setOrphanTableMeta = oldSetMeta;

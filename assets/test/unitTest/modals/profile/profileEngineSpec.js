@@ -30,8 +30,8 @@ describe("Profile-Profile Engins Test", function() {
             return PromiseHelper.resolve();
         };
 
-        oldGetNumRows = XIApi.getNumRows;
-        XIApi.getNumRows = function() {
+        oldGetNumRows = xcFunction.getNumRows;
+        xcFunction.getNumRows = function() {
             return PromiseHelper.resolve(100);
         };
 
@@ -477,7 +477,7 @@ describe("Profile-Profile Engins Test", function() {
 
     after(function() {
         XIApi.index = oldIndex;
-        XIApi.getNumRows = oldGetNumRows;
+        xcFunction.getNumRows = oldGetNumRows;
         XIApi.groupBy = oldGroupBy;
         XIApi.sort = oldSort;
         XIApi.deleteTable = oldDelete;

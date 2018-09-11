@@ -76,12 +76,12 @@ declare type ProjectOpPanelModelPrefixColumn = {
 // *******************
 // joinOpPanel
 // *******************
-declare type JoinOpColumnInfo = { name: string, type: XcCast, isPrefix: boolean }
+declare type JoinOpColumnInfo = { name: string, type: ColumnType, isPrefix: boolean }
 declare type JoinOpColumnPair = {
     leftName: string,
-    leftCast: XcCast,
+    leftCast: ColumnType,
     rightName: string,
-    rightCast: XcCast
+    rightCast: ColumnType
 }
 declare type JoinOpRenameInfo = {
     source: string, dest: string, isPrefix: boolean

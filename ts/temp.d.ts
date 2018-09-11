@@ -9,7 +9,6 @@
 type XDPromise<T> = JQueryPromise<T>;
 type XDDeferred<T> = JQueryDeferred<T>;
 type TableId = string | number;
-type XcCast = ColumnType | null;
 type JoinType = JoinCompoundOperatorTStr | JoinOperatorT;
 type HTML = string;
 /* ============== INTERFACE ======================== */
@@ -41,7 +40,7 @@ interface ColRenameInfo {
 
 interface JoinTableInfo {
     columns: string[]; // array of back colum names to join
-    casts?: XcCast[]; // array of cast types ["string", "boolean", null] etc
+    casts?: ColumnType[]; // array of cast types ["string", "boolean", null] etc
     pulledColumns?: string[]; // columns to pulled out (front col name)
     tableName: string; // table's name
     rename?: ColRenameInfo[]; // array of rename object

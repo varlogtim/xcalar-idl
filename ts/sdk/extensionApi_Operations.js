@@ -199,7 +199,10 @@ window.XcSDK.Extension.prototype = (function() {
             var txId = self.txId;
 
             XIApi.join(txId, joinType, lTableInfo, rTableInfo, options)
-            .then(function(dstTable, dstCols) {
+            .then(function(dstTable, tempCols, lRename, rRename) {
+                var dstCols = xcHelper.createJoinedColumns(lTableInfo.tableName,
+                    rTableInfo.tableName, lTableInfo.pulledColumns,
+                    rTableInfo.pulledColumns, lRename, rRename);
                 self._addMeta(null, dstTable, dstCols);
                 deferred.resolve(dstTable);
             })
@@ -273,8 +276,12 @@ window.XcSDK.Extension.prototype = (function() {
                 newColName: newColName
             }];
             XIApi.groupBy(txId, gbArgs, groupByCols, tableName, options)
-            .then(function(dstTable, dstCols) {
+            .then(function(dstTable, tempCols, newKeyFieldName, newKeys) {
+                var sampleCols = isIncSample ? options.columnsToKeep : null;
+                var res = xcHelper.createGroupByColumns(
+                    srcTable, groupByColNames, aggArgs, sampleCols, newKeys);
                 self._addMeta(tableName, dstTable, dstCols);
+                var dstCols = res[0];
                 var dstColumnsSDK = dstCols.map(function(progcol) {
                     return new XcSDK.Column(progcol.getBackColName(),
                         progcol.getType());

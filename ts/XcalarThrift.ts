@@ -1463,7 +1463,7 @@ XcalarIndexFromTable = function(
     srcTablename: string,
     keys: {
         name: string,
-        type: DfFieldTypeT,
+        type: ColumnType,
         keyFieldName: string,
         ordering: XcalarOrderingT
     }[],

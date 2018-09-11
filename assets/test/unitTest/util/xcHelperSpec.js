@@ -3354,6 +3354,123 @@ describe("xcHelper Test", function() {
         expect(searchHtml.indexOf("cancelSearch")).to.be.gt(-1);
     });
 
+    describe("xcHelper.createJoinedColumns", () => {
+        let createJoinedColumns;
+        const tableId = 'a';
+        const tableName = 'testTable#' + tableId;
+
+        before(() => {
+            createJoinedColumns = xcHelper.createJoinedColumns;
+
+            const progCols = []
+            progCols.push(ColManager.newPullCol('a'));
+            progCols.push(ColManager.newPullCol('prefix::b'));
+            progCols.push(ColManager.newDATACol());
+            let table = new TableMeta({
+                tableId: tableId,
+                tableName: tableName,
+                tableCols: progCols
+            });
+
+            gTables[tableId] = table;
+        });
+
+        it('should return DATA col only when no table meta', () => {
+            const cols = createJoinedColumns('a', 'b', [], [], [], []);
+            expect(cols.length).to.equal(1);
+            expect(cols[0].backName).to.equal("DATA");
+        });
+
+        it('should return all cols when no pulled cols specified', () => {
+            const cols = createJoinedColumns(tableName, 'b', null, [], [], []);
+            expect(cols.length).to.equal(3);
+            expect(cols[0].backName).to.equal("a");
+            expect(cols[1].backName).to.equal("prefix::b");
+            expect(cols[2].backName).to.equal("DATA");
+        });
+
+        it('should return cols and replace name', () => {
+            const lPulledColNames = ['a', 'prefix::b'];
+            const lRenames = [{
+                type: ColumnType.integer,
+                orig: 'a',
+                new: 'newA'
+            }, {
+                type: DfFieldTypeT.DfFatptr,
+                orig: 'prefix',
+                new: 'newPrefix'
+            }];
+            const cols = createJoinedColumns(tableName, 'b',
+                lPulledColNames, [], lRenames, []);
+            expect(cols.length).to.equal(3);
+            expect(cols[0].backName).to.equal("newA");
+            expect(cols[1].backName).to.equal("newPrefix::b");
+            expect(cols[2].backName).to.equal("DATA");
+        });
+
+        after(() => {
+            delete gTables[tableId];
+        });
+    });
+
+    describe("xcHelper.createGroupByColumns", () => {
+        const tableId = 'a'
+        const tableName = 'testTable#' + tableId;
+        let createGroupByColumns;
+
+        before(() => {
+            createGroupByColumns = xcHelper.createGroupByColumns;
+            const table = new TableMeta({
+                tableId: tableId,
+                tableName: tableName,
+                tableCols: [ColManager.newPullCol('colA'), ColManager.newDATACol()]
+            });
+            gTables[tableId] = table;
+        });
+
+        it('should handle no table meta case', () => {
+            const groupByCols = ['groupByCol'];
+            const aggArgs = [{ newColName: 'aggCol' }];
+            const [newProgCols, renamedGroupByCols] = createGroupByColumns(
+            'test#c', groupByCols, aggArgs, null, []);
+            expect(newProgCols.length).to.equal(3);
+            expect(newProgCols[0].backName).to.equal('aggCol');
+            expect(newProgCols[1].backName).to.equal('groupByCol');
+            expect(newProgCols[2].backName).to.equal('DATA');
+            expect(renamedGroupByCols.length).to.equal(1);
+            expect(renamedGroupByCols[0]).to.equal('groupByCol');
+        });
+
+        it('should handle include sample case', () => {
+            const groupByCols = ['colA'];
+            const aggArgs = [{ newColName: 'aggCol' }];
+            const [newProgCols, renamedGroupByCols] = createGroupByColumns(
+            tableName, groupByCols, aggArgs, [0], [])
+            expect(newProgCols[0].backName).to.equal('aggCol');
+            expect(newProgCols[1].backName).to.equal('colA');
+            expect(newProgCols[2].backName).to.equal('DATA');
+            expect(renamedGroupByCols.length).to.equal(1);
+            expect(renamedGroupByCols[0]).to.equal('colA');
+        });
+
+        it('should handle has table keys case', () => {
+            const groupByCols = ['groupByCol'];
+            const aggArgs = [{ newColName: 'aggCol' }];
+            const [newProgCols, renamedGroupByCols] = createGroupByColumns(
+            tableName, groupByCols, aggArgs, null, ["key"])
+            expect(newProgCols.length).to.equal(3);
+            expect(newProgCols[0].backName).to.equal('aggCol');
+            expect(newProgCols[1].backName).to.equal('key');
+            expect(newProgCols[2].backName).to.equal('DATA');
+            expect(renamedGroupByCols.length).to.equal(1);
+            expect(renamedGroupByCols[0]).to.equal('key');
+        });
+
+        after(() => {
+            delete gTables[tableId];
+        });
+    });
+
     after(function() {
         StatusBox.forceHide();
     });

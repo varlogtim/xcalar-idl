@@ -46,9 +46,14 @@ window.XcSDK.Extension.prototype = (function() {
     // inner helper function
     function deleteTempTable(txId, tableName) {
         var deferred = PromiseHelper.deferred();
-        XIApi.deleteTableAndMeta(txId, tableName)
+        XIApi.deleteTable(txId, tableName)
         .then(function() {
             Dag.makeInactive(tableName, true);
+            const tableId = xcHelper.getTableId(tableName);
+            if (tableId != null && gTables[tableId] != null) {
+                TableList.removeTable(tableId);
+                delete gTables[tableId];
+            }
             deferred.resolve();
         })
         .fail(deferred.reject);

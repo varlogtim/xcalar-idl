@@ -572,7 +572,6 @@ namespace xcFunction {
             tableName: lTableName,
             columns: lColNames,
             casts: lJoinInfo.casts,
-            pulledColumns: lJoinInfo.pulledColumns,
             rename: lJoinInfo.rename,
             allImmediates: lJoinInfo.allImmediates
         };
@@ -581,7 +580,6 @@ namespace xcFunction {
             tableName: rTableName,
             columns: rColNames,
             casts: rJoinInfo.casts,
-            pulledColumns: rJoinInfo.pulledColumns,
             rename: rJoinInfo.rename,
             allImmediates: rJoinInfo.allImmediates
         };
@@ -597,13 +595,17 @@ namespace xcFunction {
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         XIApi.join(txId, joinType, lTableInfo, rTableInfo, joinOpts)
-            .then((finalTableName, finalTableCols) => {
+            .then((finalTableName, _tempCols, lRename, rRename) => {
                 finalJoinTableName = finalTableName;
+                const finalCols: ProgCol[] = xcHelper.createJoinedColumns(
+                    lTableInfo.tableName, rTableInfo.tableName,
+                    lJoinInfo.pulledColumns, rJoinInfo.pulledColumns,
+                    lRename, rRename);
                 const tablesToReplace: string[] = options.keepTables ?
                     [] : [lTableName, rTableName];
                 focusOnTable = scrollChecker.checkScroll();
 
-                return TblManager.refreshTable([finalTableName], finalTableCols,
+                return TblManager.refreshTable([finalTableName], finalCols,
                     tablesToReplace, worksheet, txId, { focusWorkspace: focusOnTable });
             })
             .then(() => {
@@ -826,20 +828,23 @@ namespace xcFunction {
         } else {
             castArgsPromise = castCols();
         }
-
+        let srcTable: string;
         castArgsPromise
             .then((castTableName) => {
+                srcTable = castTableName;
                 const groupByOpts: GroupByOptions = {
                     newTableName: dstTableName,
                     isIncSample: isIncSample,
-                    sampleCols: options.columnsToKeep,
                     icvMode: options.icvMode,
                     groupAll: options.groupAll
                 };
                 return XIApi.groupBy(txId, aggArgs, groupByColNames,
                     castTableName, groupByOpts);
             })
-            .then((nTableName, nTableCols, renamedGBCols) => {
+            .then((nTableName, _tempCols, _newKeyFieldName, newKeys) => {
+                const sampleCols: number[] = isIncSample ? options.columnsToKeep : null;
+                const [nTableCols, renamedGBCols] = xcHelper.createGroupByColumns(
+                    srcTable, groupByColNames, aggArgs, sampleCols, newKeys);
                 if (isJoin) {
                     const dataColNum: number = table.getColNumByBackName("DATA");
                     return groupByJoinHelper(nTableName, nTableCols, dataColNum,
@@ -1013,7 +1018,11 @@ namespace xcFunction {
             };
 
             XIApi.join(txId, joinType, lTableInfo, rTableInfo, joinOpts)
-                .then((jonTable, joinTableCols) => {
+                .then((jonTable, _tempCols, lRename, rRename) => {
+                    const joinTableCols: ProgCol[] = xcHelper.createJoinedColumns(
+                        lTableInfo.tableName, rTableInfo.tableName,
+                        lTableInfo.pulledColumns, rTableInfo.pulledColumns,
+                        lRename, rRename);
                     // remove the duplicated columns that were joined
                     joinTableCols.splice(joinTableCols.length -
                         (nCols.length), nCols.length - 1);
@@ -1398,5 +1407,19 @@ namespace xcFunction {
             }
         }
         return XIApi.checkOrder(tableName);
+    }
+
+
+    /**
+     * xcFunction.getNumRows
+     * @param tableName
+     */
+    export function getNumRows(tableName: string): XDPromise<number> {
+        const tableId = xcHelper.getTableId(tableName);
+        if (tableId != null && gTables[tableId] &&
+            gTables[tableId].resultSetCount > -1) {
+            return PromiseHelper.resolve(gTables[tableId].resultSetCount);
+        }
+        return XIApi.getNumRows(tableName);
     }
 }

@@ -59,7 +59,7 @@ interface DagNodeGroupByInput {
 
 declare type DagNodeJoinTableInput = {
     columns: string[],
-    casts: XcCast[],
+    casts: ColumnType[],
     rename: {sourceColumn: string, destColumn: string, prefix: boolean}[]
 }
 interface DagNodeJoinInput {

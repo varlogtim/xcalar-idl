@@ -26,7 +26,7 @@ namespace XIApi {
     interface JoinCastInfo {
         tableName: string,
         columns: string[],
-        casts: XcCast[]
+        casts: ColumnType[]
     }
 
     interface JoinIndexInfo {
@@ -276,17 +276,14 @@ namespace XIApi {
 
     /* ========== Cast Helper =================== */
     function getCastInfo(
-        tableName: string,
         colNames: string[],
-        casts: XcCast[],
+        casts: ColumnType[],
         options: CastInfoOptions = <CastInfoOptions>{}
     ) {
-        const tableId: TableId = xcHelper.getTableId(tableName);
         const overWrite: boolean = options.overWrite || false;
         const handleNull: boolean = options.handleNull || false;
         const castPrefix: boolean = options.castPrefix || false;
 
-        const nameSet: Set<string> = getKeySet<string>(colNames);
         const mapStrs: string[] = [];
         const newTypes: ColumnType[] = [];
         const newFields: string[] = []; // this is for map
@@ -300,23 +297,7 @@ namespace XIApi {
             let newField: string = null;
 
             if (typeToCast == null && castPrefix && parsedCol.prefix) {
-                // when it's a fatptr and no typeToCast specified
-                try {
-                    newType = gTables[tableId].getColByBackName(colName).getType();
-                } catch (e) {
-                    console.error(e);
-                    // when fail to get the col type from meta, cast to string
-                    // XXX this is a hack util backend support auto cast when indexing
-                    newType = ColumnType.string;
-                }
-                newField = overWrite ?
-                            name :
-                            xcHelper.convertPrefixName(parsedCol.prefix, name);
-                // handle name conflict case
-                if (nameSet.has(newField)) {
-                    newField = xcHelper.convertPrefixName(parsedCol.prefix, name);
-                    newField = xcHelper.getUniqColName(tableId, newField);
-                }
+                throw new Error("prefix field must have a cast type");
             } else if (typeToCast != null) {
                 newType = typeToCast;
                 newField = name;
@@ -344,10 +325,10 @@ namespace XIApi {
         txId: number,
         tableName: string,
         colNames: string[],
-        casts: XcCast[],
+        casts: ColumnType[],
         options: CastInfoOptions = <CastInfoOptions>{}
     ): XDPromise<CastResult> {
-        const castInfo = getCastInfo(tableName, colNames, casts, options);
+        const castInfo = getCastInfo(colNames, casts, options);
         if (castInfo.mapStrs.length === 0) {
             return PromiseHelper.resolve({
                 tableName: tableName,
@@ -358,15 +339,9 @@ namespace XIApi {
         }
 
         let deferred: XDDeferred<CastResult> = PromiseHelper.deferred();
-        const tableId: TableId = xcHelper.getTableId(tableName);
-        // ok if null, only being used for setorphantablemeta
-        const progCols: ProgCol[] = gTables[tableId] ?
-                                    gTables[tableId].tableCols : null;
         const newTableName: string = getNewTableName(tableName);
         XIApi.map(txId, castInfo.mapStrs, tableName, castInfo.newFields, newTableName)
         .then(() => {
-            TblManager.setOrphanTableMeta(newTableName, progCols);
-
             deferred.resolve({
                 tableName: newTableName,
                 colNames: castInfo.newColNames,
@@ -383,14 +358,14 @@ namespace XIApi {
         txId: number,
         tableName: string,
         colNames: string[],
-        casts: XcCast[]
+        casts: ColumnType[]
     ): XDPromise<CastResult> {
         const options: CastInfoOptions = {
             castPrefix: true,
             handleNull: true,
             overWrite: false
         };
-        const castInfo = getCastInfo(tableName, colNames, casts, options);
+        const castInfo = getCastInfo(colNames, casts, options);
         if (castInfo.mapStrs.length === 0) {
             return PromiseHelper.resolve({
                 tableName: tableName,
@@ -400,12 +375,10 @@ namespace XIApi {
             });
         }
 
-        const progCols: ProgCol[] = [];
         const colInfos: ColRenameInfo[] = colNames.map((colName, i) => {
             const newName: string = castInfo.newColNames[i];
             const type: ColumnType = castInfo.newTypes[i];
             const fieldType: DfFieldTypeT = xcHelper.convertColTypeToFieldType(type);
-            progCols.push(ColManager.newPullCol(newName, newName, type));
             return xcHelper.getJoinRenameMap(colName, newName, fieldType);
         });
 
@@ -414,9 +387,6 @@ namespace XIApi {
 
         XIApi.synthesize(txId, colInfos, tableName, newTableName)
         .then(() => {
-            progCols.push(ColManager.newDATACol());
-            TblManager.setOrphanTableMeta(newTableName, progCols);
-
             deferred.resolve({
                 tableName: newTableName,
                 colNames: castInfo.newColNames,
@@ -752,99 +722,6 @@ namespace XIApi {
 
         return deferred.promise();
     }
-
-    function replaceImmediate(col: ProgCol, renameInfos: ColRenameInfo[]): void {
-        renameInfos.forEach((renameInfo) => {
-            // when backName === srcColName, it's a derived field
-            if (renameInfo.type !== DfFieldTypeT.DfFatptr &&
-                renameInfo.orig === col.backName
-            ) {
-                const newName: string = renameInfo.new;
-                col.backName = newName;
-                col.name = newName;
-                if (col.sizedTo === "header") {
-                    col.width = xcHelper.getDefaultColWidth(newName);
-                }
-                return false; // stop loop
-            }
-        });
-    }
-
-    // for each fat ptr rename, find whether a column has this fat ptr as
-    // a prefix. If so, fix up all fields in colStruct that pertains to the prefix
-    function replacePrefix(col: ProgCol, renameInfos: ColRenameInfo[]): void {
-        renameInfos.forEach((renameInfo) => {
-            if (renameInfo.type === DfFieldTypeT.DfFatptr &&
-                !col.immediate &&
-                col.prefix === renameInfo.orig
-            ) {
-                // the replace will only repalce the first occurrence, so is fine
-                col.backName = col.backName.replace(renameInfo.orig, renameInfo.new);
-                col.func.args[0] = col.func.args[0].replace(renameInfo.orig, renameInfo.new);
-                col.prefix = col.prefix.replace(renameInfo.orig, renameInfo.new);
-                col.userStr = '"' + col.name + '" = pull(' + col.backName + ')';
-                if (col.sizedTo === "header") {
-                    col.width = xcHelper.getDefaultColWidth(col.name, col.prefix);
-                }
-                return false; // stop loop
-            }
-        });
-    }
-
-    function getPulledColsAfterJoin(
-        tableName: string,
-        pulledColNames: string[],
-        renameInfos: ColRenameInfo[]
-    ): ProgCol[] {
-        const pulledCols: ProgCol[] = [];
-        const tableId: TableId = xcHelper.getTableId(tableName);
-        if (tableId == null || gTables[tableId] == null ||
-            gTables[tableId].tableCols == null) {
-            return pulledCols;
-        }
-
-        const table: TableMeta = gTables[tableId];
-        const cols: ProgCol[] = xcHelper.deepCopy(table.tableCols);
-        if (!pulledColNames) {
-            return cols;
-        }
-
-        for (let i = 0; i < pulledColNames.length; i++) {
-            const colIndex: number = table.getColNumByBackName(pulledColNames[i]) - 1;
-            const col: ProgCol = cols[colIndex];
-            if (renameInfos && renameInfos.length > 0) {
-                replaceImmediate(col, renameInfos);
-                replacePrefix(col, renameInfos);
-            }
-            pulledCols.push(col);
-        }
-
-        return pulledCols;
-    }
-
-    // For xiApi.join, deep copy of right table and left table columns
-    function createJoinedColumns(
-        lTableName: string,
-        rTableName: string,
-        pulledLColNames: string[],
-        pulledRColNames: string[],
-        lRenames: ColRenameInfo[],
-        rRenames: ColRenameInfo[]
-    ): ProgCol[] {
-        // Combine the columns from the 2 current tables
-        // Note that we have to create deep copies!!
-        var lCols = getPulledColsAfterJoin(lTableName, pulledLColNames, lRenames);
-        var rCols = getPulledColsAfterJoin(rTableName, pulledRColNames, rRenames);
-        const excludeDataCol = (col) => col.name !== "DATA";
-
-        const lNewCols: ProgCol[] = lCols.filter(excludeDataCol);
-        const rNewCols: ProgCol[] = rCols.filter(excludeDataCol);
-        const newTableCols: ProgCol[] = lNewCols.concat(rNewCols);
-        newTableCols.push(ColManager.newDATACol());
-
-        return newTableCols;
-    }
-
     /* ============= End of Join Helper ================ */
 
     /* ============= GroupBy Helper ==================== */
@@ -894,124 +771,6 @@ namespace XIApi {
         }
         return evalStr;
     }
-
-    function getIncSampleGroupByCols(
-        tableId: TableId,
-        sampleCols: number[],
-        groupByCols: string[],
-        aggProgCols: ProgCol[]
-    ): ProgCol[] {
-        const table: TableMeta = gTables[tableId];
-        const tableCols: ProgCol[] = table.tableCols;
-        const newCols: ProgCol[] = [];
-        const numGroupByCols: number = groupByCols.length;
-        let newProgColPosFound: boolean = false;
-
-        // find the first col that is in groupByCols
-        // and insert aggCols
-        sampleCols.forEach((colIndex) => {
-            const curCol = tableCols[colIndex];
-            const colName: string = curCol.getBackColName();
-            if (!newProgColPosFound) {
-                for (let i = 0; i < numGroupByCols; i++) {
-                    if (colName === groupByCols[i]) {
-                        newProgColPosFound = true;
-                        aggProgCols.forEach((progCol) => {
-                            newCols.push(progCol);
-                        });
-                        break;
-                    }
-                }
-            }
-
-            newCols.push(curCol);
-        });
-
-        if (!newProgColPosFound) {
-            aggProgCols.forEach((progCol) => {
-                newCols.unshift(progCol);
-            });
-        }
-        // Note that if include sample,
-        // a.b should not be escaped to a\.b
-        const finalCols: ProgCol[] = newCols.map((col) => new ProgCol(col));
-        return finalCols;
-    }
-
-    function getTableKeys(tableName: string): XDPromise<{name: string, ordering: XcalarOrderingT}[]> {
-        const deferred: XDDeferred<{name: string, ordering: XcalarOrderingT}[]> = PromiseHelper.deferred();
-        XIApi.checkOrder(tableName)
-        .then((_ordering, keys) => {
-            deferred.resolve(keys);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    function getFinalGroupByCols(
-        txId: number,
-        tableName: string,
-        finalTableName: string,
-        groupByCols: string[],
-        aggArgs: AggColInfo[],
-        isIncSample: boolean,
-        sampleCols: number[]
-    ): XDPromise<ProgCol[]> {
-        const dataCol: ProgCol = ColManager.newDATACol();
-        const renamedGroupByCols: string[] = groupByCols.map((colName) => colName);
-
-        const newProgCols: ProgCol[] = [];
-        const usedNameSet: Set<string> = new Set();
-        aggArgs.forEach((aggArg) => {
-            const name: string = aggArg.newColName;
-            usedNameSet.add(name);
-            newProgCols.push(ColManager.newPullCol(name, name));
-        });
-
-        const tableId: TableId = xcHelper.getTableId(tableName);
-        if (tableId == null || !gTables.hasOwnProperty(tableId)) {
-            // We really should clean up this function to remove the requirement
-            // of gTables
-            groupByCols.forEach((name) => {
-                if (!usedNameSet.has[name]) {
-                    usedNameSet.add(name);
-                    newProgCols.push(ColManager.newPullCol(name, name));
-                }
-            });
-
-            console.warn("Cannot find table. Not handling sampleCols");
-            newProgCols.push(dataCol);
-            return PromiseHelper.resolve(newProgCols, renamedGroupByCols);
-        } else if (isIncSample) {
-            const finalCols: ProgCol[] = getIncSampleGroupByCols(tableId, sampleCols, groupByCols, newProgCols);
-            finalCols.push(dataCol);
-            return PromiseHelper.resolve(finalCols, renamedGroupByCols);
-        } else {
-            const deferred: XDDeferred<ProgCol[]> = PromiseHelper.deferred();
-            let promise: XDPromise<{name: string}[]>;
-            if (txId != null && Transaction.isSimulate(txId)) {
-                promise = PromiseHelper.resolve([]);
-            } else {
-                promise = getTableKeys(finalTableName);
-            }
-
-            promise.then((keys) => {
-                keys.forEach((key, index) => {
-                    newProgCols.push(ColManager.newPullCol(key.name));
-                    renamedGroupByCols[index] = key.name;
-                });
-                newProgCols.push(dataCol);
-                deferred.resolve(newProgCols, renamedGroupByCols);
-            })
-            .fail(() => {
-                newProgCols.push(dataCol);
-                deferred.resolve(newProgCols, renamedGroupByCols); // still resolve
-            });
-            return deferred.promise();
-        }
-    }
-
     // XXX FIXME: currently it can only triggered by sql which assumes all columns
     // are derived fields. When this assumption breaks, must hand the case when
     // newKeyFieldName in groupByHelper is a prefix
@@ -1274,7 +1033,13 @@ namespace XIApi {
             const casts: ColumnType[] = [];
             columns.forEach((colInfo) => {
                 colNames.push(colInfo.name);
-                casts.push(colInfo.cast ? colInfo.type : null);
+                const parsedCol: PrefixColInfo = xcHelper.parsePrefixColName(colInfo.name);
+                let cast = colInfo.cast ? colInfo.type : null;
+                if (parsedCol.prefix) {
+                    // prefix col must cast
+                    cast = colInfo.type;
+                }
+                casts.push(cast);
             });
 
             const tableName: string = tableInfo.tableName;
@@ -1931,7 +1696,6 @@ namespace XIApi {
      *  "tableName": "test#ab123",
      *  "columns": ["test::colA", "test::colB"],
      *  "casts": ["string", null],
-     *  "pulledColumns": ["test::colA", "test::colB"],
      *  "rename": [{
      *      "new": "test2",
      *      "orig": "test",
@@ -1963,16 +1727,14 @@ namespace XIApi {
         const lTableName: string = lTableInfo.tableName;
         const lColNames: string[] = (lTableInfo.columns instanceof Array) ?
                                     lTableInfo.columns : [lTableInfo.columns];
-        const pulledLColNames: string[] = lTableInfo.pulledColumns;
         const lRename: ColRenameInfo[] = lTableInfo.rename || [];
-        let lCasts: XcCast[] = lTableInfo.casts;
+        let lCasts: ColumnType[] = lTableInfo.casts;
 
         const rTableName: string = rTableInfo.tableName;
         const rColNames: string[] = (rTableInfo.columns instanceof Array) ?
                                     rTableInfo.columns : [rTableInfo.columns];
-        const pulledRColNames: string[] = rTableInfo.pulledColumns;
         const rRename: ColRenameInfo[] = rTableInfo.rename || [];
-        let rCasts: XcCast[] = rTableInfo.casts;
+        let rCasts: ColumnType[] = rTableInfo.casts;
 
 
         if ((joinType !== JoinOperatorT.CrossJoin && lColNames.length < 1) ||
@@ -2065,17 +1827,13 @@ namespace XIApi {
             }
         })
         .then((tempCols) => {
-            // Step 4: get joined columns
-            const joinedCols: ProgCol[] = createJoinedColumns(lTableName, rTableName,
-                                                pulledLColNames, pulledRColNames,
-                                                lRename, rRename);
             if (clean) {
-                XIApi.deleteTableAndMetaInBulk(txId, tempTables, true)
+                XIApi.deleteTableInBulk(txId, tempTables, true)
                 .always(() => {
-                    deferred.resolve(newTableName, joinedCols, tempCols);
+                    deferred.resolve(newTableName, tempCols, lRename, rRename);
                 });
             } else {
-                deferred.resolve(newTableName, joinedCols, tempCols);
+                deferred.resolve(newTableName, tempCols, lRename, rRename);
             }
         })
         .fail(deferred.reject);
@@ -2090,7 +1848,7 @@ namespace XIApi {
      * @param groupByCols
      * @param tableName
      * @param options
-     * @returns Promise<finalTable, finalCols, renamedGroupByCols, tempCols>
+     * @returns Promise<finalTable, tempCols, newKeyFieldName, newKeys>
      */
     export function groupBy(
         txId: number,
@@ -2143,22 +1901,21 @@ namespace XIApi {
         }
 
         const isIncSample: boolean = options.isIncSample || false;
-        const sampleCols: number[] = options.sampleCols || [];
         const icvMode: boolean = options.icvMode || false;
         const clean: boolean = options.clean || false;
         const groupAll: boolean = options.groupAll || false;
         const isMultiGroupby: boolean = (groupByCols.length > 1);
         let gbTableName: string = options.newTableName;
         let tempTables: string[] = [];
-        let finalCols: ProgCol[];
-        let renamedGroupByCols: string[] = [];
         let finalTable: string;
         let newKeyFieldName: string;
+        let newKeys: string[];
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         // tableName is the original table name that started xiApi.groupby
         XIApi.index(txId, groupByCols, tableName)
         .then((indexedTable, _isCache, indexKeys) => {
+            newKeys = indexKeys;
             // table name may have changed after sort!
             let indexedColName: string = indexKeys.length === 0 ?
                             null : xcHelper.stripColName(indexKeys[0]);
@@ -2192,21 +1949,15 @@ namespace XIApi {
             finalTable = resTable;
             tempTables = tempTables.concat(resTempTables);
             tempCols = tempCols.concat(resTempCols);
-            return getFinalGroupByCols(txId, tableName, resTable, groupByCols,
-                                       aggArgs, isIncSample, sampleCols);
-        })
-        .then((resCols, resRenamedCols) => {
-            finalCols = resCols;
-            renamedGroupByCols = resRenamedCols;
+
             if (clean) {
                 // remove intermediate table
-                const promise: XDPromise<void> = XIApi.deleteTableAndMetaInBulk(txId, tempTables, true)
+                const promise: XDPromise<void> = XIApi.deleteTableInBulk(txId, tempTables, true)
                 return PromiseHelper.alwaysResolve(promise);
             }
         })
         .then(() => {
-            deferred.resolve(finalTable, finalCols,
-            renamedGroupByCols, tempCols, newKeyFieldName);
+            deferred.resolve(finalTable, tempCols, newKeyFieldName, newKeys);
         })
         .fail(deferred.reject);
 
@@ -2475,12 +2226,6 @@ namespace XIApi {
             return <XDPromise<number>>XIApi.aggregate(txId, aggOp, colName,
                                                     tableName, dstAggName);
         }
-
-        const tableId = xcHelper.getTableId(tableName);
-        if (tableId != null && gTables[tableId] &&
-            gTables[tableId].resultSetCount > -1) {
-            return PromiseHelper.resolve(gTables[tableId].resultSetCount);
-        }
         return XcalarGetTableCount(tableName);
     }
 
@@ -2606,12 +2351,12 @@ namespace XIApi {
         txId: number,
         tableName: string,
         toIgnoreError: boolean = false
-    ): XDPromise<XcalarApiDeleteDagNodeOutputT> {
+    ): XDPromise<void> {
         if (txId == null || tableName == null) {
             return PromiseHelper.reject("Invalid args in delete table");
         }
 
-        const deferred: XDDeferred<XcalarApiDeleteDagNodeOutputT> = PromiseHelper.deferred();
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         XcalarDeleteTable(tableName, txId)
         .then(deferred.resolve)
         .fail((error) => {
@@ -2623,6 +2368,23 @@ namespace XIApi {
         });
 
         return deferred.promise();
+    }
+
+    /**
+     * XIApi.deleteTableInBulk
+     * @param txId
+     * @param tables
+     * @param toIgnoreError
+     */
+    export function deleteTableInBulk(
+        txId: number,
+        tables: string[],
+        toIgnoreError: boolean = false
+    ): XDPromise<void> {
+        const promises: XDPromise<void>[] = tables.map((tableName) => {
+            return XIApi.deleteTable(txId, tableName, toIgnoreError);
+        });
+        return PromiseHelper.when.apply(this, promises);
     }
 
     // if at least 1 table fails, will reject
@@ -2687,49 +2449,6 @@ namespace XIApi {
     };
 
     /**
-     * XIApi.deleteTableAndMeta
-     * @param txId
-     * @param tableName
-     * @param toIgnoreError
-     */
-    export function deleteTableAndMeta(
-        txId: number,
-        tableName: string,
-        toIgnoreError: boolean = false
-    ): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        XIApi.deleteTable(txId, tableName, toIgnoreError)
-        .then(() => {
-            const tableId: TableId = xcHelper.getTableId(tableName);
-            TableList.removeTable(tableId);
-            if (tableId != null && gTables[tableId] != null) {
-                delete gTables[tableId];
-            }
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    };
-
-    /**
-     * XIApi.deleteTableAndMetaInBulk
-     * @param txId
-     * @param tables
-     * @param toIgnoreError
-     */
-    export function deleteTableAndMetaInBulk(
-        txId: number,
-        tables: string[],
-        toIgnoreError: boolean = false
-    ): XDPromise<void> {
-        const promises: XDPromise<void>[] = tables.map((tableName) => {
-            return XIApi.deleteTableAndMeta(txId, tableName, toIgnoreError);
-        });
-        return PromiseHelper.when.apply(this, promises);
-    }
-
-    /**
      * XIApi.createDataTarget
      * @param targetType
      * @param targetName
@@ -2788,9 +2507,7 @@ namespace XIApi {
             joinIndex: joinIndex,
             resolveJoinColRename: resolveJoinColRename,
             semiJoinHelper: semiJoinHelper,
-            createJoinedColumns: createJoinedColumns,
             getGroupByAggEvalStr: getGroupByAggEvalStr,
-            getFinalGroupByCols: getFinalGroupByCols,
             computeDistinctGroupby: computeDistinctGroupby,
             cascadingJoins: cascadingJoins,
             distinctGroupby: distinctGroupby,
