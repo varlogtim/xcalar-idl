@@ -14,7 +14,7 @@ window.SmartCastView = (function($, SmartCastView) {
 
     SmartCastView.setup = function() {
         validTypes = [ColumnType.string, ColumnType.integer, ColumnType.float,
-            ColumnType.boolean, ColumnType.mixed]
+            ColumnType.boolean, ColumnType.mixed, ColumnType.timestamp]
         $castView = $("#smartCastView");
         $castTable = $("#smartCast-table");
 

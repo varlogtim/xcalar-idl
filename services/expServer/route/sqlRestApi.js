@@ -1331,6 +1331,8 @@ function getColType(typeId) {
             return ColumnType.float;
         case DfFieldTypeT.DfBoolean:
             return ColumnType.boolean;
+        case DfFieldTypeT.DfTimespec:
+            return ColumnType.timestamp;
         case DfFieldTypeT.DfMixed:
             return ColumnType.mixed;
         case DfFieldTypeT.DfFatptr:

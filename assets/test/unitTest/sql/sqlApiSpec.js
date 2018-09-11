@@ -136,6 +136,9 @@ describe("SQLApi Test", function() {
                 id: DfFieldTypeT.DfBoolean,
                 expect: ColumnType.boolean
             }, {
+                id: DfFieldTypeT.DfTimespec,
+                expect: ColumnType.timestamp
+            }, {
                 id: DfFieldTypeT.DfMixed,
                 expect: ColumnType.mixed
             }, {

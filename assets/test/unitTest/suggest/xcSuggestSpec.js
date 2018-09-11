@@ -783,6 +783,15 @@ describe("xcSuggest", function() {
                 "datas": ["-0.1", "-1.0"],
                 "type": ColumnType.string,
                 "expect": ColumnType.float
+            }, {
+                "datas": ["1970-01-01T00:00:00.000Z", "1993-10-01"],
+                "type": ColumnType.string,
+                "expect": ColumnType.timestamp
+            }, {
+                // 1993-10-1 is not ISO 8601
+                "datas": ["1970-01-01T00:00:00.000Z", "1993-10-1"],
+                "type": ColumnType.string,
+                "expect": ColumnType.string
             }];
 
             tests.forEach(function(test) {

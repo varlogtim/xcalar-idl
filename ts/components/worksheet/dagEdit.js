@@ -798,6 +798,8 @@ window.DagEdit = (function($, DagEdit) {
                 return ColumnType.float;
             case DfFieldTypeTStr[DfFieldTypeT.DfBoolean]:
                 return ColumnType.boolean;
+            case DfFieldTypeTStr[DfFieldTypeT.DfTimespec]:
+                return ColumnType.timestamp;
             case DfFieldTypeTStr[DfFieldTypeT.DfMixed]:
                 return ColumnType.mixed;
             case DfFieldTypeTStr[DfFieldTypeT.DfFatptr]:

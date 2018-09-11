@@ -1172,6 +1172,9 @@
                     case DfFieldTypeT.DfBoolean:
                         self.type = ColumnType.boolean;
                         break;
+                    case DfFieldTypeT.DfTimespec:
+                        self.type = ColumnType.timestamp;
+                        break;
                     case DfFieldTypeT.DfMixed:
                         self.type = ColumnType.mixed;
                         break;

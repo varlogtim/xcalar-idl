@@ -1787,7 +1787,7 @@ window.ColManager = (function($, ColManager) {
             $table.find("td.col" + colNum).addClass("userHidden");
         }
         if ([ColumnType.integer, ColumnType.float, ColumnType.string,
-            ColumnType.boolean, ColumnType.number].indexOf(colType) > -1
+            ColumnType.boolean, ColumnType.number, ColumnType.timestamp].indexOf(colType) > -1
             && !progCol.isEmptyCol()) {
             $th.addClass("sortable");
         } else {

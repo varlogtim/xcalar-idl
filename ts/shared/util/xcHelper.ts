@@ -521,6 +521,8 @@ namespace xcHelper {
                 return DfFieldTypeT.DfFloat64;
             case ColumnType.boolean:
                 return DfFieldTypeT.DfBoolean;
+            case ColumnType.timestamp:
+                return DfFieldTypeT.DfTimespec;
             default:
                 return DfFieldTypeT.DfUnknown;
         }
@@ -1666,6 +1668,8 @@ namespace xcHelper {
                 return 'xi-string';
             case (DfFieldTypeT.DfBoolean):
                 return 'xi-boolean';
+            case (DfFieldTypeT.DfTimespec):
+                return 'xi-timestamp';
             default:
                 // DfScalarObj will be mixed
                 return 'xi-mixed';
@@ -1690,6 +1694,8 @@ namespace xcHelper {
                 return ColumnType.string;
             case (DfFieldTypeT.DfBoolean):
                 return ColumnType.boolean;
+            case (DfFieldTypeT.DfTimespec):
+                return ColumnType.timestamp;
             default:
                 // DfScalarObj will be mixed
                 return ColumnType.mixed;

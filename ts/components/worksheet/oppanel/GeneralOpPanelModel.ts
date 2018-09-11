@@ -768,6 +768,12 @@ class GeneralOpPanelModel {
             types.push(ColumnType.boolean);
         }
 
+        // timestamp
+        typeShift = 1 << DfFieldTypeT.DfTimespec;
+        if ((typeId & typeShift) > 0) {
+            types.push(ColumnType.timestamp);
+        }
+
         // mixed
         typeShift = 1 << DfFieldTypeT.DfMixed;
         if ((typeId & typeShift) > 0) {

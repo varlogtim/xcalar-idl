@@ -95,6 +95,10 @@
     &.type-boolean .isKnownType .type-boolean .xi-tick {
         display: block;
     }
+    // XXX boolean cannot cast to timestamp as there is a crash
+    &.type-boolean .isKnownType .type-timestamp {
+        display: none;
+    }
 
     &.sizedToheader .sizeToHeader .xi-tick {
         display: block;

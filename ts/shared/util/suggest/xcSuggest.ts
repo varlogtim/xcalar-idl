@@ -1076,7 +1076,9 @@ namespace xcSuggest { // = (function($, xcSuggest) {
         let validData: number = 0;
         let numHit: number = 0;
         let booleanHit: number = 0;
+        let timestampHit: number = 0;
         const letterRex: RegExp = /[a-z]/i;
+        const timestampFormats: any[] = [moment.ISO_8601];
         for (let i = 0, len = datas.length; i < len; i++) {
             let data: string = datas[i];
             if (data == null) {
@@ -1106,6 +1108,8 @@ namespace xcSuggest { // = (function($, xcSuggest) {
             } else if (data === "true" || data === "false" ||
                 data === "t" || data === "f") {
                 booleanHit++;
+            } else if (moment(data.toUpperCase(), timestampFormats, true).isValid()) {
+                timestampHit++;
             }
         }
         if (validData === 0) {
@@ -1118,6 +1122,8 @@ namespace xcSuggest { // = (function($, xcSuggest) {
             }
         } else if (booleanHit / validData >= confidentRate) {
             return ColumnType.boolean;
+        } else if (timestampHit / validData >= confidentRate) {
+            return ColumnType.timestamp;
         } else {
             return ColumnType.string;
         }

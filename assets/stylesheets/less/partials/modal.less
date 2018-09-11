@@ -318,7 +318,7 @@
                 }
 
                 .jArray  {
-                    > .jString, > .jNum, > .jBool, > .jNull , > .jUndf {
+                    > .jString, > .jNum, > .jBool, > .jTimestamp, > .jNull , > .jUndf {
                         cursor: default;
                         &:hover {
                             background-color: transparent;
@@ -824,7 +824,7 @@
 
     // .jArray  {
     .arrayVal {
-        > .jString, > .jNum, > .jBool, > .jNull , > .jUndf {
+        > .jString, > .jNum, > .jBool, > .jTimestamp, > .jNull , > .jUndf {
             cursor: pointer;
             &:hover {
                 background-color: @color-bg-graph-gray;
@@ -843,7 +843,7 @@
         word-break: break-all;
     }
 
-    .jNum, .jBool, .jNull , .jUndf {
+    .jNum, .jBool, .jTimestamp, .jNull , .jUndf {
         color: @color-json-num;
         word-break: break-all;
     }
@@ -921,7 +921,7 @@
     }
 
     .partial .jArray  {
-        > .jString, > .jNum, > .jBool, > .jNull , > .jUndf {
+        > .jString, > .jNum, > .jBool, > .jTimestamp, > .jNull , > .jUndf {
             cursor: pointer;
             &:hover {
                 background-color: transparent;
@@ -5292,7 +5292,7 @@ html.microsoft {
         word-break: break-all;
     }
 
-    .jNum, .jBool, .jNull , .jUndf {
+    .jNum, .jBool, .jTimestamp, .jNull , .jUndf {
         color: @color-json-num;
         word-break: break-all;
     }

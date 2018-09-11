@@ -60,6 +60,15 @@ class ColMenu extends AbstractMenu {
             xcTooltip.add($lis, {
                 title: ColTStr.NoOperateGeneral
             });
+        } else if (colType === ColumnType.timestamp) {
+            $lis = $menu.find(".groupby, .aggregate, .filter, " +
+            ".join, .operations, .profile, .corrAgg, " +
+            ".extensions, .format, .roundToFixed, " +
+            ".union");
+            $lis.addClass("unavailable");
+            xcTooltip.add($lis, {
+                title: ColTStr.NoOperateGeneral
+            });
         } else if ([ColumnType.integer, ColumnType.float, ColumnType.string,
                     ColumnType.boolean, ColumnType.number]
                     .indexOf(colType) === -1) {

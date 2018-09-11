@@ -15,7 +15,8 @@ FunctionCategoryT = {
   'FunctionCategoryCondition' : 6,
   'FunctionCategoryAggregate' : 7,
   'FunctionCategoryCast' : 8,
-  'FunctionCategoryUdf' : 9
+  'FunctionCategoryUdf' : 9,
+  'FunctionCategoryTimestamp': 10
 };
 FunctionCategoryTStr = {
   0 : 'Arithmetic functions',
@@ -27,7 +28,8 @@ FunctionCategoryTStr = {
   6 : 'Conditional functions',
   7 : 'Aggregate functions',
   8 : 'Type-casting functions',
-  9 : 'User-defined functions'
+  9 : 'User-defined functions',
+  10: 'Timestamp functions',
 };
 FunctionCategoryTFromStr = {
   'Arithmetic functions' : 0,
@@ -39,5 +41,6 @@ FunctionCategoryTFromStr = {
   'Conditional functions' : 6,
   'Aggregate functions' : 7,
   'Type-casting functions' : 8,
-  'User-defined functions' : 9
+  'User-defined functions' : 9,
+  'Timestamp functions' : 10
 };

@@ -27,14 +27,16 @@ class GeneralOpPanel extends BaseOpPanel {
 
      // shows valid cast types
     protected static castMap = {
-        "string": [ColumnType.boolean, ColumnType.integer, ColumnType.float],
+        "string": [ColumnType.boolean, ColumnType.integer, ColumnType.float,
+                    ColumnType.timestamp],
         "integer": [ColumnType.boolean, ColumnType.integer, ColumnType.float,
-                    ColumnType.string],
+                    ColumnType.string, ColumnType.timestamp],
         "float": [ColumnType.boolean, ColumnType.integer, ColumnType.float,
-                  ColumnType.string],
+                  ColumnType.string, ColumnType.timestamp],
         "number": [ColumnType.boolean, ColumnType.integer, ColumnType.float,
-                    ColumnType.string],
+                    ColumnType.string, ColumnType.timestamp],
         "boolean": [ColumnType.integer, ColumnType.float, ColumnType.string],
+        "timestamp": [ColumnType.integer, ColumnType.float, ColumnType.string],
         "mixed": [ColumnType.boolean, ColumnType.integer, ColumnType.float,
                     ColumnType.string],
         // no valid cast options for: undefined, array, objects
@@ -1622,6 +1624,12 @@ class GeneralOpPanel extends BaseOpPanel {
         typeShift = 1 << DfFieldTypeT.DfBoolean;
         if ((typeId & typeShift) > 0) {
             types.push(ColumnType.boolean);
+        }
+
+        // timestamp
+        typeShift = 1 << DfFieldTypeT.DfTimespec;
+        if ((typeId & typeShift) > 0) {
+            types.push(ColumnType.timestamp);
         }
 
         // mixed

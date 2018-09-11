@@ -54,6 +54,7 @@ enum ColumnType {
     number = "number",
     object = "object",
     string = "string",
+    timestamp = "timestamp",
     undefined = "undefined",
     unknown = "unknown"
 }

@@ -1061,17 +1061,20 @@ window.JSONModal = (function($, JSONModal) {
         if (type && (type !== ColumnType.object && type !== ColumnType.array)) {
             var typeClass = "";
             switch (type) {
-                case ('string'):
+                case (ColumnType.string):
                     typeClass = "jString";
                     break;
-                case ('integer'):
+                case (ColumnType.integer):
                     typeClass = "jNum";
                     break;
-                case ('float'):
+                case (ColumnType.float):
                     typeClass = "jNum";
                     break;
-                case ('boolean'):
+                case (ColumnType.boolean):
                     typeClass = "jBool";
+                    break;
+                case (ColumnType.timestamp):
+                    typeClass ="jTimestamp";
                     break;
                 default:
                     typeClass = "jUndf";

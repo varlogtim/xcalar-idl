@@ -20,7 +20,7 @@ window.DFCreateView = (function($, DFCreateView) {
     DFCreateView.setup = function() {
          // constant
         validTypes = [ColumnType.string, ColumnType.integer, ColumnType.float,
-            ColumnType.boolean, ColumnType.mixed, ColumnType.undefined, ColumnType.unknown];
+            ColumnType.boolean, ColumnType.timestamp, ColumnType.mixed, ColumnType.undefined, ColumnType.unknown];
         $dfView = $('#dfCreateView');
         $newNameInput = $('#newDFNameInput');
 
