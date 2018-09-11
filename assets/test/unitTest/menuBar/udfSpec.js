@@ -12,6 +12,7 @@ describe("UDF Test", function() {
         $udfSection = $("#udfSection");
         $udfManager = $("#udf-manager");
         UnitTest.onMinMode();
+        UDF.setupTest();
 
         if (!$tab.hasClass("active")) {
             UnitTest.testFinish(function() {
@@ -40,7 +41,10 @@ describe("UDF Test", function() {
                 return !$("#udf-fnSection").hasClass("xc-disabled");
             })
             .then(() => {
-                expect(UDF.getUDFs().hasOwnProperty(defaultUDFPath));
+                var udfs = UDF.getUDFs();
+                var udfsObj = {};
+                udfs.forEach((value, key) => {udfsObj[key] = value;});
+                expect(udfsObj.hasOwnProperty(defaultUDFPath));
                 done();
             })
             .fail(function() {
@@ -172,7 +176,7 @@ describe("UDF Test", function() {
         var oldUploadFunc;
 
         before(function() {
-            uploadUDF = UDF.__testOnly__.uploadUDF;
+            uploadUDF = UDF.__testOnly__.upload;
             oldUploadFunc = XcalarUploadPython;
         });
 
@@ -247,14 +251,16 @@ describe("UDF Test", function() {
 
         it("UDF.getUDFs should work", function() {
             var udfs = UDF.getUDFs();
-            expect(udfs).to.be.an("object");
+            expect(udfs).to.be.a("Map");
         });
 
         it("UDF.storePython should work", function() {
             var moduleName = xcHelper.randName("unittest");
             UDF.storePython(moduleName, "test");
             var udfs = UDF.getUDFs();
-            expect(udfs).to.have.ownProperty(moduleName);
+            var udfsObj = {};
+            udfs.forEach((value, key) => {udfsObj[key] = value;});
+            expect(udfsObj).to.have.ownProperty(moduleName);
         });
 
         it("UDF.list should work", function(done) {
@@ -273,7 +279,9 @@ describe("UDF Test", function() {
         it("UDF.clear should work", function() {
             UDF.clear();
             var udfs = UDF.getUDFs();
-            expect(jQuery.isEmptyObject(udfs)).to.be.true;
+            var udfsObj = {};
+            udfs.forEach((value, key) => {udfsObj[key] = value;});
+            expect(jQuery.isEmptyObject(udfsObj)).to.be.true;
         });
 
         it("UDF.initialize should handle error case", function(done) {
@@ -299,7 +307,9 @@ describe("UDF Test", function() {
             UDF.initialize()
             .then(function() {
                 var udfs = UDF.getUDFs();
-                expect(udfs).to.have.ownProperty(defaultModulePath);
+                var udfsObj = {};
+                udfs.forEach((value, key) => {udfsObj[key] = value;});
+                expect(udfsObj).to.have.ownProperty(defaultModulePath);
                 done();
             })
             .fail(function() {

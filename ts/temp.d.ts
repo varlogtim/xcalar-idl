@@ -5,6 +5,8 @@
  * is done
  */
 /// <reference path="../3rd/bower_components/moment/moment.d.ts" />
+/// <reference path="../3rd/bower_components/CodeMirror/codemirror-custom.d.ts" />
+/// <reference path="../node_modules/@types/codemirror/codemirror-showhint.d.ts" />
 /* ============== TYPES ======================== */
 type XDPromise<T> = JQueryPromise<T>;
 type XDDeferred<T> = JQueryDeferred<T>;
@@ -128,7 +130,7 @@ interface WkbkKVKeySet {
 }
 
 interface UDFInfo {
-    displayName: string;
+    displayName?: string;
     fnName: string;
 }
 
@@ -560,7 +562,8 @@ declare enum StatusT {
     StatusUdfModuleEmpty,
     StatusQrQueryAlreadyExists,
     StatusInvalidResultSetId,
-    StatusNoBufs
+    StatusNoBufs,
+    StatusUdfModuleNotFound
 }
 
 declare enum FunctionCategoryT {
@@ -589,6 +592,8 @@ declare namespace XcalarApisConstantsT {
     export var XcalarApiMaxEvalStringLen: number;
     export var XcalarApiMaxEvalStirngLen: number;
     export var XcalarApiDefaultTopIntervalInMs: number;
+    export var XcalarApiMaxUdfModuleNameLen: number;
+    export var XcalarApiMaxUdfSourceLen: number;
 }
 
 declare enum JoinOperatorTStr {
@@ -807,6 +812,8 @@ declare namespace TooltipTStr {
 declare namespace SuccessTStr{
     export var Copy: string;
     export var Saved: string;
+    export var UploadUDF: string;
+    export var DelUDF: string;
 }
 
 declare namespace MonitorTStr {
@@ -815,6 +822,15 @@ declare namespace MonitorTStr {
     export var LowMemInstr: string;
     export var LowMem: string;
     export var LowMemMsg: string;
+}
+
+declare namespace SideBarTStr {
+    export var DownloadMsg: string;
+    export var UploadError: string;
+    export var OverwriteErr: string;
+    export var DupUDFMsg: string;
+    export var DupUDF: string;
+    export var DownloadError: string;
 }
 
 declare namespace AggTStr {
@@ -864,6 +880,9 @@ declare namespace ErrTStr {
     export var TablesNotDeleted: string;
     export var NoTablesDeleted: string;
     export var NotDisplayRows: string;
+    export var LongFileName: string;
+    export var NoEmptyFn: string;
+    export var LargeFile: string;
 }
 
 declare namespace ErrWRepTStr {
@@ -879,6 +898,7 @@ declare namespace ErrWRepTStr {
     export var AggConflict: string;
     export var InvalidRange: string;
     export var TableNotDeleted: string;
+    export var NoUDF: string;
 }
 
 declare namespace ColTStr {
@@ -1032,6 +1052,9 @@ declare namespace UDFTStr {
     export var MYOTHERUDFS: string;
     export var OtherUDFS: string;
     export var DFUDFS: string;
+    export var NoTemplate: string;
+    export var InValidName: string;
+    export var DelFail: string;
 }
 
 declare namespace UploadTStr {
@@ -1603,20 +1626,9 @@ declare namespace JupyterPanel {
     export function publishTable(tableName: string, numRows?: number): void;
 }
 
-declare namespace UDF {
-    export function refreshWithoutClearing(overWriteUDF: boolean): void;
-    export function getCurrWorkbookPath(): string;
-    export function edit(modulePath: string): void;
-    export function download(moduleName: string): XDPromise<void>;
-    export function del(moduleName: string): XDPromise<void>;
-    export function refresh(): XDPromise<void>;
-    export function getDefaultUDFPath(): string;
-    export function getUDFs(): any;
-    export function list(): any;
-}
-
 declare namespace DSExport {
     export function refresh(): void;
+    export function refreshUDF(listXdfsObj: any): void;
 }
 
 declare namespace SQLApi {
@@ -1650,6 +1662,7 @@ declare namespace OperationsView {
     export function setup(): void;
     export function restore(): void;
     export function show(tableId: TableId, colNums: number[], func: string, options: object): void;
+    export function updateOperationsMap(listXdfsObj: any)
 }
 declare namespace JoinView {
     export function updateColumns(): void;
@@ -1676,7 +1689,7 @@ declare namespace SortView {
     export function show(colNums: number[], tableId: TableId): void;
 }
 declare namespace FnBar {
-    export function updateOperationsMap(fns: UDFInfo[]): void;
+    export function updateOperationsMap(fns: UDFInfo[], isOnlyUDF?: boolean): void;
     export function unlock(): void;
     export function setup(): void;
     export function clear(): void;
@@ -1714,8 +1727,13 @@ declare namespace xcMixpanel {
     export function setup(): void;
 }
 
+declare namespace DSPreview {
+    export function update(ListXdfsObj: any);
+}
+
 declare namespace DSTargetManager {
     export function refreshTargets(noWaitIcon: boolean): object[];
+    export function updateUDF(listXdfsObj: any);
 }
 
 declare namespace JSONModal {

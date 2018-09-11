@@ -239,7 +239,8 @@ window.FlightTest = (function(FlightTest, $) {
                         '    return str(year) + str(month) + str(day)');
                     $("#udf-fnName").val("ymd");
                     $("#udf-fnUpload").click();
-                    return test.checkExists(selector);
+                    return test.checkExists("#udf-manager.loading", null,
+                        {notExist: true});
                 }
             })
             .then(function() {
