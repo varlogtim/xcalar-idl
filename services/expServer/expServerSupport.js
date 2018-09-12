@@ -1026,14 +1026,14 @@ function checkAuthAdminImpl(req, res, next) {
     next();
 }
 
-function checkProxyAuth(req, res) {
-    return checkProxyAuthImpl(req, res);
+function checkProxyAuth(req, res, type) {
+    return checkProxyAuthImpl(req, res, type);
 }
 
-function checkProxyAuthImpl(req, res) {
+function checkProxyAuthImpl(req, res, type) {
     if (! req.session.hasOwnProperty('loggedIn') ||
         ! req.session.loggedIn ) {
-        res.status(httpStatus.Unauthorized).send('Unauthorized thrift request');
+        res.status(httpStatus.Unauthorized).send('Unauthorized ' + type + ' request');
         return false;
     }
 

