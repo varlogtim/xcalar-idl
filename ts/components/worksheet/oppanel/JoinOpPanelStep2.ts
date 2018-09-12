@@ -176,7 +176,7 @@ class JoinOpPanelStep2 {
             {
                 'oldColTitle': isLeft? 'Left Table': 'Right Table',
                 'newColTitle': 'New Name',
-                'APP-RENAME_TABLE': nodeRowList, 
+                'APP-RENAME-TABLE': nodeRowList, 
             }
         )
 
