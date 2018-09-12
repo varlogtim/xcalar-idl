@@ -184,7 +184,7 @@
                                             <p>Parquet datasets are columnar-oriented datasets stored in a nested file structure. The parquet data structure includes schema and metadata files that describe each file, including its location. You can create a <span class="GeneralProductName3">Xcalar</span> dataset from a single parquet file or from a parquet dataset: </p>
                                             <ul>
                                                 <li value="1">To create a <span class="GeneralProductName3">Xcalar</span> dataset from a single parquet file, see <a href="#Creating2" class="MCXref xref" xrefformat="{para}">Creating a Xcalar dataset from a single parquet file</a>. </li>
-                                                <li value="2">To create a <span class="GeneralProductName3">Xcalar</span> dataset from a parquet dataset, see <a href="#Creating2" class="MCXref xref" xrefformat="{para}">Creating a Xcalar dataset from a single parquet file</a>.</li>
+                                                <li value="2">To create a <span class="GeneralProductName3">Xcalar</span> dataset from a parquet dataset, see <a href="#Creating3" class="MCXref xref" xrefformat="{para}">Creating a Xcalar dataset from a parquet dataset</a>.</li>
                                             </ul>
                                             <h2 class="noPageBreak"><a name="Creating2"></a>Creating a <span class="GeneralProductName3">Xcalar</span> dataset from a single parquet file</h2>
                                             <p>To create a <span class="GeneralProductName3">Xcalar</span> dataset from a single parquet file:</p>
@@ -211,7 +211,7 @@
                                                 <li value="14">(Optional) To display a view of the <span class="GeneralProductName3">Xcalar</span> dataset's nested structure, click <span class="UIelement">CLICK TO VIEW</span>.</li>
                                                 <p>The <span class="UIelement">Files / Folders</span> window appears, displaying a directory tree of all the files and folders located in the <span class="GeneralProductName3">Xcalar</span> dataset. To view files and folders of interest, expand or collapse folders .</p>
                                             </ol>
-                                            <h2 class="noPageBreak"><a name="Creating2"></a>Creating a <span class="GeneralProductName3">Xcalar</span> dataset from a parquet dataset</h2>
+                                            <h2 class="noPageBreak"><a name="Creating3"></a>Creating a <span class="GeneralProductName3">Xcalar</span> dataset from a parquet dataset</h2>
                                             <p>Creating a <span class="GeneralProductName3">Xcalar</span> dataset from a set of parquet data source files requires <span class="GeneralProductName3">Xcalar</span> admin assistance to create a parquet data target that is used to import your data. The instructions also describe how to select specific partition keys and columns of interest for your <span class="GeneralProductName3">Xcalar</span> dataset.</p>
                                             <p>The following tasks describe how to create a <span class="GeneralProductName3">Xcalar</span> dataset from a parquet dataset:</p>
                                             <ol>
@@ -250,6 +250,7 @@
                                                 <li value="4">From the <span class="UIelement">Data Source Path</span> field, click the <span class="UIelement">BROWSE</span> button.</li>
                                                 <p>The <span class="UIelement">Browse Data Source</span> page appears.</p>
                                                 <li value="5">Locate the folder containing your  parquet data source and click its checkbox, which is located to the left of the folder’s name.</li>
+                                                <div class="Note"><span class="label">NOTE: </span>To create a <span class="GeneralProductName3">Xcalar</span> dataset from multiple parquet datasets of a common schema, click the checkbox for each folder containing a single parquet data source. </div>
                                                 <li value="6">(Optional) To examine the parquet data source's raw data, click <span class="UIelement">VIEW RAW DATA</span>. For more information, see <a href="../A_GettingStarted/D_DetailedStepsForPointing.htm#Viewing" class="MCXref xref" xrefformat="{para}">Viewing raw data</a>.</li>
                                                 <li value="7">Click<span class="UIelement"> NEXT</span>.</li>
                                                 <p>The<span class="UIelement"> Import Data Source</span> page appears.</p>
