@@ -21,6 +21,9 @@ class DagCategories {
             })),
             new DagCategoryNodeOut(DagNodeFactory.create({
                 type: DagNodeType.Export
+            })),
+            new DagCategoryNodeOperations(DagNodeFactory.create({
+                type: DagNodeType.Custom
             }))
         ]);
 

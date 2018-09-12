@@ -989,12 +989,15 @@
         .description, .configureNode, .previewTable, .viewSchema, .autoAlign {
             display: list-item;
         }
-        .previewAgg {
+        .previewAgg, .createCustom {
             display: none;
         }
         &.multiple {
             .description, .configureNode, .previewTable, .viewSchema {
                 display: none;
+            }
+            .createCustom {
+                display: list-item;
             }
         }
         &.agg {

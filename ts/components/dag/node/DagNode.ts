@@ -400,6 +400,22 @@ abstract class DagNode {
         });
     }
 
+    /**
+     * Get a list of index of the given parent node
+     * @param parentNode 
+     * @returns A list of index(Empty list if the node is not a parent)
+     */
+    public findParentIndices(parentNode: DagNode): number[] {
+        const result: number[] = [];
+        const parents = this.getParents();
+        for (let i = 0; i < parents.length; i ++) {
+            if (parents[i] === parentNode) {
+                result.push(i);
+            }
+        }
+        return result;
+    }
+
     protected _clearConnectionMeta(): void {
         this._removeTable();
         this.lineage.reset(); // lineage will change

@@ -13,6 +13,12 @@ interface DagNodeInfo {
     error?: string;
 }
 
+interface DagNodeCustomInfo extends DagNodeInfo {
+    subGraph: string,
+    inPorts: NodeConnection[][],
+    outPorts: NodeConnection[]
+}
+
 interface DagNodeDatasetInfo extends DagNodeInfo {
     columns?: {name: string, type: ColumnType}[]
 }
@@ -96,10 +102,13 @@ interface DagNodeExtensionInput {
 /* ==== End of Dag Node Input Intereface ==== */
 
 /* ==== Interfaces related to DagList and DagTabs ==== */
+declare type NodeIOPort = {
+    node: DagNode, portIdx: number
+}
 
 interface NodeConnection {
-    parentId: DagNodeId,
-    childId: DagNodeId,
+    parentId?: DagNodeId,
+    childId?: DagNodeId,
     pos: number
 }
 

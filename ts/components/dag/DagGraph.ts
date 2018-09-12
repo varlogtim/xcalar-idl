@@ -373,6 +373,69 @@ class DagGraph {
         return this._topologicalSort();
     }
 
+    /**
+     * Retrieve the connection(edge) information of a sub graph
+     * @param nodeIds NodeId list of a sub graph
+     * @returns
+     * inner: inner connection(both nodes are in the sub graph);
+     * in: input connection(parent node is outside);
+     * out: output connection(child node is outside);
+     */
+    public getSubGraphConnection(
+        nodeIds: DagNodeId[]
+    ): {
+        inner: NodeConnection[],
+        in: NodeConnection[],
+        out: NodeConnection[]
+    } {
+        const subGraphMap = new Map<DagNodeId, DagNode>();
+        for (const nodeId of nodeIds) {
+            subGraphMap.set(nodeId, this.getNode(nodeId));
+        }
+
+        const innerEdges: NodeConnection[] = [];
+        const inputEdges: NodeConnection[] = [];
+        const outputEdges: NodeConnection[] = [];
+        for (const [subNodeId, subNode] of subGraphMap.entries()) {
+            // Find inputs
+            const parents = subNode.getParents();
+            parents.forEach( (parent, parentIndex) => {
+                const edge: NodeConnection = {
+                    parentId: parent.getId(),
+                    childId: subNodeId,
+                    pos: parentIndex
+                };
+                if (subGraphMap.has(parent.getId())) {
+                    // Internal connection
+                    innerEdges.push(edge);
+                } else {
+                    // Input connection
+                    inputEdges.push(edge);
+                }
+            });
+
+            // Find outputs
+            const childMap = new Map<DagNodeId, DagNode>(); // Children not in the sub graph
+            for (const child of subNode.getChildren()) {
+                if (!subGraphMap.has(child.getId())) {
+                    childMap.set(child.getId(), child);
+                }
+            }
+            for (const [childId, child] of childMap.entries()) {
+                const parentIndices = child.findParentIndices(subNode);
+                for (const parentIndex of parentIndices) {
+                    outputEdges.push({
+                        parentId: subNodeId,
+                        childId: childId,
+                        pos: parentIndex
+                    });
+                }
+            }
+        }
+        
+        return { inner: innerEdges, in: inputEdges, out: outputEdges };
+    }
+
     private _setupEvents(): void {
         this.innerEvents = {};
         this.events = {

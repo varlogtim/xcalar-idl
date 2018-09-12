@@ -164,6 +164,9 @@ namespace DagNodeMenu {
                 case ("exitOpPanel"):
                     MainMenu.closeForms();
                     break;
+                case ("createCustom"):
+                    DagView.wrapCustomOperator(nodeIds);
+                    break;
                 default:
                     break;
             }
@@ -204,6 +207,9 @@ namespace DagNodeMenu {
                 break;
             case (DagNodeType.Export):
                 console.warn("not implement yet");
+                break;
+            case (DagNodeType.Custom):
+                DagTabManager.Instance.newCustomTab(node as any);
                 break;
             default:
                 throw new Error("Unsupported type");

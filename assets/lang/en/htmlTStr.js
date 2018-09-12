@@ -1383,6 +1383,7 @@ module.exports = {
         "cut": "Cut",
         "paste": "Paste",
         "viewSchema": "View Schema",
-        "schema": "Schema"
+        "schema": "Schema",
+        "createCustomNode": "Create Custom Node",
     }
 };

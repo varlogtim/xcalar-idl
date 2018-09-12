@@ -83,6 +83,7 @@ class DagCategoryBar {
         iconMap[DagNodeType.Project] = "&#xe9d7;";
         iconMap[DagNodeType.Extension] = "&#xe96d;";
         iconMap[DagNodeType.SQL] = "&#xe957;";
+        iconMap[DagNodeType.Custom] = "&#xe957;";
 
         const categoryColorMap = {};
         categoryColorMap[DagCategoryType.Favorites] = "#BBC7D1";

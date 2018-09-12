@@ -11,7 +11,8 @@ enum DagNodeType {
     GroupBy = "groupBy",
     Project = "project",
     SQL = "sql",
-    Extension = "extension"
+    Extension = "extension",
+    Custom = "custom"
 }
 
 enum DagNodeSubType {

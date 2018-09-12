@@ -101,4 +101,8 @@ class DagTab{
     public getId(): string {
         return this._id;
     }
+
+    public getKey(): string {
+        return this._key;
+    }
 }
