@@ -8,6 +8,8 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     private _currentPath: string[];
     private _futurePath: string[];
     private _$datasetList: JQuery; // $("#dsOpListSection");
+    private _advMode: boolean;
+    private _dagNode: DagNodeDataset;
 
     // *******************
     // Constants
@@ -21,6 +23,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         // HTML elements binding
         this._$elemPanel = $('#datasetOpPanel');
         this._$datasetList = $("#dsOpListSection");
+        this._advMode = false;
         super.setup(this._$elemPanel);
         this._dsObject = { folders:{}, datasets: [] };
         this._setupDatasetList();
@@ -49,6 +52,38 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             }
             obj.datasets.push({name: splitPath[splen - 1], id: this._dsList[i].id});
         }
+    }
+
+    private _convertAdvConfigToModel() {
+        return <DagNodeDatasetInput>JSON.parse(this._editor.getValue());
+    }
+
+    /**
+     * @override BaseOpPanel._switchMode
+     * @param toAdvancedMode
+     */
+    protected _switchMode(toAdvancedMode: boolean): {error: string} {
+        if (toAdvancedMode) {
+            const prefix: string = this._$elemPanel.find(".datasetPrefix input").val();
+            let id: string = this._$datasetList.find(".li.datasetName.active").data('id');
+            this._editor.setValue(JSON.stringify({"prefix": prefix, "source": id}, null, 4));
+            this._advMode = true;
+            $("#datasetOpPanel .opSection").height("5%");
+        } else {
+            try {
+                const newModel: DagNodeDatasetInput = this._convertAdvConfigToModel();
+                this._resetCurrentPath();
+                this._restorePanel(newModel);
+                this._advMode = false;
+                $("#datasetOpPanel .opSection").height("90%");
+                return;
+            } catch (e) {
+                StatusBox.show(e, $("#datasetOpPanel .modalTopMain"),
+                    false, {'side': 'right'});
+                return;
+            }
+        }
+        return null;
     }
 
     private _renderList() {
@@ -145,12 +180,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         $('#datasetOpPanel .forwardFolderBtn').addClass('xc-disabled');
     }
 
-    private _restorePanel(dagNode: DagNodeDataset): void {
-        if (dagNode == null) {
-            // Should only happen when testing
-            return;
-        }
-        const input: DagNodeDatasetInput = dagNode.getParam();
+    private _restorePanel(input: DagNodeDatasetInput): void {
         if (input == null || input.source == "") {
             this._resetCurrentPath();
             this._renderList();
@@ -160,11 +190,13 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                 return obj.id == input.source;
             })
             if (ds == null) {
-                StatusBox.show(DSTStr.InvalidPriorDataset + input.source, this._$datasetList,
-                    false, {'side': 'right'});
+                if (!this._advMode) {
+                    StatusBox.show(DSTStr.InvalidPriorDataset + input.source, this._$datasetList,
+                        false, {'side': 'right'});
+                    this._dagNode.beErrorState(DSTStr.InvalidPriorDataset + input.source);
+                }
                 this._resetCurrentPath();
                 this._renderList();
-                dagNode.beErrorState(DSTStr.InvalidPriorDataset + input.source);
                 return;
             }
             $("#datasetOpPanel .datasetPrefix input").val(input.prefix);
@@ -192,10 +224,11 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         if (!super.showPanel()) {
             return;
         }
+        this._dagNode = dagNode;
         this._resetCurrentPath();
         this._dsObject = { folders: {}, datasets: [] };
         this._setupDatasetList();
-        this._restorePanel(dagNode);
+        this._restorePanel(dagNode.getParam());
         // Setup event listeners
         this._setupEventListener(dagNode);
         MainMenu.setFormOpen();
@@ -222,6 +255,10 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         } else {
             error = xcHelper.validatePrefixName(prefix);
             $location = $("#datasetOpPanel .datasetPrefix .inputWrap");
+        }
+
+        if (this._advMode) {
+            $location = $("#datasetOpPanel .advancedEditor");
         }
 
         if (error != null) {
@@ -255,8 +292,22 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     }
 
     private _submitForm(dagNode: DagNodeDataset): void {
-        const prefix: string = this._$elemPanel.find(".datasetPrefix input").val();
-        let id: string = this._$datasetList.find(".li.datasetName.active").data('id');
+        let prefix: string;
+        let id: string;
+        if (this._advMode) {
+            try {
+                const newModel: DagNodeDatasetInput = this._convertAdvConfigToModel();
+                prefix = newModel.prefix;
+                id = newModel.source;
+            } catch (e) {
+                StatusBox.show(e, $("#datasetOpPanel .advancedEditor"),
+                    false, {'side': 'right'});
+                return;
+            }
+        } else {
+            prefix = this._$elemPanel.find(".datasetPrefix input").val();
+            id = this._$datasetList.find(".li.datasetName.active").data('id');
+        }
         if (!this._checkOpArgs(prefix, id)) {
             return;
         }

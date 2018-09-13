@@ -47,11 +47,15 @@
           </div>
       </section>
     </div>
+    <section class="advancedEditor">
+        <textarea></textarea>
+    </section>
     <!-- Button Section -->
     <section class="bottomSection">
-      <div class="btnWrap">
-        <button type="button" class="btn btn-submit submit btn-rounded confirm"><%= dicts.datasetOp.save %></button>
-      </div>
+        <button class="btn btn-submit btn-rounded submit confirm">
+            <%= dicts.common.Save %>
+        </button>
+        include "../util/switcher.html"
     </section>
     <section id="datasetOpColumnAssignment" class="xc-hidden">
       include "colAssignmentView.html"
