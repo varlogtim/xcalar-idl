@@ -34,6 +34,8 @@ class JoinOpPanelStep1 {
             container: BaseOpPanel.findXCElement(this._$elem, 'joinType'),
             inputXcId: 'text',
             ulXcId: 'menuItems',
+            isForceUpdate: false,
+            isDelayInit: false, // Not inside of a template, so can not do lazy init
             setTitleFunc: ($elemTitle, text) => { $elemTitle.text(text); }
         });
         this._templateMgr.loadTemplate(JoinOpPanelStep1._templateIdClasue, this._$elem);
