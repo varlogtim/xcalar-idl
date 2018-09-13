@@ -1,12 +1,12 @@
 class GeneralOpPanelModel {
-    protected dagNode: DagNodeFilter;
+    protected dagNode: DagNode;
     protected tableColumns: ProgCol[];
     protected event: Function;
     protected groups: OpPanelFunctionGroup[]; // TODO fix
     protected andOrOperator: string;
     protected _opCategories: number[];
 
-    public constructor(dagNode: DagNodeFilter, event: Function) {
+    public constructor(dagNode: DagNode, event: Function) {
         this.dagNode = dagNode;
         this.event = event;
         this.groups = [];
@@ -15,17 +15,14 @@ class GeneralOpPanelModel {
             return parentNode.getLineage().getColumns();
         })[0] || [];
         this._opCategories = [];
-        const params: DagNodeFilterInput = this.dagNode.getParam();
+        const params: any = this.dagNode.getParam();
         this._initialize(params);
     }
 
     /**
      * Return the whole model info
      */
-    public getModel(): {
-        groups: OpPanelFunctionGroup[],
-        andOrOperator: string
-    } {
+    public getModel(): any {
         return {
             groups: this.groups,
             andOrOperator: this.andOrOperator
@@ -126,7 +123,7 @@ class GeneralOpPanelModel {
      * Submit the settings of Set op node params
      */
     public submit(): void {
-        const param: DagNodeFilterInput = this._getParam();
+        const param: any = this._getParam();
         this.dagNode.setParam(param);
     }
 
@@ -139,7 +136,7 @@ class GeneralOpPanelModel {
         }
     }
 
-    protected _getParam(): DagNodeFilterInput {
+    protected _getParam(): any {
         return this.dagNode.getParam();
     }
 

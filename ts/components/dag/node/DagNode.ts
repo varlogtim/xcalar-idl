@@ -384,7 +384,7 @@ abstract class DagNode {
         return this.lineage;
     }
 
-    protected setParam(): void {
+    public setParam(_param?: any): void {
         this.events.trigger(DagNodeEvents.ParamChange, {
             id: this.getId(),
             params: this.getParam()

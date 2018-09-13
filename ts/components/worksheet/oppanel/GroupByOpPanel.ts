@@ -1,5 +1,4 @@
 class GroupByOpPanel extends GeneralOpPanel {
-    private _focusedColListNum: number;
     private _tableId: TableId;
     protected _dagNode: DagNodeGroupBy;
     private model: GroupByOpPanelModel;
@@ -61,7 +60,7 @@ class GroupByOpPanel extends GeneralOpPanel {
             }
         }
 
-        // icv, includeSample, joinback
+        // icv, includeSample
         this._$panel.on('click', '.checkboxSection', function() {
             const $section = $(this);
             const $checkbox = $section.find('.checkbox');
@@ -70,17 +69,8 @@ class GroupByOpPanel extends GeneralOpPanel {
 
             if ($section.hasClass("incSample")) {
                 self.model.toggleIncludeSample(checked);
-                if (checked) {
-                    self._$panel.find(".groupByColumnsSection")
-                                    .removeClass("xc-hidden");
-                } else {
-                    self._$panel.find(".groupByColumnsSection")
-                                    .addClass("xc-hidden");
-                }
             } else if ($section.hasClass("icvMode")) {
                 self.model.toggleICV(checked);
-            } else {
-                // XXX not handling join
             }
 
             self._checkIfStringReplaceNeeded();
@@ -109,72 +99,19 @@ class GroupByOpPanel extends GeneralOpPanel {
             self._toggleGroupAll($checkbox);
             self.model.toggleGroupAll($checkbox.hasClass("checked"));
         });
+    }
 
-        // used only for groupby columns to keep
-        this._$panel.find('.columnsWrap').on('click', 'li', function(event) {
-            const $li = $(this);
-            const colNum = $li.data("colnum");
-            let toHighlight = false;
-            if (!$li.hasClass('checked')) {
-                toHighlight = true;
-            }
-
-            if (event.shiftKey && self._focusedColListNum != null) {
-                const start = Math.min(self._focusedColListNum, colNum);
-                const end = Math.max(self._focusedColListNum, colNum);
-
-                for (let i = start; i <= end; i++) {
-                    if (toHighlight) {
-                        self._selectCol(i);
-                    } else {
-                        self._deselectCol(i);
-                    }
-                }
-            } else {
-                if (toHighlight) {
-                    self._selectCol(colNum);
-                } else {
-                    self._deselectCol(colNum);
-                }
-            }
-
-            self._focusedColListNum = colNum;
-        });
-
-        this._$panel.find('.selectAllCols').on('click', function() {
-            const $checkbox = $(this);
-            const $cols = self._$panel.find(".cols");
-
-            if ($checkbox.hasClass('checked')) {
-                $checkbox.removeClass('checked');
-                $cols.find('li').removeClass('checked')
-                     .find('.checkbox').removeClass('checked');
-                self.model.deselectAllCols();
-            } else {
-                $checkbox.addClass('checked');
-                $cols.find('li').addClass('checked')
-                      .find('.checkbox').addClass('checked');
-                self.model.selectAllCols();
-            }
-            self._focusedColListNum = null;
-        });
-    };
-
-    // options
-    // restore: boolean, if true, will not clear the form from it's last state
-    // restoreTime: time when previous operation took place
-    // triggerColNum: colNum that triggered the opmodal
-    // prefill: object, used to prefill the form
-    // public show = function(currTableId, currColNums, operator,
-    //                                options) {
-    public show(node: DagNodeGroupBy, options): boolean {
+    /**
+     *
+     * @param node
+     */
+    public show(node: DagNode): boolean {
         if (this._formHelper.isOpen()) {
             return false;
         }
 
         const self = this;
-        options = options || {};
-        this._dagNode = node;
+        this._dagNode = <DagNodeGroupBy>node;
 
 
         this._operatorName = this._dagNode.getType().toLowerCase().trim();
@@ -223,30 +160,6 @@ class GroupByOpPanel extends GeneralOpPanel {
         super._panelShowHelper(this.model);
         this._render(true);
     };
-
-    // public updateColumns() {
-    //     super.updateColumns();
-    //     if (!this._formHelper.isOpen()) {
-    //         return;
-    //     }
-
-    //     // const self = this;
-    //     // this._focusedColListNum = null;
-    //     // this._updateColNamesCache();
-
-
-    //     // const colsToKeep = [];
-    //     // this._$panel.find('.cols li.checked').each(function() {
-    //     //     colsToKeep.push($(this).text());
-    //     // });
-    //     // const listHtml = this._getTableColList();
-    //     // this._$panel.find(".cols").html(listHtml);
-    //     // this._$panel.find(".selectAllCols").removeClass('checked');
-    //     // colsToKeep.forEach(function(colName) {
-    //     //     const colNum = self._getColNum(colName);
-    //     //     self._selectCol(colNum - 1);
-    //     // });
-    // }
 
     // functions that get called after list udfs is called during op view show
     protected _render(updateAll?: boolean) {
@@ -330,15 +243,8 @@ class GroupByOpPanel extends GeneralOpPanel {
             this._toggleGroupAll(this._$panel.find(".groupByAll .checkbox"));
         }
 
-        if (updateAll) {
-            this._$panel.find(".cols").html(this._getTableColList());
-        }
-
         if (includeSample) {
             this._$panel.find(".incSample .checkbox").addClass("checked");
-            this._$panel.find(".groupByColumnsSection")
-                        .removeClass("xc-hidden");
-            this._checkToggleSelectAllBox();
         }
 
         this._formHelper.refreshTabbing();
@@ -1038,56 +944,6 @@ class GroupByOpPanel extends GeneralOpPanel {
         return true;
     }
 
-
-    // // new column name duplication & validity check
-    // private _newColNameCheck() {
-    //     const deferred = PromiseHelper.deferred();
-    //     let $nameInput;
-    //     let isPassing;
-    //     const self = this;
-
-    //     return PromiseHelper.resolve();// XXX skipping name checks
-
-    //     this._$panel.find(".group").each(function() {
-    //         const $group = $(this);
-    //         const numArgs = $group.find('.arg').length;
-    //         $nameInput = $group.find('.arg').eq(numArgs - 1);
-    //         const checkOpts = {
-    //             strictDuplicates: true,
-    //             stripColPrefix: true
-    //         };
-
-    //         isPassing = !ColManager.checkColName($nameInput, self._tableId,
-    //                                             null, checkOpts);
-    //         // if (isPassing && !$activeOpSection.find('.joinBack .checkbox')
-    //         //                 .hasClass('checked')) {
-    //         //     if (!isEditMode) {
-    //         //         isPassing = xcHelper.tableNameInputChecker(
-    //         //                     $activeOpSection.find('.newTableName'));
-    //         //     }
-
-    //         // }
-    //         if (!isPassing) {
-    //             return false;
-    //         } else if (self._checkColNameUsedInInputs($nameInput.val(), $nameInput)) {
-    //             isPassing = false;
-    //             const text = ErrTStr.NameInUse;
-    //             self._statusBoxShowHelper(text, $nameInput);
-    //             return false;
-    //         }
-    //     });
-
-    //         // check new table name if join option is not checked
-
-    //     if (isPassing) {
-    //         deferred.resolve();
-    //     } else {
-    //         deferred.reject();
-    //     }
-    //     return deferred.promise();
-    // }
-
-
     private _getColNum(backColName) {
         return this._table.getColNumByBackName(backColName);
     }
@@ -1147,11 +1003,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         this._$panel.find('.icvMode').addClass('inactive');
         this._$panel.find('.gbCheckboxes').addClass('inactive');
         this._$panel.find(".advancedSection").addClass("inactive");
-        this._$panel.find(".groupByColumnsSection").addClass("xc-hidden");
 
-        this._$panel.find(".selectAllCols")
-                        .removeClass('checked');
-        this._focusedColListNum = null;
         this._$panel.find('.group').each(function(i) {
             if (i !== 0) {
                 self._removeGroup($(this), true);
@@ -1268,37 +1120,6 @@ class GroupByOpPanel extends GeneralOpPanel {
         this._addCastDropDownListener();
     }
 
-    private _getTableColList() {
-        let html: HTML = "";
-        const numBlanks = 10; // to take up flexbox space
-        // const allCols = this._table.tableCols;
-        const model = this.model.getModel();
-        const allCols = model.columnsSelection;
-        for (let i = 0; i < allCols.length; i++) {
-            const col = allCols[i];
-            let checkedClass = col.selected ? "checked" : "";
-
-            html += '<li data-colnum="' + i + '" class="' + checkedClass + '">' +
-                        '<span class="text tooltipOverflow" ' +
-                        'data-toggle="tooltip" data-container="body" ' +
-                        'data-original-title="' +
-                            xcHelper.escapeHTMLSpecialChar(
-                                xcHelper.escapeHTMLSpecialChar(col.name)) +
-                            '">' +
-                            xcHelper.escapeHTMLSpecialChar(col.name) +
-                        '</span>' +
-                        '<div class="checkbox ' + checkedClass + '">' +
-                            '<i class="icon xi-ckbox-empty fa-13"></i>' +
-                            '<i class="icon xi-ckbox-selected fa-13"></i>' +
-                        '</div>' +
-                    '</li>';
-        }
-        for (let c = 0; c < numBlanks; c++) {
-            html += '<div class="flexSpace"></div>';
-        }
-        return (html);
-    }
-
     private _addSuggestListForGroupOnArg($ul) {
         const $allGroups = this._$panel.find('.group');
         const groupIndex = $allGroups.index($ul.closest('.group'));
@@ -1314,37 +1135,6 @@ class GroupByOpPanel extends GeneralOpPanel {
 
         this._suggestLists[groupIndex].splice(argIndex, 0, scroller);
         $ul.removeClass('new');
-    }
-
-    private _selectCol(colNum) {
-        const $colList = this._$panel.find(".cols");
-        $colList.find('li[data-colnum="' + colNum + '"]')
-                .addClass('checked')
-                .find('.checkbox').addClass('checked');
-        this.model.selectCol(colNum);
-        this._checkToggleSelectAllBox();
-    }
-
-    private _deselectCol(colNum) {
-        const $colList = this._$panel.find(".cols");
-        $colList.find('li[data-colnum="' + colNum + '"]')
-                .removeClass('checked')
-                .find('.checkbox').removeClass('checked');
-        this.model.deselectCol(colNum);
-        this._checkToggleSelectAllBox();
-    }
-
-    // if all lis are checked, select all checkbox will be checked as well
-    private _checkToggleSelectAllBox() {
-        const totalCols = this._$panel.find('.cols li').length;
-        const selectedCols = this._$panel.find('.cols li.checked').length;
-        if (selectedCols === 0) {
-            this._$panel.find('.selectAllWrap').find('.checkbox')
-                                              .removeClass('checked');
-        } else if (selectedCols === totalCols) {
-            this._$panel.find('.selectAllWrap').find('.checkbox')
-                                              .addClass('checked');
-        }
     }
 
     private _toggleGroupAll($checkbox: JQuery): void {

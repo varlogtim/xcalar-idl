@@ -8,8 +8,6 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
     protected includeSample: boolean;
     protected groupAll: boolean;
     protected groupOnCols: string[];
-    protected columnsToInclude: string[];
-    protected columnsSelection: {name: string, selected: boolean}[];
 
     public constructor(dagNode: DagNodeGroupBy, event: Function) {
         super(dagNode, event,);
@@ -24,7 +22,6 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
         includeSample: boolean,
         icv: boolean,
         groupAll: boolean,
-        columnsSelection: {name: string, selected: boolean}[]
     } {
         return {
             groupOnCols: this.groupOnCols,
@@ -32,7 +29,6 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             includeSample: this.includeSample,
             icv: this.icv,
             groupAll: this.groupAll,
-            columnsSelection: this.columnsSelection
         }
     }
 
@@ -122,26 +118,6 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
         this.groupAll = groupAll;
     }
 
-    public selectCol(colNum: number): void {
-        this.columnsSelection[colNum].selected = true;
-    }
-
-    public deselectCol(colNum: number): void {
-        this.columnsSelection[colNum].selected = false;
-    }
-
-    public selectAllCols(): void {
-        this.columnsSelection.map((col) => {
-            col.selected = true;
-        });
-    }
-
-    public deselectAllCols(): void {
-        this.columnsSelection.map((col) => {
-            col.selected = false;
-        });
-    }
-
     /**
      * Submit the settings of Set op node params
      */
@@ -152,17 +128,6 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
 
     protected _initialize(paramsRaw, _strictCheck?: boolean) {
         const self = this;
-
-        // set up selected columns
-        this.columnsSelection = [];
-        this.tableColumns.forEach((col) => {
-            const name = col.getBackColName();
-            const colSelection = {
-                name: name,
-                selected: paramsRaw.columnsToInclude.includes(name)
-            };
-            self.columnsSelection.push(colSelection);
-        });
 
         if (!this._opCategories.length) {
             this._opCategories = [FunctionCategoryT.FunctionCategoryAggregate];
@@ -276,19 +241,12 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             }
         });
 
-        this.columnsToInclude = this.columnsSelection.filter((col) => {
-            return col.selected;
-        }).map((col) => {
-            return col.name;
-        });
-
         return {
             groupBy: this.groupOnCols,
             aggregate: aggregates,
             icv: this.icv,
             groupAll: this.groupAll,
-            includeSample: this.includeSample,
-            columnsToInclude: this.columnsToInclude
+            includeSample: this.includeSample
         }
     }
 

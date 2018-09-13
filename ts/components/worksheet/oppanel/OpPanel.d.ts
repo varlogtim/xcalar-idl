@@ -4,6 +4,7 @@ interface OpPanelFunctionGroup {
     operator: string;
     args: OpPanelArg[];
     newFieldName?: string;
+    distinct?: boolean;
 }
 
 // *******************

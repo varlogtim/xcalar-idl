@@ -17,7 +17,7 @@ class DagNodeGroupBy extends DagNode {
             includeSample: this.input.includeSample || false,
             icv: this.input.icv || false,
             groupAll: this.input.groupAll || false,
-            columnsToInclude: this.input.columnsToInclude || []
+            newKeys: this.input.newKeys || []
         };
     }
 
@@ -35,8 +35,9 @@ class DagNodeGroupBy extends DagNode {
             includeSample: input.includeSample,
             icv: input.icv,
             groupAll: input.groupAll,
-            columnsToInclude: input.columnsToInclude
+            newKeys: input.newKeys
         }
+        this._updateNewKeys();
         super.setParam();
     }
 
@@ -63,27 +64,24 @@ class DagNodeGroupBy extends DagNode {
         if (this.input.includeSample) {
             finalCols = aggCols.concat(columns);
         } else {
-            const takenNames: object = {};
             const colMap: Map<string, ProgCol> = new Map();
             columns.forEach((progCol) => {
                 const colName: string = progCol.getBackColName();
-                takenNames[colName] = true;
                 colMap.set(colName, progCol);
             });
             const groupCols: ProgCol[] = [];
-            this.input.groupBy.forEach((colName) => {
+            this.input.groupBy.forEach((colName, index) => {
                 const oldProgCol: ProgCol = colMap.get(colName);
                 const colType: ColumnType = oldProgCol.getType();
-                const parsed: PrefixColInfo = xcHelper.parsePrefixColName(colName);
-                if (parsed.prefix) {
-                    const newName: string = this._getNewKeyFieldName(parsed, takenNames);
-                    const progCol: ProgCol = ColManager.newPullCol(newName, newName, colType);
+                const newKey: string = this.input.newKeys[index];
+                if (colName !== newKey) {
+                    const progCol: ProgCol = ColManager.newPullCol(newKey, newKey, colType);
                     groupCols.push(progCol);
                     changes.push({
                         from: oldProgCol,
                         to: progCol
                     });
-                    colMap.delete(newName);
+                    colMap.delete(colName);
                 } else {
                     groupCols.push(oldProgCol);
                     colMap.delete(colName);
@@ -104,21 +102,46 @@ class DagNodeGroupBy extends DagNode {
         }
     }
 
-    // XXX this is a dup of the getNewKeyFieldName in xcHelper
-    // need to resolve bug 13059 to get the reliable key name
-    private _getNewKeyFieldName(parsedName: PrefixColInfo, takenNames: object): string {
-        let name: string = xcHelper.stripColName(parsedName.name, false);
-        if (!takenNames.hasOwnProperty(name)) {
-            return name;
-        }
+    private _updateNewKeys(): void {
+        const takenNames: Set<string> = new Set();
+        const oldNewKeys = this.input.newKeys || [];
 
-        name = xcHelper.convertPrefixName(parsedName.prefix, name);
-        let newName: string = name;
-        if (!takenNames.hasOwnProperty(newName)) {
-            return newName;
-        }
+        oldNewKeys.forEach((key) => {
+            takenNames.add(key);
+        });
 
-        return xcHelper.randName(name);
+        this.input.aggregate.forEach((aggInfo) => {
+            takenNames.add(aggInfo.destColumn);
+        });
+        const parsedGroupByCols: PrefixColInfo[] = this.input.groupBy.map(xcHelper.parsePrefixColName);
+        parsedGroupByCols.forEach((parsedCol) => {
+            if (!parsedCol.prefix) {
+                takenNames.add(parsedCol.name);
+            }
+        });
+        
+        const newKeys: string[] = parsedGroupByCols.map((parsedCol, index) => {
+            if (oldNewKeys[index]) {
+                return oldNewKeys[index];
+            } else if (!parsedCol.prefix) {
+                // immediate
+                return parsedCol.name;
+            } else {
+                // prefix
+                let name: string = xcHelper.stripColName(parsedCol.name, false);
+                if (!takenNames.has(name)) {
+                    return name;
+                }
+
+                name = xcHelper.convertPrefixName(parsedCol.prefix, name);
+                let newName: string = name;
+                if (!takenNames.hasOwnProperty(newName)) {
+                    return newName;
+                }
+                return xcHelper.randName(name);
+            }
+        });
+        this.input.newKeys = newKeys;
     }
 
     private _getAggColType(operator: string): ColumnType {

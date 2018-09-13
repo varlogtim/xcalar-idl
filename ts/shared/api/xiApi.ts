@@ -1919,7 +1919,7 @@ namespace XIApi {
         let newKeys: string[] = options.newKeys || [];
         let isIncSample: boolean = options.isIncSample || false;
         newKeys.forEach((colName) => {
-            if (xcHelper.parsePrefixColName(colName).prefix != null) {
+            if (xcHelper.parsePrefixColName(colName).prefix) {
                 isIncSample = true; // if there is prefix field in newKeys, keep sample
                 return false;
             }

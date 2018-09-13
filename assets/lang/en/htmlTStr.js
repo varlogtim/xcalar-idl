@@ -1097,6 +1097,7 @@ module.exports = {
         "funcToGroup": "Function to apply to group",
         "joinBack": "Join table back to original",
         "includeSample": "Keep some columns",
+        "includeSample2": "Include sample columns",
         "aggFunc": "Aggregate Function",
         "mapFilter": "Search map functions",
         "andOrFilter": "Clauses combined by",

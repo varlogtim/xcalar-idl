@@ -811,19 +811,7 @@ namespace xcFunction {
         const curWS: string = WSManager.getWSFromTable(tableId);
         const isKeepOriginal: boolean = options.isKeepOriginal || false;
         const groupByColNames: string[] = groupByCols.map((gbCol) => gbCol.colName);
-        let newKeys = null;
-        if (!isJoin) {
-            const suffix: string = xcHelper.randName("_groupBy_index");
-            newKeys = groupByColNames.map((colName) => {
-                const parsedCol: PrefixColInfo = xcHelper.parsePrefixColName(colName);
-                if (!parsedCol.prefix) {
-                    return colName;
-                } else {
-                    isIncSample = true; // force to include the prefix column
-                    return parsedCol.name + suffix;
-                }
-            });
-        }
+        const newKeys: string[] = isIncSample ? [] : getNewGroupByKeys(aggArgs, groupByColNames);
         let focusOnTable: boolean = false;
         let finalTableName: string;
         let finalTableCols: ProgCol[];
@@ -855,15 +843,14 @@ namespace xcFunction {
                 return XIApi.groupBy(txId, aggArgs, groupByColNames,
                     castTableName, groupByOpts);
             })
-            .then((nTableName, _tempCols, _newKeyFieldName, newKeys) => {
+            .then((nTableName, _tempCols, _newKeyFieldName) => {
                 const sampleCols: number[] = isIncSample ? options.columnsToKeep : null;
-                const groupByCols: string[] = isJoin ? newKeys : groupByColNames;
-                const nTableCols = xcHelper.createGroupByColumns(srcTable, groupByCols,
+                const nTableCols = xcHelper.createGroupByColumns(srcTable, newKeys,
                     aggArgs, sampleCols);
                 if (isJoin) {
                     const dataColNum: number = table.getColNumByBackName("DATA");
                     return groupByJoinHelper(nTableName, nTableCols, dataColNum,
-                        isIncSample, groupByCols);
+                        isIncSample, newKeys);
                 } else {
                     return PromiseHelper.resolve(nTableName, nTableCols);
                 }
@@ -1056,6 +1043,44 @@ namespace xcFunction {
         }
 
         return deferred.promise();
+    }
+
+    function getNewGroupByKeys(
+        aggArgs: AggColInfo[],
+         groupByColNames: string[]
+    ): string[] {
+        const takenNames: Set<string> = new Set();
+    
+        aggArgs.forEach((aggInfo) => {
+            takenNames.add(aggInfo.newColName);
+        });
+        const parsedGroupByCols: PrefixColInfo[] = groupByColNames.map(xcHelper.parsePrefixColName);
+        parsedGroupByCols.forEach((parsedCol) => {
+            if (!parsedCol.prefix) {
+                takenNames.add(parsedCol.name);
+            }
+        });
+        
+        const newKeys: string[] = parsedGroupByCols.map((parsedCol) => {
+            if (!parsedCol.prefix) {
+                // immediate
+                return parsedCol.name;
+            } else {
+                // prefix
+                let name: string = xcHelper.stripColName(parsedCol.name, false);
+                if (!takenNames.has(name)) {
+                    return name;
+                }
+
+                name = xcHelper.convertPrefixName(parsedCol.prefix, name);
+                let newName: string = name;
+                if (!takenNames.hasOwnProperty(newName)) {
+                    return newName;
+                }
+                return xcHelper.randName(name);
+            }
+        });
+        return newKeys;
     }
 
     /**

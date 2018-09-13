@@ -119,7 +119,8 @@ class DagExecute {
             newTableName: this._generateTableName(),
             isIncSample: params.includeSample,
             icvMode: params.icv,
-            groupAll: params.groupAll
+            groupAll: params.groupAll,
+            newKeys: params.newKeys
         };
         return XIApi.groupBy(this.txId, aggArgs, params.groupBy, srcTable, options);
     }
