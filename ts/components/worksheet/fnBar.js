@@ -187,8 +187,8 @@ window.FnBar = (function(FnBar, $) {
             $("#container").addClass("formOpen");
             DagPanel.updateExitMenu("Function Bar");
             var tblMenu = TableComponent.getMenu();
-            tblMenu.getMenu().updateExitOptions("#tableMenu", "Function Bar");
-            tblMenu.getMenu().updateExitOptions("#colMenu", "Function Bar");
+            tblMenu.updateExitOptions("#tableMenu", "Function Bar");
+            tblMenu.updateExitOptions("#colMenu", "Function Bar");
 
             const selector = ".xcTable .header, .xcTable td.clickable";
             $("#mainFrame").on("mousedown.columnPicker", selector, function(event) {
