@@ -276,12 +276,11 @@ window.XcSDK.Extension.prototype = (function() {
                 newColName: newColName
             }];
             XIApi.groupBy(txId, gbArgs, groupByCols, tableName, options)
-            .then(function(dstTable, tempCols, newKeyFieldName, newKeys) {
+            .then(function(dstTable) {
                 var sampleCols = isIncSample ? options.columnsToKeep : null;
-                var res = xcHelper.createGroupByColumns(
-                    srcTable, groupByColNames, aggArgs, sampleCols, newKeys);
+                var dstCols = xcHelper.createGroupByColumns(
+                    srcTable, groupByColNames, aggArgs, sampleCols);
                 self._addMeta(tableName, dstTable, dstCols);
-                var dstCols = res[0];
                 var dstColumnsSDK = dstCols.map(function(progcol) {
                     return new XcSDK.Column(progcol.getBackColName(),
                         progcol.getType());

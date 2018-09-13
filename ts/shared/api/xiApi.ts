@@ -236,7 +236,8 @@ namespace XIApi {
         keyInfos: {
             name: string,
             ordering: XcalarOrderingT,
-            type?: ColumnType
+            type?: ColumnType,
+            keyFieldName?: string,
         }[],
         tableName: string,
         newTableName: string
@@ -1501,7 +1502,8 @@ namespace XIApi {
         txId: number,
         colNames: string[],
         tableName: string,
-        newTableName?: string
+        newTableName?: string,
+        newKeys?: string[]
     ): XDPromise<string> {
         if (txId == null ||
             colNames == null ||
@@ -1520,11 +1522,17 @@ namespace XIApi {
             return PromiseHelper.resolve(tableName, false, colNames);
         }
 
+        newKeys = newKeys || [];
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        const keyInfos: {name: string, ordering: XcalarOrderingT}[] = colNames.map((colName) => {
+        const keyInfos: {
+            name: string,
+            ordering: XcalarOrderingT,
+            keyFieldName: string
+        }[] = colNames.map((colName, index) => {
             return {
                 name: colName,
-                ordering: XcalarOrderingT.XcalarOrderingUnordered
+                ordering: XcalarOrderingT.XcalarOrderingUnordered,
+                keyFieldName: newKeys[index] || null
             };
         });
         if (!isValidTableName(newTableName)) {
@@ -1900,7 +1908,6 @@ namespace XIApi {
             tempCols.push(tempColName);
         }
 
-        const isIncSample: boolean = options.isIncSample || false;
         const icvMode: boolean = options.icvMode || false;
         const clean: boolean = options.clean || false;
         const groupAll: boolean = options.groupAll || false;
@@ -1909,11 +1916,18 @@ namespace XIApi {
         let tempTables: string[] = [];
         let finalTable: string;
         let newKeyFieldName: string;
-        let newKeys: string[];
+        let newKeys: string[] = options.newKeys || [];
+        let isIncSample: boolean = options.isIncSample || false;
+        newKeys.forEach((colName) => {
+            if (xcHelper.parsePrefixColName(colName).prefix != null) {
+                isIncSample = true; // if there is prefix field in newKeys, keep sample
+                return false;
+            }
+        });
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         // tableName is the original table name that started xiApi.groupby
-        XIApi.index(txId, groupByCols, tableName)
+        XIApi.index(txId, groupByCols, tableName, null, newKeys)
         .then((indexedTable, _isCache, indexKeys) => {
             newKeys = indexKeys;
             // table name may have changed after sort!

@@ -6268,12 +6268,8 @@ namespace xcHelper {
         tableName: string,
         groupByCols: string[],
         aggArgs: AggColInfo[],
-        sampleCols: number[],
-        newKeys: string[]
-    ): [ProgCol[], string[]] {
-        const dataCol: ProgCol = ColManager.newDATACol();
-        const renamedGroupByCols: string[] = groupByCols.map((colName) => colName);
-
+        sampleCols: number[]
+    ): ProgCol[] {
         let newProgCols: ProgCol[] = [];
         const usedNameSet: Set<string> = new Set();
         aggArgs.forEach((aggArg) => {
@@ -6281,30 +6277,21 @@ namespace xcHelper {
             usedNameSet.add(name);
             newProgCols.push(ColManager.newPullCol(name, name));
         });
-
-        const tableId: TableId = xcHelper.getTableId(tableName);
-        if (tableId == null || !gTables.hasOwnProperty(tableId)) {
-            // We really should clean up this function to remove the requirement
-            // of gTables
+        
+        if (sampleCols != null && sampleCols.length > 0) {
+            const tableId: TableId = xcHelper.getTableId(tableName);
+            newProgCols = getIncSampleGroupByCols(tableId, sampleCols, groupByCols, newProgCols);
+        } else {
             groupByCols.forEach((name) => {
                 if (!usedNameSet.has[name]) {
                     usedNameSet.add(name);
-                    newProgCols.push(ColManager.newPullCol(name, name));
+                    const frontName: string = xcHelper.parsePrefixColName(name).name;
+                    newProgCols.push(ColManager.newPullCol(frontName, name));
                 }
             });
-            console.warn("Cannot find table. Not handling sampleCols");
-            newProgCols.push(dataCol);
-        } else if (sampleCols != null) {
-            newProgCols = getIncSampleGroupByCols(tableId, sampleCols, groupByCols, newProgCols);
-            newProgCols.push(dataCol);
-        } else {
-            newKeys.forEach((key, index) => {
-                newProgCols.push(ColManager.newPullCol(key));
-                renamedGroupByCols[index] = key;
-            });
-            newProgCols.push(dataCol);
         }
-        return [newProgCols, renamedGroupByCols];
+        newProgCols.push(ColManager.newDATACol());
+        return newProgCols;
     }
 
     function getIncSampleGroupByCols(

@@ -3428,42 +3428,25 @@ describe("xcHelper Test", function() {
             gTables[tableId] = table;
         });
 
-        it('should handle no table meta case', () => {
+        it('should handle normal case', () => {
             const groupByCols = ['groupByCol'];
             const aggArgs = [{ newColName: 'aggCol' }];
-            const [newProgCols, renamedGroupByCols] = createGroupByColumns(
-            'test#c', groupByCols, aggArgs, null, []);
+            const newProgCols = createGroupByColumns(
+            'test#c', groupByCols, aggArgs, null);
             expect(newProgCols.length).to.equal(3);
             expect(newProgCols[0].backName).to.equal('aggCol');
             expect(newProgCols[1].backName).to.equal('groupByCol');
             expect(newProgCols[2].backName).to.equal('DATA');
-            expect(renamedGroupByCols.length).to.equal(1);
-            expect(renamedGroupByCols[0]).to.equal('groupByCol');
         });
 
-        it('should handle include sample case', () => {
+        it('should handle include sample column case', () => {
             const groupByCols = ['colA'];
             const aggArgs = [{ newColName: 'aggCol' }];
-            const [newProgCols, renamedGroupByCols] = createGroupByColumns(
-            tableName, groupByCols, aggArgs, [0], [])
+            const newProgCols = createGroupByColumns(
+            tableName, groupByCols, aggArgs, [0])
             expect(newProgCols[0].backName).to.equal('aggCol');
             expect(newProgCols[1].backName).to.equal('colA');
             expect(newProgCols[2].backName).to.equal('DATA');
-            expect(renamedGroupByCols.length).to.equal(1);
-            expect(renamedGroupByCols[0]).to.equal('colA');
-        });
-
-        it('should handle has table keys case', () => {
-            const groupByCols = ['groupByCol'];
-            const aggArgs = [{ newColName: 'aggCol' }];
-            const [newProgCols, renamedGroupByCols] = createGroupByColumns(
-            tableName, groupByCols, aggArgs, null, ["key"])
-            expect(newProgCols.length).to.equal(3);
-            expect(newProgCols[0].backName).to.equal('aggCol');
-            expect(newProgCols[1].backName).to.equal('key');
-            expect(newProgCols[2].backName).to.equal('DATA');
-            expect(renamedGroupByCols.length).to.equal(1);
-            expect(renamedGroupByCols[0]).to.equal('key');
         });
 
         after(() => {

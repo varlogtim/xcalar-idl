@@ -796,7 +796,7 @@ namespace xcFunction {
         const scrollChecker: ScrollTableChecker = new ScrollTableChecker();
         xcHelper.lockTable(tableId, txId);
 
-        const isIncSample: boolean = options.isIncSample || false;
+        let isIncSample: boolean = options.isIncSample || false;
         // do not pass in the cast property
         const aggArgs: AggColInfo[] = aggregateArgs.map((aggArg) => {
             return {
@@ -811,6 +811,19 @@ namespace xcFunction {
         const curWS: string = WSManager.getWSFromTable(tableId);
         const isKeepOriginal: boolean = options.isKeepOriginal || false;
         const groupByColNames: string[] = groupByCols.map((gbCol) => gbCol.colName);
+        let newKeys = null;
+        if (!isJoin) {
+            const suffix: string = xcHelper.randName("_groupBy_index");
+            newKeys = groupByColNames.map((colName) => {
+                const parsedCol: PrefixColInfo = xcHelper.parsePrefixColName(colName);
+                if (!parsedCol.prefix) {
+                    return colName;
+                } else {
+                    isIncSample = true; // force to include the prefix column
+                    return parsedCol.name + suffix;
+                }
+            });
+        }
         let focusOnTable: boolean = false;
         let finalTableName: string;
         let finalTableCols: ProgCol[];
@@ -836,19 +849,21 @@ namespace xcFunction {
                     newTableName: dstTableName,
                     isIncSample: isIncSample,
                     icvMode: options.icvMode,
-                    groupAll: options.groupAll
+                    groupAll: options.groupAll,
+                    newKeys: newKeys
                 };
                 return XIApi.groupBy(txId, aggArgs, groupByColNames,
                     castTableName, groupByOpts);
             })
             .then((nTableName, _tempCols, _newKeyFieldName, newKeys) => {
                 const sampleCols: number[] = isIncSample ? options.columnsToKeep : null;
-                const [nTableCols, renamedGBCols] = xcHelper.createGroupByColumns(
-                    srcTable, groupByColNames, aggArgs, sampleCols, newKeys);
+                const groupByCols: string[] = isJoin ? newKeys : groupByColNames;
+                const nTableCols = xcHelper.createGroupByColumns(srcTable, groupByCols,
+                    aggArgs, sampleCols);
                 if (isJoin) {
                     const dataColNum: number = table.getColNumByBackName("DATA");
                     return groupByJoinHelper(nTableName, nTableCols, dataColNum,
-                        isIncSample, renamedGBCols);
+                        isIncSample, groupByCols);
                 } else {
                     return PromiseHelper.resolve(nTableName, nTableCols);
                 }
@@ -966,7 +981,7 @@ namespace xcFunction {
             nCols: ProgCol[],
             dataColNum: number,
             isIncSample: boolean,
-            renamedGBCols: string[]
+            groupByCols: string[]
         ): XDPromise<string> {
             const jonTable: string = xcHelper.getTableName(nTable) +
                 Authentication.getHashId();
@@ -977,7 +992,7 @@ namespace xcFunction {
             const lCols: string[] = groupByColNames;
             const rRename: ColRenameInfo[] = [];
 
-            const rCols: string[] = renamedGBCols.map((colName) => {
+            const rCols: string[] = groupByCols.map((colName) => {
                 colName = xcHelper.stripColName(colName);
                 const parse: PrefixColInfo = xcHelper.parsePrefixColName(colName);
                 let hasNameConflict: boolean;
