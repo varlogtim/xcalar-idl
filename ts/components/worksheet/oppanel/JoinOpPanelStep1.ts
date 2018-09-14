@@ -388,7 +388,7 @@ class JoinOpPanelStep1 {
                 } else {
                     this._modifyColumnPair(isLeft, pairIndex, colName);
                 }
-                this._updateUI();
+                this._onDataChange();
             }
         });
         return componentDropdown;

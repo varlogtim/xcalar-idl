@@ -298,36 +298,69 @@ class JoinOpPanelModel {
     /**
      * Get the conflicted names of columns and prefixes
      * @returns conflicted name map of column and prefix, the key is the origin name, the value is always true
+     * @description The function checks name collision in each table and between tables
      */
     public getCollisionNames() {
         const result = {
-            column: new Map<string, boolean>(),
-            prefix: new Map<string, boolean>()
+            columnLeft: new Map<string, boolean>(),
+            columnRight: new Map<string, boolean>(),
+            prefixLeft: new Map<string, boolean>(),
+            prefixRight: new Map<string, boolean>(),
         };
         const {
             colDestLeft, colDestRight, prefixDestLeft, prefixDestRight
         } = this._getRenameMap();
 
-        // Build column map
+        // Apply renaming to left columns
         const leftColNames = this._applyColumnRename(
             this._columnMeta.leftMap, colDestLeft
         );
+        // Check name conflicting inbetween left columns
+        for (const [_, indexList] of this._checkCollisionInListByKey(leftColNames).entries()) {
+            for (const index of indexList) {
+                result.columnLeft.set(leftColNames[index].source, true);
+            }
+        }
+        // Apply renaming to right columns
         const rightColNames = this._applyColumnRename(
             this._columnMeta.rightMap, colDestRight
         );
-        for (const {i1} of this._checkCollisionByKey(leftColNames, rightColNames)) {
-            result.column.set(leftColNames[i1].source, true);
+        // Check name conflicting inbetween right columns
+        for (const [_, indexList] of this._checkCollisionInListByKey(rightColNames).entries()) {
+            for (const index of indexList) {
+                result.columnRight.set(rightColNames[index].source, true);
+            }
+        }
+        // Check name conflicting between left and right
+        for (const {i1, i2} of this._checkCollisionByKey(leftColNames, rightColNames)) {
+            result.columnLeft.set(leftColNames[i1].source, true);
+            result.columnRight.set(rightColNames[i2].source, true);
         }
 
-        // Build prefix map
+        // Apply renaming to left prefixes
         const leftPrefixNames = this._applyPrefixRename(
             this._prefixMeta.leftMap, prefixDestLeft
         );
+        // Check name conflicting inbetween left prefixes
+        for (const [_, indexList] of this._checkCollisionInListByKey(leftPrefixNames).entries()) {
+            for (const index of indexList) {
+                result.prefixLeft.set(leftPrefixNames[index].source, true);
+            }
+        }
+        // Apply renaming to right prefixes
         const rightPrefixNames = this._applyPrefixRename(
             this._prefixMeta.rightMap, prefixDestRight
         );
-        for (const {i1} of this._checkCollisionByKey(leftPrefixNames, rightPrefixNames)) {
-            result.prefix.set(leftPrefixNames[i1].source, true);
+        // Check name conflicting inbetween left prefixes
+        for (const [_, indexList] of this._checkCollisionInListByKey(rightPrefixNames).entries()) {
+            for (const index of indexList) {
+                result.prefixRight.set(rightPrefixNames[index].source, true);
+            }
+        }
+        // Check name conflicting between left and right
+        for (const {i1, i2} of this._checkCollisionByKey(leftPrefixNames, rightPrefixNames)) {
+            result.prefixLeft.set(leftPrefixNames[i1].source, true);
+            result.prefixRight.set(rightPrefixNames[i2].source, true);
         }
 
         return result;
@@ -634,6 +667,13 @@ class JoinOpPanelModel {
         };
     }
 
+    /**
+     * Abstracted algorithm of finding same values between two sorted arrays
+     * @param list1 
+     * @param list2 
+     * @param checkFunc 
+     * @description Double pointers algorithm
+     */
     private _checkCollision<T>(
         list1: T[],
         list2: T[],
@@ -663,17 +703,17 @@ class JoinOpPanelModel {
 
         for (const renameInfo of this._columnRename.left) {
             if (renameInfo.isPrefix) {
-                prefixDestLeft[renameInfo.source] = renameInfo.dest;
+                prefixDestLeft[renameInfo.source] = this._getRenameDest(renameInfo);
             } else {
-                colDestLeft[renameInfo.source] = renameInfo.dest;
+                colDestLeft[renameInfo.source] = this._getRenameDest(renameInfo);
             }
         }
 
         for (const renameInfo of this._columnRename.right) {
             if (renameInfo.isPrefix) {
-                prefixDestRight[renameInfo.source] = renameInfo.dest;
+                prefixDestRight[renameInfo.source] = this._getRenameDest(renameInfo);
             } else {
-                colDestRight[renameInfo.source] = renameInfo.dest;
+                colDestRight[renameInfo.source] = this._getRenameDest(renameInfo);
             }
         }
 
@@ -681,6 +721,16 @@ class JoinOpPanelModel {
             colDestLeft: colDestLeft, colDestRight: colDestRight,
             prefixDestLeft: prefixDestLeft, prefixDestRight: prefixDestRight
         }
+    }
+
+    /**
+     * Get the dest name of a renaming
+     * @param renameInfo 
+     * @returns The name after renaming. If renaming to ""(user didn't do renaming), returns the source name.
+     */
+    private _getRenameDest(renameInfo: JoinOpRenameInfo): string {
+        const { source, dest } = renameInfo;
+        return (dest == null || dest.length === 0) ? source : dest;
     }
 
     private _applyColumnRename(
@@ -768,6 +818,25 @@ class JoinOpPanelModel {
             return av > bv ? 1 : (av < bv ? -1 : 0);
         });
         
+        return result;
+    }
+
+    private _checkCollisionInListByKey(list: { key: string }[]): Map<string, number[]> {
+        const keyIndexMap = new Map<string, number[]>();
+        list.forEach(({ key }, index) => {
+            if (keyIndexMap.has(key)) {
+                keyIndexMap.get(key).push(index);
+            } else {
+                keyIndexMap.set(key, [index]);
+            }
+        });
+
+        const result = new Map<string, number[]>();
+        for (const [key, indexList] of keyIndexMap.entries()) {
+            if (indexList.length > 1) {
+                result.set(key, [].concat(indexList));
+            }
+        }
         return result;
     }
 

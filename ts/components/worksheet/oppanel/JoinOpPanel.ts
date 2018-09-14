@@ -262,13 +262,14 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
      */
     private _validateStep2(dataModel: JoinOpPanelModel): void {
         const {
-            column: columnCollision, prefix: prefixCollision
+            columnLeft: columnCollisionLeft, prefixLeft: prefixCollisionLeft,
+            columnRight: columnCollisionRight, prefixRight: prefixCollisionRight
         } = dataModel.getCollisionNames();
 
-        if (columnCollision.size > 0) {
+        if (columnCollisionLeft.size > 0 || columnCollisionRight.size > 0) {
             throw new Error(JoinOpError.ColumnNameConflict);
         }
-        if (prefixCollision.size > 0) {
+        if (prefixCollisionLeft.size > 0 || prefixCollisionRight.size > 0) {
             throw new Error(JoinOpError.PrefixConflict);
         }
     }
