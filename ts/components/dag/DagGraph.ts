@@ -434,19 +434,20 @@ class DagGraph {
     // ordere, then get the query, and run it one by one.
     private _executeGraph(nodesMap?: Map<DagNodeId, DagNode>): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const orderedNodes: DagNode[] = this._topologicalSort(nodesMap);
+        let orderedNodes: DagNode[] = this._topologicalSort(nodesMap);
 
         const checkResult = this._checkCanExecuteAll(orderedNodes);
         if (checkResult.hasError) {
             return PromiseHelper.reject(checkResult);
         }
 
-        const txId = Transaction.start({});
-
         const promises: XDPromise<void>[] = [];
+        orderedNodes = orderedNodes.filter((node) => {
+            return node.getState() !== DagNodeState.Complete;
+        });
         orderedNodes.forEach((node) => {
             if (node.getState() !== DagNodeState.Complete) {
-                const dagExecute: DagExecute = new DagExecute(node, txId);
+                const dagExecute: DagExecute = new DagExecute(node);
                 promises.push(dagExecute.run.bind(dagExecute));
             }
         });
@@ -455,12 +456,10 @@ class DagGraph {
         PromiseHelper.chain(promises)
         .then(() => {
             // console.log("finish running", orderedNodes);
-            Transaction.done(txId, {});
             this.unlockGraph();
             deferred.resolve();
         })
         .fail((error) => {
-            Transaction.fail(txId);
             this.unlockGraph();
             deferred.reject(error);
         });

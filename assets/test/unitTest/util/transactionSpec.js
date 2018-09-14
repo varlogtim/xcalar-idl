@@ -522,6 +522,75 @@ describe("Transaction Test", function() {
         });
     });
 
+    describe("Transaction.update", () => {
+        let oldAddProgress;
+        let oldUpdateProgress;
+        let oldRemoveProgress;
+        const nodeId = 1;
+        let pct;
+
+        before(() => {
+            oldAddProgress = DagView.addProgress;
+            oldUpdateProgress = DagView.updateProgress;
+            oldRemoveProgress = DagView.removeProgress
+
+            DagView.addProgress = (dagNodeId) => {
+                expect(dagNodeId).to.equal(nodeId);
+            };
+
+            DagView.updateProgress = (dagNodeId, dagPct) => {
+                expect(dagNodeId).to.equal(nodeId);
+                pct = dagPct;
+            };
+
+            DagView.removeProgress = (dagNodeId) => {
+                expect(dagNodeId).to.equal(nodeId);
+            };
+        });
+
+        beforeEach(() => {
+            pct = null;
+        });
+
+        it("should handle error  case", () => {
+            const txId = Transaction.start({
+                track: true,
+                nodeId: nodeId
+            });
+
+            Transaction.update(txId, 10);
+            expect(pct).to.equal(null);
+            Transaction.done(txId, {});
+        });
+
+        it("should update progress", () => {
+            const txId = Transaction.start({
+                track: true,
+                nodeId: nodeId
+            });
+            const queryStateOutput = {
+                queryGraph: {
+                    node: [{
+                        numWorkCompleted: 10,
+                        numWorkTotal: 20
+                    }, {
+                        numWorkCompleted: 30,
+                        numWorkTotal: 80
+                    }]
+                }
+            }
+            Transaction.update(txId, queryStateOutput);
+            expect(pct).to.equal(40);
+            Transaction.done(txId, {});
+        });
+
+        after(() => {
+            DagView.addProgress = oldAddProgress;
+            DagView.updateProgress = oldUpdateProgress;
+            DagView.removeProgress = oldRemoveProgress;
+        });
+    });
+
     describe("isEdit", function() {
         var id;
         before(function() {

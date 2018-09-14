@@ -16,7 +16,8 @@ namespace Transaction {
         track?: boolean,
         steps?: number,
         cancelable?: boolean,
-        exportName?: string
+        exportName?: string,
+        nodeId?: DagNodeId
     }
 
     export interface TransactionDoneOptions {
@@ -47,6 +48,7 @@ namespace Transaction {
         operation: string;
         sql?: SQLInfo;
         isEdit?: boolean;
+        nodeId?: DagNodeId;
     }
 
     // tx is short for transaction
@@ -56,6 +58,7 @@ namespace Transaction {
         cli: string;
         sql: SQLInfo;
         isEdit: boolean;
+        nodeId: DagNodeId;
 
         constructor(options: TXLogOptions) {
             this.msgId = options.msgId || null;
@@ -63,6 +66,7 @@ namespace Transaction {
             this.cli = "";
             this.sql = options.sql || null;
             this.isEdit = options.isEdit || false;
+            this.nodeId = options.nodeId || null;
         }
 
 
@@ -118,7 +122,8 @@ namespace Transaction {
             "msgId": msgId,
             "operation": operation,
             "sql": options.sql,
-            "isEdit": options.isEdit
+            "isEdit": options.isEdit,
+            "nodeId": options.nodeId
         });
 
         txCache[curId] = txLog;
@@ -141,11 +146,39 @@ namespace Transaction {
             };
 
             QueryManager.addQuery(curId, operation, queryOptions);
+            if (txLog.nodeId != null) {
+                DagView.addProgress(txLog.nodeId);
+            }
         }
 
         txIdCount++;
         return curId;
     };
+
+    /**
+     * Transcation.update
+     * @param txId
+     * @param queryStateOutput
+     */
+    export function update(txId: number, queryStateOutput: any): void {
+        if (!has_require) {
+            const txLog: TXLog = txCache[txId]; 
+            if (txLog.nodeId) {
+                try {
+                    let numWorkCompleted: number = 0;
+                    let numWorkTotal: number = 0
+                    queryStateOutput.queryGraph.node.forEach((node) => {
+                        numWorkCompleted += node.numWorkCompleted;
+                        numWorkTotal += node.numWorkTotal;
+                    });
+                    const pct: number = Math.round(100 * numWorkCompleted / numWorkTotal);
+                    DagView.updateProgress(txLog.nodeId, pct);
+                } catch (e) {
+                    console.error("update transaction error", e);
+                }
+            }
+        }
+    }
 
     /**
      * Transaction.done
@@ -210,7 +243,9 @@ namespace Transaction {
             if (hasTableChange) {
                 MonitorGraph.tableUsageChange();
             }
-
+            if (txLog.nodeId != null) {
+                DagView.removeProgress(txLog.nodeId);
+            }
         }
 
         // remove transaction

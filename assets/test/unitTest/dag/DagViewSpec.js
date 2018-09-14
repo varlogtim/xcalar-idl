@@ -19,8 +19,8 @@ describe("DagView Test", () => {
         });
     });
     describe("initial state", function() {
-        it("initial screen should have 1 dataflowArea", () => {
-            expect($dagView.find(".dataflowArea").length).to.equal(1);
+        it("initial screen should at least 1 dataflowArea", () => {
+            expect($dagView.find(".dataflowArea").length).at.least(1);
             expect($dagView.find(".dataflowArea.active").length).to.equal(1);
         });
         it("initial screen should have no operators", function() {
@@ -34,7 +34,7 @@ describe("DagView Test", () => {
         });
     });
     describe("adding node", function() {
-        it("add node should work", function(done) {
+        it("add node should work", function() {
             expect($dagView.find(".dataflowArea.active .operatorSvg").children().length).to.equal(0);
 
             const newNodeInfo = {
@@ -44,22 +44,19 @@ describe("DagView Test", () => {
                     y: 40
                 }
             };
-            DagView.addNode(newNodeInfo)
-            .always(function() {
-                expect($dagView.find(".dataflowArea.active .operatorSvg").children().length).to.equal(1);
-                expect($dagView.find(".dataflowArea .operator").length).to.equal(1);
-                const $operator = $dagView.find(".dataflowArea .operator");
-                expect($operator.attr("transform")).to.equal("translate(20,40)");
-                expect($operator.hasClass("dataset")).to.be.true;
-                const dag = DagView.getActiveDag();
+            DagView.addNode(newNodeInfo);
+            expect($dagView.find(".dataflowArea.active .operatorSvg").children().length).to.equal(1);
+            expect($dagView.find(".dataflowArea .operator").length).to.equal(1);
+            const $operator = $dagView.find(".dataflowArea .operator");
+            expect($operator.attr("transform")).to.equal("translate(20,40)");
+            expect($operator.hasClass("dataset")).to.be.true;
+            const dag = DagView.getActiveDag();
 
-                const nodeId = $operator.data("nodeid");
-                expect(DagView.getNode(nodeId).length).to.equal(1);
-                const position = dag.getNode(nodeId).getPosition();
-                expect(position.x).to.equal(20);
-                expect(position.y).to.equal(40);
-                done();
-            });
+            const nodeId = $operator.data("nodeid");
+            expect(DagView.getNode(nodeId).length).to.equal(1);
+            const position = dag.getNode(nodeId).getPosition();
+            expect(position.x).to.equal(20);
+            expect(position.y).to.equal(40);
         });
     });
 
@@ -118,7 +115,7 @@ describe("DagView Test", () => {
     });
 
     describe("connecting nodes", function() {
-        before(function(done) {
+        before(function() {
             const newNodeInfo = {
                 type: "filter",
                 display: {
@@ -126,10 +123,7 @@ describe("DagView Test", () => {
                     y: 10
                 }
             };
-            DagView.addNode(newNodeInfo)
-            .always(function() {
-                done();
-            });
+            DagView.addNode(newNodeInfo);
         });
 
         it("drag and drop for connectors should work", function() {
@@ -354,6 +348,43 @@ describe("DagView Test", () => {
         after(() => {
             graph.removeNode(node.getId());
             DagTable.Instance.show = oldShow
+        });
+    });
+
+    describe("Dag Progress", () => {
+        let nodeId;
+        let $node;
+
+        before(() => {
+            const newNodeInfo = {
+                type: "filter",
+                display: {
+                    x: 10,
+                    y: 10
+                }
+            };
+            const node = DagView.addNode(newNodeInfo);
+            nodeId = node.getId();
+            $node = DagView.getNode(nodeId);
+        });
+
+        it("should add progress", () => {
+            DagView.addProgress(nodeId);
+            expect($node.find(".opProgress").text()).to.equal("0%");
+        });
+
+        it("should update progress", () => {
+            DagView.updateProgress(nodeId, 10);
+            expect($node.find(".opProgress").text()).to.equal("10%");
+        });
+
+        it("should remove progress", () => {
+            DagView.removeProgress(nodeId);
+            expect($node.find(".opProgress").length).to.equal(0);
+        });
+
+        after(() => {
+            DagView.removeNodes([nodeId]);
         });
     });
 

@@ -35,7 +35,8 @@ namespace QueryManager {
     }
 
     export interface SubQueryDoneOptions {
-        retName?: string
+        retName?: string,
+        queryName?: string
     }
 
     export interface XcQueryAbbr {
@@ -279,8 +280,9 @@ namespace QueryManager {
 
         for (let i = 0; i < mainQuery.subQueries.length; i++) {
             let subQuery: XcSubQuery = mainQuery.subQueries[i];
-            if (subQuery.dstTable === dstTable || (options.retName &&
-                mainQuery.currStep === i)) {
+            if (subQuery.dstTable === dstTable ||
+                subQuery.queryName === options.queryName ||
+                (options.retName && mainQuery.currStep === i)) {
                 subQuery.state = QueryStatus.Done;
                 if (mainQuery.currStep === i) {
                     incrementStep(mainQuery);

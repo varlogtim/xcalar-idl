@@ -214,8 +214,29 @@ declare class d3 {
     public ease(type: string): d3;
     public tween(type: string, callback: Function): d3;
     public append(selector: string): d3;
-    public attr(options: object | string, options2?: string): d3;
+    public attr(options: object | string, options2?: string | number): d3;
+    public style(options: string, options2: string): d3;
+    public text(text: string | Function): d3;
+    public remove(): d3;
+    public interpolate(current: any, a: any);
+    public interpolateNumber(num: number, step: number): Function;
+    public transition(): d3;
+    public duration(): d3;
+    public svg;
+    public layout;
 }
+
+declare namespace d3 {
+    export function interpolate(current: any, a: any);
+    export function interpolateNumber(num: number, step: number): Function;
+    export function select(selector: string | HTMLElement): d3;
+    export function transition(): d3;
+    export function duration(): d3;
+    export function append(selector: string): d3;
+    export var svg;
+    export var layout;
+}
+
 
 interface JQueryStatic {
     md5(str: string): string;
@@ -1046,6 +1067,7 @@ declare namespace SQLTStr {
     export var SortTableCols: string;
     export var ResizeCols: string;
     export var EditDescription: string;
+    export var NewComment: string;
 }
 
 declare namespace DagTStr {
@@ -1262,6 +1284,7 @@ declare class XcQuery {
     public type: string;
     public cancelable: boolean;
     public id: number;
+    public nodes: DagNodeId[];
     public srcTables: string[];
 
     public constructor(options: object);
@@ -1656,17 +1679,6 @@ declare namespace FnBar {
     export function clear(): void;
     export function updateColNameCache(): void;
     export function focusOnCol($head: JQuery, tableId: TableId, colNum: number): void;
-}
-
-declare namespace d3 {
-    export function interpolate(current: any, a: any);
-    export function interpolateNumber(num: number, step: number): Function;
-    export function select(selector: string): d3;
-    export function transition(): d3;
-    export function duration(): d3;
-    export function append(selector: string): d3;
-    export var svg;
-    export var layout;
 }
 
 declare namespace DagFunction {

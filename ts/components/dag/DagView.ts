@@ -1742,4 +1742,27 @@ namespace DagView {
         });
     }
 
+    export function addProgress(nodeId: DagNodeId): void {
+        const g = d3.select('#dagView .operator[data-nodeid = "' + nodeId + '"]');
+        g.append("text")
+        .attr("class", "opProgress")
+        .attr("font-family", "Open Sans")
+        .attr("font-size", "11")
+        .attr("fill", "#44515c")
+        .attr("x", "105")
+        .attr("y", "31")
+        .text("0%");
+    }
+
+    export function updateProgress(nodeId: DagNodeId, progress: number): void {
+        const g = d3.select('#dagView .operator[data-nodeid = "' + nodeId + '"]');
+        g.select(".opProgress")
+        .text(progress + "%");
+    }
+
+    export function removeProgress(nodeId: DagNodeId): void {
+        const g = d3.select('#dagView .operator[data-nodeid = "' + nodeId + '"]');
+        g.select(".opProgress")
+        .remove();
+    }
 }

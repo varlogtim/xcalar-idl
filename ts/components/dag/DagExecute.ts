@@ -2,9 +2,8 @@ class DagExecute {
     private node: DagNode;
     private txId: number;
 
-    public constructor(node: DagNode, txId: number) {
+    public constructor(node: DagNode) {
         this.node = node;
-        this.txId = txId;
     }
 
     /**
@@ -12,18 +11,28 @@ class DagExecute {
      */
     public run(): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        this.node.beRunningState();
+        const node: DagNode =  this.node;
+         this.txId = Transaction.start({
+            operation: node.getType(),
+            track: true,
+            nodeId: node.getId()
+        });
+        node.beRunningState();
 
         this._apiAdapter()
         .then((destTable) => {
             if (destTable != null) {
-                this.node.setTable(destTable);
+                node.setTable(destTable);
             }
-            this.node.beCompleteState();
+            node.beCompleteState();
+            Transaction.done(this.txId, {});
             deferred.resolve(destTable);
         })
         .fail((error) => {
-            this.node.beErrorState();
+            node.beErrorState();
+            Transaction.fail(this.txId, {
+                error: error
+            });
             deferred.reject(error);
         });
         return deferred.promise();

@@ -3338,6 +3338,7 @@ function queryStateErrorStatusHandler(
 XcalarQueryCheck = function(
     queryName: string,
     canceling: boolean,
+    txId?: number,
     jdbcCheckTime?: number
 ): XDPromise<XcalarApiQueryStateOutputT> {
     // function getDagNodeStatuses(dagOutput) {
@@ -3374,6 +3375,7 @@ XcalarQueryCheck = function(
         setTimeout(function() {
             XcalarQueryState(queryName)
             .then(function(queryStateOutput) {
+                Transaction.update(txId, queryStateOutput);
                 // var nodeStatuses =
                 //         getDagNodeStatuses(queryStateOutput.queryGraph.node);
                 const state = queryStateOutput.queryState;
@@ -3420,14 +3422,16 @@ XcalarQueryWithCheck = function(
 
     XcalarQuery(queryName, queryString, txId, bailOnError)
     .then(function() {
-        return XcalarQueryCheck(queryName, undefined, jdbcCheckTime);
+        return XcalarQueryCheck(queryName, undefined, txId, jdbcCheckTime);
     })
     .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
         } else {
             const timeElapsed = ret.elapsed.milliseconds;
-            Transaction.log(txId, queryString, undefined, timeElapsed);
+            Transaction.log(txId, queryString, undefined, timeElapsed, {
+                queryName: queryName
+            });
             deferred.resolve.apply(this, arguments);
         }
     })
