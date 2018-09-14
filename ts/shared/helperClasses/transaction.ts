@@ -161,6 +161,9 @@ namespace Transaction {
      * @param queryStateOutput
      */
     export function update(txId: number, queryStateOutput: any): void {
+        if (!isValidTX(txId)) {
+            return;
+        }
         if (!has_require) {
             const txLog: TXLog = txCache[txId]; 
             if (txLog.nodeId) {

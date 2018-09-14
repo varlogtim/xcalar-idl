@@ -443,10 +443,12 @@ abstract class DagNode {
     }
 
     private _removeTable(): void {
-        this.events.trigger(DagNodeEvents.TableRemove, {
-            table: this.table
-        });
-        delete this.table;
+        if (this.table) {
+            this.events.trigger(DagNodeEvents.TableRemove, {
+                table: this.table
+            });
+            delete this.table;
+        }
     }
 
 

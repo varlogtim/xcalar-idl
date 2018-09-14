@@ -1547,9 +1547,12 @@ namespace DagView {
         });
 
         activeDag.events.on(DagNodeEvents.TableRemove, function(info) {
-            if (DagTable.Instance.getTable() === info.table) {
+            const tableName: string = info.table;
+            if (DagTable.Instance.getTable() === tableName) {
                 DagTable.Instance.close();
             }
+            // XXX TODO: this is just a temp solution, refine it
+            TblManager.deleteTables([tableName], TableType.Orphan, true, true);
         });
     }
 
