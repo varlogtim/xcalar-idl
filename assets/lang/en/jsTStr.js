@@ -625,7 +625,8 @@ ThriftTStr = {
     'SetupErr': 'Setup Failed',
     'ListFileErr': 'List Files Failed',
     'SessionElsewhere': 'Different Node Detected',
-    'LogInDifferent': 'Please login from the node where you first logged in.'
+    'LogInDifferent': 'Please login from the node where you first logged in.',
+    'LogInDifferentWrap': 'Xcalar Design user sessions are node-specific. Your last login was on <ip>. Log in on <ip2> to use Xcalar Design'
 };
 
 AlertTStr = {

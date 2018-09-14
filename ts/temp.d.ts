@@ -924,6 +924,7 @@ declare namespace ThriftTStr {
     export var CCNBE: string;
     export var CCNBEErr: string;
     export var SetupErr: string;
+    export var LogInDifferentWrap: string;
 }
 
 declare namespace FailTStr {

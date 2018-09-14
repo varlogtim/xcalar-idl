@@ -268,7 +268,16 @@ namespace xcManager {
                    error["status"] === StatusT.StatusSessionUsrAlreadyExists)
         {
             locationText = ThriftTStr.SessionElsewhere;
-            const errorMsg: string = error["error"] + '\n' + ThriftTStr.LogInDifferent;
+            let errorMsg: string;
+            try {
+                const ip: string = error["log"].match(/IP address \'(.*)\'/)[1];
+                errorMsg = xcHelper.replaceMsg(ThriftTStr.LogInDifferentWrap, {
+                    ip: ip,
+                    ip2: ip
+                });
+            } catch (e) {
+                errorMsg = error["error"] + '\n' + ThriftTStr.LogInDifferent;
+            }
             Alert.error(ThriftTStr.SessionElsewhere, errorMsg, {
                 "lockScreen": true
             });
