@@ -1078,6 +1078,8 @@ declare namespace DagTStr {
     export var RemoveTab: string;
     export var EditDescription: string;
     export var AddDescription: string;
+    export var Reset: string;
+    export var ResetMsg: string;
 }
 
 declare namespace UnionTStr {

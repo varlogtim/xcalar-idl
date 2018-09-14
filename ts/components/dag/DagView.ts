@@ -838,6 +838,19 @@ namespace DagView {
 
         return deferred.promise();
     }
+    /**
+     *
+     * @param nodeIds
+     */
+    export function reset(nodeIds?: DagNodeId[]): void {
+        Alert.show({
+            title: DagTStr.Reset,
+            msg: DagTStr.ResetMsg,
+            onConfirm: () => {
+                activeDag.reset(nodeIds);
+            }
+        });
+    };
 
     /**
      *

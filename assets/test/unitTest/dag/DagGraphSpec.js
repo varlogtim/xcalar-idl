@@ -1,8 +1,8 @@
 describe("Dag Graph Test", () => {
     it("should deserialize a graph correctly", () => {
         const graph = new DagGraph();
-        const n1 = new DagNodeJoin();
-        const n2 = new DagNodeJoin();
+        const n1 = DagNodeFactory.create({type: DagNodeType.Join});
+        const n2 = DagNodeFactory.create({type: DagNodeType.Join});
         graph.addNode(n1);
         graph.addNode(n2);
         graph.connect(n1.getId(),n2.getId());
@@ -18,5 +18,42 @@ describe("Dag Graph Test", () => {
         expect(parents.length).to.equal(1);
         const parent = parents[0];
         expect(parent.getId()).to.equal(n1.getId());
+    });
+
+    it("should reest node", () => {
+        const graph = new DagGraph();
+        const n1 = DagNodeFactory.create({
+            type: DagNodeType.Join,
+            state: DagNodeState.Complete
+        });
+        const n2 = DagNodeFactory.create({
+            type: DagNodeType.Join,
+            state: DagNodeState.Complete
+        });
+        graph.addNode(n1);
+        graph.addNode(n2);
+        graph.connect(n1.getId(),n2.getId());
+
+        graph.reset(n2);
+        expect(n1.getState()).to.equal(DagNodeState.Error);
+        expect(n2.getState()).to.equal(DagNodeState.Error);
+    });
+
+    it("should reest all node", () => {
+        const graph = new DagGraph();
+        const n1 = DagNodeFactory.create({
+            type: DagNodeType.Join,
+            state: DagNodeState.Complete
+        });
+        const n2 = DagNodeFactory.create({
+            type: DagNodeType.Join,
+            state: DagNodeState.Complete
+        });
+        graph.addNode(n1);
+        graph.addNode(n2);
+
+        graph.reset();
+        expect(n1.getState()).to.equal(DagNodeState.Error);
+        expect(n2.getState()).to.equal(DagNodeState.Error);
     });
 });

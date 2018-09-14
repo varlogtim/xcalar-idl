@@ -128,6 +128,12 @@ namespace DagNodeMenu {
                 case ("executeAllNodes"):
                     DagView.run();
                     break;
+                case ("resetNode"):
+                    DagView.reset(operatorIds);
+                    break;
+                case ("resetAllNodes"):
+                    DagView.reset();
+                    break;
                 case ("configureNode"):
                     const node: DagNode = DagView.getActiveDag().getNode(operatorIds[0]);
                     configureNode(node);
@@ -325,9 +331,10 @@ namespace DagNodeMenu {
     function adjustMenuForSingleNode(nodeId): string {
         const dagGraph: DagGraph = DagView.getActiveDag();
         const dagNode: DagNode = dagGraph.getNode(nodeId);
+        const state: DagNodeState = (dagNode != null) ? dagNode.getState() : null;
         let classes = "";
         if (dagNode != null &&
-            dagNode.getState() === DagNodeState.Complete &&
+            state === DagNodeState.Complete &&
             dagNode.getTable() != null
         ) {
             $menu.find(".previewTable").removeClass("unavailable");
@@ -342,13 +349,23 @@ namespace DagNodeMenu {
         if (dagNode != null && dagNode.getType() === DagNodeType.Aggregate) {
             const aggNode = <DagNodeAggregate>dagNode;
             classes = "agg";
-            if (aggNode.getState() === DagNodeState.Complete &&
+            if (state === DagNodeState.Complete &&
                 aggNode.getAggVal() != null
             ) {
                 $menu.find(".previewAgg").removeClass("unavailable");
             } else {
                 $menu.find(".previewAgg").addClass("unavailable");
             }
+        }
+        if (state === DagNodeState.Configured || state === DagNodeState.Error) {
+            $menu.find(".executeNode").removeClass("unavailable");
+        } else {
+            $menu.find(".executeNode").addClass("unavailable");
+        }
+        if (state === DagNodeState.Complete) {
+            $menu.find(".resetNode").removeClass("unavailable");
+        } else {
+            $menu.find(".resetNode").addClass("unavailable");
         }
         return classes;
     }

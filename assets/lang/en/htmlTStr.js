@@ -1374,6 +1374,8 @@ module.exports = {
         "comment": "New Comment",
         "execute": "Execute",
         "executeAll": "Execute All",
+        "reset": "Reset",
+        "resetAll": "Reset All",
         "previewTable": "Preview Table",
         "previewResults": "Preview Table",
         "autoAlign": "Auto Align",

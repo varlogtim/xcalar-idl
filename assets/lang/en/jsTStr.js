@@ -1612,4 +1612,6 @@ DagTStr = {
     "RemoveTab": "Remove a dataflow tab.",
     "AddDescription": "Add Description",
     "EditDescription": "Edit Description",
+    "Reset": "Dataflow node(s) reset",
+    "ResetMsg": "Are you sure you want to reset the selected node(s)?"
 };

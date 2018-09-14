@@ -318,6 +318,30 @@ class DagGraph {
         }
     }
 
+    /**
+     *
+     * @param nodeIds
+     */
+    public reset(nodeIds?: DagNodeId[]): void {
+        let nodes: DagNode[] = [];
+        if (nodeIds == null) {
+            this.nodesMap.forEach((node: DagNode) => {
+                nodes.push(node);
+            });
+        } else {
+            nodeIds.forEach((nodeId) => {
+                nodes.push(this.getNode(nodeId));
+            });
+        }
+        let travsesedSet: Set<DagNode> = new Set();
+        nodes.forEach((node) => {
+            if (!travsesedSet.has(node)) {
+                const set: Set<DagNode> = this._traverseSwitchState(node);
+                travsesedSet = new Set([...travsesedSet, ...set]);
+            }
+        });
+    }
+
     public setDimensions(width: number, height: number): void  {
         this.display.width = width;
         this.display.height = height;
@@ -631,11 +655,15 @@ class DagGraph {
         }
     }
 
-    private _traverseSwitchState(node: DagNode): void {
+    private _traverseSwitchState(node: DagNode): Set<DagNode> {
+        const traversedSet: Set<DagNode> = new Set();
         node.switchState();
+        traversedSet.add(node);
         this._traverseChildren(node, (node: DagNode) => {
             node.switchState();
+            traversedSet.add(node);
         });
+        return traversedSet;
     }
 
     /**

@@ -25,7 +25,7 @@ describe("DagView Test", () => {
         });
         it("initial screen should have no operators", function() {
             expect($dagView.find(".operator").length).to.be.gt(0);
-            expect($dagView.find(".dataflowArea .operator").length).to.equal(0);
+            expect($dagView.find(".dataflowArea.active .operator").length).to.equal(0);
         });
         it("correct elements should be present", function() {
             expect($dagView.find(".dataflowArea.active").children().length).to.equal(4);
@@ -386,6 +386,13 @@ describe("DagView Test", () => {
         after(() => {
             DagView.removeNodes([nodeId]);
         });
+    });
+
+    it("should reset dag", () => {
+        UnitTest.onMinMode();
+        DagView.reset();
+        UnitTest.hasAlertWithTitle(DagTStr.Reset);
+        UnitTest.offMinMode();
     });
 
     after(function(done) {
