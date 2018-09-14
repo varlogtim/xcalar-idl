@@ -272,47 +272,6 @@ function thriftLog(
     }
 }
 
-function sleep(val: string): void {
-    const end: number = Date.now() + parse(val);
-    while (Date.now() < end) {}
-
-    function parse(str: string): number {
-        const timeStr: RegExp = /^((?:\d+)?\.?\d+)*(ms|s|m|h)?$/i;
-        const s: number = 1000;
-        const m: number = s * 60;
-        const h: number = m * 60;
-
-        const match: string[] = timeStr.exec(str);
-
-        if (!match) {
-            return (0);
-        }
-
-        const n: number = parseFloat(match[1]);
-        const type: string = (match[2] || "ms").toLowerCase();
-        let duration: number = null;
-
-        switch (type) {
-            case "ms":
-                duration = n;
-                break;
-            case "s":
-                duration = s * n;
-                break;
-            case "m":
-                duration = m * n;
-                break;
-            case "h":
-                duration = h * n;
-                break;
-            default:
-                duration = 0;
-                break;
-        }
-        return (duration);
-    }
-}
-
 function fakeApiCall<T>(ret?: T): XDPromise<T> {
     return PromiseHelper.resolve(ret? ret: {});
 }
@@ -403,138 +362,6 @@ function insertError(
 }
 
 // ========================== HELPER FUNCTIONS ============================= //
-// colsToIndex is optional array of colnames
-// if a new index table needs to be created, "colsToIndex" will be used
-// as the keys for the new index table
-// colsToIndex is optional array of colnames
-// if a new index table needs to be created, "colsToIndex" will be used
-// as the keys for the new index table
-getUnsortedTableName = function(
-    tableName: string,
-    otherTableName: string,
-    txId: number,
-    colsToIndex?: string[]
-): XDPromise<string> {
-    // XXX this may not right but have to this
-    // or some intermediate table cannot be found
-    if (txId != null && Transaction.isSimulate(txId)) {
-        return PromiseHelper.resolve(tableName, otherTableName);
-    }
-
-    const getUnsortedTableHelper = function(table: string): XDPromise<string> {
-        const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        const originalTableName = table;
-        let srcTableName = table;
-
-        XcalarGetDag(table)
-        .then(function(nodeArray) {
-            // Check if the last one is a sort. If it is, then use the unsorted
-            // one
-            // If it isn't then just return the original
-            if (nodeArray.node[0].api === XcalarApisT.XcalarApiIndex) {
-                const indexInput = nodeArray.node[0].input.indexInput;
-                const primeKey = indexInput.key[0];
-                // no matter it's sorted or multi sorted, first key must be sorted
-                if (primeKey.ordering ===
-                    XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending] ||
-                    primeKey.ordering ===
-                    XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]) {
-                    // Find parent and return parent's name
-                    const node = DagFunction.construct(nodeArray.node).tree;
-                    srcTableName = node.getSourceNames()[0];
-                    const hasReadyState = checkIfTableHasReadyState(node
-                                                                  .parents[0]);
-
-                    if (!hasReadyState) {
-                        srcTableName = xcHelper.getTableName(originalTableName) +
-                                       Authentication.getHashId();
-                        let keys: object[];
-                        if (!colsToIndex) {
-                            keys = indexInput.key.map(function(keyAttr) {
-                                return {
-                                    name: keyAttr.name,
-                                    ordering: XcalarOrderingT.XcalarOrderingUnordered
-                                };
-                            });
-                        } else {
-                            keys = colsToIndex.map(function(colName) {
-                                return {
-                                    name: colName,
-                                    ordering: XcalarOrderingT.XcalarOrderingUnordered
-                                };
-                            });
-                        }
-
-                        return XcalarIndexFromTable(originalTableName, keys,
-                                                    srcTableName, null, true);
-                    } else {
-                        return PromiseHelper.resolve(null);
-                    }
-                    // console.log("Using unsorted table instead:", srcTableName);
-                }
-            } else if (nodeArray.node[0].api === XcalarApisT.XcalarApiExecuteRetina) {
-                // if this is a sorted retina node, then it doesn't have
-                // parents we can use to index on, so we index on the retina
-                // node itself
-                var innerDeferred = PromiseHelper.deferred();
-                XcalarGetTableMeta(table)
-                .then(function(ret) {
-                    var keyAttrs = ret.keyAttr;
-                    if (keyAttrs[0] &&
-                        (keyAttrs[0].ordering ===
-                        XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending] ||
-                        keyAttrs[0].ordering ===
-                        XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending])) {
-
-                        srcTableName = xcHelper.getTableName(originalTableName) +
-                                       Authentication.getHashId();
-                        var keys;
-                        if (!colsToIndex) {
-                            keys = keyAttrs.map(function(keyAttr) {
-                                return {
-                                    name: keyAttr.name,
-                                    ordering: XcalarOrderingT.XcalarOrderingUnordered
-                                };
-                            });
-                        } else {
-                            keys = colsToIndex.map(function(colName) {
-                                return {
-                                    name: colName,
-                                    ordering: XcalarOrderingT.XcalarOrderingUnordered
-                                };
-                            });
-                        }
-                        return XcalarIndexFromTable(originalTableName, keys,
-                                                    srcTableName, txId, true);
-                    } else {
-                        return PromiseHelper.resolve();
-                    }
-                })
-                .then(innerDeferred.resolve)
-                .fail(innerDeferred.reject);
-
-                return innerDeferred.promise();
-            } else {
-                return PromiseHelper.resolve(null);
-            }
-        })
-        .then(function() {
-            deferred.resolve(srcTableName);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    };
-
-    if (!otherTableName) {
-        return getUnsortedTableHelper(tableName);
-    } else {
-        var def1 = getUnsortedTableHelper(tableName);
-        var def2 = getUnsortedTableHelper(otherTableName);
-        return PromiseHelper.when(def1, def2);
-    }
-};
-
 function checkIfTableHasReadyState(
     node: DagFunction.TreeNode
 ): boolean {
@@ -1547,8 +1374,7 @@ XcalarIndexFromTable = function(
         ordering: XcalarOrderingT
     }[],
     dstTableName: string,
-    txId: number,
-    unsorted?: boolean
+    txId: number
 ): XDPromise<{ ret?: XcalarApiNewTableOutputT, newKeys?: any[] }>{
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -1558,13 +1384,6 @@ XcalarIndexFromTable = function(
     if (Transaction.checkCanceled(txId)) {
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
-    let promise: XDPromise<string | string[]>;
-    if (unsorted) {
-        promise = PromiseHelper.resolve(srcTablename);
-    } else {
-        promise = getUnsortedTableName(srcTablename, null, txId);
-    }
-    let unsortedSrcTablename: string;
     let query: string;
     let newKeys: any[] = [];
 
@@ -1572,16 +1391,8 @@ XcalarIndexFromTable = function(
         keys = [keys];
     }
 
-    promise
-    .then(function(resTable : string) {
-        if (Transaction.checkCanceled(txId)) {
-            return (deferred.reject(StatusTStr[StatusT.StatusCanceled])
-                            .promise());
-        }
-        unsortedSrcTablename = resTable;
-        // XXX TODO, remove the dependencise of xcHelper
-        return xcHelper.getKeyInfos(keys, unsortedSrcTablename);
-    })
+    // XXX TODO, remove the dependencise of xcHelper
+    xcHelper.getKeyInfos(keys, srcTablename)
     .then(function(keyInfos: KeyInfo[]) {
         const keyArray = keyInfos.map(function(keyInfo) {
             newKeys.push(keyInfo['keyFieldName']);
@@ -1592,13 +1403,13 @@ XcalarIndexFromTable = function(
                 return key.keyFieldName;
             });
         }
-        const workItem = xcalarIndexWorkItem(unsortedSrcTablename,
+        const workItem = xcalarIndexWorkItem(srcTablename,
                                            dstTableName, keyArray, "", "");
         let def: XDPromise<any>;
         if (Transaction.isSimulate(txId)) {
             def = fakeApiCall();
         } else {
-            def = xcalarIndex(tHandle, unsortedSrcTablename, dstTableName,
+            def = xcalarIndex(tHandle, srcTablename, dstTableName,
                               keyArray, "", "");
         }
         query = XcalarGetQuery(workItem);
@@ -2558,28 +2369,18 @@ XcalarFilter = function(
         deferred.reject(thriftLog("XcalarFilter", "Eval string too long"));
         return (deferred.promise());
     }
-    getUnsortedTableName(srcTablename, null, txId)
-    .then(function(unsortedSrcTablename) {
-        if (Transaction.checkCanceled(txId)) {
-            return (deferred.reject(StatusTStr[StatusT.StatusCanceled])
-                            .promise());
-        }
-        const workItem = xcalarFilterWorkItem(
-            (unsortedSrcTablename as string),
-            dstTablename,
-            evalStr);
-        let def: XDPromise<any>;
-        if (Transaction.isSimulate(txId)) {
-            def = fakeApiCall();
-        } else {
-            def = xcalarFilter(tHandle, evalStr, (unsortedSrcTablename as string),
-                                dstTablename);
-        }
-        query = XcalarGetQuery(workItem);
-        Transaction.startSubQuery(txId, 'filter', dstTablename, query);
 
-        return def;
-    })
+    const workItem = xcalarFilterWorkItem(srcTablename, dstTablename, evalStr);
+    let def: XDPromise<any>;
+    if (Transaction.isSimulate(txId)) {
+        def = fakeApiCall();
+    } else {
+        def = xcalarFilter(tHandle, evalStr, srcTablename, dstTablename);
+    }
+    query = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, 'filter', dstTablename, query);
+   
+    def
     .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
@@ -2643,9 +2444,8 @@ XcalarMap = function(
     evalStrs: string[] | string,
     srcTablename: string,
     dstTablename: string,
-    txId: number,
-    doNotUnsort?: boolean,
-    icvMode?: boolean
+    icvMode: boolean,
+    txId: number
 ): XDPromise<any> {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
@@ -2676,43 +2476,29 @@ XcalarMap = function(
     }
 
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
-    let d: XDPromise<string>;
     let query: string;
-    if (!doNotUnsort) {
-        d = getUnsortedTableName(srcTablename, null, txId) as XDPromise<string>;
+    const workItem = xcalarApiMapWorkItem(
+        evalStrs as string[],
+        srcTablename,
+        dstTablename,
+        newFieldNames as string[],
+        icvMode);
+    let def: XDPromise<any>;
+    if (Transaction.isSimulate(txId)) {
+        def = fakeApiCall();
     } else {
-        d = PromiseHelper.resolve(srcTablename);
-        console.log("Using SORTED table for windowing!");
-    }
-    d
-    .then(function(unsortedSrcTablename) {
-        if (Transaction.checkCanceled(txId)) {
-            return (deferred.reject(StatusTStr[StatusT.StatusCanceled])
-                            .promise());
-        }
-        const workItem = xcalarApiMapWorkItem(
-            evalStrs as string[],
-            unsortedSrcTablename,
-            dstTablename,
+        def = xcalarApiMap(
+            tHandle,
             newFieldNames as string[],
+            evalStrs as string[],
+            srcTablename,
+            dstTablename,
             icvMode);
-        let def: XDPromise<any>;
-        if (Transaction.isSimulate(txId)) {
-            def = fakeApiCall();
-        } else {
-            def = xcalarApiMap(
-                tHandle,
-                newFieldNames as string[],
-                evalStrs as string[],
-                unsortedSrcTablename,
-                dstTablename,
-                icvMode);
-        }
-        query = XcalarGetQuery(workItem);
-        Transaction.startSubQuery(txId, 'map', dstTablename, query);
+    }
+    query = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, 'map', dstTablename, query);
 
-        return def;
-    })
+    def
     .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
@@ -2754,28 +2540,17 @@ XcalarAggregate = function(
         return (deferred.promise());
     }
 
-    getUnsortedTableName(srcTablename, null, txId)
-    .then(function(unsortedSrcTablename) {
-        if (Transaction.checkCanceled(txId)) {
-            return (deferred.reject(StatusTStr[StatusT.StatusCanceled])
-                            .promise());
-        }
-        const workItem = xcalarAggregateWorkItem(
-            unsortedSrcTablename as string,
-            dstAggName, evalStr);
+    const workItem = xcalarAggregateWorkItem(srcTablename, dstAggName, evalStr);
 
-        let def: XDPromise<any>;
-        if (Transaction.isSimulate(txId)) {
-            def = fakeApiCall();
-        } else {
-            def = xcalarAggregate(tHandle,
-                unsortedSrcTablename as string,
-                dstAggName, evalStr);
-        }
-        query = XcalarGetQuery(workItem);
-        Transaction.startSubQuery(txId, 'aggregate', dstAggName, query);
-        return def;
-    })
+    let def: XDPromise<any>;
+    if (Transaction.isSimulate(txId)) {
+        def = fakeApiCall();
+    } else {
+        def = xcalarAggregate(tHandle, srcTablename, dstAggName, evalStr);
+    }
+    query = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, 'aggregate', dstAggName, query);
+    def
     .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
@@ -2824,41 +2599,33 @@ XcalarJoin = function(
         evalString = options.evalString || "";
     }
 
-    getUnsortedTableName(left, right, txId)
-    .then(function(unsortedLeft, unsortedRight) {
-        if (Transaction.checkCanceled(txId)) {
-            return (deferred.reject(StatusTStr[StatusT.StatusCanceled])
-                            .promise());
-        }
+    let leftColumns: XcalarApiColumnT[] = [];
+    let rightColumns: XcalarApiColumnT[] = [];
 
-        let leftColumns: any[] = [];
-        let rightColumns: any[] = [];
+    if (leftColInfos) {
+        leftColumns = leftColInfos.map(colInfoMap);
+    }
 
-        if (leftColInfos) {
-            leftColumns = leftColInfos.map(colInfoMap);
-        }
+    if (rightColInfos) {
+        rightColumns = rightColInfos.map(colInfoMap);
+    }
 
-        if (rightColInfos) {
-            rightColumns = rightColInfos.map(colInfoMap);
-        }
+    const workItem = xcalarJoinWorkItem(left, right, dst,
+                                        joinType, leftColumns,
+                                        rightColumns, evalString, coll);
 
-        const workItem = xcalarJoinWorkItem(unsortedLeft as string, unsortedRight, dst,
-                                          joinType, leftColumns,
-                                          rightColumns, evalString, coll);
+    let def: XDPromise<any>;
+    if (Transaction.isSimulate(txId)) {
+        def = fakeApiCall();
+    } else {
+        def = xcalarJoin(tHandle, left, right, dst,
+                            joinType, leftColumns, rightColumns,
+                            evalString, coll);
+    }
+    query = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, 'join', dst, query);
 
-        let def: XDPromise<any>;
-        if (Transaction.isSimulate(txId)) {
-            def = fakeApiCall();
-        } else {
-            def = xcalarJoin(tHandle, unsortedLeft as string, unsortedRight, dst,
-                             joinType, leftColumns, rightColumns,
-                             evalString, coll);
-        }
-        query = XcalarGetQuery(workItem);
-        Transaction.startSubQuery(txId, 'join', dst, query);
-
-        return def;
-    })
+    def
     .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
@@ -2949,35 +2716,29 @@ XcalarGroupByWithEvalStrings = function(
         }
     }
 
-    getUnsortedTableName(tableName, null, txId)
-    .then(function(unsortedTableName) {
-        if (Transaction.checkCanceled(txId)) {
-            return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
-        }
-        const workItem = xcalarGroupByWorkItem(
-            unsortedTableName as string,
+    const workItem = xcalarGroupByWorkItem(
+        tableName,
+        newTableName,
+        evalStrs as string[],
+        newColNames as string[],
+        incSample, icvMode, newKeyFieldName, groupAll);
+    let def: XDPromise<any>;
+    if (Transaction.isSimulate(txId)) {
+        def = fakeApiCall({
+            "tableName": newTableName
+        });
+    } else {
+        def = xcalarGroupBy(tHandle,
+            tableName,
             newTableName,
             evalStrs as string[],
             newColNames as string[],
             incSample, icvMode, newKeyFieldName, groupAll);
-        let def: XDPromise<any>;
-        if (Transaction.isSimulate(txId)) {
-            def = fakeApiCall({
-                "tableName": newTableName
-            });
-        } else {
-            def = xcalarGroupBy(tHandle,
-                unsortedTableName as string,
-                newTableName,
-                evalStrs as string[],
-                newColNames as string[],
-                incSample, icvMode, newKeyFieldName, groupAll);
-        }
-        query = XcalarGetQuery(workItem);
-        Transaction.startSubQuery(txId, 'groupBy', newTableName, query);
+    }
+    query = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, 'groupBy', newTableName, query);
 
-        return def;
-    })
+    def
     .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
@@ -3042,27 +2803,19 @@ XcalarProject = function(
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
 
-    getUnsortedTableName(tableName, null, txId)
-    .then(function(unsortedTableName) {
-        if (Transaction.checkCanceled(txId)) {
-            return (deferred.reject(StatusTStr[StatusT.StatusCanceled])
-                            .promise());
-        }
-        const workItem = xcalarProjectWorkItem(columns.length, columns,
-                                             unsortedTableName as string,
-                                             dstTableName);
-        let def: XDPromise<any>;
-        if (Transaction.isSimulate(txId)) {
-            def = fakeApiCall();
-        } else {
-            def = xcalarProject(tHandle, columns.length, columns,
-                                 unsortedTableName as string, dstTableName);
-        }
-        query = XcalarGetQuery(workItem); // XXX May not work? Have't tested
-        Transaction.startSubQuery(txId, 'project', dstTableName, query);
+    const workItem = xcalarProjectWorkItem(columns.length, columns,
+        tableName, dstTableName);
+    let def: XDPromise<any>;
+    if (Transaction.isSimulate(txId)) {
+        def = fakeApiCall();
+    } else {
+        def = xcalarProject(tHandle, columns.length, columns,
+            tableName, dstTableName);
+    }
+    query = XcalarGetQuery(workItem); // XXX May not work? Have't tested
+    Transaction.startSubQuery(txId, 'project', dstTableName, query);
 
-        return def;
-    })
+    def
     .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
@@ -3101,54 +2854,21 @@ XcalarUnion = function(
     }
 
     let query: string;
-    const getUnsortedTablesInUnion = function(): XDPromise<string[]> {
-        const innerDeferred: XDDeferred<string[]> = PromiseHelper.deferred();
-        const unsortedTables: string[] = [];
+    const columns: XcalarApiColumnT[][] = colInfos.map((renameListForOneTable) => {
+        return renameListForOneTable.map(colInfoMap);
+    });
+    const workItem = xcalarUnionWorkItem(tableNames, newTableName, columns,
+                                        dedup, unionType);
+    let def: XDPromise<any>;
+    if (Transaction.isSimulate(txId)) {
+        def = fakeApiCall();
+    } else {
+        def = xcalarUnion(tHandle, tableNames, newTableName, columns, dedup, unionType);
+    }
+    query = XcalarGetQuery(workItem); // XXX test
+    Transaction.startSubQuery(txId, 'union', newTableName, query);
 
-        const promises: XDPromise<void>[] = (tableNames as string[]).map(
-            function(tableName, index) {
-                return getUnsortedTableName(tableName, null, txId)
-                    .then(function(unsortedTableName) {
-                        unsortedTables[index] = unsortedTableName as string;
-                    });
-            }
-        );
-
-        PromiseHelper.when.apply(this, promises)
-        .then(function() {
-            innerDeferred.resolve(unsortedTables);
-        })
-        .fail(innerDeferred.reject);
-
-        return innerDeferred.promise();
-    };
-
-    getUnsortedTablesInUnion()
-    .then(function(sources) {
-        if (Transaction.checkCanceled(txId)) {
-            return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
-        }
-
-        const columns: XcalarApiColumnT[][] =
-            (colInfos as ColRenameInfo[][]).map(
-                function(renameListForOneTable) {
-                    return renameListForOneTable.map(colInfoMap);
-                }
-            );
-        const workItem = xcalarUnionWorkItem(sources, newTableName, columns,
-                                           dedup, unionType);
-        let def: XDPromise<any>;
-        if (Transaction.isSimulate(txId)) {
-            def = fakeApiCall();
-        } else {
-            def = xcalarUnion(tHandle, sources, newTableName, columns, dedup,
-                              unionType);
-        }
-        query = XcalarGetQuery(workItem); // XXX test
-        Transaction.startSubQuery(txId, 'union', newTableName, query);
-
-        return def;
-    })
+    def
     .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
@@ -3671,7 +3391,7 @@ XcalarListFiles = function(
 };
 
 XcalarSynthesize = function(
-    srcTableName: string,
+    tableName: string,
     dstTableName: string,
     colInfos: ColRenameInfo[],
     txId: number
@@ -3687,28 +3407,18 @@ XcalarSynthesize = function(
         return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
     }
 
-    getUnsortedTableName(srcTableName, null, txId)
-    .then(function(unsortedSrcTablename) {
-        if (Transaction.checkCanceled(txId)) {
-            return deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise();
-        }
+    const columnArray = colInfos.map(colInfoMap);
+    const workItem = xcalarApiSynthesizeWorkItem(tableName, dstTableName, columnArray);
+    let def: XDPromise<any>;
+    if (Transaction.isSimulate(txId)) {
+        def = fakeApiCall();
+    } else {
+        def = xcalarApiSynthesize(tHandle, tableName, dstTableName, columnArray);
+    }
+    query = XcalarGetQuery(workItem);
+    Transaction.startSubQuery(txId, "synthesize", dstTableName, query);
 
-        const columnArray = colInfos.map(colInfoMap);
-        const workItem = xcalarApiSynthesizeWorkItem(unsortedSrcTablename as string,
-                                                    dstTableName,
-                                                    columnArray);
-        let def: XDPromise<any>;
-        if (Transaction.isSimulate(txId)) {
-            def = fakeApiCall();
-        } else {
-            def = xcalarApiSynthesize(tHandle, unsortedSrcTablename as string,
-                                        dstTableName, columnArray);
-        }
-        query = XcalarGetQuery(workItem);
-        Transaction.startSubQuery(txId, "synthesize", dstTableName, query);
-
-        return def;
-    })
+    def
     .then(function(ret) {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);

@@ -1674,7 +1674,7 @@ namespace XIApi {
         }
 
         const simuldateTxId: number = startSimulate();
-        XcalarMap(newColNames, mapStrs, tableName, newTableName, simuldateTxId, false, icvMode)
+        XcalarMap(newColNames, mapStrs, tableName, newTableName, icvMode, simuldateTxId)
         .then(() => {
             const query: string = endSimulate(simuldateTxId);
             const queryName: string = newTableName;
@@ -2458,6 +2458,28 @@ namespace XIApi {
             }
             deferred.reject.apply(this, results);
         });
+
+        return deferred.promise();
+    };
+
+    export function renameTable(
+        txId: number,
+        tableName: string,
+        newTableName: string
+    ): XDPromise<string> {
+        if (txId == null ||
+            tableName == null ||
+            !isValidTableName(newTableName)
+        ) {
+            return PromiseHelper.reject("Invalid args in rename table");
+        }
+
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        XcalarRenameTable(tableName, newTableName, txId)
+        .then(() => {
+            deferred.resolve(newTableName);
+        })
+        .fail(deferred.reject);
 
         return deferred.promise();
     };

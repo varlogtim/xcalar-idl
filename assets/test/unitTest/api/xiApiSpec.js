@@ -2396,6 +2396,38 @@ describe('XIApi Test', () => {
             });
         });
 
+        it('XIAPi.renameTable should work', (done) => {
+            const oldFunc = XcalarRenameTable;
+            let test = false
+            XcalarRenameTable = () => {
+                test = true;
+                return PromiseHelper.resolve();
+            }
+
+            XIApi.renameTable(1, "a#12", "b#12")
+            .then(() => {
+                expect(test).to.be.true;
+                done();
+            })
+            .fail(() => {
+                done('fail');
+            })
+            .always(() => {
+                XcalarRenameTable = oldFunc;
+            });
+        });
+
+        it('XIAPi.renameTable should reject invalid case', (done) => {
+            XIApi.renameTable()
+            .then(() => {
+                done("fail");
+            })
+            .fail((error) => {
+                expect(error).not.to.be.null;
+                done();
+            });
+        });
+
         it('XIAPi.createDataTarget should work', (done) => {
             const oldFunc = XcalarTargetCreate;
             let test = false

@@ -29,7 +29,7 @@ describe("xcFunction Test", function () {
 
         TblManager.refreshTable = () => PromiseHelper.resolve();
         TblManager.setOrphanTableMeta = () => { };
-        Transaction.start = () => 1;
+        Transaction.start = () => 1.5; // simulate id will skip the getUnsortedTableName
         Transaction.done = () => { };
         Transaction.fail = () => { };
         Transaction.cancel = () => { };
@@ -664,11 +664,11 @@ describe("xcFunction Test", function () {
     });
 
     it('xcFunction.rename should work', (done) => {
-        const oldFunc = XcalarRenameTable;
+        const oldFunc = XIApi.renameTable;
         const oldDagRename = Dag.renameAllOccurrences;
         const oldUpdate = TblManager.updateHeaderAndListInfo;
 
-        XcalarRenameTable = () => PromiseHelper.resolve();
+        XIApi.renameTable = () => PromiseHelper.resolve();
         Dag.renameAllOccurrences = () => { };
         TblManager.updateHeaderAndListInfo = () => { };
 
@@ -685,15 +685,15 @@ describe("xcFunction Test", function () {
                 done('fail');
             })
             .always(() => {
-                XcalarRenameTable = oldFunc;
+                XIApi.renameTable = oldFunc;
                 Dag.renameAllOccurrences = oldDagRename;
                 TblManager.updateHeaderAndListInfo = oldUpdate;
             });
     });
 
     it('xcFunction.rename should handle fail case', (done) => {
-        const oldFunc = XcalarRenameTable;
-        XcalarRenameTable = () => PromiseHelper.reject('test');
+        const oldFunc = XIApi.renameTable;
+        XIApi.renameTable = () => PromiseHelper.reject('test');
 
         xcFunction.rename(tableId, 'newName')
             .then(() => {
@@ -704,7 +704,7 @@ describe("xcFunction Test", function () {
                 done();
             })
             .always(() => {
-                XcalarRenameTable = oldFunc;
+                XIApi.renameTable = oldFunc;
             });
     });
 

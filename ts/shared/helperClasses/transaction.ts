@@ -161,12 +161,12 @@ namespace Transaction {
      * @param queryStateOutput
      */
     export function update(txId: number, queryStateOutput: any): void {
-        if (!isValidTX(txId)) {
+        if (!isValidTX(txId) || Transaction.isSimulate(txId)) {
             return;
         }
         if (!has_require) {
             const txLog: TXLog = txCache[txId]; 
-            if (txLog.nodeId) {
+            if (txLog && txLog.nodeId) {
                 try {
                     let numWorkCompleted: number = 0;
                     let numWorkTotal: number = 0

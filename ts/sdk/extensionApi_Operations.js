@@ -73,7 +73,9 @@ window.XcSDK.Extension.prototype = (function() {
             var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self.txId;
-
+            if (!(colToIndex instanceof Array)) {
+                colToIndex = [colToIndex];
+            }
             XIApi.index(txId, colToIndex, tableName)
             .then(function(dstTable, indexArgs) {
                 self._addMeta(tableName, dstTable);
@@ -275,11 +277,15 @@ window.XcSDK.Extension.prototype = (function() {
                 aggColName: aggColName,
                 newColName: newColName
             }];
+            if (!(groupByCols instanceof Array)) {
+                groupByCols = [groupByCols];
+            }
+            var isIncSample = options.isIncSample;
             XIApi.groupBy(txId, gbArgs, groupByCols, tableName, options)
             .then(function(dstTable) {
                 var sampleCols = isIncSample ? options.columnsToKeep : null;
                 var dstCols = xcHelper.createGroupByColumns(
-                    srcTable, groupByColNames, aggArgs, sampleCols);
+                    tableName, groupByCols, gbArgs, sampleCols);
                 self._addMeta(tableName, dstTable, dstCols);
                 var dstColumnsSDK = dstCols.map(function(progcol) {
                     return new XcSDK.Column(progcol.getBackColName(),

@@ -116,38 +116,41 @@ namespace xcFunction {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         let finalTableName: string;
 
-        XIApi.filter(txId, fltOptions.filterString, tableName)
-            .then((tableAfterFilter) => {
-                finalTableName = tableAfterFilter;
-                const oldTables = fltOptions.complement ? [] : [tableName];
-                // fltOptions.worksheet is used in complement tables
-                const worksheet: string = fltOptions.worksheet ?
-                    fltOptions.worksheet : curWorksheet;
-                return TblManager.refreshTable([finalTableName], table.tableCols,
-                    oldTables, worksheet, txId, {
-                        selectCol: colNum
-                    });
-            })
-            .then(() => {
-                xcHelper.unlockTable(tableId);
-
-                sql['newTableName'] = finalTableName;
-                Transaction.done(txId, {
-                    msgTable: xcHelper.getTableId(finalTableName),
-                    sql: sql
+        getUnsortedTableName(txId, tableName)
+        .then((unsortedTable) => {
+            return XIApi.filter(txId, fltOptions.filterString, unsortedTable);
+        })
+        .then((tableAfterFilter) => {
+            finalTableName = tableAfterFilter;
+            const oldTables = fltOptions.complement ? [] : [tableName];
+            // fltOptions.worksheet is used in complement tables
+            const worksheet: string = fltOptions.worksheet ?
+                fltOptions.worksheet : curWorksheet;
+            return TblManager.refreshTable([finalTableName], table.tableCols,
+                oldTables, worksheet, txId, {
+                    selectCol: colNum
                 });
-                deferred.resolve(finalTableName);
-            })
-            .fail((error) => {
-                xcHelper.unlockTable(tableId);
+        })
+        .then(() => {
+            xcHelper.unlockTable(tableId);
 
-                Transaction.fail(txId, {
-                    "failMsg": StatusMessageTStr.FilterFailed,
-                    "error": error
-                });
-
-                deferred.reject(error);
+            sql['newTableName'] = finalTableName;
+            Transaction.done(txId, {
+                msgTable: xcHelper.getTableId(finalTableName),
+                sql: sql
             });
+            deferred.resolve(finalTableName);
+        })
+        .fail((error) => {
+            xcHelper.unlockTable(tableId);
+
+            Transaction.fail(txId, {
+                "failMsg": StatusMessageTStr.FilterFailed,
+                "error": error
+            });
+
+            deferred.reject(error);
+        });
 
         return deferred.promise();
     }
@@ -241,49 +244,52 @@ namespace xcFunction {
         }
 
         const deferred: XDDeferred<string | number> = PromiseHelper.deferred();
-        XIApi.aggregate(txId, aggrOp, aggStr, tableName, aggName)
-            .then((value, dstDagName, toDelete) => {
-                const aggRes: object = {
-                    value: value,
-                    dagName: dstDagName,
-                    aggName: origAggName,
-                    tableId: tableId,
-                    backColName: backColName,
-                    op: aggrOp
-                };
+        getUnsortedTableName(txId, tableName)
+        .then((unsortedTable) => {
+            return XIApi.aggregate(txId, aggrOp, aggStr, unsortedTable, aggName);
+        })
+        .then((value, dstDagName, toDelete) => {
+            const aggRes: object = {
+                value: value,
+                dagName: dstDagName,
+                aggName: origAggName,
+                tableId: tableId,
+                backColName: backColName,
+                op: aggrOp
+            };
 
-                if (toDelete) {
-                    // and to UI cache only
-                    Aggregates.addAgg(aggRes, true);
-                } else {
-                    Aggregates.addAgg(aggRes, false);
-                    TableList.refreshConstantList();
-                }
+            if (toDelete) {
+                // and to UI cache only
+                Aggregates.addAgg(aggRes, true);
+            } else {
+                Aggregates.addAgg(aggRes, false);
+                TableList.refreshConstantList();
+            }
 
-                Transaction.done(txId, { msgTable: tableId });
-                // show result in alert modal
-                const alertMsg = xcHelper.replaceMsg(AggTStr.AggMsg, {
-                    val: xcHelper.numToStr(<number>value)
-                });
-
-                Alert.show({
-                    title: title,
-                    instr: instr,
-                    msg: alertMsg,
-                    isAlert: true
-                });
-                deferred.resolve(value, dstDagName);
-            })
-            .fail((error) => {
-                Transaction.fail(txId, {
-                    failMsg: StatusMessageTStr.AggregateFailed,
-                    error: error
-                });
-                deferred.reject(error);
-            })
-            .always(() => {
-                xcHelper.unlockTable(tableId);
+            Transaction.done(txId, { msgTable: tableId });
+            // show result in alert modal
+            const alertMsg = xcHelper.replaceMsg(AggTStr.AggMsg, {
+                val: xcHelper.numToStr(<number>value)
             });
+
+            Alert.show({
+                title: title,
+                instr: instr,
+                msg: alertMsg,
+                isAlert: true
+            });
+            deferred.resolve(value, dstDagName);
+        })
+        .fail((error) => {
+            Transaction.fail(txId, {
+                failMsg: StatusMessageTStr.AggregateFailed,
+                error: error
+            });
+            deferred.reject(error);
+        })
+        .always(() => {
+            xcHelper.unlockTable(tableId);
+        });
 
         return deferred.promise();
     }
@@ -318,7 +324,7 @@ namespace xcFunction {
             orders.push(colInfo.ordering);
         });
 
-        function typeCastHelper(): XDPromise<string> {
+        function typeCastHelper(srcTable: string): XDPromise<string> {
             const typesToCast: ColumnType[] = [];
             const mapStrs: string[] = [];
             const mapColNames: string[] = [];
@@ -371,18 +377,18 @@ namespace xcFunction {
             });
 
             if (!mapStrs.length) {
-                return PromiseHelper.resolve(tableName, newColInfos, tableCols);
+                return PromiseHelper.resolve(srcTable, newColInfos, tableCols);
             }
 
             sql['typeToCast'] = typesToCast;
             const innerDeferred: XDDeferred<string> = PromiseHelper.deferred();
 
-            XIApi.map(txId, mapStrs, tableName, mapColNames)
-                .then((mapTableName) => {
-                    TblManager.setOrphanTableMeta(mapTableName, newTableCols);
-                    innerDeferred.resolve(mapTableName, newColInfos, newTableCols);
-                })
-                .fail(innerDeferred.reject);
+            XIApi.map(txId, mapStrs, srcTable, mapColNames)
+            .then((mapTableName) => {
+                TblManager.setOrphanTableMeta(mapTableName, newTableCols);
+                innerDeferred.resolve(mapTableName, newColInfos, newTableCols);
+            })
+            .fail(innerDeferred.reject);
 
             return innerDeferred.promise();
         }
@@ -426,69 +432,72 @@ namespace xcFunction {
         let finalTableName: string;
         let finalTableCols: ProgCol[];
 
-        typeCastHelper()
-            .then((tableToSort, newColInfos, newTableCols) => {
-                finalTableCols = newTableCols;
+        getUnsortedTableName(txId, tableName)
+        .then((unsortedTable) => {
+            return typeCastHelper(unsortedTable);
+        })
+        .then((tableToSort, newColInfos, newTableCols) => {
+            finalTableCols = newTableCols;
 
-                newColInfos.forEach((colInfo) => {
-                    if (colInfo.type == null) {
-                        const table: TableMeta = gTables[tableId];
-                        if (table != null) {
-                            const progCol: ProgCol = table.getCol(colInfo.colNum);
-                            if (progCol != null) {
-                                colInfo.name = progCol.getBackColName();
-                                colInfo.type = progCol.getType();
-                                if (colInfo.type === ColumnType.number) {
-                                    colInfo.type = ColumnType.float;
-                                }
+            newColInfos.forEach((colInfo) => {
+                if (colInfo.type == null) {
+                    const table: TableMeta = gTables[tableId];
+                    if (table != null) {
+                        const progCol: ProgCol = table.getCol(colInfo.colNum);
+                        if (progCol != null) {
+                            colInfo.name = progCol.getBackColName();
+                            colInfo.type = progCol.getType();
+                            if (colInfo.type === ColumnType.number) {
+                                colInfo.type = ColumnType.float;
                             }
                         }
                     }
-                });
-
-                return XIApi.sort(txId, newColInfos, tableToSort);
-            })
-            .then((sortTableName) => {
-                finalTableName = sortTableName;
-                const colsToSelect: number[] = colNums.filter((colNum) => colNum > 0);
-                // sort will filter out KNF, so it change the profile
-                return TblManager.refreshTable([finalTableName], finalTableCols,
-                    [tableName], worksheet, txId, { selectCol: colsToSelect });
-            })
-            .then(() => {
-                if (table.hasLock()) {
-                    xcHelper.unlockTable(tableId);
                 }
-
-                sql['newTableName'] = finalTableName;
-                Transaction.done(txId, {
-                    msgTable: xcHelper.getTableId(finalTableName),
-                    sql: sql
-                });
-                deferred.resolve(finalTableName);
-            })
-            .fail((error, sorted) => {
-                if (table.hasLock()) {
-                    xcHelper.unlockTable(tableId);
-                }
-
-                if (sorted) {
-                    Transaction.cancel(txId);
-                    const msg: string = xcHelper.replaceMsg(IndexTStr.SortedErr, {
-                        order: XcalarOrderingTStr[orders[0]].toLowerCase() // XXX fix this
-                    });
-                    Alert.error(IndexTStr.Sorted, msg);
-                } else if (error.error === SQLType.Cancel) {
-                    Transaction.cancel(txId);
-                    deferred.resolve();
-                } else {
-                    Transaction.fail(txId, {
-                        failMsg: StatusMessageTStr.SortFailed,
-                        error: error
-                    });
-                }
-                deferred.reject(error);
             });
+
+            return XIApi.sort(txId, newColInfos, tableToSort);
+        })
+        .then((sortTableName) => {
+            finalTableName = sortTableName;
+            const colsToSelect: number[] = colNums.filter((colNum) => colNum > 0);
+            // sort will filter out KNF, so it change the profile
+            return TblManager.refreshTable([finalTableName], finalTableCols,
+                [tableName], worksheet, txId, { selectCol: colsToSelect });
+        })
+        .then(() => {
+            if (table.hasLock()) {
+                xcHelper.unlockTable(tableId);
+            }
+
+            sql['newTableName'] = finalTableName;
+            Transaction.done(txId, {
+                msgTable: xcHelper.getTableId(finalTableName),
+                sql: sql
+            });
+            deferred.resolve(finalTableName);
+        })
+        .fail((error, sorted) => {
+            if (table.hasLock()) {
+                xcHelper.unlockTable(tableId);
+            }
+
+            if (sorted) {
+                Transaction.cancel(txId);
+                const msg: string = xcHelper.replaceMsg(IndexTStr.SortedErr, {
+                    order: XcalarOrderingTStr[orders[0]].toLowerCase() // XXX fix this
+                });
+                Alert.error(IndexTStr.Sorted, msg);
+            } else if (error.error === SQLType.Cancel) {
+                Transaction.cancel(txId);
+                deferred.resolve();
+            } else {
+                Transaction.fail(txId, {
+                    failMsg: StatusMessageTStr.SortFailed,
+                    error: error
+                });
+            }
+            deferred.reject(error);
+        });
 
         return deferred.promise();
     }
@@ -594,38 +603,44 @@ namespace xcFunction {
         let focusOnTable: boolean = false;
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        XIApi.join(txId, joinType, lTableInfo, rTableInfo, joinOpts)
-            .then((finalTableName, _tempCols, lRename, rRename) => {
-                finalJoinTableName = finalTableName;
-                const finalCols: ProgCol[] = xcHelper.createJoinedColumns(
-                    lTableInfo.tableName, rTableInfo.tableName,
-                    lJoinInfo.pulledColumns, rJoinInfo.pulledColumns,
-                    lRename, rRename);
-                const tablesToReplace: string[] = options.keepTables ?
-                    [] : [lTableName, rTableName];
-                focusOnTable = scrollChecker.checkScroll();
+        
+        getUnsortedTableName(txId, lTableName, rTableName)
+        .then((lUnsortedTable, rUnSortedTable) => {
+            lTableInfo.tableName = lUnsortedTable;
+            rTableInfo.tableName = rUnSortedTable;
+            return XIApi.join(txId, joinType, lTableInfo, rTableInfo, joinOpts);
+        })
+        .then((finalTableName, _tempCols, lRename, rRename) => {
+            finalJoinTableName = finalTableName;
+            const finalCols: ProgCol[] = xcHelper.createJoinedColumns(
+                lTableInfo.tableName, rTableInfo.tableName,
+                lJoinInfo.pulledColumns, rJoinInfo.pulledColumns,
+                lRename, rRename);
+            const tablesToReplace: string[] = options.keepTables ?
+                [] : [lTableName, rTableName];
+            focusOnTable = scrollChecker.checkScroll();
 
-                return TblManager.refreshTable([finalTableName], finalCols,
-                    tablesToReplace, worksheet, txId, { focusWorkspace: focusOnTable });
-            })
-            .then(() => {
-                Transaction.done(txId, {
-                    msgTable: newTableId,
-                    noNotification: focusOnTable
-                });
-                deferred.resolve(finalJoinTableName);
-            })
-            .fail((error) => {
-                Transaction.fail(txId, {
-                    failMsg: StatusMessageTStr.JoinFailed,
-                    error: error
-                });
-                deferred.reject(error);
-            })
-            .always(() => {
-                xcHelper.unlockTable(lTableId);
-                xcHelper.unlockTable(rTableId);
+            return TblManager.refreshTable([finalTableName], finalCols,
+                tablesToReplace, worksheet, txId, { focusWorkspace: focusOnTable });
+        })
+        .then(() => {
+            Transaction.done(txId, {
+                msgTable: newTableId,
+                noNotification: focusOnTable
             });
+            deferred.resolve(finalJoinTableName);
+        })
+        .fail((error) => {
+            Transaction.fail(txId, {
+                failMsg: StatusMessageTStr.JoinFailed,
+                error: error
+            });
+            deferred.reject(error);
+        })
+        .always(() => {
+            xcHelper.unlockTable(lTableId);
+            xcHelper.unlockTable(rTableId);
+        });
 
         return deferred.promise();
     }
@@ -660,7 +675,7 @@ namespace xcFunction {
         const sql: object = {
             operation: SQLOps.Union,
             tableNames: tableNames,
-            tableInfos: tableInfos,
+            tableInfos: xcHelper.deepCopy(tableInfos),
             dedup: dedup,
             newTableName: newTableName,
             options: options,
@@ -687,40 +702,47 @@ namespace xcFunction {
         let finalTableName: string;
         let finalTableCols: ProgCol[];
 
-        XIApi.union(txId, <UnionTableInfo[]>tableInfos, dedup, newTableName,
-                    options.unionType)
-            .then((nTableName, nTableCols) => {
-                finalTableCols = nTableCols;
-                finalTableName = nTableName;
-                focusOnTable = scrollChecker.checkScroll();
-                const tablesToReplace: string[] = options.keepTables ? [] : tableNames;
-                return TblManager.refreshTable([finalTableName], finalTableCols,
-                    tablesToReplace, curWS, txId, { focusWorkspace: focusOnTable });
-            })
-            .then(() => {
-                sql["newTableName"] = finalTableName;
-                Transaction.done(txId, {
-                    msgTable: xcHelper.getTableId(finalTableName),
-                    noNotification: focusOnTable,
-                    sql: sql
-                });
-                deferred.resolve(finalTableName);
-            })
-            .fail((error) => {
-                Transaction.fail(txId, {
-                    failMsg: StatusMessageTStr.UnionFailed,
-                    error: error
-                });
-                deferred.reject(error);
-            })
-            .always(() => {
-                tableIds.forEach((tableId) => {
-                    xcHelper.unlockTable(tableId);
-                });
+        getUnsortedTablesInUnion(txId, tableNames)
+        .then((unsortedTables) => {
+            unsortedTables.forEach((unsortedTable, index) => {
+                tableInfos[index].tableName = unsortedTable;
             });
 
+            return XIApi.union(txId, <UnionTableInfo[]>tableInfos, dedup,
+                newTableName, options.unionType);
+        })
+        .then((nTableName, nTableCols) => {
+            finalTableCols = nTableCols;
+            finalTableName = nTableName;
+            focusOnTable = scrollChecker.checkScroll();
+            const tablesToReplace: string[] = options.keepTables ? [] : tableNames;
+            return TblManager.refreshTable([finalTableName], finalTableCols,
+                tablesToReplace, curWS, txId, { focusWorkspace: focusOnTable });
+        })
+        .then(() => {
+            sql["newTableName"] = finalTableName;
+            Transaction.done(txId, {
+                msgTable: xcHelper.getTableId(finalTableName),
+                noNotification: focusOnTable,
+                sql: sql
+            });
+            deferred.resolve(finalTableName);
+        })
+        .fail((error) => {
+            Transaction.fail(txId, {
+                failMsg: StatusMessageTStr.UnionFailed,
+                error: error
+            });
+            deferred.reject(error);
+        })
+        .always(() => {
+            tableIds.forEach((tableId) => {
+                xcHelper.unlockTable(tableId);
+            });
+        });
+
         return deferred.promise();
-    };
+    }
 
     /**
      * xcFunction.groupBy
@@ -816,89 +838,92 @@ namespace xcFunction {
         let finalTableName: string;
         let finalTableCols: ProgCol[];
 
-        const needsIndexCast = groupByCols.filter((colInfo) => {
-            return colInfo.cast != null;
-        }).length > 0;
-        let castArgsPromise: XDPromise<string>;
-        // agg and groupByCols has no cast
-        if (aggArgs.length === 1 && aggregateArgs[0].cast && !needsIndexCast) {
-            // if single group by
-            aggArgs[0].aggColName = xcHelper.castStrHelper(aggregateArgs[0].aggColName,
-                aggregateArgs[0].cast, false);
-            castArgsPromise = PromiseHelper.resolve(tableName);
-        } else {
-            castArgsPromise = castCols();
-        }
         let srcTable: string;
-        castArgsPromise
-            .then((castTableName) => {
-                srcTable = castTableName;
-                const groupByOpts: GroupByOptions = {
-                    newTableName: dstTableName,
-                    isIncSample: isIncSample,
-                    icvMode: options.icvMode,
-                    groupAll: options.groupAll,
-                    newKeys: newKeys
-                };
-                return XIApi.groupBy(txId, aggArgs, groupByColNames,
-                    castTableName, groupByOpts);
-            })
-            .then((nTableName, _tempCols, _newKeyFieldName) => {
-                const sampleCols: number[] = isIncSample ? options.columnsToKeep : null;
-                const nTableCols = xcHelper.createGroupByColumns(srcTable, newKeys,
-                    aggArgs, sampleCols);
-                if (isJoin) {
-                    const dataColNum: number = table.getColNumByBackName("DATA");
-                    return groupByJoinHelper(nTableName, nTableCols, dataColNum,
-                        isIncSample, newKeys);
-                } else {
-                    return PromiseHelper.resolve(nTableName, nTableCols);
-                }
-            })
-            .then((nTableName: string, nTableCols: ProgCol[]) => {
-                finalTableCols = nTableCols;
-                finalTableName = nTableName;
-                focusOnTable = scrollChecker.checkScroll();
+        getUnsortedTableName(txId, tableName)
+        .then((unsortedTable) => {
+            const needsIndexCast = groupByCols.filter((colInfo) => {
+                return colInfo.cast != null;
+            }).length > 0;
+            let castArgsPromise: XDPromise<string>;
+            // agg and groupByCols has no cast
+            if (aggArgs.length === 1 && aggregateArgs[0].cast && !needsIndexCast) {
+                // if single group by
+                aggArgs[0].aggColName = xcHelper.castStrHelper(aggregateArgs[0].aggColName,
+                    aggregateArgs[0].cast, false);
+                castArgsPromise = PromiseHelper.resolve(unsortedTable);
+            } else {
+                castArgsPromise = castCols(unsortedTable);
+            }
+            return castArgsPromise
+        })
+        .then((castTableName) => {
+            srcTable = castTableName;
+            const groupByOpts: GroupByOptions = {
+                newTableName: dstTableName,
+                isIncSample: isIncSample,
+                icvMode: options.icvMode,
+                groupAll: options.groupAll,
+                newKeys: newKeys
+            };
+            return XIApi.groupBy(txId, aggArgs, groupByColNames,
+                castTableName, groupByOpts);
+        })
+        .then((nTableName, _tempCols, _newKeyFieldName) => {
+            const sampleCols: number[] = isIncSample ? options.columnsToKeep : null;
+            const nTableCols = xcHelper.createGroupByColumns(srcTable, newKeys,
+                aggArgs, sampleCols);
+            if (isJoin) {
+                const dataColNum: number = table.getColNumByBackName("DATA");
+                return groupByJoinHelper(nTableName, nTableCols, dataColNum,
+                    isIncSample, newKeys);
+            } else {
+                return PromiseHelper.resolve(nTableName, nTableCols);
+            }
+        })
+        .then((nTableName: string, nTableCols: ProgCol[]) => {
+            finalTableCols = nTableCols;
+            finalTableName = nTableName;
+            focusOnTable = scrollChecker.checkScroll();
 
-                const tableOptions: object = { "focusWorkspace": focusOnTable };
-                let tablesToReplace: string[] = null;
-                if (isJoin) {
-                    const colsToSelect: number[] = [];
-                    for (let i = 0; i < aggregateArgs.length; i++) {
-                        colsToSelect.push(i + 1);
-                    }
-                    tableOptions['selectCol'] = colsToSelect;
-                    tablesToReplace = [tableName];
-                } else if (!isKeepOriginal) {
-                    tablesToReplace = [tableName];
+            const tableOptions: object = { "focusWorkspace": focusOnTable };
+            let tablesToReplace: string[] = null;
+            if (isJoin) {
+                const colsToSelect: number[] = [];
+                for (let i = 0; i < aggregateArgs.length; i++) {
+                    colsToSelect.push(i + 1);
                 }
+                tableOptions['selectCol'] = colsToSelect;
+                tablesToReplace = [tableName];
+            } else if (!isKeepOriginal) {
+                tablesToReplace = [tableName];
+            }
 
-                return TblManager.refreshTable([finalTableName], finalTableCols,
-                    tablesToReplace, curWS, txId, tableOptions);
-            })
-            .then(() => {
-                sql['newTableName'] = finalTableName;
-                Transaction.done(txId, {
-                    msgTable: xcHelper.getTableId(finalTableName),
-                    sql: sql,
-                    noNotification: focusOnTable
-                });
-                deferred.resolve(finalTableName);
-            })
-            .fail((error) => {
-                Transaction.fail(txId, {
-                    failMsg: StatusMessageTStr.GroupByFailed,
-                    error: error,
-                    sql: sql
-                });
-                deferred.reject(error);
-            })
-            .always(() => {
-                xcHelper.unlockTable(tableId);
+            return TblManager.refreshTable([finalTableName], finalTableCols,
+                tablesToReplace, curWS, txId, tableOptions);
+        })
+        .then(() => {
+            sql['newTableName'] = finalTableName;
+            Transaction.done(txId, {
+                msgTable: xcHelper.getTableId(finalTableName),
+                sql: sql,
+                noNotification: focusOnTable
             });
+            deferred.resolve(finalTableName);
+        })
+        .fail((error) => {
+            Transaction.fail(txId, {
+                failMsg: StatusMessageTStr.GroupByFailed,
+                error: error,
+                sql: sql
+            });
+            deferred.reject(error);
+        })
+        .always(() => {
+            xcHelper.unlockTable(tableId);
+        });
 
         // cast before doing the group by
-        function castCols(): XDPromise<string> {
+        function castCols(tableToCast): XDPromise<string> {
             const takenNames: object = {};
             aggArgs.forEach((aggArg) => {
                 takenNames[aggArg.newColName] = true;
@@ -947,7 +972,7 @@ namespace xcFunction {
 
             if (mapStrs.length > 0) {
                 const innerDeferred: XDDeferred<string> = PromiseHelper.deferred();
-                XIApi.map(txId, mapStrs, tableName, newCastNames)
+                XIApi.map(txId, mapStrs, tableToCast, newCastNames)
                     .then((castTableName) => {
                         TblManager.setOrphanTableMeta(castTableName, castTableCols);
                         innerDeferred.resolve(castTableName);
@@ -957,7 +982,7 @@ namespace xcFunction {
                     });
                 return innerDeferred.promise();
             } else {
-                return PromiseHelper.resolve(tableName);
+                return PromiseHelper.resolve(tableToCast);
             }
         }
 
@@ -1130,37 +1155,41 @@ namespace xcFunction {
 
         xcHelper.lockTable(tableId, txId);
 
-        XIApi.map(txId, [mapString], tableName, [fieldName], undefined, icvMode)
-            .then((tableAfterMap) => {
-                finalTableName = tableAfterMap;
-                finalTableId = xcHelper.getTableId(finalTableName);
+        getUnsortedTableName(txId, tableName)
+        .then((unsortedTable) => {
+            return XIApi.map(txId, [mapString], unsortedTable,
+                [fieldName], undefined, icvMode);
+        })
+        .then((tableAfterMap) => {
+            finalTableName = tableAfterMap;
+            finalTableId = xcHelper.getTableId(finalTableName);
 
-                const tablCols: ProgCol[] = xcHelper.mapColGenerate(colNum, fieldName,
-                    mapString, table.tableCols, mapOptions);
-                return TblManager.refreshTable([finalTableName], tablCols,
-                    [tableName], worksheet, txId, { selectCol: colNum });
-            })
-            .then(() => {
-                Profile.copy(tableId, finalTableId);
-                sql['newTableName'] = finalTableName;
-                Transaction.done(txId, {
-                    msgTable: xcHelper.getTableId(finalTableName),
-                    sql: sql
-                });
-
-                deferred.resolve(finalTableName);
-            })
-            .fail((error) => {
-                Transaction.fail(txId, {
-                    failMsg: StatusMessageTStr.MapFailed,
-                    error: error
-                });
-
-                deferred.reject(error);
-            })
-            .always(() => {
-                xcHelper.unlockTable(tableId);
+            const tablCols: ProgCol[] = xcHelper.mapColGenerate(colNum, fieldName,
+                mapString, table.tableCols, mapOptions);
+            return TblManager.refreshTable([finalTableName], tablCols,
+                [tableName], worksheet, txId, { selectCol: colNum });
+        })
+        .then(() => {
+            Profile.copy(tableId, finalTableId);
+            sql['newTableName'] = finalTableName;
+            Transaction.done(txId, {
+                msgTable: xcHelper.getTableId(finalTableName),
+                sql: sql
             });
+
+            deferred.resolve(finalTableName);
+        })
+        .fail((error) => {
+            Transaction.fail(txId, {
+                failMsg: StatusMessageTStr.MapFailed,
+                error: error
+            });
+
+            deferred.reject(error);
+        })
+        .always(() => {
+            xcHelper.unlockTable(tableId);
+        });
 
         return deferred.promise();
     }
@@ -1316,24 +1345,24 @@ namespace xcFunction {
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
 
-        XcalarRenameTable(oldTableName, newTableName, txId)
-            .then(() => {
-                // does renames for gTables, tabelist, dag
-                table.tableName = newTableName;
+        XIApi.renameTable(txId, oldTableName, newTableName)
+        .then(() => {
+            // does renames for gTables, tabelist, dag
+            table.tableName = newTableName;
 
-                Dag.renameAllOccurrences(oldTableName, newTableName);
-                TblManager.updateHeaderAndListInfo(tableId);
+            Dag.renameAllOccurrences(oldTableName, newTableName);
+            TblManager.updateHeaderAndListInfo(tableId);
 
-                Transaction.done(txId, {});
-                deferred.resolve(newTableName);
-            })
-            .fail((error) => {
-                Transaction.fail(txId, { error: error });
-                deferred.reject(error);
-            })
-            .always(() => {
-                xcHelper.unlockTable(tableId);
-            });
+            Transaction.done(txId, {});
+            deferred.resolve(newTableName);
+        })
+        .fail((error) => {
+            Transaction.fail(txId, { error: error });
+            deferred.reject(error);
+        })
+        .always(() => {
+            xcHelper.unlockTable(tableId);
+        });
 
         return deferred.promise();
     }
@@ -1368,66 +1397,69 @@ namespace xcFunction {
         let finalTableName: string;
         let focusOnTable: boolean = false;
 
-        XIApi.project(txId, colNames, tableName)
-            .then((newTableName) => {
-                finalTableName = newTableName;
-                const timeAllowed: number = 1000;
-                const endTime: number = Date.now();
-                const elapsedTime: number = endTime - startTime;
-                const timeSinceLastClick: number = endTime -
-                    gMouseEvents.getLastMouseDownTime();
-                // we'll focus on table if its been less than timeAllowed OR
-                // if the user hasn't clicked or scrolled
-                if (elapsedTime < timeAllowed ||
-                    (timeSinceLastClick >= elapsedTime &&
-                        ($('#mainFrame').scrollLeft() === startScrollPosition))
-                ) {
-                    focusOnTable = true;
+        getUnsortedTableName(txId, tableName)
+        .then((unsortedTable) => {
+            return XIApi.project(txId, colNames, unsortedTable);
+        })
+        .then((newTableName) => {
+            finalTableName = newTableName;
+            const timeAllowed: number = 1000;
+            const endTime: number = Date.now();
+            const elapsedTime: number = endTime - startTime;
+            const timeSinceLastClick: number = endTime -
+                gMouseEvents.getLastMouseDownTime();
+            // we'll focus on table if its been less than timeAllowed OR
+            // if the user hasn't clicked or scrolled
+            if (elapsedTime < timeAllowed ||
+                (timeSinceLastClick >= elapsedTime &&
+                    ($('#mainFrame').scrollLeft() === startScrollPosition))
+            ) {
+                focusOnTable = true;
+            }
+
+            const tableCols: ProgCol[] = xcHelper.deepCopy(gTables[tableId].tableCols);
+            const finalTableCols: ProgCol[] = [];
+            for (let i = 0; i < tableCols.length; i++) {
+                let index: number = colNames.indexOf(tableCols[i].backName);
+                if (index > -1) {
+                    finalTableCols.push(tableCols[i]);
+                } else if (tableCols[i].backName === "DATA") {
+                    finalTableCols.push(ColManager.newDATACol());
                 }
+            }
 
-                const tableCols: ProgCol[] = xcHelper.deepCopy(gTables[tableId].tableCols);
-                const finalTableCols: ProgCol[] = [];
-                for (let i = 0; i < tableCols.length; i++) {
-                    let index: number = colNames.indexOf(tableCols[i].backName);
-                    if (index > -1) {
-                        finalTableCols.push(tableCols[i]);
-                    } else if (tableCols[i].backName === "DATA") {
-                        finalTableCols.push(ColManager.newDATACol());
-                    }
-                }
+            return TblManager.refreshTable([finalTableName], finalTableCols,
+                [tableName], worksheet, txId, { focusWorkspace: focusOnTable });
+        })
+        .then(() => {
+            const sql: object = {
+                operation: SQLOps.Project,
+                tableName: tableName,
+                tableId: tableId,
+                colNames: colNames,
+                newTableName: finalTableName,
+                formOpenTime: formOpenTime,
+                htmlExclude: ["formOpenTime"]
+            };
 
-                return TblManager.refreshTable([finalTableName], finalTableCols,
-                    [tableName], worksheet, txId, { focusWorkspace: focusOnTable });
-            })
-            .then(() => {
-                const sql: object = {
-                    operation: SQLOps.Project,
-                    tableName: tableName,
-                    tableId: tableId,
-                    colNames: colNames,
-                    newTableName: finalTableName,
-                    formOpenTime: formOpenTime,
-                    htmlExclude: ["formOpenTime"]
-                };
-
-                Transaction.done(txId, {
-                    msgTable: xcHelper.getTableId(finalTableName),
-                    sql: sql,
-                    noNotification: focusOnTable
-                });
-                deferred.resolve(finalTableName);
-            })
-            .fail((error) => {
-                xcHelper.unlockTable(tableId);
-                Transaction.fail(txId, {
-                    failMsg: StatusMessageTStr.ProjectFailed,
-                    error: error
-                });
-                deferred.reject(error);
-            })
-            .always(() => {
-                xcHelper.unlockTable(tableId);
+            Transaction.done(txId, {
+                msgTable: xcHelper.getTableId(finalTableName),
+                sql: sql,
+                noNotification: focusOnTable
             });
+            deferred.resolve(finalTableName);
+        })
+        .fail((error) => {
+            xcHelper.unlockTable(tableId);
+            Transaction.fail(txId, {
+                failMsg: StatusMessageTStr.ProjectFailed,
+                error: error
+            });
+            deferred.reject(error);
+        })
+        .always(() => {
+            xcHelper.unlockTable(tableId);
+        });
 
         return deferred.promise();
     }
@@ -1461,5 +1493,145 @@ namespace xcFunction {
             return PromiseHelper.resolve(gTables[tableId].resultSetCount);
         }
         return XIApi.getNumRows(tableName);
+    }
+
+    /**
+     *
+     * @param txId
+     * @param tableName
+     * @param otherTableName
+     * @param colsToIndex an optional array of colnames, if a new index table
+     * needs to be created, "colsToIndex" will be used
+     * as the keys for the new index table
+     */
+    function getUnsortedTableName(
+        txId: number,
+        tableName: string,
+        otherTableName?: string,
+        colsToIndex?: string[]
+    ): XDPromise<string> {
+        // XXX this may not right but have to this
+        // or some intermediate table cannot be found
+        if (txId != null && Transaction.isSimulate(txId)) {
+            return PromiseHelper.resolve(tableName, otherTableName);
+        }
+
+        if (!otherTableName) {
+            return getUnsortedTableHelper(txId, tableName, colsToIndex);
+        } else {
+            const def1: XDPromise<string> = getUnsortedTableHelper(txId, tableName, colsToIndex);
+            const def2: XDPromise<string> = getUnsortedTableHelper(txId, otherTableName, colsToIndex);
+            return PromiseHelper.when(def1, def2);
+        }
+    };
+
+    function getUnsortedTableHelper(
+        txId: number,
+        table: string,
+        colsToIndex?: string[]
+    ): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        const originalTableName = table;
+        let srcTableName = table;
+
+        XcalarGetDag(table)
+        .then((nodeArray) => {
+            // Check if the last one is a sort. If it is, then use the unsorted
+            // one
+            // If it isn't then just return the original
+            if (nodeArray.node[0].api === XcalarApisT.XcalarApiIndex) {
+                const indexInput = nodeArray.node[0].input.indexInput;
+                const primeKey = indexInput.key[0];
+                // no matter it's sorted or multi sorted, first key must be sorted
+                if (primeKey.ordering ===
+                    XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending] ||
+                    primeKey.ordering ===
+                    XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending]
+                ) {
+                    // Find parent and return parent's name
+                    const node = DagFunction.construct(nodeArray.node).tree;
+                    srcTableName = node.getSourceNames()[0];
+                    const hasReadyState = checkIfTableHasReadyState(node
+                                                                  .parents[0]);
+
+                    if (!hasReadyState) {
+                        srcTableName = xcHelper.getTableName(originalTableName) +
+                                       Authentication.getHashId();
+                        let colNames: string[];
+                        if (!colsToIndex) {
+                            colNames = indexInput.key.map((keyAttr) => keyAttr.name);
+                        } else {
+                            colNames = colsToIndex;
+                        }
+
+                        return XIApi.index(txId, colNames, originalTableName, srcTableName);
+                    } else {
+                        return PromiseHelper.resolve(null);
+                    }
+                }
+            } else if (nodeArray.node[0].api === XcalarApisT.XcalarApiExecuteRetina) {
+                // if this is a sorted retina node, then it doesn't have
+                // parents we can use to index on, so we index on the retina
+                // node itself
+                var innerDeferred = PromiseHelper.deferred();
+                XcalarGetTableMeta(table)
+                .then((ret) => {
+                    var keyAttrs = ret.keyAttr;
+                    if (keyAttrs[0] &&
+                        (keyAttrs[0].ordering ===
+                        XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingAscending] ||
+                        keyAttrs[0].ordering ===
+                        XcalarOrderingTStr[XcalarOrderingT.XcalarOrderingDescending])) {
+
+                        srcTableName = xcHelper.getTableName(originalTableName) +
+                                       Authentication.getHashId();
+                        let colNames: string[];
+                        if (!colsToIndex) {
+                            colNames = keyAttrs.map((keyAttr) => keyAttr.name);
+                        } else {
+                            colNames = colsToIndex;
+                        }
+                        return XIApi.index(txId, colNames, originalTableName, srcTableName);
+                    } else {
+                        return PromiseHelper.resolve();
+                    }
+                })
+                .then(innerDeferred.resolve)
+                .fail(innerDeferred.reject);
+
+                return innerDeferred.promise();
+            } else {
+                return PromiseHelper.resolve(null);
+            }
+        })
+        .then(function() {
+            deferred.resolve(srcTableName);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function getUnsortedTablesInUnion(
+        txId: number,
+        tableNames: string[]
+    ): XDPromise<string[]> {
+        const deferred: XDDeferred<string[]> = PromiseHelper.deferred();
+        const unsortedTables: string[] = [];
+
+        const promises: XDPromise<void>[] = tableNames.map((tableName, index) => {
+                return getUnsortedTableName(txId, tableName)
+                    .then((unsortedTableName) => {
+                        unsortedTables[index] = unsortedTableName;
+                    });
+            }
+        );
+
+        PromiseHelper.when.apply(this, promises)
+        .then(() => {
+            deferred.resolve(unsortedTables);
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 }

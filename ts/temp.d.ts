@@ -385,7 +385,6 @@ declare var isSystemMac: boolean;
 declare var getTHandle: any;
 declare var setupThrift: any;
 declare var setupHostName: any;
-declare var getUnsortedTableName: any;
 declare var XcalarGetVersion: any;
 declare var XcalarGetLicense: any;
 declare var XcalarGetNodeName: any;
