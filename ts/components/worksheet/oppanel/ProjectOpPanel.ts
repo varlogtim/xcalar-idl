@@ -197,7 +197,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
      * @returns true: success; false: failed validation
      */
     private _submitForm(dagNode: DagNodeProject): boolean {
-        if (this._isAdvancedMode) {
+        if (this._isAdvancedMode()) {
             const $elemEditor = this._$elemPanel.find(".advancedEditor");
             try {
                 this._dataModel = this._convertAdvConfigToModel();
