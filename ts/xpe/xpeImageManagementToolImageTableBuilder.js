@@ -214,6 +214,7 @@ window.ImageTable = (function($, ImageTable) {
             } else {
                 pickAll(); // selectAllBox will get checked by picking all rows
             }
+            updateButtons();
         });
 
         // click blank space to remove foucse on folder/dsds
