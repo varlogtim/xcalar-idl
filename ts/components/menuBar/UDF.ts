@@ -611,6 +611,7 @@ class UDF {
             DSTargetManager.updateUDF(listXdfsObj);
             FnBar.updateOperationsMap(listXdfsObj.fnDescs, true);
             OperationsView.updateOperationsMap(listXdfsObj);
+            MapOpPanel.Instance.updateOperationsMap(listXdfsObj);
             DSExport.refreshUDF(listXdfsObj);
             deferred.resolve();
         })

@@ -301,7 +301,7 @@ class MapOpPanel extends GeneralOpPanel {
     public updateOperationsMap(listXdfsObj) {
         var fns = xcHelper.filterUDFs(listXdfsObj.fnDescs);
         this._pendingFnUpdate = fns;
-        if (this._formHelper.isOpen()) {
+        if (this._formHelper && this._formHelper.isOpen()) {
             // only update once form is closed
             return;
         }
