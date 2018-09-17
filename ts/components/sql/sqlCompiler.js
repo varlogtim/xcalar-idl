@@ -2402,6 +2402,7 @@
                 return (n.value.joinType.object ===
                         "org.apache.spark.sql.catalyst.plans.LeftAnti$");
             }
+
             function isExistenceJoin(n) {
                 // We have different logic of handling ExistenceJoin. Ideally,
                 // an ExistenceJoin will be compiled into LeftSemi by Spark.
@@ -2416,6 +2417,21 @@
                 return (n.children[0].value.class ===
                 "org.apache.spark.sql.catalyst.expressions.AttributeReference" &&
                 n.children[0].value.name.indexOf(tablePrefix) > -1);
+            }
+
+            function isOuterJoin(n) {
+                var joinType = n.value.joinType.object;
+                if (joinType && joinType.endsWith("Outer$")) {
+                    if (joinType.endsWith("LeftOuter$")) {
+                        return "left";
+                    } else if (joinType.endsWith("RightOuter$")) {
+                        return "right";
+                    } else if (joinType.endsWith("FullOuter$")) {
+                        return "full";
+                    } else {
+                        assert(0, SQLErrTStr.InvalidOuterType + joinType);
+                    }
+                }
             }
 
 
@@ -2578,13 +2594,17 @@
             }
 
             // Start of flow. All branching decisions has been made
+            var outerType = isOuterJoin(node);
             if (optimize) {
                 var overwriteJoinType;
-                if (filterSubtrees.length > 0 && isSemiOrAntiJoin(node)) {
+                if (filterSubtrees.length > 0 &&
+                    (isSemiOrAntiJoin(node) || outerType)) {
                     overwriteJoinType = JoinOperatorT.InnerJoin;
                     promise = promise.then(__generateRowNumber.bind(sqlObj,
                                                                     retStruct,
-                                                                    node));
+                                                                    node,
+                                                                    outerType));
+
                 }
 
                 promise = promise.then(__handleAndEqJoin.bind(sqlObj,
@@ -2611,12 +2631,20 @@
                                                                      retStruct,
                                                                      node));
                     }
+                    if (outerType) {
+                        promise = promise.then(__outerJoinBack.bind(sqlObj,
+                                                               retStruct,
+                                                               node,
+                                                               outerType));
+                    }
                 }
             } else {
-                if (isSemiOrAntiJoin(node) || isExistenceJoin(node)) {
+                if (isSemiOrAntiJoin(node) || isExistenceJoin(node) ||
+                    outerType) {
                     promise = promise.then(__generateRowNumber.bind(sqlObj,
                                                                     retStruct,
-                                                                    node));
+                                                                    node,
+                                                                    outerType));
                 }
                 promise = promise.then(__catchAllJoin.bind(sqlObj, retStruct,
                                                            node,
@@ -2644,6 +2672,13 @@
                     promise = promise.then(__joinBackMap.bind(sqlObj,
                                                                   retStruct,
                                                                   node));
+                }
+
+                if (outerType) {
+                    promise = promise.then(__outerJoinBack.bind(sqlObj,
+                                                           retStruct,
+                                                           node,
+                                                           outerType));
                 }
                 if (hasEmptyProject) {
                     promise = promise.then(__projectAfterCrossJoin.bind(sqlObj,
@@ -2926,7 +2961,7 @@
     // Helper functions for join
 
     // Deferred Helper functions for join
-    function __generateRowNumber(globalStruct, joinNode) {
+    function __generateRowNumber(globalStruct, joinNode, outerType) {
         var deferred = PromiseHelper.deferred();
         var self = this; // This is the SqlObject
 
@@ -2934,17 +2969,47 @@
         assert(globalStruct.leftTableName, SQLErrTStr.NoLeftTblForJoin);
         assert(globalStruct.rightTableName, SQLErrTStr.NoRightTblForJoin);
 
-        var leftTableId = xcHelper.getTableId(joinNode.children[0]
-                                                      .newTableName);
-        var rnColName = "XC_LROWNUM_COL_" + leftTableId;
+        var rnColName;
+        var rnTableName;
+        var leftTableId = xcHelper.getTableId(joinNode.children[0].newTableName);
+        var rightTableId = xcHelper.getTableId(joinNode.children[1].newTableName);
+        if (outerType === "right") {
+            rnColName = "XC_RROWNUM_COL_" + rightTableId;
+            rnTableName = globalStruct.rightTableName;
+        } else {
+            rnColName = "XC_LROWNUM_COL_" + leftTableId;
+            rnTableName = globalStruct.leftTableName;
+        }
         joinNode.xcCols.push({colName: rnColName, colType: "int"});
-        self.genRowNum(globalStruct.leftTableName, rnColName)
+        self.genRowNum(rnTableName, rnColName)
         .then(function(ret) {
             globalStruct.cli += ret.cli;
-            globalStruct.leftTableName = ret.newTableName;
-            globalStruct.leftRowNumCol = rnColName;
-            // This will be kept and not deleted
-            globalStruct.leftRowNumTableName = ret.newTableName;
+            if (outerType === "right") {
+                globalStruct.rightTableName = ret.newTableName;
+                globalStruct.rightRowNumCol = rnColName;
+                // This will be kept and not deleted
+                globalStruct.rightRowNumTableName = ret.newTableName;
+            } else {
+                globalStruct.leftTableName = ret.newTableName;
+                globalStruct.leftRowNumCol = rnColName;
+                // This will be kept and not deleted
+                globalStruct.leftRowNumTableName = ret.newTableName;
+            }
+            if (outerType === "full") {
+                rnColName = "XC_RROWNUM_COL_" + rightTableId;
+                rnTableName = globalStruct.rightTableName;
+                return self.genRowNum(globalStruct.rightTableName, rnColName)
+            }
+            return PromiseHelper.resolve();
+        })
+        .then(function(ret) {
+            if (outerType === "full" && ret) {
+                globalStruct.cli += ret.cli;
+                globalStruct.rightTableName = ret.newTableName;
+                globalStruct.rightRowNumCol = rnColName;
+                // This will be kept and not deleted
+                globalStruct.rightRowNumTableName = ret.newTableName;
+            }
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -3261,6 +3326,131 @@
         .then(function(ret) {
             globalStruct.cli += ret.cli;
             globalStruct.newTableName = ret.newTableName;
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
+    }
+
+    function __outerJoinBack(globalStruct, joinNode, outerType) {
+        var self = this;
+        var deferred = PromiseHelper.deferred();
+        // This is post join, so assert that left and right tables no longer
+        // exist
+        assert(!globalStruct.leftTableName,
+                SQLErrTStr.UnexpectedTableName + globalStruct.leftTableName);
+        assert(!globalStruct.rightTableName,
+                SQLErrTStr.UnexpectedTableName + globalStruct.rightTableName);
+
+        var rnColName;
+        var lTableInfo;
+        var leftColInfo;
+        var allLeftColumns = joinNode.children[0].usrCols
+                                     .concat(joinNode.children[0].xcCols)
+                                     .concat(joinNode.children[0].sparkCols);
+        var allRightColumns = joinNode.children[1].usrCols
+                                      .concat(joinNode.children[1].xcCols)
+                                      .concat(joinNode.children[1].sparkCols);
+        if (outerType === "right") {
+            assert(globalStruct.rightRowNumTableName, SQLErrTStr.NoRightRowNumTableName);
+            assert(globalStruct.newTableName, SQLErrTStr.NoNewTableName);
+            assert(globalStruct.rightRowNumCol, SQLErrTStr.NoRightRowNumCol);
+            lTableInfo = {
+                tableName: globalStruct.rightRowNumTableName,
+                columns: [globalStruct.rightRowNumCol],
+                pulledColumns: [],
+                rename: []
+            }
+            rnColName = globalStruct.rightRowNumCol;
+            leftColInfo = allRightColumns;
+        } else {
+            assert(globalStruct.leftRowNumTableName, SQLErrTStr.NoLeftRowNumTableName);
+            assert(globalStruct.newTableName, SQLErrTStr.NoNewTableName);
+            assert(globalStruct.leftRowNumCol, SQLErrTStr.NoLeftRowNumCol);
+            lTableInfo = {
+                tableName: globalStruct.leftRowNumTableName,
+                columns: [globalStruct.leftRowNumCol],
+                pulledColumns: [],
+                rename: []
+            };
+            rnColName = globalStruct.leftRowNumCol;
+            leftColInfo = allLeftColumns;
+        }
+        var rTableInfo = {
+            tableName: globalStruct.newTableName,
+            columns: jQuery.extend(true, [], lTableInfo.columns),
+            pulledColumns: [],
+            rename: []
+        };
+        var rightColInfo = jQuery.extend(true, [],
+                                        allLeftColumns.concat(allRightColumns));
+        __resolveCollision(leftColInfo, rightColInfo,
+                           lTableInfo.rename, rTableInfo.rename,
+                           lTableInfo.tableName, rTableInfo.tableName);
+        var newRowNumColName = "XC_ROWNUM_" +
+                               xcHelper.getTableId(globalStruct.newTableName);
+        // Record the renamed column
+        joinNode.xcCols.push({colName: newRowNumColName, colType: "int"});
+        var rnColRename = {
+            new: newRowNumColName,
+            orig: rnColName,
+            type: DfFieldTypeT.DfUnknown
+        };
+        rTableInfo.rename.push(rnColRename);
+
+        var promise;
+        if (outerType === "right") {
+            promise = self.join(JoinOperatorT.RightOuterJoin, rTableInfo, lTableInfo);
+        } else {
+            promise = self.join(JoinOperatorT.LeftOuterJoin, lTableInfo, rTableInfo);
+        }
+        promise
+        .then(function(ret) {
+            globalStruct.cli += ret.cli;
+            globalStruct.newTableName = ret.newTableName;
+            if (outerType === "full") {
+                lTableInfo = {
+                    tableName: globalStruct.rightRowNumTableName,
+                    columns: [globalStruct.rightRowNumCol],
+                    pulledColumns: [],
+                    rename: []
+                };
+                leftColInfo = allRightColumns;
+                rTableInfo = {
+                    tableName: ret.newTableName,
+                    columns: jQuery.extend(true, [], lTableInfo.columns),
+                    pulledColumns: [],
+                    rename: []
+                };
+                rightColInfo = jQuery.extend(true, [],
+                                            rightColInfo.concat(allLeftColumns));
+                // Re-use rightColInfo
+                __resolveCollision(leftColInfo, rightColInfo,
+                                   lTableInfo.rename, rTableInfo.rename,
+                                   lTableInfo.tableName, rTableInfo.tableName);
+
+                newRowNumColName = "XC_ROWNUM_" +
+                                   xcHelper.getTableId(globalStruct.newTableName);
+                // Record the renamed column
+                joinNode.xcCols.push({colName: newRowNumColName, colType: "int"});
+                rnColName = globalStruct.rightRowNumCol;
+                rnColRename = {
+                    new: newRowNumColName,
+                    orig: rnColName,
+                    type: DfFieldTypeT.DfUnknown
+                };
+                rTableInfo.rename.push(rnColRename);
+                return self.join(JoinOperatorT.FullOuterJoin, rTableInfo,
+                                                               lTableInfo);
+            } else {
+                return PromiseHelper.resolve();
+            }
+        })
+        .then(function(ret) {
+            if (outerType === "full") {
+                globalStruct.cli += ret.cli;
+                globalStruct.newTableName = ret.newTableName;
+            }
             deferred.resolve();
         })
         .fail(deferred.reject);

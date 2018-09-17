@@ -520,7 +520,8 @@ SQLErrTStr = {
     "EditorNameExists": "Snippet name already exists.",
     "NoEditor": "Could not find the editor",
     "TableDropped": "Table has been dropped. Rerun query to regenerate the table.",
-    "InvalidEditorName": "Snippet name must contain only alphanumeric, -, _ or space characters, and must not be empty."
+    "InvalidEditorName": "Snippet name must contain only alphanumeric, -, _ or space characters, and must not be empty.",
+    "InvalidOuterType": "Invalid outer join type: "
 };
 
 SQLInfoTStr = {

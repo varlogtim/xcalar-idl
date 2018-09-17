@@ -89,7 +89,10 @@
                         "windowMapAgg": "select lead(max(rank(R_REGIONKEY)),1,-1)+1 a from REGION",
                         "leadInSort": "select R_REGIONKEY, lead(R_REGIONKEY,1,999) a from REGION order by lead(R_REGIONKEY,1,999)",
                         "dupCols": "SELECT R_REGIONKEY, R_REGIONKEY, R_REGIONKEY FROM REGION ORDER BY R_REGIONKEY",
-                        "cancelQuery": "select * from orders o1, orders o2"
+                        "leftOuterNonEqui1": "select N_NATIONKEY, R_REGIONKEY from NATION left outer join REGION on N_NATIONKEY < R_REGIONKEY order by N_NATIONKEY desc",
+                        "leftOuterNonEqui2": "select N_NATIONKEY, R_REGIONKEY from NATION left outer join REGION on N_NATIONKEY < R_REGIONKEY and R_REGIONKEY = N_REGIONKEY order by N_NATIONKEY",
+                        "rightOuterNonEqui": "select N_NATIONKEY, R_REGIONKEY from NATION right outer join REGION on N_NATIONKEY < R_REGIONKEY and R_REGIONKEY = N_REGIONKEY order by R_REGIONKEY",
+                        "fullOuterNonEqui": "select N_NATIONKEY, R_REGIONKEY from NATION full outer join REGION on N_NATIONKEY < R_REGIONKEY and R_REGIONKEY = N_REGIONKEY order by N_NATIONKEY, R_REGIONKEY"
                 },
                 "answers": {
                         "onlyLRDD": {"numOfRows": "5",
@@ -295,7 +298,20 @@
                                          "numOfRows": "1"},
                         "dupCols": {"columns": ["R_REGIONKEY", "R_REGIONKEY_1", "R_REGIONKEY_2"],
                                     "row0": [0, 0, 0],
-                                    "numOfRows": "5"}
+                                    "numOfRows": "5"},
+                        "leftOuterNonEqui1": {"columns": ["N_NATIONKEY", "R_REGIONKEY"],
+                                              "row0": [24, null],
+                                              "numOfRows": "31"},
+                        "leftOuterNonEqui2": {"columns": ["N_NATIONKEY", "R_REGIONKEY"],
+                                              "row0": [0, null],
+                                              "numOfRows": "25"},
+                        "rightOuterNonEqui": {"columns": ["N_NATIONKEY", "R_REGIONKEY"],
+                                              "row0": [null, 0],
+                                              "numOfRows": "5"},
+                        "fullOuterNonEqui": {"columns": ["N_NATIONKEY", "R_REGIONKEY"],
+                                              "row0": [null, 0],
+                                              "row5": [0, null],
+                                              "numOfRows": "30"}
                 },
                 "tables": {
                         "dataSource": "/netstore/datasets/tpch_sf1/",
