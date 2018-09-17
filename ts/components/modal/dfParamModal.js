@@ -1369,6 +1369,7 @@ window.DFParamModal = (function($, DFParamModal){
         }
 
         if (updatedStruct.error) {
+            StatusBox.show(updatedStruct.error, $modal.find(".confirm"));
             return PromiseHelper.reject(updatedStruct.error);
         }
 
@@ -1541,6 +1542,12 @@ window.DFParamModal = (function($, DFParamModal){
     }
 
     function getUpdatedBasicStruct(node, ignoreError) {
+        if (node == null) {
+            // a prevent code of crash
+            return {
+                error: ErrTStr.Unknown
+            }
+        }
         var $editableDivs = $modal.find('input.editableParamDiv');
         var error = false;
         var struct = xcHelper.deepCopy(node.args);
