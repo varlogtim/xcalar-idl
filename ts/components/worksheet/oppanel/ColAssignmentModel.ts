@@ -259,13 +259,14 @@ class ColAssignmentModel {
         // restore selected columns
         const hasCast: boolean[] = [];
         for (let listIndex = 0; listIndex < selectedColSets.length; listIndex++) {
+            this.selectedColsList[listIndex] = this.selectedColsList[listIndex] || [];
             const selectedCols = selectedColSets[listIndex];
             const colMap: Map<string, ProgCol> = this._getNameMap(this.allColsList[listIndex]);
             for (let colIndex = 0; colIndex < selectedCols.length; colIndex++) {
                 const selectedCol = selectedCols[colIndex];
                 const colName: string = selectedCol.sourceColumn;
                 this.selectedColsList[listIndex][colIndex] = (colName == null) ?
-                                null : colMap.get(colName);
+                null : colMap.get(colName);
                 hasCast[colIndex] = hasCast[colIndex] || selectedCol.cast;
             }
         }

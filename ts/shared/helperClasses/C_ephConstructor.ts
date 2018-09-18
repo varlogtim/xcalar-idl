@@ -898,6 +898,10 @@ class FormHelper {
         if (viewIndex > -1) {
             name = name.slice(0, viewIndex);
         }
+        const oppanelIndex: number = name.indexOf("oppanel");
+        if (oppanelIndex > -1) {
+            name = name.slice(0, oppanelIndex);
+        }
         name = $.trim(name);
         DagPanel.updateExitMenu(name);
         const tblMenu: TableMenuManager = TableComponent.getMenu();

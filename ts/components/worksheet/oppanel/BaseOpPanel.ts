@@ -103,8 +103,9 @@ class BaseOpPanel {
         if (this._formHelper.isOpen()) {
             return false;
         }
-        this._formHelper.showView(formName);
         this._reset();
+        this._formHelper.showView(formName);
+        MainMenu.setFormOpen();
         return true;
     }
 

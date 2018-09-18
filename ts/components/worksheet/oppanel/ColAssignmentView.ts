@@ -282,6 +282,7 @@ class ColAssignmentView {
         candidateCols: ProgCol[],
         index: number
     ): string {
+        candidateCols = candidateCols || [];
         const lists: string = candidateCols.map((col, index) => {
             const colName: string = xcHelper.escapeHTMLSpecialChar(col.getBackColName());
             const colNameTempelate: string =

@@ -13,9 +13,10 @@ class SetOpPanel extends BaseOpPanel {
      * @param dagNode {DagNodeSet} show the view based on the set type node
      */
     public show(dagNode: DagNodeSet): void {
-        this._reset();
+        if (!super.showPanel()) {
+            return;
+        }
         this._initialize(dagNode);
-        this._formHelper.showView(null);
         this._formHelper.setup({});
 
         if (gMinModeOn) {

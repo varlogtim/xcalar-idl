@@ -18,9 +18,10 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
     }
 
     public show(dagNode: DagNodeJoin, options: { isNoCast: boolean }): void {
+        if (!super.showPanel()) {
+            return;
+        }
         const { isNoCast = true } = (options || {});
-
-        this._reset();
         this._dagNode = dagNode;
         // Setup data model
         this._dataModel = JoinOpPanelModel.fromDag(dagNode, {
@@ -34,9 +35,6 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
 
         // Update UI according to the data model
         this._updateUI();
-
-        // Show panel
-        super.showPanel();
     }
 
     public close(): void {

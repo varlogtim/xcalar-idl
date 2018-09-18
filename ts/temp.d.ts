@@ -882,6 +882,7 @@ declare namespace ErrTStr {
     export var LongFileName: string;
     export var NoEmptyFn: string;
     export var LargeFile: string;
+    export var DuplicateColNames: string;
 }
 
 declare namespace ErrWRepTStr {
