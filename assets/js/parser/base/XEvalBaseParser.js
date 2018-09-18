@@ -6,66 +6,70 @@ var XEvalBaseVisitor = require('./XEvalBaseVisitor').XEvalBaseVisitor;
 var grammarFileName = "XEvalBase.g4";
 
 var serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964",
-    "\u0003\u0012t\u0004\u0002\t\u0002\u0004\u0003\t\u0003\u0004\u0004\t",
+    "\u0003\u0013{\u0004\u0002\t\u0002\u0004\u0003\t\u0003\u0004\u0004\t",
     "\u0004\u0004\u0005\t\u0005\u0004\u0006\t\u0006\u0004\u0007\t\u0007\u0004",
     "\b\t\b\u0004\t\t\t\u0004\n\t\n\u0004\u000b\t\u000b\u0004\f\t\f\u0004",
     "\r\t\r\u0004\u000e\t\u000e\u0004\u000f\t\u000f\u0004\u0010\t\u0010\u0004",
-    "\u0011\t\u0011\u0003\u0002\u0003\u0002\u0003\u0002\u0003\u0003\u0003",
+    "\u0011\t\u0011\u0004\u0012\t\u0012\u0003\u0002\u0003\u0002\u0003\u0002",
     "\u0003\u0003\u0003\u0003\u0003\u0003\u0003\u0003\u0003\u0003\u0003\u0003",
-    "\u0003\u0003\u0003\u0005\u0003/\n\u0003\u0003\u0004\u0003\u0004\u0003",
-    "\u0004\u0007\u00044\n\u0004\f\u0004\u000e\u00047\u000b\u0004\u0003\u0005",
-    "\u0003\u0005\u0003\u0005\u0003\u0005\u0003\u0005\u0003\u0005\u0005\u0005",
-    "?\n\u0005\u0003\u0006\u0003\u0006\u0003\u0006\u0003\u0006\u0003\u0006",
-    "\u0005\u0006F\n\u0006\u0003\u0007\u0003\u0007\u0003\u0007\u0003\b\u0003",
-    "\b\u0003\b\u0003\t\u0003\t\u0003\t\u0003\t\u0003\t\u0005\tS\n\t\u0003",
-    "\n\u0003\n\u0003\n\u0003\u000b\u0003\u000b\u0003\u000b\u0007\u000b[",
-    "\n\u000b\f\u000b\u000e\u000b^\u000b\u000b\u0003\u000b\u0003\u000b\u0003",
-    "\u000b\u0003\u000b\u0005\u000bd\n\u000b\u0003\f\u0003\f\u0003\f\u0003",
-    "\r\u0003\r\u0003\r\u0003\u000e\u0003\u000e\u0003\u000f\u0003\u000f\u0003",
-    "\u0010\u0003\u0010\u0003\u0011\u0003\u0011\u0003\u0011\u0002\u0002\u0012",
+    "\u0003\u0003\u0003\u0003\u0003\u0003\u0005\u00031\n\u0003\u0003\u0004",
+    "\u0003\u0004\u0003\u0004\u0007\u00046\n\u0004\f\u0004\u000e\u00049\u000b",
+    "\u0004\u0003\u0005\u0003\u0005\u0003\u0005\u0003\u0005\u0003\u0005\u0003",
+    "\u0005\u0003\u0005\u0005\u0005B\n\u0005\u0003\u0006\u0003\u0006\u0003",
+    "\u0006\u0003\u0006\u0003\u0006\u0005\u0006I\n\u0006\u0003\u0007\u0003",
+    "\u0007\u0003\u0007\u0003\b\u0003\b\u0003\b\u0003\t\u0003\t\u0003\t\u0003",
+    "\t\u0003\t\u0005\tV\n\t\u0003\n\u0003\n\u0003\n\u0003\u000b\u0003\u000b",
+    "\u0003\u000b\u0007\u000b^\n\u000b\f\u000b\u000e\u000ba\u000b\u000b\u0003",
+    "\u000b\u0003\u000b\u0003\u000b\u0003\u000b\u0005\u000bg\n\u000b\u0003",
+    "\f\u0003\f\u0003\f\u0003\r\u0003\r\u0003\r\u0003\u000e\u0003\u000e\u0003",
+    "\u000e\u0003\u000e\u0003\u000f\u0003\u000f\u0003\u0010\u0003\u0010\u0003",
+    "\u0011\u0003\u0011\u0003\u0012\u0003\u0012\u0003\u0012\u0002\u0002\u0013",
     "\u0002\u0004\u0006\b\n\f\u000e\u0010\u0012\u0014\u0016\u0018\u001a\u001c",
-    "\u001e \u0002\u0003\u0003\u0002\u0003\u0004\u0002n\u0002\"\u0003\u0002",
-    "\u0002\u0002\u0004.\u0003\u0002\u0002\u0002\u00060\u0003\u0002\u0002",
-    "\u0002\b>\u0003\u0002\u0002\u0002\nE\u0003\u0002\u0002\u0002\fG\u0003",
-    "\u0002\u0002\u0002\u000eJ\u0003\u0002\u0002\u0002\u0010R\u0003\u0002",
-    "\u0002\u0002\u0012T\u0003\u0002\u0002\u0002\u0014W\u0003\u0002\u0002",
-    "\u0002\u0016e\u0003\u0002\u0002\u0002\u0018h\u0003\u0002\u0002\u0002",
-    "\u001ak\u0003\u0002\u0002\u0002\u001cm\u0003\u0002\u0002\u0002\u001e",
-    "o\u0003\u0002\u0002\u0002 q\u0003\u0002\u0002\u0002\"#\u0005\u0004\u0003",
-    "\u0002#$\u0007\u0002\u0002\u0003$\u0003\u0003\u0002\u0002\u0002%&\u0005",
-    "\n\u0006\u0002&\'\u0007\t\u0002\u0002\'(\u0005\u0006\u0004\u0002()\u0007",
-    "\n\u0002\u0002)/\u0003\u0002\u0002\u0002*+\u0005\n\u0006\u0002+,\u0007",
-    "\t\u0002\u0002,-\u0007\n\u0002\u0002-/\u0003\u0002\u0002\u0002.%\u0003",
-    "\u0002\u0002\u0002.*\u0003\u0002\u0002\u0002/\u0005\u0003\u0002\u0002",
-    "\u000205\u0005\b\u0005\u000212\u0007\b\u0002\u000224\u0005\b\u0005\u0002",
-    "31\u0003\u0002\u0002\u000247\u0003\u0002\u0002\u000253\u0003\u0002\u0002",
-    "\u000256\u0003\u0002\u0002\u00026\u0007\u0003\u0002\u0002\u000275\u0003",
-    "\u0002\u0002\u00028?\u0005\u0004\u0003\u00029?\u0005\u001a\u000e\u0002",
-    ":?\u0005\u001c\u000f\u0002;?\u0005 \u0011\u0002<?\u0005\u001e\u0010",
-    "\u0002=?\u0005\u0010\t\u0002>8\u0003\u0002\u0002\u0002>9\u0003\u0002",
-    "\u0002\u0002>:\u0003\u0002\u0002\u0002>;\u0003\u0002\u0002\u0002><\u0003",
-    "\u0002\u0002\u0002>=\u0003\u0002\u0002\u0002?\t\u0003\u0002\u0002\u0002",
-    "@A\u0005\f\u0007\u0002AB\u0007\u0005\u0002\u0002BC\u0005\u000e\b\u0002",
-    "CF\u0003\u0002\u0002\u0002DF\u0005\u000e\b\u0002E@\u0003\u0002\u0002",
-    "\u0002ED\u0003\u0002\u0002\u0002F\u000b\u0003\u0002\u0002\u0002GH\u0007",
-    "\u0010\u0002\u0002HI\b\u0007\u0001\u0002I\r\u0003\u0002\u0002\u0002",
-    "JK\u0007\u0010\u0002\u0002KL\b\b\u0001\u0002L\u000f\u0003\u0002\u0002",
-    "\u0002MN\u0005\u0012\n\u0002NO\u0007\u0006\u0002\u0002OP\u0005\u0014",
-    "\u000b\u0002PS\u0003\u0002\u0002\u0002QS\u0005\u0014\u000b\u0002RM\u0003",
-    "\u0002\u0002\u0002RQ\u0003\u0002\u0002\u0002S\u0011\u0003\u0002\u0002",
-    "\u0002TU\u0007\u0010\u0002\u0002UV\b\n\u0001\u0002V\u0013\u0003\u0002",
-    "\u0002\u0002W\\\u0005\u0016\f\u0002XY\u0007\u0007\u0002\u0002Y[\u0005",
-    "\u0018\r\u0002ZX\u0003\u0002\u0002\u0002[^\u0003\u0002\u0002\u0002\\",
-    "Z\u0003\u0002\u0002\u0002\\]\u0003\u0002\u0002\u0002]c\u0003\u0002\u0002",
-    "\u0002^\\\u0003\u0002\u0002\u0002_`\u0007\u000b\u0002\u0002`a\u0005",
-    "\u001a\u000e\u0002ab\u0007\f\u0002\u0002bd\u0003\u0002\u0002\u0002c",
-    "_\u0003\u0002\u0002\u0002cd\u0003\u0002\u0002\u0002d\u0015\u0003\u0002",
-    "\u0002\u0002ef\u0007\u0010\u0002\u0002fg\b\f\u0001\u0002g\u0017\u0003",
-    "\u0002\u0002\u0002hi\u0007\u0010\u0002\u0002ij\b\r\u0001\u0002j\u0019",
-    "\u0003\u0002\u0002\u0002kl\u0007\u000e\u0002\u0002l\u001b\u0003\u0002",
-    "\u0002\u0002mn\u0007\r\u0002\u0002n\u001d\u0003\u0002\u0002\u0002op",
-    "\u0007\u000f\u0002\u0002p\u001f\u0003\u0002\u0002\u0002qr\t\u0002\u0002",
-    "\u0002r!\u0003\u0002\u0002\u0002\t.5>ER\\c"].join("");
+    "\u001e \"\u0002\u0003\u0003\u0002\u0004\u0005\u0002u\u0002$\u0003\u0002",
+    "\u0002\u0002\u00040\u0003\u0002\u0002\u0002\u00062\u0003\u0002\u0002",
+    "\u0002\bA\u0003\u0002\u0002\u0002\nH\u0003\u0002\u0002\u0002\fJ\u0003",
+    "\u0002\u0002\u0002\u000eM\u0003\u0002\u0002\u0002\u0010U\u0003\u0002",
+    "\u0002\u0002\u0012W\u0003\u0002\u0002\u0002\u0014Z\u0003\u0002\u0002",
+    "\u0002\u0016h\u0003\u0002\u0002\u0002\u0018k\u0003\u0002\u0002\u0002",
+    "\u001an\u0003\u0002\u0002\u0002\u001cr\u0003\u0002\u0002\u0002\u001e",
+    "t\u0003\u0002\u0002\u0002 v\u0003\u0002\u0002\u0002\"x\u0003\u0002\u0002",
+    "\u0002$%\u0005\u0004\u0003\u0002%&\u0007\u0002\u0002\u0003&\u0003\u0003",
+    "\u0002\u0002\u0002\'(\u0005\n\u0006\u0002()\u0007\n\u0002\u0002)*\u0005",
+    "\u0006\u0004\u0002*+\u0007\u000b\u0002\u0002+1\u0003\u0002\u0002\u0002",
+    ",-\u0005\n\u0006\u0002-.\u0007\n\u0002\u0002./\u0007\u000b\u0002\u0002",
+    "/1\u0003\u0002\u0002\u00020\'\u0003\u0002\u0002\u00020,\u0003\u0002",
+    "\u0002\u00021\u0005\u0003\u0002\u0002\u000227\u0005\b\u0005\u000234",
+    "\u0007\t\u0002\u000246\u0005\b\u0005\u000253\u0003\u0002\u0002\u0002",
+    "69\u0003\u0002\u0002\u000275\u0003\u0002\u0002\u000278\u0003\u0002\u0002",
+    "\u00028\u0007\u0003\u0002\u0002\u000297\u0003\u0002\u0002\u0002:B\u0005",
+    "\u0004\u0003\u0002;B\u0005\u001c\u000f\u0002<B\u0005\u001e\u0010\u0002",
+    "=B\u0005\"\u0012\u0002>B\u0005 \u0011\u0002?B\u0005\u0010\t\u0002@B",
+    "\u0005\u001a\u000e\u0002A:\u0003\u0002\u0002\u0002A;\u0003\u0002\u0002",
+    "\u0002A<\u0003\u0002\u0002\u0002A=\u0003\u0002\u0002\u0002A>\u0003\u0002",
+    "\u0002\u0002A?\u0003\u0002\u0002\u0002A@\u0003\u0002\u0002\u0002B\t",
+    "\u0003\u0002\u0002\u0002CD\u0005\f\u0007\u0002DE\u0007\u0006\u0002\u0002",
+    "EF\u0005\u000e\b\u0002FI\u0003\u0002\u0002\u0002GI\u0005\u000e\b\u0002",
+    "HC\u0003\u0002\u0002\u0002HG\u0003\u0002\u0002\u0002I\u000b\u0003\u0002",
+    "\u0002\u0002JK\u0007\u0011\u0002\u0002KL\b\u0007\u0001\u0002L\r\u0003",
+    "\u0002\u0002\u0002MN\u0007\u0011\u0002\u0002NO\b\b\u0001\u0002O\u000f",
+    "\u0003\u0002\u0002\u0002PQ\u0005\u0012\n\u0002QR\u0007\u0007\u0002\u0002",
+    "RS\u0005\u0014\u000b\u0002SV\u0003\u0002\u0002\u0002TV\u0005\u0014\u000b",
+    "\u0002UP\u0003\u0002\u0002\u0002UT\u0003\u0002\u0002\u0002V\u0011\u0003",
+    "\u0002\u0002\u0002WX\u0007\u0011\u0002\u0002XY\b\n\u0001\u0002Y\u0013",
+    "\u0003\u0002\u0002\u0002Z_\u0005\u0016\f\u0002[\\\u0007\b\u0002\u0002",
+    "\\^\u0005\u0018\r\u0002][\u0003\u0002\u0002\u0002^a\u0003\u0002\u0002",
+    "\u0002_]\u0003\u0002\u0002\u0002_`\u0003\u0002\u0002\u0002`f\u0003\u0002",
+    "\u0002\u0002a_\u0003\u0002\u0002\u0002bc\u0007\f\u0002\u0002cd\u0005",
+    "\u001c\u000f\u0002de\u0007\r\u0002\u0002eg\u0003\u0002\u0002\u0002f",
+    "b\u0003\u0002\u0002\u0002fg\u0003\u0002\u0002\u0002g\u0015\u0003\u0002",
+    "\u0002\u0002hi\u0007\u0011\u0002\u0002ij\b\f\u0001\u0002j\u0017\u0003",
+    "\u0002\u0002\u0002kl\u0007\u0011\u0002\u0002lm\b\r\u0001\u0002m\u0019",
+    "\u0003\u0002\u0002\u0002no\u0007\u0003\u0002\u0002op\u0007\u0011\u0002",
+    "\u0002pq\b\u000e\u0001\u0002q\u001b\u0003\u0002\u0002\u0002rs\u0007",
+    "\u000f\u0002\u0002s\u001d\u0003\u0002\u0002\u0002tu\u0007\u000e\u0002",
+    "\u0002u\u001f\u0003\u0002\u0002\u0002vw\u0007\u0010\u0002\u0002w!\u0003",
+    "\u0002\u0002\u0002xy\t\u0002\u0002\u0002y#\u0003\u0002\u0002\u0002\t",
+    "07AHU_f"].join("");
 
 
 var atn = new antlr4.atn.ATNDeserializer().deserialize(serializedATN);
@@ -74,18 +78,18 @@ var decisionsToDFA = atn.decisionToState.map( function(ds, index) { return new a
 
 var sharedContextCache = new antlr4.PredictionContextCache();
 
-var literalNames = [ null, null, null, "':'", "'::'", "'.'", "','", "'('", 
-                     "')'", "'['", "']'" ];
+var literalNames = [ null, "'^'", null, null, "':'", "'::'", "'.'", "','", 
+                     "'('", "')'", "'['", "']'" ];
 
-var symbolicNames = [ null, "TRUE", "FALSE", "COLON", "DOUBLECOLON", "DOT", 
-                      "COMMA", "LPARENS", "RPARENS", "LBRACKET", "RBRACKET", 
-                      "DECIMAL", "INTEGER", "STRING", "IDENTIFIER", "WS", 
-                      "UNRECOGNIZED" ];
+var symbolicNames = [ null, null, "TRUE", "FALSE", "COLON", "DOUBLECOLON", 
+                      "DOT", "COMMA", "LPARENS", "RPARENS", "LBRACKET", 
+                      "RBRACKET", "DECIMAL", "INTEGER", "STRING", "IDENTIFIER", 
+                      "WS", "UNRECOGNIZED" ];
 
 var ruleNames =  [ "query", "expr", "fnArgs", "arg", "fn", "moduleName", 
                    "fnName", "columnArg", "prefix", "colElement", "colName", 
-                   "propertyName", "integerLiteral", "decimalLiteral", "stringLiteral", 
-                   "booleanLiteral" ];
+                   "propertyName", "aggValue", "integerLiteral", "decimalLiteral", 
+                   "stringLiteral", "booleanLiteral" ];
 
 function XEvalBaseParser (input) {
 	antlr4.Parser.call(this, input);
@@ -106,22 +110,23 @@ Object.defineProperty(XEvalBaseParser.prototype, "atn", {
 });
 
 XEvalBaseParser.EOF = antlr4.Token.EOF;
-XEvalBaseParser.TRUE = 1;
-XEvalBaseParser.FALSE = 2;
-XEvalBaseParser.COLON = 3;
-XEvalBaseParser.DOUBLECOLON = 4;
-XEvalBaseParser.DOT = 5;
-XEvalBaseParser.COMMA = 6;
-XEvalBaseParser.LPARENS = 7;
-XEvalBaseParser.RPARENS = 8;
-XEvalBaseParser.LBRACKET = 9;
-XEvalBaseParser.RBRACKET = 10;
-XEvalBaseParser.DECIMAL = 11;
-XEvalBaseParser.INTEGER = 12;
-XEvalBaseParser.STRING = 13;
-XEvalBaseParser.IDENTIFIER = 14;
-XEvalBaseParser.WS = 15;
-XEvalBaseParser.UNRECOGNIZED = 16;
+XEvalBaseParser.T__0 = 1;
+XEvalBaseParser.TRUE = 2;
+XEvalBaseParser.FALSE = 3;
+XEvalBaseParser.COLON = 4;
+XEvalBaseParser.DOUBLECOLON = 5;
+XEvalBaseParser.DOT = 6;
+XEvalBaseParser.COMMA = 7;
+XEvalBaseParser.LPARENS = 8;
+XEvalBaseParser.RPARENS = 9;
+XEvalBaseParser.LBRACKET = 10;
+XEvalBaseParser.RBRACKET = 11;
+XEvalBaseParser.DECIMAL = 12;
+XEvalBaseParser.INTEGER = 13;
+XEvalBaseParser.STRING = 14;
+XEvalBaseParser.IDENTIFIER = 15;
+XEvalBaseParser.WS = 16;
+XEvalBaseParser.UNRECOGNIZED = 17;
 
 XEvalBaseParser.RULE_query = 0;
 XEvalBaseParser.RULE_expr = 1;
@@ -135,10 +140,11 @@ XEvalBaseParser.RULE_prefix = 8;
 XEvalBaseParser.RULE_colElement = 9;
 XEvalBaseParser.RULE_colName = 10;
 XEvalBaseParser.RULE_propertyName = 11;
-XEvalBaseParser.RULE_integerLiteral = 12;
-XEvalBaseParser.RULE_decimalLiteral = 13;
-XEvalBaseParser.RULE_stringLiteral = 14;
-XEvalBaseParser.RULE_booleanLiteral = 15;
+XEvalBaseParser.RULE_aggValue = 12;
+XEvalBaseParser.RULE_integerLiteral = 13;
+XEvalBaseParser.RULE_decimalLiteral = 14;
+XEvalBaseParser.RULE_stringLiteral = 15;
+XEvalBaseParser.RULE_booleanLiteral = 16;
 
 function QueryContext(parser, parent, invokingState) {
 	if(parent===undefined) {
@@ -183,9 +189,9 @@ XEvalBaseParser.prototype.query = function() {
     this.enterRule(localctx, 0, XEvalBaseParser.RULE_query);
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 32;
+        this.state = 34;
         this.expr();
-        this.state = 33;
+        this.state = 35;
         this.match(XEvalBaseParser.EOF);
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
@@ -251,29 +257,29 @@ XEvalBaseParser.prototype.expr = function() {
     var localctx = new ExprContext(this, this._ctx, this.state);
     this.enterRule(localctx, 2, XEvalBaseParser.RULE_expr);
     try {
-        this.state = 44;
+        this.state = 46;
         this._errHandler.sync(this);
         var la_ = this._interp.adaptivePredict(this._input,0,this._ctx);
         switch(la_) {
         case 1:
             this.enterOuterAlt(localctx, 1);
-            this.state = 35;
-            this.fn();
-            this.state = 36;
-            this.match(XEvalBaseParser.LPARENS);
             this.state = 37;
-            this.fnArgs();
+            this.fn();
             this.state = 38;
+            this.match(XEvalBaseParser.LPARENS);
+            this.state = 39;
+            this.fnArgs();
+            this.state = 40;
             this.match(XEvalBaseParser.RPARENS);
             break;
 
         case 2:
             this.enterOuterAlt(localctx, 2);
-            this.state = 40;
-            this.fn();
-            this.state = 41;
-            this.match(XEvalBaseParser.LPARENS);
             this.state = 42;
+            this.fn();
+            this.state = 43;
+            this.match(XEvalBaseParser.LPARENS);
+            this.state = 44;
             this.match(XEvalBaseParser.RPARENS);
             break;
 
@@ -351,17 +357,17 @@ XEvalBaseParser.prototype.fnArgs = function() {
     var _la = 0; // Token type
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 46;
+        this.state = 48;
         this.arg();
-        this.state = 51;
+        this.state = 53;
         this._errHandler.sync(this);
         _la = this._input.LA(1);
         while(_la===XEvalBaseParser.COMMA) {
-            this.state = 47;
+            this.state = 49;
             this.match(XEvalBaseParser.COMMA);
-            this.state = 48;
+            this.state = 50;
             this.arg();
-            this.state = 53;
+            this.state = 55;
             this._errHandler.sync(this);
             _la = this._input.LA(1);
         }
@@ -419,6 +425,10 @@ ArgContext.prototype.columnArg = function() {
     return this.getTypedRuleContext(ColumnArgContext,0);
 };
 
+ArgContext.prototype.aggValue = function() {
+    return this.getTypedRuleContext(AggValueContext,0);
+};
+
 ArgContext.prototype.accept = function(visitor) {
     if ( visitor instanceof XEvalBaseVisitor ) {
         return visitor.visitArg(this);
@@ -437,44 +447,50 @@ XEvalBaseParser.prototype.arg = function() {
     var localctx = new ArgContext(this, this._ctx, this.state);
     this.enterRule(localctx, 6, XEvalBaseParser.RULE_arg);
     try {
-        this.state = 60;
+        this.state = 63;
         this._errHandler.sync(this);
         var la_ = this._interp.adaptivePredict(this._input,2,this._ctx);
         switch(la_) {
         case 1:
             this.enterOuterAlt(localctx, 1);
-            this.state = 54;
+            this.state = 56;
             this.expr();
             break;
 
         case 2:
             this.enterOuterAlt(localctx, 2);
-            this.state = 55;
+            this.state = 57;
             this.integerLiteral();
             break;
 
         case 3:
             this.enterOuterAlt(localctx, 3);
-            this.state = 56;
+            this.state = 58;
             this.decimalLiteral();
             break;
 
         case 4:
             this.enterOuterAlt(localctx, 4);
-            this.state = 57;
+            this.state = 59;
             this.booleanLiteral();
             break;
 
         case 5:
             this.enterOuterAlt(localctx, 5);
-            this.state = 58;
+            this.state = 60;
             this.stringLiteral();
             break;
 
         case 6:
             this.enterOuterAlt(localctx, 6);
-            this.state = 59;
+            this.state = 61;
             this.columnArg();
+            break;
+
+        case 7:
+            this.enterOuterAlt(localctx, 7);
+            this.state = 62;
+            this.aggValue();
             break;
 
         }
@@ -538,23 +554,23 @@ XEvalBaseParser.prototype.fn = function() {
     var localctx = new FnContext(this, this._ctx, this.state);
     this.enterRule(localctx, 8, XEvalBaseParser.RULE_fn);
     try {
-        this.state = 67;
+        this.state = 70;
         this._errHandler.sync(this);
         var la_ = this._interp.adaptivePredict(this._input,3,this._ctx);
         switch(la_) {
         case 1:
             this.enterOuterAlt(localctx, 1);
-            this.state = 62;
+            this.state = 65;
             this.moduleName();
-            this.state = 63;
+            this.state = 66;
             this.match(XEvalBaseParser.COLON);
-            this.state = 64;
+            this.state = 67;
             this.fnName();
             break;
 
         case 2:
             this.enterOuterAlt(localctx, 2);
-            this.state = 66;
+            this.state = 69;
             this.fnName();
             break;
 
@@ -613,7 +629,7 @@ XEvalBaseParser.prototype.moduleName = function() {
     this.enterRule(localctx, 10, XEvalBaseParser.RULE_moduleName);
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 69;
+        this.state = 72;
         localctx._IDENTIFIER = this.match(XEvalBaseParser.IDENTIFIER);
         if (!xcHelper.checkNamePattern(PatternCategory.UDF, PatternAction.Check, (localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text))) {
             throw SyntaxError('Invalid module name: ' + (localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text));}
@@ -671,7 +687,7 @@ XEvalBaseParser.prototype.fnName = function() {
     this.enterRule(localctx, 12, XEvalBaseParser.RULE_fnName);
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 72;
+        this.state = 75;
         localctx._IDENTIFIER = this.match(XEvalBaseParser.IDENTIFIER);
         if (!xcHelper.checkNamePattern(PatternCategory.UDFFn, PatternAction.Check, (localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text))) {
             throw SyntaxError('Invalid udf name: ' + (localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text));}
@@ -735,23 +751,23 @@ XEvalBaseParser.prototype.columnArg = function() {
     var localctx = new ColumnArgContext(this, this._ctx, this.state);
     this.enterRule(localctx, 14, XEvalBaseParser.RULE_columnArg);
     try {
-        this.state = 80;
+        this.state = 83;
         this._errHandler.sync(this);
         var la_ = this._interp.adaptivePredict(this._input,4,this._ctx);
         switch(la_) {
         case 1:
             this.enterOuterAlt(localctx, 1);
-            this.state = 75;
+            this.state = 78;
             this.prefix();
-            this.state = 76;
+            this.state = 79;
             this.match(XEvalBaseParser.DOUBLECOLON);
-            this.state = 77;
+            this.state = 80;
             this.colElement();
             break;
 
         case 2:
             this.enterOuterAlt(localctx, 2);
-            this.state = 79;
+            this.state = 82;
             this.colElement();
             break;
 
@@ -810,7 +826,7 @@ XEvalBaseParser.prototype.prefix = function() {
     this.enterRule(localctx, 16, XEvalBaseParser.RULE_prefix);
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 82;
+        this.state = 85;
         localctx._IDENTIFIER = this.match(XEvalBaseParser.IDENTIFIER);
         if (xcHelper.validatePrefixName((localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text), false, true)) {
             throw SyntaxError(xcHelper.validatePrefixName((localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text), false, true));
@@ -904,29 +920,29 @@ XEvalBaseParser.prototype.colElement = function() {
     var _la = 0; // Token type
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 85;
+        this.state = 88;
         this.colName();
-        this.state = 90;
+        this.state = 93;
         this._errHandler.sync(this);
         _la = this._input.LA(1);
         while(_la===XEvalBaseParser.DOT) {
-            this.state = 86;
+            this.state = 89;
             this.match(XEvalBaseParser.DOT);
-            this.state = 87;
+            this.state = 90;
             this.propertyName();
-            this.state = 92;
+            this.state = 95;
             this._errHandler.sync(this);
             _la = this._input.LA(1);
         }
-        this.state = 97;
+        this.state = 100;
         this._errHandler.sync(this);
         _la = this._input.LA(1);
         if(_la===XEvalBaseParser.LBRACKET) {
-            this.state = 93;
+            this.state = 96;
             this.match(XEvalBaseParser.LBRACKET);
-            this.state = 94;
+            this.state = 97;
             this.integerLiteral();
-            this.state = 95;
+            this.state = 98;
             this.match(XEvalBaseParser.RBRACKET);
         }
 
@@ -984,7 +1000,7 @@ XEvalBaseParser.prototype.colName = function() {
     this.enterRule(localctx, 20, XEvalBaseParser.RULE_colName);
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 99;
+        this.state = 102;
         localctx._IDENTIFIER = this.match(XEvalBaseParser.IDENTIFIER);
         if ((localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text).toUpperCase() != "NONE" && xcHelper.validateColName((localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text), false, true)) {
             throw SyntaxError(xcHelper.validateColName((localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text), false, true));
@@ -1043,10 +1059,71 @@ XEvalBaseParser.prototype.propertyName = function() {
     this.enterRule(localctx, 22, XEvalBaseParser.RULE_propertyName);
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 102;
+        this.state = 105;
         localctx._IDENTIFIER = this.match(XEvalBaseParser.IDENTIFIER);
         if (xcHelper.validateColName((localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text), false, true)) {
             throw SyntaxError(xcHelper.validateColName((localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text), false, true));
+            }
+    } catch (re) {
+    	if(re instanceof antlr4.error.RecognitionException) {
+	        localctx.exception = re;
+	        this._errHandler.reportError(this, re);
+	        this._errHandler.recover(this, re);
+	    } else {
+	    	throw re;
+	    }
+    } finally {
+        this.exitRule();
+    }
+    return localctx;
+};
+
+function AggValueContext(parser, parent, invokingState) {
+	if(parent===undefined) {
+	    parent = null;
+	}
+	if(invokingState===undefined || invokingState===null) {
+		invokingState = -1;
+	}
+	antlr4.ParserRuleContext.call(this, parent, invokingState);
+    this.parser = parser;
+    this.ruleIndex = XEvalBaseParser.RULE_aggValue;
+    this._IDENTIFIER = null; // Token
+    return this;
+}
+
+AggValueContext.prototype = Object.create(antlr4.ParserRuleContext.prototype);
+AggValueContext.prototype.constructor = AggValueContext;
+
+AggValueContext.prototype.IDENTIFIER = function() {
+    return this.getToken(XEvalBaseParser.IDENTIFIER, 0);
+};
+
+AggValueContext.prototype.accept = function(visitor) {
+    if ( visitor instanceof XEvalBaseVisitor ) {
+        return visitor.visitAggValue(this);
+    } else {
+        return visitor.visitChildren(this);
+    }
+};
+
+
+
+
+XEvalBaseParser.AggValueContext = AggValueContext;
+
+XEvalBaseParser.prototype.aggValue = function() {
+
+    var localctx = new AggValueContext(this, this._ctx, this.state);
+    this.enterRule(localctx, 24, XEvalBaseParser.RULE_aggValue);
+    try {
+        this.enterOuterAlt(localctx, 1);
+        this.state = 108;
+        this.match(XEvalBaseParser.T__0);
+        this.state = 109;
+        localctx._IDENTIFIER = this.match(XEvalBaseParser.IDENTIFIER);
+        if (!xcHelper.isValidTableName((localctx._IDENTIFIER===null ? null : localctx._IDENTIFIER.text))) {
+            throw SyntaxError(ErrTStr.InvalidAggName);
             }
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
@@ -1098,10 +1175,10 @@ XEvalBaseParser.IntegerLiteralContext = IntegerLiteralContext;
 XEvalBaseParser.prototype.integerLiteral = function() {
 
     var localctx = new IntegerLiteralContext(this, this._ctx, this.state);
-    this.enterRule(localctx, 24, XEvalBaseParser.RULE_integerLiteral);
+    this.enterRule(localctx, 26, XEvalBaseParser.RULE_integerLiteral);
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 105;
+        this.state = 112;
         this.match(XEvalBaseParser.INTEGER);
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
@@ -1153,10 +1230,10 @@ XEvalBaseParser.DecimalLiteralContext = DecimalLiteralContext;
 XEvalBaseParser.prototype.decimalLiteral = function() {
 
     var localctx = new DecimalLiteralContext(this, this._ctx, this.state);
-    this.enterRule(localctx, 26, XEvalBaseParser.RULE_decimalLiteral);
+    this.enterRule(localctx, 28, XEvalBaseParser.RULE_decimalLiteral);
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 107;
+        this.state = 114;
         this.match(XEvalBaseParser.DECIMAL);
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
@@ -1208,10 +1285,10 @@ XEvalBaseParser.StringLiteralContext = StringLiteralContext;
 XEvalBaseParser.prototype.stringLiteral = function() {
 
     var localctx = new StringLiteralContext(this, this._ctx, this.state);
-    this.enterRule(localctx, 28, XEvalBaseParser.RULE_stringLiteral);
+    this.enterRule(localctx, 30, XEvalBaseParser.RULE_stringLiteral);
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 109;
+        this.state = 116;
         this.match(XEvalBaseParser.STRING);
     } catch (re) {
     	if(re instanceof antlr4.error.RecognitionException) {
@@ -1267,11 +1344,11 @@ XEvalBaseParser.BooleanLiteralContext = BooleanLiteralContext;
 XEvalBaseParser.prototype.booleanLiteral = function() {
 
     var localctx = new BooleanLiteralContext(this, this._ctx, this.state);
-    this.enterRule(localctx, 30, XEvalBaseParser.RULE_booleanLiteral);
+    this.enterRule(localctx, 32, XEvalBaseParser.RULE_booleanLiteral);
     var _la = 0; // Token type
     try {
         this.enterOuterAlt(localctx, 1);
-        this.state = 111;
+        this.state = 118;
         _la = this._input.LA(1);
         if(!(_la===XEvalBaseParser.TRUE || _la===XEvalBaseParser.FALSE)) {
         this._errHandler.recoverInline(this);

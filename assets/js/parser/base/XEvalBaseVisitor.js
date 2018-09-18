@@ -84,6 +84,12 @@ XEvalBaseVisitor.prototype.visitPropertyName = function(ctx) {
 };
 
 
+// Visit a parse tree produced by XEvalBaseParser#aggValue.
+XEvalBaseVisitor.prototype.visitAggValue = function(ctx) {
+  return this.visitChildren(ctx);
+};
+
+
 // Visit a parse tree produced by XEvalBaseParser#integerLiteral.
 XEvalBaseVisitor.prototype.visitIntegerLiteral = function(ctx) {
   return this.visitChildren(ctx);

@@ -17,6 +17,7 @@ arg
     | booleanLiteral
     | stringLiteral
     | columnArg
+    | aggValue
     ;
 fn
     : moduleName COLON fnName
@@ -57,6 +58,12 @@ propertyName
     throw SyntaxError(xcHelper.validateColName($IDENTIFIER.text, false, true));
     }}
     ;
+aggValue
+    : '^' IDENTIFIER
+    {if (!xcHelper.isValidTableName($IDENTIFIER.text)) {
+    throw SyntaxError(ErrTStr.InvalidAggName);
+    }}
+    ;
 integerLiteral
     : INTEGER
     ;
@@ -83,7 +90,7 @@ RBRACKET: ']';
 DECIMAL: '-'? DIGIT+ '.' DIGIT+;
 INTEGER: '-'? DIGIT+;
 STRING: '"' ( ~('"'|'\\') | ('\\' .) )* '"';
-IDENTIFIER: (ALPHANUMS | [_^-]) ((ALPHANUMS | [_^-] | ' ')* (ALPHANUMS | [_^-]))?;
+IDENTIFIER: (ALPHANUMS | [_-]) ((ALPHANUMS | [_^-] | ' ')* (ALPHANUMS | [_^-]))?;
 fragment A : [aA]; // match either an 'a' or 'A'
 fragment B : [bB];
 fragment C : [cC];
