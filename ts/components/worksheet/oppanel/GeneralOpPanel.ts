@@ -5,7 +5,6 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _$genFunctionsMenu: JQuery;   // $('.genFunctionsMenu')
     protected _$functionsUl: JQuery;
     protected _colName: string = "";
-    protected _colNamesCache = {};
     protected _isNewCol: boolean;
     protected _operatorName: string = ""; // group by, map, filter, aggregate, etc..
     protected _operatorsMap = {};
@@ -327,19 +326,11 @@ class GeneralOpPanel extends BaseOpPanel {
         }
         // highlighted column sticks out if we don't close it early
         this._toggleOpPanelDisplay(true);
-        this._colNamesCache = {};
         $(".xcTable").find('.modalHighlighted').removeClass('modalHighlighted');
         super.hidePanel();
         $(document).off('click.OpSection');
         $(document).off("keydown.OpSection");
         // super.close();
-    }
-
-    public updateColumns(): void {
-        if (!this._formHelper.isOpen()) {
-            return;
-        }
-        this._updateColNamesCache();
     }
 
     private _addGeneralEventListeners(): void {
@@ -378,7 +369,6 @@ class GeneralOpPanel extends BaseOpPanel {
         this._fillInputPlaceholder();
         this._$panel.find('.list').removeClass('hovering');
         this._$panel.find('.group').find(".argsSection").last().empty();
-        this._updateColNamesCache();
     }
 
     // listeners added whenever operation view opens
@@ -566,8 +556,9 @@ class GeneralOpPanel extends BaseOpPanel {
         let count: number = 0;
 
         for (let i = 0; i < allMatches.length; i++) {
-            listLis += "<li>" + xcHelper.escapeHTMLSpecialChar(allMatches[i]) +
-                            "</li>";
+            listLis += "<li>" +
+                            allMatches[i] +
+                        "</li>";
             count++;
             if (count > this._listMax) {
                 break;
@@ -616,14 +607,6 @@ class GeneralOpPanel extends BaseOpPanel {
         this.dataModel.updateArg(val, groupIndex, argIndex);
     }
 
-    protected _updateColNamesCache(): void {
-        const cols = this.dataModel.getColumns();
-        this._colNamesCache = {};
-        cols.forEach((col) => {
-            this._colNamesCache[col.backName.trim().toLowerCase()] = col.backName;
-        });
-    }
-
     protected _getMatchingAggNames(val: string): string[] {
         const list: string[] = [];
         const originalVal: string = val;
@@ -642,10 +625,13 @@ class GeneralOpPanel extends BaseOpPanel {
         }
 
         list.sort();
-        return (list);
+        return list.map((list) => {
+            return xcHelper.escapeHTMLSpecialChar(list);
+        });
     }
 
     protected _getMatchingColNames(val: string): string[] {
+        const cols: ProgCol[] = this.dataModel.getColumns();
         const list: string[] = [];
         const seen = {};
         const originalVal: string = val;
@@ -655,20 +641,24 @@ class GeneralOpPanel extends BaseOpPanel {
             val = val.slice(1);
         }
         val = val.toLowerCase();
+        const colsCache: {[key: string]: ColumnType} = {};
+        cols.forEach((col) => {
+            colsCache[col.getBackColName()] = col.getType();
+        });
         if (val.length) {
-            for (const name in this._colNamesCache) {
+            for (const name in colsCache) {
                 if (name.indexOf(val) !== -1 &&
                     !seen.hasOwnProperty(name)) {
                     seen[name] = true;
-                    list.push(this._colNamesCache[name]);
+                    list.push(name);
                 }
             }
         } else {
             showingAll = true;
-            for (const name in this._colNamesCache) {
+            for (const name in colsCache) {
                 if (!seen.hasOwnProperty(name)) {
                     seen[name] = true;
-                    list.push(this._colNamesCache[name]);
+                    list.push(name);
                 }
             }
         }
@@ -688,7 +678,10 @@ class GeneralOpPanel extends BaseOpPanel {
 
         list.sort(sortFn);
 
-        return (list);
+        return list.map((colName) => {
+            const colNameTemplate: HTML = xcHelper.escapeHTMLSpecialChar(colName);
+            return BaseOpPanel.craeteColumnListHTML(colsCache[colName], colNameTemplate);
+        });
     }
 
     protected _positionDropdown($ul: JQuery): void {

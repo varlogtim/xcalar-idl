@@ -1011,7 +1011,7 @@
                             opacity: 0.7;
                         }
 
-                        .icon {
+                        .icon:not(.type) {
                             display: none;
                             .position(absolute, @top: 4px, @right: 3px);
                         }
@@ -1083,7 +1083,7 @@
                     opacity: 0.6;
                 }
 
-                .text {
+                .typeIcon {
                     padding-left: 20px;
                 }
             }
@@ -1097,6 +1097,22 @@
                     display: none;
                 }
             }
+        }
+    }
+
+    .typeIcon {
+        .typeIcon();
+        overflow: hidden;
+
+        .flexWrap {
+            &.flex-left, &.flex-right {
+                .flex(0 0 20px);
+            }
+        }
+
+        .type.icon {
+            color: @color-bg-pinkish-grey;
+            left: 40%;
         }
     }
 }

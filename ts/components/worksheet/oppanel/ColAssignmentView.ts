@@ -248,7 +248,7 @@ class ColAssignmentView {
                             ' data-placement="top"' +
                             ' data-title="' + xcHelper.escapeHTMLSpecialChar(colName) +
                             '">' +
-                                colName +
+                                BaseOpPanel.craeteColumnListHTML(selectedCol.getType(), colName) +
                             '</div>';
             } else {
                 innerHTML = '<div class="text"></div>';
@@ -284,18 +284,20 @@ class ColAssignmentView {
     ): string {
         const lists: string = candidateCols.map((col, index) => {
             const colName: string = xcHelper.escapeHTMLSpecialChar(col.getBackColName());
+            const colNameTempelate: string =
+            '<div class="colName text textOverflowOneLine tooltipOverflow"' +
+            ' data-toggle="tooltip" data-container="body"' +
+            ' data-placement="top"' +
+            ' data-title="' + xcHelper.escapeHTMLSpecialChar(colName) + '">' +
+                colName +
+            '</div>';
             return '<div class="inputCol" data-index="' + index + '">' +
                         '<i class="addCol icon xi-plus"' +
                         ' data-toggle="tooltip" data-container="body"' +
                         ' data-placement="top"' +
                         ' data-title="' + UnionTStr.AddCol + '"' +
                         '></i>' +
-                        '<div class="colName text textOverflowOneLine tooltipOverflow"' +
-                        ' data-toggle="tooltip" data-container="body"' +
-                        ' data-placement="top"' +
-                        ' data-title="' + xcHelper.escapeHTMLSpecialChar(colName) + '">' +
-                            colName +
-                        '</div>' +
+                        BaseOpPanel.craeteColumnListHTML(col.getType(), colNameTempelate) +
                     '</div>';
         }).join("");
 
@@ -400,16 +402,19 @@ class ColAssignmentView {
                 extraClass = "tooltipOverflow";
                 title = colName;
             }
-            return '<li class="type-' + col.getType() + ' ' + extraClass + '"' +
+            const colType: ColumnType = col.getType();
+            const colNameTempelate: HTML =
+                '<span class="colName">' +
+                    xcHelper.escapeHTMLSpecialChar(colName) +
+                '</span>';
+            return '<li class="type-' + colType + ' ' + extraClass + '"' +
                     ' data-index="' + index + '"' +
                     ' data-toggle="tooltip"' +
                     ' data-title="' + xcHelper.escapeHTMLSpecialChar(title) + '"' +
                     ' data-container="body"' +
                     ' data-placement="top"' +
                     '>' +
-                        '<span class="colName">' +
-                            xcHelper.escapeHTMLSpecialChar(colName) +
-                        '</span>' +
+                        BaseOpPanel.craeteColumnListHTML(colType, colNameTempelate) +
                     '</li>';
         }).join("");
 

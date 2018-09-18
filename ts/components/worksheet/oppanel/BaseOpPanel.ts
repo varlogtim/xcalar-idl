@@ -48,6 +48,30 @@ class BaseOpPanel {
         return this.findXCElement(container, xcid).html();
     }
 
+
+    public static craeteColumnListHTML(
+        colType: ColumnType,
+        colNameTemplate: HTML
+    ): HTML {
+        const html: HTML =
+        '<div class="typeIcon flexContainer flexRow type-' + colType + '">' +
+            '<div class="flexWrap flex-left" ' +
+            ' data-toggle="tooltip"' +
+            ' data-title="' + colType + '"' +
+            ' data-container="body"' +
+            ' data-placement="top"' +
+            '>' +
+                '<span class="iconHidden"></span>' +
+                '<span class="type icon"></span>' +
+            '</div>' +
+            '<div class="flexWrap flex-mid">' +
+                colNameTemplate +
+            '</div>' +
+            '<div class="flexWrap flex-right"></div>' +
+        '</div>';
+        return html;
+    }
+
     public static get Instance() {
         return  this._instance || (this._instance = new this());
     }
