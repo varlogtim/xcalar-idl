@@ -20,6 +20,9 @@ var xpeServerHostname = process.env.XPE_SERVER_HOSTNAME || "127.0.0.1";
 var xpeServerProtocol = process.env.XPE_SERVER_PROTOCOL || "http";
 var xpeServerUrl = xpeServerProtocol + "://" + xpeServerHostname + ":" + xpeServerPort;
 global.xpeServerUrl = xpeServerUrl;
+// keep track if XD window has been auto-maximized
+// (only want to maximize index/login on initial app open, not on refresh, etc.)
+global.maximized = false;
 
 /**
     need to globally keep track of which windows are opened,
