@@ -7,13 +7,18 @@ class DagCategoryBar {
 
     private $dagView: JQuery;
     private $operatorBar: JQuery;
+    private categories: DagCategory[];
 
     public setup(): void {
+        this.categories = new DagCategories().getCategories();
         this.$dagView = $("#dagView");
         this.$operatorBar = this.$dagView.find(".operatorWrap");
         this._setupCategoryBar();
         this._setupDragDrop();
         this._setupScrolling();
+        this._setupSearch();
+        // Activate the favorites category by default
+        this._focusOnCategory(DagCategoryType.Favorites);
     }
 
     public showOrHideArrows(): void {
@@ -26,10 +31,17 @@ class DagCategoryBar {
     }
 
     private _setupCategoryBar(): void {
-        const self = this;
-        const categories: DagCategory[] = new DagCategories().getCategories();
-        let html: HTML = "";
+        this._renderCategoryBar();
+        this._renderOperatorBar();
+        this.$dagView.find(".categories").on("click", ".category", (event) => {
+            const $category: JQuery = $(event.currentTarget);
+            const category: string = $category.data("category");
+            this._focusOnCategory(category);
+        });
+    }
 
+    private _renderCategoryBar() {
+        let html: HTML = "";
         const iconMap = {};
         iconMap[DagCategoryType.Favorites] = "xi-recommend";
         iconMap[DagCategoryType.In] = "xi-horizontal-align-center";
@@ -42,35 +54,20 @@ class DagCategoryBar {
         iconMap[DagCategoryType.Extensions] = "xi-menu-extension";
         iconMap[DagCategoryType.SQL] = "xi-menu-sql";
 
-        categories.forEach((category: DagCategory) => {
-            let classes = "";
-
+        this.categories.forEach((category: DagCategory) => {
             const categoryName: DagCategoryType = category.getName();
-            let icon = iconMap[categoryName];
-            html += `<div class="category category-${categoryName} ${classes}"
+            const icon: string = iconMap[categoryName];
+            html += `<div class="category category-${categoryName}"
             data-category="${categoryName}">
-            <i class="icon categoryIcon ${icon}"></i>
-            <span class="text">${xcHelper.capitalize(categoryName)}</span>
+                <i class="icon categoryIcon ${icon}"></i>
+                <span class="text">${xcHelper.capitalize(categoryName)}</span>
             </div>`;
         });
         html += '<div class="spacer"></div>'; // adds right padding
         this.$dagView.find(".categories").html(html);
-
-        this.$dagView.find(".categories").on("click", ".category", function() {
-            const $category = $(this);
-            const type = $category.data("category");
-            self.$dagView.find(".categories .category").removeClass("active");
-
-            $category.addClass("active");
-            self.$operatorBar.find(".category").removeClass("active");
-            self.$operatorBar.find(".category.category-" + type).addClass("active");
-        });
-
-        this._setupOperatorBar(categories);
     }
 
-    private _setupOperatorBar(categories: DagCategory[]): void {
-        // const iconMap = {};
+    private _renderOperatorBar(): void {
         const iconMap = {};
         iconMap[DagNodeType.Dataset] = "&#xe90f";
         iconMap[DagNodeType.Filter] = "&#xe938;";
@@ -101,28 +98,26 @@ class DagCategoryBar {
         html += '<svg height="0" width="0" style="position:absolute">' +
                 '<defs>' +
                     '<clipPath id="cut-off-right">' +
-                        '<rect width="90" height="27" ry="90" rx="11" stroke="black" stroke-width="1" fill="red" x="6.5" y="0.5" />' +
+                        '<rect width="90" height="27" ry="90" rx="11" ' +
+                        'stroke="black" stroke-width="1" fill="red" ' +
+                        'x="6.5" y="0.5" />' +
                     '</clipPath>' +
                 '</defs>' +
                 '</svg>';
-        categories.forEach(function(category: DagCategory) {
+        this.categories.forEach((category: DagCategory) => {
             const categoryName: string = category.getName();
             const operators: DagCategoryNode[] = category.getOperators();
             html += `<svg version="1.1" height="100%" width="100%" class="category category-${categoryName}">`;
 
-            operators.forEach(function(categoryNode: DagCategoryNode, i) {
+            operators.forEach((categoryNode: DagCategoryNode, i) => {
                 const categoryName: DagCategoryType = categoryNode.getCategoryType();
                 const operator: DagNode = categoryNode.getNode();
                 let numParents: number = operator.getMaxParents();
                 let numChildren: number = operator.getMaxChildren();
-                const operatorName: string = operator.getType();
-                let opDisplayName = xcHelper.capitalize(operatorName);
-                let subType = operator.getSubType() || "";
-                let subTypeDisplayName = xcHelper.capitalize(subType);
-
-                if (opDisplayName === "Sql") {
-                    opDisplayName = "SQL";
-                }
+                const operatorName: string = categoryNode.getNodeType();
+                const opDisplayName: string = categoryNode.getDisplayNodeType();
+                const subType: string = categoryNode.getNodeSubType();
+                const subTypeDisplayName: string = categoryNode.getDisplayNodeSubType();
 
                 if (numChildren === -1) {
                     numChildren = 1;
@@ -194,8 +189,6 @@ class DagCategoryBar {
         });
 
         this.$operatorBar.html(html);
-        // Activate the favorites category by default
-        this.$dagView.find(".categories .category-" + DagCategoryType.Favorites).click();
     }
 
     private _setupDragDrop(): void {
@@ -256,5 +249,86 @@ class DagCategoryBar {
                 $(document).off("mouseup.catScroll");
             });
         });
+    }
+
+    private _setupSearch(): void {
+        const $seachArea: JQuery = this.$dagView.find(".categoryBar .searchArea");
+        const $input: JQuery = $seachArea.find(".searchInput");
+        const $ul: JQuery = $seachArea.find("ul");
+        const menuHelper: MenuHelper = new MenuHelper($seachArea, {
+            bounds: '#' + this.$dagView.attr("id"),
+            bottomPadding: 5
+        });
+
+        $input.on("input", () =>{
+            const keyword = $input.val();
+            if (keyword) {
+                this._renderSearchList(keyword, $ul);
+                menuHelper.openList();
+                this._addMenuEvent(menuHelper);
+            } else {
+                menuHelper.hideDropdowns();
+            }
+            return false;
+        });
+
+        $ul.on("click", "li", (event) =>  {
+            const $li: JQuery = $(event.currentTarget);
+            const category = $li.data("category");
+            menuHelper.hideDropdowns();
+            this._focusOnCategory(category);
+        });
+    }
+
+    private _addMenuEvent(menuHelper: MenuHelper): void {
+        $(document).off("click.CategoryBarSearch");
+        $(document).on('click.CategoryBarSearch', (event) => {
+            if ($(event.currentTarget).closest(".searchArea").length === 0) {
+                menuHelper.hideDropdowns();
+                $(document).off("click.CategoryBarSearch");
+            }
+        });
+    } 
+
+    private _renderSearchList(keyword: string, $ul: JQuery): void {
+        const categoryNodes: DagCategoryNode[] = this._searchOperators(keyword);
+        let html: HTML = "";
+        html = categoryNodes.map((caterogyNode) => {
+            let text: string = caterogyNode.getDisplayNodeType();
+            const subType: string = caterogyNode.getDisplayNodeSubType();
+            if (subType) {
+                text += `(${subType})`;
+            }
+            return `<li data-category="${caterogyNode.getCategoryType()}">${text}</li>`
+        }).join("");
+        if (!html) {
+            html = `<li class="hint">${CommonTxtTstr.NoResult}</li>`;
+        }
+        $ul.html(html);
+    }
+
+    private _searchOperators(keyword: string): DagCategoryNode[] {
+        const categoryNodes: DagCategoryNode[] = [];
+        keyword = keyword.toLowerCase();
+        this.categories.forEach((category) => {
+            if (category.getName() !== DagCategoryType.Favorites) {
+                category.getOperators().forEach((categoryNode) => {
+                    if (categoryNode.getDisplayNodeType().toLowerCase().includes(keyword) ||
+                    categoryNode.getDisplayNodeSubType().toLowerCase().includes(keyword)
+                    ) {
+                        categoryNodes.push(categoryNode);
+                    }
+                });
+            }
+        });
+        return categoryNodes;
+    }
+
+    private _focusOnCategory(category: string) {
+        const $categories: JQuery = this.$dagView.find(".categories");
+        $categories.find(".category").removeClass("active");
+        $categories.find(".category.category-" + category).addClass("active");
+        this.$operatorBar.find(".category").removeClass("active");
+        this.$operatorBar.find(".category.category-" + category).addClass("active");
     }
 }

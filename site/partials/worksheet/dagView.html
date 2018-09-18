@@ -36,10 +36,14 @@
         </section>
     </div>
     <div class="categoryBar">
-        <div class="searchArea">
+        <div class="searchArea dropDownList">
             <div class="searchBox">
-                <input type="text" class="searchInput xc-input" placeholder="Search Tools">
+                <input type="text" class="searchInput xc-input" placeholder="<%= dicts.common.Search %>">
                 <i class="icon searchIcon xi-search"></i>
+            </div>
+            <div class="list">
+              <ul></ul>
+              include "../../util/menuScrollArea.html"
             </div>
         </div>
         <div class="categoryWrap">

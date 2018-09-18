@@ -114,7 +114,7 @@ class DagCategory {
     private name: DagCategoryType;
     private operators: DagCategoryNode[];
 
-    public constructor(name: DagCategoryType, operators) {
+    public constructor(name: DagCategoryType, operators: DagCategoryNode[]) {
         this.name = name;
         this.operators = operators;
     }
