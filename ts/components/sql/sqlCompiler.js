@@ -30,6 +30,7 @@
         "expressions.XcType.int": "int", // Xcalar generated
         "expressions.XcType.bool": "bool", // Xcalar generated
         "expressions.XcType.string": "string", // Xcalar generated
+        "expressions.XcType.timestamp": "timestamp", // Xcalar generated
         // conditionalExpressions.scala
         "expressions.If": "if",
         "expressions.IfStr": "ifStr", // Xcalar generated
@@ -149,27 +150,44 @@
         "expressions.IsString": "isString", // Xcalar generated
 
         // datetimeExpressions.scala
-        "expressions.Cut": "cut", // Split string and extract year // Xcalar generated
-        "expressions.Year": null,
-        "expressions.Month": null,
-        "expressions.DayOfMonth": null,
-        "expressions.DayOfWeek": null,
-        "expressions.DayOfYear": null,
-        "expressions.WeekOfYear": null,
-        "expressions.XcDayOfWeek": "default:dayOfWeek", // Xcalar generated
-        "expressions.XcDayOfYear": "default:dayOfYear", // Xcalar generated
-        "expressions.XcWeekOfYear": "default:weekOfYear", // Xcalar generated
-        "expressions.DateAdd": null,
-        "expressions.DateSub": null,
-        "expressions.TimeAdd": "default:timeAdd",
-        "expressions.TimeSub": "default:timeSub",
-        "expressions.ParseToDate": "default:toDate",
-        "expressions.UnixTimestamp": null,
-        "expressions.XcUnixTimestamp": "default:convertToUnixTS", // Xcalar generated
-        "expressions.ToUTCTimestamp": "default:toUTCTimestamp",
-        "expressions.convertFormats": "default:convertFormats", // XXX default value for udf when input format is not specified is wrong // Xcalar generated
-        "expressions.convertFromUnixTS": "default:convertFromUnixTS", // Use default module here because implementation different from convertFromUnixTS // Xcalar generated
-        "expressions.convertToUnixTS": "default:convertToUnixTS", // And cannot peak what's in the other function // Xcalar generated
+
+        // Since we're not supporting DATE type, results of all DATE related
+        // functions need to go through secondTraverse to be truncated for
+        // displaying purpose
+        "expressions.AddMonths": "addDateInterval", // date
+        "expressions.CurrentDate": null, // Spark
+        "expressions.CurrentTimestamp": null, // Spark
+        "expressions.DateAdd": "addDateInterval", // date
+        "expressions.DateDiff": "dateDiff", // date
+        "expressions.DateFormatClass": "convertFromUnixTS",
+        "expressions.DateSub": "addDateInterval", // date
+        "expressions.LastDay": "lastDayOfMonth", // date
+        "expressions.NextDay": "nextDay", // date
+        "expressions.MonthsBetween": "monthsBetween",
+        "expressions.TimeAdd": "addIntervalString",
+        "expressions.TimeSub": "addIntervalString",
+
+        "expressions.Year": "datePart",
+        "expressions.Quarter": "datePart",
+        "expressions.Month": "datePart",
+        "expressions.WeekOfYear": "weekOfYear",
+        "expressions.DayOfWeek": "datePart",
+        "expressions.DayOfMonth": "datePart",
+        "expressions.DayOfYear": "dayOfYear",
+        "expressions.Hour": "timePart",
+        "expressions.Minute": "timePart",
+        "expressions.Second": "timePart",
+
+        "expressions.FromUnixTime": "timestamp",
+        "expressions.FromUTCTimestamp": null, //"convertTimezone",
+        "expressions.ParseToDate": "timestamp",  // date
+        "expressions.ParseToTimestamp": "timestamp",
+        "expressions.ToUnixTimestamp": "timestamp", // Need int result
+        "expressions.ToUTCTimestamp": null, //"toUTCTimestamp",
+        "expressions.TruncDate": "dateTrunc",  // date
+        "expressions.TruncTimestamp": "dateTrunc",
+        "expressions.UnixTimestamp": "timestamp",
+
 
         "expressions.aggregate.Sum": "sum",
         "expressions.aggregate.Count": "count",
@@ -393,39 +411,6 @@
                 "right": 1
             });
         }
-        function stringToDateNode(origNode) {
-            var node = new TreeNode({
-                "class": "org.apache.spark.sql.catalyst.expressions.convertFormats",
-                "num-children": 3
-            });
-            node.children = [origNode,
-                             literalStringNode("%Y-%m-%d"),
-                             literalStringNode("")];
-            return node;
-        }
-        function timestampToDateNode(origNode) {
-            var node = new TreeNode({
-                "class": "org.apache.spark.sql.catalyst.expressions.convertFromUnixTS",
-                "num-children": 2
-            });
-            node.children = [origNode, literalStringNode("%Y-%m-%d")];
-            return node;
-        }
-        function dateToTimestampNode(origNode) {
-            var node = new TreeNode({
-                "class": "org.apache.spark.sql.catalyst.expressions.convertToUnixTS",
-                "num-children": 2
-            });
-            node.children = [origNode, literalStringNode("")];
-            return node;
-        }
-        function cutNode() {
-            var node = new TreeNode({
-                "class": "org.apache.spark.sql.catalyst.expressions.Cut",
-                "num-children": 3
-            });
-            return node;
-        }
         function castNode(xcType) {
             return new TreeNode({
                 "class": "org.apache.spark.sql.catalyst.expressions.XcType."
@@ -514,16 +499,6 @@
                 break;
             case ("expressions.FindInSet"):
                 node.children = [node.children[1], node.children[0]];
-                break;
-            case ("expressions.DayOfWeek"):
-            case ("expressions.DayOfYear"):
-            case ("expressions.WeekOfYear"):
-                var intNode = castNode("int");
-                var dupNode = dupNodeWithNewName(node, node.value.class
-                            .substring(0, node.value.class.lastIndexOf("."))
-                            + ".Xc" + opName.substring("expressions.".length));
-                intNode.children = [dupNode];
-                node = intNode;
                 break;
             case ("expressions.Substring"):
                 // XXX since this traverse is top down, we will end up
@@ -724,34 +699,10 @@
                 break;
             case ("expressions.Cast"):
                 var type = node.value.dataType;
-                if (type === "timestamp") {
-                    var retNode = ifNode();
-                    var isStringNode = isStrNode();
-                    isStringNode.children = [node.children[0]];
-                    var dttsNode = dateToTimestampNode(node.children[0]);
-                    var intNode = castNode("int");
-                    var intNode2 = castNode("int");
-                    intNode.children = [node.children[0]];
-                    intNode2.children = [dttsNode];
-                    retNode.children = [isStringNode, intNode2, intNode];
-                    node = retNode;
-                } else if (type === "date") {
-                    var retNode = ifNode();
-                    var isStringNode = isStrNode();
-                    isStringNode.children = [node.children[0]];
-                    var intNode = castNode("int");
-                    var strNode = castNode("string");
-                    strNode.children = [node.children[0]];
-                    intNode.children = [node.children[0]];
-                    var tstdNode = timestampToDateNode(intNode);
-                    retNode.children = [isStringNode, strNode, tstdNode];
-                    node = retNode;
-                } else {
-                    var convertedType = convertSparkTypeToXcalarType(type);
-                    node.value.class = node.value.class
-                                .replace("expressions.Cast",
-                                         "expressions.XcType." + convertedType);
-                }
+                var convertedType = convertSparkTypeToXcalarType(type);
+                node.value.class = node.value.class
+                            .replace("expressions.Cast",
+                                     "expressions.XcType." + convertedType);
                 break;
             case ("expressions.aggregate.AggregateExpression"):
                 // If extractAggregates is true, then we need to cut the tree
@@ -796,80 +747,122 @@
                 }
                 break;
             case ("expressions.Year"):
+            case ("expressions.Quarter"):
             case ("expressions.Month"):
+            case ("expressions.DayOfWeek"):
             case ("expressions.DayOfMonth"):
-                // Spark will first try to cast the string/timestamp to DATE
-
-                // Following formats are allowed:
-                // "yyyy"
-                // "yyyy-[m]m"
-                // "yyyy-[m]m-[d]d"
-                // "yyyy-[m]m-[d]d "
-                // "yyyy-[m]m-[d]d *"
-                // "yyyy-[m]m-[d]dT*"
-                // timestamp
+            case ("expressions.Hour"):
+            case ("expressions.Minute"):
+            case ("expressions.Second"):
                 assert(node.children.length === 1,
-                       SQLErrTStr.YMDLength + node.children.length);
-                assert(node.children[0].value.class ===
-                       "org.apache.spark.sql.catalyst.expressions.Cast",
-                       SQLErrTStr.YMDCast + node.children[0].value.class);
-                var dateCastNode = node.children[0];
-                assert(dateCastNode.value.dataType === "date",
-                       SQLErrTStr.YMDDataType + dateCastNode.value.dataType);
-                assert(dateCastNode.children.length === 1,
-                       SQLErrTStr.YMDChildLength + dateCastNode.children.length);
-
-                // Prepare three children for the node
-                var cutIndex = ["Year", "Month", "DayOfMonth"]
-                        .indexOf(opName.substring(opName.lastIndexOf(".") + 1));
-                var cutIndexNode = literalNumberNode(cutIndex + 1);
-                var delimNode = literalStringNode("-");
-                var dateNode;
-
-                // dateCastNode's child can be a column or another cast node
-                var childNode = dateCastNode.children[0];
-                if (childNode.value.class === "org.apache.spark.sql.catalyst." +
-                                             "expressions.AttributeReference") {
-                    // If the child is a column, it must be of string type
-                    assert(childNode.value.dataType === "string" ||
-                           childNode.value.dataType === "date",
-                           SQLErrTStr.YMDString + childNode.value.dataType);
-                    dateNode = stringToDateNode(childNode);
-                } else {
-                    // Otherwise, it has to be another cast node of str/ts type
-                    assert(childNode.value.class ===
-                           "org.apache.spark.sql.catalyst.expressions.Cast",
-                           SQLErrTStr.YMDGrandCast + childNode.value.class);
-                    assert(childNode.children.length === 1,
-                           SQLErrTStr.YMDGrandLength + childNode.children.length);
-                    if (childNode.value.dataType === "string") {
-                        dateNode = stringToDateNode(childNode.children[0]);
-                    } else if (childNode.value.dataType === "timestamp") {
-                        // If it is timestamp cast, we need to first cast the
-                        // child to timestamp and then cast timestamp to date
-                        if (childNode.children[0].value.dataType !==
-                                                                 "double") {
-                            // Convert it to int and then to timestamp
-                            var timestampNode = castNode("float");
-                            timestampNode.children = [childNode.children[0]];
-                            dateNode = timestampToDateNode(timestampNode);
-                        } else {
-                            dateNode = timestampToDateNode(childNode.children[0]);
-                        }
+                       SQLErrTStr.DateTimeOneChild + node.children.length);
+                var lookUpDict = {
+                    "expressions.Year": "Y",
+                    "expressions.Quarter": "Q",
+                    "expressions.Month": "M",
+                    "expressions.DayOfWeek": "W",
+                    "expressions.DayOfMonth": "D",
+                    "expressions.Hour": "H",
+                    "expressions.Minute": "M",
+                    "expressions.Second": "S"
+                };
+                var argNode = literalStringNode(lookUpDict[opName]);
+                node.children.push(argNode);
+                node.value["num-children"]++;
+                break;
+            case ("expressions.FromUnixTime"):
+                assert(node.children.length === 2,
+                       SQLErrTStr.UnixTimeTwoChildren + node.children.length);
+                var multNode = multiplyNode();
+                var thousandNode = literalNumberNode(1000);
+                multNode.children = [node.children[node.value["sec"]], thousandNode];
+                node.children = [multNode];
+                node.value["num-children"] = 1;
+                break;
+            case ("expressions.ToUnixTimestamp"):
+            case ("expressions.UnixTimestamp"):
+                // Takes in string/date/timestamp.
+                // We cast all to timestamp first.
+                assert(node.children.length === 2,
+                       SQLErrTStr.UnixTimeTwoChildren + node.children.length);
+                // remove format node
+                var cNode = castNode("timestamp");
+                cNode.children = [node.children[node.value["timeExp"]]];
+                var intNode = castNode("int");
+                var divNode = divideNode();
+                var parentIntNode = castNode("int");
+                intNode.children = [cNode];
+                divNode.children = [intNode, literalNumberNode(1000)];
+                parentIntNode.children = [divNode];
+                node = parentIntNode;
+                break;
+            case ("expressions.TimeAdd"):
+            case ("expressions.TimeSub"):
+                assert(node.children.length === 2,
+                       SQLErrTStr.TimeIntervalTwoChildren + node.children.length);
+                var intervalNode = node.children[node.value["interval"]];
+                assert(intervalNode.value.class ===
+                       "org.apache.spark.sql.catalyst.expressions.Literal",
+                       SQLErrTStr.TimeIntervalType + intervalNode.value.class);
+                var intervalTypes = ["years",  "months", "days", "hours",
+                                     "minutes", "seconds"];
+                var intervalArray = [0, 0, 0, 0, 0, 0];
+                var typeStr = intervalNode.value.value;
+                var intervalParts = typeStr.split(" ");
+                for (var i = 1; i < intervalParts.length; i += 2) {
+                    var num = parseInt(intervalParts[i]);
+                    var type = intervalParts[i + 1];
+                    if (intervalTypes.indexOf(type) > -1) {
+                        intervalArray[intervalTypes.indexOf(type)] += num;
+                    } else if (type === "week") {
+                        intervalArray[intervalTypes.indexOf("days")] += 7 * num;
+                    } else if (type === "milliseconds") {
+                        intervalArray[intervalTypes.indexOf("seconds")] += num / 1000;
                     } else {
-                        // Other cases should have been rejected by spark
-                        assert(0,
-                               SQLErrTStr.YMDIllegal + childNode.value.dataType);
+                        assert(0, SQLErrTStr.UnsupportedIntervalType + type);
                     }
                 }
-                var cuNode = cutNode();
-                cuNode.children = [dateNode, cutIndexNode, delimNode];
-
-                var intCastNode = castNode("int");
-                intCastNode.children = [cuNode, literalNumberNode(10)];
-                intCastNode.value["num-children"] = 2;
-
-                node = intCastNode;
+                var intervalStr = "";
+                for (var i = 0; i < intervalArray.length; i++) {
+                    if (opName === "expressions.TimeSub") {
+                        intervalStr += "-" + intervalArray[i] + ",";
+                    } else {
+                        intervalStr += intervalArray[i] + ",";
+                    }
+                }
+                if (intervalStr.endsWith(",")) {
+                    intervalStr = intervalStr.substring(0, intervalStr.length - 1);
+                }
+                var newIntervalNode = literalStringNode(intervalStr);
+                node.children[node.value["interval"]] = newIntervalNode;
+                break;
+            case ("expressions.DateFormatClass"):
+                assert(node.children.length === 2,
+                       SQLErrTStr.DateFormatTwoChildren + node.children.length);
+                var formatNode = node.children[1];
+                if (formatNode.value.class ===
+                        "org.apache.spark.sql.catalyst.expressions.Literal") {
+                    var formatStr = formatNode.value.value;
+                    var segments = formatStr.split("%");
+                    for (i in segments) {
+                        segments[i] = segments[i].replace(/(^|[^%])(YYYY|yyyy|YYY|yyy)/g, "$1%Y")
+                                                 .replace(/(^|[^%])(YY|yy)/g, "$1%y")
+                                                 .replace(/(^|[^%])(Y|y)/g, "$1%Y")
+                                                 .replace(/(^|[^%])(MM|M)/g, "$1%m")
+                                                 .replace(/(^|[^%])(dd|d)/g, "$1%d")
+                                                 .replace(/(^|[^%])(HH|H)/g, "$1%H")
+                                                 .replace(/(^|[^%])(hh|h)/g, "$1%I")
+                                                 .replace(/(^|[^%])(mm|m)/g, "$1%M")
+                                                 .replace(/(^|[^%])(ss|s)/g, "$1%S");
+                    }
+                    formatStr = segments.join("%%");
+                    formatNode.value.value = formatStr;
+                } else {
+                    assert(0, SQLErrTStr.DateFormatNotColumn);
+                }
+                // var intNode = castNode("int");
+                // intNode.children = [node];
+                // node = intNode;
                 break;
             case ("expressions.Coalesce"):
                 // XXX It's a hack. It should be compiled into CASE WHEN as it
@@ -896,26 +889,6 @@
                 powNode.children = [tenNode, node.children[1]];
                 ronNode.children = [mulNode];
                 node = divNode;
-                break;
-            // XXX if format %Y-%m, UDF assume day is 13
-            // And 1995-10-29 + 1 day = 1995-10-29
-            case ("expressions.DateAdd"):
-            case ("expressions.DateSub"):
-                var asNode;
-                if (opName === "expressions.DateAdd") {
-                    asNode = addNode();
-                } else {
-                    asNode = subtractNode();
-                }
-                var tstdNode = timestampToDateNode(asNode);
-                var mulNode = multiplyNode();
-                var numNode = literalNumberNode(86400);
-                var caNode = castNode("float");
-                var dttsNode = dateToTimestampNode(node.children[0]);
-                mulNode.children = [node.children[1], numNode];
-                caNode.children = [dttsNode]
-                asNode.children = [caNode, mulNode];
-                node = tstdNode;
                 break;
             case ("expressions.IsNull"):
                 var nNode = notNode();
@@ -954,33 +927,65 @@
                     node.children[node.value["substr"]], intNode, zeroNode];
                 node = retNode;
                 break;
-            case ("expressions.ToUnixTimestamp"):
-            case ("expressions.UnixTimestamp"):
-                var formatNode = node.children[node.value["format"]];
-                if (formatNode.value.class ===
-                        "org.apache.spark.sql.catalyst.expressions.Literal") {
-                    var formatStr = formatNode.value.value;
-                    formatStr = formatStr.replace(/yyyy/g, "%Y")
-                                .replace(/YYYY/g, "%Y").replace(/yy/g, "%y")
-                                .replace(/YY/g, "%y").replace(/MM/g, "%m")
-                                .replace(/DD/g, "%d").replace(/dd/g, "%d")
-                                .replace(/HH/g, "%H").replace(/hh/g, "%I")
-                                .replace(/mm/g, "%M").replace(/ss/g, "%S")
-                                .replace(/SS/g, "%S");
-                    formatNode.value.value = formatStr;
-                }
-                var dupNode = dupNodeWithNewName(node,
-                    "org.apache.spark.sql.catalyst.expressions.XcUnixTimestamp");
-                var intNode = castNode("int");
-                intNode.children = [dupNode];
-                node = intNode;
-                break;
             case ("expressions.Rank"):
             case ("expressions.PercentRank"):
             case ("expressions.DenseRank"):
                 node.children = [];
                 node.value["num-children"] = 0;
                 break;
+            case ("expressions.TruncTimestamp"):
+            case ("expressions.DateDiff"):
+                node.children = [node.children[1], node.children[0]];
+                break;
+            case ("expressions.AddMonths"):
+                node.value["num-children"] = 4;
+                var zeroNode = literalNumberNode(0);
+                node.children = [node.children[0], zeroNode, node.children[1], zeroNode];
+                break;
+            case ("expressions.DateAdd"):
+                node.value["num-children"] = 4;
+                var zeroNode = literalNumberNode(0);
+                node.children = [node.children[0], zeroNode, zeroNode, node.children[1]];
+                break;
+            case ("expressions.DateSub"):
+                assert(node.children.length === 2,
+                    SQLErrTStr.DateSubTwoChildren + node.children.length);
+                node.value["num-children"] = 4;
+                var zeroNode = literalNumberNode(0);
+                var intNode = castNode("int");
+                var mulNode = multiplyNode();
+                var mOneNode = literalNumberNode(-1);
+                intNode.children = [mulNode];
+                mulNode.children = [mOneNode, node.children[1]];
+                node.children = [node.children[0], zeroNode, zeroNode, intNode];
+                break;
+            // case ("expressions.FromUTCTimestamp"):
+            //     assert(node.children.length === 2,
+            //             SQLErrTStr.UTCTZTwoChildren + node.children.length);
+            //     var formatNode = node.children[1];
+            //     if (formatNode.value.class ===
+            //             "org.apache.spark.sql.catalyst.expressions.Literal") {
+            //         // TODO
+            //         // var formatStr = formatNode.value.value;
+            //         // formatStr = formatStr.replace(/YYYY|yyyy|YYY|yyy/g, "%Y")
+            //         //                     .replace(/YY|yy/g, "%y")
+            //         //                     .replace(/Y|y/g, "%Y")
+            //         //                     .replace(/MM|M/g, "%M")
+            //         //                     .replace(/dd|d/g, "%d")
+            //         //                     .replace(/HH|H/g, "%H")
+            //         //                     .replace(/hh|h/g, "%I")
+            //         //                     .replace(/mm|m/g, "%M")
+            //         //                     .replace(/ss|s/g, "%S");
+            //         // if (formatStr.indexOf("%%") > -1) {
+            //         //     // XXX FIXME Limiting the valid formats now as I can't
+            //         //     // find a perfect regex solution. Feel free to extend it
+            //         //     assert(0, SQLErrTStr.InvliadDateFormat);
+            //         // }
+            //         // formatNode.value.value = formatStr;
+            //     } else {
+            //         assert(0, SQLErrTStr.UTCTZNotColumn);
+            //     }
+            //     break;
             default:
                 break;
         }
@@ -5422,12 +5427,11 @@
                     outStr += convertSparkTypeToXcalarType(
                                     condTree.value.dataType) + "(None)";
                 } else if (condTree.value.dataType === "string" ||
-                    condTree.value.dataType === "date" ||
                     condTree.value.dataType === "calendarinterval") {
                     outStr += '"' + condTree.value.value + '"';
-                } else if (condTree.value.dataType === "timestamp") {
-                    outStr += 'default:convertToUnixTS("' +
-                                                    condTree.value.value + '")';
+                } else if (condTree.value.dataType === "timestamp" ||
+                           condTree.value.dataType === "date") {
+                    outStr += 'timestamp("' + condTree.value.value + '")';
                 } else {
                     // XXX Check how they rep booleans
                     outStr += condTree.value.value;
@@ -5712,7 +5716,6 @@
             case ("double"):
             case ("float"):
                 return "float";
-            case ("timestamp"):
             case ("integer"):
             case ("long"):
             case ("short"):
@@ -5722,8 +5725,10 @@
             case ("boolean"):
                 return "bool";
             case ("string"):
-            case ("date"):
                 return "string";
+            case ("date"):
+            case ("timestamp"):
+                return "timestamp";
             default:
                 assert(0, SQLErrTStr.UnsupportedColType + dataType);
                 return "string";
@@ -5812,14 +5817,14 @@
         "or": "bool",
         "regex": "bool",
         "startsWith": "bool",
-        "convertDate": "string",
-        "convertFromUnixTS": "String",
-        "convertToUnixTS": "int",
-        "dateAddDay": "string",
-        "dateAddInterval": "string",
-        "dateAddMonth": "string",
-        "dateAddYear": "string",
-        "dateDiffday": "int",
+        // "convertDate": "string",
+        // "convertFromUnixTS": "String",
+        // "convertToUnixTS": "int",
+        // "dateAddDay": "string",
+        // "dateAddInterval": "string",
+        // "dateAddMonth": "string",
+        // "dateAddYear": "string",
+        // "dateDiffday": "int",
         "ipAddrToInt": "int",
         "macAddrToInt": "int",
         "dhtHash": "int",
@@ -5873,16 +5878,16 @@
         "float": "float",
         "int": "int",
         "string": "string",
-        "default:dayOfWeek": "string",
-        "default:dayOfYear": "string",
-        "default:weekOfYear": "string",
-        "default:timeAdd": "string",
-        "default:timeSub": "string",
-        "default:toDate": "string",
-        "default:convertToUnixTS": "string",
-        "default:toUTCTimestamp": "string",
-        "default:convertFormats": "string",
-        "default:convertFromUnixTS": "string",
+        // "default:dayOfWeek": "string",
+        // "default:dayOfYear": "string",
+        // "default:weekOfYear": "string",
+        // "default:timeAdd": "string",
+        // "default:timeSub": "string",
+        // "default:toDate": "string",
+        // "default:convertToUnixTS": "string",
+        // "default:toUTCTimestamp": "string",
+        // "default:convertFormats": "string",
+        // "default:convertFromUnixTS": "string",
         "sum": "float",
         "count": "int",
         "avg": "float",
