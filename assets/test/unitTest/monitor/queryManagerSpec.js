@@ -310,15 +310,16 @@ describe('QueryManager Test', function() {
                     stateCalledTwice = true;
                 }
                 stateCalled = true;
-                return PromiseHelper.resolve({queryState: QueryStateT.qrProcessing,
-                    numCompletedWorkItem: 1});
-            };
-
-            var cacheOp = XcalarGetOpStats;
-            var opCalled = false;
-            XcalarGetOpStats = function() {
-                opCalled = true;
-                return PromiseHelper.resolve({opDetails: {numWorkCompleted: 4, numWorkTotal: 8}});
+                return PromiseHelper.resolve({
+                    queryState: QueryStateT.qrProcessing,
+                    numCompletedWorkItem: 1,
+                    queryGraph: {
+                        node: [{
+                            numWorkCompleted: 4,
+                            numWorkTotal: 8
+                        }]
+                    }
+                });
             };
 
             QueryManager.addQuery(9999, "unitTest");
@@ -337,13 +338,11 @@ describe('QueryManager Test', function() {
                 expect(query.subQueries[1].state).to.equal(0);
                 expect(query.currStep).to.equal(1);
                 expect(query.state).to.equal(0);
-                expect(opCalled).to.be.true;
 
                 QueryManager.queryDone(9999);
                 expect(query.state).to.equal("done");
 
                 XcalarQueryState = cachedQueryState;
-                XcalarGetOpStats = cacheOp;
                 done();
             })
             .fail(function() {

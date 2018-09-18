@@ -582,35 +582,6 @@ namespace QueryManager {
     };
 
     /**
-     * QueryManager.check
-     * @param doNotAnimate
-     */
-    export function check(doNotAnimate?: boolean): void {
-        // check queries
-        for (const xcQuery in queryLists) {
-            const query: XcQuery = queryLists[xcQuery];
-            if (query.type === "restored") {
-                continue;
-            }
-            if (query.state !== QueryStatus.Done &&
-                query.state !== QueryStatus.Cancel &&
-                query.state !== QueryStatus.Error) {
-                for (let i = 0; i < query.subQueries.length; i++) {
-                    const subQuery: XcSubQuery = query.subQueries[i];
-                    if (subQuery.state !== QueryStatus.Done) {
-                        if (subQuery.queryName) {
-                            xcalarQueryCheck(query.getId(), doNotAnimate);
-                        } else {
-                            operationCheck(subQuery);
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-    };
-
-    /**
      * QueryManager.getAll
      */
     export function getAll(): object {
@@ -945,9 +916,14 @@ namespace QueryManager {
                     updateQueryBar(id, res, true, false, doNotAnimate);
                     deferred.reject(); // ends cycle
                 } else {
-                    if (mainQuery.subQueries[currStep].retName) {
-                        const pct: number = parseFloat((100 * DFCard.getProgress(queryName).curOpPct)
-                                    .toFixed(2));
+                    try {
+                        let progress: number;
+                        if (mainQuery.subQueries[currStep].retName) {
+                            progress = res.progress;
+                        } else {
+                            progress = xcHelper.getQueryProgress(res);
+                        }
+                        const pct: number = parseFloat((100 * progress).toFixed(2));
                         updateQueryBar(id, pct, false, false, doNotAnimate);
                         mainQuery.setElapsedTime();
                         updateStatusDetail({
@@ -959,9 +935,8 @@ namespace QueryManager {
                             "total": xcHelper.getElapsedTimeStr(
                                         mainQuery.getElapsedTime(), null, true),
                         }, id);
-                    } else {
-                        operationCheckHelper(mainQuery.subQueries[currStep], id,
-                                        currStep, doNotAnimate);
+                    } catch (e) {
+                        console.error(e);
                     }
                     // only stop animation the first time, do not persist it
                     doNotAnimate = false;
@@ -987,21 +962,21 @@ namespace QueryManager {
         if (curSubQuery.retName) {
             // if retina doesn't exist in dfcard, we stil update the elapsed
             // time, but the steps and % will be at 0
-            const progress: DFProgressData  = DFCard.getProgress(curSubQuery.retName);
+            const progress: DFProgressData = DFCard.getProgress(curSubQuery.retName);
             let status: QueryStateT;
             if (progress.pct === 1) {
                 status = QueryStateT.qrFinished;
             } else {
                 status = QueryStateT.qrProcessing;
             }
-            const ret: object = {
-                numCompletedWorkItem: progress.numCompleted,
-                queryState: status
-            };
             if (mainQuery.name === SQLOps.Retina && progress.opTime) {
                 mainQuery.setOpTime(progress.opTime);
             }
-            return PromiseHelper.resolve(ret);
+            return PromiseHelper.resolve({
+                numCompletedWorkItem: progress.numCompleted,
+                queryState: status,
+                progress: progress.curOpPct
+            });
         } else {
             return XcalarQueryState(queryName);
         }
@@ -1111,7 +1086,6 @@ namespace QueryManager {
                     .removeClass(QueryStatus.RM)
                     .addClass(state + "");
         if (state === QueryStatus.Run) {
-            // QueryManager.check(true);
             // we need to update the extraProgressBar even if we don't
             // have status data otherwise we'll have the progressBar of the
             // previous query
@@ -1290,28 +1264,23 @@ namespace QueryManager {
         }
         // only stop animation the first time, do not persist it
         const doNotAnimate: boolean = false;
-
         const startTime: number = Date.now();
-        if (delay) {
-            setTimeout(function() {
-                operationCheckHelper(subQuery, id, subQuery.index, doNotAnimate)
-                .then(function() {
-                    const elapsedTime: number = Date.now() - startTime;
-                    checkCycle(function() {
-                        return operationCheckHelper(subQuery, id, subQuery.index,
-                                                   doNotAnimate);
-                    }, id, elapsedTime);
-                });
-            }, delay);
-        } else {
+        const check = () => {
             operationCheckHelper(subQuery, id, subQuery.index, doNotAnimate)
-            .then(function() {
+            .then(() => {
                 const elapsedTime: number = Date.now() - startTime;
-                checkCycle(function() {
+                checkCycle(() => {
                     return operationCheckHelper(subQuery, id, subQuery.index,
-                                               doNotAnimate);
+                                                doNotAnimate);
                 }, id, elapsedTime);
             });
+        };
+        if (delay) {
+            setTimeout(() => {
+                check();
+            }, delay);
+        } else {
+            check();
         }
     }
 

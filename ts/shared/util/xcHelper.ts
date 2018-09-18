@@ -6231,6 +6231,18 @@ namespace xcHelper {
         return finalCols;
     }
 
+    export function getQueryProgress(queryStateOutput: any): number {
+        let progress: number = null;
+        let numWorkCompleted: number = 0;
+        let numWorkTotal: number = 0
+        queryStateOutput.queryGraph.node.forEach((node) => {
+            numWorkCompleted += node.numWorkCompleted;
+            numWorkTotal += node.numWorkTotal;
+        });
+        progress = numWorkCompleted / numWorkTotal;
+        return progress;
+    }
+
     export let __testOnly__: any = {};
 
     if (typeof window !== 'undefined' && window['unitTestMode']) {

@@ -168,16 +168,11 @@ namespace Transaction {
             const txLog: TXLog = txCache[txId]; 
             if (txLog && txLog.nodeId) {
                 try {
-                    let numWorkCompleted: number = 0;
-                    let numWorkTotal: number = 0
-                    queryStateOutput.queryGraph.node.forEach((node) => {
-                        numWorkCompleted += node.numWorkCompleted;
-                        numWorkTotal += node.numWorkTotal;
-                    });
-                    const pct: number = Math.round(100 * numWorkCompleted / numWorkTotal);
+                    const progress: number = xcHelper.getQueryProgress(queryStateOutput);
+                    const pct: number = Math.round(100 * progress);
                     DagView.updateProgress(txLog.nodeId, pct);
                 } catch (e) {
-                    console.error("update transaction error", e);
+                    console.error(e);
                 }
             }
         }
