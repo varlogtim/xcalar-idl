@@ -29,6 +29,10 @@ class DagNodeFactory {
                 return new DagNodeCustom(<DagNodeCustomInfo>options);
             case DagNodeType.CustomInput:
                 return new DagNodeCustomInput(options);
+            case DagNodeType.IMDTable:
+                return new DagNodeIMDTable(options);
+            case DagNodeType.PublishIMD:
+                return new DagNodePublishIMD(options);
             default:
                 throw new Error("node type " + options.type + " not supported");
         }

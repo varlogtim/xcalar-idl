@@ -13,7 +13,9 @@ enum DagNodeType {
     SQL = "sql",
     Extension = "extension",
     Custom = "custom",
-    CustomInput = "customInput"
+    CustomInput = "customInput",
+    IMDTable = "IMDTable",
+    PublishIMD = "publishIMD"
 }
 
 enum DagNodeSubType {

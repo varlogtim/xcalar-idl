@@ -27,12 +27,18 @@ class DagCategories {
         const inCategory = new DagCategory(DagCategoryType.In, [
             new DagCategoryNodeIn(DagNodeFactory.create({
                 type: DagNodeType.Dataset
+            })),
+            new DagCategoryNodeIn(DagNodeFactory.create({
+                type: DagNodeType.IMDTable
             }))
         ]);
 
         const outCategory = new DagCategory(DagCategoryType.Out, [
             new DagCategoryNodeOut(DagNodeFactory.create({
                 type: DagNodeType.Export
+            })),
+            new DagCategoryNodeOut(DagNodeFactory.create({
+                type: DagNodeType.PublishIMD
             }))
         ]);
 

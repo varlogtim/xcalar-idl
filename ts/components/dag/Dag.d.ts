@@ -24,6 +24,10 @@ interface DagNodeDatasetInfo extends DagNodeInfo {
     columns?: {name: string, type: ColumnType}[]
 }
 
+interface DagNodeIMDTableInfo extends DagNodeInfo {
+    columns?: {name: string, type: ColumnType}[]
+}
+
 interface DagNodeAggregateInfo extends DagNodeInfo {
     aggVal: number | string
 }
@@ -42,6 +46,18 @@ interface DagNodeAggregateInput {
 interface DagNodeDatasetInput {
     source: string;
     prefix: string;
+}
+
+interface DagNodeIMDTableInput {
+    source: string;
+    latest: boolean;
+    time: Date;
+}
+
+interface DagNodePublishIMDInput {
+    name: string;
+    key: string;
+    operator: string;
 }
 
 interface DagNodeExportInput {
