@@ -79,7 +79,7 @@ interface DagNodeJoinInput {
 
 interface DagNodeMapInput {
     eval: {evalString: string, newField: string}[];
-    icv: boolean
+    icv: boolean;
 }
 
 interface DagNodeProjectInput {

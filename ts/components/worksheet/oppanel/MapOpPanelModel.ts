@@ -222,7 +222,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
 
         return {
             eval: evals,
-            icv: this.icv
+            icv: this.icv,
         }
     }
 
@@ -289,5 +289,10 @@ class MapOpPanelModel extends GeneralOpPanelModel {
         } else {
             return null;
         }
+    }
+
+    protected submit() {
+        this.dagNode.setAggregates(this.aggregates);
+        super.submit();
     }
 }

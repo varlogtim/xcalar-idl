@@ -1,11 +1,29 @@
 class DagNodeFilter extends DagNode {
     protected input: DagNodeFilterInput;
+    private _aggregates: Map<number, string>;
 
     public constructor(options: DagNodeInfo) {
         super(options);
         this.type = DagNodeType.Filter;
         this.allowAggNode = true;
         this.minParents = 1;
+        this._aggregates = new Map<number,string>();
+    }
+
+        /**
+     * @returns {Map<number, string>} used aggregates
+     */
+    public getAggregates(): Map<number, string> {
+        return this._aggregates;
+    }
+
+    /**
+     * Sets the aggregates for this node
+     * @param aggregates 
+     */
+    public setAggregates(aggregates: Map<number, string>): void {
+        this._aggregates = aggregates;
+        // TODO: Update how used aggregates are shown
     }
 
     /**
@@ -13,7 +31,7 @@ class DagNodeFilter extends DagNode {
      */
     public getParam(): DagNodeFilterInput {
         return {
-            evalString: this.input.evalString || ""
+            evalString: this.input.evalString || "",
         };
     }
 
@@ -24,7 +42,7 @@ class DagNodeFilter extends DagNode {
      */
     public setParam(input: DagNodeFilterInput = <DagNodeFilterInput>{}) {
         this.input = {
-            evalString: input.evalString
+            evalString: input.evalString,
         }
         super.setParam();
     }

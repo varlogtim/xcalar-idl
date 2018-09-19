@@ -102,8 +102,17 @@ class DagExecute {
             dstAggName = dstAggName.substring(1);
         }
         XIApi.aggregateWithEvalStr(this.txId, evalStr, tableName, dstAggName)
-        .then((aggRes) => {
-            node.setAggVal(aggRes);
+        .then((value, aggName, toDelete) => {
+            node.setAggVal(value);
+            const aggRes: object = {
+                value: value,
+                dagName: aggName,
+                aggName: "\^" + aggName,
+                tableId: tableName,
+                backColName: null,
+                op: null
+            };
+            Aggregates.addAgg(aggRes, toDelete);
             deferred.resolve(null); // no table generated
         })
         .fail(deferred.reject);

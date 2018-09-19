@@ -52,6 +52,7 @@ class FilterOpPanel extends GeneralOpPanel {
             this.filterData = new FilterOpPanelModel(node, () => {
                 this._render();
             });
+            this.filterData.setAggregates(node.getAggregates());
             super._panelShowHelper(this.filterData);
             this._$panel.find('.functionsInput').focus();
 

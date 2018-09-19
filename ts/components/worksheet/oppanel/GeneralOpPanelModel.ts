@@ -5,6 +5,7 @@ class GeneralOpPanelModel {
     protected groups: OpPanelFunctionGroup[]; // TODO fix
     protected andOrOperator: string;
     protected _opCategories: number[];
+    protected aggregates: Map<number, string>;
 
     public constructor(dagNode: DagNode, event: Function) {
         this.dagNode = dagNode;
@@ -25,12 +26,21 @@ class GeneralOpPanelModel {
     public getModel(): any {
         return {
             groups: this.groups,
-            andOrOperator: this.andOrOperator
+            andOrOperator: this.andOrOperator,
+            aggregates: this.aggregates
         }
     }
 
     public getColumns() {
         return this.tableColumns;
+    }
+
+    public getAggregates() {
+        return this.aggregates;
+    }
+
+    public setAggregates(aggregates: Map<number, string>) {
+        this.aggregates = aggregates;
     }
 
     public addGroup(): void {
@@ -102,6 +112,11 @@ class GeneralOpPanelModel {
             }
             this._formatArg(arg);
             this._validateArg(arg);
+            if (arg.getType() == "aggregate") {
+                this.aggregates[argIndex] = arg.getValue();
+            } else {
+                delete this.aggregates[argIndex];
+            }
         }
     }
 
@@ -166,11 +181,26 @@ class GeneralOpPanelModel {
         } else if (xcHelper.hasValidColPrefix(trimmedVal)) {
             formattedValue = self._parseColPrefixes(trimmedVal);
             arg.setType("column");
+        } else if (this._isAgg(trimmedVal)) {
+            formattedValue = trimmedVal;
+            arg.setType("aggregate");
         } else {
             formattedValue = self._formatArgumentInput(val, arg.getTypeid(), {}).value
             arg.setType("value");
         }
         arg.setFormattedValue(formattedValue.toString());
+    }
+
+    protected _isAgg(arg: string) {
+        if (arg[0] != "\^") {
+            return false;
+        }
+        const argName: string = arg.substring(1);
+        const aggs = Aggregates.getNamedAggs();
+        if (aggs[argName] != null) {
+            return true;
+        }
+        return false;
     }
 
     protected _validateArg(arg: OpPanelArg) {

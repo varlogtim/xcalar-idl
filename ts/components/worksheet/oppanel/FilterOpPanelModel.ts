@@ -165,6 +165,7 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
         this.groups = groups;
         this.andOrOperator = "and";
 
+
         function formatArgToUI(arg) {
             if (arg.charAt(0) !== ("'") && arg.charAt(0) !== ('"')) {
                 if (self._isArgAColumn(arg)) {
@@ -207,7 +208,7 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
         const evalString = xcHelper.formulateMapFilterString(this.groups,
                                                              this.andOrOperator);
         return {
-            evalString: evalString
+            evalString: evalString,
         }
     }
 
@@ -230,5 +231,10 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
                 return e;
             }
         }
+    }
+
+    protected submit() {
+        this.dagNode.setAggregates(this.aggregates);
+        super.submit();
     }
 }

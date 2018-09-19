@@ -1,11 +1,29 @@
 class DagNodeMap extends DagNode {
     protected input: DagNodeMapInput;
+    private _aggregates: Map<number, string>;
 
     public constructor(options: DagNodeInfo) {
         super(options);
         this.type = DagNodeType.Map;
         this.allowAggNode = true;
         this.minParents = 1;
+        this._aggregates = new Map<number,string>();
+    }
+
+    /**
+     * @returns {Map<number, string>} used aggregates
+     */
+    public getAggregates(): Map<number, string> {
+        return this._aggregates;
+    }
+
+    /**
+     * Sets the aggregates for this node
+     * @param aggregates 
+     */
+    public setAggregates(aggregates: Map<number, string>): void {
+        this._aggregates = aggregates;
+        // TODO: Update how used aggregates are shown
     }
 
     /**
@@ -14,7 +32,7 @@ class DagNodeMap extends DagNode {
     public getParam(): DagNodeMapInput {
         return {
             eval: this.input.eval || [{evalString: "", newField: ""}],
-            icv: this.input.icv || false
+            icv: this.input.icv || false,
         };
     }
 
@@ -26,7 +44,7 @@ class DagNodeMap extends DagNode {
     public setParam(input: DagNodeMapInput = <DagNodeMapInput>{}) {
         this.input = {
             eval: input.eval,
-            icv: input.icv
+            icv: input.icv,
         }
         super.setParam();
     }

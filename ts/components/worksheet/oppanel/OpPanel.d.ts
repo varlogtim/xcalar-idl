@@ -1,4 +1,4 @@
-type OpPanelArgType = "value" | "column" | "function" | "regex";
+type OpPanelArgType = "value" | "column" | "function" | "regex" | "aggregate";
 
 interface OpPanelFunctionGroup {
     operator: string;
