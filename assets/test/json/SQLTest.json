@@ -92,7 +92,8 @@
                         "leftOuterNonEqui1": "select N_NATIONKEY, R_REGIONKEY from NATION left outer join REGION on N_NATIONKEY < R_REGIONKEY order by N_NATIONKEY desc",
                         "leftOuterNonEqui2": "select N_NATIONKEY, R_REGIONKEY from NATION left outer join REGION on N_NATIONKEY < R_REGIONKEY and R_REGIONKEY = N_REGIONKEY order by N_NATIONKEY",
                         "rightOuterNonEqui": "select N_NATIONKEY, R_REGIONKEY from NATION right outer join REGION on N_NATIONKEY < R_REGIONKEY and R_REGIONKEY = N_REGIONKEY order by R_REGIONKEY",
-                        "fullOuterNonEqui": "select N_NATIONKEY, R_REGIONKEY from NATION full outer join REGION on N_NATIONKEY < R_REGIONKEY and R_REGIONKEY = N_REGIONKEY order by N_NATIONKEY, R_REGIONKEY"
+                        "fullOuterNonEqui": "select N_NATIONKEY, R_REGIONKEY from NATION full outer join REGION on N_NATIONKEY < R_REGIONKEY and R_REGIONKEY = N_REGIONKEY order by N_NATIONKEY, R_REGIONKEY",
+                        "nullCol": "SELECT null a, string(null) b, cast(null as double) c, cast(cast(null as string) as int) d from REGION ORDER BY R_REGIONKEY"
                 },
                 "answers": {
                         "onlyLRDD": {"numOfRows": "5",
@@ -311,7 +312,10 @@
                         "fullOuterNonEqui": {"columns": ["N_NATIONKEY", "R_REGIONKEY"],
                                               "row0": [null, 0],
                                               "row5": [0, null],
-                                              "numOfRows": "30"}
+                                              "numOfRows": "30"},
+                        "nullCol": {"row0": ["FNF", "FNF", "FNF", "FNF"],
+                                    "row2": ["FNF", "FNF", "FNF", "FNF"],
+                                    "numOfRows": "5"}
                 },
                 "tables": {
                         "dataSource": "/netstore/datasets/tpch_sf1/",

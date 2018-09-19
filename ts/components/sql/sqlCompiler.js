@@ -5418,7 +5418,10 @@
                 outStr += colName;
             } else if (condTree.value.class ===
                 "org.apache.spark.sql.catalyst.expressions.Literal") {
-                if (condTree.value.dataType === "string" ||
+                if (condTree.value.value == null) {
+                    outStr += convertSparkTypeToXcalarType(
+                                    condTree.value.dataType) + "(None)";
+                } else if (condTree.value.dataType === "string" ||
                     condTree.value.dataType === "date" ||
                     condTree.value.dataType === "calendarinterval") {
                     outStr += '"' + condTree.value.value + '"';
@@ -5504,10 +5507,14 @@
                     "org.apache.spark.sql.catalyst.expressions.Literal")) {
                     // This is a special alias case
                     assert(evalList[i][1].dataType, SQLErrTStr.NoDataType);
-                    var dataType = convertSparkTypeToXcalarType(
-                        evalList[i][1].dataType);
-                    retStruct.evalStr = dataType + "(" +retStruct.evalStr + ")";
-                    retStruct.numOps += 1;
+                    if (evalList[i][1].dataType !== "timestamp" &&
+                        evalList[i][1].dataType !== "date" &&
+                        evalList[i][1].value !== null) {
+                        var dataType = convertSparkTypeToXcalarType(
+                                                    evalList[i][1].dataType);
+                        retStruct.evalStr = dataType + "(" +retStruct.evalStr + ")";
+                        retStruct.numOps += 1;
+                    }
                 }
                 evalStrArray.push(retStruct);
             } else {
@@ -5710,14 +5717,13 @@
             case ("long"):
             case ("short"):
             case ("byte"):
+            case ("null"):
                 return "int";
             case ("boolean"):
                 return "bool";
             case ("string"):
             case ("date"):
                 return "string";
-            case ("null"):
-                return "null";
             default:
                 assert(0, SQLErrTStr.UnsupportedColType + dataType);
                 return "string";
