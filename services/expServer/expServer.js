@@ -47,15 +47,15 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     var url = require('url')
     var socket = require('./socket.js').socketIoServer;
     var serverPort = process.env.XCE_EXP_PORT ?
-        process.env.XCE_EXP_PORT : 12124;
+        parseInt(process.env.XCE_EXP_PORT) : 12124;
     if (process.env.NODE_ENV === "test") {
         // For expServer test
         serverPort = 12125;
     }
     var thriftPort = process.env.XCE_THRIFT_PORT ?
-        process.env.XCE_THRIFT_PORT : 9090;
+        parseInt(process.env.XCE_THRIFT_PORT) : 9090;
     var jupyterPort = process.env.XCE_JUPYTER_PORT ?
-        process.env.XCE_JUPYTER_PORT : 8890;
+        parseInt(process.env.XCE_JUPYTER_PORT) : 8890;
 
     var _0x66c0=["\x2E\x2F\x65\x78\x70\x53\x65\x72\x76\x65\x72\x53\x75\x70\x70\x6F\x72\x74\x2E\x6A\x73","\x4E\x4F\x44\x45\x5F\x45\x4E\x56","\x65\x6E\x76","\x64\x65\x76","\x75\x73\x65\x72\x54\x72\x75\x65","\x63\x68\x65\x63\x6B\x41\x75\x74\x68\x54\x72\x75\x65","\x61\x64\x6D\x69\x6E\x54\x72\x75\x65","\x63\x68\x65\x63\x6B\x41\x75\x74\x68\x41\x64\x6D\x69\x6E\x54\x72\x75\x65","\x70\x72\x6F\x78\x79\x55\x73\x65\x72\x54\x72\x75\x65","\x63\x68\x65\x63\x6B\x50\x72\x6F\x78\x79\x41\x75\x74\x68\x54\x72\x75\x65"];var support=require(_0x66c0[0]);if(process[_0x66c0[2]][_0x66c0[1]]=== _0x66c0[3]){support[_0x66c0[5]](support[_0x66c0[4]]);support[_0x66c0[7]](support[_0x66c0[6]]);support[_0x66c0[9]](support[_0x66c0[8]])}
 
@@ -244,7 +244,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
               port: jupyterPort
            }
         });
-        httpServerJupyter.listen(port + 1, function() {
+        httpServerJupyter.listen((port + 1), function() {
             xcConsole.log("All ready, Listen on port " + (port + 1));
         });
         httpServerJupyter.on('upgrade', function(req, socket, head) {
