@@ -156,6 +156,16 @@ class DagGraph {
         this.nodesMap.set(dagNode.getId(), dagNode);
         dagNode.registerEvents(DagNodeEvents.StateChange, (info) => {
             this.events.trigger(DagNodeEvents.StateChange, info);
+            if (info.state === DagNodeState.Configured) {
+                this.events.trigger(DagNodeEvents.SubGraphConfigured, {
+                    id: info.id
+                });
+            } else if (info.state === DagNodeState.Error) {
+                this.events.trigger(DagNodeEvents.SubGraphError, {
+                    id: info.id,
+                    error: info.node.getError()
+                });
+            }
         })
         .registerEvents(DagNodeEvents.ParamChange, (info) => {
             const node = this.getNode(info.id);

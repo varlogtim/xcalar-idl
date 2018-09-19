@@ -12,7 +12,8 @@ enum DagNodeType {
     Project = "project",
     SQL = "sql",
     Extension = "extension",
-    Custom = "custom"
+    Custom = "custom",
+    CustomInput = "customInput"
 }
 
 enum DagNodeSubType {
@@ -35,7 +36,9 @@ enum DagNodeErrorType {
 enum DagNodeEvents {
     StateChange = "DagNodeStateChange",
     ParamChange = "DagNodeParamChange",
-    TableRemove = "TableRemove"
+    TableRemove = "TableRemove",
+    SubGraphError = "SubGraphError",
+    SubGraphConfigured = "SubGraphConfigured"
 }
 
 enum DagCategoryType {
@@ -49,4 +52,5 @@ enum DagCategoryType {
     Set = "set",
     Extensions = "extensions",
     SQL = "SQL",
+    Custom = "custom",
 }

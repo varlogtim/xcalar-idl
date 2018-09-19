@@ -22,9 +22,6 @@ class DagCategories {
             new DagCategoryNodeOut(DagNodeFactory.create({
                 type: DagNodeType.Export
             })),
-            new DagCategoryNodeOperations(DagNodeFactory.create({
-                type: DagNodeType.Custom
-            }))
         ]);
 
         const inCategory = new DagCategory(DagCategoryType.In, [
@@ -91,6 +88,15 @@ class DagCategories {
             }))
         ]);
 
+        const customCategory = new DagCategory(DagCategoryType.Custom, [
+            new DagCategoryNode(DagNodeFactory.create({
+                type: DagNodeType.Custom
+            }), DagCategoryType.Custom),
+            new DagCategoryNode(DagNodeFactory.create({
+                type: DagNodeType.CustomInput
+            }), DagCategoryType.Custom, true)
+        ]);
+
         this.categories = [
             favoritesCategory,
             inCategory,
@@ -101,7 +107,8 @@ class DagCategories {
             joinCategory,
             setCategory,
             sqlCategory,
-            extensionCategory
+            extensionCategory,
+            customCategory
         ];
     }
 

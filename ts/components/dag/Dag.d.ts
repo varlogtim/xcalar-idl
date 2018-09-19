@@ -16,7 +16,8 @@ interface DagNodeInfo {
 interface DagNodeCustomInfo extends DagNodeInfo {
     subGraph: string,
     inPorts: NodeConnection[][],
-    outPorts: NodeConnection[]
+    outPorts: NodeConnection[],
+    customName: string,
 }
 
 interface DagNodeDatasetInfo extends DagNodeInfo {

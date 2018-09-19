@@ -2,9 +2,11 @@ class DagCategoryNode {
     protected categoryType: DagCategoryType;
     protected nodeSubType: string | null;
     protected node;
-    public constructor(node: DagNode, categoryType: DagCategoryType) {
+    protected hidden: boolean;
+    public constructor(node: DagNode, categoryType: DagCategoryType, isHidden: boolean = false) {
         this.node = node;
         this.categoryType = categoryType;
+        this.hidden = isHidden;
     }
 
     public getCategoryType(): DagCategoryType {
@@ -21,9 +23,15 @@ class DagCategoryNode {
 
     public getDisplayNodeType(): string {
         const nodeType: string = this.getNodeType();
+        const node = this.getNode();
         let disaplNodeType = xcHelper.capitalize(nodeType);
         if (disaplNodeType === "Sql") {
             disaplNodeType = "SQL";
+        }
+        if (node instanceof DagNodeCustom) {
+            node.getCustomName();
+        } else if (node instanceof DagNodeCustomInput) {
+            node.getPortName();
         }
         return disaplNodeType;
     }
@@ -35,6 +43,10 @@ class DagCategoryNode {
     public getDisplayNodeSubType(): string {
         const nodeSubType: string = this.getNodeSubType();
         return xcHelper.capitalize(nodeSubType);
+    }
+
+    public isHidden(): boolean {
+        return this.hidden;
     }
 }
 

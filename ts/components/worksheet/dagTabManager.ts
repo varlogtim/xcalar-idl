@@ -160,7 +160,7 @@ class DagTabManager{
     public newCustomTab(customNode: DagNodeCustom): void {
         // the string to show on the tab
         // TODO: should get it from DagNodeCustom
-        const validatedName = 'Custom Operator';
+        const validatedName = customNode.getCustomName();
         // the key to find the tab
         const tabKey = validatedName;
 

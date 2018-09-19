@@ -219,6 +219,9 @@ abstract class DagNode {
     public beConfiguredState(): void {
         this._setState(DagNodeState.Configured);
         this._clearConnectionMeta();
+        this.events.trigger(DagNodeEvents.SubGraphConfigured, {
+            id: this.getId()
+        });
     }
 
     /**
@@ -243,6 +246,10 @@ abstract class DagNode {
         this.error = error || this.error;
         this._setState(DagNodeState.Error);
         this._clearConnectionMeta();
+        this.events.trigger(DagNodeEvents.SubGraphError, {
+            id: this.getId(),
+            error: this.error
+        });
     }
 
     /**

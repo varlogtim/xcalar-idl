@@ -53,6 +53,7 @@ class DagCategoryBar {
         iconMap[DagCategoryType.Set] = "xi-union";
         iconMap[DagCategoryType.Extensions] = "xi-menu-extension";
         iconMap[DagCategoryType.SQL] = "xi-menu-sql";
+        iconMap[DagCategoryType.Custom] = "xi-menu-extension"; // TODO: UI Design
 
         this.categories.forEach((category: DagCategory) => {
             const categoryName: DagCategoryType = category.getName();
@@ -80,7 +81,8 @@ class DagCategoryBar {
         iconMap[DagNodeType.Project] = "&#xe9d7;";
         iconMap[DagNodeType.Extension] = "&#xe96d;";
         iconMap[DagNodeType.SQL] = "&#xe957;";
-        iconMap[DagNodeType.Custom] = "&#xe957;";
+        iconMap[DagNodeType.Custom] = "&#xe96d;"; // TODO: UI design
+        iconMap[DagNodeType.CustomInput] = "&#xe96d;"; // TODO: UI design
 
         const categoryColorMap = {};
         categoryColorMap[DagCategoryType.Favorites] = "#BBC7D1";
@@ -93,6 +95,7 @@ class DagCategoryBar {
         categoryColorMap[DagCategoryType.Set] = "#CCAADD";
         categoryColorMap[DagCategoryType.Extensions] = "#F896A9";
         categoryColorMap[DagCategoryType.SQL] = "#EAABD3";
+        categoryColorMap[DagCategoryType.Custom] = "#89D0E0"; // TODO: UI design
 
         let html: HTML = "";
         html += '<svg height="0" width="0" style="position:absolute">' +
@@ -156,6 +159,7 @@ class DagCategoryBar {
                 }
 
                 html +=  '<g class="operator ' + operatorName + ' ' +
+                    (categoryNode.isHidden() ? 'xc-hidden ' : '') +
                     'category-' + categoryName + '" ' +
                         'data-category="' + categoryName + '" ' +
                         'data-type="' + operatorName + '" ' +

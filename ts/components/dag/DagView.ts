@@ -883,9 +883,13 @@ namespace DagView {
     export function wrapCustomOperator(nodeIds: DagNodeId[]): XDPromise<void> {
         // Create customNode from selected nodes
         const connectionInfo = activeDag.getSubGraphConnection(nodeIds);
-        if (connectionInfo.out.length > 1) {
+        if (connectionInfo.out.length !== 1) {
             // We only support one output for now
-            return PromiseHelper.reject('Multiple outputs not supported');
+            return PromiseHelper.reject('Only one output supported');
+        }
+        if (connectionInfo.in.length === 0) {
+            // Source custom node not supported for now
+            return PromiseHelper.reject('No input selected');
         }
         const nodeInfos = createNodeInfos(nodeIds);
         const {
@@ -1604,6 +1608,16 @@ namespace DagView {
         if (select) {
             $node.addClass("selected");
         }
+        // Set the node display title
+        const $opTitle = $node.find('.opTitle');
+        if (node instanceof DagNodeCustom) {
+            $opTitle.text(node.getCustomName());
+        } else if (node instanceof DagNodeCustomInput) {
+            $opTitle.text(node.getPortName());
+            // The custom input is hidden in the category bar, so show it in the diagram
+            $node.removeClass('xc-hidden');
+        }
+
         $node.appendTo($dfArea.find(".operatorSvg"));
         return $node;
     }

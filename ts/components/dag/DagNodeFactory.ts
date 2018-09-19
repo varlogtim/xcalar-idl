@@ -27,6 +27,8 @@ class DagNodeFactory {
                 return new DagNodeExtension(options);
             case DagNodeType.Custom:
                 return new DagNodeCustom(options);
+            case DagNodeType.CustomInput:
+                return new DagNodeCustomInput(options);
             default:
                 throw new Error("node type " + options.type + " not supported");
         }

@@ -43,20 +43,22 @@ class DagNodeProject extends DagNode {
             }
         });
 
-        columns.forEach((progCol) => {
-            const colName: string = progCol.getBackColName();
-            const parsed: PrefixColInfo = xcHelper.parsePrefixColName(colName);
-            const keep: boolean = parsed.prefix ?
-            prefixSet.has(parsed.prefix) : derivedSet.has(colName);
-            if (keep) {
-                finalCols.push(progCol);
-            } else {
-                changes.push({
-                    from: progCol,
-                    to: null
-                });
-            }
-        });
+        if (columns != null) {
+            columns.forEach((progCol) => {
+                const colName: string = progCol.getBackColName();
+                const parsed: PrefixColInfo = xcHelper.parsePrefixColName(colName);
+                const keep: boolean = parsed.prefix ?
+                prefixSet.has(parsed.prefix) : derivedSet.has(colName);
+                if (keep) {
+                    finalCols.push(progCol);
+                } else {
+                    changes.push({
+                        from: progCol,
+                        to: null
+                    });
+                }
+            });
+        }
 
         return {
             columns: finalCols,
