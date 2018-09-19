@@ -80,6 +80,8 @@ window.MonitorPanel = (function($, MonitorPanel) {
             $menu.find(".menuSection").addClass("xc-hidden");
             var $extSearch = $("#extension-search").addClass("xc-hidden");
             $monitorPanel.find(".mainContent").scrollTop(0);
+            $("#container").removeClass("activePanel-FileManagerPanel");
+            $monitorPanel.removeClass("fileManagerMainPanel");
 
             switch ($button.attr("id")) {
                 case ("systemButton"):
@@ -115,6 +117,13 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     $menu.find(".menuSection.extension").removeClass("xc-hidden");
                     ExtensionPanel.active();
                     title += MonitorTStr.Ext;
+                    break;
+                case ("fileManagerButton"):
+                    $("#monitor-file-manager").addClass("active");
+                    $menu.find(".menuSection.fileManager").removeClass("xc-hidden");
+                    title = MonitorTStr.FileManagerTitle;
+                    $("#container").addClass("activePanel-FileManagerPanel");
+                    $monitorPanel.addClass("fileManagerMainPanel");
                     break;
                 default:
                     break;

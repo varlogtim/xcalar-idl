@@ -943,6 +943,7 @@ MonitorTStr = {
     "NewVal": "New Value",
     'ClusterStatus': 'Cluster Status',
     'Ext': 'Extensions',
+    'FileManagerTitle': 'MANAGE FILES',
     'GetHostsFail': 'Could not get hosts',
     'GetLogsFail': 'Could not get logs',
     'GetDuplicateHost': 'Each Host should map to only one single Node',

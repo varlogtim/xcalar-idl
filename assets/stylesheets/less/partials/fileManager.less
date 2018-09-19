@@ -1,0 +1,321 @@
+.fileManagerMainPanel {
+    .topBar {
+        // TODO: move to constants.less when colors are finalized
+        @color-title: #849cb0;
+        @color-border-bar: #849cb0;
+        background-color: @color-bg-topBarGray2;
+        box-shadow: 0px 0.25px 0px @color-border-bar;
+        min-height: @height-topBar;
+        max-height: 50px;
+
+        .title {
+            color: @color-title;
+        }
+    }
+
+    .mainContent {
+        padding: 0 0 0 0;
+    }
+}
+
+#monitorFileManager {
+    height: 100%;
+    margin-bottom: 0px;
+    box-shadow: none;
+}
+
+.fileManager {
+    color: #44515c;
+    height: 100%;
+
+    // TODO: move to constants.less when colors are finalized
+    @color-border-operator: #849cb0;
+    @color-border-bar: #849cb0;
+    @color-icon-background: #f5f8fa;
+    @color-connector: #bbc7d1;
+
+    .fileManagerBar {
+        @operation-height: 40px;
+        @file-type-width: 131px;
+        @navigation-width: 105px;
+        @address-width: 207px;
+        @action-width: 131px;
+        @create-width: 123px;
+        @upload-width: 123px;
+
+        .size(@min-height: @operation-height);
+        background-color: @color-bg-topBarGray2;
+        box-shadow: 0px 0.25px 0px @color-border-operator;
+        .flex-display;
+
+        .fileTypeArea {
+            padding: 8px 0px 0px 16px;
+
+            .fileTypeBox {
+                min-width: @file-type-width;
+            }
+
+            .fileTypeContent {
+                float: left;
+                .size(@height: 25px, @width: @file-type-width - 25px);
+                font-size: 13px;
+                font-style: normal;
+                line-height: 23px;
+                box-sizing: border-box;
+                border: 1px solid @color-border-softGray;
+                background-color: @color-white;
+                padding: 0px 7px;
+            }
+
+            .fileTypeIcon {
+                cursor: pointer;
+                float: left;
+                .size(25px, 25px);
+                font-size: 9px;
+                color: @color-border-operator;
+                line-height: 23px;
+                box-sizing: border-box;
+                border: 1px solid @color-border-softGray;
+                border-left: none;
+                text-align: center;
+                background-color: @color-icon-background;
+                opacity: @opacity-unhover;
+
+                &:hover {
+                    opacity: @opacity-hover;
+                }
+            }
+        }
+
+        .navigationArea {
+            float: left;
+            .flex-display;
+            .size(@navigation-width, 25px);
+            line-height: 25px;
+            padding: 0px 10px 0px 10px;
+
+            .navigationButton {
+                cursor: pointer;
+                box-sizing: border-box;
+                padding: 0px 7px;
+
+                .icon {
+                    .vertical-align;
+                    opacity: @opacity-unhover;
+                    color: @color-border-bar;
+                    font-size: 13px;
+                }
+
+                &:hover {
+                    .icon {
+                        opacity: @opacity-hover;
+                    }
+                }
+            }
+        }
+
+        .addressArea {
+            padding: 8px 0px 0px 0px;
+            width: 100%;
+            .textOverflowOneLine;
+
+            .addressContent {
+                float: left;
+                .size(@height: 25px, @min-width: @address-width, @width: 100%);
+                font-size: 13px;
+                font-style: normal;
+                user-select: text;
+                cursor: text;
+                line-height: 23px;
+                box-sizing: border-box;
+                border: 1px solid @color-border-softGray;
+                background-color: @color-white;
+                padding: 0px 7px;
+            }
+        }
+
+        .actionArea {
+            padding: 8px 7px 0px 50px;
+
+            .actionBox {
+                min-width: @action-width;
+            }
+
+            .actionContent {
+                float: right;
+                .size(@height: 25px, @width: @action-width - 25px);
+                font-size: 13px;
+                font-style: normal;
+                line-height: 23px;
+                box-sizing: border-box;
+                border: 1px solid @color-border-softGray;
+                background-color: @color-white;
+                padding: 0px 7px;
+            }
+
+            .actionIcon {
+                cursor: pointer;
+                float: right;
+                .size(25px, 25px);
+                font-size: 9px;
+                color: @color-border-operator;
+                line-height: 23px;
+                box-sizing: border-box;
+                border: 1px solid @color-border-softGray;
+                border-left: none;
+                text-align: center;
+                background-color: @color-icon-background;
+                opacity: @opacity-unhover;
+
+                &:hover {
+                    opacity: @opacity-hover;
+                }
+            }
+        }
+
+        .operationArea {
+            padding: 8px 7px 0px 0px;
+
+            &.oprerationAreaUpload {
+                padding: 8px 14px 0px 0px;
+                .operationContent {
+                    background-color: @color-bg-green-submit;
+                }
+            }
+
+            .operationContent {
+                cursor: pointer;
+                float: right;
+                .size(@height: 25px, @width: @action-width);
+                font-size: 13px;
+                font-style: normal;
+                color: @color-white;
+                text-align: center;
+                line-height: 23px;
+                box-sizing: border-box;
+                border: 1px solid @color-border-softGray;
+                border-radius: 4px;
+                background-color: @color-border-bar;
+                opacity: 0.9;
+                padding: 0px 7px;
+
+                &:hover {
+                    opacity: @opacity-hover;
+                }
+            }
+        }
+    }
+
+    .fileManagerSearchBar {
+        .size(@height: 46px);
+        padding: 20px 16px 0px 16px;
+        @search-width: 220px;
+
+        .searchBox {
+            .size(@width: @search-width);
+        }
+
+        .searchIcon {
+            float: left;
+            .size(25px, 25px);
+            font-size: 13px;
+            line-height: 23px;
+            box-sizing: border-box;
+            border: 1px solid @color-border-softGray;
+            border-right: none;
+            text-align: center;
+            background-color: @color-white;
+        }
+
+        .searchInput {
+            float: left;
+            .size(@height: 25px, @width: @search-width - 25px);
+            font-size: 13px;
+            line-height: 23px;
+            box-sizing: border-box;
+            border: 1px solid @color-border-softGray;
+            border-left: none;
+            background-color: @color-white;
+            padding: 0 7px;
+        }
+    }
+
+    .fileManagerMainArea {
+        width: 100%;
+        padding: 20px 16px 20px 16px;
+        @title-section-height: 34px;
+        box-shadow: none;
+
+        .section {
+            .row {
+                .flex-display;
+                .field {
+                    .size(@width: 30%, @height: @title-section-height);
+
+                    .label {
+                        .textOverflowOneLine;
+                        .font(
+                            @size: 13px,
+                            @line-height: @title-section-height - 2
+                        );
+                        padding-right: 8px;
+                        float: left;
+                    }
+
+                    .icon {
+                        .font(@size: 14px, @line-height: @title-section-height);
+                        float: left;
+                    }
+                }
+
+                .checkBox {
+                    width: 37px;
+                    padding: 0px 11px 0px 10px;
+
+                    .icon {
+                        .font(@size: 14px, @line-height: @title-section-height);
+                        color: @color-connector;
+                    }
+                }
+            }
+        }
+
+        .titleSection {
+            .size(@width: 100%, @height: @title-section-height);
+            background-color: @color-icon-background;
+            box-shadow: none;
+            border: 1px solid #dbe1e6;
+
+            .row {
+                .field {
+                    cursor: pointer;
+
+                    .icon {
+                        color: #627483;
+                    }
+                }
+            }
+        }
+
+        .mainSection {
+            .size(@width: 100%, @height: 100%);
+
+            .row {
+                .field {
+                    .icon {
+                        color: @color-border-operator;
+                        padding-right: 6px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+#container {
+    &.activePanel-FileManagerPanel {
+        #userBox {
+            background-color: transparent;
+        }
+    }
+}

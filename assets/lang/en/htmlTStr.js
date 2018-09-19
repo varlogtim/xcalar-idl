@@ -400,6 +400,11 @@ module.exports = {
         "CoalesceTip": "Conserve memory by combining updated tables into one."
     },
 
+    "fileManager": {
+        "monitorMenuTitle": "File Manager",
+        "monitorMenuInstr": "You can manage files."
+    },
+
     "UDF": {
         "ADD": "ADD UDF",
         "Browse": "Browse File",
@@ -524,6 +529,7 @@ module.exports = {
         "DetailQuery": "Operation Details",
         "ElaspedTime": "Elapsed Time",
         "enableFile": "Enable file://",
+        "fileManager": "File Manager",
         "GeneralSettings": "General Settings",
         "GenSub": "File Support Ticket",
         "graphInterval": "Graph Interval",
