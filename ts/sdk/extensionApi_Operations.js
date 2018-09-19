@@ -266,20 +266,33 @@ window.XcSDK.Extension.prototype = (function() {
          *  newTableName: string, dst table name, optional
          *  clean: true/false, if set true, will remove intermediate tables
          */
-        groupBy: function(operator, groupByCols, aggColName, tableName, newColName, options) {
+        groupBy: function(operators, groupByCols, aggColNames, tableName, newColNames, options) {
             var deferred = PromiseHelper.deferred();
             var self = this;
             var txId = self.txId;
             options = options || {};
             options.icvMode = false;
-            var gbArgs = [{
-                operator: operator,
-                aggColName: aggColName,
-                newColName: newColName
-            }];
+            if (!(operators instanceof Array)) {
+                operators = [operators];
+            }
+            if (!(aggColNames instanceof Array)) {
+                aggColNames = [aggColNames];
+            }
+            if (!(newColNames instanceof Array)) {
+                newColNames = [newColNames];
+            }
             if (!(groupByCols instanceof Array)) {
                 groupByCols = [groupByCols];
             }
+            var gbArgs = [];
+            xcHelper.zip(operators, aggColNames, newColNames).
+            forEach(function(arr){
+                gbArgs.push({
+                    operator: arr[0],
+                    aggColName: arr[1],
+                    newColName: arr[2]
+                });
+            });
             var isIncSample = options.isIncSample;
             XIApi.groupBy(txId, gbArgs, groupByCols, tableName, options)
             .then(function(dstTable) {

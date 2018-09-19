@@ -6258,6 +6258,19 @@ namespace xcHelper {
         return progress;
     }
 
+    /**
+     * xcHelper.zip
+     * @param arrs, any number of arrays.
+     * @example zip([1, 2, 3], ["a", "b", "c"]).
+     * The output is [[1,"a"],[2, "b"],[3, "c"]].
+     */
+    export function zip(...arrs: Array<any>) {
+        if(arrs.length == 0) {
+            return [];
+        }
+        return arrs[0].map((_, idx) => arrs.map(arr=>arr[idx]));
+    }
+
     export let __testOnly__: any = {};
 
     if (typeof window !== 'undefined' && window['unitTestMode']) {

@@ -3346,6 +3346,16 @@ describe("xcHelper Test", function() {
         });
     });
 
+    it("xcHelper.zip should work", function() {
+        // case 1
+        var res = xcHelper.zip([1, 2, 3], ["a", "b", "c"]);
+        expect(res).to.eql([[1,"a"],[2, "b"],[3, "c"]]);
+
+        // case 2
+        res = xcHelper.zip();
+        expect(res).to.eql([]);
+    });
+
     after(function() {
         StatusBox.forceHide();
     });
