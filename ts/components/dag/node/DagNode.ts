@@ -450,10 +450,13 @@ abstract class DagNode {
     }
 
     private _setState(state: DagNodeState): void {
+        const oldState: DagNodeState = this.state;
         this.state = state;
         this.events.trigger(DagNodeEvents.StateChange, {
             id: this.getId(),
-            state: state
+            oldState: oldState,
+            state: state,
+            node: this
         });
     }
 

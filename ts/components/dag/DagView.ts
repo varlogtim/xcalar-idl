@@ -1563,6 +1563,14 @@ namespace DagView {
         }
     }
 
+    function _setTooltip($node: JQuery, node: DagNode): void {
+        const title: string = (node.getState() === DagNodeState.Error) ?
+        node.getError() : JSON.stringify(node.getParam(), null, 2);
+        xcTooltip.add($node.find(".main"), {
+            title: title
+        });
+    }
+
     function _drawNode(node: DagNode, $dfArea: JQuery, select?: boolean): JQuery {
         const pos = node.getPosition();
         const type = node.getType();
@@ -1573,10 +1581,7 @@ namespace DagView {
                                   .first().clone();
 
         $node.attr("transform", "translate(" + pos.x + "," + pos.y + ")");
-
-        xcTooltip.add($node.find(".main"), {
-            title: JSON.stringify(node.getParam(), null, 2)
-        });
+        _setTooltip($node, node);
         const description = node.getDescription();
         if (description) {
             addDescriptionIcon($node, description);
@@ -1686,6 +1691,12 @@ namespace DagView {
                 $node.removeClass("state-" + DagNodeState[i]);
             }
             $node.addClass("state-" + info.state);
+            if (info.oldState === DagNodeState.Error ||
+                info.state === DagNodeState.Error
+            ) {
+                // when switch from error state to other state
+                _setTooltip($node, info.node);
+            }
             activeDagTab.saveTab();
         });
 
@@ -1920,6 +1931,8 @@ namespace DagView {
 
     export function addProgress(nodeId: DagNodeId): void {
         const g = d3.select('#dagView .operator[data-nodeid = "' + nodeId + '"]');
+        g.select(".opProgress")
+        .remove(); // remove old progress
         g.append("text")
         .attr("class", "opProgress")
         .attr("font-family", "Open Sans")

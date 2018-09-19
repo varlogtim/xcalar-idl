@@ -29,9 +29,12 @@ class DagExecute {
             deferred.resolve(destTable);
         })
         .fail((error) => {
-            node.beErrorState();
+            const errorStr: string = (typeof error === "string") ?
+            error : JSON.stringify(error);
+            node.beErrorState(errorStr);
             Transaction.fail(this.txId, {
-                error: error
+                error: error,
+                noAlert: true
             });
             deferred.reject(error);
         });

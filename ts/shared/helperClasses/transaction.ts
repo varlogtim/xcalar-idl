@@ -170,7 +170,9 @@ namespace Transaction {
                 try {
                     const progress: number = xcHelper.getQueryProgress(queryStateOutput);
                     const pct: number = Math.round(100 * progress);
-                    DagView.updateProgress(txLog.nodeId, pct);
+                    if (!isNaN(pct)) {
+                        DagView.updateProgress(txLog.nodeId, pct);
+                    }
                 } catch (e) {
                     console.error(e);
                 }
@@ -314,6 +316,9 @@ namespace Transaction {
             if (!options.noAlert) {
                 const alertTitle = failMsg || CommonTxtTstr.OpFail;
                 Alert.error(alertTitle, error);
+            }
+            if (txLog.nodeId != null) {
+                DagView.removeProgress(txLog.nodeId);
             }
         }
 

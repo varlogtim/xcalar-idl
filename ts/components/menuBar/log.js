@@ -334,7 +334,7 @@ window.Log = (function($, Log) {
             Log.unlockUndoRedo();
             updateUndoRedoState();
             if (!inBackground) {
-                xcTooltip.refresh($undo, 2000);
+                refreshTooltip($undo);
             }
 
             if (passed) {
@@ -417,7 +417,7 @@ window.Log = (function($, Log) {
             isRedo = false;
             Log.unlockUndoRedo();
             updateUndoRedoState();
-            xcTooltip.refresh($redo, 2000);
+            refreshTooltip($redo);
             if (passed) {
                 deferred.resolve();
             }
@@ -1389,6 +1389,13 @@ window.Log = (function($, Log) {
         });
 
         return deferred.promise();
+    }
+
+    function refreshTooltip($button) {
+        $button = $button.filter((index, el) => {
+            return $(el).is(":visible");
+        });
+        xcTooltip.refresh($button, 2000);
     }
 
 

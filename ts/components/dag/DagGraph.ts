@@ -532,12 +532,17 @@ class DagGraph {
         orderedNodes = orderedNodes.filter((node) => {
             return node.getState() !== DagNodeState.Complete;
         });
-        orderedNodes.forEach((node) => {
-            if (node.getState() !== DagNodeState.Complete) {
-                const dagExecute: DagExecute = new DagExecute(node);
-                promises.push(dagExecute.run.bind(dagExecute));
-            }
+
+        const nodesToRun: {node: DagNode, executable: boolean}[] = orderedNodes.map((node) => {
+            return {
+                node: node,
+                executable: true
+            };
         });
+
+        for (let i = 0; i <= nodesToRun.length; i++) {
+            promises.push(this._executeHelper.bind(this, nodesToRun, i));
+        }
 
         this.lockGraph();
         PromiseHelper.chain(promises)
@@ -554,6 +559,34 @@ class DagGraph {
         return deferred.promise();
     }
 
+    private _executeHelper(
+        nodesToRun: {node: DagNode, executable: boolean}[],
+        index: number
+    ): XDPromise<void> {
+        if (nodesToRun[index] == null || !nodesToRun[index].executable) {
+            return PromiseHelper.resolve();
+        }
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const node: DagNode = nodesToRun[index].node;
+        const dagExecute: DagExecute = new DagExecute(node);
+        dagExecute.run()
+        .then(() => {
+            deferred.resolve();
+        })
+        .fail(() => {
+            // remove all the children that depends on the failed node
+            const set: Set<DagNode> = this._traverseGetChildren(node);
+            for (let i = index; i < nodesToRun.length; i++) {
+                if (set.has(nodesToRun[i].node)) {
+                    nodesToRun[i].executable = false;
+                }
+            }
+            deferred.resolve(); // still resolve it
+        });
+
+        return deferred.promise();
+    }
+
     private _checkCanExecuteAll(orderedNodes: DagNode[]): {
         hasError: boolean,
         type?: DagNodeErrorType,
@@ -565,8 +598,7 @@ class DagGraph {
 
         for (let i = 0; i < orderedNodes.length; i++) {
             let node: DagNode = orderedNodes[i];
-            if (node.getState() !== DagNodeState.Configured &&
-                node.getState() !== DagNodeState.Complete) {
+            if (node.getState() === DagNodeState.Unused) {
                 errorResult["hasError"] = true;
                 errorResult["type"] = DagNodeErrorType.Unconfigured;
                 errorResult["node"] = node;
@@ -716,6 +748,14 @@ class DagGraph {
             stack.pop();
             return false;
         }
+    }
+
+    private _traverseGetChildren(node: DagNode): Set<DagNode> {
+        const traversedSet: Set<DagNode> = new Set();
+        this._traverseChildren(node, (node: DagNode) => {
+            traversedSet.add(node);
+        });
+        return traversedSet;
     }
 
     private _traverseSwitchState(node: DagNode): Set<DagNode> {
