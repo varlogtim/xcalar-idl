@@ -709,6 +709,8 @@ declare namespace CommonTxtTstr {
     export var Renamed: string;
     export var Created: string;
     export var Removed: string;
+    export var NoUndone: string;
+    export var ClickToOpts: string;
 }
 
 declare namespace ProjectTStr {
@@ -764,6 +766,7 @@ declare namespace StatusMessageTStr {
     export var ImportTables: string;
     export var PartialDeleteTableFail;
     export var DeleteTableFailed: string;
+    export var NotDeletedList: string;
 }
 
 declare namespace ExportTStr {
@@ -806,6 +809,9 @@ declare namespace TooltipTStr {
     export var ClickToSortDesc: string;
     export var ViewColumnOptions: string;
     export var SelectAllColumns: string;
+    export var ShowDatasetHint: string;
+    export var ShowDatasetTableHint: string;
+    export var UnhideWS: string;
 }
 
 declare namespace SuccessTStr{
@@ -953,6 +959,10 @@ declare namespace FailTStr {
 
 declare namespace WSTStr {
     export var Ws: string;
+    export var CurrWS: string;
+    export var AddOrphanFail: string;
+    export var DelWS: string;
+    export var DelWSMsg: string;
 }
 
 declare namespace DFTStr {
@@ -1039,6 +1049,10 @@ declare namespace TblTStr {
     export var Truncate: string;
     export var Del: string;
     export var DelMsg: string;
+    export var DEL: string;
+    export var ToTemp: string;
+    export var ToTempTip: string;
+    export var DelFail: string;
 }
 
 declare namespace UDFTStr {
@@ -1092,6 +1106,14 @@ declare namespace SQLTStr {
     export var ResizeCols: string;
     export var EditDescription: string;
     export var NewComment: string;
+    export var DelWS: string;
+    export var RenameWS: string;
+    export var HideWS: string;
+    export var AddWS: string;
+    export var UnHideWS: string;
+    export var MoveTableToWS: string;
+    export var MoveTemporaryTableToWS: string;
+    export var ReorderWS: string;
 }
 
 declare namespace DagTStr {
@@ -1247,10 +1269,11 @@ declare class WKBK {
 }
 
 declare class WorksheetObj {
+    public constructor(info: any);
 }
 
 declare class WSMETA {
-    public constructor();
+    public constructor(info: any);
     public wsInfos: Set<WorksheetObj>
 }
 
@@ -1426,7 +1449,7 @@ declare namespace TableList {
     export function lockTable(tableId: TableId): void;
     export function unlockTable(tableId: TableId): void;
     export function refreshConstantList(): void;
-    export function refreshOrphanList(prettyPrint: boolean): XDPromise<void>;
+    export function refreshOrphanList(prettyPrint?: boolean): XDPromise<void>;
     export function removeTable(tableIdOrName: TableId | string, type?: string, lock?: boolean): void;
     export function addToCanceledList(tableName: string): void;
     export function removeFromCanceledList(tableName: string): void;
@@ -1437,6 +1460,11 @@ declare namespace TableList {
     export function makeTableNoDelete(tableId: TableId);
     export function removeTableNoDelete(tableId: TableId): void;
     export function updateTableInfo(tableId: TableId): void;
+    export function setup(): void;
+    export function initialize(): void;
+    export function clear(): void;
+    export function tablesToHiddenWS(wsIds: string[]);
+    export function tableBulkAction(action: string, type: TableType, wsId: string, arg?: any, waitForAnim?: boolean, noAnim?: boolean): XDPromise<void>;
 }
 
 declare namespace TblAnim {
@@ -1480,39 +1508,6 @@ declare namespace BottomMenu {
     export function close(something?: boolean): void;
 }
 
-declare namespace WSManager {
-    export function setup(): void;
-    export function initialize(): void;
-    export function showDatasetHint(): void;
-    export function lockTable(tableId: TableId): void;
-    export function unlockTable(tableId: TableId): void;
-    export function getWSFromTable(tableId: TableId): string;
-    export function getActiveWS(): string;
-    export function switchWS(wsId: string): void;
-    export function indexOfWS(ws: string): number;
-    export function getWSList(): string[];
-    export function getNumOfWS(): number;
-    export function getTableRelativePosition(tableId: TableId): number;
-    export function getWorksheets(): object;
-    export function getWSLists(isAll: boolean): string;
-    export function getWSName(ws: string): string;
-    export function restore(oldMeat: object): void;
-    export function focusOnWorksheet(ws?: string, something?: boolean, tableId?: TableId): void;
-    export function addWS(wsId: string, wsName: string, wsIndex?: number): string;
-    export function getAllMeta(): WSMETA;
-    export function removeTable(tableId: TableId, flag: boolean): void;
-    export function dropUndoneTables(): XDPromise<void>;
-    export function getWSById(worksheetId: string): any;
-    export function getHiddenWSList(): string[];
-    export function moveTable(tableId: TableId, wsId: string);
-    export function reorderTable(tableId: TableId, srcIndex: number, desIndex: number): void;
-    export function getTablePosition(tableId: TableId): number;
-    export function addTable(newTableId: TableId, worksheet: string);
-    export function removePending(tableId: TableId, worksheet: string): void;
-    export function moveTemporaryTable(tableId: TableId, wsId: string, tableType: string, flag: boolean, noAnim: boolean): XDPromise<void>;
-    export function replaceTable(newTableId: TableId, oldId?: TableId, tablesToRemove?: TableId[], options?: object): void;
-}
-
 declare namespace Dag {
     export function addEventListeners($dagWrap: JQuery): void;
     export function removeNoDelete(tableId: TableId): void;
@@ -1536,6 +1531,7 @@ declare namespace DagPanel {
     export function adjustScrollBarPositionAndSize(): void;
     export function updateExitMenu(name?: string): void;
     export function setScrollBarId(winHeight: number): void;
+    export function focusOnWorksheet(ws: string): void;
 }
 
 declare namespace DagEdit {

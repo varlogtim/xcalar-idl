@@ -595,7 +595,7 @@ namespace xcManager {
         })
         .then(Authentication.setup)
         .then(KVStore.restore) // restores table info, dataset info, settings etc
-        .then(initializeTable)
+        .then(WSManager.initializeTable)
         .then(deferred.resolve)
         .fail(deferred.reject);
 
@@ -833,171 +833,6 @@ namespace xcManager {
     function setupDagTabManager(): void {
         const dagTabManager: DagTabManager = DagTabManager.Instance;
         dagTabManager.setup();
-    }
-
-    function restoreActiveTable(tableId: string, worksheetId: string, failures: any[]): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let table: any = gTables[tableId];
-
-        table.beActive();
-
-        TblManager.parallelConstruct(tableId, null, {
-            wsId: worksheetId,
-            afterStartup: false,
-            selectCol: null,
-            noTag: false,
-            position: null,
-            txId: null
-        })
-        .then(deferred.resolve)
-        .fail(function(error) {
-            failures.push("Add table " + table.getName() +
-                        "fails: " + error.error);
-            if ($("#xcTable-" + tableId).length <= 0) {
-                table.beOrphaned();
-                WSManager.removeTable(tableId, false);
-            }
-            // still resolve but push error failures
-            deferred.resolve();
-        });
-
-        return deferred.promise();
-    }
-
-    function initializeTable(): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const failures: string[] = [];
-        let hasTable: boolean = false;
-        const noMetaTables: string[] = [];
-
-        StatusMessage.updateLocation(true, StatusMessageTStr.ImportTables);
-        // since we are not storing any redo states on start up, we should
-        // drop any tables that were undone since there's no way to go forward
-        // to reach them
-        WSManager.dropUndoneTables()
-        .then(function() {
-            return xcHelper.getBackTableSet();
-        })
-        .then(function(backTableSet) {
-            syncTableMetaWithBackTable(backTableSet);
-            const promises: any[] = syncTableMetaWithWorksheet(backTableSet);
-            cleanNoMetaTables();
-            // setup leftover tables
-            TblManager.setOrphanedList(backTableSet);
-
-            return PromiseHelper.chain(promises);
-        })
-        .then(function() {
-            if (hasTable) {
-                TableComponent.update();
-            } else {
-                $("#mainFrame").addClass("empty");
-            }
-
-            failures.forEach(function(fail) {
-                console.error(fail);
-            });
-
-            deferred.resolve();
-        })
-        .fail(function(error) {
-            console.error("InitializeTable fails!", error);
-            deferred.reject(error);
-        });
-
-        return deferred.promise();
-
-        function syncTableMetaWithBackTable(backTableSet: object): void {
-            // check if some table has front meta but not backend info
-            // if yes, delete front meta (gTables and wsManager)
-            for (let tableId in gTables) {
-                const tableName: string = gTables[tableId].getName();
-                if (!backTableSet.hasOwnProperty(tableName)) {
-                    console.warn(tableName, "is not in backend");
-                    WSManager.removeTable(tableId, false);
-                    delete gTables[tableId];
-                }
-            }
-        }
-
-        function syncTableMetaWithWorksheet(backTableSet: object): any[] {
-            const promises: any[] = [];
-            const worksheetList: string[] = WSManager.getWSList();
-            const activeTables: Set<string> = new Set<string>();
-
-            worksheetList.forEach(function(worksheetId) {
-                const worksheet: object = WSManager.getWSById(worksheetId);
-                if (!hasTable && worksheet["tables"].length > 0) {
-                    hasTable = true;
-                }
-
-                worksheet["tables"].forEach(function(tableId) {
-                    if (checkIfHasTableMeta(tableId, backTableSet)) {
-                        promises.push(restoreActiveTable.bind(window, tableId,
-                                                worksheetId, failures));
-                    }
-                    activeTables.add(tableId);
-                });
-
-                // pending tables will be orphaned
-                worksheet["pendingTables"].forEach(function(tableId) {
-                    if (gTables[tableId]) {
-                        gTables[tableId].beOrphaned();
-                    }
-                });
-                worksheet["pendingTables"] = [];
-            });
-
-            // set up tables in hidden worksheets
-            const hiddenWorksheets: string[] = WSManager.getHiddenWSList();
-            hiddenWorksheets.forEach(function(worksheetId) {
-                const worksheet: object = WSManager.getWSById(worksheetId);
-                if (worksheet == null) {
-                    // this is error case
-                    return;
-                }
-
-                worksheet["tempHiddenTables"].forEach(function(tableId) {
-                    checkIfHasTableMeta(tableId, backTableSet);
-                    activeTables.add(tableId);
-                });
-            });
-
-            for (let i in gTables) {
-                let table: TableMeta = gTables[i];
-                if (table.isActive()) {
-                    const tableId: string = table.getId();
-                    if (!activeTables.has(tableId)) {
-                        console.error("active table without worksheet",
-                                       tableId);
-                        table.beOrphaned();
-                    }
-                } else if (table.status === "archived") {
-                    table.beOrphaned();
-                }
-            }
-
-            return promises;
-        }
-
-        function checkIfHasTableMeta(tableId: string, backTableSet: object): boolean {
-            let table: TableMeta = gTables[tableId];
-            if (table == null) {
-                noMetaTables.push(tableId);
-                return false;
-            } else {
-                const tableName: string = table.getName();
-                delete backTableSet[tableName];
-                return true;
-            }
-        }
-
-        function cleanNoMetaTables(): void {
-            noMetaTables.forEach(function(tableId) {
-                console.info("not find table", tableId);
-                WSManager.removeTable(tableId, false);
-            });
-        }
     }
 
     function documentReadyGeneralFunction(): void {
@@ -1467,11 +1302,11 @@ namespace xcManager {
                 { level: Msal["LogLevel"].Verbose, correlationId: '12345' }
             );
 
-            function msalLoggerCallback(logLevel, message, piiEnabled) {
+            function msalLoggerCallback(_logLevel, message, _piiEnabled) {
                 console.log(message);
             }
 
-            function msalAuthCallback(errorDesc, token, error, tokenType) {
+            function msalAuthCallback(_errorDesc, _token, _error, _tokenType) {
                 // this callback function provided to UserAgentApplication
                 // is intentionally empty because the logout callback does
                 // not need to do anything
@@ -1645,7 +1480,6 @@ namespace xcManager {
             handleSetupFail: handleSetupFail,
             reImplementMouseWheel: reImplementMouseWheel,
             oneTimeSetup: oneTimeSetup,
-            restoreActiveTable: restoreActiveTable,
             fakeLogoutRedirect: function() {
                 oldLogoutRedirect = logoutRedirect;
                 logoutRedirect = function() {};

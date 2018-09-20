@@ -3,6 +3,97 @@ describe("Worksheet Test", function() {
         UnitTest.onMinMode();
     });
 
+    describe("XcMap Test", function() {
+        it("Should be a map", function() {
+            var map = new XcMap();
+            expect(map.entries()).to.be.an("object");
+            expect(map.has("a")).to.be.false;
+            map.set("a", "item1");
+            expect(map.has("a")).to.be.true;
+            map.delete("a");
+            expect(map.has("a")).to.be.false;
+
+            map.set("b", "item2");
+            expect(map.has("b")).to.be.true;
+
+            map.clear();
+            expect(map.has("b")).to.be.false;
+        });
+    });
+
+    describe("Bassic Function Test", () => {
+        it("restoreActiveTable should work", function(done) {
+            var oldFunc = TblManager.refreshTable;
+            var test = false;
+            TblManager.refreshTable = function() {
+                test = true;
+                return PromiseHelper.resolve();
+            };
+            var tableId = xcHelper.randName("test");
+            var table = new TableMeta({
+                tableName: tableId,
+                tableId: tableId
+            });
+
+            table.getMetaAndResultSet = function() {
+                return PromiseHelper.resolve();
+            };
+
+            gTables[tableId] = table;
+
+            var failures = [];
+            WSManager.__testOnly__.restoreActiveTable(tableId, null, failures)
+            .then(function() {
+                expect(table.status).to.equal(TableType.Active);
+                expect(failures.length).to.equal(0);
+                expect(test).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                delete gTables[tableId];
+                TblManager.refreshTable = oldFunc;
+            });
+        });
+
+        it("restoreActiveTable should handle fail case", function(done) {
+            var oldRefresh = TblManager.refreshTable;
+            var oldFunc = WSManager.removeTable;
+            var test = false;
+            WSManager.removeTable = function() { test = true; };
+            var tableId = xcHelper.randName("test");
+            var table = new TableMeta({
+                tableName: tableId,
+                tableId: tableId
+            });
+
+            TblManager.refreshTable = function() {
+                return PromiseHelper.reject({error: "test"});
+            };
+            gTables[tableId] = table;
+
+            var failures = [];
+            WSManager.__testOnly__.restoreActiveTable(tableId, null, failures)
+            .then(function() {
+                expect(table.status).to.equal(TableType.Orphan);
+                expect(failures.length).to.equal(1);
+                expect(test).to.be.true;
+                done();
+            })
+            .fail(function() {
+                done("fail");
+            })
+            .always(function() {
+                delete gTables[tableId];
+                WSManager.removeTable = oldFunc;
+                TblManager.refreshTable = oldRefresh;
+            });
+        });
+
+    });
+
     describe("Clean and Restore Test", function() {
         var meta;
         var numWorksheets;

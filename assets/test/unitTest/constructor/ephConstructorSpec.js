@@ -8,24 +8,6 @@ describe("Ephemeral Constructor Test", function() {
         return deferred;
     }
 
-    describe("XcMap Test", function() {
-        it("Should be a map", function() {
-            var map = new XcMap();
-            expect(map.entries()).to.be.an("object");
-            expect(map.has("a")).to.be.false;
-            map.set("a", "item1");
-            expect(map.has("a")).to.be.true;
-            map.delete("a");
-            expect(map.has("a")).to.be.false;
-
-            map.set("b", "item2");
-            expect(map.has("b")).to.be.true;
-
-            map.clear();
-            expect(map.has("b")).to.be.false;
-        });
-    });
-
     describe("Mutex Constructor Test", function() {
         it("should have 2 attributes", function() {
             var scope = XcalarApiKeyScopeT.XcalarApiKeyScopeSession;

@@ -33,6 +33,7 @@ class TblManager {
         worksheet: string,
         txId: number,
         options: {
+            afterStartup?: boolean,
             focusWorkspace?: boolean,
             selectCol?: number | number[],
             isUndo?: boolean,
@@ -134,7 +135,7 @@ class TblManager {
 
         // append newly created table to the back, do not remove any tables
         const addTableOptions = {
-            afterStartup: true,
+            afterStartup: options.afterStartup || true,
             selectCol: options.selectCol,
             isUndo: options.isUndo,
             position: options.position,
@@ -283,8 +284,7 @@ class TblManager {
         const oldId: TableId = xcHelper.getTableId(tablesToReplace[0]);
 
         TblManager._tagOldTables(tablesToRemove);
-
-        TblManager.parallelConstruct(newTableId, tablesToReplace[0], {
+        TblManager._parallelConstruct(newTableId, tablesToReplace[0], {
             afterStartup: options.afterStartup,
             selectCol: options.selectCol,
             txId: options.txId,
@@ -528,7 +528,7 @@ class TblManager {
     }
 
     /**
-     * TblManager.parallelConstruct
+     *
      * Adds new tables to the display and the dag at the same time.
      * @param tableId
      * @param tableToReplace
@@ -540,7 +540,7 @@ class TblManager {
      * -wsId: in which worksheet
      * -position: position in the worksheet
      */
-    public static parallelConstruct(
+    private static _parallelConstruct(
         tableId: TableId,
         tableToReplace: string,
         options: {

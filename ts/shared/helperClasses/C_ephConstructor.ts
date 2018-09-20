@@ -1,36 +1,3 @@
-
-// some general class
-class XcMap {
-    private map: {};
-    private constructor() {
-        this.map = {};
-    }
-
-    public entries(): object {
-        return this.map;
-    }
-
-    public set(id: string | number, item: any): void {
-        this.map[id] = item;
-    }
-
-    public get(id: string | number): any {
-        return this.map[id];
-    }
-
-    public has(id: string | number): boolean {
-        return this.map.hasOwnProperty(id);
-    }
-
-    public delete(id: string | number): void {
-        delete this.map[id];
-    }
-
-    public clear(): void {
-        this.map = {};
-    }
-}
-
 class Mutex {
     public key: string;
     public scope: number;
