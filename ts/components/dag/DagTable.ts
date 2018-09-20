@@ -7,6 +7,7 @@ class DagTable {
     }
 
     private viewer: XcViewer;
+    private $node: JQuery;
 
     private constructor() {
         this._addEventListeners();
@@ -16,23 +17,53 @@ class DagTable {
      * Show view of data
      * @param viewer {XcViewer} viewer to add to the component
      */
-    public show(viewer: XcViewer): XDPromise<void> {
-        if (this.viewer != null && this.viewer.getId() == viewer.getId()) {
+    public show(viewer: XcViewer, $node?: JQuery): XDPromise<void> {
+        if (this._isSameViewer(viewer)) {
             return PromiseHelper.resolve();
         }
 
         this._reset();
         this.viewer = viewer;
+        this.$node = $node;
+        this._showTableIcon();
+        return this._showViewer();
+    }
 
+    public replace(viewer: XcViewer): XDPromise<void> {
+        if (this._isSameViewer(viewer)) {
+            return PromiseHelper.resolve();
+        }
+        this._resetViewer();
+        this.viewer = viewer;
+        return this._showViewer();
+    }
+
+    public getTable(): string {
+        return this.viewer ? this.viewer.getId() : null;
+    }
+
+    public getBindNodeId(): DagNodeId {
+        return this.$node ? this.$node.data("nodeid") : null;
+    }
+
+    /**
+     * close the preview
+     */
+    public close(): void {
+        this._getContainer().addClass("xc-hidden");
+        this._reset();
+    }
+
+    private _showViewer(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const $container: JQuery = this._getContainer();
         $container.removeClass("xc-hidden").addClass("loading");
-        if (viewer instanceof XcDatasetViewer) {
+        if (this.viewer instanceof XcDatasetViewer) {
             $container.addClass("dataset");
         } else {
             $container.removeClass("dataset");
         }
-
+        this._showTableIcon();
         xcHelper.showRefreshIcon($("#dagViewTableArea"), true, 
             this.viewer.render(this._getContainer())
             .then(() => {
@@ -45,18 +76,6 @@ class DagTable {
         }));
 
         return deferred.promise();
-    }
-
-    public getTable(): string {
-        return this.viewer ? this.viewer.getId() : null;
-    }
-
-    /**
-     * close the preview
-     */
-    public close(): void {
-        this._getContainer().addClass("xc-hidden");
-        this._reset();
     }
 
     private _addEventListeners(): void {
@@ -81,14 +100,20 @@ class DagTable {
     }
 
     private _reset(): void {
-        if (this.viewer != null) {
-            this.viewer.clear();
-            this.viewer = null;
-        }
+        this._resetViewer();
+        this._removeTableIcon();
+        this.$node = null;
 
         const $container: JQuery = this._getContainer();
         $container.removeClass("loading").removeClass("error");
         $container.find(".errorSection").empty();
+    }
+
+    private _resetViewer(): void {
+        if (this.viewer != null) {
+            this.viewer.clear();
+            this.viewer = null;
+        }
     }
 
     // XXX TODO
@@ -98,5 +123,36 @@ class DagTable {
         const errStr: string = (typeof error === "string") ?
         error : JSON.stringify(error);
         $container.find(".errorSection").text(errStr);
+    }
+
+    private _showTableIcon(): void {
+        if (this.$node != null) {
+            const g = d3.select(this.$node.get(0)).append("g")
+                    .attr("class", "tableIcon")
+                    .attr("transform", "translate(65, 2)");
+            g.append("rect")
+                .attr("x", 0)
+                .attr("y", -8)
+                .attr("width", 15)
+                .attr("height", "13")
+                .style("fill", "#378CB3");
+            g.append("text")
+                .attr("font-family", "icomoon")
+                .attr("font-size", 8)
+                .attr("fill", "white")
+                .attr("x", 3)
+                .attr("y", 2)
+                .text(function(_d) {return "\uea07"});
+        }
+    }
+
+    private _removeTableIcon(): void {
+        if (this.$node != null) {
+            d3.select(this.$node.get(0)).selectAll(".tableIcon").remove();
+        }
+    }
+
+    private _isSameViewer(viewer: XcViewer): boolean {
+        return this.viewer != null && this.viewer.getId() == viewer.getId();
     }
 }

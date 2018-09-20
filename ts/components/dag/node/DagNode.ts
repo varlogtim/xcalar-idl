@@ -481,7 +481,8 @@ abstract class DagNode {
     private _removeTable(): void {
         if (this.table) {
             this.events.trigger(DagNodeEvents.TableRemove, {
-                table: this.table
+                table: this.table,
+                nodeId: this.getId()
             });
             delete this.table;
         }

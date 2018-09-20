@@ -16,7 +16,21 @@
 
     &#tableMenu {
         .copyTableName, .makeTempTable, .deleteTable, .exportTable, .multiCast,
-        .moveTable, .divider, .exitOp {
+        .moveTable, .divider, .exitOp, .hideTable, .createDf {
+            display: none;
+        }
+    }
+
+    &#tableSubMenu {
+        .advancedOptions {
+            .addNoDelete {
+                display: none;
+            }
+        }
+    }
+
+    &#cellMenu {
+        .tdFilter, .tdExclude {
             display: none;
         }
     }
@@ -739,6 +753,12 @@
             &:after {
                 border-right-color: @color-font-edge;
             }
+        }
+
+        input, .menuInput {
+            background-color: @color-white;
+            border-color: @color-border-softGray;
+            .font(@color: @color-font-edge);
         }
     }
 }

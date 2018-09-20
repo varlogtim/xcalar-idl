@@ -52,6 +52,41 @@ describe("DagTable Test", () => {
         expect($container.hasClass("xc-hidden")).to.be.true;
     });
 
+    describe("Preview table icon test", () => {
+        let $node;
+
+        before(() => {
+            d3.select("body").append("svg")
+            .attr("id", "test-svg");
+            $node = $("#test-svg");
+        });
+
+        it("should have valid initial state", () => {
+            expect($node.length).to.equal(1);
+            expect($node.find(".tableIcon").length).to.equal(0);
+        });
+
+        it("should show the table icon when show viewer", (done) => {
+            DagTable.Instance.show(viewer, $node)
+            .then(() => {
+                expect($node.find(".tableIcon").length).to.equal(1);
+                done();
+            })
+            .fail((error) => {
+                done(error);
+            });
+        });
+
+        it("should remove table icon when close viewer", () => {
+            DagTable.Instance.close();
+            expect($node.find(".tableIcon").length).to.equal(0);
+        });
+
+        after(() => {
+            $node.remove();
+        });
+    });
+
     describe("Error Case Test", () => {
         before(() => {
             class ErrorViewer extends XcViewer {

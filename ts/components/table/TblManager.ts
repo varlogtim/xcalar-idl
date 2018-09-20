@@ -48,7 +48,7 @@ class TblManager {
             replacingDest: null,
             noTag: false
         }
-    ): XDPromise<string> {
+    ): XDPromise<string | void> {
         if (txId != null) {
             if (Transaction.checkCanceled(txId)) {
                 return PromiseHelper.reject(StatusTStr[StatusT.StatusCanceled]);
@@ -73,15 +73,23 @@ class TblManager {
         const newTableName: string = newTableNames[0];
         const newTableId: TableId = xcHelper.getTableId(newTableName);
         let tableAddedToWS: boolean = false;
+        // XXX TODO: remove it
+        let isModelingTable: boolean = false;
         if (worksheet != null) {
             WSManager.addTable(newTableId, worksheet);
             tableAddedToWS = true;
         } else {
-            worksheet = WSManager.getWSFromTable(newTableId);
-            if (!worksheet) {
-                worksheet = WSManager.getActiveWS();
-                WSManager.addTable(newTableId, worksheet);
-                tableAddedToWS = true;
+            if (oldTableNames.length === 1 &&
+                DagTable.Instance.getTable() === oldTableNames[0]
+            ) {
+                isModelingTable = true;
+            } else {
+                worksheet = WSManager.getWSFromTable(newTableId);
+                if (!worksheet) {
+                    worksheet = WSManager.getActiveWS();
+                    WSManager.addTable(newTableId, worksheet);
+                    tableAddedToWS = true;
+                }
             }
         }
 
@@ -113,6 +121,10 @@ class TblManager {
         }
 
         TblManager._setTableMeta(newTableName, tableCols);
+        if (isModelingTable) {
+            const viewer: XcTableViewer = new XcTableViewer(gTables[newTableId]);
+            return DagTable.Instance.replace(viewer);
+        }
 
         if (options.focusWorkspace) {
             MainMenu.openPanel("workspacePanel", "worksheetButton", {
@@ -3073,10 +3085,12 @@ class TblManager {
                 singleSelection();
             }
 
+            let extraClasses = $el.closest("#dagViewTableArea").length ?
+            " style-white mode-modeling" : "";
             xcHelper.dropdownOpen($el, $('#cellMenu'), {
                 "colNum": colNum,
                 "rowNum": rowNum,
-                "classes": "tdMenu", // specify classes to update colmenu's class attr
+                "classes": "tdMenu" + extraClasses, // specify classes to update colmenu's class attr
                 "mouseCoors": {"x": event.pageX, "y": event.pageY},
                 "shiftKey": event.shiftKey,
                 "isMultiCol": TblManager._isMultiColumn(),
@@ -3166,11 +3180,12 @@ class TblManager {
                 TblManager.unHighlightCells();
                 TblManager.highlightCell($td, tableId, rowNum, colNum);
             }
-
+            let extraClasses = $div.closest("#dagViewTableArea").length ?
+            " style-white mode-modeling" : "";
             xcHelper.dropdownOpen($div, $("#cellMenu"), {
                 "colNum": colNum,
                 "rowNum": rowNum,
-                "classes": "tdMenu", // specify classes to update colmenu's class attr
+                "classes": "tdMenu" + extraClasses, // specify classes to update colmenu's class attr
                 "mouseCoors": {"x": event.pageX, "y": event.pageY},
                 "isMultiCol": TblManager._isMultiColumn(),
                 "isDataTd": isDataTd,

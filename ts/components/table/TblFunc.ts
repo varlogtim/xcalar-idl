@@ -518,8 +518,13 @@ class TblFunc {
     ): void {
         const moveScrollBar: boolean = !noScrollBar;
         let $allTables: JQuery;
+        const $dagViewTableArea: JQuery = $("#dagViewTableArea");
+        let dagView = false;
         if (DagEdit.isEditMode()) {
             $allTables = $(".xcTableWrap:visible");
+        } else if ($dagViewTableArea.is(":visible")) {
+            dagView = true;
+            $allTables = $dagViewTableArea.find(".xcTableWrap:visible");
         } else {
             $allTables = $('.xcTableWrap:not(".inActive")');
         }
@@ -559,8 +564,13 @@ class TblFunc {
             mainMenuOffset = 0;
         }
 
+        if (dagView) {
+            mainMenuOffset = 0;
+        }
+
         if (!(isBrowserMicrosoft || isBrowserSafari) &&
-            $targetTable && $targetTable.length > 0) {
+            $targetTable && $targetTable.length > 0
+        ) {
             const $idCol: JQuery = $targetTable.find('.idSpan');
             const cellWidth: number = $idCol.outerWidth();
             let scrollLeft: number;
@@ -570,6 +580,9 @@ class TblFunc {
                                 ? $('#dsTableContainer') : $targetTable.closest(".datasetTableWrap");
                 scrollLeft = -($targetTable.offset().left -
                                 $container.offset().left);
+            } else if (dagView) {
+                scrollLeft = $dagViewTableArea.offset().left -
+                $targetTable.offset().left;
             } else {
                 scrollLeft = mainMenuOffset - $targetTable.offset().left;
             }
@@ -709,7 +722,7 @@ class TblFunc {
     ): void {
         let leftLimit: number = -options.marginLeft || 0;
         const marginRight: number = options.marginRight || 0;
-        const $tableWraps: JQuery = $('.xcTableWrap:not(.inActive)');
+        const $tableWraps: JQuery = $('#mainFrame .xcTableWrap:not(.inActive)');
         const mainFrameRect: ClientRect = $('#mainFrame')[0].getBoundingClientRect();
         const viewWidth: number =  mainFrameRect.right + marginRight;
         leftLimit += mainFrameRect.left;

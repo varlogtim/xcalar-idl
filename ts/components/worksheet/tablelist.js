@@ -378,6 +378,10 @@ window.TableList = (function($, TableList) {
     TableList.updateTableInfo = function(tableId) {
         var $tableList = $('#activeTablesList .tableInfo[data-id="' +
                             tableId + '"]');
+        // XXX TODO: remov this function
+        if ($tableList.length === 0) {
+            return;
+        }
         var wasOpen = $tableList.hasClass("active");
         var position = $tableList.index();
         $tableList.remove();

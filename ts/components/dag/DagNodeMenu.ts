@@ -343,7 +343,8 @@ namespace DagNodeMenu {
         let classes = "";
         if (dagNode != null &&
             state === DagNodeState.Complete &&
-            dagNode.getTable() != null
+            dagNode.getTable() != null &&
+            nodeId != DagTable.Instance.getBindNodeId()
         ) {
             $menu.find(".previewTable").removeClass("unavailable");
         } else {

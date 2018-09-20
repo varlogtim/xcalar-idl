@@ -722,7 +722,8 @@ namespace DagView {
                 table.tableCols = columns.concat(ColManager.newDATACol());
             }
             const viewer: XcTableViewer = new XcTableViewer(table);
-            DagTable.Instance.show(viewer)
+            const $node: JQuery = DagView.getNode(dagNodeId);
+            DagTable.Instance.show(viewer, $node)
             .then(deferred.resolve)
             .fail((error) => {
                 Alert.error(AlertTStr.Error, error);
@@ -1725,7 +1726,8 @@ namespace DagView {
 
         activeDag.events.on(DagNodeEvents.TableRemove, function(info) {
             const tableName: string = info.table;
-            if (DagTable.Instance.getTable() === tableName) {
+            const nodeId: DagNodeId = info.nodeId;
+            if (DagTable.Instance.getBindNodeId() === nodeId) {
                 DagTable.Instance.close();
             }
             // XXX TODO: this is just a temp solution, refine it
@@ -1945,7 +1947,7 @@ namespace DagView {
 
     export function addProgress(nodeId: DagNodeId): void {
         const g = d3.select('#dagView .operator[data-nodeid = "' + nodeId + '"]');
-        g.select(".opProgress")
+        g.selectAll(".opProgress")
         .remove(); // remove old progress
         g.append("text")
         .attr("class", "opProgress")
@@ -1965,7 +1967,7 @@ namespace DagView {
 
     export function removeProgress(nodeId: DagNodeId): void {
         const g = d3.select('#dagView .operator[data-nodeid = "' + nodeId + '"]');
-        g.select(".opProgress")
+        g.selectAll(".opProgress")
         .remove();
     }
 }

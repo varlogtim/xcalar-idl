@@ -700,7 +700,7 @@
     }
 
     &.error, &.loading {
-        .searchbarArea, .rowInputArea {
+        .searchbarArea, .menuArea, .rowInputArea {
             pointer-events: none;
             opacity: @opacity-disabled;
         }
@@ -797,6 +797,24 @@
 
     .xcTable .header {
         .position(@top: 0px);
+    }
+
+    .tableCover {
+        top: @height-xcColHeaderOuter !important;
+    }
+
+    .jsonModalOpen {
+        .header {
+            z-index: @z-index-modalBackground - 2 !important;
+        }
+
+        th:first-child .header {
+            z-index: @z-index-modalBackground - 1 !important;
+        }
+
+        .idWrap {
+            z-index: @z-index-modalBackground - 2 !important;
+        }
     }
 }
 
