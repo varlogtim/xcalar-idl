@@ -16,7 +16,7 @@ abstract class DagNode {
     private events: {_events: object, trigger: Function}; // non-persistent;
 
     protected type: DagNodeType;
-    protected subType: DagNodeType;
+    protected subType: DagNodeSubType;
     protected lineage: DagLineage; // XXX persist or not TBD
     protected input: object; // will be overridden by subClasses
     protected minParents: number; // non-persistent

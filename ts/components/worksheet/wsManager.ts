@@ -682,7 +682,7 @@ namespace WSManager {
      * @param tableType
      * @param newIndex
      */
-    export function moveTable(tableId, newWSId, tableType, newIndex) {
+    export function moveTable(tableId, newWSId, tableType?, newIndex?) {
         var oldTablePos = WSManager.getTableRelativePosition(tableId);
         var oldWSId = WSManager.removeTable(tableId);
         var wsName = worksheetGroup.get(newWSId).name;

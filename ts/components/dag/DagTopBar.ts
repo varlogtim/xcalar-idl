@@ -5,11 +5,9 @@ class DagTopBar {
         return this._instance || (this._instance = new this());
     }
 
-    private $dagView: JQuery;
     private $topBar: JQuery;
 
     public setup(): void {
-        this.$dagView = $("#dagView");
         this.$topBar = $("#dagViewBar");
         this._addEventListeners();
     }

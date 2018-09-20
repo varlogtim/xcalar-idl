@@ -306,12 +306,10 @@ class MapOpPanel extends GeneralOpPanel {
             return;
         }
         this._udfUpdateOperatorsMap();
-    };
-
+    }
 
     // empty array means the first argument will always be the column name
     // any function names in the array will not have column name as 1st argument
-
     protected _populateInitialCategoryField(groupIndex?: number) {
         groupIndex = groupIndex || 0;
         this._functionsMap[groupIndex] = [];

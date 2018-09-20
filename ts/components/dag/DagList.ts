@@ -102,7 +102,7 @@ class DagList {
                         graphString = dagTab.dag;
                         xcHelper.downloadAsFile($dagListItem.find(".name").text() + '.json', graphString, true);
                     })
-                    .fail((error) => {
+                    .fail(() => {
                         StatusBox.show(DFTStr.DownloadErr, $dagListItem,
                             false, {'side': 'right'});
                         return;
@@ -295,7 +295,7 @@ class DagList {
         .then(() => {
             DagTabManager.Instance.loadTab(key);
         })
-        .fail((error) => {
+        .fail(() => {
             this._disableDelete();
             const index: number = this._userDags.findIndex((dag) => {
                 return dag.key == key;

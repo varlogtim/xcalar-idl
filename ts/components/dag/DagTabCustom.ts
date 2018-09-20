@@ -14,9 +14,9 @@ class DagTabCustom extends DagTab {
     /**
      * initializeTab is used to load up the kvstore and
      * dataflow
-     * @param dagKey Key for this dag's kvstore.
+     * @param _dagKey Key for this dag's kvstore. (not used now)
      */
-    public initializeTab(dagKey: string) {
+    public initializeTab(_dagKey: string) {
         return null;
     }
 

@@ -4,7 +4,7 @@ class DagNodeFactory {
     ): DagNode {
         switch (options.type) {
             case DagNodeType.Aggregate:
-                return new DagNodeAggregate(options);
+                return new DagNodeAggregate(<DagNodeAggregateInfo>options);
             case DagNodeType.Dataset:
                 return new DagNodeDataset(options);
             case DagNodeType.Export:
@@ -26,7 +26,7 @@ class DagNodeFactory {
             case DagNodeType.Extension:
                 return new DagNodeExtension(options);
             case DagNodeType.Custom:
-                return new DagNodeCustom(options);
+                return new DagNodeCustom(<DagNodeCustomInfo>options);
             case DagNodeType.CustomInput:
                 return new DagNodeCustomInput(options);
             default:

@@ -918,7 +918,7 @@ class TblManager {
      */
     public static findAndFocusTable(
         tableName: string,
-        noAnimate: boolean
+        noAnimate: boolean = false
     ): XDPromise<{tableFromInactive: boolean}> {
         const deferred: XDDeferred<{tableFromInactive: boolean}> = PromiseHelper.deferred();
 

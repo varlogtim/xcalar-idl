@@ -491,7 +491,7 @@ class DagGraph {
      * Resets ran nodes to go back to configured.
      */
     public resetRunningStates() {
-        this.nodesMap.forEach((node, key) => {
+        this.nodesMap.forEach((node) => {
             if (node.getState() == DagNodeState.Complete || node.getState() == DagNodeState.Error) {
                 node.beConfiguredState();
             }

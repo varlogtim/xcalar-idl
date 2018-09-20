@@ -77,7 +77,7 @@ class AggOpPanelModel extends GeneralOpPanelModel {
             if (strictCheck) {
                 throw(parsedEval);
             } else {
-                parsedEval = {fnName:"", args: [], type: "fn"};
+                parsedEval = {fnName:"", args: [], type: "fn", error: null};
             }
         }
         let groups = [];
@@ -105,7 +105,7 @@ class AggOpPanelModel extends GeneralOpPanelModel {
                 }
             }
             for (var j = 0; j < argGroup.args.length; j++) {
-                let arg = argGroup.args[j].value;
+                let arg = (<ParsedEvalArg>argGroup.args[j]).value;
                 if (argGroup.args[j].type === "fn") {
                     arg = xcHelper.stringifyEval(<ParsedEval>argGroup.args[j]);
                 }

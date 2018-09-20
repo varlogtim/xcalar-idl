@@ -198,7 +198,8 @@ interface JQueryEventObject {
 interface ParsedEval {
     fnName: string,
     args: ParsedEvalArg[] | ParsedEval[],
-    type: string
+    type: string,
+    error: string
 }
 
 interface ParsedEvalArg {
@@ -593,6 +594,7 @@ declare namespace XcalarApisConstantsT {
     export var XcalarApiDefaultTopIntervalInMs: number;
     export var XcalarApiMaxUdfModuleNameLen: number;
     export var XcalarApiMaxUdfSourceLen: number;
+    export var XcalarApiMaxDagNodeCommentLen: number;
 }
 
 declare enum JoinOperatorTStr {
@@ -665,6 +667,11 @@ declare namespace OpFormTStr {
     export var Descript: string;
     export var CMD: string;
     export var NewColName: string;
+    export var SelectColRename: string;
+    export var NotCasted: string;
+    export var PreviousColumns: string;
+    export var NewColumns: string;
+    export var NotRenamed: string;
 }
 
 declare namespace XcalarEvalArgTypeT {
@@ -971,6 +978,7 @@ declare namespace DFTStr {
     export var DFDrawError: string;
     export var DelDF: string;
     export var DelDFMsg: string;
+    export var NoFields: string;
 }
 
 declare namespace JupyterTStr {
@@ -1114,6 +1122,7 @@ declare namespace SQLTStr {
     export var MoveTableToWS: string;
     export var MoveTemporaryTableToWS: string;
     export var ReorderWS: string;
+    export var EditComment: string;
 }
 
 declare namespace DagTStr {
@@ -1144,9 +1153,9 @@ declare namespace UnionTStr {
     export var FillDestCol;
 }
 
-// declare namespace WSTStr {
-//     export var Ws:
-// }
+declare namespace UploadDataflowCard {
+    export function show(): void;
+}
 
 /* ============== CLASSES ====================== */
 declare class ColFunc {

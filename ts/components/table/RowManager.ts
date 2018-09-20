@@ -149,7 +149,7 @@ class RowManager {
         .always(() => {
             TblManager.removeWaitingCursor(tableId);
             const rowToScrollTo: number = Math.min(targetRow, table.resultSetMax);
-            this._positionScrollbar(rowToScrollTo, tableId, !noScrollBar);
+            this._positionScrollbar(rowToScrollTo, !noScrollBar);
         });
 
         return deferred.promise();
@@ -682,7 +682,7 @@ class RowManager {
         return sizerHeight;
     }
 
-    private _positionScrollbar(row, tableId, adjustTableScroller) {
+    private _positionScrollbar(row, adjustTableScroller) {
         let canScroll: boolean = true;
         const $view: JQuery = this.$view;
         const $table: JQuery = $view.find(".xcTable");

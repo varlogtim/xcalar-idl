@@ -246,7 +246,8 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             aggregate: aggregates,
             icv: this.icv,
             groupAll: this.groupAll,
-            includeSample: this.includeSample
+            includeSample: this.includeSample,
+            newKeys: null
         }
     }
 

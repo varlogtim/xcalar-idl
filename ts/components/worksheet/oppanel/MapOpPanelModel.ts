@@ -100,7 +100,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
                 if (strictCheck) {
                     throw(parsedEval);
                 } else {
-                    parsedEval = {fnName:"", args: [], type: "fn"};
+                    parsedEval = {fnName:"", args: [], type: "fn", error: null};
                 }
             }
             argGroups.push(parsedEval);

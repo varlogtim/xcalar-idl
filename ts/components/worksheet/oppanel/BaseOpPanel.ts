@@ -193,10 +193,10 @@ class BaseOpPanel {
             "lineWrapping": true,
             "indentWithTabs": false,
             "indentUnit": 4,
-            // "matchBrackets": true,
-            // "autoCloseBrackets": true,
-            // "search": true,
-            "gutters": ["CodeMirror-lint-markers"]
+            "matchBrackets": false,
+            "autoCloseBrackets": false,
+            "search": false,
+            "gutters": ["CodeMirror-lint-markers"],
         });
     }
 }
