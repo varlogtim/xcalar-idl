@@ -14,6 +14,7 @@ class DagNodeCustom extends DagNode {
         this._input = [];
         this._output = [];
         this.maxParents = -1;
+        this.minParents = 0;
 
         if (options != null) {
             const subGraph = this.getSubGraph();
@@ -58,9 +59,12 @@ class DagNodeCustom extends DagNode {
         }
 
         const subGraph = this.getSubGraph();
-        const inputNode = new DagNodeCustomInput();
+
+        // Create a new input node if it doesn't exist
+        const inputNode = this._getInputPort(inPortIdx) || new DagNodeCustomInput();
         this._setInputPort(inputNode, inPortIdx);
 
+        // Link the node in sub graph with input node
         if (inNodePort.node != null) {
             const inputNode = this._input[inPortIdx];
             subGraph.connect(inputNode.getId(), inNodePort.node.getId(), inNodePort.portIdx);
@@ -123,7 +127,26 @@ class DagNodeCustom extends DagNode {
     public connectToParent(parentNode: DagNode, pos: number = 0): void {
         super.connectToParent(parentNode, pos);
         this.addInputNode({ node: null, portIdx: 0 }, pos);
-        this.getSubGraph().reset();
+    }
+
+    /**
+     * @override
+     * Get output node's table
+     * @returns {Table} return id of the table of output node
+     * @description We support only one output for now, so always set portIdx to 0
+     */
+    public getTable(portIdx: number = 0): string {
+        // XXX TODO: Uncomment the following line, when we support multiple outputs
+        portIdx = 0; // Hardcoded to 0 for now
+
+        if (portIdx >= this._output.length) {
+            console.error('DagNodeCustom.getTable: output out of range');
+            return null;
+        }
+
+        const outputNode = this._getOutputNode(portIdx).node;
+
+        return outputNode.getTable(); // getTable(outputIdx), if we support multiple output
     }
 
     /**
@@ -173,6 +196,19 @@ class DagNodeCustom extends DagNode {
      */
     public getCustomName(): string {
         return this._customName;
+    }
+
+    /**
+     * @override
+     * Check if the sub graph is configured
+     */
+    public isConfigured(): boolean {
+        for (const {outputNode} of this._output) {
+            if (!outputNode.node.isConfigured()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     protected _getSerializeInfo(): DagNodeCustomInfo {
@@ -233,6 +269,10 @@ class DagNodeCustom extends DagNode {
         return inPortIdx;
     }
 
+    private _getInputPort(inPortIdx): DagNodeCustomInput {
+        return this._input[inPortIdx];
+    }
+
     private _getOutputNode(outPortIdx: number): NodeIOPort {
         if (outPortIdx >= this._output.length) {
             return null;
@@ -244,11 +284,9 @@ class DagNodeCustom extends DagNode {
         // Listen to sub graph changes
         const subGraph = this.getSubGraph();
         subGraph.events.on(DagNodeEvents.SubGraphConfigured, ({id: nodeId}) => {
-            // Set configured only if the node is output node
-            const outNode = this._getOutputNode(0); // We support only one output for now
-            if (outNode != null && outNode.node.getId() === nodeId) {
+            if (this.isConfigured()) {
                 this.beConfiguredState();
-            } 
+            }
         });
         subGraph.events.on(DagNodeEvents.SubGraphError, ({id: nodeId, error}) => {
             this.beErrorState(error);

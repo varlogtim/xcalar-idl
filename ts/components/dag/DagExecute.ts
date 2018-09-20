@@ -62,6 +62,10 @@ class DagExecute {
                 return this._set();
             case DagNodeType.Export:
                 return this._export();
+            case DagNodeType.Custom:
+                return this._custom();
+            case DagNodeType.CustomInput:
+                return this._customInput();
             default:
                 throw new Error(type + " not supported!");
         }
@@ -236,6 +240,29 @@ class DagExecute {
         });
 
         return XIApi.union(this.txId, tableInfos, params.dedup, desTable, unionType);
+    }
+
+    private _custom(): XDPromise<null> {
+        const deferred: XDDeferred<null> = PromiseHelper.deferred();
+        const node: DagNodeCustom = <DagNodeCustom>this.node;
+        
+        node.getSubGraph().execute()
+        .then(() => {
+            // DagNodeCustom.getTable() is overridden to return output node's table
+            // So we don't need a table name here
+            deferred.resolve(null);
+        })
+        .fail((error) => {
+            deferred.reject(error);
+        });
+        
+        return deferred.promise();
+    }
+
+    private _customInput(): XDPromise<null> {
+        // DagNodeCustomInput.getTable() is orverridden to return input parent's table
+        // So we don't need a table name here
+        return PromiseHelper.resolve(null);
     }
 
     private _getUnionType(unionType: UnionType): UnionOperatorT {

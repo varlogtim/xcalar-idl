@@ -42,4 +42,40 @@ class DagNodeCustomInput extends DagNode {
         }
         return `Input#${this._container.getInputIndex(this) + 1}`;
     }
+
+    /**
+     * @override
+     * Get input parent's table
+     * @returns {Table} return id of the table of input parent
+     */
+    public getTable(): string {
+        if (this._container == null) {
+            console.error('DagNodeCustomInput.getTable: No container');
+            return null;
+        }
+        const inputParent =  this._container.getInputParent(this);
+        if (inputParent == null) {
+            console.error('DagNodeCustomInput.getTable: No input parent');
+            return null;
+        }
+        return inputParent.getTable();
+    }
+
+    /**
+     * @override
+     * Get input parent's state
+     * @returns {DagNodeState} the state of input parent
+     */
+    public getState(): DagNodeState {
+        if (this._container == null) {
+            console.error('DagNodeCustomInput.getState: No container');
+            return DagNodeState.Unused;
+        }
+        const inputParent =  this._container.getInputParent(this);
+        if (inputParent == null) {
+            console.error('DagNodeCustomInput.getState: No input parent');
+            return DagNodeState.Unused;
+        }
+        return inputParent.getState();
+    }
 }
