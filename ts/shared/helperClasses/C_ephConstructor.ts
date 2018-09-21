@@ -610,6 +610,7 @@ class FormHelper {
         this.mainMenuState = null;
         this.openTime = null;
         this.isFormOpen = false;
+        this.$container = $("#mainFrame");
         this.__init();
     }
 
