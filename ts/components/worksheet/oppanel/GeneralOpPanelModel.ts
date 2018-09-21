@@ -17,6 +17,7 @@ class GeneralOpPanelModel {
         })[0] || [];
         this._opCategories = [];
         const params: any = this.dagNode.getParam();
+        this.aggregates = new Map<number, string>();
         this._initialize(params);
     }
 
