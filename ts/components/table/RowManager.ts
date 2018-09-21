@@ -200,9 +200,19 @@ class RowManager {
     }
 
     /**
+     * Get total row nu
+     */
+    public getTotalRowNum(): number {
+        return this.table.resultSetCount;
+    }
+
+    /**
      * Get the firt visible row in the table
      */
     public getFirstVisibleRowNum(): number {
+        if (this.getTotalRowNum() === 0) {
+            return 0;
+        }
         if (!document.elementFromPoint) {
             return 0;
         }

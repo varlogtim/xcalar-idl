@@ -702,7 +702,6 @@ ul.CodeMirror-hints {
 #skewInfoArea {
     margin-top: 11px;
     border-left: 1px solid @color-border-warmGray;
-    border-right: none;
     .position(relative);
     cursor: pointer;
 
@@ -712,13 +711,6 @@ ul.CodeMirror-hints {
 
     label, .text {
         cursor: pointer;
-    }
-
-    .divider {
-        .size(@width: 1px, @height: 20px);
-        .vertical-align;
-        .position(absolute, @right: 0px);
-        background-color: @color-border-warmGray;
     }
 
     &.active {

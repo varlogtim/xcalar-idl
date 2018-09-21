@@ -1061,6 +1061,9 @@ declare namespace TblTStr {
     export var ToTemp: string;
     export var ToTempTip: string;
     export var DelFail: string;
+    export var SkipToRow: string;
+    export var Skew: string;
+    export var ClickToDetail: string;
 }
 
 declare namespace UDFTStr {

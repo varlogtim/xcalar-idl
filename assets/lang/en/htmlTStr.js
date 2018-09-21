@@ -380,9 +380,7 @@ module.exports = {
     },
 
     "workspaceBar": {
-        "rowInput": "Skip to row",
-        "Skew": "Skew",
-        "ClickToDetail": "Click to see details"
+        "Skew": "Skew"
     },
 
     "imdBar": {

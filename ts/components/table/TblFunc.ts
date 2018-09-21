@@ -260,6 +260,9 @@ class TblFunc {
             return;
         }
         const $container: JQuery = DagTable.Instance.getView();
+        if ($container == null) {
+            return;
+        }
         const $tableWrap: JQuery = $container.find(".xcTableWrap");
         if ($tableWrap.hasClass('tableDragging')) {
             return null;

@@ -10,7 +10,6 @@ class TableComponent {
             TableComponent.menuManager = TableMenuManager.Instance;
             TableComponent.prefixManager = TablePrefixManager.Instance;
             TableComponent.viewersMap = new Map();
-            this._setupSkewInfo();
             this._setupMainFrame();
         } catch (e) {
             console.error(e);
@@ -48,23 +47,12 @@ class TableComponent {
             $rowInputArea.empty();
             this._emptySkew();
         } else {
-            this._updateSkew(table.getSkewness());
             const rowInput: RowInput = viewer.getRowInput();
             rowInput.render($rowInputArea);
-            rowInput.updateTotalRows(table.resultSetCount);
 
-            if (table.resultSetCount === 0) {
-                rowInput.setRowNum(0);
-            } else {
-                rowInput.genFirstVisibleRowNum();
-            }
+            const skew: TableSkew = viewer.getSkew();
+            skew.render($("#skewInfoArea").addClass("active"));
         }
-    }
-
-    private static _setupSkewInfo(): void {
-        $("#skewInfoArea").click(() => {
-            SkewInfoModal.show(gActiveTableId);
-        });
     }
 
     private static _setupMainFrame(): void {
@@ -111,37 +99,6 @@ class TableComponent {
             scrollPrevented = false;
         }
 
-    }
-
-    private static _updateSkew(skew: number): void {
-        var $section = $("#skewInfoArea").addClass("active");
-        var $text = $section.find(".text");
-        if (skew == null || isNaN(skew)) {
-            $text.text("N/A");
-            $text.css("color", "");
-        } else {
-            $text.text(skew);
-            $text.css("color", this._getSkyewColor(skew));
-        }
-    }
-
-    private static _getSkyewColor(skew: number): string {
-        /*
-            0: hsl(104, 100%, 33)
-            25%: hsl(50, 100%, 33)
-            >= 50%: hsl(0, 100%, 33%)
-        */
-        let h: number = 104;
-        if (skew != null) {
-            if (skew <= 25) {
-                h = 104 - 54 / 25 * skew;
-            } else if (skew <= 50) {
-                h = 50 - 2 * (skew - 25);
-            } else {
-                h = 0;
-            }
-        }
-        return "hsl(" + h + ", 100%, 33%)";
     }
 
     private static _emptySkew() {

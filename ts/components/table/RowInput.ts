@@ -4,15 +4,15 @@ class RowInput {
 
     public constructor(rowManager: RowManager) {
         this.rowManager = rowManager;
-        this.$rowInputSection = $(this._genHTML());
-        this._addEventListerners();
     }
 
     /**
      * Clear Row Input
      */
     public clear(): void {
-        this.$rowInputSection.remove();
+        if (this.$rowInputSection != null) {
+            this.$rowInputSection.remove();
+        }
     }
 
     /**
@@ -20,6 +20,10 @@ class RowInput {
      * @param $container
      */
     public render($container: JQuery): void {
+        this.$rowInputSection = $(this._genHTML());
+        this._addEventListerners();
+        this._updateTotalRows();
+        this.updateCurrentRowNum();
         $container.empty().append(this.$rowInputSection);
     }
 
@@ -34,28 +38,17 @@ class RowInput {
     }
 
     /**
-     * Set row num
-     */
-    public setRowNum(val: number): void {
-        const $rowInput: JQuery = this._getRowInput();
-        $rowInput.val(val).data("val", val);
-    }
-
-    /**
      * Update the row number
      */
-    public genFirstVisibleRowNum(): void {
+    public updateCurrentRowNum(): void {
         const firstRowNum: number = this.rowManager.getFirstVisibleRowNum();
         if (firstRowNum !== null) {
-            this.setRowNum(firstRowNum);
+            this._setRowNum(firstRowNum);
         }
     }
 
-    /**
-     * Update the row input element size
-     * @param totalRows
-     */
-    public updateTotalRows(totalRows: number): void {
+    private _updateTotalRows(): void {
+        const totalRows: number = this.rowManager.getTotalRowNum();
         this.$rowInputSection.find(".totalRows").text(xcHelper.numToStr(totalRows));
         let inputWidth: number = 50;
         const numDigits: number = ("" + totalRows).length;
@@ -72,10 +65,10 @@ class RowInput {
 
     // XXX TODO, remove the id numPages after sql test get fixed
     private _genHTML(): string {
-        const html: string = 
-            '<label>Skip to rows</label>' +
-            '<input type="number" min="0"  step="1" spellcheck="false">' +
-            '<label id="numPages">of <span class="totalRows"></span></label>';
+        const html: string =
+        `<label>${TblTStr.SkipToRow}</label>
+        <input type="number" min="0"  step="1" spellcheck="false">
+        <label id="numPages">of <span class="totalRows"></span></label>`;
         return html;
     }
 
@@ -105,14 +98,14 @@ class RowInput {
             let canScroll: boolean;
             [targetRow, canScroll] = rowManager.normalizeRowNum(targetRow);
             if (!canScroll) {
-                this.setRowNum(targetRow == null ? curRow : targetRow);
+                this._setRowNum(targetRow == null ? curRow : targetRow);
                 return;
             } else {
-                this.setRowNum(targetRow);
+                this._setRowNum(targetRow);
                 const rowOnScreen: number = rowManager.getLastVisibleRowNum() - curRow + 1;
                 rowManager.skipToRow(backRow, targetRow, rowOnScreen, noScrollBar)
                 .always(() => {
-                    this.genFirstVisibleRowNum();
+                    this.updateCurrentRowNum();
                 });
             }
         });
@@ -121,5 +114,10 @@ class RowInput {
     private _getRowNum(): number {
         const $rowInput: JQuery = this._getRowInput();
         return Number($rowInput.data("val"));
+    }
+
+    private _setRowNum(val: number): void {
+        const $rowInput: JQuery = this._getRowInput();
+        $rowInput.val(val).data("val", val);
     }
 }

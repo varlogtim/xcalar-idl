@@ -1344,7 +1344,10 @@ TblTStr = {
     'ToTempTip': 'Tables will be sent to the temporary tables list',
     'TempStatus': 'Temporary',
     'ActiveStatus': "Active",
-    "NotActive": "Table is not active."
+    "NotActive": "Table is not active.",
+    "SkipToRow": "Skip to rows",
+    "Skew": "Skew",
+    "ClickToDetail": "Click to see details",
 };
 
 ColTStr = {

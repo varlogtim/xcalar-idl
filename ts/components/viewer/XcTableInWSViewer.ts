@@ -29,6 +29,11 @@ class XcTableInWSViewer extends XcTableViewer {
         return this.rowInput;
     }
 
+
+    public getSkew(): TableSkew {
+        return this.skew;
+    }
+
     public render(): XDPromise<void> {
         return super.render(this.$container)
                 .always(() => {

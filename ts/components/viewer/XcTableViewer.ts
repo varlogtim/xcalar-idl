@@ -1,6 +1,7 @@
 class XcTableViewer extends XcViewer {
     protected table: TableMeta;
     protected rowInput: RowInput;
+    protected skew: TableSkew;
     private rowManager: RowManager;
 
     public constructor(table: TableMeta) {
@@ -9,6 +10,7 @@ class XcTableViewer extends XcViewer {
         this.table = table;
         this.rowManager = new RowManager(table, this.getView());
         this.rowInput = new RowInput(this.rowManager);
+        this.skew = new TableSkew(this.table);
         this._addEventListeners();
         this._setTableMode(true);
     }
@@ -19,6 +21,7 @@ class XcTableViewer extends XcViewer {
     public clear(): XDPromise<void> {
         super.clear();
         this.rowInput.clear();
+        this.skew.clear();
         return this.table.freeResultset();
     }
 
@@ -27,16 +30,17 @@ class XcTableViewer extends XcViewer {
      */
     public render($container: JQuery): XDPromise<void> {
         super.render($container);
-        this._renderRowInput($container);
+        
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this.table.getMetaAndResultSet()
         .then(() => {
-            this.rowInput.updateTotalRows(this.table.resultSetMax);
             return this._startBuildTable();
         })
         .then(() => {
             this._afterBuild();
+            this._renderSkew($container);
+            this._renderRowInput($container);
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -184,13 +188,6 @@ class XcTableViewer extends XcViewer {
         const $xcTableWrap: JQuery = $('#xcTableWrap-' + tableId);
         $xcTableWrap.removeClass("building");
         this._autoSizeDataCol(tableId);
-
-        this.rowInput.updateTotalRows(table.resultSetCount);
-        if (table.resultSetCount === 0) {
-            this.rowInput.setRowNum(0);
-        } else {
-            this.rowInput.genFirstVisibleRowNum();
-        }
     }
 
     private _autoSizeDataCol(tableId: TableId): void {
@@ -404,7 +401,7 @@ class XcTableViewer extends XcViewer {
             clearTimeout(focusTimer);
             focusTimer = window.setTimeout(scrollingEnd, 200);
 
-            this.rowInput.genFirstVisibleRowNum();
+            this.rowInput.updateCurrentRowNum();
 
             const scrollTop: number = $xcTbodyWrap.scrollTop();
             const scrollMeta = table.scrollMeta;
@@ -481,7 +478,7 @@ class XcTableViewer extends XcViewer {
                     }
                 }
 
-                this.rowInput.genFirstVisibleRowNum();
+                this.rowInput.updateCurrentRowNum();
             });
         });
 
@@ -507,5 +504,10 @@ class XcTableViewer extends XcViewer {
     private _renderRowInput($container: JQuery): void {
         const $rowInputArea = $container.find(".rowInputArea");
         this.rowInput.render($rowInputArea);
+    }
+
+    private _renderSkew($container: JQuery): void {
+        const $skewInfoArea = $container.find(".skewInfoArea");
+        this.skew.render($skewInfoArea);
     }
 }
