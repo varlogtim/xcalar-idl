@@ -594,6 +594,7 @@ class FormHelper {
      */
 
     private $form: JQuery;
+    private $container: JQuery;
     private options: FormHelperOptions;
     private id: string;
     private state: string;
@@ -609,7 +610,6 @@ class FormHelper {
         this.mainMenuState = null;
         this.openTime = null;
         this.isFormOpen = false;
-
         this.__init();
     }
 
@@ -665,6 +665,13 @@ class FormHelper {
 
     // called everytime the form opens
     public setup(extraOptions: FormHelperOptions): XDPromise<any> {
+        this.$container = $("#mainFrame");
+        // XXX TODO remove this hack
+        const $view: JQuery = DagTable.Instance.getView();
+        if ($view) {
+            this.$container = this.$container.add($view);
+        }
+
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         const self: FormHelper = this;
         const $form: JQuery = self.$form;
@@ -765,7 +772,7 @@ class FormHelper {
 
         if (!columnPicker.noEvent) {
             const colSelector: string = ".xcTable .header, .xcTable td.clickable";
-            $("#mainFrame").on("click.columnPicker", colSelector, function(event: JQueryEventObject) {
+            this.$container.on("click.columnPicker", colSelector, function(event: JQueryEventObject) {
                 const callback: Function = columnPicker.colCallback;
                 if (callback == null || !(callback instanceof Function)) {
                     return;
@@ -798,7 +805,7 @@ class FormHelper {
                 callback($target, event);
             });
 
-            $("#mainFrame").on("click.columnPicker", ".xcTheadWrap", function(event: JQueryEventObject) {
+            this.$container.on("click.columnPicker", ".xcTheadWrap", function(event: JQueryEventObject) {
                 const callback: Function = columnPicker.headCallback;
                 if (callback == null || !(callback instanceof Function)) {
                     return;
@@ -942,7 +949,7 @@ class FormHelper {
                                          .removeClass('noColumnPicker')
                                          .removeAttr("data-tipClasses");
         xcTooltip.remove($noColPickers);
-        $("#mainFrame").off("click.columnPicker");
+        this.$container.off("click.columnPicker");
         $("#dagPanel").off("mousedown.columnPicker");
         $("#container").removeClass(self.state);
         self.state = null;

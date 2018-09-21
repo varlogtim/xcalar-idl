@@ -741,16 +741,6 @@ ul.CodeMirror-hints {
     white-space: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
-    // XXX not using position relative for the sake of
-    // the scrolling when drag/dropping a table or column
-    // .transition-delay(0s);
-    // .transition(height 0.3s);
-
-    &.midway {
-        .size(@height:  ~"calc(50% - 20px)");
-        .transition(height 0s);
-        .transition-delay(0.3s);
-    }
 }
 
 /* ========== End Of Main Frame ========== */

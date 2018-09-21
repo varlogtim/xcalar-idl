@@ -29,7 +29,7 @@ abstract class XcViewer {
         this.$view.remove();
     }
 
-    protected getView(): JQuery {
+    public getView(): JQuery {
         return this.$view;
     }
 }

@@ -941,17 +941,7 @@ namespace xcManager {
             if (otherResize) {
                 otherResize = false;
             } else {
-                const table: TableMeta = gTables[gActiveTableId];
-                if (table && table["resultSetCount"] !== 0) {
-                    TableComponent.update();
-                }
-                TblFunc.moveTableDropdownBoxes();
-                // for tableScrollBar
-                TblFunc.moveFirstColumn(null);
-                TblManager.adjustRowFetchQuantity();
-                DagPanel.setScrollBarId($(window).height());
-                DagPanel.adjustScrollBarPositionAndSize();
-                DFCard.adjustScrollBarPositionAndSize();
+                TblFunc.repositionOnWinResize();
                 if (modalSpecs) {
                     xcHelper.repositionModalOnWinResize(modalSpecs,
                                                         windowSpecs);
@@ -970,49 +960,6 @@ namespace xcManager {
         $('#container').scroll(function(): void {
             $(this).scrollTop(0);
         });
-
-        let mainFrameScrolling: boolean = false;
-        let mainFrameScrollTimer: number;
-        let scrollPrevented: boolean = false;
-        $('#mainFrame').scroll(function(): void {
-            if (!mainFrameScrolling) {
-                mainFrameScrolling = true;
-                // apply the following actions only once per scroll session
-
-                if ($(this).hasClass('scrollLocked')) {
-                    scrollPrevented = true;
-                } else {
-                    xcMenu.close();
-                }
-
-                xcMenu.removeKeyboardNavigation();
-                // table head's dropdown has position issue if not hide
-                $('.xcTheadWrap').find('.dropdownBox')
-                                 .addClass('dropdownBoxHidden');
-                $(".xcTheadWrap").find(".lockIcon").addClass("xc-hidden");
-                xcTooltip.hideAll();
-                $('.tableScrollBar').hide();
-            }
-            $(this).scrollTop(0);
-
-            clearTimeout(mainFrameScrollTimer);
-            mainFrameScrollTimer = <any>setTimeout(mainFrameScrollingStop, 300);
-            if (!scrollPrevented) {
-                TblFunc.moveFirstColumn(null, true);
-                TblFunc.moveTableTitles(null);
-            }
-        });
-
-        function mainFrameScrollingStop(): void {
-            $('.xcTheadWrap').find('.dropdownBox')
-                             .removeClass('dropdownBoxHidden');
-            $(".xcTheadWrap").find(".lockIcon").removeClass("xc-hidden");
-            $('.tableScrollBar').show();
-            TblFunc.moveFirstColumn(null);
-            TblFunc.moveTableDropdownBoxes();
-            mainFrameScrolling = false;
-            scrollPrevented = false;
-        }
 
         $(document).mousedown(function(event: JQueryEventObject): void {
             if (window["isBrowserMicrosoft"] && event.shiftKey) {

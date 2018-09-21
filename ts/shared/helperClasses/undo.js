@@ -1023,10 +1023,7 @@ window.Undo = (function($, Undo) {
         $table.html(tableHtml);
 
         TblManager.pullRowsBulk(tableId, jsonData, rowNum, RowDirection.Bottom);
-        var modelingMode = (DagTable.Instance.getTable() == gTables[tableId].getName());
-        TblManager.addColListeners($table, tableId, {
-            modelingMode: modelingMode
-        });
+        TblManager.addColListeners($table, tableId);
         TblManager.updateHeaderAndListInfo(tableId);
         TblFunc.moveFirstColumn();
     }

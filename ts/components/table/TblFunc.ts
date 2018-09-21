@@ -174,14 +174,9 @@ class TblFunc {
         if ($table.length === 0) {
             return;
         }
-
-        const tableWidth: number = $table.width();
         TblFunc.moveTableDropdownBoxes();
         TblFunc.moveTableTitles(null);
-        // for scrollbar
-        TblFunc.moveFirstColumn(null);
-        $table.find('.rowGrab').width(tableWidth);
-        $table.siblings('.rowGrab').width(tableWidth);
+        TblFunc.alignScrollBar($table);
     }
 
     /**
@@ -237,6 +232,46 @@ class TblFunc {
                 }
             }
         }
+    }
+
+    public static repositionOnWinResize() {
+        const table: TableMeta = gTables[gActiveTableId];
+        if (table && table["resultSetCount"] !== 0) {
+            TableComponent.update();
+        }
+        // XXX TODO remove this hack
+        // for Dag Table
+        TblFunc.alignLockIcon();
+
+        TblFunc.moveTableDropdownBoxes();
+        // for tableScrollBar
+        TblFunc.moveFirstColumn(null);
+        TblManager.adjustRowFetchQuantity();
+        DagPanel.setScrollBarId($(window).height());
+        DagPanel.adjustScrollBarPositionAndSize();
+        DFCard.adjustScrollBarPositionAndSize();
+    }
+
+    /**
+     * TblFunc.alignLockIcon
+     */
+    public static alignLockIcon(): void {
+        if (isBrowserMicrosoft || isBrowserSafari) {
+            return;
+        }
+        const $container: JQuery = DagTable.Instance.getView();
+        const $tableWrap: JQuery = $container.find(".xcTableWrap");
+        if ($tableWrap.hasClass('tableDragging')) {
+            return null;
+        }
+        const $lockTableIcon: JQuery = $tableWrap.find('.lockedTableIcon');
+        if ($lockTableIcon.length === 0) {
+            return;
+        }
+        const containerRect: ClientRect = $container[0].getBoundingClientRect();
+        const rect: ClientRect = $tableWrap[0].getBoundingClientRect();
+        const center: number = containerRect.left - rect.left + containerRect.width / 2;
+        $lockTableIcon.css('left', center);
     }
 
     /**
@@ -423,6 +458,10 @@ class TblFunc {
      * @param focusDag
      */
     public static focusTable(tableId: TableId, focusDag: boolean = false): void {
+        const table: TableMeta = gTables[tableId];
+        if (table && table.modelingMode) {
+            return;
+        }
         if (WSManager.getWSFromTable(tableId) !== WSManager.getActiveWS()) {
             if ((Log.isRedo() || Log.isUndo()) &&
                 Log.viewLastAction() !== "Join"
@@ -931,5 +970,12 @@ class TblFunc {
 
             $th.find(".dropdownBox").trigger(fakeEvent.click);
         }
+    }
+
+    public static alignScrollBar($table: JQuery): void {
+        const witdh: number = $table.width();
+        TblFunc.moveFirstColumn(null);
+        $table.find('.rowGrab').width(witdh);
+        $table.siblings('.rowGrab').width(witdh);
     }
 }

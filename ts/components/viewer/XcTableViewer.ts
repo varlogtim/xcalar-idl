@@ -1,6 +1,5 @@
 class XcTableViewer extends XcViewer {
     protected table: TableMeta;
-    protected modelingMode: boolean;
     protected rowInput: RowInput;
     private rowManager: RowManager;
 
@@ -8,10 +7,10 @@ class XcTableViewer extends XcViewer {
         const id: string = table.getName(); // use table name as unique id
         super(id);
         this.table = table;
-        this.modelingMode = true;
         this.rowManager = new RowManager(table, this.getView());
         this.rowInput = new RowInput(this.rowManager);
         this._addEventListeners();
+        this._setTableMode(true);
     }
 
     /**
@@ -58,7 +57,8 @@ class XcTableViewer extends XcViewer {
         // XXX this is still buggy, need update!
         this.$view.scroll((event) => {
             $(event.target).scrollTop(0);
-            TblFunc.moveFirstColumn(null, true);
+            TblFunc.moveFirstColumn(null);
+            TblFunc.alignLockIcon();
         });
     }
 
@@ -165,9 +165,7 @@ class XcTableViewer extends XcViewer {
 
         TblManager.pullRowsBulk(tableId, jsonData, 0);
         this._addTableListeners(tableId);
-        TblManager.addColListeners($table, tableId, {
-            modelingMode: this.modelingMode
-        });
+        TblManager.addColListeners($table, tableId);
 
         if (numRows === 0) {
             $table.find('.idSpan').text("");
@@ -237,6 +235,19 @@ class XcTableViewer extends XcViewer {
 
     protected _addTableListeners(tableId: TableId): void {
         const $xcTableWrap: JQuery = $("#xcTableWrap-" + tableId);
+        $xcTableWrap.on("mousedown", ".lockedTableIcon", function() {
+            // handlers fire in the order that it's bound in.
+            // So we are going to handle this, which removes the background
+            // And the handler below will move the focus onto this table
+            const txId: number = $(this).data("txid");
+            if (txId == null) {
+                return;
+            }
+            xcTooltip.refresh($(".lockedTableIcon .iconPart"), 100);
+            QueryManager.cancelQuery(txId);
+            xcTooltip.hideAll();
+        });
+
         $xcTableWrap.scroll(function() {
             $(this).scrollLeft(0); // prevent scrolling when colmenu is open
             $(this).scrollTop(0); // prevent scrolling when colmenu is open
@@ -248,6 +259,10 @@ class XcTableViewer extends XcViewer {
                 TblAnim.startRowResize($(this), event);
             }
         });
+    }
+
+    protected _setTableMode(modelingMode: boolean = false): void {
+        this.table.modelingMode = modelingMode;
     }
 
     private _addScrollbar(): void {

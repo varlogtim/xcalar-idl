@@ -122,7 +122,7 @@ namespace xcHelper {
         allowSelection?: boolean;
         prefix?: string;
         color?: string;
-        modelingMode?: boolean;
+        tableId?: TableId;
     }
 
     interface UDFListModule {
@@ -137,10 +137,6 @@ namespace xcHelper {
         type: string;
         isUndefined: boolean;
         isNull: boolean;
-    }
-
-    interface LockOptions {
-        delayTime?: number;
     }
 
     /**
@@ -2273,16 +2269,22 @@ namespace xcHelper {
      * @param options
      *
      */
-    export function lockTable(tableId: TableId, txId?: number, options?: LockOptions): void {
+    export function lockTable(
+        tableId: TableId,
+        txId?: number,
+        options: {delayTime: number} = {delayTime: null}
+    ): void {
         // lock worksheet as well
-        xcAssert((tableId != null), 'Invalid Parameters!');
-        if (!gTables[tableId]) {
+        const table: TableMeta = gTables[tableId];
+        if (table == null) {
             return;
         }
-        options = options || {};
-
         const $tableWrap: JQuery = $('#xcTableWrap-' + tableId);
+        const isModelingMode = table.modelingMode;
         if ($tableWrap.length !== 0 && !$tableWrap.hasClass('tableLocked')) {
+            // XXX TODO Remove this hack
+            const $container: JQuery = isModelingMode ?
+            DagTable.Instance.getView() : $('#mainFrame');
             const iconNum: number = $('.lockedTableIcon[data-txid="' + txId +
                                     '"] .progress').length;
             // tableWrap may not exist during multijoin on self
@@ -2298,19 +2300,22 @@ namespace xcHelper {
             const iconHeight: number = $lockedIcon.height();
             const tableHeight: number = $tableWrap.find('.xcTbodyWrap').height();
             const tbodyHeight: number = $tableWrap.find('tbody').height() + 1;
-            const mainFrameHeight: number = $('#mainFrame').height();
-            let topPos: number = 50 * ((tableHeight - (iconHeight/2))/ mainFrameHeight);
+            const containerHeight: number = $container.height();
+            let topPos: number = 50 * ((tableHeight - (iconHeight/2))/ containerHeight);
             topPos = Math.min(topPos, 40);
 
             $lockedIcon.css('top', topPos + '%');
             $tableWrap.find('.xcTbodyWrap')
                     .append('<div class="tableCover"></div>');
             $tableWrap.find('.tableCover').height(tbodyHeight);
-            // add lock class to dataflow
-            $('#dagWrap-' + tableId).addClass('locked notSelected')
-                                    .removeClass('selected');
-
-            TblFunc.moveTableTitles(null);
+            if (isModelingMode) {
+                TblFunc.alignLockIcon();
+            } else {
+                // add lock class to dataflow
+                $('#dagWrap-' + tableId).addClass('locked notSelected')
+                .removeClass('selected');
+                TblFunc.moveTableTitles(null);
+            }
 
             // prevent vertical scrolling on the table
             const $tbody: JQuery = $tableWrap.find('.xcTbodyWrap');
@@ -2350,8 +2355,6 @@ namespace xcHelper {
      * @param tableId
      */
     export function unlockTable(tableId: TableId): void {
-        xcAssert((tableId != null), 'Invalid Parameters!');
-
         const table = gTables[tableId];
         const $dagTables: JQuery = $('#dagPanel').find('.dagTable[data-tableid="' +
                                                         tableId + '"]');
@@ -2742,9 +2745,13 @@ namespace xcHelper {
         animate: boolean,
         noSelect: boolean
     ): void {
+        const table: TableMeta = gTables[tableId];
+        // XXX TODO: remove this hack
+        const modelingMode: boolean = (table && table.modelingMode);
+        const $contaianer: JQuery = modelingMode ? DagTable.Instance.getView() : $('#mainFrame');
         const $tableWrap: JQuery = $('#xcTableWrap-' + tableId);
-        const mainFrameWidth: number = $('#mainFrame').width();
-        const currentScrollPosition: number = $('#mainFrame').scrollLeft();
+        const containerWidth: number = $contaianer.width();
+        const currentScrollPosition: number = $contaianer.scrollLeft();
         const $th: JQuery = $tableWrap.find('th.col' + colNum);
         if ($th.length === 0) {
             return;
@@ -2753,7 +2760,7 @@ namespace xcHelper {
         const colWidth: number = $th.width();
         const leftPosition: number = currentScrollPosition + columnOffset;
         const scrollPosition: number = leftPosition -
-            ((mainFrameWidth - colWidth) / 2);
+            ((containerWidth - colWidth) / 2);
 
         TblFunc.focusTable(tableId);
         if (!noSelect) {
@@ -2761,7 +2768,7 @@ namespace xcHelper {
         }
 
         if (animate && !gMinModeOn) {
-            $('#mainFrame').animate({
+            $contaianer.animate({
                 scrollLeft: scrollPosition
             }, 500, () => {
                 TblFunc.focusTable(tableId);
@@ -2769,7 +2776,7 @@ namespace xcHelper {
                 xcHelper.removeSelectionRange();
             });
         } else {
-            $('#mainFrame').scrollLeft(scrollPosition);
+            $contaianer.scrollLeft(scrollPosition);
             TblManager.alignTableEls();
         }
     }
@@ -5780,8 +5787,8 @@ namespace xcHelper {
         if (menuId === "tableMenu" || menuId === "colMenu" ||
             menuId === "cellMenu" || menuId === "prefixColorMenu"
         ) {
-            if (menuId === "tableMenu" && options.modelingMode) {
-                tableId = xcHelper.getTableId(DagTable.Instance.getTable());
+            if (menuId === "tableMenu" && options.tableId) {
+                tableId = options.tableId;
             } else {
                 tableId = xcHelper.parseTableId($dropdownIcon.closest(".xcTableWrap"));
             }
@@ -5835,7 +5842,7 @@ namespace xcHelper {
 
         let classes: string = options.classes;
         if (classes != null) {
-            if (options.modelingMode) {
+            if (gTables[tableId] && gTables[tableId].modelingMode) {
                 classes += " style-white mode-modeling";
             }
             const showingHotKeys: boolean = $menu.hasClass("showingHotKeys");

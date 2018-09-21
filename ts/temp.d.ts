@@ -1206,6 +1206,7 @@ declare class TableMeta {
     public resultSetMax: number;
     public resultSetId: number;
     public rowHeights: any;
+    public modelingMode: boolean;
     public scrollMeta: {isTableScrolling: boolean, isBarScrolling: boolean, base: number, scale: number};
     public getAllCols(onlyValid?: boolean): ProgCol[]
     public getCol(colNum: number): ProgCol;

@@ -22,7 +22,7 @@ class XcTableInWSViewer extends XcTableViewer {
         this.tableToReplace = tableToReplace;
         this.options = options;
         this.$container = $('<div class="fakeContainer"></div>');
-        this.modelingMode = false;
+        this._setTableMode(false);
     }
 
     public getRowInput(): RowInput {
@@ -106,20 +106,9 @@ class XcTableInWSViewer extends XcTableViewer {
     }
 
     protected _addTableListeners(tableId: TableId): void {
+        super._addTableListeners(tableId);
         const $xcTableWrap: JQuery = $("#xcTableWrap-" + tableId);
         const oldId: TableId = gActiveTableId;
-        $xcTableWrap.on("mousedown", ".lockedTableIcon", function() {
-            // handlers fire in the order that it's bound in.
-            // So we are going to handle this, which removes the background
-            // And the handler below will move the focus onto this table
-            const txId: number = $(this).data("txid");
-            if (txId == null) {
-                return;
-            }
-            xcTooltip.refresh($(".lockedTableIcon .iconPart"), 100);
-            QueryManager.cancelQuery(txId);
-            xcTooltip.hideAll();
-        });
 
         $xcTableWrap.mousedown(function() {
             if (gActiveTableId === tableId ||
@@ -131,16 +120,6 @@ class XcTableInWSViewer extends XcTableViewer {
                     focusDag = true;
                 }
                 TblFunc.focusTable(tableId, focusDag);
-            }
-        }).scroll(function() {
-            $(this).scrollLeft(0); // prevent scrolling when colmenu is open
-            $(this).scrollTop(0); // prevent scrolling when colmenu is open
-        });
-
-        const $rowGrab: JQuery = $("#xcTbodyWrap-" + tableId).find(".rowGrab.last");
-        $rowGrab.mousedown(function(event) {
-            if (event.which === 1) {
-                TblAnim.startRowResize($(this), event);
             }
         });
     }

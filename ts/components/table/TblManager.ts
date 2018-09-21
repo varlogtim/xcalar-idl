@@ -75,22 +75,25 @@ class TblManager {
         const newTableId: TableId = xcHelper.getTableId(newTableName);
         let tableAddedToWS: boolean = false;
         // XXX TODO: remove it
-        let isModelingTable: boolean = false;
+        let modelingMode: boolean = false;
+        oldTableNames.forEach((tableName) => {
+            const tableId: TableId = xcHelper.getTableId(tableName);
+            const table: TableMeta = gTables[tableId];
+            if (table && table.modelingMode) {
+                modelingMode = true;
+                return false; // stop loop
+            }
+        });
+
         if (worksheet != null) {
             WSManager.addTable(newTableId, worksheet);
             tableAddedToWS = true;
-        } else {
-            if (oldTableNames.length === 1 &&
-                DagTable.Instance.getTable() === oldTableNames[0]
-            ) {
-                isModelingTable = true;
-            } else {
-                worksheet = WSManager.getWSFromTable(newTableId);
-                if (!worksheet) {
-                    worksheet = WSManager.getActiveWS();
-                    WSManager.addTable(newTableId, worksheet);
-                    tableAddedToWS = true;
-                }
+        } else if (modelingMode) {
+            worksheet = WSManager.getWSFromTable(newTableId);
+            if (!worksheet) {
+                worksheet = WSManager.getActiveWS();
+                WSManager.addTable(newTableId, worksheet);
+                tableAddedToWS = true;
             }
         }
 
@@ -122,7 +125,7 @@ class TblManager {
         }
 
         TblManager._setTableMeta(newTableName, tableCols);
-        if (isModelingTable) {
+        if (modelingMode) {
             const viewer: XcTableViewer = new XcTableViewer(gTables[newTableId]);
             return DagTable.Instance.replace(viewer);
         }
@@ -2216,6 +2219,7 @@ class TblManager {
         TblFunc.matchHeaderSizes($table);
     }
 
+    // XXX TODO: update it
     /**
      * TblManager.adjustRowFetchQuantity
      */
@@ -2423,18 +2427,19 @@ class TblManager {
         }
     }
 
+    // XXX TODO, deprecate this function
     /**
      * TblManager.updateHeaderAndListInfo
      */
     public static updateHeaderAndListInfo(tableId: TableId): void {
-        // XXX TODO, fix this hack
-        if ($("#xcTheadWrap-" + tableId).length <= 0) {
-            return;
-        }
-        TblManager.updateTableHeader(tableId);
-        TableList.updateTableInfo(tableId);
         const $table: JQuery = $('#xcTable-' + tableId);
-        TblFunc.matchHeaderSizes($table);
+        if (gTables[tableId].modelingMode) {
+            TblFunc.alignScrollBar($table);
+        } else {
+            TblManager.updateTableHeader(tableId);
+            TableList.updateTableInfo(tableId);
+            TblFunc.matchHeaderSizes($table);
+        }
     }
 
     /**
@@ -2547,16 +2552,10 @@ class TblManager {
      * TblManager.addColListeners
      * @param $table
      * @param tableId
-     * @param extraOptions
      */
     public static addColListeners(
         $table: JQuery,
         tableId: TableId,
-        extraOptions: {
-            modelingMode: boolean
-        } = {
-            modelingMode: false
-        }
     ): void {
         const $thead: JQuery = $table.find('thead tr');
         const $tbody: JQuery = $table.find("tbody");
@@ -2772,15 +2771,10 @@ class TblManager {
             const options = {
                 colNum: colNum,
                 classes: $el.closest('.header').attr('class'),
-                modelingMode: false,
                 multipleColNums: null,
                 mouseCoors: null,
                 offsetX: null
             };
-
-            if (extraOptions.modelingMode) {
-                options.modelingMode = true;
-            }
 
             if ($th.hasClass('indexedColumn')) {
                 options.classes += " type-indexed";

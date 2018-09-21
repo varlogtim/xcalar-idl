@@ -42,6 +42,10 @@ class DagTable {
         return this.viewer ? this.viewer.getId() : null;
     }
 
+    public getView(): JQuery {
+        return this.viewer ? this.viewer.getView() : null;
+    }
+
     public getBindNodeId(): DagNodeId {
         return this.$node ? this.$node.data("nodeid") : null;
     }
@@ -88,7 +92,7 @@ class DagTable {
         $tableBar.on("click", ".tableMenu", (event) => {
             const options: xcHelper.DropdownOptions = {
                 classes: "tableMenu",
-                modelingMode: true
+                tableId: xcHelper.getTableId(this.getTable())
             };
 
             xcHelper.dropdownOpen($(event.target), $("#tableMenu"), options);

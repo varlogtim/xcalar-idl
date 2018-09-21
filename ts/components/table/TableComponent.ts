@@ -11,6 +11,7 @@ class TableComponent {
             TableComponent.prefixManager = TablePrefixManager.Instance;
             TableComponent.viewersMap = new Map();
             this._setupSkewInfo();
+            this._setupMainFrame();
         } catch (e) {
             console.error(e);
         }
@@ -64,6 +65,52 @@ class TableComponent {
         $("#skewInfoArea").click(() => {
             SkewInfoModal.show(gActiveTableId);
         });
+    }
+
+    private static _setupMainFrame(): void {
+        let mainFrameScrolling: boolean = false;
+        let mainFrameScrollTimer: number;
+        let scrollPrevented: boolean = false;
+        $('#mainFrame').scroll(function(): void {
+            if (!mainFrameScrolling) {
+                mainFrameScrolling = true;
+                // apply the following actions only once per scroll session
+
+                if ($(this).hasClass('scrollLocked')) {
+                    scrollPrevented = true;
+                } else {
+                    xcMenu.close();
+                }
+
+                xcMenu.removeKeyboardNavigation();
+                // table head's dropdown has position issue if not hide
+                $('.xcTheadWrap').find('.dropdownBox')
+                                 .addClass('dropdownBoxHidden');
+                $(".xcTheadWrap").find(".lockIcon").addClass("xc-hidden");
+                xcTooltip.hideAll();
+                $('.tableScrollBar').hide();
+            }
+            $(this).scrollTop(0);
+
+            clearTimeout(mainFrameScrollTimer);
+            mainFrameScrollTimer = <any>setTimeout(mainFrameScrollingStop, 300);
+            if (!scrollPrevented) {
+                TblFunc.moveFirstColumn(null, true);
+                TblFunc.moveTableTitles(null);
+            }
+        });
+
+        function mainFrameScrollingStop(): void {
+            $('.xcTheadWrap').find('.dropdownBox')
+                             .removeClass('dropdownBoxHidden');
+            $(".xcTheadWrap").find(".lockIcon").removeClass("xc-hidden");
+            $('.tableScrollBar').show();
+            TblFunc.moveFirstColumn(null);
+            TblFunc.moveTableDropdownBoxes();
+            mainFrameScrolling = false;
+            scrollPrevented = false;
+        }
+
     }
 
     private static _updateSkew(skew: number): void {
