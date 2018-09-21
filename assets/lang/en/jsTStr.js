@@ -162,7 +162,7 @@ TooltipTStr = {
     'NoUndo': 'Last operation is "<op>", cannot undo',
     'Redo': 'Redo: <op>',
     'LowMemInTable': 'Warning! Cluster is low on memory for tables. Click this button to drop tables.',
-    'LowMemInDS': 'Warning! Cluster is low on memory for datasets/published tables. Please delete unused datasets/publised tables.',
+    'LowMemInDS': 'Warning! Cluster is low on memory for datasets/published tables. Please delete unused datasets/published tables.',
     'LowMemByOthers': 'Current memory utilization by other cluster users is high. Work with an admin to free memory for your modeling.'
 };
 
@@ -508,7 +508,7 @@ SQLErrTStr = {
     "AccSubqueryArray": "Accumulator should have subqueryArray to operate on",
     "UDFNoName": "UDF doesn't have a name in plan",
     "NonOpShouldHaveNoChildren": "Non-op/expression node should have no children",
-    "FirtChildAlias": "Firt element in eval list should be alias node",
+    "FirstChildAlias": "First element in eval list should be alias node",
     "NoDataType": "Node should has dataType",
     "EvalOnlyChildAttr": "Eval list's only child should be AttributeReference",
     "UnsupportedColType": "Unsupported column type: ",
@@ -1013,7 +1013,7 @@ MonitorTStr = {
     "TicketErr2": "This ticket could not be found within your organization.",
     "LowMem": "Low Memory Warning",
     "LowMemMsg": "Warning! Cluster is low on memory. Please check the system status icon for details.",
-    "LowMemInstr": "To find out more about memory mangement, please reference <a href=\"<link>\" target=\"_blank\">the link</a>",
+    "LowMemInstr": "To find out more about memory management, please reference <a href=\"<link>\" target=\"_blank\">the link</a>",
 
     // with replace
     'ParamConfigFailMsg': 'Could not set parameter <b><name></b> to ' +
@@ -1524,7 +1524,7 @@ JsonModalTStr = {
     "SyntaxErrorTitle": "Error parsing data",
     "ImmediatesNotPresent": "Fields not present in current row",
         // with replace
-    "SyntaxErrorDesc": "An error occured while parsing the data from row <row>."
+    "SyntaxErrorDesc": "An error occurred while parsing the data from row <row>."
 
 };
 

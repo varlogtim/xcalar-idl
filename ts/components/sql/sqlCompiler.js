@@ -5754,7 +5754,7 @@
                 } else {
                     assert(evalList[i][0].class ===
                     "org.apache.spark.sql.catalyst.expressions.Alias",
-                    SQLErrTStr.FirtChildAlias);
+                    SQLErrTStr.FirstChildAlias);
                     var treeNode = SQLCompiler.genExpressionTree(undefined,
                         evalList[i].slice(1), genTreeOpts);
                 }
