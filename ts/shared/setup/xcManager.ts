@@ -40,6 +40,7 @@ namespace xcManager {
             TableComponent.setup();
             WSManager.setup();
             MonitorPanel.setup();
+            FileManager.Instance.setup($("#monitor-file-manager"));
             WorkspacePanel.setup();
             DagPanel.setup();
             DataflowPanel.setup();

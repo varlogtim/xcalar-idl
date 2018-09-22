@@ -285,6 +285,25 @@ interface ListDSInfo {
     id: string
 }
 
+interface FileManagerPathNode {
+    pathName: string;
+    isDir: boolean;
+    timestamp: number;
+    size: number;
+    isSelected: boolean;
+    sortBy: FileManagerField;
+    sortDescending: boolean;
+    parent: FileManagerPathNode;
+    children: Map<string, FileManagerPathNode>;
+    childrenSelectedCount: number;
+}
+
+interface FileManagerHistoryNode {
+    pathNode: FileManagerPathNode;
+    prev: FileManagerHistoryNode;
+    next: FileManagerHistoryNode;
+}
+
 declare namespace Base64 {
     function encode(input: string): string;
     function decode(input: string): string;

@@ -394,6 +394,12 @@ enum SQLStatus {
     Interrupted = "Interrupted"
 }
 
+enum FileManagerField {
+    Name = "Name",
+    Date = "Date",
+    Size = "Size"
+}
+
 if (typeof global !== 'undefined') {
     global.RowDirection = RowDirection;
     global.WSTableType = WSTableType;

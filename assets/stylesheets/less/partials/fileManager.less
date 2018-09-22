@@ -1,3 +1,6 @@
+// New top bar UI
+
+/*
 .fileManagerMainPanel {
     .topBar {
         // TODO: move to constants.less when colors are finalized
@@ -18,14 +21,22 @@
     }
 }
 
+#container {
+    &.activePanel-FileManagerPanel {
+        #userBox {
+            background-color: transparent;
+        }
+    }
+}
+*/
+
 #monitorFileManager {
-    height: 100%;
-    margin-bottom: 0px;
-    box-shadow: none;
+    height: ~"calc(100% - 5px)";
 }
 
 .fileManager {
     color: #44515c;
+    font-size: 12px;
     height: 100%;
 
     // TODO: move to constants.less when colors are finalized
@@ -38,7 +49,7 @@
         @operation-height: 40px;
         @file-type-width: 131px;
         @navigation-width: 105px;
-        @address-width: 207px;
+        @address-width: 131px;
         @action-width: 131px;
         @create-width: 123px;
         @upload-width: 123px;
@@ -58,7 +69,7 @@
             .fileTypeContent {
                 float: left;
                 .size(@height: 25px, @width: @file-type-width - 25px);
-                font-size: 13px;
+                font-size: 12px;
                 font-style: normal;
                 line-height: 23px;
                 box-sizing: border-box;
@@ -85,6 +96,33 @@
                     opacity: @opacity-hover;
                 }
             }
+
+            .fileTypeMenu {
+                .size(@width: @file-type-width);
+                .position(absolute, @top: 88px);
+
+                .fileTypeMenuSection {
+                    .size(@height: 25px);
+                    .position(relative);
+                    padding: 0 0 0 0;
+                    background-color: @color-white;
+                    box-sizing: border-box;
+                    border: 1px solid @color-border-softGray;
+                    border-top: none;
+                    box-shadow: 0px 0px 0.25px @color-border-softGray;
+
+                    .label {
+                        color: #44515c;
+                        .position(relative);
+                        line-height: 23px;
+                        padding: 0px 7px;
+                    }
+
+                    &.selected {
+                        background-color: @color-border-softGray;
+                    }
+                }
+            }
         }
 
         .navigationArea {
@@ -103,7 +141,7 @@
                     .vertical-align;
                     opacity: @opacity-unhover;
                     color: @color-border-bar;
-                    font-size: 13px;
+                    font-size: 12px;
                 }
 
                 &:hover {
@@ -116,17 +154,19 @@
 
         .addressArea {
             padding: 8px 0px 0px 0px;
-            width: 100%;
-            .textOverflowOneLine;
+            // todo: this is expanding with very long address.
+            width: 97%;
 
             .addressContent {
                 float: left;
-                .size(@height: 25px, @min-width: @address-width, @width: 100%);
-                font-size: 13px;
+                .size(@height: 25px, @min-width: @address-width, @width: 97%);
+                font-size: 12px;
                 font-style: normal;
                 user-select: text;
                 cursor: text;
                 line-height: 23px;
+                overflow: hidden;
+                text-overflow: ellipsis;
                 box-sizing: border-box;
                 border: 1px solid @color-border-softGray;
                 background-color: @color-white;
@@ -135,7 +175,7 @@
         }
 
         .actionArea {
-            padding: 8px 7px 0px 50px;
+            padding: 8px 7px 0px 3%;
 
             .actionBox {
                 min-width: @action-width;
@@ -144,7 +184,7 @@
             .actionContent {
                 float: right;
                 .size(@height: 25px, @width: @action-width - 25px);
-                font-size: 13px;
+                font-size: 12px;
                 font-style: normal;
                 line-height: 23px;
                 box-sizing: border-box;
@@ -171,13 +211,40 @@
                     opacity: @opacity-hover;
                 }
             }
+
+            .actionMenu {
+                .size(@width: @action-width);
+                .position(absolute, @top: 88px);
+
+                .actionMenuSection {
+                    .size(@height: 25px);
+                    .position(relative);
+                    padding: 0 0 0 0;
+                    background-color: @color-white;
+                    box-sizing: border-box;
+                    border: 1px solid @color-border-softGray;
+                    border-top: none;
+                    box-shadow: 0px 0px 0.25px @color-border-softGray;
+
+                    .label {
+                        color: #44515c;
+                        .position(relative);
+                        line-height: 23px;
+                        padding: 0px 7px;
+                    }
+
+                    &.selected {
+                        background-color: @color-border-softGray;
+                    }
+                }
+            }
         }
 
         .operationArea {
-            padding: 8px 7px 0px 0px;
+            padding: 6px 7px 0px 0px;
 
             &.oprerationAreaUpload {
-                padding: 8px 14px 0px 0px;
+                padding: 6px 14px 0px 0px;
                 .operationContent {
                     background-color: @color-bg-green-submit;
                 }
@@ -186,12 +253,12 @@
             .operationContent {
                 cursor: pointer;
                 float: right;
-                .size(@height: 25px, @width: @action-width);
-                font-size: 13px;
+                .size(@height: 28px, @width: @action-width);
+                font-size: 12px;
                 font-style: normal;
                 color: @color-white;
                 text-align: center;
-                line-height: 23px;
+                line-height: 25px;
                 box-sizing: border-box;
                 border: 1px solid @color-border-softGray;
                 border-radius: 4px;
@@ -218,7 +285,7 @@
         .searchIcon {
             float: left;
             .size(25px, 25px);
-            font-size: 13px;
+            font-size: 12px;
             line-height: 23px;
             box-sizing: border-box;
             border: 1px solid @color-border-softGray;
@@ -230,7 +297,7 @@
         .searchInput {
             float: left;
             .size(@height: 25px, @width: @search-width - 25px);
-            font-size: 13px;
+            font-size: 12px;
             line-height: 23px;
             box-sizing: border-box;
             border: 1px solid @color-border-softGray;
@@ -254,10 +321,7 @@
 
                     .label {
                         .textOverflowOneLine;
-                        .font(
-                            @size: 13px,
-                            @line-height: @title-section-height - 2
-                        );
+                        .font(@size: 12px, @line-height: @title-section-height);
                         padding-right: 8px;
                         float: left;
                     }
@@ -284,7 +348,7 @@
             .size(@width: 100%, @height: @title-section-height);
             background-color: @color-icon-background;
             box-shadow: none;
-            border: 1px solid #dbe1e6;
+            border: 1px solid @color-border-softGray;
 
             .row {
                 .field {
@@ -292,6 +356,28 @@
 
                     .icon {
                         color: #627483;
+                        opacity: @opacity-unhover;
+
+                        // todo: xi-sort by itself has padding.
+                        // It is causing shift.
+                        &.xi-arrow-up,
+                        &.xi-arrow-down {
+                            .font(@size: 6px);
+                        }
+                    }
+
+                    &:hover {
+                        .icon {
+                            opacity: @opacity-hover;
+                        }
+                    }
+                }
+
+                .checkBox {
+                    &:hover {
+                        .icon {
+                            color: @color-border-operator;
+                        }
                     }
                 }
             }
@@ -299,6 +385,8 @@
 
         .mainSection {
             .size(@width: 100%, @height: 100%);
+            border: 1px solid @color-border-softGray;
+            border-top: none;
 
             .row {
                 .field {
@@ -307,15 +395,19 @@
                         padding-right: 6px;
                     }
                 }
-            }
-        }
-    }
-}
 
-#container {
-    &.activePanel-FileManagerPanel {
-        #userBox {
-            background-color: transparent;
+                &.pressed {
+                    background-color: @color-icon-background;
+                }
+
+                &:hover {
+                    .checkBox {
+                        .icon {
+                            color: @color-border-operator;
+                        }
+                    }
+                }
+            }
         }
     }
 }
