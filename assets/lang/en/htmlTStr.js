@@ -1381,7 +1381,7 @@ module.exports = {
         "reset": "Reset",
         "resetAll": "Reset All",
         "previewTable": "Preview Table",
-        "previewResults": "Preview Table",
+        "previewResults": "Preview Results",
         "autoAlign": "Auto Align",
         "copy": "Copy",
         "cut": "Cut",
