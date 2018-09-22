@@ -2302,8 +2302,10 @@
             // Extract first/last in gArray and replace with max
             // Moved into promise
             var windowTempCols = [];
-            var windowStruct = {first: [{newCols: [], aggCols: [], ignoreNulls: []}],
-                                last: [{newCols: [], aggCols: [], ignoreNulls: []}]};
+            var windowStruct = {first: {newCols: [], aggCols: [],
+                                        aggTypes: [], ignoreNulls: []},
+                                last: {newCols: [], aggCols: [],
+                                       aggTypes: [], ignoreNulls: []}};
 
             // Step 4
             // Special cases
@@ -2402,11 +2404,11 @@
                     if (gArray[i].operator === "first" || gArray[i].operator === "last") {
                         node.usrCols.concat(node.xcCols).forEach(function(col) {
                             if (__getCurrentName(col) === gArray[i].aggColName) {
-                                var index = windowStruct[gArray[i].operator][0]
+                                var index = windowStruct[gArray[i].operator]
                                                         .aggCols.indexOf(col);
                                 if (index != -1) {
                                     gArray[i].aggColName = windowStruct[gArray[i]
-                                            .operator][0].newCols[index].colName;
+                                            .operator].newCols[index].colName;
                                 } else {
                                     var tempColName = "XC_WINDOWAGG_" +
                                                     Authentication.getHashId().substring(1);
@@ -2415,11 +2417,12 @@
                                                     Authentication.getHashId().substring(1);
                                     }
                                     colNames.add(tempColName);
-                                    windowStruct[gArray[i].operator][0].newCols.push({
+                                    windowStruct[gArray[i].operator].newCols.push({
                                                         colName: tempColName,
                                                         colType: getColType(gArray[i])});
-                                    windowStruct[gArray[i].operator][0].aggCols.push(col);
-                                    windowStruct[gArray[i].operator][0].ignoreNulls
+                                    windowStruct[gArray[i].operator].aggCols.push(col);
+                                    windowStruct[gArray[i].operator].aggTypes.push(undefined);
+                                    windowStruct[gArray[i].operator].ignoreNulls
                                                     .push(gArray[i].arguments[0]);
                                     gArray[i].aggColName = tempColName;
                                     windowTempCols.push(tempColName);
@@ -2455,13 +2458,13 @@
                         return self.sqlObj.genRowNum(ret.newTableName,
                                         __getCurrentName(loopStruct.indexColStruct));
                     });
-                    if (windowStruct["first"][0].newCols.length != 0) {
+                    if (windowStruct["first"].newCols.length != 0) {
                         curPromise = __windowExpressionHelper(loopStruct,
-                                            curPromise, "first", windowStruct["first"][0]);
+                                            curPromise, "first", windowStruct["first"]);
                     }
-                    if (windowStruct["last"][0].newCols.length != 0) {
+                    if (windowStruct["last"].newCols.length != 0) {
                         curPromise = __windowExpressionHelper(loopStruct,
-                                            curPromise, "last", windowStruct["last"][0]);
+                                            curPromise, "last", windowStruct["last"]);
                     }
                     curPromise = curPromise.then(function(ret) {
                         windowCli += loopStruct.cli;
@@ -4186,14 +4189,16 @@
                                 === JSON.stringify(opStruct.frameInfo)) {
                         obj.newCols.push(opStruct.newColStruct);
                         obj.aggCols.push(opStruct.args[0]);
+                        obj.aggTypes.push(opStruct.argTypes[0]);
                         obj.ignoreNulls.push(opStruct.args[1]);
                         found = true;
                     }
                 })
                 if (!found) {
-                    var obj = {newCols: [], aggCols: [], ignoreNulls: []};
+                    var obj = {newCols: [], aggCols: [], aggTypes: [], ignoreNulls: []};
                     obj.newCols.push(opStruct.newColStruct);
                     obj.aggCols.push(opStruct.args[0]);
+                    obj.aggTypes.push(opStruct.argTypes[0]);
                     obj.ignoreNulls.push(opStruct.args[1]);
                     obj.frameInfo = opStruct.frameInfo;
                     retStruct[key].push(obj);
@@ -4210,6 +4215,8 @@
                                             .push(opStruct.newColStruct);
                     retStruct.lead[offset].keyCols
                                             .push(opStruct.args[0]);
+                    retStruct.lead[offset].keyTypes
+                                            .push(opStruct.argTypes[0]);
                     retStruct.lead[offset].defaults
                                             .push(opStruct.args[2]);
                     retStruct.lead[offset].types
@@ -4218,6 +4225,7 @@
                     retStruct.lead[offset] =
                             {newCols: [opStruct.newColStruct],
                              keyCols: [opStruct.args[0]],
+                             keyTypes: [opStruct.argTypes[0]],
                              defaults: [opStruct.args[2]],
                              types: [opStruct.argTypes[2]],
                              offset: offset};
@@ -4251,15 +4259,17 @@
                         aggObj.ops.push(opLookup["expressions.aggregate."
                                                         + opStruct.opName]);
                         aggObj.aggCols.push(opStruct.args[0]);
+                        aggObj.aggTypes.push(opStruct.argTypes[0]);
                         found = true;
                     }
                 })
                 if (!found) {
-                    var aggObj = {newCols: [], ops: [], aggCols: []};
+                    var aggObj = {newCols: [], ops: [], aggCols: [], aggTypes: []};
                     aggObj.newCols.push(opStruct.newColStruct);
                     aggObj.ops.push(opLookup["expressions.aggregate."
                                                 + opStruct.opName]);
                     aggObj.aggCols.push(opStruct.args[0]);
+                    aggObj.aggTypes.push(opStruct.argTypes[0]);
                     aggObj.frameInfo = opStruct.frameInfo;
                     retStruct.agg.push(aggObj);
                 }
@@ -4488,9 +4498,15 @@
                 // and join back
                 var windowStruct;
                 curPromise = curPromise.then(function(ret) {
-                    var aggColNames = opStruct.aggCols.map(function(col) {
-                        return __getCurrentName(col);
-                    });
+                    var aggColNames = [];
+                    for (i in opStruct.aggCols) {
+                        if (opStruct.aggTypes[i]) {
+                            aggColNames.push(opStruct.aggTypes[i] + "("
+                                        + opStruct.aggCols[i] + ")");
+                        } else {
+                            aggColNames.push(__getCurrentName(opStruct.aggCols[i]));
+                        }
+                    }
                     windowStruct = {leftColInfo: node.usrCols
                                         .concat(node.xcCols)
                                         .concat(node.sparkCols),
@@ -4514,6 +4530,29 @@
                 // first/last row of each partition by getting
                 // minimum/maximum row number in each partition
                 // and left semi join back
+                var mapStrs = [];
+                var newColNames = [];
+                var tempColStructs = [];
+                for (i in opStruct.aggCols) {
+                    if (opStruct.aggTypes[i]) {
+                        mapStrs.push(opStruct.aggTypes[i] + "("
+                                     + opStruct.aggCols[i] + ")");
+                        var tempColName = "XC_WINDOW_" + opStruct.aggTypes[i]
+                                    + "_" + opStruct.aggCols[i] + "_"
+                                    + Authentication.getHashId().substring(1)
+                                    + "_" + i;
+                        newColNames.push(tempColName);
+                        tempColStructs.push({colName: tempColName});
+                        opStruct.aggCols[i] = tempColStructs[tempColStructs.length - 1];
+                    }
+                }
+                if (mapStrs.length !== 0) {
+                    node.xcCols = node.xcCols.concat(tempColStructs);
+                    curPromise = curPromise.then(function(ret) {
+                        cli += ret.cli;
+                        return self.sqlObj.map(mapStrs, ret.newTableName, newColNames);
+                    });
+                }
                 curPromise = curPromise.then(function(ret) {
                     windowStruct = {cli: ""};
                     // Columns in temp table should not have id
@@ -4581,9 +4620,33 @@
                 var keyColIds = opStruct.keyCols.map(function(item) {
                     return item.colId;
                 })
-                var keyColNames = opStruct.keyCols.map(function(item) {
-                    return __getCurrentName(item);
-                })
+                var keyColNames = [];
+                var mapStrs = [];
+                var newColNames = [];
+                var tempColStructs = [];
+                for (i in opStruct.keyCols) {
+                    if (opStruct.keyTypes[i]) {
+                        mapStrs.push(opStruct.keyTypes[i] + "("
+                                     + opStruct.keyCols[i] + ")");
+                        var tempColName = "XC_WINDOW_" + opStruct.keyTypes[i]
+                                    + "_" + opStruct.keyCols[i] + "_"
+                                    + Authentication.getHashId().substring(1)
+                                    + "_" + i;
+                        newColNames.push(tempColName);
+                        keyColNames.push(tempColName);
+                        tempColStructs.push({colName: tempColName});
+                        opStruct.keyCols[i] = tempColStructs[tempColStructs.length - 1];
+                    } else {
+                        keyColNames.push(__getCurrentName(opStruct.keyCols[i]));
+                    }
+                }
+                if (mapStrs.length !== 0) {
+                    node.xcCols = node.xcCols.concat(tempColStructs);
+                    curPromise = curPromise.then(function(ret) {
+                        cli += ret.cli;
+                        return self.sqlObj.map(mapStrs, ret.newTableName, newColNames);
+                    });
+                }
                 windowStruct.node = node;
                 var leftJoinCols = [];
                 var rightJoinCols = [];
@@ -5322,11 +5385,13 @@
                 } else if (opName === "lead" || opName === "lag") {
                     rightIndex++;
                     var innerLeft = rightIndex;
+                    var keyColType;
                     var args = [];
                     var defaultType = "value";
                     var inQuote = false;
                     var hasQuote = false;
                     var isFunc = false;
+                    var hasDot = false;
                     var parCount = 1;
                     while (parCount != 0) {
                         var curChar = str[rightIndex];
@@ -5341,6 +5406,8 @@
                             isFunc = true;
                         } else if (curChar === ")") {
                             parCount--;
+                        } else if (curChar === ".") {
+                            hasDot = true;
                         }
                         if (curChar === "," && parCount === 1 || parCount === 0) {
                             var curArg = str.substring(innerLeft, rightIndex - 1);
@@ -5358,6 +5425,15 @@
                                 retStruct.nestMapNames.push(innerTempColName);
                                 defaultType = "function";
                             } else {
+                                if (args.length === 0) {
+                                    if (hasQuote) {
+                                        keyColType = "string";
+                                    } else if (hasDot) {
+                                        keyColType = "float";
+                                    } else if (!isNaN(curArg)) {
+                                        keyColType = "int";
+                                    }
+                                }
                                 args.push(curArg);
                                 if (hasQuote) {
                                     defaultType = "string";
@@ -5373,17 +5449,26 @@
                     }
                     if (windowStruct.lead[args[1]]) {
                         windowStruct.lead[args[1]].newCols.push(tempColStruct);
-                        windowStruct.lead[args[1]].keyCols.push({colName: args[0],
-                                                                 colType: "DfUnknown"});
+                        if (keyColType) {
+                            windowStruct.lead[args[1]].keyCols.push(args[0]);
+                        } else {
+                            windowStruct.lead[args[1]].keyCols.push(
+                                    {colName: args[0], colType: "DfUnknown"});
+                        }
+                        windowStruct.lead[args[1]].keyTypes.push(keyColType);
                         windowStruct.lead[args[1]].defaults.push(args[2]);
                         windowStruct.lead[args[1]].types.push(defaultType);
                     } else {
                         windowStruct.lead[args[1]] =
                                 {newCols: [tempColStruct],
                                  keyCols: [{colName: args[0], colType: "DfUnknown"}],
+                                 keyTypes: [keyColType],
                                  defaults: [args[2]],
                                  types: [defaultType],
                                  offset: args[1]};
+                        if (keyColType) {
+                            windowStruct.lead[args[1]].keyCols = [args[0]];
+                        }
                     }
                     rightIndex--;
                 } else {
