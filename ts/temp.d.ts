@@ -983,6 +983,12 @@ declare namespace DFTStr {
     export var NoFields: string;
 }
 
+declare namespace OpPanelTStr {
+    export var DFLinkOutNameDup: string;
+    export var DFLinkInNoDF: string;
+    export var DFLinkInNoOut: string;
+}
+
 declare namespace JupyterTStr {
     export var JupNotebook: string;
     export var NoSnippetOtherWkbk: string;

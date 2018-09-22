@@ -90,6 +90,20 @@ class DagGraph {
     }
 
     /**
+     * Filter node based on the callback
+     * @param callback return true for valid case
+     */
+    public filterNode(callback: Function): DagNode[] {
+        const nodes: DagNode[] = [];
+        for (const [nodeId, node] of this.nodesMap) {
+            if (callback(node, nodeId)) {
+                nodes.push(node);
+            }
+        }
+        return nodes;
+    }
+
+    /**
      * get node from id
      * @param nodeId node's id
      * @returns {DagNode} dag node
@@ -530,35 +544,31 @@ class DagGraph {
         this.commentsMap.delete(commentId);
     }
 
+    /**
+     *
+     * @param node
+     */
+    public traverseGetChildren(node: DagNode): Set<DagNode> {
+        const traversedSet: Set<DagNode> = new Set();
+        this._traverseChildren(node, (node: DagNode) => {
+            traversedSet.add(node);
+        });
+        return traversedSet;
+    }
+
     // XXX TODO, Idea is to do a topological sort first, then get the
     // ordere, then get the query, and run it one by one.
     private _executeGraph(nodesMap?: Map<DagNodeId, DagNode>): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         let orderedNodes: DagNode[] = this._topologicalSort(nodesMap);
-
-        const checkResult = this._checkCanExecuteAll(orderedNodes);
+        const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, this);
+        const checkResult = executor.checkCanExecuteAll();
         if (checkResult.hasError) {
             return PromiseHelper.reject(checkResult);
         }
 
-        const promises: XDPromise<void>[] = [];
-        orderedNodes = orderedNodes.filter((node) => {
-            return node.getState() !== DagNodeState.Complete;
-        });
-
-        const nodesToRun: {node: DagNode, executable: boolean}[] = orderedNodes.map((node) => {
-            return {
-                node: node,
-                executable: true
-            };
-        });
-
-        for (let i = 0; i <= nodesToRun.length; i++) {
-            promises.push(this._executeHelper.bind(this, nodesToRun, i));
-        }
-
         this.lockGraph();
-        PromiseHelper.chain(promises)
+        executor.run()
         .then(() => {
             // console.log("finish running", orderedNodes);
             this.unlockGraph();
@@ -570,62 +580,6 @@ class DagGraph {
         });
 
         return deferred.promise();
-    }
-
-    private _executeHelper(
-        nodesToRun: {node: DagNode, executable: boolean}[],
-        index: number
-    ): XDPromise<void> {
-        if (nodesToRun[index] == null || !nodesToRun[index].executable) {
-            return PromiseHelper.resolve();
-        }
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const node: DagNode = nodesToRun[index].node;
-        const dagExecute: DagExecute = new DagExecute(node);
-        dagExecute.run()
-        .then(() => {
-            deferred.resolve();
-        })
-        .fail(() => {
-            // remove all the children that depends on the failed node
-            const set: Set<DagNode> = this._traverseGetChildren(node);
-            for (let i = index; i < nodesToRun.length; i++) {
-                if (set.has(nodesToRun[i].node)) {
-                    nodesToRun[i].executable = false;
-                }
-            }
-            deferred.resolve(); // still resolve it
-        });
-
-        return deferred.promise();
-    }
-
-    private _checkCanExecuteAll(orderedNodes: DagNode[]): {
-        hasError: boolean,
-        type?: DagNodeErrorType,
-        node?: DagNode
-    } {
-        let errorResult = {
-            hasError: false
-        };
-
-        for (let i = 0; i < orderedNodes.length; i++) {
-            let node: DagNode = orderedNodes[i];
-            if (node.getState() === DagNodeState.Unused) {
-                errorResult["hasError"] = true;
-                errorResult["type"] = DagNodeErrorType.Unconfigured;
-                errorResult["node"] = node;
-                break;
-            } else if (node.getNumParent() < node.getMinParents()) {
-                // check if nodes do not have enough parents
-                errorResult["hasError"] = true;
-                errorResult["type"] = DagNodeErrorType.MissingSource;
-                errorResult["node"] = node;
-                break;
-            }
-        }
-
-        return errorResult;
     }
 
     private _backTraverseNodes(nodeIds: DagNodeId[]) {
@@ -761,14 +715,6 @@ class DagGraph {
             stack.pop();
             return false;
         }
-    }
-
-    private _traverseGetChildren(node: DagNode): Set<DagNode> {
-        const traversedSet: Set<DagNode> = new Set();
-        this._traverseChildren(node, (node: DagNode) => {
-            traversedSet.add(node);
-        });
-        return traversedSet;
     }
 
     private _traverseSwitchState(node: DagNode): Set<DagNode> {

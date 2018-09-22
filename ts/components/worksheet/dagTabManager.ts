@@ -105,6 +105,10 @@ class DagTabManager{
         this._getManagerDataAsync();
     }
 
+    public getTabs(): DagTab[] {
+        return this._activeUserDags;
+    }
+
     /**
      *  Creates a new Tab and dataflow.
      *  @param {string} [restoreKey] optional Key for redoing a newTab
@@ -338,6 +342,21 @@ class DagTabManager{
             return null;
         }
         return this._activeUserDags[index].getGraph();
+    }
+
+    /**
+     * Return the DagGraph according to the dataflow's name
+     * @param name The dataflow's name
+     */
+    public getGraphById(id: string): DagGraph {
+        const tabs: DagTab[] = this._activeUserDags.filter((tab) => {
+            return (tab.getId() === id);
+        });
+        if (tabs.length !== 1) {
+            return null;
+        } else {
+            return tabs[0].getGraph();
+        }
     }
 
     /**

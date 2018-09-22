@@ -1,20 +1,10 @@
-class DagNodeDataset extends DagNode {
+class DagNodeDataset extends DagNodeIn {
     protected input: DagNodeDatasetInput;
-    private columns: ProgCol[];
+    protected columns: ProgCol[];
 
-    public constructor(options: DagNodeDatasetInfo) {
+    public constructor(options: DagNodeInInfo) {
         super(options);
         this.type = DagNodeType.Dataset;
-        this.maxParents = 0;
-        this.minParents = 0;
-        if (options && options.columns) {
-            this.columns = options.columns.map((column) => {
-                const name: string = xcHelper.parsePrefixColName(column.name).name;
-                return ColManager.newPullCol(name, column.name, column.type);
-            });
-        } else {
-            this.columns = [];
-        }
     }
 
     /**
@@ -52,17 +42,6 @@ class DagNodeDataset extends DagNode {
         return deferred.promise();
     }
 
-    protected _getSerializeInfo():DagNodeDatasetInfo {
-        const serializedInfo: DagNodeDatasetInfo = super._getSerializeInfo();
-        if (this.columns) {
-            const columns = this.columns.map((progCol) => {
-                return {name: progCol.getBackColName(), type: progCol.getType()};
-            });
-            serializedInfo.columns = columns;
-        }
-        return serializedInfo;
-    }
-
     public getSourceColumns(
         source: string,
         prefix: string
@@ -93,12 +72,5 @@ class DagNodeDataset extends DagNode {
         }
 
         return deferred.promise();
-    }
-
-    public lineageChange(_columns: ProgCol[]): DagLineageChange {
-        return {
-            columns: this.columns,
-            changes: []
-        };
     }
 }

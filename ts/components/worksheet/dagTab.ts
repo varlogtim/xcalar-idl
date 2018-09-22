@@ -48,6 +48,13 @@ class DagTab{
     }
 
     /**
+     * Get Tab's name
+     */
+    public getName(): string {
+        return this._name;
+    }
+
+    /**
      * Changes the name of a tab to newName
      * @param {string} newName The tab's new name.
      */

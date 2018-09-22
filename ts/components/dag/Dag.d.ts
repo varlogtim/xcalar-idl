@@ -20,7 +20,7 @@ interface DagNodeCustomInfo extends DagNodeInfo {
     customName: string,
 }
 
-interface DagNodeDatasetInfo extends DagNodeInfo {
+interface DagNodeInInfo extends DagNodeInfo {
     columns?: {name: string, type: ColumnType}[]
 }
 
@@ -124,6 +124,14 @@ interface DagNodeExtensionInput {
     evalString: string;
 }
 
+interface DagNodeDFInInput {
+    linkOutName: string;
+    dataflowId: string;
+}
+
+interface DagNodeDFOutInput {
+    name: string;
+}
 /* ==== End of Dag Node Input Intereface ==== */
 
 /* ==== Interfaces related to DagList and DagTabs ==== */

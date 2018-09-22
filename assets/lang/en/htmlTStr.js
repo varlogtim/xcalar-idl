@@ -1042,6 +1042,15 @@ module.exports = {
         "No": "No"
     },
 
+    "DFLink": {
+        "InHeader": "Link In",
+        "InInstr": "First select the dataflow's name, then select the link out node inside the dataflow to link with it",
+        "OutHeader": "Link Out",
+        "OutInstr": "Specify a name for the link out node",
+        "DFName": "Dataflow Name",
+        "OutName": "Link Out Node Name"
+    },
+
     "jsonModal": {
         "header": "Data Browser"
     },

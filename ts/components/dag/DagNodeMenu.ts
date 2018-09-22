@@ -208,6 +208,12 @@ namespace DagNodeMenu {
             case (DagNodeType.Custom):
                 DagTabManager.Instance.newCustomTab(node as any);
                 break;
+            case (DagNodeType.DFIn):
+                DFLinkInOpPanel.Instance.show(node);
+                break;
+            case (DagNodeType.DFOut):
+                DFLinkOutOpPanel.Instance.show(node);
+                break;
             default:
                 throw new Error("Unsupported type");
         }

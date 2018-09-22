@@ -1622,3 +1622,9 @@ DagTStr = {
     "Reset": "Dataflow node(s) reset",
     "ResetMsg": "Are you sure you want to reset the selected node(s)?"
 };
+
+OpPanelTStr = {
+    "DFLinkOutNameDup": "The name has already been used by another link out node, please choose another name",
+    "DFLinkInNoDF": "Dataflow doesn't exist",
+    "DFLinkInNoOut": "Link out node doesn't exist"
+}

@@ -187,6 +187,8 @@
 <script src="assets/js/components/worksheet/oppanel/ColAssignmentModel.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/components/worksheet/oppanel/DatasetColRenamePanel.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/components/worksheet/oppanel/CastOpPanel.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/components/worksheet/oppanel/DFLinkInOpPanel.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/components/worksheet/oppanel/DFLinkOutOpPanel.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/components/worksheet/workspacePanel.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/components/worksheet/imdPanel.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/components/worksheet/dagDrag.js" type="text/javascript" <%= tag %>></script>
@@ -341,13 +343,18 @@
 <!-- end of viewer -->
 
 <!-- dag -->
-<script src="assets/js/components/dag/DagExecute.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/components/dag/DagGraphExecutor.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/components/dag/DagNodeExecutor.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/components/dag/DagNodeFactory.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/components/dag/DagLineage.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/components/dag/DagTable.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/components/dag/node/DagNode.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/components/dag/node/DagNodeIn.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/components/dag/node/DagNodeOut.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/components/dag/node/DagNodeAggregate.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/components/dag/node/DagNodeDataset.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/components/dag/node/DagNodeDFIn.js" type="text/javascript" <%= tag %>></script>
+<script src="assets/js/components/dag/node/DagNodeDFOut.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/components/dag/node/DagNodeExport.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/components/dag/node/DagNodeFilter.js" type="text/javascript" <%= tag %>></script>
 <script src="assets/js/components/dag/node/DagNodeGroupBy.js" type="text/javascript" <%= tag %>></script>

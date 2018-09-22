@@ -2,6 +2,8 @@ enum DagNodeType {
     SubGraph = "subGraph",
     Source = "source",
     Dataset = "dataset",
+    DFIn = "link in",
+    DFOut = "link out",
     Filter = "filter",
     Join = "join",
     Set = "set",
@@ -31,8 +33,12 @@ enum DagNodeState {
 }
 
 enum DagNodeErrorType {
-    Unconfigured  = "Unconfigured",
-    MissingSource = "MissingSource"
+    Unconfigured = "Unconfigured",
+    MissingSource = "Missing Source",
+    Invalid = "Invalid Configuration",
+    NoGraph = "Cannot find linked graph",
+    NoLinkInGraph = "Cannot find the linked node",
+    CycleInLink = "Cycle In Link"
 }
 
 enum DagNodeEvents {

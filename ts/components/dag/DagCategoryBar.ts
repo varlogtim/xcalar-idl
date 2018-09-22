@@ -85,6 +85,8 @@ class DagCategoryBar {
         iconMap[DagNodeType.CustomInput] = "&#xe96d;"; // TODO: UI design
         iconMap[DagNodeType.IMDTable] = "&#xea55;";
         iconMap[DagNodeType.PublishIMD] = "&#xea55;";
+        iconMap[DagNodeType.DFIn] = "&#xe952;"; // XXX TODO: UI design
+        iconMap[DagNodeType.DFOut] = "&#xe955;"; // XXX TODO: UI design
 
         const categoryColorMap = {};
         categoryColorMap[DagCategoryType.Favorites] = "#BBC7D1";

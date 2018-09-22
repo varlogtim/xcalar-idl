@@ -9,14 +9,14 @@ describe("Dag Execute Test", () => {
 
     it("should be a class", () => {
         const node = new DagNode();
-        const executor = new DagExecute(node, txId);
-        expect(executor).to.be.an.instanceof(DagExecute)
+        const executor = new DagNodeExecutor(node, txId);
+        expect(executor).to.be.an.instanceof(DagNodeExecutor)
     });
 
     it("should load dataset", (done) => {
         const node = createNode(DagNodeType.Dataset);
         node.setParam({source: "test", prefix: "prefix"});
-        const executor = new DagExecute(node, txId);
+        const executor = new DagNodeExecutor(node, txId);
         const oldIndex = XIApi.indexFromDataset;
 
         XIApi.indexFromDataset = (txId, dsName, newTableName, prefix) => {
@@ -47,7 +47,7 @@ describe("Dag Execute Test", () => {
         node.setParam({evalString: "count(col)", dest: "testConstant"});
         node.connectToParent(parentNode);
 
-        const executor = new DagExecute(node, txId);
+        const executor = new DagNodeExecutor(node, txId);
         const oldAggregate = XIApi.aggregateWithEvalStr;
 
         XIApi.aggregateWithEvalStr = (txId, evalStr, tableName, dstAggName) => {
@@ -78,7 +78,7 @@ describe("Dag Execute Test", () => {
         node.setParam({evalString: "eq(col, 1)"});
         node.connectToParent(parentNode);
 
-        const executor = new DagExecute(node, txId);
+        const executor = new DagNodeExecutor(node, txId);
         const oldFilter = XIApi.filter;
 
         XIApi.filter = (txId, fltStr, tableName, newTableName) => {
@@ -120,7 +120,7 @@ describe("Dag Execute Test", () => {
         });
         node.connectToParent(parentNode);
 
-        const executor = new DagExecute(node, txId);
+        const executor = new DagNodeExecutor(node, txId);
         const oldGroupBy = XIApi.groupBy;
 
         XIApi.groupBy = (txId, aggArgs, groupByCols, tableName, options) => {
@@ -178,7 +178,7 @@ describe("Dag Execute Test", () => {
         node.connectToParent(lparentNode, 0);
         node.connectToParent(rParentNode, 1);
 
-        const executor = new DagExecute(node, txId);
+        const executor = new DagNodeExecutor(node, txId);
         const oldJoin = XIApi.join;
 
         XIApi.join = (txId, joinType, lTableInfo, rTableInfo, options) => {
@@ -232,7 +232,7 @@ describe("Dag Execute Test", () => {
         node.setParam({eval: [{evalString: "add(col, 1)", newField: "newCol"}]});
         node.connectToParent(parentNode);
 
-        const executor = new DagExecute(node, txId);
+        const executor = new DagNodeExecutor(node, txId);
         const oldMap = XIApi.map;
 
         XIApi.map = (txId, mapStrs, tableName, newColNames, newTableName, icvMode) => {
@@ -266,7 +266,7 @@ describe("Dag Execute Test", () => {
         node.setParam({columns: ["col", "prefix"]});
         node.connectToParent(parentNode);
 
-        const executor = new DagExecute(node, txId);
+        const executor = new DagNodeExecutor(node, txId);
         const oldProject = XIApi.project;
 
         XIApi.project = (txId, columns, tableName, newTableName) => {
@@ -316,7 +316,7 @@ describe("Dag Execute Test", () => {
         node.connectToParent(parentNode1, 0);
         node.connectToParent(ParentNode2, 1);
 
-        const executor = new DagExecute(node, txId);
+        const executor = new DagNodeExecutor(node, txId);
         const oldSet = XIApi.union;
 
         XIApi.union = (txId, tableInfos, dedup, newTableName, unionType) => {
@@ -372,7 +372,7 @@ describe("Dag Execute Test", () => {
         });
         node.connectToParent(parentNode);
 
-        const executor = new DagExecute(node, txId);
+        const executor = new DagNodeExecutor(node, txId);
         const oldExport = XIApi.exportTable;
 
         XIApi.exportTable = (txId, tableName, exportName, targetName, numCols, backColumns, frontColumns, keepOrder, options) => {

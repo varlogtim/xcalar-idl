@@ -33,6 +33,10 @@ class DagNodeFactory {
                 return new DagNodeIMDTable(options);
             case DagNodeType.PublishIMD:
                 return new DagNodePublishIMD(options);
+            case DagNodeType.DFIn:
+                return new DagNodeDFIn(options);
+            case DagNodeType.DFOut:
+                return new DagNodeDFOut(options);
             default:
                 throw new Error("node type " + options.type + " not supported");
         }

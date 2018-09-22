@@ -1,10 +1,10 @@
-class DagExecute {
+class DagNodeExecutor {
     private node: DagNode;
     private txId: number;
 
     public constructor(node: DagNode) {
         this.node = node;
-    }
+    } 
 
     /**
      * run the node operation
@@ -12,7 +12,7 @@ class DagExecute {
     public run(): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNode =  this.node;
-         this.txId = Transaction.start({
+        this.txId = Transaction.start({
             operation: node.getType(),
             track: true,
             nodeId: node.getId()

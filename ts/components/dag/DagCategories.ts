@@ -30,7 +30,10 @@ class DagCategories {
             })),
             new DagCategoryNodeIn(DagNodeFactory.create({
                 type: DagNodeType.IMDTable
-            }))
+            })),
+            new DagCategoryNodeIn(DagNodeFactory.create({
+                type: DagNodeType.DFIn
+            })),
         ]);
 
         const outCategory = new DagCategory(DagCategoryType.Out, [
@@ -39,7 +42,10 @@ class DagCategories {
             })),
             new DagCategoryNodeOut(DagNodeFactory.create({
                 type: DagNodeType.PublishIMD
-            }))
+            })),
+            new DagCategoryNodeOut(DagNodeFactory.create({
+                type: DagNodeType.DFOut
+            })),
         ]);
 
         const valueCategory = new DagCategory(DagCategoryType.Value, [

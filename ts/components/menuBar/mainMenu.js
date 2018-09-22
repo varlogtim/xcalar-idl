@@ -36,7 +36,9 @@ window.MainMenu = (function($, MainMenu) {
             ProjectOpPanel.Instance,
             JoinOpPanel.Instance,
             SetOpPanel.Instance,
-            DatasetOpPanel.Instance
+            DatasetOpPanel.Instance,
+            DFLinkInOpPanel.Instance,
+            DFLinkOutOpPanel.Instance
         ];
 
     };
