@@ -313,8 +313,8 @@
                                               "row0": [null, 0],
                                               "row5": [0, null],
                                               "numOfRows": "30"},
-                        "nullCol": {"row0": ["FNF", "FNF", "FNF", "FNF"],
-                                    "row2": ["FNF", "FNF", "FNF", "FNF"],
+                        "nullCol": {"row0": [null, null, null, null],
+                                    "row2": [null, null, null, null],
                                     "numOfRows": "5"}
                 },
                 "tables": {
