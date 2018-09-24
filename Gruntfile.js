@@ -2562,8 +2562,8 @@ module.exports = function(grunt) {
         grunt.task.run('copy:destHTML');
 
         // Done with staging areas.  get rid!
-        //grunt.task.run('clean:htmlStagingI');
-        //grunt.task.run('clean:htmlStagingII');
+        grunt.task.run('clean:htmlStagingI');
+        grunt.task.run('clean:htmlStagingII');
 
         /**
             html clean:
