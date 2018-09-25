@@ -2786,3 +2786,267 @@
         height: ~"calc(100% - 89px)";
     }
 }
+
+#sqlOpPanel {
+    @bottom-h: 85px;
+    @table-h: 180px;
+    @snippet-h: 45px;
+    @title-h: 40px;
+    .list {
+        text-transform: none;
+    }
+    .opSection {
+        height: ~"calc(100% - @{bottom-h})";
+        overflow: hidden;
+    }
+    .bottomSection {
+        height: @bottom-h;
+    }
+    .tableSection {
+        @instruct-h: 34px;
+        @add-id-h: 30px;
+        @add-id-margin-bot: 5px;
+        @instruct-margin-bot: 13px;
+        @instruct-margin-top: 5px;
+        @source-header-w: 60px;
+        @source-header-h: 15px;
+        @padding-l: 15px;
+        height: @table-h;
+        padding: 2px @padding-l;
+        .title {
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .header {
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+        }
+        .instruction {
+            height: @instruct-h;
+            margin-top: 5px;
+            margin-bottom: 13px;
+            color: @color-font-form-gray;
+        }
+        .sourceHeader {
+            .size(@source-header-w, @source-header-h);
+        }
+        .destHeader {
+            width: ~"calc(100% - @{source-header-w})";
+        }
+        .identifiers {
+            display: flex;
+            flex-wrap: wrap;
+            max-height: ~"calc(100% - @{instruct-h} - @{add-id-h} - @{add-id-margin-bot} - @{instruct-margin-bot} - @{instruct-margin-top} - @{source-header-h})";
+            overflow-y: auto;
+            margin-right: -@padding-l;
+            #sqlIdentifiers {
+                .size(~"calc(100% - @{padding-l})", 100%);
+                padding: 6px 0px;
+            }
+            li {
+                display: flex;
+                align-items: center;
+                margin-top: 5px;
+                > .text {
+                    padding: 3px;
+                }
+                @source-w: 30px;
+                @source-margin-r: 11px;
+                .source {
+                    max-width: @source-w;
+                    margin-right: 11px;
+                    .iconWrapper {
+                        @icon-h: 10px;
+                        @icon-r: 3px;
+                        .size(@icon-h, @icon-h);
+                        right: @icon-r;
+                        top: ~"calc(100% - @{icon-h} - @{icon-r})";
+                        background: transparent;
+                    }
+                    .icon {
+                        color: @color-arc-xdbfree;
+                        transform: rotate(135deg);
+                    }
+                    .text {
+                        padding-right: 0px;
+                        cursor: pointer;
+                    }
+                }
+                @equal-w: 8px;
+                @equal-margin-r: 11px;
+                .xi-equal {
+                    font-size: @equal-w;
+                    margin-right: @equal-margin-r;
+                }
+                @trash-w: 15px;
+                @trash-margin-l: 6px;
+                .xi-trash {
+                    font-size: @trash-w;
+                    margin-left: @trash-margin-l;
+                    color: @color-arc-xdbfree;
+                    cursor: pointer;
+                }
+                @input-w: (@source-w + @source-margin-r + @equal-w + @equal-margin-r + @trash-w + @trash-margin-l);
+                input {
+                    width: ~"calc(100% - @{input-w})";
+                }
+                .list {
+                    width: @source-w;
+                    ul {
+                        position: fixed;
+                        width: @source-w;
+                        background-color: @color-white;
+                    }
+                    li {
+                        margin-top: 0px;
+                        border: 1px solid @color-border-softGray;
+                        border-top: none;
+                        &:hover {
+                            background-color: @color-border-softGray;
+                        }
+                    }
+                }
+            }
+        }
+        .addIdentifier button {
+            width: 30px;
+            height: @add-id-h;
+            margin-bottom: @add-id-margin-bot;
+            margin-left: 1px;
+            border-radius: 4px;
+            background-color: @color-arc-xdbfree;
+            .icon {
+                font-size: 14px;
+                margin-left: 2px;
+            }
+        }
+    }
+    .snippetSection, .saveSection, .confirmSection {
+        @saveIcon-w: 26px;
+        @header-w: 45px;
+        @margin-l: 6px;
+        @margin-r: 10px;
+        @editor-w: (@saveIcon-w + @header-w + @margin-l + @margin-r);
+        height: @snippet-h;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background-color: @color-xpe-docker-starter-bg;
+        border-top: solid 1px @color-border-softGray;
+        padding: 10px 15px 10px 15px;
+        .header {
+            width: @header-w;
+        }
+        .snippetsList {
+            width: ~"calc(100% - @{editor-w})";
+            margin-left: 6px;
+            margin-right: 10px;
+            border-color: @color-border-softGray;
+            .iconWrapper {
+                background-color: @color-white;
+                border: solid 1px @color-border-softGray;
+                .icon {
+                    font-size: 9px;
+                    margin-top: 1px;
+                    color: @color-arc-xdbfree;
+                }
+            }
+            .list {
+                .size(@width: 100%);
+                box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
+                li {
+                    box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.1);
+                    display: flex;
+                    align-items: center;
+                    span {
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        width: ~"calc(100% - 50px)";
+                    }
+                    .icon {
+                        font-size: 15px;
+                        margin-right: 6px;
+                        color: @color-arc-xdbfree;
+                        cursor: pointer;
+                    }
+                    .xi-trash{
+                        margin-left: auto;
+                    }
+                    &.noResultHint {
+                        color: @color-text-lightGray;
+                    }
+                }
+            }
+        }
+        .save, .cancel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            .size(@saveIcon-w, @saveIcon-w);
+            border: solid 1px @color-border-softGray;
+            background-color: @color-white;
+            .icon {
+                font-size: 13px;
+                color: @color-arc-xdbfree;
+            }
+        }
+        .btn {
+            background-color: @color-arc-xdbfree;
+            width: ~"calc(50% - 10px)";
+        }
+        .snippetName {
+            width: ~"calc(100% - 62px)";
+        }
+    }
+    .editSection {
+        .size(100%, ~"calc(100% - @{snippet-h})");
+        .position(relative);
+        overflow: hidden;
+        font-size: 14px;
+
+        .editArea {
+            .size(@width: 100%, @height: 100%);
+            .position(relative);
+
+            .CodeMirror {
+                .size(@height: 100%);
+            }
+        }
+    }
+    .editorWrapper {
+        height: ~"calc(100% - @{table-h} - @{title-h} * 2)";
+    }
+    .tableTitle, .editorTitle {
+        height: @title-h;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0px 15px;
+        border-top: solid 1px @color-xpe-docker-starter-bg;
+        border-bottom: solid 1px @color-xpe-docker-starter-bg;
+    }
+    .maximize {
+        margin-right: -10px;
+        margin-top: -20px;
+        .icon {
+            font-size: 10px;
+            cursor: pointer;
+        }
+    }
+    .bottomSection {
+        margin-top: 0px;
+    }
+    &.advanced {
+        .opSection {
+            height: 0px;
+        }
+    }
+    .xi-trash {
+        opacity: 0.6;
+        &:hover {
+            opacity: 1;
+        }
+    }
+}

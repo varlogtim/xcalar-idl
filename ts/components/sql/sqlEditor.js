@@ -428,7 +428,7 @@ window.SQLEditor = (function(SQLEditor, $) {
     }
 
     function setupEditor() {
-        var textArea = document.getElementById("sqlEditor");
+        var textArea = document.getElementById("sqlEditor1");
         if (!textArea) {
             // For Release Candidates
             return;

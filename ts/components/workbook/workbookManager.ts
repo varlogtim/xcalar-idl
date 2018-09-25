@@ -901,6 +901,8 @@ namespace WorkbookManager {
         const gSQLQueryKey: string = generateKey("gSQLQuery", version);
         const gSQLEditorKey: string = generateKey("gSQLEditor", version);
         const gSQLEditorQuery: string = generateKey("gSQLEditorQuery", version);
+        const gSQLSnippetKey: string = generateKey("gSQLSnippet", version);
+        const gSQLSnippetQueryKey: string = generateKey("gSQLSnippetQuery", version);
 
         return {
             "gStorageKey": gStorageKey,
@@ -915,7 +917,9 @@ namespace WorkbookManager {
             "gDagManagerKey": gDagManagerKey,
             "gDagListKey": gDagListKey,
             "gSQLEditor": gSQLEditorKey,
-            "gSQLEditorQuery": gSQLEditorQuery
+            "gSQLEditorQuery": gSQLEditorQuery,
+            "gSQLSnippet": gSQLSnippetKey,
+            "gSQLSnippetQuery": gSQLSnippetQueryKey
         };
     }
 
@@ -1217,10 +1221,7 @@ namespace WorkbookManager {
         // to switch workbook, should release all ref count first
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
-        PromiseHelper.alwaysResolve(SQLEditor.storeQuery())
-        .then(function() {
-            return PromiseHelper.alwaysResolve(TblManager.freeAllResultSetsSync());
-        })
+        PromiseHelper.alwaysResolve(TblManager.freeAllResultSetsSync())
         .then(function() {
             return KVStore.commit();
         })

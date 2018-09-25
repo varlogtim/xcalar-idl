@@ -304,13 +304,9 @@ namespace xcManager {
             // async unload should only be called in beforeload
             // this time, no commit, only free result set
             // as commit may only partially finished, which is dangerous
-            SQLEditor.storeQuery();
             TblManager.freeAllResultSets();
         } else {
-            PromiseHelper.alwaysResolve(SQLEditor.storeQuery())
-            .then(function() {
-                return TblManager.freeAllResultSetsSync();
-            })
+            TblManager.freeAllResultSetsSync()
             .then(function() {
                 return XcUser.CurrentUser.releaseSession();
             })
@@ -581,6 +577,7 @@ namespace xcManager {
         PublishIMDOpPanel.Instance.setup();
         ExportOpPanel.Instance.setup();
         IMDTableOpPanel.Instance.setup();
+        SQLOpPanel.Instance.setup();
     }
 
     function setupSession(): XDPromise<void> {
@@ -1101,7 +1098,6 @@ namespace xcManager {
             const lastTargets: JQuery[] = gMouseEvents.getLastMouseDownTargets();
             const $lastTarget: JQuery = lastTargets[0];
             const prevTargetsHtml: string[][] = [];
-            let promise: XDPromise<void> = PromiseHelper.alwaysResolve(SQLEditor.storeQuery());
 
             // get last 3 mousedown elements and parents
             if ($lastTarget && !$lastTarget.is(document)) {
@@ -1174,9 +1170,7 @@ namespace xcManager {
                 !(isBrowserIE && (msg === "Unspecified error." ||
                     (stack[1] && stack[1].indexOf("__BROWSERTOOLS") > -1)))) {
 
-                promise = promise.then(function() {
-                        return Log.commitErrors();
-                    });
+                const promise = Log.commitErrors();
 
                 if (typeof mixpanel !== "undefined") {
                     const timestamp: number = (new Date()).getTime();

@@ -124,8 +124,6 @@ interface WkbkKVKeySet {
     gIMDKey: string;
     gDagManagerKey: string;
     gDagListKey: string;
-    gSQLTablesKey: string;
-    gSQLQueryKey: string;
     gSQLEditorKey: string;
     gSQLEditorQueryKey: string;
 }
@@ -983,7 +981,7 @@ declare namespace Log {
     export function add(title: string, options: object | null, cli?: string, willCommit?: boolean): void;
     export function getCursor(): number;
     export function errorLog(title: string, sql: object, cli: string, error: string | object);
-    export function commitErrors(): void;
+    export function commitErrors(): XDPromise<any>;
     export function repeat(): void;
     export function undo(): void;
     export function redo(): void;
@@ -1411,7 +1409,7 @@ declare namespace Msal {
 }
 
 declare namespace XDParser {
-    export var SQLParser: any;
+    export var SqlParser: any;
     export var XEvalParser: XEvalParser;
 }
 

@@ -1,0 +1,89 @@
+<!-- SQL Section -->
+<section id="sqlOpPanel" class="xc-hidden opPanel generalOpPanel">
+    <header>
+        <div class="title">SQL</div>
+        <i class="close icon xi-close"></i>
+    </header>
+    <div class="mainContent">
+        <!-- Operation panel-->
+        <section class="opSection">
+            <div class="tableTitle">
+                <div class="title">Table Identifiers
+                </div>
+                <div class="maximize">
+                    <i class="icon xi-fullscreen"></i>
+                </div>
+            </div>
+            <div class="tableSection tableWrapper">
+                <div class="instruction">Specify all table identifiers needed for the SQL query</div>
+                <div class="header">
+                    <div class="sourceHeader">Input</div>
+                    <div class="destHeader">Table Identifiers</div>
+                </div>
+                <div class="identifiers">
+                    <ul id="sqlIdentifiers">
+                    </ul>
+                </div>
+                <div class="addIdentifier">
+                    <button class="btn btn-small btn-rounded focusable">
+                        <i class="icon xi-plus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="editorTitle">
+                <div class="title">SQL Editor
+                </div>
+                <div class="maximize">
+                    <i class="icon xi-fullscreen"></i>
+                </div>
+            </div>
+            <div class="editorWrapper">
+                <div class="snippetSection">
+                    <div class="header">Snippet:</div>
+                    <div id="sqlSnippetsList" class="snippetsList dropDownList">
+                        <input class="text" spellcheck="false" data-toggle="tooltip" data-container="body" data-placement="top">
+                        <div class="iconWrapper">
+                            <i class="icon xi-arrow-down"></i>
+                        </div>
+                        <div id="sqlSnippetMenu" class="list">
+                            <ul>
+                                <li>
+                                    <!-- <span><%= dicts.SQL.DefaultSnippet %></span> -->
+                                    <span>Default Snippet</span>
+                                </li>
+                            </ul>
+                            <!-- include "../../util/menuScrollArea.html" -->
+                        </div>
+                    </div>
+                    <div class="save">
+                        <i class="icon xi-save"></i>
+                    </div>
+                </div>
+                <div class="saveSection xc-hidden">
+                    <button class="btn btn-rounded focusable overwriteSnippet">
+                        Overwrite
+                    </button>
+                    <button class="btn btn-rounded focusable newSnippet">
+                        New Snippet
+                    </button>
+                </div>
+                <div class="confirmSection xc-hidden">
+                    <input class="snippetName"></input>
+                    <div class="confirm save">
+                        <i class="icon xi-save"></i>
+                    </div>
+                    <div class="confirm cancel">
+                        <i class="icon xi-close"></i>
+                    </div>
+                </div>
+                <div class="editSection">
+                    <div class="editArea">
+                        <textarea id="sqlEditor"></textarea>
+                    </div>
+                </div>
+            </div>
+        </section>
+        include "opPanelAdvancedSection.html"
+        include "opPanelBottomSection.html"
+    </div>
+</section>

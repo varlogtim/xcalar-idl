@@ -24,6 +24,14 @@ interface DagNodeCopyInfo extends DagNodeInfo {
     nodeId?: string;
 }
 
+interface DagNodeSQLInfo extends DagNodeInfo {
+    sqlQueryString: string,
+    identifiers: {},
+    identifiersOrder: number[],
+    srcTableMap: {},
+    columns: {name: string, backName: string, type: ColumnType}[]
+}
+
 interface DagNodeCustomInfo extends DagNodeInfo {
     subGraph: DagGraphInfo,
     inPorts: NodeConnection[],
@@ -132,7 +140,9 @@ interface DagNodeSetInputStruct {
 }
 
 interface DagNodeSQLInputStruct {
-    evalString: string;
+    queryStr: string,
+    newTableName: string,
+    jdbcCheckTime?: number
 }
 
 interface DagNodeExtensionInputStruct {
@@ -258,4 +268,11 @@ declare type DagSubGraphConnectionInfo = {
     openNodes: DagNodeId[],
     endSets: { in: Set<DagNodeId>, out: Set<DagNodeId> },
     dfIOSets: { in: Set<DagNodeId>, out: Set<DagNodeId> }
+}
+
+interface SQLColumn {
+    colName: string,
+    colId?: number,
+    rename?: string,
+    colType: string
 }

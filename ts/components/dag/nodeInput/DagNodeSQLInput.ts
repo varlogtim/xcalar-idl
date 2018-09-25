@@ -3,7 +3,9 @@ class DagNodeSQLInput extends DagNodeInput {
 
     public getInput() {
         return {
-            evalString: this.input.evalString || ""
+            queryStr: this.input.queryStr || "",
+            newTableName: this.input.newTableName,
+            jdbcCheckTime: this.input.jdbcCheckTime
         };
     }
 }

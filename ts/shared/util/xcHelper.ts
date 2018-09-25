@@ -2992,7 +2992,7 @@ namespace xcHelper {
             case PatternCategory.Target:
                 namePattern = /^[a-zA-Z][a-zA-Z0-9\s_-]*$/;
                 break;
-            case PatternCategory.SQLEditor:
+            case PatternCategory.SQLSnippet:
                 antiNamePattern = /[^a-zA-Z\d\_\- ]/;
                 break;
             default:

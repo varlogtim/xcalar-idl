@@ -236,27 +236,27 @@
         }
     }
 
-    function getAllTableNames(rawOpArray) {
-        var tableNames = {};
-        for (var i = 0; i < rawOpArray.length; i++) {
-            var value = rawOpArray[i];
-            if (value.class === "org.apache.spark.sql.execution.LogicalRDD") {
-                var rdds = value.output;
-                var acc = {numOps: 0};
-                for (var j = 0; j < rdds.length; j++) {
-                    var evalStr = genEvalStringRecur(SQLCompiler.genTree(
-                                  undefined, rdds[j].slice(0)), acc);
-                    if (evalStr.indexOf(tablePrefix) === 0) {
-                        var newTableName = evalStr.substring(tablePrefix.length);
-                        if (!(newTableName in tableNames)) {
-                            tableNames[newTableName] = true;
-                        }
-                    }
-                }
-            }
-        }
-        return tableNames;
-    }
+    // function getAllTableNames(rawOpArray) {
+    //     var tableNames = {};
+    //     for (var i = 0; i < rawOpArray.length; i++) {
+    //         var value = rawOpArray[i];
+    //         if (value.class === "org.apache.spark.sql.execution.LogicalRDD") {
+    //             var rdds = value.output;
+    //             var acc = {numOps: 0};
+    //             for (var j = 0; j < rdds.length; j++) {
+    //                 var evalStr = genEvalStringRecur(SQLCompiler.genTree(
+    //                               undefined, rdds[j].slice(0)), acc);
+    //                 if (evalStr.indexOf(tablePrefix) === 0) {
+    //                     var newTableName = evalStr.substring(tablePrefix.length);
+    //                     if (!(newTableName in tableNames)) {
+    //                         tableNames[newTableName] = true;
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return tableNames;
+    // }
 
     function TreeNode(value) {
         if (value.class === "org.apache.spark.sql.execution.LogicalRDD") {
@@ -1063,7 +1063,7 @@
         }
         return node;
     }
-    function sendPost(self, struct) {
+    function sendPost(struct) {
         var deferred = PromiseHelper.deferred();
         jQuery.ajax({
             type: 'POST',
@@ -1086,9 +1086,6 @@
                     if (typeof SQLEditor !== "undefined") {
                         SQLEditor.throwError(e);
                     }
-                    self.setStatus(SQLStatus.Failed);
-                    self.setError(e);
-                    self.updateQueryHistory();
                 }
             },
             error: function(error) {
@@ -1335,7 +1332,7 @@
         getJdbcOption: function() {
             return this.jdbcOption;
         },
-        compile: function(queryName, sqlQueryString, isJsonPlan, jdbcOption) {
+        compile: function(queryId, sqlQueryString, isJsonPlan, jdbcOption) {
             // XXX PLEASE DO NOT DO THIS. THIS IS CRAP
             var oldKVcommit;
             var dropAsYouGo = jdbcOption ? jdbcOption.dropAsYouGo : false;
@@ -1350,16 +1347,14 @@
             var outDeferred = PromiseHelper.deferred();
             var self = this;
 
-            var name = queryName || xcHelper.randName("sql", 8);
-            self.sqlObj.setQueryName(name);
-            self.sqlObj.setQueryId(name);
+            var id = queryId || xcHelper.randName("sql", 8);
+            self.sqlObj.setQueryId(id);
             self.setJdbcOption(jdbcOption);
             if (jdbcOption && jdbcOption.queryString) {
                 self.sqlObj.setQueryString(jdbcOption.queryString);
             } else {
                 self.sqlObj.setQueryString(sqlQueryString);
             }
-            self.setStatus(SQLStatus.Compiling);
 
             var cached;
             if (typeof SQLCache !== "undefined") {
@@ -1369,24 +1364,19 @@
                 self.sqlObj.setSqlMode();
             }
 
-            var promise = self.updateQueryHistory();
+            var promise;
             var callback;
             if (isJsonPlan) {
-                callback = PromiseHelper.resolve(sqlQueryString);
+                promise = PromiseHelper.resolve(sqlQueryString);
             // } else if (cached) {
             //     promise = PromiseHelper.resolve(cached, true);
             } else {
-                callback = sendPost(self, {"sqlQuery": sqlQueryString})
+                promise = sendPost({"sqlQuery": sqlQueryString});
             }
 
             var toCache;
 
             promise
-            .then(function () {
-                return callback;
-            }, function() {
-                return callback;
-            })
             .then(function(jsonArray, hasPlan) {
                 var deferred = PromiseHelper.deferred();
                 if (hasPlan) {
@@ -1409,7 +1399,7 @@
                     if (self.sqlObj.getStatus() === SQLStatus.Cancelled) {
                         return PromiseHelper.reject(SQLErrTStr.Cancel);
                     }
-                    var allTableNames = getAllTableNames(jsonArray);
+                    // var allTableNames = getAllTableNames(jsonArray);
 
                     var tree = SQLCompiler.genTree(undefined, jsonArray);
                     if (tree.value.class ===
@@ -1428,7 +1418,7 @@
                     }
 
                     prepareUsedColIds(tree);
-                    var promiseArray = traverseAndPushDown(self, tree, true);
+                    var promiseArray = traverseAndPushDown(self, tree);
                     promiseArray.push(self._handleDupCols.bind(self, tree));
                     PromiseHelper.chain(promiseArray)
                     .then(function() {
@@ -1457,7 +1447,7 @@
                         // Cache the query so that we can reuse it later
                         // Caching only happens on successful run
                         toCache = {plan: queryString,
-                                   startTables: allTableNames,
+                                   // startTables: allTableNames,
                                    steps: numNodes,
                                    finalTable: tree.newTableName,
                                    finalTableCols: tree.usrCols};
@@ -1489,10 +1479,7 @@
                     errorMsg = err;
                 } else {
                     errorMsg = parseError(err);
-                    self.setStatus(SQLStatus.Failed);
-                    self.setError(errorMsg);
                 }
-                self.updateQueryHistory();
                 outDeferred.reject(errorMsg);
             })
             .always(function () {
@@ -1513,9 +1500,6 @@
 
             self.setStatus(SQLStatus.Running);
             var deferred = jQuery.Deferred();
-            if (typeof SQLEditor !== "undefined") {
-                SQLEditor.startExecution();
-            }
             var checkTime = jdbcOption ? jdbcOption.checkTime : 200;
             // update query history
             var promise = self.updateQueryHistory();

@@ -73,6 +73,8 @@ class DagNodeExecutor {
                 return this._extension();
             case DagNodeType.IMDTable:
                 return this._IMDTable();
+            case DagNodeType.SQL:
+                return this._sql();
             default:
                 throw new Error(type + " not supported!");
         }
@@ -480,5 +482,75 @@ class DagNodeExecutor {
             return deferred.reject(err);
         });
         return deferred.promise();
+    }
+    private _sql(): XDPromise<string> {
+        const self = this;
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        const node: DagNodeSQL = <DagNodeSQL>this.node;
+        const params: DagNodeSQLInput = node.getParam();
+        const replaceMap = {};
+        const queryName = xcHelper.randName("sqlQuery", 8);
+        node.getParents().forEach((parent, idx) => {
+            const newTableName = parent.getTable();
+            replaceMap[idx + 1] = newTableName;
+        });
+        const queryObj = {
+            queryId: queryName,
+            status: SQLStatus.Running,
+            queryString: node.getSqlQueryString(),
+            startTime: new Date()
+        }
+        const newTableName = this._generateTableName();
+        // Set status to Running
+        SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
+        const queryStr = self._replaceSQLTableName(params.queryStr,
+                                                   node.getSrcTableMap(),
+                                                   replaceMap,
+                                                   params.newTableName,
+                                                   newTableName);
+
+        XIApi.query(this.txId, queryName, queryStr, params.jdbcCheckTime)
+        .then(function() {
+            // Set status to Done
+            queryObj["status"] = SQLStatus.Done;
+            queryObj["endTime"] = new Date();
+            SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
+            deferred.resolve(newTableName);
+        })
+        .fail(function(error) {
+            queryObj["endTime"] = new Date();
+            if (error === SQLErrTStr.Cancel) {
+                queryObj["status"] = SQLStatus.Cancelled;
+            } else {
+                queryObj["status"] = SQLStatus.Failed;
+                queryObj["errorMsg"] = JSON.stringify(error);
+            }
+            // Set status to Cancelled or Failed
+            SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
+            deferred.reject(error);
+        });
+        return deferred.promise();
+    }
+    private _replaceSQLTableName(
+        queryStr: string,
+        srcTableMap: {},
+        replaceMap: {},
+        oldDestTableName: string,
+        newDestTableName: string
+    ): string {
+        // XXX Move this function to sqlCompiler when the ts conversion is done
+        const queryStruct = JSON.parse(queryStr);
+        queryStruct.forEach((operation) => {
+            for (const key in srcTableMap) {
+                if (operation.args.source === srcTableMap[key]) {
+                    operation.args.source = replaceMap[key];
+                    break;
+                }
+                if (operation.args.dest === oldDestTableName) {
+                    operation.args.dest = newDestTableName;
+                }
+            }
+        });
+        return JSON.stringify(queryStruct);
     }
 }

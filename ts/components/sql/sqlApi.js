@@ -4,7 +4,7 @@
     var root = this;
 
     function SQLApi() {
-        // status: Compiling, Running, Done, Failed, Cancelled
+        // status: Running, Done, Failed, Cancelled
         this.status;
         this.runTxId = -1;
         this.sqlMode = false;
@@ -301,7 +301,7 @@
         run: function(query, tableName, allCols, sqlQueryString, jdbcCheckTime) {
             var self = this;
             var deferred = PromiseHelper.deferred();
-            var queryName = self.queryName;
+            var queryName = self.queryName || xcHelper.randName("sql", 8);
 
             var txId = !self.sqlMode && Transaction.start({
                 "operation": "Execute SQL",
@@ -657,9 +657,9 @@
                     return XcalarQueryCancel(this.queryName);
                 }
             }
-            if (!this.status && status === SQLStatus.Compiling) {
+            if (!this.status && status === SQLStatus.Running) {
                 this.startTime = new Date();
-            } else if (status === SQLStatus.Done ||
+            } else if (this.startTime && status === SQLStatus.Done ||
                 status === SQLStatus.Cancelled ||
                 status === SQLStatus.Failed) {
                 this.endTime = new Date();

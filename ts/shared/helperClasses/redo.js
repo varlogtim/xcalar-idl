@@ -207,12 +207,6 @@ window.Redo = (function($, Redo) {
                                                     [], worksheet));
         }
 
-        if (options.func === "sendSchema") {
-            promises.push(SQLEditor.redoSendSchema.bind(window,
-                                    Object.keys(options.replace)[0],
-                                    options.args.sqlTableName.toUpperCase()));
-        }
-
         return PromiseHelper.chain(promises);
     };
 

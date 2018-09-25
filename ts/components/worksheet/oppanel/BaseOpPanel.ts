@@ -169,7 +169,7 @@ class BaseOpPanel {
         // implemented by inheritor
     }
 
-    private _updateMode(toAdvancedMode: boolean) {
+    protected _updateMode(toAdvancedMode: boolean) {
         const $panel: JQuery = this.$panel;
         const $switch: JQuery = $panel.find(".bottomSection .switch");
         if (toAdvancedMode) {

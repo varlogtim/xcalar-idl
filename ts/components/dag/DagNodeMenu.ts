@@ -260,6 +260,9 @@ namespace DagNodeMenu {
             case (DagNodeType.IMDTable):
                 IMDTableOpPanel.Instance.show(node, options);
                 break;
+            case (DagNodeType.SQL):
+                SQLOpPanel.Instance.show(node, options);
+                break;
             default:
                 unlock();
                 throw new Error("Unsupported type");

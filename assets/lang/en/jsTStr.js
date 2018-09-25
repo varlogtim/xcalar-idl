@@ -517,16 +517,21 @@ SQLErrTStr = {
     "InvalidPageInfo": "Invalid Xcalar result set page",
     "InvalidSQLTable": "Invalid SQL table from persisted store",
     "InvalidSQLQuery": "Invalid SQL queries from persisted store",
-    "InvalidEditorMeta": "Invalid SQL editor metadata from persisted store",
+    "InvalidSnippetMeta": "Invalid SQL snippet metadata from persisted store",
     "FinalizingFailed": "Finalizing failed",
     "FailToConnectPlanner": "Failed to connect to SQL Planner",
     "InvalidColTypeForFinalize": "Column with unsupported type found: ",
-    "EditorNameExists": "Snippet name already exists.",
-    "NoEditor": "Could not find the editor",
+    "SnippetNameExists": "Snippet name already exists.",
+    "IdentifierExists": "Table identifier already exists.",
+    "NoSnippet": "Could not find the snippet",
     "TableDropped": "Table has been dropped. Rerun query to regenerate the table.",
     "InvalidEditorName": "Snippet name must contain only alphanumeric, -, _ or space characters, and must not be empty.",
     "InvalidOuterType": "Invalid outer join type: ",
-    "FailedToRepublish": "Failed to republish schemas."
+    "FailedToRepublish": "Failed to republish schemas.",
+    "InvalidSnippetName": "Snippet name must contain only alphanumeric, -, _ or space characters, and must not be empty.",
+    "InvalidOuterType": "Invalid outer join type: ",
+    "InvalidSourceId": "Identifier key must be an integer and can't be greater than the number of its parents: ",
+    "MissingField": "Missing field: "
 };
 
 SQLInfoTStr = {
@@ -1563,7 +1568,7 @@ SQLTStr = {
     "queryHistStatusNone": "Unknown",
     "queryHistStatusInterrupt": "Interrupted",
     "queryFailMessage": "The SQL query failed for",
-    "EnterEditorName": "Enter snippet name",
+    "EnterSnippetName": "Enter snippet name",
     "EditDescription": "Edit Description",
     "EditNodeTitle": "Edit Node Title",
     "NewComment": "New Comment",
