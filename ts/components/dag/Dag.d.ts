@@ -28,6 +28,14 @@ interface DagNodeIMDTableInfo extends DagNodeInfo {
     columns?: {name: string, type: ColumnType}[]
 }
 
+interface DagNodeMapInfo extends DagNodeInfo {
+    aggregates?: string[]
+}
+
+interface DagNodeFilterInfo extends DagNodeInfo {
+    aggregates?: string[]
+}
+
 interface DagNodeAggregateInfo extends DagNodeInfo {
     aggVal: number | string
 }

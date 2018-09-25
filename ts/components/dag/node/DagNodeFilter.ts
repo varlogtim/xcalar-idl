@@ -1,19 +1,30 @@
 class DagNodeFilter extends DagNode {
     protected input: DagNodeFilterInput;
-    private _aggregates: Map<number, string>;
+    private _aggregates: string[];
 
-    public constructor(options: DagNodeInfo) {
+    public constructor(options: DagNodeFilterInfo) {
         super(options);
         this.type = DagNodeType.Filter;
         this.allowAggNode = true;
         this.minParents = 1;
-        this._aggregates = new Map<number,string>();
+        this._aggregates = options.aggregates || [];
+        const namedAggs = Aggregates.getNamedAggs();
+        const self = this;
+        let errorAggs = [];
+        this._aggregates.forEach((aggregateName: string) => {
+            if (!namedAggs[aggregateName.substring(1)]) {
+                errorAggs.push(aggregateName);
+            }
+        });
+        if (errorAggs.length) {
+            self.beErrorState(StatusMessageTStr.AggregateNotExist + errorAggs);
+        }
     }
 
         /**
-     * @returns {Map<number, string>} used aggregates
+     * @returns {string[]} used aggregates
      */
-    public getAggregates(): Map<number, string> {
+    public getAggregates(): string[] {
         return this._aggregates;
     }
 
@@ -21,9 +32,9 @@ class DagNodeFilter extends DagNode {
      * Sets the aggregates for this node
      * @param aggregates 
      */
-    public setAggregates(aggregates: Map<number, string>): void {
+    public setAggregates(aggregates: string[]): void {
         this._aggregates = aggregates;
-        // TODO: Update how used aggregates are shown
+        super.setAggregates(aggregates);
     }
 
     /**
@@ -62,5 +73,11 @@ class DagNodeFilter extends DagNode {
             console.error(err);
         }
         super.setParam();
+    }
+
+    protected _getSerializeInfo(): DagNodeFilterInfo {
+        let info = super._getSerializeInfo();
+        info['aggregates'] = this._aggregates;
+        return info;
     }
 }

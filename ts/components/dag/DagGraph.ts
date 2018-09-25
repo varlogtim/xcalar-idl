@@ -174,6 +174,9 @@ class DagGraph {
         })
         .registerEvents(DagNodeEvents.TableRemove, (info) => {
             this.events.trigger(DagNodeEvents.TableRemove, info);
+        })
+        .registerEvents(DagNodeEvents.AggregateChange, (info) => {
+            this.events.trigger(DagNodeEvents.AggregateChange, info);
         });
     }
 

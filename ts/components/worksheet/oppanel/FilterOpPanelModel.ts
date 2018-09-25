@@ -233,8 +233,9 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
         }
     }
 
-    protected submit() {
-        this.dagNode.setAggregates(this.aggregates);
+    public submit() {
+        const aggs: string[] = this.getAggregates();
+        this.dagNode.setAggregates(aggs);
         super.submit();
     }
 }

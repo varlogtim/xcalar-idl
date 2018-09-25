@@ -38,6 +38,7 @@ enum DagNodeErrorType {
 enum DagNodeEvents {
     StateChange = "DagNodeStateChange",
     ParamChange = "DagNodeParamChange",
+    AggregateChange = "DagNodeAggregateChange",
     TableRemove = "TableRemove",
     SubGraphError = "SubGraphError",
     SubGraphConfigured = "SubGraphConfigured"

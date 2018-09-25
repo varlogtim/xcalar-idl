@@ -403,7 +403,20 @@ abstract class DagNode {
     public setParam(_param?: any): void {
         this.events.trigger(DagNodeEvents.ParamChange, {
             id: this.getId(),
-            params: this.getParam()
+            params: this.getParam(),
+            type: this.getType()
+        });
+    }
+
+    /**
+     * Triggers an event to update this node's aggregates.
+     * Primarily used by Map and Filter Nodes
+     * @param aggregates: string[]
+     */
+    public setAggregates(aggregates: string[]): void {
+        this.events.trigger(DagNodeEvents.AggregateChange, {
+            id: this.getId(),
+            aggregates: aggregates
         });
     }
 

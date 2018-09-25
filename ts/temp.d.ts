@@ -751,6 +751,7 @@ declare namespace StatusMessageTStr {
     export var OnColumn: string;
     export var Filter: string;
     export var AggregateFailed: string;
+    export var AggregateNotExist: string;
     export var Sort: string;
     export var SortFailed: string;
     export var Join: string;

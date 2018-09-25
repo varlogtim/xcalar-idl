@@ -1591,6 +1591,11 @@ namespace DagView {
         if (description) {
             addDescriptionIcon($node, description);
         }
+        if (type == DagNodeType.Map || type == DagNodeType.Filter) {
+            // Create a fake node for the purpose of getting aggregates
+            let fakeNode: DagNodeMap = <DagNodeMap>node;
+            addAggregates($node, fakeNode.getAggregates());
+        }
 
         let abbrId = nodeId.slice(nodeId.indexOf(".") + 1);
         abbrId = abbrId.slice(abbrId.indexOf(".") + 1);
@@ -1722,6 +1727,10 @@ namespace DagView {
                 title: JSON.stringify(info.params, null, 2)
             });
             activeDagTab.saveTab();
+        });
+
+        activeDag.events.on(DagNodeEvents.AggregateChange, function(info) {
+            editAggregates(info.id,info.aggregates);
         });
 
         activeDag.events.on(DagNodeEvents.TableRemove, function(info) {
@@ -1943,6 +1952,48 @@ namespace DagView {
         xcTooltip.add($node.find(".descriptionIcon"), {
             title:  xcHelper.escapeDblQuoteForHTML(text)
         });
+    }
+
+    function addAggregates($node: JQuery, aggregates: string[]): void {
+        $node.addClass("hasAggregates");
+        const g = d3.select($node.get(0)).append("g")
+                    .attr("class", "aggregateIcon")
+                    .attr("transform", "translate(20, 30)");
+        g.append("circle")
+            .attr("cx", 5)
+            .attr("cy", 0)
+            .attr("r", 10)
+            .style("fill", "#627483");
+        g.append("text")
+            .attr("font-family", "icomoon")
+            .attr("font-size", 9)
+            .attr("fill", "white")
+            .attr("x", 0)
+            .attr("y", 3)
+            .text(function(_d) {return "\ue939"});
+
+        xcTooltip.add($node.find(".aggregateIcon"), {
+            title:  xcHelper.escapeDblQuoteForHTML(aggregates.toString())
+        });
+    }
+
+    /**
+     *
+     * @param nodeId
+     * @param aggregates
+     */
+    export function editAggregates(
+        nodeId: DagNodeId,
+        aggregates: string[]
+    ): void {
+        const $node = DagView.getNode(nodeId);
+        $node.find(".aggregateIcon").remove();
+
+        if (aggregates.length) {
+            addAggregates($node, aggregates);
+        } else {
+            $node.removeClass("hasAggregate");
+        }
     }
 
     export function addProgress(nodeId: DagNodeId): void {

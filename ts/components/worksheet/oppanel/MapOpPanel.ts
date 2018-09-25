@@ -85,7 +85,6 @@ class MapOpPanel extends GeneralOpPanel {
             this.model = new MapOpPanelModel(this._dagNode, () => {
                 this._render();
             });
-            this.model.setAggregates(node.getAggregates());
             super._panelShowHelper(this.model);
             this._render();
 

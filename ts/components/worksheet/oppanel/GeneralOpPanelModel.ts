@@ -5,7 +5,6 @@ class GeneralOpPanelModel {
     protected groups: OpPanelFunctionGroup[]; // TODO fix
     protected andOrOperator: string;
     protected _opCategories: number[];
-    protected aggregates: Map<number, string>;
 
     public constructor(dagNode: DagNode, event: Function) {
         this.dagNode = dagNode;
@@ -17,7 +16,6 @@ class GeneralOpPanelModel {
         })[0] || [];
         this._opCategories = [];
         const params: any = this.dagNode.getParam();
-        this.aggregates = new Map<number, string>();
         this._initialize(params);
     }
 
@@ -28,7 +26,7 @@ class GeneralOpPanelModel {
         return {
             groups: this.groups,
             andOrOperator: this.andOrOperator,
-            aggregates: this.aggregates
+            aggregates: this.getAggregates()
         }
     }
 
@@ -36,12 +34,23 @@ class GeneralOpPanelModel {
         return this.tableColumns;
     }
 
-    public getAggregates() {
-        return this.aggregates;
-    }
-
-    public setAggregates(aggregates: Map<number, string>) {
-        this.aggregates = aggregates;
+    public getAggregates(): string[] {
+        const self = this;
+        const groups = this.groups;
+        let aggregates: string[] = [];
+        for (let i = 0; i < groups.length; i++) {
+            const group = groups[i];
+            let arg: OpPanelArg;
+            for (let j = 0; j < group.args.length; j++) {
+                arg = group.args[j];
+                if (arg.getType() == "aggregate") {
+                    if (!aggregates.includes(arg.getFormattedValue())) {
+                        aggregates.push(arg.getFormattedValue());
+                    }
+                }
+            }
+        }
+        return aggregates;
     }
 
     public addGroup(): void {
@@ -113,11 +122,6 @@ class GeneralOpPanelModel {
             }
             this._formatArg(arg);
             this._validateArg(arg);
-            if (arg.getType() == "aggregate") {
-                this.aggregates[argIndex] = arg.getValue();
-            } else {
-                delete this.aggregates[argIndex];
-            }
         }
     }
 

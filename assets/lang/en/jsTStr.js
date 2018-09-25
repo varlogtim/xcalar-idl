@@ -29,6 +29,7 @@ StatusMessageTStr = {
     'ExportFailed': 'Export failed',
     'Aggregate': 'Calculating Aggregate',
     'AggregateFailed': 'Aggregate failed',
+    'AggregateNotExist': 'Aggregate does not exist: ',
     'SplitColumn': 'Splitting column',
     'SplitColumnFailed': 'Split column failed',
     'ChangeType': 'Changing data type',
