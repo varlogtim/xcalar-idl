@@ -1594,7 +1594,10 @@ namespace DagView {
         if (type == DagNodeType.Map || type == DagNodeType.Filter) {
             // Create a fake node for the purpose of getting aggregates
             let fakeNode: DagNodeMap = <DagNodeMap>node;
-            addAggregates($node, fakeNode.getAggregates());
+            let aggs: string[] = fakeNode.getAggregates();
+            if (aggs.length) {
+                addAggregates($node, aggs);
+            }
         }
 
         let abbrId = nodeId.slice(nodeId.indexOf(".") + 1);
