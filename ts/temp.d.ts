@@ -896,6 +896,7 @@ declare namespace ErrTStr {
     export var NoEmptyFn: string;
     export var LargeFile: string;
     export var DuplicateColNames: string;
+    export var Error: string;
 }
 
 declare namespace ErrWRepTStr {

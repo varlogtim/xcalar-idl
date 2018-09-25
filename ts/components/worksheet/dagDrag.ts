@@ -22,11 +22,6 @@ interface DragHelperCoordinate {
     width: number
 }
 
-interface Coordinate {
-    x: number,
-    y: number
-}
-
 class DragHelper {
     protected $container: JQuery;
     protected $dropTarget: JQuery;

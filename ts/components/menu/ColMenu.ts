@@ -159,7 +159,11 @@ class ColMenu extends AbstractMenu {
             }
             const colNums: number[] = $colMenu.data("colNums");
             const tableId: TableId = $colMenu.data('tableId');
-            JoinView.show(tableId, colNums);
+            if (gTables[tableId].modelingMode) {
+                this._creatNode(DagNodeType.Join, tableId, colNums);
+            } else {
+                JoinView.show(tableId, colNums);
+            }
         });
 
         $colMenu.on('mouseup', '.union', (event) => {
@@ -168,7 +172,11 @@ class ColMenu extends AbstractMenu {
             }
             const colNums: number[] = $colMenu.data("colNums");
             const tableId: TableId = $colMenu.data('tableId');
-            UnionView.show(tableId, colNums);
+            if (gTables[tableId].modelingMode) {
+                this._creatNode(DagNodeType.Set, tableId, colNums);
+            } else {
+                UnionView.show(tableId, colNums);
+            }
         });
 
         $colMenu.on('mouseup', '.functions', (event) => {
@@ -180,10 +188,17 @@ class ColMenu extends AbstractMenu {
             const func: string = $li.data('func');
             const colNums: number[] = $colMenu.data("colNums");
             const triggerColNum: number = $colMenu.data("colNum");
-
-            OperationsView.show(tableId, colNums, func, {
-                triggerColNum: triggerColNum
-            });
+            if (gTables[tableId].modelingMode) {
+                let type: DagNodeType = <DagNodeType>func;
+                if (func === "group by") {
+                    type = DagNodeType.GroupBy;
+                }
+                this._creatNode(type, tableId, colNums);
+            } else {
+                OperationsView.show(tableId, colNums, func, {
+                    triggerColNum: triggerColNum
+                });
+            }
         });
 
         $colMenu.on('mouseup', '.profile', (event) => {
@@ -201,7 +216,11 @@ class ColMenu extends AbstractMenu {
             }
             const tableId: TableId = $colMenu.data('tableId');
             const colNums: number[] = $colMenu.data("colNums");
-            ProjectView.show(tableId, colNums);
+            if (gTables[tableId].modelingMode) {
+                this._creatNode(DagNodeType.Project, tableId, colNums);
+            } else {
+                ProjectView.show(tableId, colNums);
+            }
         });
 
         $colMenu.on('mouseup', '.extensions', (event) => {
@@ -489,5 +508,92 @@ class ColMenu extends AbstractMenu {
             usedName.add(name);
         }
         return colNames;
+    }
+
+    private _creatNode(
+        type: DagNodeType,
+        tableId: TableId,
+        colNums: number[]
+    ): void {
+        try {
+            const parentNodeId: DagNodeId = DagTable.Instance.getBindNodeId();
+            const parentNode: DagNode = DagView.getActiveDag().getNode(parentNodeId);
+            const position: {x: number, y: number} = parentNode.getPosition();
+            const node: DagNode = DagView.addNode({
+                type: type,
+                display: {
+                    x: position.x + 120,
+                    y: position.y + 90 * parentNode.getChildren().length
+                }
+            });
+            const table: TableMeta = gTables[tableId];
+            const progCols: ProgCol[] = colNums.map((colNum) => table.getCol(colNum));
+            this._setNodeParam(node, progCols);
+            DagView.connectNodes(parentNodeId, node.getId(), 0);
+            if (node.getMaxParents() === 1) {
+                this._openOpPanel(node.getId());
+            }
+        } catch (e) {
+            console.error("error", e);
+            Alert.error(ErrTStr.Error, ErrTStr.Unknown);
+        }
+    }
+
+    private _setNodeParam(node: DagNode, progCols: ProgCol[]): void {
+        const columns: string [] = progCols.map(progCol => {
+            return progCol.getBackColName()
+        });
+        switch (node.getType()) {
+            case DagNodeType.Aggregate:
+            case DagNodeType.Filter:
+            case DagNodeType.Map:
+                // XXX TODO, populate it in panel
+                break;
+            case DagNodeType.Project:
+                (<DagNodeProject>node).setParam({
+                    columns: columns
+                });
+                break;
+            case DagNodeType.GroupBy:
+                (<DagNodeGroupBy>node).setParam({
+                    groupBy: columns,
+                    aggregate: [],
+                    includeSample: false,
+                    icv: false,
+                    groupAll: false,
+                    newKeys: null
+                });
+                break;
+            case DagNodeType.Join:
+                (<DagNodeJoin>node).setParam({
+                    joinType: JoinOperatorTStr[JoinOperatorT.InnerJoin],
+                    left: {
+                        columns: columns,
+                        casts: [],
+                        rename: []
+                    },
+                    right: {
+                        columns: [],
+                        casts: [],
+                        rename: []
+                    }
+                });
+                break;
+            case DagNodeType.Set:
+                (<DagNodeSet>node).setParam({
+                    unionType: UnionType.Union,
+                    columns: [],
+                    dedup: false
+                });
+                break;
+            default:
+                throw new Error("Unsupported type!");
+        }
+    }
+
+    private _openOpPanel(nodeId: DagNodeId): void {
+        const $node: JQuery = DagView.getNode(nodeId);
+        $node.find(".main").trigger("contextmenu");
+        $("#dagNodeMenu").find(".configureNode").trigger(fakeEvent.mouseup);
     }
 }
