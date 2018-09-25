@@ -99,6 +99,8 @@ window.UExtIMD = (function(UExtIMD) {
                     mapFn = "float";
                 } else if (col.type === 'boolean') {
                     mapFn = "bool";
+                } else if (col.type === 'timestamp') {
+                    mapFn = "timestamp";
                 } else {
                     mapFn = "string";
                 }
