@@ -164,6 +164,9 @@ namespace DagNodeMenu {
                 case ("createCustom"):
                     DagView.wrapCustomOperator(nodeIds);
                     break;
+                case ("shareCustom"):
+                    DagView.shareCustomOperator(operatorIds[0]);
+                    break;
                 default:
                     break;
             }

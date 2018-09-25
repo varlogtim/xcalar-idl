@@ -353,10 +353,28 @@ abstract class DagNode {
      * @returns {string}
      */
     public serialize(): string {
+        return JSON.stringify(this.getNodeInfo());
+    }
+
+    /**
+     * Generates JSON representing this node
+     * @returns JSON object
+     */
+    public getNodeInfo(): DagNodeInfo {
         const parents: DagNodeId[] = this.parents.map((parent) => parent.getId());
         const seriazliedInfo = this._getSerializeInfo();
         seriazliedInfo["parents"] = parents;
-        return JSON.stringify(seriazliedInfo);
+        return seriazliedInfo;
+    }
+
+    /**
+     * Generate JSON representing this node(w/o ids), for use in copying a node
+     */
+    public getNodeCopyInfo(): DagNodeCopyInfo {
+        const nodeInfo = <DagNodeCopyInfo>this.getNodeInfo();
+        nodeInfo.nodeId = nodeInfo.id;
+        delete nodeInfo.id;
+        return nodeInfo;
     }
 
     /**

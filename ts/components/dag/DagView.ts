@@ -29,6 +29,7 @@ namespace DagView {
 
         DagTopBar.Instance.setup();
         DagCategoryBar.Instance.setup();
+        DagCategoryBar.Instance.loadCategories(); // Async call
         DagNodeMenu.setup();
         DagComment.Instance.setup();
     }
@@ -919,6 +920,42 @@ namespace DagView {
         return activeDagTab.saveTab();
     }
 
+    /**
+     * Share a custom operator(node). Called by the node popup menu.
+     * @param nodeId 
+     * @description
+     * 1. Find the DagNode needs to be shared in the active DagGraph
+     * 2. Make a deep copy of the node
+     * 3. Call DagCategoryBar to add the copy to the category bar(and extra actions, such as persisting)
+     * 4. Change the display name of the node
+     * 5. Persist the tab to KVStore
+     */
+    export function shareCustomOperator(nodeId: DagNodeId): XDPromise<void> {
+        const dagNode = activeDag.getNode(nodeId);
+        if (dagNode == null) {
+            return PromiseHelper.reject(`Node(${nodeId}) not found`);
+        }
+
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        DagCategoryBar.Instance.addOperator({
+            categoryName: DagCategoryType.Custom,
+            dagNode: DagNodeFactory.create(dagNode.getNodeCopyInfo()),
+            isFocusCategory: true
+        })
+        .then((newName) => {
+            if (dagNode instanceof DagNodeCustom) {
+                dagNode.setCustomName(newName);
+                const $opTitle = getNode(dagNode.getId()).find('.opTitle');
+                $opTitle.text(dagNode.getCustomName());
+            }
+        })
+        .then(() => activeDagTab.saveTab())
+        .then(() => deferred.resolve())
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
     function _createCustomNode(
         dagNodeInfos,
         connection: {
@@ -967,7 +1004,6 @@ namespace DagView {
                 childId: customNode.getId(),
                 pos: inPortIdx
             });
-            // TODO: Add input node to the subgraph
         }
 
         // Setup output
@@ -1581,9 +1617,10 @@ namespace DagView {
         const type = node.getType();
         const subType = node.getSubType() || "";
         const nodeId = node.getId();
+
         const $node = $operatorBar.find('.operator[data-type="' + type + '"]' +
                                         '[data-subtype="' + subType + '"]')
-                                  .first().clone();
+                                .first().clone();
 
         $node.attr("transform", "translate(" + pos.x + "," + pos.y + ")");
         _setTooltip($node, node);
@@ -1621,6 +1658,8 @@ namespace DagView {
         const $opTitle = $node.find('.opTitle');
         if (node instanceof DagNodeCustom) {
             $opTitle.text(node.getCustomName());
+            // The custom op is hidden in the category bar, so show it in the diagram
+            $node.removeClass('xc-hidden');
         } else if (node instanceof DagNodeCustomInput) {
             $opTitle.text(node.getPortName());
             // The custom input is hidden in the category bar, so show it in the diagram

@@ -29,9 +29,9 @@ class DagCategoryNode {
             disaplNodeType = "SQL";
         }
         if (node instanceof DagNodeCustom) {
-            node.getCustomName();
+            disaplNodeType = node.getCustomName();
         } else if (node instanceof DagNodeCustomInput) {
-            node.getPortName();
+            disaplNodeType = node.getPortName();
         }
         return disaplNodeType;
     }
@@ -47,6 +47,36 @@ class DagCategoryNode {
 
     public isHidden(): boolean {
         return this.hidden;
+    }
+
+    /**
+     * Create the representing JSON data. Override in child classes for extra data.
+     */
+    public getJSON(): DagCategoryNodeInfo {
+        return {
+            type: this.categoryType,
+            subType: this.getNodeSubType(),
+            node: this.node.getNodeInfo(),
+            hidden: this.hidden
+        };
+    }
+
+    /**
+     * Initialize the class instance with JSON data. Override in child classes for extra data.
+     * @param json 
+     */
+    public initFromJSON(json: DagCategoryNodeInfo) {
+        this.categoryType = json.type;
+        this.nodeSubType = json.subType;
+        this.hidden = json.hidden;
+        this.node = DagNodeFactory.create(json.node);
+    }
+
+    /**
+     * Check if the category node needs to be persisted. Override it for customized behavior in child classes.
+     */
+    public isPersistable(): boolean {
+        return false;
     }
 }
 
@@ -110,5 +140,54 @@ class DagCategoryNodeSQL extends DagCategoryNode {
     protected categoryType: DagCategoryType;
     public constructor(node: DagNode) {
         super(node, DagCategoryType.SQL);
+    }
+}
+
+class DagCategoryNodeCustom extends DagCategoryNode {
+    public constructor(node: DagNode, isHidden: boolean = false) {
+        super(node, DagCategoryType.Custom, isHidden);
+    }
+    /**
+     * @override
+     * Overriding the base class, so that custom operator can be persisted.
+     */
+    public isPersistable(): boolean {
+        return true;
+    }
+}
+
+class DagCategoryNodeFactory {
+    /**
+     * Create DagCategoryNodes from their constructor
+     * @param options 
+     */
+    public static create(options: {
+        dagNode: DagNode, categoryType: DagCategoryType, isHidden: boolean
+    }): DagCategoryNode {
+        const { dagNode, categoryType, isHidden = false } = options;
+        switch (categoryType) {
+            case DagCategoryType.Custom:
+                return new DagCategoryNodeCustom(dagNode, isHidden);
+            default:
+                throw new Error(`Category type ${categoryType} not supported`);
+        }
+    }
+
+    /**
+     * Create DagCategoryNodes from JSON
+     * @param json 
+     */
+    public static createFromJSON(json: DagCategoryNodeInfo): DagCategoryNode {
+        let node: DagCategoryNode;
+        switch (json.type) {
+            case DagCategoryType.Custom:
+                node = new DagCategoryNodeCustom(null);
+                break;
+            default:
+                throw new Error("Category type " + json.type + " not supported");
+        }
+        
+        node.initFromJSON(json);
+        return node;
     }
 }

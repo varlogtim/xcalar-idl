@@ -1398,5 +1398,6 @@ module.exports = {
         "viewSchema": "View Schema",
         "schema": "Schema",
         "createCustomNode": "Create Custom Node",
+        "shareCustomNode": "Share Custom Node",
     }
 };

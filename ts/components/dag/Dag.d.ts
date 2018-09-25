@@ -13,8 +13,12 @@ interface DagNodeInfo {
     error?: string;
 }
 
+interface DagNodeCopyInfo extends DagNodeInfo {
+    nodeId?: string;
+}
+
 interface DagNodeCustomInfo extends DagNodeInfo {
-    subGraph: string,
+    subGraph: DagGraphInfo,
     inPorts: NodeConnection[][],
     outPorts: NodeConnection[],
     customName: string,
@@ -178,4 +182,17 @@ interface CommentInfo {
     text?: string;
     position : Coordinate;
     dimensions?: Dimensions;
+}
+
+interface DagCategoryNodeInfo {
+    type: DagCategoryType,
+    subType: string,
+    node: DagNodeInfo,
+    hidden: boolean
+}
+
+interface DagGraphInfo {
+    nodes: DagNodeInfo[],
+    comments: any[],
+    display: Dimensions
 }

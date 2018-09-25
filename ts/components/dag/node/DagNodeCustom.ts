@@ -1,6 +1,6 @@
 class DagNodeCustom extends DagNode {
-    protected _subGraph: DagGraph = new DagGraph();
-    protected _input: DagNodeCustomInput[];
+    protected _subGraph: DagSubGraph = new DagSubGraph();
+    protected _input: DagNodeCustomInput[]; // _input is supposed to have the same length as parents
     protected _output: { outputNode: NodeIOPort }[];
     protected _customName: string = 'Custom';
 
@@ -10,48 +10,59 @@ class DagNodeCustom extends DagNode {
         super(options);
 
         this.type = DagNodeType.Custom;
-        this._subGraph = new DagGraph();
+        this._subGraph = new DagSubGraph();
         this._input = [];
         this._output = [];
         this.maxParents = -1;
         this.minParents = 0;
 
-        if (options != null) {
+        if (options != null && options.subGraph != null
+            && options.outPorts != null && options.outPorts != null
+            && options.customName != null
+        ) {
+            // Deserialize sub graph
             const subGraph = this.getSubGraph();
-            if (options.subGraph != null) {
-                subGraph.deserializeDagGraph(options.subGraph);
-            }
-            if (options.inPorts != null) {
-                options.inPorts.forEach( (portNodes, portIdx) => {
-                    for (const connection of portNodes) {
-                        const inputNode: DagNodeCustomInput
-                            = <DagNodeCustomInput>subGraph.getNode(connection.parentId);
-                        this._setInputPort(inputNode, portIdx);
-                    }
+            const nodeIdMap = subGraph.initFromJSON(options.subGraph);
+
+            // Setup inputs
+            options.inPorts.forEach( (portNodes, portIdx) => {
+                for (const connection of portNodes) {
+                    const inNodeId = nodeIdMap.has(connection.parentId)
+                        ? nodeIdMap.get(connection.parentId)
+                        : connection.parentId;
+                    const inputNode: DagNodeCustomInput
+                        = <DagNodeCustomInput>subGraph.getNode(inNodeId);
+                    this._setInputPort(inputNode, portIdx);
+                }
+            });
+
+            // Setup outputs
+            for (const connection of options.outPorts) {
+                const outNodeId = nodeIdMap.has(connection.parentId)
+                    ? nodeIdMap.get(connection.parentId)
+                    : connection.parentId;
+                const outNode = this._subGraph.getNode(outNodeId);
+                this._output.push({ outputNode:
+                    { node: outNode, portIdx: connection.pos }
                 });
             }
-            if (options.outPorts != null) {
-                for (const connection of options.outPorts) {
-                    const outNode = connection.parentId == null
-                        ? null : this._subGraph.getNode(connection.parentId);
-                    this._output.push({ outputNode:
-                        { node: outNode, portIdx: connection.pos }
-                    });
-                }
-            }
-            if (options.customName != null) {
-                this.setCustomName(options.customName);
-            }
+
+            // Setup name
+            this.setCustomName(options.customName);
         }
 
         this._setupSubgraphEvents();
     }
 
     /**
-     * Link an input node(in the sub graph) to a custom node's inPort
+     * Link an input node(in the sub graph) to a custom node's inPort. Call this method when expanding the input ports.
      * @param inNodePort The node & port to link
      * @param inPortIdx The index of the input port. If not specified, a new inPort will be assigned
      * @returns index of the inPort
+     * @description
+     * 1. Create a new DagNodeCustomInput node, if it doesn't exist
+     * 2. Add the DagNodeCustomInput node to _input list
+     * 3. Connect DagNodeCustomInput node to the acutal DagNode in subGraph
      */
     public addInputNode(inNodePort: NodeIOPort, inPortIdx?: number): number {
         if (inPortIdx == null || inPortIdx >= this._input.length) {
@@ -125,8 +136,10 @@ class DagNodeCustom extends DagNode {
      * @param pos 
      */
     public connectToParent(parentNode: DagNode, pos: number = 0): void {
+        if (this._getInputPort(pos) == null) {
+            throw new Error("No avaliable input port"); 
+        }
         super.connectToParent(parentNode, pos);
-        this.addInputNode({ node: null, portIdx: 0 }, pos);
     }
 
     /**
@@ -179,7 +192,7 @@ class DagNodeCustom extends DagNode {
     /**
      * Get the nested sub graph
      */
-    public getSubGraph(): DagGraph {
+    public getSubGraph(): DagSubGraph {
         return this._subGraph;
     }
 
@@ -211,10 +224,29 @@ class DagNodeCustom extends DagNode {
         return true;
     }
 
+    /**
+     * @override
+     * Generates JSON representing this node
+     * @returns JSON object
+     */
+    public getNodeInfo(): DagNodeCustomInfo {
+        const nodeInfo = <DagNodeCustomInfo>super.getNodeInfo();
+        nodeInfo.subGraph = this._subGraph.getGraphInfo();
+        return nodeInfo;
+    }
+
+    /**
+     * @override
+     * Generate JSON representing this node(w/o ids), for use in copying a node
+     */
+    public getNodeCopyInfo(): DagNodeCustomInfo {
+        const copyInfo = <DagNodeCustomInfo>super.getNodeCopyInfo();
+        copyInfo.subGraph = this._subGraph.getGraphCopyInfo();
+        return copyInfo;
+    }
+    
     protected _getSerializeInfo(): DagNodeCustomInfo {
         const nodeInfo = super._getSerializeInfo() as DagNodeCustomInfo;
-        // SubGraph
-        nodeInfo.subGraph = this._subGraph.serialize();
         // Input ports
         nodeInfo.inPorts = [];
         for (const inputNode of this._input) {

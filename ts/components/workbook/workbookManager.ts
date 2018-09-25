@@ -878,9 +878,11 @@ namespace WorkbookManager {
     function getUserScopeKeys(version: number): any {
         const username: string = XcUser.getCurrentUserName();
         const gUserKey: string = generateKey(username, "gUser", version);
+        const gUserCustomOpKey: string = generateKey(username, 'gUserCustomOp', version);
 
         return {
-            "gUserKey": gUserKey
+            "gUserKey": gUserKey,
+            "gUserCustomOpKey": gUserCustomOpKey
         };
     }
 

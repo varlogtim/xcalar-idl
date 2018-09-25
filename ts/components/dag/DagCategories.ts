@@ -100,14 +100,15 @@ class DagCategories {
             }))
         ]);
 
-        const customCategory = new DagCategory(DagCategoryType.Custom, [
+        // Default operators(not in the kvstore)
+        const customCategory = new DagCategoryCustom([
             new DagCategoryNode(DagNodeFactory.create({
                 type: DagNodeType.Custom
-            }), DagCategoryType.Custom),
+            }), DagCategoryType.Custom, true),
             new DagCategoryNode(DagNodeFactory.create({
                 type: DagNodeType.CustomInput
             }), DagCategoryType.Custom, true)
-        ]);
+        ], 'gUserCustomOpKey');
 
         this.categories = [
             favoritesCategory,
@@ -126,6 +127,40 @@ class DagCategories {
 
     public getCategories(): DagCategory[] {
         return this.categories;
+    }
+
+    /**
+     * Load categories from data storage
+     */
+    public loadCategories(): XDPromise<void> {
+        const loadTasks = this.categories.map((category) => {
+            return category.loadCategory();
+        });
+
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        PromiseHelper.when(...loadTasks)
+        .then(() => {
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
+    }
+
+    /**
+     * Save categories to data storage
+     */
+    public saveCategories(): XDPromise<void> {
+        const saveTasks = this.categories.map((category) => {
+            return category.saveCategory();
+        });
+
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        PromiseHelper.when(...saveTasks)
+        .then(() => {
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 }
 
@@ -148,5 +183,105 @@ class DagCategory {
 
     public getOperators() {
         return this.operators;
+    }
+
+    /**
+     * Load category content from data storage. Child class can override this method with specific implementation.
+     */
+    public loadCategory(): XDPromise<void> {
+        return PromiseHelper.resolve();
+    }
+
+    /**
+     * Save category content to data storage. Child class can override this method with specific implementation.
+     */
+    public saveCategory(): XDPromise<void> {
+        return PromiseHelper.resolve();
+    }
+}
+
+// XXX TODO: Solve race condition by using path structured KVStore key 'gUserCustomOpKey/opName';
+// XXX TODO: Generate unique key(per user), in the multi-session scenario;
+// XXX TODO: Syncup custom ops between multiple sessions;
+class DagCategoryCustom extends DagCategory {
+    private _kvStore: KVStore;
+
+    public constructor(operators: DagCategoryNode[], key: string) {
+        super(DagCategoryType.Custom, operators);
+        this._kvStore = new KVStore(
+            KVStore.getKey(key),
+            gKVScope.USER);
+    }
+
+    /**
+     * @override
+     * Load custom operators from KVStore
+     */
+    public loadCategory():XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+
+        this._kvStore.getAndParse()
+        .then((categoryInfos: DagCategoryNodeInfo[]) => {
+            if (categoryInfos != null) {
+                for (const info of categoryInfos) {
+                    this.add(DagCategoryNodeFactory.createFromJSON(info));
+                }
+            }
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    /**
+     * @override
+     * Save custom operators to KVStore
+     * @description
+     * It checkes DagCategoryNode.isPersistable(), and persists all those return true.
+     */
+    public saveCategory(): XDPromise<void> {
+        const categoryInfos: DagCategoryNodeInfo[] = [];
+        for (const operator of this.getOperators()) {
+            if (operator.isPersistable()) {
+                // Save only the operators that needs to be persisted
+                categoryInfos.push(operator.getJSON());
+            }
+        }
+        return this._kvStore.put(JSON.stringify(categoryInfos), true, false);
+    }
+
+    /**
+     * Generate a name w/o conflicting with existing operators in the category
+     * @param prefix
+     * @returns prefix-[number]
+     */
+    public genOperatorName(prefix: string): string {
+        const nameMap = new Map<string, boolean>();
+        for (const categoryNode of this.getOperators()) {
+            nameMap.set(categoryNode.getDisplayNodeType(), true);
+        }
+
+        let limitCount = 1000;
+        const step = 100;
+        let start = 1;
+        let end = start + step;
+        while (nameMap.get(`${prefix}-${end}`)) {
+            start += step; end += step;
+            if (limitCount > 0) {
+                limitCount --;
+            } else {
+                return prefix;
+            }
+        }
+        
+        for (let i = start; i < end; i ++) {
+            const name = `${prefix}-${i}`;
+            if (!nameMap.get(name)) {
+                return name;
+            }
+        }
+
+        return prefix;
     }
 }
