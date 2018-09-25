@@ -257,11 +257,11 @@ declare class ParseArgsT {
 declare class XcalarApiDfLoadArgsT {
 	sourceArgsList: DataSourceArgsT[];
 	parseArgs: ParseArgsT;
-	maxSize: number;
+	size: number;
 	constructor(args?: {
 		sourceArgsList?: DataSourceArgsT[],
 		parseArgs?: ParseArgsT,
-		maxSize?: number,
+		size?: number,
 	});
 }
 declare class XcalarApiDatasetT {
@@ -765,13 +765,13 @@ declare class XcalarApiExecuteRetinaInputT {
 	queryName: string;
 	dest: string;
 	parameters: XcalarApiParameterT[];
-	latencyOptimized: boolean;
+	schedName: string;
 	constructor(args?: {
 		retinaName?: string,
 		queryName?: string,
 		dest?: string,
 		parameters?: XcalarApiParameterT[],
-		latencyOptimized?: boolean,
+		schedName?: string,
 	});
 }
 declare class XcalarApiGetStatOutputT {
@@ -1169,13 +1169,13 @@ declare class XcalarApiQueryInputT {
 	queryName: string;
 	queryStr: string;
 	bailOnError: boolean;
-	latencyOptimized: boolean;
+	schedName: string;
 	constructor(args?: {
 		sameSession?: boolean,
 		queryName?: string,
 		queryStr?: string,
 		bailOnError?: boolean,
-		latencyOptimized?: boolean,
+		schedName?: string,
 	});
 }
 declare class XcalarApiUserIdT {
@@ -2262,6 +2262,17 @@ declare class XcalarApiUpdateOutputT {
 		batchIds?: number[],
 	});
 }
+declare class XcalarApiSchedParamT {
+	schedName: string;
+	cpusReservedInPercent: number;
+	runtimeType: number;
+	constructor(args?: {
+		schedName?: string,
+		cpusReservedInPercent?: number,
+		runtimeType?: number
+	});
+}
+
 declare class XcalarApiOutputResultT {
 	getVersionOutput: XcalarApiGetVersionOutputT;
 	statusOutput: number;

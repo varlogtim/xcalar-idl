@@ -146,7 +146,8 @@ XcalarApisT = {
   'XcalarApiDriver' : 137,
   'XcalarApiRuntimeSetParam' : 138,
   'XcalarApiRuntimeGetParam' : 139,
-  'XcalarApiFunctionInvalid' : 140
+  'XcalarApiPtSnapshot' : 140,
+  'XcalarApiFunctionInvalid' : 141
 };
 XcalarApisTStr = {
   0 : 'XcalarApiUnknown',
@@ -289,7 +290,8 @@ XcalarApisTStr = {
   137 : 'XcalarApiDriver',
   138 : 'XcalarApiRuntimeSetParam',
   139 : 'XcalarApiRuntimeGetParam',
-  140 : 'XcalarApiFunctionInvalid'
+  140 : 'XcalarApiPtSnapshot',
+  141 : 'XcalarApiFunctionInvalid'
 };
 XcalarApisTFromStr = {
   'XcalarApiUnknown' : 0,
@@ -432,5 +434,6 @@ XcalarApisTFromStr = {
   'XcalarApiDriver' : 137,
   'XcalarApiRuntimeSetParam' : 138,
   'XcalarApiRuntimeGetParam' : 139,
-  'XcalarApiFunctionInvalid' : 140
+  'XcalarApiPtSnapshot' : 140,
+  'XcalarApiFunctionInvalid' : 141
 };

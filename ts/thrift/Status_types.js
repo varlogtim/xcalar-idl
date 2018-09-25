@@ -664,9 +664,9 @@ StatusT = {
   'StatusNsRefToObjectDenied' : 655,
   'StatusChecksumNotFound' : 656,
   'StatusChecksumMismatch' : 657,
-  'StatusChecksumNotAdded' : 658,
-  'StatusRuntimeSetParamInvalid' : 659,
-  'StatusRuntimeSetParamNotSupported' : 660
+  'StatusRuntimeSetParamInvalid' : 658,
+  'StatusRuntimeSetParamNotSupported' : 659,
+  'StatusPublishTableSnapshotInProgress' : 660
 };
 StatusTStr = {
   0 : 'Success',
@@ -1327,9 +1327,9 @@ StatusTStr = {
   655 : 'Denied reference to Namespace object',
   656 : 'Checksum not found',
   657 : 'Checksum mismatch',
-  658 : 'Checksum not added',
-  659 : 'Invalid parameter for setting Runtime configuration',
-  660 : 'Setting Runtime configuration not supported'
+  658 : 'Invalid parameter for setting Runtime configuration',
+  659 : 'Setting Runtime configuration not supported',
+  660 : 'Publish table Snapshot is already in progress'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -1990,7 +1990,7 @@ StatusTFromStr = {
   'Denied reference to Namespace object' : 655,
   'Checksum not found' : 656,
   'Checksum mismatch' : 657,
-  'Checksum not added' : 658,
-  'Invalid parameter for setting Runtime configuration' : 659,
-  'Setting Runtime configuration not supported' : 660
+  'Invalid parameter for setting Runtime configuration' : 658,
+  'Setting Runtime configuration not supported' : 659,
+  'Publish table Snapshot is already in progress' : 660
 };

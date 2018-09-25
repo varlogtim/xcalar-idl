@@ -658,6 +658,373 @@ xcalarTargetTypeList = runEntity.xcalarTargetTypeList = function(thriftHandle) {
     return (deferred.promise());
 };
 
+xcalarPtSnapshotWorkItem = runEntity.xcalarPtSnapshotWorkItem = function(inJson) {
+    var workItem = new WorkItem();
+    workItem.input = new XcalarApiInputT();
+
+    workItem.api = XcalarApisT.XcalarApiPtSnapshot;
+    workItem.input.ptSnapshotInput = new XcalarApiPtSnapshotInputT();
+    workItem.input.ptSnapshotInput.inputJson = inJson;
+    return (workItem);
+};
+
+xcalarPtSnapshotAddConfig = runEntity.xcalarPtSnapshotAddConfig = function(thriftHandle, publishTableName, minNumBatches, timeFreqInHours, importTargetName, exportTargetName, maxHistory) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarPtSnapshotAddConfig(publishTableName = " + publishTableName +
+            ", minNumBatches = " + minNumBatches +
+            ", importTargetName = " + importTargetName +
+            ", exportTargetName = " + exportTargetName +
+            ", timeFreqInHours = " + timeFreqInHours +
+            ", maxHistory = " + maxHistory + ")");
+    }
+
+    var inputObj = {
+        "func": "addConfig",
+        "publishTableName": publishTableName,
+        "configParams": {
+            "timeFreqInHours": timeFreqInHours,
+		    "minNumBatches": minNumBatches,
+		    "importTargetName":importTargetName,
+		    "exportTargetName":exportTargetName,
+            "maxHistory":maxHistory
+        }};
+
+    var workItem = xcalarPtSnapshotWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var ptSnapshotOutput = result.output.outputResult.ptSnapshotOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            return deferred.reject({xcalarStatus: status, log: log});
+        }
+
+        // ptSnapshotOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        ptSnapshotOutput = JSON.parse(ptSnapshotOutput.outputJson);
+        deferred.resolve(ptSnapshotOutput);
+    })
+    .fail(function(jqXHR) {
+        console.log("xcalarPtSnapshotAddConfig() caught exception:", jqXHR);
+        deferred.reject({httpStatus: jqXHR.status});
+    });
+
+    return (deferred.promise());
+};
+
+xcalarPtSnapshotUpdateConfig = runEntity.xcalarPtSnapshotUpdateConfig = function(thriftHandle, publishTableName, minNumBatches, timeFreqInHours, importTargetName, exportTargetName, maxHistory) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarPtSnapshotUpdateConfig(publishTableName = " + publishTableName +
+            ", minNumBatches = " + minNumBatches +
+            ", importTargetName = " + importTargetName +
+            ", exportTargetName = " + exportTargetName +
+            ", maxHistory = " + maxHistory + ")");
+    }
+
+    var inputObj = {
+        "func": "updateConfig",
+        "publishTableName": publishTableName,
+        "configParams": {
+            "timeFreqInHours": timeFreqInHours,
+            "minNumBatches": minNumBatches,
+            "importTargetName":importTargetName,
+            "exportTargetName":exportTargetName,
+            "maxHistory":maxHistory
+        }};
+
+    var workItem = xcalarPtSnapshotWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var ptSnapshotOutput = result.output.outputResult.ptSnapshotOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            return deferred.reject({xcalarStatus: status, log: log});
+        }
+
+        // ptSnapshotOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        ptSnapshotOutput = JSON.parse(ptSnapshotOutput.outputJson);
+        deferred.resolve(ptSnapshotOutput);
+    })
+    .fail(function(jqXHR) {
+        console.log("xcalarPtSnapshotUpdateConfig() caught exception:", jqXHR);
+        deferred.reject({httpStatus: jqXHR.status});
+    });
+
+    return (deferred.promise());
+};
+
+xcalarPtSnapshotDeleteConfig = runEntity.xcalarPtSnapshotDeleteConfig = function(thriftHandle, publishTableName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarPtSnapshotDeleteConfig(publishTableName = " + publishTableName + ")");
+    }
+
+    var inputObj = {
+        "func": "deleteConfig",
+        "publishTableName": publishTableName};
+
+    var workItem = xcalarPtSnapshotWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var ptSnapshotOutput = result.output.outputResult.ptSnapshotOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            return deferred.reject({xcalarStatus: status, log: log});
+        }
+
+        // ptSnapshotOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        ptSnapshotOutput = JSON.parse(ptSnapshotOutput.outputJson);
+        deferred.resolve(ptSnapshotOutput);
+    })
+    .fail(function(jqXHR) {
+        console.log("xcalarPtSnapshotDeleteConfig() caught exception:", jqXHR);
+        deferred.reject({httpStatus: jqXHR.status});
+    });
+
+    return (deferred.promise());
+};
+
+xcalarPtSnapshotGetConfig = runEntity.xcalarPtSnapshotGetConfig = function(thriftHandle, publishTableName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarPtSnapshotGetConfig(publishTableName = " + publishTableName + ")");
+    }
+
+    var inputObj = {
+        "func": "getConfig",
+        "publishTableName": publishTableName};
+
+    var workItem = xcalarPtSnapshotWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var ptSnapshotOutput = result.output.outputResult.ptSnapshotOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            return deferred.reject({xcalarStatus: status, log: log});
+        }
+
+        // ptSnapshotOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        ptSnapshotOutput = JSON.parse(ptSnapshotOutput.outputJson);
+        deferred.resolve(ptSnapshotOutput);
+    })
+    .fail(function(jqXHR) {
+        console.log("xcalarPtSnapshotGetConfig() caught exception:", jqXHR);
+        deferred.reject({httpStatus: jqXHR.status});
+    });
+
+    return (deferred.promise());
+};
+
+xcalarPtSnapshotListConfig = runEntity.xcalarPtSnapshotListConfig = function(thriftHandle) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarPtSnapshotListConfig()");
+    }
+
+    var inputObj = {
+        "func": "listConfig"};
+
+    var workItem = xcalarPtSnapshotWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var ptSnapshotOutput = result.output.outputResult.ptSnapshotOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            return deferred.reject({xcalarStatus: status, log: log});
+        }
+
+        // ptSnapshotOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        ptSnapshotOutput = JSON.parse(ptSnapshotOutput.outputJson);
+        deferred.resolve(ptSnapshotOutput);
+    })
+    .fail(function(jqXHR) {
+        console.log("xcalarPtSnapshotListConfig() caught exception:", jqXHR);
+        deferred.reject({httpStatus: jqXHR.status});
+    });
+
+    return (deferred.promise());
+};
+
+xcalarPtSnapshotDeleteResult = runEntity.xcalarPtSnapshotDeleteResult = function(thriftHandle, publishTableName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarPtSnapshotDeleteResult(publishTableName = " + publishTableName + ")");
+    }
+
+    var inputObj = {
+        "func": "deleteResult",
+        "publishTableName": publishTableName};
+
+    var workItem = xcalarPtSnapshotWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var ptSnapshotOutput = result.output.outputResult.ptSnapshotOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            return deferred.reject({xcalarStatus: status, log: log});
+        }
+
+        // ptSnapshotOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        ptSnapshotOutput = JSON.parse(ptSnapshotOutput.outputJson);
+        deferred.resolve(ptSnapshotOutput);
+    })
+    .fail(function(jqXHR) {
+        console.log("xcalarPtSnapshotDeleteResult() caught exception:", jqXHR);
+        deferred.reject({httpStatus: jqXHR.status});
+    });
+
+    return (deferred.promise());
+};
+
+xcalarPtSnapshotGetResult = runEntity.xcalarPtSnapshotGetResult = function(thriftHandle, publishTableName) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarPtSnapshotGetResult(publishTableName = " + publishTableName + ")");
+    }
+
+    var inputObj = {
+        "func": "getResult",
+        "publishTableName": publishTableName};
+
+    var workItem = xcalarPtSnapshotWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var ptSnapshotOutput = result.output.outputResult.ptSnapshotOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            return deferred.reject({xcalarStatus: status, log: log});
+        }
+
+        // ptSnapshotOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        ptSnapshotOutput = JSON.parse(ptSnapshotOutput.outputJson);
+        deferred.resolve(ptSnapshotOutput);
+    })
+    .fail(function(jqXHR) {
+        console.log("xcalarPtSnapshotGetResult() caught exception:", jqXHR);
+        deferred.reject({httpStatus: jqXHR.status});
+    });
+
+    return (deferred.promise());
+};
+
+xcalarPtSnapshotListResult = runEntity.xcalarPtSnapshotListResult = function(thriftHandle) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarPtSnapshotListResult()");
+    }
+
+    var inputObj = {
+        "func": "listResult"};
+
+    var workItem = xcalarPtSnapshotWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var ptSnapshotOutput = result.output.outputResult.ptSnapshotOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            return deferred.reject({xcalarStatus: status, log: log});
+        }
+
+        // ptSnapshotOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        ptSnapshotOutput = JSON.parse(ptSnapshotOutput.outputJson);
+        deferred.resolve(ptSnapshotOutput);
+    })
+    .fail(function(jqXHR) {
+        console.log("xcalarPtSnapshotListResult() caught exception:", jqXHR);
+        deferred.reject({httpStatus: jqXHR.status});
+    });
+
+    return (deferred.promise());
+};
+
+xcalarPtSnapshotTrigger = runEntity.xcalarPtSnapshotTrigger = function(thriftHandle, publishTableNamePattern, forceSnapshot) {
+    var deferred = jQuery.Deferred();
+    if (verbose) {
+        console.log("xcalarPtSnapshotTrigger(" + publishTableNamePattern + ")");
+    }
+
+    // cronJob option is always set to false here.
+    var inputObj = {
+        "func": "snapshot",
+        "publishTableNamePattern": publishTableNamePattern,
+        "forceSnapshot":forceSnapshot,
+        "cronJob":false};
+
+    var workItem = xcalarPtSnapshotWorkItem(JSON.stringify(inputObj));
+
+    thriftHandle.client.queueWorkAsync(workItem)
+    .then(function(result) {
+        var ptSnapshotOutput = result.output.outputResult.ptSnapshotOutput;
+        var status = result.output.hdr.status;
+        var log = result.output.hdr.log;
+        if (result.jobStatus != StatusT.StatusOk) {
+            status = result.jobStatus;
+        }
+        if (status != StatusT.StatusOk) {
+            return deferred.reject({xcalarStatus: status, log: log});
+        }
+
+        // ptSnapshotOutput has a outputJson field which is a json formatted string
+        // with a field called 'error' if something went wrong
+        ptSnapshotOutput = JSON.parse(ptSnapshotOutput.outputJson);
+        deferred.resolve(ptSnapshotOutput);
+    })
+    .fail(function(jqXHR) {
+        console.log("xcalarPtSnapshotTrigger() caught exception:", jqXHR);
+        deferred.reject({httpStatus: jqXHR.status});
+    });
+
+    return (deferred.promise());
+};
+
 xcalarDriverWorkItem = runEntity.xcalarDriverWorkItem = function(inJson) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
@@ -1358,7 +1725,7 @@ xcalarGetStatGroupIdMap = runEntity.xcalarGetStatGroupIdMap = function(thriftHan
     return (deferred.promise());
 };
 
-xcalarQueryWorkItem = runEntity.xcalarQueryWorkItem = function(queryName, queryStr, sameSession, bailOnError, latencyOptimized, isAsync) {
+xcalarQueryWorkItem = runEntity.xcalarQueryWorkItem = function(queryName, queryStr, sameSession, bailOnError, schedName, isAsync, udfUserName, udfSessionName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.queryInput = new XcalarApiQueryInputT();
@@ -1366,6 +1733,9 @@ xcalarQueryWorkItem = runEntity.xcalarQueryWorkItem = function(queryName, queryS
     workItem.api = XcalarApisT.XcalarApiQuery;
     workItem.input.queryInput.queryName = queryName;
     workItem.input.queryInput.queryStr = queryStr;
+    workItem.input.queryInput.udfUserName = udfUserName;
+    workItem.input.queryInput.udfSessionName = udfSessionName;
+
     // sameSession must always be true; if false, a synthetic session is
     // generated - this should be used only by/for tests
     workItem.input.queryInput.sameSession = sameSession;
@@ -1376,10 +1746,10 @@ xcalarQueryWorkItem = runEntity.xcalarQueryWorkItem = function(queryName, queryS
         workItem.input.queryInput.bailOnError = bailOnError;
     }
 
-    if (typeof latencyOptimized === 'undefined') {
-        workItem.input.queryInput.latencyOptimized = false;
+    if (schedName != null) {
+        workItem.input.queryInput.schedName = schedName;
     } else {
-        workItem.input.queryInput.latencyOptimized = latencyOptimized;
+        workItem.input.queryInput.schedName = "";
     }
 
     if (typeof isAsync === 'undefined') {
@@ -1391,13 +1761,13 @@ xcalarQueryWorkItem = runEntity.xcalarQueryWorkItem = function(queryName, queryS
     return (workItem);
 };
 
-xcalarQuery = runEntity.xcalarQuery = function(thriftHandle, queryName, queryStr, sameSession, bailOnError, latencyOptimized, isAsync) {
+xcalarQuery = runEntity.xcalarQuery = function(thriftHandle, queryName, queryStr, sameSession, bailOnError, schedName, isAsync, udfUserName, udfSessionName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarQuery(query name= " + queryName +
                     " queryStr" + queryStr + ")");
     }
-    var workItem = xcalarQueryWorkItem(queryName, queryStr, sameSession, bailOnError, latencyOptimized, isAsync);
+    var workItem = xcalarQueryWorkItem(queryName, queryStr, sameSession, bailOnError, schedName, isAsync, udfUserName, udfSessionName);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
@@ -2150,7 +2520,7 @@ xcalarResultSetNext = runEntity.xcalarResultSetNext = function(thriftHandle, res
 
 xcalarJoinWorkItem = runEntity.xcalarJoinWorkItem = function(leftTableName, rightTableName, joinTableName,
                             joinType, leftColumns, rightColumns,
-                            evalString, collisionCheck) {
+                            evalString, keepAllColumns) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.joinInput = new XcalarApiJoinInputT();
@@ -2182,11 +2552,17 @@ xcalarJoinWorkItem = runEntity.xcalarJoinWorkItem = function(leftTableName, righ
         workItem.input.joinInput.columns[1] = rightColumns;
     }
 
+    if (keepAllColumns == null) {
+        workItem.input.joinInput.keepAllColumns = true;
+    } else {
+        workItem.input.joinInput.keepAllColumns = keepAllColumns;
+    }
+
     return (workItem);
 };
 
 xcalarJoin = runEntity.xcalarJoin = function(thriftHandle, leftTableName, rightTableName, joinTableName,
-                    joinType, leftColumns, rightColumns, evalString, collisionCheck) {
+                    joinType, leftColumns, rightColumns, evalString, keepAllColumns) {
     var deferred = jQuery.Deferred();
 
     if (verbose) {
@@ -2196,7 +2572,6 @@ xcalarJoin = runEntity.xcalarJoin = function(thriftHandle, leftTableName, rightT
                     ", joinType = " + JoinOperatorTStr[joinType] +
                     ", leftColumns = [" + leftColumns + "]" +
                     ", rightColumns = [" + rightColumns + "]" +
-                    ", collisionCheck = " + collisionCheck +
                     ", evalString = " + evalString +
                     ")");
     }
@@ -2204,7 +2579,7 @@ xcalarJoin = runEntity.xcalarJoin = function(thriftHandle, leftTableName, rightT
     var workItem = xcalarJoinWorkItem(leftTableName, rightTableName,
                                       joinTableName, joinType,
                                       leftColumns, rightColumns,
-                                      evalString, collisionCheck);
+                                      evalString, keepAllColumns);
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {
         var joinOutput = result.output.outputResult.joinOutput;
@@ -3504,8 +3879,8 @@ xcalarExportWorkItem = runEntity.xcalarExportWorkItem = function(tableName, targ
             workItem.input.exportInput.splitNumFiles =
                 sfInput.splitRule.spec.numFiles;
         } else {
-            workItem.input.exportInput.splitSize = 0;
-            workItem.input.exportInput.splitNumFiles = 0;
+             workItem.input.exportInput.splitSize = 0;
+             workItem.input.exportInput.splitNumFiles = 0;
         }
 
         workItem.input.exportInput.headerType = ExSFHeaderTypeTStr[sfInput.headerType];
@@ -3861,7 +4236,7 @@ xcalarUpdateRetina = runEntity.xcalarUpdateRetina = function(thriftHandle, retin
 };
 
 xcalarExecuteRetinaWorkItem = runEntity.xcalarExecuteRetinaWorkItem = function(retinaName, parameters,
-                                     exportToActiveSession, newTableName, queryName, latencyOptimized) {
+                                     exportToActiveSession, newTableName, queryName, schedName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.executeRetinaInput = new XcalarApiExecuteRetinaInputT();
@@ -3882,17 +4257,17 @@ xcalarExecuteRetinaWorkItem = runEntity.xcalarExecuteRetinaWorkItem = function(r
         workItem.input.executeRetinaInput.dest = "";
     }
 
-    if (typeof latencyOptimized === 'undefined') {
-        workItem.input.executeRetinaInput.latencyOptimized = false;
+    if (schedName != null) {
+        workItem.input.executeRetinaInput.schedName = schedName;
     } else {
-        workItem.input.executeRetinaInput.latencyOptimized = latencyOptimized;
+        workItem.input.executeRetinaInput.schedName = "";
     }
 
     return (workItem);
 };
 
 xcalarExecuteRetina = runEntity.xcalarExecuteRetina = function(thriftHandle, retinaName, parameters,
-                             exportToActiveSession, newTableName, queryName) {
+                             exportToActiveSession, newTableName, queryName, schedName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarExecuteRetina(retinaName = " + retinaName +
@@ -3905,7 +4280,7 @@ xcalarExecuteRetina = runEntity.xcalarExecuteRetina = function(thriftHandle, ret
     }
     var workItem = xcalarExecuteRetinaWorkItem(retinaName, parameters,
                                                exportToActiveSession,
-                                               newTableName, queryName);
+                                               newTableName, queryName, schedName);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {

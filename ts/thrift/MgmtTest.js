@@ -401,6 +401,104 @@ window.Function.prototype.bind = function() {
         test.trivial(xcalarGetVersion(thriftHandle));
     }
 
+    function testRuntimeParams(test) {
+        var defaultRuntimeMixedModeMinCores = "";
+        var numCores = 0;
+        var paramName = "RuntimeMixedModeMinCores";
+        var nameSc = ["Scheduler-0", "Scheduler-1", "Scheduler-2"];
+        var cpuPctSc = [85, 90, 100];
+        var rtTypeSc = [RuntimeTypeT.Throughput, RuntimeTypeT.Latency, RuntimeTypeT.Latency];
+
+        // Get default runtime params
+        xcalarRuntimeGetParam(thriftHandle)
+        .then(function(result) {
+            var runtimeGetParamOutput = result;
+            console.log("Get default Runtime params");
+            for (var ii = 0; ii < runtimeGetParamOutput.schedParams.length; ii++) {
+                if (runtimeGetParamOutput.schedParams[ii].schedName === nameSc[0]) {
+                    test.assert(runtimeGetParamOutput.schedParams[ii].cpusReservedInPercent <= 100);
+                    test.assert(runtimeGetParamOutput.schedParams[ii].runtimeType === RuntimeTypeT.Throughput);
+                } else if (runtimeGetParamOutput.schedParams[ii].schedName === nameSc[1]) {
+                    test.assert(runtimeGetParamOutput.schedParams[ii].cpusReservedInPercent <= 100);
+                    test.assert(runtimeGetParamOutput.schedParams[ii].runtimeType === RuntimeTypeT.Throughput ||
+                        runtimeGetParamOutput.schedParams[ii].runtimeType === RuntimeTypeT.Latency);
+                } else if (runtimeGetParamOutput.schedParams[ii].schedName === nameSc[2]) {
+                    test.assert(runtimeGetParamOutput.schedParams[ii].cpusReservedInPercent <= 100);
+                    test.assert(runtimeGetParamOutput.schedParams[ii].runtimeType === RuntimeTypeT.Throughput ||
+                        runtimeGetParamOutput.schedParams[ii].runtimeType === RuntimeTypeT.Latency);
+                } else {
+                    test.assert(0);
+                }
+            }
+
+            // Get Top result
+            return xcalarApiTop(thriftHandle, XcalarApisConstantsT.XcalarApiDefaultTopIntervalInMs,
+                XcalarApisConstantsT.XcalarApiDefaultCacheValidityInMs);
+        })
+        .then(function(result) {
+            // Get core count from Top output
+            numCores = result.topOutputPerNode[0].numCores;
+
+            // Get current config params
+            return xcalarGetConfigParams(thriftHandle);
+        })
+        .then(function(result) {
+            // Remember default RuntimeMixedModeMinCores value
+            var getConfigParamsOutput = result;
+            var found = "false";
+            test.assert(getConfigParamsOutput.numParams > 0);
+            for (var ii = 0; ii < getConfigParamsOutput.numParams; ii++) {
+                if (getConfigParamsOutput.parameter[ii].paramName == paramName) {
+                    defaultRuntimeMixedModeMinCores = getConfigParamsOutput.parameter[ii].paramValue;
+                    found = "true";
+                    break;
+                }
+            }
+            test.assert(found === "true");
+
+            // Tweak RuntimeMixedModeMinCores to coreCount
+            return xcalarSetConfigParam(thriftHandle, paramName, numCores.toString());
+        })
+        .then(function(reason) {
+            console.log("Change runtime params");
+            var sc0 = new XcalarApiSchedParamT({schedName:nameSc[0], cpusReservedInPercent:cpuPctSc[0], runtimeType:rtTypeSc[0]});
+            var sc1 = new XcalarApiSchedParamT({schedName:nameSc[1], cpusReservedInPercent:cpuPctSc[1], runtimeType:rtTypeSc[1]});
+            var sc2 = new XcalarApiSchedParamT({schedName:nameSc[2], cpusReservedInPercent:cpuPctSc[2], runtimeType:rtTypeSc[2]});
+
+            // Set runtime params
+            return xcalarRuntimeSetParam(thriftHandle, [sc0, sc1, sc2]);
+        })
+        .then(function(reason) {
+            // Get runtime params
+            return xcalarRuntimeGetParam(thriftHandle);
+        })
+        .then(function(result) {
+            // Validate the runtime params
+            var runtimeGetParamOutput = result;
+            console.log("Get new Runtime params");
+            for (var ii = 0; ii < runtimeGetParamOutput.schedParams.length; ii++) {
+                if (runtimeGetParamOutput.schedParams[ii].schedName === nameSc[0]) {
+                    test.assert(runtimeGetParamOutput.schedParams[ii].runtimeType === rtTypeSc[0]);
+                } else if (runtimeGetParamOutput.schedParams[ii].schedName === nameSc[1]) {
+                    test.assert(runtimeGetParamOutput.schedParams[ii].runtimeType === rtTypeSc[1]);
+                } else if (runtimeGetParamOutput.schedParams[ii].schedName === nameSc[2]) {
+                    test.assert(runtimeGetParamOutput.schedParams[ii].runtimeType === rtTypeSc[2]);
+                } else {
+                    test.assert(false);
+                }
+            }
+
+            // Revert to default RuntimeMixedModeMinCores
+            xcalarSetConfigParam(thriftHandle, paramName, defaultRuntimeMixedModeMinCores);
+        })
+        .then(function(reason) {
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(StatusTStr[reason.xcalarStatus]);
+        });
+    }
+
     function testGetConfigParams(test) {
         xcalarGetConfigParams(thriftHandle)
         .then(function(result) {
@@ -2830,7 +2928,7 @@ window.Function.prototype.bind = function() {
 
     function testUpdateLicenseExpired(test) {
         testUpdateBadLicense(test, envLicensePath + "/XcalarLic.key.update.expired",
-                             StatusT.StatusLicExpired); 
+                             StatusT.StatusLicExpired);
     }
 
     function testApiKeyAddOrReplace(test, keyName, keyValue) {
@@ -3528,6 +3626,215 @@ window.Function.prototype.bind = function() {
         })
     }
 
+    function testPublishTableSnapshot(test) {
+        var ptSession = "";
+        var ptUser = "";
+        var ptSessionChange = "PublishTableSessionChange" + (new Date().getTime());
+        var ptName = "pubTable" + (new Date().getTime());
+        var indexTable = "";
+        var projectTable = "";
+        var synthTable = "";
+        var minNumBatches = 1;
+        var timeFreqInHours = 1;
+        var importTargetName = "Default Shared Root"
+        var exportTargetName = "Default";
+        var forceSnapshot = true;
+        var maxHistory = 1024;
+
+        function ssAddConf(expectSuccess) {
+            var deferred = jQuery.Deferred();
+            xcalarPtSnapshotAddConfig(thriftHandle, ptName, minNumBatches,
+                timeFreqInHours, importTargetName, exportTargetName, maxHistory)
+            .always(deferred.resolve);
+            return deferred.promise();
+        }
+
+        function ssGetConf(expectSuccess) {
+            var deferred = jQuery.Deferred();
+            xcalarPtSnapshotGetConfig(thriftHandle, ptName)
+            .always(deferred.resolve);
+            return deferred.promise();
+        }
+
+        function ssListConf(expectSuccess) {
+            var deferred = jQuery.Deferred();
+            xcalarPtSnapshotListConfig(thriftHandle)
+            .always(deferred.resolve);
+            return deferred.promise();
+        }
+
+        function ssDeleteConf(expectSuccess) {
+            var deferred = jQuery.Deferred();
+            xcalarPtSnapshotDeleteConfig(thriftHandle, ptName)
+            .always(deferred.resolve);
+            return deferred.promise();
+        }
+
+        function ssUpdateConf(expectSuccess) {
+            var deferred = jQuery.Deferred();
+            xcalarPtSnapshotUpdateConfig(thriftHandle, ptName, minNumBatches,
+                timeFreqInHours, importTargetName, exportTargetName, maxHistory)
+            .always(deferred.resolve);
+            return deferred.promise();
+        }
+
+        function ssGetResult(expectSuccess) {
+            var deferred = jQuery.Deferred();
+            xcalarPtSnapshotGetResult(thriftHandle, ptName)
+            .always(deferred.resolve);
+            return deferred.promise();
+        }
+
+        function ssDeleteResult(expectSuccess) {
+            var deferred = jQuery.Deferred();
+            xcalarPtSnapshotDeleteResult(thriftHandle, ptName)
+            .always(deferred.resolve);
+            return deferred.promise();
+        }
+
+        function ssListResult(expectSuccess) {
+            var deferred = jQuery.Deferred();
+            xcalarPtSnapshotListResult(thriftHandle)
+            .always(deferred.resolve);
+            return deferred.promise();
+        }
+
+        function ssTrigger(expectSuccess) {
+            var deferred = jQuery.Deferred();
+            xcalarPtSnapshotTrigger(thriftHandle, ptName, forceSnapshot)
+            .always(deferred.resolve);
+            return deferred.promise();
+        }
+
+        // Start a new session
+        console.log("Create session " + ptSessionChange);
+        xcalarApiSessionNew(thriftHandle, ptSessionChange, false, "")
+        .then(function() {
+            return xcalarApiSessionActivate(thriftHandle, ptSessionChange);
+        })
+        .then(function() {
+            return xcalarProject(thriftHandle, 1, ["yelp_user::review_count"], origTable, projectTable);
+        })
+        .then(function(result) {
+            projectTable = result.tableName;
+            return xcalarIndex(thriftHandle, projectTable, indexTable,
+                [new XcalarApiKeyT({name:"yelp_user::review_count", type:"DfInt64", keyFieldName:"", ordering:"Unordered"})]);
+        })
+        .then(function(result) {
+            indexTable = result.tableName;
+            return xcalarApiSynthesize(thriftHandle, indexTable, synthTable, []);
+        })
+        .then(function(result) {
+            synthTable = result.tableName
+            var unixTS = new Date().getTime();
+            console.log("Create Publish table " + ptName);
+            return xcalarApiPublish(thriftHandle, synthTable, ptName, unixTS);
+        })
+        .then(function() {
+            function ssAddConf(result, expectSuccess) {
+                var deferred = jQuery.Deferred();
+                xcalarPtSnapshotAddConfig(thriftHandle, ptName, minNumBatches, timeFreqInHours, importTargetName, exportTargetName)
+                .always(deferred.resolve);
+                return deferred.promise();
+            }
+
+            // XXX Need to also include the negative test cases here
+            var promArray = [];
+            var NumSSs = 16;
+            promArray.push(ssAddConf.bind(test, true));
+            promArray.push(ssUpdateConf.bind(test, true));
+            promArray.push(ssGetConf.bind(test, true));
+            promArray.push(ssListConf.bind(test, true));
+            for (var ii = 0; ii < NumSSs; ii++) {
+                promArray.push(ssTrigger.bind(test, true));
+            }
+            promArray.push(ssGetResult.bind(test, true));
+            promArray.push(ssListResult.bind(test, true));
+            promArray.push(ssDeleteResult.bind(test, true));
+            promArray.push(ssDeleteConf.bind(test, true));
+            PromiseHelper.chain(promArray)
+            .then(function() {
+                test.pass();
+            })
+            .fail(test.fail);
+        })
+        .fail(function(reason) {
+            test.fail(reason);
+        });
+    }
+
+    function testPublishTableChangeOwner(test) {
+        var ptSession = "";
+        var ptUser = "";
+        var ptSessionChange = "PublishTableSessionChange" + (new Date().getTime());
+        var ptName = "pubTable" + (new Date().getTime());
+        var indexTable = "";
+        var projectTable = "";
+        var synthTable = "";
+
+        // Start a new session
+        console.log("Create session " + ptSessionChange);
+        xcalarApiSessionNew(thriftHandle, ptSessionChange, false, "")
+        .then(function() {
+            return xcalarApiSessionActivate(thriftHandle, ptSessionChange);
+        })
+        .then(function() {
+            return xcalarProject(thriftHandle, 1, ["yelp_user::review_count"], origTable, projectTable);
+        })
+        .then(function(result) {
+            projectTable = result.tableName;
+            return xcalarIndex(thriftHandle, projectTable, indexTable,
+                [new XcalarApiKeyT({name:"yelp_user::review_count", type:"DfInt64", keyFieldName:"", ordering:"Unordered"})]);
+        })
+        .then(function(result) {
+            indexTable = result.tableName;
+            return xcalarApiSynthesize(thriftHandle, indexTable, synthTable, []);
+        })
+        .then(function(result) {
+            synthTable = result.tableName
+            var unixTS = new Date().getTime();
+            console.log("Create Publish table " + ptName);
+            return xcalarApiPublish(thriftHandle, synthTable, ptName, unixTS);
+        })
+        .then(function() {
+            console.log("List publish tables before ownership change");
+            return xcalarListPublishedTables(thriftHandle, ptName, true, -1, true);
+        })
+        .then(function(listOut) {
+            var found = "false";
+            for (var ii = 0; ii < listOut.numTables; ii++) {
+                if (listOut.tables[ii].name === ptName) {
+                    found = "true";
+                    console.log("List publish table " + listOut.tables[ii].name + " owned by session " + listOut.tables[ii].userIdName + " user " + listOut.tables[ii].sessionName);
+                    ptUser = listOut.tables[ii].userIdName;
+                    ptSession = listOut.tables[ii].sessionName;
+                }
+            }
+            test.assert(found === "true");
+            console.log("Publish table " + ptName + " change ownership to session " + ptSessionChange +  " user " + ptUser);
+            return xcalarPtChangeOwner(thriftHandle, ptName, ptUser, ptSessionChange);
+        })
+        .then(function() {
+            console.log("List publish tables after ownership change");
+            return xcalarListPublishedTables(thriftHandle, ptName, true, -1, true);
+        })
+        .then(function(listOut) {
+            var found = "false";
+            for (var ii = 0; ii < listOut.numTables; ii++) {
+                if (listOut.tables[ii].name === ptName) {
+                    found = "true";
+                    test.assert(listOut.tables[ii].userIdName === ptUser);
+                    test.assert(listOut.tables[ii].sessionName === ptSessionChange);
+                }
+            }
+            test.assert(found === "true");
+            test.pass();
+        })
+        .fail(function(reason) {
+            test.fail(reason);
+        });
+    }
+
     function testUserDetach(test) {
         var userToDetach = "detachUser";
         // Save the current user name as we're going to change it to one specific
@@ -4134,8 +4441,8 @@ window.Function.prototype.bind = function() {
 
             randomPartitionKeyValue = possibleKeyValues[Math.floor(Math.random() * possibleKeyValues.length)]
 
-            var targetParams = { "backingTargetName": "Default Shared Root" } 
-            var targetArgs = { "targetTypeId": "parquetds", "targetName": parquetTargetName, 
+            var targetParams = { "backingTargetName": "Default Shared Root" }
+            var targetArgs = { "targetTypeId": "parquetds", "targetName": parquetTargetName,
                                "targetParams": targetParams, "func": "addTarget" }
             return xcalarAppRun(thriftHandle, targetMgrAppName, false, JSON.stringify(targetArgs))
         })
@@ -4256,6 +4563,7 @@ window.Function.prototype.bind = function() {
     addTestCase(testGetCurrentXemConfig, "get current xem config test", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testGetConfigParams, "getConfigParams", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testSetConfigParam, "setConfigParam", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testRuntimeParams, "runtimeParams", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testFuncDriverList, "listFuncTests", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testFuncDriverRun, "runFuncTests", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testTarget, "test target operations", defaultTimeout, TestCaseEnabled, "");
@@ -4306,6 +4614,8 @@ window.Function.prototype.bind = function() {
     addTestCase(testListTables, "list tables", defaultTimeout, TestCaseEnabled, "");
     // !!! If you add a test above that creates a new table, be sure to bump up the
     // numNodes assert in the last .then clause
+    addTestCase(testPublishTableSnapshot, "publish table snapshot", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testPublishTableChangeOwner, "publish table change owner", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testSessionInact, "inact session", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testSessionDownload, "download session", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testSessionUpload, "upload session", defaultTimeout, TestCaseEnabled, "");

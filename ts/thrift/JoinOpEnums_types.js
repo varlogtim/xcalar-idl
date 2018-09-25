@@ -10,19 +10,25 @@ JoinOperatorT = {
   'LeftOuterJoin' : 1,
   'RightOuterJoin' : 2,
   'FullOuterJoin' : 3,
-  'CrossJoin' : 4
+  'CrossJoin' : 4,
+  'LeftSemiJoin' : 5,
+  'LeftAntiJoin' : 6
 };
 JoinOperatorTStr = {
   0 : 'innerJoin',
   1 : 'leftJoin',
   2 : 'rightJoin',
   3 : 'fullOuterJoin',
-  4 : 'crossJoin'
+  4 : 'crossJoin',
+  5 : 'leftSemiJoin',
+  6 : 'leftAntiJoin'
 };
 JoinOperatorTFromStr = {
   'innerJoin' : 0,
   'leftJoin' : 1,
   'rightJoin' : 2,
   'fullOuterJoin' : 3,
-  'crossJoin' : 4
+  'crossJoin' : 4,
+  'leftSemiJoin' : 5,
+  'leftAntiJoin' : 6
 };

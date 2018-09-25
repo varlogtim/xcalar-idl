@@ -16,7 +16,7 @@ FunctionCategoryT = {
   'FunctionCategoryAggregate' : 7,
   'FunctionCategoryCast' : 8,
   'FunctionCategoryUdf' : 9,
-  'FunctionCategoryTimestamp': 10
+  'FunctionCategoryTimestamp' : 10
 };
 FunctionCategoryTStr = {
   0 : 'Arithmetic functions',
@@ -29,7 +29,7 @@ FunctionCategoryTStr = {
   7 : 'Aggregate functions',
   8 : 'Type-casting functions',
   9 : 'User-defined functions',
-  10: 'Timestamp functions',
+  10 : 'Timestamp functions'
 };
 FunctionCategoryTFromStr = {
   'Arithmetic functions' : 0,

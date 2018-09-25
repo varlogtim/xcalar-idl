@@ -2586,7 +2586,10 @@ XcalarJoin = function(
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
     }
-    const coll = true;
+    // If this flag is set to false, then any column that is not in left columns
+    // or right columns will be dropped. This should eventually be set to false.
+    // Alternatively it should be exposed to the user.
+    const keepAllColumns: boolean = true;
 
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
     let query: string;
@@ -2612,7 +2615,8 @@ XcalarJoin = function(
 
     const workItem = xcalarJoinWorkItem(left, right, dst,
                                         joinType, leftColumns,
-                                        rightColumns, evalString, coll);
+                                        rightColumns, evalString,
+                                        keepAllColumns);
 
     let def: XDPromise<any>;
     if (Transaction.isSimulate(txId)) {
@@ -2620,7 +2624,7 @@ XcalarJoin = function(
     } else {
         def = xcalarJoin(tHandle, left, right, dst,
                             joinType, leftColumns, rightColumns,
-                            evalString, coll);
+            evalString, keepAllColumns);
     }
     query = XcalarGetQuery(workItem);
     Transaction.startSubQuery(txId, 'join', dst, query);
@@ -2989,9 +2993,11 @@ XcalarQuery = function(
     if (bailOnError == null) {
         bailOnError = true; // Stop running query on error
     }
-    const latencyOptimized = false; // New backend flag
+    const schedName:string = ""; // New backend flag
+    const udfUserName: string = undefined;
+    const udfSessionName: string = undefined;
     xcalarQuery(tHandle, queryName, queryString, true, bailOnError,
-                latencyOptimized, true)
+        schedName, true, udfUserName, udfSessionName)
     .then(function() {
         if (Transaction.checkCanceled(txId)) {
             deferred.reject(StatusTStr[StatusT.StatusCanceled]);
@@ -3662,15 +3668,15 @@ XcalarExecuteRetina = function(
     const newTableName: string = options.newTableName || "";
     const queryName: string = options.queryName || undefined;
 
-    const latencyOptimized = false; // This is for IMD, invoked via APIs.
+    const schedName: string = ""; // This is for IMD, invoked via APIs.
     const workItem = xcalarExecuteRetinaWorkItem(retName, params, activeSession,
-        newTableName, queryName, latencyOptimized);
+        newTableName, queryName, schedName);
     let def: XDPromise<any>;
     if (Transaction.isSimulate(txId)) {
         def = fakeApiCall();
     } else {
         def = xcalarExecuteRetina(tHandle, retName, params, activeSession,
-            newTableName, queryName, latencyOptimized);
+            newTableName, queryName, schedName);
     }
 
     const query = XcalarGetQuery(workItem);

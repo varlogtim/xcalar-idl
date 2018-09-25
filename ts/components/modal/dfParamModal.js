@@ -1650,8 +1650,6 @@ window.DFParamModal = (function($, DFParamModal){
                     case ("dataStore"):
                         expectedStruct = new XcalarApiBulkLoadInputT();
                         expectedStruct.loadArgs = new XcalarApiDfLoadArgsT();
-                        delete expectedStruct.loadArgs.maxSize;
-                        expectedStruct.loadArgs.size = null;
                         expectedStruct.loadArgs.sourceArgsList = [new DataSourceArgsT()];
                         expectedStruct.loadArgs.parseArgs = new ParseArgsT();
                         break;

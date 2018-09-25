@@ -94,14 +94,14 @@ declare function xcalarLoad(
     name: string,
     sourceArgsList: any[],
     parseArgs: object,
-    maxSize: number
+    size: number
 ): XDPromise<any>;
 
 declare function xcalarLoadWorkItem(
     name: string,
     sourceArgsList: any[],
     parseArgs: object,
-    maxSize: number
+    size: number
 ): WorkItem;
 
 declare function xcalarAddExportTarget(
@@ -163,6 +163,21 @@ declare function xcalarDeleteDagNodes(
     namePattern: string,
     srcType: number
 ): XDPromise<XcalarApiDeleteDagNodeOutputT>;
+
+declare function xcalarDriverCreate(
+    thriftHandle: ThriftHandler,
+    driverName: string,
+    driverSource: string
+): XDPromise<any>;
+
+declare function xcalarDriverDelete(
+    thriftHandle: ThriftHandler,
+    driverName: string
+): XDPromise<any>;
+
+declare function xcalarDriverList(
+    thriftHandle: ThriftHandler
+): XDPromise<any>;
 
 declare function xcalarLockDataset(
     thriftHandle: ThriftHandler,
@@ -268,7 +283,7 @@ declare function xcalarJoinWorkItem(
     leftColumns: XcalarApiColumnT[],
     rightColumns: XcalarApiColumnT[],
     evalString: string,
-    collisionCheck: boolean
+    keepAllColumns: boolean
 ): WorkItem;
 
 declare function xcalarGetConfigParams(
@@ -346,7 +361,7 @@ declare function xcalarJoin(
     leftColumns: XcalarApiColumnT[],
     rightColumns: XcalarApiColumnT[],
     evalString: string,
-    collisionCheck: boolean
+    keepAllColumns: boolean
 ): XDPromise<any>;
 
 declare function xcalarGroupByWorkItem(
@@ -438,8 +453,10 @@ declare function xcalarQuery(
     queryStr: string,
     sameSession: boolean,
     bailOnError: boolean,
-    latencyOptimized: boolean,
-    isAsync: boolean
+    schedName: string,
+    isAsync: boolean,
+    udfUserName: string,
+    udfSessionName: string
 ): XDPromise<any>;
 
 declare function xcalarQueryState(
@@ -526,7 +543,7 @@ declare function xcalarExecuteRetinaWorkItem(
     exportToActiveSession: boolean,
     newTableName: string,
     queryName: string,
-    latencyOptimized?: boolean
+    schedName?: string
 ): WorkItem;
 
 declare function xcalarExecuteRetina(
@@ -536,7 +553,7 @@ declare function xcalarExecuteRetina(
     exportToActiveSession: boolean,
     newTableName: string,
     queryName: string,
-    latencyOptimized?: boolean
+    schedName?: string
 ): XDPromise<any>;
 
 declare function xcalarListParametersInRetina(

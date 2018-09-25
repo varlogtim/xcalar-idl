@@ -156,7 +156,7 @@ namespace Transaction {
     };
 
     /**
-     * Transcation.update
+     * Transaction.update
      * @param txId
      * @param queryStateOutput
      */

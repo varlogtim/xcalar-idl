@@ -2641,7 +2641,7 @@ describe("Dag Panel Test", function() {
                                 "parserFnName": "default:parseCSV",
                                 "parserArgJSON": '{"recordDelim":"\n","fieldDelim":"\t","isCRLF":true,"linesToSkip":0,"quoteDelim":"\"","hasHeader":false}'
                             },
-                            "maxSize": 1099511627776
+                            "size": 1099511627776
                         },
                         "dagNodeId": "18014398509488925"
                     }
