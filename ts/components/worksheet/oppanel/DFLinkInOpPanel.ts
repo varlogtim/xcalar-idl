@@ -53,7 +53,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
         const dataflows = tabs.map((tab) => {
             const name: string = tab.getName();
             const shared: boolean = false;
-            const displayName: string = shared ? `/shared/${name}` : name; 
+            const displayName: string = shared ? `/shared/${name}` : name;
             return {
                 tab: tab,
                 displayName: displayName
@@ -133,18 +133,6 @@ class DFLinkInOpPanel extends BaseOpPanel {
         } else {
             return null
         }
-    }
-
-    // XXX TODO: add shared case
-    private _getDataflowPath(dataflowName: string): string {
-        const dataflows = this.dataflows.filter((dataflow) => {
-            return  dataflow.displayName === dataflowName;
-        });
-        if (dataflows.length === 0) {
-            return null;
-        }
-        const dataflow = dataflows[0];
-        return `/${XcUser.getCurrentUserName()}/` 
     }
 
     private _populateList(

@@ -33,4 +33,4 @@ abstract class DagNodeIn extends DagNode {
         }
         return serializedInfo;
     }
-} 
+}

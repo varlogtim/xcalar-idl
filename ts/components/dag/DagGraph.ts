@@ -345,6 +345,17 @@ class DagGraph {
         }
     }
 
+    public getQuery(nodeId: DagNodeId): XDPromise<string> {
+        const nodesMap:  Map<DagNodeId, DagNode> = this._backTraverseNodes([nodeId]);
+        const orderedNodes: DagNode[] = this._topologicalSort(nodesMap);
+        const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, this);
+        const checkResult = executor.checkCanExecuteAll();
+        if (checkResult.hasError) {
+            return PromiseHelper.reject(checkResult);
+        }
+        return executor.getBatchQuery();
+    }
+
     /**
      *
      * @param nodeIds
@@ -583,7 +594,7 @@ class DagGraph {
     // ordere, then get the query, and run it one by one.
     private _executeGraph(nodesMap?: Map<DagNodeId, DagNode>): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        let orderedNodes: DagNode[] = this._topologicalSort(nodesMap);
+        const orderedNodes: DagNode[] = this._topologicalSort(nodesMap);
         const executor: DagGraphExecutor = new DagGraphExecutor(orderedNodes, this);
         const checkResult = executor.checkCanExecuteAll();
         if (checkResult.hasError) {

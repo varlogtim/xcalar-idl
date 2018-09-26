@@ -17,5 +17,12 @@ class DagNodeDFOut extends DagNodeOut {
             name: input.name
         };
         super.setParam();
-    } 
+    }
+
+    public lineageChange(columns: ProgCol[]): DagLineageChange {
+        return {
+            columns: columns,
+            changes: []
+        };
+    }
 }

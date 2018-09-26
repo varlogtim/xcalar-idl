@@ -2,9 +2,10 @@ class DagNodeExecutor {
     private node: DagNode;
     private txId: number;
 
-    public constructor(node: DagNode) {
+    public constructor(node: DagNode, txId: number) {
         this.node = node;
-    } 
+        this.txId = txId;
+    }
 
     /**
      * run the node operation
@@ -12,11 +13,6 @@ class DagNodeExecutor {
     public run(): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNode =  this.node;
-        this.txId = Transaction.start({
-            operation: node.getType(),
-            track: true,
-            nodeId: node.getId()
-        });
         node.beRunningState();
 
         this._apiAdapter()
@@ -25,17 +21,12 @@ class DagNodeExecutor {
                 node.setTable(destTable);
             }
             node.beCompleteState();
-            Transaction.done(this.txId, {});
             deferred.resolve(destTable);
         })
         .fail((error) => {
             const errorStr: string = (typeof error === "string") ?
             error : JSON.stringify(error);
             node.beErrorState(errorStr);
-            Transaction.fail(this.txId, {
-                error: error,
-                noAlert: true
-            });
             deferred.reject(error);
         });
         return deferred.promise();
@@ -66,6 +57,10 @@ class DagNodeExecutor {
                 return this._custom();
             case DagNodeType.CustomInput:
                 return this._customInput();
+            case DagNodeType.DFIn:
+                return this._dfIn();
+            case DagNodeType.DFOut:
+                return this._dfOut();
             default:
                 throw new Error(type + " not supported!");
         }
@@ -310,5 +305,34 @@ class DagNodeExecutor {
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    private _dfIn(): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        try {
+            const node: DagNodeDFIn = <DagNodeDFIn>this.node;
+            const res = node.getLinedNodeAndGraph();
+            const graph: DagGraph = res.graph;
+            const linkOutNode: DagNodeDFOut = res.node;
+            let destTable: string;
+            graph.getQuery(linkOutNode.getId())
+            .then((query, table) => {
+                destTable = table;
+                return XIApi.query(this.txId, destTable, query);
+            })
+            .then(() => {
+                deferred.resolve(destTable);
+            })
+            .fail(deferred.reject);
+        } catch (e) {
+            console.error("execute error", e);
+            deferred.reject(e);
+        }
+
+        return deferred.promise();
+    }
+
+    private _dfOut(): XDPromise<null> {
+        return PromiseHelper.resolve(null);
     }
 }

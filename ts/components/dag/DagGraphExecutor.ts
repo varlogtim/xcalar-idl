@@ -1,16 +1,10 @@
 class DagGraphExecutor {
     private nodes: DagNode[];
     private graph: DagGraph;
-    private batchMode: boolean;
 
-    public constructor(
-        nodes: DagNode[],
-        graph: DagGraph,
-        batchMode: boolean = false
-    ) {
+    public constructor(nodes: DagNode[], graph: DagGraph) {
         this.nodes = nodes;
         this.graph = graph;
-        this.batchMode = batchMode;
     }
 
     /**
@@ -54,6 +48,103 @@ class DagGraphExecutor {
         }
 
         return errorResult;
+    }
+
+    /**
+     * Execute nodes
+     */
+    public run(): XDPromise<string> {
+        const nodes: DagNode[] = this.nodes.filter((node) => {
+            return node.getState() !== DagNodeState.Complete;
+        });
+        const promises: XDDeferred<void>[] = [];
+        const nodesToRun: {node: DagNode, executable: boolean}[] = nodes.map((node) => {
+           return {
+                node: node,
+                executable: true
+            }
+        });
+
+        for (let i = 0; i < nodesToRun.length; i++) {
+            promises.push(this._stepExecute.bind(this, nodesToRun, i));
+        }
+
+        return PromiseHelper.chain(promises);
+    }
+
+    public getBatchQuery(): XDPromise<string> {
+        // get rid of link of node to get the correct query and destTable
+        const nodes: DagNode[] = this.nodes.filter((node) => {
+            return node.getType() !== DagNodeType.DFOut;
+        });
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        const promises: XDDeferred<string>[] = [];
+        const simulateId: number = Transaction.start({
+            operation: "Simulate",
+            simulate: true
+        });
+        for (let i = 0; i < nodes.length; i++) {
+            promises.push(this._batchExecute.bind(this, simulateId, nodes[i]));
+        }
+
+        PromiseHelper.chain(promises)
+        .then((destTable) => {
+            const query: string = Transaction.done(simulateId, {
+                noNotification: true,
+                noSql: true,
+                noCommit: true
+            });
+            deferred.resolve(query, destTable);
+        })
+        .fail(deferred.reject);
+
+        return deferred.reject();
+    }
+
+    private _stepExecute(
+        nodesToRun: {node: DagNode, executable: boolean}[],
+        index: number
+    ): XDPromise<void> {
+        if (nodesToRun[index] == null || !nodesToRun[index].executable) {
+            return PromiseHelper.resolve();
+        }
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const node: DagNode = nodesToRun[index].node;
+        const txId: number = Transaction.start({
+            operation: node.getType(),
+            track: true,
+            nodeId: node.getId()
+        });
+        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId);
+        dagNodeExecutor.run()
+        .then(() => {
+            Transaction.done(txId, {});
+            deferred.resolve();
+        })
+        .fail((error) => {
+            // remove all the children that depends on the failed node
+            const set: Set<DagNode> = this.graph.traverseGetChildren(node);
+            for (let i = index; i < nodesToRun.length; i++) {
+                if (set.has(nodesToRun[i].node)) {
+                    nodesToRun[i].executable = false;
+                }
+            }
+            Transaction.fail(txId, {
+                error: error,
+                noAlert: true
+            });
+            deferred.resolve(); // still resolve it
+        });
+
+        return deferred.promise();
+    }
+
+    private _batchExecute(
+        txId: number,
+        node: DagNode
+    ): XDPromise<string> {
+        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId);
+        return dagNodeExecutor.run();
     }
 
     private _checkLinkInResult(node: DagNodeDFIn): {
@@ -115,9 +206,9 @@ class DagGraphExecutor {
 
         while (stack.length > 0) {
             const currentNode: DagNodeDFIn = stack.pop();
-            let graph: DagGraph;
-            let dfOutNode: DagNodeDFOut;
-            [graph, dfOutNode] = this._findLinedNodeAndGraph(currentNode);
+            const res = currentNode.getLinedNodeAndGraph();
+            let graph: DagGraph = res.graph;
+            let dfOutNode: DagNodeDFOut = res.node;
             if (graph === this.graph) {
                 linkOutNodes.push(dfOutNode);
             } else {
@@ -142,79 +233,5 @@ class DagGraphExecutor {
             }
         }
         return linkInNodes;
-    }
-
-    private _findLinedNodeAndGraph(node: DagNodeDFIn): [DagGraph, DagNodeDFOut] {
-        const param: DagNodeDFInInput = node.getParam();
-        const dataflowId: string = param.dataflowId;
-        const linkOutName: string = param.linkOutName;
-        const graph: DagGraph = DagTabManager.Instance.getGraphById(dataflowId);
-        if (graph == null) {
-            throw new Error(DagNodeErrorType.NoGraph);
-        }
-        const dfOutNodes: DagNode[] = graph.filterNode((node) => {
-            if (node.getType() === DagNodeType.DFOut) {
-                const dfOutNode = <DagNodeDFOut>node;
-                if (dfOutNode.getParam().name === linkOutName) {
-                    return true;
-                }
-            } else {
-                return false;
-            }
-        });
-        if (dfOutNodes.length !== 1) {
-            throw new Error(DagNodeErrorType.NoLinkInGraph);
-        }
-        return [graph, <DagNodeDFOut>dfOutNodes[0]];
-    }
-
-    /**
-     * Execute nodes
-     */
-    public run(): XDPromise<string> {
-        const promises: XDPromise<void>[] = [];
-        const nodesToRun: {node: DagNode, executable: boolean}[] = [];
-        this.nodes.forEach((node) => {
-            if (node.getState() !== DagNodeState.Complete) {
-                nodesToRun.push({
-                    node: node,
-                    executable: true
-                });
-            }
-        });
-
-        for (let i = 0; i <= nodesToRun.length; i++) {
-            promises.push(this._executeHelper.bind(this, nodesToRun, i));
-        }
-
-        return PromiseHelper.chain(promises);
-    }
-
-    private _executeHelper(
-        nodesToRun: {node: DagNode, executable: boolean}[],
-        index: number
-    ): XDPromise<void> {
-        if (nodesToRun[index] == null || !nodesToRun[index].executable) {
-            return PromiseHelper.resolve();
-        }
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const node: DagNode = nodesToRun[index].node;
-        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node);
-        dagNodeExecutor.run()
-        .then(() => {
-            deferred.resolve();
-        })
-        .fail(() => {
-            // remove all the children that depends on the failed node
-            const set: Set<DagNode> = this.graph.traverseGetChildren(node);
-            for (let i = index; i < nodesToRun.length; i++) {
-                if (set.has(nodesToRun[i].node)) {
-                    nodesToRun[i].executable = false;
-                }
-            }
-            deferred.resolve(); // still resolve it
-        });
-
-        return deferred.promise();
     }
 }
