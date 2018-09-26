@@ -3082,6 +3082,7 @@
             // anti join => the other table (all rows are kept)
             // table intersect localrelation => localrelation
             // table except localrelation => table
+            assert(node.parent, SQLErrTStr.SingleLR);
             assert(node.parent.value.class ===
                     "org.apache.spark.sql.catalyst.plans.logical.Union",
                     SQLErrTStr.LRParent +node.parent.value.class);
@@ -3406,6 +3407,12 @@
         var filterEval = "";
         if (condTree) {
             filterEval = genEvalStringRecur(condTree, acc, options);
+            if (condTree.value.class ===
+                    "org.apache.spark.sql.catalyst.expressions.Literal" &&
+                condTree.value.value === "false") {
+                filterEval = "neq(" + __getCurrentName(joinNode.xcCols[0])
+                            + "," + __getCurrentName(joinNode.xcCols[0]) + ")";
+            }
         }
 
         self.join(JoinOperatorT.CrossJoin, lTableInfo, rTableInfo,
@@ -3785,7 +3792,11 @@
             var rightAcc = {numOps: 0};
             var leftOptions = {renamedCols: node.children[0].renamedCols};
             var rightOptions = {renamedCols: node.children[1].renamedCols};
-            if (xcHelper.arraySubset(attributeReferencesOne, leftRDDCols) &&
+            if (attributeReferencesOne.length === 0 ||
+                attributeReferencesTwo.length === 0) {
+                filterSubtrees.push(eqTree);
+                dontPush = true;
+            } else if (xcHelper.arraySubset(attributeReferencesOne, leftRDDCols) &&
                 xcHelper.arraySubset(attributeReferencesTwo, rightRDDCols))
             {
                 leftEvalStr = genEvalStringRecur(eqTree.children[0],

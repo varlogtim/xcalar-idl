@@ -467,6 +467,7 @@ SQLErrTStr = {
     "UnionChildren": "Union should have at least 2 children, but there is: ",
     "WindowChildren": "Window should have only 1 child, but there are: ",
     "NonEmptyLR": "We only support empty local relation",
+    "SingleLR": "Query always has empty result",
     "LRParent": "Local relation should have parent as union node, but we found: ",
     "NameCollision": "Column name collision found: ",
     "UnknownType": "Cannot get column type: ",
