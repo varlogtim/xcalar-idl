@@ -407,13 +407,15 @@ class DagGraph {
      * inner: inner connection(both nodes are in the sub graph);
      * in: input connection(parent node is outside);
      * out: output connection(child node is outside);
+     * openNodes: list of node ids, which are required to complete the sub graph
      */
     public getSubGraphConnection(
         nodeIds: DagNodeId[]
     ): {
         inner: NodeConnection[],
         in: NodeConnection[],
-        out: NodeConnection[]
+        out: NodeConnection[],
+        openNodes: DagNodeId[]
     } {
         const subGraphMap = new Map<DagNodeId, DagNode>();
         for (const nodeId of nodeIds) {
@@ -460,18 +462,27 @@ class DagGraph {
             }
         }
         
-        return { inner: innerEdges, in: inputEdges, out: outputEdges };
-    }
-
-    private _setupEvents(): void {
-        this.innerEvents = {};
-        this.events = {
-            on: (event, callback) => { this.innerEvents[event] = callback },
-            trigger: (event, ...args) => {
-                if (typeof this.innerEvents[event] === 'function') {
-                    this.innerEvents[event].apply(this, args)
-                }
+        // Check open graph
+        const inputNodeIdSet = new Set<DagNodeId>();
+        for (const { parentId } of inputEdges) {
+            inputNodeIdSet.add(parentId);
+        }
+        const openNodeIdSet = new Set<DagNodeId>();
+        for (const { childId } of outputEdges) {
+            if (inputNodeIdSet.has(childId)) {
+                openNodeIdSet.add(childId);
             }
+        }
+        const openNodeIds: DagNodeId[] = [];
+        for (const nodeId of openNodeIdSet) {
+            openNodeIds.push[nodeId];
+        }
+
+        return {
+            inner: innerEdges,
+            in: inputEdges,
+            out: outputEdges,
+            openNodes: openNodeIds
         };
     }
 
@@ -554,6 +565,18 @@ class DagGraph {
             traversedSet.add(node);
         });
         return traversedSet;
+    }
+    
+    private _setupEvents(): void {
+        this.innerEvents = {};
+        this.events = {
+            on: (event, callback) => { this.innerEvents[event] = callback },
+            trigger: (event, ...args) => {
+                if (typeof this.innerEvents[event] === 'function') {
+                    this.innerEvents[event].apply(this, args)
+                }
+            }
+        };
     }
 
     // XXX TODO, Idea is to do a topological sort first, then get the

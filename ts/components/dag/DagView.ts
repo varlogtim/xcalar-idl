@@ -883,16 +883,47 @@ namespace DagView {
      * 6. Persist the change to KVStore
      */
     export function wrapCustomOperator(nodeIds: DagNodeId[]): XDPromise<void> {
-        // Create customNode from selected nodes
         const connectionInfo = activeDag.getSubGraphConnection(nodeIds);
-        if (connectionInfo.out.length !== 1) {
-            // We only support one output for now
-            return PromiseHelper.reject('Only one output supported');
+
+        // Validate the sub graph
+        if (connectionInfo.openNodes.length > 0) {
+            // The selected node set cannot build a close sub graph
+            const errNodeId = connectionInfo.openNodes[0];
+            StatusBox.show(DagTStr.CustomOpIncomplete, getNode(errNodeId));
+            return PromiseHelper.reject('Selected operator set is open');
         }
         if (connectionInfo.in.length === 0) {
             // Source custom node not supported for now
-            return PromiseHelper.reject('No input selected');
+            let errNodeId = nodeIds[0];
+            for (const nodeId of nodeIds) {
+                if (activeDag.getNode(nodeId).getNumParent() === 0) {
+                    errNodeId = nodeId;
+                    break;
+                }
+            }
+            StatusBox.show(DagTStr.CustomOpNoInput, getNode(errNodeId));
+            return PromiseHelper.reject('No input');
         }
+        if (connectionInfo.out.length === 0) {
+            // We don't support custom Op w/o an output for now
+            let errNodeId = nodeIds[0];
+            for (const nodeId of nodeIds) {
+                if (activeDag.getNode(nodeId).getChildren().length === 0) {
+                    errNodeId = nodeId;
+                    break;
+                }
+            }
+            StatusBox.show(DagTStr.CustomOpNoOutput, getNode(errNodeId));
+            return PromiseHelper.reject('no output');
+        }
+        if (connectionInfo.out.length > 1) {
+            // We only support one output for now
+            const errNodeId = connectionInfo.out[0].parentId;
+            StatusBox.show(DagTStr.CustomOpTooManyOutput, getNode(errNodeId));
+            return PromiseHelper.reject('too many output');
+        }
+
+        // Create customNode from selected nodes
         const nodeInfos = createNodeInfos(nodeIds);
         const {
             node: customNode,

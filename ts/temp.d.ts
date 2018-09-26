@@ -1146,6 +1146,10 @@ declare namespace DagTStr {
     export var AddDescription: string;
     export var Reset: string;
     export var ResetMsg: string;
+    export var CustomOpIncomplete: string;
+    export var CustomOpNoInput: string;
+    export var CustomOpNoOutput: string;
+    export var CustomOpTooManyOutput: string;
 }
 
 declare namespace UnionTStr {
