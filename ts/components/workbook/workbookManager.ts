@@ -644,6 +644,7 @@ namespace WorkbookManager {
     * @param description - description of the workbook
     */
     export function renameWKBK(srcWKBKId: string, newName: string, description: string): XDPromise<string> {
+        newName = newName.trim();
         const newWKBKId: string = getWKBKId(newName);
         if (wkbkSet.has(newWKBKId)) {
             let errStr: string = xcHelper.replaceMsg(ErrTStr.WorkbookExists, {
