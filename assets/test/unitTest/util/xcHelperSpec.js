@@ -1688,7 +1688,11 @@ describe("xcHelper Test", function() {
                 "res": ColTStr.RenameSpecialChar
             },
             {
-                "str": "abc",
+                "str": "ab-c",
+                "res": ColTStr.RenameSpecialChar
+            },
+            {
+                "str": "ab_c",
                 "res": null
             }
         ];
@@ -2455,7 +2459,7 @@ describe("xcHelper Test", function() {
         expect(res).to.equal("a_b");
         // case 4
         res = xcHelper.normalizePrefix("a-b");
-        expect(res).to.equal("a-b");
+        expect(res).to.equal("a_b");
     });
 
     it("xcHelper.stripCSVExt should work", function() {

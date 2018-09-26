@@ -435,7 +435,7 @@ window.FlightTest = (function(FlightTest, $) {
         function importDataset() {
             console.log("start IMDPanelTest", "import a-0.txt");
             $("#dataStoresTab").click();
-            var a0Name = "a0-" + randInt();
+            var a0Name = "a0_" + randInt();
             loada0(a0Name)
             .then(function() {
                 sendToWorksheet(a0Name);
@@ -538,7 +538,7 @@ window.FlightTest = (function(FlightTest, $) {
             var errMsg = "import a-1.txt";
             console.log("doing IMDPanelTest", errMsg);
             $("#dataStoresTab").click();
-            var a1Name = "a1-" + randInt();
+            var a1Name = "a1_" + randInt();
             var a1check = "#previewTable td:eq(1):contains(Receipt0000)";
             var a1url = testDataLoc + "imd/" + test.mode + "a-1.txt";
             var wsId = WSManager.getWSByIndex(2);

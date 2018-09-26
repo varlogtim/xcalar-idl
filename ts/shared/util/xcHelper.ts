@@ -771,8 +771,8 @@ namespace xcHelper {
         }
 
         // Strip all random characters from dsName
-        prefix = <string>xcHelper.checkNamePattern(PatternCategory.Dataset,
-            PatternAction.Fix, prefix, "_");
+        prefix = (<string>xcHelper.checkNamePattern(PatternCategory.Dataset,
+            PatternAction.Fix, prefix, "_")).replace(/-/g, "_");
         return prefix;
     }
 
@@ -2977,7 +2977,7 @@ namespace xcHelper {
                 antiNamePattern = /[^a-zA-Z0-9]/;
                 break;
             case PatternCategory.Prefix:
-                namePattern = /^[a-zA-Z0-9_-]{1,31}$/;
+                namePattern = /^[a-zA-Z0-9_]{1,31}$/;
                 break;
             case PatternCategory.UDF:
                 namePattern = /^[a-z_][a-zA-Z0-9_-]*$/;
