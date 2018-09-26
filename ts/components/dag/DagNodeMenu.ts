@@ -217,6 +217,9 @@ namespace DagNodeMenu {
             case (DagNodeType.DFOut):
                 DFLinkOutOpPanel.Instance.show(node);
                 break;
+            case (DagNodeType.PublishIMD):
+                PublishIMDOpPanel.Instance.show(node);
+                break;
             default:
                 throw new Error("Unsupported type");
         }

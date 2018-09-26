@@ -13,8 +13,8 @@ class DagNodePublishIMD extends DagNode {
      */
     public getParam(): DagNodePublishIMDInput {
         return {
-            name: this.input.name || "",
-            key: this.input.key || "",
+            pubTableName: this.input.pubTableName || "",
+            primaryKey: this.input.primaryKey || "",
             operator: this.input.operator || ""
         };
     }
@@ -24,10 +24,10 @@ class DagNodePublishIMD extends DagNode {
      * @param input {DagNodePublishIMDInput}
 
      */
-    public setParam(input: DagNodePublishIMDInput = <DagNodePublishIMDInput>{}): void {
+    public setParam(input: DagNodePublishIMDInput): void {
         this.input = {
-            name: input.name,
-            key: input.key,
+            pubTableName: input.pubTableName,
+            primaryKey: input.primaryKey,
             operator: input.operator
         }
         super.setParam();

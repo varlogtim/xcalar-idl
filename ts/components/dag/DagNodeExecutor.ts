@@ -61,6 +61,8 @@ class DagNodeExecutor {
                 return this._dfIn();
             case DagNodeType.DFOut:
                 return this._dfOut();
+            case DagNodeType.PublishIMD:
+                return this._publishIMD();
             default:
                 throw new Error(type + " not supported!");
         }
@@ -334,5 +336,13 @@ class DagNodeExecutor {
 
     private _dfOut(): XDPromise<null> {
         return PromiseHelper.resolve(null);
+    }
+
+    private _publishIMD(): XDPromise<null> {
+        const node: DagNodePublishIMD = <DagNodePublishIMD>this.node;
+        const params: DagNodePublishIMDInput = node.getParam();
+        //XXX TODO: Integrate with new XIAPI.publishTable
+        const deferred: XDDeferred<null> = PromiseHelper.deferred();
+        return deferred.resolve();
     }
 }

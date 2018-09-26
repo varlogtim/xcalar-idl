@@ -1829,7 +1829,7 @@ class InputSuggest {
 
 interface InputDropdownHintOptions {
     menuHelper?: MenuHelper,
-    preventClearOnBlur?: Function,
+    preventClearOnBlur?: boolean,
     onEnter?: Function,
     order?: boolean,
     noBold?: boolean

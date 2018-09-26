@@ -1009,6 +1009,17 @@ module.exports = {
         "save": "Save"
     },
 
+    "publishIMDOp": {
+        "publishIMD": "PUBLISH TABLE",
+        "publishInstr": "Publish an IMD Table for the input.",
+        "name": "Published Table Name",
+        "key": "Primary Key",
+        "keyInstr": "Column that contains primary key values.",
+        "operator": "IMD Operator",
+        "operatorInstr": "Optional Column that contains opcode values.",
+        "config": "Configure"
+    },
+
     "unionView": {
         "header": "SET OPERATION", // Sync with JSTStr
         "AddTables": "ADD TABLES",

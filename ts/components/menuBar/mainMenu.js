@@ -38,7 +38,8 @@ window.MainMenu = (function($, MainMenu) {
             SetOpPanel.Instance,
             DatasetOpPanel.Instance,
             DFLinkInOpPanel.Instance,
-            DFLinkOutOpPanel.Instance
+            DFLinkOutOpPanel.Instance,
+            PublishIMDOpPanel.Instance
         ];
 
     };

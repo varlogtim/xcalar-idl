@@ -67,8 +67,8 @@ interface DagNodeIMDTableInput {
 }
 
 interface DagNodePublishIMDInput {
-    name: string;
-    key: string;
+    pubTableName: string;
+    primaryKey: string;
     operator: string;
 }
 

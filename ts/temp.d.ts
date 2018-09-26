@@ -854,6 +854,7 @@ declare namespace AggTStr {
 }
 
 declare namespace ErrTStr {
+    export var ColInModal: string;
     export var InUsedNoDelete: string;
     export var InvalidField: string;
     export var InvalidTableName: string;
