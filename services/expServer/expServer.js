@@ -88,7 +88,9 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         },
         proxyErrorHandler: function(err) {
             xcConsole.error('error on proxy', err);
-        }
+        },
+        limit: '20mb',
+        parseReqBody: false
     }));
 
     // increase default limit payload size of 100kb
@@ -126,7 +128,8 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         },
         proxyErrorHandler: function(err) {
             xcConsole.error('error on proxy', err);
-        }
+        },
+        limit: '20mb'
     }));
 
     function bootstrapXlrRoot() {
