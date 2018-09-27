@@ -200,7 +200,7 @@ class DagCategoryBar {
         categoryColorMap[DagCategoryType.Set] = "#CCAADD";
         categoryColorMap[DagCategoryType.Extensions] = "#F896A9";
         categoryColorMap[DagCategoryType.SQL] = "#EAABD3";
-        categoryColorMap[DagCategoryType.Custom] = "#89D0E0"; // TODO: UI design
+        categoryColorMap[DagCategoryType.Custom] = "#F8A296";
         return categoryColorMap;
     }
 
@@ -270,10 +270,11 @@ class DagCategoryBar {
             '<text class="icon" x="11" y="19" font-family="icomoon" ' +
                 'font-size="12" fill="white">' +
                  iconMap[operatorName] + '</text>' +
-            '<text class="opTitle" x="59" y="17" ' +
-                'text-anchor="middle" font-family="Open Sans" ' +
+            '<svg width="60" height="28" x="27" y="1">' +
+                '<text class="opTitle" x="50%" y="50%" ' +
+                'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
                 'font-size="11" fill="#44515c">' + opDisplayName +
-                '</text>' +
+                '</text></svg>' +
             '<circle class="statusIcon" cx="88" cy="27" r="5" ' +
                 'stroke="#849CB0" stroke-width="1" fill="white" />' +
             '</g>';
@@ -441,6 +442,74 @@ class DagCategoryBar {
             }
         }
         return null;
+    }
+
+    private _deleteOperator(nodeId: DagNodeId): XDPromise<void> {
+        // Delete from categories
+        for (const category of this.dagCategories.getCategories()) {
+            if (category.removeOperatorById(nodeId)) {
+                break;
+            }
+        }
+
+        // Re-render the operator bar(UI)
+        this._renderOperatorBar();
+        this._focusOnCategory(this.currentCategory);
+
+        // Persist the change
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        this.dagCategories.saveCategories()
+        .then(() => {
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    private _renameOperator(nodeId: DagNodeId, newName: string): XDPromise<void> {
+        // Validate inputs
+        if (nodeId == null || newName == null || newName.length === 0) {
+            console.error(`Invalid inputs: "${nodeId}", "${newName}"`);
+            return PromiseHelper.reject('Invalid inputs');
+        }
+
+        // Validate name
+        let targetCategory: DagCategory = null;
+        for (const category of this.dagCategories.getCategories()) {
+            if (category.getOperatorById(nodeId) != null) {
+                targetCategory = category;
+                break;
+            }
+        }
+        if (targetCategory == null) {
+            console.error(`Operator(${nodeId}) not found in category`);
+            return PromiseHelper.reject('Operator not found');
+        }
+        if (targetCategory.isExistOperatorName(newName)) {
+            return PromiseHelper.reject('name exists');
+        }
+
+        // Rename
+        const dagNode = targetCategory.getOperatorById(nodeId).getNode();
+        if (dagNode instanceof DagNodeCustom) {
+            dagNode.setCustomName(newName);
+        } else {
+            throw new Error(`Operator(${nodeId}) doesn't support renaming`);
+        }
+
+        // Re-render the operator bar(UI)
+        this._renderOperatorBar();
+        this._focusOnCategory(this.currentCategory);
+
+        // Persist the change
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        this.dagCategories.saveCategories()
+        .then(() => {
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     private _getCategoryByName(categoryName: DagCategoryType): DagCategory {

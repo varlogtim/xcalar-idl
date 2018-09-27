@@ -189,6 +189,39 @@ class DagCategory {
     }
 
     /**
+     * Check if an operator with the given name exists in the list
+     * @param name 
+     */
+    public isExistOperatorName(name: string): boolean {
+        return this._getOperatorDisplayNames().has(name);
+    }
+
+    /**
+     * Remove an operator identified by operatorId(nodeId)
+     * @param operatorId 
+     */
+    public removeOperatorById(operatorId: DagNodeId): boolean {
+        const idx = this._getIndexById(operatorId);
+        if (idx < 0) {
+            return false;
+        }
+        this._remove(idx);
+        return true;
+    }
+
+    /**
+     * Get an operator identified by operatorId(nodeId)
+     * @param operatorId 
+     */
+    public getOperatorById(operatorId: DagNodeId): DagCategoryNode {
+        const idx = this._getIndexById(operatorId);
+        if (idx < 0) {
+            return null;
+        }
+        return this.getOperators()[idx];
+    }
+
+    /**
      * Load category content from data storage. Child class can override this method with specific implementation.
      */
     public loadCategory(): XDPromise<void> {
@@ -200,6 +233,28 @@ class DagCategory {
      */
     public saveCategory(): XDPromise<void> {
         return PromiseHelper.resolve();
+    }
+
+    protected _getOperatorDisplayNames(): Set<string> {
+        const nameSet = new Set<string>();
+        for (const node of this.getOperators()) {
+            nameSet.add(node.getDisplayNodeType());
+        }
+        return nameSet;
+    }
+
+    private _remove(index: number): void {
+        this.operators.splice(index, 1);
+    }
+
+    private _getIndexById(operatorId: string): number {
+        const categoryNodes = this.operators;
+        for (let idx = 0; idx < categoryNodes.length; idx ++) {
+            if (categoryNodes[idx].getNode().getId() === operatorId) {
+                return idx;
+            }
+        }
+        return -1;
     }
 }
 
@@ -260,16 +315,13 @@ class DagCategoryCustom extends DagCategory {
      * @returns prefix-[number]
      */
     public genOperatorName(prefix: string): string {
-        const nameMap = new Map<string, boolean>();
-        for (const categoryNode of this.getOperators()) {
-            nameMap.set(categoryNode.getDisplayNodeType(), true);
-        }
+        const nameSet = this._getOperatorDisplayNames();
 
         let limitCount = 1000;
         const step = 100;
         let start = 1;
         let end = start + step;
-        while (nameMap.get(`${prefix}-${end}`)) {
+        while (nameSet.has(`${prefix}-${end}`)) {
             start += step; end += step;
             if (limitCount > 0) {
                 limitCount --;
@@ -280,7 +332,7 @@ class DagCategoryCustom extends DagCategory {
         
         for (let i = start; i < end; i ++) {
             const name = `${prefix}-${i}`;
-            if (!nameMap.get(name)) {
+            if (!nameSet.has(name)) {
                 return name;
             }
         }
