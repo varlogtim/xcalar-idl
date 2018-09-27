@@ -40,6 +40,7 @@ global.uninstallerURL = process.env.XPE_UNINSTALLER_URL || "xpe/xpeUninstaller.h
 global.xdURL = process.env.XD_URL || "index.html";
 global.grafanaURL = process.env.GRAFANA_URL || "http://127.0.0.1:8082";
 global.revertURL = process.env.XPE_IMT_URL || "xpe/xpeImageManagementTool.html";
+global.dockerStarterURL = process.env.DOCKER_STARTER_URL || "xpe/xpeDockerStarter.html";
 // nwjs window configs; second arg to nw.Window.open
 global.dockerStarterWindowConfig = {
     "width": 350,

@@ -344,7 +344,7 @@ var XpeSharedContextUtils = (function(XpeSharedContextUtils) {
         var deferred = jQuery.Deferred();
         // the Docker GUI window will call API to start Docker, and close
         // automatically once Docker has started
-        nw.Window.open("xpe/xpeDockerStarter.html", global.dockerStarterWindowConfig, function(win) {
+        nw.Window.open(global.dockerStarterURL, global.dockerStarterWindowConfig, function(win) {
             win.on("close", function() {
                 console.log("close event");
                 /**
