@@ -71,7 +71,7 @@ class DagCategoryBar {
         targetCategory.add(DagCategoryNodeFactory.create({
             dagNode: dagNode, categoryType: categoryName, isHidden: isHidden
         }));
-        
+
         // Defaut name
         let newName: string = dagNode.getType();
         if (targetCategory instanceof DagCategoryCustom) {
@@ -211,7 +211,7 @@ class DagCategoryBar {
         let numParents: number = operator.getMaxParents();
         let numChildren: number = operator.getMaxChildren();
         const operatorName: string = categoryNode.getNodeType();
-        const opDisplayName: string = categoryNode.getDisplayNodeType();
+        let opDisplayName: string = categoryNode.getDisplayNodeType();
         const subType: string = categoryNode.getNodeSubType();
         const subTypeDisplayName: string = categoryNode.getDisplayNodeSubType();
 
@@ -242,14 +242,8 @@ class DagCategoryBar {
             }
         }
 
-        let subTypeHTML = "";
-        let opTitleY = 17;
         if (subType) {
-            subTypeHTML = '<text class="opSubTypeTitle" x="59" y="25" ' +
-            'text-anchor="middle" font-family="Open Sans" ' +
-            'font-size="9" fill="#44515c">' + subTypeDisplayName +
-            '</text>';
-            opTitleY = 14;
+            opDisplayName = subTypeDisplayName;
         }
 
         const html = '<g class="operator ' + operatorName + ' ' +
@@ -275,13 +269,12 @@ class DagCategoryBar {
             '<text class="icon" x="11" y="19" font-family="icomoon" ' +
                 'font-size="12" fill="white">' +
                  iconMap[operatorName] + '</text>' +
-            '<text class="opTitle" x="59" y="' + opTitleY + '" ' +
+            '<text class="opTitle" x="59" y="17" ' +
                 'text-anchor="middle" font-family="Open Sans" ' +
                 'font-size="11" fill="#44515c">' + opDisplayName +
                 '</text>' +
             '<circle class="statusIcon" cx="88" cy="27" r="5" ' +
                 'stroke="#849CB0" stroke-width="1" fill="white" />' +
-                subTypeHTML +
             '</g>';
 
         return html;
@@ -383,7 +376,7 @@ class DagCategoryBar {
                 $(document).off("click.CategoryBarSearch");
             }
         });
-    } 
+    }
 
     private _renderSearchList(keyword: string, $ul: JQuery): void {
         const categoryNodes: DagCategoryNode[] = this._searchOperators(keyword);

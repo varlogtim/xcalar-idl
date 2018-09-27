@@ -953,7 +953,7 @@ namespace DagView {
 
     /**
      * Share a custom operator(node). Called by the node popup menu.
-     * @param nodeId 
+     * @param nodeId
      * @description
      * 1. Find the DagNode needs to be shared in the active DagGraph
      * 2. Make a deep copy of the node
@@ -1196,7 +1196,7 @@ namespace DagView {
             // if shift clicking, and this is selected, then deselect it
             // but don't allow dragging on deselected node
             if (!$operator.hasClass("selected") && !event.shiftKey) {
-                $dfWrap.find(".operator").removeClass("selected");
+                $dfWrap.find(".selected").removeClass("selected");
             } else if ($operator.hasClass("selected") && event.shiftKey) {
                 $operator.removeClass("selected");
                 return;
