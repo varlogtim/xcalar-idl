@@ -97,11 +97,12 @@ var XDEE_REQ_JS_FILES = [
 ];
 // list of partial html files used by xdee,
 // will copy in to bld but remove once bld completes
-var XDEE_REQ_HTML_FILES = [
+var XDEE_PARTIAL_HTML_FILES = [
     'site/xpe/eulaPart.html',
     'site/xpe/xpeCommonHeadTags.html',
     'site/xpe/xpeCommonScriptImports.html',
-    'site/xpe/progressBarSetup.html'
+    'site/xpe/progressBarSetup.html',
+    'site/xpe/imageTable.html'
 ];
 
 var INITIAL_GRUNT_PROCESS_TASKLIST = 'taskflag4context';
@@ -208,7 +209,7 @@ var htmlMapping = {
     dest: '',
     exclude: [],
     remove: ['dashboard.html', 'userManagement.html'],
-    required: ['site/partials/', 'site/util/'].concat(XDEE_REQ_HTML_FILES)};
+    required: ['site/partials/', 'site/util/'].concat(XDEE_PARTIAL_HTML_FILES)};
 var jsMapping = {
     src: 'assets/js/',
     files: '**/*.js',
