@@ -208,6 +208,41 @@ interface ParsedEvalArg {
     type: string
 }
 
+interface ExtensionTypeCheck {
+    columnType?: string[];
+    integer?: boolean;
+    min?: number;
+    max?: number;
+    multiColumn?: boolean;
+    newAggName?: boolean;
+    allowEmpty?: boolean;
+    tableField: string;
+}
+
+interface ExtensionFieldInfo {
+    type: string;
+    name: string;
+    fieldClass: string;
+    autofill?: any;
+    enums?: string[];
+    typeCheck?: ExtensionTypeCheck;
+    variableArg?: boolean;
+}
+
+interface ExtensionFuncInfo {
+    fnName: string;
+    buttonText: string;
+    arrayOfFields: ExtensionFieldInfo[];
+    instruction: string;
+}
+
+interface ExtensionInfo {
+    name: string;
+    buttons: ExtensionFuncInfo[];
+    actionFn: Function,;
+    _configParams: {notTableDependent: boolean};
+}
+
 declare class d3 {
     public select(selector: string): d3;
     public selectAll(selector: string): d3;
@@ -738,6 +773,7 @@ declare namespace CommonTxtTstr {
     export var Removed: string;
     export var NoUndone: string;
     export var ClickToOpts: string;
+    export var Optional: string;
 }
 
 declare namespace ProjectTStr {
@@ -751,6 +787,8 @@ declare namespace ExtTStr {
     export var Overwrite: string;
     export var LogoutWarn: string;
     export var LeaveWarn: string;
+    export var Instruction: string;
+    export var AddClause: string;
 }
 
 declare namespace IndexTStr {
@@ -1897,4 +1935,8 @@ declare namespace Msal {
 declare namespace XDParser {
     export var SQLParser: any;
     export var XEvalParser: XEvalParser;
+}
+
+declare namespace ExtensionManager {
+    export function getEnabledExtensions(): ExtensionInfo[]
 }

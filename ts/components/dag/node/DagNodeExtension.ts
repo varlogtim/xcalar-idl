@@ -6,6 +6,7 @@ class DagNodeExtension extends DagNode {
         super(options);
         this.type = DagNodeType.Extension;
         this.allowAggNode = true;
+        this.maxParents = -1;
         this.minParents = 1;
     }
 
@@ -14,7 +15,9 @@ class DagNodeExtension extends DagNode {
      */
     public getParam(): DagNodeExtensionInput {
         return {
-            evalString: this.input.evalString || ""
+            moduleName: this.input.moduleName || "",
+            functName: this.input.functName || "",
+            args: this.input.args || {}
         };
     }
 
@@ -25,7 +28,9 @@ class DagNodeExtension extends DagNode {
      */
     public setParam(input: DagNodeExtensionInput = <DagNodeExtensionInput>{}) {
         this.input = {
-            evalString: input.evalString
+            moduleName: input.moduleName,
+            functName: input.functName,
+            args: input.args
         }
         super.setParam();
     }

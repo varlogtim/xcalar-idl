@@ -110,7 +110,8 @@ module.exports = {
         "ViewRawData": "VIEW RAW DATA",
         "InBeta": "In Beta",
         "WS": "Worksheet",
-        "SEND": "SEND"
+        "SEND": "SEND",
+        "Node": "Node"
     },
 
     "paths": {
@@ -1226,7 +1227,10 @@ module.exports = {
         "MyExt": "My Extensions",
         "NotAdded": "No Extensions Added",
         "NotFound": "No Extensions Found",
-        "SearchHint": "Search for Extensions"
+        "SearchHint": "Search for Extensions",
+        "Extension": "Extension",
+        "ExtensionName": "Extension Name",
+        "FunctionName": "Function Name"
     },
 
     "aboutModal": {

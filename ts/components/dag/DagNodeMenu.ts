@@ -227,6 +227,9 @@ namespace DagNodeMenu {
             case (DagNodeType.PublishIMD):
                 PublishIMDOpPanel.Instance.show(node);
                 break;
+            case (DagNodeType.Extension):
+                ExtensionOpPanel.Instance.show(node);
+                break;
             default:
                 throw new Error("Unsupported type");
         }

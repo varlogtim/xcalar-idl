@@ -2,6 +2,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     var enabledExts = {};
     var extMap = {};
     var triggerCol;
+    var cachedExts = [];
 
     // for the opsView
     var $extOpsView;              // $("#extension-ops");
@@ -54,6 +55,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         });
 
         return deferred.promise();
+    };
+
+    ExtensionManager.getEnabledExtensions = function() {
+        return cachedExts;
     };
 
     function initInstall() {
@@ -177,6 +182,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         extNames.forEach(function(extName) {
             setExtensionState(extName, "installScript", false);
             setExtensionState(extName, "error", ExtTStr.FindExtFail);
+        });
+        cachedExts = extList.map((modName) => {
+            window[modName].name = modName;
+            return window[modName];
         });
     }
 
@@ -319,6 +328,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         return (enabledExts[extName].error || ErrTStr.Unknown);
     };
 
+    // XXX TODO Remove it
     ExtensionManager.openView = function(colNum, tableId, options) {
         options = options || {};
         if (options.restoreTime && options.restoreTime !== formOpenTime) {
@@ -358,6 +368,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         }
     };
 
+    // XXX TODO Remove it
     ExtensionManager.closeView = function() {
         if (!isViewOpen) {
             return;

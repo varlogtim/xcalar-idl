@@ -125,7 +125,9 @@ interface DagNodeSQLInput {
 }
 
 interface DagNodeExtensionInput {
-    evalString: string;
+    moduleName: string,
+    functName: string
+    args: object
 }
 
 interface DagNodeDFInInput {
