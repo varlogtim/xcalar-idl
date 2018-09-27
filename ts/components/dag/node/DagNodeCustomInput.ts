@@ -55,7 +55,6 @@ class DagNodeCustomInput extends DagNode {
         }
         const inputParent =  this._container.getInputParent(this);
         if (inputParent == null) {
-            console.error('DagNodeCustomInput.getTable: No input parent');
             return null;
         }
         return inputParent.getTable();
@@ -73,7 +72,6 @@ class DagNodeCustomInput extends DagNode {
         }
         const inputParent =  this._container.getInputParent(this);
         if (inputParent == null) {
-            console.error('DagNodeCustomInput.getState: No input parent');
             return DagNodeState.Unused;
         }
         return inputParent.getState();

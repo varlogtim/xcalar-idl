@@ -19,7 +19,7 @@ interface DagNodeCopyInfo extends DagNodeInfo {
 
 interface DagNodeCustomInfo extends DagNodeInfo {
     subGraph: DagGraphInfo,
-    inPorts: NodeConnection[][],
+    inPorts: NodeConnection[],
     outPorts: NodeConnection[],
     customName: string,
 }

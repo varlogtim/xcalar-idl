@@ -361,17 +361,14 @@ abstract class DagNode {
      * @returns JSON object
      */
     public getNodeInfo(): DagNodeInfo {
-        const parents: DagNodeId[] = this.parents.map((parent) => parent.getId());
-        const seriazliedInfo = this._getSerializeInfo();
-        seriazliedInfo["parents"] = parents;
-        return seriazliedInfo;
+        return this._getNodeInfoWithParents();
     }
 
     /**
      * Generate JSON representing this node(w/o ids), for use in copying a node
      */
     public getNodeCopyInfo(): DagNodeCopyInfo {
-        const nodeInfo = <DagNodeCopyInfo>this.getNodeInfo();
+        const nodeInfo = <DagNodeCopyInfo>this._getNodeInfoWithParents();
         nodeInfo.nodeId = nodeInfo.id;
         delete nodeInfo.id;
         return nodeInfo;
@@ -477,6 +474,13 @@ abstract class DagNode {
 
     protected _validateParam(): {error: string} {
         return null;
+    }
+
+    private _getNodeInfoWithParents(): DagNodeInfo {
+        const parents: DagNodeId[] = this.parents.map((parent) => parent.getId());
+        const seriazliedInfo = this._getSerializeInfo();
+        seriazliedInfo["parents"] = parents;
+        return seriazliedInfo;
     }
 
     private _getNonAggParents(): DagNode[] {

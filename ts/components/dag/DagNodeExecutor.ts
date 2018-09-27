@@ -57,6 +57,8 @@ class DagNodeExecutor {
                 return this._custom();
             case DagNodeType.CustomInput:
                 return this._customInput();
+            case DagNodeType.CustomOutput:
+                return this._customOutput();
             case DagNodeType.DFIn:
                 return this._dfIn();
             case DagNodeType.DFOut:
@@ -267,6 +269,12 @@ class DagNodeExecutor {
 
     private _customInput(): XDPromise<null> {
         // DagNodeCustomInput.getTable() is orverridden to return input parent's table
+        // So we don't need a table name here
+        return PromiseHelper.resolve(null);
+    }
+
+    private _customOutput(): XDPromise<null> {
+        // DagNodeCustomOutput.getTable() is orverridden to return output parent's table
         // So we don't need a table name here
         return PromiseHelper.resolve(null);
     }

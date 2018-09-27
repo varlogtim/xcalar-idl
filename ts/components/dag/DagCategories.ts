@@ -107,7 +107,10 @@ class DagCategories {
             }), DagCategoryType.Custom, true),
             new DagCategoryNode(DagNodeFactory.create({
                 type: DagNodeType.CustomInput
-            }), DagCategoryType.Custom, true)
+            }), DagCategoryType.Custom, true),
+            new DagCategoryNode(DagNodeFactory.create({
+                type: DagNodeType.CustomOutput
+            }), DagCategoryType.Custom, true),
         ], 'gUserCustomOpKey');
 
         this.categories = [

@@ -16,6 +16,7 @@ enum DagNodeType {
     Extension = "extension",
     Custom = "custom",
     CustomInput = "customInput",
+    CustomOutput = "customOutput",
     IMDTable = "IMDTable",
     PublishIMD = "publishIMD"
 }

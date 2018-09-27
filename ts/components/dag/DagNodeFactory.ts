@@ -29,6 +29,8 @@ class DagNodeFactory {
                 return new DagNodeCustom(<DagNodeCustomInfo>options);
             case DagNodeType.CustomInput:
                 return new DagNodeCustomInput(options);
+            case DagNodeType.CustomOutput:
+                return new DagNodeCustomOutput(options);
             case DagNodeType.IMDTable:
                 return new DagNodeIMDTable(options);
             case DagNodeType.PublishIMD:

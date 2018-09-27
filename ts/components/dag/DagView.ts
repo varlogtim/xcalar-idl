@@ -932,7 +932,44 @@ namespace DagView {
         } = _createCustomNode(nodeInfos, connectionInfo);
 
         // Position custom operator
-        customNode.setPosition(_calculateCentroid(nodeInfos));
+        const nodePosList = nodeInfos.map((nodeInfo) => ({
+            x: nodeInfo.display.x,
+            y: nodeInfo.display.y
+        }));
+        const geoInfo = _getGeometryInfo(nodePosList);
+        customNode.setPosition(geoInfo.centroid);
+        // Position custom OP input nodes
+        for (const inputNode of customNode.getInputNodes()) {
+            const childGeoInfo = _getGeometryInfo(
+                inputNode.getChildren().map((child) => child.getPosition())
+            );
+            inputNode.setPosition({
+                x: childGeoInfo.min.x - autoHorzSpacing,
+                y: childGeoInfo.centroid.y
+            });
+        }
+        // Position custom OP output nodes
+        for (const outputNode of customNode.getOutputNodes()) {
+            const parentGeoInfo = _getGeometryInfo(
+                outputNode.getParents().reduce((res, parent) => {
+                    if (parent != null) {
+                        res.push(parent.getPosition());
+                    }
+                    return res;
+                }, [])
+            );
+            outputNode.setPosition({
+                x: parentGeoInfo.max.x + autoHorzSpacing,
+                y: parentGeoInfo.centroid.y
+            });
+        }
+        // Re-position all nodes in sub graph
+        const subNodeGeoInfo = _getGeometryInfo(customNode.getSubNodePositions());
+        const deltaPos = {
+            x: gridSpacing * 2 - subNodeGeoInfo.min.x,
+            y: gridSpacing * 2 - subNodeGeoInfo.min.y
+        };
+        customNode.changeSubNodePostions(deltaPos);
 
         // Add customNode to DagView
         _addNodeNoPersist(customNode);
@@ -1039,17 +1076,16 @@ namespace DagView {
 
         // Setup output
         const outConnection = connection.out[0]; // We dont support multiple outputs now
-        customNode.setOutputNode({
-            node: dagMap.get(nodeIdMap.get(outConnection.parentId)),
-            portIdx: 0 // We dont support multiple output now, so set to zero
-        });
+        customNode.addOutputNode(
+            dagMap.get(nodeIdMap.get(outConnection.parentId)),
+            0 // We dont support multiple output now, so set to zero
+        );
         const outputConnection: NodeConnection[] = [];
         outputConnection.push({
             parentId: customNode.getId(),
             childId: outConnection.childId,
             pos: outConnection.pos
         });
-        // TODO: Add output node to the subgraph
 
         return {
             node: customNode,
@@ -1133,15 +1169,38 @@ namespace DagView {
         });
     }
 
-    function _calculateCentroid(dagNodeInfos: DagNodeInfo[]) {
-        if (dagNodeInfos.length === 0) {
-            return { x: 0, y: 0 };
+    function _getGeometryInfo(posList: Coordinate[]): {
+        centroid: Coordinate,
+        max: Coordinate,
+        min: Coordinate
+    } {
+        const centroid = { x: 0, y: 0 };
+        const max = { x: 0, y: 0 };
+        const min = { x: null, y: null };
+
+        if (posList == null || posList.length === 0) {
+            return {
+                centroid: centroid, max: max, min: min
+            };
         }
-        const [ sumX, sumY ] = dagNodeInfos.reduce( ([resX, resY], nodeInfo) => {
-            return [resX + nodeInfo.display.x, resY + nodeInfo.display.y];
-        }, [0, 0]);
-        const len = dagNodeInfos.length;
-        return { x: Math.floor(sumX / len), y: Math.floor(sumY / len) };
+
+        let sumX = 0;
+        let sumY = 0;
+        for (const { x, y } of posList) {
+            max.x = Math.max(max.x, x);
+            max.y = Math.max(max.y, y);
+            min.x = min.x == null ? x : Math.min(min.x, x);
+            min.y = min.y == null ? y : Math.min(min.y, y);
+            sumX += x;
+            sumY += y;
+        }
+        const len = posList.length;
+        centroid.x = Math.floor(sumX / len);
+        centroid.y = Math.floor(sumY / len);
+
+        return {
+            centroid: centroid, max: max, min: min
+        }
     }
 
     function _dagLineageTipTemplate(x, y, text): HTML {
@@ -1691,9 +1750,11 @@ namespace DagView {
             $opTitle.text(node.getCustomName());
             // The custom op is hidden in the category bar, so show it in the diagram
             $node.removeClass('xc-hidden');
-        } else if (node instanceof DagNodeCustomInput) {
+        } else if (node instanceof DagNodeCustomInput
+            || node instanceof DagNodeCustomOutput
+        ) {
             $opTitle.text(node.getPortName());
-            // The custom input is hidden in the category bar, so show it in the diagram
+            // The custom input/output is hidden in the category bar, so show it in the diagram
             $node.removeClass('xc-hidden');
         }
 
