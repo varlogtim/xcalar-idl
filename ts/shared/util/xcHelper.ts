@@ -729,6 +729,7 @@ namespace xcHelper {
      * @param colName
      */
     export function parsePrefixColName(colName: string): PrefixColInfo {
+        colName = colName || "";
         const index: number = colName.indexOf(gPrefixSign);
         let prefix: string = "";
         let name: string = colName;
@@ -6184,7 +6185,7 @@ namespace xcHelper {
             usedNameSet.add(name);
             newProgCols.push(ColManager.newPullCol(name, name));
         });
-        
+
         if (sampleCols != null && sampleCols.length > 0) {
             const tableId: TableId = xcHelper.getTableId(tableName);
             newProgCols = getIncSampleGroupByCols(tableId, sampleCols, groupByCols, newProgCols);
