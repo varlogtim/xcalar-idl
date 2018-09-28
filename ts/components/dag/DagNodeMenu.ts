@@ -165,6 +165,9 @@ namespace DagNodeMenu {
                 case ("createCustom"):
                     DagView.wrapCustomOperator(nodeIds);
                     break;
+                case ("editCustom"):
+                    DagView.editCustomOperator(operatorIds[0]);
+                    break;
                 case ("shareCustom"):
                     DagView.shareCustomOperator(operatorIds[0]);
                     break;
@@ -214,9 +217,6 @@ namespace DagNodeMenu {
                 break;
             case (DagNodeType.Export):
                 console.warn("not implement yet");
-                break;
-            case (DagNodeType.Custom):
-                DagTabManager.Instance.newCustomTab(node as any);
                 break;
             case (DagNodeType.DFIn):
                 DFLinkInOpPanel.Instance.show(node);
@@ -397,6 +397,9 @@ namespace DagNodeMenu {
             $menu.find(".resetNode").removeClass("unavailable");
         } else {
             $menu.find(".resetNode").addClass("unavailable");
+        }
+        if (dagNode.getType() === DagNodeType.Custom) {
+            classes += ' customOpMenu';
         }
         return classes;
     }

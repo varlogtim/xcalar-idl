@@ -1414,5 +1414,6 @@ module.exports = {
         "schema": "Schema",
         "createCustomNode": "Create Custom Node",
         "shareCustomNode": "Share Custom Node",
+        "editCustomNode": "Edit",
     }
 };

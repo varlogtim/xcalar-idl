@@ -1026,14 +1026,14 @@
 
     &.operatorMenu {
         .removeNode, .copyNodes, .cutNodes, .pasteNodes, .executeNode, .resetNode,
-        .description, .configureNode, .previewTable, .viewSchema, .autoAlign, .shareCustom {
+        .description, .configureNode, .previewTable, .viewSchema, .autoAlign {
             display: list-item;
         }
         .previewAgg, .createCustom {
             display: none;
         }
         &.multiple {
-            .description, .configureNode, .previewTable, .viewSchema {
+            .description, .configureNode, .previewTable, .viewSchema, .shareCustom {
                 display: none;
             }
             .createCustom {
@@ -1073,6 +1073,14 @@
             .removeNode {
                 display: none;
             }
+        }
+    }
+    &.customOpMenu {
+        .shareCustom, .editCustom {
+            display: list-item;
+        }
+        .configureNode {
+            display: none;
         }
     }
 }

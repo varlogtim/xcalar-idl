@@ -974,6 +974,14 @@ namespace DagView {
         };
         customNode.changeSubNodePostions(deltaPos);
 
+        // Re-calculate sub graph dimensions
+        let graphDimensions = customNode.getSubGraph().getDimensions();
+        for (const nodePos of customNode.getSubNodePositions()) {
+            graphDimensions = _calculateDimensions(graphDimensions, nodePos);
+        }
+        customNode.getSubGraph().setDimensions(
+            graphDimensions.width, graphDimensions.height);
+
         // Add customNode to DagView
         _addNodeNoPersist(customNode);
 
@@ -1025,6 +1033,20 @@ namespace DagView {
         .fail(deferred.reject);
 
         return deferred.promise();
+    }
+
+    /**
+     * Open a tab to show customOp's sub graph for editing
+     * @param nodeId 
+     */
+    export function editCustomOperator(nodeId: DagNodeId): void {
+        const dagNode = activeDag.getNode(nodeId);
+        if (dagNode == null) {
+            return;
+        }
+        if (dagNode instanceof DagNodeCustom) {
+            DagTabManager.Instance.newCustomTab(dagNode);
+        }
     }
 
     /**
@@ -1745,6 +1767,15 @@ namespace DagView {
         return $childConnector;
     }
 
+    function _calculateDimensions(
+        dimensions: Dimensions, elCoors: Coordinate
+    ): Dimensions {
+        return {
+            width: Math.max(elCoors.x + horzPadding, dimensions.width),
+            height: Math.max(elCoors.y + vertPadding, dimensions.height)
+        };
+    }
+
     function _setGraphDimensions(elCoors: Coordinate, force?: boolean) {
         const $dfArea = $dagView.find(".dataflowArea.active");
         let height: number;
@@ -1756,9 +1787,9 @@ namespace DagView {
             width = elCoors.x;
             height = elCoors.y;
         } else {
-            const dimensions: Dimensions = activeDag.getDimensions();
-            width = Math.max(elCoors.x + horzPadding, dimensions.width);
-            height = Math.max(elCoors.y + vertPadding, dimensions.height);
+            const dimensions = _calculateDimensions(activeDag.getDimensions(), elCoors);
+            width = dimensions.width;
+            height = dimensions.height;
             activeDag.setDimensions(width, height);
         }
         $dfArea.find(".dataflowAreaWrapper").css("min-width", width);
