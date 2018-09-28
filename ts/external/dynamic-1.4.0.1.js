@@ -32,4 +32,21 @@
         return (deferred.promise());
     };
 
+    // hot patch GUI-13436
+    xcHelper.parsePrefixColName = function(colName) {
+        colName = colName || "";
+        const index = colName.indexOf(gPrefixSign);
+        let prefix = "";
+        let name = colName;
+        if (index >= 0) {
+            prefix = colName.substring(0, index);
+            name = colName.substring(index + gPrefixSign.length);
+        }
+
+        return {
+            prefix: prefix,
+            name: name,
+        };
+    }
+
 }(jQuery));
