@@ -346,12 +346,18 @@ class DagNodeExecutor {
         return PromiseHelper.resolve(null);
     }
 
-    private _publishIMD(): XDPromise<null> {
+    private _publishIMD(): XDPromise<string> {
         const node: DagNodePublishIMD = <DagNodePublishIMD>this.node;
         const params: DagNodePublishIMDInput = node.getParam();
         //XXX TODO: Integrate with new XIAPI.publishTable
         const deferred: XDDeferred<null> = PromiseHelper.deferred();
-        return deferred.resolve();
+        let columns: ProgCol[] = node.getParents().map((parentNode) => {
+            return parentNode.getLineage().getColumns();
+        })[0] || [];
+        let colInfo: ColRenameInfo[] = xcHelper.createColInfo(columns);
+        return XIApi.publishTable(this.txId, params.primaryKey,
+            this._getParentNodeTable(0), params.pubTableName,
+            colInfo, params.operator);
     }
 
     private _extension(): XDPromise<string> {

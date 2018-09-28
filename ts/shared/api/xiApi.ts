@@ -2533,6 +2533,94 @@ namespace XIApi {
         return XcalarTargetDelete(targetName);
     }
 
+    /**
+    * XIApi.publishTable
+    * @param txId
+    * @param primaryKey, Name of the column that acts as primary key
+    * @param tableName, table's name
+    * @param pubTableName, new published table's name
+    * @param colInfo, Information about the columns within the table
+    * @param imdCol,  (optional) name of the column that acts as the operator
+    */
+    export function publishTable(
+        txId: number,
+        primaryKey: string,
+        srcTableName: string,
+        pubTableName: string,
+        colInfo: ColRenameInfo[],
+        imdCol?: string
+    ): XDPromise<string> {
+        if (txId == null || primaryKey == null ||
+            srcTableName == null || pubTableName == null ||
+            colInfo == null) {
+            return PromiseHelper.reject("Invalid args in publish");
+        }
+        let keyName: string = (primaryKey[0] == "$") ?
+            primaryKey.substr(1) : primaryKey;
+        if (!colInfo.find((info: ColRenameInfo) => {
+            return (info.orig == keyName);
+        })) {
+            return PromiseHelper.reject("Primary Key not in Table");
+        }
+
+        const self = this;
+        const roColName: string = "XcalarRankOver";
+        const opCode: string = "XcalarOpCode";
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        const indexTableName: string = xcHelper.randName("test") + Authentication.getHashId();
+        const opCodeTableName: string = xcHelper.randName("test") + Authentication.getHashId();
+        const rowNumTableName: string = xcHelper.randName("test") + Authentication.getHashId();
+        let rowPromise: XDPromise<string>;
+        primaryKey = xcHelper.parsePrefixColName(primaryKey).name;
+        if (imdCol[0] == "$") {
+            imdCol = imdCol.substr(1);
+        }
+
+        // Assemble rankOverColumn
+        rowPromise =  XIApi.genRowNum(txId, srcTableName,
+            roColName, rowNumTableName);
+
+        rowPromise
+        .then(function(table: string) {
+            // Assemble opcode column
+            let mapStr: string[] = [];
+            if (imdCol != null && imdCol != "") {
+                mapStr = ["int(" + imdCol + ")"];
+            } else {
+                mapStr = ["int(1)"];
+            }
+            return XIApi.map(txId, mapStr, table,
+                [opCode], opCodeTableName);
+        })
+        .then(function(table: string) {
+            // synthesize
+            colInfo.push({
+                orig: roColName,
+                new: roColName,
+                type: DfFieldTypeT.DfInt64
+            }, {
+                orig: opCode,
+                new: opCode,
+                type: DfFieldTypeT.DfInt64
+            }
+        );
+            return XIApi.synthesize(txId, colInfo, table);
+        })
+        .then(function(tableName) {
+            // Reorder just in case
+            return indexHelper(txId, [{name: primaryKey,
+                        ordering: XcalarOrderingT.XcalarOrderingUnordered}],
+                                        tableName, indexTableName)
+        })
+        .then(function(indexRes) {
+            // Finally publish the table
+            return XcalarPublishTable(indexTableName, pubTableName);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+        return deferred.promise();
+    }
+
     function startSimulate(): number {
         const txId: number = Transaction.start({
             operation: "Simulate",

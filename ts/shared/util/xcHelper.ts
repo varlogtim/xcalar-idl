@@ -6272,6 +6272,34 @@ namespace xcHelper {
         }
         return arrs[0].map((_, idx) => arrs.map(arr=>arr[idx]));
     }
+    
+    export function createColInfo(columns: ProgCol[]): ColRenameInfo[] {
+        ///XXX TODO: Remove this and have the user choose casted names
+        let colInfo: ColRenameInfo[] = [];
+        let names: string[] = [];
+        columns.forEach((column: ProgCol) => {
+            let backName: string = column.getBackColName();
+            let newName: string = backName;
+            if (newName.indexOf("::") > 0) {
+                newName = newName.split("::")[1];
+            }
+            if (newName.endsWith("_integer") || newName.endsWith("_float") ||
+                newName.endsWith("_boolean") || newName.endsWith("_string")) {
+                newName = newName.substring(0, newName.lastIndexOf("_"));
+            }
+            while (names.indexOf(newName) != -1) {
+                newName = newName + "(2)";
+            }
+            names.push(newName);
+            let type: DfFieldTypeT = xcHelper.convertColTypeToFieldType(column.getType());
+            colInfo.push({
+                orig: backName,
+                new: newName,
+                type: type
+            });
+        });
+        return colInfo;
+    }
 
     export let __testOnly__: any = {};
 

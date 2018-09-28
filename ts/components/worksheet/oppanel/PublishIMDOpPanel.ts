@@ -98,6 +98,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
         this._columns.forEach((column: ProgCol) => {
             html += '<li>$' + column.getBackColName() + '</li>';
         });
+        $list.empty();
         $list.append(html);
         $list = $('#IMDOperatorList .IMDOperatorColumns');
         $list.empty();
