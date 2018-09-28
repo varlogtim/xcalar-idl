@@ -2320,7 +2320,7 @@ window.DagDraw = (function($, DagDraw) {
         return srcColSets;
     }
 
-    // made only for join, gets leaves within a tagged group
+    // made only for join and union, gets leaves within a tagged group
     function getGroupLeaves(node) {
         var tag = node.value.tags[0];
         var leaves = [];
@@ -2329,7 +2329,9 @@ window.DagDraw = (function($, DagDraw) {
         function getLeaves(node) {
             for (var i = 0; i < node.parents.length; i++) {
                 var parentNode = node.parents[i];
-                if (tag && parentNode.value.tags.indexOf(tag) !== -1) {
+                if (parentNode.value.api === XcalarApisT.XcalarApiSynthesize) {
+                    leaves.push(node);
+                } else if (tag && parentNode.value.tags.indexOf(tag) !== -1) {
                     getLeaves(parentNode);
                 } else {
                     leaves.push(node);
