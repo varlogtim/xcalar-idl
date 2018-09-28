@@ -11,10 +11,17 @@ require("jsdom").env("", function(err, window) {
         gMutePromises = true;
     }
 
-    var installerFilePath = __dirname + '/../../../../Installer/local_installer_mac.sh';
-    var getImgIdFilePath = __dirname + '/../../../../../Resources/scripts/getimgid.sh';
-    var launchFilePath = __dirname + '/../../../../../MacOS/.launch';
-    var installedFilePath = __dirname + '/../../../../../MacOS/.installed';
+    // app dir root, rel the server as packaged in the app
+    var APP_DIR = __dirname + '/../../../../../..';
+    // rel path from app root to dir where server dependencies are found
+    var SERVER_DEPENDENCIES_DIR = APP_DIR +
+        '/Contents/Resources/gui/xcalar-gui/assets/js';
+
+    var installerFilePath = APP_DIR +
+        '/Contents/Resources/Installer/local_installer_mac.sh';
+    var getImgIdFilePath = APP_DIR + '/Contents/Resources/scripts/getimgid.sh';
+    var launchFilePath = APP_DIR + '/Contents/MacOS/.launch';
+    var installedFilePath = APP_DIR + '/Contents/MacOS/.installed';
     var dockerConfigBasePath = "$HOME/Library/Containers/com.docker.docker";
     var xcalar_docker_repo = "xcalar_design"
     var xcalar_docker_container = "xcalar_design"
@@ -26,9 +33,9 @@ require("jsdom").env("", function(err, window) {
     // to local scope
     jQuery = $ = require("jquery")(window);
     var express = require('express');
-    var httpStatus = require('../../assets/js/httpStatus.js').httpStatus;
-    var dockerStatusStates = require('../../assets/js/xpe/xpeServerResponses.js').dockerStatusStates;
-    var PromiseHelper = require('../../assets/js/promiseHelper.js');
+    var httpStatus = require(SERVER_DEPENDENCIES_DIR + '/httpStatus.js').httpStatus;
+    var dockerStatusStates = require(SERVER_DEPENDENCIES_DIR + '/xpe/xpeServerResponses.js').dockerStatusStates;
+    var PromiseHelper = require(SERVER_DEPENDENCIES_DIR + '/promiseHelper.js');
     var fs = require('fs');
     var path = require('path');
     var shelljs = require('shelljs');
