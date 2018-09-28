@@ -574,6 +574,9 @@ declare var XcalarUpdateTable: any;
 declare var XcalarRefreshTable: any;
 declare var XcalarRestoreTable: any;
 declare var XcalarCoalesce: any;
+declare var XcalarDriverList: any;
+declare var XcalarDriverCreate: any;
+declare var XcalarDriverDelete: any;
 declare var XcalarGetTableRefCount: any;
 
 declare var isBrowserMicrosoft: boolean;
@@ -1285,6 +1288,7 @@ declare namespace DSPreview {
 }
 
 declare namespace DSTargetManager {
+    export function getAllTargets(): object[];
     export function refreshTargets(noWaitIcon: boolean): object[];
     export function updateUDF(listXdfsObj: any);
 }

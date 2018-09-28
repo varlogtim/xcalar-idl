@@ -295,26 +295,39 @@ class DagNodeExecutor {
     private _export(): XDPromise<null> {
         const deferred: XDDeferred<null> = PromiseHelper.deferred();
         const node: DagNodeExport = <DagNodeExport>this.node;
-        const params: DagNodeExportInput = node.getParam();
-        const srcTable: string = this._getParentNodeTable(0);
-        const numCols: number = params.columns.length;
-        const frontColumns: string[] = [];
-        const backColumns: string[] = [];
-
-        params.columns.forEach((colInfo) => {
-            backColumns.push(colInfo.sourceColumn);
-            frontColumns.push(colInfo.destColumn);
+        const exportInput: DagNodeExportInput = node.getParam();
+        const columns: string[] = exportInput.columns;
+        const progCols: ProgCol[] = node.getParents()[0].getLineage().getColumns();
+        const backCols: string[] = columns.map((name) => {
+            return progCols.find((col: ProgCol) => {
+                return col.name == name || col.getBackColName() == name;
+            }).getBackColName();
         });
+        if (backCols.length != columns.length) {
+            throw new Error("Could not export, columns are missing.");
+            return;
+        }
+        const driverColumns: XcalarApiExportColumnT[] = columns.map((e,i) => {
+            let col = new XcalarApiExportColumnT();
+            col.headerName = columns[i];
+            col.columnName = backCols[i];
+            return col;
+        });
+        const driverName: string = exportInput.driver;
+        let driverParams = {};
+        exportInput.driverArgs.forEach((param: ExportDriverArg) => {
+            driverParams[param.name] = param.value;
+        });
+        const srcTable: string = this._getParentNodeTable(0);
+        const exportName: string = this._generateTableName();
+        //XXX TODO: Uncomment this out when the thrift change goes through for export 2.0
+        //XcalarExport(srcTable, driverName, driverParams, driverColumns, exportName)
+        //.then(() => {
+        //    deferred.resolve(null); // no table generated
+        //})
+        //.fail(deferred.reject);
 
-        XIApi.exportTable(this.txId, srcTable, params.exportName,
-            params.targetName, numCols, backColumns, frontColumns,
-            params.keepOrder, params.options)
-        .then(() => {
-            deferred.resolve(null); // no table generated
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
+        return deferred.resolve(null);
     }
 
     private _dfIn(): XDPromise<string> {

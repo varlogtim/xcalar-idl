@@ -1,0 +1,76 @@
+<!-- Export Operation Panel -->
+<section id="exportOpPanel" class="xc-hidden opPanel generalOpPanel">
+    <!-- Project Header -->
+    <header class="headerSection">
+        <div class="title"><%= dicts.exportView.header %></div>
+        <i class="close icon xi-close"></i>
+    </header>
+    <!-- content -->
+    <div class="mainContent">
+        <div class="export opSection">
+            <p class="instructions instrText"><%= dicts.exportView.instr %></p>
+            <!-- export View Top Section-->
+            <section class="modalTopMain">
+                <div id="exportOpColumns" class="exportColumnsSection formRow">
+                    <div class="subHeading clearfix">
+                        <div class="label"><%= dicts.exportView.colsToExport %>:</div>
+                    </div>
+                    <p><%= dicts.exportView.colInstr %></p>
+                    <div class="checkboxWrap selectAllWrap">
+                        <div class="checkbox">
+                            <i class="icon xi-ckbox-empty fa-13"></i>
+                            <i class="icon xi-ckbox-selected fa-13"></i>
+                        </div>
+                        <div class="text"><%= dicts.common.SelectAll %></div>
+                    </div>
+                    <div class="columnsToExport columnsWrap flexWrap clearfix">
+                        <ul class="cols"></ul>
+                        <div class="hint noColsHint empty"><%= dicts.dataflow.noColsHint %></div>
+                    </div>
+                    <!-- rename section -->
+                    <div class="renameSection clearfix xc-hidden">
+                        <div class="subHeading clearfix">
+                        <div><%= dicts.common.ColRenames %></div>
+                        </div>
+                        <p><%= dicts.common.ColRenameInstr %></p>
+                        <div class="tableRenames">
+                        <div class="subSubHeading clearfix">
+                            <div><%= dicts.exportView.CurrentColName %></div>
+                            <div><%= dicts.exportView.NewColName %></div>
+                        </div>
+                        <div class="renamePart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="exportDriver formRow">
+                    <div class="subHeading clearfix">
+                        <div class="label">Export Driver:</div>
+                    </div>
+                    <div id="exportDriverList" class="dropDownList">
+                        <input id="exportDriver" class="text" type="text" value="" spellcheck="false">
+                        <div class="iconWrapper">
+                            <i class="icon xi-arrow-down"></i>
+                        </div>
+                        <div class="list">
+                            <ul class="exportDrivers"></ul>
+                            include "../../util/menuScrollArea.html"
+                        </div>
+                    </div>
+                    <div class="descriptionText"></div>
+                </div>
+                <div class="argsSection"></div>
+            </section>
+        </div>
+        <section class="advancedEditor">
+            <textarea></textarea>
+        </section>
+        <!-- Button Section -->
+        <section class="bottomSection flexWrap">
+            <button class="btn btn-submit btn-rounded submit confirm">
+                <%= dicts.dag.configure %>
+            </button>
+            include "../util/switcher.html"
+        </section>
+    </div>
+</section>
+<!-- End of Export View -->

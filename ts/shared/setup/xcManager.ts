@@ -92,7 +92,6 @@ namespace xcManager {
             if (typeof SQLEditor !== "undefined") {
                 SQLEditor.initialize();
             }
-
             WSManager.focusOnWorksheet();
             return setupDagPanel();
         })
@@ -580,6 +579,7 @@ namespace xcManager {
         GroupByOpPanel.Instance.setup();
         JoinOpPanel.Instance.setup();
         PublishIMDOpPanel.Instance.setup();
+        ExportOpPanel.Instance.setup();
     }
 
     function setupSession(): XDPromise<void> {

@@ -12,33 +12,20 @@ describe("Export Dag Node Test", () => {
     it("should get parameter", () => {
         const param = node.getParam();
         expect(param).to.deep.equal({
-            exportName: "",
-            targetName: "",
-            columns: [{sourceColumn: "", destColumn: ""}],
-            keepOrder: false,
-            options: {
-                splitType: 2,
-                headerType: 1,
-                format: 2,
-                createRule: 1,
-                handleName: "",
-                csvArgs: {fieldDelim: "\t", recordDelim: "\n"}
-            }
+            columns: [],
+            driver: "",
+            driverArgs: null
         });
     });
 
     it("should set parameter", () => {
         const testParam = {
-            exportName: "export",
-            targetName: "target",
-            columns: [{sourceColumn: "a", destColumn: "a_rename"}],
-            keepOrder: true,
-            options: {
-                splitType: 1,
-                headerType: 1,
-                handleName: "test",
-                csvArgs: {fieldDelim: ",", recordDelim: "\n"}
-            }
+            columns: ["category", "column2"],
+            driver: "",
+            driverArgs: [{name: "arg",
+                type: "string",
+                optional: false,
+                value: "cool"}]
         };
         node.setParam(testParam);
         const param = node.getParam();

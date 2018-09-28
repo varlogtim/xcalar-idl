@@ -309,6 +309,9 @@
 
     .subHeading {
         margin-top: 6px;
+        .label {
+            width: 100%;
+        }
         > div, > span {
             float: left;
             width: 50%;
@@ -2765,6 +2768,46 @@
     }
 }
 
+#exportOpPanel {
+    @listHeight: 26px;
+    .noColsHint {
+        margin-left: 10px;
+    }
+
+    .selectAllWrap {
+        margin-bottom: 8px;
+        float: right;
+
+        .clearfix;
+        .text {
+            float: right;
+            cursor: pointer;
+        }
+        .checkbox {
+            top: 2px;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+    }
+
+    .argsSection {
+        .dropDownList {
+            .styleDropDownList(~"calc(100% - 20px)", @listHeight);
+            margin-left: 10px;
+        }
+    }
+
+    .checkboxArg {
+        p {
+            float: left;
+        }
+
+        .checkbox {
+            font-size: 15px;
+            margin-right: 10px;
+        }
+    }
+}
 #dfLinkOutPanel, #dfLinkInPanel {
     .opSection {
         height: ~"calc(100% - 89px)";

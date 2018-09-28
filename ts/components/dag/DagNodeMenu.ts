@@ -214,6 +214,9 @@ namespace DagNodeMenu {
             case (DagNodeType.Aggregate):
                 AggOpPanel.Instance.show(node, options);
                 break;
+            case (DagNodeType.Export):
+                ExportOpPanel.Instance.show(node);
+                break;
             case (DagNodeType.Filter):
                 FilterOpPanel.Instance.show(node, options);
                 break;

@@ -91,3 +91,12 @@ declare type JoinOpColumnPair = {
 declare type JoinOpRenameInfo = {
     source: string, dest: string, isPrefix: boolean
 }
+
+// *******************
+// exportOpPanel
+// *******************
+declare type ExportOpPanelModelColumnInfo = {
+    name: string;
+    isSelected: boolean;
+    type: string;
+}

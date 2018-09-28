@@ -13,39 +13,25 @@ class DagNodeExport extends DagNode {
      * @returns {DagNodeExportInput} Export node parameters
      */
     public getParam(): DagNodeExportInput {
-        const options: ExportTableOptions = this.input.options || {
-            splitType: 2,
-            headerType: 1,
-            format: 2,
-            createRule: 1,
-            handleName: "",
-            csvArgs: {fieldDelim: "\t", recordDelim: "\n"}
-        };
         return {
-            exportName: this.input.exportName || "",
-            targetName: this.input.targetName || "",
-            columns: this.input.columns || [{sourceColumn: "", destColumn: ""}],
-            keepOrder: this.input.keepOrder || false,
-            options: options
+            columns: this.input.columns || [],
+            driver: this.input.driver || "",
+            driverArgs: this.input.driverArgs || null
         };
     }
 
     /**
      * Set export node's parameters
      * @param input {DagNodeExportInput}
-     * @param input.exportName {string} Export file/folder's name
-     * @param input.targetName {string} Target for exporting
      * @param input.columns export columns's information
-     * @param input.keepOrder {boolean} keep the record's order or not
-     * @param input.options advanced options for export
+     * @param input.driver {string} Export driver name
+     * @param input.driverArgs {ExportDriverArg[]} Driver arguments
      */
     public setParam(input: DagNodeExportInput = <DagNodeExportInput>{}) {
         this.input = {
-            exportName: input.exportName,
-            targetName: input.targetName,
             columns: input.columns,
-            keepOrder: input.keepOrder,
-            options: input.options
+            driver: input.driver,
+            driverArgs: input.driverArgs
         }
         super.setParam();
     }

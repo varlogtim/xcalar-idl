@@ -132,13 +132,10 @@ declare function xcalarExportWorkItem(
 ): WorkItem;
 
 declare function xcalarExport(
-    thriftHandle: ThriftHandler,
-    tableName: string,
-    target: ExExportTargetHdrT,
-    specInput: object,
-    createRule: ExExportCreateRuleT,
-    sorted: boolean,
-    numColumns: number,
+    tHandle: ThriftHandler,
+    srcTable: string,
+    driverName: string,
+    driverParams: {},
     columns: any[],
     exportName: string
 ): XDPromise<{ status: StatusT }>;
@@ -854,6 +851,21 @@ declare function xcalarPtChangeOwner(
     publishTableName: string,
     userIdName: string,
     sessionName: string
+): XDPromise<StatusT>;
+
+declare function xcalarDriverList(
+    thriftHandle: ThriftHandler,
+): XDPromise<StatusT>;
+
+declare function xcalarDriverCreate(
+    thriftHandle: ThriftHandler,
+    driverName: string,
+    driverSource: string,
+): XDPromise<StatusT>;
+
+declare function xcalarDriverDelete(
+    thriftHandle: ThriftHandler,
+    driverName: string,
 ): XDPromise<StatusT>;
 
 declare function setSessionName(

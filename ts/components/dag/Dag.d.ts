@@ -85,11 +85,9 @@ interface DagNodePublishIMDInput {
 }
 
 interface DagNodeExportInput {
-    exportName: string;
-    targetName: string;
-    columns: {sourceColumn: string, destColumn: string}[];
-    keepOrder: boolean;
-    options: ExportTableOptions
+    columns: string[];
+    driver: string;
+    driverArgs: ExportDriverArg[];
 }
 
 interface DagNodeFilterInput {
@@ -151,6 +149,30 @@ interface DagNodeDFOutInput {
     name: string;
 }
 /* ==== End of Dag Node Input Intereface ==== */
+
+/* ==== Interfaces related to Export Drivers (Used in export Node) ==== */
+interface ExportParam {
+    description: string,
+    name: string,
+    optional: boolean,
+    secret: boolean,
+    type: string
+}
+
+interface ExportDriver {
+    name: string,
+    params: ExportParam[]
+}
+
+interface ExportDriverArg {
+    name: string,
+    type: string,
+    optional: boolean,
+    value: string
+}
+
+/* ==== End of interfaces related to Export Drivers ==== */
+
 
 /* ==== Interfaces related to DagList and DagTabs ==== */
 declare type NodeIOPort = {
