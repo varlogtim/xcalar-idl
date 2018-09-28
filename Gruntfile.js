@@ -130,6 +130,7 @@ var CLEAN_HTML_SRC = 'cleanHTMLSrc';
 var BUILD_JS = "buildJs";
 var TYPESCRIPT = "typescriptJsGeneration";
 var BUILD_EXTRA_TS = "buildExtraTs";
+var GENERATE_TSDEF = "generateTsDefs"
 var EXTRA_TS_FOLDER_NAME = "extraTsStaging";
 var BUILD_PARSER = "buildParser";
 var WEBPACK = "webpack";
@@ -1903,6 +1904,10 @@ module.exports = function(grunt) {
             if (PRODUCT === XI) {
                 grunt.task.run(UPDATE_ESSENTIAL_JS_FILES_WITH_CORRECT_PRODUCT_NAME);
             }
+            // Generate TS definition for jsTStr.js in dev build
+            if (BLDTYPE === DEV) {
+                grunt.task.run(GENERATE_TSDEF);
+            }
     });
 
                             // ============================= HELP CONTENTS =================================
@@ -3165,6 +3170,15 @@ module.exports = function(grunt) {
             grunt.task.run(CLEAN_JS);
         }
 
+    });
+
+    // Generate TS definition file for jsTStr.js
+    grunt.task.registerTask(GENERATE_TSDEF, 'Generate TS definitions', function() {
+        var sourceFile = SRCROOT + 'assets/lang/en/jsTStr.js';
+        var targetFile = SRCROOT + 'ts/jsTStr.d.ts';
+        runShellCmd('node ' + SRCROOT + 'assets/dev/genJSTstrDef.js'
+            + ' ' + sourceFile
+            + ' ' + targetFile);
     });
 
     /**
@@ -4920,6 +4934,11 @@ module.exports = function(grunt) {
                 }
                 break;
             case WATCH_TARGET_JS:
+                if (grunt.file.arePathsEquivalent(
+                    SRCROOT + "assets/lang/en/jsTStr.js",
+                    filepath)) {
+                    taskList.push(GENERATE_TSDEF);
+                }
                 if (grunt.file.doesPathContain(jsMapping.src, filepathRelBld) ||
                     grunt.file.doesPathContain(SRCROOT + "assets/lang",
                                                filepathRelBld)) {

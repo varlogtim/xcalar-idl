@@ -25,6 +25,7 @@ tags
 
 # ts/
 /ts/config.js
+/ts/jsTStr.d.ts
 
 # services/
 /services/expServer/*.tar.gz
