@@ -425,11 +425,11 @@ class UDF {
             return false;
         });
         // display the chosen file's path
-        $browserBtn.change(() => {
+        $browserBtn.change((event: JQueryEventObject) => {
             if ($browserBtn.val().trim() === "") {
                 return;
             }
-            const path: string = $(this)
+            const path: string = $(event.currentTarget)
             .val()
             .replace(/C:\\fakepath\\/i, "");
             const moduleName: string = path
