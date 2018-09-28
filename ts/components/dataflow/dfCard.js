@@ -72,7 +72,7 @@ window.DFCard = (function($, DFCard) {
         $listSection.find('.listBox').removeClass('selected');
         var $dataflowLi = DFCard.getDFListItem(dataflowName).find(".listBox");
         $dataflowLi.addClass('selected');
-        focusOnDF(dataflowName);
+        return focusOnDF(dataflowName);
     };
 
     DFCard.getDFListItem = function(dataflowName) {
@@ -94,7 +94,9 @@ window.DFCard = (function($, DFCard) {
 
     DFCard.refresh = function() {
         $dfMenu.addClass("disabled");
-        var $refreshIcon = xcHelper.showRefreshIcon($dfMenu, true);
+        var $listRefreshIcon = xcHelper.showRefreshIcon($dfMenu, true);
+        var $cardRefreshIcon = xcHelper.showRefreshIcon($dfCard, true);
+        var $modalRefreshIcon = xcHelper.showRefreshIcon($("#dfParamModal"), true);
         var startTime = Date.now();
 
         DF.getEmataInfo()
@@ -115,8 +117,14 @@ window.DFCard = (function($, DFCard) {
             // this
             var spinTime = Math.max(1500 - (Date.now() - startTime), 0);
             setTimeout(function() {
-                $refreshIcon.fadeOut(100, function() {
-                    $refreshIcon.remove();
+                $listRefreshIcon.fadeOut(100, function() {
+                    $listRefreshIcon.remove();
+                });
+                $cardRefreshIcon.fadeOut(100, function() {
+                    $cardRefreshIcon.remove();
+                });
+                $modalRefreshIcon.fadeOut(100, function() {
+                    $modalRefreshIcon.remove();
                 });
             }, spinTime);
         });
@@ -145,7 +153,7 @@ window.DFCard = (function($, DFCard) {
             $dfCard.find('.leftSection .title').text("");
             $dfMenu.find('.numGroups').text(0);
             $listSection.html("");
-            return;
+            return PromiseHelper.resolve();
         }
         var html = "";
         var dataflowList = [];
@@ -162,7 +170,7 @@ window.DFCard = (function($, DFCard) {
         $dfMenu.find('.numGroups').text(numFlows);
 
         if (noFocus) {
-            return;
+            return PromiseHelper.resolve();
         }
 
         // must find it again because we refreshed the list
@@ -175,11 +183,13 @@ window.DFCard = (function($, DFCard) {
 
             if ($df.length) {
                 activeFound = true;
-                $df.trigger('click');
+                return DFCard.focusOnDF(activeGroupName);
             }
         }
         if (!activeFound && !$("#dataflowTab").hasClass("firstTouch")) {
-            DFCard.focusFirstDF();
+            return DFCard.focusFirstDF();
+        } else {
+            return PromiseHelper.resolve();
         }
     };
 
@@ -188,7 +198,12 @@ window.DFCard = (function($, DFCard) {
     };
 
     DFCard.focusFirstDF = function() {
-        $dfMenu.find('.listBox').eq(0).trigger('click');
+        if (!$dfMenu.find('.listBox').length) {
+            return PromiseHelper.resolve();
+        }
+
+        var dfName = $dfMenu.find('.listBox .groupName').eq(0).text();
+        return DFCard.focusOnDF(dfName);
     };
 
     DFCard.getProgress = function(dfName) {
@@ -204,6 +219,19 @@ window.DFCard = (function($, DFCard) {
         return retData;
     };
 
+    DFCard.focusOnDF = function(dfName) {
+        var $dfListItem = $dfMenu.find('.listBox').filter(function() {
+            return ($(this).find('.groupName').text() ===
+                    dfName);
+        }).closest('.listBox');
+        if ($dfListItem.find(".listBox.selected").length) {
+            return PromiseHelper.resolve();
+        }
+        $listSection.find('.listBox').removeClass('selected');
+        $dfListItem.addClass('selected');
+        return focusOnDF(dfName);
+    };
+
     function addListeners() {
         $dfMenu.on('click', '.refreshBtn', function() {
             DFCard.refresh();
@@ -212,14 +240,8 @@ window.DFCard = (function($, DFCard) {
         $listSection.on('click', '.dataFlowGroup', function() {
             var $df = $(this);
             var $dataflowLi = $df.find('.listBox');
-            if ($dataflowLi.hasClass('selected')) {
-                return;
-            }
-            $listSection.find('.listBox').removeClass('selected');
-            $dataflowLi.addClass('selected');
-
             var dataflowName = $dataflowLi.find('.groupName').text();
-            focusOnDF(dataflowName);
+            DFCard.focusOnDF(dataflowName);
         });
 
         $listSection.on('click', '.downloadDataflow', function() {
@@ -1546,6 +1568,7 @@ window.DFCard = (function($, DFCard) {
     }
 
     function focusOnDF(dataflowName) {
+        var deferred = PromiseHelper.deferred();
         currentDataflow = dataflowName;
         $header.text(dataflowName);
 
@@ -1629,7 +1652,9 @@ window.DFCard = (function($, DFCard) {
                 restoreParameterizedNodes(dataflowName);
             }
             DFCard.adjustScrollBarPositionAndSize();
+            deferred.resolve();
         });
+        return deferred.promise();
     }
 
     function setupScrollBar() {

@@ -106,23 +106,33 @@ window.DF = (function($, DF) {
             }
 
             if (firstTime && numRetinas > 0) {
-                DFCard.refreshDFList(true, true);
-                var $listItem;
-                if (lastCreatedDF) {
-                    $listItem = DFCard.getDFListItem(lastCreatedDF);
-                    lastCreatedDF = null;
-                }
-                if (!$listItem || !$listItem.length) {
-                    $listItem = $("#dfMenu").find(".dataFlowGroup").eq(0);
-                }
-                $listItem.click();
+                DFCard.refreshDFList(true, true)
+                .then(function() {
+                    var $listItem;
+                    if (lastCreatedDF) {
+                        $listItem = DFCard.getDFListItem(lastCreatedDF);
+                        lastCreatedDF = null;
+                    }
+                    if (!$listItem || !$listItem.length) {
+                        $listItem = $("#dfMenu").find(".dataFlowGroup").eq(0);
+                    }
+                    if ($listItem.length) {
+                        return DFCard.focusOnDF($listItem.find(".groupName").text());
+                    } else {
+                        return PromiseHelper.resolve();
+                    }
+                })
+                .always(function() {
+                    initParamMap(retMeta.params, !firstTime);
+                    deferred.resolve();
+                });
             } else {
-                DFCard.refreshDFList(true);
+                DFCard.refreshDFList(true)
+                .always(function() {
+                    initParamMap(retMeta.params, !firstTime);
+                    deferred.resolve();
+                });
             }
-
-            // if not first time, then check for params in existing dataflows
-            initParamMap(retMeta.params, !firstTime);
-            deferred.resolve();
         })
         .fail(deferred.reject)
         .always(function() {

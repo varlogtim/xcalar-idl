@@ -50,6 +50,11 @@
     .image("../../images/dagIcons/dag-background.png", right, top, repeat);
     position: relative; // used for positioning refresh icon
 
+    .refreshIcon {
+        z-index: 2;
+        pointer-events: initial;
+    }
+
     .interactive {
         opacity: 0.3 !important;
         cursor: default !important;
@@ -659,6 +664,7 @@
 
     .refreshIcon {
         z-index: 2;
+        pointer-events: initial;
     }
 
     &.withSchedule {
