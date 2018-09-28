@@ -145,9 +145,10 @@ namespace DagNodeMenu {
                     DagDescriptionModal.Instance.show(operatorIds[0]);
                     break;
                 case ("newComment"):
-                    const rect = $dfWrap.find(".dataflowArea.active")[0].getBoundingClientRect();
-                    const x = position.x - rect.left - DagView.gridSpacing;
-                    const y = position.y - rect.top - DagView.gridSpacing;
+                    const scale = DagView.getActiveDag().getScale();
+                    const rect = $dfWrap.find(".dataflowArea.active .dataflowAreaWrapper")[0].getBoundingClientRect();
+                    const x = (position.x - rect.left - DagView.gridSpacing) / scale;
+                    const y = (position.y - rect.top - DagView.gridSpacing) / scale;
                     DagView.newComment({
                         position: {x: x, y: y}
                     }, true);
@@ -166,6 +167,12 @@ namespace DagNodeMenu {
                     break;
                 case ("shareCustom"):
                     DagView.shareCustomOperator(operatorIds[0]);
+                    break;
+                case ("zoomIn"):
+                    DagView.zoom(true);
+                    break;
+                case ("zoomOut"):
+                    DagView.zoom(false);
                     break;
                 default:
                     break;

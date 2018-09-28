@@ -156,7 +156,7 @@ class DagTabManager{
 
     /**
      * Create a new tab for the sub-graph of a custom operator
-     * @param customNode 
+     * @param customNode
      * @description
      * 1. The tab doesn't associate with a dataflow
      * 2. The tab doesn't persist in KVStore, as the sub-graph information is persisted by the tab which owns the custom operator
@@ -463,6 +463,7 @@ class DagTabManager{
     private _switchTabs($tab: JQuery): void {
         $("#dagTabSectionTabs .dagTab").removeClass("active");
         $("#dagView .dataflowArea").removeClass("active");
+
         $tab.addClass("active");
         let index: number = this.getDagTabIndex($tab);
         let $dataflowArea: JQuery = this.getDataflowArea(index);
@@ -480,6 +481,7 @@ class DagTabManager{
         }
 
         DagView.switchActiveDagTab(this._activeUserDags[index]);
+        DagTopBar.Instance.reset();
     }
 
     // Deletes the tab represented by $tab
@@ -568,7 +570,7 @@ class DagTabManager{
 
     /**
      * Try to remove a tab key as a parent tab from the subTabs list. If the tab has any sub tabs, nothing will be removed
-     * @param parentKey 
+     * @param parentKey
      * @returns A list of sub tab keys. Empty list if remove successfully
      */
     private _removeParentTabKey(parentKey: string): string[] {
@@ -624,10 +626,11 @@ class DagTabManager{
         this._$dagTabArea.append(html);
         $(".dataflowWrap").append(
             '<div class="dataflowArea">\
-                <div class="sizer"></div>\
-                <div class="commentArea"></div>\
-                <svg class="edgeSvg"></svg>\
-                <svg class="operatorSvg"></svg>\
+                <div class="dataflowAreaWrapper">\
+                    <div class="commentArea"></div>\
+                    <svg class="edgeSvg"></svg>\
+                    <svg class="operatorSvg"></svg>\
+                </div>\
             </div>'
         );
         if (this._keys.length > 1) {

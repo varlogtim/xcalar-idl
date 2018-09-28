@@ -21,7 +21,8 @@ interface Coordinate {
 
 interface Dimensions {
     width: number,
-    height: number
+    height: number,
+    scale?: number
 }
 
 interface PrefixColInfo {

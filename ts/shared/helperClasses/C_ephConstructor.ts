@@ -2227,6 +2227,7 @@ interface RectSelectionOptions {
     onEnd?: Function;
     onMouseup?: Function;
     $scrollContainer?: JQuery;
+    scale?: number
 }
 
 class RectSelction {
@@ -2243,8 +2244,9 @@ class RectSelction {
     private onMouseup: Function;
     private isDragging: boolean;
     private mouseCoors: Coordinate;
-    private initialX: number
-    private initialY: number
+    private initialX: number;
+    private initialY: number;
+    private scale: number;
 
     public constructor(x: number, y: number, options?: RectSelectionOptions) {
         options = options || {};
@@ -2265,13 +2267,15 @@ class RectSelction {
         self.scrollBound = self.$scrollContainer.get(0).getBoundingClientRect();
         self.isDragging = false;
         self.mouseCoors = {x:0, y:0};
-
+        self.scale = options.scale || 1;
         const bound: ClientRect = self.bound;
-        const left: number = self.x - bound.left;
-        const top: number = self.y - bound.top;
+        let left: number = self.x - bound.left;
+        let top: number = self.y - bound.top;
 
         self.initialX = left;
         self.initialY = top;
+        left /= self.scale;
+        top /= self.scale;
 
         const html: HTML = '<div id="' + self.id + '" class="rectSelection" style="' +
                     'pointer-events: none; left:' + left +
@@ -2331,9 +2335,9 @@ class RectSelction {
         const bound: ClientRect = self.bound;
 
         // x should be within bound.left and bound.right
-        x = Math.max(0, Math.min(x - bound.left, bound.width));
-        // y should be within boud.top and bound.bottom
-        y = Math.max(0, Math.min(y - bound.top, bound.height));
+        x = Math.max(0, Math.min(x - bound.left, bound.width / self.scale));
+        // y should be within bound.top and bound.bottom
+        y = Math.max(0, Math.min(y - bound.top, bound.height / self.scale));
 
         // update rect's position
         let left: number;
@@ -2358,10 +2362,10 @@ class RectSelction {
 
         const bottom: number = top + h;
         const right: number = left + w;
-        $rect.css("left", left)
-            .css("top", top)
-            .width(w)
-            .height(h);
+        $rect.css("left", left / self.scale)
+            .css("top", top / self.scale)
+            .width(w / self.scale)
+            .height(h / self.scale);
 
         if (typeof self.onDraw === "function") {
             self.onDraw(bound, top, right, bottom, left);

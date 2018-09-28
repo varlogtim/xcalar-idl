@@ -55,21 +55,20 @@
                 color: @color-stop;
             }
         }
-        &.undo, &.redo {
-            &.disabled {
-                cursor: not-allowed;
-                .icon {
-                    color: @color-connector;
-                }
+
+        &.disabled {
+            cursor: not-allowed;
+            .icon {
+                color: @color-connector;
             }
-            &.repeatable {
-                cursor: pointer;
-            }
-            &.locked {
-                cursor: not-allowed;
-                .icon {
-                    color: @color-connector;
-                }
+        }
+        &.repeatable {
+            cursor: pointer;
+        }
+        &.locked {
+            cursor: not-allowed;
+            .icon {
+                color: @color-connector;
             }
         }
     }
@@ -436,6 +435,10 @@
         position: relative;
         overflow: auto;
 
+        .dataflowAreaWrapper {
+            transform-origin: top left;
+        }
+
         .dataflowArea {
             min-height: 100%;
             min-width: 100%;
@@ -444,6 +447,7 @@
             display: none;
             background: transparent url("../../images/dagIcons/dag-backgroundA.png") repeat left top;
             background-size: 10px;
+            overflow: auto;
 
             &.active {
                 display: block;
@@ -451,11 +455,6 @@
 
             &.drawing {
                 pointer-events: none;
-            }
-
-            .sizer {
-                visibility: hidden;
-                height: 1px;
             }
         }
 
@@ -468,6 +467,7 @@
         z-index: 2;
         pointer-events: none;
         opacity: 0.7;
+        transform-origin: top left;
 
         .innerDragContainer {
             width: 100%;
@@ -531,6 +531,7 @@
         overflow: visible;
         background: @color-white;
         .cursor-move();
+        transform-origin: top left;
 
         &.focused {
             border: 1px solid #55c4de;
@@ -626,6 +627,7 @@
         // used and removed during connector drag
         .position(absolute, 0, 0);
         z-index: 1;
+        transform-origin: top left;
     }
 
     .dagTableTip {

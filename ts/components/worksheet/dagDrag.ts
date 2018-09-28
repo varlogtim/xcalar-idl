@@ -12,7 +12,8 @@ interface DragHelperOptions {
     event: JQueryEventObject
     offset?: Coordinate,
     noCursor?: boolean,
-    round?: number
+    round?: number,
+    scale?: number
 }
 
 interface DragHelperCoordinate {
@@ -50,8 +51,10 @@ class DragHelper {
     protected scrollTop: number;
     protected scrollLeft: number;
     protected round: number;
+    protected scale: number;
 
     public constructor(options: DragHelperOptions) {
+        const self = this;
         this.$container = options.$container;
         this.$dropTarget = options.$dropTarget;
         this.$el = options.$element;
@@ -78,11 +81,9 @@ class DragHelper {
         this.scrollUpCounter = 0;
         this.scrollLeft = this.$dropTarget.parent().scrollLeft();
         this.scrollTop = this.$dropTarget.parent().scrollTop();
-        this.round = window["gDragRound"] || options.round || 0;
-
-        // gDragRound is temporarily used for testing
-
-        const self = this;
+        this.round = options.round || 0;
+        this.scale = options.scale || 1;
+        this.round *= this.scale;
         this.mouseDownCoors = {
             x: options.event.pageX,
             y: options.event.pageY
@@ -117,14 +118,6 @@ class DragHelper {
         if (this.noCursor) {
             $("#moveCursor").addClass("arrowOnly");
         }
-
-        this.$els.each(function() {
-            const elRect: DOMRect = this.getBoundingClientRect();
-            self.origPositions.push({
-                x: elRect.left,
-                y: elRect.top
-            });
-        });
 
         this.targetRect = this.$dropTarget.parent()[0].getBoundingClientRect();
 
@@ -202,8 +195,7 @@ class DragHelper {
             this.scrollLeft = this.$dropTarget.parent().scrollLeft();
             if (this.$dropTarget.parent()[0].scrollWidth - this.scrollLeft -
             this.$dropTarget.parent().outerWidth() <= 1) {
-                const width: number = this.$dropTarget.find(".sizer").width();
-                this.$dropTarget.find(".sizer").css("min-width", width + 20);
+                const width: number = this.$dropTarget.width();
                 this.$dropTarget.css("min-width", width + 20);
             }
             this.scrollLeft += horzPxToIncrement;
@@ -228,12 +220,17 @@ class DragHelper {
         let maxX: number = 0;
         let minY: number = this.targetRect.bottom;
         let maxY: number = 0;
+        let origPositions: Coordinate[] = [];
 
         // find the left most element, right most, top-most, bottom-most
         // so we can create a div that's sized to encapsulate all dragging elements
         // and append these to the div
         this.$els.each(function() {
             let rect = this.getBoundingClientRect();
+            origPositions.push({
+                x: rect.left,
+                y: rect.top
+            });
             minX = Math.min(minX, rect.left);
             maxX = Math.max(maxX, rect.right);
             minY = Math.min(minY, rect.top);
@@ -244,13 +241,16 @@ class DragHelper {
         const left: number = minX;
         const top: number = minY;
 
+        // offset should not exceed the cloned element's width or height
         this.offset = {
-            x: left - this.mouseDownCoors.x + this.customOffset.x,
-            y: top - this.mouseDownCoors.y + this.customOffset.y
+            x: Math.max(-this.$els[0].getBoundingClientRect().width * self.scale,
+                        (left - this.mouseDownCoors.x + this.customOffset.x)),
+            y: Math.max(-this.$els[0].getBoundingClientRect().height * self.scale,
+                        (top - this.mouseDownCoors.y + this.customOffset.y))
         };
         let html = '<div class="dragContainer" style="width:' +
                         width + 'px;height:' + height + 'px;left:' + left +
-                        'px;top:' + top + 'px;">' +
+                        'px;top:' + top + 'px;transform:scale(' + this.scale + ')">' +
                         '<div class="innerDragContainer"></div>' +
                         '<svg version="1.1" class="dragSvg" ' +
                         'width="100%" height="100%"></svg>' +
@@ -273,25 +273,25 @@ class DragHelper {
         });
 
         $clones.each(function(i: number) {
-           let cloneLeft = self.origPositions[i].x - left;
-           let cloneTop = self.origPositions[i].y - top;
-           if ($(this).is("g")) {
+            let cloneLeft = (origPositions[i].x - left) / self.scale;
+            let cloneTop = (origPositions[i].y - top) / self.scale;
+            if ($(this).is("g")) {
                 $(this).attr("transform", "translate(" + cloneLeft + ", " +
-                                                     cloneTop + ")");
-           } else if ($(this).is("rect") || $(this).is("polygon")){
+                                                        cloneTop + ")");
+            } else if ($(this).is("rect") || $(this).is("polygon")){
                 $(this).attr("x", cloneLeft)
-                      .attr("y", cloneTop);
-           } else {
+                        .attr("y", cloneTop);
+            } else {
                 $(this).css({
                     left: cloneLeft,
                     top: cloneTop
                 });
-           }
+            }
 
             self.dragContainerPositions.push({
                 x: cloneLeft,
                 y: cloneTop
-            })
+            });
         });
         this.$container.append(this.$draggingEl);
 
@@ -348,10 +348,10 @@ class DragHelper {
 
         // check if item was dropped within left and top boundaries of drop target
         if (deltaX >= 0 && deltaY >= 0) {
-            this.dragContainerPositions.forEach(function(pos) {
+            this.dragContainerPositions.forEach(pos => {
                 coors.push({
-                    x: deltaX + pos.x,
-                    y: deltaY + pos.y
+                    x: (deltaX / this.scale) + pos.x,
+                    y: (deltaY / this.scale) + pos.y
                 });
             });
         }

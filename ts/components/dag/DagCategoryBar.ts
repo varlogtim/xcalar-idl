@@ -294,8 +294,9 @@ class DagCategoryBar {
                 event: event,
                 $element: $operator,
                 $container: self.$dagView,
-                $dropTarget: self.$dagView.find(".dataflowArea.active"),
-                round: 20,
+                $dropTarget: self.$dagView.find(".dataflowArea.active .dataflowAreaWrapper"),
+                round: DagView.gridSpacing,
+                scale: DagView.getActiveDag().getScale(),
                 onDragEnd: function(_$newNode, _event, data) {
                     const newNodeInfo: DagNodeInfo = self._getOperatorInfo(
                         $operator.data('opid')

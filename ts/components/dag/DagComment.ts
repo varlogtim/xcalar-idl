@@ -18,12 +18,17 @@ class DagComment {
             }
         });
         $dfWrap.on("dblclick", ".comment", function() {
-            $(this).addClass("focused");
-            $(this).find("textarea").prop("readonly", false).focus();
+            const $comment = $(this);
+            $comment.addClass("focused");
+            $comment.find("textarea").prop("readonly", false).focus();
+            const scale = DagView.getActiveDag().getScale();
+            $comment.css("transform", "scale(" + (1 / scale) + ")");
         });
         $dfWrap.on("blur", ".comment textarea", function() {
-            $(this).closest(".comment").removeClass("focused");
-            $(this).prop("readonly", true);
+            const $comment = $(this);
+            $comment.closest(".comment").removeClass("focused")
+                                        .css("transform", "scale(1)");
+            $comment.prop("readonly", true);
         });
         $dfWrap.on("change", ".comment textarea", function() {
             const id = $(this).closest(".comment").data("nodeid");
@@ -62,6 +67,8 @@ class DagComment {
         if (isFocus) {
             $comment.addClass("focused");
             $comment.find("textarea").prop("readonly", false).focus();
+            const scale = DagView.getActiveDag().getScale();
+            $comment.css("transform", "scale(" + (1 / scale) + ")");
         }
         $comment.resizable({
             "minWidth": DagView.gridSpacing,

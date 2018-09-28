@@ -28,8 +28,7 @@ describe("DagView Test", () => {
             expect($dagView.find(".dataflowArea.active .operator").length).to.equal(0);
         });
         it("correct elements should be present", function() {
-            expect($dagView.find(".dataflowArea.active").children().length).to.equal(4);
-            expect($dagView.find(".dataflowArea.active .sizer").length).to.equal(1);
+            expect($dagView.find(".dataflowArea.active .dataflowAreaWrapper").children().length).to.equal(3);
             expect($dagView.find(".dataflowArea.active .operatorSvg").length).to.equal(1);
         });
     });

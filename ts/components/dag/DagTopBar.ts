@@ -12,7 +12,12 @@ class DagTopBar {
         this._addEventListeners();
     }
 
+    public reset(): void {
+        this._checkZoom();
+    }
+
     private _addEventListeners(): void {
+        const self = this;
         this.$topBar.find(".run").click(function() {
             DagView.run();
         });
@@ -36,6 +41,30 @@ class DagTopBar {
 
             // Log.redo();
         });
+
+        this.$topBar.find(".zoomIn").click(function() {
+            DagView.zoom(true);
+            self._checkZoom();
+        });
+
+        this.$topBar.find(".zoomOut").click(function() {
+            DagView.zoom(false);
+            self._checkZoom();
+        });
+    }
+
+    private _checkZoom() {
+        const $zoomIn = this.$topBar.find(".zoomIn");
+        const $zoomOut = this.$topBar.find(".zoomOut");
+        $zoomIn.removeClass("disabled");
+        $zoomOut.removeClass("disabled");
+        const scale = DagView.getActiveDag().getScale();
+        const scaleIndex = DagView.zoomLevels.indexOf(scale);
+        if (scaleIndex === 0) {
+            $zoomOut.addClass("disabled");
+        } else if (scaleIndex === DagView.zoomLevels.length - 1) {
+            $zoomIn.addClass("disabled");
+        }
     }
 
 }

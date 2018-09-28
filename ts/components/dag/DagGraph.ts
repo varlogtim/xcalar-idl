@@ -15,7 +15,8 @@ class DagGraph {
         this.removedCommentsMap = new Map();
         this.display = {
             width: -1,
-            height: -1
+            height: -1,
+            scale: 1
         };
         this.lock = false;
         this._setupEvents();
@@ -392,6 +393,14 @@ class DagGraph {
         }
     }
 
+    public setScale(scale: number): void {
+        this.display.scale = scale
+    }
+
+    public getScale(): number {
+        return this.display.scale;
+    }
+
     public getAllNodes(): Map<DagNodeId, DagNode> {
         return this.nodesMap;
     }
@@ -472,7 +481,7 @@ class DagGraph {
                 }
             }
         }
-        
+
         // Check open graph
         const inputNodeIdSet = new Set<DagNodeId>();
         for (const { parentId } of inputEdges) {
@@ -577,7 +586,7 @@ class DagGraph {
         });
         return traversedSet;
     }
-    
+
     private _setupEvents(): void {
         this.innerEvents = {};
         this.events = {

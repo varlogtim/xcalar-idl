@@ -12,6 +12,7 @@ namespace DagView {
     const nodeWidth = 102;
     let clipboard = null;
     export const gridSpacing = 20;
+    export const zoomLevels = [.25, .5, .75, 1, 1.5, 2];
 
     export function setup(): void {
         if (gDionysus) {
@@ -180,11 +181,13 @@ namespace DagView {
     export function reactivate(): void {
         const $dfArea = $dfWrap.find(".dataflowArea.active");
         const dimensions = activeDag.getDimensions();
+        const scale = activeDag.getScale();
         if (dimensions.width > -1) {
-            $dfArea.css("min-height", dimensions.height);
-            $dfArea.find(".sizer").css("min-width", dimensions.width);
-            $dfArea.css("min-width", dimensions.width);
+            $dfArea.find(".dataflowAreaWrapper").css("min-height", dimensions.height * scale);
+            $dfArea.find(".sizer").css("min-width", dimensions.width * scale);
+            $dfArea.find(".dataflowAreaWrapper").css("min-width", dimensions.width * scale);
         }
+        $dfArea.find(".dataflowAreaWrapper").css("transform", "scale(" + scale + ")");
 
         const nodes: Map<DagNodeId, DagNode> = activeDag.getAllNodes();
 
@@ -1024,6 +1027,67 @@ namespace DagView {
         return deferred.promise();
     }
 
+    /**
+     * Change the zoom level (scale) of the active graph
+     * @param isZoomIn
+     * @description
+     * 1. find the next zoom level
+     * 2. store the change in scale
+     * 3. set the scale in graph
+     * 4. adjust dataflowAreaWrapper min-height and min-width
+     * 5. adjust scrollbar
+     */
+    export function zoom(isZoomIn: boolean) {
+        const prevScale: number = activeDag.getScale();
+        let scaleIndex = zoomLevels.indexOf(prevScale);
+        let scale: number;
+        if (isZoomIn) {
+            scaleIndex++;
+        } else {
+            scaleIndex--;
+        }
+        if (scaleIndex < 0 || scaleIndex >= zoomLevels.length) {
+            return;
+        } else {
+            scale = zoomLevels[scaleIndex];
+        }
+        let deltaScale: number;
+        let deltaScaleForScroll: number = scale / prevScale;
+        if (scale <= 1 && prevScale <= 1) {
+            deltaScale = scale / prevScale;
+        } else {
+            deltaScale = 1; // height/width shouldn't change when zooming in
+            // past 1
+        }
+
+
+        activeDag.setScale(scale);
+        const $dfArea = $dfWrap.find(".dataflowArea.active");
+        const $dfAreaWrap = $dfArea.find(".dataflowAreaWrapper");
+        const scrollTop = $dfArea.scrollTop() + ($dfArea.height() / 2);
+        const scrollLeft = $dfArea.scrollLeft() + ($dfArea.width() / 2);
+        const newScrollTop = scrollTop * deltaScaleForScroll;
+        const newScrollLeft = scrollLeft * deltaScaleForScroll;
+        $dfAreaWrap.css("transform", "scale(" + scale + ")");
+
+        const curMinWidth = parseInt($dfAreaWrap.css("min-width"));
+        const curMinHeight = parseInt($dfAreaWrap.css("min-height"));
+        if (curMinWidth) {
+            $dfAreaWrap.css("min-width", curMinWidth);
+
+        }
+        if (curMinHeight) {
+            $dfAreaWrap.css("min-height", curMinHeight * deltaScale);
+        }
+        // do not adjust scrolltop or scrollLeft if at 0
+        if ($dfArea.scrollTop()) {
+            $dfArea.scrollTop(newScrollTop - ($dfArea.height() / 2));
+        }
+        if ($dfArea.scrollLeft()) {
+            $dfArea.scrollLeft(newScrollLeft - ($dfArea.width() / 2));
+        }
+    }
+
     function _createCustomNode(
         dagNodeInfos,
         connection: {
@@ -1279,8 +1343,9 @@ namespace DagView {
                 $element: $operator,
                 $elements: $operator.add($dfArea.find(".selected")),
                 $container: $dagView,
-                $dropTarget: $dfArea,
+                $dropTarget: $dfArea.find(".dataflowAreaWrapper"),
                 round: gridSpacing,
+                scale: activeDag.getScale(),
                 onDragStart: function(_$els) {
                 },
                 onDragEnd: function($els, _event, data) {
@@ -1335,16 +1400,18 @@ namespace DagView {
             let $candidates: JQuery;
             let path;
             let parentCoors;
+            let scale: number = activeDag.getScale();
 
             new DragHelper({
                 event: event,
                 $element: $parentConnector,
                 $container: $dagView,
-                $dropTarget: $dfArea,
+                $dropTarget: $dfArea.find(".dataflowAreaWrapper"),
                 offset: {
                     x: 0,
                     y: -2
                 },
+                scale: scale,
                 noCursor: true,
                 onDragStart: function(_$el: JQuery, _e: JQueryEventObject) {
                     const $operators: JQuery = $dfArea.find(".operator");
@@ -1365,11 +1432,11 @@ namespace DagView {
                     const offset = _getDFAreaOffset();
                     const rect = $parentConnector[0].getBoundingClientRect();
                     parentCoors = {
-                        x: rect.right + offset.left - 1,
-                        y: rect.top + offset.top + 6
+                        x: ((rect.right + offset.left) / scale) - 1,
+                        y: ((rect.top + offset.top) / scale) + 6
                     };
                     // setup svg for temporary line
-                    $dfArea.append('<svg class="secondarySvg"></svg>');
+                    $dfArea.find(".dataflowAreaWrapper").append('<svg class="secondarySvg"></svg>');
                     const svg = d3.select("#dagView .dataflowArea.active .secondarySvg");
 
                     const edge = svg.append("g")
@@ -1379,10 +1446,11 @@ namespace DagView {
                     path.attr("class", "visibleLine");
                 },
                 onDrag: function(coors) {
+                    console.log(coors);
                     const offset = _getDFAreaOffset();
                     const childCoors = {
-                        x: coors.x + offset.left,
-                        y: coors.y + offset.top + 5
+                        x: (coors.x  + offset.left) / scale,
+                        y: ((coors.y + offset.top) / scale) + 5
                     };
                     path.attr("d", lineFunction([parentCoors, childCoors]));
                 },
@@ -1415,8 +1483,7 @@ namespace DagView {
                     const childNode: DagNode = activeDag.getNode(childNodeId);
                     const connectorIndex: number = childNode.getNextOpenConnectionIndex();
                     if (!activeDag.canConnect(parentNodeId, childNodeId, connectorIndex)) {
-                        StatusBox.show(DagTStr.CycleConnection, $childNode)
-
+                        StatusBox.show(DagTStr.CycleConnection, $childNode);
                         return;
                     }
 
@@ -1453,6 +1520,7 @@ namespace DagView {
                 isReconnecting = true;
                 connectorIndex = parseInt($childConnector.data("index"));
             }
+            let scale = activeDag.getScale();
             new DragHelper({
                 event: event,
                 $element: $childConnector,
@@ -1462,6 +1530,7 @@ namespace DagView {
                     x: 0,
                     y: -2
                 },
+                scale: scale,
                 noCursor: true,
                 onDragStart: function(_$el: JQuery, _e: JQueryEventObject) {
                     if (isReconnecting) {
@@ -1492,11 +1561,11 @@ namespace DagView {
                     const offset = _getDFAreaOffset();
                     const rect = $childConnector[0].getBoundingClientRect();
                     childCoors = {
-                        x: rect.left + offset.left - 1,
-                        y: rect.top + offset.top + 4
+                        x: ((rect.left + offset.left) / scale) - 1,
+                        y: ((rect.top + offset.top) / scale) + 4
                     };
                     // setup svg for temporary line
-                    $dfArea.append('<svg class="secondarySvg"></svg>');
+                    $dfArea.find(".dataflowAreaWrapper").append('<svg class="secondarySvg"></svg>');
                     const svg = d3.select("#dagView .dataflowArea.active .secondarySvg");
 
                     const edge = svg.append("g")
@@ -1508,8 +1577,8 @@ namespace DagView {
                 onDrag: function(coors) {
                     const offset = _getDFAreaOffset();
                     const parentCoors = {
-                        x: coors.x + offset.left + 2,
-                        y: coors.y + offset.top + 4
+                        x: ((coors.x + offset.left) / scale) + 2,
+                        y: ((coors.y + offset.top) / scale) + 4
                     };
                     path.attr("d", lineFunction([childCoors, parentCoors]));
                 },
@@ -1581,14 +1650,16 @@ namespace DagView {
             let $target = $(event.target);
             $dfArea = $dfWrap.find(".dataflowArea.active");
 
-            if ($target.is(".dataflowArea") || $target.is(".dataflowWrap") ||
+            if ($target.is(".dataflowAreaWrapper") ||
+                $target.is(".dataflowArea") || $target.is(".dataflowWrap") ||
                 $target.is(".edgeSvg") || $target.is(".operatorSvg") ||
                 $target.is(".commentArea")) {
 
                 new RectSelction(event.pageX, event.pageY, {
                     "id": "dataflow-rectSelection",
-                    "$container": $dfArea,
-                    "$scrollContainer": $dfWrap,
+                    "$container": $dfArea.find(".dataflowAreaWrapper"),
+                    "$scrollContainer": $dfArea,
+                    "scale": activeDag.getScale(),
                     "onStart": function() {
                         $dfArea.addClass("drawing");
                         $els = $dfArea.find(".operator");
@@ -1647,9 +1718,10 @@ namespace DagView {
     }
 
     function _getDFAreaOffset() {
-        const containerRect = $dfWrap[0].getBoundingClientRect();
-        const offsetTop = $dfWrap.scrollTop() - containerRect.top;
-        const offsetLeft = $dfWrap.scrollLeft() - containerRect.left;
+        const $dfArea = $dfWrap.find(".dataflowArea.active");
+        const containerRect = $dfArea[0].getBoundingClientRect();
+        const offsetTop = $dfArea.scrollTop() - containerRect.top;
+        const offsetLeft = $dfArea.scrollLeft() - containerRect.left;
 
         return {
             top: offsetTop,
@@ -1675,23 +1747,22 @@ namespace DagView {
 
     function _setGraphDimensions(elCoors: Coordinate, force?: boolean) {
         const $dfArea = $dagView.find(".dataflowArea.active");
+        let height: number;
+        let width: number;
+        let scale = Math.min(activeDag.getScale(), 1);
+        // do not increase dataflow size greater than 1X
         if (force) {
             activeDag.setDimensions(elCoors.x, elCoors.y);
-            $dfArea.css("min-width", elCoors.x);
-            $dfArea.css("min-height", elCoors.y);
-            $dfArea.find(".sizer").css("min-width", elCoors.x);
+            width = elCoors.x;
+            height = elCoors.y;
         } else {
             const dimensions: Dimensions = activeDag.getDimensions();
-
-            let newWidth: number = Math.max(elCoors.x + horzPadding,
-                                            dimensions.width);
-            let newHeight: number = Math.max(elCoors.y + vertPadding,
-                                            dimensions.height);
-
-            activeDag.setDimensions(newWidth, newHeight);
-            $dfArea.css("min-width", newWidth);
-            $dfArea.css("min-height", newHeight);
+            width = Math.max(elCoors.x + horzPadding, dimensions.width);
+            height = Math.max(elCoors.y + vertPadding, dimensions.height);
+            activeDag.setDimensions(width, height);
         }
+        $dfArea.find(".dataflowAreaWrapper").css("min-width", width);
+        $dfArea.find(".dataflowAreaWrapper").css("min-height", height * scale);
     }
 
     function _setTooltip($node: JQuery, node: DagNode): void {
