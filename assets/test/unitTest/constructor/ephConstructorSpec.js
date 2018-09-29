@@ -1061,7 +1061,7 @@ describe("Ephemeral Constructor Test", function() {
         it("FormHelper should be constructor", function() {
             formHelper = new FormHelper($fakeView);
             expect(formHelper).to.be.instanceof(FormHelper);
-            expect(Object.keys(formHelper).length).to.equal(7);
+            expect(Object.keys(formHelper).length).to.equal(8);
             expect(formHelper.$form).to.equal($fakeView);
             expect(formHelper.options).to.be.an("object");
             expect(formHelper.id).to.equal("fakeView");
@@ -1918,7 +1918,7 @@ describe("Ephemeral Constructor Test", function() {
             test = null;
         });
 
-        it("RectSelction should have 15 attributes", function() {
+        it("RectSelction should have 16 attributes", function() {
             rect = new RectSelction(100, 200, {
                 "id": "test-selection",
                 "$container": $("#container"),
@@ -1929,7 +1929,7 @@ describe("Ephemeral Constructor Test", function() {
             });
 
             expect(rect).to.be.instanceof(RectSelction);
-            expect(Object.keys(rect).length).to.equal(15);
+            expect(Object.keys(rect).length).to.equal(16);
 
             expect(rect.x).to.equal(101);
             expect(rect.y).to.equal(200);
@@ -1946,6 +1946,7 @@ describe("Ephemeral Constructor Test", function() {
             expect(rect.mouseCoors).to.exist;
             expect(rect.initialX).to.be.a.number;
             expect(rect.initialY).to.be.a.number;
+            expect(rect.scale).to.be.a.number;
         });
 
         it("should get rect", function() {

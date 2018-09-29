@@ -54,7 +54,7 @@ describe("Dag Node Basic Test", () => {
 
     it("should get description", () => {
         const node = new DagNode();
-        expect(node.getDescription()).to.be.undefined;
+        expect(node.getDescription()).to.equal("");
     });
 
     it("should set description", () => {
@@ -238,7 +238,7 @@ describe("Dag Node Basic Test", () => {
         childNode.connectToParent(secondParentNode, 1);
         const serializedChild = childNode.serialize();
         expect(serializedChild).to.equal(
-            '{"type":"join","display":{"x":-1,"y":-1},"input":{},"id":"' +
+            '{"type":"join","subType":null,"display":{"x":-1,"y":-1},"description":"","input":{},"id":"' +
             childNode.getId() + '","state":"unused","parents":["' + node.getId() +
             '","' + secondParentNode.getId() +'"]}'
         );

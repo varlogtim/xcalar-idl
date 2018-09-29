@@ -1,8 +1,11 @@
 describe("Dataset Dag Node Test", () => {
     let node;
-    
+
     before(() => {
         node = new DagNodeDataset({});
+        node.getSourceColumns = function() {
+            return PromiseHelper.resolve([]);
+        };
     });
 
     it("should be a dataset node", () => {
@@ -17,11 +20,15 @@ describe("Dataset Dag Node Test", () => {
         });
     });
 
-    it("should set parameter", () => {
+    it("should set parameter", (done) => {
+
         const testParam = {source: "dataset1", prefix: "test"};
-        node.setParam(testParam);
-        const param = node.getParam();
-        expect(param).not.to.equal(testParam);
-        expect(param).to.deep.equal(testParam);
+        node.setParam(testParam)
+        .always(function() {
+            const param = node.getParam();
+            expect(param).not.to.equal(testParam);
+            expect(param).to.deep.equal(testParam);
+            done();
+        });
     });
 });

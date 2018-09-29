@@ -45,7 +45,9 @@ describe("DF Test", function() {
             }
 
             var cachedFn5 = DFCard.refreshDFList;
-            DFCard.refreshDFList = function() {};
+            DFCard.refreshDFList = function() {
+                return PromiseHelper.resolve();
+            };
 
 
             DF.refresh({dataflows: {}})

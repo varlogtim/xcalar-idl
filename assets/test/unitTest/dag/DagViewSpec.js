@@ -19,7 +19,8 @@ describe("DagView Test", () => {
         });
     });
     describe("initial state", function() {
-        it("initial screen should at least 1 dataflowArea", () => {
+        it("initial screen should have at least 1 dataflowArea", () => {
+            $("#dagTabView .dagTab:first").click();
             expect($dagView.find(".dataflowArea").length).at.least(1);
             expect($dagView.find(".dataflowArea.active").length).to.equal(1);
         });

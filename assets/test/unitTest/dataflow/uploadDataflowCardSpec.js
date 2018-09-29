@@ -1,4 +1,5 @@
-describe("Upload Dataflow Test", function() {
+// skipping as dataflow 2.0 will move this feature to modeling panel
+describe.skip("Upload Dataflow Test", function() {
     var $mainTabCache;
     var $card;
     var $retPath;
