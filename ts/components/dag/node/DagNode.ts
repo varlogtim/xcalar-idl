@@ -463,9 +463,9 @@ abstract class DagNode {
             type: this.type,
             subType: this.subType,
             table: this.table,
-            display: this.display,
+            display: xcHelper.deepCopy(this.display),
             description: this.description,
-            input: this.input,
+            input: xcHelper.deepCopy(this.input),
             id: this.id,
             state: this.state,
             error: this.error

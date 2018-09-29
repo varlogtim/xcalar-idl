@@ -1240,6 +1240,12 @@ namespace DagView {
         }
         nodeIds.forEach(function(nodeId) {
             if (nodeId.startsWith("dag")) {
+                // Remove tabs for custom OP
+                const dagNode = activeDag.getNode(nodeId);
+                if (dagNode instanceof DagNodeCustom) {
+                    DagTabManager.Instance.removeCustomTabByNode(dagNode);
+                }
+
                 activeDag.removeNode(nodeId);
                 DagView.getNode(nodeId).remove();
                 $dagView.find('.edge[data-childnodeid="' + nodeId + '"]').remove();
@@ -2175,14 +2181,8 @@ namespace DagView {
                     }
                 }
 
-                const nodeInfo = {
-                    type: node.getType(),
-                    input: xcHelper.deepCopy(node.getParam()),
-                    description: node.getDescription(),
-                    display: xcHelper.deepCopy(node.getPosition()),
-                    nodeId: nodeId,
-                    parentIds: parentIds
-                };
+                const nodeInfo = node.getNodeCopyInfo();
+                nodeInfo['parentIds'] = parentIds;
                 nodeInfos.push(nodeInfo);
             } else if (nodeId.startsWith("comment")) {
                 const comment: CommentNode = activeDag.getComment(nodeId);

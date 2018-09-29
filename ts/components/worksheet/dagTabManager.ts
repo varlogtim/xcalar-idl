@@ -244,6 +244,26 @@ class DagTabManager{
     }
 
     /**
+     * Remove the tab showing custom OP's sub graph recursively.
+     * @param dagNode 
+     */
+    public removeCustomTabByNode(dagNode: DagNodeCustom): void {
+        const allTabs = this.getTabs();
+
+        let rootTab: DagTab = null;
+        for (const tab of allTabs) {
+            if (tab.getGraph() === dagNode.getSubGraph()) {
+                rootTab = tab;
+                break;
+            }
+        }
+
+        if (rootTab != null) {
+            this._deleteTabsDFS(rootTab.getKey());
+        }
+    }
+    
+    /**
      * Tells us the index of key within our list of private keys
      * @param key The key we're looking for.
      */
@@ -482,6 +502,18 @@ class DagTabManager{
 
         DagView.switchActiveDagTab(this._activeUserDags[index]);
         DagTopBar.Instance.reset();
+    }
+
+    // Delete a tab, as well as sub tabs(DFS order)
+    private _deleteTabsDFS(tabKey: string) {
+        // Delete sub tabs
+        for (const childKey of this._getSubTabKeys(tabKey)) {
+            this._deleteTabsDFS(childKey);
+        }
+
+        // Delete myself
+        const index = this._keys.indexOf(tabKey);
+        this._deleteTab(this.getDagTabElement(index));
     }
 
     // Deletes the tab represented by $tab
