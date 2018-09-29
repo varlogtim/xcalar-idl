@@ -61,12 +61,12 @@ class CastOpPanel extends BaseOpPanel {
         this._autoResizeView(false);
     }
 
-    public close(): boolean {
+    public close(isSubmit?: boolean): boolean {
         if (!this._formHelper.isOpen()) {
             return false;
         }
 
-        super.hidePanel();
+        super.hidePanel(isSubmit);
         this._autoResizeView(true);
         return true;
     }
@@ -127,7 +127,7 @@ class CastOpPanel extends BaseOpPanel {
         const dagGraph = DagView.getActiveDag();
         dagGraph.applyColumnMapping(this._dagNode.getId(), renameMap);
 
-        this.close();
+        this.close(true);
         return true;
     }
 

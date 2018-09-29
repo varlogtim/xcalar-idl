@@ -29,6 +29,20 @@ namespace DagNodeMenu {
         $li.addClass('exit' + nameUpper.replace(/ /g,''));
     }
 
+    export function execute(action, params) {
+        let options;
+        switch (action) {
+            case("configureNode"):
+                options = {
+                    exitCallback: params.exitCallback
+                };
+                configureNode(params.node, options);
+                break;
+            default:
+                break;
+        }
+    }
+
     function _setupNodeMenu(): void {
         position = {x: 0, y: 0};
         xcMenu.add($menu);
@@ -183,49 +197,50 @@ namespace DagNodeMenu {
         });
     }
 
-    function configureNode(node: DagNode) {
+    function configureNode(node: DagNode, options?) {
         const type: DagNodeType = node.getType();
         const subType: DagNodeSubType = node.getSubType();
+
         switch (type) {
             case (DagNodeType.Dataset):
                 DatasetOpPanel.Instance.show(node);
                 break;
             case (DagNodeType.Aggregate):
-                AggOpPanel.Instance.show(node);
+                AggOpPanel.Instance.show(node, options);
                 break;
             case (DagNodeType.Filter):
-                FilterOpPanel.Instance.show(node);
+                FilterOpPanel.Instance.show(node, options);
                 break;
             case (DagNodeType.Join):
-                JoinOpPanel.Instance.show(node);
+                JoinOpPanel.Instance.show(node, options);
                 break;
             case (DagNodeType.Map):
                 if (subType === DagNodeSubType.Cast) {
-                    CastOpPanel.Instance.show(node);
+                    CastOpPanel.Instance.show(node, options);
                 } else {
-                    MapOpPanel.Instance.show(node);
+                    MapOpPanel.Instance.show(node, options);
                 }
                 break;
             case (DagNodeType.GroupBy):
-                GroupByOpPanel.Instance.show(node);
+                GroupByOpPanel.Instance.show(node, options);
                 break;
             case (DagNodeType.Project):
-                ProjectOpPanel.Instance.show(node);
+                ProjectOpPanel.Instance.show(node, options);
                 break;
             case (DagNodeType.Set):
-                SetOpPanel.Instance.show(node);
+                SetOpPanel.Instance.show(node, options);
                 break;
             case (DagNodeType.Export):
                 console.warn("not implement yet");
                 break;
             case (DagNodeType.DFIn):
-                DFLinkInOpPanel.Instance.show(node);
+                DFLinkInOpPanel.Instance.show(node, options);
                 break;
             case (DagNodeType.DFOut):
-                DFLinkOutOpPanel.Instance.show(node);
+                DFLinkOutOpPanel.Instance.show(node, options);
                 break;
             case (DagNodeType.PublishIMD):
-                PublishIMDOpPanel.Instance.show(node);
+                PublishIMDOpPanel.Instance.show(node, options);
                 break;
             case (DagNodeType.Extension):
                 ExtensionOpPanel.Instance.show(node);

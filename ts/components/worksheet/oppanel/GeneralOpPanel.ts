@@ -263,7 +263,7 @@ class GeneralOpPanel extends BaseOpPanel {
         this._operatorsMap = XDFManager.Instance.getOperatorsMap();
     }
 
-    public show(node: DagNode): boolean {
+    public show(node: DagNode, options?): boolean {
         const self = this;
         this._dagNode = node;
         if (this._formHelper.isOpen()) {
@@ -272,11 +272,10 @@ class GeneralOpPanel extends BaseOpPanel {
 
         this._operatorName = this._dagNode.getType().toLowerCase().trim();
 
-        this._showPanel(this._operatorName);
-
-        // XXX need reference to table or dag node
+        super.showPanel(this._operatorName, options);
 
         this._resetForm();
+        // XXX use real table and/or remove unneeded references to table
         this._table = this._dagNode.getTable();
         this._table = {
             hasColWithBackName: function() {return true;},
@@ -299,21 +298,7 @@ class GeneralOpPanel extends BaseOpPanel {
         const columnPickerOptions: ColumnPickerOptions = {
             "state": opNameNoSpace + "State",
             "colCallback": function($target) {
-                const options: any = {};
-                const $focusedEl: JQuery = $(document.activeElement);
-                if (($focusedEl.is("input") &&
-                    !$focusedEl.is(self._$lastInputFocused)) ||
-                    self._$lastInputFocused.closest(".semiHidden").length) {
-                    return;
-                }
-                if (self._$lastInputFocused.closest(".row")
-                                        .siblings(".addArgWrap").length
-                    || self._$lastInputFocused.hasClass("variableArgs")) {
-                    options.append = true;
-                }
-                xcHelper.fillInputFromCell($target, self._$lastInputFocused,
-                                            gColPrefix, options);
-
+                self.columnPickerCallback($target);
             }
         };
         this._formHelper.setup({"columnPicker": columnPickerOptions});
@@ -322,17 +307,16 @@ class GeneralOpPanel extends BaseOpPanel {
         return true;
     }
 
-    public close(): void {
+    public close(isSubmit?: boolean): void {
         if (!this._formHelper.isOpen()) {
             return;
         }
         // highlighted column sticks out if we don't close it early
         this._toggleOpPanelDisplay(true);
         $(".xcTable").find('.modalHighlighted').removeClass('modalHighlighted');
-        super.hidePanel();
+        super.hidePanel(isSubmit);
         $(document).off('click.OpSection');
         $(document).off("keydown.OpSection");
-        // super.close();
     }
 
     private _addGeneralEventListeners(): void {
@@ -413,10 +397,6 @@ class GeneralOpPanel extends BaseOpPanel {
                 }
             }
         });
-    }
-
-    protected _showPanel(operatorName: string): boolean {
-        return super.showPanel(operatorName);
     }
 
     protected _scrollToBottom(noAnim?: boolean): void {
@@ -1056,7 +1036,7 @@ class GeneralOpPanel extends BaseOpPanel {
         }
 
         this.dataModel.submit();
-        this.close();
+        this.close(true);
         return true;
     }
 
@@ -1959,5 +1939,22 @@ class GeneralOpPanel extends BaseOpPanel {
             return (a.displayName) > (b.displayName) ? 1 : -1;
         }
         return opLists;
+    }
+
+    protected columnPickerCallback($target: JQuery) {
+        const options: any = {};
+        const $focusedEl: JQuery = $(document.activeElement);
+        if (($focusedEl.is("input") &&
+            !$focusedEl.is(this._$lastInputFocused)) ||
+            this._$lastInputFocused.closest(".semiHidden").length) {
+            return;
+        }
+        if (this._$lastInputFocused.closest(".row")
+                                .siblings(".addArgWrap").length
+            || this._$lastInputFocused.hasClass("variableArgs")) {
+            options.append = true;
+        }
+        xcHelper.fillInputFromCell($target, this._$lastInputFocused,
+                                    gColPrefix, options);
     }
 }

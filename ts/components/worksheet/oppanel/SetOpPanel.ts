@@ -12,8 +12,8 @@ class SetOpPanel extends BaseOpPanel {
      *
      * @param dagNode {DagNodeSet} show the view based on the set type node
      */
-    public show(dagNode: DagNodeSet): void {
-        if (!super.showPanel()) {
+    public show(dagNode: DagNodeSet, options?): void {
+        if (!super.showPanel(null, options)) {
             return;
         }
         this._initialize(dagNode);

@@ -17,8 +17,11 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         super.setup(this._$elemPanel);
     }
 
-    public show(dagNode: DagNodeJoin, options: { isNoCast: boolean }): void {
-        if (!super.showPanel()) {
+    public show(
+        dagNode: DagNodeJoin,
+        options: { isNoCast?: boolean, exitCallback?: Function }
+    ): void {
+        if (!super.showPanel(null, options)) {
             return;
         }
         const { isNoCast = true } = (options || {});
@@ -37,8 +40,8 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         this._updateUI();
     }
 
-    public close(): void {
-        super.hidePanel();
+    public close(isSubmit?: boolean): void {
+        super.hidePanel(isSubmit);
         this._dagNode = null;
         this._dataModel = null;
     }
@@ -119,7 +122,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
             } else {
                 $bottomStep1.hide();
                 $bottomStep2.show();
-                $bottomAdv.hide();    
+                $bottomAdv.hide();
                 // Go back button
                 const $elemBackBtn = findXCElement($bottomStep2, 'goBack');
                 $elemBackBtn.off();
@@ -157,7 +160,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
             this._dagNode.setParam(
                 xcHelper.deepCopy(model.toDag())
             );
-            this.close();
+            this.close(true);
         }
     }
 
@@ -181,7 +184,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
 
     /**
      * @override BaseOpPanel._switchMode
-     * @param toAdvancedMode 
+     * @param toAdvancedMode
      */
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         this._dataModel.setAdvMode(toAdvancedMode);
@@ -226,7 +229,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
 
     /**
      * Validate data model, and throw JoinOpError if any errors
-     * @param dataModel 
+     * @param dataModel
      */
     private _validateStep1(dataModel: JoinOpPanelModel): void {
         if (dataModel.isCrossJoin()) {
@@ -256,7 +259,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
 
     /**
      * Validate data model, and throw JoinOpError if any errors
-     * @param dataModel 
+     * @param dataModel
      */
     private _validateStep2(dataModel: JoinOpPanelModel): void {
         const {

@@ -8,8 +8,8 @@ class DFLinkInOpPanel extends BaseOpPanel {
         this._setup();
     }
 
-    public show(dagNode: DagNodeDFIn): boolean {
-        if (!super.showPanel("Link In")) {
+    public show(dagNode: DagNodeDFIn, options?): boolean {
+        if (!super.showPanel("Link In", options)) {
             return false;
         }
         this._initialize(dagNode);
@@ -20,12 +20,12 @@ class DFLinkInOpPanel extends BaseOpPanel {
     /**
      * Close the view
      */
-    public close(): void {
+    public close(isSubmit?: boolean): void {
         if (!this._formHelper.isOpen()) {
             return;
         }
         this._clear();
-        super.hidePanel();
+        super.hidePanel(isSubmit);
     }
 
     private _setup(): void {
@@ -99,7 +99,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
             return;
         }
         this.dagNode.setParam(args);
-        this.close();
+        this.close(true);
     }
 
     private _validate(): DagNodeDFInInput {

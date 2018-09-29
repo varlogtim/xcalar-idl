@@ -37,8 +37,8 @@ class AggOpPanel extends GeneralOpPanel {
     // prefill: object, used to prefill the form
     // public show = function(currTableId, currColNums, operator,
     //                                options) {
-    public show(node: DagNodeAggregate): boolean {
-        if (super.show(<DagNode>node)) {
+    public show(node: DagNodeAggregate, options?): boolean {
+        if (super.show(<DagNode>node, options)) {
             this.model = new AggOpPanelModel(this._dagNode, () => {
                 this._render();
             });

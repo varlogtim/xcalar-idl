@@ -4,12 +4,12 @@ namespace DagView {
     let $operatorBar: JQuery;
     let activeDag: DagGraph;
     let activeDagTab: DagTab;
-    const autoHorzSpacing = 140; // spacing between nodes when auto-aligning
-    const autoVertSpacing = 60;
     const horzPadding = 200;
     const vertPadding = 100;
     const nodeHeight = 28;
     const nodeWidth = 102;
+    const horzNodeSpacing = 140;// spacing between nodes when auto-aligning
+    const vertNodeSpacing = 60;
     let clipboard = null;
     export const gridSpacing = 20;
     export const zoomLevels = [.25, .5, .75, 1, 1.5, 2];
@@ -643,15 +643,15 @@ namespace DagView {
                     type: "dagNode",
                     id: j,
                     position: {
-                        x: ((maxDepth - nodes[j].depth) * autoHorzSpacing) + gridSpacing,
-                        y: (nodes[j].width * autoVertSpacing) + gridSpacing
+                        x: ((maxDepth - nodes[j].depth) * horzNodeSpacing) + gridSpacing,
+                        y: (nodes[j].width * vertNodeSpacing) + gridSpacing
                     }
                 });
             }
             startingWidth = (maxWidth + 1);
         }
-        const graphHeight = autoVertSpacing * (startingWidth - 1);
-        const graphWidth = autoHorzSpacing * overallMaxDepth;
+        const graphHeight = vertNodeSpacing * (startingWidth - 1);
+        const graphWidth = horzNodeSpacing * overallMaxDepth;
         let maxX = graphWidth;
         let maxY = graphHeight;
         const comments = activeDag.getAllComments();
@@ -665,6 +665,23 @@ namespace DagView {
             x: maxX + horzPadding,
             y: maxY + vertPadding
         });
+    }
+
+    export function autoAddNode(
+        parentNodeId: DagNodeId,
+        newType: DagNodeType
+    ): DagNode {
+        const parentNode: DagNode = DagView.getActiveDag().getNode(parentNodeId);
+        const position: Coordinate = parentNode.getPosition();
+        const node: DagNode = DagView.addNode({
+            type: newType,
+            display: {
+                x: position.x + DagView.horzNodeSpacing,
+                y: position.y + DagView.vertNodeSpacing * parentNode.getChildren().length
+            }
+        });
+        DagView.connectNodes(parentNodeId, node.getId(), 0);
+        return node;
     }
 
     export function getAllNodes(includeComments?: boolean): JQuery {
@@ -947,7 +964,7 @@ namespace DagView {
                 inputNode.getChildren().map((child) => child.getPosition())
             );
             inputNode.setPosition({
-                x: childGeoInfo.min.x - autoHorzSpacing,
+                x: childGeoInfo.min.x - horzNodeSpacing,
                 y: childGeoInfo.centroid.y
             });
         }
@@ -962,7 +979,7 @@ namespace DagView {
                 }, [])
             );
             outputNode.setPosition({
-                x: parentGeoInfo.max.x + autoHorzSpacing,
+                x: parentGeoInfo.max.x + horzNodeSpacing,
                 y: parentGeoInfo.centroid.y
             });
         }

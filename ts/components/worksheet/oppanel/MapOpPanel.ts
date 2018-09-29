@@ -79,9 +79,9 @@ class MapOpPanel extends GeneralOpPanel {
     // prefill: object, used to prefill the form
     // public show = function(currTableId, currColNums, operator,
     //                                options) {
-    public show(node: DagNodeMap): boolean {
+    public show(node: DagNodeMap, options?): boolean {
         const self = this;
-        if (super.show(node)) {
+        if (super.show(node, options)) {
             this.model = new MapOpPanelModel(this._dagNode, () => {
                 this._render();
             });
@@ -114,8 +114,8 @@ class MapOpPanel extends GeneralOpPanel {
         return false;
     }
 
-    public close() {
-        super.close();
+    public close(isSubmit?) {
+        super.close(isSubmit);
         $(document).off('mousedown.mapCategoryListener');
         if (this._pendingFnUpdate) {
             this._udfUpdateOperatorsMap();

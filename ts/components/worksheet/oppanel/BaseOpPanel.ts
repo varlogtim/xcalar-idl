@@ -89,33 +89,40 @@ class BaseOpPanel {
     private advancedMode: boolean;
     protected _formHelper: FormHelper = null;
     protected _editor: CodeMirror.EditorFromTextArea;
+    private _exitCallback: Function;
 
     protected constructor() {}
 
     protected setup($panel: JQuery, options?: FormHelperOptions): void {
+        options = options || {};
         this.$panel = $panel;
         this._formHelper = new FormHelper($panel, options);
         this._setupEditor($panel);
         this._setupModeSwitch($panel);
     }
 
-    protected showPanel(formName?: string): boolean {
+    protected showPanel(formName?: string, options?): boolean {
         if (this._formHelper.isOpen()) {
             return false;
         }
         this._reset();
         this._formHelper.showView(formName);
         MainMenu.setFormOpen();
+        options = options || {};
+        this._exitCallback = options.exitCallback || function(){};
         return true;
     }
 
-    protected hidePanel(): void {
+    protected hidePanel(isSubmit?: boolean): void {
         if (!this._formHelper.isOpen()) {
             return;
         }
         this._formHelper.removeWaitingBG();
         this._formHelper.hideView();
         this._formHelper.clear();
+        if (!isSubmit) {
+            this._exitCallback();
+        }
     }
 
     protected toggleCheckbox($checkbox: JQuery, isCheck: boolean = true): void {

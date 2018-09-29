@@ -7,8 +7,8 @@ class DFLinkOutOpPanel extends BaseOpPanel {
         this._setup();
     }
 
-    public show(dagNode: DagNodeDFOut): boolean {
-        if (!super.showPanel("Link Out")) {
+    public show(dagNode: DagNodeDFOut, options?): boolean {
+        if (!super.showPanel("Link Out", options)) {
             return false;
         }
         this._initialize(dagNode);
@@ -16,11 +16,11 @@ class DFLinkOutOpPanel extends BaseOpPanel {
         return true;
     }
 
-    public close(): void {
+    public close(isSubmit?: boolean): void {
         if (!this._formHelper.isOpen()) {
             return;
         }
-        super.hidePanel();
+        super.hidePanel(isSubmit);
     }
 
     private _setup(): void {
@@ -62,7 +62,7 @@ class DFLinkOutOpPanel extends BaseOpPanel {
             return;
         }
         this.dagNode.setParam(args);
-        this.close();
+        this.close(true);
     }
 
     private _validate(): DagNodeDFOutInput {

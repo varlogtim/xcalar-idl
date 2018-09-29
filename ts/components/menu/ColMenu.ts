@@ -160,7 +160,7 @@ class ColMenu extends AbstractMenu {
             const colNums: number[] = $colMenu.data("colNums");
             const tableId: TableId = $colMenu.data('tableId');
             if (gTables[tableId].modelingMode) {
-                this._creatNode(DagNodeType.Join, tableId, colNums);
+                this._createNode(DagNodeType.Join, tableId, colNums);
             } else {
                 JoinView.show(tableId, colNums);
             }
@@ -173,7 +173,7 @@ class ColMenu extends AbstractMenu {
             const colNums: number[] = $colMenu.data("colNums");
             const tableId: TableId = $colMenu.data('tableId');
             if (gTables[tableId].modelingMode) {
-                this._creatNode(DagNodeType.Set, tableId, colNums);
+                this._createNode(DagNodeType.Set, tableId, colNums);
             } else {
                 UnionView.show(tableId, colNums);
             }
@@ -193,7 +193,7 @@ class ColMenu extends AbstractMenu {
                 if (func === "group by") {
                     type = DagNodeType.GroupBy;
                 }
-                this._creatNode(type, tableId, colNums);
+                this._createNode(type, tableId, colNums);
             } else {
                 OperationsView.show(tableId, colNums, func, {
                     triggerColNum: triggerColNum
@@ -217,7 +217,7 @@ class ColMenu extends AbstractMenu {
             const tableId: TableId = $colMenu.data('tableId');
             const colNums: number[] = $colMenu.data("colNums");
             if (gTables[tableId].modelingMode) {
-                this._creatNode(DagNodeType.Project, tableId, colNums);
+                this._createNode(DagNodeType.Project, tableId, colNums);
             } else {
                 ProjectView.show(tableId, colNums);
             }
@@ -510,28 +510,19 @@ class ColMenu extends AbstractMenu {
         return colNames;
     }
 
-    private _creatNode(
+    private _createNode(
         type: DagNodeType,
         tableId: TableId,
         colNums: number[]
     ): void {
         try {
             const parentNodeId: DagNodeId = DagTable.Instance.getBindNodeId();
-            const parentNode: DagNode = DagView.getActiveDag().getNode(parentNodeId);
-            const position: {x: number, y: number} = parentNode.getPosition();
-            const node: DagNode = DagView.addNode({
-                type: type,
-                display: {
-                    x: position.x + 120,
-                    y: position.y + 90 * parentNode.getChildren().length
-                }
-            });
+            const node = DagView.autoAddNode(parentNodeId, type);
             const table: TableMeta = gTables[tableId];
             const progCols: ProgCol[] = colNums.map((colNum) => table.getCol(colNum));
             this._setNodeParam(node, progCols);
-            DagView.connectNodes(parentNodeId, node.getId(), 0);
             if (node.getMaxParents() === 1) {
-                this._openOpPanel(node.getId());
+                this._openOpPanel(node);
             }
         } catch (e) {
             console.error("error", e);
@@ -591,9 +582,12 @@ class ColMenu extends AbstractMenu {
         }
     }
 
-    private _openOpPanel(nodeId: DagNodeId): void {
-        const $node: JQuery = DagView.getNode(nodeId);
-        $node.find(".main").trigger("contextmenu");
-        $("#dagNodeMenu").find(".configureNode").trigger(fakeEvent.mouseup);
+    private _openOpPanel(node: DagNode): void {
+        DagNodeMenu.execute("configureNode", {
+            node: node,
+            exitCallback: function() {
+                DagView.removeNodes([node.getId()]);
+            }
+        });
     }
 }

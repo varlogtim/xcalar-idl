@@ -46,8 +46,8 @@ class PublishIMDOpPanel extends BaseOpPanel {
     /**
      * Hide the panel
      */
-    public close(): void {
-        super.hidePanel();
+    public close(isSubmit?: boolean): void {
+        super.hidePanel(isSubmit);
     }
 
     private _convertAdvConfigToModel() {
@@ -235,7 +235,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
             primaryKey: key,
             operator: operator
         });
-        this.close();
+        this.close(true);
     }
 
 }

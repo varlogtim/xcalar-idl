@@ -105,61 +105,18 @@ class GroupByOpPanel extends GeneralOpPanel {
      *
      * @param node
      */
-    public show(node: DagNode): boolean {
-        if (this._formHelper.isOpen()) {
-            return false;
+    public show(node: DagNode, options?): boolean {
+        if (super.show(node, options)) {
+            this.model = new GroupByOpPanelModel(this._dagNode, (all) => {
+                this._render(all);
+            });
+
+            super._panelShowHelper(this.model);
+            this._render(true);
+            return true;
         }
 
-        const self = this;
-        this._dagNode = <DagNodeGroupBy>node;
-
-
-        this._operatorName = this._dagNode.getType().toLowerCase().trim();
-
-
-        this._showPanel(this._operatorName);
-
-        // XXX need reference to table or dag node
-
-        this._resetForm();
-
-        this._operationsViewShowListeners();
-
-        // used for css class
-        const opNameNoSpace = this._operatorName.replace(/ /g, "");
-        const columnPicker = {
-            "state": opNameNoSpace + "State",
-            "colCallback": function($target) {
-                const options: any = {};
-                const $focusedEl = $(document.activeElement);
-                if (($focusedEl.is("input") &&
-                    !$focusedEl.is(self._$lastInputFocused)) ||
-                    self._$lastInputFocused.closest(".semiHidden").length) {
-                    return;
-                }
-                if (self._$lastInputFocused.closest(".row")
-                                        .siblings(".addArgWrap").length
-                    || self._$lastInputFocused.hasClass("variableArgs")) {
-                    options.append = true;
-                }
-                xcHelper.fillInputFromCell($target, self._$lastInputFocused,
-                                            gColPrefix, options);
-                self._checkHighlightTableCols(self._$lastInputFocused);
-                if (self._$lastInputFocused.hasClass("gbAgg")) {
-                    self._autoGenNewGroupByName(self._$lastInputFocused);
-                }
-            }
-        };
-        this._formHelper.setup({"columnPicker": columnPicker});
-
-        this._toggleOpPanelDisplay(false);
-        this.model = new GroupByOpPanelModel(this._dagNode, (all) => {
-            this._render(all);
-        });
-
-        super._panelShowHelper(this.model);
-        this._render(true);
-        return true;
+        return false;
     };
 
     // functions that get called after list udfs is called during op view show
@@ -1166,6 +1123,27 @@ class GroupByOpPanel extends GeneralOpPanel {
         } else {
             const argIndex = $group.find(".argsSection").last().find(".arg").index($input);
             this.dataModel.updateArg(val, groupIndex, argIndex);
+        }
+    }
+
+    protected columnPickerCallback($target: JQuery) {
+        const options: any = {};
+        const $focusedEl = $(document.activeElement);
+        if (($focusedEl.is("input") &&
+            !$focusedEl.is(this._$lastInputFocused)) ||
+            this._$lastInputFocused.closest(".semiHidden").length) {
+            return;
+        }
+        if (this._$lastInputFocused.closest(".row")
+                                .siblings(".addArgWrap").length
+            || this._$lastInputFocused.hasClass("variableArgs")) {
+            options.append = true;
+        }
+        xcHelper.fillInputFromCell($target, this._$lastInputFocused,
+                                    gColPrefix, options);
+        this._checkHighlightTableCols(this._$lastInputFocused);
+        if (this._$lastInputFocused.hasClass("gbAgg")) {
+            this._autoGenNewGroupByName(this._$lastInputFocused);
         }
     }
 

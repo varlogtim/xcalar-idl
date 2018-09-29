@@ -53,19 +53,19 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
      * Show the panel with information from dagNode
      * @param dagNode DagNode object
      */
-    public show(dagNode: DagNodeProject): void {
+    public show(dagNode: DagNodeProject, options?): void {
         this._dagNode = dagNode;
         this._dataModel = ProjectOpPanelModel.fromDag(dagNode);
         this._updateUI();
 
-        super.showPanel();
+        super.showPanel(null, options);
     }
 
     /**
      * Hide the panel
      */
-    public close(): void {
-        super.hidePanel();
+    public close(isSubmit?: boolean): void {
+        super.hidePanel(isSubmit);
     }
 
     private _updateUI() {
@@ -247,7 +247,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
             '.confirm',
             () => {
                 if (this._submitForm(this._dagNode)) {
-                    this.close();
+                    this.close(true);
                 }
             }
         );
@@ -298,7 +298,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
 
     /**
      * @override BaseOpPanel._switchMode
-     * @param toAdvancedMode 
+     * @param toAdvancedMode
      */
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         if (toAdvancedMode) {

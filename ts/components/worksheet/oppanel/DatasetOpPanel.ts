@@ -237,8 +237,8 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     /**
      * Hide the panel
      */
-    public close(): void {
-        super.hidePanel();
+    public close(isSubmit?: boolean): void {
+        super.hidePanel(isSubmit);
         MainMenu.setFormClose();
         DatasetColRenamePanel.Instance.close();
     }
@@ -315,7 +315,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         const oldParam: DagNodeDatasetInput = dagNode.getParam();
         if (oldParam.source === id && oldParam.prefix === prefix) {
             // no change
-            this.close();
+            this.close(true);
             return;
         }
 
@@ -350,12 +350,12 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                 this._$elemPanel.find(".opSection, .mainContent > .bottomSection").hide();
                 DatasetColRenamePanel.Instance.show(dagNode, oldColumns, {
                     onClose: () => {
-                        this.close();
+                        this.close(true);
                         this._$elemPanel.find(".opSection, .mainContent > .bottomSection").show();
                     }
                 });
             } else {
-                this.close();
+                this.close(true);
             }
         }).fail((error) => {
             $bg.hide();
