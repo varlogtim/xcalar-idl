@@ -517,7 +517,7 @@ class ColMenu extends AbstractMenu {
     ): void {
         try {
             const parentNodeId: DagNodeId = DagTable.Instance.getBindNodeId();
-            const node = DagView.autoAddNode(parentNodeId, type);
+            const node = DagView.autoAddNode(type, null, parentNodeId);
             const table: TableMeta = gTables[tableId];
             const progCols: ProgCol[] = colNums.map((colNum) => table.getCol(colNum));
             this._setNodeParam(node, progCols);

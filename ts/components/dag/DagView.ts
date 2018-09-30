@@ -345,23 +345,12 @@ namespace DagView {
                 return PromiseHelper.reject();
             }
             const $dfArea: JQuery = $dagView.find(".dataflowArea.active");
-            const $operators = $dfArea.find(".operator");
             $dfArea.find(".selected").removeClass("selected");
 
-            let positions = {};
             let minXCoor: number = $dfArea.width();
             let minYCoor: number = $dfArea.height();
             let maxXCoor: number = 0;
             let maxYCoor: number = 0;
-
-            $operators.each(function() {
-                const nodeId: DagNodeId = $(this).data("nodeid");
-                const pos: Coordinate = activeDag.getNode(nodeId).getPosition();
-                if (!positions[pos.x]) {
-                    positions[pos.x] = {};
-                }
-                positions[pos.x][pos.y] = true;
-            });
 
             clipboard.nodeInfos.forEach((nodeInfo) => {
                 minYCoor = Math.min(nodeInfo.display.y, minYCoor);
@@ -383,15 +372,10 @@ namespace DagView {
             minXCoor += (gridSpacing * 5);
             minYCoor += (gridSpacing * 2);
 
-            let positionConflict = true;
-            while (positionConflict) {
-                positionConflict = false;
-                if (positions[minXCoor] && positions[minXCoor][minYCoor]) {
-                    positionConflict = true;
-                    minYCoor += gridSpacing;
-                    minXCoor += gridSpacing;
-                }
-            }
+            const nextAvailablePosition = getNextAvailablePosition(minXCoor,
+                                                                   minYCoor);
+            minXCoor = nextAvailablePosition.x;
+            minYCoor = nextAvailablePosition.y;
 
             let xDelta = minXCoor - origMinXCoor;
             let yDelta = minYCoor - origMinYCoor;
@@ -667,20 +651,55 @@ namespace DagView {
         });
     }
 
+    /**
+     * DagView.autoAddNode
+     * @param parentNodeId
+     * @param newType
+     * @description
+     * adds node to dataflow graph by automatically determining position
+     * 1. get parent node to determine position of new node
+     * 2. use DagView.addNode to create the new node
+     * 3. connect new node to parent node
+     */
     export function autoAddNode(
-        parentNodeId: DagNodeId,
-        newType: DagNodeType
+        newType: DagNodeType,
+        subType?: DagNodeSubType,
+        parentNodeId?: DagNodeId,
     ): DagNode {
-        const parentNode: DagNode = DagView.getActiveDag().getNode(parentNodeId);
-        const position: Coordinate = parentNode.getPosition();
-        const node: DagNode = DagView.addNode({
+        let node: DagNode;
+        let parentNode: DagNode;
+        let x: number;
+        let y: number;
+        let nextAvailablePosition: Coordinate;
+
+        if (parentNodeId) {
+            parentNode = DagView.getActiveDag().getNode(parentNodeId);
+            const position: Coordinate = parentNode.getPosition();
+            x = position.x + horzNodeSpacing;
+            y = position.y + vertNodeSpacing * parentNode.getChildren().length;
+        } else {
+            const scale = activeDag.getScale();
+            const $dfArea: JQuery = $dfWrap.find(".dataflowArea.active");
+            x = Math.round(($dfArea.scrollLeft() + ($dfArea.width() / 2)) /
+                            scale / gridSpacing) * gridSpacing;
+            y = Math.round(($dfArea.scrollTop() + ($dfArea.height() / 2)) /
+                            scale / gridSpacing) * gridSpacing;
+        }
+        nextAvailablePosition = getNextAvailablePosition(x, y);
+
+        node = DagView.addNode({
             type: newType,
+            subType: subType,
             display: {
-                x: position.x + DagView.horzNodeSpacing,
-                y: position.y + DagView.vertNodeSpacing * parentNode.getChildren().length
+                x: nextAvailablePosition.x,
+                y: nextAvailablePosition.y
             }
         });
-        DagView.connectNodes(parentNodeId, node.getId(), 0);
+
+        if (parentNode && parentNode.getMaxChildren() !== 0) {
+            DagView.connectNodes(parentNodeId, node.getId(), 0);
+        }
+
         return node;
     }
 
@@ -1054,7 +1073,7 @@ namespace DagView {
 
     /**
      * Open a tab to show customOp's sub graph for editing
-     * @param nodeId 
+     * @param nodeId
      */
     export function editCustomOperator(nodeId: DagNodeId): void {
         const dagNode = activeDag.getNode(nodeId);
@@ -2273,5 +2292,31 @@ namespace DagView {
         const g = d3.select('#dagView .operator[data-nodeid = "' + nodeId + '"]');
         g.selectAll(".opProgress")
         .remove();
+    }
+
+    function getNextAvailablePosition(x: number, y: number): Coordinate {
+        let positions = {};
+        let positionConflict = true;
+
+        activeDag.getAllNodes().forEach(node => {
+            const pos: Coordinate = node.getPosition();
+            if (!positions[pos.x]) {
+                positions[pos.x] = {};
+            }
+            positions[pos.x][pos.y] = true;
+        });
+
+        while (positionConflict) {
+            positionConflict = false;
+            if (positions[x] && positions[x][y]) {
+                positionConflict = true;
+                y+= gridSpacing;
+                x += gridSpacing;
+            }
+        }
+        return {
+            x: x,
+            y: y
+        }
     }
 }

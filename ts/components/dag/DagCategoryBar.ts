@@ -313,6 +313,21 @@ class DagCategoryBar {
                 copy: true
             });
         });
+
+        this.$operatorBar.on("dblclick", ".operator .main", function() {
+            const $operator: JQuery = $(this).closest(".operator");
+            const $selectedNodes: JQuery = DagView.getSelectedNodes();
+            const newNodeInfo: DagNodeInfo = self._getOperatorInfo(
+                $operator.data('opid')
+            );
+            const type: DagNodeType = newNodeInfo.type;
+            const subType: DagNodeSubType = newNodeInfo.subType;
+            let parentNodeId: DagNodeId = null;
+            if ($selectedNodes.length === 1) {
+                parentNodeId = $selectedNodes.data("nodeid");
+            }
+            DagView.autoAddNode(type, subType, parentNodeId);
+        });
     }
 
     private _setupScrolling(): void {
