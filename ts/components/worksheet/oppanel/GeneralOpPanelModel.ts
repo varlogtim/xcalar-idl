@@ -6,8 +6,9 @@ class GeneralOpPanelModel {
     protected andOrOperator: string;
     protected _opCategories: number[];
     protected cachedBasicModeParam: string;
+    protected baseColumns: ProgCol[];
 
-    public constructor(dagNode: DagNode, event: Function) {
+    public constructor(dagNode: DagNode, event: Function, options) {
         this.dagNode = dagNode;
         this.event = event;
         this.groups = [];
@@ -16,8 +17,16 @@ class GeneralOpPanelModel {
             return parentNode.getLineage().getColumns();
         })[0] || [];
         this._opCategories = [];
-        const params: any = this.dagNode.getParam();
+        let params: any = this.dagNode.getParam();
         this._initialize(params);
+        const baseColumnNames = options.baseColumnNames;
+        if (baseColumnNames) {
+            this.baseColumns = baseColumnNames.map(colName => {
+                return this.tableColumns.find((progCol) => {
+                    return progCol.getBackColName() === colName;
+                });
+            });
+        }
     }
 
     /**
@@ -31,7 +40,7 @@ class GeneralOpPanelModel {
         }
     }
 
-    public getColumns() {
+    public getColumns(): ProgCol[] {
         return this.tableColumns;
     }
 
@@ -43,6 +52,21 @@ class GeneralOpPanelModel {
             this._update();
         }
         return this.tableColumns;
+    }
+
+    public getColumnByName(name: string): ProgCol {
+        return this.tableColumns.find((progCol) => {
+            return progCol.getBackColName() === name;
+        }) || null;
+    }
+
+    public getColumnNumByName(name: string): number {
+        for (let i = 0; i < this.tableColumns.length; i++) {
+            if (this.tableColumns[i].getBackColName() === name) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public getAggregates(): string[] {
@@ -169,6 +193,7 @@ class GeneralOpPanelModel {
     protected _getParam(): any {
         return this.dagNode.getParam();
     }
+
 
     // TODO: instead of storing formattedValue, calculate when needed based on
     // type
@@ -842,6 +867,37 @@ class GeneralOpPanelModel {
             }
         }
         return null;
+    }
+
+    protected _getAutoGenColName(name) {
+        const limit = 20; // we won't try more than 20 times
+        name = name.replace(/\s/g, '');
+        let newName = name;
+
+        let tries = 0;
+        while (tries < limit && (this.getColumnByName(newName) ||
+            this._checkColNameUsedInInputs(newName))) {
+            tries++;
+            newName = name + tries;
+        }
+
+        if (tries >= limit) {
+            newName = xcHelper.randName(name);
+        }
+
+        return newName;
+    }
+
+    protected _checkColNameUsedInInputs(name) {
+        name = xcHelper.stripColName(name);
+        let dupFound = false;
+        for (let i = 0; i < this.groups.length; i++) {
+            if (this.groups[i].newFieldName === name) {
+                dupFound = true;
+                break;
+            }
+        }
+        return dupFound;
     }
 
     public validateGroups() {

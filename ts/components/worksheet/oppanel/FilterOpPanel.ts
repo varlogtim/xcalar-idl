@@ -1,6 +1,5 @@
 class FilterOpPanel extends GeneralOpPanel {
     protected _dagNode: DagNodeFilter;
-    private filterData: FilterOpPanelModel;
     protected _opCategories: number[] = [FunctionCategoryT.FunctionCategoryCondition];
 
     public constructor() {
@@ -13,14 +12,14 @@ class FilterOpPanel extends GeneralOpPanel {
         super.setupPanel("#filterOpPanel");
 
         this._$panel.find('.addFilterArg').click(function() {
-            self.filterData.addGroup();
+            self.model.addGroup();
             self._scrollToGroup(self._$panel.find(".group").length - 1);
         });
 
         this._$panel.on('click', '.closeGroup', function() {
             const $group = $(this).closest('.group');
             const index = self._$panel.find(".group").index($group);
-            self.filterData.removeGroup(index);
+            self.model.removeGroup(index);
         });
 
         this._functionsInputEvents();
@@ -28,7 +27,7 @@ class FilterOpPanel extends GeneralOpPanel {
         // toggle filter and/or
         this._$panel.find(".andOrSwitch").click(function() {
             const wasAnd = $(this).hasClass("on");
-            self.filterData.toggleAndOr(wasAnd);
+            self.model.toggleAndOr(wasAnd);
             self._updateStrPreview(false, true);
         });
     };
@@ -39,10 +38,10 @@ class FilterOpPanel extends GeneralOpPanel {
     // triggerColNum: colNum that triggered the opmodal
     public show(node: DagNodeFilter, options?): boolean {
         if (super.show(node, options)) {
-            this.filterData = new FilterOpPanelModel(node, () => {
+            this.model = new FilterOpPanelModel(node, () => {
                 this._render();
-            });
-            super._panelShowHelper(this.filterData);
+            }, options);
+            super._panelShowHelper(this.model);
             this._render();
             return true;
         }
@@ -50,7 +49,7 @@ class FilterOpPanel extends GeneralOpPanel {
     }
 
     protected _render(): void {
-        const model = this.filterData.getModel();
+        const model = this.model.getModel();
         const self = this;
 
         const scrollTop = this._$panel.find(".opSection").scrollTop();
@@ -309,7 +308,7 @@ class FilterOpPanel extends GeneralOpPanel {
             }
             this._clearFunctionsInput(index, onChange);
         } else {
-            this.filterData.enterFunction(func, operObj, index);
+            this.model.enterFunction(func, operObj, index);
             this._focusNextInput(index);
             this._scrollToGroup(index, true);
         }
@@ -329,7 +328,7 @@ class FilterOpPanel extends GeneralOpPanel {
         $group.find('.descriptionText').empty();
         $group.find('.functionsInput').data("value", "");
         this._hideDropdowns();
-        this.filterData.enterFunction(val, null, groupNum);
+        this.model.enterFunction(val, null, groupNum);
         this._checkIfStringReplaceNeeded(true);
     }
 
@@ -632,7 +631,7 @@ class FilterOpPanel extends GeneralOpPanel {
 
     // protected _updateStrPreview2(noHighlight?: boolean, andOrSwitch?: boolean) {
     //     const self = this;
-    //     const model = this.filterData.getModel();
+    //     const model = this.model.getModel();
     //     const $description = this._$panel.find(".strPreview");
 
     //     let tempText;
@@ -756,15 +755,15 @@ class FilterOpPanel extends GeneralOpPanel {
     protected _validate(): boolean {
         const self = this;
         if (this._isAdvancedMode()) {
-            const error: {error: string} = this.filterData.validateAdvancedMode(this._editor.getValue());
+            const error: {error: string} = this.model.validateAdvancedMode(this._editor.getValue());
             if (error != null) {
                 StatusBox.show(error.error, this._$panel.find(".advancedEditor"));
                 return false;
             }
         } else {
-            const error = this.filterData.validateGroups();
+            const error = this.model.validateGroups();
             if (error) {
-                const model = this.filterData.getModel();
+                const model = this.model.getModel();
                 const groups = model.groups;
                 const $input = this._$panel.find(".group").eq(error.group).find(".arg").eq(error.arg);
                 switch (error.type) {
@@ -784,7 +783,7 @@ class FilterOpPanel extends GeneralOpPanel {
                         for (var i = 0; i < group.args.length; i++) {
                             let arg = group.args[i];
                             if (arg.getType() === "column") {
-                                let colType = self.filterData.getColumnTypeFromArg(arg.getFormattedValue());
+                                let colType = self.model.getColumnTypeFromArg(arg.getFormattedValue());
                                 let requiredTypes = self._parseType(arg.getTypeid());
                                 allColTypes.push({
                                     inputTypes: [colType],
@@ -953,6 +952,6 @@ class FilterOpPanel extends GeneralOpPanel {
     }
 
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
-        return this.filterData.switchMode(toAdvancedMode, this._editor);
+        return this.model.switchMode(toAdvancedMode, this._editor);
     }
 }

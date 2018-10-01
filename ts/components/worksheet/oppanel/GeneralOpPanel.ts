@@ -20,7 +20,7 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _table;
     // protected _dagNode: DagNodeGroupBy | DagNodeAggregate | DagNodeMap | DagNodeFilter;
     protected _dagNode: DagNode;
-    protected dataModel;
+    protected model;
     protected _opCategories: number[];
 
      // shows valid cast types
@@ -201,7 +201,7 @@ class GeneralOpPanel extends BaseOpPanel {
             const $group = $input.closest(".group")
             const groupIndex = self._$panel.find(".group").index($group);
             const argIndex = $group.find(".argsSection").last().find(".arg").index($input);
-            self.dataModel.updateArg(val, groupIndex, argIndex, {
+            self.model.updateArg(val, groupIndex, argIndex, {
                 boolean: true,
                 typeid: $input.data("typeid")
             });
@@ -255,7 +255,7 @@ class GeneralOpPanel extends BaseOpPanel {
                 }
             }
 
-            self.dataModel.updateArg($arg.val(), groupIndex, index, {
+            self.model.updateArg($arg.val(), groupIndex, index, {
                 isEmptyArg: isChecked && isEmptyArgsBox,
                 isNone: isChecked && !isEmptyArgsBox && $checkbox.hasClass("noArg"),
                 isEmptyString: isChecked && $checkbox.hasClass("emptyStr")
@@ -278,23 +278,6 @@ class GeneralOpPanel extends BaseOpPanel {
         super.showPanel(this._operatorName, options);
 
         this._resetForm();
-
-        // XXX use real table and/or remove unneeded references to table
-        this._table = this._dagNode.getTable();
-        this._table = {
-            hasColWithBackName: function() {return true;},
-            getColByFrontName: function(name) {
-                return ColManager.newCol({
-                    "backName": name,
-                    "name": name,
-                    "isNewCol": false,
-                    "sizedTo": "header",
-                    "width": xcHelper.getDefaultColWidth(name),
-                    "userStr": '"' + name + '" = pull(' + name + ')'
-                });
-            }
-        };
-
         this._operationsViewShowListeners();
 
         // used for css class
@@ -352,7 +335,7 @@ class GeneralOpPanel extends BaseOpPanel {
     }
 
     protected _panelShowHelper(dataModel): void {
-        this.dataModel = dataModel;
+        this.model = dataModel;
         const aggs = Aggregates.getNamedAggs();
         this._aggNames = [];
         for (const i in aggs) {
@@ -412,7 +395,7 @@ class GeneralOpPanel extends BaseOpPanel {
         const $group = $input.closest(".group")
         const groupIndex = this._$panel.find(".group").index($group);
         const argIndex = $group.find(".arg").index($input);
-        this.dataModel.updateArg(val, groupIndex, argIndex);
+        this.model.updateArg(val, groupIndex, argIndex);
     }
 
     protected _scrollToGroup (
@@ -514,7 +497,7 @@ class GeneralOpPanel extends BaseOpPanel {
                 if (castType === "default") {
                     castType = null;
                 }
-                self.dataModel.updateCast(castType, groupIndex, argIndex);
+                self.model.updateCast(castType, groupIndex, argIndex);
             },
             "container": self._panelContentSelector
         });
@@ -600,7 +583,7 @@ class GeneralOpPanel extends BaseOpPanel {
         const $group = $input.closest(".group")
         const groupIndex = this._$panel.find(".group").index($group);
         const argIndex = $group.find(".argsSection").last().find(".arg").index($input);
-        this.dataModel.updateArg(val, groupIndex, argIndex);
+        this.model.updateArg(val, groupIndex, argIndex);
     }
 
     protected _getMatchingAggNames(val: string): string[] {
@@ -627,7 +610,7 @@ class GeneralOpPanel extends BaseOpPanel {
     }
 
     protected _getMatchingColNames(val: string): string[] {
-        const cols: ProgCol[] = this.dataModel.getColumns();
+        const cols: ProgCol[] = this.model.getColumns();
         const list: string[] = [];
         const seen = {};
         const originalVal: string = val;
@@ -1049,7 +1032,7 @@ class GeneralOpPanel extends BaseOpPanel {
             return false;
         }
 
-        this.dataModel.submit();
+        this.model.submit();
         this.close(true);
         return true;
     }
@@ -1057,7 +1040,7 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _validate() {}
 
     protected _isOperationValid(groupNum): boolean {
-        const groups = this.dataModel.getModel().groups;
+        const groups = this.model.getModel().groups;
         const operator = groups[groupNum].operator;
         return this._getOperatorObj(operator) != null;
     }
@@ -1100,7 +1083,7 @@ class GeneralOpPanel extends BaseOpPanel {
                 const cols: string[] = args[i].split(",");
                 let casting: boolean = false;
                 for (let j = 0; j < cols.length; j++) {
-                    const progCol: ProgCol = self._table.getColByBackName(cols[j]);
+                    const progCol: ProgCol = self.model.getColumnByName(cols[j]);
                     if (progCol != null) {
                         const castType: string = $input.data('casttype');
                         if (castType !== progCol.getType() && !casting) {
@@ -1342,7 +1325,7 @@ class GeneralOpPanel extends BaseOpPanel {
             value = valSpacesRemoved;
         }
         let colType: string = null;
-        const progCol: ProgCol = this._table.getColByFrontName(value);
+        const progCol: ProgCol = this.model.getColumnByName(value);
         if (progCol != null) {
             colType = progCol.getType();
             if (colType === ColumnType.integer && !progCol.isKnownType()) {
@@ -1366,7 +1349,7 @@ class GeneralOpPanel extends BaseOpPanel {
                 value = trimmedVal;
             }
 
-            const progCol: ProgCol = self._table.getColByFrontName(value);
+            const progCol: ProgCol = self.model.getColumnByName(value);
             if (progCol == null) {
                 console.error("cannot find col", value);
                 return;
@@ -1649,17 +1632,6 @@ class GeneralOpPanel extends BaseOpPanel {
                                             .eq(0).text();
             $(this).attr('placeholder', placeholderText);
         });
-    }
-
-    protected _getBackColName(frontColName: string): string {
-        const progCol: ProgCol = this._table.getColByFrontName(frontColName);
-        if (progCol != null) {
-            return progCol.getBackColName();
-        } else {
-            // XXX Cheng: it's an error case.
-            // is this the correct way to handle it?
-            return frontColName;
-        }
     }
 
     protected _listHighlightListener(event: JQueryEventObject): void {

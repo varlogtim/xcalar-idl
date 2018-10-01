@@ -9,8 +9,8 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
     protected groupAll: boolean;
     protected groupOnCols: string[];
 
-    public constructor(dagNode: DagNodeGroupBy, event: Function) {
-        super(dagNode, event,);
+    public constructor(dagNode: DagNodeGroupBy, event: Function, options) {
+        super(dagNode, event, options);
     }
 
     /**
@@ -68,8 +68,6 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
                                             return new OpPanelArg("",
                                             opInfo.argDescs[i].typesAccepted);
                                         });
-            this._update();
-            return;
         } else {
             this.groups[index].args = [];
         }

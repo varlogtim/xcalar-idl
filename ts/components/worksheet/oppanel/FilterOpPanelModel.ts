@@ -6,10 +6,6 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
     protected groups: OpPanelFunctionGroup[]; // TODO fix
     protected andOrOperator: string;
 
-    public constructor(dagNode: DagNodeFilter, event: Function) {
-        super(dagNode, event,);
-    }
-
     /**
      * Return the whole model info
      */
@@ -32,11 +28,12 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
                                             return new OpPanelArg("",
                                             opInfo.argDescs[i].typesAccepted);
                                         });
+            if (this.baseColumns && index === 0) {
+                this.updateArg(this.baseColumns[0].getBackColName(), 0, 0);
+            }
             if (value === "regex" && numArgs === 2) {
                 this.groups[index].args[1].setRegex(true);
             }
-            this._update();
-            return;
         } else {
             this.groups[index].args = [];
         }

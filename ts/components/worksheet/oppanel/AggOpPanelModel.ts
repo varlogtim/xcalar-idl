@@ -6,10 +6,6 @@ class AggOpPanelModel extends GeneralOpPanelModel {
     protected groups: OpPanelFunctionGroup[];
     protected dest: string;
 
-    public constructor(dagNode: DagNodeAggregate, event: Function) {
-        super(dagNode, event,);
-    }
-
     /**
      * Return the whole model info
      */
@@ -32,8 +28,9 @@ class AggOpPanelModel extends GeneralOpPanelModel {
                                             return new OpPanelArg("",
                                             opInfo.argDescs[i].typesAccepted);
                                         });
-            this._update();
-            return;
+            if (this.baseColumns && index === 0) {
+                this.updateArg(this.baseColumns[0].getBackColName(), 0, 0);
+            }
         } else {
             this.groups[index].args = [];
         }

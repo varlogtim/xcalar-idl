@@ -29,14 +29,10 @@ namespace DagNodeMenu {
         $li.addClass('exit' + nameUpper.replace(/ /g,''));
     }
 
-    export function execute(action, params) {
-        let options;
+    export function execute(action, options) {
         switch (action) {
             case("configureNode"):
-                options = {
-                    exitCallback: params.exitCallback
-                };
-                configureNode(params.node, options);
+                configureNode(options.node, options);
                 break;
             default:
                 break;
@@ -200,6 +196,7 @@ namespace DagNodeMenu {
     function configureNode(node: DagNode, options?) {
         const type: DagNodeType = node.getType();
         const subType: DagNodeSubType = node.getSubType();
+        options = options || {};
         options = $.extend(options, {
            closeCallback: function() {
                unlock();

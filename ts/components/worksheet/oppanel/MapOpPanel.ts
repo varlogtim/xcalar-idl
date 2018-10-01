@@ -3,9 +3,7 @@ class MapOpPanel extends GeneralOpPanel {
 
     private _filteredOperatorsMap = [];
     protected _functionsMap = [];
-    private _currentCol: any;
     protected _dagNode: DagNodeMap;
-    protected model: MapOpPanelModel;
     protected _opCategories: number[] = [];
     private _pendingFnUpdate: any = null;
 
@@ -70,7 +68,7 @@ class MapOpPanel extends GeneralOpPanel {
         if (super.show(node, options)) {
             this.model = new MapOpPanelModel(this._dagNode, () => {
                 this._render();
-            });
+            }, options);
             super._panelShowHelper(this.model);
             this._render();
 
@@ -378,7 +376,6 @@ class MapOpPanel extends GeneralOpPanel {
     }
 
     protected _showFunctionsInputErrorMsg(groupNum) {
-
         let $target = this._$panel.find(".group").eq(groupNum).find(".functionsMenu").parent();
         let text = ErrTStr.NoEmpty;
 
@@ -469,13 +466,12 @@ class MapOpPanel extends GeneralOpPanel {
         let func = operObj.fnName;
 
         const $argsSection = $argsGroup.find('.argsSection').last();
-        const firstTime = !$argsSection.hasClass("touched");
+
         $argsSection.empty();
         $argsSection.addClass("touched");
         $argsSection.removeClass('inactive');
         $argsSection.data("fnname", operObj.displayName);
         this._$panel.find(".icvMode").removeClass('inactive');
-
 
         let defaultValue = ""; // to autofill first arg
 
@@ -502,7 +498,7 @@ class MapOpPanel extends GeneralOpPanel {
         // as new column name input
         this._setupBasicArgInputsAndDescs(numArgs, operObj, $rows, defaultValue);
 
-        const strPreview = this._mapArgumentsSetup(groupIndex, numArgs, categoryNum, func, operObj);
+        const strPreview = this._mapArgumentsSetup(groupIndex, numArgs, operObj);
         numArgs++;
 
         // hide any args that aren't being used
@@ -623,11 +619,9 @@ class MapOpPanel extends GeneralOpPanel {
     }
 
 //  // sets up the last argument for map
-    private _mapArgumentsSetup(groupIndex, numArgs, categoryNum, func, operObj) {
+    private _mapArgumentsSetup(groupIndex, numArgs, operObj) {
         const description = OpModalTStr.ColNameDesc + ":";
-        let autoGenColName = "";
         const $rows = this._$panel.find(".group").eq(groupIndex).find('.row');
-
         const $row = $rows.eq(numArgs).addClass('resultantColNameRow');
         const icon = xcHelper.getColTypeIcon(operObj.outputType);
 
@@ -635,8 +629,6 @@ class MapOpPanel extends GeneralOpPanel {
             .addClass('colNameSection')
             .prepend('<div class="iconWrapper"><i class="icon ' + icon +
                     '"></i></div>')
-            .end()
-            .find('.arg').val(autoGenColName)
             .end()
             .find('.description').text(description)
             .end()
@@ -646,43 +638,6 @@ class MapOpPanel extends GeneralOpPanel {
                             '(' + $rows.eq(0).find(".arg").val() +
                             ')</span>)';
         return (strPreview);
-    }
-
-    private _getAutoGenColName(name) {
-        const limit = 20; // we won't try more than 20 times
-        name = name.replace(/\s/g, '');
-        let newName = name;
-
-        let tries = 0;
-        while (tries < limit && (this._table.hasCol(newName, "") ||
-            this._checkColNameUsedInInputs(newName))) {
-            tries++;
-            newName = name + tries;
-        }
-
-        if (tries >= limit) {
-            newName = xcHelper.randName(name);
-        }
-
-        return newName;
-    }
-
-    private _checkColNameUsedInInputs(name, $inputToIgnore?: JQuery) {
-        name = xcHelper.stripColName(name);
-        const $inputs = this._$panel.find(".resultantColNameRow")
-                                      .find("input");
-        let dupFound = false;
-        $inputs.each(function() {
-            if ($inputToIgnore && $(this).is($inputToIgnore)) {
-                return;
-            }
-            const val = $(this).val();
-            if (val === name) {
-                dupFound = true;
-                return false;
-            }
-        });
-        return dupFound;
     }
 
     protected _updateStrPreview(noHighlight?: boolean) {

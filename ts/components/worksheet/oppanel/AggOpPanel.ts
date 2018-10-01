@@ -1,6 +1,5 @@
 class AggOpPanel extends GeneralOpPanel {
     protected _dagNode: DagNodeAggregate;
-    protected model: AggOpPanelModel;
     protected _opCategories: number[] = [FunctionCategoryT.FunctionCategoryAggregate];
 
     public constructor() {
@@ -24,7 +23,7 @@ class AggOpPanel extends GeneralOpPanel {
         if (super.show(<DagNode>node, options)) {
             this.model = new AggOpPanelModel(this._dagNode, () => {
                 this._render();
-            });
+            }, options);
             super._panelShowHelper(this.model);
             this._render();
             this._$panel.find('.functionsInput').focus();

@@ -160,7 +160,7 @@ class ColMenu extends AbstractMenu {
             const colNums: number[] = $colMenu.data("colNums");
             const tableId: TableId = $colMenu.data('tableId');
             if (gTables[tableId].modelingMode) {
-                this._createNode(DagNodeType.Join, tableId, colNums);
+                this._createNodeAndShowForm(DagNodeType.Join, tableId, colNums);
             } else {
                 JoinView.show(tableId, colNums);
             }
@@ -173,7 +173,7 @@ class ColMenu extends AbstractMenu {
             const colNums: number[] = $colMenu.data("colNums");
             const tableId: TableId = $colMenu.data('tableId');
             if (gTables[tableId].modelingMode) {
-                this._createNode(DagNodeType.Set, tableId, colNums);
+                this._createNodeAndShowForm(DagNodeType.Set, tableId, colNums);
             } else {
                 UnionView.show(tableId, colNums);
             }
@@ -193,7 +193,7 @@ class ColMenu extends AbstractMenu {
                 if (func === "group by") {
                     type = DagNodeType.GroupBy;
                 }
-                this._createNode(type, tableId, colNums);
+                this._createNodeAndShowForm(type, tableId, colNums);
             } else {
                 OperationsView.show(tableId, colNums, func, {
                     triggerColNum: triggerColNum
@@ -217,7 +217,7 @@ class ColMenu extends AbstractMenu {
             const tableId: TableId = $colMenu.data('tableId');
             const colNums: number[] = $colMenu.data("colNums");
             if (gTables[tableId].modelingMode) {
-                this._createNode(DagNodeType.Project, tableId, colNums);
+                this._createNodeAndShowForm(DagNodeType.Project, tableId, colNums);
             } else {
                 ProjectView.show(tableId, colNums);
             }
@@ -510,7 +510,7 @@ class ColMenu extends AbstractMenu {
         return colNames;
     }
 
-    private _createNode(
+    private _createNodeAndShowForm(
         type: DagNodeType,
         tableId: TableId,
         colNums: number[]
@@ -522,7 +522,8 @@ class ColMenu extends AbstractMenu {
             const progCols: ProgCol[] = colNums.map((colNum) => table.getCol(colNum));
             this._setNodeParam(node, progCols);
             if (node.getMaxParents() === 1) {
-                this._openOpPanel(node);
+                const colNames: string[] = progCols.map(progCol => progCol.getBackColName());
+                this._openOpPanel(node, colNames);
             }
         } catch (e) {
             console.error("error", e);
@@ -538,21 +539,16 @@ class ColMenu extends AbstractMenu {
             case DagNodeType.Aggregate:
             case DagNodeType.Filter:
             case DagNodeType.Map:
-                // XXX TODO, populate it in panel
+                break;
+            case DagNodeType.GroupBy:
+            case DagNodeType.GroupBy:
+                const params = <DagNodeGroupByInput>node.getParam();
+                params.groupBy = columns;
+                node.setParam(params);
                 break;
             case DagNodeType.Project:
                 (<DagNodeProject>node).setParam({
                     columns: columns
-                });
-                break;
-            case DagNodeType.GroupBy:
-                (<DagNodeGroupBy>node).setParam({
-                    groupBy: columns,
-                    aggregate: [],
-                    includeSample: false,
-                    icv: false,
-                    groupAll: false,
-                    newKeys: null
                 });
                 break;
             case DagNodeType.Join:
@@ -582,9 +578,10 @@ class ColMenu extends AbstractMenu {
         }
     }
 
-    private _openOpPanel(node: DagNode): void {
+    private _openOpPanel(node: DagNode, colNames: string[]): void {
         DagNodeMenu.execute("configureNode", {
             node: node,
+            baseColumnNames: colNames,
             exitCallback: function() {
                 DagView.removeNodes([node.getId()]);
             }

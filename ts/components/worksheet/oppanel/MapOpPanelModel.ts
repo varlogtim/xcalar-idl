@@ -6,10 +6,6 @@ class MapOpPanelModel extends GeneralOpPanelModel {
     protected groups: OpPanelFunctionGroup[];
     protected icv: boolean;
 
-    public constructor(dagNode: DagNodeMap, event: Function) {
-        super(dagNode, event,);
-    }
-
     /**
      * Return the whole model info
      */
@@ -29,6 +25,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
             args: [],
             newFieldName: ""
         });
+
         this._update();
     }
 
@@ -41,11 +38,27 @@ class MapOpPanelModel extends GeneralOpPanelModel {
                                             return new OpPanelArg("",
                                             opInfo.argDescs[i].typesAccepted);
                                         });
+            if (this.baseColumns && index === 0) {
+                this.updateArg(this.baseColumns[0].getBackColName(), 0, 0);
+            }
             if (value === "regex" && numArgs === 2) {
                 this.groups[index].args[1].setRegex(true);
             }
         } else {
             this.groups[index].args = [];
+        }
+
+        if (this.baseColumns && index === 0) {
+            let autoGenColName: string = xcHelper.parsePrefixColName(this.baseColumns[0].getBackColName()).name;
+            if (opInfo.displayName.indexOf(":") > -1) {
+                autoGenColName += "_udf";
+            } else {
+                autoGenColName += "_" + opInfo.displayName;
+            }
+
+            autoGenColName = xcHelper.stripColName(autoGenColName);
+            autoGenColName = this._getAutoGenColName(autoGenColName);
+            this.updateNewFieldName(autoGenColName, 0);
         }
 
         this._update();

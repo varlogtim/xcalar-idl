@@ -1,7 +1,6 @@
 class GroupByOpPanel extends GeneralOpPanel {
     private _tableId: TableId;
     protected _dagNode: DagNodeGroupBy;
-    private model: GroupByOpPanelModel;
     protected _opCategories: number[] = [FunctionCategoryT.FunctionCategoryAggregate];
 
     public constructor() {
@@ -90,7 +89,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         if (super.show(node, options)) {
             this.model = new GroupByOpPanelModel(this._dagNode, (all) => {
                 this._render(all);
-            });
+            }, options);
 
             super._panelShowHelper(this.model);
             this._render(true);
@@ -700,7 +699,7 @@ class GroupByOpPanel extends GeneralOpPanel {
 
         if (xcHelper.hasValidColPrefix(arg)) {
             arg = this._parseColPrefixes(arg);
-            const colNum = this._table.getColNumByFrontName(arg);
+            const colNum = this.model.getColumnNumByName(arg);
             if (colNum > -1) {
                 $input.data("colname", arg);
                 $table.find(".col" + colNum).addClass("modalHighlighted");
@@ -714,7 +713,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         let newName = name;
 
         let tries = 0;
-        while (tries < limit && (this._table.hasCol(newName, "") ||
+        while (tries < limit && (this.model.getColumnByName(newName) ||
             this._checkColNameUsedInInputs(newName))) {
             tries++;
             newName = name + tries;
@@ -902,8 +901,8 @@ class GroupByOpPanel extends GeneralOpPanel {
         return true;
     }
 
-    private _getColNum(backColName) {
-        return this._table.getColNumByBackName(backColName);
+    private _getColNum(backColName: string): number {
+        return this.model.getColumnNumByName(backColName);
     }
 
     // used for args with column names provided like $col1, and not "hey" or 3
@@ -1121,7 +1120,7 @@ class GroupByOpPanel extends GeneralOpPanel {
             this.model.updateGroupOnArg(val, argIndex);
         } else {
             const argIndex = $group.find(".argsSection").last().find(".arg").index($input);
-            this.dataModel.updateArg(val, groupIndex, argIndex);
+            this.model.updateArg(val, groupIndex, argIndex);
         }
     }
 
