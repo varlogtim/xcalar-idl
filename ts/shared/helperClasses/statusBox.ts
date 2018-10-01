@@ -59,12 +59,12 @@ namespace StatusBox {
             this.$target = $target;
             this.type = options.type || "error";
             this.side = options.side || "right";
-
             this.setupBasicClasses(options);
             this.setupTargetEvents(formMode, options.persist);
             this.addTitle();
             this.addText(text, options.html);
             this.addDetail(options.detail);
+            $target.scrollintoview({duration: 0});
             this.setupPosition(options.offsetX, options.offsetY);
             this.setupHideOption(options.preventImmediateHide, options.delayHide);
         }
@@ -163,14 +163,25 @@ namespace StatusBox {
 
         // position the message
         private setupPosition(offsetX: number = 0, offsetY: number = 0): void {
+
             const $target: JQuery = this.$target;
             const $statusBox: JQuery = this.$statusBox;
             const bound: ClientRect = $target[0].getBoundingClientRect();
             const winWidth: number = <number>$(window).width();
-            const statusBoxWidth: number = <number>$statusBox.width();
+            const arrowWidth: number = 12;
+            const statusBoxWidth: number = <number>$statusBox.width() + arrowWidth;
             let top: number = bound.top - 30;
-            let right: number = winWidth - bound.right - statusBoxWidth - 12;
-            let left: number = bound.left - statusBoxWidth - 12;
+            let right: number = winWidth - bound.right - statusBoxWidth;
+            let left: number = bound.left - statusBoxWidth;
+
+            if (this.side === "right" && bound.left > (winWidth - statusBoxWidth)) {
+                // if statusbox is to be positioned on the right but the target
+                // is too far to the right, the statusbox would obscure it, so
+                // position it to the left
+                this.side = "left";
+                $statusBox.removeClass("right");
+                $statusBox.addClass("left");
+            }
 
             if (this.side === "right") {
                 right += offsetX;
@@ -192,7 +203,7 @@ namespace StatusBox {
             }
 
             // prevent too far left
-            left = Math.min(left, winWidth - statusBoxWidth - 10);
+            left = Math.min(left, winWidth - statusBoxWidth);
             // prevent too far right
             right = Math.max(right, 5);
             // prevent too far top

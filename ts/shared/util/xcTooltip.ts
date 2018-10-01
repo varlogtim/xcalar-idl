@@ -95,7 +95,9 @@ namespace xcTooltip {
 
         const toolTipOptions: TooltipOptions = $.extend(defaultOptions, options);
         $element.tooltip(<any>toolTipOptions);
+        $element.scrollintoview({duration: 0});
         $element.tooltip("show");
+
         const $tooltip: JQuery = $element.data("bs.tooltip").$tip;
         let timer: number = null;
         if (delay != null) {

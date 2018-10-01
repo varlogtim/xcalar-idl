@@ -184,6 +184,7 @@ interface JQuery {
     datepicker(methodName: string, params: any): JQuery;
     datepicker(options: DatepickerOptions): JQuery;
     sort(fn?: Function): JQuery;
+    scrollintoview(any): JQuery;
 }
 
 interface LocalStorage {
