@@ -5742,7 +5742,7 @@
                     colStruct.rename = options.renamedCols[colStruct.colId];
                 }
             }
-            if (dupCols[colStruct.colId] && dupCols[colStruct.colId] > 0) {
+            if (colStruct.colId && dupCols[colStruct.colId] > 0) {
                 dupCols[colStruct.colId]++;
             } else {
                 dupCols[colStruct.colId] = 1;
