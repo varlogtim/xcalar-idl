@@ -1369,7 +1369,9 @@ window.DFParamModal = (function($, DFParamModal){
         }
 
         if (updatedStruct.error) {
-            StatusBox.show(updatedStruct.error, $modal.find(".confirm"));
+            if (typeof updatedStruct.error === "string") {
+                StatusBox.show(updatedStruct.error, $modal.find(".confirm"));
+            }
             return PromiseHelper.reject(updatedStruct.error);
         }
 
