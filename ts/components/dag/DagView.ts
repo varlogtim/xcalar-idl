@@ -183,9 +183,11 @@ namespace DagView {
         const dimensions = activeDag.getDimensions();
         const scale = activeDag.getScale();
         if (dimensions.width > -1) {
-            $dfArea.find(".dataflowAreaWrapper").css("min-height", dimensions.height * scale);
-            $dfArea.find(".sizer").css("min-width", dimensions.width * scale);
-            $dfArea.find(".dataflowAreaWrapper").css("min-width", dimensions.width * scale);
+            // dataflow height does not increase greater than 1X
+            $dfArea.find(".dataflowAreaWrapper").css("min-height", dimensions.height * Math.min(scale, 1));
+            // dataflow width is never affected by scale
+            $dfArea.find(".sizer").css("min-width", dimensions.width);
+            $dfArea.find(".dataflowAreaWrapper").css("min-width", dimensions.width);
         }
         $dfArea.find(".dataflowAreaWrapper").css("transform", "scale(" + scale + ")");
 
@@ -1109,40 +1111,39 @@ namespace DagView {
         } else {
             scale = zoomLevels[scaleIndex];
         }
-        let deltaScale: number;
-        let deltaScaleForScroll: number = scale / prevScale;
-        if (scale <= 1 && prevScale <= 1) {
-            deltaScale = scale / prevScale;
-        } else {
-            deltaScale = 1; // height/width shouldn't change when zooming in
-            // past 1
-        }
-
 
         activeDag.setScale(scale);
+        const deltaScale: number = scale / prevScale;
         const $dfArea = $dfWrap.find(".dataflowArea.active");
         const $dfAreaWrap = $dfArea.find(".dataflowAreaWrapper");
-        const scrollTop = $dfArea.scrollTop() + ($dfArea.height() / 2);
-        const scrollLeft = $dfArea.scrollLeft() + ($dfArea.width() / 2);
-        const newScrollTop = scrollTop * deltaScaleForScroll;
-        const newScrollLeft = scrollLeft * deltaScaleForScroll;
+        const prevScrollTop = $dfArea.scrollTop();
+        const prevScrollLeft = $dfArea.scrollLeft();
+        const prevMidHeight = $dfArea.height() / 2;
+        const prevMidWidth = $dfArea.width() / 2;
+
         $dfAreaWrap.css("transform", "scale(" + scale + ")");
-
-        const curMinWidth = parseInt($dfAreaWrap.css("min-width"));
         const curMinHeight = parseInt($dfAreaWrap.css("min-height"));
-        if (curMinWidth) {
-            $dfAreaWrap.css("min-width", curMinWidth);
-
-        }
         if (curMinHeight) {
-            $dfAreaWrap.css("min-height", curMinHeight * deltaScale);
+            let newMinHeight = curMinHeight;
+            // height shouldn't change when zooming in past 1X
+            if (scale <= 1 && prevScale <= 1) {
+                newMinHeight *= deltaScale;
+            }
+            $dfAreaWrap.css("min-height", newMinHeight);
         }
+
         // do not adjust scrolltop or scrollLeft if at 0
         if ($dfArea.scrollTop()) {
-            $dfArea.scrollTop(newScrollTop - ($dfArea.height() / 2));
+            const midHeight = $dfArea.height() / 2;
+            const scrollTop = deltaScale * (prevScrollTop + prevMidHeight) -
+                              midHeight;
+            $dfArea.scrollTop(scrollTop);
         }
         if ($dfArea.scrollLeft()) {
-            $dfArea.scrollLeft(newScrollLeft - ($dfArea.width() / 2));
+            const midWidth = $dfArea.width() / 2;
+            const scrollLeft = deltaScale * (prevScrollLeft + prevMidWidth) -
+                               midWidth;
+            $dfArea.scrollLeft(scrollLeft);
         }
     }
 
@@ -1816,8 +1817,7 @@ namespace DagView {
         const $dfArea = $dagView.find(".dataflowArea.active");
         let height: number;
         let width: number;
-        let scale = Math.min(activeDag.getScale(), 1);
-        // do not increase dataflow size greater than 1X
+
         if (force) {
             activeDag.setDimensions(elCoors.x, elCoors.y);
             width = elCoors.x;
@@ -1828,8 +1828,12 @@ namespace DagView {
             height = dimensions.height;
             activeDag.setDimensions(width, height);
         }
+
+        const scale = activeDag.getScale();
+        // dataflow width is never affected by scale
         $dfArea.find(".dataflowAreaWrapper").css("min-width", width);
-        $dfArea.find(".dataflowAreaWrapper").css("min-height", height * scale);
+        // dataflow height does not increase greater than 1X
+        $dfArea.find(".dataflowAreaWrapper").css("min-height", height * Math.min(scale, 1));
     }
 
     function _setTooltip($node: JQuery, node: DagNode): void {
