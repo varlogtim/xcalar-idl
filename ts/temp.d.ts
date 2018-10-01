@@ -216,7 +216,9 @@ interface ExtensionTypeCheck {
     multiColumn?: boolean;
     newAggName?: boolean;
     allowEmpty?: boolean;
-    tableField: string;
+    tableField?: string;
+    newColumnName?: boolean;
+    newTableName?: boolean;
 }
 
 interface ExtensionFieldInfo {
@@ -957,6 +959,9 @@ declare namespace ErrTStr {
     export var LargeFile: string;
     export var DuplicateColNames: string;
     export var Error: string;
+    export var NoEmptyList: string;
+    export var NoMultiCol: string;
+    export var OnlyInt: string;
 }
 
 declare namespace ErrWRepTStr {
@@ -973,6 +978,10 @@ declare namespace ErrWRepTStr {
     export var InvalidRange: string;
     export var TableNotDeleted: string;
     export var NoUDF: string;
+    export var InvalidColOnNode: string;
+    export var NoLessNum: string;
+    export var NoBiggerNum: string;
+    export var ColConflictInNode: string;
 }
 
 declare namespace ColTStr {
@@ -1853,6 +1862,7 @@ declare namespace FileBrowser {
 declare namespace ExtensionManager {
     export function setup(): XDPromise<void>;
     export function openView(colNum: number, tableId: TableId): void;
+    export function triggerFromDF(moduleName: string, funcName: string, args: object): XDPromise<string>;
 }
 
 declare namespace ExtensionPanel {
@@ -1939,4 +1949,13 @@ declare namespace XDParser {
 
 declare namespace ExtensionManager {
     export function getEnabledExtensions(): ExtensionInfo[]
+}
+
+declare namespace XcSDK {
+    class Table {
+        public constructor(tableName: string, worksheet: string, modelingMode: boolean);
+    }
+    class Column {
+        public constructor(colName: string, colType: ColumnType);
+    }
 }

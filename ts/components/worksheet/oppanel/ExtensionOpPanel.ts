@@ -7,6 +7,10 @@ class ExtensionOpPanel extends BaseOpPanel {
         this._setup();
     }
 
+    /**
+     * Show panel
+     * @param dagNode
+     */
     public show(dagNode: DagNodeExtension): boolean {
         if (!super.showPanel("Extension")) {
             return false;
@@ -17,6 +21,9 @@ class ExtensionOpPanel extends BaseOpPanel {
         return true;
     }
 
+    /**
+     * Close panel
+     */
     public close(): void {
         if (!this._formHelper.isOpen()) {
             return;
@@ -69,7 +76,42 @@ class ExtensionOpPanel extends BaseOpPanel {
     }
 
     private _submitForm(): void {
+        if (!this._validate()) {
+            // invalid case
+            return;
+        }
+        const args: object = this.argSection.getArgs();
+        if (args == null) {
+            // invalid case
+            return;
+        }
+        this.model.args = args;
+        this.model.submit();
+        this.close();
+    }
 
+    private _validate(): boolean {
+        if (this._isAdvancedMode()) {
+            // XXX TODO
+            // const advancedErr: {error: string} = this.setOpData.validateAdvancedMode(this._editor.getValue());
+            // if (advancedErr != null) {
+            //     StatusBox.show(advancedErr.error, $panel.find(".advancedEditor"));
+            //     return false;
+            // } else {
+            //     return true;
+            // }
+        }
+
+        let isValid: boolean = xcHelper.validate([{
+            $ele: this._getModuleDropdown().find("input")
+        }, {
+            $ele: this._getFuncDropdown().find("input")
+        }]);
+        if (!isValid) {
+            return false;
+        }
+
+        return true;
     }
 
     private _populateModuleList(): void {

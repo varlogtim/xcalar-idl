@@ -165,7 +165,7 @@ window.XcSDK.Extension.prototype = (function() {
                 }
             }
 
-            var newTable = new XcSDK.Table(tableName, self.worksheet);
+            var newTable = new XcSDK.Table(tableName, self.worksheet, this.modelingMode);
             self.newTables.push(newTable);
             return newTable;
         },
@@ -191,18 +191,24 @@ window.XcSDK.Extension.prototype = (function() {
         },
 
         // basically execution function
-        initialize: function(tableName, worksheet, args) {
+        initialize: function(tableOrName, worksheet, args, modelingMode) {
             // Important: User cannot change this function!!!
             this.args = args;
             this.worksheet = worksheet;
-            this.table = new XcSDK.Table(tableName, worksheet);
-
+            if (tableOrName instanceof XcSDK.Table) {
+                this.table = tableOrName;
+                var tableName = this.table.getName();
+            } else {
+                var tableName = tableOrName;
+                this.table = new XcSDK.Table(tableName, worksheet, this.modelingMode);
+            }
             var nameSplits = tableName.split("#");
             this.tableNameRoot = nameSplits[0];
             this.tableId = nameSplits[1];
             this.newTables = [];
             this.tempAggs = [];
             this.attrs = {};
+            this.modelingMode = modelingMode || false;
         },
 
         dropTable: function(tableName) {
@@ -305,7 +311,7 @@ window.XcSDK.Extension.prototype = (function() {
                     var tableName = xcTable.getName();
                     if (tableName.startsWith(".temp")) {
                         // a paraell delete of temp table
-                        promises.push(deleteTempTable(txId, tableName));
+                        // promises.push(deleteTempTable(txId, tableName));
                     } else if (xcTable.isInWorksheet()) {
                         var tablesToReplace = xcTable.getTablesToReplace();
                         if (tablesToReplace != null) {

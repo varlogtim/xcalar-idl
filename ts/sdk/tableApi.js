@@ -1,5 +1,5 @@
 window.XcSDK = window.XcSDK || {};
-window.XcSDK.Table = function(tableName, worksheet) {
+window.XcSDK.Table = function(tableName, worksheet, modelingMode) {
     this.tableName = tableName;
     // private variable
     this.worksheet = worksheet;
@@ -15,7 +15,7 @@ window.XcSDK.Table = function(tableName, worksheet) {
     if (this.tableCols == null) {
         this.tableCols = [];
     }
-
+    this.modelingMode = modelingMode || false;
     return this;
 };
 
@@ -137,7 +137,9 @@ window.XcSDK.Table.prototype = {
         if (len > 0) {
             this.tablesToReplace = tablesToReplace;
         }
-
+        if (this.modelingMode) {
+            return PromiseHelper.resolve();
+        }
         return TblManager.refreshTable([tableName], tableCols, tablesToReplace,
                                       ws, txId);
     },

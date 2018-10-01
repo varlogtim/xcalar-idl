@@ -15,6 +15,7 @@ class ExtensionOpPanelModel {
         return this._getModuleText(this._module);
     }
 
+
     set moduleName(moduleName: string) {
         if (moduleName !== this._module) {
             this._module = moduleName;
@@ -42,6 +43,9 @@ class ExtensionOpPanelModel {
         this._args = args;
     }
 
+    /**
+     * Get Available's modules, return their name and disaply text name
+     */
     public getAvailableModules(): {text: string, name: string}[] {
         return this.extensions.map((ext) => {
             const name: string = ext.name;
@@ -53,6 +57,9 @@ class ExtensionOpPanelModel {
         });
     }
 
+    /**
+     * Get Available's functions, return their name and disaply text name
+     */
     public getAvailableFunctions(): {text: string, name: string}[] {
         const extModule: ExtensionInfo = this._getSelectedModule();
         if (extModule == null) {
@@ -66,15 +73,25 @@ class ExtensionOpPanelModel {
         });
     }
 
+    /**
+     * Get how many parent nodes are connected with
+     */
     public getAvailableNodeNum(): number {
         return this.dagNode.getNumParent();
     }
 
+    /**
+     * Get columns of a parent node
+     * @param index
+     */
     public getColumns(index): ProgCol[] {
         const parentNode: DagNode = this.dagNode.getParents()[index];
         return parentNode ? parentNode.getLineage().getColumns() : [];
     }
 
+    /**
+     * Return false if the extension is configured as notTableDependent
+     */
     public hasDependentTable(): boolean {
         const extModule: ExtensionInfo = this._getSelectedModule();
         let res: boolean = false;

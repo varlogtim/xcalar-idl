@@ -395,6 +395,107 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         noFailAlert: boolean, to hide error alert
     }
      */
+    ExtensionManager.triggerFromDF = function(moduleName, funcName, args) {
+        if (moduleName == null || funcName == null || moduleName.indexOf("UExt") !== 0) {
+            return PromiseHelper.reject("Invalid argument in extension");
+        }
+
+        if (!extMap[moduleName] || !extMap[moduleName].hasOwnProperty(funcName)) {
+            var msg = xcHelper.replaceMsg(ErrTStr.ExtNotFound, {
+                module: moduleName,
+                fn: funcName
+            });
+            return PromiseHelper.reject(msg);
+        }
+
+        var deferred = PromiseHelper.deferred();
+        var notTableDependent = extMap[moduleName]._configParams.notTableDependent;
+
+        var table;
+        if (!notTableDependent) {
+            table = args["triggerNode"];
+        } else {
+            table = null;
+        }
+
+        // Note Use try catch in case user has come error in extension code
+        try {
+            var ext = window[moduleName].actionFn(funcName);
+            if (ext == null || !(ext instanceof XcSDK.Extension)) {
+                return PromiseHelper.reject(ErrTStr.InvalidExt);
+            }
+
+            var buttons = window[moduleName].buttons;
+            var extButton = null;
+            if (buttons instanceof Array) {
+                for (var i = 0, len = buttons.length; i < len; i++) {
+                    if (buttons[i].fnName === funcName) {
+                        extButton = buttons[i].arrayOfFields;
+                        break;
+                    }
+                }
+            }
+
+            var runBeforeStartRet;
+            var txId = Transaction.start({
+                operation: "Simulate",
+                simulate: true
+            });
+            ext.initialize(table, null, args, true);
+            ext.runBeforeStart(extButton)
+            .then(function() {
+                
+                return ext.run(txId);
+            })
+            .then(function(ret) {
+                runBeforeStartRet = ret;
+                return ext.runAfterFinish();
+            })
+            .then(function(finalTables, finalReplaces) {
+                // XXX TODO modify it
+                var finalTableName;
+                if (finalTables != null && finalTables.length > 0) {
+                    // use the last finalTable as msgTable
+                    finalTableName = finalTables[finalTables.length - 1];
+                } else if (finalReplaces != null) {
+                    for (var key in finalReplaces) {
+                        // use a random table in finalReplaces as msgTable
+                        finalTableName = key;
+                        break;
+                    }
+                }
+                const query = Transaction.done(txId, {
+                    noNotification: true,
+                    noSql: true,
+                    noCommit: true
+                });
+                deferred.resolve(finalTableName, query, runBeforeStartRet);
+            })
+            .fail(function(error) {
+                if (error == null) {
+                    error = ErrTStr.Unknown;
+                }
+                Transaction.fail(txId, {});
+                deferred.reject(error);
+            });
+        } catch (error) {
+            console.error(error.stack);
+            Transaction.fail(txId, {});
+            deferred.reject(error);
+        }
+
+        return deferred.promise();
+    };
+
+    /*
+    options: {
+        noNotification: boolean, to hide success message pop up
+        noSql: boolean, if set true, not add to sql log,
+        closeTab: boolean, if true, close view when pass before run check
+        formOpenTime: the open time of the form,
+        noFailAlert: boolean, to hide error alert
+    }
+     */
     ExtensionManager.trigger = function(tableId, module, func, args, options) {
         if (module == null || func == null || module.indexOf("UExt") !== 0) {
             throw "error extension!";
