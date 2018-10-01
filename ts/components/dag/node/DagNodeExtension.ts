@@ -10,13 +10,17 @@ built by:
 */
 class DagNodeExtension extends DagNode {
     protected input: DagNodeExtensionInput;
+    private newColumns: {name: string, type: ColumnType}[];
+    private droppedColumns: string[];
 
-    public constructor(options: DagNodeInfo) {
+    public constructor(options: DagNodeExtensionInfo) {
         super(options);
         this.type = DagNodeType.Extension;
         this.allowAggNode = true;
         this.maxParents = -1;
         this.minParents = 1;
+        this.newColumns = options.newColumns || [];
+        this.droppedColumns = options.droppedColumns || [];
     }
 
     /**
@@ -30,58 +34,217 @@ class DagNodeExtension extends DagNode {
         };
     }
 
+    public getConvertedParam(): DagNodeExtensionInput {
+        const param: DagNodeExtensionInput = this.getParam();
+        const convertedArgs: object = this._convertExtensionArgs(param.args);
+        return {
+            moduleName: param.moduleName,
+            functName: param.functName,
+            args: convertedArgs
+        }
+    }
+
     /**
      * Set Extension node's parameters
      * @param input {DagNodeExtensionInput}
      * @param input.evalString {string}
      */
-    public setParam(input: DagNodeExtensionInput = <DagNodeExtensionInput>{}) {
-        this.input = {
-            moduleName: input.moduleName,
-            functName: input.functName,
-            args: input.args
-        }
-        super.setParam();
+    public setParam(
+        input: DagNodeExtensionInput = <DagNodeExtensionInput>{}
+    ): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        this._getColumnChangs(input)
+        .then(() => {
+            this.input = {
+                moduleName: input.moduleName,
+                functName: input.functName,
+                args: input.args
+            }
+            super.setParam();
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     // XXX TODO: This is a hack now, should check if all the extension
     // we have can apply this, otherwise need to change
     public lineageChange(columns: ProgCol[]): DagLineageChange {
         const changes: {from: ProgCol, to: ProgCol}[] = [];
-        // const args: object = this.input.args;
-        // const isColumnArg = (arg: any): boolean => {
-        //     return typeof arg === "object" && arg["triggerColumn"] != null;
-        // };
-        // const getCols = (arg: object): ProgCol[] => {
-        //     const triggerColumn = arg["triggerColumn"]
-        //     const cols: {name: string, type: ColumnType}[] = triggerColumn instanceof Array ?
-        //     triggerColumn : [triggerColumn];
-        //     return cols.map((col) => ColManager.newPullCol(col.name, col.name, col.type));
-        // };
-
-        // let progCols: ProgCol[] = [];
-        // for (let key in args) {
-        //     const val: any = args[key];
-        //     if (val instanceof Array) {
-        //         val.forEach((subArg) => {
-        //             if (isColumnArg(subArg)) {
-        //                 progCols = progCols.concat(getCols(subArg));
-        //             }
-        //         });
-        //     } else if (isColumnArg(val)) {
-        //         progCols = progCols.concat(getCols(val));
-        //     }
-        // }
-        // progCols.forEach((progCol) => {
-        //     columns.push(progCol);
-        //     changes.push({
-        //         from: null,
-        //         to: progCol
-        //     });
-        // });
+        const set: Set<string> = new Set();
+        this.droppedColumns.forEach((name) => {
+            set.add(name);
+        });
+        columns = columns.filter((progCol) => {
+            if (set.has(progCol.getBackColName())) {
+                // drop column
+                changes.push({
+                    from: progCol,
+                    to: null
+                });
+                return false;
+            }
+            return true;
+        });
+        this.newColumns.forEach((column) => {
+            // add column
+            const fonrtName: string = xcHelper.parsePrefixColName(column.name).name;
+            const progCol: ProgCol = ColManager.newPullCol(fonrtName, column.name, column.type);
+            columns.push(progCol);
+            changes.push({
+                from: null,
+                to: progCol
+            })
+        });
         return {
             columns: columns,
             changes: changes
         }
+    }
+
+    protected _getSerializeInfo():DagNodeExtensionInfo {
+        const serializedInfo: DagNodeExtensionInfo = <DagNodeExtensionInfo>super._getSerializeInfo();
+        serializedInfo.newColumns = this.newColumns;
+        serializedInfo.droppedColumns = this.droppedColumns;
+        return serializedInfo;
+    }
+
+    private _convertExtensionArgs(args: object): object {
+        const extArgs: object = {};
+        for (let key in args) {
+            let val: any = args[key];
+            if (key === "triggerNode") {
+                val = this._getExtensionTable(args[key]);
+            } else if (val instanceof Array) {
+                // subArgs
+                val = val.map((subArg) => {
+                    if (typeof subArg === "object" &&
+                        subArg["triggerColumn"] != null
+                    ) {
+                        return this._getExtensionColumn(subArg["triggerColumn"]);
+                    } else {
+                        return subArg;
+                    }
+                })
+            } else if (typeof val == "object") {
+                if (val["triggerNode"] != null) {
+                    val = this._getExtensionTable(args[key]["triggerNode"]);
+                } else if (val["triggerColumn"] != null) {
+                    val = this._getExtensionColumn(val["triggerColumn"]);
+                }
+            }
+            extArgs[key] = val;
+        }
+        return extArgs;
+    }
+
+    private _getExtensionTable(nodeIndex): XcSDK.Table {
+        if (nodeIndex == null) {
+            return null;
+        }
+        const parentNode: DagNode = this.getParents()[nodeIndex];
+        if (parentNode == null) {
+            return null;
+        }
+        return new XcSDK.Table(parentNode.getTable(), null, true);
+    }
+
+    private _getExtensionColumn = (col: {
+        name: string,
+        type: ColumnType
+    } | {
+        name: string,
+        type: ColumnType
+    }[]): XcSDK.Column | XcSDK.Column[] => {
+        if (col instanceof Array) {
+            return col.map((col: {name: string, type: ColumnType}) => {
+                return new XcSDK.Column(col.name, col.type);
+            });
+        } else {
+            return  new XcSDK.Column(col.name, col.type);
+        }
+    }
+
+    private _getColumnChangs(params: DagNodeExtensionInput): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        try {
+            const args: object = this._convertExtensionArgs(params.args);
+            // overwrite old triggerNode
+            if (args["triggerNode"]) {
+                const tableName: string = xcHelper.randName("XcTable");
+                args["triggerNode"] = new XcSDK.Table(tableName, null, true)
+            }
+
+            const startCols: ProgCol[] = this._getColumnsFromArg(args);
+            ExtensionManager.triggerFromDF(params.moduleName, params.functName, args)
+            .then((_finalTable, _query, finalCols: ProgCol[]) => {
+                this._updateColumnsChange(startCols, finalCols);
+                deferred.resolve();
+            })
+            .fail(deferred.reject);
+        } catch (e) {
+            console.error(e);
+            return deferred.reject(e);
+        }
+        return deferred.promise();
+    }
+
+    private _getColumnsFromArg(args: object): ProgCol[] {
+        const progCols: ProgCol[] = [];
+        for (let key in args) {
+            let val: any = args[key];
+            if (!(val instanceof Array)) {
+                val = [val];
+            }
+            val.forEach((arg) => {
+                if (arg instanceof XcSDK.Column) {
+                    const colName: string = arg.getName();
+                    const frontName: string = xcHelper.parsePrefixColName(colName).name;
+                    const progCol: ProgCol = ColManager.newPullCol(frontName, colName, arg.getType());
+                    progCols.push(progCol);
+                }
+            });
+        }
+        return progCols;
+    }
+
+    private _updateColumnsChange(
+        startCols: ProgCol[],
+        finalCols: ProgCol[]
+    ): void {
+        const map: {[key: string]: ProgCol} = {};
+        startCols.forEach((progCol) => {
+            if (!progCol.isDATACol()) {
+                map[progCol.getBackColName()] = progCol;
+            }
+        });
+        const newColumns: {name: string, type: ColumnType}[] = [];
+        const droppedColumns: string[] = [];
+        finalCols.forEach((progCol) => {
+            if (progCol.isDATACol()) {
+                return;
+            }
+            const colName: string = progCol.getBackColName();
+            const colType: ColumnType = progCol.getType();
+            if (map.hasOwnProperty(colName)) {
+                // this column is still there, no change
+                delete map[colName];
+            } else {
+                // new added column
+                newColumns.push({
+                    name: colName,
+                    type: colType
+                });
+            }
+        });
+
+        for (let colName in map) {
+            // these column are count as removed
+            droppedColumns.push(colName);
+        }
+
+        this.newColumns = newColumns;
+        this.droppedColumns = droppedColumns;
     }
 }

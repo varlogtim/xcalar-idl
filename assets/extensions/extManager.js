@@ -469,7 +469,19 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     noSql: true,
                     noCommit: true
                 });
-                deferred.resolve(finalTableName, query, runBeforeStartRet);
+                const finalTable = ext.getTable(finalTableName);
+                let finalCols = [];
+                if (finalTable) {
+                    finalTable.getColsAsArray().forEach((col) => {
+                        const colName = col.getName();
+                        if (colName !== "DATA") {
+                            const frontName = xcHelper.parsePrefixColName(colName).name;
+                            const progCol = ColManager.newPullCol(frontName, colName, col.getType());
+                            finalCols.push(progCol);
+                        }
+                    });
+                }
+                deferred.resolve(finalTableName, query, finalCols, runBeforeStartRet);
             })
             .fail(function(error) {
                 if (error == null) {

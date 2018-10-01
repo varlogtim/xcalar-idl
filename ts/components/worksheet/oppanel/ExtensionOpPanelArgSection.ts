@@ -29,12 +29,56 @@ class ExtensionOpPanelArgSection {
                     .find(".tableSecion .dropDownList ul").empty();
     }
 
-    // XXX TODO
     /**
      * Restore the section
      * @param args
      */
-    public restore(args: object) {
+    public restore() {
+        const args: object = this.model.args;
+        let restoreInputArg = (
+            $input: JQuery,
+            val: any,
+            argInfo: ExtensionFieldInfo
+        ): void => {
+            if (argInfo.type === "table") {
+                this._selectNode(val["triggerNode"], $input);
+            } else if (argInfo.type === "column") {
+                val = val["triggerColumn"];
+                val = (val instanceof Array) ? val : [val];
+                const text: string = val.map((col: {name: string, type: ColumnType}) => {
+                    return gColPrefix + col.name;
+                }).join(", ");
+                $input.val(text);
+            } else {
+                $input.val(val);
+            }
+        };
+
+        if (this.model.hasDependentTable()) {
+            this._selectNode(args["triggerNode"], this._getMainNodeList().find("input"));
+        }
+
+        const $arguments: JQuery = this.$extArgs.find(".argument:not(.subArg)");
+        const extFields: ExtensionFieldInfo[] = this.model.func.arrayOfFields;
+        try {
+            $arguments.each((index, el) => {
+                const argInfo: ExtensionFieldInfo = extFields[index];
+                const $input: JQuery = $(el);
+                let val: any = args[argInfo.fieldClass];
+                if (argInfo.variableArg && val instanceof Array) {
+                    restoreInputArg($input, val[0], argInfo);
+                    const $field: JQuery = $input.closest(".field");
+                    for (let i = 1; i < val.length; i++) {
+                        const $subInput: JQuery = this._addClause($field);
+                        restoreInputArg($subInput, val[i], argInfo);
+                    }
+                } else {
+                    restoreInputArg($input, val, argInfo);
+                }
+            });
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     public getArgs(): object {
@@ -148,13 +192,17 @@ class ExtensionOpPanelArgSection {
             onSelect: ($li) => {
                 if (!$li.hasClass("hint")) {
                     const $input: JQuery = $li.closest(".dropDownList").find("input");
-                    $input.val($li.text());
-                    $input.data("index", $li.data("index"));
+                    this._selectNode($li.data("index"), $input);
                 }
             },
             container: selector,
             bounds: selector
         }).setupListeners();
+    }
+
+    private _selectNode(index: number, $input: JQuery): void {
+        $input.data("index", index)
+            .val(`Node ${(index + 1)}`);
     }
 
     private _addArgDropdown($list) {
@@ -198,7 +246,7 @@ class ExtensionOpPanelArgSection {
         });
     }
 
-    private _addClause($field: JQuery): void {
+    private _addClause($field: JQuery): JQuery {
         const $inputWraps: JQuery = $field.find(".inputWrap");
         const $newWrap: JQuery = $inputWraps.eq(0).clone();
         const $input: JQuery = $newWrap.find("input");
@@ -213,6 +261,7 @@ class ExtensionOpPanelArgSection {
         }
         $input.focus();
         this.formHelper.refreshTabbing();
+        return $input;
     }
 
     private _removeClause($inputWrap: JQuery): void {
@@ -559,19 +608,6 @@ class ExtensionOpPanelArgSection {
         const $input: JQuery = this._getMainNodeList().find("input");
         const nodeIndex: number = this._getNodeIndex($input);
         return this.model.hasDependentTable() ? nodeIndex : null;
-    }
-
-    private _validateMainNode(): {error: string, $el: JQuery} {
-        if (this.model.hasDependentTable()) {
-            const triggerNode: number = this.model.args["triggerNode"];
-            if (triggerNode == null || isNaN(triggerNode)) {
-                return {
-                    error: ErrTStr.NoEmptyList,
-                    $el: this._getMainNodeList().find("input")
-                }
-            }
-        }
-        return null;
     }
 
     private _getFieldArgs(): object {

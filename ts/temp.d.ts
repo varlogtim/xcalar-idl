@@ -1418,8 +1418,11 @@ declare namespace ExtensionManager {
 declare namespace XcSDK {
     class Table {
         public constructor(tableName: string, worksheet: string, modelingMode: boolean);
+        public getName(): string;
     }
     class Column {
         public constructor(colName: string, colType: ColumnType);
+        public getName(): string;
+        publkic getType(): ColumnType;
     }
 }

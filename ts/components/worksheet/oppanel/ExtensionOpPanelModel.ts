@@ -104,9 +104,9 @@ class ExtensionOpPanelModel {
     /**
      * Submit the settings of Set op node params
      */
-    public submit(): void {
+    public submit(): XDPromise<void> {
         const param: DagNodeExtensionInput = this._getParam();
-        this.dagNode.setParam(param);
+        return this.dagNode.setParam(param);
     }
 
     // public switchMode(

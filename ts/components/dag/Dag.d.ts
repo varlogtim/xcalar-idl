@@ -32,6 +32,11 @@ interface DagNodeIMDTableInfo extends DagNodeInfo {
     columns?: {name: string, type: ColumnType}[]
 }
 
+interface DagNodeExtensionInfo extends DagNodeInfo {
+    newColumns: {name: string, type: ColumnType}[];
+    droppedColumns: string[];
+}
+
 interface DagNodeMapInfo extends DagNodeInfo {
     aggregates?: string[]
 }

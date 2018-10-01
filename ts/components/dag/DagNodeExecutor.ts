@@ -360,10 +360,9 @@ class DagNodeExecutor {
         try {
             const deferred: XDDeferred<string> = PromiseHelper.deferred();
             const node: DagNodeExtension = <DagNodeExtension>this.node;
-            const params: DagNodeExtensionInput = node.getParam();
-            const extArgs: object = this._convertExtensionArgs(params.args);
+            const params: DagNodeExtensionInput = node.getConvertedParam();
             let finaTable: string;
-            ExtensionManager.triggerFromDF(params.moduleName, params.functName, extArgs)
+            ExtensionManager.triggerFromDF(params.moduleName, params.functName, params.args)
             .then((resTable, query) => {
                 finaTable = resTable;
                 return XIApi.query(this.txId, finaTable, query);
@@ -378,61 +377,5 @@ class DagNodeExecutor {
             console.error(e);
             return PromiseHelper.reject(e);
         }
-    }
-
-    private _convertExtensionArgs(args: object): object {
-        const extArgs: object = {};
-        let getExtensionTable = (nodeIndex): XcSDK.Table => {
-            if (nodeIndex == null) {
-                return null;
-            }
-            const parentNode: DagNode = this.node.getParents()[nodeIndex];
-            if (parentNode == null) {
-                return null;
-            }
-            return new XcSDK.Table(parentNode.getTable(), null, true);
-        };
-
-        let getExtensionColumn = (col: {
-            name: string,
-            type: ColumnType
-        } | {
-            name: string,
-            type: ColumnType
-        }[]): XcSDK.Column | XcSDK.Column[] => {
-            if (col instanceof Array) {
-                return col.map((col: {name: string, type: ColumnType}) => {
-                    return new XcSDK.Column(col.name, col.type);
-                });
-            } else {
-                return  new XcSDK.Column(col.name, col.type);
-            }
-        }
-
-        for (let key in args) {
-            let val: any = args[key];
-            if (key === "triggerNode") {
-                val = getExtensionTable(args[key]);
-            } else if (val instanceof Array) {
-                // subArgs
-                val = val.map((subArg) => {
-                    if (typeof subArg === "object" &&
-                        subArg["triggerColumn"] != null
-                    ) {
-                        return getExtensionColumn(subArg["triggerColumn"]);
-                    } else {
-                        return subArg;
-                    }
-                })
-            } else if (typeof val == "object") {
-                if (val["triggerNode"] != null) {
-                    val = getExtensionTable(args[key]["triggerNode"]);
-                } else if (val["triggerColumn"] != null) {
-                    val = getExtensionColumn(val["triggerColumn"]);
-                }
-            }
-            extArgs[key] = val;
-        }
-        return extArgs;
     }
 }

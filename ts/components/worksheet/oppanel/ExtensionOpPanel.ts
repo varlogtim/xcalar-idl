@@ -29,6 +29,7 @@ class ExtensionOpPanel extends BaseOpPanel {
             return;
         }
         super.hidePanel();
+        this._reset();
     }
 
     protected _reset(): void {
@@ -64,15 +65,15 @@ class ExtensionOpPanel extends BaseOpPanel {
         if (!moduleName) {
             return;
         }
-        this._getModuleDropdown().find("input").text(moduleName || "");
+        this._getModuleDropdown().find("input").val(moduleName || "");
         // restore func
         const func: ExtensionFuncInfo = this.model.func;
         if (!func) {
             return;
         }
-        this._getFuncDropdown().find("input").text(func.buttonText || "");
+        this._getFuncDropdown().find("input").val(func.buttonText || "");
         this._populateArgSection();
-        this.argSection.restore(this.model.args);
+        this.argSection.restore();
     }
 
     private _submitForm(): void {
@@ -86,8 +87,20 @@ class ExtensionOpPanel extends BaseOpPanel {
             return;
         }
         this.model.args = args;
-        this.model.submit();
-        this.close();
+        const $bg: JQuery = $("#initialLoadScreen");
+        $bg.show();
+        this.model.submit()
+        .then(() => {
+            this.close();
+        })
+        .fail((error) => {
+            console.error(error);
+            StatusBox.show(JSON.stringify(error),
+            this._getPanel().find(".btn-submit"), false, {side: "top"});
+        })
+        .always(() => {
+            $bg.hide();
+        });
     }
 
     private _validate(): boolean {
