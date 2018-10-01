@@ -3677,14 +3677,14 @@ namespace xcHelper {
     ) {
         if ($target == null || $input == null || !$input.is(":visible")) {
             // if user tries to select column without focusing on input
-            return;
+            return false;
         }
         // $input needs class "argument"
         if ((!$input.hasClass('argument') && !$input.hasClass('arg')) ||
             $input.closest('.colNameSection').length !== 0 ||
             $input.attr('type') !== 'text'
         ) {
-            return;
+            return false;
         }
 
         let value: string;
@@ -3711,6 +3711,7 @@ namespace xcHelper {
         }
         xcHelper.insertText($input, value, options.append);
         gMouseEvents.setMouseDownTarget($input);
+        return true;
     }
 
     /**

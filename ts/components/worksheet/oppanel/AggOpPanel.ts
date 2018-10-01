@@ -9,25 +9,8 @@ class AggOpPanel extends GeneralOpPanel {
     }
 
     public setup(): void {
-        const self = this;
         super.setupPanel("#aggOpPanel");
-
         this._functionsInputEvents();
-
-        this._$panel.on("change", ".arg", argChange);
-
-        function argChange() {
-            const $input = $(this);
-            const val = $input.val();
-            const $group = $input.closest(".group")
-            const groupIndex = self._$panel.find(".group").index($group);
-            const argIndex = $group.find(".arg").index($input);
-            if ($input.closest(".colNameSection").length) {
-                self.model.updateAggName(val);
-            } else {
-                self.model.updateArg(val, groupIndex, argIndex);
-            }
-        }
     };
 
     // options
@@ -43,9 +26,8 @@ class AggOpPanel extends GeneralOpPanel {
                 this._render();
             });
             super._panelShowHelper(this.model);
-            this._$panel.find('.functionsInput').focus();
             this._render();
-            this._formHelper.refreshTabbing();
+            this._$panel.find('.functionsInput').focus();
             return true;
         }
         return false;
@@ -92,7 +74,7 @@ class AggOpPanel extends GeneralOpPanel {
         }
 
         this._$panel.find(".colNameSection .arg").val(model.dest);
-
+        this._formHelper.refreshTabbing();
         self._checkIfStringReplaceNeeded(true);
     }
 
@@ -225,10 +207,22 @@ class AggOpPanel extends GeneralOpPanel {
 
         const $functionsList = this._$panel.find('.functionsList');
         let functionsListScroller = new MenuHelper($functionsList, {
-            bounds: self._panelSelector,
+            bounds: self._panelContentSelector,
             bottomPadding: 5
         });
         this._functionsListScrollers = [functionsListScroller];
+    }
+
+    protected _onArgChange($input) {
+        const val = $input.val();
+        const $group = $input.closest(".group")
+        const groupIndex = this._$panel.find(".group").index($group);
+        const argIndex = $group.find(".arg").index($input);
+        if ($input.closest(".colNameSection").length) {
+            this.model.updateAggName(val);
+        } else {
+            this.model.updateArg(val, groupIndex, argIndex);
+        }
     }
 
     protected _populateInitialCategoryField() {
@@ -296,6 +290,7 @@ class AggOpPanel extends GeneralOpPanel {
         } else {
             this.model.enterFunction(func, operObj, index);
             this._focusNextInput(index);
+            this._scrollToGroup(index);
         }
     }
 
@@ -342,7 +337,6 @@ class AggOpPanel extends GeneralOpPanel {
         const operObj = ops[func];
 
         const $argsSection = $argsGroup.find('.argsSection').last();
-        const firstTime = !$argsSection.hasClass("touched");
         $argsSection.empty();
         $argsSection.addClass("touched");
         $argsSection.removeClass('inactive');
@@ -373,13 +367,7 @@ class AggOpPanel extends GeneralOpPanel {
 
         $argsGroup.find('.descriptionText').html(descriptionHtml);
 
-        this._formHelper.refreshTabbing();
-
         this._checkIfStringReplaceNeeded(true);
-        if ((this._$panel.find('.group').length - 1) === groupIndex) {
-            const noAnim = (firstTime && groupIndex === 0);
-            this._scrollToBottom(noAnim);
-        }
     }
 
     protected _addArgRows(numInputsNeeded, $argsGroup, groupIndex) {
@@ -396,7 +384,7 @@ class AggOpPanel extends GeneralOpPanel {
 
         this._$panel.find('.list.hint.new').each(function() {
             const scroller = new MenuHelper($(this), {
-                bounds: self._panelSelector,
+                bounds: self._panelContentSelector,
                 bottomPadding: 5
             });
             self._suggestLists[groupIndex].push(scroller);

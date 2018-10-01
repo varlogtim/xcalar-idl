@@ -14,6 +14,7 @@ class FilterOpPanel extends GeneralOpPanel {
 
         this._$panel.find('.addFilterArg').click(function() {
             self.filterData.addGroup();
+            self._scrollToGroup(self._$panel.find(".group").length - 1);
         });
 
         this._$panel.on('click', '.closeGroup', function() {
@@ -23,17 +24,6 @@ class FilterOpPanel extends GeneralOpPanel {
         });
 
         this._functionsInputEvents();
-
-        this._$panel.on("change", ".arg", argChange);
-
-        function argChange() {
-            const $input = $(this);
-            const val = $input.val();
-            const $group = $input.closest(".group")
-            const groupIndex = self._$panel.find(".group").index($group);
-            const argIndex = $group.find(".arg").index($input);
-            self.filterData.updateArg(val, groupIndex, argIndex);
-        }
 
         // toggle filter and/or
         this._$panel.find(".andOrSwitch").click(function() {
@@ -53,9 +43,6 @@ class FilterOpPanel extends GeneralOpPanel {
                 this._render();
             });
             super._panelShowHelper(this.filterData);
-            this._$panel.find('.functionsInput').focus();
-
-            this._formHelper.refreshTabbing();
             this._render();
             return true;
         }
@@ -66,8 +53,8 @@ class FilterOpPanel extends GeneralOpPanel {
         const model = this.filterData.getModel();
         const self = this;
 
+        const scrollTop = this._$panel.find(".opSection").scrollTop();
         self._resetForm();
-
         for (let i = 0; i < model.groups.length; i++) {
             let $group = this._$panel.find('.group').eq(i);
             if (!$group.length) {
@@ -118,7 +105,9 @@ class FilterOpPanel extends GeneralOpPanel {
         } else {
             self._$panel.find(".andOrToggle").hide();
         }
-
+        this._$panel.find(".opSection").scrollTop(scrollTop);
+        this._$panel.find('.group').last().find('.functionsInput').focus();
+        this._formHelper.refreshTabbing();
         this._checkIfStringReplaceNeeded(true);
     }
 
@@ -250,7 +239,7 @@ class FilterOpPanel extends GeneralOpPanel {
 
         const $functionsList = this._$panel.find('.functionsList');
         let functionsListScroller = new MenuHelper($functionsList, {
-            bounds: self._panelSelector,
+            bounds: self._panelContentSelector,
             bottomPadding: 5
         });
         this._functionsListScrollers = [functionsListScroller];
@@ -322,6 +311,7 @@ class FilterOpPanel extends GeneralOpPanel {
         } else {
             this.filterData.enterFunction(func, operObj, index);
             this._focusNextInput(index);
+            this._scrollToGroup(index, true);
         }
     }
 
@@ -370,7 +360,6 @@ class FilterOpPanel extends GeneralOpPanel {
         const operObj = ops[func];
 
         const $argsSection = $argsGroup.find('.argsSection').last();
-        const firstTime = !$argsSection.hasClass("touched");
         $argsSection.empty();
         $argsSection.addClass("touched");
         $argsSection.removeClass('inactive');
@@ -419,15 +408,7 @@ class FilterOpPanel extends GeneralOpPanel {
         this._$panel.find('.strPreview')
                         .html('<b>' + OpFormTStr.CMD + ':</b> <br>' +
                                 strPreview);
-
-
-        this._formHelper.refreshTabbing();
-
         this._checkIfStringReplaceNeeded(true);
-        if ((this._$panel.find('.group').length - 1) === groupIndex) {
-            const noAnim = (firstTime && groupIndex === 0);
-            this._scrollToBottom(noAnim);
-        }
     }
 
     protected _addArgRows(numInputsNeeded, $argsGroup, groupIndex) {
@@ -444,7 +425,7 @@ class FilterOpPanel extends GeneralOpPanel {
 
         this._$panel.find('.list.hint.new').each(function() {
             const scroller = new MenuHelper($(this), {
-                bounds: self._panelSelector,
+                bounds: self._panelContentSelector,
                 bottomPadding: 5
             });
             self._suggestLists[groupIndex].push(scroller);
@@ -928,15 +909,12 @@ class FilterOpPanel extends GeneralOpPanel {
         const functionsListScroller = new MenuHelper(
             this._$panel.find('.functionsList[data-fnlistnum="' + newGroupIndex + '"]'),
             {
-                bounds: self._panelSelector,
+                bounds: self._panelContentSelector,
                 bottomPadding: 5
             }
         );
         this._functionsListScrollers.push(functionsListScroller);
         this._suggestLists.push([]);// array of groups, groups has array of inputs
-        this._scrollToBottom();
-        this._$panel.find('.group').last().find('.functionsInput').focus();
-        this._formHelper.refreshTabbing();
     }
 
     protected _removeGroup($group: JQuery, all?: boolean) {

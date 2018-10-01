@@ -1,6 +1,6 @@
 // used for filter, aggregate, map, group by
 class GeneralOpPanel extends BaseOpPanel {
-    protected _panelSelector: string;
+    protected _panelContentSelector: string;
     protected _$panel: JQuery;
     protected _$genFunctionsMenu: JQuery;   // $('.genFunctionsMenu')
     protected _$functionsUl: JQuery;
@@ -53,6 +53,7 @@ class GeneralOpPanel extends BaseOpPanel {
     public setupPanel(panelSelector: string): void {
         const self = this;
         this._$panel = $(panelSelector);
+        this._panelContentSelector = panelSelector + " .opSection";
         super.setup(this._$panel, {"noEsc": true});
 
         this._$genFunctionsMenu = this._$panel.find('.genFunctionsMenu');
@@ -167,6 +168,10 @@ class GeneralOpPanel extends BaseOpPanel {
 
         this._$panel.on("focus", ".arg", function() {
             self._hideDropdowns();
+        });
+
+        this._$panel.on("change", ".arg", function() {
+            self._onArgChange($(this));
         });
 
         this._$panel.on('dblclick', 'input', function() {
@@ -324,7 +329,7 @@ class GeneralOpPanel extends BaseOpPanel {
         let scrolling: boolean = false;
         let scrollTimeout: number;
         const scrollTime: number = 300;
-        this._$panel.find('.mainContent').scroll(function() {
+        this._$panel.find('.opSection').scroll(function() {
             if (!scrolling) {
                 StatusBox.forceHide();// hides any error boxes;
                 xcTooltip.hideAll();
@@ -360,7 +365,7 @@ class GeneralOpPanel extends BaseOpPanel {
     // listeners added whenever operation view opens
     protected _operationsViewShowListeners() {
         const self = this;
-        $("#mainFrame").on("mousedown.keepInputFocused", ".xcTable .header, " +
+        $("#dagViewTableArea").on("mousedown.keepInputFocused", ".xcTable .header, " +
                         ".xcTable td.clickable", self._keepInputFocused.bind(self));
 
         $(document).on('click.OpSection', function() {
@@ -399,17 +404,27 @@ class GeneralOpPanel extends BaseOpPanel {
         });
     }
 
-    protected _scrollToBottom(noAnim?: boolean): void {
+    protected _onArgChange($input) {
+        const val = $input.val();
+        const $group = $input.closest(".group")
+        const groupIndex = this._$panel.find(".group").index($group);
+        const argIndex = $group.find(".arg").index($input);
+        this.dataModel.updateArg(val, groupIndex, argIndex);
+    }
+
+    protected _scrollToGroup (
+        groupIndex: number,
+        isFocusArgs?: boolean
+    ): void {
         const animSpeed: number = 500;
-        const scrollTop: number = this._$panel.closest('.mainContent')[0]
-                                        .scrollHeight -
-                        this._$panel.closest('.mainContent').height();
-        if (noAnim) {
-            this._$panel.closest('.mainContent').scrollTop(scrollTop);
-        } else {
-            this._$panel.closest('.mainContent')
-            .animate({scrollTop: scrollTop}, animSpeed);
-        }
+        const opSectionTop = this._$panel.find(".opSection")[0].getBoundingClientRect().top;
+        const $group = this._$panel.find(".group").eq(groupIndex);
+        const $target = isFocusArgs ? $group.find(".descriptionText") : $group;
+        const scrollTop = this._$panel.find(".opSection").scrollTop() +
+                          $target[0].getBoundingClientRect().top -
+                          opSectionTop;
+        this._$panel.find(".opSection").stop()
+                    .animate({scrollTop: scrollTop}, animSpeed);
     }
 
     // for functions dropdown list
@@ -449,7 +464,7 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _toggleOpPanelDisplay(isHide: boolean): void {
         const $tableWrap: JQuery = $('.xcTableWrap');
         if (isHide) {
-            $("#mainFrame").off('mousedown.keepInputFocused');
+            $("#dagViewTableArea").off('mousedown.keepInputFocused');
             $('body').off('keydown', this._listHighlightListener.bind(this));
             $tableWrap.removeClass('modalOpen');
         } else {
@@ -465,7 +480,6 @@ class GeneralOpPanel extends BaseOpPanel {
 
     protected _addCastDropDownListener(): void {
         const self = this;
-        const selector: string = this._panelSelector;
         const $lists: JQuery = this._$panel.find(".cast.new .dropDownList");
         $lists.closest('.cast.new').removeClass('new');
         const castList: MenuHelper = new MenuHelper($lists, {
@@ -479,11 +493,8 @@ class GeneralOpPanel extends BaseOpPanel {
                 let casted: boolean;
 
                 $input.val(type);
-                if (type === "default") {
-                    casted = false;
-                } else {
-                    casted = true;
-                }
+                casted = (type === "default");
+
                 $input.attr("data-casted", <any>casted);
                 $input.closest('.row').find('.arg')
                                         .data('casted', casted)
@@ -502,7 +513,7 @@ class GeneralOpPanel extends BaseOpPanel {
                 }
                 self.dataModel.updateCast(castType, groupIndex, argIndex);
             },
-            "container": selector
+            "container": self._panelContentSelector
         });
         castList.setupListeners();
     }
@@ -716,7 +727,7 @@ class GeneralOpPanel extends BaseOpPanel {
             $row = $input.parent();
         }
         const inputTop: number = $row.offset().top;
-        const $mainContent: JQuery = this._$panel.closest(".mainContent");
+        const $mainContent: JQuery = this._$panel.find(".opSection");
         const sectionTop: number = $mainContent.offset().top;
         const scrollTop: number = $mainContent.scrollTop();
         if (inputTop < sectionTop) { // above view
@@ -1941,7 +1952,7 @@ class GeneralOpPanel extends BaseOpPanel {
         return opLists;
     }
 
-    protected columnPickerCallback($target: JQuery) {
+    protected columnPickerCallback($tableCell: JQuery) {
         const options: any = {};
         const $focusedEl: JQuery = $(document.activeElement);
         if (($focusedEl.is("input") &&
@@ -1954,7 +1965,9 @@ class GeneralOpPanel extends BaseOpPanel {
             || this._$lastInputFocused.hasClass("variableArgs")) {
             options.append = true;
         }
-        xcHelper.fillInputFromCell($target, this._$lastInputFocused,
-                                    gColPrefix, options);
+        if (xcHelper.fillInputFromCell($tableCell, this._$lastInputFocused,
+                                    gColPrefix, options)) {
+            this._onArgChange(this._$lastInputFocused);
+        }
     }
 }

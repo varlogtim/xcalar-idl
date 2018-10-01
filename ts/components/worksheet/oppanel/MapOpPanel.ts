@@ -26,21 +26,6 @@ class MapOpPanel extends GeneralOpPanel {
 
         this._functionsInputEvents();
 
-        this._$panel.on("change", ".arg", argChange);
-
-        function argChange() {
-            const $input = $(this);
-            const val = $input.val();
-            const $group = $input.closest(".group")
-            const groupIndex = self._$panel.find(".group").index($group);
-            const argIndex = $group.find(".arg").index($input);
-            if ($input.closest(".colNameSection").length) {
-                self.model.updateNewFieldName(val, groupIndex);
-            } else {
-                self.model.updateArg(val, groupIndex, argIndex);
-            }
-        }
-
         // dynamic button - ex. default:multiJoin
         this._$panel.on('click', '.addMapArg', function() {
             self._addMapArg($(this));
@@ -50,6 +35,7 @@ class MapOpPanel extends GeneralOpPanel {
         this._$panel.on("click", ".addGroup", function() {
             self.model.addGroup();
             self._$panel.find(".mapFilter").last().focus();
+            self._scrollToGroup(self._$panel.find(".group").length - 1);
         });
 
         this._$panel.on('click', '.closeGroup', function() {
@@ -289,13 +275,25 @@ class MapOpPanel extends GeneralOpPanel {
 
             const operObj = self._getOperatorObj(func);
             self.model.enterFunction(func, operObj, groupIndex);
-
             self._focusNextInput(groupIndex);
+            self._scrollToGroup(groupIndex, true);
         });
         // XXX need to add listeners to each new functions list
         this._$panel.find(".functionsMenu").scroll(function() {
             xcTooltip.hideAll();
         });
+    }
+
+    protected _onArgChange($input) {
+        const val = $input.val();
+        const $group = $input.closest(".group")
+        const groupIndex = this._$panel.find(".group").index($group);
+        const argIndex = $group.find(".arg").index($input);
+        if ($input.closest(".colNameSection").length) {
+            this.model.updateNewFieldName(val, groupIndex);
+        } else {
+            this.model.updateArg(val, groupIndex, argIndex);
+        }
     }
 
     public updateOperationsMap(listXdfsObj) {
@@ -525,12 +523,6 @@ class MapOpPanel extends GeneralOpPanel {
         this._$panel.find('.strPreview')
                     .html('<b>' + OpFormTStr.CMD + ':</b> <br>' +
                                 strPreview);
-
-
-        if ((this._$panel.find('.group').length - 1) === groupIndex) {
-            const noAnim = (firstTime && groupIndex === 0);
-            this._scrollToBottom(noAnim);
-        }
     }
 
     protected _addArgRows(numInputsNeeded, $argsGroup, groupIndex) {
@@ -547,7 +539,7 @@ class MapOpPanel extends GeneralOpPanel {
 
         this._$panel.find('.list.hint.new').each(function() {
             const scroller = new MenuHelper($(this), {
-                bounds: self._panelSelector,
+                bounds: self._panelContentSelector,
                 bottomPadding: 5
             });
             self._suggestLists[groupIndex].push(scroller);
@@ -1023,7 +1015,7 @@ class MapOpPanel extends GeneralOpPanel {
         const argIndex = $ul.closest('.group').find('.list.hint').index($ul);
 
         const scroller = new MenuHelper($ul, {
-            bounds: self._panelSelector,
+            bounds: self._panelContentSelector,
             bottomPadding: 5
         });
 
@@ -1093,7 +1085,6 @@ class MapOpPanel extends GeneralOpPanel {
         this._$panel.find(".functionsMenu").last().scroll(function() {
             xcTooltip.hideAll();
         });
-        this._scrollToBottom();
     }
 
     protected _minimizeGroups($group?: JQuery) {

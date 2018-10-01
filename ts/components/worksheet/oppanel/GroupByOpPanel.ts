@@ -29,6 +29,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         this._$panel.find('.addGroup').click(function() {
             self.model.addGroup();
             self._$panel.find('.group').last().find('.functionsInput').focus();
+            self._scrollToGroup(self._$panel.find(".group").length - 1);
         });
 
         this._$panel.on('click', '.closeGroup', function() {
@@ -39,26 +40,6 @@ class GroupByOpPanel extends GeneralOpPanel {
         });
 
         this._functionsInputEvents();
-
-        this._$panel.on("change", ".arg", argChange);
-
-        function argChange() {
-            const $input = $(this);
-
-            const val = $input.val();
-            const $group = $input.closest(".group");
-            const groupIndex = self._$panel.find(".group").index($group);
-
-            if ($input.closest(".colNameSection").length) {
-                self.model.updateNewFieldName(val, groupIndex);
-            } else if ($input.closest(".gbOnArg").length) {
-                const argIndex = $group.find(".groupOnSection .arg").index($input);
-                self.model.updateGroupOnArg(val, argIndex);
-            } else {
-                const argIndex = $group.find(".argsSection").last().find(".arg").index($input);
-                self.model.updateArg(val, groupIndex, argIndex);
-            }
-        }
 
         // icv, includeSample
         this._$panel.on('click', '.checkboxSection', function() {
@@ -113,6 +94,7 @@ class GroupByOpPanel extends GeneralOpPanel {
 
             super._panelShowHelper(this.model);
             this._render(true);
+            this._focusNextInput(0);
             return true;
         }
 
@@ -123,6 +105,7 @@ class GroupByOpPanel extends GeneralOpPanel {
     protected _render(updateAll?: boolean) {
         const self = this;
         const model = this.model.getModel();
+        const scrollTop = this._$panel.find(".opSection").scrollTop();
         this._resetForm();
 
         const icv = model.icv;
@@ -205,8 +188,8 @@ class GroupByOpPanel extends GeneralOpPanel {
             this._$panel.find(".incSample .checkbox").addClass("checked");
         }
 
+        this._$panel.find(".opSection").scrollTop(scrollTop);
         this._formHelper.refreshTabbing();
-
         self._checkIfStringReplaceNeeded(true);
     }
 
@@ -339,10 +322,26 @@ class GroupByOpPanel extends GeneralOpPanel {
 
         const $functionsList = this._$panel.find('.functionsList');
         let functionsListScroller = new MenuHelper($functionsList, {
-            bounds: self._panelSelector,
+            bounds: self._panelContentSelector,
             bottomPadding: 5
         });
         this._functionsListScrollers = [functionsListScroller];
+    }
+
+    protected _onArgChange($input) {
+        const val = $input.val();
+        const $group = $input.closest(".group");
+        const groupIndex = this._$panel.find(".group").index($group);
+
+        if ($input.closest(".colNameSection").length) {
+            this.model.updateNewFieldName(val, groupIndex);
+        } else if ($input.closest(".gbOnArg").length) {
+            const argIndex = $group.find(".groupOnSection .arg").index($input);
+            this.model.updateGroupOnArg(val, argIndex);
+        } else {
+            const argIndex = $group.find(".argsSection").last().find(".arg").index($input);
+            this.model.updateArg(val, groupIndex, argIndex);
+        }
     }
 
     protected _populateInitialCategoryField() {
@@ -413,6 +412,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         } else {
             this.model.enterFunction(func, operObj, index);
             this._focusNextInput(index);
+            this._scrollToGroup(index, true);
         }
     }
 
@@ -528,7 +528,7 @@ class GroupByOpPanel extends GeneralOpPanel {
 
         this._$panel.find('.list.hint.new').each(function() {
             const scroller = new MenuHelper($(this), {
-                bounds: self._panelSelector,
+                bounds: self._panelContentSelector,
                 bottomPadding: 5
             });
             self._suggestLists[groupIndex].push(scroller);
@@ -1051,14 +1051,13 @@ class GroupByOpPanel extends GeneralOpPanel {
         const functionsListScroller = new MenuHelper(
             this._$panel.find('.functionsList[data-fnlistnum="' + newGroupIndex + '"]'),
             {
-                bounds: self._panelSelector,
+                bounds: self._panelContentSelector,
                 bottomPadding: 5
             }
         );
 
         this._functionsListScrollers.push(functionsListScroller);
         this._suggestLists.push([]);// array of groups, groups has array of inputs
-        this._scrollToBottom();
 
         if (this._$panel.find(".strPreview .aggColSection").length) {
             this._$panel.find(".strPreview .aggColSection").append('<span class="aggColStrWrap"></span>');
@@ -1084,7 +1083,7 @@ class GroupByOpPanel extends GeneralOpPanel {
         const argIndex = $ul.closest('.group').find('.list.hint').index($ul);
 
         const scroller = new MenuHelper($ul, {
-            bounds: this._panelSelector,
+            bounds: this._panelContentSelector,
             bottomPadding: 5
         });
         if (!this._suggestLists[groupIndex]) {
