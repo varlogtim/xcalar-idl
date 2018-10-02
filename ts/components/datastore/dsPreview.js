@@ -1235,12 +1235,16 @@ window.DSPreview = (function($, DSPreview) {
             componentParquetFileFormat.restore(options.udfQuery);
         } else if (format === formatMap.PARQUET) {
             // Restore partitions based on the url
-            var partitions = options.files[0].path.split("?")[1].split("&");
-            for (var i = 0; i < partitions.length; i++) {
-                var value = partitions[i].split("=")[1];
-                // partition keys must be in order
-                $form.find(".partitionAdvanced .partitionList .row input").eq(i)
-                     .val(decodeURIComponent(value));
+            try {
+                var partitions = options.files[0].path.split("?")[1].split("&");
+                for (var i = 0; i < partitions.length; i++) {
+                    var value = partitions[i].split("=")[1];
+                    // partition keys must be in order
+                    $form.find(".partitionAdvanced .partitionList .row input").eq(i)
+                        .val(decodeURIComponent(value));
+                }
+            } catch (e) {
+                console.error(e);
             }
         } else if (format === formatMap.CSV) {
             // CSV preview don't use UDF
@@ -1956,6 +1960,11 @@ window.DSPreview = (function($, DSPreview) {
             if (!isValid) {
                 return null;
             }
+        }
+        var $availableColList = $parquetSection.find(".availableColSection .colList");
+        if ($availableColList.find("li").length === 0) {
+            // when select all columns, let backend handle it
+            names = null;
         }
 
         return {columns: names};
