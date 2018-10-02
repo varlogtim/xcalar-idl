@@ -60,7 +60,11 @@ class JoinOpPanelStep1 {
         }
         this._$elem.show();
         // Setup join type dropdown
+        let defaultDropdownText = '';
         const joinTypeMenuItems = JoinOpPanelStep1._joinTypeMenuItems.map((item) => {
+            if (item.value === joinType) {
+                defaultDropdownText = item.text;
+            }
             const menuInfo: OpPanelDropdownMenuItem = {
                 text: item.text,
                 value: item.value,
@@ -75,7 +79,9 @@ class JoinOpPanelStep1 {
             onSelectCallback: (typeId: string) => {
                 this._changeJoinType(typeId);
                 this._onDataChange();
-            }
+            },
+            isDisabled: this._modelRef.isFixedType(),
+            defaultText: defaultDropdownText
         });
         // Setup instruction section
         let text = JoinTStr.DagColSelectInstr;

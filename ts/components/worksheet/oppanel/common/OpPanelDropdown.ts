@@ -60,13 +60,15 @@ class OpPanelDropdown {
     public updateUI(props: {
         menuItems?: OpPanelDropdownMenuItem[],
         onSelectCallback?: OpPanelDropdownMenuSelectCallback,
-        defaultText?: string
+        defaultText?: string,
+        isDisabled?: boolean
     }): void {
 
-        const { menuItems = [], onSelectCallback = null, defaultText = '' } = (props || {});
+        const { menuItems = [], onSelectCallback = null,
+            defaultText = '', isDisabled = false } = (props || {});
         // Create <li> elements
         const $input = BaseOpPanel.findXCElement(this._$elem, this._inputId);
-        const $liList = this._createMenuItems({
+        const $liList = isDisabled ? [] : this._createMenuItems({
             $input: $input,
             menuItems: menuItems
         });

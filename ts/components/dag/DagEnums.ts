@@ -23,6 +23,7 @@ enum DagNodeType {
 
 enum DagNodeSubType {
     Cast = "cast",
+    LookupJoin = "LookupJoin"
 }
 
 enum DagNodeState {

@@ -3,6 +3,7 @@ class JoinOpPanelModel {
     private _currentStep: number = 1;
     private _isAdvMode: boolean = false;
     private _isNoCast: boolean = true;
+    private _isFixedType: boolean = false;
     // Lineage data
     private _columnMeta: {
         left: JoinOpColumnInfo[],
@@ -41,13 +42,22 @@ class JoinOpPanelModel {
             const {
                 left: leftTableName, right: rightTableName
             } = this.getPreviewTableNamesFromDag(dagNode);
+
+            // Override the join type with sub type(sub category)
+            const dagConfig = dagNode.getParam();
+            const joinType = this._convertSubTypeToJoinType(dagNode.getSubType());
+            if (joinType != null) {
+                dagConfig.joinType = joinType;
+            }
+
             return this.fromDagInput(
-                leftCols,rightCols, dagNode.getParam(),
+                leftCols,rightCols, dagConfig,
                 leftTableName, rightTableName,
                 {
                     currentStep: uiOptions.currentStep,
                     isAdvMode: uiOptions.isAdvMode,
-                    isNoCast: uiOptions.isNoCast
+                    isNoCast: uiOptions.isNoCast,
+                    isFixedType: dagNode.getSubType() != null
                 }
             );
         } catch(e) {
@@ -92,7 +102,8 @@ class JoinOpPanelModel {
         uiOptions: {
             currentStep: number,
             isAdvMode: boolean,
-            isNoCast: boolean
+            isNoCast: boolean,
+            isFixedType: boolean
         }
     ) {
         const model = new JoinOpPanelModel();
@@ -118,6 +129,7 @@ class JoinOpPanelModel {
         model.setCurrentStep(uiOptions.currentStep);
         model.setAdvMode(uiOptions.isAdvMode);
         model.setNoCast(uiOptions.isNoCast);
+        model.setFixedType(uiOptions.isFixedType);
 
         // === DagLineage ===
         // Candidate columns & prefixes
@@ -448,6 +460,14 @@ class JoinOpPanelModel {
         this._isNoCast = noCast;
     }
 
+    public setFixedType(fixedType: boolean) {
+        this._isFixedType = fixedType;
+    }
+
+    public isFixedType(): boolean {
+        return this._isFixedType;
+    }
+
     public isAdvMode() {
         return this._isAdvMode;
     }
@@ -561,6 +581,17 @@ class JoinOpPanelModel {
         return isLeft
             ? !this._prefixMeta.leftMap.has(prefix)
             : !this._prefixMeta.rightMap.has(prefix);
+    }
+
+    private static _convertSubTypeToJoinType(subType: DagNodeSubType) {
+        if (subType == null) {
+            return null;
+        }
+
+        const typeMap = {};
+        typeMap[DagNodeSubType.LookupJoin] = JoinOperatorTStr[JoinOperatorT.LeftOuterJoin];
+
+        return typeMap[subType];
     }
 
     private static _parseColumnPrefixMeta(
@@ -937,5 +968,6 @@ enum JoinOpError {
     NeedTypeCast = 'NeedTypeCast',
     InvalidJoinClause = 'InvalidJoinClause',
     ColumnNameConflict = 'ConlumnNameConflict',
-    PrefixConflict = 'PrefixConflict'
+    PrefixConflict = 'PrefixConflict',
+    InvalidJoinType = 'InvalidJoinType',
 }

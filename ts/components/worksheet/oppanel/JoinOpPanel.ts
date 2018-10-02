@@ -217,14 +217,24 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
             left: leftTableName,
             right: rightTableName
         } = JoinOpPanelModel.getPreviewTableNamesFromDag(this._dagNode);
-        return JoinOpPanelModel.fromDagInput(
+        const newModel = JoinOpPanelModel.fromDagInput(
             leftCols, rightCols, dagInput, leftTableName, rightTableName,
             {
                 currentStep: oldModel.getCurrentStep(),
                 isAdvMode: oldModel.isAdvMode(),
-                isNoCast: oldModel.isNoCast()
+                isNoCast: oldModel.isNoCast(),
+                isFixedType: oldModel.isFixedType()
             }
         );
+
+        if (newModel.isFixedType()
+            && newModel.getJoinType() !== oldModel.getJoinType()
+        ) {
+            // Cannot change sub category operator's join type
+            throw new Error(JoinOpError.InvalidJoinType);
+        }
+
+        return newModel;
     }
 
     /**
@@ -275,6 +285,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         }
     }
 
+    // XXX TODO: Add string in jsTStr
     private _getErrorMessage(e: Error): string {
         if (e == null || e.message == null) {
             return '';
@@ -291,6 +302,8 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
                 return 'Can not join columns with different type';
             case JoinOpError.PrefixConflict:
                 return 'Prefix conflicts';
+            case JoinOpError.InvalidJoinType:
+                return 'Invalid join type';
             default:
                 return e.message;
         }

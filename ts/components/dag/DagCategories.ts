@@ -79,6 +79,10 @@ class DagCategories {
         const joinCategory = new DagCategory(DagCategoryType.Join, [
             new DagCategoryNodeJoin(DagNodeFactory.create({
                 type: DagNodeType.Join
+            })),
+            new DagCategoryNodeJoin(DagNodeFactory.create({
+                type: DagNodeType.Join,
+                subType: DagNodeSubType.LookupJoin
             }))
         ]);
 
