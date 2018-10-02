@@ -26,6 +26,17 @@ class XDFManager {
         return deferred.promise();
     }
 
+    public getOperatorsMap() {
+        return this._operatorsMap;
+    }
+
+    public updateUDFs(listXdfsObj) {
+        this._operatorsMap[FunctionCategoryT.FunctionCategoryUdf] = {};
+        listXdfsObj.fnDescs.forEach(op => {
+            this._operatorsMap[FunctionCategoryT.FunctionCategoryUdf][op.displayName] = op;
+        });
+    }
+
     private _setupOperatorsMap(opArray) {
         const self = this;
         this._operatorsMap = {};
@@ -37,7 +48,5 @@ class XDFManager {
         });
     }
 
-    public getOperatorsMap() {
-        return this._operatorsMap;
-    }
+
 }

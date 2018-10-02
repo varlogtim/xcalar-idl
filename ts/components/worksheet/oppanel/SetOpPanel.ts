@@ -18,6 +18,15 @@ class SetOpPanel extends BaseOpPanel {
         }
         this._initialize(dagNode);
         this._formHelper.setup({});
+        const seen = {};
+        this.setOpData.getModel().all.forEach(colSet => {
+            colSet.forEach(progCol => {
+                if (!seen[progCol.getBackColName()]) {
+                    seen[progCol.getBackColName()] = true;
+                    this.allColumns.push(progCol);
+                }
+            });
+        })
 
         if (gMinModeOn) {
             this._autoResizeView(false);

@@ -280,6 +280,7 @@ class GeneralOpPanel extends BaseOpPanel {
         super.showPanel(this._operatorName, options);
 
         this._resetForm();
+
         // XXX use real table and/or remove unneeded references to table
         this._table = this._dagNode.getTable();
         this._table = {
@@ -355,6 +356,7 @@ class GeneralOpPanel extends BaseOpPanel {
         for (const i in aggs) {
             this._aggNames.push(aggs[i].aggName);
         }
+        this.allColumns = this.dataModel.getColumns();
 
         this._populateInitialCategoryField();
         this._fillInputPlaceholder();

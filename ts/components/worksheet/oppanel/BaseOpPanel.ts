@@ -29,6 +29,7 @@ class BaseOpPanel {
         }
     }
 
+
     /**
      * Find a element in DOM by attribute data-xcid
      * @param $container The container element
@@ -72,6 +73,8 @@ class BaseOpPanel {
         return html;
     }
 
+    public static counter = 0; // used to give is panel a unique id
+
     public static get Instance() {
         return  this._instance || (this._instance = new this());
     }
@@ -84,17 +87,26 @@ class BaseOpPanel {
         return this._formHelper.isOpen();
     }
 
+
     private static _instance = null;
     protected $panel: JQuery;
     private advancedMode: boolean;
     protected _formHelper: FormHelper = null;
     protected _editor: CodeMirror.EditorFromTextArea;
     private _exitCallback: Function;
+    private udfMap;
+    private xdfMap;
+    private panelNum: number;
+    protected allColumns: ProgCol[];
+    private aggMap;
 
-    protected constructor() {}
+    protected constructor() {
+        this.allColumns = [];
+    }
 
     protected setup($panel: JQuery, options?: FormHelperOptions): void {
         options = options || {};
+        this.panelNum = ++BaseOpPanel.counter;
         this.$panel = $panel;
         this._formHelper = new FormHelper($panel, options);
         this._setupEditor($panel);
@@ -111,6 +123,8 @@ class BaseOpPanel {
         MainMenu.setFormOpen();
         options = options || {};
         this._exitCallback = options.exitCallback || function(){};
+        this._setupOperationsMap();
+        this._setupAggMap();
         return true;
     }
 
@@ -121,6 +135,10 @@ class BaseOpPanel {
         this._formHelper.removeWaitingBG();
         this._formHelper.hideView();
         this._formHelper.clear();
+        this.allColumns = [];
+        this.udfMap = {};
+        this.xdfMap = {};
+        this.aggMap = {};
         if (!isSubmit) {
             this._exitCallback();
         }
@@ -188,6 +206,7 @@ class BaseOpPanel {
     }
 
     private _setupEditor($panel: JQuery): void {
+        const self = this;
         const $editor: JQuery = $panel.find(".advancedEditor textArea");
         if (!$editor.length) {
             return;
@@ -201,10 +220,267 @@ class BaseOpPanel {
             "lineWrapping": true,
             "indentWithTabs": false,
             "indentUnit": 4,
-            "matchBrackets": false,
-            "autoCloseBrackets": false,
+            "matchBrackets": true,
+            "autoCloseBrackets": true,
             "search": false,
             "gutters": ["CodeMirror-lint-markers"],
         });
+
+
+        var keysToIgnore = [keyCode.Left, keyCode.Right, keyCode.Down,
+            keyCode.Up, keyCode.Tab, keyCode.Enter,
+            keyCode.Escape];
+
+        this._editor.on("keyup", function(_cm, e) {
+            if (keysToIgnore.indexOf(e.keyCode) < 0) {
+                self._editor.execCommand("autocompleteOpPanel" + self.panelNum);
+            }
+        });
+
+        // set up codemirror autcomplete command
+        CodeMirror.commands["autocompleteOpPanel" + self.panelNum] = function(cm) {
+            CodeMirror.showHint(cm, CodeMirror.hint["opPanel" + self.panelNum + "Hint"], {
+                alignWithWord: true,
+                completeSingle: false,
+                completeOnSingleClick: true
+            });
+        };
+        // var timer1;
+        // set up autcomplete hint function that filters matches
+        CodeMirror.registerHelper("hint", "opPanel" + self.panelNum + "Hint", function(editor) {
+            var word = /[\w$:^\s]+/; // allow : and ^
+            var wordNoSpace = /[\w$:^]+/; // allow : and ^ and space
+            var cur = editor.getCursor();
+            var line = cur.line;
+            var fnBarText = editor.getLine(cur.line);
+            var list = [];
+            var seen = {};
+            var end = cur.ch;
+            var start = end;
+            while (end && wordNoSpace.test(fnBarText.charAt(end))) {
+                ++end;
+            }
+            while (start && word.test(fnBarText.charAt(start - 1))) {
+                --start;
+            }
+            while (start && fnBarText.charAt(start) === " " && start < end) {
+                ++start;
+            }
+            var curWord = (start !== end && fnBarText.slice(start, end));
+            if (!curWord) {
+                return;
+            }
+
+            curWord = curWord.toLowerCase();
+            // search columnNames
+            self.allColumns.forEach(function(progCol) {
+                const colName = progCol.getBackColName();
+                if (colName.indexOf(curWord) !== -1 &&
+                    !seen.hasOwnProperty(colName)) {
+
+                    seen[colName] = true;
+                    list.push({
+                        text: colName,
+                        displayText: colName,
+                        render: renderList,
+                        className: "colName"
+                    });
+                }
+            });
+
+            // search xdfMap
+            for (var xdfFn in self.xdfMap) {
+                searchMapFunction(xdfFn, self.xdfMap[xdfFn]);
+            }
+
+            // search udfMap
+            for (var udfFn in self.udfMap) {
+                searchMapFunction(udfFn, self.udfMap[udfFn]);
+            }
+
+            // search aggMap
+            for (var agg in self.aggMap) {
+                if (agg.indexOf(curWord) !== -1 &&
+                    !seen.hasOwnProperty(agg)) {
+                    list.push({
+                        text: agg,
+                        displayText: agg,
+                        render: renderList,
+                        className: "colName"
+                    });
+                }
+            }
+
+            list.sort(function(a, b) {
+                return a.displayText.length - b.displayText.length;
+            });
+            // do not show hint if only hint is an exact match
+            if (list.length === 1 && curWord === list[0].text) {
+                list = [];
+            }
+
+            return ({
+                list: list,
+                from: CodeMirror.Pos(line, start),
+                to: CodeMirror.Pos(line, end)
+            });
+
+            function searchMapFunction(fnName, mapFuncs) {
+                if (fnName.lastIndexOf(curWord, 0) === 0 &&
+                    !seen.hasOwnProperty(fnName)) {
+                    seen[fnName] = true;
+                    var mapFunc;
+                    for (var i = 0; i < mapFuncs.length; i++) {
+                        mapFunc = mapFuncs[i];
+                        list.push({
+                            text: mapFunc.fnName + "()",
+                            displayText: mapFunc.fnName,
+                            template: mapFunc.template,
+                            templateTwo: mapFunc.templateTwo,
+                            argDescs: mapFunc.modArgDescs,
+                            hint: autocompleteSelect,
+                            render: renderOpLi,
+                            className: "operator"
+                        });
+                    }
+                }
+            }
+        });
+
+        function autocompleteSelect(cm, data, completion) {
+            const line = cm.getCursor().line;
+            var text = completion.templateTwo || completion.text;
+            cm.replaceRange(text, data.from, data.to, "complete");
+            var firstEndIndex;
+
+            // highlight arguments and place cursor right after the end of the
+            // first argument
+            if (completion.argDescs) {
+                var start = text.indexOf('(');
+                var arg;
+                for (var i = 0 ; i < completion.argDescs.length; i++) {
+                    arg = completion.argDescs[i];
+                    start = text.indexOf(arg, start);
+                    if (!firstEndIndex && arg.length) {
+                        // firstStartIndex = data.from.ch + start;
+                        firstEndIndex = data.from.ch + start + arg.length;
+                    }
+
+                    cm.markText({line: line, ch: data.from.ch + start},
+                        {line: line, ch: data.from.ch + start + arg.length},
+                        {className: "argDesc", atomic: true});
+                }
+            }
+            if (firstEndIndex) {
+                cm.setCursor(line, firstEndIndex);
+                // xx selection doesn't work on atomic sections
+                // cm.setSelection({line: 0, ch: firstStartIndex},
+                //                 {line: 0, ch: firstEndIndex});
+            } else {
+                var to = data.from.ch + text.length - 1;
+                cm.setCursor(line, to);
+            }
+        }
+
+        function renderOpLi(el, _data, cur) {
+            el.innerHTML = '<span class="displayText">' + cur.displayText +
+                           '</span><span class="template">' + cur.template +
+                           '</span>';
+        }
+
+        function renderList(el, _data, cur) {
+            el.appendChild(document.createTextNode(cur.displayText));
+        }
     }
+
+    private _setupOperationsMap() {
+        const opMap = xcHelper.deepCopy(XDFManager.Instance.getOperatorsMap());
+
+        this.xdfMap = {};
+        this.udfMap = {};
+
+        for (let category in opMap) {
+            for (let i in opMap[category]) {
+                var op = opMap[category][i];
+
+                if (op.displayName) {
+                    op.fnName = op.displayName;
+                }
+
+                var fnName = op.fnName.toLowerCase();
+                if (op.category === FunctionCategoryT.FunctionCategoryUdf) {
+                    if (!this.udfMap[fnName]) {
+                        this.udfMap[fnName] = [];
+                    }
+                    this.udfMap[fnName].push(op);
+                } else if (op.category !==
+                            FunctionCategoryT.FunctionCategoryAggregate) {
+                    if (!this.xdfMap[fnName]) {
+                        this.xdfMap[fnName] = [];
+                    }
+                    this.xdfMap[fnName].push(op);
+                }
+
+                op.template = createFuncTemplate(op);
+                var secondTemplate = createSecondaryTemplate(op);
+                op.templateTwo = secondTemplate.template;
+                op.modArgDescs = secondTemplate.argDescs;
+            }
+        }
+
+
+        // the text that shows up in the list
+        function createFuncTemplate(op) {
+            var fnTemplate = op.fnName + '(';
+            var len = op.argDescs.length;
+            var argDesc;
+            for (var j = 0; j < len; j++) {
+                argDesc = op.argDescs[j].argDesc;
+                fnTemplate += '<span class="argDesc">' + argDesc + '</span>';
+                if (j + 1 < len) {
+                    fnTemplate += ",";
+                }
+            }
+            fnTemplate += ')';
+            return fnTemplate;
+        }
+
+        // the text that shows up in the fnBar when selected
+        function createSecondaryTemplate(op) {
+            let fnTemplate = op.fnName + '(';
+            let len = op.argDescs.length;
+            let argDesc;
+            let argDescs = [];
+            let argDescSplit;
+            for (var j = 0; j < len; j++) {
+                argDesc = op.argDescs[j].argDesc.trim();
+                argDescSplit = argDesc.split(" "); // separate by spaces
+                if (argDescSplit.length > 2) {
+                    argDesc = argDesc = "arg" + (j + 1);
+                } else if (argDescSplit.length === 2) {
+                    // camel case and join 2 words together
+                    argDesc = argDescSplit[0] +
+                            argDescSplit[1][0].toUpperCase() +
+                            argDescSplit[1].slice(1);
+                }
+                argDescs.push(argDesc);
+
+                fnTemplate += argDesc;
+                if (j + 1 < len) {
+                    fnTemplate += ", ";
+                }
+            }
+            fnTemplate += ')';
+            return {template: fnTemplate, argDescs: argDescs};
+        }
+    }
+
+    private _setupAggMap() {
+        this.aggMap = {};
+        const aggs = Aggregates.getNamedAggs();
+        for (var a in aggs) {
+            this.aggMap[aggs[a].aggName] = aggs[a].aggName;
+        }
+    }
+
 }

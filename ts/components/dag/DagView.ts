@@ -1504,7 +1504,6 @@ namespace DagView {
                     path.attr("class", "visibleLine");
                 },
                 onDrag: function(coors) {
-                    console.log(coors);
                     const offset = _getDFAreaOffset();
                     const childCoors = {
                         x: (coors.x  + offset.left) / scale,

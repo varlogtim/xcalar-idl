@@ -1049,7 +1049,6 @@ class FormHelper {
                  // for switch between modal tab using tab key
                 event.preventDefault();
                 getEleToFocus();
-
                 return false;
             }
         });
@@ -1069,6 +1068,9 @@ class FormHelper {
         function getEleToFocus(): void {
             if (!$focusables.length) {
                 focusIndex = -1;
+                return;
+            }
+            if ($(".CodeMirror-focused").length) {
                 return;
             }
             // the current ele is not active, should no by focused

@@ -35,7 +35,6 @@ class GeneralOpPanelModel {
     }
 
     public getAggregates(): string[] {
-        const self = this;
         const groups = this.groups;
         let aggregates: string[] = [];
         for (let i = 0; i < groups.length; i++) {

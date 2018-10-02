@@ -609,6 +609,7 @@ class UDF {
             listXdfsObj.numXdfs = listXdfsObj.fnDescs.length;
             DSPreview.update(listXdfsObj);
             DSTargetManager.updateUDF(listXdfsObj);
+            XDFManager.Instance.updateUDFs(listXdfsObj);
             FnBar.updateOperationsMap(listXdfsObj.fnDescs, true);
             OperationsView.updateOperationsMap(listXdfsObj);
             MapOpPanel.Instance.updateOperationsMap(listXdfsObj);

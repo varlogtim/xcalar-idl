@@ -35,6 +35,18 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         if (this._dataModel.getColumnPairsLength() === 0) {
             this._dataModel.addColumnPair();
         }
+        const colSets = dagNode.getParents().map((parentNode) => {
+            return parentNode.getLineage().getColumns();
+        }) || [];
+        const seen = {};
+        colSets.forEach(cols => {
+            cols.forEach(progCol => {
+                if (!seen[progCol.getBackColName()]) {
+                    seen[progCol.getBackColName()] = true;
+                    this.allColumns.push(progCol);
+                }
+            });
+        });
 
         // Update UI according to the data model
         this._updateUI();
