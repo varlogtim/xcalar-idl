@@ -606,7 +606,7 @@ module.exports = {
         "OtherUsers": "Other Users' Tables",
         "YourTables": "Your Tables",
         "PubTables": "Published Tables",
-        "Datasets": "Shared Datasets",
+        "Datasets": "Datasets",
         "AmountUsed": "Amount Used"
     },
 

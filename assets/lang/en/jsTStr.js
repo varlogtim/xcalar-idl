@@ -988,7 +988,7 @@ MonitorTStr = {
     "OtherUsers": "Other Users' Tables",
     "YourTables": "Your Tables",
     "PubTables": "Published Tables",
-    "Datasets": "Shared Datasets",
+    "Datasets": "Datasets",
     "TicketSuccess": "Your ticket was submitted successfully.",
     "TicketId": "Ticket ID",
     "AcctAdmin": "Account Admin",
