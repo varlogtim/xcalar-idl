@@ -27,22 +27,10 @@ window.MainMenu = (function($, MainMenu) {
         setupTabbing();
         setupBtns();
         setupResizable();
-        formPanels = [
-            MapOpPanel.Instance,
-            CastOpPanel.Instance,
-            GroupByOpPanel.Instance,
-            FilterOpPanel.Instance,
-            AggOpPanel.Instance,
-            ProjectOpPanel.Instance,
-            JoinOpPanel.Instance,
-            SetOpPanel.Instance,
-            DatasetOpPanel.Instance,
-            DFLinkInOpPanel.Instance,
-            DFLinkOutOpPanel.Instance,
-            PublishIMDOpPanel.Instance,
-            ExtensionOpPanel.Instance
-        ];
+    };
 
+    MainMenu.registerPanels = function(panel) {
+        formPanels.push(panel);
     };
 
     MainMenu.close = function(noAnim, makeInactive) {

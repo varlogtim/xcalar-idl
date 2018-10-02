@@ -72,11 +72,8 @@ namespace xcManager {
             // First XD instance to run since cluster restart
             return oneTimeSetup();
         })
+        .then(setupWKBKIndependentPanels)
         .then(setupSession) // restores info from kvStore
-        .then(setupConfigParams)
-        .then(function() {
-            return PromiseHelper.alwaysResolve(DSTargetManager.refreshTargets(true));
-        })
         .then(function() {
             if (gDionysus) {
                 return XDFManager.Instance.setup();
@@ -85,14 +82,6 @@ namespace xcManager {
             }
         })
         .then(function() {
-            StatusMessage.updateLocation(true,
-                                        StatusMessageTStr.SettingExtensions);
-            // Extensions need to be moved to after version check because
-            // somehow uploadUdf causes mgmtd to crash if checkVersion doesn't
-            // pass
-            // Extmanager promise so unit test can wait on resolution.
-            const extPromise: XDPromise<void> = setupExtensions();
-
             setupDag();
             DagView.setup();
             JSONModal.setup();
@@ -131,8 +120,6 @@ namespace xcManager {
             FileBrowser.restore();
 
             WSManager.focusOnWorksheet();
-            // This adds a new failure mode to setup.
-            return extPromise;
         })
         .then(() => {
             if (gDionysus) {
@@ -589,14 +576,18 @@ namespace xcManager {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
         WorkbookManager.setup()
-        .then(function(wkbkId) {
+        .then((wkbkId) => {
             return XcUser.CurrentUser.holdSession(wkbkId, false);
         })
-        .then(function() {
+        .then(() => {
             return JupyterPanel.initialize();
         })
-        .then(Authentication.setup)
-        .then(KVStore.restore) // restores table info, dataset info, settings etc
+        .then(() => {
+            return Authentication.setup();
+        })
+        .then(() => {
+            return KVStore.restoreWKBKInfo();
+        }) // restores table info, dataset info, settings etc
         .then(WSManager.initializeTable)
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -677,6 +668,25 @@ namespace xcManager {
             }
             deferred.resolve(); // still resolve it
         });
+
+        return deferred.promise();
+    }
+
+    function setupWKBKIndependentPanels(): XDPromise<void> {
+        KVStore.setupUserAndGlobalKey();
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        setupConfigParams()
+        .then(() => {
+            return PromiseHelper.alwaysResolve(DSTargetManager.refreshTargets(true));
+        })
+        .then(() => {
+            return setupExtensions();
+        })
+        .then(() => {
+            return KVStore.restoreUserAndGlobalInfo();
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
 
         return deferred.promise();
     }

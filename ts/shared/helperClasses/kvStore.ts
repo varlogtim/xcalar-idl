@@ -10,18 +10,36 @@ class KVStore {
     private static metaInfos: METAConstructor;
     private static ephMetaInfos: EMetaConstructor; // Ephemeral meta
 
+
     /**
-     * KVStore.setup
-     * keys: gStorageKey, gEphStorageKey, gLogKey, gErrKey, gUserKey,
-     * gSettingsKey, gNotebookKey, gIMDKey, commitKey
-     * @param keys
+     * KVStore.setupUserAndGlobalKey
+     * keys: gUserKey, gSettingsKey, gNotebookKey, gIMDKey,
      */
-    public static setup(keys: string[]) {
+    public static setupUserAndGlobalKey(): void {
+        const globlKeys: any = WorkbookManager.getGlobalScopeKeys(currentVersion);
+        const userScopeKeys: any = WorkbookManager.getUserScopeKeys(currentVersion);
+        const keys: string[] = $.extend({}, globlKeys, userScopeKeys);
         for (var key in keys) {
             KVStore.keys.set(key, keys[key]);
         }
-        const commitKey = KVStore.getKey("gStorageKey") + "-" + "commitKey";
-        KVStore.keys.set("commitKey", commitKey);
+    }
+
+    /**
+     * KVStore.setupWKBKKey
+     * keys: gStorageKey, gEphStorageKey, gLogKey, gErrKey, commitKey
+     * @param keys
+     */
+    public static setupWKBKKey() {
+        const wkbkScopeKeys: any = WorkbookManager.getWkbkScopeKeys(currentVersion);
+        const keys: string[] = $.extend({}, wkbkScopeKeys);
+        for (var key in keys) {
+            KVStore.keys.set(key, keys[key]);
+        }
+        let commitKey: string = KVStore.getKey("gStorageKey");
+        if (commitKey != null) {
+            commitKey +=  "-" + "commitKey";
+            KVStore.keys.set("commitKey", commitKey);
+        }
     }
 
     /**
@@ -101,58 +119,27 @@ class KVStore {
         const $userSettingsSave: JQuery = $("#userSettingsSave");
         const currentCnt: number = KVStore.commitCnt;
 
-        KVStore.updateCommitCnt();
+        this._updateCommitCnt();
 
         $autoSaveBtn.addClass("saving");
         xcHelper.disableSubmit($autoSaveBtn);
         xcHelper.disableSubmit($userSettingsSave);
 
-        KVStore.metaInfos.update();
-
         XcSupport.stopHeartbeatCheck();
 
-        const storageStore = new KVStore(KVStore.getKey("gStorageKey"), gKVScope.WKBK);
-        storageStore.put(JSON.stringify(KVStore.metaInfos), true)
-        .then(function() {
-            if (DF.wasRestored()) {
-                KVStore.ephMetaInfos.update();
-                const ephStore = new KVStore(KVStore.getKey("gEphStorageKey"), gKVScope.GLOB);
-                return ephStore.put(JSON.stringify(KVStore.ephMetaInfos), true);
-            } else {
-                // if df wasn't restored yet, we don't want to commit empty
-                // ephMetaInfos
-                return PromiseHelper.resolve();
-            }
+        this._commitUserAndGlobalInfo(atStartUp)
+        .then(() => {
+            return this._commitWKBKInfo();
         })
-        .then(function() {
-            return Log.commit();
-        })
-        .then(function() {
-            if (!atStartUp) {
-                return UserSettings.commit();
-            }
-        })
-        .then(function() {
-            return WorkbookManager.commit();
-        })
-        .then(function() {
-            var wkbkId = WorkbookManager.getActiveWKBK();
-            var workbook = WorkbookManager.getWorkbook(wkbkId);
-            if (workbook != null) {
-                // just an error handler
-                var wkbkName = workbook.name;
-                return XcalarSaveWorkbooks(wkbkName);
-            }
-        })
-        .then(function() {
+        .then(() => {
             KVStore.logSave(true);
             deferred.resolve();
         })
-        .fail(function(error) {
+        .fail((error) => {
             console.error("commit fails!", error);
             deferred.reject(error);
         })
-        .always(function() {
+        .always(() => {
             XcSupport.restartHeartbeatCheck();
             // when there is no other commits
             if (currentCnt === KVStore.commitCnt - 1) {
@@ -168,29 +155,44 @@ class KVStore {
     }
 
     /**
-     * KVStore.restore
+     * KVStore.restoreUserAndGlobalInfo
      */
-    public static restore(): XDPromise<void> {
+    public static restoreUserAndGlobalInfo(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-
         let gInfosUser: object = {};
         let gInfosSetting: object = {};
 
-        KVStore.getUserInfo()
-        .then(function(userMeta) {
+        this._getUserInfo()
+        .then((userMeta) => {
             gInfosUser = userMeta;
-            return KVStore.getSettingInfo();
+            return this._getSettingInfo();
         })
-        .then(function(settingMeta) {
+        .then((settingMeta) => {
             gInfosSetting = settingMeta;
-            return KVStore.getMetaInfo();
-        })
-        .then(function(meta) {
-            const gInfosMeta: object = meta || {};
-            return KVStore.restoreHelper(gInfosUser, gInfosSetting, gInfosMeta);
+            return this._restoreUserAndGlobalInfoHelper(gInfosUser, gInfosSetting);
         })
         .then(deferred.resolve)
         .fail(function(error) {
+            console.error("KVStore restore user info fails!", error);
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
+
+    /**
+     * KVStore.restoreWKBKInfo
+     */
+    public static restoreWKBKInfo(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+
+        this._getMetaInfo()
+        .then((meta) => {
+            const gInfosMeta: object = meta || {};
+            return this._restoreWKBKInfoHelper(gInfosMeta);
+        })
+        .then(deferred.resolve)
+        .fail((error) => {
             console.error("KVStore restore fails!", error);
             deferred.reject(error);
         });
@@ -233,67 +235,115 @@ class KVStore {
         return newMeta;
     }
 
-    private static updateCommitCnt() {
+    private static _updateCommitCnt() {
         KVStore.commitCnt++;
     }
 
-    private static getUserInfo(): XDPromise<any> {
+    private static _getUserInfo(): XDPromise<any> {
         const key: string = KVStore.getKey("gUserKey");
         const kvStore = new KVStore(key, gKVScope.USER);
         return kvStore.getInfo();
     }
 
-    private static getSettingInfo(): XDPromise<any> {
+    private static _getSettingInfo(): XDPromise<any> {
         const key: string = KVStore.getKey("gSettingsKey");
         const kvStore = new KVStore(key, gKVScope.GLOB);
         return kvStore.getInfo();
     }
 
-    private static getMetaInfo(): XDPromise<any> {
+    private static _getMetaInfo(): XDPromise<any> {
         const key: string = KVStore.getKey("gStorageKey");
         const kvStore = new KVStore(key, gKVScope.WKBK);
         return kvStore.getInfo();
     }
 
-    private static restoreHelper(
+    private static _restoreUserAndGlobalInfoHelper(
         gInfosUser: object,
         gInfosSetting: object,
-        gInfosMeta: object,
     ): XDPromise<void> {
+        const userInfos: UserInfoConstructor = new UserInfoConstructor(gInfosUser);
+        return UserSettings.restore(userInfos, gInfosSetting);
+    }
+
+    private static _restoreWKBKInfoHelper(gInfosMeta: object): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const isEmpty: boolean = $.isEmptyObject(gInfosMeta);
-        const userInfos: UserInfoConstructor = new UserInfoConstructor(gInfosUser);
 
-        UserSettings.restore(userInfos, gInfosSetting)
-        .then(function() {
-            try {
-                KVStore.metaInfos = new METAConstructor(gInfosMeta);
-                KVStore.ephMetaInfos = new EMetaConstructor({});
+        try {
+            KVStore.metaInfos = new METAConstructor(gInfosMeta);
+            KVStore.ephMetaInfos = new EMetaConstructor({});
 
-                WSManager.restore(KVStore.metaInfos.getWSMeta());
-                TableComponent.getPrefixManager().restore(KVStore.metaInfos.getTpfxMeta());
-                Aggregates.restore(KVStore.metaInfos.getAggMeta());
-                TblManager.restoreTableMeta(KVStore.metaInfos.getTableMeta());
-                DSCart.restore(KVStore.metaInfos.getCartMeta());
-                Profile.restore(KVStore.metaInfos.getStatsMeta());
-            } catch (error) {
-                console.error(error.stack);
-                return PromiseHelper.reject(error);
-            }
-        })
-        .then(function() {
-            if (isEmpty) {
-                console.info("KVStore is empty!");
-            } else {
-                const oldLogCursor: number = KVStore.metaInfos.getLogCMeta();
-                return Log.restore(oldLogCursor);
-            }
-        })
-        .then(function() {
+            WSManager.restore(KVStore.metaInfos.getWSMeta());
+            TableComponent.getPrefixManager().restore(KVStore.metaInfos.getTpfxMeta());
+            Aggregates.restore(KVStore.metaInfos.getAggMeta());
+            TblManager.restoreTableMeta(KVStore.metaInfos.getTableMeta());
+            DSCart.restore(KVStore.metaInfos.getCartMeta());
+            Profile.restore(KVStore.metaInfos.getStatsMeta());
+        } catch (error) {
+            console.error(error);
+            return PromiseHelper.reject(error);
+        }
+
+        let promise: XDPromise<void>;
+        if (isEmpty) {
+            console.info("KVStore is empty!");
+            promise = PromiseHelper.resolve();
+        } else {
+            const oldLogCursor: number = KVStore.metaInfos.getLogCMeta();
+            promise = Log.restore(oldLogCursor);
+        }
+
+        promise
+        .then(() => {
             // must come after Log.restore
             QueryManager.restore(KVStore.metaInfos.getQueryMeta());
             deferred.resolve();
         })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    private static _commitUserAndGlobalInfo(atStartUp): XDPromise<void> {
+        return atStartUp ? PromiseHelper.resolve() : UserSettings.commit();
+    }
+
+    private static _commitWKBKInfo(): XDPromise<void> {
+        if (WorkbookManager.getActiveWKBK() == null) {
+            return PromiseHelper.resolve();
+        }
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        KVStore.metaInfos.update();
+
+        const storageStore = new KVStore(KVStore.getKey("gStorageKey"), gKVScope.WKBK);
+        storageStore.put(JSON.stringify(KVStore.metaInfos), true)
+        .then(() => {
+            if (DF.wasRestored()) {
+                KVStore.ephMetaInfos.update();
+                const ephStore = new KVStore(KVStore.getKey("gEphStorageKey"), gKVScope.GLOB);
+                return ephStore.put(JSON.stringify(KVStore.ephMetaInfos), true);
+            } else {
+                // if df wasn't restored yet, we don't want to commit empty
+                // ephMetaInfos
+                return PromiseHelper.resolve();
+            }
+        })
+        .then(() => {
+            return Log.commit();
+        })
+        .then(() => {
+            return WorkbookManager.commit();
+        })
+        .then(() => {
+            var wkbkId = WorkbookManager.getActiveWKBK();
+            var workbook = WorkbookManager.getWorkbook(wkbkId);
+            if (workbook != null) {
+                // just an error handler
+                var wkbkName = workbook.name;
+                return XcalarSaveWorkbooks(wkbkName);
+            }
+        })
+        .then(deferred.resolve)
         .fail(deferred.reject);
 
         return deferred.promise();

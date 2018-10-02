@@ -1370,7 +1370,11 @@ namespace IMDPanel {
         pTables.forEach((table: PublishTable) => {
             const $histPanel: JQuery = $(".tableTimePanel[data-name=\"" + table.name + "\"]");
             $histPanel.empty();
-            const offsetTop: number = $histPanel.offset().top;
+            const offest = $histPanel.offset();
+            if (offest == null) {
+                return;
+            }
+            const offsetTop: number = offest.top;
             if (offsetTop > 1000) {
                 return; // further tables are below, so break
             }

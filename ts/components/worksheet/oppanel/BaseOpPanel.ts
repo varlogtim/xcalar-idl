@@ -99,6 +99,7 @@ class BaseOpPanel {
         this._formHelper = new FormHelper($panel, options);
         this._setupEditor($panel);
         this._setupModeSwitch($panel);
+        MainMenu.registerPanels(this);
     }
 
     protected showPanel(formName?: string, options?): boolean {

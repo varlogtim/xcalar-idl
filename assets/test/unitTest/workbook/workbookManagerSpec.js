@@ -110,11 +110,11 @@ describe("WorkbookManager Test", function() {
         });
 
         it("resetActiveWKBK should work", function(done) {
-            var oldSetup = KVStore.setup;
+            var oldSetup = KVStore.setupWKBKKey;
             var oldHold = XcUser.CurrentUser.holdSession;
             var test = false;
 
-            KVStore.setup = function() {};
+            KVStore.setupWKBKKey = function() {};
 
             XcUser.CurrentUser.holdSession = function() {
                 test = true;
@@ -132,7 +132,7 @@ describe("WorkbookManager Test", function() {
                 done("fail");
             })
             .always(function() {
-                KVStore.setup = oldSetup;
+                KVStore.setupWKBKKey = oldSetup;
                 XcUser.CurrentUser.holdSession = oldHold;
             });
         });

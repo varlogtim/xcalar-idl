@@ -81,11 +81,6 @@ body {
     }
     
     &.noWorkbook {
-        #statusBar {
-            margin-left: 0px;
-            padding-left: 60px;
-            width: 100%;
-        }
         #workspacePanel {
             display: none;
             #dagPanelContainer, .xcTableWrap, #rowInputArea {
@@ -101,6 +96,9 @@ body {
             .monitorIntervalOption {
                 .xc-disabled;
             }
+        }
+        #queryHistButton {
+            display: none;
         }
     }
 

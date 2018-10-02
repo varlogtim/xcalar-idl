@@ -241,7 +241,7 @@ interface ExtensionFuncInfo {
 interface ExtensionInfo {
     name: string;
     buttons: ExtensionFuncInfo[];
-    actionFn: Function,;
+    actionFn: Function;
     _configParams: {notTableDependent: boolean};
 }
 
@@ -974,7 +974,7 @@ declare namespace Log {
     export function getLocalStorage(): string;
     export function getBackup(): string;
     export function commit(): XDPromise<void>;
-    export function restore(oldLogCursor: number): void;
+    export function restore(oldLogCursor: number): XDPromise<void>;
     export function upgrade(oldLog: string): string;
     export function hasUncommitChange(): boolean;
     export function lockUndoRedo(): void;
@@ -1056,6 +1056,7 @@ declare namespace MainMenu {
     export function getState(): object;
     export function restoreState(state: object, ignoreClose?: boolean): void;
     export function closeForms(): void;
+    export function registerPanels(panels: BaseOpPanel): void;
 }
 
 declare namespace BottomMenu {

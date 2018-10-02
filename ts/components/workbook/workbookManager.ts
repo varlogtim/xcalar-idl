@@ -17,6 +17,7 @@ namespace WorkbookManager {
 
     function setupWorkbooks(refreshing?: boolean): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
+
         WorkbookManager.getWKBKsAsync(refreshing)
         .then(syncSessionInfo)
         .then(function(wkbkId) {
@@ -25,7 +26,7 @@ namespace WorkbookManager {
                 deferred.reject(WKBKTStr.NoWkbk);
             } else {
                 // retrieve key from username and wkbkId
-                setupKVStore();
+                KVStore.setupWKBKKey();
                 setActiveWKBK(wkbkId);
                 setURL(wkbkId, true);
                 deferred.resolve(wkbkId);
@@ -848,17 +849,6 @@ namespace WorkbookManager {
         return generateKey(username, "workbookInfos", version);
     }
 
-
-    function setupKVStore(): void {
-        const globlKeys: any = WorkbookManager.getGlobalScopeKeys(currentVersion);
-        const userScopeKeys: any = getUserScopeKeys(currentVersion);
-        const wkbkScopeKeys: any = getWkbkScopeKeys(currentVersion);
-
-        const keys: string[] = $.extend({}, globlKeys, userScopeKeys, wkbkScopeKeys);
-
-        KVStore.setup(keys);
-    }
-
     /**
     * WorkbookManager.getGlobalScopeKeys
     * gets global scope keys
@@ -876,7 +866,12 @@ namespace WorkbookManager {
         };
     }
 
-    function getUserScopeKeys(version: number): any {
+    /**
+    * WorkbookManager.getUserScopeKeys
+    * gets user scope keys
+    * @param version - version number
+    */
+    export function getUserScopeKeys(version: number): any {
         const username: string = XcUser.getCurrentUserName();
         const gUserKey: string = generateKey(username, "gUser", version);
         const gUserCustomOpKey: string = generateKey(username, 'gUserCustomOp', version);
@@ -887,7 +882,12 @@ namespace WorkbookManager {
         };
     }
 
-    function getWkbkScopeKeys(version: number): any {
+    /**
+    * WorkbookManager.getWkbkScopeKeys
+    * gets workbook scope keys
+    * @param version - version number
+    */
+    export function getWkbkScopeKeys(version: number): any {
         const gStorageKey: string = generateKey("gInfo", version);
         const gLogKey: string = generateKey("gLog", version);
         const gErrKey: string = generateKey("gErr", version);
@@ -1028,11 +1028,11 @@ namespace WorkbookManager {
     };
 
     /**
-    * WorkbookManager.getKeysForUpgrade
+    * WorkbookManager.getStorageKey
     * gets storage key
     */
     export function getStorageKey(): string {
-        return getWkbkScopeKeys(currentVersion).gStorageKey;
+        return WorkbookManager.getWkbkScopeKeys(currentVersion).gStorageKey;
     };
 
     /**
@@ -1077,7 +1077,7 @@ namespace WorkbookManager {
     };
 
     function getUserScopeKeysForUpgrade(version: number): any {
-        let keys: any = getUserScopeKeys(version);
+        let keys: any = WorkbookManager.getUserScopeKeys(version);
         const wkbkKeyOfVersion: string = getWKbkKey(version);
 
         keys = $.extend(keys, {
@@ -1094,7 +1094,7 @@ namespace WorkbookManager {
 
         for (let i: number = 0; i < numSessions; i++) {
             let wkbkName: string = sessions[i].name;
-            const key: any = getWkbkScopeKeys(version);
+            const key: any = WorkbookManager.getWkbkScopeKeys(version);
             wkbks[wkbkName] = key;
         }
 
@@ -1106,7 +1106,6 @@ namespace WorkbookManager {
     }
 
     function resetActiveWKBK(newWKBKId: string): XDPromise<void> {
-        setupKVStore();
         setActiveWKBK(newWKBKId);
         setURL(newWKBKId, true);
         // rehold the session as KVStore's key changed
