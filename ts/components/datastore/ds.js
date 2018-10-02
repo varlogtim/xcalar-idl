@@ -70,6 +70,9 @@ window.DS = (function ($, DS) {
         disableShare = disable || false;
         if (disableShare) {
             $gridView.addClass("disableShare");
+            xcTooltip.add($gridMenu.find(".share"), {
+                title: DSTStr.DisableShare
+            });
         } else {
             $gridView.removeClass("disableShare");
         }
@@ -2230,6 +2233,9 @@ window.DS = (function ($, DS) {
         $gridMenu.on("mouseup", ".share", function(event) {
             if (event.which !== 1) {
                 return;
+            }
+            if (disableShare) {
+                return false;
             }
             var dsId = $gridMenu.data("dsid");
             shareDS(dsId);

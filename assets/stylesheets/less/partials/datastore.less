@@ -3969,7 +3969,10 @@ table.datasetTable {
     &.disableShare {
         .share {
             opacity: @opacity-disabled;
-            pointer-events: none;
+            // pointer-events: none;
+            &.selected {
+                background-color: @color-bg-menu-light-blue;
+            }
         }
     }
 }

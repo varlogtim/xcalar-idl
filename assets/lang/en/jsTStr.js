@@ -1201,6 +1201,7 @@ DSTStr = {
     "ContainsFileError": "Your dataset contains 1 file error.<br/>Click to view.",
     "DBNoSQL": "Please type the SQL query to preview the data.",
     "InvalidPriorDataset": "Prior dataset does not exist: ",
+    "DisableShare": "Disabled by admin",
 
 
     // With replace
