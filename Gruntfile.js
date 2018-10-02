@@ -3176,7 +3176,7 @@ module.exports = function(grunt) {
     grunt.task.registerTask(GENERATE_TSDEF, 'Generate TS definitions', function() {
         var sourceFile = SRCROOT + 'assets/lang/en/jsTStr.js';
         var targetFile = SRCROOT + 'ts/jsTStr.d.ts';
-        runShellCmd('node ' + SRCROOT + 'assets/dev/genJSTstrDef.js'
+        runShellCmd('node ' + SRCROOT + 'assets/dev/genJSTStrDef.js'
             + ' ' + sourceFile
             + ' ' + targetFile);
     });
