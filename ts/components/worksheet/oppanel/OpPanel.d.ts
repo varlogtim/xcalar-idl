@@ -23,7 +23,8 @@ interface IOpPanel {
 // opPanelCommon
 // *******************
 declare type OpPanelDropdownMenuItem = {
-    text: string,
+    genHTMLFunc?: () => HTML, // Custom HTML shown in list
+    text: string, // Text shown in list, or in selected text section
     value?: any,
     cssClass?: string[],
     isSelected?: boolean,

@@ -225,8 +225,8 @@ class JoinOpPanelStep1 {
             }
 
             const {
-                left: leftColsToShow,
-                right: rightColsToShow
+                left: leftColsToShow, leftType: leftTypesToShow,
+                right: rightColsToShow, rightType: rightTypesToShow
             } = this._getColumnsToShow(i);
             const {
                 left: leftTableName,
@@ -234,10 +234,12 @@ class JoinOpPanelStep1 {
             } = this._modelRef.getPreviewTableNames();
             // left column dropdown
             const leftCols = isLeftDetached ? [] : leftColsToShow;
+            const leftTypes = isLeftDetached ? [] : leftTypesToShow;
             this._createColumnDropdown({
                 container: $clauseSection,
                 dropdownId: 'leftColDropdown',
                 colNames: leftCols,
+                colTypes: leftTypes,
                 colSelected: leftName,
                 pairIndex: i,
                 isLeft: true,
@@ -249,10 +251,12 @@ class JoinOpPanelStep1 {
             });
             // right column dropdown
             const rightCols = isRightDetached ? [] : rightColsToShow;
+            const rightTypes = isRightDetached ? [] : rightTypesToShow;
             this._createColumnDropdown({
                 container: $clauseSection,
                 dropdownId: 'rightColDropdown',
                 colNames: rightCols,
+                colTypes: rightTypes,
                 colSelected: rightName,
                 pairIndex: i,
                 isLeft: false,
@@ -337,6 +341,7 @@ class JoinOpPanelStep1 {
         container: JQuery,
         dropdownId: string,
         colNames: string[],
+        colTypes: ColumnType[],
         colSelected: string,
         pairIndex: number,
         isLeft: boolean,
@@ -346,12 +351,13 @@ class JoinOpPanelStep1 {
     }): OpPanelDropdown {
         const {
             container, dropdownId, colNames, colSelected,
-            pairIndex, isLeft, smartSuggestParam
+            pairIndex, isLeft, smartSuggestParam, colTypes
         } = props;
         const { srcColumnName, srcTableName, suggestTableName } = smartSuggestParam;
         const $elemDropdown = BaseOpPanel.findXCElement(container, dropdownId);
-        const menuItems: OpPanelDropdownMenuItem[] = colNames.map((colName) => {
+        const menuItems: OpPanelDropdownMenuItem[] = colNames.map((colName, i) => {
             const menuItem: OpPanelDropdownMenuItem = {
+                genHTMLFunc: () => BaseOpPanel.craeteColumnListHTML(colTypes[i], colName),
                 text: colName,
                 value: { pairIndex: pairIndex, colName: colName },
                 isSelected: (colName === colSelected)
@@ -503,22 +509,27 @@ class JoinOpPanelStep1 {
         }
 
         const leftCols: string[] = [];
+        const leftTypes: ColumnType[] = [];
         for (const col of this._modelRef.getColumnMetaLeft()) {
             const name = col.name;
             if (!leftExclude[name]) {
                 leftCols.push(name);
+                leftTypes.push(col.type);
             }
         }
         const rightCols: string[] = [];
+        const rightTypes: ColumnType[] = [];
         for (const col of this._modelRef.getColumnMetaRight()) {
             const name = col.name;
             if (!rightExclude[name]) {
                 rightCols.push(name);
+                rightTypes.push(col.type);
             }
         }
 
         return {
-            left: leftCols, right: rightCols
+            left: leftCols, right: rightCols,
+            leftType: leftTypes, rightType: rightTypes
         };
     }
     // Data model manipulation === end

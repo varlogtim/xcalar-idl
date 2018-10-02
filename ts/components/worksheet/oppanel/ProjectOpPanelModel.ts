@@ -5,10 +5,18 @@ class ProjectOpPanelModel {
 
     public static fromDag(dagNode: DagNodeProject) {
         try {
-            const allColsList = dagNode.getParents().map((parentNode) => {
-                return parentNode.getLineage().getColumns();
-            });
             const allColMap: Map<string, ProgCol> = new Map();
+            const parents = dagNode.getParents();
+            if (parents == null || parents.length === 0) {
+                return this.fromDagInput(allColMap, dagNode.getParam());
+            }
+
+            const allColsList: ProgCol[][] = [];
+            for (const parentNode of parents) {
+                if (parentNode != null) {
+                    allColsList.push(parentNode.getLineage().getColumns());
+                }
+            }
             for (const cols of allColsList) {
                 for (const col of cols) {
                     allColMap.set(col.getBackColName(), col);
@@ -107,5 +115,13 @@ class ProjectOpPanelModel {
             res + (prefix.isSelected ? 1 : 0)
         ), 0);
         return { derived: derivedCount, prefixed: prefixedCount };
+    }
+
+    public getColumnType(colName: string): ColumnType {
+        const col = this.columnMap.get(colName);
+        if (col == null) {
+            return ColumnType.unknown;
+        }
+        return col.getType();
     }
 }

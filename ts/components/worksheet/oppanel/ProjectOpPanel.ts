@@ -90,6 +90,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
         for (let i = 0; i < columnList.length; i ++) {
             const column = columnList[i];
             const colName = column.name;
+            const colType = this._dataModel.getColumnType(colName);
             const domList = this._templateMgr.createElements(
                 ProjectOpPanel._templateIdDerivedColumn,
                 {
@@ -98,7 +99,9 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
                     ),
                     'checkClass': column.isSelected? 'checked': '',
                     'colName': colName,
-                    'onColClick': this._onDerivedColumnClick(i)
+                    'onColClick': this._onDerivedColumnClick(i),
+                    'colType': colType,
+                    'colTypeClass': `type-${colType}`
                 }
             );
             for (const dom of domList) {
@@ -157,6 +160,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
             // Create columns DOM
             const $columnContainer = ProjectOpPanel.findXCElement($(groupDom), 'columnContainer');
             for (const column of prefixInfo.columnList) {
+                const colType = this._dataModel.getColumnType(column.name);
                 const columnDom = this._templateMgr.createElements(
                     ProjectOpPanel._templateIdFixedColumn,
                     {
@@ -164,6 +168,8 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
                             xcHelper.escapeHTMLSpecialChar(column.name)
                         ),
                         'colName': column.name,
+                        'colType': colType,
+                        'colTypeClass': `type-${colType}`
                     }
                 );
                 for (const dom of columnDom) {
@@ -319,42 +325,5 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
         const dagInput: DagNodeProjectInput = <DagNodeProjectInput>JSON.parse(this._editor.getValue());
         const colMap = this._dataModel.columnMap
         return ProjectOpPanelModel.fromDagInput(colMap, dagInput);
-    }
-
-    public static test() {
-        const derivedCount = 8;
-        const prefixGroupCount = 2;
-        const prefixedCount = 5;
-
-        const projectedCols = [];
-        const parentCols = [];
-        for (let i = 0; i < derivedCount; i ++) {
-            const colName = `DerivedCol${i}`;
-            parentCols.push(ColManager.newPullCol(colName, colName, ColumnType.string));
-            if (i % 3 === 0) {
-                projectedCols.push(colName);
-            }
-        }
-        for (let i = 0; i < prefixGroupCount; i ++) {
-            for (let j = 0; j < prefixedCount; j ++) {
-                const prefix = `Prefix${i}`;
-                const colName = `Col${j}`;
-                const fullName = `${prefix}${gPrefixSign}${colName}`;
-                parentCols.push(ColManager.newPullCol(colName, fullName, ColumnType.string));
-                if (i % 2 === 0) {
-                    projectedCols.push(colName);
-                }
-            }
-        }
-
-        const parentNode = DagNodeFactory.create({type: DagNodeType.Dataset});
-        parentNode.getLineage().setColumns(parentCols);
-        const dagNode = <DagNodeProject>DagNodeFactory.create({type: DagNodeType.Project});
-        dagNode.connectToParent(parentNode, 0);
-        parentNode.connectToChild(dagNode);
-        dagNode.setParam({columns: projectedCols});
-
-        ProjectOpPanel.Instance.setup();
-        ProjectOpPanel.Instance.show(dagNode);
     }
 }

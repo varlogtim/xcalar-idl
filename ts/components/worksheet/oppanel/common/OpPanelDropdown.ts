@@ -127,7 +127,11 @@ class OpPanelDropdown {
                 $menuItem.data(OpPanelDropdown._fieldNameValue, menuInfo.value);
             }
             // Set text
-            $menuItem.text(menuInfo.text);
+            if (menuInfo.genHTMLFunc != null) {
+                $menuItem.html(menuInfo.genHTMLFunc());
+            } else {
+                $menuItem.text(menuInfo.text);
+            }
             // Set CSS classes
             if (menuInfo.cssClass != null) {
                 $menuItem.addClass(menuInfo.cssClass.join(' '));
