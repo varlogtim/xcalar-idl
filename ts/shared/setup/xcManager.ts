@@ -75,26 +75,14 @@ namespace xcManager {
         .then(setupWKBKIndependentPanels)
         .then(setupSession) // restores info from kvStore
         .then(function() {
-            if (gDionysus) {
-                return XDFManager.Instance.setup();
-            } else {
-                return PromiseHelper.resolve();
-            }
+            return XDFManager.Instance.setup();
         })
         .then(function() {
-            setupDag();
-            DagView.setup();
+            setupOpPanels();
+            // XXX TODO, hide these view in Dio
             JSONModal.setup();
-            ExportView.setup();
-            JoinView.setup();
-            UnionView.setup();
             AggModal.setup();
-            OperationsView.setup();
-            DFCreateView.setup();
-            ProjectView.setup();
-            DFParamModal.setup();
-            SmartCastView.setup();
-            SortView.setup();
+            setupViews()
             WSManager.initialize(); // async
             BottomMenu.initialize(); // async
             WorkbookPanel.initialize();
@@ -104,28 +92,9 @@ namespace xcManager {
             if (typeof SQLEditor !== "undefined") {
                 SQLEditor.initialize();
             }
-            if (gDionysus) {
-                ProjectOpPanel.Instance.setup();
-                DatasetOpPanel.Instance.setup();
-                FilterOpPanel.Instance.setup();
-                MapOpPanel.Instance.setup();
-                AggOpPanel.Instance.setup();
-                GroupByOpPanel.Instance.setup();
-                JoinOpPanel.Instance.setup();
-                PublishIMDOpPanel.Instance.setup();
-            }
-            // restore user settings
-            OperationsView.restore();
-            JoinView.restore();
-            FileBrowser.restore();
 
             WSManager.focusOnWorksheet();
-        })
-        .then(() => {
-            if (gDionysus) {
-                return setupDagList();
-            }
-            return PromiseHelper.resolve();
+            return setupDagPanel();
         })
         .then(function() {
             if (Authentication.getInfo()["idCount"] === 1) {
@@ -563,13 +532,57 @@ namespace xcManager {
         return deferred.promise();
     }
 
-    function setupDag() {
+    function setupViews(): void {
+        ExportView.setup();
+        JoinView.setup();
+        UnionView.setup();
+        OperationsView.setup();
+        DFCreateView.setup();
+        ProjectView.setup();
+        DFParamModal.setup();
+        SmartCastView.setup();
+        SortView.setup();
+        // restore user settings
+        OperationsView.restore();
+        JoinView.restore();
+    }
+
+    function setupDagPanel(): XDPromise<void> {
         const activeWKBNK: string = WorkbookManager.getActiveWKBK();
         const workbook: WKBK = WorkbookManager.getWorkbook(activeWKBNK);
         // in case no session Id
         const idPrefix: string = workbook.sessionId || xcHelper.randName("dag");
         DagNode.setIdPrefix(idPrefix);
         CommentNode.setIdPrefix(idPrefix);
+        DagView.setup();
+        return setupDagList();
+    }
+
+    function setupDagList(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const dagList: DagList = DagList.Instance;
+        dagList.setup()
+        .then(() => {
+            DagTabManager.Instance.setup();
+            deferred.resolve();
+        })
+        .fail((err) => {
+            // TODO: Display error suggesting refresh
+            console.error("DagList Initialize Fail", err);
+            deferred.reject(err);
+        });
+        return deferred;
+    }
+
+    function setupOpPanels(): void {
+        ProjectOpPanel.Instance.setup();
+        DatasetOpPanel.Instance.setup();
+        FilterOpPanel.Instance.setup();
+        MapOpPanel.Instance.setup();
+        AggOpPanel.Instance.setup();
+        GroupByOpPanel.Instance.setup();
+        JoinOpPanel.Instance.setup();
+        PublishIMDOpPanel.Instance.setup();
     }
 
     function setupSession(): XDPromise<void> {
@@ -684,6 +697,9 @@ namespace xcManager {
         })
         .then(() => {
             return KVStore.restoreUserAndGlobalInfo();
+        })
+        .then(() => {
+            FileBrowser.restore();
         })
         .then(deferred.resolve)
         .fail(deferred.reject);
@@ -824,27 +840,6 @@ namespace xcManager {
         const xcSocket: XcSocket = XcSocket.Instance;
         xcSocket.setup();
         return xcSocket;
-    }
-
-    function setupDagList(): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const dagList: DagList = DagList.Instance;
-        dagList.setup()
-        .then(() => {
-            setupDagTabManager();
-            deferred.resolve();
-        })
-        .fail((err) => {
-            // TODO: Display error suggesting refresh
-            console.error("DagList Initialize Fail", err);
-            deferred.reject(err);
-        });
-        return deferred;
-    }
-
-    function setupDagTabManager(): void {
-        const dagTabManager: DagTabManager = DagTabManager.Instance;
-        dagTabManager.setup();
     }
 
     function documentReadyGeneralFunction(): void {

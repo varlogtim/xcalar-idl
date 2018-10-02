@@ -162,10 +162,10 @@ class KVStore {
         let gInfosUser: object = {};
         let gInfosSetting: object = {};
 
-        this._getUserInfo()
+        KVStore.getUserInfo()
         .then((userMeta) => {
             gInfosUser = userMeta;
-            return this._getSettingInfo();
+            return KVStore.getSettingInfo();
         })
         .then((settingMeta) => {
             gInfosSetting = settingMeta;
@@ -235,20 +235,26 @@ class KVStore {
         return newMeta;
     }
 
-    private static _updateCommitCnt() {
-        KVStore.commitCnt++;
-    }
-
-    private static _getUserInfo(): XDPromise<any> {
+    /**
+     * KVStore.getUserInfo
+     */
+    public static getUserInfo(): XDPromise<any> {
         const key: string = KVStore.getKey("gUserKey");
         const kvStore = new KVStore(key, gKVScope.USER);
         return kvStore.getInfo();
     }
 
-    private static _getSettingInfo(): XDPromise<any> {
+    /**
+     * KVStore.getSettingInfo
+     */
+    public static getSettingInfo(): XDPromise<any> {
         const key: string = KVStore.getKey("gSettingsKey");
         const kvStore = new KVStore(key, gKVScope.GLOB);
         return kvStore.getInfo();
+    }
+
+    private static _updateCommitCnt() {
+        KVStore.commitCnt++;
     }
 
     private static _getMetaInfo(): XDPromise<any> {

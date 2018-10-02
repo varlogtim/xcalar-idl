@@ -10,11 +10,6 @@ describe('DagTab Test', function() {
     before(function(done) {
         UnitTest.onMinMode();
         var dagTabManager = DagTabManager.Instance;
-        if (!gDionysus) {
-            if (DagTabManager.Instance._unique_id == null) {
-                DagTabManager.Instance.setup();
-            }
-        }
         UnitTest.testFinish(function() {
             return $("#dagTabSectionTabs .dagTab").length > 0;
         })

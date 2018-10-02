@@ -185,7 +185,7 @@ window.MainMenu = (function($, MainMenu) {
     MainMenu.closeForms = function() {
         if (isFormOpen) {
             ignoreRestoreState = true;
-
+            // XXX TODO, hide these view in Dio
             OperationsView.close();
             JoinView.close();
             UnionView.close();
@@ -195,11 +195,9 @@ window.MainMenu = (function($, MainMenu) {
             SortView.close();
             ProjectView.close();
 
-            if (gDionysus) {
-                formPanels.forEach(function(panel) {
-                    panel.close();
-                });
-            }
+            formPanels.forEach((panel) => {
+                panel.close();
+            });
 
             ignoreRestoreState = false;
         }
@@ -241,14 +239,12 @@ window.MainMenu = (function($, MainMenu) {
                 }
                 currWidth = newWidth;
                 // let codemirror know it's area was resized
-                if (gDionysus) {
-                    formPanels.forEach(function(panel) {
-                        if (panel.isOpen() && panel.getEditor &&
-                            panel.getEditor()) {
-                            panel.getEditor().refresh();
-                        }
-                    });
-                }
+                formPanels.forEach(function(panel) {
+                    if (panel.isOpen() && panel.getEditor &&
+                        panel.getEditor()) {
+                        panel.getEditor().refresh();
+                    }
+                });
             },
             "resize": function(event, ui) {
                 if (!isSmall && ui.size.width < minWidth) {

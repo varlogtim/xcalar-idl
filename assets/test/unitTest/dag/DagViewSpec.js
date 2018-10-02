@@ -5,11 +5,6 @@ describe("DagView Test", () => {
         UnitTest.onMinMode();
         $dagView = $("#dagView");
         $dfWrap = $dagView.find(".dataflowWrap");
-        if (!gDionysus) {
-            if (DagTabManager.Instance._unique_id == null) {
-                DagTabManager.Instance.setup();
-            }
-        }
         UnitTest.testFinish(function() {
             return $dagView.find(".dataflowArea").length > 0;
         })

@@ -6,15 +6,6 @@ describe.skip("Upload Dataflow Test", function() {
     var $dfName;
 
     before(function(done) {
-        if (!gDionysus) {
-            var dagList = DagList.Instance;
-            dagList.setup()
-            .then(() => {
-                if (DagTabManager.Instance._unique_id == null) {
-                    DagTabManager.Instance.setup();
-                }
-            });
-        }
         $card = $("#uploadDataflowCard");
         $retPath = $card.find("#retinaPath");
         $dfName = $card.find("#dfName");

@@ -419,7 +419,6 @@ declare var gEnableIndexStyle: boolean;
 declare var gXcSupport: boolean;
 declare var gCollab: boolean;
 declare var gXcalarRecordNum: string;
-declare var gDionysus: boolean;
 
 declare var gBuildNumber: number;
 declare var gGitVersion: number;
@@ -1424,6 +1423,6 @@ declare namespace XcSDK {
     class Column {
         public constructor(colName: string, colType: ColumnType);
         public getName(): string;
-        publkic getType(): ColumnType;
+        public getType(): ColumnType;
     }
 }

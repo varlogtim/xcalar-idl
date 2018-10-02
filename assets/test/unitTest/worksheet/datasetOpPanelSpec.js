@@ -22,9 +22,6 @@ describe("Dataset Operator Panel Test", function() {
                 }
             ]
         }
-        if (!gDionysus) {
-            DatasetOpPanel.Instance.setup();
-        }
         datasetOpPanel = DatasetOpPanel.Instance;
         oldJSONParse = JSON.parse;
         oldGetDS = DS.getDSObj;

@@ -5,14 +5,6 @@ describe('DagList Test', function() {
 
     before(function(done) {
         UnitTest.onMinMode();
-        if (!gDionysus) {
-            DagList.Instance.setup()
-            .then(() => {
-                if (DagTabManager.Instance._unique_id == null) {
-                    DagTabManager.Instance.setup();
-                }
-            });
-        }
         UnitTest.testFinish(function() {
             return $("#dagTabSectionTabs .dagTab").length !== 0;
         })

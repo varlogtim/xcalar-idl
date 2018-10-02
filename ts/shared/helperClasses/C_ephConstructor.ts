@@ -882,9 +882,7 @@ class FormHelper {
         const tblMenu: TableMenuManager = TableComponent.getMenu();
         tblMenu.updateExitOptions("#tableMenu", name);
         tblMenu.updateExitOptions("#colMenu", name);
-        if (gDionysus) {
-            DagNodeMenu.updateExitOptions(name);
-        }
+        DagNodeMenu.updateExitOptions(name);
         return wasMenuOpen;
     }
 
