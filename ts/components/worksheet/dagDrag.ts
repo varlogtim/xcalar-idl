@@ -241,13 +241,6 @@ class DragHelper {
         const left: number = minX;
         const top: number = minY;
 
-        // offset should not exceed the cloned element's width or height
-        this.offset = {
-            x: Math.max(-this.$els[0].getBoundingClientRect().width * self.scale,
-                        (left - this.mouseDownCoors.x + this.customOffset.x)),
-            y: Math.max(-this.$els[0].getBoundingClientRect().height * self.scale,
-                        (top - this.mouseDownCoors.y + this.customOffset.y))
-        };
         let html = '<div class="dragContainer" style="width:' +
                         width + 'px;height:' + height + 'px;left:' + left +
                         'px;top:' + top + 'px;transform:scale(' + this.scale + ')">' +
@@ -261,6 +254,14 @@ class DragHelper {
             top: top,
             width: width,
             height: height
+        };
+
+        // offset should not exceed the cloned element's width or height
+        this.offset = {
+            x: Math.max(-this.currentDragCoor.width * self.scale,
+                        (left - this.mouseDownCoors.x + this.customOffset.x)),
+            y: Math.max(-this.currentDragCoor.height * self.scale,
+                        (top - this.mouseDownCoors.y + this.customOffset.y))
         };
 
         const $clones: JQuery = this.$els.clone();

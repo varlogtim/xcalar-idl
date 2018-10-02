@@ -10,9 +10,11 @@ namespace DagView {
     const nodeWidth = 102;
     const horzNodeSpacing = 140;// spacing between nodes when auto-aligning
     const vertNodeSpacing = 60;
+    const gridLineSize = 12;
     let clipboard = null;
     export const gridSpacing = 20;
     export const zoomLevels = [.25, .5, .75, 1, 1.5, 2];
+
 
     export function setup(): void {
         if (gDionysus) {
@@ -183,13 +185,11 @@ namespace DagView {
         const dimensions = activeDag.getDimensions();
         const scale = activeDag.getScale();
         if (dimensions.width > -1) {
-            // dataflow height does not increase greater than 1X
-            $dfArea.find(".dataflowAreaWrapper").css("min-height", dimensions.height * Math.min(scale, 1));
-            // dataflow width is never affected by scale
-            $dfArea.find(".sizer").css("min-width", dimensions.width);
-            $dfArea.find(".dataflowAreaWrapper").css("min-width", dimensions.width);
+            $dfArea.find(".dataflowAreaWrapper").css("min-height", dimensions.height * scale);
+            $dfArea.find(".dataflowAreaWrapper").css("min-width", dimensions.width * scale);
+            $dfArea.find(".dataflowAreaWrapper").css("background-size", gridLineSize * scale);
         }
-        $dfArea.find(".dataflowAreaWrapper").css("transform", "scale(" + scale + ")");
+        $dfArea.find(".dataflowAreaWrapper").children().css("transform", "scale(" + scale + ")");
 
         const nodes: Map<DagNodeId, DagNode> = activeDag.getAllNodes();
 
@@ -1121,17 +1121,13 @@ namespace DagView {
         const prevMidHeight = $dfArea.height() / 2;
         const prevMidWidth = $dfArea.width() / 2;
 
-        $dfAreaWrap.css("transform", "scale(" + scale + ")");
-        const curMinHeight = parseInt($dfAreaWrap.css("min-height"));
-        if (curMinHeight) {
-            let newMinHeight = curMinHeight;
-            // height shouldn't change when zooming in past 1X
-            if (scale <= 1 && prevScale <= 1) {
-                newMinHeight *= deltaScale;
-            }
-            $dfAreaWrap.css("min-height", newMinHeight);
+        $dfAreaWrap.children().css("transform", "scale(" + scale + ")");
+        const dimensions = activeDag.getDimensions();
+        if (dimensions.width > -1) {
+            $dfAreaWrap.css("min-width", dimensions.width * scale);
+            $dfAreaWrap.css("min-height", dimensions.height * scale);
         }
-
+        $dfAreaWrap.css("background-size", gridLineSize * scale);
         // do not adjust scrolltop or scrollLeft if at 0
         if ($dfArea.scrollTop()) {
             const midHeight = $dfArea.height() / 2;
@@ -1724,7 +1720,6 @@ namespace DagView {
                     "id": "dataflow-rectSelection",
                     "$container": $dfArea.find(".dataflowAreaWrapper"),
                     "$scrollContainer": $dfArea,
-                    "scale": activeDag.getScale(),
                     "onStart": function() {
                         $dfArea.addClass("drawing");
                         $els = $dfArea.find(".operator");
@@ -1836,10 +1831,9 @@ namespace DagView {
         }
 
         const scale = activeDag.getScale();
-        // dataflow width is never affected by scale
-        $dfArea.find(".dataflowAreaWrapper").css("min-width", width);
-        // dataflow height does not increase greater than 1X
-        $dfArea.find(".dataflowAreaWrapper").css("min-height", height * Math.min(scale, 1));
+        $dfArea.find(".dataflowAreaWrapper").css("min-width", width * scale);
+        $dfArea.find(".dataflowAreaWrapper").css("min-height", height * scale);
+        $dfArea.find(".dataflowAreaWrapper").css("background-size", gridLineSize * scale);
     }
 
     function _setTooltip($node: JQuery, node: DagNode): void {

@@ -441,7 +441,6 @@
             width: 100%;
             position: relative;
             display: none;
-
             background-size: 10px;
             overflow: auto;
 
@@ -459,7 +458,6 @@
             min-width: 100%;
             height: 100%;
             width: 100%;
-            transform-origin: top left;
             background: transparent url("../../images/dagIcons/dag-backgroundA.png") repeat left top;
         }
 
@@ -509,6 +507,7 @@
     }
 
     .operatorSvg {
+        transform-origin: top left;
         pointer-events: none;
         .operator {
             pointer-events: auto;
@@ -516,6 +515,7 @@
     }
 
     .edgeSvg {
+        transform-origin: top left;
         pointer-events: none;
         .edge {
             pointer-events: auto;
@@ -523,9 +523,9 @@
     }
 
     .commentArea {
-        .size(100%, 100%);
+        transform-origin: top left;
         overflow: visible;
-        .position(absolute, 0px, 0px);
+        .position(absolute, @left: 0px, @top: 0px);
     }
 
     .comment {
@@ -581,9 +581,8 @@
     }
 
     .operatorSvg, .edgeSvg,  .secondarySvg {
-        .size(100%, 100%);
         overflow: visible;
-        .position(absolute, 0px, 0px);
+        .position(absolute, @top: 0px, @left: 0px);
 
         .edge {
             cursor: pointer;
