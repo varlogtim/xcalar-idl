@@ -227,10 +227,10 @@ window.FlightTest = (function(FlightTest, $) {
             $("#udfSection .tab[data-tab='udf-fnSection']").click();
             test.checkExists(".editArea:visible")
             .then(function() {
-                var udfPath = UDF.getCurrWorkbookPath() + "ymd";
+                var udfPath = UDFFileManager.Instance.getCurrWorkbookPath() + "ymd";
                 var selector = '#udf-manager .text[data-udf-path="' + udfPath + '"]';
                 if (!$(selector).length) {
-                    var editor = UDF.getEditor();
+                    var editor = UDFPanel.Instance.getEditor();
                     editor.setValue('def ymd(year, month, day):\n' +
                         '    if int(month) < 10:\n' +
                         '        month = "0" + str(month)\n' +

@@ -2248,7 +2248,7 @@ describe("xcHelper Test", function() {
     });
 
     it("xcHelper.getUDFList should work", function(done) {
-        UDF.list()
+        UDFFileManager.Instance.list()
         .then(function(ret) {
             expect(ret).to.be.an("object");
             expect(ret).to.have.all.keys("numXdfs", "fnDescs");

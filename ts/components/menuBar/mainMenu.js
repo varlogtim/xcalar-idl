@@ -454,6 +454,12 @@ window.MainMenu = (function($, MainMenu) {
     }
 
     function openMenu($curTab, noAnim) {
+        // Don't open side menu when the UDF panel is opening the file manager,
+        // Otherwise the UDF panel will be blocked by the side menu.
+        if ($("#udfSection").hasClass("switching")) {
+            return;
+        }
+
         if (noAnim) {
             $("#dagPanelContainer").addClass("noAnim");
         }

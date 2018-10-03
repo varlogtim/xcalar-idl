@@ -10,14 +10,14 @@ window.BottomMenu = (function($, BottomMenu) {
         $menuPanel = $("#bottomMenu");
         setupButtons();
         Log.setup();
-        UDF.setup();
+        UDFPanel.Instance.setup();
         Help.setup();
         SQLEditor.setup();
     };
 
     BottomMenu.initialize = function() {
         try {
-            UDF.initialize();
+            UDFFileManager.Instance.initialize();
         } catch (error) {
             console.error(error);
             Alert.error(ThriftTStr.SetupErr, error);
@@ -34,7 +34,7 @@ window.BottomMenu = (function($, BottomMenu) {
     };
 
     // BottomMenu.clear = function() {
-    //     UDF.clear();
+    //     UDFPanel.Instance.clear();
     //     Log.clear();
     // };
 
@@ -272,6 +272,7 @@ window.BottomMenu = (function($, BottomMenu) {
         $menuPanel.find(".bottomMenuContainer").show();
 
         $menuSections.removeClass("active");
+        $menuPanel.children(".sideBarTopButtons").removeClass("udfTopButtons");
         // mark the section and open the menu
         $section.addClass("active");
         var isBottomMenuOpening = false;
@@ -305,6 +306,10 @@ window.BottomMenu = (function($, BottomMenu) {
         }
 
         var sectionId = $section.attr("id");
+        if (sectionId ==="udfSection") {
+            $menuPanel.children(".sideBarTopButtons").addClass("udfTopButtons");
+        }
+
         if (sectionId === "logSection") {
             if ($section.hasClass("firstTouch")) {
                 $section.removeClass("firstTouch");
@@ -401,7 +406,7 @@ window.BottomMenu = (function($, BottomMenu) {
         if ($("#udfSection").hasClass("active") &&
             !$("#udf-fnSection").hasClass("xc-hidden"))
         {
-            UDF.getEditor().refresh();
+            UDFPanel.Instance.getEditor().refresh();
         }
 
         if ($("#sqlSection").hasClass("active")) {

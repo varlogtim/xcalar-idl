@@ -12,7 +12,8 @@ describe("UDF Test", function() {
         $udfSection = $("#udfSection");
         $udfManager = $("#udf-manager");
         UnitTest.onMinMode();
-        UDF.setupTest();
+        UDFPanel.Instance.setupTest();
+        UDFFileManager.Instance.setupTest();
 
         if (!$tab.hasClass("active")) {
             UnitTest.testFinish(function() {
@@ -41,7 +42,7 @@ describe("UDF Test", function() {
                 return !$("#udf-fnSection").hasClass("xc-disabled");
             })
             .then(() => {
-                var udfs = UDF.getUDFs();
+                var udfs = UDFFileManager.Instance.getUDFs();
                 var udfsObj = {};
                 udfs.forEach((value, key) => {udfsObj[key] = value;});
                 expect(udfsObj.hasOwnProperty(defaultUDFPath));
@@ -55,13 +56,13 @@ describe("UDF Test", function() {
 
     describe("Basic Function Test", function() {
         it("isEditableUDF should work", function() {
-            var isEditableUDF = UDF.__testOnly__.isEditableUDF;
+            var isEditableUDF = UDFFileManager.Instance.__testOnly__.isEditableUDF;
             expect(isEditableUDF(defaultModule)).to.be.false;
             expect(isEditableUDF("test")).to.be.true;
         });
 
         it("getEntireUDF should work", function(done) {
-            UDF.__testOnly__.getEntireUDF(defaultModulePath)
+            UDFFileManager.Instance.getEntireUDF(defaultModulePath)
             .then(function(str) {
                 expect(str).not.to.be.null;
                 expect(str).to.be.a("string");
@@ -73,7 +74,7 @@ describe("UDF Test", function() {
         });
 
         it("getEntireUDF should handle error", function(done) {
-            UDF.__testOnly__.getEntireUDF("unitTestErrorModule")
+            UDFFileManager.Instance.getEntireUDF("unitTestErrorModule")
             .then(function() {
                 done("fail");
             })
@@ -83,14 +84,14 @@ describe("UDF Test", function() {
             });
         });
 
-        it("UDF.download should work", function(done) {
+        it("download should work", function(done) {
             var oldFunc = xcHelper.downloadAsFile;
             var test = null;
             xcHelper.downloadAsFile = function(moduleName, entireString) {
                 test = entireString;
             };
 
-            UDF.download(defaultModulePath)
+            UDFFileManager.Instance.download(defaultModulePath)
             .then(function() {
                 expect(test).not.to.be.null;
                 expect(test).to.be.a("string");
@@ -104,8 +105,8 @@ describe("UDF Test", function() {
             });
         });
 
-        it("UDF.download should handle error case", function(done) {
-            UDF.download("unitTestErrorModule")
+        it("download should handle error case", function(done) {
+            UDFFileManager.Instance.download("unitTestErrorModule")
             .then(function() {
                 done("fail");
             })
@@ -116,7 +117,7 @@ describe("UDF Test", function() {
         });
 
         it("parseSyntaxError should work", function() {
-            var parseSyntaxError = UDF.__testOnly__.parseSyntaxError;
+            var parseSyntaxError = UDFFileManager.Instance.__testOnly__.parseSyntaxError;
             // case 1
             var res = parseSyntaxError(null);
             expect(res).to.be.null;
@@ -137,17 +138,17 @@ describe("UDF Test", function() {
         });
 
         it("inputUDFFuncList should work", function() {
-            var inputUDFFuncList = UDF.__testOnly__.inputUDFFuncList;
+            var inputUDFFuncList = UDFPanel.Instance.__testOnly__.inputUDFFuncList;
             var module = xcHelper.randName("testModule");
             inputUDFFuncList(module);
             UnitTest.hasStatusBoxWithError(UDFTStr.NoTemplate);
             // case 2
             // inputUDFFuncList("default");
-            // expect(UDF.getEditor().getValue()).contains("convertFormats");
+            // expect(UDFPanel.Instance.getEditor().getValue()).contains("convertFormats");
         });
 
         it("readUDFFromFile should work", function() {
-            var readUDFFromFile = UDF.__testOnly__.readUDFFromFile;
+            var readUDFFromFile = UDFPanel.Instance.__testOnly__.readUDFFromFile;
             var oldReader = FileReader;
 
             FileReader = function() {
@@ -162,9 +163,9 @@ describe("UDF Test", function() {
             FileReader = oldReader;
         });
 
-        // it("UDF.selectUDFFuncList should work", function() {
+        // it("UDFPanel.Instance.selectUDFFuncList should work", function() {
         //     $("#udf-fnName").val("");
-        //     UDF.selectUDFFuncList("default");
+        //     UDFPanel.Instance.selectUDFFuncList("default");
         //     expect($("#udf-fnName").val()).to.equal("default");
         //     // clear up
         //     $("#udf-fnName").val("");
@@ -176,7 +177,7 @@ describe("UDF Test", function() {
         var oldUploadFunc;
 
         before(function() {
-            uploadUDF = UDF.__testOnly__.upload;
+            uploadUDF = UDFFileManager.Instance.__testOnly__.upload;
             oldUploadFunc = XcalarUploadPython;
         });
 
@@ -240,31 +241,31 @@ describe("UDF Test", function() {
     });
 
     describe("UDF Public API Test", function() {
-        it('UDF.getDefaultUDFPath should work', function() {
-            expect(UDF.getDefaultUDFPath()).to.equal(defaultUDFPath);
+        it('UDFFileManager.Instance.getDefaultUDFPath should work', function() {
+            expect(UDFFileManager.Instance.getDefaultUDFPath()).to.equal(defaultUDFPath);
         });
 
-        it("UDF.getEditor should work", function() {
-            var editor = UDF.getEditor();
+        it("UDFPanel.Instance.getEditor should work", function() {
+            var editor = UDFPanel.Instance.getEditor();
             expect(editor instanceof CodeMirror).to.be.true;
         });
 
-        it("UDF.getUDFs should work", function() {
-            var udfs = UDF.getUDFs();
+        it("UDFFileManager.Instance.getUDFs should work", function() {
+            var udfs = UDFFileManager.Instance.getUDFs();
             expect(udfs).to.be.a("Map");
         });
 
-        it("UDF.storePython should work", function() {
+        it("UDFFileManager.Instance.storePython should work", function() {
             var moduleName = xcHelper.randName("unittest");
-            UDF.storePython(moduleName, "test");
-            var udfs = UDF.getUDFs();
+            UDFFileManager.Instance.storePython(moduleName, "test");
+            var udfs = UDFFileManager.Instance.getUDFs();
             var udfsObj = {};
             udfs.forEach((value, key) => {udfsObj[key] = value;});
             expect(udfsObj).to.have.ownProperty(moduleName);
         });
 
-        it("UDF.list should work", function(done) {
-            UDF.list()
+        it("UDFFileManager.Instance.list should work", function(done) {
+            UDFFileManager.Instance.list()
             .then(function(res) {
                 expect(res).to.be.an("object");
                 expect(res).to.have.property("fnDescs");
@@ -276,21 +277,21 @@ describe("UDF Test", function() {
             });
         });
 
-        it("UDF.clear should work", function() {
-            UDF.clear();
-            var udfs = UDF.getUDFs();
+        it("UDFPanel.Instance.clear should work", function() {
+            UDFPanel.Instance.clear();
+            var udfs = UDFFileManager.Instance.getUDFs();
             var udfsObj = {};
             udfs.forEach((value, key) => {udfsObj[key] = value;});
             expect(jQuery.isEmptyObject(udfsObj)).to.be.true;
         });
 
-        it("UDF.initialize should handle error case", function(done) {
+        it("UDFFileManager.Instance.initialize should handle error case", function(done) {
             var oldFunc = XcalarListXdfs;
             XcalarListXdfs = function() {
                 return PromiseHelper.reject({"error": "test"});
             };
 
-            UDF.initialize()
+            UDFFileManager.Instance.initialize()
             .then(function() {
                 done("fail");
             })
@@ -303,10 +304,10 @@ describe("UDF Test", function() {
             });
         });
 
-        it("UDF.initialize should work", function(done) {
-            UDF.initialize()
+        it("UDFFileManager.Instance.initialize should work", function(done) {
+            UDFFileManager.Instance.initialize()
             .then(function() {
-                var udfs = UDF.getUDFs();
+                var udfs = UDFFileManager.Instance.getUDFs();
                 var udfsObj = {};
                 udfs.forEach((value, key) => {udfsObj[key] = value;});
                 expect(udfsObj).to.have.ownProperty(defaultModulePath);
@@ -317,15 +318,15 @@ describe("UDF Test", function() {
             });
         });
 
-        it("UDF.refreshWithoutClearing should work", function(done) {
+        it("UDFFileManager.Instance.refreshWithoutClearing should work", function(done) {
             var oldFunc = XcalarListXdfs;
-            var editor = UDF.getEditor();
+            var editor = UDFPanel.Instance.getEditor();
             editor.setValue("test");
             XcalarListXdfs = function() {
                 return PromiseHelper.reject("reject");
             };
 
-            UDF.refreshWithoutClearing()
+            UDFFileManager.Instance.refreshWithoutClearing()
             .then(function() {
                 done("fail");
             })
@@ -338,15 +339,15 @@ describe("UDF Test", function() {
             });
         });
 
-        it("UDF.refresh should work", function(done) {
+        it("UDFFileManager.Instance.refresh should work", function(done) {
             var oldFunc = XcalarListXdfs;
-            var editor = UDF.getEditor();
+            var editor = UDFPanel.Instance.getEditor();
             editor.setValue("test2");
             XcalarListXdfs = function() {
                 return PromiseHelper.reject("reject");
             };
 
-            UDF.refresh()
+            UDFFileManager.Instance.refresh()
             .then(function() {
                 done("fail");
             })
@@ -360,6 +361,8 @@ describe("UDF Test", function() {
         });
     });
 
+    // TODO: to be removed
+    /*
     describe("UDF Manager Behavior Test", function() {
         it("Should switch to manager tab", function() {
             var $tab = $udfSection.find('.tab[data-tab="udf-manager"]');
@@ -404,6 +407,7 @@ describe("UDF Test", function() {
             $udf.remove();
         });
     });
+    */
 
     describe("Upload and Delete UDF Test", function() {
         var $fnName;
@@ -415,7 +419,7 @@ describe("UDF Test", function() {
         before(function() {
             $fnName = $("#udf-fnName");
             uploadModule = xcHelper.randName("unittest");
-            editor = UDF.getEditor();
+            editor = UDFPanel.Instance.getEditor();
         });
 
         it("should in a workbook", function() {

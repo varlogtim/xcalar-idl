@@ -160,16 +160,19 @@
     <section id="udfSection" class="menuSection no-selection">
       <!-- Heading -->
       <header class="heading draggable">
-        <h2><%= dicts.UDF.Header %></h2>
+        <div class="title"><%= dicts.UDF.Header %></div>
       </header>
       <!-- Content -->
       <div class="menuContent">
         <!-- Section to switch between editor and manager section -->
         <section class="tabSection">
-          <!-- option for editor section -->
-          <div class="tab active" data-tab="udf-fnSection"><%= dicts.UDF.Editor %></div>
+          <!-- option for browse button -->
+          <div id="udf-upload-browse" class="tab">
+            <%= dicts.UDF.Browse %>
+          </div>
+          <input id="udf-upload-fileBrowser"  spellcheck="false" type="file" style="display: none;">
           <!-- option manager section -->
-          <div class="tab" data-tab="udf-manager"><%= dicts.UDF.Manager %></div>
+          <div class="tab"><%= dicts.UDF.Manager %></div>
         </section>
 
         <!-- Main Content -->
@@ -178,11 +181,6 @@
           <section id="udf-fnSection" class="mainSection">
             <!-- topSection -->
             <div class="topSection">
-              <button id="udf-upload-browse" class="btn action iconBtn" type="button">
-                <i class="icon xi-browse fa-15"></i>
-                <%= dicts.UDF.Browse %>
-              </button>
-              <input id="udf-upload-fileBrowser"  spellcheck="false" type="file" style="display: none;">
               <div class="template">
                 <div class="title"><%= dicts.UDF.Template %>:</div>
                 <div id="udf-fnList" class="dropDownList">
@@ -209,7 +207,6 @@
             <div class="bottomSection">
               <input id="udf-fnName" class="action" type="text" spellcheck="false" placeholder="<%= dicts.UDF.NameHint %>">
               <button id="udf-fnUpload" class="btn upload iconBtn action" type="button">
-                <i class="icon xi-add-udf fa-15"></i>
                 <span class="text"><%= dicts.UDF.ADD %></span>
               </button>
             </div>

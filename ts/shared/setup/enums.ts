@@ -400,6 +400,14 @@ enum FileManagerField {
     Size = "Size"
 }
 
+enum FileManagerAction {
+    Open = "Open",
+    Download = "Download",
+    Rename = "Rename",
+    Delete = "Delete",
+    Duplicate = "Duplicate"
+}
+
 if (typeof global !== 'undefined') {
     global.RowDirection = RowDirection;
     global.WSTableType = WSTableType;

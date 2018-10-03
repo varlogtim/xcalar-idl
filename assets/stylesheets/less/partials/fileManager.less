@@ -1,6 +1,5 @@
 // New top bar UI
 
-/*
 .fileManagerMainPanel {
     .topBar {
         // TODO: move to constants.less when colors are finalized
@@ -28,10 +27,11 @@
         }
     }
 }
-*/
 
+// TODO: this is larger than the current container UI.
 #monitorFileManager {
-    height: ~"calc(100% - 5px)";
+    height: ~"calc(100% - 0px)";
+    margin-bottom: 0;
 }
 
 .fileManager {
@@ -54,7 +54,7 @@
         @create-width: 123px;
         @upload-width: 123px;
 
-        .size(@min-height: @operation-height);
+        .size(@min-height: @operation-height, @max-height: @operation-height);
         background-color: @color-bg-topBarGray2;
         box-shadow: 0px 0.25px 0px @color-border-operator;
         .flex-display;
@@ -99,7 +99,8 @@
 
             .fileTypeMenu {
                 .size(@width: @file-type-width);
-                .position(absolute, @top: 88px);
+                // TODO: this should be changed when panel borders are changed.
+                .position(relative);
 
                 .fileTypeMenuSection {
                     .size(@height: 25px);
@@ -126,10 +127,8 @@
         }
 
         .navigationArea {
-            float: left;
             .flex-display;
-            .size(@navigation-width, 25px);
-            line-height: 25px;
+            .size(@min-width: @navigation-width);
             padding: 0px 10px 0px 10px;
 
             .navigationButton {
@@ -142,6 +141,7 @@
                     opacity: @opacity-unhover;
                     color: @color-border-bar;
                     font-size: 12px;
+                    padding: 8px 0px;
                 }
 
                 &:hover {
@@ -154,16 +154,15 @@
 
         .addressArea {
             padding: 8px 0px 0px 0px;
-            // todo: this is expanding with very long address.
-            width: 97%;
+            min-width: @address-width;
+            flex-grow: 1;
 
             .addressContent {
-                float: left;
-                .size(@height: 25px, @min-width: @address-width, @width: 97%);
+                .size(@height: 25px, @width: 100%);
                 font-size: 12px;
                 font-style: normal;
-                user-select: text;
-                cursor: text;
+                color: #44515c;
+                .input-placeholder(#44515c);
                 line-height: 23px;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -214,7 +213,8 @@
 
             .actionMenu {
                 .size(@width: @action-width);
-                .position(absolute, @top: 88px);
+                // TODO: this should be changed when panel borders are changed.
+                .position(relative);
 
                 .actionMenuSection {
                     .size(@height: 25px);
@@ -235,6 +235,15 @@
 
                     &.selected {
                         background-color: @color-border-softGray;
+                    }
+
+                    &.disabled {
+                        cursor: not-allowed;
+
+                        .label {
+                            opacity: 0.5;
+                        }
+                        // TODO: color change.
                     }
                 }
             }
@@ -323,7 +332,6 @@
                         .textOverflowOneLine;
                         .font(@size: 12px, @line-height: @title-section-height);
                         padding-right: 8px;
-                        float: left;
                     }
 
                     .icon {
@@ -354,11 +362,15 @@
                 .field {
                     cursor: pointer;
 
+                    .label {
+                        float: left;
+                    }
+
                     .icon {
                         color: #627483;
                         opacity: @opacity-unhover;
 
-                        // todo: xi-sort by itself has padding.
+                        // TODO: xi-sort by itself has padding.
                         // It is causing shift.
                         &.xi-arrow-up,
                         &.xi-arrow-down {
@@ -387,9 +399,15 @@
             .size(@width: 100%, @height: 100%);
             border: 1px solid @color-border-softGray;
             border-top: none;
+            max-height: ~"calc(100vh - 260px)";
+            overflow-y: auto;
 
             .row {
                 .field {
+                    .label {
+                        display: block;
+                    }
+
                     .icon {
                         color: @color-border-operator;
                         padding-right: 6px;

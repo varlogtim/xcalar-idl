@@ -326,7 +326,7 @@ class UDFManager {
         // edit udf
         $udfManager.on("click", ".udf .edit", function() {
             const modulePath: string = self._getModuleName(this);
-            UDF.edit(modulePath);
+            UDFPanel.Instance.edit(modulePath);
         });
 
         $udfManager.on("click", ".udfManagerHeader", function() {
@@ -342,7 +342,7 @@ class UDFManager {
         // download udf
         $udfManager.on("click", ".udf .download", function() {
             const moduleName: string = self._getModuleName(this);
-            UDF.download(moduleName);
+            UDFFileManager.Instance.download(moduleName);
         });
 
         // delete udf
@@ -352,14 +352,14 @@ class UDFManager {
                 title: UDFTStr.DelTitle,
                 msg: UDFTStr.DelMsg,
                 onConfirm: () => {
-                    UDF.del(moduleName);
+                    UDFFileManager.Instance.del(moduleName);
                 }
             });
         });
 
         $udfManager.on("click", ".refresh", function() {
             self._reset();
-            UDF.refresh();
+            UDFFileManager.Instance.refresh(false);
         });
     }
 

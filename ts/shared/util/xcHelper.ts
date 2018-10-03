@@ -3102,11 +3102,11 @@ namespace xcHelper {
     // only show default and user workbook's udfs
     export function filterUDFs(fns: UDFInfo[]): UDFInfo[] {
         const filteredArray: UDFInfo[] = [];
-        const wkbkPrefix: string = UDF.getCurrWorkbookPath();
+        const wkbkPrefix: string = UDFFileManager.Instance.getCurrWorkbookPath();
         if (wkbkPrefix == null) {
             return filteredArray;
         }
-        const globalPathPrefix: string = UDF.getDefaultUDFPath() + ":";
+        const globalPathPrefix: string = UDFFileManager.Instance.getDefaultUDFPath() + ":";
         for (let i = 0; i < fns.length; i++) {
             const op: UDFInfo = fns[i];
             if (op.fnName.indexOf("/") === -1) {

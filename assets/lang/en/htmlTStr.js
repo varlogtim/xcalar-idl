@@ -407,8 +407,8 @@ module.exports = {
     },
 
     "UDF": {
-        "ADD": "ADD UDF",
-        "Browse": "Browse File",
+        "ADD": "Add UDF",
+        "Browse": "Browse Files",
         "BlankFunc": "New Module",
         "Editor": "Editor",
         "Func": "UDF Function",

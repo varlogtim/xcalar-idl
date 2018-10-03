@@ -69,7 +69,7 @@ window.MonitorPanel = (function($, MonitorPanel) {
         var $monitorPanel = $("#monitorPanel");
 
         // main menu
-        $('#monitorTab').find('.subTab').click(function() {
+        $('#monitorTab').find('.subTab').click(function(event) {
             var $button = $(this);
             if ($button.hasClass('active')) {
                 return;
@@ -122,8 +122,11 @@ window.MonitorPanel = (function($, MonitorPanel) {
                     $("#monitor-file-manager").addClass("active");
                     $menu.find(".menuSection.fileManager").removeClass("xc-hidden");
                     title = MonitorTStr.FileManagerTitle;
-                    $("#container").addClass("activePanel-FileManagerPanel");
-                    $monitorPanel.addClass("fileManagerMainPanel");
+                    // TODO: hack until UI is finalized.
+                    if ($("#udfSection").hasClass("switching")) {
+                        $("#container").addClass("activePanel-FileManagerPanel");
+                        $monitorPanel.addClass("fileManagerMainPanel");
+                    }
                     break;
                 default:
                     break;

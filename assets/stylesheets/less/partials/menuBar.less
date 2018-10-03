@@ -652,6 +652,10 @@
             display: none;
         }
 
+        &.udfTopButtons {
+            color: @color-font-form-gray;
+        }
+
     }
 
     .menuSection {
@@ -823,31 +827,59 @@
 
 /* ========== UDF Section ========== */
 #udfSection {
+    background-color: @color-white;
+    color: @color-font-form-gray;
+    border-right: 1px solid @color-border-softGray;
     overflow: visible !important;
+
+    @title-height: 40px;
+    
     .tabSection {
-        .size(@width: 100%, @height: 35px);
+        .size(@width: 100%, @height: 63px);
+        padding: 18px 10px;
+        border-top: 1px solid #eef1f4;
+        border-bottom: 1px solid #eef1f4;
 
         .tab {
-            .size(@width: 50%, @height: 100%);
-            .font(@size: 14px, @weight: 700, @line-height: 35px, @color: @color-white);
+            .size(@width: ~"calc(50% - 13px)", @height: 28px);
+            .font(@size: 12px, @weight: 700, @color: @color-white);
+            padding: 6px 0px;
+            margin: 0px 6px;
             text-align: center;
             float: left;
-            background-color: @color-bg-light-navy;
+            background-color: #849cb0;
+            border-radius: 4px;
+            opacity: 0.9;
             cursor: pointer;
 
             &:hover {
-                box-shadow: inset 0 2px 0 0 @color-bg-dusk-blue;
-            }
-
-            &.active {
-                background-color: @color-bg-tiber-blue;
-                color: @color-font-bright-light-blue;
+                opacity: @opacity-hover;
             }
         }
     }
 
     .mainSectionContainer {
-        .size(@width: 100%, @height: ~"calc(100% - 35px)");
+        .size(@width: 100%, @height: ~"calc(100% - 99px)");
+    }
+
+    > header {
+        color: @color-font-form-gray;
+        height: 71px !important;
+        font-size: 20px;
+        background-color: @color-white !important;
+        padding: 0px;
+
+        .title {
+            color: @color-font-form-gray;
+            line-height: 81px;
+            margin-left: 15px;
+            display: inline-block;
+            font-weight: bold;
+        }
+    }
+
+    .menuContent {
+        background-color: @color-white;
     }
 }
 
@@ -873,27 +905,28 @@ ul.CodeMirror-hints {
     .flex-flow(column);
 
     .action {
-        .size(@width: 255px, @height: 30px);
+        .size(@width: 255px, @height: 28px);
         line-height: 30px;
         margin: 0px 10px 10px;
         display: block;
     }
 
     input {
-        color: @color-white;
-        background-color: @color-bg-limedSpruce;
+        color: #44515c;
         .textOverflowOneLine;
     }
 
     .topSection {
-        padding: 15px 20px;
-        background-color: @color-bg-tiber-blue;
+        padding: 15px 16px;
+        background-color: #f5f8fa;
+        font-size: 12px;
+
         .flex-display;
         .flex-wrap(wrap);
         .flex(0 0 auto);
         .justify-content(space-around);
 
-        .action, .template {
+        .template {
             .flex(1 1 255px);
             max-width: 500px;
         }
@@ -901,15 +934,14 @@ ul.CodeMirror-hints {
 
     .template {
         .size(@width: 255px, @height: 30px);
-        margin: 0 10px;
 
         > div {
             float: left;
         }
 
         .title {
-            .size(@width: 75px);
-            .font(@color: @color-white, @line-height: 30px);
+            padding: 0px 10px 0px 0px;
+            .font(@color: #44515c, @line-height: 30px);
         }
     }
 
@@ -917,12 +949,20 @@ ul.CodeMirror-hints {
         display: none !important;
     }
 
+    .CodeMirror-scroll {
+        .CodeMirror-gutters {
+            border-right: none;
+        }
+    }
+
     .dropDownList {
-        .styleDropDownList(~"calc(100% - 75px)", 30px);
+        .styleDropDownList(~"calc(100% - 55px)", 28px);
 
         .text {
-            width: ~"calc(100% - 30px)";
-            border: 1px solid @color-border-select-blue;
+            font-size: 12px;
+            width: ~"calc(100% - 28px)";
+            background-color: @color-white;
+            border: 1px solid #dbe1e6;
             cursor: text;
 
             &:focus {
@@ -933,13 +973,15 @@ ul.CodeMirror-hints {
         .list {
             .size(@width: 100%);
             box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.2);
-
+            .position(absolute, @left: 0, @top: 28px);
+            cursor: pointer;
 
             li {
                 box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.1);
-                color: @color-white;
+                color: #44515c;
+                font-size: 12px;
                 text-transform: lowercase;
-                background-color: @color-bg-marine;
+                background-color: @color-white;
 
                 &.workbookUDF {
                     background-color: @color-bg-select-blue;
@@ -983,6 +1025,20 @@ ul.CodeMirror-hints {
                 &.noResultHint {
                     color: @color-text-lightGray;
                 }
+
+                &.hover {
+                    background-color: @color-border-softGray;
+                }
+            }
+        }
+
+        .iconWrapper {
+            background-color: @color-white;
+            border: 1px solid #dbe1e6;
+            border-left: none;
+
+            .icon {
+                color: #849cb0;
             }
         }
     }
@@ -1004,30 +1060,38 @@ ul.CodeMirror-hints {
     }
 
     .bottomSection {
-        padding: 10px 5px;
-        background-color: @color-bg-tiber-blue;
+        padding: 22px 16px;
+        background-color: #f5f8fa;
         .flex(0 0 49px);
 
         input {
-            .size(@width: ~"calc(100% - 99px)");
+            .size(@width: ~"calc(50% - 6px)");
             margin: 0;
 
             opacity: @opacity-unhover;
-            border: 1px solid transparent;
+            border: 1px solid #dbe1e6;
             padding: 0 5px;
+            margin: 0px 5px 0px 0px;
             float: left;
-            text-transform: lowercase;
             text-overflow: clip;
             font-size: 13px;
 
             &:focus {
                 outline: none;
-                border: 1px solid @color-border-select-blue;
+                border: 1px solid #dbe1e6;
                 opacity: @opacity-hover;
             }
         }
 
         #udf-fnUpload {
+            font-size: 12px;
+            background-color: #849cb0;
+            width: ~"calc(50% - 6px)";
+            padding: 0px;
+            margin: 0px 0px 0px 5px;
+            border-radius: 2px;
+            float: right;
+
             .icon {
                 padding-left: 4px;
                 width: 13px;
@@ -1036,14 +1100,14 @@ ul.CodeMirror-hints {
                 letter-spacing: 0px;
             }
 
-            width: 90px;
-            padding: 0px;
-            margin: 0px;
-            float: right;
+            &:hover {
+                opacity: @opacity-hover;
+            }
         }
     }
 }
 
+// TODO: remove
 #udf-manager {
     .size(@height: 100%);
 
@@ -1061,9 +1125,8 @@ ul.CodeMirror-hints {
     .titleSection {
         .size(@height: 40px);
         padding: 0 16px;
-        .font(@size: 16px, @line-height: 40px, @color: @color-font-bright-light-blue);
-        background-color: @color-bg-tiber-blue;
-        box-shadow: inset 0 -1px 0 0 @color-border-light-navy;
+        .font(@size: 16px, @line-height: 40px, @color: #44515c);
+        background-color: #f5f8fa;
 
         header {
             .size(@width: ~"calc(100% - 30px)");
@@ -1074,7 +1137,7 @@ ul.CodeMirror-hints {
             display: block;
             float: right;
             .size(@width: 17px, @height: 17px);
-            color: @color-font-bright-light-blue;
+            color: #44515c;
             .vertical-align;
         }
     }
@@ -1086,7 +1149,7 @@ ul.CodeMirror-hints {
         padding: 10px;
 
         .udfManagerHeader {
-            color: @color-white;
+            color: @color-black;
             font-weight: bold;
             text-transform: uppercase;
             width: 100%;
@@ -1173,7 +1236,7 @@ ul.CodeMirror-hints {
 
             .text {
                 .size(@width: ~"calc(100% - 110px)");
-                .font(@line-height: 28px, @color: @color-white);
+                .font(@line-height: 28px, @color: @color-black);
                 padding: 0 10px;
                 .textOverflowOneLine;
             }

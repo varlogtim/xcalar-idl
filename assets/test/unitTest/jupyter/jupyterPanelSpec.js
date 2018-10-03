@@ -85,14 +85,14 @@ describe("JupyterPanel Test", function() {
             var called3 = false;
             var cacheFn1 = JupyterPanel.appendStub;
             var cacheFn2 = BottomMenu.openSection;
-            var cacheFn3 = UDF.selectUDFFuncList;
+            var cacheFn3 = UDFPanel.Instance.selectUDFFuncList;
             JupyterPanel.appendStub = function() {
                 called1 = true;
             };
             BottomMenu.openSection = function() {
                 called2 = true;
             };
-            UDF.selectUDFFuncList = function() {
+            UDFPanel.Instance.selectUDFFuncList = function() {
                 called3 = true;
             };
             sendMessage({action:"autofillImportUdf", includeStub: "false",
@@ -104,7 +104,7 @@ describe("JupyterPanel Test", function() {
 
                 JupyterPanel.appendStub = cacheFn1;
                 BottomMenu.openSection = cacheFn2;
-                UDF.selectUDFFuncList = cacheFn3;
+                UDFPanel.Instance.selectUDFFuncList = cacheFn3;
                 done();
             })
             .fail(function() {
@@ -177,8 +177,8 @@ describe("JupyterPanel Test", function() {
 
         it("udfToMapForm should be triggered", function(done) {
             var called = false;
-            var cacheFn = UDF.refresh;
-            UDF.refresh = function(isNew) {
+            var cacheFn = UDFFileManager.Instance.refresh;
+            UDFFileManager.Instance.refresh = function(isNew) {
                 called = true;
                 return PromiseHelper.resolve();
             };
@@ -187,7 +187,7 @@ describe("JupyterPanel Test", function() {
             .then(function() {
                 expect(called).to.be.true;
                 UnitTest.hasAlertWithText("Table testTable is not present in any active worksheets.");
-                UDF.refresh = cacheFn;
+                UDFFileManager.Instance.refresh = cacheFn;
                 done();
             })
             .fail(function() {
@@ -197,8 +197,8 @@ describe("JupyterPanel Test", function() {
 
         it("udfToMapForm should not be triggered if fail", function(done) {
             var called = false;
-            var cacheFn = UDF.refresh;
-            UDF.refresh = function(isNew) {
+            var cacheFn = UDFFileManager.Instance.refresh;
+            UDFFileManager.Instance.refresh = function(isNew) {
                 called = true;
                 return PromiseHelper.reject();
             };
@@ -207,7 +207,7 @@ describe("JupyterPanel Test", function() {
             .then(function() {
                 expect(called).to.be.true;
                 UnitTest.hasAlertWithText("Could not update UDF list.");
-                UDF.refresh = cacheFn;
+                UDFFileManager.Instance.refresh = cacheFn;
                 done();
             })
             .fail(function() {
@@ -217,8 +217,8 @@ describe("JupyterPanel Test", function() {
 
         it("udfToDSPreview should be triggered", function(done) {
             var called = false;
-            var cacheFn = UDF.refresh;
-            UDF.refresh = function(isNew) {
+            var cacheFn = UDFFileManager.Instance.refresh;
+            UDFFileManager.Instance.refresh = function(isNew) {
                 called = true;
                 return PromiseHelper.resolve();
             };
@@ -227,7 +227,7 @@ describe("JupyterPanel Test", function() {
             .then(function() {
                 expect(called).to.be.true;
                 UnitTest.hasAlertWithText(JupyterTStr.DSFormInactive);
-                UDF.refresh = cacheFn;
+                UDFFileManager.Instance.refresh = cacheFn;
                 done();
             })
             .fail(function() {
@@ -276,7 +276,7 @@ describe("JupyterPanel Test", function() {
             var called3 = false;
             var cacheFn1 = JupyterPanel.appendStub;
             var cacheFn2 = BottomMenu.openSection;
-            var cacheFn3 = UDF.selectUDFFuncList;
+            var cacheFn3 = UDFPanel.Instance.selectUDFFuncList;
             JupyterPanel.appendStub = function(type) {
                 expect(type).to.equal("importUDF");
                 called1 = true;
@@ -284,7 +284,7 @@ describe("JupyterPanel Test", function() {
             BottomMenu.openSection = function() {
                 called2 = true;
             };
-            UDF.selectUDFFuncList = function() {
+            UDFPanel.Instance.selectUDFFuncList = function() {
                 called3 = true;
             };
 
@@ -298,7 +298,7 @@ describe("JupyterPanel Test", function() {
 
             JupyterPanel.appendStub = cacheFn1;
             BottomMenu.openSection = cacheFn2;
-            UDF.selectUDFFuncList = cacheFn3;
+            UDFPanel.Instance.selectUDFFuncList = cacheFn3;
 
             JupyterPanel.__testOnly__.setCurNB(prevNB);
         });

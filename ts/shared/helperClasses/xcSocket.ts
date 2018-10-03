@@ -190,7 +190,7 @@ class XcSocket {
                 return;
             }
             DataflowPanel.refresh(updateInfo);
-            UDF.refreshWithoutClearing(false);
+            UDFFileManager.Instance.refreshWithoutClearing(false);
         });
 
         socket.on('refreshUDFWithoutClear', (overwriteUDF: boolean) => {
@@ -198,7 +198,7 @@ class XcSocket {
                 return;
             }
             // In the event that there's new UDF added or overwritten old UDF
-            UDF.refreshWithoutClearing(overwriteUDF);
+            UDFFileManager.Instance.refreshWithoutClearing(overwriteUDF);
         });
 
         socket.on('refreshDSExport', () => {

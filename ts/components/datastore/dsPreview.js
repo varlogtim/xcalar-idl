@@ -997,7 +997,7 @@ window.DSPreview = (function($, DSPreview) {
 
         if (!listXdfsObj) {
             // update python module list
-            UDF.list(true)
+            UDFFileManager.Instance.list(true)
             .then(updateUDFList)
             .then(deferred.resolve)
             .fail(function(error) {

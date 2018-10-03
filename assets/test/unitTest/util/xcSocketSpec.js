@@ -259,9 +259,9 @@ describe("xcSocket Test", function() {
         });
 
         it("refreshUDFWithoutClear event should work", function() {
-            const oldFunc = UDF.refreshWithoutClearing;
+            const oldFunc = UDFFileManager.Instance.refreshWithoutClearing;
             let test = null;
-            UDF.refreshWithoutClearing = (overwriteUDF) => {
+            UDFFileManager.Instance.refreshWithoutClearing = (overwriteUDF) => {
                 test = overwriteUDF;
             };
 
@@ -275,7 +275,7 @@ describe("xcSocket Test", function() {
             xcSocket._socket.trigger('refreshUDFWithoutClear', true);
             expect(test).to.be.true;
 
-            UDF.refreshWithoutClearing = oldFunc;
+            UDFFileManager.Instance.refreshWithoutClearing = oldFunc;
         });
 
         it("refreshDSExport event should work", function() {

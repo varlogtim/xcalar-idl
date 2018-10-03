@@ -117,7 +117,9 @@ namespace xcMenu {
             }
             event.stopPropagation();
 
-            if (!$li.hasClass('unavailable') && !options.keepOpen) {
+            // unavailable class defines too many styles (with !important) that
+            // we don't need in the new UI
+            if (!$li.hasClass('unavailable') && !$li.hasClass('disabled') && !options.keepOpen) {
                 // hide li if doesnt have a submenu or an input field
                 xcMenu.close($allMenus);
                 clearTimeout(showTimeout);

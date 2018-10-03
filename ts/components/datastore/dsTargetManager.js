@@ -660,20 +660,8 @@ window.DSTargetManager = (function($, DSTargetManager) {
 
     function listUDFSection(listXdfsObj) {
         var deferred = PromiseHelper.deferred();
-
-        if (!listXdfsObj) {
-            // update python module list
-            UDF.list()
-            .then(updateUDFList)
-            .then(deferred.resolve)
-            .fail(function(error) {
-                console.error("List UDF Fails!", error);
-                deferred.reject(error);
-            });
-        } else {
-            updateUDFList(listXdfsObj);
-            deferred.resolve();
-        }
+        updateUDFList(listXdfsObj);
+        deferred.resolve();
 
         return deferred.promise();
     }
@@ -826,9 +814,9 @@ window.DSTargetManager = (function($, DSTargetManager) {
         if (params.listUdf) {
             // need to create abspolute path for the udfModule
             if (params.listUdf === "default") {
-                params.listUdf = UDF.getDefaultUDFPath();
+                params.listUdf = UDFFileManager.Instance.getDefaultUDFPath();
             } else {
-                params.listUdf = UDF.getCurrWorkbookPath() + params.listUdf;
+                params.listUdf = UDFFileManager.Instance.getCurrWorkbookPath() + params.listUdf;
             }
 
             var funVal = $udfFuncList.find("input").val();

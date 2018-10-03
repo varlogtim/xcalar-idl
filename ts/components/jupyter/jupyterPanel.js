@@ -78,7 +78,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
                         } else {
                             JupyterPanel.appendStub("importUDF", s);
                             BottomMenu.openSection(2);
-                            UDF.selectUDFFuncList(s.moduleName);
+                            UDFPanel.Instance.selectUDFFuncList(s.moduleName);
                         }
                         break;
                     case ("enterExistingNotebook"):
@@ -103,7 +103,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
                         JupyterStubMenu.toggleAllow(s.allow);
                         break;
                     case ("udfToMapForm"):
-                        UDF.refresh()
+                        UDFFileManager.Instance.refresh()
                         .then(function() {
                             showMapForm(s.tableName, s.columns, s.moduleName,
                                         s.fnName);
@@ -111,7 +111,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
                         .fail(udfRefreshFail);
                         break;
                     case ("udfToDSPreview"):
-                        UDF.refresh()
+                        UDFFileManager.Instance.refresh()
                         .then(function() {
                             showDSForm(s.moduleName, s.fnName);
                         })
@@ -250,7 +250,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
                 });
 
                 BottomMenu.openSection(2);
-                UDF.selectUDFFuncList(moduleName);
+                UDFPanel.Instance.selectUDFFuncList(moduleName);
             }
         }
     };

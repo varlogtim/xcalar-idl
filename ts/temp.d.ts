@@ -331,9 +331,9 @@ interface FileManagerPathNode {
     isSelected: boolean;
     sortBy: FileManagerField;
     sortDescending: boolean;
+    isSorted: boolean;
     parent: FileManagerPathNode;
     children: Map<string, FileManagerPathNode>;
-    childrenSelectedCount: number;
 }
 
 interface FileManagerHistoryNode {

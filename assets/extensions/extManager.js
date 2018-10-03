@@ -255,7 +255,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
         XcalarUploadPython(pyModName, data)
         .then(function() {
-            UDF.storePython(pyModName, data);
+            UDFFileManager.Instance.storePython(pyModName, data);
             deferred.resolve();
         })
         .fail(function(error) {

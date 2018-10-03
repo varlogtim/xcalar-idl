@@ -7,8 +7,8 @@ describe("Bottom Menu Test", function() {
 
     describe("Basic API Test", function() {
         it("BottomMenu.initialize should handle error", function() {
-            var oldFunc = UDF.initialize;
-            UDF.initialize = function() {
+            var oldFunc = UDFFileManager.Instance.initialize;
+            UDFFileManager.Instance.initialize = function() {
                 throw "error";
             };
 
@@ -16,7 +16,7 @@ describe("Bottom Menu Test", function() {
             BottomMenu.initialize();
             UnitTest.hasAlertWithTitle(ThriftTStr.SetupErr);
 
-            UDF.initialize = oldFunc;
+            UDFFileManager.Instance.initialize = oldFunc;
             UnitTest.offMinMode();
         });
 
