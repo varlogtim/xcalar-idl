@@ -6,12 +6,14 @@ namespace DagView {
     let activeDagTab: DagTab;
     const horzPadding = 200;
     const vertPadding = 100;
-    const nodeHeight = 28;
-    export const nodeWidth = 102;
     const horzNodeSpacing = 140;// spacing between nodes when auto-aligning
     const vertNodeSpacing = 60;
     const gridLineSize = 12;
+    const titleLineHeight = 14;
+    const inConnectorWidth = 6;
     let clipboard = null;
+    export const nodeHeight = 28;
+    export const nodeWidth = 103;
     export const gridSpacing = 20;
     export const zoomLevels = [.25, .5, .75, 1, 1.5, 2];
     const lockedNodeIds = {};
@@ -275,12 +277,12 @@ namespace DagView {
     }
 
     /**
-     * DagView.addNode
+     * DagView.newNode
      * @param dagId
      * @param nodeInfo
      */
-    export function addNode(nodeInfo: DagNodeInfo): DagNode {
-        const node = DagNodeFactory.create(nodeInfo);
+    export function newNode(nodeInfo: DagNodeInfo): DagNode {
+        const node: DagNode = activeDag.newNode(nodeInfo);
         _addNodeNoPersist(node);
         activeDagTab.save();
         return node;
@@ -686,7 +688,7 @@ namespace DagView {
      * @description
      * adds node to dataflow graph by automatically determining position
      * 1. get parent node to determine position of new node
-     * 2. use DagView.addNode to create the new node
+     * 2. use DagView.newNode to create the new node
      * 3. connect new node to parent node
      */
     export function autoAddNode(
@@ -715,7 +717,7 @@ namespace DagView {
         }
         nextAvailablePosition = getNextAvailablePosition(x, y);
 
-        node = DagView.addNode({
+        node = DagView.newNode({
             type: newType,
             subType: subType,
             display: {
@@ -901,6 +903,40 @@ namespace DagView {
     }
 
     /**
+     *
+     * @param nodeId
+     * @param title
+     */
+    export function editTitle(
+        nodeId: DagNodeId,
+        title: string
+    ): XDPromise<void> {
+        const node = activeDag.getNode(nodeId);
+        const oldTitle = node.getTitle();
+        const $node = DagView.getNode(nodeId);
+
+        node.setTitle(title);
+
+        const lines = title.split("\n");
+        let html = "";
+        lines.forEach((line, i) => {
+            html += '<tspan x="0" y="' + (i * titleLineHeight) + '">' +
+                     line + '</tspan>';
+        });
+        $node.find(".nodeTitle").html(html);
+        node.setTitle(title);
+
+        Log.add(SQLTStr.EditNodeTitle, {
+            "operation": SQLOps.EditNodeTitle,
+            "dataflowId": activeDagTab.getId(),
+            "oldTitle": oldTitle,
+            "newTitle": title,
+            "nodeId": nodeId
+        });
+        return activeDagTab.saveTab();
+    }
+
+    /**
      * DagView.cancel
      * // cancel entire run or execution
      */
@@ -1051,6 +1087,7 @@ namespace DagView {
             graphDimensions.width, graphDimensions.height);
 
         // Add customNode to DagView
+        activeDag.addNode(customNode);
         _addNodeNoPersist(customNode);
 
         // Delete selected nodes
@@ -1268,23 +1305,6 @@ namespace DagView {
         };
     }
 
-    function _addNodeNoPersist(node: DagNode) {
-        $dfWrap.find(".selected").removeClass("selected");
-        const $dfArea = $dfWrap.find(".dataflowArea.active");
-
-        activeDag.addNode(node);
-        const nodeId = node.getId();
-        const $node = _drawNode(node, $dfArea);
-        $node.addClass("selected");
-        _setGraphDimensions(xcHelper.deepCopy(node.getPosition()))
-
-        Log.add(SQLTStr.AddOperation, {
-            "operation": SQLOps.AddOperation,
-            "dataflowId": activeDagTab.getId(),
-            "nodeId": nodeId
-        });
-    }
-
     function _removeNodesNoPersist(nodeIds: DagNodeId[]): boolean {
         if (!nodeIds.length) {
             return false;
@@ -1453,15 +1473,35 @@ namespace DagView {
                 return;
             }
             const $dfArea = $dfWrap.find(".dataflowArea.active");
+            const $elements = $operator.add($dfArea.find(".selected"));
+
+            // the description icon and large node title cause the
+            // desired dimensions of the operator element to be altered so we
+            // undo its effects by using offsets
+            const elOffsets = [];
+            $elements.each(function() {
+                const $el = $(this);
+                const elOffset = {x: 0, y: 0};
+                if ($el.is(".operator")) {
+                    if ($el.find(".descriptionIcon").length) {
+                        elOffset.y = 4;
+                    }
+                    const outerLeft = this.getBoundingClientRect().left;
+                    const innerLeft = $(this).find('.main')[0].getBoundingClientRect().left;
+                    elOffset.x = (innerLeft - inConnectorWidth) - outerLeft;
+                }
+                elOffsets.push(elOffset);
+            });
 
             new DragHelper({
                 event: event,
                 $element: $operator,
-                $elements: $operator.add($dfArea.find(".selected")),
+                $elements: $elements,
                 $container: $dagView,
                 $dropTarget: $dfArea.find(".dataflowAreaWrapper"),
                 round: gridSpacing,
                 scale: activeDag.getScale(),
+                elOffsets: elOffsets,
                 onDragStart: function(_$els) {
                 },
                 onDragEnd: function($els, _event, data) {
@@ -1765,10 +1805,9 @@ namespace DagView {
             let $target = $(event.target);
             $dfArea = $dfWrap.find(".dataflowArea.active");
 
-            if ($target.is(".dataflowAreaWrapper") ||
-                $target.is(".dataflowArea") || $target.is(".dataflowWrap") ||
-                $target.is(".edgeSvg") || $target.is(".operatorSvg") ||
-                $target.is(".commentArea")) {
+            if (!$target.closest(".operator").length &&
+                !$target.closest(".comment").length &&
+                !$target.closest(".editableNodeTitle").length) {
 
                 new RectSelction(event.pageX, event.pageY, {
                     "id": "dataflow-rectSelection",
@@ -1783,6 +1822,12 @@ namespace DagView {
                     "onDraw": _drawRect,
                     "onEnd": _endDrawRect
                 });
+            } else if ($target.closest(".operator").length) {
+                const $operator = $target.closest(".operator");
+                if (!$operator.hasClass("selected")) {
+                    $dfWrap.find(".selected").removeClass("selected");
+                    $operator.addClass("selected");
+                }
             }
         });
 
@@ -1790,6 +1835,10 @@ namespace DagView {
             const nodeId: DagNodeId = $(this).closest(".operator")
                                              .data("nodeid");
             DagDescriptionModal.Instance.show(nodeId);
+        });
+
+        $dfWrap.on("dblclick", ".nodeTitle", function() {
+            _nodeTitleEditMode($(this));
         });
 
         function _drawRect(
@@ -1925,14 +1974,22 @@ namespace DagView {
 
         let abbrId = nodeId.slice(nodeId.indexOf(".") + 1);
         abbrId = abbrId.slice(abbrId.indexOf(".") + 1);
-
+        const titleLines = node.getTitle().split("\n");
         // show id next to node
-        // d3.select($node.get(0)).append("text")
-        //    .attr("fill", "black")
-        //    .attr("font-size", 8)
-        //    .attr("x", 10)
-        //    .attr("y", 38)
-        //    .text(abbrId);
+        const textSvg = d3.select($node.get(0)).append("text")
+            .attr("class", "nodeTitle")
+            .attr("fill", "#44515C")
+            .attr("font-size", 10)
+            .attr("transform", "translate(" + ((nodeWidth / 2) + 1) + "," +
+                    (nodeHeight + 12) + ")")
+            .attr("text-anchor", "middle")
+            .attr("font-family", "Open Sans");
+        titleLines.forEach((line, i) => {
+            textSvg.append("tspan")
+            .text(line)
+            .attr("x", 0)
+            .attr("y", i * titleLineHeight);
+        });
 
         // use .attr instead of .data so we can grab by selector
         $node.attr("data-nodeid", nodeId);
@@ -2406,6 +2463,64 @@ namespace DagView {
         return {
             x: x,
             y: y
+        }
+    }
+
+    function _addNodeNoPersist(node) {
+        $dfWrap.find(".selected").removeClass("selected");
+        const $dfArea = $dfWrap.find(".dataflowArea.active");
+
+        const nodeId = node.getId();
+        const $node = _drawNode(node, $dfArea);
+        $node.addClass("selected");
+        _setGraphDimensions(xcHelper.deepCopy(node.getPosition()))
+
+        Log.add(SQLTStr.AddOperation, {
+            "operation": SQLOps.AddOperation,
+            "dataflowId": activeDagTab.getId(),
+            "nodeId": nodeId
+        });
+    }
+
+    function _nodeTitleEditMode($origTitle) {
+        const nodeId: DagNodeId = $origTitle.closest(".operator").data("nodeid");
+        const node = DagView.getActiveDag().getNode(nodeId);
+        const rect = $origTitle[0].getBoundingClientRect();
+        const offset = _getDFAreaOffset();
+        const left = rect.left + offset.left;
+        const top = rect.top + offset.top;
+        const center = left + (rect.width / 2);
+        const minWidth = 90;
+        const origVal = node.getTitle();
+        let html: HTML = '<textarea class="editableNodeTitle" spellcheck="false" style="top:' +
+                            top + 'px;left:' + center + 'px;">' +
+                                origVal +
+                        '</textarea>';
+        let $textArea = $(html);
+        $origTitle.closest(".dataflowAreaWrapper").append($textArea);
+        sizeInput();
+        $textArea.focus().caret(origVal.length);
+        $origTitle.hide();
+
+        $textArea.blur(() => {
+            const newVal: string = $textArea.val().trim();
+            if (newVal !== origVal) {
+                DagView.editTitle(nodeId, newVal);
+            }
+            $textArea.remove();
+            $origTitle.show();
+        });
+
+        $textArea.on("input", sizeInput);
+        function sizeInput() {
+            $textArea.height(titleLineHeight);
+            $textArea.width(minWidth);
+            if ($textArea[0].scrollWidth > $textArea.width()) {
+                $textArea.width($textArea[0].scrollWidth + 1);
+            }
+            if ($textArea[0].scrollHeight > $textArea.height()) {
+                $textArea.height($textArea[0].scrollHeight);
+            }
         }
     }
 }

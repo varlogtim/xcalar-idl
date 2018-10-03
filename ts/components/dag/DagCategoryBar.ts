@@ -261,7 +261,7 @@ class DagCategoryBar {
                 'stroke-width="1" fill="' + color + '" />'+
             '<text class="icon" x="11" y="19" font-family="icomoon" ' +
                 'font-size="12" fill="white">' + icon + '</text>' +
-            '<svg width="60" height="28" x="27" y="1">' +
+            '<svg width="60" height="' + DagView.nodeHeight + '" x="27" y="1">' +
                 '<text class="opTitle" x="50%" y="50%" ' +
                 'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
                 'font-size="11" fill="#44515c">' + opDisplayName +
@@ -297,7 +297,7 @@ class DagCategoryBar {
                         x: data.coors[0].x,
                         y: data.coors[0].y
                     };
-                    DagView.addNode(newNodeInfo);
+                    DagView.newNode(newNodeInfo);
                 },
                 onDragFail: function() {
 

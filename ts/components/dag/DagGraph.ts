@@ -121,6 +121,7 @@ class DagGraph {
      */
     public newNode(nodeInfo: DagNodeInfo): DagNode {
         const dagNode: DagNode = DagNodeFactory.create(nodeInfo);
+        dagNode.setTitle("Node " + (this.nodesMap.size + 1));
         this.addNode(dagNode);
         return dagNode;
     }

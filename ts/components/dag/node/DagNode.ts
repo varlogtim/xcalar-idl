@@ -7,6 +7,7 @@ abstract class DagNode {
     private parents: DagNode[];
     private children: DagNode[];
     private description: string;
+    private title: string;
     private table: string;
     private state: DagNodeState;
     private error: string;
@@ -40,6 +41,7 @@ abstract class DagNode {
         this.children = [];
 
         this.description = options.description || "";
+        this.title = options.title || "";
         this.table = options.table;
         this.state = options.state || DagNodeState.Unused;
         const coordinates = options.display || {x: -1, y: -1};
@@ -199,6 +201,18 @@ abstract class DagNode {
      */
     public getError(): string {
         return this.error
+    }
+
+    /**
+     *
+     * @param title
+     */
+    public setTitle(title: string): void {
+        this.title = title;
+    }
+
+    public getTitle(): string {
+        return this.title;
     }
 
     /**
@@ -481,6 +495,7 @@ abstract class DagNode {
             table: this.table,
             display: xcHelper.deepCopy(this.display.coordinates),
             description: this.description,
+            title: this.title,
             input: xcHelper.deepCopy(this.input),
             id: this.id,
             state: this.state,

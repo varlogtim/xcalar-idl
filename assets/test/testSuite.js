@@ -106,10 +106,10 @@ window.TestSuite = (function($, TestSuite) {
                     $("body").append('<div id="testFinish" style="display:none">PASSED</div>');
                 } else {
                     $("body").append('<div id="testFinish" style="display:none">' +
-                        "Passes: " + res.pass + ", Fails: " + res.fail + 
+                        "Passes: " + res.pass + ", Fails: " + res.fail +
                         ", Skips: " + res.skip + '</div>');
                 }
-                
+
                 finalDeferred.resolve(res);
             };
 
@@ -417,7 +417,7 @@ window.TestSuite = (function($, TestSuite) {
         },
 
         createNode: function(type) {
-            var node = DagView.addNode({
+            var node = DagView.newNode({
                 type: type,
                 display: {
                     x: 0,
@@ -428,7 +428,7 @@ window.TestSuite = (function($, TestSuite) {
             this.assert($node.length === 1);
             return $node;
         },
-    
+
         nodeMenuAction($node, action) {
             $node.find(".main").trigger("contextmenu");
             $("#dagNodeMenu").find("." + action).trigger(fakeEvent.mouseup);
@@ -449,7 +449,7 @@ window.TestSuite = (function($, TestSuite) {
 
             $panel.find(".refresh").click();
             var selector = '#datasetOpPanel .datasetName :contains(' + dsName + ')';
-            
+
             self.checkExists(selector)
             .then(function() {
                 var $grid = $(selector).closest(".datasetName");

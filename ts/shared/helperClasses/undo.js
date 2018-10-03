@@ -587,6 +587,12 @@ window.Undo = (function($, Undo) {
         return PromiseHelper.resolve(null);
     };
 
+    undoFuncs[SQLOps.EditNodeTitle] = function(options) {
+        DagTabManager.Instance.switchTabId(options.dataflowId);
+        DagView.editTitle(options.nodeId, options.oldTitle);
+        return PromiseHelper.resolve(null);
+    };
+
     undoFuncs[SQLOps.NewComment] = function(options) {
         DagTabManager.Instance.switchTabId(options.dataflowId);
         DagView.removeNodes([options.commentId]);

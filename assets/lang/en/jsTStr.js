@@ -1560,6 +1560,7 @@ SQLTStr = {
     "queryFailMessage": "The SQL query failed for",
     "EnterEditorName": "Enter snippet name",
     "EditDescription": "Edit Description",
+    "EditNodeTitle": "Edit Node Title",
     "NewComment": "New Comment",
     "EditComment": "Edit Comment"
 };

@@ -39,7 +39,7 @@ describe("DagView Test", () => {
                     y: 40
                 }
             };
-            DagView.addNode(newNodeInfo);
+            DagView.newNode(newNodeInfo);
             expect($dagView.find(".dataflowArea.active .operatorSvg").children().length).to.equal(1);
             expect($dagView.find(".dataflowArea .operator").length).to.equal(1);
             const $operator = $dagView.find(".dataflowArea .operator");
@@ -118,7 +118,7 @@ describe("DagView Test", () => {
                     y: 10
                 }
             };
-            DagView.addNode(newNodeInfo);
+            DagView.newNode(newNodeInfo);
         });
 
         it("drag and drop for connectors should work", function() {
@@ -358,7 +358,7 @@ describe("DagView Test", () => {
                     y: 10
                 }
             };
-            const node = DagView.addNode(newNodeInfo);
+            const node = DagView.newNode(newNodeInfo);
             nodeId = node.getId();
             $node = DagView.getNode(nodeId);
         });

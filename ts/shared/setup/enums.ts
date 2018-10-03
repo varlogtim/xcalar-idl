@@ -315,6 +315,7 @@ enum SQLOps {
     EditDescription = "editDescription",
     NewComment = "newComment",
     EditComment = "editComment",
+    EditNodeTitle = "editNodeTitle",
 }
 
 enum XcalarMode {

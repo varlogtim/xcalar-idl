@@ -466,7 +466,6 @@ class MapOpPanel extends GeneralOpPanel {
         let func = operObj.fnName;
 
         const $argsSection = $argsGroup.find('.argsSection').last();
-
         $argsSection.empty();
         $argsSection.addClass("touched");
         $argsSection.removeClass('inactive');

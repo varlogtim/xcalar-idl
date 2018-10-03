@@ -633,7 +633,6 @@ window.Log = (function($, Log) {
                     logs.push(new XcLog(oldLogs[i]));
                 }
 
-
                 addLog(logs, true);
                 infList.restore(".logContentWrap");
                 infListMachine.restore(".cliWrap");
@@ -1309,6 +1308,7 @@ window.Log = (function($, Log) {
             case (SQLOps.EditDescription):
             case (SQLOps.NewComment):
             case (SQLOps.EditComment):
+            case (SQLOps.EditNodeTitle):
                 return false;
             // thrift operation
             case (SQLOps.DestroyDS):

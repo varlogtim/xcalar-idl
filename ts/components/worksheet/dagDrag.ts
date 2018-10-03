@@ -14,6 +14,7 @@ interface DragHelperOptions {
     noCursor?: boolean,
     round?: number,
     scale?: number
+    elOffsets?: Coordinate[]
 }
 
 interface DragHelperCoordinate {
@@ -43,7 +44,7 @@ class DragHelper {
     protected origPositions: Coordinate[];
     protected currentDragCoor: DragHelperCoordinate;
     protected customOffset: Coordinate;
-    protected dragContainerPositions: Coordinate[];
+    protected dragContainerItemsPositions: Coordinate[];
     protected noCursor: boolean;
     protected lastY: number;
     protected currY: number;
@@ -52,6 +53,7 @@ class DragHelper {
     protected scrollLeft: number;
     protected round: number;
     protected scale: number;
+    protected elOffsets: Coordinate[]
 
     public constructor(options: DragHelperOptions) {
         const self = this;
@@ -76,7 +78,7 @@ class DragHelper {
         this.currentDragCoor = {left: 0, top: 0, height: 0, width: 0};
         this.isDragging = false;
         this.customOffset = options.offset || {x: 0, y: 0};
-        this.dragContainerPositions = [];
+        this.dragContainerItemsPositions = [];
         this.noCursor = options.noCursor || false;
         this.scrollUpCounter = 0;
         this.scrollLeft = this.$dropTarget.parent().scrollLeft();
@@ -90,6 +92,7 @@ class DragHelper {
         };
         this.lastY = this.mouseDownCoors.y;
         this.currY = this.lastY;
+        this.elOffsets = options.elOffsets || [];
 
         $(document).on("mousemove.checkDrag", function(event: JQueryEventObject) {
             self.checkDrag(event);
@@ -225,15 +228,18 @@ class DragHelper {
         // find the left most element, right most, top-most, bottom-most
         // so we can create a div that's sized to encapsulate all dragging elements
         // and append these to the div
-        this.$els.each(function() {
+        this.$els.each(function(i) {
+            const elOffset = self.elOffsets[i] || {x: 0, y: 0};
             let rect = this.getBoundingClientRect();
+            let left = rect.left + elOffset.x;
+            let top = rect.top + elOffset.y;
             origPositions.push({
-                x: rect.left,
-                y: rect.top
+                x: left,
+                y: top
             });
-            minX = Math.min(minX, rect.left);
+            minX = Math.min(minX, left);
             maxX = Math.max(maxX, rect.right);
-            minY = Math.min(minY, rect.top);
+            minY = Math.min(minY, top);
             maxY = Math.max(maxY, rect.bottom);
         });
         let width: number = maxX - minX;
@@ -289,7 +295,7 @@ class DragHelper {
                 });
             }
 
-            self.dragContainerPositions.push({
+            self.dragContainerItemsPositions.push({
                 x: cloneLeft,
                 y: cloneTop
             });
@@ -349,7 +355,7 @@ class DragHelper {
 
         // check if item was dropped within left and top boundaries of drop target
         if (deltaX >= 0 && deltaY >= 0) {
-            this.dragContainerPositions.forEach(pos => {
+            this.dragContainerItemsPositions.forEach(pos => {
                 coors.push({
                     x: (deltaX / this.scale) + pos.x,
                     y: (deltaY / this.scale) + pos.y

@@ -269,6 +269,12 @@ window.Redo = (function($, Redo) {
         return PromiseHelper.resolve(null);
     };
 
+    redoFuncs[SQLOps.EditNodeTitle] = function(options) {
+        DagTabManager.Instance.switchTabId(options.dataflowId);
+        DagView.editTitle(options.nodeId, options.newTitle);
+        return PromiseHelper.resolve(null);
+    };
+
     redoFuncs[SQLOps.NewComment] = function(options) {
         DagTabManager.Instance.switchTabId(options.dataflowId);
         DagView.addBackNodes([options.commentId]);
