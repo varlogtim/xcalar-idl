@@ -439,8 +439,10 @@ function listPublishedTables(pattern) {
     .then(function(res) {
         var publishedTables = [];
         for (var i = 0; i < res.tables.length; i++) {
-            var table = res.tables[i];
-            publishedTables.push(table.name);
+            if (res.tables[i].active) {
+                var table = res.tables[i];
+                publishedTables.push(table.name);
+            }
         }
         deferred.resolve(publishedTables, res);
     })
