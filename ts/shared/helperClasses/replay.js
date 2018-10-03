@@ -120,9 +120,10 @@ window.Replay = (function($, Replay) {
             createTabMap();
         }
 
-        if (hashTag == null) {
-            hashTag = Authentication.getInfo().hashTag || "";
-        }
+        // XXX TODO: fix it
+        // if (hashTag == null) {
+        //     hashTag = Authentication.getInfo().hashTag || "";
+        // }
 
         // filter out auto-triggered sql
         sqls = sqls.filter(sqlFilter);
@@ -313,6 +314,7 @@ window.Replay = (function($, Replay) {
         } else {
             idCount = tableId;
         }
+        // XXX TODO: fix it
         var authInfo = Authentication.getInfo();
         var diff = isAfterNewTable ? 1 : 0;
 

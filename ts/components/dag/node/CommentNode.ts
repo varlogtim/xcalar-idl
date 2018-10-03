@@ -1,6 +1,6 @@
 class CommentNode {
 
-    private static idCount: number = 0;
+    private static uid: XcUID;
     private static idPrefix: string;
 
     private id: CommentNodeId;
@@ -8,13 +8,12 @@ class CommentNode {
     private position: Coordinate;
     private dimensions: Dimensions;
 
-    public static setIdPrefix(idPrefix: string): void {
-        CommentNode.idPrefix = idPrefix;
+    public static setup(): void {
+        this.uid = new XcUID("comment");
     }
 
     public static generateId(): string {
-        return "comment." + CommentNode.idPrefix + "." +
-                new Date().getTime() + "." + (CommentNode.idCount++);
+        return this.uid.gen();
     }
     public constructor(options: CommentInfo) {
         this.id = options.id || CommentNode.generateId();

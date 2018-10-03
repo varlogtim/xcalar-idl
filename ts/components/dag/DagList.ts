@@ -284,11 +284,8 @@ class DagList {
      * @param dag The string representing a dag
      */
     public uploadDag(name: string, dag: DagGraph): void {
-        const activeWKBNK: string = WorkbookManager.getActiveWKBK();
-        const workbook: WKBK = WorkbookManager.getWorkbook(activeWKBNK);
-        const prefix: string = workbook.sessionId + Date.now();
-        const key: string = (KVStore.getKey("gDagManagerKey") + "-DF-" + prefix);
-        let newTab: DagTab = new DagTab(name, prefix, key, dag);
+        let newTab: DagTab = new DagTab(name, null, null, dag);
+        const key: string = newTab.getKey();
         dag.resetRunningStates();
         this.addDag(name, key);
         newTab.saveTab()

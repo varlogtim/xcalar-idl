@@ -13,8 +13,12 @@ describe('XIApi Test', () => {
             expect(isCorrectTableNameFormat("")).to.be.false;
 
             expect(isCorrectTableNameFormat("table")).to.be.false;
-            expect(isCorrectTableNameFormat("table#ab12")).to.be.false;
+            expect(isCorrectTableNameFormat("table#ab12")).to.be.true;
             expect(isCorrectTableNameFormat("table#12")).to.be.true;
+            expect(isCorrectTableNameFormat("table#abAZ12")).to.be.true;
+            expect(isCorrectTableNameFormat("table#abAZ_12")).to.be.true;
+            expect(isCorrectTableNameFormat("table#abAZ!12")).to.be.false;
+            expect(isCorrectTableNameFormat("table#abAZ-12")).to.be.false;
         });
 
         it('isValidTableName should work', () => {
@@ -32,7 +36,7 @@ describe('XIApi Test', () => {
                 expect: true
             }, {
                 name: 'ab#ab12',
-                expect: false
+                expect: true
             }, {
                 name: 'a&b#12',
                 expect: false

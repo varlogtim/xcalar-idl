@@ -1,11 +1,20 @@
+// XXX TODO: rename or clean up this file
 class Authentication {
     private static authInfo: XcAuth;
     private static kvStore: KVStore;
+    // private static uid: XcUID;
 
     /**
      * Authentication.setup
      */
     public static setup(): XDPromise<void> {
+        // Note that . and - is not good for HTML rendering reason
+        // so here the choice is _
+        // this.uid = new XcUID("t");
+        // XXX TODO: use the comment out one after sql test can pass
+        // this.uid.setGenerator((prefix: string, count: number): string => {
+        //     return prefix + "_" + new Date().getTime() + "_" + count;
+        // });
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const key: string = KVStore.getKey("gAuthKey");
         Authentication.kvStore = new KVStore(key, gKVScope.WKBK);
@@ -39,10 +48,17 @@ class Authentication {
         return Authentication.authInfo;
     }
 
+    // /**
+    //  * Authentication.getCount
+    //  */
+    // public static getCount(): number {
+    //     return this.uid.count;
+    // }
+
     /**
      * Authentication.getHashId
      */
-    public static getHashId(excludeHash?: boolean): String {
+    public static getHashId(excludeHash?: boolean): string {
         let idCount: number = Authentication.authInfo.getIdCount();
         Authentication.authInfo.incIdCount();
         let orphIds = {};
@@ -63,7 +79,7 @@ class Authentication {
         .fail((error) => {
             console.error("Save Authentication fails", error);
         });
-
+        // const idCount: string = this.uid.gen();
         if (excludeHash) {
             return (idCount + '');
         } else {

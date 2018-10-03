@@ -32,8 +32,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
                     deleteAllTables()
                     .then(function() {
                         deleteWorksheets();
-                        var authInfo = Authentication.getInfo();
-                        authInfo.idCount = 0;
+                        Authentication.setup();
                         return fetchLogs();
                     })
                     .then(def.resolve)
@@ -45,8 +44,7 @@ window.UndoRedoTest = (function($, UndoRedoTest) {
                     return PromiseHelper.reject();
                 }
             } else {
-                var authInfo = Authentication.getInfo();
-                authInfo.idCount = 0;
+                Authentication.setup();
                 return fetchLogs();
             }
         })

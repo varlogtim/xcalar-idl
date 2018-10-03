@@ -988,9 +988,9 @@ describe("DagEdit Test", function() {
                 expect(query.length).to.equal(11);
                 expect(query[0].args.eval[0].evalString).to.equal("add(4,5)");
                 var id = xcHelper.getTableId(query[0].args.dest);
-                expect(parseInt(id)).to.equal(count);
+                expect(id.split("_")[2]).to.equal(String(count));
                 id = xcHelper.getTableId(query[10].args.dest);
-                expect(parseInt(id)).to.equal(count + 10);
+                expect(id.split("_")[2]).to.equal(String(count + 10));
 
                 return PromiseHelper.reject();
             };
@@ -1008,14 +1008,12 @@ describe("DagEdit Test", function() {
             expect(edits.structs).to.be.empty;
             // make edit to first map operation
             var $dagTable = Dag.getTableIconByName($dagWrap, firstMapName);
-            var nodeId = $dagTable.data("nodeid");
-
             // use find node by name to get the node or just create struct without it
             edits.structs[firstMapName] = {
                 eval: [{evalString:"add(4,5)", "newField": "mapped"}]
             };
 
-            var count = Authentication.getInfo().idCount;
+            var count = Authentication.getCount();
             DagEdit.off(null, true, true);
             DagFunction.runProcedureWithParams(tableName, edits.structs, {})
             .then(function() {
@@ -1038,9 +1036,9 @@ describe("DagEdit Test", function() {
                 expect(query.length).to.equal(11);
                 expect(query[0].args.eval[0].evalString).to.equal("add(4,5)");
                 var id = xcHelper.getTableId(query[0].args.dest);
-                expect(parseInt(id)).to.equal(count);
+                expect(id.split("_")[2]).to.equal(String(count));
                 id = xcHelper.getTableId(query[10].args.dest);
-                expect(parseInt(id)).to.equal(count + 10);
+                expect(id.split("_")[2]).to.equal(String(count + 10));
 
                 return PromiseHelper.resolve();
             };
@@ -1060,7 +1058,7 @@ describe("DagEdit Test", function() {
             var $dagTable = Dag.getTableIconByName($dagWrap, firstMapName);
             var nodeId = $dagTable.data("nodeid");
 
-            var count = Authentication.getInfo().idCount;
+            var count = Authentication.getCount();
             DagFunction.runProcedureWithParams(tableName, edits.structs, {})
             .then(function() {
                 done("fail");

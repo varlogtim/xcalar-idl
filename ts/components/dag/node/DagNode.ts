@@ -1,8 +1,7 @@
 // Warning, this class should only be used in the DagGraph.
 // To interact with DagNode, use the public API in DagGraph.
 abstract class DagNode {
-    private static idCount: number = 0;
-    private static idPrefix: string;
+    private static uid: XcUID;
 
     private id: DagNodeId;
     private parents: DagNode[];
@@ -24,13 +23,12 @@ abstract class DagNode {
     protected maxChildren: number; // non-persistent
     protected allowAggNode: boolean; // non-persistent
 
-    public static setIdPrefix(idPrefix: string): void {
-        DagNode.idPrefix = idPrefix;
+    public static setup(): void {
+        this.uid = new XcUID("dag");
     }
 
     public static generateId(): string {
-        return "dag." + DagNode.idPrefix + "." +
-                new Date().getTime() + "." + (DagNode.idCount++);
+        return this.uid.gen();
     }
 
     public constructor(options: DagNodeInfo = <DagNodeInfo>{}) {

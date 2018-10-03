@@ -97,7 +97,7 @@ namespace xcManager {
             return setupDagPanel();
         })
         .then(function() {
-            if (Authentication.getInfo()["idCount"] === 1) {
+            if (firstTimeUser) {
                 // show hint to create datasets if no tables have been created
                 // in this workbook
                 WSManager.showDatasetHint();
@@ -548,12 +548,9 @@ namespace xcManager {
     }
 
     function setupDagPanel(): XDPromise<void> {
-        const activeWKBNK: string = WorkbookManager.getActiveWKBK();
-        const workbook: WKBK = WorkbookManager.getWorkbook(activeWKBNK);
-        // in case no session Id
-        const idPrefix: string = workbook.sessionId || xcHelper.randName("dag");
-        DagNode.setIdPrefix(idPrefix);
-        CommentNode.setIdPrefix(idPrefix);
+        DagNode.setup();
+        CommentNode.setup();
+        DagTab.setup();
         DagView.setup();
         return setupDagList();
     }

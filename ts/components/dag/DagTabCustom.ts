@@ -10,7 +10,6 @@ class DagTabCustom extends DagTab {
         this._customNode = customNode;
     }
 
-
     /**
      * initializeTab is used to load up the kvstore and
      * dataflow

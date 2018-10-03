@@ -1,20 +1,27 @@
 // dagTabs hold a user's dataflows and kvStore.
 class DagTab{
-
+    private static uid: XcUID;
     private _name: string;
     private _id: string;
     private _key: string;
     private _kvStore: KVStore;
     private _dagGraph: DagGraph;
 
-    constructor(name: string, id: string, key: string, dagGraph: DagGraph) {
-        this._name = name;
-        this._id = id;
-        this._key = key;
-        this._kvStore = new KVStore(key, gKVScope.WKBK);
-        this._dagGraph = dagGraph;
+    public static setup(): void {
+        this.uid = new XcUID("DF2");
     }
 
+    public static generateId(): string {
+        return this.uid.gen();
+    }
+
+    public constructor(name: string, id: string, key: string, dagGraph: DagGraph) {
+        this._name = name;
+        this._id = id || DagTab.generateId();
+        this._key = key || this._id;
+        this._kvStore = new KVStore(this._key, gKVScope.WKBK);
+        this._dagGraph = dagGraph;
+    }
 
     /**
      * initializeTab is used to load up the kvstore and
@@ -41,9 +48,6 @@ class DagTab{
                 }
                 this._dagGraph = newGraph;
                 return this;
-            })
-            .fail(function() {
-                return null;
             });
     }
 

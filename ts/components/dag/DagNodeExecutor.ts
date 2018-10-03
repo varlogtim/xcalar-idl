@@ -77,10 +77,8 @@ class DagNodeExecutor {
         return parentNode.getTable();
     }
 
-    // XXX TODO
     private _generateTableName(): string {
-        console.warn("not implemented yet!");
-        return xcHelper.randName("test") + Authentication.getHashId();
+        return this.node.getId() + Authentication.getHashId();
     }
 
     private _loadDataset(): XDPromise<string> {

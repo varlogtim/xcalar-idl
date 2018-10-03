@@ -706,9 +706,12 @@ window.FlightTest = (function(FlightTest, $) {
             // move the flight table (the one that has id startTableId + 5)
             console.log("send a orphaned flight table to worksheet");
             var idCount = startTableId;
+            // var idCount = parseInt(startTableId.split("_")[2]);
             var $li = $("#orphanedTablesList .tableInfo").filter(function () {
                 try {
                     return $(this).data("id") == (idCount + 5);
+                    // id = parseInt(id.split("_")[2]);
+                    // return id == (idCount + 5);
                 } catch (err) {
                     throw "testSuite bug";
                 }

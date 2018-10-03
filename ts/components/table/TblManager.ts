@@ -415,7 +415,9 @@ class TblManager {
         }
     }
 
+    // XXX TODO: remoe this function
     private static _animateTableId(tableId: TableId, oldId: TableId): XDPromise<void> {
+        return PromiseHelper.resolve();
         if (gMinModeOn || (typeof tableId !== typeof oldId) ||
             (isNaN(<number>tableId) !== isNaN(<number>oldId))) {
             // do not animate if going from "ab12" to 13

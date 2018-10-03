@@ -123,8 +123,10 @@ class DagTabManager{
             this._unique_id = this._keys.length + 1;
         }
         const uid: string = prefix + this._unique_id;
-        const key: string = restoreKey || (KVStore.getKey("gDagManagerKey") + "-DF-" + uid);
+        let key: string = restoreKey || null;
         let name: string = "Dataflow " + this._unique_id;
+        this._unique_id++;
+
         let validatedName: string = name;
         let repCount: number = 2;
         while (!this._validateName(name)) {
@@ -133,9 +135,9 @@ class DagTabManager{
             repCount++;
         }
         validatedName = name;
-        this._unique_id++;
+        let newTab: DagTab = new DagTab(validatedName, null, key, new DagGraph());
+        key = newTab.getKey();
         this._keys.push(key);
-        let newTab: DagTab = new DagTab(validatedName, uid, key, new DagGraph());
         this._activeUserDags.push(newTab);
         let json: DagTabManagerJSON = this._getJSON();
         this._dagKVStore.put(JSON.stringify(json), true, true);
