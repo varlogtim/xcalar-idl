@@ -524,7 +524,8 @@ SQLErrTStr = {
     "NoEditor": "Could not find the editor",
     "TableDropped": "Table has been dropped. Rerun query to regenerate the table.",
     "InvalidEditorName": "Snippet name must contain only alphanumeric, -, _ or space characters, and must not be empty.",
-    "InvalidOuterType": "Invalid outer join type: "
+    "InvalidOuterType": "Invalid outer join type: ",
+    "FailedToRepublish": "Failed to republish schemas."
 };
 
 SQLInfoTStr = {

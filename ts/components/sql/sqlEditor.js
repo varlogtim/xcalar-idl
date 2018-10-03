@@ -942,7 +942,10 @@ window.SQLEditor = (function(SQLEditor, $) {
             return SQLEditor.executeSQL(query, true);
         })
         .then(deferred.resolve)
-        .fail(deferred.reject);
+        .fail(function(err) {
+            SQLEditor.throwError(SQLErrTStr.FailedToRepublish);
+            deferred.reject(err);
+        });
         return deferred.promise();
     }
 

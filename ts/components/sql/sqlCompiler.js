@@ -5517,8 +5517,8 @@
                         var dataType = convertSparkTypeToXcalarType(
                                                     evalList[i][1].dataType);
                         retStruct.evalStr = dataType + "(" +retStruct.evalStr + ")";
-                        retStruct.numOps += 1;
                     }
+                    retStruct.numOps += 1;
                 }
                 evalStrArray.push(retStruct);
             } else {

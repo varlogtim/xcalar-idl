@@ -67,6 +67,12 @@
     function assert(st, message) {
         if (!st) {
             console.error("ASSERTION FAILURE!");
+            if (!message) {
+                message = "SQLApi Error";
+            }
+            if (typeof SQLEditor !== "undefined") {
+                SQLEditor.throwError(message);
+            }
             throw "Assertion Failure: " + message;
         }
     }
