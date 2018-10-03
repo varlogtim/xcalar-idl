@@ -228,7 +228,7 @@ window.FlightTest = (function(FlightTest, $) {
             test.checkExists(".editArea:visible")
             .then(function() {
                 var udfPath = UDFFileManager.Instance.getCurrWorkbookPath() + "ymd";
-                var selector = '#udf-manager .text[data-udf-path="' + udfPath + '"]';
+                var selector = '#udf-fnMenu li[data-udf-path="' + udfPath + '"]';
                 if (!$(selector).length) {
                     var editor = UDFPanel.Instance.getEditor();
                     editor.setValue('def ymd(year, month, day):\n' +

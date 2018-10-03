@@ -19,16 +19,12 @@ class UDFPanel {
         "# functions and will not\n" +
         "# be directly invokable.\n\n";
 
+    /**
+     * @returns void
+     */
     public setup(): void {
         this._setupUDF();
         this._setupTemplateList();
-        // TODO: remove
-        this._setupUDFManager();
-    }
-
-    // TODO: remove
-    private _setupUDFManager(): void {
-        UDFManager.Instance.addEvents();
     }
 
     /**
@@ -37,7 +33,7 @@ class UDFPanel {
      */
     public clear(): void {
         this.clearEditor();
-        UDFFileManager.Instance.storedUDF.clear();
+        UDFFileManager.Instance.getUDFs().clear();
         $("#udf-fnMenu")
         .find("li[name=blank]")
         .siblings()
@@ -83,6 +79,80 @@ class UDFPanel {
         // TODO: remove
         // $("#udfSection .tab:first-child").click();
         this._getAndFillUDF(modulePath);
+    }
+
+    /**
+     * @param  {{reason:string;line:number}} error
+     * @returns void
+     */
+    public updateHints(error: {reason: string; line: number}): void {
+        this.editor.operation(() => {
+            for (const udfWidget of this.udfWidgets) {
+                this.editor.removeLineWidget(udfWidget);
+            }
+            this.udfWidgets.length = 0;
+
+            if (!error) {
+                return;
+            }
+
+            const msg: HTMLDivElement = document.createElement("div");
+            const icon: HTMLSpanElement = msg.appendChild(
+                document.createElement("span")
+            );
+            icon.innerHTML = "!";
+            icon.className = "lint-error-icon";
+            msg.appendChild(document.createTextNode(error.reason));
+            msg.className = "lint-error";
+            this.udfWidgets.push(
+                this.editor.addLineWidget(error.line - 1, msg, {
+                    coverGutter: false,
+                    noHScroll: true,
+                    above: true,
+                    showIfHidden: false
+                })
+            );
+        });
+
+        const info: CodeMirror.ScrollInfo = this.editor.getScrollInfo();
+        const after: number = this.editor.charCoords(
+            {line: this.editor.getCursor().line + 1, ch: 0},
+            "local"
+        ).top;
+        if (info.top + info.clientHeight < after) {
+            this.editor.scrollTo(null, after - info.clientHeight + 3);
+        }
+    }
+
+    /**
+     * @param  {boolean} doNotClear
+     * @returns void
+     */
+    public updateUDF(doNotClear: boolean): void {
+        // store by name
+        const curWorkbookModules: string[] = [];
+
+        const sortedUDF: string[] = Array.from(
+            UDFFileManager.Instance.getUDFs().keys()
+        ).sort();
+        const userName: string = XcUser.getCurrentUserName();
+        const sessionId: string = WorkbookManager.getWorkbook(
+            WorkbookManager.getActiveWKBK()
+        ).sessionId;
+
+        for (const udf of sortedUDF) {
+            const moduleSplit: string[] = udf.split("/");
+
+            if (
+                moduleSplit[1] === "workbook" &&
+                moduleSplit[2] === userName &&
+                moduleSplit[3] === sessionId
+            ) {
+                curWorkbookModules.push(udf);
+            }
+        }
+
+        this._updateTemplateList(curWorkbookModules, doNotClear);
     }
 
     // Setup UDF section
@@ -133,22 +203,15 @@ class UDFPanel {
             $udfSection.removeClass("active");
         }
 
-        /* switch between UDF sections */
-        const $sections: JQuery = $udfSection.find(".mainSection");
+        /* open file manager */
         const $tabs: JQuery = $udfSection.find(".tabSection");
         $tabs.on("click", ".tab", (_event: JQueryEventObject) => {
-            $sections.toggleClass("xc-hidden");
-
-            if (!$("#udf-fnSection").hasClass("xc-hidden")) {
-                this.editor.refresh();
-            } else {
-                $udfSection.addClass("switching");
-                $("#monitorTab").trigger("click");
-                $("#fileManagerButton").trigger("click");
-                $udfSection.removeClass("switching");
-            }
+            $udfSection.addClass("switching");
+            $("#monitorTab").trigger("click");
+            $("#fileManagerButton").trigger("click");
+            $udfSection.removeClass("switching");
         });
-        /* end of switch between UDF sections */
+        /* end of open file manager */
 
         $udfSection.on(
             "mouseenter",
@@ -325,45 +388,6 @@ class UDFPanel {
         return entireString;
     }
 
-    public updateHints(error: {reason: string; line: number}): void {
-        this.editor.operation(() => {
-            for (const udfWidget of this.udfWidgets) {
-                this.editor.removeLineWidget(udfWidget);
-            }
-            this.udfWidgets.length = 0;
-
-            if (!error) {
-                return;
-            }
-
-            const msg: HTMLDivElement = document.createElement("div");
-            const icon: HTMLSpanElement = msg.appendChild(
-                document.createElement("span")
-            );
-            icon.innerHTML = "!";
-            icon.className = "lint-error-icon";
-            msg.appendChild(document.createTextNode(error.reason));
-            msg.className = "lint-error";
-            this.udfWidgets.push(
-                this.editor.addLineWidget(error.line - 1, msg, {
-                    coverGutter: false,
-                    noHScroll: true,
-                    above: true,
-                    showIfHidden: false
-                })
-            );
-        });
-
-        const info: CodeMirror.ScrollInfo = this.editor.getScrollInfo();
-        const after: number = this.editor.charCoords(
-            {line: this.editor.getCursor().line + 1, ch: 0},
-            "local"
-        ).top;
-        if (info.top + info.clientHeight < after) {
-            this.editor.scrollTo(null, after - info.clientHeight + 3);
-        }
-    }
-
     private _inputUDFFuncList(module: string): boolean {
         const $li = $("#udf-fnMenu")
         .find("li")
@@ -483,82 +507,6 @@ class UDFPanel {
         } else if (hasSelectedModule && doNotClear) {
             this._inputUDFFuncList(selectedModule);
         }
-    }
-
-    public updateUDF(doNotClear: boolean): void {
-        // store by name
-        const curWorkbookModules: string[] = [];
-        const defaultModules: string[] = [];
-        const otherWorkbookModules: string[] = [];
-        const otherUsersModules: string[] = [];
-        const dataflowModules: string[] = [];
-        const otherModules: string[] = [];
-
-        const sortedUDF: string[] = Array.from(
-            UDFFileManager.Instance.storedUDF.keys()
-        ).sort();
-        const userName: string = XcUser.getCurrentUserName();
-        const sessionId: string = WorkbookManager.getWorkbook(
-            WorkbookManager.getActiveWKBK()
-        ).sessionId;
-        const defaultUDFPath = UDFFileManager.Instance.getDefaultUDFPath();
-
-        for (const udf of sortedUDF) {
-            const moduleSplit: string[] = udf.split("/");
-
-            if (moduleSplit[1] === "dataflow") {
-                dataflowModules.push(udf);
-            } else {
-                if (
-                    moduleSplit[2] === userName &&
-                    moduleSplit[3] === sessionId
-                ) {
-                    curWorkbookModules.push(udf);
-                } else if (udf === defaultUDFPath) {
-                    defaultModules.push(udf);
-                } else if (moduleSplit[2] === userName) {
-                    otherWorkbookModules.push(udf);
-                } else if (
-                    moduleSplit.length === 6 &&
-                    moduleSplit[1] === "workbook"
-                ) {
-                    otherUsersModules.push(udf);
-                } else if (UDFFileManager.Instance.storedUDF.has(udf)) {
-                    otherModules.push(udf);
-                }
-            }
-        }
-
-        // Concat in this order
-        const otherUDFModules = otherUsersModules.concat(otherModules);
-
-        this._updateTemplateList(curWorkbookModules, doNotClear);
-        // TODO: remove. Before removing this, make sure FileManager is updated
-        // after this function is called.
-        this._updateManager(
-            curWorkbookModules,
-            defaultModules,
-            otherWorkbookModules,
-            otherUDFModules,
-            dataflowModules
-        );
-    }
-
-    // TODO: remove
-    private _updateManager(
-        curWorkbookModules: string[],
-        defaultModules: string[],
-        otherWorkbookModules: string[],
-        otherModules: string[],
-        dfModuels: string[]
-    ): void {
-        const udfManager: UDFManager = UDFManager.Instance;
-        udfManager.setCurrentWKBKUDFs(curWorkbookModules);
-        udfManager.setDefaultUDFs(defaultModules);
-        udfManager.setOtherWKBKUDFs(otherWorkbookModules);
-        udfManager.setOtherUDFs(otherModules);
-        udfManager.setDFUDFs(dfModuels);
-        udfManager.update();
     }
 
     /* Unit Test Only */

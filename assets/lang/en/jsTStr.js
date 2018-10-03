@@ -1400,7 +1400,7 @@ SideBarTStr = {
     'SyntaxError': 'Syntax Error',
     'UploadError': 'Upload Error',
     'DownloadError': 'Download UDF Failed',
-    'DownoladMsg': 'UDF is empty',
+    'DownloadMsg': 'UDF is empty',
     'OverwriteErr': 'Cannot overwrite default UDF',
     'DropConsts': 'Drop Aggregates',
     'DropConstsMsg': 'Are you sure you want to drop the selected aggregate(s)?',

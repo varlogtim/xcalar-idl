@@ -245,14 +245,20 @@ class FileManagerPanel {
                     return;
                 }
 
-                const fileType: string = $(event.currentTarget)
+                let fileType: string = $(event.currentTarget)
                 .children(".label")
                 .html();
+                fileType = fileType.startsWith("\n")
+                    ? fileType.substring(1)
+                    : fileType;
                 if (fileType === this._getCurType()) {
                     return;
                 }
                 this._eventSwitchType(fileType);
-                $fileTypeMenu.siblings(".fileTypeContent").html(fileType);
+                $fileTypeMenu
+                .siblings()
+                .children(".fileTypeContent")
+                .html(fileType);
             }
         });
     }
@@ -343,9 +349,12 @@ class FileManagerPanel {
                     return;
                 }
 
-                const action: string = $(event.currentTarget)
+                let action: string = $(event.currentTarget)
                 .children(".label")
                 .html();
+                action = action.startsWith("\n")
+                    ? action.substring(1)
+                    : action;
 
                 switch (action) {
                     case FileManagerAction.Open:
@@ -395,11 +404,11 @@ class FileManagerPanel {
         );
 
         $actionMenuSection.each((_index: number, elem: Element) => {
-            if (
-                !this._isValidAction($(elem)
-                .children(".label")
-                .html() as FileManagerAction)
-            ) {
+            let action: string = $(elem)
+            .children(".label")
+            .html();
+            action = action.startsWith("\n") ? action.substring(1) : action;
+            if (!this._isValidAction(action as FileManagerAction)) {
                 $(elem).addClass("disabled");
             } else {
                 $(elem).removeClass("disabled");

@@ -403,7 +403,20 @@ module.exports = {
 
     "fileManager": {
         "monitorMenuTitle": "File Manager",
-        "monitorMenuInstr": "You can manage files."
+        "monitorMenuInstr": "You can manage files.",
+        "UDF": "UDF",
+        "Dataflow": "Dataflow",
+        "Actions": "Actions",
+        "Open": "Open",
+        "Download": "Download",
+        "Rename": "Rename",
+        "Delete": "Delete",
+        "Duplicate": "Duplicate",
+        "CreateFolder": "Create Folder",
+        "Upload": "Upload",
+        "Name": "Name",
+        "Date": "Date",
+        "Size": "Size",
     },
 
     "UDF": {

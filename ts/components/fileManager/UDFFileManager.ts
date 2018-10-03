@@ -1,11 +1,12 @@
 class UDFFileManager extends BaseFileManager {
     private static _instance = null;
-    public storedUDF: Map<string, string> = new Map<string, string>();
-    private defaultModule: string = "default";
 
     public static get Instance(): UDFFileManager {
         return this._instance || (this._instance = new this());
     }
+
+    private storedUDF: Map<string, string> = new Map<string, string>();
+    private defaultModule: string = "default";
 
     public open(path: string): void {
         if (path.endsWith("/")) {
@@ -123,53 +124,6 @@ class UDFFileManager extends BaseFileManager {
         return deferred.promise();
     }
 
-    private _initializeUDFList(
-        _isSetup: boolean,
-        doNotClear: boolean
-    ): XDPromise<any> {
-        const deferred: XDDeferred<any> = PromiseHelper.deferred();
-
-        // Update UDF
-        this.list(false)
-        .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
-            const oldStoredUDF = new Map(this.storedUDF);
-            // List UDFs and filter out temp UDFs
-            listXdfsObj.fnDescs = listXdfsObj.fnDescs.filter(
-                (udf: XcalarEvalFnDescT): boolean => {
-                    const moduleName = udf.fnName.split(":")[0];
-
-                    if (!this.storedUDF.has(moduleName)) {
-                        // This means moduleName exists
-                        // when user fetches this module,
-                        // the entire string will be cached here
-                        this.storedUDF.set(moduleName, null);
-                    } else {
-                        oldStoredUDF.delete(moduleName);
-                    }
-                    return true;
-                }
-            );
-            listXdfsObj.numXdfs = listXdfsObj.fnDescs.length;
-            // Remove UDFs that does not exist any more
-            oldStoredUDF.forEach((_value: string, key: string) =>
-                this.storedUDF.delete(key)
-            );
-            UDFPanel.Instance.updateUDF(doNotClear);
-            FileManagerPanel.Instance.udfBuildPathTree();
-            FileManagerPanel.Instance.updateList();
-
-            deferred.resolve(xcHelper.deepCopy(listXdfsObj));
-        })
-        .fail((error) => {
-            UDFPanel.Instance.updateUDF(doNotClear);
-            FileManagerPanel.Instance.udfBuildPathTree();
-            FileManagerPanel.Instance.updateList();
-            deferred.reject(error);
-        });
-
-        return deferred.promise();
-    }
-
     /**
      * @param  {boolean} workbookOnly - Only show default and user workbook's
      * udfs
@@ -275,14 +229,6 @@ class UDFFileManager extends BaseFileManager {
         });
     }
 
-    private _isEditableUDF(moduleName: string): boolean {
-        return !(moduleName === this.defaultModule && !gUdfDefaultNoCheck);
-    }
-
-    private _storePython(moduleName: string, entireString: string): void {
-        this.storedUDF.set(moduleName, entireString);
-    }
-
     /**
      * @param  {string} moduleName
      * @returns XDPromise
@@ -361,8 +307,8 @@ class UDFFileManager extends BaseFileManager {
             .fail((error) => {
                 // XXX might not actually be a syntax error
                 const syntaxErr: {
-                reason: string;
-                line: number;
+                    reason: string;
+                    line: number;
                 } = this._parseSyntaxError(error);
                 if (syntaxErr != null) {
                     UDFPanel.Instance.updateHints(syntaxErr);
@@ -417,8 +363,63 @@ class UDFFileManager extends BaseFileManager {
         return deferred.promise();
     }
 
+    private _initializeUDFList(
+        _isSetup: boolean,
+        doNotClear: boolean
+    ): XDPromise<any> {
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+
+        // Update UDF
+        this.list(false)
+        .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
+            const oldStoredUDF = new Map(this.storedUDF);
+            // List UDFs and filter out temp UDFs
+            listXdfsObj.fnDescs = listXdfsObj.fnDescs.filter(
+                (udf: XcalarEvalFnDescT): boolean => {
+                    const moduleName = udf.fnName.split(":")[0];
+
+                    if (!this.storedUDF.has(moduleName)) {
+                        // This means moduleName exists
+                        // when user fetches this module,
+                        // the entire string will be cached here
+                        this.storedUDF.set(moduleName, null);
+                    } else {
+                        oldStoredUDF.delete(moduleName);
+                    }
+                    return true;
+                }
+            );
+            listXdfsObj.numXdfs = listXdfsObj.fnDescs.length;
+            // Remove UDFs that does not exist any more
+            oldStoredUDF.forEach((_value: string, key: string) =>
+                this.storedUDF.delete(key)
+            );
+            UDFPanel.Instance.updateUDF(doNotClear);
+            FileManagerPanel.Instance.udfBuildPathTree();
+            FileManagerPanel.Instance.updateList();
+
+            deferred.resolve(xcHelper.deepCopy(listXdfsObj));
+        })
+        .fail((error) => {
+            UDFPanel.Instance.updateUDF(doNotClear);
+            FileManagerPanel.Instance.udfBuildPathTree();
+            FileManagerPanel.Instance.updateList();
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
+
+    private _isEditableUDF(moduleName: string): boolean {
+        return !(moduleName === this.defaultModule && !gUdfDefaultNoCheck);
+    }
+
+    private _storePython(moduleName: string, entireString: string): void {
+        this.storedUDF.set(moduleName, entireString);
+    }
+
     private _parseSyntaxError(error: {
-    error: string;
+        error: string;
     }): {reason: string; line: number} {
         if (!error || !error.error) {
             return null;
