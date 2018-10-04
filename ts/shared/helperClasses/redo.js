@@ -258,13 +258,8 @@ window.Redo = (function($, Redo) {
         return PromiseHelper.resolve(null);
     };
 
-    redoFuncs[SQLOps.NewDagTab] = function(options) {
-        DagTabManager.Instance.newTab(options.key);
-        return PromiseHelper.resolve(null);
-    };
-
-    redoFuncs[SQLOps.RemoveDagTab] = function(options) {
-        DagTabManager.Instance.removeTab(options.key);
+    redoFuncs[SQLOps.NewDagTab] = function() {
+        DagTabManager.Instance.newTab();
         return PromiseHelper.resolve(null);
     };
 

@@ -629,26 +629,7 @@ window.Log = (function($, Log) {
                     oldLogCursor = oldLogs.length - 1;
                 }
                 var logs = [];
-                // XXX temporary hack to prevent undoing on a dataflow 2.0
-                // action
-                var dataflow2Ops = [
-                    SQLOps.DisconnectOperations,
-                    SQLOps.ConnectOperations,
-                    SQLOps.RemoveOperations,
-                    SQLOps.AddOperation,
-                    SQLOps.CopyOperations,
-                    SQLOps.MoveOperations,
-                    SQLOps.RemoveDagTab,
-                    SQLOps.NewDagTab,
-                    SQLOps.EditDescription,
-                    SQLOps.NewComment,
-                    SQLOps.EditComment
-                ];
                 for (var i = 0; i <= oldLogCursor; i++) {
-                    if (dataflow2Ops.indexOf(oldLogs[i].options.operation) > 0) {
-                        // part of temp hack
-                        oldLogs[i].options.noUndo = true;
-                    }
                     logs.push(new XcLog(oldLogs[i]));
                 }
 
@@ -809,6 +790,7 @@ window.Log = (function($, Log) {
             case SQLOps.RenameOrphanTable:
             case SQLOps.DestroyDS:
             case SQLOps.DeleteTable:
+            case SQLOps.RemoveDagTab:
             // case SQLOps.CreateFolder:
             // case SQLOps.DSRename:
             // case SQLOps.DSDropIn:

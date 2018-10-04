@@ -49,17 +49,18 @@ describe('DagList Test', function() {
 
         it("should download a dataflow", function() {
             var downloadCache = xcHelper.downloadAsFile;
-            var graphCache = DagTabManager.Instance.getGraphByIndex;
+            var oldFunc = DagTabManager.Instance.getTabByIndex;
             var called = false;
             xcHelper.downloadAsFile = (graph, file, bool) => {
                 called = true
             }
-            DagTabManager.Instance.getGraphByIndex = (index) => {
-                return new DagGraph();
+            DagTabManager.Instance.getTabByIndex = (index) => {
+                var graph = new DagGraph();
+                return new DagTab("a", null, graph);
             }
             $("#dagListSection .dagListDetail .downloadDataflow").click();
             xcHelper.downloadAsFile = downloadCache;
-            DagTabManager.Instance.getGraphByIndex = graphCache;
+            DagTabManager.Instance.getTabByIndex = oldFunc;
             expect(called).to.be.true;
         });
 

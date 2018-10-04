@@ -165,23 +165,6 @@ interface DeserializedNode {
     node: DagNode,
     parents: DagNodeId[]
 }
-
-interface DagTabManagerJSON {
-    dagKeys: string[]
-}
-
-interface DagTabJSON {
-    name: string,
-    id: string,
-    key: string,
-    dag: string
-}
-
-interface StoredDags {
-    name: string,
-    key: string
-}
-
 /* ==== End of interfaces related to DagList and DagTabs ==== */
 
 interface CommentInfo {

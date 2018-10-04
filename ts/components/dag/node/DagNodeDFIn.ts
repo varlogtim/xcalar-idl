@@ -28,7 +28,8 @@ class DagNodeDFIn extends DagNodeIn {
         const param: DagNodeDFInInput = this.getParam();
         const dataflowId: string = param.dataflowId;
         const linkOutName: string = param.linkOutName;
-        const graph: DagGraph = DagTabManager.Instance.getGraphById(dataflowId);
+        const dagTab: DagTab = DagTabManager.Instance.getTabById(dataflowId);
+        const graph: DagGraph = dagTab.getGraph();
         if (graph == null) {
             throw new Error(DagNodeErrorType.NoGraph);
         }

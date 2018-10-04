@@ -6,32 +6,15 @@ class DagTabCustom extends DagTab {
         customNode: DagNodeCustom,
     }) {
         const { name, customNode } = options;
-        super(name, name, name, null);
+        super(name, name, null);
         this._customNode = customNode;
-    }
-
-    /**
-     * initializeTab is used to load up the kvstore and
-     * dataflow
-     * @param _dagKey Key for this dag's kvstore. (not used now)
-     */
-    public initializeTab(_dagKey: string) {
-        return null;
-    }
-
-    /**
-     * Returns the JSON representing this tab.
-     * @returns {DagTabJSON}
-     */
-    public getJSON(): DagTabJSON {
-        return null;
     }
 
     /**
      * Saves this Tab in the kvStore
      */
     public saveTab(): XDPromise<void> {
-        return DagTabManager.Instance.saveParentTab(this.getKey());
+        return DagTabManager.Instance.saveParentTab(this.getId());
     }
 
     /**

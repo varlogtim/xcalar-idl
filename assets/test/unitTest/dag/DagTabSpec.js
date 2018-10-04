@@ -14,7 +14,8 @@ describe('DagTab Test', function() {
             return $("#dagTabSectionTabs .dagTab").length > 0;
         })
         .then(() => {
-            dagTabManager.demoTabs();
+            dagTabManager.newTab();
+            dagTabManager.newTab();
             $dagTabArea = $("#dagTabSectionTabs");
             $newTabButton = $("#tabButton");
             $dagTabs = $("#dagTabSectionTabs .dagTab")

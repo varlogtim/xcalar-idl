@@ -1,42 +1,36 @@
 // DagList controls the panel Dataflow List.
 
 class DagList {
-
     private static _instance: DagList;
     public static get Instance() {
-        return this._instance || (this._instance = new this());
+        return this._instance || (this._instance = new DagList());
     }
 
-    private _$dagListSection: JQuery; //$("#dagListSection")
-    private _userDags: StoredDags[];
+    private _userDags: {name: string, key: string}[];
     private _kvStore: KVStore;
     private _deleteEnabled: boolean;
     private _initialized: boolean;
 
-
     private constructor() {
-        let key = KVStore.getKey("gDagListKey");
+        let key: string = KVStore.getKey("gDagListKey");
         this._deleteEnabled = true;
         this._kvStore = new KVStore(key, gKVScope.WKBK);
         this._userDags = [];
-        this._$dagListSection = $("#dagListSection");
         this._initialized = false;
     }
 
     /**
      * Sets up the DagList
-     * @returns {JQueryPromise<{}>}
+     * @returns {XDPromise<void>}
      */
-    public setup(): JQueryPromise<{}> {
-        var deferred: JQueryDeferred<{}> = PromiseHelper.deferred();
+    public setup(): XDPromise<void> {
+        var deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._kvStore.getAndParse()
-        .then((dagListJSON: {dags: StoredDags[]}) => {
-            if (dagListJSON == null) {
-                dagListJSON = {dags: []};
-            }
+        .then((dagListJSON: {dags: {name: string, key: string}[]}) => {
+            dagListJSON = dagListJSON || {dags: []};
             this._userDags = this._userDags.concat(dagListJSON.dags);
             this._initializeDagList();
-            this._registerHandlers();
+            this._addEventListeners();
             this._initialized = true;
             if(this._userDags.length > 1) {
                 this._enableDelete();
@@ -45,135 +39,9 @@ class DagList {
             }
             deferred.resolve();
         })
-        .fail((err) => {
-            deferred.reject(err);
-        });
+        .fail(deferred.reject);
+
         return deferred.promise();
-    }
-
-    private _initializeDagList(): void {
-        let names: string[] = this._userDags.map((dag) => {
-            return dag.name;
-        });
-        this._addBulkDagListHtml(names);
-    }
-
-    private _registerHandlers(): void {
-        const self = this;
-        $('#dagList .uploadBtn').click(function() {
-            UploadDataflowCard.show();
-        })
-
-        $("#dagListSection").on("click", ".name", function() {
-            let $dagListItem: JQuery = $(this).parent();
-            let index: number = $("#dagListSection .dagListDetail").index($dagListItem);
-            let key: string = self._userDags[index].key;
-            const dagtabManager: DagTabManager = DagTabManager.Instance;
-            dagtabManager.loadTab(key);
-        });
-
-        $("#dagListSection").on("click", ".deleteDataflow", function() {
-            if (!self._deleteEnabled) {
-                return;
-            }
-            let $dagListItem: JQuery = $(this).parent();
-            Alert.show({
-                'title': DFTStr.DelDF,
-                'msg': xcHelper.replaceMsg(DFTStr.DelDFMsg, {
-                    "dfName": $dagListItem.text()
-                }),
-                'onConfirm': function() {
-                    self.deleteDataflow($dagListItem);
-                }
-            });
-        })
-
-        $("#dagListSection").on("click", ".downloadDataflow", function() {
-            let $dagListItem: JQuery = $(this).parent();
-            let index: number = $("#dagListSection .dagListDetail").index($dagListItem);
-            let key: string = self._userDags[index].key;
-            const dagtabManager: DagTabManager = DagTabManager.Instance;
-            const keyIndex = dagtabManager.getKeyIndex(key);
-            let graphString = "";
-            if (keyIndex == -1) {
-                let kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
-                kvStore.getAndParse()
-                    .then((dagTab) => {
-                        graphString = dagTab.dag;
-                        xcHelper.downloadAsFile($dagListItem.find(".name").text() + '.json', graphString, true);
-                    })
-                    .fail(() => {
-                        StatusBox.show(DFTStr.DownloadErr, $dagListItem,
-                            false, {'side': 'right'});
-                        return;
-                    });
-            } else {
-                let graph: DagGraph = dagtabManager.getGraphByIndex(keyIndex);
-                graphString = graph.serialize();
-                xcHelper.downloadAsFile($dagListItem.find(".name").text() + '.json', graphString, true);
-            }
-        })
-    }
-
-    /**
-     * Saves a users current dataflows.
-     * @param dags The list of dags a user owns
-     */
-    private _saveDagList(): void {
-        let json = {
-            "dags": this._userDags
-        };
-        this._kvStore.put(JSON.stringify(json), true, true);
-        const activeWKBKId = WorkbookManager.getActiveWKBK();
-        if (activeWKBKId != null) {
-            const workbook = WorkbookManager.getWorkbooks()[activeWKBKId];
-            workbook.update();
-        }
-        KVStore.logSave(true);
-    }
-
-    private _disableDelete(): void {
-        $("#dagListSection .deleteDataflow").addClass('xc-hidden');
-        this._deleteEnabled = false;
-    }
-
-    private _enableDelete(): void {
-        $("#dagListSection .deleteDataflow").removeClass('xc-hidden');
-        this._deleteEnabled = true;
-    }
-
-    private _addBulkDagListHtml(names: string[]): void {
-        let html: string = "";
-        for (let i = 0; i < names.length; i++) {
-            let name = xcHelper.escapeHTMLSpecialChar(names[i]);
-            html +=
-            '<li class="dagListDetail">' +
-                '<span class="name textOverflowOneLine">' + name + '</span>' +
-                '<i class="icon xi-trash deleteDataflow">' +
-                '</i>' +
-                '<i class="icon xi-download downloadDataflow">' +
-                '</i>' +
-            '</li>';
-        }
-        let $list = this._$dagListSection.find(".dagListDetails");
-        $list.append(html);
-    }
-
-    /**
-     * Adds the html representing the dataflow we added
-     * @param name Name of the dag list
-     */
-    public addDagListHtml(name: string): void {
-        let $list = this._$dagListSection.find(".dagListDetails");
-        let html: string =
-            '<li class="dagListDetail">' +
-                '<span class="name textOverflowOneLine">' + name + '</span>' +
-                '<i class="icon xi-trash deleteDataflow">' +
-                '</i>' +
-                '<i class="icon xi-download downloadDataflow">' +
-                '</i>' +
-            '</li>'
-        $list.append(html);
     }
 
     /**
@@ -185,12 +53,12 @@ class DagList {
         if (!this._initialized) {
             return;
         }
-        let newDag: StoredDags = {
-            "name": name,
-            "key": key
-        }
+        let newDag: {name: string, key: string} = {
+            name: name,
+            key: key
+        };
         this._userDags.push(newDag);
-        this.addDagListHtml(name);
+        this._addBulkDagListHtml([name]);
         this._saveDagList();
         if (!this._deleteEnabled && this._userDags.length != 1) {
             this._enableDelete();
@@ -211,8 +79,8 @@ class DagList {
         });
         this._userDags[index].name = newName;
         this._saveDagList();
-        let $list: JQuery = this._$dagListSection.find(".dagListDetail .name");
-        $($list.get(index)).text(newName);
+        let $list: JQuery = this._getDagListSection().find(".dagListDetail .name");
+        $list.eq(index).text(newName);
     }
 
     /**
@@ -225,6 +93,23 @@ class DagList {
             return dag.name == name;
         });
         return (index == -1);
+    }
+
+    /**
+     * Return a valid name for new dafaflow tab
+     */
+    public getValidName(): string {
+        const nameSet: Set<string> = new Set();
+        this._userDags.forEach((dag) => {
+            nameSet.add(dag.name);
+        });
+        let cnt = this._userDags.length;
+        let name: string = `Dataflow ${cnt}`;
+        while(nameSet.has(name)) {
+            cnt++;
+            name = `Dataflow ${cnt}`;
+        }
+        return name;
     }
 
     /**
@@ -268,12 +153,12 @@ class DagList {
 
     /**
      * Switches the active dagList dag to the one with key.
-     * @param key Dag key we want to note as active
+     * @param id Dag id we want to note as active
      */
-    public switchActiveDag(key: string): void {
+    public switchActiveDag(id: string): void {
         $("#dagListSection .dagListDetail").removeClass("active");
         let index: number = this._userDags.findIndex((dag) => {
-            return dag.key == key;
+            return dag.key == id;
         });
         $("#dagListSection .dagListDetail").eq(index).addClass("active");
     }
@@ -284,13 +169,13 @@ class DagList {
      * @param dag The string representing a dag
      */
     public uploadDag(name: string, dag: DagGraph): void {
-        let newTab: DagTab = new DagTab(name, null, null, dag);
-        const key: string = newTab.getKey();
+        let newTab: DagTab = new DagTab(name, null, dag);
+        const key: string = newTab.getId();
         dag.resetRunningStates();
         this.addDag(name, key);
         newTab.saveTab()
         .then(() => {
-            DagTabManager.Instance.loadTab(key);
+            DagTabManager.Instance.loadTab(newTab.getId());
         })
         .fail(() => {
             this._disableDelete();
@@ -329,5 +214,125 @@ class DagList {
         $("#dagListSection .dagListDetails").empty();
         DagTabManager.Instance.reset();
         this._saveDagList();
+    }
+
+    private _initializeDagList(): void {
+        let names: string[] = this._userDags.map((dag) => dag.name);
+        this._addBulkDagListHtml(names);
+    }
+
+    private _addEventListeners(): void {
+        const $dagListSection: JQuery = this._getDagListSection();
+        $('#dagList .uploadBtn').click(() => {
+            UploadDataflowCard.show();
+        });
+
+        $dagListSection.on("click", ".name", (event) => {
+            let $dagListItem: JQuery = $(event.currentTarget).parent();
+            let index: number = $dagListSection.find(".dagListDetail").index($dagListItem);
+            let key: string = this._userDags[index].key;
+            DagTabManager.Instance.loadTab(key);
+        });
+
+        $dagListSection.on("click", ".deleteDataflow", (event) => {
+            if (!this._deleteEnabled) {
+                return;
+            }
+            let $dagListItem: JQuery = $(event.currentTarget).parent();
+            Alert.show({
+                title: DFTStr.DelDF,
+                msg: xcHelper.replaceMsg(DFTStr.DelDFMsg, {
+                    dfName: $dagListItem.text()
+                }),
+                onConfirm: () => {
+                    this.deleteDataflow($dagListItem)
+                    .fail(() => {
+                        StatusBox.show(DFTStr.DelDFErr, $dagListItem);
+                    });
+                }
+            });
+        })
+
+        $dagListSection.on("click", ".downloadDataflow", (event) => {
+            let $dagListItem: JQuery = $(event.currentTarget).parent();
+            let index: number = $dagListSection.find(".dagListDetail").index($dagListItem);
+            let key: string = this._userDags[index].key;
+            const dagtabManager: DagTabManager = DagTabManager.Instance;
+            const keyIndex: number = dagtabManager.getTabIndex(key);
+            let graphString: string = "";
+            const name: string = $dagListItem.find(".name").text();
+            if (keyIndex == -1) {
+                let kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
+                kvStore.getAndParse()
+                .then((dagTab) => {
+                    graphString = dagTab.dag;
+                    this._downloadDataflow(name, graphString);
+                })
+                .fail(() => {
+                    StatusBox.show(DFTStr.DownloadErr, $dagListItem, false, {
+                        side: "right"
+                    });
+                    return;
+                });
+            } else {
+                const dagTab: DagTab = dagtabManager.getTabByIndex(keyIndex);
+                let graph: DagGraph = dagTab.getGraph();
+                graphString = graph.serialize();
+                this._downloadDataflow(name, graphString);
+            }
+        });
+    }
+
+    private _downloadDataflow(name: string, content: string): void {
+        name += ".json";
+        xcHelper.downloadAsFile(name, content, true);
+    }
+
+    /**
+     * Saves a users current dataflows.
+     * @param dags The list of dags a user owns
+     */
+    private _saveDagList(): void {
+        let json = {
+            "dags": this._userDags
+        };
+        this._kvStore.put(JSON.stringify(json), true, true);
+        const activeWKBKId = WorkbookManager.getActiveWKBK();
+        if (activeWKBKId != null) {
+            const workbook = WorkbookManager.getWorkbooks()[activeWKBKId];
+            workbook.update();
+        }
+        KVStore.logSave(true);
+    }
+
+    private _getDagListSection(): JQuery {
+        return $("#dagListSection");
+    }
+
+    private _disableDelete(): void {
+        this._getDagListSection().find(".deleteDataflow").addClass('xc-hidden');
+        this._deleteEnabled = false;
+    }
+
+    private _enableDelete(): void {
+        this._getDagListSection().find(".deleteDataflow").removeClass('xc-hidden');
+        this._deleteEnabled = true;
+    }
+
+    private _addBulkDagListHtml(names: string[]): void {
+        let html: string = "";
+        for (let i = 0; i < names.length; i++) {
+            let name = xcHelper.escapeHTMLSpecialChar(names[i]);
+            html +=
+            '<li class="dagListDetail">' +
+                '<span class="name textOverflowOneLine">' + name + '</span>' +
+                '<i class="icon xi-trash deleteDataflow">' +
+                '</i>' +
+                '<i class="icon xi-download downloadDataflow">' +
+                '</i>' +
+            '</li>';
+        }
+        let $list: JQuery = this._getDagListSection().find(".dagListDetails");
+        $list.append(html);
     }
 }

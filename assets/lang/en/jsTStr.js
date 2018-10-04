@@ -1051,6 +1051,7 @@ DFTStr = {
     "Default": "Export to export target",
     "DelDF": "Permanently Delete Dataflow",
     "DelDF2": "Delete dataflow",
+    'DelDFErr': "Cannot delete the dataflow",
     "DelDFMsg": "Are you sure you want to permanently delete the dataflow : \"<dfName>\"? This action cannot be undone.",
     "DFTitle": "DATAFLOW",
     "DownloadErr": "Download Failed",
@@ -1130,6 +1131,7 @@ DFTStr = {
     "CurrentValue": "Current Value",
     "ParametersModified": "Parameters Modified",
     "ParametersModifiedInstr": "The following parameters have been modified by another user.",
+    "InvalidDF": "Invalid dataflow",
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
     'CancelAlertMsg': 'Batch dataflow \'<name>\' was canceled.',

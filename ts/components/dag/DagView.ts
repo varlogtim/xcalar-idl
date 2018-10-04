@@ -831,7 +831,7 @@ namespace DagView {
             if (error.hasError) {
                 const nodeId: DagNodeId = error.node.getId();
                 const $node: JQuery = DagView.getNode(nodeId)
-                DagTabManager.Instance.switchTabId(currTabId);
+                DagTabManager.Instance.switchTab(currTabId);
                 StatusBox.show(error.type, $node);
             }
             deferred.reject(error);
