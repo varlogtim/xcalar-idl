@@ -8,7 +8,7 @@
         <!-- first step -->
         <section data-xcid="joinFirstStep" class="firstStep">
             include "joinOpPanelJoinTemplate.html"
-            <p class="mainInstructions"><%= dicts.joinView.instr %></p>
+            <p class="mainInstructions instrText"><%= dicts.joinView.instr %></p>
             <section class="topDropdowns clearfix">
               <div class="subHeading clearfix">
                 <div><%= dicts.joinView.JoinType %>:
@@ -29,21 +29,18 @@
           <section>
             <div>
                 <div class="subHeading clearfix"><div><%= dicts.joinView.colSelectTitle %></div></div>
-                <p data-xcid="colInstruction" class="colSelectInstr"></p>
+                <p data-xcid="colInstruction" class="colSelectInstr instrText"></p>
             </div>
             <div data-xcid="clauseArea">
-              <!-- <div class="smartSuggestSection">
-                <button class="smartSuggest btn" title="<%= dicts.joinView.SuggRightHint %>" data-toggle="tooltip" data-placement="top" data-container="body"><%= dicts.joinView.SmartSuggBtn %></button>
-                <span class="suggError">e</span>
-              </div> -->
               <div class="row row-subheading">
                 <div class="col col-left"><%= dicts.joinView.LeftCols %></div>
+                <div class="col col-middle"></div>
                 <div class="col col-right"><%= dicts.joinView.RightCols %></div>
               </div>
               <div class="mainTable">
                 <div data-xcid="clauseContainer"></div>
                 <div class="addClause placeholder">
-                  <button data-xcid="addClauseBtn" class="btn"><i class="icon xi-plus fa-12"></i><%= dicts.joinView.ADDCLAUSE %></button>
+                  <button data-xcid="addClauseBtn" class="btn btn-rounded"><i class="icon xi-plus fa-12"></i><%= dicts.joinView.ADDCLAUSE %></button>
                 </div>
               </div>
             </div>
@@ -70,7 +67,7 @@
         <!-- second step -->
         <section data-xcid="joinSecondStep" class="secondStep">
           include "joinOpPanelRenameTemplate.html"
-          <p class="mainInstructions"><%= dicts.joinView.instr %></p>
+          <p class="mainInstructions instrText"><%= dicts.joinView.instr %></p>
           <!-- <div class="colsToKeepSection noSelection">
             <div class="subHeading clearfix">
               <div><%= dicts.joinView.colKeepTitle %></div>
@@ -109,7 +106,7 @@
             <div class="subHeading clearfix">
               <div><%= dicts.common.ColRenames %></div>
             </div>
-            <p><%= dicts.common.ColRenameInstr %></p>
+            <p class="instrText"><%= dicts.common.ColRenameInstr %></p>
             <div data-xcid="prefixRename"></div>
             <div data-xcid="derivedRename"></div>
           </div>
@@ -141,11 +138,11 @@
       <!-- Buttons -->
       <section data-xcid="bottomSection" class="bottomSection">
         <div data-xcid="step1" class="btnWrap">
-          <button data-xcid="btnNextStep" class="btn btn-rounded btn-submit submit" type="button"><%= dicts.common.Next %></button>
+          <button data-xcid="btnNextStep" class="btn btn-rounded btn-next submit" type="button"><%= dicts.common.Next %></button>
         </div>
         <div data-xcid="step2" class="btnWrap">
           <button data-xcid="joinTables" class="btn btn-submit btn-rounded submit" type="button"><%= dicts.common.Save %></button>
-          <button data-xcid="goBack" class="btn btn-cancel btn-rounded submit" type="button"><%= dicts.common.Back %></button>
+          <button data-xcid="goBack" class="btn btn-rounded btn-back submit" type="button"><%= dicts.common.Back %></button>
         </div>
         <div data-xcid="adv" class="btnWrap">
             <button data-xcid="saveAdv" class="btn btn-submit btn-rounded submit" type="button"><%= dicts.common.Save %></button>
