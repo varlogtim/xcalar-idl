@@ -398,9 +398,11 @@ window.DagDraw = (function($, DagDraw) {
                 .then(function() {
                     $dagWrap.find('.tagHeader.collapsed').each(function() {
                         var $wrap = $(this).parent();
-                        var top = Math.floor($wrap.position().top) + 50;
-                        var left = Math.floor($wrap.position().left) + 148;
-                        ctx.drawImage(expandImage, left, top, 12, 12);
+                        if (!$wrap.hasClass('hidden')) {
+                            var top = Math.floor($wrap.position().top) + 50;
+                            var left = Math.floor($wrap.position().left) + 148;
+                            ctx.drawImage(expandImage, left, top, 12, 12);
+                        }
                     });
                     $(canvas).hide();
                     deferred.resolve();
