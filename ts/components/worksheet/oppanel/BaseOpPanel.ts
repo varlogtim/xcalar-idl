@@ -99,6 +99,7 @@ class BaseOpPanel {
     private panelNum: number;
     protected allColumns: ProgCol[];
     private aggMap;
+    protected _cachedBasicModeParam: string;
 
     protected constructor() {
         this.allColumns = [];
@@ -111,6 +112,7 @@ class BaseOpPanel {
         this._formHelper = new FormHelper($panel, options);
         this._setupEditor($panel);
         this._setupModeSwitch($panel);
+        this._setupRestoreBtn();
         MainMenu.registerPanels(this);
     }
 
@@ -180,10 +182,15 @@ class BaseOpPanel {
 
     protected _reset(): void {
         this._updateMode(false);
+        this._editor.clearHistory();
     }
 
     protected _isAdvancedMode(): boolean {
         return this.advancedMode;
+    }
+
+    protected _restoreBasicModeParams() {
+        this._editor.setValue(this._cachedBasicModeParam);
     }
 
     protected _switchMode(_toAdvancedMode: boolean): {error: string} {
@@ -202,6 +209,12 @@ class BaseOpPanel {
                 const $e = toAdvanceMode ? $panel.find(".opSection") : $panel.find(".advancedEditor");
                 StatusBox.show(error.error, $e);
             }
+        });
+    }
+
+    private _setupRestoreBtn(): void {
+        this.$panel.find(".restoreAdvanced").click(() => {
+            this._restoreBasicModeParams();
         });
     }
 

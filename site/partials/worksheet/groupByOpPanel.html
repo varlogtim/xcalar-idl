@@ -7,7 +7,7 @@
     </header>
     <div class="mainContent">
         <div class="opSection">
-            <p class="instructions instrText">
+            <p class="mainInstructions instrText">
                 <%= dicts.opsView.groupbyInstr %>
             </p>
             <div class="group groupbyGroup firstGroup">
@@ -128,16 +128,7 @@
                 <div class="strPreview"></div> <!-- this gets filled by JS -->
             </div>
         </div>
-        <section class="advancedEditor">
-            <textarea></textarea>
-        </section>
-        <section class="bottomSection">
-            <div class="btnWrap">
-                <button class="btn btn-submit btn-rounded submit">
-                    <%= dicts.common.Save %>
-                </button>
-            </div>
-            include "../util/switcher.html"
-        </section>
+        include "opPanelAdvancedSection.html"
+        include "opPanelBottomSection.html"
     </div>
 </section>

@@ -5,6 +5,7 @@ class GeneralOpPanelModel {
     protected groups: OpPanelFunctionGroup[]; // TODO fix
     protected andOrOperator: string;
     protected _opCategories: number[];
+    protected cachedBasicModeParam: string;
 
     public constructor(dagNode: DagNode, event: Function) {
         this.dagNode = dagNode;
@@ -460,14 +461,30 @@ class GeneralOpPanelModel {
         return colType;
     }
 
+    public restoreBasicModeParams(editor: CodeMirror.EditorFromTextArea) {
+        editor.setValue(this.cachedBasicModeParam);
+    }
+
     public switchMode(
         toAdvancedMode: boolean,
         editor: CodeMirror.EditorFromTextArea
     ): {error: string} {
         if (toAdvancedMode) {
             const param: DagNodeFilterInput = this._getParam();
-            editor.setValue(JSON.stringify(param, null, 4));
+            const paramStr = JSON.stringify(param, null, 4);
+            this.cachedBasicModeParam = paramStr;
+            editor.setValue(paramStr);
         } else {
+            try {
+                const paramStr = JSON.stringify(JSON.parse(editor.getValue()), null, 4);
+                if (paramStr === this.cachedBasicModeParam) {
+                    // advanced mode matches basic mode so go to basic mode
+                    // regardless of errors
+                    return;
+                }
+            } catch (e) {
+                // validation will handle the error
+            }
             const error = this.validateAdvancedMode(editor.getValue());
             if (error) {
                 return error;

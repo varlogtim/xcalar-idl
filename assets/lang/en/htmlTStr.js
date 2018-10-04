@@ -1147,7 +1147,8 @@ module.exports = {
         "keepTableHint": "Keep the original table and append the new table to the current worksheet",
         "cast": "Cast",
         "groupAll": "None",
-        "groupAllHint": "Select to create a one-row table with aggregate values"
+        "groupAllHint": "Select to create a one-row table with aggregate values",
+        "restoreLast": "Restore last saved"
     },
 
     "dfParam": {

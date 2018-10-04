@@ -11,6 +11,7 @@ class OpPanelDropdown {
     private static _fieldNameValue = 'xcval';
     private _setTitleFunc: ($elemTitle: JQuery, text: string) => void = null;
     private _isDelayInit: boolean = true;
+    private _boundingSelector: string = null;
 
     /**
      * Class Constructuor
@@ -21,11 +22,13 @@ class OpPanelDropdown {
      * @param props.setTitleFunc OPTIONAL. The function to set the input/div text
      * @param props.isForceUpdate OPTIONAL. Set to true, if work with template engine. Default is true.
      * @param props.isDelayInit OPTIONAL. Set to true, if work with template engine. Default is true.
+     * @param props.boundingSelector OPTIONAL. css selector for container which dropdown will not overflow
      */
     constructor(props: {
         container: JQuery,
         inputXcId: string,
         ulXcId: string,
+        boundingSelector?: string,
         cssSelected?: string,
         isForceUpdate?: boolean,
         isDelayInit?: boolean
@@ -48,6 +51,7 @@ class OpPanelDropdown {
             OpPanelTemplateManager.setElementForceUpdate(this._$elem[0]);
         }
         this._isDelayInit = isDelayInit;
+        this._boundingSelector = props.boundingSelector;
     }
 
     /**
@@ -86,6 +90,7 @@ class OpPanelDropdown {
         const initFunc = () => {
             this._$elem.off();
             const menuList = new MenuHelper( this._$elem, {
+                bounds: this._boundingSelector,
                 onSelect: this._onMenuItemSelect({
                     onSelectCallback: onSelectCallback
                 })
@@ -115,7 +120,7 @@ class OpPanelDropdown {
 
     private _createMenuItems({$input, menuItems}: {
         $input: JQuery,
-        menuItems: OpPanelDropdownMenuItem[]    
+        menuItems: OpPanelDropdownMenuItem[]
     }): JQuery[] {
         return menuItems.map( (menuInfo) => {
             // Create HTML element

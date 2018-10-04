@@ -5,7 +5,7 @@
 </header>
 <div class="mainContent">
     <div class="opSection">
-        <p class="instructions instrText"><%= dicts.opsView.filterInstr %></p>
+        <p class="mainInstructions instrText"><%= dicts.opsView.filterInstr %></p>
         <div class="group filterGroup firstGroup">
             <div class="catFuncHeadings clearfix subHeading">
             <div class="filterFnTitle"><%= dicts.opsView.filterFunc %>:</div>
@@ -53,16 +53,7 @@
         </div>
         <div class="strPreview"></div> <!-- this gets filled by JS -->
     </div>
-    <section class="advancedEditor">
-        <textarea></textarea>
-    </section>
-    <section class="bottomSection">
-        <div class="btnWrap">
-            <button class="btn btn-submit btn-rounded submit">
-                <%= dicts.common.Save %>
-            </button>
-        </div>
-        include "../util/switcher.html"
-    </section>
+    include "opPanelAdvancedSection.html"
+    include "opPanelBottomSection.html"
 </div>
 </section>

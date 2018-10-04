@@ -8,7 +8,7 @@
         <!-- first step -->
         <section data-xcid="joinFirstStep" class="firstStep">
             include "joinOpPanelJoinTemplate.html"
-            <p class="instructions"><%= dicts.joinView.instr %></p>
+            <p class="mainInstructions"><%= dicts.joinView.instr %></p>
             <section class="topDropdowns clearfix">
               <div class="subHeading clearfix">
                 <div><%= dicts.joinView.JoinType %>:
@@ -70,7 +70,7 @@
         <!-- second step -->
         <section data-xcid="joinSecondStep" class="secondStep">
           include "joinOpPanelRenameTemplate.html"
-          <p class="instructions"><%= dicts.joinView.instr %></p>
+          <p class="mainInstructions"><%= dicts.joinView.instr %></p>
           <!-- <div class="colsToKeepSection noSelection">
             <div class="subHeading clearfix">
               <div><%= dicts.joinView.colKeepTitle %></div>
@@ -137,9 +137,7 @@
         </section>
       </div>
       <!-- Advanced form -->
-      <section class="advancedEditor">
-        <textarea></textarea>
-      </section>
+      include "opPanelAdvancedSection.html"
       <!-- Buttons -->
       <section data-xcid="bottomSection" class="bottomSection">
         <div data-xcid="step1" class="btnWrap">
@@ -156,4 +154,3 @@
       </section>
     </div>
   </section>
-  

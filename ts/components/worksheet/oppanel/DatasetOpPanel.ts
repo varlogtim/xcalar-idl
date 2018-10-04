@@ -10,6 +10,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     private _$datasetList: JQuery; // $("#dsOpListSection");
     private _advMode: boolean;
     private _dagNode: DagNodeDataset;
+    private _cachedBasicModeParam: string;
 
     // *******************
     // Constants
@@ -65,17 +66,17 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         if (toAdvancedMode) {
             const prefix: string = this._$elemPanel.find(".datasetPrefix input").val();
-            let id: string = this._$datasetList.find(".li.datasetName.active").data('id');
-            this._editor.setValue(JSON.stringify({"prefix": prefix, "source": id}, null, 4));
+            let id: string = this._$datasetList.find(".li.datasetName.active").data('id') || "";
+            const paramStr = JSON.stringify({"prefix": prefix, "source": id}, null, 4);
+            this._cachedBasicModeParam = paramStr;
+            this._editor.setValue(paramStr);
             this._advMode = true;
-            $("#datasetOpPanel .opSection").height("5%");
         } else {
             try {
                 const newModel: DagNodeDatasetInput = this._convertAdvConfigToModel();
                 this._resetCurrentPath();
                 this._restorePanel(newModel);
                 this._advMode = false;
-                $("#datasetOpPanel .opSection").height("90%");
                 return;
             } catch (e) {
                 StatusBox.show(e, $("#datasetOpPanel .modalTopMain"),
@@ -90,7 +91,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this._$datasetList.empty();
         let html: string = "";
         let curObj: DatasetBrowseFolder = this._dsObject;
-        let path: string = "HOME/";
+        let path: string = "";
         const pathLen: number = this._currentPath.length;
         // Wind down the path
         for (let i = 0; i < pathLen; i++) {
@@ -119,7 +120,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                 "<div class='name'>" + keys[i] + "</div>" +
                 "</li>";
         }
-        $("#datasetOpBrowser .pathSection").text(path);
+        $("#datasetOpBrowser .path").text(path);
         $(html).appendTo("#dsOpListSection");
     }
 
@@ -286,7 +287,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         // Submit button
         this._$elemPanel.on(
             `click.submit.${DatasetOpPanel._eventNamespace}`,
-            '.confirm',
+            '.submit',
             () => { this._submitForm(dagNode); }
         );
     }

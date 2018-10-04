@@ -2,13 +2,13 @@
 <div id="datasetOpPanel" class="xc-hidden opPanel generalOpPanel">
   <!-- Project Header -->
   <header class="headerSection">
-    <div class="title"><%= dicts.datasetOp.dataset %></div>
+    <div class="title">Dataset</div>
     <i class="close icon xi-close"></i>
   </header>
   <!-- content -->
   <div class="mainContent">
     <div class="dataset opSection">
-      <p class="instructions instrText"><%= dicts.datasetOp.datasetInstr %></p>
+      <p class="mainInstructions instrText"><%= dicts.datasetOp.datasetInstr %></p>
       <!-- Dataset View Top Section-->
       <section class="modalTopMain">
         <div class="dataSource formRow">
@@ -17,18 +17,24 @@
           </div>
           <p class="instrText"><%= dicts.datasetOp.sourceInstr %></p>
           <div id="datasetOpBrowser" class="mainSection">
-              <div class="iconSection">
-                <i class="backFolderBtn xc-action xc-disabled icon xi-previous2 fa-12"
-                  title="<%= dicts.dsView.Back %>" data-container="body"
-                  data-toggle="tooltip" data-placement="top">
-                </i>
-                <i class="forwardFolderBtn xc-action xc-disabled icon xi-next2 fa-12"
-                  title="<%= dicts.dsView.Forward %>" data-container="body"
-                  data-toggle="tooltip" data-placement="top">
-                </i>
-              </div>
+
               <!-- path -->
-              <div class="pathSection"></div>
+              <div class="pathSection">
+                <div class="pathWrap">
+                  <div class="rootPath">Home/</div>
+                  <div class="path"></div>
+                </div>
+                <div class="iconSection">
+                    <i class="backFolderBtn xc-action xc-disabled icon xi-previous2 fa-12"
+                      title="<%= dicts.dsView.Back %>" data-container="body"
+                      data-toggle="tooltip" data-placement="top">
+                    </i>
+                    <i class="forwardFolderBtn xc-action xc-disabled icon xi-next2 fa-12"
+                      title="<%= dicts.dsView.Forward %>" data-container="body"
+                      data-toggle="tooltip" data-placement="top">
+                    </i>
+                  </div>
+              </div>
             <div class="datasetListDiv">
               <ul id="dsOpListSection">
               </ul>
@@ -47,16 +53,8 @@
           </div>
       </section>
     </div>
-    <section class="advancedEditor">
-        <textarea></textarea>
-    </section>
-    <!-- Button Section -->
-    <section class="bottomSection">
-        <button class="btn btn-submit btn-rounded submit confirm">
-            <%= dicts.common.Save %>
-        </button>
-        include "../util/switcher.html"
-    </section>
+    include "opPanelAdvancedSection.html"
+    include "opPanelBottomSection.html"
     <section id="datasetOpColumnAssignment" class="xc-hidden">
       include "colAssignmentView.html"
       <section class="bottomSection flexWrap">

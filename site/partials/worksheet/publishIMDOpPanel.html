@@ -8,7 +8,7 @@
     <!-- content -->
     <div class="mainContent">
       <div class="publishIMD opSection">
-        <p class="instructions instrText"><%= dicts.publishIMDOp.publishInstr %></p>
+        <p class="mainInstructions instrText"><%= dicts.publishIMDOp.publishInstr %></p>
         <!-- Publish IMD View Top Section-->
         <section class="modalTopMain">
           <div class="IMDName formRow">
@@ -55,16 +55,8 @@
               </div>
             </div>
       </div>
-      <section class="advancedEditor">
-          <textarea></textarea>
-      </section>
-      <!-- Button Section -->
-      <section class="bottomSection">
-          <button class="btn btn-submit btn-rounded submit confirm">
-              <%= dicts.common.Save %>
-          </button>
-          include "../util/switcher.html"
-      </section>
+      include "opPanelAdvancedSection.html"
+      include "opPanelBottomSection.html"
     </div>
   </div>
   <!-- End of Dataset View -->

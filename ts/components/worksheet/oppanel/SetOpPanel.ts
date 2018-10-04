@@ -248,4 +248,8 @@ class SetOpPanel extends BaseOpPanel {
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         return this.setOpData.switchMode(toAdvancedMode, this._editor);
     }
+
+    protected _restoreBasicModeParams() {
+        return this.setOpData.restoreBasicModeParams(this._editor);
+    }
 }

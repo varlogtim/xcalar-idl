@@ -4,6 +4,7 @@ class SetOpPanelModel {
     private unionType: UnionType;
     private event: Function;
     private colModel: ColAssignmentModel;
+    private _cachedBasicModeParam: string;
 
     public constructor(dagNode: DagNodeSet, event: Function) {
         this.dagNode = dagNode;
@@ -118,7 +119,9 @@ class SetOpPanelModel {
     ): {error: string} {
         if (toAdvancedMode) {
             const param: DagNodeSetInput = this._getParam();
-            editor.setValue(JSON.stringify(param, null, 4));
+            const paramStr = JSON.stringify(param, null, 4);
+            this._cachedBasicModeParam = paramStr;
+            editor.setValue(paramStr);
         } else {
             try {
                 const param: DagNodeSetInput = <DagNodeSetInput>JSON.parse(editor.getValue());
@@ -129,6 +132,10 @@ class SetOpPanelModel {
             }
         }
         return null;
+    }
+
+    public restoreBasicModeParams(editor: CodeMirror.EditorFromTextArea) {
+        editor.setValue(this._cachedBasicModeParam);
     }
 
     private _initialize(params: DagNodeSetInput) {

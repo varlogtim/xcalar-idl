@@ -8,6 +8,7 @@ class JoinOpPanelStep1 {
     private _$elemPreview: JQuery = null;
     private _componentJoinTypeDropdown: OpPanelDropdown = null;
     private _modelRef: JoinOpPanelModel = null;
+    private _opSectionSelector = "#joinOpPanel .opSection";
     private static readonly _joinTypeMenuItems: OpPanelDropdownMenuItem[] = [
         { text: JoinTStr.joinTypeInner, value: JoinOperatorTStr[JoinOperatorT.InnerJoin] },
         { text: JoinTStr.joinTypeLeft, value: JoinOperatorTStr[JoinOperatorT.LeftOuterJoin] },
@@ -32,6 +33,7 @@ class JoinOpPanelStep1 {
         this._$elemPreview = BaseOpPanel.findXCElement(this._$elem, 'joinPreview');
         this._componentJoinTypeDropdown = new OpPanelDropdown({
             container: BaseOpPanel.findXCElement(this._$elem, 'joinType'),
+            boundingSelector: this. _opSectionSelector,
             inputXcId: 'text',
             ulXcId: 'menuItems',
             isForceUpdate: false,
@@ -155,7 +157,7 @@ class JoinOpPanelStep1 {
                         : pair.rightName
                 );
                 const pre = (i > 0) ? '<span class="keyword"><br/>AND </span>' : '';
-                const cols = `<span class="highlighted">${col1}</span> = 
+                const cols = `<span class="highlighted">${col1}</span> =
                     <span class="highlighted">${col2}</span>`;
                 return `${res}${pre}${cols}`;
             }, '');
@@ -311,6 +313,7 @@ class JoinOpPanelStep1 {
         });
         const componentDropdown = new OpPanelDropdown({
             container: $elemDropdown,
+            boundingSelector: this. _opSectionSelector,
             inputXcId: 'menuInput',
             ulXcId: 'menuItems',
             setTitleFunc: ($elem, text) => { $elem.text(text); }
@@ -376,6 +379,7 @@ class JoinOpPanelStep1 {
         }
         const componentDropdown = new OpPanelDropdown({
             container: $elemDropdown,
+            boundingSelector: this. _opSectionSelector,,
             inputXcId: 'menuInput',
             ulXcId: 'menuItems',
             setTitleFunc: ($elem, text) => { $elem.text(text); }
@@ -445,7 +449,7 @@ class JoinOpPanelStep1 {
                     destInfo.push(getColumnInfo(suggTable, col.getBackColName()));
                 }
             }
-            
+
             return {
                 srcColInfo: srcInfo,
                 destColsInfo: destInfo

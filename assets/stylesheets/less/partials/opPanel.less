@@ -21,11 +21,10 @@
     > header {
         height: @title-height;
         line-height: @title-height;
-        text-transform: uppercase;
         font-size: 22px;
 
         .title {
-            margin-left: 15px;
+            margin-left: 10px;
             display: inline-block;
             width: ~"calc(100% - 100px)";
             font-weight: bold;
@@ -58,8 +57,7 @@
     }
 
     p {
-        padding: 15px;
-        padding: 0px 15px 10px 15px;
+        padding: 0px 10px 10px 10px;
         font-size: 11px;
     }
 
@@ -67,6 +65,7 @@
         font-size: @standardFontSize;
         background-color: @color-white;
         color: @color-font-form-gray;
+        border: 1px solid @color-border-softGray;
     }
 
     // TODO: remove styling if we change the default btn class styling
@@ -200,6 +199,10 @@
         }
     }
 
+    .mainInstructions {
+        padding-top: 4px;
+        padding-bottom: 10px;
+    }
     .instructions {
         padding-top: 10px;
         padding-bottom: 10px;
@@ -793,11 +796,47 @@
 
     .advancedEditor {
         display: none;
-        margin: 15px;
-        border: 1px solid @color-border-softGray;
+        margin: 10px;
+        margin-top: 0px;
+        .flex(1 1 auto);
+        overflow: hidden;
+        height: 100%;
+
+        .refreshSection {
+            height: 30px;
+
+            .restoreOption {
+                float: left;
+                color: @color-bg-select-blue;
+                line-height: 30px;
+                height: 30px;
+                margin-left: 2px;
+                margin-right: 20px;
+                cursor: pointer;
+
+                .text {
+                    float: left;
+                }
+                .icon {
+                    margin-top: 3px;
+                    margin-left: 5px;
+                }
+            }
+        }
 
         .CodeMirror {
-            height: 100%;
+            height: ~"calc(100% - 30px)";
+            border: 1px solid @color-border-softGray;
+
+            .CodeMirror-gutters {
+                background-color: @color-bg-list-hover-blue;
+            }
+
+            .CodeMirror-linenumber {
+                color: @color-font-edge;
+                font-size: 11px;
+            }
+
             .argDesc {
                 background-color: @color-bg-white-eight;
                 color: @color-font-warm-grey-two !important;
@@ -808,7 +847,10 @@
     }
 
     .bottomSection {
-        padding: 15px 0;
+        margin: 20px 18px 0px 18px;
+        padding: 20px 0px;
+        border-top: 1px solid @color-bg-topBarGray2;
+        .flex(0 0 auto);
 
         .switcher {
             .size(@height: 18px);
@@ -848,6 +890,9 @@
 
     &.advanced {
         .opSection {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
             > section, > div {
                 display: none !important;
             }
@@ -862,6 +907,8 @@
         }
 
         .bottomSection {
+            border-top: none;
+            margin-top: 5px;
             .switcher {
                 .standard {
                     display: block !important;
@@ -1836,17 +1883,6 @@
     .opSection {
         .flex(1 1 auto);
     }
-    .advancedEditor {
-        .flex(1 1 auto);
-        overflow: hidden;
-        height: 100%;
-        .CodeMirror {
-            height: 100%;
-        }
-    }
-    .bottomSection {
-        .flex(0 0 auto);
-    }
 }
 
 #publishIMDOpPanel {
@@ -1858,7 +1894,7 @@
 #setOpPanel {
     @instr-h: 36px;
     @top-h: 80px;
-    @bottom-h: 96px;
+    @bottom-h: 117px;
     @rest-h: (@instr-h + @top-h + @bottom-h);
 
     .header {
@@ -1884,7 +1920,7 @@
         .size(@height: 100%);
     }
 
-    .instructions {
+    .mainInstructions {
         .size(@height: @instr-h);
     }
 
@@ -1937,94 +1973,100 @@
         .size(@width: 100%, @height: ~"calc(100% - @{rest-h})");
     }
 
-    .advancedEditor {
-        @other-h: @instr-h + @bottom-h + 30;
-        .size(@height: ~"calc(100% - @{other-h})");
-    }
-
-    .bottomSection {
-        .size(@height: @bottom-h);
-    }
-
     .newTable {
         margin-right: 3px !important;
-    }
-
-    .confirm {
-        text-transform: uppercase;
     }
 }
 
 #datasetOpPanel {
     overflow: auto;
 
-    .bottomSection {
-        height: 10%;
-    }
-
     .opSection {
-        height: 90%;
-        background-color: @color-white;
+        display: flex;
+        flex-direction: column;
+
+        .mainInstructions {
+            flex: 0 0 auto;
+        }
         .modalTopMain{
-            height: ~"calc(100% - 70px)"; // 100% - instructions size
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
         }
         .dataSource {
-            height: 100%;
+            display: flex;
+            flex-direction: column;
         }
         #datasetOpBrowser {
-            height: ~"calc(100% - 30px - 25px - 81px)"; // 100% - subheading - instrText - datasetPrefix
+            display: flex;
+            flex-direction: column;
+
+            .pathSection {
+                padding-left: 10px;
+                padding-bottom: 5px;
+                padding-top: 8px;
+                min-height: 38px;
+                display: flex;
+                border-top: 1px solid @color-bg-topBarGray2;
+            }
+
+            .pathWrap {
+                .textOverflowOneLine;
+                flex: 1 1 auto;
+                display: flex;
+                font-size: 12px;
+                .rootPath {
+                    font-weight: 700;
+                }
+                .path {
+                    .textOverflowOneLine;
+                    color: @color-font-edge;
+                }
+            }
+
             .iconSection {
-                width: 100%;
+                flex: 0 0 auto;
+                padding-left: 5px;
                 .icon {
                     width: 24px;
                     height: 24px;
                     &.backFolderBtn, &.forwardFolderBtn {
-                        margin-left: 10px;
+                        margin-left: 5px;
                         margin-top: 2px;
                         float: left;
                     }
                     &:hover {
                         opacity: @opacity-unhover;
                     }
-                    &.refreshBtn {
-                        margin-right: 10px;
-                        float: right;
-                        font-size: 15px;
-                    }
                 }
             }
 
-            .pathSection {
-                margin-left: 10px;
-                margin-bottom: 5px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                width: 90%;
-            }
-
             .datasetListDiv {
-                height: ~"calc(100% - 24px - 17px)"; // 100% - iconSection height - pathSection height
+                max-height: ~"calc(100% - 31px)"; // 100% - pathSection height
                 overflow-y: auto;
+                border-top: 1px solid @color-bg-topBarGray2;
+                border-bottom: 1px solid @color-bg-topBarGray2;
+
                 &::-webkit-scrollbar-track {
                     background: rgba(0, 0, 0, 0);
                 }
                 #dsOpListSection {
                     width: 100%;
                     display: block;
-                    -webkit-user-select: none;
-                    border-top: 1px solid rgba(0, 0, 0, 0.2);
+                    .noSelection;
+                    color: @color-font-edge;
                     .li {
                         height: 35px;
                         width: 100%;
                         line-height: 35px;
-                        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
-                        width: 100%;
-                        font-size: 13px;
+                        border-top: 1px solid @color-bg-topBarGray2;
+                        border-bottom: 1px solid @color-bg-topBarGray2;
+                        margin-top: -1px;
+                        font-size: 11px;
                         font-weight: normal;
                         float: left;
                         position: relative;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
+                       .textOverflowOneLine;
                         padding: 0 10px;
                         cursor: pointer;
 
@@ -2047,13 +2089,29 @@
                             }
                         }
 
-                        &.active {
-                            font-weight: bold;
-                            background-color: @color-table-indexed-blue;
+                        &:hover {
+                            background-color: @color-bg-list-hover-blue;
+                            border-top: 1px solid @color-border-softGray;
+                            border-bottom: 1px solid @color-border-softGray;
+                            + li {
+                                border-top: 1px solid @color-border-softGray;
+                            }
                         }
 
-                        &:hover {
-                            background-color: @color-bg-body-gray;
+                        &.active {
+                            font-weight: bold;
+                            background-color: @color-bg-list-selected-blue;
+                            border-top: 1px solid @color-border-softGray;
+                            border-bottom: 1px solid @color-border-softGray;
+                            + li {
+                                border-top: 1px solid @color-border-softGray;
+                            }
+                        }
+                        &:first-child {
+                            border-top: none !important;
+                        }
+                        &:last-child {
+                            border-bottom: none !important;
                         }
                     }
                 }
@@ -2062,9 +2120,9 @@
 
         .datasetPrefix {
             .inputWrap {
+                padding: 0px 10px;
                 .arg {
-                    width: 80%;
-                    margin-left: 10%;
+                    width: 100%;
                 }
             }
         }
@@ -2138,17 +2196,7 @@
     .opSection {
         .flex(1 1 auto);
     }
-    .advancedEditor {
-        .flex(1 1 auto);
-        overflow: hidden;
-        height: 100%;
-        .CodeMirror {
-            height: 100%;
-        }
-    }
-    .bottomSection {
-        .flex(0 0 auto);
-    }
+
     .prefixedSection, .derivedSection {
         padding-left: 10px;
         padding-right: 10px;
@@ -2247,15 +2295,6 @@
 
     .opSection {
         .flex(1 1 auto);
-    }
-
-    .advancedEditor {
-        .flex(1 1 auto);
-        overflow: hidden;
-        height: 100%;
-        .CodeMirror {
-            height: 100%;
-        }
     }
 
     .bottomSection {
@@ -2515,7 +2554,7 @@
         flex-direction: column;
     }
 
-    .instructions, .bottomSection {
+    .mainInstructions, .bottomSection {
         flex: 0 0 auto;
     }
 
@@ -2633,10 +2672,12 @@
     .opSection {
         height: 100%;
         overflow: hidden;
+        display: flex;
+        flex-direction: column;
     }
 
     .argsSection {
-        height: ~"calc(100% - 95px)";
+        height: ~"calc(100% - 117px)";
     }
 
     .extArgs {
@@ -2696,6 +2737,6 @@
 
 #dfLinkOutPanel, #dfLinkInPanel {
     .opSection {
-        height: ~"calc(100% - 60px)";
+        height: ~"calc(100% - 89px)";
     }
 }

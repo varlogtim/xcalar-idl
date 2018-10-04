@@ -9,7 +9,7 @@
     <div class="mainContent">
       <!-- Basic form -->
       <div class="project opSection">
-        <p class="instructions instrText"><%= dicts.project.instr %></p>
+        <p class="mainInstructions instrText"><%= dicts.project.instr %></p>
         <!-- Project View Top Section-->
         <section class="modalTopMain">
           <div class="exportColumnsSection formRow">
@@ -40,17 +40,8 @@
           </div>
         </section>
       </div>
-      <!-- Advanced form -->
-      <section class="advancedEditor">
-        <textarea></textarea>
-      </section>
-      <!-- Save button, mode switch -->
-      <section class="bottomSection">
-        <div class="btnWrap">
-          <button type="button" class="btn btn-submit btn-rounded confirm submit"><%= dicts.common.Save %></button>
-        </div>
-        include "../util/switcher.html"
-      </section>
+      include "opPanelAdvancedSection.html"
+      include "opPanelBottomSection.html"
     </div>
   </div>
   <!-- End of Project View -->

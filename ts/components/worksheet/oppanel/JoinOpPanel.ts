@@ -56,6 +56,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         super.hidePanel(isSubmit);
         this._dagNode = null;
         this._dataModel = null;
+        this._cachedBasicModeParam = null;
     }
 
     private _updateUI() {
@@ -202,7 +203,9 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         this._dataModel.setAdvMode(toAdvancedMode);
         if (toAdvancedMode) {
             const param: DagNodeJoinInput = this._dataModel.toDag();
-            this._editor.setValue(JSON.stringify(param, null, 4));
+            const paramStr = JSON.stringify(param, null, 4);
+            this._cachedBasicModeParam = paramStr;
+            this._editor.setValue(paramStr);
             this._updateUI();
         } else {
             try {

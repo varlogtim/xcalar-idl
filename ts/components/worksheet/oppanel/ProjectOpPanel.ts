@@ -250,7 +250,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
         // Submit button
         this._$elemPanel.on(
             'click',
-            '.confirm',
+            '.submit',
             () => {
                 if (this._submitForm(this._dagNode)) {
                     this.close(true);
@@ -309,7 +309,9 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         if (toAdvancedMode) {
             const param: DagNodeProjectInput = this._dataModel.toDag();
-            this._editor.setValue(JSON.stringify(param, null, 4));
+            const paramStr = JSON.stringify(param, null, 4);
+            this._cachedBasicModeParam = paramStr;
+            this._editor.setValue(paramStr);
         } else {
             try {
                 this._dataModel = this._convertAdvConfigToModel();

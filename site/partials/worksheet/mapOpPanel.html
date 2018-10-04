@@ -5,7 +5,7 @@
     </header>
     <div class="mainContent">
         <div class="opSection">
-            <p class="instructions instrText"><%= dicts.opsView.mapInstr %></p>
+            <p class="mainInstructions instrText"><%= dicts.opsView.mapInstr %></p>
             <div class="group mapGroup firstGroup">
                 <i class="icon xi-minus minGroup"></i>
                 <div class="altFnTitle">No Function Chosen</div>
@@ -45,16 +45,7 @@
             </div>
             <div class="strPreview"></div> <!-- this gets filled by JS -->
         </div>
-        <section class="advancedEditor">
-            <textarea></textarea>
-        </section>
-        <section class="bottomSection">
-            <div class="btnWrap">
-                <button class="btn btn-submit btn-rounded submit">
-                    <%= dicts.common.Save %>
-                </button>
-            </div>
-            include "../util/switcher.html"
-        </section>
+        include "opPanelAdvancedSection.html"
+        include "opPanelBottomSection.html"
     </div>
 </section>

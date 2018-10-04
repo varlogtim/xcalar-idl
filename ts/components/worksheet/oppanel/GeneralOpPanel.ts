@@ -1972,4 +1972,8 @@ class GeneralOpPanel extends BaseOpPanel {
             this._onArgChange(this._$lastInputFocused);
         }
     }
+
+    protected _restoreBasicModeParams() {
+        return this.dataModel.restoreBasicModeParams(this._editor);
+    }
 }

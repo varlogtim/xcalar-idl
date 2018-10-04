@@ -5,7 +5,7 @@
         </header>
         <div class="mainContent">
           <div class="aggregate opSection">
-            <p class="instructions instrText"><%= dicts.opsView.aggInstr %></p>
+            <p class="mainInstructions instrText"><%= dicts.opsView.aggInstr %></p>
             <div class="group aggregateGroup firstGroup">
               <div class="catFuncHeadings clearfix subHeading">
                 <div class="filterFnTitle"><%= dicts.opsView.aggFunc %>:</div>
@@ -25,16 +25,7 @@
               <div class="argsSection inactive"></div>
             </div>
           </div>
-          <section class="advancedEditor">
-              <textarea></textarea>
-          </section>
-          <section class="bottomSection">
-              <div class="btnWrap">
-                  <button class="btn btn-submit btn-rounded submit">
-                      <%= dicts.common.Save %>
-                  </button>
-              </div>
-              include "../util/switcher.html"
-          </section>
+          include "opPanelAdvancedSection.html"
+          include "opPanelBottomSection.html"
         </div>
       </section>
