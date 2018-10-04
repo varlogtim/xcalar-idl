@@ -4,6 +4,7 @@ class DagNodeDFOut extends DagNodeOut {
     public constructor(options: DagNodeInfo) {
         super(options);
         this.type = DagNodeType.DFOut;
+        this.display.icon = "&#xe955;"; // XXX TODO: UI design
     }
 
     public getParam(): DagNodeDFOutInput {

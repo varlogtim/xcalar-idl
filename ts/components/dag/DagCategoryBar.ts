@@ -9,6 +9,7 @@ class DagCategoryBar {
     private $operatorBar: JQuery;
     private dagCategories: DagCategories;
     private currentCategory: DagCategoryType = DagCategoryType.Favorites;
+    private _listScrollers: ListScroller[] = [];
 
     public setup(): void {
         this.dagCategories = new DagCategories();
@@ -96,12 +97,19 @@ class DagCategoryBar {
     }
 
     private _setupCategoryBar(): void {
+        const self = this;
         this._renderCategoryBar();
         this._renderOperatorBar();
         this.$dagView.find(".categories").on("click", ".category", (event) => {
             const $category: JQuery = $(event.currentTarget);
             const category: string = $category.data("category");
             this._focusOnCategory(category);
+        });
+        this.$dagView.find(".operatorBar").mouseenter(function() {
+            const index = $(this).find(".category").index($(this).find(".category.active"));
+            if (self._listScrollers[index]) {
+                self._listScrollers[index].showOrHideScrollers();
+            }
         });
     }
 
@@ -134,6 +142,7 @@ class DagCategoryBar {
     }
 
     private _renderOperatorBar(): void {
+        const self = this;
         let html: HTML = "";
         html += '<svg height="0" width="0" style="position:absolute">' +
                 '<defs>' +
@@ -147,66 +156,45 @@ class DagCategoryBar {
         this.dagCategories.getCategories().forEach((category: DagCategory) => {
             const categoryName: string = category.getName();
             const operators: DagCategoryNode[] = category.getOperators();
-            html += `<svg version="1.1" height="100%" width="100%" class="category category-${categoryName}">`;
 
             let index = 0;
+            let operatorHtml: HTML = "";
             operators.forEach((categoryNode: DagCategoryNode) => {
-                html += this._genOperatorHTML(categoryNode, {
-                    x: 10 + index * 123,
+                operatorHtml += this._genOperatorHTML(categoryNode, {
+                    x: 10 + index * (DagView.nodeWidth + 20),
                     y: 11
                 });
                 if (!categoryNode.isHidden()) {
                     index ++;
                 }
             });
-            html += `</svg>`;
+            const width = 10 + index * (DagView.nodeWidth + 20);
+            html += `<div class="category category-${categoryName}">
+                        <div class="svgWrap">
+                            <svg version="1.1" height="100%" width="${width}">
+                            ${operatorHtml}
+                            </svg>
+                        </div>
+                        <div class="scrollArea top">
+                            <i class="arrow icon xi-arrow-left"></i>
+                        </div>
+                        <div class="scrollArea bottom">
+                            <i class="arrow icon xi-arrow-right"></i>
+                        </div>
+                    </div>`;
         });
 
         this.$operatorBar.html(html);
-    }
-
-    private _getNodeIconMap(): { [nodeType: string]: string } {
-        const iconMap = {};
-        iconMap[DagNodeType.Dataset] = "&#xe90f";
-        iconMap[DagNodeType.Filter] = "&#xe938;";
-        iconMap[DagNodeType.Join] = "&#xe93e;";
-        iconMap[DagNodeType.Set] = "&#xea2d;";
-        iconMap[DagNodeType.Export] = "&#xe955;";
-        iconMap[DagNodeType.Aggregate] = "&#xe939;";
-        iconMap[DagNodeType.Map] = "&#xe9da;";
-        iconMap[DagNodeType.GroupBy] = "&#xe937;";
-        iconMap[DagNodeType.Project] = "&#xe9d7;";
-        iconMap[DagNodeType.Extension] = "&#xe96d;";
-        iconMap[DagNodeType.SQL] = "&#xe957;";
-        iconMap[DagNodeType.Custom] = "&#xea5e;";
-        iconMap[DagNodeType.CustomInput] = "&#xea5e;";
-        iconMap[DagNodeType.CustomOutput] = "&#xea5e;";
-        iconMap[DagNodeType.IMDTable] = "&#xea55;";
-        iconMap[DagNodeType.PublishIMD] = "&#xea55;";
-        iconMap[DagNodeType.DFIn] = "&#xe952;"; // XXX TODO: UI design
-        iconMap[DagNodeType.DFOut] = "&#xe955;"; // XXX TODO: UI design
-        return iconMap;
-    }
-
-    private _getCategoryColorMap(): { [categoryType: string]: string } {
-        const categoryColorMap = {};
-        categoryColorMap[DagCategoryType.Favorites] = "#BBC7D1";
-        categoryColorMap[DagCategoryType.In] = "#F4B48A";
-        categoryColorMap[DagCategoryType.Out] = "#E7DC98";
-        categoryColorMap[DagCategoryType.Value] = "#AACE8F";
-        categoryColorMap[DagCategoryType.Operations] = "#7FD4B5";
-        categoryColorMap[DagCategoryType.Column] = "#89D0E0";
-        categoryColorMap[DagCategoryType.Join] = "#92B1DA";
-        categoryColorMap[DagCategoryType.Set] = "#CCAADD";
-        categoryColorMap[DagCategoryType.Extensions] = "#F896A9";
-        categoryColorMap[DagCategoryType.SQL] = "#EAABD3";
-        categoryColorMap[DagCategoryType.Custom] = "#F8A296";
-        return categoryColorMap;
+        this._listScrollers = [];
+        this.$operatorBar.find(".category").each(function() {
+            self._listScrollers.push(new ListScroller($(this),
+                $(this).find(".svgWrap"), false, {
+                    noPositionReset: true
+                }));
+        });
     }
 
     private _genOperatorHTML(categoryNode: DagCategoryNode, pos: { x, y }): string {
-        const categoryColorMap = this._getCategoryColorMap();
-        const iconMap = this._getNodeIconMap();
         const categoryName: DagCategoryType = categoryNode.getCategoryType();
         const operator: DagNode = categoryNode.getNode();
         let numParents: number = operator.getMaxParents();
@@ -215,6 +203,12 @@ class DagCategoryBar {
         let opDisplayName: string = categoryNode.getDisplayNodeType();
         const subType: string = categoryNode.getNodeSubType();
         const subTypeDisplayName: string = categoryNode.getDisplayNodeSubType();
+        const color: string = categoryNode.getColor();
+        const icon: string = categoryNode.getIcon();
+        const description: string = categoryNode.getDescription();
+        if (subType) {
+            opDisplayName = subTypeDisplayName;
+        }
 
         if (numChildren === -1) {
             numChildren = 1;
@@ -243,9 +237,7 @@ class DagCategoryBar {
             }
         }
 
-        if (subType) {
-            opDisplayName = subTypeDisplayName;
-        }
+
 
         const html = '<g class="operator ' + operatorName + ' ' +
             (categoryNode.isHidden() ? 'xc-hidden ' : '') +
@@ -262,14 +254,13 @@ class DagCategoryBar {
                 .repeat(numChildren) +
             '<rect class="main" x="6" y="0" width="90" height="28" ' +
                 'fill="white" stroke="#849CB0" stroke-width="1" ' +
-                'ry="28" rx="12" />'+
+                'ry="28" rx="12" ' +
+                xcTooltip.Attrs + ' data-original-title="' + description + '" />'+
             '<rect class="iconArea" clip-path="url(#cut-off-right)" ' +
                 'x="0" y="0" width="26" height="28" stroke="#849CB0" ' +
-                'stroke-width="1" fill="' +
-                categoryColorMap[categoryName] + '" />'+
+                'stroke-width="1" fill="' + color + '" />'+
             '<text class="icon" x="11" y="19" font-family="icomoon" ' +
-                'font-size="12" fill="white">' +
-                 iconMap[operatorName] + '</text>' +
+                'font-size="12" fill="white">' + icon + '</text>' +
             '<svg width="60" height="28" x="27" y="1">' +
                 '<text class="opTitle" x="50%" y="50%" ' +
                 'text-anchor="middle" alignment-baseline="middle" font-family="Open Sans" ' +
@@ -333,26 +324,38 @@ class DagCategoryBar {
 
     private _setupScrolling(): void {
         const self = this;
-        this.$dagView.find(".categoryScroll .arrow").mousedown(function() {
+        let delayTimer;
+        this.$dagView.find(".categoryScroll .arrow").mouseenter(function() {
+            const $el = $(this)
             let scrollAmount;
             if ($(this).hasClass("left")) {
-                scrollAmount = -10;
+                scrollAmount = -15;
             } else {
-                scrollAmount = 10;
-            }
-            let timer;
-            scroll();
-            function scroll() {
-                timer = setTimeout(function() {
-                    var scrollLeft = self.$dagView.find(".categoryWrap").scrollLeft();
-                    self.$dagView.find(".categoryWrap").scrollLeft(scrollLeft + scrollAmount);
-                    scroll();
-                }, 30);
+                scrollAmount = 15;
             }
 
-            $(document).on("mouseup.catScroll", function() {
-                clearTimeout(timer);
-                $(document).off("mouseup.catScroll");
+            // force user to hover for 150ms before scrolling to
+            // prevent unintended scrolling
+            delayTimer = setTimeout(function() {
+                let timer;
+                scroll();
+                function scroll() {
+                    timer = setTimeout(function() {
+                        var scrollLeft = self.$dagView.find(".categoryWrap").scrollLeft();
+                        self.$dagView.find(".categoryWrap").scrollLeft(scrollLeft + scrollAmount);
+                        scroll();
+                    }, 30);
+                }
+
+                $el.on("mouseleave.catScroll", function() {
+                    clearTimeout(timer);
+                    $(document).off("mouseup.catScroll");
+                });
+            }, 150);
+
+            $el.on("mouseleave.catScrollTimer", function() {
+                clearTimeout(delayTimer);
+                $(document).off("mouseup.catScrollTimer");
             });
         });
     }
@@ -529,6 +532,9 @@ class DagCategoryBar {
         $categories.find(".category").removeClass("active");
         $categories.find(".category.category-" + category).addClass("active");
         this.$operatorBar.find(".category").removeClass("active");
-        this.$operatorBar.find(".category.category-" + category).addClass("active");
+        const $category = this.$operatorBar.find(".category.category-" + category);
+        $category.addClass("active");
+        const index = this.$operatorBar.find(".category").index($category);
+        this._listScrollers[index].showOrHideScrollers();
     }
 }

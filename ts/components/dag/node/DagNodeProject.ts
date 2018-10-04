@@ -5,6 +5,7 @@ class DagNodeProject extends DagNode {
         super(options);
         this.type = DagNodeType.Project;
         this.minParents = 1;
+        this.display.icon = "&#xe9d7;";
     }
 
     /**

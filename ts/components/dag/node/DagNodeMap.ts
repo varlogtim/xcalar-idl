@@ -8,6 +8,7 @@ class DagNodeMap extends DagNode {
         this.allowAggNode = true;
         this.minParents = 1;
         this._aggregates = options.aggregates || [];
+        this.display.icon = "&#xe9da;";
         const namedAggs = Aggregates.getNamedAggs();
         const self = this;
         let errorAggs = [];

@@ -5,6 +5,7 @@ class DagNodeDataset extends DagNodeIn {
     public constructor(options: DagNodeInInfo) {
         super(options);
         this.type = DagNodeType.Dataset;
+        this.display.icon = "&#xe90f";
     }
 
     /**

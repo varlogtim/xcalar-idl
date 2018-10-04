@@ -6,6 +6,7 @@ class DagNodeJoin extends DagNode {
         this.type = DagNodeType.Join;
         this.maxParents = 2;
         this.minParents = 2;
+        this.display.icon = "&#xe93e;";
     }
 
     /**

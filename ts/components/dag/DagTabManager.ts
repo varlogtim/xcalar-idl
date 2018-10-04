@@ -20,8 +20,10 @@ class DagTabManager{
         this._subTabs = new Map();
 
         const $tabArea: JQuery = this._getTabArea();
-        this._tabListScroller = new ListScroller($tabArea, $tabArea, false, {
-            bounds: "#DagTabView"
+        this._tabListScroller = new ListScroller($('#dagTabSectionTabs'),
+        $tabArea, false, {
+            bounds: "#DagTabView",
+            noPositionReset: true
         });
 
         this._addEventListeners();
@@ -146,7 +148,7 @@ class DagTabManager{
 
     /**
      * Remove the tab showing custom OP's sub graph recursively.
-     * @param dagNode 
+     * @param dagNode
      */
     public removeCustomTabByNode(dagNode: DagNodeCustom): void {
         const allTabs: DagTab[]  = this.getTabs();
@@ -371,7 +373,7 @@ class DagTabManager{
         // Remove the tab as a sub tab
         this._removeChildTabById(tabId);
         this._removeParentTabById(tabId);
-        
+
         const $tab: JQuery = this.getDagTabElement(index);
         if ($tab.hasClass("active")) {
             if (index > 0) {
@@ -465,8 +467,16 @@ class DagTabManager{
         const tabName = xcHelper.escapeHTMLSpecialChar(name);
         let html = '<li class="dagTab"><div class="name ' + (isEditable? '': 'nonedit') + '">' + tabName +
                     '</div><div class="after"><i class="icon xi-close-no-circle"></i></div></li>';
-        this._getTabArea().find("ul").append(html);
-        $("#dagView .dataflowWrap").append('<div class="dataflowArea"></div>');
+        this._getTabArea().append(html);
+        $("#dagView .dataflowWrap").append(
+            '<div class="dataflowArea">\
+                <div class="dataflowAreaWrapper">\
+                    <div class="commentArea"></div>\
+                    <svg class="edgeSvg"></svg>\
+                    <svg class="operatorSvg"></svg>\
+                </div>\
+            </div>'
+        );
         this._updateDeletButton();
         if (tabIndex != null) {
             // Put the tab and area where they should be
@@ -493,7 +503,7 @@ class DagTabManager{
     }
 
     private _getTabArea(): JQuery {
-        return $("#dagTabSectionTabs");
+        return $("#dagTabSectionTabs").find("ul");
     }
 
     private _getTabsEle(): JQuery {
@@ -573,6 +583,10 @@ class DagTabManager{
             }
             $tab_name.text(newName);
             $tab_input.remove();
+            this._tabListScroller.showOrHideScrollers();
+        });
+
+        $dagTabArea.mouseenter(() => {
             this._tabListScroller.showOrHideScrollers();
         });
     }

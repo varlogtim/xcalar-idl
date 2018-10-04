@@ -15,6 +15,7 @@ class DagNodeIMDTable extends DagNode {
         } else {
             this.columns = [];
         }
+        this.display.icon = "&#xea55;";
     }
 
     /**

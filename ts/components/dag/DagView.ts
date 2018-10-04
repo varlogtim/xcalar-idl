@@ -7,7 +7,7 @@ namespace DagView {
     const horzPadding = 200;
     const vertPadding = 100;
     const nodeHeight = 28;
-    const nodeWidth = 102;
+    export const nodeWidth = 102;
     const horzNodeSpacing = 140;// spacing between nodes when auto-aligning
     const vertNodeSpacing = 60;
     const gridLineSize = 12;

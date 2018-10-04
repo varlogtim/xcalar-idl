@@ -17,6 +17,7 @@ class DagNodeCustom extends DagNode {
         this.minParents = 0;
         // XXX TODO: uncomment & make UI change to support export customOp
         // this.maxChildren = 0;
+        this.display.icon = "&#xea5e;";
 
         if (options != null && options.subGraph != null
             && options.outPorts != null && options.outPorts != null
@@ -128,7 +129,7 @@ class DagNodeCustom extends DagNode {
 
     /**
      * Find the index of input port associated to a given input node
-     * @param inputNode 
+     * @param inputNode
      */
     public getInputIndex(inputNode: DagNodeCustomInput): number {
         for (let i = 0; i < this._input.length; i ++) {
@@ -141,7 +142,7 @@ class DagNodeCustom extends DagNode {
 
     /**
      * Find the parent node of a input port
-     * @param inputNode 
+     * @param inputNode
      */
     public getInputParent(inputNode: DagNodeCustomInput): DagNode {
         const inPortIdx = this.getInputIndex(inputNode);
@@ -154,7 +155,7 @@ class DagNodeCustom extends DagNode {
         }
         return parents[inPortIdx];
     }
-    
+
     /**
      * Get the positions of all the nodes in the sub graph
      */
@@ -181,12 +182,12 @@ class DagNodeCustom extends DagNode {
 
     /**
      * @override
-     * @param parentNode 
-     * @param pos 
+     * @param parentNode
+     * @param pos
      */
     public connectToParent(parentNode: DagNode, pos: number = 0): void {
         if (this._getInputPort(pos) == null) {
-            throw new Error("No avaliable input port"); 
+            throw new Error("No avaliable input port");
         }
         super.connectToParent(parentNode, pos);
     }
@@ -225,7 +226,7 @@ class DagNodeCustom extends DagNode {
                         col.getType()
                     );
                     columns.push(newCol);
-                }    
+                }
             }
             break; // We support only one output for now
         }
@@ -245,7 +246,7 @@ class DagNodeCustom extends DagNode {
 
     /**
      * Set the custom operator's name, which will be displayed on UI
-     * @param name 
+     * @param name
      */
     public setCustomName(name: string): void {
         this._customName = name;
@@ -291,7 +292,7 @@ class DagNodeCustom extends DagNode {
         copyInfo.subGraph = this._subGraph.getGraphCopyInfo();
         return copyInfo;
     }
-    
+
     protected _getSerializeInfo(): DagNodeCustomInfo {
         const nodeInfo = super._getSerializeInfo() as DagNodeCustomInfo;
         // Input ports

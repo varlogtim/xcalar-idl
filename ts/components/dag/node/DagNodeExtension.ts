@@ -21,6 +21,7 @@ class DagNodeExtension extends DagNode {
         this.minParents = 1;
         this.newColumns = options.newColumns || [];
         this.droppedColumns = options.droppedColumns || [];
+        this.display.icon = "&#xe96d;";
     }
 
     /**

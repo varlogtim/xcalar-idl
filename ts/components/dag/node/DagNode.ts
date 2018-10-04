@@ -9,7 +9,6 @@ abstract class DagNode {
     private description: string;
     private table: string;
     private state: DagNodeState;
-    private display: Coordinate;
     private error: string;
     private numParent: number; // non-persisent
     private events: {_events: object, trigger: Function}; // non-persistent;
@@ -22,6 +21,7 @@ abstract class DagNode {
     protected maxParents: number; // non-persistent
     protected maxChildren: number; // non-persistent
     protected allowAggNode: boolean; // non-persistent
+    protected display: DagNodeDisplayInfo; // coordinates are persistent
 
     public static setup(): void {
         this.uid = new XcUID("dag");
@@ -42,7 +42,8 @@ abstract class DagNode {
         this.description = options.description || "";
         this.table = options.table;
         this.state = options.state || DagNodeState.Unused;
-        this.display = options.display || {x: -1, y: -1};
+        const coordinates = options.display || {x: -1, y: -1};
+        this.display = {coordinates: coordinates, icon: "", description: ""},
         this.input = options.input || {};
         this.error = options.error;
 
@@ -52,6 +53,9 @@ abstract class DagNode {
         this.allowAggNode = false;
         this.lineage = new DagLineage(this);
         this._setupEvents();
+
+        const displayType = this.subType || this.type; // XXX temporary
+        this.display.description = "Description for the " + displayType + " operation";
     }
 
     /**
@@ -141,7 +145,7 @@ abstract class DagNode {
      * @returns {Coordinate} the position of the node
      */
     public getPosition(): Coordinate {
-        return this.display;
+        return this.display.coordinates;
     }
 
     /**
@@ -149,8 +153,22 @@ abstract class DagNode {
      * @param position new position of the node in canvas
      */
     public setPosition(position: Coordinate): void {
-        this.display.x = position.x;
-        this.display.y = position.y;
+        this.display.coordinates.x = position.x;
+        this.display.coordinates.y = position.y;
+    }
+
+    /**
+     * @return {string}
+     */
+    public getIcon(): string {
+        return this.display.icon;
+    }
+
+    /**
+     * @return {string}
+     */
+    public getNodeDescription(): string {
+        return this.display.description;
     }
 
     /**
@@ -435,7 +453,7 @@ abstract class DagNode {
 
     /**
      * Get a list of index of the given parent node
-     * @param parentNode 
+     * @param parentNode
      * @returns A list of index(Empty list if the node is not a parent)
      */
     public findParentIndices(parentNode: DagNode): number[] {
@@ -461,7 +479,7 @@ abstract class DagNode {
             type: this.type,
             subType: this.subType,
             table: this.table,
-            display: xcHelper.deepCopy(this.display),
+            display: xcHelper.deepCopy(this.display.coordinates),
             description: this.description,
             input: xcHelper.deepCopy(this.input),
             id: this.id,

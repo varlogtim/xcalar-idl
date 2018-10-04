@@ -8,7 +8,7 @@
  *    <i class="arrow icon xi-arrow-right"></i>
  * </div>
  *
- * where xi-arrow-direction should reflect if the list scrolls vertically or 
+ * where xi-arrow-direction should reflect if the list scrolls vertically or
  * horizontally.
  *
  * This is a modification of MenuHelper, diluting it only to the list scrolling
@@ -27,6 +27,7 @@ class ListScroller {
     private verticalScroll: boolean; // true for vertical, false for horizontal
     private outerSize: number;
     private innerSize: number;
+    private noPositionReset: boolean;
 
     /**
      * Constructor for the ListScroller
@@ -38,7 +39,7 @@ class ListScroller {
     public constructor($list: JQuery, $ul: JQuery, verticalScroll: boolean, options?: ListScrollerOptions) {
         options = options || {};
         this.$list = $list;
-        this.$ul = $ul
+        this.$ul = $ul;
         this.$scrollAreas = $list.find('.scrollArea');
         this.$bounds = options.bounds ? $(options.bounds) : $(window);
         this.timer = {
@@ -53,6 +54,7 @@ class ListScroller {
         this.bottomPadding = options.bottomPadding || 0;
         this.isMouseInScroller = false;
         this.verticalScroll = verticalScroll;
+        this.noPositionReset = options.noPositionReset;
         this.setupListScroller();
     }
 
@@ -66,6 +68,13 @@ class ListScroller {
         const $scrollAreas: JQuery = this.$scrollAreas;
         const timer: MenuHelperTimer = this.timer;
         let isMouseMoving: boolean = false;
+
+        $list.addClass("xcListScroller");
+        if (!this.verticalScroll) {
+            $list.addClass("xcListScrollerHorizontal");
+        }
+        $ul.addClass("xcListScrollerWrap");
+
         $list.mouseleave(function() {
             clearTimeout(timer.fadeIn);
             $scrollAreas.removeClass('active');
@@ -120,7 +129,7 @@ class ListScroller {
 
         $ul.scroll(function() {
             clearTimeout(timer.mouseScroll);
-            timer.mouseScroll = window.setTimeout(mouseScroll, 300);
+            timer.mouseScroll = window.setTimeout(self._mouseScroll.bind(self), 300);
         });
 
 
@@ -177,25 +186,6 @@ class ListScroller {
             }
         }
 
-        function mouseScroll(): void {
-            let scrollTop: number;
-            if (self.verticalScroll) {
-                scrollTop = $ul.scrollTop();
-            } else {
-                scrollTop = $ul.scrollLeft();
-            }
-            if (scrollTop === 0) {
-                $scrollAreas.eq(0).addClass('stopped');
-                $scrollAreas.eq(1).removeClass('stopped');
-            } else if (self.outerSize + scrollTop >= self.innerSize) {
-                $scrollAreas.eq(0).removeClass('stopped');
-                $scrollAreas.eq(1).addClass('stopped');
-            } else {
-                $scrollAreas.eq(0).removeClass('stopped');
-                $scrollAreas.eq(1).removeClass('stopped');
-            }
-        }
-
         function setMouseMoveFalse(): void {
             isMouseMoving = false;
         }
@@ -204,6 +194,27 @@ class ListScroller {
             if (!self.isMouseInScroller) {
                 $scrollAreas.removeClass('mouseover');
             }
+        }
+    }
+
+    private _mouseScroll(): void {
+        const $ul = this.$ul;
+        let $scrollAreas = this.$scrollAreas;
+        let scrollTop: number;
+        if (this.verticalScroll) {
+            scrollTop = $ul.scrollTop();
+        } else {
+            scrollTop = $ul.scrollLeft();
+        }
+        if (scrollTop === 0) {
+            $scrollAreas.eq(0).addClass('stopped');
+            $scrollAreas.eq(1).removeClass('stopped');
+        } else if (this.outerSize + scrollTop >= this.innerSize) {
+            $scrollAreas.eq(0).removeClass('stopped');
+            $scrollAreas.eq(1).addClass('stopped');
+        } else {
+            $scrollAreas.eq(0).removeClass('stopped');
+            $scrollAreas.eq(1).removeClass('stopped');
         }
     }
 
@@ -237,17 +248,17 @@ class ListScroller {
             listHeight = Math.min($(window).height() - $list.offset().top,
                                 listHeight);
             listHeight = Math.max(listHeight - 1, 40);
-            $list.css('max-height', listHeight);
-            $ul.css('max-height', listHeight).scrollTop(0);
+
+            if (!this.noPositionReset) {
+                $ul.scrollTop(0);
+            }
 
             const ulHeight: number = $ul[0].scrollHeight - 1;
 
             if (ulHeight > $list.height()) {
-                $ul.css('max-height', listHeight);
                 $list.find('.scrollArea').show();
                 $list.find('.scrollArea.bottom').addClass('active');
             } else {
-                $ul.css('max-height', 'auto');
                 $list.find('.scrollArea').hide();
             }
             // set scrollArea states
@@ -268,29 +279,34 @@ class ListScroller {
             listWidth = Math.min($(window).width() - $list.offset().left,
                                 listWidth);
             listWidth = Math.max(listWidth - 1, 40);
-            $list.css('max-width', listWidth);
-            $ul.css('max-width', listWidth).scrollLeft(0);
+
+            if (!this.noPositionReset) {
+                $ul.scrollLeft(0);
+            }
 
             const ulWidth: number = $ul[0].scrollWidth - 1;
 
             if (ulWidth > $list.width()) {
-                $ul.css('max-width', listWidth);
                 $list.find('.scrollArea').show();
                 $list.find('.scrollArea.bottom').addClass('active');
             } else {
-                $ul.css('max-width', 'auto');
                 $list.find('.scrollArea').hide();
             }
             // set scrollArea states
-            $list.find('.scrollArea.top').addClass('stopped');
+            if ($ul.scrollLeft() === 0) {
+                $list.find('.scrollArea.top').addClass('stopped');
+            }
+
             $list.find('.scrollArea.bottom').removeClass('stopped');
             this.outerSize = $list.width();
             this.innerSize = $ul[0].scrollWidth;
         }
+        this._mouseScroll();
     }
 }
 
 interface ListScrollerOptions {
     bounds?: string;
     bottomPadding?: number;
+    noPositionReset?: boolean;
 }

@@ -5,6 +5,7 @@ class DagNodeCustomOutput extends DagNode {
         this.maxParents = 1;
         this.minParents = 1;
         this.maxChildren = 0;
+        this.display.icon = "&#xea5e;";
     }
 
     /**

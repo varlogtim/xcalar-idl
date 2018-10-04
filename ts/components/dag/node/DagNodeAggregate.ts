@@ -8,6 +8,7 @@ class DagNodeAggregate extends DagNode {
         this.allowAggNode = true;
         this.aggVal = options.aggVal || null;
         this.minParents = 1;
+        this.display.icon = "&#xe939;";
     }
 
     /**

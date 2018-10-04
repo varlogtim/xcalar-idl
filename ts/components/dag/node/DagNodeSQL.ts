@@ -7,6 +7,7 @@ class DagNodeSQL extends DagNode {
         this.type = DagNodeType.SQL;
         this.allowAggNode = true;
         this.minParents = 1;
+        this.display.icon = "&#xe957;";
     }
 
     /**

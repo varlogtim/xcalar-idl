@@ -5,6 +5,7 @@ class DagNodeGroupBy extends DagNode {
         super(options);
         this.type = DagNodeType.GroupBy;
         this.minParents = 1;
+        this.display.icon = "&#xe937;";
     }
 
     /**

@@ -6,6 +6,7 @@ class DagNodeSet extends DagNode {
         this.type = DagNodeType.Set;
         this.maxParents = -1;
         this.minParents = 1;
+        this.display.icon = "&#xea2d;";
     }
 
     /**

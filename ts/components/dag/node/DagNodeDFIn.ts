@@ -4,6 +4,7 @@ class DagNodeDFIn extends DagNodeIn {
     public constructor(options: DagNodeInInfo) {
         super(options);
         this.type = DagNodeType.DFIn;
+        this.display.icon = "&#xe952;"; // XXX TODO: UI design
     }
 
     public getParam(): DagNodeDFInInput {

@@ -9,8 +9,14 @@ interface DagNodeInfo {
     description?: string;
     table?: string;
     state?: DagNodeState;
-    display? : Coordinate;
+    display? : Coordinate
     error?: string;
+}
+
+interface DagNodeDisplayInfo {
+    coordinates: Coordinate,
+    icon: string,
+    description: string
 }
 
 interface DagNodeCopyInfo extends DagNodeInfo {

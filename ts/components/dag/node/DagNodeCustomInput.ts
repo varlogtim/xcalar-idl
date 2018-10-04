@@ -6,11 +6,12 @@ class DagNodeCustomInput extends DagNode {
         this.type = DagNodeType.CustomInput;
         this.maxParents = 0;
         this.minParents = 0;
+        this.display.icon = "&#xea5e;";
     }
 
     /**
      * Set the custom node, which the input belongs to
-     * @param dagNode 
+     * @param dagNode
      */
     public setContainer(dagNode: DagNodeCustom) {
         this._container = dagNode;

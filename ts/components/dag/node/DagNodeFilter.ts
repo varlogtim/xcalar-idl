@@ -8,6 +8,7 @@ class DagNodeFilter extends DagNode {
         this.allowAggNode = true;
         this.minParents = 1;
         this._aggregates = options.aggregates || [];
+        this.display.icon = "&#xe938;";
         const namedAggs = Aggregates.getNamedAggs();
         const self = this;
         let errorAggs = [];
@@ -30,7 +31,7 @@ class DagNodeFilter extends DagNode {
 
     /**
      * Sets the aggregates for this node
-     * @param aggregates 
+     * @param aggregates
      */
     public setAggregates(aggregates: string[]): void {
         this._aggregates = aggregates;
