@@ -11,9 +11,13 @@
         "expressions.UnaryMinus": null,
         "expressions.UnaryPositive": null, // Seems it's removed by spark
         "expressions.Abs": "abs",
+        "expressions.AbsInteger": "absInt",
         "expressions.Add": "add",
         "expressions.Subtract": "sub",
         "expressions.Multiply": "mult",
+        "expressions.AddInteger": "addInteger",
+        "expressions.SubtractInteger": "subInteger",
+        "expressions.MultiplyInteger": "multInteger",
         "expressions.Divide": "div",
         "expressions.Remainder": "mod",
         "expressions.Pmod": null,
@@ -1053,6 +1057,21 @@
             }
         } else {
             node.colType = opOutTypeLookup[opLookup[curOpName]] || getColType(node.children[0]);
+        }
+        opName = node.value.class.substring(
+                            node.value.class.indexOf("expressions."));
+        if (opName === "expressions.Add" || opName === "expressions.Subtract"
+            || opName === "expressions.Multiply" || opName === "expressions.Abs") {
+            var allInteger = true;
+            for (var i = 0; i < node.children.length; i++) {
+                if (getColType(node.children[i]) != "int") {
+                    allInteger = false;
+                    break;
+                }
+            }
+            if (allInteger) {
+                node.value.class = node.value.class + "Integer";
+            }
         }
         node.visited = true;
         if (opName === "expressions.UnaryMinus" && node.children[1].colType === "int") {
