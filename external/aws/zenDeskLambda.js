@@ -23,7 +23,9 @@ function stripLogsAndKey(c) {
             var errorLimit = 50 * 1024;
             if (errStr.length > errorLimit) {
                 var strErrors = "";
-                for (var i = xiLogs.errors.length - 1; i >= 0; i--) {
+                // Note: XD has reverse the log order, so the first error
+                // should be most recent one
+                for (var i = 0; i < xiLogs.errors.length; i++) {
                     var strError = JSON.stringify(xiLogs.errors[i]);
                     if (strErrors.length + strError.length < errorLimit) {
                         if (strErrors.length) {
