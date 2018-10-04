@@ -325,8 +325,13 @@
         .section {
             .row {
                 .flex-display;
+
+                .nameField {
+                    .size(@width: 100%)
+                }
+
                 .field {
-                    .size(@width: 30%, @height: @title-section-height);
+                    .size(@min-width: 180px, @height: @title-section-height);
 
                     .label {
                         .textOverflowOneLine;

@@ -8,4 +8,5 @@ abstract class BaseFileManager {
     public abstract open(path: string): void;
     public abstract download(path: string): void | XDPromise<void>;
     public abstract delete(path: string[]): void;
+    public abstract isWritable(path: string): boolean;
 }

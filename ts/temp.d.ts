@@ -337,7 +337,7 @@ interface FileManagerPathNode {
 }
 
 interface FileManagerHistoryNode {
-    pathNode: FileManagerPathNode;
+    path: string;
     prev: FileManagerHistoryNode;
     next: FileManagerHistoryNode;
 }

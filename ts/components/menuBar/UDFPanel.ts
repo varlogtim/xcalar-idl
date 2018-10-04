@@ -131,23 +131,12 @@ class UDFPanel {
     public updateUDF(doNotClear: boolean): void {
         // store by name
         const curWorkbookModules: string[] = [];
-
         const sortedUDF: string[] = Array.from(
             UDFFileManager.Instance.getUDFs().keys()
         ).sort();
-        const userName: string = XcUser.getCurrentUserName();
-        const sessionId: string = WorkbookManager.getWorkbook(
-            WorkbookManager.getActiveWKBK()
-        ).sessionId;
 
         for (const udf of sortedUDF) {
-            const moduleSplit: string[] = udf.split("/");
-
-            if (
-                moduleSplit[1] === "workbook" &&
-                moduleSplit[2] === userName &&
-                moduleSplit[3] === sessionId
-            ) {
+            if (UDFFileManager.Instance.isWritable(udf)) {
                 curWorkbookModules.push(udf);
             }
         }

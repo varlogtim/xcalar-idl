@@ -1347,6 +1347,11 @@ window.OperationsView = (function($, OperationsView) {
 
         // sort each set of operators by name
         for (var i = 0; i < operatorsMap.length; i++) {
+            // empty category
+            if (!operatorsMap[i]) {
+                continue;
+            }
+
             operatorsMap[i].sort(sortFn);
         }
         function sortFn(a, b){

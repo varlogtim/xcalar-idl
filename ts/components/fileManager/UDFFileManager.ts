@@ -8,6 +8,10 @@ class UDFFileManager extends BaseFileManager {
     private storedUDF: Map<string, string> = new Map<string, string>();
     private defaultModule: string = "default";
 
+    /**
+     * @param  {string} path
+     * @returns void
+     */
     public open(path: string): void {
         if (path.endsWith("/")) {
             path = path.substring(0, path.length - 1);
@@ -31,6 +35,25 @@ class UDFFileManager extends BaseFileManager {
      */
     public getDefaultUDFPath(): string {
         return "/globaludf/default";
+    }
+
+    /**
+     * @returns string
+     */
+    public getCurrWorkbookPath(): string {
+        const workbook: WKBK = WorkbookManager.getWorkbook(
+            WorkbookManager.getActiveWKBK()
+        );
+        if (workbook == null) {
+            return null;
+        }
+        return (
+            "/workbook/" +
+            XcUser.getCurrentUserName() +
+            "/" +
+            workbook.sessionId +
+            "/udf/"
+        );
     }
 
     /**
@@ -73,25 +96,6 @@ class UDFFileManager extends BaseFileManager {
         }
 
         return this._refreshUDF(true, true);
-    }
-
-    /**
-     * @returns string
-     */
-    public getCurrWorkbookPath(): string {
-        const workbook: WKBK = WorkbookManager.getWorkbook(
-            WorkbookManager.getActiveWKBK()
-        );
-        if (workbook == null) {
-            return null;
-        }
-        return (
-            "/workbook/" +
-            XcUser.getCurrentUserName() +
-            "/" +
-            workbook.sessionId +
-            "/udf/"
-        );
     }
 
     /**
@@ -173,7 +177,7 @@ class UDFFileManager extends BaseFileManager {
     }
 
     public delete(paths: string[]): void {
-        for (let path of paths) {
+        const delTasks: XDPromise<void>[] = paths.map((path: string) => {
             if (path.endsWith("/")) {
                 path = path.substring(0, path.length - 1);
             }
@@ -182,25 +186,41 @@ class UDFFileManager extends BaseFileManager {
                 path = path.substring(0, path.length - 3);
             }
 
-            this.del(path);
-        }
+            return this.del(path, true);
+        });
+
+        PromiseHelper.when(...delTasks)
+        .then(() => {
+            xcHelper.showSuccess(SuccessTStr.DelUDF);
+        })
+        .always(() => {
+            FileManagerPanel.Instance.udfBuildPathTree(true);
+            FileManagerPanel.Instance.updateList();
+        });
     }
 
     /**
      * @param  {string} moduleName
      * @returns void
      */
-    public del(moduleName: string): void {
+    public del(moduleName: string, bulk?: boolean): XDPromise<void> {
         xcAssert(this.storedUDF.has(moduleName), "Delete UDF error");
+
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const deleteUDFResolve = () => {
             this.storedUDF.delete(moduleName);
-            UDFPanel.Instance.updateUDF(false);
-            FileManagerPanel.Instance.udfBuildPathTree(true);
-            FileManagerPanel.Instance.updateList();
             this._refreshUDF(true, false);
+            UDFPanel.Instance.updateUDF(false);
             const xcSocket: XcSocket = XcSocket.Instance;
             xcSocket.sendMessage("refreshUDFWithoutClear");
-            xcHelper.showSuccess(SuccessTStr.DelUDF);
+
+            if (!bulk) {
+                FileManagerPanel.Instance.udfBuildPathTree(true);
+                FileManagerPanel.Instance.updateList();
+                xcHelper.showSuccess(SuccessTStr.DelUDF);
+            }
+
+            deferred.resolve();
         };
 
         XcalarDeletePython(moduleName)
@@ -217,16 +237,21 @@ class UDFFileManager extends BaseFileManager {
                         deleteUDFResolve();
                     } else {
                         Alert.error(UDFTStr.DelFail, error);
+                        deferred.reject();
                     }
                 })
                 .fail((otherErr) => {
                     console.warn(otherErr);
                     Alert.error(UDFTStr.DelFail, error);
+                    deferred.reject();
                 });
             } else {
                 Alert.error(UDFTStr.DelFail, error);
+                deferred.reject();
             }
         });
+
+        return deferred.promise();
     }
 
     /**
@@ -307,8 +332,8 @@ class UDFFileManager extends BaseFileManager {
             .fail((error) => {
                 // XXX might not actually be a syntax error
                 const syntaxErr: {
-                    reason: string;
-                    line: number;
+                reason: string;
+                line: number;
                 } = this._parseSyntaxError(error);
                 if (syntaxErr != null) {
                     UDFPanel.Instance.updateHints(syntaxErr);
@@ -361,6 +386,10 @@ class UDFFileManager extends BaseFileManager {
         }
 
         return deferred.promise();
+    }
+
+    public isWritable(path: string): boolean {
+        return path.startsWith(this.getCurrWorkbookPath());
     }
 
     private _initializeUDFList(
@@ -419,7 +448,7 @@ class UDFFileManager extends BaseFileManager {
     }
 
     private _parseSyntaxError(error: {
-        error: string;
+    error: string;
     }): {reason: string; line: number} {
         if (!error || !error.error) {
             return null;
@@ -466,11 +495,6 @@ class UDFFileManager extends BaseFileManager {
         doNotClear: boolean
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const $udfManager: JQuery = $("#udf-manager");
-        $udfManager.addClass("loading");
-        if (!isInBg) {
-            xcHelper.showRefreshIcon($udfManager, false, null);
-        }
 
         this._initializeUDFList(false, doNotClear)
         .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
@@ -487,10 +511,7 @@ class UDFFileManager extends BaseFileManager {
             DSExport.refreshUDF(listXdfsObj);
             deferred.resolve();
         })
-        .fail(deferred.reject)
-        .always(() => {
-            $udfManager.removeClass("loading");
-        });
+        .fail(deferred.reject);
 
         return deferred.promise();
     }

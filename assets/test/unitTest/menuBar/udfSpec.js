@@ -1,4 +1,6 @@
 // TODO: Migrate this file to match the ts files.
+// TODO: Some tests fails because of removed udf manager.
+// fix them when apis and returned string pattern are finalized.
 describe("UDF Test", function() {
     var waitTime = 200;
     var defaultModule = 'default';
