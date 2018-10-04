@@ -580,6 +580,7 @@ namespace xcManager {
         JoinOpPanel.Instance.setup();
         PublishIMDOpPanel.Instance.setup();
         ExportOpPanel.Instance.setup();
+        IMDTableOpPanel.Instance.setup();
     }
 
     function setupSession(): XDPromise<void> {

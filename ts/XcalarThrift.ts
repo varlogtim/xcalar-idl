@@ -5347,10 +5347,18 @@ XcalarRefreshTable = function(
     maxBatch: number,
     txId: number,
     filterString: string,
-    columns: string[]
+    columnInfo: RefreshColInfo[]
 ): XDPromise<XcalarApiNewTableOutputT> {
     if (tHandle == null) {
         return PromiseHelper.resolve(null);
+    }
+
+    let columns: XcalarApiColumnT[] = null;
+    if (columnInfo != null) {
+        columns = [];
+        columnInfo.forEach((col) => {
+            columns.push(new XcalarApiColumnT(col));
+        });
     }
 
     const deferred: XDDeferred<XcalarApiNewTableOutputT> = jQuery.Deferred();

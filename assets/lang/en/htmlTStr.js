@@ -1079,6 +1079,20 @@ module.exports = {
         "OutName": "Link Out Node Name"
     },
 
+    "IMDTableOp": {
+        "IMDTable": "IMD Table",
+        "IMDTableInstr": "Utilize a published IMD Table as the source for data",
+        "table": "Published Table",
+        "tableInstr": "Select a published table to use as a source.",
+        "tableVersion": "Select table version",
+        "versionInstr": "Version can only be selected for currently active tables. If a table is not active, this will default to get the latest version.",
+        "latest": "Use latest version",
+        "filterString": "Filter String",
+        "filterStringInstr": "Optional string to filter values from",
+        "columns": "Columns to import",
+        "colInstr": "Select the columns to import by checking the box next to the column name. Mandatory Columns are pre-checked and cannot be unselected. If you do not see a column in the list below, then it cannot be imported."
+    },
+
     "jsonModal": {
         "header": "Data Browser"
     },

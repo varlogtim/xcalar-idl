@@ -1,20 +1,5 @@
 // sets up monitor panel and system menubar
 namespace IMDPanel {
-    interface UpdateInfo {
-        startTS: number;
-        batchId: number;
-        numRows: number;
-        source: string;
-    }
-
-    interface PublishTable {
-        updates: UpdateInfo[];
-        name: string;
-        values: TableCol[],
-        oldestBatchId: number,
-        active: boolean,
-        sizeTotal: number
-    }
 
     interface Ruler {
         pixelToTime: number;
@@ -30,17 +15,12 @@ namespace IMDPanel {
         currentTable?: string;
     }
 
-    interface TableCol {
-        name: string;
-        type: string;
-    }
-
     interface RefreshTableInfos {
         pubTableName: string,
         dstTableName: string,
         minBatch: number,
         maxBatch: number,
-        columns: TableCol[],
+        columns: PublishTableCol[],
         colStruct: XcalarApiColumnT[]
     }
 
@@ -1286,7 +1266,7 @@ namespace IMDPanel {
             } else {
                 maxBatch = selectedCells[tableName];
             }
-            let tableCols: TableCol[] = [];
+            let tableCols: PublishTableCol[] = [];
             if (columns) {
                 columnsStruct = [];
                 pTable.values.forEach(function(column) {
@@ -1894,11 +1874,21 @@ namespace IMDPanel {
     ): XDPromise<void> {
         let promises = [];
         tableInfos.forEach((tableInfo) => {
+            let args: RefreshColInfo[] = null;
+            if (tableInfo.colStruct != null) {
+                args = tableInfo.colStruct.map((col: XcalarApiColumnT) => {
+                    return {
+                        sourceColumn: col.sourceColumn,
+                        destColumn: col.destColumn,
+                        columnType: col.columnType
+                    }
+                })
+            }
             promises.push(XcalarRefreshTable(tableInfo.pubTableName,
                 tableInfo.dstTableName,
                 tableInfo.minBatch,
                 tableInfo.maxBatch,
-                txId, filterString, tableInfo.colStruct));
+                txId, filterString, args));
         });
 
         return PromiseHelper.when.apply(this, promises);

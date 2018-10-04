@@ -67,6 +67,8 @@ class DagNodeExecutor {
                 return this._publishIMD();
             case DagNodeType.Extension:
                 return this._extension();
+            case DagNodeType.IMDTable:
+                return this._IMDTable();
             default:
                 throw new Error(type + " not supported!");
         }
@@ -253,7 +255,7 @@ class DagNodeExecutor {
     private _custom(): XDPromise<null> {
         const deferred: XDDeferred<null> = PromiseHelper.deferred();
         const node: DagNodeCustom = <DagNodeCustom>this.node;
-        
+
         node.getSubGraph().execute()
         .then(() => {
             // DagNodeCustom.getTable() is overridden to return output node's table
@@ -263,7 +265,7 @@ class DagNodeExecutor {
         .fail((error) => {
             deferred.reject(error);
         });
-        
+
         return deferred.promise();
     }
 
@@ -394,5 +396,63 @@ class DagNodeExecutor {
             console.error(e);
             return PromiseHelper.reject(e);
         }
+    }
+
+    private _IMDTable(): XDPromise<string> {
+        const self = this;
+        const node: DagNodeIMDTable = <DagNodeIMDTable>this.node;
+        const params: DagNodeIMDTableInput = node.getParam();
+        //XXX TODO: Integrate with new XIAPI.publishTable
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        const newTableName = this._generateTableName();
+        XcalarListPublishedTables("*", false, true)
+        .then((result) => {
+            let tables: PublishTable[] = result.tables;
+            let table: PublishTable =
+                tables.find((pubTab: PublishTable) => {
+                    return (pubTab.name == params.source);
+                });
+            if (table == null) {
+                return deferred.reject("Publish Table does not exist: " + params.source);
+            }
+            let columns: RefreshColInfo[] =
+                params.columns.map((name: string) => {
+                    let col: PublishTableCol = table.values.find((col) => {
+                        return (col.name == name);
+                    });
+                    if (col == null) {
+                        return;
+                    }
+                    let type: string = col.type;
+                    let args = {
+                        sourceColumn: name,
+                        destColumn: name,
+                        columnType: type
+                    };
+                    return args;
+                });
+            if (!table.active) {
+                XcalarRestoreTable(params.source)
+                .then(() => {
+                    return XcalarRefreshTable(params.source, newTableName,
+                        -1, params.version, self.txId, params.filterString,
+                        columns);
+                })
+                .fail((error) => {
+                    deferred.reject(error);
+                });
+            } else {
+                return XcalarRefreshTable(params.source, newTableName,
+                    -1, params.version, self.txId, params.filterString,
+                    columns);
+            }
+        })
+        .then(() => {
+            return deferred.resolve(newTableName);
+        })
+        .fail(function(err) {
+            return deferred.reject(err);
+        });
+        return deferred.promise();
     }
 }

@@ -74,8 +74,9 @@ interface DagNodeDatasetInput {
 
 interface DagNodeIMDTableInput {
     source: string;
-    latest: boolean;
-    time: Date;
+    version: number;
+    filterString: string;
+    columns: string[];
 }
 
 interface DagNodePublishIMDInput {
@@ -194,7 +195,35 @@ interface DeserializedNode {
     node: DagNode,
     parents: DagNodeId[]
 }
-/* ==== End of interfaces related to DagList and DagTabs ==== */
+
+interface PublishTable {
+    updates: PublishTableUpdateInfo[];
+    name: string;
+    values: PublishTableCol[],
+    oldestBatchId: number,
+    active: boolean,
+    sizeTotal: number,
+    keys: XcalarApiColumnInfoT[]
+}
+
+interface PublishTableUpdateInfo {
+    startTS: number;
+    batchId: number;
+    numRows: number;
+    source: string;
+}
+
+interface PublishTableCol {
+    name: string;
+    type: string;
+}
+
+interface RefreshColInfo {
+    sourceColumn: string,
+    destColumn: string,
+    columnType: string
+}
+
 
 interface CommentInfo {
     id?: string;

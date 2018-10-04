@@ -823,7 +823,7 @@ declare function xcalarApiSelectWorkItem(
     batchIdMax: number,
     batchIdMin: number,
     filterString: string,
-    columns: string[]
+    columns: XcalarApiColumnT[]
 ): WorkItem;
 
 declare function xcalarApiSelect(
@@ -833,7 +833,7 @@ declare function xcalarApiSelect(
     batchIdMax: number,
     batchIdMin: number,
     filterString: string,
-    columns: string[]
+    columns: XcalarApiColumnT[]
 ): XDPromise<XcalarApiNewTableOutputT>;
 
 declare function xcalarRestoreTable(

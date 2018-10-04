@@ -254,6 +254,9 @@ namespace DagNodeMenu {
             case (DagNodeType.Extension):
                 ExtensionOpPanel.Instance.show(node, options);
                 break;
+            case (DagNodeType.IMDTable):
+                IMDTableOpPanel.Instance.show(node, options);
+                break;
             default:
                 unlock();
                 throw new Error("Unsupported type");

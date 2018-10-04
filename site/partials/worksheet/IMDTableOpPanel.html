@@ -1,0 +1,108 @@
+<!-- IMD Table Operation Panel -->
+<div id="IMDTableOpPanel" class="xc-hidden opPanel generalOpPanel">
+    <!-- Project Header -->
+    <header class="headerSection">
+        <div class="title"><%= dicts.IMDTableOp.IMDTable %></div>
+        <i class="close icon xi-close"></i>
+    </header>
+    <!-- content -->
+    <div class="mainContent">
+        <div class="IMDTable opSection">
+        <p class="instructions instrText"><%= dicts.IMDTableOp.IMDTableInstr %></p>
+        <!-- IMD Table View Top Section-->
+        <section class="modalTopMain">
+            <div class="IMDTableName formRow">
+                <div class="subHeading clearfix">
+                <div class="label"><%= dicts.IMDTableOp.table %>:</div>
+                </div>
+                <p><%= dicts.IMDTableOp.tableInstr %></p>
+                <div id="pubTableList" class="dropDownList">
+                    <input class="text pubTableInput" type="text" value="" spellcheck="false">
+                    <div class="iconWrapper">
+                        <i class="icon xi-arrow-down"></i>
+                    </div>
+                    <div class="list">
+                        <ul class="pubTables"></ul>
+                        include "../../util/menuScrollArea.html"
+                    </div>
+                </div>
+            </div>
+            <div class="tableVersion formRow">
+                <div class="subHeading clearfix">
+                    <div class="label"><%= dicts.IMDTableOp.tableVersion %>:</div>
+                </div>
+                <p><%= dicts.IMDTableOp.versionInstr %></p>
+                <div class="checkboxWrap checked">
+                    <div class="checkbox checked">
+                        <i class="icon xi-ckbox-empty fa-13"></i>
+                        <i class="icon xi-ckbox-selected fa-13"></i>
+                    </div>
+                    <div class="text"><%= dicts.IMDTableOp.latest %></div>
+                </div>
+                <div id="tableVersionList" class="dropDownList xc-disabled">
+                    <input class="text tableVersionInput" type="number" value="" spellcheck="false">
+                    <div class="iconWrapper">
+                        <i class="icon xi-arrow-down"></i>
+                    </div>
+                    <div class="list">
+                        <ul class="tableVersions"></ul>
+                        include "../../util/menuScrollArea.html"
+                    </div>
+                </div>
+            </div>
+            <div class="filterString formRow">
+                <div class="subHeading clearfix">
+                    <div class="label"><%= dicts.IMDTableOp.filterString %>:</div>
+                </div>
+                <p><%= dicts.IMDTableOp.filterStringInstr %></p>
+                <div class="inputWrap">
+                    <input class="arg filterStringInput" type="text" tabindex="10"
+                        spellcheck="false" data-typeid="-1" placeholder="Optional"
+                        data-casted="false" data-casttype="null">
+                </div>
+            </div>
+            <div id="IMDTableOpColumns" class="formRow">
+                <div class="subHeading clearfix">
+                    <div class="label"><%= dicts.IMDTableOp.columns %>:</div>
+                </div>
+                <p><%= dicts.IMDTableOp.colInstr %></p>
+                <div class="checkboxWrap selectAllWrap">
+                    <div class="checkbox">
+                        <i class="icon xi-ckbox-empty fa-13"></i>
+                        <i class="icon xi-ckbox-selected fa-13"></i>
+                    </div>
+                    <div class="text"><%= dicts.common.SelectAll %></div>
+                </div>
+                <div class="columnsToImport columnsWrap flexWrap clearfix">
+                    <ul class="cols"></ul>
+                    <div class="hint noColsHint empty"><%= dicts.dataflow.noColsHint %></div>
+                </div>
+                <!-- rename section -->
+                <div class="renameSection clearfix xc-hidden">
+                    <div class="subHeading clearfix">
+                    <div><%= dicts.common.ColRenames %></div>
+                    </div>
+                    <p><%= dicts.common.ColRenameInstr %></p>
+                    <div class="tableRenames">
+                    <div class="subSubHeading clearfix">
+                        <div><%= dicts.exportView.CurrentColName %></div>
+                        <div><%= dicts.exportView.NewColName %></div>
+                    </div>
+                    <div class="renamePart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <section class="advancedEditor">
+            <textarea></textarea>
+        </section>
+        <!-- Button Section -->
+        <section class="bottomSection">
+            <button class="btn btn-submit btn-rounded submit confirm">
+                <%= dicts.dag.configure %>
+            </button>
+            include "../util/switcher.html"
+        </section>
+    </div>
+</div>
+<!-- End of IMD Table View -->

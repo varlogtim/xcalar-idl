@@ -1,6 +1,6 @@
-class DagNodeIMDTable extends DagNode {
+class DagNodeIMDTable extends DagNodeIn {
     protected input: DagNodeIMDTableInput;
-    private columns: ProgCol[];
+    protected columns: ProgCol[];
 
     public constructor(options: DagNodeIMDTableInfo) {
         super(options);
@@ -24,8 +24,9 @@ class DagNodeIMDTable extends DagNode {
     public getParam(): DagNodeIMDTableInput {
         return {
             source: this.input.source || "",
-            latest: this.input.latest || false,
-            time: this.input.time || null
+            version: this.input.version || -1,
+            filterString: this.input.filterString || "",
+            columns: this.input.columns || [],
         };
     }
 
@@ -37,16 +38,18 @@ class DagNodeIMDTable extends DagNode {
     public setParam(input: DagNodeIMDTableInput = <DagNodeIMDTableInput>{}): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const source: string = input.source;
-        const latest: boolean = input.latest;
-        const time: Date = input.time;
-        this.getSourceColumns(source)
+        const version: number = input.version;
+        const filterString: string = input.filterString;
+        const inputColumns: string[] = input.columns;
+        this.getSourceColumns(source, input.columns)
         .then((columns: ProgCol[]) => {
             this.columns = columns;
             this.input = {
                 source: source,
-                latest: latest,
-                time: time
-            }
+                version: version,
+                filterString: filterString,
+                columns: inputColumns
+            };
             super.setParam();
             deferred.resolve();
         })
@@ -66,16 +69,32 @@ class DagNodeIMDTable extends DagNode {
         return serializedInfo;
     }
 
-    public getSourceColumns(source: string): XDPromise<ProgCol[]> {
+    public getSourceColumns(source: string, columns: string[]): XDPromise<ProgCol[]> {
         const deferred: XDDeferred<ProgCol[]> = PromiseHelper.deferred();
-        // TODO: Implement this
-        return deferred.resolve([]);
-    }
-
-    public lineageChange(_columns: ProgCol[]): DagLineageChange {
-        return {
-            columns: this.columns,
-            changes: []
-        };
+        XcalarListPublishedTables("*", false, true)
+        .then((result) => {
+            let tables: PublishTable[] = result.tables;
+            let table: PublishTable =
+                tables.find((pubTab: PublishTable) => {
+                    return (pubTab.name ==source);
+                });
+            if (table == null) {
+                return deferred.reject("Publish Table does not exist: " + source);
+            }
+            let cols: ProgCol[] =
+            columns.map((name: string) => {
+                let col: PublishTableCol = table.values.find((col) => {
+                    return (col.name == name);
+                });
+                if (col == null) {
+                    return;
+                }
+                let dftype: DfFieldTypeT = DfFieldTypeT[col.type];
+                let type: ColumnType = xcHelper.getDFFieldTypeToString(dftype);
+                return ColManager.newPullCol(name, name, type);
+            });
+            return deferred.resolve(cols);
+        })
+        return deferred.promise();
     }
 }
