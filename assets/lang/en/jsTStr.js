@@ -1132,6 +1132,7 @@ DFTStr = {
     "ParametersModified": "Parameters Modified",
     "ParametersModifiedInstr": "The following parameters have been modified by another user.",
     "InvalidDF": "Invalid dataflow",
+    "Share": "Share Dataflow",
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
     'CancelAlertMsg': 'Batch dataflow \'<name>\' was canceled.',

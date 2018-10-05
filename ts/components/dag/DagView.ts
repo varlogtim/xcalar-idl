@@ -159,6 +159,7 @@ namespace DagView {
     export function switchActiveDagTab(dagTab: DagTab) {
         activeDagTab = dagTab;
         activeDag = dagTab.getGraph();
+        DagView.reactivate();
     }
 
     export function selectNodes(nodeIds?: DagNodeId[]) {
@@ -182,14 +183,25 @@ namespace DagView {
      */
     export function reactivate(): void {
         const $dfArea = $dfWrap.find(".dataflowArea.active");
+        if ($dfArea.hasClass("rendered")) {
+            return;
+        }
+        $dfArea.empty().html(
+            '<div class="dataflowAreaWrapper">' +
+                '<div class="commentArea"></div>' +
+                '<svg class="edgeSvg"></svg>' +
+                '<svg class="operatorSvg"></svg>' +
+            '</div>'
+        );
         const dimensions = activeDag.getDimensions();
         const scale = activeDag.getScale();
+        const $wrapper: JQuery = $dfArea.find(".dataflowAreaWrapper");
         if (dimensions.width > -1) {
-            $dfArea.find(".dataflowAreaWrapper").css("min-height", dimensions.height * scale);
-            $dfArea.find(".dataflowAreaWrapper").css("min-width", dimensions.width * scale);
-            $dfArea.find(".dataflowAreaWrapper").css("background-size", gridLineSize * scale);
+            $wrapper.css("min-height", dimensions.height * scale);
+            $wrapper.css("min-width", dimensions.width * scale);
+            $wrapper.css("background-size", gridLineSize * scale);
         }
-        $dfArea.find(".dataflowAreaWrapper").children().css("transform", "scale(" + scale + ")");
+        $wrapper.children().css("transform", "scale(" + scale + ")");
 
         const nodes: Map<DagNodeId, DagNode> = activeDag.getAllNodes();
 
@@ -210,6 +222,7 @@ namespace DagView {
         });
 
         _setupGraphEvents();
+        $dfArea.addClass("rendered");
     }
 
     export function newGraph(): void {
@@ -258,7 +271,7 @@ namespace DagView {
             }
         }
         _setGraphDimensions({x: maxXCoor, y: maxYCoor});
-        return activeDagTab.saveTab();
+        return activeDagTab.save();
     }
 
     /**
@@ -269,7 +282,7 @@ namespace DagView {
     export function addNode(nodeInfo: DagNodeInfo): DagNode {
         const node = DagNodeFactory.create(nodeInfo);
         _addNodeNoPersist(node);
-        activeDagTab.saveTab();
+        activeDagTab.save();
         return node;
     }
 
@@ -298,7 +311,7 @@ namespace DagView {
             "dataflowId": activeDagTab.getId(),
             "commentId": commentNode.getId()
         });
-        return activeDagTab.saveTab();
+        return activeDagTab.save();
     }
 
     /**
@@ -317,7 +330,7 @@ namespace DagView {
         if (!_removeNodesNoPersist(nodeIds)) {
             return PromiseHelper.reject();
         }
-        return activeDagTab.saveTab();
+        return activeDagTab.save();
     }
 
     /**
@@ -446,7 +459,7 @@ namespace DagView {
                 "dataflowId": activeDagTab.getId(),
                 "nodeIds": allNewNodeIds
             });
-            return activeDagTab.saveTab();
+            return activeDagTab.save();
         }
         return PromiseHelper.reject();
     }
@@ -473,7 +486,7 @@ namespace DagView {
         isReconnect?: boolean,
     ): XDPromise<void> {
         _connectNodesNoPersist(parentNodeId, childNodeId, connectorIndex, isReconnect);
-        return activeDagTab.saveTab();
+        return activeDagTab.save();
     }
 
       /**
@@ -502,7 +515,7 @@ namespace DagView {
             "childNodeId": childNodeId,
             "connectorIndex": connectorIndex
         });
-        return activeDagTab.saveTab();
+        return activeDagTab.save();
     }
 
     /**
@@ -511,7 +524,8 @@ namespace DagView {
      * returns $(".operator") element
      */
     export function getNode(nodeId: DagNodeId): JQuery {
-        return $dagView.find('.operator[data-nodeid="' + nodeId + '"]');
+        return $dagView.find(".dataflowArea.active")
+                .find('.operator[data-nodeid="' + nodeId + '"]');
     }
 
     /**
@@ -597,7 +611,7 @@ namespace DagView {
             "dataflowId": activeDagTab.getId(),
             "nodeInfos": nodeInfos
         });
-        return activeDagTab.saveTab();
+        return activeDagTab.save();
     }
 
     export function autoAlign() {
@@ -883,7 +897,7 @@ namespace DagView {
             "newDescription": text,
             "nodeId": nodeId
         });
-        return activeDagTab.saveTab();
+        return activeDagTab.save();
     }
 
     /**
@@ -1050,7 +1064,7 @@ namespace DagView {
             _connectNodesNoPersist(parentId, childId, pos);
         }
 
-        return activeDagTab.saveTab();
+        return activeDagTab.save();
     }
 
     /**
@@ -1082,7 +1096,7 @@ namespace DagView {
                 $opTitle.text(dagNode.getCustomName());
             }
         })
-        .then(() => activeDagTab.saveTab())
+        .then(() => activeDagTab.save())
         .then(() => deferred.resolve())
         .fail(deferred.reject);
 
@@ -1403,7 +1417,7 @@ namespace DagView {
              $childConnector.removeClass("hasConnection")
                             .addClass("noConnection");
         }
-        activeDagTab.saveTab();
+        activeDagTab.save();
     }
 
 
@@ -2035,7 +2049,7 @@ namespace DagView {
                 // when switch from error state to other state
                 _setTooltip($node, info.node);
             }
-            activeDagTab.saveTab();
+            activeDagTab.save();
         });
 
         activeDag.events.on(DagNodeEvents.ConnectionChange, function(info) {
@@ -2051,7 +2065,7 @@ namespace DagView {
             xcTooltip.add($node.find(".main"), {
                 title: JSON.stringify(info.params, null, 2)
             });
-            activeDagTab.saveTab();
+            activeDagTab.save();
         });
 
         activeDag.events.on(DagNodeEvents.AggregateChange, function(info) {

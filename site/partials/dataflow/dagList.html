@@ -1,16 +1,35 @@
 
-<section id="dagList" class="xc-hidden dagList menuSection">
-    <div class="iconSection">
-        <i class="minimizeBtn icon xi-close"></i>
-        <i class="uploadBtn icon xi-upload"></i>
+<div class="iconSection">
+  <div id="dagUpload" class="action" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.dataflow.uploadHeader %>">
+  <i class="icon xi-upload"></i>
+  </div>
+  <i class="minimizeBtn icon xi-close"></i>
+  <i class="refreshBtn icon xi-refresh fa-17"></i>
+</div>
+<div class="titleSection no-selection">
+  <header><%= dicts.dataflow.dataflows %> </header>
+</div>
+<div id="dagListSection" class="mainSection">
+  <div class="dagListDetails user listWrap xc-expand-list active">
+    <div class="listInfo no-selection">
+      <span class="expand">
+        <i class="icon xi-arrow-down fa-7"></i>
+      </span>
+      <span class="text">
+        <%= dicts.dataflow.MyDF %>(<span class="num">0</span>)
+      </span>
     </div>
-    <input id="dagbrowse" spellcheck="false" type="file" style="display: none" accept=".txt">
-    <div class="dagListTitle">
-      <header>
-        <%= dicts.dataflow.dataflows %>
-      </header>
+    <ul></ul>
+  </div>
+  <div class="dagListDetails shared listWrap xc-expand-list active">
+    <div class="listInfo no-selection">
+      <span class="expand">
+        <i class="icon xi-arrow-down fa-7"></i>
+      </span>
+      <span class="text">
+        <%= dicts.dataflow.SharedDF %>(<span class="num">0</span>)
+      </span>
     </div>
-    <div class="mainSection" id="dagListSection">
-        <ul class="dagListDetails dataFlowGroup listWrap"></ul>
-    </div>
-</section>
+    <ul></ul>
+  </div>
+</div>

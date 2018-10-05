@@ -102,8 +102,6 @@ class DagTabManager{
             this._addTabHTML({ name: validatedName, isEditable: false });
             // Switch to the tab(UI)
             this._switchTabs();
-            // Redraw the graph(UI)
-            DagView.reactivate();
         } else {
             // Tab already opened, switch to that one
             this._switchTabs(tabIndex);
@@ -119,7 +117,7 @@ class DagTabManager{
      */
     public saveParentTab(childKey: string): XDPromise<void> {
         const saveTasks = this._getParentTabs(childKey).map( (parentTab) => {
-            return parentTab.saveTab();
+            return parentTab.save();
         });
         if (saveTasks.length === 0) {
             return PromiseHelper.resolve();
@@ -176,30 +174,23 @@ class DagTabManager{
     }
 
     /**
-     * Either loads up a new tab or switches to an existing one.
-     * @param key Key for the dagTab we want to load
-     * @param {number} [tabIndex] optional index for where the tab should go
+     * Load a existing tab
+     * @param dagTab the dagTab we want to load
      */
-    public loadTab(key: string, tabIndex?: number): void {
+    public loadTab(dagTab: DagTab): void {
         // Check if we already have the tab
-        const index: number = this.getTabIndex(key);
+        const index: number = this.getTabIndex(dagTab.getId());
         if (index != -1) {
             this._switchTabs(index);
             return;
         }
-        DagTab.restore(key)
-        .then((tab: DagTab)=> {
-            const name: string = tab.getName();
-            if (name == null) {
-                return;
-            } else {
-                // Success Case
-                this._addDagTab(tab, tabIndex);
-                this._addTabHTML({ name: name, tabIndex: tabIndex });
-                this._switchTabs(tabIndex);
-                DagView.reactivate();
-                this._save();
-            }
+
+        dagTab.load()
+        .then(() => {
+            this._addDagTab(dagTab);
+            this._addTabHTML({name: dagTab.getName()});
+            this._switchTabs();
+            this._save();
         });
     }
 
@@ -247,37 +238,46 @@ class DagTabManager{
     }
 
     //getManagerDataAsync handles loading the tabManager
-    private _getManagerDataAsync(): void {
-        const self = this;
+    private _getManagerDataAsync(): XDPromise<void> {
+        if (DagList.Instance.getAll().length === 0) {
+            DagList.Instance.reset();
+            return PromiseHelper.resolve();
+        }
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._dagKVStore.getAndParse()
-        .then(function(ManagerData) {
-            if (ManagerData == null) {
-                self.reset();
+        .then((managerData) => {
+            if (managerData == null) {
+                this.reset();
                 return;
             }
-            self._loadDagTabs(ManagerData.dagKeys);
+            // sync up dag list with the opened tab's data
+            const idSet: Set<string> = new Set();
+            DagList.Instance.getAll().forEach((dagInfo) => {
+                idSet.add(dagInfo.getId());
+            });
+            const dagIds: string[] = managerData.dagKeys.filter((id) => idSet.has(id));
+            this._loadDagTabs(dagIds);
+            deferred.resolve();
         })
-        .fail(function() {
-            self.reset();
-            return;
+        .fail((error) => {
+            this.reset();
+            deferred.reject(error);
         });
+        return deferred.promise();
     }
 
     private _loadUserDagTab(id: string): XDPromise<void> {
-        let deferred: XDDeferred<void> = PromiseHelper.deferred();
-        DagTab.restore(id)
-        .then((tab: DagTab)=> {
-            const name: string = tab.getName();
-            if (tab.getName() == null) {
-                // XXX TODO handle this case
-                deferred.resolve();
-                return;
-            } else {
-                // Success Case
-                this._addDagTab(tab);
-                this._addTabHTML({ name: name });
-                deferred.resolve();
-            }
+        const dagTab: DagTab = DagList.Instance.getDagTabById(id);
+        if (dagTab == null) {
+            return PromiseHelper.reject();
+        }
+
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        dagTab.load()
+        .then(()=> {
+            this._addDagTab(dagTab);
+            this._addTabHTML({ name: dagTab.getName() });
+            deferred.resolve();
         })
         .fail(deferred.reject);
         return deferred.promise();
@@ -296,7 +296,6 @@ class DagTabManager{
             } else {
                 this.reset();
             }
-            DagView.reactivate();
         });
     }
 
@@ -333,16 +332,13 @@ class DagTabManager{
 
     private _newTab(): DagTab {
         const name: string = DagList.Instance.getValidName();
-        let newTab: DagTab = new DagTab(name, null, new DagGraph());
-        const key: string = newTab.getId();
-        this._activeUserDags.push(newTab);
+        let newDagTab: DagTabUser = DagList.Instance.addDag(name);
+        this._activeUserDags.push(newDagTab);
         this._save();
-        newTab.saveTab();
-        DagList.Instance.addDag(name, key);
         this._addTabHTML({name: name});
         this._switchTabs();
         DagView.newGraph();
-        return newTab;
+        return newDagTab;
     }
 
     // Delete a tab, as well as sub tabs(DFS order)
@@ -490,15 +486,7 @@ class DagTabManager{
         let html = '<li class="dagTab"><div class="name ' + (isEditable? '': 'nonedit') + '">' + tabName +
                     '</div><div class="after"><i class="icon xi-close-no-circle"></i></div></li>';
         this._getTabArea().find("ul").append(html);
-        $("#dagView .dataflowWrap").append(
-            '<div class="dataflowArea">\
-                <div class="dataflowAreaWrapper">\
-                    <div class="commentArea"></div>\
-                    <svg class="edgeSvg"></svg>\
-                    <svg class="operatorSvg"></svg>\
-                </div>\
-            </div>'
-        );
+        $("#dagView .dataflowWrap").append('<div class="dataflowArea"></div>');
         this._updateDeletButton();
         if (tabIndex != null) {
             // Put the tab and area where they should be
@@ -590,7 +578,7 @@ class DagTabManager{
        $dagTabArea.on("focusout", ".name .xc-input", (event) => {
             let $tab_input: JQuery = $(event.currentTarget);
             let $tab_name: JQuery = $tab_input.parent();
-            let newName: string = $tab_input.text() || this._editingName;
+            let newName: string = $tab_input.text().trim() || this._editingName;
             if (newName != this._editingName &&
                 DagList.Instance.isUniqueName(newName)
             ) {

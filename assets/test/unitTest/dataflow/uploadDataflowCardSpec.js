@@ -147,8 +147,8 @@ describe.skip("Upload Dataflow Test", function() {
 
         it("should handle name duplicate error", function(done) {
             var name = "DupNameTest"
-            var key = DagList.Instance.getKeyFromIndex(0);
-            DagList.Instance.changeName(name, key);
+            var id = DagList.Instance.getAll()[0].id;
+            DagList.Instance.changeName(name, id);
             $("#dfName").val(name);
             UploadDataflowCard.__testOnly__.submitForm()
             .then(function() {

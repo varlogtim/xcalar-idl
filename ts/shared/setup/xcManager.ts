@@ -557,8 +557,7 @@ namespace xcManager {
 
     function setupDagList(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const dagList: DagList = DagList.Instance;
-        dagList.setup()
+        DagList.Instance.setup()
         .then(() => {
             DagTabManager.Instance.setup();
             deferred.resolve();

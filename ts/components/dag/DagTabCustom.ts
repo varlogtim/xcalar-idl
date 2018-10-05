@@ -13,7 +13,7 @@ class DagTabCustom extends DagTab {
     /**
      * Saves this Tab in the kvStore
      */
-    public saveTab(): XDPromise<void> {
+    public save(): XDPromise<void> {
         return DagTabManager.Instance.saveParentTab(this.getId());
     }
 
@@ -23,5 +23,21 @@ class DagTabCustom extends DagTab {
      */
     public getGraph(): DagGraph {
         return this._customNode.getSubGraph();
+    }
+
+
+    // do nothing
+    public load(): XDPromise<void> {
+        return PromiseHelper.resolve();
+    }
+
+    // do nothing
+    public delete(): XDPromise<void> {
+        return PromiseHelper.resolve();
+    }
+
+    // do nothing
+    public download(): XDPromise<void> {
+        return PromiseHelper.resolve();
     }
 }

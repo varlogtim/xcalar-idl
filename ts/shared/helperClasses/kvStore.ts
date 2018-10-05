@@ -109,6 +109,10 @@ class KVStore {
         }, 60000); // 1 minute
     }
 
+    public static list(keyRegex: string, scope: number): XDPromise<{numKeys: number, keys: string[]}> {
+        return XcalarKeyList(keyRegex, scope);
+    }
+
     /**
      * KVStore.commit
      * @param atStartUp

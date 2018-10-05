@@ -90,7 +90,7 @@ class DagComment {
     ): XDPromise<void> {
         const comment = DagView.getActiveDag().getComment(id);
         comment.setDimensions(size);
-        return DagView.getActiveTab().saveTab();
+        return DagView.getActiveTab().save();
     }
 
     /**
@@ -111,6 +111,6 @@ class DagComment {
             "newComment": text,
             "oldComment": oldText
         });
-        return DagView.getActiveTab().saveTab();
+        return DagView.getActiveTab().save();
     }
 }

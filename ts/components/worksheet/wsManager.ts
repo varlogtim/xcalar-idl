@@ -1442,7 +1442,7 @@ namespace WSManager {
             $("#workspaceMenu").find(".menuSection.worksheets")
                             .addClass("xc-hidden")
                             .end()
-                            .find("#dagList")
+                            .find(".menuSection.dagList")
                             .addClass("xc-hidden")
                             .end()
                             .find(".menuSection.tables")
@@ -1462,7 +1462,7 @@ namespace WSManager {
             $("#workspaceMenu").find(".menuSection.worksheets")
                             .addClass("xc-hidden")
                             .end()
-                            .find("#dagList")
+                            .find(".menuSection.dagList")
                             .addClass("xc-hidden")
                             .end()
                             .find(".menuSection.tables")
@@ -1476,7 +1476,7 @@ namespace WSManager {
                             .find(".menuSection.tables")
                             .addClass("xc-hidden")
                             .end()
-                            .find("#dagList")
+                            .find(".menuSection.dagList")
                             .removeClass("xc-hidden");
         })
 

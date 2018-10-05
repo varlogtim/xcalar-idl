@@ -858,6 +858,8 @@ module.exports = {
     },
 
     "dataflow": {
+        "MyDF": "My Dataflows",
+        "SharedDF": "Shared Dataflows",
         "DataflowTitle": "Batch Dataflow",
         "header": "Batch Dataflow",
         "dfs": "Batch Dataflows",
