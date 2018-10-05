@@ -921,7 +921,8 @@ namespace DagView {
      * 6. Persist the change to KVStore
      */
     export function wrapCustomOperator(nodeIds: DagNodeId[]): XDPromise<void> {
-        const connectionInfo = activeDag.getSubGraphConnection(nodeIds);
+        const connectionInfo: DagSubGraphConnectionInfo
+            = activeDag.getSubGraphConnection(nodeIds);
 
         // Validate the sub graph
         if (connectionInfo.openNodes.length > 0) {
@@ -930,7 +931,8 @@ namespace DagView {
             StatusBox.show(DagTStr.CustomOpIncomplete, getNode(errNodeId));
             return PromiseHelper.reject('Selected operator set is open');
         }
-        if (connectionInfo.in.length === 0) {
+        if (connectionInfo.in.length === 0 && connectionInfo.endSets.in.size === 0) {
+            // No input edges && No nodes, which have no parents while supposed to
             // Source custom node not supported for now
             let errNodeId = nodeIds[0];
             for (const nodeId of nodeIds) {
@@ -942,7 +944,7 @@ namespace DagView {
             StatusBox.show(DagTStr.CustomOpNoInput, getNode(errNodeId));
             return PromiseHelper.reject('No input');
         }
-        if (connectionInfo.out.length === 0) {
+        if (connectionInfo.out.length === 0 && connectionInfo.endSets.out.size === 0) {
             // We don't support custom Op w/o an output for now
             let errNodeId = nodeIds[0];
             for (const nodeId of nodeIds) {
@@ -954,9 +956,11 @@ namespace DagView {
             StatusBox.show(DagTStr.CustomOpNoOutput, getNode(errNodeId));
             return PromiseHelper.reject('no output');
         }
-        if (connectionInfo.out.length > 1) {
+        if ((connectionInfo.out.length + connectionInfo.endSets.out.size) > 1) {
             // We only support one output for now
-            const errNodeId = connectionInfo.out[0].parentId;
+            const errNodeId = connectionInfo.out.length > 0
+                ? connectionInfo.out[0].parentId
+                : Array.from(connectionInfo.endSets.out)[0];
             StatusBox.show(DagTStr.CustomOpTooManyOutput, getNode(errNodeId));
             return PromiseHelper.reject('too many output');
         }
@@ -1142,9 +1146,7 @@ namespace DagView {
 
     function _createCustomNode(
         dagNodeInfos,
-        connection: {
-            in: NodeConnection[], out: NodeConnection[], inner: NodeConnection[]
-        }
+        connection: DagSubGraphConnectionInfo
     ): {
         node: DagNodeCustom,
         connectionIn: NodeConnection[],
@@ -1183,25 +1185,52 @@ namespace DagView {
                 node: dagMap.get(nodeIdMap.get(connectionInfo.childId)),
                 portIdx: connectionInfo.pos
             });
-            inputConnection.push({
-                parentId: connectionInfo.parentId,
-                childId: customNode.getId(),
-                pos: inPortIdx
-            });
+            if (connectionInfo.parentId != null) {
+                // parentId could be null, in case the connection has been deleted
+                inputConnection.push({
+                    parentId: connectionInfo.parentId,
+                    childId: customNode.getId(),
+                    pos: inPortIdx
+                });
+            }
+        }
+        // Assign input ports to input ends. One port per parent.
+        for (const inNodeId of connection.endSets.in) {
+            const node = dagMap.get(nodeIdMap.get(inNodeId));
+            // if multi-parents case, assign one port by default
+            const numMaxParents = node.getMaxParents() < 0 ? 1 : node.getMaxParents();
+            let pos = node.getNextOpenConnectionIndex();
+            while (pos >= 0 && pos < numMaxParents) {
+                customNode.addInputNode({
+                    node: node,
+                    portIdx: pos
+                });
+                pos = node.getNextOpenConnectionIndex();
+            }
         }
 
         // Setup output
-        const outConnection = connection.out[0]; // We dont support multiple outputs now
-        customNode.addOutputNode(
-            dagMap.get(nodeIdMap.get(outConnection.parentId)),
-            0 // We dont support multiple output now, so set to zero
-        );
         const outputConnection: NodeConnection[] = [];
-        outputConnection.push({
-            parentId: customNode.getId(),
-            childId: outConnection.childId,
-            pos: outConnection.pos
-        });
+        if (connection.out.length > 0) {
+            // Output nodes with children outside
+            const outConnection = connection.out[0]; // We dont support multiple outputs now
+            customNode.addOutputNode(
+                dagMap.get(nodeIdMap.get(outConnection.parentId)),
+                0 // We dont support multiple output now, so set to zero
+            );
+            outputConnection.push({
+                parentId: customNode.getId(),
+                childId: outConnection.childId,
+                pos: outConnection.pos
+            });
+        } else if (connection.endSets.out.size > 0) {
+            // Potential output nodes without child
+            const nodeId = Array.from(connection.endSets.out)[0]; // We dont support multiple outputs now
+            customNode.addOutputNode(
+                dagMap.get(nodeIdMap.get(nodeId)),
+                0 // We dont support multiple output now, so set to zero
+            );
+        }
 
         return {
             node: customNode,

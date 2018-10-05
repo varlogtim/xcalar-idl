@@ -15,6 +15,8 @@ class DagNodeCustom extends DagNode {
         this._output = [];
         this.maxParents = -1;
         this.minParents = 0;
+        // XXX TODO: uncomment & make UI change to support export customOp
+        // this.maxChildren = 0;
 
         if (options != null && options.subGraph != null
             && options.outPorts != null && options.outPorts != null
@@ -322,6 +324,12 @@ class DagNodeCustom extends DagNode {
                 this.getSubGraph().addNode(inputNode);
             }
         }
+
+        // XXX TODO: Uncomment&Make UI changes, to fix no-parent bug
+        // const inputLen = this._input.length;
+        // this.maxParents = inputLen;
+        // this.minParents = inputLen;
+
         return inPortIdx;
     }
 
@@ -335,6 +343,10 @@ class DagNodeCustom extends DagNode {
                 this.getSubGraph().addNode(outputNode);
             }
         }
+
+        // This is not an export node, because it has output ports
+        this.maxChildren = -1;
+
         return outPortIdx;
     }
 

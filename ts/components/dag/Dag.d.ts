@@ -203,3 +203,12 @@ interface DagGraphInfo {
     comments: any[],
     display: Dimensions
 }
+
+declare type DagSubGraphConnectionInfo = {
+    inner: NodeConnection[],
+    in: NodeConnection[],
+    out: NodeConnection[],
+    openNodes: DagNodeId[],
+    endSets: { in: Set<DagNodeId>, out: Set<DagNodeId> },
+    dfIOSets: { in: Set<DagNodeId>, out: Set<DagNodeId> }
+}

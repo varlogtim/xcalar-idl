@@ -1625,9 +1625,9 @@ DagTStr = {
     "Reset": "Dataflow node(s) reset",
     "ResetMsg": "Are you sure you want to reset the selected node(s)?",
     "CustomOpIncomplete": "Selected operator set is open",
-    "CustomOpNoInput": "At least one input operator should be selected",
-    "CustomOpNoOutput": "No output operator selected",
-    "CustomOpTooManyOutput": "Only one output operator can be selected",
+    "CustomOpNoInput": "Cannot create a custom operator without input",
+    "CustomOpNoOutput": "Cannot create a custom operator without output",
+    "CustomOpTooManyOutput": "Cannot create a custom operator with more than one output",
 };
 
 OpPanelTStr = {

@@ -431,12 +431,7 @@ class DagGraph {
      */
     public getSubGraphConnection(
         nodeIds: DagNodeId[]
-    ): {
-        inner: NodeConnection[],
-        in: NodeConnection[],
-        out: NodeConnection[],
-        openNodes: DagNodeId[]
-    } {
+    ): DagSubGraphConnectionInfo {
         const subGraphMap = new Map<DagNodeId, DagNode>();
         for (const nodeId of nodeIds) {
             subGraphMap.set(nodeId, this.getNode(nodeId));
@@ -445,16 +440,28 @@ class DagGraph {
         const innerEdges: NodeConnection[] = [];
         const inputEdges: NodeConnection[] = [];
         const outputEdges: NodeConnection[] = [];
+        const inEnds: Set<DagNodeId> = new Set(); // Potential input nodes(no parent)
+        const outEnds: Set<DagNodeId> = new Set(); // Potential output nodes(no child)
+        const sourceNodes: Set<DagNodeId> = new Set(); // DF input nodes(ex.: dataset)
+        const destNodes: Set<DagNodeId> = new Set(); // DF export nodes(ex.: export)
         for (const [subNodeId, subNode] of subGraphMap.entries()) {
             // Find inputs
-            const parents = subNode.getParents();
-            parents.forEach( (parent, parentIndex) => {
+            // Node with unlimited parents: maxParent = -1; numParent >=0
+            const leastParentsExpected = 1;
+            let numParentNotLink: number = Math.max(
+                subNode.getMaxParents(), subNode.getNumParent(), leastParentsExpected);
+            subNode.getParents().forEach( (parent, parentIndex) => {
+                if (parent != null) {
+                    numParentNotLink --;
+                }
+
+                const parentId = parent == null ? null : parent.getId();
                 const edge: NodeConnection = {
-                    parentId: parent.getId(),
+                    parentId: parentId,
                     childId: subNodeId,
                     pos: parentIndex
                 };
-                if (subGraphMap.has(parent.getId())) {
+                if (subGraphMap.has(parentId)) {
                     // Internal connection
                     innerEdges.push(edge);
                 } else {
@@ -462,6 +469,12 @@ class DagGraph {
                     inputEdges.push(edge);
                 }
             });
+            // Check if the node is an inputEnd or sourceNode
+            if (this._isSourceNode(subNode)) {
+                sourceNodes.add(subNodeId);
+            } else if (numParentNotLink > 0) {
+                inEnds.add(subNodeId);
+            }
 
             // Find outputs
             const childMap = new Map<DagNodeId, DagNode>(); // Children not in the sub graph
@@ -478,6 +491,14 @@ class DagGraph {
                         childId: childId,
                         pos: parentIndex
                     });
+                }
+            }
+            // Check if the node is an outputEnd or exportNode
+            if (subNode.getChildren().length === 0) {
+                if (this._isDestNode(subNode)) {
+                    destNodes.add(subNodeId);
+                } else {
+                    outEnds.add(subNodeId);
                 }
             }
         }
@@ -502,7 +523,9 @@ class DagGraph {
             inner: innerEdges,
             in: inputEdges,
             out: outputEdges,
-            openNodes: openNodeIds
+            openNodes: openNodeIds,
+            endSets: { in: inEnds, out: outEnds },
+            dfIOSets: { in: sourceNodes, out: destNodes }
         };
     }
 
@@ -623,6 +646,14 @@ class DagGraph {
         });
 
         return deferred.promise();
+    }
+
+    private _isSourceNode(dagNode: DagNode): boolean {
+        return dagNode.getMaxParents() === 0;
+    }
+
+    private _isDestNode(dagNode: DagNode): boolean {
+        return dagNode.getMaxChildren() === 0;
     }
 
     private _backTraverseNodes(nodeIds: DagNodeId[]) {
