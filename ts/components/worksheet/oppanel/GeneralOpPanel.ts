@@ -4,7 +4,6 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _$panel: JQuery;
     protected _$genFunctionsMenu: JQuery;   // $('.genFunctionsMenu')
     protected _$functionsUl: JQuery;
-    protected _colName: string = "";
     protected _isNewCol: boolean;
     protected _operatorName: string = ""; // group by, map, filter, aggregate, etc..
     protected _operatorsMap = {};
@@ -18,7 +17,6 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _functionsListScrollers: MenuHelper[] = [];
     protected _formHelper: FormHelper;
     protected _listMax:   number = 30; // max length for hint list
-    protected _isEditMode: boolean = true;
     protected _table;
     // protected _dagNode: DagNodeGroupBy | DagNodeAggregate | DagNodeMap | DagNodeFilter;
     protected _dagNode: DagNode;
@@ -325,6 +323,10 @@ class GeneralOpPanel extends BaseOpPanel {
         $(document).off("keydown.OpSection");
     }
 
+    public refreshColumns(): void {
+        this.allColumns = this.dataModel.refreshColumns();
+    }
+
     private _addGeneralEventListeners(): void {
         const self = this;
         let scrolling: boolean = false;
@@ -356,8 +358,7 @@ class GeneralOpPanel extends BaseOpPanel {
         for (const i in aggs) {
             this._aggNames.push(aggs[i].aggName);
         }
-        this.allColumns = this.dataModel.getColumns();
-
+        this.refreshColumns();
         this._populateInitialCategoryField();
         this._fillInputPlaceholder();
         this._$panel.find('.list').removeClass('hovering');

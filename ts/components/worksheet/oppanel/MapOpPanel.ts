@@ -485,12 +485,6 @@ class MapOpPanel extends GeneralOpPanel {
         {
             // do not give default value if not the first group of args
             defaultValue = "";
-        } else if (!this._isNewCol && this._colName) {
-            if (this._isArgAColumn(this._colName)) {
-                defaultValue = gColPrefix + this._colName;
-            } else {
-                defaultValue = "";
-            }
         }
 
         let numArgs = Math.max(Math.abs(operObj.numArgs),
@@ -631,24 +625,8 @@ class MapOpPanel extends GeneralOpPanel {
 //  // sets up the last argument for map
     private _mapArgumentsSetup(groupIndex, numArgs, categoryNum, func, operObj) {
         const description = OpModalTStr.ColNameDesc + ":";
-        const tempName = xcHelper.parsePrefixColName(this._colName).name;
-        let autoGenColName;
+        let autoGenColName = "";
         const $rows = this._$panel.find(".group").eq(groupIndex).find('.row');
-
-        if (this._isEditMode && !this._colName) {
-            autoGenColName = "";
-        } else if (this._isNewCol && this._colName !== "" && this._currentCol) {
-            autoGenColName = this._currentCol.getFrontColName();
-            autoGenColName = xcHelper.stripColName(autoGenColName);
-        } else {
-            if (categoryNum === FunctionCategoryT.FunctionCategoryUdf) {
-                autoGenColName = tempName + "_udf";
-            } else {
-                autoGenColName = tempName + "_" + func;
-            }
-            autoGenColName = xcHelper.stripColName(autoGenColName);
-            autoGenColName = this._getAutoGenColName(autoGenColName);
-        }
 
         const $row = $rows.eq(numArgs).addClass('resultantColNameRow');
         const icon = xcHelper.getColTypeIcon(operObj.outputType);

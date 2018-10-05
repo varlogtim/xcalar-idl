@@ -5,24 +5,7 @@ class ProjectOpPanelModel {
 
     public static fromDag(dagNode: DagNodeProject) {
         try {
-            const allColMap: Map<string, ProgCol> = new Map();
-            const parents = dagNode.getParents();
-            if (parents == null || parents.length === 0) {
-                return this.fromDagInput(allColMap, dagNode.getParam());
-            }
-
-            const allColsList: ProgCol[][] = [];
-            for (const parentNode of parents) {
-                if (parentNode != null) {
-                    allColsList.push(parentNode.getLineage().getColumns());
-                }
-            }
-            for (const cols of allColsList) {
-                for (const col of cols) {
-                    allColMap.set(col.getBackColName(), col);
-                }
-            }
-    
+            const allColMap: Map<string, ProgCol> = this._createColMap(dagNode);
             return this.fromDagInput(allColMap, dagNode.getParam());
         } catch(e) {
             console.error(e);
@@ -70,7 +53,7 @@ class ProjectOpPanelModel {
                 });
             }
         }
-        
+
         return model;
     }
 
@@ -123,5 +106,47 @@ class ProjectOpPanelModel {
             return ColumnType.unknown;
         }
         return col.getType();
+    }
+
+    public static refreshColumns(oldModel, dagNode: DagNodeProject) {
+        const allColMap = this._createColMap(dagNode);
+        const dagData = { columns: [] };
+        for (const colInfo of oldModel.derivedList) {
+            if (colInfo.isSelected && allColMap.has(colInfo.name)) {
+                dagData.columns.push(colInfo.name);
+            }
+        }
+        for (const group of oldModel.prefixedList) {
+            if (group.isSelected) {
+                for (const colInfo of group.columnList) {
+                    if (allColMap.has(colInfo.name)) {
+                        dagData.columns.push(colInfo.name);
+                    }
+                }
+            }
+        }
+        const model = this.fromDagInput(allColMap, dagData);
+        return model;
+    }
+
+
+    private static _createColMap(dagNode: DagNodeProject): Map<string, ProgCol> {
+        const allColMap: Map<string, ProgCol> = new Map();
+        const parents = dagNode.getParents();
+        if (parents == null || parents.length === 0) {
+            return allColMap;
+        }
+        const allColsList: ProgCol[][] = [];
+        for (const parentNode of parents) {
+            if (parentNode != null) {
+                allColsList.push(parentNode.getLineage().getColumns());
+            }
+        }
+        for (const cols of allColsList) {
+            for (const col of cols) {
+                allColMap.set(col.getBackColName(), col);
+            }
+        }
+        return allColMap;
     }
 }

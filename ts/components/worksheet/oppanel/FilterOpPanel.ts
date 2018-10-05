@@ -373,12 +373,6 @@ class FilterOpPanel extends GeneralOpPanel {
         {
             // do not give default value if not the first group of args
             defaultValue = "";
-        } else if (!this._isNewCol && this._colName) {
-            if (this._isArgAColumn(this._colName)) {
-                defaultValue = gColPrefix + this._colName;
-            } else {
-                defaultValue = "";
-            }
         }
 
         const numArgs = Math.max(Math.abs(operObj.numArgs),

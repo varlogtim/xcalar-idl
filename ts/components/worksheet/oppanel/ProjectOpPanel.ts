@@ -8,6 +8,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
     private _$elemDeriveSelectAllCheckbox: JQuery = null;
     private _dataModel: ProjectOpPanelModel = new ProjectOpPanelModel() ; // The key data structure
     private _dagNode: DagNodeProject = null;
+    protected codeMirrorOnlyColumns = true;
 
     // *******************
     // Constants
@@ -57,7 +58,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
         this._dagNode = dagNode;
         this._dataModel = ProjectOpPanelModel.fromDag(dagNode);
         this._updateUI();
-
+        this._updateColumns();
         super.showPanel(null, options);
     }
 
@@ -66,6 +67,16 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
      */
     public close(isSubmit?: boolean): void {
         super.hidePanel(isSubmit);
+    }
+
+    /**
+     * refetch source columns
+     * @param info
+     */
+    public refreshColumns(): void {
+        this._dataModel = ProjectOpPanelModel.refreshColumns(this._dataModel, this._dagNode);
+        this._updateColumns();
+        this._updateUI();
     }
 
     private _updateUI() {
@@ -300,6 +311,22 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
             this._dataModel.prefixedList[prefixIndex].isSelected = isSelected;
             this._updateUI();
         }
+    }
+
+    private _updateColumns(): void {
+        this.allColumns = [];
+        const colSets = this._dagNode.getParents().map((parentNode) => {
+            return parentNode.getLineage().getColumns();
+        }) || [];
+        const seen = {};
+        colSets.forEach(cols => {
+            cols.forEach(progCol => {
+                if (!seen[progCol.getBackColName()]) {
+                    seen[progCol.getBackColName()] = true;
+                    this.allColumns.push(progCol);
+                }
+            });
+        });
     }
 
     /**

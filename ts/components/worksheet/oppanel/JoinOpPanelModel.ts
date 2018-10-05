@@ -643,7 +643,7 @@ class JoinOpPanelModel {
         for (const prefix of result.prefixMeta) {
             result.prefixLookup.set(prefix, prefix);
         }
-        
+
         return result;
     }
 
@@ -700,9 +700,9 @@ class JoinOpPanelModel {
 
     /**
      * Abstracted algorithm of finding same values between two sorted arrays
-     * @param list1 
-     * @param list2 
-     * @param checkFunc 
+     * @param list1
+     * @param list2
+     * @param checkFunc
      * @description Double pointers algorithm
      */
     private _checkCollision<T>(
@@ -756,7 +756,7 @@ class JoinOpPanelModel {
 
     /**
      * Get the dest name of a renaming
-     * @param renameInfo 
+     * @param renameInfo
      * @returns The name after renaming. If renaming to ""(user didn't do renaming), returns the source name.
      */
     private _getRenameDest(renameInfo: JoinOpRenameInfo): string {
@@ -805,7 +805,7 @@ class JoinOpPanelModel {
             const bv = b.key;
             return av > bv ? 1 : (av < bv ? -1 : 0);
         });
-        
+
         return result;
     }
 
@@ -848,7 +848,7 @@ class JoinOpPanelModel {
             const bv = b.key;
             return av > bv ? 1 : (av < bv ? -1 : 0);
         });
-        
+
         return result;
     }
 
@@ -959,6 +959,73 @@ class JoinOpPanelModel {
                 isPrefix: true
             });
         }
+    }
+
+    public static refreshColumns(oldModel, dagNode: DagNodeJoin) {
+        const oldDagData = oldModel.toDag();
+        const {left: leftCols, right: rightCols} = this.getColumnsFromDag(dagNode);
+        const {
+            left: leftTableName, right: rightTableName
+        } = this.getPreviewTableNamesFromDag(dagNode);
+        const dagConfig = dagNode.getParam();
+        const joinType = this._convertSubTypeToJoinType(dagNode.getSubType());
+        if (joinType != null) {
+            dagConfig.joinType = joinType;
+        }
+
+        const model = this.fromDagInput(
+            leftCols,rightCols, oldDagData,
+            leftTableName, rightTableName,
+            {
+                currentStep: oldModel._currentStep,
+                isAdvMode: oldModel._isAdvMode,
+                isNoCast: oldModel._isNoCast,
+                isFixedType: dagNode.getSubType() != null
+            }
+        );
+        // remove column pairs where column no longer exists
+        const newColumnPairs = [];
+        oldModel._joinColumnPairs.forEach(pairInfo => {
+            const newColumnPair = {leftName: "", leftCast: null, rightName: "", rightCast: null};
+            if (pairInfo.leftName && model._columnMeta.leftMap.has(pairInfo.leftName)) {
+                newColumnPair.leftName = pairInfo.leftName;
+            }
+            if (pairInfo.rightName && model._columnMeta.rightMap.has(pairInfo.rightName)) {
+                newColumnPair.rightName = pairInfo.rightName;
+            }
+            if (newColumnPair.leftName || newColumnPair.rightName) {
+                newColumnPairs.push(newColumnPair);
+            }
+        });
+        model._joinColumnPairs = newColumnPairs;
+
+        // remove column renames where column no longer exists
+        const newColumnRenameLeft = [];
+        model._columnRename.left.forEach(renameInfo => {
+            if (!renameInfo.isPrefix && model._columnMeta.leftMap.has(renameInfo.source)) {
+                newColumnRenameLeft.push(renameInfo);
+            } else if (renameInfo.isPrefix && model._prefixMeta.leftMap.has(renameInfo.source)) {
+                newColumnRenameLeft.push(renameInfo);
+            }
+        });
+        model._columnRename.left = newColumnRenameLeft;
+
+        // remove column renames where column no longer exists
+        const newColumnRenameRight = [];
+        model._columnRename.right.forEach(renameInfo => {
+            if (!renameInfo.isPrefix && model._columnMeta.rightMap.has(renameInfo.source)) {
+                newColumnRenameRight.push(renameInfo);
+            } else if (renameInfo.isPrefix && model._prefixMeta.rightMap.has(renameInfo.source)) {
+                newColumnRenameRight.push(renameInfo);
+            }
+        });
+        model._columnRename.right = newColumnRenameRight;
+
+        if (model.getColumnPairsLength() === 0) {
+            model.addColumnPair();
+        }
+
+        return model;
     }
 }
 

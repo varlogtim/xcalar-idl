@@ -35,6 +35,16 @@ class GeneralOpPanelModel {
         return this.tableColumns;
     }
 
+    public refreshColumns(update) {
+        this.tableColumns = this.dagNode.getParents().map((parentNode) => {
+            return parentNode.getLineage().getColumns();
+        })[0] || [];
+        if (update) {
+            this._update();
+        }
+        return this.tableColumns;
+    }
+
     public getAggregates(): string[] {
         const groups = this.groups;
         let aggregates: string[] = [];

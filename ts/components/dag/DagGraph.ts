@@ -6,6 +6,7 @@ class DagGraph {
     private display: Dimensions;
     private innerEvents: object;
     private lock: boolean;
+    private noDelete: boolean;
     public events: { on: Function, trigger: Function}; // example: dagGraph.events.on(DagNodeEvents.StateChange, console.log)
 
     public constructor() {
@@ -148,7 +149,16 @@ class DagGraph {
 
         this.nodesMap.set(node.getId(), node);
         this.removedNodesMap.delete(node.getId());
-        this._traverseSwitchState(node);
+        const set = this._traverseSwitchState(node);
+
+        this.events.trigger(DagNodeEvents.ConnectionChange, {
+            type: "add",
+            descendents: [...set],
+            addInfo: {
+                childIndices: nodeInfo["childIndices"],
+                node: node
+            }
+        });
         return node;
     }
 
@@ -277,7 +287,17 @@ class DagGraph {
                 throw new Error("has cycle in the dataflow");
             }
             if (switchState) {
-                this._traverseSwitchState(toNode);
+                const descendentSets = this._traverseSwitchState(toNode);
+                const childIndices = {};
+                childIndices[toNodeId] = toPos;
+                this.events.trigger(DagNodeEvents.ConnectionChange, {
+                    type: "add",
+                    descendents:[...descendentSets],
+                    addInfo: {
+                        childIndices: childIndices,
+                        node: fromNode
+                    }
+                });
             }
         } catch (e) {
             if (connectedToParent) {
@@ -295,7 +315,7 @@ class DagGraph {
     public restoreConnections(connections: NodeConnection[]): void {
         connections.forEach((edge: NodeConnection) => {
             if (edge.parentId != null && edge.childId != null) {
-                this.connect(edge.parentId, edge.childId, edge.pos, false ,false);
+                this.connect(edge.parentId, edge.childId, edge.pos, false, false);
             }
         });
     }
@@ -317,7 +337,17 @@ class DagGraph {
         toNode.disconnectFromParent(fromNode, toPos);
         fromNode.disconnectFromChild(toNode);
         if (switchState) {
-            this._traverseSwitchState(toNode);
+            const descendentSets = this._traverseSwitchState(toNode);
+            const childIndices = {};
+            childIndices[toNodeId] = toPos;
+            this.events.trigger(DagNodeEvents.ConnectionChange, {
+                type: "remove",
+                descendents: [...descendentSets],
+                removeInfo: {
+                    childIndices: childIndices,
+                    node: fromNode
+                }
+            });
         }
     }
 
@@ -558,6 +588,18 @@ class DagGraph {
         return this.lock;
     }
 
+    public setGraphNoDelete(): void {
+        this.noDelete = true;
+    }
+
+    public unsetGraphNoDelete(): void {
+        this.noDelete = false;
+    }
+
+    public isNoDelete(): boolean {
+        return this.noDelete;
+    }
+
     /**
      * Resets ran nodes to go back to configured.
      */
@@ -717,7 +759,7 @@ class DagGraph {
                 parent.disconnectFromChild(node);
             }
         });
-
+        const descendents = [];
         const childIndices = {};
         children.forEach((child) => {
             const childId = child.getId();
@@ -731,7 +773,8 @@ class DagGraph {
                 }
             });
             if (switchState) {
-                this._traverseSwitchState(child);
+                const set: Set<DagNode> = this._traverseSwitchState(child);
+                descendents.push(...set);
             }
         });
 
@@ -743,6 +786,13 @@ class DagGraph {
             node: node
         });
         this.nodesMap.delete(node.getId());
+        if (switchState) {
+            this.events.trigger(DagNodeEvents.ConnectionChange, {
+                type: "remove",
+                descendents: descendents,
+                removeInfo: {childIndices: childIndices, node: node}
+            });
+        }
     }
 
     private _getNodeFromId(nodeId: DagNodeId): DagNode {

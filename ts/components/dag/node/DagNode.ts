@@ -387,7 +387,7 @@ abstract class DagNode {
      * return false otherwise
      */
     public isSourceNode(): boolean {
-        return this.numParent === 0;
+        return this.maxParents === 0;
     }
 
     /**

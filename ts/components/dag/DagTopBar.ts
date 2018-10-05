@@ -16,6 +16,14 @@ class DagTopBar {
         this._checkZoom();
     }
 
+    public lock(): void {
+        this.$topBar.addClass("locked");
+    }
+
+    public unlock(): void {
+        this.$topBar.removeClass("locked");
+    }
+
     private _addEventListeners(): void {
         const self = this;
         this.$topBar.find(".run").click(function() {

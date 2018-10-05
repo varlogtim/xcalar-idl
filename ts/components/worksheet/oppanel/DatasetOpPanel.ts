@@ -10,7 +10,6 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     private _$datasetList: JQuery; // $("#dsOpListSection");
     private _advMode: boolean;
     private _dagNode: DagNodeDataset;
-    private _cachedBasicModeParam: string;
 
     // *******************
     // Constants
@@ -220,9 +219,9 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
      * Show the panel with information from dagNode
      * @param dagNode DagNode object
      */
-    public show(dagNode: DagNodeDataset): void {
+    public show(dagNode: DagNodeDataset, options?): void {
         // Show panel
-        if (!super.showPanel()) {
+        if (!super.showPanel(null, options)) {
             return;
         }
         this._dagNode = dagNode;

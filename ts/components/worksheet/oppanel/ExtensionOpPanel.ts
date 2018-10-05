@@ -11,8 +11,8 @@ class ExtensionOpPanel extends BaseOpPanel {
      * Show panel
      * @param dagNode
      */
-    public show(dagNode: DagNodeExtension): boolean {
-        if (!super.showPanel("Extension")) {
+    public show(dagNode: DagNodeExtension, options?): boolean {
+        if (!super.showPanel("Extension", options)) {
             return false;
         }
         this._initialize(dagNode);

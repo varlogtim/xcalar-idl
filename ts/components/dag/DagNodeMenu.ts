@@ -88,13 +88,13 @@ namespace DagNodeMenu {
             if ($li.hasClass("unavailable") || !action) {
                 return;
             }
-            const nodeId = $menu.data("nodeid"); // clicked node
-            const nodeIds = DagView.getSelectedNodeIds(true, true);
-            const operatorIds = DagView.getSelectedNodeIds(true);
+            const nodeId: DagNodeId = $menu.data("nodeid"); // clicked node
+            const nodeIds: DagNodeId[] = DagView.getSelectedNodeIds(true, true);
+            const operatorIds: DagNodeId[] = DagView.getSelectedNodeIds(true);
             // all selected nodes && comments
 
-            const parentNodeId = $menu.data("parentnodeid");
-            const connectorIndex = $menu.data("connectorindex");
+            const parentNodeId: DagNodeId = $menu.data("parentnodeid");
+            const connectorIndex: number = parseInt($menu.data("connectorindex"));
 
             switch (action) {
                 case ("removeNode"):
@@ -200,10 +200,19 @@ namespace DagNodeMenu {
     function configureNode(node: DagNode, options?) {
         const type: DagNodeType = node.getType();
         const subType: DagNodeSubType = node.getSubType();
+        options = $.extend(options, {
+           closeCallback: function() {
+               unlock();
+           }
+        });
+
+        DagView.lockNode(node.getId());
+        Log.lockUndoRedo();
+        DagTopBar.Instance.lock();
 
         switch (type) {
             case (DagNodeType.Dataset):
-                DatasetOpPanel.Instance.show(node);
+                DatasetOpPanel.Instance.show(node, options);
                 break;
             case (DagNodeType.Aggregate):
                 AggOpPanel.Instance.show(node, options);
@@ -243,10 +252,17 @@ namespace DagNodeMenu {
                 PublishIMDOpPanel.Instance.show(node, options);
                 break;
             case (DagNodeType.Extension):
-                ExtensionOpPanel.Instance.show(node);
+                ExtensionOpPanel.Instance.show(node, options);
                 break;
             default:
+                unlock();
                 throw new Error("Unsupported type");
+        }
+
+        function unlock() {
+            DagView.unlockNode(node.getId());
+            Log.unlockUndoRedo();
+            DagTopBar.Instance.unlock();
         }
     }
 
@@ -299,6 +315,7 @@ namespace DagNodeMenu {
         if ($("#dagView .dataflowArea.active .comment.selected").length) {
             classes += " commentMenu ";
         }
+        adjustMenuForOpenForm();
 
         xcHelper.dropdownOpen($clickedEl, $menu, {
             mouseCoors: {x: event.pageX, y: event.pageY},
@@ -316,6 +333,7 @@ namespace DagNodeMenu {
 
         let classes: string = " commentMenu ";
         $menu.find("li").removeClass("unavailable");
+        adjustMenuForOpenForm();
 
         if (!DagView.hasClipboard()) {
             $menu.find(".pasteNodes").addClass("unavailable");
@@ -362,6 +380,7 @@ namespace DagNodeMenu {
         if ($("#dagView .dataflowArea.active .comment.selected").length) {
             classes += " commentMenu ";
         }
+        adjustMenuForOpenForm();
 
         position = {x: event.pageX, y: event.pageY};
 
@@ -416,6 +435,20 @@ namespace DagNodeMenu {
         if (dagNode.getType() === DagNodeType.Custom) {
             classes += ' customOpMenu';
         }
+        if (DagView.isNodeLocked(nodeId)) {
+            $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
+                      ".resetNode, .cutNodes, .removeNode, .removeAllNodes")
+                .addClass("unavailable");
+        }
         return classes;
+    }
+
+    function adjustMenuForOpenForm() {
+        if (!FormHelper.activeForm) {
+            return;
+        }
+        $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
+                    ".resetNode, .resetAllNodes, .cutNodes, .createCustom")
+            .addClass("unavailable");
     }
 }

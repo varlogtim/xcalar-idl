@@ -18,6 +18,13 @@
     min-height: @height-topBar;
     max-height: 50px;
 
+    &.locked {
+        .run, .stop, .undo, .redo {
+            pointer-events: none;
+            opacity: 0.5;
+        }
+    }
+
     #dagViewTitle {
         color: @color-title;
     }
@@ -327,6 +334,10 @@
             position: relative; // places main section in front of connectors
             z-index: 1;
             background-color: @color-white;
+        }
+
+        &.locked {
+            opacity: 0.6;
         }
 
         .opTitle, .iconArea, .icon, .opSubTypeTitle {
@@ -959,9 +970,6 @@
 #container {
     &.formOpen {
         #dagNodeMenu {
-            li {
-                display: none;
-            }
             .exitOp {
                 display: list-item;
             }

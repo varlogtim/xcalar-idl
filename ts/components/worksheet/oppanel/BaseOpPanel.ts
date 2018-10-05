@@ -94,12 +94,14 @@ class BaseOpPanel {
     protected _formHelper: FormHelper = null;
     protected _editor: CodeMirror.EditorFromTextArea;
     private _exitCallback: Function;
+    private _closeCallback: Function;
     private udfMap;
     private xdfMap;
     private panelNum: number;
     protected allColumns: ProgCol[];
     private aggMap;
     protected _cachedBasicModeParam: string;
+    protected codeMirrorOnlyColumns = false;
 
     protected constructor() {
         this.allColumns = [];
@@ -121,10 +123,11 @@ class BaseOpPanel {
             return false;
         }
         this._reset();
-        this._formHelper.showView(formName);
+        this._formHelper.showView(formName, this);
         MainMenu.setFormOpen();
         options = options || {};
         this._exitCallback = options.exitCallback || function(){};
+        this._closeCallback = options.closeCallback || function(){};
         this._setupOperationsMap();
         this._setupAggMap();
         return true;
@@ -144,6 +147,8 @@ class BaseOpPanel {
         if (!isSubmit) {
             this._exitCallback();
         }
+        // unlocks the node associated with the form
+        this._closeCallback();
     }
 
     protected toggleCheckbox($checkbox: JQuery, isCheck: boolean = true): void {
@@ -158,6 +163,10 @@ class BaseOpPanel {
 
     protected _getPanel(): JQuery {
         return this.$panel;
+    }
+
+    public refreshColumns(_options?): void {
+        // implemented by inheritor
     }
 
     private _updateMode(toAdvancedMode: boolean) {
@@ -182,7 +191,9 @@ class BaseOpPanel {
 
     protected _reset(): void {
         this._updateMode(false);
-        this._editor.clearHistory();
+        if (this._editor) {
+            this._editor.clearHistory();
+        }
     }
 
     protected _isAdvancedMode(): boolean {
@@ -260,7 +271,7 @@ class BaseOpPanel {
         };
         // var timer1;
         // set up autcomplete hint function that filters matches
-        CodeMirror.registerHelper("hint", "opPanel" + self.panelNum + "Hint", function(editor) {
+        CodeMirror.registerHelper("hint", "opPanel" + self.panelNum + "Hint", (editor) => {
             var word = /[\w$:^\s]+/; // allow : and ^
             var wordNoSpace = /[\w$:^]+/; // allow : and ^ and space
             var cur = editor.getCursor();
@@ -286,7 +297,7 @@ class BaseOpPanel {
 
             curWord = curWord.toLowerCase();
             // search columnNames
-            self.allColumns.forEach(function(progCol) {
+            this.allColumns.forEach(function(progCol) {
                 const colName = progCol.getBackColName();
                 if (colName.indexOf(curWord) !== -1 &&
                     !seen.hasOwnProperty(colName)) {
@@ -301,26 +312,28 @@ class BaseOpPanel {
                 }
             });
 
-            // search xdfMap
-            for (var xdfFn in self.xdfMap) {
-                searchMapFunction(xdfFn, self.xdfMap[xdfFn]);
-            }
+            if (!this.codeMirrorOnlyColumns) {
+                // search xdfMap
+                for (var xdfFn in this.xdfMap) {
+                    searchMapFunction(xdfFn, this.xdfMap[xdfFn]);
+                }
 
-            // search udfMap
-            for (var udfFn in self.udfMap) {
-                searchMapFunction(udfFn, self.udfMap[udfFn]);
-            }
+                // search udfMap
+                for (var udfFn in this.udfMap) {
+                    searchMapFunction(udfFn, this.udfMap[udfFn]);
+                }
 
-            // search aggMap
-            for (var agg in self.aggMap) {
-                if (agg.indexOf(curWord) !== -1 &&
-                    !seen.hasOwnProperty(agg)) {
-                    list.push({
-                        text: agg,
-                        displayText: agg,
-                        render: renderList,
-                        className: "colName"
-                    });
+                // search aggMap
+                for (var agg in this.aggMap) {
+                    if (agg.indexOf(curWord) !== -1 &&
+                        !seen.hasOwnProperty(agg)) {
+                        list.push({
+                            text: agg,
+                            displayText: agg,
+                            render: renderList,
+                            className: "colName"
+                        });
+                    }
                 }
             }
 

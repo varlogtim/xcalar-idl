@@ -138,6 +138,22 @@ class SetOpPanelModel {
         editor.setValue(this._cachedBasicModeParam);
     }
 
+    public refreshColumns(refreshInfo): void {
+        const allCols = this.dagNode.getParents().map((parentNode) => {
+            return parentNode.getLineage().getColumns();
+        });
+        const removedSets = [];
+        if (allCols.length < this.colModel.getModel().all.length) {
+            for (var i in refreshInfo.removeInfo.childIndices) {
+                if (i === this.dagNode.getId()) {
+                    removedSets.push(refreshInfo.removeInfo.childIndices[i]);
+                }
+            }
+        }
+
+        this.colModel.refreshColumns(allCols, removedSets);
+    }
+
     private _initialize(params: DagNodeSetInput) {
         this.dedup = params.dedup;
         this.unionType = params.unionType;

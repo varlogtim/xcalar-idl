@@ -1,5 +1,4 @@
 class ColAssignmentModel {
-    protected dagNode: DagNodeSet;
     protected resultCols: ProgCol[];
     protected selectedColsList: ProgCol[][];
     protected candidateColsList: ProgCol[][];
@@ -337,6 +336,72 @@ class ColAssignmentModel {
         if (this.event != null) {
             this.event();
         }
+    }
+
+    public refreshColumns(allCols, removedSets?): void {
+        removedSets = removedSets || [];
+        // for column sets that were removed, remove from selectedColList by
+        // setting to null and then splicing rather than just splicing because
+        // then it wouldn't match up with the indices in removedSets
+        for (let i = 0; i < this.selectedColsList.length; i++) {
+            if (removedSets.indexOf(i) > -1) {
+                this.selectedColsList[i] = null;
+            }
+        }
+        this.selectedColsList = this.selectedColsList.filter((colSet) => {
+            return colSet != null;
+        });
+        // selected cols that no longer exist in allCols will be set to null
+        for (let i = 0; i < this.selectedColsList.length; i++) {
+            const cols = this.selectedColsList[i];
+            for (let j = 0; j < cols.length; j++) {
+                let col;
+                if (cols[j]) {
+                    col = allCols[i].find((newCol) => {
+                        return newCol.getBackColName() === cols[j].getBackColName();
+                    });
+                }
+
+                if (!col) {
+                    cols[j] = null;
+                }
+            }
+        }
+        // if there's more tables now exist, push new set
+        const lenDiff = allCols.length - this.selectedColsList.length;
+        for (let i = 0; i < lenDiff; i++) {
+            const colSet = [];
+            if (this.selectedColsList[0]) {
+                for (let j = 0; j < this.selectedColsList[0].length; j++) {
+                    colSet.push(null);
+                }
+            }
+            this.selectedColsList.push(colSet);
+        }
+        // check for empty rows and splice them away
+        if (this.selectedColsList[0]) {
+            for (let i = 0; i < this.selectedColsList[0].length; i++) {
+                let hasVal = false;
+                for (let j = 0; j < this.selectedColsList.length; j++) {
+                    if (this.selectedColsList[j][i]) {
+                        hasVal = true;
+                        break;
+                    }
+                }
+                if (!hasVal) {
+                    for (let j = 0; j < this.selectedColsList.length; j++) {
+                        this.selectedColsList[j].splice(i, 1);
+                        this.resultCols.splice(i, 1);
+                    }
+                    i--;
+                }
+            }
+        }
+        this.allColsList = allCols;
+        if (!allCols.length) {
+            this.resultCols = [];
+        }
+        this.update();
     }
 
     private _getCandidateCols(listIndex: number): ProgCol[] {

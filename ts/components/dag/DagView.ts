@@ -14,7 +14,7 @@ namespace DagView {
     let clipboard = null;
     export const gridSpacing = 20;
     export const zoomLevels = [.25, .5, .75, 1, 1.5, 2];
-
+    const lockedNodeIds = {};
 
     export function setup(): void {
         $dagView = $("#dagView");
@@ -113,6 +113,9 @@ namespace DagView {
             if (!(isSystemMac && event.metaKey) &&
                 !(!isSystemMac && event.ctrlKey))
             {
+                return;
+            }
+            if (FormHelper.activeForm) {
                 return;
             }
             event.preventDefault();
@@ -305,6 +308,12 @@ namespace DagView {
      * connector classes
      */
     export function removeNodes(nodeIds: DagNodeId[]): XDPromise<void> {
+        for (let i = 0; i < nodeIds.length; i++) {
+            if (lockedNodeIds[nodeIds[i]]) {
+                nodeIds.splice(i, 1);
+                i--;
+            }
+        }
         if (!_removeNodesNoPersist(nodeIds)) {
             return PromiseHelper.reject();
         }
@@ -323,11 +332,17 @@ namespace DagView {
     }
 
     export function cutNodes(nodeIds: DagNodeId[]): void {
+        for (let i = 0; i < nodeIds.length; i++) {
+            if (lockedNodeIds[nodeIds[i]]) {
+                nodeIds.splice(i, 1);
+                i--;
+            }
+        }
         if (!nodeIds.length) {
             return;
         }
-        cutOrCopyNodesHelper(nodeIds);
 
+        cutOrCopyNodesHelper(nodeIds);
         DagView.removeNodes(nodeIds);
     }
 
@@ -468,9 +483,9 @@ namespace DagView {
      * removes connection from DagGraph, connection line, updates connector classes
      */
     export function disconnectNodes(
-        parentNodeId,
-        childNodeId,
-        connectorIndex
+        parentNodeId: DagNodeId,
+        childNodeId: DagNodeId,
+        connectorIndex: number
     ): XDPromise<void> {
         const $edge: JQuery = $dagView.find('.edge[data-parentnodeid="' +
                                             parentNodeId +
@@ -1384,7 +1399,7 @@ namespace DagView {
                     $curEdge.attr("data-connectorindex", index - 1);
                 }
             })
-        } else if (activeDag.getNode(childNodeId).isSourceNode()) {
+        } else if (activeDag.getNode(childNodeId).getNumParent() === 0) {
              $childConnector.removeClass("hasConnection")
                             .addClass("noConnection");
         }
@@ -1929,8 +1944,6 @@ namespace DagView {
         return $node;
     }
 
-
-
     function _drawConnection(parentNodeId, childNodeId, connectorIndex) {
         const $childNode: JQuery = DagView.getNode(childNodeId);
         const $childConnector: JQuery = _getChildConnector($childNode, connectorIndex);
@@ -2005,6 +2018,10 @@ namespace DagView {
         }
     }
 
+    /**
+     * @description
+     * listens events for 1 dag graph. This function is called for each dag graph
+     */
     function _setupGraphEvents(): void {
         activeDag.events.on(DagNodeEvents.StateChange, function(info) {
             const $node: JQuery = DagView.getNode(info.id);
@@ -2019,6 +2036,13 @@ namespace DagView {
                 _setTooltip($node, info.node);
             }
             activeDagTab.saveTab();
+        });
+
+        activeDag.events.on(DagNodeEvents.ConnectionChange, function(info) {
+            if (info.descendents.length) {
+                // XXX TODO only update if nodes involved in form are affected
+                FormHelper.updateColumns(null, true, info);
+            }
         });
 
         activeDag.events.on(DagNodeEvents.ParamChange, function(info) {
@@ -2315,6 +2339,32 @@ namespace DagView {
         const g = d3.select('#dagView .operator[data-nodeid = "' + nodeId + '"]');
         g.selectAll(".opProgress")
         .remove();
+    }
+
+    export function unlockNode(nodeId: DagNodeId): void {
+        DagView.getNode(nodeId).removeClass("locked");
+        const dagId = lockedNodeIds[nodeId];
+        delete lockedNodeIds[nodeId];
+        let hasLockedSiblings = false;
+        for (let i in lockedNodeIds) {
+            if (lockedNodeIds[i] === dagId) {
+                hasLockedSiblings = true;
+                break;
+            }
+        }
+        if (!hasLockedSiblings) {
+            DagTabManager.Instance.getGraphById(dagId).unsetGraphNoDelete();
+        }
+    }
+
+    export function lockNode(nodeId: DagNodeId): void {
+        DagView.getNode(nodeId).addClass("locked");
+        lockedNodeIds[nodeId] = activeDagTab.getId();
+        activeDag.setGraphNoDelete();
+    }
+
+    export function isNodeLocked(nodeId: DagNodeId): boolean {
+        return lockedNodeIds.hasOwnProperty(nodeId);
     }
 
     function getNextAvailablePosition(x: number, y: number): Coordinate {

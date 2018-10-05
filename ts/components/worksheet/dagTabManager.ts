@@ -38,7 +38,8 @@ class DagTabManager{
             event.stopPropagation();
             var $tab: JQuery = $(this).parent();
             let index: number = self.getDagTabIndex($tab);
-            if (self._activeUserDags[index].getGraph().isLocked()) {
+            if (self._activeUserDags[index].getGraph().isLocked() ||
+                self._activeUserDags[index].getGraph().isNoDelete()) {
                 return;
             }
             let key: string = self._keys[index];
@@ -235,8 +236,9 @@ class DagTabManager{
         if (index == -1) {
             // Dag not in active tabs, so it's fine to delete it.
             return true;
-        } else if (this._keys.length == 1
-            || (this._activeUserDags[index].getGraph().isLocked())) {
+        } else if (this._keys.length == 1 ||
+            this._activeUserDags[index].getGraph().isLocked() ||
+            this._activeUserDags[index].getGraph().isNoDelete()) {
             return false;
         }
         this._deleteTab(this.getDagTabElement(index));

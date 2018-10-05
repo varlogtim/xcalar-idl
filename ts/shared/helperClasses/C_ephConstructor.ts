@@ -601,6 +601,7 @@ class FormHelper {
     private mainMenuState: object;
     private openTime: number;
     private isFormOpen: boolean;
+    public static activeForm: BaseOpPanel;
 
     public constructor($form: JQuery, options?: FormHelperOptions) {
         this.$form = $form;
@@ -628,16 +629,26 @@ class FormHelper {
                 '</div>'
     }
 
-    public static updateColumns(tableId: TableId): void {
-        DFCreateView.updateTables(tableId, true);
-        ProjectView.updateColumns();
-        OperationsView.updateColumns();
-        JoinView.updateColumns();
-        ExportView.updateColumns();
-        SmartCastView.updateColumns(tableId);
-        UnionView.updateColumns(tableId);
-        SortView.updateColumns(tableId);
+    public static updateColumns(
+        tableId?: TableId,
+        isModeling?: boolean,
+        options?
+    ): void {
+        if (!isModeling) {
+            DFCreateView.updateTables(tableId, true);
+            ProjectView.updateColumns();
+            OperationsView.updateColumns();
+            JoinView.updateColumns();
+            ExportView.updateColumns();
+            SmartCastView.updateColumns(tableId);
+            UnionView.updateColumns(tableId);
+            SortView.updateColumns(tableId);
         // extensions view doesn't cache columns
+        } else {
+            if (FormHelper.activeForm) {
+                this.activeForm.refreshColumns(options);
+            }
+        }
     }
 
     // used for forms in the left panel
@@ -851,9 +862,10 @@ class FormHelper {
         return deferred.promise();
     }
 
-    public showView(formName: string): boolean {
+    public showView(formName: string, formPanel: BaseOpPanel): boolean {
         this.isFormOpen = true;
         this.openTime = Date.now();
+        FormHelper.activeForm = formPanel;
         this.mainMenuState = MainMenu.getState();
         $("#workspaceMenu").find(".menuSection").addClass("xc-hidden");
         this.$form.removeClass("xc-hidden");
@@ -888,6 +900,7 @@ class FormHelper {
 
     public hideView(): void {
         this.isFormOpen = false;
+        FormHelper.activeForm = null;
         let ignoreClose: boolean = false;
         if (!this.$form.is(":visible")) {
             // do not close the left panel if we've navigated away

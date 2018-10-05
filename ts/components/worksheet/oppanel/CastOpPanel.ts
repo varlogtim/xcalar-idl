@@ -28,9 +28,7 @@ class CastOpPanel extends BaseOpPanel {
 
         this._dagNode = dagNode;
         super.showPanel("cast");
-        const curColumns = dagNode.getParents().map((parentNode) => {
-            return parentNode.getLineage().getColumns();
-        })[0] || [];
+        const curColumns = this.updateColumns();
 
         const param = dagNode.getParam();
         this.prevRenameMap = {};
@@ -69,6 +67,17 @@ class CastOpPanel extends BaseOpPanel {
         super.hidePanel(isSubmit);
         this._autoResizeView(true);
         return true;
+    }
+
+    public refreshColumns(): void {
+        const cols = this.updateColumns();
+        this.dataModel.refreshColumns([cols]);
+    }
+
+    public updateColumns(): ProgCol[] {
+        return this._dagNode.getParents().map((parentNode) => {
+            return parentNode.getLineage().getColumns();
+        })[0] || [];
     }
 
     private _submit() {

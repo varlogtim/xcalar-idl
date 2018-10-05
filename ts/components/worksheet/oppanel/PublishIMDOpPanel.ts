@@ -30,9 +30,9 @@ class PublishIMDOpPanel extends BaseOpPanel {
      * Show the panel with information from dagNode
      * @param dagNode DagNode object
      */
-    public show(dagNode: DagNodePublishIMD): void {
+    public show(dagNode: DagNodePublishIMD, options?): void {
         // Show panel
-        if (!super.showPanel("Publish Table")) {
+        if (!super.showPanel("Publish Table", options)) {
             return;
         }
         this._dagNode = dagNode;

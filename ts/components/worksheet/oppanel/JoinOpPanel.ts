@@ -35,18 +35,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         if (this._dataModel.getColumnPairsLength() === 0) {
             this._dataModel.addColumnPair();
         }
-        const colSets = dagNode.getParents().map((parentNode) => {
-            return parentNode.getLineage().getColumns();
-        }) || [];
-        const seen = {};
-        colSets.forEach(cols => {
-            cols.forEach(progCol => {
-                if (!seen[progCol.getBackColName()]) {
-                    seen[progCol.getBackColName()] = true;
-                    this.allColumns.push(progCol);
-                }
-            });
-        });
+        this._updateAllColumns();
 
         // Update UI according to the data model
         this._updateUI();
@@ -57,6 +46,16 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
         this._dagNode = null;
         this._dataModel = null;
         this._cachedBasicModeParam = null;
+    }
+
+    /**
+     * @description
+     * when graph lineage is changed, update the columns in the model and ui
+     */
+    public refreshColumns(): void {
+        this._updateAllColumns();
+        this._dataModel = JoinOpPanelModel.refreshColumns(this._dataModel, this._dagNode);
+        this._updateUI();
     }
 
     private _updateUI() {
@@ -322,5 +321,21 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
             default:
                 return e.message;
         }
+    }
+
+    private _updateAllColumns() {
+        this.allColumns = [];
+        const colSets = this._dagNode.getParents().map((parentNode) => {
+            return parentNode.getLineage().getColumns();
+        }) || [];
+        const seen = {};
+        colSets.forEach(cols => {
+            cols.forEach(progCol => {
+                if (!seen[progCol.getBackColName()]) {
+                    seen[progCol.getBackColName()] = true;
+                    this.allColumns.push(progCol);
+                }
+            });
+        });
     }
 }

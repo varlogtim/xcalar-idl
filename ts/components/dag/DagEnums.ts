@@ -49,7 +49,8 @@ enum DagNodeEvents {
     AggregateChange = "DagNodeAggregateChange",
     TableRemove = "TableRemove",
     SubGraphError = "SubGraphError",
-    SubGraphConfigured = "SubGraphConfigured"
+    SubGraphConfigured = "SubGraphConfigured",
+    ConnectionChange = "ConnecdtionChange"
 }
 
 enum DagCategoryType {

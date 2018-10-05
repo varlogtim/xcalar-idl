@@ -18,15 +18,7 @@ class SetOpPanel extends BaseOpPanel {
         }
         this._initialize(dagNode);
         this._formHelper.setup({});
-        const seen = {};
-        this.setOpData.getModel().all.forEach(colSet => {
-            colSet.forEach(progCol => {
-                if (!seen[progCol.getBackColName()]) {
-                    seen[progCol.getBackColName()] = true;
-                    this.allColumns.push(progCol);
-                }
-            });
-        })
+        this.updateColumns();
 
         if (gMinModeOn) {
             this._autoResizeView(false);
@@ -40,16 +32,32 @@ class SetOpPanel extends BaseOpPanel {
     /**
      * Close the view
      */
-    public close(): void {
-        if (!this._formHelper.isOpen()) {
+    public close(isSubmit?): void {
+        if (!super.hidePanel(isSubmit)) {
             return;
         }
 
-        this._formHelper.hideView();
-        this._formHelper.clear({});
         StatusBox.forceHide(); // hides any error boxes;
         xcTooltip.hideAll();
         this._autoResizeView(true);
+    }
+
+    public refreshColumns(info): void {
+        this.setOpData.refreshColumns(info);
+        this.updateColumns();
+    }
+
+    private updateColumns(): void {
+        this.allColumns = [];
+        const seen = {};
+        this.setOpData.getModel().all.forEach(colSet => {
+            colSet.forEach(progCol => {
+                if (!seen[progCol.getBackColName()]) {
+                    seen[progCol.getBackColName()] = true;
+                    this.allColumns.push(progCol);
+                }
+            });
+        });
     }
 
     private _setup(): void {
@@ -96,7 +104,7 @@ class SetOpPanel extends BaseOpPanel {
             this.close();
         });
 
-        $panel.on("click", ".confirm", (event) => {
+        $panel.on("click", ".submit", (event) => {
             $(event.target).blur();
             this._submitForm();
         });
@@ -189,7 +197,7 @@ class SetOpPanel extends BaseOpPanel {
         }
 
         this.setOpData.submit();
-        this.close();
+        this.close(true);
     }
 
     private _validate(): boolean {

@@ -72,6 +72,9 @@ class DagNodeGroupBy extends DagNode {
             const groupCols: ProgCol[] = [];
             this.input.groupBy.forEach((colName, index) => {
                 const oldProgCol: ProgCol = colMap.get(colName);
+                if (!oldProgCol) {
+                    return;
+                }
                 const colType: ColumnType = oldProgCol.getType();
                 const newKey: string = this.input.newKeys[index];
                 if (colName !== newKey) {
