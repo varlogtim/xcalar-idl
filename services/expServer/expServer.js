@@ -84,6 +84,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
             return support.checkProxyAuth(req, res, 'thrift');
         },
         proxyReqPathResolver: function(req) {
+            req.setTimeout(14400000);  // set socket timeoout (timeout does not work)
             return url.parse(req.url).path;
         },
         proxyErrorHandler: function(err, res, next) {
@@ -130,6 +131,7 @@ require("jsdom/lib/old-api").env("", function(err, window) {
             return support.checkProxyAuth(req, res, 'jupyter');
         },
         proxyReqPathResolver: function(req) {
+            req.setTimeout(14400000);  // set socket timeoout (timeout does not work)
             return req.originalUrl;
         },
         proxyErrorHandler: function(err) {
