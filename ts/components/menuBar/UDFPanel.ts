@@ -136,7 +136,9 @@ class UDFPanel {
         ).sort();
 
         for (const udf of sortedUDF) {
-            if (UDFFileManager.Instance.isWritable(udf)) {
+            if (
+                udf.startsWith(UDFFileManager.Instance.getCurrWorkbookPath())
+            ) {
                 curWorkbookModules.push(udf);
             }
         }
@@ -198,6 +200,10 @@ class UDFPanel {
             $udfSection.addClass("switching");
             $("#monitorTab").trigger("click");
             $("#fileManagerButton").trigger("click");
+            FileManagerPanel.Instance.switchType("UDF");
+            FileManagerPanel.Instance.switchPath(
+                UDFFileManager.Instance.getCurrWorkbookDisplayPath()
+            );
             $udfSection.removeClass("switching");
         });
         /* end of open file manager */

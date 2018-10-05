@@ -243,7 +243,7 @@ window.FlightTest = (function(FlightTest, $) {
                 }
             })
             .then(function() {
-                return test.checkExists("#udf-manager.loading", null,
+                return test.checkExists("#udf-fnList.loading", null,
                     {notExist: true});
             })
             .then(function() {

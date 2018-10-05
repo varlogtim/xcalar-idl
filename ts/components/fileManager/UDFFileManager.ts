@@ -7,19 +7,15 @@ class UDFFileManager extends BaseFileManager {
 
     private storedUDF: Map<string, string> = new Map<string, string>();
     private defaultModule: string = "default";
+    private userIDWorkbookMap: Map<string, Map<string, string>> = new Map();
+    private userWorkbookIDMap: Map<string, Map<string, string>> = new Map();
 
     /**
      * @param  {string} path
      * @returns void
      */
     public open(path: string): void {
-        if (path.endsWith("/")) {
-            path = path.substring(0, path.length - 1);
-        }
-        // TODO: hack due to pending api.
-        if (path.endsWith(".py")) {
-            path = path.substring(0, path.length - 3);
-        }
+        path = this._displayNameToNsName(path);
         UDFPanel.Instance.edit(path);
 
         if (
@@ -54,6 +50,58 @@ class UDFFileManager extends BaseFileManager {
             workbook.sessionId +
             "/udf/"
         );
+    }
+
+    /**
+     * @returns string
+     */
+    public getCurrWorkbookDisplayPath(): string {
+        let currWorkbookPath: string = this.nsNameToDisplayName(
+            this.getCurrWorkbookPath()
+        );
+        currWorkbookPath = currWorkbookPath.substring(
+            0,
+            currWorkbookPath.length - 3
+        );
+        return currWorkbookPath;
+    }
+
+    /**
+     * @param  {string} nsName
+     * @returns string
+     */
+    public nsNameToDisplayName(nsName: string): string {
+        const nsNameArray: string[] = nsName.split("/");
+        if (nsNameArray[1] === "workbook") {
+            nsNameArray.splice(4, 1);
+            const idWorkbookMap: Map<
+            string,
+            string
+            > = this.userIDWorkbookMap.get(nsNameArray[2]);
+            if (idWorkbookMap) {
+                nsNameArray[3] = idWorkbookMap.get(nsNameArray[3]);
+            }
+        }
+        return nsNameArray.join("/") + ".py";
+    }
+
+    private _displayNameToNsName(displayName: string): string {
+        if (displayName.endsWith("/")) {
+            displayName = displayName.substring(0, displayName.length - 1);
+        }
+        const displayNameArray: string[] = displayName.split("/");
+        if (displayNameArray[1] === "workbook") {
+            displayNameArray.splice(4, 0, "udf");
+            const workbookIDMap: Map<
+            string,
+            string
+            > = this.userWorkbookIDMap.get(displayNameArray[2]);
+            if (workbookIDMap) {
+                displayNameArray[3] = workbookIDMap.get(displayNameArray[3]);
+            }
+        }
+        const nsName: string = displayNameArray.join("/");
+        return nsName.substring(0, nsName.length - 3);
     }
 
     /**
@@ -118,6 +166,12 @@ class UDFFileManager extends BaseFileManager {
 
             DSExport.refreshUDF(listXdfsObj);
             DSTargetManager.updateUDF(listXdfsObj);
+        })
+        .then(() => this._getUserWorkbookMap())
+        .then(() => {
+            FileManagerPanel.Instance.udfBuildPathTree();
+            FileManagerPanel.Instance.udfCreateWorkbookFolder();
+            FileManagerPanel.Instance.updateList();
             deferred.resolve();
         })
         .fail(deferred.reject)
@@ -178,14 +232,7 @@ class UDFFileManager extends BaseFileManager {
 
     public delete(paths: string[]): void {
         const delTasks: XDPromise<void>[] = paths.map((path: string) => {
-            if (path.endsWith("/")) {
-                path = path.substring(0, path.length - 1);
-            }
-            // TODO: hack due to pending api.
-            if (path.endsWith(".py")) {
-                path = path.substring(0, path.length - 3);
-            }
-
+            path = this._displayNameToNsName(path);
             return this.del(path, true);
         });
 
@@ -211,6 +258,9 @@ class UDFFileManager extends BaseFileManager {
             this.storedUDF.delete(moduleName);
             this._refreshUDF(true, false);
             UDFPanel.Instance.updateUDF(false);
+            FileManagerPanel.Instance.removeSearchResultNode(
+                this.nsNameToDisplayName(moduleName)
+            );
             const xcSocket: XcSocket = XcSocket.Instance;
             xcSocket.sendMessage("refreshUDFWithoutClear");
 
@@ -259,13 +309,7 @@ class UDFFileManager extends BaseFileManager {
      * @returns XDPromise
      */
     public download(moduleName: string): XDPromise<void> {
-        if (moduleName.endsWith("/")) {
-            moduleName = moduleName.substring(0, moduleName.length - 1);
-        }
-        // TODO: hack due to pending api.
-        if (moduleName.endsWith(".py")) {
-            moduleName = moduleName.substring(0, moduleName.length - 3);
-        }
+        moduleName = this._displayNameToNsName(moduleName);
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this.getEntireUDF(moduleName)
@@ -389,7 +433,9 @@ class UDFFileManager extends BaseFileManager {
     }
 
     public isWritable(path: string): boolean {
-        return path.startsWith(this.getCurrWorkbookPath());
+        return this._displayNameToNsName(path).startsWith(
+            this.getCurrWorkbookPath()
+        );
     }
 
     private _initializeUDFList(
@@ -424,15 +470,10 @@ class UDFFileManager extends BaseFileManager {
                 this.storedUDF.delete(key)
             );
             UDFPanel.Instance.updateUDF(doNotClear);
-            FileManagerPanel.Instance.udfBuildPathTree();
-            FileManagerPanel.Instance.updateList();
-
             deferred.resolve(xcHelper.deepCopy(listXdfsObj));
         })
         .fail((error) => {
             UDFPanel.Instance.updateUDF(doNotClear);
-            FileManagerPanel.Instance.udfBuildPathTree();
-            FileManagerPanel.Instance.updateList();
             deferred.reject(error);
         });
 
@@ -495,6 +536,7 @@ class UDFFileManager extends BaseFileManager {
         doNotClear: boolean
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        $("#udf-fnList").addClass("loading");
 
         this._initializeUDFList(false, doNotClear)
         .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
@@ -511,7 +553,73 @@ class UDFFileManager extends BaseFileManager {
             DSExport.refreshUDF(listXdfsObj);
             deferred.resolve();
         })
+        .fail(deferred.reject)
+        .always(() => {
+            $("#udf-fnList").removeClass("loading");
+        });
+
+        return deferred.promise();
+    }
+
+    private _getUserWorkbookMap(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+
+        const users: string[] = Array.from(this.storedUDF.keys())
+        .filter((path: string) => {
+            return path.startsWith("/workbook/");
+        })
+        .map((path: string) => {
+            return path.substring(10, path.indexOf("/", 10));
+        });
+
+        const getUserTasks: XDPromise<Map<string, string>>[] = users.map(
+            (user: string) => {
+                return this._getWorkbookMap(user);
+            }
+        );
+
+        PromiseHelper.when(...getUserTasks)
+        .then(() => {
+            deferred.resolve();
+        })
         .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    private _getWorkbookMap(userName: string): XDPromise<Map<string, string>> {
+        const deferred: XDDeferred<
+        Map<string, string>
+        > = PromiseHelper.deferred();
+
+        const user: XcUser = new XcUser(userName);
+        XcUser.setUserSession(user);
+
+        XcalarListWorkbooks("*")
+        .then((sessionRes) => {
+            const sessionIdWorkbookMap: Map<string, string> = new Map();
+            const sessionWorkbookIDMap: Map<string, string> = new Map();
+            try {
+                sessionRes.sessions.forEach((sessionInfo) => {
+                    sessionIdWorkbookMap.set(
+                        sessionInfo.sessionId,
+                        sessionInfo.name
+                    );
+                    sessionWorkbookIDMap.set(
+                        sessionInfo.name,
+                        sessionInfo.sessionId
+                    );
+                });
+                this.userIDWorkbookMap.set(userName, sessionIdWorkbookMap);
+                this.userWorkbookIDMap.set(userName, sessionWorkbookIDMap);
+            } catch (e) {
+                console.error(e);
+            }
+            deferred.resolve(sessionIdWorkbookMap);
+        })
+        .fail(deferred.reject);
+
+        XcUser.resetUserSession();
 
         return deferred.promise();
     }
