@@ -118,7 +118,7 @@ class DagCategoryBar {
         iconMap[DagCategoryType.Set] = "xi-union";
         iconMap[DagCategoryType.Extensions] = "xi-menu-extension";
         iconMap[DagCategoryType.SQL] = "xi-menu-sql";
-        iconMap[DagCategoryType.Custom] = "xi-menu-extension"; // TODO: UI Design
+        iconMap[DagCategoryType.Custom] = "xi-custom";
 
         this.dagCategories.getCategories().forEach((category: DagCategory) => {
             const categoryName: DagCategoryType = category.getName();
@@ -178,9 +178,9 @@ class DagCategoryBar {
         iconMap[DagNodeType.Project] = "&#xe9d7;";
         iconMap[DagNodeType.Extension] = "&#xe96d;";
         iconMap[DagNodeType.SQL] = "&#xe957;";
-        iconMap[DagNodeType.Custom] = "&#xe96d;"; // TODO: UI design
-        iconMap[DagNodeType.CustomInput] = "&#xe96d;"; // TODO: UI design
-        iconMap[DagNodeType.CustomOutput] = "&#xe96d;"; // TODO: UI design
+        iconMap[DagNodeType.Custom] = "&#xea5e;";
+        iconMap[DagNodeType.CustomInput] = "&#xea5e;";
+        iconMap[DagNodeType.CustomOutput] = "&#xea5e;";
         iconMap[DagNodeType.IMDTable] = "&#xea55;";
         iconMap[DagNodeType.PublishIMD] = "&#xea55;";
         iconMap[DagNodeType.DFIn] = "&#xe952;"; // XXX TODO: UI design
