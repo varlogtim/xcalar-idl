@@ -260,6 +260,16 @@ class DagNodeCustom extends DagNode {
     }
 
     /**
+     * Get the count of input/output ports
+     */
+    public getNumIOPorts(): { input: number, output: number } {
+        return {
+            input: this._input.length,
+            output: this._output.length
+        };
+    }
+
+    /**
      * @override
      * Check if the sub graph is configured
      */
@@ -326,10 +336,9 @@ class DagNodeCustom extends DagNode {
             }
         }
 
-        // XXX TODO: Uncomment&Make UI changes, to fix no-parent bug
-        // const inputLen = this._input.length;
-        // this.maxParents = inputLen;
-        // this.minParents = inputLen;
+        const inputLen = this._input.length;
+        this.maxParents = inputLen;
+        this.minParents = inputLen;
 
         return inPortIdx;
     }

@@ -2011,7 +2011,18 @@ namespace DagView {
         }
 
         $node.appendTo($dfArea.find(".operatorSvg"));
+
+        // Update connectorIn according to the number of input ports
+        if (node instanceof DagNodeCustom) {
+            _updateConnectorIn(node.getId(), node.getNumIOPorts().input);
+        }
+
         return $node;
+    }
+
+    function _updateConnectorIn(nodeId: DagNodeId, numInputs: number) {
+        const g = d3.select(getNode(nodeId)[0]);
+        DagCategoryBar.Instance.updateNodeConnectorIn(numInputs, g);
     }
 
     function _drawConnection(parentNodeId, childNodeId, connectorIndex) {
@@ -2071,7 +2082,7 @@ namespace DagView {
         edge.append("path")
         .attr("class", "invisibleLine")
         .attr("d", lineFunction([parentCoors, childCoors]));
-        if (isMulti) {
+        if (isMulti || childNode.getType() === DagNodeType.Custom) {
             // stagger the numbers
             const midX = ((3 * parentCoors.x + ((connectorIndex + 1) *
                             childCoors.x)) / (4 + connectorIndex));

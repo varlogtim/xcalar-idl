@@ -96,6 +96,26 @@ class DagCategoryBar {
         return deferred.promise();
     }
 
+    /**
+     * Update the connectorIn UI of a node
+     * @param numParents 
+     * @param rect 
+     */
+    public updateNodeConnectorIn(numParents: number, elemNode: d3): void {
+        const params = this._getConnectorInParams(numParents);
+        const elemConnIn = elemNode.select('.connIn');
+        
+        elemConnIn.selectAll('rect').remove();
+        for (const param of params) {
+            const elemRect = elemConnIn.append('rect');
+            elemRect.attr('class', param.class.join(' '));
+            for (const attrName of Object.keys(param.attrs)) {
+                const attrValue = param.attrs[attrName];
+                elemRect.attr(attrName, attrValue);
+            }
+        }
+    }
+
     private _setupCategoryBar(): void {
         const self = this;
         this._renderCategoryBar();
@@ -194,6 +214,74 @@ class DagCategoryBar {
         });
     }
 
+    private _getConnectorInParams(numParents: number) {
+        const params: {
+            class: string[], attrs: {[attrName: string]: string}
+        }[] = [];
+
+        if (numParents === 0) {
+            // if no connector, still needs something that gives width
+            // for positioning when dragging
+            params.push({
+                class: ['connectorSpace'],
+                attrs: {
+                    'x': '0', 'y': '11', 'fill': 'none', 'stroke': 'none',
+                    'width': '7', 'height': '7'
+                }
+            });
+            // '<rect class="connectorSpace" ' +
+            //     'x="0" y="11" fill="none" ' +
+            //     'stroke="none" width="7" height="7" />';
+        } else if (numParents === -1) {
+            params.push({
+                class: ['connector', 'in', 'noConnection', 'multi'],
+                attrs: {
+                    'x': '0', 'y': '5', 'fill': '#BBC7D1', 'stroke': '#849CB0',
+                    'stroke-width': '1', 'rx': '1', 'ry': '1',
+                    'width': '7', 'height': '18',
+                    'data-index': '0', 
+                }
+            });
+            // '<rect class="connector in noConnection multi"' +
+            //     'data-index="0" x="0" y="5" fill="#BBC7D1" ' +
+            //     'stroke="#849CB0" stroke-width="1" ' +
+            //     'ry="1" rx="1" width="7" height="18" />';
+        } else {
+            for (let j = 0; j < numParents; j++) {
+                const y  = 28 / (numParents + 1) * (1 + j) - 3;
+                params.push({
+                    class: ['connector', 'in', 'noConnection'],
+                    attrs: {
+                        'x': '0', 'y': `${y}`, 'fill': '#BBC7D1',
+                        'stroke': '#849CB0', 'stroke-width': '1',
+                        'rx': '1', 'ry': '1', 'width': '7', 'height': '7'
+                    }
+                });
+                // '<rect class="connector in noConnection"' +
+                //     'data-index="' + j + ' " x="0" y="' + y +
+                //     '" fill="#BBC7D1" ' +
+                //     'stroke="#849CB0" stroke-width="1" ry="1" ' +
+                //     'rx="1" width="7" height="7" />';
+            }
+        }
+        return params;
+    }
+
+    private _genConnectorInHTML(numParents: number): HTML {
+        const params = this._getConnectorInParams(numParents);
+
+        let html = '';
+        for (const param of params) {
+            const classes = param.class.join(' ');
+            const attrs = Object.keys(param.attrs).reduce(
+                (res, attrName) => (`${res} ${attrName}="${param.attrs[attrName]}"`),
+                '');
+            html = `${html}<rect class="${classes}" ${attrs}></rect>`;
+        }
+
+        return html;
+    }
+
     private _genOperatorHTML(categoryNode: DagCategoryNode, pos: { x, y }): string {
         const categoryName: DagCategoryType = categoryNode.getCategoryType();
         const operator: DagNode = categoryNode.getNode();
@@ -214,28 +302,7 @@ class DagCategoryBar {
             numChildren = 1;
         }
 
-        let inConnector = "";
-        if (numParents === 0) {
-            // if no connector, still needs something that gives width
-            // for positioning when dragging
-            inConnector = '<rect class="connectorSpace" ' +
-                            'x="0" y="11" fill="none" ' +
-                            'stroke="none" width="7" height="7" />';
-        } else if (numParents === -1) {
-            inConnector = '<rect class="connector in noConnection multi"' +
-                        'data-index="0" x="0" y="5" fill="#BBC7D1" ' +
-                        'stroke="#849CB0" stroke-width="1" ' +
-                        'ry="1" rx="1" width="7" height="18" />';
-        } else {
-            for (var j = 0; j < numParents; j++) {
-                let y  = 28 / (numParents + 1) * (1 + j) - 3;
-                inConnector += '<rect class="connector in noConnection"' +
-                        'data-index="' + j + ' " x="0" y="' + y +
-                        '" fill="#BBC7D1" ' +
-                        'stroke="#849CB0" stroke-width="1" ry="1" ' +
-                        'rx="1" width="7" height="7" />';
-            }
-        }
+        const inConnector = this._genConnectorInHTML(numParents);
 
 
 
@@ -247,7 +314,7 @@ class DagCategoryBar {
                 'data-subtype="' + subType + '" ' +
                 'data-opid="' +  operator.getId() + '" ' +
                 'transform="translate(' + pos.x + ',' + pos.y + ')" >' +
-                inConnector +
+                '<svg class="connIn">' + inConnector + '</svg>' +
                 ('<polygon class="connector out" ' +
                 'points="95,8 103,14 95,20" fill="#BBC7D1" ' +
                 'stroke="#849CB0" stroke-width="1" ry="1" rx="1" />')
