@@ -86,11 +86,17 @@ require("jsdom/lib/old-api").env("", function(err, window) {
         proxyReqPathResolver: function(req) {
             return url.parse(req.url).path;
         },
-        proxyErrorHandler: function(err) {
+        proxyErrorHandler: function(err, res, next) {
+            switch (err && err.code) {
+               case 'ECONNRESET': {
+                  xcConsole.error('ECONNRESET error on proxy', err);
+                  return res.status(502).send('ECONNRESET proxy error causing 502');
+               }
+            }
             xcConsole.error('error on proxy', err);
         },
         limit: '20mb',
-        parseReqBody: false
+        parseReqBody: true  // GUI-13416 - true is necessary for thrift to work
     }));
 
     // increase default limit payload size of 100kb
