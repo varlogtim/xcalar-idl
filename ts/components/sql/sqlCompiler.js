@@ -1010,6 +1010,26 @@
         } else if (curOpName === "expressions.AttributeReference" ||
                    curOpName === "expressions.Literal") {
             node.colType = convertSparkTypeToXcalarType(node.value.dataType);
+        } else if (curOpName === "expressions.XCEPassThrough") {
+            // XXX Remove second block when type map added to sqldf
+            if (node.value.name.indexOf("xdf_") === 0) {
+                node.colType = opOutTypeLookup[node.value.name.substring(4)];
+            } else if (node.value.name.indexOf("xdf_") === 1) {
+                if (node.value.name[0] === "i") {
+                    node.colType = "int";
+                } else if (node.value.name[0] === "f") {
+                    node.colType = "float";
+                } else if (node.value.name[0] === "s") {
+                    node.colType = "string";
+                } else if (node.value.name[0] === "b") {
+                    node.colType = "bool";
+                } else {
+                    assert(0);
+                }
+                node.value.name = node.value.name.substring(1);
+            } else {
+                node.colType = "string";
+            }
         } else if (curOpName === "expressions.If") {
             if (getColType(node.children[1]) === "null") {
                 node.colType = getColType(node.children[2]);
@@ -1306,6 +1326,8 @@
         compile: function(queryName, sqlQueryString, isJsonPlan, jdbcOption) {
             // XXX PLEASE DO NOT DO THIS. THIS IS CRAP
             var oldKVcommit;
+            var dropAsYouGo = jdbcOption ? jdbcOption.dropAsYouGo : false;
+            var keepOri = jdbcOption ? jdbcOption.keepOri : true;
             if (typeof KVStore !== "undefined") {
                 oldKVcommit = KVStore.commit;
                 KVStore.commit = function(atStartUp) {
@@ -1434,7 +1456,15 @@
                 return deferred.promise();
             })
             .then(function(queryString, newTableName, newCols) {
-                outDeferred.resolve(queryString, newTableName, newCols, toCache);
+                if (dropAsYouGo) {
+                    return self.addDrops(queryString, keepOri)
+                    .then(function(newQueryString) {
+                        outDeferred.resolve(newQueryString, newTableName, newCols, toCache);
+                    })
+                    .fail(outDeferred.reject);
+                } else {
+                    outDeferred.resolve(queryString, newTableName, newCols, toCache);
+                }
             })
             .fail(function(err) {
                 var errorMsg = "";
@@ -1501,6 +1531,83 @@
                 self.updateQueryHistory();
                 deferred.reject(err);
             });
+            return deferred.promise();
+        },
+        addDrops: function(queryString, keepOri) {
+            function cliNode(ancestors) {
+                var obj = {};
+                obj.ancestors = ancestors;
+                obj.dependents = [];
+                return obj;
+            }
+            var self = this;
+            var jsonObj;
+            var cliMap = {};
+            var deferred = PromiseHelper.deferred();
+            var curPromise = PromiseHelper.resolve();
+            var opClis = [];
+            var outCli = "";
+            var tempCli = "";
+            if (keepOri == undefined) {
+                keepOri = true;
+            }
+            try {
+                jsonObj = JSON.parse(queryString);
+            } catch (e) {
+                if (typeof SQLEditor !== "undefined") {
+                    SQLEditor.throwError(e);
+                }
+                throw e;
+            }
+            // First loop, build graph
+            for (var i = 0; i < jsonObj.length; i++) {
+                var curCliNode = jsonObj[i];
+                var nodeName = curCliNode.args.dest;
+                var ancestors = typeof curCliNode.args.source === "string" ?
+                                        [curCliNode.args.source] : curCliNode.args.source;
+                cliMap[nodeName] = cliNode(ancestors);
+                for (var j = 0; j < ancestors.length; j++) {
+                    if (cliMap[ancestors[j]]) {
+                        cliMap[ancestors[j]].dependents.push(nodeName);
+                    } else if(!keepOri) {
+                        // Tables exist before query
+                        cliMap[ancestors[j]] = cliNode([]);
+                        cliMap[ancestors[j]].dependents.push(nodeName);
+                    }
+                }
+            }
+            for (var i = 0; i < jsonObj.length; i++) {
+                var curCliNode = jsonObj[i];
+                var nodeName = curCliNode.args.dest;
+                var ancestors = typeof curCliNode.args.source === "string" ?
+                                        [curCliNode.args.source] : curCliNode.args.source;
+                tempCli += JSON.stringify(curCliNode) + ",";
+                for (var j = 0; j < ancestors.length; j++) {
+                    if (cliMap[ancestors[j]]) {
+                        var index = cliMap[ancestors[j]].dependents.indexOf(nodeName);
+                        assert(index != -1);
+                        cliMap[ancestors[j]].dependents.splice(index, 1);
+                        if (cliMap[ancestors[j]].dependents.length === 0) {
+                            opClis.push(tempCli);
+                            tempCli = "";
+                            curPromise = curPromise.then(function() {
+                                return self.sqlObj.deleteTable(ancestors[j]);
+                            })
+                            .then(function(ret) {
+                                outCli += opClis[0] + ret.cli;
+                                opClis.splice(0, 1);
+                            });
+                        }
+                    }
+                }
+            }
+            curPromise = curPromise.then(function() {
+                if (tempCli != "") {
+                    outCli += tempCli;
+                }
+                deferred.resolve("[" + outCli.substring(0, outCli.length - 1) + "]");
+            })
+            .fail(deferred.reject);
             return deferred.promise();
         },
         _pushDownIgnore: function(node) {
@@ -1837,6 +1944,7 @@
                 node.xcCols = node.xcCols.concat(mapCols);
                 deferred.resolve(ret);
             })
+            .fail(deferred.reject);
             return deferred.promise();
         },
 
@@ -2297,7 +2405,8 @@
                             }
                         })
                         innerDeferred.resolve(ret);
-                    });
+                    })
+                    .fail(innerDeferred.reject);
                     return innerDeferred.promise();
                 } else {
                     return PromiseHelper.resolve({newTableName: newTableName, cli: ""});
@@ -2736,7 +2845,8 @@
                 assertCheckCollision(node.sparkCols);
                 deferred.resolve({newTableName: retStruct.newTableName,
                                   cli: retStruct.cli});
-            });
+            })
+            .fail(deferred.reject);
 
             // start the domino fall
             firstDeferred.resolve();
@@ -2887,7 +2997,8 @@
                 node.xccli = cli;
                 node.newTableName = ret.newTableName;
                 deferred.resolve();
-            });
+            })
+            .fail(deferred.reject);
             return deferred.promise();
         },
 
@@ -3055,7 +3166,8 @@
             .then(function(ret) {
                 ret.colNames = newColNames;
                 deferred.resolve(ret);
-            });
+            })
+            .fail(deferred.reject);
             return deferred.promise();
         }
         var leftMapArray = globalStruct.leftMapArray;
@@ -4110,7 +4222,8 @@
                         gbArgs, windowStruct.origTableName, {})
         .then(function(ret) {
             deferred.resolve(ret);
-        });
+        })
+        .fail(deferred.reject);
         return deferred.promise();
     }
 
@@ -4209,6 +4322,7 @@
         .then(function(ret) {
             deferred.resolve(ret);
         })
+        .fail(deferred.reject);
         return deferred.promise();
     }
 
@@ -4261,7 +4375,8 @@
                 }
             }
             deferred.resolve(ret);
-        });
+        })
+        .fail(deferred.reject);
         return deferred;
     }
 
@@ -4803,10 +4918,12 @@
                 .then(function(ret) {
                     deferred.resolve(ret);
                 })
+                .fail(deferred.reject);
             } else {
                 deferred.resolve(ret);
             }
-        });
+        })
+        .fail(deferred.reject);
         return deferred.promise();
     }
 
@@ -4914,7 +5031,8 @@
             cli += ret.cli;
             deferred.resolve({newTableName: ret.newTableName,
                               cli: cli, tempCols: tempCols});
-        });
+        })
+        .fail(deferred.reject);
 
         return deferred.promise();
     }
@@ -5038,7 +5156,8 @@
                 .then(function(ret) {
                     cli += ret.cli;
                     deferred.resolve({cli: cli, newTableName: ret.newTableName});
-                });
+                })
+                .fail(deferred.reject);
             } else {
                 curPromise = curPromise.then(function(ret) {
                     cli += loopStruct.cli;
@@ -5056,7 +5175,8 @@
                         }
                     }
                     deferred.resolve({cli: cli, newTableName: ret.newTableName});
-                });
+                })
+                .fail(deferred.reject);
             }
         }
         return deferred.promise();
@@ -5382,7 +5502,11 @@
                 }
                 if (opName === "expressions.XCEPassThrough") {
                     assert(condTree.value.name !== undefined, SQLErrTStr.UDFNoName);
-                    outStr += "sql:" + condTree.value.name + "(";
+                    if (condTree.value.name.indexOf("xdf_") === 0) {
+                        outStr += condTree.value.name.substring(4) + "(";
+                    } else {
+                        outStr += "sql:" + condTree.value.name + "(";
+                    }
                     hasLeftPar = true;
                     if (acc.hasOwnProperty("udfs")) {
                         acc.udfs.push(condTree.value.name.toUpperCase());

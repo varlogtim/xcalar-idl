@@ -1134,7 +1134,7 @@ function executeSqlWithExtPlan(execid, planStr, rowsToFetch, sessionPrefix,
 };
 
 function executeSqlWithQueryInteractive(userIdName, userIdUnique, wkbkName,
-    queryString, queryTablePrefix) {
+    queryString, queryTablePrefix, dropAsYouGo, keepOri) {
     var deferred = PromiseHelper.deferred();
     var finalTable;
     var orderedColumns;
@@ -1142,7 +1142,10 @@ function executeSqlWithQueryInteractive(userIdName, userIdUnique, wkbkName,
         prefix: queryTablePrefix,
         checkTime: checkTime,
         sqlMode: true,
-        queryString: queryString
+        queryString: queryString,
+        dropAsYouGo: dropAsYouGo, // drop all tables as soon as they are done
+        keepOri: keepOri // if dropAsYouGo see to true, do we want to drop the
+        // starting tables
     };
     getSqlPlan(userIdName, wkbkName, queryString)
     .then(function(planStr) {
@@ -1335,14 +1338,16 @@ function getColType(typeId) {
     }
 }
 
-router.post("/xcsql/query", [support.checkAuth], function(req, res) {
+router.post("/xcsql/query", function(req, res) {
     var userIdName = req.body.userIdName;
     var userIdUnique = req.body.userIdUnique;
     var wkbkName = req.body.wkbkName;
     var queryString = req.body.queryString;
     var queryTablePrefix = req.body.queryTablePrefix;
+    var dropAsYouGo = req.body.dropAsYouGo;
+    var keepOri = req.body.keepOri;
     executeSqlWithQueryInteractive(userIdName, userIdUnique, wkbkName,
-        queryString, queryTablePrefix)
+        queryString, queryTablePrefix, dropAsYouGo, keepOri)
     .then(function(output) {
         xcConsole.log("sql query finishes");
         res.send(output);
