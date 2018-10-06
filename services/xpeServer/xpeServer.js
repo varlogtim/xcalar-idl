@@ -12,10 +12,10 @@ require("jsdom").env("", function(err, window) {
     }
 
     // app dir root, rel the server as packaged in the app
-    var APP_DIR = __dirname + '/../../../../../..';
+    var APP_DIR = __dirname + '/../../../';
     // rel path from app root to dir where server dependencies are found
     var SERVER_DEPENDENCIES_DIR = APP_DIR +
-        '/Contents/Resources/gui/xcalar-gui/assets/js';
+        '/Contents/Resources/nwjs_root/assets/js';
 
     var installerFilePath = APP_DIR +
         '/Contents/Resources/Installer/local_installer_mac.sh';
@@ -48,7 +48,6 @@ require("jsdom").env("", function(err, window) {
         // keyed by shell cmd,
         // so can kill via client side on GUI restarts, timeouts, etc.
 
-    app.use(express.static(path.join(__dirname, '../../../xcalar-gui')));
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json());
 
