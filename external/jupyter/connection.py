@@ -38,10 +38,10 @@ except ImportError:
     from IPython.utils.traitlets import TraitError
 from IPython.core.display import display_javascript
 
-from xcalar.compute.api.XcalarApi import XcalarApi
-from xcalar.compute.api.Session import Session
-from xcalar.compute.api.WorkItem import WorkItem
-from xcalar.compute.api.ResultSet import ResultSet
+from xcalar.external.LegacyApi.XcalarApi import XcalarApi
+from xcalar.external.LegacyApi.Session import Session
+from xcalar.external.LegacyApi.WorkItem import WorkItem
+from xcalar.external.LegacyApi.ResultSet import ResultSet
 from collections import OrderedDict
 import pandas as pd
 
@@ -135,8 +135,10 @@ class Connection(object):
             sys.stdout.write(time_output)
         return result
 
-    def _getDataFrameFromDict(self, tableName, col_list):
-        resultSetPtr = ResultSet(self.shell.user_global_ns["xcalarApi"], tableName=tableName, maxRecords=100)
+    def _getDataFrameFromDict(self, tableName, col_list, numRows):
+        if (numRows == 0):
+            return tableName, pd.DataFrame()
+        resultSetPtr = ResultSet(self.shell.user_global_ns["xcalarApi"], tableName=tableName, maxRecords=numRows)
         resultDict = []
         for row in resultSetPtr:
             kv_list = []
@@ -152,20 +154,26 @@ class Connection(object):
                                 row[subKey] = row[k][i]
             filtered_row = OrderedDict(kv_list)
             resultDict.append(filtered_row)
-        return pd.DataFrame.from_dict(resultDict)
+        return tableName, pd.DataFrame.from_dict(resultDict)
 
     def _sendReqToRestServer(self, sql):
         workbookObj = self.shell.user_global_ns["workbook"]
+        apiSettings = self.shell.user_global_ns["xcalar_sql_settings"]
         workbookName = workbookObj.name
         userIdUnique = workbookObj.userIdUnique
         userIdName = workbookObj.username
         tablePrefix = "jupyter" + str(random.randint(10000, 99999)) + "_"
-        payload = {"username": userIdName,
+        payload = {"userIdName": userIdName,
         "wkbkName": workbookName,
         "queryString": sql,
-        "sessionId": tablePrefix,
-        "id": userIdUnique
+        "queryTablePrefix": tablePrefix,
+        "userIdUnique": userIdUnique,
+        "keepOri": True or apiSettings["keepOri"],
+        "dropAsYouGo": False or apiSettings["dropAsYouGo"],
+        "newSqlTableName": "" or apiSettings["newSqlTableName"],
+        "randomCrossJoin": False or apiSettings["randomCrossJoin"]
         }
+        numRows = 0 or apiSettings["numRows"]
         headers = {'content-type': 'application/json'}
         transportStruct = self.shell.user_global_ns["xcalarApi"].transport
         url = transportStruct.scheme + "://" + transportStruct.host
@@ -175,14 +183,16 @@ class Connection(object):
                 url += ":" + str(12124)
             else:
                 url += ":" + str(transportStruct.port)  + "/app"
-        url += "/sql/query"
+        url += "/xcsql/query"
+
         sys.stdout.write("\n" + url)
-        res = requests.post(url, data = json.dumps(payload), headers=headers)
+        res = requests.post(url, data = json.dumps(payload), headers=headers,
+                            verify=False)
         struct = res.json()
         #sys.stdout.writeln(struct)
         columns = struct["columns"]
         colNames = [col["colName"] for col in columns]
-        return self._getDataFrameFromDict(struct["tableName"], colNames)
+        return self._getDataFrameFromDict(struct["tableName"], colNames,numRows)
 
     def _time_and_run_query(self, caller, sql):
         """Time the query and execute the SQL using the caller."""
@@ -190,11 +200,12 @@ class Connection(object):
         time_output = 'Query started at {}'.format(pretty_start_time)
         sys.stdout.write(time_output)
         start_time = time.time()
-        result = self._sendReqToRestServer(sql)
+        tableName, result = self._sendReqToRestServer(sql)
 
+        # TODO return to user final table name
         end_time = time.time()
         del_time = (end_time - start_time) / 60.
-        query_finish_str = '; Query executed in {:2.2f} m'.format(del_time)
+        query_finish_str = '; Query executed in {:2.2f} m; Xcalar Table Name: {}'.format(del_time, tableName)
         sys.stdout.write(query_finish_str)
         time_output += query_finish_str  # need to save this bc clearing output for notifications
         return result, del_time, time_output
