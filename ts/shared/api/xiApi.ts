@@ -210,7 +210,7 @@ namespace XIApi {
         if (txId != null && Transaction.isSimulate(txId)) {
             return PromiseHelper.resolve(null);
         }
-        
+
         const deferred: XDDeferred<string | number> = PromiseHelper.deferred();
         XIApi.fetchData(aggName, 1, 1)
         .then((data) => {
@@ -753,7 +753,7 @@ namespace XIApi {
 
         return deferred.promise();
     }
-    
+
     function getGroupByAggEvalStr(aggArg: AggColInfo): string {
         let evalStr = null;
         const op: string = convertOp(aggArg.operator);
@@ -1516,6 +1516,10 @@ namespace XIApi {
         let indexCache: TableIndexCache = SQLApi.getIndexTable(tableName, colNames);
         if (indexCache != null) {
             console.info("has cached of index table", indexCache.tableName);
+            // log this indexed table as part of the transaction so afterwards
+            // we can add a tag to the indexed table to indicate it is
+            // part of the transaction
+            QueryManager.addIndexTable(txId, indexCache.tableName);
             return PromiseHelper.resolve(indexCache.tableName, true, indexCache.keys);
         }
         if (colNames.length === 0) {
