@@ -1,4 +1,5 @@
-describe("Upload Dataflow Test", function() {
+// skipping as dataflow 2.0 will move this feature to modeling panel
+describe.skip("Upload Dataflow Test", function() {
     var $mainTabCache;
     var $card;
     var $retPath;
@@ -11,10 +12,10 @@ describe("Upload Dataflow Test", function() {
 
         $mainTabCache = $(".topMenuBarTab.active");
         if ($mainTabCache.attr("id") !== "dataflowTab") {
-            $("#dataflowTab").click();
+            $("#modelingDataflowTab").click();
         }
         UnitTest.testFinish(function() {
-            return $("#dfViz .cardMain").children().length !== 0;
+            return $("#dagTabSectionTabs .dagTab").length !== 0;
         })
         .then(function() {
             done();
@@ -46,8 +47,8 @@ describe("Upload Dataflow Test", function() {
         });
 
         it("should change file path to valid case", function() {
-            UploadDataflowCard.__testOnly__.changeFilePath("file.tar.gz");
-            expect($retPath.val()).to.equal("file.tar.gz");
+            UploadDataflowCard.__testOnly__.changeFilePath("file.json");
+            expect($retPath.val()).to.equal("file.json");
             expect($dfName.val()).to.equal("file");
             expect($card.find(".confirm").hasClass("btn-disabled"))
             .to.be.false;
@@ -88,7 +89,7 @@ describe("Upload Dataflow Test", function() {
             };
             //Fake version of the method we depend upon
             FakeFileReader.prototype.readAsBinaryString = function(file){
-                var e = {"target": {"result": "test"}};
+                var e = {"target": {"result": 'test'}};
                 this.onload(e);
                 return file;
             };
@@ -99,14 +100,14 @@ describe("Upload Dataflow Test", function() {
 
             oldImport = XcalarImportRetina;
             oldList = XcalarListRetinas;
-            oldAddDF = DF.addDataflow;
+            oldAddDF = DagList.Instance.uploadDag;
             oldShowSuccess = xcHelper.showSuccess;
 
             XcalarListRetinas = function() {
                 return PromiseHelper.resolve({"retinaDescs": []});
             };
 
-            DF.addDataflow = function() {
+            DagList.Instance.uploadDag = function(name, dag) {
                 isAddDF = true;
             };
 
@@ -115,7 +116,7 @@ describe("Upload Dataflow Test", function() {
             };
 
             UploadDataflowCard.show();
-            UploadDataflowCard.__testOnly__.changeFilePath("file.tar.gz");
+            UploadDataflowCard.__testOnly__.changeFilePath("file.json");
         });
 
         it("should handle empty name error", function(done) {
@@ -145,50 +146,37 @@ describe("Upload Dataflow Test", function() {
         });
 
         it("should handle name duplicate error", function(done) {
-            $("#dfName").val("file");
-
-            var curList = XcalarListRetinas;
-            XcalarListRetinas = function() {
-                return PromiseHelper.resolve({"retinaDescs": [{
-                    "retinaName": "file"
-                }]});
-            };
-
+            var name = "DupNameTest"
+            var id = DagList.Instance.getAll()[0].id;
+            DagList.Instance.changeName(name, id);
+            $("#dfName").val(name);
             UploadDataflowCard.__testOnly__.submitForm()
             .then(function() {
                 done("fail");
             })
             .fail(function() {
-                UnitTest.hasStatusBoxWithError(ErrTStr.NameInUse);
+                UnitTest.hasStatusBoxWithError(DFTStr.DupDataflowName);
                 done();
-            })
-            .always(function() {
-                XcalarListRetinas = curList;
             });
         });
 
         it("should handle error case", function(done) {
             $("#dfName").val("file");
 
-            XcalarImportRetina = function() {
-                return PromiseHelper.reject("test");
-            };
-
             UploadDataflowCard.__testOnly__.submitForm()
             .then(function() {
                 done("fail");
             })
             .fail(function(error) {
-                expect(error).to.equal("test");
                 expect(isAddDF).to.be.false;
                 expect(successMsg).to.be.null;
-                UnitTest.hasStatusBoxWithError(ErrTStr.RetinaFailed);
+                UnitTest.hasStatusBoxWithError(DFTStr.DFDrawError);
                 done();
             });
         });
 
         it("should handle large file size error", function(done) {
-            UploadDataflowCard.__testOnly__.changeFilePath("file.tar.gz");
+            UploadDataflowCard.__testOnly__.changeFilePath("file.json");
             UploadDataflowCard.__testOnly__.setFile({size: 2 * MB});
             UploadDataflowCard.__testOnly__.submitForm()
             .then(function() {
@@ -197,46 +185,26 @@ describe("Upload Dataflow Test", function() {
             .fail(function() {
                 UnitTest.hasAlertWithTitle(DSTStr.UploadLimit);
 
-                UploadDataflowCard.__testOnly__.changeFilePath("file.tar.gz");
+                UploadDataflowCard.__testOnly__.changeFilePath("file.json");
                 UploadDataflowCard.__testOnly__.setFile({size: 1 * KB});
                 done();
             });
         });
 
         it("should upload the df", function(done) {
-            $("#dfName").val("file");
-
-            XcalarImportRetina = function() {
-                return PromiseHelper.resolve();
+            FileReader.prototype.readAsBinaryString = function(file){
+                var e = {"target": {"result": '{"nodes":[],"display":{"width":-1,"height":-1}}'}};
+                this.onload(e);
+                return file;
             };
-
-            var oldUDFRefresh = UDF.refreshWithoutClearing;
-            var oldSocket =  XcSocket.prototype.sendMessage;
-            var oldGetDF = DF.getDataflow;
-            UDF.refreshWithoutClearing = function() {};
-            XcSocket.prototype.sendMessage = function() {};
-            DF.getDataflow = function() {
-                return {
-                    "updateParamMapInUsed": function() {
-                        return PromiseHelper.resolve();
-                    }
-                };
-            };
-
+            $("#dfName").val("uploadTest");
             UploadDataflowCard.__testOnly__.submitForm()
-            .then(function() {
+            .then(() => {
                 expect(isAddDF).to.be.true;
-                expect(successMsg).to.equal(SuccessTStr.Upload);
-                assert.isFalse($card.is(":visible"));
                 done();
             })
             .fail(function() {
                 done("fail");
-            })
-            .always(function() {
-                UDF.refreshWithoutClearing = oldUDFRefresh;
-                XcSocket.prototype.sendMessage = oldSocket;
-                DF.getDataflow = oldGetDF;
             });
         });
 
@@ -244,7 +212,7 @@ describe("Upload Dataflow Test", function() {
             FileReader = oldReader;
             XcalarImportRetina = oldImport;
             XcalarListRetinas = oldList;
-            DF.addDataflow = oldAddDF;
+            DagList.Instance.uploadDag = oldAddDF;
             xcHelper.showSuccess = oldShowSuccess;
         });
     });

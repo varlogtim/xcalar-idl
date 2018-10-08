@@ -58,14 +58,10 @@ class DagTabShared extends DagTab {
     }
 
     public load(): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         DagTabShared._switchSession(this._name);
-        this._loadFromKVStore()
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-
+        const promise = this._loadFromKVStore();
         DagTabShared._resetSession();
-        return deferred.promise();
+        return promise;
     }
 
     // XXX TODO
@@ -73,13 +69,44 @@ class DagTabShared extends DagTab {
         return PromiseHelper.resolve();
     }
 
-    // XXX TODO
     public delete(): XDPromise<void> {
-        return PromiseHelper.resolve();
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        DagTabShared._switchSession(null);
+        XcalarDeleteWorkbook(this._name)
+        .then(deferred.resolve)
+        .fail((error) => {
+            if (error.status === StatusT.StatusSessionNotFound) {
+                deferred.resolve();
+            } else {
+                deferred.reject(error);
+            }
+        });
+
+        DagTabShared._resetSession();
+        return deferred.promise();
+    }
+
+    public upload(content: string): XDPromise<void> {
+        DagTabShared._switchSession(null);
+        const promise = XcalarUploadWorkbook(this._name, content, "");
+        DagTabShared._resetSession();
+        return promise;
     }
 
     public download(): XDPromise<void> {
-        return PromiseHelper.resolve();
+        const fileName: string = `${this._shortName}.tar.gz`;
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        DagTabShared._switchSession(this._name);
+        // XXX TODO, backend should give a flag about it's DF or WKBK
+        XcalarDownloadWorkbook(this._name, "")
+        .then((file) => {
+            xcHelper.downloadAsFile(fileName, file.sessionContent, true);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        DagTabShared._resetSession();
+        return deferred.promise();
     }
 
     public canEdit(): boolean {

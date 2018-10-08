@@ -169,21 +169,26 @@ class DagTabManager{
      * Load a existing tab
      * @param dagTab the dagTab we want to load
      */
-    public loadTab(dagTab: DagTab): void {
+    public loadTab(dagTab: DagTab): XDPromise<void> {
         // Check if we already have the tab
         const index: number = this.getTabIndex(dagTab.getId());
         if (index != -1) {
             this._switchTabs(index);
-            return;
+            return PromiseHelper.resolve();
         }
 
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         dagTab.load()
         .then(() => {
             this._addDagTab(dagTab);
             this._addTabHTML({name: dagTab.getName()});
             this._switchTabs();
             this._save();
-        });
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     /**
@@ -326,7 +331,11 @@ class DagTabManager{
 
     private _newTab(): DagTab {
         const name: string = DagList.Instance.getValidName();
-        let newDagTab: DagTabUser = DagList.Instance.addDag(name);
+        const newDagTab: DagTabUser = new DagTabUser(name, null, new DagGraph());
+        if (!DagList.Instance.addDag(newDagTab)) {
+            return null;
+        }
+        newDagTab.save();
         this._activeUserDags.push(newDagTab);
         this._save();
         this._addTabHTML({name: name});

@@ -2964,9 +2964,11 @@ namespace xcHelper {
         let namePattern: RegExp;
         let antiNamePattern: RegExp;
         switch (category) {
-            case PatternCategory.Dataset: /* fallthrough */
-            case PatternCategory.Dataflow:
+            case PatternCategory.Dataset:
                 antiNamePattern = /[^a-zA-Z0-9_-]/;
+                break;
+            case PatternCategory.Dataflow:
+                antiNamePattern = /[^a-zA-Z0-9\(\)\s:_-]/;
                 break;
             case PatternCategory.Export:
                 antiNamePattern = /[^/a-zA-Z0-9_-]/;

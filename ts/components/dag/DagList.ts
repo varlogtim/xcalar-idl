@@ -8,12 +8,10 @@ class DagList {
     private _userDags: DagTabUser[];
     private _sharedDags: DagTabShared[];
     private _kvStore: KVStore;
-    private _deleteEnabled: boolean;
     private _initialized: boolean;
 
     private constructor() {
         let key: string = KVStore.getKey("gDagListKey");
-        this._deleteEnabled = true;
         this._kvStore = new KVStore(key, gKVScope.WKBK);
         this._userDags = [];
         this._sharedDags = [];
@@ -32,7 +30,6 @@ class DagList {
             return this._restoreSharedDags();
         })
         .then(() => {
-            this._initializeDagList();
             this._addEventListeners();
             this._updateSection();
             this._initialized = true;
@@ -62,22 +59,38 @@ class DagList {
         return dags.length ? dags[0] : null;
     }
 
+    public refresh(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const promise: XDPromise<void> = deferred.promise();
+        const $section: JQuery = this._getDagListSection();
+        xcHelper.showRefreshIcon($section, false, promise);
+        this._restoreSharedDags()
+        .then(() => {
+            this._updateSection();
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return promise;
+    }
+
     /**
-     * Adds a new dataflow to the user's dataflows.
-     * @param name The name of the new dataflow
-     * @param id The id of the new dataflow
+     * Adds a new dataflow.
+     * @param dagTab The instance of the new dataflow
      */
-    public addDag(name: string): DagTabUser {
+    public addDag(dagTab: DagTab): boolean {
         if (!this._initialized) {
-            return;
+            return false;
         }
-        let newDagTab: DagTabUser = new DagTabUser(name, null, new DagGraph());
-        newDagTab.save();
-        this._userDags.push(newDagTab);
-        this._addUserDagList([newDagTab]);
-        this._saveUserDagList();
+        if (dagTab instanceof DagTabUser) {
+            this._userDags.push(dagTab);
+            this._addUserDagList([dagTab]);
+            this._saveUserDagList();
+        } else if (dagTab instanceof DagTabShared) {
+            this._sharedDags.push(dagTab);
+            this._addSharedDagList([dagTab]);
+        }
         this._updateSection();
-        return newDagTab;
+        return true;
     }
 
     /**
@@ -112,7 +125,7 @@ class DagList {
      * @returns {string}
      */
     public isUniqueName(name: string): boolean {
-        let index: number = this._userDags.findIndex((dag) => {
+        let index: number = this.getAll().findIndex((dag) => {
             return dag.getName() == name;
         });
         return (index == -1);
@@ -153,20 +166,20 @@ class DagList {
         if (!DagTabManager.Instance.removeTab(id)) {
             return deferred.reject();
         }
-        this._disableDelete();
         dagTab.delete()
         .then(() => {
             $dagListItem.remove();
-            this._userDags = this._userDags.filter((dag) => dag.getId() !== id);
-            this._sharedDags = this._sharedDags.filter((dag) => dag.getId() !== id);
-            this._saveUserDagList();
-            this._updateSection();
+            if (dagTab instanceof DagTabUser) {
+                this._userDags = this._userDags.filter((dag) => dag.getId() !== id);
+                this._saveUserDagList();
+            } else if (dagTab instanceof DagTabShared) {
+                this._sharedDags = this._sharedDags.filter((dag) => dag.getId() !== id);
+            }
             deferred.resolve();
         })
-        .fail((err) => {
-            console.error("Could not delete tab:" + err);
+        .fail(deferred.reject)
+        .always(() => {
             this._updateSection();
-            deferred.reject(err);
         });
 
         return deferred.promise();
@@ -191,48 +204,16 @@ class DagList {
         }
     }
 
-    // XXX TODO: make it work for shared DF
-    /**
-     * Upload a dag that is represented by a string.
-     * @param name Name of the dataflow
-     * @param dag The string representing a dag
-     */
-    public uploadDag(name: string, dag: DagGraph): void {
-        // let newTab: DagTab = new DagTab(name, null, dag);
-        // const id: string = newTab.getId();
-        // dag.resetRunningStates();
-        // this.addDag(name, id);
-        // newTab.save()
-        // .then(() => {
-        //     DagTabManager.Instance.loadTab(newTab.getId());
-        // })
-        // .fail(() => {
-        //     this._disableDelete();
-        //     const index: number = this._userDags.findIndex((dag) => {
-        //         return dag.id == id;
-        //     });
-        //     this._userDags.splice(index, 1);
-        //     $("#dagListSection .dagListDetail").eq(index).remove();
-        //     StatusBox.show(DFTStr.DFDrawError, $("#retinaPath"));
-        //     this._enableDelete();
-        // });
-    }
-
     /**
      * Resets keys and tabs in the case of error.
      * Also used for testing.
      */
     public reset(): void {
         this._userDags = [];
-        this._disableDelete();
         this._getDagListSection().find(".dagListDetails ul").empty();
         DagTabManager.Instance.reset();
         this._saveUserDagList();
-    }
-
-    private _initializeDagList(): void {
-        this._addUserDagList(this._userDags);
-        this._addSharedDagList(this._sharedDags);
+        this._updateSection();
     }
 
     private _addUserDagList(dags: DagTabUser[]): void {
@@ -274,13 +255,24 @@ class DagList {
         const tooltip: string = 'data-toggle="tooltip" ' +
                                 'data-container="body" ' +
                                 'data-title="' + title + '"';
-        return `<i class="${type} ${icon} icon" ${tooltip}></i>`;
+        return `<i class="${type} ${icon} icon xc-action" ${tooltip}></i>`;
+    }
+
+    private _loadErroHandler($dagListItem: JQuery): void {
+        const icon: HTML = this._iconHTML("error", "xi-critical", DFTStr.LoadErr);
+        $dagListItem.find(".xc-action:not(.deleteDataflow)").addClass("xc-disabled"); // disable all icons
+        $dagListItem.prepend(icon);
+        StatusBox.show(DFTStr.LoadErr, $dagListItem);
     }
 
     private _addEventListeners(): void {
         const $dagListSection: JQuery = this._getDagListSection();
         $("#dagUpload").click(() => {
-            UploadDataflowCard.show();
+            DFUploader.show();
+        });
+
+        $("#dagList .iconSection .refreshBtn").click(() => {
+            this.refresh();
         });
 
         // expand/collapse the section
@@ -291,13 +283,13 @@ class DagList {
         $dagListSection.on("click", ".name", (event) => {
             const $dagListItem: JQuery = $(event.currentTarget).parent();
             const dagTab: DagTab = this._getDagTabFromListItem($dagListItem);
-            DagTabManager.Instance.loadTab(dagTab);
+            DagTabManager.Instance.loadTab(dagTab)
+            .fail(() => {
+                this._loadErroHandler($dagListItem);
+            });
         });
 
         $dagListSection.on("click", ".deleteDataflow", (event) => {
-            if (!this._deleteEnabled) {
-                return;
-            }
             let $dagListItem: JQuery = $(event.currentTarget).parent();
             Alert.show({
                 title: DFTStr.DelDF,
@@ -306,41 +298,29 @@ class DagList {
                 }),
                 onConfirm: () => {
                     this.deleteDataflow($dagListItem)
-                    .fail(() => {
-                        StatusBox.show(DFTStr.DelDFErr, $dagListItem);
+                    .fail((error) => {
+                        StatusBox.show(DFTStr.DelDFErr, $dagListItem, false, {
+                            detail: error.log
+                        });
                     });
                 }
             });
-        })
+        });
 
-        // XXX TODO: make it work for shared DF
         $dagListSection.on("click", ".downloadDataflow", (event) => {
-            // let $dagListItem: JQuery = $(event.currentTarget).parent();
-            // let index: number = $dagListSection.find(".dagListDetail").index($dagListItem);
-            // let key: string = this._userDags[index].getId();
-            // const dagtabManager: DagTabManager = DagTabManager.Instance;
-            // const keyIndex: number = dagtabManager.getTabIndex(key);
-            // let graphString: string = "";
-            // const name: string = $dagListItem.find(".name").text();
-            // if (keyIndex == -1) {
-            //     let kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
-            //     kvStore.getAndParse()
-            //     .then((dagTab) => {
-            //         graphString = dagTab.dag;
-            //         this._downloadDataflow(name, graphString);
-            //     })
-            //     .fail(() => {
-            //         StatusBox.show(DFTStr.DownloadErr, $dagListItem, false, {
-            //             side: "right"
-            //         });
-            //         return;
-            //     });
-            // } else {
-            //     const dagTab: DagTab = dagtabManager.getTabByIndex(keyIndex);
-            //     let graph: DagGraph = dagTab.getGraph();
-            //     graphString = graph.serialize();
-            //     this._downloadDataflow(name, graphString);
-            // }
+            let $dagListItem: JQuery = $(event.currentTarget).parent();
+            if (!$dagListItem.closest(".dagListDetails").hasClass("shared")) {
+                return;
+            }
+            // Now only support download of shared dataflow
+            const index: number = $dagListItem.index();
+            const dagTab: DagTabShared = this._sharedDags[index];
+            dagTab.download()
+            .fail((error) => {
+                StatusBox.show(DFTStr.DownloadErr, $dagListItem, false, {
+                    detail: error.log
+                });
+            });
         });
     }
 
@@ -362,7 +342,10 @@ class DagList {
                 return this._saveUserDagList();
             }
         })
-        .then(deferred.resolve)
+        .then(() => {
+            this._addUserDagList(this._userDags);
+            deferred.resolve();
+        })
         .fail(deferred.reject)
 
         return deferred.promise();
@@ -373,16 +356,13 @@ class DagList {
         DagTabShared.restore()
         .then((dags) => {
             this._sharedDags = dags;
+            this._getDagListSection().find(".dagListDetails.shared ul").empty();
+            this._addSharedDagList(dags);
             deferred.resolve();
         })
         .fail(deferred.reject);
 
         return deferred.promise();
-    }
-
-    private _downloadDataflow(name: string, content: string): void {
-        name += ".json";
-        xcHelper.downloadAsFile(name, content, true);
     }
 
     private _saveUserDagList(): void {
@@ -402,31 +382,23 @@ class DagList {
         KVStore.logSave(true);
     }
 
-    private _getDagListSection(): JQuery {
-        return $("#dagListSection");
-    }
-
-    private _disableDelete(): void {
-        this._getDagListSection().find(".deleteDataflow").addClass('xc-hidden');
-        this._deleteEnabled = false;
-    }
-
-    private _enableDelete(): void {
-        this._getDagListSection().find(".deleteDataflow").removeClass('xc-hidden');
-        this._deleteEnabled = true;
-    }
-
     private _updateSection(): void {
         const $section: JQuery = this._getDagListSection();
         $section.find(".user .listInfo .num").text(this._userDags.length);
         $section.find(".shared .listInfo .num").text(this._sharedDags.length);
 
+        const $deleteBtns: JQuery = this._getDagListSection().find(".dagListDetails.user")
+        .find(".deleteDataflow");
         if (this._userDags.length != 1) {
-            this._enableDelete();
+            $deleteBtns.removeClass('xc-hidden');
         } else if (this._userDags.length == 1) {
             // This happens if a workbook is new.
-            this._disableDelete();
+            $deleteBtns.addClass('xc-hidden');
         }
+    }
+
+    private _getDagListSection(): JQuery {
+        return $("#dagListSection");
     }
 
     private _getDagTabFromListItem($dagListItem: JQuery): DagTab {

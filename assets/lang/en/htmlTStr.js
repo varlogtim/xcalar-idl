@@ -888,7 +888,7 @@ module.exports = {
         // For uploader
         "upload": "UPLOAD",
         "uploadHeader": "Upload dataflow",
-        "uploadInstr": "Upload a previously downloaded dataflow into Xcalar. Your file should be of the format .txt",
+        "uploadInstr": "Upload a previously downloaded dataflow into Xcalar. Your file should be of the format .tar.gz",
         "overwriteUdf": "Overwrite UDFs of the same module name with those inside this dataflow"
     },
 

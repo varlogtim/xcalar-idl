@@ -332,7 +332,7 @@ ErrTStr = {
     'IcvFailed': 'Failed to generate Erroneous Rows (ER) Table',
     'IcvAlt': 'Failed to generate Erroneous Rows (ER) Table. Please use map ' +
               'with show erroneous values selected instead.',
-    'RetinaFormat': 'File must be of the format .json',
+    'RetinaFormat': 'File must be of the format .tar.gz',
     'RetinaFailed': 'Failed to upload dataflow',
     'ConfigParamNotFound': 'Parameter not found.',
     'ConfigParamExists': 'Parameter already exists',
@@ -1059,6 +1059,7 @@ DFTStr = {
     "ExportTo": "Export As",
     "ExportToTable": "Export Table Name",
     "FindTable": "The final table <table> is in the active worksheet",
+    "LoadErr": "Load Dataflow Failed",
     "HeavySkew": "Heavy skew",
     "Import": "Export as a Xcalar table",
     "NoFileExt": "Export file name must have an extension.",

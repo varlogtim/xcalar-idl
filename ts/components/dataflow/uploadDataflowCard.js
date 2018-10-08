@@ -1,3 +1,4 @@
+// XXX TODO: remove it as DFUploader is the replacement
 window.UploadDataflowCard = (function($, UploadDataflowCard) {
     var $card;             // $("#uploadDataflowCard")
     var $retPath;          // $card.find("#retinaPath")
@@ -31,14 +32,19 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
             } else {
                 entireString = this.content;
             }
-            var dag = new DagGraph();
-            if (!dag.deserializeDagGraph(entireString)) {
-                StatusBox.show(DFTStr.DFDrawError, $("#retinaPath"));
-                deferred.reject();
-                return;
-            }
-            DagList.Instance.uploadDag(retName, dag);
-            deferred.resolve();
+            XcalarImportRetina(retName, true, entireString)
+            .then(function() {
+                deferred.resolve();
+            })
+            .fail(function(error) {
+                var options = {
+                    side: "left",
+                    detail: error.log
+                };
+                StatusBox.show(ErrTStr.RetinaFailed, $card.find(".confirm"),
+                               false, options);
+                deferred.reject(error);
+            });
         };
 
         reader.onloadend = function(event) {
@@ -62,21 +68,15 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
     }
 
     function submitForm() {
-        const self = this;
         var retName = $dfName.val().trim();
         if (retName.length === 0) {
             StatusBox.show(ErrTStr.NoEmpty, $dfName);
             return PromiseHelper.reject();
         }
 
-        // TODO: checkNamePattern is very strict. What names do we want to support?
         var valid = xcHelper.checkNamePattern("dataflow", "check", retName);
         if (!valid) {
             StatusBox.show(ErrTStr.DFNameIllegal, $dfName);
-            return PromiseHelper.reject();
-        }
-        if (!DagList.Instance.isUniqueName(retName)) {
-            StatusBox.show(DFTStr.DupDataflowName, $dfName);
             return PromiseHelper.reject();
         }
         var limit = 1024 * 1024; // 1M
@@ -103,6 +103,15 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
             }
 
             return readRetinaFromFile(file, retName);
+        })
+        .then(function() {
+            UDF.refreshWithoutClearing();
+            var xcSocket = XcSocket.Instance;
+            xcSocket.sendMessage("refreshUDFWithoutClear");
+            return (DF.addDataflow(retName, new Dataflow(retName), null, [], {
+                "isUpload": true,
+                "noClick": true
+            }));
         })
         .then(function() {
             xcHelper.showSuccess(SuccessTStr.Upload);
@@ -177,10 +186,12 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         var retName = path.substring(0, path.indexOf(".")).toLowerCase()
                           .replace(/ /g, "");
         retName = xcHelper.checkNamePattern("dataflow", "fix", retName);
-
+        retName = xcHelper.uniqueName(retName, function(name) {
+            return !DF.hasDataflow(name);
+        });
         $retPath.val(path);
         $dfName.val(retName);
-        if (path.indexOf(".json") > 0) {
+        if (path.indexOf(".tar.gz") > 0) {
             $card.find(".confirm").removeClass("btn-disabled");
             xcTooltip.disable($card.find(".buttonTooltipWrap"));
         } else {
@@ -248,7 +259,6 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
         UploadDataflowCard.__testOnly__.setFile = function(f) {
             file = f;
         };
-        UploadDataflowCard.__testOnly__.readRetinaFromFile = readRetinaFromFile;
     }
     /* End Of Unit Test Only */
 
