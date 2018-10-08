@@ -2,11 +2,12 @@ class DagTabCustom extends DagTab {
     private _customNode: DagNodeCustom;
 
     constructor(options: {
+        id: string,
         name: string,
         customNode: DagNodeCustom,
     }) {
-        const { name, customNode } = options;
-        super(name, name, null);
+        const { id, name, customNode } = options;
+        super(name, id, null);
         this._customNode = customNode;
     }
 

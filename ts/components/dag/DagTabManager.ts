@@ -11,13 +11,13 @@ class DagTabManager{
     private _dagKVStore: KVStore;
     private _editingName: string;
     private _tabListScroller: ListScroller;
-    private _subTabs: { parentId: string, childId: string }[] = [];
+    private _subTabs: Map<string, string> = new Map(); // subTabId => parentTabId
 
     public setup(): void {
         let key: string = KVStore.getKey("gDagManagerKey");
         this._dagKVStore = new KVStore(key, gKVScope.WKBK);
         this._activeUserDags = [];
-        this._subTabs = [];
+        this._subTabs = new Map();
 
         const $tabArea: JQuery = this._getTabArea();
         this._tabListScroller = new ListScroller($tabArea, $tabArea, false, {
@@ -82,26 +82,28 @@ class DagTabManager{
      * 2. The tab doesn't persist in KVStore, as the sub-graph information is persisted by the tab which owns the custom operator
      */
     public newCustomTab(customNode: DagNodeCustom): void {
+        const parentTabId = DagView.getActiveTab().getId();
         // the string to show on the tab
-        // TODO: should get it from DagNodeCustom
         const validatedName = customNode.getCustomName();
         // the td to find the tab
-        const tabId: string = validatedName;
+        const tabId: string = `${parentTabId}-${customNode.getId()}`;
         const tabIndex: number = this.getTabIndex(tabId);
         if (tabIndex < 0) {
             // No tab for this custom operator, create a new tab
             // Create a new tab object
             const newTab = new DagTabCustom({
+                id: tabId,
                 name: validatedName,
                 customNode: customNode
             });
             // Register the new tab in DagTabManager
-            this._addSubTab(DagView.getActiveTab().getId(), newTab.getId());
-            this._addDagTab(newTab);
-            // Show the tab in DOM(UI)
-            this._addTabHTML({ name: validatedName, isEditable: false });
-            // Switch to the tab(UI)
-            this._switchTabs();
+            if (this._addSubTab(parentTabId, tabId)) {
+                this._addDagTab(newTab);
+                // Show the tab in DOM(UI)
+                this._addTabHTML({ name: validatedName, isEditable: false });
+                // Switch to the tab(UI)
+                this._switchTabs();
+            }
         } else {
             // Tab already opened, switch to that one
             this._switchTabs(tabIndex);
@@ -110,29 +112,17 @@ class DagTabManager{
 
     /**
      * Persist parent tabs to KVStore
-     * @param childKey The key of the child tab
+     * @param subTabId The key of the child tab
      * @returns Promise with void
      * @description
-     * Use case: Any changes in the subGraph(shown in the child tab) of a custom operator whill trigger this function
+     * Use case: Any changes in the subGraph(shown in the sub tab) of a custom operator whill trigger this function
      */
-    public saveParentTab(childKey: string): XDPromise<void> {
-        const saveTasks = this._getParentTabs(childKey).map( (parentTab) => {
-            return parentTab.save();
-        });
-        if (saveTasks.length === 0) {
+    public saveParentTab(subTabId: string): XDPromise<void> {
+        const parentTab = this._getParentTab(subTabId);
+        if (parentTab == null) {
             return PromiseHelper.resolve();
         }
-
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        PromiseHelper.when(...saveTasks)
-        .then( () => {
-            deferred.resolve();
-        })
-        .fail( () => {
-            deferred.reject();
-        });
-
-        return deferred.promise();
+        return parentTab.save();
     }
 
     /**
@@ -317,11 +307,13 @@ class DagTabManager{
         // Switch to the corresponding dataflow in the left panel(DagList)
         const dagTab: DagTab = this.getTabByIndex(index);
         const tabId: string = dagTab.getId();
-        const parentTabIds = this._getParentTabIds(tabId);
-        if (parentTabIds.length > 0) {
-            // This is a sub tab(to show custom operator sub graph), so switch to its parent dagList
-            // A sub tab can have only one parent tab for now, even the data structure supports multiple parents.
-            DagList.Instance.switchActiveDag(parentTabIds[0]);
+        let parentTabId = this._getParentTabId(tabId);
+        if (parentTabId != null) {
+            // This is a sub tab(to show custom operator sub graph), so switch to its root dagList
+            for (let aId = null; aId != null; aId = this._getParentTabId(aId)) {
+                parentTabId = aId;
+            }
+            DagList.Instance.switchActiveDag(parentTabId);
         } else {
             DagList.Instance.switchActiveDag(tabId);
         }
@@ -396,61 +388,49 @@ class DagTabManager{
         return true;
     }
 
-    private _addSubTab(parentId: string, childId: string): void {
-        for (const subTabInfo of this._subTabs) {
-            if (parentId === subTabInfo.parentId &&
-                childId === subTabInfo.childId
-            ) {
-                return;
+    private _addSubTab(parentId: string, childId: string): boolean {
+        // Every subTab can have only 1 parent
+        if (this._subTabs.has(childId)) {
+            return false;
+        }
+        // No cycle check
+        let aId = parentId;
+        while ((aId = this._getParentTabId(aId)) != null) {
+            if (aId === childId) {
+                return false;
             }
         }
-        this._subTabs.push({
-            parentId: parentId,
-            childId: childId
-        });
+        this._subTabs.set(childId, parentId);
+        return true;
     }
 
-    private _getParentTabIds(childId: string): string[] {
-        const parentTabIds: string[] = [];
-        for (const subTabInfo of this._subTabs) {
-            if (childId === subTabInfo.childId) {
-                parentTabIds.push(subTabInfo.parentId);
-            }
-        }
-        return parentTabIds;
+    private _getParentTabId(childId: string): string {
+        return this._subTabs.get(childId);
     }
 
-    private _getParentTabs(childId: string): DagTab[] {
-        const parentTabs: DagTab[] = [];
-        for (const parentId of this._getParentTabIds(childId)) {
-            const index = this.getTabIndex(parentId);
-            if (index >= 0) {
-                parentTabs.push(this.getTabByIndex(index));
-            }
-        }
-        return parentTabs;
+    private _getParentTab(childId: string): DagTab {
+        return this.getTabById(this._getParentTabId(childId));
     }
 
     private _getSubTabIds(parentId: string): string[] {
         const subTabs: string[] = [];
-        for (const subTabInfo of this._subTabs) {
-            if (parentId === subTabInfo.parentId) {
-                subTabs.push(subTabInfo.childId);
+        for (const [childId, pId] of this._subTabs.entries()) {
+            if (pId === parentId) {
+                subTabs.push(childId);
             }
         }
         return subTabs;
     }
 
     private _removeParentTabById(parentId: string): void {
-        this._subTabs = this._subTabs.filter((subTabInfo) => {
-            return subTabInfo.parentId !== parentId;
-        });
+        const subTabIds = this._getSubTabIds(parentId);
+        for (const subTabId of subTabIds) {
+            this._subTabs.delete(subTabId);
+        }
     }
 
     private _removeChildTabById(childId: string): void {
-        this._subTabs = this._subTabs.filter((subTabInfo) => {
-            return subTabInfo.childId !== childId;
-        });
+        this._subTabs.delete(childId);
     }
 
     private _isTabLogDisabled(tabId: string): boolean {
