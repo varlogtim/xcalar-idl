@@ -5,10 +5,10 @@ class FileManagerPanel {
         return this._instance || (this._instance = new this());
     }
 
+    public rootPathNode: FileManagerPathNode;
     private $panel: JQuery;
     private curFileType: string;
     private managers: Map<string, BaseFileManager>;
-    private rootPathNode: FileManagerPathNode;
     private viewPathNode: FileManagerPathNode;
     private selectedPathNodes: Set<FileManagerPathNode>;
     private curHistoryNode: FileManagerHistoryNode;
@@ -25,9 +25,9 @@ class FileManagerPanel {
      */
     public setup($panel: JQuery): void {
         this.$panel = $panel;
-        this.curFileType = "UDF";
         this.managers = new Map();
         this.managers.set("UDF", UDFFileManager.Instance);
+        this.curFileType = "UDF";
         this.rootPathNode = {
             pathName: null,
             isDir: null,
@@ -41,13 +41,25 @@ class FileManagerPanel {
             children: new Map()
         };
 
-        this.udfBuildPathTree();
-        this.dataflowBuildPathTree();
+        for (const fileType of this.managers.keys()) {
+            this.rootPathNode.children.set(fileType, {
+                pathName: fileType,
+                isDir: true,
+                timestamp: null,
+                size: null,
+                isSelected: false,
+                sortBy: FileManagerField.Name,
+                sortDescending: false,
+                isSorted: false,
+                parent: this.rootPathNode,
+                children: new Map()
+            });
+        }
 
         this.viewPathNode = this.rootPathNode.children.get(this.curFileType);
         this.selectedPathNodes = new Set();
         this.curHistoryNode = {
-            path: this._nodeToPath(this.viewPathNode),
+            path: this.nodeToPath(this.viewPathNode),
             prev: null,
             next: null
         };
@@ -57,98 +69,11 @@ class FileManagerPanel {
         this._addFileTypeAreaEvents();
         this._addNavigationAreaEvents();
         this._addAddressAreaEvents();
+        this._addUploadEvents();
         this._addSearchBarEvents();
         this._addTitleSectionEvents();
         this._addActionAreaEvents();
         this._addMainSectionEvents();
-    }
-
-    /**
-     * Build UDF path trie.
-     * @returns void
-     */
-    public udfBuildPathTree(clean?: boolean): void {
-        if (!this.rootPathNode.children.has("UDF")) {
-            this.rootPathNode.children.set("UDF", {
-                pathName: "UDF",
-                isDir: true,
-                timestamp: null,
-                size: null,
-                isSelected: false,
-                sortBy: FileManagerField.Name,
-                sortDescending: false,
-                isSorted: false,
-                parent: this.rootPathNode,
-                children: new Map()
-            });
-        }
-
-        const udfRootPathNode: FileManagerPathNode = this.rootPathNode.children.get(
-            "UDF"
-        );
-        const storedUDF: Map<
-        string,
-        string
-        > = UDFFileManager.Instance.getUDFs();
-
-        for (let [key] of storedUDF) {
-            key = UDFFileManager.Instance.nsNameToDisplayName(key);
-            const pathSplit: string[] = key.split("/");
-            let curPathNode: FileManagerPathNode = udfRootPathNode;
-
-            for (const path of pathSplit) {
-                if (path === "") {
-                    continue;
-                }
-
-                if (curPathNode.children.has(path)) {
-                    curPathNode = curPathNode.children.get(path);
-                } else {
-                    curPathNode.isSorted = false;
-                    const childPathNode: FileManagerPathNode = {
-                        pathName: path,
-                        isDir: true,
-                        // TODO: no info from api.
-                        timestamp: Math.floor(Math.random() * 101),
-                        size: Math.floor(Math.random() * 101),
-                        isSelected: false,
-                        sortBy: FileManagerField.Name,
-                        sortDescending: false,
-                        isSorted: false,
-                        parent: curPathNode,
-                        children: new Map()
-                    };
-                    curPathNode.children.set(path, childPathNode);
-                    curPathNode = childPathNode;
-                }
-            }
-            curPathNode.isDir = false;
-        }
-
-        if (clean) {
-            this._udfCleanPaths();
-        }
-    }
-
-    /**
-     * Build dataflow path trie.
-     * @returns void
-     */
-    public dataflowBuildPathTree(): void {
-        if (!this.rootPathNode.children.has("Dataflow")) {
-            this.rootPathNode.children.set("Dataflow", {
-                pathName: "Dataflow",
-                isDir: true,
-                timestamp: null,
-                size: null,
-                isSelected: false,
-                sortBy: FileManagerField.Name,
-                sortDescending: false,
-                isSorted: false,
-                parent: this.rootPathNode,
-                children: new Map()
-            });
-        }
     }
 
     /**
@@ -172,7 +97,7 @@ class FileManagerPanel {
                 : "xi-ckbox-empty";
             const folderIcon: string = childPathNode.isDir
                 ? "xi-folder"
-                : "xi-menu-udf";
+                : this.manager.fileIcon();
 
             html +=
                 '<div class="row">' +
@@ -189,12 +114,12 @@ class FileManagerPanel {
                 childPath +
                 "</span>" +
                 "  </div>" +
-                '  <div class="field">' +
+                '  <div class="field dateField">' +
                 '    <span class="label">' +
                 childPathNode.timestamp +
                 "</span>" +
                 "  </div>" +
-                '  <div class="field">' +
+                '  <div class="field typeField">' +
                 '    <span class="label">' +
                 childPathNode.size +
                 "</span>" +
@@ -204,46 +129,9 @@ class FileManagerPanel {
 
         this.$panel.find(".mainSection").html(html);
         this._updateAddress();
+        this._updateUploadArea();
         this._updateSelectAllButton();
         this._updateSortIcon();
-    }
-
-    /**
-     * @returns void
-     */
-    public udfCreateWorkbookFolder(): void {
-        let folderPath = UDFFileManager.Instance.nsNameToDisplayName(
-            UDFFileManager.Instance.getCurrWorkbookPath()
-        );
-        folderPath = folderPath.substring(0, folderPath.length - 3);
-        const paths: string[] = folderPath.split("/");
-        let curPathNode = this.rootPathNode.children.get("UDF");
-
-        paths.forEach((path: string) => {
-            if (path === "") {
-                return;
-            }
-
-            if (curPathNode.children.has(path)) {
-                curPathNode = curPathNode.children.get(path);
-                return;
-            } else {
-                curPathNode.children.set(path, {
-                    pathName: path,
-                    isDir: true,
-                    // TODO: no info from api.
-                    timestamp: Math.floor(Math.random() * 101),
-                    size: Math.floor(Math.random() * 101),
-                    isSelected: false,
-                    sortBy: FileManagerField.Name,
-                    sortDescending: false,
-                    isSorted: false,
-                    parent: curPathNode,
-                    children: new Map()
-                });
-                curPathNode = curPathNode.children.get(path);
-            }
-        });
     }
 
     /**
@@ -271,57 +159,30 @@ class FileManagerPanel {
         this.rootPathNode.children.get("Search").children.delete(path);
     }
 
-    private _udfCleanPaths(): void {
-        const storedUDF: Map<
-        string,
-        string
-        > = UDFFileManager.Instance.getUDFs();
-        const storedUDFSet: Set<string> = new Set(
-            Array.from(storedUDF.keys()).map((value: string) => {
-                return UDFFileManager.Instance.nsNameToDisplayName(value);
-            })
-        );
-        const curPathNode: FileManagerPathNode = this.rootPathNode.children.get(
-            "UDF"
-        );
-        const sortRes: FileManagerPathNode[] = [];
-        const visited: Set<FileManagerPathNode> = new Set();
-
-        this._udfSortPaths(curPathNode, visited, sortRes);
-        sortRes.pop();
-
-        for (const sortedPathNode of sortRes) {
-            if (
-                (!sortedPathNode.isDir &&
-                    !storedUDFSet.has(this._nodeToPath(sortedPathNode))) ||
-                (sortedPathNode.isDir &&
-                    sortedPathNode.children.size === 0 &&
-                    this._nodeToPath(sortedPathNode) !==
-                        UDFFileManager.Instance.getCurrWorkbookDisplayPath())
-            ) {
-                sortedPathNode.parent.children.delete(sortedPathNode.pathName);
-            }
+    /**
+     * @param  {FileManagerPathNode} curPathNode
+     * @returns string
+     */
+    public nodeToPath(curPathNode: FileManagerPathNode): string {
+        let res: string = curPathNode.isDir ? "/" : "";
+        while (curPathNode.parent !== this.rootPathNode) {
+            res = "/" + curPathNode.pathName + res;
+            curPathNode = curPathNode.parent;
         }
-
-        this._refreshNodeReference();
+        return res;
     }
 
-    private _udfSortPaths(
-        curPathNode: FileManagerPathNode,
-        visited: Set<FileManagerPathNode>,
-        sortRes: FileManagerPathNode[]
-    ): void {
-        if (visited.has(curPathNode)) {
+    /**
+     * @returns void
+     */
+    public refreshNodeReference(): void {
+        if (this.viewPathNode === this.rootPathNode.children.get("Search")) {
             return;
         }
 
-        visited.add(curPathNode);
-
-        for (const childPathNode of curPathNode.children.values()) {
-            this._udfSortPaths(childPathNode, visited, sortRes);
-        }
-
-        sortRes.push(curPathNode);
+        this.viewPathNode = this._pathToNode(
+            this.nodeToPath(this.viewPathNode)
+        );
     }
 
     private get manager(): BaseFileManager {
@@ -394,10 +255,28 @@ class FileManagerPanel {
                     this._eventNavigatePath(false);
                 } else if ($navigationIcon.hasClass("xi-refresh")) {
                     // TODO: should update from backend.
-                    this.udfBuildPathTree(true);
+                    this.manager.buildPathTree(true);
                     this.updateList();
                 }
             }
+        });
+    }
+
+    private _addUploadEvents(): void {
+        const $operationAreaUpload: JQuery = this.$panel.find(
+            ".operationArea"
+        );
+        $operationAreaUpload.children(".operationContent").on({
+            mouseup: () => {
+                this._eventClickUpload();
+            }
+        });
+
+        const $uploadButton: JQuery = this.$panel.find(
+            ".operationArea .uploadButton"
+        );
+        $uploadButton.change((event: JQueryEventObject) => {
+            this._eventUpload($(event.currentTarget).val());
         });
     }
 
@@ -469,7 +348,7 @@ class FileManagerPanel {
                             return;
                         }
                         this.manager.open(
-                            this._nodeToPath(
+                            this.nodeToPath(
                                 [...this.selectedPathNodes.entries()][0][0]
                             )
                         );
@@ -479,7 +358,7 @@ class FileManagerPanel {
                             return;
                         }
                         this.manager.download(
-                            this._nodeToPath(
+                            this.nodeToPath(
                                 [...this.selectedPathNodes.entries()][0][0]
                             )
                         );
@@ -496,10 +375,21 @@ class FileManagerPanel {
                                     FileManagerPathNode
                                     ]
                                 ) => {
-                                    return this._nodeToPath(value[0]);
+                                    return this.nodeToPath(value[0]);
                                 }
                             )
                         );
+                        break;
+                    case FileManagerAction.Share:
+                        if (!this._isValidAction(action)) {
+                            return;
+                        }
+                        this.manager.share(
+                            this.nodeToPath(
+                                [...this.selectedPathNodes.entries()][0][0]
+                            )
+                        );
+                        break;
                 }
             }
         });
@@ -541,13 +431,23 @@ class FileManagerPanel {
                     if (
                         selectedPathNode.isDir ||
                         !this.manager.isWritable(
-                            this._nodeToPath(selectedPathNode)
+                            this.nodeToPath(selectedPathNode)
                         )
                     ) {
                         return false;
                     }
                 }
                 return this.selectedPathNodes.size > 0;
+            case FileManagerAction.Share:
+                return (
+                    this.selectedPathNodes.size === 1 &&
+                    ![...this.selectedPathNodes.entries()][0][0].isDir &&
+                    this.manager.isSharable(
+                        this.nodeToPath(
+                            [...this.selectedPathNodes.entries()][0][0]
+                        )
+                    )
+                );
             default:
                 return false;
         }
@@ -654,7 +554,7 @@ class FileManagerPanel {
             this.savedPathNodes.get(fileType) ||
             this.rootPathNode.children.get(fileType);
         this.curHistoryNode = this.savedHistoryNodes.get(fileType) || {
-            path: this._nodeToPath(this.viewPathNode),
+            path: this.nodeToPath(this.viewPathNode),
             prev: null,
             next: null
         };
@@ -693,7 +593,7 @@ class FileManagerPanel {
         if (!newNode.isDir) {
             this.manager.open(newPath);
             newNode = newNode.parent;
-            newPath = this._nodeToPath(newNode);
+            newPath = this.nodeToPath(newNode);
 
             if (
                 this.viewPathNode === this.rootPathNode.children.get("Search")
@@ -722,6 +622,58 @@ class FileManagerPanel {
                 : this._getViewPath();
 
         this.$panel.find(".addressArea .addressContent").val(address);
+    }
+
+    private _eventClickUpload(): void {
+        if (
+            !this.manager.isWritable(
+                this.nodeToPath(this.viewPathNode) +
+                    this.manager.fileExtension()
+            )
+        ) {
+            return;
+        }
+
+        const $uploadButton: JQuery = this.$panel.find(
+            ".operationArea .uploadButton"
+        );
+        $uploadButton.val("");
+        $uploadButton.click();
+    }
+
+    private _eventUpload(path: string): void {
+        if (path.trim() === "") {
+            return;
+        }
+
+        path =
+            this.nodeToPath(this.viewPathNode) +
+            path.replace(/C:\\fakepath\\/i, "");
+
+        const $uploadButton: JQuery = this.$panel.find(
+            ".operationArea .uploadButton"
+        );
+        const file: File = ($uploadButton[0] as HTMLInputElement).files[0];
+
+        const reader: FileReader = new FileReader();
+        reader.onload = (readerEvent: any) => {
+            const entireString = readerEvent.target.result;
+            this.manager.add(path, entireString);
+        };
+        reader.readAsText(file);
+    }
+
+    private _updateUploadArea(): void {
+        const $uploadArea: JQuery = this.$panel.find(".operationAreaUpload");
+        $uploadArea
+        .children(".operationContent")
+        .toggleClass(
+            "disabled",
+            !this.manager.isWritable(
+                this.nodeToPath(this.viewPathNode) +
+                        this.manager.fileExtension()
+            )
+        );
     }
 
     private _eventSearch(keyword: string): void {
@@ -756,7 +708,7 @@ class FileManagerPanel {
 
             if (curPathNode.pathName.includes(keyword)) {
                 rootSearchPathNode.children.set(
-                    this._nodeToPath(curPathNode),
+                    this.nodeToPath(curPathNode),
                     curPathNode
                 );
             }
@@ -925,16 +877,7 @@ class FileManagerPanel {
     }
 
     private _getViewPath(): string {
-        return this._nodeToPath(this.viewPathNode);
-    }
-
-    private _nodeToPath(curPathNode: FileManagerPathNode): string {
-        let res: string = curPathNode.isDir ? "/" : "";
-        while (curPathNode.parent !== this.rootPathNode) {
-            res = "/" + curPathNode.pathName + res;
-            curPathNode = curPathNode.parent;
-        }
-        return res;
+        return this.nodeToPath(this.viewPathNode);
     }
 
     private _pathToNode(
@@ -959,15 +902,5 @@ class FileManagerPanel {
         }
 
         return curPathNode;
-    }
-
-    private _refreshNodeReference(): void {
-        if (this.viewPathNode === this.rootPathNode.children.get("Search")) {
-            return;
-        }
-
-        this.viewPathNode = this._pathToNode(
-            this._nodeToPath(this.viewPathNode)
-        );
     }
 }

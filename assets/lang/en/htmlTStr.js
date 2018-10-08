@@ -412,6 +412,7 @@ module.exports = {
         "Rename": "Rename",
         "Delete": "Delete",
         "Duplicate": "Duplicate",
+        "Share": "Share",
         "CreateFolder": "Create Folder",
         "Upload": "Upload",
         "Name": "Name",

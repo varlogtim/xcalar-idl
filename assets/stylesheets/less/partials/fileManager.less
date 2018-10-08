@@ -60,6 +60,8 @@
         .flex-display;
 
         .fileTypeArea {
+            // Currently only 1 type, so hidden.
+            display: none;
             padding: 8px 0px 0px 16px;
 
             .fileTypeBox {
@@ -252,7 +254,12 @@
         .operationArea {
             padding: 6px 7px 0px 0px;
 
-            &.oprerationAreaUpload {
+            &.operationAreaCreateFolder {
+                // No api support.
+                display: none;
+            }
+
+            &.operationAreaUpload {
                 padding: 6px 14px 0px 0px;
                 .operationContent {
                     background-color: @color-bg-green-submit;
@@ -277,6 +284,10 @@
 
                 &:hover {
                     opacity: @opacity-hover;
+                }
+
+                &.disabled {
+                    cursor: not-allowed;
                 }
             }
         }
@@ -327,7 +338,17 @@
                 .flex-display;
 
                 .nameField {
-                    .size(@width: 100%)
+                    .size(@width: 100%);
+                }
+
+                .dateField {
+                    // No api support.
+                    display: none;
+                }
+
+                .typeField {
+                    // No api support.
+                    display: none;
                 }
 
                 .field {

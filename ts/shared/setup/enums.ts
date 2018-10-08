@@ -406,7 +406,8 @@ enum FileManagerAction {
     Download = "Download",
     Rename = "Rename",
     Delete = "Delete",
-    Duplicate = "Duplicate"
+    Duplicate = "Duplicate",
+    Share = "Share"
 }
 
 if (typeof global !== 'undefined') {

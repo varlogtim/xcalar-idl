@@ -54,27 +54,24 @@
         </li>
         <li class="actionMenuSection">
           <span class="label">
-            <%= dicts.fileManager.Rename %></span>
-        </li>
-        <li class="actionMenuSection">
-          <span class="label">
             <%= dicts.fileManager.Delete %></span>
         </li>
         <li class="actionMenuSection">
           <span class="label">
-            <%= dicts.fileManager.Duplicate %></span>
+            <%= dicts.fileManager.Share %></span>
         </li>
       </div>
     </div>
-    <div class="operationArea">
+    <div class="operationArea operationAreaCreateFolder">
       <div class="operationContent">
         <%= dicts.fileManager.CreateFolder %>
       </div>
     </div>
-    <div class="operationArea oprerationAreaUpload">
+    <div class="operationArea operationAreaUpload">
       <div class="operationContent">
         <%= dicts.fileManager.Upload %>
       </div>
+      <input class="uploadButton" spellcheck="false" type="file" style="display: none;">
     </div>
   </div>
   <div class="fileManagerSearchBar">
@@ -94,12 +91,12 @@
             <%= dicts.fileManager.Name %></span>
           <i class="icon xi-sort"></i>
         </div>
-        <div class="field">
+        <div class="field dateField">
           <span class="label">
             <%= dicts.fileManager.Date %></span>
           <i class="icon xi-sort"></i>
         </div>
-        <div class="field">
+        <div class="field typeField">
           <span class="label">
             <%= dicts.fileManager.Size %></span>
           <i class="icon xi-sort"></i>
