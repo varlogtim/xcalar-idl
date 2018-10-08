@@ -2367,7 +2367,9 @@ namespace DagView {
             }
         }
         if (!hasLockedSiblings) {
-            DagTabManager.Instance.getGraphById(dagId).unsetGraphNoDelete();
+            const dagTab: DagTab = DagTabManager.Instance.getTabById(dagId);
+            const dagGraph: DagGraph = dagTab.getGraph();
+            dagGraph.unsetGraphNoDelete();
         }
     }
 
