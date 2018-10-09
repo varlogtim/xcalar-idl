@@ -1144,8 +1144,4 @@ class GroupByOpPanel extends GeneralOpPanel {
             this._autoGenNewGroupByName(this._$lastInputFocused);
         }
     }
-
-    protected _switchMode(toAdvancedMode: boolean): {error: string} {
-        return this.model.switchMode(toAdvancedMode, this._editor);
-    }
 }

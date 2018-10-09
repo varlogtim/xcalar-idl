@@ -1071,8 +1071,4 @@ class MapOpPanel extends GeneralOpPanel {
             '</div>';
         return html;
     }
-
-    protected _switchMode(toAdvancedMode: boolean): {error: string} {
-        return this.model.switchMode(toAdvancedMode, this._editor);
-    }
 }

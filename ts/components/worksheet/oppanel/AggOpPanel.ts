@@ -569,13 +569,7 @@ class AggOpPanel extends GeneralOpPanel {
     //     }
     // }
 
-
-
     protected _resetForm() {
         super._resetForm();
-    }
-
-    protected _switchMode(toAdvancedMode: boolean): {error: string} {
-        return this.model.switchMode(toAdvancedMode, this._editor);
     }
 }

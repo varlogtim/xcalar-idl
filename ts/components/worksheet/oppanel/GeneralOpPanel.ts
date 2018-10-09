@@ -1949,4 +1949,8 @@ class GeneralOpPanel extends BaseOpPanel {
     protected _restoreBasicModeParams() {
         return this.model.restoreBasicModeParams(this._editor);
     }
+
+    protected _switchMode(toAdvancedMode: boolean): {error: string} {
+        return this.model.switchMode(toAdvancedMode, this._editor);
+    }
 }
