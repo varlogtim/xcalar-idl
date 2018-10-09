@@ -7,6 +7,7 @@ class DagGraph {
     private innerEvents: object;
     private lock: boolean;
     private noDelete: boolean;
+    private parentTabId: string;
     public events: { on: Function, trigger: Function}; // example: dagGraph.events.on(DagNodeEvents.StateChange, console.log)
 
     public constructor() {
@@ -558,6 +559,21 @@ class DagGraph {
             endSets: { in: inEnds, out: outEnds },
             dfIOSets: { in: sourceNodes, out: destNodes }
         };
+    }
+
+    /**
+     * Sets the tab id this graph resides in
+     * @param id
+     */
+    public setTabId(id: string) {
+        this.parentTabId = id;
+    }
+
+    /**
+     * Returns the Tab ID this graph resides in.
+     */
+    public getTabId(): string {
+        return this.parentTabId;
     }
 
     /**

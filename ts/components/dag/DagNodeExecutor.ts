@@ -1,10 +1,12 @@
 class DagNodeExecutor {
     private node: DagNode;
     private txId: number;
+    private tabId: string;
 
-    public constructor(node: DagNode, txId: number) {
+    public constructor(node: DagNode, txId: number, tabId: string) {
         this.node = node;
         this.txId = txId;
+        this.tabId = tabId;
     }
 
     /**
@@ -80,7 +82,7 @@ class DagNodeExecutor {
     }
 
     private _generateTableName(): string {
-        return this.node.getId() + Authentication.getHashId();
+        return this.tabId + "_" + this.node.getId() + Authentication.getHashId();
     }
 
     private _loadDataset(): XDPromise<string> {

@@ -115,7 +115,7 @@ class DagGraphExecutor {
             track: true,
             nodeId: node.getId()
         });
-        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId);
+        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, this.graph.getTabId());
         dagNodeExecutor.run()
         .then(() => {
             Transaction.done(txId, {});
@@ -143,7 +143,7 @@ class DagGraphExecutor {
         txId: number,
         node: DagNode
     ): XDPromise<string> {
-        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId);
+        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, this.graph.getTabId());
         return dagNodeExecutor.run();
     }
 

@@ -18,6 +18,9 @@ abstract class DagTab {
         this._name = name;
         this._id = id || DagTab.generateId();
         this._dagGraph = dagGraph || null;
+        if (this._dagGraph != null) {
+            this._dagGraph.setTabId(this._id);
+        }
     }
 
     public abstract load(): XDPromise<void>
@@ -73,6 +76,7 @@ abstract class DagTab {
                     return null;
                 }
                 this._dagGraph = grapah;
+                this._dagGraph.setTabId(this._id);
                 deferred.resolve();
             }
         })
