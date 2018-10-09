@@ -1803,7 +1803,7 @@ window.DagDraw = (function($, DagDraw) {
                 case ('groupByInput'):
                     var sampleStr = "";
                     var groupedOn = getGroupedOnText(node);
-                    if (struct.includeSrcTableSample) {
+                    if (struct.includeSample) {
                         sampleStr = " (Sample included)";
                     } else {
                         sampleStr = " (Sample not included)";
@@ -2021,7 +2021,7 @@ window.DagDraw = (function($, DagDraw) {
                         for (var j = 0; j < cols.length; j++) {
                             gbOnCols[cols[j]] = true;
                         }
-                        if (gbNode.value.struct.includeSrcTableSample) {
+                        if (gbNode.value.struct.includeSample) {
                             sampleStr = " (Sample included)";
                         }
                         var evalStrs = gbNode.value.struct.eval;

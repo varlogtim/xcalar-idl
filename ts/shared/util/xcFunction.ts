@@ -603,7 +603,7 @@ namespace xcFunction {
         let focusOnTable: boolean = false;
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
-        
+
         getUnsortedTableName(txId, lTableName, rTableName)
         .then((lUnsortedTable, rUnSortedTable) => {
             lTableInfo.tableName = lUnsortedTable;
@@ -846,7 +846,8 @@ namespace xcFunction {
             }).length > 0;
             let castArgsPromise: XDPromise<string>;
             // agg and groupByCols has no cast
-            if (aggArgs.length === 1 && aggregateArgs[0].cast && !needsIndexCast) {
+            if (aggArgs.length === 1 && aggregateArgs[0].cast && !needsIndexCast &&
+                !aggArgs[0].isDistinct) {
                 // if single group by
                 aggArgs[0].aggColName = xcHelper.castStrHelper(aggregateArgs[0].aggColName,
                     aggregateArgs[0].cast, false);
@@ -1075,7 +1076,7 @@ namespace xcFunction {
          groupByColNames: string[]
     ): string[] {
         const takenNames: Set<string> = new Set();
-    
+
         aggArgs.forEach((aggInfo) => {
             takenNames.add(aggInfo.newColName);
         });
@@ -1085,7 +1086,7 @@ namespace xcFunction {
                 takenNames.add(parsedCol.name);
             }
         });
-        
+
         const newKeys: string[] = parsedGroupByCols.map((parsedCol) => {
             if (!parsedCol.prefix) {
                 // immediate

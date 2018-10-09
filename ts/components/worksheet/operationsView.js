@@ -2986,7 +2986,7 @@ window.OperationsView = (function($, OperationsView) {
             var hasEmpty = $input.closest('.row')
                                  .find('.emptyOptions .checked').length;
             var isCasting = $input.data('casted') && !hasEmpty;
-            if (isCasting) {
+            if (isCasting && args[i]) {
                 var cols = args[i].split(",");
                 var casting = false;
                 for (var j = 0; j < cols.length; j++) {

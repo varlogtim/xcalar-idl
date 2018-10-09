@@ -799,8 +799,7 @@ namespace XIApi {
         XIApi.index(txId, newGroupOnCols, origTableName)
         .then((indexedTableName) => {
             for (let i: number = 0; i < newGroupOnCols.length; i++) {
-                newGroupOnCols[i] = newGroupOnCols[i].substr(newGroupOnCols[i]
-                                                        .lastIndexOf(":") + 1);
+                newGroupOnCols[i] = stripColName(newGroupOnCols[i]);
             }
 
 
@@ -820,8 +819,7 @@ namespace XIApi {
                 newIndexTable = getNewTableName(origTableName, "index");
                 tempTables.push(newIndexTable);
                 for (let i: number = 0; i < groupOnCols.length; i++) {
-                    groupOnCols[i] = groupOnCols[i].substr(groupOnCols[i]
-                                                    .lastIndexOf(":") + 1);
+                    groupOnCols[i] = stripColName(groupOnCols[i]);
                 }
                 return XIApi.index(txId, groupOnCols, gbDistinctTableName, newIndexTable);
             }
@@ -830,11 +828,11 @@ namespace XIApi {
             const evalStrs: string[] = [];
             const newColNames: string[] = [];
             aggArgs.forEach((aggArg) => {
-                aggArg.aggColName = aggArg.aggColName.substr(aggArg.aggColName
-                                                        .lastIndexOf(":") + 1);
+                aggArg.aggColName = stripColName(aggArg.aggColName);
                 evalStrs.push(aggArg.operator + "(" + aggArg.aggColName + ")");
                 newColNames.push(aggArg.newColName);
             });
+            console.log(evalStrs);
             return groupByHelper(txId, newColNames, evalStrs, newIndexTable,
             gbTableName, false, false, newGroupOnCols[0], groupAll);
         })
@@ -844,6 +842,31 @@ namespace XIApi {
             deferred.resolve();
         })
         .fail(deferred.reject);
+
+        // convert a::b into b or int(a::b, 10) into int(b, 10)
+        // XXX not handling nested eval functions
+        function stripColName(colName: string): string {
+            let prefix = "";
+            // extract the name if wrapped in a cast
+            if (colName.startsWith("int(") || colName.startsWith("string(") ||
+                colName.startsWith("float(") || colName.startsWith("bool(")) {
+                prefix = colName.slice(0, colName.indexOf("("));
+                colName = colName.substring(colName.indexOf("(") + 1,
+                                            colName.length - 1);
+                if (colName.indexOf(",") > -1) {
+                    colName = colName.substring(0, colName.indexOf(","));
+                }
+            }
+            colName = colName.substr(colName.lastIndexOf(":") + 1);
+            if (prefix) {
+                colName = prefix + "(" + colName;
+                if (prefix === "int") {
+                    colName += ", 10";
+                }
+                colName += ")";
+            }
+            return colName;
+        }
 
         return deferred.promise();
     }
@@ -937,6 +960,9 @@ namespace XIApi {
         const distinctGbTables: string[] = [];
         const tempTables: string[] = [];
         const tempCols: string[] = [];
+        groupOnCols = xcHelper.deepCopy(groupOnCols);
+        // we're going to manipulate groupOnCols
+        // and don't want to modify the original copy
         for (let distinctCol in aggCols) {
             promises.push(computeDistinctGroupby(txId, tableName,
                             groupOnCols, distinctCol, aggCols[distinctCol],
