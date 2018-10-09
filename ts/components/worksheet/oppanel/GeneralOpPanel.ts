@@ -307,7 +307,7 @@ class GeneralOpPanel extends BaseOpPanel {
     }
 
     public refreshColumns(): void {
-        this.allColumns = this.dataModel.refreshColumns();
+        this.allColumns = this.model.refreshColumns();
     }
 
     private _addGeneralEventListeners(): void {
@@ -1947,6 +1947,6 @@ class GeneralOpPanel extends BaseOpPanel {
     }
 
     protected _restoreBasicModeParams() {
-        return this.dataModel.restoreBasicModeParams(this._editor);
+        return this.model.restoreBasicModeParams(this._editor);
     }
 }
