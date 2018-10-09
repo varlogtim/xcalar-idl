@@ -9,7 +9,7 @@ namespace DagView {
     const horzNodeSpacing = 140;// spacing between nodes when auto-aligning
     const vertNodeSpacing = 60;
     const gridLineSize = 12;
-    const titleLineHeight = 14;
+    const titleLineHeight = 12;
     const inConnectorWidth = 6;
     let clipboard = null;
     export const nodeHeight = 28;
@@ -924,7 +924,6 @@ namespace DagView {
                      line + '</tspan>';
         });
         $node.find(".nodeTitle").html(html);
-        node.setTitle(title);
 
         Log.add(SQLTStr.EditNodeTitle, {
             "operation": SQLOps.EditNodeTitle,
@@ -933,7 +932,7 @@ namespace DagView {
             "newTitle": title,
             "nodeId": nodeId
         });
-        return activeDagTab.saveTab();
+        return activeDagTab.save();
     }
 
     /**
@@ -1975,7 +1974,7 @@ namespace DagView {
         let abbrId = nodeId.slice(nodeId.indexOf(".") + 1);
         abbrId = abbrId.slice(abbrId.indexOf(".") + 1);
         const titleLines = node.getTitle().split("\n");
-        // show id next to node
+
         const textSvg = d3.select($node.get(0)).append("text")
             .attr("class", "nodeTitle")
             .attr("fill", "#44515C")
