@@ -236,7 +236,8 @@ router.get("/service/matchedHosts",
 router.get("/service/logs",
            [support.checkAuthAdmin], function(req, res) {
     xcConsole.log("Fetching Recent Logs as Master");
-    support.masterExecuteAction("GET", "/service/logs/slave", req.query, null, true)
+    var rawCookie = support.rawSessionCookie(req);
+    support.masterExecuteAction("GET", "/service/logs/slave", req.query, rawCookie)
     .always(function(message) {
         if (message.logs) {
             message.logs = convertToBase64(message.logs);
