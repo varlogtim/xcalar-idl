@@ -376,7 +376,7 @@
                             background-color: @color-bg-select-blue;
                         }
                         .progressInfo {
-                            top: -35px;
+                            top: -44px;
                         }
                         &.parameterizable {
                             .progressBarWrap {
@@ -459,6 +459,10 @@
         .dagTable {
             cursor: default;
 
+            &.hasProgress {
+                cursor: pointer;
+            }
+
             .tableTitle {
                 max-width: 180px;
                 color: @color-font-gray36;
@@ -483,7 +487,7 @@
 
             .dagTableTip {
                 display: none; // show if .dagWrap is .inProgress
-                top: -25px;
+                top: -37px;
 
                 .label {
                     font-weight: bold;
@@ -534,7 +538,7 @@
                     width: 130px;
                 }
                 .progressInfo {
-                    top: -32px;
+                    top: -44px;
                 }
             }
 

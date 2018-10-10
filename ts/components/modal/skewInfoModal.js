@@ -3,6 +3,7 @@ window.SkewInfoModal = (function(SkewInfoModal, $) {
     var modalHelper;
     var activeTableId;
     var percentageLabel = false;
+    var instanceOptions;
 
     SkewInfoModal.setup = function() {
         $modal = $("#skewInfoModal");
@@ -17,8 +18,10 @@ window.SkewInfoModal = (function(SkewInfoModal, $) {
         addEvents();
     };
 
-    SkewInfoModal.show = function(tableId) {
-        if (tableId == null || !gTables.hasOwnProperty(tableId)) {
+    SkewInfoModal.show = function(tableId, options) {
+        instanceOptions = options || {};
+        if ((tableId == null || !gTables.hasOwnProperty(tableId)) &&
+        !instanceOptions.tableInfo) {
             // error case which should never happen
             Alert.error(AlertTStr.Error, AlertTStr.ErrorMsg);
             return;
@@ -58,12 +61,24 @@ window.SkewInfoModal = (function(SkewInfoModal, $) {
     }
 
     function showTableInfo(tableId) {
-        var table = gTables[tableId];
-        var size = xcHelper.sizeTranslator(table.getSize());
-        var totalRows = xcHelper.numToStr(table.resultSetCount);
+        var table;
+        let size;
+        let totalRows;
+        let name;
+        if (instanceOptions.tableInfo) {
+            size = instanceOptions.tableInfo.size;
+            totalRows = instanceOptions.tableInfo.totalRows;
+            name = instanceOptions.tableInfo.name;
+        } else {
+            table = gTables[tableId];
+            size = table.getSize();
+            totalRows = table.resultSetCount;
+            name = table.getName();
+        }
 
+        size = xcHelper.sizeTranslator(size);
         var $skew = $("#skewInfoArea .text");
-        $modal.find(".tableName .text").text(table.getName());
+        $modal.find(".tableName .text").text(name);
         $modal.find(".size .text").text(size);
         $modal.find(".totalRows .text").text(totalRows);
         $modal.find(".skew .text").text($skew.text())
@@ -71,9 +86,17 @@ window.SkewInfoModal = (function(SkewInfoModal, $) {
     }
 
     function drawDistributionGraph(tableId) {
-        var table = gTables[tableId];
-        var totalRows = table.resultSetCount;
-        var data = table.getRowDistribution().map(function(d, i) {
+        var totalRows;
+        var rows;
+        if (instanceOptions.tableInfo) {
+            totalRows = instanceOptions.tableInfo.totalRows;
+            rows = instanceOptions.tableInfo.rows;
+        } else {
+            var table = gTables[tableId];
+            totalRows = table.resultSetCount;
+            rows = table.getRowDistribution();
+        }
+        var data = rows.map(function(d, i) {
             var row = percentageLabel ? d / totalRows : d;
             return {"row": row, "node": "Node " + i};
         });

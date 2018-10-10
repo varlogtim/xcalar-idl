@@ -637,16 +637,14 @@ window.DFCard = (function($, DFCard) {
             }
         };
 
-        var selector = '.dagTable.rootNode, .operationTypeWrap';
-
         // Attach styling to all nodes that have a dropdown
-        $dfCard.find(selector).addClass("parameterizable");
+        $dfCard.find('.dagTable.rootNode, .operationTypeWrap').addClass("parameterizable");
         if (XVM.getLicenseMode() === XcalarMode.Mod) {
             $dfCard.find('.parameterizable:not(.export)')
                     .addClass('noDropdown');
         }
 
-        $dagArea.on('click', selector, function(event) {
+        $dagArea.on('click', '.dagTable, .operationTypeWrap', function(event) {
             $('.menu').hide();
             xcMenu.removeKeyboardNavigation();
             $('.leftColMenu').removeClass('leftColMenu');
@@ -692,6 +690,18 @@ window.DFCard = (function($, DFCard) {
                 $queryLi.removeClass("unavailable");
                 xcTooltip.remove($queryLi);
             }
+            if ($currentIcon.is(".dagTable")) {
+                if (!$currentIcon.hasClass("rootNode")) {
+                    $queryLi.hide();
+
+                }
+
+                if ($currentIcon.hasClass("hasProgress")) {
+                    $menu.find(".skewInfo").show();
+                } else if (!$currentIcon.hasClass("rootNode")) {
+                    return; // no menu if not root node and no progressInfo
+                }
+            }
 
             positionAndInitMenu($currentIcon);
         });
@@ -734,6 +744,10 @@ window.DFCard = (function($, DFCard) {
                     break;
                 case ("commentOp"):
                     DFCommentModal.show($currentIcon, true);
+                    break;
+                case ("skewInfo"):
+                    showSkewModal($currentIcon);
+                    break;
                 default:
                     break;
             }
@@ -781,6 +795,11 @@ window.DFCard = (function($, DFCard) {
             }
             xcMenu.addKeyboardNavigation($menu);
         }
+    }
+
+    function showSkewModal($currentIcon) {
+        const skewInfo = $currentIcon.find(".progressInfo").data("skewInfo");
+        SkewInfoModal.show(null, {tableInfo: skewInfo});
     }
 
     function showExportCols($dagTable) {
@@ -1177,7 +1196,7 @@ window.DFCard = (function($, DFCard) {
 
         XcalarQueryState(retName, statusesToIgnore)
         .then(function(retInfo) {
-            updateNodePctAndColors(retName, retInfo, isComplete);
+            updateNodeProgressDisplay(retName, retInfo, isComplete);
             if (isComplete) {
                 updateOverallTime(retName, isComplete);
             }
@@ -1208,7 +1227,7 @@ window.DFCard = (function($, DFCard) {
         $dagWrap.find(".overallTime").text(timeStr);
     }
 
-    function updateNodePctAndColors(retName, retInfo, isComplete) {
+    function updateNodeProgressDisplay(retName, retInfo, isComplete) {
         var $dagWrap = getDagWrap(retName);
         var nodes = retInfo.queryGraph.node;
         var tableName;
@@ -1230,6 +1249,7 @@ window.DFCard = (function($, DFCard) {
             $dagTable = $dagWrap.find('.dagTable[data-tablename="' + tableName +
                                       '"]');
             $dagTable.find(".progressInfo").remove();
+            $dagTable.removeClass("hasProgress");
             progressInfo = "";
             $dagTable.removeClass(dagStateClasses).addClass(state);
             var $barWrap = $dagTable.find(".progressBarWrap");
@@ -1248,8 +1268,8 @@ window.DFCard = (function($, DFCard) {
                                     '<div class="time"><span class="label">' +
                                         CommonTxtTstr.time +
                                      ':</span><span class="value">' + timeStr +
-                                     '</span></div>' +
-                                 '</div>';
+                                     '</span></div>';
+
                 xcTooltip.remove($dagTable.find(".dagTableIcon, .dataStoreIcon"));
                 $barWrap.remove();
             } else if (nodes[i].state === DgDagStateT.DgDagStateProcessing) {
@@ -1282,13 +1302,30 @@ window.DFCard = (function($, DFCard) {
                                         CommonTxtTstr.elapsedTime +
                                         ':</span><span class="value">' +
                                         timeStr +
-                                    '</span></div>' +
-                                 '</div>';
+                                    '</span></div>';
                 xcTooltip.remove($dagTable.find(".dagTableIcon, .dataStoreIcon"));
             } else {
                 $barWrap.remove();
             }
+            // skew info
+            const skewInfo = getSkewInfo(nodes[i]);
+            const skewText= skewInfo.text;
+            const skewColor = skewInfo.color;
+            let colorStyle = "";
+            if (skewColor) {
+                colorStyle = "color:" + skewColor;
+            }
+            progressInfo += '<div class="skew">'+
+                    '<span class="label">' +
+                        'skew' +
+                    ':</span>' +
+                    '<span class="value" style="' + colorStyle + '">' +
+                        skewText +
+                    '</span>' +
+            '</div></div>';
             $dagTable.append(progressInfo);
+            $dagTable.find(".progressInfo").data("skewInfo", skewInfo);
+            $dagTable.addClass("hasProgress");
         }
         var pct;
         if (isComplete) {
@@ -1303,6 +1340,78 @@ window.DFCard = (function($, DFCard) {
             optime: cumulativeOpTime,
             numcompleted: numCompleted
         });
+    }
+
+    function getSkewInfo(node) {
+        const rows = node.numRowsPerNode.map(numRows => numRows);
+        const skew = getSkewValue(node);
+        const skewText = getSkewText(skew);
+        const skewColor = getSkewColor(skewText);
+        return {
+            name: node.name.name,
+            value: skew,
+            text: skewText,
+            color: skewColor,
+            rows: rows,
+            totalRows: node.numRowsTotal,
+            size: node.inputSize
+        };
+    }
+
+    function getSkewText(skew) {
+        return isInValidSkew(skew) ? "N/A" : String(skew);
+    }
+
+    function isInValidSkew(skew) {
+        return (skew == null || isNaN(skew));
+    }
+
+    function getSkewValue(node) {
+        var skewness = null;
+        var rows = node.numRowsPerNode.map(numRows => numRows);
+        var len = rows.length;
+        var even = 1 / len;
+        var total = rows.reduce(function(sum, value) {
+            return sum + value;
+        }, 0);
+        if (total === 1) {
+            // 1 row has no skewness
+            skewness = 0;
+        } else {
+            // change to percantage
+            rows = rows.map(function(row) {
+                return row / total;
+            });
+
+            skewness = rows.reduce(function(sum, value) {
+                return sum + Math.abs(value - even);
+            }, 0);
+
+            skewness = Math.floor(skewness * 100);
+        }
+        return skewness;
+    }
+
+    function getSkewColor(skew) {
+
+        if (skew === "N/A") {
+            return "";
+        }
+        skew = Number(skew);
+        /*
+            0: hsl(104, 100%, 33)
+            25%: hsl(50, 100%, 33)
+            >= 50%: hsl(0, 100%, 33%)
+        */
+        let h = 104;
+        if (skew <= 25) {
+            h = 104 - 54 / 25 * skew;
+        } else if (skew <= 50) {
+            h = 50 - 2 * (skew - 25);
+        } else {
+            h = 0;
+        }
+        return 'hsl(' + h + ', 100%, 33%)';
     }
 
     function getTableNameFromStatus(node) {
