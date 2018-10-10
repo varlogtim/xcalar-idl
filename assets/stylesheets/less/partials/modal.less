@@ -5570,7 +5570,7 @@ html.microsoft {
 
 }
 
-#dfCommentModal, #dagDescriptionModal {
+#dfCommentModal, #dagDescriptionModal, #dagCustomRenameModal {
     .size(400px, 250px, @min-width: 400px, @min-height: 250px);
 
     .modalHeader {
@@ -5630,6 +5630,13 @@ html.microsoft {
         //     border: none;
         // }
         .size(400px, 350px);
+    }
+}
+
+#dagCustomRenameModal {
+    .size(400px, 200px, @min-width: 400px, @min-height: 200px);
+    .modalMain {
+        .size(@height: auto);
     }
 }
 

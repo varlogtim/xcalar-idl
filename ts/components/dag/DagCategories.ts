@@ -169,6 +169,19 @@ class DagCategories {
         .fail(deferred.reject);
         return deferred.promise();
     }
+
+    /**
+     * Get the category which an operator belongs to
+     * @param nodeId 
+     */
+    public getCategoryByNodeId(nodeId: DagNodeId): DagCategory {
+        for (const category of this.getCategories()) {
+            if (category.getOperatorById(nodeId) != null) {
+                return category;
+            }
+        }
+        return null;
+    }
 }
 
 class DagCategory {

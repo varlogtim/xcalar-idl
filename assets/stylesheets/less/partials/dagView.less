@@ -286,12 +286,53 @@
     }
     .operatorBar {
         .size(@height: 50px, @min-height: 50px);
+        .flex-display;
         background: @color-white;
         box-shadow: 0px 0.25px 0px @color-border-operator;
         z-index: 2;
 
+        .actionWrap {
+            .flex-display;
+
+            .actions {
+                .iconWrap {
+                    .size(@width: 20px, @height: 20px);
+                    padding: 0 3px;
+                    margin: 3px 5px;
+                    border-radius: 2px;
+                    background-color: @color-border-softGray;
+                    color: @color-font-edge;
+                    cursor: pointer;
+
+                    &:hover {
+                        background-color: @color-font-edge;
+                        color: WHITE;
+                    }
+                }
+
+                &.disabled {
+                    .iconWrap {
+                        background-color: @color-bg-topBarGray2;
+                        color: @color-border-softGray2;
+                        cursor: not-allowed;
+                    }
+                }
+
+                .icon {
+                    font-size: 14px;
+                    line-height: 20px;
+                }
+            }
+            
+            .divider {
+                width: 1px;
+                .vertical-align;
+                background-color: @color-border-softGray;
+            }
+        }
+
         .operatorWrap {
-            height: 50px;
+            .size(@height: 50px, @width: 100%);
             overflow: hidden;
         }
 

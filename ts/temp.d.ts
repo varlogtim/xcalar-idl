@@ -263,6 +263,8 @@ declare class d3 {
     public interpolateNumber(num: number, step: number): Function;
     public transition(): d3;
     public duration(): d3;
+    public insert(type: string | Function, before?: string | HTMLElement): d3;
+    public classed(names: string, value?: boolean | Function): boolean;
     public svg;
     public layout;
 }

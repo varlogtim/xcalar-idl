@@ -10,6 +10,7 @@ class DagCategoryBar {
     private dagCategories: DagCategories;
     private currentCategory: DagCategoryType = DagCategoryType.Favorites;
     private _listScrollers: ListScroller[] = [];
+    private selectedOpId: string;
 
     constructor() {
         this.$dagView = $("#dagView");
@@ -22,6 +23,7 @@ class DagCategoryBar {
         this._setupDragDrop();
         this._setupScrolling();
         this._setupSearch();
+        this._setupActionBar();
         // Activate the favorites category by default
         this._focusOnCategory(DagCategoryType.Favorites);
     }
@@ -215,6 +217,11 @@ class DagCategoryBar {
                     noPositionReset: true
                 }));
         });
+        if (this.selectedOpId != null) {
+            this._setSelectedStyle(
+                this.$operatorBar.find(`.operator[data-opid="${this.selectedOpId}"]`)
+            );
+        }
     }
 
     private _getConnectorInParams(numParents: number) {
@@ -379,7 +386,7 @@ class DagCategoryBar {
         this.$operatorBar.on("dblclick", ".operator .main", function() {
             const $operator: JQuery = $(this).closest(".operator");
             const $selectedNodes: JQuery = DagView.getSelectedNodes();
-            const newNodeInfo: DagNodeInfo = self._getOperatorInfo(
+            const newNodeInfo: DagNodeCopyInfo = self._getOperatorInfo(
                 $operator.data('opid')
             );
             const type: DagNodeType = newNodeInfo.type;
@@ -390,6 +397,128 @@ class DagCategoryBar {
             }
             DagView.autoAddNode(type, subType, parentNodeId);
         });
+    }
+
+    private _setupActionBar(): void {
+        this.$operatorBar.on('click', '.operator .main', (event) => {
+            const $operator: JQuery = $(event.target).closest(".operator");
+            const opInfo: DagNodeCopyInfo = this._getOperatorInfo(
+                $operator.data('opid'));
+
+            if (opInfo.type === DagNodeType.Custom) {
+                // Clear the current selection
+                if (this.selectedOpId != null) {
+                    this._clearSelectedStyle(
+                        this.$operatorBar.find(`.operator[data-opid="${this.selectedOpId}"]`)
+                    );
+                    this.selectedOpId = null;
+                }
+
+                // Select the node clicked on
+                this.selectedOpId = opInfo.id || opInfo.nodeId;
+                this._setSelectedStyle($operator);
+
+                // Enable the action section
+                this._enableActionSection(this.selectedOpId);
+            }
+
+            return false;
+        });
+
+        this.$operatorBar.on('click', () => {
+            if (this.currentCategory === DagCategoryType.Custom) {
+                // Clear the current selection
+                if (this.selectedOpId != null) {
+                    this._clearSelectedStyle(
+                        this.$operatorBar.find(`.operator[data-opid="${this.selectedOpId}"]`)
+                    );
+                    this.selectedOpId = null;
+                }
+
+                // Disable the action section
+                this._disableActionSection();
+            }
+        });
+    }
+
+    private _setSelectedStyle($operator: JQuery): void {
+        // '<rect class="selection" x="-4" y="-8" width="111" height="43" ' +
+        // 'fill="#EAF9FF" stroke="#38CBFF" stroke-width="1" ' +
+        // 'ry="43" rx="16" />';
+        if ($operator.find('.selection').length > 0) {
+            return;
+        }
+        const rect = d3.select($operator[0]).insert('rect', ':first-child');
+        rect.classed('selection', true);
+        rect.attr('x', '-4').attr('y', '-8')
+            .attr('width', '111').attr('height', '43')
+            .attr('fill', '#EAF9FF').attr('stroke', '#38CBFF').attr('stroke-width', '1')
+            .attr('rx', '16').attr('ry', '43');
+    }
+
+    private _clearSelectedStyle($operator: JQuery): void {
+        d3.select($operator[0]).selectAll('.selection').remove();        
+    }
+
+    private _showActionSection(): void {
+        const $elemAction = this.$dagView.find('.actionWrap');
+        $elemAction.removeClass('xc-hidden');
+    }
+
+    private _hideActionSection(): void {
+        const $elemAction = this.$dagView.find('.actionWrap');
+        if (!$elemAction.hasClass('xc-hidden')) {
+            $elemAction.addClass('xc-hidden');
+        }
+    }
+
+    private _enableActionSection(opId: string): void {
+        const category = this.dagCategories.getCategoryByNodeId(opId);
+
+        // Enable the buttons
+        const $elemActions = this.$dagView.find('.actionWrap .actions');
+        $elemActions.removeClass('disabled');
+
+        // Setup action button event listeners
+        const $elemActionRename = $elemActions.find('.selRename');
+        $elemActionRename.off();
+        if (category != null) {
+            $elemActionRename.on('click', () => {
+                DagCustomRenameModal.Instance.show({
+                    name: category.getOperatorById(opId).getDisplayNodeType(),
+                    validateFunc: (newName) => {
+                        return this._isValidOperatorName(category, newName);
+                    },
+                    onSubmit: (newName) => {
+                        this._renameOperator(opId, newName);
+                    }
+                });
+            });
+        }
+
+        const $elemActionDel = $elemActions.find('.selDel');
+        $elemActionDel.off();
+        $elemActionDel.on('click', () => {
+            Alert.show({
+                title: 'delete operator',
+                msg: `Are you sure you want to delete the operator`,
+                onConfirm: () => {
+                    this._deleteOperator(opId);
+                }
+            });
+        });
+    }
+
+    private _disableActionSection(): void {
+        // Diable the buttons
+        const $elemActions = this.$dagView.find('.actionWrap .actions');
+        if (!$elemActions.hasClass('disabled')) {
+            $elemActions.addClass('disabled');
+        }
+
+        // Clear event listeners
+        $elemActions.find('.selRename').off();
+        $elemActions.find('.selDel').off();
     }
 
     private _setupScrolling(): void {
@@ -506,7 +635,7 @@ class DagCategoryBar {
         return categoryNodes;
     }
 
-    private _getOperatorInfo(nodeId: string): DagNodeInfo {
+    private _getOperatorInfo(nodeId: string): DagNodeCopyInfo {
         for (const category of this.dagCategories.getCategories()) {
             for (const categoryNode of category.getOperators()) {
                 if (categoryNode.getNode().getId() === nodeId) {
@@ -525,6 +654,11 @@ class DagCategoryBar {
             }
         }
 
+        // Clear the current selection
+        if (nodeId === this.selectedOpId) {
+            this.selectedOpId = null;
+        }
+
         // Re-render the operator bar(UI)
         this._renderOperatorBar();
         this._focusOnCategory(this.currentCategory);
@@ -540,27 +674,30 @@ class DagCategoryBar {
         return deferred.promise();
     }
 
-    private _renameOperator(nodeId: DagNodeId, newName: string): XDPromise<void> {
+    private _isValidOperatorName(category: DagCategory, newName: string): boolean {
         // Validate inputs
-        if (nodeId == null || newName == null || newName.length === 0) {
-            console.error(`Invalid inputs: "${nodeId}", "${newName}"`);
-            return PromiseHelper.reject('Invalid inputs');
+        if (category == null || newName == null || newName.length === 0) {
+            console.error(`Invalid inputs: "${category}", "${newName}"`);
+            return false;
         }
 
         // Validate name
-        let targetCategory: DagCategory = null;
-        for (const category of this.dagCategories.getCategories()) {
-            if (category.getOperatorById(nodeId) != null) {
-                targetCategory = category;
-                break;
-            }
+        if (category.isExistOperatorName(newName)) {
+            return false;
         }
+
+        return true;
+    }
+
+    private _renameOperator(nodeId: DagNodeId, newName: string): XDPromise<void> {
+        const targetCategory = this.dagCategories.getCategoryByNodeId(nodeId);
         if (targetCategory == null) {
-            console.error(`Operator(${nodeId}) not found in category`);
-            return PromiseHelper.reject('Operator not found');
+            return PromiseHelper.reject('Category not found');
         }
-        if (targetCategory.isExistOperatorName(newName)) {
-            return PromiseHelper.reject('name exists');
+
+        // Validate name
+        if (!this._isValidOperatorName(targetCategory, newName)) {
+            return PromiseHelper.reject('Invalid name');
         }
 
         // Rename
@@ -598,6 +735,16 @@ class DagCategoryBar {
 
     private _focusOnCategory(category: string) {
         this.currentCategory = <DagCategoryType>category;
+        if (category === DagCategoryType.Custom) {
+            this._showActionSection();
+            if (this.selectedOpId != null) {
+                this._enableActionSection(this.selectedOpId);
+            } else {
+                this._disableActionSection();
+            }
+        } else {
+            this._hideActionSection();
+        }
         const $categories: JQuery = this.$dagView.find(".categories");
         $categories.find(".category").removeClass("active");
         $categories.find(".category.category-" + category).addClass("active");
