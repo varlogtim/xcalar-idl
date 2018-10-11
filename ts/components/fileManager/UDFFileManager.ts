@@ -15,7 +15,9 @@ class UDFFileManager extends BaseFileManager {
      * @returns void
      */
     public open(path: string): void {
-        path = this._displayNameToNsName(path);
+        path = path.startsWith(this.getCurrWorkbookDisplayPath())
+            ? path.split("/").pop()
+            : path;
         UDFPanel.Instance.edit(path);
 
         if (
@@ -30,7 +32,14 @@ class UDFFileManager extends BaseFileManager {
      * @returns string
      */
     public getDefaultUDFPath(): string {
-        return this._getSharedUDFPath() + "default";
+        return this.getSharedUDFPath() + "default";
+    }
+
+    /**
+     * @returns string
+     */
+    public getSharedUDFPath(): string {
+        return "/sharedUDFs/";
     }
 
     /**
@@ -60,7 +69,7 @@ class UDFFileManager extends BaseFileManager {
         if (!currWorkbookPath) {
             return "/";
         }
-        let currWorkbookDisplayPath: string = this._nsNameToDisplayName(
+        let currWorkbookDisplayPath: string = this.nsNameToDisplayName(
             currWorkbookPath
         );
         currWorkbookDisplayPath = currWorkbookDisplayPath.substring(
@@ -68,6 +77,48 @@ class UDFFileManager extends BaseFileManager {
             currWorkbookDisplayPath.length - 3
         );
         return currWorkbookDisplayPath;
+    }
+
+    /**
+     * @param  {string} nsName
+     * @returns string
+     */
+    public nsNameToDisplayName(nsName: string): string {
+        const nsNameArray: string[] = nsName.split("/");
+        if (nsNameArray[1] === "workbook") {
+            nsNameArray.splice(4, 1);
+            const idWorkbookMap: Map<
+            string,
+            string
+            > = this.userIDWorkbookMap.get(nsNameArray[2]);
+            if (idWorkbookMap && idWorkbookMap.has(nsNameArray[3])) {
+                nsNameArray[3] = idWorkbookMap.get(nsNameArray[3]);
+            }
+        }
+        return nsNameArray.join("/") + ".py";
+    }
+
+    /**
+     * @param  {string} displayName
+     * @returns string
+     */
+    public displayNameToNsName(displayName: string): string {
+        if (displayName.endsWith("/")) {
+            displayName = displayName.substring(0, displayName.length - 1);
+        }
+        const displayNameArray: string[] = displayName.split("/");
+        if (displayNameArray[1] === "workbook") {
+            displayNameArray.splice(4, 0, "udf");
+            const workbookIDMap: Map<
+            string,
+            string
+            > = this.userWorkbookIDMap.get(displayNameArray[2]);
+            if (workbookIDMap && workbookIDMap.has(displayNameArray[3])) {
+                displayNameArray[3] = workbookIDMap.get(displayNameArray[3]);
+            }
+        }
+        const nsName: string = displayNameArray.join("/");
+        return nsName.substring(0, nsName.length - 3);
     }
 
     /**
@@ -135,6 +186,7 @@ class UDFFileManager extends BaseFileManager {
         })
         .then(() => this._getUserWorkbookMap())
         .then(() => {
+            UDFPanel.Instance.updateUDF(false);
             this.buildPathTree();
             this._createWorkbookFolder();
             FileManagerPanel.Instance.updateList();
@@ -206,7 +258,7 @@ class UDFFileManager extends BaseFileManager {
      */
     public delete(paths: string[]): void {
         const delTasks: XDPromise<void>[] = paths.map((path: string) => {
-            path = this._displayNameToNsName(path);
+            path = this.displayNameToNsName(path);
             return this.del(path, true);
         });
 
@@ -233,7 +285,7 @@ class UDFFileManager extends BaseFileManager {
             this._refreshUDF(true, false);
             UDFPanel.Instance.updateUDF(false);
             FileManagerPanel.Instance.removeSearchResultNode(
-                this._nsNameToDisplayName(moduleName)
+                this.nsNameToDisplayName(moduleName)
             );
             const xcSocket: XcSocket = XcSocket.Instance;
             xcSocket.sendMessage("refreshUDFWithoutClear");
@@ -283,7 +335,7 @@ class UDFFileManager extends BaseFileManager {
      * @returns XDPromise
      */
     public download(moduleName: string): XDPromise<void> {
-        moduleName = this._displayNameToNsName(moduleName);
+        moduleName = this.displayNameToNsName(moduleName);
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this.getEntireUDF(moduleName)
@@ -341,24 +393,33 @@ class UDFFileManager extends BaseFileManager {
 
             XcalarUploadPython(moduleName, entireString, absolutePath)
             .then(() => {
-                this.storePython(udfPath, entireString);
+                this.storePython(modulePath, entireString);
                 KVStore.commit();
                 xcHelper.showSuccess(SuccessTStr.UploadUDF);
 
                 this._refreshUDF(true, true);
 
-                if (!absolutePath) {
-                    const $uploadedFunc: JQuery = $("#udf-fnMenu").find(
-                        'li[data-udf-path="' + udfPath + '"]'
+                const $uploadedFunc: JQuery = $("#udf-fnMenu").find(
+                    'li[data-udf-path="' + modulePath + '"]'
+                );
+
+                    // select list directly use
+                    // $uploadedFunc.trigger(fakeEvent.mouseup) will reset
+                    // the cursor, which might be ignoring
+                if ($uploadedFunc.length) {
+                    const moduleDisplayPath: string = this.nsNameToDisplayName(
+                        modulePath
                     );
-                        // select list directly use
-                        // $uploadedFunc.trigger(fakeEvent.mouseup) will reset
-                        // the cursor, which might be ignoring
-                    if ($uploadedFunc.length) {
-                        $("#udf-fnList input").val(moduleName);
-                    } else {
-                        $("#udf-fnList input").val("");
-                    }
+                    const moduleDisplayName: string = this.nsNameToDisplayName(
+                        moduleName
+                    );
+                    $("#udf-fnList input").val(
+                        absolutePath
+                            ? moduleDisplayPath
+                            : moduleDisplayName
+                    );
+                } else {
+                    $("#udf-fnList input").val("");
                 }
 
                 const xcSocket: XcSocket = XcSocket.Instance;
@@ -395,16 +456,16 @@ class UDFFileManager extends BaseFileManager {
             });
         };
 
-        if (!this._isEditableUDF(moduleName)) {
+        if (!this._isEditableUDF(moduleName.split("/").pop())) {
             Alert.error(SideBarTStr.UploadError, SideBarTStr.OverwriteErr);
             return PromiseHelper.reject(SideBarTStr.OverwriteErr);
         }
 
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
-        const udfPath: string = absolutePath
+        const modulePath: string = absolutePath
             ? moduleName
             : this.getCurrWorkbookPath() + moduleName;
-        if (this.storedUDF.has(udfPath)) {
+        if (this.storedUDF.has(modulePath)) {
             const msg: string = xcHelper.replaceMsg(SideBarTStr.DupUDFMsg, {
                 module: moduleName
             });
@@ -450,10 +511,10 @@ class UDFFileManager extends BaseFileManager {
      * @returns boolean
      */
     public isWritable(path: string): boolean {
-        const displayName: string = this._displayNameToNsName(path);
+        const nsName: string = this.displayNameToNsName(path);
         return (
-            displayName.startsWith(this.getCurrWorkbookPath()) ||
-            displayName.startsWith(this._getSharedUDFPath())
+            nsName.startsWith(this.getCurrWorkbookPath()) ||
+            nsName.startsWith(this.getSharedUDFPath())
         );
     }
 
@@ -462,8 +523,8 @@ class UDFFileManager extends BaseFileManager {
      * @returns boolean
      */
     public isSharable(path: string): boolean {
-        const displayName: string = this._displayNameToNsName(path);
-        return displayName.startsWith(this.getCurrWorkbookPath());
+        const nsName: string = this.displayNameToNsName(path);
+        return nsName.startsWith(this.getCurrWorkbookPath());
     }
 
     /**
@@ -471,11 +532,11 @@ class UDFFileManager extends BaseFileManager {
      * @returns void
      */
     public share(path: string): void {
-        const nsName: string = this._displayNameToNsName(path);
+        const nsName: string = this.displayNameToNsName(path);
 
         this.getEntireUDF(nsName).then((entireString) => {
             const shareName: string =
-                this._getSharedUDFPath() + nsName.split("/")[5];
+                this.getSharedUDFPath() + nsName.split("/")[5];
             this.upload(shareName, entireString, true);
         });
     }
@@ -506,7 +567,7 @@ class UDFFileManager extends BaseFileManager {
         const storedUDF: Map<string, string> = this.getUDFs();
 
         for (let [key] of storedUDF) {
-            key = this._nsNameToDisplayName(key);
+            key = this.nsNameToDisplayName(key);
             const pathSplit: string[] = key.split("/");
             let curPathNode: FileManagerPathNode = udfRootPathNode;
 
@@ -559,7 +620,7 @@ class UDFFileManager extends BaseFileManager {
     }
 
     private _createWorkbookFolder(): void {
-        let folderPath = this._nsNameToDisplayName(this.getCurrWorkbookPath());
+        let folderPath = this.nsNameToDisplayName(this.getCurrWorkbookPath());
         folderPath = folderPath.substring(0, folderPath.length - 3);
         const paths: string[] = folderPath.split("/");
         let curPathNode = FileManagerPanel.Instance.rootPathNode.children.get(
@@ -597,7 +658,7 @@ class UDFFileManager extends BaseFileManager {
         const storedUDF: Map<string, string> = this.getUDFs();
         const storedUDFSet: Set<string> = new Set(
             Array.from(storedUDF.keys()).map((value: string) => {
-                return this._nsNameToDisplayName(value);
+                return this.nsNameToDisplayName(value);
             })
         );
         const curPathNode: FileManagerPathNode = FileManagerPanel.Instance.rootPathNode.children.get(
@@ -758,48 +819,15 @@ class UDFFileManager extends BaseFileManager {
             OperationsView.updateOperationsMap(listXdfsObj);
             MapOpPanel.Instance.updateOperationsMap(listXdfsObj);
             DSExport.refreshUDF(listXdfsObj);
-            deferred.resolve();
         })
+        .then(() => this._getUserWorkbookMap())
+        .then(() => deferred.resolve())
         .fail(deferred.reject)
         .always(() => {
             $("#udf-fnList").removeClass("loading");
         });
 
         return deferred.promise();
-    }
-
-    private _nsNameToDisplayName(nsName: string): string {
-        const nsNameArray: string[] = nsName.split("/");
-        if (nsNameArray[1] === "workbook") {
-            nsNameArray.splice(4, 1);
-            const idWorkbookMap: Map<
-            string,
-            string
-            > = this.userIDWorkbookMap.get(nsNameArray[2]);
-            if (idWorkbookMap && idWorkbookMap.has(nsNameArray[3])) {
-                nsNameArray[3] = idWorkbookMap.get(nsNameArray[3]);
-            }
-        }
-        return nsNameArray.join("/") + ".py";
-    }
-
-    private _displayNameToNsName(displayName: string): string {
-        if (displayName.endsWith("/")) {
-            displayName = displayName.substring(0, displayName.length - 1);
-        }
-        const displayNameArray: string[] = displayName.split("/");
-        if (displayNameArray[1] === "workbook") {
-            displayNameArray.splice(4, 0, "udf");
-            const workbookIDMap: Map<
-            string,
-            string
-            > = this.userWorkbookIDMap.get(displayNameArray[2]);
-            if (workbookIDMap && workbookIDMap.has(displayNameArray[3])) {
-                displayNameArray[3] = workbookIDMap.get(displayNameArray[3]);
-            }
-        }
-        const nsName: string = displayNameArray.join("/");
-        return nsName.substring(0, nsName.length - 3);
     }
 
     private _getUserWorkbookMap(): XDPromise<void> {
@@ -865,11 +893,6 @@ class UDFFileManager extends BaseFileManager {
         XcUser.resetUserSession();
 
         return deferred.promise();
-    }
-
-    private _getSharedUDFPath(): string {
-        return "/globaludf/";
-        // return "/sharedUDFs/";
     }
 
     /* Unit Test Only */

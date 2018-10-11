@@ -829,33 +829,9 @@
     overflow: visible !important;
 
     @title-height: 40px;
-    
-    .tabSection {
-        .size(@width: 100%, @height: 63px);
-        padding: 18px 10px;
-        border-top: 1px solid #eef1f4;
-        border-bottom: 1px solid #eef1f4;
-
-        .tab {
-            .size(@width: ~"calc(50% - 13px)", @height: 28px);
-            .font(@size: 12px, @weight: 700, @color: @color-white);
-            padding: 6px 0px;
-            margin: 0px 6px;
-            text-align: center;
-            float: left;
-            background-color: #849cb0;
-            border-radius: 4px;
-            opacity: 0.9;
-            cursor: pointer;
-
-            &:hover {
-                opacity: @opacity-hover;
-            }
-        }
-    }
 
     .mainSectionContainer {
-        .size(@width: 100%, @height: ~"calc(100% - 99px)");
+        .size(@width: 100%, @height: 100%);
     }
 
     > header {
@@ -876,6 +852,7 @@
 
     .menuContent {
         background-color: @color-white;
+        height: ~"calc(100% - 71px)";
     }
 }
 
@@ -910,10 +887,12 @@ ul.CodeMirror-hints {
     input {
         color: #44515c;
         .textOverflowOneLine;
+        float: left;
     }
 
-    .topSection {
-        padding: 15px 16px;
+    .topSection, .saveAsSection {
+        padding: 7px 16px;
+        border-top: solid 1px @color-border-softGray;
         background-color: #f5f8fa;
         font-size: 12px;
 
@@ -924,7 +903,6 @@ ul.CodeMirror-hints {
 
         .template {
             .flex(1 1 255px);
-            max-width: 500px;
         }
     }
 
@@ -935,24 +913,31 @@ ul.CodeMirror-hints {
             float: left;
         }
 
-        .title {
-            padding: 0px 10px 0px 0px;
-            .font(@color: #44515c, @line-height: 30px);
-        }
-    }
+        .save, .close {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            .size(28px, 28px);
+            border: solid 1px @color-border-softGray;
+            margin-left: 8px;
+            background-color: @color-white;
+            .icon {
+                font-size: 14px;
+                color: @color-arc-xdbfree;
+                opacity: @opacity-unhover;
+            }
 
-    .CodeMirror-scrollbar-filler {
-        display: none !important;
-    }
-
-    .CodeMirror-scroll {
-        .CodeMirror-gutters {
-            border-right: none;
+            &:hover {
+                .icon {
+                    opacity: @opacity-hover;
+                }
+            }
         }
     }
 
     .dropDownList {
-        .styleDropDownList(~"calc(100% - 55px)", 28px);
+        .styleDropDownList(~"calc(100% - 36px)", 28px);
 
         .text {
             font-size: 12px;
@@ -976,7 +961,6 @@ ul.CodeMirror-hints {
                 box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.1);
                 color: #44515c;
                 font-size: 12px;
-                text-transform: lowercase;
                 background-color: @color-white;
 
                 &.workbookUDF {
@@ -1022,7 +1006,7 @@ ul.CodeMirror-hints {
                     color: @color-text-lightGray;
                 }
 
-                &.hover {
+                &.hover, &.highlighted {
                     background-color: @color-border-softGray;
                 }
             }
@@ -1039,6 +1023,33 @@ ul.CodeMirror-hints {
         }
     }
 
+    .saveAsSection {
+        .text {
+            font-size: 12px;
+            width: ~"calc(100% - 36px)";
+            height: 28px;
+            background-color: @color-white;
+            border: 1px solid #dbe1e6;
+            padding: 10px;
+            cursor: text;
+
+            &:focus {
+                outline: 1px solid @color-bg-softBlue;
+                border: 1px solid @color-bg-white-five;
+            }
+        }
+    }
+
+    .CodeMirror-scrollbar-filler {
+        display: none !important;
+    }
+
+    .CodeMirror-scroll {
+        .CodeMirror-gutters {
+            border-right: none;
+        }
+    }
+
     .editSection {
         .flex(1 1 auto);
         .flex-display;
@@ -1051,53 +1062,6 @@ ul.CodeMirror-hints {
             .position(relative);
             .CodeMirror {
                 .size(@height: 100%);
-            }
-        }
-    }
-
-    .bottomSection {
-        padding: 22px 16px;
-        background-color: #f5f8fa;
-        .flex(0 0 49px);
-
-        input {
-            .size(@width: ~"calc(50% - 6px)");
-            margin: 0;
-
-            opacity: @opacity-unhover;
-            border: 1px solid #dbe1e6;
-            padding: 0 5px;
-            margin: 0px 5px 0px 0px;
-            float: left;
-            text-overflow: clip;
-            font-size: 13px;
-
-            &:focus {
-                outline: none;
-                border: 1px solid #dbe1e6;
-                opacity: @opacity-hover;
-            }
-        }
-
-        #udf-fnUpload {
-            font-size: 12px;
-            background-color: #849cb0;
-            width: ~"calc(50% - 6px)";
-            padding: 0px;
-            margin: 0px 0px 0px 5px;
-            border-radius: 2px;
-            float: right;
-
-            .icon {
-                padding-left: 4px;
-                width: 13px;
-            }
-            .text {
-                letter-spacing: 0px;
-            }
-
-            &:hover {
-                opacity: @opacity-hover;
             }
         }
     }

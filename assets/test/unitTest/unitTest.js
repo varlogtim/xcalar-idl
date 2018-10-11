@@ -21,8 +21,8 @@ function getTestNameRegex() {
 }
 
 var testDatasets;
-var globalUDFPath = "/globaludf/";
-var defaultUDFPath = globalUDFPath + "default"; // /globaludf/default
+var globalUDFPath = "/sharedUDFs/";
+var defaultUDFPath = globalUDFPath + "default"; // /sharedUDFs/default
 
 window.UnitTest = (function(UnitTest, $) {
     var minModeCache;

@@ -224,7 +224,6 @@ window.FlightTest = (function(FlightTest, $) {
         function flightTestPart5() {
             console.log("start flightTestPart5", "upload python");
             $("#udfTab").click();
-            $("#udfSection .tab[data-tab='udf-fnSection']").click();
             test.checkExists(".editArea:visible")
             .then(function() {
                 var udfPath = UDFFileManager.Instance.getCurrWorkbookPath() + "ymd";
@@ -237,8 +236,9 @@ window.FlightTest = (function(FlightTest, $) {
                         '    if int(day) < 10:\n' +
                         '        day = "0" + str(day)\n' +
                         '    return str(year) + str(month) + str(day)');
-                    $("#udf-fnName").val("ymd");
-                    $("#udf-fnUpload").click();
+                    $("#udf-fnSection .topSection .save").click();
+                    $("#udf-fnSection .saveAsSection .udf-fnName").val("ymd.py");
+                    $("#udf-fnSection .saveAsSection .save").click();
                     return test.checkExists(selector);
                 }
             })

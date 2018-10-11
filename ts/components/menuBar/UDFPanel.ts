@@ -75,10 +75,8 @@ class UDFPanel {
      * @returns void
      */
     public edit(modulePath: string): void {
-        // switch to first tab
-        // TODO: remove
-        // $("#udfSection .tab:first-child").click();
-        this._getAndFillUDF(modulePath);
+        this._eventExpandSaveAs(false);
+        this._inputUDFFuncList(modulePath);
     }
 
     /**
@@ -130,24 +128,37 @@ class UDFPanel {
      */
     public updateUDF(doNotClear: boolean): void {
         // store by name
-        const curWorkbookModules: string[] = [];
-        const sortedUDF: string[] = Array.from(
+        const unsortedUDF: string[] = Array.from(
             UDFFileManager.Instance.getUDFs().keys()
-        ).sort();
-
-        for (const udf of sortedUDF) {
-            if (
-                udf.startsWith(UDFFileManager.Instance.getCurrWorkbookPath())
-            ) {
-                curWorkbookModules.push(udf);
-            }
-        }
-
-        this._updateTemplateList(curWorkbookModules, doNotClear);
+        );
+        const workbookUDF: string[] = unsortedUDF.filter((value: string) => {
+            return value.startsWith(
+                UDFFileManager.Instance.getCurrWorkbookPath()
+            );
+        });
+        const otherUDF: string[] = unsortedUDF.filter((value: string) => {
+            return !value.startsWith(
+                UDFFileManager.Instance.getCurrWorkbookPath()
+            );
+        });
+        const sortedUDF = workbookUDF.sort().concat(otherUDF.sort());
+        this._updateTemplateList(sortedUDF, doNotClear);
     }
 
     // Setup UDF section
     private _setupUDF(): void {
+        const $toManagerButton: JQuery = $("#udfButtonWrap .toManager");
+        $toManagerButton.on("click", (_event: JQueryEventObject) => {
+            $udfSection.addClass("switching");
+            $("#monitorTab").trigger("click");
+            $("#fileManagerButton").trigger("click");
+            FileManagerPanel.Instance.switchType("UDF");
+            FileManagerPanel.Instance.switchPath(
+                UDFFileManager.Instance.getCurrWorkbookDisplayPath()
+            );
+            $udfSection.removeClass("switching");
+        });
+
         const textArea: HTMLElement = document.getElementById("udf-codeArea");
 
         this.editor = CodeMirror.fromTextArea(
@@ -194,19 +205,7 @@ class UDFPanel {
             $udfSection.removeClass("active");
         }
 
-        /* open file manager */
-        const $tabs: JQuery = $udfSection.find(".tabSection");
-        $tabs.on("click", ".tab", (_event: JQueryEventObject) => {
-            $udfSection.addClass("switching");
-            $("#monitorTab").trigger("click");
-            $("#fileManagerButton").trigger("click");
-            FileManagerPanel.Instance.switchType("UDF");
-            FileManagerPanel.Instance.switchPath(
-                UDFFileManager.Instance.getCurrWorkbookDisplayPath()
-            );
-            $udfSection.removeClass("switching");
-        });
-        /* end of open file manager */
+        this._addSaveEvent();
 
         $udfSection.on(
             "mouseenter",
@@ -215,56 +214,87 @@ class UDFPanel {
                 xcTooltip.auto(event.currentTarget as HTMLElement);
             }
         );
+    }
 
-        // browser file
-        const $browserBtn: JQuery = $("#udf-upload-fileBrowser");
-        $("#udf-upload-browse").click((event: JQueryEventObject) => {
-            $(event.currentTarget).blur();
-            // clear so we can trigger .change on a repeat file
-            $browserBtn.val("");
-
-            $browserBtn.click();
-            return false;
-        });
-        // display the chosen file's path
-        $browserBtn.change((event: JQueryEventObject) => {
-            if ($browserBtn.val().trim() === "") {
+    private _addSaveEvent(): void {
+        const $udfSection: JQuery = $("#udfSection");
+        const $topSection: JQuery = $udfSection.find(".topSection");
+        const $save: JQuery = $topSection.find(".save");
+        const $saveNameInput: JQuery = $topSection.find(".udf-fnName");
+        $save.on("click", (event: JQueryEventObject) => {
+            if (
+                $(event.currentTarget)
+                .find(".icon")
+                .hasClass("xi-close")
+            ) {
+                this._eventExpandSaveAs(false);
                 return;
             }
-            const path: string = $(event.currentTarget)
-            .val()
-            .replace(/C:\\fakepath\\/i, "");
-            const moduleName: string = path
-            .substring(0, path.indexOf("."))
-            .toLowerCase()
-            .replace(/ /g, "");
-            const file: File = ($browserBtn[0] as HTMLInputElement).files[0];
 
-            this._readUDFFromFile(file, moduleName);
+            if ($saveNameInput.val() === "New Module") {
+                this._eventExpandSaveAs(true);
+            } else {
+                this._eventSave($topSection);
+            }
         });
 
-        /* upload udf section */
-        $("#udf-fnName").keypress((event: JQueryEventObject) => {
+        const $saveAsSection: JQuery = $udfSection.find(".saveAsSection");
+        const $saveAsInput: JQuery = $saveAsSection.find("input");
+        const $saveAs: JQuery = $saveAsSection.find(".save");
+
+        $saveAsInput.keypress((event: JQueryEventObject) => {
             if (event.which === keyCode.Enter) {
-                $("#udf-fnUpload").click();
-                $(event.currentTarget).blur();
+                if (this._eventSave($saveAsSection)) {
+                    this._eventExpandSaveAs(false);
+                    $saveAsSection.find("input").val("");
+                }
             }
         });
 
-        $("#udf-fnUpload").click((event: JQueryEventObject) => {
-            $(event.currentTarget).blur();
-            const moduleName: string = this._validateUDFName();
-            if (moduleName == null) {
-                return;
+        $saveAs.on("click", (event: JQueryEventObject) => {
+            if (this._eventSave($saveAsSection)) {
+                this._eventExpandSaveAs(false);
+                $saveAsSection.find("input").val("");
             }
-
-            const entireString = this._validateUDFStr();
-            if (entireString == null) {
-                return;
-            }
-            UDFFileManager.Instance.upload(moduleName, entireString);
         });
-        /* end of upload udf section */
+    }
+
+    private _eventExpandSaveAs(expand: boolean) {
+        const $udfSection: JQuery = $("#udfSection");
+        const $topSection: JQuery = $udfSection.find(".topSection");
+        const $saveAsSection: JQuery = $udfSection.find(".saveAsSection");
+        if (expand) {
+            $topSection.find(".save .icon").removeClass("xi-save");
+            $topSection.find(".save .icon").addClass("xi-close");
+            $saveAsSection.removeClass("xc-hidden");
+        } else {
+            $topSection.find(".save .icon").addClass("xi-save");
+            $topSection.find(".save .icon").removeClass("xi-close");
+            $saveAsSection.addClass("xc-hidden");
+        }
+    }
+
+    private _eventSave($section: JQuery): boolean {
+        const modulePath: string = this._validateUDFName($section);
+        const entireString: string = this._validateUDFStr();
+        if (modulePath && entireString) {
+            if (
+                modulePath.startsWith(
+                    UDFFileManager.Instance.getSharedUDFPath()
+                )
+            ) {
+                UDFFileManager.Instance.upload(modulePath, entireString, true);
+            } else if (
+                modulePath.startsWith(
+                    UDFFileManager.Instance.getCurrWorkbookPath()
+                )
+            ) {
+                const moduleName: string = modulePath.split("/").pop();
+                UDFFileManager.Instance.upload(moduleName, entireString);
+            }
+            return true;
+        }
+        return false;
     }
 
     private _setupTemplateList(): void {
@@ -324,19 +354,46 @@ class UDFPanel {
         this.dropdownHint.clearInput();
     }
 
-    private _validateUDFName(): string {
-        const $fnName: JQuery = $("#udf-fnName");
-        const moduleName: string = $fnName
-        .val()
-        .trim()
-        .toLowerCase();
+    private _validateUDFName($section: JQuery): string {
+        const $nameInput: JQuery = $section.find(".udf-fnName");
+        let modulePath: string = $nameInput.val().trim();
+
         const options: {side: string; offsetY: number} = {
             side: "top",
             offsetY: -2
         };
 
+        if (
+            !xcHelper.checkNamePattern(
+                PatternCategory.UDFFileName,
+                PatternAction.Check,
+                modulePath
+            )
+        ) {
+            StatusBox.show(UDFTStr.InValidFileName, $nameInput, true, options);
+            return null;
+        }
+
+        modulePath = UDFFileManager.Instance.displayNameToNsName(modulePath);
+        let moduleName: string = modulePath;
+        if (modulePath.startsWith("/")) {
+            moduleName = moduleName.split("/").pop();
+        } else {
+            modulePath =
+                UDFFileManager.Instance.getCurrWorkbookPath() + modulePath;
+        }
+
+        if (
+            !UDFFileManager.Instance.isWritable(
+                UDFFileManager.Instance.nsNameToDisplayName(modulePath)
+            )
+        ) {
+            StatusBox.show(UDFTStr.InValidPath, $nameInput, true, options);
+            return null;
+        }
+
         if (moduleName === "") {
-            StatusBox.show(ErrTStr.NoEmpty, $fnName, true, options);
+            StatusBox.show(ErrTStr.NoEmpty, $nameInput, true, options);
             return null;
         } else if (
             !xcHelper.checkNamePattern(
@@ -345,17 +402,17 @@ class UDFPanel {
                 moduleName
             )
         ) {
-            StatusBox.show(UDFTStr.InValidName, $fnName, true, options);
+            StatusBox.show(UDFTStr.InValidName, $nameInput, true, options);
             return null;
         } else if (
             moduleName.length >
             XcalarApisConstantsT.XcalarApiMaxUdfModuleNameLen
         ) {
-            StatusBox.show(ErrTStr.LongFileName, $fnName, true, options);
+            StatusBox.show(ErrTStr.LongFileName, $nameInput, true, options);
             return null;
         }
 
-        return moduleName;
+        return modulePath;
     }
 
     private _validateUDFStr(): string {
@@ -383,12 +440,12 @@ class UDFPanel {
         return entireString;
     }
 
-    private _inputUDFFuncList(module: string): boolean {
+    private _inputUDFFuncList(displayModulePath: string): boolean {
         const $li = $("#udf-fnMenu")
         .find("li")
         .filter(
             (_index: number, el: Element): boolean => {
-                return $(el).text() === module;
+                return $(el).text() === displayModulePath;
             }
         );
 
@@ -402,6 +459,8 @@ class UDFPanel {
     }
 
     private _selectUDFFuncList($li: JQuery): void {
+        this._eventExpandSaveAs(false);
+
         if ($li.hasClass("udfHeader") || $li.hasClass("dataflowHeader")) {
             return;
         }
@@ -432,7 +491,13 @@ class UDFPanel {
     private _getAndFillUDF(modulePath: string): void {
         const $fnListInput: JQuery = $("#udf-fnList input");
         const $fnName: JQuery = $("#udf-fnName");
-        const moduleName: string = modulePath.split("/").pop();
+        const moduleSplit: string[] = modulePath.split("/");
+        let moduleName: string = modulePath.startsWith(
+            UDFFileManager.Instance.getCurrWorkbookPath()
+        )
+            ? moduleSplit[moduleSplit.length - 1]
+            : modulePath;
+        moduleName = UDFFileManager.Instance.nsNameToDisplayName(moduleName);
         const fillUDFFunc = (funcStr: string) => {
             if ($fnListInput.val() !== moduleName) {
                 // Check if diff list item was selected during
@@ -459,7 +524,7 @@ class UDFPanel {
     }
 
     private _updateTemplateList(
-        moduleNames: string[],
+        moduleArray: string[],
         doNotClear: boolean
     ): void {
         const $input: JQuery = $("#udf-fnList input");
@@ -469,9 +534,16 @@ class UDFPanel {
         let html: string = "";
         const liClass: string = "workbookUDF";
 
-        for (const module of moduleNames) {
-            const moduleSplit: string[] = module.split("/");
-            const moduleName: string = moduleSplit[moduleSplit.length - 1];
+        for (const modulePath of moduleArray) {
+            const moduleSplit: string[] = modulePath.split("/");
+            let moduleName: string = modulePath.startsWith(
+                UDFFileManager.Instance.getCurrWorkbookPath()
+            )
+                ? moduleSplit[moduleSplit.length - 1]
+                : modulePath;
+            moduleName = UDFFileManager.Instance.nsNameToDisplayName(
+                moduleName
+            );
             const tempHTML: string =
                 '<li class="tooltipOverflow' +
                 liClass +
@@ -482,13 +554,13 @@ class UDFPanel {
                 ' data-title="' +
                 moduleName +
                 '" data-udf-path="' +
-                module +
+                modulePath +
                 '">' +
                 moduleName +
                 "</li>";
 
             html += tempHTML;
-            if (!hasSelectedModule && module === selectedModule) {
+            if (!hasSelectedModule && moduleName === selectedModule) {
                 hasSelectedModule = true;
             }
         }

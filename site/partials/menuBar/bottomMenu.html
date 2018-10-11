@@ -8,6 +8,10 @@
       <i class="icon xi-human-dot fa-18 humanLog" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.bottomMenu.toggleLog %>"></i>
       <i class="icon xi-download fa-18 downloadLog" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.bottomMenu.downloadLogBtn %>"></i>
     </div>
+    <div id="udfButtonWrap" class="xc-hidden">
+      <!-- TODO -->
+      <i class="icon xi-folder fa-18 toManager" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="<%= dicts.UDF.ToManager %>"></i>
+    </div>
     <div id="helpButtonWrap" class="xc-hidden">
       <i id="helpCategories" class="icon xi-menu-table-list fa-18" data-toggle="tooltip" data-placement="top" data-container="body" title="<%= dicts.bottomMenu.helpCategories %>"></i>
     </div>
@@ -154,7 +158,6 @@
     </section>
     <!-- end of SQL Section -->
 
-
     <!-- UDF Section -->
     <section id="udfSection" class="menuSection no-selection">
       <!-- Heading -->
@@ -163,17 +166,6 @@
       </header>
       <!-- Content -->
       <div class="menuContent">
-        <!-- Section to switch between editor and manager section -->
-        <section class="tabSection">
-          <!-- option for browse button -->
-          <div id="udf-upload-browse" class="tab">
-            <%= dicts.UDF.Browse %>
-          </div>
-          <input id="udf-upload-fileBrowser"  spellcheck="false" type="file" style="display: none;">
-          <!-- option manager section -->
-          <div class="tab"><%= dicts.UDF.Manager %></div>
-        </section>
-
         <!-- Main Content -->
         <section class="mainSectionContainer">
           <!-- Section to write function -->
@@ -181,9 +173,8 @@
             <!-- topSection -->
             <div class="topSection">
               <div class="template">
-                <div class="title"><%= dicts.UDF.Template %>:</div>
                 <div id="udf-fnList" class="dropDownList">
-                  <input class="text" spellcheck="false" placeholder="<%= dicts.UDF.SelectTemplate %>" data-toggle="tooltip" data-container="body" data-placement="top">
+                  <input class="text udf-fnName" spellcheck="false" placeholder="<%= dicts.UDF.SelectTemplate %>" data-toggle="tooltip" data-container="body" data-placement="top">
                   <div class="iconWrapper">
                     <i class="icon xi-arrow-down"></i>
                   </div>
@@ -194,6 +185,18 @@
                     include "../../util/menuScrollArea.html"
                   </div>
                 </div>
+                <div class="save">
+                    <i class="icon xi-save"></i>
+                </div>
+              </div>
+            </div>
+            <!-- saveAsSection -->
+            <div class="saveAsSection xc-hidden">
+              <div class="template">
+                <input class="text udf-fnName" spellcheck="false" placeholder="<%= dicts.UDF.Filename %>">
+                <div class="save">
+                    <i class="icon xi-save"></i>
+                </div>
               </div>
             </div>
             <!-- editSection -->
@@ -201,13 +204,6 @@
               <div class="editArea">
                 <textarea id="udf-codeArea"></textarea>
               </div>
-            </div>
-            <!-- bottom section -->
-            <div class="bottomSection">
-              <input id="udf-fnName" class="action" type="text" spellcheck="false" placeholder="<%= dicts.UDF.NameHint %>">
-              <button id="udf-fnUpload" class="btn upload iconBtn action" type="button">
-                <span class="text"><%= dicts.UDF.ADD %></span>
-              </button>
             </div>
           </section>
         </section>

@@ -222,7 +222,7 @@ class FileManagerPanel {
                 const fileType: string = $(event.currentTarget)
                 .children(".label")
                 .html()
-                .replace(/(^\n)|(,\n)/g, "");
+                .replace(/(^\n)|(\n$)/g, "");
 
                 this._eventSwitchType(fileType);
                 $fileTypeMenu
@@ -340,7 +340,7 @@ class FileManagerPanel {
                 const action: string = $(event.currentTarget)
                 .children(".label")
                 .html()
-                .replace(/(^\n)|(,\n)/g, "");
+                .replace(/(^\n)|(\n$)/g, "");
 
                 switch (action) {
                     case FileManagerAction.Open:
@@ -404,7 +404,7 @@ class FileManagerPanel {
             const action: string = $(elem)
             .children(".label")
             .html()
-            .replace(/(^\n)|(,\n)/g, "");
+            .replace(/(^\n)|(\n$)/g, "");
 
             if (!this._isValidAction(action as FileManagerAction)) {
                 $(elem).addClass("disabled");
@@ -466,6 +466,10 @@ class FileManagerPanel {
 
                 const keyword: string = $searchInput.val();
                 this._eventSearch(keyword);
+            },
+            input: (_event: JQueryEventObject) => {
+                const keyword: string = $searchInput.val();
+                this._eventSearch(keyword);
             }
         });
     }
@@ -480,7 +484,7 @@ class FileManagerPanel {
                 const sortBy: string = $(event.currentTarget)
                 .children(".label")
                 .html()
-                .replace(/(^\n)|(,\n)/g, "");
+                .replace(/(^\n)|(\n$)/g, "");
 
                 this._eventSort(sortBy);
             }
@@ -591,6 +595,7 @@ class FileManagerPanel {
         }
 
         if (!newNode.isDir) {
+            newPath = newPath.replace(/\/$/, "");
             this.manager.open(newPath);
             newNode = newNode.parent;
             newPath = this.nodeToPath(newNode);
@@ -677,6 +682,13 @@ class FileManagerPanel {
     }
 
     private _eventSearch(keyword: string): void {
+        keyword = xcHelper
+        .escapeRegExp(keyword)
+        .replace(/\\\*/g, ".*")
+        .replace(/\\\?/g, ".");
+        keyword = xcHelper.containRegExKey(keyword);
+        const keywordReg: RegExp = new RegExp(keyword, "i");
+
         if (!this.rootPathNode.children.has("Search")) {
             this.rootPathNode.children.set("Search", {
                 pathName: "Search",
@@ -706,7 +718,7 @@ class FileManagerPanel {
         while (searchQueue.length !== 0) {
             const curPathNode: FileManagerPathNode = searchQueue.shift();
 
-            if (curPathNode.pathName.includes(keyword)) {
+            if (keywordReg.test(curPathNode.pathName)) {
                 rootSearchPathNode.children.set(
                     this.nodeToPath(curPathNode),
                     curPathNode
@@ -858,7 +870,7 @@ class FileManagerPanel {
             const sortBy: string = $(elem)
             .siblings(".label")
             .html()
-            .replace(/(^\n)|(,\n)/g, "");
+            .replace(/(^\n)|(\n$)/g, "");
 
             if (sortBy === this.viewPathNode.sortBy) {
                 $(elem).removeClass("xi-sort");

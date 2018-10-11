@@ -430,6 +430,7 @@ module.exports = {
         "Browse": "Browse Files",
         "BlankFunc": "New Module",
         "Editor": "Editor",
+        "Filename": "Enter the filename",
         "Func": "UDF Function",
         "Header": "User Defined Function",
         "Manager": "Manager",
@@ -438,7 +439,7 @@ module.exports = {
         "ModuleName": "Module name",
         "NameHint": "Module name (lowercase)",
         "SelectTemplate": "Select Module",
-        "Template": "Modify",
+        "ToManager": "Open File Manager",
         "Udf": "UDF",
         "Udfs": "UDFs"
     },

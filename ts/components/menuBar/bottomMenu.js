@@ -272,7 +272,6 @@ window.BottomMenu = (function($, BottomMenu) {
         $menuPanel.find(".bottomMenuContainer").show();
 
         $menuSections.removeClass("active");
-        $menuPanel.children(".sideBarTopButtons").removeClass("udfTopButtons");
         // mark the section and open the menu
         $section.addClass("active");
         var isBottomMenuOpening = false;
@@ -308,6 +307,10 @@ window.BottomMenu = (function($, BottomMenu) {
         var sectionId = $section.attr("id");
         if (sectionId ==="udfSection") {
             $menuPanel.children(".sideBarTopButtons").addClass("udfTopButtons");
+            $("#udfButtonWrap").removeClass("xc-hidden");
+        } else {
+            $menuPanel.children(".sideBarTopButtons").removeClass("udfTopButtons");
+            $("#udfButtonWrap").addClass("xc-hidden");
         }
 
         if (sectionId === "logSection") {

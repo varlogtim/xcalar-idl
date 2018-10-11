@@ -2988,6 +2988,9 @@ namespace xcHelper {
             case PatternCategory.UDFFn:
                 namePattern = /^[a-z_][a-zA-Z0-9_]*$/;
                 break;
+            case PatternCategory.UDFFileName:
+                namePattern = /^.*\.py$/;
+                break;
             case PatternCategory.Workbook:
             case PatternCategory.Target:
                 namePattern = /^[a-zA-Z][a-zA-Z0-9\s_-]*$/;
@@ -3108,12 +3111,16 @@ namespace xcHelper {
         if (wkbkPrefix == null) {
             return filteredArray;
         }
-        const globalPathPrefix: string = UDFFileManager.Instance.getDefaultUDFPath() + ":";
+        // TODO: remove after next thrift change
+        const globalPathPrefix: string = "/globaludf/default" + ":";
+        const defaultPathPrefix: string = UDFFileManager.Instance.getSharedUDFPath();
         for (let i = 0; i < fns.length; i++) {
             const op: UDFInfo = fns[i];
             if (op.fnName.indexOf("/") === -1) {
                 filteredArray.push(op);
+            // TODO: remove after next thrift change
             } else if (!op.fnName.startsWith(globalPathPrefix) &&
+                !op.fnName.startsWith(defaultPathPrefix) &&
                 !op.fnName.startsWith(wkbkPrefix)
             ) {
                 continue;
