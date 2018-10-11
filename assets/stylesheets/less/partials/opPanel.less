@@ -111,6 +111,12 @@
         .iconWrapper.dropdown .icon {
             color: @color-font-dropdown-gray;
         }
+        &.disabled {
+            pointer-events: none;
+            .iconWrapper {
+                display: none;
+            }
+        }
     }
 
     .checkboxWrap {

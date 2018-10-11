@@ -88,8 +88,17 @@ class DagCategories {
 
         const setCategory = new DagCategory(DagCategoryType.Set, [
             new DagCategoryNodeSet(DagNodeFactory.create({
-                type: DagNodeType.Set
-            }))
+                type: DagNodeType.Set,
+                subType: DagNodeSubType.Intersect
+            })),
+            new DagCategoryNodeSet(DagNodeFactory.create({
+                type: DagNodeType.Set,
+                subType: DagNodeSubType.Union
+            })),
+            new DagCategoryNodeSet(DagNodeFactory.create({
+                type: DagNodeType.Set,
+                subType: DagNodeSubType.Except
+            })),
         ]);
 
         const sqlCategory = new DagCategory(DagCategoryType.SQL, [
