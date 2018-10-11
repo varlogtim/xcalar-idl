@@ -6,8 +6,6 @@ namespace WorkbookPanel {
     let $welcomeCard: JQuery; // $workbookTopbar.find(".welcomeBox")
     let $wkbkMenu: JQuery; //$workbookPanel.find("#wkbkMenu")
     const sortkey: string = "modified"; // No longer user configurable
-    let wasMonitorActive: boolean = false; // Track previous monitor panel state for when
-                                  // workbook closes
     const newBoxSlideTime: number = 700;
     let $fileUpload: JQuery;
     let $dropDownCard: JQuery;   //stores the most recently clicked parent of the dropDown Menu
@@ -15,7 +13,7 @@ namespace WorkbookPanel {
     let downloadingWKBKs: string[];
     let duplicatingWKBKs: string[];
     let hasSetup = false;
-    
+
     /**
     * WorkbookPanel.setup
     * initial set up variables and event listeners
@@ -60,9 +58,6 @@ namespace WorkbookPanel {
                     // on monitor view or something else
                     $container.removeClass("monitorMode setupMode");
                     $container.addClass("wkbkViewOpen");
-                    if (!wasMonitorActive) {
-                        MonitorPanel.inActive();
-                    }
                 } else if ($container.hasClass("noWorkbook") ||
                            $container.hasClass("switchingWkbk")) {
                     let msg: string = "";
@@ -185,30 +180,8 @@ namespace WorkbookPanel {
     * Shows the monitor panel
     */
     export function goToMonitor(): void {
-        $("#container").removeClass("setupMode wkbkViewOpen");
-        $("#container").addClass("monitorMode noWorkbookMenuBar");
-        MainMenu.tempNoAnim();
-
-        if (!MonitorPanel.isGraphActive()) {
-            wasMonitorActive = false;
-            MonitorPanel.active();
-        } else {
-            wasMonitorActive = true;
-        }
-    };
-
-    /**
-    * WorkbookPanel.goToSetup
-    * Shows the setup panel
-    */
-    export function goToSetup(): void {
-        $("#container").removeClass("monitorMode");
-        $("#container").addClass("setupMode noWorkbookMenuBar");
-        MainMenu.tempNoAnim();
-        if ($("#monitor-setup").hasClass("firstTouch")) {
-            $("#monitor-setup").removeClass("firstTouch");
-            MonitorConfig.refreshParams(true);
-        }
+        MainMenu.openPanel("monitorPanel", "systemButton");
+        MainMenu.open(true);
     };
 
     /**
@@ -343,15 +316,6 @@ namespace WorkbookPanel {
         $workbookTopbar.find(".monitorBtn, .monitorLink").click(function(e) {
             e.preventDefault(); // prevent monitor link from actually navigating
             WorkbookPanel.goToMonitor();
-        });
-
-        // from monitor to workbook panel
-        $("#monitorPanel").find(".backToWB").click(function() {
-            $("#container").removeClass("monitorMode setupMode");
-            $("#container").addClass("wkbkViewOpen");
-            if (!wasMonitorActive) {
-                MonitorPanel.inActive();
-            }
         });
     }
 
@@ -766,7 +730,7 @@ namespace WorkbookPanel {
                 return deferred.promise();
             }
         }
-        
+
         const key: string = keys[0];
         const operation: Object = txCache[key].getOperation();
         const msg: string = xcHelper.replaceMsg(WKBKTStr.SwitchWarn, {

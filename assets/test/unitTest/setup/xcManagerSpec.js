@@ -278,13 +278,11 @@ describe("xcManager Test", function() {
         });
 
         it("should mouseup .setup to open setup panel", function() {
-            var oldSetup = WorkbookPanel.goToSetup;
             var oldOpenPanel = MainMenu.openPanel;
             var oldOpen = MainMenu.open;
             var test1 = test2 = test3 = false;
             var noWorkbook = $("#container").hasClass("noWorkbook");
 
-            WorkbookPanel.goToSetup = function() { test1 = true; };
             MainMenu.openPanel = function() { test2 = true; };
             MainMenu.open = function() { test3 = true; };
 
@@ -310,7 +308,6 @@ describe("xcManager Test", function() {
             expect(test3).to.be.true;
 
             // clear up
-            WorkbookPanel.goToSetup = oldSetup;
             MainMenu.openPanel = oldOpenPanel;
             MainMenu.open = oldOpen;
             if (noWorkbook) {

@@ -797,14 +797,8 @@ namespace xcManager {
             if (event.which !== 1) {
                 return;
             }
-            // visible to admin only
-            if ($("#container").hasClass("noWorkbook")) {
-                WorkbookPanel.goToSetup();
-            } else {
-                MainMenu.openPanel("monitorPanel", "setupButton");
-                MainMenu.open(true);
-            }
-
+            MainMenu.openPanel("monitorPanel", "setupButton");
+            MainMenu.open(true);
         });
         $menu.on("mouseup", ".liveHelp", function(event: JQueryEventObject): void {
             if (event.which !== 1) {

@@ -11,10 +11,13 @@ class DagCategoryBar {
     private currentCategory: DagCategoryType = DagCategoryType.Favorites;
     private _listScrollers: ListScroller[] = [];
 
-    public setup(): void {
-        this.dagCategories = new DagCategories();
+    constructor() {
         this.$dagView = $("#dagView");
         this.$operatorBar = this.$dagView.find(".operatorWrap");
+    }
+
+    public setup(): void {
+        this.dagCategories = new DagCategories();
         this._setupCategoryBar();
         this._setupDragDrop();
         this._setupScrolling();
@@ -98,13 +101,13 @@ class DagCategoryBar {
 
     /**
      * Update the connectorIn UI of a node
-     * @param numParents 
-     * @param rect 
+     * @param numParents
+     * @param rect
      */
     public updateNodeConnectorIn(numParents: number, elemNode: d3): void {
         const params = this._getConnectorInParams(numParents);
         const elemConnIn = elemNode.select('.connIn');
-        
+
         elemConnIn.selectAll('rect').remove();
         for (const param of params) {
             const elemRect = elemConnIn.append('rect');
@@ -239,7 +242,7 @@ class DagCategoryBar {
                     'x': '0', 'y': '5', 'fill': '#BBC7D1', 'stroke': '#849CB0',
                     'stroke-width': '1', 'rx': '1', 'ry': '1',
                     'width': '7', 'height': '18',
-                    'data-index': '0', 
+                    'data-index': '0',
                 }
             });
             // '<rect class="connector in noConnection multi"' +

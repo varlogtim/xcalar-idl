@@ -80,51 +80,15 @@ describe("Workbook-Workbook Panel Test", function() {
 
         it("Should access monitor", function() {
             $workbookPanel.find(".monitorBtn, .monitorLink").click();
-            expect($("#container").hasClass("workbookMode")).to.be.true;
-            expect($("#container").hasClass("monitorMode")).to.be.true;
+            expect($("#container").hasClass("monitorViewOpen")).to.be.true;
+            expect($("#container").hasClass("mainMenuOpen")).to.be.true;
+            expect($("#container").hasClass("workbookMode")).to.be.false;
         });
 
         it("should click home button to back to workbook panel", function() {
             $("#homeBtn").click();
+            expect($("#container").hasClass("monitorViewOpen")).to.be.true;
             expect($("#container").hasClass("workbookMode")).to.be.true;
-            expect($("#container").hasClass("monitorMode")).to.be.false;
-        });
-
-        it("Should back to workbook", function() {
-            // go to monitor screen again
-            $workbookPanel.find(".monitorBtn, .monitorLink").click();
-            expect($("#container").hasClass("workbookMode")).to.be.true;
-            expect($("#container").hasClass("monitorMode")).to.be.true;
-
-            $("#monitorPanel .backToWB").click();
-            expect($("#container").hasClass("workbookMode")).to.be.true;
-            expect($("#container").hasClass("monitorMode")).to.be.false;
-        });
-
-        it("should go to setup", function() {
-            WorkbookPanel.goToSetup();
-            expect($("#container").hasClass("setupMode")).to.be.true;
-
-            $("#monitorPanel .backToWB").click();
-            expect($("#container").hasClass("setupMode")).to.be.false;
-        });
-
-        it("should go to setup with firstTouch", function() {
-            var oldFunc = MonitorConfig.refreshParams;
-            var testArg = null;
-            MonitorConfig.refreshParams = function(arg) {
-                testArg = arg;
-            };
-            $("#monitor-setup").addClass("firstTouch");
-            WorkbookPanel.goToSetup();
-            expect($("#monitor-setup").hasClass("firstTouch")).to.be.false;
-            expect(testArg).to.equal(true);
-            expect($("#container").hasClass("setupMode")).to.be.true;
-
-            $("#monitorPanel .backToWB").click();
-            expect($("#container").hasClass("setupMode")).to.be.false;
-
-            MonitorConfig.refreshParams = oldFunc;
         });
 
         it("should mouseenter to triger tooltipoverflow", function() {
