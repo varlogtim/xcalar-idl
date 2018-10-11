@@ -1542,7 +1542,13 @@ namespace XIApi {
             // log this indexed table as part of the transaction so afterwards
             // we can add a tag to the indexed table to indicate it is
             // part of the transaction
-            QueryManager.addIndexTable(txId, indexCache.tableName);
+            if (typeof QueryManager !== "undefined") {
+                // XXX For JDBC. QueryManager is currently browser side code. So
+                // it shouldn't be mixed up with API layer code.
+                // We can probably better solve the issue when we have clear
+                // code layers/structures.
+                QueryManager.addIndexTable(txId, indexCache.tableName);
+            }
             return PromiseHelper.resolve(indexCache.tableName, true, indexCache.keys);
         }
         if (colNames.length === 0) {
