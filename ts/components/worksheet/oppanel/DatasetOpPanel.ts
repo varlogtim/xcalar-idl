@@ -228,6 +228,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         this._resetCurrentPath();
         this._dsObject = { folders: {}, datasets: [] };
         this._setupDatasetList();
+        this._advMode = false;
         this._restorePanel(dagNode.getParam());
         // Setup event listeners
         this._setupEventListener(dagNode);

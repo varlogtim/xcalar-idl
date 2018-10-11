@@ -369,6 +369,7 @@ window.TblAnim = (function($, TblAnim) {
         var $table = $el.closest('.xcTbodyWrap');
         rowInfo.$table = $table;
         rowInfo.actualTd = $el.closest('td');
+        rowInfo.$container = $table.closest(".xcTableWrap").parent();
         // we actually target the td above the one we're grabbing.
         if ($el.hasClass('last')) {
             rowInfo.targetTd = $table.find('tr:last').find('td').eq(0);
@@ -410,7 +411,7 @@ window.TblAnim = (function($, TblAnim) {
             rowInfo.targetTd.outerHeight(rowInfo.startHeight);
 
             $table.find('tr:not(.dragging)').addClass('notDragging');
-            lockScrolling($('#mainFrame'), 'horizontal');
+            lockScrolling(rowInfo.$container, 'horizontal');
             $table.siblings(".tableScrollBar").hide();
         }
     }
@@ -451,7 +452,7 @@ window.TblAnim = (function($, TblAnim) {
         $('body').removeClass('tooltipOff');
         $('#rowResizeCursor').remove();
         rowInfo.$table.siblings(".tableScrollBar").show();
-        unlockScrolling($('#mainFrame'), 'horizontal');
+        unlockScrolling(rowInfo.$container, 'horizontal');
         var $table = $('#xcTable-' + rowInfo.tableId);
         $table.find('tr').removeClass('notDragging dragging');
 
@@ -561,6 +562,7 @@ window.TblAnim = (function($, TblAnim) {
         dragInfo.mouseX = event.pageX;
         dragInfo.$el = $el;
         dragInfo.$tableWrap = $tableWrap;
+        dragInfo.$container = $tableWrap.parent();
 
         $el.closest("th").addClass("colDragging");
         var cursorStyle = '<div id="moveCursor"></div>';
@@ -587,7 +589,6 @@ window.TblAnim = (function($, TblAnim) {
         gMouseStatus = "dragging";
         var el = dragInfo.$el;
         var pageX = event.pageX;
-        var $mainFrame = $('#mainFrame');
         dragInfo.colNum = xcHelper.parseColNum(el);
         var $tableWrap = dragInfo.$tableWrap;
 
@@ -612,7 +613,7 @@ window.TblAnim = (function($, TblAnim) {
         dragInfo.isMinimized = el.hasClass('userHidden');
         dragInfo.colWidth = el.width();
         dragInfo.windowWidth = $(window).width();
-        dragInfo.mainFrameLeft = $mainFrame[0].getBoundingClientRect().left;
+        dragInfo.mainFrameLeft = dragInfo.$container[0].getBoundingClientRect().left;
 
         var timer;
         if (gTables[dragInfo.tableId].tableCols.length > 50) {
@@ -625,11 +626,11 @@ window.TblAnim = (function($, TblAnim) {
         // the following code deals with hiding non visible tables and locking the
         // scrolling when we reach the left or right side of the table
 
-        var mfWidth = $mainFrame.width();
+        var mfWidth = dragInfo.$container.width();
 
-        var mfScrollLeft = $mainFrame.scrollLeft();
+        var mfScrollLeft = dragInfo.$container.scrollLeft();
         var tableLeft = dragInfo.$table.offset().left - MainMenu.getOffset();
-        $mainFrame.addClass('scrollLocked');
+        dragInfo.$container.addClass('scrollLocked');
 
         var leftLimit = mfScrollLeft + tableLeft;
         leftLimit = Math.min(leftLimit, mfScrollLeft);
@@ -644,13 +645,13 @@ window.TblAnim = (function($, TblAnim) {
         TblFunc.hideOffScreenTables(hideOptions);
 
         var scrollLeft;
-        $mainFrame.on('scroll.draglocked', function() {
-            scrollLeft = $mainFrame.scrollLeft();
+        dragInfo.$container.on('scroll.draglocked', function() {
+            scrollLeft = dragInfo.$container.scrollLeft();
 
             if (scrollLeft <= leftLimit) {
-                $mainFrame.scrollLeft(leftLimit);
+                dragInfo.$container.scrollLeft(leftLimit);
             } else if (scrollLeft >= rightLimit) {
-                $mainFrame.scrollLeft(rightLimit);
+                dragInfo.$container.scrollLeft(rightLimit);
             }
 
             TblFunc.moveTableTitles();
@@ -684,7 +685,7 @@ window.TblAnim = (function($, TblAnim) {
         setTimeout(function () {
             dragInfo.$el.closest("th").removeClass("colDragging");
         });
-        
+
         setTimeout(function() {
             dragInfo.$tableWrap.removeClass("checkingColDrag");
             $('body').removeClass('tooltipOff');
@@ -702,8 +703,8 @@ window.TblAnim = (function($, TblAnim) {
         gMouseStatus = null;
         var $tableWrap = dragInfo.$table;
         var $th = dragInfo.element;
-        $('#mainFrame').off('scroll.draglocked');
-        $('#mainFrame').removeClass('scrollLocked');
+        dragInfo.$container.off('scroll.draglocked');
+        dragInfo.$container.removeClass('scrollLocked');
         if (gMinModeOn) {
             $('#shadowDiv, #fauxCol').remove();
         } else {
@@ -728,7 +729,7 @@ window.TblAnim = (function($, TblAnim) {
         }
 
         $('#dropTargets').remove();
-        $('#mainFrame').off('scroll', mainFrameScrollDropTargets)
+        dragInfo.$container.off('scroll', mainFrameScrollDropTargets)
                        .scrollTop(0);
         xcHelper.reenableTextSelection();
         if (dragInfo.inFocus) {
@@ -772,7 +773,7 @@ window.TblAnim = (function($, TblAnim) {
     function createTransparentDragDropCol(pageX) {
         var $tableWrap = dragInfo.$table;
         var $table = $tableWrap.find('table');
-        $('#mainFrame').append('<div id="fauxCol" style="left:' +
+        dragInfo.$container.append('<div id="fauxCol" style="left:' +
                         pageX + 'px;' +
                         'width:' + (dragInfo.colWidth) + 'px;' +
                         'margin-left:' + (-dragInfo.grabOffset) + 'px;">' +
@@ -840,7 +841,8 @@ window.TblAnim = (function($, TblAnim) {
         var tableTitleHeight = $tableWrap.find('.tableTitle').height();
 
         var xcTableWrapHeight = $tableWrap.height();
-        var fauxColHeight = Math.min(fauxTableHeight, xcTableWrapHeight - 36);
+        var theadHeight = dragInfo.$tableWrap.find(".xcTheadWrap").length ? 36 : 0;
+        var fauxColHeight = Math.min(fauxTableHeight, xcTableWrapHeight - theadHeight);
         dragInfo.fauxCol.height(fauxColHeight);
         var firstRowOffset = $(topRowEl).offset().top - topPx - rowHeight;
         $fauxTable.css('margin-top', firstRowOffset);
@@ -882,7 +884,7 @@ window.TblAnim = (function($, TblAnim) {
                                     i +
                                 '</div>';
             });
-            var scrollLeft = $('#mainFrame').scrollLeft();
+            var scrollLeft = dragInfo.$container.scrollLeft();
             // may have issues with table left if dragInfo.$table isn't correct
             var tableLeft = dragInfo.$table[0].getBoundingClientRect().left +
                 scrollLeft;
@@ -892,7 +894,7 @@ window.TblAnim = (function($, TblAnim) {
             $('#dropTargets').on('mouseenter', '.dropTarget', function() {
                 dragdropSwapColumns($(this));
             });
-            $('#mainFrame').scroll(mainFrameScrollDropTargets);
+            dragInfo.$container.scroll(mainFrameScrollDropTargets);
 
         } else {
             // targets have already been created, so just adjust the one
@@ -989,7 +991,7 @@ window.TblAnim = (function($, TblAnim) {
             dragInfo.tableIndex = tableIndex;
             dragInfo.tableId = xcHelper.parseTableId(dragInfo.$table);
             dragInfo.originalIndex = dragInfo.tableIndex;
-            dragInfo.mainFrame = $('#mainFrame');
+            dragInfo.$container = dragInfo.$table.parent();
             var rect = dragInfo.$table[0].getBoundingClientRect();
 
             dragInfo.offsetLeft = dragInfo.$table.offset().left;
@@ -1002,7 +1004,7 @@ window.TblAnim = (function($, TblAnim) {
             dragInfo.$table.addClass('tableDragging');
             dragInfo.$table.css('left', dragInfo.offsetLeft + 'px');
             dragInfo.windowWidth = $(window).width();
-            dragInfo.mainFrameLeft = dragInfo.mainFrame[0].getBoundingClientRect().left;
+            dragInfo.mainFrameLeft = dragInfo.$container[0].getBoundingClientRect().left;
             dragInfo.$table.scrollTop(dragInfo.tableScrollTop);
             createTableDropTargets();
             dragdropMoveMainFrame(dragInfo, 50);
@@ -1036,7 +1038,7 @@ window.TblAnim = (function($, TblAnim) {
         });
         dragInfo.$el.find('.tableGrab').removeClass('noDropdown');
         $('#shadowTable, #dropTargets').remove();
-        $('#mainFrame').off('scroll', mainFrameScrollTableTargets);
+        dagInfo.mainFrame.off('scroll', mainFrameScrollTableTargets);
         dragInfo.$table.scrollTop(dragInfo.tableScrollTop);
         gActiveTableId = dragInfo.tableId;
         xcHelper.reenableTextSelection();
@@ -1052,7 +1054,7 @@ window.TblAnim = (function($, TblAnim) {
     }
 
     function createShadowTable() {
-        var $mainFrame = $('#mainFrame');
+        var $mainFrame = dragInfo.$container;
         var width = dragInfo.$table.children().width();
         var tableHeight = dragInfo.$table.find('.xcTheadWrap').height() +
                           dragInfo.$table.find('.xcTbodyWrap').height();
@@ -1070,14 +1072,14 @@ window.TblAnim = (function($, TblAnim) {
         if (dragInfo.prevTable.length > 0) {
             dragInfo.prevTable.after(shadowTable );
         } else {
-            $('#mainFrame').prepend(shadowTable);
+            $mainFrame.prepend(shadowTable);
         }
     }
 
     function createTableDropTargets() {
         var offset = dragInfo.mouseX - dragInfo.offsetLeft;
         var tableLeft;
-        var $mainFrame = dragInfo.mainFrame;
+        var $mainFrame = dragInfo.$container;
         var dropTargets = "";
         var targetWidth;
         var tempOffset = offset;
@@ -1118,7 +1120,7 @@ window.TblAnim = (function($, TblAnim) {
 
     function moveTableDropTargets(dropTargetIndex, oldIndex, swappedTable) {
         var offset = dragInfo.mouseX - dragInfo.offsetLeft;
-        var $mainFrame = dragInfo.mainFrame;
+        var $mainFrame = dragInfo.$container;
         var tableLeft = swappedTable.position().left + $mainFrame.scrollLeft();
         var $dropTarget = $('#dropTarget' + dropTargetIndex);
         if (dropTargetIndex < oldIndex) {
@@ -1132,7 +1134,7 @@ window.TblAnim = (function($, TblAnim) {
     }
 
     function mainFrameScrollTableTargets() {
-        var left = dragInfo.mainFrame.scrollLeft();
+        var left = dragInfo.$container.scrollLeft();
         $("#dropTargets").css('left', '-' + left + 'px');
     }
 
@@ -1170,7 +1172,7 @@ window.TblAnim = (function($, TblAnim) {
     function dragdropMoveMainFrame(dragInfo, timer) {
         // essentially moving the horizontal mainframe scrollbar if the mouse is
         // near the edge of the viewport
-        var $mainFrame = $('#mainFrame');
+        var $mainFrame = dragInfo.$container;
         var left;
 
         if (gMouseStatus === 'dragging') {
