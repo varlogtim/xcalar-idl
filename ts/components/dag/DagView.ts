@@ -162,6 +162,7 @@ namespace DagView {
         activeDagTab = dagTab;
         activeDag = dagTab.getGraph();
         DagView.reactivate();
+        DagTopBar.Instance.setState(activeDagTab);
     }
 
     export function selectNodes(nodeIds?: DagNodeId[]) {
@@ -1207,6 +1208,13 @@ namespace DagView {
                                midWidth;
             $dfArea.scrollLeft(scrollLeft);
         }
+    }
+
+    /**
+     * DagView.share
+     */
+    export function share(): void {
+        ShareDFModal.show(activeDagTab);
     }
 
     function _createCustomNode(

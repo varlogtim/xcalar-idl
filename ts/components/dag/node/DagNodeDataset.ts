@@ -74,4 +74,11 @@ class DagNodeDataset extends DagNodeIn {
 
         return deferred.promise();
     }
+
+    /**
+     * Get the dataset name
+     */
+    public getDSName(): string {
+        return this.getParam().source || null;
+    }
 }

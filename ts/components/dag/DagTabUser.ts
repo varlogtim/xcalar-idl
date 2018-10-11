@@ -105,19 +105,17 @@ class DagTabUser extends DagTab {
     }
 
     public save(): XDPromise<void> {
-        if (this._dagGraph == null) {
-            // when the grah is not loaded
-            return PromiseHelper.reject();
-        }
-        let serializedJSON: string = JSON.stringify(this._getJSON());
-        const promise: XDPromise<void> = this._kvStore.put(serializedJSON, true, true);
+        const promise: XDPromise<void> = this._writeToKVStore();
+        promise
+        .then(() => {
+            const activeWKBKId = WorkbookManager.getActiveWKBK();
+            if (activeWKBKId != null) {
+                const workbook = WorkbookManager.getWorkbooks()[activeWKBKId];
+                workbook.update();
+            }
+            KVStore.logSave(true);
+        });
 
-        const activeWKBKId = WorkbookManager.getActiveWKBK();
-        if (activeWKBKId != null) {
-            const workbook = WorkbookManager.getWorkbooks()[activeWKBKId];
-            workbook.update();
-        }
-        KVStore.logSave(true);
         return promise;
     }
 

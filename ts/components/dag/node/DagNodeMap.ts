@@ -108,6 +108,22 @@ class DagNodeMap extends DagNode {
         super.setParam();
     }
 
+    /**
+     * Get the used UDF modules in the node
+     */
+    public getUsedUDFModules(): Set<string> {
+        const set: Set<string> = new Set();
+        this.getParam().eval.forEach((evalArg) => {
+            try {
+                const arg = XDParser.XEvalParser.parseEvalStr(evalArg.evalString);
+                this._getUDFFromArg(arg, set);
+            } catch (e) {
+                console.error(e);
+            }
+        });
+        return set;
+    }
+
     private _getOpType(func: ParsedEval): ColumnType {
         const operator: string = func.fnName;
         let colType: ColumnType = null;
@@ -127,5 +143,24 @@ class DagNodeMap extends DagNode {
         let info = super._getSerializeInfo();
         info['aggregates'] = this._aggregates;
         return info;
+    }
+
+    private _getUDFFromArg(arg: object, set: Set<string> ): void {
+        const fnName: string = arg["fnName"];
+        if (fnName == null) {
+            return;
+        }
+        const splits: string[] = fnName.split(":");
+        if (splits.length === 1) {
+            return;
+        }
+        const moduleName: string = splits[0];
+        set.add(moduleName);
+        // recusrive check the arg
+        if (arg["args"] != null) {
+            arg["args"].forEach((subArg) => {
+                this._getUDFFromArg(subArg, set);
+            });
+        }
     }
 }

@@ -217,8 +217,7 @@ class DagList {
     }
 
     private _addUserDagList(dags: DagTabUser[]): void {
-        const icon: HTML = this._iconHTML("shareDataflow", "xi-add-dataflow", DFTStr.Share) +
-        this._iconHTML("deleteDataflow", "xi-trash", DFTStr.DelDF);
+        const icon: HTML = this._iconHTML("deleteDataflow", "xi-trash", DFTStr.DelDF);
         const html: HTML = dags.map((dag) => {
             let name = xcHelper.escapeHTMLSpecialChar(dag.getName());
             return '<li class="dagListDetail">' +
@@ -236,10 +235,7 @@ class DagList {
         const basicIcon: HTML = this._iconHTML("downloadDataflow", "xi-download", DFTStr.DownloadDF);
         const html: HTML = dags.map((dag) => {
             let name = xcHelper.escapeHTMLSpecialChar(dag.getName());
-            let icon: HTML = basicIcon;
-            if (dag.canEdit()) {
-                icon = this._iconHTML("deleteDataflow", "xi-trash", DFTStr.DelDF) + icon;
-            }
+            let icon: HTML = this._iconHTML("deleteDataflow", "xi-trash", DFTStr.DelDF) + basicIcon;
             return '<li class="dagListDetail">' +
                         '<span class="name textOverflowOneLine">' +
                             name +

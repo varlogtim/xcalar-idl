@@ -604,9 +604,9 @@ class DagGraph {
     /**
      * Resets ran nodes to go back to configured.
      */
-    public resetRunningStates() {
+    public resetStates() {
         this.nodesMap.forEach((node) => {
-            if (node.getState() == DagNodeState.Complete || node.getState() == DagNodeState.Error) {
+            if (node.getState() == DagNodeState.Complete || node.getState() == DagNodeState.Running) {
                 node.beConfiguredState();
             }
         });
@@ -651,6 +651,35 @@ class DagGraph {
             traversedSet.add(node);
         });
         return traversedSet;
+    }
+
+    // XXX TODO, change to only get the local one
+    /**
+     * Get the used local UDF modules in the graph
+     */
+    public getUsedUDFModules(): Set<string> {
+        let udfSet: Set<string> = new Set();
+        this.nodesMap.forEach((node) => {
+            if (node.getType() === DagNodeType.Map) {
+                const set: Set<string> = (<DagNodeMap>node).getUsedUDFModules();
+                udfSet = new Set([...set, ...udfSet]);
+            }
+        });
+        return udfSet;
+    }
+
+    /**
+     * Get the used dataset name in the graph
+     */
+    public getUsedDSNames(): Set<string> {
+        const set: Set<string> = new Set();
+        this.nodesMap.forEach((node) => {
+            if (node.getType() === DagNodeType.Dataset) {
+                const dsName: string = (<DagNodeDataset>node).getDSName();
+                set.add(dsName);
+            }
+        });
+        return set;
     }
 
     private _setupEvents(): void {

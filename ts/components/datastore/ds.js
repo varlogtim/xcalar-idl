@@ -66,6 +66,10 @@ window.DS = (function ($, DS) {
         toggleDSView(preference, true);
     };
 
+    DS.isSharingDisabled = function() {
+        return disableShare;
+    };
+
     DS.toggleSharing = function(disable) {
         disableShare = disable || false;
         if (disableShare) {
@@ -629,11 +633,25 @@ window.DS = (function ($, DS) {
         return (dirId === DSObjTerm.SharedFolderId);
     }
 
-    function shareDS(dsId) {
+    // XXX TODO, imporve it to accept multiple dsIds,
+    // and only commit once
+    DS.shareDS = function(dsId) {
+        return shareDS(dsId, true);
+    };
+
+    function shareDS(dsId, noAlert) {
         if (disableShare) {
-            return;
+            return PromiseHelper.resolve();
         }
         var dsObj = DS.getDSObj(dsId);
+        if (dsObj == null) {
+            // invalid id
+            return PromiseHelper.resolve();
+        }
+        if (isInSharedFolder(dsObj.getParentId())) {
+            // already in share folder
+            return PromiseHelper.resolve();
+        }
         var name = dsObj.getName();
         var msg = xcHelper.replaceMsg(DSTStr.ShareDSMsg, {name: name});
         var $sharedDS = $gridView.find('.grid-unit.shared[data-dsname="' +
@@ -646,13 +664,31 @@ window.DS = (function ($, DS) {
             msg += " " + xcHelper.replaceMsg(DSTStr.RenameMsg, {name: name});
         }
 
-        Alert.show({
-            title: DSTStr.ShareDS,
-            msg: msg,
-            onConfirm: function() {
-                shareAndUnshareHelper(dsId, name, true);
-            }
-        });
+        var alertDeferred = PromiseHelper.deferred();
+        if (!noAlert) {
+            Alert.show({
+                title: DSTStr.ShareDS,
+                msg: msg,
+                onConfirm: function() {
+                    alertDeferred.resolve()
+                },
+                onCancel: function() {
+                    alertDeferred.reject();
+                }
+            });
+        } else {
+            alertDeferred.resolve();
+        }
+
+        var deferred = PromiseHelper.deferred();
+        alertDeferred.promise()
+        .then(function() {
+            return shareAndUnshareHelper(dsId, name, true);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     function unshareDS(dsId) {

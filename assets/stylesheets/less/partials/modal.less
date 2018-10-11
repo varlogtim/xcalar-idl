@@ -5058,6 +5058,67 @@ html.microsoft {
     }
 }
 
+#shareDFModal {
+    .size(@width: 520px, @height: 265px);
+
+    .modalMain {
+        .size(@height: ~"calc(100% - 92px)");
+        padding: 10px 10px 0 10px;
+        .flex-display;
+        .flex-direction(column);
+
+        .row {
+            .flex(1 1 auto);
+
+            div, input {
+                margin-bottom: 5px;
+            }
+
+            input {
+                background: @color-white;
+            }
+        }
+
+        .path {
+            @prefix-w: 64px;
+            @total-w: @prefix-w;
+
+            input {
+                border-left: none;
+                width: ~"calc(100% - @{total-w})";
+                padding-left: 2px;
+
+                &:focus {
+                    ~ .prefix {
+                        border-color: @color-border-softBlue;
+                    }
+                }
+            }
+
+            .prefix {
+                float: left;
+                height: 30px;
+                line-height: 30px;
+                width: @prefix-w;
+                padding-left: 5px;
+                border: 1px solid @color-json-options-bar;
+                border-right: none;
+            }
+        }
+
+        .checkboxSection {
+            .qMark {
+                float: left;
+                .position(relative, @top: 9px);
+            }
+
+            .text {
+                margin-right: 8px;
+            }
+        }
+    }
+}
+
 /* Login Config Modal */
 #loginConfigModal {
     .size(@width: 800px, @height:650px);

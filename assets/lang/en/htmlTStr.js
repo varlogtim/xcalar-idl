@@ -72,6 +72,7 @@ module.exports = {
         "OneDataset": "One Dataset",
         "Op": "Operation",
         "OP": "OPERATION",
+        "Options": "Options",
         "Other": "Other",
         "Password": "Password",
         "Path": "Path",
@@ -861,6 +862,11 @@ module.exports = {
     "dataflow": {
         "MyDF": "My Dataflows",
         "SharedDF": "Shared Dataflows",
+        "SHAREDF": "SHARE DATAFLOW",
+        "ShareDF": "Share Dataflow",
+        "ShareDS": "Share datasets used in the dataflow",
+        "ShareDSHint": "Shared dataflow cannot access private datasets, to make the dataflow executable, datasets used in the dataflow need to be shared",
+        "KeepLocalCopy": "Keep the local copy",
         "DataflowTitle": "Batch Dataflow",
         "header": "Batch Dataflow",
         "dfs": "Batch Dataflows",
@@ -886,6 +892,7 @@ module.exports = {
         "AddSource": "Select a source table",
         "SourceTables": "Source Tables",
         "SelectOpEdit": "Select an operation to edit",
+        "DestDFName": "Destination dataflow name",
         // For uploader
         "upload": "UPLOAD",
         "uploadHeader": "Upload dataflow",

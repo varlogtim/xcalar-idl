@@ -579,7 +579,9 @@ class DagTabManager{
             let $tab_name: JQuery = $tab_input.parent();
             let newName: string = $tab_input.text().trim() || this._editingName;
             if (newName != this._editingName &&
-                DagList.Instance.isUniqueName(newName)
+                DagList.Instance.isUniqueName(newName) &&
+                xcHelper.checkNamePattern(PatternCategory.Dataflow,
+                    PatternAction.Check, newName)
             ) {
                 let $tab: JQuery = $tab_name.parent();
                 let index: number = $tab.index();

@@ -743,6 +743,7 @@ namespace xcManager {
         DFCommentModal.setup();
         FileListModal.setup();
         DSImportErrorModal.setup();
+        ShareDFModal.setup();
     }
 
     function setupUserArea(): void {

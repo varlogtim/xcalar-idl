@@ -24,6 +24,19 @@ class DagTopBar {
         this.$topBar.removeClass("locked");
     }
 
+    public setState(dagTab: DagTab): void {
+        if (dagTab == null) {
+            return;
+        }
+
+        const $btns: JQuery = this.$topBar.find(".topButtons");
+        if (dagTab instanceof DagTabUser) {
+            $btns.find(".share").removeClass("xc-disabled");
+        } else {
+            $btns.find(".share").addClass("xc-disabled");
+        }
+    }
+
     private _addEventListeners(): void {
         const self = this;
         this.$topBar.find(".run").click(function() {
@@ -58,6 +71,10 @@ class DagTopBar {
         this.$topBar.find(".zoomOut").click(function() {
             DagView.zoom(false);
             self._checkZoom();
+        });
+
+        this.$topBar.find(".share").click(() => {
+            DagView.share();
         });
     }
 

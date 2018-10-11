@@ -81,7 +81,16 @@ abstract class DagTab {
         return deferred.promise();
     }
 
-    protected _getJSON(): {name: string, id: string, dag: string} {
+    protected _writeToKVStore(): XDPromise<void> {
+        if (this._dagGraph == null) {
+            // when the grah is not loaded
+            return PromiseHelper.reject();
+        }
+        const serializedJSON: string = JSON.stringify(this._getJSON());
+        return this._kvStore.put(serializedJSON, true, true);
+    }
+
+    private _getJSON(): {name: string, id: string, dag: string} {
         return {
             name: this._name,
             id: this._id,

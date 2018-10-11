@@ -1135,6 +1135,8 @@ DFTStr = {
     "ParametersModifiedInstr": "The following parameters have been modified by another user.",
     "InvalidDF": "Invalid dataflow",
     "Share": "Share Dataflow",
+    "ShareFail": "Share Dataflow Failed",
+    "DelFail": "Cannot dataflow",
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
     'CancelAlertMsg': 'Batch dataflow \'<name>\' was canceled.',
@@ -1206,7 +1208,7 @@ DSTStr = {
     "ContainsFileError": "Your dataset contains 1 file error.<br/>Click to view.",
     "DBNoSQL": "Please type the SQL query to preview the data.",
     "InvalidPriorDataset": "Prior dataset does not exist: ",
-    "DisableShare": "Disabled by admin",
+    "DisableShare": "Sharing datasets is disabled by admin",
 
 
     // With replace
