@@ -40,24 +40,15 @@ require("jsdom/lib/old-api").env("", function(err, window) {
     global.$ = $ = jQuery;
     jQuery.md5 = require('../../../3rd/jQuery-MD5-master/jquery.md5.js');
 
-    require("../../../assets/js/thrift/CsvLoadArgsEnums_types.js");
-    require("../../../assets/js/thrift/DagRefTypeEnums_types.js");
-    require("../../../assets/js/thrift/DagStateEnums_types.js");
-    require("../../../assets/js/thrift/DagTypes_types.js");
-    require("../../../assets/js/thrift/DataFormatEnums_types.js");
-    require("../../../assets/js/thrift/DataTargetEnums_types.js");
-    require("../../../assets/js/thrift/DataTargetTypes_types.js");
-    require("../../../assets/js/thrift/FunctionCategory_types.js");
-    require("../../../assets/js/thrift/JoinOpEnums_types.js");
-    require("../../../assets/js/thrift/LibApisCommon_types.js");
-    require("../../../assets/js/thrift/LibApisConstants_types.js");
-    require("../../../assets/js/thrift/UnionOpEnums_types.js");
-    require("../../../assets/js/thrift/LibApisEnums_types.js");
-    require("../../../assets/js/thrift/OrderingEnums_types.js");
-    require("../../../assets/js/thrift/QueryStateEnums_types.js");
-    require("../../../assets/js/thrift/SourceTypeEnum_types.js");
-    require("../../../assets/js/thrift/Status_types.js");
-    require("../../../assets/js/thrift/UdfTypes_types.js");
+
+    var enumsPath = "../../../assets/js/thrift/";
+    var normalizedPath = require("path").join(__dirname, enumsPath);
+    require("fs").readdirSync(normalizedPath).forEach(function(file) {
+        if (file.indexOf("_types") > -1) {
+            require("../../../assets/js/thrift/" + file);
+        }
+    });
+
     try {
         sqlHelpers = require("../sqlHelpers/sqlHelpers.js");
     } catch(error) {
