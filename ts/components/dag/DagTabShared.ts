@@ -12,10 +12,14 @@ class DagTabShared extends DagTab {
         this._switchSession(null);
         XcalarListWorkbooks("*")
         .then((res: {sessions: any[]}) => {
-            const dags: DagTabShared[] = res.sessions.map((sessionInfo) => {
+            const dags: DagTabShared[] = [];
+            res.sessions.map((sessionInfo) => {
                 const name: string = sessionInfo.name;
-                const id: string = sessionInfo.sessionId;
-                return new DagTabShared(name, id);
+                if (!name.startsWith(".temp")) {
+                    // filter out .temp dataflows
+                    const id: string = sessionInfo.sessionId;
+                    dags.push(new DagTabShared(name, id));
+                }
             });
             deferred.resolve(dags);
         })

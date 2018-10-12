@@ -149,8 +149,34 @@ class DagTabUser extends DagTab {
         return deferred.promise();
     }
 
-    // do nothing
     public download(): XDPromise<void> {
-        return PromiseHelper.resolve();
+        // Step for download local dataflow:
+        // 1. upload as a temp shared dataflow
+        // 2. download the temp shared dataflow
+        // 3. delete the temp shared dataflow
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        // format is .temp/randNum/fileName
+        const tempName: string = ".temp/" + xcHelper.randName("rand") + "/" + this.getName();
+        const fakeDag: DagTabShared = new DagTabShared(tempName, null, this._dagGraph);
+        let hasShared: boolean = false;
+
+        fakeDag.share()
+        .then(() => {
+            hasShared = true;
+            return fakeDag.download();
+        })
+        .then(() => {
+            fakeDag.delete();
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject)
+        .always(() => {
+            if (hasShared) {
+                // if temp shared dataflow has created, delete it
+                fakeDag.delete();
+            }
+        });
+
+        return deferred.promise();
     }
 }

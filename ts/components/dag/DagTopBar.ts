@@ -35,6 +35,12 @@ class DagTopBar {
         } else {
             $btns.find(".share").addClass("xc-disabled");
         }
+
+        if (dagTab instanceof DagTabCustom) {
+            $btns.find(".download").addClass("xc-disabled");
+        } else {
+            $btns.find(".download").removeClass("xc-disabled");
+        }
     }
 
     private _addEventListeners(): void {
@@ -74,7 +80,25 @@ class DagTopBar {
         });
 
         this.$topBar.find(".share").click(() => {
-            DagView.share();
+            const tab: DagTab = DagView.getActiveTab();
+            if (tab instanceof DagTabUser) {
+                ShareDFModal.show(tab);
+            }
+        });
+
+        this.$topBar.find(".download").click(() => {
+            const tab: DagTab = DagView.getActiveTab();
+            if (!(tab instanceof DagTabCustom)) {
+                tab.download()
+                .fail((error) => {
+                    Alert.show({
+                        title: DFTStr.DownloadErr,
+                        msg: error.error,
+                        isAlert: true,
+                        detail: error.log
+                    });
+                });
+            }
         });
     }
 

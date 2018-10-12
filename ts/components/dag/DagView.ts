@@ -1210,13 +1210,6 @@ namespace DagView {
         }
     }
 
-    /**
-     * DagView.share
-     */
-    export function share(): void {
-        ShareDFModal.show(activeDagTab);
-    }
-
     function _createCustomNode(
         dagNodeInfos,
         connection: DagSubGraphConnectionInfo

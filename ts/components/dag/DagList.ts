@@ -232,10 +232,9 @@ class DagList {
     }
 
     private _addSharedDagList(dags: DagTabShared[]): void {
-        const basicIcon: HTML = this._iconHTML("downloadDataflow", "xi-download", DFTStr.DownloadDF);
+        const icon: HTML = this._iconHTML("deleteDataflow", "xi-trash", DFTStr.DelDF);
         const html: HTML = dags.map((dag) => {
             let name = xcHelper.escapeHTMLSpecialChar(dag.getName());
-            let icon: HTML = this._iconHTML("deleteDataflow", "xi-trash", DFTStr.DelDF) + basicIcon;
             return '<li class="dagListDetail">' +
                         '<span class="name textOverflowOneLine">' +
                             name +
@@ -300,22 +299,6 @@ class DagList {
                         });
                     });
                 }
-            });
-        });
-
-        $dagListSection.on("click", ".downloadDataflow", (event) => {
-            let $dagListItem: JQuery = $(event.currentTarget).parent();
-            if (!$dagListItem.closest(".dagListDetails").hasClass("shared")) {
-                return;
-            }
-            // Now only support download of shared dataflow
-            const index: number = $dagListItem.index();
-            const dagTab: DagTabShared = this._sharedDags[index];
-            dagTab.download()
-            .fail((error) => {
-                StatusBox.show(DFTStr.DownloadErr, $dagListItem, false, {
-                    detail: error.log
-                });
             });
         });
     }

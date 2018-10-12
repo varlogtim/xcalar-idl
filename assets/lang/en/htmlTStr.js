@@ -867,6 +867,7 @@ module.exports = {
         "ShareDS": "Share datasets used in the dataflow",
         "ShareDSHint": "Shared dataflow cannot access private datasets, to make the dataflow executable, datasets used in the dataflow need to be shared",
         "KeepLocalCopy": "Keep the local copy",
+        "DownloadDF": "Download dataflow",
         "DataflowTitle": "Batch Dataflow",
         "header": "Batch Dataflow",
         "dfs": "Batch Dataflows",

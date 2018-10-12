@@ -65,7 +65,7 @@ class ShareDFModal {
         const graph: DagGraph = this.dagToShare.getGraph();
         const fakeDag: DagTabShared = new DagTabShared(path, null, graph);
         let hasShared: boolean = false;
-        
+
         fakeDag.share()
         .then(() => {
             hasShared = true;
