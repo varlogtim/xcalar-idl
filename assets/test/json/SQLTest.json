@@ -317,7 +317,7 @@
                                  "row4": [11, 4, "uick"]}
                 },
                 "tables": {
-                        "dataSource": "/netstore/datasets/tpch_sf1/",
+                        "dataSource": "/netstore/datasets/tpch_sf1_notrail/",
                         "tableNames": ["nation.tbl", "region.tbl", "orders.tbl"],
                         "extension": ".tbl"
                 }
@@ -421,7 +421,7 @@
                                 "numOfRows": "7"}
                 },
                 "tables": {
-                        "dataSource": "/netstore/datasets/tpch_sf1/",
+                        "dataSource": "/netstore/datasets/tpch_sf1_notrail/",
                         "tableNames": ["customer.tbl", "lineitem.tbl", "nation.tbl", "orders.tbl", "part.tbl",
                                    "partsupp.tbl", "region.tbl", "supplier.tbl"],
                         "extension": ".tbl"
@@ -630,7 +630,7 @@
                 },
                 "answers": {},
                 "tables": {
-                        "dataSource": "/netstore/datasets/tpch_sf1/",
+                        "dataSource": "/netstore/datasets/tpch_sf1_notrail/",
                         "tableNames": ["customer.tbl", "lineitem.tbl", "nation.tbl", "orders.tbl", "part.tbl",
                                    "partsupp.tbl", "region.tbl", "supplier.tbl"],
                         "extension": ".tbl"

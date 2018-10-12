@@ -291,10 +291,6 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
             return createTables(test, tableName, randId);
         })
         .then(function() {
-            // Remove extra columns
-            return removeColumns(gActiveTableId);
-        })
-        .then(function() {
             // Cast data types
             return castColumns(gActiveTableId);
         })
@@ -311,9 +307,6 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
     }
     function createTables(test, tableName, randId) {
         return test.createTable(tableName + "_" + randId);
-    }
-    function removeColumns(tableId) {
-        return ColManager.hideCol([gTables[tableId].getNumCols() - 1], tableId, {noAnimate: true});
     }
     function castColumns(tableId) {
         SmartCastView.show(tableId);
