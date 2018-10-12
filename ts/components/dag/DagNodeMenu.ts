@@ -230,6 +230,9 @@ namespace DagNodeMenu {
                     MapOpPanel.Instance.show(node, options);
                 }
                 break;
+            case (DagNodeType.Split):
+                console.warn('Not implemented yet');
+                break;
             case (DagNodeType.GroupBy):
                 GroupByOpPanel.Instance.show(node, options);
                 break;

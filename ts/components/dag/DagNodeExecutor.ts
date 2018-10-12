@@ -49,6 +49,8 @@ class DagNodeExecutor {
                 return this._join();
             case DagNodeType.Map:
                 return this._map();
+            case DagNodeType.Split:
+                return this._split();
             case DagNodeType.Project:
                 return this._project();
             case DagNodeType.Set:
@@ -213,6 +215,28 @@ class DagNodeExecutor {
         const desTable: string = this._generateTableName();
         const isIcv: boolean = params.icv;
         return XIApi.map(this.txId, mapStrs, srcTable, newFields, desTable, isIcv);
+    }
+
+    private _split(): XDPromise<string> {
+        const {
+            source: colToSplit, delimiter, dest: toCols
+        } = <DagNodeSplitInput>this.node.getParam();
+        const delimStr = delimiter.replace(/\"/g, '\\"');
+        const srcTable = this._getParentNodeTable(0);
+        const destTable = this._generateTableName();
+
+        if (toCols.length === 0) {
+            return PromiseHelper.reject('New column name not specified');
+        }
+
+        // Split column with map(cut)
+        const newFields: string[] = [];
+        const mapStrs: string[] = [];
+        for (let i = 0; i < toCols.length; i ++) {
+            mapStrs.push(`cut(${colToSplit}, ${i + 1}, "${delimStr}")`);
+            newFields.push(toCols[i]);
+        }
+        return XIApi.map(this.txId, mapStrs, srcTable, newFields, destTable, false);
     }
 
     private _project(): XDPromise<string> {

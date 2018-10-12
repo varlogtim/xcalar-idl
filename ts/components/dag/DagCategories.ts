@@ -73,7 +73,10 @@ class DagCategories {
             new DagCategoryNodeColumn(DagNodeFactory.create({
                 type: DagNodeType.Map,
                 subType: DagNodeSubType.Cast
-            }))
+            })),
+            new DagCategoryNodeColumn(DagNodeFactory.create({
+                type: DagNodeType.Split
+            })),
         ]);
 
         const joinCategory = new DagCategory(DagCategoryType.Join, [

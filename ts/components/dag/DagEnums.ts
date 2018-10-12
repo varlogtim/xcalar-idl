@@ -18,7 +18,8 @@ enum DagNodeType {
     CustomInput = "customInput",
     CustomOutput = "customOutput",
     IMDTable = "IMDTable",
-    PublishIMD = "publishIMD"
+    PublishIMD = "publishIMD",
+    Split = "split",
 }
 
 enum DagNodeSubType {

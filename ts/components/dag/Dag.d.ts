@@ -149,6 +149,12 @@ interface DagNodeDFInInput {
 interface DagNodeDFOutInput {
     name: string;
 }
+
+interface DagNodeSplitInput {
+    source: string,
+    delimiter: string,
+    dest: string[]
+}
 /* ==== End of Dag Node Input Intereface ==== */
 
 /* ==== Interfaces related to Export Drivers (Used in export Node) ==== */
