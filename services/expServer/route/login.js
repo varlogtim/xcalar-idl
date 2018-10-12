@@ -23,6 +23,7 @@ var Ajv = require('ajv');
 var ajv = new Ajv(); // options can be passed, e.g. {allErrors: true}
 var Status = ssf.Status;
 var strictSecurity = false;
+var authConfigured = false;
 
 require("require.async")(require);
 
@@ -1015,6 +1016,118 @@ function loginAuthentication(credArray) {
     return deferred.promise();
 }
 
+function authenticationInit() {
+    var deferred = jQuery.Deferred();
+
+    function getDefaultAdminOrNot() {
+        var subDeferred = jQuery.Deferred();
+
+        getDefaultAdmin()
+        .then(function(msg) {
+            subDeferred.resolve(msg);
+        })
+        .fail(function(msg) {
+            subDeferred.resolve(msg);
+        });
+
+        return subDeferred.promise();
+    }
+
+    function getMsalConfigOrNot() {
+        var subDeferred = jQuery.Deferred();
+
+        getMsalConfig()
+        .then(function(msg) {
+            subDeferred.resolve(msg);
+        })
+        .fail(function(msg) {
+            subDeferred.resolve(msg);
+        });
+
+        return subDeferred.promise();
+    }
+
+    function getLdapConfigOrNot() {
+        var subDeferred = jQuery.Deferred();
+
+        getLdapConfig()
+        .then(function(msg) {
+            subDeferred.resolve(msg);
+        })
+        .fail(function(msg) {
+            subDeferred.resolve(msg);
+        });
+
+        return subDeferred.promise();
+    }
+
+    xcConsole.log("Starting default admin load");
+    getDefaultAdminOrNot()
+    .then(function(msg) {
+        if (msg.data &&
+            msg.data.defaultAdminEnabled) {
+            xcConsole.log("default admin configured");
+            authConfigured = true;
+        } else {
+            xcConsole.log("default admin not configured");
+        }
+
+        xcConsole.log("Starting MSAL load");
+        return getMsalConfigOrNot();
+    })
+    .then(function(msg) {
+        if (msg.data &&
+            msg.data.msalEnabled) {
+            xcConsole.log("msal configured");
+            authConfigured = true;
+        } else {
+            xcConsole.log("msal not configured");
+        }
+
+        xcConsole.log("Starting LDAP config load");
+        return getLdapConfigOrNot();
+    })
+    .then(function(msg) {
+        if (msg.data &&
+            msg.data.ldapConfigEnabled) {
+            xcConsole.log("ldap configured");
+            authConfigured = true;
+        } else {
+            xcConsole.log("ldap not configured");
+        }
+    })
+    .always(function() {
+        xcConsole.log((authConfigured) ?
+                      "Authentication is configured" :
+                      "Authentication is not configured");
+        deferred.resolve();
+    });
+
+    return deferred.promise();
+}
+
+function securitySetupAuth(req, res, next) {
+    var message = { "status": httpStatus.Unauthorized, "success": false };
+
+    if (authConfigured) {
+        res.status(message.status).send(message);
+        next('router');
+        return;
+    }
+
+    authenticationInit()
+    .then(function() {
+        if (authConfigured) {
+            res.status(message.status).send(message);
+            next('router');
+            return;
+        }
+
+        next();
+    });
+}
+
+
 // Start of LDAP calls
 /*
 Example AD settings (now gotten from ldapConfig.json)
@@ -1185,6 +1298,19 @@ router.post('/login/defaultAdmin/set',
     });
 });
 
+router.post('/login/defaultAdmin/setup',
+            [securitySetupAuth], function(req, res) {
+    xcConsole.log("Setting up default admin");
+    var credArray = req.body;
+    setDefaultAdmin(credArray)
+    .always(function(message) {
+        if (message.success) {
+            authConfigured = true;
+        }
+        res.status(message.status).send(message);
+    });
+});
+
 router.post('/login/ldapConfig/get',
             [support.checkAuth], function(req, res) {
     xcConsole.log("Getting ldap config");
@@ -1253,3 +1379,4 @@ if (process.env.NODE_ENV === "test") {
 }
 
 exports.router = router;
+exports.authenticationInit = authenticationInit;
