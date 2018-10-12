@@ -68,6 +68,17 @@ class ColAssignmentModel {
         this.update();
     }
 
+    public addBlankRow(): void {
+        this.resultCols.push(new ProgCol({
+            name: "",
+            type: null
+        }));
+        this.selectedColsList.forEach(selectedCols => {
+            selectedCols.push(null);
+        });
+        this.update();
+    }
+
     /**
      * Remove a column in all nodes
      * @param colIndex {number} the index of the column
@@ -91,7 +102,7 @@ class ColAssignmentModel {
             return selectedCols[colIndex] != null;
         }).length === 0;
 
-        if (allNullCol) {
+        if (allNullCol && !this.options.preventAutoRemoveCol) {
             this.removeColumnForAll(colIndex);
         } else {
             this.resultCols[colIndex].type = null; // reset result type
@@ -187,6 +198,10 @@ class ColAssignmentModel {
             }
             if (error == null && nameMap[colName]) {
                 error = ErrTStr.DuplicateColNames;
+            }
+
+            if (error == null && this.options.validateType && !this.resultCols[i].getType()) {
+                error = UnionTStr.ChooseType;
             }
 
             if (error != null) {

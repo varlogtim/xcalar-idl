@@ -145,7 +145,7 @@ class DagNodeGroupByInput extends DagNodeInput {
           },
           "newKeys": {
             "$id": "#/properties/newKeys",
-            "type": "null", // XXX need to accept array of strings as well
+            "type": ["null", "array"], // XXX need to specify array of strings
             "title": "The Newkeys Schema",
             "default": null,
             "examples": [
@@ -154,15 +154,16 @@ class DagNodeGroupByInput extends DagNodeInput {
           }
         }
     };
-
-    public getInput() {
+3
+    public getInput(replaceParameters?: boolean): DagNodeGroupByInputStruct {
+        const input = super.getInput(replaceParameters);
         return {
-            groupBy: this.input.groupBy || [""],
-            aggregate: this.input.aggregate || [{operator: "", sourceColumn: "", destColumn: "", distinct: false, cast: null}],
-            includeSample: this.input.includeSample || false,
-            icv: this.input.icv || false,
-            groupAll: this.input.groupAll || false,
-            newKeys: this.input.newKeys || []
+            groupBy: input.groupBy || [""],
+            aggregate: input.aggregate || [{operator: "", sourceColumn: "", destColumn: "", distinct: false, cast: null}],
+            includeSample: input.includeSample || false,
+            icv: input.icv || false,
+            groupAll: input.groupAll || false,
+            newKeys: input.newKeys || []
         };
     }
 

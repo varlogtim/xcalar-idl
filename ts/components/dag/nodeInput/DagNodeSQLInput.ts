@@ -1,11 +1,12 @@
 class DagNodeSQLInput extends DagNodeInput {
     protected input: DagNodeSQLInputStruct;
 
-    public getInput() {
+    public getInput(replaceParameters?: boolean): DagNodeSQLInputStruct {
+        const input = super.getInput(replaceParameters);
         return {
-            queryStr: this.input.queryStr || "",
-            newTableName: this.input.newTableName,
-            jdbcCheckTime: this.input.jdbcCheckTime
+            queryStr: input.queryStr || "",
+            newTableName: input.newTableName,
+            jdbcCheckTime: input.jdbcCheckTime
         };
     }
 }

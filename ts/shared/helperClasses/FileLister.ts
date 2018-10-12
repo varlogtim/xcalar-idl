@@ -9,14 +9,15 @@ class FileLister {
     public constructor(
         $section: JQuery,
         options: {
-            renderTemplate: (files: {name: string, id: string}[], folders: string[]) => string
+            renderTemplate: (files: {name: string, id: string}[], folders: string[]) => string,
+            folderSingleClick?: boolean
         }
     ) {
         this._$section = $section;
         this._renderTemplate = options.renderTemplate;
         this._rootPath = DSTStr.Home;
         this._resetPath();
-        this._addEventListeners();
+        this._addEventListeners(options);
     }
 
     /**
@@ -139,11 +140,15 @@ class FileLister {
         this._getBackBtn().addClass("xc-disabled");
     }
 
-    private _addEventListeners(): void {
+    private _addEventListeners(options): void {
         const $listSection = this._$section.find(".listView ul");
         const self = this;
+        let folderClick = "dblclick";
+        if (options.folderSingleClick) {
+            folderClick = "click";
+        }
         // enter a folder
-        $listSection.on("dblclick", ".folderName", function() {
+        $listSection.on(folderClick, ".folderName", function() {
             self._currentPath.push($(this).text());
             self._futurePath = [];
             self._render();

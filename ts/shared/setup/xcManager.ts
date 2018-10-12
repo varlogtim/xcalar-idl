@@ -50,6 +50,7 @@ namespace xcManager {
             TutorialsSetup.setup();
             Admin.initialize();
             xcSuggest.setup();
+            DagParamPopup.setup();
             documentReadyGeneralFunction();
 
             xcSocket = setupSocket();

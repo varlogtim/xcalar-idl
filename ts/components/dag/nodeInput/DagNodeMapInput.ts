@@ -65,10 +65,15 @@ class DagNodeMapInput extends DagNodeInput {
         }
     };
 
-    public getInput() {
+    public getInput(replaceParameters?: boolean): DagNodeMapInputStruct {
+        const input = super.getInput(replaceParameters);
         return {
-            eval: this.input.eval || [{evalString: "", newField: ""}],
-            icv: this.input.icv || false,
+            eval: input.eval || [{evalString: "", newField: ""}],
+            icv: input.icv || false,
         };
+    }
+
+    public setEvals(evals) {
+        this.input.eval = evals;
     }
 }

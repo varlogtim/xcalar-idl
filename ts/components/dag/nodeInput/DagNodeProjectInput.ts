@@ -33,9 +33,14 @@ class DagNodeProjectInput extends DagNodeInput {
         }
     };
 
-    public getInput() {
+    public getInput(replaceParameters?: boolean): DagNodeProjectInputStruct {
+        const input = super.getInput(replaceParameters);
         return {
-            columns: this.input.columns || [""]
+            columns: input.columns || []
         };
+    }
+
+    public setColumns(columns) {
+        this.input.columns = columns;
     }
 }

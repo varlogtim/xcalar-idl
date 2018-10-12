@@ -10,14 +10,6 @@ class DagNodeGroupBy extends DagNode {
     }
 
     /**
-     * @returns {DagNodeGroupByInputStruct} GroupBy node parameters
-     */
-    public getParam(): DagNodeGroupByInputStruct {
-        return this.input.getInput();
-
-    }
-
-    /**
      * Set project node's parameters
      * @param input {DagNodeProjectInputStruct}
      * @param input.keys {string[]} An array of column names to group on
@@ -38,11 +30,14 @@ class DagNodeGroupBy extends DagNode {
     }
 
     // XXX TODO: verify it's correctness
-    public lineageChange(columns: ProgCol[]): DagLineageChange {
+    public lineageChange(
+        columns: ProgCol[],
+        replaceParameters?: boolean
+    ): DagLineageChange {
         const changes: {from: ProgCol, to: ProgCol}[] = [];
         const aggCols: ProgCol[] = [];
         let finalCols: ProgCol[] = [];
-        const input = this.input.getInput();
+        const input = this.input.getInput(replaceParameters);
         input.aggregate.forEach((aggInfo) => {
             const colName: string = aggInfo.destColumn;
             if (xcHelper.parsePrefixColName(colName).prefix) {
@@ -68,10 +63,16 @@ class DagNodeGroupBy extends DagNode {
             const groupCols: ProgCol[] = [];
             input.groupBy.forEach((colName, index) => {
                 const oldProgCol: ProgCol = colMap.get(colName);
+                let colType: ColumnType;
                 if (!oldProgCol) {
-                    return;
+                    // if newly parameterized, won't show up in colMap
+                    colType = ColumnType.unknown;
+                    if (colName.indexOf("<") === -1) {
+                        return;
+                    }
+                } else {
+                    colType = oldProgCol.getType();
                 }
-                const colType: ColumnType = oldProgCol.getType();
                 const newKey: string = input.newKeys[index];
                 if (colName !== newKey) {
                     const progCol: ProgCol = ColManager.newPullCol(newKey, newKey, colType);
@@ -140,7 +141,7 @@ class DagNodeGroupBy extends DagNode {
                 return xcHelper.randName(name);
             }
         });
-        input.newKeys = newKeys;
+        this.input.setNewKeys(newKeys);
     }
 
     public applyColumnMapping(renameMap): void {
@@ -159,6 +160,7 @@ class DagNodeGroupBy extends DagNode {
                                                 renameMap.columns);
                 }
             });
+            this.input.setGroupBy(input.groupBy);
             input.aggregate.forEach((agg, i) => {
                 if (renameMap.columns[agg.sourceColumn]) {
                     input.aggregate[i].sourceColumn = renameMap.columns[agg.sourceColumn];
@@ -167,6 +169,7 @@ class DagNodeGroupBy extends DagNode {
                                                 renameMap.columns);
                 }
             });
+            this.input.setAggregate(input.aggregate);
         } catch(err) {
             console.error(err);
         }

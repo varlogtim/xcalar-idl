@@ -33,7 +33,7 @@ window.DFCard = (function($, DFCard) {
 
         addListeners();
         setupDagDropdown();
-        DFParamTab.setup();
+        BatchDFParamPopup.setup($("#dfViz"), $("#dfViz .tabWrap, #dfParamModal .tabWrap"));
         setupScrollBar();
     };
 
@@ -1738,7 +1738,7 @@ window.DFCard = (function($, DFCard) {
 
             if (dataflowName === currentDataflow) {
                 $dagWrap.removeClass("xc-hidden");
-                // DFParamTab.updateRetinaTab(dataflowName);
+                // DFDagParamPopup.updateRetinaTab(dataflowName);
                 enableDagTooltips();
             } else {
                 $dagWrap.addClass("xc-hidden");

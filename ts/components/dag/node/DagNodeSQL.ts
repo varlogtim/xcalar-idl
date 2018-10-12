@@ -63,14 +63,14 @@ class DagNodeSQL extends DagNode {
         super.setParam();
     }
 
-    public lineageChange(): DagLineageChange {
+    public lineageChange(_columns, replaceParameters?: boolean): DagLineageChange {
         const changes: {from: ProgCol, to: ProgCol}[] = [];
         const finalCols: ProgCol[] = this.columns.map((column) => {
             return ColManager.newPullCol(column.name, column.backName, column.type);
         });
         const parents: DagNode[] = this.getParents();
         parents.forEach((parent) => {
-            parent.getLineage().getColumns().forEach((parentCol) => {
+            parent.getLineage().getColumns(replaceParameters).forEach((parentCol) => {
                 changes.push({
                     from: parentCol,
                     to: null

@@ -1,6 +1,6 @@
 describe("Project Dag Node Test", () => {
     let node;
-    
+
     before(() => {
         node = new DagNodeProject({});
     });
@@ -12,7 +12,7 @@ describe("Project Dag Node Test", () => {
     it("should get parameter", () => {
         const param = node.getParam();
         expect(param).to.deep.equal({
-            columns: [""]
+            columns: []
         });
     });
 

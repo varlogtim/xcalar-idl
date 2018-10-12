@@ -3,10 +3,12 @@ class ColAssignmentView {
     private modelData: ColAssignmentModel;
     private _panelSelector;
     private options;
+    private instanceOptions;
 
     public constructor(panelSelector, options?) {
         this._panelSelector = panelSelector;
         this.options = options || {};
+        this.instanceOptions = {};
         this._setup();
     }
 
@@ -24,12 +26,15 @@ class ColAssignmentView {
             destColumn: string,
             columnType: ColumnType,
             cast: boolean
-        }[][]
+        }[][],
+        options?
     ): ColAssignmentModel {
         this._reset();
         const event: Function = () => { this._render() };
+        options = options || {};
+        this.instanceOptions = $.extend({}, this.options, options);
         this.modelData = new ColAssignmentModel(allColSets, selectedColSets,
-            event, this.options);
+            event, this.instanceOptions);
         this._render();
         return this.modelData;
     }
@@ -105,6 +110,27 @@ class ColAssignmentView {
             const colIndex = this._getColIndex($input.closest(".resultCol"));
             this.modelData.setResult(colIndex, $input.val().trim(), null);
         });
+
+        $section.on("click", ".addRowBtn", () => {
+            this.modelData.addBlankRow();
+        });
+    }
+
+    public toggleCandidateSectionAdd(on?: boolean): void {
+        const $section = this._getView();
+        $section.off("click.candidateSection");
+        if (on) {
+            $section.on("click.candidateSection", ".candidateSection .inputCol", (event) => {
+                const $col: JQuery = $(event.target).closest(".inputCol");
+                const listIndex: number = this._getListIndex($col);
+                const colIndex: number = this._getColIndex($col);
+                this.modelData.addColumn(listIndex, colIndex);
+                xcTooltip.hideAll();
+            });
+            $section.removeClass("candidateAddDisabled");
+        } else {
+            $section.addClass("candidateAddDisabled");
+        }
     }
 
     private _getListIndex($ele: JQuery): number {
@@ -121,7 +147,7 @@ class ColAssignmentView {
         const $nodeList: JQuery = $view.find(".tableSection .listSection");
         const $result: JQuery = $view.find(".resultSection .listSection");
         const $candidate: JQuery = $view.find(".candidateSection .listSection");
-        const candidateHint = this.options.candidateText || UnionTStr.CandidateHint;
+        const candidateHint = this.instanceOptions.candidateText || UnionTStr.CandidateHint;
         const model = this.modelData.getModel();
         let result = model.result;
         let selected = model.selected;
@@ -143,7 +169,7 @@ class ColAssignmentView {
             candidateHTML += this._getCandidateList(candidates[index], index);
         });
 
-        if (this.options.resultColPosition === -1) {
+        if (this.instanceOptions.resultColPosition === -1) {
             nodeListHTML += nodeListHeader;
             resultHTML += resultCol;
             candidateHTML += candidateTextCol;
@@ -153,13 +179,21 @@ class ColAssignmentView {
             candidateHTML = candidateTextCol + candidateHTML;
         }
 
+        $view.find(".addRowBtn").remove();
+        if (this.instanceOptions.addRowBtn) {
+            const btnHTML =  '<button class="addRowBtn btn btn-rounded">' +
+                            '<i class="icon xi-plus fa-12"></i>Add Column</button>';
+            $view.find(".candidateSection").prepend(btnHTML);
+        }
+
         $nodeList.html(nodeListHTML);
         $result.html(resultHTML);
         $candidate.html(candidateHTML);
+
         this._setupDropdownList();
 
         result.forEach((col, index) => {
-            if (this.options.showCast || col.type != null) {
+            if (this.instanceOptions.showCast || col.type != null) {
                 this._showCast(index);
             }
         });
@@ -167,8 +201,8 @@ class ColAssignmentView {
 
     private _getNodeList(index: number): string {
         let label;
-        if (this.options.labels && this.options.labels[index] != null) {
-            label = this.options.labels[index];
+        if (this.instanceOptions.labels && this.instanceOptions.labels[index] != null) {
+            label = this.instanceOptions.labels[index];
         } else {
             label = "Node" + (index + 1);
         }
@@ -189,12 +223,17 @@ class ColAssignmentView {
             if (selectedCol && selectedCol.getType() === resultCol.type) {
                 listClasses += " originalType";
             }
+            let resultInputAttr = "";
+            if (this.instanceOptions.lockResultInputs) {
+                resultInputAttr = " disabled";
+            }
             resultColHTML +=
                 '<div class="resultCol"' +
                 ' data-index="' + listIndex + '">' +
                     '<input class="resultInput" type="text"' +
                     ' value="' + colName + '"' +
-                    ' placeholder="' + UnionTStr.NewColName + '" spellcheck="false">' +
+                    ' placeholder="' + UnionTStr.NewColName + '" spellcheck="false" ' +
+                    resultInputAttr + '>' +
                     '<i class="removeColInRow icon xi-close-no-circle' +
                     ' xc-action fa-10"></i>' +
                     '<div class="dropDownList typeList' + listClasses + '">' +

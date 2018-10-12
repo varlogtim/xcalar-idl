@@ -26,10 +26,13 @@ class DagNodeSet extends DagNode {
         super.setParam();
     }
 
-    public lineageChange(_columns: ProgCol[]): DagLineageChange {
+    public lineageChange(
+        _columns: ProgCol[],
+        replaceParameters?: boolean
+    ): DagLineageChange {
         const changes: {from: ProgCol, to: ProgCol}[] = [];
         let finalCols: ProgCol[] = [];
-        const input = this.input.getInput();
+        const input = this.input.getInput(replaceParameters);
         if (input.columns && input.columns.length > 0) {
             finalCols = input.columns[0].map((colInfo) => {
                 const colName: string = colInfo.destColumn;
@@ -43,7 +46,7 @@ class DagNodeSet extends DagNode {
             const parents: DagNode[] = this.getParents();
             input.columns.forEach((colLists, i) => {
                 const colMap: Map<string, ProgCol> = new Map();
-                parents[i].getLineage().getColumns().forEach((prgoCol) => {
+                parents[i].getLineage().getColumns(replaceParameters).forEach((prgoCol) => {
                     colMap.set(prgoCol.getBackColName(), prgoCol);
                 });
                 colLists.forEach((colInfo, j) => {
@@ -83,6 +86,7 @@ class DagNodeSet extends DagNode {
                     delete newRenameMap.columns[prevColName];
                 }
             });
+            this.input.setInput(input);
         } catch(err) {
             console.error(err);
         }

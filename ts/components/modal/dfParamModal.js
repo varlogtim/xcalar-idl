@@ -256,7 +256,7 @@ window.DFParamModal = (function($, DFParamModal){
 
         updateInstructions();
         initAdvancedForm();
-        setupParamTab();
+        setupDagParamPopup();
         deferred.resolve();
 
         return deferred.promise();
@@ -400,8 +400,8 @@ window.DFParamModal = (function($, DFParamModal){
               .html(draggableInputs);
     };
 
-    function setupParamTab() {
-        $modal.append($("#retPopUp"));
+    function setupDagParamPopup() {
+        $modal.append($("#paramPopUp"));
     }
 
     function initBasicForm(providedStruct) {
@@ -1839,7 +1839,7 @@ window.DFParamModal = (function($, DFParamModal){
         isOpen = false;
         $modal.removeClass("type-dataStore type-filter type-export type-synthesize " +
                             "type-advancedOnly type-noParams multiExport");
-        $("#retPopUp").appendTo($("#dfViz .retTab"));
+        DagParamPopup.restorePopup();
     }
 
     function updateInstructions() {

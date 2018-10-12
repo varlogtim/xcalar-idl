@@ -1,10 +1,13 @@
 class DatasetColRenamePanel {
     private $view: JQuery;
+    private _dagNode;
     private sourceNode: DagNode;
     private colRenameView;
     private viewOptions;
     private isOpen = false;
+    private noSourceCols: boolean = false;
     private static _instance;
+    private _model;
 
     public static get Instance() {
         return  this._instance || (this._instance = new this());
@@ -15,37 +18,61 @@ class DatasetColRenamePanel {
 
         this.colRenameView = new ColAssignmentView("#datasetOpColumnAssignment",
             {
-                labels: [OpFormTStr.PreviousColumns, OpFormTStr.NewColumns]
+                labels: [OpFormTStr.PreviousColumns, OpFormTStr.NewColumns],
+                preventAutoRemoveCol: true,
+                resultColPosition: -1
             });
         this._modifyColRenameSection();
         this._registerHandlers();
     }
 
     public show(dagNode, oldColumns, options): void {
+        this._dagNode = dagNode;
         this.isOpen = true;
         this.$view.removeClass("xc-hidden");
         this.sourceNode = dagNode;
         this.viewOptions = options || {};
 
-        const newColumns = dagNode.getLineage().getColumns();
-        const allColSets = [oldColumns, newColumns];
-        const selectedColSets = [[],[]];
-        allColSets[1].forEach(function(col: ProgCol) {
-            selectedColSets[0].push({
+        const newColumns: ProgCol[] = dagNode.getLineage().getColumns();
+        this.noSourceCols = newColumns.length === 0;
+
+        // if no columns, allow the ability to add candidate columns
+        this.colRenameView.toggleCandidateSectionAdd(this.noSourceCols);
+
+        if (this.noSourceCols) {
+            this.$view.addClass("noSourceCols");
+        } else {
+            this.$view.removeClass("noSourceCols");
+        }
+
+        const selectedCols = [];
+        newColumns.forEach(function(col: ProgCol) {
+            selectedCols.push({
                 sourceColumn: null,
-                destColumn: null,
-                columnType: null,
-                cast: false
-            });
-            selectedColSets[1].push({
-                sourceColumn: col.getBackColName(),
-                destColumn: null,
+                destColumn: col.getBackColName(),
                 columnType: col.getType(),
                 cast: false
             });
         });
-        this.colRenameView.show(allColSets, selectedColSets);
-        this._modifyColRenameSection();
+
+        // will have at least 1 row by default
+        if (!selectedCols.length) {
+            selectedCols.push({
+                sourceColumn: null,
+                destColumn: "",
+                columnType: null,
+                cast: false
+            });
+        }
+
+        this._model = this.colRenameView.show([oldColumns], [selectedCols], {
+            lockResultInputs: !this.noSourceCols,
+            addRowBtn: this.noSourceCols,
+            showCast: this.noSourceCols,
+            validateType: this.noSourceCols
+        });
+        this._modifyColRenameSection(this.noSourceCols);
+        this._autoResizeView(false);
     }
 
     public close(): void {
@@ -54,13 +81,15 @@ class DatasetColRenamePanel {
         }
         this.isOpen = false;
         this.$view.addClass("xc-hidden");
+        this._autoResizeView(true);
+        this._model = null;
         if (typeof this.viewOptions.onClose === "function") {
             this.viewOptions.onClose();
         }
     }
 
-    private _modifyColRenameSection() {
-        this.$view.off("click.candidateSection");
+    private _modifyColRenameSection(allowCandidateAdd?: boolean): void {
+        this.colRenameView.toggleCandidateSectionAdd(allowCandidateAdd);
         this.$view.find(".tableSection .header .text")
                   .text(OpFormTStr.SelectColRename);
         this.$view.find(".candidateSection .subHeading .text")
@@ -73,38 +102,62 @@ class DatasetColRenamePanel {
         });
     }
 
+    private _autoResizeView(reset: boolean) {
+        const $mainMenu: JQuery = $("#mainMenu");
+        const $panel: JQuery = this.$view;
+        const sectionW: number = parseFloat($panel.find(".lists").eq(0).css("min-width")) + 5;
+        const minWidth: number = parseFloat($mainMenu.css("min-width"));
+        if (reset) {
+            $mainMenu.width(minWidth);
+        } else {
+            let width: number = minWidth + sectionW;
+            width = Math.min(width, $("#workspacePanel").width() * 0.5);
+            $mainMenu.width(width);
+        }
+    }
+
     private _submit() {
-        const data = this.colRenameView.getParam();
-        const cols: {
-            sourceColumn: string,
-            destColumn: string,
-            columnType: ColumnType,
-            cast: boolean
-        }[][] = data.columns;
-        const oldCols = cols[0];
-        const newCols = cols[1];
+        const param = this.colRenameView.getParam();
         const renameMap = {
             columns: {},
             prefixes: {}
         };
-        oldCols.forEach((oldCol, index: number) => {
-            if (!oldCol.sourceColumn) return;
-            renameMap.columns[oldCol.sourceColumn] = newCols[index].sourceColumn;
+
+        param.columns[0].forEach((colInfo) => {
+            if (!colInfo.sourceColumn) return;
+            renameMap.columns[colInfo.sourceColumn] = colInfo.destColumn;
         });
+
         const keys = Object.keys(renameMap.columns);
         let oldPrefix;
         let newPrefix;
+        const model = this.colRenameView.getModel();
         if (keys.length) {
             oldPrefix = xcHelper.parsePrefixColName(keys[0]).prefix;
             newPrefix = xcHelper.parsePrefixColName(renameMap.columns[keys[0]]).prefix;
             renameMap.prefixes[oldPrefix] = newPrefix;
         } else {
-            const model = this.colRenameView.getModel();
-            oldPrefix = model.all[0][0].getPrefix();
-            newPrefix = model.all[1][0].getPrefix();
-            if (oldPrefix !== newPrefix) {
-                renameMap.prefixes[oldPrefix] = newPrefix;
+            if (model.all[0].length && model.result[0].length) {
+                oldPrefix = model.all[0][0].getPrefix();
+                newPrefix = model.result[0].getPrefix();
+                if (oldPrefix !== newPrefix) {
+                    renameMap.prefixes[oldPrefix] = newPrefix;
+                }
             }
+        }
+
+        // if no panel opened without sourcecols, assign new ones to the dagNode
+        if (this.noSourceCols) {
+            if (!this._validateNewColNames()) {
+                return false;
+            }
+            const prefix = this._dagNode.getParam().prefix;
+            const columns = model.result.map((progCol) => {
+                progCol.prefix = prefix;
+                return ColManager.newPullCol(progCol.getBackColName(), progCol.getBackColName(), progCol.getType());
+            });
+
+            this._dagNode.setSourceColumns(columns);
         }
 
         if (Object.keys(renameMap.prefixes).length) {
@@ -112,5 +165,21 @@ class DatasetColRenamePanel {
             dagGraph.applyColumnMapping(this.sourceNode.getId(), renameMap);
         }
         this.close();
+    }
+
+    private _validateNewColNames(): boolean {
+        // validate result column
+        const $resultInputs = this.$view.find(".resultInput");
+        const resultErr: {index: number, error: string} = this._model.validateResult();
+        if (resultErr != null) {
+            if (resultErr.index == null) {
+                StatusBox.show(resultErr.error, this.$view.find(".resultSection"));
+            } else {
+                StatusBox.show(resultErr.error, $resultInputs.eq(resultErr.index), true);
+            }
+
+            return false;
+        }
+        return true;
     }
 }

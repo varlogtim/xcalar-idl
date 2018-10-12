@@ -57,12 +57,13 @@ class DagNodeIMDTableInput extends DagNodeInput {
         }
     };
 
-    public getInput() {
+    public getInput(replaceParameters?: boolean): DagNodeIMDTableInputStruct {
+        const input = super.getInput(replaceParameters);
         return {
-            source: this.input.source || "",
-            version: this.input.version || -1,
-            filterString: this.input.filterString || "",
-            columns: this.input.columns || [],
+            source: input.source || "",
+            version: input.version || -1,
+            filterString: input.filterString || "",
+            columns: input.columns || [],
         };
     }
 }

@@ -207,7 +207,8 @@ enum PatternCategory {
     Export = "export",
     Dataflow = "dataflow",
     Folder = "folder",
-    Param = "param",
+    Param = "param", // batch dataflow
+    Param2 = "param2", // dataflow 2.0
     Prefix = "prefix",
     UDF = "udf",
     UDFFn = "udfFn",

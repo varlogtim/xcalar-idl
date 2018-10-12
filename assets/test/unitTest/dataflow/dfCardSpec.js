@@ -355,9 +355,9 @@ describe("DFCard Test", function() {
             DF.getDataflow = cache2;
             DF.getParameters = cache3;
             UnitTest.hasAlertWithTitle(DFTStr.AddValues);
-            expect($('#retPopUp:visible').length).to.equal(1);
+            expect($('#paramPopUp:visible').length).to.equal(1);
             $("#container").trigger(fakeEvent.mousedown);
-            expect($('#retPopUp:visible').length).to.equal(0);
+            expect($('#paramPopUp:visible').length).to.equal(0);
         });
 
         // XXX Need to figure out why not working
@@ -596,27 +596,27 @@ describe("DFCard Test", function() {
         // it("popup should open and close", function() {
         //     $tab.trigger(fakeEvent.mousedown);
         //     expect($tab.hasClass("active")).to.be.true;
-        //     expect($tab.find(".retPopUp").is(":visible")).to.be.true;
+        //     expect($tab.find(".paramPopUp").is(":visible")).to.be.true;
 
         //     $tab.trigger(fakeEvent.mousedown);
 
         //     expect($tab.hasClass("active")).to.be.false;
-        //     expect($tab.find(".retPopUp").is(":visible")).to.be.false;
+        //     expect($tab.find(".paramPopUp").is(":visible")).to.be.false;
         // });
 
         it("popup should not close when clicking inside of it", function() {
             $tab.click();
-            expect($("#retPopUp").is(":visible")).to.be.true;
+            expect($("#paramPopUp").is(":visible")).to.be.true;
             $tab.click();
-            expect($("#retPopUp").is(":visible")).to.be.false;
+            expect($("#paramPopUp").is(":visible")).to.be.false;
         });
 
         // it("popup should close when clicking on dfcard", function() {
-        //     expect($tab.find(".retPopUp").is(":visible")).to.be.true;
+        //     expect($tab.find(".paramPopUp").is(":visible")).to.be.true;
         //     $(document).trigger(fakeEvent.mousedown);
-        //     expect($tab.find(".retPopUp").is(":visible")).to.be.true;
+        //     expect($tab.find(".paramPopUp").is(":visible")).to.be.true;
         //     $("#dfViz").trigger(fakeEvent.mousedown);
-        //     expect($tab.find(".retPopUp").is(":visible")).to.be.false;
+        //     expect($tab.find(".paramPopUp").is(":visible")).to.be.false;
         // });
     });
 
@@ -766,7 +766,8 @@ describe("DFCard Test", function() {
                             {
                                 "elapsed": "test",
                                 "name": "test",
-                                "state": DgDagStateT.DgDagStateProcessing
+                                "state": DgDagStateT.DgDagStateProcessing,
+                                "numRowsPerNode": []
                             }
                         ]
                     }

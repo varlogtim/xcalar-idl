@@ -26,9 +26,14 @@ class DagNodeFilterInput extends DagNodeInput {
         }
     };
 
-    public getInput() {
+    public getInput(replaceParameters?: boolean): DagNodeFilterInputStruct {
+        const input = super.getInput(replaceParameters);
         return {
-            evalString: this.input.evalString || "",
+            evalString: input.evalString || "",
         };
+    }
+
+    public setEvalStr(evalStr) {
+        this.input.evalString = evalStr;
     }
 }

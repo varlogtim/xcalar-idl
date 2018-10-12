@@ -260,12 +260,13 @@ class DagNodeJoinInput extends DagNodeInput {
         }
     };
 
-    public getInput(): DagNodeJoinInputStruct {
+    public getInput(replaceParameters?: boolean): DagNodeJoinInputStruct {
+        const input = super.getInput(replaceParameters);
         return {
-            joinType: this.input.joinType || JoinOperatorTStr[JoinOperatorT.InnerJoin],
-            left: this.input.left || this._getDefaultTableInfo(),
-            right: this.input.right || this._getDefaultTableInfo(),
-            evalString: this.input.evalString || ""
+            joinType: input.joinType || JoinOperatorTStr[JoinOperatorT.InnerJoin],
+            left: input.left || this._getDefaultTableInfo(),
+            right: input.right || this._getDefaultTableInfo(),
+            evalString: input.evalString || ""
         };
     }
 

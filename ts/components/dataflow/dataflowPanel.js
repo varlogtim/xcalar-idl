@@ -118,10 +118,9 @@ window.DataflowPanel = (function($, DataflowPanel) {
     }
 
     function refreshRetTab() {
-        var $retTab = $("#retPopUp");
+        var $retTab = $("#paramPopUp");
         if ($retTab.hasClass("active")) {
-            $retTab.removeClass("active");
-            $("#container").trigger("mousedown");
+            BatchDFParamPopup.closeDagParamPopup();
             return true;
         } else {
             return false;

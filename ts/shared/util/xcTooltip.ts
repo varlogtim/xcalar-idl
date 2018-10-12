@@ -8,6 +8,7 @@ namespace xcTooltip {
         trigger?: string;
         animation?: boolean;
         template?: string;
+        classes?: string;
     }
 
     // xcTooltip.Template
@@ -63,6 +64,9 @@ namespace xcTooltip {
                 .attr("data-container", toolTipOptions.container)
                 .attr("data-placement", toolTipOptions.placement)
                 .attr("data-original-title", toolTipOptions.title);
+        if (toolTipOptions.classes) {
+            $element.attr("data-tipclasses", toolTipOptions.classes);
+        }
     }
 
     /**

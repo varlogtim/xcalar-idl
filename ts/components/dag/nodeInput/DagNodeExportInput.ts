@@ -1,11 +1,12 @@
 class DagNodeExportInput extends DagNodeInput {
     protected input: DagNodeExportInputStruct;
 
-    public getInput(): DagNodeExportInputStruct {
+    public getInput(replaceParameters?: boolean): DagNodeExportInputStruct {
+        const input = super.getInput(replaceParameters);
         return {
-            columns: this.input.columns || [],
-            driver: this.input.driver || "",
-            driverArgs: this.input.driverArgs || null
+            columns: input.columns || [],
+            driver: input.driver || "",
+            driverArgs: input.driverArgs || null
         };
     }
 }

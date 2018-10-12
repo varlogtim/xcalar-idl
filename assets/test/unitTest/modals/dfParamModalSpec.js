@@ -272,7 +272,7 @@ describe("DFParamModal Test", function() {
             expect($modal.find(".template .boxed").length).to.equal(1);
             expect($modal.find(".template").text()).to.equal("Filter Operation:gt(" + colName + ", 3)");
             var $inputs = $modal.find("input").filter(function() {
-                return $(this).closest("#retPopUp").length === 0;
+                return $(this).closest("#paramPopUp").length === 0;
             });
             expect($inputs.length).to.equal(1);
         });
@@ -668,14 +668,14 @@ describe("DFParamModal Test", function() {
                     called = true;
                 };
 
-                expect($modal.find("#retPopUp").is(":visible")).to.be.false;
+                expect($modal.find("#paramPopUp").is(":visible")).to.be.false;
                 $modal.find(".retTab").click();
-                expect($modal.find("#retPopUp").is(":visible")).to.be.true;
-                expect($modal.find("#retPopUp").text().indexOf("testParam")).to.be.gt(-1);
-                $modal.find("#retPopUp .paramNameWrap").eq(0).trigger("mouseup");
+                expect($modal.find("#paramPopUp").is(":visible")).to.be.true;
+                expect($modal.find("#paramPopUp").text().indexOf("testParam")).to.be.gt(-1);
+                $modal.find("#paramPopUp .paramNameWrap").eq(0).trigger("mouseup");
                 expect(called).to.be.true;
                 $("#container").mousedown().click();
-                expect($modal.find("#retPopUp").is(":visible")).to.be.false;
+                expect($modal.find("#paramPopUp").is(":visible")).to.be.false;
                 xcHelper.copyToClipboard = cache;
             });
 

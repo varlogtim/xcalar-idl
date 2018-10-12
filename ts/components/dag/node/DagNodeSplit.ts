@@ -23,7 +23,10 @@ class DagNodeSplit extends DagNode {
         super.setParam();
     }
 
-    public lineageChange(columns: ProgCol[]): DagLineageChange {
+    public lineageChange(
+        columns: ProgCol[],
+        replaceParameters?: boolean
+    ): DagLineageChange {
         const resultCols: ProgCol[] = [];
         for (const col of columns) {
             resultCols.push(ColManager.newPullCol(
@@ -32,7 +35,7 @@ class DagNodeSplit extends DagNode {
                 col.getType()));
         }
         const newCols: ProgCol[] = [];
-        for (const colName of this.input.getInput().dest) {
+        for (const colName of this.input.getInput(replaceParameters).dest) {
             const col = ColManager.newPullCol(colName, colName, ColumnType.string);
             resultCols.push(col);
             newCols.push(col);

@@ -28,6 +28,8 @@ class ProjectOpPanelModel {
         const prefixLookupMap = {};
         for (const [colName, colInfo] of colMap.entries()) {
             const isSelected = projectedColumns[colName] ? true : false;
+            delete projectedColumns[colName]; // remove found ones so at the
+            // end we can see which columns were not included in the map
             if (colInfo.prefix == null || colInfo.prefix.length === 0) {
                 // Derived column
                 model.derivedList.push({
@@ -49,6 +51,32 @@ class ProjectOpPanelModel {
                 }
                 model.prefixedList[prefixIndex].columnList.push({
                     name: colName,
+                    isSelected: false // Not used for prefixed column
+                });
+            }
+        }
+
+        for (let name in projectedColumns) {
+            const colInfo = xcHelper.parsePrefixColName(name);
+            if (colInfo.prefix == null || colInfo.prefix.length === 0) {
+                model.derivedList.push({
+                    name: name,
+                    isSelected: true
+                });
+            } else {
+                const prefix = colInfo.prefix;
+                let prefixIndex = prefixLookupMap[prefix];
+                if (prefixIndex == null) {
+                    model.prefixedList.push({
+                        prefix: prefix,
+                        isSelected: true,
+                        columnList: []
+                    });
+                    prefixIndex = model.prefixedList.length - 1;
+                    prefixLookupMap[prefix] = prefixIndex;
+                }
+                model.prefixedList[prefixIndex].columnList.push({
+                    name: name,
                     isSelected: false // Not used for prefixed column
                 });
             }

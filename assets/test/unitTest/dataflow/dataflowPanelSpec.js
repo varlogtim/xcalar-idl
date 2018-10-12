@@ -18,14 +18,14 @@ describe("Dataflow Panel Test", function() {
             };
 
             $("#scheduleDetail").removeClass("xc-hidden");
-            $("#retPopUp").addClass("active");
+            $("#paramPopUp").addClass("active");
             $("#dfParamModal").show();
             expect($("#scheduleDetail").is(":visible")).to.be.true;
-            expect($("#retPopUp").hasClass("active")).to.be.true;
+            expect($("#paramPopUp").hasClass("active")).to.be.true;
             expect($("#dfParamModal").is(":visible")).to.be.true;
             DataflowPanel.refresh({dfName: "unitTestDF"});
             expect($("#scheduleDetail").is(":visible")).to.be.false;
-            expect($("#retPopUp").hasClass("active")).to.be.false;
+            expect($("#paramPopUp").hasClass("active")).to.be.false;
             expect($("#dfParamModal").is(":visible")).to.be.false;
             UnitTest.hasAlertWithTitle(DFTStr.Refresh);
 
@@ -39,18 +39,18 @@ describe("Dataflow Panel Test", function() {
             };
 
             $("#scheduleDetail").removeClass("xc-hidden");
-            $("#retPopUp").addClass("active");
+            $("#paramPopUp").addClass("active");
             $("#dfParamModal").show();
             expect($("#scheduleDetail").is(":visible")).to.be.true;
-            expect($("#retPopUp").hasClass("active")).to.be.true;
+            expect($("#paramPopUp").hasClass("active")).to.be.true;
             expect($("#dfParamModal").is(":visible")).to.be.true;
             DataflowPanel.refresh({dfName: "unitTestDF1"});
             expect($("#scheduleDetail").is(":visible")).to.be.true;
-            expect($("#retPopUp").hasClass("active")).to.be.true;
+            expect($("#paramPopUp").hasClass("active")).to.be.true;
             expect($("#dfParamModal").is(":visible")).to.be.true;
             expect($("#alertModal").is(":visible")).to.be.false;
             $("#scheduleDetail").addClass("xc-hidden");
-            $("#retPopUp").removeClass("active");
+            $("#paramPopUp").removeClass("active");
             $("#dfParamModal").hide();
 
             DFCard.getActiveDF = cache1;
@@ -64,12 +64,12 @@ describe("Dataflow Panel Test", function() {
             };
 
             expect($("#scheduleDetail").is(":visible")).to.be.false;
-            expect($("#retPopUp").hasClass("active")).to.be.false;
+            expect($("#paramPopUp").hasClass("active")).to.be.false;
             expect($("#dfParamModal").is(":visible")).to.be.false;
 
             DataflowPanel.refresh({dfName: "unitTestDF"});
             expect($("#scheduleDetail").is(":visible")).to.be.false;
-            expect($("#retPopUp").hasClass("active")).to.be.false;
+            expect($("#paramPopUp").hasClass("active")).to.be.false;
             expect($("#dfParamModal").is(":visible")).to.be.false;
 
             expect($("#alertModal").is(":visible")).to.be.false;

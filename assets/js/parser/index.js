@@ -45,6 +45,12 @@ class XEvalParser {
             var visitor = new XEvalVisitor();
             return visitor.parseEvalStr(tree);
         } catch (e) {
+            // thrown syntax errors by xcalar are not being handled in
+            // XcErrorListener. XEvalParser.parseEvalStr expects {error: string}
+            // if there's an error so we convert the syntax error into it.
+            if (e instanceof SyntaxError && e.message) {
+                e = {error: e.message};
+            }
             return e;
         }
     }

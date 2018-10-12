@@ -361,7 +361,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
             }
         }
 
-        const colMap = this._dataModel.columnMap
+        const colMap = this._dataModel.columnMap;
         return ProjectOpPanelModel.fromDagInput(colMap, dagInput);
     }
 }

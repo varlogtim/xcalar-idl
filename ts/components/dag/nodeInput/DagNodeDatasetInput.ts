@@ -38,10 +38,11 @@ class DagNodeDatasetInput extends DagNodeInput {
         }
     };
 
-    public getInput() {
+    public getInput(replaceParameters?: boolean): DagNodeDatasetInputStruct {
+        const input = super.getInput(replaceParameters);
         return {
-            source: this.input.source || "",
-            prefix: this.input.prefix || ""
+            source: input.source || "",
+            prefix: input.prefix || ""
         };
     }
 }

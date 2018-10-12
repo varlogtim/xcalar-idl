@@ -125,7 +125,7 @@ class DagCategoryBar {
         const self = this;
         this._renderCategoryBar();
         this._renderOperatorBar();
-        this.$dagView.find(".categories").on("click", ".category", (event) => {
+        this.$dagView.find(".categories").on("mousedown", ".category", (event) => {
             const $category: JQuery = $(event.currentTarget);
             const category: string = $category.data("category");
             this._focusOnCategory(category);
@@ -460,7 +460,7 @@ class DagCategoryBar {
     }
 
     private _clearSelectedStyle($operator: JQuery): void {
-        d3.select($operator[0]).selectAll('.selection').remove();        
+        d3.select($operator[0]).selectAll('.selection').remove();
     }
 
     private _showActionSection(): void {

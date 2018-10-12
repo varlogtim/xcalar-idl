@@ -50,11 +50,12 @@ class DagNodePublishIMDInput extends DagNodeInput {
         }
     };
 
-    public getInput() {
+    public getInput(replaceParameters?: boolean): DagNodePublishIMDInputStruct {
+        const input = super.getInput(replaceParameters);
         return {
-            pubTableName: this.input.pubTableName || "",
-            primaryKey: this.input.primaryKey || "",
-            operator: this.input.operator || ""
+            pubTableName: input.pubTableName || "",
+            primaryKey: input.primaryKey || "",
+            operator: input.operator || ""
         };
     }
 }

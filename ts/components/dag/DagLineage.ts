@@ -35,11 +35,20 @@ class DagLineage {
     }
 
     /**
+     * If getting columns with parameters replaced with values, get columns
+     * without caching them so we don't overwrite the parameterized version of
+     * the columns
      * @return {ProgCol[]} get a list of columns
      */
-    public getColumns(): ProgCol[] {
-        if (this.columns == null) {
-            this._update();
+    public getColumns(replaceParameters?): ProgCol[] {
+        if (this.columns == null || replaceParameters) {
+            const updateRes = this._update(replaceParameters);
+            if (replaceParameters) {
+                return updateRes.columns;
+            } else {
+                this.columns = updateRes.columns;
+                this.changes = updateRes.changes;
+            }
         }
         return this.columns;
     }
@@ -50,7 +59,9 @@ class DagLineage {
     public getChanges(): {from: ProgCol, to: ProgCol}[] {
         // if no columns, then no changes, so update
         if (this.columns == null) {
-            this._update();
+            const updateRes = this._update();
+            this.columns = updateRes.columns;
+            this.changes = updateRes.changes;
         }
         return this.changes;
     }
@@ -70,19 +81,21 @@ class DagLineage {
         return derivedColumns;
     }
 
-    private _update(): void {
+    private _update(replaceParameters?: boolean): DagLineageChange {
+        let colInfo: DagLineageChange;
         if (this.node.isSourceNode()) {
             // source node
-            this._applyChanges();
+            colInfo =  this._applyChanges(replaceParameters);
         } else if (this.node.getType() === DagNodeType.Aggregate) {
-            this.columns = []; // aggregate has no columns. just a value
+            colInfo = {columns:[], changes:[]}; // aggregate has no columns. just a value
         } else {
-            this.columns = [];
+            let columns = [];
             this.node.getParents().forEach((parentNode) => {
-                this.columns = this.columns.concat(parentNode.getLineage().getColumns());
+                columns = columns.concat(parentNode.getLineage().getColumns(replaceParameters));
             });
-            this._applyChanges();
+            colInfo = this._applyChanges(replaceParameters, columns);
         }
+        return colInfo;
     }
 
     /**
@@ -163,14 +176,15 @@ class DagLineage {
         return this.columnHistory;
     }
 
-    private _applyChanges(): void {
+    private _applyChanges(replaceParameters?: boolean, columns?: ProgCol[]): DagLineageChange {
+        let lineageChange: DagLineageChange;
+        columns = columns || this.columns;
         try {
-            const lineageChange: DagLineageChange = this.node.lineageChange(this.columns);
-            console.log("change", lineageChange)
-            this.columns = lineageChange.columns;
-            this.changes = lineageChange.changes;
+            lineageChange = this.node.lineageChange(columns, replaceParameters);
+            console.log("change", lineageChange);
         } catch (e) {
             console.error(e);
         }
+        return lineageChange;
     }
 }

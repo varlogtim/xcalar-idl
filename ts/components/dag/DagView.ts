@@ -34,6 +34,7 @@ namespace DagView {
         DagCategoryBar.Instance.loadCategories(); // Async call
         DagNodeMenu.setup();
         DagComment.Instance.setup();
+        DagParamManager.Instance.setup();
     }
 
     /**
@@ -819,7 +820,7 @@ namespace DagView {
                 });
                 gTables[tableId] = table;
             }
-            const columns: ProgCol[] = dagNode.getLineage().getColumns();
+            const columns: ProgCol[] = dagNode.getLineage().getColumns(true);
             if (columns != null && columns.length > 0) {
                 table.tableCols = columns.concat(ColManager.newDATACol());
             }
@@ -1980,11 +1981,26 @@ namespace DagView {
     }
 
     function _setTooltip($node: JQuery, node: DagNode): void {
-        const title: string = (node.getState() === DagNodeState.Error) ?
+        let title: string = (node.getState() === DagNodeState.Error) ?
         node.getError() : JSON.stringify(node.getParam(), null, 2);
+        title = xcHelper.escapeHTMLSpecialChar(title);
         xcTooltip.add($node.find(".main"), {
-            title: title
+            title: title,
+            classes: "preWrap leftAlign wide"
         });
+        $node.find(".paramIcon").remove();
+
+        if (node.hasParameters()) {
+            d3.select($node.get(0)).append("text")
+                    .attr("class", "paramIcon")
+                    .attr("fill", "#44515C")
+                    .attr("font-size", 10)
+                    .attr("transform", "translate(" + (nodeWidth - 28) + "," +
+                            (nodeHeight) + ")")
+                    .attr("text-anchor", "middle")
+                    .attr("font-family", "Open Sans")
+                    .text("<>");
+        }
     }
 
     function _drawNode(node: DagNode, $dfArea: JQuery, select?: boolean): JQuery {
@@ -2172,8 +2188,22 @@ namespace DagView {
             const $node: JQuery = DagView.getNode(info.id);
 
             xcTooltip.add($node.find(".main"), {
-                title: JSON.stringify(info.params, null, 2)
+                title: xcHelper.escapeHTMLSpecialChar(JSON.stringify(info.params, null, 2)),
+                classes: "preWrap leftAlign wide"
             });
+            $node.find(".paramIcon").remove();
+            if (info.hasParameters) {
+                d3.select($node.get(0)).append("text")
+                    .attr("class", "paramIcon")
+                    .attr("fill", "#44515C")
+                    .attr("font-size", 10)
+                    .attr("transform", "translate(" + (nodeWidth - 28) + "," +
+                            (nodeHeight) + ")")
+                    .attr("text-anchor", "middle")
+                    .attr("font-family", "Open Sans")
+                    .text("<>");
+
+            }
             activeDagTab.save();
             if (UserSettings.getPref("dfAutoExecute") === true) {
                 const dagNode: DagNode = info.node;

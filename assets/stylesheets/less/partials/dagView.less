@@ -1,3 +1,21 @@
+#modelingDagPanel {
+    #paramPopUp {
+        top: 50px;
+
+        .tableContainer {
+            .paramNameWrap {
+                cursor: pointer;
+                &:hover {
+                    padding-right: 26px;
+                    .icon {
+                        display: block;
+                    }
+                }
+            }
+        }
+    }
+}
+
 #dagViewContent {
     padding: 0 0 0 0;
 }
@@ -39,7 +57,7 @@
         cursor: pointer;
         padding: 0px 5px;
 
-        .icon {
+        .icon, &.parameters {
             .vertical-align;
             opacity: @opacity-unhover;
             color: @color-border-bar;
@@ -47,7 +65,7 @@
         }
 
         &:hover {
-            .icon {
+            .icon, &.parameters {
                 opacity: @opacity-hover;
             }
         }
@@ -87,6 +105,14 @@
                 text-transform: initial;
                 margin-right: 5px;
             }
+        }
+
+        &.parameters {
+            font-size: 12px;
+            height: 30px;
+            line-height: 30px;
+            border: 1px solid  @color-border-bar;
+            .rounded(3px);
         }
     }
 
@@ -333,7 +359,7 @@
                     line-height: 20px;
                 }
             }
-            
+
             .divider {
                 width: 1px;
                 .vertical-align;
@@ -1044,7 +1070,7 @@
                         .dot {
                             display: none;
                         }
-    
+
                         .close {
                             display: inline-block;
                         }

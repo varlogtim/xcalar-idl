@@ -34,16 +34,29 @@ class DagNodeDataset extends DagNodeIn {
         return deferred.promise();
     }
 
+    public setSourceColumns(columns: ProgCol[]) {
+        this.columns = columns;
+        super.setParam();
+    }
+
     public getSourceColumns(
         source: string,
         prefix: string
     ): XDPromise<ProgCol[]> {
         const deferred: XDDeferred<ProgCol[]> = PromiseHelper.deferred();
         const ds: DSObj = DS.getDSObj(source);
-        if (ds != null && prefix != null) {
-            // XXXX this is a wrong implementation
-            // wait for https://bugs.int.xcalar.com/show_bug.cgi?id=12870
-            ds.fetch(0, 50)
+        const sourceHasParams = xcHelper.checkValidParamBrackets(source, true);
+        if (ds != null && prefix != null || sourceHasParams) {
+            let fetch;
+            if (sourceHasParams) {
+                fetch = PromiseHelper.resolve([], []);
+            } else {
+                 // XXXX this is a wrong implementation
+                // wait for https://bugs.int.xcalar.com/show_bug.cgi?id=12870
+                fetch = ds.fetch(0, 50);
+            }
+
+            fetch
             .then((jsons, jsonKeys) => {
                 let colTypes: ColumnType[] = [];
                 jsons.forEach((json) => {
@@ -60,7 +73,7 @@ class DagNodeDataset extends DagNodeIn {
             })
             .fail(deferred.reject);
         } else {
-            deferred.reject();
+            deferred.reject("Dataset not found");
         }
 
         return deferred.promise();

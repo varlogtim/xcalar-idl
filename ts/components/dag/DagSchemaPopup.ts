@@ -137,9 +137,7 @@ class DagSchemaPopup {
 
         for (let i = 0; i < this._tableColumns.length; i++) {
             const progCol = this._tableColumns[i];
-            const backName = xcHelper.escapeHTMLSpecialChar(
-                                                progCol.getBackColName());
-            if (seenColumns[backName]) {
+            if (seenColumns[progCol.getBackColName()]) {
                 continue;
             }
 

@@ -18,49 +18,83 @@ arg
     | stringLiteral
     | columnArg
     | aggValue
+    | paramArg
     ;
 fn
     : moduleName COLON fnName
     | fnName
     ;
 moduleName
-    : IDENTIFIER
-    {if (!xcHelper.checkNamePattern(PatternCategory.UDF, PatternAction.Check, $IDENTIFIER.text)) {
-    throw SyntaxError('Invalid module name: ' + $IDENTIFIER.text);}}
+    : ALPHANUMERIC
+    {if (!xcHelper.checkNamePattern(PatternCategory.UDF, PatternAction.Check, $ALPHANUMERIC.text)) {
+    throw SyntaxError('Invalid module name: ' + $ALPHANUMERIC.text);}}
     ;
 fnName
-    : IDENTIFIER
-    {if (!xcHelper.checkNamePattern(PatternCategory.UDFFn, PatternAction.Check, $IDENTIFIER.text)) {
-    throw SyntaxError('Invalid udf name: ' + $IDENTIFIER.text);}}
+    : ALPHANUMERIC
+    {if (!xcHelper.checkNamePattern(PatternCategory.UDFFn, PatternAction.Check, $ALPHANUMERIC.text)) {
+    throw SyntaxError('Invalid udf name: ' + $ALPHANUMERIC.text);}}
+    ;
+paramArg
+    : (ALPHANUMERIC
+    | INTEGER
+    | DECIMAL
+    | COLON
+    | DOUBLECOLON
+    | DOT
+    | LBRACKET
+    | RBRACKET
+    | '-'
+    | '_'
+    | CARET)* LTSIGN paramValue GTSIGN paramAfter*
+    ;
+paramAfter
+    : (ALPHANUMERIC
+    | INTEGER
+    | DECIMAL
+    | COLON
+    | DOUBLECOLON
+    | DOT
+    | LBRACKET
+    | RBRACKET
+    | '-'
+    | '_'
+    | CARET)
+    | LTSIGN paramValue GTSIGN
+    ;
+paramValue
+    : ALPHANUMERIC
+    {if (!xcHelper.checkNamePattern(PatternCategory.Param2, PatternAction.Check, $ALPHANUMERIC.text)) {
+    throw SyntaxError('Invalid parameter name. Name must start with ' +
+                    'a letter and contain only alphanumeric characters or underscores. Parameter : ' + $ALPHANUMERIC.text);}}
     ;
 columnArg
     : prefix DOUBLECOLON colElement
     | colElement
     ;
 prefix
-    : IDENTIFIER
-    {if (xcHelper.validatePrefixName($IDENTIFIER.text, false, true)) {
-    throw SyntaxError(xcHelper.validatePrefixName($IDENTIFIER.text, false, true));
+    : ALPHANUMERIC
+    {if (xcHelper.validatePrefixName($ALPHANUMERIC.text, false, true)) {
+    throw SyntaxError(xcHelper.validatePrefixName($ALPHANUMERIC.text, false, true));
     }}
     ;
 colElement
-    : colName (DOT propertyName)* (LBRACKET integerLiteral RBRACKET)?
+    : colName (DOT propertyName)* (LBRACKET integerLiteral RBRACKET)*
     ;
 colName
-    : IDENTIFIER
-    {if ($IDENTIFIER.text.toUpperCase() != "NONE" && xcHelper.validateColName($IDENTIFIER.text, false, true)) {
-    throw SyntaxError(xcHelper.validateColName($IDENTIFIER.text, false, true));
+    : ALPHANUMERIC
+    {if ($ALPHANUMERIC.text.toUpperCase() != "NONE" && xcHelper.validateColName($ALPHANUMERIC.text, false, true)) {
+    throw SyntaxError(xcHelper.validateColName($ALPHANUMERIC.text, false, true));
     }}
     ;
 propertyName
-    : IDENTIFIER
-    {if (xcHelper.validateColName($IDENTIFIER.text, false, true)) {
-    throw SyntaxError(xcHelper.validateColName($IDENTIFIER.text, false, true));
+    : ALPHANUMERIC
+    {if (xcHelper.validateColName($ALPHANUMERIC.text, false, true)) {
+    throw SyntaxError(xcHelper.validateColName($ALPHANUMERIC.text, false, true));
     }}
     ;
 aggValue
-    : '^' IDENTIFIER
-    {if (!xcHelper.isValidTableName($IDENTIFIER.text)) {
+    : CARET ALPHANUMERIC
+    {if (!xcHelper.isValidTableName($ALPHANUMERIC.text)) {
     throw SyntaxError(ErrTStr.InvalidAggName);
     }}
     ;
@@ -76,6 +110,7 @@ stringLiteral
 booleanLiteral
     : TRUE | FALSE
     ;
+
 // Lexer rules
 TRUE: T R U E;
 FALSE: F A L S E;
@@ -87,10 +122,13 @@ LPARENS: '(';
 RPARENS: ')';
 LBRACKET: '[';
 RBRACKET: ']';
+LTSIGN: '<';
+GTSIGN: '>';
+CARET: '^';
 DECIMAL: '-'? DIGIT+ '.' DIGIT+;
 INTEGER: '-'? DIGIT+;
 STRING: '"' ( ~('"'|'\\') | ('\\' .) )* '"';
-IDENTIFIER: (ALPHANUMS | [_-]) ((ALPHANUMS | [_^-] | ' ')* (ALPHANUMS | [_^-]))?;
+ALPHANUMERIC: (ALPHANUMS | [_-]) ((ALPHANUMS | [_^-] | ' ')* (ALPHANUMS | [_^-]))?;
 fragment A : [aA]; // match either an 'a' or 'A'
 fragment B : [bB];
 fragment C : [cC];

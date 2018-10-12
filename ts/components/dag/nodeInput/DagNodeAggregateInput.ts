@@ -38,10 +38,11 @@ class DagNodeAggregateInput extends DagNodeInput {
         }
     };
 
-    public getInput() {
+    public getInput(replaceParameters?: boolean) {
+        const input = super.getInput(replaceParameters);
         return {
-            evalString: this.input.evalString || "",
-            dest: this.input.dest || ""
+            evalString: input.evalString || "",
+            dest: input.dest || ""
         };
     }
 

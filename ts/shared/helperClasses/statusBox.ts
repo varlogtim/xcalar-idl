@@ -170,6 +170,7 @@ namespace StatusBox {
             const winWidth: number = <number>$(window).width();
             const arrowWidth: number = 12;
             const statusBoxWidth: number = <number>$statusBox.width() + arrowWidth;
+            const statusBoxHeight: number = $statusBox.height();
             let top: number = bound.top - 30;
             let right: number = winWidth - bound.right - statusBoxWidth;
             let left: number = bound.left - statusBoxWidth;
@@ -188,7 +189,10 @@ namespace StatusBox {
             } else {
                 left += offsetX;
             }
-
+            if (this.side !== "top" && this.side !== "bottom") {
+                const heightDiff = bound.height - statusBoxHeight;
+                top = Math.max(top, bound.top + (heightDiff / 2));
+            }
             top += offsetY;
 
             if (this.side === "top") {

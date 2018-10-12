@@ -1837,6 +1837,93 @@ namespace xcHelper {
     }
 
     /**
+     * xcHelper.replaceParamForValidation
+     * @param txt
+     * @example "my<param>text" to "myatext" so text can pass validation
+     */
+    export function replaceParamForValidation(
+        txt: string,
+        replaceWith?: string
+    ): string {
+        const params = xcHelper.getParamsInVal(txt);
+        const replaces = {};
+        params.forEach((paramName) => {
+            replaces[paramName] = replaceWith || "a";
+        });
+        return xcHelper.replaceMsg(txt, replaces);
+    }
+
+    /**
+     * xcHelper.getParamsInVal
+     * @description searches text for matching < and >, returns immediately if
+     * <sdf<sdf> is found
+     * @param val
+     */
+    export function getParamsInVal(val: string): string[] {
+        var len = val.length;
+        var param = "";
+        var params = [];
+        var braceOpen = false;
+        for (var i = 0; i < len; i++) {
+            if (braceOpen) {
+                if (val[i] === ">") {
+                    if (param.length) {
+                        params.push(param);
+                    }
+                    param = "";
+                    braceOpen = false;
+                } else if (val[i] === "<") {
+                    // invalid, break and return what we have
+                    return params;
+                } else {
+                    param += val[i];
+                }
+            }
+            if (val[i] === "<") {
+                braceOpen = true;
+            }
+        }
+        return (params);
+    }
+
+    /**
+     * xcHelper.checkValidParamBrackets
+     * @param val
+     * @param requiresParam if true, will return false if no params found
+     */
+    export function checkValidParamBrackets(
+        val: string,
+        requiresParam?: boolean
+    ): boolean {
+        const len = val.length;
+        let braceOpen = false;
+        let numLeftBraces = 0;
+        let numRightBraces = 0;
+        let hasParam = false;
+
+        for (let i = 0; i < len; i++) {
+            if (val[i] === ">") {
+                numLeftBraces++;
+            } else if (val[i] === "<") {
+                numRightBraces++;
+            }
+            if (braceOpen) {
+                if (val[i] === ">") {
+                    braceOpen = false;
+                    if (numLeftBraces === numRightBraces) {
+                        hasParam = true;
+                    }
+                }
+            } else if (val[i] === "<") {
+                braceOpen = true;
+            }
+        }
+        const passedParamRequirement = !requiresParam || hasParam;
+        return (!braceOpen && numLeftBraces === numRightBraces &&
+                passedParamRequirement);
+    }
+
+    /**
      *  xcHelper.toggleListGridBtn
      * @param $btn
      * @param toListView
@@ -2979,6 +3066,9 @@ namespace xcHelper {
             case PatternCategory.Param:
                 antiNamePattern = /[^a-zA-Z0-9]/;
                 break;
+            case PatternCategory.Param2:
+                namePattern = /^[a-zA-Z][a-zA-Z0-9_]*$/;
+                break;
             case PatternCategory.Prefix:
                 namePattern = /^[a-zA-Z0-9_]{1,31}$/;
                 break;
@@ -3016,7 +3106,7 @@ namespace xcHelper {
             case "get":
                 return namePattern;
             default:
-                throw "Unspport action!";
+                throw "Unsupported action!";
         }
     }
 
@@ -6279,7 +6369,7 @@ namespace xcHelper {
         }
         return arrs[0].map((_, idx) => arrs.map(arr=>arr[idx]));
     }
-    
+
     export function createColInfo(columns: ProgCol[]): ColRenameInfo[] {
         ///XXX TODO: Remove this and have the user choose casted names
         let colInfo: ColRenameInfo[] = [];

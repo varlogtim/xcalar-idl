@@ -184,6 +184,13 @@
       $tip.attr('id', tipId)
       this.$element.attr('aria-describedby', tipId)
 
+
+      //xcalar custom code
+      if (this.options.tipclasses != null) {
+        $tip.addClass(this.options.tipclasses);
+      }
+      //end xcalar custom code
+
       if (this.options.animation) $tip.addClass('fade')
 
       var placement = typeof this.options.placement == 'function' ?

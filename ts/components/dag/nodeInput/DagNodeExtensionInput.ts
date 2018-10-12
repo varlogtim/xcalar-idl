@@ -1,11 +1,12 @@
 class DagNodeExtensionInput extends DagNodeInput {
     protected input: DagNodeExtensionInputStruct;
 
-    public getInput() {
+    public getInput(replaceParameters?: boolean): DagNodeExtensionInputStruct {
+        const input = super.getInput(replaceParameters);
         return {
-            moduleName: this.input.moduleName || "",
-            functName: this.input.functName || "",
-            args: this.input.args || {}
+            moduleName: input.moduleName || "",
+            functName: input.functName || "",
+            args: input.args || {}
         };
     }
 }

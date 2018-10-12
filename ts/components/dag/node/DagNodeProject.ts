@@ -21,13 +21,16 @@ class DagNodeProject extends DagNode {
         super.setParam();
     }
 
-    public lineageChange(columns: ProgCol[]): DagLineageChange {
+    public lineageChange(
+        columns: ProgCol[],
+        replaceParameters?: boolean
+    ): DagLineageChange {
         const changes: {from: ProgCol, to: ProgCol}[] = [];
         const finalCols: ProgCol[] = [];
         const prefixSet: Set<string> = new Set();
         const derivedSet: Set<string> = new Set();
 
-        this.input.getInput().columns.forEach((colName) => {
+        this.input.getInput(replaceParameters).columns.forEach((colName) => {
             const parsed: PrefixColInfo = xcHelper.parsePrefixColName(colName);
             if (parsed.prefix) {
                 prefixSet.add(parsed.prefix);
@@ -67,6 +70,7 @@ class DagNodeProject extends DagNode {
                     input.columns[i] = renameMap.columns[columnName];
                 }
             });
+            this.input.setColumns(input.columns);
         } catch(err) {
             console.error(err);
         }

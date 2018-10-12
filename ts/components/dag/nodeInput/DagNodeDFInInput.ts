@@ -1,10 +1,11 @@
 class DagNodeDFInInput extends DagNodeInput {
     protected input: DagNodeDFInInputStruct;
 
-    public getInput() {
+    public getInput(replaceParameters?: boolean): DagNodeDFInInputStruct {
+        const input = super.getInput(replaceParameters);
         return {
-            dataflowId: this.input.dataflowId || "",
-            linkOutName: this.input.linkOutName || ""
+            dataflowId: input.dataflowId || "",
+            linkOutName: input.linkOutName || ""
         };
     }
 }

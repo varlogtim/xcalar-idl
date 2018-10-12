@@ -501,7 +501,7 @@
 
             addListeners();
             setupDagDropdown();
-            DFParamTab.setup();
+            DFDagParamPopup.setup();
             setupScrollBar();
         };
 
@@ -2033,7 +2033,7 @@
 
                 if (dataflowName === currentDataflow) {
                     $dagWrap.removeClass("xc-hidden");
-                    // DFParamTab.updateRetinaTab(dataflowName);
+                    // DFDagParamPopup.updateRetinaTab(dataflowName);
                     enableDagTooltips();
                 } else {
                     $dagWrap.addClass("xc-hidden");

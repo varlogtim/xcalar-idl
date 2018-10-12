@@ -52,9 +52,12 @@ class DagNodeMap extends DagNode {
         super.setParam();
     }
 
-    public lineageChange(columns: ProgCol[]): DagLineageChange {
+    public lineageChange(
+        columns: ProgCol[],
+        replaceParameters?: boolean
+    ): DagLineageChange {
         const changes: {from: ProgCol, to: ProgCol}[] = [];
-        const params = this.input.getInput();
+        const params = this.input.getInput(replaceParameters);
         params.eval.forEach((evalInput) => {
             const colName: string = evalInput.newField;
             if (xcHelper.parsePrefixColName(colName).prefix) {
@@ -90,9 +93,11 @@ class DagNodeMap extends DagNode {
 
     public applyColumnMapping(renameMap): void {
         try {
-            this.input.getInput().eval.forEach(evalObj => {
+            const evals = this.input.getInput().eval;
+            evals.forEach(evalObj => {
                 evalObj.evalString = this._replaceColumnInEvalStr(evalObj.evalString, renameMap.columns);
             });
+            this.input.setEvals(evals);
         } catch(err) {
             console.error(err);
         }

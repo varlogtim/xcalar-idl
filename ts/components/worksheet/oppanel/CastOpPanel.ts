@@ -19,7 +19,7 @@ class CastOpPanel extends BaseOpPanel {
         this._registerHandlers();
     }
 
-    public show(dagNode: DagNodeMap): boolean {
+    public show(dagNode: DagNodeMap, options: {exitCallback?: Function}): boolean {
         if (this._formHelper.isOpen()) {
             return false;
         }
@@ -27,7 +27,7 @@ class CastOpPanel extends BaseOpPanel {
         this._formHelper.setup({});
 
         this._dagNode = dagNode;
-        super.showPanel("cast");
+        super.showPanel("cast", options);
         const curColumns = this.updateColumns();
 
         const param = dagNode.getParam();
@@ -95,7 +95,7 @@ class CastOpPanel extends BaseOpPanel {
                 "newField": colInfo.destColumn
             });
         });
-        const paramInput: DagNodeMapInput = {
+        const paramInput: DagNodeMapInputStruct = {
             eval: evalOps,
             icv: false
         };

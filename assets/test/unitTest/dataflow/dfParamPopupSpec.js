@@ -1,4 +1,4 @@
-describe("DFParamTab Test", function() {
+describe("BatchDFParamPopup Test", function() {
     var getParamMapCache;
     var getParamMap;
     var updateParamMapCache;
@@ -27,7 +27,7 @@ describe("DFParamTab Test", function() {
 
     describe("opening", function() {
         it("ret popup should be inactive", function() {
-            expect($("#retPopUp").hasClass("active")).to.be.false;
+            expect($("#paramPopUp").hasClass("active")).to.be.false;
         });
         it("ret popup should open", function() {
             var called = false;
@@ -38,16 +38,16 @@ describe("DFParamTab Test", function() {
 
             $("#dfViz .cardMain").append("<div class='dagWrap test'></div>");
             $tab.click();
-            expect($("#retPopUp").hasClass("active")).to.be.true;
+            expect($("#paramPopUp").hasClass("active")).to.be.true;
             expect(called).to.be.true;
             $("#dfViz .cardMain").remove(".test");
         });
 
         it("should close if clicking on tab", function() {
             $tab.click();
-            expect($("#retPopUp").hasClass("active")).to.be.false;
+            expect($("#paramPopUp").hasClass("active")).to.be.false;
             $tab.click();
-            expect($("#retPopUp").hasClass("active")).to.be.true;
+            expect($("#paramPopUp").hasClass("active")).to.be.true;
         })
 
         it("ret popup should have correct rows", function() {
@@ -60,28 +60,28 @@ describe("DFParamTab Test", function() {
 
     describe("new param test", function() {
         it("duplicate should be caught", function() {
-            $("#retPopUp .newParam").val("test");
-            $("#retPopUp .submitNewParam").click();
+            $("#paramPopUp .newParam").val("test");
+            $("#paramPopUp .submitNewParam").click();
             UnitTest.hasStatusBoxWithError(xcHelper.replaceMsg(ErrWRepTStr.ParamConflict, {
                 "name": "test"
             }));
         });
         it("empty name should be caught", function() {
-            $("#retPopUp .newParam").val("");
-            $("#retPopUp .submitNewParam").click();
+            $("#paramPopUp .newParam").val("");
+            $("#paramPopUp .submitNewParam").click();
             UnitTest.hasStatusBoxWithError("Please fill out this field.");
         });
         it("valid name should work", function() {
-            $("#retPopUp .newParam").val("test2");
+            $("#paramPopUp .newParam").val("test2");
             expect($("#retLists").find(".row.unfilled").length).to.equal(4);
-            $("#retPopUp .submitNewParam").click();
+            $("#paramPopUp .submitNewParam").click();
             expect($("#retLists").find(".row.unfilled").length).to.equal(3);
             expect($("#retLists .checkbox").eq(1).hasClass("checked")).to.be.true;
         });
         it("filling list should be handled", function() {
             $("#retLists").find(".row.unfilled").addClass("temp").removeClass("unfilled");
-            $("#retPopUp .newParam").val("test3");
-            $("#retPopUp .submitNewParam").click();
+            $("#paramPopUp .newParam").val("test3");
+            $("#paramPopUp .submitNewParam").click();
             expect($("#retLists").find(".row").length).to.equal(6);
             $("#retLists").find(".row").last().remove();
             $("#retLists").find(".row.temp").addClass("unfilled").removeClass("temp");
@@ -135,7 +135,7 @@ describe("DFParamTab Test", function() {
                 }
             }
 
-            $("#retPopUp .paramDelete").eq(0).click();
+            $("#paramPopUp .paramDelete").eq(0).click();
             expect($("#retLists").find(".row").length).to.equal(5);
             expect($("#retLists").find(".row.unfilled").length).to.equal(4);
             expect(called).to.be.false;
@@ -152,9 +152,9 @@ describe("DFParamTab Test", function() {
                 called = true;
             };
 
-            expect($("#retPopUp").hasClass("active")).to.be.true;
+            expect($("#paramPopUp").hasClass("active")).to.be.true;
             $("#container").trigger(fakeEvent.mousedown);
-            expect($("#retPopUp").hasClass("active")).to.be.false;
+            expect($("#paramPopUp").hasClass("active")).to.be.false;
             expect(called).to.be.true;
         });
     });

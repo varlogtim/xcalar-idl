@@ -108,8 +108,9 @@ class DagNodeSetInput extends DagNodeInput {
         }
     };
 
-    public getInput() {
-        let columns = this.input.columns;
+    public getInput(replaceParameters?: boolean): DagNodeSetInputStruct {
+        const input = super.getInput(replaceParameters);
+        let columns = input.columns;
         if (columns == null) {
             columns = this.dagNode.getParents().map(() => {
                 return [{
@@ -121,9 +122,9 @@ class DagNodeSetInput extends DagNodeInput {
             });
         }
         return {
-            unionType: this.input.unionType || UnionType.Union,
-            columns: this.input.columns || columns,
-            dedup: this.input.dedup || false
+            unionType: input.unionType || UnionType.Union,
+            columns: input.columns || columns,
+            dedup: input.dedup || false
         };
     }
 }

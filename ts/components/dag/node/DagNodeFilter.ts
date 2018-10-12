@@ -60,8 +60,9 @@ class DagNodeFilter extends DagNode {
 
     public applyColumnMapping(renameMap): void {
         try {
-            this.input.getInput().evalString = this._replaceColumnInEvalStr(this.input.evalString,
-                                                            renameMap.columns);
+            const evalStr = this.input.getInput().evalString;
+            this.input.setEvalStr(this._replaceColumnInEvalStr(evalStr,
+                                                            renameMap.columns));
         } catch(err) {
             console.error(err);
         }

@@ -1,12 +1,14 @@
 class DagNodeJoin extends DagNode {
     protected input: DagNodeJoinInput;
 
-    public constructor(options: DagNodeInfo) {
+    public constructor(options?: DagNodeInfo) {
+        options = options || <DagNodeInfo>{};
         super(options);
         this.type = DagNodeType.Join;
         this.maxParents = 2;
         this.minParents = 2;
         this.display.icon = "&#xe93e;";
+
         this.input = new DagNodeJoinInput(options.input);
     }
 
@@ -28,12 +30,15 @@ class DagNodeJoin extends DagNode {
     }
 
     // XXX TODO: verify it's correctness
-    public lineageChange(_columns: ProgCol[]): DagLineageChange {
+    public lineageChange(
+        _columns: ProgCol[],
+        replaceParameters?: boolean
+    ): DagLineageChange {
         const parents: DagNode[] = this.getParents();
-        const lCols: ProgCol[] = parents[0].getLineage().getColumns();
-        const rCols: ProgCol[] = parents[1].getLineage().getColumns();
-        const lChanges: DagLineageChange = this._getColAfterJoin(lCols, this.input.getInput().left);
-        const rChanges: DagLineageChange = this._getColAfterJoin(rCols, this.input.getInput().right);
+        const lCols: ProgCol[] = parents[0].getLineage().getColumns(replaceParameters);
+        const rCols: ProgCol[] = parents[1].getLineage().getColumns(replaceParameters);
+        const lChanges: DagLineageChange = this._getColAfterJoin(lCols, this.input.getInput(replaceParameters).left);
+        const rChanges: DagLineageChange = this._getColAfterJoin(rCols, this.input.getInput(replaceParameters).right);
         return {
             columns: lChanges.columns.concat(rChanges.columns),
             changes: lChanges.changes.concat(rChanges.changes)
@@ -90,9 +95,11 @@ class DagNodeJoin extends DagNode {
                     }
                 }
             });
+            this.input.setInput(input);
         } catch(err) {
             console.error(err);
         }
+
         super.setParam();
         return newRenameMap;
     }

@@ -1,9 +1,10 @@
 class DagNodeDFOutInput extends DagNodeInput {
     protected input: DagNodeDFOutInputStruct;
 
-    public getInput() {
+    public getInput(replaceParameters?: boolean): DagNodeDFOutInputStruct {
+        const input = super.getInput(replaceParameters);
         return {
-            name: this.input.name || ""
+            name: input.name || ""
         };
     }
 }

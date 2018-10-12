@@ -64,7 +64,7 @@ abstract class DagNode {
      * Get the columns after apply the node's operation
      * @param columns {ProgCol[]} parent columns
      */
-    abstract lineageChange(columns: ProgCol[]): DagLineageChange;
+    abstract lineageChange(columns: ProgCol[], replaceParameters?: boolean): DagLineageChange;
 
     /**
      * add events to the dag node
@@ -285,8 +285,8 @@ abstract class DagNode {
     /**
      * Get Param
      */
-    public getParam() {
-        return this.input.getInput();
+    public getParam(replaceParameters?: boolean) {
+        return this.input.getInput(replaceParameters);
     }
 
     /**
@@ -450,8 +450,13 @@ abstract class DagNode {
             id: this.getId(),
             params: this.getParam(),
             type: this.getType(),
-            node: this
+            node: this,
+            hasParameters: this.input.hasParameters()
         });
+    }
+
+    public hasParameters(): boolean {
+        return this.input.hasParameters();
     }
 
     /**

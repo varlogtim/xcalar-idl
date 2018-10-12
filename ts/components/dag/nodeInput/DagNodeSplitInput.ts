@@ -1,11 +1,12 @@
 class DagNodeSplitInput extends DagNodeInput {
     protected input: DagNodeSplitInputStruct;
 
-    public getInput() {
+    public getInput(replaceParameters?: boolean): DagNodeSplitInputStruct {
+        const input = super.getInput(replaceParameters);
         return {
-            source: this.input.source || "",
-            delimiter: this.input.delimiter || "",
-            dest: this.input.dest.map((v) => v)
+            source: input.source || "",
+            delimiter: input.delimiter || "",
+            dest: input.dest.map((v) => v)
         };
     }
 }
