@@ -3805,6 +3805,11 @@ window.DSPreview = (function($, DSPreview) {
             // error case
             return false;
         }
+        if (json.length === 0 && datas.length > 0) {
+            // Possibly multi-line json, which we are not able to parse
+            // Show the raw data
+            return getXMLTable(datas);
+        }        
         json = json.splice(skipRows);
 
         showJSONTable(json);
