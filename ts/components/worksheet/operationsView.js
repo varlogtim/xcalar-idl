@@ -4925,6 +4925,9 @@ window.OperationsView = (function($, OperationsView) {
                 continue;
             }
             categorySet = operatorsMap[i];
+            if (categorySet == null) {
+                continue;
+            }
             for (var j = 0; j < categorySet.length; j++) {
                 fn = categorySet[j];
                 if (fn.displayName.toLowerCase().indexOf(val) > -1) {
