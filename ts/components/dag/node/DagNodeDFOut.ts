@@ -5,18 +5,13 @@ class DagNodeDFOut extends DagNodeOut {
         super(options);
         this.type = DagNodeType.DFOut;
         this.display.icon = "&#xe955;"; // XXX TODO: UI design
+        this.input = new DagNodeDFOutInput(options.input);
     }
 
-    public getParam(): DagNodeDFOutInput {
-        return {
-            name: this.input.name || ""
-        };
-    }
-
-    public setParam(input: DagNodeDFOutInput = <DagNodeDFOutInput>{}): void {
-        this.input = {
+    public setParam(input: DagNodeDFOutInputStruct = <DagNodeDFOutInputStruct>{}): void {
+        this.input.setInput({
             name: input.name
-        };
+        });
         super.setParam();
     }
 

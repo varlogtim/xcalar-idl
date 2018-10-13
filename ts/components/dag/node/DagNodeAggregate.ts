@@ -9,28 +9,19 @@ class DagNodeAggregate extends DagNode {
         this.aggVal = options.aggVal || null;
         this.minParents = 1;
         this.display.icon = "&#xe939;";
-    }
-
-    /**
-     * @returns {DagNodeAggregateInput} Aggregate node parameters
-     */
-    public getParam(): DagNodeAggregateInput {
-        return {
-            evalString: this.input.evalString || "",
-            dest: this.input.dest || ""
-        };
+        this.input = new DagNodeAggregateInput(options.input);
     }
 
     /**
      * Set aggregate node's parameters
-     * @param input {DagNodeAggregateInput}
+     * @param input {DagNodeAggregateInputStruct}
      * @param input.evalString {string} The aggregatte eval string
      */
-    public setParam(input: DagNodeAggregateInput = <DagNodeAggregateInput>{}) {
-        this.input = {
+    public setParam(input: DagNodeAggregateInputStruct = <DagNodeAggregateInputStruct>{}) {
+        this.input.setInput({
             evalString: input.evalString,
             dest: input.dest
-        }
+        });
         super.setParam();
     }
 
@@ -58,8 +49,8 @@ class DagNodeAggregate extends DagNode {
 
     public applyColumnMapping(renameMap): void {
         try {
-            this.input.evalString = this._replaceColumnInEvalStr(this.input.evalString,
-                                                            renameMap.columns);
+            this.input.setEval(this._replaceColumnInEvalStr(this.input.getInput().evalString,
+                                                            renameMap.columns));
         } catch(err) {
             console.error(err);
         }

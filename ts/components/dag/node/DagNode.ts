@@ -17,7 +17,7 @@ abstract class DagNode {
     protected type: DagNodeType;
     protected subType: DagNodeSubType;
     protected lineage: DagLineage; // XXX persist or not TBD
-    protected input: object; // will be overridden by subClasses
+    protected input: DagNodeInput; // will be overwritten by subClasses
     protected minParents: number; // non-persistent
     protected maxParents: number; // non-persistent
     protected maxChildren: number; // non-persistent
@@ -45,8 +45,8 @@ abstract class DagNode {
         this.table = options.table;
         this.state = options.state || DagNodeState.Unused;
         const coordinates = options.display || {x: -1, y: -1};
-        this.display = {coordinates: coordinates, icon: "", description: ""},
-        this.input = options.input || {};
+        this.display = {coordinates: coordinates, icon: "", description: ""};
+        this.input = new DagNodeInput({});
         this.error = options.error;
 
         this.numParent = 0;
@@ -285,8 +285,8 @@ abstract class DagNode {
     /**
      * Get Param
      */
-    public getParam(): object {
-        return this.input;
+    public getParam() {
+        return this.input.getInput();
     }
 
     /**
@@ -496,7 +496,7 @@ abstract class DagNode {
             display: xcHelper.deepCopy(this.display.coordinates),
             description: this.description,
             title: this.title,
-            input: xcHelper.deepCopy(this.input),
+            input: xcHelper.deepCopy(this.input.getInput()),
             id: this.id,
             state: this.state,
             error: this.error
@@ -572,7 +572,7 @@ abstract class DagNode {
     }
 
     public isConfigured(): boolean {
-        return Object.keys(this.input).length > 0;
+        return this.input.isConfigured();
     }
 
     public applyColumnMapping(_map, _index: number): void {

@@ -62,40 +62,40 @@ interface DagLineageChange {
 }
 
 /* ==== Dag Node Input Intereface ==== */
-interface DagNodeAggregateInput {
+interface DagNodeAggregateInputStruct {
     evalString: string;
     dest: string;
 }
 
-interface DagNodeDatasetInput {
+interface DagNodeDatasetInputStruct {
     source: string;
     prefix: string;
 }
 
-interface DagNodeIMDTableInput {
+interface DagNodeIMDTableInputStruct {
     source: string;
     version: number;
     filterString: string;
     columns: string[];
 }
 
-interface DagNodePublishIMDInput {
+interface DagNodePublishIMDInputStruct {
     pubTableName: string;
     primaryKey: string;
     operator: string;
 }
 
-interface DagNodeExportInput {
+interface DagNodeExportInputStruct {
     columns: string[];
     driver: string;
     driverArgs: ExportDriverArg[];
 }
 
-interface DagNodeFilterInput {
+interface DagNodeFilterInputStruct {
     evalString: string;
 }
 
-interface DagNodeGroupByInput {
+interface DagNodeGroupByInputStruct {
     groupBy: string[];
     aggregate: {operator: string, sourceColumn: string, destColumn: string, distinct: boolean, cast: string}[];
     includeSample: boolean;
@@ -109,48 +109,48 @@ declare type DagNodeJoinTableInput = {
     casts: ColumnType[],
     rename: {sourceColumn: string, destColumn: string, prefix: boolean}[]
 }
-interface DagNodeJoinInput {
+interface DagNodeJoinInputStruct {
     joinType: string;
     left: DagNodeJoinTableInput
     right: DagNodeJoinTableInput
     evalString?: string;
 }
 
-interface DagNodeMapInput {
+interface DagNodeMapInputStruct {
     eval: {evalString: string, newField: string}[];
     icv: boolean;
 }
 
-interface DagNodeProjectInput {
+interface DagNodeProjectInputStruct {
     columns: string[]
 }
 
-interface DagNodeSetInput {
+interface DagNodeSetInputStruct {
     unionType: UnionType;
     columns: {sourceColumn: string, destColumn: string, columnType: ColumnType, cast: boolean}[][];
     dedup: boolean;
 }
 
-interface DagNodeSQLInput {
+interface DagNodeSQLInputStruct {
     evalString: string;
 }
 
-interface DagNodeExtensionInput {
+interface DagNodeExtensionInputStruct {
     moduleName: string,
     functName: string
     args: object
 }
 
-interface DagNodeDFInInput {
+interface DagNodeDFInInputStruct {
     linkOutName: string;
     dataflowId: string;
 }
 
-interface DagNodeDFOutInput {
+interface DagNodeDFOutInputStruct {
     name: string;
 }
 
-interface DagNodeSplitInput {
+interface DagNodeSplitInputStruct {
     source: string,
     delimiter: string,
     dest: string[]

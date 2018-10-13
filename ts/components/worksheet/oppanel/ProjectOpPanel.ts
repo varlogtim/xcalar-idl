@@ -335,7 +335,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
      */
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         if (toAdvancedMode) {
-            const param: DagNodeProjectInput = this._dataModel.toDag();
+            const param: DagNodeProjectInputStruct = this._dataModel.toDag();
             const paramStr = JSON.stringify(param, null, 4);
             this._cachedBasicModeParam = paramStr;
             this._editor.setValue(paramStr);
@@ -351,7 +351,7 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
     }
 
     private _convertAdvConfigToModel() {
-        const dagInput: DagNodeProjectInput = <DagNodeProjectInput>JSON.parse(this._editor.getValue());
+        const dagInput: DagNodeProjectInputStruct = <DagNodeProjectInputStruct>JSON.parse(this._editor.getValue());
         const colMap = this._dataModel.columnMap
         return ProjectOpPanelModel.fromDagInput(colMap, dagInput);
     }

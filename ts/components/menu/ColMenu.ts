@@ -542,7 +542,7 @@ class ColMenu extends AbstractMenu {
                 break;
             case DagNodeType.GroupBy:
             case DagNodeType.GroupBy:
-                const params = <DagNodeGroupByInput>node.getParam();
+                const params = <DagNodeGroupByInputStruct>node.getParam();
                 params.groupBy = columns;
                 node.setParam(params);
                 break;

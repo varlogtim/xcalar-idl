@@ -20,6 +20,7 @@ class DagNodeFilter extends DagNode {
         if (errorAggs.length) {
             self.beErrorState(StatusMessageTStr.AggregateNotExist + errorAggs);
         }
+        this.input = new DagNodeFilterInput(options.input);
     }
 
         /**
@@ -39,23 +40,14 @@ class DagNodeFilter extends DagNode {
     }
 
     /**
-     * @returns {DagNodeFilterInput} Filter node parameters
-     */
-    public getParam(): DagNodeFilterInput {
-        return {
-            evalString: this.input.evalString || "",
-        };
-    }
-
-    /**
      * Set filter node's parameters
-     * @param input {DagNodeFilterInput}
+     * @param input {DagNodeFilterInputStruct}
      * @param input.evalString {string} The filter eval string
      */
-    public setParam(input: DagNodeFilterInput = <DagNodeFilterInput>{}) {
-        this.input = {
+    public setParam(input: DagNodeFilterInputStruct = <DagNodeFilterInputStruct>{}) {
+        this.input.setInput({
             evalString: input.evalString,
-        }
+        });
         super.setParam();
     }
 
@@ -68,7 +60,7 @@ class DagNodeFilter extends DagNode {
 
     public applyColumnMapping(renameMap): void {
         try {
-            this.input.evalString = this._replaceColumnInEvalStr(this.input.evalString,
+            this.input.getInput().evalString = this._replaceColumnInEvalStr(this.input.evalString,
                                                             renameMap.columns);
         } catch(err) {
             console.error(err);

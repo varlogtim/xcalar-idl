@@ -103,7 +103,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
      *
      */
     private _convertAdvConfigToModel(): ExportOpPanelModel {
-        const dagInput: DagNodeExportInput = <DagNodeExportInput>JSON.parse(this._editor.getValue());
+        const dagInput: DagNodeExportInputStruct = <DagNodeExportInputStruct>JSON.parse(this._editor.getValue());
         const allColMap: Map<string, ProgCol> = ExportOpPanelModel.getColumnsFromDag(this._dagNode);
         const error = this._dataModel.verifyDagInput(dagInput);
         if (error != "") {
@@ -118,7 +118,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
      */
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         if (toAdvancedMode) {
-            const param: DagNodeExportInput = this._dataModel.toDag();
+            const param: DagNodeExportInputStruct = this._dataModel.toDag();
             this._editor.setValue(JSON.stringify(param, null, 4));
             this._dataModel.setAdvMode(true);
             this._updateUI();

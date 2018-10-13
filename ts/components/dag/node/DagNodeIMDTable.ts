@@ -16,26 +16,15 @@ class DagNodeIMDTable extends DagNodeIn {
             this.columns = [];
         }
         this.display.icon = "&#xea55;";
-    }
-
-    /**
-     * @returns {DagNodeIMDTableInput} Dataset input params
-     */
-    public getParam(): DagNodeIMDTableInput {
-        return {
-            source: this.input.source || "",
-            version: this.input.version || -1,
-            filterString: this.input.filterString || "",
-            columns: this.input.columns || [],
-        };
+        this.input = new DagNodeIMDTableInput(options.input);
     }
 
     /**
      * Set dataset node's parameters
-     * @param input {DagNodeIMDTableInput}
+     * @param input {DagNodeIMDTableInputStruct}
 
      */
-    public setParam(input: DagNodeIMDTableInput = <DagNodeIMDTableInput>{}): XDPromise<void> {
+    public setParam(input: DagNodeIMDTableInputStruct = <DagNodeIMDTableInputStruct>{}): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const source: string = input.source;
         const version: number = input.version;
@@ -44,12 +33,12 @@ class DagNodeIMDTable extends DagNodeIn {
         this.getSourceColumns(source, input.columns)
         .then((columns: ProgCol[]) => {
             this.columns = columns;
-            this.input = {
+            this.input.setInput({
                 source: source,
                 version: version,
                 filterString: filterString,
                 columns: inputColumns
-            };
+            });
             super.setParam();
             deferred.resolve();
         })

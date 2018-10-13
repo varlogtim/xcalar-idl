@@ -1,7 +1,6 @@
 class CommentNode {
 
     private static uid: XcUID;
-    private static idPrefix: string;
 
     private id: CommentNodeId;
     private text: string;

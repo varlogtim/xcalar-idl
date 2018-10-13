@@ -51,7 +51,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
     }
 
     private _convertAdvConfigToModel() {
-        return <DagNodePublishIMDInput>JSON.parse(this._editor.getValue());
+        return <DagNodePublishIMDInputStruct>JSON.parse(this._editor.getValue());
     }
 
     /**
@@ -60,12 +60,12 @@ class PublishIMDOpPanel extends BaseOpPanel {
      */
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         if (toAdvancedMode) {
-            let param: DagNodePublishIMDInput = this._getParams();
+            let param: DagNodePublishIMDInputStruct = this._getParams();
             this._editor.setValue(JSON.stringify(param, null, 4));
             this._advMode = true;
         } else {
             try {
-                const newModel: DagNodePublishIMDInput = this._convertAdvConfigToModel();
+                const newModel: DagNodePublishIMDInputStruct = this._convertAdvConfigToModel();
                 this._restorePanel(newModel);
                 this._advMode = false;
                 return;
@@ -78,7 +78,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
         return null;
     }
 
-    private _getParams(): DagNodePublishIMDInput {
+    private _getParams(): DagNodePublishIMDInputStruct {
         return {
             pubTableName: this._$nameInput.val(),
             primaryKey: this._$primaryKey.val(),
@@ -86,7 +86,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
         }
     }
 
-    private _restorePanel(input: DagNodePublishIMDInput): void {
+    private _restorePanel(input: DagNodePublishIMDInputStruct): void {
         this._$nameInput.val(input.pubTableName);
         this._$primaryKey.val(input.primaryKey);
         this._$operatorInput.val(input.operator);
@@ -213,7 +213,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
         let name: string = "";
         if (this._advMode) {
             try {
-                const newModel: DagNodePublishIMDInput = this._convertAdvConfigToModel();
+                const newModel: DagNodePublishIMDInputStruct = this._convertAdvConfigToModel();
                 key = newModel.primaryKey;
                 operator = newModel.operator;
                 name = newModel.pubTableName;

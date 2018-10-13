@@ -105,7 +105,7 @@ class ExtensionOpPanelModel {
      * Submit the settings of Set op node params
      */
     public submit(): XDPromise<void> {
-        const param: DagNodeExtensionInput = this._getParam();
+        const param: DagNodeExtensionInputStruct = this._getParam();
         return this.dagNode.setParam(param);
     }
 
@@ -114,11 +114,11 @@ class ExtensionOpPanelModel {
     //     editor: CodeMirror.EditorFromTextArea
     // ): {error: string} {
     //     if (toAdvancedMode) {
-    //         const param: DagNodeSetInput = this._getParam();
+    //         const param: DagNodeSetInputStruct = this._getParam();
     //         editor.setValue(JSON.stringify(param, null, 4));
     //     } else {
     //         try {
-    //             const param: DagNodeSetInput = <DagNodeSetInput>JSON.parse(editor.getValue());
+    //             const param: DagNodeSetInputStruct = <DagNodeSetInputStruct>JSON.parse(editor.getValue());
     //             this._initialize(param);
     //             this._update();
     //         } catch (e) {
@@ -128,13 +128,13 @@ class ExtensionOpPanelModel {
     //     return null;
     // }
 
-    private _initialize(param: DagNodeExtensionInput) {
+    private _initialize(param: DagNodeExtensionInputStruct) {
         this.moduleName = param.moduleName;
         this.funcName = param.functName;
         this.args = param.args;
     }
 
-    private _getParam(): DagNodeExtensionInput {
+    private _getParam(): DagNodeExtensionInputStruct {
         return {
             moduleName: this._module,
             functName: this._func,

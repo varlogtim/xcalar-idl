@@ -195,7 +195,7 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
         }
     }
 
-    protected _getParam(): DagNodeFilterInput {
+    protected _getParam(): DagNodeFilterInputStruct {
         const self = this;
         this.groups.forEach(group => {
             group.args.forEach(arg => {
@@ -212,7 +212,7 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
     public validateAdvancedMode(paramStr: string): {error: string} {
         let jsonError = true;
         try {
-            const param: DagNodeFilterInput = <DagNodeFilterInput>JSON.parse(paramStr);
+            const param: DagNodeFilterInputStruct = <DagNodeFilterInputStruct>JSON.parse(paramStr);
             jsonError = false;
             this._initialize(param, true);
             let error = this.validateGroups();

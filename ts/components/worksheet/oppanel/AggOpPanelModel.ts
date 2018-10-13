@@ -152,7 +152,7 @@ class AggOpPanelModel extends GeneralOpPanelModel {
         }
     }
 
-    protected _getParam(): DagNodeAggregateInput {
+    protected _getParam(): DagNodeAggregateInputStruct {
         const self = this;
         this.groups.forEach(group => {
             group.args.forEach(arg => {
@@ -169,7 +169,7 @@ class AggOpPanelModel extends GeneralOpPanelModel {
     public validateAdvancedMode(paramStr: string): {error: string} {
         let jsonError = true;
         try {
-            const param: DagNodeAggregateInput = <DagNodeAggregateInput>JSON.parse(paramStr);
+            const param: DagNodeAggregateInputStruct = <DagNodeAggregateInputStruct>JSON.parse(paramStr);
             jsonError = false;
             this._initialize(param, true);
             let error = this.validateGroups();

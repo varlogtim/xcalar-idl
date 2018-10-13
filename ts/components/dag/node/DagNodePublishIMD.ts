@@ -7,30 +7,20 @@ class DagNodePublishIMD extends DagNode {
         this.maxChildren = 0;
         this.minParents = 1;
         this.display.icon = "&#xea55;";
-    }
-
-    /**
-     * @returns {DagNodePublishIMDInput} Dataset input params
-     */
-    public getParam(): DagNodePublishIMDInput {
-        return {
-            pubTableName: this.input.pubTableName || "",
-            primaryKey: this.input.primaryKey || "",
-            operator: this.input.operator || ""
-        };
+        this.input = new DagNodePublishIMDInput(options.input);
     }
 
     /**
      * Set dataset node's parameters
-     * @param input {DagNodePublishIMDInput}
+     * @param input {DagNodePublishIMDInputStruct}
 
      */
-    public setParam(input: DagNodePublishIMDInput): void {
-        this.input = {
+    public setParam(input: DagNodePublishIMDInputStruct): void {
+        this.input.setInput({
             pubTableName: input.pubTableName,
             primaryKey: input.primaryKey,
             operator: input.operator
-        }
+        });
         super.setParam();
     }
 

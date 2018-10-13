@@ -6,35 +6,26 @@ class DagNodeDataset extends DagNodeIn {
         super(options);
         this.type = DagNodeType.Dataset;
         this.display.icon = "&#xe90f";
-    }
-
-    /**
-     * @returns {DagNodeDatasetInput} Dataset input params
-     */
-    public getParam(): DagNodeDatasetInput {
-        return {
-            source: this.input.source || "",
-            prefix: this.input.prefix || ""
-        };
+        this.input = new DagNodeDatasetInput(options.input);
     }
 
     /**
      * Set dataset node's parameters
-     * @param input {DagNodeDatasetInput}
+     * @param input {DagNodeDatasetInputStruct}
      * @param input.source {string} Dataset source path
      * @param intpu.prefix {string} Prefix for the created table
      */
-    public setParam(input: DagNodeDatasetInput = <DagNodeDatasetInput>{}): XDPromise<void> {
+    public setParam(input: DagNodeDatasetInputStruct = <DagNodeDatasetInputStruct>{}): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const source: string = input.source;
         const prefix: string = input.prefix;
         this.getSourceColumns(source, prefix)
         .then((columns: ProgCol[]) => {
             this.columns = columns;
-            this.input = {
+            this.input.setInput({
                 source: source,
                 prefix: prefix
-            }
+            });
             super.setParam();
             deferred.resolve();
         })
@@ -79,6 +70,6 @@ class DagNodeDataset extends DagNodeIn {
      * Get the dataset name
      */
     public getDSName(): string {
-        return this.getParam().source || null;
+        return this.input.getInput().source || null;
     }
 }

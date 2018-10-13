@@ -505,7 +505,7 @@ class GeneralOpPanelModel {
         editor: CodeMirror.EditorFromTextArea
     ): {error: string} {
         if (toAdvancedMode) {
-            const param: DagNodeFilterInput = this._getParam();
+            const param: DagNodeFilterInputStruct = this._getParam();
             const paramStr = JSON.stringify(param, null, 4);
             this.cachedBasicModeParam = paramStr;
             editor.setValue(paramStr);

@@ -85,7 +85,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
     }
 
     private _restorePanel(): void {
-        const param: DagNodeDFInInput = this.dagNode.getParam();
+        const param: DagNodeDFInInputStruct = this.dagNode.getParam();
         const dataflowName: string = this._dataflowIdToName(param.dataflowId);
         this._getDFDropdownList().find("input").val(dataflowName);
         this._getLinkOutDropdownList().find("input").val(param.linkOutName);
@@ -93,7 +93,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
     }
 
     private _submitForm(): void {
-        const args: DagNodeDFInInput = this._validate();
+        const args: DagNodeDFInInputStruct = this._validate();
         if (args == null) {
             // invalid case
             return;
@@ -102,7 +102,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
         this.close(true);
     }
 
-    private _validate(): DagNodeDFInInput {
+    private _validate(): DagNodeDFInInputStruct {
         const $dfInput: JQuery = this._getDFDropdownList().find("input");
         const $linkOutInput: JQuery = this._getLinkOutDropdownList().find("input");
         const dataflowId: string = this._dataflowNameToId($dfInput.val().trim());

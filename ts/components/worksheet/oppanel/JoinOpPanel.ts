@@ -201,7 +201,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         this._dataModel.setAdvMode(toAdvancedMode);
         if (toAdvancedMode) {
-            const param: DagNodeJoinInput = this._dataModel.toDag();
+            const param: DagNodeJoinInputStruct = this._dataModel.toDag();
             const paramStr = JSON.stringify(param, null, 4);
             this._cachedBasicModeParam = paramStr;
             this._editor.setValue(paramStr);
@@ -222,7 +222,7 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
      * Convert config string to data model, throw JoinOpError/JS exception if any errors
      */
     private _convertAdvConfigToModel(oldModel: JoinOpPanelModel) {
-        const dagInput: DagNodeJoinInput = <DagNodeJoinInput>JSON.parse(this._editor.getValue());
+        const dagInput: DagNodeJoinInputStruct = <DagNodeJoinInputStruct>JSON.parse(this._editor.getValue());
         const {
             left: leftCols,
             right: rightCols

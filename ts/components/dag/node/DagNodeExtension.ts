@@ -22,21 +22,11 @@ class DagNodeExtension extends DagNode {
         this.newColumns = options.newColumns || [];
         this.droppedColumns = options.droppedColumns || [];
         this.display.icon = "&#xe96d;";
+        this.input = new DagNodeExtensionInput(options.input);
     }
 
-    /**
-     * @returns {DagNodeExtensionInput} Extension node parameters
-     */
-    public getParam(): DagNodeExtensionInput {
-        return {
-            moduleName: this.input.moduleName || "",
-            functName: this.input.functName || "",
-            args: this.input.args || {}
-        };
-    }
-
-    public getConvertedParam(): DagNodeExtensionInput {
-        const param: DagNodeExtensionInput = this.getParam();
+    public getConvertedParam(): DagNodeExtensionInputStruct {
+        const param: DagNodeExtensionInputStruct = this.input.getInput();
         const convertedArgs: object = this._convertExtensionArgs(param.args);
         return {
             moduleName: param.moduleName,
@@ -47,20 +37,20 @@ class DagNodeExtension extends DagNode {
 
     /**
      * Set Extension node's parameters
-     * @param input {DagNodeExtensionInput}
+     * @param input {DagNodeExtensionInputStruct}
      * @param input.evalString {string}
      */
     public setParam(
-        input: DagNodeExtensionInput = <DagNodeExtensionInput>{}
+        input: DagNodeExtensionInputStruct = <DagNodeExtensionInputStruct>{}
     ): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._getColumnChangs(input)
         .then(() => {
-            this.input = {
+            this.input.setInput({
                 moduleName: input.moduleName,
                 functName: input.functName,
                 args: input.args
-            }
+            });
             super.setParam();
             deferred.resolve();
         })
@@ -167,7 +157,7 @@ class DagNodeExtension extends DagNode {
         }
     }
 
-    private _getColumnChangs(params: DagNodeExtensionInput): XDPromise<void> {
+    private _getColumnChangs(params: DagNodeExtensionInputStruct): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         try {
             const args: object = this._convertExtensionArgs(params.args);

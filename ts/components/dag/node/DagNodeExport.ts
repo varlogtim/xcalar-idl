@@ -7,32 +7,23 @@ class DagNodeExport extends DagNode {
         this.maxChildren = 0;
         this.minParents = 1;
         this.display.icon = "&#xe955;";
+        this.input = new DagNodeExportInput(options.input);
     }
 
-    /**
-     * @returns {DagNodeExportInput} Export node parameters
-     */
-    public getParam(): DagNodeExportInput {
-        return {
-            columns: this.input.columns || [],
-            driver: this.input.driver || "",
-            driverArgs: this.input.driverArgs || null
-        };
-    }
 
     /**
      * Set export node's parameters
-     * @param input {DagNodeExportInput}
+     * @param input {DagNodeExportInputStruct}
      * @param input.columns export columns's information
      * @param input.driver {string} Export driver name
      * @param input.driverArgs {ExportDriverArg[]} Driver arguments
      */
-    public setParam(input: DagNodeExportInput = <DagNodeExportInput>{}) {
-        this.input = {
+    public setParam(input: DagNodeExportInputStruct = <DagNodeExportInputStruct>{}) {
+        this.input.setInput({
             columns: input.columns,
             driver: input.driver,
             driverArgs: input.driverArgs
-        }
+        });
         super.setParam();
     }
 

@@ -25,7 +25,7 @@ class ExportOpPanelModel {
      * @param allColMap
      * @param drivers
      */
-    public static fromDagInput(dagInput: DagNodeExportInput,
+    public static fromDagInput(dagInput: DagNodeExportInputStruct,
              allColMap: Map<string, ProgCol>, drivers: ExportDriver[]): ExportOpPanelModel {
         const model: ExportOpPanelModel = new ExportOpPanelModel();
         model.exportDrivers = drivers;
@@ -58,7 +58,7 @@ class ExportOpPanelModel {
      */
     public static fromDag(dagNode: DagNodeExport) {
         const model: ExportOpPanelModel = new ExportOpPanelModel();
-        const dagInputInfo: DagNodeExportInput = dagNode.getParam();
+        const dagInputInfo: DagNodeExportInputStruct = dagNode.getParam();
         const selectedColumns: {} = dagInputInfo.columns.reduce( (res, col) => {
             res[col] = true;
             return res;
@@ -102,10 +102,10 @@ class ExportOpPanelModel {
     }
 
     /**
-     * Creates the DagNodeExportInput for the current model.
+     * Creates the DagNodeExportInputStruct for the current model.
      */
-    public toDag(): DagNodeExportInput {
-        const dagData: DagNodeExportInput = {
+    public toDag(): DagNodeExportInputStruct {
+        const dagData: DagNodeExportInputStruct = {
             columns: [],
             driver: "",
             driverArgs: []
@@ -182,7 +182,7 @@ class ExportOpPanelModel {
      * @param dagInput
      * @returns {string}
      */
-    public verifyDagInput(dagInput: DagNodeExportInput): string {
+    public verifyDagInput(dagInput: DagNodeExportInputStruct): string {
         if (dagInput.columns == null) {
             return "Input must have column list."
         }

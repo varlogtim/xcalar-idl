@@ -7,34 +7,23 @@ class DagNodeJoin extends DagNode {
         this.maxParents = 2;
         this.minParents = 2;
         this.display.icon = "&#xe93e;";
-    }
-
-    /**
-     * @returns {DagNodeJoinInput} Join node parameters
-     */
-    public getParam(): DagNodeJoinInput {
-        return {
-            joinType: this.input.joinType || JoinOperatorTStr[JoinOperatorT.InnerJoin],
-            left: this.input.left || this._getDefaultTableInfo(),
-            right: this.input.right || this._getDefaultTableInfo(),
-            evalString: this.input.evalString || ""
-        };
+        this.input = new DagNodeJoinInput(options.input);
     }
 
     /**
      * Set join node's parameters
-     * @param input {DagNodeJoinInput}
+     * @param input {DagNodeJoinInputStruct}
      * @param input.joinType {string} Join type
      * @param input.columns column infos from left table and right table
      * @param input.evalString {string} Optional, eavlString in join
      */
-    public setParam(input: DagNodeJoinInput = <DagNodeJoinInput>{}) {
-        this.input = {
+    public setParam(input: DagNodeJoinInputStruct = <DagNodeJoinInputStruct>{}) {
+        this.input.setInput({
             joinType: input.joinType,
             left: input.left,
             right: input.right,
             evalString: input.evalString
-        }
+        });
         super.setParam();
     }
 
@@ -43,8 +32,8 @@ class DagNodeJoin extends DagNode {
         const parents: DagNode[] = this.getParents();
         const lCols: ProgCol[] = parents[0].getLineage().getColumns();
         const rCols: ProgCol[] = parents[1].getLineage().getColumns();
-        const lChanges: DagLineageChange = this._getColAfterJoin(lCols, this.input.left);
-        const rChanges: DagLineageChange = this._getColAfterJoin(rCols, this.input.right);
+        const lChanges: DagLineageChange = this._getColAfterJoin(lCols, this.input.getInput().left);
+        const rChanges: DagLineageChange = this._getColAfterJoin(rCols, this.input.getInput().right);
         return {
             columns: lChanges.columns.concat(rChanges.columns),
             changes: lChanges.changes.concat(rChanges.changes)
@@ -53,6 +42,7 @@ class DagNodeJoin extends DagNode {
 
     public applyColumnMapping(renameMap, index: number): {} {
         const newRenameMap = xcHelper.deepCopy(renameMap);
+        const input = this.input.getInput();
         try {
             let side: string;
             if (index === 0) {
@@ -60,13 +50,13 @@ class DagNodeJoin extends DagNode {
             } else {
                 side = "right";
             }
-            this.input.evalString = this._replaceColumnInEvalStr(this.input.evalString, renameMap.columns);
-            this.input[side].columns.forEach((columnName, i) => {
+            input.evalString = this._replaceColumnInEvalStr(input.evalString, renameMap.columns);
+            input[side].columns.forEach((columnName, i) => {
                 if (renameMap.columns[columnName]) {
-                    this.input[side].columns[i] = renameMap.columns[columnName];
+                    input[side].columns[i] = renameMap.columns[columnName];
                 }
             });
-            this.input[side].rename.forEach((renameInfo) => {
+            input[side].rename.forEach((renameInfo) => {
                 if (renameInfo.prefix) {
                     const originalPrefix = renameInfo.sourceColumn;
                     if (renameMap.prefixes[originalPrefix]) {
@@ -105,14 +95,6 @@ class DagNodeJoin extends DagNode {
         }
         super.setParam();
         return newRenameMap;
-    }
-
-    private _getDefaultTableInfo(): DagNodeJoinTableInput {
-        return {
-            columns: [""],
-            casts: [null],
-            rename: [{sourceColumn: "", destColumn: "", prefix: false}]
-        }
     }
 
     private _getColAfterJoin(

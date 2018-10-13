@@ -90,13 +90,13 @@ class JoinOpPanelModel {
      * Create JoinOpPanelModel instance from DagNode configuration and column meta
      * @param leftColList Could be null/empty
      * @param rightColList Could be null/empty
-     * @param config DagNodeJoinInput object
+     * @param config DagNodeJoinInputStruct object
      * @throws JS exception/JoinOpError
      */
     public static fromDagInput(
         leftColList: ProgCol[],
         rightColList: ProgCol[],
-        config: DagNodeJoinInput,
+        config: DagNodeJoinInputStruct,
         leftPreviewTableName: string,
         rightPreviewTableName: string,
         uiOptions: {
@@ -218,8 +218,8 @@ class JoinOpPanelModel {
         return model;
     }
 
-    public toDag(): DagNodeJoinInput {
-        const dagData: DagNodeJoinInput = {
+    public toDag(): DagNodeJoinInputStruct {
+        const dagData: DagNodeJoinInputStruct = {
             joinType: this._joinType,
             left: { columns: [], casts: [], rename: [] },
             right: { columns: [], casts: [], rename: [] },

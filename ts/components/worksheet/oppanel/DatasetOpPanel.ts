@@ -55,7 +55,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     }
 
     private _convertAdvConfigToModel() {
-        return <DagNodeDatasetInput>JSON.parse(this._editor.getValue());
+        return <DagNodeDatasetInputStruct>JSON.parse(this._editor.getValue());
     }
 
     /**
@@ -72,7 +72,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             this._advMode = true;
         } else {
             try {
-                const newModel: DagNodeDatasetInput = this._convertAdvConfigToModel();
+                const newModel: DagNodeDatasetInputStruct = this._convertAdvConfigToModel();
                 this._resetCurrentPath();
                 this._restorePanel(newModel);
                 this._advMode = false;
@@ -180,7 +180,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         $('#datasetOpPanel .forwardFolderBtn').addClass('xc-disabled');
     }
 
-    private _restorePanel(input: DagNodeDatasetInput): void {
+    private _restorePanel(input: DagNodeDatasetInputStruct): void {
         if (input == null || input.source == "") {
             this._resetCurrentPath();
             this._renderList();
@@ -297,7 +297,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
         let id: string;
         if (this._advMode) {
             try {
-                const newModel: DagNodeDatasetInput = this._convertAdvConfigToModel();
+                const newModel: DagNodeDatasetInputStruct = this._convertAdvConfigToModel();
                 prefix = newModel.prefix;
                 id = newModel.source;
             } catch (e) {
@@ -313,7 +313,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
             return;
         }
 
-        const oldParam: DagNodeDatasetInput = dagNode.getParam();
+        const oldParam: DagNodeDatasetInputStruct = dagNode.getParam();
         if (oldParam.source === id && oldParam.prefix === prefix) {
             // no change
             this.close(true);

@@ -15,7 +15,7 @@ class ProjectOpPanelModel {
 
     public static fromDagInput(
         colMap: Map<string, ProgCol>,
-        dagInput: DagNodeProjectInput
+        dagInput: DagNodeProjectInputStruct
     ) {
         const model = new ProjectOpPanelModel();
         model.columnMap = colMap;
@@ -57,7 +57,7 @@ class ProjectOpPanelModel {
         return model;
     }
 
-    public toDag(): DagNodeProjectInput {
+    public toDag(): DagNodeProjectInputStruct {
         const dagData = { columns: [] };
         for (const colInfo of this.derivedList) {
             if (colInfo.isSelected) {

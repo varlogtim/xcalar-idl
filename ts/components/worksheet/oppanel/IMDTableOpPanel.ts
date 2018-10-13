@@ -70,7 +70,7 @@ class IMDTableOpPanel extends BaseOpPanel {
     }
 
     private _convertAdvConfigToModel() {
-        let args: DagNodeIMDTableInput = <DagNodeIMDTableInput>JSON.parse(this._editor.getValue());
+        let args: DagNodeIMDTableInputStruct = <DagNodeIMDTableInputStruct>JSON.parse(this._editor.getValue());
         if (this._checkOpArgs(args)) {
             return args;
         }
@@ -83,12 +83,12 @@ class IMDTableOpPanel extends BaseOpPanel {
      */
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         if (toAdvancedMode) {
-            let param: DagNodeIMDTableInput = this._getParams();
+            let param: DagNodeIMDTableInputStruct = this._getParams();
             this._editor.setValue(JSON.stringify(param, null, 4));
             this._advMode = true;
         } else {
             try {
-                const newModel: DagNodeIMDTableInput = this._convertAdvConfigToModel();
+                const newModel: DagNodeIMDTableInputStruct = this._convertAdvConfigToModel();
                 if (newModel == null) {
                     return;
                 }
@@ -113,7 +113,7 @@ class IMDTableOpPanel extends BaseOpPanel {
         return columns;
     }
 
-    private _getParams(): DagNodeIMDTableInput {
+    private _getParams(): DagNodeIMDTableInputStruct {
         return {
             source: this._$pubTableInput.val(),
             version: this._$tableVersionInput.val(),
@@ -218,7 +218,7 @@ class IMDTableOpPanel extends BaseOpPanel {
         }
     }
 
-    private _restorePanel(input: DagNodeIMDTableInput): void {
+    private _restorePanel(input: DagNodeIMDTableInputStruct): void {
         this._$pubTableInput.val(input.source);
         this._$tableVersionInput.val(input.version);
         if (input.version != -1) {
@@ -242,7 +242,7 @@ class IMDTableOpPanel extends BaseOpPanel {
         $list.append(html);
     }
 
-    private _checkOpArgs(input: DagNodeIMDTableInput): boolean {
+    private _checkOpArgs(input: DagNodeIMDTableInputStruct): boolean {
         let $location: JQuery = null;
         let error: string = "";
         if (input == null) {
@@ -397,7 +397,7 @@ class IMDTableOpPanel extends BaseOpPanel {
 
 
     private _submitForm(dagNode: DagNodeIMDTable): void {
-        let params: DagNodeIMDTableInput = null;
+        let params: DagNodeIMDTableInputStruct = null;
         if (this._advMode) {
             try {
                 params = this._convertAdvConfigToModel();

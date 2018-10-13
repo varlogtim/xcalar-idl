@@ -89,7 +89,7 @@ class DagNodeExecutor {
 
     private _loadDataset(): XDPromise<string> {
         const node: DagNodeDataset = <DagNodeDataset>this.node;
-        const params: DagNodeDatasetInput = node.getParam();
+        const params: DagNodeDatasetInputStruct = node.getParam();
         const dsName: string = params.source;
         const prefix: string = params.prefix;
         const desTable = this._generateTableName();
@@ -99,7 +99,7 @@ class DagNodeExecutor {
     private _aggregate(): XDPromise<null> {
         const deferred: XDDeferred<null> = PromiseHelper.deferred();
         const node: DagNodeAggregate = <DagNodeAggregate>this.node;
-        const params: DagNodeAggregateInput = node.getParam();
+        const params: DagNodeAggregateInputStruct = node.getParam();
         const evalStr: string = params.evalString;
         const tableName: string = this._getParentNodeTable(0);
         let dstAggName: string = params.dest;
@@ -126,7 +126,7 @@ class DagNodeExecutor {
 
     private _filter(): XDPromise<string> {
         const node: DagNodeFilter = <DagNodeFilter>this.node;
-        const params: DagNodeFilterInput = node.getParam();
+        const params: DagNodeFilterInputStruct = node.getParam();
         const fltStr: string = params.evalString;
         const srcTable: string = this._getParentNodeTable(0);
         const desTable: string = this._generateTableName();
@@ -135,7 +135,7 @@ class DagNodeExecutor {
 
     private _groupby(): XDPromise<string> {
         const node: DagNodeGroupBy = <DagNodeGroupBy>this.node;
-        const params: DagNodeGroupByInput = node.getParam();
+        const params: DagNodeGroupByInputStruct = node.getParam();
         const srcTable: string = this._getParentNodeTable(0);
         const aggArgs: AggColInfo[] = params.aggregate.map((aggInfo) => {
             return {
@@ -157,7 +157,7 @@ class DagNodeExecutor {
 
     private _join(): XDPromise<string> {
         const node: DagNodeJoin = <DagNodeJoin>this.node;
-        const params: DagNodeJoinInput = node.getParam();
+        const params: DagNodeJoinInputStruct = node.getParam();
         // convert joinType
         let joinType: JoinType = null;
         for (let key in JoinOperatorT) {
@@ -202,7 +202,7 @@ class DagNodeExecutor {
 
     private _map(): XDPromise<string> {
         const node: DagNodeMap = <DagNodeMap>this.node;
-        const params: DagNodeMapInput = node.getParam();
+        const params: DagNodeMapInputStruct = node.getParam();
         const mapStrs: string[] = [];
         const newFields: string[] = [];
 
@@ -220,7 +220,7 @@ class DagNodeExecutor {
     private _split(): XDPromise<string> {
         const {
             source: colToSplit, delimiter, dest: toCols
-        } = <DagNodeSplitInput>this.node.getParam();
+        } = <DagNodeSplitInputStruct>this.node.getParam();
         const delimStr = delimiter.replace(/\"/g, '\\"');
         const srcTable = this._getParentNodeTable(0);
         const destTable = this._generateTableName();
@@ -241,7 +241,7 @@ class DagNodeExecutor {
 
     private _project(): XDPromise<string> {
         const node: DagNodeProject = <DagNodeProject>this.node;
-        const params: DagNodeProjectInput = node.getParam();
+        const params: DagNodeProjectInputStruct = node.getParam();
         const srcTable: string = this._getParentNodeTable(0);
         const destTable: string = this._generateTableName();
         return XIApi.project(this.txId, params.columns, srcTable, destTable);
@@ -249,7 +249,7 @@ class DagNodeExecutor {
 
     private _set(): XDPromise<string> {
         const node: DagNodeSet = <DagNodeSet>this.node;
-        const params: DagNodeSetInput = node.getParam();
+        const params: DagNodeSetInputStruct = node.getParam();
         const unionType: UnionOperatorT = this._getUnionType(params.unionType);
         const desTable: string = this._generateTableName();
         const tableInfos: UnionTableInfo[] = params.columns.map((colInfo, index) => {
@@ -323,7 +323,7 @@ class DagNodeExecutor {
     private _export(): XDPromise<null> {
         const deferred: XDDeferred<null> = PromiseHelper.deferred();
         const node: DagNodeExport = <DagNodeExport>this.node;
-        const exportInput: DagNodeExportInput = node.getParam();
+        const exportInput: DagNodeExportInputStruct = node.getParam();
         const columns: string[] = exportInput.columns;
         const progCols: ProgCol[] = node.getParents()[0].getLineage().getColumns();
         const backCols: string[] = columns.map((name) => {
@@ -389,7 +389,7 @@ class DagNodeExecutor {
 
     private _publishIMD(): XDPromise<string> {
         const node: DagNodePublishIMD = <DagNodePublishIMD>this.node;
-        const params: DagNodePublishIMDInput = node.getParam();
+        const params: DagNodePublishIMDInputStruct = node.getParam();
         //XXX TODO: Integrate with new XIAPI.publishTable
         const deferred: XDDeferred<null> = PromiseHelper.deferred();
         let columns: ProgCol[] = node.getParents().map((parentNode) => {
@@ -405,7 +405,7 @@ class DagNodeExecutor {
         try {
             const deferred: XDDeferred<string> = PromiseHelper.deferred();
             const node: DagNodeExtension = <DagNodeExtension>this.node;
-            const params: DagNodeExtensionInput = node.getConvertedParam();
+            const params: DagNodeExtensionInputStruct = node.getConvertedParam();
             let finaTable: string;
             ExtensionManager.triggerFromDF(params.moduleName, params.functName, params.args)
             .then((resTable, query) => {
@@ -427,7 +427,7 @@ class DagNodeExecutor {
     private _IMDTable(): XDPromise<string> {
         const self = this;
         const node: DagNodeIMDTable = <DagNodeIMDTable>this.node;
-        const params: DagNodeIMDTableInput = node.getParam();
+        const params: DagNodeIMDTableInputStruct = node.getParam();
         //XXX TODO: Integrate with new XIAPI.publishTable
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const newTableName = this._generateTableName();

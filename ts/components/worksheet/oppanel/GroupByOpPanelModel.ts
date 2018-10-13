@@ -120,7 +120,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
      * Submit the settings of Set op node params
      */
     public submit(): void {
-        const param: DagNodeGroupByInput = this._getParam();
+        const param: DagNodeGroupByInputStruct = this._getParam();
         this.dagNode.setParam(param);
     }
 
@@ -205,7 +205,7 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
         }
     }
 
-    protected _getParam(): DagNodeGroupByInput {
+    protected _getParam(): DagNodeGroupByInputStruct {
         const self = this;
         const aggregates = [];
         this.groups.forEach(group => {

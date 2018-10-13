@@ -6,26 +6,18 @@ class DagNodeProject extends DagNode {
         this.type = DagNodeType.Project;
         this.minParents = 1;
         this.display.icon = "&#xe9d7;";
-    }
-
-    /**
-     * @returns {DagNodeProjectInput} Project node parameters
-     */
-    public getParam(): DagNodeProjectInput {
-        return {
-            columns: this.input.columns || [""]
-        };
+        this.input = new DagNodeProjectInput(options.input);
     }
 
     /**
      * Set project node's parameters
-     * @param input {DagNodeProjectInput}
+     * @param input {DagNodeProjectInputStruct}
      * @param input.columns {string[]} An array of column names to project
      */
-    public setParam(input: DagNodeProjectInput = <DagNodeProjectInput>{}) {
-        this.input = {
+    public setParam(input: DagNodeProjectInputStruct = <DagNodeProjectInputStruct>{}) {
+        this.input.setInput({
             columns: input.columns
-        }
+        });
         super.setParam();
     }
 
@@ -35,7 +27,7 @@ class DagNodeProject extends DagNode {
         const prefixSet: Set<string> = new Set();
         const derivedSet: Set<string> = new Set();
 
-        this.input.columns.forEach((colName) => {
+        this.input.getInput().columns.forEach((colName) => {
             const parsed: PrefixColInfo = xcHelper.parsePrefixColName(colName);
             if (parsed.prefix) {
                 prefixSet.add(parsed.prefix);
@@ -68,10 +60,11 @@ class DagNodeProject extends DagNode {
     }
 
     public applyColumnMapping(renameMap): void {
+        const input = this.input.getInput();
         try {
-            this.input.columns.forEach((columnName, i) => {
+            input.columns.forEach((columnName, i) => {
                 if (renameMap.columns[columnName]) {
-                    this.input.columns[i] = renameMap.columns[columnName];
+                    input.columns[i] = renameMap.columns[columnName];
                 }
             });
         } catch(err) {

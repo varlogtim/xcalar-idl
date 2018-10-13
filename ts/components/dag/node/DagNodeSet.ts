@@ -7,51 +7,31 @@ class DagNodeSet extends DagNode {
         this.maxParents = -1;
         this.minParents = 1;
         this.display.icon = "&#xea2d;";
-    }
-
-    /**
-     * @returns {DagNodeSetInput} Set(union/except/intersect) node parameters
-     */
-    public getParam(): DagNodeSetInput {
-        let columns = this.input.columns;
-        if (columns == null) {
-            columns = this.getParents().map(() => {
-                return [{
-                    sourceColumn: "",
-                    destColumn: "",
-                    columnType: ColumnType.string,
-                    cast: false
-                }]
-            });
-        }
-        return {
-            unionType: this.input.unionType || UnionType.Union,
-            columns: this.input.columns || columns,
-            dedup: this.input.dedup || false
-        };
+        this.input = new DagNodeSetInput(options.input, this);
     }
 
     /**
      * Set set(union/except/intersect) node's parameters
-     * @param input {DagNodeSetInput}
+     * @param input {DagNodeSetInputStruct}
      * @param input.unionType {string} Join't type
      * @param input.columns tables' column infos
      * @param input.dedup {boolean} Remove deduplicate rows or not
      */
-    public setParam(input: DagNodeSetInput = <DagNodeSetInput>{}) {
-        this.input = {
+    public setParam(input: DagNodeSetInputStruct = <DagNodeSetInputStruct>{}) {
+        this.input.setInput({
             unionType: input.unionType,
             columns: input.columns,
             dedup: input.dedup
-        }
+        });
         super.setParam();
     }
 
     public lineageChange(_columns: ProgCol[]): DagLineageChange {
         const changes: {from: ProgCol, to: ProgCol}[] = [];
         let finalCols: ProgCol[] = [];
-        if (this.input.columns && this.input.columns.length > 0) {
-            finalCols = this.input.columns[0].map((colInfo) => {
+        const input = this.input.getInput();
+        if (input.columns && input.columns.length > 0) {
+            finalCols = input.columns[0].map((colInfo) => {
                 const colName: string = colInfo.destColumn;
                 const colType: ColumnType = colInfo.columnType;
                 if (xcHelper.parsePrefixColName(colName).prefix) {
@@ -61,7 +41,7 @@ class DagNodeSet extends DagNode {
             });
 
             const parents: DagNode[] = this.getParents();
-            this.input.columns.forEach((colLists, i) => {
+            input.columns.forEach((colLists, i) => {
                 const colMap: Map<string, ProgCol> = new Map();
                 parents[i].getLineage().getColumns().forEach((prgoCol) => {
                     colMap.set(prgoCol.getBackColName(), prgoCol);
@@ -93,11 +73,12 @@ class DagNodeSet extends DagNode {
 
     public applyColumnMapping(renameMap, index): void {
         const newRenameMap = xcHelper.deepCopy(renameMap);
+        const input = this.input.getInput();
         try {
-            this.input.columns[index].forEach((columnInfo, i) => {
+            input.columns[index].forEach((columnInfo, i) => {
                 if (renameMap.columns[columnInfo.sourceColumn]) {
                     const prevColName = columnInfo.sourceColumn
-                    this.input.columns[index][i].sourceColumn =
+                    input.columns[index][i].sourceColumn =
                                 renameMap.columns[prevColName];
                     delete newRenameMap.columns[prevColName];
                 }

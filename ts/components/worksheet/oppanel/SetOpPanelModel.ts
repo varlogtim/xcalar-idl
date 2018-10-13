@@ -10,7 +10,7 @@ class SetOpPanelModel {
     public constructor(dagNode: DagNodeSet, event: Function) {
         this.dagNode = dagNode;
         this.event = event;
-        const params: DagNodeSetInput = this.dagNode.getParam();
+        const params: DagNodeSetInputStruct = this.dagNode.getParam();
         this._initialize(params);
         // It's a sub-category of Set, if the subType is provided
         // So we overwrite the unionType according to subType,
@@ -121,7 +121,7 @@ class SetOpPanelModel {
      * Submit the settings of Set op node params
      */
     public submit(): void {
-        const param: DagNodeSetInput = this._getParam();
+        const param: DagNodeSetInputStruct = this._getParam();
         this.dagNode.setParam(param);
     }
 
@@ -130,13 +130,13 @@ class SetOpPanelModel {
         editor: CodeMirror.EditorFromTextArea
     ): {error: string} {
         if (toAdvancedMode) {
-            const param: DagNodeSetInput = this._getAdvFormParam();
+            const param: DagNodeSetInputStruct = this._getAdvFormParam();
             const paramStr = JSON.stringify(param, null, 4);
             this._cachedBasicModeParam = paramStr;
             editor.setValue(paramStr);
         } else {
             try {
-                const param: DagNodeSetInput = <DagNodeSetInput>JSON.parse(editor.getValue());
+                const param: DagNodeSetInputStruct = <DagNodeSetInputStruct>JSON.parse(editor.getValue());
                 this._initialize(param, true);
                 this._update();
             } catch (e) {
@@ -166,7 +166,7 @@ class SetOpPanelModel {
         this.colModel.refreshColumns(allCols, removedSets);
     }
 
-    private _initialize(params: DagNodeSetInput, isFromAdvForm: boolean = false) {
+    private _initialize(params: DagNodeSetInputStruct, isFromAdvForm: boolean = false) {
         this.dedup = params.dedup;
         if (!isFromAdvForm) {
             this.unionType = params.unionType;
@@ -182,7 +182,7 @@ class SetOpPanelModel {
         }
     }
 
-    private _getParam(): DagNodeSetInput {
+    private _getParam(): DagNodeSetInputStruct {
         return {
             unionType: this.unionType,
             dedup: this.dedup,

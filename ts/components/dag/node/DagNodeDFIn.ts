@@ -5,20 +5,14 @@ class DagNodeDFIn extends DagNodeIn {
         super(options);
         this.type = DagNodeType.DFIn;
         this.display.icon = "&#xe952;"; // XXX TODO: UI design
+        this.input = new DagNodeDFInInput(options.input);
     }
 
-    public getParam(): DagNodeDFInInput {
-        return {
-            dataflowId: this.input.dataflowId || "",
-            linkOutName: this.input.linkOutName || ""
-        };
-    }
-
-    public setParam(input: DagNodeDFInInput = <DagNodeDFInInput>{}): void {
-        this.input = {
+    public setParam(input: DagNodeDFInInputStruct = <DagNodeDFInInputStruct>{}): void {
+        this.input.setInput({
             dataflowId: input.dataflowId,
             linkOutName: input.linkOutName,
-        };
+        });
         super.setParam();
     }
 
@@ -26,7 +20,7 @@ class DagNodeDFIn extends DagNodeIn {
     // our design to make DagNode in low level. Should use
     // other ways to do it (for example, the Angluar JS service way)
     public getLinedNodeAndGraph(): {graph: DagGraph, node: DagNodeDFOut} {
-        const param: DagNodeDFInInput = this.getParam();
+        const param: DagNodeDFInInputStruct = this.input.getInput();
         const dataflowId: string = param.dataflowId;
         const linkOutName: string = param.linkOutName;
         const dagTab: DagTab = DagTabManager.Instance.getTabById(dataflowId);

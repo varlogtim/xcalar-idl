@@ -1,7 +1,5 @@
 class DagNodeSplit extends DagNode {
-    protected input: DagNodeSplitInput = {
-        source: '', delimiter: '', dest: []
-    };
+    protected input: DagNodeSplitInput;
 
     public constructor(options: DagNodeInfo) {
         super(options);
@@ -11,30 +9,17 @@ class DagNodeSplit extends DagNode {
         this.display.icon = "&#xe9da;"
     }
 
-    public getParam(): DagNodeSplitInput {
-        // return {
-        //     source: 'test::MonthDayYear',
-        //     delimiter: '/',
-        //     dest: ['month','day','year']
-        // };
-        return {
-            source: this.input.source || "",
-            delimiter: this.input.delimiter || "",
-            dest: this.input.dest.map((v) => v)
-        };
-    }
-
-    public setParam(param: DagNodeSplitInput): void {
+    public setParam(param: DagNodeSplitInputStruct): void {
         const parentNodes = this.getParents();
         const allCols = (parentNodes == null || parentNodes.length === 0)
             ? []
             : parentNodes[0].getLineage().getColumns().map((col)=>col.getBackColName());
 
-        this.input = {
+        this.input.setInput({
             source: param.source || '',
             delimiter: param.delimiter || '',
             dest: this._getColumnNames(param.source, allCols, param.dest)
-        }
+        });
         super.setParam();
     }
 
@@ -47,7 +32,7 @@ class DagNodeSplit extends DagNode {
                 col.getType()));
         }
         const newCols: ProgCol[] = [];
-        for (const colName of this.getParam().dest) {
+        for (const colName of this.input.getInput().dest) {
             const col = ColManager.newPullCol(colName, colName, ColumnType.string);
             resultCols.push(col);
             newCols.push(col);

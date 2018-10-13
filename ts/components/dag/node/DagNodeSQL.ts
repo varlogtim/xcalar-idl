@@ -11,23 +11,14 @@ class DagNodeSQL extends DagNode {
     }
 
     /**
-     * @returns {DagNodeSQLInput} Sql node parameters
-     */
-    public getParam(): DagNodeSQLInput {
-        return {
-            evalString: this.input.evalString || ""
-        };
-    }
-
-    /**
      * Set sql node's parameters
-     * @param input {DagNodeSQLInput}
+     * @param input {DagNodeProjectSQLStruct}
      * @param input.evalString {string}
      */
     public setParam(input: DagNodeSQLInput = <DagNodeSQLInput>{}) {
-        this.input = {
+        this.input.setInput({
             evalString: input.evalString
-        }
+        });
         super.setParam();
     }
 

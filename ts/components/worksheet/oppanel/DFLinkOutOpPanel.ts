@@ -56,7 +56,7 @@ class DFLinkOutOpPanel extends BaseOpPanel {
     }
 
     private _submitForm(): void {
-        const args: DagNodeDFOutInput = this._validate();
+        const args: DagNodeDFOutInputStruct = this._validate();
         if (args == null) {
             // invalid case
             return;
@@ -65,7 +65,7 @@ class DFLinkOutOpPanel extends BaseOpPanel {
         this.close(true);
     }
 
-    private _validate(): DagNodeDFOutInput {
+    private _validate(): DagNodeDFOutInputStruct {
         const $input: JQuery = this._getLinkOutNameInput();
         const name: string = $input.val().trim();
         const isValid: boolean = xcHelper.validate([{
