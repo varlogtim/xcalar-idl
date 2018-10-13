@@ -1340,6 +1340,7 @@
             var oldKVcommit;
             var dropAsYouGo = jdbcOption ? jdbcOption.dropAsYouGo : false;
             var keepOri = jdbcOption ? jdbcOption.keepOri : true;
+            var randomCrossJoin = jdbcOption ? jdbcOption.randomCrossJoin : false;
             if (typeof KVStore !== "undefined") {
                 oldKVcommit = KVStore.commit;
                 KVStore.commit = function(atStartUp) {
@@ -1468,6 +1469,9 @@
                 return deferred.promise();
             })
             .then(function(queryString, newTableName, newCols) {
+                if (randomCrossJoin) {
+                    queryString = self.addIndexForCrossJoin(queryString);
+                }
                 if (dropAsYouGo) {
                     return self.addDrops(queryString, keepOri)
                     .then(function(newQueryString) {
@@ -1621,6 +1625,59 @@
             })
             .fail(deferred.reject);
             return deferred.promise();
+        },
+        addIndexForCrossJoin: function(queryString) {
+            var outCli = "";
+            var jsonObj;
+            var indexMap = {};
+            try {
+                jsonObj = JSON.parse(queryString);
+            } catch (e) {
+                if (typeof SQLEditor !== "undefined") {
+                    SQLEditor.throwError(e);
+                }
+                throw e;
+            }
+            for (var i = 0; i < jsonObj.length; i++) {
+                var curCliNode = jsonObj[i];
+                if (curCliNode.operation === "XcalarApiJoin"
+                    && curCliNode.args.joinType === "crossJoin") {
+                    for (var j = 0; j < curCliNode.args.source.length; j++) {
+                        if (indexMap[curCliNode.args.source[j]]) {
+                            curCliNode.args.source[j] = indexMap[curCliNode.args.source[j]];
+                        } else {
+                            // TODO: generate an object for index
+                            var tableName = curCliNode.args.source[j];
+                            var newTableName = xcHelper.getTableName(tableName)
+                                        + "_index" + Authentication.getHashId();
+                            indexMap[tableName] = newTableName;
+                            curCliNode.args.source[j] = newTableName;
+                            var indexObj = {
+                                "operation": "XcalarApiIndex",
+                                "args": {
+                                    "source": tableName,
+                                    "dest": newTableName,
+                                    "key": [
+                                        {
+                                            "name": "xcalarRecordNum",
+                                            "keyFieldName": "xcalarRecordNum",
+                                            "type": "DfInt64",
+                                            "ordering": "Unordered"
+                                        }
+                                    ],
+                                    "prefix": "",
+                                    "dhtName": "systemRandomDht",
+                                    "delaySort": false,
+                                    "broadcast": false
+                                }
+                            };
+                            outCli += JSON.stringify(indexObj) + ",";
+                        }
+                    }
+                }
+                outCli += JSON.stringify(curCliNode) + ",";
+            }
+            return "[" + outCli.substring(0, outCli.length - 1) + "]";
         },
         _pushDownIgnore: function(node) {
             assert(node.children.length === 1,
