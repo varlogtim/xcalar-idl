@@ -861,6 +861,7 @@ module.exports = {
 
     "dataflow": {
         "MyDF": "My Dataflows",
+        "CreateDF": "Create new dataflow",
         "SharedDF": "Shared Dataflows",
         "SHAREDF": "SHARE DATAFLOW",
         "ShareDF": "Share Dataflow",

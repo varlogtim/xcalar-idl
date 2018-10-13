@@ -155,7 +155,6 @@ class DagList {
      * @returns {JQueryPromise<{}>}
      */
     public deleteDataflow($dagListItem: JQuery): JQueryPromise<{}> {
-        // TODO: Add confirm delete UX
         const dagTab: DagTab = this._getDagTabFromListItem($dagListItem);
         if (dagTab == null) {
             return PromiseHelper.reject();
@@ -194,12 +193,12 @@ class DagList {
         $dagListSection.find(".dagListDetail").removeClass("active");
         let index: number = this._userDags.findIndex((dag) => dag.getId() == id);
         if (index > 0) {
-            $dagListSection.find(".dagListDetail.user").eq(index).addClass("active");
+            $dagListSection.find(".dagListDetails.user .dagListDetail").eq(index).addClass("active");
             return;
         }
         index = this._sharedDags.findIndex((dag) => dag.getId() == id);
         if (index > 0) {
-            $dagListSection.find(".dagListDetail.shared").eq(index).addClass("active");
+            $dagListSection.find(".dagListDetails.shared .dagListDetail").eq(index).addClass("active");
             return;
         }
     }
@@ -365,15 +364,6 @@ class DagList {
         const $section: JQuery = this._getDagListSection();
         $section.find(".user .listInfo .num").text(this._userDags.length);
         $section.find(".shared .listInfo .num").text(this._sharedDags.length);
-
-        const $deleteBtns: JQuery = this._getDagListSection().find(".dagListDetails.user")
-        .find(".deleteDataflow");
-        if (this._userDags.length != 1) {
-            $deleteBtns.removeClass('xc-hidden');
-        } else if (this._userDags.length == 1) {
-            // This happens if a workbook is new.
-            $deleteBtns.addClass('xc-hidden');
-        }
     }
 
     private _getDagListSection(): JQuery {

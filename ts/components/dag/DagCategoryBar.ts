@@ -357,7 +357,10 @@ class DagCategoryBar {
             if (event.which !== 1) {
                 return;
             }
-
+            const activeDag: DagGraph = DagView.getActiveDag();
+            if (activeDag == null) {
+                return;
+            }
             const $operator = $(this).closest(".operator");
             new DragHelper({
                 event: event,
@@ -365,7 +368,7 @@ class DagCategoryBar {
                 $container: self.$dagView,
                 $dropTarget: self.$dagView.find(".dataflowArea.active .dataflowAreaWrapper"),
                 round: DagView.gridSpacing,
-                scale: DagView.getActiveDag().getScale(),
+                scale: activeDag.getScale(),
                 onDragEnd: function(_$newNode, _event, data) {
                     const newNodeInfo: DagNodeInfo = self._getOperatorInfo(
                         $operator.data('opid')

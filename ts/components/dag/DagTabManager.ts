@@ -101,8 +101,6 @@ class DagTabManager{
             // Register the new tab in DagTabManager
             if (this._addSubTab(parentTabId, tabId)) {
                 this._addDagTab(newTab);
-                // Show the tab in DOM(UI)
-                this._addTabHTML({ name: validatedName, isEditable: false });
                 // Switch to the tab(UI)
                 this._switchTabs();
             }
@@ -181,7 +179,6 @@ class DagTabManager{
         dagTab.load()
         .then(() => {
             this._addDagTab(dagTab);
-            this._addTabHTML({name: dagTab.getName()});
             this._switchTabs();
             this._save();
             deferred.resolve();
@@ -219,7 +216,7 @@ class DagTabManager{
     public reset(): void {
         this._getDataflowArea().remove();
         this._getTabsEle().remove();
-        this._newTab();
+        DagView.resetActiveDagTab();
     }
 
     private _save(): XDPromise<void> {
@@ -263,7 +260,7 @@ class DagTabManager{
         return deferred.promise();
     }
 
-    private _loadUserDagTab(id: string): XDPromise<void> {
+    private _loadDagTabHelper(id: string): XDPromise<void> {
         const dagTab: DagTab = DagList.Instance.getDagTabById(id);
         if (dagTab == null) {
             return PromiseHelper.reject();
@@ -273,7 +270,6 @@ class DagTabManager{
         dagTab.load()
         .then(()=> {
             this._addDagTab(dagTab);
-            this._addTabHTML({ name: dagTab.getName() });
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -283,7 +279,7 @@ class DagTabManager{
     //loadDagTabs handles loading dag tabs from prior sessions.
     private _loadDagTabs(dagTabIds: string[]): void {
         let promises = dagTabIds.map((id) => {
-            return this._loadUserDagTab.bind(this, id);
+            return this._loadDagTabHelper.bind(this, id);
         });
         //Use a chain to ensure all are run sequentially.
         PromiseHelper.chain(promises)
@@ -336,9 +332,8 @@ class DagTabManager{
             return null;
         }
         newDagTab.save();
-        this._activeUserDags.push(newDagTab);
+        this._addDagTab(newDagTab);
         this._save();
-        this._addTabHTML({name: name});
         this._switchTabs();
         DagView.newGraph();
         return newDagTab;
@@ -360,11 +355,7 @@ class DagTabManager{
     // Deletes the tab represented by $tab
     private _deleteTab(index: number): boolean {
         const dagTab: DagTab = this.getTabByIndex(index);
-        // XXX TODO: allow delete even it's the only one
-        if (this.getNumTabs() == 1 ||
-            dagTab == null ||
-            dagTab.getGraph().isLocked()
-        ) {
+        if (dagTab == null || dagTab.getGraph().isLocked()) {
             return false;
         }
 
@@ -395,7 +386,12 @@ class DagTabManager{
         this._save();
         $tab.remove();
         this._getDataflowArea(index).remove();
-        this._updateDeletButton();
+        if (this.getNumTabs() > 0) {
+            this._updateTabsText();
+        } else {
+            this.reset();
+        }
+
         return true;
     }
 
@@ -461,19 +457,18 @@ class DagTabManager{
             index = this.getNumTabs();
         }
         this._activeUserDags.splice(index, 0, dagTab);
+        this._addTabHTML(dagTab);
+        this._updateTabsText();
     }
-
 
     /**
      * handles the jquery logic of adding a tab and its dataflow area
      * @param name Name of the tab we want to add
      * @param {number} [tabIndex] Optional tab index
      */
-    private _addTabHTML(options: {
-        name: string, tabIndex?: number, isEditable?: boolean
-    }): void {
-        const { name, tabIndex, isEditable = true } = options;
-        const tabName = xcHelper.escapeHTMLSpecialChar(name);
+    private _addTabHTML(dagTab: DagTab, tabIndex?: number): void {
+        const tabName = xcHelper.escapeHTMLSpecialChar(dagTab.getName());
+        const isEditable = !(dagTab instanceof DagTabCustom);
         let html = '<li class="dagTab"><div class="name ' + (isEditable? '': 'nonedit') + '">' + tabName +
                     '</div><div class="after"><i class="icon xi-close-no-circle"></i></div></li>';
         this._getTabArea().append(html);
@@ -486,7 +481,6 @@ class DagTabManager{
                 </div>\
             </div>'
         );
-        this._updateDeletButton();
         if (tabIndex != null) {
             // Put the tab and area where they should be
             const numTabs: number = this.getNumTabs();
@@ -497,14 +491,32 @@ class DagTabManager{
         }
     }
 
-    private _updateDeletButton(): void {
+    // display the tab name like file editor
+    // specifically for shared df tabs,  if no name dup, show short name
+    // otherwise, show the whole name
+    private _updateTabsText(): void {
         const $tabs: JQuery = this._getTabsEle();
-        if (this.getNumTabs() > 1) {
-            $tabs.find(".after").removeClass("xc-hidden")
-        } else {
-            $tabs.find(".after").addClass("xc-hidden")
-        }
+        const set: Set<string> = new Set();
+        const sharedTabs: Array<[DagTabShared, JQuery]> = [];
+        this.getTabs().forEach((dagTab, index) => {
+            const $tab: JQuery = $tabs.eq(index);
+            if (dagTab instanceof DagTabShared) {
+                sharedTabs.push([dagTab, $tab]);
+            } else {
+                set.add(dagTab.getName());
+            }
+        });
+
+        sharedTabs.forEach(([dagTab, $tab]) => {
+            let name: string = dagTab.getShortName();
+            if (set.has(name)) {
+                name = dagTab.getName();
+            }
+            $tab.find(".name").text(name);
+            set.add(name);
+        });
     }
+
 
     private _getDataflowArea(index?: number): JQuery {
         const $area: JQuery = $("#dagView .dataflowArea");
@@ -588,6 +600,7 @@ class DagTabManager{
                 const dagTab: DagTab = this.getTabByIndex(index);
                 dagTab.setName(newName);
                 DagList.Instance.changeName(newName, dagTab.getId());
+                this._updateTabsText();
             } else {
                 // Reset name if it already exists
                 newName = this._editingName;

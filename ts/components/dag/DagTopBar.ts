@@ -25,11 +25,13 @@ class DagTopBar {
     }
 
     public setState(dagTab: DagTab): void {
+        const $btns: JQuery = this.$topBar.find(".topButtons");
         if (dagTab == null) {
+            $btns.hide();
             return;
         }
 
-        const $btns: JQuery = this.$topBar.find(".topButtons");
+        $btns.show();
         if (dagTab instanceof DagTabUser) {
             $btns.find(".share").removeClass("xc-disabled");
         } else {

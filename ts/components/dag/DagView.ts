@@ -93,8 +93,11 @@ namespace DagView {
         });
 
         $(document).on("keydown.dataflowPanel", function(e: JQueryEventObject) {
-            if (activeDag.isLocked() || $("#container").hasClass("formOpen") ||
-                $("input:focus").length || $("textarea:focus").length) {
+            if (activeDag == null ||
+                activeDag.isLocked() ||
+                $("#container").hasClass("formOpen") ||
+                $("input:focus").length || $("textarea:focus").length
+            ) {
                 return;
             }
             switch (e.which) {
@@ -155,6 +158,7 @@ namespace DagView {
     }
 
     /**
+     * DagView.switchActiveDagTab
      * Switches the current active tab, updating activeDag and activeDagTab
      * @param dagTab The tab we want to make active.
      */
@@ -162,6 +166,29 @@ namespace DagView {
         activeDagTab = dagTab;
         activeDag = dagTab.getGraph();
         DagView.reactivate();
+        updateDagView();
+    }
+
+    /**
+     * DagView.resetActiveDagTab
+     */
+    export function resetActiveDagTab(): void {
+        activeDagTab = null;
+        activeDag = null;
+        updateDagView();
+    }
+
+    function updateDagView(): void {
+        const $dfWrapBg: JQuery = $dagView.find(".dataflowWrapBackground");
+        if (activeDagTab == null) {
+            $dfWrap.addClass("xc-hidden");
+            $dfWrapBg.removeClass("xc-hidden");
+            $dagView.find(".searchArea, .categoryWrap, .operatorWrap").addClass("xc-disabled");
+        } else {
+            $dfWrap.removeClass("xc-hidden");
+            $dfWrapBg.addClass("xc-hidden");
+            $dagView.find(".searchArea, .categoryWrap, .operatorWrap").removeClass("xc-disabled");
+        }
         DagTopBar.Instance.setState(activeDagTab);
     }
 
@@ -1442,6 +1469,9 @@ namespace DagView {
 
 
     function _addEventListeners(): void {
+        $dagView.find(".dataflowWrapBackground").on("click", ".newTab", () => {
+            DagTabManager.Instance.newTab();
+        });
 
         // moving node in dataflow area to another position
         $dfWrap.on("mousedown", ".operator .main, .comment", function(event) {
@@ -1799,7 +1829,7 @@ namespace DagView {
         let $dfArea;
         let $els;
         $dfWrap.on("mousedown", function(event) {
-            if (event.which !== 1) {
+            if (event.which !== 1 || activeDagTab == null) {
                 return;
             }
             let $target = $(event.target);

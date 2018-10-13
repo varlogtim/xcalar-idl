@@ -498,13 +498,31 @@
         background-color: @color-bg-white-eight;
     }
 
-    .dataflowWrap {
+    .dataflowWrapBackground, .dataflowWrap {
         .flex(1 1 auto);
         .flex-display;
         background-color: @color-white;
         position: relative;
         overflow: auto;
+    }
 
+    .dataflowWrapBackground {
+        height: 1px; // weird to have it, but without it vertial align not work
+
+        .newTab {
+            color: @color-bg-softBlue;
+            .size(@width: 100%, @height: 30px);
+            text-align: center;
+            .vertical-align;
+            cursor: pointer;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    .dataflowWrap {
         .dataflowArea {
             min-height: 100%;
             min-width: 100%;
