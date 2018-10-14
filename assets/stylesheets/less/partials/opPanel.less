@@ -2020,91 +2020,40 @@
             flex-direction: column;
         }
         #datasetOpBrowser {
-            display: flex;
-            flex-direction: column;
-
             .pathSection {
+                border-top: 1px solid @color-bg-topBarGray2;
                 padding-left: 10px;
                 padding-bottom: 5px;
                 padding-top: 8px;
                 min-height: 38px;
-                display: flex;
-                border-top: 1px solid @color-bg-topBarGray2;
-            }
 
-            .pathWrap {
-                .textOverflowOneLine;
-                flex: 1 1 auto;
-                display: flex;
-                font-size: 12px;
-                .rootPath {
-                    font-weight: 700;
-                }
                 .path {
-                    .textOverflowOneLine;
                     color: @color-font-edge;
                 }
             }
 
-            .iconSection {
-                flex: 0 0 auto;
-                padding-left: 5px;
-                .icon {
-                    width: 24px;
-                    height: 24px;
-                    &.backFolderBtn, &.forwardFolderBtn {
-                        margin-left: 5px;
-                        margin-top: 2px;
-                        float: left;
-                    }
-                    &:hover {
-                        opacity: @opacity-unhover;
-                    }
-                }
-            }
-
-            .datasetListDiv {
-                max-height: ~"calc(100% - 31px)"; // 100% - pathSection height
-                overflow-y: auto;
+            .listView {
                 border-top: 1px solid @color-bg-topBarGray2;
                 border-bottom: 1px solid @color-bg-topBarGray2;
 
                 &::-webkit-scrollbar-track {
                     background: rgba(0, 0, 0, 0);
                 }
-                #dsOpListSection {
-                    width: 100%;
-                    display: block;
+
+                ul {
                     .noSelection;
                     color: @color-font-edge;
-                    .li {
-                        height: 35px;
-                        width: 100%;
-                        line-height: 35px;
-                        border-top: 1px solid @color-bg-topBarGray2;
-                        border-bottom: 1px solid @color-bg-topBarGray2;
-                        margin-top: -1px;
-                        font-size: 11px;
-                        font-weight: normal;
-                        float: left;
-                        position: relative;
-                       .textOverflowOneLine;
-                        padding: 0 10px;
-                        cursor: pointer;
 
+                    li {
+                        border-top: 1px solid @color-bg-topBarGray2;
+                        border-bottom: 1px solid @color-bg-topBarGray2;  
+                    
                         .name {
                             width: ~"calc(100% - 10px - 30px - 20px)"; // 100% - padding - icon widths - icon margins
-                            overflow: hidden;
-                            text-overflow: ellipsis;
-                            margin-bottom: 5px;
-                            float: left;
                         }
-
+                        
                         .icon {
-                            margin-right: 10px;
-                            margin-top: 10px;
                             font-size: 15px;
-                            float: left;
 
                             &.viewTable {
                                 float: right;
@@ -2119,7 +2068,7 @@
                                 border-top: 1px solid @color-border-softGray;
                             }
                         }
-
+        
                         &.active {
                             font-weight: bold;
                             background-color: @color-bg-list-selected-blue;
@@ -2129,6 +2078,7 @@
                                 border-top: 1px solid @color-border-softGray;
                             }
                         }
+
                         &:first-child {
                             border-top: none !important;
                         }
@@ -2138,6 +2088,7 @@
                     }
                 }
             }
+            
         }
 
         .datasetPrefix {

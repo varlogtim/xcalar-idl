@@ -310,14 +310,9 @@ interface OpStatsOutput {
     opDetails: OpStatsDetails;
 }
 
-interface DatasetBrowseItem {
-    name: string;
-    id: string;
-}
-
-interface DatasetBrowseFolder{
+interface FileListerFolder{
     folders: {}; // to contain multitudes of folders
-    datasets: DatasetBrowseItem[];
+    files: {name: string, id: string}[];
 }
 
 interface ListDSInfo {

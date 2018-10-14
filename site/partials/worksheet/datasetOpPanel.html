@@ -11,46 +11,24 @@
       <p class="mainInstructions instrText"><%= dicts.datasetOp.datasetInstr %></p>
       <!-- Dataset View Top Section-->
       <section class="modalTopMain">
-        <div class="dataSource formRow">
-          <div class="subHeading clearfix">
-            <div class="label"><%= dicts.datasetOp.source %>:</div>
-          </div>
-          <p class="instrText"><%= dicts.datasetOp.sourceInstr %></p>
-          <div id="datasetOpBrowser" class="mainSection">
-
-              <!-- path -->
-              <div class="pathSection">
-                <div class="pathWrap">
-                  <div class="rootPath">Home/</div>
-                  <div class="path"></div>
-                </div>
-                <div class="iconSection">
-                    <i class="backFolderBtn xc-action xc-disabled icon xi-previous2 fa-12"
-                      title="<%= dicts.dsView.Back %>" data-container="body"
-                      data-toggle="tooltip" data-placement="top">
-                    </i>
-                    <i class="forwardFolderBtn xc-action xc-disabled icon xi-next2 fa-12"
-                      title="<%= dicts.dsView.Forward %>" data-container="body"
-                      data-toggle="tooltip" data-placement="top">
-                    </i>
-                  </div>
-              </div>
-            <div class="datasetListDiv">
-              <ul id="dsOpListSection">
-              </ul>
-            </div>
-          </div>
+        <div class="subHeading clearfix">
+          <div class="label"><%= dicts.datasetOp.source %>:</div>
+        </div>
+        <p class="instrText"><%= dicts.datasetOp.sourceInstr %></p>
+        <div id="datasetOpBrowser" class="mainSection xc-fileListView">
+          include "../util/fileListView.html"
+        </div>
         <div class="datasetPrefix formRow">
-            <div class="subHeading clearfix">
-              <div class="label"><%= dicts.datasetOp.prefix %>:</div>
-            </div>
-            <p class="instrText"><%= dicts.datasetOp.prefixInstr %></p>
-            <div class="inputWrap">
-                <input class="arg" type="text" tabindex="10"
-                  spellcheck="false" data-typeid="-1"
-                  data-casted="false" data-casttype="null">
-            </div>
+          <div class="subHeading clearfix">
+            <div class="label"><%= dicts.datasetOp.prefix %>:</div>
           </div>
+          <p class="instrText"><%= dicts.datasetOp.prefixInstr %></p>
+          <div class="inputWrap">
+              <input class="arg" type="text" tabindex="10"
+                spellcheck="false" data-typeid="-1"
+                data-casted="false" data-casttype="null">
+          </div>
+        </div>
       </section>
     </div>
     include "opPanelAdvancedSection.html"

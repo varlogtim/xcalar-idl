@@ -233,7 +233,8 @@ class DagTabManager{
 
     //getManagerDataAsync handles loading the tabManager
     private _getManagerDataAsync(): XDPromise<void> {
-        if (DagList.Instance.getAll().length === 0) {
+        const dagMaps: Map<string, DagTab> = DagList.Instance.getAllDags();
+        if (dagMaps.size === 0) {
             DagList.Instance.reset();
             return PromiseHelper.resolve();
         }
@@ -246,8 +247,8 @@ class DagTabManager{
             }
             // sync up dag list with the opened tab's data
             const idSet: Set<string> = new Set();
-            DagList.Instance.getAll().forEach((dagInfo) => {
-                idSet.add(dagInfo.getId());
+            dagMaps.forEach((dagTab) => {
+                idSet.add(dagTab.getId());
             });
             const dagIds: string[] = managerData.dagKeys.filter((id) => idSet.has(id));
             this._loadDagTabs(dagIds);

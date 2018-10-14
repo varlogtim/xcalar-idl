@@ -5,17 +5,18 @@ class DagList {
         return this._instance || (this._instance = new DagList());
     }
 
-    private _userDags: DagTabUser[];
-    private _sharedDags: DagTabShared[];
+    private _dags: Map<string, DagTab>;
+    private _fileLister: FileLister;
     private _kvStore: KVStore;
     private _initialized: boolean;
 
     private constructor() {
         let key: string = KVStore.getKey("gDagListKey");
         this._kvStore = new KVStore(key, gKVScope.WKBK);
-        this._userDags = [];
-        this._sharedDags = [];
+        this._dags = new Map();
         this._initialized = false;
+        this._setupFileLister();
+        this._addEventListeners();
     }
 
     /**
@@ -26,11 +27,10 @@ class DagList {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this._restoreUserDags()
         .then(() => {
-            // XXX TODO: even fail should continue the process
             return this._restoreSharedDags();
         })
         .then(() => {
-            this._addEventListeners();
+            this._renderDagList();
             this._updateSection();
             this._initialized = true;
             deferred.resolve();
@@ -43,33 +43,33 @@ class DagList {
     /**
      * Get a list of all dags
      */
-    public getAll(): DagTab[] {
-        const dags: DagTab[] = [];
-        this._userDags.forEach((dag) => {
-            dags.push(dag);
-        });
-        this._sharedDags.forEach((dag) => {
-            dags.push(dag);
-        });
-        return dags;
+    public getAllDags(): Map<string, DagTab> {
+        return this._dags;
     }
 
     public getDagTabById(id: string): DagTab {
-        const dags: DagTab[] = this.getAll().filter((dag) => dag.getId() === id);
-        return dags.length ? dags[0] : null;
+        return this._dags.get(id);
     }
 
     public refresh(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const promise: XDPromise<void> = deferred.promise();
         const $section: JQuery = this._getDagListSection();
+        // delete shared dag list first
+        for (let [id, dagTab] of this._dags) {
+            if (dagTab instanceof DagTabShared) {
+                this._dags.delete(id);
+            }
+        }
+        
         xcHelper.showRefreshIcon($section, false, promise);
         this._restoreSharedDags()
-        .then(() => {
+        .then(deferred.resolve)
+        .fail(deferred.reject)
+        .always(() => {
+            this._renderDagList();
             this._updateSection();
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
+        });
         return promise;
     }
 
@@ -82,13 +82,12 @@ class DagList {
             return false;
         }
         if (dagTab instanceof DagTabUser) {
-            this._userDags.push(dagTab);
-            this._addUserDagList([dagTab]);
+            this._dags.set(dagTab.getId(), dagTab);
             this._saveUserDagList();
         } else if (dagTab instanceof DagTabShared) {
-            this._sharedDags.push(dagTab);
-            this._addSharedDagList([dagTab]);
+            this._dags.set(dagTab.getId(), dagTab);
         }
+        this._renderDagList();
         this._updateSection();
         return true;
     }
@@ -99,23 +98,19 @@ class DagList {
      * @param id The dataflow we change.
      */
     public changeName(newName: string, id: string): void {
-        let index: number = this._userDags.findIndex((dag) => dag.getId() == id);
-        let $li: JQuery = null;
-        if (index >= 0) {
-            // this is a rename of user dag
-            this._userDags[index].setName(newName);
-            this._saveUserDagList();
-            $li = this._getDagListSection().find(".dagListDetail .name").eq(index);
-        } else {
-            index = this._sharedDags.findIndex((dag) => dag.getId() == id);
-            if (index >= 0) {
-                this._sharedDags[index].setName(newName);
-                $li = this._getDagListSection().find(".dagListDetail .shared").eq(index);
-            }
+        const $li: JQuery = this._getListElById(id);
+        const dagTab: DagTab = this.getDagTabById(id);
+        if (dagTab == null) {
+            return;
         }
-
-        if ($li != null) {
-            $li.text(newName);
+        if (dagTab instanceof DagTabUser) {
+            // this is a rename of user dag
+            dagTab.setName(newName);
+            this._saveUserDagList();
+            $li.find(".name").text(newName);
+        } else {
+            // not support rename shared df now
+           return;
         }
     }
 
@@ -125,10 +120,14 @@ class DagList {
      * @returns {string}
      */
     public isUniqueName(name: string): boolean {
-        let index: number = this.getAll().findIndex((dag) => {
-            return dag.getName() == name;
+        let found: boolean = false;
+        this._dags.forEach((dagTab) => {
+            if (dagTab.getName() == name) {
+                found = true;
+                return false; // stop llo
+            }
         });
-        return (index == -1);
+        return (found === false);
     }
 
     /**
@@ -136,10 +135,13 @@ class DagList {
      */
     public getValidName(): string {
         const nameSet: Set<string> = new Set();
-        this._userDags.forEach((dag) => {
-            nameSet.add(dag.getName());
+        let cnt: number = 1;
+        this._dags.forEach((dagTab) => {
+            nameSet.add(dagTab.getName());
+            if (dagTab instanceof DagTabUser) {
+                cnt++;
+            }
         });
-        let cnt = this._userDags.length;
         let name: string = `Dataflow ${cnt}`;
         while(nameSet.has(name)) {
             cnt++;
@@ -152,27 +154,26 @@ class DagList {
      * Deletes the dataflow represented by dagListItem from the dagList
      * Also removes from dagTabs if it is active.
      * @param $dagListItem Dataflow we want to delete.
-     * @returns {JQueryPromise<{}>}
+     * @returns {XDPromise<void>}
      */
-    public deleteDataflow($dagListItem: JQuery): JQueryPromise<{}> {
-        const dagTab: DagTab = this._getDagTabFromListItem($dagListItem);
+    public deleteDataflow($dagListItem: JQuery): XDPromise<void> {
+        const dagTab: DagTab = this.getDagTabById($dagListItem.data("id"));
         if (dagTab == null) {
             return PromiseHelper.reject();
         }
-        const deferred: JQueryDeferred<{}> = PromiseHelper.deferred();
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const id: string = dagTab.getId();        
 
         if (!DagTabManager.Instance.removeTab(id)) {
             return deferred.reject();
         }
+
         dagTab.delete()
         .then(() => {
             $dagListItem.remove();
+            this._dags.delete(id);
             if (dagTab instanceof DagTabUser) {
-                this._userDags = this._userDags.filter((dag) => dag.getId() !== id);
                 this._saveUserDagList();
-            } else if (dagTab instanceof DagTabShared) {
-                this._sharedDags = this._sharedDags.filter((dag) => dag.getId() !== id);
             }
             deferred.resolve();
         })
@@ -191,16 +192,7 @@ class DagList {
     public switchActiveDag(id: string): void {
         const $dagListSection: JQuery = this._getDagListSection();
         $dagListSection.find(".dagListDetail").removeClass("active");
-        let index: number = this._userDags.findIndex((dag) => dag.getId() == id);
-        if (index > 0) {
-            $dagListSection.find(".dagListDetails.user .dagListDetail").eq(index).addClass("active");
-            return;
-        }
-        index = this._sharedDags.findIndex((dag) => dag.getId() == id);
-        if (index > 0) {
-            $dagListSection.find(".dagListDetails.shared .dagListDetail").eq(index).addClass("active");
-            return;
-        }
+        this._getListElById(id).addClass("active");
     }
 
     /**
@@ -208,41 +200,76 @@ class DagList {
      * Also used for testing.
      */
     public reset(): void {
-        this._userDags = [];
+        this._dags = new Map();
         this._getDagListSection().find(".dagListDetails ul").empty();
         DagTabManager.Instance.reset();
         this._saveUserDagList();
         this._updateSection();
     }
 
-    private _addUserDagList(dags: DagTabUser[]): void {
-        const icon: HTML = this._iconHTML("deleteDataflow", "xi-trash", DFTStr.DelDF);
-        const html: HTML = dags.map((dag) => {
-            let name = xcHelper.escapeHTMLSpecialChar(dag.getName());
-            return '<li class="dagListDetail">' +
-                        '<span class="name textOverflowOneLine">' +
-                            name +
-                        '</span>' +
-                        icon +
-                    '</li>';
-        }).join("");
-        let $list: JQuery = this._getDagListSection().find(".dagListDetails.user ul");
-        $list.append(html);
+    private _setupFileLister(): void {
+        const fileTemplate = (file: {name: string, id: string}): string => {
+            const html: HTML =
+            '<li class="fileName dagListDetail" data-id="' + file.id + '">' +
+                '<i class="gridIcon icon xi-dfg2"></i>' +
+                '<div class="name">' + file.name + '</div>' +
+                this._iconHTML("deleteDataflow", "xi-trash", DFTStr.DelDF) +
+            '</li>';
+            return html;
+        };
+        const renderTemplate = (
+            files: {name: string, id: string}[],
+            folders: string[]
+        ): string => {
+            let html: HTML = "";
+            // Add folders
+            folders.forEach((folder) => {
+                html += '<li class="folderName">' +
+                            '<i class="gridIcon icon xi-folder"></i>' +
+                            '<div class="name">' + folder + '</div>' +
+                        '</li>';
+            });
+            // Add files
+            const icon: HTML = this._iconHTML("deleteDataflow", "xi-trash", DFTStr.DelDF);
+            files.forEach((file) => {
+                html +=
+                '<li class="fileName dagListDetail" data-id="' + file.id + '">' +
+                    '<i class="gridIcon icon xi-dfg2"></i>' +
+                    '<div class="name">' + file.name + '</div>' +
+                    icon +
+                '</li>';
+            });
+            return html;
+        };
+        this._fileLister = new FileLister(this._getDagListSection(), {
+            renderTemplate: renderTemplate
+        });
     }
 
-    private _addSharedDagList(dags: DagTabShared[]): void {
-        const icon: HTML = this._iconHTML("deleteDataflow", "xi-trash", DFTStr.DelDF);
-        const html: HTML = dags.map((dag) => {
-            let name = xcHelper.escapeHTMLSpecialChar(dag.getName());
-            return '<li class="dagListDetail">' +
-                        '<span class="name textOverflowOneLine">' +
-                            name +
-                        '</span>' +
-                        icon +
-                    '</li>';
-        }).join("");
-        let $list: JQuery = this._getDagListSection().find(".dagListDetails.shared ul");
-        $list.append(html);
+    private _renderDagList(): void {
+        const sharedList: {path: string, id: string}[] = [];
+        const userList: {path: string, id: string}[] = [];
+        this._dags.forEach((dagTab) => {
+            let path = "";
+            if (dagTab instanceof DagTabShared) {
+                path = "/Shared/" + dagTab.getName();
+                sharedList.push({
+                    path: path,
+                    id: dagTab.getId()
+                });
+            } else {
+                path = "/" + dagTab.getName();
+                userList.push({
+                    path: path,
+                    id: dagTab.getId()
+                });
+            }
+        });
+        sharedList.sort();
+        userList.sort();
+        const dagLists = sharedList.concat(userList);
+        this._fileLister.setFileObj(dagLists);
+        this._fileLister.render();
     }
 
     private _iconHTML(type: string, icon: string, title: string): HTML {
@@ -253,10 +280,90 @@ class DagList {
     }
 
     private _loadErroHandler($dagListItem: JQuery): void {
-        const icon: HTML = this._iconHTML("error", "xi-critical", DFTStr.LoadErr);
+        const icon: HTML = this._iconHTML("error", "gridIcon xi-critical", DFTStr.LoadErr);
         $dagListItem.find(".xc-action:not(.deleteDataflow)").addClass("xc-disabled"); // disable all icons
+        $dagListItem.find(".gridIcon").remove();
         $dagListItem.prepend(icon);
         StatusBox.show(DFTStr.LoadErr, $dagListItem);
+    }
+
+    private _restoreUserDags(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let userDagTabs: DagTabUser[] = [];
+        this._kvStore.getAndParse()
+        .then((res: {dags: {name: string, id: string}[]}) => {
+            let dags: {name: string, id: string}[] = [];
+            if (res && res.dags) {
+                dags = res.dags;
+            }
+            return DagTabUser.restore(dags);
+        })
+        .then((dagTabs, metaNotMatch) => {
+            userDagTabs = dagTabs;
+            userDagTabs.forEach((dagTab) => {
+                this._dags.set(dagTab.getId(), dagTab);
+            });
+            if (metaNotMatch) {
+                // if not match, commit sycn up dag list
+                return this._saveUserDagList();
+            }
+        })
+        .then(deferred.resolve)
+        .fail((error) => {
+            console.error(error);
+            deferred.resolve(); // still resolve it
+        });
+
+        return deferred.promise();
+    }
+
+    private _restoreSharedDags(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        DagTabShared.restore()
+        .then((dags) => {
+            dags.forEach((dagTab) => {
+                this._dags.set(dagTab.getId(), dagTab);
+            });
+            deferred.resolve();
+        })
+        .fail((error) => {
+            console.error(error);
+            deferred.resolve(); // still resolve it
+        });
+
+        return deferred.promise();
+    }
+
+    private _saveUserDagList(): void {
+        const dags: {name: string, id: string}[] = [];
+        this._dags.forEach((dagTab) => {
+            if (dagTab instanceof DagTabUser) {
+                dags.push({
+                    name: dagTab.getName(),
+                    id: dagTab.getId()
+                });
+            }
+        });
+        const jsonStr: string = JSON.stringify({dags: dags});
+        this._kvStore.put(jsonStr, true, true);
+        const activeWKBKId = WorkbookManager.getActiveWKBK();
+        if (activeWKBKId != null) {
+            const workbook = WorkbookManager.getWorkbooks()[activeWKBKId];
+            workbook.update();
+        }
+        KVStore.logSave(true);
+    }
+
+    private _updateSection(): void {
+        $("#dagList").find(".numDF").text(this._dags.size);
+    }
+
+    private _getDagListSection(): JQuery {
+        return $("#dagListSection");
+    }
+
+    private _getListElById(id: string): JQuery {
+        return this._getDagListSection().find('.dagListDetail[data-id="' + id + '"]');
     }
 
     private _addEventListeners(): void {
@@ -274,9 +381,9 @@ class DagList {
             $(event.currentTarget).closest(".listWrap").toggleClass("active");
         });
 
-        $dagListSection.on("click", ".name", (event) => {
+        $dagListSection.on("click", ".fileName .name", (event) => {
             const $dagListItem: JQuery = $(event.currentTarget).parent();
-            const dagTab: DagTab = this._getDagTabFromListItem($dagListItem);
+            const dagTab: DagTab = this.getDagTabById($dagListItem.data("id"));
             DagTabManager.Instance.loadTab(dagTab)
             .fail(() => {
                 this._loadErroHandler($dagListItem);
@@ -300,84 +407,5 @@ class DagList {
                 }
             });
         });
-    }
-
-    private _restoreUserDags(): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-
-        this._kvStore.getAndParse()
-        .then((res: {dags: {name: string, id: string}[]}) => {
-            let dags: {name: string, id: string}[] = [];
-            if (res && res.dags) {
-                dags = res.dags;
-            }
-            return DagTabUser.restore(dags);
-        })
-        .then((dagTabs, metaNotMatch) => {
-            this._userDags = dagTabs;
-            if (metaNotMatch) {
-                // if not match, commit sycn up dag list
-                return this._saveUserDagList();
-            }
-        })
-        .then(() => {
-            this._addUserDagList(this._userDags);
-            deferred.resolve();
-        })
-        .fail(deferred.reject)
-
-        return deferred.promise();
-    }
-
-    private _restoreSharedDags(): XDPromise<void> {
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        DagTabShared.restore()
-        .then((dags) => {
-            this._sharedDags = dags;
-            this._getDagListSection().find(".dagListDetails.shared ul").empty();
-            this._addSharedDagList(dags);
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
-
-    private _saveUserDagList(): void {
-        const dags: {name: string, id: string}[] = this._userDags.map((dag) => {
-            return {
-                name: dag.getName(),
-                id: dag.getId()
-            }
-        });
-        const jsonStr: string = JSON.stringify({dags: dags});
-        this._kvStore.put(jsonStr, true, true);
-        const activeWKBKId = WorkbookManager.getActiveWKBK();
-        if (activeWKBKId != null) {
-            const workbook = WorkbookManager.getWorkbooks()[activeWKBKId];
-            workbook.update();
-        }
-        KVStore.logSave(true);
-    }
-
-    private _updateSection(): void {
-        const $section: JQuery = this._getDagListSection();
-        $section.find(".user .listInfo .num").text(this._userDags.length);
-        $section.find(".shared .listInfo .num").text(this._sharedDags.length);
-    }
-
-    private _getDagListSection(): JQuery {
-        return $("#dagListSection");
-    }
-
-    private _getDagTabFromListItem($dagListItem: JQuery): DagTab {
-        const index: number = $dagListItem.index();
-        const $section: JQuery = $dagListItem.closest(".dagListDetails");
-        if ($section.hasClass("user")) {
-            // load user tab
-            return this._userDags[index];
-        } else {
-            return this._sharedDags[index];
-        }
     }
 }

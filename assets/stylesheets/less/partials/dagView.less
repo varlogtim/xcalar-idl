@@ -1196,15 +1196,15 @@
         margin: -3px 10px 0 15px;
     }
 
-    .dagListDetails {
-        .dagListDetail {
-            line-height: 30px;
+    #dagListSection {
+        .pathSection {
+            padding-left: 15px;
+        }
+
+        .listView li {
             .position(relative);
-            cursor: pointer;
-            overflow: hidden;
             box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 0 rgba(0, 0, 0, 0.2);
-            font-weight: 500;
-            padding: 0 5px 0 31px;
+            padding: 0 5px 0 15px;
 
             &.active {
                 background-color: @color-bg-light-navy;
@@ -1214,11 +1214,6 @@
                 background-color: rgba(0, 0, 0, 0.3);
             }
 
-
-            white-space: nowrap;
-            overflow: hidden;
-            .position(relative);
-
             > span {
                 display: block;
                 float: left;
@@ -1226,18 +1221,11 @@
 
             .name {
                 cursor: pointer;
-                width: 75%;
+                width: ~"calc(100% - 43px)";
             }
 
             .icon {
                 font-size: 14px;
-                margin-top: 5px;
-                margin-right: 10px;
-                float: right;
-
-                &.error {
-                    .position(absolute, @left: 10px);
-                }
             }
         }
     }

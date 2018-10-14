@@ -7,29 +7,8 @@
   <i class="refreshBtn icon xi-refresh fa-17"></i>
 </div>
 <div class="titleSection no-selection">
-  <header><%= dicts.dataflow.dataflows %> </header>
+  <header><%= dicts.dataflow.dataflows %> (<span class="numDF">0</span>)</header>
 </div>
-<div id="dagListSection" class="mainSection">
-  <div class="dagListDetails user listWrap xc-expand-list active">
-    <div class="listInfo no-selection">
-      <span class="expand">
-        <i class="icon xi-arrow-down fa-7"></i>
-      </span>
-      <span class="text">
-        <%= dicts.dataflow.MyDF %>(<span class="num">0</span>)
-      </span>
-    </div>
-    <ul></ul>
-  </div>
-  <div class="dagListDetails shared listWrap xc-expand-list active">
-    <div class="listInfo no-selection">
-      <span class="expand">
-        <i class="icon xi-arrow-down fa-7"></i>
-      </span>
-      <span class="text">
-        <%= dicts.dataflow.SharedDF %>(<span class="num">0</span>)
-      </span>
-    </div>
-    <ul></ul>
-  </div>
+<div id="dagListSection" class="mainSection xc-fileListView">
+  include "../util/fileListView.html"
 </div>
