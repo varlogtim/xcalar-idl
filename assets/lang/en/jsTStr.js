@@ -608,7 +608,7 @@ SuccessTStr = {
     "UpdateLicense": "License Successfully Updated!",
     "Upload": "Upload Successful!",
     "UploadApp": "App Successfully Uploaded!",
-    "UploadUDF": "UDF Successfully Uploaded!",
+    "UploadUDF": "UDF Successfully Saved!",
     "ExtDownload": "Extension Successfully Downloaded!",
     "ExtRemove": "Extension Successfully Removed!",
     "ExtEnable": "Extension Successfully Enabled!",
@@ -1335,6 +1335,10 @@ WSTStr = {
                 'How would you like to handle them?',
     'CurrWS': 'Current Worksheet'
 };
+
+FileManagerTStr = {
+    "DuplicateFail": "Duplicate file failed"
+}
 
 UDFTStr = {
     "UDF": "UDF",

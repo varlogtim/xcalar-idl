@@ -78,7 +78,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
                         } else {
                             JupyterPanel.appendStub("importUDF", s);
                             BottomMenu.openSection(2);
-                            UDFPanel.Instance.selectUDFFuncList(s.moduleName);
+                            UDFPanel.Instance.selectUDFPath(s.moduleName);
                         }
                         break;
                     case ("enterExistingNotebook"):
@@ -250,7 +250,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
                 });
 
                 BottomMenu.openSection(2);
-                UDFPanel.Instance.selectUDFFuncList(moduleName);
+                UDFPanel.Instance.selectUDFPath(moduleName);
             }
         }
     };

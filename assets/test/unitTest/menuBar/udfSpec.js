@@ -166,9 +166,9 @@ describe("UDF Test", function() {
             FileReader = oldReader;
         });
 
-        // it("UDFPanel.Instance.selectUDFFuncList should work", function() {
+        // it("UDFPanel.Instance.selectUDFPath should work", function() {
         //     $("#udf-fnName").val("");
-        //     UDFPanel.Instance.selectUDFFuncList("default");
+        //     UDFPanel.Instance.selectUDFPath("default");
         //     expect($("#udf-fnName").val()).to.equal("default");
         //     // clear up
         //     $("#udf-fnName").val("");

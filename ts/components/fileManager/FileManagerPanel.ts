@@ -262,24 +262,6 @@ class FileManagerPanel {
         });
     }
 
-    private _addUploadEvents(): void {
-        const $operationAreaUpload: JQuery = this.$panel.find(
-            ".operationArea"
-        );
-        $operationAreaUpload.children(".operationContent").on({
-            mouseup: () => {
-                this._eventClickUpload();
-            }
-        });
-
-        const $uploadButton: JQuery = this.$panel.find(
-            ".operationArea .uploadButton"
-        );
-        $uploadButton.change((event: JQueryEventObject) => {
-            this._eventUpload($(event.currentTarget).val());
-        });
-    }
-
     private _addAddressAreaEvents(): void {
         const $addressBox: JQuery = this.$panel.find(
             ".addressArea .addressBox"
@@ -380,6 +362,20 @@ class FileManagerPanel {
                             )
                         );
                         break;
+                    case FileManagerAction.Duplicate:
+                        if (!this._isValidAction(action)) {
+                            return;
+                        }
+                        const oldPath: string = this.nodeToPath(
+                            [...this.selectedPathNodes.entries()][0][0]
+                        );
+                        const newPath: string = this._getDuplicateFileName(
+                            oldPath
+                        );
+                        this.manager.copy(oldPath, newPath).fail((error) => {
+                            Alert.error(FileManagerTStr.DuplicateFail, error);
+                        });
+                        break;
                     case FileManagerAction.Share:
                         if (!this._isValidAction(action)) {
                             return;
@@ -393,6 +389,42 @@ class FileManagerPanel {
                 }
             }
         });
+    }
+
+    private _getDuplicateFileName(path: string): string {
+        const curPathNode: FileManagerPathNode = this._pathToNode(path, true);
+        if (!curPathNode) {
+            return null;
+        }
+
+        const fileName: string = curPathNode.pathName.substring(
+            0,
+            curPathNode.pathName.lastIndexOf(".")
+        );
+        const fileNameSet: Set<string> = new Set(
+            [...curPathNode.parent.children.values()]
+            .filter((value: FileManagerPathNode) => {
+                return !value.isDir;
+            })
+            .map((value: FileManagerPathNode) => {
+                return value.pathName.substring(
+                    0,
+                    value.pathName.lastIndexOf(".")
+                );
+            })
+        );
+
+        let i: number = 1;
+        while (fileNameSet.has(fileName + "_" + i++));
+        --i;
+
+        return (
+            this.nodeToPath(curPathNode.parent) +
+            fileName +
+            "_" +
+            i +
+            this.manager.fileExtension()
+        );
     }
 
     private _updateActionArea(): void {
@@ -430,7 +462,7 @@ class FileManagerPanel {
                 for (const selectedPathNode of this.selectedPathNodes) {
                     if (
                         selectedPathNode.isDir ||
-                        !this.manager.isWritable(
+                        !this.manager.canDelete(
                             this.nodeToPath(selectedPathNode)
                         )
                     ) {
@@ -438,11 +470,21 @@ class FileManagerPanel {
                     }
                 }
                 return this.selectedPathNodes.size > 0;
+            case FileManagerAction.Duplicate:
+                return (
+                    this.selectedPathNodes.size === 1 &&
+                    ![...this.selectedPathNodes.entries()][0][0].isDir &&
+                    this.manager.canDuplicate(
+                        this.nodeToPath(
+                            [...this.selectedPathNodes.entries()][0][0]
+                        )
+                    )
+                );
             case FileManagerAction.Share:
                 return (
                     this.selectedPathNodes.size === 1 &&
                     ![...this.selectedPathNodes.entries()][0][0].isDir &&
-                    this.manager.isSharable(
+                    this.manager.canShare(
                         this.nodeToPath(
                             [...this.selectedPathNodes.entries()][0][0]
                         )
@@ -451,6 +493,24 @@ class FileManagerPanel {
             default:
                 return false;
         }
+    }
+
+    private _addUploadEvents(): void {
+        const $operationAreaUpload: JQuery = this.$panel.find(
+            ".operationArea"
+        );
+        $operationAreaUpload.children(".operationContent").on({
+            mouseup: () => {
+                this._eventClickUpload();
+            }
+        });
+
+        const $uploadButton: JQuery = this.$panel.find(
+            ".operationArea .uploadButton"
+        );
+        $uploadButton.change((event: JQueryEventObject) => {
+            this._eventUpload($(event.currentTarget).val());
+        });
     }
 
     private _addSearchBarEvents(): void {
@@ -631,7 +691,7 @@ class FileManagerPanel {
 
     private _eventClickUpload(): void {
         if (
-            !this.manager.isWritable(
+            !this.manager.canDelete(
                 this.nodeToPath(this.viewPathNode) +
                     this.manager.fileExtension()
             )
@@ -674,7 +734,7 @@ class FileManagerPanel {
         .children(".operationContent")
         .toggleClass(
             "disabled",
-            !this.manager.isWritable(
+            !this.manager.canDelete(
                 this.nodeToPath(this.viewPathNode) +
                         this.manager.fileExtension()
             )

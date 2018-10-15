@@ -10,6 +10,43 @@ class UDFFileManager extends BaseFileManager {
     private userIDWorkbookMap: Map<string, Map<string, string>> = new Map();
     private userWorkbookIDMap: Map<string, Map<string, string>> = new Map();
 
+    /*
+     * Pay special attention when dealing with UDF paths / names.
+     *
+     * The complexity results from the backend storing all UDFs using libns.
+     * There are 2 main reasons for the complexity.
+     * 1. the api is sending and receiving the names in libns directly.
+     * 2. different path format is defined to upload / delete UDFs in workbooks
+     *    or shared space.
+     *
+     * In the future, the backend should send and receive displayPaths that are
+     * shown to users, and make necessary conversions internally in backend.
+     * This will simplify the frontend implementation and prevent potential
+     * bugs.
+     *
+     * For UDFs in the current workbook:
+     * - nsPath (from libns, also used to download):
+     *   /workbook/hying/5BC63E6F15A3208D/udf/a
+     * - displayPath (in FileManager): /workbook/hying/workbook1/a.py
+     * - moduleFilename: a.py
+     * - displayName (in UDF panel): a.py
+     * - uploadPath (to upload / delete): a
+     *
+     * For UDFs in other workbooks:
+     * - nsPath: /workbook/hying/5BC63E6F15A3208E/udf/a
+     * - displayPath: /workbook/hying/workbook2/a.py
+     * - moduleFilename: a.py
+     * - displayName: /workbook/hying/workbook2/a.py
+     * - uploadPath: not supported
+     *
+     * For Shared UDFs:
+     * - nsPath: /sharedUDFs/a
+     * - displayPath: /sharedUDFs/a.py
+     * - moduleFilename: a.py
+     * - displayName: /sharedUDFs/a.py
+     * - uploadPath: /sharedUDFs/a
+     */
+
     /**
      * @param  {string} path
      * @returns void
@@ -32,7 +69,7 @@ class UDFFileManager extends BaseFileManager {
      * @returns string
      */
     public getDefaultUDFPath(): string {
-        return this.getSharedUDFPath() + "default";
+        return this.getSharedUDFPath() + this.defaultModule;
     }
 
     /**
@@ -69,7 +106,7 @@ class UDFFileManager extends BaseFileManager {
         if (!currWorkbookPath) {
             return "/";
         }
-        let currWorkbookDisplayPath: string = this.nsNameToDisplayName(
+        let currWorkbookDisplayPath: string = this.nsPathToDisplayPath(
             currWorkbookPath
         );
         currWorkbookDisplayPath = currWorkbookDisplayPath.substring(
@@ -80,45 +117,47 @@ class UDFFileManager extends BaseFileManager {
     }
 
     /**
-     * @param  {string} nsName
+     * Only works with files, doesn't work with dirs.
+     * @param  {string} nsPath
      * @returns string
      */
-    public nsNameToDisplayName(nsName: string): string {
-        const nsNameArray: string[] = nsName.split("/");
-        if (nsNameArray[1] === "workbook") {
-            nsNameArray.splice(4, 1);
+    public nsPathToDisplayPath(nsPath: string): string {
+        const nsPathSplit: string[] = nsPath.split("/");
+        if (nsPathSplit[1] === "workbook") {
+            nsPathSplit.splice(4, 1);
             const idWorkbookMap: Map<
             string,
             string
-            > = this.userIDWorkbookMap.get(nsNameArray[2]);
-            if (idWorkbookMap && idWorkbookMap.has(nsNameArray[3])) {
-                nsNameArray[3] = idWorkbookMap.get(nsNameArray[3]);
+            > = this.userIDWorkbookMap.get(nsPathSplit[2]);
+            if (idWorkbookMap && idWorkbookMap.has(nsPathSplit[3])) {
+                nsPathSplit[3] = idWorkbookMap.get(nsPathSplit[3]);
             }
         }
-        return nsNameArray.join("/") + ".py";
+        return nsPathSplit.join("/") + ".py";
     }
 
     /**
-     * @param  {string} displayName
+     * Only works with files, doesn't work with dirs.
+     * @param  {string} displayPath
      * @returns string
      */
-    public displayNameToNsName(displayName: string): string {
-        if (displayName.endsWith("/")) {
-            displayName = displayName.substring(0, displayName.length - 1);
+    public displayPathToNsPath(displayPath: string): string {
+        if (displayPath.endsWith("/")) {
+            displayPath = displayPath.substring(0, displayPath.length - 1);
         }
-        const displayNameArray: string[] = displayName.split("/");
-        if (displayNameArray[1] === "workbook") {
-            displayNameArray.splice(4, 0, "udf");
+        const displayPathSplit: string[] = displayPath.split("/");
+        if (displayPathSplit[1] === "workbook") {
+            displayPathSplit.splice(4, 0, "udf");
             const workbookIDMap: Map<
             string,
             string
-            > = this.userWorkbookIDMap.get(displayNameArray[2]);
-            if (workbookIDMap && workbookIDMap.has(displayNameArray[3])) {
-                displayNameArray[3] = workbookIDMap.get(displayNameArray[3]);
+            > = this.userWorkbookIDMap.get(displayPathSplit[2]);
+            if (workbookIDMap && workbookIDMap.has(displayPathSplit[3])) {
+                displayPathSplit[3] = workbookIDMap.get(displayPathSplit[3]);
             }
         }
-        const nsName: string = displayNameArray.join("/");
-        return nsName.substring(0, nsName.length - 3);
+        const nsPath: string = displayPathSplit.join("/");
+        return nsPath.substring(0, nsPath.length - 3);
     }
 
     /**
@@ -131,13 +170,13 @@ class UDFFileManager extends BaseFileManager {
 
     /**
      * Store Python script. Used in extManager.js.
-     * @param  {string} moduleName
+     * @param  {string} nsPath
      * @param  {string} entireString
      * @returns void
      */
-    public storePython(moduleName: string, entireString: string): void {
-        this._storePython(moduleName, entireString);
-        UDFPanel.Instance.updateUDF(false);
+    public storePython(nsPath: string, entireString: string): void {
+        this._storePython(nsPath, entireString);
+        UDFPanel.Instance.updateUDF();
         this.buildPathTree();
         FileManagerPanel.Instance.updateList();
     }
@@ -148,7 +187,7 @@ class UDFFileManager extends BaseFileManager {
      * @returns XDPromise
      */
     public refresh(isInBg: boolean): XDPromise<void> {
-        return this._refreshUDF(isInBg, false);
+        return this._refreshUDF(isInBg);
     }
 
     /**
@@ -160,7 +199,7 @@ class UDFFileManager extends BaseFileManager {
             this.storedUDF.clear();
         }
 
-        return this._refreshUDF(true, true);
+        return this._refreshUDF(true);
     }
 
     /**
@@ -176,7 +215,7 @@ class UDFFileManager extends BaseFileManager {
             }
         );
 
-        this._initializeUDFList(true, false)
+        this._initializeUDFList(true)
         .then((listXdfsObj: any) => {
             listXdfsObj.fnDescs = xcHelper.filterUDFs(listXdfsObj.fnDescs);
             listXdfsObj.numXdfs = listXdfsObj.fnDescs.length;
@@ -186,7 +225,7 @@ class UDFFileManager extends BaseFileManager {
         })
         .then(() => this._getUserWorkbookMap())
         .then(() => {
-            UDFPanel.Instance.updateUDF(false);
+            UDFPanel.Instance.updateUDF();
             this.buildPathTree();
             this._createWorkbookFolder();
             FileManagerPanel.Instance.updateList();
@@ -224,24 +263,24 @@ class UDFFileManager extends BaseFileManager {
     }
 
     /**
-     * @param  {string} moduleName
+     * @param  {string} nsPath
      * @returns XDPromise
      */
-    public getEntireUDF(moduleName: string): XDPromise<string> {
-        if (!this.storedUDF.has(moduleName)) {
+    public getEntireUDF(nsPath: string): XDPromise<string> {
+        if (!this.storedUDF.has(nsPath)) {
             const error: string = xcHelper.replaceMsg(ErrWRepTStr.NoUDF, {
-                udf: moduleName
+                udf: nsPath
             });
             return PromiseHelper.reject(error);
         }
 
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
 
-        const entireString: string = this.storedUDF.get(moduleName);
+        const entireString: string = this.storedUDF.get(nsPath);
         if (entireString == null) {
-            XcalarDownloadPython(moduleName)
+            XcalarDownloadPython(nsPath)
             .then((udfStr: string) => {
-                this.storedUDF.set(moduleName, udfStr);
+                this.storedUDF.set(nsPath, udfStr);
                 deferred.resolve(udfStr);
             })
             .fail(deferred.reject);
@@ -253,14 +292,16 @@ class UDFFileManager extends BaseFileManager {
     }
 
     /**
-     * @param  {string[]} paths
+     * @param  {string[]} displayPaths
      * @returns void
      */
-    public delete(paths: string[]): void {
-        const delTasks: XDPromise<void>[] = paths.map((path: string) => {
-            path = this.displayNameToNsName(path);
-            return this.del(path, true);
-        });
+    public delete(displayPaths: string[]): void {
+        const delTasks: XDPromise<void>[] = displayPaths.map(
+            (displayPath: string) => {
+                const nsPath: string = this.displayPathToNsPath(displayPath);
+                return this.del(nsPath, true);
+            }
+        );
 
         PromiseHelper.when(...delTasks)
         .then(() => {
@@ -273,19 +314,19 @@ class UDFFileManager extends BaseFileManager {
     }
 
     /**
-     * @param  {string} moduleName
+     * @param  {string} nsPath
      * @returns void
      */
-    public del(moduleName: string, bulk?: boolean): XDPromise<void> {
-        xcAssert(this.storedUDF.has(moduleName), "Delete UDF error");
+    public del(nsPath: string, bulk?: boolean): XDPromise<void> {
+        xcAssert(this.storedUDF.has(nsPath), "Delete UDF error");
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const deleteUDFResolve = () => {
-            this.storedUDF.delete(moduleName);
-            this._refreshUDF(true, false);
-            UDFPanel.Instance.updateUDF(false);
+            this.storedUDF.delete(nsPath);
+            this._refreshUDF(true);
+            UDFPanel.Instance.updateUDF();
             FileManagerPanel.Instance.removeSearchResultNode(
-                this.nsNameToDisplayName(moduleName)
+                this.nsPathToDisplayPath(nsPath)
             );
             const xcSocket: XcSocket = XcSocket.Instance;
             xcSocket.sendMessage("refreshUDFWithoutClear");
@@ -298,8 +339,13 @@ class UDFFileManager extends BaseFileManager {
 
             deferred.resolve();
         };
-
-        XcalarDeletePython(moduleName)
+        const absolutePath: boolean = !nsPath.startsWith(
+            this.getCurrWorkbookPath()
+        );
+        const uploadPath: string = absolutePath
+            ? nsPath
+            : nsPath.split("/").pop();
+        XcalarDeletePython(uploadPath, absolutePath)
         .then(deleteUDFResolve)
         .fail((error) => {
             // assume deletion if module is not listed
@@ -307,7 +353,7 @@ class UDFFileManager extends BaseFileManager {
                 error &&
                     error.status === StatusT.StatusUdfModuleNotFound
             ) {
-                XcalarListXdfs(moduleName + ":*", "User*")
+                XcalarListXdfs(nsPath + ":*", "User*")
                 .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
                     if (listXdfsObj.numXdfs === 0) {
                         deleteUDFResolve();
@@ -331,14 +377,14 @@ class UDFFileManager extends BaseFileManager {
     }
 
     /**
-     * @param  {string} moduleName
+     * @param  {string} nsPath
      * @returns XDPromise
      */
-    public download(moduleName: string): XDPromise<void> {
-        moduleName = this.displayNameToNsName(moduleName);
+    public download(nsPath: string): XDPromise<void> {
+        nsPath = this.displayPathToNsPath(nsPath);
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        this.getEntireUDF(moduleName)
+        this.getEntireUDF(nsPath)
         .then((entireString: string) => {
             if (entireString == null) {
                 Alert.error(
@@ -346,7 +392,7 @@ class UDFFileManager extends BaseFileManager {
                     SideBarTStr.DownloadMsg
                 );
             } else {
-                const moduleSplit: string[] = moduleName.split("/");
+                const moduleSplit: string[] = nsPath.split("/");
                 xcHelper.downloadAsFile(
                     moduleSplit[moduleSplit.length - 1],
                     entireString,
@@ -364,21 +410,21 @@ class UDFFileManager extends BaseFileManager {
     }
 
     /**
-     * @param  {string} moduleName
+     * @param  {string} uploadPath
      * @param  {string} entireString
      * @param  {boolean} absolutePath?
      * @returns XDPromise
      */
     public upload(
-        moduleName: string,
+        uploadPath: string,
         entireString: string,
         absolutePath?: boolean
     ): XDPromise<any> {
-        const moduleNameArray: string[] = moduleName.split("/");
-        moduleNameArray[moduleNameArray.length - 1] = moduleNameArray[
-        moduleNameArray.length - 1
+        const uploadPathSplit: string[] = uploadPath.split("/");
+        uploadPathSplit[uploadPathSplit.length - 1] = uploadPathSplit[
+        uploadPathSplit.length - 1
         ].toLowerCase();
-        moduleName = moduleNameArray.join("/");
+        uploadPath = uploadPathSplit.join("/");
         const uploadHelper = () => {
             const $fnUpload: JQuery = $("#udf-fnUpload");
             let hasToggleBtn: boolean = false;
@@ -391,36 +437,13 @@ class UDFFileManager extends BaseFileManager {
 
             xcHelper.disableSubmit($fnUpload);
 
-            XcalarUploadPython(moduleName, entireString, absolutePath)
+            XcalarUploadPython(uploadPath, entireString, absolutePath)
             .then(() => {
-                this.storePython(modulePath, entireString);
+                this.storePython(nsPath, entireString);
                 KVStore.commit();
                 xcHelper.showSuccess(SuccessTStr.UploadUDF);
 
-                this._refreshUDF(true, true);
-
-                const $uploadedFunc: JQuery = $("#udf-fnMenu").find(
-                    'li[data-udf-path="' + modulePath + '"]'
-                );
-
-                    // select list directly use
-                    // $uploadedFunc.trigger(fakeEvent.mouseup) will reset
-                    // the cursor, which might be ignoring
-                if ($uploadedFunc.length) {
-                    const moduleDisplayPath: string = this.nsNameToDisplayName(
-                        modulePath
-                    );
-                    const moduleDisplayName: string = this.nsNameToDisplayName(
-                        moduleName
-                    );
-                    $("#udf-fnList input").val(
-                        absolutePath
-                            ? moduleDisplayPath
-                            : moduleDisplayName
-                    );
-                } else {
-                    $("#udf-fnList input").val("");
-                }
+                this._refreshUDF(true);
 
                 const xcSocket: XcSocket = XcSocket.Instance;
                 xcSocket.sendMessage("refreshUDFWithoutClear");
@@ -429,8 +452,8 @@ class UDFFileManager extends BaseFileManager {
             .fail((error) => {
                 // XXX might not actually be a syntax error
                 const syntaxErr: {
-                reason: string;
-                line: number;
+                    reason: string;
+                    line: number;
                 } = this._parseSyntaxError(error);
                 if (syntaxErr != null) {
                     UDFPanel.Instance.updateHints(syntaxErr);
@@ -456,18 +479,18 @@ class UDFFileManager extends BaseFileManager {
             });
         };
 
-        if (!this._isEditableUDF(moduleName.split("/").pop())) {
+        if (uploadPath === this.getDefaultUDFPath() && !gUdfDefaultNoCheck) {
             Alert.error(SideBarTStr.UploadError, SideBarTStr.OverwriteErr);
             return PromiseHelper.reject(SideBarTStr.OverwriteErr);
         }
 
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
-        const modulePath: string = absolutePath
-            ? moduleName
-            : this.getCurrWorkbookPath() + moduleName;
-        if (this.storedUDF.has(modulePath)) {
+        const nsPath: string = absolutePath
+            ? uploadPath
+            : this.getCurrWorkbookPath() + uploadPath;
+        if (this.storedUDF.has(nsPath)) {
             const msg: string = xcHelper.replaceMsg(SideBarTStr.DupUDFMsg, {
-                module: moduleName
+                module: uploadPath
             });
 
             Alert.show({
@@ -488,56 +511,95 @@ class UDFFileManager extends BaseFileManager {
     }
 
     /**
-     * @param  {string} path
+     * @param  {string} displayPath
      * @param  {string} entireString
      */
-    public add(path: string, entireString: string) {
-        let moduleName: string = path;
+    public add(displayPath: string, entireString: string) {
+        let uploadPath: string = displayPath;
         let absolutePath: boolean = true;
-        if (path.startsWith(this.getCurrWorkbookDisplayPath())) {
-            const pathArray: string[] = path.split("/");
-            path = pathArray[pathArray.length - 1]
+        if (displayPath.startsWith(this.getCurrWorkbookDisplayPath())) {
+            const pathArray: string[] = displayPath.split("/");
+            displayPath = pathArray[pathArray.length - 1]
             .toLowerCase()
             .replace(/ /g, "");
             absolutePath = false;
         }
 
-        moduleName = path.substring(0, path.lastIndexOf("."));
-        this.upload(moduleName, entireString, absolutePath);
+        uploadPath = displayPath.substring(0, displayPath.lastIndexOf("."));
+        this.upload(uploadPath, entireString, absolutePath);
     }
 
     /**
-     * @param  {string} path
+     * @param  {string} displayPath
      * @returns boolean
      */
-    public isWritable(path: string): boolean {
-        const nsName: string = this.displayNameToNsName(path);
+    public canDelete(displayPath: string): boolean {
+        const nsPath: string = this.displayPathToNsPath(displayPath);
         return (
-            nsName.startsWith(this.getCurrWorkbookPath()) ||
-            nsName.startsWith(this.getSharedUDFPath())
+            (nsPath.startsWith(this.getCurrWorkbookPath()) ||
+                nsPath.startsWith(this.getSharedUDFPath())) &&
+            (nsPath !== this.getDefaultUDFPath() || gUdfDefaultNoCheck)
         );
     }
 
     /**
-     * @param  {string} path
+     * @param  {string} displayPath
      * @returns boolean
      */
-    public isSharable(path: string): boolean {
-        const nsName: string = this.displayNameToNsName(path);
-        return nsName.startsWith(this.getCurrWorkbookPath());
+    public canDuplicate(displayPath: string): boolean {
+        const nsPath: string = this.displayPathToNsPath(displayPath);
+        return (
+            nsPath.startsWith(this.getCurrWorkbookPath()) ||
+            nsPath.startsWith(this.getSharedUDFPath())
+        );
     }
 
     /**
-     * @param  {string} path
+     * @param  {string} displayPath
+     * @returns boolean
+     */
+    public canShare(displayPath: string): boolean {
+        const nsPath: string = this.displayPathToNsPath(displayPath);
+        return nsPath.startsWith(this.getCurrWorkbookPath());
+    }
+
+    /**
+     * @param  {string} oldDisplayPath
+     * @param  {string} newDisplayPath
      * @returns void
      */
-    public share(path: string): void {
-        const nsName: string = this.displayNameToNsName(path);
+    public copy(
+        oldDisplayPath: string,
+        newDisplayPath: string
+    ): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
 
-        this.getEntireUDF(nsName).then((entireString) => {
-            const shareName: string =
-                this.getSharedUDFPath() + nsName.split("/")[5];
-            this.upload(shareName, entireString, true);
+        const oldNsPath: string = this.displayPathToNsPath(oldDisplayPath);
+        this.getEntireUDF(oldNsPath)
+        .then((entireString: string) => {
+            this.add(newDisplayPath, entireString);
+        })
+        .then(() => {
+            deferred.resolve();
+        })
+        .fail((error) => {
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
+
+    /**
+     * @param  {string} displayPath
+     * @returns void
+     */
+    public share(displayPath: string): void {
+        const nsPath: string = this.displayPathToNsPath(displayPath);
+
+        this.getEntireUDF(nsPath).then((entireString) => {
+            const uploadPath: string =
+                this.getSharedUDFPath() + nsPath.split("/")[5];
+            this.upload(uploadPath, entireString, true);
         });
     }
 
@@ -567,7 +629,7 @@ class UDFFileManager extends BaseFileManager {
         const storedUDF: Map<string, string> = this.getUDFs();
 
         for (let [key] of storedUDF) {
-            key = this.nsNameToDisplayName(key);
+            key = this.nsPathToDisplayPath(key);
             const pathSplit: string[] = key.split("/");
             let curPathNode: FileManagerPathNode = udfRootPathNode;
 
@@ -620,7 +682,7 @@ class UDFFileManager extends BaseFileManager {
     }
 
     private _createWorkbookFolder(): void {
-        let folderPath = this.nsNameToDisplayName(this.getCurrWorkbookPath());
+        let folderPath = this.nsPathToDisplayPath(this.getCurrWorkbookPath());
         folderPath = folderPath.substring(0, folderPath.length - 3);
         const paths: string[] = folderPath.split("/");
         let curPathNode = FileManagerPanel.Instance.rootPathNode.children.get(
@@ -658,7 +720,7 @@ class UDFFileManager extends BaseFileManager {
         const storedUDF: Map<string, string> = this.getUDFs();
         const storedUDFSet: Set<string> = new Set(
             Array.from(storedUDF.keys()).map((value: string) => {
-                return this.nsNameToDisplayName(value);
+                return this.nsPathToDisplayPath(value);
             })
         );
         const curPathNode: FileManagerPathNode = FileManagerPanel.Instance.rootPathNode.children.get(
@@ -706,10 +768,7 @@ class UDFFileManager extends BaseFileManager {
         sortRes.push(curPathNode);
     }
 
-    private _initializeUDFList(
-        _isSetup: boolean,
-        doNotClear: boolean
-    ): XDPromise<any> {
+    private _initializeUDFList(_isSetup: boolean): XDPromise<any> {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
 
         // Update UDF
@@ -719,15 +778,15 @@ class UDFFileManager extends BaseFileManager {
             // List UDFs and filter out temp UDFs
             listXdfsObj.fnDescs = listXdfsObj.fnDescs.filter(
                 (udf: XcalarEvalFnDescT): boolean => {
-                    const moduleName = udf.fnName.split(":")[0];
+                    const nsPath = udf.fnName.split(":")[0];
 
-                    if (!this.storedUDF.has(moduleName)) {
-                        // This means moduleName exists
+                    if (!this.storedUDF.has(nsPath)) {
+                        // This means module exists
                         // when user fetches this module,
                         // the entire string will be cached here
-                        this.storedUDF.set(moduleName, null);
+                        this.storedUDF.set(nsPath, null);
                     } else {
-                        oldStoredUDF.delete(moduleName);
+                        oldStoredUDF.delete(nsPath);
                     }
                     return true;
                 }
@@ -737,27 +796,23 @@ class UDFFileManager extends BaseFileManager {
             oldStoredUDF.forEach((_value: string, key: string) =>
                 this.storedUDF.delete(key)
             );
-            UDFPanel.Instance.updateUDF(doNotClear);
+            UDFPanel.Instance.updateUDF();
             deferred.resolve(xcHelper.deepCopy(listXdfsObj));
         })
         .fail((error) => {
-            UDFPanel.Instance.updateUDF(doNotClear);
+            UDFPanel.Instance.updateUDF();
             deferred.reject(error);
         });
 
         return deferred.promise();
     }
 
-    private _isEditableUDF(moduleName: string): boolean {
-        return !(moduleName === this.defaultModule && !gUdfDefaultNoCheck);
-    }
-
-    private _storePython(moduleName: string, entireString: string): void {
-        this.storedUDF.set(moduleName, entireString);
+    private _storePython(nsPath: string, entireString: string): void {
+        this.storedUDF.set(nsPath, entireString);
     }
 
     private _parseSyntaxError(error: {
-    error: string;
+        error: string;
     }): {reason: string; line: number} {
         if (!error || !error.error) {
             return null;
@@ -799,14 +854,11 @@ class UDFFileManager extends BaseFileManager {
         }
     }
 
-    private _refreshUDF(
-        isInBg: boolean,
-        doNotClear: boolean
-    ): XDPromise<void> {
+    private _refreshUDF(isInBg: boolean): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         $("#udf-fnList").addClass("loading");
 
-        this._initializeUDFList(false, doNotClear)
+        this._initializeUDFList(false)
         .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
             listXdfsObj.fnDescs = xcHelper.filterUDFs(
                     listXdfsObj.fnDescs as UDFInfo[]
@@ -897,21 +949,18 @@ class UDFFileManager extends BaseFileManager {
 
     /* Unit Test Only */
     public __testOnly__: {
-        isEditableUDF;
         parseSyntaxError;
         upload;
     } = {};
 
     public setupTest(): void {
         if (typeof unitTestMode !== "undefined" && unitTestMode) {
-            this.__testOnly__.isEditableUDF = (moduleName: string) =>
-                this._isEditableUDF(moduleName);
             this.__testOnly__.parseSyntaxError = (error: {error: string}) =>
                 this._parseSyntaxError(error);
             this.__testOnly__.upload = (
-                moduleName: string,
+                uploadPath: string,
                 entireString: string
-            ) => this.upload(moduleName, entireString);
+            ) => this.upload(uploadPath, entireString);
         }
     }
     /* End Of Unit Test Only */

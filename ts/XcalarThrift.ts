@@ -4612,7 +4612,7 @@ XcalarUploadPython = function(
     .fail(function(error) {
         let thriftError = thriftLog("XcalarUploadPython", error);
         if (thriftError.status === StatusT.StatusUdfModuleAlreadyExists) {
-            XcalarUpdatePython(moduleName, pythonStr)
+            XcalarUpdatePython(moduleName, pythonStr, absolutePath)
             .then(function() {
                 deferred.resolve();
             })
@@ -4653,7 +4653,8 @@ XcalarUploadPython = function(
 
 XcalarUpdatePython = function(
     moduleName: string,
-    pythonStr: string
+    pythonStr: string,
+    absolutePath?: boolean
 ): XDPromise<StatusT> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
@@ -4662,7 +4663,7 @@ XcalarUpdatePython = function(
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-    if (moduleName) {
+    if (moduleName && !absolutePath) {
         moduleName = moduleName.split("/").pop(); // remove absolute path
     }
     xcalarApiUdfUpdate(tHandle, UdfTypeT.UdfTypePython, moduleName,
@@ -4682,7 +4683,10 @@ XcalarUpdatePython = function(
     return (deferred.promise());
 };
 
-XcalarDeletePython = function(moduleName: string): XDPromise<StatusT> {
+XcalarDeletePython = function (
+    moduleName: string,
+    absolutePath?: string
+): XDPromise<StatusT> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
@@ -4690,7 +4694,7 @@ XcalarDeletePython = function(moduleName: string): XDPromise<StatusT> {
     if (insertError(arguments.callee, deferred)) {
         return (deferred.promise());
     }
-    if (moduleName) {
+    if (moduleName && !absolutePath) {
         moduleName = moduleName.split("/").pop(); // remove absolute path
     }
     xcalarApiUdfDelete(tHandle, moduleName)

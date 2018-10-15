@@ -8,8 +8,10 @@ abstract class BaseFileManager {
     public abstract open(path: string): void;
     public abstract download(path: string): void | XDPromise<void>;
     public abstract delete(path: string[]): void;
-    public abstract isWritable(path: string): boolean;
-    public abstract isSharable(path: string): boolean;
+    public abstract canDelete(path: string): boolean;
+    public abstract canDuplicate(path: string): boolean;
+    public abstract canShare(path: string): boolean;
+    public abstract copy(oldPath: string, newPath): XDPromise<void>;
     public abstract share(path: string): void;
     public abstract buildPathTree(clean?: boolean): void;
     public abstract fileIcon(): string;

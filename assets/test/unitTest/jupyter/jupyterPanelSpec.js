@@ -85,14 +85,14 @@ describe("JupyterPanel Test", function() {
             var called3 = false;
             var cacheFn1 = JupyterPanel.appendStub;
             var cacheFn2 = BottomMenu.openSection;
-            var cacheFn3 = UDFPanel.Instance.selectUDFFuncList;
+            var cacheFn3 = UDFPanel.Instance.selectUDFPath;
             JupyterPanel.appendStub = function() {
                 called1 = true;
             };
             BottomMenu.openSection = function() {
                 called2 = true;
             };
-            UDFPanel.Instance.selectUDFFuncList = function() {
+            UDFPanel.Instance.selectUDFPath = function() {
                 called3 = true;
             };
             sendMessage({action:"autofillImportUdf", includeStub: "false",
@@ -104,7 +104,7 @@ describe("JupyterPanel Test", function() {
 
                 JupyterPanel.appendStub = cacheFn1;
                 BottomMenu.openSection = cacheFn2;
-                UDFPanel.Instance.selectUDFFuncList = cacheFn3;
+                UDFPanel.Instance.selectUDFPath = cacheFn3;
                 done();
             })
             .fail(function() {
@@ -276,7 +276,7 @@ describe("JupyterPanel Test", function() {
             var called3 = false;
             var cacheFn1 = JupyterPanel.appendStub;
             var cacheFn2 = BottomMenu.openSection;
-            var cacheFn3 = UDFPanel.Instance.selectUDFFuncList;
+            var cacheFn3 = UDFPanel.Instance.selectUDFPath;
             JupyterPanel.appendStub = function(type) {
                 expect(type).to.equal("importUDF");
                 called1 = true;
@@ -284,7 +284,7 @@ describe("JupyterPanel Test", function() {
             BottomMenu.openSection = function() {
                 called2 = true;
             };
-            UDFPanel.Instance.selectUDFFuncList = function() {
+            UDFPanel.Instance.selectUDFPath = function() {
                 called3 = true;
             };
 
@@ -298,7 +298,7 @@ describe("JupyterPanel Test", function() {
 
             JupyterPanel.appendStub = cacheFn1;
             BottomMenu.openSection = cacheFn2;
-            UDFPanel.Instance.selectUDFFuncList = cacheFn3;
+            UDFPanel.Instance.selectUDFPath = cacheFn3;
 
             JupyterPanel.__testOnly__.setCurNB(prevNB);
         });
