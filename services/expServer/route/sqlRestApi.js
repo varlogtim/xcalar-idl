@@ -1360,6 +1360,7 @@ function getColType(typeId) {
 }
 
 router.post("/xcsql/query", function(req, res) {
+    req.setTimeout(14400000);
     var userIdName = req.body.userIdName;
     var userIdUnique = req.body.userIdUnique;
     var wkbkName = req.body.wkbkName;
