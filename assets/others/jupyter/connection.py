@@ -163,15 +163,24 @@ class Connection(object):
         userIdUnique = workbookObj.userIdUnique
         userIdName = workbookObj.username
         tablePrefix = "jupyter" + str(random.randint(10000, 99999)) + "_"
+
+        if ("keepOri" not in apiSettings):
+            apiSettings["keepOri"] = True
+        if ("dropAsYouGo" not in apiSettings):
+            apiSettings["dropAsYouGo"] = False
+        if ("newSqlTableName" not in apiSettings):
+            apiSettings["newSqlTableName"] = ""
+        if ("randomCrossJoin" not in apiSettings):
+            apiSettings["randomCrossJoin"] = False
         payload = {"userIdName": userIdName,
         "wkbkName": workbookName,
         "queryString": sql,
         "queryTablePrefix": tablePrefix,
         "userIdUnique": userIdUnique,
-        "keepOri": True or apiSettings["keepOri"],
-        "dropAsYouGo": False or apiSettings["dropAsYouGo"],
-        "newSqlTableName": "" or apiSettings["newSqlTableName"],
-        "randomCrossJoin": False or apiSettings["randomCrossJoin"]
+        "keepOri": apiSettings["keepOri"],
+        "dropAsYouGo": apiSettings["dropAsYouGo"],
+        "newSqlTableName": apiSettings["newSqlTableName"],
+        "randomCrossJoin": apiSettings["randomCrossJoin"]
         }
         numRows = 0 or apiSettings["numRows"]
         headers = {'content-type': 'application/json'}
