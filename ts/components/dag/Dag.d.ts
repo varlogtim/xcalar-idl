@@ -241,6 +241,19 @@ interface RefreshColInfo {
 }
 
 
+interface DagTblCacheInfo {
+    name: string;
+    clockCount: number;
+    locked: boolean;
+    markedForDelete: boolean;
+    markedForReset: boolean;
+}
+
+interface DagTblManagerPromiseInfo {
+    succeed: boolean;
+    error: ThriftError;
+}
+
 interface CommentInfo {
     id?: string;
     text?: string;

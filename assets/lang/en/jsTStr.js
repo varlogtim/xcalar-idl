@@ -698,6 +698,7 @@ AlertTStr = {
     "BrowserVersions": "You are running an unsupported browser. Please use one of the following browsers:<br>Chrome (version 65+)<br>Firefox (version 59+)<br>Safari (version 11.1+)",
     "queryHistorySQLErrorTitle": "SQL Error",
     "queryHistoryReadErrorTitle": "Read query history failed",
+    "AutoTblManagerError": "Automatic Table Manager failed to setup."
 };
 
 ErrorMessageTStr = {

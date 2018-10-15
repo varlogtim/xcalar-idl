@@ -124,6 +124,7 @@ interface WkbkKVKeySet {
     gNotebookKey: string;
     gIMDKey: string;
     gDagManagerKey: string;
+    gDagTableManagerKey: string;
     gDagListKey: string;
     gSQLEditorKey: string;
     gSQLEditorQueryKey: string;
