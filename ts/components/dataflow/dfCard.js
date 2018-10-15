@@ -1255,7 +1255,7 @@ window.DFCard = (function($, DFCard) {
             var $barWrap = $dagTable.find(".progressBarWrap");
             var time = nodes[i].elapsed.milliseconds;
             cumulativeOpTime += time;
-
+            let noProgressInfo = false;
             if (nodes[i].state === DgDagStateT.DgDagStateReady) {
                 timeStr = xcHelper.getElapsedTimeStr(time);
                 numCompleted++;
@@ -1305,6 +1305,7 @@ window.DFCard = (function($, DFCard) {
                                     '</span></div>';
                 xcTooltip.remove($dagTable.find(".dagTableIcon, .dataStoreIcon"));
             } else {
+                noProgressInfo = true;
                 $barWrap.remove();
             }
             // skew info
@@ -1323,9 +1324,11 @@ window.DFCard = (function($, DFCard) {
                         skewText +
                     '</span>' +
             '</div></div>';
-            $dagTable.append(progressInfo);
-            $dagTable.find(".progressInfo").data("skewInfo", skewInfo);
-            $dagTable.addClass("hasProgress");
+            if (!noProgressInfo) {
+                $dagTable.append(progressInfo);
+                $dagTable.find(".progressInfo").data("skewInfo", skewInfo);
+                $dagTable.addClass("hasProgress");
+            }
         }
         var pct;
         if (isComplete) {
