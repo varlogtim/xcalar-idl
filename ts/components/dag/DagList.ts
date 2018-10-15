@@ -61,7 +61,7 @@ class DagList {
                 this._dags.delete(id);
             }
         }
-        
+
         xcHelper.showRefreshIcon($section, false, promise);
         this._restoreSharedDags()
         .then(deferred.resolve)
@@ -162,7 +162,7 @@ class DagList {
             return PromiseHelper.reject();
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const id: string = dagTab.getId();        
+        const id: string = dagTab.getId();
 
         if (!DagTabManager.Instance.removeTab(id)) {
             return deferred.reject();
@@ -252,7 +252,7 @@ class DagList {
         this._dags.forEach((dagTab) => {
             let path = "";
             if (dagTab instanceof DagTabShared) {
-                path = "/Shared/" + dagTab.getName();
+                path = dagTab.getPath();
                 sharedList.push({
                     path: path,
                     id: dagTab.getId()

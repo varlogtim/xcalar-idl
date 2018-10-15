@@ -223,6 +223,7 @@ CommonTxtTstr = {
     'RevertDefaultVal': 'Revert to default value',
     'rows': 'rows',
     'SAVE': 'SAVE',
+    'NOSAVE': 'DON\'T SAVE',
     'Search': 'Search',
     'SelectAll': 'Select All',
     'StartTime': 'Start Time',
@@ -1143,6 +1144,9 @@ DFTStr = {
     "Share": "Share Dataflow",
     "ShareFail": "Share Dataflow Failed",
     "DelFail": "Cannot dataflow",
+    "SaveDF": "Save dataflow",
+    "SaveDFMsg": "\"<name>\" has been modified, do you want to save the change?",
+    "NoAutoSave": "Auto save is not supported for shared dataflow",
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
     'CancelAlertMsg': 'Batch dataflow \'<name>\' was canceled.',

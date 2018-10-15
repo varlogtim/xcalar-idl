@@ -78,6 +78,16 @@
                 color: @color-connector;
             }
         }
+
+        &.autoSave {
+            > div {
+                float: left;
+                font-size: 12px;
+                .vertical-align;
+                text-transform: initial;
+                margin-right: 5px;
+            }
+        }
     }
 
     .divider {
@@ -1020,6 +1030,28 @@
                 text-overflow: clip;
             }
 
+            &.unsave {
+                .after {
+                    .dot {
+                        display: inline-block;
+                    }
+
+                    .close {
+                        display: none;
+                    }
+
+                    &:hover {
+                        .dot {
+                            display: none;
+                        }
+    
+                        .close {
+                            display: inline-block;
+                        }
+                    }
+                }
+            }
+
             .name {
                 float:left;
                 letter-spacing: 0.2px;
@@ -1039,6 +1071,10 @@
                 margin-right: 0px;
                 .icon {
                     font-size: 8px;
+                }
+
+                .dot {
+                    display: none;
                 }
             }
         }

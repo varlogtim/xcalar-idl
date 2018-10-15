@@ -2147,6 +2147,7 @@ namespace DagView {
                 // when switch from error state to other state
                 _setTooltip($node, info.node);
             }
+            // XXX TODO: imporve it to only save once in a series of state change
             activeDagTab.save();
         });
 

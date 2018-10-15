@@ -4,6 +4,7 @@ class DagTabShared extends DagTab {
     private static readonly _delim: string = "_Xcalar_";
     private static _currentSession: string;
 
+    private _version: number;
     /**
      * DagTabShared.restore
      */
@@ -45,6 +46,8 @@ class DagTabShared extends DagTab {
         name = name.replace(new RegExp(DagTabShared._delim, "g"), "/");
         super(name, id, graph);
         this._kvStore = new KVStore("DF2", gKVScope.WKBK);
+        this._tempKVStore = new KVStore(`.temp.DF2.shared.${this._id}`, gKVScope.WKBK);
+        this._version = 0;
     }
 
     public getName(): string {
@@ -57,39 +60,86 @@ class DagTabShared extends DagTab {
         return splits[splits.length - 1];
     }
 
+    public getPath(): string {
+        return "/Shared/" + this.getName();
+    }
+
     public load(): XDPromise<void> {
-        DagTabShared._switchSession(this._getWKBKName());
-        const promise = this._loadFromKVStore();
-        DagTabShared._resetSession();
-        return promise;
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let savedDagInfo: any;
+        let savedGraph: DagGraph;
+
+        this._loadFromKVStore()
+        .then((dagInfo, graph) => {
+            savedDagInfo = dagInfo;
+            savedGraph = graph;
+            return this._loadFromTempKVStore();
+        })
+        .then((tempDagInfo, tempGraph) => {
+            if (tempDagInfo == null ||
+                tempDagInfo.version !== savedDagInfo.version
+            ) {
+                // when no local meta or it's lower version, use the saved one
+                this._unsaved = false;
+                this._version = savedDagInfo.version;
+                this._setGraph(savedGraph);
+            } else {
+                this._unsaved = tempDagInfo.unsaved;
+                this._version = tempDagInfo.version;
+                this._setGraph(tempGraph);
+            }
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
-    public save(): XDPromise<void> {
-        // create a new copy of the graph and clean it up
-        const graph: DagGraph = new DagGraph();
-        const searizliedInfo: string = this._dagGraph.serialize();
-        if (!graph.deserializeDagGraph(searizliedInfo)) {
-            return PromiseHelper.reject("Invalid dataflow structure");
+    public save(forceSave: boolean = false): XDPromise<void> {
+        if (!forceSave) {
+            this._unsaved = true;
+            return this._writeToTempKVStore()
+                    .then(() => {
+                        this._trigger("modify");
+                    });
         }
-        // reset state and clear tables
-        // Not that it should not delte the tables as it's just a copy
-        graph.resetStates();
-        this._dagGraph = graph;
-        DagTabShared._switchSession(this._getWKBKName());
-        const promise = this._writeToKVStore();
-        DagTabShared._resetSession();
-        return promise;
-    }
 
-    // XXX TODO
-    public overwrite(): XDPromise<void> {
-        return PromiseHelper.resolve();
+        const oldVersion: number = this._version;
+        const deferred: XDDeferred<any> = PromiseHelper.deferred();
+        this._loadFromKVStore()
+        .then((dagInfo) => {
+            // when version not match, cannot save
+            if (dagInfo == null || dagInfo.version !== this._version) {
+                return PromiseHelper.reject();
+            }
+
+            this._version++;
+            this._writeToKVStore();
+        })
+        .then(() => {
+            // also save the local temp meta
+            this._unsaved = false;
+            const promise = this._writeToTempKVStore();
+            return PromiseHelper.alwaysResolve(promise);
+        })
+        .then(() => {
+            this._trigger("save");
+            deferred.resolve();
+        })
+        .fail((error) => {
+            this._version = oldVersion;
+            deferred.reject(error);
+        })
+
+        return deferred.promise();
     }
 
     public delete(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         DagTabShared._switchSession(null);
         XcalarDeleteWorkbook(this._getWKBKName())
+        .then(() => {
+            return PromiseHelper.alwaysResolve(this._tempKVStore.delete());
+        })
         .then(deferred.resolve)
         .fail((error) => {
             if (error.status === StatusT.StatusSessionNotFound) {
@@ -132,7 +182,7 @@ class DagTabShared extends DagTab {
         this._createWKBK()
         .then(() => {
             hasCreatWKBK = true;
-            return this.save();
+            return this._writeToKVStore();
         })
         .then(() => {
             return this._uploadUDFToWKBK();
@@ -148,7 +198,61 @@ class DagTabShared extends DagTab {
         });
 
         return deferred.promise();
-    } 
+    }
+
+    protected _loadFromKVStore(): XDPromise<void> {
+        DagTabShared._switchSession(this._getWKBKName());
+        const promise = super._loadFromKVStore();
+        DagTabShared._resetSession();
+        return promise;
+    }
+
+    // save meta
+     // XXX TODO: add socket to lock other users
+     protected _writeToKVStore(): XDPromise<any> {
+        if (this._dagGraph == null) {
+            // when the grah is not loaded
+            return PromiseHelper.reject();
+        }
+        const json = this._getJSON(true);
+        if (json == null) {
+            return PromiseHelper.reject("Invalid dataflow structure");
+        }
+        DagTabShared._switchSession(this._getWKBKName());
+        const promise = super._writeToKVStore(json);
+        DagTabShared._resetSession();
+        return promise;
+    }
+
+    protected _getJSON(forceSave: boolean = false): {
+        name: string,
+        id: string,
+        dag: string,
+        autoSave: boolean,
+        version: number,
+        unsaved?: boolean
+    } {
+        const json: {
+            name: string,
+            id: string,
+            dag: string,
+            autoSave: boolean,
+            version: number,
+            unsaved?: boolean
+        } = <any>super._getJSON();
+        json.version = this._version;
+        if (forceSave) {
+            const serazliedGraph: string = this._getSeriazliedGraphToSave();
+            if (serazliedGraph == null) {
+                return null; // error case
+            }
+            json.dag = serazliedGraph;
+        } else {
+            json.unsaved = this._unsaved;
+        }
+
+        return json;
+    }
 
     private _getWKBKName(): string {
         return this._name.replace(/\//g, DagTabShared._delim);
@@ -193,5 +297,18 @@ class DagTabShared extends DagTab {
             }
         });
         return PromiseHelper.when(...promises);
+    }
+
+    private _getSeriazliedGraphToSave(): string {
+        // create a new copy of the graph and clean it up
+        const graph: DagGraph = new DagGraph();
+        const searizliedInfo: string = this._dagGraph.serialize();
+        if (!graph.deserializeDagGraph(searizliedInfo)) {
+            return null;
+        }
+        // reset state and clear tables
+        // Not that it should not delte the tables as it's just a copy
+        graph.resetStates();
+        return graph.serialize();
     }
 }

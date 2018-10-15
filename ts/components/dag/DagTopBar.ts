@@ -40,8 +40,23 @@ class DagTopBar {
 
         if (dagTab instanceof DagTabCustom) {
             $btns.find(".download").addClass("xc-disabled");
+            $btns.find(".autoSave, .save").addClass("xc-disabled");
         } else {
             $btns.find(".download").removeClass("xc-disabled");
+            $btns.find(".autoSave, .save").removeClass("xc-disabled");
+        }
+
+        // set state for auto save and save button
+        const $autoSave: JQuery = $btns.find(".autoSave");
+        xcTooltip.remove($autoSave);
+        if (dagTab instanceof DagTabUser && dagTab.isAutoSave()) {
+            this._toggleAutoSave(true);
+        } else if (dagTab instanceof DagTabShared) {
+            this._toggleAutoSave(false);
+            xcTooltip.add($autoSave, {
+                title: DFTStr.NoAutoSave,
+                placement: "left"
+            })
         }
     }
 
@@ -102,6 +117,29 @@ class DagTopBar {
                 });
             }
         });
+
+        this.$topBar.find(".autoSave").click(() => {
+            const dagTab: DagTab = DagView.getActiveTab();
+            if (dagTab instanceof DagTabUser) {
+                const $switch: JQuery = this.$topBar.find(".autoSave .switch");
+                const autoSave: boolean = !$switch.hasClass("on");
+                this._toggleAutoSave(autoSave);
+                dagTab.setAutoSave(autoSave);
+            }
+        });
+
+        this.$topBar.find(".save").click(() => {
+            const dagTab: DagTab = DagView.getActiveTab();
+            if (!(dagTab instanceof DagTabCustom)) {
+                dagTab.save(true)
+                .then(() => {
+                    xcHelper.showSuccess(SuccessTStr.Saved);
+                })
+                .fail((error) => {
+                    Alert.error(AlertTStr.Error, error);
+                });
+            }
+        });
     }
 
     private _checkZoom() {
@@ -118,4 +156,14 @@ class DagTopBar {
         }
     }
 
+    private _toggleAutoSave(autoSave: boolean): void {
+        const $switch: JQuery = this.$topBar.find(".autoSave .switch");
+        if (autoSave) {
+            $switch.addClass("on");
+            this.$topBar.find(".save").addClass("xc-disabled");
+        } else {
+            $switch.removeClass("on");
+            this.$topBar.find(".save").removeClass("xc-disabled");
+        }
+    }
 }

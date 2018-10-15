@@ -26,6 +26,10 @@ class DagTabCustom extends DagTab {
         return this._customNode.getSubGraph();
     }
 
+    // do nothing
+    public discardUnsavedChange(): XDPromise<void> {
+        return PromiseHelper.resolve();
+    }
 
     // do nothing
     public load(): XDPromise<void> {

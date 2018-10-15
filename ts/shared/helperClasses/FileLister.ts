@@ -34,9 +34,6 @@ class FileLister {
                 }
                 obj = obj.folders[splitPath[j]];
             }
-            if (fileList[i].id != null) {
-                
-            }
             obj.files.push({name: splitPath[splen - 1], id: fileList[i].id});
         }
     }

@@ -1044,11 +1044,12 @@
     .listView {
         max-height: ~"calc(100% - 31px)"; // 100% - pathSection height
         overflow-y: auto;
-        
+
         ul {
             width: 100%;
             display: block;
-           
+            .noSelection;
+
             li {
                 height: 35px;
                 width: 100%;
@@ -1063,7 +1064,7 @@
                 overflow: hidden;
 
                 .name {
-                    .textOverflowOneLine;  
+                    .textOverflowOneLine;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     margin-bottom: 5px;

@@ -1,4 +1,5 @@
 class DagTabUser extends DagTab {
+    private _autoSave: boolean;
     /**
      * DagTabUser.restore
      * @param dagList
@@ -83,17 +84,38 @@ class DagTabUser extends DagTab {
     public constructor(name: string, id?: string, graph?: DagGraph) {
         super(name, id, graph);
         this._kvStore = new KVStore(this._id, gKVScope.WKBK);
+        this._tempKVStore = new KVStore(`.temp.DF2.${this._id}`, gKVScope.WKBK);
+        this._autoSave = true;
     }
 
     public setName(newName: string): void {
         super.setName(newName);
-        this.save();
+        this.save(true); // do a force save
     }
 
     public load(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        let savedDagInfo: any;
+        let savedGraph: DagGraph;
+        
         this._loadFromKVStore()
-        .then(deferred.resolve)
+        .then((dagInfo, graph) => {
+            savedDagInfo = dagInfo;
+            savedGraph = graph;
+            return this._loadFromTempKVStore();
+        })
+        .then((tempDagInfo, tempGraph) => {
+            this._autoSave = savedDagInfo.autoSave;
+            if (tempDagInfo == null) {
+                // when no local meta, use the saved one
+                this._unsaved = false;
+                this._setGraph(savedGraph);
+            } else {
+                this._unsaved = true;
+                this._setGraph(tempGraph);
+            }
+            deferred.resolve();
+        })
         .fail((error) => {
             if (typeof error === "object" && error.error === DFTStr.InvalidDF) {
                 // An invalid dagTab has been stored- let's delete it.
@@ -104,19 +126,37 @@ class DagTabUser extends DagTab {
         return deferred.promise();
     }
 
-    public save(): XDPromise<void> {
-        const promise: XDPromise<void> = this._writeToKVStore();
-        promise
-        .then(() => {
-            const activeWKBKId = WorkbookManager.getActiveWKBK();
-            if (activeWKBKId != null) {
-                const workbook = WorkbookManager.getWorkbooks()[activeWKBKId];
-                workbook.update();
-            }
-            KVStore.logSave(true);
-        });
+    public isAutoSave(): boolean {
+        return this._autoSave;
+    }
 
-        return promise;
+    public setAutoSave(autoSave): void {
+        this._autoSave = autoSave;
+        // no matter it changes to auto save or not, do a force save
+        // to remember the state first
+        this.save(true);
+    }
+
+    public save(forceSave: boolean = false): XDPromise<void> {
+        if (!this._autoSave && !forceSave) {
+            this._unsaved = true;
+            return this._writeToTempKVStore()
+                    .then(() => {
+                        this._trigger("modify");
+                    });
+        }
+
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        this._unsaved = false;
+        this._writeToKVStore()
+        .then(() => {
+            this._tempKVStore.delete();
+            this._trigger("save");
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
     }
 
     public delete(): XDPromise<void> {
@@ -134,17 +174,20 @@ class DagTabUser extends DagTab {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         PromiseHelper.alwaysResolve(XIApi.deleteTable(txId, this._id + "_dag_*", true))
         .then(() => {
-            this._kvStore.delete()
-            .then(() => {
-                Transaction.done(txId, null);
-                deferred.resolve();
-            })
-            .fail((err: ThriftError) => {
-                Transaction.fail(txId, {
-                    error: err.error
-                });
-                deferred.reject()
+            return this._kvStore.delete();
+        })
+        .then(() => {
+            return PromiseHelper.alwaysResolve(this._tempKVStore.delete());
+        })
+        .then(() => {
+            Transaction.done(txId, null);
+            deferred.resolve();
+        })
+        .fail((err: ThriftError) => {
+            Transaction.fail(txId, {
+                error: err.error
             });
+            deferred.reject()
         });
         return deferred.promise();
     }
@@ -178,5 +221,20 @@ class DagTabUser extends DagTab {
         });
 
         return deferred.promise();
+    }
+
+    protected _getJSON(): {
+        name: string,
+        id: string,
+        dag: string,
+        autoSave: boolean
+    } {
+        const json = <any>super._getJSON();
+        json.autoSave = this._autoSave;
+        return json;
+    }
+
+    protected _writeToKVStore(): XDPromise<void> {
+        return super._writeToKVStore(this._getJSON());
     }
 }

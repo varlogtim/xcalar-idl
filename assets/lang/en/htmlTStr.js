@@ -8,6 +8,7 @@ module.exports = {
         "Advanced": "Advanced",
         "AdvancedOpts": "Advanced Options",
         "APPLY": "APPLY",
+        "AutoSave": "Auto save",
         "BACK": "BACK",
         "Back": "Back",
         "BROWSE": "BROWSE",
@@ -350,6 +351,7 @@ module.exports = {
         "Severity3": "General information requests, follow-ups on Sev-1 and Sev-2 issues post-workaround.",
         "Severity4": "Feature requests",
         "CustomTicketId": "The organization associated with the ticket ID must match your organization.",
+        "SaveChanges": "Save changes",
         // Raw DS Preview
         "RawDSFormat": "Format of all selected files",
         "RawDSCSVPromote": "Use first row as column header row",

@@ -387,13 +387,56 @@ class DagTabManager{
         this._save();
         $tab.remove();
         this._getDataflowArea(index).remove();
-        if (this.getNumTabs() > 0) {
-            this._updateTabsText();
-        } else {
+        if (this.getNumTabs() === 0) {
             this.reset();
         }
 
         return true;
+    }
+
+    private _deleteTableAction(index: number, name: string): void {
+        const dagTab: DagTab = this.getTabByIndex(index);
+        const deleteFunc = () => {
+            const tabId: string = dagTab.getId();
+            const isLogDisabled: boolean = this._isTabLogDisabled(tabId);
+            this._deleteTab(index);
+            this._tabListScroller.showOrHideScrollers();
+            if (!isLogDisabled) {
+                Log.add(DagTStr.RemoveTab, {
+                    "operation": SQLOps.RemoveDagTab,
+                    "id": tabId,
+                    "index": index,
+                    "name": name
+                });
+            }
+        }
+
+        if (dagTab.isUnsave()) {
+            const msg: string = xcHelper.replaceMsg(DFTStr.SaveDFMsg, {
+                name: name
+            });
+            Alert.show({
+                title: DFTStr.SaveDF,
+                msg: msg,
+                buttons: [{
+                    name: CommonTxtTstr.SAVE,
+                    className: "confirm save",
+                    func: () => {
+                        deleteFunc();
+                        dagTab.save(true);
+                    }
+                }, {
+                    name: CommonTxtTstr.NOSAVE,
+                    className: "cancel noSave float-left",
+                    func: () => {
+                        deleteFunc();
+                        dagTab.discardUnsavedChange();
+                    }
+                }]
+            });
+        } else {
+            deleteFunc();
+        }
     }
 
     private _addSubTab(parentId: string, childId: string): boolean {
@@ -459,7 +502,23 @@ class DagTabManager{
         }
         this._activeUserDags.splice(index, 0, dagTab);
         this._addTabHTML(dagTab);
-        this._updateTabsText();
+        this._addTabEvents(dagTab);
+    }
+    
+    private _addTabEvents(dagTab: DagTab): void {
+        dagTab
+        .on("modify", () => {
+            const index: number = this.getTabIndex(dagTab.getId());
+            if (index >= 0) {
+                this._getTabsEle().eq(index).addClass("unsave");
+            }
+        })
+        .on("save", () => {
+            const index: number = this.getTabIndex(dagTab.getId());
+            if (index >= 0) {
+                this._getTabsEle().eq(index).removeClass("unsave");
+            }
+        });
     }
 
     /**
@@ -468,10 +527,24 @@ class DagTabManager{
      * @param {number} [tabIndex] Optional tab index
      */
     private _addTabHTML(dagTab: DagTab, tabIndex?: number): void {
-        const tabName = xcHelper.escapeHTMLSpecialChar(dagTab.getName());
-        const isEditable = !(dagTab instanceof DagTabCustom);
-        let html = '<li class="dagTab"><div class="name ' + (isEditable? '': 'nonedit') + '">' + tabName +
-                    '</div><div class="after"><i class="icon xi-close-no-circle"></i></div></li>';
+        let tabName: string;
+        if (dagTab instanceof DagTabShared) {
+            tabName = dagTab.getPath();
+        } else {
+            tabName = dagTab.getName();
+        }
+        tabName = xcHelper.escapeHTMLSpecialChar(tabName);
+        const isEditable: boolean = (dagTab instanceof DagTabUser);
+        let html: HTML =
+            '<li class="dagTab ' + (dagTab.isUnsave()? 'unsave': '') + '">' +
+                '<div class="name ' + (isEditable? '': 'nonedit') + '">' +
+                    tabName +
+                '</div>' +
+                '<div class="after">' +
+                    '<i class="icon xi-close-no-circle close"></i>' +
+                    '<i class="icon xi-solid-circle dot"></i>' +
+                '</div>' +
+            '</li>';
         this._getTabArea().append(html);
         $("#dagView .dataflowWrap").append(
             '<div class="dataflowArea">\
@@ -492,33 +565,6 @@ class DagTabManager{
         }
     }
 
-    // display the tab name like file editor
-    // specifically for shared df tabs,  if no name dup, show short name
-    // otherwise, show the whole name
-    private _updateTabsText(): void {
-        const $tabs: JQuery = this._getTabsEle();
-        const set: Set<string> = new Set();
-        const sharedTabs: Array<[DagTabShared, JQuery]> = [];
-        this.getTabs().forEach((dagTab, index) => {
-            const $tab: JQuery = $tabs.eq(index);
-            if (dagTab instanceof DagTabShared) {
-                sharedTabs.push([dagTab, $tab]);
-            } else {
-                set.add(dagTab.getName());
-            }
-        });
-
-        sharedTabs.forEach(([dagTab, $tab]) => {
-            let name: string = dagTab.getShortName();
-            if (set.has(name)) {
-                name = dagTab.getName();
-            }
-            $tab.find(".name").text(name);
-            set.add(name);
-        });
-    }
-
-
     private _getDataflowArea(index?: number): JQuery {
         const $area: JQuery = $("#dagView .dataflowArea");
         return (index == null) ? $area : $area.eq(index);
@@ -537,20 +583,8 @@ class DagTabManager{
         $dagTabArea.on("click", ".after", (event) => {
             event.stopPropagation();
             const $tab: JQuery = $(event.currentTarget).parent();
-            let index: number = $tab.index();
-            let tabId: string = this.getTabByIndex(index).getId();
-            const isLogDisabled: boolean = this._isTabLogDisabled(tabId);
-            let name: string = $tab.find(".name").text();
-            this._deleteTab(index);
-            this._tabListScroller.showOrHideScrollers();
-            if (!isLogDisabled) {
-                Log.add(DagTStr.RemoveTab, {
-                    "operation": SQLOps.RemoveDagTab,
-                    "id": tabId,
-                    "index": index,
-                    "name": name
-                });
-            }
+            const index: number = $tab.index();
+            this._deleteTableAction(index, $tab.text());
         });
 
         $dagTabArea.on("click", ".dagTab", (event) => {
@@ -601,7 +635,6 @@ class DagTabManager{
                 const dagTab: DagTab = this.getTabByIndex(index);
                 dagTab.setName(newName);
                 DagList.Instance.changeName(newName, dagTab.getId());
-                this._updateTabsText();
             } else {
                 // Reset name if it already exists
                 newName = this._editingName;
