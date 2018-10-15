@@ -172,17 +172,19 @@ class Connection(object):
             apiSettings["newSqlTableName"] = ""
         if ("randomCrossJoin" not in apiSettings):
             apiSettings["randomCrossJoin"] = False
+        if ("numRows" not in apiSettings):
+            numRows = 100
         payload = {"userIdName": userIdName,
-        "wkbkName": workbookName,
-        "queryString": sql,
-        "queryTablePrefix": tablePrefix,
-        "userIdUnique": userIdUnique,
-        "keepOri": apiSettings["keepOri"],
-        "dropAsYouGo": apiSettings["dropAsYouGo"],
-        "newSqlTableName": apiSettings["newSqlTableName"],
-        "randomCrossJoin": apiSettings["randomCrossJoin"]
+            "wkbkName": workbookName,
+            "queryString": sql,
+            "queryTablePrefix": tablePrefix,
+            "userIdUnique": userIdUnique,
+            "keepOri": apiSettings["keepOri"],
+            "dropAsYouGo": apiSettings["dropAsYouGo"],
+            "newSqlTableName": apiSettings["newSqlTableName"],
+            "randomCrossJoin": apiSettings["randomCrossJoin"]
         }
-        numRows = 0 or apiSettings["numRows"]
+
         headers = {'content-type': 'application/json'}
         transportStruct = self.shell.user_global_ns["xcalarApi"].transport
         url = transportStruct.scheme + "://" + transportStruct.host
