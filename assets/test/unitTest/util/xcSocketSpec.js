@@ -278,24 +278,6 @@ describe("xcSocket Test", function() {
             UDFFileManager.Instance.refreshWithoutClearing = oldFunc;
         });
 
-        it("refreshDSExport event should work", function() {
-            const oldFunc = DSExport.refresh;
-            let test = false;
-            DSExport.refresh = () => { test = true; };
-
-            // case 1;
-            xcSocket._isRegistered = false;
-            xcSocket._socket.trigger('refreshDSExport');
-            expect(test).to.be.false;
-
-            // case 2
-            xcSocket._isRegistered = true;
-            xcSocket._socket.trigger('refreshDSExport');
-            expect(test).to.be.true;
-
-            DSExport.refresh = oldFunc;
-        });
-
         it("ds.update event should work", function() {
             const oldFunc = DS.updateDSInfo;
             let test = null;

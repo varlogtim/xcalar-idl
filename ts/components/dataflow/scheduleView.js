@@ -690,10 +690,6 @@ window.Scheduler = (function(Scheduler, $) {
         if (dataflowName === currentDataFlowName) {
             $scheduleDetail.addClass("locked");
         }
-        var exportOptions = DF.getExportTarget(options.activeSession, dataflowName);
-        // var dataflow = DF.getDataflow(dataflowName);
-        options.exportTarget = exportOptions.exportTarget;
-        options.exportLocation = exportOptions.exportLocation;
         checkExportFileName(dataflowName)
         .then(function() {
             if (isSimpleMode()) {

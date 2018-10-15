@@ -180,12 +180,6 @@ function socketIoServer(server, session, cookieParser) {
             }
             socket.broadcast.emit("refreshUDFWithoutClear", overwriteUDF);
         });
-        socket.on("refreshDSExport", function() {
-            if (checkIoSocketAuth(socket)) {
-                return;
-            }
-            socket.broadcast.emit("refreshDSExport");
-        });
         socket.on("adminAlert", function(alertOption) {
             if (checkIoSocketAuth(socket)) {
                 return;

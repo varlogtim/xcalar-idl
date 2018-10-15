@@ -42,7 +42,6 @@ window.DataflowPanel = (function($, DataflowPanel) {
     DataflowPanel.showFirstTime = function() {
         var $dfList = $("#dfMenu .dfList");
         $dfList.addClass("disabled");
-        DSExport.refresh(true);
         DSTargetManager.refreshTargets(true);
 
         var promise = DF.initialize();

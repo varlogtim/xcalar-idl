@@ -1186,11 +1186,6 @@ declare namespace JupyterPanel {
     export function publishTable(tableName: string, numRows?: number): void;
 }
 
-declare namespace DSExport {
-    export function refresh(): void;
-    export function refreshUDF(listXdfsObj: any): void;
-}
-
 declare namespace SQLApi {
     export function getIndexTable(tableName: string, colNames: string[]): TableIndexCache;
     export function cacheIndexTable(tableName: string, colNames: string[], newTableName: string, newKeys: string[], tempCols?: string[]): void;

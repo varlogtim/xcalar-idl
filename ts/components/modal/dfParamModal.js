@@ -55,15 +55,6 @@ window.DFParamModal = (function($, DFParamModal){
             return (event.which !== keyCode.Enter);
         });
 
-        $modal.on("click",
-            ".editableTable .defaultParam, .exportSettingTable .defaultParam",
-        function() {
-            setParamDivToDefault($(this).siblings("input"));
-            if ($(this).closest(".target").length) {
-                updateTargetType();
-            }
-        });
-
         $modal.find(".restoreAdvanced").click(function() {
             initAdvancedForm();
         });
@@ -97,10 +88,6 @@ window.DFParamModal = (function($, DFParamModal){
             }
 
             clearTimeout(checkInputTimeout);
-        });
-
-        $modal.on("change", ".editableTable .target input", function() {
-            updateTargetType();
         });
 
         $modal.on('click', function(event) {
@@ -258,18 +245,7 @@ window.DFParamModal = (function($, DFParamModal){
 
         if (simpleViewTypes.includes(type)) {
             initBasicForm();
-            if (type === "export") {
-                exportSetup();
-                if (df.activeSession) {
-                    var $input = $modal.find(".innerEditableRow.filename input");
-                    var currentVal = xcHelper.stripCSVExt($input.val());
-                    $input.data("cache", currentVal);
-                    $input.val(df.newTableName);
-                    if (isAdvancedMode) {
-                        switchToBasicModeHelper();
-                    }
-                }
-            } else if (type === "dataStore") {
+            if (type === "dataStore") {
                 datasetSetup();
             }
         } else {
@@ -382,9 +358,6 @@ window.DFParamModal = (function($, DFParamModal){
         var newVal = firstPart + $draggableParam.text() + secondPart;
         $dropTargParent.text(newVal);
         $dropTargParent.parent().siblings('input').val(newVal);
-        if (type === "export") {
-            updateTargetType();
-        }
     };
 
     DFParamModal.paramDropSpace = function(event) {
@@ -400,9 +373,6 @@ window.DFParamModal = (function($, DFParamModal){
         $dropTargParent.text(newVal);
 
         $dropTargParent.parent().siblings('input').val(newVal);
-        if (type === "export") {
-            updateTargetType();
-        }
     };
 
     DFParamModal.allowParamDrop = function(event) {
@@ -460,9 +430,7 @@ window.DFParamModal = (function($, DFParamModal){
         setupDummyInputs();
 
         if (providedStruct) {
-            if (type === "export") {
-                exportSetup();
-            } else if (type === "dataStore") {
+            if (type === "dataStore") {
                 datasetSetup();
             }
         }
@@ -568,58 +536,6 @@ window.DFParamModal = (function($, DFParamModal){
                 }
             });
         });
-    }
-
-    function exportSetup() {
-        $modal.find('.target .dropDownList').find('ul').html(getExportTargetList());
-        var $lists = $modal.find('.tdWrapper.dropDownList');
-        for (var i = 0; i < $lists.length; i++) {
-            var $list = $($lists[i]);
-            var dropdownHelper = new MenuHelper($list, {
-                "onSelect": function($li) {
-                    func = selectDelim($li);
-                    var $input = $li.closest('.tdWrapper.dropDownList').find("input");
-                    if (func === $.trim($input.val())) {
-                        return;
-                    }
-                    $input.val(func);
-                    handleExportValueChange($input);
-                    updateTargetType();
-                },
-                "onOpen": function() {
-                    var $lis = $list.find('li')
-                                    .sort(xcHelper.sortHTML)
-                                    .show();
-                    $lis.prependTo($list.find('ul'));
-                    $list.find('ul').width($list.width() - 1);
-
-                    $list.find('.scrollArea.bottom').css('bottom', 1);
-                    setTimeout(function() {
-                        $list.find('.scrollArea.bottom').css('bottom', 0);
-                    });
-                },
-                "container": "#dfParamModal",
-                "bounds": "#dfParamModal .modalMain",
-                "bottomPadding": 2,
-                "exclude": '.draggableDiv, .defaultParam'
-            });
-            dropdownHelper.setupListeners();
-        }
-
-        function selectDelim($li) {
-            switch ($li.attr("name")) {
-                case "tab":
-                    return "\\t";
-                case "comma":
-                    return ",";
-                case "LF":
-                    return "\\n";
-                case "CR":
-                    return "\\r";
-                default:
-                    return $li.text();
-            }
-        }
     }
 
     function addDataStoreGroup() {
@@ -1141,18 +1057,6 @@ window.DFParamModal = (function($, DFParamModal){
         }
     }
 
-    function updateTargetType() {
-        var targetName = $modal.find(".editableTable .target").find("input").val();
-        var paramTargetName = getTargetName(targetName);
-        var target = DSExport.getTarget(paramTargetName);
-
-        if (target) {
-            var targetType = ExTargetTypeTStr[target.type];
-            targetType = specialCharToStr(targetType);
-            $modal.find(".exportSettingTable .targetType").find("input").val(targetType);
-        }
-    }
-
     // returns true if exactly 1 open paren exists
     function checkForOneParen(paramValue) {
         var val;
@@ -1440,11 +1344,7 @@ window.DFParamModal = (function($, DFParamModal){
                 newDf.updateParameterizedNode(tableName, paramInfo, noParams);
             }
 
-            if (DF.hasSchedule(dfName)) {
-                return DF.updateScheduleForDataflow(dfName);
-            } else {
-                return PromiseHelper.resolve();
-            }
+            return PromiseHelper.resolve();
         })
         .then(function() {
             DF.checkForAddedParams(DF.getDataflow(dfName));
@@ -1859,24 +1759,6 @@ window.DFParamModal = (function($, DFParamModal){
                 '</div>' +
                 '</div>';
         return (td);
-    }
-
-    function getExportTargetList() {
-        var res = "";
-        var exportTargetGroups = DSExport.getTargets();
-        if (exportTargetGroups) {
-            for (var i = 0; i < exportTargetGroups.length; i++) {
-                var targets = exportTargetGroups[i].targets;
-                for (var j = 0; j < targets.length; j++) {
-                    var target = targets[j];
-                    if (target) {
-                        res += "<li name=" + target.name + ">" + target.name +
-                               "</li>";
-                    }
-                }
-            }
-        }
-        return res;
     }
 
     function getDatasetTargetList() {

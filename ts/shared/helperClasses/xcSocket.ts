@@ -201,13 +201,6 @@ class XcSocket {
             UDFFileManager.Instance.refreshWithoutClearing(overwriteUDF);
         });
 
-        socket.on('refreshDSExport', () => {
-            if (!this._isRegistered) {
-                return;
-            }
-            DSExport.refresh();
-        });
-
         socket.on('ds.update', (arg) => {
             DS.updateDSInfo(arg);
         });

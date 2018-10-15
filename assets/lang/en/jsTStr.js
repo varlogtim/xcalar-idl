@@ -1303,24 +1303,6 @@ DSTargetTStr = {
     "MountpointNoExists": "Mount point <mountpoint> does not exist. Please choose a valid mount point",
 };
 
-DSExportTStr = {
-    "Create": "Create export target",
-    "AdminOnly": "Only admins can create new export targets",
-    'ExportFail': 'Failed to add export target',
-    'InvalidType': 'Invalid Target Type',
-    'InvalidTypeMsg': 'Please select a valid target type',
-    'RestoreFail': 'Export Target Restoration Failed',
-    'DeleteFail': 'Target Deletion Failed',
-    'DeleteExportTarget': 'DELETE EXPORT TARGET',
-    'NoDelete': 'Cannot delete default export target',
-    'InvalidExportPath': 'Export path cannot contain quotes.',
-    'DefaultPath': 'default path',
-    'URLPlaceholder': 'will default to <target> if left blank',
-
-    // with replace
-    'DeleteConfirmMsg': 'Are you sure you want to delete <target>?'
-};
-
 WSTStr = {
     'SearchTableAndColumn': 'Search for a table or column',
     'Ws': 'Worksheet',

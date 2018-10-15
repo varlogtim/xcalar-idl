@@ -456,7 +456,6 @@ window.DS = (function ($, DS) {
     DS.resize = function() {
         var $menu = $("#datastoreMenu");
         if ($menu.hasClass("active") && $gridView.hasClass("listView")) {
-            var $allGrids = $gridView.add($("#dsExportListSection .gridItems"));
             var $labels = $allGrids.find(".label:visible");
             truncateDSName($labels, true);
         }
@@ -2569,9 +2568,7 @@ window.DS = (function ($, DS) {
     // toggle between list view and grid view
     function toggleDSView(isListView, noRefreshTooltip) {
         var $btn = $("#dataViewBtn, #exportViewBtn, #dsTarget-view");
-        var $allGrids = $gridView.add($("#dsExportListSection .gridItems"))
-                                 .add($("#dsTarget-list .gridItems"));
-        // includes import and export grids
+        var $allGrids = $gridView.add($("#dsTarget-list .gridItems"));
         xcHelper.toggleListGridBtn($btn, isListView, noRefreshTooltip);
 
         if (isListView) {

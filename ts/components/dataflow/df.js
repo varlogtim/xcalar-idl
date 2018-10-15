@@ -311,29 +311,6 @@ window.DF = (function($, DF) {
         return deferred.promise();
     };
 
-    DF.updateScheduleForDataflow = function(dataflowName) {
-        var deferred = PromiseHelper.deferred();
-        var dataflow = dataflows[dataflowName];
-
-        if (!dataflow) {
-            return;
-        }
-        var option = DF.getAdvancedExportOption(dataflowName, true);
-        var exportOptions = DF.getExportTarget(option.activeSession, dataflowName);
-        dataflow.schedule.exportTarget = exportOptions.exportTarget;
-        dataflow.schedule.exportLocation = exportOptions.exportLocation;
-
-        var options = getOptions(dataflow.schedule);
-        var timingInfo = getTimingInfo(dataflow.schedule);
-        var substitutions = getSubstitutions(dataflowName, option.activeSession);
-
-        XcalarUpdateSched(dataflowName, dataflowName,
-            substitutions, options, timingInfo)
-        .then(deferred.resolve)
-        .fail(deferred.reject);
-        return deferred.promise();
-    };
-
     DF.removeScheduleFromDataflow = function(dataflowName) {
         var dataflow = dataflows[dataflowName];
         if (!dataflow) {
@@ -685,39 +662,6 @@ window.DF = (function($, DF) {
         };
         return timingInfo;
     }
-
-    DF.getExportTarget = function(activeSession, dataflowName) {
-        var options = {};
-        options.exportTarget = null;
-        options.exportLocation = null;
-        if (activeSession) {
-            options.exportLocation = "N/A";
-            options.exportTarget = "XcalarForTable";
-            return options;
-        } else {
-            var exportTarget = "Default";
-            var df = DF.getDataflow(dataflowName);
-            if (df) {
-                var retinaNodes = df.retinaNodes;
-                try {
-                    var exportNode;
-                    for (var name in retinaNodes) {
-                        if (retinaNodes[name].operation === "XcalarApiExport") {
-                            exportNode = retinaNodes[name];
-                            break;
-                        }
-                    }
-                    exportTarget = exportNode.args.targetName;
-                    var exportTargetObj = DSExport.getTarget(exportTarget);
-                    options.exportTarget = exportTargetObj.info.name;
-                    options.exportLocation = exportTargetObj.info.formatArg;
-                } catch (error) {
-                    console.error(error);
-                }
-            }
-            return options;
-        }
-    };
 
     DF.saveAdvancedExportOption = function(dataflowName, activeSessionOptions) {
         var df = DF.getDataflow(dataflowName);

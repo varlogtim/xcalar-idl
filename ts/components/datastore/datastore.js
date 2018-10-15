@@ -8,7 +8,6 @@ window.DataStore = (function($, DataStore) {
         DSForm.setup();
         DSTable.setup();
         DSCart.setup();
-        DSExport.setup();
         DSTargetManager.setup();
     };
 
@@ -43,9 +42,6 @@ window.DataStore = (function($, DataStore) {
             var id = $button.attr("id");
 
             switch (id) {
-                case "outButton":
-                    switchToViewOut();
-                    break;
                 case "targetButton":
                     switchToViewTarget();
                     break;
@@ -55,23 +51,6 @@ window.DataStore = (function($, DataStore) {
                 default:
                     console.error("invalid view");
                     return;
-            }
-
-            function switchToViewOut() {
-                $panel.addClass("out");
-                $title.text(DSTStr.OUT);
-                $menu.find(".out").removeClass("xc-hidden");
-
-                var $exportView = $("#datastore-out-view");
-                if ($exportView.hasClass("firstTouch")) {
-                    DSExport.refresh(true)
-                    .always(function() {
-                        if (!isAdmin) {
-                            DSExport.clickFirstGrid();
-                        }
-                    });
-                    $exportView.removeClass("firstTouch");
-                }
             }
 
             function switchToViewIn() {
@@ -108,12 +87,10 @@ window.DataStore = (function($, DataStore) {
                     $panel.addClass("noAdmin");
                     $menu.addClass("noAdmin");
                     xcTooltip.changeText($("#dsTarget-create"), DSTargetTStr.AdminOnly);
-                    xcTooltip.changeText($("#createExportButton"), DSExportTStr.AdminOnly);
                 } else {
                     $panel.removeClass("noAdmin");
                     $menu.removeClass("noAdmin");
                     xcTooltip.changeText($("#dsTarget-create"), DSTargetTStr.Create);
-                    xcTooltip.changeText($("#createExportButton"), DSExportTStr.Create);
                 }
                 return isAdmin;
             }

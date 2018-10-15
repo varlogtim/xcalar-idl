@@ -89,13 +89,6 @@ describe("ExpServer Socket Test", function() {
         });
     });
 
-    it("socket should handle refreshDSExport", function(done) {
-        client.emit("refreshDSExport");
-        peerClient.on("refreshDSExport", function() {
-            done();
-        });
-    });
-
     it("socket should handle adminAlert", function(done) {
         client.emit("adminAlert", testAlertOpts);
         peerClient.on("adminAlert", function(alertOptions) {

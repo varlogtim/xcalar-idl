@@ -43,18 +43,18 @@ window.FlightTest = (function(FlightTest, $) {
                       defaultTimeout, TestCaseDisabled); // disabled
         test.add(dfTest, "DFTest",
                       defaultTimeout, TestCaseEnabled);
-        // Temporarily disabled due to thrift change
+        // Retina tests temporarily disabled due to changes to export
         test.add(retinaTest, "RetinaTest",
-                      defaultTimeout, TestCaseEnabled);
+                      defaultTimeout, TestCaseDisabled);
         // interactive mode not run test
-        var retinaEnabled = (XVM.getLicenseMode() === XcalarMode.Mod) ?
-                            TestCaseDisabled : TestCaseEnabled;
+        //var retinaEnabled = (XVM.getLicenseMode() === XcalarMode.Mod) ?
+        //                    TestCaseDisabled : TestCaseEnabled;
         // XXX temporarily disable it because of the expotNode bug by json query change
 
         test.add(runRetinaTest, "RunRetinaTest",
-                      defaultTimeout, retinaEnabled);
+                      defaultTimeout, TestCaseDisabled);
         test.add(cancelRetinaTest, "CancelRetinaTest",
-                      defaultTimeout, retinaEnabled);
+                      defaultTimeout, TestCaseDisabled);
         test.add(deleteRetinaTest, "DeleteRetinaTest",
                       defaultTimeout, TestCaseDisabled); // disabled
         test.add(addDFToSchedTest, "AddDFToScheduleTest",

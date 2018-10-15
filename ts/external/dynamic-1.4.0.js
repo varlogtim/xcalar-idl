@@ -6979,18 +6979,7 @@
 
             if (simpleViewTypes.includes(type)) {
                 initBasicForm();
-                if (type === "export") {
-                    exportSetup();
-                    if (df.activeSession) {
-                        var $input = $modal.find(".innerEditableRow.filename input");
-                        var currentVal = xcHelper.stripCSVExt($input.val());
-                        $input.data("cache", currentVal);
-                        $input.val(df.newTableName);
-                        if (isAdvancedMode) {
-                            switchToBasicModeHelper();
-                        }
-                    }
-                } else if (type === "dataStore") {
+                if (type === "dataStore") {
                     datasetSetup();
                 }
             } else {
@@ -7166,9 +7155,7 @@
             setupDummyInputs();
 
             if (providedStruct) {
-                if (type === "export") {
-                    exportSetup();
-                } else if (type === "dataStore") {
+                if (type === "dataStore") {
                     datasetSetup();
                 }
             }
@@ -7271,57 +7258,6 @@
                     }
                 });
             });
-        }
-
-        function exportSetup() {
-            $modal.find('.target .dropDownList').find('ul').html(getExportTargetList());
-            var $lists = $modal.find('.tdWrapper.dropDownList');
-            for (var i = 0; i < $lists.length; i++) {
-                var $list = $($lists[i]);
-                var dropdownHelper = new MenuHelper($list, {
-                    "onSelect": function($li) {
-                        func = selectDelim($li);
-                        var $input = $li.closest('.tdWrapper.dropDownList').find("input");
-                        if (func === $.trim($input.val())) {
-                            return;
-                        }
-                        $input.val(func);
-                        handleExportValueChange($input);
-                    },
-                    "onOpen": function() {
-                        var $lis = $list.find('li')
-                                        .sort(xcHelper.sortHTML)
-                                        .show();
-                        $lis.prependTo($list.find('ul'));
-                        $list.find('ul').width($list.width() - 1);
-
-                        $list.find('.scrollArea.bottom').css('bottom', 1);
-                        setTimeout(function() {
-                            $list.find('.scrollArea.bottom').css('bottom', 0);
-                        });
-                    },
-                    "container": "#dfParamModal",
-                    "bounds": "#dfParamModal .modalMain",
-                    "bottomPadding": 2,
-                    "exclude": '.draggableDiv, .defaultParam'
-                });
-                dropdownHelper.setupListeners();
-            }
-
-            function selectDelim($li) {
-                switch ($li.attr("name")) {
-                    case "tab":
-                        return "\\t";
-                    case "comma":
-                        return ",";
-                    case "LF":
-                        return "\\n";
-                    case "CR":
-                        return "\\r";
-                    default:
-                        return $li.text();
-                }
-            }
         }
 
         function addDataStoreGroup() {
@@ -8119,11 +8055,7 @@
                     newDf.updateParameterizedNode(tableName, paramInfo, noParams);
                 }
 
-                if (DF.hasSchedule(dfName)) {
-                    return DF.updateScheduleForDataflow(dfName);
-                } else {
-                    return PromiseHelper.resolve();
-                }
+                return PromiseHelper.resolve();
             })
             .then(function() {
                 DF.checkForAddedParams(DF.getDataflow(dfName));
@@ -8260,29 +8192,6 @@
                         struct.loadArgs.sourceArgsList[i].targetName = targetName;
                     });
                     struct.loadArgs.sourceArgsList.length = $editableRow.find(".paramGroup").length;
-                    break;
-                case (XcalarApisT.XcalarApiExport):
-                    var partialStruct = {};
-                    var fileName = $.trim($editableDivs.eq(0).val()) + ".csv";
-                    var targetName = $.trim($editableDivs.eq(1).val());
-
-                    partialStruct.fileName = fileName;
-                    partialStruct.targetName = targetName;
-                    var paramTargetName = getTargetName(targetName);
-                    // // XXX Fix this when exportTargets become real targets
-                    var target = DSExport.getTarget(paramTargetName);
-                    if (target) {
-                        partialStruct.targetType = ExTargetTypeTStr[target.type];
-                        struct = $.extend(struct, partialStruct);
-                    } else if (ignoreError) {
-                        partialStruct.targetType = ExTargetTypeTStr[0]; // "unknown"
-                        struct = $.extend(struct, partialStruct);
-                    } else {
-                        struct = $.extend(struct, partialStruct);
-                        //  error: target not found;
-                    }
-                    var expOptions = getExportOptions();
-                    struct = $.extend(struct, expOptions);
                     break;
                 default:
                     error = "currently not supported";
@@ -8576,24 +8485,6 @@
                     '</div>' +
                     '</div>';
             return (td);
-        }
-
-        function getExportTargetList() {
-            var res = "";
-            var exportTargetGroups = DSExport.getTargets();
-            if (exportTargetGroups) {
-                for (var i = 0; i < exportTargetGroups.length; i++) {
-                    var targets = exportTargetGroups[i].targets;
-                    for (var j = 0; j < targets.length; j++) {
-                        var target = targets[j];
-                        if (target) {
-                            res += "<li name=" + target.name + ">" + target.name +
-                                   "</li>";
-                        }
-                    }
-                }
-            }
-            return res;
         }
 
         function getDatasetTargetList() {

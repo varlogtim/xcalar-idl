@@ -219,8 +219,6 @@ class UDFFileManager extends BaseFileManager {
         .then((listXdfsObj: any) => {
             listXdfsObj.fnDescs = xcHelper.filterUDFs(listXdfsObj.fnDescs);
             listXdfsObj.numXdfs = listXdfsObj.fnDescs.length;
-
-            DSExport.refreshUDF(listXdfsObj);
             DSTargetManager.updateUDF(listXdfsObj);
         })
         .then(() => this._getUserWorkbookMap())
@@ -870,7 +868,7 @@ class UDFFileManager extends BaseFileManager {
             FnBar.updateOperationsMap(listXdfsObj.fnDescs, true);
             OperationsView.updateOperationsMap(listXdfsObj);
             MapOpPanel.Instance.updateOperationsMap(listXdfsObj);
-            DSExport.refreshUDF(listXdfsObj);
+            deferred.resolve();
         })
         .then(() => this._getUserWorkbookMap())
         .then(() => deferred.resolve())

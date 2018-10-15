@@ -831,23 +831,6 @@ module.exports = {
         "HeaderChangeWarn": "Warning! Changes to the import configurations, below, override your custom modifications to headers."
     },
 
-    "dsExport": {
-        "Targets": "Export Targets",
-        "createBtn": "CREATE EXPORT TARGET",
-        "CreateTarget": "Create Export Target",
-        "EditTarget": "Export Target Information",
-        "CreateTargetInstr": "Select a target type and choose a name for your export target. Provide any additional information as needed.",
-        "TargetInfo": "Details about the selected export target are provided below. To create a new target, click the button on the top left corner of the left panel.",
-        "TargetType": "Target Type",
-        "LocalFS": "File System",
-        "AddConnector": "Add New Connector",
-        "windowsAuth": "Use windows authentication",
-        "usernameAuth": "Use specific username and password",
-        "ConnectionString": "Connection String",
-        "AdditionalInfo": "Additional Information",
-        "DELETETARGET": "DELETE TARGET"
-    },
-
     "aggModal": {
         "CorrAggTitle": "Correlation and Quick Aggregates",
         "CorrAggInstr": "Viewing correlation coefficients for every pair of numerical columns. To view common aggregate functions for all numerical columns, please click on the vertical tab.",

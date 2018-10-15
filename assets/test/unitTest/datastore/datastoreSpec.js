@@ -23,22 +23,8 @@ describe("Dataset-Datastore Module Test", function() {
         verifyCurrentNum(originNum);
     });
 
-    it("Should go to export view", function() {
-        $("#outButton").click();
-        assert.isTrue($("#datastore-out-view").is(":visible"));
-        assert.isFalse($("#datastore-in-view").is(":visible"));
-        assert.isFalse($("#datastore-target-view").is(":visible"));
-
-        // click again should have no effect
-        $("#outButton").click();
-        assert.isTrue($("#datastore-out-view").is(":visible"));
-        assert.isFalse($("#datastore-in-view").is(":visible"));
-        assert.isFalse($("#datastore-target-view").is(":visible"));
-    });
-
     it("should go to create target view", function() {
         $("#targetButton").click();
-        assert.isFalse($("#datastore-out-view").is(":visible"));
         assert.isFalse($("#datastore-in-view").is(":visible"));
         assert.isTrue($("#datastore-target-view").is(":visible"));
     });
@@ -46,7 +32,6 @@ describe("Dataset-Datastore Module Test", function() {
     it("Should go to import view", function() {
         $("#inButton").click();
         assert.isTrue($("#datastore-in-view").is(":visible"));
-        assert.isFalse($("#datastore-out-view").is(":visible"));
         assert.isFalse($("#datastore-target-view").is(":visible"));
     });
 
