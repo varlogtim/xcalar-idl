@@ -365,14 +365,17 @@ window.FileBrowser = (function($, FileBrowser) {
 
         $infoContainer.on("click", ".pickedFileList .close", function() {
             var $li = $(this).closest("li");
-            if (!$li.hasClass("regex")) {
+            var fileName = String($li.data("name"));
+            var concatPath = getCurrentPath() + fileName;
+            var fullPath = $li.data("fullpath");
+            if (!$li.hasClass("regex") && (fullPath === concatPath)) {
                 // Unselect single file from pickedFileList
-                var fileName = String($li.data("name"));
                 var escName = xcHelper.escapeDblQuote(fileName);
                 var $grid = $fileBrowser
                             .find('.fileName[data-name="' + escName + '"]')
                             .closest(".grid-unit");
                 unselectSingleFile($grid);
+                return;
             }
             // This for when there is no $grid, i.e. either it's regex or
             // you are on another path
