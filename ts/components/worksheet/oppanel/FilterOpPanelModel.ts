@@ -214,8 +214,14 @@ class FilterOpPanelModel extends GeneralOpPanelModel {
         try {
             const param: DagNodeFilterInputStruct = <DagNodeFilterInputStruct>JSON.parse(paramStr);
             jsonError = false;
+
+            let error = this.dagNode.validateParam(param);
+            if (error != null) {
+                return error;
+            }
+
             this._initialize(param, true);
-            let error = this.validateGroups();
+            error = this.validateGroups();
             if (error == null) {
                 return null;
             } else {

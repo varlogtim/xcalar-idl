@@ -110,10 +110,19 @@ class SetOpPanelModel {
 
     public validateAdvancedMode(paramStr: string): {error: string} {
         try {
+            const input = JSON.parse(paramStr);
+            const error = this.dagNode.validateParam(input);
+            if (error) {
+                throw new Error(error.error);
+            }
             return null;
         } catch (e) {
             console.error(e);
-            return {error: "invalid configuration"};
+            let msg = e.message;
+            if (!msg) {
+                msg = "invalid configuration";
+            }
+            return {error: msg};
         }
     }
 
@@ -137,6 +146,15 @@ class SetOpPanelModel {
         } else {
             try {
                 const param: DagNodeSetInputStruct = <DagNodeSetInputStruct>JSON.parse(editor.getValue());
+                if (JSON.stringify(param, null, 4) === this._cachedBasicModeParam) {
+                    // advanced mode matches basic mode so go to basic mode
+                    // regardless of errors
+                } else {
+                    const error = this.dagNode.validateParam(param);
+                    if (error) {
+                        return error;
+                    }
+                }
                 this._initialize(param, true);
                 this._update();
             } catch (e) {

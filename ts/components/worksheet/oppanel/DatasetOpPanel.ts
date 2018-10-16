@@ -95,7 +95,12 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
     }
 
     private _convertAdvConfigToModel() {
-        return <DagNodeDatasetInputStruct>JSON.parse(this._editor.getValue());
+        const dagInput: DagNodeDatasetInputStruct = <DagNodeDatasetInputStruct>JSON.parse(this._editor.getValue());
+        const error = this._dagNode.validateParam(dagInput);
+        if (error) {
+            throw new Error(error.error);
+        }
+        return dagInput;
     }
 
     /**
@@ -118,9 +123,7 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
                 this._advMode = false;
                 return;
             } catch (e) {
-                StatusBox.show(e, $("#datasetOpPanel .modalTopMain"),
-                    false, {'side': 'right'});
-                return;
+                return {error: e};
             }
         }
         return null;

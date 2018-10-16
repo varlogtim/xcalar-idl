@@ -223,6 +223,15 @@ class JoinOpPanel extends BaseOpPanel implements IOpPanel {
      */
     private _convertAdvConfigToModel(oldModel: JoinOpPanelModel) {
         const dagInput: DagNodeJoinInputStruct = <DagNodeJoinInputStruct>JSON.parse(this._editor.getValue());
+
+        if (JSON.stringify(dagInput, null, 4) !== this._cachedBasicModeParam) {
+            // don't validate if no changes made, just allow to go to basic
+            const error = this._dagNode.validateParam(dagInput);
+            if (error) {
+                throw new Error(error.error);
+            }
+        }
+
         const {
             left: leftCols,
             right: rightCols

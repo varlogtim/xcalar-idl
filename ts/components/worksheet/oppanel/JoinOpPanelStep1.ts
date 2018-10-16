@@ -9,7 +9,7 @@ class JoinOpPanelStep1 {
     private _componentJoinTypeDropdown: OpPanelDropdown = null;
     private _modelRef: JoinOpPanelModel = null;
     private _opSectionSelector = "#joinOpPanel .opSection";
-    private static readonly _joinTypeMenuItems: OpPanelDropdownMenuItem[] = [
+    public static readonly joinTypeMenuItems: OpPanelDropdownMenuItem[] = [
         { text: JoinTStr.joinTypeInner, value: JoinOperatorTStr[JoinOperatorT.InnerJoin] },
         { text: JoinTStr.joinTypeLeft, value: JoinOperatorTStr[JoinOperatorT.LeftOuterJoin] },
         { text: JoinTStr.joinTypeRight, value: JoinOperatorTStr[JoinOperatorT.RightOuterJoin] },
@@ -63,7 +63,7 @@ class JoinOpPanelStep1 {
         this._$elem.show();
         // Setup join type dropdown
         let defaultDropdownText = '';
-        const joinTypeMenuItems = JoinOpPanelStep1._joinTypeMenuItems.map((item) => {
+        const joinTypeMenuItems = JoinOpPanelStep1.joinTypeMenuItems.map((item) => {
             if (item.value === joinType) {
                 defaultDropdownText = item.text;
             }

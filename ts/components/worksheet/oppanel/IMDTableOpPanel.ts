@@ -71,6 +71,13 @@ class IMDTableOpPanel extends BaseOpPanel {
 
     private _convertAdvConfigToModel() {
         let args: DagNodeIMDTableInputStruct = <DagNodeIMDTableInputStruct>JSON.parse(this._editor.getValue());
+        if (JSON.stringify(args, null, 4) !== this._cachedBasicModeParam) {
+            // don't validate if no changes made, just allow to go to basic
+            const error = this._dagNode.validateParam(args);
+            if (error) {
+                throw new Error(error.error);
+            }
+        }
         if (this._checkOpArgs(args)) {
             return args;
         }
@@ -84,7 +91,9 @@ class IMDTableOpPanel extends BaseOpPanel {
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         if (toAdvancedMode) {
             let param: DagNodeIMDTableInputStruct = this._getParams();
-            this._editor.setValue(JSON.stringify(param, null, 4));
+            const paramStr = JSON.stringify(param, null, 4);
+            this._cachedBasicModeParam = paramStr;
+            this._editor.setValue(paramStr);
             this._advMode = true;
         } else {
             try {
@@ -96,9 +105,7 @@ class IMDTableOpPanel extends BaseOpPanel {
                 this._advMode = false;
                 return;
             } catch (e) {
-                StatusBox.show(e, $("#IMDTableOpPanel .modalTopMain"),
-                    false, {'side': 'right'});
-                return;
+                return {error: e.message || e.error};
             }
         }
         return null;

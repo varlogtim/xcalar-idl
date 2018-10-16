@@ -87,6 +87,7 @@ namespace xcManager {
             BottomMenu.initialize(); // async
             WorkbookPanel.initialize();
             DataflowPanel.initialize(); // async if has df
+            window["ajv"] = new Ajv(); // json schema validator
 
             SqlQueryHistoryPanel.Card.getInstance().setup();
             if (typeof SQLEditor !== "undefined") {

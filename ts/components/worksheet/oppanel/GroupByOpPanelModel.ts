@@ -254,22 +254,19 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
         try {
             const param: DagNodeMapInput = <DagNodeMapInput>JSON.parse(paramStr);
             jsonError = false;
+
+            let error = this.dagNode.validateParam(param);
+            if (error != null) {
+                return error;
+            }
+
             this._initialize(param, true);
-            let error = this.validateGroupOnCols();
+            error = this.validateGroupOnCols();
             if (!error) {
                 error = this.validateGroups();
             }
             if (!error) {
                 error = this.validateNewFieldNames();
-            }
-            if (!error) {
-                error = this._validateICV();
-            }
-            if (!error) {
-                error = this._validateGroupAll();
-            }
-            if (!error) {
-                error = this._validateIncludeSample();
             }
             if (error == null) {
                 return null;
@@ -352,42 +349,5 @@ class GroupByOpPanelModel extends GeneralOpPanelModel {
             nameMap[name] = true;
         }
         return  null;
-    }
-
-    private _validateICV() {
-        if (this.icv !== true && this.icv !== false) {
-            return {
-                error: "ICV only accepts booleans.",
-                group: -1,
-                arg: -1,
-                type: "icv"
-            };
-        } else {
-            return null;
-        }
-    }
-    private _validateIncludeSample() {
-        if (this.includeSample !== true && this.includeSample !== false) {
-            return {
-                error: "Include sample only accepts booleans.",
-                group: -1,
-                arg: -1,
-                type: "includeSample"
-            };
-        } else {
-            return null;
-        }
-    }
-    private _validateGroupAll() {
-        if (this.groupAll !== true && this.groupAll !== false) {
-            return {
-                error: "Group all only accepts booleans.",
-                group: -1,
-                arg: -1,
-                type: "groupAll"
-            };
-        } else {
-            return null;
-        }
     }
 }

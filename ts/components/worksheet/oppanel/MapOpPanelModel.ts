@@ -219,7 +219,7 @@ class MapOpPanelModel extends GeneralOpPanelModel {
         }
     }
 
-    protected _getParam(): DagNodeMapInput {
+    protected _getParam(): DagNodeMapInputStruct {
         const self = this;
         const evals = [];
         this.groups.forEach(group => {
@@ -242,16 +242,20 @@ class MapOpPanelModel extends GeneralOpPanelModel {
     public validateAdvancedMode(paramStr: string): {error: string} {
         let jsonError = true;
         try {
-            const param: DagNodeMapInput = <DagNodeMapInput>JSON.parse(paramStr);
+            const param: DagNodeMapInputStruct = <DagNodeMapInputStruct>JSON.parse(paramStr);
             jsonError = false;
+
+            let error = this.dagNode.validateParam(param);
+            if (error != null) {
+                return error;
+            }
+
             this._initialize(param, true);
-            let error = this.validateGroups();
+            error = this.validateGroups();
             if (!error) {
                 error = this.validateNewFieldNames();
             }
-            if (!error) {
-                error = this._validateICV();
-            }
+
             if (error == null) {
                 return null;
             } else {
@@ -288,19 +292,6 @@ class MapOpPanelModel extends GeneralOpPanelModel {
                 };
             }
             nameMap[name] = true;
-        }
-    }
-
-    private _validateICV() {
-        if (this.icv !== true && this.icv !== false) {
-            return {
-                error: "ICV only accepts booleans.",
-                group: -1,
-                arg: -1,
-                type: "icv"
-            };
-        } else {
-            return null;
         }
     }
 

@@ -352,6 +352,15 @@ class ProjectOpPanel extends BaseOpPanel implements IOpPanel {
 
     private _convertAdvConfigToModel() {
         const dagInput: DagNodeProjectInputStruct = <DagNodeProjectInputStruct>JSON.parse(this._editor.getValue());
+
+        if (JSON.stringify(dagInput, null, 4) !== this._cachedBasicModeParam) {
+            // don't validate if no changes made, just allow to go to basic
+            const error = this._dagNode.validateParam(dagInput);
+            if (error) {
+                throw new Error(error.error);
+            }
+        }
+
         const colMap = this._dataModel.columnMap
         return ProjectOpPanelModel.fromDagInput(colMap, dagInput);
     }

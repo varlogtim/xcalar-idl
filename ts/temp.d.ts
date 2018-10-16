@@ -279,6 +279,11 @@ declare namespace d3 {
     export var layout;
 }
 
+declare class Ajv {
+    public compile(any);
+}
+
+declare var ajv: Ajv;
 
 interface JQueryStatic {
     md5(str: string): string;

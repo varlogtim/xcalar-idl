@@ -236,7 +236,7 @@ abstract class DagNode {
         if (error != null) {
             // when it's not source node but no parents, it's in error state
             this.beErrorState(error.error);
-        } else if (this._validateParam() == null) {
+        } else if (this.validateParam() == null) {
             this.beConfiguredState();
         } else {
             this.beErrorState("Invalid Configuration");
@@ -503,8 +503,10 @@ abstract class DagNode {
         }
     }
 
-    protected _validateParam(): {error: string} {
-        return null;
+    // validates a given input, if no input given, will validate
+    // it's own input
+    public validateParam(input?: any): {error: string} {
+        return this.input.validate(input);
     }
 
     private _getNodeInfoWithParents(): DagNodeInfo {

@@ -112,7 +112,7 @@ class DagNodeGroupBy extends DagNode {
         input.aggregate.forEach((aggInfo) => {
             takenNames.add(aggInfo.destColumn);
         });
-        const parsedGroupByCols: PrefixColInfo[] = this.input.groupBy.map(xcHelper.parsePrefixColName);
+        const parsedGroupByCols: PrefixColInfo[] = input.groupBy.map(xcHelper.parsePrefixColName);
         parsedGroupByCols.forEach((parsedCol) => {
             if (!parsedCol.prefix) {
                 takenNames.add(parsedCol.name);

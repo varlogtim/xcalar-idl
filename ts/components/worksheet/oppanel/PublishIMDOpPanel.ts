@@ -51,7 +51,16 @@ class PublishIMDOpPanel extends BaseOpPanel {
     }
 
     private _convertAdvConfigToModel() {
-        return <DagNodePublishIMDInputStruct>JSON.parse(this._editor.getValue());
+        const dagInput = <DagNodePublishIMDInputStruct>JSON.parse(this._editor.getValue());
+
+        if (JSON.stringify(dagInput, null, 4) !== this._cachedBasicModeParam) {
+            // don't validate if no changes made, just allow to go to basic
+            const error = this._dagNode.validateParam(dagInput);
+            if (error) {
+                throw new Error(error.error);
+            }
+        }
+        return dagInput;
     }
 
     /**
@@ -61,7 +70,9 @@ class PublishIMDOpPanel extends BaseOpPanel {
     protected _switchMode(toAdvancedMode: boolean): {error: string} {
         if (toAdvancedMode) {
             let param: DagNodePublishIMDInputStruct = this._getParams();
-            this._editor.setValue(JSON.stringify(param, null, 4));
+            const paramStr = JSON.stringify(param, null, 4);
+            this._cachedBasicModeParam = paramStr;
+            this._editor.setValue(paramStr);
             this._advMode = true;
         } else {
             try {
@@ -70,9 +81,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
                 this._advMode = false;
                 return;
             } catch (e) {
-                StatusBox.show(e, $("#publishIMDOpPanel .modalTopMain"),
-                    false, {'side': 'right'});
-                return;
+                return {error: e.message || e.error};
             }
         }
         return null;
