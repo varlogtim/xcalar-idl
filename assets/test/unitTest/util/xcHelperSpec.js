@@ -3206,14 +3206,22 @@ describe("xcHelper Test", function() {
         });
 
         it("should handle input text with erroneous characters", function() {
-            var htmlstr = "<li><i></i>newImd<i></i></li>";
+            var htmlstr = "<li><i></i>new/////)(I////\\md<i></i></li>";
             var $html = $(htmlstr);
             xcHelper.boldSuggestedText($html, "/////)(i////\\");
-            expect($html.text()).to.equal("newImd");
-            expect($html.html()).to.equal("<i></i>new<strong>I</strong>md<i></i>");
+            expect($html.text()).to.equal("new/////)(I////\\md");
+            expect($html.html()).to.equal("<i></i>new<strong>/////)(I////\\</strong>md<i></i>");
             $html.remove();
         });
 
+        it("should handle input text with special characters", function() {
+            var htmlstr = "<li><i></i>/workbook/user/[a].py<i></i></li>";
+            var $html = $(htmlstr);
+            xcHelper.boldSuggestedText($html, "/[a].");
+            expect($html.text()).to.equal("/workbook/user/[a].py");
+            expect($html.html()).to.equal("<i></i>/workbook/user<strong>/[a].</strong>py<i></i>");
+            $html.remove();
+        });
     });
 
     it("xcHelper.roundToSignificantFigure should work", function() {
