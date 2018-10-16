@@ -1016,11 +1016,15 @@
         flex: 1 1 auto;
         display: flex;
         font-size: 12px;
-        .rootPath {
-            font-weight: 700;
-        }
+
         .path {
             .textOverflowOneLine;
+            cursor: default;
+
+            span {
+                text-decoration: underline;
+                cursor: pointer;
+            }
         }
     }
 

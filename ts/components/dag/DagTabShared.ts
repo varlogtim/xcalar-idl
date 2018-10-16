@@ -1,4 +1,5 @@
 class DagTabShared extends DagTab {
+    public static readonly PATH = "/Shared/";
     // XXX TODO: encrypt it
     private static readonly _secretUser: string = ".xcalar.shared.df";
     private static readonly _delim: string = "_Xcalar_";
@@ -61,7 +62,7 @@ class DagTabShared extends DagTab {
     }
 
     public getPath(): string {
-        return "/Shared/" + this.getName();
+        return DagTabShared.PATH + this.getName();
     }
 
     public load(): XDPromise<void> {

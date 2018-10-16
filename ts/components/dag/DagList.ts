@@ -208,15 +208,6 @@ class DagList {
     }
 
     private _setupFileLister(): void {
-        const fileTemplate = (file: {name: string, id: string}): string => {
-            const html: HTML =
-            '<li class="fileName dagListDetail" data-id="' + file.id + '">' +
-                '<i class="gridIcon icon xi-dfg2"></i>' +
-                '<div class="name">' + file.name + '</div>' +
-                this._iconHTML("deleteDataflow", "xi-trash", DFTStr.DelDF) +
-            '</li>';
-            return html;
-        };
         const renderTemplate = (
             files: {name: string, id: string}[],
             folders: string[]
@@ -267,6 +258,13 @@ class DagList {
         });
         sharedList.sort();
         userList.sort();
+        if (sharedList.length === 0) {
+            // add the shared folder by default
+            sharedList.push({
+                path: DagTabShared.PATH,
+                id: null
+            });
+        }
         const dagLists = sharedList.concat(userList);
         this._fileLister.setFileObj(dagLists);
         this._fileLister.render();

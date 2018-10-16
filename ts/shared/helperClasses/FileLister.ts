@@ -19,6 +19,7 @@ class FileLister {
 
     /**
      * Set the file info to list
+     * if the path represent a folder, do {path: /folderPath/, id: null}
      * @param fileList
      */
     public setFileObj(fileList: {path: string, id: string}[]): void {
@@ -34,7 +35,10 @@ class FileLister {
                 }
                 obj = obj.folders[splitPath[j]];
             }
-            obj.files.push({name: splitPath[splen - 1], id: fileList[i].id});
+            if (splitPath[splen - 1] && fileList[i].id) {
+                // when it's not a folder
+                obj.files.push({name: splitPath[splen - 1], id: fileList[i].id});
+            }
         }
     }
 
@@ -74,22 +78,36 @@ class FileLister {
         if (this._fileObject == null) {
             return;
         }
+        const pathLen: number = this._currentPath.length;
         let curObj: FileListerFolder = this._fileObject;
         let path: string = "";
-        const pathLen: number = this._currentPath.length;
+        let fullPath: string = "/";
+        if (pathLen === 0) {
+            path = DSTStr.Home + " /";
+        } else {
+            path = '<span class="path" data-path="/">' +
+                        DSTStr.Home +
+                    '</span>' + ' / ';
+        }
         // Wind down the path
         for (let i = 0; i < pathLen; i++) {
+            const currentPath: string = this._currentPath[i];
+            fullPath += currentPath + "/";
             // Only show the last two
             if (i < pathLen - 2) {
-                path += '...' + '/';
+                path += '...' + ' / ';
+            } else if (i !== pathLen - 1) {
+                path += '<span class="path" data-path="' + fullPath + '">' +
+                            currentPath +
+                        '</span>' + ' / ';
             } else {
-                path += this._currentPath[i] + '/';
+                path += currentPath + ' /';
             }
-            curObj = curObj.folders[this._currentPath[i]];
+            curObj = curObj.folders[currentPath];
         }
         const folders: string[] = Object.keys(curObj.folders);
         const html: HTML = this._renderTemplate(curObj.files, folders);
-        this._$section.find(".pathSection .path").text(path);
+        this._$section.find(".pathSection .path").html(path);
         this._$section.find(".listView ul").html(html);
     }
 
@@ -128,6 +146,11 @@ class FileLister {
             if (this._futurePath.length == 0) {
                 this._getForwardBtn().addClass('xc-disabled');
             }
+        });
+
+        this._$section.find(".pathSection").on("click", ".path span", (event) => {
+            const path = $(event.currentTarget).data("path");
+            this.goToPath(path);
         });
     }
 
