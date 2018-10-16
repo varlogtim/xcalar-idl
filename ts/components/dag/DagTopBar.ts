@@ -140,6 +140,11 @@ class DagTopBar {
                 });
             }
         });
+
+        // settings button
+        this.$topBar.find(".setting").click(() => {
+            DFSettingsModal.Instance.show();
+        });
     }
 
     private _checkZoom() {

@@ -5124,6 +5124,27 @@ html.microsoft {
     }
 }
 
+#dfSettingsModal {
+    .size(@width: 520px, @height: 190px);
+
+    .modalMain {
+        .size(@height: ~"calc(100% - 92px)");
+        padding: 10px 10px 0 10px;
+        .flex-display;
+        .flex-direction(column);
+
+        .row {
+            .flex(1 1 auto);
+
+            &.checkboxSection {
+                .checkbox {
+                    height: 30px;
+                }
+            }
+        }
+    }
+}
+
 /* Login Config Modal */
 #loginConfigModal {
     .size(@width: 800px, @height:650px);

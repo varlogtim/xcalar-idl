@@ -799,6 +799,10 @@ namespace DagView {
         return nodeIds;
     }
 
+    /**
+     * DagView.previewTable
+     * @param dagNodeId
+     */
     export function previewTable(dagNodeId: string): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         try {
@@ -869,6 +873,11 @@ namespace DagView {
 
         activeDag.execute(nodeIds)
         .then(function() {
+            if (UserSettings.getPref("dfAutoPreview") === true &&
+                nodeIds.length === 1
+            ) {
+                DagView.previewTable(nodeIds[0]);
+            }
             deferred.resolve();
         })
         .fail(function(error) {
@@ -883,6 +892,7 @@ namespace DagView {
 
         return deferred.promise();
     }
+
     /**
      *
      * @param nodeIds
@@ -2165,6 +2175,12 @@ namespace DagView {
                 title: JSON.stringify(info.params, null, 2)
             });
             activeDagTab.save();
+            if (UserSettings.getPref("dfAutoExecute") === true) {
+                const dagNode: DagNode = info.node;
+                if (dagNode.getState() == DagNodeState.Configured) {
+                    DagView.run([info.id]);
+                }
+            }
         });
 
         activeDag.events.on(DagNodeEvents.AggregateChange, function(info) {

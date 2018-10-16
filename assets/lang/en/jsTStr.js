@@ -1147,6 +1147,8 @@ DFTStr = {
     "SaveDF": "Save dataflow",
     "SaveDFMsg": "\"<name>\" has been modified, do you want to save the change?",
     "NoAutoSave": "Auto save is not supported for shared dataflow",
+    "AutoExecute": "Auto execute the dataflow after configuration",
+    "AutoPreview": "Auto preview the results after execution",
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
     'CancelAlertMsg': 'Batch dataflow \'<name>\' was canceled.',

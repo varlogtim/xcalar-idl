@@ -449,7 +449,8 @@ abstract class DagNode {
         this.events.trigger(DagNodeEvents.ParamChange, {
             id: this.getId(),
             params: this.getParam(),
-            type: this.getType()
+            type: this.getType(),
+            node: this
         });
     }
 

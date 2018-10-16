@@ -1425,6 +1425,8 @@
 
             new attr:
                 dsSortKey: (string) ds grid view sort key
+                dfAutoExecute: (boolean) DF 2.0 settings
+                dfAutoPreview: (boolean) DF 2.0 settings
         */
         function UserPref<%= v %>(options) {
             options = options || {};
@@ -1432,6 +1434,8 @@
             <%= addVersion %>
             if (<%= checkFunc %>(options)) {
                 self.dsSortKey = options.dsSortKey;
+                self.dfAutoExecute = options.dfAutoExecute;
+                self.dfAutoPreview = options.dfAutoPreview;
             }
             return self;
         }

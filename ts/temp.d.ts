@@ -926,10 +926,10 @@ declare class XEvalParser {
 /* ============== NAMESPACE ====================== */
 declare namespace UserSettings {
     export function getPref(prop: string): any;
-    export function commit(): XDPromise<void>;
+    export function commit(showSuccess?: boolean): XDPromise<void>;
     export function restore(oldMeta: UserInfoConstructor, gInfosSetting: object): XDPromise<void>;
     export function sync(): void;
-    export function setPref(name: string, val: string | number, something?: boolean): void;
+    export function setPref(name: string, val: string | number | boolean, something?: boolean): void;
 }
 
 declare namespace ColManager {

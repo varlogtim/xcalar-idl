@@ -897,6 +897,7 @@ module.exports = {
         "SourceTables": "Source Tables",
         "SelectOpEdit": "Select an operation to edit",
         "DestDFName": "Destination dataflow name",
+        "Settings": "Dataflow settings",
         // For uploader
         "upload": "UPLOAD",
         "uploadHeader": "Upload dataflow",
