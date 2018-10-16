@@ -5066,6 +5066,14 @@ html.microsoft {
 #shareDFModal {
     .size(@width: 520px, @height: 265px);
 
+    &.locked {
+        pointer-events: none;
+
+        .close, button {
+            opacity: @opacity-disabled;
+        }
+    }
+
     .modalMain {
         .size(@height: ~"calc(100% - 92px)");
         padding: 10px 10px 0 10px;
@@ -5086,12 +5094,15 @@ html.microsoft {
 
         .path {
             @prefix-w: 64px;
-            @total-w: @prefix-w;
+            @btn-w: 85px;
+            @input-margin: 5px;
+            @total-w: @prefix-w + @btn-w + @input-margin + 5;
 
             input {
                 border-left: none;
                 width: ~"calc(100% - @{total-w})";
                 padding-left: 2px;
+                margin-right: @input-margin;
 
                 &:focus {
                     ~ .prefix {
@@ -5108,6 +5119,11 @@ html.microsoft {
                 padding-left: 5px;
                 border: 1px solid @color-json-options-bar;
                 border-right: none;
+            }
+
+            button {
+                .size(@width: @btn-w, @height: 30px);
+                line-height: 30px;
             }
         }
 
@@ -5140,6 +5156,40 @@ html.microsoft {
                 .checkbox {
                     height: 30px;
                 }
+            }
+        }
+    }
+}
+
+#dfBrowserModal {
+    .size(@width: 450px, @height: 480px);
+
+    .modalMain {
+        .size(@height: ~"calc(100% - 92px)");
+        padding: 10px;
+        
+        .saveAs {
+            height: 30px;
+            margin-bottom: 10px;
+            margin-left: 3px;
+
+            input {
+                background-color: @color-white;
+                width: ~"calc(100% - 75px)";
+            }
+        }
+
+        .fileList {
+            height: ~"calc(100% - 40px)";
+
+            .gridIcon {
+                color: @color-font-edge;
+                font-size: 14px;
+            }
+
+            .fileName {
+                opacity: 0.8;
+                cursor: default;
             }
         }
     }

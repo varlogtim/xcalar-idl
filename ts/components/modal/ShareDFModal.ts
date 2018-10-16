@@ -108,6 +108,13 @@ class ShareDFModal {
             },
             {
                 $ele: $pathInput,
+                error: DFTStr.NoEmptyDestName,
+                check: () => {
+                    return !shortName;
+                }
+            },
+            {
+                $ele: $pathInput,
                 error: ErrTStr.DFNameIllegal,
                 check: () => {
                     !xcHelper.checkNamePattern(PatternCategory.Dataflow,
@@ -193,6 +200,40 @@ class ShareDFModal {
         return this._getModal().find(".path input");
     }
 
+    private static _browse(): void {
+        let rootPath: string = DagTabShared.PATH;
+        rootPath = rootPath.substring(0, rootPath.length - 1); // /Shared/
+        let fileLists: {path: string, id: string}[] = DagList.Instance.list();
+        fileLists = fileLists.filter((fileObj) => {
+            if (fileObj.path.startsWith(rootPath)) {
+                fileObj.path = fileObj.path.substring(rootPath.length);
+                return true;
+            }
+            return false;
+        });
+        // lock modal
+        this._getModal().addClass("locked");
+        const defaultPath: string = this._getPathEl().val().trim();
+        const options = {
+            rootPath: rootPath,
+            defaultPath: defaultPath,
+            onConfirm: (path, name) => {
+                if (path) {
+                    path = path + "/" + name;
+                } else {
+                    // when in the root
+                    path = name;
+                }
+                this._setPath(path);
+            },
+            onClose: () => {
+                // unlock modal
+                this._getModal().removeClass("locked");
+            }
+        };
+        DFBrowserModal.Instance.show(fileLists, options);
+    }
+
     private static _addEventListeners(): void {
         const $modal: JQuery = this._getModal();
         $modal.on("click", ".close, .cancel", () => {
@@ -206,6 +247,10 @@ class ShareDFModal {
         $modal.on("click", ".checkboxSection .text, .checkboxSection .checkbox", (event) => {
             $(event.currentTarget).closest(".checkboxSection")
             .find(".checkbox").toggleClass("checked");
+        });
+
+        $modal.find(".browse").click(() => {
+            this._browse();
         });
     }
 }

@@ -1063,7 +1063,7 @@ DFTStr = {
     "DelDFMsg": "Are you sure you want to permanently delete the dataflow : \"<dfName>\"? This action cannot be undone.",
     "DFTitle": "DATAFLOW",
     "DownloadErr": "Download Failed",
-    'DupDataflowName': 'Dataflow name already in use',
+    'DupDataflowName': 'Dataflow name already in use.',
     "ExportTo": "Export As",
     "ExportToTable": "Export Table Name",
     "FindTable": "The final table <table> is in the active worksheet",
@@ -1149,6 +1149,7 @@ DFTStr = {
     "NoAutoSave": "Auto save is not supported for shared dataflow",
     "AutoExecute": "Auto execute the dataflow after configuration",
     "AutoPreview": "Auto preview the results after execution",
+    "NoEmptyDestName": "Pleaase enter a destination dataflow name.",
     // with replace
     "EditOpDirectly": "Please edit the overall <op> operation directly",
     'CancelAlertMsg': 'Batch dataflow \'<name>\' was canceled.',

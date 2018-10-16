@@ -51,6 +51,37 @@ class DagList {
         return this._dags.get(id);
     }
 
+    public list(): {path: string, id: string}[] {
+        const sharedList: {path: string, id: string}[] = [];
+        const userList: {path: string, id: string}[] = [];
+        this._dags.forEach((dagTab) => {
+            let path = "";
+            if (dagTab instanceof DagTabShared) {
+                path = dagTab.getPath();
+                sharedList.push({
+                    path: path,
+                    id: dagTab.getId()
+                });
+            } else {
+                path = "/" + dagTab.getName();
+                userList.push({
+                    path: path,
+                    id: dagTab.getId()
+                });
+            }
+        });
+        sharedList.sort();
+        userList.sort();
+        if (sharedList.length === 0) {
+            // add the shared folder by default
+            sharedList.push({
+                path: DagTabShared.PATH,
+                id: null
+            });
+        }
+        return sharedList.concat(userList);
+    }
+
     public refresh(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const promise: XDPromise<void> = deferred.promise();
@@ -238,34 +269,7 @@ class DagList {
     }
 
     private _renderDagList(): void {
-        const sharedList: {path: string, id: string}[] = [];
-        const userList: {path: string, id: string}[] = [];
-        this._dags.forEach((dagTab) => {
-            let path = "";
-            if (dagTab instanceof DagTabShared) {
-                path = dagTab.getPath();
-                sharedList.push({
-                    path: path,
-                    id: dagTab.getId()
-                });
-            } else {
-                path = "/" + dagTab.getName();
-                userList.push({
-                    path: path,
-                    id: dagTab.getId()
-                });
-            }
-        });
-        sharedList.sort();
-        userList.sort();
-        if (sharedList.length === 0) {
-            // add the shared folder by default
-            sharedList.push({
-                path: DagTabShared.PATH,
-                id: null
-            });
-        }
-        const dagLists = sharedList.concat(userList);
+        const dagLists = this.list();
         this._fileLister.setFileObj(dagLists);
         this._fileLister.render();
     }

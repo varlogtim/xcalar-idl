@@ -4,6 +4,7 @@ class FileLister {
     private _futurePath: string[];
     private _$section: JQuery;
     private _renderTemplate: (files: {name: string, id: string}[], folders: string[]) => string;
+    private _rootPath: string;
 
     public constructor(
         $section: JQuery,
@@ -13,8 +14,17 @@ class FileLister {
     ) {
         this._$section = $section;
         this._renderTemplate = options.renderTemplate;
+        this._rootPath = DSTStr.Home;
         this._resetPath();
         this._addEventListeners();
+    }
+
+    /**
+     * Set the root path to show
+     * @param rootPath
+     */
+    public setRootPath(rootPath: string): void {
+        this._rootPath = rootPath;
     }
 
     /**
@@ -47,6 +57,17 @@ class FileLister {
      */
     public render(): void {
         return this._render();
+    }
+
+    /**
+     * Get the current folder's path
+     */
+    public getCurrentPath(): string {
+        const len: number = this._currentPath.length;
+        if (len=== 0) {
+            return "";
+        }
+        return this._currentPath[len- 1];
     }
 
     /**
@@ -83,10 +104,10 @@ class FileLister {
         let path: string = "";
         let fullPath: string = "/";
         if (pathLen === 0) {
-            path = DSTStr.Home + " /";
+            path = this._rootPath + " /";
         } else {
             path = '<span class="path" data-path="/">' +
-                        DSTStr.Home +
+                        this._rootPath +
                     '</span>' + ' / ';
         }
         // Wind down the path
