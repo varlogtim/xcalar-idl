@@ -226,7 +226,8 @@ router.get('/auth/sessionStatus', function(req, res) {
                     admin: false,
                     loggedIn: false,
                     emailAddress: null,
-                    firstName: null };
+                    firstName: null,
+                    username: null };
     var expirationDate = (new Date(req.session.cookie.expires)).getTime();
     var now = (new Date).getTime();
 
@@ -234,7 +235,8 @@ router.get('/auth/sessionStatus', function(req, res) {
         req.session.hasOwnProperty('loggedInAdmin') &&
         req.session.hasOwnProperty('loggedInUser') &&
         req.session.hasOwnProperty('firstName') &&
-        req.session.hasOwnProperty('emailAddress')) {
+        req.session.hasOwnProperty('emailAddress') &&
+        req.session.hasOwnProperty('username')) {
 
         message = {
             user: req.session.loggedInUser,
@@ -242,7 +244,8 @@ router.get('/auth/sessionStatus', function(req, res) {
             loggedIn: req.session.loggedIn &&
                 (now <= expirationDate),
             emailAddress: req.session.emailAddress,
-            firstName: req.session.firstName
+            firstName: req.session.firstName,
+            username: req.session.username
         }
     }
 

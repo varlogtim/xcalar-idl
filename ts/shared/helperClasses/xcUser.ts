@@ -51,7 +51,7 @@ class XcUser {
 /** END DEBUG ONLY **/
         XcUser.checkCurrentUser()
         .then((data) => {
-            setCurrentUserHelper(data.emailAddress, data.admin);
+            setCurrentUserHelper(data.username, data.admin);
             deferred.resolve();
         })
         .fail(deferred.reject);

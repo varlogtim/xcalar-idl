@@ -953,6 +953,7 @@ function loginAuthImpl(req, res) {
             req.session.loggedInAdmin = message.isAdmin;
             req.session.loggedInUser = !message.isAdmin;
 
+            req.session.username = message.xiusername;
             req.session.firstName = message.firstName;
             req.session.emailAddress = message.mail;
         }
