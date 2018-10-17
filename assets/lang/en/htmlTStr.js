@@ -337,7 +337,6 @@ module.exports = {
         "DoneQueries": "Show finished operations",
         "SelectCol": "Please select a column first.",
         "SelectFile": "Select a .tar.gz file first",
-        "SelectDFFile": "Select a .xlrdf file first",
         "IcvRestriction": "ER table only available for Map and Group By", // Sync with jsTstr
         "DropTables": "Drop Tables",
         "DropConsts": "Drop Aggregates",
@@ -872,7 +871,6 @@ module.exports = {
         "ShareDF": "Share Dataflow",
         "ShareDS": "Share datasets used in the dataflow",
         "ShareDSHint": "Shared dataflow cannot access private datasets, to make the dataflow executable, datasets used in the dataflow need to be shared",
-        "KeepLocalCopy": "Keep the local copy",
         "DestSelectionTitle": "Specify dataflow destination",
         "DownloadDF": "Download dataflow",
         "DataflowTitle": "Batch Dataflow",
@@ -905,8 +903,7 @@ module.exports = {
         // For uploader
         "upload": "UPLOAD",
         "uploadHeader": "Upload dataflow",
-        "uploadInstrOld": "Upload a previously downloaded dataflow into Xcalar. Your file should be of the format .tar.gz",
-        "uploadInstr": "Upload a previously downloaded dataflow into Xcalar. Your file should be of the format .xlrdf",
+        "uploadInstr": "Upload a previously downloaded dataflow into Xcalar. Your file should be of the format .tar.gz",
         "overwriteUdf": "Overwrite UDFs of the same module name with those inside this dataflow"
     },
 

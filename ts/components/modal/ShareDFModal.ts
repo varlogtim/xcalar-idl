@@ -60,7 +60,6 @@ class ShareDFModal {
         const $modal: JQuery = this._getModal();
         const path: string = res.path;
         const shareDS: boolean = $modal.find(".shareDS .checkbox").hasClass("checked");
-        const keepCopy: boolean = $modal.find(".keepCopy .checkbox").hasClass("checked");
 
         const graph: DagGraph = this.dagToShare.getGraph();
         const fakeDag: DagTabShared = new DagTabShared(path, null, graph);
@@ -71,7 +70,6 @@ class ShareDFModal {
             hasShared = true;
             return this._advencedOptions({
                 shareDS: shareDS,
-                keepCopy: keepCopy,
                 dag: this.dagToShare
             });
         })
@@ -137,7 +135,6 @@ class ShareDFModal {
 
     private static _advencedOptions(options: {
         shareDS: boolean,
-        keepCopy: boolean,
         dag: DagTabUser
     }): XDPromise<any> {
         let shareDS = (): XDPromise<void> => {
@@ -154,20 +151,9 @@ class ShareDFModal {
             });
             return PromiseHelper.when(...promises);
         };
-
-        let deleteLocalCopy = (): XDPromise<void> => {
-            if (options.keepCopy) {
-                return PromiseHelper.resolve();
-            }
-            const dag: DagTabUser = options.dag;
-            if (!DagTabManager.Instance.removeTab(dag.getId())) {
-                return PromiseHelper.reject(DFTStr.DelFail);
-            }
-            return dag.delete();
-        };
         
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
-        PromiseHelper.when(shareDS(), deleteLocalCopy())
+        shareDS()
         .then(deferred.resolve)
         .fail((...arg) => {
             const error: string = arg.filter((e) => e != null).join("\n");

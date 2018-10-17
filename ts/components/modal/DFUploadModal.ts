@@ -235,7 +235,7 @@ class DFUploadModal {
         this._setDestPath(fileName);
         const $confirmBtn: JQuery = $modal.find(".confirm");
         const $tooltipWrap: JQuery = $modal.find(".buttonTooltipWrap");
-        if (path.endsWith(".xlrdf")) {
+        if (path.endsWith(".tar.gz")) {
             $confirmBtn.removeClass("btn-disabled");
             xcTooltip.disable($tooltipWrap);
         } else {

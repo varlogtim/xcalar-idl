@@ -20,7 +20,7 @@
     <div class="row label"><%= dicts.workbook.uploadFile %>:</div>
     <div class="row source">
       <input class="path xc-input" type="text" readonly>
-      <input class="browse" spellcheck="false" type="file" style="display: none" accept=".xlrdf">
+      <input class="browse" spellcheck="false" type="file" style="display: none" accept=".gz">
       <button class="btn browse"><%= dicts.common.Browse %>...</button>
     </div>
     <div class="label"><%= dicts.dataflow.DestDFName %>:</div>
@@ -32,7 +32,7 @@
   </section>
   <!-- Button Section -->
   <section class="modalBottom">
-    <div class="buttonTooltipWrap" data-toggle="tooltip" data-container="body" data-placement="top" data-original-title="<%= dicts.TooltipTStr.SelectDFFile %>">
+    <div class="buttonTooltipWrap" data-toggle="tooltip" data-container="body" data-placement="top" data-original-title="<%= dicts.TooltipTStr.SelectFile %>">
     <button type="button" class="btn confirm btn-disabled"><%= dicts.dataflow.upload %></button>
     </div>
     <button type="button" class="btn btn-cancel cancel"><%= dicts.common.CANCEL %></button>
