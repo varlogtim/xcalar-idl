@@ -44,7 +44,8 @@ declare interface NodeDefDOMElement extends HTMLElement {
 declare type NodeDefXcData = {
     isForceUpdate?: boolean,
     events?: { [eventName: string]: (args:any)=>any },
-    initFunc?: () => void
+    initFunc?: () => void,
+    elementMountDone?: (node: NodeDefDOMElement) => void
 }
 declare type NodeDefText = {
     type: NodeDefType,
@@ -62,6 +63,39 @@ declare type NodeDefElement = {
 declare type NodeDefComponent = {
     type: NodeDefType,
     name: string
+}
+
+declare type AddMoreButtonProps = {
+    btnText: string, cssClass?: string, onClick: () => void
+}
+
+declare interface AutogenSectionProps {
+    type: string;
+    name: string;
+    valueCheck?: { checkType: string, args: any[] | Function };
+    onElementMountDone?: (elem: HTMLElement) => void;
+}
+
+declare interface HintDropdownProps extends AutogenSectionProps {
+    inputVal: string;
+    placeholder: string;
+    menuList: { colType: ColumnType, colName: string}[];
+    onDataChange?: (data: string) => void;
+    addMoreButton?: AddMoreButtonProps;
+}
+
+declare interface SimpleInputProps<T> extends AutogenSectionProps {
+    inputVal: T;
+    placeholder: string;
+    onChange?: (data: T) => void;
+    onInput?: (data: T) => void;
+    inputTimeout?: number;
+    onBlur?: (data: T) => void;
+}
+
+declare type ValueCheckResult<T> = {
+    errMsg?: string,
+    value?: T
 }
 
 // *******************

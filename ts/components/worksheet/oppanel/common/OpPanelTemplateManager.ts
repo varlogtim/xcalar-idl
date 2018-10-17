@@ -12,6 +12,17 @@ class OpPanelTemplateManager {
         OpPanelNodeRenderFactory.setNodeInitFunc(element as NodeDefDOMElement, initFunc);
     }
     
+    public static setNodeMountDoneListener(
+        elements: HTMLElement[], listener: (elem: HTMLElement) => void
+    ) {
+        if (elements == null) {
+            return;
+        }
+        for (const element of elements) {
+            OpPanelNodeRenderFactory.setNodeMountDoneListener(element as NodeDefDOMElement, listener);
+        }
+    }
+
     /**
      * Load HTML template from DOM, then create and cache virtual DOM definition
      * @param container ancestor of the template

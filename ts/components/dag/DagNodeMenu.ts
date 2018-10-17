@@ -234,7 +234,7 @@ namespace DagNodeMenu {
                 }
                 break;
             case (DagNodeType.Split):
-                console.warn('Not implemented yet');
+                SplitOpPanel.Instance.show(node, options);
                 break;
             case (DagNodeType.GroupBy):
                 GroupByOpPanel.Instance.show(node, options);

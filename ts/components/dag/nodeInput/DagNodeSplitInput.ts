@@ -6,7 +6,7 @@ class DagNodeSplitInput extends DagNodeInput {
         return {
             source: input.source || "",
             delimiter: input.delimiter || "",
-            dest: input.dest.map((v) => v)
+            dest: input.dest == null ? [] : input.dest.map((v) => v)
         };
     }
 }

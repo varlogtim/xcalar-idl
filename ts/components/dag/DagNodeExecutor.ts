@@ -228,7 +228,7 @@ class DagNodeExecutor {
         const {
             source: colToSplit, delimiter, dest: toCols
         } = <DagNodeSplitInputStruct>this.node.getParam(true);
-        const delimStr = delimiter.replace(/\"/g, '\\"');
+        const delimStr = delimiter.replace(/\\/g, '\\\\').replace(/\"/g, '\\"');
         const srcTable = this._getParentNodeTable(0);
         const destTable = this._generateTableName();
 

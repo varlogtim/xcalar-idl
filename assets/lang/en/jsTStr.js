@@ -1650,4 +1650,10 @@ OpPanelTStr = {
     "DFLinkInNoOut": "Link out node doesn't exist",
     "SetDefaultInstr": "Select the set operation (except / intersect / union) and select columns from node.",
     "SetUnionInstr": "Select columns from node(s), which you want to apply in the operation.",
+    "SplitPanelTitle": "Split Operation",
+    "SplitPanelInstr": "Split column by delimiter",
+    "SplitPanelFieldNameDelimiter": "Delimiter",
+    "SplitPanelFieldNameSourceColumn": "Column to split",
+    "SplitPanelFieldNameColumnCount": "Number of columns",
+    "SplitPanelFieldNameDestColumn": "Column name",
 };

@@ -7,6 +7,7 @@ class DagNodeSplit extends DagNode {
         this.minParents = 1;
         this.maxParents = 1;
         this.display.icon = "&#xe9da;"
+        this.input = new DagNodeSplitInput(options.input);
     }
 
     public setParam(param: DagNodeSplitInputStruct): void {
@@ -67,6 +68,13 @@ class DagNodeSplit extends DagNode {
         } else {
             newColNames = splitCols.map((v) => v);
             retry = 0;
+            // Auto-generate column names for those with null value
+            for (let i = 0; i < newColNames.length; i ++) {
+                if (newColNames[i] == null) {
+                    newColNames[i] = this._genColumnName(colToSplit, i + 1);
+                    retry = 1;
+                }
+            }
         }
 
         // Try to auto-generate column names
@@ -90,6 +98,9 @@ class DagNodeSplit extends DagNode {
     private _hasDupInList(colNames: string[]): boolean {
         const colSet = new Set<string>();
         for (const colName of colNames) {
+            if (colName == null) {
+                continue;
+            }
             if (colSet.has(colName)) {
                 return true;
             }
@@ -100,6 +111,9 @@ class DagNodeSplit extends DagNode {
 
     private _hasDupInAllCols(allColSet: Set<string>, colNames: string[]): boolean {
         for (const colName of colNames) {
+            if (colName == null) {
+                continue;
+            }
             if (allColSet.has(colName)) {
                 return true;
             }

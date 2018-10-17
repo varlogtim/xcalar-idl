@@ -37,7 +37,9 @@ class OpPanelNodeRenderFactory {
                     const nodes = this._createComponentNode(nodeDef, args);
                     if (nodes != null) {
                         for (const node of nodes) {
-                            nodeList.push(node);
+                            if (node != null) {
+                                nodeList.push(node);
+                            }
                         }
                     }
                 }
@@ -69,17 +71,17 @@ class OpPanelNodeRenderFactory {
                         const newNode = newNodeList[oldIndex];
                         if (this._isNodeForceUpdate(oldNode)) {
                             container.replaceChild(newNode, oldNode);
-                            this._runInitFunc(newNode, true);
+                            this._lifecycleMountDone(newNode, newNode, true);
                             // console.log(`Node replace(force): ${oldNode.nodeName}`);
                         } else if (!this._isSameNodeType(oldNode, newNode)) {
                             // Different node type, replace the whole subtree
                             container.replaceChild(newNode, oldNode);
-                            this._runInitFunc(newNode, true);
+                            this._lifecycleMountDone(newNode, newNode, true);
                             // console.log(`Node replace: ${newNode.nodeName}`);
                         } else {
                             // Same node type, update attributes/states
                             this._updateNode(oldNode, newNode);
-                            this._runInitFunc(newNode, false);
+                            // this._lifecycleMountDone(newNode, oldNode, false);
                             // Continue checking child elements
                             const childNodes = [];
                             if (newNode.hasChildNodes()) {
@@ -104,7 +106,7 @@ class OpPanelNodeRenderFactory {
                     for (let i = oldIndex; i < newNodeList.length; i ++) {
                         const child = newNodeList[i];
                         container.appendChild(child);
-                        this._runInitFunc(child, true);
+                        this._lifecycleMountDone(child, child, true);
                         // console.log(`Node add1: ${newNodeList[i].nodeName}`);
                     }
                 }
@@ -112,24 +114,35 @@ class OpPanelNodeRenderFactory {
                 // Empty tree, add new children
                 for (const child of newNodeList) {
                     container.appendChild(child);
-                    this._runInitFunc(child, true);
+                    this._lifecycleMountDone(child, child, true);
                     // console.log(`Node add2: ${child.nodeName}`);
                 }
             }
-            this._runInitFunc(container as NodeDefDOMElement, false);
+            this._lifecycleMountDone(
+                container as NodeDefDOMElement,
+                container as NodeDefDOMElement, false);
         } catch(e) {
             console.error('NodeRender.updateDOM', e);
         }
     }
 
-    private static _runInitFunc(node: NodeDefDOMElement, isRecursive: boolean) {
-        const initFunc = this._getInitFunc(node);
+    private static _lifecycleMountDone(
+        newNode: NodeDefDOMElement,
+        domNode: NodeDefDOMElement,
+        isRecursive: boolean
+    ) {
+        const listener = this._getMountDoneListener(newNode);
+        const initFunc = this._getInitFunc(newNode);
+        if (listener != null) {
+            setTimeout(() => listener(domNode), 0);
+        }
         if (initFunc != null) {
             setTimeout(initFunc, 0);
         }
-        if (isRecursive && node.hasChildNodes()) {
-            for (const child of node.childNodes) {
-                this._runInitFunc(child as NodeDefDOMElement, isRecursive);
+        if (isRecursive && newNode.hasChildNodes()) {
+            for (const child of newNode.childNodes) {
+                const childNode = <NodeDefDOMElement>child;
+                this._lifecycleMountDone(childNode, childNode, isRecursive);
             }
         }
     }
@@ -156,12 +169,31 @@ class OpPanelNodeRenderFactory {
         this._writeXcData(node, { initFunc: initFunc });
     }
 
+    public static setNodeMountDoneListener(
+        node: NodeDefDOMElement, listener: (elem: HTMLElement) => void
+    ) {
+        if (node == null) {
+            return;
+        }
+        this._writeXcData(node, { elementMountDone: listener });
+    }
+
     private static _getInitFunc(node: NodeDefDOMElement): () => void {
         const xcdata = this._readXcData(node);
         if (xcdata == null) {
             return null;
         }
         return xcdata.initFunc;
+    }
+
+    private static _getMountDoneListener(
+        node: NodeDefDOMElement
+    ): (node: NodeDefDOMElement) => void {
+        const xcdata = this._readXcData(node);
+        if (xcdata == null) {
+            return null;
+        }
+        return xcdata.elementMountDone;
     }
 
     private static _getDefaultXcData(): NodeDefXcData {
@@ -189,6 +221,9 @@ class OpPanelNodeRenderFactory {
         if (xcdata.initFunc != null) {
             nodeData.initFunc = xcdata.initFunc;
         }
+        if (xcdata.elementMountDone != null) {
+            nodeData.elementMountDone = xcdata.elementMountDone;
+        }
         node.xcdata = nodeData;
     }
 
@@ -200,7 +235,8 @@ class OpPanelNodeRenderFactory {
         return {
             isForceUpdate: xcdata.isForceUpdate,
             events: Object.assign({}, xcdata.events),
-            initFunc: xcdata.initFunc
+            initFunc: xcdata.initFunc,
+            elementMountDone: xcdata.elementMountDone
         };
     }
 

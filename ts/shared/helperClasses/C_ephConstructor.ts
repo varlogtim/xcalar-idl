@@ -1308,6 +1308,7 @@ interface MenuHelperOptions {
     beforeOpenAsync?: Function;
     onSelect?: Function;
     onOpen?: Function;
+    onClose?: Function;
 }
 
 interface MenuHelperTimer {
@@ -1496,6 +1497,9 @@ class MenuHelper {
         $(document).off("mousedown.closeDropDown" + self.id);
         $(document).off("keydown.closeDropDown" + self.id);
         $(document).off('keydown.listNavigation' + self.id);
+        if (self.options.onClose) {
+            self.options.onClose();
+        }
     }
 
     public openList(): void {
