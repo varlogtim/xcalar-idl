@@ -1351,61 +1351,6 @@
 
 /* ========== End of Dataflow List ========== */
 
-/* ========== Dataflow uploader ============= */
-#dataflowUploadCard {
-    display: none;
-    position: relative; // for cardLocked modal
-
-    .cardMain {
-        margin: 0 auto;
-        padding: 40px;
-        padding-bottom: 0px;
-        padding-left: 20px;
-        padding-right: 20px;
-
-        > div {
-            margin-bottom: 10px;
-        }
-        .text {
-            .size(@width: 110px);
-            display: inline-block;
-        }
-        .uploadArea {
-            .input-box(@w: ~"calc(100% - 297px)", @h: 30px);
-            input {
-                margin-right: 10px;
-            }
-        }
-
-        .nameArea {
-            .input-box(@w: 275px, @h: 30px);
-        }
-
-        .btn {
-            width: 150px;
-        }
-    }
-
-    .cardBottom {
-        padding-right: 40px;
-        padding-bottom: 20px;
-        .buttonTooltipWrap {
-            // Keep same as the button that it wraps
-            margin-left: 10px;
-            width: 150px;
-            height: 36px;
-            float: right;
-        }
-        .btn {
-            &.unavailable {
-                pointer-events: none;
-            }
-        }
-    }
-}
-/* ========== End of Dataflow uploader ============= */
-
-
 // XXX temporary
 #userBox.dagMode {
     width: 45px;

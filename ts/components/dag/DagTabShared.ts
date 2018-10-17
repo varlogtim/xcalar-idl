@@ -162,7 +162,7 @@ class DagTabShared extends DagTab {
     }
 
     public download(): XDPromise<void> {
-        const fileName: string = this.getShortName() + ".tar.gz";
+        const fileName: string = this.getShortName() + ".xlrdf";
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         DagTabShared._switchSession(null);
         // XXX TODO, backend should give a flag about it's DF or WKBK

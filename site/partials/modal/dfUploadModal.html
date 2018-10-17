@@ -1,0 +1,41 @@
+<!-- Dataflow uploader -->
+<div id="dfUploadModal" class="modalContainer">
+  <!-- Header -->
+  <header class="modalHeader">
+    <span class="text"><%= dicts.dataflow.uploadHeader %></span>
+    <div class="close" data-container="body" data-toggle="tooltip" 
+      data-original-title="<%= dicts.common.Close %>">
+      <i class="icon xi-close"></i>
+    </div>
+  </header>
+  <!-- Instruction -->
+  <section class="modalInstruction">
+    <i class="icon xi-warning"></i>
+    <div class="text">
+      <span><%= dicts.dataflow.uploadInstr %></span>
+    </div>
+  </section>
+  <!-- Main Section -->
+  <section class="modalMain">
+    <div class="row label"><%= dicts.workbook.uploadFile %>:</div>
+    <div class="row source">
+      <input class="path xc-input" type="text" readonly>
+      <input class="browse" spellcheck="false" type="file" style="display: none" accept=".xlrdf">
+      <button class="btn browse"><%= dicts.common.Browse %>...</button>
+    </div>
+    <div class="label"><%= dicts.dataflow.DestDFName %>:</div>
+    <div class="row dest">
+      <input class="path xc-input" type="text" spellcheck="false">
+      <div class="prefix">/Shared/</div>
+      <button class="btn browse"><%= dicts.common.Browse %>...</button>
+    </div>
+  </section>
+  <!-- Button Section -->
+  <section class="modalBottom">
+    <div class="buttonTooltipWrap" data-toggle="tooltip" data-container="body" data-placement="top" data-original-title="<%= dicts.TooltipTStr.SelectDFFile %>">
+    <button type="button" class="btn confirm btn-disabled"><%= dicts.dataflow.upload %></button>
+    </div>
+    <button type="button" class="btn btn-cancel cancel"><%= dicts.common.CANCEL %></button>
+  </section>
+</div>
+<!-- End of Dataflow uploader -->

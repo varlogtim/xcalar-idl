@@ -5163,7 +5163,8 @@ html.microsoft {
 
 #dfBrowserModal {
     .size(@width: 450px, @height: 480px);
-
+    z-index: @z-index-modal + 1;
+    
     .modalMain {
         .size(@height: ~"calc(100% - 92px)");
         padding: 10px;
@@ -5194,6 +5195,91 @@ html.microsoft {
         }
     }
 }
+
+/* ========== Dataflow uploader ============= */
+#dfUploadModal {
+    .size(@width: 520px, @height: 290px);
+
+    &.locked {
+        pointer-events: none;
+
+        .close, button {
+            opacity: @opacity-disabled;
+        }
+    }
+
+    .modalMain {
+        padding: 10px;
+        .size(@height: ~"calc(100% - 148px)");
+
+        .row {
+            height: 30px;
+            @btn-w: 85px;
+            @total-w: @btn-w + 10px;
+            margin-bottom: 10px;
+
+            &.label {
+                height: 23px;
+                margin-bottom: 0;
+            }
+
+            button {
+                width: @btn-w;
+                height: 30px;
+                line-height: 30px;
+                float: right;
+            }
+
+            input {
+                width: ~"calc(100% - @{total-w})";
+                background-color: @color-white;
+            }
+
+            &.dest {
+                @prefix-w: 64px;
+
+                .prefix {
+                    float: left;
+                    height: 30px;
+                    line-height: 28px;
+                    width: @prefix-w;
+                    padding-left: 5px;
+                    border: 1px solid @color-json-options-bar;
+                    border-right: none;
+                }
+
+                input {
+                    border-left: none;
+                    width: ~"calc(100% - @{total-w} - @{prefix-w})";
+                    padding-left: 2px;
+    
+                    &:focus {
+                        ~ .prefix {
+                            border-color: @color-border-softBlue;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .modalBottom {
+        padding-bottom: 20px;
+        .buttonTooltipWrap {
+            // Keep same as the button that it wraps
+            margin-left: 10px;
+            width: 150px;
+            height: 36px;
+            float: right;
+        }
+        .btn {
+            &.unavailable {
+                pointer-events: none;
+            }
+        }
+    }
+}
+/* ========== End of Dataflow uploader ============= */
 
 /* Login Config Modal */
 #loginConfigModal {

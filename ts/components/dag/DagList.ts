@@ -371,7 +371,7 @@ class DagList {
     private _addEventListeners(): void {
         const $dagListSection: JQuery = this._getDagListSection();
         $("#dagUpload").click(() => {
-            DFUploader.show();
+            DFUploadModal.Instance.show();
         });
 
         $("#dagList .iconSection .refreshBtn").click(() => {

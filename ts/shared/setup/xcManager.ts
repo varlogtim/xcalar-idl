@@ -548,7 +548,6 @@ namespace xcManager {
         CommentNode.setup();
         DagTab.setup();
         DagView.setup();
-        DFUploader.setup();
         return setupDagList();
     }
 

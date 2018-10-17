@@ -337,6 +337,7 @@ module.exports = {
         "DoneQueries": "Show finished operations",
         "SelectCol": "Please select a column first.",
         "SelectFile": "Select a .tar.gz file first",
+        "SelectDFFile": "Select a .xlrdf file first",
         "IcvRestriction": "ER table only available for Map and Group By", // Sync with jsTstr
         "DropTables": "Drop Tables",
         "DropConsts": "Drop Aggregates",
@@ -904,7 +905,8 @@ module.exports = {
         // For uploader
         "upload": "UPLOAD",
         "uploadHeader": "Upload dataflow",
-        "uploadInstr": "Upload a previously downloaded dataflow into Xcalar. Your file should be of the format .tar.gz",
+        "uploadInstrOld": "Upload a previously downloaded dataflow into Xcalar. Your file should be of the format .tar.gz",
+        "uploadInstr": "Upload a previously downloaded dataflow into Xcalar. Your file should be of the format .xlrdf",
         "overwriteUdf": "Overwrite UDFs of the same module name with those inside this dataflow"
     },
 

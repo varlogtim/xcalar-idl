@@ -1,79 +1,91 @@
-class DFUploader {
-    private static _file: File;
+class DFUploadModal {
+    private static _instance: DFUploadModal;
+    public static get Instance() {
+        return this._instance || (this._instance = new this());
+    }
 
-    /**
-     * DFUploader.setup
-     */
-    public static setup(): void {
+    private _file: File;
+    private _modalHelper: ModalHelper;
+
+    private constructor() {
+        const $modal: JQuery = this._getModal();
+        this._modalHelper = new ModalHelper($modal, {
+            sizeToDefault: true,
+            center: {verticalQuartile: true}
+        });
         this._addEventListeners();
         this._setupDragDrop();
     }
 
-    /**
-     * DFUploader.show
-     */
-    public static show(): void {
-        this._getPanel().show();
+    public show(): void {
+        this._modalHelper.setup();
     }
 
-    private static _getPanel(): JQuery {
-        return $("#dataflowUploadCard");
+    private _getModal(): JQuery {
+        return $("#dfUploadModal");
     }
 
-    private static _getNameInput(): JQuery {
-        return this._getPanel().find(".nameArea .name");
+    private _getDestPathInput(): JQuery {
+        return this._getModal().find(".dest .path");
     }
 
-    private static _getBrowseButton(): JQuery {
-        return this._getPanel().find("input.browse");
+    private _getBrowseButton(): JQuery {
+        return this._getModal().find(".source input.browse");
     }
 
-    private static _close() {
-        const $panel: JQuery = this._getPanel();
-        $panel.hide();
+    private _close() {
+        const $modal: JQuery = this._getModal();
+        this._modalHelper.clear();
         this._file = null;
-        $panel.find("input").val("");
-        $panel.find(".confirm").addClass("btn-disabled");
-        xcTooltip.enable($panel.find(".buttonTooltipWrap"));
+        $modal.find("input").val("");
+        $modal.find(".confirm").addClass("btn-disabled");
+        xcTooltip.enable($modal.find(".buttonTooltipWrap"));
     }
 
-    private static _validate(): {tab: DagTabShared} {
-        const $nameInput: JQuery = this._getNameInput();
-        const dfName: string = $nameInput.val().trim();
-        const uploadTab: DagTabShared = new DagTabShared(dfName);
+    private _validate(): {tab: DagTabShared} {
+        const $pathInput: JQuery = this._getDestPathInput();
+        const path: string = $pathInput.val().trim();
+        const splits: string[] = path.split("/");
+        const shortName: string = splits[splits.length - 1];
         const isValid: boolean = xcHelper.validate([{
-            $ele: $nameInput
+            $ele: $pathInput
         }, {
-            $ele: $nameInput,
+            $ele: $pathInput,
+            error: DFTStr.NoEmptyDestName,
+            check: () => {
+                return !shortName;
+            }
+        }, {
+            $ele: $pathInput,
             error: ErrTStr.DFNameIllegal,
             check: () => {
                 return !xcHelper.checkNamePattern(PatternCategory.Dataflow,
-                    PatternAction.Check, dfName);
+                    PatternAction.Check, shortName);
             }
         }, {
-            $ele: $nameInput,
+            $ele: $pathInput,
             error: DFTStr.DupDataflowName,
             check: () => {
-                return !DagList.Instance.isUniqueName(uploadTab.getName());
+                return !DagList.Instance.isUniqueName(path);
             }
         }])
 
         if (!isValid) {
             return null;
         }
-
+        const uploadTab: DagTabShared = new DagTabShared(path);
         return {
             tab: uploadTab
         };
     }
 
-    private static _submitForm(): XDPromise<void> {
+    private _submitForm(): XDPromise<void> {
         const res: {tab: DagTabShared} = this._validate();
         if (res == null) {
             return PromiseHelper.reject();
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const $confirmBtn: JQuery = this._getPanel().find(".confirm");
+        const $confirmBtn: JQuery = this._getModal().find(".confirm");
         xcHelper.disableSubmit($confirmBtn);
 
         const tab: DagTabShared = res.tab;
@@ -83,7 +95,7 @@ class DFUploader {
         this._checkFileSize(file)
         .then(() => {
             timer = window.setTimeout(() => {
-                this._lockCard();
+                this._lock();
             }, 1000);
             return this._readFile(file);
         })
@@ -99,24 +111,24 @@ class DFUploader {
         .fail(deferred.reject)
         .always(() => {
             clearTimeout(timer);
-            this._unlockCard();
+            this._unlock();
             xcHelper.enableSubmit($confirmBtn);
         });
 
         return deferred.promise();
     }
 
-    private static _lockCard() {
-        this._getPanel().find(".cardLocked").show();
+    private _lock() {
+        this._getModal().addClass("locked");
     }
 
-    private static _unlockCard() {
-        this._getPanel().find(".cardLocked").hide();
+    private _unlock() {
+        this._getModal().removeClass("locked");
     }
 
     // XXX TODO: generalize the file uploader of this one and the one
     // in workbookPanel.ts
-    private static _checkFileSize(file: File): XDPromise<void> {
+    private _checkFileSize(file: File): XDPromise<void> {
         if (file == null) {
             return PromiseHelper.resolve();
         }
@@ -144,7 +156,7 @@ class DFUploader {
 
     // XXX TODO: generalize the file uploader of this one and the one
     // in workbookManager.ts
-    private static _readFile(file: File): XDPromise<any> {
+    private _readFile(file: File): XDPromise<any> {
         const deferred: XDDeferred<any> = PromiseHelper.deferred(); //string or array buffer
         const reader: FileReader = new FileReader();
 
@@ -165,35 +177,33 @@ class DFUploader {
     }
 
 
-    private static _addEventListeners() {
-        const $panel: JQuery = this._getPanel();
+    private _addEventListeners() {
+        const $modal: JQuery = this._getModal();
         // click cancel or close button
-        $panel.on("click", ".close, .cancel", (event) => {
+        $modal.on("click", ".close, .cancel", (event) => {
             event.stopPropagation();
             this._close();
         });
 
         // click upload button
-        $panel.on("click", ".confirm", () => {
+        $modal.on("click", ".confirm", () => {
             this._submitForm();
         });
-
-        // hit enter on name input submits form
-        this._getNameInput().on("keypress", (event) => {
-            if (event.which === keyCode.Enter) {
-                this._submitForm();
-            }
+        
+        // click dest browse button
+        $modal.find(".dest .browse").click(() => {
+            this._browseDestPath();
         });
 
-        // click browse button
+        // click source's browse button
         const $browseBtn: JQuery = this._getBrowseButton();
-        this._getPanel().find("button.browse").click((event) => {
+        $modal.find(".source button.browse").click((event) => {
             $(event.currentTarget).blur();
             $browseBtn.click();
             return false;
         });
 
-        $panel.find("input.path").mousedown(() => {
+        $modal.find(".source .path").mousedown(() => {
             $browseBtn.click();
             return false;
         });
@@ -213,36 +223,84 @@ class DFUploader {
         });
     }
 
-    private static _changeFilePath(path: string, fileInfo?: File) {
+    private _changeFilePath(path: string, fileInfo?: File) {
         path = path.replace(/C:\\fakepath\\/i, '');
         this._file = fileInfo || (<any>this._getBrowseButton()[0]).files[0];
         let fileName: string = path.substring(0, path.indexOf("."))
         .toLowerCase().replace(/ /g, "");
-        fileName = <string>xcHelper.checkNamePattern(PatternCategory.Dataflow,
-            PatternAction.Fix, fileName);
 
-        const $panel: JQuery = this._getPanel();
-        const $pathInput: JQuery = $panel.find("input.path");
-        $pathInput.val(path);
-        this._getNameInput().val(fileName);
-
-        const $confirmBtn: JQuery = $panel.find(".confirm");
-        const $tooltipWrap: JQuery = $panel.find(".buttonTooltipWrap");
-        if (path.indexOf(".tar.gz") > 0) {
+        const $modal: JQuery = this._getModal();
+        const $sourcePathInput: JQuery = $modal.find(".source .path");
+        $sourcePathInput.val(path);
+        this._setDestPath(fileName);
+        const $confirmBtn: JQuery = $modal.find(".confirm");
+        const $tooltipWrap: JQuery = $modal.find(".buttonTooltipWrap");
+        if (path.endsWith(".xlrdf")) {
             $confirmBtn.removeClass("btn-disabled");
             xcTooltip.disable($tooltipWrap);
         } else {
             $confirmBtn.addClass("btn-disabled");
             xcTooltip.enable($tooltipWrap);
-            StatusBox.show(ErrTStr.RetinaFormat, $pathInput, false, {
+            StatusBox.show(ErrTStr.RetinaFormat, $sourcePathInput, false, {
                 side: "bottom"
             });
         }
     }
 
-    private static _setupDragDrop(): void {
+    private _setDestPath(name: string): void {
+        name = <string>xcHelper.checkNamePattern(PatternCategory.Dataflow,
+            PatternAction.Fix, name);
+        const path: string = this._getUniquePath(name);
+        this._getDestPathInput().val(path);
+    }
+
+    private _getUniquePath(name: string): string {
+        const userName: string = XcUser.CurrentUser.getName().replace(/\//g, "_");
+        let path: string = `${userName}/${name}`;
+        let cnt = 0;
+        while (!DagList.Instance.isUniqueName(path)) {
+            path = `${userName}/${name}(${++cnt})`;
+        }
+        return path;
+    }
+
+    private _browseDestPath(): void {
+        let rootPath: string = DagTabShared.PATH;
+        rootPath = rootPath.substring(0, rootPath.length - 1); // /Shared/
+        let fileLists: {path: string, id: string}[] = DagList.Instance.list();
+        fileLists = fileLists.filter((fileObj) => {
+            if (fileObj.path.startsWith(rootPath)) {
+                fileObj.path = fileObj.path.substring(rootPath.length);
+                return true;
+            }
+            return false;
+        });
+        // lock modal
+        this._lock();
+        const defaultPath: string = this._getDestPathInput().val().trim();
+        const options = {
+            rootPath: rootPath,
+            defaultPath: defaultPath,
+            onConfirm: (path, name) => {
+                if (path) {
+                    path = path + "/" + name;
+                } else {
+                    // when in the root
+                    path = name;
+                }
+                this._getDestPathInput().val(path);
+            },
+            onClose: () => {
+                // unlock modal
+                this._unlock();
+            }
+        };
+        DFBrowserModal.Instance.show(fileLists, options);
+    }
+
+    private _setupDragDrop(): void {
         new DragDropUploader({
-            $container: this._getPanel(),
+            $container: this._getModal(),
             text: "Drop a dataflow file to upload",
             onDrop: (file) => {
                 this._changeFilePath(file.name, file);
@@ -265,16 +323,4 @@ class DFUploader {
             }
         });
     }
-
-    // /* Unit Test Only */
-    // if (window.unitTestMode) {
-    //     UploadDataflowCard.__testOnly__ = {};
-    //     UploadDataflowCard.__testOnly__.changeFilePath = changeFilePath;
-    //     UploadDataflowCard.__testOnly__.submitForm = submitForm;
-    //     UploadDataflowCard.__testOnly__.setFile = function(f) {
-    //         file = f;
-    //     };
-    //     UploadDataflowCard.__testOnly__.readRetinaFromFile = readRetinaFromFile;
-    // }
-    // /* End Of Unit Test Only */
 }
