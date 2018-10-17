@@ -1077,6 +1077,7 @@ DFTStr = {
     "Refresh": "Refresh Dataflow",
     "RefreshMsg": "The dataflow you are working on was modified by other users",
     "SlightSkew": "Slight skew",
+    "ToggleTime": "Click to show / hide individual operation run times",
     "ViewTable": "VIEW TABLE",
     'AddParamHint': 'Please create parameters in the Dataflow Panel first.',
     'AddSched': 'Add schedule to dataflow',

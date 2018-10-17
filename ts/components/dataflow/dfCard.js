@@ -379,15 +379,9 @@ window.DFCard = (function($, DFCard) {
             }
         });
 
-        $dfCard.on("mouseenter", ".timeSection", function() {
-            // shows progress info for all nodes when hovering over timesection
+        $dfCard.on("click", ".timeSection", function () {
             var $dagWrap = $(this).closest(".dagWrap");
-            $dagWrap.find(".dagTable").addClass("hover");
-        });
-
-        $dfCard.on("mouseleave", ".timeSection", function() {
-            var $dagWrap = $(this).closest(".dagWrap");
-            $dagWrap.find(".dagTable").removeClass("hover");
+            $dagWrap.find(".dagTable").toggleClass("hover");
         });
     }
 
@@ -475,7 +469,10 @@ window.DFCard = (function($, DFCard) {
                     '<i class="icon xi-close"></i>' +
                     '<div class="spin"></div>' +
                 '</button>' +
-                '<div class="timeSection">' +
+                '<div class="timeSection" ' +
+                'data-toggle="tooltip" data-container="body" ' +
+                'data-placement="top" data-original-title="' +
+                DFTStr.ToggleTime + '">' +
                     '<span class="label"></span>: ' +
                     '<span class="overallTime"></span>' +
                 '</div>' +
