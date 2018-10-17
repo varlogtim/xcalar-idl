@@ -332,7 +332,7 @@ class SQLOpPanel extends BaseOpPanel {
         self._sqlEditor = CodeMirror.fromTextArea(textArea as HTMLTextAreaElement,
             {
                 "mode": "text/x-sql",
-                "theme": "rubyblue",
+                "theme": "default",
                 "lineNumbers": true,
                 "lineWrapping": true,
                 "smartIndent": true,
@@ -550,19 +550,28 @@ class SQLOpPanel extends BaseOpPanel {
             });
         })
         self._$sqlIdentifiers.on("blur", ".text.dest", function() {
-            const key = $(this).val().trim();
-            if (key && $(this).attr("last-value") &&
-                key !== $(this).attr("last-value") &&
-                self._sqlTables.hasOwnProperty(key)) {
-                StatusBox.show(SQLErrTStr.IdentifierExists, $(this));
-            } else if (key) {
-                // XXX Need name validation
+            const $input = $(this)
+            const key = $input.val().trim();
+            let valid = true;
+            if (key && !xcHelper.checkNamePattern(PatternCategory.Dataset,
+                                                  PatternAction.Check, key)) {
+                StatusBox.show(SQLErrTStr.InvalidIdentifier, $input);
+                valid = false;
+                return;
+            }
+            self._$sqlIdentifiers.find(".text.dest").each(function() {
+                if (!$(this).is($input) && key && $(this).val().trim() === key) {
+                    StatusBox.show(SQLErrTStr.IdentifierExists, $input);
+                    valid = false;
+                }
+            });
+            if (key && valid) {
                 // remove the old key
-                const lastKey = $(this).attr("last-value");
+                const lastKey = $input.attr("last-value");
                 delete self._sqlTables[lastKey];
-                $(this).attr("last-value", key);
-                const value = parseInt($(this).siblings(".source")
-                                       .find(".text").text()) || undefined;
+                $input.attr("last-value", key);
+                const value = parseInt($input.siblings(".source")
+                                             .find(".text").text()) || undefined;
                 self._sqlTables[key] = value;
             }
         });
@@ -1137,8 +1146,9 @@ class SQLOpPanel extends BaseOpPanel {
             const $li = $(this);
             const key = parseInt($li.find(".source .text").text());
             const value = $li.find(".dest.text").val().trim();
-            if (key && value) {
-                // XXX Need name validation
+            if (key && value &&
+                xcHelper.checkNamePattern(PatternCategory.Dataset,
+                                          PatternAction.Check, value)) {
                 identifiers.set(key, value);
             }
         });

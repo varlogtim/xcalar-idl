@@ -532,7 +532,8 @@ SQLErrTStr = {
     "InvalidSnippetName": "Snippet name must contain only alphanumeric, -, _ or space characters, and must not be empty.",
     "InvalidOuterType": "Invalid outer join type: ",
     "InvalidSourceId": "Identifier key must be an integer and can't be greater than the number of its parents: ",
-    "MissingField": "Missing field: "
+    "MissingField": "Missing field: ",
+    "InvalidIdentifier": "Invalid table identifier"
 };
 
 SQLInfoTStr = {

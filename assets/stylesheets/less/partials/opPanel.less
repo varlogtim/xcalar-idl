@@ -3003,6 +3003,7 @@
         .position(relative);
         overflow: hidden;
         font-size: 14px;
+        border-top: 1px solid @color-border-softGray;
 
         .editArea {
             .size(@width: 100%, @height: 100%);
@@ -3046,5 +3047,8 @@
         &:hover {
             opacity: 1;
         }
+    }
+    .CodeMirror-gutters {
+        background-color: @color-xpe-docker-starter-bg;
     }
 }
