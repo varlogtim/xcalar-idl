@@ -3023,33 +3023,13 @@ XcalarApiExportColumnT.prototype.write = function(output) {
 
 XcalarApiExportInputT = function(args) {
   this.source = null;
-  this.fileName = null;
-  this.targetName = null;
-  this.targetType = null;
   this.dest = null;
   this.columns = null;
-  this.splitRule = null;
-  this.splitSize = null;
-  this.splitNumFiles = null;
-  this.headerType = null;
-  this.createRule = null;
-  this.sorted = null;
-  this.format = null;
-  this.fieldDelim = null;
-  this.recordDelim = null;
-  this.quoteDelim = null;
+  this.driverName = null;
+  this.driverParams = null;
   if (args) {
     if (args.source !== undefined && args.source !== null) {
       this.source = args.source;
-    }
-    if (args.fileName !== undefined && args.fileName !== null) {
-      this.fileName = args.fileName;
-    }
-    if (args.targetName !== undefined && args.targetName !== null) {
-      this.targetName = args.targetName;
-    }
-    if (args.targetType !== undefined && args.targetType !== null) {
-      this.targetType = args.targetType;
     }
     if (args.dest !== undefined && args.dest !== null) {
       this.dest = args.dest;
@@ -3057,35 +3037,11 @@ XcalarApiExportInputT = function(args) {
     if (args.columns !== undefined && args.columns !== null) {
       this.columns = Thrift.copyList(args.columns, [XcalarApiExportColumnT]);
     }
-    if (args.splitRule !== undefined && args.splitRule !== null) {
-      this.splitRule = args.splitRule;
+    if (args.driverName !== undefined && args.driverName !== null) {
+      this.driverName = args.driverName;
     }
-    if (args.splitSize !== undefined && args.splitSize !== null) {
-      this.splitSize = args.splitSize;
-    }
-    if (args.splitNumFiles !== undefined && args.splitNumFiles !== null) {
-      this.splitNumFiles = args.splitNumFiles;
-    }
-    if (args.headerType !== undefined && args.headerType !== null) {
-      this.headerType = args.headerType;
-    }
-    if (args.createRule !== undefined && args.createRule !== null) {
-      this.createRule = args.createRule;
-    }
-    if (args.sorted !== undefined && args.sorted !== null) {
-      this.sorted = args.sorted;
-    }
-    if (args.format !== undefined && args.format !== null) {
-      this.format = args.format;
-    }
-    if (args.fieldDelim !== undefined && args.fieldDelim !== null) {
-      this.fieldDelim = args.fieldDelim;
-    }
-    if (args.recordDelim !== undefined && args.recordDelim !== null) {
-      this.recordDelim = args.recordDelim;
-    }
-    if (args.quoteDelim !== undefined && args.quoteDelim !== null) {
-      this.quoteDelim = args.quoteDelim;
+    if (args.driverParams !== undefined && args.driverParams !== null) {
+      this.driverParams = args.driverParams;
     }
   }
 };
@@ -3112,33 +3068,12 @@ XcalarApiExportInputT.prototype.read = function(input) {
       break;
       case 2:
       if (ftype == Thrift.Type.STRING) {
-        this.fileName = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 3:
-      if (ftype == Thrift.Type.STRING) {
-        this.targetName = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 4:
-      if (ftype == Thrift.Type.STRING) {
-        this.targetType = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 5:
-      if (ftype == Thrift.Type.STRING) {
         this.dest = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 6:
+      case 3:
       if (ftype == Thrift.Type.LIST) {
         var _size64 = 0;
         var _rtmp368;
@@ -3159,72 +3094,16 @@ XcalarApiExportInputT.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
-      case 7:
+      case 4:
       if (ftype == Thrift.Type.STRING) {
-        this.splitRule = input.readString().value;
+        this.driverName = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 8:
-      if (ftype == Thrift.Type.I64) {
-        this.splitSize = input.readI64().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 9:
-      if (ftype == Thrift.Type.I64) {
-        this.splitNumFiles = input.readI64().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 10:
+      case 5:
       if (ftype == Thrift.Type.STRING) {
-        this.headerType = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 11:
-      if (ftype == Thrift.Type.STRING) {
-        this.createRule = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 12:
-      if (ftype == Thrift.Type.BOOL) {
-        this.sorted = input.readBool().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 13:
-      if (ftype == Thrift.Type.STRING) {
-        this.format = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 14:
-      if (ftype == Thrift.Type.STRING) {
-        this.fieldDelim = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 15:
-      if (ftype == Thrift.Type.STRING) {
-        this.recordDelim = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 16:
-      if (ftype == Thrift.Type.STRING) {
-        this.quoteDelim = input.readString().value;
+        this.driverParams = input.readString().value;
       } else {
         input.skip(ftype);
       }
@@ -3245,28 +3124,13 @@ XcalarApiExportInputT.prototype.write = function(output) {
     output.writeString(this.source);
     output.writeFieldEnd();
   }
-  if (this.fileName !== null && this.fileName !== undefined) {
-    output.writeFieldBegin('fileName', Thrift.Type.STRING, 2);
-    output.writeString(this.fileName);
-    output.writeFieldEnd();
-  }
-  if (this.targetName !== null && this.targetName !== undefined) {
-    output.writeFieldBegin('targetName', Thrift.Type.STRING, 3);
-    output.writeString(this.targetName);
-    output.writeFieldEnd();
-  }
-  if (this.targetType !== null && this.targetType !== undefined) {
-    output.writeFieldBegin('targetType', Thrift.Type.STRING, 4);
-    output.writeString(this.targetType);
-    output.writeFieldEnd();
-  }
   if (this.dest !== null && this.dest !== undefined) {
-    output.writeFieldBegin('dest', Thrift.Type.STRING, 5);
+    output.writeFieldBegin('dest', Thrift.Type.STRING, 2);
     output.writeString(this.dest);
     output.writeFieldEnd();
   }
   if (this.columns !== null && this.columns !== undefined) {
-    output.writeFieldBegin('columns', Thrift.Type.LIST, 6);
+    output.writeFieldBegin('columns', Thrift.Type.LIST, 3);
     output.writeListBegin(Thrift.Type.STRUCT, this.columns.length);
     for (var iter71 in this.columns)
     {
@@ -3279,54 +3143,14 @@ XcalarApiExportInputT.prototype.write = function(output) {
     output.writeListEnd();
     output.writeFieldEnd();
   }
-  if (this.splitRule !== null && this.splitRule !== undefined) {
-    output.writeFieldBegin('splitRule', Thrift.Type.STRING, 7);
-    output.writeString(this.splitRule);
+  if (this.driverName !== null && this.driverName !== undefined) {
+    output.writeFieldBegin('driverName', Thrift.Type.STRING, 4);
+    output.writeString(this.driverName);
     output.writeFieldEnd();
   }
-  if (this.splitSize !== null && this.splitSize !== undefined) {
-    output.writeFieldBegin('splitSize', Thrift.Type.I64, 8);
-    output.writeI64(this.splitSize);
-    output.writeFieldEnd();
-  }
-  if (this.splitNumFiles !== null && this.splitNumFiles !== undefined) {
-    output.writeFieldBegin('splitNumFiles', Thrift.Type.I64, 9);
-    output.writeI64(this.splitNumFiles);
-    output.writeFieldEnd();
-  }
-  if (this.headerType !== null && this.headerType !== undefined) {
-    output.writeFieldBegin('headerType', Thrift.Type.STRING, 10);
-    output.writeString(this.headerType);
-    output.writeFieldEnd();
-  }
-  if (this.createRule !== null && this.createRule !== undefined) {
-    output.writeFieldBegin('createRule', Thrift.Type.STRING, 11);
-    output.writeString(this.createRule);
-    output.writeFieldEnd();
-  }
-  if (this.sorted !== null && this.sorted !== undefined) {
-    output.writeFieldBegin('sorted', Thrift.Type.BOOL, 12);
-    output.writeBool(this.sorted);
-    output.writeFieldEnd();
-  }
-  if (this.format !== null && this.format !== undefined) {
-    output.writeFieldBegin('format', Thrift.Type.STRING, 13);
-    output.writeString(this.format);
-    output.writeFieldEnd();
-  }
-  if (this.fieldDelim !== null && this.fieldDelim !== undefined) {
-    output.writeFieldBegin('fieldDelim', Thrift.Type.STRING, 14);
-    output.writeString(this.fieldDelim);
-    output.writeFieldEnd();
-  }
-  if (this.recordDelim !== null && this.recordDelim !== undefined) {
-    output.writeFieldBegin('recordDelim', Thrift.Type.STRING, 15);
-    output.writeString(this.recordDelim);
-    output.writeFieldEnd();
-  }
-  if (this.quoteDelim !== null && this.quoteDelim !== undefined) {
-    output.writeFieldBegin('quoteDelim', Thrift.Type.STRING, 16);
-    output.writeString(this.quoteDelim);
+  if (this.driverParams !== null && this.driverParams !== undefined) {
+    output.writeFieldBegin('driverParams', Thrift.Type.STRING, 5);
+    output.writeString(this.driverParams);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

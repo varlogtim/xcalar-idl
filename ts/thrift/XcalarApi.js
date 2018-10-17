@@ -3847,8 +3847,7 @@ xcalarListExportTargets = runEntity.xcalarListExportTargets = function(thriftHan
     return (deferred.promise());
 };
 
-xcalarExportWorkItem = runEntity.xcalarExportWorkItem = function(tableName, target, specInput, createRule,
-                              sorted, numColumns, columns, exportName) {
+xcalarExportWorkItem = runEntity.xcalarExportWorkItem = function(tableName, driverName, driverParams, columns, exportName) {
     var workItem = new WorkItem();
     workItem.input = new XcalarApiInputT();
     workItem.input.exportInput = new XcalarApiExportInputT();
@@ -3856,79 +3855,25 @@ xcalarExportWorkItem = runEntity.xcalarExportWorkItem = function(tableName, targ
     workItem.api = XcalarApisT.XcalarApiExport;
     workItem.input.exportInput.source = tableName;
     workItem.input.exportInput.dest = exportName;
+    workItem.input.exportInput.driverName = driverName;
+    workItem.input.exportInput.driverParams = JSON.stringify(driverParams);
     workItem.input.exportInput.columns = columns;
-    workItem.input.exportInput.createRule = ExExportCreateRuleTStr[createRule];
-    workItem.input.exportInput.sorted = sorted;
-
-    if (!target) {
-        return (workItem);
-    }
-
-    workItem.input.exportInput.targetName = target.name;
-    workItem.input.exportInput.targetType = ExTargetTypeTStr[target.type];
-
-    if (target.type == ExTargetTypeT.ExTargetSFType) {
-        var sfInput = specInput.sfInput;
-        workItem.input.exportInput.fileName = sfInput.fileName;
-        workItem.input.exportInput.format = DfFormatTypeTStr[sfInput.format];
-        workItem.input.exportInput.splitRule =
-            ExSFFileSplitTypeTStr[sfInput.splitRule.type];
-        if (sfInput.splitRule.spec) {
-            workItem.input.exportInput.splitSize =
-                sfInput.splitRule.spec.maxSize;
-            workItem.input.exportInput.splitNumFiles =
-                sfInput.splitRule.spec.numFiles;
-        } else {
-             workItem.input.exportInput.splitSize = 0;
-             workItem.input.exportInput.splitNumFiles = 0;
-        }
-
-        workItem.input.exportInput.headerType = ExSFHeaderTypeTStr[sfInput.headerType];
-        if (sfInput.formatArgs.csv) {
-            workItem.input.exportInput.fieldDelim =
-                sfInput.formatArgs.csv.fieldDelim;
-            workItem.input.exportInput.recordDelim =
-                sfInput.formatArgs.csv.recordDelim;
-            workItem.input.exportInput.quoteDelim =
-                sfInput.formatArgs.csv.quoteDelim;
-        }
-    } else {
-        var udfInput = specInput.udfInput;
-        workItem.input.exportInput.fileName = udfInput.fileName;
-        workItem.input.exportInput.format = DfFormatTypeTStr[udfInput.format];
-        workItem.input.exportInput.headerType = ExSFHeaderTypeTStr[udfInput.headerType];
-
-        if (udfInput.formatArgs.csv) {
-            workItem.input.exportInput.fieldDelim =
-                udfInput.formatArgs.csv.fieldDelim;
-            workItem.input.exportInput.recordDelim =
-                udfInput.formatArgs.csv.recordDelim;
-            workItem.input.exportInput.quoteDelim =
-                udfInput.formatArgs.csv.quoteDelim;
-        }
-    }
 
     return (workItem);
 };
 
-xcalarExport = runEntity.xcalarExport = function(thriftHandle, tableName, target, specInput, createRule,
-                      sorted, numColumns, columns, exportName) {
+xcalarExport = runEntity.xcalarExport = function(thriftHandle, tableName, driverName, driverParams, columns, exportName) {
     var deferred = jQuery.Deferred();
     if (verbose) {
         console.log("xcalarExport(tableName = " + tableName +
-                    ", target.type = " + ExTargetTypeTStr[target.type] +
-                    ", target.name = " + target.name +
-                    ", createRule = " + createRule +
-                    ", specInput = " + JSON.stringify(specInput) +
-                    ", sorted = " + sorted +
-                    ", numColumns = " + numColumns +
+                    ", driverName = " + driverName +
+                    ", driverParams = " + driverParams +
                     ", columns = " + JSON.stringify(columns) +
                     ", exportName = " + exportName +
                     ")");
     }
 
-    var workItem = xcalarExportWorkItem(tableName, target, specInput, createRule,
-                                        sorted, numColumns, columns, exportName);
+    var workItem = xcalarExportWorkItem(tableName, driverName, driverParams, columns, exportName);
 
     thriftHandle.client.queueWorkAsync(workItem)
     .then(function(result) {

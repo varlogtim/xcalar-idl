@@ -485,25 +485,14 @@ window.ExportView = (function($, ExportView) {
             } else {
                 var closeModal = true;
                 var modalClosed = false;
-                xcFunction.exportTable(tableName, exportName,
-                                       $exportPath.val(),
-                                       frontColumnNames.length,
-                                       backColumnNames, frontColumnNames,
-                                       keepOrder, false, advancedOptions)
-                .then(function() {
-                    closeModal = false;
-                    if (!modalClosed) {
-                        ExportView.close();
-                    }
+                console.error("Export View is currently unsupported. Please export using the dataflow");
+                closeModal = false;
+                if (!modalClosed) {
+                    ExportView.close();
+                }
 
-                    deferred.resolve();
-                })
-                .fail(function(error) {
-                    closeModal = false;
-                    deferred.reject(error);
-                }).always(function() {
-                    formHelper.enableSubmit();
-                });
+                deferred.resolve();
+                formHelper.enableSubmit();
 
                 setTimeout(function() {
                     if (closeModal) {

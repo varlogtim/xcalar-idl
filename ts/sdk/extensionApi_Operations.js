@@ -390,11 +390,9 @@ window.XcSDK.Extension.prototype = (function() {
             return (res1.length === res2.length);
         },
 
-        export: function(tableName, exportName, targetName, numCols,
-                        backColumns, frontColumns, keepOrder, options) {
+        export: function(tableName, driverName, driverParams, columns, exportName) {
             var txId = this.txId;
-            return XIApi.exportTable(txId, tableName, exportName, targetName, numCols,
-                                backColumns, frontColumns, keepOrder, options);
+            return XIApi.exportTable(txId, tableName, driverName, driverParams, columns, exportName);
         },
 
         genRowNum: function(tableName, newColName, newTableName) {

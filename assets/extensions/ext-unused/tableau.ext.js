@@ -47,19 +47,8 @@ window.UExtTableau = (function(UExtTableau, $) {
                     "recordDelim": "\n"
                 }
             };
-
-            xcFunction.exportTable(tableName, tempExportName, "Default",
-                                   1, [colName],["Value"], false, true,
-                                   options)
-            .then(function() {
-                deferred.resolve();
-                showModal(colName, waitTime);
-                return waitForUpdate(waitTime);
-            })
-            .then(function() {
-                initializeViz(tempExportName);
-            })
-            .fail(deferred.reject);
+            console.error("Tableau Extension is currently unsupported. Please export using the dataflow");
+            deferred.reject();
 
             return deferred.promise();
         };

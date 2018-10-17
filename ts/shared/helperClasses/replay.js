@@ -696,15 +696,8 @@ window.Replay = (function($, Replay) {
         var callback = function() {
             $("#alertHeader .close").click();
         };
-
-        // XXX a potential issue here is that if exportName exists in
-        // backend, it fails to export because of name confilict
-        xcFunction.exportTable.apply(window, args)
-        .then(function() {
-            return delayAction(callback, "Show alert modal");
-        })
-        .then(deferred.resolve)
-        .fail(deferred.resolve); // still resolve even fail!
+        console.error("Replaying an export is currently unsupported. Please export using the dataflow");
+        deferred.resolve();
 
         return deferred.promise();
     };

@@ -122,12 +122,9 @@ declare function xcalarListExportTargets(
 
 declare function xcalarExportWorkItem(
     tableName: string,
-    target: ExExportTargetHdrT,
-    specInput: object,
-    createRule: ExExportCreateRuleT,
-    sorted: boolean,
-    numColumns: number,
-    columns: any[],
+    driverName: string,
+    driverParams: {},
+    columns: XcalarApiExportColumnT[],
     exportName: string
 ): WorkItem;
 
@@ -136,7 +133,7 @@ declare function xcalarExport(
     srcTable: string,
     driverName: string,
     driverParams: {},
-    columns: any[],
+    columns: XcalarApiExportColumnT[],
     exportName: string
 ): XDPromise<{ status: StatusT }>;
 

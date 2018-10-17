@@ -666,7 +666,11 @@ StatusT = {
   'StatusChecksumMismatch' : 657,
   'StatusRuntimeSetParamInvalid' : 658,
   'StatusRuntimeSetParamNotSupported' : 659,
-  'StatusPublishTableSnapshotInProgress' : 660
+  'StatusPublishTableSnapshotInProgress' : 660,
+  'StatusUDFOwnerNodeMismatch' : 661,
+  'StatusUDFSourceMismatch' : 662,
+  'StatusUDFUpdateFailed' : 663,
+  'StatusUDFBadPath' : 664
 };
 StatusTStr = {
   0 : 'Success',
@@ -1220,7 +1224,7 @@ StatusTStr = {
   548 : 'The query name already exists',
   549 : 'UDF module currently in use',
   550 : 'Target currently in use',
-  551 : 'Cannot switch session, operations outstanding',
+  551 : 'Cannot inactivate session, operations outstanding',
   552 : 'The DHT already exists',
   553 : 'The DHT is currently in use',
   554 : 'Number of result sets exceeded table meta limit',
@@ -1329,7 +1333,11 @@ StatusTStr = {
   657 : 'Checksum mismatch',
   658 : 'Invalid parameter for setting Runtime configuration',
   659 : 'Setting Runtime configuration not supported',
-  660 : 'Publish table Snapshot is already in progress'
+  660 : 'Publish table Snapshot is already in progress',
+  661 : 'UDF API invoked on non-owner node',
+  662 : 'UDF source has unexpected contents',
+  663 : 'UDF update failure during persistent write',
+  664 : 'UDF path not recognized'
 };
 StatusTFromStr = {
   'Success' : 0,
@@ -1883,7 +1891,7 @@ StatusTFromStr = {
   'The query name already exists' : 548,
   'UDF module currently in use' : 549,
   'Target currently in use' : 550,
-  'Cannot switch session, operations outstanding' : 551,
+  'Cannot inactivate session, operations outstanding' : 551,
   'The DHT already exists' : 552,
   'The DHT is currently in use' : 553,
   'Number of result sets exceeded table meta limit' : 554,
@@ -1992,5 +2000,9 @@ StatusTFromStr = {
   'Checksum mismatch' : 657,
   'Invalid parameter for setting Runtime configuration' : 658,
   'Setting Runtime configuration not supported' : 659,
-  'Publish table Snapshot is already in progress' : 660
+  'Publish table Snapshot is already in progress' : 660,
+  'UDF API invoked on non-owner node' : 661,
+  'UDF source has unexpected contents' : 662,
+  'UDF update failure during persistent write' : 663,
+  'UDF path not recognized' : 664
 };

@@ -2248,38 +2248,21 @@ window.Function.prototype.bind = function() {
     }
 
     function testExportCSV(test) {
-        var specInput = new ExInitExportSpecificInputT();
-        specInput.sfInput = new ExInitExportSFInputT();
-        specInput.sfInput.fileName = "yelp-mgmtdTest" +
-                                     Math.floor(Math.random()*10000) + ".csv";
-        specInput.sfInput.splitRule = new ExSFFileSplitRuleT();
-        specInput.sfInput.splitRule.type = ExSFFileSplitTypeT.ExSFFileSplitNone;
-        specInput.sfInput.headerType = ExSFHeaderTypeT.ExSFHeaderSeparateFile;
-        specInput.sfInput.format = DfFormatTypeT.DfFormatCsv;
-        specInput.sfInput.formatArgs = new ExInitExportFormatSpecificArgsT();
-        specInput.sfInput.formatArgs.csv = new ExInitExportCSVArgsT();
-        specInput.sfInput.formatArgs.csv.fieldDelim = ",";
-        specInput.sfInput.formatArgs.csv.recordDelim = "\n";
-        specInput.sfInput.formatArgs.csv.quoteDelim = "\"";
-
-        console.log("\texport file name = " + specInput.sfInput.fileName);
         var target = new ExExportTargetHdrT();
         target.type = ExTargetTypeT.ExTargetSFType;
         target.name = "Default";
-        var numColumns = 2;
         var columnNames = ["yelp_user::user_id", "yelp_user::name"];
         var headerColumns = ["id_of_user", "user name"];
         var columns = columnNames.map(function (e, i) {
-            var col = new ExColumnNameT();
-            col.name = columnNames[i];
-            col.headerAlias = headerColumns[i];
+            var col = new XcalarApiExportColumnT();
+            col.columnName = columnNames[i];
+            col.headerName = headerColumns[i];
             return col;
         });
 
         xcalarExport(thriftHandle, "yelp/user-votes.funny-gt900",
-                     target, specInput,
-                     ExExportCreateRuleT.ExExportDeleteAndReplace,
-                     true, numColumns, columns)
+                     "csv_basic", {"file_path": "/tmp/mgmtdtestfile.csv"},
+                     columns, "exportNamexoxo")
         .then(function(retStruct) {
             var status = retStruct.status;
             printResult(status);
@@ -2475,27 +2458,6 @@ window.Function.prototype.bind = function() {
                 console.log("\tnode[" + ii + "].apiInputSize = " +
                             getRetinaOutput.retina.retinaDag.node[ii].inputSize);
                 switch (getRetinaOutput.retina.retinaDag.node[ii].api) {
-                case XcalarApisT.XcalarApiExport:
-                    var exportInput = getRetinaOutput.retina.retinaDag.node[ii].
-                                      input.exportInput;
-                    var exportTargetType = ExTargetTypeTStr[exportInput.targetType];
-                    console.log("\tnode[" + ii + "].meta.exportTarget = " +
-                                exportTargetType + " (" +
-                                exportTargetType + ")");
-                    console.log("\tnode[" + ii + "].meta.columns = " +
-                                JSON.stringify(exportInput.columns));
-                    console.log("\tnode[" + ii +
-                                "].meta.specificInput.sfInput.fileName = " +
-                                exportInput.fileName);
-                    if (iter == 2) {
-                        test.assert(
-                            exportInput.fileName
-                                === retinaExportFile, undefined,
-                            "exportFileName does not match parameterized string"
-                        );
-                    }
-
-                    break;
                 case XcalarApisT.XcalarApiFilter:
                     console.log("\tnode[" + ii + "].input = " + JSON.stringify(getRetinaOutput.retina.retinaDag.node[ii].input.filterInput))
                     console.log("\tnode[" + ii + "].filterStr = " +
@@ -2544,10 +2506,6 @@ window.Function.prototype.bind = function() {
                     json.query[ii].args.eval[0].evalString =
                         retinaFilterStr;
                 }
-
-                if (json.query[ii].operation === "XcalarApiExport") {
-                    json.query[ii].args.fileName = retinaExportFile;
-                }
             }
 
             return (xcalarUpdateRetina(thriftHandle, retinaName,
@@ -2564,36 +2522,7 @@ window.Function.prototype.bind = function() {
         parameters.push(new XcalarApiParameterT({ paramName: "foo",
                                                   paramValue: "1000" }));
 
-        xcalarListExportTargets(thriftHandle, "*", "Default")
-        .then(function(listExportTargetsOutput) {
-            if (listExportTargetsOutput.numTargets < 1) {
-                var reason = "No export target named Default";
-                test.fail(reason);
-                return;
-            }
-
-            var exportTarget = listExportTargetsOutput.targets[0];
-            if (exportTarget.hdr.type != ExTargetTypeT.ExTargetSFType) {
-                var reason = "Default export target not filesystem";
-                test.fail(reason);
-                return;
-            }
-
-            var fullPath = exportTarget.specificInput.sfInput.url + "/" +
-                           retinaExportFile;
-
-            // Take the .csv off
-            fullPath = fullPath.slice(0, -".csv".length);
-
-            console.log("Checking for" + fullPath);
-
-            if (fs.exists(fullPath) && fs.isDirectory(fullPath)) {
-                console.log("Deleting " + fullPath);
-                fs.removeTree(fullPath);
-            }
-
-            return (xcalarExecuteRetina(thriftHandle, retinaName, parameters, false, ""));
-        }, test.fail)
+        xcalarExecuteRetina(thriftHandle, retinaName, parameters, false, "")
         .then(function(status) {
             test.pass();
         })
@@ -2609,39 +2538,13 @@ window.Function.prototype.bind = function() {
         parameters.push(new XcalarApiParameterT({ paramName: "foo",
                                                   paramValue: "1000" }));
 
-        function retinaAndCancel(listExportTargetsOutput) {
+        function retinaAndCancel() {
             console.log("starting executeRetina and cancel");
-
-            if (listExportTargetsOutput.numTargets < 1) {
-                var reason = "No export target named Default";
-                test.fail(reason);
-                return;
-            }
-
-            var exportTarget = listExportTargetsOutput.targets[0];
-            if (exportTarget.hdr.type != ExTargetTypeT.ExTargetSFType) {
-                var reason = "Default export target not filesystem";
-                test.fail(reason);
-                return;
-            }
-
-            var fullPath = exportTarget.specificInput.sfInput.url + "/" +
-                           retinaExportFile;
-
-            // Take the .csv off
-            fullPath = fullPath.slice(0, -".csv".length);
-
-            console.log("Checking for" + fullPath);
-
-            if (fs.exists(fullPath) && fs.isDirectory(fullPath)) {
-                console.log("Deleting " + fullPath);
-                fs.removeTree(fullPath);
-            }
 
             xcalarExecuteRetina(thriftHandle, retinaName, parameters)
             .then(function(status) {
                 console.log("Retina succeeded when it was supposed to be cancelled. Trying again");
-                retinaAndCancel(listExportTargetsOutput);
+                retinaAndCancel();
             })
             .fail(function(reason) {
                 if (reason.xcalarStatus === StatusT.StatusCanceled) {
@@ -2660,7 +2563,7 @@ window.Function.prototype.bind = function() {
                     });
                 } else if (reason.xcalarStatus === StatusT.StatusQrQueryInUse) {
                     console.log("Retina did not get the chance to run.  Trying again");
-                    retinaAndCancel(listExportTargetsOutput);
+                    retinaAndCancel();
                 } else {
                     test.fail("ExecuteRetina failed with reason: " + StatusTStr[reason.xcalarStatus]);
                 }
@@ -2681,13 +2584,7 @@ window.Function.prototype.bind = function() {
             }
         }
 
-        xcalarListExportTargets(thriftHandle, "*", "Default")
-        .then(retinaAndCancel)
-        .fail(function(error) {
-            var reason = "listExport failed with reason: " +
-                         StatusTStr[error];
-            test.fail(reason);
-        });
+        retinaAndCancel()
     }
 
     function testListParametersInRetina(test) {
@@ -4657,11 +4554,11 @@ window.Function.prototype.bind = function() {
     addTestCase(testFreeResultSetAggregate, "result set free of aggregate", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testMap, "map", defaultTimeout, TestCaseEnabled, "");
     addTestCase(testDestroyDatasetInUse, "destroy dataset in use", defaultTimeout, TestCaseDisabled, "");
-    addTestCase(testAddExportTarget, "add export target", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testRemoveExportTarget, "remove export target", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testListExportTargets, "list export targets", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testAddExportTarget, "add export target", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testRemoveExportTarget, "remove export target", defaultTimeout, TestCaseDisabled, "");
+    addTestCase(testListExportTargets, "list export targets", defaultTimeout, TestCaseDisabled, "");
     addTestCase(testExportCSV, "export csv", defaultTimeout, TestCaseEnabled, "");
-    addTestCase(testExportCancel, "export cancel", defaultTimeout, TestCaseEnabled, "");
+    addTestCase(testExportCancel, "export cancel", defaultTimeout, TestCaseDisabled, "");
 
     // Together, these set of test cases make up the retina sanity
     addTestCase(testMakeRetina, "makeRetina", defaultTimeout, TestCaseEnabled, "");

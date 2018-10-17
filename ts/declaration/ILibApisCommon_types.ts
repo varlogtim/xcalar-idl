@@ -334,38 +334,16 @@ declare class XcalarApiExportColumnT {
 }
 declare class XcalarApiExportInputT {
 	source: string;
-	fileName: string;
-	targetName: string;
-	targetType: string;
-	dest: string;
+	driverName: string;
+	driverParams: {};
 	columns: XcalarApiExportColumnT[];
-	splitRule: string;
-	splitSize: number;
-	splitNumFiles: number;
-	headerType: string;
-	createRule: string;
-	sorted: boolean;
-	format: string;
-	fieldDelim: string;
-	recordDelim: string;
-	quoteDelim: string;
+	dest: string;
 	constructor(args?: {
 		source?: string,
-		fileName?: string,
-		targetName?: string,
-		targetType?: string,
-		dest?: string,
+		driverName?: string,
+		driverParams?: {},
 		columns?: XcalarApiExportColumnT[],
-		splitRule?: string,
-		splitSize?: number,
-		splitNumFiles?: number,
-		headerType?: string,
-		createRule?: string,
-		sorted?: boolean,
-		format?: string,
-		fieldDelim?: string,
-		recordDelim?: string,
-		quoteDelim?: string,
+		dest?: string,
 	});
 }
 declare class XcalarApiAppSetInputT {

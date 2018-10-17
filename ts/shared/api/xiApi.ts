@@ -2209,21 +2209,17 @@ namespace XIApi {
     export function exportTable(
         txId: number,
         tableName: string,
-        exportName: string,
-        targetName: string,
-        numCols: number,
-        backColumns: string[],
-        frontColumns: string[],
-        keepOrder: boolean,
-        options: ExportTableOptions
+        driverName: string,
+        driverParams: {},
+        columns: XcalarApiExportColumnT[],
+        exportName: string
     ): XDPromise<void> {
-        if (txId == null || tableName == null || exportName == null) {
+        if (txId == null || tableName == null || exportName == null || driverName == null) {
             return PromiseHelper.reject("Invalid args in export");
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const simuldateTxId: number = startSimulate();
-        XcalarExport(tableName, exportName, targetName, numCols,
-        backColumns, frontColumns, keepOrder, options, simuldateTxId)
+        XcalarExport(tableName, driverName, driverParams, columns, exportName)
         .then(() => {
             const query: string = endSimulate(simuldateTxId);
             const queryName: string = getNewTableName(exportName);

@@ -999,157 +999,22 @@ XcalarListExportTargets = function(
 
 XcalarExport = function(
     tableName: string,
-    exportName: string,
-    targetName: string,
-    numColumns: number,
-    backColName: string[],
-    frontColName: string[],
-    keepOrder: boolean,
-    options: ExportTableOptions,
-    txId: number
+    driverName: string,
+    driverParams: {},
+    columns: XcalarApiExportColumnT[],
+    exportName: string
 ): XDPromise<any> {
     if ([null, undefined].indexOf(tHandle) !== -1) {
         return PromiseHelper.resolve(null);
     }
 
     const deferred: XDDeferred<any> = PromiseHelper.deferred();
-    if (Transaction.checkCanceled(txId)) {
-        return (deferred.reject(StatusTStr[StatusT.StatusCanceled]).promise());
+    if (insertError(arguments.callee, deferred)) {
+        return (deferred.promise());
     }
-
-    const target = new ExExportTargetHdrT();
-    target.type = ExTargetTypeT.ExTargetUnknownType;
-    target.name = targetName;
-    const specInput = new ExInitExportSpecificInputT();
-    let query: string;
-
-    XcalarListExportTargets("*", targetName)
-    .then(function(out) {
-        if (out.numTargets < 1) {
-            console.error("Export target does not exist!");
-            return PromiseHelper.reject("Export target is not on the target list");
-        }
-
-        for (let i = 0; i < out.targets.length; i++) {
-            if (out.targets[i].hdr.name === targetName) {
-                target.type = out.targets[i].hdr.type;
-                break;
-            }
-        }
-        if (target.type === ExTargetTypeT.ExTargetUnknownType) {
-            return PromiseHelper.reject("Export target is not on the target list");
-        }
-        switch (target.type) {
-            case (ExTargetTypeT.ExTargetSFType):
-                // XX this is not a good check, fix later
-                if (options.splitType == null || options.headerType == null ||
-                    options.format == null) {
-                    return PromiseHelper.reject("Not all options were declared");
-                }
-                specInput.sfInput = new ExInitExportSFInputT();
-                specInput.sfInput.splitRule = new ExSFFileSplitRuleT();
-                specInput.sfInput.splitRule.type = options.splitType;
-                specInput.sfInput.headerType = options.headerType;
-                specInput.sfInput.format = options.format;
-                specInput.sfInput.formatArgs = new
-                                            ExInitExportFormatSpecificArgsT();
-                if (options.format === DfFormatTypeT.DfFormatCsv) {
-                    exportName += ".csv";
-                    specInput.sfInput.fileName = exportName;
-                    specInput.sfInput.formatArgs.csv = new ExInitExportCSVArgsT();
-                    specInput.sfInput.formatArgs.csv.fieldDelim =
-                                                    options.csvArgs.fieldDelim;
-                    specInput.sfInput.formatArgs.csv.recordDelim =
-                                                    options.csvArgs.recordDelim;
-                    specInput.sfInput.formatArgs.csv.quoteDelim = gDefaultQDelim;
-                } else if (options.format === DfFormatTypeT.DfFormatSql) {
-                    specInput.sfInput.fileName = exportName + ".sql";
-                    specInput.sfInput.formatArgs.sql = new ExInitExportSQLArgsT();
-                    // specInput.sfInput.formatArgs.sql.tableName = exportName;
-                    specInput.sfInput.formatArgs.sql.tableName = exportName;
-                    specInput.sfInput.formatArgs.sql.createTable = true;
-                    if (options.createRule === ExExportCreateRuleT.ExExportCreateOnly) {
-                        specInput.sfInput.formatArgs.sql.dropTable = false;
-                    } else {
-                        specInput.sfInput.formatArgs.sql.dropTable = true;
-                    }
-                } else {
-                    return PromiseHelper.reject("Invalid export type");
-                }
-
-                break;
-            case (ExTargetTypeT.ExTargetUDFType):
-                specInput.udfInput = new ExInitExportUDFInputT();
-                specInput.udfInput.fileName = exportName + ".csv";
-                specInput.udfInput.format = options.format;
-                specInput.udfInput.formatArgs = new ExInitExportFormatSpecificArgsT();
-                if (options.format === DfFormatTypeT.DfFormatCsv) {
-                    exportName += ".csv";
-                    specInput.udfInput.fileName = exportName;
-                    specInput.udfInput.formatArgs.csv = new ExInitExportCSVArgsT();
-                    specInput.udfInput.formatArgs.csv.fieldDelim =
-                                                    options.csvArgs.fieldDelim;
-                    specInput.udfInput.formatArgs.csv.recordDelim =
-                                                    options.csvArgs.recordDelim;
-                    specInput.udfInput.formatArgs.csv.quoteDelim = gDefaultQDelim;
-                } else if (options.format === DfFormatTypeT.DfFormatSql) {
-                    exportName += ".sql";
-                    specInput.udfInput.fileName = exportName;
-                    specInput.udfInput.formatArgs.sql = new ExInitExportSQLArgsT();
-                    specInput.udfInput.formatArgs.sql.tableName = exportName;
-                    specInput.udfInput.formatArgs.sql.createTable = true;
-                    if (options.createRule === ExExportCreateRuleT.ExExportCreateOnly) {
-                        specInput.udfInput.formatArgs.sql.dropTable = false;
-                    } else {
-                        specInput.udfInput.formatArgs.sql.dropTable = true;
-                    }
-                } else {
-                    return PromiseHelper.reject("Invalid export type");
-                }
-                specInput.udfInput.headerType = options.headerType;
-                break;
-            default:
-                return PromiseHelper.reject("Invalid export type");
-        }
-        const columns: ExColumnNameT[] = [];
-        for (let i = 0; i < backColName.length; i++) {
-            const colNameObj = new ExColumnNameT();
-            colNameObj.columnName = backColName[i];
-            colNameObj.headerName = frontColName[i];
-            columns.push(colNameObj);
-        }
-
-        var workItem = xcalarExportWorkItem(tableName, target, specInput,
-                                  options.createRule, keepOrder, numColumns,
-                                  columns, options.handleName);
-        var def;
-        if (Transaction.isSimulate(txId)) {
-            def = fakeApiCall();
-        } else {
-            def = xcalarExport(tHandle, tableName, target, specInput,
-                                options.createRule, keepOrder, numColumns,
-                                columns, options.handleName);
-        }
-        query = XcalarGetQuery(workItem);
-        Transaction.startSubQuery(txId, 'Export', options.handleName, query);
-
-        return def;
-    })
-    .then(function(ret) {
-        if (Transaction.checkCanceled(txId)) {
-            deferred.reject(StatusTStr[StatusT.StatusCanceled]);
-        } else {
-            Transaction.log(txId, query, options.handleName, ret.timeElapsed);
-            // XXX There is a bug here that backend actually needs to fix
-            // We must drop the export node on a successful export.
-            // Otherwise you will not be able to delete your dataset
-            xcalarDeleteDagNodes(tHandle, options.handleName,
-                                 SourceTypeT.SrcExport)
-            .always(function() {
-                deferred.resolve(ret);
-            });
-        }
-    })
+    // var workItem = xcalarListExportTargetsWorkItem(typePattern, namePattern);
+    xcalarExport(tHandle, tableName, driverName, driverParams, columns, exportName)
+    .then(deferred.resolve)
     .fail(function(error) {
         var thriftError = thriftLog("XcalarExport", error);
         deferred.reject(thriftError);
