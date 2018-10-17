@@ -25,12 +25,13 @@
     // static function
     // This is order sensitive. When index is no longer index sensitive,
     // we can do colNames.sort and then do the toString
-    SQLApi.cacheIndexTable = function(tableName, colNames, indexTable, indexKeys) {
+    SQLApi.cacheIndexTable = function(tableName, colNames, indexTable, indexKeys, tempCols) {
         var colKey = getIndexColKey(colNames);
         indexTableCache[tableName] = indexTableCache[tableName] || {};
         indexTableCache[tableName][colKey] = {
             tableName: indexTable,
-            keys: indexKeys
+            keys: indexKeys,
+            tempCols: tempCols
         };
         reverseIndexMap[indexTable] = {
             "tableName": tableName,

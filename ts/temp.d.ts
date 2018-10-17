@@ -33,6 +33,7 @@ interface PrefixColInfo {
 interface TableIndexCache {
     tableName: string;
     keys: string[];
+    tempCols: string[];
 }
 
 interface ColRenameInfo {
@@ -1192,7 +1193,8 @@ declare namespace DSExport {
 
 declare namespace SQLApi {
     export function getIndexTable(tableName: string, colNames: string[]): TableIndexCache;
-    export function cacheIndexTable(tableName: string, colNames: string[], newTableName: string, newKeys: string[]): void;
+    export function cacheIndexTable(tableName: string, colNames: string[], newTableName: string, newKeys: string[], tempCols?: string[]): void;
+    export function deleteIndexTable(tableName: string);
 }
 
 declare namespace DeleteTableModal {

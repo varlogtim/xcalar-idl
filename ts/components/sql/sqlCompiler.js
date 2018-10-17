@@ -3349,6 +3349,12 @@
             delete globalStruct.leftMapArray;
             delete globalStruct.rightMapArray;
             globalStruct.newTableName = retJoin.newTableName;
+            if (retJoin.tempCols) {
+                for (var i = 0; i < retJoin.tempCols.length; i++) {
+                    joinNode.xcCols.push({colName: retJoin.tempCols[i],
+                                          colType: "DfUnknown"});
+                }
+            }
 
             cliArray.push(retJoin.cli);
             globalStruct.cli += cliArray.join("");
@@ -3814,9 +3820,9 @@
                        xcHelper.arraySubset(attributeReferencesTwo,
                                             leftRDDCols)) {
                 leftEvalStr = genEvalStringRecur(eqTree.children[1],
-                                                 rightAcc, leftOptions);
+                                                 leftAcc, leftOptions);
                 rightEvalStr = genEvalStringRecur(eqTree.children[0],
-                                                  leftAcc, rightOptions);
+                                                  rightAcc, rightOptions);
             } else {
                 // E.g. table1.col1.substring(2) + table2.col2.substring(2)
                 // == table1.col3.substring(2) + table2.col4.substring(2)

@@ -537,7 +537,7 @@ namespace XIApi {
                 oldKeys: [],
                 newKeys: []
             };
-            return PromiseHelper.resolve(lInfo, rInfo, []);
+            return PromiseHelper.resolve(lInfo, rInfo, [], []);
         }
 
         let def1: XDPromise<string>;
@@ -554,6 +554,7 @@ namespace XIApi {
         let rIndexedTable: string;
         let lNewKeys: string[];
         let rNewKeys: string[];
+        let tempCols: string[];
 
         let tempTables: string[] = [];
         const deferred: XDDeferred<JoinIndexResult> = PromiseHelper.deferred();
@@ -564,6 +565,11 @@ namespace XIApi {
             rIndexedTable = res2[0];
             lNewKeys = res1[2];
             rNewKeys = res2[2];
+            if (lTableName === rTableName && isSameKey(lColNames, rColNames)) {
+                tempCols = res1[3];
+            } else {
+                tempCols = res1[3].concat(res2[3]);
+            }
 
             if (removeNulls) {
                 const newTableName: string = getNewTableName(lTableName, ".noNulls");
@@ -585,7 +591,7 @@ namespace XIApi {
                 oldKeys: rColNames,
                 newKeys: rNewKeys
             };
-            deferred.resolve(lInfo, rInfo, tempTables);
+            deferred.resolve(lInfo, rInfo, tempTables, tempCols);
         })
         .fail((...error) => {
             deferred.reject(xcHelper.getPromiseWhenError(<any>error));
@@ -1549,19 +1555,29 @@ namespace XIApi {
                 // code layers/structures.
                 QueryManager.addIndexTable(txId, indexCache.tableName);
             }
-            return PromiseHelper.resolve(indexCache.tableName, true, indexCache.keys);
+            return PromiseHelper.resolve(indexCache.tableName, true,
+                                         indexCache.keys, indexCache.tempCols);
         }
         if (colNames.length === 0) {
-            return PromiseHelper.resolve(tableName, false, colNames);
+            return PromiseHelper.resolve(tableName, false, colNames, []);
         }
 
         newKeys = newKeys || [];
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        let keysList: string[] = [];
+        let tempCols: string[] = [];
         const keyInfos: {
             name: string,
             ordering: XcalarOrderingT,
             keyFieldName: string
         }[] = colNames.map((colName, index) => {
+            if (newKeys[index] && keysList.indexOf(newKeys[index]) != -1 ||
+                newKeys[index] == undefined && keysList.indexOf(colName) != -1) {
+                newKeys[index] = (newKeys[index] || colName) + "_copy_"
+                                 + Authentication.getHashId().substring(1);
+                tempCols.push(newKeys[index]);
+            }
+            keysList.push(newKeys[index] || colName);
             return {
                 name: colName,
                 ordering: XcalarOrderingT.XcalarOrderingUnordered,
@@ -1574,8 +1590,8 @@ namespace XIApi {
         indexHelper(txId, keyInfos, tableName, newTableName)
         .then((newTableName, newKeys) => {
             SQLApi.cacheIndexTable(tableName, colNames,
-                                        newTableName, newKeys);
-            deferred.resolve(newTableName, false, newKeys);
+                                        newTableName, newKeys, tempCols);
+            deferred.resolve(newTableName, false, newKeys, tempCols);
         })
         .fail(deferred.reject);
 
@@ -1805,6 +1821,7 @@ namespace XIApi {
         let newTableName: string = options.newTableName;
         let tempTables: string[] = [];
         let rIndexColNames: string[];
+        let tempColNames: string[];
 
         const lCastInfo: JoinCastInfo = {
             tableName: lTableName,
@@ -1827,8 +1844,10 @@ namespace XIApi {
             rIndexColNames = res.rColNames;
             return joinIndex(txId, res, lTableInfo.removeNulls);
         })
-        .then((lRes: JoinIndexResult, rRes: JoinIndexResult, tempTablesInIndex: string[]) => {
+        .then((lRes: JoinIndexResult, rRes: JoinIndexResult, tempTablesInIndex:
+                string[], tempCols: string[]) => {
             tempTables = tempTables.concat(tempTablesInIndex);
+            tempColNames = tempCols;
             // Step 3: resolve name collision
             const lIndexedTable: string = lRes.tableName;
             const rIndexedTable: string = rRes.tableName;
@@ -1868,6 +1887,7 @@ namespace XIApi {
             }
         })
         .then((tempCols) => {
+            tempCols = tempCols.concat(tempColNames);
             if (clean) {
                 XIApi.deleteTableInBulk(txId, tempTables, true)
                 .always(() => {
@@ -2405,7 +2425,10 @@ namespace XIApi {
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         XcalarDeleteTable(tableName, txId)
-        .then(deferred.resolve)
+        .then(function(ret) {
+            SQLApi.deleteIndexTable(tableName);
+            deferred.resolve(ret);
+        })
         .fail((error) => {
             if (toIgnoreError) {
                 deferred.resolve();
@@ -2471,6 +2494,7 @@ namespace XIApi {
                 if (state === DgDagStateT.DgDagStateReady ||
                     state === DgDagStateT.DgDagStateDropped
                 ) {
+                    SQLApi.deleteIndexTable(tableName);
                     return null;
                 } else {
                     hasError = true;
@@ -2510,6 +2534,7 @@ namespace XIApi {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         XcalarRenameTable(tableName, newTableName, txId)
         .then(() => {
+            SQLApi.deleteIndexTable(tableName);
             deferred.resolve(newTableName);
         })
         .fail(deferred.reject);
