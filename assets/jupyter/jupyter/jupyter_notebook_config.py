@@ -72,7 +72,7 @@ c.NotebookApp.ip = '127.0.0.1'
 c.NotebookApp.open_browser = False
 c.NotebookApp.allow_origin = '*'
 c.NotebookApp.port = 8890
-
+c.NotebookApp.allow_remote_access = True
 # Use a regular expression for the Access-Control-Allow-Origin header
 # 
 # Requests from an origin matching the expression will get replies with:
