@@ -419,7 +419,7 @@ class SQLOpPanel extends BaseOpPanel {
         }
         $li.appendTo(this._$sqlIdentifiers);
         const dropDown = new MenuHelper($li.find(".dropDownList"), {
-            "onSelect": this._selectSource,
+            "onSelect": this._selectSource.bind(this),
             "container": "#sqlOpPanel",
             "bounds": "#sqlOpPanel",
             "bottomPadding": 2
@@ -428,7 +428,20 @@ class SQLOpPanel extends BaseOpPanel {
     }
     private _selectSource($li: JQuery): void {
         const sourceId = $li.text();
-        $li.closest(".source").find(".text").text(sourceId);
+        const $source = $li.closest(".source");
+        let usedIdentifier;
+        this._$sqlIdentifiers.find(">li").each(function() {
+            if (!$(this).find(".source").is($source) &&
+                sourceId === $(this).find(".source .text").text()) {
+                usedIdentifier = $(this).find(".dest.text").val().trim();
+            }
+        });
+        if (usedIdentifier) {
+            StatusBox.show(SQLErrTStr.SourceUsed + usedIdentifier,
+                           $source.find(".text"));
+        } else {
+            $source.find(".text").text(sourceId);
+        }
     }
 
     private _toggleSnippetSave(): void {
@@ -949,7 +962,7 @@ class SQLOpPanel extends BaseOpPanel {
         let schemaQueryArray = [];
         const promiseArray = [];
         const allSchemas = [];
-        const srcTableMap = {};
+        const tableSrcMap = {};
         identifiers.forEach(function(value, key) {
             const innerDeferred = PromiseHelper.deferred();
             const sourceId = key;
@@ -958,7 +971,7 @@ class SQLOpPanel extends BaseOpPanel {
             .then(function(retStruct) {
                 schemaQueryArray = schemaQueryArray.concat(retStruct.cliArray);
                 allSchemas.push(retStruct.structToSend);
-                srcTableMap[key] = retStruct.srcTableName;
+                tableSrcMap[retStruct.srcTableName] = key;
                 innerDeferred.resolve();
             })
             .fail(innerDeferred.reject);
@@ -983,7 +996,7 @@ class SQLOpPanel extends BaseOpPanel {
             const queryString = "[" + schemaQueryArray.join(",") + "]";
             const ret = {
                 queryString: queryString,
-                srcTableMap: srcTableMap
+                tableSrcMap: tableSrcMap
             }
             deferred.resolve(ret);
         })
@@ -1008,11 +1021,14 @@ class SQLOpPanel extends BaseOpPanel {
                     // XXX Currently disable multi/partial query
                     // self._sqlEditor.getSelection().replace(/;+$/, "") ||
                     self._sqlEditor.getValue().replace(/;+$/, "");
+        if (!sql) {
+            return;
+        }
         const queryId = xcHelper.randName("sql", 8);
         const sqlCom = new SQLCompiler();
         const identifiers = this._extractIdentifiers();
         let schemaQueryString;
-        let srcTableMap;
+        let tableSrcMap;
         let resTableName;
         let allCols;
         self._sqlComs.push(sqlCom);
@@ -1021,7 +1037,7 @@ class SQLOpPanel extends BaseOpPanel {
             self._sendSchema(identifiers)
             .then(function(ret) {
                 schemaQueryString = ret.queryString;
-                srcTableMap = ret.srcTableMap;
+                tableSrcMap = ret.tableSrcMap;
                 return sqlCom.compile(queryId, sql, undefined);
             })
             .then(function(queryString, newTableName, newCols) {
@@ -1036,7 +1052,7 @@ class SQLOpPanel extends BaseOpPanel {
             .then(function(queryStringWithDrop) {
                 self._dataModel.setDataModel(queryStringWithDrop,
                                              resTableName, allCols,
-                                             sql, identifiers, srcTableMap);
+                                             sql, identifiers, tableSrcMap);
                 self._dataModel.submit();
                 deferred.resolve();
             })

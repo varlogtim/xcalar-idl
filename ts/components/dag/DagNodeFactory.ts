@@ -23,6 +23,10 @@ class DagNodeFactory {
                 return new DagNodeSet(options);
             case DagNodeType.SQL:
                 return new DagNodeSQL(<DagNodeSQLInfo>options);
+            case DagNodeType.SQLSubInput:
+                return new DagNodeSQLSubInput(options);
+            case DagNodeType.SQLSubOutput:
+                return new DagNodeSQLSubOutput(options);
             case DagNodeType.RowNum:
                 return new DagNodeRowNum(options);
             case DagNodeType.Extension:

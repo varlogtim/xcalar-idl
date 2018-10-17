@@ -1024,8 +1024,11 @@ class DagGraph {
         };
     }
 
-    public static convertQueryToDataflowGraph(query) {
+    public static convertQueryToDataflowGraph(query, tableSrcMap?, finalTableName?) {
         const nodes = new Map();
+        const destSrcMap = {}; // {dest: source} in xc query
+        const dagIdParentIdxMap = {}; // {DagNodeId: parentIdx}
+        let outputDagId: string;
 
         for (let rawNode of query) {
             const args = rawNode.args;
@@ -1082,14 +1085,20 @@ class DagGraph {
         //  connect into tree by matching nodes with parents
         for (let [_name, node] of nodes) {
             setParents(node);
-        };
+        }
 
         for (let [_name, node] of nodes) {
             setIndexedFields(node);
         }
 
         // turn nodeMeta into dagNodeInfo structure expected by DagGraph
-        return finalConvertIntoDagNodeInfoArray(nodes);
+        const retSruct = {
+            dagInfoList: finalConvertIntoDagNodeInfoArray(nodes),
+            dagIdParentIdxMap: dagIdParentIdxMap,
+            outputDagId: outputDagId,
+            tableNewDagIdMap: {} // XXX needs to return tableNewDagIdMap
+        }
+        return retSruct;
 
         function finalConvertIntoDagNodeInfoArray(nodes) {
             const endNodes = [];
@@ -1152,7 +1161,7 @@ class DagGraph {
                     dagNodeInfo = {
                         type: DagNodeType.Project,
                         input: {
-                            columns: [node.args.columns]
+                            columns: node.args.columns
                         }
                     };
                     break;
@@ -1236,7 +1245,13 @@ class DagGraph {
                                 "columns": node.indexedFields[0].map(key => {
                                     return key.name;
                                 }),
-                                "casts": node.indexedFields[0].map(key => {
+                                "casts": node.indexedFields[0].filter(key => {
+                                    if (DfFieldTypeTFromStr[key.type] ===
+                                        DfFieldTypeT.DfUnknown) {
+                                        return false;
+                                    }
+                                    return true;
+                                }).map(key => {
                                     return xcHelper.getDFFieldTypeToString(DfFieldTypeTFromStr[key.type]);
                                 }),
                                 "rename": leftRenames
@@ -1245,7 +1260,13 @@ class DagGraph {
                                 "columns": node.indexedFields[1].map(key => {
                                     return key.name;
                                 }),
-                                "casts": node.indexedFields[1].map(key => {
+                                "casts": node.indexedFields[1].filter(key => {
+                                    if (DfFieldTypeTFromStr[key.type] ===
+                                        DfFieldTypeT.DfUnknown) {
+                                        return false;
+                                    }
+                                    return true;
+                                }).map(key => {
                                     return xcHelper.getDFFieldTypeToString(DfFieldTypeTFromStr[key.type]);
                                 }),
                                 "rename": rightRenames
@@ -1287,6 +1308,14 @@ class DagGraph {
             dagNodeInfo.id = DagNode.generateId();
             dagNodeInfo.parents = [];
             dagNodeInfo.description = JSON.stringify(node.args);
+            // create dagIdParentIdxMap so that we can add input nodes later
+            const srcTableName = destSrcMap[node.name];
+            if (srcTableName) {
+                dagIdParentIdxMap[dagNodeInfo.id] = tableSrcMap[srcTableName];
+            }
+            if(node.name === finalTableName) {
+                outputDagId = dagNodeInfo.id;
+            }
             return {
                 name: node.name,
                 nodeInfo: dagNodeInfo
@@ -1300,6 +1329,11 @@ class DagGraph {
                     parent.children.push(node);
                     node.parents[i] = parent;
                 } else {
+                    if (tableSrcMap) {
+                        // This is a starting node in the sub graph, store it bc
+                        // later we'll create the dagNodeId -> srcId(parentIdx) map
+                        destSrcMap[node.name] = node.parents[i];
+                    }
                     // parent doesn't exist, remove it
                     node.parents.splice(i, 1);
                     i--;

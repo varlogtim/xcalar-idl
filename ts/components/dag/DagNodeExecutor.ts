@@ -94,6 +94,8 @@ class DagNodeExecutor {
                 return this._sql();
             case DagNodeType.RowNum:
                 return this._rowNum();
+            case DagNodeType.Index:
+                return this._index();
             default:
                 throw new Error(type + " not supported!");
         }
@@ -566,8 +568,22 @@ class DagNodeExecutor {
         return XIApi.genRowNum(this.txId, srcTable, newField, desTable);
     }
 
+    private _index(): XDPromise<string> {
+        const colNames: string[] = [];
+        const newKeys: string[] = [];
+        const node: DagNodeIndex = <DagNodeIndex>this.node;
+        const params: DagNodeIndexInputStruct = node.getParam();
+        // XXX Need to be fixed when DagNodeIndexInputStruct is fixed
+        const columns = params.columns;
+        columns.forEach((column) => {
+            colNames.push(column["name"]);
+            newKeys.push(column["keyFieldName"]);
+        })
+        const srcTable: string = this._getParentNodeTable(0);
+        return XIApi.index(this.txId, colNames, srcTable, undefined, newKeys);
+    }
+
     private _sql(): XDPromise<string> {
-        const self = this;
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNodeSQL = <DagNodeSQL>this.node;
         const params: DagNodeSQLInputStruct = node.getParam();
@@ -586,13 +602,16 @@ class DagNodeExecutor {
         const newTableName = this._generateTableName();
         // Set status to Running
         SqlQueryHistoryPanel.Card.getInstance().update(queryObj);
-        const queryStr = self._replaceSQLTableName(params.queryStr,
-                                                   node.getSrcTableMap(),
+        params.queryStr = this._replaceSQLTableName(params.queryStr,
+                                                   node.getTableSrcMap(),
                                                    replaceMap,
                                                    params.newTableName,
                                                    newTableName);
+        params.newTableName = newTableName;
 
-        XIApi.query(this.txId, queryName, queryStr, params.jdbcCheckTime)
+        node.updateSubGraph();
+
+        XIApi.query(this.txId, queryName, params.queryStr, params.jdbcCheckTime)
         .then(function() {
             // Set status to Done
             queryObj["status"] = SQLStatus.Done;
@@ -616,22 +635,47 @@ class DagNodeExecutor {
     }
     private _replaceSQLTableName(
         queryStr: string,
-        srcTableMap: {},
+        tableSrcMap: {},
         replaceMap: {},
         oldDestTableName: string,
         newDestTableName: string
     ): string {
-        // XXX Move this function to sqlCompiler when the ts conversion is done
         const queryStruct = JSON.parse(queryStr);
+        const newTableMap = {};
         queryStruct.forEach((operation) => {
-            for (const key in srcTableMap) {
-                if (operation.args.source === srcTableMap[key]) {
-                    operation.args.source = replaceMap[key];
-                    break;
+            if (!operation.args.source || !operation.args.dest) {
+                return;
+            }
+            let source = operation.args.source;
+            // source replacement
+            if (typeof source === "string") {
+                source = [source];
+            }
+            for (let i = 0; i < source.length; i++) {
+
+                const idx = tableSrcMap[source[i]];
+                if (idx) {
+                    source[i] = replaceMap[idx];
+                } else {
+                    if (!newTableMap[source[i]]) {
+                        newTableMap[source[i]] = this._generateTableName();
+                    }
+                    source[i] = newTableMap[source[i]];
                 }
-                if (operation.args.dest === oldDestTableName) {
-                    operation.args.dest = newDestTableName;
+            }
+            if (source.length === 1) {
+                operation.args.source = source[0];
+            } else {
+                operation.args.source = source;
+            }
+            // dest replacement
+            if (operation.args.dest === oldDestTableName) {
+                operation.args.dest = newDestTableName;
+            } else {
+                if (!newTableMap[operation.args.dest]) {
+                    newTableMap[operation.args.dest] = this._generateTableName();
                 }
+                operation.args.dest = newTableMap[operation.args.dest];
             }
         });
         return JSON.stringify(queryStruct);

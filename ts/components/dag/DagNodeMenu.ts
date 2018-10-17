@@ -177,6 +177,12 @@ namespace DagNodeMenu {
             case ("shareCustom"):
                 DagView.shareCustomOperator(operatorIds[0]);
                 break;
+            case ("inspectSQL"):
+                DagView.inspectSQLNode(operatorIds[0]);
+                break;
+            case ("expandSQL"):
+                DagView.expandSQLNode(operatorIds[0]);
+                break;
             case ("zoomIn"):
                 DagView.zoom(true);
                 break;
@@ -250,6 +256,11 @@ namespace DagNodeMenu {
         DagView.lockNode(node.getId());
         Log.lockUndoRedo();
         DagTopBar.Instance.lock();
+
+        // Nodes in SQL sub graph can't be configured
+        if (DagView.getActiveTab() instanceof DagTabSQL) {
+            options.nonConfigurable = true;
+        }
 
         switch (type) {
             case (DagNodeType.Dataset):
@@ -363,8 +374,8 @@ namespace DagNodeMenu {
 
         let classes: string = " operatorMenu ";
         if (DagView.isDisableActions()) {
-            // .customSubgraph hides all modification menu item
-            classes += ' customSubgraph ';
+            // .nonEditableSubgraph hides all modification menu item
+            classes += ' nonEditableSubgraph ';
         }
         $menu.find("li").removeClass("unavailable");
 
@@ -416,8 +427,8 @@ namespace DagNodeMenu {
     function _showBackgroundMenu(event: JQueryEventObject) {
         let classes: string = "";
         if (DagView.isDisableActions()) {
-            // .customSubgraph hides all modification menu item
-            classes += ' customSubgraph ';
+            // .nonEditableSubgraph hides all modification menu item
+            classes += ' nonEditableSubgraph ';
         }
         let operatorIds = DagView.getSelectedNodeIds();
         $menu.find("li").removeClass("unavailable");
@@ -549,12 +560,17 @@ namespace DagNodeMenu {
         }
         // CustomIn & Out
         if (dagNode != null && (
-            dagNodeType === DagNodeType.CustomInput
-            || dagNodeType === DagNodeType.CustomOutput)
+            dagNodeType === DagNodeType.CustomInput ||
+            dagNodeType === DagNodeType.CustomOutput ||
+            dagNodeType === DagNodeType.SQLSubInput ||
+            dagNodeType === DagNodeType.SQLSubOutput)
         ) {
             $menu.find('.configureNode, .executeNode').addClass('unavailable');
         }
         
+        if (dagNodeType === DagNodeType.SQL) {
+            classes += ' SQLOpMenu';
+        }
         if (DagView.isNodeLocked(nodeId)) {
             $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
                       ".resetNode, .cutNodes, .removeNode, .removeAllNodes")

@@ -534,7 +534,8 @@ SQLErrTStr = {
     "InvalidOuterType": "Invalid outer join type: ",
     "InvalidSourceId": "Identifier key must be an integer and can't be greater than the number of its parents: ",
     "MissingField": "Missing field: ",
-    "InvalidIdentifier": "Invalid table identifier"
+    "InvalidIdentifier": "Invalid table identifier",
+    "SourceUsed": "The source is already used for table identifier: "
 };
 
 SQLInfoTStr = {

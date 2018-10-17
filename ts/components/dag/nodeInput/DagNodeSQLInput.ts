@@ -9,4 +9,8 @@ class DagNodeSQLInput extends DagNodeInput {
             jdbcCheckTime: input.jdbcCheckTime
         };
     }
+
+    public setQueryStr(queryStr: string): void {
+        this.input.queryStr = queryStr;
+    }
 }

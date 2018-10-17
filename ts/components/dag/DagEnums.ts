@@ -23,7 +23,9 @@ enum DagNodeType {
     Split = "split",
     Round = "round",
     RowNum = "rowNum",
-    Index = "index"
+    Index = "index",
+    SQLSubInput = "SQLSubInput",
+    SQLSubOutput = "SQLSubOutput",
 }
 
 enum DagNodeSubType {

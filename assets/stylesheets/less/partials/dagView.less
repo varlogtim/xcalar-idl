@@ -1253,7 +1253,7 @@
                 display: none;
             }
         }
-        &.customSubgraph {
+        &.nonEditableSubgraph {
             .removeNode, .copyNodes, .cutNodes, .pasteNodes, .executeNode {
                 display: none;
             }
@@ -1277,7 +1277,7 @@
             display: list-item;
         }
 
-        &.customSubgraph {
+        &.nonEditableSubgraph {
             .removeAllNodes, .pasteNodes, .newComment, .executeAllNodes {
                 display: none;
             }
@@ -1299,6 +1299,11 @@
     }
     &.linkInMenu {
         .findLinkOut {
+            display: list-item;
+        }
+    }
+    &.SQLOpMenu {
+        .inspectSQL, .expandSQL {
             display: list-item;
         }
     }

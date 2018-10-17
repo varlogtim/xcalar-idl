@@ -110,6 +110,33 @@ class DagTabManager{
         }
     }
 
+    public newSQLTab(SQLNode: DagNodeSQL): void {
+        const parentTabId = DagView.getActiveTab().getId();
+        // the string to show on the tab
+        const validatedName = SQLNode.getSQLName();
+        // the td to find the tab
+        const tabId: string = `${parentTabId}-${SQLNode.getId()}`;
+        const tabIndex: number = this.getTabIndex(tabId);
+        if (tabIndex < 0) {
+            // No tab for this custom operator, create a new tab
+            // Create a new tab object
+            const newTab = new DagTabSQL({
+                id: tabId,
+                name: validatedName,
+                SQLNode: SQLNode
+            });
+            // Register the new tab in DagTabManager
+            if (this._addSubTab(parentTabId, tabId)) {
+                this._addDagTab(newTab);
+                // Switch to the tab(UI)
+                this._switchTabs();
+            }
+        } else {
+            // Tab already opened, switch to that one
+            this._switchTabs(tabIndex);
+        }
+    }
+
     /**
      * Persist parent tabs to KVStore
      * @param subTabId The key of the child tab
@@ -145,11 +172,11 @@ class DagTabManager{
     }
 
     /**
-     * Remove the tab showing custom OP's sub graph recursively.
+     * Remove the tab showing custom/SQL OP's sub graph recursively.
      * @param dagNode
      */
-    public removeCustomTabByNode(dagNode: DagNodeCustom): void {
-        const allTabs: DagTab[]  = this.getTabs();
+    public removeTabByNode(dagNode: DagNodeCustom | DagNodeSQL): void {
+        const allTabs: DagTab[]  = this.getTabs() || [];
         let rootTab: DagTab = null;
         for (const tab of allTabs) {
             if (tab.getGraph() === dagNode.getSubGraph()) {

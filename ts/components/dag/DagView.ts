@@ -1207,6 +1207,73 @@ namespace DagView {
             DagTabManager.Instance.newCustomTab(dagNode);
         }
     }
+    
+    /**
+     * Open a tab to show SQL sub graph for viewing purpose
+     * @param nodeId
+     */
+    export function inspectSQLNode(nodeId: DagNodeId): void {
+        const dagNode = activeDag.getNode(nodeId);
+        if (dagNode == null) {
+            return;
+        }
+        if (dagNode instanceof DagNodeSQL) {
+            DagTabManager.Instance.newSQLTab(dagNode);
+            this.autoAlign();
+        }
+    }
+    /**
+     * Expand the SQL node into a sub graph in place for editing purpose
+     * @param nodeId
+     */
+    export function expandSQLNode(nodeId: DagNodeId): void {
+        // XXX Custom node expanding could re-use the code but probably needs
+        // modifications
+        const dagNode = activeDag.getNode(nodeId);
+        if (dagNode == null) {
+            return;
+        }
+        if (dagNode instanceof DagNodeSQL) {
+            const subGraph = dagNode.getSubGraph();
+            const allSubNodes = subGraph.getAllNodes();
+            allSubNodes.forEach((value) => {
+                const dagNode = value;
+                activeDag.addNode(dagNode);
+                _addNodeNoPersist(dagNode);
+            });
+            allSubNodes.forEach((dagNode) => {
+                dagNode.getParents().forEach((parent, idx) => {
+                    _drawConnection(parent.getId(), dagNode.getId(), idx);
+                });
+            })
+
+            const subInputNodes = dagNode.getInputNodes();
+            const subOutputNodes = dagNode.getOutputNodes();
+
+            subInputNodes.forEach((inputNode) => {
+                const parent = dagNode.getInputParent(inputNode);
+                const children = inputNode.getChildren();
+                _removeNodesNoPersist([inputNode.getId()]);
+                children.forEach((child) => {
+                    _connectNodesNoPersist(parent.getId(), child.getId(), 0);
+                });
+            });
+            subOutputNodes.forEach((outputNode) => {
+                // There should be only one output for now
+                const parent = outputNode.getParents()[0];
+                _removeNodesNoPersist([outputNode.getId()]);
+                const children = dagNode.getChildren();
+                children.forEach((child) => {
+                    disconnectNodes(dagNode.getId(), child.getId(), 0);
+                    _connectNodesNoPersist(parent.getId(), child.getId(), 0);
+                });
+            });
+            // remove the SQL node from graph
+            _removeNodesNoPersist([dagNode.getId()]);
+            // XXX Need a better way to adjust positions
+            this.autoAlign();
+        }
+    }
 
     /**
      * Change the zoom level (scale) of the active graph
@@ -1284,7 +1351,9 @@ namespace DagView {
      * Check if modification to graph/nodes should be disabled, Ex. it's showing the subGraph of a customNode
      */
     export function isDisableActions(): boolean {
-        return (getActiveTab() instanceof DagTabCustom);
+        const activeTab = getActiveTab();
+        return (activeTab instanceof DagTabCustom ||
+                activeTab instanceof DagTabSQL);
     }
 
     function _createCustomNode(
@@ -1390,8 +1459,9 @@ namespace DagView {
             if (nodeId.startsWith("dag")) {
                 // Remove tabs for custom OP
                 const dagNode = activeDag.getNode(nodeId);
-                if (dagNode instanceof DagNodeCustom) {
-                    DagTabManager.Instance.removeCustomTabByNode(dagNode);
+                if (dagNode instanceof DagNodeCustom ||
+                    dagNode instanceof DagNodeSQL) {
+                    DagTabManager.Instance.removeTabByNode(dagNode);
                 }
 
                 activeDag.removeNode(nodeId);
@@ -2142,8 +2212,10 @@ namespace DagView {
             $opTitle.text(node.getCustomName());
             // The custom op is hidden in the category bar, so show it in the diagram
             $node.removeClass('xc-hidden');
-        } else if (node instanceof DagNodeCustomInput
-            || node instanceof DagNodeCustomOutput
+        } else if (node instanceof DagNodeCustomInput ||
+                   node instanceof DagNodeCustomOutput ||
+                   node instanceof DagNodeSQLSubInput ||
+                   node instanceof DagNodeSQLSubOutput
         ) {
             $opTitle.text(node.getPortName());
             // The custom input/output is hidden in the category bar, so show it in the diagram

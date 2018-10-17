@@ -152,8 +152,8 @@ class DagCategoryNodeExtensions extends DagCategoryNode {
 
 class DagCategoryNodeSQL extends DagCategoryNode {
     protected color: string = "#EAABD3";
-    public constructor(node: DagNode) {
-        super(node, DagCategoryType.SQL);
+    public constructor(node: DagNode, isHidden: boolean = false) {
+        super(node, DagCategoryType.SQL, isHidden);
     }
 }
 

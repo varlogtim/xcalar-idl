@@ -1452,5 +1452,7 @@ module.exports = {
         "editCustomNode": "Edit",
         "lockTable": "Lock Table",
         "unlockTable": "Unlock table",
+        "inspectSQL": "Inspect",
+        "expandSQL": "Expand",
     }
 };

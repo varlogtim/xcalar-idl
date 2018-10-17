@@ -138,6 +138,19 @@ class BaseOpPanel {
         options = options || {};
         this._exitCallback = options.exitCallback || function(){};
         this._closeCallback = options.closeCallback || function(){};
+        if (options.nonConfigurable) {
+            $("#dataflowMenu .opPanel .bottomSection .btnWrap")
+                                                    .addClass("xc-disabled");
+            if (this._editor) {
+                this._editor.setOption("readOnly", true);
+            }
+        } else {
+            $("#dataflowMenu .opPanel .opSection, .bottomSection .btnWrap")
+                                                    .removeClass("xc-disabled");
+            if (this._editor) {
+                this._editor.setOption("readOnly", false);
+            }
+        }
         this._setupOperationsMap();
         this._setupAggMap();
         return true;

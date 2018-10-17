@@ -30,7 +30,7 @@ interface DagNodeSQLInfo extends DagNodeInfo {
     sqlQueryString: string,
     identifiers: {},
     identifiersOrder: number[],
-    srcTableMap: {},
+    tableSrcMap: {}, // {tableName: parentIdx}
     columns: {name: string, backName: string, type: ColumnType}[]
 }
 

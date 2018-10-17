@@ -116,7 +116,13 @@ class DagCategories {
         const sqlCategory = new DagCategory(DagCategoryType.SQL, [
             new DagCategoryNodeSQL(DagNodeFactory.create({
                 type: DagNodeType.SQL
-            }))
+            })),
+            new DagCategoryNodeSQL(DagNodeFactory.create({
+                type: DagNodeType.SQLSubInput
+            }), true),
+            new DagCategoryNodeSQL(DagNodeFactory.create({
+                type: DagNodeType.SQLSubOutput
+            }), true)
         ]);
 
         const extensionCategory = new DagCategory(DagCategoryType.Extensions, [

@@ -6,7 +6,7 @@ class SQLOpPanelModel {
     private _jdbcCheckTime: number;
     private _sqlQueryString: string;
     private _identifiers: Map<number, string>;
-    private _srcTableMap: {};
+    private _tableSrcMap: {};
 
     public constructor(dagNode: DagNodeSQL) {
         this._dagNode = dagNode;
@@ -15,7 +15,7 @@ class SQLOpPanelModel {
         this._columns = dagNode.getColumns() || [];
         this._identifiers = dagNode.getIdentifiers() || new Map<number, string>();
         this._sqlQueryString = dagNode.getSqlQueryString() || "";
-        this._srcTableMap = dagNode.getSrcTableMap();
+        this._tableSrcMap = dagNode.getTableSrcMap();
     }
 
     private _initialize(params: DagNodeSQLInputStruct): void {
@@ -30,7 +30,7 @@ class SQLOpPanelModel {
         columns: SQLColumn[],
         sqlQueryString: string,
         identifiers: Map<number, string>,
-        srcTableMap: {},
+        tableSrcMap: {},
         jdbcCheckTime?: number
     ): void {
         this._queryStr = queryStr;
@@ -39,7 +39,7 @@ class SQLOpPanelModel {
         this._jdbcCheckTime = jdbcCheckTime;
         this._sqlQueryString = sqlQueryString;
         this._identifiers = identifiers;
-        this._srcTableMap = srcTableMap;
+        this._tableSrcMap = tableSrcMap;
     }
 
     /**
@@ -50,8 +50,9 @@ class SQLOpPanelModel {
         this._dagNode.setColumns(this._columns);
         this._dagNode.setSqlQueryString(this._sqlQueryString);
         this._dagNode.setIdentifiers(this._identifiers);
-        this._dagNode.setSrcTableMap(this._srcTableMap);
+        this._dagNode.setTableSrcMap(this._tableSrcMap);
         this._dagNode.setParam(param);
+        this._dagNode.updateSubGraph();
     }
 
 
