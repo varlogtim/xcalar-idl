@@ -6030,7 +6030,6 @@
             return self.sqlObj.map(mapStrs, tableName, newColNames, newTableName);
         } else {
             var curPromise;
-            var curIndexColStruct;
             var loopStruct = {cli: "", node: node, self: self};
             loopStruct.groupByCols = [];
             if (outerLoopStruct) {
@@ -6071,6 +6070,23 @@
             })
             .then(function(ret) {
                 var innerPromise = PromiseHelper.resolve(ret);
+                if (windowStruct.rowNumber.newCols.length > 0) {
+                    var rNCols = windowStruct.rowNumber.newCols;
+                    windowStruct.rowNumber.newCols = [];
+                    innerPromise = innerPromise.then(function(ret) {
+                        var newRenames = __resolveCollision(loopStruct.node
+                                    .usrCols.concat(loopStruct.node.xcCols)
+                                    .concat(loopStruct.node.sparkCols), rNCols,
+                                    [], [], "", ret.newTableName);
+                        loopStruct.node.renamedCols =__combineRenameMaps(
+                                    [loopStruct.node.renamedCols, newRenames]);
+                        loopStruct.node.usrCols = loopStruct.node.usrCols.concat(rNCols);
+                        loopStruct.cli += ret.cli;
+                        return self.sqlObj.map(Array(rNCols.length).fill("int("
+                            + __getCurrentName(loopStruct.indexColStruct) +")"),
+                            ret.newTableName, rNCols.map(__getCurrentName));
+                    })
+                }
                 for (item in windowStruct) {
                     if (item === "lead") {
                         if (!jQuery.isEmptyObject(windowStruct[item])) {
