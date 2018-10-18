@@ -1176,6 +1176,7 @@
                         self.type = ColumnType.timestamp;
                         break;
                     case DfFieldTypeT.DfMixed:
+                    case DfFieldTypeT.DfScalarObj: // also recoganize it as mixed
                         self.type = ColumnType.mixed;
                         break;
                     case DfFieldTypeT.DfFatptr:
