@@ -64,6 +64,9 @@ class DagCategories {
             new DagCategoryNodeOperations(DagNodeFactory.create({
                 type: DagNodeType.GroupBy
             })),
+            new DagCategoryNodeOperations(DagNodeFactory.create({
+                type: DagNodeType.RowNum
+            })),
         ]);
 
         const columnCategory = new DagCategory(DagCategoryType.Column, [

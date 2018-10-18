@@ -266,6 +266,11 @@ namespace DagNodeMenu {
             case (DagNodeType.SQL):
                 SQLOpPanel.Instance.show(node, options);
                 break;
+            case (DagNodeType.RowNum):
+                console.warn("not implemented yet");
+                // XXX testing purpose. remove when panel is done.
+                node.setTestField();
+                break;
             default:
                 unlock();
                 throw new Error("Unsupported type");

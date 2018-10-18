@@ -21,6 +21,7 @@ enum DagNodeType {
     PublishIMD = "publishIMD",
     Split = "split",
     Round = "round",
+    RowNum = "rowNum"
 }
 
 enum DagNodeSubType {

@@ -82,6 +82,8 @@ class DagNodeExecutor {
                 return this._IMDTable();
             case DagNodeType.SQL:
                 return this._sql();
+            case DagNodeType.RowNum:
+                return this._rowNum();
             default:
                 throw new Error(type + " not supported!");
         }
@@ -542,6 +544,16 @@ class DagNodeExecutor {
         });
         return deferred.promise();
     }
+
+    private _rowNum(): XDPromise<string> {
+        const node: DagNodeRowNum = <DagNodeRowNum>this.node;
+        const params: DagNodeRowNumInputStruct = node.getParam();
+        const newField: string = params.newField;
+        const srcTable: string = this._getParentNodeTable(0);
+        const desTable: string = this._generateTableName();
+        return XIApi.genRowNum(this.txId, srcTable, newField, desTable);
+    }
+
     private _sql(): XDPromise<string> {
         const self = this;
         const deferred: XDDeferred<string> = PromiseHelper.deferred();

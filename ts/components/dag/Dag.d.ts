@@ -145,6 +145,10 @@ interface DagNodeSQLInputStruct {
     jdbcCheckTime?: number
 }
 
+interface DagNodeRowNumInputStruct {
+    newField: string
+}
+
 interface DagNodeExtensionInputStruct {
     moduleName: string,
     functName: string
