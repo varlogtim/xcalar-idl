@@ -2142,7 +2142,7 @@ window.DS = (function ($, DS) {
         $gridMenu.hide();
         return new RectSelction(startX, startY, {
             "id": "gridView-rectSelection",
-            "$container": $("#dsListSection .gridView"),
+            "$container": $("#dsListSection .gridItems"),
             "$scrollContainer": $("#dsListSection .gridViewWrapper"),
             "onStart": function() { $gridView.addClass("drawing"); },
             "onDraw": drawRect,
