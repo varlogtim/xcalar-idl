@@ -895,6 +895,7 @@ ul.CodeMirror-hints {
         border-top: solid 1px @color-border-softGray;
         background-color: #f5f8fa;
         font-size: 12px;
+        border-bottom: 1px solid @color-border-softGray;
 
         .flex-display;
         .flex-wrap(wrap);
@@ -1044,12 +1045,6 @@ ul.CodeMirror-hints {
         display: none !important;
     }
 
-    .CodeMirror-scroll {
-        .CodeMirror-gutters {
-            border-right: none;
-        }
-    }
-
     .editSection {
         .flex(1 1 auto);
         .flex-display;
@@ -1058,6 +1053,12 @@ ul.CodeMirror-hints {
         overflow: hidden;
 
         .editArea {
+            ::-webkit-scrollbar-track {
+                background: #f5f8fa;
+            }
+            ::-webkit-scrollbar-thumb {
+                background-color: #c1c1c1 !important;
+            }
             .size(100%, inherit);
             .position(relative);
             .CodeMirror {

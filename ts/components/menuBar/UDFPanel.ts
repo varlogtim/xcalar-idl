@@ -169,7 +169,7 @@ class UDFPanel {
                     version: 3,
                     singleLineStringErrors: false
                 },
-                theme: "rubyblue",
+                theme: "xcalar-light",
                 lineNumbers: true,
                 lineWrapping: true,
                 indentWithTabs: false,

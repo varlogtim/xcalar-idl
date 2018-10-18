@@ -332,7 +332,7 @@ class SQLOpPanel extends BaseOpPanel {
         self._sqlEditor = CodeMirror.fromTextArea(textArea as HTMLTextAreaElement,
             {
                 "mode": "text/x-sql",
-                "theme": "default",
+                "theme": "xcalar-light",
                 "lineNumbers": true,
                 "lineWrapping": true,
                 "smartIndent": true,
