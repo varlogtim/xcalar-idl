@@ -14,8 +14,13 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     var inputSuggest;
     var shouldRestore = false;
     var formOpenTime;
+    var hasSetup = false;
 
     ExtensionManager.setup = function() {
+        if (hasSetup) {
+            return;
+        }
+        hasSetup = true;
         $extOpsView = $("#extension-ops");
         $extTriggerTableDropdown = $("#extension-ops-mainTable");
         addEventListeners();
@@ -24,6 +29,10 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     };
 
     ExtensionManager.install = function() {
+        // if set up has not been called, will not do the install
+        if (!hasSetup || WorkbookManager.getActiveWKBK() == null) {
+            return PromiseHelper.resolve();
+        }
         initInstall();
 
         var deferred = PromiseHelper.deferred();
@@ -32,18 +41,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
         $extOpsView.addClass("loading");
         xcHelper.showRefreshIcon($extOpsView.find(".extLists"), true, deferred);
 
-        ExtensionPanel.request({
-            "type": "GET",
-            "dataType": "JSON",
-            "url": url + "/extension/getEnabled",
-        })
-        .then(function(data) {
-            if (data.status === Status.Ok) {
-                return loadExtensions(data.data);
-            } else {
-                console.error("Failed to get extensions", data);
-                return PromiseHelper.resolve();
-            }
+        ExtensionPanel.getEnabledList()
+        .then(function(enabledExtHTMl) {
+            return loadExtensions(enabledExtHTMl);
         })
         .then(deferred.resolve)
         .fail(function(error) {
@@ -77,6 +77,11 @@ window.ExtensionManager = (function(ExtensionManager, $) {
     }
 
     function loadExtensions(htmlString) {
+        if (!htmlString) {
+            console.error("Failed to get extensions");
+            return PromiseHelper.resolve();
+        }
+
         var deferred = PromiseHelper.deferred();
         var promises = [];
         var $tag = $('<div>' + htmlString + '</div>');

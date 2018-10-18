@@ -75,6 +75,9 @@ namespace xcManager {
         .then(setupWKBKIndependentPanels)
         .then(setupSession) // restores info from kvStore
         .then(function() {
+            return ExtensionManager.setup();
+        })
+        .then(function() {
             return XDFManager.Instance.setup();
         })
         .then(function() {
@@ -686,7 +689,7 @@ namespace xcManager {
             return PromiseHelper.alwaysResolve(DSTargetManager.refreshTargets(true));
         })
         .then(() => {
-            return setupExtensions();
+            ExtensionPanel.setup();
         })
         .then(() => {
             return KVStore.restoreUserAndGlobalInfo();
@@ -703,18 +706,6 @@ namespace xcManager {
     function setMaxSampleSize(size: number): void {
         if (size != null) {
             gMaxSampleSize = size;
-        }
-    }
-
-    function setupExtensions(): XDPromise<void> {
-        try {
-            const extPromise: XDPromise<void> = ExtensionManager.setup();
-            ExtensionPanel.setup();
-            return extPromise;
-        } catch (error) {
-            console.error(error);
-            Alert.error(ThriftTStr.SetupErr, error);
-            return PromiseHelper.reject();
         }
     }
 

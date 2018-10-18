@@ -4,6 +4,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
     var extSet;
     var isFirstTouch = true;
     var extInInstall = null;
+    var enabledHTMLStr = "";
 
     ExtensionPanel.setup = function() {
         extSet = new ExtCategorySet();
@@ -47,11 +48,19 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
     ExtensionPanel.active = function() {
         if (isFirstTouch) {
             isFirstTouch = false;
-            generateInstalledExtList()
-            .always(function() {
-                fetchData();
+
+            getEnabledExtList()
+            .then(function() {
+                generateInstalledExtList()
+                .always(function() {
+                    fetchData();
+                });
             });
         }
+    };
+
+    ExtensionPanel.getEnabledList = function() {
+        return getEnabledExtList(false);
     };
 
     ExtensionPanel.imageError = function(ele) {
@@ -296,6 +305,7 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         $extLists.addClass("refreshing");
 
         var promises = [];
+        promises.push(getEnabledExtList.bind(this, true));
         promises.push(ExtensionManager.install.bind(this));
         promises.push(generateInstalledExtList.bind(this));
         var promise = PromiseHelper.chain(promises);
@@ -349,6 +359,42 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
         return deferred.promise();
     }
 
+    function getEnabledExtList(reset) {
+        if (!reset && enabledHTMLStr) {
+            return PromiseHelper.resolve(enabledHTMLStr);
+        }
+
+        var deferred = PromiseHelper.deferred();
+        var url = xcHelper.getAppUrl();
+        ExtensionPanel.request({
+            "type": "GET",
+            "dataType": "JSON",
+            "url": url + "/extension/getEnabled",
+        })
+        .then(function(data) {
+            if (data.status === Status.Ok) {
+                enabledHTMLStr = data.data;
+                deferred.resolve(enabledHTMLStr);
+            } else {
+                console.error("Failed to get enabled extension");
+                enabledHTMLStr = "";
+                deferred.reject();
+            }
+        })
+        .then(deferred.resolve)
+        .fail(function(error) {
+            enabledHTMLStr = "";
+            deferred.reject(error);
+        });
+
+        return deferred.promise();
+    }
+
+    function isExtensionEnabled(extName) {
+        extName = extName + ".ext.js";
+        return enabledHTMLStr.includes(extName);
+    }
+
     function handleExtListError() {
         $extLists.html('<div class="error">' + ExtTStr.extListFail + '</div>');
     }
@@ -389,11 +435,12 @@ window.ExtensionPanel = (function(ExtensionPanel, $) {
             var status = "";
             var extName = extensions[i];
             var icon = '<i class="icon xi-menu-extension fa-15"></i>';
-            if (ExtensionManager.isExtensionEnabled(extName)) {
+            if (isExtensionEnabled(extName)) {
                 enabled = "enabled";
                 status = "on";
-
-                if (!ExtensionManager.isInstalled(extName)) {
+                // only when has active workbook does the ExtensioManger setup
+                if (WorkbookManager.getActiveWKBK() != null &&
+                    !ExtensionManager.isInstalled(extName)) {
                     var error = ExtensionManager.getInstallError(extName);
                     icon = '<i class="icon xi-critical fa-15 hasError"' +
                             ' data-toggle="tooltip"' +
