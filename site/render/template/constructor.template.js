@@ -1940,6 +1940,7 @@
                 sources: (array, not persist)
                 date: (number) created date timestamp
                 numErrors: (number) number of record errors
+                activated: (boolean. non-persist) if the dataset is activated or not
             removed attr:
                 previewSize
                 isRegex
@@ -1973,6 +1974,7 @@
                 if (options.numErrors != null) {
                     self.numErrors = options.numErrors;
                 }
+                self.activated = options.activated || false;
                 delete self.previewSize;
                 delete self.isRegex;
                 delete self.path;
@@ -2120,22 +2122,16 @@
                 return !this.uneditable;
             },
 
-            lock: function() {
-                if (!this.locked) {
-                    this.locked = true;
-                    var $grid = DS.getGrid(this.getId());
-                    $grid.append('<i class="icon xi-lockwithkeyhole lockIcon"></i>');
-                }
+            isActivated: function() {
+                return this.activated;
             },
 
-            unlock: function() {
-                this.locked = false;
-                var $grid = DS.getGrid(this.getId());
-                $grid.find(".lockIcon").remove();
+            activate: function() {
+                this.activated = true;
             },
 
-            isLocked: function() {
-                return this.locked || false;
+            deactivate: function() {
+                this.activated = false;
             },
 
             _makeResultSet: function() {
@@ -2441,20 +2437,10 @@
 
             // used if advancedArgs property is missing
             addAdvancedArgs: function() {
+                // XXX TODO: use XcalarDatasetGetMeta
                 var self = this;
                 var deferred = PromiseHelper.deferred();
-                var wasUnlocked = true;
-                var lockPromise;
-                if (!self.isLocked()) {
-                    wasUnlocked = true;
-                    lockPromise = XcalarLockDataset(self.fullName);
-                } else {
-                    lockPromise = PromiseHelper.resolve();
-                }
-                lockPromise
-                .then(function() {
-                    return XcalarGetDag(gDSPrefix + self.fullName)
-                })
+                XcalarGetDag(gDSPrefix + self.fullName)
                 .then(function(result) {
                     var node = result.node[0];
                     var loadArgs = node.input.loadInput.loadArgs;
@@ -2462,11 +2448,6 @@
                         allowFileErrors: loadArgs.parseArgs.allowFileErrors,
                         allowRecordErrors: loadArgs.parseArgs.allowRecordErrors,
                     };
-                    if (wasUnlocked) {
-                        return XcalarUnlockDataset(self.fullName);
-                    } else {
-                        return PromiseHelper.resolve();
-                    }
                 })
                 .then(deferred.resolve)
                 .fail(deferred.reject);

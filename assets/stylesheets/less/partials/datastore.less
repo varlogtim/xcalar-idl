@@ -3866,18 +3866,18 @@ table.datasetTable {
         .dsOpt {
             display: block;
 
-            &.unlockDS {
+            &.deactivate {
                 display: none;
             }
         }
 
-        &.dsLock {
+        &.dsActivated {
             .dsOpt {
-                &.lockDS {
+                &.activate {
                     display: none;
                 }
 
-                &.unlockDS {
+                &.deactivate {
                     display: block;
                 }
 
@@ -3928,14 +3928,14 @@ table.datasetTable {
     }
 
     &.unlistable.noAction {
-        .preview, .delete, .unlockDS, .lockDS, .share {
+        .preview, .delete, .deactivate, .activate, .share {
             opacity: @opacity-disabled;
             pointer-events: none;
         }
     }
 
     &.loading {
-        .preview, .share, .lockDS {
+        .preview, .share, .deactivate, .activate, .delete {
             opacity: @opacity-disabled;
             pointer-events: none;
         }

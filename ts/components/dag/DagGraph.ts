@@ -686,13 +686,32 @@ class DagGraph {
 
     /**
      * Get the used dataset name in the graph
+     * @param deepSearch when set true, will search the source of link in node
      */
-    public getUsedDSNames(): Set<string> {
+    public getUsedDSNames(deepSearch: boolean = false): Set<string> {
         const set: Set<string> = new Set();
         this.nodesMap.forEach((node) => {
-            if (node.getType() === DagNodeType.Dataset) {
+            const nodeType: DagNodeType = node.getType();
+            if (nodeType === DagNodeType.Dataset) {
                 const dsName: string = (<DagNodeDataset>node).getDSName();
-                set.add(dsName);
+                if (dsName != null) {
+                    set.add(dsName);
+                }
+            } else if (nodeType === DagNodeType.DFIn && deepSearch) {
+                // Note: be cafure of this path for circular case
+                try {
+                    const linkInNode: DagNodeDFIn = <DagNodeDFIn>node;
+                    const res: {graph: DagGraph, node: DagNodeDFOut} = linkInNode.getLinedNodeAndGraph();
+                    const graph = res.graph;
+                    if (graph !== this) {
+                        const dsSet: Set<string> = graph.getUsedDSNames(true);
+                        dsSet.forEach((dsName) => {
+                            set.add(dsName);
+                        });
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
             }
         });
         return set;
@@ -720,6 +739,7 @@ class DagGraph {
         if (checkResult.hasError) {
             return PromiseHelper.reject(checkResult);
         }
+
 
         this.lockGraph();
         executor.run()

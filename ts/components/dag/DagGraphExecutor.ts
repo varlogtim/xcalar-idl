@@ -1,10 +1,10 @@
 class DagGraphExecutor {
-    private nodes: DagNode[];
-    private graph: DagGraph;
+    private _nodes: DagNode[];
+    private _graph: DagGraph;
 
     public constructor(nodes: DagNode[], graph: DagGraph) {
-        this.nodes = nodes;
-        this.graph = graph;
+        this._nodes = nodes;
+        this._graph = graph;
     }
 
     /**
@@ -25,8 +25,8 @@ class DagGraphExecutor {
             node: null
         };
 
-        for (let i = 0; i < this.nodes.length; i++) {
-            let node: DagNode = this.nodes[i];
+        for (let i = 0; i < this._nodes.length; i++) {
+            let node: DagNode = this._nodes[i];
             if (node.getState() === DagNodeState.Unused) {
                 errorResult.hasError = true;
                 errorResult.type = DagNodeErrorType.Unconfigured;
@@ -53,11 +53,11 @@ class DagGraphExecutor {
     /**
      * Execute nodes
      */
-    public run(): XDPromise<string> {
-        const nodes: DagNode[] = this.nodes.filter((node) => {
+    public run(): XDPromise<void> {
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        const nodes: DagNode[] = this._nodes.filter((node) => {
             return node.getState() !== DagNodeState.Complete;
         });
-        const promises: XDDeferred<void>[] = [];
         const nodesToRun: {node: DagNode, executable: boolean}[] = nodes.map((node) => {
            return {
                 node: node,
@@ -65,16 +65,27 @@ class DagGraphExecutor {
             }
         });
 
-        for (let i = 0; i < nodesToRun.length; i++) {
-            promises.push(this._stepExecute.bind(this, nodesToRun, i));
-        }
+        const dsNames: Set<string> = this._graph.getUsedDSNames(true);
+        this._attachDatasets(dsNames)
+        .then(() => {
+            const promises: XDDeferred<void>[] = [];
+            for (let i = 0; i < nodesToRun.length; i++) {
+                promises.push(this._stepExecute.bind(this, nodesToRun, i));
+            }
+            return PromiseHelper.chain(promises);
+        })
+        .then(() => {
+            return this._detachDatasets(dsNames);
+        })
+        .then(deferred.resolve)
+        .fail(deferred.reject);
 
-        return PromiseHelper.chain(promises);
+        return deferred.promise();
     }
 
     public getBatchQuery(): XDPromise<string> {
         // get rid of link of node to get the correct query and destTable
-        const nodes: DagNode[] = this.nodes.filter((node) => {
+        const nodes: DagNode[] = this._nodes.filter((node) => {
             return node.getType() !== DagNodeType.DFOut;
         });
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
@@ -115,7 +126,7 @@ class DagGraphExecutor {
             track: true,
             nodeId: node.getId()
         });
-        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, this.graph.getTabId());
+        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, this._graph.getTabId());
         dagNodeExecutor.run()
         .then(() => {
             Transaction.done(txId, {});
@@ -123,7 +134,7 @@ class DagGraphExecutor {
         })
         .fail((error) => {
             // remove all the children that depends on the failed node
-            const set: Set<DagNode> = this.graph.traverseGetChildren(node);
+            const set: Set<DagNode> = this._graph.traverseGetChildren(node);
             for (let i = index; i < nodesToRun.length; i++) {
                 if (set.has(nodesToRun[i].node)) {
                     nodesToRun[i].executable = false;
@@ -143,7 +154,7 @@ class DagGraphExecutor {
         txId: number,
         node: DagNode
     ): XDPromise<string> {
-        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, this.graph.getTabId());
+        const dagNodeExecutor: DagNodeExecutor = new DagNodeExecutor(node, txId, this._graph.getTabId());
         return dagNodeExecutor.run();
     }
 
@@ -209,7 +220,7 @@ class DagGraphExecutor {
             const res = currentNode.getLinedNodeAndGraph();
             let graph: DagGraph = res.graph;
             let dfOutNode: DagNodeDFOut = res.node;
-            if (graph === this.graph) {
+            if (graph === this._graph) {
                 linkOutNodes.push(dfOutNode);
             } else {
                 const dfInNodes: DagNodeDFIn[] = this._getLinkedInSourceFromLinkOutNode(dfOutNode);
@@ -233,5 +244,27 @@ class DagGraphExecutor {
             }
         }
         return linkInNodes;
+    }
+
+    private _attachDatasets(dsNames: Set<string>): XDPromise<void> {
+        const uid: string = this._getDSAttachUid();
+        const promises: XDPromise<void>[] = [];
+        dsNames.forEach((dsName) => {
+            promises.push(DS.attach(dsName, uid));
+        });
+        return PromiseHelper.when(...promises);
+    }
+
+    private _detachDatasets(dsNames: Set<string>): XDPromise<void> {
+        const uid: string = this._getDSAttachUid();
+        const promises: XDPromise<void>[] = [];
+        dsNames.forEach((dsName) => {
+            promises.push(DS.detach(dsName, uid));
+        });
+        return PromiseHelper.when(...promises);
+    }
+
+    private _getDSAttachUid(): string {
+        return XcUser.CurrentUser.getFullName() + ".Xcalar." + this._graph.getTabId();
     }
 }

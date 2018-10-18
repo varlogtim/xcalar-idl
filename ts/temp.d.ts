@@ -449,6 +449,13 @@ declare var XcalarGetNodeName: any;
 declare var XcalarUpdateLicense: any;
 declare var XcalarPreview: any;
 declare var XcalarLoad: any;
+declare var XcalarDatasetCreate: any;
+declare var XcalarDatasetDelete: any;
+declare var XcalarDatasetLoad: any;
+declare var XcalarDatasetUnload: any;
+declare var XcalarDatasetAttach: any;
+declare var XcalarDatasetDetach: any;
+declare var XcalarDatasetGetMeta: any;
 declare var XcalarAddLocalFSExportTarget: any;
 declare var XcalarAddUDFExportTarget: any;
 declare var XcalarRemoveExportTarget: any;
@@ -1126,6 +1133,8 @@ declare namespace DS {
     export function listDatasets(): ListDSInfo[];
     export function isSharingDisabled(): boolean;
     export function shareDS(dsId: string): XDPromise<void>;
+    export function attach(dsName: string, uid: string): XDPromise<void>;
+    export function detach(dsName: string, uid: string): XDPromise<void>;
 }
 
 

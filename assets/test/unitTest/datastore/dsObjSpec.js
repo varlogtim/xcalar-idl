@@ -757,7 +757,7 @@ describe("Dataset-DSObj Test", function() {
                 done("fail");
             })
             .fail(function(error) {
-                expect(error).to.equal("test");
+                expect(error.error).to.equal("test");
                 UnitTest.hasAlertWithTitle(StatusMessageTStr.ImportDSFailed);
                 done();
             })
@@ -1146,16 +1146,15 @@ describe("Dataset-DSObj Test", function() {
             DSInfoModal.show = oldFunc;
         });
 
-        it("should click .unlockDS to unlock ds", function() {
-            var oldFunc = XcalarUnlockDataset;
+        it("should click .deactivate to deactivate ds", function() {
+            var oldFunc = XcalarDatasetUnload;
             var test = false;
-            XcalarUnlockDataset = function() {
+            XcalarDatasetUnload = function() {
                 test = true;
                 return PromiseHelper.resolve();
             };
-            var $li = $gridMenu.find(".unlockDS");
-            // simple mouse up not work
-            $li.mouseup();
+            var $li = $gridMenu.find(".deactivate");
+            $li.mouseup(); // simple mouse up not work
             expect(test).to.be.false;
 
             var e = jQuery.Event("contextmenu", {
@@ -1163,21 +1162,27 @@ describe("Dataset-DSObj Test", function() {
             });
             $wrap.trigger(e);
             $li.trigger(fakeEvent.mouseup);
+            UnitTest.hasAlertWithTitle(DSTStr.DeactivateDS, {
+                confirm: true
+            });
             expect(test).to.be.true;
 
-            XcalarUnlockDataset = oldFunc;
+            XcalarDatasetUnload = oldFunc;
         });
 
-        it("should click .lockDS to lock ds", function() {
-            var oldFunc = XcalarLockDataset;
+        it("should click .activate to activate ds", function() {
+            var oldGetMeta = XcalarDatasetGetMeta;
+            var oldLoad = XIApi.loadDataset;
             var test = false;
-            XcalarLockDataset = function() {
+            XIApi.loadDataset = function() {
                 test = true;
                 return PromiseHelper.resolve();
             };
-            var $li = $gridMenu.find(".lockDS");
-            // simple mouse up not work
-            $li.mouseup();
+            XcalarDatasetGetMeta = function() {
+                return PromiseHelper.resolve();
+            };
+            var $li = $gridMenu.find(".activate");
+            $li.mouseup();  // simple mouse up not work
             expect(test).to.be.false;
 
             var e = jQuery.Event("contextmenu", {
@@ -1185,22 +1190,25 @@ describe("Dataset-DSObj Test", function() {
             });
             $wrap.trigger(e);
             $li.trigger(fakeEvent.mouseup);
+            UnitTest.hasAlertWithTitle(DSTStr.ActivateDS, {
+                confirm: true
+            });
             expect(test).to.be.true;
 
-            XcalarLockDataset = oldFunc;
+            XIApi.loadDataset = oldLoad;
+            XcalarDatasetGetMeta = oldGetMeta;
         });
 
-        it("should click to multi unlock ds", function() {
+        it("should click to multi deactivate ds", function() {
             $ds.addClass("selected");
-            var oldFunc = XcalarUnlockDataset;
+            var oldFunc = XcalarDatasetUnload;
             var test = false;
-            XcalarUnlockDataset = function() {
+            XcalarDatasetUnload = function() {
                 test = true;
                 return PromiseHelper.resolve();
             };
-            var $li = $gridMenu.find(".multiUnlock");
-            // simple mouse up not work
-            $li.mouseup();
+            var $li = $gridMenu.find(".multiDeactivate");
+            $li.mouseup();  // simple mouse up not work
             expect(test).to.be.false;
 
             var e = jQuery.Event("contextmenu", {
@@ -1208,23 +1216,29 @@ describe("Dataset-DSObj Test", function() {
             });
             $wrap.trigger(e);
             $li.trigger(fakeEvent.mouseup);
+            UnitTest.hasAlertWithTitle(DSTStr.DeactivateDS, {
+                confirm: true
+            });
             expect(test).to.be.true;
 
-            XcalarUnlockDataset = oldFunc;
+            XcalarDatasetUnload = oldFunc;
             $ds.removeClass("selected");
         });
 
-        it("should click to multi lock ds", function() {
+        it("should click to multi activate ds", function() {
             $ds.addClass("selected");
-            var oldFunc = XcalarLockDataset;
+            var oldGetMeta = XcalarDatasetGetMeta;
+            var oldLoad = XIApi.loadDataset;
             var test = false;
-            XcalarLockDataset = function() {
+            XIApi.loadDataset = function() {
                 test = true;
                 return PromiseHelper.resolve();
             };
-            var $li = $gridMenu.find(".multiLock");
-            // simple mouse up not work
-            $li.mouseup();
+            XcalarDatasetGetMeta = function() {
+                return PromiseHelper.resolve();
+            };
+            var $li = $gridMenu.find(".multiActivate");
+            $li.mouseup();  // simple mouse up not work
             expect(test).to.be.false;
 
             var e = jQuery.Event("contextmenu", {
@@ -1232,9 +1246,13 @@ describe("Dataset-DSObj Test", function() {
             });
             $wrap.trigger(e);
             $li.trigger(fakeEvent.mouseup);
+            UnitTest.hasAlertWithTitle(DSTStr.ActivateDS, {
+                confirm: true
+            });
             expect(test).to.be.true;
 
-            XcalarLockDataset = oldFunc;
+            XIApi.loadDataset = oldLoad;
+            XcalarDatasetGetMeta = oldGetMeta;
             $ds.removeClass("selected");
         });
 
@@ -1461,28 +1479,30 @@ describe("Dataset-DSObj Test", function() {
         });
     });
 
-    describe("Lock/Unlock ds test", function() {
-        var lockDS;
-        var unlockDS;
+    describe("Activate/Deactivate ds test", function() {
+        var activateDS;
+        var deactivate;
         var oldCommit;
-        var oldLock;
-        var oldUnlock;
+        var oldLoad;
+        var oldUnload;
+        var oldGetMeta;
 
         before(function() {
-            lockDS = DS.__testOnly__.lockDS;
-            unlockDS = DS.__testOnly__.unlockDS;
+            activateDS = DS.__testOnly__.activateDS;
+            deactivate = DS.__testOnly__.deactivate;
             oldCommit = KVStore.commit;
-            oldLock = XcalarLockDataset;
-            oldUnlock = XcalarUnlockDataset;
+            oldLoad = XIApi.loadDataset;
+            oldUnload = XcalarDatasetUnload;
+            oldGetMeta = XcalarDatasetGetMeta;
 
             KVStore.commit = function() { return PromiseHelper.resolve(); };
         });
 
-        it("should handle unlock fail case", function(done) {
-            XcalarUnlockDataset = function() {
+        it("should handle deactivate fail case", function(done) {
+            XcalarDatasetUnload = function() {
                 return PromiseHelper.reject({error: "test"});
             };
-            unlockDS(testDS.getId())
+            deactivate([testDS.getId()])
             .then(function() {
                 UnitTest.hasAlertWithTitle(AlertTStr.Error);
                 done();
@@ -1492,19 +1512,14 @@ describe("Dataset-DSObj Test", function() {
             });
         });
 
-        it("should unlock the dataset", function(done) {
-            XcalarUnlockDataset = function() {
+        it("should deactivate the dataset", function(done) {
+            XcalarDatasetUnload = function() {
                 return PromiseHelper.resolve();
             };
             var dsId = testDS.getId();
-            var $grid = DS.getGrid(testDS.getId());
-            $grid.find(".action.unlock").click();
-
-            UnitTest.testFinish(function() {
-                return !$grid.hasClass("locked");
-            })
+            deactivate([dsId])
             .then(function() {
-                expect(DS.getDSObj(dsId).isLocked()).to.be.false;
+                expect(DS.getDSObj(dsId).isActivated()).to.be.false;
                 done();
             })
             .fail(function() {
@@ -1512,11 +1527,11 @@ describe("Dataset-DSObj Test", function() {
             });
         });
 
-        it("should handle lock fail case", function(done) {
-            XcalarLockDataset = function() {
+        it("should handle activate fail case", function(done) {
+            XIApi.loadDataset = function() {
                 return PromiseHelper.reject({error: "test"});
             };
-            lockDS(testDS.getId())
+            activateDS([testDS.getId()])
             .then(function() {
                 UnitTest.hasAlertWithTitle(AlertTStr.Error);
                 done();
@@ -1526,21 +1541,14 @@ describe("Dataset-DSObj Test", function() {
             });
         });
 
-        it("should lock the dataset", function(done) {
-            XcalarLockDataset = function() {
-                return PromiseHelper.reject({
-                    status: StatusT.StatusDatasetAlreadyLocked
-                });
+        it("should activate the dataset", function(done) {
+            XIApi.loadDataset = function() {
+                return PromiseHelper.resolve();
             };
             var dsId = testDS.getId();
-            var $grid = DS.getGrid(testDS.getId());
-            $grid.find(".action.lock").click();
-
-            UnitTest.testFinish(function() {
-                return $grid.hasClass("locked");
-            })
+            activateDS([dsId])
             .then(function() {
-                expect(DS.getDSObj(dsId).isLocked()).to.be.true;
+                expect(DS.getDSObj(dsId).isActivated()).to.be.true;
                 done();
             })
             .fail(function() {
@@ -1550,8 +1558,10 @@ describe("Dataset-DSObj Test", function() {
 
         after(function() {
             KVStore.commit = oldCommit;
-            XcalarLockDataset = oldLock;
-            XcalarUnlockDataset = oldUnlock;
+
+            XIApi.loadDataset = oldLoad;
+            XcalarDatasetUnload = oldUnload;
+            XcalarDatasetGetMeta = oldGetMeta;
         });
     });
 
@@ -1602,19 +1612,18 @@ describe("Dataset-DSObj Test", function() {
             expect(DS.getDSObj(dsId)).not.to.exist;
         });
 
-        it("should not delete locked dataset", function() {
+        it("should not delete activated dataset", function() {
             DS.remove($ds);
             UnitTest.hasAlertWithTitle(AlertTStr.NoDel);
         });
 
-        it("should unlock ds", function(done) {
+        it("should deactivate ds", function(done) {
             var oldCommit = KVStore.commit;
             KVStore.commit = function() {};
             var dsId = testDS.getId();
-            DS.__testOnly__.unlockDS(testDS.getId())
+            DS.__testOnly__.deactivate([testDS.getId()])
             .then(function() {
-                expect(DS.getDSObj(dsId).isLocked()).to.be.false;
-                expect($ds.find(".lockIcon").length).to.equal(0);
+                expect(DS.getDSObj(dsId).isActivated()).to.be.false;
                 KVStore.commit = oldCommit;
                 done();
             })

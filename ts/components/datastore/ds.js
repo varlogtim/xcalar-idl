@@ -123,7 +123,7 @@ window.DS = (function ($, DS) {
                 }
             } else {
                 // remove non-persisted attr in dsObj
-                delete obj.locked;
+                delete obj.activated;
                 delete obj.headers;
             }
         }
@@ -269,6 +269,7 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     };
 
+    // XXX TODO: remove the createTable option
     /* Import dataset, promise returns dsObj
         options:
             createTable: if set true, will auto create the table
@@ -326,6 +327,15 @@ window.DS = (function ($, DS) {
 
         truncateDSName($label);
         return hasRename;
+    };
+
+    // attach the dataset
+    DS.attach = function(dsName, uid) {
+        return XcalarDatasetAttach(dsName, uid);
+    };
+
+    DS.detach = function(dsName, uid) {
+        return XcalarDatasetDetach(dsName, uid);
     };
 
     // helper function to find grid, mainly used in unit test
@@ -553,7 +563,7 @@ window.DS = (function ($, DS) {
                                 xcHelper.wrapDSName(options.name);
             // for dataset, use it's full name as id
             options.id = options.id || options.fullName;
-            options.locked = options.locked || false;
+            options.activated = options.activated || false;
         }
         var dsObj = new DSObj(options);
         dsObj.addToParent();
@@ -708,7 +718,8 @@ window.DS = (function ($, DS) {
             title: DSTStr.UnshareDS,
             msg: msg,
             onConfirm: function() {
-                // unshare case need to check if ds is locked by others
+                // XXX TODO: check if it's still necessary
+                // unshare case need to check if ds is used by others
                 checkDSUse(dsObj.getFullName())
                 .then(function() {
                     shareAndUnshareHelper(dsId, name, false);
@@ -880,7 +891,6 @@ window.DS = (function ($, DS) {
                         isAlert: true
                     });
                 }
-                arg.ds.locked = false; // new shared ds will always be false
                 createDS(arg.ds);
                 refreshDS();
                 break;
@@ -904,6 +914,12 @@ window.DS = (function ($, DS) {
         dsInfoMeta.setVersionId(arg.id);
     };
 
+    function createDSHelper(txId, dsObj) {
+        var datasetName = dsObj.getFullName();
+        var options = dsObj.getImportOptions();
+        return XcalarDatasetCreate(datasetName, options, txId);
+    }
+
     function importHelper(dsObj, createTable, sql) {
         var deferred = PromiseHelper.deferred();
         var dsName = dsObj.getName();
@@ -915,7 +931,7 @@ window.DS = (function ($, DS) {
             ds.setNumErrors(dsMeta.totalNumErrors);
             $ds.find(".size").text(ds.getDisplaySize());
         };
-        var datasetName;
+        var datasetName = dsObj.getFullName();
 
         $grid.addClass('inactive').append('<div class="waitingIcon"></div>');
         $grid.find('.waitingIcon').fadeIn(200);
@@ -936,13 +952,10 @@ window.DS = (function ($, DS) {
         // focus on grid before load
         DS.focusOn($grid)
         .then(function() {
-            datasetName = dsObj.getFullName();
-            var options = dsObj.getImportOptions();
-            return XIApi.loadDataset(txId, datasetName, options);
+            return createDSHelper(txId, dsObj);
         })
         .then(function() {
-            // unlock ds by default
-            return unlockOneDSHelper(dsObj.getId(), [], [], []);
+            return activateHelper(txId, dsObj);
         })
         .then(function() {
             return getDSBasicInfo(datasetName);
@@ -1172,9 +1185,9 @@ window.DS = (function ($, DS) {
             if (dsObj.beFolder()) {
                 // skip folder case
                 return PromiseHelper.resolve();
-            } else if (dsObj.isLocked()) {
+            } else if (dsObj.isActivated()) {
                 title = AlertTStr.NoDel;
-                msg = xcHelper.replaceMsg(DSTStr.DelLockedDS, {
+                msg = xcHelper.replaceMsg(DSTStr.DelActivatedDS, {
                     "ds": dsName
                 });
                 isAlert = true;
@@ -1398,9 +1411,9 @@ window.DS = (function ($, DS) {
         var dsName = dsObj.getName();
         var err;
 
-        if (dsObj.isLocked()) {
-            // delete locked ds
-            err = xcHelper.replaceMsg(DSTStr.DelLockedDS, {
+        if (dsObj.isActivated()) {
+            // delete activated ds
+            err = xcHelper.replaceMsg(DSTStr.DelActivatedDS, {
                 "ds": dsName
             });
             failures.push(err);
@@ -1555,6 +1568,7 @@ window.DS = (function ($, DS) {
         })
         .then(function(res) {
             dsBasicInfo = res;
+            // XXX TODO: remove lock meta
             return getDSLockMeta();
         })
         .then(function(res) {
@@ -1616,6 +1630,7 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
+    // XXX TODO: remove it
     function getDSLockMeta() {
         var deferred = PromiseHelper.deferred();
         var userName = getCurrentUserName();
@@ -1692,7 +1707,7 @@ window.DS = (function ($, DS) {
             }
 
             if (lockMeta.hasOwnProperty(dsName)) {
-                dataset.locked = lockMeta[dsName];
+                dataset.activated = lockMeta[dsName];
             }
 
             if (basicDSInfo.hasOwnProperty(dsName)) {
@@ -1756,7 +1771,7 @@ window.DS = (function ($, DS) {
             // format should come from kvStore, not from backend
             "sources": ds.loadArgs.sourceArgsList,
             "unlistable": !ds.isListable,
-            "locked": ds.locked,
+            "activated": ds.activated,
             "size": ds.size,
             "headers": ds.headers,
             "numErrors": ds.numErrors
@@ -1797,11 +1812,8 @@ window.DS = (function ($, DS) {
                 var options = getDSOptions(ds);
                 if (xcHelper.parseDSName(dsName).user === userPrefix) {
                     DS.addCurrentUserDS(ds.name, options);
-                } else if (ds.locked) {
-                    // when no this user's ds but locked by this user,
-                    // should be a shared ds
-                    promises.push(DS.addOtherUserDS.bind(this, ds.name, options));
                 }
+                // if it's not this user's ds, don't handle it
             }
         }
         PromiseHelper.chain(promises);
@@ -2007,20 +2019,6 @@ window.DS = (function ($, DS) {
             var $grid = $(this).closest(".grid-unit");
             // focusDSHelper($grid);
             DS.remove($grid);
-            // stop event propogation
-            return false;
-        });
-
-        $gridView.on("click", ".grid-unit .lock", function() {
-            var $grid = $(this).closest(".grid-unit");
-            lockDS($grid.data("dsid"));
-            // stop event propogation
-            return false;
-        });
-
-        $gridView.on("click", ".grid-unit .unlock", function() {
-            var $grid = $(this).closest(".grid-unit");
-            unlockDS($grid.data("dsid"));
             // stop event propogation
             return false;
         });
@@ -2291,14 +2289,14 @@ window.DS = (function ($, DS) {
             DSInfoModal.show($gridMenu.data("dsid"));
         });
 
-        $gridMenu.on("mouseup", ".lockDS", function(event) {
+        $gridMenu.on("mouseup", ".activate", function(event) {
             if (event.which !== 1) {
                 return;
             }
-            lockDS($gridMenu.data("dsid"));
+            activateDSAction([$gridMenu.data("dsid")]);
         });
 
-        $gridMenu.on("mouseup", ".multiLock", function(event) {
+        $gridMenu.on("mouseup", ".multiActivate", function(event) {
             if (event.which !== 1) {
                 return;
             }
@@ -2306,17 +2304,17 @@ window.DS = (function ($, DS) {
             $gridView.find(".grid-unit.selected.ds").each(function() {
                 dsIds.push($(this).data("dsid"));
             });
-            lockDS(dsIds);
+            activateDSAction(dsIds);
         });
 
-        $gridMenu.on("mouseup", ".unlockDS", function(event) {
+        $gridMenu.on("mouseup", ".deactivate", function(event) {
             if (event.which !== 1) {
                 return;
             }
-            unlockDS($gridMenu.data("dsid"));
+            deactivateDSAction([$gridMenu.data("dsid")]);
         });
 
-        $gridMenu.on("mouseup", ".multiUnlock", function(event) {
+        $gridMenu.on("mouseup", ".multiDeactivate", function(event) {
             if (event.which !== 1) {
                 return;
             }
@@ -2324,7 +2322,7 @@ window.DS = (function ($, DS) {
             $gridView.find(".grid-unit.selected.ds").each(function() {
                 dsIds.push($(this).data("dsid"));
             });
-            unlockDS(dsIds);
+            deactivateDSAction(dsIds);
         });
 
         $gridMenu.on("mouseenter", ".sort", function() {
@@ -2359,27 +2357,27 @@ window.DS = (function ($, DS) {
                 $gridMenu.removeData("dsid");
                 classes += " multiOpts";
 
-                $gridMenu.find(".multiLock, .multiUnlock").show();
+                $gridMenu.find(".multiActivate, .multiDeactivate").show();
                 $gridMenu.find(".multiDelete").removeClass("disabled");
                 var numDS = $gridView.find(".grid-unit.selected.ds").length;
-                var numLocked = $gridView.find(".grid-unit.selected.locked").length;
+                var numInActivatedDS = $gridView.find(".grid-unit.selected.inActivated").length;
                 if (numDS === 0) {
                     // when no ds
-                    $gridMenu.find(".multiLock, .multiUnlock").hide();
-                } else if (numLocked === 0) {
-                    // when all ds are unlokced
-                    $gridMenu.find(".multiUnlock").hide();
-                } else if (numDS === numLocked) {
-                    // when all ds are locked
-                    $gridMenu.find(".multiLock").hide();
+                    $gridMenu.find(".multiActivate, .multiDeactivate").hide();
+                } else if (numInActivatedDS === 0) {
+                    // when all ds are activated
+                    $gridMenu.find(".multiActivate").hide();
                     if (numDS === totalSelected) {
                         // when only have ds
                         $gridMenu.find(".multiDelete").addClass("disabled");
                     }
+                } else if (numDS === numInActivatedDS) {
+                    // when all ds are inactivated
+                    $gridMenu.find(".multiDeactivate").hide();
                 }
             } else {
                 cleanDSSelect();
-                $gridMenu.find(".multiLock, .multiUnlock").hide();
+                $gridMenu.find(".multiActivate, .multiDeactivate").hide();
                 if ($grid.length) {
                     $grid.addClass("selected");
                     var dsId = $grid.data("dsid");
@@ -2401,8 +2399,8 @@ window.DS = (function ($, DS) {
                     } else {
                         classes += " dsOpts";
 
-                        if (dsObj.isLocked()) {
-                            classes += " dsLock";
+                        if (dsObj.isActivated()) {
+                            classes += " dsActivated";
                         }
                     }
 
@@ -2634,10 +2632,6 @@ window.DS = (function ($, DS) {
                 editIcon +
             '</div>';
         } else {
-            var lockIcon = '<i class="action icon xi-lock lock fa-15" ' +
-                            tooltip + 'data-title="' + DSTStr.LockDS + '"></i>';
-            var unlockIcon = '<i class="action icon xi-unlock unlock fa-15" ' +
-                            tooltip + 'data-title="' + DSTStr.UnlockDS + '"></i>';
             var checkMarkIcon = '<i class="gridIcon icon xi-dataset-checkmark"></i>';
             var shareIcon;
             var user = dsObj.getUser();
@@ -2658,7 +2652,7 @@ window.DS = (function ($, DS) {
             // when it's a dataset
             html =
             '<div class="ds grid-unit' +
-            (dsObj.isLocked() ? ' locked' : '') +
+            (dsObj.isActivated() ? '' : ' inActivated') +
             (shared ? ' shared' : '') + '"' +
                 ' draggable="true"' +
                 ' ondragstart="DS.onDragStart(event)"' +
@@ -2689,9 +2683,6 @@ window.DS = (function ($, DS) {
                     dsObj.getDisplaySize() +
                 '</div>' +
                 deleteIcon +
-                lockIcon +
-                unlockIcon +
-                (dsObj.isLocked() ? '<i class="lockIcon icon xi-lockwithkeyhole"></i>' : "") +
                 shareIcon +
             '</div>';
         }
@@ -2722,14 +2713,10 @@ window.DS = (function ($, DS) {
             var tooltip = 'data-toggle="tooltip" data-container="body" data-placement="top"';
             var deleteIcon = '<i class="action icon xi-trash delete fa-15" ' +
                             tooltip + 'data-title="' + DSTStr.DelDS + '"></i>';
-            var lockIcon = '<i class="action icon xi-lock lock fa-15" ' +
-                            tooltip + 'data-title="' + DSTStr.LockDS + '"></i>';
-            var unlockIcon = '<i class="action icon xi-unlock unlock fa-15" ' +
-                            tooltip + 'data-title="' + DSTStr.UnlockDS + '"></i>';
             // when it's a dataset
             html =
-            '<div class="ds grid-unit uneditable ' +
-            (dsObj.isLocked() ? 'locked' : "") + '" ' +
+            '<div class="ds grid-unit uneditable' +
+            (dsObj.isActivated() ? '' : " inActivated") + '" ' +
                 ' data-user="' + dsObj.getUser() + '"' +
                 ' data-dsname="' + name + '"' +
                 ' data-dsid="' + id + '"' +
@@ -2743,9 +2730,6 @@ window.DS = (function ($, DS) {
                     dsObj.getDisplaySize() +
                 '</div>' +
                 deleteIcon +
-                lockIcon +
-                unlockIcon +
-                (dsObj.isLocked() ? '<i class="lockIcon icon xi-lockwithkeyhole"></i>' : "") +
             '</div>';
         }
 
@@ -2784,14 +2768,23 @@ window.DS = (function ($, DS) {
         $gridView.find(".selected").removeClass("selected");
     }
 
-    function lockDS(dsIds) {
-        dsIds = (dsIds instanceof Array) ? dsIds : [dsIds];
+    function activateDSAction(dsIds) {
+        Alert.show({
+            title: DSTStr.ActivateDS,
+            msg: DSTStr.ActivateDSMsg,
+            onConfirm: function() {
+                activateDS(dsIds);
+            }
+        });
+    }
 
+    function activateDS(dsIds) {
         var deferred = PromiseHelper.deferred();
         var failures = [];
         var datasets = [];
+
         var promises = dsIds.map(function(dsId) {
-            return lockOneDSHelper(dsId, failures, datasets);
+            return activateOneDSHelper(dsId, failures, datasets);
         });
 
         PromiseHelper.when.apply(this, promises)
@@ -2811,7 +2804,6 @@ window.DS = (function ($, DS) {
                 UserSettings.logChange();
                 KVStore.commit();
             }
-
             deferred.resolve();
         })
         .fail(deferred.reject);
@@ -2819,54 +2811,97 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function lockOneDSHelper(dsId, failures, datasets) {
+    function activateOneDSHelper(dsId, failures, datasets) {
         var deferred = PromiseHelper.deferred();
         var dsObj = DS.getDSObj(dsId);
         if (dsObj.beFolder()) {
             return PromiseHelper.resolve();
         }
-
-        var fullDSName = dsObj.getFullName();
-        var lockHelper = function() {
-            dsObj.lock();
-            DS.getGrid(dsId).addClass("locked");
-            datasets.push(dsId);
+        var sql = {
+            "operation": SQLOps.DSPoint,
+            "created": true, // flag to distint if ds is created or not
         };
-
-        XcalarLockDataset(fullDSName)
+        var txId = Transaction.start({
+            "operation": SQLOps.DSPoint,
+            "track": true,
+            "steps": 1
+        });
+        activateHelper(txId, dsObj)
         .then(function() {
-            lockHelper();
+            datasets.push(dsId);
+            Transaction.done(txId, {});
             deferred.resolve();
         })
         .fail(function(error) {
-            if (error.status === StatusT.StatusDatasetAlreadyLocked) {
-                // if it's an older version that we don't have lock meta
-                // may run into here
-                lockHelper();
-                deferred.resolve();
-            } else {
-                var errorMsg = xcHelper.replaceMsg(DSTStr.FailLockDS, {
-                    "ds": dsObj.getName(),
-                    "error": error.error
-                });
-                failures.push(errorMsg);
-                // still resolve it
-                deferred.resolve();
-            }
+            var errorMsg = xcHelper.replaceMsg(DSTStr.FailActivateDS, {
+                "ds": dsObj.getName(),
+                "error": error.error
+            });
+            failures.push(errorMsg);
+            Transaction.fail(txId, {
+                error: error
+            });
+            deferred.resolve(); // still resolve it
         });
 
         return deferred.promise();
     }
 
-    function unlockDS(dsIds) {
-        dsIds = (dsIds instanceof Array) ? dsIds : [dsIds];
+    function activateHelper(txId, dsObj) {
+        var deferred = PromiseHelper.deferred();
+        // XXX TODO: update it with new api signature
+        var datasetName = dsObj.getFullName();
+        
+        getLoadArgsFromDS(dsObj)
+        .then(function(loadArgs) {
+            return XIApi.loadDataset(txId, datasetName, loadArgs);
+        })
+        .then(function() {
+            dsObj.activate();
+            DS.getGrid(dsObj.getId()).removeClass("inActivated");
+            deferred.resolve();
+        })
+        .fail(function(error) {
+            if (typeof error === "string") {
+                error = {error: error}
+            }
+            deferred.reject(error);
+        });
 
+        return deferred.promise();
+    }
+
+    function getLoadArgsFromDS(dsObj) {
+        var deferred = PromiseHelper.deferred();
+        var datasetName = dsObj.getFullName();
+        var options = dsObj.getImportOptions();
+        XcalarDatasetGetMeta(datasetName)
+        .then(function(loadArgs) {
+            // XXX TODO: update it with new api signature
+            deferred.resolve(options);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function deactivateDSAction(dsIds) {
+        Alert.show({
+            title: DSTStr.DeactivateDS,
+            msg: DSTStr.DeactivateDSMsg,
+            onConfirm: function() {
+                deactivateDS(dsIds);
+            }
+        });
+    }
+
+    function deactivateDS(dsIds) {
         var deferred = PromiseHelper.deferred();
         var failures = [];
         var datasets = [];
         var dsInUse = [];
         var promises = dsIds.map(function(dsId) {
-            return unlockOneDSHelper(dsId, failures, datasets, dsInUse);
+            return deactivateOneDSHelper(dsId, failures, datasets, dsInUse);
         });
 
         PromiseHelper.when.apply(this, promises)
@@ -2893,7 +2928,7 @@ window.DS = (function ($, DS) {
         return deferred.promise();
     }
 
-    function unlockOneDSHelper(dsId, failures, datasets, dsInUse) {
+    function deactivateOneDSHelper(dsId, failures, datasets, dsInUse) {
         var deferred = PromiseHelper.deferred();
         var dsObj = DS.getDSObj(dsId);
         if (dsObj.beFolder()) {
@@ -2901,18 +2936,19 @@ window.DS = (function ($, DS) {
         }
 
         var fullDSName = dsObj.getFullName();
-        XcalarUnlockDataset(fullDSName)
+        XcalarDatasetUnload(fullDSName)
         .then(function() {
-            dsObj.unlock();
-            DS.getGrid(dsId).removeClass("locked");
+            dsObj.deactivate();
+            DS.getGrid(dsId).addClass("inActivated");
             datasets.push(dsId);
             deferred.resolve();
         })
         .fail(function(error) {
-            if (error.status === StatusT.StatusDsDatasetInUse) {
-                dsInUse.push(dsId);
-            }
-            var errorMsg = xcHelper.replaceMsg(DSTStr.FailUnlockDS, {
+            // XXX TODO: use the correct status
+            // if (error.status === StatusT.StatusDsDatasetInUse) {
+            //     dsInUse.push(dsId);
+            // }
+            var errorMsg = xcHelper.replaceMsg(DSTStr.FailDeactivateDS, {
                 "ds": dsObj.getName(),
                 "error": error.error
             });
@@ -3162,8 +3198,8 @@ window.DS = (function ($, DS) {
         DS.__testOnly__.getDropTarget = getDropTarget;
         DS.__testOnly__.setDropTraget = setDropTraget;
         DS.__testOnly__.resetDropTarget = resetDropTarget;
-        DS.__testOnly__.lockDS = lockDS;
-        DS.__testOnly__.unlockDS = unlockDS;
+        DS.__testOnly__.activateDS = activateDS;
+        DS.__testOnly__.deactivateDS = deactivateDS;
         DS.__testOnly__.setSortKey = setSortKey;
         DS.__testOnly__.getSortKey = function() {
             return sortKey;

@@ -1781,11 +1781,11 @@ describe("Persistent Constructor Test", function() {
     });
 
     describe("UserPref Constructor Test", function() {
-        it("Should have 9 attributes", function() {
+        it("Should have 11 attributes", function() {
             var userPref = new UserPref();
 
             expect(userPref).to.be.an.instanceof(UserPref);
-            expect(Object.keys(userPref).length).to.equal(9);
+            expect(Object.keys(userPref).length).to.equal(11);
             expect(userPref).to.have.property("version")
             .and.to.equal(currentVersion);
             expect(userPref).to.have.property("datasetListView")
@@ -1802,6 +1802,8 @@ describe("Persistent Constructor Test", function() {
             .and.to.equal("workspaceTab");
             expect(userPref).to.have.property("general").and.to.be.empty;
             expect(userPref).to.have.property("dsSortKey").and.to.be.undefined;
+            expect(userPref).to.have.property("dfAutoExecute").and.to.be.undefined;
+            expect(userPref).to.have.property("dfAutoPreview").and.to.be.undefined;
             userPref.update();
         });
 
@@ -1817,7 +1819,7 @@ describe("Persistent Constructor Test", function() {
     });
 
     describe("DSObj Constructor Test", function() {
-        it("Should have 10 attributes for ds", function() {
+        it("Should have 11 attributes for ds", function() {
             var dsObj = new DSObj({
                 "id": "testId",
                 "name": "testName",
@@ -1828,12 +1830,12 @@ describe("Persistent Constructor Test", function() {
             });
 
             expect(dsObj).to.be.instanceof(DSObj);
-            expect(Object.keys(dsObj).length).to.equal(10);
+            expect(Object.keys(dsObj).length).to.equal(11);
             expect(dsObj).to.have.property("version")
             .and.to.equal(currentVersion);
         });
 
-        it("Should have 21 attributes for ds", function() {
+        it("Should have 23 attributes for ds", function() {
             var dsObj = new DSObj({
                 "id": "testId",
                 "name": "testName",
@@ -1852,7 +1854,7 @@ describe("Persistent Constructor Test", function() {
             });
 
             expect(dsObj).to.be.instanceof(DSObj);
-            expect(Object.keys(dsObj).length).to.equal(22);
+            expect(Object.keys(dsObj).length).to.equal(23);
             expect(dsObj).to.have.property("version")
             .and.to.equal(currentVersion);
         });
@@ -2129,12 +2131,7 @@ describe("Persistent Constructor Test", function() {
             expect(res[2]).to.equal("e");
         });
 
-        it("should lock/unlock ds", function() {
-            var oldFunc = DS.getGrid;
-            var $grid = $('<div></div>');
-            DS.getGrid = function() {
-                return $grid;
-            };
+        it("should activate/deactivate ds", function() {
             var dsObj = new DSObj({
                 "id": "testId",
                 "name": "testName",
@@ -2143,22 +2140,14 @@ describe("Persistent Constructor Test", function() {
                 "isFolder": false
             });
 
-            expect(dsObj.isLocked()).to.be.false;
-            // lock
-            dsObj.lock();
-            expect(dsObj.isLocked()).to.be.true;
-            expect($grid.find(".lockIcon").length).to.equal(1);
+            expect(dsObj.isActivated()).to.be.false;
+            // activate
+            dsObj.activate();
+            expect(dsObj.isActivated()).to.be.true;
 
-            // lock again should do nothing
-            dsObj.lock();
-            expect($grid.find(".lockIcon").length).to.equal(1);
-
-            // unlock
-            dsObj.unlock();
-            expect(dsObj.isLocked()).to.be.false;
-            expect($grid.find(".lockIcon").length).to.equal(0);
-
-            DS.getGrid = oldFunc;
+            // deactivate
+            dsObj.deactivate();
+            expect(dsObj.isActivated()).to.be.false;
         });
 
         describe("Fetch data test", function() {

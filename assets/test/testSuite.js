@@ -722,8 +722,8 @@ window.TestSuite = (function($, TestSuite) {
 
         test.testDS.forEach(function(ds) {
             var $grid = DS.getGridByName(ds);
-            $grid.find(".action.unlock").click();
-            test.checkExists(getUnLockDSIcon(ds))
+            // XXX TODO: use another way
+            XcalarDatasetUnload(ds)
             .then(function() {
                 DS.remove($grid);
                 $("#alertModal .confirm").click();
@@ -750,9 +750,9 @@ window.TestSuite = (function($, TestSuite) {
                             dsName + '"]:not(.inactive.fetching)';
     }
 
-    function getUnLockDSIcon(dsName) {
+    function getInActivateDSIcon(dsName) {
         return '#dsListSection .grid-unit[data-dsname="' +
-                            dsName + '"]:not(.locked)';
+                            dsName + '"]:(.inActivate)';
     }
 
     return (TestSuite);

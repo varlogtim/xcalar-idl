@@ -1466,7 +1466,7 @@ namespace XIApi {
 
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
         const simuldateTxId: number = startSimulate();
-        XcalarLoad(dsName, options, simuldateTxId)
+        XcalarDatasetLoad(dsName, options, simuldateTxId)
         .then(() => {
             const query: string = endSimulate(simuldateTxId);
             const queryName: string = dsName;

@@ -346,7 +346,7 @@ window.UnitTest = (function(UnitTest, $) {
         var dsId = $grid.data("dsid");
         var dsObj = DS.getDSObj(dsId);
 
-        DS.__testOnly__.unlockDS(dsId)
+        DS.__testOnly__.deactivateDS([dsId])
         .then(function() {
             return DS.__testOnly__.delDSHelper($grid, dsObj, {"failToShow": true});
         })

@@ -836,6 +836,54 @@ XcalarLoad = function(
     }
 };
 
+// XXX TODO: update after dataset api update
+XcalarDatasetCreate = function(
+    datasetName: string,
+    options: XcalarLoadInputOptions,
+    txId: number
+) {
+    return PromiseHelper.resolve();
+};
+
+// XXX TODO: update after dataset api update
+XcalarDatasetDelete = function(datasetName: string, txId: number) {
+    // XXX This is a hack, XcalarDestroyDataset will be removed
+    return XcalarDestroyDataset(datasetName, txId);
+}
+
+// XXX TODO: update after dataset api update
+XcalarDatasetLoad = function(
+    datasetName: string,
+    options: XcalarLoadInputOptions,
+    txId: number
+): XDPromise<any> {
+    // XXX This is a hack, lock dataset will be removed
+    return XcalarLoad(datasetName, options, txId);
+};
+
+// XXX TODO: update after dataset api update
+XcalarDatasetUnload = function(datasetNamePattern: string, txId: number) {
+    // XXX This is a hack, unlock dataset will be removed
+    return XcalarUnlockDataset(datasetNamePattern, txId);
+};
+
+// XXX TODO: update after dataset api update
+XcalarDatasetAttach = function(datasetName, attachUid) {
+    return PromiseHelper.resolve();
+};
+
+// XXX TODO: update after dataset api update
+XcalarDatasetDetach = function(datasetName, attachUid) {
+    return PromiseHelper.resolve();
+};
+
+// XXX TODO: update after dataset api update
+// This api should return the loadArgs of the dataset
+XcalarDatasetGetMeta = function(datasetNamePattern) {
+    return PromiseHelper.resolve();
+}
+
+
 XcalarAddLocalFSExportTarget = function(
     targetName: string,
     path: string,
