@@ -166,6 +166,12 @@ interface DagNodeSplitInputStruct {
     delimiter: string,
     dest: string[]
 }
+
+interface DagNodeRoundInputStruct {
+    sourceColumn: string,
+    numDecimals: number,
+    destColumn: string
+}
 /* ==== End of Dag Node Input Intereface ==== */
 
 /* ==== Interfaces related to Export Drivers (Used in export Node) ==== */

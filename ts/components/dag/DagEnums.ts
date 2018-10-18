@@ -20,6 +20,7 @@ enum DagNodeType {
     IMDTable = "IMDTable",
     PublishIMD = "publishIMD",
     Split = "split",
+    Round = "round",
 }
 
 enum DagNodeSubType {
