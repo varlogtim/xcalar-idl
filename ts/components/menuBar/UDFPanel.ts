@@ -147,13 +147,17 @@ class UDFPanel {
 
     // Setup UDF section
     private _setupUDF(): void {
+        const monitorFileManager: FileManagerPanel = new FileManagerPanel(
+            $("#monitor-file-manager")
+        );
+
         const $toManagerButton: JQuery = $("#udfButtonWrap .toManager");
         $toManagerButton.on("click", (_event: JQueryEventObject) => {
             $udfSection.addClass("switching");
             $("#monitorTab").trigger("click");
             $("#fileManagerButton").trigger("click");
-            FileManagerPanel.Instance.switchType("UDF");
-            FileManagerPanel.Instance.switchPath(
+            monitorFileManager.switchType("UDF");
+            monitorFileManager.switchPathByStep(
                 UDFFileManager.Instance.getCurrWorkbookDisplayPath()
             );
             $udfSection.removeClass("switching");
@@ -279,9 +283,7 @@ class UDFPanel {
         const entireString: string = this._validateUDFStr();
         if (nsPath && entireString) {
             if (
-                nsPath.startsWith(
-                    UDFFileManager.Instance.getSharedUDFPath()
-                )
+                nsPath.startsWith(UDFFileManager.Instance.getSharedUDFPath())
             ) {
                 const uploadPath: string = nsPath;
                 UDFFileManager.Instance.upload(
@@ -320,8 +322,7 @@ class UDFPanel {
 
         this.dropdownHint = new InputDropdownHint($template, {
             menuHelper,
-            onEnter: (displayName: string) =>
-                this._selectUDFPath(displayName)
+            onEnter: (displayName: string) => this._selectUDFPath(displayName)
         });
 
         this._selectBlankUDFElement();
@@ -356,64 +357,22 @@ class UDFPanel {
     }
 
     private _validateUDFName($section: JQuery): string {
-        const $nameInput: JQuery = $section.find(".udf-fnName");
-        const displayName: string = $nameInput.val().trim();
+        const $inputSection: JQuery = $section.find(".udf-fnName");
+        let displayPath: string = $inputSection.val().trim();
 
-        const options: {side: string; offsetY: number} = {
-            side: "top",
-            offsetY: -2
-        };
-
-        if (
-            !xcHelper.checkNamePattern(
-                PatternCategory.UDFFileName,
-                PatternAction.Check,
-                displayName
-            )
-        ) {
-            StatusBox.show(UDFTStr.InValidFileName, $nameInput, true, options);
-            return null;
+        if (!displayPath.startsWith("/")) {
+            displayPath =
+                UDFFileManager.Instance.getCurrWorkbookDisplayPath() +
+                displayPath;
         }
 
-        let nsPath: string = UDFFileManager.Instance.displayPathToNsPath(displayName);
-        let moduleFilename: string = nsPath;
-        if (nsPath.startsWith("/")) {
-            moduleFilename = moduleFilename.split("/").pop();
-        } else {
-            nsPath =
-                UDFFileManager.Instance.getCurrWorkbookPath() + nsPath;
-        }
-
-        if (
-            !UDFFileManager.Instance.canDelete(
-                UDFFileManager.Instance.nsPathToDisplayPath(nsPath)
-            )
-        ) {
-            StatusBox.show(UDFTStr.InValidPath, $nameInput, true, options);
-            return null;
-        }
-
-        if (moduleFilename === "") {
-            StatusBox.show(ErrTStr.NoEmpty, $nameInput, true, options);
-            return null;
-        } else if (
-            !xcHelper.checkNamePattern(
-                PatternCategory.UDF,
-                PatternAction.Check,
-                moduleFilename
-            )
-        ) {
-            StatusBox.show(UDFTStr.InValidName, $nameInput, true, options);
-            return null;
-        } else if (
-            moduleFilename.length >
-            XcalarApisConstantsT.XcalarApiMaxUdfModuleNameLen
-        ) {
-            StatusBox.show(ErrTStr.LongFileName, $nameInput, true, options);
-            return null;
-        }
-
-        return nsPath;
+        return UDFFileManager.Instance.canAdd(
+            displayPath,
+            $inputSection,
+            $inputSection
+        )
+            ? UDFFileManager.Instance.displayPathToNsPath(displayPath)
+            : null;
     }
 
     private _validateUDFStr(): string {

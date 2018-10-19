@@ -1,10 +1,4 @@
 class FileManagerPanel {
-    private static _instance = null;
-
-    public static get Instance(): FileManagerPanel {
-        return this._instance || (this._instance = new this());
-    }
-
     public rootPathNode: FileManagerPathNode;
     private $panel: JQuery;
     private curFileType: string;
@@ -14,16 +8,14 @@ class FileManagerPanel {
     private curHistoryNode: FileManagerHistoryNode;
     private savedPathNodes: Map<string, FileManagerPathNode>;
     private savedHistoryNodes: Map<string, FileManagerHistoryNode>;
+    private locked: boolean;
 
     /**
      * Setup FileManager.
-     * Currently FileManager is a singleton since there is only one under
-     * monitor panel. In the future, we can have multiple FileManagers,
-     * each is identified by panel html id.
      * @param  {JQuery} $panel
      * @returns void
      */
-    public setup($panel: JQuery): void {
+    public constructor($panel: JQuery) {
         this.$panel = $panel;
         this.managers = new Map();
         this.managers.set("UDF", UDFFileManager.Instance);
@@ -41,7 +33,7 @@ class FileManagerPanel {
             children: new Map()
         };
 
-        for (const fileType of this.managers.keys()) {
+        for (const [fileType, manager] of this.managers.entries()) {
             this.rootPathNode.children.set(fileType, {
                 pathName: fileType,
                 isDir: true,
@@ -54,17 +46,19 @@ class FileManagerPanel {
                 parent: this.rootPathNode,
                 children: new Map()
             });
+            manager.registerPanel(this);
         }
 
         this.viewPathNode = this.rootPathNode.children.get(this.curFileType);
         this.selectedPathNodes = new Set();
         this.curHistoryNode = {
-            path: this.nodeToPath(this.viewPathNode),
+            path: this.getViewPath(),
             prev: null,
             next: null
         };
         this.savedPathNodes = new Map();
         this.savedHistoryNodes = new Map();
+        this.locked = false;
 
         this._addFileTypeAreaEvents();
         this._addNavigationAreaEvents();
@@ -151,6 +145,32 @@ class FileManagerPanel {
 
     /**
      * @param  {string} path
+     * @param  {boolean} clear?
+     * @returns void
+     */
+    public switchPathByStep(path: string, clear?: boolean): void {
+        if (clear) {
+            this.curHistoryNode = {
+                path: "/",
+                prev: null,
+                next: null
+            };
+        }
+
+        const pathSplit: string[] = path.split("/");
+        let curPath: string = pathSplit.shift();
+        while (pathSplit.length !== 0) {
+            const nextPath = pathSplit.shift();
+            if (nextPath === "") {
+                continue;
+            }
+            curPath += nextPath + "/";
+            this.switchPath(curPath);
+        }
+    }
+
+    /**
+     * @param  {string} path
      */
     public removeSearchResultNode(path: string) {
         if (!this.rootPathNode.children.get("Search")) {
@@ -180,9 +200,51 @@ class FileManagerPanel {
             return;
         }
 
-        this.viewPathNode = this._pathToNode(
-            this.nodeToPath(this.viewPathNode)
-        );
+        this.viewPathNode = this._pathToNode(this.getViewPath());
+    }
+
+    /**
+     * @param  {string} path
+     * @returns void
+     */
+    public isDir(path: string): boolean {
+        if (!path.startsWith("/")) {
+            path = this.getViewPath() + path;
+        }
+        return this._pathToNode(path).isDir;
+    }
+
+    /**
+     * @returns void
+     */
+    public lock(): void {
+        this.locked = true;
+    }
+
+    /**
+     * @returns void
+     */
+    public unlock(): void {
+        this.locked = false;
+    }
+
+    /**
+     * @returns string
+     */
+    public getViewPath(): string {
+        return this.nodeToPath(this.viewPathNode);
+    }
+
+    /**
+     * @param  {string} path
+     * @returns boolean
+     */
+    public canAdd(
+        path: string,
+        $inputSection?: JQuery,
+        $actionButton?: JQuery
+    ): boolean {
+        return this.manager.canAdd(path, $inputSection, $actionButton);
     }
 
     private get manager(): BaseFileManager {
@@ -255,7 +317,7 @@ class FileManagerPanel {
                     this._eventNavigatePath(false);
                 } else if ($navigationIcon.hasClass("xi-refresh")) {
                     // TODO: should update from backend.
-                    this.manager.buildPathTree(true);
+                    this.manager.refresh();
                     this.updateList();
                 }
             }
@@ -281,7 +343,7 @@ class FileManagerPanel {
                     newPath += "/";
                 }
 
-                if (newPath !== this._getViewPath()) {
+                if (newPath !== this.getViewPath()) {
                     this._eventSwitchPath(newPath);
                 }
             }
@@ -362,7 +424,7 @@ class FileManagerPanel {
                             )
                         );
                         break;
-                    case FileManagerAction.Duplicate:
+                    case FileManagerAction.Duplicate: {
                         if (!this._isValidAction(action)) {
                             return;
                         }
@@ -376,6 +438,33 @@ class FileManagerPanel {
                             Alert.error(FileManagerTStr.DuplicateFail, error);
                         });
                         break;
+                    }
+                    case FileManagerAction.CopyTo: {
+                        if (!this._isValidAction(action)) {
+                            return;
+                        }
+                        const oldPath: string = this.nodeToPath(
+                            [...this.selectedPathNodes.entries()][0][0]
+                        );
+                        const options = {
+                            onSave: (newPath: string) => {
+                                this.manager
+                                .copy(oldPath, newPath)
+                                .fail((error) => {
+                                    Alert.error(
+                                        FileManagerTStr.DuplicateFail,
+                                        error
+                                    );
+                                });
+                            }
+                        };
+                        FileManagerSaveAsModal.Instance.show(
+                            oldPath.split("/").pop(),
+                            this.getViewPath(),
+                            options
+                        );
+                        break;
+                    }
                     case FileManagerAction.Share:
                         if (!this._isValidAction(action)) {
                             return;
@@ -447,6 +536,9 @@ class FileManagerPanel {
     }
 
     private _isValidAction(action: FileManagerAction) {
+        if (this.locked) {
+            return false;
+        }
         switch (action) {
             case FileManagerAction.Open:
                 return (
@@ -479,6 +571,11 @@ class FileManagerPanel {
                             [...this.selectedPathNodes.entries()][0][0]
                         )
                     )
+                );
+            case FileManagerAction.CopyTo:
+                return (
+                    this.selectedPathNodes.size === 1 &&
+                    ![...this.selectedPathNodes.entries()][0][0].isDir
                 );
             case FileManagerAction.Share:
                 return (
@@ -600,7 +697,7 @@ class FileManagerPanel {
                     this.viewPathNode ===
                     this.rootPathNode.children.get("Search")
                         ? childPath
-                        : this._getViewPath() + childPath + "/";
+                        : this.getViewPath() + childPath + "/";
                 this._eventSwitchPath(newPath);
             }
         );
@@ -618,7 +715,7 @@ class FileManagerPanel {
             this.savedPathNodes.get(fileType) ||
             this.rootPathNode.children.get(fileType);
         this.curHistoryNode = this.savedHistoryNodes.get(fileType) || {
-            path: this.nodeToPath(this.viewPathNode),
+            path: this.getViewPath(),
             prev: null,
             next: null
         };
@@ -650,13 +747,24 @@ class FileManagerPanel {
     private _eventSwitchPath(newPath: string): void {
         let newNode: FileManagerPathNode = this._pathToNode(newPath, true);
         if (!newNode) {
-            // TODO: warn user.
+            const options: {side: string; offsetY: number} = {
+                side: "bottom",
+                offsetY: 0
+            };
+            StatusBox.show(
+                FileManagerTStr.InvalidPath,
+                this.$panel.find(".addressArea .addressContent"),
+                true,
+                options
+            );
             return;
         }
 
         if (!newNode.isDir) {
             newPath = newPath.replace(/\/$/, "");
-            this.manager.open(newPath);
+            if (!this.locked) {
+                this.manager.open(newPath);
+            }
             newNode = newNode.parent;
             newPath = this.nodeToPath(newNode);
 
@@ -684,7 +792,7 @@ class FileManagerPanel {
         const address: string =
             this.viewPathNode === this.rootPathNode.children.get("Search")
                 ? "Search results"
-                : this._getViewPath();
+                : this.getViewPath();
 
         this.$panel.find(".addressArea .addressContent").val(address);
     }
@@ -692,8 +800,7 @@ class FileManagerPanel {
     private _eventClickUpload(): void {
         if (
             !this.manager.canDelete(
-                this.nodeToPath(this.viewPathNode) +
-                    this.manager.fileExtension()
+                this.getViewPath() + this.manager.fileExtension()
             )
         ) {
             return;
@@ -711,9 +818,7 @@ class FileManagerPanel {
             return;
         }
 
-        path =
-            this.nodeToPath(this.viewPathNode) +
-            path.replace(/C:\\fakepath\\/i, "");
+        path = this.getViewPath() + path.replace(/C:\\fakepath\\/i, "");
 
         const $uploadButton: JQuery = this.$panel.find(
             ".operationArea .uploadButton"
@@ -735,8 +840,7 @@ class FileManagerPanel {
         .toggleClass(
             "disabled",
             !this.manager.canDelete(
-                this.nodeToPath(this.viewPathNode) +
-                        this.manager.fileExtension()
+                this.getViewPath() + this.manager.fileExtension()
             )
         );
     }
@@ -946,10 +1050,6 @@ class FileManagerPanel {
                 $(elem).addClass("xi-sort");
             }
         });
-    }
-
-    private _getViewPath(): string {
-        return this.nodeToPath(this.viewPathNode);
     }
 
     private _pathToNode(

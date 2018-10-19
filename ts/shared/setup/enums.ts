@@ -409,6 +409,7 @@ enum FileManagerAction {
     Rename = "Rename",
     Delete = "Delete",
     Duplicate = "Duplicate",
+    CopyTo = "Copy to...",
     Share = "Share"
 }
 

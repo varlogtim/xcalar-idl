@@ -9,6 +9,7 @@ class UDFFileManager extends BaseFileManager {
     private defaultModule: string = "default";
     private userIDWorkbookMap: Map<string, Map<string, string>> = new Map();
     private userWorkbookIDMap: Map<string, Map<string, string>> = new Map();
+    private panels: FileManagerPanel[] = [];
 
     /*
      * Pay special attention when dealing with UDF paths / names.
@@ -177,8 +178,12 @@ class UDFFileManager extends BaseFileManager {
     public storePython(nsPath: string, entireString: string): void {
         this._storePython(nsPath, entireString);
         UDFPanel.Instance.updateUDF();
-        this.buildPathTree();
-        FileManagerPanel.Instance.updateList();
+        this.panels.forEach((panel: FileManagerPanel) =>
+            this._buildPathTree(panel)
+        );
+        this.panels.forEach((panel: FileManagerPanel) =>
+            this._updateList(panel)
+        );
     }
 
     /**
@@ -186,7 +191,7 @@ class UDFFileManager extends BaseFileManager {
      * @param  {boolean} isInBg - Is background. Whether to show refresh icon.
      * @returns XDPromise
      */
-    public refresh(isInBg: boolean): XDPromise<void> {
+    public refresh(isInBg?: boolean): XDPromise<void> {
         return this._refreshUDF(isInBg);
     }
 
@@ -224,9 +229,15 @@ class UDFFileManager extends BaseFileManager {
         .then(() => this._getUserWorkbookMap())
         .then(() => {
             UDFPanel.Instance.updateUDF();
-            this.buildPathTree();
-            this._createWorkbookFolder();
-            FileManagerPanel.Instance.updateList();
+            this.panels.forEach((panel: FileManagerPanel) =>
+                this._buildPathTree(panel)
+            );
+            this.panels.forEach((panel: FileManagerPanel) =>
+                this._createWorkbookFolder(panel)
+            );
+            this.panels.forEach((panel: FileManagerPanel) =>
+                this._updateList(panel)
+            );
             deferred.resolve();
         })
         .fail(deferred.reject)
@@ -306,8 +317,12 @@ class UDFFileManager extends BaseFileManager {
             xcHelper.showSuccess(SuccessTStr.DelUDF);
         })
         .always(() => {
-            this.buildPathTree(true);
-            FileManagerPanel.Instance.updateList();
+            this.panels.forEach((panel: FileManagerPanel) =>
+                this._buildPathTree(panel, true)
+            );
+            this.panels.forEach((panel: FileManagerPanel) =>
+                this._updateList(panel)
+            );
         });
     }
 
@@ -323,15 +338,19 @@ class UDFFileManager extends BaseFileManager {
             this.storedUDF.delete(nsPath);
             this._refreshUDF(true);
             UDFPanel.Instance.updateUDF();
-            FileManagerPanel.Instance.removeSearchResultNode(
-                this.nsPathToDisplayPath(nsPath)
+            this.panels.forEach((panel: FileManagerPanel) =>
+                panel.removeSearchResultNode(this.nsPathToDisplayPath(nsPath))
             );
             const xcSocket: XcSocket = XcSocket.Instance;
             xcSocket.sendMessage("refreshUDFWithoutClear");
 
             if (!bulk) {
-                this.buildPathTree(true);
-                FileManagerPanel.Instance.updateList();
+                this.panels.forEach((panel: FileManagerPanel) =>
+                    this._buildPathTree(panel, true)
+                );
+                this.panels.forEach((panel: FileManagerPanel) =>
+                    this._updateList(panel)
+                );
                 xcHelper.showSuccess(SuccessTStr.DelUDF);
             }
 
@@ -450,8 +469,8 @@ class UDFFileManager extends BaseFileManager {
             .fail((error) => {
                 // XXX might not actually be a syntax error
                 const syntaxErr: {
-                    reason: string;
-                    line: number;
+                reason: string;
+                line: number;
                 } = this._parseSyntaxError(error);
                 if (syntaxErr != null) {
                     UDFPanel.Instance.updateHints(syntaxErr);
@@ -541,15 +560,74 @@ class UDFFileManager extends BaseFileManager {
     }
 
     /**
-     * @param  {string} displayPath
+     * @param  {string} displayPath the file to be duplicated
      * @returns boolean
      */
     public canDuplicate(displayPath: string): boolean {
+        return this.canAdd(displayPath);
+    }
+
+    /**
+     * @param  {string} displayPath the file to be added
+     * @returns boolean
+     */
+    public canAdd(
+        displayPath: string,
+        $inputSection?: JQuery,
+        $actionButton?: JQuery
+    ): boolean {
         const nsPath: string = this.displayPathToNsPath(displayPath);
-        return (
-            nsPath.startsWith(this.getCurrWorkbookPath()) ||
-            nsPath.startsWith(this.getSharedUDFPath())
-        );
+        const options: {side: string; offsetY: number} = {
+            side: "top",
+            offsetY: -2
+        };
+
+        if (
+            !xcHelper.checkNamePattern(
+                PatternCategory.UDFFileName,
+                PatternAction.Check,
+                displayPath
+            )
+        ) {
+            StatusBox.show(
+                UDFTStr.InValidFileName,
+                $inputSection,
+                true,
+                options
+            );
+            return false;
+        }
+
+        if (
+            !(
+                nsPath.startsWith(this.getCurrWorkbookPath()) ||
+                nsPath.startsWith(this.getSharedUDFPath())
+            )
+        ) {
+            StatusBox.show(UDFTStr.InValidPath, $actionButton, true, options);
+            return false;
+        }
+
+        const moduleFilename: string = nsPath.split("/").pop();
+
+        if (
+            !xcHelper.checkNamePattern(
+                PatternCategory.UDF,
+                PatternAction.Check,
+                moduleFilename
+            )
+        ) {
+            StatusBox.show(UDFTStr.InValidName, $inputSection, true, options);
+            return false;
+        } else if (
+            moduleFilename.length >
+            XcalarApisConstantsT.XcalarApiMaxUdfModuleNameLen
+        ) {
+            StatusBox.show(ErrTStr.LongFileName, $inputSection, true, options);
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -602,12 +680,39 @@ class UDFFileManager extends BaseFileManager {
     }
 
     /**
+     * @returns string
+     */
+    public fileIcon(): string {
+        return "xi-menu-udf";
+    }
+
+    /**
+     * @returns string
+     */
+    public fileExtension(): string {
+        return ".py";
+    }
+
+    /**
+     * All File Manager Panel that displays UDFs should be registered.
+     * Otherwise they will not get the update after another panel adds /
+     * deletes files.
+     * @param  {FileManagerPanel} panel
+     * @returns void
+     */
+    public registerPanel(panel: FileManagerPanel): void {
+        this.panels.push(panel);
+        this._buildPathTree(panel);
+        this._createWorkbookFolder(panel);
+    }
+
+    /**
      * Build UDF path trie.
      * @returns void
      */
-    public buildPathTree(clean?: boolean): void {
-        if (!FileManagerPanel.Instance.rootPathNode.children.has("UDF")) {
-            FileManagerPanel.Instance.rootPathNode.children.set("UDF", {
+    private _buildPathTree(panel: FileManagerPanel, clean?: boolean): void {
+        if (!panel.rootPathNode.children.has("UDF")) {
+            panel.rootPathNode.children.set("UDF", {
                 pathName: "UDF",
                 isDir: true,
                 timestamp: null,
@@ -616,12 +721,12 @@ class UDFFileManager extends BaseFileManager {
                 sortBy: FileManagerField.Name,
                 sortDescending: false,
                 isSorted: false,
-                parent: FileManagerPanel.Instance.rootPathNode,
+                parent: panel.rootPathNode,
                 children: new Map()
             });
         }
 
-        const udfRootPathNode: FileManagerPathNode = FileManagerPanel.Instance.rootPathNode.children.get(
+        const udfRootPathNode: FileManagerPathNode = panel.rootPathNode.children.get(
             "UDF"
         );
         const storedUDF: Map<string, string> = this.getUDFs();
@@ -661,31 +766,19 @@ class UDFFileManager extends BaseFileManager {
         }
 
         if (clean) {
-            this._cleanPathNodes();
+            this._cleanPathNodes(panel);
         }
     }
 
-    /**
-     * @returns string
-     */
-    public fileIcon(): string {
-        return "xi-menu-udf";
-    }
-
-    /**
-     * @returns string
-     */
-    public fileExtension(): string {
-        return ".py";
-    }
-
-    private _createWorkbookFolder(): void {
-        let folderPath = this.nsPathToDisplayPath(this.getCurrWorkbookPath());
+    private _createWorkbookFolder(panel: FileManagerPanel): void {
+        const currWorkbookPath: string = this.getCurrWorkbookPath();
+        if (currWorkbookPath == null) {
+            return;
+        }
+        let folderPath = this.nsPathToDisplayPath(currWorkbookPath);
         folderPath = folderPath.substring(0, folderPath.length - 3);
         const paths: string[] = folderPath.split("/");
-        let curPathNode = FileManagerPanel.Instance.rootPathNode.children.get(
-            "UDF"
-        );
+        let curPathNode = panel.rootPathNode.children.get("UDF");
 
         paths.forEach((path: string) => {
             if (path === "") {
@@ -714,14 +807,14 @@ class UDFFileManager extends BaseFileManager {
         });
     }
 
-    private _cleanPathNodes(): void {
+    private _cleanPathNodes(panel: FileManagerPanel): void {
         const storedUDF: Map<string, string> = this.getUDFs();
         const storedUDFSet: Set<string> = new Set(
             Array.from(storedUDF.keys()).map((value: string) => {
                 return this.nsPathToDisplayPath(value);
             })
         );
-        const curPathNode: FileManagerPathNode = FileManagerPanel.Instance.rootPathNode.children.get(
+        const curPathNode: FileManagerPathNode = panel.rootPathNode.children.get(
             "UDF"
         );
         const sortRes: FileManagerPathNode[] = [];
@@ -733,19 +826,17 @@ class UDFFileManager extends BaseFileManager {
         for (const sortedPathNode of sortRes) {
             if (
                 (!sortedPathNode.isDir &&
-                    !storedUDFSet.has(
-                        FileManagerPanel.Instance.nodeToPath(sortedPathNode)
-                    )) ||
+                    !storedUDFSet.has(panel.nodeToPath(sortedPathNode))) ||
                 (sortedPathNode.isDir &&
                     sortedPathNode.children.size === 0 &&
-                    FileManagerPanel.Instance.nodeToPath(sortedPathNode) !==
+                    panel.nodeToPath(sortedPathNode) !==
                         this.getCurrWorkbookDisplayPath())
             ) {
                 sortedPathNode.parent.children.delete(sortedPathNode.pathName);
             }
         }
 
-        FileManagerPanel.Instance.refreshNodeReference();
+        panel.refreshNodeReference();
     }
 
     private _sortPathNodes(
@@ -764,6 +855,10 @@ class UDFFileManager extends BaseFileManager {
         }
 
         sortRes.push(curPathNode);
+    }
+
+    private _updateList(panel: FileManagerPanel) {
+        panel.updateList();
     }
 
     private _initializeUDFList(_isSetup: boolean): XDPromise<any> {
@@ -810,7 +905,7 @@ class UDFFileManager extends BaseFileManager {
     }
 
     private _parseSyntaxError(error: {
-        error: string;
+    error: string;
     }): {reason: string; line: number} {
         if (!error || !error.error) {
             return null;

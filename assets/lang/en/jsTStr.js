@@ -1326,7 +1326,9 @@ WSTStr = {
 };
 
 FileManagerTStr = {
-    "DuplicateFail": "Duplicate file failed"
+    "DuplicateFail": "Duplicate file failed",
+    "PathReadOnly": "Selected path is read only",
+    "InvalidPath": "Invalid path"
 }
 
 UDFTStr = {

@@ -5164,19 +5164,19 @@ html.microsoft {
 #dfBrowserModal {
     .size(@width: 450px, @height: 480px);
     z-index: @z-index-modal + 1;
-    
+
     .modalMain {
         .size(@height: ~"calc(100% - 92px)");
-        padding: 10px;
-        
+        padding: 12px;
+
         .saveAs {
             height: 30px;
             margin-bottom: 10px;
-            margin-left: 3px;
 
             input {
                 background-color: @color-white;
-                width: ~"calc(100% - 75px)";
+                width: ~"calc(100% - 62px)";
+                margin-left: 3px;
             }
         }
 
@@ -6439,5 +6439,82 @@ html.microsoft {
         .size(@height: ~"calc(100% - @{headerHeight})");
         overflow: auto;
         user-select: text;
+    }
+}
+
+#fileManagerSaveAsModal {
+    .size(@width: 450px, @height: 480px);
+
+    .modalMain {
+        .size(@height: ~"calc(100% - 92px)");
+        padding: 12px;
+
+        .saveAs {
+            height: 30px;
+            margin-bottom: 4px;
+
+            input {
+                background-color: @color-white;
+                width: ~"calc(100% - 62px)";
+                margin-left: 3px;
+            }
+        }
+    }
+
+    .fileManager {
+        .fileManagerBar {
+            min-height: 26px;
+            background-color: @color-white;
+            box-shadow: none;
+            flex-direction: row-reverse;
+
+            .navigationArea {
+                min-width: 52px;
+                padding: 0 5px 0 5px;
+                .navigationButtonRefresh {
+                    display: none;
+                }
+            }
+
+            .addressArea {
+                padding: 0px;
+                .addressContent {
+                    border: none;
+                }
+            }
+
+            .actionArea {
+                display: none;
+            }
+
+            .operationArea {
+                display: none;
+            }
+        }
+
+        .fileManagerSearchBar {
+            display: none;
+        }
+
+        .fileManagerMainArea {
+            padding: 0px;
+            .section {
+                .row {
+                    padding: 0 6px;
+                }
+
+                .checkBox {
+                    display: none;
+                }
+            }
+
+            .titleSection {
+                display: none;
+            }
+
+            .mainSection {
+                border: none;
+            }
+        }
     }
 }
