@@ -1074,7 +1074,8 @@ module.exports = {
         "OutHeader": "Link Out",
         "OutInstr": "Specify a name for the link out node",
         "DFName": "Dataflow Name",
-        "OutName": "Link Out Node Name"
+        "OutName": "Link Out Node Name",
+        "LinkWithExecution": "Only allow linking after execution"
     },
 
     "IMDTableOp": {
@@ -1426,6 +1427,7 @@ module.exports = {
         "removeAllNodes": "Remove All",
         "selectAll": "Select All",
         "removeConnection": "Remove Connection",
+        "findLinkOut": "Find the linked node",
         "configure": "Configure",
         "description": "Add Description",
         "comment": "New Comment",

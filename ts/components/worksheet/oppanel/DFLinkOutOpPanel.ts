@@ -37,9 +37,15 @@ class DFLinkOutOpPanel extends BaseOpPanel {
     }
 
     private _restorePanel(): void {
-        const name: string = this.dagNode.getParam().name;
-        const $input: JQuery = this._getLinkOutNameInput();
-        $input.val(name);
+        const param: DagNodeDFOutInputStruct = this.dagNode.getParam();
+        this._getLinkOutNameInput().val(param.name);
+
+        const $checkbox: JQuery = this._getOptionCheckbox().find(".checkbox");
+        if (param.linkAfterExecution) {
+            $checkbox.addClass("checked");
+        } else {
+            $checkbox.removeClass("checked");
+        }
     }
 
     private _addEventListeners(): void {
@@ -52,6 +58,11 @@ class DFLinkOutOpPanel extends BaseOpPanel {
         $panel.on("click", ".confirm", (event) => {
             $(event.target).blur();
             this._submitForm();
+        });
+
+        const $checkboxSection: JQuery = this._getOptionCheckbox();
+        $checkboxSection.on("click", ".checkbox, .text", () => {
+            this._getOptionCheckbox().find(".checkbox").toggleClass("checked");
         });
     }
 
@@ -78,8 +89,11 @@ class DFLinkOutOpPanel extends BaseOpPanel {
             error: OpPanelTStr.DFLinkOutNameDup
         }]);
         if (isValid) {
+            const linkAfterExecution: boolean = this._getOptionCheckbox()
+            .find(".checkbox").hasClass("checked");
             return {
-                name: name
+                name: name,
+                linkAfterExecution: linkAfterExecution
             };
         } else {
             return null;
@@ -97,5 +111,9 @@ class DFLinkOutOpPanel extends BaseOpPanel {
 
     private _getLinkOutNameInput(): JQuery {
         return this._getPanel().find(".linkOutName input");
+    }
+
+    private _getOptionCheckbox(): JQuery {
+        return this._getPanel().find(".option .checkboxSection");
     }
 }

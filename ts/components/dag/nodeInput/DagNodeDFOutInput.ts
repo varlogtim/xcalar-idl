@@ -4,7 +4,8 @@ class DagNodeDFOutInput extends DagNodeInput {
     public getInput(replaceParameters?: boolean): DagNodeDFOutInputStruct {
         const input = super.getInput(replaceParameters);
         return {
-            name: input.name || ""
+            name: input.name || "",
+            linkAfterExecution: input.linkAfterExecution || false,
         };
     }
 }

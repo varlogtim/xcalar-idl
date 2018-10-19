@@ -39,10 +39,20 @@ class DagGraphExecutor {
                 errorResult.node = node;
                 break;
             } else if (node.getType() === DagNodeType.DFIn) {
-                const res = this._checkLinkInResult(<DagNodeDFIn>node);
+                const linkInNode: DagNodeDFIn = <DagNodeDFIn>node;
+                const res = this._checkLinkInResult(linkInNode);
                 if (res.hasError) {
                     errorResult = res;
                     break;
+                }
+                // check if the linked node has executed
+                const linkoutNode: DagNodeDFOut = linkInNode.getLinedNodeAndGraph().node;
+                if (linkoutNode.shouldLinkAfterExecuition() &&
+                    linkoutNode.getState() !== DagNodeState.Complete
+                ) {
+                    errorResult.hasError = true;
+                    errorResult.type = DagNodeErrorType.LinkOutNotExecute;
+                    errorResult.node = node;
                 }
             }
         }
@@ -192,8 +202,6 @@ class DagGraphExecutor {
                     stack = stack.concat(currentNode.getChildren());
                 }
             }
-
-
         } catch (e) {
             errorResult.hasError = true;
             errorResult.type = e.message;

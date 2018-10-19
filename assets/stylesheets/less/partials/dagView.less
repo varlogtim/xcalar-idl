@@ -1182,11 +1182,11 @@
         .description, .configureNode, .previewTable, .viewSchema, .autoAlign {
             display: list-item;
         }
-        .previewAgg, .createCustom {
+        .previewAgg, .createCustom, .findLinkOut {
             display: none;
         }
         &.multiple {
-            .description, .configureNode, .previewTable, .viewSchema, .shareCustom {
+            .description, .configureNode, .previewTable, .viewSchema, .shareCustom, {
                 display: none;
             }
             .createCustom {
@@ -1234,6 +1234,11 @@
         }
         .configureNode {
             display: none;
+        }
+    }
+    &.linkInMenu {
+        .findLinkOut {
+            display: list-item;
         }
     }
 }

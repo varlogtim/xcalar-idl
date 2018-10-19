@@ -10,7 +10,8 @@ class DagNodeDFOut extends DagNodeOut {
 
     public setParam(input: DagNodeDFOutInputStruct = <DagNodeDFOutInputStruct>{}): void {
         this.input.setInput({
-            name: input.name
+            name: input.name,
+            linkAfterExecution: input.linkAfterExecution
         });
         super.setParam();
     }
@@ -20,5 +21,9 @@ class DagNodeDFOut extends DagNodeOut {
             columns: columns,
             changes: []
         };
+    }
+
+    public shouldLinkAfterExecuition(): boolean {
+        return this.input.getInput().linkAfterExecution;
     }
 }

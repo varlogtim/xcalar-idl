@@ -1248,6 +1248,22 @@ namespace DagView {
         }
     }
 
+    export function findLinkOutNode(nodeId: DagNodeId): void {
+        try {
+            const dagNode: DagNodeDFIn = <DagNodeDFIn>activeDag.getNode(nodeId);
+            const res = dagNode.getLinedNodeAndGraph();
+            const graph: DagGraph = res.graph;
+            if (graph !== activeDag) {
+                // swith to the graph
+                DagTabManager.Instance.switchTab(graph.getTabId());
+            }
+            // focus on the node
+            DagView.selectNodes([res.node.getId()]);
+        } catch (e) {
+            Alert.error(AlertTStr.Error, e.message);
+        }
+    }
+
     function _createCustomNode(
         dagNodeInfos,
         connection: DagSubGraphConnectionInfo
@@ -2223,8 +2239,13 @@ namespace DagView {
             if (DagTable.Instance.getBindNodeId() === nodeId) {
                 DagTable.Instance.close();
             }
-            // XXX TODO: this is just a temp solution, refine it
-            TblManager.deleteTables([tableName], TableType.Orphan, true, true);
+            const node: DagNode = info.node;
+            const nodeType: DagNodeType = node.getType();
+            // When not link in or link out node
+            if (nodeType !== DagNodeType.DFIn && nodeType !== DagNodeType.DFOut) {
+                // XXX TODO: this is just a temp solution, refine it
+                TblManager.deleteTables([tableName], TableType.Orphan, true, true);
+            }
         });
     }
 

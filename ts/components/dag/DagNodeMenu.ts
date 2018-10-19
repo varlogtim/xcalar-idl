@@ -187,6 +187,9 @@ namespace DagNodeMenu {
                 case ("zoomOut"):
                     DagView.zoom(false);
                     break;
+                case ("findLinkOut"):
+                    DagView.findLinkOutNode(nodeId);
+                    break;
                 default:
                     break;
             }
@@ -420,7 +423,8 @@ namespace DagNodeMenu {
         } else {
             $menu.find(".description .label").text(DagTStr.AddDescription);
         }
-        if (dagNode != null && dagNode.getType() === DagNodeType.Aggregate) {
+        const dagNodeType: DagNodeType = dagNode.getType();
+        if (dagNode != null && dagNodeType === DagNodeType.Aggregate) {
             const aggNode = <DagNodeAggregate>dagNode;
             classes = "agg";
             if (state === DagNodeState.Complete &&
@@ -431,6 +435,18 @@ namespace DagNodeMenu {
                 $menu.find(".previewAgg").addClass("unavailable");
             }
         }
+        // link node option
+        if (dagNode != null && dagNodeType === DagNodeType.DFIn) {
+            classes += " linkInMenu";
+            if (state === DagNodeState.Configured ||
+                state === DagNodeState.Complete
+            ) {
+                $menu.find(".findLinkOut").removeClass("unavailable");
+            } else {
+                $menu.find(".findLinkOut").addClass("unavailable");
+            }
+        }
+
         if (state === DagNodeState.Configured || state === DagNodeState.Error) {
             $menu.find(".executeNode").removeClass("unavailable");
         } else {
@@ -441,7 +457,7 @@ namespace DagNodeMenu {
         } else {
             $menu.find(".resetNode").addClass("unavailable");
         }
-        if (dagNode.getType() === DagNodeType.Custom) {
+        if (dagNodeType === DagNodeType.Custom) {
             classes += ' customOpMenu';
         }
         if (DagView.isNodeLocked(nodeId)) {

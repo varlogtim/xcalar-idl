@@ -556,7 +556,8 @@ abstract class DagNode {
         if (this.table) {
             this.events.trigger(DagNodeEvents.TableRemove, {
                 table: this.table,
-                nodeId: this.getId()
+                nodeId: this.getId(),
+                node: this
             });
             delete this.table;
         }

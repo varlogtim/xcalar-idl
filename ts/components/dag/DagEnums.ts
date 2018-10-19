@@ -44,7 +44,8 @@ enum DagNodeErrorType {
     Invalid = "Invalid Configuration",
     NoGraph = "Cannot find linked graph",
     NoLinkInGraph = "Cannot find the linked node",
-    CycleInLink = "Cycle In Link"
+    CycleInLink = "Cycle In Link",
+    LinkOutNotExecute = "The linked node only allow linking after execution"
 }
 
 enum DagNodeEvents {

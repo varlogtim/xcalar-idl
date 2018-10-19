@@ -15,14 +15,19 @@ class DagNodeExecutor {
     public run(): XDPromise<string> {
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNode =  this.node;
-        node.beRunningState();
+        const isSimulate: boolean = Transaction.isSimulate(this.txId);
+        if (!isSimulate) {
+            node.beRunningState();
+        }
 
         this._apiAdapter()
         .then((destTable) => {
-            if (destTable != null) {
-                node.setTable(destTable);
+            if (!isSimulate) {
+                if (destTable != null) {
+                    node.setTable(destTable);
+                }
+                node.beCompleteState();
             }
-            node.beCompleteState();
             deferred.resolve(destTable);
         })
         .fail((error) => {
@@ -367,16 +372,11 @@ class DagNodeExecutor {
             const res = node.getLinedNodeAndGraph();
             const graph: DagGraph = res.graph;
             const linkOutNode: DagNodeDFOut = res.node;
-            let destTable: string;
-            graph.getQuery(linkOutNode.getId())
-            .then((query, table) => {
-                destTable = table;
-                return XIApi.query(this.txId, destTable, query);
-            })
-            .then(() => {
-                deferred.resolve(destTable);
-            })
-            .fail(deferred.reject);
+            if (linkOutNode.shouldLinkAfterExecuition()) {
+                return this._linkWithExecution(graph, linkOutNode);
+            } else {
+                return this._linkWithBatch(graph, linkOutNode);
+            }
         } catch (e) {
             console.error("execute error", e);
             deferred.reject(e);
@@ -385,8 +385,43 @@ class DagNodeExecutor {
         return deferred.promise();
     }
 
+    private _linkWithExecution(graph: DagGraph, node: DagNodeDFOut): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        graph.execute([node.getId()])
+        .then(() => {
+            const destTable: string = node.getTable();
+            deferred.resolve(destTable);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    private _linkWithBatch(graph: DagGraph, node: DagNodeDFOut): XDPromise<string> {
+        const deferred: XDDeferred<string> = PromiseHelper.deferred();
+        let destTable: string;
+        graph.getQuery(node.getId())
+        .then((query, table) => {
+            destTable = table;
+            return XIApi.query(this.txId, destTable, query);
+        })
+        .then(() => {
+            deferred.resolve(destTable);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    // XXX TODO: if it's linkAfterExecution, lock the table
+    // and unlock when reset
     private _dfOut(): XDPromise<null> {
-        return PromiseHelper.resolve(null);
+        const node: DagNodeDFOut = <DagNodeDFOut>this.node;
+        let destTable: string = null;
+        if (node.getNumParent() === 1) {
+            destTable =  node.getParents()[0].getTable();
+        }
+        return PromiseHelper.resolve(destTable);
     }
 
     private _publishIMD(): XDPromise<string> {

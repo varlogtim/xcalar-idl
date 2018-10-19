@@ -158,6 +158,7 @@ interface DagNodeDFInInputStruct {
 
 interface DagNodeDFOutInputStruct {
     name: string;
+    linkAfterExecution: boolean;
 }
 
 interface DagNodeSplitInputStruct {
