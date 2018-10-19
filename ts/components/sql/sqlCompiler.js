@@ -4693,8 +4693,8 @@
                     windowStruct.rightColInfo
                                     .push(newIndexColStruct);
                     var mapStr;
-                    mapStr = "int(sub(" + __getCurrentName(indexColStruct)
-                                 + ", " + opStruct.offset + "))";
+                    mapStr = "subInteger(" + __getCurrentName(indexColStruct)
+                                 + ", " + opStruct.offset + ")";
                     return self.sqlObj.map([mapStr],
                         windowStruct.leftTableName, [newIndexColName]);
                 })
@@ -4921,7 +4921,7 @@
                         if (opName === "percentRank") {
                             mapStr = "div(sub(" + psGbColName + ", "
                                 + partitionMinColName + "), if(eq(sub("
-                                + tempCountColName + ", 1), 0), 1, sub("
+                                + tempCountColName + ", 1), 0), 1.0, sub("
                                 + tempCountColName + ", 1)))";
                         } else {
                             mapStr = "div(add(sub(" + psGbColName + ", "
