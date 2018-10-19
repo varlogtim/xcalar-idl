@@ -49,8 +49,8 @@ class DagTopBar {
         // set state for auto save and save button
         const $autoSave: JQuery = $btns.find(".autoSave");
         xcTooltip.remove($autoSave);
-        if (dagTab instanceof DagTabUser && dagTab.isAutoSave()) {
-            this._toggleAutoSave(true);
+        if (dagTab instanceof DagTabUser) {
+            this._toggleAutoSave(dagTab.isAutoSave());
         } else if (dagTab instanceof DagTabShared) {
             this._toggleAutoSave(false);
             xcTooltip.add($autoSave, {

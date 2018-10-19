@@ -132,6 +132,9 @@ class DagTabUser extends DagTab {
 
     public setAutoSave(autoSave): void {
         this._autoSave = autoSave;
+        if (autoSave) {
+            this._tempKVStore.delete();
+        }
         // no matter it changes to auto save or not, do a force save
         // to remember the state first
         this.save(true);
@@ -150,7 +153,6 @@ class DagTabUser extends DagTab {
         this._unsaved = false;
         this._writeToKVStore()
         .then(() => {
-            this._tempKVStore.delete();
             this._trigger("save");
             deferred.resolve();
         })
