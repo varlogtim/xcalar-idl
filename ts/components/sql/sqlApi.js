@@ -40,6 +40,9 @@
     };
 
     SQLApi.getIndexTable = function(tableName, colNames) {
+        if (typeof DagTblManager !== "undefined") {
+            DagTblManager.Instance.resetTable(tableName);
+        }
         var colKey = getIndexColKey(colNames);
         if (indexTableCache[tableName]) {
             return indexTableCache[tableName][colKey] || null;
@@ -277,6 +280,9 @@
         },
 
         run: function(query, tableName, allCols, sqlQueryString, jdbcCheckTime) {
+            if (typeof DagTblManager !== "undefined") {
+                DagTblManager.Instance.resetTable(tableName);
+            }
             var self = this;
             var deferred = PromiseHelper.deferred();
             var queryName = self.queryName || xcHelper.randName("sql", 8);

@@ -162,35 +162,20 @@ class DagTabUser extends DagTab {
     }
 
     public delete(): XDPromise<void> {
-        let sql = {
-            "operation": SQLOps.DeleteTable,
-            "tableName": this._id + "_dag_*",
-            "tableType": TableType.Unknown
-        };
-        let txId = Transaction.start({
-            "operation": SQLOps.DeleteTable,
-            "sql": sql,
-            "steps": 1,
-            "track": true
-        });
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        PromiseHelper.alwaysResolve(XIApi.deleteTable(txId, this._id + "_dag_*", true))
+        DagTblManager.Instance.deleteTable(this._id + "_dag_*", true, true);
+        PromiseHelper.alwaysResolve(DagTblManager.Instance.forceDeleteSweep())
         .then(() => {
             return this._kvStore.delete();
         })
         .then(() => {
             return PromiseHelper.alwaysResolve(this._tempKVStore.delete());
         })
-        .then(() => {
-            Transaction.done(txId, null);
+        .then((res: {}) => {
+            // alwaysResolves returns an object that we don't need
             deferred.resolve();
         })
-        .fail((err: ThriftError) => {
-            Transaction.fail(txId, {
-                error: err.error
-            });
-            deferred.reject()
-        });
+        .fail(deferred.reject);
         return deferred.promise();
     }
 

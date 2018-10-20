@@ -1179,14 +1179,14 @@
 
     &.operatorMenu {
         .removeNode, .copyNodes, .cutNodes, .pasteNodes, .executeNode, .resetNode,
-        .description, .configureNode, .previewTable, .viewSchema, .autoAlign {
+        .description, .configureNode, .previewTable, .generateTable, .viewSchema, .autoAlign {
             display: list-item;
         }
         .previewAgg, .createCustom, .findLinkOut {
             display: none;
         }
         &.multiple {
-            .description, .configureNode, .previewTable, .viewSchema, .shareCustom, {
+            .description, .configureNode, .previewTable, .generateTable, .viewSchema, .shareCustom {
                 display: none;
             }
             .createCustom {
@@ -1197,7 +1197,7 @@
             .previewAgg {
                 display: list-item;
             }
-            .previewTable {
+            .previewTable, .generateTable {
                 display: none;
             }
         }
@@ -1243,7 +1243,7 @@
         .removeNode, .copyNodes, .cutNodes, .pasteNodes, .autoAlign {
             display: list-item;
         }
-        .executeNode, .description, .configureNode, .previewTable, .viewSchema,
+        .executeNode, .description, .configureNode, .previewTable, .generateTable, .viewSchema,
         .autoAlign {
             display: none;
         }

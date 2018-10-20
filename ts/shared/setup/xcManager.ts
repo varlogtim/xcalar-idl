@@ -101,6 +101,9 @@ namespace xcManager {
             return setupDagPanel();
         })
         .then(function() {
+            return DagTblManager.Instance.setup();
+        })
+        .then(function() {
             if (firstTimeUser) {
                 // show hint to create datasets if no tables have been created
                 // in this workbook

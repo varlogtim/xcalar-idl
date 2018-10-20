@@ -17,7 +17,7 @@ class DagTblManager {
         let key: string = KVStore.getKey("gDagTableManagerKey");
         this._kvStore = new KVStore(key, gKVScope.WKBK);
         this.cache = {};
-        this.interval = 30000;
+        this.interval = 120000;
         this.configured = false;
     }
 
@@ -47,6 +47,19 @@ class DagTblManager {
         });
 
         return deferred.promise();
+    }
+
+    /**
+     * Resets the Sweep interval 
+     * @param interval Number of milliseconds before each sweep happens
+     */
+    public setSweepInterval(interval: number): void {
+        if (!this.configured) {
+            return;
+        }
+        this.interval = interval;
+        window.clearInterval(this.timer);
+        this.timer = window.setInterval(() => {DagTblManager.Instance.sweep()}, this.interval);
     }
 
     /**
@@ -138,6 +151,9 @@ class DagTblManager {
                 }
             });
         } else {
+            if (!this.cache[name]) {
+                return;
+            }
             if (!this.cache[name].locked || forceDelete) {
                 this.cache[name].markedForDelete = true;
             }
@@ -163,6 +179,35 @@ class DagTblManager {
         }
         this.cache[name].locked = !this.cache[name].locked;
         return true;
+    }
+
+    /**
+     * Forces a sweep that only deletes tables marked for deletion.
+     */
+    public forceDeleteSweep(): XDPromise<void> {
+        window.clearInterval(this.timer);
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        if (!this.configured) {
+            return deferred.resolve();
+        }
+        let tables: string[] = [];
+        for (let key in this.cache) {
+            if (this.cache[key].markedForDelete) {
+                delete this.cache[key];
+                tables.push(key);
+            }
+        }
+        this._queryDelete(tables)
+        .then(() => {
+            let jsonStr = JSON.stringify(this.cache);
+            return this._kvStore.put(jsonStr, true, true);
+        })
+        .then(() => {
+            this.timer = window.setInterval(() => {DagTblManager.Instance.sweep()}, this.interval);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     /**

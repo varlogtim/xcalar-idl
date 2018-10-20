@@ -63,11 +63,12 @@ class DagGraphExecutor {
     /**
      * Execute nodes
      */
-    public run(): XDPromise<void> {
+    public run(): XDPromise<string> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const nodes: DagNode[] = this._nodes.filter((node) => {
-            return node.getState() !== DagNodeState.Complete;
+            return ((node.getState() !== DagNodeState.Complete) || (!DagTblManager.Instance.hasTable(node.getTable())));
         });
+        //XXX TODO: Remove nodes that have had their table deleted but arent necessary for this execution
         const nodesToRun: {node: DagNode, executable: boolean}[] = nodes.map((node) => {
            return {
                 node: node,

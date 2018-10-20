@@ -831,6 +831,7 @@ namespace DagView {
         try {
             const dagNode: DagNode = activeDag.getNode(dagNodeId);
             const tableName: string = dagNode.getTable();
+            DagTblManager.Instance.resetTable(tableName);
             // XXX this code should be change after refine the table meta structure
             const tableId: TableId = xcHelper.getTableId(tableName);
             let table: TableMeta = gTables[tableId];
@@ -2272,7 +2273,7 @@ namespace DagView {
             // When not link in or link out node
             if (nodeType !== DagNodeType.DFIn && nodeType !== DagNodeType.DFOut) {
                 // XXX TODO: this is just a temp solution, refine it
-                TblManager.deleteTables([tableName], TableType.Orphan, true, true);
+                DagTblManager.Instance.deleteTable(tableName, true, false);
             }
         });
     }

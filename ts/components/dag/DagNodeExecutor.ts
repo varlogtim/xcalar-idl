@@ -19,12 +19,17 @@ class DagNodeExecutor {
         if (!isSimulate) {
             node.beRunningState();
         }
+        node.getParents().forEach((parent) => {
+            const parentTableName = parent.getTable();
+            DagTblManager.Instance.resetTable(parentTableName);
+        });
 
         this._apiAdapter()
         .then((destTable) => {
             if (!isSimulate) {
                 if (destTable != null) {
                     node.setTable(destTable);
+                    DagTblManager.Instance.addTable(destTable);
                 }
                 node.beCompleteState();
             }

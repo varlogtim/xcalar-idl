@@ -148,6 +148,11 @@ namespace DagNodeMenu {
                 case ("previewTable"):
                     DagView.previewTable(operatorIds[0]);
                     break;
+                case ("generateTable"):
+                    DagView.run(operatorIds).then(() => {
+                        DagView.previewTable(operatorIds[0]);
+                    });
+                    break;
                 case ("previewAgg"):
                     DagView.previewAgg(nodeIds[0]);
                     break;
@@ -428,9 +433,18 @@ namespace DagNodeMenu {
             dagNode.getTable() != null &&
             nodeId != DagTable.Instance.getBindNodeId()
         ) {
-            $menu.find(".previewTable").removeClass("unavailable");
+            if (DagTblManager.Instance.hasTable(dagNode.getTable())) {
+                $menu.find(".generateTable").addClass("xc-hidden");
+                $menu.find(".previewTable").removeClass("xc-hidden");
+                $menu.find(".previewTable").removeClass("unavailable");
+            } else {
+                $menu.find(".previewTable").addClass("xc-hidden");
+                $menu.find(".generateTable").removeClass("xc-hidden");
+                $menu.find(".generateTable").removeClass("unavailable");
+            }
         } else {
             $menu.find(".previewTable").addClass("unavailable");
+            $menu.find(".generateTable").addClass("unavailable");
         }
         if (dagNode != null && dagNode.getDescription()) {
             $menu.find(".description .label").text(DagTStr.EditDescription);

@@ -1439,6 +1439,7 @@ module.exports = {
         "reset": "Reset",
         "resetAll": "Reset All",
         "previewTable": "Preview Table",
+        "generateTable": "Generate Table",
         "previewResults": "Preview Results",
         "autoAlign": "Auto Align",
         "copy": "Copy",
