@@ -355,14 +355,13 @@ class DagNodeExecutor {
         });
         const srcTable: string = this._getParentNodeTable(0);
         const exportName: string = this._generateTableName();
-        //XXX TODO: Uncomment this out when the thrift change goes through for export 2.0
-        //XcalarExport(srcTable, driverName, driverParams, driverColumns, exportName)
-        //.then(() => {
-        //    deferred.resolve(null); // no table generated
-        //})
-        //.fail(deferred.reject);
+        XcalarExport(srcTable, driverName, driverParams, driverColumns, exportName)
+        .then(() => {
+            deferred.resolve(null); // no table generated
+        })
+        .fail(deferred.reject);
 
-        return deferred.resolve(null);
+        return deferred.promise();
     }
 
     private _dfIn(): XDPromise<string> {

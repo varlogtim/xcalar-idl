@@ -218,7 +218,7 @@ namespace DagNodeMenu {
                 AggOpPanel.Instance.show(node, options);
                 break;
             case (DagNodeType.Export):
-                ExportOpPanel.Instance.show(node);
+                ExportOpPanel.Instance.show(node, options);
                 break;
             case (DagNodeType.Filter):
                 FilterOpPanel.Instance.show(node, options);
@@ -244,9 +244,6 @@ namespace DagNodeMenu {
                 break;
             case (DagNodeType.Set):
                 SetOpPanel.Instance.show(node, options);
-                break;
-            case (DagNodeType.Export):
-                console.warn("not implement yet");
                 break;
             case (DagNodeType.DFIn):
                 DFLinkInOpPanel.Instance.show(node, options);

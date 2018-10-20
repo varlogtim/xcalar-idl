@@ -144,9 +144,9 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
      * Show the panel with information from dagNode
      * @param dagNode DagNode object
      */
-    public show(dagNode: DagNodeExport): void {
+    public show(dagNode: DagNodeExport, options?): void {
         // Show panel
-        if (!super.showPanel()) {
+        if (!super.showPanel(null, options)) {
             return;
         }
         this._dagNode = dagNode;
