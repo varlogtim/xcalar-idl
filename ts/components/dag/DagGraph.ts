@@ -206,6 +206,9 @@ class DagGraph {
         })
         .registerEvents(DagNodeEvents.AggregateChange, (info) => {
             this.events.trigger(DagNodeEvents.AggregateChange, info);
+        })
+        .registerEvents(DagNodeEvents.TableLockChange, (info) => {
+            this.events.trigger(DagNodeEvents.TableLockChange, info);
         });
     }
 
@@ -719,6 +722,15 @@ class DagGraph {
         return set;
     }
 
+    /** Scans down the children of nodes looking to see if any have locks.
+     * @param nodes The nodes we're checking
+     */
+    public checkForChildLocks(nodes: DagNodeId[]): boolean {
+        return this._checkApplicableChild(nodes, ((node) => {
+            return DagTblManager.Instance.hasLock(node.getTable());
+        }));
+    }
+
     private _setupEvents(): void {
         this.innerEvents = {};
         this.events = {
@@ -918,6 +930,35 @@ class DagGraph {
             traversedSet.add(node);
         });
         return traversedSet;
+    }
+
+    /**
+     * traverses children ala BFS in order to determine if any children satisfy a callback function
+     * @param nodes Starting node IDs to search
+     * @param callback {Function} Must return true or false
+     */
+    private _checkApplicableChild(nodes: DagNodeId[], callback: Function) {
+        let seen: Set<string> = new Set();
+        let nodeStack: DagNode[] = nodes.map((nodeID: string) => {
+            return this.getNode(nodeID);
+        })
+        let node: DagNode;
+        let currId: DagNodeId;
+        while (nodeStack.length != 0) {
+            node = nodeStack.pop();
+            currId = node.getId();
+            if (!seen.has(currId)) {
+                if (callback(node)) {
+                    return true;
+                }
+                seen.add(currId);
+                let children: DagNode[] = node.getChildren();
+                children.forEach((child: DagNode) => {
+                    nodeStack.push(child);
+                });
+            }
+        }
+        return false;
     }
 
     /**

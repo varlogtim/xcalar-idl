@@ -2121,6 +2121,10 @@ namespace DagView {
             }
         }
 
+        if (DagTblManager.Instance.hasLock(node.getTable())) {
+            editTableLock($node, true);
+        }
+
         let abbrId = nodeId.slice(nodeId.indexOf(".") + 1);
         abbrId = abbrId.slice(abbrId.indexOf(".") + 1);
 
@@ -2337,7 +2341,11 @@ namespace DagView {
             editAggregates(info.id, info.aggregates);
         });
 
-        activeDag.events.on(DagNodeEvents.TableRemove, function (info) {
+        activeDag.events.on(DagNodeEvents.TableLockChange, function(info) {
+            editTableLock(DagView.getNode(info.id), info.lock);
+        })
+
+        activeDag.events.on(DagNodeEvents.TableRemove, function(info) {
             const tableName: string = info.table;
             const nodeId: DagNodeId = info.nodeId;
             if (DagTable.Instance.getBindNodeId() === nodeId) {
@@ -2657,6 +2665,31 @@ namespace DagView {
 
     export function isNodeLocked(nodeId: DagNodeId): boolean {
         return lockedNodeIds.hasOwnProperty(nodeId);
+    }
+
+    /**
+     * Adds or removes a lock icon to the node
+     * @param $node: JQuery node
+     * @param lock: true if we add a lock, false otherwise
+     */
+    export function editTableLock(
+        $node: JQuery, lock: boolean
+    ): void {
+        if (lock) {
+            const g = d3.select($node.get(0)).append("g")
+                        .attr("class", "lockIcon")
+                        .attr("transform", "translate(05, 05)");
+            g.append("text")
+                .attr("font-family", "icomoon")
+                .attr("font-size", 13)
+                .attr("fill", "black")
+                .attr("x", 0)
+                .attr("y", 3)
+                .text(function(_d) {return "\ue940"});
+        } else {
+            $node.find(".lockIcon").remove();
+        }
+        return;
     }
 
     function getNextAvailablePosition(x: number, y: number): Coordinate {

@@ -495,6 +495,17 @@ abstract class DagNode {
         });
     }
 
+    public setTableLock(): void {
+        if (!DagTblManager.Instance.hasTable(this.table)) {
+            return;
+        }
+        DagTblManager.Instance.toggleTableLock(this.table);
+        this.events.trigger(DagNodeEvents.TableLockChange, {
+            id: this.getId(),
+            lock: DagTblManager.Instance.hasLock(this.table)
+        });
+    }
+
     /**
      * Get a list of index of the given parent node
      * @param parentNode
@@ -582,6 +593,9 @@ abstract class DagNode {
 
     private _removeTable(): void {
         if (this.table) {
+            if (DagTblManager.Instance.hasLock(this.table)) {
+                this.setTableLock();
+            }
             this.events.trigger(DagNodeEvents.TableRemove, {
                 table: this.table,
                 nodeId: this.getId(),

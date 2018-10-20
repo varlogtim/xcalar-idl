@@ -1450,5 +1450,7 @@ module.exports = {
         "createCustomNode": "Create Custom Node",
         "shareCustomNode": "Share Custom Node",
         "editCustomNode": "Edit",
+        "lockTable": "Lock Table",
+        "unlockTable": "Unlock table",
     }
 };

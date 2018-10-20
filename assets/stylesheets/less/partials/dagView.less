@@ -1222,7 +1222,8 @@
 
     &.operatorMenu {
         .removeNode, .copyNodes, .cutNodes, .pasteNodes, .executeNode, .resetNode,
-        .description, .configureNode, .previewTable, .generateTable, .viewSchema, .autoAlign {
+        .description, .configureNode, .previewTable, .generateTable, .unlockNodeTable,
+        .lockNodeTable, .viewSchema, .autoAlign {
             display: list-item;
         }
         .previewAgg, .createCustom, .findLinkOut {
@@ -1287,7 +1288,7 @@
             display: list-item;
         }
         .executeNode, .description, .configureNode, .previewTable, .generateTable, .viewSchema,
-        .autoAlign {
+        .unlockNodeTable, .lockNodeTable, .autoAlign {
             display: none;
         }
         &.backgroundMenu {

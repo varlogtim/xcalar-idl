@@ -1164,6 +1164,8 @@ DFTStr = {
     "ParamAdvancedInstructions": "The <type> operation can be modified using the editor below but cannot be parameterized.",
     "CustomizeTitle": "Customize <op> Operation",
     "ParamNoValueList": "Please assign values to all the parameters being used in the current dataflow. Parameters without values: <params>",
+    "LockedTableWarning": "Locked Table Warning",
+    "LockedTableMsg": "\'<action>\' will delete one or more locked tables. If you do not want the tables to be deleted, cancel and duplicate the relevant parts of the flow.",
 };
 
 DSTStr = {

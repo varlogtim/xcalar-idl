@@ -93,9 +93,6 @@ namespace xcManager {
             return setupDagPanel();
         })
         .then(function() {
-            return DagTblManager.Instance.setup();
-        })
-        .then(function() {
             // By default show panel
             // XXX TODO: find better solution
             $("#modelingDagPanel").addClass("active");
@@ -547,11 +544,21 @@ namespace xcManager {
     }
 
     function setupDagPanel(): XDPromise<void> {
-        DagNode.setup();
-        CommentNode.setup();
-        DagTab.setup();
-        DagView.setup();
-        return setupDagList();
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        DagTblManager.Instance.setup()
+        .then(() => {
+            DagNode.setup();
+            CommentNode.setup();
+            DagTab.setup();
+            DagView.setup();
+            return setupDagList();
+        })
+        .then(deferred.resolve)
+        .fail((err) => {
+            console.error("DagPanel Initialize Fail", err);
+            deferred.reject(err);
+        });
+        return deferred.promise();
     }
 
     function setupDagList(): XDPromise<void> {
