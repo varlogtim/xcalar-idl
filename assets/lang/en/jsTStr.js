@@ -1163,6 +1163,7 @@ DFTStr = {
 
 DSTStr = {
     'UnknownUser': 'Unknown User',
+    'UnknownId': 'Unknown Id',
     'DS': 'Datasets',
     'IN': 'DATASETS',
     'OUT': 'EXPORT TARGETS',

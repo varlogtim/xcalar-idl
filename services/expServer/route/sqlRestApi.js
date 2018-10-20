@@ -876,7 +876,7 @@ function getInfoForPublishedTable(pubTableReturn, pubTableName) {
     for (var i = 0; i < columns.length; i++) {
         var colStruct = {};
         var column = columns[i];
-        var type = xcHelper.getDFFieldTypeToString(
+        var type = xcHelper.convertFieldTypeToColType(
             DfFieldTypeTFromStr[column.type]);
         colStruct[column.name] = type;
         schema.push(colStruct);
@@ -1329,31 +1329,7 @@ function getColType(typeId) {
         console.error("Invalid typeId");
         return null;
     }
-
-    switch (typeId) {
-        case DfFieldTypeT.DfUnknown:
-            return ColumnType.unknown;
-        case DfFieldTypeT.DfString:
-            return ColumnType.string;
-        case DfFieldTypeT.DfInt32:
-        case DfFieldTypeT.DfInt64:
-        case DfFieldTypeT.DfUInt32:
-        case DfFieldTypeT.DfUInt64:
-            return ColumnType.integer;
-        case DfFieldTypeT.DfFloat32:
-        case DfFieldTypeT.DfFloat64:
-            return ColumnType.float;
-        case DfFieldTypeT.DfBoolean:
-            return ColumnType.boolean;
-        case DfFieldTypeT.DfTimespec:
-            return ColumnType.timestamp;
-        case DfFieldTypeT.DfMixed:
-            return ColumnType.mixed;
-        case DfFieldTypeT.DfFatptr:
-            return null;
-        default:
-            return null;
-    }
+    return xcHelper.convertFieldTypeToColType(typeId);
 }
 
 router.post("/xcsql/query", function(req, res) {

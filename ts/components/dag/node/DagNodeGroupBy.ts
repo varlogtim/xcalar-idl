@@ -183,7 +183,7 @@ class DagNodeGroupBy extends DagNode {
         const ops = opsMap[FunctionCategoryT.FunctionCategoryAggregate];
         const opInfo = ops[operator];
         if (opInfo) {
-            colType = xcHelper.getDFFieldTypeToString(opInfo.outputType);
+            colType = xcHelper.convertFieldTypeToColType(opInfo.outputType);
         }
         return colType;
     }

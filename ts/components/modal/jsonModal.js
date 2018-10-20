@@ -1215,7 +1215,7 @@ window.JSONModal = (function($, JSONModal) {
         var knownImmediatesArray = table.getImmediates();
         var knownImmediates = {};
         knownImmediatesArray.forEach(function(imm) {
-            knownImmediates[imm.name] = xcHelper.getDFFieldTypeToString(imm.type);
+            knownImmediates[imm.name] = xcHelper.convertFieldTypeToColType(imm.type);
         });
 
         var splitName;

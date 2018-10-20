@@ -246,11 +246,27 @@ describe("xcHelper Test", function() {
     });
 
     it("xcHelper.convertColTypeToFieldType should work", function() {
-        expect(xcHelper.convertColTypeToFieldType(ColumnType.string)).to.equal(DfFieldTypeT.DfString);
-        expect(xcHelper.convertColTypeToFieldType(ColumnType.integer)).to.equal(DfFieldTypeT.DfInt64);
-        expect(xcHelper.convertColTypeToFieldType(ColumnType.float)).to.equal(DfFieldTypeT.DfFloat64);
-        expect(xcHelper.convertColTypeToFieldType(ColumnType.boolean)).to.equal(DfFieldTypeT.DfBoolean);
-        expect(xcHelper.convertColTypeToFieldType(ColumnType.mixed)).to.equal(DfFieldTypeT.DfUnknown);
+        var func = xcHelper.convertColTypeToFieldType;
+        expect(func(ColumnType.string)).to.equal(DfFieldTypeT.DfString);
+        expect(func(ColumnType.integer)).to.equal(DfFieldTypeT.DfInt64);
+        expect(func(ColumnType.float)).to.equal(DfFieldTypeT.DfFloat64);
+        expect(func(ColumnType.boolean)).to.equal(DfFieldTypeT.DfBoolean);
+        expect(func(ColumnType.timestamp)).to.equal(DfFieldTypeT.DfTimespec);
+        expect(func(ColumnType.mixed)).to.equal(DfFieldTypeT.DfUnknown);
+    });
+
+    it("xcHelper.convertFieldTypeToColType should work", function() {
+        var func = xcHelper.convertFieldTypeToColType;
+        expect(func(DfFieldTypeT.DfUnknown)).to.equal(ColumnType.unknown);
+        expect(func(DfFieldTypeT.DfInt64)).to.equal(ColumnType.integer);
+        expect(func(DfFieldTypeT.DfFloat64)).to.equal(ColumnType.float);
+        expect(func(DfFieldTypeT.DfString)).to.equal(ColumnType.string);
+        expect(func(DfFieldTypeT.DfBoolean)).to.equal(ColumnType.boolean);
+        expect(func(DfFieldTypeT.DfTimespec)).to.equal(ColumnType.timestamp);
+        expect(func(DfFieldTypeT.DfMixed)).to.equal(ColumnType.mixed);
+        expect(func(DfFieldTypeT.DfScalarObj)).to.equal(ColumnType.mixed);
+        expect(func(DfFieldTypeT.DfFatptr)).to.equal(null);
+        expect(func(null)).to.equal(null);
     });
 
     it("xcHelper.getFilterOptions should work", function() {
@@ -322,7 +338,7 @@ describe("xcHelper Test", function() {
         var res = xcHelper.parseDSName("test");
         expect(res).to.be.an("object");
         expect(res.user).to.be.equal(DSTStr.UnknownUser);
-        expect(res.randId).to.be.equal(DSTStr.UnknownId);
+        expect(res.randId).to.be.equal(undefined);
         expect(res.dsName).to.be.equal("test");
         // case 2
         res = xcHelper.parseDSName("user.test2");
@@ -851,16 +867,14 @@ describe("xcHelper Test", function() {
     });
 
     it("xcHelper.getColTypeIcon should work", function() {
-        expect(xcHelper.getColTypeIcon(DfFieldTypeT.DfInt64))
-        .to.equal('xi-integer');
-        expect(xcHelper.getColTypeIcon(DfFieldTypeT.DfFloat64))
-        .to.equal('xi-integer');
-        expect(xcHelper.getColTypeIcon(DfFieldTypeT.DfString))
-        .to.equal('xi-string');
-        expect(xcHelper.getColTypeIcon(DfFieldTypeT.DfBoolean))
-        .to.equal('xi-boolean');
-        expect(xcHelper.getColTypeIcon(DfFieldTypeT.DfUnknown))
-        .to.equal('xi-mixed');
+        var func = xcHelper.getColTypeIcon;
+        expect(func(DfFieldTypeT.DfInt64)).to.equal('xi-integer');
+        expect(func(DfFieldTypeT.DfFloat64)).to.equal('xi-float');
+        expect(func(DfFieldTypeT.DfString)).to.equal('xi-string');
+        expect(func(DfFieldTypeT.DfBoolean)).to.equal('xi-boolean');
+        expect(func(DfFieldTypeT.DfTimespec)).to.equal('xi-timestamp');
+        expect(func(DfFieldTypeT.DfScalarObj)).to.equal('xi-mixed');
+        expect(func(DfFieldTypeT.DfUnknown)).to.equal('xi-unknown');
     });
 
     it("xcHelper.showSuccess should work", function(done) {

@@ -1151,43 +1151,16 @@
                 var self = this;
                 self.immediate = true;
                 self.knownType = true;
-
-                switch (typeId) {
-                    case DfFieldTypeT.DfUnknown:
-                        self.type = ColumnType.unknown;
-                        break;
-                    case DfFieldTypeT.DfString:
-                        self.type = ColumnType.string;
-                        break;
-                    case DfFieldTypeT.DfInt32:
-                    case DfFieldTypeT.DfInt64:
-                    case DfFieldTypeT.DfUInt32:
-                    case DfFieldTypeT.DfUInt32:
-                        self.type = ColumnType.integer;
-                        break;
-                    case DfFieldTypeT.DfFloat32:
-                    case DfFieldTypeT.DfFloat64:
-                        self.type = ColumnType.float;
-                        break;
-                    case DfFieldTypeT.DfBoolean:
-                        self.type = ColumnType.boolean;
-                        break;
-                    case DfFieldTypeT.DfTimespec:
-                        self.type = ColumnType.timestamp;
-                        break;
-                    case DfFieldTypeT.DfMixed:
-                    case DfFieldTypeT.DfScalarObj: // also recoganize it as mixed
-                        self.type = ColumnType.mixed;
-                        break;
-                    case DfFieldTypeT.DfFatptr:
-                        console.error("Should not set fat pointer's type");
-                        self.immediate = false;
+                if (typeId === DfFieldTypeT.DfFatptr) {
+                    console.error("Should not set fat pointer's type");
+                    self.immediate = false;
+                    self.knownType = false;
+                } else {
+                    self.type = xcHelper.convertFieldTypeToColType(typeId);
+                    if (self.type == null) {
+                        // error case
                         self.knownType = false;
-                        break;
-                    default:
-                        // console.warn("Unsupported type");
-                        self.knownType = false;
-                        break;
+                    }
                 }
             },
 

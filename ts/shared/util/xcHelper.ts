@@ -506,29 +506,6 @@ namespace xcHelper {
     }
 
     /**
-     * xcHelper.convertColTypeToFieldType
-     * @param colType
-     */
-    export function convertColTypeToFieldType(
-        colType: ColumnType
-    ): DfFieldTypeT {
-        switch (colType) {
-            case ColumnType.string:
-                return DfFieldTypeT.DfString;
-            case ColumnType.integer:
-                return DfFieldTypeT.DfInt64;
-            case ColumnType.float:
-                return DfFieldTypeT.DfFloat64;
-            case ColumnType.boolean:
-                return DfFieldTypeT.DfBoolean;
-            case ColumnType.timestamp:
-                return DfFieldTypeT.DfTimespec;
-            default:
-                return DfFieldTypeT.DfUnknown;
-        }
-    }
-
-    /**
      * xcHelper.getFilterOptions
      * @param operator
      * @param colName
@@ -1657,32 +1634,34 @@ namespace xcHelper {
      * @param type
      */
     export function getColTypeIcon(type: DfFieldTypeT): string {
-        switch (type) {
-            case (DfFieldTypeT.DfInt32):
-            case (DfFieldTypeT.DfInt64):
-            case (DfFieldTypeT.DfUInt32):
-            case (DfFieldTypeT.DfUInt64):
-            case (DfFieldTypeT.DfFloat32):
-            case (DfFieldTypeT.DfFloat64):
+        const colType: ColumnType = xcHelper.convertFieldTypeToColType(type);
+        switch (colType) {
+            case ColumnType.integer:
                 return 'xi-integer';
-            case (DfFieldTypeT.DfString):
+            case ColumnType.float:
+                return 'xi-float';
+            case ColumnType.string:
                 return 'xi-string';
-            case (DfFieldTypeT.DfBoolean):
+            case ColumnType.boolean:
                 return 'xi-boolean';
-            case (DfFieldTypeT.DfTimespec):
+            case ColumnType.timestamp:
                 return 'xi-timestamp';
-            default:
-                // DfScalarObj will be mixed
+            case ColumnType.mixed:
                 return 'xi-mixed';
+            default:
+                // other cases
+                return 'xi-unknown';
         }
     }
 
      /**
-     * xcHelper.getDFFieldTypeToString
+     * xcHelper.convertFieldTypeToColType
      * @param type
      */
-    export function getDFFieldTypeToString(type: DfFieldTypeT): ColumnType {
+    export function convertFieldTypeToColType(type: DfFieldTypeT): ColumnType {
         switch (type) {
+            case DfFieldTypeT.DfUnknown:
+                return ColumnType.unknown;
             case (DfFieldTypeT.DfInt32):
             case (DfFieldTypeT.DfInt64):
             case (DfFieldTypeT.DfUInt32):
@@ -1697,9 +1676,38 @@ namespace xcHelper {
                 return ColumnType.boolean;
             case (DfFieldTypeT.DfTimespec):
                 return ColumnType.timestamp;
-            default:
-                // DfScalarObj will be mixed
+            case DfFieldTypeT.DfMixed:
+            case DfFieldTypeT.DfScalarObj: // also recoganize it as mixed
                 return ColumnType.mixed;
+            case DfFieldTypeT.DfFatptr:
+                return null;
+            default:
+                // should not go here
+                console.error("error type conversion");
+                return null;
+        }
+    }
+
+    /**
+     * xcHelper.convertColTypeToFieldType
+     * @param colType
+     */
+    export function convertColTypeToFieldType(
+        colType: ColumnType
+    ): DfFieldTypeT {
+        switch (colType) {
+            case ColumnType.string:
+                return DfFieldTypeT.DfString;
+            case ColumnType.integer:
+                return DfFieldTypeT.DfInt64;
+            case ColumnType.float:
+                return DfFieldTypeT.DfFloat64;
+            case ColumnType.boolean:
+                return DfFieldTypeT.DfBoolean;
+            case ColumnType.timestamp:
+                return DfFieldTypeT.DfTimespec;
+            default:
+                return DfFieldTypeT.DfUnknown;
         }
     }
 

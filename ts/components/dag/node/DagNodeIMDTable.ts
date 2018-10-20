@@ -79,7 +79,7 @@ class DagNodeIMDTable extends DagNodeIn {
                     return;
                 }
                 let dftype: DfFieldTypeT = DfFieldTypeT[col.type];
-                let type: ColumnType = xcHelper.getDFFieldTypeToString(dftype);
+                let type: ColumnType = xcHelper.convertFieldTypeToColType(dftype);
                 return ColManager.newPullCol(name, name, type);
             });
             return deferred.resolve(cols);

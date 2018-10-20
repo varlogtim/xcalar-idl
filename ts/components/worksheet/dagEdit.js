@@ -783,30 +783,14 @@ window.DagEdit = (function($, DagEdit) {
     }
 
     function translateType(dfType) {
-        switch (dfType) {
-            case DfFieldTypeTStr[DfFieldTypeT.DfUnknown]:
-                return ColumnType.unknown;
-            case DfFieldTypeTStr[DfFieldTypeT.DfString]:
-                return ColumnType.string;
-            case DfFieldTypeTStr[DfFieldTypeT.DfInt32]:
-            case DfFieldTypeTStr[DfFieldTypeT.DfInt64]:
-            case DfFieldTypeTStr[DfFieldTypeT.DfUInt32]:
-            case DfFieldTypeTStr[DfFieldTypeT.DfUInt64]:
-                return ColumnType.integer;
-            case DfFieldTypeTStr[DfFieldTypeT.DfFloat32]:
-            case DfFieldTypeTStr[DfFieldTypeT.DfFloat64]:
-                return ColumnType.float;
-            case DfFieldTypeTStr[DfFieldTypeT.DfBoolean]:
-                return ColumnType.boolean;
-            case DfFieldTypeTStr[DfFieldTypeT.DfTimespec]:
-                return ColumnType.timestamp;
-            case DfFieldTypeTStr[DfFieldTypeT.DfMixed]:
-                return ColumnType.mixed;
-            case DfFieldTypeTStr[DfFieldTypeT.DfFatptr]:
-                return null;
-            default:
-                return null;
+        var typeId = null;
+        for (var id in DfFieldTypeTStr) {
+            if (DfFieldTypeTStr[id] === dfType) {
+                typeId = id;
+                break;
+            }
         }
+        return xcHelper.convertFieldTypeToColType(parseInt(typeId));
     }
 
     function styleForEditingForm(node, sourceTableNames) {

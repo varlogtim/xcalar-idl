@@ -128,7 +128,7 @@ class DagNodeMap extends DagNode {
             const ops = opsMap[category];
             const opInfo = ops[operator];
             if (opInfo) {
-                colType = xcHelper.getDFFieldTypeToString(opInfo.outputType);
+                colType = xcHelper.convertFieldTypeToColType(opInfo.outputType);
                 break;
             }
         }

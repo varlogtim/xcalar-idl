@@ -358,7 +358,7 @@ class GeneralOpPanelModel {
                 const ops = opsMap[category];
                 if (ops[operator]) {
                     operatorInfo = ops[operator];
-                    outputType = xcHelper.getDFFieldTypeToString(operatorInfo.outputType);
+                    outputType = xcHelper.convertFieldTypeToColType(operatorInfo.outputType);
                     break;
                 }
             }
