@@ -660,14 +660,10 @@ XcalarLoad = function(
                 fieldDelim = ""; // jshint ignore:line
                 // fallthrough
             case ("CSV"):
-                if (recordDelim === "\r\n") {
-                    // we already turn on CRLF
-                    recordDelim = "\n";
-                }
                 parserFnName = "default:parseCsv";
                 parserArgJson['recordDelim'] = recordDelim;
                 parserArgJson['fieldDelim'] = fieldDelim;
-                parserArgJson['isCRLF'] = true;
+                parserArgJson['isCRLF'] = false;
                 parserArgJson['linesToSkip'] = skipRows;
                 parserArgJson['quoteDelim'] = quoteChar;
                 parserArgJson['hasHeader'] = hasHeader;
