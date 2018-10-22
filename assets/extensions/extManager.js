@@ -449,7 +449,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             ext.initialize(table, null, args, true);
             ext.runBeforeStart(extButton)
             .then(function() {
-                
+
                 return ext.run(txId);
             })
             .then(function(ret) {
@@ -596,6 +596,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
             var runBeforeStartRet;
 
             ext.initialize(tableName, worksheet, args);
+            $("#extension-ops-submit").addClass("xc-disabled");
             ext.runBeforeStart(extButton)
             .then(function() {
                 if (options.closeTab) {
@@ -604,7 +605,7 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     // XXXX should change event listener to pop up
                     $("#extensionTab").click();
                 }
-
+                $("#extension-ops-submit").removeClass("xc-disabled");
                 var msg = xcHelper.replaceMsg(StatusMessageTStr.Ext, {
                     "extension": func
                 });
@@ -674,6 +675,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                         "sql": sql,
                         "noAlert": true
                     });
+                } else {
+                    $("#extension-ops-submit").removeClass("xc-disabled");
                 }
                 if (!options.noFailAlert) {
                     handleExtensionFail(error, options.formOpenTime);
@@ -691,6 +694,8 @@ window.ExtensionManager = (function(ExtensionManager, $) {
                     "sql": sql,
                     "noAlert": true
                 });
+            } else {
+                $("#extension-ops-submit").removeClass("xc-disabled");
             }
             if (!options.noFailAlert) {
                 handleExtensionFail(error.toLocaleString(), options.formOpenTime);
@@ -751,6 +756,9 @@ window.ExtensionManager = (function(ExtensionManager, $) {
 
     function addEventListeners() {
         $("#extension-ops-submit").click(function() {
+            if ($(this).hasClass("xc-disabled")) {
+                return;
+            }
             submitArgs();
         });
 
