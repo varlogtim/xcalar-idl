@@ -1,8 +1,29 @@
 class DagNodeSetInput extends DagNodeInput {
     protected input: DagNodeSetInputStruct;
-    private dagNode;
+    private dagNode: DagNode;
 
-    constructor(inputStruct, dagNode) {
+    constructor(inputStruct: DagNodeSetInputStruct, dagNode) {
+        if (inputStruct == null) {
+          inputStruct = {
+            unionType: DagNodeSetInput._convertSubTypeToUnionType(dagNode.getSubType())
+              || UnionType.Union,
+            columns: null, dedup: false
+          };
+        }
+
+        if (inputStruct.columns == null) {
+          inputStruct.columns = dagNode.getParents().map(() => {
+                return [{
+                    sourceColumn: "",
+                    destColumn: "",
+                    columnType: ColumnType.string,
+                    cast: false
+                }]
+            });
+        }
+
+        inputStruct.dedup = inputStruct.dedup || false;
+
         super(inputStruct);
         this.dagNode = dagNode;
     }
@@ -110,21 +131,30 @@ class DagNodeSetInput extends DagNodeInput {
 
     public getInput(replaceParameters?: boolean): DagNodeSetInputStruct {
         const input = super.getInput(replaceParameters);
-        let columns = input.columns;
-        if (columns == null) {
-            columns = this.dagNode.getParents().map(() => {
-                return [{
-                    sourceColumn: "",
-                    destColumn: "",
-                    columnType: ColumnType.string,
-                    cast: false
-                }]
-            });
-        }
         return {
-            unionType: input.unionType || UnionType.Union,
-            columns: input.columns || columns,
-            dedup: input.dedup || false
+            unionType: input.unionType,
+            columns: input.columns,
+            dedup: input.dedup
         };
+    }
+
+    /**
+     * Check if the unionType is converted from node subType
+     */
+    public isUnionTypeConverted(): boolean {
+      return DagNodeSetInput._convertSubTypeToUnionType(this.dagNode.getSubType()) != null;
+    }
+
+    private static _convertSubTypeToUnionType(subType: DagNodeSubType): UnionType {
+        if (subType == null) {
+            return null;
+        }
+
+        const typeMap = {};
+        typeMap[DagNodeSubType.Union] = UnionType.Union;
+        typeMap[DagNodeSubType.Except] = UnionType.Except;
+        typeMap[DagNodeSubType.Intersect] = UnionType.Intersect;
+
+        return typeMap[subType];
     }
 }

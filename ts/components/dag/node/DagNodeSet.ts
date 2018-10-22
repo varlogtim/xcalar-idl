@@ -7,7 +7,7 @@ class DagNodeSet extends DagNode {
         this.maxParents = -1;
         this.minParents = 1;
         this.display.icon = "&#xea2d;";
-        this.input = new DagNodeSetInput(options.input, this);
+        this.input = new DagNodeSetInput(<DagNodeSetInputStruct>options.input, this);
     }
 
     /**
@@ -92,5 +92,9 @@ class DagNodeSet extends DagNode {
         }
         super.setParam();
         return newRenameMap;
+    }
+
+    public isUnionTypeConverted(): boolean {
+        return this.input.isUnionTypeConverted();
     }
 }

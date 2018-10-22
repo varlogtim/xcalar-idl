@@ -13,14 +13,8 @@ class SetOpPanelModel {
         const params: DagNodeSetInputStruct = this.dagNode.getParam();
         this._initialize(params);
         // It's a sub-category of Set, if the subType is provided
-        // So we overwrite the unionType according to subType,
-        // and set fixedType=true to indicate that unionType should not be changed.
-        this.fixedType = false;
-        const unionType = this._convertSubTypeToUnionType(dagNode.getSubType());
-        if (unionType != null) {
-            this.unionType = unionType;
-            this.fixedType = true;
-        }
+        // So set fixedType=true to indicate that unionType should not be changed.
+        this.fixedType = dagNode.isUnionTypeConverted();
     }
 
     /**
@@ -212,19 +206,6 @@ class SetOpPanelModel {
         const param = this._getParam();
         delete param.unionType;
         return param;
-    }
-
-    private _convertSubTypeToUnionType(subType: DagNodeSubType): UnionType {
-        if (subType == null) {
-            return null;
-        }
-
-        const typeMap = {};
-        typeMap[DagNodeSubType.Union] = UnionType.Union;
-        typeMap[DagNodeSubType.Except] = UnionType.Except;
-        typeMap[DagNodeSubType.Intersect] = UnionType.Intersect;
-
-        return typeMap[subType];
     }
 
     private _update(): void {
