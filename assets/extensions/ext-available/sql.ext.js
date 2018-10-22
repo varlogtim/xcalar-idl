@@ -294,17 +294,32 @@ window.UExtSQL = (function(UExtSQL) {
                 }
                 promise
                 .then(function() {
-                    if (err && err.responseJSON) {
-                        deferred.reject(err.responseJSON.exceptionMsg);
-                    } else if (err && err.status === 0) {
-                        deferred.reject(SQLErrTStr.FailToConnectPlanner);
-                    } else {
-                        deferred.reject();
+                    try {
+                        if (err && err.responseJSON) {
+                            deferred.reject(err.responseJSON.exceptionMsg);
+                        } else if (err && err.status === 0) {
+                            deferred.reject(SQLErrTStr.FailToConnectPlanner);
+                        } else {
+                            deferred.reject();
+                        }
+                    } catch (e) {
+                        deferred.reject(e);
                     }
                 })
                 .fail(function(tableErr) {
-                    deferred.reject(err.responseJSON.exceptionMsg + "\n" +
-                                    JSON.stringify(tableErr));
+                    try {
+                        if (err && err.responseJSON) {
+                            deferred.reject(err.responseJSON.exceptionMsg + "\n" +
+                                            JSON.stringify(tableErr));
+                        } else if (err && err.status === 0) {
+                            deferred.reject(SQLErrTStr.FailToConnectPlanner + "\n" +
+                                            JSON.stringify(tableErr));
+                        } else {
+                            deferred.reject(JSON.stringify(tableErr));
+                        }
+                    } catch (e) {
+                        deferred.reject(e);
+                    }
                 });
             });
 
