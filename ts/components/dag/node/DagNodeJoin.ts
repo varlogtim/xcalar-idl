@@ -8,8 +8,7 @@ class DagNodeJoin extends DagNode {
         this.maxParents = 2;
         this.minParents = 2;
         this.display.icon = "&#xe93e;";
-
-        this.input = new DagNodeJoinInput(options.input);
+        this.input = new DagNodeJoinInput(<DagNodeJoinInputStruct>options.input, this);
     }
 
     /**
@@ -102,6 +101,13 @@ class DagNodeJoin extends DagNode {
 
         super.setParam();
         return newRenameMap;
+    }
+
+    /**
+     * Check if the joinType is converted from node subType
+     */
+    public isJoinTypeConverted(): boolean {
+        return this.input.isJoinTypeConverted();
     }
 
     private _getColAfterJoin(

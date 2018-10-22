@@ -45,10 +45,6 @@ class JoinOpPanelModel {
 
             // Override the join type with sub type(sub category)
             const dagConfig = dagNode.getParam();
-            const joinType = this._convertSubTypeToJoinType(dagNode.getSubType());
-            if (joinType != null) {
-                dagConfig.joinType = joinType;
-            }
 
             return this.fromDagInput(
                 leftCols,rightCols, dagConfig,
@@ -57,7 +53,7 @@ class JoinOpPanelModel {
                     currentStep: uiOptions.currentStep,
                     isAdvMode: uiOptions.isAdvMode,
                     isNoCast: uiOptions.isNoCast,
-                    isFixedType: dagNode.getSubType() != null
+                    isFixedType: dagNode.isJoinTypeConverted()
                 }
             );
         } catch(e) {
@@ -583,17 +579,6 @@ class JoinOpPanelModel {
             : !this._prefixMeta.rightMap.has(prefix);
     }
 
-    private static _convertSubTypeToJoinType(subType: DagNodeSubType) {
-        if (subType == null) {
-            return null;
-        }
-
-        const typeMap = {};
-        typeMap[DagNodeSubType.LookupJoin] = JoinOperatorTStr[JoinOperatorT.LeftOuterJoin];
-
-        return typeMap[subType];
-    }
-
     private static _parseColumnPrefixMeta(
         columnList: ProgCol[]
     ) {
@@ -967,11 +952,6 @@ class JoinOpPanelModel {
         const {
             left: leftTableName, right: rightTableName
         } = this.getPreviewTableNamesFromDag(dagNode);
-        const dagConfig = dagNode.getParam();
-        const joinType = this._convertSubTypeToJoinType(dagNode.getSubType());
-        if (joinType != null) {
-            dagConfig.joinType = joinType;
-        }
 
         const model = this.fromDagInput(
             leftCols,rightCols, oldDagData,
@@ -980,7 +960,7 @@ class JoinOpPanelModel {
                 currentStep: oldModel._currentStep,
                 isAdvMode: oldModel._isAdvMode,
                 isNoCast: oldModel._isNoCast,
-                isFixedType: dagNode.getSubType() != null
+                isFixedType: oldModel._isFixedType
             }
         );
         // remove column pairs where column no longer exists

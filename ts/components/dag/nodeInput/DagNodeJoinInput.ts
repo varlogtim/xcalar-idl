@@ -1,5 +1,28 @@
 class DagNodeJoinInput extends DagNodeInput {
     protected input: DagNodeJoinInputStruct;
+    private dagNode: DagNode;
+
+    public constructor(inputStruct: DagNodeJoinInputStruct, dagNode: DagNode) {
+      if (inputStruct == null) {
+        inputStruct = {
+          joinType: DagNodeJoinInput._convertSubTypeToJoinType(dagNode.getSubType())
+            || JoinOperatorTStr[JoinOperatorT.InnerJoin],
+          left: null, right: null, evalString: null
+        };
+      }
+      if (inputStruct.left == null) {
+        inputStruct.left = DagNodeJoinInput._getDefaultTableInfo();
+      }
+      if (inputStruct.right == null) {
+        inputStruct.right = DagNodeJoinInput._getDefaultTableInfo();
+      }
+      if (inputStruct.evalString == null) {
+        inputStruct.evalString = '';
+      }
+
+      super(inputStruct);
+      this.dagNode = dagNode;
+    }
 
     public static readonly schema = {
         "definitions": {},
@@ -263,10 +286,10 @@ class DagNodeJoinInput extends DagNodeInput {
     public getInput(replaceParameters?: boolean): DagNodeJoinInputStruct {
         const input = super.getInput(replaceParameters);
         return {
-            joinType: input.joinType || JoinOperatorTStr[JoinOperatorT.InnerJoin],
-            left: input.left || this._getDefaultTableInfo(),
-            right: input.right || this._getDefaultTableInfo(),
-            evalString: input.evalString || ""
+            joinType: input.joinType,
+            left: input.left,
+            right: input.right,
+            evalString: input.evalString
         };
     }
 
@@ -274,7 +297,25 @@ class DagNodeJoinInput extends DagNodeInput {
         this.input.evalString = evalString;
     }
 
-    private _getDefaultTableInfo(): DagNodeJoinTableInput {
+    /**
+     * Check if the joinType is converted from node subType
+     */
+    public isJoinTypeConverted(): boolean {
+      return DagNodeJoinInput._convertSubTypeToJoinType(this.dagNode.getSubType()) != null;
+    }
+
+    private static _convertSubTypeToJoinType(subType: DagNodeSubType): string {
+      if (subType == null) {
+          return null;
+      }
+
+      const typeMap = {};
+      typeMap[DagNodeSubType.LookupJoin] = JoinOperatorTStr[JoinOperatorT.LeftOuterJoin];
+
+      return typeMap[subType];
+    }
+
+    private static _getDefaultTableInfo(): DagNodeJoinTableInput {
         return {
             columns: [""],
             casts: [null],
