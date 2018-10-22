@@ -1071,6 +1071,7 @@
             }
             if (allInteger) {
                 node.value.class = node.value.class + "Integer";
+                node.colType = "int";
             }
         }
         node.visited = true;
@@ -4786,8 +4787,9 @@
                         if (!noUsrCol) {
                             node.usrCols = node.usrCols.concat(newColStructs);
                         }
-                        var mapStr = "add(sub(" + __getCurrentName(indexColStruct)
-                                     + ", " + windowStruct.tempGBCols[0] + "), 1)";
+                        var mapStr = "addInteger(subInteger("
+                                     + __getCurrentName(indexColStruct) + ", "
+                                     + windowStruct.tempGBCols[0] + "), 1)";
                         var mapStrs = Array(newColStructs.length).fill(mapStr);
                         return self.sqlObj.map(mapStrs, ret.newTableName,
                                             newColStructs.map(function(col) {
@@ -4823,16 +4825,17 @@
                                     + ", " + groupNum + "))";
                             var extraRowNum = "mod(" + windowStruct.tempGBCols[0]
                                     + ", " + groupNum + ")";
-                            var rowNumSubOne = "sub(" + __getCurrentName(indexColStruct)
-                                    + ", " + tempMinIndexColName + ")";
+                            var rowNumSubOne = "subInteger("
+                                        + __getCurrentName(indexColStruct)
+                                        + ", " + tempMinIndexColName + ")";
                             var threashold = "mult(" + extraRowNum + ", add(1, "
                                     + bracketSize + "))";
                             var mapStr = "if(lt(" + rowNumSubOne + ", " + threashold
-                                    + "), int(add(div(" + rowNumSubOne + ", add(1, "
-                                    + bracketSize + ")), 1)), int(add(div(sub("
+                                    + "), addInteger(div(" + rowNumSubOne + ", add(1, "
+                                    + bracketSize + ")), 1), addInteger(div(sub("
                                     + rowNumSubOne + ", " + threashold + "), "
                                     + "if(eq(" + bracketSize + ", 0), 1, "
-                                    + bracketSize + ")), 1, " + extraRowNum + ")))";
+                                    + bracketSize + ")), 1, " + extraRowNum + "))";
                             mapStrs.push(mapStr);
                         }
                         return self.sqlObj.map(mapStrs, ret.newTableName,
@@ -4887,8 +4890,8 @@
                         if (!noUsrCol) {
                             node.usrCols = node.usrCols.concat(newColStructs);
                         }
-                        var mapStr = "add(sub(" + psGbColName + ", "
-                                     + partitionMinColName + "), 1)";
+                        var mapStr = "addInteger(subInteger(" + psGbColName
+                                     + ", " + partitionMinColName + "), 1)";
                         var mapStrs = Array(newColStructs.length).fill(mapStr);
                         return self.sqlObj.map(mapStrs, ret.newTableName,
                                                newColStructs.map(function(col) {
@@ -5001,8 +5004,8 @@
                     cli += windowStruct.cli;
                     windowStruct.cli = "";
                     cli += ret.cli;
-                    var mapStr = "add(sub(" + drIndexColName + ", "
-                                 + windowStruct.tempGBCols + "), 1)";
+                    var mapStr = "addInteger(subInteger(" + drIndexColName
+                                 + ", " + windowStruct.tempGBCols + "), 1)";
                     windowStruct.leftColInfo = windowStruct.leftColInfo.concat(newColStructs);
                     var mapStrs = Array(newColStructs.length).fill(mapStr);
                     return self.sqlObj.map(mapStrs, ret.newTableName,
