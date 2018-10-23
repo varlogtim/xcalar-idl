@@ -170,13 +170,57 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
 
     private _submitForm() {
         if (this._isAdvancedMode()) {
-            // XXX TODO: validate JSON and save configuration
+            const $elemEditor = this._getPanel().find(".advancedEditor");
+            try {
+                const advConfig = <DagNodeSplitInputStruct>JSON.parse(this._editor.getValue());
+                this._dataModel = this._convertAdvConfigToModel(advConfig);
+            } catch(e) {
+                StatusBox.show(e, $elemEditor);
+                return;
+            }
         } else {
-            // XXX TODO: validation
-            if (this._runValidation()) {
-                this._dagNode.setParam(this._dataModel.toDagInput());
-                this.close(true);
+            if (!this._runValidation()) {
+                return;
             }
         }
+
+        this._dagNode.setParam(this._dataModel.toDagInput());
+        this.close(true);
+    }
+
+    /**
+     * @override BaseOpPanel._switchMode
+     * @param toAdvancedMode
+     */
+    protected _switchMode(toAdvancedMode: boolean): {error: string} {
+        if (toAdvancedMode) {
+            const param: DagNodeSplitInputStruct = this._dataModel.toDagInput();
+            const paramStr = JSON.stringify(param, null, 4);
+            this._cachedBasicModeParam = paramStr;
+            this._editor.setValue(paramStr);
+        } else {
+            try {
+                const advConfig = <DagNodeSplitInputStruct>JSON.parse(this._editor.getValue());
+                if (JSON.stringify(advConfig, null, 4) !== this._cachedBasicModeParam) {
+                    this._dataModel = this._convertAdvConfigToModel(advConfig);
+                    this._updateUI();
+                }
+            } catch (e) {
+                return {error: e};
+            }
+        }
+        return null;
+    }
+
+    private _convertAdvConfigToModel(advConfig: DagNodeSplitInputStruct) {
+        const error = this._dagNode.validateParam(advConfig);
+        if (error) {
+            throw new Error(error.error);
+        }
+
+        const colMap = this._dataModel.getColumnMap();
+        const model = SplitOpPanelModel.fromDagInput(colMap, advConfig);
+        model.validateInputData();
+        return model;
     }
 }

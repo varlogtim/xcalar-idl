@@ -47,6 +47,17 @@ class SplitOpPanelModel {
     public static fromDagInput(
         colMap: Map<string, ProgCol>, dagInput: DagNodeSplitInputStruct
     ): SplitOpPanelModel {
+        // Validate inputs
+        if (dagInput.source == null) {
+            throw new Error('Source column cannot be null');
+        }
+        if (dagInput.dest == null) {
+            throw new Error('Dest column cannot be null');
+        }
+        if (dagInput.delimiter == null) {
+            throw new Error('Delimiter cannot be null');
+        }
+
         const model = new this();
 
         model._title = OpPanelTStr.SplitPanelTitle;
@@ -82,6 +93,39 @@ class SplitOpPanelModel {
             }
         })
         return nameSet;
+    }
+
+    /**
+     * Validate the data fields related to the DagNodeInput
+     */
+    public validateInputData(): void {
+        // source column
+        const sourceColumn = this.getSourceColName();
+        if (sourceColumn == null || sourceColumn.length === 0) {
+            throw new Error('Source column cannot be empty');
+        }
+        if (!this.getColumnMap().has(sourceColumn)) {
+            throw new Error('Source column does not exist');
+        }
+
+        // delimiter
+        const delimiter = this.getDelimiter();
+        if (delimiter == null || delimiter.length === 0) {
+            throw new Error('Delimiter cannot be empty');
+        }
+
+        // dest columns
+        this.getDestColNames().forEach((colName, i) => {
+            if (colName.trim().length === 0) {
+                throw new Error('Dest column cannot be empty');
+            }
+            if (xcHelper.parsePrefixColName(colName).prefix.length > 0) {
+                throw new Error('Dest column cannot have prefix');
+            }
+            if (this.getColNameSetWithNew(i).has(colName)) {
+                throw new Error(`Duplicate column "${colName}"`);
+            }
+        });
     }
 
     public getTitle(): string {
