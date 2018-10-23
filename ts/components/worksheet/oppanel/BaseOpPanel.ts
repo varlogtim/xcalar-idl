@@ -102,6 +102,7 @@ class BaseOpPanel {
     private aggMap;
     protected _cachedBasicModeParam: string;
     protected codeMirrorOnlyColumns = false;
+    private _validationList: { elem: HTMLElement, validate: () => string }[] = [];
 
     protected constructor() {
         this.allColumns = [];
@@ -507,6 +508,28 @@ class BaseOpPanel {
         for (var a in aggs) {
             this.aggMap[aggs[a].aggName] = aggs[a].aggName;
         }
+    }
+
+    protected _clearValidationList() {
+        this._validationList.splice(0, this._validationList.length);
+    }
+
+    protected _addValidation(elem: HTMLElement, validateFunc: () => string) {
+        // XXX TODO: better not access the internal elements of a component
+        this._validationList.push({
+            elem: $(elem).find('.selError')[0], validate: validateFunc
+        });
+    }
+
+    protected _runValidation(): boolean {
+        for (const { elem, validate } of this._validationList) {
+            const err = validate();
+            if (err != null) {
+                StatusBox.show(err, $(elem));
+                return false;
+            }
+        }
+        return true;
     }
 
 }

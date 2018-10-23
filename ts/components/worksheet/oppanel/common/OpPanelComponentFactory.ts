@@ -78,6 +78,11 @@ class OpPanelComponentFactory {
             return { value: Number(v) };
         },
         integer: function(v: string): ValueCheckResult<number> {
+            const emptyCheck = this.stringNoEmpty(v);
+            if (emptyCheck.errMsg != null) {
+                return { errMsg: emptyCheck.errMsg };
+            }
+            
             const n = Number(v);
             if (Number.isNaN(n)) {
                 return { errMsg: ErrTStr.OnlyNumber };

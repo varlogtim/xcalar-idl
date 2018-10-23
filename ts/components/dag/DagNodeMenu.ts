@@ -237,7 +237,7 @@ namespace DagNodeMenu {
                 SplitOpPanel.Instance.show(node, options);
                 break;
             case (DagNodeType.Round):
-                console.warn('Not implemented yet');
+                RoundOpPanel.Instance.show(node, options);
                 break;
             case (DagNodeType.GroupBy):
                 GroupByOpPanel.Instance.show(node, options);

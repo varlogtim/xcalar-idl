@@ -1657,4 +1657,9 @@ OpPanelTStr = {
     "SplitPanelFieldNameSourceColumn": "Column to split",
     "SplitPanelFieldNameColumnCount": "Number of columns",
     "SplitPanelFieldNameDestColumn": "Column name",
+    "RoundPanelTitle": "Round Operation",
+    "RoundPanelInstr": "Round a column of float numbers, and keep the number of decimals as specified.",
+    "RoundPanelFieldNameSourceColumn": "Column to round",
+    "RoundPanelFieldNameNumDecimals": "Num of decimals to keep",
+    "RoundPanelFieldNameDestColumn": "New resultant column name",
 };

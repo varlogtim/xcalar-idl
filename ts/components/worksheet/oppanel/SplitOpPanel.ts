@@ -5,7 +5,6 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
     private _componentFactory: OpPanelComponentFactory;
     private _dagNode: DagNodeSplit = null;
     private _dataModel: SplitOpPanelModel;
-    private _validationList: { elem: HTMLElement, validate: () => string }[] = [];
 
     /**
      * @override
@@ -180,27 +179,4 @@ class SplitOpPanel extends BaseOpPanel implements IOpPanel {
             }
         }
     }
-
-    private _clearValidationList() {
-        this._validationList.splice(0, this._validationList.length);
-    }
-
-    private _addValidation(elem: HTMLElement, validateFunc: () => string) {
-        // XXX TODO: better not access the internal elements of a component
-        this._validationList.push({
-            elem: $(elem).find('.selError')[0], validate: validateFunc
-        });
-    }
-
-    private _runValidation(): boolean {
-        for (const { elem, validate } of this._validationList) {
-            const err = validate();
-            if (err != null) {
-                StatusBox.show(err, $(elem));
-                return false;
-            }
-        }
-        return true;
-    }
-
 }

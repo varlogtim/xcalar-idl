@@ -582,6 +582,7 @@ namespace xcManager {
         ExportOpPanel.Instance.setup();
         IMDTableOpPanel.Instance.setup();
         SQLOpPanel.Instance.setup();
+        RoundOpPanel.Instance.setup();
         SplitOpPanel.Instance.setup();
     }
 
