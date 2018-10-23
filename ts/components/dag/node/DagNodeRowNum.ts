@@ -31,29 +31,21 @@ class DagNodeRowNum extends DagNode {
                 finalCols.push(parentCol);
             });
         });
+        
         const inputStruct: DagNodeRowNumInputStruct = this.input.getInput();
-        const rowNumColumn = ColManager.newPullCol(inputStruct.newField,
-                                                   inputStruct.newField,
-                                                   ColumnType.integer);
-        changes.push({
-            from: null,
-            to: rowNumColumn
-        });
-        finalCols.push(rowNumColumn);
+        if (inputStruct != null) {
+            const newField = inputStruct.newField;
+            if (newField != null && newField.length > 0) {
+                const rowNumColumn = ColManager.newPullCol(
+                    newField, newField, ColumnType.integer);
+                changes.push({ from: null, to: rowNumColumn });
+                finalCols.push(rowNumColumn);
+            }
+        }
 
         return {
             columns: finalCols,
             changes: changes
         };
-    }
-
-    // XXX only for testing purpose. Remove when panel is done
-    public setTestField() {
-        this.setParam({newField: xcHelper.randName("rn")});
-    }
-
-    protected _getSerializeInfo(): DagNodeInfo {
-        const nodeInfo = super._getSerializeInfo();
-        return nodeInfo;
     }
 }

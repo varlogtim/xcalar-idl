@@ -1664,4 +1664,7 @@ OpPanelTStr = {
     "RoundPanelFieldNameSourceColumn": "Column to round",
     "RoundPanelFieldNameNumDecimals": "Num of decimals to keep",
     "RoundPanelFieldNameDestColumn": "New resultant column name",
+    "RowNumPanelTitle": "Row Number",
+    "RowNumPanelInstr": "Generate a column of row number.",
+    "RowNumPanelFieldNameDestColumn": "New resultant column name",
 };

@@ -267,9 +267,7 @@ namespace DagNodeMenu {
                 SQLOpPanel.Instance.show(node, options);
                 break;
             case (DagNodeType.RowNum):
-                console.warn("not implemented yet");
-                // XXX testing purpose. remove when panel is done.
-                node.setTestField();
+                RowNumOpPanel.Instance.show(node, options);
                 break;
             default:
                 unlock();

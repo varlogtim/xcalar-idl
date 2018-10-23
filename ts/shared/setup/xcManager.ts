@@ -583,6 +583,7 @@ namespace xcManager {
         IMDTableOpPanel.Instance.setup();
         SQLOpPanel.Instance.setup();
         RoundOpPanel.Instance.setup();
+        RowNumOpPanel.Instance.setup();
         SplitOpPanel.Instance.setup();
     }
 
