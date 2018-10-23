@@ -113,7 +113,7 @@ class DagNodeJoinInput extends DagNodeInput {
                 "$id": "#/properties/left/properties/rename",
                 "type": "array",
                 "title": "The Rename Schema",
-                "minItems": 1,
+                "minItems": 0,
                 "additionalItems": false,
                 "items": {
                   "$id": "#/properties/left/properties/rename/items",
@@ -221,7 +221,7 @@ class DagNodeJoinInput extends DagNodeInput {
                 "$id": "#/properties/right/properties/rename",
                 "type": "array",
                 "title": "The Rename Schema",
-                "minItems": 1,
+                "minItems": 0,
                 "additionalItems": false,
                 "items": {
                   "$id": "#/properties/right/properties/rename/items",

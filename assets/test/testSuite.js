@@ -447,15 +447,14 @@ window.TestSuite = (function($, TestSuite) {
             var $panel = $("#datasetOpPanel");
             self.assert($panel.hasClass("xc-hidden") === false);
 
-            $panel.find(".refresh").click();
-            var selector = '#datasetOpPanel .datasetName :contains(' + dsName + ')';
+            var selector = '#datasetOpPanel .fileName :contains(' + dsName + ')';
 
             self.checkExists(selector)
             .then(function() {
-                var $grid = $(selector).closest(".datasetName");
+                var $grid = $(selector).closest(".fileName");
                 $grid.click();
                 $panel.find(".datasetPrefix input").val(prefix);
-                $panel.find(".bottomSection button").click();
+                $panel.find(".bottomSection .submit").click();
                 return self.hasNodeWithState(nodeId, DagNodeState.Configured);
             })
             .then(function() {

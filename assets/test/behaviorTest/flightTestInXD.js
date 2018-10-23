@@ -130,6 +130,9 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
         function flightTestPart2() {
             console.log("start flightTestPart2", "create dataset node");
             $("#dagButton").click();
+            // creat new tab
+            $("#tabButton").click();
+
             test.createDatasetNode(flightDS, flightPrefix)
             .then((nodeId) => {
                 flightTestPart3(nodeId);
@@ -207,11 +210,10 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
         function flightTestPart5(parentNodeId) {
             console.log("start flightTestPart5", "upload python");
             $("#udfTab").click();
-            $("#udfSection .tab[data-tab='udf-fnSection']").click();
             test.checkExists(".editArea:visible")
             .then(() => {
                 var udfPath = UDFFileManager.Instance.getCurrWorkbookPath() + "ymd";
-                var selector = '#udf-manager .text[data-udf-path="' + udfPath + '"]';
+                var selector = '#udf-fnMenu li[data-udf-path="' + udfPath + '"]';
                 if (!$(selector).length) {
                     var editor = UDFPanel.Instance.getEditor();
                     editor.setValue('def ymd(year, month, day):\n' +
@@ -220,8 +222,9 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
                         '    if int(day) < 10:\n' +
                         '        day = "0" + str(day)\n' +
                         '    return str(year) + str(month) + str(day)');
-                    $("#udf-fnName").val("ymd");
-                    $("#udf-fnUpload").click();
+                        $("#udf-fnSection .topSection .save").click();
+                        $("#udf-fnSection .saveAsSection .udf-fnName").val("ymd.py");
+                        $("#udf-fnSection .saveAsSection .save").click();
                     return test.checkExists(selector);
                 }
             })
@@ -269,18 +272,33 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
         function flightTestPart7(parentNodeId) {
             console.log("start flightTestPart7", "join flight and airport table");
             let nodeId;
+            const $panel = $("#joinOpPanel");
+            // XXX TODO: @Liang, I don't know why I have to do this dealy
+            // but without it the column selection doesn't work
+            let dealyPromise = () => {
+                const innerDeferred = PromiseHelper.deferred();
+                setTimeout(() => {
+                    innerDeferred.resolve();
+                }, 1000);
+                return innerDeferred.promise();
+            }
             test.createDatasetNode(airpotDS, airportPrefix)
             .then((parentNodeId2) => {
                 const parents = [parentNodeId, parentNodeId2];
                 nodeId = test.createNodeAndOpenPanel(parents, DagNodeType.Join);
-                const $panel = $("#joinOpPanel");
                 test.assert($panel.hasClass("xc-hidden") === false);
+                return dealyPromise();
+            })
+            .then(() => {
                 $panel.find('.mainTable [data-xcid="leftColDropdown"]')
                 .find("li:contains(Dest)").trigger(fakeEvent.mouseup);
 
+                return dealyPromise();
+            })
+            .then(() => {
                 $panel.find('.mainTable [data-xcid="rightColDropdown"]')
                 .find("li:contains(iata)").trigger(fakeEvent.mouseup);
-                
+
                 $panel.find(".bottomSection .btn:contains(Next)").click();
                 $panel.find(".bottomSection .btn:contains(Save)").click();
                 return test.hasNodeWithState(nodeId, DagNodeState.Configured);
