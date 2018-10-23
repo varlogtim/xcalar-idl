@@ -1303,13 +1303,13 @@ window.JoinView = (function($, JoinView) {
                 lType = $lInput.data("casttype");
                 isLKnown = true;
             } else {
-                lType = lProgCol.getType();
+                lType = (lProgCol != null) ? lProgCol.getType() : ColumnType.unknown;
             }
             if ($rInput.data("casted")) {
                 rType = $rInput.data("casttype");
                 isRKnown = true;
             } else {
-                rType = rProgCol.getType();
+                rType = (rProgCol != null) ? rProgCol.getType() : ColumnType.unknown;
             }
 
             if (lType !== rType) {
