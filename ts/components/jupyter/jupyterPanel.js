@@ -103,7 +103,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
                         JupyterStubMenu.toggleAllow(s.allow);
                         break;
                     case ("udfToMapForm"):
-                        UDFFileManager.Instance.refresh()
+                        UDFFileManager.Instance.refresh(false, false)
                         .then(function() {
                             showMapForm(s.tableName, s.columns, s.moduleName,
                                         s.fnName);
@@ -111,7 +111,7 @@ window.JupyterPanel = (function($, JupyterPanel) {
                         .fail(udfRefreshFail);
                         break;
                     case ("udfToDSPreview"):
-                        UDFFileManager.Instance.refresh()
+                        UDFFileManager.Instance.refresh(false, false)
                         .then(function() {
                             showDSForm(s.moduleName, s.fnName);
                         })

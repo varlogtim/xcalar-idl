@@ -210,10 +210,10 @@ describe("Upload Dataflow Test", function() {
                 return PromiseHelper.resolve();
             };
 
-            var oldUDFRefresh = UDF.refreshWithoutClearing;
+            var oldUDFRefresh = UDFFileManager.Instance.refresh;
             var oldSocket =  XcSocket.prototype.sendMessage;
             var oldGetDF = DF.getDataflow;
-            UDF.refreshWithoutClearing = function() {};
+            UDFFileManager.Instance.refresh = function() {};
             XcSocket.prototype.sendMessage = function() {};
             DF.getDataflow = function() {
                 return {
@@ -234,7 +234,7 @@ describe("Upload Dataflow Test", function() {
                 done("fail");
             })
             .always(function() {
-                UDF.refreshWithoutClearing = oldUDFRefresh;
+                UDFFileManager.Instance.refresh = oldUDFRefresh;
                 XcSocket.prototype.sendMessage = oldSocket;
                 DF.getDataflow = oldGetDF;
             });

@@ -49,14 +49,14 @@ class UDFFileManager extends BaseFileManager {
      */
 
     /**
-     * @param  {string} path
+     * @param  {string} displayPath
      * @returns void
      */
-    public open(path: string): void {
-        path = path.startsWith(this.getCurrWorkbookDisplayPath())
-            ? path.split("/").pop()
-            : path;
-        UDFPanel.Instance.edit(path);
+    public open(displayPath: string): void {
+        displayPath = displayPath.startsWith(this.getCurrWorkbookDisplayPath())
+            ? displayPath.split("/").pop()
+            : displayPath;
+        UDFPanel.Instance.edit(displayPath);
 
         if (
             !$("#bottomMenu").hasClass("open") ||
@@ -176,7 +176,7 @@ class UDFFileManager extends BaseFileManager {
      * @returns void
      */
     public storePython(nsPath: string, entireString: string): void {
-        this._storePython(nsPath, entireString);
+        this.storedUDF.set(nsPath, entireString);
         UDFPanel.Instance.updateUDF();
         this.panels.forEach((panel: FileManagerPanel) =>
             this._buildPathTree(panel)
@@ -188,23 +188,11 @@ class UDFFileManager extends BaseFileManager {
 
     /**
      * Refresh UDFs.
-     * @param  {boolean} isInBg - Is background. Whether to show refresh icon.
+     * @param  {boolean} clear - Whether to clear cache.
      * @returns XDPromise
      */
-    public refresh(isInBg?: boolean): XDPromise<void> {
-        return this._refreshUDF(isInBg);
-    }
-
-    /**
-     * @param  {boolean} clearCache - Whether to clear cache.
-     * @returns XDPromise
-     */
-    public refreshWithoutClearing(clearCache: boolean): XDPromise<void> {
-        if (clearCache) {
-            this.storedUDF.clear();
-        }
-
-        return this._refreshUDF(true);
+    public refresh(isUpdate?: boolean, isDelete?: boolean): XDPromise<void> {
+        return this._refreshUDF(isUpdate, isDelete);
     }
 
     /**
@@ -220,7 +208,7 @@ class UDFFileManager extends BaseFileManager {
             }
         );
 
-        this._initializeUDFList(true)
+        this._initializeUDFList()
         .then((listXdfsObj: any) => {
             listXdfsObj.fnDescs = xcHelper.filterUDFs(listXdfsObj.fnDescs);
             listXdfsObj.numXdfs = listXdfsObj.fnDescs.length;
@@ -336,13 +324,16 @@ class UDFFileManager extends BaseFileManager {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const deleteUDFResolve = () => {
             this.storedUDF.delete(nsPath);
-            this._refreshUDF(true);
+            this._refreshUDF(false, true);
             UDFPanel.Instance.updateUDF();
             this.panels.forEach((panel: FileManagerPanel) =>
                 panel.removeSearchResultNode(this.nsPathToDisplayPath(nsPath))
             );
             const xcSocket: XcSocket = XcSocket.Instance;
-            xcSocket.sendMessage("refreshUDFWithoutClear");
+            xcSocket.sendMessage("refreshUDF", {
+                isUpdate: false,
+                isDelete: true
+            });
 
             if (!bulk) {
                 this.panels.forEach((panel: FileManagerPanel) =>
@@ -456,16 +447,21 @@ class UDFFileManager extends BaseFileManager {
 
             XcalarUploadPython(uploadPath, entireString, absolutePath)
             .then(() => {
-                this.storePython(nsPath, entireString);
+                this.storedUDF.set(nsPath, entireString);
                 KVStore.commit();
                 xcHelper.showSuccess(SuccessTStr.UploadUDF);
 
-                this._refreshUDF(true);
-
                 const xcSocket: XcSocket = XcSocket.Instance;
-                xcSocket.sendMessage("refreshUDFWithoutClear", true);
-                deferred.resolve();
+                xcSocket.sendMessage("refreshUDF", {
+                    isUpdate: true,
+                    isDelete: false
+                });
+
+                // This could be an update, but UDF cache is already updated by
+                // `this.storedUDF.set`, so no need to update again.
+                return this._refreshUDF(false, false);
             })
+            .then(deferred.resolve)
             .fail((error) => {
                 // XXX might not actually be a syntax error
                 const syntaxErr: {
@@ -574,11 +570,17 @@ class UDFFileManager extends BaseFileManager {
     public canAdd(
         displayPath: string,
         $inputSection?: JQuery,
-        $actionButton?: JQuery
+        $actionButton?: JQuery,
+        side?: string
     ): boolean {
+        if (displayPath.endsWith(".txt")) {
+            displayPath =
+                displayPath.substring(0, displayPath.lastIndexOf(".txt")) +
+                this.fileExtension();
+        }
         const nsPath: string = this.displayPathToNsPath(displayPath);
         const options: {side: string; offsetY: number} = {
-            side: "top",
+            side: side ? side : "top",
             offsetY: -2
         };
 
@@ -589,12 +591,15 @@ class UDFFileManager extends BaseFileManager {
                 displayPath
             )
         ) {
-            StatusBox.show(
-                UDFTStr.InValidFileName,
-                $inputSection,
-                true,
-                options
-            );
+            if ($inputSection) {
+                StatusBox.show(
+                    UDFTStr.InValidFileName,
+                    $inputSection,
+                    true,
+                    options
+                );
+            }
+
             return false;
         }
 
@@ -604,7 +609,14 @@ class UDFFileManager extends BaseFileManager {
                 nsPath.startsWith(this.getSharedUDFPath())
             )
         ) {
-            StatusBox.show(UDFTStr.InValidPath, $actionButton, true, options);
+            if ($actionButton) {
+                StatusBox.show(
+                    UDFTStr.InValidPath,
+                    $actionButton,
+                    true,
+                    options
+                );
+            }
             return false;
         }
 
@@ -617,13 +629,27 @@ class UDFFileManager extends BaseFileManager {
                 moduleFilename
             )
         ) {
-            StatusBox.show(UDFTStr.InValidName, $inputSection, true, options);
+            if ($inputSection) {
+                StatusBox.show(
+                    UDFTStr.InValidName,
+                    $inputSection,
+                    true,
+                    options
+                );
+            }
             return false;
         } else if (
             moduleFilename.length >
             XcalarApisConstantsT.XcalarApiMaxUdfModuleNameLen
         ) {
-            StatusBox.show(ErrTStr.LongFileName, $inputSection, true, options);
+            if ($inputSection) {
+                StatusBox.show(
+                    ErrTStr.LongFileName,
+                    $inputSection,
+                    true,
+                    options
+                );
+            }
             return false;
         }
 
@@ -861,47 +887,30 @@ class UDFFileManager extends BaseFileManager {
         panel.updateList();
     }
 
-    private _initializeUDFList(_isSetup: boolean): XDPromise<any> {
+    /**
+     * This is a model and should not update any viewer. Whoever calls this
+     * method is responsible to update the viewer if necessary
+     * @returns XDPromise
+     */
+    private _initializeUDFList(): XDPromise<any> {
         const deferred: XDDeferred<any> = PromiseHelper.deferred();
 
         // Update UDF
         this.list(false)
         .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
-            const oldStoredUDF = new Map(this.storedUDF);
-            // List UDFs and filter out temp UDFs
-            listXdfsObj.fnDescs = listXdfsObj.fnDescs.filter(
-                (udf: XcalarEvalFnDescT): boolean => {
-                    const nsPath = udf.fnName.split(":")[0];
-
-                    if (!this.storedUDF.has(nsPath)) {
-                        // This means module exists
-                        // when user fetches this module,
-                        // the entire string will be cached here
-                        this.storedUDF.set(nsPath, null);
-                    } else {
-                        oldStoredUDF.delete(nsPath);
-                    }
-                    return true;
-                }
-            );
-            listXdfsObj.numXdfs = listXdfsObj.fnDescs.length;
-            // Remove UDFs that does not exist any more
-            oldStoredUDF.forEach((_value: string, key: string) =>
-                this.storedUDF.delete(key)
-            );
-            UDFPanel.Instance.updateUDF();
+            const newStoredUDF: Map<string, string> = new Map();
+            listXdfsObj.fnDescs.forEach((udf: XcalarEvalFnDescT) => {
+                const nsPath: string = udf.fnName.split(":")[0];
+                newStoredUDF.set(nsPath, this.storedUDF.get(nsPath));
+            });
+            this.storedUDF = newStoredUDF;
             deferred.resolve(xcHelper.deepCopy(listXdfsObj));
         })
         .fail((error) => {
-            UDFPanel.Instance.updateUDF();
             deferred.reject(error);
         });
 
         return deferred.promise();
-    }
-
-    private _storePython(nsPath: string, entireString: string): void {
-        this.storedUDF.set(nsPath, entireString);
     }
 
     private _parseSyntaxError(error: {
@@ -947,11 +956,18 @@ class UDFFileManager extends BaseFileManager {
         }
     }
 
-    private _refreshUDF(isInBg: boolean): XDPromise<void> {
+    private _refreshUDF(
+        isUpdate: boolean,
+        isDelete: boolean
+    ): XDPromise<void> {
+        if (isUpdate) {
+            this.storedUDF.clear();
+        }
+
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         $("#udf-fnList").addClass("loading");
 
-        this._initializeUDFList(false)
+        this._initializeUDFList()
         .then((listXdfsObj: XcalarApiListXdfsOutputT) => {
             listXdfsObj.fnDescs = xcHelper.filterUDFs(
                     listXdfsObj.fnDescs as UDFInfo[]
@@ -963,10 +979,21 @@ class UDFFileManager extends BaseFileManager {
             FnBar.updateOperationsMap(listXdfsObj.fnDescs, true);
             OperationsView.updateOperationsMap(listXdfsObj);
             MapOpPanel.Instance.updateOperationsMap(listXdfsObj);
-            deferred.resolve();
         })
         .then(() => this._getUserWorkbookMap())
-        .then(() => deferred.resolve())
+        .then(() => {
+            UDFPanel.Instance.updateUDF();
+            this.panels.forEach((panel: FileManagerPanel) =>
+                this._buildPathTree(panel, isDelete)
+            );
+            this.panels.forEach((panel: FileManagerPanel) =>
+                this._createWorkbookFolder(panel)
+            );
+            this.panels.forEach((panel: FileManagerPanel) =>
+                this._updateList(panel)
+            );
+            deferred.resolve();
+        })
         .fail(deferred.reject)
         .always(() => {
             $("#udf-fnList").removeClass("loading");

@@ -258,24 +258,28 @@ describe("xcSocket Test", function() {
             DataflowPanel.refresh = oldFunc;
         });
 
-        it("refreshUDFWithoutClear event should work", function() {
-            const oldFunc = UDFFileManager.Instance.refreshWithoutClearing;
-            let test = null;
-            UDFFileManager.Instance.refreshWithoutClearing = (overwriteUDF) => {
-                test = overwriteUDF;
+        it("refreshUDF event should work", function () {
+            const oldFunc = UDFFileManager.Instance.refresh;
+            let testIsUpdate = null;
+            let testIsDelete = null;
+            UDFFileManager.Instance.refresh = (isUpdate, isDelete) => {
+                testIsUpdate = isUpdate;
+                testIsDelete = isDelete;
             };
 
             // case 1;
             xcSocket._isRegistered = false;
-            xcSocket._socket.trigger('refreshUDFWithoutClear', true);
-            expect(test).to.be.null;
+            xcSocket._socket.trigger('refreshUDF', { isUpdate: true, isDelete: true });
+            expect(testIsUpdate).to.be.null;
+            expect(testIsDelete).to.be.null;
 
             // case 2
             xcSocket._isRegistered = true;
-            xcSocket._socket.trigger('refreshUDFWithoutClear', true);
-            expect(test).to.be.true;
+            xcSocket._socket.trigger('refreshUDF', { isUpdate: true, isDelete: true });
+            expect(testIsUpdate).to.be.true;
+            expect(testIsDelete).to.be.true;
 
-            UDFFileManager.Instance.refreshWithoutClearing = oldFunc;
+            UDFFileManager.Instance.refresh = oldFunc;
         });
 
         it("ds.update event should work", function() {

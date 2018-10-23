@@ -316,8 +316,7 @@ class FileManagerPanel {
                 } else if ($navigationIcon.hasClass("xi-next2")) {
                     this._eventNavigatePath(false);
                 } else if ($navigationIcon.hasClass("xi-refresh")) {
-                    // TODO: should update from backend.
-                    this.manager.refresh();
+                    this.manager.refresh(true, true);
                     this.updateList();
                 }
             }
@@ -823,12 +822,19 @@ class FileManagerPanel {
         const $uploadButton: JQuery = this.$panel.find(
             ".operationArea .uploadButton"
         );
+        const $uploadVisibleButton: JQuery = this.$panel.find(
+            ".operationAreaUpload .operationContent"
+        );
         const file: File = ($uploadButton[0] as HTMLInputElement).files[0];
 
         const reader: FileReader = new FileReader();
         reader.onload = (readerEvent: any) => {
             const entireString = readerEvent.target.result;
-            this.manager.add(path, entireString);
+            if (
+                this.manager.canAdd(path, $uploadVisibleButton, null, "left")
+            ) {
+                this.manager.add(path, entireString);
+            }
         };
         reader.readAsText(file);
     }
@@ -839,8 +845,11 @@ class FileManagerPanel {
         .children(".operationContent")
         .toggleClass(
             "disabled",
-            !this.manager.canDelete(
-                this.getViewPath() + this.manager.fileExtension()
+            !this.manager.canAdd(
+                this.getViewPath() + "a" + this.manager.fileExtension(),
+                null,
+                null,
+                "left"
             )
         );
     }

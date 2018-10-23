@@ -13,7 +13,7 @@ describe("ExpServer Socket Test", function() {
     var testUserOption;
     var testDF;
     var testAlertOpts;
-    var testOverwriteUDF;
+    var testRefreshUDFOption;
 
     before(function(done) {
         testUserOption = {
@@ -21,7 +21,10 @@ describe("ExpServer Socket Test", function() {
             id: "testId"
         };
         testDF = "testDF";
-        testOverwriteUDF = true;
+        testRefreshUDFOption = {
+            isUpdate: true,
+            isDelete: true
+        };
         testAlertOpts = {};
         testWkbk = "testWkbk";
         testIMD = "testIMD";
@@ -81,10 +84,11 @@ describe("ExpServer Socket Test", function() {
         });
     });
 
-    it("socket should handle refreshUDFWithoutClear", function(done) {
-        client.emit("refreshUDFWithoutClear", testOverwriteUDF);
-        peerClient.on("refreshUDFWithoutClear", function(overwriteUDF) {
-            expect(overwriteUDF).to.equal(testOverwriteUDF);
+    it("socket should handle refreshUDF", function(done) {
+        client.emit("refreshUDF", testRefreshUDFOption);
+        peerClient.on("refreshUDF", function(refreshOption) {
+            expect(JSON.stringify(refreshOption))
+            .to.equal(JSON.stringify(testRefreshUDFOption));
             done();
         });
     });

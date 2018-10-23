@@ -190,15 +190,14 @@ class XcSocket {
                 return;
             }
             DataflowPanel.refresh(updateInfo);
-            UDFFileManager.Instance.refreshWithoutClearing(false);
+            UDFFileManager.Instance.refresh(true, false);
         });
 
-        socket.on('refreshUDFWithoutClear', (overwriteUDF: boolean) => {
+        socket.on('refreshUDF', (refreshOption: { isUpdate: boolean, isDelete: boolean }) => {
             if (!this._isRegistered) {
                 return;
             }
-            // In the event that there's new UDF added or overwritten old UDF
-            UDFFileManager.Instance.refreshWithoutClearing(overwriteUDF);
+            UDFFileManager.Instance.refresh(refreshOption.isUpdate, refreshOption.isDelete);
         });
 
         socket.on('ds.update', (arg) => {

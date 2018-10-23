@@ -105,9 +105,9 @@ window.UploadDataflowCard = (function($, UploadDataflowCard) {
             return readRetinaFromFile(file, retName);
         })
         .then(function() {
-            UDF.refreshWithoutClearing();
+            UDFFileManager.Instance.refresh(true, false);
             var xcSocket = XcSocket.Instance;
-            xcSocket.sendMessage("refreshUDFWithoutClear");
+            xcSocket.sendMessage("refreshUDF", {isUpdate: true, isDelete: false});
             return (DF.addDataflow(retName, new Dataflow(retName), null, [], {
                 "isUpload": true,
                 "noClick": true

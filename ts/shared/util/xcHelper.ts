@@ -3087,7 +3087,7 @@ namespace xcHelper {
                 namePattern = /^[a-z_][a-zA-Z0-9_]*$/;
                 break;
             case PatternCategory.UDFFileName:
-                namePattern = /^.*\.py$/;
+                namePattern = /^.*\.(py|txt)$/;
                 break;
             case PatternCategory.Workbook:
             case PatternCategory.Target:
@@ -3202,27 +3202,29 @@ namespace xcHelper {
      * xcHelper.filterUDFs
      * @param fns
      */
-    // only show default and user workbook's udfs
+    // only show default and user workbook's udfs and shared udfs
     export function filterUDFs(fns: UDFInfo[]): UDFInfo[] {
         const filteredArray: UDFInfo[] = [];
         const wkbkPrefix: string = UDFFileManager.Instance.getCurrWorkbookPath();
         if (wkbkPrefix == null) {
             return filteredArray;
         }
-        // TODO: remove after next thrift change
-        const globalPathPrefix: string = "/globaludf/default" + ":";
-        const defaultPathPrefix: string = UDFFileManager.Instance.getSharedUDFPath();
-        for (let i = 0; i < fns.length; i++) {
-            const op: UDFInfo = fns[i];
+        const sharedPathPrefix: string = UDFFileManager.Instance.getSharedUDFPath();
+        const functionNameSet: Set<string> = new Set();
+
+        for (const op of fns) {
             if (op.fnName.indexOf("/") === -1) {
                 filteredArray.push(op);
-            // TODO: remove after next thrift change
-            } else if (!op.fnName.startsWith(globalPathPrefix) &&
-                !op.fnName.startsWith(defaultPathPrefix) &&
-                !op.fnName.startsWith(wkbkPrefix)
+            } else if (
+                op.fnName.startsWith(wkbkPrefix) ||
+                op.fnName.startsWith(sharedPathPrefix)
             ) {
-                continue;
-            } else {
+                const functionName: string = op.fnName.split("/").pop();
+                if (functionNameSet.has(functionName)) {
+                    continue;
+                } else {
+                    functionNameSet.add(functionName);
+                }
                 filteredArray.push(op);
             }
         }

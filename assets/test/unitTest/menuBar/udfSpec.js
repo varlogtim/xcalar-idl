@@ -321,31 +321,10 @@ describe("UDF Test", function() {
             });
         });
 
-        it("UDFFileManager.Instance.refreshWithoutClearing should work", function(done) {
-            var oldFunc = XcalarListXdfs;
-            var editor = UDFPanel.Instance.getEditor();
-            editor.setValue("test");
-            XcalarListXdfs = function() {
-                return PromiseHelper.reject("reject");
-            };
-
-            UDFFileManager.Instance.refreshWithoutClearing()
-            .then(function() {
-                done("fail");
-            })
-            .fail(function() {
-                expect(editor.getValue()).to.equal("test");
-                done();
-            })
-            .always(function() {
-                XcalarListXdfs = oldFunc;
-            });
-        });
-
         it("UDFFileManager.Instance.refresh should work", function(done) {
             var oldFunc = XcalarListXdfs;
             var editor = UDFPanel.Instance.getEditor();
-            editor.setValue("test2");
+            editor.setValue("test");
             XcalarListXdfs = function() {
                 return PromiseHelper.reject("reject");
             };
@@ -355,7 +334,7 @@ describe("UDF Test", function() {
                 done("fail");
             })
             .fail(function() {
-                expect(editor.getValue()).not.to.equal("test2");
+                expect(editor.getValue()).to.equal("test");
                 done();
             })
             .always(function() {

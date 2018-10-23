@@ -63,12 +63,11 @@ class UDFPanel {
     }
 
     /**
-     * @param  {string} displayName
+     * @param  {string} moduleName
      * @returns void
      */
-    // TODO: this may be broken since ".py" is now added to the module name.
-    public selectUDFPath(displayName: string): void {
-        this._selectUDFPath(displayName);
+    public selectUDFPath(moduleName: string): void {
+        this._selectUDFPath(moduleName + ".py");
     }
 
     /**
@@ -291,7 +290,7 @@ class UDFPanel {
                     entireString,
                     true
                 ).then(() =>
-                    this.selectUDFPath(
+                    this._selectUDFPath(
                         UDFFileManager.Instance.nsPathToDisplayPath(nsPath)
                     )
                 );
@@ -302,7 +301,7 @@ class UDFPanel {
             ) {
                 const uploadPath: string = nsPath.split("/").pop();
                 UDFFileManager.Instance.upload(uploadPath, entireString).then(
-                    () => this.selectUDFPath(uploadPath + ".py")
+                    () => this._selectUDFPath(uploadPath + ".py")
                 );
             }
             return true;

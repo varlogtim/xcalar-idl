@@ -174,11 +174,11 @@ function socketIoServer(server, session, cookieParser) {
             socket.broadcast.emit("refreshDataflow", dfName);
         });
 
-        socket.on("refreshUDFWithoutClear", function(overwriteUDF) {
+        socket.on("refreshUDF", function(refreshOption) {
             if (checkIoSocketAuth(socket)) {
                 return;
             }
-            socket.broadcast.emit("refreshUDFWithoutClear", overwriteUDF);
+            socket.broadcast.emit("refreshUDF", refreshOption);
         });
         socket.on("adminAlert", function(alertOption) {
             if (checkIoSocketAuth(socket)) {

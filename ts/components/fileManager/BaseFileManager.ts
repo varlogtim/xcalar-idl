@@ -13,7 +13,8 @@ abstract class BaseFileManager {
     public abstract canAdd(
         path: string,
         $inputSection?: JQuery,
-        $actionButton?: JQuery
+        $actionButton?: JQuery,
+        side?: string
     ): boolean;
     public abstract canShare(path: string): boolean;
     public abstract copy(oldPath: string, newPath): XDPromise<void>;
@@ -22,5 +23,13 @@ abstract class BaseFileManager {
     public abstract fileExtension(): string;
     public abstract add(path: string, entireString: string);
     public abstract registerPanel(panel: FileManagerPanel);
-    public abstract refresh();
+
+    /**
+     * refresh always update the file list if there are new files. But it does
+     * not necessarily update the file content if there is a new version, or
+     * delete a file that no longer exits.
+     * @param  {boolean} isUpdate? File might have a new version
+     * @param  {boolean} isDelete? There might be files deleted
+     */
+    public abstract refresh(isUpdate?: boolean, isDelete?: boolean);
 }
