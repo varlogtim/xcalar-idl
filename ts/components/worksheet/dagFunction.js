@@ -929,7 +929,9 @@ window.DagFunction = (function($, DagFunction) {
 
         for (var i = 0; i < newNodesArray.length; i++) {
             var newTreeNode = findTreeNodeInNodeArray(newNodesArray[i], treeNodeArray);
-            startNodes.push(newTreeNode);
+            if (newTreeNode) {
+                startNodes.push(newTreeNode);
+            }
         }
 
         includeDroppedNodesInStartNodes(startNodes);
