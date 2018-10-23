@@ -2593,6 +2593,9 @@ window.DS = (function ($, DS) {
         var tooltip = 'data-toggle="tooltip" data-container="body" data-placement="top"';
         var deleteIcon = '<i class="action icon xi-trash delete fa-15" ' +
                         tooltip + 'data-title="' + DSTStr.DelDS + '"></i>';
+        var deactivateIcon = '<div class="deactivatingIcon xc-hidden" >' +
+            '<i class="icon xi-forbid deactivating fa-15" ' +
+            tooltip + 'data-title="' + DSTStr.DSDeactivating + '"></i></div>';
         if (dsObj.beFolder()) {
             var editIcon = '<i class="action icon xi-edit edit fa-15" ' +
                             tooltip + 'data-title="' + CommonTxtTstr.Rename +
@@ -2682,6 +2685,7 @@ window.DS = (function ($, DS) {
                 '<div class="size">' +
                     dsObj.getDisplaySize() +
                 '</div>' +
+                deactivateIcon +
                 deleteIcon +
                 shareIcon +
             '</div>';
@@ -2851,7 +2855,7 @@ window.DS = (function ($, DS) {
         var deferred = PromiseHelper.deferred();
         // XXX TODO: update it with new api signature
         var datasetName = dsObj.getFullName();
-        
+
         getLoadArgsFromDS(dsObj)
         .then(function(loadArgs) {
             return XIApi.loadDataset(txId, datasetName, loadArgs);
@@ -2935,9 +2939,11 @@ window.DS = (function ($, DS) {
             return PromiseHelper.resolve();
         }
 
+        DS.getGrid(dsId).find(".deactivatingIcon").removeClass("xc-hidden");
         var fullDSName = dsObj.getFullName();
         XcalarDatasetUnload(fullDSName)
         .then(function() {
+            DS.getGrid(dsId).find(".deactivatingIcon").addClass("xc-hidden");
             dsObj.deactivate();
             DS.getGrid(dsId).addClass("inActivated");
             datasets.push(dsId);

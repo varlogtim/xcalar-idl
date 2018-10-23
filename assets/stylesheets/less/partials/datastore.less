@@ -3334,16 +3334,16 @@ table.datasetTable {
         margin-bottom: 5px;
 
         .iconSection {
-            .size(@width: 40px);
-            margin-right: 5px;
+            .size(@width: 48px);
+            margin-right: 9px;
             float: left;
             margin-left: 15px;
+            margin-top: 1px;
 
             .xc-action {
-                .size(20px, 20px);
+                .size(24px, 24px);
                 .position(relative, @top: -2px);
-                background-color: @color-bg-light-navy;
-                box-shadow: inset 0 -1px 0 0 rgba(0, 0, 0, 0.5);
+                background-color: @color-font-edge;
                 float: right;
 
                 &:active {
@@ -3351,6 +3351,7 @@ table.datasetTable {
                 }
 
                 .icon {
+                    margin-top: 6px;
                     .size(12px, 12px);
                     .horizontal-align;
                 }
@@ -3358,13 +3359,14 @@ table.datasetTable {
         }
 
         .pathSection {
-            .size(@width: ~"calc(100% - 80px)", @height: 20px);
-            font-size: 12px;
+            .size(@width: ~"calc(100% - 88px)", @height: 20px);
+            color: @color-font-form-gray;
+            font-size: 14px;
             .textOverflowOneLine;
             cursor: default;
             float: left;
             margin-right: 15px;
-            margin-bottom: 5px;
+            margin-bottom: 12px;
 
             span {
                 color: @color-bg-softBlue;
@@ -3375,10 +3377,17 @@ table.datasetTable {
 
         .sortSection {
             clear: both;
-            background-color: @color-bg-light-navy;
-            border-bottom: 1px solid @color-bg-dark-marine;
-            padding-right: 15px;
-            padding-top: 1px;
+            background-color: @color-font-edge;
+            padding-left: 15px;
+            padding-top: 6px;
+            text-align: left;
+            font-size: 12px;
+
+
+            .label {
+                font-weight: bold;
+                opacity: 1;
+            }
 
             .sortOption {
                 &.key {
@@ -3388,17 +3397,19 @@ table.datasetTable {
             }
 
             .divider {
-                .size(@height: 11px);
-                top: -1px;
+                .size(@height: 19px);
+                top: 0px;
             }
         }
     }
 
     .gridViewWrapper {
+        background-color: #37424c;
         .size(@height: ~"calc(100% - 40px)");
         .position(relative);
         overflow-x: hidden;
         overflow-y: auto;
+        margin-top: 20px;
 
         .gridItems {
             .size(@width: 100%);
@@ -3446,6 +3457,10 @@ table.datasetTable {
                 cursor: default;
                 opacity: 0.8;
 
+                &.inActivated {
+                    color: @color-arc-xdbfree;
+                }
+
                 &:hover {
                     opacity: 1;
                 }
@@ -3463,7 +3478,7 @@ table.datasetTable {
                 }
 
                 &.active {
-                    outline: 1px solid @color-white;
+                    outline: 1px solid @color-bg-green-submit;
                     // should have highter z-index to show outline
                     // but should lower than menu
                     z-index: @z-index-gridViewMenu - 1;
@@ -3473,10 +3488,6 @@ table.datasetTable {
                     > .label {
                         .no-selection;
                     }
-                }
-
-                &.selected, &.selecting, &.entering {
-                    background-color: @color-bg-light-navy;
                 }
 
                 &.selecting {
@@ -3543,6 +3554,22 @@ table.datasetTable {
                         border-radius: 4px;
                     }
                 }
+
+                .deactivatingIcon {
+                    .position(absolute, @top: 25px, @right: 15px);
+                    .size(12px, 12px);
+                    border-radius: 50%;
+                    display: inline-block;
+                    background-color: #f15840;
+                    z-index: 0;
+                    .deactivating {
+                        .position(absolute, @top: 1.5px, @right: 1.5px);
+                        font-size: 9px;
+                        color: white;
+                    }
+                }
+
+
                 .xi-tick {
                     .position(absolute, @top: 0px, @right: 0px);
                     font-size: 16px;
@@ -3569,7 +3596,7 @@ table.datasetTable {
                     }
 
                     &.active {
-                        border: 1px solid @color-white;
+                        border: 1px solid @color-bg-green-submit;;
                         outline: none;
                     }
 
@@ -3720,6 +3747,17 @@ table.datasetTable {
                     }
 
                     .lockIcon {
+                        .position(absolute, @top: 5px, @left: 20px);
+                        font-size: 12px;
+                        .size(12px, 12px);
+                        background-size: 12px 12px;
+
+                        &:after {
+                            .size(8px, 8px);
+                        }
+                    }
+
+                    .deactivating {
                         .position(absolute, @top: 5px, @left: 20px);
                         font-size: 12px;
                         .size(12px, 12px);
@@ -4259,6 +4297,27 @@ table.datasetTable {
 }
 
 #datastoreMenu {
+    background-color: @color-white;
+    // Here until other mainMenu panels are updated as well
+    .titleSection {
+        margin: 0 0 0 0 !important;
+        color: @color-font-form-gray !important;
+        font-weight: bold !important;
+        font-size: 24px !important;
+        header {
+            margin-left: 11px ;
+        }
+        border-bottom: 1px solid @color-border-softGray !important;
+    }
+
+    #importDataButton, #addFolderBtn {
+        background-color: @color-font-edge;
+    }
+
+    #dataViewBtn, .minimizeBtn, #refreshDS {
+        color: @color-font-edge;
+    }
+
     &.noAdmin {
         #dsTarget-create, #createExportButton {
             box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5) !important;

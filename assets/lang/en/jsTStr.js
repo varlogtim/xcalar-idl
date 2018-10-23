@@ -1228,6 +1228,7 @@ DSTStr = {
     "DBNoSQL": "Please type the SQL query to preview the data.",
     "InvalidPriorDataset": "Prior dataset does not exist: ",
     "DisableShare": "Sharing datasets is disabled by admin",
+    "DSDeactivating": "Deactivating",
 
 
     // With replace
