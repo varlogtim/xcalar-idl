@@ -2254,7 +2254,11 @@ window.DagDraw = (function($, DagDraw) {
                 if (i === 0) {
                     lSrcCols.push(getSrcIndex(parents[i].parents[0]));
                 } else {
-                    rSrcCols.push(getSrcIndex(parents[i].parents[0]));
+                    if (parents[i].value.api === XcalarApisT.XcalarApiJoin) {
+                        rSrcCols.push(getSrcIndex(parents[i].parents[1]));
+                    } else {
+                        rSrcCols.push(getSrcIndex(parents[i].parents[0]));
+                    }
                 }
             }
         }
