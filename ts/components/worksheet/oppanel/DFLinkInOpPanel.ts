@@ -2,10 +2,12 @@ class DFLinkInOpPanel extends BaseOpPanel {
     private dagNode: DagNodeDFIn;
     private dataflows: {tab: DagTab, displayName: string}[];
     private linkOutNodes: {node: DagNodeDFOut, displayName: string}[];
+    private schemaSection: DFLinkInOpPanelSchemaSection;
 
     public constructor() {
         super();
         this._setup();
+        this.schemaSection = new DFLinkInOpPanelSchemaSection(this._getSchemaSection());
     }
 
     public show(dagNode: DagNodeDFIn, options?): boolean {
@@ -14,6 +16,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
         }
         this._initialize(dagNode);
         this._restorePanel();
+        this.schemaSection.render(dagNode.getSchema());
         return true;
     }
 
@@ -37,6 +40,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
         this.dagNode = null;
         this.dataflows = null;
         this.linkOutNodes = null;
+        this.schemaSection.clear();
         const $drdopwonList: JQuery = this._getPanel().find(".dropDownList");
         $drdopwonList.find("input").val("");
         $drdopwonList.find("ul").empty();
@@ -125,10 +129,16 @@ class DFLinkInOpPanel extends BaseOpPanel {
             }
         }]);
 
-        if (isValid) {
+        if (!isValid) {
+            return null;
+        }
+
+        const schema = this.schemaSection.getSchema();
+        if (isValid && schema != null) {
             return {
                 dataflowId: dataflowId,
-                linkOutName: linkOutName
+                linkOutName: linkOutName,
+                schema: schema
             }
         } else {
             return null
@@ -198,6 +208,44 @@ class DFLinkInOpPanel extends BaseOpPanel {
         return this._getPanel().find(".linkOutNodeName .dropDownList");
     }
 
+    private _getSchemaSection(): JQuery {
+        return this._getPanel().find(".schemaSection");
+    }
+
+    private _autoDetectSchema(): {error: string} {
+        try {
+            const $dfInput: JQuery = this._getDFDropdownList().find("input");
+            const $linkOutInput: JQuery = this._getLinkOutDropdownList().find("input");
+            const dataflowId: string = this._dataflowNameToId($dfInput.val().trim());
+            const linkOutName: string = $linkOutInput.val().trim();
+            if (!dataflowId) {
+                return {error: OpPanelTStr.DFLinkInNoDF};
+            }
+            if (!linkOutName) {
+                return {error: OpPanelTStr.DFLinkInNoOut};
+            }
+            const fakeLinkInNode: DagNodeDFIn = <DagNodeDFIn>DagNodeFactory.create({
+                type: DagNodeType.DFIn
+            });
+            fakeLinkInNode.setParam({
+                dataflowId: dataflowId,
+                linkOutName: linkOutName,
+                schema: []
+            });
+            const dfOutNode: DagNodeDFOut = fakeLinkInNode.getLinedNodeAndGraph().node;
+            const progCols: ProgCol[] = dfOutNode.getLineage().getColumns();
+            const schema: {name: string, type: ColumnType}[] = progCols.map((progCol) => {
+                return {
+                    name: progCol.getBackColName(),
+                    type: progCol.getType()
+                }
+            });
+            this.schemaSection.render(schema);
+        } catch (e) {
+            return {error: e};
+        }
+    }
+
     private _addEventListenersForDropdown(
         $dropdown: JQuery,
         searchCallback: Function,
@@ -211,6 +259,10 @@ class DFLinkInOpPanel extends BaseOpPanel {
             onSelect: ($li) => {
                 if (!$li.hasClass("hint")) {
                     $dropdown.find("input").val($li.text()).trigger("change");
+                    if ($dropdown.closest(".row").hasClass("linkOutNodeName")) {
+                        // when select link out node, auto detect the schema
+                        this._autoDetectSchema();
+                    }
                 }
             },
             container: selector
@@ -247,5 +299,17 @@ class DFLinkInOpPanel extends BaseOpPanel {
         // dropdown for linkOutNodeName
         const $linkOutDropdownList: JQuery = this._getLinkOutDropdownList();
         this._addEventListenersForDropdown($linkOutDropdownList, this._searchLinkOutNodeName);
+    
+        
+        // auto detect listeners for schema section
+        const $schemaSection: JQuery = this._getSchemaSection();
+        $schemaSection.on("click", ".detect", (event) => {
+            const error: {error: string} = this._autoDetectSchema();
+            if (error != null) {
+                StatusBox.show(OpPanelTStr.DFLinkInDetectFail, $(event.currentTarget), false, {
+                    detail: error.error
+                });
+            }
+        });
     }
 }

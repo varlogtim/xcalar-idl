@@ -1649,6 +1649,8 @@ OpPanelTStr = {
     "DFLinkOutNameDup": "The name has already been used by another link out node, please choose another name",
     "DFLinkInNoDF": "Dataflow doesn't exist",
     "DFLinkInNoOut": "Link out node doesn't exist",
+    "DFLinkInNoSchema": "No columns in schema",
+    "DFLinkInDetectFail": "Error occur when detecting schema",
     "SetDefaultInstr": "Select the set operation (except / intersect / union) and select columns from node.",
     "SetUnionInstr": "Select columns from node(s), which you want to apply in the operation.",
     "SplitPanelTitle": "Split Operation",

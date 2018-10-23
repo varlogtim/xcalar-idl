@@ -5,7 +5,8 @@ class DagNodeDFInInput extends DagNodeInput {
         const input = super.getInput(replaceParameters);
         return {
             dataflowId: input.dataflowId || "",
-            linkOutName: input.linkOutName || ""
+            linkOutName: input.linkOutName || "",
+            schema: input.schema || []
         };
     }
 }

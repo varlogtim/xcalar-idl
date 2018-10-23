@@ -12,8 +12,13 @@ class DagNodeDFIn extends DagNodeIn {
         this.input.setInput({
             dataflowId: input.dataflowId,
             linkOutName: input.linkOutName,
+            schema: input.schema
         });
         super.setParam();
+    }
+
+    public getSchema(): {name: string, type: ColumnType}[] {
+        return this.getParam().schema;
     }
 
     // XXX TODO: This function used DagTabManager now, which is against
@@ -24,6 +29,9 @@ class DagNodeDFIn extends DagNodeIn {
         const dataflowId: string = param.dataflowId;
         const linkOutName: string = param.linkOutName;
         const dagTab: DagTab = DagTabManager.Instance.getTabById(dataflowId);
+        if (dagTab == null) {
+            throw new Error(DagNodeErrorType.NoGraph);
+        }
         const graph: DagGraph = dagTab.getGraph();
         if (graph == null) {
             throw new Error(DagNodeErrorType.NoGraph);
@@ -48,19 +56,13 @@ class DagNodeDFIn extends DagNodeIn {
     }
 
     public lineageChange(_columns: ProgCol[]): DagLineageChange {
-        try {
-            const dfOutNode: DagNodeDFOut = this.getLinedNodeAndGraph().node;
-            const lineage: DagLineage = dfOutNode.getLineage();
-            return {
-                columns: lineage.getColumns(),
-                changes: []
-            };
-        } catch (e) {
-            console.error("lineage error", e);
-            return {
-                columns: [],
-                changes: []
-            };
-        }
+        const colums: ProgCol[] = this.getSchema().map((col) => {
+            const fontName: string = xcHelper.parsePrefixColName(col.name).name;
+            return ColManager.newPullCol(fontName, col.name, col.type);
+        });
+        return {
+            columns: colums,
+            changes: []
+        };
     }
 }

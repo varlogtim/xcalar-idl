@@ -9,6 +9,7 @@ module.exports = {
         "AdvancedOpts": "Advanced Options",
         "APPLY": "APPLY",
         "AutoSave": "Auto save",
+        "AddCol": "Add Column",
         "BACK": "BACK",
         "Back": "Back",
         "Browse": "Browse",
@@ -26,6 +27,7 @@ module.exports = {
         "ColRenames": "Column Renames",
         "ColRenameInstr": "The columns that you selected contain duplicates. Please rename either or both of the offending columns.",
         "Columns": "Columns",
+        "ColType": "Column Type",
         "ComeSoon": "Coming Soon",
         "CompleteExc": "complete!",
         "Comma": "Comma",
@@ -1070,12 +1072,13 @@ module.exports = {
 
     "DFLink": {
         "InHeader": "Link In",
-        "InInstr": "First select the dataflow's name, then select the link out node inside the dataflow to link with it",
+        "InInstr": "First select the dataflow's name, then select the link out node inside the dataflow to link with.",
         "OutHeader": "Link Out",
         "OutInstr": "Specify a name for the link out node",
         "DFName": "Dataflow Name",
         "OutName": "Link Out Node Name",
-        "LinkWithExecution": "Only allow linking after execution"
+        "LinkWithExecution": "Only allow linking after execution",
+        "Schema": "Column Schema",
     },
 
     "IMDTableOp": {
