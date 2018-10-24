@@ -71,7 +71,7 @@ class DagLineage {
      */
     public getDerivedColumns(): string[] {
         const derivedColumns: string[] = [];
-        this.columns.forEach((progCol) => {
+        this.getColumns().forEach((progCol) => {
             const colName: string = progCol.getBackColName();
             const parsed: PrefixColInfo = xcHelper.parsePrefixColName(colName);
             if (!parsed.prefix) {
