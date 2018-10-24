@@ -264,7 +264,8 @@ class DagCategoryBar {
                     attrs: {
                         'x': '0', 'y': `${y}`, 'fill': '#BBC7D1',
                         'stroke': '#849CB0', 'stroke-width': '1',
-                        'rx': '1', 'ry': '1', 'width': '7', 'height': '7'
+                        'rx': '1', 'ry': '1', 'width': '7', 'height': '7',
+                        'data-index': `${j}`,
                     }
                 });
                 // '<rect class="connector in noConnection"' +
