@@ -73,6 +73,7 @@ class OpPanelComponentFactory {
     // Input box value check functions
     // AutogenSectionProps.valueCheck.checkType => function to validate value
     // Parameters: the last one must be the value needs to be checked
+    // XXX TODO: Move to a seperate class, throw exception to report error
     public checkFunctions = {
         integerDefault: function(v: string): ValueCheckResult<number> {
             return { value: Number(v) };
@@ -155,6 +156,13 @@ class OpPanelComponentFactory {
 
             return { value: colName };
         },
+        stringNoPrefix: function(v: string): ValueCheckResult<string> {
+            v = v.trim();
+            if (xcHelper.parsePrefixColName(v).prefix.length > 0) {
+                return { errMsg: ErrTStr.NoPrefixColumn};
+            }
+            return { value: v };
+        },
         stringColumnNameNoEmpty: function(
             allColSet: Set<string>, v: string
         ): ValueCheckResult<string> {
@@ -170,6 +178,28 @@ class OpPanelComponentFactory {
             const colName = v.trim();
             const result: ValueCheckResult<string>
                 = this.stringColumnNameNoEmpty(allColSet, v);
+            result.value = colName;
+            return result;
+        },
+        stringColumnNameNoEmptyPrefix: function(
+            allColSet: Set<string>, v: string
+        ): ValueCheckResult<string> {
+            const colResult = this.stringColumnNameNoEmpty(allColSet, v);
+            if (colResult.errMsg != null) {
+                return { errMsg: colResult.errMsg };
+            }
+            const prefixResult = this.stringNoPrefix(colResult.value);
+            if (prefixResult.errMsg != null) {
+                return { errMsg: prefixResult.errMsg };
+            }
+            return { value: prefixResult.value };
+        },
+        stringColumnNameNoEmptyPrefixValue: function(
+            allColSet: Set<string>, v: string
+        ): ValueCheckResult<string> {
+            const colName = v.trim();
+            const result: ValueCheckResult<string>
+                = this.stringColumnNameNoEmptyPrefix(allColSet, v);
             result.value = colName;
             return result;
         }

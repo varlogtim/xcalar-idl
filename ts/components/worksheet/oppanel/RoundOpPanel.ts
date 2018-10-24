@@ -118,7 +118,7 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
             name: OpPanelTStr.RoundPanelFieldNameDestColumn,
             inputVal: this._dataModel.getDestColumn(), placeholder: '',
             valueCheck: {
-                checkType: 'stringColumnNameNoEmptyValue',
+                checkType: 'stringColumnNameNoEmptyPrefixValue',
                 args: () => [this._dataModel.getColNameSet()]
             },
             onChange: (colNameStr: string) => {
@@ -126,7 +126,7 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
             },
             onElementMountDone: (elem) => {
                 this._addValidation(elem, () => {
-                    return this._componentFactory.checkFunctions.stringColumnNameNoEmptyValue(
+                    return this._componentFactory.checkFunctions.stringColumnNameNoEmptyPrefixValue(
                         this._dataModel.getColNameSet(),
                         this._dataModel.getDestColumn()
                     ).errMsg;
@@ -142,7 +142,8 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
         if (this._isAdvancedMode()) {
             const $elemEditor = this._getPanel().find(".advancedEditor");
             try {
-                this._dataModel = this._convertAdvConfigToModel();
+                const advConfig = <DagNodeRoundInputStruct>JSON.parse(this._editor.getValue());
+                this._dataModel = this._convertAdvConfigToModel(advConfig);
             } catch(e) {
                 StatusBox.show(e, $elemEditor);
                 return;
@@ -169,8 +170,11 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
             this._editor.setValue(paramStr);
         } else {
             try {
-                this._dataModel = this._convertAdvConfigToModel();
-                this._updateUI();
+                const advConfig = <DagNodeRoundInputStruct>JSON.parse(this._editor.getValue());
+                if (JSON.stringify(advConfig, null, 4) !== this._cachedBasicModeParam) {
+                    this._dataModel = this._convertAdvConfigToModel(advConfig);
+                    this._updateUI();
+                }
             } catch (e) {
                 return {error: e};
             }
@@ -178,18 +182,15 @@ class RoundOpPanel extends BaseOpPanel implements IOpPanel {
         return null;
     }
 
-    private _convertAdvConfigToModel() {
-        const dagInput: DagNodeRoundInputStruct = <DagNodeRoundInputStruct>JSON.parse(this._editor.getValue());
-
-        if (JSON.stringify(dagInput, null, 4) !== this._cachedBasicModeParam) {
-            // don't validate if no changes made, just allow to go to basic
-            const error = this._dagNode.validateParam(dagInput);
-            if (error) {
-                throw new Error(error.error);
-            }
+    private _convertAdvConfigToModel(advConfig: DagNodeRoundInputStruct) {
+        const error = this._dagNode.validateParam(advConfig);
+        if (error) {
+            throw new Error(error.error);
         }
 
         const colMap = this._dataModel.getColumnMap();
-        return RoundOpPanelModel.fromDagInput(colMap, dagInput);
+        const model = RoundOpPanelModel.fromDagInput(colMap, advConfig);
+        model.validateInputData();
+        return model;
     }
 }

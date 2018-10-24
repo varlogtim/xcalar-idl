@@ -368,6 +368,7 @@ ErrTStr = {
     "DuplicateFound": "Duplicate found.",
     "Update": "If you have updated Xcalar Design, empty the browser cache and reload the page to ensure that the browser is running the updated version.",
     "OpenForm": "Form is not setup correctly, please retry",
+    "NoPrefixColumn": "Column name cannot have prefix",
 
     // With replace
     'WorkbookExists': 'A workbook named <workbookName> already exists. Please' +

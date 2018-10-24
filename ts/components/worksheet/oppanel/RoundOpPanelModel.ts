@@ -94,6 +94,38 @@ class RoundOpPanelModel {
         this.setDestColumn(autoName);
     }
 
+    /**
+     * Validate the data fields related to the DagNodeInput
+     */
+    public validateInputData(): void {
+        // source column
+        const sourceColumn = this.getSourceColumn();
+        if (sourceColumn == null || sourceColumn.length === 0) {
+            throw new Error('Source column cannot be empty');
+        }
+        if (!this.getColNameSet().has(sourceColumn)) {
+            throw new Error('Source column does not exist');
+        }
+
+        // Num of decimals
+        const numDecimals = this.getNumDecimals();
+        if (numDecimals == null || numDecimals < 0) {
+            throw new Error('Invalid num of decimals');
+        }
+
+        // Dest columns
+        const destColumn = this.getDestColumn();
+        if (destColumn == null || destColumn.length === 0) {
+            throw new Error('Dest column cannot be empty');
+        }
+        if (xcHelper.parsePrefixColName(destColumn).prefix.length > 0) {
+            throw new Error('Dest column cannot have prefix');
+        }
+        if (this.getColNameSet().has(destColumn)) {
+            throw new Error(`Duplicate column "${destColumn}"`);
+        }
+    }
+
     public getColNameSet(): Set<string> {
         return new Set(this.getColumnMap().keys());
     }
