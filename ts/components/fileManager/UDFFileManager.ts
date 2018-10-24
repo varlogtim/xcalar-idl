@@ -444,7 +444,7 @@ class UDFFileManager extends BaseFileManager {
                 this._refreshUDF(true);
 
                 const xcSocket: XcSocket = XcSocket.Instance;
-                xcSocket.sendMessage("refreshUDFWithoutClear");
+                xcSocket.sendMessage("refreshUDFWithoutClear", true);
                 deferred.resolve();
             })
             .fail((error) => {
