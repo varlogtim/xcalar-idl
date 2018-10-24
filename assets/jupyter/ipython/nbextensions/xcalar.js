@@ -6,6 +6,7 @@ define(['base/js/utils'], function(utils) {
             var userid;
             var sessionName;
             var sessionId;
+            var token;
             var wkbkFolderName = "";
 
             console.log("ipython extension has been loaded");
@@ -89,9 +90,10 @@ define(['base/js/utils'], function(utils) {
                         userid = struct.userid;
                         sessionName = struct.sessionname;
                         sessionId = struct.sessionid;
+                        token = struct.token;
                         wkbkFolderName = struct.folderName || "";
                         if (struct.newUntitled) {
-                            prependSessionStub(username, userid, sessionName);
+                            prependSessionStub(username, userid, sessionName, token);
                             if (struct.publishTable) {
                                 appendPublishTableStub(struct.tableName, struct.colNames, struct.numRows);
                             }
@@ -188,7 +190,7 @@ define(['base/js/utils'], function(utils) {
                                 'from xcalar.external.LegacyApi.Session import Session\n' +
                                 'from xcalar.external.LegacyApi.WorkItem import WorkItem\n' +
                                 'from xcalar.external.LegacyApi.ResultSet import ResultSet\n\n' +
-                                '# Create a XcalarApi object\nxcalarApi = XcalarApi()\n';
+                                '# Create a XcalarApi object\nxcalarApi = XcalarApi(' + (token ? ('client_token="' + token + '"') : '') + ')\n';
                         text += '# Connect to current workbook that you are in\n' +
                                 'workbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")\n' +
                                 'xcalarApi.setSession(workbook)';
@@ -424,7 +426,7 @@ define(['base/js/utils'], function(utils) {
                 }
                 insertCellToSelected(texts, stubName, args);
             }
-            function prependSessionStub(username, userid, sessionName) {
+            function prependSessionStub(username, userid, sessionName, token) {
                 var cell = Jupyter.notebook.insert_cell_above('code', 0);
                 var text = '# Xcalar Notebook Connector\n' +
                                 '# \n' +
@@ -447,7 +449,7 @@ define(['base/js/utils'], function(utils) {
                         'from xcalar.external.LegacyApi.Session import Session\n' +
                         'from xcalar.external.LegacyApi.WorkItem import WorkItem\n' +
                         'from xcalar.external.LegacyApi.ResultSet import ResultSet\n\n' +
-                        '# Create a XcalarApi object\nxcalarApi = XcalarApi()\n';
+                        '# Create a XcalarApi object\nxcalarApi = XcalarApi(' + (token ? ('client_token="' + token + '"') : '') + ')\n';
                 text += '# Connect to current workbook that you are in\n' +
                         'workbook = Session(xcalarApi, "' + username + '", "' + username + '", ' + userid + ', True, "' + sessionName + '")\n' +
                         'xcalarApi.setSession(workbook)';

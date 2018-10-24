@@ -252,6 +252,15 @@ router.get('/auth/sessionStatus', function(req, res) {
     res.status(httpStatus.OK).send(message);
 });
 
+router.get('/auth/getSessionId',
+           [support.checkAuth], function(req, res) {
+    var message = {data: null};
+
+    message.data = support.rawSessionCookie(req);
+
+    res.status(httpStatus.OK).send(message);
+});
+
 router.post('/auth/setCredential',
             [support.checkAuth], function(req, res) {
     var message = {valid: false, status: httpStatus.BadRequest};

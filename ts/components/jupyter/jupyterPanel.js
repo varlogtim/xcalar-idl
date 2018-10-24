@@ -563,18 +563,45 @@ window.JupyterPanel = (function($, JupyterPanel) {
         if (!jupyterLoaded) {
             return PromiseHelper.reject({error: "Jupyter not loaded"});
         }
-        var messageInfo = {
-            fromXcalar: true,
-        };
-        if (isAsync) {
-            prepareAsyncMsg(messageInfo, deferred);
-        } else {
-            deferred.resolve();
-        }
-        msgStruct = $.extend(messageInfo, msgStruct);
-        var msg = JSON.stringify(msgStruct);
 
-        $("#jupyterNotebook")[0].contentWindow.postMessage(msg, "*");
+        // Prepare token to send to Jupyter
+        var innerDeferred = PromiseHelper.deferred();
+        jQuery.ajax({
+            type: "GET",
+            contentType: "application/json",
+            url: xcHelper.getAppUrl() + "/auth/getSessionId",
+            success: function(retJson) {
+                var token;
+                if (!retJson || !retJson.data) {
+                    token = "";
+                } else {
+                    token = retJson.data;
+                }
+                msgStruct.token = token;
+                innerDeferred.resolve();
+            },
+            error: function() {
+                console.error(arguments);
+                innerDeferred.resolve();
+            }
+        });
+
+        innerDeferred
+        .always(function() {
+            var messageInfo = {
+                fromXcalar: true,
+            };
+            if (isAsync) {
+                prepareAsyncMsg(messageInfo, deferred);
+            } else {
+                deferred.resolve();
+            }
+            msgStruct = $.extend(messageInfo, msgStruct);
+            var msg = JSON.stringify(msgStruct);
+
+            $("#jupyterNotebook")[0].contentWindow.postMessage(msg, "*");
+        });
+
         return deferred.promise();
     }
 
