@@ -284,6 +284,9 @@ namespace DagNodeMenu {
     }
 
     function _showEdgeMenu($edge: JQuery, event: JQueryEventObject): void {
+        if (DagView.isDisableActions()) {
+            return;
+        }
         let classes: string = " edgeMenu ";
         xcHelper.dropdownOpen($edge, $menu, {
             mouseCoors: {x: event.pageX, y: event.pageY},
@@ -317,6 +320,10 @@ namespace DagNodeMenu {
         $menu.data("nodeids", nodeIds);
 
         let classes: string = " operatorMenu ";
+        if (DagView.isDisableActions()) {
+            // .customSubgraph hides all modification menu item
+            classes += ' customSubgraph ';
+        }
         $menu.find("li").removeClass("unavailable");
 
         if (nodeIds.length === 1) {
@@ -366,6 +373,10 @@ namespace DagNodeMenu {
 
     function _showBackgroundMenu(event: JQueryEventObject) {
         let classes: string = "";
+        if (DagView.isDisableActions()) {
+            // .customSubgraph hides all modification menu item
+            classes += ' customSubgraph ';
+        }
         let operatorIds = DagView.getSelectedNodeIds();
         $menu.find("li").removeClass("unavailable");
         if (!DagView.getAllNodes().length) {
@@ -465,6 +476,14 @@ namespace DagNodeMenu {
         if (dagNodeType === DagNodeType.Custom) {
             classes += ' customOpMenu';
         }
+        // CustomIn & Out
+        if (dagNode != null && (
+            dagNodeType === DagNodeType.CustomInput
+            || dagNodeType === DagNodeType.CustomOutput)
+        ) {
+            $menu.find('.configureNode, .executeNode').addClass('unavailable');
+        }
+        
         if (DagView.isNodeLocked(nodeId)) {
             $menu.find(".configureNode, .executeNode, .executeAllNodes, " +
                       ".resetNode, .cutNodes, .removeNode, .removeAllNodes")

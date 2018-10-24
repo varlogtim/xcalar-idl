@@ -354,6 +354,9 @@ class DagCategoryBar {
         const self = this;
         // dragging operator bar node into dataflow area
         this.$operatorBar.on("mousedown", ".operator .main", function(event) {
+            if (DagView.isDisableActions()) {
+                return;
+            }
             if (event.which !== 1) {
                 return;
             }
@@ -387,6 +390,9 @@ class DagCategoryBar {
         });
 
         this.$operatorBar.on("dblclick", ".operator .main", function() {
+            if (DagView.isDisableActions()) {
+                return;
+            }
             const $operator: JQuery = $(this).closest(".operator");
             const $selectedNodes: JQuery = DagView.getSelectedNodes();
             const newNodeInfo: DagNodeCopyInfo = self._getOperatorInfo(

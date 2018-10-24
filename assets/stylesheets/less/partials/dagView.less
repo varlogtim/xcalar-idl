@@ -1201,6 +1201,25 @@
                 display: none;
             }
         }
+        &.customOpMenu {
+            .shareCustom, .editCustom {
+                display: list-item;
+            }
+            .configureNode {
+                display: none;
+            }
+        }
+        &.customSubgraph {
+            .removeNode, .copyNodes, .cutNodes, .pasteNodes, .executeNode {
+                display: none;
+            }
+
+            &.multiple {
+                .createCustom {
+                    display: none;
+                }
+            }
+        }
     }
     &.connectorMenu, &.edgeMenu {
         .removeInConnection {
@@ -1212,6 +1231,12 @@
         .resetAllNodes, .selectAllNodes,
         .autoAlign, .newComment {
             display: list-item;
+        }
+
+        &.customSubgraph {
+            .removeAllNodes, .pasteNodes, .newComment, .executeAllNodes {
+                display: none;
+            }
         }
     }
     &.commentMenu {
@@ -1226,14 +1251,6 @@
             .removeNode {
                 display: none;
             }
-        }
-    }
-    &.customOpMenu {
-        .shareCustom, .editCustom {
-            display: list-item;
-        }
-        .configureNode {
-            display: none;
         }
     }
     &.linkInMenu {

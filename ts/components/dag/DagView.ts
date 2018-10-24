@@ -67,6 +67,9 @@ namespace DagView {
         });
 
         $(document).on("cut.dataflowPanel", function (e) {
+            if (isDisableActions()) {
+                return;
+            }
             if ($(e.target).is("body")) {
                 // proceed
             } if ($(e.target).is(".xcClipboardArea")) {
@@ -84,6 +87,9 @@ namespace DagView {
         });
 
         $(document).on("paste.dataflowPanel", function (e: JQueryEventObject) {
+            if (isDisableActions()) {
+                return;
+            }
             if (clipboard === null || $(e.target).is("input") ||
                 $(e.target).is("textarea")) {
                 return; // use default paste event
@@ -104,6 +110,9 @@ namespace DagView {
             switch (e.which) {
                 case (keyCode.Backspace):
                 case (keyCode.Delete):
+                    if (isDisableActions()) {
+                        break;
+                    }
                     DagView.removeNodes(DagView.getSelectedNodeIds(true, true));
                     break;
                 case (keyCode.Y):
@@ -1275,6 +1284,13 @@ namespace DagView {
         } catch (e) {
             Alert.error(AlertTStr.Error, e.message);
         }
+    }
+
+    /**
+     * Check if modification to graph/nodes should be disabled, Ex. it's showing the subGraph of a customNode
+     */
+    export function isDisableActions(): boolean {
+        return (getActiveTab() instanceof DagTabCustom);
     }
 
     function _createCustomNode(
