@@ -18,12 +18,12 @@ window.SqlTestSuite = (function($, SqlTestSuite) {
         sqlTestAnswers = data.xcTest.answers;
         tpchCases = data.tpchTest.testCases;
         tpchAnswers = data.tpchTest.answers;
-        tableauCases = data.tableauTest.testCases;
-        tableauAnswers = data.tableauTest.answers;
+        tableauCases = data.tableauTPCHTest.testCases;
+        tableauAnswers = data.tableauTPCHTest.answers;
         customTables = data.xcTest.tables;
         tpchTables = data.tpchTest.tables;
         tpcdsTables = data.tpcdsTest.tables;
-        tableauTables = data.tableauTest.tables;
+        tableauTables = data.tableauTPCHTest.tables;
     });
 
     SqlTestSuite.runSqlTests = function(testName, hasAnimation, toClean,
