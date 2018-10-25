@@ -150,6 +150,8 @@ class ExportOpPanelModel {
         if (this.currentDriver != null && driver.name == this.currentDriver.name) {
             this._restoreParams();
             return;
+        } else if (driver == null) {
+            return;
         }
         this.currentDriver = driver;
         this.driverArgs = [];
@@ -188,6 +190,9 @@ class ExportOpPanelModel {
         }
         if (dagInput.driver == null) {
             return "Input must have associated driver."
+        }
+        if (dagInput.columns.length == 0) {
+            return "Cannot export empty table."
         }
         const driver: ExportDriver = this.exportDrivers.find((driver) => {
             return driver.name == dagInput.driver;

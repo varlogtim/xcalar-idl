@@ -387,7 +387,7 @@ class DagNodeExecutor {
         });
         const srcTable: string = this._getParentNodeTable(0);
         const exportName: string = this._generateTableName();
-        XcalarExport(srcTable, driverName, driverParams, driverColumns, exportName)
+        XIApi.exportTable(this.txId, srcTable, driverName, driverParams, driverColumns, exportName)
         .then(() => {
             deferred.resolve(null); // no table generated
         })

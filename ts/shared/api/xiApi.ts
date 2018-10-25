@@ -2214,7 +2214,8 @@ namespace XIApi {
         columns: XcalarApiExportColumnT[],
         exportName: string
     ): XDPromise<void> {
-        if (txId == null || tableName == null || exportName == null || driverName == null) {
+        if (txId == null || tableName == null || exportName == null || driverName == null ||
+            columns.length == 0) {
             return PromiseHelper.reject("Invalid args in export");
         }
         const deferred: XDDeferred<void> = PromiseHelper.deferred();

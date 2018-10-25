@@ -870,7 +870,8 @@ ExportTStr = {
                     ' under the name: <file>',
     'ExportOfCol': 'Export columns of <table>',
     'ListTargFail': 'List Targets Failed',
-    'LocalFS': 'File System'
+    'LocalFS': 'File System',
+    'DriverNotFound': 'Prior Driver does not exist: ',
 };
 
 ProfileTStr = {

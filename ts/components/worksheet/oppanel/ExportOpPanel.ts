@@ -172,6 +172,13 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
         const driver: ExportDriver = this._dataModel.exportDrivers.find((driver) => {
             return driver.name == this._currentDriver;
         });
+        if (driver == null) {
+            let inputDriverName: string = $("#exportDriverList #exportDriver").val();
+            StatusBox.show(ExportTStr.DriverNotFound + inputDriverName, this._$exportArgSection,
+                false, {'side': 'right'});
+            this._dagNode.beErrorState(ExportTStr.DriverNotFound + inputDriverName);
+            return;
+        }
         this._dataModel.setUpParams(driver);
     }
 
@@ -297,7 +304,7 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
     public renderDriverArgs(): void {
         let driverName: string = this._$exportDest.val();
         if (driverName == "") {
-            driverName = $("#exportDriverList .exportDriver").eq(0).text()
+            driverName = $("#exportDriverList .exportDriver").eq(0).text();
             this._$exportDest.val(driverName);
         } else if (driverName == this._currentDriver) {
             return;
