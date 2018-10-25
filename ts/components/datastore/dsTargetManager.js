@@ -346,6 +346,7 @@ window.DSTargetManager = (function($, DSTargetManager) {
         }
         clearActiveTarget();
         $grid.addClass("active");
+        $grid.addClass("selected");
         showTargetInfoView($grid.data("name"));
     }
 

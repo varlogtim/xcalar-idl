@@ -3478,10 +3478,15 @@ table.datasetTable {
                 }
 
                 &.active {
+                    opacity: 1;
                     outline: 1px solid @color-bg-green-submit;
                     // should have highter z-index to show outline
                     // but should lower than menu
                     z-index: @z-index-gridViewMenu - 1;
+                }
+
+                &.selected {
+                    outline: 1px solid @color-bg-green-submit;
                 }
 
                 &.uneditable {
@@ -3596,8 +3601,7 @@ table.datasetTable {
                     }
 
                     &.active {
-                        border: 1px solid @color-bg-green-submit;;
-                        outline: none;
+                        outline: 1px solid @color-bg-green-submit;;
                     }
 
                     .gridIcon {
@@ -3890,14 +3894,14 @@ table.datasetTable {
 
 #gridViewMenu, #dsTarget-menu {
     z-index: @z-index-gridViewMenu;
-    background-color: @color-bg-menu-light-blue;
+    background-color: @color-font-edge;
 
     li {
-        background-color: @color-bg-menu-light-blue;
+        background-color: @color-font-edge;
         display: none;
 
         &.selected {
-             background-color: @color-bg-light-navy;
+             background-color: @color-font-form-gray;
         }
     }
     &.dsOpts {
@@ -4017,15 +4021,15 @@ table.datasetTable {
 
 #gridViewSubMenu {
     z-index: @z-index-gridViewMenu + 1;
-    background-color: @color-bg-menu-light-blue;
+    background-color: @color-font-edge;
     .size(@width: 80px);
 
     li {
-        background-color: @color-bg-menu-light-blue;
+        background-color: @color-font-edge;
         .position(relative);
 
         &.selected {
-             background-color: @color-bg-light-navy;
+             background-color: @color-font-form-gray;
         }
 
         &.select .icon {
@@ -4048,6 +4052,7 @@ table.datasetTable {
 #dsTarget-list {
     overflow: auto;
     height: ~"calc(100% - 75px)" !important;
+    background-color: #37424c;
 
     .xc-grid {
         padding: 1px;
@@ -4087,11 +4092,11 @@ table.datasetTable {
             }
 
             &.active {
-                background-color: @color-bg-light-navy;
+                opacity: 1;
             }
 
             &.selected {
-                outline: 1px solid @color-white;
+                outline: 1px solid @color-bg-green-submit;
                 // should have highter z-index to show outline
                 // but should lower than menu
                 z-index: @z-index-gridViewMenu - 1;
@@ -4310,11 +4315,11 @@ table.datasetTable {
         border-bottom: 1px solid @color-border-softGray !important;
     }
 
-    #importDataButton, #addFolderBtn {
+    #importDataButton, #addFolderBtn, #dsTarget-create {
         background-color: @color-font-edge;
     }
 
-    #dataViewBtn, .minimizeBtn, #refreshDS {
+    #dataViewBtn, .minimizeBtn, #refreshDS, #dsTarget-refresh, #dsTarget-view {
         color: @color-font-edge;
     }
 
