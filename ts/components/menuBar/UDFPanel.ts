@@ -157,6 +157,7 @@ class UDFPanel {
             $("#monitorTab").trigger("click");
             $("#fileManagerButton").trigger("click");
             monitorFileManager.switchType("UDF");
+            monitorFileManager.switchPath("/");
             monitorFileManager.switchPathByStep(
                 UDFFileManager.Instance.getCurrWorkbookDisplayPath()
             );

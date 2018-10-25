@@ -1335,7 +1335,10 @@ WSTStr = {
 FileManagerTStr = {
     "DuplicateFail": "Duplicate file failed",
     "PathReadOnly": "Selected path is read only",
-    "InvalidPath": "Invalid path"
+    "InvalidPath": "Invalid path",
+    "DelTitle": "Delete File",
+    "DelMsg": "Are you sure you want to delete the file?",
+    "DelMsgs": "Are you sure you want to delete the files?",
 }
 
 UDFTStr = {
@@ -1344,8 +1347,6 @@ UDFTStr = {
     "View": "View UDF",
     "Del": "Delete UDF",
     "Download": "Download UDF",
-    "DelTitle": "Delete UDF",
-    "DelMsg": "Are you sure you want to delete the UDF module?",
     "DelFail": "Delete UDF Failed",
     // Must be kept consistent with htmlTStr.UDF
     "NameHint": "Module name (lowercase)",
@@ -1415,12 +1416,6 @@ SideBarTStr = {
     'DelTablesMsg': 'Are you sure you want to drop the selected table(s)?',
     'DelLockedTablesMsg': 'Are you sure you want to drop the selected table(s)?<br/>Locked tables will be sent to the temporary tables list.',
     'SelectTable': 'Select table',
-    'DupUDF': 'Duplicate Module',
-    'DupUDFMsg': 'Python module <module> already exists ' +
-                 '(module name is case insensitive), ' +
-                 'Editing an in-use UDF can introduce mistakes into your ' +
-                 'model. To create a distinct copy, click CANCEL, rename the ' +
-                 'module, and click ADD UDF',
     'UpoladUDF': 'Upload Success',
     'UploadUDFMsg': 'Your python script has been successfully uploaded!',
     'SyntaxError': 'Syntax Error',

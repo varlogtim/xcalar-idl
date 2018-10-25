@@ -21,8 +21,10 @@ function getTestNameRegex() {
 }
 
 var testDatasets;
-var globalUDFPath = "/sharedUDFs/";
-var defaultUDFPath = globalUDFPath + "default"; // /sharedUDFs/default
+var sharedUDFPath = "/sharedUDFs/";
+// Should be equal to `UDFFileManager.Instance.getDefaultUDFPath()`, but should
+// not use it directly.
+var defaultUDFPath = sharedUDFPath + "default"; // /sharedUDFs/default
 
 window.UnitTest = (function(UnitTest, $) {
     var minModeCache;

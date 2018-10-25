@@ -221,6 +221,7 @@ class UDFFileManager extends BaseFileManager {
         .then(() => this._getUserWorkbookMap())
         .then(() => {
             UDFPanel.Instance.updateUDF();
+            $("#udf-fnSection").removeClass("xc-disabled");
             this.panels.forEach((panel: FileManagerPanel) =>
                 this._buildPathTree(panel)
             );
@@ -293,9 +294,11 @@ class UDFFileManager extends BaseFileManager {
 
     /**
      * @param  {string[]} displayPaths
-     * @returns void
+     * @returns XDPromise<void>
      */
-    public delete(displayPaths: string[]): void {
+    public delete(displayPaths: string[]): XDPromise<void> {
+        // The promise is used in tests.
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const delTasks: XDPromise<void>[] = displayPaths.map(
             (displayPath: string) => {
                 const nsPath: string = this.displayPathToNsPath(displayPath);
@@ -306,6 +309,10 @@ class UDFFileManager extends BaseFileManager {
         PromiseHelper.when(...delTasks)
         .then(() => {
             xcHelper.showSuccess(SuccessTStr.DelUDF);
+            deferred.resolve();
+        })
+        .fail((error) => {
+            deferred.reject(error);
         })
         .always(() => {
             this.panels.forEach((panel: FileManagerPanel) =>
@@ -315,6 +322,8 @@ class UDFFileManager extends BaseFileManager {
                 this._updateList(panel)
             );
         });
+
+        return deferred.promise();
     }
 
     /**
@@ -388,11 +397,11 @@ class UDFFileManager extends BaseFileManager {
     }
 
     /**
-     * @param  {string} nsPath
+     * @param  {string} displayPath
      * @returns XDPromise
      */
-    public download(nsPath: string): XDPromise<void> {
-        nsPath = this.displayPathToNsPath(nsPath);
+    public download(displayPath: string): XDPromise<void> {
+        const nsPath = this.displayPathToNsPath(displayPath);
 
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         this.getEntireUDF(nsPath)
@@ -504,24 +513,7 @@ class UDFFileManager extends BaseFileManager {
         const nsPath: string = absolutePath
             ? uploadPath
             : this.getCurrWorkbookPath() + uploadPath;
-        if (this.storedUDF.has(nsPath)) {
-            const msg: string = xcHelper.replaceMsg(SideBarTStr.DupUDFMsg, {
-                module: uploadPath
-            });
-
-            Alert.show({
-                title: SideBarTStr.DupUDF,
-                msg,
-                onConfirm: () => {
-                    uploadHelper();
-                },
-                onCancel: () => {
-                    deferred.resolve();
-                }
-            });
-        } else {
-            uploadHelper();
-        }
+        uploadHelper();
 
         return deferred.promise();
     }
@@ -529,8 +521,12 @@ class UDFFileManager extends BaseFileManager {
     /**
      * @param  {string} displayPath
      * @param  {string} entireString
+     * @returns XDPromise
      */
-    public add(displayPath: string, entireString: string) {
+    public add(displayPath: string, entireString: string): XDPromise<void> {
+        // Promise is used in tests.
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+
         let uploadPath: string = displayPath;
         let absolutePath: boolean = true;
         if (displayPath.startsWith(this.getCurrWorkbookDisplayPath())) {
@@ -542,7 +538,15 @@ class UDFFileManager extends BaseFileManager {
         }
 
         uploadPath = displayPath.substring(0, displayPath.lastIndexOf("."));
-        this.upload(uploadPath, entireString, absolutePath);
+        this.upload(uploadPath, entireString, absolutePath)
+        .then(() => {
+            deferred.resolve();
+        })
+        .fail(() => {
+            deferred.reject();
+        });
+
+        return deferred.promise();
     }
 
     /**
@@ -1091,10 +1095,6 @@ class UDFFileManager extends BaseFileManager {
         if (typeof unitTestMode !== "undefined" && unitTestMode) {
             this.__testOnly__.parseSyntaxError = (error: {error: string}) =>
                 this._parseSyntaxError(error);
-            this.__testOnly__.upload = (
-                uploadPath: string,
-                entireString: string
-            ) => this.upload(uploadPath, entireString);
         }
     }
     /* End Of Unit Test Only */

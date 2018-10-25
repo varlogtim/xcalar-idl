@@ -189,6 +189,13 @@ class FileManagerPanel {
      * @returns string
      */
     public nodeToPath(curPathNode: FileManagerPathNode): string {
+        const rootSearchPathNode: FileManagerPathNode = this.rootPathNode.children.get(
+            "Search"
+        );
+        if (curPathNode === rootSearchPathNode) {
+            return "Search results";
+        }
+
         let res: string = curPathNode.isDir ? "/" : "";
         while (curPathNode.parent !== this.rootPathNode) {
             res = "/" + curPathNode.pathName + res;
@@ -267,10 +274,6 @@ class FileManagerPanel {
 
         $fileTypeIcon.on({
             mouseup: (event: JQueryEventObject) => {
-                if (event.which !== 1) {
-                    return;
-                }
-
                 event.stopPropagation();
 
                 $fileTypeMenu.toggle();
@@ -282,10 +285,6 @@ class FileManagerPanel {
 
         $fileTypeMenuSection.on({
             mouseup: (event: JQueryEventObject) => {
-                if (event.which !== 1) {
-                    return;
-                }
-
                 const fileType: string = $(event.currentTarget)
                 .children(".label")
                 .html()
@@ -307,10 +306,6 @@ class FileManagerPanel {
 
         $navigationButton.on({
             mouseup: (event: JQueryEventObject) => {
-                if (event.which !== 1) {
-                    return;
-                }
-
                 event.stopPropagation();
                 const $navigationIcon: JQuery = $(
                     event.currentTarget
@@ -339,6 +334,9 @@ class FileManagerPanel {
                     return;
                 }
 
+                // For example, the saveAsModal is also listening to this event.
+                event.stopPropagation();
+
                 let newPath: string = $addressBox
                 .children(".addressContent")
                 .val();
@@ -365,10 +363,6 @@ class FileManagerPanel {
 
         $actionIcon.on({
             mouseup: (event: JQueryEventObject) => {
-                if (event.which !== 1) {
-                    return;
-                }
-
                 event.stopPropagation();
 
                 this._updateActionArea();
@@ -381,10 +375,6 @@ class FileManagerPanel {
 
         $actionMenuSection.on({
             mouseup: (event: JQueryEventObject) => {
-                if (event.which !== 1) {
-                    return;
-                }
-
                 const action: string = $(event.currentTarget)
                 .children(".label")
                 .html()
@@ -415,18 +405,30 @@ class FileManagerPanel {
                         if (!this._isValidAction(action)) {
                             return;
                         }
-                        this.manager.delete(
-                            [...this.selectedPathNodes.entries()].map(
-                                (
-                                    value: [
-                                    FileManagerPathNode,
-                                    FileManagerPathNode
-                                    ]
-                                ) => {
-                                    return this.nodeToPath(value[0]);
-                                }
-                            )
-                        );
+                        const deleteFiles = () =>
+                            this.manager.delete(
+                                [...this.selectedPathNodes.entries()].map(
+                                    (
+                                        value: [
+                                        FileManagerPathNode,
+                                        FileManagerPathNode
+                                        ]
+                                    ) => {
+                                        return this.nodeToPath(value[0]);
+                                    }
+                                )
+                            );
+                        Alert.show({
+                            title: FileManagerTStr.DelTitle,
+                            msg:
+                                this.selectedPathNodes.size > 1
+                                    ? FileManagerTStr.DelMsgs
+                                    : FileManagerTStr.DelMsg,
+                            onConfirm: () => {
+                                deleteFiles();
+                            }
+                        });
+
                         break;
                     case FileManagerAction.Duplicate: {
                         if (!this._isValidAction(action)) {
@@ -447,9 +449,10 @@ class FileManagerPanel {
                         if (!this._isValidAction(action)) {
                             return;
                         }
-                        const oldPath: string = this.nodeToPath(
-                            [...this.selectedPathNodes.entries()][0][0]
-                        );
+                        const oldPathNode: FileManagerPathNode = [
+                            ...this.selectedPathNodes.entries()
+                        ][0][0];
+                        const oldPath: string = this.nodeToPath(oldPathNode);
                         const options = {
                             onSave: (newPath: string) => {
                                 this.manager
@@ -464,7 +467,9 @@ class FileManagerPanel {
                         };
                         FileManagerSaveAsModal.Instance.show(
                             oldPath.split("/").pop(),
-                            this.getViewPath(),
+                            // Should not use getViewPath, otherwise won't work
+                            // in search results.
+                            this.nodeToPath(oldPathNode.parent),
                             options
                         );
                         break;
@@ -793,11 +798,7 @@ class FileManagerPanel {
     }
 
     private _updateAddress(): void {
-        const address: string =
-            this.viewPathNode === this.rootPathNode.children.get("Search")
-                ? "Search results"
-                : this.getViewPath();
-
+        const address: string = this.getViewPath();
         this.$panel.find(".addressArea .addressContent").val(address);
     }
 
