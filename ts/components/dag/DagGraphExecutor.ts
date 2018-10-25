@@ -144,6 +144,7 @@ class DagGraphExecutor {
         dagNodeExecutor.run()
         .then(() => {
             Transaction.done(txId, {});
+            MemoryAlert.Instance.check();
             deferred.resolve();
         })
         .fail((error) => {

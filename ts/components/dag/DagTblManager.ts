@@ -275,6 +275,42 @@ class DagTblManager {
     }
 
     /**
+     * To be used in the case of running out of memory. Deletes all tables except the ones
+     * in the current dataflow tab.
+     */
+    public emergencyClear() {
+        //XXX TODO: Clear useless tables within this graph based off query algorithm
+        window.clearInterval(this.timer);
+        const deferred: XDDeferred<void> = PromiseHelper.deferred();
+        if (!this.configured) {
+            deferred.resolve();
+        }
+        const dagID: string = DagView.getActiveDag().getTabId();
+        XcalarGetTables("*")
+        .then((res: XcalarApiListDagNodesOutputT) => {
+            this._synchWithBackend(res);
+            let match: RegExp = new RegExp(dagID);
+            // Remove all but this dataflow's tables
+            let toDelete: string[] = Object.keys(this.cache)
+                .filter((key) => !match.test(key));
+            toDelete.forEach((key) => {
+                delete this.cache[key];
+            })
+            return this._queryDelete(toDelete);
+        })
+        .then(() => {
+            let jsonStr = JSON.stringify(this.cache);
+            return this._kvStore.put(jsonStr, true, true);
+        })
+        .then(() => {
+            this.timer = window.setInterval(() => {DagTblManager.Instance.sweep()}, this.interval);
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
+    }
+
+    /**
      * Updates the cache based off the results from a XcalarGetTables call
      * @param res Tables currently in the backend
      */

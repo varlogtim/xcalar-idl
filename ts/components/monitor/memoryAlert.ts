@@ -145,6 +145,13 @@ class MemoryAlert {
             msg: MonitorTStr.LowMemMsg,
             isAlert: true,
             isCheckBox: true,
+            buttons: [{
+                name: MonitorTStr.ClearMemOption,
+                className: "clear memory",
+                func: () => {
+                    DagTblManager.Instance.emergencyClear();
+                }
+            }],
             onCancel: (checked) => {
                 this._turnOffRedMemoryAlert = checked;
             }

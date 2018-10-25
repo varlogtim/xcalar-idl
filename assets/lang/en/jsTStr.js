@@ -1015,7 +1015,8 @@ MonitorTStr = {
     "TicketErr1": "Your organization could not be verified.",
     "TicketErr2": "This ticket could not be found within your organization.",
     "LowMem": "Low Memory Warning",
-    "LowMemMsg": "Warning! Cluster is low on memory. Please check the system status icon for details.",
+    "LowMemMsg": "Warning! Cluster is low on memory. Please check the system status icon for details. " +
+        "Clicking 'Free Memory' will free all tables not used by the current dataflow tab.",
     "LowMemInstr": "To find out more about memory management, please reference <a href=\"<link>\" target=\"_blank\">the link</a>",
 
     // with replace
@@ -1032,7 +1033,8 @@ MonitorTStr = {
     "AdditionalInfo": "Additional (New) Information",
     "NoTickets": "No tickets found",
     "SelectExistingTicket": "Select an existing ticket",
-    "CharLimitErr": "Character limit of <limit> exceeded."
+    "CharLimitErr": "Character limit of <limit> exceeded.",
+    "ClearMemOption": "FREE MEMORY",
 };
 
 SchedTStr = {
