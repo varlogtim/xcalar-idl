@@ -26,9 +26,12 @@ class DagNodeExecutor {
 
         this._apiAdapter()
         .then((destTable) => {
+            if (destTable != null) {
+                node.setTable(destTable);
+                DagTblManager.Instance.addTable(destTable);
+            }
             if (!isSimulate) {
                 if (destTable != null) {
-                    node.setTable(destTable);
                     DagTblManager.Instance.addTable(destTable);
                 }
                 node.beCompleteState();

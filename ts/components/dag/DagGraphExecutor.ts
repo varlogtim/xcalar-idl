@@ -63,7 +63,7 @@ class DagGraphExecutor {
     /**
      * Execute nodes
      */
-    public run(): XDPromise<string> {
+    public run(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
         const nodes: DagNode[] = this._nodes.filter((node) => {
             return ((node.getState() !== DagNodeState.Complete) || (!DagTblManager.Instance.hasTable(node.getTable())));
@@ -111,6 +111,9 @@ class DagGraphExecutor {
 
         PromiseHelper.chain(promises)
         .then((destTable) => {
+            nodes.forEach((node) => {
+                node.setTable(null); // these table are only fake names
+            });
             const query: string = Transaction.done(simulateId, {
                 noNotification: true,
                 noSql: true,
