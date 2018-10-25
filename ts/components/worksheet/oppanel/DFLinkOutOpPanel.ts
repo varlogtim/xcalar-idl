@@ -55,7 +55,7 @@ class DFLinkOutOpPanel extends BaseOpPanel {
             this.close();
         });
 
-        $panel.on("click", ".confirm", (event) => {
+        $panel.on("click", ".submit", (event) => {
             $(event.target).blur();
             this._submitForm();
         });

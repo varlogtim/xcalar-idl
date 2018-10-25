@@ -285,7 +285,7 @@ window.TestSuite = (function($, TestSuite) {
 
         assert: function(statement, reason) {
             if (this.mode) {
-                return;
+                return true;
             }
 
             reason = reason || this.assert.caller.name;
@@ -293,7 +293,9 @@ window.TestSuite = (function($, TestSuite) {
                 console.log("Assert failed!", reason);
                 this.fail(this.curDeferred, this.curTestName,
                             this.curTestNumber, reason);
+                return false;
             }
+            return true;
         },
 
         loadDS: function(dsName, url, check) {
@@ -416,9 +418,10 @@ window.TestSuite = (function($, TestSuite) {
             return deferred.promise();
         },
 
-        createNode: function(type) {
+        createNode: function(type, subType) {
             var node = DagView.newNode({
                 type: type,
+                subType: subType || null,
                 display: {
                     x: 0,
                     y: 0
@@ -592,9 +595,9 @@ window.TestSuite = (function($, TestSuite) {
             }
         },
 
-        createNodeAndOpenPanel(parentNodeIds, nodeType) {
+        createNodeAndOpenPanel(parentNodeIds, nodeType, subType) {
             var self = this;
-            var $node = self.createNode(nodeType);
+            var $node = self.createNode(nodeType, subType);
             var nodeId = $node.data("nodeid");
 
             if (parentNodeIds != null) {
@@ -608,6 +611,12 @@ window.TestSuite = (function($, TestSuite) {
             DagView.autoAlign();
             self.nodeMenuAction($node, "configureNode");
             return nodeId;
+        },
+
+        executeNode(nodeId) {
+            const $node = DagView.getNode(nodeId);
+            this.nodeMenuAction($node, "executeNode");
+            return this.hasNodeWithState(nodeId, DagNodeState.Complete);
         }
     };
 

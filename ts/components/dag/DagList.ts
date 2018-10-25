@@ -402,8 +402,9 @@ class DagList {
                 onConfirm: () => {
                     this.deleteDataflow($dagListItem)
                     .fail((error) => {
+                        const log = error && typeof error === "object" ? error.log : null;
                         StatusBox.show(DFTStr.DelDFErr, $dagListItem, false, {
-                            detail: error.log
+                            detail: log
                         });
                     });
                 }

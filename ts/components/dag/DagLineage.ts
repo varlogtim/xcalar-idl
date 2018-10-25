@@ -181,9 +181,9 @@ class DagLineage {
         columns = columns || this.columns;
         try {
             lineageChange = this.node.lineageChange(columns, replaceParameters);
-            console.log("change", lineageChange);
+            // console.log("change", lineageChange);
         } catch (e) {
-            console.error(e);
+            console.error("get lineage error", e);
         }
         return lineageChange;
     }

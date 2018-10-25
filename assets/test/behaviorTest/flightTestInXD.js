@@ -11,6 +11,14 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
     var paramName;
     var fileName;
 
+    const MultiJoin = "Multi Join";
+    const MultiGroupBy = "Multi GroupBy";
+
+    let flightDS = "flight" + randInt();
+    let airpotDS = "airport" + randInt();
+    let flightPrefix = "flight" + randInt();
+    let airportPrefix = "airport" + randInt();
+
     FlightTestInXD.run = function(hasAnimation, toClean, noPopup, mode, withUndo,
                                 timeDilation) {
         test = TestSuite.createTest();
@@ -23,24 +31,13 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
     // =============== ADD TESTS TO ACTIVATE THEM HERE ===================== //
     function initializeTests() {
         test.add(flightTest, "FlightTest", defaultTimeout, TestCaseEnabled);
-        // test.add(newWorksheetTest, "NewWorksheetTest",
-        //               defaultTimeout, TestCaseEnabled);
-        // test.add(multiGroupByTest, "MultiGroupByTest",
-        //               defaultTimeout, TestCaseEnabled);
-        // test.add(multiJoinTest, "MultiJoinTest",
-        //               defaultTimeout, TestCaseEnabled);
-        // test.add(columnRenameTest, "ColumnRenameTest",
-        //               defaultTimeout, TestCaseDisabled); // disabled
-        // test.add(tableRenameTest, "TableRenameTest",
-        //               defaultTimeout, TestCaseEnabled);
-        // test.add(profileTest, "ProfileTest",
-        //               defaultTimeout, TestCaseEnabled);
-        // test.add(corrTest, "CorrelationTest",
-        //               defaultTimeout, TestCaseEnabled);
-        // test.add(aggTest, "QuickAggregateTest",
-        //               defaultTimeout, TestCaseEnabled);
-        // test.add(schedTest, "ScheduleTest",
-        //               defaultTimeout, TestCaseDisabled); // disabled
+        test.add(linkInLinkOutTest, "Link In, Link Out Test", defaultTimeout, TestCaseEnabled);
+        test.add(multiGroupByTest, "MultiGroupByTest", defaultTimeout, TestCaseEnabled);
+        test.add(multiJoinTest, "MultiJoinTest", defaultTimeout, TestCaseEnabled);
+        test.add(profileTest, "ProfileTest", defaultTimeout, TestCaseEnabled);
+        test.add(corrTest, "CorrelationTest", defaultTimeout, TestCaseEnabled);
+        test.add(aggTest, "QuickAggregateTest", defaultTimeout, TestCaseEnabled);
+        test.add(jsonModalTest, "JsonModalTest", defaultTimeout, TestCaseEnabled);
         // test.add(dfTest, "DFTest",
         //               defaultTimeout, TestCaseEnabled);
         // // Temporarily disabled due to thrift change
@@ -59,8 +56,6 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
         //               defaultTimeout, TestCaseDisabled); // disabled
         // test.add(addDFToSchedTest, "AddDFToScheduleTest",
         //               defaultTimeout, TestCaseDisabled); // disabled
-        // test.add(jsonModalTest, "JsonModalTest",
-        //               defaultTimeout, TestCaseEnabled);
         // test.add(IMDPanelTest, "IMDPanelTest",
         //               defaultTimeout, TestCaseEnabled);
     }
@@ -85,10 +80,10 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
         10. Aggregate on groupBy table to count number of unique airlines
         */
 
-        const flightDS = "flight" + randInt();
-        const airpotDS = "airport" + randInt();
-        const flightPrefix = "flight" + randInt();
-        const airportPrefix = "airport" + randInt();
+        flightDS = "flight" + randInt();
+        airpotDS = "airport" + randInt();
+        flightPrefix = "flight" + randInt();
+        airportPrefix = "airport" + randInt();
 
         flightTestPart1(flightDS, airpotDS);
 
@@ -275,25 +270,18 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
             const $panel = $("#joinOpPanel");
             // XXX TODO: @Liang, I don't know why I have to do this dealy
             // but without it the column selection doesn't work
-            let dealyPromise = () => {
-                const innerDeferred = PromiseHelper.deferred();
-                setTimeout(() => {
-                    innerDeferred.resolve();
-                }, 1000);
-                return innerDeferred.promise();
-            }
             test.createDatasetNode(airpotDS, airportPrefix)
             .then((parentNodeId2) => {
                 const parents = [parentNodeId, parentNodeId2];
                 nodeId = test.createNodeAndOpenPanel(parents, DagNodeType.Join);
                 test.assert($panel.hasClass("xc-hidden") === false);
-                return dealyPromise();
+                return dealyPromise(1000);
             })
             .then(() => {
                 $panel.find('.mainTable [data-xcid="leftColDropdown"]')
                 .find("li:contains(Dest)").trigger(fakeEvent.mouseup);
 
-                return dealyPromise();
+                return dealyPromise(1000);
             })
             .then(() => {
                 $panel.find('.mainTable [data-xcid="rightColDropdown"]')
@@ -685,153 +673,207 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
         }
     }
 
-    function newWorksheetTest(deferred, testName, currentTestNumber) {
-        // Tests add worksheet and rename new worksheet
-        console.log("newWorksheetTest: add new worksheet");
-        var $menu = $("#workspaceMenu");
-        if (!$menu.hasClass("active")) {
-            // open workspace menu
-            $("#workspaceTab .mainTab").click();
-        }
+    function linkInLinkOutTest(deferred, testName, currentTestNumber) {
+        // Tests add new dataflow and run using link in link out
+        console.log("linkInLinkOutTest");
+        
+        console.log("find the map node before join")
+        const $dagView = $("#dagView .dataflowArea.active");
+        const $joinNode = $dagView.find("g.operator.join.state-Complete");
+        test.assert($joinNode.length === 1);
 
-        $("#addWorksheet").click();
-        var wsId = WSManager.getWSByIndex(1);
-        test.checkExists("#worksheetTab-" + wsId)
-        .then(function() {
-            if ($menu.find(".tables").hasClass("xc-hidden")) {
-                $("#tableListTab").click();
-            }
-            $(".tableListSectionTab:contains(Temporary)").click();
-            return TableList.refreshOrphanList(true);
-        })
-        .then(function() {
-            // move the flight table (the one that has id startTableId + 5)
-            console.log("send a orphaned flight table to worksheet");
-            var idCount = startTableId;
-            var $li = $("#orphanedTablesList .tableInfo").filter(function () {
-                try {
-                    return $(this).data("id") == (idCount + 5);
-                } catch (err) {
-                    throw "testSuite bug";
-                }
-            });
-            if (!$li.find(".tableName").text().startsWith("flight")) {
-                console.warn($li.length, idCount + 5);
-                throw "Wrong table";
-            }
-            $li.find(".addTableBtn").click();
+        const joinNodeId = $joinNode.data("nodeid");
+        const mapNode = DagView.getActiveDag().getNode(joinNodeId).getParents()[0];
+        const mapNodeId = mapNode.getId();
+        const $mapNode = DagView.getNode(mapNodeId);
+        test.assert($mapNode.hasClass("map"));
 
-            $("#orphanedTableListSection .submit.active").click();
-            // switch back to worksheet list
-            $("#worksheetListTab").click();
-            $("#worksheetTabs .worksheetTab:first-child")
-                                                .trigger(fakeEvent.mousedown);
-            return test.checkExists(".xcTableWrap:eq(2) .tableTitle " +
-                                    ".dropdownBox .innerBox");
-        })
-        .then(function() {
-            console.log("move table to another worksheet");
-            $("#mainFrame").scrollLeft("10000");
-            $(".xcTableWrap:eq(2) .tableTitle .dropdownBox .innerBox").click();
-            $("#tableMenu .moveTable").trigger(fakeEvent.mouseenter);
-            $("#tableSubMenu .wsName").trigger(fakeEvent.mouseup);
-            $("#tableSubMenu .moveToWorksheet .list li")
-                                                .trigger(fakeEvent.mouseup);
-            $("#tableSubMenu .moveToWorksheet .wsName")
-                .trigger(fakeEvent.enter);
+        const dfName = $("#dagTabView .dagTab.active .name").text();
+        let linkOutName;
 
-            return test.checkExists(".xcTableWrap.worksheet-" + wsId);
+        console.log("add link out node for map");
+        createLinkOutNode(mapNodeId, "mapNodeId")
+        .then((reslinkOutName) => {
+            linkOutName = reslinkOutName;
+            console.log("create new tab for multi join and link map node");
+            $("#tabButton").click();
+            return renameTab($("#dagTabView .dagTab.active"), MultiJoin);
         })
-        .then(function() {
-            // rename worksheet
-            console.log("rename worksheet");
-            $("#worksheetTab-" + wsId + " .text").val("Multi group by")
-                                        .trigger(fakeEvent.enter);
-            test.assert($("#worksheetTab-" + wsId + " .text").val() ===
-                        "Multi group by");
-            // close workspace menu
-            $("#workspaceTab .mainTab").click();
+        .then(() => {
+            return createLinkInNode(dfName, linkOutName);
+        })
+        .then(() => {
+            console.log("create new tab for multi groupBy and link map node");
+            $("#tabButton").click();
+            return renameTab($("#dagTabView .dagTab.active"), MultiGroupBy);
+        })
+        .then(() => {
+            return createLinkInNode(dfName, linkOutName);
+        })
+        .then(() => {
+            console.log(testName, "passed");
             test.pass(deferred, testName, currentTestNumber);
         })
-        .fail(function() {
-            test.fail(deferred, testName, currentTestNumber,
-                           "newWorksheetTest failed");
+        .fail(() => {
+            test.fail(deferred, testName, currentTestNumber, "linkInLinkOutTest failed");
         });
     }
 
     function multiGroupByTest(deferred, testName, currentTestNumber) {
-        var wsId = WSManager.getWSByIndex(1);
-        var tableId = getFirstTableInWS(1);
-        var newTableName;
-
-        test.trigOpModal(tableId, "ArrDelay", "groupby")
-        .then(function() {
-            var $section = $("#operationsView .opSection.groupby");
-            $section.find(".addGroupArg").click();
-            var prefix = null;
-            $("#xcTable-" + tableId).find(".topHeader .prefix")
-            .each(function() {
-                var text = $(this).text();
-                if (text) {
-                    prefix = text;
-                    return false;
-                }
-            });
-
-            var col1 = xcHelper.getPrefixColName(prefix, "Dest");
-            var col2 = xcHelper.getPrefixColName(prefix, "AirTime");
-
-            $section.find(".gbOnArg").eq(0).val(gColPrefix + col1)
-            .end()
-            .eq(1).val(gColPrefix + col2);
-
-            $section.find(".functionsList .functionsInput").val("count")
-                        .trigger(fakeEvent.enterKeydown);
-            $section.find(".arg").eq(2).val(gColPrefix + "ArrDelay");
-            $section.find(".arg").eq(3).val("ArrDelay_count");
-            newTableName = 'GB' + randInt();
-            $section.find('.newTableName').val(newTableName);
-            $("#operationsView .submit").click();
-            // need to check in this worksheet because
-            // there is another groupby table
-            return test.checkExists(".xcTableWrap.worksheet-" + wsId +
-                                    " .tableName[value*='" + newTableName + "']");
-        })
-        .then(function() {
-            var tId = $(".xcTableWrap.worksheet-" + wsId +
-                    " .tableName[value*='" + newTableName + "']")
-                    .closest(".xcTableWrap").data('id');
-            return test.checkExists(('#dagWrap-' + tId));
-        })
-        .then(function() {
-            test.pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function() {
-            test.fail(deferred, testName, currentTestNumber,
-                        "MultiGroupBy failed");
+        console.log("multi grouBy Test");
+        // focus on multi groupBy Tab
+        console.log("focus on multi groupBy Tab");
+        const $tab = $("#dagTabView .dagTab").filter((_index, el) => {
+            return $(el).find(".name").text() === MultiGroupBy;
         });
-    }
+        test.assert($tab.length === 1);
+        if (!$tab.hasClass("active")) {
+            $tab.click();
+        }
 
-    // XXX TODO use change type node
-    function changeTypeToInteger(srcNodeId, colName) {
-        var deferred = PromiseHelper.deferred();
-        var destColName = xcHelper.parsePrefixColName(colName).name;
-        var nodeId = test.createNodeAndOpenPanel([srcNodeId], DagNodeType.Map);
-        var $panel = $("#mapOpPanel");
-        test.assert($panel.hasClass("xc-hidden") === false);
+        console.log("find the link in node")
+        const $dagView = $("#dagView .dataflowArea.active");
+        const $linInNode = $dagView.find("g.operator.link.state-Complete");
+        test.assert($linInNode.length === 1);
+        const linkInNodeId = $linInNode.data("nodeid");
 
-        $panel.find(".categoryMenu li[data-category='8']")
-            .trigger(fakeEvent.click);
-        $panel.find(".functionsMenu li:contains('int')")
-            .trigger(fakeEvent.click);
-        
-        var $args = $panel.find(".argsSection .arg");
-        fillArgInPanel($args.eq(0), gColPrefix + colName);
-        fillArgInPanel($args.eq(1), 10);
-        fillArgInPanel($args.eq(2), destColName);
+        console.log("create group by node");
+        const nodeId = test.createNodeAndOpenPanel(linkInNodeId, DagNodeType.GroupBy);
+        const $panel = $("#groupByOpPanel");
+        console.log("choose Dest col as first group on field");
+
+        const col1 = xcHelper.getPrefixColName(flightPrefix, "Dest");
+        fillArgInPanel($panel.find(".gbOnRow.original input"), gColPrefix + col1);
+
+        const col2 = xcHelper.getPrefixColName(flightPrefix, "AirTime");
+        console.log("choose AirTime col as first group on field");
+        $panel.find(".addGroupArg").click();
+        fillArgInPanel($panel.find(".gbOnRow.extraArg input"), gColPrefix + col2);
+
+        console.log("count on ArrDelay");
+        $panel.find(".functionsList .functionsInput").val("count")
+                        .trigger(fakeEvent.enterKeydown);
+        fillArgInPanel($panel.find(".gbAgg"), gColPrefix + "ArrDelay");
+        fillArgInPanel($panel.find(".colNameSection .arg"), "ArrDelay_count");
         $panel.find(".submit").click();
 
         test.hasNodeWithState(nodeId, DagNodeState.Configured)
+        .then(() => {
+            console.log("execute group By");
+            return test.executeNode(nodeId);
+        })
+        .then(() => {
+            test.pass(deferred, testName, currentTestNumber);
+        })
+        .fail(() => {
+            test.fail(deferred, testName, currentTestNumber, "MultiGroupBy failed");
+        });
+    }
+
+    function multiJoinTest(deferred, testName, currentTestNumber) {
+        console.log("multi join test");
+        // import schedule dataset
+        console.log("import schedule dataset");
+        $("#dataStoresTab").click();
+        const scheduleDS = "schedule" + Math.floor(Math.random() * 1000);
+        const url = testDataLoc + "indexJoin/schedule/schedule.json";
+        const check = "#previewTable td:eq(1):contains(1)";
+        const schedulePrefix = "schedule" + randInt();
+        let scheduleNodeId;
+        let joinNodeId;
+
+        test.loadDS(scheduleDS, url, check)
+        .then(() => {
+            // focus on the multi join tab
+            $("#dagButton").click();
+            console.log("focus on the multi join tab");
+            const $tab = $("#dagTabView .dagTab").filter((_index, el) => {
+                return $(el).find(".name").text() === MultiJoin;
+            });
+            test.assert($tab.length === 1);
+            if (!$tab.hasClass("active")) {
+                $tab.click();
+            }
+            return test.createDatasetNode(scheduleDS, schedulePrefix);
+        })
+        .then((nodeId) => {
+            scheduleNodeId = nodeId;
+
+            console.log("find the link in node")
+            const $dagView = $("#dagView .dataflowArea.active");
+            const $linInNode = $dagView.find("g.operator.link.state-Complete");
+            test.assert($linInNode.length === 1);
+            const linkInNodeId = $linInNode.data("nodeid");
+
+            console.log("cast DayOfMonth into integer");
+            const col = xcHelper.getPrefixColName(flightPrefix, "DayofMonth");
+            return changeTypeToInteger(linkInNodeId, col);
+        })
+        .then(function(castNodeId) {
+            console.log("cast DayOfWeek into integer");
+            const col = xcHelper.getPrefixColName(flightPrefix, "DayOfWeek");
+            return changeTypeToInteger(castNodeId, col);
+        })
+        .then(function(flightNodeId) {
+            console.log("multi join with schedule and flight");
+            // join class_id, teancher_id with DayofMonth, DayOfWeek
+            const lCol1 = xcHelper.getPrefixColName(schedulePrefix, "class_id");
+            const lCol2 = xcHelper.getPrefixColName(schedulePrefix, "teacher_id");
+            const lCols = [lCol1, lCol2];
+            const rCols = ["DayofMonth", "DayOfWeek"];
+            return mutiJoinHelper(scheduleNodeId, lCols, flightNodeId, rCols);
+        })
+        .then((nodeId) => {
+            joinNodeId = nodeId;
+            console.log("execute multi join");
+            return test.executeNode(joinNodeId);
+        })
+        .then(() => {
+            console.log("preview multi join result");
+            const $node = DagView.getNode(joinNodeId);
+            test.nodeMenuAction($node, "previewTable");
+            return test.checkExists("#dagViewTableArea:visible .xcTableWrap");
+        })
+        .then(()  => {
+            test.assert($("#dagViewTableArea .totalRows").text().indexOf("1,953") > -1);
+            test.pass(deferred, testName, currentTestNumber);
+        })
+        .fail((error) => {
+            test.fail(deferred, testName, currentTestNumber, error);
+        });
+    }
+
+    function mutiJoinHelper(lNodeId, lCols, rNodeId, rCols) {
+        const deferred = PromiseHelper.deferred();
+        const nodeId = test.createNodeAndOpenPanel([lNodeId, rNodeId], DagNodeType.Join);
+        const $panel = $("#joinOpPanel");
+        test.assert($panel.hasClass("xc-hidden") === false);
+
+        console.log("add multi clause");
+        for (let i = 1; i < lCols.length; i++) {
+            $panel.find(".addClause button").click();
+        }
+
+        let selectDropdown = function(col, $dropdown) {
+            return dealyPromise()
+                    .then(() => {
+                        $dropdown.find("li:contains(" + col + ")").trigger(fakeEvent.mouseup);
+                    });
+        }
+        const promises = [];
+        for (let i = 0; i< lCols.length; i++) {
+            const $leftDropdown = $panel.find('.mainTable [data-xcid="leftColDropdown"]').eq(i);
+            const $rightDropdown = $panel.find('.mainTable [data-xcid="rightColDropdown"]').eq(i);
+            promises.push(selectDropdown.bind(this, lCols[i], $leftDropdown));
+            promises.push(selectDropdown.bind(this, rCols[i], $rightDropdown));
+        }
+
+        PromiseHelper.chain(promises)
+        .then(() => {
+            $panel.find(".bottomSection .btn:contains(Next)").click();
+            $panel.find(".bottomSection .btn:contains(Save)").click();
+            return test.hasNodeWithState(nodeId, DagNodeState.Configured);
+        })
         .then(() => {
             deferred.resolve(nodeId);
         })
@@ -840,167 +882,16 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
         return deferred.promise();
     }
 
-    function fillArgInPanel($arg, val) {
-        $arg.val(val).trigger("change");
-    }
-
-    function multiJoinTest(deferred, testName, currentTestNumber) {
-        // import schedule dataset
-        console.log("import schedule dataset");
-        $("#dataStoresTab").click();
-        var dsName = "schedule" + Math.floor(Math.random() * 1000);
-        var url = testDataLoc + "indexJoin/schedule/schedule.json";
-        var check = "#previewTable td:eq(1):contains(1)";
-        var wsId = WSManager.getWSByIndex(1);
-        var ws = WSManager.getWSById(wsId);
-        var lPrefix;
-        var oldTableId;
-
-        test.loadDS(dsName, url, check)
-        .then(function() {
-            var innerDeferred = PromiseHelper.deferred();
-            // XXX there is a import ds error when not do setTimeout
-            // need to fix later
-            setTimeout(function() {
-                test.createTable(dsName)
-                .then(innerDeferred.resolve)
-                .fail(innerDeferred.reject);
-            }, 1000);
-            return innerDeferred.promise();
-        })
-        .then(function(tableName, resPrefix) {
-            lPrefix = resPrefix;
-            var rightTableId = ws.tables[0];
-            return changeTypeToInteger(rightTableId, "DayofMonth");
-        })
-        .then(function() {
-            var rightTableId = ws.tables[0];
-            return changeTypeToInteger(rightTableId, "DayOfWeek");
-        })
-        .then(function() {
-            console.log("multi join with flight-airport table");
-            var tableId = ws.tables[2];
-            return test.trigOpModal(tableId, "class_id", "join", "join");
-        })
-        .then(function() {
-            var rightTableId = ws.tables[0];
-            oldTableId = rightTableId;
-            $("#joinRightTableList").find("li[data-id='" + rightTableId + "']")
-                                    .trigger(fakeEvent.mouseup);
-            var lCol1 = xcHelper.getPrefixColName(lPrefix, "class_id");
-            var lCol2 = xcHelper.getPrefixColName(lPrefix, "teacher_id");
-
-            $("#mainJoin .leftClause").eq(0).val(lCol1).change();
-            // $("#mainJoin .rightClause").eq(0).val("DayofMonth_integer").change();
-            $("#mainJoin .rightClause").eq(0).val("DayofMonth").change();
-            // add another clause
-            $("#mainJoin .placeholder .btn").click();
-            $("#mainJoin .leftClause").eq(1).val(lCol2).change();
-            // $("#mainJoin .rightClause").eq(1).val("DayOfWeek_integer").change();
-            $("#mainJoin .rightClause").eq(1).val("DayOfWeek").change();
-
-            var lTableName = $("#joinLeftTableList").find(".text").val();
-            var rTableName = $("#joinRightTableList").find(".text").val();
-            var newName = xcHelper.getTableName(lTableName) + '-' +
-                            xcHelper.getTableName(rTableName);
-            $("#joinView .btn.next").click();
-            $("#joinTableNameInput").val(newName);
-            $("#joinTables").click();
-            return test.checkExists(".xcTableWrap .tableName[value*='" +
-                                    newName + "']");
-        })
-        .then(function() {
-            return test.checkExists("#xcTable-" + oldTableId, null,
-                                    {notExist: true});
-        })
-        .then(function() {
-            test.assert($("#numPages").text().indexOf("1,953") > -1);
-            test.pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(error) {
-            test.fail(deferred, testName, currentTestNumber, error);
-        });
-    }
-
-    function columnRenameTest(deferred, testName, currentTestNumber) {
-        $("#mainFrame").scrollLeft("0");
-        var tableId = getFirstTableInWS(1);
-
-        var $header = $("#xcTable-" + tableId +
-                        " .flexWrap.flex-mid input[value='class_id']");
-        $header.closest(".flexContainer").find(".flex-right .innerBox").click();
-        var $colMenu = $("#colMenu .renameCol");
-        var $colSubMenu = $('#colSubMenu');
-        $colMenu.mouseover();
-        $colSubMenu.find(".colName").val("class id").trigger(fakeEvent.enter);
-        test.checkExists(".tooltip")
-        .then(function() {
-            $colMenu.mouseout();
-            $colSubMenu.find(".colName").val("newclassid");
-            $colSubMenu.find(".colName").trigger(fakeEvent.enter);
-            // Now do something with this newly renamed column
-            var $header = $("#xcTable-" + tableId +
-                            " .flexWrap.flex-mid input[value='newclassid']");
-            $header.parent().parent().find(".flex-right .innerBox").click();
-            $colMenu = $("#colMenu .changeDataType");
-            $colMenu.mouseover();
-            $colSubMenu.find(".changeDataType .type-string")
-                .trigger(fakeEvent.mouseup);
-            return (test.checkExists(".flexWrap.flex-mid" +
-                                    " input[value='newclassid_string']:eq(0)"));
-
-        })
-        .then(function() {
-            console.log("This test is witness to GUI-1900");
-            test.pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(error) {
-            test.fail(deferred, testName, currentTestNumber, error);
-        });
-    }
-
-    function tableRenameTest(deferred, testName, currentTestNumber) {
-        var tableId = getFirstTableInWS(1);
-        $("#xcTableWrap-" + tableId + " .tableName").val("NewTableName")
-                                                    .trigger(fakeEvent.enter);
-        test.checkExists(".xcTableWrap .tableName[value*='New']")
-        .then(function() {
-            var $header = $("#xcTable-" + tableId +
-                            " .flexWrap.flex-mid input[value='Month']");
-            $header.parent().parent().find(".flex-right .innerBox").click();
-            var $colMenu = $("#colMenu .changeDataType");
-            var $colSubMenu = $('#colSubMenu');
-            $colMenu.mouseover();
-            $colSubMenu.find(".changeDataType .type-integer")
-                .trigger(fakeEvent.mouseup);
-
-            return test.checkExists(".type-integer .flexWrap.flex-mid" +
-                                    " input[value='Month']:eq(0)");
-        })
-        .then(function() {
-            return test.checkExists(("#xcTable-" + tableId),
-                                    null, {notExist: true});
-        })
-        .then(function() {
-            test.pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(error) {
-            test.fail(deferred, testName, currentTestNumber, error);
-        });
-    }
-
     function profileTest(deferred, testName, currentTestNumber) {
-        var tableId = getFirstTableInWS(1);
-        // var $header = $("#xcTable-" + tableId +
-        //                 " .flexWrap.flex-mid input[value='Month_integer']");
-        var $header = $("#xcTable-" + tableId +
-                        " .flexWrap.flex-mid input[value='Month']");
+        console.log("Profile Test");
+        const $table = $("#dagViewTableArea .xcTable");
+        const $header = $table.find(".flexWrap.flex-mid input[value='Month']");
         $header.parent().parent().find(".flex-right .innerBox").click();
         $("#colMenu .profile").trigger(fakeEvent.mouseup);
         test.checkExists([".modalHeader .text:contains('Profile')",
                          "#profileModal[data-state='finished']"], null,
                          {"asserts": [".barChart .area .xlabel:contains('205')"]})
-        .then(function() {
+        .then(() => {
             test.assert($(".barChart .area").length === 8);
             test.assert($(".barChart .area .xlabel:contains('205')").length > 0);
             test.assert($(".barChart .area .xlabel:contains('207')").length > 0);
@@ -1010,10 +901,12 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
             test.assert($(".barChart .area .xlabel:contains('134')").length > 0);
             test.assert($(".barChart .area .xlabel:contains('153')").length > 0);
             test.assert($(".barChart .area .xlabel:contains('272')").length > 0);
+            
+            console.log("check genAgg")
             $("#profileModal .genAgg").click();
             return test.checkExists("#profileModal .genAgg:not(:visible)");
         })
-        .then(function() {
+        .then(() => {
             test.assert($("#profileModal .infoSection .min").eq(0).text() ===
                         Number(1).toLocaleString());
             test.assert($("#profileModal .infoSection .count").text() ===
@@ -1025,89 +918,101 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
             test.assert($("#profileModal .infoSection .max").eq(0).text() ===
                         Number(12).toLocaleString());
 
+            console.log("check sort");
             $("#profileModal .sortSection .asc").click();
             return test.checkExists("#profileModal[data-state='finished']", null, {
                 "asserts": [".barChart .area:first-child .xlabel:contains('134')"]
             });
         })
-        .then(function() {
+        .then(() => {
             test.assert($(".barChart .area .xlabel").eq(0).text() === "134");
             test.assert($(".barChart .area .xlabel").eq(7).text() === "626");
             $("#profileModal .close").click();
             test.pass(deferred, testName, currentTestNumber);
         })
-        .fail(function(error) {
+        .fail((error) => {
             test.fail(deferred, testName, currentTestNumber, error);
         });
     }
 
     function corrTest(deferred, testName, currentTestNumber) {
-        var tableId = getFirstTableInWS(1);
-        $("#xcTheadWrap-" + tableId + " .dropdownBox .innerBox").click();
+        console.log("Correlation Test");
+        $("#dagViewTableArea .tableMenu").click();
         $("#tableMenu .corrAgg").trigger(fakeEvent.mouseup);
         test.checkExists("#aggModal-corr[data-state='finished']",
                         null, {"asserts": [".aggTableField:contains('-0.4')"]})
-        .then(function() {
+        .then(() => {
             test.pass(deferred, testName, currentTestNumber);
         })
-        .fail(function(error) {
+        .fail((error) => {
             test.fail(deferred, testName, currentTestNumber, error);
         });
     }
 
-    // Disabled due to new aggregate and correlation. Needs to be triggered
-    // via toggle of tabs
     function aggTest(deferred, testName, currentTestNumber) {
+        console.log("Quick Aggreation Test");
         $("#aggTab").click();
         test.checkExists("#aggModal .spinny", null, {notExist: true})
-        .then(function() {
+        .then(() => {
             test.assert($(".aggTableField:contains('4574')").length);
             test.assert($(".aggTableField:contains('334')").length);
             $("#aggModal .close").click();
             test.pass(deferred, testName, currentTestNumber);
         })
-        .fail(function(error) {
+        .fail((error) => {
             test.fail(deferred, testName, currentTestNumber, error);
         });
     }
 
-    // XXX this is obsolote and need to be rewritten
-    function schedTest(deferred, testName, currentTestNumber) {
-        // // Create a schedule
-        // $("#dataflowTab").click();
-        // var $subTab = $("#schedulesButton");
-        // if (!$subTab.hasClass("active")) {
-        //     $subTab.click();
-        // }
+    function jsonModalTest(deferred, testName, currentTestNumber) {
+        if ($("#alertActions").is(":visible")) {
+            $("#alertActions button:visible").click();
+        }
+        const $jsonModal = $("#jsonModal");
+        const $activeTable = $("#dagViewTableArea .xcTable");
+        $activeTable.find('.jsonElement').eq(0).trigger(fakeEvent.mousedown);
+        $activeTable.find('.jsonElement').eq(0).trigger(fakeEvent.mousedown);
+        $activeTable.find('.jsonElement').eq(1).trigger(fakeEvent.mousedown);
+        $activeTable.find('.jsonElement').eq(1).trigger(fakeEvent.mousedown);
+        test.checkExists('.xcTable:visible')
+        .then(() => {
+            return test.checkExists(['#jsonModal .jsonWrap:eq(0)',
+                                    '#jsonModal .jsonWrap:eq(1)']);
+        })
+        .then(() => {
+            // compare matches on 2 data browser columns
+            $jsonModal.find('.compareIcon').eq(0).trigger(fakeEvent.click);
+            $jsonModal.find('.compareIcon').eq(1).trigger(fakeEvent.click);
+            test.assert($jsonModal.find('.matched').eq(0).text() ===
+                        $jsonModal.find('.matched').eq(1).text());
+            // click on a 3rd column and compare matches
+            $activeTable.find('.jsonElement').eq(2).trigger(fakeEvent.mousedown);
+            $activeTable.find('.jsonElement').eq(2).trigger(fakeEvent.mousedown);
+            $('#jsonModal .compareIcon').eq(2).trigger(fakeEvent.click);
+            test.assert($jsonModal.find('.matched').eq(0).text() ===
+                        $jsonModal.find('.matched').eq(2).text() &&
+                        $jsonModal.find('.matched').eq(1).text() ===
+                        $jsonModal.find('.matched').eq(2).text());
+            test.assert($jsonModal.find('.partial:eq(0)').text() !==
+                        $jsonModal.find('.partial:eq(1)').text());
+            test.assert($jsonModal.find('.partial:eq(0) > div').length ===
+                        $jsonModal.find('.partial:eq(1) > div').length);
 
-        // // on schedule form
-        // schedName = "testSched" + randInt(); // globals in the module
+            // generate new column in table
+            const $div = $jsonModal.find(".matched:eq(2) > div .jKey").eq(0);
+            const clickedName = $div.text();
+            $div.trigger(fakeEvent.click);
+            const $newTh = $('.xcTable:visible').eq(0).find('.th.selectedCell');
 
-        // $("#addSchedule").click();
+            const colName = $newTh.find('.editableHead').val();
+            test.assert(colName.length > 1, "assert colname exists");
+            test.assert(clickedName.indexOf(colName) > -1, "assert colName match in json modal");
 
-        // var $form = $("#newScheduleForm");
-        // $form.find(".name").val(schedName).blur()
-        //     .end()
-        //     .find(".datePickerPart input").focus().focus().click()
-        //     .end()
-        //     .find(".timePickerArea input").focus().focus().click()
-        //     .end()
-        //     .find(".freq1 .radioButton:eq(0)").click()
-        //     .end()
-        //     .find(".recurSection input").val(1);
-        // $("#newScheduleForm-save").click();
-
-        // test.checkExists("#scheduleLists .scheduleName:contains('" + schedName + "')")
-        // .then(function() {
-        //     $("#modScheduleForm-edit").click();
-        //     $("#scheduleDetail").find(".freq1 .radioButton:eq(1)").click();
-        //     $("#modScheduleForm-save").click();
-        //     test.assert($("#scheduleInfos .scheduleInfo.frequency .text").text() === "hourly");
-        //     test.pass(deferred, testName, currentTestNumber);
-        // })
-        // .fail(function(error) {
-        //     test.fail(deferred, testName, currentTestNumber, error);
-        // });
+            test.pass(deferred, testName, currentTestNumber);
+        })
+        .fail((error) => {
+            test.fail(deferred, testName, currentTestNumber, error);
+        });
     }
 
     function dfTest(deferred, testName, currentTestNumber) {
@@ -1354,59 +1259,6 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
         });
     }
 
-    function jsonModalTest(deferred, testName, currentTestNumber) {
-        if ($("#alertActions").is(":visible")) {
-            $("#alertActions button:visible").click();
-        }
-        var $jsonModal = $('#jsonModal');
-        $('#workspaceTab').click();
-        $('.worksheetTab').eq(1).trigger(fakeEvent.mousedown);
-        $activeTable = $('.xcTable:visible').eq(0);
-        $activeTable.find('.jsonElement').eq(0).trigger(fakeEvent.mousedown);
-        $activeTable.find('.jsonElement').eq(0).trigger(fakeEvent.mousedown);
-        $activeTable.find('.jsonElement').eq(1).trigger(fakeEvent.mousedown);
-        $activeTable.find('.jsonElement').eq(1).trigger(fakeEvent.mousedown);
-        test.checkExists('.xcTable:visible')
-        .then(function() {
-            return test.checkExists(['#jsonModal .jsonWrap:eq(0)',
-                                    '#jsonModal .jsonWrap:eq(1)']);
-        })
-        .then(function() {
-            // compare matches on 2 data browser columns
-            $jsonModal.find('.compareIcon').eq(0).trigger(fakeEvent.click);
-            $jsonModal.find('.compareIcon').eq(1).trigger(fakeEvent.click);
-            test.assert($jsonModal.find('.matched').eq(0).text() ===
-                        $jsonModal.find('.matched').eq(1).text());
-            // click on a 3rd column and compare matches
-            $activeTable.find('.jsonElement').eq(2).trigger(fakeEvent.mousedown);
-            $activeTable.find('.jsonElement').eq(2).trigger(fakeEvent.mousedown);
-            $('#jsonModal .compareIcon').eq(2).trigger(fakeEvent.click);
-            test.assert($jsonModal.find('.matched').eq(0).text() ===
-                        $jsonModal.find('.matched').eq(2).text() &&
-                        $jsonModal.find('.matched').eq(1).text() ===
-                        $jsonModal.find('.matched').eq(2).text());
-            test.assert($jsonModal.find('.partial:eq(0)').text() !==
-                        $jsonModal.find('.partial:eq(1)').text());
-            test.assert($jsonModal.find('.partial:eq(0) > div').length ===
-                        $jsonModal.find('.partial:eq(1) > div').length);
-
-            // generate new column in table
-            var $div = $jsonModal.find(".matched:eq(2) > div .jKey").eq(0);
-            var clickedName = $div.text();
-            $div.trigger(fakeEvent.click);
-            var $newTh = $('.xcTable:visible').eq(0).find('.th.selectedCell');
-
-            var colName = $newTh.find('.editableHead').val();
-            test.assert(colName.length > 1, "assert colname exists");
-            test.assert(clickedName.indexOf(colName) > -1, "assert colName match in json modal");
-
-            test.pass(deferred, testName, currentTestNumber);
-        })
-        .fail(function(error) {
-            test.fail(deferred, testName, currentTestNumber, error);
-        });
-    }
-
     // ================ HELPER FUNCTION =====================================//
     function randInt(numDigits) {
         if (numDigits) {
@@ -1415,12 +1267,107 @@ window.FlightTestInXD = (function(FlightTestInXD, $) {
         return (Math.floor(Math.random() * 10000));
     }
 
-    function getFirstTableInWS(worksheetIndex) {
-        var wsId = WSManager.getWSByIndex(worksheetIndex);
-        var tableId = WSManager.getWSById(wsId).tables[0];
-        test.assert(tableId != null);
-        return tableId;
+    function fillArgInPanel($arg, val) {
+        $arg.val(val).trigger("change");
     }
 
+    function changeTypeToInteger(parentNodeId, colName) {
+        const deferred = PromiseHelper.deferred();
+        const nodeId = test.createNodeAndOpenPanel([parentNodeId], DagNodeType.Map, DagNodeSubType.Cast);
+        const $panel = $("#castOpPanel");
+        test.assert($panel.hasClass("xc-hidden") === false);
+
+        // select column
+        const $lists = $panel.find(".resultSection .lists");
+        $lists.eq(0).find(".text").click(); // open the dropdown list
+        const $li = $lists.eq(0).find("li:contains(" + colName + ")");
+        test.assert($li.length === 1);
+        $li.trigger(fakeEvent.mouseup)
+        // select integer type
+        $panel.find(".resultSection .typeList li:contains(integer)").trigger(fakeEvent.mouseup);
+        $panel.find(".submit").click();
+
+        test.hasNodeWithState(nodeId, DagNodeState.Configured)
+        .then(() => {
+            deferred.resolve(nodeId);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function createLinkOutNode(parentNodeId, name) {
+        const deferred = PromiseHelper.deferred();
+        const nodeId = test.createNodeAndOpenPanel(parentNodeId, DagNodeType.DFOut);
+        const $panel = $("#dfLinkOutPanel");
+        const linkOutName = xcHelper.randName(name);
+        $panel.find(".linkOutName input").val(linkOutName);
+        $panel.find(".checkbox").click(); // check the checkbox
+        $panel.find(".submit").click();
+        test.hasNodeWithState(nodeId, DagNodeState.Configured)
+        .then(() => {
+            return test.executeNode(nodeId);
+        })
+        .then(() => {
+            deferred.resolve(linkOutName);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function createLinkInNode(dfName, linkOutName) {
+        const deferred = PromiseHelper.deferred();
+        const nodeId = test.createNodeAndOpenPanel(null, DagNodeType.DFIn);
+        const $panel = $("#dfLinkInPanel");
+        fillArgInPanel($panel.find(".dataflowName input"), dfName);
+        fillArgInPanel($panel.find(".linkOutNodeName input"), linkOutName);
+        $panel.find(".submit").click();
+        test.hasNodeWithState(nodeId, DagNodeState.Configured)
+        .then(() => {
+            return test.executeNode(nodeId);
+        })
+        .then(() => {
+            deferred.resolve(nodeId);
+        })
+        .fail(deferred.reject);
+
+        return deferred.promise();
+    }
+
+    function renameTab($tab, newName) {
+        // XXX TODO not sure why but run in sync way sometimes fail to rename
+        // maybe related to the slowness of event propogation
+        const deferred = PromiseHelper.deferred();
+        $tab.find(".name").dblclick();
+        dealyPromise(500)
+        .then(() => {
+            $tab.find(".xc-input").text(newName);
+            return dealyPromise(500);
+        })
+        .then(() => {
+            $tab.find(".xc-input").focusout();
+            return dealyPromise(500);
+        })
+        .then(() => {
+            test.assert($tab.find(".name").text() === newName);
+        })
+        .always(() => {
+            if (test.assert($tab.find(".name").text() === newName)) {
+                deferred.resolve();
+            } else {
+                deferred.reject();
+            }
+        });
+        return deferred.promise();
+    }
+
+    function dealyPromise(dealyTime) {
+        const deferred = PromiseHelper.deferred();
+        setTimeout(() => {
+            deferred.resolve();
+        }, dealyTime);
+        return deferred.promise();
+    }
     return FlightTestInXD;
 }({}, jQuery));

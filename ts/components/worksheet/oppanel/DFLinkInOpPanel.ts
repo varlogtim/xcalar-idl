@@ -51,13 +51,12 @@ class DFLinkInOpPanel extends BaseOpPanel {
         this._initializeDataflows();
     }
 
-    // XXX add shared dataflows
     private _initializeDataflows(): void {
         const tabs: DagTab[] = DagTabManager.Instance.getTabs();
         const dataflows = tabs.map((tab) => {
             const name: string = tab.getName();
-            const shared: boolean = false;
-            const displayName: string = shared ? `/shared/${name}` : name;
+            const shared: boolean = (tab instanceof DagTabShared);
+            const displayName: string = shared ? (<DagTabShared>tab).getPath() : name;
             return {
                 tab: tab,
                 displayName: displayName
@@ -248,8 +247,7 @@ class DFLinkInOpPanel extends BaseOpPanel {
 
     private _addEventListenersForDropdown(
         $dropdown: JQuery,
-        searchCallback: Function,
-        changeCallback?: Function
+        searchCallback: Function
     ): void {
         const selector: string = `#${this._getPanel().attr("id")}`;
         new MenuHelper($dropdown, {
@@ -259,10 +257,6 @@ class DFLinkInOpPanel extends BaseOpPanel {
             onSelect: ($li) => {
                 if (!$li.hasClass("hint")) {
                     $dropdown.find("input").val($li.text()).trigger("change");
-                    if ($dropdown.closest(".row").hasClass("linkOutNodeName")) {
-                        // when select link out node, auto detect the schema
-                        this._autoDetectSchema();
-                    }
                 }
             },
             container: selector
@@ -272,12 +266,6 @@ class DFLinkInOpPanel extends BaseOpPanel {
         .on("input", (event) => {
             const keyword: string = $(event.currentTarget).val().trim();
             searchCallback.call(this, keyword);
-        })
-        .on("change", (event) => {
-            const name: string = $(event.currentTarget).val().trim();
-            if (changeCallback) {
-                changeCallback.call(this, name);
-            }
         });
     }
 
@@ -288,14 +276,23 @@ class DFLinkInOpPanel extends BaseOpPanel {
             this.close();
         });
 
-        $panel.on("click", ".confirm", (event) => {
+        $panel.on("click", ".submit", (event) => {
             $(event.target).blur();
             this._submitForm();
         });
 
+        $panel.on("change", ".dataflowName input", (event) => {
+            const dataflowName: string = $(event.currentTarget).val().trim();
+            this._initializeLinkOutNodes(dataflowName);
+        });
+
+        $panel.on("change", ".linkOutNodeName input", () => {
+            this._autoDetectSchema();
+        });
+
         // dropdown for dataflowName
         const $dfList: JQuery = this._getDFDropdownList();
-        this._addEventListenersForDropdown($dfList, this._searchDF, this._initializeLinkOutNodes);
+        this._addEventListenersForDropdown($dfList, this._searchDF);
         // dropdown for linkOutNodeName
         const $linkOutDropdownList: JQuery = this._getLinkOutDropdownList();
         this._addEventListenersForDropdown($linkOutDropdownList, this._searchLinkOutNodeName);

@@ -190,6 +190,9 @@ class DagTabShared extends DagTab {
         })
         .then(deferred.resolve)
         .fail((error) => {
+            if (typeof error === "string") {
+                error = {log: error};
+            }
             if (hasCreatWKBK) {
                 // if fails and workbook has created
                 // delete it as a rollback

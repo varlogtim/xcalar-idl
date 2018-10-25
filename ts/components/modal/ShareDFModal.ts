@@ -84,7 +84,7 @@ class ShareDFModal {
                 Alert.error(DFTStr.ShareFail, error);
             } else {
                 const $bth: JQuery = this._getModal().find(".confirm");
-                StatusBox.show(DFTStr.Share, $bth, false, {
+                StatusBox.show(DFTStr.ShareFail, $bth, false, {
                     detail: error.log
                 });
             }

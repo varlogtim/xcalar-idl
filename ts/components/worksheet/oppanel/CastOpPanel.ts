@@ -160,7 +160,7 @@ class CastOpPanel extends BaseOpPanel {
         this.$panel.find('.cancel, .close').on('click', () => {
             this.close();
         });
-        this.$panel.find(".confirm").on("click", () => {
+        this.$panel.find(".submit").on("click", () => {
             this._submit();
         });
 
