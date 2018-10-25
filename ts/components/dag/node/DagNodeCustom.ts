@@ -371,7 +371,7 @@ class DagNodeCustom extends DagNode {
     private _setupSubgraphEvents() {
         // Listen to sub graph changes
         const subGraph = this.getSubGraph();
-        subGraph.events.on(DagNodeEvents.SubGraphConfigured, ({id: nodeId}) => {
+        subGraph.events.on(DagNodeEvents.SubGraphConfigured, () => {
             if (this.isConfigured()) {
                 this.beConfiguredState();
             }

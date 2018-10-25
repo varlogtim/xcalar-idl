@@ -7,7 +7,7 @@ class DagNodeRowNum extends DagNode {
         this.maxParents = 1;
         this.minParents = 1;
         this.display.icon = "&#xe957;";
-        this.input = new DagNodeRowNumInput(options.input);
+        this.input = new DagNodeRowNumInput(<DagNodeRowNumInputStruct>options.input);
     }
 
     /**

@@ -6,7 +6,7 @@ class SQLOpPanel extends BaseOpPanel {
     private _dataModel: SQLOpPanelModel; // The key data structure
     private _dagNode: DagNodeSQL;
 
-    private _sqlEditor: CodeMirror;
+    private _sqlEditor: CodeMirror.Editor;
     private _$sqlButton: JQuery;
     private _$sqlSnippetDropdown = $("#sqlSnippetsList");
     private _$sqlIdentifiers = $("#sqlIdentifiers");
@@ -61,7 +61,7 @@ class SQLOpPanel extends BaseOpPanel {
         this._setupSnippetsList();
     }
 
-    public getSQLEditor(): CodeMirror {
+    public getSQLEditor(): CodeMirror.Editor {
         return this._sqlEditor;
     };
 
@@ -213,18 +213,18 @@ class SQLOpPanel extends BaseOpPanel {
         this._$sqlSnippetDropdown.addClass("xc-disabled");
     }
 
-    private _executeTrigger(cm: CodeMirror): void {
+    private _executeTrigger(): void {
         $("#sqlExecute").click();
     }
 
-    private _cancelExec(cm: CodeMirror): void {
+    private _cancelExec(): void {
         console.error("SQL cancel triggered!");
         this._sqlComs.forEach(function(sqlCom) {
             sqlCom.setStatus(SQLStatus.Cancelled);
         })
     }
 
-    private _convertTextCase(flag: boolean, cm: CodeMirror): void {
+    private _convertTextCase(flag: boolean): void {
         const text = this._sqlEditor.getSelection();
         if (text != "") {
             if (flag) {
@@ -235,7 +235,7 @@ class SQLOpPanel extends BaseOpPanel {
         }
     }
 
-    private _toggleComment(cm: CodeMirror): void {
+    private _toggleComment(): void {
         const startPos = this._sqlEditor.getCursor("from");
         const endPos = this._sqlEditor.getCursor("to");
         const startLineNum = startPos.line;
@@ -264,7 +264,7 @@ class SQLOpPanel extends BaseOpPanel {
         this._sqlEditor.setSelection(startPos,endPos);
     }
 
-    private _scrollLine(flag: boolean, cm: CodeMirror): void {
+    private _scrollLine(flag: boolean): void {
         if (flag) {
             this._sqlEditor.scrollTo(null, this._sqlEditor.getScrollInfo().top -
                                         this._sqlEditor.defaultTextHeight());
@@ -274,7 +274,7 @@ class SQLOpPanel extends BaseOpPanel {
         }
     }
 
-    private _insertLine(flag: boolean, cm: CodeMirror): void {
+    private _insertLine(flag: boolean): void {
         if (flag) {
             const curPos = this._sqlEditor.getCursor("from");
             const insertPos = {line: curPos.line, ch: 0};
@@ -347,7 +347,7 @@ class SQLOpPanel extends BaseOpPanel {
             }
         );
 
-        self._sqlEditor.on("keyup", function(cm, e) {
+        self._sqlEditor.on("keyup", function(_cm, e) {
             if (e.keyCode >= 65 && e.keyCode <= 90 ||
                 e.keyCode >= 48 && e.keyCode <= 57 && !e.shiftKey ||
                 e.keyCode === 190 && !e.shiftKey) {
@@ -1024,7 +1024,7 @@ class SQLOpPanel extends BaseOpPanel {
                 srcTableMap = ret.srcTableMap;
                 return sqlCom.compile(queryId, sql, undefined);
             })
-            .then(function(queryString, newTableName, newCols, cacheStruct) {
+            .then(function(queryString, newTableName, newCols) {
                 // XXX TO-DO implement caching
                 resTableName = newTableName;
                 allCols = newCols;

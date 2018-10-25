@@ -250,6 +250,7 @@ class ColAssignmentModel {
 
     public validateAdvancedMode(paramStr: string): {error: string} {
         try {
+            // XXX TODO: check what's the status of it
             return null;
         } catch (e) {
             console.error(e);

@@ -694,7 +694,7 @@ class GroupByOpPanel extends GeneralOpPanel {
             $table.find(".col" + colNum).removeClass("modalHighlighted");
         }
 
-        // XXX fix this
+        // XXX TODO fix this
         return;
 
         if (xcHelper.hasValidColPrefix(arg)) {

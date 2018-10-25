@@ -240,7 +240,9 @@ class ExportOpPanel extends BaseOpPanel implements IOpPanel {
             '<input class="text" type="text" value="" spellcheck="false">' +
             '<div class="iconWrapper"><i class="icon xi-arrow-down"></i></div>' +
             '<div class="list"><ul class="exportDrivers">';
-        let targets: string = Object.values(DSTargetManager.getAllTargets());
+        // Object.values is not supported by many browsers
+        const obj = DSTargetManager.getAllTargets();
+        let targets: {name: string}[] = Object.keys(obj).map((key) => obj[key]);
         targets.forEach((target) => {
             html += "<li>" + target.name + "</li>";
         });

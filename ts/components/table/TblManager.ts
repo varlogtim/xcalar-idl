@@ -360,10 +360,6 @@ class TblManager {
                     }
                 }
             }
-            if (tablesToReplace.length === 1) {
-                const oldTableId: TableId = xcHelper.getTableId(tablesToReplace[0]);
-                TblManager._animateTableId(newTableId, oldTableId);
-            }
             FnBar.updateColNameCache();
 
             deferred.resolve();
@@ -413,118 +409,6 @@ class TblManager {
             gActiveTableId = null;
             TableComponent.update();
         }
-    }
-
-    // XXX TODO: remoe this function
-    private static _animateTableId(tableId: TableId, oldId: TableId): XDPromise<void> {
-        return PromiseHelper.resolve();
-        if (gMinModeOn || (typeof tableId !== typeof oldId) ||
-            (isNaN(<number>tableId) !== isNaN(<number>oldId))) {
-            // do not animate if going from "ab12" to 13
-            return PromiseHelper.resolve();
-        }
-
-        const splitCntChars = (sChars: string[], eChars: string[]): string[][] => {
-            const eLen: number = eChars.length;
-            const len: number = Math.max(sChars.length, eChars.length);
-            // padding empty string to chars to the end
-            sChars = sChars.concat(new Array(len - sChars.length).fill(""));
-            eChars = eChars.concat(new Array(len - eChars.length).fill(""));
-
-            const chars: string[][] = sChars.map((sCh, i) => {
-                const eCh: string = eChars[i];
-                let sNum: number = Number(sCh);
-                const eNum: number = Number(eCh);
-                const inc: number = (eNum > sNum) ? 1 : -1;
-                const res: string[] = [sCh];
-
-                while (sNum !== eNum) {
-                    sNum += inc;
-                    if (sNum === eNum) {
-                        res.push(eCh);
-                    } else {
-                        res.push(sNum + ""); // change to string
-                    }
-                }
-                return res;
-            });
-            // chars need to be the same len as eChars
-            chars.splice(eLen);
-            return chars;
-        };
-
-
-        const getHashAnimHtml = (hashPart: string, charCnts: string[][]): string => {
-            return '<div class="hashPart">' + hashPart + '</div>' +
-                    '<div class="animWrap">' +
-                        '<div class="topPadding"></div>' +
-                        charCnts.map((chartCnt) => {
-                            return '<div class="animPart">' +
-                                        chartCnt.map((ch) => {
-                                            return '<div class="num">' +
-                                                        ch +
-                                                    '</div>';
-                                        }).join("") +
-                                    '</div>';
-                        }).join("") +
-                        '<div class="bottomPadding"></div>' +
-                    '</div>';
-        };
-
-        const animateCharCnt = ($section: JQuery): XDPromise<void> => {
-            const h: number = $section.height(); // 20px
-            const defs: XDPromise<void>[] = [];
-
-            $section.find(".animPart").each((i, el) => {
-                const $part: JQuery = $(el);
-                const $nums: JQuery = $part.find(".num");
-                const animTime: number = 500;
-                const delayFactor: number = 100;
-
-                if ($nums.length > 1) {
-                    const top: number = parseInt($part.css("top")) -
-                    h * ($nums.length - 1);
-                    const def: XDPromise<void> = $part.animate({
-                        "top": top + "px"
-                    }, animTime)
-                    .delay(delayFactor * i)
-                    .promise();
-
-                    defs.push(def);
-                }
-            });
-
-            return PromiseHelper.when.apply(null, defs);
-        }
-
-        const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const $hashName: JQuery = $("#xcTheadWrap-" + tableId).find(".hashName");
-        const oldText: string = $hashName.text();
-        tableId = String(tableId);
-        oldId = String(oldId);
-        let hashPart: string;
-        let sCntStr: string;
-        let eCntStr: string;
-        if (isNaN(<any>tableId)) { // is a number
-            hashPart = "#" + tableId.substring(0, 2); // first 2 chars
-            sCntStr = oldId.substring(2);
-            eCntStr = tableId.substring(2);
-        } else {
-            hashPart = "#";
-            sCntStr = oldId;
-            eCntStr = tableId;
-        }
-
-        const charCnts: string[][] = splitCntChars(Array.from(sCntStr), Array.from(eCntStr));
-        $hashName.html(getHashAnimHtml(hashPart, charCnts));
-        animateCharCnt($hashName)
-        .then(() => {
-            $hashName.text(oldText);
-            deferred.resolve();
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
     }
 
     private static _scrollAndFocusTable(tableName: string): void {
@@ -3341,7 +3225,6 @@ class TblManager {
             return {
                 vefiryTableType: TblManager._verifyTableType,
                 setTablesToReplace: TblManager._setTablesToReplace,
-                animateTableId: TblManager._animateTableId,
                 tagOldTables: TblManager._tagOldTables,
                 removeOldTables: TblManager._removeOldTables
             }

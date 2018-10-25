@@ -114,7 +114,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
         $list.append(html);
     }
 
-    private _checkOpArgs(name: string, key: string, operator: string): boolean {
+    private _checkOpArgs(key: string, operator: string): boolean {
         let $location: JQuery = null;
         let error: string = "";
 
@@ -236,7 +236,7 @@ class PublishIMDOpPanel extends BaseOpPanel {
             operator = this._$operatorInput.val();
             name = this._$nameInput.val();
         }
-        if (!this._checkOpArgs(name, key, operator)) {
+        if (!this._checkOpArgs(key, operator)) {
             return;
         }
 

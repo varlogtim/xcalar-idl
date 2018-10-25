@@ -171,7 +171,7 @@ class DagTabUser extends DagTab {
         .then(() => {
             return PromiseHelper.alwaysResolve(this._tempKVStore.delete());
         })
-        .then((res: {}) => {
+        .then(() => {
             // alwaysResolves returns an object that we don't need
             deferred.resolve();
         })

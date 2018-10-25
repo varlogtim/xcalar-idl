@@ -525,9 +525,7 @@ class UDFPanel {
     }
 
     /* Unit Test Only */
-    public __testOnly__: {
-        inputUDFFuncList;
-    } = {};
+    public __testOnly__: any = {};
 
     public setupTest(): void {
         if (typeof unitTestMode !== "undefined" && unitTestMode) {

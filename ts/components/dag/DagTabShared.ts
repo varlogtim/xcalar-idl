@@ -204,7 +204,7 @@ class DagTabShared extends DagTab {
         return deferred.promise();
     }
 
-    protected _loadFromKVStore(): XDPromise<void> {
+    protected _loadFromKVStore(): XDPromise<any> {
         DagTabShared._switchSession(this._getWKBKName());
         const promise = super._loadFromKVStore();
         DagTabShared._resetSession();

@@ -114,7 +114,7 @@ class IMDTableOpPanel extends BaseOpPanel {
     private _getColumns(): string[] {
         let $selectedCols = this._$columns.find(".col.checked");
         let columns: string[] = [];
-        $selectedCols.each((index: number, elem: Element) => {
+        $selectedCols.each((_index: number, elem: Element) => {
             columns.push($(elem).text());
         });
         return columns;
@@ -162,7 +162,7 @@ class IMDTableOpPanel extends BaseOpPanel {
         $('#IMDTableOpPanel .tableVersion .checkbox').addClass("active");
         const versionList = this._selectedTable.updates;
         let html: string = "";
-        versionList.forEach((update: UpdateInfo) => {
+        versionList.forEach((update) => {
             let id: number = update.batchId;
             let time: string = moment.unix(update.startTS).format("M-D-Y h:mm:ss A");
             html += '<li class="versionListItem" data-version="' + id +

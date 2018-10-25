@@ -10,7 +10,7 @@ class SQLOpPanelModel {
 
     public constructor(dagNode: DagNodeSQL) {
         this._dagNode = dagNode;
-        const params: DagNodeSQLInput = this._dagNode.getParam();
+        const params = this._dagNode.getParam();
         this._initialize(params);
         this._columns = dagNode.getColumns() || [];
         this._identifiers = dagNode.getIdentifiers() || new Map<number, string>();
@@ -18,7 +18,7 @@ class SQLOpPanelModel {
         this._srcTableMap = dagNode.getSrcTableMap();
     }
 
-    private _initialize(params: DagNodeSQLInput): void {
+    private _initialize(params: DagNodeSQLInputStruct): void {
         this._queryStr = params.queryStr;
         this._newTableName = params.newTableName;
         this._jdbcCheckTime = params.jdbcCheckTime;
@@ -46,7 +46,7 @@ class SQLOpPanelModel {
      * Submit the settings of Set op node params
      */
     public submit(): void {
-        const param: DagNodeSQLInput = this._getParam();
+        const param = this._getParam();
         this._dagNode.setColumns(this._columns);
         this._dagNode.setSqlQueryString(this._sqlQueryString);
         this._dagNode.setIdentifiers(this._identifiers);
@@ -55,7 +55,7 @@ class SQLOpPanelModel {
     }
 
 
-    private _getParam(): DagNodeSQLInput {
+    private _getParam(): DagNodeSQLInputStruct {
         return {
             queryStr: this._queryStr,
             newTableName: this._newTableName,

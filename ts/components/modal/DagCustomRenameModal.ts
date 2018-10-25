@@ -18,7 +18,7 @@ class DagCustomRenameModal {
             noEnter: true
         });
         this._model = {
-            name: '', validateFunc: (name) => true, onSubmit: (name) => {}
+            name: '', validateFunc: () => true, onSubmit: () => {}
         };
     }
 

@@ -185,6 +185,7 @@ interface JQuery {
     datepicker(options: DatepickerOptions): JQuery;
     sort(fn?: Function): JQuery;
     scrollintoview(any): JQuery;
+    caret(pos: number): JQuery;
 }
 
 interface LocalStorage {
@@ -360,6 +361,8 @@ interface Window {
     xcSessionStorage: any;
 }
 
+declare var csLookup: string;
+declare var planServer: string;
 declare var unitTestMode: boolean;
 declare var isBrowserIE: boolean;
 declare var isBrowserChrome: boolean;
@@ -654,6 +657,8 @@ declare enum DgDagStateTStr {}
 //     CsvSchemaModeNoneProvided
 // }
 
+declare var XcalarApisTFromStr: any;
+
 declare namespace XcalarApisConstantsT {
     export var XcalarApiMaxTableNameLen: number;
     export var XcalarApiMaxFieldNameLen: number;
@@ -798,7 +803,7 @@ declare class TableMeta {
     public updateTimeStamp(): void;
     public addNoDelete(): void;
     public removeNoDelete(): void;
-    public showIndexStyle(): void;
+    public showIndexStyle(): boolean;
     public getKeyName(): string[];
     public getSkewness(): number;
     public updateResultset(): XDPromise<void>;
@@ -1440,3 +1445,12 @@ declare namespace XcSDK {
         public getType(): ColumnType;
     }
 }
+
+declare class SQLCompiler {
+    public setStatus(status: string): void;
+    public compile(id: string, sql: string, isJsonPlan?): XDPromise<any>;
+    public addDrops(query: string): XDPromise<any>;
+    public setError(error: string): void;
+    public updateQueryHistory(): void;
+}
+

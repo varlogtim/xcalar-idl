@@ -1068,10 +1068,7 @@ class UDFFileManager extends BaseFileManager {
     }
 
     /* Unit Test Only */
-    public __testOnly__: {
-        parseSyntaxError;
-        upload;
-    } = {};
+    public __testOnly__: any = {};
 
     public setupTest(): void {
         if (typeof unitTestMode !== "undefined" && unitTestMode) {

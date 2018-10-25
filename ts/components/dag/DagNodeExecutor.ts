@@ -375,9 +375,8 @@ class DagNodeExecutor {
         });
         if (backCols.length != columns.length) {
             throw new Error("Could not export, columns are missing.");
-            return;
         }
-        const driverColumns: XcalarApiExportColumnT[] = columns.map((e,i) => {
+        const driverColumns: XcalarApiExportColumnT[] = columns.map((_e,i) => {
             let col = new XcalarApiExportColumnT();
             col.headerName = columns[i];
             col.columnName = backCols[i];
@@ -461,8 +460,6 @@ class DagNodeExecutor {
     private _publishIMD(): XDPromise<string> {
         const node: DagNodePublishIMD = <DagNodePublishIMD>this.node;
         const params: DagNodePublishIMDInputStruct = node.getParam(true);
-        //XXX TODO: Integrate with new XIAPI.publishTable
-        const deferred: XDDeferred<null> = PromiseHelper.deferred();
         let columns: ProgCol[] = node.getParents().map((parentNode) => {
             return parentNode.getLineage().getColumns();
         })[0] || [];
@@ -566,7 +563,7 @@ class DagNodeExecutor {
         const self = this;
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
         const node: DagNodeSQL = <DagNodeSQL>this.node;
-        const params: DagNodeSQLInput = node.getParam();
+        const params: DagNodeSQLInputStruct = node.getParam();
         const replaceMap = {};
         const queryName = xcHelper.randName("sqlQuery", 8);
         node.getParents().forEach((parent, idx) => {

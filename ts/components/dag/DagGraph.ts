@@ -989,9 +989,16 @@ class DagGraph {
         for (let rawNode of query) {
             const args = rawNode.args;
 
-            const node: {parents: string[], children: string[],
-                name: string, api: number, args: any, rawNode: any, aggregates?: string[]} =
-            {   name: args.dest,
+            const node: {
+                parents: string[],
+                children: string[],
+                name: string,
+                api: number,
+                args: any,
+                rawNode: any,
+                aggregates?: string[]
+            } = {
+                name: args.dest,
                 parents: [],
                 children: [],
                 rawNode: rawNode,
@@ -1031,20 +1038,20 @@ class DagGraph {
         }
 
         //  connect into tree by matching nodes with parents
-        for (let [_name, node] of nodes) {
+        nodes.forEach((_name, node) => {
             setParents(node);
-        }
+        });
 
         // turn nodeMeta into dagNodeInfo structure expected by DagGraph
         return finalConvertIntoDagNodeInfoArray(nodes);
 
         function finalConvertIntoDagNodeInfoArray(nodes) {
             const endNodes = [];
-            for (let [_name, node] of nodes) {
+            nodes.forEach((_name, node) => {
                 if (node.children.length === 0) {
                     endNodes.push(node);
                 }
-            }
+            });
 
             const finalNodeInfos = [];
             const dagNodeInfos = {};

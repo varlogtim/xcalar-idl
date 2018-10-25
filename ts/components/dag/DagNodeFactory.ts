@@ -26,7 +26,7 @@ class DagNodeFactory {
             case DagNodeType.RowNum:
                 return new DagNodeRowNum(options);
             case DagNodeType.Extension:
-                return new DagNodeExtension(options);
+                return new DagNodeExtension(<DagNodeExtensionInfo>options);
             case DagNodeType.Custom:
                 return new DagNodeCustom(<DagNodeCustomInfo>options);
             case DagNodeType.CustomInput:

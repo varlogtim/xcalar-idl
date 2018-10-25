@@ -63,7 +63,7 @@ class TableMenuManager {
         if (tableInfo.type === "filter") {
             if (tableInfo.generatingComplement) {
                 xcHelper.disableMenuItem($complimentLi, {
-                    "title": TooltipTStr.generatingComplement
+                    "title": TooltipTStr.GeneratingComplement
                 });
             } else if (tableInfo.hasDroppedParent) {
                 xcHelper.disableMenuItem($complimentLi, {

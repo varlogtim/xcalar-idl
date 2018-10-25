@@ -12,12 +12,14 @@ interface DagNodeInfo {
     state?: DagNodeState;
     display? : Coordinate
     error?: string;
+    parents?: string[];
+    aggregates?: string[];
 }
 
 interface DagNodeDisplayInfo {
-    coordinates: Coordinate,
-    icon: string,
-    description: string
+    coordinates: Coordinate;
+    icon: string;
+    description: string;
 }
 
 interface DagNodeCopyInfo extends DagNodeInfo {

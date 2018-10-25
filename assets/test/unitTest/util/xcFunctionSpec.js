@@ -614,44 +614,6 @@ describe("xcFunction Test", function () {
             });
     });
 
-    it('xcFunction.exportTable should work', (done) => {
-        const oldFunc = XIApi.exportTable;
-        const oldAlert = Alert.show;
-        let test = false;
-        XIApi.exportTable = () => PromiseHelper.resolve();
-        Alert.show = () => { test = true; };
-
-        xcFunction.exportTable(tableName, 'export', 'target', 1, [], [], false, false)
-            .then(() => {
-                expect(test).to.be.true;
-                done();
-            })
-            .fail(() => {
-                done('fail');
-            })
-            .always(() => {
-                XIApi.exportTable = oldFunc;
-                Alert.show = oldAlert;
-            });
-    });
-
-    it('xcFunction.exportTable should handle fail case', (done) => {
-        const oldFunc = XIApi.exportTable;
-        XIApi.exportTable = () => PromiseHelper.reject('test');
-
-        xcFunction.exportTable(tableName)
-            .then(() => {
-                done('fail');
-            })
-            .fail((error) => {
-                expect(error).to.equal('test');
-                done();
-            })
-            .always(() => {
-                XIApi.exportTable = oldFunc;
-            });
-    });
-
     it('xcFunction.rename reject invalid case', (done) => {
         xcFunction.rename()
             .then(() => {

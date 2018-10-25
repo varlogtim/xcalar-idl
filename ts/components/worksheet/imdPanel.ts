@@ -1439,12 +1439,12 @@ namespace IMDPanel {
      * This function will have to be used to actually call the resfresh API
      */
     function getClosestUpdate(tName: string, targetTS: number): number {
-        let closestUpdate: UpdateInfo = null;
+        let closestUpdate = null;
         pTables.forEach((table) => {
             if (table.name == tName) {
                 //updated may not sorted by timestamp , need to check all of them
                 for (let i = 0; i < table.updates.length; i++) {
-                    const update: UpdateInfo = table.updates[i];
+                    const update = table.updates[i];
                     if (!update.startTS || update.startTS > targetTS) {
                         continue;
                     }
@@ -2267,7 +2267,7 @@ namespace IMDPanel {
         XcalarListPublishedTables(tableName, false, true, updateNumber)
         .then(function(result) {
             const moreUpdates = result.tables[0].updates;
-            moreUpdates.forEach(function(update: UpdateInfo) {
+            moreUpdates.forEach(function(update) {
                 if (update.batchId < loadTable["lowestBatch"]) {
                     loadTable.updates.push(update);
                 }

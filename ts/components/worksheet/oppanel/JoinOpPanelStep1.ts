@@ -379,7 +379,7 @@ class JoinOpPanelStep1 {
         }
         const componentDropdown = new OpPanelDropdown({
             container: $elemDropdown,
-            boundingSelector: this. _opSectionSelector,,
+            boundingSelector: this. _opSectionSelector,
             inputXcId: 'menuInput',
             ulXcId: 'menuItems',
             setTitleFunc: ($elem, text) => { $elem.text(text); }
