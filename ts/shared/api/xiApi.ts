@@ -2591,7 +2591,6 @@ namespace XIApi {
             return PromiseHelper.reject("Primary Key not in Table");
         }
 
-        const self = this;
         const roColName: string = "XcalarRankOver";
         const opCode: string = "XcalarOpCode";
         const deferred: XDDeferred<string> = PromiseHelper.deferred();
@@ -2640,7 +2639,7 @@ namespace XIApi {
                         ordering: XcalarOrderingT.XcalarOrderingUnordered}],
                                         tableName, indexTableName)
         })
-        .then(function(indexRes) {
+        .then(function() {
             // Finally publish the table
             return XcalarPublishTable(indexTableName, pubTableName);
         })
