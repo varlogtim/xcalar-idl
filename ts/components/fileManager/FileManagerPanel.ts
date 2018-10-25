@@ -157,6 +157,11 @@ class FileManagerPanel {
             };
         }
 
+        // When workbook is not activated, curWorkbookDisplayPath is null.
+        if (!path) {
+            path = "";
+        }
+
         const pathSplit: string[] = path.split("/");
         let curPath: string = pathSplit.shift();
         while (pathSplit.length !== 0) {

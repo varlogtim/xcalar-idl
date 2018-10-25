@@ -146,6 +146,7 @@ class UDFPanel {
 
     // Setup UDF section
     private _setupUDF(): void {
+        UDFFileManager.Instance.initialize();
         const monitorFileManager: FileManagerPanel = new FileManagerPanel(
             $("#monitor-file-manager")
         );
@@ -159,6 +160,7 @@ class UDFPanel {
             monitorFileManager.switchPathByStep(
                 UDFFileManager.Instance.getCurrWorkbookDisplayPath()
             );
+
             $udfSection.removeClass("switching");
         });
 
@@ -244,7 +246,6 @@ class UDFPanel {
         const $saveAsSection: JQuery = $udfSection.find(".saveAsSection");
         const $saveAsInput: JQuery = $saveAsSection.find("input");
         const $saveAs: JQuery = $saveAsSection.find(".save");
-
         $saveAsInput.keypress((event: JQueryEventObject) => {
             if (event.which === keyCode.Enter) {
                 if (this._eventSave($saveAsSection)) {
@@ -258,6 +259,25 @@ class UDFPanel {
             if (this._eventSave($saveAsSection)) {
                 this._eventExpandSaveAs(false);
                 $saveAsSection.find("input").val("");
+            }
+        });
+
+        const $editArea: JQuery = $udfSection.find(".editSection .editArea");
+        $editArea.keydown((event: JQueryEventObject) => {
+            if (
+                (!(isSystemMac && event.metaKey) &&
+                    !(!isSystemMac && event.ctrlKey)) ||
+                event.which !== keyCode.S
+            ) {
+                return;
+            }
+            event.preventDefault();
+            // Stop propagation, otherwise will clear StatusBox.
+            event.stopPropagation();
+            if ($saveAsSection.hasClass("xc-hidden")) {
+                $save.click();
+            } else {
+                $saveAs.click();
             }
         });
     }

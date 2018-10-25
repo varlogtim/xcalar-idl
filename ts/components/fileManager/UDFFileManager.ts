@@ -105,8 +105,12 @@ class UDFFileManager extends BaseFileManager {
     public getCurrWorkbookDisplayPath(): string {
         const currWorkbookPath: string = this.getCurrWorkbookPath();
         if (!currWorkbookPath) {
-            return "/";
+            return null;
         }
+
+        this.panels.forEach((panel: FileManagerPanel) =>
+            this._createWorkbookFolder(panel)
+        );
         let currWorkbookDisplayPath: string = this.nsPathToDisplayPath(
             currWorkbookPath
         );
@@ -196,7 +200,7 @@ class UDFFileManager extends BaseFileManager {
     }
 
     /**
-     * Initialize UDF list and update it everywhere used.
+     * Initialize UDF list and update views.
      * @returns XDPromise
      */
     public initialize(): XDPromise<void> {
@@ -219,9 +223,6 @@ class UDFFileManager extends BaseFileManager {
             UDFPanel.Instance.updateUDF();
             this.panels.forEach((panel: FileManagerPanel) =>
                 this._buildPathTree(panel)
-            );
-            this.panels.forEach((panel: FileManagerPanel) =>
-                this._createWorkbookFolder(panel)
             );
             this.panels.forEach((panel: FileManagerPanel) =>
                 this._updateList(panel)
@@ -547,6 +548,9 @@ class UDFFileManager extends BaseFileManager {
      * @returns boolean
      */
     public canDelete(displayPath: string): boolean {
+        if (this.writeLocked) {
+            return false;
+        }
         const nsPath: string = this.displayPathToNsPath(displayPath);
         return (
             (nsPath.startsWith(this.getCurrWorkbookPath()) ||
@@ -607,7 +611,8 @@ class UDFFileManager extends BaseFileManager {
             !(
                 nsPath.startsWith(this.getCurrWorkbookPath()) ||
                 nsPath.startsWith(this.getSharedUDFPath())
-            )
+            ) ||
+            this.writeLocked
         ) {
             if ($actionButton) {
                 StatusBox.show(
@@ -730,6 +735,12 @@ class UDFFileManager extends BaseFileManager {
         this.panels.push(panel);
         this._buildPathTree(panel);
         this._createWorkbookFolder(panel);
+    }
+
+    // Prevent all write operations. Because not supported by backend without
+    // an activated session.
+    private get writeLocked(): boolean {
+        return !this.getCurrWorkbookDisplayPath();
     }
 
     /**
@@ -1014,6 +1025,8 @@ class UDFFileManager extends BaseFileManager {
         .map((path: string) => {
             return path.substring(10, path.indexOf("/", 10));
         });
+        // This is necessary, because current user can have no UDF, but we will
+        // create a fake folder for the current user workbook.
         users.push(XcUser.getCurrentUserName());
         users = Array.from(new Set(users));
 

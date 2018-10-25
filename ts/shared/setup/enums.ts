@@ -144,6 +144,7 @@ enum keyCode {
     PageUp = 33,
     Home = 36,
     End = 35,
+    S = 83, // for save
     Y = 89, // for redo
     Z = 90
 }
