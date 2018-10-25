@@ -6404,6 +6404,20 @@ namespace xcHelper {
             });
         });
         return colInfo;
+    };
+
+    export function unionTypeToXD(type) {
+        switch (type) {
+            case UnionOperatorTStr[UnionOperatorT.UnionStandard]:
+                return "union";
+            case UnionOperatorTStr[UnionOperatorT.UnionIntersect]:
+                return "intersect";
+            case UnionOperatorTStr[UnionOperatorT.UnionExcept]:
+                return "except";
+            default:
+                console.error("error case");
+                return "";
+        }
     }
 
     export function unionTypeToXD(type) {

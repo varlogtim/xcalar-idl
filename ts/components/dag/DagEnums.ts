@@ -21,7 +21,8 @@ enum DagNodeType {
     PublishIMD = "publishIMD",
     Split = "split",
     Round = "round",
-    RowNum = "rowNum"
+    RowNum = "rowNum",
+    Index = "index"
 }
 
 enum DagNodeSubType {
@@ -29,7 +30,9 @@ enum DagNodeSubType {
     LookupJoin = "LookupJoin",
     Union = "Union",
     Intersect = "Intersect",
-    Except = "Except"
+    Except = "Except",
+    ExportOptimized = "Export Optimized",
+    DFOutOptimized = "link out Optimized",
 }
 
 enum DagNodeState {
@@ -47,7 +50,8 @@ enum DagNodeErrorType {
     NoGraph = "Cannot find linked graph",
     NoLinkInGraph = "Cannot find the linked node",
     CycleInLink = "Cycle In Link",
-    LinkOutNotExecute = "The linked node only allow linking after execution"
+    LinkOutNotExecute = "The linked node only allow linking after execution",
+    InvalidOptimizedOutNode = "Valid terminal nodes must be either Export optimized or Link out optimized"
 }
 
 enum DagNodeEvents {
@@ -57,7 +61,7 @@ enum DagNodeEvents {
     TableRemove = "TableRemove",
     SubGraphError = "SubGraphError",
     SubGraphConfigured = "SubGraphConfigured",
-    ConnectionChange = "ConnecdtionChange"
+    ConnectionChange = "ConnectionChange"
 }
 
 enum DagCategoryType {

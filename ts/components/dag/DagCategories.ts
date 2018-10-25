@@ -45,7 +45,7 @@ class DagCategories {
             })),
             new DagCategoryNodeOut(DagNodeFactory.create({
                 type: DagNodeType.DFOut
-            })),
+            }))
         ]);
 
         const valueCategory = new DagCategory(DagCategoryType.Value, [
@@ -133,6 +133,9 @@ class DagCategories {
             new DagCategoryNode(DagNodeFactory.create({
                 type: DagNodeType.CustomOutput
             }), DagCategoryType.Custom, true),
+            new DagCategoryNode(DagNodeFactory.create({
+                type: DagNodeType.Index
+            }), DagCategoryType.Custom, true)
         ], 'gUserCustomOpKey');
 
         this.categories = [
@@ -190,7 +193,7 @@ class DagCategories {
 
     /**
      * Get the category which an operator belongs to
-     * @param nodeId 
+     * @param nodeId
      */
     public getCategoryByNodeId(nodeId: DagNodeId): DagCategory {
         for (const category of this.getCategories()) {
@@ -225,7 +228,7 @@ class DagCategory {
 
     /**
      * Check if an operator with the given name exists in the list
-     * @param name 
+     * @param name
      */
     public isExistOperatorName(name: string): boolean {
         return this._getOperatorDisplayNames().has(name);
@@ -233,7 +236,7 @@ class DagCategory {
 
     /**
      * Remove an operator identified by operatorId(nodeId)
-     * @param operatorId 
+     * @param operatorId
      */
     public removeOperatorById(operatorId: DagNodeId): boolean {
         const idx = this._getIndexById(operatorId);
@@ -246,7 +249,7 @@ class DagCategory {
 
     /**
      * Get an operator identified by operatorId(nodeId)
-     * @param operatorId 
+     * @param operatorId
      */
     public getOperatorById(operatorId: DagNodeId): DagCategoryNode {
         const idx = this._getIndexById(operatorId);
@@ -364,7 +367,7 @@ class DagCategoryCustom extends DagCategory {
                 return prefix;
             }
         }
-        
+
         for (let i = start; i < end; i ++) {
             const name = `${prefix}-${i}`;
             if (!nameSet.has(name)) {

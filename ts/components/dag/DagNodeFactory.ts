@@ -45,6 +45,8 @@ class DagNodeFactory {
                 return new DagNodeSplit(options);
             case DagNodeType.Round:
                 return new DagNodeRound(options);
+            case DagNodeType.Index:
+                return new DagNodeIndex(options);
             default:
                 throw new Error("node type " + options.type + " not supported");
         }
