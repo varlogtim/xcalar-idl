@@ -1092,7 +1092,10 @@ window.DS = (function ($, DS) {
         })
         .then(function() {
             //clear data cart
-            DSCart.removeCart(dsId);
+            if (gChronos) {
+                DSCart.removeCart(dsId);
+                Dag.makeInactive(dsId, true);
+            }
             // clear data table
             if (isShowDSTable) {
                 DSTable.clear();
@@ -1102,7 +1105,6 @@ window.DS = (function ($, DS) {
             if (!noDeFocus) {
                 focusOnForm();
             }
-            Dag.makeInactive(dsId, true);
 
             Transaction.done(txId, {
                 "noSql": options.noSql,

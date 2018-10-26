@@ -769,15 +769,18 @@ window.TableList = (function($, TableList) {
         });
     };
 
+    // XXX TODO: keep the functionality but remove table list module
     TableList.refreshOrphanList = function(prettyPrint) {
         var deferred = PromiseHelper.deferred();
         focusedListNum = null;
 
         var $section = $("#orphanedTableListSection");
         // clear the search bar
-        searchHelper.clearSearch(function() {
-            clearTableListFilter($section);
-        });
+        if (searchHelper) {
+            searchHelper.clearSearch(function() {
+                clearTableListFilter($section);
+            });
+        }
         // deselect tables
         clearAll($section);
 

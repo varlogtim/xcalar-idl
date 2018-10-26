@@ -633,7 +633,7 @@ window.TestSuite = (function($, TestSuite) {
 
     TestSuite.run = function(hasAnimation, toClean, noPopup, mode, withUndo,
                              timeDilation) {
-        return FlightTest.run(hasAnimation, toClean, noPopup, mode, withUndo,
+        return FlightTestInXD.run(hasAnimation, toClean, noPopup, mode, withUndo,
                             timeDilation);
     };
 
@@ -667,8 +667,11 @@ window.TestSuite = (function($, TestSuite) {
     }
 
     function cleanup(test) {
+        // XXX TODO: make it work
+        // XXX temporary disable it
+        return PromiseHelper.resolve();
         var deferred = PromiseHelper.deferred();
-
+        
         deleteTables()
         .then(function() {
             deleteWorksheets();

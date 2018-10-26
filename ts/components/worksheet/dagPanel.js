@@ -6,8 +6,13 @@ window.DagPanel = (function($, DagPanel) {
     var dagPanelLeft; // $('#dagPanelContainer').offset().left;
     var dagTopPct = 0; // open up dag to 100% by default;
     var clickDisabled = false;
+    var hasSetup = false;
 
     DagPanel.setup = function() {
+        if (hasSetup) {
+            return;
+        }
+        hasSetup = true;
         $dagPanel = $('#dagPanel');
         $dagArea = $dagPanel.find('.dagArea');
         $scrollBarWrap = $('#dagScrollBarWrap');
@@ -26,6 +31,9 @@ window.DagPanel = (function($, DagPanel) {
     };
 
     DagPanel.setScrollBarId = function(winHeight) {
+        if (!hasSetup) {
+            return;
+        }
         // #moveCursor from TblAnim.startColDrag may be covering the screen
         // so temporarily remove it before we check if a dataflow is visible
         var $moveCursor = $("#moveCursor");
@@ -54,6 +62,9 @@ window.DagPanel = (function($, DagPanel) {
     };
 
     DagPanel.adjustScrollBarPositionAndSize = function() {
+        if (!hasSetup) {
+            return;
+        }
         var id = $scrollBarWrap.data('id');
 
         if (id && id !== "none") {
@@ -233,6 +244,9 @@ window.DagPanel = (function($, DagPanel) {
     // the dagpanel dropdowns and add an exit option for that form
     // name is optional, if not provided then will remove li
     DagPanel.updateExitMenu = function(name) {
+        if (!hasSetup) {
+            return;
+        }
         var $menu = $dagPanel.find('.dagOperationDropDown');
         $menu.find(".exitFormOption").remove();
         if (!name) {

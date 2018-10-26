@@ -186,15 +186,16 @@ window.MainMenu = (function($, MainMenu) {
     MainMenu.closeForms = function() {
         if (isFormOpen) {
             ignoreRestoreState = true;
-            // XXX TODO, hide these view in Dio
-            OperationsView.close();
-            JoinView.close();
-            UnionView.close();
-            ExportView.close();
-            SmartCastView.close();
-            DFCreateView.close();
-            SortView.close();
-            ProjectView.close();
+            if (gChronos) {
+                OperationsView.close();
+                JoinView.close();
+                UnionView.close();
+                ExportView.close();
+                SmartCastView.close();
+                DFCreateView.close();
+                SortView.close();
+                ProjectView.close();
+            }
 
             formPanels.forEach((panel) => {
                 panel.close();

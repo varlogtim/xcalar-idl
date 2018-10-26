@@ -108,6 +108,9 @@ namespace xcGlobal {
         // Shut up the console logs
         verbose = false;
         superVerbose = false;
+
+        // XXX TODO remove this flag
+        gChronos = (typeof gChronos === "undefined") ? false : gChronos;
     };
 }
 

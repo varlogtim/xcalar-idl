@@ -976,9 +976,11 @@ class UDFFileManager extends BaseFileManager {
             DSPreview.update(listXdfsObj);
             DSTargetManager.updateUDF(listXdfsObj);
             XDFManager.Instance.updateUDFs(listXdfsObj);
-            FnBar.updateOperationsMap(listXdfsObj.fnDescs, true);
-            OperationsView.updateOperationsMap(listXdfsObj);
             MapOpPanel.Instance.updateOperationsMap(listXdfsObj);
+            if (gChronos) {
+                FnBar.updateOperationsMap(listXdfsObj.fnDescs, true);
+                OperationsView.updateOperationsMap(listXdfsObj);
+            }
         })
         .then(() => this._getUserWorkbookMap())
         .then(() => {

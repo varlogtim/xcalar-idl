@@ -361,6 +361,7 @@ interface Window {
     xcSessionStorage: any;
 }
 
+declare var gChronos: boolean;
 declare var csLookup: string;
 declare var planServer: string;
 declare var unitTestMode: boolean;

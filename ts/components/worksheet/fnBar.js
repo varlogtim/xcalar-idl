@@ -348,6 +348,9 @@ window.FnBar = (function(FnBar, $) {
     };
 
     FnBar.focusOnCol = function($colInput, tableId, colNum, forceFocus) {
+        if (!setup) {
+            return;
+        }
         // Note: forceFocus is ONLY ever true in colmanager.renamecol
         var newFocus = false;
         if (lastFocusedCol == null) {

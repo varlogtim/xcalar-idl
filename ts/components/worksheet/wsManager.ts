@@ -1224,52 +1224,6 @@ namespace WSManager {
     }
 
     /**
-     * WSManager.showDatasetHint
-     */
-    export function showDatasetHint() {
-        var $numDatastores = $("#datastoreMenu .numDataStores:not(.tutor)");
-        var numDatastores = parseInt($numDatastores.text());
-        var msg;
-        if (numDatastores === 0) {
-            msg = TooltipTStr.ShowDatasetHint;
-        } else {
-            msg = TooltipTStr.ShowDatasetTableHint;
-        }
-
-        var $tab = $('#dataStoresTab');
-        var left = $tab.offset().left + $tab.outerWidth() + 7;
-        var top = $tab.offset().top + 2;
-        var $popup =
-                $('<div id="showDatasetHint" class="tableDonePopupWrap" ' +
-                    'style="top:' + top + 'px;left:' + left + 'px;">' +
-                    '<div class="tableDonePopup datastoreNotify">' +
-                    msg +
-                    '<div class="close">+</div></div></div>');
-        setTimeout(function() {
-            if ($tab.hasClass("firstTouch") &&
-                $("#workspaceTab").hasClass("active") &&
-                $("#worksheetButton").hasClass("active")) {
-                showPopup();
-            }
-        }, 1000);
-
-        function showPopup() {
-            $("body").append($popup);
-            $popup.find(".tableDonePopup").fadeIn(500);
-
-            $popup.click(function(event) {
-                if (!$(event.target).closest(".close").length) {
-                    $('#dataStoresTab').click();
-                    if (!$("#inButton").hasClass("active")) {
-                        $('#inButton').click();
-                    }
-                }
-                $("#showDatasetHint").remove();
-            });
-        }
-    }
-
-    /**
      * WSManager.initializeTable
      */
     export function initializeTable() {

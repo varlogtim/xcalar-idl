@@ -1,6 +1,7 @@
 window.DataflowPanel = (function($, DataflowPanel) {
     var pendingParamUpdates = [];
     DataflowPanel.setup = function() {
+        $("#dataflowTab").removeClass("xc-hidden");
         DFCard.setup();
         Scheduler.setup();
         UploadDataflowCard.setup();

@@ -129,7 +129,7 @@ TooltipTStr = {
     "ClickToSortAsc": "Click to sort in ascending order",
     "ClickToSortDesc": "Click to sort in descending order",
     "ShowDatasetHint": "Begin by creating a new dataset here!",
-    "ShowDatasetTableHint": "Create a table from an existing dataset or import a new one here!",
+    "ShowDataflowHint": "Create a dataflow and import an existing dataset!",
     "ParquetCannotRemovePartition": "Partition key must be added as part of the dataset",
     "AboutCopy": "Click to copy",
     "AboutCopied": "Copied to clipboard!",

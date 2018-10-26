@@ -5404,6 +5404,9 @@ namespace xcHelper {
     /* ============== dropdownOpen ======================*/
 
     function updateTableDropdown($menu: JQuery, options: DropdownOptions): void {
+        if (!gChronos) {
+            return;
+        }
         if (options.classes && options.classes.indexOf('locked') !== -1) {
             $menu.find('li:not(.hideTable, .unhideTable)')
                   .addClass('unavailable');

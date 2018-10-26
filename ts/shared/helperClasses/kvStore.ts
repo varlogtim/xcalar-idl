@@ -283,12 +283,14 @@ class KVStore {
             KVStore.metaInfos = new METAConstructor(gInfosMeta);
             KVStore.ephMetaInfos = new EMetaConstructor({});
 
-            WSManager.restore(KVStore.metaInfos.getWSMeta());
             TableComponent.getPrefixManager().restore(KVStore.metaInfos.getTpfxMeta());
             Aggregates.restore(KVStore.metaInfos.getAggMeta());
             TblManager.restoreTableMeta(KVStore.metaInfos.getTableMeta());
-            DSCart.restore(KVStore.metaInfos.getCartMeta());
             Profile.restore(KVStore.metaInfos.getStatsMeta());
+            if (gChronos) {
+                WSManager.restore(KVStore.metaInfos.getWSMeta());
+                DSCart.restore(KVStore.metaInfos.getCartMeta());
+            }
         } catch (error) {
             console.error(error);
             return PromiseHelper.reject(error);

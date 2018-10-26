@@ -28,21 +28,17 @@ namespace xcManager {
         .then(function() {
             XVM.setup();
 
+            setupChronosOnlyPanels();
             setupUserArea();
             xcTooltip.setup();
             CSHelp.setup();
             MainMenu.setup();
-            setupWorkspaceBar();
             StatusBox.setup();
             StatusMessage.setup();
             BottomMenu.setup();
             DataStore.setup();
             TableComponent.setup();
-            WSManager.setup();
             MonitorPanel.setup();
-            WorkspacePanel.setup();
-            DagPanel.setup();
-            DataflowPanel.setup();
             JupyterPanel.setup();
             IMDPanel.setup();
             setupModals();
@@ -85,28 +81,29 @@ namespace xcManager {
             // XXX TODO, hide these view in Dio
             JSONModal.setup();
             AggModal.setup();
-            setupViews()
-            WSManager.initialize(); // async
+            initializeChronosOnlyPanels();
             BottomMenu.initialize(); // async
             WorkbookPanel.initialize();
-            DataflowPanel.initialize(); // async if has df
             window["ajv"] = new Ajv(); // json schema validator
 
             SqlQueryHistoryPanel.Card.getInstance().setup();
             if (typeof SQLEditor !== "undefined") {
                 SQLEditor.initialize();
             }
-            WSManager.focusOnWorksheet();
             return setupDagPanel();
         })
         .then(function() {
             return DagTblManager.Instance.setup();
         })
         .then(function() {
+            // By default show panel
+            // XXX TODO: find better solution
+            $("#modelingDagPanel").addClass("active");
+            DagView.show();
             if (firstTimeUser) {
                 // show hint to create datasets if no tables have been created
                 // in this workbook
-                WSManager.showDatasetHint();
+                showDatasetHint();
             }
             StatusMessage.updateLocation(false, null);
             if (!isBrowserFirefox && !isBrowserIE) {
@@ -1407,6 +1404,78 @@ namespace xcManager {
                 event.preventDefault();
             }
         });
+    }
+
+    function showDatasetHint() {
+        var $numDatastores = $("#datastoreMenu .numDataStores:not(.tutor)");
+        var numDatastores = parseInt($numDatastores.text());
+        var msg;
+        var $tab;
+        if (numDatastores === 0) {
+            msg = TooltipTStr.ShowDatasetHint;
+            $tab = $('#dataStoresTab');
+        } else if (DagList.Instance.getAllDags().size === 0) {
+            msg = TooltipTStr.ShowDataflowHint;
+            $tab = $("#modelingDataflowTab");
+        } else {
+            // no need to hint
+            return;
+        }
+
+        
+        var left = $tab.offset().left + $tab.outerWidth() + 7;
+        var top = $tab.offset().top + 2;
+        var $popup =
+                $('<div id="showDatasetHint" class="tableDonePopupWrap" ' +
+                    'style="top:' + top + 'px;left:' + left + 'px;">' +
+                    '<div class="tableDonePopup datastoreNotify">' +
+                    msg +
+                    '<div class="close">+</div></div></div>');
+        setTimeout(function() {
+            if ($tab.hasClass("firstTouch") &&
+                $("#workspaceTab").hasClass("active") &&
+                $("#worksheetButton").hasClass("active")) {
+                showPopup();
+            }
+        }, 1000);
+
+        function showPopup() {
+            $("body").append($popup);
+            $popup.find(".tableDonePopup").fadeIn(500);
+
+            $popup.click(function(event) {
+                if (!$(event.target).closest(".close").length) {
+                    $('#dataStoresTab').click();
+                    if (!$("#inButton").hasClass("active")) {
+                        $('#inButton').click();
+                    }
+                }
+                $("#showDatasetHint").remove();
+            });
+        }
+    }
+
+    // XXXX TODO: remove it
+    function setupChronosOnlyPanels() {
+        if (!gChronos) {
+            return;
+        }
+        setupWorkspaceBar();
+        WSManager.setup();
+        WorkspacePanel.setup();
+        DagPanel.setup();
+        DataflowPanel.setup();
+        setupViews();
+    }
+
+    // XXXX TODO: remove it
+    function initializeChronosOnlyPanels() {
+        if (!gChronos) {
+            return;
+        }
+        WSManager.initialize(); // async
+        DataflowPanel.initialize(); // async if has df
+        WSManager.focusOnWorksheet();
     }
 
     /* Unit Test Only */

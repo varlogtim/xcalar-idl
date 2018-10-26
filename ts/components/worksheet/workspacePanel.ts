@@ -1,11 +1,23 @@
 namespace WorkspacePanel {
     let $workspacePanel: JQuery;
+    let hasSetup = false;
+
     export function setup() {
+        if (hasSetup) {
+            return;
+        }
+        hasSetup = true;
+        $("#workspaceTab").removeClass("xc-hidden");
+        $("#workspacePanel").addClass("active");
+        $("#worksheetView").addClass("active");
         $workspacePanel = $("#workspacePanel");
     };
 
     // when coming from a different panel
     export function active() {
+        if (!hasSetup) {
+            return;
+        }
         $workspacePanel.addClass("active");
         if ($("#worksheetButton").hasClass("active")) {
             $("#statusBar").addClass("worksheetMode");

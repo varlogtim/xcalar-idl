@@ -16,12 +16,7 @@ class MapOpPanel extends GeneralOpPanel {
         const self = this;
         super.setupPanel("#mapOpPanel");
 
-        for (let i in this._operatorsMap) {
-            if (parseInt(i) !== FunctionCategoryT.FunctionCategoryAggregate) {
-                this._opCategories.push(parseInt(i));
-            }
-        }
-
+        this._updateOpCaetories();
         this._functionsInputEvents();
 
         // dynamic button - ex. default:multiJoin
@@ -366,7 +361,17 @@ class MapOpPanel extends GeneralOpPanel {
         for (var i = 0; i < opArray.length; i++) {
             this._operatorsMap[udfCategoryNum][opArray[i].displayName] = opArray[i];
         }
+        this._updateOpCaetories();
         this._pendingFnUpdate = null;
+    }
+
+    private _updateOpCaetories(): void {
+        this._opCategories = [];
+        for (let i in this._operatorsMap) {
+            if (parseInt(i) !== FunctionCategoryT.FunctionCategoryAggregate) {
+                this._opCategories.push(parseInt(i));
+            }
+        }
     }
 
     protected _isOperationValid(groupIndex) {

@@ -369,6 +369,18 @@ class DagList {
     }
 
     private _addEventListeners(): void {
+        // XXX TODO: separate dag list menu out of workspace menu
+        $("#dagButton").click(() => {
+            $("#workspaceMenu").find(".menuSection.worksheets")
+                            .addClass("xc-hidden")
+                            .end()
+                            .find(".menuSection.tables")
+                            .addClass("xc-hidden")
+                            .end()
+                            .find(".menuSection.dagList")
+                            .removeClass("xc-hidden");
+        });
+
         const $dagListSection: JQuery = this._getDagListSection();
         $("#dagUpload").click(() => {
             DFUploadModal.Instance.show();

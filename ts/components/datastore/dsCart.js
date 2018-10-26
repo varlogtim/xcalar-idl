@@ -1,4 +1,5 @@
 /*
+ * XXX TODO: remove this module
  * Module for dataset cart part on the right of datastore panel
  */
 window.DSCart = (function($, DSCart) {
@@ -14,8 +15,16 @@ window.DSCart = (function($, DSCart) {
     var animationLimit = 20;
     var intervalTime = 2000;
     var checkTimeout = null;
+    var hasSetup = false;
 
     DSCart.setup = function() {
+        if (!gChronos) {
+            $("#dataCartBtn").remove();
+            $("#dsTableView").addClass("fullSize");
+            return;
+        }
+        hasSetup = true;
+        $("#dsColsBtn").removeClass("xc-hidden");
         $cartArea = $("#dataCart");
         $cartList = $("#dataCartWSList");
         $loadingBar = $("#sendToWorksheetLoadBar .innerBar");
@@ -147,6 +156,9 @@ window.DSCart = (function($, DSCart) {
     };
 
     DSCart.switchToCart = function(dsId) {
+        if (!hasSetup) {
+            return;
+        }
         $cartArea.find(".selectedTable").addClass("xc-hidden");
 
         if (dsId == null) {
@@ -443,6 +455,9 @@ window.DSCart = (function($, DSCart) {
 
     // used for turning on/off checking when switching tabs
     DSCart.checkQueries = function() {
+        if (!hasSetup) {
+            return;
+        }
         if (!$("#dataStoresTab").hasClass("active")) {
             clearCycle();
         } else {

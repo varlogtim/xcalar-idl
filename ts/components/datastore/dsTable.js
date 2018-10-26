@@ -159,7 +159,9 @@ window.DSTable = (function($, DSTable) {
 
         $dsTableContainer.removeClass("error");
         $dsTableContainer.removeClass("loading");
-        $("#dsColsBtn").removeClass("xc-hidden");
+        if (gChronos) {
+            $("#dsColsBtn").removeClass("xc-hidden");
+        }
     }
 
     function setupViewAfterError(error, isFetchError, noRetry) {
@@ -240,7 +242,9 @@ window.DSTable = (function($, DSTable) {
     function getSampleTable(dsObj, jsonKeys, jsons) {
         var html = getSampleTableHTML(dsObj, jsonKeys, jsons);
         $tableWrap.html(html);
-        restoreSelectedColumns();
+        if (gChronos) {
+            restoreSelectedColumns();
+        }
         DSTable.refresh(true);
         TblFunc.moveFirstColumn($("#dsTable"));
 
@@ -439,6 +443,9 @@ window.DSTable = (function($, DSTable) {
 
         // click to select a column
         $tableWrap.on("click", ".header > .flexContainer", function(event) {
+            if (!gChronos) {
+                return;
+            }
             var $input = $(this).find('.editableHead');
             var $table = $("#dsTable");
 

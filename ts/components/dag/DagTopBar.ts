@@ -110,7 +110,7 @@ class DagTopBar {
                 .fail((error) => {
                     Alert.show({
                         title: DFTStr.DownloadErr,
-                        msg: error.error,
+                        msg: error.error || ErrTStr.Unknown,
                         isAlert: true,
                         detail: error.log
                     });
