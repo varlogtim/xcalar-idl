@@ -397,10 +397,18 @@ abstract class DagNode {
     /**
      * Generate JSON representing this node(w/o ids), for use in copying a node
      */
-    public getNodeCopyInfo(): DagNodeCopyInfo {
+    public getNodeCopyInfo(clearState: boolean = false): DagNodeCopyInfo {
         const nodeInfo = <DagNodeCopyInfo>this._getNodeInfoWithParents();
         nodeInfo.nodeId = nodeInfo.id;
         delete nodeInfo.id;
+        if (clearState) {
+            nodeInfo.table = null;
+            if (nodeInfo.state === DagNodeState.Complete ||
+                nodeInfo.state === DagNodeState.Running
+            ) {
+                nodeInfo.state = DagNodeState.Configured;
+            }
+        }
         return nodeInfo;
     }
 

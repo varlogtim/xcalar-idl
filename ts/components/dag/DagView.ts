@@ -2398,9 +2398,15 @@ namespace DagView {
     }
 
     function createNodeInfos(
-        nodeIds: DagNodeId[], options?: { isSkipOutParent?: boolean }
+        nodeIds: DagNodeId[],
+        options: {
+            isSkipOutParent?: boolean,
+            clearState?: boolean
+        } = {}
     ): any[] {
-        const { isSkipOutParent = true } = options || {};
+        // check why we need it
+        const isSkipOutParent: boolean = options.isSkipOutParent || true;
+        const clearState: boolean = options.clearState || false;
         let nodeInfos = [];
         nodeIds.forEach((nodeId) => {
             if (nodeId.startsWith("dag")) {
@@ -2419,7 +2425,7 @@ namespace DagView {
                         const parentId: DagNodeId = parent.getId();
 
                         if (nodeIds.indexOf(parentId) === -1 && isSkipOutParent) {
-                            // XXX check if this affects order of union input
+                            // XXX TODO check if this affects order of union input
                             if (numParents > 1 && !isMulti) {
                                 parentIds.push(null);
                             }
@@ -2433,7 +2439,7 @@ namespace DagView {
                     }
                 }
 
-                const nodeInfo = node.getNodeCopyInfo();
+                const nodeInfo = node.getNodeCopyInfo(clearState);
                 nodeInfo['parentIds'] = parentIds;
                 nodeInfos.push(nodeInfo);
             } else if (nodeId.startsWith("comment")) {
@@ -2455,7 +2461,7 @@ namespace DagView {
 
         clipboard = {
             type: "dagNodes",
-            nodeInfos: createNodeInfos(nodeIds)
+            nodeInfos: createNodeInfos(nodeIds, {clearState: true})
         };
     }
 
