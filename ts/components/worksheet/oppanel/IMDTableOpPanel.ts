@@ -287,7 +287,7 @@ class IMDTableOpPanel extends BaseOpPanel {
         // Submit button
         this._$elemPanel.on(
             `click.submit.${IMDTableOpPanel._eventNamespace}`,
-            '.confirm',
+            '.submit',
             () => { this._submitForm(this._dagNode); }
         );
 
