@@ -29,7 +29,7 @@ class AggOpPanelModel extends GeneralOpPanelModel {
                                             opInfo.argDescs[i].typesAccepted);
                                         });
             if (this.baseColumns && index === 0) {
-                this.updateArg(this.baseColumns[0].getBackColName(), 0, 0);
+                this.updateArg(gColPrefix + this.baseColumns[0].getBackColName(), 0, 0);
             }
         } else {
             this.groups[index].args = [];

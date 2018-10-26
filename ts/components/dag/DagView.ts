@@ -1675,8 +1675,8 @@ namespace DagView {
                     const offset = _getDFAreaOffset();
                     const rect = $parentConnector[0].getBoundingClientRect();
                     parentCoors = {
-                        x: ((rect.right + offset.left) / scale) - 1,
-                        y: ((rect.top + offset.top) / scale) + 6
+                        x: (rect.right + offset.left) - 1,
+                        y: (rect.top + offset.top) + 6
                     };
                     // setup svg for temporary line
                     $dfArea.find(".dataflowAreaWrapper").append('<svg class="secondarySvg"></svg>');
@@ -1691,8 +1691,8 @@ namespace DagView {
                 onDrag: function (coors) {
                     const offset = _getDFAreaOffset();
                     const childCoors = {
-                        x: (coors.x + offset.left) / scale,
-                        y: ((coors.y + offset.top) / scale) + 5
+                        x: (coors.x + offset.left),
+                        y: (coors.y + offset.top) + 5
                     };
                     path.attr("d", lineFunction([parentCoors, childCoors]));
                 },
@@ -1803,8 +1803,8 @@ namespace DagView {
                     const offset = _getDFAreaOffset();
                     const rect = $childConnector[0].getBoundingClientRect();
                     childCoors = {
-                        x: ((rect.left + offset.left) / scale) - 1,
-                        y: ((rect.top + offset.top) / scale) + 4
+                        x: (rect.left + offset.left) - 1,
+                        y: (rect.top + offset.top) + 4
                     };
                     // setup svg for temporary line
                     $dfArea.find(".dataflowAreaWrapper").append('<svg class="secondarySvg"></svg>');
@@ -1819,9 +1819,10 @@ namespace DagView {
                 onDrag: function (coors) {
                     const offset = _getDFAreaOffset();
                     const parentCoors = {
-                        x: ((coors.x + offset.left) / scale) + 2,
-                        y: ((coors.y + offset.top) / scale) + 4
+                        x: (coors.x + offset.left) + 2,
+                        y: (coors.y + offset.top) + 4
                     };
+                    console.log(scale, parentCoors)
                     path.attr("d", lineFunction([childCoors, parentCoors]));
                 },
                 onDragEnd: function (_$el, event) {
@@ -2110,6 +2111,8 @@ namespace DagView {
             $opTitle.text(node.getPortName());
             // The custom input/output is hidden in the category bar, so show it in the diagram
             $node.removeClass('xc-hidden');
+        } else if (type === DagNodeType.Index) {
+            $node.removeClass("xc-hidden");
         }
 
         $node.appendTo($dfArea.find(".operatorSvg"));
