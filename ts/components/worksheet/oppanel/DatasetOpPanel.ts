@@ -161,8 +161,16 @@ class DatasetOpPanel extends BaseOpPanel implements IOpPanel {
 
         this._$datasetList.on("click", "li", function() {
             $("#dsOpListSection li.active").removeClass("active");
-            $(this).addClass("active");
-            self._currentSource = $(this).data("id");
+            const $li = $(this);
+            $li.addClass("active");
+            if ($li.hasClass("fileName")) {
+                const prefix = $li.find(".name").text();
+                $("#datasetOpPanel .datasetPrefix input").val(prefix);
+            } else {
+                $("#datasetOpPanel .datasetPrefix input").val("");
+            }
+
+            self._currentSource = $li.data("id");
         });
     }
 
