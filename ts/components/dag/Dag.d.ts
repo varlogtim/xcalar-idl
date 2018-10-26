@@ -178,6 +178,11 @@ interface DagNodeSplitInputStruct {
     dest: string[]
 }
 
+interface DagNodeJupyterInputStruct {
+    numExportRows: number,
+    renames: { sourceColumn: string, destColumn: string }[]
+}
+
 interface DagNodeRoundInputStruct {
     sourceColumn: string,
     numDecimals: number,

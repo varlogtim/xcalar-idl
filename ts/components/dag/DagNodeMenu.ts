@@ -262,6 +262,9 @@ namespace DagNodeMenu {
             case (DagNodeType.PublishIMD):
                 PublishIMDOpPanel.Instance.show(node, options);
                 break;
+            case (DagNodeType.Jupyter):
+                JupyterOpPanel.Instance.show(node, options);
+                break;
             case (DagNodeType.Extension):
                 ExtensionOpPanel.Instance.show(node, options);
                 break;

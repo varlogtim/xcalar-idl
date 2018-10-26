@@ -45,7 +45,10 @@ class DagCategories {
             })),
             new DagCategoryNodeOut(DagNodeFactory.create({
                 type: DagNodeType.DFOut
-            }))
+            })),
+            new DagCategoryNodeOut(DagNodeFactory.create({
+                type: DagNodeType.Jupyter
+            })),
         ]);
 
         const valueCategory = new DagCategory(DagCategoryType.Value, [

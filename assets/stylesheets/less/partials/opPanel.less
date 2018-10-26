@@ -3290,6 +3290,9 @@
 }
 
 .autoGenOpPanel {
+    @listHeight: 26px;
+    @iconWidth: 26px;
+
     .mainContent {
         .flex-display;
         .flex-direction(column);
@@ -3304,4 +3307,70 @@
     p {
         padding: 0;
     }
+
+    .field {
+        .description, .inputWrap {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .checkboxWrap .checkbox {
+            margin-left: 0;
+        }
+    }
+
+    .checkboxWrap {
+        width: 100%;
+    }
+
+    .flexrow {
+        .size(@height: 100%);
+        .flex-container();
+        .flex-flow(nowrap);
+        .align-items(center);
+        position: relative;
+    }
+
+    .flexCol {
+        .flex(1);
+        .size(@height: 100%);
+        .flex-container();
+        .align-items(center);
+        white-space: nowrap;
+    }
+
+    .flexCol-left, .flexCol-right {
+        .flex(6);
+    }
+
+    .flexCol-middle {
+        .size(@width: @iconWidth, @height: @listHeight);
+    }
+
+    .row-rename {
+        margin-bottom: 5px;
+    }
+
+    .noEdit {
+        border: none;
+        // padding: 0;
+    }
+
+    .renameIcon {
+        .flexCol-middle();
+        // cursor: pointer;
+
+        .iconWrap {
+            .size(14px, 14px);
+            .center-align;
+            border-radius: 100%;
+            background-color: @color-white;
+            top: @listHeight/2;
+        }
+
+        .icon {
+            color: @color-font-dropdown-gray;
+        }
+    }
+
 }

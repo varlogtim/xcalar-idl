@@ -4,6 +4,7 @@ enum DagNodeType {
     Dataset = "dataset",
     DFIn = "link in",
     DFOut = "link out",
+    Jupyter = "Jupyter",
     Filter = "filter",
     Join = "join",
     Set = "set",

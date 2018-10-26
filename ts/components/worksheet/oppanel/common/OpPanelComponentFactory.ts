@@ -44,12 +44,23 @@ class OpPanelComponentFactory {
                 <APP-ADDMORE></APP-ADDMORE>
             </div>`,
 
+        checkBoxSection:
+            `<div class="field row clearfix">
+                <div class="checkboxWrap" (click)="onClick">
+                    <div class="checkbox {{cssChecked}}">
+                        <i class="icon xi-ckbox-empty fa-15"></i>
+                        <i class="icon xi-ckbox-selected fa-15"></i>
+                    </div>
+                    <div class="text">{{name}}</div>
+                </div>
+            </div>`,
+
         hintMenuItemEmpty:
             `<li class="hintEmpty">${CommonTxtTstr.NoResult}</li>`,
 
         columnMenuItem:
             `<li>
-                <div class="typeIcon flexContainer flexRow {{colTypeClass}}">
+                <div class="typeIcon flexContainer flexrow {{colTypeClass}}">
                     <div class="flexWrap flex-left" data-toggle="tooltip" data-title="{{colType}}" data-container="body" data-placement="top">
                         <span class="iconHidden"></span>
                         <span class="type icon"></span>
@@ -67,6 +78,31 @@ class OpPanelComponentFactory {
                         value="{{inputValue}}" placeholder="{{placeholder}}" spellcheck="false"
                         (input)="onInput" (change)="onChange" (blur)="onBlur" />
                 </div>
+            </div>`,
+        
+        renameRow:
+            `<div class="flexrow row-rename">
+                <div class="flexCol flexCol-left">
+                    <APP-COLFROM></APP-COLFROM>
+                </div>
+                <div class="flexCol flexCol-right">
+                    <input type="text" class="selTo selError {{cssNoEdit}}" spellcheck="false" disabled="{{disableChange}}" value="{{nameTo}}" (change)="onNameToChange"/>
+                </div>
+            </div>`,
+
+        renameSection:
+            `<div class="field row clearfix">
+                <div class="description">{{name}}</div>
+                <APP-RENAMES></APP-RENAMES>
+            </div>`,
+
+        columnNameType:
+            `<div class="typeIcon flexContainer flexRow {{cssType}}">
+                <div class="flexWrap flex-left" data-toggle="tooltip" data-title="{{colType}}" data-container="body" data-placement="top">
+                    <span class="iconHidden"></span>
+                    <span class="type icon"></span>
+                </div>
+                <div class="flexWrap flex-mid"><input type="text" class="noEdit" spellcheck="false" disabled="true" value="{{colName}}"/></div>
             </div>`,
     };
 
@@ -241,9 +277,11 @@ class OpPanelComponentFactory {
         const sectionBuilder: {
             [type: string]: (props: AutogenSectionProps) => HTMLElement[]
         } = {
-            'column': this.createHintDropdown.bind(this),
-            'string': this.createStringInput.bind(this),
-            'number': this.createNumberInput.bind(this),
+            'column': this.createBooleanInputSection.bind(this),
+            'string': this.createStringInputSection.bind(this),
+            'number': this.createNumberInputSection.bind(this),
+            'boolean': this.createBooleanInputSection.bind(this),
+            'renameList': this.createRenameListSection.bind(this)
         };
 
         if (props == null || props.instrStr == null) {
@@ -296,7 +334,7 @@ class OpPanelComponentFactory {
      * Component: Hint dropdown(opSection row); templateId = hintDropdown
      * @param props 
      */
-    public createHintDropdown(props: HintDropdownProps): HTMLElement[] {
+    public createHintDropdownSection(props: HintDropdownProps): HTMLElement[] {
         if (props == null) {
             return null;
         }
@@ -460,7 +498,7 @@ class OpPanelComponentFactory {
     /**
      * Component: Input box with string value(opSection row); templateId = simpleInput
      */
-    public createStringInput(props: SimpleInputProps<string>): HTMLElement[] {
+    public createStringInputSection(props: SimpleInputProps<string>): HTMLElement[] {
         if (props == null) {
             return null;
         }
@@ -505,7 +543,7 @@ class OpPanelComponentFactory {
      * Component: Input box with numeric value(opSection row); templateId = simpleInput
      * @param props 
      */
-    public createNumberInput(props: SimpleInputProps<number>): HTMLElement[] {
+    public createNumberInputSection(props: SimpleInputProps<number>): HTMLElement[] {
         if (props == null) {
             return null;
         }
@@ -538,6 +576,107 @@ class OpPanelComponentFactory {
             onBlur: (event) => {
                 this._inputDataProcess(event.currentTarget, valueCheck, onBlur);
             }
+        });
+        if (onElementMountDone != null) {
+            OpPanelTemplateManager.setNodeMountDoneListener(elements, onElementMountDone);
+        }
+
+        return elements;
+    }
+
+    public createBooleanInputSection(props: CheckboxInputProps): HTMLElement[] {
+        if (props == null) {
+            return null;
+        }
+
+        const templateId = 'checkBoxSection';
+        this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
+
+        const { name, isChecked, onFlagChange, onElementMountDone } = props;
+
+        let stateSelected = isChecked ? true : false;
+        const elements = this._templateMgr.createElements(templateId, {
+            name: name,
+            cssChecked: stateSelected ? 'checked' : '',
+            onClick: () => {
+                stateSelected = !stateSelected;
+                if (onFlagChange != null) {
+                    onFlagChange(stateSelected);
+                }
+            }
+        });
+        if (onElementMountDone != null) {
+            OpPanelTemplateManager.setNodeMountDoneListener(elements, onElementMountDone);
+        }
+
+        return elements;
+    }
+
+    public createRenameListSection(props: RenameListProps): HTMLElement[] {
+        if (props == null) {
+            return null;
+        }
+
+        const templateId = 'renameSection';
+        this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
+
+        const { name, renames, onElementMountDone } = props;
+
+        // Build child component: APP-RENAMES
+        const compRenames = renames.reduce((res, renameProps) => {
+            return res.concat(this.createRenameRow(renameProps));
+        }, []);
+
+        const elements = this._templateMgr.createElements(templateId, {
+            name: name,
+            'APP-RENAMES': compRenames
+        });
+        if (onElementMountDone != null) {
+            OpPanelTemplateManager.setNodeMountDoneListener(elements, onElementMountDone);
+        }
+
+        return elements;
+    }
+
+    public createRenameRow(props: RenameProps): HTMLElement[] {
+        if (props == null) {
+            return null;
+        }
+
+        const templateId = 'renameRow';
+        this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
+
+        const { colFrom, colTo, onNameToChange, disableChange = false,
+            valueCheck = { checkType: 'stringDefault', args: [] },
+            onElementMountDone } = props;
+
+        const elements = this._templateMgr.createElements(templateId, {
+            'APP-COLFROM': this.createColumnNameType(colFrom),
+            nameTo: colTo, disableChange: disableChange,
+            cssNoEdit: disableChange ? 'noEdit' : '',
+            onNameToChange: (event) => {
+                this._inputDataProcess(event.currentTarget, valueCheck, onNameToChange);
+            }
+        });
+        if (onElementMountDone != null) {
+            OpPanelTemplateManager.setNodeMountDoneListener(elements, onElementMountDone);
+        }
+
+        return elements;
+    }
+
+    public createColumnNameType(props: ColumnNameTypeProps): HTMLElement[] {
+        if (props == null) {
+            return null;
+        }
+
+        const templateId = 'columnNameType';
+        this._templateMgr.loadTemplateFromString(templateId, this._templates[templateId]);
+
+        const { colType, colName, onElementMountDone } = props;
+
+        const elements = this._templateMgr.createElements(templateId, {
+            cssType: `type-${colType}`, colType: colType, colName: colName
         });
         if (onElementMountDone != null) {
             OpPanelTemplateManager.setNodeMountDoneListener(elements, onElementMountDone);

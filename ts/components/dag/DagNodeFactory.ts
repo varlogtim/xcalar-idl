@@ -41,6 +41,8 @@ class DagNodeFactory {
                 return new DagNodeDFIn(options);
             case DagNodeType.DFOut:
                 return new DagNodeDFOut(options);
+            case DagNodeType.Jupyter:
+                return new DagNodeJupyter(options);
             case DagNodeType.Split:
                 return new DagNodeSplit(options);
             case DagNodeType.Round:

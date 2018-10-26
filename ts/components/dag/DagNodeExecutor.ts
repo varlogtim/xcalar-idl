@@ -84,6 +84,8 @@ class DagNodeExecutor {
                 return this._dfOut();
             case DagNodeType.PublishIMD:
                 return this._publishIMD();
+            case DagNodeType.Jupyter:
+                return this._jupyter();
             case DagNodeType.Extension:
                 return this._extension();
             case DagNodeType.IMDTable:
@@ -548,6 +550,11 @@ class DagNodeExecutor {
             return deferred.reject(err);
         });
         return deferred.promise();
+    }
+
+    private _jupyter(): XDPromise<null> {
+        // XXX TODO: sythesise -> create Jupyter NB -> run NB
+        return PromiseHelper.resolve();
     }
 
     private _rowNum(): XDPromise<string> {

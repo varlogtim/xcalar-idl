@@ -69,11 +69,14 @@ declare type AddMoreButtonProps = {
     btnText: string, cssClass?: string, onClick: () => void
 }
 
-declare interface AutogenSectionProps {
+declare interface BaseComponentProps {
+    onElementMountDone?: (elem: HTMLElement) => void;
+    valueCheck?: { checkType: string, args: any[] | Function };
+}
+
+declare interface AutogenSectionProps extends BaseComponentProps {
     type: string;
     name: string;
-    valueCheck?: { checkType: string, args: any[] | Function };
-    onElementMountDone?: (elem: HTMLElement) => void;
 }
 
 declare interface HintDropdownProps extends AutogenSectionProps {
@@ -91,6 +94,27 @@ declare interface SimpleInputProps<T> extends AutogenSectionProps {
     onInput?: (data: T) => void;
     inputTimeout?: number;
     onBlur?: (data: T) => void;
+}
+
+declare interface CheckboxInputProps extends AutogenSectionProps {
+    isChecked: boolean;
+    onFlagChange?: (flag: boolean) => void;
+}
+
+declare interface RenameProps extends BaseComponentProps {
+    colFrom: ColumnNameTypeProps;
+    colTo: string;
+    disableChange?: boolean;
+    onNameToChange?: (newName: string) => void;
+}
+
+declare interface RenameListProps extends AutogenSectionProps {
+    renames: RenameProps[];
+}
+
+declare interface ColumnNameTypeProps extends BaseComponentProps {
+    colName: string;
+    colType: ColumnType;
 }
 
 declare type ValueCheckResult<T> = {
