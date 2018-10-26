@@ -12,7 +12,7 @@ describe('IMD Test', function() {
         MainMenu.openPanel("imdPanel");
         cacheKV = XcalarKeyLookup;
         XcalarKeyLookup = function(key) {
-            var testKey = KVStore.getKey("gIMDKey");
+            var testKey = KVStore.getKey("gUserIMDKey");
             if (testKey === key) {
                 return PromiseHelper.resolve({value: JSON.stringify({hiddenTables: []})});
             } else {

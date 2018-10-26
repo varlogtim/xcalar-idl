@@ -875,10 +875,12 @@ namespace WorkbookManager {
         const username: string = XcUser.getCurrentUserName();
         const gUserKey: string = generateKey(username, "gUser", version);
         const gUserCustomOpKey: string = generateKey(username, 'gUserCustomOp', version);
+        const gUserIMDKey: string = generateKey(username, 'gUserIMD', version);
 
         return {
             "gUserKey": gUserKey,
-            "gUserCustomOpKey": gUserCustomOpKey
+            "gUserCustomOpKey": gUserCustomOpKey,
+            "gUserIMDKey": gUserIMDKey
         };
     }
 
@@ -894,7 +896,6 @@ namespace WorkbookManager {
         const gOverwrittenLogKey: string = generateKey("gOverwritten", version);
         const gNotebookKey: string = generateKey("gNotebook", version);
         const gAuthKey: string = generateKey("authentication", version);
-        const gIMDKey: string = generateKey("gIMDKey", version);
         const gSQLTablesKey: string = generateKey("gSQLTables", version);
         const gDagManagerKey: string = generateKey("gDagManagerKey", version);
         const gDagTableManagerKey: string = generateKey("gDagTableManagerKey", version);
@@ -913,7 +914,6 @@ namespace WorkbookManager {
             "gOverwrittenLogKey": gOverwrittenLogKey,
             "gAuthKey": gAuthKey,
             "gNotebookKey": gNotebookKey,
-            "gIMDKey": gIMDKey,
             "gSQLTables": gSQLTablesKey,
             "gSQLQuery": gSQLQueryKey,
             "gDagManagerKey": gDagManagerKey,

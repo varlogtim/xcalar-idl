@@ -1583,8 +1583,8 @@ namespace IMDPanel {
 
     function restoreTableOrder(): XDPromise<void> {
         const deferred: XDDeferred<void> = PromiseHelper.deferred();
-        const key: string = KVStore.getKey("gIMDKey");
-        const kvStore: KVStore = new KVStore(key, gKVScope.WKBK);
+        const key: string = KVStore.getKey("gUserIMDKey");
+        const kvStore: KVStore = new KVStore(key, gKVScope.USER);
         kvStore.get()
         .then((imdMeta) => {
             if (imdMeta) {
@@ -1917,8 +1917,8 @@ namespace IMDPanel {
     }
 
     function storeTables(): XDPromise<void> {
-        const kvsKey: string = KVStore.getKey("gIMDKey");
-        const kvStore: KVStore = new KVStore(kvsKey, gKVScope.WKBK);
+        const kvsKey: string = KVStore.getKey("gUserIMDKey");
+        const kvStore: KVStore = new KVStore(kvsKey, gKVScope.USER);
 
         const activeTables: string[] = pTables.map((table) => {
             return table.name;

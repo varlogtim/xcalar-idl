@@ -113,6 +113,7 @@ interface GlobalKVKeySet {
 interface UserKVKeySet {
     gUserKey: string;
     wkbkKey: string;
+    gUserIMDKey: string;
 }
 
 interface WkbkKVKeySet {
@@ -122,7 +123,6 @@ interface WkbkKVKeySet {
     gOverwrittenLogKey: string;
     gAuthKey: string;
     gNotebookKey: string;
-    gIMDKey: string;
     gDagManagerKey: string;
     gDagTableManagerKey: string;
     gDagListKey: string;
