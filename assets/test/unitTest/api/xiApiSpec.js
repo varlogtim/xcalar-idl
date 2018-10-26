@@ -395,7 +395,7 @@ describe('XIApi Test', () => {
                 Transaction.isSimulate = () => true;
                 Transaction.isEdit = () => false;
                 SQLApi.getIndexTable = () => {
-                    return { tableName: tableName, keys: ['key'] };
+                    return { tableName: tableName, keys: ['key'], tempCols: [] };
                 }
             });
 
@@ -554,108 +554,6 @@ describe('XIApi Test', () => {
                 Transaction.isSimulate = oldIsSimulate;
                 Transaction.isEdit = oldIsEdit;
                 SQLApi.getIndexTable = oldGetIndexCache;
-            });
-        });
-
-        describe('semiJoinHelper Test', () => {
-            const txId = 0;
-            let oldQuery;
-            let oldJoin;
-            let semiJoinHelper;
-
-            before(() => {
-                oldQuery = XIApi.query;
-                oldJoin = XcalarJoin;
-
-                XIApi.query = () => PromiseHelper.resolve();
-
-                XcalarJoin = (_lTable, _rTable, newTableName, joinType) => {
-                    testJoinTableName = newTableName;
-                    testJoinType = joinType;
-                    return PromiseHelper.resolve();
-                };
-
-                semiJoinHelper = XIApi.__testOnly__.semiJoinHelper;
-            });
-
-            beforeEach(() => {
-                testJoinTableName = null;
-                testJoinType = null;
-            });
-
-            it("should work for anti semi join", (done) => {
-                const oldFunc = XIApi.filter;
-                const joinType = JoinCompoundOperatorTStr.LeftAntiSemiJoin;
-                const tempTables = [];
-
-                let test = false;
-                XIApi.filter = () => {
-                    test = true;
-                    return PromiseHelper.resolve();
-                };
-
-                semiJoinHelper(txId, 'l#a', 'r#b', ['col'], 'new#c', joinType,
-                    [], [], tempTables, null)
-                    .then((tempCols) => {
-                        expect(test).to.be.true;
-                        expect(tempTables.length).to.equal(1);
-                        expect(tempCols[0]).to.contains("XC_GB_COL");
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    })
-                    .always(() => {
-                        XIApi.filter = oldFunc;
-                    });
-            });
-
-            it("should work for existence join", (done) => {
-                const oldFunc = XIApi.map;
-                const joinType = JoinCompoundOperatorTStr.ExistenceJoin;
-                const tempTables = [];
-
-                let test = false;
-                XIApi.map = () => {
-                    test = true;
-                    return PromiseHelper.resolve();
-                };
-
-                semiJoinHelper(txId, 'l#a', 'r#b', ['col'], 'new#c', joinType,
-                    [], [], tempTables, 'existenceCol')
-                    .then((tempCols) => {
-                        expect(test).to.be.true;
-                        expect(tempTables.length).to.equal(1);
-                        expect(tempCols[0]).to.contains("XC_GB_COL");
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    })
-                    .always(() => {
-                        XIApi.map = oldFunc;
-                    });
-            });
-
-            it("should work for semi join", (done) => {
-                const joinType = JoinCompoundOperatorTStr.LeftSemiJoin;
-                const tempTables = [];
-
-                semiJoinHelper(txId, 'l#a', 'r#b', ['col'], 'new#c', joinType,
-                    [], [], tempTables, null)
-                    .then((tempCols) => {
-                        expect(tempTables.length).to.equal(0);
-                        expect(tempCols[0]).to.contains("XC_GB_COL");
-                        done();
-                    })
-                    .fail(() => {
-                        done('fail');
-                    });
-            });
-
-            after(() => {
-                XIApi.query = oldQuery;
-                XcalarJoin = oldJoin;
             });
         });
     });

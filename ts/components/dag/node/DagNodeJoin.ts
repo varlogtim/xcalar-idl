@@ -153,8 +153,8 @@ class DagNodeJoin extends DagNode {
 
     private _isSkipRightTable(joinType: string) {
         const noRenameType: Set<string> = new Set([
-            JoinCompoundOperatorTStr.LeftSemiJoin,
-            JoinCompoundOperatorTStr.LeftAntiSemiJoin
+            JoinOperatorTStr[JoinOperatorT.LeftSemiJoin],
+            JoinOperatorTStr[JoinOperatorT.LeftAntiJoin]
         ]);
         return noRenameType.has(joinType);
     }

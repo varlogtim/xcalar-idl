@@ -738,8 +738,8 @@ class JoinOpPanelModel {
 
     public isLeftColumnsOnly(): boolean {
         const leftOnlyType: Set<string> = new Set([
-            JoinCompoundOperatorTStr.LeftSemiJoin,
-            JoinCompoundOperatorTStr.LeftAntiSemiJoin
+            JoinOperatorTStr[JoinOperatorT.LeftSemiJoin],
+            JoinOperatorTStr[JoinOperatorT.LeftAntiJoin]
         ]);
         return leftOnlyType.has(this.getJoinType());
 
@@ -943,8 +943,8 @@ class JoinOpPanelModel {
 
     private _needRenameByType(type: string): boolean {
         const noRenameType: Set<string> = new Set([
-            JoinCompoundOperatorTStr.LeftSemiJoin,
-            JoinCompoundOperatorTStr.LeftAntiSemiJoin
+            JoinOperatorTStr[JoinOperatorT.LeftSemiJoin],
+            JoinOperatorTStr[JoinOperatorT.LeftAntiJoin]
         ]);
         return !noRenameType.has(type);
     }

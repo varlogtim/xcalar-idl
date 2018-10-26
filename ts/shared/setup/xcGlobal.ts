@@ -79,9 +79,9 @@ namespace xcGlobal {
             "Right Outer Join": JoinOperatorT.RightOuterJoin,
             "Full Outer Join": JoinOperatorT.FullOuterJoin,
             "Cross Join": JoinOperatorT.CrossJoin,
-            "Left Semi Join": JoinCompoundOperatorTStr.LeftSemiJoin,
+            "Left Semi Join": JoinOperatorTStr[JoinOperatorT.LeftSemiJoin],
             "Right Semi Join": JoinCompoundOperatorTStr.RightSemiJoin,
-            "Left Anti Semi Join": JoinCompoundOperatorTStr.LeftAntiSemiJoin,
+            "Left Anti Semi Join": JoinOperatorTStr[JoinOperatorT.LeftAntiJoin],
             "Right Anti Semi Join": JoinCompoundOperatorTStr.RightAntiSemiJoin,
         };
 

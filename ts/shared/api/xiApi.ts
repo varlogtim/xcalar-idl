@@ -659,77 +659,6 @@ namespace XIApi {
         resolveDupName(lRename, lIndexRes, rAllKeys, lSuffix);
         resolveDupName(rRename, rIndexRes, lAllKeys, rSuffix);
     }
-
-    // sXXX TODO: switch left and right and support right semi joins
-    function semiJoinHelper(
-        txId: number,
-        lIndexedTable: string,
-        rIndexedTable: string,
-        rIndexedColNames: string[],
-        newTableName: string,
-        joinType: JoinType,
-        lRename: ColRenameInfo[],
-        rRename: ColRenameInfo[],
-        tempTables: string[],
-        existenceCol: string,
-        options?: { keepAllColumns?: boolean }
-    ): XDPromise<string[]> {
-        // XXX FIXME rIndexedColNames[0] is wrong in the cases where it is
-        // called a::b, and there's another immediate called a-b
-        // This is because a::b will becomes a-b.
-        const isAntiSemiJoin: boolean = joinType === JoinCompoundOperatorTStr.LeftAntiSemiJoin ||
-                                        joinType === JoinCompoundOperatorTStr.RightAntiSemiJoin;
-        const isExistenceJoin: boolean = joinType === JoinCompoundOperatorTStr.ExistenceJoin;
-        const newGbTableName: string = getNewTableName(rIndexedTable);
-        const newKeyFieldName: string = xcHelper.stripPrefixInColName(rIndexedColNames[0]);
-        const newColName: string = xcHelper.randName("XC_GB_COL");
-        const { keepAllColumns = true } = options || {};
-
-        const deferred: XDDeferred<string[]> = PromiseHelper.deferred();
-        let antiJoinTableName: string;
-        let existJoinTableName: string;
-
-        groupByHelper(txId, [newColName], ["count(1)"], rIndexedTable,
-        newGbTableName, false, false, newKeyFieldName, false)
-        .then(() => {
-            const joinOptions = { evalString: '', keepAllColumns: keepAllColumns };
-            if (isAntiSemiJoin) {
-                antiJoinTableName = getNewTableName(rIndexedTable);
-                return joinHelper(txId, lIndexedTable, newGbTableName,
-                                antiJoinTableName, JoinOperatorT.LeftOuterJoin,
-                                lRename, rRename, joinOptions);
-            } else if (isExistenceJoin) {
-                existJoinTableName = getNewTableName(lIndexedTable);
-                return joinHelper(txId, lIndexedTable, newGbTableName,
-                            existJoinTableName, JoinOperatorT.LeftOuterJoin,
-                            lRename, rRename, joinOptions);
-            } else {
-                return joinHelper(txId, lIndexedTable, newGbTableName,
-                                    newTableName, JoinOperatorT.InnerJoin,
-                                    lRename, rRename, joinOptions);
-            }
-        })
-        .then(() => {
-            if (isAntiSemiJoin) {
-                tempTables.push(antiJoinTableName);
-                const fltStr = "not(exists(" + newKeyFieldName + "))";
-                return XIApi.filter(txId, fltStr, antiJoinTableName, newTableName);
-            } else if (isExistenceJoin) {
-                tempTables.push(existJoinTableName);
-                const mapStr = "exists(" + newKeyFieldName + ")";
-                return XIApi.map(txId, [mapStr], existJoinTableName, [existenceCol], newTableName);
-            } else {
-                return PromiseHelper.resolve();
-            }
-        })
-        .then(() => {
-            const tempCols: string[] = [newColName];
-            deferred.resolve(tempCols);
-        })
-        .fail(deferred.reject);
-
-        return deferred.promise();
-    }
     /* ============= End of Join Helper ================ */
 
     /* ============= GroupBy Helper ==================== */
@@ -1872,7 +1801,6 @@ namespace XIApi {
         }
 
         const clean: boolean = options.clean || false;
-        const existenceCol: string = options.existenceCol;
         let newTableName: string = options.newTableName;
         let tempTables: string[] = [];
         let rIndexColNames: string[];
@@ -1922,31 +1850,17 @@ namespace XIApi {
 
             newTableName = getNewJoinTableName(lTableName, rTableName, newTableName);
             // Step 3: Join
-            if (joinType in JoinCompoundOperator) {
-                // semi join  case
-                // This call will call Xcalar Join because it will swap the
-                // left and right tables
-                const joinOptions = { evalString: '', keepAllColumns: true };
-                if (options && options.keepAllColumns != null) {
-                    joinOptions.keepAllColumns = options.keepAllColumns;
-                }
-                return semiJoinHelper(txId, lIndexedTable, rIndexedTable,
-                                      rIndexColNames,
-                                      newTableName, joinType, lRename, rRename,
-                                      tempTables, existenceCol, joinOptions);
-            } else {
-                // cross join or normal join
-                const joinOptions = { evalString: '', keepAllColumns: true };
-                if (options && options.evalString) {
-                    // cross join case
-                    joinOptions.evalString = options.evalString;
-                }
-                if (options && options.keepAllColumns != null) {
-                    joinOptions.keepAllColumns = options.keepAllColumns;
-                }
-                return joinHelper(txId, lIndexedTable, rIndexedTable, newTableName,
-                        <number>joinType, lRename, rRename, joinOptions);
+            // cross join or normal join
+            const joinOptions = { evalString: '', keepAllColumns: true };
+            if (options && options.evalString) {
+                // cross join case
+                joinOptions.evalString = options.evalString;
             }
+            if (options && options.keepAllColumns != null) {
+                joinOptions.keepAllColumns = options.keepAllColumns;
+            }
+            return joinHelper(txId, lIndexedTable, rIndexedTable, newTableName,
+                    <number>joinType, lRename, rRename, joinOptions);
         })
         .then((tempCols) => {
             tempCols = tempCols.concat(tempColNames);
@@ -2902,7 +2816,6 @@ namespace XIApi {
             joinCast: joinCast,
             joinIndex: joinIndex,
             resolveJoinColRename: resolveJoinColRename,
-            semiJoinHelper: semiJoinHelper,
             getGroupByAggEvalStr: getGroupByAggEvalStr,
             computeDistinctGroupby: computeDistinctGroupby,
             cascadingJoins: cascadingJoins,

@@ -2911,15 +2911,15 @@
                     .fail(deferred.reject);
                 })
             } else if (optimize) {
+                // Eq conditions + non-equi conditions (optional)
                 var overwriteJoinType;
-                if (filterSubtrees.length > 0 &&
-                    (isSemiOrAntiJoin(node) || outerType)) {
+                if (filterSubtrees.length > 0 && (isExistenceJoin(node) ||
+                    isSemiOrAntiJoin(node) || outerType)) {
                     overwriteJoinType = JoinOperatorT.InnerJoin;
                     promise = promise.then(__generateRowNumber.bind(sqlObj,
                                                                     retStruct,
                                                                     node,
                                                                     outerType));
-
                 }
 
                 promise = promise.then(__handleAndEqJoin.bind(sqlObj,
@@ -2952,8 +2952,23 @@
                                                                node,
                                                                outerType));
                     }
+                    if (isExistenceJoin(node)) {
+                        promise = promise.then(__groupByLeftRowNum.bind(sqlObj,
+                                                                        retStruct,
+                                                                        node,
+                                                                        false));
+                        promise = promise.then(__joinBackMap.bind(sqlObj,
+                                                             retStruct,
+                                                             node));
+                    }
+                } else if (isExistenceJoin(node)) {
+                    // Map with filter tree
+                    promise = promise.then(__mapExistenceColumn.bind(sqlObj,
+                                                                     retStruct,
+                                                                     node));
                 }
             } else {
+                // Non-equi conditions
                 if (isSemiOrAntiJoin(node) || isExistenceJoin(node) ||
                     outerType) {
                     promise = promise.then(__generateRowNumber.bind(sqlObj,
@@ -2985,8 +3000,8 @@
                                                                     node,
                                                                     false));
                     promise = promise.then(__joinBackMap.bind(sqlObj,
-                                                                  retStruct,
-                                                                  node));
+                                                              retStruct,
+                                                              node));
                 }
 
                 if (outerType) {
@@ -3027,6 +3042,10 @@
                             node.sparkCols = node.sparkCols
                                 .concat(jQuery.extend(true, [],
                                                     node.children[1].sparkCols));
+                        } else if (isExistenceJoin(node) && optimize) {
+                            node.sparkCols.push(retStruct.existenceCol);
+                            node.renamedCols[retStruct.existenceCol.colId] =
+                                                retStruct.existenceCol.rename;
                         } else {
                             node.xcCols = node.xcCols
                                 .concat(jQuery.extend(true, [],
@@ -3343,6 +3362,43 @@
         return deferred.promise();
     }
 
+    function groupbyForExistenceJoin(self, globalStruct, joinNode,
+                            retLeft, retRight, cliArray, overwriteJoinType) {
+        var innerDeferred = PromiseHelper.deferred();
+        if (globalStruct.existenceCol && overwriteJoinType == undefined) {
+            if (retRight.cli) {
+                cliArray.push(retRight.cli);
+            }
+            var tempGBColName = "XC_GB_COL" + Authentication.getHashId().substring(3);
+            var gbArgs = [{operator: "count", aggColName: "1",
+                           newColName: tempGBColName}];
+            var tempGBColStruct = {colName: tempGBColName, colType: "int"};
+            joinNode.xcCols.push(tempGBColStruct);
+            globalStruct.colForExistCheck = tempGBColStruct;
+            joinNode.children[1].usrCols.concat(joinNode.children[1].xcCols)
+            .concat(joinNode.children[1].sparkCols).forEach(function(col) {
+                var colName = col.rename || col.colName;
+                if (globalStruct.rightCols.indexOf(colName) !== -1) {
+                    joinNode.xcCols.push(col);
+                }
+            });
+            self.groupBy(globalStruct.rightCols, gbArgs, retRight.newTableName, {})
+            .then(function(ret) {
+                if (ret.tempCols) {
+                    for (var i = 0; i < ret.tempCols.length; i++) {
+                        joinNode.xcCols.push({colName: ret.tempCols[i],
+                                              colType: "DfUnknown"});
+                    }
+                }
+                innerDeferred.resolve(retLeft, ret);
+            })
+            .fail(innerDeferred.reject);
+        } else {
+            innerDeferred.resolve(retLeft, retRight);
+        }
+        return innerDeferred.promise();
+    }
+
     // The two join functions. Each path will run only one of the 2 functions
     function __handleAndEqJoin(globalStruct, joinNode, overwriteJoinType) {
         var self = this;
@@ -3391,6 +3447,10 @@
         PromiseHelper.when(handleMaps(leftMapArray, leftTableName, leftCols),
                            handleMaps(rightMapArray, rightTableName, rightCols))
         .then(function(retLeft, retRight) {
+            return groupbyForExistenceJoin(self, globalStruct, joinNode, retLeft,
+                                           retRight, cliArray, overwriteJoinType);
+        })
+        .then(function(retLeft, retRight) {
             var lTableInfo = {};
             lTableInfo.tableName = retLeft.newTableName;
             lTableInfo.columns = leftCols;
@@ -3408,12 +3468,16 @@
             rTableInfo.pulledColumns = [];
             rTableInfo.rename = [];
 
+            var rightColsForRename = joinNode.children[1].usrCols
+                                     .concat(joinNode.children[1].xcCols)
+                                     .concat(joinNode.children[1].sparkCols);
+            if (globalStruct.existenceCol &&  overwriteJoinType == undefined) {
+                rightColsForRename = joinNode.xcCols;
+            }
             var newRenames = __resolveCollision(joinNode.children[0].usrCols
                                         .concat(joinNode.children[0].xcCols)
                                         .concat(joinNode.children[0].sparkCols),
-                                        joinNode.children[1].usrCols
-                                        .concat(joinNode.children[1].xcCols)
-                                        .concat(joinNode.children[1].sparkCols),
+                                        rightColsForRename,
                                         lTableInfo.rename,
                                         rTableInfo.rename,
                                         lTableInfo.tableName,
@@ -3444,7 +3508,7 @@
                 joinType = overwriteJoinType;
             } else if (globalStruct.existenceCol) {
                 // ExistenceJoin is not in joinNode.value.joinType.object
-                joinType = JoinCompoundOperatorTStr.ExistenceJoin;
+                joinType = JoinOperatorT.LeftOuterJoin;
                 options.existenceCol = globalStruct.existenceCol.rename;
             } else {
                 switch (joinNode.value.joinType.object) {
@@ -3462,10 +3526,10 @@
                         joinType = JoinOperatorT.FullOuterJoin;
                         break;
                     case ("org.apache.spark.sql.catalyst.plans.LeftSemi$"):
-                        joinType = JoinCompoundOperatorTStr.LeftSemiJoin;
+                        joinType = JoinOperatorT.LeftSemiJoin;
                         break;
                     case ("org.apache.spark.sql.catalyst.plans.LeftAnti$"):
-                        joinType = JoinCompoundOperatorTStr.LeftAntiSemiJoin;
+                        joinType = JoinOperatorT.LeftAntiJoin;
                         break;
                     default:
                         assert(0, SQLErrTStr.UnsupportedJoin +
@@ -3980,7 +4044,7 @@
         var retStruct = {};
 
         if (leftMapArray.length + leftCols.length === 0) {
-            assert(rightCols.length + rightCols.length === 0,
+            assert(rightMapArray.length + rightCols.length === 0,
                    SQLErrTStr.JoinConditionMismatch);
             retStruct.catchAll = true;
             retStruct.filterSubtrees = filterSubtrees;
@@ -3992,6 +4056,24 @@
                          filterSubtrees: filterSubtrees};
         }
         return retStruct;
+    }
+
+    function __mapExistenceColumn(globalStruct, joinNode) {
+        var self = this;
+        var deferred = PromiseHelper.deferred();
+
+        var joinTablename = globalStruct.newTableName;
+        var checkCol = globalStruct.colForExistCheck;
+        var finalEvalStr = "exists(" + __getCurrentName(checkCol) + ")";
+
+        self.map(finalEvalStr, joinTablename, __getCurrentName(globalStruct.existenceCol))
+        .then(function(ret) {
+            globalStruct.newTableName = ret.newTableName;
+            globalStruct.cli += ret.cli;
+            deferred.resolve();
+        })
+        .fail(deferred.reject);
+        return deferred.promise();
     }
 
     function __resolveCollision(leftCols, rightCols, leftRename, rightRename,
@@ -4452,12 +4534,12 @@
         var gbArgs = [];
         for (var i = 0; i < operators.length; i++) {
             gbArgs.push({operator: operators[i], aggColName: aggColNames[i],
-                         newColName: windowStruct.tempGBCols[i],
-                         newTableName: windowStruct.gbTableName})
+                         newColName: windowStruct.tempGBCols[i]})
         }
         sqlObj.groupBy(groupByCols.map(function(col) {
                             return __getCurrentName(col);}),
-                        gbArgs, windowStruct.origTableName, {})
+                        gbArgs, windowStruct.origTableName,
+                        {newTableName: windowStruct.gbTableName})
         .then(function(ret) {
             deferred.resolve(ret);
         })
@@ -4723,7 +4805,7 @@
                     return __groupByAndJoinBack(self.sqlObj, ret,
                                 [gbOpName], groupByCols,
                                 [__getCurrentName(indexColStruct)],
-                                JoinCompoundOperatorTStr.LeftSemiJoin,
+                                JoinOperatorT.LeftSemiJoin,
                                 windowStruct);
                 })
                 // Inner join original table and temp table

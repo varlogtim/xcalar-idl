@@ -721,7 +721,9 @@ declare enum JoinOperatorT {
     LeftOuterJoin,
     RightOuterJoin,
     FullOuterJoin,
-    CrossJoin
+    CrossJoin,
+    LeftSemiJoin,
+    LeftAntiJoin
 }
 
 declare enum JoinOperatorTFromStr {
@@ -729,7 +731,9 @@ declare enum JoinOperatorTFromStr {
     leftJoin,
     rightJoin,
     fullOuterJoin,
-    crossJoin
+    crossJoin,
+    leftSemiJoin,
+    leftAntiJoin
 }
 
 declare enum UnionOperatorTStr {

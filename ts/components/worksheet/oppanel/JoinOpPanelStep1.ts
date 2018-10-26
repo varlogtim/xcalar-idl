@@ -17,8 +17,8 @@ class JoinOpPanelStep1 {
         { text: JoinTStr.joinTypeRight, value: JoinOperatorTStr[JoinOperatorT.RightOuterJoin] },
         { text: JoinTStr.joinTypeFull, value: JoinOperatorTStr[JoinOperatorT.FullOuterJoin] },
         { text: JoinTStr.joinTypeSepAdv, cssClass: ['sectionLabel'], isNotMenuItem: true },
-        { text: JoinTStr.joinTypeLeftSemi, value: JoinCompoundOperatorTStr.LeftSemiJoin, cssClass: ['advanced'] },
-        { text: JoinTStr.joinTypeLeftAnti, value: JoinCompoundOperatorTStr.LeftAntiSemiJoin, cssClass: ['advanced'] },
+        { text: JoinTStr.joinTypeLeftSemi, value: JoinOperatorTStr[JoinOperatorT.LeftSemiJoin], cssClass: ['advanced'] },
+        { text: JoinTStr.joinTypeLeftAnti, value: JoinOperatorTStr[JoinOperatorT.LeftAntiJoin], cssClass: ['advanced'] },
         { text: JoinTStr.joinTypeCross, value: JoinOperatorTStr[JoinOperatorT.CrossJoin], cssClass: ['advanced'] },
     ];
     public constructor(props: {
@@ -284,9 +284,9 @@ class JoinOpPanelStep1 {
                 return JoinTStr.joinTypeLeft;
             case JoinOperatorTStr[JoinOperatorT.RightOuterJoin]:
                 return JoinTStr.joinTypeRight;
-            case JoinCompoundOperatorTStr.LeftSemiJoin:
+            case JoinOperatorTStr[JoinOperatorT.LeftSemiJoin]:
                 return JoinTStr.joinTypeLeftSemi;
-            case JoinCompoundOperatorTStr.LeftAntiSemiJoin:
+            case JoinOperatorTStr[JoinOperatorT.LeftAntiJoin]:
                 return JoinTStr.joinTypeLeftAnti;
             case JoinOperatorTStr[JoinOperatorT.CrossJoin]:
                 return JoinTStr.joinTypeCross;
